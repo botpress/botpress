@@ -66,7 +66,8 @@
 
       let lastConfig = {
         host: window.location.origin || 'http://localhost:3000',
-        botId: botId
+        botId: botId,
+        lazySocket: false
         /*
         To change the styling of the webchat, you can either edit directly default.css, or use the extraStylesheet property.
         This allows you to customize the chat on a per-bot basis.
@@ -156,7 +157,7 @@
           botId: botId,
           userId: Math.random()
             .toString()
-            .slice(-4),
+            .slice(-25),
           showConversationsButton: false,
           botName: 'Chat window #2',
           className: 'chat2',

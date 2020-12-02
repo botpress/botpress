@@ -246,7 +246,7 @@ export default async (bp: typeof sdk, db: Database) => {
   })
 
   function validateUserId(userId: string) {
-    if (!userId || userId.length > USER_ID_MAX_LENGTH) {
+    if (!userId || userId.length > USER_ID_MAX_LENGTH || userId.toLowerCase() === 'undefined') {
       return false
     }
 

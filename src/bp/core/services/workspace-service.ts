@@ -1,10 +1,20 @@
-import { AddWorkspaceUserOptions, Logger, RolloutStrategy, WorkspaceRollout } from 'botpress/sdk'
+import {
+  AddWorkspaceUserOptions,
+  GetWorkspaceUsersOptions,
+  Logger,
+  RolloutStrategy,
+  StrategyUser,
+  WorkspaceRollout,
+  WorkspaceUser,
+  WorkspaceUserWithAttributes
+} from 'botpress/sdk'
 import { CHAT_USER_ROLE, defaultPipelines, defaultWorkspace } from 'common/defaults'
-import { AuthRole, CreateWorkspace, Pipeline, Workspace, WorkspaceUser } from 'common/typings'
+import { AuthRole, CreateWorkspace, Pipeline, Workspace } from 'common/typings'
+import { ConfigProvider } from 'core/config/config-loader'
 import { WorkspaceInviteCode, WorkspaceInviteCodesRepository } from 'core/repositories'
 import { StrategyUsersRepository } from 'core/repositories/strategy_users'
-import { WorkspaceUserAttributes, WorkspaceUsersRepository } from 'core/repositories/workspace_users'
-import { BadRequestError, ConflictError, NotFoundError } from 'core/routers/errors'
+import { WorkspaceUsersRepository } from 'core/repositories/workspace_users'
+import { ConflictError, NotFoundError } from 'core/routers/errors'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
@@ -33,7 +43,8 @@ export class WorkspaceService {
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.WorkspaceUsersRepository) private workspaceRepo: WorkspaceUsersRepository,
     @inject(TYPES.StrategyUsersRepository) private usersRepo: StrategyUsersRepository,
-    @inject(TYPES.WorkspaceInviteCodesRepository) private inviteCodesRepo: WorkspaceInviteCodesRepository
+    @inject(TYPES.WorkspaceInviteCodesRepository) private inviteCodesRepo: WorkspaceInviteCodesRepository,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {}
 
   async initialize(): Promise<void> {
@@ -248,34 +259,54 @@ export class WorkspaceService {
     }))
   }
 
-  async getWorkspaceUsers(workspace: string) {
-    return this.workspaceRepo.getWorkspaceUsers(workspace)
-  }
-
-  async getWorkspaceUsersAttributes(
+  async getWorkspaceUsers(
     workspace: string,
-    filteredAttributes?: string[]
-  ): Promise<WorkspaceUserAttributes[]> {
-    const workspaceUsers = await this.workspaceRepo.getWorkspaceUsers(workspace)
-    const uniqStrategies = _.uniq(_.map(workspaceUsers, 'strategy'))
-    const usersInfo = await this._getUsersAttributes(workspaceUsers, uniqStrategies, filteredAttributes)
+    options: Partial<GetWorkspaceUsersOptions> = {}
+  ): Promise<WorkspaceUser[] | WorkspaceUserWithAttributes[]> {
+    const opts: GetWorkspaceUsersOptions = { attributes: [], includeSuperAdmins: false, ...options }
 
-    return workspaceUsers.map(u => ({ ...u, attributes: usersInfo[u.email.toLowerCase()] }))
+    const superAdmins = opts.includeSuperAdmins ? await this.getSuperAdmins(workspace) : []
+    const workspaceUsers = [...superAdmins, ...(await this.workspaceRepo.getWorkspaceUsers(workspace))]
+
+    if (!opts.attributes.length || (typeof opts.attributes === 'string' && opts.attributes !== '*')) {
+      return workspaceUsers
+    }
+
+    const uniqStrategies = _(workspaceUsers)
+      .map('strategy')
+      .uniq()
+      .value()
+    const attrToFetch = opts.attributes === '*' ? undefined : opts.attributes
+    const allUsersAttrs = await this._getUsersAttributes(workspaceUsers, uniqStrategies, attrToFetch)
+
+    return workspaceUsers.map(u => ({
+      ..._.omit(u, ['password', 'salt']),
+      attributes: allUsersAttrs[u.email.toLowerCase()]
+    })) as WorkspaceUserWithAttributes[]
   }
 
-  private async _getUsersAttributes(users: WorkspaceUser[], strategies: string[], attributes: any) {
-    const attr = {}
-    const usersInfo = _.flatten(
-      await Promise.map(strategies, strategy => this._getUsersInfoForStrategy(users, strategy, attributes))
-    )
-
-    usersInfo.forEach(u => (attr[u.email] = { ...u.attributes, createdOn: u.createdOn, updatedOn: u.updatedOn }))
-    return attr
+  private async getSuperAdmins(workspace: string): Promise<WorkspaceUser[]> {
+    return (await this.configProvider.getBotpressConfig()).superAdmins.map(u => ({
+      ...(u as StrategyUser),
+      role: 'admin', // purposefully marked as admin and not superadmin
+      workspace
+    }))
   }
 
-  private async _getUsersInfoForStrategy(users: WorkspaceUser[], strategy: string, attributes: any) {
-    const emails = users.filter(x => x.strategy === strategy).map(x => x.email)
-    return this.usersRepo.getMultipleUserAttributes(emails, strategy, attributes)
+  private async _getUsersAttributes(
+    users: WorkspaceUser[],
+    strategies: string[],
+    attributes: string[] | undefined
+  ): Promise<{ [email: string]: object }> {
+    const userStrategyInfo = await Promise.map(strategies, strategy => {
+      const emails = users.filter(u => u.strategy === strategy).map(u => u.email)
+      return this.usersRepo.getMultipleUserAttributes(emails, strategy, attributes)
+    })
+
+    return _.flatten(userStrategyInfo).reduce((attrs, userInfo) => {
+      attrs[userInfo.email] = { ...attrs[userInfo.email], ...userInfo.attributes }
+      return attrs
+    }, {})
   }
 
   async getUniqueCollaborators(): Promise<number> {
@@ -315,6 +346,7 @@ export class WorkspaceService {
     return !!pipeline && pipeline.length > 1
   }
 
+  // @deprecated
   async listUsers(workspaceId?: string): Promise<WorkspaceUser[]> {
     if (workspaceId) {
       return this.getWorkspaceUsers(workspaceId)

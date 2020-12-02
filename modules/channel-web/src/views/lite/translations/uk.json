@@ -1,5 +1,6 @@
 {
   "composer.placeholder": "Відповісти {name}",
+  "composer.placeholderInit": "Скажи щось {name}",
   "composer.send": "Надіслати",
   "header.conversations": "Розмови",
   "conversationList.untitledConversation": "Розмова без назви",

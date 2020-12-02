@@ -3,7 +3,9 @@ import Joi from 'joi'
 import _ from 'lodash'
 import yn from 'yn'
 
-import legacyElectionPipeline from './legacy-election'
+import legacyElectionPipeline from './election/legacy-election'
+import mergeSpellChecked from './election/spellcheck-handler'
+import { PredictOutput } from './election/typings'
 import { getTrainingSession } from './train-session-service'
 import { NLUState } from './typings'
 
@@ -53,7 +55,21 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
     try {
       // TODO: language should be a path param of route
-      let nlu = await state.engine.predict(value.text, value.contexts, modelId)
+
+      let nlu: sdk.IO.EventUnderstanding
+
+      const spellChecked = await state.engine.spellCheck(value.text, modelId)
+      if (spellChecked !== value.text) {
+        const originalPrediction = (await state.engine.predict(value.text, value.contexts, modelId)) as PredictOutput
+        const spellCheckedPrediction = (await state.engine.predict(
+          spellChecked,
+          value.contexts,
+          modelId
+        )) as PredictOutput
+        nlu = mergeSpellChecked(originalPrediction, spellCheckedPrediction)
+      } else {
+        nlu = await state.engine.predict(value.text, value.contexts, modelId)
+      }
       nlu = legacyElectionPipeline(nlu)
       res.send({ nlu })
     } catch (err) {

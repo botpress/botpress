@@ -1,7 +1,8 @@
 import { Callout, InputGroup } from '@blueprintjs/core'
+import { WorkspaceUserWithAttributes } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import { CHAT_USER_ROLE } from 'common/defaults'
-import { AuthRole, UserProfile, WorkspaceUserInfo } from 'common/typings'
+import { AuthRole, UserProfile } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
 import { connect } from 'react-redux'
@@ -14,7 +15,7 @@ const userFilterFields = ['email', 'attributes.firstname', 'attributes.lastname'
 
 interface StateProps {
   profile: UserProfile
-  users: WorkspaceUserInfo[]
+  users: WorkspaceUserWithAttributes[]
   loading: boolean
   roles: AuthRole[]
 }
@@ -45,7 +46,7 @@ const UserList: FC<Props> = props => {
   }
 
   const currentUserEmail = _.get(props.profile, 'email', '').toLowerCase()
-  const filteredUsers = filterList<WorkspaceUserInfo>(props.users, userFilterFields, filter)
+  const filteredUsers = filterList<WorkspaceUserWithAttributes>(props.users, userFilterFields, filter)
   const roles = [...props.roles, CHAT_USER_ROLE]
 
   return (
