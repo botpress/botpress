@@ -81,15 +81,15 @@ const BottomPanel = props => {
       </Tabs>
 
       <div className={cx(style.padded, style.fullWidth, { 'emulator-open': props.emulatorOpen })}>
-        {tab === 'logs' && <Logs commonButtons={commonButtons} />}
-        {tab === 'debugger' && (
-          <Debugger
-            eventId={eventId}
-            autoFocus={autoFocusDebugger}
-            setAutoFocus={handleAutoFocus}
-            commonButtons={commonButtons}
-          />
-        )}
+        <Logs commonButtons={commonButtons} hidden={tab !== 'logs'} />
+
+        <Debugger
+          eventId={eventId}
+          autoFocus={autoFocusDebugger}
+          setAutoFocus={handleAutoFocus}
+          commonButtons={commonButtons}
+          hidden={tab !== 'debugger'}
+        />
       </div>
     </div>
   )

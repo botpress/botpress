@@ -25,6 +25,7 @@ interface Props {
   toggleBottomPanel: () => void
   emulatorOpen: boolean
   commonButtons: any
+  hidden: boolean
 }
 
 interface State {
@@ -160,6 +161,9 @@ class BottomPanel extends React.Component<Props, State> {
   }
 
   render() {
+    if (this.props.hidden) {
+      return null
+    }
     const allLogs = [...this.state.initialLogs, ...this.logs]
     const LogsPanel = (
       <ul
