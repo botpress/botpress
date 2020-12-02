@@ -2,13 +2,18 @@ import * as sdk from 'botpress/sdk'
 import { asyncMiddleware as asyncMw } from 'common/http'
 
 import en from '../translations/en.json'
-import fr from '../translations/fr.json'
 import es from '../translations/es.json'
+import fr from '../translations/fr.json'
 
 const onServerReady = async (bp: typeof sdk) => {
   const asyncMiddleware = asyncMw(bp.logger)
   const router = bp.http.createRouterForBot('extensions')
   const config = (await bp.config.getBotpressConfig()).eventCollector
+
+  router.get('/config', async (req, res) => {
+    const config = await bp.config.getModuleConfigForBot('extensions', req.params.botId)
+    res.send(config)
+  })
 
   router.get('/events/update-frequency', async (_req, res) => {
     res.send({ collectionInterval: config.collectionInterval })

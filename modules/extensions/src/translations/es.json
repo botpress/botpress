@@ -16,7 +16,8 @@
       "optionsList": "Lista de opciones",
       "title": "Desplegable",
       "widthDesc": "El tamaño predeterminado muestra la selección y el botón en una línea. Cámbielo para adaptarlo a sus necesidades",
-      "widthTitle": "El ancho del componente (en píxeles)"
+      "widthTitle": "El ancho del componente (en píxeles)",
+      "useMarkdown": "Usar markdown"
     }
   },
   "processing": {
