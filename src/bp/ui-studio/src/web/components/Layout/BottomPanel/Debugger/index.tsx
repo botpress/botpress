@@ -34,6 +34,7 @@ interface Props {
   setAutoFocus: (newValue: boolean) => void
   commonButtons: any
   setDebuggerEvent: any
+  hidden: boolean
 }
 
 interface State {
@@ -196,6 +197,10 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   render() {
+    if (this.props.hidden) {
+      return null
+    }
+
     const hasEvent = !!this.state.event
     const ndu = _.get(this.state, 'event.ndu')
 
