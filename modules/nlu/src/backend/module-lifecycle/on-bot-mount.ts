@@ -20,7 +20,7 @@ const KVS_TRAINING_STATUS_KEY = 'nlu:trainingStatus'
 
 async function annouceNeedsTraining(bp: typeof sdk, botId: string, state: NLUState) {
   const { engine } = state
-  const { modelId: modelIdService } = bp.NLU
+  const { modelIdService } = bp.NLU
 
   const api = await createApi(bp, botId)
   const intentDefs = await api.fetchIntentsWithQNAs()
@@ -65,7 +65,7 @@ export function getOnBotMount(state: NLUState) {
     const bot = await bp.bots.getBotById(botId)
     const ghost = bp.ghost.forBot(botId)
 
-    const { modelId: modelIdService } = bp.NLU
+    const { modelIdService } = bp.NLU
     const modelService = new ModelService(modelIdService, ghost)
     await modelService.initialize()
 

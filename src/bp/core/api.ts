@@ -327,7 +327,7 @@ export class BotpressAPIProvider {
           isTrainingAlreadyStarted,
           isTrainingCanceled
         },
-        modelId: modelIdService
+        modelIdService
       }
     }
   }

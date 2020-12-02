@@ -490,7 +490,7 @@ declare module 'botpress/sdk' {
       spellCheck: (sentence: string, modelId: ModelId) => Promise<string>
     }
 
-    export const modelId: {
+    export const modelIdService: {
       toString: (modelId: ModelId) => string // to use ModelId as a key
       fromString: (stringId: string) => ModelId // to parse information from a key
       toId: (m: Model) => ModelId // keeps only minimal information to make an id

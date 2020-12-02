@@ -26,7 +26,7 @@ const DEFAULT_LISTING_OPTIONS: ListingOptions = {
 }
 
 export default class ModelService {
-  constructor(private _modelIdService: typeof sdk.NLU.modelId, private _ghost: sdk.ScopedGhostService) {}
+  constructor(private _modelIdService: typeof sdk.NLU.modelIdService, private _ghost: sdk.ScopedGhostService) {}
 
   async initialize() {
     // delete model files with invalid format

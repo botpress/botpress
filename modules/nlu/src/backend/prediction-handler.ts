@@ -9,7 +9,7 @@ export class PredictionHandler {
   constructor(
     private modelsByLang: _.Dictionary<sdk.NLU.ModelId>,
     private modelService: ModelService,
-    private modelIdService: typeof sdk.NLU.modelId,
+    private modelIdService: typeof sdk.NLU.modelIdService,
     private engine: sdk.NLU.Engine,
     private anticipatedLanguage: string,
     private defaultLanguage: string,

@@ -51,7 +51,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
         const predictionHandler = new PredictionHandler(
           modelsByLang,
           modelService,
-          bp.NLU.modelId,
+          bp.NLU.modelIdService,
           engine,
           anticipatedLanguage,
           defaultLanguage,

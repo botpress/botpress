@@ -109,7 +109,7 @@ const briefId = (factors: Partial<NLU.ModelIdFactors>): Partial<NLU.ModelId> => 
   return briefedId
 }
 
-const modelIdService: typeof NLU.modelId = {
+const modelIdService: typeof NLU.modelIdService = {
   toString,
   fromString,
   isId,
