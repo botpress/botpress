@@ -34,7 +34,7 @@ const disableScripts = (pkg: Package) => {
 
   scriptsToDisable.forEach(script => {
     if (pkg.scripts[script]) {
-      pkg.scripts['_' + script] = pkg.scripts[script]
+      pkg.scripts[`_${script}`] = pkg.scripts[script]
       delete pkg.scripts[script]
     }
   })

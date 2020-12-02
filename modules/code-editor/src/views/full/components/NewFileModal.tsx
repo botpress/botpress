@@ -36,7 +36,7 @@ const NewFileModal: FC<Props> = props => {
   const submit = async e => {
     e.preventDefault()
 
-    const finalName = name.endsWith('.js') || name.endsWith('.json') ? name : name + '.js'
+    const finalName = name.endsWith('.js') || name.endsWith('.json') ? name : `${name}.js`
 
     let content
     switch (props.selectedType) {
