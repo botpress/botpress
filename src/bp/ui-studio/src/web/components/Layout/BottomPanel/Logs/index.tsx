@@ -62,7 +62,7 @@ class BottomPanel extends React.Component<Props, State> {
 
   setupListener = () => {
     // @ts-ignore
-    EventBus.default.on('logs::' + window.BOT_ID, ({ id, level, message, args }) => {
+    EventBus.default.on(`logs::${window.BOT_ID}`, ({ id, level, message, args }) => {
       this.logs.push({
         ts: new Date(),
         id: nanoid(10),
@@ -105,7 +105,7 @@ class BottomPanel extends React.Component<Props, State> {
   renderEntry(log: LogEntry): JSX.Element {
     const time = moment(new Date(log.ts)).format('YYYY-MM-DD HH:mm:ss')
     return (
-      <li className={cn(logStyle.entry, logStyle[`level-${log.level}`])} key={'log-entry-' + log.id}>
+      <li className={cn(logStyle.entry, logStyle[`level-${log.level}`])} key={`log-entry-${log.id}`}>
         <span className={logStyle.time}>{time}</span>
         <span className={logStyle.level}>{log.level}</span>
         <span className={logStyle.message} dangerouslySetInnerHTML={{ __html: log.message }} />
