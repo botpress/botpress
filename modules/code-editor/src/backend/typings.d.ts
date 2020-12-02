@@ -1,7 +1,4 @@
 import { RequestWithUser } from 'common/typings'
-import Editor from './editor'
-
-export type EditorByBot = { [botId: string]: Editor }
 
 export interface TypingDefinitions {
   [file: string]: string
