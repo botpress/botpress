@@ -4,10 +4,11 @@ import MLToolkit from 'ml/toolkit'
 import { DucklingEntityExtractor } from './entities/duckling-extractor'
 import LangProvider from './language/language-provider'
 import { getPOSTagger, tagSentence } from './language/pos-tagger'
+import { halfmd5 } from './tools/crypto'
 import SeededLodashProvider from './tools/seeded-lodash'
-import { LanguageProvider, NLUVersionInfo, Token2Vec, Tools } from './typings'
+import { LanguageProvider, Tools } from './typings'
 
-const NLU_VERSION = '1.4.1'
+const NLU_VERSION = '2.0.0'
 
 const healthGetter = (languageProvider: LanguageProvider) => (): NLU.Health => {
   const { validProvidersCount, validLanguages } = languageProvider.getHealth()
@@ -18,10 +19,17 @@ const healthGetter = (languageProvider: LanguageProvider) => (): NLU.Health => {
   }
 }
 
-const versionGetter = (languageProvider: LanguageProvider) => (): NLUVersionInfo => {
+const versionGetter = (languageProvider: LanguageProvider) => (): NLU.Specifications => {
+  const { langServerInfo } = languageProvider
+  const { dim, domain, version } = langServerInfo
+
   return {
     nluVersion: NLU_VERSION,
-    langServerInfo: languageProvider.langServerInfo
+    languageServer: {
+      dimensions: dim,
+      domain,
+      version
+    }
   }
 }
 
@@ -74,7 +82,7 @@ export async function initializeTools(config: NLU.LanguageConfig, logger: NLU.Lo
     generateSimilarJunkWords: (vocab: string[], lang: string) => languageProvider.generateSimilarJunkWords(vocab, lang),
     getHealth: healthGetter(languageProvider),
     getLanguages: () => languageProvider.languages,
-    getVersionInfo: versionGetter(languageProvider),
+    getSpecifications: versionGetter(languageProvider),
     seededLodashProvider,
     mlToolkit: MLToolkit,
     duckling: new DucklingEntityExtractor(logger)

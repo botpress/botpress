@@ -11,11 +11,12 @@ export type PredictableModel = Omit<sdk.NLU.Model, 'data'> & {
 }
 
 export function serializeModel(model: PredictableModel): sdk.NLU.Model {
-  const { hash, languageCode, startedAt, finishedAt, data, seed } = model
+  const { specificationHash, contentHash, languageCode: lang, startedAt, finishedAt, data, seed } = model
 
   const serialized: sdk.NLU.Model = {
-    hash,
-    languageCode,
+    specificationHash,
+    contentHash,
+    languageCode: lang,
     startedAt,
     finishedAt,
     seed,
@@ -32,10 +33,11 @@ export function serializeModel(model: PredictableModel): sdk.NLU.Model {
 }
 
 export function deserializeModel(serialized: sdk.NLU.Model): PredictableModel {
-  const { hash, languageCode, startedAt, finishedAt, data, seed } = serialized
+  const { specificationHash, contentHash, languageCode, startedAt, finishedAt, data, seed } = serialized
 
   const model: PredictableModel = {
-    hash,
+    specificationHash,
+    contentHash,
     languageCode,
     startedAt,
     finishedAt,
