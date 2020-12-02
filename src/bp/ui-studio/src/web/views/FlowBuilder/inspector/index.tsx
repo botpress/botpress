@@ -69,6 +69,8 @@ class Inspector extends Component<Props> {
       currentFlow,
       currentFlowNode,
       onDeleteSelectedElements,
+      copyFlowNodeElement,
+      pasteFlowNodeElement,
       readOnly,
       refreshFlowsLinks,
       requestEditSkill,
@@ -128,8 +130,8 @@ class Inspector extends Component<Props> {
           node={currentFlowNode}
           updateNode={updateNodeAndRefresh}
           updateFlow={updateFlow}
-          copyFlowNodeElement={this.props.copyFlowNodeElement}
-          pasteFlowNodeElement={this.props.pasteFlowNodeElement}
+          copyFlowNodeElement={copyFlowNodeElement}
+          pasteFlowNodeElement={pasteFlowNodeElement}
           transitionOnly={nodeType === 'router'}
           buffer={buffer}
         />
