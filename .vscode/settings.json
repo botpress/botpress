@@ -55,7 +55,9 @@
     "string": "cpp",
     "__split_buffer": "cpp"
   },
-  "favorites.resources": ["out/bp/data/global/botpress.config.json"],
+  "favorites.resources": [
+    "out/bp/data"
+  ],
   "sqltools.connections": [
     {
       "askForPassword": false,
