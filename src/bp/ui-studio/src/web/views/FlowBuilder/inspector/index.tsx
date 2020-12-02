@@ -128,8 +128,8 @@ class Inspector extends Component<Props> {
           node={currentFlowNode}
           updateNode={updateNodeAndRefresh}
           updateFlow={updateFlow}
-          copyFlowNodeElement={copyFlowNodeElement}
-          pasteFlowNodeElement={pasteFlowNodeElement}
+          copyFlowNodeElement={this.props.copyFlowNodeElement}
+          pasteFlowNodeElement={this.props.pasteFlowNodeElement}
           transitionOnly={nodeType === 'router'}
           buffer={buffer}
         />
