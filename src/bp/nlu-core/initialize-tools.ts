@@ -4,7 +4,6 @@ import MLToolkit from 'ml/toolkit'
 import { DucklingEntityExtractor } from './entities/duckling-extractor'
 import LangProvider from './language/language-provider'
 import { getPOSTagger, tagSentence } from './language/pos-tagger'
-import { halfmd5 } from './tools/crypto'
 import SeededLodashProvider from './tools/seeded-lodash'
 import { LanguageProvider, Tools } from './typings'
 
