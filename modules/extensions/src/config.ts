@@ -1,7 +1,7 @@
 export interface Config {
-    /**
-     * Security configurations
-     */
+  /**
+   * Security configurations
+   */
   security: {
     /**
      * Weather or not to escape plain html payload
