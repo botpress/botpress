@@ -104,7 +104,11 @@ class RootStore {
 
   @computed
   get botAvatarUrl(): string {
-    return this.botInfo?.details?.avatarUrl || this.config?.avatarUrl
+    return (
+      this.botInfo?.details?.avatarUrl ||
+      this.config?.avatarUrl ||
+      (this.config.isEmulator && `${window.ROOT_PATH}/assets/modules/channel-web/images/emulator-default.svg`)
+    )
   }
 
   @computed
