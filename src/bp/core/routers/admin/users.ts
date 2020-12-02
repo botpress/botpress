@@ -1,5 +1,4 @@
-import { Logger } from 'botpress/sdk'
-import { WorkspaceUser } from 'common/typings'
+import { Logger, WorkspaceUser } from 'botpress/sdk'
 import AuthService from 'core/services/auth/auth-service'
 import { InvalidOperationError } from 'core/services/auth/errors'
 import { WorkspaceService } from 'core/services/workspace-service'
@@ -38,13 +37,8 @@ export class UsersRouter extends CustomRouter {
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const filterRoles = req.query.roles && req.query.roles.split(',')
-        const users = await this.workspaceService.getWorkspaceUsersAttributes(req.workspace!, [
-          'last_logon',
-          'firstname',
-          'lastname',
-          'picture_url',
-          'created_at'
-        ])
+        const attributes = ['last_logon', 'firstname', 'lastname', 'picture_url', 'created_at']
+        const users = await this.workspaceService.getWorkspaceUsers(req.workspace!, { attributes })
 
         return sendSuccess(
           res,

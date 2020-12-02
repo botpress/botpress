@@ -2,8 +2,8 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import en from '../translations/en.json'
-import fr from '../translations/fr.json'
 import es from '../translations/es.json'
+import fr from '../translations/fr.json'
 
 import api from './api'
 import { ScopedBots } from './qna'

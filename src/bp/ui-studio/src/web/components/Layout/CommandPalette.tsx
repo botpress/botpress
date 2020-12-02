@@ -51,7 +51,7 @@ const CommandPalette: FC<Props> = props => {
         url: `${window.location.origin}/s/${window.BOT_ID}`
       },
       {
-        label: lang.tr('toolbar.toggleLogsPanel'),
+        label: lang.tr('toolbar.toggleBottomPanel'),
         category: 'command',
         shortcut: 'ctrl+j',
         type: 'execute',

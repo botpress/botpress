@@ -5,16 +5,19 @@ import _ from 'lodash'
 import LRUCache from 'lru-cache'
 import sizeof from 'object-sizeof'
 
+import { deserializeKmeans } from './clustering'
 import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
 import DetectLanguage from './language/language-identifier'
+import makeSpellChecker from './language/spell-checker'
 import { deserializeModel, PredictableModel, serializeModel } from './model-serializer'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
-import { computeKmeans, ProcessIntents, TrainInput, TrainOutput } from './training-pipeline'
+import { ProcessIntents, TrainInput, TrainOutput } from './training-pipeline'
 import { TrainingWorkerQueue } from './training-worker-queue'
 import { EntityCacheDump, ListEntity, PatternEntity, Tools } from './typings'
+import { preprocessRawUtterance } from './utterance/utterance'
 import { getModifiedContexts, mergeModelOutputs } from './warm-training-handler'
 
 const trainDebug = DEBUG('nlu').sub('training')
@@ -227,17 +230,22 @@ export default class Engine implements NLU.Engine {
   private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {
     const tools = this._tools
 
+    const { ctx_model, intent_model_by_ctx, oos_model, list_entities, kmeans } = output
+
     /**
      * TODO: extract this function some place else,
      * Engine's predict() shouldn't be dependant of training pipeline...
      */
-    const intents = await ProcessIntents(input.intents, input.languageCode, output.list_entities, this._tools)
+    const intents = await ProcessIntents(input.intents, input.languageCode, list_entities, this._tools)
+
+    const warmKmeans = kmeans && deserializeKmeans(kmeans)
 
     const basePredictors: Predictors = {
       ...output,
       lang: input.languageCode,
       intents,
-      pattern_entities: input.pattern_entities
+      pattern_entities: input.pattern_entities,
+      kmeans: warmKmeans
     }
 
     if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
@@ -246,7 +254,6 @@ export default class Engine implements NLU.Engine {
       return basePredictors
     }
 
-    const { ctx_model, intent_model_by_ctx, oos_model } = output
     const ctx_classifier = ctx_model ? new tools.mlToolkit.SVM.Predictor(ctx_model) : undefined
     const intent_classifier_per_ctx = _.toPairs(intent_model_by_ctx).reduce(
       (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
@@ -263,15 +270,12 @@ export default class Engine implements NLU.Engine {
       slot_tagger.load(output.slots_model)
     }
 
-    const kmeans = computeKmeans(intents!, tools) // TODO load from artefacts when persisted
-
     return {
       ...basePredictors,
       ctx_classifier,
       oos_classifier_per_ctx: oos_classifier,
       intent_classifier_per_ctx,
-      slot_tagger,
-      kmeans
+      slot_tagger
     }
   }
 
@@ -289,6 +293,21 @@ export default class Engine implements NLU.Engine {
     }
 
     return Predict(input, this._tools, loaded.predictors)
+  }
+
+  async spellCheck(sentence: string, modelId: string) {
+    const loaded = this.modelsById.get(modelId)
+    if (!loaded) {
+      throw new Error(`model ${modelId} not loaded`)
+    }
+
+    const preprocessed = preprocessRawUtterance(sentence)
+    const spellChecker = makeSpellChecker(
+      Object.keys(loaded.predictors.vocabVectors),
+      loaded.model.languageCode,
+      this._tools
+    )
+    return spellChecker(preprocessed)
   }
 
   async detectLanguage(text: string, modelsByLang: _.Dictionary<string>): Promise<string> {

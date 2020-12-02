@@ -3,8 +3,8 @@ import { isEmpty, merge } from 'lodash'
 import { createIntl, createIntlCache, IntlShape } from 'react-intl'
 
 import en from './en.json'
-import fr from './fr.json'
 import es from './es.json'
+import fr from './fr.json'
 
 const defaultLocale = 'en'
 let translations = {}

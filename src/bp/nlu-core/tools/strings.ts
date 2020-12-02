@@ -1,5 +1,8 @@
 import _ from 'lodash'
 
+const HORIZONTAL_ELLIPSIS = '\u2026'
+const THREE_DOTS = '...'
+
 /** Splits a string in all its N-grams */
 export function ngram(value: string, n: number): string[] {
   const nGrams: string[] = []
@@ -247,3 +250,6 @@ export const countSpecial = (candidate: string): number =>
   candidate.replace(/\s/g, '').length - countAlpha(candidate) - countNum(candidate)
 
 export const replaceConsecutiveSpaces = (input: string): string => input.replace(/(\s)+/g, ' ')
+
+export const replaceEllipsis = (input: string): string =>
+  input.replace(new RegExp(HORIZONTAL_ELLIPSIS, 'g'), THREE_DOTS)

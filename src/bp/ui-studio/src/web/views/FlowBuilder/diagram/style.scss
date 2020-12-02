@@ -7,7 +7,7 @@
 }
 
 :global(.emulator-open) {
-  padding-right: calc(var(--spacing-x-large) + var(--emulator-width) + var(--debugger-width)) !important;
+  padding-right: calc(var(--spacing-x-large) + var(--emulator-width)) !important;
 }
 
 .floatingInfo {

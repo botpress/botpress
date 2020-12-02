@@ -1,5 +1,5 @@
+import { WorkspaceUserWithAttributes } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
-import { WorkspaceUser } from 'common/typings'
 import _ from 'lodash'
 import moment from 'moment'
 import React, { FC } from 'react'
@@ -7,7 +7,7 @@ import React, { FC } from 'react'
 import UserActions from './UserActions'
 
 interface Props {
-  user: WorkspaceUser & { attributes: any }
+  user: WorkspaceUserWithAttributes
   showPicture: boolean
   currentUserEmail: string
   onUserUpdated: () => void
@@ -16,7 +16,7 @@ interface Props {
 
 const User: FC<Props> = ({ user, showPicture, currentUserEmail, onUserUpdated, onPasswordReset }) => {
   return (
-    <div className="bp_table-row bp_users-list" key={'user-' + user.email}>
+    <div className="bp_table-row bp_users-list" key={`user-${user.email}`}>
       <div style={{ display: 'flex' }}>
         {showPicture && (
           <div className="bp_users-picture">
@@ -41,7 +41,7 @@ const User: FC<Props> = ({ user, showPicture, currentUserEmail, onUserUpdated, o
         <div className="dates">
           <span className="field">
             <b>{lang.tr('admin.workspace.users.collaborators.created')}: </b>
-            {moment(user.attributes.created_at || user.attributes.createdOn).fromNow()}
+            {moment(user.attributes.created_at).fromNow()}
           </span>
           <span className="field">
             <b>{lang.tr('admin.workspace.users.collaborators.lastLogin')}: </b>

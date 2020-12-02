@@ -82,15 +82,20 @@ export class StrategyUsersRepository {
       )
     )
 
-    const json = this.database.knex.json
-
-    return users.map(user => ({
-      strategy,
-      email: user.email.toLowerCase(),
-      createdOn: user['created_at'],
-      updatedOn: user['updated_at'],
-      attributes: filteredAttributes ? _.pick(json.get(user.attributes), filteredAttributes) : json.get(user.attributes)
-    }))
+    return users.map(user => {
+      const parsedAttrs = {
+        ...this.database.knex.json.get(user.attributes),
+        created_at: user['created_at'],
+        updated_at: user['updated_at']
+      }
+      return {
+        strategy,
+        email: user.email.toLowerCase(),
+        createdOn: user['created_at'],
+        updatedOn: user['updated_at'],
+        attributes: filteredAttributes ? _.pick(parsedAttrs, filteredAttributes) : parsedAttrs
+      }
+    })
   }
 
   async updateAttributes(email: string, strategy: string, attributes: any): Promise<void> {

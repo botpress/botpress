@@ -3,7 +3,7 @@ import bytes from 'bytes'
 import _ from 'lodash'
 
 import { Config } from '../../config'
-import legacyElectionPipeline from '../legacy-election'
+import legacyElectionPipeline from '../election/legacy-election'
 import { getLatestModel } from '../model-service'
 import { PredictionHandler } from '../prediction-handler'
 import { setTrainingSession } from '../train-session-service'
