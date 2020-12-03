@@ -13,7 +13,7 @@ const escapeHtmlSimple = (str: string) => {
     .replace(/`/g, '&#96;')
 }
 
-export const URL_FOLDER_SEPERATOR = '|!|slash|!|'
+export const URL_FOLDER_SEPERATOR = '!!'
 
 const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
