@@ -41,7 +41,7 @@ export default class TrainService {
         languageCode: language,
         seed: nluSeed
       }
-      const model = await this.engine.train(ts.key, trainSet, { progressCallback }) // TODO: use previous model for warm training
+      const model = await this.engine.train(ts.key, trainSet, { progressCallback })
       this.logger.info(`[${stringId}] Training Done.`)
 
       await this.modelRepo.saveModel(model, password)
