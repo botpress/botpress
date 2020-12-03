@@ -31,7 +31,7 @@ export default class ModelService {
   async initialize() {
     // delete model files with invalid format
     const invalidModelFile = _.negate(this._modelIdService.isId)
-    const invalidModelsFiles = await this._listModels().filter(invalidModelFile)
+    const invalidModelsFiles = (await this._listModels()).filter(invalidModelFile)
     return Promise.map(invalidModelsFiles, file => this._ghost.deleteFile(MODELS_DIR, file))
   }
 
@@ -41,7 +41,7 @@ export default class ModelService {
    * @returns the corresponding model
    */
   public async getModel(modelId: sdk.NLU.ModelId): Promise<sdk.NLU.Model | undefined> {
-    const fname = this.makeFileName(modelId)
+    const fname = this._makeFileName(this._modelIdService.toString(modelId))
     if (!(await this._ghost.fileExists(MODELS_DIR, fname))) {
       return
     }
@@ -80,7 +80,7 @@ export default class ModelService {
 
   public async saveModel(model: sdk.NLU.Model): Promise<void | void[]> {
     const serialized = JSON.stringify(model)
-    const modelName = this.makeFileName(model)
+    const modelName = this._makeFileName(this._modelIdService.toString(model))
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
     const tmpFileName = path.join(tmpDir.name, 'model')
     await fse.writeFile(tmpFileName, serialized)
@@ -116,36 +116,35 @@ export default class ModelService {
     const filter = options.negateFilter ? _.negate(baseFilter) : baseFilter
     const validModels = allModelsFileName
       .filter(this._modelIdService.isId)
-      .map(this.parseFileName)
+      .map(this._modelIdService.fromString)
       .filter(filter)
 
     return validModels
   }
 
-  private _listModels = (): Promise<string[]> => {
+  private _listModels = async (): Promise<string[]> => {
     const endingPattern = `*.${MODEL_EXTENSION}`
-    return this._ghost.directoryListing(MODELS_DIR, endingPattern, undefined, undefined, {
+    const fileNames = await this._ghost.directoryListing(MODELS_DIR, endingPattern, undefined, undefined, {
       sortOrder: { column: 'modifiedOn', desc: true }
     })
+    return fileNames.map(this._parseFileName)
   }
 
   public async pruneModels(models: sdk.NLU.ModelId[], opt: Partial<PruningOptions> = {}): Promise<void | void[]> {
     const options = { ...DEFAULT_PRUNING_OPTIONS, ...opt }
 
-    const modelsFileNames = models.map(this.makeFileName)
+    const modelsFileNames = models.map(this._modelIdService.toString).map(this._makeFileName)
     const toKeep = options.toKeep ?? 0
     if (modelsFileNames.length > toKeep) {
       return Promise.map(modelsFileNames.slice(toKeep), file => this._ghost.deleteFile(MODELS_DIR, file))
     }
   }
 
-  private makeFileName(modelId: sdk.NLU.ModelId): string {
-    const stringId = this._modelIdService.toString(modelId)
-    return `${stringId}.${MODEL_EXTENSION}`
+  private _makeFileName(modelId: string): string {
+    return `${modelId}.${MODEL_EXTENSION}`
   }
 
-  private parseFileName(fileName: string): sdk.NLU.ModelId {
-    const stringId = fileName.replace(`.${MODEL_EXTENSION}`, '')
-    return this._modelIdService.fromString(stringId)
+  private _parseFileName(fileName: string): string {
+    return fileName.replace(`.${MODEL_EXTENSION}`, '')
   }
 }
