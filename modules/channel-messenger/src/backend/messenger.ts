@@ -94,7 +94,7 @@ export class MessengerService {
         const errorMessage = _.get(error, 'response.data.error.message', 'are you sure your Access Token is valid?')
         return this.bp.logger
           .forBot(botId)
-          .error('Could not register bot, ' + errorMessage + '. Messenger Channel is disabled for this bot.')
+          .error(`Could not register bot, ${errorMessage}. Messenger Channel is disabled for this bot.`)
       }
     }
   }
