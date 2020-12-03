@@ -1,6 +1,7 @@
 import React from 'react'
 import Select from 'react-select'
 import Creatable from 'react-select/lib/Creatable'
+import _ from 'lodash'
 import { renderUnsafeHTML } from '../utils'
 
 export class Dropdown extends React.Component {
@@ -10,8 +11,11 @@ export class Dropdown extends React.Component {
   }
 
   async componentDidMount() {
-    const config = await this.props.bp.axios.get('/mod/extensions/config')
-
+    const { data } = await this.props.bp.axios.get('/mod/extensions/config')
+    if (data) {
+      const escapeHTML = _.get(data, 'security.escapeHTML', false)
+      this.setState({ escapeHTML })
+    }
     if (this.props.options) {
       const options = this.props.options.map(x => {
         return {
@@ -19,10 +23,7 @@ export class Dropdown extends React.Component {
           label: x.label
         }
       })
-      this.setState({
-        escapeHTML: config ? config.security.escapeHTML : false,
-        options
-      })
+      this.setState({ options })
     }
   }
 
