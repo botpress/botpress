@@ -1,4 +1,4 @@
-import { Colors, Position, Spinner, Tooltip } from '@blueprintjs/core'
+import { Position, Spinner, Tooltip } from '@blueprintjs/core'
 import cx from 'classnames'
 import _, { Dictionary } from 'lodash'
 import React, { FC } from 'react'

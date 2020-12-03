@@ -135,7 +135,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   // handles agent <-> user event piping
   // - Handoffs must be accessible both via their respective agent thread ID and user thread ID
   // for two-way message piping
-  const warmup = () => {
+  const warmup = async () => {
     return repository.listActiveHandoffs().then((handoffs: IHandoff[]) => {
       handoffs.forEach(handoff => {
         handoff.agentThreadId && cacheHandoff(handoff.botId, handoff.agentThreadId, handoff)

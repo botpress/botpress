@@ -120,7 +120,7 @@ export default async (bp: typeof sdk, state: StateType) => {
     errorMiddleware(async (req: Request, res: Response) => {
       const handoffs = await repository.listHandoffs(
         req.params.botId,
-        _.pick(req.query, ['limit', 'column', 'desc']) as CollectionConditions
+        _.pick<CollectionConditions>(req.query, ['limit', 'column', 'desc'])
       )
       res.send(handoffs)
     })
@@ -351,7 +351,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       const messages = await repository.listMessages(
         req.params.botId,
         req.params.id,
-        _.pick(req.query, ['limit', 'column', 'desc']) as CollectionConditions
+        _.pick<CollectionConditions>(req.query, ['limit', 'column', 'desc'])
       )
 
       res.send(messages)

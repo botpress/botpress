@@ -1,7 +1,7 @@
-import { Collapsible, lang, Tabs } from 'botpress/shared'
+import { lang, Tabs } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
-import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
+import React, { FC } from 'react'
 
 import { IHandoff } from '../../../../types'
 import style from '../../style.scss'
