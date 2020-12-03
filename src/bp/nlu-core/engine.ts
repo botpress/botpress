@@ -5,16 +5,19 @@ import _ from 'lodash'
 import LRUCache from 'lru-cache'
 import sizeof from 'object-sizeof'
 
+import { deserializeKmeans } from './clustering'
 import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
 import DetectLanguage from './language/language-identifier'
+import makeSpellChecker from './language/spell-checker'
 import { deserializeModel, PredictableModel, serializeModel } from './model-serializer'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
-import { computeKmeans, ProcessIntents, TrainInput, TrainOutput } from './training-pipeline'
+import { ProcessIntents, TrainInput, TrainOutput } from './training-pipeline'
 import { TrainingWorkerQueue } from './training-worker-queue'
 import { EntityCacheDump, ListEntity, PatternEntity, Tools } from './typings'
+import { preprocessRawUtterance } from './utterance/utterance'
 import { getModifiedContexts, mergeModelOutputs } from './warm-training-handler'
 
 const trainDebug = DEBUG('nlu').sub('training')
@@ -45,6 +48,7 @@ export default class Engine implements NLU.Engine {
       max: options.maxCacheSize,
       length: sizeof // ignores size of functions, but let's assume it's small
     })
+    trainDebug(`model cache size is: ${bytes(options.maxCacheSize)}`)
   }
 
   public getHealth() {
@@ -187,25 +191,33 @@ export default class Engine implements NLU.Engine {
   }
 
   async loadModel(serialized: NLU.Model, modelId: string) {
+    trainDebug(`Load model ${modelId}`)
     if (this.hasModel(modelId)) {
+      trainDebug(`Model ${modelId} already loaded.`)
       return
     }
 
     const model = deserializeModel(serialized)
-    const modelSize = sizeof(model)
+    const { input, output } = model.data
+
+    const modelCacheItem: LoadedModel = {
+      model,
+      predictors: await this._makePredictors(input, output),
+      entityCache: this._makeCacheManager(output)
+    }
+
+    const modelSize = sizeof(modelCacheItem)
+    trainDebug(`Size of model #${modelId} is ${bytes(modelSize)}`)
+
     if (modelSize >= this.modelsById.max) {
       const msg = `Can't load model ${modelId} as it is bigger than the maximum allowed size`
       const details = `model size: ${bytes(modelSize)}, max allowed: ${bytes(this.modelsById.max)}`
       throw new Error(`${msg} (${details}).`)
     }
 
-    const { input, output } = model.data
-
-    this.modelsById.set(modelId, {
-      model,
-      predictors: await this._makePredictors(input, output),
-      entityCache: this._makeCacheManager(output)
-    })
+    this.modelsById.set(modelId, modelCacheItem)
+    trainDebug('Model loaded with success')
+    trainDebug(`Model cache entries are: [${this.modelsById.keys().join(', ')}]`)
   }
 
   private _makeCacheManager(output: TrainOutput) {
@@ -218,17 +230,22 @@ export default class Engine implements NLU.Engine {
   private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {
     const tools = this._tools
 
+    const { ctx_model, intent_model_by_ctx, oos_model, list_entities, kmeans } = output
+
     /**
      * TODO: extract this function some place else,
      * Engine's predict() shouldn't be dependant of training pipeline...
      */
-    const intents = await ProcessIntents(input.intents, input.languageCode, output.list_entities, this._tools)
+    const intents = await ProcessIntents(input.intents, input.languageCode, list_entities, this._tools)
+
+    const warmKmeans = kmeans && deserializeKmeans(kmeans)
 
     const basePredictors: Predictors = {
       ...output,
       lang: input.languageCode,
       intents,
-      pattern_entities: input.pattern_entities
+      pattern_entities: input.pattern_entities,
+      kmeans: warmKmeans
     }
 
     if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
@@ -237,7 +254,6 @@ export default class Engine implements NLU.Engine {
       return basePredictors
     }
 
-    const { ctx_model, intent_model_by_ctx, oos_model } = output
     const ctx_classifier = ctx_model ? new tools.mlToolkit.SVM.Predictor(ctx_model) : undefined
     const intent_classifier_per_ctx = _.toPairs(intent_model_by_ctx).reduce(
       (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
@@ -254,15 +270,12 @@ export default class Engine implements NLU.Engine {
       slot_tagger.load(output.slots_model)
     }
 
-    const kmeans = computeKmeans(intents!, tools) // TODO load from artefacts when persisted
-
     return {
       ...basePredictors,
       ctx_classifier,
       oos_classifier_per_ctx: oos_classifier,
       intent_classifier_per_ctx,
-      slot_tagger,
-      kmeans
+      slot_tagger
     }
   }
 
@@ -282,10 +295,31 @@ export default class Engine implements NLU.Engine {
     return Predict(input, this._tools, loaded.predictors)
   }
 
+  async spellCheck(sentence: string, modelId: string) {
+    const loaded = this.modelsById.get(modelId)
+    if (!loaded) {
+      throw new Error(`model ${modelId} not loaded`)
+    }
+
+    const preprocessed = preprocessRawUtterance(sentence)
+    const spellChecker = makeSpellChecker(
+      Object.keys(loaded.predictors.vocabVectors),
+      loaded.model.languageCode,
+      this._tools
+    )
+    return spellChecker(preprocessed)
+  }
+
   async detectLanguage(text: string, modelsByLang: _.Dictionary<string>): Promise<string> {
+    trainDebug(`Detecting language for input: "${text}"`)
+
     const predictorsByLang = _.mapValues(modelsByLang, id => this.modelsById.get(id)?.predictors)
     if (!this._dictionnaryIsFilled(predictorsByLang)) {
-      throw new Error(`one of models is not loaded: ${modelsByLang}`)
+      const missingLangs = _(predictorsByLang)
+        .pickBy(pred => _.isUndefined(pred))
+        .keys()
+        .value()
+      throw new Error(`No models loaded for the following languages: [${missingLangs.join(', ')}]`)
     }
     return DetectLanguage(text, predictorsByLang, this._tools)
   }

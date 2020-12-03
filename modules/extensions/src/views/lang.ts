@@ -2,9 +2,10 @@ import lang from 'common/lang'
 
 import en from '../translations/en.json'
 import fr from '../translations/fr.json'
+import es from '../translations/es.json'
 
 const defaultLocale = 'en'
-const translations = { fr, en }
+const translations = { fr, en, es }
 let locale = ''
 let isDev: boolean
 

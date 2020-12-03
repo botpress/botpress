@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { serializeKmeans } from './clustering'
 import { extractListEntitiesWithCache, extractPatternEntities } from './entities/custom-entity-extractor'
 import { warmEntityCache } from './entities/entity-cache-manager'
 import { getCtxFeatures } from './intents/context-featurizer'
@@ -20,6 +21,7 @@ import {
   ListEntity,
   ListEntityModel,
   PatternEntity,
+  SerializedKmeansResult,
   TFIDF,
   Token2Vec,
   Tools,
@@ -59,7 +61,7 @@ export interface TrainOutput {
   list_entities: ColdListEntityModel[]
   tfidf: TFIDF
   vocabVectors: Token2Vec
-  // kmeans: KmeansResult
+  kmeans: SerializedKmeansResult | undefined
   contexts: string[]
   ctx_model: string
   intent_model_by_ctx: Dic<string>
@@ -567,7 +569,7 @@ export const Trainer = async (
     slots_model: slots_model!,
     vocabVectors: step.vocabVectors,
     exact_match_index,
-    // kmeans: {} add this when mlKmeans supports loading from serialized data,
+    kmeans: step.kmeans && serializeKmeans(step.kmeans),
     contexts: input.contexts
   }
 

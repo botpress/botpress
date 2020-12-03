@@ -1,4 +1,5 @@
 import isBefore from 'date-fns/is_before'
+import isValid from 'date-fns/is_valid'
 import merge from 'lodash/merge'
 import { action, computed, observable, runInAction } from 'mobx'
 import ms from 'ms'
@@ -103,7 +104,11 @@ class RootStore {
 
   @computed
   get botAvatarUrl(): string {
-    return this.botInfo?.details?.avatarUrl || this.config?.avatarUrl
+    return (
+      this.botInfo?.details?.avatarUrl ||
+      this.config?.avatarUrl ||
+      (this.config.isEmulator && `${window.ROOT_PATH}/assets/modules/channel-web/images/emulator-default.svg`)
+    )
   }
 
   @computed
@@ -122,13 +127,19 @@ class RootStore {
   }
 
   @action.bound
+  postMessage(name: string) {
+    const chatId = this.config.chatId
+    window.parent.postMessage({ name, chatId }, '*')
+  }
+
+  @action.bound
   updateMessages(messages) {
     this.currentConversation.messages = messages
   }
 
   @action.bound
   async addEventToConversation(event: Message): Promise<void> {
-    if (this.currentConversationId !== Number(event.conversationId)) {
+    if (this.isInitialized && this.currentConversationId !== Number(event.conversationId)) {
       await this.fetchConversations()
       await this.fetchConversation(Number(event.conversationId))
       return
@@ -144,7 +155,7 @@ class RootStore {
 
   @action.bound
   async updateTyping(event: Message): Promise<void> {
-    if (this.currentConversationId !== Number(event.conversationId)) {
+    if (this.isInitialized && this.currentConversationId !== Number(event.conversationId)) {
       await this.fetchConversations()
       await this.fetchConversation(Number(event.conversationId))
       return
@@ -166,6 +177,7 @@ class RootStore {
       await this.fetchConversation(this.config.conversationId)
       runInAction('-> setInitialized', () => {
         this.isInitialized = true
+        this.postMessage('webchatReady')
       })
     } catch (err) {
       console.error('Error while fetching data, creating new convo...', err)
@@ -403,7 +415,7 @@ class RootStore {
 
     this._typingInterval = setInterval(() => {
       const typeUntil = new Date(this.currentConversation && this.currentConversation.typingUntil)
-      if (!typeUntil || isBefore(typeUntil, new Date())) {
+      if (!typeUntil || !isValid(typeUntil) || isBefore(typeUntil, new Date())) {
         this._expireTyping()
       } else {
         this.emptyDelayedMessagesQueue(false)

@@ -98,12 +98,8 @@ describe('Raw token processing', () => {
 
   test('processUtteranceTokens with vocab should help tokenization', () => {
     const toks = [`${SPACE}i`, "'", 'm', `${SPACE}having`, `${SPACE}some`, `${SPACE}trouble`, `${SPACE}tol`, 'ogin']
-    const vocab = {
-      to: [1, 2, 3, 4],
-      login: [1, 2, 3, 4]
-    }
 
-    expect(processUtteranceTokens(toks, vocab)).toEqual([
+    expect(processUtteranceTokens(toks, ['to', 'login'])).toEqual([
       'i',
       "'",
       'm',

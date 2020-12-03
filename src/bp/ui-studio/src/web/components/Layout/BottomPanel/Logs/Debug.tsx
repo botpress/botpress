@@ -1,6 +1,7 @@
 import { Button, Intent } from '@blueprintjs/core'
 import axios from 'axios'
 import { lang, toast } from 'botpress/shared'
+import cx from 'classnames'
 import React from 'react'
 import CheckboxTree from 'react-checkbox-tree'
 import 'react-checkbox-tree/lib/react-checkbox-tree.css'
@@ -76,49 +77,47 @@ export default class Debug extends React.Component<Props, State> {
     }
 
     return (
-      <div className={style.tabContainer}>
-        <div style={{ display: 'flex' }}>
-          <div style={{ width: 400 }}>
-            <CheckboxTree
-              nodes={this.state.nodes || []}
-              checked={this.state.checked}
-              expanded={this.state.expanded}
-              onCheck={checked => this.setState({ checked })}
-              onExpand={expanded => this.setState({ expanded: ['bp', ...expanded] })}
-              showExpandAll={true}
-              icons={{
-                check: <FaCheckSquare />,
-                uncheck: <FaSquare />,
-                halfCheck: <FaCheckSquare fillOpacity="0.5" />,
-                expandClose: <FaChevronRight />,
-                expandOpen: <FaChevronDown />,
-                expandAll: <FaPlusSquare />,
-                collapseAll: <FaMinusSquare />,
-                parentClose: <FaFolder stroke="blue" fill="none" />,
-                parentOpen: <FaFolderOpen stroke="blue" fill="none" />,
-                leaf: <FaFile stroke="blue" fill="none" />
-              }}
-            />
-          </div>
+      <div className={cx(style.tabContainer, style.flex)}>
+        <div className={style.boxed}>
+          <CheckboxTree
+            nodes={this.state.nodes || []}
+            checked={this.state.checked}
+            expanded={this.state.expanded}
+            onCheck={checked => this.setState({ checked })}
+            onExpand={expanded => this.setState({ expanded: ['bp', ...expanded] })}
+            showExpandAll={true}
+            icons={{
+              check: <FaCheckSquare />,
+              uncheck: <FaSquare />,
+              halfCheck: <FaCheckSquare fillOpacity="0.5" />,
+              expandClose: <FaChevronRight />,
+              expandOpen: <FaChevronDown />,
+              expandAll: <FaPlusSquare />,
+              collapseAll: <FaMinusSquare />,
+              parentClose: <FaFolder stroke="blue" fill="none" />,
+              parentOpen: <FaFolderOpen stroke="blue" fill="none" />,
+              leaf: <FaFile stroke="blue" fill="none" />
+            }}
+          />
+        </div>
 
-          <div>
-            <Button
-              id="btn-save"
-              onClick={() => this.saveConfiguration()}
-              intent={Intent.PRIMARY}
-              fill={true}
-              icon="tick"
-              text={lang.tr('apply')}
-            />
-            <br></br>
-            <Button
-              id="btn-save"
-              onClick={() => this.saveConfiguration(true)}
-              fill={true}
-              icon="floppy-disk"
-              text={lang.tr('applyPersist')}
-            />
-          </div>
+        <div>
+          <Button
+            id="btn-save"
+            onClick={() => this.saveConfiguration()}
+            intent={Intent.PRIMARY}
+            fill={true}
+            icon="tick"
+            text={lang.tr('apply')}
+          />
+          <br></br>
+          <Button
+            id="btn-save"
+            onClick={() => this.saveConfiguration(true)}
+            fill={true}
+            icon="floppy-disk"
+            text={lang.tr('applyPersist')}
+          />
         </div>
       </div>
     )

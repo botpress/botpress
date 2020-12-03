@@ -2,7 +2,7 @@ import _ from 'lodash'
 
 import { Token2Vec } from '../typings'
 
-import { ndistance } from './math'
+import { euclideanDistance } from './math'
 import { damerauLevenshtein } from './strings'
 
 function getMaxLevOps(token: string, candidateTok: string) {
@@ -18,30 +18,30 @@ function getMaxLevOps(token: string, candidateTok: string) {
   }
 }
 
-export function getClosestToken(
-  tokenStr: string,
-  tokenVec: number[] | ReadonlyArray<number>,
-  token2Vec: Token2Vec,
-  useSpacial: boolean = false
-): string {
+export function getClosestSpellingToken(token: string, vocab: string[]): string {
   let closestTok = ''
   let dist = Number.POSITIVE_INFINITY
-  _.forEach(token2Vec, (candidateVec, candidateTok) => {
+  for (const candidateTok of vocab) {
     // Leveinshtein is for typo detection
-    const lev = damerauLevenshtein(tokenStr, candidateTok)
-    const maxLevOps = getMaxLevOps(tokenStr, candidateTok)
+    const lev = damerauLevenshtein(token, candidateTok)
+    const maxLevOps = getMaxLevOps(token, candidateTok)
     if (lev <= maxLevOps && lev < dist) {
       dist = lev
       closestTok = candidateTok
     }
+  }
+  return closestTok
+}
 
-    // Space (vector) distance is for close-meaning detection
-    const d = useSpacial ? ndistance(<number[]>tokenVec, candidateVec) : Number.POSITIVE_INFINITY
-    // stricly smaller, we want letter distance to take precedence over spacial
+export function getClosestMeaningToken(tokenVec: number[], token2Vec: Token2Vec): string {
+  let closestTok = ''
+  let dist = Number.POSITIVE_INFINITY
+  for (const [candidateTok, candidateVec] of Object.entries(token2Vec)) {
+    const d = euclideanDistance(<number[]>tokenVec, candidateVec)
     if (d < dist) {
       closestTok = candidateTok
       dist = d
     }
-  })
+  }
   return closestTok
 }

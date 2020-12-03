@@ -3,6 +3,7 @@ import { isEmpty, merge } from 'lodash'
 import { createIntl, createIntlCache, IntlShape } from 'react-intl'
 
 import en from './en.json'
+import es from './es.json'
 import fr from './fr.json'
 
 const defaultLocale = 'en'
@@ -23,7 +24,7 @@ document.addEventListener('keydown', function(event) {
 
 const langExtend = langs => {
   if (isEmpty(translations)) {
-    translations = { en, fr }
+    translations = { en, fr, es }
   }
 
   for (const [key, value] of Object.entries(langs)) {

@@ -1,6 +1,9 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import mergeSpellChecked from './election/spellcheck-handler'
+import { PredictOutput } from './election/typings'
+
 export interface ModelProvider {
   getLatestModel: (lang: string) => Promise<sdk.NLU.Model | undefined>
 }
@@ -11,11 +14,31 @@ export class PredictionHandler {
     private modelProvider: ModelProvider,
     private engine: sdk.NLU.Engine,
     private anticipatedLanguage: string,
-    private defaultLanguage: string
+    private defaultLanguage: string,
+    private logger: sdk.Logger
   ) {}
 
   async predict(textInput: string, includedContexts: string[]) {
-    const detectedLanguage = await this.engine.detectLanguage(textInput, this.modelsByLang)
+    const modelCacheState = _.mapValues(this.modelsByLang, model => ({ model, loaded: this.engine.hasModel(model) }))
+
+    const missingModels = _(modelCacheState)
+      .pickBy(mod => !mod.loaded)
+      .mapValues(({ model }) => model)
+      .value()
+
+    if (Object.keys(missingModels).length) {
+      const formattedMissingModels = JSON.stringify(missingModels, undefined, 2)
+      this.logger.warn(
+        `About to detect language, but the following models are not loaded: \n${formattedMissingModels}\nMake sure you have enough cache space to fit all models for your bot.`
+      )
+    }
+
+    const loadedModels = _(modelCacheState)
+      .pickBy(mod => mod.loaded)
+      .mapValues(({ model }) => model)
+      .value()
+
+    const detectedLanguage = await this.engine.detectLanguage(textInput, loadedModels)
 
     let nluResults: sdk.IO.EventUnderstanding | undefined
 
@@ -48,7 +71,16 @@ export class PredictionHandler {
       this.modelsByLang[lang] = model.hash
       await this.engine.loadModel(model, model.hash)
     }
-    return this.engine.predict(textInput, includedContexts, this.modelsByLang[lang])
+
+    const spellChecked = await this.engine.spellCheck(textInput, this.modelsByLang[lang])
+    if (spellChecked !== textInput) {
+      const originalOutput = await this.engine.predict(textInput, includedContexts, this.modelsByLang[lang])
+      const spellCheckedOutput = await this.engine.predict(spellChecked, includedContexts, this.modelsByLang[lang])
+      const merged = mergeSpellChecked(originalOutput as PredictOutput, spellCheckedOutput as PredictOutput)
+      return { ...merged, spellChecked }
+    }
+    const output = await this.engine.predict(textInput, includedContexts, this.modelsByLang[lang])
+    return { ...output, spellChecked }
   }
 
   private isEmptyOrError(nluResults: sdk.IO.EventUnderstanding | undefined) {

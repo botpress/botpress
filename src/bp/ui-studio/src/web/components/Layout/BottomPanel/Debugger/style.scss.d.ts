@@ -37,6 +37,7 @@ interface CssExports {
   'triggerGroup': string;
   'triggersContainer': string;
   'truncate': string;
+  'underline': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

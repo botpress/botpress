@@ -5,6 +5,7 @@ import * as Keyboard from '../lite/components/Keyboard'
 
 const INJECTION_ID = 'bp-channel-web-injection'
 const INJECTION_URL = 'assets/modules/channel-web/inject.js'
+const EMULATOR_WIDTH = 300
 
 export class WebBotpressUIInjection extends React.Component {
   componentDidMount() {
@@ -30,6 +31,8 @@ export class WebBotpressUIInjection extends React.Component {
         useSessionStorage: false,
         showPoweredBy: false,
         enableResetSessionShortcut: true,
+        containerWidth: EMULATOR_WIDTH,
+        layoutWidth: EMULATOR_WIDTH,
         overrides: {
           before_container: [
             {

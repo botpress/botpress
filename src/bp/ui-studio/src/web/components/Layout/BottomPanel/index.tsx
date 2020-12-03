@@ -99,21 +99,17 @@ const BottomPanel = props => {
         {props.inspectorEnabled && <Tab id="inspector" title={lang.tr('inspector')} />}
       </Tabs>
 
-      <div
-        className={cx(style.padded, {
-          'emulator-open': props.emulatorOpen
-        })}
-        style={{ width: '100%' }}
-      >
-        {tab === 'logs' && <Logs commonButtons={commonButtons} />}
-        {tab === 'debugger' && (
-          <Debugger
-            eventId={eventId}
-            autoFocus={autoFocusDebugger}
-            setAutoFocus={handleAutoFocus}
-            commonButtons={commonButtons}
-          />
-        )}
+      <div className={cx(style.padded, style.fullWidth, { 'emulator-open': props.emulatorOpen })}>
+        <Logs commonButtons={commonButtons} hidden={tab !== 'logs'} />
+
+        <Debugger
+          eventId={eventId}
+          autoFocus={autoFocusDebugger}
+          setAutoFocus={handleAutoFocus}
+          commonButtons={commonButtons}
+          hidden={tab !== 'debugger'}
+        />
+
         {tab === 'inspector' && <Inspector history={dataHistory} commonButtons={commonButtons} />}
       </div>
     </div>

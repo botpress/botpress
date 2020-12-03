@@ -7,7 +7,6 @@
 declare module 'botpress/sdk' {
   import { NextFunction, Request, Response, Router } from 'express'
   import Knex from 'knex'
-
   export interface KnexExtension {
     isLite: boolean
     location: string
@@ -456,6 +455,7 @@ declare module 'botpress/sdk' {
       cancelTraining: (trainSessionId: string) => Promise<void>
       detectLanguage: (text: string, modelByLang: Dic<string>) => Promise<string>
       predict: (text: string, ctx: string[], modelId: string) => Promise<IO.EventUnderstanding>
+      spellCheck(sentence: string, modelId: string): Promise<string>
     }
 
     export interface Config extends LanguageConfig {
@@ -1649,6 +1649,22 @@ declare module 'botpress/sdk' {
     inviteCode?: string
     allowedUsages?: number
   }
+  export interface WorkspaceUser {
+    email: string
+    strategy: string
+    role: string
+    workspace: string
+    workspaceName?: string
+  }
+
+  export type WorkspaceUserWithAttributes = {
+    attributes: any
+  } & WorkspaceUser
+
+  export interface GetWorkspaceUsersOptions {
+    attributes: string[] | '*'
+    includeSuperAdmins: boolean
+  }
 
   export interface AddWorkspaceUserOptions {
     /** Select an existing custom role for that user. If role, asAdmin and asChatUser are undefined, then it will pick the default role */
@@ -1919,11 +1935,13 @@ declare module 'botpress/sdk' {
 
     /**
      * Merge the specified attributes to the existing attributes of the user
+     * @deprecated Please mutate `event.state.user` directly instead
      */
     export function updateAttributes(channel: string, userId: string, attributes: any): Promise<void>
 
     /**
      * Overwrite all the attributes of the user with the specified payload
+     * @deprecated Please mutate `event.state.user` directly instead
      */
     export function setAttributes(channel: string, userId: string, attributes: any): Promise<void>
     export function getAllUsers(paging?: Paging): Promise<any>
@@ -2140,6 +2158,19 @@ declare module 'botpress/sdk' {
      * @returns boolean indicating if code was valid & enough usage were left
      */
     export function consumeInviteCode(workspaceId: string, inviteCode?: string): Promise<boolean>
+
+    /**
+     * Retreives users in a given workspace
+     * @param workspaceId Desired workspace
+     * @param options Fetch options object
+     * @param options.includeSuperAdmins Whether or not you want to include super admins in the results
+     * @param options.attributes List of user attributes you want to include in the object. Use '*' to include all user attributes. Defaults to [].
+     * @returns All users in desired workspace with specified attributes.
+     */
+    export function getWorkspaceUsers(
+      workspaceId: string,
+      options?: Partial<GetWorkspaceUsersOptions>
+    ): Promise<WorkspaceUser[] | WorkspaceUserWithAttributes[]>
   }
 
   export namespace notifications {

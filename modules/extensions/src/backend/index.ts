@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import { asyncMiddleware as asyncMw } from 'common/http'
 
 import en from '../translations/en.json'
+import es from '../translations/es.json'
 import fr from '../translations/fr.json'
 
 const onServerReady = async (bp: typeof sdk) => {
@@ -32,7 +33,7 @@ const onServerReady = async (bp: typeof sdk) => {
 
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerReady,
-  translations: { en, fr },
+  translations: { en, fr, es },
   definition: {
     name: 'extensions',
     menuIcon: 'none',

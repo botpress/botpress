@@ -39,14 +39,16 @@ export default class BpSocket {
   }
 
   public changeUserId(newId: string) {
-    this.events.updateVisitorId(newId, this.userIdScope)
+    if (typeof newId === 'string' && newId !== 'undefined') {
+      this.events.updateVisitorId(newId, this.userIdScope)
+    }
   }
 
   /** Waits until the VISITOR ID is set  */
   public waitForUserId(): Promise<void> {
     return new Promise((resolve, reject) => {
       const interval = setInterval(() => {
-        if (window.__BP_VISITOR_ID) {
+        if (typeof window.__BP_VISITOR_ID === 'string' && window.__BP_VISITOR_ID !== 'undefined') {
           clearInterval(interval)
 
           this.userId = window.__BP_VISITOR_ID
