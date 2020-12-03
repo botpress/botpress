@@ -4,20 +4,20 @@ import localeDe from 'react-intl/locale-data/de'
 import localeEn from 'react-intl/locale-data/en'
 import localeEs from 'react-intl/locale-data/es'
 import localeFr from 'react-intl/locale-data/fr'
+import localeIt from 'react-intl/locale-data/it'
 import localePt from 'react-intl/locale-data/pt'
 import localeRu from 'react-intl/locale-data/ru'
 import localeUk from 'react-intl/locale-data/uk'
-import localeIt from 'react-intl/locale-data/it'
 
 import ar from './ar.json'
 import de from './de.json'
 import en from './en.json'
 import es from './es.json'
 import fr from './fr.json'
+import it from './it.json'
 import pt from './pt.json'
 import ru from './ru.json'
 import uk from './uk.json'
-import it from './it.json'
 
 const defaultLocale = 'en'
 const translations = { en, fr, pt, es, ar, ru, uk, de, it }
@@ -41,7 +41,7 @@ const initializeLocale = () => {
     ...localeRu,
     ...localeUk,
     ...localeDe,
-    ...localeIt,
+    ...localeIt
   ])
 }
 

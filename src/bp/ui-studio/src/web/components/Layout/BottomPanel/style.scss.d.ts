@@ -6,6 +6,7 @@ interface CssExports {
   'divide': string;
   'flex': string;
   'fullWidth': string;
+  'hidden': string;
   'inspectorMenu': string;
   'item': string;
   'menu': string;

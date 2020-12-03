@@ -4,8 +4,8 @@ import _ from 'lodash'
 
 import { createApi } from '../api'
 import en from '../translations/en.json'
-import fr from '../translations/fr.json'
 import es from '../translations/es.json'
+import fr from '../translations/fr.json'
 
 import dialogConditions from './dialog-conditions'
 import { getOnBotMount } from './module-lifecycle/on-bot-mount'

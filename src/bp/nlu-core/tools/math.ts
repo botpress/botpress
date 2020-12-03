@@ -3,11 +3,7 @@ import { log, mean, std } from 'mathjs'
 
 // TODO: remove all theses functions and use mathjs instead
 
-/**
- * Vectorial distance between two N-dimentional points
- * a[] and b[] must be of same dimention
- */
-export function euclideanDistance(a: number[], b: number[]): number {
+export function euclideanDistanceSquared(a: number[], b: number[]): number {
   if (a.length !== b.length) {
     throw new Error(`Can't calculate distance between vectors of different length (${a.length} vs ${b.length})`)
   }
@@ -17,7 +13,15 @@ export function euclideanDistance(a: number[], b: number[]): number {
     const diff = b[i] - a[i]
     total += diff * diff
   }
-  return Math.sqrt(total)
+  return total
+}
+
+/**
+ * Vectorial distance between two N-dimentional points
+ * a[] and b[] must be of same dimention
+ */
+export function euclideanDistance(a: number[], b: number[]): number {
+  return Math.sqrt(euclideanDistanceSquared(a, b))
 }
 
 export function computeNorm(vec: number[]): number {

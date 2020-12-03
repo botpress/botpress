@@ -5,9 +5,9 @@ import { DucklingEntityExtractor } from './entities/duckling-extractor'
 import LangProvider from './language/language-provider'
 import { getPOSTagger, tagSentence } from './language/pos-tagger'
 import SeededLodashProvider from './tools/seeded-lodash'
-import { LanguageProvider, NLUVersionInfo, Token2Vec, Tools } from './typings'
+import { LanguageProvider, NLUVersionInfo, Tools } from './typings'
 
-const NLU_VERSION = '1.4.1'
+const NLU_VERSION = '1.5.0'
 
 const healthGetter = (languageProvider: LanguageProvider) => (): NLU.Health => {
   const { validProvidersCount, validLanguages } = languageProvider.getHealth()

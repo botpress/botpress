@@ -1935,11 +1935,13 @@ declare module 'botpress/sdk' {
 
     /**
      * Merge the specified attributes to the existing attributes of the user
+     * @deprecated Please mutate `event.state.user` directly instead
      */
     export function updateAttributes(channel: string, userId: string, attributes: any): Promise<void>
 
     /**
      * Overwrite all the attributes of the user with the specified payload
+     * @deprecated Please mutate `event.state.user` directly instead
      */
     export function setAttributes(channel: string, userId: string, attributes: any): Promise<void>
     export function getAllUsers(paging?: Paging): Promise<any>

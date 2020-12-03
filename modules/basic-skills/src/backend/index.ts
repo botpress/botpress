@@ -3,8 +3,8 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import en from '../translations/en.json'
-import fr from '../translations/fr.json'
 import es from '../translations/es.json'
+import fr from '../translations/fr.json'
 
 import apiCall from './callApi'
 import choice from './choice'
