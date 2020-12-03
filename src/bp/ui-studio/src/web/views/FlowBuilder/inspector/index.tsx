@@ -69,6 +69,8 @@ class Inspector extends Component<Props> {
       currentFlow,
       currentFlowNode,
       onDeleteSelectedElements,
+      copyFlowNodeElement,
+      pasteFlowNodeElement,
       readOnly,
       refreshFlowsLinks,
       requestEditSkill,

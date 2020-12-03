@@ -80,23 +80,22 @@ export class MessengerService {
           .error('You need to configure an Access Token to enable it. Messenger Channel is disabled for this bot.')
       }
 
-      const { data } = await this.http.get('/', { params: { access_token: config.accessToken } })
+      try {
+        const { data } = await this.http.get('/', { params: { access_token: config.accessToken } })
 
-      if (!data?.id) {
+        const pageId = data.id
+        const client = new MessengerClient(botId, this.bp, this.http)
+        this.mountedBots.push({ botId, client, pageId })
+
+        await client.setupGreeting()
+        await client.setupGetStarted()
+        await client.setupPersistentMenu()
+      } catch (error) {
+        const errorMessage = _.get(error, 'response.data.error.message', 'are you sure your Access Token is valid?')
         return this.bp.logger
           .forBot(botId)
-          .error(
-            'Could not register bot, are you sure your Access Token is valid? Messenger Channel is disabled for this bot.'
-          )
+          .error(`Could not register bot, ${errorMessage}. Messenger Channel is disabled for this bot.`)
       }
-
-      const pageId = data.id
-      const client = new MessengerClient(botId, this.bp, this.http)
-      this.mountedBots.push({ botId, client, pageId })
-
-      await client.setupGreeting()
-      await client.setupGetStarted()
-      await client.setupPersistentMenu()
     }
   }
 
@@ -221,7 +220,7 @@ export class MessengerService {
     const messenger = this.getMessengerClientByBotId(event.botId)
 
     if (!_.includes(outgoingTypes, messageType)) {
-      return next(new Error('Unsupported event type: ' + event.type))
+      return next(new Error(`Unsupported event type: ${event.type}`))
     }
 
     if (messageType === 'typing') {

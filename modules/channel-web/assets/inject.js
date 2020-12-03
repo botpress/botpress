@@ -30,20 +30,34 @@ function _generateIFrameHTML(host, config) {
     iframeSrc += '&ref=' + encodeURIComponent(config.ref)
   }
   const title = config.botConvoDescription || config.botName || config.botId
-  
+
   const iframeId = _getIframeId(config.chatId)
-  return '<iframe id="' + iframeId + '" title="' + encodeURIComponent(title) + '" frameborder="0" src="' + iframeSrc + '" class="' + DEFAULT_IFRAME_CLASS + '"/>'
+  return (
+    '<iframe id="' +
+    iframeId +
+    '" title="' +
+    encodeURIComponent(title) +
+    '" frameborder="0" src="' +
+    iframeSrc +
+    '" class="' +
+    DEFAULT_IFRAME_CLASS +
+    '"/>'
+  )
 }
 
 const chatRefs = {}
 
 // provides proper chat reference
-function _getChatRef(chatId){
+function _getChatRef(chatId) {
   chatId = chatId || DEFAULT_CHAT_ID
-  const fakeChatRef = { 
-    postMessage: function()  {console.warn('No webchat with id ' + chatId + ' has not been initialized, \n please use window.botpressWebChat.init first.')}
+  const fakeChatRef = {
+    postMessage: function() {
+      console.warn(
+        'No webchat with id ' + chatId + ' has not been initialized, \n please use window.botpressWebChat.init first.'
+      )
+    }
   }
- 
+
   return chatRefs[chatId] || fakeChatRef
 }
 
@@ -61,20 +75,20 @@ function mergeConfig(payload, chatId) {
 }
 
 /**
- * 
+ *
  * @param {object} config Configuration object you want to apply to your webchat instance
  * @param {string} targetSelector css selector under which you want your webchat to be rendered
  */
 function init(config, targetSelector) {
-  targetSelector = targetSelector || 'body' 
+  targetSelector = targetSelector || 'body'
   const chatId = config.chatId || DEFAULT_CHAT_ID
   const host = config.host || window.ROOT_PATH || ''
-  
+
   const cssHref = host + '/assets/modules/channel-web/inject.css'
   _injectDOMElement('link', 'head', { rel: 'stylesheet', href: cssHref })
-  
+
   const iframeHTML = _generateIFrameHTML(host, config)
-  
+
   const containerId = _getContainerId(config.chatId)
   const iframeId = _getIframeId(config.chatId)
   _injectDOMElement('div', targetSelector, { id: containerId, innerHTML: iframeHTML })

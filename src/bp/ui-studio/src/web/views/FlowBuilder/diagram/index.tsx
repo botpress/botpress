@@ -130,6 +130,7 @@ class Diagram extends Component<Props> {
       getSkills: () => this.getPropsProperty('skills'),
       disconnectNode: this.disconnectNode.bind(this),
       // Temporary, maybe we could open the elementinstead of double-click?
+      // tslint:disable-next-line: no-console
       editNodeItem: (node, idx) => console.log(node, idx)
     }
 

@@ -6,8 +6,6 @@ import 'ui-shared/dist/theme.css'
 
 export const updater = { callback: undefined }
 
-const WEBCHAT_WIDTH = 240
-
 interface Props {
   store: any
 }
@@ -33,8 +31,6 @@ export class Debugger extends React.Component<Props, State> {
 
     this.props.store.setMessageWrapper({ module: 'extensions', component: 'Wrapper' })
 
-    this.props.store.view.setLayoutWidth(WEBCHAT_WIDTH)
-    this.props.store.view.setContainerWidth(WEBCHAT_WIDTH)
     this.props.store.view.addCustomAction({
       id: 'actionDebug',
       label: 'Inspect in Debugger',
