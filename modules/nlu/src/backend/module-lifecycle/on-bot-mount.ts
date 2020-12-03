@@ -66,7 +66,7 @@ export function getOnBotMount(state: NLUState) {
     const ghost = bp.ghost.forBot(botId)
 
     const { modelIdService } = bp.NLU
-    const modelService = new ModelService(modelIdService, ghost)
+    const modelService = new ModelService(modelIdService, ghost, botId)
     await modelService.initialize()
 
     const languages = _.intersection(bot.languages, state.engine.getLanguages())

@@ -9,6 +9,8 @@ import tmp from 'tmp'
 export const MODELS_DIR = './models'
 export const MODEL_EXTENSION = 'model'
 
+const debug = DEBUG('nlu').sub('lifecycle')
+
 interface PruningOptions {
   toKeep: number
 }
@@ -26,13 +28,25 @@ const DEFAULT_LISTING_OPTIONS: ListingOptions = {
 }
 
 export default class ModelService {
-  constructor(private _modelIdService: typeof sdk.NLU.modelIdService, private _ghost: sdk.ScopedGhostService) {}
+  constructor(
+    private _modelIdService: typeof sdk.NLU.modelIdService,
+    private _ghost: sdk.ScopedGhostService,
+    private _botId: string
+  ) {}
 
   async initialize() {
+    debug.forBot(this._botId, 'Model service initializing...')
+
     // delete model files with invalid format
     const invalidModelFile = _.negate(this._modelIdService.isId)
-    const invalidModelsFiles = (await this._listModels()).filter(invalidModelFile)
-    return Promise.map(invalidModelsFiles, file => this._ghost.deleteFile(MODELS_DIR, file))
+    const invalidModels = (await this._listModels()).filter(invalidModelFile)
+
+    debug.forBot(
+      this._botId,
+      `About to prune the following files : [${invalidModels.join(', ')}] as they have an invalid format.`
+    )
+
+    return Promise.map(invalidModels, file => this._ghost.deleteFile(MODELS_DIR, this._makeFileName(file)))
   }
 
   /**
@@ -71,6 +85,8 @@ export default class ModelService {
    * @returns the latest model that fits the query
    */
   public async getLatestModel(query: Partial<sdk.NLU.ModelId>): Promise<sdk.NLU.Model | undefined> {
+    debug.forBot(this._botId, `Searching for the latest model with characteristics ${JSON.stringify(query)}`)
+
     const availableModels = await this.listModels(query)
     if (availableModels.length === 0) {
       return
@@ -136,7 +152,13 @@ export default class ModelService {
     const modelsFileNames = models.map(this._modelIdService.toString).map(this._makeFileName)
     const toKeep = options.toKeep ?? 0
     if (modelsFileNames.length > toKeep) {
-      return Promise.map(modelsFileNames.slice(toKeep), file => this._ghost.deleteFile(MODELS_DIR, file))
+      const toPrune = modelsFileNames.slice(toKeep)
+      const formatted = toPrune.join(', ')
+      debug.forBot(
+        this._botId,
+        `About to prune the following files : [${formatted}] as they are not the ${toKeep} newest with characteristics.`
+      )
+      return Promise.map(toPrune, file => this._ghost.deleteFile(MODELS_DIR, file))
     }
   }
 
