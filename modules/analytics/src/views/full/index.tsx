@@ -11,7 +11,7 @@ import {
 import { DateRange, DateRangePicker, IDateRangeShortcut } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import axios from 'axios'
-import { utils, lang } from 'botpress/shared'
+import { lang, utils } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'

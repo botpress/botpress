@@ -91,7 +91,7 @@ class ContentView extends Component<Props, State> {
           }
 
           const addUsage = (v: string | ActionBuilderProps) => {
-            if (typeof v === 'string' && v.startsWith('say #!' + element.id)) {
+            if (typeof v === 'string' && v.startsWith(`say #!${element.id}`)) {
               if (!usage.count) {
                 element.usage.push(usage)
               }
@@ -103,7 +103,7 @@ class ContentView extends Component<Props, State> {
         })
       })
 
-      const usage = this.props.qnaUsage?.['#!' + element.id]
+      const usage = this.props.qnaUsage?.[`#!${element.id}`]
       usage &&
         element.usage.push({
           type: 'Q&A',
