@@ -10,7 +10,7 @@ import storage from '~/util/storage'
 
 import style from './style.scss'
 import Debugger from './Debugger'
-import Inspector from './Inspector'
+import Inspector, { DataEntry } from './Inspector'
 import Logs from './Logs'
 
 const MAX_HISTORY = 10
@@ -21,7 +21,7 @@ const BottomPanel = props => {
   const [tab, setTab] = useState<string>(storage.get(BOTTOM_PANEL_TAB) || 'debugger')
   const [autoFocusDebugger, setAutoFocusDebugger] = useState<any>(storage.get(AUTO_FOCUS_DEBUGGER) ?? true)
   const [eventId, setEventId] = useState()
-  const [dataHistory, setDataHistory] = useState([])
+  const [dataHistory, setDataHistory] = useState<DataEntry[]>([])
 
   useEffect(() => {
     window.addEventListener('message', handleNewMessage)
@@ -110,7 +110,7 @@ const BottomPanel = props => {
           hidden={tab !== 'debugger'}
         />
 
-        {tab === 'inspector' && <Inspector history={dataHistory} commonButtons={commonButtons} />}
+        <Inspector history={dataHistory} commonButtons={commonButtons} hidden={tab !== 'inspector'} />
       </div>
     </div>
   )

@@ -1,19 +1,34 @@
-import { Button, ButtonGroup, Divider, Intent, Tab, Tabs, Tooltip } from '@blueprintjs/core'
+import { Button, ButtonGroup, Intent, Tab, Tabs } from '@blueprintjs/core'
 import { lang, ToolTip } from 'botpress/shared'
 import cx from 'classnames'
-import React, { useEffect, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import JSONTree from 'react-json-tree'
 
 import style from '../style.scss'
 import inspectorTheme from '../Debugger/inspectorTheme'
 
-const InspectorTab = props => {
+export interface DataEntry {
+  id: string
+  data: any
+}
+
+interface Props {
+  history: DataEntry[]
+  commonButtons: JSX.Element
+  hidden: boolean
+}
+
+const InspectorTab: FC<Props> = props => {
   const [expand, setExpand] = useState(false)
   const [current, setCurrent] = useState({})
 
   useEffect(() => {
     setCurrent(props.history[0]?.data)
   }, [props.history])
+
+  if (props.hidden) {
+    return null
+  }
 
   return (
     <Tabs className={style.tabs}>
@@ -26,7 +41,7 @@ const InspectorTab = props => {
             <div className={style.inspectorMenu}>
               <div className={style.menu}>
                 {props.history.map((x, idx) => (
-                  <div className={style.item} onClick={() => setCurrent(x.data)}>
+                  <div key={x.id} className={style.item} onClick={() => setCurrent(x.data)}>
                     {idx + 1}. {x.id}
                   </div>
                 ))}
