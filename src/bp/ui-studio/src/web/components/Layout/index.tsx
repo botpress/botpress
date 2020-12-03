@@ -57,6 +57,9 @@ const Layout: FC<Props> = (props: Props) => {
     setTimeout(() => BotUmountedWarning(), 500)
 
     const handleWebChatPanel = message => {
+      if (message.data.chatId) {
+        return // event is not coming from emulator
+      }
       if (message.data.name === 'webchatLoaded' && storage.get(WEBCHAT_PANEL_STATUS) === 'opened') {
         toggleEmulator()
       }

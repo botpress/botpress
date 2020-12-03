@@ -1586,6 +1586,7 @@ declare module 'botpress/sdk' {
     baseURL: string
     headers: {
       Authorization: string
+      'X-BP-Workspace'?: string
     }
   }
 
@@ -1664,6 +1665,14 @@ declare module 'botpress/sdk' {
   export interface GetWorkspaceUsersOptions {
     attributes: string[] | '*'
     includeSuperAdmins: boolean
+  }
+
+  export interface WorkspaceUser {
+    email: string
+    strategy: string
+    role: string
+    workspace: string
+    workspaceName?: string
   }
 
   export interface AddWorkspaceUserOptions {

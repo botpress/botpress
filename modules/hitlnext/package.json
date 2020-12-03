@@ -1,0 +1,34 @@
+{
+  "name": "hitlnext",
+  "fullName": "HITL Next",
+  "version": "1.0.0",
+  "status": "stable",
+  "description": "Human-in-the-loop",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "scripts": {
+    "build": "node ../../build/module-builder/bin/entry build",
+    "watch": "node ../../build/module-builder/bin/entry watch",
+    "package": "node ../../build/module-builder/bin/entry package"
+  },
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
+  "dependencies": {
+    "@blueprintjs/core": "^3.31.0",
+    "axios": "^0.19.0",
+    "bluebird": "^3.5",
+    "classnames": "^2.2.6",
+    "haikunator": "^2.1.2",
+    "immer": "^8",
+    "joi": "^17",
+    "lodash": ">=4.17",
+    "moment": "^2.24",
+    "react-initial": "^1.0.12",
+    "serialize-javascript": "^5.0.1",
+    "yn": "^4.0.0"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12",
+    "lodash": ">=4.17.19"
+  }
+}
