@@ -24,7 +24,7 @@ export default class TrainService {
     nluSeed: number
   ) => {
     const stringId = modelIdService.toString(modelId)
-    this.logger.info(`[${modelId}] Training Started.`)
+    this.logger.info(`[${stringId}] Training Started.`)
 
     const ts = this.trainSessionService.makeTrainingSession(modelId, password, language)
     this.trainSessionService.setTrainingSession(modelId, password, ts)
@@ -42,7 +42,7 @@ export default class TrainService {
         seed: nluSeed
       }
       const model = await this.engine.train(ts.key, trainSet, { progressCallback }) // TODO: use previous model for warm training
-      this.logger.info(`[${modelId}] Training Done.`)
+      this.logger.info(`[${stringId}] Training Done.`)
 
       await this.modelRepo.saveModel(model, password)
       ts.status = 'done'
@@ -50,7 +50,7 @@ export default class TrainService {
       this.trainSessionService.releaseTrainingSession(modelId, password)
     } catch (err) {
       if (isTrainingCanceled(err)) {
-        this.logger.info(`[${modelId}] Training Canceled.`)
+        this.logger.info(`[${stringId}] Training Canceled.`)
 
         ts.status = 'canceled'
         this.trainSessionService.setTrainingSession(modelId, password, ts)

@@ -112,8 +112,14 @@ export default async function(options: APIOptions, engine: Engine) {
 
   router.get('/train/:modelId', async (req, res) => {
     try {
-      const { modelId } = req.params
+      const { modelId: stringId } = req.params
+      if (!_.isString(stringId) || !modelIdService.isId(stringId)) {
+        return res.status(400).send({ success: false, error: `model id "${stringId}" has invalid format` })
+      }
+
       const { password } = req.query
+
+      const modelId = modelIdService.fromString(stringId)
       let session = trainSessionService.getTrainingSession(modelId, password)
       if (!session) {
         const model = await modelRepo.getModel(modelId, password ?? '')
@@ -121,11 +127,11 @@ export default async function(options: APIOptions, engine: Engine) {
         if (!model) {
           return res
             .status(404)
-            .send({ success: false, error: `no model or training could be found for modelId: ${modelId}` })
+            .send({ success: false, error: `no model or training could be found for modelId: ${stringId}` })
         }
 
         session = {
-          key: modelId,
+          key: stringId,
           status: 'done',
           progress: 1,
           language: model!.languageCode
@@ -140,10 +146,11 @@ export default async function(options: APIOptions, engine: Engine) {
 
   router.post('/train/:modelId/cancel', async (req, res) => {
     try {
-      const { modelId } = req.params
+      const { modelId: stringId } = req.params
       let { password } = req.body
       password = password ?? ''
 
+      const modelId = modelIdService.fromString(stringId)
       const session = trainSessionService.getTrainingSession(modelId, password)
 
       if (session?.status === 'training') {
@@ -151,7 +158,7 @@ export default async function(options: APIOptions, engine: Engine) {
         return res.send({ success: true })
       }
 
-      res.status(404).send({ success: true, error: `no current training for model id: ${modelId}` })
+      res.status(404).send({ success: true, error: `no current training for model id: ${stringId}` })
     } catch (err) {
       res.status(500).send({ success: false, error: err.message })
     }
@@ -170,9 +177,9 @@ export default async function(options: APIOptions, engine: Engine) {
 
       const modelId = modelIdService.fromString(stringId)
       if (!engine.hasModel(modelId)) {
-        const model = await modelRepo.getModel(stringId, password)
+        const model = await modelRepo.getModel(modelId, password)
         if (!model) {
-          return res.status(404).send({ success: false, error: `modelId ${modelId} can't be found` })
+          return res.status(404).send({ success: false, error: `modelId ${stringId} can't be found` })
         }
 
         await engine.loadModel(model)
