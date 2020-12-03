@@ -250,8 +250,6 @@
         "importContent": "Import content",
         "nameInUse": "Name already in use",
         "nameInUseMessage": "A flow with that name already exists. Please choose another one.",
-        "nameHasillegalWord": "Name contains a reserved word",
-        "nameHasillegalWordMessage": "A flow cannot have a name containing '|!|slash|!|'.",
         "node": "Node",
         "renameFlow": "Rename Flow",
         "importTopic": "Import Topic",

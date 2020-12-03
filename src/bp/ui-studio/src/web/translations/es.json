@@ -240,8 +240,6 @@
         "importContent": "Importar contenido",
         "nameInUse": "Nombre ya en uso",
         "nameInUseMessage": "Ya existe un flujo con ese nombre. Por favor, elija otro.",
-        "nameHasillegalWord": "El nombre contiene una palabra reservada",
-        "nameHasillegalWordMessage": "Un nombre de flujo no puede contener la palabra '|!|slash|!|'.",
         "node": "Nodo",
         "renameFlow": "Cambiar el nombre del flujo",
         "importTopic": "Importar Tema",
