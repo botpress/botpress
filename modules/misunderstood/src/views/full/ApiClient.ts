@@ -72,9 +72,9 @@ class ApiClient {
     let start, end
     if (dateRange) {
       // Use end day if start is null to get single day
-      start = ( dateRange[0] ? moment(dateRange[0]) : moment(dateRange[1]) ).unix()
+      start = (dateRange[0] ? moment(dateRange[0]) : moment(dateRange[1])).unix()
       // Use start day if end is null to get single day and add a day to end in order to get full
-      end = ( dateRange[1] ? moment(dateRange[1]) : moment(dateRange[0]) ).add(1, 'days').unix()
+      end = (dateRange[1] ? moment(dateRange[1]) : moment(dateRange[0])).add(1, 'days').unix()
     }
     return { start, end }
   }

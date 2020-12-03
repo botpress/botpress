@@ -58,7 +58,12 @@ export default class Db {
       .update({ status, ...resolutionData, updatedAt: this.knex.fn.now() })
   }
 
-  async listEvents(botId: string, language: string, status: FLAGGED_MESSAGE_STATUS, options?: { startDate: Date; endDate: Date; }): Promise<DbFlaggedEvent[]> {
+  async listEvents(
+    botId: string,
+    language: string,
+    status: FLAGGED_MESSAGE_STATUS,
+    options?: { startDate: Date; endDate: Date }
+  ): Promise<DbFlaggedEvent[]> {
     const { startDate, endDate } = options || {}
 
     const query = this.knex(TABLE_NAME)
@@ -80,7 +85,7 @@ export default class Db {
     }))
   }
 
-  async countEvents(botId: string, language: string, options?: { startDate: Date; endDate: Date; }) {
+  async countEvents(botId: string, language: string, options?: { startDate: Date; endDate: Date }) {
     const { startDate, endDate } = options || {}
 
     const query = this.knex(TABLE_NAME)
