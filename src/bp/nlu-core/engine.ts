@@ -290,7 +290,7 @@ export default class Engine implements NLU.Engine {
     const stringId = modelIdService.toString(modelId)
     const loaded = this.modelsById.get(stringId)
     if (!loaded) {
-      throw new Error(`model ${modelId} not loaded`)
+      throw new Error(`model ${stringId} not loaded`)
     }
 
     const language = loaded.model.languageCode
@@ -307,7 +307,7 @@ export default class Engine implements NLU.Engine {
     const stringId = modelIdService.toString(modelId)
     const loaded = this.modelsById.get(stringId)
     if (!loaded) {
-      throw new Error(`model ${modelId} not loaded`)
+      throw new Error(`model ${stringId} not loaded`)
     }
 
     const preprocessed = preprocessRawUtterance(sentence)
