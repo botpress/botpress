@@ -220,7 +220,7 @@ export class MessengerService {
     const messenger = this.getMessengerClientByBotId(event.botId)
 
     if (!_.includes(outgoingTypes, messageType)) {
-      return next(new Error('Unsupported event type: ' + event.type))
+      return next(new Error(`Unsupported event type: ${event.type}`))
     }
 
     if (messageType === 'typing') {
