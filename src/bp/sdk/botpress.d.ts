@@ -1510,6 +1510,7 @@ declare module 'botpress/sdk' {
     baseURL: string
     headers: {
       Authorization: string
+      'X-BP-Workspace'?: string
     }
   }
 
@@ -1588,6 +1589,14 @@ declare module 'botpress/sdk' {
   export interface GetWorkspaceUsersOptions {
     attributes: string[] | '*'
     includeSuperAdmins: boolean
+  }
+
+  export interface WorkspaceUser {
+    email: string
+    strategy: string
+    role: string
+    workspace: string
+    workspaceName?: string
   }
 
   export interface AddWorkspaceUserOptions {
@@ -1859,11 +1868,13 @@ declare module 'botpress/sdk' {
 
     /**
      * Merge the specified attributes to the existing attributes of the user
+     * @deprecated Please mutate `event.state.user` directly instead
      */
     export function updateAttributes(channel: string, userId: string, attributes: any): Promise<void>
 
     /**
      * Overwrite all the attributes of the user with the specified payload
+     * @deprecated Please mutate `event.state.user` directly instead
      */
     export function setAttributes(channel: string, userId: string, attributes: any): Promise<void>
     export function getAllUsers(paging?: Paging): Promise<any>

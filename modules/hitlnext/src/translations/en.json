@@ -1,0 +1,80 @@
+{
+  "name": "hitlnext",
+  "fullName": "HITL Next",
+  "sort": {
+    "mostRecentlyCreated": "Most Recently Created",
+    "leastRecentlyCreated": "Least Recently Created"
+  },
+  "filter": {
+    "unassigned": "Unassigned",
+    "assignedMe": "Assigned to Me",
+    "assignedOther": "Assigned to Others",
+    "resolved": "Resolved"
+  },
+  "sortBy": "Sort By",
+  "filterBy": "Filter By",
+  "agent": {
+    "status": "Status: {status}",
+    "name": "Name: {name}",
+    "online": "Online",
+    "offline": "Offline",
+    "getOnline": "Get Online",
+    "getOffline": "Get Offline",
+    "onlineSuccess": "You are now online",
+    "offlineSuccess": "You are now offline"
+  },
+  "handoff": {
+    "created": "Created {date}",
+    "contactDetails": "Contact Details",
+    "status": {
+      "pending": "pending",
+      "assigned": "assigned",
+      "resolved": "resolved"
+    },
+    "assignedToAgent": "You've been assigned to an agent",
+    "assignedToYou": "Conversation Handed to You",
+    "assign": "Assign to me",
+    "resolve": "Resolve",
+    "assigned": "Handoff {id} successfully assigned",
+    "resolved": "Handoff {id} successfully resolved",
+    "you": "You",
+    "from": "From {channel}"
+  },
+  "user": {
+    "anonymous": "Anonymous User",
+    "variables": {
+      "heading": "Contact variables",
+      "empty": "No variables",
+      "variable": "Variable",
+      "value": "Value"
+    }
+  },
+  "commentForm": {
+    "addNote": "Add Note",
+    "submit": "Add"
+  },
+  "comments": {
+    "heading": "Notes from agents",
+    "empty": "No comments"
+  },
+  "conversation": {
+    "empty": "Select a pending handoff to engage conversation with your clients.",
+    "tab": "Conversation",
+    "composerPlaceholder": "Reply to user"
+  },
+  "handoffs": {
+    "empty": "Thanks to you and your team, there are no pending handoffs right now."
+  },
+  "sidebar": {
+    "tab": "Handoffs",
+    "access": "Access Botpress Handoffs",
+    "agents": {
+      "heading": "Agents Online",
+      "empty": "No agents online right now."
+    },
+    "handoffs": {
+      "heading": "Most Recent Handoffs",
+      "empty": "Thanks to you and your team, there are no pending handoffs right now."
+    }
+  }
+}
