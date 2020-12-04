@@ -467,7 +467,7 @@ declare module 'botpress/sdk' {
       seed: number // seeds random number generator in nlu training
     }
 
-    export interface ModelIdFactors extends TrainingSet {
+    export interface ModelIdArgs extends TrainingSet {
       specifications: Specifications
     }
 
@@ -495,8 +495,8 @@ declare module 'botpress/sdk' {
       fromString: (stringId: string) => ModelId // to parse information from a key
       toId: (m: Model) => ModelId // keeps only minimal information to make an id
       isId: (m: string) => boolean
-      makeId: (factors: ModelIdFactors) => ModelId
-      briefId: (factors: Partial<ModelIdFactors>) => Partial<ModelId> // makes incomplete Id from incomplete information
+      makeId: (factors: ModelIdArgs) => ModelId
+      briefId: (factors: Partial<ModelIdArgs>) => Partial<ModelId> // makes incomplete Id from incomplete information
     }
 
     export interface ModelId {

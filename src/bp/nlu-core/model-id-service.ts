@@ -66,7 +66,7 @@ const _computeSpecificationsHash = (specifications: NLU.Specifications) => {
   return halfmd5(JSON.stringify({ specifications }))
 }
 
-const makeId = (factors: NLU.ModelIdFactors): NLU.ModelId => {
+const makeId = (factors: NLU.ModelIdArgs): NLU.ModelId => {
   const { entityDefs, intentDefs, languageCode, seed, specifications } = factors
 
   const contentHash = _computeContentHash(entityDefs, intentDefs, languageCode)
@@ -80,7 +80,7 @@ const makeId = (factors: NLU.ModelIdFactors): NLU.ModelId => {
   }
 }
 
-const briefId = (factors: Partial<NLU.ModelIdFactors>): Partial<NLU.ModelId> => {
+const briefId = (factors: Partial<NLU.ModelIdArgs>): Partial<NLU.ModelId> => {
   const { entityDefs, intentDefs, languageCode, seed, specifications } = factors
 
   let briefedId: Partial<NLU.ModelId> = {}
