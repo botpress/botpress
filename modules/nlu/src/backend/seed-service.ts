@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import crypto from 'crypto'
 import _ from 'lodash'
 
 const MAX_SEED = 10000
@@ -9,18 +8,21 @@ const NIBBLES_PER_NUMBER = BYTES_PER_NUMBER * 2 // 0xff takes 2 nibbles
 
 const BASE = 16
 
-const _hashToNumber = (text: string): number => {
-  const stringHash = crypto
-    .createHash('md5')
-    .update(text)
-    .digest('hex') // md5 produces 128 bits (16 bytes) hex encoded hash
+const DEFAULT_SEED = 42
 
-  // we take half the hash so that it is the size of a number
-  const truncated = stringHash.slice(NIBBLES_PER_NUMBER)
+const _hashToNumber = (text: string): number => {
+  if (!text.length) {
+    return DEFAULT_SEED
+  }
+
+  const stringHex = Buffer.from(text).toString('hex')
+
+  // we slice the hex so its the size of a number
+  const truncated = stringHex.length > NIBBLES_PER_NUMBER ? stringHex.slice(0, NIBBLES_PER_NUMBER) : stringHex
   return parseInt(truncated, BASE)
 }
 
 export const getSeed = (bot: sdk.BotConfig): number => {
-  const rawSeed = _.isNumber(bot.nluSeed) ? bot.nluSeed : _hashToNumber(bot.id)
+  const rawSeed = _.isNumber(bot.nluSeed) && !_.isNaN(bot.nluSeed) ? bot.nluSeed : _hashToNumber(bot.id)
   return Math.abs(rawSeed) % MAX_SEED
 }
