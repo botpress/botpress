@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Divider, Tab, Tabs, Tooltip } from '@blueprintjs/core'
+import { Button, ButtonGroup, Divider, Tab, Tabs } from '@blueprintjs/core'
 import anser from 'anser'
 import axios from 'axios'
 import { lang, ToolTip } from 'botpress/shared'

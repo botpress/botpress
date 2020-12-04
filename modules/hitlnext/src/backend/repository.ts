@@ -212,7 +212,7 @@ export default class Repository {
     const { agentSessionTimeout } = await this.bp.config.getModuleConfigForBot(MODULE_NAME, botId)
 
     // Clears previously registered timeout to avoid old timers to execute
-    this.unregisterTimeout(workspaceId, agentId)
+    await this.unregisterTimeout(workspaceId, agentId)
 
     // Set a new timeout
     this.timeouts[key] = setTimeout(callback, ms(agentSessionTimeout as string))
