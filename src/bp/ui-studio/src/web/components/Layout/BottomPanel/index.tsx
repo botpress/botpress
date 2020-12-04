@@ -10,8 +10,10 @@ import storage from '~/util/storage'
 
 import style from './style.scss'
 import Debugger from './Debugger'
+import Inspector, { DataEntry } from './Inspector'
 import Logs from './Logs'
 
+const MAX_HISTORY = 10
 const BOTTOM_PANEL_TAB = 'bottomPanelTab'
 const AUTO_FOCUS_DEBUGGER = 'autoFocusDebugger'
 
@@ -19,9 +21,25 @@ const BottomPanel = props => {
   const [tab, setTab] = useState<string>(storage.get(BOTTOM_PANEL_TAB) || 'debugger')
   const [autoFocusDebugger, setAutoFocusDebugger] = useState<any>(storage.get(AUTO_FOCUS_DEBUGGER) ?? true)
   const [eventId, setEventId] = useState()
+  const [dataHistory, setDataHistory] = useState<DataEntry[]>([])
 
   useEffect(() => {
     window.addEventListener('message', handleNewMessage)
+
+    window['inspect'] = data => {
+      if (!data) {
+        return
+      }
+
+      try {
+        const id = data.name || data.id
+        const entry = { id: typeof id === 'string' ? id : id.toString() || 'No name', data }
+
+        setDataHistory([entry, ...dataHistory].slice(0, MAX_HISTORY))
+      } catch (err) {
+        console.error(`Inspect error ${err}`)
+      }
+    }
 
     return () => {
       window.removeEventListener('message', handleNewMessage)
@@ -78,6 +96,7 @@ const BottomPanel = props => {
       <Tabs className={style.verticalTab} vertical onChange={tab => handleChangeTab(tab)} selectedTabId={tab}>
         <Tab id="debugger" title={lang.tr('debugger')} />
         <Tab id="logs" title={lang.tr('logs')} />
+        {props.inspectorEnabled && <Tab id="inspector" title={lang.tr('inspector')} />}
       </Tabs>
 
       <div className={cx(style.padded, style.fullWidth, { 'emulator-open': props.emulatorOpen })}>
@@ -90,6 +109,8 @@ const BottomPanel = props => {
           commonButtons={commonButtons}
           hidden={tab !== 'debugger'}
         />
+
+        <Inspector history={dataHistory} commonButtons={commonButtons} hidden={tab !== 'inspector'} />
       </div>
     </div>
   )
@@ -97,6 +118,7 @@ const BottomPanel = props => {
 
 const mapStateToProps = state => ({
   emulatorOpen: state.ui.emulatorOpen,
+  inspectorEnabled: state.ui.inspectorEnabled,
   bottomPanelExpanded: state.ui.bottomPanelExpanded
 })
 

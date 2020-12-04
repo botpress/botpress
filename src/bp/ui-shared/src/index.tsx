@@ -11,6 +11,7 @@ import ToolTip from '../../ui-shared-lite/ToolTip'
 import { sendTelemetry, startFallback } from './telemetry'
 import { defaultLocale, lang, langAvaibale, langExtend, langInit, langLocale } from './translations'
 import { isInputFocused } from './utils/inputs'
+import { inspect } from './utils/inspect'
 import { controlKey, keyMap } from './utils/keyboardShortcuts'
 import { isOperationAllowed } from './AccessControl'
 import { Commander } from './Commander'
@@ -65,7 +66,7 @@ exports.lang = {
   defaultLocale
 }
 exports.toast = toast
-exports.utils = { controlKey, keyMap, isInputFocused }
+exports.utils = { controlKey, keyMap, isInputFocused, inspect }
 exports.telemetry = {
   startFallback,
   sendTelemetry

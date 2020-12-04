@@ -152,7 +152,7 @@ export default async (bp: typeof sdk) => {
       fs.writeFileSync(targetPath, csv)
       res.sendStatus(200)
     } catch (err) {
-      console.log(err)
+      console.error(err)
       res.sendStatus(500)
     }
   })
