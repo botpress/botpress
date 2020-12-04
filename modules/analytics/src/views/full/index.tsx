@@ -11,7 +11,7 @@ import {
 import { DateRange, DateRangePicker, IDateRangeShortcut } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import axios from 'axios'
-import { lang } from 'botpress/shared'
+import { lang, utils } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
@@ -182,6 +182,7 @@ const Analytics: FC<any> = ({ bp }) => {
 
     // tslint:disable-next-line: no-floating-promises
     fetchAnalytics(state.selectedChannel, state.dateRange).then(metrics => {
+      utils.inspect({ id: state.dateRange, metrics })
       dispatch({ type: 'receivedMetrics', data: { dateRange: state.dateRange, metrics } })
     })
 
