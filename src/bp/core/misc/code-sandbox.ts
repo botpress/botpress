@@ -1,5 +1,4 @@
 import { Logger } from 'botpress/sdk'
-import { timeStamp } from 'console'
 import fs from 'fs'
 import fse from 'fs-extra'
 import _ from 'lodash'
