@@ -161,7 +161,8 @@ export function getOnBotMount(state: NLUState) {
           }
           try {
             if (model) {
-              await state.broadcastLoadModel(botId, model)
+              const modelId = modelIdService.toId(model)
+              await state.broadcastLoadModel(botId, modelId)
             }
           } finally {
             await lock.unlock()
