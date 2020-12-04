@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
 import LRUCache from 'lru-cache'
+import modelIdService from 'nlu-core/model-id-service'
 
 export default class TrainSessionService {
   private trainSessions: {
@@ -12,14 +13,14 @@ export default class TrainSessionService {
 
   constructor() {}
 
-  makeTrainingSession = (modelId: string, password: string, language: string): sdk.NLU.TrainingSession => ({
+  makeTrainingSession = (modelId: sdk.NLU.ModelId, password: string, language: string): sdk.NLU.TrainingSession => ({
     key: this._makeTrainSessionKey(modelId, password),
     status: 'training',
     progress: 0,
     language
   })
 
-  getTrainingSession(modelId: string, password: string): sdk.NLU.TrainingSession | undefined {
+  getTrainingSession(modelId: sdk.NLU.ModelId, password: string): sdk.NLU.TrainingSession | undefined {
     const key = this._makeTrainSessionKey(modelId, password)
     const ts = this.trainSessions[key]
     if (ts) {
@@ -28,7 +29,7 @@ export default class TrainSessionService {
     return this.releasedTrainSessions.get(key)
   }
 
-  setTrainingSession(modelId: string, password: string, trainSession: sdk.NLU.TrainingSession) {
+  setTrainingSession(modelId: sdk.NLU.ModelId, password: string, trainSession: sdk.NLU.TrainingSession) {
     const key = this._makeTrainSessionKey(modelId, password)
     if (this.releasedTrainSessions.get(key)) {
       this.releasedTrainSessions.del(key)
@@ -36,17 +37,18 @@ export default class TrainSessionService {
     this.trainSessions[key] = trainSession
   }
 
-  releaseTrainingSession(modelId: string, password: string): void {
+  releaseTrainingSession(modelId: sdk.NLU.ModelId, password: string): void {
     const key = this._makeTrainSessionKey(modelId, password)
     const ts = this.trainSessions[key]
     delete this.trainSessions[key]
     this.releasedTrainSessions.set(key, ts)
   }
 
-  private _makeTrainSessionKey(modelId: string, password: string) {
+  private _makeTrainSessionKey(modelId: sdk.NLU.ModelId, password: string) {
+    const stringId = modelIdService.toString(modelId)
     return crypto
       .createHash('md5')
-      .update(`${modelId}${password}`)
+      .update(`${stringId}${password}`)
       .digest('hex')
   }
 }

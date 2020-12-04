@@ -439,25 +439,6 @@ declare module 'botpress/sdk' {
 
     export const makeEngine: (config: Config, logger: Logger) => Promise<Engine>
 
-    export interface Engine {
-      getHealth: () => Health
-      getLanguages: () => string[]
-      computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
-      loadModel: (model: Model, modelId: string) => Promise<void>
-      hasModel: (modelId: string) => boolean
-      train: (
-        trainSessionId: string,
-        intentDefs: NLU.IntentDefinition[],
-        entityDefs: NLU.EntityDefinition[],
-        languageCode: string,
-        options: TrainingOptions
-      ) => Promise<Model>
-      cancelTraining: (trainSessionId: string) => Promise<void>
-      detectLanguage: (text: string, modelByLang: Dic<string>) => Promise<string>
-      predict: (text: string, ctx: string[], modelId: string) => Promise<IO.EventUnderstanding>
-      spellCheck(sentence: string, modelId: string): Promise<string>
-    }
-
     export interface Config extends LanguageConfig {
       modelCacheSize: number
     }
@@ -479,16 +460,62 @@ declare module 'botpress/sdk' {
       error: (msg: string, err?: Error) => void
     }
 
-    export interface TrainingOptions {
-      nluSeed: number
-      progressCallback: (x: number) => void
-      previousModel?: string
+    export interface TrainingSet {
+      intentDefs: NLU.IntentDefinition[]
+      entityDefs: NLU.EntityDefinition[]
+      languageCode: string
+      seed: number // seeds random number generator in nlu training
     }
 
-    export interface Model {
-      hash: string
-      languageCode: string
-      seed: number
+    export interface ModelIdArgs extends TrainingSet {
+      specifications: Specifications
+    }
+
+    export interface TrainingOptions {
+      progressCallback: (x: number) => void
+      previousModel: ModelId | undefined
+    }
+
+    export interface Engine {
+      getHealth: () => Health
+      getLanguages: () => string[]
+      getSpecifications: () => Specifications
+      loadModel: (model: Model) => Promise<void>
+      unloadModel: (modelId: ModelId) => void
+      hasModel: (modelId: ModelId) => boolean
+      train: (trainSessionId: string, trainSet: TrainingSet, options?: Partial<TrainingOptions>) => Promise<Model>
+      cancelTraining: (trainSessionId: string) => Promise<void>
+      detectLanguage: (text: string, modelByLang: Dic<ModelId>) => Promise<string>
+      predict: (text: string, ctx: string[], modelId: ModelId) => Promise<IO.EventUnderstanding>
+      spellCheck: (sentence: string, modelId: ModelId) => Promise<string>
+    }
+
+    export const modelIdService: {
+      toString: (modelId: ModelId) => string // to use ModelId as a key
+      fromString: (stringId: string) => ModelId // to parse information from a key
+      toId: (m: Model) => ModelId // keeps only minimal information to make an id
+      isId: (m: string) => boolean
+      makeId: (factors: ModelIdArgs) => ModelId
+      briefId: (factors: Partial<ModelIdArgs>) => Partial<ModelId> // makes incomplete Id from incomplete information
+    }
+
+    export interface ModelId {
+      specificationHash: string // represents the nlu engine that was used to train the model
+      contentHash: string // represents the intent and entity definitions the model was trained with
+      seed: number // number to seed the random number generators used during nlu training
+      languageCode: string // language of the model
+    }
+
+    export interface Specifications {
+      nluVersion: string // semver string
+      languageServer: {
+        dimensions: number
+        domain: string
+        version: string // semver string
+      }
+    }
+
+    export type Model = ModelId & {
       startedAt: Date
       finishedAt: Date
       data: {
@@ -1146,6 +1173,12 @@ declare module 'botpress/sdk' {
     locked: boolean
     pipeline_status: BotPipelineStatus
     oneflow?: boolean
+
+    /**
+     * constant number used to seed nlu random number generators
+     * if not set, seed is computed from botId
+     */
+    nluSeed?: number
   }
 
   export type Pipeline = Stage[]

@@ -3,7 +3,8 @@ import _ from 'lodash'
 import ms from 'ms'
 
 import { createApi } from '../../api'
-import * as ModelService from '../model-service'
+import ModelService from '../model-service'
+import { getSeed } from '../seed-service'
 import {
   getTrainingSession,
   makeTrainingSession,
@@ -17,12 +18,17 @@ const missingLangMsg = botId =>
 
 const KVS_TRAINING_STATUS_KEY = 'nlu:trainingStatus'
 
-async function annouceNeedsTraining(bp: typeof sdk, botId: string, engine: sdk.NLU.Engine, state: NLUState) {
+async function annouceNeedsTraining(bp: typeof sdk, botId: string, state: NLUState) {
+  const { engine } = state
+  const { modelIdService } = bp.NLU
+
   const api = await createApi(bp, botId)
   const intentDefs = await api.fetchIntentsWithQNAs()
   const entityDefs = await api.fetchEntities()
 
-  const botLanguages = (await bp.bots.getBotById(botId)).languages
+  const bot = await bp.bots.getBotById(botId)
+  const { languages: botLanguages } = bot
+  const seed = getSeed(bot)
   const trainSessions = await Promise.map(botLanguages, (lang: string) => getTrainingSession(bp, botId, lang))
 
   const languageWithChanges = botLanguages.filter(lang => {
@@ -30,8 +36,10 @@ async function annouceNeedsTraining(bp: typeof sdk, botId: string, engine: sdk.N
     if (ts?.status === 'training') {
       return false // do not send a needs-training event if currently training
     }
-    const hash = engine.computeModelHash(intentDefs, entityDefs, lang)
-    return !engine.hasModel(hash)
+
+    const specifications = engine.getSpecifications()
+    const modelId = modelIdService.makeId({ specifications, intentDefs, entityDefs, languageCode: lang, seed })
+    return !engine.hasModel(modelId)
   })
 
   await Promise.map(languageWithChanges, async lang => {
@@ -48,7 +56,7 @@ function registerNeedTrainingWatcher(bp: typeof sdk, botId: string, engine: sdk.
 
   return bp.ghost.forBot(botId).onFileChanged(filePath => {
     if (hasPotentialNLUChange(filePath)) {
-      return annouceNeedsTraining(bp, botId, engine, state)
+      return annouceNeedsTraining(bp, botId, state)
     }
   })
 }
@@ -57,6 +65,10 @@ export function getOnBotMount(state: NLUState) {
   return async (bp: typeof sdk, botId: string) => {
     const bot = await bp.bots.getBotById(botId)
     const ghost = bp.ghost.forBot(botId)
+
+    const { modelIdService } = bp.NLU
+    const modelService = new ModelService(modelIdService, ghost, botId)
+    await modelService.initialize()
 
     const languages = _.intersection(bot.languages, state.engine.getLanguages())
     if (bot.languages.length !== languages.length) {
@@ -86,9 +98,23 @@ export function getOnBotMount(state: NLUState) {
             return
           }
 
-          const hash = engine.computeModelHash(intentDefs, entityDefs, languageCode)
-          await ModelService.pruneModels(ghost, languageCode)
-          let model = await ModelService.getModel(ghost, hash, languageCode)
+          const trainSet: sdk.NLU.TrainingSet = {
+            intentDefs,
+            entityDefs,
+            languageCode,
+            seed: getSeed(bot)
+          }
+
+          const specifications = engine.getSpecifications()
+          const modelId = modelIdService.makeId({
+            ...trainSet,
+            specifications
+          })
+
+          const modelsOfLang = await modelService.listModels({ languageCode })
+          await modelService.pruneModels(modelsOfLang, { toKeep: 2 })
+
+          let model = await modelService.getModel(modelId)
 
           const trainSession = makeTrainingSession(botId, languageCode, lock)
 
@@ -102,19 +128,16 @@ export function getOnBotMount(state: NLUState) {
               await state.sendNLUStatusEvent(botId, trainSession)
             }
 
-            const rand = () => Math.round(Math.random() * 10000)
-            const nluSeed = parseInt(process.env.NLU_SEED) || rand()
-
             const previousModel = botState.modelsByLang[languageCode]
-            const options: sdk.NLU.TrainingOptions = { previousModel, nluSeed, progressCallback }
+            const options: sdk.NLU.TrainingOptions = { previousModel, progressCallback }
             try {
-              model = await engine.train(trainSession.key, intentDefs, entityDefs, languageCode, options)
+              model = await engine.train(trainSession.key, trainSet, options)
 
               trainSession.status = 'done'
               await state.sendNLUStatusEvent(botId, trainSession)
-              botState.modelsByLang[languageCode] = model.hash
-              await engine.loadModel(model, model.hash)
-              await ModelService.saveModel(ghost, model, hash)
+              botState.modelsByLang[languageCode] = modelId
+              await engine.loadModel(model)
+              await modelService.saveModel(model)
             } catch (err) {
               if (bp.NLU.errors.isTrainingCanceled(err)) {
                 bp.logger.forBot(botId).info('Training cancelled')
@@ -138,7 +161,8 @@ export function getOnBotMount(state: NLUState) {
           }
           try {
             if (model) {
-              await state.broadcastLoadModel(botId, hash, languageCode)
+              const modelId = modelIdService.toId(model)
+              await state.broadcastLoadModel(botId, modelId)
             }
           } finally {
             await lock.unlock()
@@ -167,11 +191,12 @@ export function getOnBotMount(state: NLUState) {
       trainSessions: {},
       cancelTraining,
       needsTrainingWatcher,
-      modelsByLang: {}
+      modelsByLang: {},
+      modelService
     }
 
     const disableTraining = true
     await trainOrLoad(disableTraining)
-    await annouceNeedsTraining(bp, bot.id, engine, state)
+    await annouceNeedsTraining(bp, bot.id, state)
   }
 }
