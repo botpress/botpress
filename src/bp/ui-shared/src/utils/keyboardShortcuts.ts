@@ -26,5 +26,6 @@ export const keyMap = {
   'go-module-testing': 'g m t',
   'go-module-analytics': 'g m a',
   'zoom-in': `${controlKey}+=`,
-  'zoom-out': `${controlKey}+-`
+  'zoom-out': `${controlKey}+-`,
+  'toggle-inspect': 'i n s p e c t'
 }

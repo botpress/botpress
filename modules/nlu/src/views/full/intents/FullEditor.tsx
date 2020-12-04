@@ -1,5 +1,6 @@
 import { AxiosInstance } from 'axios'
 import { NLU } from 'botpress/sdk'
+import { utils } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
@@ -27,7 +28,10 @@ export const IntentEditor: FC<Props> = props => {
 
   useEffect(() => {
     // tslint:disable-next-line: no-floating-promises
-    props.api.fetchIntent(props.intent).then(setIntent)
+    props.api.fetchIntent(props.intent).then(intent => {
+      setIntent(intent)
+      utils.inspect(intent)
+    })
   }, [props.intent])
 
   if (!intent) {
