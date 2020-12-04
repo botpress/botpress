@@ -3,13 +3,6 @@ import _ from 'lodash'
 
 import { halfmd5, HALF_MD5_REG } from './tools/crypto'
 
-/**
- * model id formatting:
- *
- * 0a1b2c3d4e5f6g7h.4e5f6g7h0a1b2c3d.42.en
- * contentHash.specificationHash.seed.languageCode
- */
-
 const toString = (modelId: NLU.ModelId) => {
   const { contentHash, specificationHash, languageCode: lang, seed } = modelId
   return `${contentHash}.${specificationHash}.${seed}.${lang}`
