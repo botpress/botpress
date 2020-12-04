@@ -108,7 +108,7 @@ export interface Stage {
 
 export interface UserProfile {
   email: string
-  isSuperAdmin?: boolean
+  isSuperAdmin: boolean
   strategyType: string
   strategy: string
   firstname?: string

@@ -5,7 +5,7 @@ import { HotKeys } from 'react-hotkeys'
 import { connect } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import SplitPane from 'react-split-pane'
-import { setEmulatorOpen, toggleBottomPanel, trainSessionReceived, viewModeChanged } from '~/actions'
+import { setEmulatorOpen, toggleBottomPanel, toggleInspector, trainSessionReceived, viewModeChanged } from '~/actions'
 import SelectContentManager from '~/components/Content/Select/Manager'
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 import storage from '~/util/storage'
@@ -57,6 +57,9 @@ const Layout: FC<Props> = (props: Props) => {
     setTimeout(() => BotUmountedWarning(), 500)
 
     const handleWebChatPanel = message => {
+      if (message.data.chatId) {
+        return // event is not coming from emulator
+      }
       if (message.data.name === 'webchatLoaded' && storage.get(WEBCHAT_PANEL_STATUS) === 'opened') {
         toggleEmulator()
       }
@@ -174,7 +177,8 @@ const Layout: FC<Props> = (props: Props) => {
     'go-module-qna': () => gotoUrl('/modules/qna'),
     'go-module-testing': () => gotoUrl('/modules/testing'),
     'go-module-analytics': () => gotoUrl('/modules/analytics'),
-    'go-understanding': () => gotoUrl('/modules/nlu')
+    'go-understanding': () => gotoUrl('/modules/nlu'),
+    'toggle-inspect': props.toggleInspector
   }
 
   const splitPanelLastSizeKey = `bp::${window.BOT_ID}::bottom-panel-size`
@@ -247,6 +251,12 @@ const mapStateToProps = state => ({
   contentLang: state.language.contentLang
 })
 
-const mapDispatchToProps = { viewModeChanged, toggleBottomPanel, setEmulatorOpen, trainSessionReceived }
+const mapDispatchToProps = {
+  viewModeChanged,
+  toggleBottomPanel,
+  setEmulatorOpen,
+  trainSessionReceived,
+  toggleInspector
+}
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layout)
