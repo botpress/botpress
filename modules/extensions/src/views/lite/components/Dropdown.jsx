@@ -1,21 +1,14 @@
 import React from 'react'
 import Select from 'react-select'
 import Creatable from 'react-select/lib/Creatable'
-import _ from 'lodash'
 import { renderUnsafeHTML } from '../utils'
 
 export class Dropdown extends React.Component {
   state = {
-    options: [],
-    escapeHTML: false
+    options: []
   }
 
   async componentDidMount() {
-    const { data } = await this.props.bp.axios.get('/mod/extensions/config')
-    if (data) {
-      const escapeHTML = _.get(data, 'security.escapeHTML', false)
-      this.setState({ escapeHTML })
-    }
     if (this.props.options) {
       const options = this.props.options.map(x => {
         return {
@@ -91,7 +84,7 @@ export class Dropdown extends React.Component {
     const shouldDisplay = this.props.isLastGroup && this.props.isLastOfGroup
     let message
     if (this.props.markdown) {
-      const html = renderUnsafeHTML(this.props.message, this.state.escapeHTML)
+      const html = renderUnsafeHTML(this.props.message, this.props.store.escapeHTML)
       message = <div dangerouslySetInnerHTML={{ __html: html }} />
     } else {
       message = <p>{this.props.message}</p>
