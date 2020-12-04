@@ -92,6 +92,7 @@ const App: FC<Props> = ({ bp }) => {
   }
 
   useEffect(() => {
+    // tslint:disable-next-line: no-floating-promises
     Promise.all([getCurrentAgent(), getAgents(), getHandoffs(), getConfig()]).then(() => {
       setLoading(false)
     })
