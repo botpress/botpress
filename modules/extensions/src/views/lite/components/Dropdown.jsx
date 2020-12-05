@@ -8,7 +8,7 @@ export class Dropdown extends React.Component {
     options: []
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     if (this.props.options) {
       const options = this.props.options.map(x => {
         return {
