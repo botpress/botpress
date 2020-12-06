@@ -50,10 +50,7 @@ export default async (bp: typeof sdk, db: Db) => {
     '/events/count',
     asyncMiddleware(async (req: Request, res: Response) => {
       const { botId } = req.params
-      const { language, start, end } = req.query
-
-      const startDate = start && unixToDate(start)
-      const endDate = end && unixToDate(end)
+      const { language, startDate, endDate } = extractQuery(req.query)
 
       try {
         const data = await db.countEvents(botId, language, { startDate, endDate })
@@ -68,10 +65,7 @@ export default async (bp: typeof sdk, db: Db) => {
     `/events/:status(${FLAGGED_MESSAGE_STATUSES.join('|')})`,
     asyncMiddleware(async (req: Request, res: Response) => {
       const { botId, status } = req.params
-      const { language, start, end } = req.query
-
-      const startDate = start && unixToDate(start)
-      const endDate = end && unixToDate(end)
+      const { language, startDate, endDate } = extractQuery(req.query)
 
       try {
         const data = await db.listEvents(botId, language, status, { startDate, endDate })
@@ -127,5 +121,13 @@ export default async (bp: typeof sdk, db: Db) => {
     }
 
     return moment.utc(momentDate.format('YYYY-MM-DD')).toDate()
+  }
+
+  const extractQuery = query => {
+    const { language, start, end } = query
+    const startDate = start && unixToDate(start)
+    const endDate = end && unixToDate(end)
+
+    return { language, startDate, endDate }
   }
 }

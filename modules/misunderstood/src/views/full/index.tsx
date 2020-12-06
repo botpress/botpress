@@ -1,29 +1,14 @@
-import {
-  Button,
-  Popover
-} from '@blueprintjs/core'
-import { DateRange, DateRangePicker, IDateRangeShortcut } from '@blueprintjs/datetime'
+import { Button, Popover } from '@blueprintjs/core'
+import { DateRange, DateRangePicker } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import { AxiosStatic } from 'axios'
-import { lang } from 'botpress/shared'
+import { date, lang } from 'botpress/shared'
 import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import classnames from 'classnames'
 import React from 'react'
 
 import { FlaggedEvent, FLAGGED_MESSAGE_STATUS, ResolutionData } from '../../types'
 
-import {
-  lastMonthEnd,
-  lastMonthStart,
-  lastWeekEnd,
-  lastWeekStart,
-  lastYearEnd,
-  lastYearStart,
-  now,
-  thisMonth,
-  thisWeek,
-  thisYear
-} from './dates'
 import style from './style.scss'
 import ApiClient from './ApiClient'
 import MainScreen from './MainScreen'
@@ -48,32 +33,7 @@ interface State {
   dateRange?: DateRange
 }
 
-const shortcuts: IDateRangeShortcut[] = [
-  {
-    dateRange: [thisWeek, now],
-    label: lang.tr('module.analytics.timespan.thisWeek')
-  },
-  {
-    dateRange: [lastWeekStart, lastWeekEnd],
-    label: lang.tr('module.analytics.timespan.lastWeek')
-  },
-  {
-    dateRange: [thisMonth, now],
-    label: lang.tr('module.analytics.timespan.thisMonth')
-  },
-  {
-    dateRange: [lastMonthStart, lastMonthEnd],
-    label: lang.tr('module.analytics.timespan.lastMonth')
-  },
-  {
-    dateRange: [thisYear, now],
-    label: lang.tr('module.analytics.timespan.thisYear')
-  },
-  {
-    dateRange: [lastYearStart, lastYearEnd],
-    label: lang.tr('module.analytics.timespan.lastYear')
-  }
-]
+const shortcuts = date.createDateRangeShortcuts()
 
 export default class MisunderstoodMainView extends React.Component<Props, State> {
   state = {
@@ -89,6 +49,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
   }
 
   apiClient: ApiClient
+  now = new Date()
 
   constructor(props: Props) {
     super(props)
@@ -127,7 +88,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
   }
 
   updateEventsCounts = async (language?: string, dateRange?: DateRange) => {
-    const eventCounts = await this.fetchEventCounts(language || this.state.language, dateRange || this.state.dateRange )
+    const eventCounts = await this.fetchEventCounts(language || this.state.language, dateRange || this.state.dateRange)
     await this.setStateP({ eventCounts })
   }
 
@@ -229,11 +190,26 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
   }
 
   handleDateChange = async (dateRange: DateRange) => {
-    await this.setStateP({ dateRange })
-    const events = await this.fetchEvents(this.state.language, this.state.selectedStatus, dateRange)
-    await this.setStateP({ events })
-    await this.setEventIndex(0)
-    await this.updateEventsCounts()
+    const eventCounts = await this.fetchEventCounts(this.state.language, dateRange || this.state.dateRange)
+    const events = await this.fetchEvents(
+      this.state.language,
+      this.state.selectedStatus,
+      dateRange || this.state.dateRange
+    )
+
+    const event = null
+    if (events && events.length) {
+      const event = await this.fetchEvent(events[0].id)
+    }
+
+    await this.setStateP({
+      dateRange,
+      events,
+      selectedEventIndex: 0,
+      selectedEvent: event,
+      eventNotFound: !event,
+      eventCounts
+    })
   }
 
   render() {
@@ -255,7 +231,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
               onChange={this.handleDateChange.bind(this)}
               allowSingleDayRange={true}
               shortcuts={shortcuts}
-              maxDate={new Date()}
+              maxDate={date.relativeDates.now}
               value={this.state.dateRange}
             />
           </Popover>
@@ -290,11 +266,11 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
             />
           </div>
         ) : (
-            <SplashScreen
-              title={lang.tr('module.misunderstood.loading')}
-              description={lang.tr('module.misunderstood.waitWhileDataLoading')}
-            />
-          )}
+          <SplashScreen
+            title={lang.tr('module.misunderstood.loading')}
+            description={lang.tr('module.misunderstood.waitWhileDataLoading')}
+          />
+        )}
       </Container>
     )
   }
