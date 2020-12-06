@@ -49,7 +49,6 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
   }
 
   apiClient: ApiClient
-  now = new Date()
 
   constructor(props: Props) {
     super(props)
