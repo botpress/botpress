@@ -61,6 +61,7 @@ export class Dropdown extends React.Component {
             />
           ) : (
             <Select
+              className={'bpw-keyboard-quick_reply-dropdown-select'}
               value={this.state.selectedOption}
               onChange={this.handleChange}
               options={this.state.options}

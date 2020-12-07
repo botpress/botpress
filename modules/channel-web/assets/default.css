@@ -61,6 +61,10 @@ body {
   text-decoration: underline;
 }
 
+.bpw-keyboard-quick_reply-dropdown-select > * {
+  background: white;
+}
+
 .bpw-widget-btn:focus,
 .bpw-widget-btn:hover {
   background-color: #333;
