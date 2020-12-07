@@ -73,7 +73,10 @@ class Bots extends Component<Props> {
   componentDidMount() {
     this.props.fetchBots()
     this.props.fetchBotHealth()
-    this.props.profile && this.props.profile.isSuperAdmin && this.props.fetchModules()
+
+    if (!this.props.modules.length && this.props.profile && this.props.profile.isSuperAdmin) {
+      this.props.fetchModules()
+    }
 
     if (!this.props.licensing) {
       this.props.fetchLicensing()
