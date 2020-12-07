@@ -1,8 +1,18 @@
 {
   "docs": {
-    "Release Notes": ["releases/migrate", "releases/release-notes", "releases/v12_10_0"],
-    "Getting Started": ["introduction", "installation", "quickstart", "updating", "troubleshoot"],
-    "Main Concepts": [
+    "Release Notes": [
+      "releases/migrate",
+      "releases/release-notes",
+      "releases/v12_10_0"
+    ],
+    "Getting Started": [
+      "introduction",
+      "installation",
+      "quickstart",
+      "updating",
+      "troubleshoot"
+    ],
+    "Building Bots": [
       "main/overview",
       "main/glossary",
       "main/content",
@@ -55,6 +65,13 @@
       "tutorials/3rd-party-NLU",
       "tutorials/uipath"
     ],
-    "Pro Edition": ["pro/about-pro", "pro/licensing", "pro/rbac", "pro/monitoring", "pro/pipelines", "pro/i18n"]
+    "Pro Edition": [
+      "pro/about-pro",
+      "pro/licensing",
+      "pro/rbac",
+      "pro/monitoring",
+      "pro/pipelines",
+      "pro/i18n"
+    ]
   }
 }

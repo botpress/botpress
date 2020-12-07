@@ -3,16 +3,19 @@ id: quickstart
 title: Quick Start
 ---
 
-## Admin
+## Admin Dashboard
 
-The admin dashboard is the place where you'll be able to manage and configure everything related to your Botpress Server installation, including:
+### Features
 
-- Create new bots
-- Manage your Botpress Pro license and sync with version control
-- Update your profile and your Botpress Account
-- Unpack and activate modules
+Here you'll be able to manage and configure everything related to your Botpress Server installation, including:
 
-To open the Admin Dashboard, visit [`http://localhost:3000`](http://localhost:3000) in your favorite web browser. When you open the portal for the first time, you will be asked to register the main admin account
+- Creating new bots
+- Managing your Botpress Pro license and sync with version control
+- Updating your profile and your Botpress Account
+- Unpacking and activating modules
+
+To open the Admin Dashboard, visit [`http://localhost:3000`](http://localhost:3000) in your favorite web browser. When you open the portal for the first time, you'll be asked to register the main admin account
+![First Time Login](assets/first-run.png)
 
 ### Creating a new bot
 
@@ -28,9 +31,11 @@ All you have to do is pick a name for your bot, a unique `Bot ID` will be genera
 
 You may start from scratch with the Empty bot, or you can use one of the available templates for a quick demonstration of various features.
 
+![Create Bot](assets/Create-Bot.png)
+
 Once created, click on the bot's name to open the Studio interface and edit your bot.
 
-## Studio
+## Studio Dashboard
 
 The Studio is the main interface you'll use to build and edit your bot. From here, among other things, you can:
 
@@ -38,12 +43,12 @@ The Studio is the main interface you'll use to build and edit your bot. From her
 - Create dialog flows
 - Manage content
 - Test and debug your bot
-
-You will notice on the left there are a couple of sections available. Some of these are built inside Botpress (like _Content_ and _Flows_), where some are there because of modules installed. Indeed, Botpress is a highly modular platform and the majority of the features you will use are provided by the modules themselves. You may use experimental ones, or even develop your own modules.
+![Botpress Studio](assets/studio.png)
+You will notice on the left menu there are a couple of sections available. Some of these are built inside Botpress (like _Content_ and _Flows_), while others are there because of modules installed. Indeed, Botpress is a highly modular platform, and the majority of the features you will use are provided by the modules themselves. You may use experimental ones, or even develop your own modules.
 
 ### Test your bot
 
-There is a chat emulator built in the studio with which you can test your bot. You can open this emulator from the button in the top right corner, or press 'E' while in the studio. It is made to represent what your visitors will face when they speak with your bot. You can reset the convertsation by clicking the reset button, or you can also start a new conversation with your bot with the conversations button.
+There is a chat emulator built in the studio with which you can test your bot. You can open this emulator from the button in the top right corner, or press 'E' while in the studio. It is made to represent what your visitors will face when they speak with your bot. You can reset the conversation by clicking the reset button, or you can also start a new conversation with your bot with the conversations button.
 
 ![Toolbar Chat](assets/studio-toolbar.png)
 
@@ -53,7 +58,7 @@ Open the chat window and say "_Hello_". If you selected the **Welcome Bot** temp
 
 ![Hello from the bot](assets/flow_page.png)
 
-You can get additional information from the emulator's debugger by selecting the debug button. This panel is specifically designed for you, as the bot owner, to understand quickly why you get a specific answer. Note that it is only available for authenticated users. It includes all sorts of useful information: the dialog engine's elected suggestion, nodes flowed through and natural language intents or questions. You can also view the raw JSON event that contains all details, if you need further data.
+You can get additional information from the emulator's debugger by selecting the debug button. This panel is specifically designed for you, as the bot owner, to understand quickly why you get a specific answer. Note that it is only available for authenticated users. It includes all sorts of useful information: the dialog engine's elected suggestion, nodes flowed through, and natural language intents or questions. You can also view the raw JSON event that contains all details if you need further data.
 
 ![Emulator Hello](assets/debugger.png)
 
@@ -71,16 +76,16 @@ One of the modules shipped by default with Botpress is the Q&A (Question and Ans
 
 The Q&A module will automatically retrain the NLU model in the background and tell you when it's completed, indicated in the bottom right. You can speak again with your bot and it should respond to your question correctly, even if you make some typos!
 
-##### Q&A Example
+#### Q&A Example
 
 ![A new Q&A](assets/newqna.png)
 
 ## Share your bot
 
-#### Standalone chat
+### Standalone chat
 
 Congratulations on building your first bot! You can share this bot with your friends, provided they have access to your computer, it is available at `http://localhost:3000/s/<<Bot ID>>`.
 
-#### Embed on a website
+### Website embedding
 
 You can also embed this bot on a website. There is an example provided in `assets/modules/channel-web/examples/embedded-webchat.html`, which you can see by browsing [**here**](http://localhost:3000/assets/modules/channel-web/examples/embedded-webchat.html).

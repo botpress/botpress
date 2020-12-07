@@ -1,18 +1,19 @@
 ---
 id: content
-title: CMS
+title: Creating & Formatting Responses
 ---
 
 Botpress includes its own **Content Management System** (or **CMS**) to manage all the content of a bot. Everything your bot says comes from the CMS. Before we start discussing how you can create and edit the content of your bot, we should understand the different concepts of the CMS in Botpress.
 
 ## Content Type
 
-A **Content Types** defines the structure of what the bot sends. It also tells how the content should be rendered. For instance, a Content Type could be a simple text or an image or a carousel. It can be as simple or as complex as you want. They can describe anything and everything – they most often are domain-specific to your bot.
+The content type defines the structure of what your bot sends. It also establishes how the content should be rendered. For instance, a Content-Type could be a simple text or an image, or a carousel. It can be as simple or as complex as you want. They can describe anything and everything – they most often are domain-specific to your bot.
 
 > **🌟 Tip**: As a general rule, the more domain-specific the Content Types are, the easier it is to manage the bot for non-technical people.
 
 Content Types are very specific to the bots they are associated with. Here are some typical examples:
 
+- The built-in "Text" defines how text is rendered (using markdown).
 - A restaurant "Menu" and "MenuPage" types
 - A "QuestionWithChoices" type
 - An "ImportantBroadcast" type
@@ -23,21 +24,23 @@ Content Types are defined by developers in JavaScript. Each Content Type has its
 
 ## Content Element
 
-A **Content Element** contains the data of a Content Type. Multiple Elements can belong to a single Content Type. For instance, the "text" Content Type will contain an Element for every sentence of your Bot e.g. "Hello!", "What is your name?", etc.
+A **Content Element** contains the data of a Content-Type. Multiple Elements can belong to a single Content-Type. For instance, the "text" Content-Type will contain an Element for every sentence of your Bot e.g. "Hello!", "What is your name?", etc.
 
 Here's a Content Element example:
 
-```json
-{
-  "id": "builtin_text-pSsHWg",
-  "formData": {
-    "text": "👋, {{state.$r}}!",
-    "variations": ["Hello, {{state.$r}}!", "Welcome to Botpress, {{state.$r}}!"],
-    "typing": true
+JSON
+```
+  {
+    "id": "builtin_text-m137O6",
+    "formData": {
+      "markdown$en": true,
+      "typing$en": true,
+      "text$en": "Hie!"
+    },
+    "createdBy": "admin",
+    "createdOn": "2020-11-24T06:39:16.479Z",
+    "modifiedOn": "2020-11-24T06:39:16.479Z"
   },
-  "createdBy": "admin",
-  "createdOn": "2018-05-14T00:57:36.026Z"
-}
 ```
 
 All Content Elements of the same Content Type are stored within a single `.json` file under the `data/bots/{your-bot}/content-elements/` directory.
@@ -48,9 +51,9 @@ All Content Elements of the same Content Type are stored within a single `.json`
 
 All Content Types define a `renderElement` function that tells how a Content Element gets rendered on different channels.
 
-> **Note:** This is critical because every channel is different and has a different set of functionalities. You want to be able to customize and leverage the features of the different platforms to offer the best user experience as possible.
+> **Note:** This is critical because every channel is different and has a different set of functionalities. You want to be able to customize and leverage the features of the different platforms to offer the best user experience possible.
 
-### Example
+### Rendering Function
 
 Here's the web rendering function of the Text Content Type:
 
@@ -75,6 +78,7 @@ function renderForWeb(data) {
   ]
 }
 ```
+### Rendering to Multiple Channels
 
 Now if we'd like to render for the messenger channel, we would add a specific rendering function for messenger and call it when `channel === 'messenger'`
 
@@ -110,4 +114,4 @@ Your bots can support multiple languages. If a specific translation is not avail
 
 Once that property is set, it will never be overwritten. Therefore, it is possible for you to ask the user what is his preferred language, or to use the NLU engine to detect it.
 
-When rendering content elements, we will try to render the user's configured language, otherwise it will use the bot's default one.
+When rendering content elements, we will try to render the user's configured language, otherwise, it will use the bot's default.
