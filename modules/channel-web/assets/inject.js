@@ -69,6 +69,10 @@ function sendEvent(payload, chatId) {
   const chatWindow = _getChatRef(chatId)
   chatWindow.postMessage({ action: 'event', payload: payload }, '*')
 }
+function sendPayload(payload, chatId) {
+  const chatWindow = _getChatRef(chatId)
+  chatWindow.postMessage({ action: 'sendPayload', payload: payload }, '*')
+}
 function mergeConfig(payload, chatId) {
   const chatWindow = _getChatRef(chatId)
   chatWindow.postMessage({ action: 'mergeConfig', payload: payload }, '*')
@@ -101,7 +105,8 @@ window.botpressWebChat = {
   init: init,
   configure: configure,
   sendEvent: sendEvent,
-  mergeConfig: mergeConfig
+  mergeConfig: mergeConfig,
+  sendPayload: sendPayload
 }
 
 window.addEventListener('message', function(payload) {
