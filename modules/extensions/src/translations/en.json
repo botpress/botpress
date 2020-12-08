@@ -16,7 +16,8 @@
       "optionsList": "List of options",
       "title": "Dropdown",
       "widthDesc": "The default size displays the select and the button on one line. Change it to fit your needs",
-      "widthTitle": "The width of the component (in pixels)"
+      "widthTitle": "The width of the component (in pixels)",
+      "useMarkdown": "Use markdown"
     }
   }
 }

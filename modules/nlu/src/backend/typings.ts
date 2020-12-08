@@ -1,9 +1,11 @@
 import { ListenHandle, NLU } from 'botpress/sdk'
 
+import ModelService from './model-service'
+
 export interface NLUState {
   engine: NLU.Engine
   nluByBot: _.Dictionary<BotState>
-  broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
+  broadcastLoadModel?: (botId: string, modelId: NLU.ModelId) => Promise<void>
   broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
   sendNLUStatusEvent: (botId: string, trainSession: NLU.TrainingSession) => Promise<void>
 }
@@ -19,7 +21,9 @@ export interface BotState {
 
   cancelTraining: () => Promise<void>
   needsTrainingWatcher: ListenHandle
-  modelsByLang: _.Dictionary<string>
+  modelsByLang: _.Dictionary<NLU.ModelId>
+
+  modelService: ModelService
 }
 
 export interface NLUProgressEvent {

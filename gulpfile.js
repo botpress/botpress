@@ -29,19 +29,21 @@ gulp.task('default', cb => {
   console.log(`
     Development Cheat Sheet
     ==================================
-    yarn cmd dev:modules                Creates a symlink to modules bundles (restart server to apply backend changes - refresh for UI)
-                                        After this command, type "yarn watch" in each module folder you want to watch for changes
-    yarn cmd watch:core                 Recompiles the server on file modification (restart server to apply)
-    yarn cmd watch:studio               Recompiles the bundle on file modification (no restart required - refresh page manually)
-    yarn cmd watch:admin                Recompiles the bundle on file modification (no restart required - page refresh automatically)
-    yarn cmd watch:shared               Recompiles the bundle on file modification (no restart required - refresh page manually)
-    yarn cmd build:modules --m m1,m2,m3 Builds modules m1, m2 and m3 only
-                                        Here m1 is the module name like nlu
-                                        Modules are separated with a comma (,) and no spaces
-    yarn cmd build:modules --a m1       Builds all modules that matches *m1*
-    yarn cmd lint --baseBranch=dev      Runs the linter on file difference between base and current branch
-    yarn cmd lint --staged              Runs the linter on staged files
-    yarn cmd lint --fix                 Runs the linter and try to fix rules which are fixable, then stages fixes
+    yarn cmd dev:modules                  Creates a symlink to modules bundles (restart server to apply backend changes - refresh for UI)
+                                          After this command, type "yarn watch" in each module folder you want to watch for changes
+    yarn cmd watch:core                   Recompiles the server on file modification (restart server to apply)
+    yarn cmd watch:studio                 Recompiles the bundle on file modification (no restart required - refresh page manually)
+    yarn cmd watch:admin                  Recompiles the bundle on file modification (no restart required - page refresh automatically)
+    yarn cmd watch:shared                 Recompiles the bundle on file modification (no restart required - refresh page manually)
+    yarn cmd build:modules --m m1,m2,m3   Builds modules m1, m2 and m3 only
+                                          Here m1 is the module name like nlu
+                                          Modules are separated with a comma (,) and no spaces
+    yarn cmd build:modules --a m1         Builds all modules that matches *m1*
+    yarn cmd lint --baseBranch=dev        Runs the linter on file difference between base and current branch
+    yarn cmd lint --staged                Runs the linter on staged files
+    yarn cmd lint --fix                   Runs the linter and try to fix rules which are fixable, then stages fixes
+
+    yarn cmd package:modules --m m1,m2,m3 Packages modules m1, m2 and m3 only
   `)
   cb()
 })
@@ -58,6 +60,7 @@ gulp.task('build:guide', docs.buildGuide())
 gulp.task('build:reference', docs.buildReference())
 
 gulp.task('package:core', package.packageCore())
+gulp.task('package:modules', modules.packageModules())
 gulp.task('package', gulp.series([package.packageApp, modules.packageModules(), package.copyNativeExtensions]))
 
 gulp.task('watch', gulp.parallel([core.watch, ui.watchAll]))
