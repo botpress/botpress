@@ -6,20 +6,31 @@ import style from './style.scss'
 import ConfigEditor from './ConfigEditor'
 import RawPayloadSender from './RawPayloadSender'
 
-const Settings = props => {
+const Settings = () => {
+  const [config, setConfig] = useState('')
   const [userId, setUserId] = useState('')
   const [externalAuthToken, setExternalAuthToken] = useState('')
 
   useEffect(() => {
-    if (props.config) {
-      const parsed = JSON.parse(props.config)
+    window.addEventListener('message', configChanged)
+
+    return () => {
+      window.removeEventListener('message', configChanged)
+    }
+  }, [])
+
+  const configChanged = ({ data: { name, payload } }) => {
+    if (name === 'configChanged') {
+      setConfig(payload)
+
+      const parsed = JSON.parse(payload)
 
       setUserId(parsed.userId)
       setExternalAuthToken(parsed.externalAuthToken)
     }
-  }, [props.config])
+  }
 
-  if (!props.config) {
+  if (!config) {
     return null
   }
 
@@ -63,7 +74,7 @@ const Settings = props => {
       <div className={style.spaced}>
         <h5>{lang.tr('bottomPanel.debugger.settings.advanced')}</h5>
         <div className={style.flex}>
-          <ConfigEditor config={props.config} />
+          <ConfigEditor config={config} />
           <RawPayloadSender />
         </div>
       </div>

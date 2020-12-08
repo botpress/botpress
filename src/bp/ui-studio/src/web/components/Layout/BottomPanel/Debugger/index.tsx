@@ -46,7 +46,6 @@ interface State {
   unauthorized: boolean
   eventsCache: sdk.IO.IncomingEvent[]
   updateDiagram: boolean
-  webChatConfig: any
 }
 
 export class Debugger extends React.Component<Props, State> {
@@ -57,8 +56,7 @@ export class Debugger extends React.Component<Props, State> {
     fetching: false,
     unauthorized: false,
     eventsCache: [],
-    updateDiagram: true,
-    webChatConfig: undefined
+    updateDiagram: true
   }
 
   allowedRetryCount = 0
@@ -70,12 +68,6 @@ export class Debugger extends React.Component<Props, State> {
     if (this.props.eventId) {
       await this.loadEvent(this.props.eventId)
     }
-
-    window.addEventListener('message', ({ data: { name, payload } }) => {
-      if (name === 'configChanged') {
-        this.setState({ webChatConfig: payload })
-      }
-    })
 
     try {
       const { data } = await axios.get(`${window.BOT_API_PATH}/mod/extensions/events/update-frequency`)
@@ -238,12 +230,7 @@ export class Debugger extends React.Component<Props, State> {
             panel={<Inspector data={this.state.event} />}
           />
         )}
-        <Tab
-          id="settings"
-          title={<Icon icon="cog" />}
-          className={btStyle.tab}
-          panel={<Settings config={this.state.webChatConfig} />}
-        />
+        <Tab id="settings" title={<Icon icon="cog" />} className={btStyle.tab} panel={<Settings />} />
         <Tabs.Expander />
         <ButtonGroup minimal={true}>
           <ToolTip content={lang.tr('bottomPanel.debugger.newSession')}>
