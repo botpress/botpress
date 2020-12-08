@@ -1,6 +1,5 @@
 import { Button, Callout, Classes, Dialog, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
-import { URL_FOLDER_SEPERATOR } from 'common/http'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
