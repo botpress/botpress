@@ -20,7 +20,12 @@ export function getOnBotUnmount(state: NLUState) {
       await removeTrainingSession(bp, botId, ts)
     })
 
-    state.nluByBot[botId].needsTrainingWatcher.remove()
+    botState.needsTrainingWatcher.remove()
+
+    for (const model of Object.values(botState.modelsByLang)) {
+      state.engine.unloadModel(model)
+    }
+
     delete state.nluByBot[botId]
   }
 }

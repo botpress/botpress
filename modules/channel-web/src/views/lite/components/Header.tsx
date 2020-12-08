@@ -207,12 +207,6 @@ class Header extends React.Component<HeaderProps> {
   render() {
     const optionsItems = []
 
-    if (this.props.showResetButton) {
-      optionsItems.push({
-        label: 'Reload',
-        action: this.props.resetSession
-      })
-    }
     if (this.props.showDownloadButton) {
       optionsItems.push({
         label: 'Download Conversation',
@@ -238,7 +232,10 @@ class Header extends React.Component<HeaderProps> {
       return (
         <div className="bpw-emulator-header">
           <span className="bpw-emulator-header-tab">Emulator</span>
-          <MoreOptions show={this.state.showingOption} onToggle={this.setShowingOption} items={optionsItems} />
+          <div>
+            <span className="bpw-emulator-buttons">{this.props.showResetButton && this.renderResetButton()}</span>
+            <MoreOptions show={this.state.showingOption} onToggle={this.setShowingOption} items={optionsItems} />
+          </div>
         </div>
       )
     }

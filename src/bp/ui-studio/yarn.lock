@@ -587,6 +587,11 @@
     "@webassemblyjs/wast-parser" "1.5.12"
     long "^3.2.0"
 
+JSV@^4.0.2:
+  version "4.0.2"
+  resolved "https://registry.npmjs.org/JSV/-/JSV-4.0.2.tgz#d077f6825571f82132f9dffaed587b4029feff57"
+  integrity sha1-0Hf2glVx+CEy+d/67Vh7QCn+/1c=
+
 abbrev@1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"
@@ -4788,6 +4793,15 @@ json5@^1.0.1:
   dependencies:
     minimist "^1.2.0"
 
+jsonlint-mod@^1.7.6:
+  version "1.7.6"
+  resolved "https://registry.npmjs.org/jsonlint-mod/-/jsonlint-mod-1.7.6.tgz#6f1c4c51fdb5c2002489a0665e3e19a316743319"
+  integrity sha512-oGuk6E1ehmIpw0w9ttgb2KsDQQgGXBzZczREW8OfxEm9eCQYL9/LCexSnh++0z3AiYGcXpBgqDSx9AAgzl/Bvg==
+  dependencies:
+    JSV "^4.0.2"
+    chalk "^2.4.2"
+    underscore "^1.9.1"
+
 jsonwebtoken@^5.0.0:
   version "5.7.0"
   resolved "https://registry.yarnpkg.com/jsonwebtoken/-/jsonwebtoken-5.7.0.tgz#1c90f9a86ce5b748f5f979c12b70402b4afcddb4"
@@ -8535,6 +8549,11 @@ uncontrollable@^7.0.2:
     "@types/react" "^16.9.11"
     invariant "^2.2.4"
     react-lifecycles-compat "^3.0.4"
+
+underscore@^1.9.1:
+  version "1.12.0"
+  resolved "https://registry.npmjs.org/underscore/-/underscore-1.12.0.tgz#4814940551fc80587cef7840d1ebb0f16453be97"
+  integrity sha512-21rQzss/XPMjolTiIezSu3JAjgagXKROtNrYFEOWK109qY1Uv2tVjPTZ1ci2HgvQDA16gHYSthQIJfB+XId/rQ==
 
 unherit@^1.0.4:
   version "1.1.3"

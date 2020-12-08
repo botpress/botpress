@@ -127,9 +127,9 @@ class RootStore {
   }
 
   @action.bound
-  postMessage(name: string) {
+  postMessage(name: string, payload?: any) {
     const chatId = this.config.chatId
-    window.parent.postMessage({ name, chatId }, '*')
+    window.parent.postMessage({ name, chatId, payload }, '*')
   }
 
   @action.bound
@@ -385,13 +385,21 @@ class RootStore {
 
     this.api.updateAxiosConfig({ botId: this.config.botId, externalAuthToken: this.config.externalAuthToken })
     this.api.updateUserId(this.config.userId)
+    this.publishConfigChanged()
   }
 
   /** When this method is used, the user ID is changed in the configuration, then the socket is updated */
   @action.bound
   setUserId(userId: string): void {
     this.config.userId = userId
+    this.resetConversation()
     this.api.updateUserId(userId)
+    this.publishConfigChanged()
+  }
+
+  @action.bound
+  publishConfigChanged() {
+    this.postMessage('configChanged', JSON.stringify(this.config, undefined, 2))
   }
 
   @action.bound
