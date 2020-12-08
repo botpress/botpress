@@ -46,6 +46,7 @@
     "history": "^4.9.0",
     "howler": "^2.1.2",
     "js-cookie": "^2.2.0",
+    "jsonlint-mod": "^1.7.6",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
     "ms": "^2.1.1",

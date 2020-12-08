@@ -175,6 +175,8 @@ class Web extends React.Component<MainProps> {
       this.props.updateConfig(Object.assign({}, constants.DEFAULT_CONFIG, payload))
     } else if (action === 'mergeConfig') {
       this.props.mergeConfig(payload)
+    } else if (action === 'sendPayload') {
+      await this.props.sendData(payload)
     } else if (action === 'event') {
       const { type, text } = payload
 
