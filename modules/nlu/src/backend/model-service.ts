@@ -41,6 +41,10 @@ export default class ModelService {
     const invalidModelFile = _.negate(this._modelIdService.isId)
     const invalidModels = (await this._listModels()).filter(invalidModelFile)
 
+    if (!invalidModels.length) {
+      return
+    }
+
     debug.forBot(
       this._botId,
       `About to prune the following files : [${invalidModels.join(', ')}] as they have an invalid format.`
