@@ -75,12 +75,12 @@ export class SafeCodeSandbox {
   }
 
   async run(fileName: string): Promise<any> {
-    const code = fs.readFileSync(this.filesMap[fileName], 'utf8')
     try {
       if (process.DISABLE_CONTENT_SANDBOX) {
         return require(this.filesMap[fileName])
       }
 
+      const code = fs.readFileSync(this.filesMap[fileName], 'utf8')
       return this.vm!.run(
         code,
         path.join(
