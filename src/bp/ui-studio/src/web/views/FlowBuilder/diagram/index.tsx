@@ -48,6 +48,7 @@ import { defaultTransition, DiagramManager, DIAGRAM_PADDING, nodeTypes, Point } 
 import { BlockModel, BlockProps, BlockWidgetFactory } from './nodes/Block'
 import { DeletableLinkFactory } from './nodes/LinkWidget'
 import style from './style.scss'
+import DiagramToolbar from './DiagramToolbar'
 import NodeToolbar from './NodeToolbar'
 import TriggerEditor from './TriggerEditor'
 import WorkflowToolbar from './WorkflowToolbar'
@@ -66,6 +67,7 @@ interface OwnProps {
   setCurrentLang: (lang: string) => void
   languages: string[]
   defaultLang: string
+  mutexInfo: string
   handleFilterChanged: (event: any) => void
 }
 
@@ -615,28 +617,6 @@ class Diagram extends Component<Props> {
     this.props.openFlowNodeProps()
   }
 
-  renderCatchAllInfo() {
-    if (window.USE_ONEFLOW) {
-      return null
-    }
-
-    const nbNext = _.get(this.props.currentFlow, 'catchAll.next.length', 0)
-    const nbReceive = _.get(this.props.currentFlow, 'catchAll.onReceive.length', 0)
-
-    return (
-      <div style={{ display: 'flex', marginTop: 5 }}>
-        <Button onClick={this.handleFlowWideClicked} minimal>
-          <Tag intent={nbNext > 0 ? Intent.PRIMARY : Intent.NONE}>{nbNext}</Tag>{' '}
-          {lang.tr('studio.flow.flowWideTransitions', { count: nbNext })}
-        </Button>
-        <Button onClick={this.handleFlowWideClicked} minimal>
-          <Tag intent={nbReceive > 0 ? Intent.PRIMARY : Intent.NONE}>{nbReceive}</Tag>{' '}
-          {lang.tr('studio.flow.flowWideOnReceives', { count: nbReceive })}
-        </Button>
-      </div>
-    )
-  }
-
   handleToolDropped = async (event: React.DragEvent) => {
     if (this.props.readOnly) {
       return
@@ -707,7 +687,17 @@ class Diagram extends Component<Props> {
           onDrop={this.handleToolDropped}
           onDragOver={event => event.preventDefault()}
         >
-          <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
+          <div className={style.floatingInfo}>
+            <DiagramToolbar
+              currentFlow={this.props.currentFlow}
+              handleFlowWideClicked={this.handleFlowWideClicked}
+              mutexInfo={this.props.mutexInfo}
+              highlightNode={node => {
+                this.manager.setHighlightedNodes([node])
+                this.forceUpdate()
+              }}
+            />
+          </div>
 
           <DiagramWidget
             ref={w => (this.diagramWidget = w)}
