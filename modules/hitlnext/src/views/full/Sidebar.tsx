@@ -75,7 +75,7 @@ const Sidebar: FC<Props> = ({ bp, close }) => {
   }, [])
 
   return (
-    <MainLayout.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose close={() => close()}>
+    <MainLayout.RightSidePanel className={sharedStyle.wrapper} canOutsideClickClose close={() => close()}>
       <div className={sharedStyle.formHeader}>
         <Tabs tabs={[{ id: 'content', title: lang.tr('module.hitlnext.sidebar.tab') }]} />
       </div>
@@ -109,7 +109,7 @@ const Sidebar: FC<Props> = ({ bp, close }) => {
           </a>
         </div>
       </div>
-    </MainLayout.RightSidebar>
+    </MainLayout.RightSidePanel>
   )
 }
 
