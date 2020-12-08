@@ -1,6 +1,6 @@
 import { Logger, RouterOptions } from 'botpress/sdk'
 import { Serialize } from 'cerialize'
-import { UnexpectedError } from 'common/http'
+import { decodeFolderPath, UnexpectedError } from 'common/http'
 import { gaId, machineUUID } from 'common/stats'
 import { FlowView } from 'common/typings'
 import { BotpressConfig } from 'core/config/botpress.config'
@@ -37,6 +37,14 @@ import { checkMethodPermissions, checkTokenHeader, needPermissions } from '../ut
 
 const debugMedia = DEBUG('audit:action:media-upload')
 const DEFAULT_MAX_SIZE = '10mb'
+
+const parseFlowNameMiddleware = (req, _, next) => {
+  const { flowName } = req.params
+  if (flowName) {
+    req.params.flowName = decodeFolderPath(flowName)
+  }
+  next()
+}
 
 export class BotsRouter extends CustomRouter {
   private actionService: ActionService
@@ -136,7 +144,7 @@ export class BotsRouter extends CustomRouter {
    * A good explanation is available here: https://github.com/expressjs/express/issues/2596
    */
   deleteRouter(path: string, app: Express) {
-    const relPath = '/mod/' + path
+    const relPath = `/mod/${path}`
 
     // We need to access the global stack and dig in it to find the desired stack
     const mainRouterStack = app._router.stack
@@ -167,13 +175,13 @@ export class BotsRouter extends CustomRouter {
       disableForModule('bodyParserUrlEncoder', path)
     }
 
-    const relPath = '/mod/' + path
+    const relPath = `/mod/${path}`
     this.router.use(relPath, router)
 
     router['getPublicPath'] = async () => {
       await AppLifecycle.waitFor(AppLifecycleEvents.HTTP_SERVER_READY)
       const externalUrl = new URL(process.EXTERNAL_URL)
-      const subPath = externalUrl.pathname + '/api/v1/bots/BOT_ID' + relPath
+      const subPath = `${externalUrl.pathname}/api/v1/bots/BOT_ID${relPath}`
       return new URL(subPath.replace('//', '/'), externalUrl.origin).href
     }
 
@@ -343,6 +351,7 @@ export class BotsRouter extends CustomRouter {
       '/flow/:flowName',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
+      parseFlowNameMiddleware,
       this.asyncMiddleware(async (req, res) => {
         const { botId, flowName } = req.params
         const flow = <FlowView>req.body.flow
@@ -370,6 +379,7 @@ export class BotsRouter extends CustomRouter {
       '/flow/:flowName/delete',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
+      parseFlowNameMiddleware,
       this.asyncMiddleware(async (req, res) => {
         const { botId, flowName } = req.params
 
