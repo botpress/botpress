@@ -8,6 +8,7 @@ import { Memoize } from 'lodash-decorators'
 import MLToolkit from 'ml/toolkit'
 import Engine from 'nlu-core/engine'
 import { isTrainingAlreadyStarted, isTrainingCanceled } from 'nlu-core/errors'
+import modelIdService from 'nlu-core/model-id-service'
 
 import { container } from './app.inversify'
 import { ConfigProvider } from './config/config-loader'
@@ -325,7 +326,8 @@ export class BotpressAPIProvider {
         errors: {
           isTrainingAlreadyStarted,
           isTrainingCanceled
-        }
+        },
+        modelIdService
       }
     }
   }

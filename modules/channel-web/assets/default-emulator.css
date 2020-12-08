@@ -1161,6 +1161,10 @@
     top: 6px;
   }
 
+  .bpw-emulator-buttons {
+    margin-right: 40px;
+  }
+
   .bpw-emulator-header .more-options-more-menu {
     right: 4px;
     top: 24px;
