@@ -15,7 +15,7 @@ export interface CodeFile {
 
 export class SafeCodeSandbox {
   private tmpDir: tmp.SynchrounousResult
-  private vm: NodeVM
+  private vm?: NodeVM
   private tmpPath: string
   private filesMap: { [name: string]: string } = {}
 
@@ -33,6 +33,10 @@ export class SafeCodeSandbox {
       fs.writeFileSync(filePath, file.code, 'utf8')
     }
 
+    !process.DISABLE_CONTENT_SANDBOX && this.initializeVm(logger)
+  }
+
+  initializeVm(logger: Logger) {
     this.vm = new NodeVM({
       compiler: 'javascript',
       sandbox: {},
@@ -71,9 +75,13 @@ export class SafeCodeSandbox {
   }
 
   async run(fileName: string): Promise<any> {
-    const code = fs.readFileSync(this.filesMap[fileName], 'utf8')
     try {
-      return this.vm.run(
+      if (process.DISABLE_CONTENT_SANDBOX) {
+        return require(this.filesMap[fileName])
+      }
+
+      const code = fs.readFileSync(this.filesMap[fileName], 'utf8')
+      return this.vm!.run(
         code,
         path.join(
           path.resolve(this.tmpPath, 'builtin'), // TODO: use the correct module path
