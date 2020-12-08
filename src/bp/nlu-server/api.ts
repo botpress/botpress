@@ -6,11 +6,12 @@ import { createServer } from 'http'
 import _ from 'lodash'
 import ms from 'ms'
 import Engine from 'nlu-core/engine'
+import modelIdService from 'nlu-core/model-id-service'
 
 import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../http-utils'
 import Logger from '../simple-logger'
 
-import ModelService from './model/model-service'
+import ModelRepository from './model-repo'
 import removeNoneIntent from './remove-none'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
@@ -74,14 +75,15 @@ export default async function(options: APIOptions, engine: Engine) {
   const app = createExpressApp(options)
   const logger = new Logger('API', options.silent)
 
-  const modelService = new ModelService(options.modelDir, engine)
-  await modelService.init()
+  const modelRepo = new ModelRepository(options.modelDir)
+  await modelRepo.init()
   const trainSessionService = new TrainSessionService()
-  const trainService = new TrainService(logger, engine, modelService, trainSessionService)
+  const trainService = new TrainService(logger, engine, modelRepo, trainSessionService)
 
   const router = express.Router({ mergeParams: true })
   router.get('/info', async (req, res) => {
-    res.send({ version: engine.getVersionInfo() })
+    const { nluVersion } = engine.getSpecifications()
+    res.send({ version: nluVersion })
   })
 
   router.post('/train', async (req, res) => {
@@ -90,13 +92,19 @@ export default async function(options: APIOptions, engine: Engine) {
       const { intents, entities, seed, language, password } = mapTrainInput(input)
 
       const pickedSeed = seed ?? Math.round(Math.random() * 10000)
-      const modelId = modelService.makeModelId(intents, entities, language, pickedSeed)
+      const modelId = modelIdService.makeId({
+        specifications: engine.getSpecifications(),
+        intentDefs: intents,
+        entityDefs: entities,
+        languageCode: language,
+        seed: pickedSeed
+      })
 
       // return the modelId as fast as possible
       // tslint:disable-next-line: no-floating-promises
       trainService.train(modelId, password, intents, entities, language, pickedSeed)
 
-      return res.send({ success: true, modelId })
+      return res.send({ success: true, modelId: modelIdService.toString(modelId) })
     } catch (err) {
       res.status(500).send({ success: false, error: err.message })
     }
@@ -104,20 +112,26 @@ export default async function(options: APIOptions, engine: Engine) {
 
   router.get('/train/:modelId', async (req, res) => {
     try {
-      const { modelId } = req.params
+      const { modelId: stringId } = req.params
+      if (!_.isString(stringId) || !modelIdService.isId(stringId)) {
+        return res.status(400).send({ success: false, error: `model id "${stringId}" has invalid format` })
+      }
+
       const { password } = req.query
+
+      const modelId = modelIdService.fromString(stringId)
       let session = trainSessionService.getTrainingSession(modelId, password)
       if (!session) {
-        const model = await modelService.getModel(modelId, password ?? '')
+        const model = await modelRepo.getModel(modelId, password ?? '')
 
         if (!model) {
           return res
             .status(404)
-            .send({ success: false, error: `no model or training could be found for modelId: ${modelId}` })
+            .send({ success: false, error: `no model or training could be found for modelId: ${stringId}` })
         }
 
         session = {
-          key: modelId,
+          key: stringId,
           status: 'done',
           progress: 1,
           language: model!.languageCode
@@ -132,10 +146,11 @@ export default async function(options: APIOptions, engine: Engine) {
 
   router.post('/train/:modelId/cancel', async (req, res) => {
     try {
-      const { modelId } = req.params
+      const { modelId: stringId } = req.params
       let { password } = req.body
       password = password ?? ''
 
+      const modelId = modelIdService.fromString(stringId)
       const session = trainSessionService.getTrainingSession(modelId, password)
 
       if (session?.status === 'training') {
@@ -143,7 +158,7 @@ export default async function(options: APIOptions, engine: Engine) {
         return res.send({ success: true })
       }
 
-      res.status(404).send({ success: true, error: `no current training for model id: ${modelId}` })
+      res.status(404).send({ success: true, error: `no current training for model id: ${stringId}` })
     } catch (err) {
       res.status(500).send({ success: false, error: err.message })
     }
@@ -151,7 +166,7 @@ export default async function(options: APIOptions, engine: Engine) {
 
   router.post('/predict/:modelId', async (req, res) => {
     try {
-      const { modelId } = req.params
+      const { modelId: stringId } = req.params
       const { texts, password } = req.body
 
       if (!_.isArray(texts) || (options.batchSize > 0 && texts.length > options.batchSize)) {
@@ -160,13 +175,14 @@ export default async function(options: APIOptions, engine: Engine) {
         )
       }
 
+      const modelId = modelIdService.fromString(stringId)
       if (!engine.hasModel(modelId)) {
-        const model = await modelService.getModel(modelId, password)
+        const model = await modelRepo.getModel(modelId, password)
         if (!model) {
-          return res.status(404).send({ success: false, error: `modelId ${modelId} can't be found` })
+          return res.status(404).send({ success: false, error: `modelId ${stringId} can't be found` })
         }
 
-        await engine.loadModel(model, modelId)
+        await engine.loadModel(model)
       }
 
       const rawPredictions = await Promise.map(texts as string[], async t => {

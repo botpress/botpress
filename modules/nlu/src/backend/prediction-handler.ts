@@ -3,15 +3,13 @@ import _ from 'lodash'
 
 import mergeSpellChecked from './election/spellcheck-handler'
 import { PredictOutput } from './election/typings'
-
-export interface ModelProvider {
-  getLatestModel: (lang: string) => Promise<sdk.NLU.Model | undefined>
-}
+import ModelService from './model-service'
 
 export class PredictionHandler {
   constructor(
-    private modelsByLang: _.Dictionary<string>,
-    private modelProvider: ModelProvider,
+    private modelsByLang: _.Dictionary<sdk.NLU.ModelId>,
+    private modelService: ModelService,
+    private modelIdService: typeof sdk.NLU.modelIdService,
     private engine: sdk.NLU.Engine,
     private anticipatedLanguage: string,
     private defaultLanguage: string,
@@ -64,12 +62,12 @@ export class PredictionHandler {
     lang: string
   ): Promise<sdk.IO.EventUnderstanding | undefined> {
     if (!this.modelsByLang[lang] || !this.engine.hasModel(this.modelsByLang[lang])) {
-      const model = await this.modelProvider.getLatestModel(lang)
+      const model = await this.fetchModel(lang)
       if (!model) {
         return
       }
-      this.modelsByLang[lang] = model.hash
-      await this.engine.loadModel(model, model.hash)
+      this.modelsByLang[lang] = this.modelIdService.toId(model)
+      await this.engine.loadModel(model)
     }
 
     const spellChecked = await this.engine.spellCheck(textInput, this.modelsByLang[lang])
@@ -81,6 +79,17 @@ export class PredictionHandler {
     }
     const output = await this.engine.predict(textInput, includedContexts, this.modelsByLang[lang])
     return { ...output, spellChecked }
+  }
+
+  private fetchModel(languageCode: string): Promise<sdk.NLU.Model> {
+    const modelId = this.modelsByLang[languageCode]
+    if (modelId) {
+      return this.modelService.getModel(modelId)
+    }
+
+    const specifications = this.engine.getSpecifications()
+    const query = this.modelIdService.briefId({ specifications, languageCode })
+    return this.modelService.getLatestModel(query)
   }
 
   private isEmptyOrError(nluResults: sdk.IO.EventUnderstanding | undefined) {

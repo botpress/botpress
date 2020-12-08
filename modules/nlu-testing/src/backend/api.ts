@@ -146,9 +146,10 @@ export default async (bp: typeof sdk) => {
       return res.status(400).send('Not in a git repository`')
     }
 
+    const botConfig = await bp.bots.getBotById(botId)
     const tests = await getAllTests(req.params.botId)
     try {
-      const csv = results2CSV(tests, req.body.results)
+      const csv = results2CSV(tests, req.body.results, botConfig.nluSeed)
       fs.writeFileSync(targetPath, csv)
       res.sendStatus(200)
     } catch (err) {
@@ -172,7 +173,7 @@ export default async (bp: typeof sdk) => {
   })
 }
 
-function results2CSV(tests: Test[], results: _.Dictionary<TestResult>) {
+function results2CSV(tests: Test[], results: _.Dictionary<TestResult>, seed?: number) {
   const summary = computeSummary(tests, results)
   const records = [
     [
@@ -182,7 +183,7 @@ function results2CSV(tests: Test[], results: _.Dictionary<TestResult>) {
       'status',
       `date: ${new Date().toLocaleDateString()}`,
       `summary: ${summary}`,
-      `nlu seed: ${process.env.NLU_SEED}`
+      `nlu seed: ${seed}`
     ],
     ...tests.map(t => [
       t.utterance,

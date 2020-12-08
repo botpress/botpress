@@ -1,6 +1,7 @@
 import React from 'react'
 import Select from 'react-select'
 import Creatable from 'react-select/lib/Creatable'
+import { renderUnsafeHTML } from '../utils'
 
 export class Dropdown extends React.Component {
   state = {
@@ -15,7 +16,6 @@ export class Dropdown extends React.Component {
           label: x.label
         }
       })
-
       this.setState({ options })
     }
   }
@@ -82,19 +82,26 @@ export class Dropdown extends React.Component {
 
   render() {
     const shouldDisplay = this.props.isLastGroup && this.props.isLastOfGroup
+    let message
+    if (this.props.markdown) {
+      const html = renderUnsafeHTML(this.props.message, this.props.store.escapeHTML)
+      message = <div dangerouslySetInnerHTML={{ __html: html }} />
+    } else {
+      message = <p>{this.props.message}</p>
+    }
     if (this.props.displayInKeyboard) {
       const Keyboard = this.props.keyboard
 
       return (
         <Keyboard.Prepend keyboard={this.renderSelect(true)} visible={shouldDisplay}>
-          {this.props.message}
+          {message}
         </Keyboard.Prepend>
       )
     }
 
     return (
       <div>
-        {this.props.message}
+        {message}
         {shouldDisplay && this.renderSelect()}
       </div>
     )

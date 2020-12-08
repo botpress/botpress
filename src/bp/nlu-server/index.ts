@@ -89,7 +89,7 @@ export default async function(options: ArgV) {
 
   debug('NLU Server Options %o', options)
 
-  const { nluVersion } = engine.getVersionInfo()
+  const { nluVersion } = engine.getSpecifications()
 
   logger.info(chalk`========================================
 {bold ${center('Botpress NLU Server', 40, 9)}}

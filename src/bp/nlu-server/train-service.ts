@@ -1,28 +1,30 @@
 import * as sdk from 'botpress/sdk'
 import Engine from 'nlu-core/engine'
 import { isTrainingAlreadyStarted } from 'nlu-core/errors'
+import modelIdService from 'nlu-core/model-id-service'
 import { isTrainingCanceled } from 'nlu-core/training-worker-queue/communication'
 
-import ModelService from './model/model-service'
+import ModelRepository from './model-repo'
 import TrainSessionService from './train-session-service'
 
 export default class TrainService {
   constructor(
     private logger: sdk.Logger,
     private engine: Engine,
-    private modelService: ModelService,
+    private modelRepo: ModelRepository,
     private trainSessionService: TrainSessionService
   ) {}
 
   train = async (
-    modelId: string,
+    modelId: sdk.NLU.ModelId,
     password: string,
     intents: sdk.NLU.IntentDefinition[],
     entities: sdk.NLU.EntityDefinition[],
     language: string,
     nluSeed: number
   ) => {
-    this.logger.info(`[${modelId}] Training Started.`)
+    const stringId = modelIdService.toString(modelId)
+    this.logger.info(`[${stringId}] Training Started.`)
 
     const ts = this.trainSessionService.makeTrainingSession(modelId, password, language)
     this.trainSessionService.setTrainingSession(modelId, password, ts)
@@ -33,16 +35,22 @@ export default class TrainService {
     }
 
     try {
-      const model = await this.engine.train(ts.key, intents, entities, language, { nluSeed, progressCallback })
-      this.logger.info(`[${modelId}] Training Done.`)
+      const trainSet: sdk.NLU.TrainingSet = {
+        intentDefs: intents,
+        entityDefs: entities,
+        languageCode: language,
+        seed: nluSeed
+      }
+      const model = await this.engine.train(ts.key, trainSet, { progressCallback })
+      this.logger.info(`[${stringId}] Training Done.`)
 
-      await this.modelService.saveModel(model, modelId, password)
+      await this.modelRepo.saveModel(model, password)
       ts.status = 'done'
       this.trainSessionService.setTrainingSession(modelId, password, ts)
       this.trainSessionService.releaseTrainingSession(modelId, password)
     } catch (err) {
       if (isTrainingCanceled(err)) {
-        this.logger.info(`[${modelId}] Training Canceled.`)
+        this.logger.info(`[${stringId}] Training Canceled.`)
 
         ts.status = 'canceled'
         this.trainSessionService.setTrainingSession(modelId, password, ts)

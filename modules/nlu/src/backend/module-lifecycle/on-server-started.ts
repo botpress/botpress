@@ -4,7 +4,6 @@ import _ from 'lodash'
 
 import { Config } from '../../config'
 import legacyElectionPipeline from '../election/legacy-election'
-import { getLatestModel } from '../model-service'
 import { PredictionHandler } from '../prediction-handler'
 import { setTrainingSession } from '../train-session-service'
 import { NLUProgressEvent, NLUState } from '../typings'
@@ -46,17 +45,13 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
       try {
         const { botId, preview, nlu } = event
         const { engine, nluByBot } = state
-        const { defaultLanguage, modelsByLang } = nluByBot[botId]
-
-        const ghost = bp.ghost.forBot(botId)
-        const modelProvider = {
-          getLatestModel: (language: string) => getLatestModel(ghost, language)
-        }
+        const { defaultLanguage, modelsByLang, modelService } = nluByBot[botId]
 
         const anticipatedLanguage = event.state.user?.language || defaultLanguage
         const predictionHandler = new PredictionHandler(
           modelsByLang,
-          modelProvider,
+          modelService,
+          bp.NLU.modelIdService,
           engine,
           anticipatedLanguage,
           defaultLanguage,
