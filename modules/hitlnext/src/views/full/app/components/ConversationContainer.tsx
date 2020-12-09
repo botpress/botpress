@@ -39,6 +39,15 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
     }
   }
 
+  async function handleDelete() {
+    try {
+      await api.deleteHandoff(state.selectedHandoffId)
+      toast.success(lang.tr('module.hitlnext.handoff.deleted', { id: state.selectedHandoffId }))
+    } catch (error) {
+      dispatch({ type: 'setError', payload: error })
+    }
+  }
+
   function currentAgentHasPermission(operation: PermissionOperation): boolean {
     return isOperationAllowed({ user: state.currentAgent, resource: 'module.hitlnext', operation })
   }
@@ -59,6 +68,17 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
           rightIcon="tick-circle"
           onClick={handleResolve}
           text={lang.tr('module.hitlnext.handoff.resolve')}
+        />
+      )
+    },
+    {
+      content: (
+        <Button
+          className={style.coversationButton}
+          minimal
+          rightIcon="delete"
+          onClick={handleDelete}
+          text={lang.tr('module.hitlnext.handoff.delete')}
         />
       )
     }

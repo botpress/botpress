@@ -464,4 +464,27 @@ export default class Repository {
       { count: conditions.limit, sortOrder: [{ column: 'id', desc: true }] }
     )
   }
+
+  deleteHandoff = async (id: string) => {
+    return this.bp.database.transaction(async trx => {
+      // TODO: Replace table name with constant
+      const handoff = await this.getHandoff(id)
+
+      await trx('events')
+        .del()
+        .whereIn('threadId', [handoff.agentThreadId, handoff.userThreadId])
+
+      await trx('web_conversations')
+        .del()
+        .whereIn('id', [handoff.agentThreadId, handoff.userThreadId])
+
+      await trx('web_messages')
+        .del()
+        .whereIn('conversationId', [handoff.agentThreadId, handoff.userThreadId])
+
+      await trx<IHandoff>(HANDOFF_TABLE_NAME)
+        .del()
+        .where({ id })
+    })
+  }
 }

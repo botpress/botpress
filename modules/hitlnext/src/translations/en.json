@@ -35,8 +35,10 @@
     "assignedToYou": "Conversation Handed to You",
     "assign": "Assign to me",
     "resolve": "Resolve",
+    "delete": "Delete",
     "assigned": "Handoff {id} successfully assigned",
     "resolved": "Handoff {id} successfully resolved",
+    "deleted": "Handoff {id} successfully deleted",
     "you": "You",
     "from": "From {channel}"
   },
