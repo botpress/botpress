@@ -11,14 +11,18 @@ import { RootReducer } from '~/reducers'
 import style from './style.scss'
 
 interface Props {
-  trainSession: NLU.TrainingSession
+  contentLang: string
+  trainSessions: { [lang: string]: NLU.TrainingSession }
 }
 
 // TODO change this url for core ?
 const BASE_NLU_URL = `${window.BOT_API_PATH}/mod/nlu`
 
 const TrainingStatusComponent: FC<Props> = (props: Props) => {
-  const { status, progress, language } = props.trainSession ?? {}
+  const { trainSessions, contentLang } = props
+  const currentTrainSession: NLU.TrainingSession | undefined = trainSessions[contentLang]
+
+  const { status, progress } = currentTrainSession ?? {}
   const [loading, setLoading] = useState(false)
 
   const [message, setMessage] = useState('')
@@ -44,13 +48,13 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
     } else if (status === 'idle' || status === 'done') {
       onTraingDone()
     }
-  }, [props.trainSession])
+  }, [props.trainSessions, props.contentLang])
 
   const onTrainClicked = async (e: React.SyntheticEvent) => {
     setLoading(true)
     e.preventDefault()
     try {
-      await axios.post(`${BASE_NLU_URL}/train/${language}`)
+      await axios.post(`${BASE_NLU_URL}/train/${contentLang}`)
     } catch (err) {
       onError()
     } finally {
@@ -63,7 +67,7 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
     e.preventDefault()
     onCanceling()
     try {
-      await axios.post(`${BASE_NLU_URL}/train/delete/${language}`)
+      await axios.post(`${BASE_NLU_URL}/train/delete/${contentLang}`)
     } catch (err) {
       console.error('cannot cancel training')
     } finally {
@@ -71,9 +75,9 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
     }
   }
 
-  const trainingMessage = `${lang.tr('statusBar.trainChatbot')} ${language}`
+  const trainingMessage = `${lang.tr('statusBar.trainChatbot')} ${contentLang}`
 
-  if (status === null) {
+  if (!status) {
     return null
   } else {
     return (
@@ -102,6 +106,7 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
 }
 
 const mapStateToProps = (state: RootReducer) => ({
-  trainSession: state.nlu.trainSession
+  contentLang: state.language.contentLang,
+  trainSessions: state.nlu.trainSessions
 })
 export default connect(mapStateToProps)(TrainingStatusComponent)
