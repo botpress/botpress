@@ -25,7 +25,7 @@ const DownloadArchive = () => {
 
   if (isLoading) {
     if (progress === 0) {
-      lang.tr('admin.versioning.preparingArchive')
+      buttonText = lang.tr('admin.versioning.preparingArchive')
     } else {
       buttonText = lang.tr('admin.versioning.downloadProgress', { progress })
     }
