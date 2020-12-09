@@ -222,7 +222,7 @@ class BPFS {
         return ` o ${path} (difference: ${chalk.green(bytesToString(sizeDiff))})`
       }
 
-      return ` o ${path} (${chalk.green('+' + add)} / -${chalk.redBright(del)})`
+      return ` o ${path} (${chalk.green(`+ ${add}`)} / -${chalk.redBright(del)})`
     }
     return ''
   }

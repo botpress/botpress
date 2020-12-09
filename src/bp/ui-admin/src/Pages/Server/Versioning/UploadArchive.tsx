@@ -11,12 +11,12 @@ import {
   TextArea
 } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
+import { bytesToString } from 'common/utils'
 import _ from 'lodash'
 import ms from 'ms'
 import React, { Fragment, useState } from 'react'
 import api from '~/api'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
-import { bytesToString } from 'common/utils'
 
 const _uploadArchive = async (fileContent: any, doUpdate: boolean, progressCb: (pct: number) => void) => {
   const { data } = await api

@@ -176,7 +176,7 @@ export default class DBStorageDriver implements StorageDriver {
         })
 
       if (folder.length) {
-        query = query.andWhere('file_path', 'like', folder + '%')
+        query = query.andWhere('file_path', 'like', `${folder}%`)
       }
 
       if (options.sortOrder) {
@@ -205,7 +205,7 @@ export default class DBStorageDriver implements StorageDriver {
 
       if (pathPrefix.length) {
         pathPrefix = pathPrefix.replace(/^.\//g, '') // Remove heading './' if present
-        query = query.where('file_path', 'like', pathPrefix + '%')
+        query = query.where('file_path', 'like', `${pathPrefix}%`)
       }
 
       return await query.then(entries =>
