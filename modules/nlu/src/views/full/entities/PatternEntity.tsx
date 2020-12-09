@@ -30,6 +30,13 @@ export const PatternEntityEditor: React.FC<Props> = props => {
   const [examplesStr, setExampleStr] = useState((props.entity.examples || []).join('\n'))
   const [allExamplesMatch, setExamplesMatch] = useState<boolean>(true)
 
+  useEffect(() => {
+    setMatchCase(!!props.entity.matchCase)
+    setSensitive(props.entity.sensitive)
+    setPattern(props.entity.pattern)
+    setExampleStr((props.entity.examples || []).join('\n'))
+  }, [props.entity])
+
   const getEntityId = (entityName: string) =>
     entityName
       .trim()
@@ -39,10 +46,10 @@ export const PatternEntityEditor: React.FC<Props> = props => {
   const validateExamples = _.debounce(() => {
     let p = pattern
     if (!p.startsWith('^')) {
-      p = '^' + p
+      p = `^${p}`
     }
     if (!p.endsWith('$')) {
-      p = p + '$'
+      p = `${p}$`
     }
     const rx = new RegExp(p, matchCase ? '' : 'i')
     const allMatching = examplesStr
@@ -79,7 +86,7 @@ export const PatternEntityEditor: React.FC<Props> = props => {
   }, [pattern, matchCase, sensitive, examplesStr]) // TODO useReducer and watch state instead or explicitly call update entity while
 
   return (
-    <div className={style.entityEditorBody}>
+    <div key={getEntityId(props.entity?.name)} className={style.entityEditorBody}>
       <div className={style.dataPane}>
         <FormGroup
           label={lang.tr('module.nlu.entities.patternLabel')}

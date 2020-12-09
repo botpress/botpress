@@ -37,6 +37,7 @@ export default class HitlDb {
         table.timestamp('last_heard_on')
         table.boolean('paused')
         table.string('paused_trigger')
+        table.string('thread_id')
       })
       .then(() => {
         return this.knex.createTableIfNotExists('hitl_messages', function(table) {
@@ -70,11 +71,9 @@ export default class HitlDb {
 
   createUserSession = async (event: sdk.IO.Event) => {
     let profileUrl = undefined
-    let displayName =
-      '#' +
-      Math.random()
-        .toString()
-        .substr(2)
+    let displayName = `# ${Math.random()
+      .toString()
+      .substr(2)}`
 
     const user: sdk.User = (await this.bp.users.getOrCreateUser(event.channel, event.target, event.botId)).result
 
@@ -82,13 +81,14 @@ export default class HitlDb {
       const { first_name, last_name, full_name, profile_pic, picture_url } = user.attributes
 
       profileUrl = profile_pic || picture_url
-      displayName = full_name || (first_name && last_name && first_name + ' ' + last_name) || displayName
+      displayName = full_name || (first_name && last_name && `${first_name} ${last_name}`) || displayName
     }
 
     const session = {
       botId: event.botId,
       channel: event.channel,
       userId: event.target,
+      thread_id: event.threadId,
       user_image_url: profileUrl,
       last_event_on: this.knex.date.now(),
       last_heard_on: this.knex.date.now(),
@@ -107,8 +107,13 @@ export default class HitlDb {
       return undefined
     }
 
+    const where = { botId: event.botId, channel: event.channel, userId: event.target }
+    if (event.threadId) {
+      where['thread_id'] = event.threadId
+    }
+
     return this.knex('hitl_sessions')
-      .where({ botId: event.botId, channel: event.channel, userId: event.target })
+      .where(where)
       .select('*')
       .limit(1)
       .then(users => {
@@ -132,6 +137,7 @@ export default class HitlDb {
             botId: res.botId,
             channel: res.channel,
             userId: res.userId,
+            threadId: res.thread_id,
             fullName: res.full_name,
             profileUrl: res.user_image_url,
             lastEventOn: res.last_event_on,
@@ -225,7 +231,7 @@ export default class HitlDb {
   }
 
   async setSessionPauseState(isPaused: boolean, session: SessionIdentity, trigger: string): Promise<number> {
-    const { botId, channel, userId, sessionId } = session
+    const { botId, channel, userId, sessionId, threadId } = session
 
     if (sessionId) {
       return this.knex('hitl_sessions')
@@ -233,12 +239,16 @@ export default class HitlDb {
         .update({ paused: isPaused ? 1 : 0, paused_trigger: trigger })
         .then(() => parseInt(sessionId))
     } else {
+      const where = { botId, channel, userId }
+      if (threadId) {
+        where['thread_id'] = threadId
+      }
       return this.knex('hitl_sessions')
-        .where({ botId, channel, userId })
+        .where(where)
         .update({ paused: isPaused ? 1 : 0, paused_trigger: trigger })
         .then(() => {
           return this.knex('hitl_sessions')
-            .where({ botId, channel, userId })
+            .where(where)
             .select('id')
         })
         .then(sessions => parseInt(sessions[0].id))
@@ -246,10 +256,10 @@ export default class HitlDb {
   }
 
   async isSessionPaused(session: SessionIdentity): Promise<boolean> {
-    const { botId, channel, userId, sessionId } = session
+    const { botId, channel, userId, sessionId, threadId } = session
 
     return this.knex('hitl_sessions')
-      .where(sessionId ? { id: sessionId } : { botId, channel, userId })
+      .where(sessionId ? { id: sessionId } : { botId, channel, userId, threadId })
       .select('paused')
       .then()
       .get(0)
@@ -277,7 +287,7 @@ export default class HitlDb {
       .where({ botId })
 
     if (onlyPaused) {
-      query = query.whereRaw('hitl_sessions.paused = ' + this.knex.bool.true())
+      query = query.whereRaw(`hitl_sessions.paused = ${this.knex.bool.true()}`)
     }
 
     if (sessionIds) {
@@ -292,6 +302,7 @@ export default class HitlDb {
           id: res.session_id,
           botId: res.botId,
           channel: res.channel,
+          threadId: res.thread_id,
           lastEventOn: res.last_event_on,
           lastHeardOn: res.last_heard_on,
           isPaused: res.paused,
@@ -316,11 +327,17 @@ export default class HitlDb {
   }
 
   async getSessionMessages(sessionId: string): Promise<Message[]> {
-    return this.knex('hitl_messages')
-      .where({ session_id: sessionId })
-      .orderBy('id', 'asc')
-      .limit(100)
+    return this.knex
+      .orderBy('ts', 'asc')
       .select('*')
+      .from(function() {
+        this.from('hitl_messages')
+          .where({ session_id: sessionId })
+          .orderBy('ts', 'desc')
+          .limit(100)
+          .select('*')
+          .as('q1')
+      })
       .then(messages =>
         messages.map(msg => ({
           ...msg,
@@ -338,11 +355,11 @@ export default class HitlDb {
     if (this.knex.isLite) {
       query.orWhere('attr_fullName', 'like', `%${searchTerm}%`)
       query.select(
-        this.knex.raw(`hitl_sessions.id, json_extract(srv_channel_users.attributes, '$.full_name') as attr_fullName`)
+        this.knex.raw("hitl_sessions.id, json_extract(srv_channel_users.attributes, '$.full_name') as attr_fullName")
       )
     } else {
       query.orWhereRaw(`srv_channel_users.attributes ->>'full_name' like '%${searchTerm}%'`)
-      query.select(this.knex.raw(`hitl_sessions.id`))
+      query.select(this.knex.raw('hitl_sessions.id'))
     }
 
     return query

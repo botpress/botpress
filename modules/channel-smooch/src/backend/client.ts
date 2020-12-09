@@ -169,7 +169,7 @@ export class SmoochClient {
           card.actions.push({
             text: title,
             type: 'postback',
-            payload: payload
+            payload
           })
         } /* else if (bpAction.type === 'say_something') {
           card.actions.push({

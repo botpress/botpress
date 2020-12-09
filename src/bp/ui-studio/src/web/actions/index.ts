@@ -229,6 +229,7 @@ export const flowEditorRedo = wrapAction(handleFlowEditorRedo, async (payload, s
 })
 
 export const setDiagramAction: (action: string) => void = createAction('FLOWS/FLOW/SET_ACTION')
+export const setDebuggerEvent = createAction('FLOWS/SET_DEBUGGER_EVENT')
 
 // Content
 export const receiveContentCategories = createAction('CONTENT/CATEGORIES/RECEIVE')
@@ -239,7 +240,7 @@ export const fetchContentCategories = () => dispatch =>
 
 export const receiveContentItems = createAction('CONTENT/ITEMS/RECEIVE')
 export const fetchContentItems = ({ contentType, ...query }) => dispatch => {
-  const type = contentType && contentType != 'all' ? `${contentType}/` : ''
+  const type = contentType && contentType !== 'all' ? `${contentType}/` : ''
 
   return axios
     .post(`${window.BOT_API_PATH}/content/${type}elements`, query)
@@ -289,6 +290,12 @@ export const addDocumentationHint = createAction('UI/ADD_DOCUMENTATION_HINT')
 export const removeDocumentationHint = createAction('UI/REMOVE_DOCUMENTATION_HINT')
 export const updateDocumentationModal = createAction('UI/UPDATE_DOCUMENTATION_MODAL')
 export const toggleBottomPanel = createAction('UI/TOGGLE_BOTTOM_PANEL')
+export const toggleInspector = createAction('UI/TOGGLE_INSPECTOR')
+export const toggleBottomPanelExpand = createAction('UI/TOGGLE_BOTTOM_PANEL_EXPAND')
+export const zoomIn = createAction('UI/ZOOM_IN_DIAGRAM')
+export const zoomOut = createAction('UI/ZOOM_OUT_DIAGRAM')
+export const zoomToLevel = createAction('UI/ZOOM_TO_LEVEL_DIAGRAM')
+export const setEmulatorOpen = createAction('EMULATOR_OPENED')
 
 // User
 export const userReceived = createAction('USER/RECEIVED')
@@ -386,7 +393,7 @@ export const requestEditSkill = nodeId => (dispatch, getState) => {
       editSkill({
         skillId: node.skill,
         flowName: node.flow,
-        nodeId: nodeId,
+        nodeId,
         data: flow.skillData
       })
     )
@@ -422,10 +429,12 @@ export const refreshActions = () => dispatch => {
 export const intentsReceived = createAction('INTENTS/RECEIVED')
 export const refreshIntents = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises
-  axios.get(`${window.BOT_API_PATH}/mod/nlu/intents`).then(({ data }) => {
+  axios.get(`${window.BOT_API_PATH}/nlu/intents`).then(({ data }) => {
     dispatch(intentsReceived(data))
   })
 }
+
+export const trainSessionReceived = createAction('TRAIN_SESSION/RECEIVED')
 
 export const conditionsReceived = createAction('CONDITIONS/RECEIVED')
 export const refreshConditions = () => dispatch => {

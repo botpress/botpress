@@ -2,7 +2,7 @@ import { AnchorButton, Button, ButtonGroup, Intent, Position, Tooltip } from '@b
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import React, { Fragment, useEffect, useRef } from 'react'
-import style from '~/views/OneFlow/sidePanel/form/style.scss'
+import style from '~/views/FlowBuilder/sidePanelTopics/form/style.scss'
 
 import SmartInput from '../SmartInput'
 
@@ -35,7 +35,7 @@ const ArrayFieldTemplate = props => {
         const { type } = schema.items
 
         return (
-          <div key={element.key} className={style.innerWrapper}>
+          <div key={`${element.key}-${element.index}`} className={style.innerWrapper}>
             {type === 'string' ? (
               <SmartInput
                 key={`${key.current}${element.key}`}

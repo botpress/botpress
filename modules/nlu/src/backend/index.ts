@@ -2,19 +2,23 @@ import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { createApi } from '../api'
 import en from '../translations/en.json'
+import es from '../translations/es.json'
 import fr from '../translations/fr.json'
 
 import dialogConditions from './dialog-conditions'
-import EntityService from './entities/entities-service'
-import { getIntents, updateIntent } from './intents/intent-service'
 import { getOnBotMount } from './module-lifecycle/on-bot-mount'
 import { getOnBotUnmount } from './module-lifecycle/on-bot-unmount'
 import { getOnServerReady } from './module-lifecycle/on-server-ready'
 import { getOnSeverStarted } from './module-lifecycle/on-server-started'
 import { NLUState } from './typings'
 
-const state: NLUState = { nluByBot: {} }
+const state: NLUState = {
+  engine: undefined,
+  nluByBot: {},
+  sendNLUStatusEvent: async () => {}
+}
 
 const onServerStarted = getOnSeverStarted(state)
 const onServerReady = getOnServerReady(state)
@@ -35,20 +39,19 @@ const onTopicChanged = async (bp: typeof sdk, botId: string, oldName?: string, n
     return
   }
 
-  const ghost = bp.ghost.forBot(botId)
-  const entityService = new EntityService(ghost, botId)
-  const intentDefs = await getIntents(ghost)
+  const api = await createApi(bp, botId)
+  const intentDefs = await api.fetchIntentsWithQNAs()
 
   for (const intentDef of intentDefs) {
-    const ctxIdx = intentDef.contexts.indexOf(oldName)
+    const ctxIdx = intentDef.contexts.indexOf(oldName as string)
     if (ctxIdx !== -1) {
       intentDef.contexts.splice(ctxIdx, 1)
 
       if (isRenaming) {
-        intentDef.contexts.push(newName)
+        intentDef.contexts.push(newName!)
       }
 
-      await updateIntent(ghost, intentDef.name, intentDef, entityService)
+      await api.updateIntent(intentDef.name, intentDef)
     }
   }
 }
@@ -61,7 +64,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onModuleUnmount,
   dialogConditions,
   onTopicChanged,
-  translations: { en, fr },
+  translations: { en, fr, es },
   definition: {
     name: 'nlu',
     moduleView: {

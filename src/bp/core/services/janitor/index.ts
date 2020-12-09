@@ -37,7 +37,7 @@ export abstract class Janitor {
     }
 
     if (this.intervalRef) {
-      throw new Error(`The Janitor is already started`)
+      throw new Error('The Janitor is already started')
     }
 
     this.intervalRef = setInterval(this.runTaskWhenReady.bind(this), ms(this.runningInterval))

@@ -17,9 +17,9 @@ const CreateWorkspaceModal: FC<Props> = props => {
   const [isOpen, setOpen] = useState(false)
   const [generateId, setGenerateId] = useState(true)
   const [step, setStep] = useState(1)
-  const [id, setId] = useState()
-  const [name, setName] = useState()
-  const [description, setDescription] = useState()
+  const [id, setId] = useState<string>('')
+  const [name, setName] = useState<string>('')
+  const [description, setDescription] = useState<string>('')
   const [audience, setAudience] = useState('internal')
   const [pipelineId, setPipelineId] = useState('none')
 
@@ -27,10 +27,10 @@ const CreateWorkspaceModal: FC<Props> = props => {
     const workspace = { id, name, audience, description, pipelineId }
 
     try {
-      await api.getSecured().post(`/admin/workspaces`, workspace)
+      await api.getSecured().post('/admin/workspaces', workspace)
       props.refreshWorkspaces()
 
-      toastSuccess(`Workspace created successfully`)
+      toastSuccess('Workspace created successfully')
       closeModal()
     } catch (err) {
       toastFailure(err.message)

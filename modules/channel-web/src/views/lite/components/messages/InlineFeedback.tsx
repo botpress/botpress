@@ -1,5 +1,4 @@
 import { EventFeedback } from 'lite/typings'
-import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import ThumbsDown from '../../icons/ThumbsDown'

@@ -19,21 +19,21 @@ function* amendFiles(yarnInstall: boolean) {
       const saveFn = () => (save = true)
       yield [content, file, saveFn]
       if (!save) {
-        console.log(chalk.grey(`Skipping ${file} (no changes)`))
+        console.info(chalk.grey(`Skipping ${file} (no changes)`))
         continue
       }
 
       count++
 
       if (IS_DRY_RUN) {
-        console.log(chalk.bold(`==> File ${chalk.bold(file)} has changes (DRY RUN)`))
+        console.info(chalk.bold(`==> File ${chalk.bold(file)} has changes (DRY RUN)`))
       } else {
-        console.log(chalk.bold(`==> Applying changes to ${chalk.bold(file)}`))
+        console.info(chalk.bold(`==> Applying changes to ${chalk.bold(file)}`))
         fse.writeJsonSync(file, content, { spaces: 2 })
       }
 
       if (!IS_DRY_RUN && yarnInstall) {
-        console.log(chalk.grey(`==> yarn install --force`))
+        console.info(chalk.grey('==> yarn install --force'))
         try {
           cp.execSync('yarn install --force', {
             env: process.env,
@@ -44,24 +44,24 @@ function* amendFiles(yarnInstall: boolean) {
               fs.openSync('err.out', 'w') // Direct child's stderr to a file.
             ]
           })
-          console.log(chalk.green(`    success`))
+          console.info(chalk.green('    success'))
         } catch (err) {
-          console.error(chalk.red(`==> ERROR running yarn install (see err.out)`))
+          console.error(chalk.red('==> ERROR running yarn install (see err.out)'))
         }
       }
     }
   }
 
-  console.log(chalk.bold(`Done processing ${files.length} file${files.length === 1 ? '' : 's'}`))
+  console.info(chalk.bold(`Done processing ${files.length} file${files.length === 1 ? '' : 's'}`))
 
   if (count > 0) {
-    console.log(chalk.green(`Changed ${chalk.bold(count.toString())} file${count === 1 ? '' : 's'} successfully`))
+    console.info(chalk.green(`Changed ${chalk.bold(count.toString())} file${count === 1 ? '' : 's'} successfully`))
     if (IS_DRY_RUN) {
-      console.log(chalk.red.bold(`THIS WAS A DRY RUN, SO NO FILE WAS ACTUALLY CHANGED`))
-      console.log(chalk.red(`Run this again with ${chalk.bold('--apply')} to execute the changes`))
+      console.info(chalk.red.bold('THIS WAS A DRY RUN, SO NO FILE WAS ACTUALLY CHANGED'))
+      console.info(chalk.red(`Run this again with ${chalk.bold('--apply')} to execute the changes`))
     }
   } else {
-    console.log(chalk.green('There are no changes'))
+    console.info(chalk.green('There are no changes'))
   }
 }
 
@@ -76,7 +76,7 @@ for (const [content, file, save] of amendFiles(true)) {
   // fstream vulnerability CVE-2019-13173
   content.resolutions = Object.assign({}, content.resolutions, {
     fstream: '>=1.0.12',
-    lodash: '>=4.17.12'
+    lodash: '>=4.17.19'
   })
   save()
 }

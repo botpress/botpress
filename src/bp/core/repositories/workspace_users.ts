@@ -1,13 +1,9 @@
-import { WorkspaceUser } from 'common/typings'
+import { WorkspaceUser } from 'botpress/sdk'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
 import Database from '../database'
 import { TYPES } from '../types'
-
-export type WorkspaceUserAttributes = {
-  attributes: any
-} & WorkspaceUser
 
 @injectable()
 export class WorkspaceUsersRepository {
@@ -32,7 +28,7 @@ export class WorkspaceUsersRepository {
     await this.database
       .knex(this.tableName)
       .where({ strategy, workspace })
-      .andWhere(this.database.knex.raw(`LOWER(email) = ?`, [email.toLowerCase()]))
+      .andWhere(this.database.knex.raw('LOWER(email) = ?', [email.toLowerCase()]))
       .update({ role })
   }
 
@@ -40,7 +36,7 @@ export class WorkspaceUsersRepository {
     return this.database
       .knex(this.tableName)
       .where({ strategy, workspace })
-      .andWhere(this.database.knex.raw(`LOWER(email) = ?`, [email.toLowerCase()]))
+      .andWhere(this.database.knex.raw('LOWER(email) = ?', [email.toLowerCase()]))
       .del()
   }
 
@@ -53,7 +49,7 @@ export class WorkspaceUsersRepository {
       .knex(this.tableName)
       .select('*')
       .where({ strategy })
-      .andWhere(this.database.knex.raw(`LOWER(email) = ?`, [email.toLowerCase()]))
+      .andWhere(this.database.knex.raw('LOWER(email) = ?', [email.toLowerCase()]))
   }
 
   async getWorkspaceUsers(workspace: string): Promise<WorkspaceUser[]> {

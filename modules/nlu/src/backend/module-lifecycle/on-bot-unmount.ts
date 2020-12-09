@@ -2,25 +2,30 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { removeTrainingSession } from '../train-session-service'
-import { NLUState, TrainingSession } from '../typings'
+import { NLUState } from '../typings'
 
 export function getOnBotUnmount(state: NLUState) {
   return async (bp: typeof sdk, botId: string) => {
-    if (!state.nluByBot[botId]) {
+    const botState = state.nluByBot[botId]
+    if (!botState) {
       return
     }
 
-    const activeTrainSession: TrainingSession[] = _.chain(_.get(state.nluByBot[botId], 'trainSessions', {}))
-      .values()
-      .filter((trainSession: TrainingSession) => trainSession.status === 'training')
-      .value()
+    const activeTrainSession = Object.values(botState.trainSessions ?? {}).filter(
+      trainSession => trainSession.status === 'training'
+    )
 
     await Promise.map(activeTrainSession, async ts => {
       await state.broadcastCancelTraining(botId, ts.language)
       await removeTrainingSession(bp, botId, ts)
     })
 
-    state.nluByBot[botId].trainWatcher.remove()
+    botState.needsTrainingWatcher.remove()
+
+    for (const model of Object.values(botState.modelsByLang)) {
+      state.engine.unloadModel(model)
+    }
+
     delete state.nluByBot[botId]
   }
 }

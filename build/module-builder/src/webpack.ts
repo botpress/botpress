@@ -44,6 +44,9 @@ export function config(projectPath) {
       modules: ['node_modules', path.resolve(__dirname, '../node_modules')]
     },
     resolve: {
+      alias: {
+        common: path.resolve(__dirname, '../../../out/bp/common')
+      },
       modules: ['node_modules', path.resolve(__dirname, '../../../src/bp/ui-studio/node_modules')],
       extensions: ['.js', '.jsx', '.tsx', '.ts']
     },
@@ -78,7 +81,7 @@ export function config(projectPath) {
               options: {
                 modules: true,
                 importLoaders: 1,
-                localIdentName: packageJson.name + '__[name]__[local]___[hash:base64:5]'
+                localIdentName: `${packageJson.name}__[name]__[local]___[hash:base64:5]`
               }
             },
             { loader: 'sass-loader' }

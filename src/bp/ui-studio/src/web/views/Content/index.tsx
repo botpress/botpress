@@ -1,5 +1,5 @@
 import { ActionBuilderProps, ContentElement } from 'botpress/sdk'
-import { lang } from 'botpress/shared'
+import { lang, utils } from 'botpress/shared'
 import classnames from 'classnames'
 import { FlowView, NodeView } from 'common/typings'
 import _ from 'lodash'
@@ -91,7 +91,7 @@ class ContentView extends Component<Props, State> {
           }
 
           const addUsage = (v: string | ActionBuilderProps) => {
-            if (typeof v === 'string' && v.startsWith('say #!' + element.id)) {
+            if (typeof v === 'string' && v.startsWith(`say #!${element.id}`)) {
               if (!usage.count) {
                 element.usage.push(usage)
               }
@@ -103,7 +103,7 @@ class ContentView extends Component<Props, State> {
         })
       })
 
-      const usage = this.props.qnaUsage?.['#!' + element.id]
+      const usage = this.props.qnaUsage?.[`#!${element.id}`]
       usage &&
         element.usage.push({
           type: 'Q&A',
@@ -172,8 +172,9 @@ class ContentView extends Component<Props, State> {
   }
 
   handleModalShowForEdit = (id: string) => {
-    const contentToEdit = _.find(this.props.contentItems, { id }).formData
-    this.setState({ modifyId: id, showModal: true, contentToEdit })
+    const contentToEdit = _.find(this.props.contentItems, { id })
+    utils.inspect(contentToEdit)
+    this.setState({ modifyId: id, showModal: true, contentToEdit: contentToEdit.formData })
   }
 
   handleRefresh = () => {

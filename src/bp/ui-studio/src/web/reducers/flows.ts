@@ -1,4 +1,4 @@
-import { FlowNode } from 'botpress/sdk'
+import { FlowNode, IO } from 'botpress/sdk'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import reduceReducers from 'reduce-reducers'
@@ -31,6 +31,7 @@ import {
   requestUpdateFlow,
   requestUpdateFlowNode,
   requestUpdateSkill,
+  setDebuggerEvent,
   setDiagramAction,
   switchFlow,
   switchFlowNode,
@@ -46,6 +47,7 @@ export interface FlowReducer {
   flowsByName: _.Dictionary<FlowView>
   currentDiagramAction: string
   nodeInBuffer?: FlowNode
+  debuggerEvent?: IO.IncomingEvent
 }
 
 const MAX_UNDO_STACK_SIZE = 25
@@ -206,7 +208,8 @@ const doRenameFlow = ({ currentName, newName, flows }) =>
 
     if (f.nodes) {
       let json = JSON.stringify(f.nodes)
-      json = json.replace(currentName, newName)
+      const regex = new RegExp(currentName, 'g')
+      json = json.replace(regex, newName)
       f.nodes = JSON.parse(json)
     }
 
@@ -263,7 +266,7 @@ const doCreateNewFlow = name => {
 
   return {
     version: '0.1',
-    name: name,
+    name,
     location: name,
     label: undefined,
     description: '',
@@ -527,7 +530,7 @@ reducer = reduceReducers(
         })
 
         const newNode = {
-          id: 'skill-' + flowRandomId,
+          id: `skill-${flowRandomId}`,
           type: 'skill-call',
           skill: skillId,
           name: `${skillId}-${flowRandomId}`,
@@ -591,7 +594,7 @@ reducer = reduceReducers(
             [payload.editFlowName]: modifiedFlow,
             [state.currentFlow]: {
               ...state.flowsByName[state.currentFlow],
-              nodes: nodes
+              nodes
             }
           }
         }
@@ -726,6 +729,11 @@ reducer = reduceReducers(
           }
         }
       },
+
+      [setDebuggerEvent]: (state, { payload }) => ({
+        ...state,
+        debuggerEvent: payload
+      }),
 
       [copyFlowNodeElement]: (state, { payload }) => ({
         ...state,

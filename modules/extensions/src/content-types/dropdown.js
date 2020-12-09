@@ -23,6 +23,7 @@ function render(data) {
       allowCreation: data.allowCreation,
       allowMultiple: data.allowMultiple,
       width: data.width,
+      markdown: data.markdown,
       collectFeedback: data.collectFeedback
     }
   ]
@@ -60,6 +61,8 @@ function renderElement(data, channel) {
     return renderSlack(data)
   } else if (channel === 'smooch') {
     return [data]
+  } else if (channel === 'teams') {
+    return [{ ...data, type: 'dropdown_choice' }]
   }
 
   return []
@@ -125,12 +128,18 @@ module.exports = {
         type: 'boolean',
         title: 'module.extensions.types.dropdown.allowMultiple'
       },
+      markdown: {
+        type: 'boolean',
+        title: 'module.extensions.types.dropdown.useMarkdown',
+        default: true
+      },
       ...base.typingIndicators
     }
   },
   uiSchema: {
     message: {
-      'ui:field': 'i18n_field'
+      'ui:field': 'i18n_field',
+      $subtype: 'textarea'
     },
     buttonText: {
       'ui:field': 'i18n_field'

@@ -1,4 +1,4 @@
-import { BotConfig, BotTemplate, Logger, Stage } from 'botpress/sdk'
+import { BotConfig, BotTemplate, Logger, Stage, WorkspaceUserWithAttributes } from 'botpress/sdk'
 import cluster from 'cluster'
 import { BotHealth, ServerHealth } from 'common/typings'
 import { BotCreationSchema, BotEditSchema, isValidBotId } from 'common/validation'
@@ -196,7 +196,7 @@ export class BotService {
     ]) as Partial<BotConfig>
 
     // bot needs to be mounted to perform the language changes
-    if (updatedFields.defaultLanguage && updatedFields.defaultLanguage != actualBot.defaultLanguage) {
+    if (updatedFields.defaultLanguage && updatedFields.defaultLanguage !== actualBot.defaultLanguage) {
       updatedFields.disabled = false
     }
 
@@ -240,7 +240,7 @@ export class BotService {
   async importBot(botId: string, archive: Buffer, workspaceId: string, allowOverwrite?: boolean): Promise<void> {
     const startTime = Date.now()
     if (!isValidBotId(botId)) {
-      throw new InvalidOperationError(`Can't import bot; the bot ID contains invalid characters`)
+      throw new InvalidOperationError("Can't import bot; the bot ID contains invalid characters")
     }
 
     if (await this.botExists(botId)) {
@@ -324,9 +324,9 @@ export class BotService {
   private async _validateBotArchive(directory: string): Promise<string> {
     const configFile = await Promise.fromCallback<string[]>(cb => glob('**/bot.config.json', { cwd: directory }, cb))
     if (configFile.length > 1) {
-      throw new InvalidOperationError(`Bots must be imported in separate archives`)
+      throw new InvalidOperationError('Bots must be imported in separate archives')
     } else if (configFile.length !== 1) {
-      throw new InvalidOperationError(`The archive doesn't seem to contain a bot`)
+      throw new InvalidOperationError("The archive doesn't seem to contain a bot")
     }
 
     return path.join(directory, path.dirname(configFile[0]))
@@ -431,8 +431,8 @@ export class BotService {
     const bpConfig = await this.configProvider.getBotpressConfig()
     const alteredBot = _.cloneDeep(currentConfig)
 
-    const attributes = ['last_logon', 'firstname', 'lastname']
-    const users = await this.workspaceService.getWorkspaceUsersAttributes(workspaceId, attributes)
+    const options = { attributes: ['last_logon', 'firstname', 'lastname'] }
+    const users = (await this.workspaceService.getWorkspaceUsers(workspaceId, options)) as WorkspaceUserWithAttributes[]
 
     const api = await createForGlobalHooks()
     const currentStage = <Stage>pipeline.find(s => s.id === currentConfig.pipeline_status.current_stage.id)
@@ -481,7 +481,7 @@ export class BotService {
   }
 
   private async _promoteCopy(initialBot: BotConfig, newBot: BotConfig) {
-    if (initialBot.id == newBot.id) {
+    if (initialBot.id === newBot.id) {
       newBot.id = `${newBot.id}__${moment().format('YY-MM-DD')}__${Math.round(Math.random() * 100)}`
     }
 
@@ -617,7 +617,7 @@ export class BotService {
         botId,
         PersistedConsoleLogger.listenForAllLogs((level, message, args) => {
           this.realtimeService.sendToSocket(
-            RealTimePayload.forAdmins('logs::' + botId, {
+            RealTimePayload.forAdmins(`logs::${botId}`, {
               level,
               message,
               args
@@ -734,7 +734,7 @@ export class BotService {
 
     if (await this.workspaceService.hasPipeline(workspaceId)) {
       const botConfig = await this.configProvider.getBotConfig(botId)
-      if (revParts.length < 3 || revParts[2] != botConfig.pipeline_status.current_stage.id) {
+      if (revParts.length < 3 || revParts[2] !== botConfig.pipeline_status.current_stage.id) {
         throw new VError('cannot rollback a bot to a different stage')
       }
     }

@@ -1,7 +1,7 @@
 import { Button, Classes, MenuItem } from '@blueprintjs/core'
 import { ItemPredicate, ItemRenderer, Select } from '@blueprintjs/select'
+import { WorkspaceUser } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
-import { WorkspaceUser } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { RouteComponentProps, withRouter } from 'react-router'
@@ -64,8 +64,8 @@ const WorkspaceSelect: FC<Props> = props => {
       return
     }
 
-    const urlId = props.workspaces.find(x => x.workspace == urlWorkspaceId)
-    const storageId = props.workspaces.find(x => x.workspace == getActiveWorkspace())
+    const urlId = props.workspaces.find(x => x.workspace === urlWorkspaceId)
+    const storageId = props.workspaces.find(x => x.workspace === getActiveWorkspace())
     return (urlId && urlId.workspace) || (storageId && storageId.workspace) || props.workspaces[0].workspace
   }
 

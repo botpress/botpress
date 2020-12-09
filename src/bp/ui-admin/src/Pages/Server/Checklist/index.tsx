@@ -1,4 +1,4 @@
-import { Callout, Intent, Tag } from '@blueprintjs/core'
+import { Button, Callout, Intent, Tag } from '@blueprintjs/core'
 import { ServerConfig } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
@@ -8,6 +8,7 @@ import PageContainer from '~/App/PageContainer'
 
 import { fetchServerConfig } from '../../../reducers/server'
 
+import { DiagReport } from './DiagReport'
 import Item from './Item'
 
 const NOT_SET = 'Not set'
@@ -121,7 +122,7 @@ export const Checklist: FC<Props> = props => {
           docs="https://botpress.com/docs/pro/about-pro/"
           status={getEnv('PRO_ENABLED') === 'true' || getConfig('pro.enabled') === 'true' ? 'success' : 'warning'}
           source={[
-            { type: 'env', key: 'PRO_ENABLED', value: getEnv('BP_PRODUCTION') },
+            { type: 'env', key: 'PRO_ENABLED', value: getEnv('PRO_ENABLED') },
             { type: 'env', key: 'BP_LICENSE_KEY', value: getEnv('BP_LICENSE_KEY') },
             { type: 'config', key: 'pro.enabled', value: getConfig('pro.enabled') },
             { type: 'config', key: 'pro.licenseKey', value: getConfig('pro.licenseKey') }
@@ -306,6 +307,17 @@ export const Checklist: FC<Props> = props => {
         >
           Check the documentation for more information
         </Item>
+
+        <Item title="Generate a diagnostic report" status="none">
+          This tool will generate a report which can help diagnose problems. It will test the connectivity to various
+          components, ensure that proper folders are writable, and will also include the various configuration files.
+          <br />
+          <br />
+          Passwords and secrets will be obfuscated
+          <br />
+          <br />
+          <DiagReport />
+        </Item>
       </div>
     </Container>
   )
@@ -315,7 +327,4 @@ const mapStateToProps = state => ({
   serverConfig: state.server.serverConfig
 })
 
-export default connect(
-  mapStateToProps,
-  { fetchServerConfig }
-)(Checklist)
+export default connect(mapStateToProps, { fetchServerConfig })(Checklist)

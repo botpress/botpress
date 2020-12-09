@@ -58,7 +58,7 @@ class PanelContent extends React.Component<Props> {
     }
 
     const rawFiles = []
-    this.addFiles('raw', `Data`, rawFiles)
+    this.addFiles('raw', 'Data', rawFiles)
 
     const actionFiles = []
     this.addFiles('bot.actions', lang.tr('module.code-editor.sidePanel.bot', { name: window['BOT_NAME'] }), actionFiles)

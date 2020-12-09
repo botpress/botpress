@@ -1,5 +1,4 @@
-@import url('/assets/ui-studio/public/external/font-roboto.css');
-
+/* Old version IE 10 and 11 only */
 :root {
   --main-bg-color: #ffffff;
   --main-bg-color-hover: rgba(255, 255, 255, 0.9);
@@ -299,8 +298,6 @@ body {
   border-bottom-left-radius: 0px;
   border-top-right-radius: 0px;
   border-bottom-right-radius: 0px;
-
-  max-width: 80%;
 
   white-space: pre-wrap;
   word-break: break-word;
@@ -753,16 +750,26 @@ body {
   padding: 0;
   margin: 0;
   color: #bbb;
-  margin-left: 17px;
+  margin-left: 12px;
   text-align: right;
   vertical-align: middle;
   cursor: pointer;
-  fill: #bbb;
-  width: 15px;
+  fill: #1a1e22;
+  width: 16px;
+  height: 16px;
+  transition: fill 0.3s;
 }
 
-.bpw-header-icon :hover {
-  fill: black;
+.bpw-header-icon svg,
+.bpw-header-icon svg path {
+  fill: #1a1e22;
+  transition: fill 0.3s;
+}
+
+.bpw-header-icon:hover,
+.bpw-header-icon:hover svg,
+.bpw-header-icon:hover svg path {
+  fill: #5c7080;
 }
 
 .bpw-floating-button {
