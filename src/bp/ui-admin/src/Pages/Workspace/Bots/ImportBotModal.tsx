@@ -130,9 +130,9 @@ class ImportBotModal extends Component<Props, State> {
     let buttonText = lang.tr('admin.workspace.bots.import.import')
     if (isProcessing) {
       if (progress !== 0) {
-        buttonText = lang.tr('admin.workspace.versioning.uploadProgress', { progress })
+        buttonText = lang.tr('admin.versioning.uploadProgress', { progress })
       } else {
-        buttonText = lang.tr('admin.workspace.versioning.processing')
+        buttonText = lang.tr('admin.versioning.processing')
       }
     }
     return (

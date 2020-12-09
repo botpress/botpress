@@ -282,7 +282,8 @@
           "archive": "Archive de Bot",
           "fromArchive": "Importer le bot depuis l'archive",
           "import": "Importer un bot",
-          "overwrite": "Remplacer le bot existant"
+          "overwrite": "Remplacer le bot existant",
+          "successful": "Importation du bot {details} réussi!"
         },
         "importExisting": "Importer existant",
         "item": {

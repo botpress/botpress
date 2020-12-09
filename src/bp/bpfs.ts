@@ -66,7 +66,7 @@ class BPFS {
         console.info(chalk.blue('Cleaning data folder before pulling data...'))
         await this._clearDir(path.join(this.targetDir, 'global'))
         await this._clearDir(path.join(this.targetDir, 'bots'))
-      } else if (fse.existsSync(this.targetDir)) {
+      } else if (await fse.pathExists(this.targetDir)) {
         const fileCount = await this._filesCount(this.targetDir)
         console.info(chalk.blue(`Remote files will be pulled in an existing folder containing ${fileCount} files`))
       }
@@ -98,7 +98,7 @@ class BPFS {
     const dryRun = process.argv.includes('--dry')
     const keepRevisions = process.argv.includes('--keep-revisions')
 
-    if (!fse.existsSync(this.sourceDir)) {
+    if (!(await fse.pathExists(this.sourceDir))) {
       this._endWithError(`Specified folder "${this.sourceDir}" doesn't exist.`)
     }
 
