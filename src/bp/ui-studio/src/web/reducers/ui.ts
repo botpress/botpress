@@ -5,6 +5,8 @@ import {
   removeDocumentationHint,
   setEmulatorOpen,
   toggleBottomPanel,
+  toggleBottomPanelExpand,
+  toggleInspector,
   updateDocumentationModal,
   updateGlobalStyle,
   viewModeChanged,
@@ -15,8 +17,21 @@ import {
 
 import storage from '../util/storage'
 
+export interface UiReducer {
+  viewMode: any
+  docHints: string[]
+  emulatorOpen: boolean
+  zoomLevel: number
+  bottomPanel: boolean
+  bottomPanelExpanded: boolean
+  inspectorEnabled: boolean
+  setEmulatorOpen: (newState: boolean) => void
+}
+
 const bottomPanelStorageKey = `bp::${window.BOT_ID}::bottom-panel-open`
+const inspectorEnabledStorageKey = `bp::${window.BOT_ID}::enable-inspector`
 const defaultBottomPanelOpen = storage.get(bottomPanelStorageKey) === 'true'
+const defaultInspectorEnabled = storage.get(inspectorEnabledStorageKey) === 'true'
 
 const defaultState = {
   viewMode: -1,
@@ -24,16 +39,10 @@ const defaultState = {
   docHints: [],
   docModal: null,
   bottomPanel: defaultBottomPanelOpen || false,
+  bottomPanelExpanded: false,
+  inspectorEnabled: defaultInspectorEnabled,
   emulatorOpen: false,
   zoomLevel: 100
-}
-
-export interface UiReducer {
-  viewMode: any
-  docHints: string[]
-  emulatorOpen: boolean
-  zoomLevel: number
-  bottomPanel: boolean
 }
 
 const reducer = handleActions(
@@ -58,12 +67,24 @@ const reducer = handleActions(
       ...state,
       docModal: payload
     }),
+    [toggleBottomPanelExpand]: state => ({
+      ...state,
+      bottomPanelExpanded: !state.bottomPanelExpanded
+    }),
     [toggleBottomPanel]: (state, {}) => {
       const value = !state.bottomPanel
       localStorage.setItem(bottomPanelStorageKey, value.toString())
       return {
         ...state,
         bottomPanel: value
+      }
+    },
+    [toggleInspector]: (state, {}) => {
+      const value = !state.inspectorEnabled
+      localStorage.setItem(inspectorEnabledStorageKey, value.toString())
+      return {
+        ...state,
+        inspectorEnabled: value
       }
     },
     [zoomIn]: (state, {}) => {

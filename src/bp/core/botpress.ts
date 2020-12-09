@@ -147,7 +147,7 @@ export class Botpress {
     await this.maybeStartLocalActionServer()
 
     if (this.config.sendUsageStats) {
-      this.statsService.start()
+      await this.statsService.start()
     }
 
     AppLifecycle.setDone(AppLifecycleEvents.BOTPRESS_READY)
@@ -359,6 +359,7 @@ export class Botpress {
 
     this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       if (event.isPause) {
+        this.eventCollector.storeEvent(event)
         return
       }
 

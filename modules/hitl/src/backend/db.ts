@@ -37,6 +37,7 @@ export default class HitlDb {
         table.timestamp('last_heard_on')
         table.boolean('paused')
         table.string('paused_trigger')
+        table.string('thread_id')
       })
       .then(() => {
         return this.knex.createTableIfNotExists('hitl_messages', function(table) {
@@ -70,11 +71,9 @@ export default class HitlDb {
 
   createUserSession = async (event: sdk.IO.Event) => {
     let profileUrl = undefined
-    let displayName =
-      '#' +
-      Math.random()
-        .toString()
-        .substr(2)
+    let displayName = `# ${Math.random()
+      .toString()
+      .substr(2)}`
 
     const user: sdk.User = (await this.bp.users.getOrCreateUser(event.channel, event.target, event.botId)).result
 
@@ -82,7 +81,7 @@ export default class HitlDb {
       const { first_name, last_name, full_name, profile_pic, picture_url } = user.attributes
 
       profileUrl = profile_pic || picture_url
-      displayName = full_name || (first_name && last_name && first_name + ' ' + last_name) || displayName
+      displayName = full_name || (first_name && last_name && `${first_name} ${last_name}`) || displayName
     }
 
     const session = {
@@ -288,7 +287,7 @@ export default class HitlDb {
       .where({ botId })
 
     if (onlyPaused) {
-      query = query.whereRaw('hitl_sessions.paused = ' + this.knex.bool.true())
+      query = query.whereRaw(`hitl_sessions.paused = ${this.knex.bool.true()}`)
     }
 
     if (sessionIds) {

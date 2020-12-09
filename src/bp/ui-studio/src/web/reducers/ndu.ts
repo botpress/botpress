@@ -2,7 +2,7 @@ import { Condition, Topic } from 'botpress/sdk'
 import _ from 'lodash'
 import { handleActions } from 'redux-actions'
 import { conditionsReceived, receiveQNACountByTopic, topicsReceived } from '~/actions'
-import { CountByTopic } from '~/views/OneFlow/sidePanel/TopicList'
+import { CountByTopic } from '~/views/FlowBuilder/sidePanelTopics/TopicList'
 
 export interface NduReducer {
   conditions: Condition[]

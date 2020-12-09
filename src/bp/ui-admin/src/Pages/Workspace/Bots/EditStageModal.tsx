@@ -9,6 +9,7 @@ import {
   Radio,
   RadioGroup
 } from '@blueprintjs/core'
+import { WorkspaceUserWithAttributes } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import React, { ChangeEvent, FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -17,11 +18,10 @@ import api from '~/api'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
 import { getActiveWorkspace } from '~/Auth'
 
-import { WorkspaceUserInfo } from '../../../../../common/typings'
 import { fetchUsers } from '../../../reducers/user'
 
 interface StateProps {
-  users: WorkspaceUserInfo[]
+  users: WorkspaceUserWithAttributes[]
   loading: boolean
 }
 

@@ -131,10 +131,12 @@ export const CHAT_USER_ROLE = {
 export const BUILTIN_MODULES = [
   'analytics',
   'basic-skills',
-  'builtin',
+  'bot-improvement',
+  'broadcast',
   'builtin',
   'channel-messenger',
   'channel-slack',
+  'channel-smooch',
   'channel-teams',
   'channel-telegram',
   'channel-web',
@@ -143,7 +145,10 @@ export const BUILTIN_MODULES = [
   'extensions',
   'history',
   'hitl',
+  'misunderstood',
+  'ndu',
   'nlu',
   'qna',
-  'testing'
+  'testing',
+  'uipath'
 ]

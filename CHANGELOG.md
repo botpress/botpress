@@ -1,3 +1,136 @@
+# [12.15.0](https://github.com/botpress/botpress/compare/v12.14.1...v12.15.0) (2020-12-08)
+
+
+### Bug Fixes
+
+* **admin:** render needs training only if nlu module is enabled ([#4269](https://github.com/botpress/botpress/issues/4269)) ([dafa9ad](https://github.com/botpress/botpress/commit/dafa9ad))
+* **channel-messenger:** handle errors when enabling messenger ([#4080](https://github.com/botpress/botpress/issues/4080)) ([#4261](https://github.com/botpress/botpress/issues/4261)) ([32b332f](https://github.com/botpress/botpress/commit/32b332f))
+* **core:** deprecate set attributes ([#4255](https://github.com/botpress/botpress/issues/4255)) ([02ea1cc](https://github.com/botpress/botpress/commit/02ea1cc))
+* **core:** opt-in fix for vm context mem leak ([#4268](https://github.com/botpress/botpress/issues/4268)) ([615cceb](https://github.com/botpress/botpress/commit/615cceb))
+* **dev:** lint ([#4264](https://github.com/botpress/botpress/issues/4264)) ([8b99b01](https://github.com/botpress/botpress/commit/8b99b01))
+* **extensions:** use markdown in dropdown element ([#4089](https://github.com/botpress/botpress/issues/4089)) ([#4254](https://github.com/botpress/botpress/issues/4254)) ([c95811c](https://github.com/botpress/botpress/commit/c95811c))
+* **studio:** width of emulator ([#4259](https://github.com/botpress/botpress/issues/4259)) ([e4fa004](https://github.com/botpress/botpress/commit/e4fa004))
+
+
+### Features
+
+* **dx:** allow packaging only one module ([#4275](https://github.com/botpress/botpress/issues/4275)) ([c089772](https://github.com/botpress/botpress/commit/c089772))
+* **hitl2:** Create HITL2 module ([#4115](https://github.com/botpress/botpress/issues/4115)) ([a82f858](https://github.com/botpress/botpress/commit/a82f858))
+* **studio:** inspect tool for devs ([#4183](https://github.com/botpress/botpress/issues/4183)) ([e33d0b6](https://github.com/botpress/botpress/commit/e33d0b6))
+
+
+
+## [12.14.2](https://github.com/botpress/botpress/compare/v12.14.1...v12.14.2) (2020-12-03)
+
+
+### Bug Fixes
+
+* **channel-messenger:** handle errors when enabling messenger ([#4080](https://github.com/botpress/botpress/issues/4080)) ([#4261](https://github.com/botpress/botpress/issues/4261)) ([32b332f](https://github.com/botpress/botpress/commit/32b332f))
+* **core:** deprecate set attributes ([#4255](https://github.com/botpress/botpress/issues/4255)) ([02ea1cc](https://github.com/botpress/botpress/commit/02ea1cc))
+* **studio:** width of emulator ([#4259](https://github.com/botpress/botpress/issues/4259)) ([e4fa004](https://github.com/botpress/botpress/commit/e4fa004))
+* **studio:** default emulator avatar style ([#4256](https://github.com/botpress/botpress/pull/4256))
+
+
+## [12.14.1](https://github.com/botpress/botpress/compare/v12.13.2...v12.14.1) (2020-12-02)
+
+
+### Bug Fixes
+
+* **channel-web:** revert minimum user id length ([#4251](https://github.com/botpress/botpress/issues/4251)) ([125dac1](https://github.com/botpress/botpress/commit/125dac1))
+* **core:** logs panel no longer cleared ([#4252](https://github.com/botpress/botpress/issues/4252)) ([cc7909f](https://github.com/botpress/botpress/commit/cc7909f))
+* **telemetry:** negative limit not supported in pg ([#4233](https://github.com/botpress/botpress/issues/4233)) ([6577f2c](https://github.com/botpress/botpress/commit/6577f2c))
+
+
+
+# [12.14.0](https://github.com/botpress/botpress/compare/v12.13.2...v12.14.0) (2020-11-29)
+
+
+### Bug Fixes
+
+* **nlu:** rm special three dots char as it messes up sentencepiece post processing ([#4229](https://github.com/botpress/botpress/issues/4229)) ([64c1923](https://github.com/botpress/botpress/commit/64c1923))
+* **telemetry:** negative limit not supported in pg ([#4233](https://github.com/botpress/botpress/issues/4233)) ([6577f2c](https://github.com/botpress/botpress/commit/6577f2c))
+
+
+### Features
+
+* **core:** migration history ([#4197](https://github.com/botpress/botpress/issues/4197)) ([01b1828](https://github.com/botpress/botpress/commit/01b1828))
+* **studio:** move debugger to bottom panel ([#4182](https://github.com/botpress/botpress/issues/4182)) ([e5d52d9](https://github.com/botpress/botpress/commit/e5d52d9))
+
+
+
+## [12.13.2](https://github.com/botpress/botpress/compare/v12.13.1...v12.13.2) (2020-11-24)
+
+
+### Bug Fixes
+
+* **core:** default to production telemetry url ([#4220](https://github.com/botpress/botpress/issues/4220)) ([f03ab25](https://github.com/botpress/botpress/commit/f03ab25))
+* **nlu:** lang id is still executed even if some models are out of cache ([#4214](https://github.com/botpress/botpress/issues/4214)) ([0328969](https://github.com/botpress/botpress/commit/0328969))
+* **nlu:** measure sizeof both model and entities + added logging ([#4213](https://github.com/botpress/botpress/issues/4213)) ([05b17a6](https://github.com/botpress/botpress/commit/05b17a6))
+
+
+### Features
+
+* **core:** base for shared libraries ([#4221](https://github.com/botpress/botpress/issues/4221)) ([061760f](https://github.com/botpress/botpress/commit/061760f))
+* **core:** list workspace users from sdk ([#4178](https://github.com/botpress/botpress/issues/4178)) ([b56c26d](https://github.com/botpress/botpress/commit/b56c26d))
+* **stan:** optionnal version number in stan's API ([#4218](https://github.com/botpress/botpress/issues/4218)) ([16404e7](https://github.com/botpress/botpress/commit/16404e7))
+
+
+
+## [12.13.1](https://github.com/botpress/botpress/compare/v12.13.0...v12.13.1) (2020-11-19)
+
+
+### Bug Fixes
+
+* **channel-web:** fix userId generation and assignment ([#4211](https://github.com/botpress/botpress/issues/4211)) ([586ff29](https://github.com/botpress/botpress/commit/586ff29))
+* **channel-web:** new group from payload ([073fd11](https://github.com/botpress/botpress/commit/073fd11))
+* **channel-web:** optional close on escape ([1ca1289](https://github.com/botpress/botpress/commit/1ca1289))
+* **channel-web:** typing invalid date ([#4190](https://github.com/botpress/botpress/issues/4190)) ([eccf05a](https://github.com/botpress/botpress/commit/eccf05a))
+* **core:** add trailing slash for dir listings ([#4206](https://github.com/botpress/botpress/issues/4206)) ([107ab6d](https://github.com/botpress/botpress/commit/107ab6d))
+* **webchat:** issue on incognito mode ([#4195](https://github.com/botpress/botpress/issues/4195)) ([0bc28c4](https://github.com/botpress/botpress/commit/0bc28c4))
+* **webchat:** multiple calls when using proactive triggers ([#4194](https://github.com/botpress/botpress/issues/4194)) ([6387058](https://github.com/botpress/botpress/commit/6387058))
+
+
+### Features
+
+* **channel-web:** composer placeholder for initial conversation ([#3629](https://github.com/botpress/botpress/issues/3629)) ([1ec3d38](https://github.com/botpress/botpress/commit/1ec3d38))
+
+
+
+# [12.13.0](https://github.com/botpress/botpress/compare/v12.12.1...v12.13.0) (2020-11-16)
+
+
+### Bug Fixes
+
+* **channel-telegram:** handling of inline keyboard callbacks ([#3454](https://github.com/botpress/botpress/issues/3454)) ([373681e](https://github.com/botpress/botpress/commit/373681e))
+* **channel-web:** when we click on a conversation the webchat crashs ([#4169](https://github.com/botpress/botpress/issues/4169)) ([168762a](https://github.com/botpress/botpress/commit/168762a))
+* **channels:** fix creating inline keyboard without payload ([#3453](https://github.com/botpress/botpress/issues/3453)) ([95b37cf](https://github.com/botpress/botpress/commit/95b37cf))
+* **core:** prevent multiple load of a module ([#4188](https://github.com/botpress/botpress/issues/4188)) ([51f2162](https://github.com/botpress/botpress/commit/51f2162))
+* **gh:** skip nlu gh check when PR comes from a fork + skip tslint newrules if no files change ([#4180](https://github.com/botpress/botpress/issues/4180)) ([c4b7fd9](https://github.com/botpress/botpress/commit/c4b7fd9))
+* **gh:** tag the version of bitfan in nlu regression gh check ([#4187](https://github.com/botpress/botpress/issues/4187)) ([dcc9da8](https://github.com/botpress/botpress/commit/dcc9da8))
+* **hitl:** missing column thread_id for new tables ([#4181](https://github.com/botpress/botpress/issues/4181)) ([ab9d530](https://github.com/botpress/botpress/commit/ab9d530))
+* **nlu:** prevent empty string in exact index ([defb08a](https://github.com/botpress/botpress/commit/defb08a))
+* **studio:** enhance unclosed brackets, respect order and exact length ([#4173](https://github.com/botpress/botpress/issues/4173)) ([15c2685](https://github.com/botpress/botpress/commit/15c2685))
+* **studio:** fix train button ([#4186](https://github.com/botpress/botpress/issues/4186)) ([266b4fa](https://github.com/botpress/botpress/commit/266b4fa))
+
+
+### Features
+
+* **core:** Telemetry ([#4152](https://github.com/botpress/botpress/issues/4152)) ([162a9ea](https://github.com/botpress/botpress/commit/162a9ea)), closes [#3635](https://github.com/botpress/botpress/issues/3635) [#3649](https://github.com/botpress/botpress/issues/3649) [#3677](https://github.com/botpress/botpress/issues/3677) [#3662](https://github.com/botpress/botpress/issues/3662) [#3752](https://github.com/botpress/botpress/issues/3752) [#3754](https://github.com/botpress/botpress/issues/3754)
+* **nlu:** model cache size is settable by nlu config file + refactor stan cli ([#4175](https://github.com/botpress/botpress/issues/4175)) ([45bc176](https://github.com/botpress/botpress/commit/45bc176))
+* **studio:** new design for standard & skills ([#4158](https://github.com/botpress/botpress/issues/4158)) ([9be6dfb](https://github.com/botpress/botpress/commit/9be6dfb))
+
+
+
+## [12.12.1](https://github.com/botpress/botpress/compare/v12.12.0...v12.12.1) (2020-11-11)
+
+
+### Bug Fixes
+
+* **nlu:** train now button is more responsive ([#4163](https://github.com/botpress/botpress/issues/4163)) ([069b322](https://github.com/botpress/botpress/commit/069b322))
+* **studio:** debugger showing on top of overlay ([#4160](https://github.com/botpress/botpress/issues/4160)) ([0309c8b](https://github.com/botpress/botpress/commit/0309c8b))
+
+
+
 # [12.12.0](https://github.com/botpress/botpress/compare/v12.10.10...v12.12.0) (2020-11-05)
 
 

@@ -13,7 +13,7 @@ import semver from 'semver'
 
 import { setSimilarity, vocabNGram } from '../tools/strings'
 import { isSpace, processUtteranceTokens, restoreOriginalUtteranceCasing } from '../tools/token-utils'
-import { Gateway, LangServerInfo, LangsGateway, LanguageProvider, SeededLodashProvider, Token2Vec } from '../typings'
+import { Gateway, LangServerInfo, LangsGateway, LanguageProvider, SeededLodashProvider } from '../typings'
 
 const debug = DEBUG('nlu').sub('lang')
 
@@ -465,7 +465,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     return vectors
   }
 
-  async tokenize(utterances: string[], lang: string, vocab: Token2Vec = {}): Promise<string[][]> {
+  async tokenize(utterances: string[], lang: string, vocab: string[] = []): Promise<string[][]> {
     if (!utterances.length) {
       return []
     }

@@ -5,9 +5,9 @@ import { DucklingEntityExtractor } from './entities/duckling-extractor'
 import LangProvider from './language/language-provider'
 import { getPOSTagger, tagSentence } from './language/pos-tagger'
 import SeededLodashProvider from './tools/seeded-lodash'
-import { LanguageProvider, NLUVersionInfo, Token2Vec, Tools } from './typings'
+import { LanguageProvider, Tools } from './typings'
 
-const NLU_VERSION = '1.4.1'
+const NLU_VERSION = '2.0.0'
 
 const healthGetter = (languageProvider: LanguageProvider) => (): NLU.Health => {
   const { validProvidersCount, validLanguages } = languageProvider.getHealth()
@@ -18,15 +18,22 @@ const healthGetter = (languageProvider: LanguageProvider) => (): NLU.Health => {
   }
 }
 
-const versionGetter = (languageProvider: LanguageProvider) => (): NLUVersionInfo => {
+const versionGetter = (languageProvider: LanguageProvider) => (): NLU.Specifications => {
+  const { langServerInfo } = languageProvider
+  const { dim, domain, version } = langServerInfo
+
   return {
     nluVersion: NLU_VERSION,
-    langServerInfo: languageProvider.langServerInfo
+    languageServer: {
+      dimensions: dim,
+      domain,
+      version
+    }
   }
 }
 
 const initializeLanguageProvider = async (
-  config: NLU.Config,
+  config: NLU.LanguageConfig,
   logger: NLU.Logger,
   seededLodashProvider: SeededLodashProvider
 ) => {
@@ -50,11 +57,11 @@ const initializeLanguageProvider = async (
   }
 }
 
-const initDucklingExtractor = async (config: NLU.Config, logger: NLU.Logger): Promise<void> => {
+const initDucklingExtractor = async (config: NLU.LanguageConfig, logger: NLU.Logger): Promise<void> => {
   await DucklingEntityExtractor.configure(config.ducklingEnabled, config.ducklingURL, logger)
 }
 
-export async function initializeTools(config: NLU.Config, logger: NLU.Logger): Promise<Tools> {
+export async function initializeTools(config: NLU.LanguageConfig, logger: NLU.Logger): Promise<Tools> {
   await initDucklingExtractor(config, logger)
 
   const seededLodashProvider = new SeededLodashProvider()
@@ -65,7 +72,7 @@ export async function initializeTools(config: NLU.Config, logger: NLU.Logger): P
       const tagger = getPOSTagger(lang, MLToolkit)
       return tokenUtterances.map(u => tagSentence(tagger, u))
     },
-    tokenize_utterances: (utterances: string[], lang: string, vocab?: Token2Vec) =>
+    tokenize_utterances: (utterances: string[], lang: string, vocab?: string[]) =>
       languageProvider.tokenize(utterances, lang, vocab),
     vectorize_tokens: async (tokens, lang) => {
       const a = await languageProvider.vectorize(tokens, lang)
@@ -74,7 +81,7 @@ export async function initializeTools(config: NLU.Config, logger: NLU.Logger): P
     generateSimilarJunkWords: (vocab: string[], lang: string) => languageProvider.generateSimilarJunkWords(vocab, lang),
     getHealth: healthGetter(languageProvider),
     getLanguages: () => languageProvider.languages,
-    getVersionInfo: versionGetter(languageProvider),
+    getSpecifications: versionGetter(languageProvider),
     seededLodashProvider,
     mlToolkit: MLToolkit,
     duckling: new DucklingEntityExtractor(logger)

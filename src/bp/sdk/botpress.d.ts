@@ -7,7 +7,6 @@
 declare module 'botpress/sdk' {
   import { NextFunction, Request, Response, Router } from 'express'
   import Knex from 'knex'
-
   export interface KnexExtension {
     isLite: boolean
     location: string
@@ -440,25 +439,11 @@ declare module 'botpress/sdk' {
 
     export const makeEngine: (config: Config, logger: Logger) => Promise<Engine>
 
-    export interface Engine {
-      getHealth: () => Health
-      getLanguages: () => string[]
-      computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
-      loadModel: (model: Model, modelId: string) => Promise<void>
-      hasModel: (modelId: string) => boolean
-      train: (
-        trainSessionId: string,
-        intentDefs: NLU.IntentDefinition[],
-        entityDefs: NLU.EntityDefinition[],
-        languageCode: string,
-        options: TrainingOptions
-      ) => Promise<Model>
-      cancelTraining: (trainSessionId: string) => Promise<void>
-      detectLanguage: (text: string, modelByLang: Dic<string>) => Promise<string>
-      predict: (text: string, ctx: string[], modelId: string) => Promise<IO.EventUnderstanding>
+    export interface Config extends LanguageConfig {
+      modelCacheSize: number
     }
 
-    export interface Config {
+    export interface LanguageConfig {
       ducklingURL: string
       ducklingEnabled: boolean
       languageSources: LanguageSource[]
@@ -475,16 +460,62 @@ declare module 'botpress/sdk' {
       error: (msg: string, err?: Error) => void
     }
 
-    export interface TrainingOptions {
-      nluSeed: number
-      progressCallback: (x: number) => void
-      previousModel?: string
+    export interface TrainingSet {
+      intentDefs: NLU.IntentDefinition[]
+      entityDefs: NLU.EntityDefinition[]
+      languageCode: string
+      seed: number // seeds random number generator in nlu training
     }
 
-    export interface Model {
-      hash: string
-      languageCode: string
-      seed: number
+    export interface ModelIdArgs extends TrainingSet {
+      specifications: Specifications
+    }
+
+    export interface TrainingOptions {
+      progressCallback: (x: number) => void
+      previousModel: ModelId | undefined
+    }
+
+    export interface Engine {
+      getHealth: () => Health
+      getLanguages: () => string[]
+      getSpecifications: () => Specifications
+      loadModel: (model: Model) => Promise<void>
+      unloadModel: (modelId: ModelId) => void
+      hasModel: (modelId: ModelId) => boolean
+      train: (trainSessionId: string, trainSet: TrainingSet, options?: Partial<TrainingOptions>) => Promise<Model>
+      cancelTraining: (trainSessionId: string) => Promise<void>
+      detectLanguage: (text: string, modelByLang: Dic<ModelId>) => Promise<string>
+      predict: (text: string, ctx: string[], modelId: ModelId) => Promise<IO.EventUnderstanding>
+      spellCheck: (sentence: string, modelId: ModelId) => Promise<string>
+    }
+
+    export const modelIdService: {
+      toString: (modelId: ModelId) => string // to use ModelId as a key
+      fromString: (stringId: string) => ModelId // to parse information from a key
+      toId: (m: Model) => ModelId // keeps only minimal information to make an id
+      isId: (m: string) => boolean
+      makeId: (factors: ModelIdArgs) => ModelId
+      briefId: (factors: Partial<ModelIdArgs>) => Partial<ModelId> // makes incomplete Id from incomplete information
+    }
+
+    export interface ModelId {
+      specificationHash: string // represents the nlu engine that was used to train the model
+      contentHash: string // represents the intent and entity definitions the model was trained with
+      seed: number // number to seed the random number generators used during nlu training
+      languageCode: string // language of the model
+    }
+
+    export interface Specifications {
+      nluVersion: string // semver string
+      languageServer: {
+        dimensions: number
+        domain: string
+        version: string // semver string
+      }
+    }
+
+    export type Model = ModelId & {
       startedAt: Date
       finishedAt: Date
       data: {
@@ -1142,6 +1173,12 @@ declare module 'botpress/sdk' {
     locked: boolean
     pipeline_status: BotPipelineStatus
     oneflow?: boolean
+
+    /**
+     * constant number used to seed nlu random number generators
+     * if not set, seed is computed from botId
+     */
+    nluSeed?: number
   }
 
   export type Pipeline = Stage[]
@@ -1582,6 +1619,7 @@ declare module 'botpress/sdk' {
     baseURL: string
     headers: {
       Authorization: string
+      'X-BP-Workspace'?: string
     }
   }
 
@@ -1644,6 +1682,30 @@ declare module 'botpress/sdk' {
     rolloutStrategy: RolloutStrategy
     inviteCode?: string
     allowedUsages?: number
+  }
+  export interface WorkspaceUser {
+    email: string
+    strategy: string
+    role: string
+    workspace: string
+    workspaceName?: string
+  }
+
+  export type WorkspaceUserWithAttributes = {
+    attributes: any
+  } & WorkspaceUser
+
+  export interface GetWorkspaceUsersOptions {
+    attributes: string[] | '*'
+    includeSuperAdmins: boolean
+  }
+
+  export interface WorkspaceUser {
+    email: string
+    strategy: string
+    role: string
+    workspace: string
+    workspaceName?: string
   }
 
   export interface AddWorkspaceUserOptions {
@@ -1915,11 +1977,13 @@ declare module 'botpress/sdk' {
 
     /**
      * Merge the specified attributes to the existing attributes of the user
+     * @deprecated Please mutate `event.state.user` directly instead
      */
     export function updateAttributes(channel: string, userId: string, attributes: any): Promise<void>
 
     /**
      * Overwrite all the attributes of the user with the specified payload
+     * @deprecated Please mutate `event.state.user` directly instead
      */
     export function setAttributes(channel: string, userId: string, attributes: any): Promise<void>
     export function getAllUsers(paging?: Paging): Promise<any>
@@ -2136,6 +2200,19 @@ declare module 'botpress/sdk' {
      * @returns boolean indicating if code was valid & enough usage were left
      */
     export function consumeInviteCode(workspaceId: string, inviteCode?: string): Promise<boolean>
+
+    /**
+     * Retreives users in a given workspace
+     * @param workspaceId Desired workspace
+     * @param options Fetch options object
+     * @param options.includeSuperAdmins Whether or not you want to include super admins in the results
+     * @param options.attributes List of user attributes you want to include in the object. Use '*' to include all user attributes. Defaults to [].
+     * @returns All users in desired workspace with specified attributes.
+     */
+    export function getWorkspaceUsers(
+      workspaceId: string,
+      options?: Partial<GetWorkspaceUsersOptions>
+    ): Promise<WorkspaceUser[] | WorkspaceUserWithAttributes[]>
   }
 
   export namespace notifications {

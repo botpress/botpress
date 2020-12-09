@@ -8,9 +8,12 @@ import Overlay from '../../ui-shared-lite/Overlay'
 import Tabs from '../../ui-shared-lite/Tabs'
 import ToolTip from '../../ui-shared-lite/ToolTip'
 
+import { sendTelemetry, startFallback } from './telemetry'
 import { defaultLocale, lang, langAvaibale, langExtend, langInit, langLocale } from './translations'
 import { isInputFocused } from './utils/inputs'
+import { inspect } from './utils/inspect'
 import { controlKey, keyMap } from './utils/keyboardShortcuts'
+import { isOperationAllowed } from './AccessControl'
 import { Commander } from './Commander'
 import confirmDialog from './ConfirmDialog'
 import contextMenu from './ContextMenu'
@@ -28,6 +31,7 @@ import Textarea from './Textarea'
 import { toast } from './Toaster'
 import TreeView from './TreeView'
 
+exports.isOperationAllowed = isOperationAllowed
 exports.Checkbox = Checkbox
 exports.Collapsible = Collapsible
 exports.Commander = Commander
@@ -62,4 +66,8 @@ exports.lang = {
   defaultLocale
 }
 exports.toast = toast
-exports.utils = { controlKey, keyMap, isInputFocused }
+exports.utils = { controlKey, keyMap, isInputFocused, inspect }
+exports.telemetry = {
+  startFallback,
+  sendTelemetry
+}

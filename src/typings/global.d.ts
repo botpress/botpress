@@ -42,6 +42,7 @@ declare namespace NodeJS {
     CLUSTER_ENABLED: boolean
     ASSERT_LICENSED: Function
     BOTPRESS_VERSION: string
+    TELEMETRY_URL: string
     core_env: BotpressEnvironmentVariables
     distro: OSDistribution
     BOTPRESS_EVENTS: EventEmitter
@@ -52,6 +53,7 @@ declare namespace NodeJS {
     DISABLE_GLOBAL_SANDBOX: boolean
     DISABLE_BOT_SANDBOX: boolean
     DISABLE_TRANSITION_SANDBOX: boolean
+    DISABLE_CONTENT_SANDBOX: boolean
     WEB_WORKER: number
     TRAINING_WORKERS: number[]
   }
@@ -202,6 +204,9 @@ declare interface BotpressEnvironmentVariables {
 
   /** When true, transitions are executed outside of the sandbox  */
   readonly DISABLE_TRANSITION_SANDBOX?: boolean
+
+  /** When true, content elements rendering will be executed outside of the sandbox */
+  readonly DISABLE_CONTENT_SANDBOX?: boolean
 
   /** Runs all migrations from v12.0.0 up to the latest migration found in modules and core */
   readonly TESTMIG_ALL?: boolean

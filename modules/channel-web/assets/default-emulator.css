@@ -33,8 +33,7 @@
     --spacing-xxxx-large: 28px;
 
     --right-sidebar-width: 240px;
-    --emulator-width: 240px;
-    --debugger-width: 240px;
+    --emulator-width: 300px;
   }
 
   body {
@@ -72,8 +71,8 @@
   }
 
   .bpw-from-user .bpw-chat-bubble .bpw-chat-bubble-content {
-    border-color: var(--hover-ocean);
-    background-color: var(--hover-ocean);
+    border-color: var(--bg);
+    background-color: var(--bg);
     color: var(--shark);
   }
 
@@ -173,7 +172,7 @@
     right: 0;
     width: 100%;
     height: 100%;
-    border-left: 1px solid var(--gray);
+    border-left: 1px solid var(--bg);
     visibility: hidden;
 
     -webkit-box-orient: vertical;
@@ -1160,6 +1159,10 @@
     cursor: pointer;
     right: 16px;
     top: 6px;
+  }
+
+  .bpw-emulator-buttons {
+    margin-right: 40px;
   }
 
   .bpw-emulator-header .more-options-more-menu {
