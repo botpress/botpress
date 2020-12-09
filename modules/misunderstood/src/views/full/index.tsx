@@ -1,5 +1,8 @@
+import { Button, Popover } from '@blueprintjs/core'
+import { DateRange, DateRangePicker } from '@blueprintjs/datetime'
+import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import { AxiosStatic } from 'axios'
-import { lang } from 'botpress/shared'
+import { date, lang } from 'botpress/shared'
 import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import classnames from 'classnames'
 import React from 'react'
@@ -27,7 +30,10 @@ interface State {
   selectedEventIndex: number | null
   selectedEvent: FlaggedEvent | null
   eventNotFound: boolean
+  dateRange?: DateRange
 }
+
+const shortcuts = date.createDateRangeShortcuts()
 
 export default class MisunderstoodMainView extends React.Component<Props, State> {
   state = {
@@ -38,7 +44,8 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     events: null,
     selectedEventIndex: null,
     selectedEvent: null,
-    eventNotFound: false
+    eventNotFound: false,
+    dateRange: undefined
   }
 
   apiClient: ApiClient
@@ -48,12 +55,12 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     this.apiClient = new ApiClient(props.bp.axios)
   }
 
-  fetchEventCounts(language: string) {
-    return this.apiClient.getEventCounts(language)
+  fetchEventCounts(language: string, dataRange?: DateRange) {
+    return this.apiClient.getEventCounts(language, dataRange ?? this.state.dateRange)
   }
 
-  fetchEvents(language: string, status: string) {
-    return this.apiClient.getEvents(language, status)
+  fetchEvents(language: string, status: string, dataRange?: DateRange) {
+    return this.apiClient.getEvents(language, status, dataRange || this.state.dateRange)
   }
 
   async fetchEvent(id: string) {
@@ -79,8 +86,8 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     })
   }
 
-  updateEventsCounts = async (language?: string) => {
-    const eventCounts = await this.fetchEventCounts(language || this.state.language)
+  updateEventsCounts = async (language?: string, dateRange?: DateRange) => {
+    const eventCounts = await this.fetchEventCounts(language || this.state.language, dateRange || this.state.dateRange)
     await this.setStateP({ eventCounts })
   }
 
@@ -181,6 +188,29 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     }
   }
 
+  handleDateChange = async (dateRange: DateRange) => {
+    const eventCounts = await this.fetchEventCounts(this.state.language, dateRange || this.state.dateRange)
+    const events = await this.fetchEvents(
+      this.state.language,
+      this.state.selectedStatus,
+      dateRange || this.state.dateRange
+    )
+
+    const event = null
+    if (events && events.length) {
+      const event = await this.fetchEvent(events[0].id)
+    }
+
+    await this.setStateP({
+      dateRange,
+      events,
+      selectedEventIndex: 0,
+      selectedEvent: event,
+      eventNotFound: !event,
+      eventCounts
+    })
+  }
+
   render() {
     const { eventCounts, selectedStatus, events, selectedEventIndex, selectedEvent, eventNotFound } = this.state
 
@@ -192,6 +222,18 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     return (
       <Container sidePanelWidth={320}>
         <SidePanel>
+          <Popover usePortal={true} position={'bottom-right'}>
+            <Button icon="calendar" className={style.filterItem}>
+              {lang.tr('module.misunderstood.dateRange')}
+            </Button>
+            <DateRangePicker
+              onChange={this.handleDateChange.bind(this)}
+              allowSingleDayRange={true}
+              shortcuts={shortcuts}
+              maxDate={date.relativeDates.now}
+              value={this.state.dateRange}
+            />
+          </Popover>
           <SidePanelContent
             eventCounts={eventCounts}
             selectedStatus={selectedStatus}

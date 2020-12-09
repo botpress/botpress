@@ -41,5 +41,6 @@
   "waitWhileDataLoading": "Por favor espere mientras se carga",
   "whatIsMessageType": "Cual es el tipo de mensaje?",
   "couldNotLoadConversation": "No se pudo cargar la conversación",
-  "conversationDeleted": "Esta conversación era demasiado antigua y se eliminó"
+  "conversationDeleted": "Esta conversación era demasiado antigua y se eliminó",
+  "dateRange": "Rango de fechas"
 }
