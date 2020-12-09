@@ -187,6 +187,7 @@ const FlowBuilder = (props: Props) => {
           hideSearch={() => setShowSearch(false)}
           handleFilterChanged={handleFilterChanged}
           highlightFilter={highlightFilter}
+          mutexInfo={mutex}
           ref={el => {
             if (!!el) {
               // @ts-ignore
