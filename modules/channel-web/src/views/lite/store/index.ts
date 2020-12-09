@@ -138,6 +138,11 @@ class RootStore {
   }
 
   @action.bound
+  async clearConversation(): Promise<void> {
+    this.currentConversation.messages = []
+  }
+
+  @action.bound
   async addEventToConversation(event: Message): Promise<void> {
     if (this.isInitialized && this.currentConversationId !== Number(event.conversationId)) {
       await this.fetchConversations()

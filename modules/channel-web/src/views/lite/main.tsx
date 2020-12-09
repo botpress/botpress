@@ -124,6 +124,7 @@ class Web extends React.Component<MainProps> {
 
   async initializeSocket() {
     this.socket = new BpSocket(this.props.bp, this.config)
+    this.socket.onClear = this.handleClearConversation
     this.socket.onMessage = this.handleNewMessage
     this.socket.onTyping = this.handleTyping
     this.socket.onData = this.handleDataMessage
@@ -198,6 +199,15 @@ class Web extends React.Component<MainProps> {
         await this.props.sendData({ type, payload })
       }
     }
+  }
+
+  handleClearConversation = async (event: Message) => {
+    if (this.props.config.conversationId && Number(this.props.config.conversationId) !== Number(event.conversationId)) {
+      // don't do anything, it's a message from another conversation
+      return
+    }
+
+    await this.props.clearConversation()
   }
 
   handleNewMessage = async event => {
@@ -345,6 +355,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   updateConfig: store.updateConfig,
   mergeConfig: store.mergeConfig,
   addEventToConversation: store.addEventToConversation,
+  clearConversation: store.clearConversation,
   setUserId: store.setUserId,
   updateTyping: store.updateTyping,
   sendMessage: store.sendMessage,
@@ -394,6 +405,7 @@ type MainProps = { store: RootStore } & Pick<
   | 'hasUnreadMessages'
   | 'showWidgetButton'
   | 'addEventToConversation'
+  | 'clearConversation'
   | 'updateConfig'
   | 'mergeConfig'
   | 'isWebchatReady'

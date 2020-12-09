@@ -474,7 +474,7 @@ export default class Repository {
   }
 
   deleteHandoff = async (id: string) => {
-    return this.bp.database.transaction(async trx => {
+    this.bp.database.transaction(async trx => {
       const handoff = await this.getHandoff(id)
 
       // We want to also delete the events since it contains
@@ -500,6 +500,10 @@ export default class Repository {
       await trx<IHandoff>(HANDOFF_TABLE_NAME)
         .del()
         .where({ id })
+
+      this.bp.realtime.sendPayload(
+        this.bp.RealTimePayload.forVisitor(handoff.userId, 'webchat.clear', { conversationId: handoff.userThreadId })
+      )
     })
   }
 }
