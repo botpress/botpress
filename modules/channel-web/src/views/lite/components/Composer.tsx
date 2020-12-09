@@ -134,6 +134,7 @@ export default inject(({ store }: { store: RootStore }) => ({
 type ComposerProps = {
   focused: boolean
   composerPlaceholder: string
+  composerLocked: boolean
 } & InjectedIntlProps &
   Pick<
     StoreDef,
@@ -152,6 +153,5 @@ type ComposerProps = {
     | 'resetSession'
     | 'isEmulator'
     | 'enableResetSessionShortcut'
-    | 'composer'
     | 'currentConversation'
   >
