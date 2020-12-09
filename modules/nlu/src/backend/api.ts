@@ -39,8 +39,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
     res.send(session)
   })
 
-  router.post('/predict', async (req, res) => {
-    const { botId } = req.params
+  router.post(['/predict', '/predict/:lang'], async (req, res) => {
+    const { botId, lang } = req.params
     const { error, value } = PredictSchema.validate(req.body)
     if (error) {
       return res.status(400).send('Predict body is invalid')
@@ -51,11 +51,10 @@ export default async (bp: typeof sdk, state: NLUState) => {
       return res.status(404).send(`Bot ${botId} doesn't exist`)
     }
 
-    const modelId = botNLU.modelsByLang[botNLU.defaultLanguage]
+    const predictLang = lang ?? botNLU.defaultLanguage
+    const modelId = botNLU.modelsByLang[predictLang]
 
     try {
-      // TODO: language should be a path param of route
-
       let nlu: sdk.IO.EventUnderstanding
 
       const spellChecked = await state.engine.spellCheck(value.text, modelId)
@@ -77,27 +76,43 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
   })
 
-  router.post('/train', async (req, res) => {
+  router.post('/train/:lang', async (req, res) => {
     try {
-      const { botId } = req.params
+      const { botId, lang } = req.params
+
+      const botNLU = state.nluByBot[botId]
+      if (!botNLU) {
+        return res.status(404).send(`Bot ${botId} doesn't exist`)
+      }
+      if (!_.isString(lang) || !botNLU.languages.includes(lang)) {
+        return res.status(422).send(`Language ${lang} is either not supported by bot or by language server`)
+      }
 
       // Is it this even necessary anymore ?
       const disableTraining = yn(process.env.BP_NLU_DISABLE_TRAINING)
 
       // to return as fast as possible
       // tslint:disable-next-line: no-floating-promises
-      state.nluByBot[botId].trainOrLoad(disableTraining)
+      state.nluByBot[botId].trainOrLoad(lang, disableTraining)
       res.sendStatus(200)
     } catch {
       res.sendStatus(500)
     }
   })
 
-  // TODO make this language based
-  router.post('/train/delete', async (req, res) => {
+  router.post('/train/delete/:lang', async (req, res) => {
     try {
-      const { botId } = req.params
-      await state.nluByBot[botId].cancelTraining()
+      const { botId, lang } = req.params
+
+      const botNLU = state.nluByBot[botId]
+      if (!botNLU) {
+        return res.status(404).send(`Bot ${botId} doesn't exist`)
+      }
+      if (!_.isString(lang) || !botNLU.languages.includes(lang)) {
+        return res.status(422).send(`Language ${lang} is either not supported by bot or by language server`)
+      }
+
+      await state.nluByBot[botId].cancelTraining(lang)
       res.sendStatus(200)
     } catch {
       res.sendStatus(500)

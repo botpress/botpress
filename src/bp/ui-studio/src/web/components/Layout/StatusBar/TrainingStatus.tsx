@@ -18,7 +18,7 @@ interface Props {
 const BASE_NLU_URL = `${window.BOT_API_PATH}/mod/nlu`
 
 const TrainingStatusComponent: FC<Props> = (props: Props) => {
-  const { status, progress } = props.trainSession ?? {}
+  const { status, progress, language } = props.trainSession ?? {}
   const [loading, setLoading] = useState(false)
 
   const [message, setMessage] = useState('')
@@ -50,7 +50,7 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
     setLoading(true)
     e.preventDefault()
     try {
-      await axios.post(`${BASE_NLU_URL}/train`)
+      await axios.post(`${BASE_NLU_URL}/train/${language}`)
     } catch (err) {
       onError()
     } finally {
@@ -63,13 +63,15 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
     e.preventDefault()
     onCanceling()
     try {
-      await axios.post(`${BASE_NLU_URL}/train/delete`)
+      await axios.post(`${BASE_NLU_URL}/train/delete/${language}`)
     } catch (err) {
       console.error('cannot cancel training')
     } finally {
       setLoading(false)
     }
   }
+
+  const trainingMessage = `${lang.tr('statusBar.trainChatbot')} ${language}`
 
   if (status === null) {
     return null
@@ -80,13 +82,13 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
 
         {status === 'needs-training' && (
           <Button minimal className={style.button} onClick={onTrainClicked} disabled={loading}>
-            {lang.tr('statusBar.trainChatbot')}
+            {trainingMessage}
           </Button>
         )}
         {status === 'training-pending' && (
           <div className={style.pending}>
             <span className={cx(style.pending, style.text)}>{lang.tr('statusBar.trainingPending')}</span>
-            <Spinner size={5}/>
+            <Spinner size={5} />
           </div>
         )}
         {status === 'training' && (
@@ -94,7 +96,7 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
             {lang.tr('statusBar.cancelTraining')}
           </Button>
         )}
-      </div >
+      </div>
     )
   }
 }
