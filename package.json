@@ -24,6 +24,7 @@
   "dependencies": {
     "@babel/parser": "^7.11.2",
     "@babel/traverse": "^7.11.0",
+    "@types/tar": "^4.0.4",
     "axios": "^0.19.0",
     "bluebird-global": "^1.0.1",
     "bluebird-retry": "^0.11.0",
@@ -63,6 +64,7 @@
     "lru-cache": "^5.1.1",
     "mathjs": "^5.9.0",
     "mime-types": "^2.1.27",
+    "mkdirp": "^1.0.4",
     "ml-kmeans": "^5.0.0",
     "ml-nearest-vector": "^2.0.1",
     "moment": "^2.24.0",
