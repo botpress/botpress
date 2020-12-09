@@ -6,7 +6,15 @@ import Knex from 'knex'
 import _ from 'lodash'
 import ms from 'ms'
 
-import { COMMENT_TABLE_NAME, HANDOFF_TABLE_NAME, MODULE_NAME } from '../constants'
+import {
+  COMMENT_TABLE_NAME,
+  HANDOFF_TABLE_NAME,
+  MODULE_NAME,
+  WEB_CONVERSATION_TABLE_NAME,
+  WEB_MESSAGE_TABLE_NAME,
+  SRV_CHANNEL_USER_TABLE_NAME,
+  EVENT_TABLE_NAME
+} from '../constants'
 
 import { IAgent, IComment, IEvent, IHandoff } from './../types'
 import { makeAgentId } from './helpers'
@@ -463,5 +471,31 @@ export default class Repository {
       { botId, threadId },
       { count: conditions.limit, sortOrder: [{ column: 'id', desc: true }] }
     )
+  }
+
+  deleteHandoff = async (id: string) => {
+    return this.bp.database.transaction(async trx => {
+      const handoff = await this.getHandoff(id)
+
+      await trx(EVENT_TABLE_NAME)
+        .del()
+        .whereIn('threadId', [handoff.agentThreadId, handoff.userThreadId])
+
+      await trx(WEB_CONVERSATION_TABLE_NAME)
+        .del()
+        .whereIn('id', [handoff.agentThreadId, handoff.userThreadId])
+
+      await trx(WEB_MESSAGE_TABLE_NAME)
+        .del()
+        .whereIn('conversationId', [handoff.agentThreadId, handoff.userThreadId])
+
+      await trx(SRV_CHANNEL_USER_TABLE_NAME)
+        .del()
+        .where({ user_id: handoff.userId })
+
+      await trx<IHandoff>(HANDOFF_TABLE_NAME)
+        .del()
+        .where({ id })
+    })
   }
 }

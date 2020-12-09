@@ -17,6 +17,7 @@ export type ActionType =
   | { type: 'setConfig'; payload: Config }
   | { type: 'setDefault'; payload: Object }
   | { type: 'setError'; payload: Error }
+  | { type: 'removeHandoff'; payload: string }
 
 const Reducer = (state: IState, action: ActionType): IState => {
   switch (action.type) {
@@ -77,6 +78,14 @@ const Reducer = (state: IState, action: ActionType): IState => {
     case 'setError':
       return produce(state, draft => {
         draft.error = action.payload
+      })
+    case 'removeHandoff':
+      return produce(state, draft => {
+        const handoffsCopy = { ...state.handoffs }
+        delete handoffsCopy[action.payload]
+
+        draft.handoffs = { ...handoffsCopy }
+        draft.selectedHandoffId = null
       })
     default:
       return state

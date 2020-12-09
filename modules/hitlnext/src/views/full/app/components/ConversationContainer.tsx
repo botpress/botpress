@@ -39,6 +39,18 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
     }
   }
 
+  async function handleDelete() {
+    try {
+      const selectedHandoffId = state.selectedHandoffId
+      await api.deleteHandoff(selectedHandoffId)
+
+      dispatch({ type: 'removeHandoff', payload: selectedHandoffId })
+      toast.success(lang.tr('module.hitlnext.handoff.deleted', { id: state.selectedHandoffId }))
+    } catch (error) {
+      dispatch({ type: 'setError', payload: error })
+    }
+  }
+
   function currentAgentHasPermission(operation: PermissionOperation): boolean {
     return isOperationAllowed({ user: state.currentAgent, resource: 'module.hitlnext', operation })
   }
@@ -50,19 +62,37 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
     selectedHandoff.status === 'assigned' &&
     selectedHandoff.agentId === state.currentAgent.agentId
 
-  const liveChatButtons = () => [
-    {
-      content: (
-        <Button
-          className={style.coversationButton}
-          minimal
-          rightIcon="tick-circle"
-          onClick={handleResolve}
-          text={lang.tr('module.hitlnext.handoff.resolve')}
-        />
-      )
+  const liveChatButtons = () => {
+    const buttons = [
+      {
+        content: (
+          <Button
+            className={style.coversationButton}
+            minimal
+            rightIcon="tick-circle"
+            onClick={handleResolve}
+            text={lang.tr('module.hitlnext.handoff.resolve')}
+          />
+        )
+      },
+    ]
+
+    if (state.config.allowHandoffDeletion) {
+      buttons.push({
+        content: (
+          <Button
+            className={style.coversationButton}
+            minimal
+            rightIcon="delete"
+            onClick={handleDelete}
+            text={lang.tr('module.hitlnext.handoff.delete')}
+          />
+        )
+      })
     }
-  ]
+
+    return buttons
+  }
 
   const historyButtons = () => [
     {

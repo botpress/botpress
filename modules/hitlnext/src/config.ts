@@ -21,4 +21,10 @@ export interface Config {
    * @param botAvatarUrl Image url you want to display as avatar when an agent takes control
    */
   botAvatarUrl?: string
+
+  /**
+   * @param allowHandoffDeletion Wether or not to allow the agent to delete the user's conversation
+   * @default false
+   */
+  allowHandoffDeletion: boolean
 }
