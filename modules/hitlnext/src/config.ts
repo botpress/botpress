@@ -12,7 +12,7 @@ export interface Config {
   messageCount: number
 
   /**
-   * @param defaultUsername Wether or not to display a random username for anonymous users
+   * @param defaultUsername Whether or not to display a random username for anonymous users
    * @default false
    */
   defaultUsername: boolean
@@ -23,7 +23,7 @@ export interface Config {
   botAvatarUrl?: string
 
   /**
-   * @param allowHandoffDeletion Wether or not to allow the agent to delete the user's conversation
+   * @param allowHandoffDeletion Whether or not to allow the agent to delete the user's conversation
    * @default false
    */
   allowHandoffDeletion: boolean

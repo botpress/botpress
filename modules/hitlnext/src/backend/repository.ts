@@ -477,18 +477,22 @@ export default class Repository {
     return this.bp.database.transaction(async trx => {
       const handoff = await this.getHandoff(id)
 
+      // We want to also delete the events since it contains
+      // the user's conversation.
       await trx(EVENT_TABLE_NAME)
         .del()
         .whereIn('threadId', [handoff.agentThreadId, handoff.userThreadId])
-
-      await trx(WEB_CONVERSATION_TABLE_NAME)
-        .del()
-        .whereIn('id', [handoff.agentThreadId, handoff.userThreadId])
 
       await trx(WEB_MESSAGE_TABLE_NAME)
         .del()
         .whereIn('conversationId', [handoff.agentThreadId, handoff.userThreadId])
 
+      await trx(WEB_CONVERSATION_TABLE_NAME)
+        .del()
+        .whereIn('id', [handoff.agentThreadId, handoff.userThreadId])
+
+      // We want to delete rows from this table since it
+      // contains user's info like its timezone and language.
       await trx(SRV_CHANNEL_USER_TABLE_NAME)
         .del()
         .where({ user_id: handoff.userId })
