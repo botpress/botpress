@@ -75,7 +75,7 @@ class NewEventView extends React.Component<Props, State> {
 
     return (
       <>
-        <h3>{lang.tr('module.misunderstood.newMisunderstood', { eventIndex, totalEventsCount })}</h3>
+        <h3>{lang.tr('module.misunderstood.newMisunderstood', { eventIndex: eventIndex + 1, totalEventsCount })}</h3>
 
         {!isAmending && (
           <>
