@@ -16,7 +16,8 @@
       "optionsList": "Liste des options",
       "title": "Menu déroulant",
       "widthDesc": "La largeur par défaut affiche le menu déroulant et le bouton sur une même ligne.",
-      "widthTitle": "La largeur du menu déroulant (en pixel)"
+      "widthTitle": "La largeur du menu déroulant (en pixel)",
+      "placeholderText": "Le placeholder de la liste déroulante"
     }
   }
 }

@@ -58,11 +58,23 @@ export default class Db {
       .update({ status, ...resolutionData, updatedAt: this.knex.fn.now() })
   }
 
-  async listEvents(botId: string, language: string, status: FLAGGED_MESSAGE_STATUS): Promise<DbFlaggedEvent[]> {
-    const data: DbFlaggedEvent[] = await this.knex(TABLE_NAME)
+  async listEvents(
+    botId: string,
+    language: string,
+    status: FLAGGED_MESSAGE_STATUS,
+    options?: { startDate: Date; endDate: Date }
+  ): Promise<DbFlaggedEvent[]> {
+    const { startDate, endDate } = options || {}
+
+    const query = this.knex(TABLE_NAME)
       .select('*')
       .where({ botId, language, status })
-      .orderBy('updatedAt', 'desc')
+
+    if (startDate && endDate) {
+      query.andWhere(this.knex.date.isBetween('updatedAt', startDate, endDate))
+    }
+
+    const data: DbFlaggedEvent[] = await query.orderBy('updatedAt', 'desc')
 
     return data.map((event: DbFlaggedEvent) => ({
       ...event,
@@ -73,12 +85,19 @@ export default class Db {
     }))
   }
 
-  async countEvents(botId: string, language: string) {
-    const data: { status: string; count: number }[] = await this.knex(TABLE_NAME)
+  async countEvents(botId: string, language: string, options?: { startDate: Date; endDate: Date }) {
+    const { startDate, endDate } = options || {}
+
+    const query = this.knex(TABLE_NAME)
       .where({ botId, language })
       .select('status')
       .count({ count: 'id' })
-      .groupBy('status')
+
+    if (startDate && endDate) {
+      query.andWhere(this.knex.date.isBetween('updatedAt', startDate, endDate))
+    }
+
+    const data: { status: string; count: number }[] = await query.groupBy('status')
 
     return data.reduce((acc, row) => {
       acc[row.status] = Number(row.count)
