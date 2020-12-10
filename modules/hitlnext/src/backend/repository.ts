@@ -8,12 +8,12 @@ import ms from 'ms'
 
 import {
   COMMENT_TABLE_NAME,
+  EVENT_TABLE_NAME,
   HANDOFF_TABLE_NAME,
   MODULE_NAME,
-  WEB_CONVERSATION_TABLE_NAME,
-  WEB_MESSAGE_TABLE_NAME,
   SRV_CHANNEL_USER_TABLE_NAME,
-  EVENT_TABLE_NAME
+  WEB_CONVERSATION_TABLE_NAME,
+  WEB_MESSAGE_TABLE_NAME
 } from '../constants'
 
 import { IAgent, IComment, IEvent, IHandoff } from './../types'
@@ -477,7 +477,7 @@ export default class Repository {
     return this.bp.database.transaction(async trx => {
       const handoff = await this.getHandoff(id)
 
-      // We want to also delete the events since it contains
+      // We want delete the events since it contains
       // the user's conversation.
       await trx(EVENT_TABLE_NAME)
         .del()
@@ -492,7 +492,7 @@ export default class Repository {
         .whereIn('id', [handoff.agentThreadId, handoff.userThreadId])
 
       // We want to delete rows from this table since it
-      // contains user's info like its timezone and language.
+      // contains user info like its timezone and language.
       await trx(SRV_CHANNEL_USER_TABLE_NAME)
         .del()
         .where({ user_id: handoff.userId })
