@@ -145,8 +145,8 @@ export default class Engine implements NLU.Engine {
     }
 
     const debugMsg = previousModel
-      ? `Training all contexts for language: ${languageCode}`
-      : `Retraining only contexts: [${ctxToTrain}] for language: ${languageCode}`
+      ? `Retraining only contexts: [${ctxToTrain}] for language: ${languageCode}`
+      : `Training all contexts for language: ${languageCode}`
     trainDebug(debugMsg)
 
     const input: TrainInput = {

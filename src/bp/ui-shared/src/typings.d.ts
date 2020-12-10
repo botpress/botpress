@@ -1,4 +1,6 @@
 import { FormField, MultiLangText } from 'botpress/sdk'
+import { IDateRangeShortcut } from '@blueprintjs/datetime'
+import { IDates } from 'common/dates'
 import React from 'react'
 
 import { CheckboxProps } from '../../ui-shared-lite/Checkbox/typings'
@@ -86,6 +88,10 @@ declare module 'botpress/shared' {
     getLocale(): string
     getAvailable(): string[]
     defaultLocale: string
+  }
+  export const date: {
+    createDateRangeShortcuts: () => IDateRangeShortcut[]
+    relativeDates: IDates
   }
 
   export const telemetry: {

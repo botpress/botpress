@@ -5,12 +5,19 @@
 .sidePanel {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: calc(100% - 60px);
   padding-bottom: 10px;
 }
 
 .padded {
   @include padded;
+}
+
+.filterItem {
+  height: 40px;
+  justify-content: left;
+  width: 220px;
+  margin: 10px;
 }
 
 .contentFixed {
@@ -116,7 +123,7 @@
 }
 
 .thPhrase {
-  width: 35%
+  width: 35%;
 }
 
 .thUpdated {
