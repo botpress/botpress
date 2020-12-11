@@ -2,6 +2,7 @@ import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import { SortOrder } from 'botpress/sdk'
 import { BPRequest } from 'common/http'
+import { Workspace } from 'common/typings'
 import Knex from 'knex'
 import _ from 'lodash'
 import ms from 'ms'
@@ -289,10 +290,28 @@ export default class Repository {
     } as IAgent
   }
 
+  /**
+   * List all agents across workspaces and bots
+   */
+  listAllAgents = async (): Promise<Partial<IAgent>[]> => {
+    const list = () => {
+      return this.bp.ghost.forGlobal().readFileAsObject<Workspace[]>('/', 'workspaces.json')
+    }
+
+    return Promise.map(list(), workspace => {
+      return Promise.map(workspace.bots, bot => {
+        return this.listAgents(bot, workspace.id)
+      }).then(collection => _.flatten(collection))
+    }).then(collection => _.flatten(collection))
+  }
+
+  /**
+   * List all agents for a given bot and workspace
+   */
   listAgents = async (botId: string, workspace: string): Promise<Partial<IAgent>[]> => {
     const options: sdk.GetWorkspaceUsersOptions = {
       includeSuperAdmins: true,
-      attributes: ['firstname', 'lastname', 'created_at', 'updated_at']
+      attributes: ['firstname', 'lastname', 'picture_url', 'created_at', 'updated_at']
     }
 
     // TODO filter out properly this is a quick fix
