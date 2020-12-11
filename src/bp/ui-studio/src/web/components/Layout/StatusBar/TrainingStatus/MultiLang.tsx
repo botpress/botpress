@@ -30,21 +30,25 @@ const TrainingStatusCenter: FC<Props> = (props: Props) => {
 }
 
 const MultiLangTrainingStatusComponent: FC<Props> = (props: Props) => {
+  const needsTraining = Object.values(props.trainSessions).some(ts => ts.status !== 'done')
+
   return (
-    <Popover
-      content={<TrainingStatusCenter {...props} />}
-      minimal={false}
-      position={Position.TOP_RIGHT}
-      modifiers={{
-        arrow: { enabled: true },
-        preventOverflow: { enabled: true, boundariesElement: 'window' }
-      }}
-    >
-      <span className={style.trainCenter_openButton}>
-        <div> {lang.tr('statusBar.training')}</div>
-        <Icon icon="predictive-analysis" />
-      </span>
-    </Popover>
+    <React.Fragment>
+      {needsTraining && (
+        <Popover
+          content={<TrainingStatusCenter {...props} />}
+          minimal={false}
+          position={Position.TOP_RIGHT}
+          modifiers={{
+            arrow: { enabled: true },
+            preventOverflow: { enabled: true, boundariesElement: 'window' }
+          }}
+        >
+          <Icon className={style.trainCenter_icon} icon="predictive-analysis" />
+        </Popover>
+      )}
+      {!needsTraining && <span className={style.trainStatus_message_light}>{lang.tr('statusBar.ready')}</span>}
+    </React.Fragment>
   )
 }
 

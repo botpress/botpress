@@ -5,9 +5,9 @@ interface CssExports {
   'danger': string;
   'text': string;
   'trainCenter': string;
+  'trainCenter_icon': string;
   'trainCenter_lang': string;
   'trainCenter_lang_code': string;
-  'trainCenter_openButton': string;
   'trainStatus': string;
   'trainStatus_message_dark': string;
   'trainStatus_message_light': string;

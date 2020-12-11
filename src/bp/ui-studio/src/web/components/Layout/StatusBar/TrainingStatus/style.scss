@@ -19,12 +19,18 @@
     }
   }
 
-  &_openButton {
-    display: flex;
+  &_icon {
     cursor: pointer;
+    min-height: 0;
+    border-radius: 3px;
+    font-size: 10px;
+    height: 20px;
+    padding: 3px;
+    transition: background 0.3s ease-in-out;
+    color: var(--lighthouse);
 
-    > * {
-      margin-right: 10%;
+    &:hover {
+      background-color: black;
     }
   }
 }
