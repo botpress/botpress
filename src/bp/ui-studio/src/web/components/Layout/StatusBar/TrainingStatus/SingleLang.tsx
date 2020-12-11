@@ -2,11 +2,8 @@ import { Button, Spinner } from '@blueprintjs/core'
 import axios from 'axios'
 import { NLU } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
-import classNames from 'classnames'
 import cx from 'classnames'
-import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
-
 import style from './style.scss'
 
 interface Props {
@@ -78,9 +75,14 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
   } else {
     return (
       <div className={style.trainStatus}>
-        <span className={classNames(dark ? style.trainStatus_message_dark 
-          : style.trainStatus_message_light, 
-          style.trainStatus_message_spaced)}>{message}</span>
+        <span
+          className={cx(
+            dark ? style.trainStatus_message_dark : style.trainStatus_message_light,
+            style.trainStatus_message_spaced
+          )}
+        >
+          {message}
+        </span>
 
         {status === 'needs-training' && (
           <Button minimal className={style.button} onClick={onTrainClicked} disabled={loading}>

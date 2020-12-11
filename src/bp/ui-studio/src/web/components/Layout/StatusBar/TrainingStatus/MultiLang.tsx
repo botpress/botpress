@@ -1,14 +1,12 @@
 import { Icon, Popover, Position } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
-import _ from 'lodash'
+import classNames from 'classnames'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
 import { RootReducer } from '~/reducers'
-
-import style from './style.scss'
 import SingleLang from './SingleLang'
-import classNames from 'classnames'
+import style from './style.scss'
 
 interface Props {
   languages: string[]

@@ -1,9 +1,7 @@
 import { NLU } from 'botpress/sdk'
-import _ from 'lodash'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
 import { RootReducer } from '~/reducers'
-
 import MultiLang from './MultiLang'
 import SingleLang from './SingleLang'
 
@@ -19,7 +17,7 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
     return null
   }
 
-  if (languages.length == 1) {
+  if (languages.length === 1) {
     return <SingleLang trainSession={trainSessions[languages[0]]} />
   }
 
