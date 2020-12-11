@@ -81,10 +81,7 @@ const Reducer = (state: IState, action: ActionType): IState => {
       })
     case 'removeHandoff':
       return produce(state, draft => {
-        const handoffsCopy = { ...state.handoffs }
-        delete handoffsCopy[action.payload]
-
-        draft.handoffs = { ...handoffsCopy }
+        delete draft.handoffs[action.payload]
         draft.selectedHandoffId = null
       })
     default:
