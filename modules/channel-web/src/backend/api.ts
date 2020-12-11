@@ -504,4 +504,16 @@ export default async (bp: typeof sdk, db: Database) => {
 
     res.send({ txt, name: `${conversation.title}.txt` })
   })
+
+  router.post('/conversations/:userId/:conversationId/delete', async (req: BPRequest, res: Response) => {
+    const { userId, conversationId, botId } = req.params
+
+    if (!validateUserId(userId)) {
+      return res.status(400).send(ERR_USER_ID_REQ)
+    }
+
+    await db.deleteConversation(userId, conversationId, botId)
+
+    res.sendStatus(204)
+  })
 }
