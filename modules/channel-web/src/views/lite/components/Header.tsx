@@ -2,7 +2,7 @@ import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
 
-import confirmDialog from "./dialog/ConfirmDialog"
+import ConfirmDialog from '../../../../../../src/bp/ui-shared-lite/ConfirmDialog'
 import MoreOptions from '../../../../../../src/bp/ui-shared-lite/MoreOptions'
 import Close from '../icons/Close'
 import Download from '../icons/Download'
@@ -77,7 +77,7 @@ class Header extends React.Component<HeaderProps> {
   }
 
   handleClearConversation = async () => {
-    if (!(await confirmDialog(this.props.intl.formatMessage({
+    if (!(await ConfirmDialog(this.props.intl.formatMessage({
         id: 'header.clearConversation'
       }), {
         acceptLabel: this.props.intl.formatMessage({
@@ -88,11 +88,9 @@ class Header extends React.Component<HeaderProps> {
         })
       })
     )) {
-      console.log("return")
       return
     }
 
-    console.log("clearConversation")
     this.props.clearConversation()
   }
 
@@ -270,7 +268,7 @@ class Header extends React.Component<HeaderProps> {
     if (this.props.showDeleteButton) {
       optionsItems.push({
         label: 'Delete conversation',
-        action: this.props.clearConversation
+        action: this.handleClearConversation
       })
     }
 

@@ -2,8 +2,6 @@
 // Please do not change this file!
 interface CssExports {
   'ConfirmDialogContainer': string;
-  'dialog': string;
-  'dialogBody': string;
   'icon': string;
 }
 declare var cssExports: CssExports;
