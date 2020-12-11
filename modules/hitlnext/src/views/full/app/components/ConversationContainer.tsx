@@ -43,10 +43,10 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
     try {
       const selectedHandoffId = state.selectedHandoffId
       const currentHandoff = state.handoffs[selectedHandoffId]
-      const agentChannel = "web"
+      const agentChannel = 'web'
 
       // TODO: Add support for other channels
-      if (currentHandoff.userChannel === "web") {
+      if (currentHandoff.userChannel === 'web') {
         await api.deleteConversation(currentHandoff.userThreadId, currentHandoff.userId, currentHandoff.userChannel)
       }
       await api.deleteConversation(currentHandoff.agentThreadId, currentHandoff.agentId, agentChannel)
