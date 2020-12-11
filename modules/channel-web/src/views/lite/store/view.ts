@@ -76,6 +76,13 @@ class ViewStore {
 
   @computed
   get showDownloadButton() {
+    return (
+      !this.isConversationsDisplayed && !this.isBotInfoDisplayed && this.rootStore.config.enableConversationDeletion
+    )
+  }
+
+  @computed
+  get showDeleteButton() {
     return !this.isConversationsDisplayed && !this.isBotInfoDisplayed && this.rootStore.config.enableTranscriptDownload
   }
 
