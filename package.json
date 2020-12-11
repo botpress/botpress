@@ -22,6 +22,7 @@
     "commitmsg": "commitlint -e $GIT_PARAMS"
   },
   "dependencies": {
+    "@apidevtools/json-schema-ref-parser": "^9.0.6",
     "@babel/parser": "^7.11.2",
     "@babel/traverse": "^7.11.0",
     "axios": "^0.19.0",
@@ -53,6 +54,7 @@
     "inversify": "^4.13.0",
     "joi": "^13.6.0",
     "json-schema-defaults": "^0.4.0",
+    "json-schema-ref-parser": "^9.0.6",
     "jsonlint-mod": "^1.7.5",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.8.0",
