@@ -45,7 +45,7 @@
   "statusBar": {
     "contentLanguage": "Langue du contenu",
     "switchLang": "Modifier la langue du contenu. Langue courante: {currentLang}",
-    "trainChatbot": "Entraîner",
+    "trainChatbot": "Entraîner l'agent",
     "training": "Entraînement en cours",
     "ready": "Prêt",
     "cancelTraining": "Annuler l'entraînement",

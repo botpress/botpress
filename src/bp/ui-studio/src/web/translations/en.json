@@ -45,7 +45,7 @@
   "statusBar": {
     "contentLanguage": "Content Language",
     "switchLang": "Change the bot content language. Currently editing: {currentLang}",
-    "trainChatbot": "Train",
+    "trainChatbot": "Train Chatbot",
     "training": "Training",
     "ready": "Ready",
     "cancelTraining": "Cancel Training",
