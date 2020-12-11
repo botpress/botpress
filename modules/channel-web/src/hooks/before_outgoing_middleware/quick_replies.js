@@ -7,6 +7,7 @@ if (event.payload.quick_replies && channels.includes(event.channel)) {
     module: 'channel-web',
     component: 'QuickReplies',
     quick_replies: event.payload.quick_replies,
+    disableFreeText: event.payload.disableFreeText,
     wrapped: {
       type: 'text',
       ..._.omit(event.payload, 'quick_replies')
