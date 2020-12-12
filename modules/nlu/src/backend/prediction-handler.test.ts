@@ -99,12 +99,12 @@ function makeModelProviderMock(langsOnFs: string[]): ModelService {
   }) as ModelService
 }
 
-const modelIdService = (<Partial<typeof NLU.modelId>>{
+const modelIdService = (<Partial<typeof NLU.modelIdService>>{
   toId: (m: NLU.ModelId) => m,
   briefId: (q: { specifications: any; languageCode: string }) => ({
     languageCode: q.languageCode
   })
-}) as typeof NLU.modelId
+}) as typeof NLU.modelIdService
 
 const assertNoModelLoaded = (modelGetterMock: jest.Mock) => {
   assertModelLoaded(modelGetterMock, [])
