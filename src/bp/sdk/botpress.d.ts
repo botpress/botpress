@@ -486,7 +486,7 @@ declare module 'botpress/sdk' {
       train: (trainSessionId: string, trainSet: TrainingSet, options?: Partial<TrainingOptions>) => Promise<Model>
       cancelTraining: (trainSessionId: string) => Promise<void>
       detectLanguage: (text: string, modelByLang: Dic<ModelId>) => Promise<string>
-      predict: (text: string, ctx: string[], modelId: ModelId) => Promise<PredictOutput>
+      predict: (text: string, modelId: ModelId) => Promise<PredictOutput>
       spellCheck: (sentence: string, modelId: ModelId) => Promise<string>
     }
 

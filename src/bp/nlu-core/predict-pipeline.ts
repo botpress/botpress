@@ -42,13 +42,11 @@ export type Predictors = {
 
 export interface PredictInput {
   language: string
-  includedContexts: string[]
-  sentence: string
+  text: string
 }
 
 interface InitialStep {
-  readonly rawText: string
-  includedContexts: string[]
+  rawText: string
   languageCode: string
 }
 type PredictStep = InitialStep & { utterance: Utterance }
@@ -72,10 +70,8 @@ async function preprocessInput(
     throw new Error(`Predictor for language: ${usedLanguage} is not valid`)
   }
 
-  const contexts = input.includedContexts.filter(x => predictors.contexts.includes(x))
   const step: InitialStep = {
-    includedContexts: _.isEmpty(contexts) ? predictors.contexts : contexts,
-    rawText: input.sentence,
+    rawText: input.text,
     languageCode: usedLanguage
   }
 
@@ -129,7 +125,7 @@ async function predictContext(input: OutOfScopeStep, predictors: Predictors): Pr
       ...input,
       ctx_predictions: [
         {
-          label: input.includedContexts.length ? input.includedContexts[0] : DEFAULT_CTX,
+          label: DEFAULT_CTX,
           confidence: 1
         }
       ]
@@ -327,8 +323,7 @@ export const Predict = async (
   tools: Tools,
   predictors: Predictors
 ): Promise<NLU.PredictOutput> => {
-  const { includedContexts, language, sentence } = input
-  const { step } = await preprocessInput({ includedContexts, language, sentence }, tools, predictors)
+  const { step } = await preprocessInput(input, tools, predictors)
   const initialStep = await makePredictionUtterance(step, predictors, tools)
   const entitesStep = await extractEntities(initialStep, predictors, tools)
   const oosStep = await predictOutOfScope(entitesStep, predictors)

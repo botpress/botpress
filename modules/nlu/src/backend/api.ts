@@ -62,11 +62,11 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
       const t0 = Date.now()
       if (spellChecked !== value.text) {
-        const originalPrediction = await state.engine.predict(value.text, value.contexts, modelId)
-        const spellCheckedPrediction = await state.engine.predict(spellChecked, value.contexts, modelId)
+        const originalPrediction = await state.engine.predict(value.text, modelId)
+        const spellCheckedPrediction = await state.engine.predict(spellChecked, modelId)
         nlu = mergeSpellChecked(originalPrediction, spellCheckedPrediction)
       } else {
-        nlu = await state.engine.predict(value.text, value.contexts, modelId)
+        nlu = await state.engine.predict(value.text, modelId)
       }
       const ms = Date.now() - t0
 

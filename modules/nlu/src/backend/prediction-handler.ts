@@ -4,7 +4,8 @@ import _ from 'lodash'
 import mergeSpellChecked from './election/spellcheck-handler'
 import ModelService from './model-service'
 
-type Understanding = Omit<sdk.IO.EventUnderstanding, 'detectedLanguage'>
+type WithoutIncludedContexts = Omit<sdk.IO.EventUnderstanding, 'includedContexts'>
+type WithoutDetectedLanguage = Omit<WithoutIncludedContexts, 'detectedLanguage'>
 
 export class PredictionHandler {
   constructor(
@@ -17,7 +18,7 @@ export class PredictionHandler {
     private logger: sdk.Logger
   ) {}
 
-  async predict(textInput: string, includedContexts: string[]): Promise<sdk.IO.EventUnderstanding> {
+  async predict(textInput: string): Promise<WithoutIncludedContexts> {
     const modelCacheState = _.mapValues(this.modelsByLang, model => ({ model, loaded: this.engine.hasModel(model) }))
 
     const missingModels = _(modelCacheState)
@@ -46,7 +47,7 @@ export class PredictionHandler {
       this.logger.attachError(err).error(msg)
     }
 
-    let nluResults: Understanding | undefined
+    let nluResults: WithoutDetectedLanguage | undefined
 
     const languagesToTry = _([detectedLanguage, this.anticipatedLanguage, this.defaultLanguage])
       .filter(l => !_.isUndefined(l))
@@ -54,7 +55,7 @@ export class PredictionHandler {
       .value()
 
     for (const lang of languagesToTry) {
-      nluResults = await this.tryPredictInLanguage(textInput, includedContexts, lang)
+      nluResults = await this.tryPredictInLanguage(textInput, lang)
       if (!this.isEmptyOrError(nluResults)) {
         break
       }
@@ -67,11 +68,7 @@ export class PredictionHandler {
     return { ...nluResults, detectedLanguage }
   }
 
-  private async tryPredictInLanguage(
-    textInput: string,
-    includedContexts: string[],
-    language: string
-  ): Promise<Understanding> {
+  private async tryPredictInLanguage(textInput: string, language: string): Promise<WithoutDetectedLanguage> {
     if (!this.modelsByLang[language] || !this.engine.hasModel(this.modelsByLang[language])) {
       const model = await this.fetchModel(language)
       if (!model) {
@@ -92,25 +89,21 @@ export class PredictionHandler {
 
     const t0 = Date.now()
     try {
-      const originalOutput = await this.engine.predict(textInput, includedContexts, this.modelsByLang[language])
+      const originalOutput = await this.engine.predict(textInput, this.modelsByLang[language])
       const ms = Date.now() - t0
 
       if (spellChecked && spellChecked !== textInput) {
-        const spellCheckedOutput = await this.engine.predict(
-          spellChecked,
-          includedContexts,
-          this.modelsByLang[language]
-        )
+        const spellCheckedOutput = await this.engine.predict(spellChecked, this.modelsByLang[language])
         const merged = mergeSpellChecked(originalOutput, spellCheckedOutput)
-        return { ...merged, spellChecked, errored: false, includedContexts, language, ms }
+        return { ...merged, spellChecked, errored: false, language, ms }
       }
-      return { ...originalOutput, spellChecked, errored: false, includedContexts, language, ms }
+      return { ...originalOutput, spellChecked, errored: false, language, ms }
     } catch (err) {
       const msg = `An error occured when predicting for input ${textInput} with model ${this.modelsByLang[language]}`
       this.logger.attachError(err).error(msg)
 
       const ms = Date.now() - t0
-      return { errored: true, spellChecked, includedContexts, language, ms }
+      return { errored: true, spellChecked, language, ms }
     }
   }
 
@@ -125,7 +118,7 @@ export class PredictionHandler {
     return this.modelService.getLatestModel(query)
   }
 
-  private isEmptyOrError(nluResults: Understanding | undefined) {
+  private isEmptyOrError(nluResults: WithoutDetectedLanguage | undefined) {
     return !nluResults || nluResults.errored
   }
 }

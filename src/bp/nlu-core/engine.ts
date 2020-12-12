@@ -294,7 +294,7 @@ export default class Engine implements NLU.Engine {
     }
   }
 
-  async predict(text: string, includedContexts: string[], modelId: NLU.ModelId): Promise<NLU.PredictOutput> {
+  async predict(text: string, modelId: NLU.ModelId): Promise<NLU.PredictOutput> {
     debugPredict(`Predict for input: "${text}"`)
 
     const stringId = modelIdService.toString(modelId)
@@ -304,13 +304,14 @@ export default class Engine implements NLU.Engine {
     }
 
     const language = loaded.model.languageCode
-    const input: PredictInput = {
-      language,
-      sentence: text,
-      includedContexts
-    }
-
-    return Predict(input, this._tools, loaded.predictors)
+    return Predict(
+      {
+        language,
+        text
+      },
+      this._tools,
+      loaded.predictors
+    )
   }
 
   async spellCheck(sentence: string, modelId: NLU.ModelId) {
