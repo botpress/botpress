@@ -42,8 +42,8 @@ export class PredictionHandler {
     try {
       detectedLanguage = await this.engine.detectLanguage(textInput, loadedModels)
     } catch (err) {
-      let msg = `An error occured when detecting language for input ${textInput}\n`
-      msg += `Falling back on default language ${this.defaultLanguage}.`
+      let msg = `An error occured when detecting language for input "${textInput}"\n`
+      msg += `Falling back on default language: ${this.defaultLanguage}.`
       this.logger.attachError(err).error(msg)
     }
 
@@ -82,7 +82,7 @@ export class PredictionHandler {
     try {
       spellChecked = await this.engine.spellCheck(textInput, this.modelsByLang[language])
     } catch (err) {
-      let msg = `An error occured when spell checking input ${textInput}\n`
+      let msg = `An error occured when spell checking input "${textInput}"\n`
       msg += 'Falling back on original input.'
       this.logger.attachError(err).error(msg)
     }
@@ -99,7 +99,8 @@ export class PredictionHandler {
       }
       return { ...originalOutput, spellChecked, errored: false, language, ms }
     } catch (err) {
-      const msg = `An error occured when predicting for input ${textInput} with model ${this.modelsByLang[language]}`
+      const stringId = this.modelIdService.toString(this.modelsByLang[language])
+      const msg = `An error occured when predicting for input "${textInput}" with model ${stringId}`
       this.logger.attachError(err).error(msg)
 
       const ms = Date.now() - t0
