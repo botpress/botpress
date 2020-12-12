@@ -125,7 +125,7 @@ async function predictContext(input: OutOfScopeStep, predictors: Predictors): Pr
       ...input,
       ctx_predictions: [
         {
-          label: DEFAULT_CTX,
+          label: predictors.contexts[0] ?? DEFAULT_CTX,
           confidence: 1
         }
       ]
@@ -143,7 +143,8 @@ async function predictContext(input: OutOfScopeStep, predictors: Predictors): Pr
 
 async function predictIntent(input: ContextStep, predictors: Predictors): Promise<IntentStep> {
   if (_.flatMap(predictors.intents, i => i.utterances).length <= 0) {
-    return { ...input, intent_predictions: { [DEFAULT_CTX]: [{ label: NONE_INTENT, confidence: 1 }] } }
+    const defaultCtx = predictors.contexts[0] ?? DEFAULT_CTX
+    return { ...input, intent_predictions: { [defaultCtx]: [{ label: NONE_INTENT, confidence: 1 }] } }
   }
 
   const customEntities = getCustomEntitiesNames(predictors)
