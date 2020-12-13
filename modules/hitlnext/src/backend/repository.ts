@@ -472,6 +472,7 @@ export default class Repository {
       await trx(EVENT_TABLE_NAME)
         .del()
         .whereIn('threadId', [handoff.agentThreadId, handoff.userThreadId])
+        .andWhere(this.bp.database.date.isAfterOrOn('createdOn', handoff.createdAt))
 
       await trx(COMMENT_TABLE_NAME)
         .del()
