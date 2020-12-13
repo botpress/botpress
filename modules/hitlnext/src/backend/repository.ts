@@ -480,11 +480,6 @@ export default class Repository {
       await trx(HANDOFF_TABLE_NAME)
         .del()
         .where({ id })
-
-      // FIXME: LLP
-      this.bp.realtime.sendPayload(
-        this.bp.RealTimePayload.forVisitor(handoff.userId, 'webchat.clear', { conversationId: handoff.userThreadId })
-      )
     })
   }
 }

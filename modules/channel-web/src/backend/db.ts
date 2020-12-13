@@ -368,6 +368,10 @@ export default class WebchatDb {
 
   async deleteConversation(userId: string, conversationId: string, botId: string) {
     return this.knex.transaction(async trx => {
+      await trx('events')
+        .del()
+        .where({ threadId: conversationId })
+
       await trx('web_messages')
         .del()
         .where({ conversationId })

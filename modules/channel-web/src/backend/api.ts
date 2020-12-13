@@ -512,6 +512,8 @@ export default async (bp: typeof sdk, db: Database) => {
       return res.status(400).send(ERR_USER_ID_REQ)
     }
 
+    bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.clear', { conversationId }))
+
     await db.deleteConversation(userId, conversationId, botId)
 
     res.sendStatus(204)
