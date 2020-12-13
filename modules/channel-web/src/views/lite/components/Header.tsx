@@ -77,7 +77,7 @@ class Header extends React.Component<HeaderProps> {
   }
 
   handleClearConversation = async () => {
-    if (!(await ConfirmDialog(this.props.intl.formatMessage({
+    if (await ConfirmDialog(this.props.intl.formatMessage({
         id: 'header.clearConversation'
       }), {
         acceptLabel: this.props.intl.formatMessage({
@@ -87,11 +87,9 @@ class Header extends React.Component<HeaderProps> {
           id: 'header.clearConversationNo'
         })
       })
-    )) {
-      return
+    ) {
+      this.props.deleteConversation()
     }
-
-    this.props.clearConversation()
   }
 
   renderDeleteButton() {
@@ -323,7 +321,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   toggleBotInfo: store.view.toggleBotInfo,
   customButtons: store.view.customButtons,
 
-  clearConversation: store.clearConversation,
+  deleteConversation: store.deleteConversation,
   resetSession: store.resetSession,
   downloadConversation: store.downloadConversation,
   botName: store.botName,
@@ -347,7 +345,7 @@ type HeaderProps = Pick<
   | 'hasUnreadMessages'
   | 'unreadCount'
   | 'hasBotInfoDescription'
-  | 'clearConversation'
+  | 'deleteConversation'
   | 'resetSession'
   | 'downloadConversation'
   | 'toggleConversations'
