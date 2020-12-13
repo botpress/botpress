@@ -1,11 +1,4 @@
-import {
-  ADD_PROP_KEY,
-  getPropertiesRecursive,
-  LeafNode,
-  NestedNode,
-  resolveAdditionalProperties,
-  UnionNode
-} from './config-utils'
+import { ADD_PROP_KEY, getPropertiesRecursive, LeafNode, NestedNode, resolveAdditionalProperties } from './config-utils'
 
 describe('Config utils', () => {
   describe('getPropertiesRecursive', () => {
