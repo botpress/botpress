@@ -74,7 +74,7 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
         />
       )
     },
-    state.config.allowHandoffDeletion && {
+    state.config.enableHandoffDeletion && {
       content: (
         <Button
           className={style.coversationButton}
