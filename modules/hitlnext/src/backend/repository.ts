@@ -6,15 +6,7 @@ import Knex from 'knex'
 import _ from 'lodash'
 import ms from 'ms'
 
-import {
-  COMMENT_TABLE_NAME,
-  EVENT_TABLE_NAME,
-  HANDOFF_TABLE_NAME,
-  MODULE_NAME,
-  SRV_CHANNEL_USER_TABLE_NAME,
-  WEB_CONVERSATION_TABLE_NAME,
-  WEB_MESSAGE_TABLE_NAME
-} from '../constants'
+import { COMMENT_TABLE_NAME, EVENT_TABLE_NAME, HANDOFF_TABLE_NAME, MODULE_NAME } from '../constants'
 
 import { IAgent, IComment, IEvent, IHandoff } from './../types'
 import { makeAgentId } from './helpers'
@@ -474,36 +466,21 @@ export default class Repository {
   }
 
   deleteHandoff = async (id: string) => {
-    this.bp.database.transaction(async trx => {
+    return this.bp.database.transaction(async trx => {
       const handoff = await this.getHandoff(id)
 
-      // We want delete the events since it contains
-      // the user's conversation.
       await trx(EVENT_TABLE_NAME)
         .del()
         .whereIn('threadId', [handoff.agentThreadId, handoff.userThreadId])
+        .andWhere(this.bp.database.date.isAfterOrOn('createdOn', handoff.createdAt))
 
-      await trx(WEB_MESSAGE_TABLE_NAME)
+      await trx(COMMENT_TABLE_NAME)
         .del()
-        .whereIn('conversationId', [handoff.agentThreadId, handoff.userThreadId])
+        .where({ handoffId: id })
 
-      await trx(WEB_CONVERSATION_TABLE_NAME)
-        .del()
-        .whereIn('id', [handoff.agentThreadId, handoff.userThreadId])
-
-      // We want to delete rows from this table since it
-      // contains user info like its timezone and language.
-      await trx(SRV_CHANNEL_USER_TABLE_NAME)
-        .del()
-        .where({ user_id: handoff.userId })
-
-      await trx<IHandoff>(HANDOFF_TABLE_NAME)
+      await trx(HANDOFF_TABLE_NAME)
         .del()
         .where({ id })
-
-      this.bp.realtime.sendPayload(
-        this.bp.RealTimePayload.forVisitor(handoff.userId, 'webchat.clear', { conversationId: handoff.userThreadId })
-      )
     })
   }
 }

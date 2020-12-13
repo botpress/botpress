@@ -42,6 +42,15 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
   async function handleDelete() {
     try {
       const selectedHandoffId = state.selectedHandoffId
+      const currentHandoff = state.handoffs[selectedHandoffId]
+      const agentChannel = 'web'
+
+      // TODO: Add support for other channels
+      if (currentHandoff.userChannel === 'web') {
+        await api.deleteConversation(currentHandoff.userThreadId, currentHandoff.userId, currentHandoff.userChannel)
+      }
+      await api.deleteConversation(currentHandoff.agentThreadId, currentHandoff.agentId, agentChannel)
+
       await api.deleteHandoff(selectedHandoffId)
 
       dispatch({ type: 'removeHandoff', payload: selectedHandoffId })
@@ -62,37 +71,30 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
     selectedHandoff.status === 'assigned' &&
     selectedHandoff.agentId === state.currentAgent.agentId
 
-  const liveChatButtons = () => {
-    const buttons = [
-      {
-        content: (
-          <Button
-            className={style.coversationButton}
-            minimal
-            rightIcon="tick-circle"
-            onClick={handleResolve}
-            text={lang.tr('module.hitlnext.handoff.resolve')}
-          />
-        )
-      },
-    ]
-
-    if (state.config.allowHandoffDeletion) {
-      buttons.push({
-        content: (
-          <Button
-            className={style.coversationButton}
-            minimal
-            rightIcon="delete"
-            onClick={handleDelete}
-            text={lang.tr('module.hitlnext.handoff.delete')}
-          />
-        )
-      })
+  const liveChatButtons = () => [
+    {
+      content: (
+        <Button
+          className={style.coversationButton}
+          minimal
+          rightIcon="tick-circle"
+          onClick={handleResolve}
+          text={lang.tr('module.hitlnext.handoff.resolve')}
+        />
+      )
+    },
+    state.config.allowHandoffDeletion && {
+      content: (
+        <Button
+          className={style.coversationButton}
+          minimal
+          rightIcon="delete"
+          onClick={handleDelete}
+          text={lang.tr('module.hitlnext.handoff.delete')}
+        />
+      )
     }
-
-    return buttons
-  }
+  ]
 
   const historyButtons = () => [
     {

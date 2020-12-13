@@ -202,12 +202,9 @@ class Web extends React.Component<MainProps> {
   }
 
   handleClearConversation = async (event: Message) => {
-    if (this.props.config.conversationId && Number(this.props.config.conversationId) !== Number(event.conversationId)) {
-      // don't do anything, it's a message from another conversation
-      return
+    if (!this.props.config?.conversationId || Number(this.props.config.conversationId) === Number(event.conversationId)) {
+      await this.props.clearConversation()
     }
-
-    await this.props.clearConversation()
   }
 
   handleNewMessage = async event => {
