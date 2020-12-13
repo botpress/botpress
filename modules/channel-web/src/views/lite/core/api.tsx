@@ -14,7 +14,7 @@ export default class WebchatApi {
       config => {
         if (!config.url.includes('/botInfo')) {
           const prefix = config.url.indexOf('?') > 0 ? '&' : '?'
-          config.url += prefix + '__ts=' + new Date().getTime()
+          config.url =  `${config.url}${prefix}__ts=${new Date().getTime()}`
         }
         return config
       },
