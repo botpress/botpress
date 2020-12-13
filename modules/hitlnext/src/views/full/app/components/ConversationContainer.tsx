@@ -101,6 +101,17 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
           text={lang.tr('module.hitlnext.handoff.assign')}
         />
       )
+    },
+    state.config.enableHandoffDeletion && selectedHandoff.status === 'resolved' && {
+      content: (
+        <Button
+          className={style.coversationButton}
+          minimal
+          rightIcon="delete"
+          onClick={handleDelete}
+          text={lang.tr('module.hitlnext.handoff.delete')}
+        />
+      )
     }
   ]
 

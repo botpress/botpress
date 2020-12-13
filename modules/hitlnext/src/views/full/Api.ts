@@ -94,7 +94,7 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
         .post(`/handoffs/${id}/resolve`, null, config)
         .then(res => res.data)
         .then(data => castHandoff(data)),
-    deleteHandoff: async id => bp.axios.post(`/handoffs/${id}/delete`, { ...config }),
+    deleteHandoff: async id => bp.axios.post(`/handoffs/${id}/delete`, null, config),
     getMessages: async (id, column?, desc?, limit?) =>
       bp.axios
         .get(`/conversations/${id}/messages`, { ...config, params: { desc, column, limit } })
