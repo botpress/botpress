@@ -52,6 +52,7 @@ const MAX_GHOST_FILE_SIZE = process.core_env.BP_BPFS_MAX_FILE_SIZE || '100mb'
 const bpfsIgnoredFiles = ['models/**', 'data/bots/*/models/**', '**/*.js.map']
 const GLOBAL_GHOST_KEY = '__global__'
 const BOTS_GHOST_KEY = '__bots__'
+const DIFFABLE_EXTS = ['.js', '.json', '.txt', '.csv', '.yaml']
 
 @injectable()
 export class GhostService {
@@ -226,7 +227,7 @@ export class GhostService {
       const added = _.difference(localFiles, remoteFiles).map(x => ({ path: x, action: 'add' as FileChangeAction }))
 
       const filterDeleted = file => !_.map([...deleted, ...added], 'path').includes(file)
-      const filterDiffable = file => ['.js', '.json'].includes(path.extname(file))
+      const filterDiffable = file => DIFFABLE_EXTS.includes(path.extname(file))
 
       const editedFiles = unsyncedFiles.filter(filterDeleted)
       const checkFileDiff = editedFiles.filter(filterDiffable)
