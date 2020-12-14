@@ -1,17 +1,11 @@
-import { IO } from 'botpress/sdk'
+import { NLU } from 'botpress/sdk'
 
 import removeNoneIntent from './remove-none'
 
 test('remove none intent', () => {
   // arrange
-  const nlu: IO.EventUnderstanding = {
-    errored: false,
-    language: 'en',
-    detectedLanguage: 'en',
-    spellChecked: 'ok',
+  const nlu: NLU.PredictOutput = {
     entities: [],
-    includedContexts: ['global', 'someTopic'],
-    ms: 0,
     predictions: {
       global: {
         confidence: 0.5,
