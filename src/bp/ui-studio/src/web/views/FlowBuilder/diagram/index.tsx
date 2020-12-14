@@ -765,7 +765,9 @@ const mapStateToProps = (state: RootReducer) => ({
   debuggerEvent: state.flows.debuggerEvent,
   zoomLevel: state.ui.zoomLevel,
   conditions: state.ndu.conditions,
-  skills: state.skills.installed
+  skills: state.skills.installed,
+  currentLang: state.language.contentLang,
+  defaultLang: state.bot.defaultLanguage
 })
 
 const mapDispatchToProps = {

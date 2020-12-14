@@ -60,7 +60,7 @@ const loopThroughData = data => {
 export const formReducer = (state, action) => {
   if (action.type === 'add') {
     const { field, parent, currentLang, onUpdate } = action.data
-    const newData = createEmptyDataFromSchema([...(field.fields || [])], currentLang)
+    const newData = createEmptyDataFromSchema(field.fields, currentLang)
 
     if (parent) {
       const { key, index } = parent

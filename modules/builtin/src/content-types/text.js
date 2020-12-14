@@ -117,25 +117,23 @@ module.exports = {
       text: {
         type: 'component',
         overrideKey: 'smartInput',
-        translated: true,
-        title: 'text',
-        section: 'basic'
+        translatable: true,
+        label: 'text'
       },
       variations: {
         type: 'array',
-        translated: true,
-        title: 'variations',
-        section: 'basic'
+        translatable: true,
+        label: 'variations'
       },
       markdown: {
         type: 'boolean',
-        title: 'module.builtin.useMarkdown',
+        label: 'module.builtin.useMarkdown',
         defaultValue: true,
         moreInfo: {
           label: 'learnMore',
           url: 'https://daringfireball.net/projects/markdown/'
         },
-        section: 'basic'
+        section: 'advanced'
       }
     }
   },

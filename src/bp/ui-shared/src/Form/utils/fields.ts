@@ -19,6 +19,12 @@ export const getFieldDefaultValue = (field: Control, lang?: string) => {
   }
 
   switch (field.type) {
+    case ControlType.Group:
+      if (!field.fields || (!field.min && !field.defaultItem)) {
+        return []
+      }
+
+      return [createEmptyDataFromSchema(field.fields, lang)]
     case ControlType.Boolean:
       return false
     case ControlType.Number:
@@ -26,9 +32,9 @@ export const getFieldDefaultValue = (field: Control, lang?: string) => {
     case ControlType.Enum:
       return field.multiple ? [] : null
     case ControlType.Array:
-      return field.translated ? { [lang!]: [''] } : ['']
+      return field.translatable ? { [lang!]: [''] } : ['']
     case ControlType.String:
     case ControlType.File:
-      return field.translated ? { [lang!]: '' } : ''
+      return field.translatable ? { [lang!]: '' } : ''
   }
 }

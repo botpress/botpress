@@ -4,6 +4,7 @@ interface CssExports {
   'rightSidebar': string;
   'show': string;
   'wRightSidebar': string;
+  'wrapper': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

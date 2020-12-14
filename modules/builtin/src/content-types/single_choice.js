@@ -140,6 +140,26 @@ module.exports = {
       'ui:field': 'i18n_array'
     }
   },
+
+  newSchema: {
+    displayedIn: ['qna', 'sayNode'],
+    order: 4,
+
+    fields: {
+      text: {
+        type: 'string',
+        label: 'message'
+      },
+      choices: {
+        type: 'array',
+        translatable: true,
+        label: 'suggestions',
+        placeholder: 'studio.library.quickAddAlternative',
+        addLabel: 'studio.flow.node.addSuggestion',
+        addLabelTooltip: 'studio.flow.node.addSuggestionTooltip'
+      }
+    }
+  },
   computePreviewText: formData =>
     formData.choices && formData.text && `Choices (${formData.choices.length}) ${formData.text}`,
   renderElement: renderElement,

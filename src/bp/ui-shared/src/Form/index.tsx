@@ -37,20 +37,21 @@ const focusFirstElement = parent => {
 }
 
 const printLabel = (field: Control, data, parent, currentLang?) => {
-  if (field.title?.startsWith('fields::') && field.title?.length) {
-    const labelField = field.fields?.find(subField => subField.key === field.title.replace('fields::', ''))
-    const fieldData = labelField.translated ? data[labelField.key]?.[currentLang] : data[labelField.key]
+  if (field.type === ControlType.Group && field.label?.startsWith('fields::') && field.fields) {
+    const key = field.label.replace('fields::', '')
+    const labelField = field.fields[key] || {}
+    const fieldData = labelField?.translatable ? data[key]?.[currentLang] : data[key]
 
     return fieldData || ' '
   }
 
   return field.onClick ? (
-    <Button className={style.labelBtn} small minimal onClick={() => field.onClick(field, parent)}>
-      {lang(field.title)}
+    <Button className={style.labelBtn} small minimal onClick={() => field.onClick!(field, parent)}>
+      {lang(field.label)}
     </Button>
   ) : (
     <Fragment>
-      {lang(field.title)} {printMoreInfo(field.moreInfo)}
+      {lang(field.label)} {printMoreInfo(field.moreInfo)}
     </Fragment>
   )
 }
@@ -129,19 +130,19 @@ const Form: FC<FormProps> = ({
     let currentValue = data[key] ?? newFormData[key]
     let refValue
 
-    if (field.translated) {
+    if (field.translatable) {
       refValue = getRefValue(currentValue || {}, currentLang, defaultLang)
       currentValue = currentValue?.[currentLang!]
     }
     const invalid = invalidFields?.find(x => x.field === key)
 
-    const onValueChanged = (value, key: string, field: any) => {
+    const onValueChanged = (value: any, key: string, field: Control) => {
       dispatch({
         type: 'updateField',
         data: {
           newFormData,
           field: key,
-          lang: field.translated && currentLang,
+          lang: field.translatable && currentLang,
           type: field.type,
           parent,
           value,
@@ -151,6 +152,42 @@ const Form: FC<FormProps> = ({
     }
 
     switch (field.type) {
+      case ControlType.Group:
+        return (
+          <Fragment key={key}>
+            <div
+              className={style.formGroup}
+              ref={ref => {
+                groupRef.current[key] = ref!
+              }}
+            >
+              {currentValue?.map((fieldData, index) => (
+                <GroupItemWrapper
+                  key={`${key}${index}`}
+                  contextMenu={(!field.min || currentValue?.length > field.min) && field.contextMenu}
+                  onDelete={() =>
+                    dispatch({ type: 'deleteGroupItem', data: { deleteIndex: index, onUpdate, field: key, parent } })
+                  }
+                  label={printLabel(field, fieldData, parent, currentLang)}
+                >
+                  {Object.keys(field.fields).map(fieldKey =>
+                    printField(field.fields[fieldKey], fieldKey, fieldData, { key, index, parent })
+                  )}
+                </GroupItemWrapper>
+              ))}
+            </div>
+            {(!defaultLang || defaultLang === currentLang) && (
+              <AddButton
+                text={lang(field.addLabel)}
+                onClick={() => {
+                  moveFocusTo.current = key
+                  dispatch({ type: 'add', data: { field, parent, currentLang, onUpdate } })
+                }}
+              />
+            )}
+          </Fragment>
+        )
+
       case ControlType.Enum:
         return (
           <FieldWrapper key={key} label={printLabel(field, currentValue, parent, currentLang)} invalid={invalid}>
@@ -161,6 +198,7 @@ const Form: FC<FormProps> = ({
                 printField={printField}
                 data={data}
                 field={field}
+                fieldKey={key}
                 placeholder={field.placeholder && lang(field.placeholder)}
                 onChange={value => onValueChanged(value, key, field)}
               />
@@ -189,8 +227,8 @@ const Form: FC<FormProps> = ({
               refValue={refValue}
               items={currentValue || ['']}
               label={printLabel(field, currentValue, parent, currentLang)}
-              addBtnLabel={lang(field.group?.addLabel)}
-              addBtnLabelTooltip={lang(field.group?.addLabelTooltip)}
+              addBtnLabel={lang(field.addLabel)}
+              addBtnLabelTooltip={lang(field.addLabelTooltip)}
             />
           </FieldWrapper>
         )
@@ -233,12 +271,7 @@ const Form: FC<FormProps> = ({
                 data,
                 refValue,
                 label: printLabel(field, currentValue, currentLang),
-                onChange: value => {
-                  dispatch({
-                    type: 'updateOverridableField',
-                    data: { newFormData, field: key, onUpdate, value }
-                  })
-                }
+                onChange: value => onValueChanged(value, key, field)
               })}
             </Fragment>
             {printError(key)}

@@ -22,29 +22,28 @@ export enum ControlType {
   Enum = 'enum',
   /** Display an upload component so users can pick a file from their filesystem */
   File = 'file',
-
+  /** A group of fields that can be added multiple times */
+  Group = 'group',
   /** Display a custom component from an override field or from a custom module */
   Component = 'component'
 }
 
 export interface BaseControl {
   /** Label displayed on top of the control */
-  title: string
+  label: string
   /** Display an help icon next to the control */
   moreInfo?: MoreInfo
   defaultValue?: any
   /** When true, the user can provide a different value for this property for each language supported by the bot */
-  translated?: boolean
+  translatable?: boolean
   /** Indicates that this field must be filled */
   required?: boolean
   /** Text to display in the control when no input is provided */
   placeholder?: string
   /** The name of the section where this property will be */
   section?: string
-  // TODO: Unsure about these 3, keeping them temporarily
-  fields?: any
-  onClick?: any
-  group?: any
+  /** Action when the label is clicked */
+  onClick?: (field: any, parent: any) => void
 }
 
 export interface ControlBoolean extends BaseControl {
@@ -93,6 +92,9 @@ export interface ControlArray extends BaseControl {
     /** Provide a custom validation method */
     validator?: (items: any[], newItem: any) => boolean
   }
+  /** The label displayed on the + button to add elements */
+  addLabel?: string
+  addLabelTooltip?: string
 }
 
 export interface ControlFile extends BaseControl {
@@ -106,6 +108,19 @@ export interface ControlComponent extends BaseControl {
   componentName?: string
 }
 
+export interface ControlGroup extends BaseControl {
+  type: ControlType.Group
+  addLabel?: string
+  addLabelTooltip?: string
+  /** Whether or not the first item is created by default */
+  defaultItem?: boolean
+  // The minimum number of items that must be in the group
+  min?: number
+  max?: number
+  fields?: any
+  contextMenu?: any
+}
+
 export type Control =
   | ControlBoolean
   | ControlEnum
@@ -114,6 +129,7 @@ export type Control =
   | ControlArray
   | ControlFile
   | ControlComponent
+  | ControlGroup
 
 export interface ControlForm {
   [propertyName: string]: Control

@@ -193,6 +193,25 @@ module.exports = {
       ...base.typingIndicators
     }
   },
+  newSchema: {
+    displayedIn: ['qna', 'sayNode'],
+    order: 3,
+    fields: {
+      items: {
+        type: 'group',
+        label: 'fields::title',
+        addLabel: 'module.builtin.types.card.add',
+        defaultItem: true,
+        contextMenu: [
+          {
+            type: 'delete',
+            label: 'module.builtin.types.card.delete'
+          }
+        ],
+        fields: Card.newSchema && Card.newSchema.fields
+      }
+    }
+  },
   computePreviewText: formData => formData.items && `Carousel: (${formData.items.length}) ${formData.items[0].title}`,
   renderElement: renderElement
 }

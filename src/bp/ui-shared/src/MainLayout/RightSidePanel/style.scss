@@ -31,3 +31,7 @@
     transform: translateX(0);
   }
 }
+
+.wrapper {
+  padding: 0 var(--spacing-xx-large) var(--spacing-xx-large) var(--spacing-large);
+}

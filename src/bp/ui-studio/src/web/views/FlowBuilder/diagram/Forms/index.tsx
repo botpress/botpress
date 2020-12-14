@@ -26,6 +26,8 @@ const Forms: FC<Props> = ({
   currentLang,
   defaultLang,
   currentFlowNode,
+  switchFlowNode,
+  updateFlowNode,
   updateEditingNodeItem,
   deleteSelectedElements,
   diagramEngine,
@@ -74,7 +76,7 @@ const Forms: FC<Props> = ({
       {formType === 'say_something' && (
         <ContentForm
           customKey={`${node.id}${index}`}
-          contentTypes={contentTypes}
+          contentTypes={contentTypes.filter(type => type.schema.newJson?.displayedIn.includes('sayNode'))}
           deleteContent={() => deleteNodeContent()}
           contentLang={currentLang}
           node={currentFlowNode}

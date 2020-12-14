@@ -34,7 +34,7 @@ const RightSidePanel: FC<RightSidePanelProps> = ({ className, canOutsideClickClo
   }
 
   return (
-    <div className={cx(style.rightSidebar, 'right-sidebar')} id="sidebar-container">
+    <div className={cx(style.rightSidebar, 'right-sidebar', style.wrapper)} id="sidebar-container">
       {children}
     </div>
   )

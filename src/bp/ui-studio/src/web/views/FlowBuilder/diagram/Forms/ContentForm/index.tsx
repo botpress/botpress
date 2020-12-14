@@ -102,7 +102,7 @@ const ContentForm: FC<Props> = ({
             fields={fields}
             formData={formData}
             overrideFields={{
-              smartInput: props => <SmartInput {...props} onChange={value => props.onChange({ text: value })} />
+              smartInput: props => <SmartInput {...props} onChange={value => props.onChange(value)} />
             }}
             onUpdate={data => prepareUpdate({ ...data, contentType: contentType.current })}
           />

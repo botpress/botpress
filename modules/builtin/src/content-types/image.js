@@ -164,15 +164,13 @@ module.exports = {
     fields: {
       image: {
         type: 'file',
-        title: 'module.builtin.types.image.uploadImage',
-        section: 'basic'
+        label: 'module.builtin.types.image.uploadImage'
       },
       text: {
         type: 'string',
-        translated: true,
-        title: 'title',
-        placeholder: 'module.builtin.optional',
-        section: 'basic'
+        translatable: true,
+        label: 'title',
+        placeholder: 'optional'
       }
     }
   },
