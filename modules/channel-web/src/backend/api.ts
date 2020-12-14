@@ -505,8 +505,8 @@ export default async (bp: typeof sdk, db: Database) => {
     res.send({ txt, name: `${conversation.title}.txt` })
   })
 
-  router.post('/conversations/:userId/:conversationId/delete', async (req: BPRequest, res: Response) => {
-    const { userId, conversationId, botId } = req.params
+  router.post('/conversations/:userId/:conversationId/messages/delete', async (req: BPRequest, res: Response) => {
+    const { userId, conversationId } = req.params
 
     if (!validateUserId(userId)) {
       return res.status(400).send(ERR_USER_ID_REQ)
@@ -514,7 +514,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.clear', { conversationId }))
 
-    await db.deleteConversation(userId, conversationId, botId)
+    await db.deleteConversationMessages(conversationId)
 
     res.sendStatus(204)
   })

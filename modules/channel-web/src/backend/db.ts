@@ -366,23 +366,13 @@ export default class WebchatDb {
     })
   }
 
-  async deleteConversation(userId: string, conversationId: string, botId: string) {
+  async deleteConversationMessages(conversationId: string) {
     return this.knex.transaction(async trx => {
-      await trx('events')
-        .del()
-        .where({ threadId: conversationId })
+      // TODO: Delete the related events using bp SDK
 
       await trx('web_messages')
         .del()
         .where({ conversationId })
-
-      await trx('web_conversations')
-        .del()
-        .where({ id: conversationId, userId, botId })
-
-      await trx('srv_channel_users')
-        .del()
-        .where({ user_id: userId, channel: 'web' })
     })
   }
 

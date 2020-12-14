@@ -35,10 +35,8 @@
     "assignedToYou": "La conversation vous a été assigné",
     "assign": "M'assigner",
     "resolve": "Résoudre",
-    "delete": "Supprimer",
     "assigned": "L'escalation {id} a été assignée avec succès",
     "resolved": "L'escalation {id} a été résoulue avec succès",
-    "deleted": "L'escalation {id} a été supprimée avec succès",
     "noPreviousAgent": "Aucun agent précédent",
     "you": "Vous",
     "from": "Via {channel}"
@@ -61,6 +59,8 @@
     "empty": "Aucun commentaires"
   },
   "conversation": {
+    "delete": "Supprimer la conversation",
+    "deleted": "La conversation a été supprimée avec succès",
     "empty": "Sélectionnez une escalation en attente pour engager la conversation avec vos clients.",
     "tab": "Conversation",
     "composerPlaceholder": "Répondre à l'utilisateur"
