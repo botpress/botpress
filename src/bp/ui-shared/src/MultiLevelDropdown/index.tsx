@@ -4,7 +4,7 @@ import React, { FC, Fragment, useEffect, useState } from 'react'
 
 import Overlay from '../../../ui-shared-lite/Overlay'
 import { lang } from '../translations'
-import confirmDialog from '../ConfirmDialog'
+import confirmDialog from '../../../ui-shared-lite/ConfirmDialog'
 
 import style from './style.scss'
 import { MultiLevelDropdownProps, Option } from './typings'

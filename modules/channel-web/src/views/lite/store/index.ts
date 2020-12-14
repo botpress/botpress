@@ -146,7 +146,8 @@ class RootStore {
   async deleteConversation(): Promise<void> {
     if (this.currentConversation !== undefined) {
       await this.api.deleteConversation(this.currentConversationId)
-      await this.clearConversation()
+
+      this.clearMessages()
     }
   }
 

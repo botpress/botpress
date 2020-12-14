@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { Button, Classes, Icon, Intent } from '@blueprintjs/core'
-import '@blueprintjs/core/lib/css/blueprint.css'
 import React, { FC } from 'react'
 import ReactDOM from 'react-dom'
 
@@ -38,7 +37,7 @@ const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
             className={Classes.BUTTON}
             type="button"
             onClick={onDecline}
-            text={props.declineLabel}
+            text={props.declineLabel || 'Cancel'}
             tabIndex={2}
             intent={Intent.NONE}
           />
@@ -49,7 +48,7 @@ const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
           type="button"
           autoFocus
           onClick={onAccept}
-          text={props.acceptLabel}
+          text={props.acceptLabel || 'Ok'}
           tabIndex={3}
           intent={Intent.WARNING}
         />

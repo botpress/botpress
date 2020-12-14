@@ -4,7 +4,7 @@ import cx from 'classnames'
 import React, { FC, useEffect, useState } from 'react'
 
 import { lang } from '../translations'
-import confirmDialog from '../ConfirmDialog'
+import confirmDialog from '../../../ui-shared-lite/ConfirmDialog'
 
 import style from './style.scss'
 import { DropdownProps, Option } from './typings'
