@@ -47,6 +47,7 @@ export interface IHandoff {
   agentThreadId: string
   userConversation: IEvent
   comments: IComment[]
+  tags: string[]
   user: IUser
   assignedAt?: Date
   resolvedAt?: Date

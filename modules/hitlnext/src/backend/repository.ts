@@ -30,6 +30,7 @@ const handoffColumns = [
   'userChannel',
   'agentThreadId',
   'status',
+  'tags',
   'assignedAt',
   'resolvedAt',
   'createdAt',
@@ -58,6 +59,14 @@ export default class Repository {
   private castDate(object: object, paths: string[]) {
     paths.map(path => {
       _.has(object, path) && _.set(object, path, this.bp.database.date.format(_.get(object, path)))
+    })
+    return object
+  }
+
+  // This mutates object
+  private castJson(object: object, paths: string[]) {
+    paths.map(path => {
+      _.has(object, path) && _.set(object, path, this.bp.database.json.set(_.get(object, path)))
     })
     return object
   }
@@ -94,6 +103,10 @@ export default class Repository {
         memo[row.id] = memo[row.id] || {
           ..._.pick(row, handoffColumns),
           comments: {}
+        }
+
+        if (row[`tags`]) {
+          memo[row.id].tags = this.bp.database.json.get(row.tags)
         }
 
         if (row[`${commentPrefix}:id`]) {
@@ -428,13 +441,14 @@ export default class Repository {
 
   updateHandoff = async (botId: string, id: string, attributes: Partial<IHandoff>) => {
     const now = new Date()
-    const payload = this.castDate(
+    let payload = this.castDate(
       {
         ...attributes,
         updatedAt: now
       },
       ['assignedAt', 'resolvedAt', 'updatedAt']
     )
+    payload = this.castJson(attributes, ['tags'])
 
     return this.bp.database.transaction(async trx => {
       await trx<IHandoff>(HANDOFF_TABLE_NAME)
