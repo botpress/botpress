@@ -47,9 +47,9 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
 
       // TODO: Add support for other channels
       if (currentHandoff.userChannel === 'web') {
-        await api.deleteConversation(currentHandoff.userThreadId, currentHandoff.userId, currentHandoff.userChannel)
+        await api.deleteMessages(currentHandoff.userThreadId, currentHandoff.userId, currentHandoff.userChannel)
       }
-      await api.deleteConversation(currentHandoff.agentThreadId, currentHandoff.agentId, agentChannel)
+      await api.deleteMessages(currentHandoff.agentThreadId, currentHandoff.agentId, agentChannel)
 
       toast.success(lang.tr('module.hitlnext.conversation.deleted'))
     } catch (error) {

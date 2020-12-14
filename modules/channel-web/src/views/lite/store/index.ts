@@ -138,8 +138,8 @@ class RootStore {
   }
 
   @action.bound
-  async clearConversation(): Promise<void> {
-    this.currentConversation = undefined
+  clearMessages() {
+    this.currentConversation.messages = []
   }
 
   @action.bound
