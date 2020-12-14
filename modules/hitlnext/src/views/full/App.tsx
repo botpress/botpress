@@ -35,7 +35,7 @@ const App: FC<Props> = ({ bp }) => {
 
   const handoffUpdatedNotification = _.debounce(async () => {
     if (!document.hasFocus()) {
-      flashTitle('New Message')
+      flashTitle(lang.tr('module.hitlnext.newMessage'))
     }
   })
 
