@@ -6,7 +6,7 @@ import Knex from 'knex'
 import _ from 'lodash'
 import ms from 'ms'
 
-import { COMMENT_TABLE_NAME, EVENT_TABLE_NAME, HANDOFF_TABLE_NAME, MODULE_NAME } from '../constants'
+import { COMMENT_TABLE_NAME, HANDOFF_TABLE_NAME, MODULE_NAME } from '../constants'
 
 import { IAgent, IComment, IEvent, IHandoff } from './../types'
 import { makeAgentId } from './helpers'
@@ -463,24 +463,5 @@ export default class Repository {
       { botId, threadId },
       { count: conditions.limit, sortOrder: [{ column: 'id', desc: true }] }
     )
-  }
-
-  deleteHandoff = async (id: string) => {
-    return this.bp.database.transaction(async trx => {
-      const handoff = await this.getHandoff(id)
-
-      await trx(EVENT_TABLE_NAME)
-        .del()
-        .whereIn('threadId', [handoff.agentThreadId, handoff.userThreadId])
-        .andWhere(this.bp.database.date.isAfterOrOn('createdOn', handoff.createdAt))
-
-      await trx(COMMENT_TABLE_NAME)
-        .del()
-        .where({ handoffId: id })
-
-      await trx(HANDOFF_TABLE_NAME)
-        .del()
-        .where({ id })
-    })
   }
 }

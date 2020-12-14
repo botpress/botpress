@@ -39,7 +39,7 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
     }
   }
 
-  async function handleDelete() {
+  async function handleDeleteConversation() {
     try {
       const selectedHandoffId = state.selectedHandoffId
       const currentHandoff = state.handoffs[selectedHandoffId]
@@ -51,10 +51,7 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
       }
       await api.deleteConversation(currentHandoff.agentThreadId, currentHandoff.agentId, agentChannel)
 
-      await api.deleteHandoff(selectedHandoffId)
-
-      dispatch({ type: 'removeHandoff', payload: selectedHandoffId })
-      toast.success(lang.tr('module.hitlnext.handoff.deleted', { id: state.selectedHandoffId }))
+      toast.success(lang.tr('module.hitlnext.conversation.deleted'))
     } catch (error) {
       dispatch({ type: 'setError', payload: error })
     }
@@ -83,14 +80,14 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
         />
       )
     },
-    state.config.enableHandoffDeletion && {
+    state.config.enableConversationDeletion && {
       content: (
         <Button
           className={style.coversationButton}
           minimal
           rightIcon="delete"
-          onClick={handleDelete}
-          text={lang.tr('module.hitlnext.handoff.delete')}
+          onClick={handleDeleteConversation}
+          text={lang.tr('module.hitlnext.conversation.delete')}
         />
       )
     }
@@ -111,14 +108,14 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
         />
       )
     },
-    state.config.enableHandoffDeletion && selectedHandoff.status === 'resolved' && {
+    state.config.enableConversationDeletion && selectedHandoff.status === 'resolved' && {
       content: (
         <Button
           className={style.coversationButton}
           minimal
           rightIcon="delete"
-          onClick={handleDelete}
-          text={lang.tr('module.hitlnext.handoff.delete')}
+          onClick={handleDeleteConversation}
+          text={lang.tr('module.hitlnext.conversation.delete')}
         />
       )
     }
