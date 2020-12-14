@@ -1,4 +1,4 @@
-import * as sdk from 'botpress/sdk'
+import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
@@ -21,7 +21,7 @@ import {
 } from './typings'
 import Utterance, { buildUtteranceBatch, preprocessRawUtterance, UtteranceEntity } from './utterance/utterance'
 
-export type ExactMatchResult = (sdk.MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
+export type ExactMatchResult = (MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
 
 export type Predictors = {
   lang: string
@@ -33,33 +33,28 @@ export type Predictors = {
   pattern_entities: PatternEntity[]
   intents: Intent<Utterance>[]
 } & Partial<{
-  ctx_classifier: sdk.MLToolkit.SVM.Predictor
-  intent_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
-  oos_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
-  kmeans: sdk.MLToolkit.KMeans.KmeansResult
+  ctx_classifier: MLToolkit.SVM.Predictor
+  intent_classifier_per_ctx: _.Dictionary<MLToolkit.SVM.Predictor>
+  oos_classifier_per_ctx: _.Dictionary<MLToolkit.SVM.Predictor>
+  kmeans: MLToolkit.KMeans.KmeansResult
   slot_tagger: SlotTagger // TODO replace this by MlToolkit.CRF.Tagger
 }>
 
 export interface PredictInput {
   language: string
-  includedContexts: string[]
-  sentence: string
+  text: string
 }
 
 interface InitialStep {
-  readonly rawText: string
-  includedContexts: string[]
+  rawText: string
   languageCode: string
 }
 type PredictStep = InitialStep & { utterance: Utterance }
 type OutOfScopeStep = PredictStep & { oos_predictions: _.Dictionary<number> }
-type ContextStep = OutOfScopeStep & { ctx_predictions: sdk.MLToolkit.SVM.Prediction[] }
-type IntentStep = ContextStep & { intent_predictions: _.Dictionary<sdk.MLToolkit.SVM.Prediction[]> }
+type ContextStep = OutOfScopeStep & { ctx_predictions: MLToolkit.SVM.Prediction[] }
+type IntentStep = ContextStep & { intent_predictions: _.Dictionary<MLToolkit.SVM.Prediction[]> }
 type SlotStep = IntentStep & { slot_predictions_per_intent: _.Dictionary<SlotExtractionResult[]> }
 
-export type PredictOutput = sdk.IO.EventUnderstanding
-
-const DEFAULT_CTX = 'global'
 const NONE_INTENT = 'none'
 
 async function preprocessInput(
@@ -74,10 +69,8 @@ async function preprocessInput(
     throw new Error(`Predictor for language: ${usedLanguage} is not valid`)
   }
 
-  const contexts = input.includedContexts.filter(x => predictors.contexts.includes(x))
   const step: InitialStep = {
-    includedContexts: _.isEmpty(contexts) ? predictors.contexts : contexts,
-    rawText: input.sentence,
+    rawText: input.text,
     languageCode: usedLanguage
   }
 
@@ -122,22 +115,26 @@ const getCustomEntitiesNames = (predictors: Predictors): string[] => [
   ...predictors.pattern_entities.map(e => e.name)
 ]
 
-async function predictContext(input: OutOfScopeStep, predictors: Predictors): Promise<ContextStep> {
-  const customEntities = getCustomEntitiesNames(predictors)
-
+export async function predictContext(input: OutOfScopeStep, predictors: Predictors): Promise<ContextStep> {
   const classifier = predictors.ctx_classifier
   if (!classifier) {
+    const ctxCount = predictors.contexts.length
+    if (ctxCount <= 0) {
+      return {
+        ...input,
+        ctx_predictions: []
+      }
+    }
+
+    const confidence = 1 / ctxCount
+    const ctx_predictions = predictors.contexts.map(ctx => ({ label: ctx, confidence }))
     return {
       ...input,
-      ctx_predictions: [
-        {
-          label: input.includedContexts.length ? input.includedContexts[0] : DEFAULT_CTX,
-          confidence: 1
-        }
-      ]
+      ctx_predictions
     }
   }
 
+  const customEntities = getCustomEntitiesNames(predictors)
   const features = getCtxFeatures(input.utterance, customEntities)
   const ctx_predictions = await classifier.predict(features)
 
@@ -147,9 +144,15 @@ async function predictContext(input: OutOfScopeStep, predictors: Predictors): Pr
   }
 }
 
-async function predictIntent(input: ContextStep, predictors: Predictors): Promise<IntentStep> {
+export async function predictIntent(input: ContextStep, predictors: Predictors): Promise<IntentStep> {
   if (_.flatMap(predictors.intents, i => i.utterances).length <= 0) {
-    return { ...input, intent_predictions: { [DEFAULT_CTX]: [{ label: NONE_INTENT, confidence: 1 }] } }
+    const noneIntent = { label: NONE_INTENT, confidence: 1 }
+    const allCtxs = predictors.contexts
+    const intent_predictions = _.zipObject(
+      allCtxs,
+      allCtxs.map(_ => [{ ...noneIntent }])
+    )
+    return { ...input, intent_predictions }
   }
 
   const customEntities = getCustomEntitiesNames(predictors)
@@ -157,7 +160,7 @@ async function predictIntent(input: ContextStep, predictors: Predictors): Promis
   const ctxToPredict = input.ctx_predictions.map(p => p.label)
   const predictions = (
     await Promise.map(ctxToPredict, async ctx => {
-      const preds: sdk.MLToolkit.SVM.Prediction[] = []
+      const preds: MLToolkit.SVM.Prediction[] = []
 
       const predictor = predictors.intent_classifier_per_ctx?.[ctx]
       if (predictor) {
@@ -230,8 +233,8 @@ async function extractSlots(input: IntentStep, predictors: Predictors): Promise<
   return { ...input, slot_predictions_per_intent: slots_per_intent }
 }
 
-function MapStepToOutput(step: SlotStep, startTime: number): PredictOutput {
-  const entitiesMapper = (e?: EntityExtractionResult | UtteranceEntity): sdk.NLU.Entity => {
+function MapStepToOutput(step: SlotStep): NLU.PredictOutput {
+  const entitiesMapper = (e?: EntityExtractionResult | UtteranceEntity): NLU.Entity => {
     if (!e) {
       return eval('null')
     }
@@ -256,23 +259,7 @@ function MapStepToOutput(step: SlotStep, startTime: number): PredictOutput {
   // legacy pre-ndu
   const entities = step.utterance.entities.map(entitiesMapper)
 
-  // legacy pre-ndu
-  const slots = step.utterance.slots.reduce((slots, s) => {
-    return {
-      ...slots,
-      [s.name]: {
-        start: s.startPos,
-        end: s.endPos,
-        confidence: s.confidence,
-        name: s.name,
-        source: s.source,
-        value: s.value,
-        entity: entitiesMapper(s.entity) // TODO: add this mapper to the legacy election pipeline
-      }
-    }
-  }, {} as sdk.NLU.SlotCollection)
-
-  const slotsCollectionReducer = (slots: sdk.NLU.SlotCollection, s: SlotExtractionResult): sdk.NLU.SlotCollection => {
+  const slotsCollectionReducer = (slots: NLU.SlotCollection, s: SlotExtractionResult): NLU.SlotCollection => {
     if (slots[s.slot.name] && slots[s.slot.name].confidence > s.slot.confidence) {
       // we keep only the most confident slots
       return slots
@@ -292,7 +279,7 @@ function MapStepToOutput(step: SlotStep, startTime: number): PredictOutput {
     }
   }
 
-  const predictions: sdk.NLU.Predictions = step.ctx_predictions!.reduce((preds, current) => {
+  const predictions: NLU.Predictions = step.ctx_predictions!.reduce((preds, current) => {
     const { label, confidence } = current
 
     const intentPred = step.intent_predictions[label]
@@ -316,17 +303,13 @@ function MapStepToOutput(step: SlotStep, startTime: number): PredictOutput {
     }
   }, {})
 
-  return {
+  return <NLU.PredictOutput>{
     entities,
-    errored: false,
     predictions: _.chain(predictions) // orders all predictions by confidence
       .entries()
       .orderBy(x => x[1].confidence, 'desc')
       .fromPairs()
-      .value(),
-    includedContexts: step.includedContexts, // legacy pre-ndu
-    language: step.languageCode,
-    ms: Date.now() - startTime
+      .value()
   }
 }
 
@@ -344,26 +327,18 @@ export function findExactIntentForCtx(
   }
 }
 
-export const Predict = async (input: PredictInput, tools: Tools, predictors: Predictors): Promise<PredictOutput> => {
-  try {
-    const { includedContexts, language, sentence } = input
-
-    const t0 = Date.now()
-
-    // tslint:disable-next-line
-    let { step } = await preprocessInput({ includedContexts, language, sentence: sentence }, tools, predictors)
-
-    const initialStep = await makePredictionUtterance(step, predictors, tools)
-    const entitesStep = await extractEntities(initialStep, predictors, tools)
-    const oosStep = await predictOutOfScope(entitesStep, predictors)
-    const ctxStep = await predictContext(oosStep, predictors)
-    const intentStep = await predictIntent(ctxStep, predictors)
-    const slotStep = await extractSlots(intentStep, predictors)
-    const output = MapStepToOutput(slotStep, t0)
-    return output
-  } catch (err) {
-    // tslint:disable-next-line: no-console
-    console.log('Could not perform predict data', err)
-    return { errored: true } as sdk.IO.EventUnderstanding
-  }
+export const Predict = async (
+  input: PredictInput,
+  tools: Tools,
+  predictors: Predictors
+): Promise<NLU.PredictOutput> => {
+  const { step } = await preprocessInput(input, tools, predictors)
+  const initialStep = await makePredictionUtterance(step, predictors, tools)
+  const entitesStep = await extractEntities(initialStep, predictors, tools)
+  const oosStep = await predictOutOfScope(entitesStep, predictors)
+  const ctxStep = await predictContext(oosStep, predictors)
+  const intentStep = await predictIntent(ctxStep, predictors)
+  const slotStep = await extractSlots(intentStep, predictors)
+  const output = MapStepToOutput(slotStep)
+  return output
 }

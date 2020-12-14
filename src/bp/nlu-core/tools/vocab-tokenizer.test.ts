@@ -57,3 +57,16 @@ test('vocab tokenizer should not split', () => {
   expect(actual).toHaveLength(1)
   expect(actual[0]).toBe('arthur')
 })
+
+test('vocab tokenizer should never return empty string', () => {
+  // arange
+  const sentencepieceToken = 'covid'
+  const vocabTokenizer = getVocabTokenizer(['covid', '$'])
+
+  // act
+  const actual = vocabTokenizer(sentencepieceToken)
+
+  // assert
+  expect(actual).toHaveLength(1)
+  expect(actual[0]).toBe('covid')
+})

@@ -22,6 +22,7 @@
     "immer": "^8",
     "joi": "^17",
     "lodash": ">=4.17",
+    "lru-cache": "^6.0.0",
     "moment": "^2.24",
     "react-initial": "^1.0.12",
     "serialize-javascript": "^5.0.1",

@@ -5,7 +5,6 @@ import yn from 'yn'
 
 import legacyElectionPipeline from './election/legacy-election'
 import mergeSpellChecked from './election/spellcheck-handler'
-import { PredictOutput } from './election/typings'
 import { getTrainingSession } from './train-session-service'
 import { NLUState } from './typings'
 
@@ -55,22 +54,30 @@ export default async (bp: typeof sdk, state: NLUState) => {
     const modelId = botNLU.modelsByLang[predictLang]
 
     try {
-      let nlu: sdk.IO.EventUnderstanding
+      let nlu: sdk.NLU.PredictOutput
 
       const spellChecked = await state.engine.spellCheck(value.text, modelId)
+
+      const t0 = Date.now()
       if (spellChecked !== value.text) {
-        const originalPrediction = (await state.engine.predict(value.text, value.contexts, modelId)) as PredictOutput
-        const spellCheckedPrediction = (await state.engine.predict(
-          spellChecked,
-          value.contexts,
-          modelId
-        )) as PredictOutput
+        const originalPrediction = await state.engine.predict(value.text, modelId)
+        const spellCheckedPrediction = await state.engine.predict(spellChecked, modelId)
         nlu = mergeSpellChecked(originalPrediction, spellCheckedPrediction)
       } else {
-        nlu = await state.engine.predict(value.text, value.contexts, modelId)
+        nlu = await state.engine.predict(value.text, modelId)
       }
-      nlu = legacyElectionPipeline(nlu)
-      res.send({ nlu })
+      const ms = Date.now() - t0
+
+      const event: sdk.IO.EventUnderstanding = {
+        ...nlu,
+        includedContexts: value.contexts,
+        language: predictLang,
+        detectedLanguage: undefined,
+        errored: false,
+        ms,
+        spellChecked
+      }
+      res.send({ nlu: legacyElectionPipeline(event) })
     } catch (err) {
       res.status(500).send('Could not extract nlu data')
     }
