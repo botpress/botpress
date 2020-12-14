@@ -48,7 +48,6 @@ export interface ApiType {
   getHandoffs: (column?: string, desc?: boolean, limit?: number) => Promise<IHandoff[]>
   assignHandoff: (id: string) => Promise<IHandoff>
   resolveHandoff: (id: string) => Promise<IHandoff>
-  deleteHandoff: (id: string) => Promise<void>
   getMessages: (id: string, column?: string, desc?: boolean, limit?: number) => Promise<IEvent[]>
 }
 
@@ -94,7 +93,6 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
         .post(`/handoffs/${id}/resolve`, null, config)
         .then(res => res.data)
         .then(data => castHandoff(data)),
-    deleteHandoff: async id => bp.axios.post(`/handoffs/${id}/delete`, null, config),
     getMessages: async (id, column?, desc?, limit?) =>
       bp.axios
         .get(`/conversations/${id}/messages`, { ...config, params: { desc, column, limit } })

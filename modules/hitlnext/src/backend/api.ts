@@ -357,13 +357,4 @@ export default async (bp: typeof sdk, state: StateType) => {
       res.send(messages)
     })
   )
-
-  router.post(
-    '/handoffs/:id/delete',
-    errorMiddleware(async (req: RequestWithUser, res: Response) => {
-      await repository.deleteHandoff(req.params.id)
-
-      res.sendStatus(204)
-    })
-  )
 }

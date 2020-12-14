@@ -23,8 +23,8 @@ export interface Config {
   botAvatarUrl?: string
 
   /**
-   * @param enableHandoffDeletion Whether or not to allow the agent to delete the handoff and the user's conversation
+   * @param enableConversationDeletion Whether or not to allow the agent to delete the user conversation
    * @default false
    */
-  enableHandoffDeletion: boolean
+  enableConversationDeletion: boolean
 }
