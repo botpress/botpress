@@ -54,7 +54,7 @@ export class ConfigProvider {
     const config = await this.getConfig<BotpressConfig>('botpress.config.json')
     _.merge(config, await this._loadBotpressConfigFromEnv(config))
 
-    /* START DEPRECATED */
+    // deprecated notice
     const envPort = process.env.BP_PORT || process.env.PORT
     config.httpServer.port = envPort ? parseInt(envPort) : config.httpServer.port
     config.httpServer.host = process.env.BP_HOST || config.httpServer.host
@@ -64,21 +64,21 @@ export class ConfigProvider {
       config.pro.licenseKey = process.env.BP_LICENSE_KEY || config.pro.licenseKey
     }
 
-     [
-      ['BP_PORT', 'HTTTPSERVER.PORT'],
-      ['PORT', 'HTTTPSERVER.PORT'],
-      ['BP_HOST', 'HTTTPSERVER.PORT'],
-      ['BP_PROXY', 'HTTTPSERVER.PROXY'],
-      ['BP_LICENSE_KEY', 'PRO.LICENSEKEY']
-    ].forEach(([depr, preferred]) => {
-      const newKey = `BP_CONFIG_${preferred}`
+    const deprecatedEnvKeys = [
+      ['BP_PORT', 'httpServer.port'],
+      ['BP_HOST', 'httpServer.host'],
+      ['BP_PROXY', 'httpServer.proxy'],
+      ['BP_LICENSE_KEY', 'pro.licenseKey'],
+      ['PRO_ENABLED', 'pro.enabled']
+    ]
+    deprecatedEnvKeys.forEach(([depr, preferred]) => {
+      const newKey = this._makeBPConfigEnvKey(preferred)
       if (process.env[depr] !== undefined) {
         this.logger.warn(
           `(Deprecated) use standard syntax to set config from environment variable: ${depr} ==> ${newKey}`
         )
       }
     })
-    /* END DEPRECATED */
 
     this._botpressConfigCache = config
 
@@ -90,7 +90,7 @@ export class ConfigProvider {
   }
 
   private _makeBPConfigEnvKey(option: string): string {
-    return `BP_CONFIG_${option}`.toUpperCase()
+    return `BP_CONFIG_${option.split('.').join('_')}`.toUpperCase()
   }
 
   private async _loadBotpressConfigFromEnv(currentConfig: BotpressConfig): Promise<PartialDeep<BotpressConfig>> {
@@ -100,7 +100,7 @@ export class ConfigProvider {
     for (const option of options) {
       const envKey = this._makeBPConfigEnvKey(option)
       const value = getValueFromEnvKey(envKey)
-      if (value) {
+      if (value !== undefined) {
         _.set(configOverrides, option, value)
       }
     }
