@@ -32,6 +32,12 @@
     &:hover {
       background-color: black;
     }
+
+    &_wrap {
+      display: flex;
+      align-items: center;
+      margin-right: 2%;
+    }
   }
 }
 
