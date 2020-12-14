@@ -62,9 +62,9 @@ export default class Db {
     botId: string,
     language: string,
     status: FLAGGED_MESSAGE_STATUS,
-    options?: { startDate: Date; endDate: Date }
+    options?: { startDate: Date; endDate: Date; reason?: string }
   ): Promise<DbFlaggedEvent[]> {
-    const { startDate, endDate } = options || {}
+    const { startDate, endDate, reason } = options || {}
 
     const query = this.knex(TABLE_NAME)
       .select('*')
@@ -72,6 +72,12 @@ export default class Db {
 
     if (startDate && endDate) {
       query.andWhere(this.knex.date.isBetween('updatedAt', startDate, endDate))
+    }
+
+    if (reason == 'thumbs_down') {
+      query.andWhere({ reason })
+    } else if (reason && reason != 'thumbs_down') {
+      query.andWhereNot('reason', 'thumbs_down')
     }
 
     const data: DbFlaggedEvent[] = await query.orderBy('updatedAt', 'desc')
@@ -85,8 +91,8 @@ export default class Db {
     }))
   }
 
-  async countEvents(botId: string, language: string, options?: { startDate: Date; endDate: Date }) {
-    const { startDate, endDate } = options || {}
+  async countEvents(botId: string, language: string, options?: { startDate: Date; endDate: Date; reason?: string }) {
+    const { startDate, endDate, reason } = options || {}
 
     const query = this.knex(TABLE_NAME)
       .where({ botId, language })
@@ -95,6 +101,12 @@ export default class Db {
 
     if (startDate && endDate) {
       query.andWhere(this.knex.date.isBetween('updatedAt', startDate, endDate))
+    }
+
+    if (reason == 'thumbs_down') {
+      query.andWhere({ reason })
+    } else if (reason && reason != 'thumbs_down') {
+      query.andWhereNot('reason', 'thumbs_down')
     }
 
     const data: { status: string; count: number }[] = await query.groupBy('status')

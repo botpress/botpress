@@ -10,7 +10,8 @@ export const FLAGGED_MESSAGE_STATUSES = Object.values(FLAGGED_MESSAGE_STATUS)
 export enum FLAG_REASON {
   auto_hook = 'auto_hook',
   action = 'action',
-  manual = 'manual'
+  manual = 'manual',
+  thumbs_down = 'thumbs_down'
 }
 
 export enum RESOLUTION_TYPE {
