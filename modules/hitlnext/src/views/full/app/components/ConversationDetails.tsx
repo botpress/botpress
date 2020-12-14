@@ -9,6 +9,7 @@ import { ApiType } from '../../Api'
 
 import { Comments } from './Comments'
 import UserProfile from './UserProfile'
+import { Tags } from './Tags'
 
 interface Props {
   api: ApiType
@@ -19,6 +20,8 @@ const ConversationDetails: FC<Props> = ({ api, handoff }) => (
   <div className={cx(style.column, style.sidebarContainer)}>
     <Tabs tabs={[{ id: 'user', title: lang.tr('module.hitlnext.handoff.contactDetails') }]} />
     <UserProfile {...handoff.user} />
+    <div className={style.divider}></div>
+    <Tags handoff={handoff} api={api} />
     <div className={style.divider}></div>
     <Comments handoff={handoff} api={api} />
   </div>

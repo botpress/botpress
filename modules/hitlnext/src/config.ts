@@ -21,4 +21,10 @@ export interface Config {
    * @param botAvatarUrl Image url you want to display as avatar when an agent takes control
    */
   botAvatarUrl?: string
+
+  /**
+   * @param tags List of tags that a handoff can be associated with
+   * @default []
+   */
+  tags?: string[]
 }

@@ -76,5 +76,9 @@
       "heading": "Most Recent Handoffs",
       "empty": "Thanks to you and your team, there are no pending handoffs right now."
     }
+  },
+  "tags": {
+    "heading": "Handoff labels",
+    "placeholder": "Add or remove labels"
   }
 }
