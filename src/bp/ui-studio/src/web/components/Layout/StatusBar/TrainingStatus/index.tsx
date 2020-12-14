@@ -2,6 +2,7 @@ import { NLU } from 'botpress/sdk'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
 import { RootReducer } from '~/reducers'
+
 import MultiLang from './MultiLang'
 import SingleLang from './SingleLang'
 

@@ -4,6 +4,7 @@ import { NLU } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, useEffect, useState } from 'react'
+
 import style from './style.scss'
 
 interface Props {
@@ -62,7 +63,7 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
     e.preventDefault()
     onCanceling()
     try {
-      await axios.post(`${BASE_NLU_URL}/train/delete/${trainSession.language}`)
+      await axios.post(`${BASE_NLU_URL}/train/${trainSession.language}/delete`)
     } catch (err) {
       console.error('cannot cancel training')
     } finally {

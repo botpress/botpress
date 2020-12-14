@@ -107,7 +107,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
   })
 
-  router.post('/train/delete/:lang', async (req, res) => {
+  router.post('/train/:lang/delete', async (req, res) => {
     try {
       const { botId, lang } = req.params
 

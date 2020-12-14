@@ -5,8 +5,9 @@ import classNames from 'classnames'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
 import { RootReducer } from '~/reducers'
-import SingleLang from './SingleLang'
+
 import style from './style.scss'
+import SingleLang from './SingleLang'
 
 interface Props {
   languages: string[]
