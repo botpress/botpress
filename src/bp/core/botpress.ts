@@ -478,10 +478,14 @@ export class Botpress {
   }
 
   private async cleanDisabledModules() {
-    const config = await this.configProvider.getBotpressConfig()
-    const disabledModules = config.modules.filter(m => !m.enabled).map(m => path.basename(m.location))
+    try {
+      const config = await this.configProvider.getBotpressConfig()
+      const disabledModules = config.modules.filter(m => !m.enabled).map(m => path.basename(m.location))
 
-    await this.moduleLoader.disableModuleResources(disabledModules)
+      await this.moduleLoader.disableModuleResources(disabledModules)
+    } catch (err) {
+      this.logger.attachError(err).error('Error while disabling module resources')
+    }
   }
 
   private async startServer() {
