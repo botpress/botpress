@@ -55,7 +55,6 @@ type ContextStep = OutOfScopeStep & { ctx_predictions: MLToolkit.SVM.Prediction[
 type IntentStep = ContextStep & { intent_predictions: _.Dictionary<MLToolkit.SVM.Prediction[]> }
 type SlotStep = IntentStep & { slot_predictions_per_intent: _.Dictionary<SlotExtractionResult[]> }
 
-const DEFAULT_CTX = 'global'
 const NONE_INTENT = 'none'
 
 async function preprocessInput(
@@ -116,22 +115,26 @@ const getCustomEntitiesNames = (predictors: Predictors): string[] => [
   ...predictors.pattern_entities.map(e => e.name)
 ]
 
-async function predictContext(input: OutOfScopeStep, predictors: Predictors): Promise<ContextStep> {
-  const customEntities = getCustomEntitiesNames(predictors)
-
+export async function predictContext(input: OutOfScopeStep, predictors: Predictors): Promise<ContextStep> {
   const classifier = predictors.ctx_classifier
   if (!classifier) {
+    const ctxCount = predictors.contexts.length
+    if (ctxCount <= 0) {
+      return {
+        ...input,
+        ctx_predictions: []
+      }
+    }
+
+    const confidence = 1 / ctxCount
+    const ctx_predictions = predictors.contexts.map(ctx => ({ label: ctx, confidence }))
     return {
       ...input,
-      ctx_predictions: [
-        {
-          label: predictors.contexts[0] ?? DEFAULT_CTX,
-          confidence: 1
-        }
-      ]
+      ctx_predictions
     }
   }
 
+  const customEntities = getCustomEntitiesNames(predictors)
   const features = getCtxFeatures(input.utterance, customEntities)
   const ctx_predictions = await classifier.predict(features)
 
@@ -141,10 +144,15 @@ async function predictContext(input: OutOfScopeStep, predictors: Predictors): Pr
   }
 }
 
-async function predictIntent(input: ContextStep, predictors: Predictors): Promise<IntentStep> {
+export async function predictIntent(input: ContextStep, predictors: Predictors): Promise<IntentStep> {
   if (_.flatMap(predictors.intents, i => i.utterances).length <= 0) {
-    const defaultCtx = predictors.contexts[0] ?? DEFAULT_CTX
-    return { ...input, intent_predictions: { [defaultCtx]: [{ label: NONE_INTENT, confidence: 1 }] } }
+    const noneIntent = { label: NONE_INTENT, confidence: 1 }
+    const allCtxs = predictors.contexts
+    const intent_predictions = _.zipObject(
+      allCtxs,
+      allCtxs.map(_ => [{ ...noneIntent }])
+    )
+    return { ...input, intent_predictions }
   }
 
   const customEntities = getCustomEntitiesNames(predictors)
