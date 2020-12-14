@@ -82,10 +82,4 @@ export interface Config {
    * @default false
    */
   lazySocket: boolean
-
-  /**
-   * Whether or not the delete conversation button is enabled
-   * @default false
-   */
-  enableConversationDeletion: boolean
 }

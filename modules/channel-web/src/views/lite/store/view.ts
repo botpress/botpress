@@ -80,7 +80,7 @@ class ViewStore {
   }
 
   @computed
-  get showDeleteButton() {
+  get showDeleteConversationButton() {
     return (
       !this.isConversationsDisplayed && !this.isBotInfoDisplayed && this.rootStore.config.enableConversationDeletion
     )

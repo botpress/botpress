@@ -91,14 +91,6 @@ export default class WebchatApi {
     }
   }
 
-  async deleteConversation(convoId: number) {
-    try {
-      await this.axios.post(`/conversations/${this.userId}/${convoId}/delete`, {}, this.axiosConfig)
-    } catch (err) {
-      await this.handleApiError(err)
-    }
-  }
-
   async resetSession(convoId: number) {
     try {
       this.axios.post(`/conversations/${this.userId}/${convoId}/reset`, {}, this.axiosConfig)
@@ -138,6 +130,14 @@ export default class WebchatApi {
     try {
       const config = { params: { conversationId: convoId }, ...this.axiosConfig }
       return this.axios.post(`/messages/${this.userId}`, data, config)
+    } catch (err) {
+      await this.handleApiError(err)
+    }
+  }
+
+  async deleteMessages(convoId: number) {
+    try {
+      await this.axios.post(`/conversations/${this.userId}/${convoId}/messages/delete`, {}, this.axiosConfig)
     } catch (err) {
       await this.handleApiError(err)
     }

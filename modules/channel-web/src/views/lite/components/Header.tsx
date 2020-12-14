@@ -76,23 +76,23 @@ class Header extends React.Component<HeaderProps> {
     )
   }
 
-  handleClearConversation = async () => {
+  handleDeleteConversation = async () => {
     if (await ConfirmDialog(this.props.intl.formatMessage({
-        id: 'header.clearConversation'
+        id: 'header.deleteConversation'
       }), {
         acceptLabel: this.props.intl.formatMessage({
-          id: 'header.clearConversationYes'
+          id: 'header.deleteConversationYes'
         }),
         declineLabel: this.props.intl.formatMessage({
-          id: 'header.clearConversationNo'
+          id: 'header.deleteConversationNo'
         })
       })
     ) {
-      this.props.deleteConversation()
+      await this.props.deleteConversation()
     }
   }
 
-  renderDeleteButton() {
+  renderDeleteConversationButton() {
     return (
       <button
         type="button"
@@ -100,8 +100,8 @@ class Header extends React.Component<HeaderProps> {
         id="btn-delete"
         ref={el => (this.btnEls[0] = el)}
         className={'bpw-header-icon bpw-header-icon-delete'}
-        onClick={this.handleClearConversation}
-        onKeyDown={this.handleKeyDown.bind(this, this.handleClearConversation)}
+        onClick={this.handleDeleteConversation}
+        onKeyDown={this.handleKeyDown.bind(this, this.handleDeleteConversation)}
         onBlur={this.onBlur}
       >
         <Delete />
@@ -263,10 +263,10 @@ class Header extends React.Component<HeaderProps> {
       })
     }
 
-    if (this.props.showDeleteButton) {
+    if (this.props.showDeleteConversationButton) {
       optionsItems.push({
         label: 'Delete conversation',
-        action: this.handleClearConversation
+        action: this.renderDeleteConversationButton
       })
     }
 
@@ -291,7 +291,7 @@ class Header extends React.Component<HeaderProps> {
           </div>
         </div>
         {!!this.props.customButtons.length && this.renderCustomButtons()}
-        {this.props.showDeleteButton && this.renderDeleteButton()}
+        {this.props.showDeleteConversationButton && this.renderDeleteConversationButton()}
         {this.props.showResetButton && this.renderResetButton()}
         {this.props.showDownloadButton && this.renderDownloadButton()}
         {this.props.showConversationsButton && this.renderConvoButton()}
@@ -305,7 +305,7 @@ class Header extends React.Component<HeaderProps> {
 export default inject(({ store }: { store: RootStore }) => ({
   intl: store.intl,
   isConversationsDisplayed: store.view.isConversationsDisplayed,
-  showDeleteButton: store.view.showDeleteButton,
+  showDeleteConversationButton: store.view.showDeleteConversationButton,
   showDownloadButton: store.view.showDownloadButton,
   showBotInfoButton: store.view.showBotInfoButton,
   showConversationsButton: store.view.showConversationsButton,
@@ -353,7 +353,7 @@ type HeaderProps = Pick<
   | 'toggleBotInfo'
   | 'botAvatarUrl'
   | 'showResetButton'
-  | 'showDeleteButton'
+  | 'showDeleteConversationButton'
   | 'showDownloadButton'
   | 'showConversationsButton'
   | 'showBotInfoButton'

@@ -32,7 +32,7 @@ export default {
     showPoweredBy: window.SHOW_POWERED_BY,
     enablePersistHistory: true,
     enableResetSessionShortcut: false,
-    enableConversationDeletion: false,
+    enableConversationDeletion: true,
     closeOnEscape: true
   }
 }
