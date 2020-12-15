@@ -233,7 +233,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
   }
 
   handleReasonChange = async (reason: FLAG_REASON) => {
-    reason = this.state.reason != reason ? reason : null
+    reason = this.state.reason !== reason ? reason : null
 
     const { eventCounts, events, event } = await this.fetchEventsAndCounts(
       this.state.language,
@@ -264,13 +264,13 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
         <SidePanel>
           <div className={style.filterContainer}>
             <Button
-              className={this.state.reason == FLAG_REASON.auto_hook && 'selected'}
+              className={(this.state.reason === FLAG_REASON.auto_hook && 'selected') || ''}
               onClick={() => this.handleReasonChange(FLAG_REASON.auto_hook)}
             >
               {lang.tr('module.misunderstood.misunderstood').toUpperCase()}
             </Button>
             <Button
-              className={this.state.reason == FLAG_REASON.thumbs_down && 'selected'}
+              className={(this.state.reason === FLAG_REASON.thumbs_down && 'selected') || ''}
               onClick={() => this.handleReasonChange(FLAG_REASON.thumbs_down)}
             >
               {lang.tr('module.misunderstood.qnaThumbsDown').toUpperCase()}

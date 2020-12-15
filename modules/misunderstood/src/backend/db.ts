@@ -64,21 +64,11 @@ export default class Db {
     status: FLAGGED_MESSAGE_STATUS,
     options?: { startDate: Date; endDate: Date; reason?: string }
   ): Promise<DbFlaggedEvent[]> {
-    const { startDate, endDate, reason } = options || {}
-
     const query = this.knex(TABLE_NAME)
       .select('*')
       .where({ botId, language, status })
 
-    if (startDate && endDate) {
-      query.andWhere(this.knex.date.isBetween('updatedAt', startDate, endDate))
-    }
-
-    if (reason == 'thumbs_down') {
-      query.andWhere({ reason })
-    } else if (reason && reason != 'thumbs_down') {
-      query.andWhereNot('reason', 'thumbs_down')
-    }
+    this.filterQuery(query, options)
 
     const data: DbFlaggedEvent[] = await query.orderBy('updatedAt', 'desc')
 
@@ -92,22 +82,12 @@ export default class Db {
   }
 
   async countEvents(botId: string, language: string, options?: { startDate: Date; endDate: Date; reason?: string }) {
-    const { startDate, endDate, reason } = options || {}
-
     const query = this.knex(TABLE_NAME)
       .where({ botId, language })
       .select('status')
       .count({ count: 'id' })
 
-    if (startDate && endDate) {
-      query.andWhere(this.knex.date.isBetween('updatedAt', startDate, endDate))
-    }
-
-    if (reason == 'thumbs_down') {
-      query.andWhere({ reason })
-    } else if (reason && reason != 'thumbs_down') {
-      query.andWhereNot('reason', 'thumbs_down')
-    }
+    this.filterQuery(query, options)
 
     const data: { status: string; count: number }[] = await query.groupBy('status')
 
@@ -189,5 +169,19 @@ export default class Db {
 
   applyChanges(botId: string) {
     return applyChanges(this.bp, botId, TABLE_NAME)
+  }
+
+  filterQuery(query, options?: { startDate: Date; endDate: Date; reason?: string }) {
+    const { startDate, endDate, reason } = options || {}
+
+    if (startDate && endDate) {
+      query.andWhere(this.knex.date.isBetween('updatedAt', startDate, endDate))
+    }
+
+    if (reason === 'thumbs_down') {
+      query.andWhere({ reason })
+    } else if (reason && reason !== 'thumbs_down') {
+      query.andWhereNot('reason', 'thumbs_down')
+    }
   }
 }
