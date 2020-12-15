@@ -2,25 +2,9 @@ import axios, { AxiosInstance } from 'axios'
 import { NLU } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
 
-export interface NLUApi {
-  fetchContexts: () => Promise<string[]>
-  fetchIntentsWithQNAs: () => Promise<NLU.IntentDefinition[]>
-  fetchIntents: () => Promise<NLU.IntentDefinition[]>
-  fetchIntent: (x: string) => Promise<NLU.IntentDefinition>
-  createIntent: (x: Partial<NLU.IntentDefinition>) => Promise<any>
-  updateIntent: (targetIntent: string, intent: Partial<NLU.IntentDefinition>, updateTopics?: boolean) => Promise<any>
-  syncIntentTopics: (intentNames?: string[]) => Promise<void>
-  deleteIntent: (x: string) => Promise<any>
-  fetchEntities: () => Promise<NLU.EntityDefinition[]>
-  fetchEntity: (x: string) => Promise<NLU.EntityDefinition>
-  createEntity: (x: NLU.EntityDefinition) => Promise<any>
-  updateEntity: (targetEntityId: string, x: NLU.EntityDefinition) => Promise<any>
-  deleteEntity: (x: string) => Promise<any>
-  train: () => Promise<void>
-  cancelTraining: () => Promise<void>
-}
+export type NLUApi = ReturnType<typeof makeApi>
 
-export const makeApi = (bp: { axios: AxiosInstance }): NLUApi => ({
+export const makeApi = (bp: { axios: AxiosInstance }) => ({
   fetchContexts: () => bp.axios.get('/nlu/contexts').then(res => res.data),
   fetchIntentsWithQNAs: () => bp.axios.get('/nlu/intents').then(res => res.data),
   fetchIntents: async () => {

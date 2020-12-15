@@ -3,7 +3,7 @@ import { NLU } from 'botpress/sdk'
 import { utils } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useEffect, useRef, useState } from 'react'
 
 import { NLUApi } from '../../../api'
 
@@ -26,6 +26,10 @@ interface Props {
 export const IntentEditor: FC<Props> = props => {
   const [intent, setIntent] = useState<NLU.IntentDefinition>()
 
+  const debouncedApiSaveIntent = useRef(
+    _.debounce((newIntent: NLU.IntentDefinition) => props.api.createIntent(newIntent), 2500)
+  )
+
   useEffect(() => {
     // tslint:disable-next-line: no-floating-promises
     props.api.fetchIntent(props.intent).then(intent => {
@@ -42,12 +46,13 @@ export const IntentEditor: FC<Props> = props => {
   const saveIntent = (newIntent: NLU.IntentDefinition) => {
     setIntent(newIntent)
     // tslint:disable-next-line: no-floating-promises
-    props.api.createIntent(newIntent)
+    props.api.updateIntent(newIntent.name, newIntent)
   }
 
   const handleUtterancesChange = (newUtterances: string[]) => {
     const newIntent = { ...intent, utterances: { ...intent.utterances, [props.contentLang]: newUtterances } }
-    saveIntent(newIntent)
+    setIntent(newIntent)
+    debouncedApiSaveIntent.current(newIntent)
   }
 
   const handleSlotsChange = (slots: NLU.SlotDefinition[], { operation, name, oldName }) => {
