@@ -37,6 +37,7 @@ export interface FileChange {
   action: FileChangeAction
   add?: number
   del?: number
+  sizeDiff?: number
 }
 
 export type FileChangeAction = 'add' | 'edit' | 'del'
@@ -51,6 +52,7 @@ const MAX_GHOST_FILE_SIZE = process.core_env.BP_BPFS_MAX_FILE_SIZE || '100mb'
 const bpfsIgnoredFiles = ['models/**', 'data/bots/*/models/**', '**/*.js.map']
 const GLOBAL_GHOST_KEY = '__global__'
 const BOTS_GHOST_KEY = '__bots__'
+const DIFFABLE_EXTS = ['.js', '.json', '.txt', '.csv', '.yaml']
 
 @injectable()
 export class GhostService {
@@ -180,6 +182,22 @@ export class GhostService {
       }
     }
 
+    const fileSizeDiff = async (file: string): Promise<FileChange> => {
+      try {
+        const localFileSize = await this.diskDriver.fileSize(path.join(tmpFolder, file))
+        const dbFileSize = await this.dbDriver.fileSize(file)
+
+        return {
+          path: file,
+          action: 'edit' as FileChangeAction,
+          sizeDiff: Math.abs(dbFileSize - localFileSize)
+        }
+      } catch (err) {
+        this.logger.attachError(err).error(`Error while checking file size for "${file}"`)
+        return { path: file, action: 'edit' as FileChangeAction }
+      }
+    }
+
     // Adds the correct prefix to files so they are displayed correctly when reviewing changes
     const getDirectoryFullPaths = async (botId: string | undefined, ghost: ScopedGhostService) => {
       const getPath = (file: string) => (botId ? path.join('data/bots', botId, file) : path.join('data/global', file))
@@ -209,9 +227,16 @@ export class GhostService {
       const added = _.difference(localFiles, remoteFiles).map(x => ({ path: x, action: 'add' as FileChangeAction }))
 
       const filterDeleted = file => !_.map([...deleted, ...added], 'path').includes(file)
-      const edited = (await Promise.map(unsyncedFiles.filter(filterDeleted), getFileDiff)).filter(
-        x => x.add !== 0 || x.del !== 0
-      )
+      const filterDiffable = file => DIFFABLE_EXTS.includes(path.extname(file))
+
+      const editedFiles = unsyncedFiles.filter(filterDeleted)
+      const checkFileDiff = editedFiles.filter(filterDiffable)
+      const checkFileSize = unsyncedFiles.filter(x => !checkFileDiff.includes(x))
+
+      const edited = [
+        ...(await Promise.map(checkFileDiff, getFileDiff)).filter(x => x.add !== 0 || x.del !== 0),
+        ...(await Promise.map(checkFileSize, fileSizeDiff)).filter(x => x.sizeDiff !== 0)
+      ]
 
       return {
         botId,

@@ -10,6 +10,7 @@ export interface StorageDriver {
   directoryListing(folder: string, options: DirectoryListingOptions): Promise<string[]>
   listRevisions(pathPrefix: string): Promise<FileRevision[]>
   deleteRevision(filePath: string, revision: string): Promise<void>
+  fileSize(filePath: string): Promise<number>
   moveFile(fromPath: string, toPath: string): Promise<void>
 }
 

@@ -486,7 +486,7 @@ declare module 'botpress/sdk' {
       train: (trainSessionId: string, trainSet: TrainingSet, options?: Partial<TrainingOptions>) => Promise<Model>
       cancelTraining: (trainSessionId: string) => Promise<void>
       detectLanguage: (text: string, modelByLang: Dic<ModelId>) => Promise<string>
-      predict: (text: string, ctx: string[], modelId: ModelId) => Promise<IO.EventUnderstanding>
+      predict: (text: string, modelId: ModelId) => Promise<PredictOutput>
       spellCheck: (sentence: string, modelId: ModelId) => Promise<string>
     }
 
@@ -646,6 +646,11 @@ declare module 'botpress/sdk' {
         }[]
       }
     }
+
+    export interface PredictOutput {
+      readonly entities: Entity[]
+      readonly predictions: Predictions
+    }
   }
 
   export namespace NDU {
@@ -792,23 +797,27 @@ declare module 'botpress/sdk' {
       readonly threadId?: string
     }
 
-    export interface EventUnderstanding {
-      intent?: NLU.Intent
-      /** Predicted intents needs disambiguation */
-      readonly ambiguous?: boolean
-      intents?: NLU.Intent[]
-      /** The language used for prediction. Will be equal to detected language when its part of supported languages, falls back to default language otherwise */
-      readonly language: string
-      /** Language detected from users input. */
-      readonly detectedLanguage?: string
-      readonly spellChecked?: string
-      readonly entities: NLU.Entity[]
-      readonly slots?: NLU.SlotCollection
+    export type EventUnderstanding = {
       readonly errored: boolean
+
+      // election
+      readonly intent?: NLU.Intent
+      readonly intents?: NLU.Intent[]
+      readonly ambiguous?: boolean /** Predicted intents needs disambiguation */
+      readonly slots?: NLU.SlotCollection
+
+      // pre-prediction
+      readonly detectedLanguage:
+        | string
+        | undefined /** Language detected from users input. If undefined, detection failed. */
+      readonly spellChecked:
+        | string
+        | undefined /** Result of spell checking on users input. If undefined, spell check failed. */
+
+      readonly language: string /** The language used for prediction */
       readonly includedContexts: string[]
-      readonly predictions?: NLU.Predictions
       readonly ms: number
-    }
+    } & Partial<NLU.PredictOutput>
 
     export interface IncomingEvent extends Event {
       /** Array of possible suggestions that the Decision Engine can take  */
