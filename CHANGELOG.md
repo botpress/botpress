@@ -53,6 +53,7 @@
 * **studio:** default emulator avatar style ([#4256](https://github.com/botpress/botpress/pull/4256))
 
 
+
 ## [12.14.1](https://github.com/botpress/botpress/compare/v12.13.2...v12.14.1) (2020-12-02)
 
 
