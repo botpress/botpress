@@ -191,8 +191,6 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
   })
 
   async function outgoingHandler(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
-    console.log(JSON.stringify(event, null, 4))
-
     if (event.channel !== 'twilio') {
       return next()
     }
