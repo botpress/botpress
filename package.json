@@ -22,6 +22,7 @@
     "commitmsg": "commitlint -e $GIT_PARAMS"
   },
   "dependencies": {
+    "@apidevtools/json-schema-ref-parser": "^9.0.6",
     "@babel/parser": "^7.11.2",
     "@babel/traverse": "^7.11.0",
     "@types/tar": "^4.0.4",
