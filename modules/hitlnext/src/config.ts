@@ -6,6 +6,11 @@ export interface Config {
   agentSessionTimeout: string
 
   /**
+   * @param autoComplete
+   */
+  autoComplete: IAutoComplete
+
+  /**
    * @param messageCount Number of messages to display in the conversation history
    * @default 10
    */
@@ -21,4 +26,24 @@ export interface Config {
    * @param botAvatarUrl Image url you want to display as avatar when an agent takes control
    */
   botAvatarUrl?: string
+}
+
+export interface IShortcut {
+  name: string
+  value: string
+}
+
+export interface IAutoComplete {
+  /**
+   * @param trigger
+   * @default /
+   */
+  trigger: string
+
+  /**
+   * @param shortcuts
+   * @default []
+   * @example [{ "name": "hello", "value": "Hello friend!" }]
+   */
+  shortcuts: IShortcut[]
 }
