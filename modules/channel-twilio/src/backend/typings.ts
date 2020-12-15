@@ -15,3 +15,7 @@ export interface TwilioRequestBody {
   From: string
   Body: string
 }
+export interface ChoiceOption {
+  title: string
+  payload: string
+}
