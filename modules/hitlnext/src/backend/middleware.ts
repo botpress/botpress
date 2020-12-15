@@ -149,9 +149,8 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   // for two-way message piping
   const warmup = async () => {
     const agents = repository.listAllAgents().then((agents: IAgent[]) => {
-      _.uniqBy(agents, 'agentId').forEach(agent => {
-        // Don't cache 'online' property as this changes often and will get stale fast
-        cacheAgent(agent.agentId, _.omit(agent, 'online'))
+      agents.forEach(agent => {
+        cacheAgent(agent.agentId, agent)
       })
     })
 

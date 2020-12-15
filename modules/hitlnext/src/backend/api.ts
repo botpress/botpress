@@ -83,7 +83,15 @@ export default async (bp: typeof sdk, state: StateType) => {
   router.get(
     '/agents',
     errorMiddleware(async (req: RequestWithUser, res: Response) => {
-      const agents = await repository.listAgents(req.params.botId, req.workspace)
+      const agents = await repository.listAgents(req.workspace).then(agents => {
+        return Promise.map(agents, async agent => {
+          return {
+            ...agent,
+            online: await repository.getAgentOnline(req.params.botId, agent.agentId)
+          }
+        })
+      })
+
       res.send(agents)
     })
   )

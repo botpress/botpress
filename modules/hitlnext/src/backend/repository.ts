@@ -293,22 +293,26 @@ export default class Repository {
   /**
    * List all agents across workspaces and bots
    */
-  listAllAgents = async (): Promise<Partial<IAgent>[]> => {
+  listAllAgents = async () => {
+    // TODO move this in workspace service
     const list = () => {
       return this.bp.ghost.forGlobal().readFileAsObject<Workspace[]>('/', 'workspaces.json')
     }
 
     return Promise.map(list(), workspace => {
-      return Promise.map(workspace.bots, bot => {
-        return this.listAgents(bot, workspace.id)
-      }).then(collection => _.flatten(collection))
-    }).then(collection => _.flatten(collection))
+      return this.listAgents(workspace.id)
+    }).then(collection =>
+      _(collection)
+        .flatten()
+        .uniqBy('agentId')
+        .value()
+    )
   }
 
   /**
    * List all agents for a given bot and workspace
    */
-  listAgents = async (botId: string, workspace: string): Promise<Partial<IAgent>[]> => {
+  listAgents = async (workspace: string): Promise<Omit<IAgent, 'online'>[]> => {
     const options: sdk.GetWorkspaceUsersOptions = {
       includeSuperAdmins: true,
       attributes: ['firstname', 'lastname', 'picture_url', 'created_at', 'updated_at']
@@ -323,8 +327,7 @@ export default class Repository {
       const agentId = makeAgentId(user.strategy, user.email)
       return {
         ...user,
-        agentId,
-        online: await this.getAgentOnline(botId, agentId)
+        agentId
       }
     })
   }
