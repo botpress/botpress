@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { Button, Classes, Icon, Intent } from '@blueprintjs/core'
-import '@blueprintjs/core/lib/css/blueprint.css'
 import React, { FC } from 'react'
 import ReactDOM from 'react-dom'
 
