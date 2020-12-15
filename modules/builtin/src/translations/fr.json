@@ -19,6 +19,7 @@
     "image": {
       "description": "Un message montrant une image avec un titre optionel",
       "imageLabel": "Titre",
+      "urlLabel": "URL",
       "labelDesc": "Certaines plateformes exigent que les images soient nommé.",
       "permissionDenied": "Vous n'avez pas les permissions pour télécharger un fichier pour ce bot. Contactez votre chef d'équipe.",
       "title": "Image",

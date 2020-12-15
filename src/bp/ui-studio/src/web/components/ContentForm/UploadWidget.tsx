@@ -3,6 +3,7 @@ import axios from 'axios'
 import { lang } from 'botpress/shared'
 import React, { FC, Fragment, useReducer } from 'react'
 import { AccessControl } from '~/components/Shared/Utils'
+import SmartInput from '~/components/SmartInput'
 import style from '~/views/FlowBuilder/sidePanelTopics/form/style.scss'
 
 const UploadWidget: FC<any> = props => {
@@ -35,7 +36,20 @@ const UploadWidget: FC<any> = props => {
       return {
         ...state,
         error: null,
-        uploading: false
+        uploading: false,
+      }
+    } else if (action.type === 'setManually') {
+      return {
+        ...state,
+        ...action.data
+      }
+    } else if (action.type === 'setURL') {
+      const { url } = action.data
+
+      props.onChange(url)
+      return {
+        ...state,
+        url
       }
     } else {
       throw new Error("That action type isn't supported.")
@@ -44,10 +58,12 @@ const UploadWidget: FC<any> = props => {
 
   const [state, dispatch] = useReducer(uploadReducer, {
     error: null,
-    uploading: false
+    uploading: false,
+    manually: false,
+    url: undefined
   })
 
-  const { error, uploading } = state
+  const { error, uploading, manually, url } = state
 
   const deleteFile = () => {
     dispatch({ type: 'deleteFile' })
@@ -70,12 +86,31 @@ const UploadWidget: FC<any> = props => {
       })
   }
 
+  const handleToggleManually = () => {
+    dispatch({ type: 'setManually', data: { manually: !manually } })
+  }
+
+  const handleURLChange = (value: string) => {
+    dispatch({ type: 'setURL', data: { url: value } })
+  }
+
   const { $filter: filter, $subtype: subtype, type } = props.schema
   if (type !== 'string' || subtype !== 'media') {
     return null
   }
 
   const { value } = props
+
+  const properties = { 
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    position: 'absolute',
+    right: 0,
+    bottom: '2rem',
+    padding: '0.5rem',
+    fontFamily: 'sans-serif',
+    fontSize: '1.5rem',
+    boxShadow: '0 0 10px rgba(0, 0, 0, 0.3)'
+  }
 
   return (
     <AccessControl
@@ -95,17 +130,37 @@ const UploadWidget: FC<any> = props => {
         )}
         {!value && (
           <Fragment>
-            <FileInput
-              text={lang.tr('module.builtin.types.image.uploadImage')}
-              large
-              inputProps={{
-                id: 'node-image',
-                name: 'nodeImage',
-                accept: 'image/*',
-                onChange: startUpload
-              }}
-            />
-            {error && <p className={style.fieldError}>{error}</p>}
+            <div>
+              {!manually && 
+                <FileInput
+                  text={lang.tr('module.builtin.types.image.uploadImage')}
+                  large
+                  inputProps={{
+                    id: 'node-image',
+                    name: 'nodeImage',
+                    accept: 'image/*',
+                    onChange: startUpload
+                  }}
+                />}
+
+              {manually && 
+                <SmartInput
+                  className={style.textarea}
+                  singleLine={false}
+                  placeholder="https://www.image.com/image.png"
+                  value={url}
+                  onChange={handleURLChange}
+                />}
+
+              <a 
+                style={{textAlign: 'right', paddingTop: '10px', display: 'inline-block', width: '100%'}} 
+                onClick={handleToggleManually}
+              >
+                Or {manually ? 'upload an image' : 'enter a URL'}
+              </a>
+
+              {error && <p className={style.fieldError}>{error}</p>}
+            </div>
           </Fragment>
         )}
       </div>
