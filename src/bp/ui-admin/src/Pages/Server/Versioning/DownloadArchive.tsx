@@ -8,8 +8,10 @@ import { Downloader } from '~/Pages/Components/Downloader'
 const DownloadArchive = () => {
   const [downloadUrl, setDownloadUrl] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [progress, setProgress] = useState(0)
 
   const downloadArchive = () => {
+    setProgress(0)
     setIsLoading(true)
     setDownloadUrl('/admin/versioning/export')
   }
@@ -19,6 +21,16 @@ const DownloadArchive = () => {
     toastInfo(lang.tr('admin.versioning.archiveReady'))
   }
 
+  let buttonText = lang.tr('admin.versioning.downloadArchive')
+
+  if (isLoading) {
+    if (progress === 0) {
+      buttonText = lang.tr('admin.versioning.preparingArchive')
+    } else {
+      buttonText = lang.tr('admin.versioning.downloadProgress', { progress })
+    }
+  }
+
   return (
     <div>
       <Button
@@ -26,9 +38,14 @@ const DownloadArchive = () => {
         icon="download"
         onClick={downloadArchive}
         disabled={isLoading}
-        text={isLoading ? lang.tr('admin.versioning.pleaseWait') : lang.tr('admin.versioning.downloadArchive')}
+        text={buttonText}
       />
-      <Downloader url={downloadUrl} filename={'archive.tgz'} onDownloadCompleted={downloadCompleted} />
+      <Downloader
+        url={downloadUrl}
+        filename={'archive.tgz'}
+        onDownloadCompleted={downloadCompleted}
+        onProgress={progress => setProgress(progress === 100 ? 0 : progress)}
+      />
     </div>
   )
 }

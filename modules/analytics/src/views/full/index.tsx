@@ -184,6 +184,10 @@ const Analytics: FC<any> = ({ bp }) => {
     fetchAnalytics(state.selectedChannel, state.dateRange).then(metrics => {
       utils.inspect({ id: state.dateRange, metrics })
       dispatch({ type: 'receivedMetrics', data: { dateRange: state.dateRange, metrics } })
+      const newChannels = _.uniq(_.map(metrics, 'channel')).map(x => {
+        return { value: x, label: capitalize(x) }
+      })
+      setChannels(_.uniq([...channels, ...newChannels]))
     })
 
     /* Get the previous range data so we can compare them and see what changed */

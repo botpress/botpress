@@ -264,5 +264,13 @@
   "uncategorized": "Uncategorized",
   "incomplete": "Incomplete",
   "active": "Active",
-  "visibility": "Visibility"
+  "visibility": "Visibility",
+  "timespan": {
+    "lastMonth": "Last Month",
+    "lastWeek": "Last Week",
+    "lastYear": "Last Year",
+    "thisMonth": "This Month",
+    "thisWeek": "This Week",
+    "thisYear": "This Year"
+  }
 }

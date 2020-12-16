@@ -1,7 +1,5 @@
 const base = require('./_base')
 const path = require('path')
-const url = require('url')
-const { tail } = _
 
 function render(data) {
   const events = []
@@ -167,7 +165,10 @@ module.exports = {
 
     let fileName = path.basename(formData.image)
     if (fileName.includes('-')) {
-      fileName = tail(fileName.split('-')).join('-')
+      fileName = fileName
+        .split('-')
+        .slice(1)
+        .join('-')
     }
     const link = `${formData.BOT_URL}${formData.image}`
     const title = formData.title ? ' | ' + formData.title : ''

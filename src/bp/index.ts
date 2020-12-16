@@ -81,6 +81,7 @@ try {
   process.DISABLE_GLOBAL_SANDBOX = yn(process.env.DISABLE_GLOBAL_SANDBOX)
   process.DISABLE_BOT_SANDBOX = yn(process.env.DISABLE_BOT_SANDBOX)
   process.DISABLE_TRANSITION_SANDBOX = yn(process.env.DISABLE_TRANSITION_SANDBOX)
+  process.DISABLE_CONTENT_SANDBOX = yn(process.env.DISABLE_CONTENT_SANDBOX)
   process.IS_LICENSED = true
   process.ASSERT_LICENSED = () => {}
   process.BOTPRESS_VERSION = metadataContent.version
@@ -88,16 +89,17 @@ try {
 
   const configPath = path.join(process.PROJECT_LOCATION, '/data/global/botpress.config.json')
 
+  // We can't move this in bootstrap because process.IS_PRO_ENABLED is necessary for other than default CLI command
   if (process.IS_PRO_AVAILABLE) {
     process.CLUSTER_ENABLED = yn(process.env.CLUSTER_ENABLED)
 
-    if (process.env.PRO_ENABLED === undefined) {
+    if (process.env.PRO_ENABLED === undefined && process.env['BP_CONFIG_PRO.ENABLED'] === undefined) {
       if (fs.existsSync(configPath)) {
         const config = require(configPath)
         process.IS_PRO_ENABLED = config.pro && config.pro.enabled
       }
     } else {
-      process.IS_PRO_ENABLED = yn(process.env.PRO_ENABLED)
+      process.IS_PRO_ENABLED = yn(process.env.PRO_ENABLED) || yn(process.env['BP_CONFIG_PRO.ENABLED'])
     }
   }
 
