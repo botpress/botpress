@@ -146,13 +146,7 @@ const NLU: FC<Props> = props => {
           />
         )}
         {!!intents.length && currentItem && currentItem.type === 'intent' && (
-          <IntentEditor
-            intent={currentItem.name}
-            api={api}
-            contentLang={props.contentLang}
-            showSlotPanel
-            axios={props.bp.axios} // to be removed for api, requires a lot of refactoring
-          />
+          <IntentEditor intent={currentItem.name} api={api} contentLang={props.contentLang} showSlotPanel />
         )}
         {currentItem && currentItem.type === 'entity' && (
           <EntityEditor
