@@ -19,7 +19,6 @@ interface Props {
   api: NLUApi
   contentLang: string
   showSlotPanel?: boolean
-  axios: AxiosInstance
   liteEditor?: boolean
 }
 
@@ -80,12 +79,7 @@ export const IntentEditor: FC<Props> = props => {
               api={props.api}
             />
           )}
-          <IntentHint
-            intent={intent}
-            liteEditor={props.liteEditor}
-            contentLang={props.contentLang}
-            axios={props.axios}
-          />
+          <IntentHint intent={intent} liteEditor={props.liteEditor} contentLang={props.contentLang} />
         </div>
         <UtterancesEditor
           intentName={intent.name}
@@ -94,9 +88,7 @@ export const IntentEditor: FC<Props> = props => {
           slots={intent.slots}
         />
       </div>
-      {props.showSlotPanel && (
-        <Slots slots={intent.slots} api={props.api} axios={props.axios} onSlotsChanged={handleSlotsChange} />
-      )}
+      {props.showSlotPanel && <Slots slots={intent.slots} api={props.api} onSlotsChanged={handleSlotsChange} />}
     </div>
   )
 }

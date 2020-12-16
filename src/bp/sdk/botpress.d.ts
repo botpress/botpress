@@ -577,6 +577,7 @@ declare module 'botpress/sdk' {
     }
 
     export interface SlotDefinition {
+      id: string
       name: string
       entities: string[]
       color: number

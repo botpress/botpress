@@ -14,6 +14,7 @@ interface BpTrainInput {
 const mapVariable = (variable: Variable): NLU.SlotDefinition => {
   const { name, types } = variable
   return {
+    id: name,
     entities: types,
     name,
     color: 0
