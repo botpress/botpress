@@ -13,6 +13,7 @@
   },
   "sortBy": "Trier Par",
   "filterBy": "Filtrer Par",
+  "newMessage": "Nouveau Message",
   "agent": {
     "status": "Status: {status}",
     "name": "Nom: {name}",

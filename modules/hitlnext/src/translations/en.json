@@ -13,6 +13,7 @@
   },
   "sortBy": "Sort By",
   "filterBy": "Filter By",
+  "newMessage": "New Message",
   "agent": {
     "status": "Status: {status}",
     "name": "Name: {name}",
