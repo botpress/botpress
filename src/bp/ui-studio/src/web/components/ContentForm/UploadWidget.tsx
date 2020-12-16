@@ -36,20 +36,37 @@ const UploadWidget: FC<any> = props => {
       return {
         ...state,
         error: null,
-        uploading: false,
+        uploading: false
       }
-    } else if (action.type === 'setManually') {
+    } else if (action.type === 'enterUrlManually') {
+      const { enterUrlManually } = action.data
       return {
         ...state,
-        ...action.data
+        error: null,
+        enterUrlManually
       }
-    } else if (action.type === 'setURL') {
+    } else if (action.type === 'updateUrl') {
+      const { url } = action.data
+
+      return {
+        ...state,
+        error: null,
+        url
+      }
+    } else if (action.type === 'saveUrl') {
       const { url } = action.data
 
       props.onChange(url)
       return {
         ...state,
-        url
+        error: null
+      }
+    } else if (action.type === 'invalidUrl') {
+      const { error } = action.data
+
+      return {
+        ...state,
+        error
       }
     } else {
       throw new Error("That action type isn't supported.")
@@ -59,11 +76,11 @@ const UploadWidget: FC<any> = props => {
   const [state, dispatch] = useReducer(uploadReducer, {
     error: null,
     uploading: false,
-    manually: false,
+    enterUrlManually: false,
     url: undefined
   })
 
-  const { error, uploading, manually, url } = state
+  const { error, enterUrlManually, url } = state
 
   const deleteFile = () => {
     dispatch({ type: 'deleteFile' })
@@ -87,11 +104,21 @@ const UploadWidget: FC<any> = props => {
   }
 
   const handleToggleManually = () => {
-    dispatch({ type: 'setManually', data: { manually: !manually } })
+    dispatch({ type: 'enterUrlManually', data: { enterUrlManually: !enterUrlManually } })
   }
 
-  const handleURLChange = (value: string) => {
-    dispatch({ type: 'setURL', data: { url: value } })
+  const handleUrlChange = (value: string) => {
+    dispatch({ type: 'updateUrl', data: { url: value } })
+  }
+
+  const saveUrl = () => {
+    try {
+      new URL(url)
+
+      dispatch({ type: 'saveUrl', data: { url } })
+    } catch {
+      dispatch({ type: 'invalidUrl', data: { error: 'Invalid URL' } })
+    }
   }
 
   const { $filter: filter, $subtype: subtype, type } = props.schema
@@ -100,17 +127,6 @@ const UploadWidget: FC<any> = props => {
   }
 
   const { value } = props
-
-  const properties = { 
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    position: 'absolute',
-    right: 0,
-    bottom: '2rem',
-    padding: '0.5rem',
-    fontFamily: 'sans-serif',
-    fontSize: '1.5rem',
-    boxShadow: '0 0 10px rgba(0, 0, 0, 0.3)'
-  }
 
   return (
     <AccessControl
@@ -128,39 +144,46 @@ const UploadWidget: FC<any> = props => {
             </div>
           </div>
         )}
+
         {!value && (
           <Fragment>
-            <div>
-              {!manually && 
-                <FileInput
-                  text={lang.tr('module.builtin.types.image.uploadImage')}
-                  large
-                  inputProps={{
-                    id: 'node-image',
-                    name: 'nodeImage',
-                    accept: 'image/*',
-                    onChange: startUpload
-                  }}
-                />}
+            {!enterUrlManually &&
+              <FileInput
+                text={lang.tr('module.builtin.types.image.uploadImage')}
+                large
+                inputProps={{
+                  id: 'node-image',
+                  name: 'nodeImage',
+                  accept: 'image/*',
+                  onChange: startUpload
+                }}
+              />
+            }
 
-              {manually && 
-                <SmartInput
-                  className={style.textarea}
-                  singleLine={false}
-                  placeholder="https://www.image.com/image.png"
-                  value={url}
-                  onChange={handleURLChange}
-                />}
+            {enterUrlManually &&
+              <div style={{ display: 'flex' }}>
+                <div style={{ flex: 'auto' }}>
+                  <SmartInput
+                    singleLine
+                    className={style.textarea}
+                    value={url}
+                    onChange={handleUrlChange}
+                  />
+                </div>
+                <Button style={{ flex: 'initial' }} intent={Intent.NONE} onClick={saveUrl} >
+                  {lang.tr('ok')}
+                </Button>
+              </div>
+            }
 
-              <a 
-                style={{textAlign: 'right', paddingTop: '10px', display: 'inline-block', width: '100%'}} 
-                onClick={handleToggleManually}
-              >
-                Or {manually ? 'upload an image' : 'enter a URL'}
-              </a>
+            <a
+              style={{textAlign: 'right', paddingTop: '10px', display: 'inline-block', width: '100%'}}
+              onClick={handleToggleManually}
+            >
+              {!enterUrlManually ? lang.tr('module.builtin.types.image.enterUrlChoice') : lang.tr('module.builtin.types.image.uploadFileChoice')}
+            </a>
 
-              {error && <p className={style.fieldError}>{error}</p>}
-            </div>
+            {error && <p className={style.fieldError}>{error}</p>}
           </Fragment>
         )}
       </div>
