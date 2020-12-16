@@ -96,7 +96,7 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
         .then(data => castHandoff(data)),
     deleteMessagesInChannelWeb: async (id, userId) =>
       bp.axios.post(`/conversations/${userId}/${id}/messages/delete`, null, {
-        baseURL: bp.axios.defaults.baseURL.concat(`/mod/channel-web`)
+        baseURL: bp.axios.defaults.baseURL.concat('/mod/channel-web')
       }),
     getMessages: async (id, column?, desc?, limit?) =>
       bp.axios
