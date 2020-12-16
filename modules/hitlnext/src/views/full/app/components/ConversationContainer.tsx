@@ -43,13 +43,12 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
     try {
       const selectedHandoffId = state.selectedHandoffId
       const currentHandoff = state.handoffs[selectedHandoffId]
-      const agentChannel = 'web'
 
       // TODO: Add support for other channels
       if (currentHandoff.userChannel === 'web') {
-        await api.deleteMessages(currentHandoff.userThreadId, currentHandoff.userId, currentHandoff.userChannel)
+        await api.deleteMessagesInChannelWeb(currentHandoff.userThreadId, currentHandoff.userId)
+        await api.deleteMessagesInChannelWeb(currentHandoff.agentThreadId, currentHandoff.agentId)
       }
-      await api.deleteMessages(currentHandoff.agentThreadId, currentHandoff.agentId, agentChannel)
 
       toast.success(lang.tr('module.hitlnext.conversation.deleted'))
     } catch (error) {
