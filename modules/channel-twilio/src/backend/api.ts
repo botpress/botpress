@@ -17,7 +17,7 @@ export async function setupRouter(bp: typeof sdk, clients: Clients, route: strin
 
     if (client.auth(req)) {
       await client.handleWebhookRequest(req.body)
-      res.sendStatus(200)
+      res.sendStatus(204)
     } else {
       res.status(401).send('Auth token invalid')
     }

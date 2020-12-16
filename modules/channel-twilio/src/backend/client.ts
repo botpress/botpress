@@ -4,7 +4,7 @@ import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message'
 
 import { Config } from '../config'
 
-import { Clients, MessageOption, TwilioRequestBody } from './typings'
+import { ChoiceOption, Clients, MessageOption, TwilioRequestBody } from './typings'
 
 const debug = DEBUG('channel-twilio')
 const debugIncoming = debug.sub('incoming')
@@ -105,18 +105,17 @@ export class TwilioClient {
 
   async handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
     const payload = event.payload
-    const { __buttons, __dropdown } = payload.metadata
 
-    if (__buttons || __dropdown) {
-      await this.sendChoices(event, __buttons || <sdk.Option[]>__dropdown)
+    if (payload.quick_replies) {
+      await this.sendChoices(event, payload.quick_replies)
     } else if (payload.type === 'text') {
       await this.sendMessage(event, {
         body: payload.text
       })
-    } else if (payload.type === 'image') {
+    } else if (payload.type === 'file') {
       await this.sendMessage(event, {
-        body: event.payload.title,
-        mediaUrl: [`${payload.extraProps.BOT_URL}${payload.image}`]
+        body: payload.title,
+        mediaUrl: payload.url
       })
     } else if (payload.type === 'carousel') {
       await this.sendCarousel(event, payload)
@@ -124,33 +123,33 @@ export class TwilioClient {
     next(undefined, false)
   }
 
-  async sendChoices(event: sdk.IO.Event, choices: sdk.Option[]) {
+  async sendChoices(event: sdk.IO.Event, choices: ChoiceOption[]) {
     const options: MessageOption[] = choices.map(x => ({
-      label: x.label,
-      value: x.value,
+      label: x.title,
+      value: x.payload,
       type: 'quick_reply'
     }))
     await this.sendOptions(event, event.payload.text, {}, options)
   }
 
   async sendCarousel(event: sdk.IO.Event, payload: any) {
-    for (const { subtitle, title, image, actions } of payload.items) {
+    for (const { subtitle, title, picture, buttons } of payload.elements) {
       const body = `${title}\n\n${subtitle ? subtitle : ''}`
 
       const options: MessageOption[] = []
-      for (const action of actions || []) {
-        const title = action.title as string
+      for (const button of buttons || []) {
+        const title = button.title as string
 
-        if (action.action === 'Open URL') {
-          options.push({ label: `${title} : ${action.url}`, value: undefined, type: 'url' })
-        } else if (action.action === 'Postback') {
-          options.push({ label: title, value: action.payload, type: 'postback' })
-        } else if (action.action === 'Say something') {
-          options.push({ label: title, value: action.text as string, type: 'say_something' })
+        if (button.type === 'open_url') {
+          options.push({ label: `${title} : ${button.url}`, value: undefined, type: 'url' })
+        } else if (button.type === 'postback') {
+          options.push({ label: title, value: button.payload, type: 'postback' })
+        } else if (button.type === 'say_something') {
+          options.push({ label: title, value: button.text as string, type: 'say_something' })
         }
       }
 
-      const args = { mediaUrl: image ? [`${payload.extraProps.BOT_URL}${image}`] : undefined }
+      const args = { mediaUrl: picture }
       await this.sendOptions(event, body, args, options)
     }
   }
