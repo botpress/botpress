@@ -47,7 +47,7 @@ export const IntentEditor: FC<Props> = props => {
   const saveIntent = (newIntent: NLU.IntentDefinition) => {
     setIntent(newIntent)
     // tslint:disable-next-line: no-floating-promises
-    props.api.updateIntent(newIntent.name, newIntent)
+    props.api.createIntent(newIntent)
   }
 
   const handleUtterancesChange = (newUtterances: string[]) => {
