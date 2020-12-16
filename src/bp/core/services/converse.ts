@@ -23,6 +23,8 @@ type ResponseMap = Partial<{
   decision: IO.Suggestion
 }>
 
+export const buildUserKey = (botId: string, target: string) => `${botId}_${target}`
+
 @injectable()
 export class ConverseService {
   private readonly _responseMap: { [target: string]: ResponseMap } = {}
@@ -43,6 +45,10 @@ export class ConverseService {
       order: 10000,
       direction: 'outgoing',
       handler: (event: IO.Event, next) => {
+        if (event.channel !== 'api') {
+          return next(undefined, false, true)
+        }
+
         this._handleCapturePayload(event)
         next()
       }
@@ -54,6 +60,10 @@ export class ConverseService {
       order: 10000,
       direction: 'incoming',
       handler: (event: IO.Event, next) => {
+        if (event.channel !== 'api') {
+          return next(undefined, false, true)
+        }
+
         this._handleCaptureContext(event as IO.IncomingEvent)
         next()
       }
@@ -99,30 +109,31 @@ export class ConverseService {
       }
     })
 
-    const timeoutPromise = this._createTimeoutPromise(botId, userId)
-    const donePromise = this._createDonePromise(userId)
+    const userKey = buildUserKey(botId, userId)
+    const timeoutPromise = this._createTimeoutPromise(botId, userKey)
+    const donePromise = this._createDonePromise(userKey)
 
     await this.eventEngine.sendEvent(incomingEvent)
 
     return Promise.race([timeoutPromise, donePromise]).finally(() => {
-      converseApiEvents.removeAllListeners(`done.${userId}`)
-      converseApiEvents.removeAllListeners(`action.start.${userId}`)
-      converseApiEvents.removeAllListeners(`action.end.${userId}`)
-      delete this._responseMap[userId]
+      converseApiEvents.removeAllListeners(`done.${userKey}`)
+      converseApiEvents.removeAllListeners(`action.start.${userKey}`)
+      converseApiEvents.removeAllListeners(`action.end.${userKey}`)
+      delete this._responseMap[userKey]
     })
   }
 
-  private async _createDonePromise(userId) {
+  private async _createDonePromise(userKey: string) {
     return new Promise((resolve, reject) => {
-      converseApiEvents.once(`done.${userId}`, async event => {
+      converseApiEvents.once(`done.${userKey}`, async event => {
         await Promise.delay(250)
-        if (this._responseMap[event.target]) {
-          Object.assign(this._responseMap[event.target], <ResponseMap>{
+        if (this._responseMap[userKey]) {
+          Object.assign(this._responseMap[userKey], <ResponseMap>{
             state: event.state,
             suggestions: event.suggestions,
             decision: event.decision || {}
           })
-          return resolve(this._responseMap[event.target])
+          return resolve(this._responseMap[userKey])
         } else {
           return reject(new Error(`No responses found for event target "${event.target}".`))
         }
@@ -160,27 +171,21 @@ export class ConverseService {
   }
 
   private _handleCapturePayload(event: IO.Event) {
-    if (event.channel !== 'api') {
-      return
+    const userKey = buildUserKey(event.botId, event.target)
+    if (!this._responseMap[userKey]) {
+      this._responseMap[userKey] = { responses: [] }
     }
 
-    if (!this._responseMap[event.target]) {
-      this._responseMap[event.target] = { responses: [] }
-    }
-
-    this._responseMap[event.target].responses!.push(event.payload)
+    this._responseMap[userKey].responses!.push(event.payload)
   }
 
   private _handleCaptureContext(event: IO.IncomingEvent) {
-    if (event.channel !== 'api') {
-      return
+    const userKey = buildUserKey(event.botId, event.target)
+    if (!this._responseMap[userKey]) {
+      this._responseMap[userKey] = { responses: [] }
     }
 
-    if (!this._responseMap[event.target]) {
-      this._responseMap[event.target] = { responses: [] }
-    }
-
-    Object.assign(this._responseMap[event.target], <ResponseMap>{
+    Object.assign(this._responseMap[userKey], <ResponseMap>{
       nlu: event.nlu || {},
       suggestions: event.suggestions || [],
       credentials: event.credentials

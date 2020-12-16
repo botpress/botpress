@@ -8,8 +8,8 @@ export class SkillService {
   constructor() {}
 
   public finalizeFlow(partialFlow: FlowGenerationResult) {
-    if (_.get(partialFlow, 'flow.nodes.length') == 0) {
-      throw new Error(`You must provide a flow with at least one node`)
+    if (_.get(partialFlow, 'flow.nodes.length') === 0) {
+      throw new Error('You must provide a flow with at least one node')
     }
 
     const completeFlow = this.setDefaultsForMissingValues(partialFlow.flow)
@@ -62,7 +62,7 @@ export class SkillService {
     const name = nanoid('1234567890', 6)
     const defaultFlow: Flow = {
       version: '0.0',
-      name: name,
+      name,
       location: name,
       startNode: partialFlow.nodes[0].name,
       nodes: []

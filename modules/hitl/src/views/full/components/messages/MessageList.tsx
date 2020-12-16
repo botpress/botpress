@@ -16,7 +16,7 @@ class MessageWrapper extends React.Component<{ message: any }> {
   }
 
   static getDerivedStateFromError(error) {
-    console.error(`There was an error while trying to display this message: `, error)
+    console.error('There was an error while trying to display this message: ', error)
     return { hasError: true }
   }
 

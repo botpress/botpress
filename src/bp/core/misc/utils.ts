@@ -19,7 +19,7 @@ export function createMockLogger(): Logger {
 export function createSpyObject<T>(): MockObject<T> {
   const obj = {}
   const handler: ProxyHandler<object> = {
-    get: function(obj, prop) {
+    get(obj, prop) {
       if (prop === 'T') {
         return proxy
       }
@@ -100,15 +100,6 @@ export const asBytes = (size: string) => {
   return Number(matches[1])
 }
 
-export const bytesToString = (bytes: number): string => {
-  const units = ['bytes', 'kb', 'mb', 'gb', 'tb']
-  const power = Math.log2(bytes)
-  const unitNumber = Math.min(Math.floor(power / 10), 4)
-  const significand = bytes / Math.pow(2, unitNumber * 10)
-
-  return `${significand.toFixed(0)} ${units[unitNumber]}`
-}
-
 export function filterByGlobs<T>(array: T[], iteratee: (value: T) => string, globs: string[]): T[] {
   const rules: { regex: RegExp }[] = globs.map(g => globrex(g, { globstar: true }))
 
@@ -133,4 +124,11 @@ export const sanitize = (input: string, type?: 'file' | 'folder') => {
     .replace(regex.control, '')
     .replace(regex.reserved, '')
     .replace(type === 'folder' ? regex.illegalFolder : regex.illegalFile, '')
+}
+
+export const sanitizeFileName = (name: string): string => {
+  return name
+    .toLowerCase()
+    .replace(/\.json$/i, '')
+    .replace(/[\t\s]/gi, '-')
 }

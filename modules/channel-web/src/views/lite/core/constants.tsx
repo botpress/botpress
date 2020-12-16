@@ -14,7 +14,6 @@ export default {
   /** The default configuration when starting the chat */
   DEFAULT_CONFIG: {
     userId: undefined,
-    stylesheet: 'assets/modules/channel-web/default.css',
     extraStylesheet: '',
     botName: undefined,
     botConvoDescription: undefined,
@@ -32,6 +31,7 @@ export default {
     externalAuthToken: undefined,
     showPoweredBy: window.SHOW_POWERED_BY,
     enablePersistHistory: true,
-    enableResetSessionShortcut: false
+    enableResetSessionShortcut: false,
+    closeOnEscape: true
   }
 }

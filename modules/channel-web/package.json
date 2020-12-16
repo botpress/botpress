@@ -27,12 +27,11 @@
     "classnames": "^2.2.6",
     "date-fns": "^2.4.1",
     "html-truncate": "^1.2.2",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.19",
     "lodash-decorators": "^6.0.1",
     "mime": "^2.4.3",
     "mobx": "4.9.4",
     "mobx-react": "^5.4.4",
-    "mobx-react-devtools": "^6.1.1",
     "moment": "^2.24.0",
     "ms": "^2.1.1",
     "multer": "^1.4.0",
@@ -48,6 +47,6 @@
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
+    "lodash": ">=4.17.19"
   }
 }

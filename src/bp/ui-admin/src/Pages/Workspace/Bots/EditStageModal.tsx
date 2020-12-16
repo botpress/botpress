@@ -9,6 +9,7 @@ import {
   Radio,
   RadioGroup
 } from '@blueprintjs/core'
+import { WorkspaceUserWithAttributes } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import React, { ChangeEvent, FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -17,11 +18,10 @@ import api from '~/api'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
 import { getActiveWorkspace } from '~/Auth'
 
-import { WorkspaceUserInfo } from '../../../../../common/typings'
 import { fetchUsers } from '../../../reducers/user'
 
 interface StateProps {
-  users: WorkspaceUserInfo[]
+  users: WorkspaceUserWithAttributes[]
   loading: boolean
 }
 
@@ -53,7 +53,7 @@ const EditStageModal: FC<Props> = props => {
     if (props.stage) {
       const { id, label, action, reviewers, minimumApprovals } = props.stage
       const formatedReviewers = formatedUsers.filter(
-        user => reviewers && reviewers.find(x => user.user.email == x.email && user.user.strategy == x.strategy)
+        user => reviewers && reviewers.find(x => user.user.email === x.email && user.user.strategy === x.strategy)
       )
 
       setIsLastPipeline(pipeline[pipeline.length - 1].id === id)

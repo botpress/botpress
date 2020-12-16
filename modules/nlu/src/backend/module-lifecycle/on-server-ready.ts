@@ -2,22 +2,23 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import makeApi from '../api'
-import { getModel } from '../model-service'
 import { setTrainingSession } from '../train-session-service'
-import { NLUState, TrainingSession } from '../typings'
+import { NLUState } from '../typings'
 
 export function getOnServerReady(state: NLUState) {
   return async (bp: typeof sdk) => {
-    const loadModel = async (botId: string, hash: string, language: string) => {
+    const loadModel = async (botId: string, modelId: sdk.NLU.ModelId) => {
       if (!state.nluByBot[botId]) {
         return
       }
 
       const ghost = bp.ghost.forBot(botId)
-      const model = await getModel(ghost, hash, language)
+      const model = await state.nluByBot[botId].modelService.getModel(modelId)
       if (model) {
-        if (state.nluByBot[botId]) {
-          await state.nluByBot[botId].engine.loadModel(model)
+        const botState = state.nluByBot[botId]
+        if (botState) {
+          botState.modelsByLang[model.languageCode] = modelId
+          await state.engine.loadModel(model)
         } else {
           bp.logger.warn(`Can't load model for unmounted bot ${botId}`)
         }
@@ -25,14 +26,15 @@ export function getOnServerReady(state: NLUState) {
     }
 
     const cancelTraining = async (botId: string, language: string) => {
-      const trainSession: TrainingSession = _.get(state, `nluByBot.${botId}.trainSessions.${language}`)
-
+      const trainSession: sdk.NLU.TrainingSession = state.nluByBot[botId]?.trainSessions[language]
       if (trainSession && trainSession.status === 'training') {
         if (trainSession.lock) {
-          trainSession.lock.unlock()
+          await trainSession.lock.unlock()
         }
         trainSession.status = 'canceled'
         await setTrainingSession(bp, botId, trainSession)
+
+        return state.engine.cancelTraining(trainSession.key)
       }
     }
 

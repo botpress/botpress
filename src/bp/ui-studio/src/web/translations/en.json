@@ -44,7 +44,14 @@
   },
   "statusBar": {
     "contentLanguage": "Content Language",
-    "switchLang": "Change the bot content language. Currently editing: {currentLang}"
+    "switchLang": "Change the bot content language. Currently editing: {currentLang}",
+    "trainChatbot": "Train Chatbot",
+    "training": "Training",
+    "ready": "Ready",
+    "cancelTraining": "Cancel Training",
+    "trainingPending": "Training Pending",
+    "canceling": "Canceling",
+    "trainingError": "Cannot train Chatbot"
   },
   "studio": {
     "content": {
@@ -54,6 +61,7 @@
       "createNew": "Create new {title}",
       "currentlySearching": "Currently Searching in",
       "deleteElements": "Delete selected elements",
+      "missingClosingCurlyBrace": "Missing closing curly brace",
       "import": {
         "analysis": "Analysis",
         "clearExisting": "Clear all existing elements, then import those from my file",
@@ -97,6 +105,10 @@
       "cantDeleteStart": "You can't delete the start node.",
       "cantDeleteSuccess": "You can't delete the success node.",
       "chips": "Chips",
+      "prevWorkflow": "Go to previous workflow",
+      "nextWorkflow": "Go to next workflow",
+      "endOfWorkflow": "End of the workflow",
+      "errorOccurred": "An error occurred here",
       "condition": {
         "addCondition": "Add condition",
         "backToList": "Back to list",
@@ -116,6 +128,7 @@
       "errorWhileSaving": "There was an error while saving, deleting or renaming a flow. Last modification might not have been saved on server. Please reload page before continuing flow edition",
       "flowWideOnReceives": "flow-wide on {count, plural, one {receive} other {receives}}",
       "flowWideTransitions": "flow-wide {count, plural, one {transition} other {transitions}}",
+      "filterNodes": "Filter Nodes",
       "highlightByName": "Highlight nodes by name",
       "logs": {
         "autoRefresh": "Auto-refresh",
@@ -144,6 +157,11 @@
         "editAction": "Edit Action",
         "editSkill": "Edit skill",
         "end": "End",
+        "chatbotExecutes": "Chatbot Executes",
+        "chatbotSays": "Chatbot Says",
+        "triggeredBy": "Workflow is Triggered by",
+        "workflowFails": "Workflow Fails",
+        "workflowSucceeds": "Workflow Succeeds",
         "errorInServer": "There seems to be an error in your Botpress server. Please contact your administrator.",
         "errorListingActions": "Error listing actions from the action server",
         "errorListingActionsMore": "There was an error while trying to get the list of actions on the selected server",
@@ -317,18 +335,149 @@
   "toolbar": {
     "emulator": "Emulator",
     "help": "Help",
-    "logsPanel": "Logs Panel",
+    "bottomPanel": "Bottom Panel",
     "readDoc": "Read Documentation",
     "showEmulator": "Show Emulator",
-    "toggleLogsPanel": "Toggle Logs Panel",
+    "toggleBottomPanel": "Toggle Bottom Panel",
     "toggleEmulator": "Toggle Emulator",
-    "toggleSidePanel": "Toggle Side Panel",
-    "bottomPanel": {
+    "toggleSidePanel": "Toggle Side Panel"
+  },
+  "bottomPanel": {
+    "inspector": {
+      "autoExpand": "Auto-expand all nodes"
+    },
+    "closePanel": "Close Panel",
+    "logs": {
       "scrollToFollow": "Scroll to follow logs",
       "downloadLogs": "Download Logs",
       "clearHistory": "Clear log history",
-      "closePanel": "Close Panel",
-      "endOfLogs": "End of logs"
+      "endOfLogs": "End of logs",
+      "debug": {
+        "confUpdated": "Debug configuration updated successfully!"
+      }
+    },
+    "debugger": {
+      "fetchingEvent": "Fetching event...",
+      "topIntents": "Top Intents",
+      "topPredictions": "Top Predictions",
+      "displayDebugging": "Display debugging in workflows",
+      "autoFocus": "Auto-focus on new messages",
+      "newSession": "Create a new session",
+      "splashMessage": "Engage conversation with your chatbot and click on any message to inspect its behaviors.",
+      "unauthorized": "Unauthorized",
+      "unauthorizedMessage": "You lack sufficient permissions to inspect events.",
+      "unauthorizedMessage2": "Permission required: write access on \"module.extensions\"",
+      "settings": {
+        "confUpdated": "Configuration updated successfully!",
+        "confUpdatedError": "There was an error parsing your configuration. Please validate the syntax",
+        "payloadSent": "Payload sent successfully!",
+        "payloadSentError": "There was an error parsing your payload. Please validate the syntax",
+        "editConf": "Edit Configuration",
+        "editConfHelper": "Test temporary configuration changes. Refresh the page to reset.",
+        "editConfPlaceholder": "Change Webchat Settings (must be valid json)",
+        "saveConf": "Save Configuration",
+        "sendRawPayloads": "Send Raw Payloads",
+        "sendRawPayloadsHelper": "Send any valid JSON message, to test custom events, for example",
+        "sendRawPayloadsPlaceholder": "Valid JSON Payload",
+        "saveRawPayloads": "Send Payload",
+        "alwaysShowDebugger": "Always show Debugger",
+        "updateDebuggerOnNew": "Update debugger on new message",
+        "userId": "User ID",
+        "userIdHelper": "Changes the User ID stored on your browser",
+        "userIdPlaceholder": "Your User ID",
+        "authToken": "External Auth Token",
+        "authTokenHelper": "It must be a valid JWT Token",
+        "authTokenPlaceholder": "Token generated from your system",
+        "save": "Save",
+        "settings": "Settings",
+        "basic": "Basic",
+        "advanced": "Advanced"
+      },
+      "processing": {
+        "afterMW": "After Middleware",
+        "beforeMW": "Before Middleware",
+        "received": "Event Received",
+        "stateLoaded": "Loaded User State",
+        "hook": "Hook",
+        "mw": "Middleware",
+        "dialog": "Processing Dialog",
+        "action": "Action",
+        "completed": "Event Processing Completed",
+        "executedIn": "Executed in {n} ms",
+        "type": "Type",
+        "stacktrace": "Stacktrace"
+      },
+      "actions": {
+        "say": "Say {x}",
+        "startWorkflow": "Start workflow {x}",
+        "goToNode": "Go to node {x}",
+        "redirectTo": "Redirect to {x}",
+        "continue": "Continue",
+        "cancelPrompt": "Cancel Prompt",
+        "informPrompt": "Inform Prompt"
+      },
+      "dialog": {
+        "decision": "Decision",
+        "suggestions": "Suggestions",
+        "flowNodes": "Flow Nodes",
+        "dialogManager": "Dialog Manager"
+      },
+      "entities": {
+        "type": "Type",
+        "source": "Source",
+        "normalizedValue": "Normalized Value"
+      },
+      "inspector": {
+        "copyEventPath": "Copy Event Path",
+        "expandAll": "Expand All"
+      },
+      "notAvailable": "Not available",
+      "ndu": {
+        "topTriggers": "Top Triggers",
+        "decisionsTaken": "Decisions Taken",
+        "sendKnowledge": "Send knowledge {x}",
+        "startWorkflow": "Start workflow {x}",
+        "goToNode": "Go to node {x}",
+        "redirectTo": "Redirect to {x}",
+        "continueFlowExecution": "Continue flow execution",
+        "informCurrentPrompt": "Inform current prompt",
+        "cancelCurrentPrompt": "Cancel current prompt",
+        "noResults": "No results",
+        "dialogUnderstanding": "Dialog Understanding"
+      },
+      "nlu": {
+        "intentsVeryClose": "Predicted intents are very close.",
+        "youCanAccountForIt": "You can account for it checking the variable : ",
+        "ambiguous": "Ambiguous",
+        "languageUnderstanding": "Language Understanding"
+      },
+      "slots": {
+        "slot": "Slot",
+        "source": "Source",
+        "extracted": "Extracted",
+        "value": "Value: {x}",
+        "turnsAgo": "{x} turns ago",
+        "thisTurn": "This turn"
+      },
+      "summary": {
+        "cannotDisplay": "Cannot display event summary",
+        "state": "State",
+        "errors": "Errors"
+      },
+      "triggers": {
+        "insideTopic": "Inside Topic",
+        "outsideTopic": "Outside Topic",
+        "insideWorkflow": "Inside Workflow",
+        "qna": "QnA",
+        "wf": "WF",
+        "node": "Node"
+      },
+      "eventNotFound": {
+        "title": "Event not found",
+        "message": "The requested event was not found. Possible reasons:",
+        "message2": "The Event Collector is not enabled in Botpress Config",
+        "message3": "The event was pruned from the database"
+      }
     }
   }
 }

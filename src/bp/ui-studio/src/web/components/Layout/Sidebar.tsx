@@ -24,7 +24,7 @@ const BASIC_MENU_ITEMS = [
   },
   {
     name: lang.tr('flows'),
-    path: window.USE_ONEFLOW ? '/oneflow' : '/flows',
+    path: '/flows',
     rule: { res: 'bot.flows', op: 'read' },
     icon: 'page-layout'
   }

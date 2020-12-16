@@ -1,4 +1,4 @@
-import { LanguageSource } from './backend/typings'
+import { NLU } from 'botpress/sdk'
 
 export interface Config {
   /**
@@ -15,14 +15,6 @@ export interface Config {
   ducklingEnabled: boolean
 
   /**
-   * The interval at which to automatically sync the models in the background
-   * Set this value to "false" to disable background sync
-   * @deprecated > 12.2
-   * @default 30s
-   */
-  autoTrainInterval: string
-
-  /**
    * Whether or not you want your models to be trained and loaded on bot mounts
    * @default true
    * @deprecated > 12.2
@@ -33,5 +25,11 @@ export interface Config {
    * The list of sources to load languages from
    * @default [{ "endpoint": "https://lang-01.botpress.io" }]
    */
-  languageSources: LanguageSource[]
+  languageSources: NLU.LanguageSource[]
+
+  /**
+   * Maximum allowed model cache size
+   * @default 850mb
+   */
+  modelCacheSize: string
 }

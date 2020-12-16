@@ -12,15 +12,14 @@ import {
   Position
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
-import { confirmDialog, lang } from 'botpress/shared'
-import { ServerHealth, UserProfile } from 'common/typings'
+import { confirmDialog, lang, telemetry } from 'botpress/shared'
+import { ModuleInfo, ServerHealth, UserProfile } from 'common/typings'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { generatePath, RouteComponentProps } from 'react-router'
 import { Alert, Col, Row } from 'reactstrap'
-import { toastSuccess } from '~/utils/toaster'
-import { toastFailure } from '~/utils/toaster'
+import { toastFailure, toastSuccess } from '~/utils/toaster'
 import { filterList } from '~/utils/util'
 import PageContainer from '~/App/PageContainer'
 import SplitPage from '~/App/SplitPage'
@@ -30,6 +29,7 @@ import { Downloader } from '~/Pages/Components/Downloader'
 import api from '../../../api'
 import { fetchBotHealth, fetchBots } from '../../../reducers/bots'
 import { fetchLicensing } from '../../../reducers/license'
+import { fetchModules } from '../../../reducers/modules'
 import AccessControl from '../../../App/AccessControl'
 import LoadingSection from '../../Components/LoadingSection'
 
@@ -43,12 +43,14 @@ import RollbackBotModal from './RollbackBotModal'
 const botFilterFields = ['name', 'id', 'description']
 
 interface Props extends RouteComponentProps {
+  modules: ModuleInfo[]
   bots: BotConfig[]
   health: ServerHealth[]
   workspace: any
   fetchBots: () => void
   fetchLicensing: () => void
   fetchBotHealth: () => void
+  fetchModules: () => void
   licensing: any
   profile: UserProfile
 }
@@ -72,9 +74,15 @@ class Bots extends Component<Props> {
     this.props.fetchBots()
     this.props.fetchBotHealth()
 
+    if (!this.props.modules.length && this.props.profile && this.props.profile.isSuperAdmin) {
+      this.props.fetchModules()
+    }
+
     if (!this.props.licensing) {
       this.props.fetchLicensing()
     }
+
+    telemetry.startFallback(api.getSecured()).catch()
   }
 
   toggleCreateBotModal = () => {
@@ -110,14 +118,14 @@ class Bots extends Component<Props> {
       this.props.fetchBotHealth()
       toastSuccess(lang.tr('admin.workspace.bots.remounted'))
     } catch (err) {
-      console.log(err)
+      console.error(err)
       toastFailure(lang.tr('admin.workspace.bots.couldNotMount'))
     }
   }
 
   viewLogs(botId: string) {
     this.props.history.push(
-      generatePath(`/workspace/:workspaceId?/logs?botId=:botId`, {
+      generatePath('/workspace/:workspaceId?/logs?botId=:botId', {
         workspaceId: getActiveWorkspace() || undefined,
         botId
       })
@@ -221,12 +229,15 @@ class Bots extends Component<Props> {
       return null
     }
 
+    const nluModule = this.props.modules.find(m => m.name === 'nlu')
+
     return (
       <div className="bp_table bot_views compact_view">
         {bots.map(bot => (
           <Fragment key={bot.id}>
             <BotItemCompact
               bot={bot}
+              nluModuleEnabled={nluModule && nluModule.enabled}
               hasError={this.findBotError(bot.id)}
               deleteBot={this.deleteBot.bind(this, bot.id)}
               exportBot={this.exportBot.bind(this, bot.id)}
@@ -417,6 +428,7 @@ class Bots extends Component<Props> {
 }
 
 const mapStateToProps = state => ({
+  modules: state.modules.modules,
   bots: state.bots.bots,
   health: state.bots.health,
   workspace: state.bots.workspace,
@@ -428,7 +440,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = {
   fetchBots,
   fetchLicensing,
-  fetchBotHealth
+  fetchBotHealth,
+  fetchModules
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Bots)

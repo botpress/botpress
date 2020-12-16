@@ -1,21 +1,22 @@
+import { NLU } from 'botpress/sdk'
 import { lang, utils } from 'botpress/shared'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { HotKeys } from 'react-hotkeys'
 import { connect } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import SplitPane from 'react-split-pane'
-import { bindActionCreators } from 'redux'
-import { toggleBottomPanel, viewModeChanged } from '~/actions'
+import { setEmulatorOpen, toggleBottomPanel, toggleInspector, trainSessionReceived, viewModeChanged } from '~/actions'
 import SelectContentManager from '~/components/Content/Select/Manager'
 import PluginInjectionSite from '~/components/PluginInjectionSite'
-import BackendToast from '~/components/Util/BackendToast'
+import storage from '~/util/storage'
 import Config from '~/views/Config'
 import Content from '~/views/Content'
 import FlowBuilder from '~/views/FlowBuilder'
 import Logs from '~/views/Logs'
 import Module from '~/views/Module'
-import OneFlow from '~/views/OneFlow'
 
+import { TrainingStatusService } from './training-status-service'
+import BottomPanel from './BottomPanel'
 import BotUmountedWarning from './BotUnmountedWarning'
 import CommandPalette from './CommandPalette'
 import GuidedTour from './GuidedTour'
@@ -24,23 +25,24 @@ import layout from './Layout.scss'
 import Sidebar from './Sidebar'
 import StatusBar from './StatusBar'
 import Toolbar from './Toolbar'
-import BottomPanel from './Toolbar/BottomPanel'
 
 const { isInputFocused } = utils
+const WEBCHAT_PANEL_STATUS = 'bp::webchatOpened'
+const EXPANDED_PANEL_HEIGHT = 200
 
-interface ILayoutProps {
-  viewModeChanged: any
-  viewMode: number
-  docModal: any
-  docHints: any
+interface OwnProps {
   location: any
-  toggleBottomPanel: () => null
   history: any
-  bottomPanel: boolean
-  translations: any
+  setEmulatorOpen: (state: boolean) => void
+  trainSessionReceived: (ts: NLU.TrainingSession) => void
 }
 
-const Layout: FC<ILayoutProps> = props => {
+type StateProps = ReturnType<typeof mapStateToProps>
+type DispatchProps = typeof mapDispatchToProps
+
+type Props = DispatchProps & StateProps & OwnProps
+
+const Layout: FC<Props> = (props: Props) => {
   const mainElRef = useRef(null)
   const [langSwitcherOpen, setLangSwitcherOpen] = useState(false)
   const [guidedTourOpen, setGuidedTourOpen] = useState(false)
@@ -53,7 +55,39 @@ const Layout: FC<ILayoutProps> = props => {
     })
 
     setTimeout(() => BotUmountedWarning(), 500)
+
+    const handleWebChatPanel = message => {
+      if (message.data.chatId) {
+        return // event is not coming from emulator
+      }
+      if (message.data.name === 'webchatLoaded' && storage.get(WEBCHAT_PANEL_STATUS) === 'opened') {
+        toggleEmulator()
+      }
+
+      if (message.data.name === 'webchatOpened') {
+        storage.set(WEBCHAT_PANEL_STATUS, 'opened')
+        props.setEmulatorOpen(true)
+      }
+
+      if (message.data.name === 'webchatClosed') {
+        storage.set(WEBCHAT_PANEL_STATUS, 'closed')
+        props.setEmulatorOpen(false)
+      }
+    }
+    window.addEventListener('message', handleWebChatPanel)
+
+    return () => {
+      window.removeEventListener('message', handleWebChatPanel)
+    }
   }, [])
+
+  useEffect(() => {
+    const trainStatusService = new TrainingStatusService(props.contentLang, props.trainSessionReceived)
+    // tslint:disable-next-line: no-floating-promises
+    trainStatusService.fetchTrainingStatus()
+    trainStatusService.listen()
+    return () => trainStatusService.stopListening()
+  }, [props.contentLang])
 
   useEffect(() => {
     if (props.translations) {
@@ -143,12 +177,14 @@ const Layout: FC<ILayoutProps> = props => {
     'go-module-qna': () => gotoUrl('/modules/qna'),
     'go-module-testing': () => gotoUrl('/modules/testing'),
     'go-module-analytics': () => gotoUrl('/modules/analytics'),
-    'go-understanding': () => gotoUrl('/modules/nlu')
+    'go-understanding': () => gotoUrl('/modules/nlu'),
+    'toggle-inspect': props.toggleInspector
   }
 
   const splitPanelLastSizeKey = `bp::${window.BOT_ID}::bottom-panel-size`
   const lastSize = parseInt(localStorage.getItem(splitPanelLastSizeKey) || '175', 10)
-  const bottomBarSize = props.bottomPanel ? lastSize : '100%'
+  const bottomPanelHeight = props.bottomPanelExpanded ? EXPANDED_PANEL_HEIGHT : lastSize
+  const bottomBarSize = props.bottomPanel ? bottomPanelHeight : '100%'
 
   return (
     <Fragment>
@@ -175,17 +211,12 @@ const Layout: FC<ILayoutProps> = props => {
                   exact
                   path="/"
                   render={() => {
-                    if (!window.IS_BOT_MOUNTED) {
-                      return <Redirect to="/config" />
-                    }
-
-                    return window.USE_ONEFLOW ? <Redirect to="/oneflow" /> : <Redirect to="/flows" />
+                    return window.IS_BOT_MOUNTED ? <Redirect to="/flows" /> : <Redirect to="/config" />
                   }}
                 />
                 <Route exact path="/content" component={Content} />
                 <Route exact path="/flows/:flow*" component={FlowBuilder} />
                 <Route exact path="/config" component={Config} />
-                <Route exact path="/oneflow/:flow*" component={OneFlow} />
                 <Route exact path="/modules/:moduleName/:componentName?" render={props => <Module {...props} />} />
                 <Route exact path="/logs" component={Logs} />
               </Switch>
@@ -194,7 +225,6 @@ const Layout: FC<ILayoutProps> = props => {
           </SplitPane>
 
           <PluginInjectionSite site="overlay" />
-          <BackendToast />
           <SelectContentManager />
           <GuidedTour isDisplayed={guidedTourOpen} onToggle={toggleGuidedTour} />
           <LanguageServerHealth />
@@ -216,9 +246,17 @@ const mapStateToProps = state => ({
   viewMode: state.ui.viewMode,
   docHints: state.ui.docHints,
   bottomPanel: state.ui.bottomPanel,
-  translations: state.language.translations
+  bottomPanelExpanded: state.ui.bottomPanelExpanded,
+  translations: state.language.translations,
+  contentLang: state.language.contentLang
 })
 
-const mapDispatchToProps = dispatch => bindActionCreators({ viewModeChanged, toggleBottomPanel }, dispatch)
+const mapDispatchToProps = {
+  viewModeChanged,
+  toggleBottomPanel,
+  setEmulatorOpen,
+  trainSessionReceived,
+  toggleInspector
+}
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layout)

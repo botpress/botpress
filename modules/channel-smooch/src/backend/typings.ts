@@ -1,6 +1,8 @@
 import { SmoochClient } from './client'
 
-export type Clients = { [botId: string]: SmoochClient }
+export interface Clients {
+  [botId: string]: SmoochClient
+}
 
 export interface Webhook {
   _id: string

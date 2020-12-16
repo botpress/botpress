@@ -77,9 +77,9 @@ class ConversationList extends React.Component<ConversationListProps> {
 
     if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
       this.changeFocus(1)
-    } else if (e.key == 'ArrowUp' || e.key == 'ArrowLeft') {
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
       this.changeFocus(-1)
-    } else if (e.key == 'Enter' && this.state.focusIdx && this.state.focusIdx < this.props.conversations.length) {
+    } else if (e.key === 'Enter' && this.state.focusIdx && this.state.focusIdx < this.props.conversations.length) {
       const convoId = this.props.conversations[this.state.focusIdx].id
       this.props.fetchConversation.bind(this, convoId)
     }
@@ -92,7 +92,7 @@ class ConversationList extends React.Component<ConversationListProps> {
         {conversations.map((convo, idx) => (
           <ConversationListItem
             key={convo.id}
-            hasFocus={this.state.focusIdx == idx}
+            hasFocus={this.state.focusIdx === idx}
             conversation={convo}
             onClick={fetchConversation.bind(this, convo.id)}
           />

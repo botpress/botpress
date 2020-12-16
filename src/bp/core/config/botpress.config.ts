@@ -6,7 +6,7 @@ import { IncidentRule } from '../services/alerting-service'
 
 export type BotpressCondition = '$isProduction' | '$isDevelopment'
 
-export type ModuleConfigEntry = {
+export interface ModuleConfigEntry {
   location: string
   enabled: boolean
 }
@@ -19,7 +19,7 @@ export interface DialogConfig {
   janitorInterval: string
   /**
    * Interval before a session's context expires.
-   * e.g. when the conversation is stale and has not reach the END of the flow.
+   * e.g. when the conversation is stale and has not reached the END of the flow.
    * This will reset the position of the user in the flow.
    * @default 2m
    */
@@ -74,7 +74,7 @@ export interface LogsConfig {
  * We use the library "ms", so head over to this page to see supported formats: https://www.npmjs.com/package/ms
  */
 
-export type BotpressConfig = {
+export interface BotpressConfig {
   version: string
   appSecret: string
   httpServer: {
@@ -318,6 +318,14 @@ export type BotpressConfig = {
    * @default false
    */
   experimental: boolean
+
+  telemetry: {
+    /**
+     * The number of entries stored in the telemetry database
+     * @default 1000
+     */
+    entriesLimit: number
+  }
 }
 
 export interface ExternalAuthConfig {
@@ -379,7 +387,7 @@ export interface DataRetentionConfig {
  * @example "profile.email": "30d"
  * @default {}
  */
-export type RetentionPolicy = {
+export interface RetentionPolicy {
   [key: string]: string
 }
 
@@ -547,7 +555,9 @@ export interface AuthStrategyLdap {
   certificates: string[]
 }
 
-export type FieldMapping = { [bpAttribute: string]: string }
+export interface FieldMapping {
+  [bpAttribute: string]: string
+}
 
 export interface MonitoringConfig {
   /**
@@ -646,7 +656,7 @@ export interface EventCollectorConfig {
   ignoredEventProperties: string[]
   /**
    * These properties are only stored with the event when the user is logged on the studio
-   * @default ["ndu.triggers","ndu.predictions","nlu.predictions"]
+   * @default ["ndu.triggers","ndu.predictions","nlu.predictions","state","processing","activeProcessing"]
    */
   debuggerProperties: string[]
 }

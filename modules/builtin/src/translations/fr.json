@@ -38,5 +38,6 @@
     }
   },
   "typingIndicator": "Afficher l'indicateur de frappe",
-  "useMarkdown": "Utiliser markdown"
+  "useMarkdown": "Utiliser markdown",
+  "disableFreeText": "Désactiver le texte libre"
 }

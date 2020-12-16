@@ -17,12 +17,15 @@ export const keyMap = {
   'create-new': `${controlKey}+alt+n`,
   'bottom-bar': `${controlKey}+j`,
   cancel: 'esc',
-  'go-flow': `g f`,
-  'go-home': `g h`,
-  'go-content': `g c`,
+  'go-flow': 'g f',
+  'go-home': 'g h',
+  'go-content': 'g c',
   'go-understanding': 'g u',
-  'go-module-code': `g m c`,
-  'go-module-qna': `g m q`,
-  'go-module-testing': `g m t`,
-  'go-module-analytics': 'g m a'
+  'go-module-code': 'g m c',
+  'go-module-qna': 'g m q',
+  'go-module-testing': 'g m t',
+  'go-module-analytics': 'g m a',
+  'zoom-in': `${controlKey}+=`,
+  'zoom-out': `${controlKey}+-`,
+  'toggle-inspect': 'i n s p e c t'
 }

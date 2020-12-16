@@ -7,6 +7,7 @@ interface DownloadProps {
   url?: string
   filename: string
   onDownloadCompleted?: () => void
+  onProgress?: (pct: number) => void
 }
 
 export const Downloader: FC<DownloadProps> = props => {
@@ -15,10 +16,15 @@ export const Downloader: FC<DownloadProps> = props => {
   const [filename, setFilename] = useState('')
 
   const startDownload = async (url: string, filename: string, method: Method = 'get') => {
-    const { data } = await api.getSecured({ timeout: ms('10m') })({
+    const { data } = await api.getSecured({ timeout: ms('20m') })({
       method,
       url,
-      responseType: 'blob'
+      responseType: 'blob',
+      onDownloadProgress: evt => {
+        if (props.onProgress) {
+          props.onProgress(Math.round((evt.loaded / evt.total) * 100))
+        }
+      }
     })
 
     setContent(window.URL.createObjectURL(new Blob([data])))

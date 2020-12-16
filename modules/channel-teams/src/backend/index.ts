@@ -18,9 +18,15 @@ const onServerReady = async (bp: typeof sdk) => {
     checkAuthentication: false
   })
 
-  router.post(`/api/messages`, async (req, res) => {
+  router.post('/api/messages', async (req, res, next) => {
     const client = clients[req.params.botId]
-    client && (await client.receiveIncomingEvent(req, res))
+    try {
+      client && (await client.receiveIncomingEvent(req, res))
+    } catch (err) {
+      bp.logger.error(err)
+      next(err)
+    }
+    next()
   })
 
   publicPath = await router.getPublicPath()

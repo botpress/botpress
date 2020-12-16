@@ -49,7 +49,7 @@ export class ModuleResourceLoader {
   }
 
   constructor(private logger: Logger, private moduleName: string, private ghost: GhostService) {
-    this.globalPaths = [`/actions/${this.moduleName}`, `/content-types/${this.moduleName}`]
+    this.globalPaths = [`/actions/${this.moduleName}/`, `/content-types/${this.moduleName}/`]
     this.hookMatcher = new RegExp(`^[a-z_]+?\/${this.moduleName}/`)
   }
 
@@ -107,7 +107,7 @@ export class ModuleResourceLoader {
       hooks
         .filter(f => this.hookMatcher.test(f) && path.basename(f).startsWith(DISABLED_PREFIX))
         .map(f =>
-          ghost.renameFile('hooks/' + path.dirname(f), path.basename(f), path.basename(f).replace(DISABLED_PREFIX, ''))
+          ghost.renameFile(`hooks/${path.dirname(f)}`, path.basename(f), path.basename(f).replace(DISABLED_PREFIX, ''))
         )
     )
   }
@@ -124,13 +124,13 @@ export class ModuleResourceLoader {
     await Promise.all(
       hooks
         .filter(file => this.hookMatcher.test(file))
-        .map(f => ghost.renameFile('hooks/' + path.dirname(f), path.basename(f), DISABLED_PREFIX + path.basename(f)))
+        .map(f => ghost.renameFile(`hooks/${path.dirname(f)}`, path.basename(f), DISABLED_PREFIX + path.basename(f)))
     )
   }
 
   private async isSymbolicLink(filePath) {
     const fullPath = path.resolve(`${process.PROJECT_LOCATION}/${filePath}`)
-    return fse.pathExistsSync(fullPath) && (await fse.lstatSync(fullPath).isSymbolicLink())
+    return fse.pathExistsSync(fullPath) && fse.lstatSync(fullPath).isSymbolicLink()
   }
 
   private async _loadModuleResources(): Promise<void> {
@@ -293,7 +293,7 @@ export class ModuleResourceLoader {
   private async _executeMigration(migrationsFile: string) {
     const content: ModuleMigrationInstruction[] = JSON.parse(fse.readFileSync(migrationsFile, 'utf8'))
     if (!content) {
-      throw new Error(`Expected a valid JSON object.`)
+      throw new Error('Expected a valid JSON object.')
     }
 
     for (const migration of content) {

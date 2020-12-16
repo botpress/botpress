@@ -10,17 +10,18 @@ export interface StorageDriver {
   directoryListing(folder: string, options: DirectoryListingOptions): Promise<string[]>
   listRevisions(pathPrefix: string): Promise<FileRevision[]>
   deleteRevision(filePath: string, revision: string): Promise<void>
+  fileSize(filePath: string): Promise<number>
   moveFile(fromPath: string, toPath: string): Promise<void>
 }
 
-export type FileRevision = {
+export interface FileRevision {
   path: string
   revision: string
   created_by: string
   created_on: Date
 }
 
-export type PendingRevisions = {
+export interface PendingRevisions {
   [rootFolder: string]: Array<FileRevision>
 }
 

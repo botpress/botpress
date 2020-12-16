@@ -4,8 +4,10 @@ interface CssExports {
   'active': string;
   'checkboxContainer': string;
   'chooseContainer': string;
+  'chooseLabel': string;
   'container': string;
   'create': string;
+  'createBtn': string;
   'deleteEntity': string;
   'deleteIntent': string;
   'entity': string;
@@ -20,7 +22,6 @@ interface CssExports {
   'out': string;
   'sync': string;
   'synonym': string;
-  'trainingControlContainer': string;
   'workspace': string;
 }
 declare var cssExports: CssExports;

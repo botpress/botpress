@@ -13,6 +13,10 @@ import path from 'path'
 import { Condition, CSVTest, Test, TestResult, TestResultDetails } from '../shared/typings'
 import { computeSummary } from '../shared/utils'
 
+type BPDS_BotConfig = sdk.BotConfig & {
+  bpdsId: string
+}
+
 const NONE = 'none'
 
 const TestsSchema = Joi.array().items(
@@ -136,18 +140,20 @@ export default async (bp: typeof sdk) => {
 
   router.post('/export', async (req, res) => {
     // TODO add a little validation
-    const targetPath = isRunningFromSources()
+    const botId = req.params.botId
+    const targetPath = await isRunningFromSources(bp, botId)
     if (!targetPath) {
       return res.status(400).send('Not in a git repository`')
     }
 
+    const botConfig = await bp.bots.getBotById(botId)
     const tests = await getAllTests(req.params.botId)
     try {
-      const csv = results2CSV(tests, req.body.results)
+      const csv = results2CSV(tests, req.body.results, botConfig.nluSeed)
       fs.writeFileSync(targetPath, csv)
       res.sendStatus(200)
     } catch (err) {
-      console.log(err)
+      console.error(err)
       res.sendStatus(500)
     }
   })
@@ -161,14 +167,24 @@ export default async (bp: typeof sdk) => {
     })
 
     const testResults = _.flatten(resultsBatch).reduce((dic, testRes) => ({ ...dic, [testRes.id]: testRes }), {})
+    const accuracy = _.flatten(resultsBatch).filter(res => res.success).length / tests.length
+    bp.logger.forBot(req.params.botId).info(`finished running tests with ${accuracy} of accuracy`)
     res.send(testResults)
   })
 }
 
-function results2CSV(tests: Test[], results: _.Dictionary<TestResult>) {
+function results2CSV(tests: Test[], results: _.Dictionary<TestResult>, seed?: number) {
   const summary = computeSummary(tests, results)
   const records = [
-    ['utterance', 'context', 'conditions', 'status', `date: ${new Date().toLocaleDateString()}`, `summary: ${summary}`],
+    [
+      'utterance',
+      'context',
+      'conditions',
+      'status',
+      `date: ${new Date().toLocaleDateString()}`,
+      `summary: ${summary}`,
+      `nlu seed: ${seed}`
+    ],
     ...tests.map(t => [
       t.utterance,
       t.context,
@@ -179,14 +195,34 @@ function results2CSV(tests: Test[], results: _.Dictionary<TestResult>) {
   return stringify(records)
 }
 
-function isRunningFromSources(): string | undefined {
+async function isRunningFromSources(bp: typeof sdk, botId: string): Promise<string | undefined> {
   try {
+    const botConfig = (await bp.bots.getBotById(botId)) as BPDS_BotConfig
+    const bpdsId = botConfig.bpdsId
+    if (!bpdsId) {
+      return
+    }
+
     const sourceDirectory = path.resolve(process.PROJECT_LOCATION, '../..')
-    const latestResultsPath = path.resolve(sourceDirectory, `./modules/nlu-testing/latest-results.csv`)
+    const botTemplatesPath = path.resolve(sourceDirectory, './modules/nlu-testing/src/bot-templates')
+    const childDirs = fs.readdirSync(botTemplatesPath)
+
+    const botTemplateUnderTesting = childDirs.find(template => {
+      const configPath = path.resolve(botTemplatesPath, template, 'bot.config.json')
+      const configContent = fs.readFileSync(configPath, { encoding: 'utf8' })
+      const config = JSON.parse(configContent) as BPDS_BotConfig
+      return config.bpdsId === bpdsId
+    })
+    if (!botTemplateUnderTesting) {
+      return
+    }
+
+    const latestResultsPath = path.resolve(botTemplatesPath, botTemplateUnderTesting, 'latest-results.csv')
     const exists = fs.existsSync(latestResultsPath)
+
     return exists ? latestResultsPath : undefined
   } catch {
-    return undefined
+    return
   }
 }
 
@@ -280,7 +316,7 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
       reason: success
         ? ''
         : `Context doesn't match. \nexpected: ${expected} \nreceived: ${received} \nconfidence: ${conf}`,
-      received: received,
+      received,
       expected
     }
   }

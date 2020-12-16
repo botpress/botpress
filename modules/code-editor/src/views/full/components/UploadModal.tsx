@@ -1,6 +1,5 @@
 import { Button, Callout, Checkbox, Classes, Dialog, FileInput, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
-import { toastFailure } from 'botpress/utils'
+import { lang, toast } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC } from 'react'
 
@@ -49,7 +48,7 @@ const fetchReducer = (state: State, action): State => {
   } else if (action.type === 'showError') {
     return { ...state, isLoading: false, hasError: true }
   } else {
-    throw new Error(`That action type isn't supported.`)
+    throw new Error("That action type isn't supported.")
   }
 }
 
@@ -78,7 +77,7 @@ export const UploadModal: FC<Props> = props => {
       closeDialog()
     } catch (err) {
       dispatch({ type: 'hasError' })
-      toastFailure(err.message)
+      toast.failure(err.message)
     }
   }
 

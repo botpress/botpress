@@ -16,7 +16,7 @@ title: About
 | White-Label Chat Interface |           | ✔️         |
 | Role-Based Access Control  |           | ✔️         |
 | High-Availability          |           | ✔️         |
-| Increased Performances     |           | ✔️         |
+| Increased Performance      |           | ✔️         |
 | Standard Support           |           | ✔️         |
 | Multilanguage Bots         |           | ✔️         |
 

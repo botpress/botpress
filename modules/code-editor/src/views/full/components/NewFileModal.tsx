@@ -118,7 +118,7 @@ const NewFileModal: FC<Props> = props => {
             <Button
               type="submit"
               id="btn-submit"
-              text={lang.tr(`submit`)}
+              text={lang.tr('submit')}
               intent={Intent.PRIMARY}
               onClick={submit}
               disabled={!name}

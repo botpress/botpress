@@ -3,7 +3,7 @@ import axios from 'axios'
 import { lang } from 'botpress/shared'
 import React, { FC, Fragment, useReducer } from 'react'
 import { AccessControl } from '~/components/Shared/Utils'
-import style from '~/views/OneFlow/sidePanel/form/style.scss'
+import style from '~/views/FlowBuilder/sidePanelTopics/form/style.scss'
 
 const UploadWidget: FC<any> = props => {
   const uploadReducer = (state, action) => {
@@ -38,7 +38,7 @@ const UploadWidget: FC<any> = props => {
         uploading: false
       }
     } else {
-      throw new Error(`That action type isn't supported.`)
+      throw new Error("That action type isn't supported.")
     }
   }
 

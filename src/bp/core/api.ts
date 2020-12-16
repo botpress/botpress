@@ -6,6 +6,9 @@ import Knex from 'knex'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import MLToolkit from 'ml/toolkit'
+import Engine from 'nlu-core/engine'
+import { isTrainingAlreadyStarted, isTrainingCanceled } from 'nlu-core/errors'
+import modelIdService from 'nlu-core/model-id-service'
 
 import { container } from './app.inversify'
 import { ConfigProvider } from './config/config-loader'
@@ -144,7 +147,7 @@ const notifications = (notificationService: NotificationsService): typeof sdk.no
 
 const security = (): typeof sdk.security => {
   return {
-    getMessageSignature: getMessageSignature
+    getMessageSignature
   }
 }
 
@@ -190,7 +193,8 @@ const workspaces = (workspaceService: WorkspaceService): typeof sdk.workspaces =
     getBotWorkspaceId: workspaceService.getBotWorkspaceId.bind(workspaceService),
     getWorkspaceRollout: workspaceService.getWorkspaceRollout.bind(workspaceService),
     addUserToWorkspace: workspaceService.addUserToWorkspace.bind(workspaceService),
-    consumeInviteCode: workspaceService.consumeInviteCode.bind(workspaceService)
+    consumeInviteCode: workspaceService.consumeInviteCode.bind(workspaceService),
+    getWorkspaceUsers: workspaceService.getWorkspaceUsers.bind(workspaceService)
   }
 }
 
@@ -285,13 +289,13 @@ export class BotpressAPIProvider {
   async create(loggerName: string, owner: string): Promise<typeof sdk> {
     return {
       version: '',
-      RealTimePayload: RealTimePayload,
+      RealTimePayload,
       LoggerLevel: require('./sdk/enums').LoggerLevel,
       LogLevel: require('./sdk/enums').LogLevel,
       NodeActionType: require('./sdk/enums').NodeActionType,
       IO: {
-        Event: Event,
-        WellKnownFlags: WellKnownFlags
+        Event,
+        WellKnownFlags
       },
       MLToolkit: this.mlToolkit,
       dialog: this.dialog,
@@ -310,7 +314,21 @@ export class BotpressAPIProvider {
       security: this.security,
       experimental: this.experimental,
       workspaces: this.workspaces,
-      distributed: this.distributed
+      distributed: this.distributed,
+      NLU: {
+        makeEngine: async (config: sdk.NLU.Config, logger: sdk.NLU.Logger) => {
+          const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = config
+          const langConfig = { ducklingEnabled, ducklingURL, languageSources }
+          const engine = new Engine({ maxCacheSize: modelCacheSize })
+          await engine.initialize(langConfig, logger)
+          return engine
+        },
+        errors: {
+          isTrainingAlreadyStarted,
+          isTrainingCanceled
+        },
+        modelIdService
+      }
     }
   }
 }
@@ -322,11 +340,11 @@ export function createForModule(moduleId: string): Promise<typeof sdk> {
 
 export function createForGlobalHooks(): Promise<typeof sdk> {
   // return Promise.resolve(<typeof sdk>{})
-  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Hooks`, 'hooks')
+  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create('Hooks', 'hooks')
 }
 
 export function createForBotpress(): Promise<typeof sdk> {
-  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Botpress`, 'botpress')
+  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create('Botpress', 'botpress')
 }
 
 export function createForAction(): Promise<typeof sdk> {
