@@ -52,6 +52,7 @@ const LiveChat: React.FC<Props> = ({ handoff, currentAgent }) => {
       showUserAvatar: false,
       enableResetSessionShortcut: false,
       enableTranscriptDownload: false,
+      enableConversationDeletion: false,
       closeOnEscape: false,
       composerPlaceholder: lang.tr('module.hitlnext.conversation.composerPlaceholder'),
       stylesheet: 'assets/modules/hitlnext/webchat-theme.css'
