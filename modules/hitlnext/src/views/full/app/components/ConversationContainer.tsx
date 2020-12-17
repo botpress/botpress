@@ -39,6 +39,16 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
     }
   }
 
+  async function handleDeleteConversation() {
+    try {
+      // TODO: Delete the user and agent channel-X conversation
+
+      toast.success(lang.tr('module.hitlnext.conversation.deleted'))
+    } catch (error) {
+      dispatch({ type: 'setError', payload: error })
+    }
+  }
+
   function currentAgentHasPermission(operation: PermissionOperation): boolean {
     return isOperationAllowed({ user: state.currentAgent, resource: 'module.hitlnext', operation })
   }
@@ -61,6 +71,17 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
           text={lang.tr('module.hitlnext.handoff.resolve')}
         />
       )
+    },
+    state.config.enableConversationDeletion && {
+      content: (
+        <Button
+          className={style.coversationButton}
+          minimal
+          rightIcon="delete"
+          onClick={handleDeleteConversation}
+          text={lang.tr('module.hitlnext.conversation.delete')}
+        />
+      )
     }
   ]
 
@@ -76,6 +97,17 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
           }
           onClick={handleAssign}
           text={lang.tr('module.hitlnext.handoff.assign')}
+        />
+      )
+    },
+    state.config.enableConversationDeletion && selectedHandoff.status === 'resolved' && {
+      content: (
+        <Button
+          className={style.coversationButton}
+          minimal
+          rightIcon="delete"
+          onClick={handleDeleteConversation}
+          text={lang.tr('module.hitlnext.conversation.delete')}
         />
       )
     }
