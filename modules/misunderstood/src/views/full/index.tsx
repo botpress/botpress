@@ -196,12 +196,12 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
 
   fetchEventsAndCounts = async (language: string, dataRange?: DateRange, reason?: FLAG_REASON) => {
     const eventCounts = await this.fetchEventCounts(
-      this.state.language,
+      language || this.state.language,
       dataRange || this.state.dateRange,
       reason !== undefined ? reason : this.state.reason
     )
     const events = await this.fetchEvents(
-      this.state.language,
+      language || this.state.language,
       this.state.selectedStatus,
       dataRange || this.state.dateRange,
       reason !== undefined ? reason : this.state.reason

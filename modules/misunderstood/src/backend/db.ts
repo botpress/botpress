@@ -10,7 +10,8 @@ import {
   FLAGGED_MESSAGE_STATUSES,
   FLAG_REASON,
   ResolutionData,
-  RESOLUTION_TYPE
+  RESOLUTION_TYPE,
+  FilteringOptions
 } from '../types'
 
 import applyChanges from './applyChanges'
@@ -62,7 +63,7 @@ export default class Db {
     botId: string,
     language: string,
     status: FLAGGED_MESSAGE_STATUS,
-    options?: { startDate: Date; endDate: Date; reason?: string }
+    options?: FilteringOptions
   ): Promise<DbFlaggedEvent[]> {
     const query = this.knex(TABLE_NAME)
       .select('*')
@@ -81,7 +82,7 @@ export default class Db {
     }))
   }
 
-  async countEvents(botId: string, language: string, options?: { startDate: Date; endDate: Date; reason?: string }) {
+  async countEvents(botId: string, language: string, options?: FilteringOptions) {
     const query = this.knex(TABLE_NAME)
       .where({ botId, language })
       .select('status')
@@ -171,7 +172,7 @@ export default class Db {
     return applyChanges(this.bp, botId, TABLE_NAME)
   }
 
-  filterQuery(query, options?: { startDate: Date; endDate: Date; reason?: string }) {
+  filterQuery(query, options?: FilteringOptions) {
     const { startDate, endDate, reason } = options || {}
 
     if (startDate && endDate) {

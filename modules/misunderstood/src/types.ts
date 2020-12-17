@@ -54,3 +54,9 @@ export interface ResolutionData {
   resolution: string | null
   resolutionParams?: object | null
 }
+
+export type FilteringOptions = Partial<{
+  startDate: Date
+  endDate: Date
+  reason?: string
+}>
