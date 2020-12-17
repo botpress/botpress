@@ -41,7 +41,14 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
 
   async function handleDeleteConversation() {
     try {
-      // TODO: Delete the user and agent channel-X conversation
+      const selectedHandoffId = state.selectedHandoffId
+      const currentHandoff = state.handoffs[selectedHandoffId]
+
+      // TODO: Add support for other channels
+      if (currentHandoff.userChannel === 'web') {
+        await api.deleteMessagesInChannelWeb(currentHandoff.userThreadId, currentHandoff.userId)
+        await api.deleteMessagesInChannelWeb(currentHandoff.agentThreadId, currentHandoff.agentId)
+      }
 
       toast.success(lang.tr('module.hitlnext.conversation.deleted'))
     } catch (error) {

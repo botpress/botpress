@@ -138,6 +138,20 @@ class RootStore {
   }
 
   @action.bound
+  clearMessages() {
+    this.currentConversation.messages = []
+  }
+
+  @action.bound
+  async deleteConversation(): Promise<void> {
+    if (this.currentConversation !== undefined && this.currentConversation.messages.length > 0) {
+      await this.api.deleteMessages(this.currentConversationId)
+
+      this.clearMessages()
+    }
+  }
+
+  @action.bound
   async addEventToConversation(event: Message): Promise<void> {
     if (this.isInitialized && this.currentConversationId !== Number(event.conversationId)) {
       await this.fetchConversations()
