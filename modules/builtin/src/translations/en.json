@@ -19,9 +19,12 @@
     "image": {
       "description": "A message showing an image with an optional title",
       "imageLabel": "Title",
+      "urlLabel": "URL",
       "labelDesc": "Some platforms require to name the images.",
       "permissionDenied": "You don't have permission to upload files for this bot. Talk to your team owner.",
       "title": "Image",
+      "uploadFileChoice": "Or upload an image",
+      "enterUrlChoice": "Or enter the image URL",
       "uploadImage": "Upload Image"
     },
     "singleChoice": {

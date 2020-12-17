@@ -3,6 +3,7 @@ import axios from 'axios'
 import { lang } from 'botpress/shared'
 import React, { FC, Fragment, useReducer } from 'react'
 import { AccessControl } from '~/components/Shared/Utils'
+import SmartInput from '~/components/SmartInput'
 import style from '~/views/FlowBuilder/sidePanelTopics/form/style.scss'
 
 const UploadWidget: FC<any> = props => {
@@ -37,6 +38,36 @@ const UploadWidget: FC<any> = props => {
         error: null,
         uploading: false
       }
+    } else if (action.type === 'enterUrlManually') {
+      const { enterUrlManually } = action.data
+      return {
+        ...state,
+        error: null,
+        enterUrlManually
+      }
+    } else if (action.type === 'updateUrl') {
+      const { url } = action.data
+
+      return {
+        ...state,
+        error: null,
+        url
+      }
+    } else if (action.type === 'saveUrl') {
+      const { url } = action.data
+
+      props.onChange(url)
+      return {
+        ...state,
+        error: null
+      }
+    } else if (action.type === 'invalidUrl') {
+      const { error } = action.data
+
+      return {
+        ...state,
+        error
+      }
     } else {
       throw new Error("That action type isn't supported.")
     }
@@ -44,10 +75,12 @@ const UploadWidget: FC<any> = props => {
 
   const [state, dispatch] = useReducer(uploadReducer, {
     error: null,
-    uploading: false
+    uploading: false,
+    enterUrlManually: false,
+    url: undefined
   })
 
-  const { error, uploading } = state
+  const { error, enterUrlManually, url } = state
 
   const deleteFile = () => {
     dispatch({ type: 'deleteFile' })
@@ -68,6 +101,24 @@ const UploadWidget: FC<any> = props => {
       .catch(e => {
         dispatch({ type: 'uploadError', data: { error: e.message } })
       })
+  }
+
+  const handleToggleManually = () => {
+    dispatch({ type: 'enterUrlManually', data: { enterUrlManually: !enterUrlManually } })
+  }
+
+  const handleUrlChange = (value: string) => {
+    dispatch({ type: 'updateUrl', data: { url: value } })
+  }
+
+  const saveUrl = () => {
+    try {
+      new URL(url)
+
+      dispatch({ type: 'saveUrl', data: { url } })
+    } catch {
+      dispatch({ type: 'invalidUrl', data: { error: 'Invalid URL' } })
+    }
   }
 
   const { $filter: filter, $subtype: subtype, type } = props.schema
@@ -93,18 +144,45 @@ const UploadWidget: FC<any> = props => {
             </div>
           </div>
         )}
+
         {!value && (
           <Fragment>
-            <FileInput
-              text={lang.tr('module.builtin.types.image.uploadImage')}
-              large
-              inputProps={{
-                id: 'node-image',
-                name: 'nodeImage',
-                accept: 'image/*',
-                onChange: startUpload
-              }}
-            />
+            {!enterUrlManually &&
+              <FileInput
+                text={lang.tr('module.builtin.types.image.uploadImage')}
+                large
+                inputProps={{
+                  id: 'node-image',
+                  name: 'nodeImage',
+                  accept: 'image/*',
+                  onChange: startUpload
+                }}
+              />
+            }
+
+            {enterUrlManually &&
+              <div style={{ display: 'flex' }}>
+                <div style={{ flex: 'auto' }}>
+                  <SmartInput
+                    singleLine
+                    className={style.textarea}
+                    value={url}
+                    onChange={handleUrlChange}
+                  />
+                </div>
+                <Button style={{ flex: 'initial' }} intent={Intent.NONE} onClick={saveUrl} >
+                  {lang.tr('ok')}
+                </Button>
+              </div>
+            }
+
+            <a
+              style={{textAlign: 'right', paddingTop: '10px', display: 'inline-block', width: '100%'}}
+              onClick={handleToggleManually}
+            >
+              {!enterUrlManually ? lang.tr('module.builtin.types.image.enterUrlChoice') : lang.tr('module.builtin.types.image.uploadFileChoice')}
+            </a>
+
             {error && <p className={style.fieldError}>{error}</p>}
           </Fragment>
         )}
