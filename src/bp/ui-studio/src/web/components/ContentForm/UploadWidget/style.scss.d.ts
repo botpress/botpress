@@ -5,6 +5,7 @@ interface CssExports {
   'expressionWrapperActions': string;
   'fieldError': string;
   'flexContainer': string;
+  'italic': string;
   'toggleLink': string;
 }
 declare var cssExports: CssExports;

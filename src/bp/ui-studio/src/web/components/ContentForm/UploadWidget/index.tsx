@@ -124,6 +124,10 @@ const UploadWidget: FC<any> = props => {
 
   const { value } = props
 
+  if (value && !url) {
+    handleUrlChange(value)
+  }
+
   return (
     <AccessControl
       operation="write"
@@ -143,7 +147,7 @@ const UploadWidget: FC<any> = props => {
 
         {value && !isUrlOrRelativePath(value) && (
           <div className={localStyle.expressionWrapper}>
-            {lang.tr('module.builtin.types.image.infoInterpreted')} <i>{value}</i>
+            {lang.tr('module.builtin.types.image.infoInterpreted')} <span className={localStyle.italic}>{value}</span>
 
             <div className={localStyle.expressionWrapperActions}>
               <Tooltip content={lang.tr('delete')} position={Position.TOP}>

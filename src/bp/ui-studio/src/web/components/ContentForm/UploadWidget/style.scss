@@ -20,6 +20,11 @@
   display: inline;
 }
 
+.italic {
+  font-style: italic;
+  word-wrap: break-word;
+}
+
 .expressionWrapper {
   line-height: normal !important;
   overflow: hidden;
