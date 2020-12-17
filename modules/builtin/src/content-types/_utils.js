@@ -1,14 +1,29 @@
 const URL = require("url").URL;
 
-function renderURL(data) {
+function isBpUrl(str) {
+  let re = new RegExp('\/api\/.*\/bots\/.*\/media\/.*');
+
+  re.test(str)
+}
+
+function isUrl(str) {
   try {
-    new URL(data.image)
-    return data.image
+    new URL(str)
+    return true
   } catch {
-    return `${data.BOT_URL}${data.image}`
+    return false
+  }
+}
+
+function formatURL(baseUrl, url) {
+  if (isBpUrl(url)) {
+    return `${baseUrl}${url}`
+  } else {
+    return url
   }
 }
 
 module.exports = { 
-  renderURL: renderURL
- }
+  formatURL: formatURL,
+  isUrl: isUrl
+}

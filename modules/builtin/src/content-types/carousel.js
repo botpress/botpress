@@ -20,7 +20,7 @@ function render(data) {
       collectFeedback: data.collectFeedback,
       elements: data.items.map(card => ({
         title: card.title,
-        picture: card.image ? utils.renderURL({...data, image: card.image}) : null,
+        picture: card.image ? utils.formatURL(data.BOT_URL, card.image) : null,
         subtitle: card.subtitle,
         buttons: (card.actions || []).map(a => {
           if (a.action === 'Say something') {
@@ -58,7 +58,7 @@ function renderMessenger(data) {
 
     return data.items.map(card => ({
       title: card.title,
-      image_url: card.image ? utils.renderURL({...data, image: card.image}) : null,
+      image_url: card.image ? utils.formatURL(data.BOT_URL, card.image) : null,
       subtitle: card.subtitle,
       buttons: (card.actions || []).map(a => {
         if (a.action === 'Say something') {
@@ -129,7 +129,7 @@ function renderSlack(data) {
           },
           accessory: card.image && {
             type: 'image',
-            image_url: utils.renderURL({...data, image: card.image}),
+            image_url: utils.formatURL(data.BOT_URL, card.image),
             alt_text: 'image'
           }
         },

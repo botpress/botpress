@@ -1,10 +1,13 @@
 import { Button, FileInput, Intent, Position, Tooltip } from '@blueprintjs/core'
 import axios from 'axios'
 import { lang } from 'botpress/shared'
+import cn from 'classnames'
 import React, { FC, Fragment, useReducer } from 'react'
 import { AccessControl } from '~/components/Shared/Utils'
 import SmartInput from '~/components/SmartInput'
 import style from '~/views/FlowBuilder/sidePanelTopics/form/style.scss'
+
+import localStyle from './style.scss'
 
 const UploadWidget: FC<any> = props => {
   const uploadReducer = (state, action) => {
@@ -61,13 +64,6 @@ const UploadWidget: FC<any> = props => {
         ...state,
         error: null
       }
-    } else if (action.type === 'invalidUrl') {
-      const { error } = action.data
-
-      return {
-        ...state,
-        error
-      }
     } else {
       throw new Error("That action type isn't supported.")
     }
@@ -77,7 +73,7 @@ const UploadWidget: FC<any> = props => {
     error: null,
     uploading: false,
     enterUrlManually: false,
-    url: undefined
+    url: null
   })
 
   const { error, enterUrlManually, url } = state
@@ -112,13 +108,13 @@ const UploadWidget: FC<any> = props => {
   }
 
   const saveUrl = () => {
-    try {
-      new URL(url)
+    dispatch({ type: 'saveUrl', data: { url } })
+  }
 
-      dispatch({ type: 'saveUrl', data: { url } })
-    } catch {
-      dispatch({ type: 'invalidUrl', data: { error: 'Invalid URL' } })
-    }
+  const isUrlOrRelativePath = (str: string) => {
+    const re = /^(?:[a-z]+:)?\/\/|^\//i
+
+    return re.test(str)
   }
 
   const { $filter: filter, $subtype: subtype, type } = props.schema
@@ -135,9 +131,21 @@ const UploadWidget: FC<any> = props => {
       fallback={<em>{lang.tr('module.builtin.types.image.permissionDenied')}</em>}
     >
       <div className={style.fieldWrapper}>
-        {value && (
+        {value && isUrlOrRelativePath(value) && (
           <div style={{ backgroundImage: `url('${value}')` }} className={style.imgWrapper}>
             <div className={style.imgWrapperActions}>
+              <Tooltip content={lang.tr('delete')} position={Position.TOP}>
+                <Button minimal small intent={Intent.DANGER} icon="trash" onClick={deleteFile}></Button>
+              </Tooltip>
+            </div>
+          </div>
+        )}
+
+        {value && !isUrlOrRelativePath(value) && (
+          <div className={localStyle.expressionWrapper}>
+            {lang.tr('module.builtin.types.image.infoInterpreted')} <i>{value}</i>
+
+            <div className={localStyle.expressionWrapperActions}>
               <Tooltip content={lang.tr('delete')} position={Position.TOP}>
                 <Button minimal small intent={Intent.DANGER} icon="trash" onClick={deleteFile}></Button>
               </Tooltip>
@@ -161,29 +169,30 @@ const UploadWidget: FC<any> = props => {
             }
 
             {enterUrlManually &&
-              <div style={{ display: 'flex' }}>
-                <div style={{ flex: 'auto' }}>
-                  <SmartInput
-                    singleLine
-                    className={style.textarea}
-                    value={url}
-                    onChange={handleUrlChange}
-                  />
-                </div>
-                <Button style={{ flex: 'initial' }} intent={Intent.NONE} onClick={saveUrl} >
+              <div className={localStyle.flexContainer}>
+                <SmartInput
+                  singleLine
+                  className={style.textarea}
+                  value={url}
+                  onChange={handleUrlChange}
+                />
+
+                <Button intent={Intent.NONE} onClick={saveUrl} >
                   {lang.tr('ok')}
                 </Button>
               </div>
             }
 
             <a
-              style={{textAlign: 'right', paddingTop: '10px', display: 'inline-block', width: '100%'}}
+              className={localStyle.toggleLink}
               onClick={handleToggleManually}
             >
-              {!enterUrlManually ? lang.tr('module.builtin.types.image.enterUrlChoice') : lang.tr('module.builtin.types.image.uploadFileChoice')}
+              {!enterUrlManually ?
+                lang.tr('module.builtin.types.image.enterUrlChoice') :
+                lang.tr('module.builtin.types.image.uploadFileChoice')}
             </a>
 
-            {error && <p className={style.fieldError}>{error}</p>}
+            {error && <p className={cn(style.fieldError, localStyle.fieldError)}>{error}</p>}
           </Fragment>
         )}
       </div>
