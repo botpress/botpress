@@ -18,9 +18,9 @@ import {
   RequiredPermission
 } from './AccessControl/typings'
 import { CommanderProps, QuickShortcut } from './Commander/typings'
-import { DropdownProps, Option } from './Dropdown/typings'
 import { ConfirmDialogOptions } from './ConfirmDialog/typings'
 import { DialogProps } from './Dialog/typings'
+import { DropdownProps, Option } from './Dropdown/typings'
 import { EmptyStateProps } from './EmptyState/typings'
 import { FormProps } from './Form/typings'
 import { AddButtonProps, FieldWrapperProps, SelectProps, TextFieldsArrayProps } from './Form/FormFields/typings'
