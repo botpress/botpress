@@ -60,6 +60,8 @@
     "empty": "Aucun commentaires"
   },
   "conversation": {
+    "delete": "Supprimer la conversation",
+    "deleted": "La conversation a été supprimée avec succès",
     "empty": "Sélectionnez une escalation en attente pour engager la conversation avec vos clients.",
     "tab": "Conversation",
     "composerPlaceholder": "Répondre à l'utilisateur"

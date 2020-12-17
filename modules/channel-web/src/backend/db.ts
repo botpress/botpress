@@ -21,8 +21,7 @@ export default class WebchatDb {
 
   constructor(private bp: typeof sdk) {
     this.users = bp.users
-    this.knex = bp['database'] // TODO Fixme
-
+    this.knex = bp.database
     this.batchSize = this.knex.isLite ? 40 : 2000
 
     setInterval(() => this.flush(), ms('1s'))
@@ -364,6 +363,16 @@ export default class WebchatDb {
 
     return Object.assign({}, conversation, {
       messages: _.orderBy(messages, ['sent_on'], ['asc'])
+    })
+  }
+
+  async deleteConversationMessages(conversationId: string) {
+    return this.knex.transaction(async trx => {
+      // TODO: Delete the related events using bp SDK
+
+      await trx('web_messages')
+        .del()
+        .where({ conversationId })
     })
   }
 

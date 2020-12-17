@@ -59,6 +59,8 @@
     "empty": "No comments"
   },
   "conversation": {
+    "delete": "Delete conversation",
+    "deleted": "Conversation successfully deleted",
     "empty": "Select a pending handoff to engage conversation with your clients.",
     "tab": "Conversation",
     "composerPlaceholder": "Reply to user"
