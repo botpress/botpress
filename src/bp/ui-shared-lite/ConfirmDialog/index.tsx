@@ -1,9 +1,14 @@
 // @ts-nocheck
+
+// WARN: This component was duplicated from ui-shared since we
+// needed a lite version that wasn't tied to any i18 library.
+
+// TODO: Find a way to use ui-shared version of the ConfirmDialog as a lite component
 import { Button, Classes, Icon, Intent } from '@blueprintjs/core'
 import React, { FC } from 'react'
 import ReactDOM from 'react-dom'
 
-import { Body, Footer, Wrapper } from '../Dialog'
+import { Body, Footer, Wrapper } from '../../ui-shared/src/Dialog'
 
 import styles from './style.scss'
 import { ConfirmDialogOptions, ConfirmDialogProps } from './typings'
