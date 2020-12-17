@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 import { allInRange, GetZPercent, std } from '../tools/math'
 
-import { NONE_INTENT, PredictOutput } from './typings'
+import { NONE_INTENT } from './typings'
 
 const OOS_AS_NONE_TRESH = 0.4
 const LOW_INTENT_CONFIDENCE_TRESH = 0.4
@@ -13,14 +13,13 @@ export default function legacyElectionPipeline(input: sdk.IO.EventUnderstanding)
   if (!input.predictions) {
     return input
   }
-  let step: PredictOutput = input as PredictOutput
-  step = electIntent(step)
+  let step = electIntent(input)
   step = detectAmbiguity(step)
   step = extractElectedIntentSlot(step)
   return step
 }
 
-function electIntent(input: PredictOutput): PredictOutput {
+function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {
   const allCtx = Object.keys(input.predictions)
 
   const ctx_predictions = allCtx.map(label => {
@@ -122,7 +121,7 @@ function electIntent(input: PredictOutput): PredictOutput {
   }
 }
 
-function detectAmbiguity(input: PredictOutput): PredictOutput {
+function detectAmbiguity(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {
   // +- 10% away from perfect median leads to ambiguity
   const preds = input.intents!
   const perfectConfusion = 1 / preds.length
@@ -138,7 +137,7 @@ function detectAmbiguity(input: PredictOutput): PredictOutput {
   return { ...input, ambiguous }
 }
 
-function extractElectedIntentSlot(input: PredictOutput): PredictOutput {
+function extractElectedIntentSlot(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {
   const intentWasElectedWithoutAmbiguity = input?.intent?.name && !_.isEmpty(input.predictions) && !input.ambiguous
   const intentIsNone = input?.intent?.name === NONE_INTENT
   if (!intentWasElectedWithoutAmbiguity || intentIsNone) {

@@ -1,4 +1,4 @@
-import sdk from 'botpress/sdk'
+import sdk, { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 import { handleActions } from 'redux-actions'
 import { trainSessionReceived } from '~/actions'
@@ -6,19 +6,25 @@ import { trainSessionReceived } from '~/actions'
 export interface NLUReducer {
   entities?: sdk.NLU.EntityDefinition[]
   intents?: sdk.NLU.IntentDefinition[]
-  trainSession?: sdk.NLU.TrainingSession
+  trainSessions: { [lang: string]: sdk.NLU.TrainingSession }
 }
 
 const defaultState: NLUReducer = {
-  trainSession: undefined
+  trainSessions: {}
 }
 
 export default handleActions(
   {
-    [trainSessionReceived]: (state, { payload }) => ({
-      ...state,
-      trainSession: payload
-    })
+    [trainSessionReceived]: (state, { payload }) => {
+      const trainSession: NLU.TrainingSession = payload
+      return {
+        ...state,
+        trainSessions: {
+          ...state.trainSessions,
+          [trainSession.language]: trainSession
+        }
+      }
+    }
   },
   defaultState
 )

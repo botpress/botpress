@@ -11,46 +11,8 @@
   width: 100%;
   z-index: 1000;
 
-  :global(.bp3-button).button {
-    background-color: var(--seashell);
-    color: var(--shark);
-    min-height: 0;
-    border-radius: 3px;
-    font-size: 10px;
-    height: 20px;
-    padding: 6px;
-    transition: background 0.3s ease-in-out;
-
-    &:hover {
-      background-color: var(--gray);
-    }
-
-    &.danger {
-      background-color: var(--lighthouse);
-      color: white;
-
-      &:hover {
-        background-color: var(--hover-lighthouse);
-      }
-    }
-  }
-
-  .pending {
-    background-color: var(--c-background--dark-2);
-    display: flex;
-
-    &.text {
-      margin-right: 1em;
-    }
-  }
-
   .botName {
     color: var(--c-text--light);
-  }
-
-  .message {
-    color: var(--gray);
-    // margin-right: 10px;
   }
 
   .item {

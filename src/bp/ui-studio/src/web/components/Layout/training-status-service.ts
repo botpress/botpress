@@ -13,15 +13,15 @@ export class TrainingStatusService {
   }
 
   public listen() {
-    EventBus.default.on('statusbar.event', this.onStatusBarEvent)
+    EventBus.default.on('statusbar.event', this._onStatusBarEvent)
   }
 
   public stopListening() {
-    EventBus.default.off('statusbar.event', this.onStatusBarEvent)
+    EventBus.default.off('statusbar.event', this._onStatusBarEvent)
   }
 
-  private onStatusBarEvent = async event => {
-    const isNLUEvent = event.botId === window.BOT_ID && event.trainSession?.language === this.language
+  private _onStatusBarEvent = async event => {
+    const isNLUEvent = event.botId === window.BOT_ID
     if (isNLUEvent) {
       this.callback(event.trainSession)
     }
