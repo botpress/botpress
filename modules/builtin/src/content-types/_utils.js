@@ -1,7 +1,7 @@
 const URL = require("url").URL;
 
 function isBpUrl(str) {
-  let re = new RegExp('\/api\/.*\/bots\/.*\/media\/.*');
+  let re = /\/api\/.*\/bots\/.*\/media\/.*/i
 
   re.test(str)
 }

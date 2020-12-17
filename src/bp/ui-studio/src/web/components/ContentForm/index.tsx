@@ -14,7 +14,7 @@ import ArrayFieldTemplate from './ArrayFieldTemplate'
 import FlowPickWidget from './FlowPickWidget'
 import RefWidget from './RefWidget'
 import Text from './Text'
-import UploadWidget from './UploadWidget/UploadWidget'
+import UploadWidget from './UploadWidget'
 
 interface Props {
   contentLang: string
