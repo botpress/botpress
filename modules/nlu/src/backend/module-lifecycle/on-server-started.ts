@@ -43,7 +43,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
       }
 
       try {
-        const { botId, preview, nlu } = event
+        const { botId, preview } = event
         const { engine, nluByBot } = state
         const { defaultLanguage, modelsByLang, modelService } = nluByBot[botId]
 
@@ -57,9 +57,10 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
           defaultLanguage,
           bp.logger.forBot(botId)
         )
-        const nluResults = await predictionHandler.predict(preview, nlu?.includedContexts)
+        const nluResults = await predictionHandler.predict(preview)
 
-        _.merge(event, { nlu: nluResults ?? {} })
+        const nlu = { ...nluResults, includedContexts: event.nlu?.includedContexts ?? [] }
+        _.merge(event, { nlu })
         removeSensitiveText(event)
       } catch (err) {
         bp.logger.warn(`Error extracting metadata for incoming text: ${err.message}`)

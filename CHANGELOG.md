@@ -1,3 +1,18 @@
+## [12.15.2](https://github.com/botpress/botpress/compare/v12.14.1...v12.15.2) (2020-12-15)
+
+
+### Bug Fixes
+
+* **core:** various improvements for archives ([#4281](https://github.com/botpress/botpress/issues/4281)) ([b3ef9da](https://github.com/botpress/botpress/commit/b3ef9da))
+
+
+### Features
+
+* **core:** set any botpress config from env var ([#4300](https://github.com/botpress/botpress/issues/4300)) ([3d5f3c0](https://github.com/botpress/botpress/commit/3d5f3c0))
+* **nlu:** training button trains current studio lang ([#4286](https://github.com/botpress/botpress/issues/4286)) ([ed2aaf0](https://github.com/botpress/botpress/commit/ed2aaf0))
+
+
+
 ## [12.15.1](https://github.com/botpress/botpress/compare/v12.14.1...v12.15.1) (2020-12-09)
 
 
@@ -51,6 +66,7 @@
 * **core:** deprecate set attributes ([#4255](https://github.com/botpress/botpress/issues/4255)) ([02ea1cc](https://github.com/botpress/botpress/commit/02ea1cc))
 * **studio:** width of emulator ([#4259](https://github.com/botpress/botpress/issues/4259)) ([e4fa004](https://github.com/botpress/botpress/commit/e4fa004))
 * **studio:** default emulator avatar style ([#4256](https://github.com/botpress/botpress/pull/4256))
+
 
 
 ## [12.14.1](https://github.com/botpress/botpress/compare/v12.13.2...v12.14.1) (2020-12-02)

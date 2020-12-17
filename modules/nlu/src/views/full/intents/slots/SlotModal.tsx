@@ -1,21 +1,43 @@
-import React from 'react'
-import nanoid from 'nanoid'
-import random from 'lodash/random'
-
-import { Dialog, Button, Classes, FormGroup, Intent } from '@blueprintjs/core'
-import { EntitySelector } from './EntitySelector'
+import { Button, Classes, Dialog, FormGroup, Intent } from '@blueprintjs/core'
+import { NLU } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
+import _ from 'lodash'
+import random from 'lodash/random'
+import nanoid from 'nanoid'
+import React from 'react'
+
+import { NLUApi } from '../../../../api'
+
+import { SlotOperation } from './typings'
+import { EntitySelector } from './EntitySelector'
 
 const N_COLORS = 12
-const INITIAL_STATE = {
+const INITIAL_STATE: State = {
   id: null,
   name: '',
   entities: [],
   editing: false,
-  color: false
+  color: 0
 }
 
-export default class SlotModal extends React.Component {
+interface State extends NLU.SlotDefinition {
+  id: null | string
+  name: string
+  entities: string[]
+  editing: boolean
+  color: number
+}
+
+interface Props {
+  api: NLUApi
+  slot: NLU.SlotDefinition
+  slots: NLU.SlotDefinition[]
+  show: boolean
+  onSlotSave: (slot: NLU.SlotDefinition, operation: SlotOperation) => void
+  onHide: () => void
+}
+
+export default class SlotModal extends React.Component<Props, State> {
   nameInput = null
   state = { ...INITIAL_STATE }
 
@@ -40,7 +62,9 @@ export default class SlotModal extends React.Component {
   initializeFromProps = () => {
     if (this.props.slot) {
       this.setState({ ...this.props.slot, editing: true })
-    } else this.resetState()
+    } else {
+      this.resetState()
+    }
   }
 
   resetState = () => this.setState({ ...INITIAL_STATE })
@@ -48,7 +72,7 @@ export default class SlotModal extends React.Component {
   getNextAvailableColor = () => {
     const maxColor = _.get(_.maxBy(this.props.slots, 'color'), 'color') || 0
 
-    //if no more colors available, we return a random color
+    // if no more colors available, we return a random color
     return maxColor <= N_COLORS ? maxColor + 1 : random(1, N_COLORS)
   }
 
@@ -84,7 +108,7 @@ export default class SlotModal extends React.Component {
         <div className={Classes.DIALOG_BODY}>
           <FormGroup label={lang.tr('name')}>
             <input
-              tabIndex="1"
+              tabIndex={1}
               ref={el => (this.nameInput = el)}
               className={`${Classes.INPUT} ${Classes.FILL}`}
               value={this.state.name}
