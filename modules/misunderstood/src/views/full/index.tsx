@@ -92,7 +92,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     const eventCounts = await this.fetchEventCounts(
       language || this.state.language,
       dateRange || this.state.dateRange,
-      reason != undefined ? reason : this.state.reason
+      reason !== undefined ? reason : this.state.reason
     )
     await this.setStateP({ eventCounts })
   }
@@ -216,11 +216,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
   }
 
   handleDateChange = async (dateRange: DateRange) => {
-    const { eventCounts, events, event } = await this.fetchEventsAndCounts(
-      this.state.language,
-      dateRange,
-      this.state.reason
-    )
+    const { eventCounts, events, event } = await this.fetchEventsAndCounts(this.state.language, dateRange)
 
     await this.setStateP({
       dateRange,
