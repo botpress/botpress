@@ -1,9 +1,8 @@
-// @ts-nocheck
 import { Button, Classes, Icon, Intent } from '@blueprintjs/core'
-import '@blueprintjs/core/lib/css/blueprint.css'
 import React, { FC } from 'react'
 import ReactDOM from 'react-dom'
 
+import { lang } from '../translations'
 import { Body, Footer, Wrapper } from '../Dialog'
 
 import styles from './style.scss'
@@ -32,22 +31,24 @@ const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
         </div>
       </Body>
       <Footer>
-        <Button
-          id="confirm-dialog-decline"
-          className={Classes.BUTTON}
-          type="button"
-          onClick={onDecline}
-          text={props.declineLabel}
-          tabIndex={2}
-          intent={Intent.NONE}
-        />
+        {props.showDecline && (
+          <Button
+            id="confirm-dialog-decline"
+            className={Classes.BUTTON}
+            type="button"
+            onClick={onDecline}
+            text={props.declineLabel || lang('cancel')}
+            tabIndex={2}
+            intent={Intent.NONE}
+          />
+        )}
         <Button
           id="confirm-dialog-accept"
           className={Classes.BUTTON}
           type="button"
           autoFocus
           onClick={onAccept}
-          text={props.acceptLabel}
+          text={props.acceptLabel || lang('ok')}
           tabIndex={3}
           intent={Intent.WARNING}
         />
@@ -61,7 +62,8 @@ const defaultConfirmOptions: ConfirmDialogOptions = {
   accept: () => {},
   acceptLabel: 'Confirm',
   decline: () => {},
-  declineLabel: 'Decline'
+  declineLabel: 'Decline',
+  showDecline: true
 }
 
 const confirmDialog = (message: string, options: ConfirmDialogOptions): Promise<boolean> => {

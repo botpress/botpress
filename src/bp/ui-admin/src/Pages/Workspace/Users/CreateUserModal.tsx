@@ -13,7 +13,7 @@ import { fetchAvailableUsers } from '../../../reducers/user'
 import AuthStrategyDropdown from './AuthStrategyDropdown'
 
 interface OwnProps {
-  isOpen: boolean
+  isOpen?: boolean
   toggleOpen?: () => void
   onUserAdded?: () => void
   onUserCreated?: (newUser: CreatedUser) => void

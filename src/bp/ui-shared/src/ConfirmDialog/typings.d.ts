@@ -1,10 +1,10 @@
-// @ts-nocheck
 export interface ConfirmDialogOptions {
   title?: string
   accept?: () => void
   decline?: () => void
-  acceptLabel: string
-  declineLabel: string
+  acceptLabel?: string
+  declineLabel?: string
+  showDecline?: boolean
   body?: JSX.Element
 }
 

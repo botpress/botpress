@@ -1,14 +1,11 @@
 import { FormField, MultiLangText } from 'botpress/sdk'
-import { IDialogProps } from '@blueprintjs/core'
 import { IDateRangeShortcut } from '@blueprintjs/datetime'
 import { IDates } from 'common/dates'
 import React from 'react'
 
 import { CheckboxProps } from '../../ui-shared-lite/Checkbox/typings'
 import { CollapsibleProps } from '../../ui-shared-lite/Collapsible/typings'
-import { ConfirmDialogOptions } from '../../ui-shared-lite/ConfirmDialog/typings'
 import { ContentSectionProps } from '../../ui-shared-lite/ContentSection/typings'
-import { DialogProps } from '../../ui-shared-lite/Dialog/typings'
 import { MoreOptionsProps } from '../../ui-shared-lite/MoreOptions/typings'
 import { OverlayProps } from '../../ui-shared-lite/Overlay/typings'
 import { TabsProps } from '../../ui-shared-lite/Tabs/typings'
@@ -22,6 +19,8 @@ import {
 } from './AccessControl/typings'
 import { CommanderProps, QuickShortcut } from './Commander/typings'
 import { DropdownProps, Option } from './Dropdown/typings'
+import { ConfirmDialogOptions } from './ConfirmDialog/typings'
+import { DialogProps } from './Dialog/typings'
 import { EmptyStateProps } from './EmptyState/typings'
 import { FormProps } from './Form/typings'
 import { AddButtonProps, FieldWrapperProps, SelectProps, TextFieldsArrayProps } from './Form/FormFields/typings'
@@ -44,7 +43,7 @@ declare module 'botpress/shared' {
   export function Collapsible(props: CollapsibleProps): JSX.Element
   export function Commander(props: CommanderProps): JSX.Element
   export const Dialog: {
-    Wrapper(props: DialogProps & IDialogProps): JSX.Element
+    Wrapper(props: DialogProps): JSX.Element
     Body(props: { children: any; className?: string }): JSX.Element
     Footer(props: { children: any }): JSX.Element
   }
