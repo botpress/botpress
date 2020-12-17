@@ -3,13 +3,19 @@ import fs from 'fs'
 import _ from 'lodash'
 import lru from 'lru-cache'
 import ms from 'ms'
+import os from 'os'
 import path from 'path'
+import process from 'process'
 import { VError } from 'verror'
-
 import toolkit from '../../ml/toolkit'
 import Logger from '../../simple-logger'
-
 import { LoadedBPEModel, LoadedFastTextModel, ModelFileInfo, ModelSet } from './typing'
+
+interface RamInfos {
+  used: number
+  total: number
+  prediction: number
+}
 
 const maxAgeCacheInMS = ms('24h')
 
@@ -18,6 +24,14 @@ const FAST_TEXT_MODEL_REGEX = /^(\w+)\.(\w+)\.(\d+)\.bin$/i
 
 // Examples: "scope.en.bpe.model" "bp.en.bpe.model"
 const BPE_MODEL_REGEX = /^(\w+)\.(\w+)\.bpe\.model$/i
+
+const checkEnoughRam = (langNb: number, dims: number): RamInfos => {
+  return {
+    used: Number.parseFloat((os.freemem() / (1024 * 1024 * 1024)).toFixed(2)),
+    total: Number.parseFloat((os.totalmem() / (1024 * 1024 * 1024)).toFixed(2)),
+    prediction: (dims > 101 ? 4.0 : 2.0) * langNb
+  }
+}
 
 export default class LanguageService {
   private _models: Dic<ModelSet> = {}
@@ -40,6 +54,19 @@ export default class LanguageService {
 
     this._models = this._getModels()
     const languages = Object.keys(this._models)
+
+    const ramInfos = checkEnoughRam(languages.length, this.dim)
+
+    this.logger.info(`Pred ${ramInfos.prediction} // Used ${ramInfos.used} // Total ${ramInfos.total}`)
+    if (ramInfos.prediction < ramInfos.total - ramInfos.used) {
+      this.logger.info(`Lang server will take ~${ramInfos.prediction}Gb or more`)
+    } else {
+      this.logger.warn(
+        `Lang server will take at least ${ramInfos.prediction}Gb and you have approximately ${ramInfos.total -
+          ramInfos.used}Gb left on ${ramInfos.total}`
+      )
+      this.logger.warn('Botpress language server will possibly crash due to ram usage.')
+    }
 
     this.logger.info(`Found Languages: ${!languages.length ? 'None' : languages.join(', ')}`)
     await Promise.mapSeries(languages, this._loadModels.bind(this))
