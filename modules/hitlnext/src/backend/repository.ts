@@ -109,7 +109,7 @@ export default class Repository {
           comments: {}
         }
 
-        if (row[`tags`]) {
+        if (row['tags']) {
           memo[row.id].tags = this.bp.database.json.get(row.tags)
         }
 

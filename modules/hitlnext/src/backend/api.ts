@@ -184,23 +184,24 @@ export default async (bp: typeof sdk, state: StateType) => {
   router.post(
     '/handoffs/:id',
     errorMiddleware(async (req: Request, res: Response) => {
+      const { botId, id } = req.params
       const payload: Pick<IHandoff, 'tags'> = {
         ..._.pick(req.body, ['tags'])
       }
 
       Joi.attempt(payload, UpdateHandoffSchema)
 
-      const handoff = await repository.updateHandoff(req.params.botId, req.params.id, payload)
-      state.cacheHandoff(req.params.botId, handoff.userThreadId, handoff)
+      const handoff = await repository.updateHandoff(botId, id, payload)
+      state.cacheHandoff(botId, handoff.userThreadId, handoff)
 
-      realtime.sendPayload(req.params.botId, {
+      realtime.sendPayload(botId, {
         resource: 'handoff',
         type: 'update',
         id: handoff.id,
         payload: handoff
       })
 
-      res.status(200).send(handoff)
+      res.send(handoff)
     })
   )
 
