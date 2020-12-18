@@ -80,6 +80,13 @@ class ViewStore {
   }
 
   @computed
+  get showDeleteConversationButton() {
+    return (
+      !this.isConversationsDisplayed && !this.isBotInfoDisplayed && this.rootStore.config.enableConversationDeletion
+    )
+  }
+
+  @computed
   get showResetButton() {
     return !this.isConversationsDisplayed && !this.isBotInfoDisplayed && this.rootStore.config?.enableReset
   }

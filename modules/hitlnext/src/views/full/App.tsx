@@ -27,11 +27,42 @@ const App: FC<Props> = ({ bp }) => {
 
   const [loading, setLoading] = useState(true)
 
-  function handleMessage(message: ISocketMessage) {
+  const handoffCreatedNotification = _.debounce(async () => {
+    if (document.visibilityState === 'hidden') {
+      await flashSound()
+    }
+  }, 1000)
+
+  const handoffUpdatedNotification = _.debounce(async () => {
+    if (!document.hasFocus()) {
+      flashTitle(lang.tr('module.hitlnext.newMessage'))
+    }
+  })
+
+  function flashTitle(message: string) {
+    const original = document.title
+    document.title = message
+
+    window.setTimeout(() => {
+      document.title = original
+    }, 1000)
+  }
+
+  async function flashSound() {
+    const audio = new Audio(`${window.ROOT_PATH}/assets/modules/channel-web/notification.mp3`)
+    await audio.play().catch(err => {}) // swallow, see https://goo.gl/xX8pDD
+  }
+
+  async function handleMessage(message: ISocketMessage) {
     switch (message.resource) {
       case 'agent':
         return dispatch({ type: 'setAgent', payload: message })
       case 'handoff':
+        if (message.type === 'update') {
+          await handoffUpdatedNotification()
+        } else if (message.type === 'create') {
+          await handoffCreatedNotification()
+        }
         return dispatch({
           type: 'setHandoff',
           payload: _.thru(message, () => {

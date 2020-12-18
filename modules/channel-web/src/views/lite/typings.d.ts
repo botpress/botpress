@@ -144,6 +144,7 @@ export interface Config {
   showUserAvatar: boolean
   showTimestamp: boolean
   enableTranscriptDownload: boolean
+  enableConversationDeletion: boolean
   enableArrowNavigation: boolean
   closeOnEscape: boolean
   botName?: string

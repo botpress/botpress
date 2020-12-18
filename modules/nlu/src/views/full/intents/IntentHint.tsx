@@ -13,7 +13,6 @@ import style from './style.scss'
 interface Props {
   intent: sdk.NLU.IntentDefinition
   contentLang: string
-  axios: AxiosInstance
   liteEditor: boolean
 }
 

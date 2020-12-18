@@ -225,6 +225,11 @@
       "conflictWarning": "Conflict warning",
       "documentation": "documentation",
       "downloadArchive": "Download archive",
+      "preparingArchive": "Preparing archive...",
+      "downloadProgress": "Downloading... {progress}% completed",
+      "uploadProgress": "Uploading... {progress}% completed",
+      "forcePushInfo": "Force-pushing will skip the comparison between your local changes and the remote changes, and will overwrite the remote data",
+      "processing": "Processing archive...",
       "forMorInfo": "for more information.",
       "forcePush": "Force push my changes",
       "pleaseWait": "Please wait...",
@@ -277,7 +282,8 @@
           "archive": "Bot Archive",
           "fromArchive": "Import bot from archive",
           "import": "Import Bot",
-          "overwrite": "Overwrite existing bot"
+          "overwrite": "Overwrite existing bot",
+          "successful": "Import of bot {details} successful!"
         },
         "importExisting": "Import Existing",
         "item": {

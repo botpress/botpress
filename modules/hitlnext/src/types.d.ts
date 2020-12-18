@@ -9,6 +9,7 @@ declare global {
     }
     BOT_ID: string
     BP_STORAGE: any
+    ROOT_PATH: string
   }
 }
 export interface AuthRule {

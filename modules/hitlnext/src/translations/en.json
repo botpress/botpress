@@ -13,6 +13,7 @@
   },
   "sortBy": "Sort By",
   "filterBy": "Filter By",
+  "newMessage": "New Message",
   "agent": {
     "status": "Status: {status}",
     "name": "Name: {name}",
@@ -58,6 +59,8 @@
     "empty": "No comments yet."
   },
   "conversation": {
+    "delete": "Delete conversation",
+    "deleted": "Conversation successfully deleted",
     "empty": "Select a pending handoff to engage conversation with your clients.",
     "tab": "Conversation",
     "composerPlaceholder": "Reply to user"
