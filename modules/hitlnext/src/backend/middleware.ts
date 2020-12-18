@@ -16,7 +16,7 @@ const debug = DEBUG(MODULE_NAME)
 
 const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   const handoffCache = new LRU<string, string>({ max: 1000, maxAge: ms('1 day') })
-  const agentCache = new LRU<string, Omit<IAgent, 'online'>>({ max: 1000, maxAge: ms('1 day') })
+  const agentCache = <Omit<IAgent, 'online'>>{}
   const repository = new Repository(bp, state.timeouts)
   const realtime = Socket(bp)
 
@@ -32,7 +32,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   }
 
   const getCachedAgent = (agentId: string) => {
-    return agentCache.get(agentId)
+    return agentCache[agentId]
   }
 
   const cacheHandoff = (botId: string, threadId: string, handoff: IHandoff) => {
@@ -42,7 +42,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
 
   const cacheAgent = (agentId: string, agent: IAgent) => {
     debug('Caching agent', { id: agent.agentId })
-    agentCache.set(agentId, agent)
+    agentCache[agentId] = agent
   }
 
   const expireHandoff = (botId: string, threadId: string) => {
