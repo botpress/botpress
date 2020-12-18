@@ -124,8 +124,9 @@ const UploadWidget: FC<any> = props => {
 
   const { value } = props
 
-  if (value && !url) {
-    handleUrlChange(value)
+  const re = /^\/api\/.*\/bots\/.*\/media\/.*/g
+  if (value && !url && !re.test(value)) {
+      handleUrlChange(value)
   }
 
   return (
