@@ -55,20 +55,24 @@ export default class Repository {
    */
   constructor(private bp: typeof sdk, private timeouts: object) {}
 
-  // This mutates object
-  private castDate(object: object, paths: string[]) {
+  private serializeDate(object: object, paths: string[]) {
+    const result = _.clone(object)
+
     paths.map(path => {
-      _.has(object, path) && _.set(object, path, this.bp.database.date.format(_.get(object, path)))
+      _.has(object, path) && _.set(result, path, this.bp.database.date.format(_.get(object, path)))
     })
-    return object
+
+    return result
   }
 
-  // This mutates object
-  private castJson(object: object, paths: string[]) {
+  private serializeJson(object: object, paths: string[]) {
+    const result = _.clone(object)
+
     paths.map(path => {
-      _.has(object, path) && _.set(object, path, this.bp.database.json.set(_.get(object, path)))
+      _.has(object, path) && _.set(result, path, this.bp.database.json.set(_.get(object, path)))
     })
-    return object
+
+    return result
   }
 
   private applyLimit(query: Knex.QueryBuilder, conditions?: CollectionConditions) {
@@ -423,7 +427,7 @@ export default class Repository {
 
   createHandoff = async (botId: string, attributes: Partial<IHandoff>) => {
     const now = new Date()
-    const payload = this.castDate(
+    const payload = this.serializeDate(
       {
         ...attributes,
         botId,
@@ -441,14 +445,13 @@ export default class Repository {
 
   updateHandoff = async (botId: string, id: string, attributes: Partial<IHandoff>) => {
     const now = new Date()
-    let payload = this.castDate(
-      {
-        ...attributes,
-        updatedAt: now
-      },
-      ['assignedAt', 'resolvedAt', 'updatedAt']
-    )
-    payload = this.castJson(attributes, ['tags'])
+    const payload = _.flow(
+      attrs => this.serializeDate(attrs, ['assignedAt', 'resolvedAt', 'updatedAt']),
+      attrs => this.serializeJson(attrs, ['tags'])
+    )({
+      ...attributes,
+      updatedAt: now
+    })
 
     return this.bp.database.transaction(async trx => {
       await trx<IHandoff>(HANDOFF_TABLE_NAME)
@@ -460,7 +463,7 @@ export default class Repository {
 
   createComment = (attributes: Partial<IComment>) => {
     const now = new Date()
-    const payload = this.castDate(
+    const payload = this.serializeDate(
       {
         ...attributes,
         updatedAt: now,
