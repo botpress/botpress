@@ -30,9 +30,10 @@ export const Tags: FC<Props> = ({ handoff, api }) => {
   }
 
   function handleRemove(value, index) {
+    const initial = items
     const updated = _.filter(items, (v, i) => i != index)
     setItems(updated) // Optimistic update
-    api.updateHandoff(id, { tags: updated }).catch(error => setItems(updated.slice(0, -1)))
+    api.updateHandoff(id, { tags: updated }).catch(error => setItems(initial))
   }
 
   function renderTag(tag: string) {
