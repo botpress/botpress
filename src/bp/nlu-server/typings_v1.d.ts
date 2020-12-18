@@ -7,21 +7,18 @@
  */
 export interface TrainInput {
   language: string
-  contexts: ContextDefinition[]
+  contexts: string[]
+  intents: IntentDefinition[]
   entities: (ListEntityDefinition | PatternEntityDefinition)[]
   password: string
   seed?: number
 }
 
-export interface ContextDefinition {
-  name: string
-  intents: IntentDefinition[]
-}
-
 export interface IntentDefinition {
   name: string
-  slots: SlotDefinition[]
+  contexts: string[]
   utterances: string[]
+  slots: SlotDefinition[]
 }
 
 export interface SlotDefinition {
