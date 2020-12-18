@@ -1,4 +1,4 @@
-import { Collapsible, lang } from 'botpress/shared'
+import { Collapsible, EmptyState, lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useContext, useState } from 'react'
 import { MenuItem } from '@blueprintjs/core'
@@ -72,6 +72,7 @@ export const Tags: FC<Props> = ({ handoff, api }) => {
       name={lang.tr('module.hitlnext.tags.heading')}
       ownProps={{ transitionDuration: 10 }}
     >
+      {_.isEmpty(state.config.tags) && <EmptyState text={lang.tr('module.hitlnext.tags.empty')} />}
       {!_.isEmpty(state.config.tags) && (
         <StringMultiSelect
           fill={true}

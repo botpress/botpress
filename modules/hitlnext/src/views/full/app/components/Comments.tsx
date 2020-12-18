@@ -1,4 +1,4 @@
-import { Collapsible, lang } from 'botpress/shared'
+import { Collapsible, EmptyState, lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useContext, useState } from 'react'
 
@@ -36,6 +36,7 @@ export const Comments: FC<Props> = ({ handoff, api }) => {
         name={lang.tr('module.hitlnext.comments.heading')}
         ownProps={{ transitionDuration: 10 }}
       >
+        {_.isEmpty(comments) && <EmptyState text={lang.tr('module.hitlnext.comments.empty')} />}
         {comments.map(comment => {
           return <Comment key={comment.id} {...comment}></Comment>
         })}

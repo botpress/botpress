@@ -55,7 +55,7 @@
   },
   "comments": {
     "heading": "Notes from agents",
-    "empty": "No comments"
+    "empty": "No comments yet."
   },
   "conversation": {
     "empty": "Select a pending handoff to engage conversation with your clients.",
@@ -79,6 +79,7 @@
   },
   "tags": {
     "heading": "Handoff labels",
+    "empty": "Tags are not enabled for this bot.",
     "placeholder": "Add or remove labels"
   }
 }
