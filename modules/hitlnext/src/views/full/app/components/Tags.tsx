@@ -1,8 +1,8 @@
-import { Collapsible, EmptyState, lang } from 'botpress/shared'
-import _ from 'lodash'
-import React, { FC, Fragment, useContext, useState } from 'react'
 import { MenuItem } from '@blueprintjs/core'
 import { MultiSelect } from '@blueprintjs/select'
+import { Collapsible, EmptyState, lang } from 'botpress/shared'
+import _ from 'lodash'
+import React, { FC, useContext, useState } from 'react'
 
 import { IHandoff } from '../../../../types'
 import { ApiType } from '../../Api'
@@ -23,15 +23,15 @@ export const Tags: FC<Props> = ({ handoff, api }) => {
   const [items, setItems] = useState(_.compact(_.castArray(tags)))
   const [availableItems, setAvailableItems] = useState(state.config.tags)
 
-  function handleSelect(value, index) {
+  function handleSelect(value: string) {
     const updated = [...items, value]
     setItems(updated) // Optimistic update
     api.updateHandoff(id, { tags: updated }).catch(error => setItems(updated.slice(0, -1)))
   }
 
-  function handleRemove(value, index) {
+  function handleRemove(v: string, index: number) {
     const initial = items
-    const updated = _.filter(items, (v, i) => i != index)
+    const updated = _.filter(items, (v, i) => i !== index)
     setItems(updated) // Optimistic update
     api.updateHandoff(id, { tags: updated }).catch(error => setItems(initial))
   }
@@ -40,7 +40,7 @@ export const Tags: FC<Props> = ({ handoff, api }) => {
     return tag
   }
 
-  function renderItem(tag, { modifiers, handleClick }) {
+  function renderItem(tag: string, { modifiers, handleClick }) {
     if (!modifiers.matchesPredicate) {
       return null
     }

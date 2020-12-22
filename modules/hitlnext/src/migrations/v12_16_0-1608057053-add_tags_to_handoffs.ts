@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+
 import { MODULE_NAME } from '../constants'
 
 const migration: sdk.ModuleMigration = {

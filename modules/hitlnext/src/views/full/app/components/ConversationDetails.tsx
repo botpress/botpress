@@ -8,8 +8,8 @@ import style from '../../style.scss'
 import { ApiType } from '../../Api'
 
 import { Comments } from './Comments'
-import UserProfile from './UserProfile'
 import { Tags } from './Tags'
+import UserProfile from './UserProfile'
 
 interface Props {
   api: ApiType
