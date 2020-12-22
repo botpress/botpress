@@ -149,7 +149,7 @@ export class TwilioClient {
         }
       }
 
-      const args = { mediaUrl: picture }
+      const args = { mediaUrl: picture ? picture : undefined }
       await this.sendOptions(event, body, args, options)
     }
   }
