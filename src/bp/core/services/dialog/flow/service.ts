@@ -3,9 +3,11 @@ import { ObjectCache } from 'common/object-cache'
 import { FlowMutex, FlowView, NodeView } from 'common/typings'
 import { ModuleLoader } from 'core/module-loader'
 import { RealTimePayload } from 'core/sdk/impl'
+import { BotService } from 'core/services/bot-service'
 import { KeyValueStore } from 'core/services/kvs'
 import RealtimeService from 'core/services/realtime'
 import { inject, injectable, tagged } from 'inversify'
+import Joi from 'joi'
 import _ from 'lodash'
 import moment from 'moment'
 import nanoid from 'nanoid/generate'
@@ -20,6 +22,13 @@ const FLOW_DIR = 'flows'
 
 const MUTEX_LOCK_DELAY_SECONDS = 30
 
+export const TopicSchema = Joi.object().keys({
+  name: Joi.string().required(),
+  description: Joi.string()
+    .optional()
+    .allow('')
+})
+
 interface FlowModification {
   name: string
   botId: string
@@ -27,6 +36,11 @@ interface FlowModification {
   modification: 'rename' | 'delete' | 'create' | 'update'
   newName?: string
   payload?: any
+}
+
+interface Topic {
+  name: string
+  description: string
 }
 
 export class MutexError extends Error {
@@ -45,7 +59,8 @@ export class FlowService {
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.ObjectCache) private cache: ObjectCache,
     @inject(TYPES.RealtimeService) private realtime: RealtimeService,
-    @inject(TYPES.KeyValueStore) private kvs: KeyValueStore
+    @inject(TYPES.KeyValueStore) private kvs: KeyValueStore,
+    @inject(TYPES.BotService) private botService: BotService
   ) {
     this._listenForCacheInvalidation()
   }
@@ -67,15 +82,29 @@ export class FlowService {
       return this._allFlows.get(botId)!
     }
 
-    const flowsPath = this.ghost.forBot(botId).directoryListing(FLOW_DIR, '*.flow.json')
+    const flowsPath = this.ghost.forBot(botId).directoryListing(FLOW_DIR, '*.flow.json', undefined, undefined, {
+      sortOrder: { column: 'filePath' }
+    })
 
     try {
       const flows = await Promise.map(flowsPath, async (flowPath: string) => {
         return this.parseFlow(botId, flowPath)
       })
 
-      this._allFlows.set(botId, flows)
-      return flows
+      const flowsWithParents = flows.map(flow => {
+        const flowName = flow.name.replace('.flow.json', '')
+        const parentFlow = flows.find(
+          x => x.name !== flow.name && flowName.startsWith(x.name.replace('.flow.json', ''))
+        )
+
+        return {
+          ...flow,
+          parent: parentFlow?.name.replace('.flow.json', '')
+        }
+      })
+
+      this._allFlows.set(botId, flowsWithParents)
+      return flowsWithParents
     } catch (err) {
       this.logger
         .forBot(botId)
@@ -85,21 +114,26 @@ export class FlowService {
     }
   }
 
+  private async _isOneFlow(botId: string): Promise<boolean> {
+    const botConfig = await this.botService.findBotById(botId)
+    return !!botConfig?.oneflow
+  }
+
   private async parseFlow(botId: string, flowPath: string): Promise<FlowView> {
     const flow = await this.ghost.forBot(botId).readFileAsObject<Flow>(FLOW_DIR, flowPath)
-    const schemaError = validateFlowSchema(flow)
+    const schemaError = validateFlowSchema(flow, await this._isOneFlow(botId))
 
     if (!flow || schemaError) {
-      throw new Error(`Invalid schema for "${flowPath}". ` + schemaError)
+      throw new Error(`Invalid schema for "${flowPath}". ${schemaError} `)
     }
 
     const uiEq = await this.ghost.forBot(botId).readFileAsObject<FlowView>(FLOW_DIR, this.uiPath(flowPath))
     let unplacedIndex = -1
 
-    const nodeViews = flow.nodes.map(node => {
+    const nodeViews: NodeView[] = flow.nodes.map(node => {
       const position = _.get(_.find(uiEq.nodes, { id: node.id }), 'position')
       unplacedIndex = position ? unplacedIndex : unplacedIndex + 1
-      return <NodeView>{
+      return {
         ...node,
         x: position ? position.x : MIN_POS_X + unplacedIndex * PLACING_STEP,
         y: position ? position.y : (_.maxBy(flow.nodes, 'y') || { y: 0 })['y'] + PLACING_STEP
@@ -107,7 +141,7 @@ export class FlowService {
     })
 
     const key = this._buildFlowMutexKey(flowPath)
-    const currentMutex = (await this.kvs.get(botId, key)) as FlowMutex
+    const currentMutex = (await this.kvs.forBot(botId).get(key)) as FlowMutex
     if (currentMutex) {
       currentMutex.remainingSeconds = this._getRemainingSeconds(currentMutex.lastModifiedAt)
     }
@@ -117,11 +151,8 @@ export class FlowService {
       location: flowPath,
       nodes: nodeViews,
       links: uiEq.links,
-      version: flow.version,
-      catchAll: flow.catchAll,
-      startNode: flow.startNode,
-      skillData: flow.skillData,
-      currentMutex
+      currentMutex,
+      ..._.pick(flow, ['version', 'catchAll', 'startNode', 'skillData', 'label', 'description'])
     }
   }
 
@@ -237,7 +268,7 @@ export class FlowService {
       name: previousName,
       botId,
       modification: 'rename',
-      newName: newName,
+      newName,
       userEmail
     })
   }
@@ -248,13 +279,13 @@ export class FlowService {
   }
 
   private _buildFlowMutexKey(flowLocation: string): string {
-    return 'FLOWMUTEX: ' + flowLocation
+    return `FLOWMUTEX: ${flowLocation}`
   }
 
   private async _testAndLockMutex(botId: string, currentFlowEditor: string, flowLocation: string): Promise<FlowMutex> {
     const key = this._buildFlowMutexKey(flowLocation)
 
-    const currentMutex = ((await this.kvs.get(botId, key)) || {}) as FlowMutex
+    const currentMutex = ((await this.kvs.forBot(botId).get(key)) || {}) as FlowMutex
     const { lastModifiedBy: flowOwner, lastModifiedAt } = currentMutex
 
     const now = new Date()
@@ -265,7 +296,7 @@ export class FlowService {
         lastModifiedBy: flowOwner,
         lastModifiedAt: now
       }
-      await this.kvs.set(botId, key, mutex)
+      await this.kvs.forBot(botId).set(key, mutex)
 
       mutex.remainingSeconds = remainingSeconds
       return mutex
@@ -277,7 +308,7 @@ export class FlowService {
         lastModifiedBy: currentFlowEditor,
         lastModifiedAt: now
       }
-      await this.kvs.set(botId, key, mutex)
+      await this.kvs.forBot(botId).set(key, mutex)
 
       mutex.remainingSeconds = remainingSeconds
       return mutex
@@ -311,7 +342,7 @@ export class FlowService {
   }
 
   private async prepareSaveFlow(botId: string, flow: FlowView, isNew: boolean) {
-    const schemaError = validateFlowSchema(flow)
+    const schemaError = validateFlowSchema(flow, await this._isOneFlow(botId))
     if (schemaError) {
       throw new Error(schemaError)
     }
@@ -326,7 +357,8 @@ export class FlowService {
     }
 
     const flowContent = {
-      ..._.pick(flow, 'version', 'catchAll', 'startNode', 'skillData'),
+      // TODO: NDU Remove triggers
+      ..._.pick(flow, ['version', 'catchAll', 'startNode', 'skillData', 'triggers', 'label', 'description']),
       nodes: flow.nodes.map(node => _.omit(node, 'x', 'y', 'lastModified'))
     }
 
@@ -336,5 +368,47 @@ export class FlowService {
 
   private uiPath(flowPath: string) {
     return flowPath.replace(/\.flow\.json$/i, '.ui.json')
+  }
+
+  public async getTopics(botId: string): Promise<Topic[]> {
+    const ghost = this.ghost.forBot(botId)
+    if (await ghost.fileExists('ndu', 'topics.json')) {
+      const topics: any = ghost.readFileAsObject('ndu', 'topics.json')
+      return topics
+    }
+    return []
+  }
+
+  public async deleteTopic(botId: string, topicName: string) {
+    let topics = await this.getTopics(botId)
+    topics = topics.filter(x => x.name !== topicName)
+
+    await this.ghost.forBot(botId).upsertFile('ndu', 'topics.json', JSON.stringify(topics, undefined, 2))
+    await this.moduleLoader.onTopicChanged(botId, topicName, undefined)
+  }
+
+  public async createTopic(botId: string, topic: Topic) {
+    let topics = await this.getTopics(botId)
+    topics = _.uniqBy([...topics, topic], x => x.name)
+
+    await this.ghost.forBot(botId).upsertFile('ndu', 'topics.json', JSON.stringify(topics, undefined, 2))
+    await this.moduleLoader.onTopicChanged(botId, undefined, topic.name)
+  }
+
+  public async updateTopic(botId: string, topic: Topic, topicName: string) {
+    let topics = await this.getTopics(botId)
+    topics = _.uniqBy([...topics.filter(x => x.name !== topicName), topic], x => x.name)
+
+    await this.ghost.forBot(botId).upsertFile('ndu', 'topics.json', JSON.stringify(topics, undefined, 2))
+
+    if (topicName !== topic.name) {
+      await this.moduleLoader.onTopicChanged(botId, topicName, topic.name)
+
+      const flows = await this.loadAll(botId)
+
+      for (const flow of flows.filter(f => f.name.startsWith(`${topicName}/`))) {
+        await this.renameFlow(botId, flow.name, flow.name.replace(`${topicName}/`, `${topic.name}/`), 'server')
+      }
+    }
   }
 }

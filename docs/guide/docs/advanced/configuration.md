@@ -1,11 +1,11 @@
 ---
 id: configuration
-title: Configurations
+title: Configuration
 ---
 
-Most of the configuration is done using `JSON` files. There are also some configurations that can be edited by using environment variables.
+Most of the configuration is done using `JSON` files. Configuration can also be set by using environment variables.
 
-On this page, you will learn about the Botpress global configuration, individual bot configuration, module configuration, and environment variables.
+On this page, you will learn about Botpress global configuration, individual bot configuration, module configuration, and environment variables.
 
 # Botpress Global Config
 
@@ -109,14 +109,16 @@ DEBUG=bp:audit:* ./bp -p 2>> ./botpress.log
 
 ## Enable or disable modules
 
-When you start Botpress for the first time, the most popular modules included with the binary will be added to your `botpress.config.json` file. If you want to disable or enable modules, you need to edit the `modules` option.
+When you start Botpress for the first time, the most popular modules included with the binary will be added to your `botpress.config.json` file. If you want to disable or enable modules, you may either do so in the admin page, or edit the `modules` property in `botpress.config.json`.
 
-The string `MODULE_ROOT` is a special string that is replaced when your configuration file is read. It represents the location of the modules folder on your hard drive, you shouldn't have to change it most of the times.
+![Admin Modules Page](assets/admin_modules.png)
+
+Should you choose the latter, note that the string `MODULE_ROOT` is a special one that is replaced when your configuration file is read. It represents the location of the modules folder on your hard drive; you shouldn't have to change it.
 
 ```js
 {
   ..."modules": [
-    {// When you new modules, you need to set their location, and if they are enabled or not.
+    {// When you add new modules, you need to set their location, and if they are enabled or not.
       "location": "MODULES_ROOT/analytics",
       "enabled": true // You can change this to false to disable the module.
     },
@@ -129,21 +131,21 @@ The string `MODULE_ROOT` is a special string that is replaced when your configur
 
 ## Individual Bot Configuration
 
-Every bot that you create will have its own configuration file. It is located at `data/bots/NAME_OF_BOT/bot.config.json`. Most of the available options can be edited by clicking on the `Config` link next to the bot name on the administration panel.
-
-If you enable additional modules that adds other
+Every bot that you create will have its own configuration file. It is located at `data/bots/BOT_ID/bot.config.json`. Most of the available options can be edited by clicking on the `Config` link next to the bot name on the administration panel, or accessing the configuration panel from the bot studio.
 
 ## Module Configuration
 
-When you enable a module on Botpress, they are available globally, which means that you can't disable or enable them for specific bots. You can, however, use a different configuration for every bots.
+When you enable a module on Botpress, it is available globally, which means that you can't disable or enable them for specific bots. However, you can configure every bot differently.
 
-Each module has a different set of possible configuration, so we won't go through them here. What you need to know is that when you run a module for the first time, the default configuration will be created in `data/global/config/MODULE_NAME.json`. If you need a special configuration for your bot, create a `config` folder in the bot folder, and copy the file in your bot folder: `data/bots/BOT_NAME/config/MODULE_NAME.json`. You will probably need to create the folder the first time.
+Each module has a different configuration, so we won't go through that here. What you need to know is that when you run a module for the first time, the default configuration will be created in `data/global/config/MODULE_NAME.json`. If you need a special configuration for your bot, from the Code Editor you can right click any global configuration, then **Duplicate to current bot**.
+
+Alternatively, you can manually create a `config` folder in the bot folder, copy the configuration file in it: `data/bots/BOT_ID/config/MODULE_NAME.json`.
 
 ## Environment Variables
 
-Most of these variables can be set in the configuration file `data/global/botpress.config.json`. Infrastructure configuration (like the database, cluster mode, etc) aren't available in the configuration file, since they are required before the config is loaded.
+Most of these variables can be set in the configuration file `data/global/botpress.config.json`. Infrastructure configuration (like the database, cluster mode, etc) isn't available in the configuration file, since it is required before the config is loaded.
 
-Botpress supports `.env` files, so you don't have to set them every time you start the app. Just add the file in the same folder as the executable.
+Botpress supports `.env` files, so you don't have to set them every time you start the app. Save the file in the same folder as the executable.
 
 ### Common
 
@@ -159,18 +161,32 @@ Botpress supports `.env` files, so you don't have to set them every time you sta
 | BP_LICENSE_KEY       | Your license key (can also be specified in `botpress.config.json`)                  | -                |
 | CLUSTER_ENABLED      | Enables multi-node support using Redis                                              | false            |
 | REDIS_URL            | The connection string to connect to your Redis instance                             | -                |
+| AUTO_MIGRATE         | Automatically migrates bots up to the running Botpress version                      | -                | 
+| DEBUG                | Namespaces to [debug](#advanced-logging)                                            | -                |
 
 ### Runtime and Modules
 
 | Environment Variable      | Description                                                                                 | Default |
 | ------------------------- | ------------------------------------------------------------------------------------------- | ------- |
 | VERBOSITY_LEVEL           | Botpress will be more chatty when processing requests. This has the same effects as `-v`    |         |
-| BP_DECISION_MIN_CONFIENCE | Sets the minimum threshold required for the Decision Engine to elect a suggestion           | 0,3     |
+| BP_DECISION_MIN_CONFIENCE | Sets the minimum threshold required for the Decision Engine to elect a suggestion           | 0.3     |
 | FAST_TEXT_VERBOSITY       | Define the level of verbosity that FastText will use when training models                   | 0       |
 | FAST_TEXT_CLEANUP_MS      | The model will be kept in memory until it receives no messages to process for that duration | 60000   |
 | REVERSE_PROXY             | When enabled, it uses "x-forwarded-for" to fetch the user IP instead of remoteAddress       | false   |
 
-It is also possible to use environment variables to override module configuration. The pattern is `BP_%MODULE_NAME%_%OPTION_PATH%`, all in upper cases. For example, to define the `confidenceTreshold` option of the module `nlu`, you would use `BP_NLU_CONFIDENCETRESHOLD`. You can list the available environment variables for each modules by enabling the `DEBUG=bp:configuration:modules:*` flag.
+It is also possible to use environment variables to override module configuration. The pattern is `BP_MODULE_%MODULE_NAME%_%OPTION_PATH%`, all in upper case. For example, to define the `languageSources` option of the module `nlu`, you would use `BP_MODULE_NLU_LANGUAGESOURCES`. 
+
+> **Tip**: You can list the available environment variables for each module by enabling the `DEBUG=bp:configuration:modules:*` flag.
+
+### Security
+
+These variables can be used to disable some sensitive features destined to Super Admins.
+
+| Environment Variable            | Description                                                                                                                                        | Default |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| BP_CODE_EDITOR_DISABLE_ADVANCED | The advanced editor lacks some safeguard and is only intended for experienced users. It can be disabled completely using this environment variable | false   |
+| BP_CODE_EDITOR_DISABLE_UPLOAD   | Prevent users from uploading files when using the advanced editor                                                                                  | false   |
+| BP_DISABLE_SERVER_CONFIG        | Prevent Super Admins from accessing the "Production Checklist" page on the Admin panel, since it may contain sensitive information                | false   |
 
 ## More Information
 

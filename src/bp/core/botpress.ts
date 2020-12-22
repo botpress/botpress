@@ -1,8 +1,10 @@
 import * as sdk from 'botpress/sdk'
+import lang from 'common/lang'
 import { copyDir } from 'core/misc/pkg-fs'
 import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
+import joi from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import moment from 'moment'
@@ -11,6 +13,7 @@ import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
 
+import { startLocalActionServer } from '../cluster'
 import { setDebugScopes } from '../debug'
 
 import { createForGlobalHooks } from './api'
@@ -19,23 +22,25 @@ import { ConfigProvider } from './config/config-loader'
 import Database from './database'
 import { LoggerDbPersister, LoggerFilePersister, LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
+import { WellKnownFlags } from './sdk/enums'
+import { Event } from './sdk/impl'
 import HTTPServer from './server'
 import { GhostService } from './services'
+import { ActionServersConfigSchema } from './services/action/action-servers-service'
 import { AlertingService } from './services/alerting-service'
 import AuthService from './services/auth/auth-service'
 import { BotMonitoringService } from './services/bot-monitoring-service'
 import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
-import { converseApiEvents } from './services/converse'
+import { buildUserKey, converseApiEvents } from './services/converse'
 import { DecisionEngine } from './services/dialog/decision-engine'
 import { DialogEngine } from './services/dialog/dialog-engine'
-import { ProcessingError } from './services/dialog/errors'
 import { DialogJanitor } from './services/dialog/janitor'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { HintsService } from './services/hints'
 import { Hooks, HookService } from './services/hook/hook-service'
 import { LogsJanitor } from './services/logs/janitor'
-import { EventCollector } from './services/middleware/event-collector'
+import { addStepToEvent, EventCollector, StepScopes, StepStatus } from './services/middleware/event-collector'
 import { EventEngine } from './services/middleware/event-engine'
 import { StateManager } from './services/middleware/state-manager'
 import { MigrationService } from './services/migration'
@@ -49,7 +54,7 @@ import { WorkspaceService } from './services/workspace-service'
 import { Statistics } from './stats'
 import { TYPES } from './types'
 
-export type StartOptions = {
+export interface StartOptions {
   modules: sdk.ModuleEntryPoint[]
 }
 
@@ -116,7 +121,7 @@ export class Botpress {
 
   private async initialize(options: StartOptions) {
     if (!process.IS_PRODUCTION) {
-      this.logger.info(`Running in DEVELOPMENT MODE`)
+      this.logger.info('Running in DEVELOPMENT MODE')
     }
 
     this.config = await this.configProvider.getBotpressConfig()
@@ -139,9 +144,10 @@ export class Botpress {
     await this.startRealtime()
     await this.startServer()
     await this.discoverBots()
+    await this.maybeStartLocalActionServer()
 
     if (this.config.sendUsageStats) {
-      this.statsService.start()
+      await this.statsService.start()
     }
 
     AppLifecycle.setDone(AppLifecycleEvents.BOTPRESS_READY)
@@ -156,9 +162,38 @@ export class Botpress {
         const { scopes } = await this.ghostService.global().readFileAsObject('/', 'debug.json')
         setDebugScopes(scopes.join(','))
       } catch (err) {
-        this.logger.attachError(err).error(`Couldn't load debug scopes. Check the syntax of debug.json`)
+        this.logger.attachError(err).error("Couldn't load debug scopes. Check the syntax of debug.json")
       }
     }
+  }
+
+  private async maybeStartLocalActionServer() {
+    const { actionServers, experimental } = await this.configProvider.getBotpressConfig()
+
+    if (!actionServers) {
+      this.logger.warn('No config ("actionServers") found for Action Servers')
+      return
+    }
+
+    const { error } = joi.validate(actionServers, ActionServersConfigSchema)
+    if (error) {
+      this.logger.error(`Invalid actionServers configuration: ${error}`)
+      return
+    }
+
+    const { enabled, port } = actionServers.local
+
+    if (!enabled) {
+      this.logger.info('Local Action Server disabled')
+      return
+    }
+
+    if (!experimental) {
+      this.logger.info('Local Action Server will only run in experimental mode')
+      return
+    }
+
+    startLocalActionServer({ appSecret: process.APP_SECRET, port })
   }
 
   async checkJwtSecret() {
@@ -168,7 +203,7 @@ export class Botpress {
     if (!appSecret) {
       appSecret = nanoid(40)
       await this.configProvider.mergeBotpressConfig({ appSecret }, true)
-      this.logger.debug(`JWT Secret isn't defined. Generating a random key...`)
+      this.logger.debug("JWT Secret isn't defined. Generating a random key...")
     }
 
     process.APP_SECRET = appSecret
@@ -225,10 +260,18 @@ export class Botpress {
     if (process.CLUSTER_ENABLED && !process.env.REDIS_URL) {
       this._killServer('The environment variable REDIS_URL is required when cluster is enabled')
     }
+
+    if (!process.IS_PRO_ENABLED && this.config?.pro.branding) {
+      this.logger.warn('Botpress Pro must be enabled to use a custom theme and customize the branding.')
+    }
   }
 
   async deployAssets() {
     try {
+      for (const dir of ['./pre-trained', './stop-words']) {
+        await copyDir(path.resolve(__dirname, '../nlu-core/language', dir), path.resolve(process.APP_DATA_PATH, dir))
+      }
+
       const assets = path.resolve(process.PROJECT_LOCATION, 'data/assets')
       await copyDir(path.join(__dirname, '../ui-admin'), `${assets}/ui-admin`)
 
@@ -248,6 +291,7 @@ export class Botpress {
 
   @WrapErrorsWith('Error while discovering bots')
   async discoverBots(): Promise<void> {
+    await AppLifecycle.waitFor(AppLifecycleEvents.MODULES_READY)
     const botsRef = await this.workspaceService.getBotRefs()
     const botsIds = await this.botService.getBotsIds()
     const unlinked = _.difference(botsIds, botsRef)
@@ -309,18 +353,42 @@ export class Botpress {
 
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.stateManager.restore(event)
+      addStepToEvent(event, StepScopes.StateLoaded)
       await this.hookService.executeHook(new Hooks.BeforeIncomingMiddleware(this.api, event))
     }
 
     this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       if (event.isPause) {
+        this.eventCollector.storeEvent(event)
         return
+      }
+
+      if (event.ndu && event.type === 'workflow_ended') {
+        const hasWorkflowEndedTrigger = Object.keys(event.ndu.triggers).find(
+          x => event.ndu?.triggers[x].result['workflow_ended'] === 1
+        )
+
+        if (!hasWorkflowEndedTrigger) {
+          event.setFlag(WellKnownFlags.SKIP_DIALOG_ENGINE, true)
+        }
       }
 
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
       const sessionId = SessionIdFactory.createIdFromEvent(event)
+
+      if (event.debugger) {
+        addStepToEvent(event, StepScopes.Dialog, StepStatus.Started)
+        this.eventCollector.storeEvent(event)
+      }
+
       await this.decisionEngine.processEvent(sessionId, event)
-      await converseApiEvents.emitAsync(`done.${event.target}`, event)
+
+      if (event.debugger) {
+        addStepToEvent(event, StepScopes.EndProcessing)
+        this.eventCollector.storeEvent(event)
+      }
+
+      await converseApiEvents.emitAsync(`done.${buildUserKey(event.botId, event.target)}`, event)
     }
 
     this.eventEngine.onBeforeOutgoingMiddleware = async (event: sdk.IO.IncomingEvent) => {
@@ -337,8 +405,37 @@ export class Botpress {
     }
 
     this.decisionEngine.onAfterEventProcessed = async (event: sdk.IO.IncomingEvent) => {
-      this.eventCollector.storeEvent(event)
+      if (!event.ndu) {
+        this.eventCollector.storeEvent(event)
+        return this.hookService.executeHook(new Hooks.AfterEventProcessed(this.api, event))
+      }
+
+      const { workflows } = event.state.session
+
+      const activeWorkflow = Object.keys(workflows).find(x => workflows[x].status === 'active')
+      const completedWorkflows = Object.keys(workflows).filter(x => workflows[x].status === 'completed')
+
+      this.eventCollector.storeEvent(event, activeWorkflow ? workflows[activeWorkflow] : undefined)
       await this.hookService.executeHook(new Hooks.AfterEventProcessed(this.api, event))
+
+      completedWorkflows.forEach(async workflow => {
+        const wf = workflows[workflow]
+        const metric = wf.success ? 'bp_core_workflow_completed' : 'bp_core_workflow_failed'
+        BOTPRESS_CORE_EVENT(metric, { botId: event.botId, channel: event.channel, wfName: workflow })
+
+        delete event.state.session.workflows[workflow]
+
+        if (!activeWorkflow && !wf.parent) {
+          await this.eventEngine.sendEvent(
+            Event({
+              ..._.pick(event, ['botId', 'channel', 'target', 'threadId']),
+              direction: 'incoming',
+              type: 'workflow_ended',
+              payload: { ...wf, workflow }
+            })
+          )
+        }
+      })
     }
 
     this.botMonitor.onBotError = async (botId: string, events: sdk.LoggerEntry[]) => {
@@ -346,19 +443,6 @@ export class Botpress {
     }
 
     await this.dataRetentionService.initialize()
-
-    const dialogEngineLogger = await this.loggerProvider('DialogEngine')
-    this.dialogEngine.onProcessingError = (err, hideStack?) => {
-      const message = this.formatProcessingError(err)
-      if (!hideStack) {
-        dialogEngineLogger
-          .forBot(err.botId)
-          .attachError(err)
-          .warn(message)
-      } else {
-        dialogEngineLogger.forBot(err.botId).warn(message)
-      }
-    }
 
     this.notificationService.onNotification = notification => {
       const payload: sdk.RealTimePayload = {
@@ -368,7 +452,7 @@ export class Botpress {
       this.realtimeService.sendToSocket(payload)
     }
 
-    this.stateManager.initialize()
+    await this.stateManager.initialize()
     await this.logJanitor.start()
     await this.dialogJanitor.start()
     await this.monitoringService.start()
@@ -379,6 +463,8 @@ export class Botpress {
     if (this.config!.dataRetention) {
       await this.dataRetentionJanitor.start()
     }
+
+    lang.init(await this.moduleLoader.getTranslations())
 
     // tslint:disable-next-line: no-floating-promises
     this.hintsService.refreshAll()
@@ -392,10 +478,14 @@ export class Botpress {
   }
 
   private async cleanDisabledModules() {
-    const config = await this.configProvider.getBotpressConfig()
-    const disabledModules = config.modules.filter(m => !m.enabled).map(m => path.basename(m.location))
+    try {
+      const config = await this.configProvider.getBotpressConfig()
+      const disabledModules = config.modules.filter(m => !m.enabled).map(m => path.basename(m.location))
 
-    await this.moduleLoader.disableModuleResources(disabledModules)
+      await this.moduleLoader.disableModuleResources(disabledModules)
+    } catch (err) {
+      this.logger.attachError(err).error('Error while disabling module resources')
+    }
   }
 
   private async startServer() {
@@ -405,14 +495,6 @@ export class Botpress {
 
   private async startRealtime() {
     await this.realtimeService.installOnHttpServer(this.httpServer.httpServer)
-  }
-
-  private formatProcessingError(err: ProcessingError) {
-    return `Error processing '${err.instruction}'
-Err: ${err.message}
-BotId: ${err.botId}
-Flow: ${err.flowName}
-Node: ${err.nodeName}`
   }
 
   private trackStart() {

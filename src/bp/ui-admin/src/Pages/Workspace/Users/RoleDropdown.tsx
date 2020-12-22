@@ -1,5 +1,6 @@
 import { Button, Classes, MenuItem } from '@blueprintjs/core'
 import { ItemPredicate, ItemRenderer, Select } from '@blueprintjs/select'
+import { lang } from 'botpress/shared'
 import { AuthRole } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -57,7 +58,7 @@ const RoleDropdown: FC<Props> = props => {
       onItemSelect={option => selectOption(option)}
       onActiveItemChange={option => selectOption(option)}
     >
-      <Button id="select-role" text={selected.name} rightIcon="double-caret-vertical" />
+      <Button id="select-role" text={lang.tr(selected.name)} rightIcon="double-caret-vertical" />
     </SelectDropdown>
   )
 }
@@ -78,14 +79,11 @@ const renderOption: ItemRenderer<AuthRole> = (option, { handleClick, modifiers }
       disabled={modifiers.disabled}
       key={option.id}
       onClick={handleClick}
-      text={option.name}
+      text={lang.tr(option.name)}
     />
   )
 }
 
 const mapStateToProps = state => ({ roles: state.roles.roles })
 
-export default connect<StateProps, DispatchProps>(
-  mapStateToProps,
-  { fetchRoles }
-)(RoleDropdown)
+export default connect<StateProps, DispatchProps>(mapStateToProps, { fetchRoles })(RoleDropdown)

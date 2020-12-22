@@ -1,4 +1,5 @@
 import { Callout, Colors, Icon, Intent, Tooltip } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment } from 'react'
 
@@ -27,7 +28,7 @@ const PageContainer: FC<Props> = props => {
         <div className={cx('bp-sa-content', { 'bp-sa-fullwidth': props.fullWidth }, props.contentClassName)}>
           <AccessControl
             superAdmin={props.superAdmin}
-            fallback={<Callout intent={Intent.DANGER}>This page is restricted to Super Admins</Callout>}
+            fallback={<Callout intent={Intent.DANGER}>{lang.tr('admin.pageRestrictedToAdmins')}</Callout>}
           >
             {props.children}
           </AccessControl>

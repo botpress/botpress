@@ -1,7 +1,9 @@
 {
   "name": "misunderstood",
+  "fullName": "Misunderstood",
   "version": "1.1.0",
-  "description": "",
+  "status": "experimental",
+  "description": "Provides an interface to handle user messages that were not correctly understood by the NLU",
   "private": true,
   "main": "dist/backend/index.js",
   "author": "Botpress, Inc.",
@@ -15,13 +17,14 @@
     "@types/classnames": "^2.2.9"
   },
   "dependencies": {
+    "@blueprintjs/datetime": "3.15.2",
     "axios": "^0.19.2",
     "bluebird": "^3.7.0",
     "classnames": "^2.2.6",
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.19"
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
+    "lodash": ">=4.17.19"
   }
 }

@@ -1,4 +1,5 @@
 import { Button } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import { CHAT_USER_ROLE } from 'common/defaults'
 import { AuthStrategyConfig } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
@@ -31,9 +32,9 @@ const List: FC<Props> = props => {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [infoModalOpen, setInfoModalOpen] = useState(false)
   const [rolloutModalOpen, setRolloutModalOpen] = useState(false)
-  const [email, setEmail] = useState()
-  const [password, setPassword] = useState()
-  const [messageId, setMessageId] = useState()
+  const [email, setEmail] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
+  const [messageId, setMessageId] = useState<any>()
 
   const reloadUsers = () => {
     props.fetchUsers(CHAT_USER_ROLE.id)
@@ -64,8 +65,8 @@ const List: FC<Props> = props => {
 
   return (
     <PageContainer
-      title="Chat Users"
-      helpText="Chat users are only allowed to talk with bots. They can see a list of all the bots in the workspace"
+      title={lang.tr('admin.workspace.users.chatUsers')}
+      helpText={lang.tr('admin.workspace.users.chatUsersHelp')}
     >
       <SplitPage
         sideMenu={
@@ -73,7 +74,7 @@ const List: FC<Props> = props => {
             <Button
               id="btn-create"
               style={{ width: 160 }}
-              text="Add chat user"
+              text={lang.tr('admin.workspace.users.addChatUser')}
               icon="add"
               onClick={() => setCreateModalOpen(true)}
             />
@@ -82,7 +83,7 @@ const List: FC<Props> = props => {
             <Button
               id="btn-rollout"
               style={{ width: 160 }}
-              text="Configure Rollout"
+              text={lang.tr('admin.workspace.users.configureRollout')}
               icon="send-to-graph"
               onClick={() => setRolloutModalOpen(true)}
             />
@@ -124,7 +125,4 @@ const mapStateToProps = (state: AppState) => ({
   authConfig: state.user.authConfig
 })
 
-export default connect(
-  mapStateToProps,
-  { fetchUsers, fetchAuthConfig }
-)(List)
+export default connect(mapStateToProps, { fetchUsers, fetchAuthConfig })(List)

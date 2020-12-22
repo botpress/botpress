@@ -4,6 +4,7 @@
     <title>Embedded Webchat</title>
     <!-- Set the base URL to access this page, for example: /botpress/
     It must match the path configured as an externalUrl in Botpress config, and in the init method -->
+    <link rel="stylesheet" href="/assets/modules/channel-web/examples/parent.css" type="text/css" />
     <base href="/" />
     <!-- Object.assign polyfill (required for IE) -->
     <script src="assets/modules/channel-web/object_assign.js"></script>
@@ -42,6 +43,10 @@
     <h2>Control User Identity</h2>
     <p>The current user ID is <span id="user-id-bp">UNKNOWN</span></p>
 
+    <h2>Working with multiple chat windows</h2>
+    <button id="show-second-bp">Toggle second chat window</button>
+    <div id="chat2"></div>
+
     <script>
       function parseQuery(queryString) {
         const query = {}
@@ -61,7 +66,8 @@
 
       let lastConfig = {
         host: window.location.origin || 'http://localhost:3000',
-        botId: botId
+        botId: botId,
+        lazySocket: false
         /*
         To change the styling of the webchat, you can either edit directly default.css, or use the extraStylesheet property.
         This allows you to customize the chat on a per-bot basis.
@@ -70,23 +76,6 @@
       }
 
       window.botpressWebChat.init(lastConfig)
-
-      window.addEventListener('message', function(message) {
-        if (message.data.userId) {
-          userId = message.data.userId
-          document.getElementById('user-id-bp').innerText = userId
-        }
-
-        if (message.data.name === 'webchatOpened') {
-          webchatOpen = true
-          document.getElementById('toggle-bp').style.backgroundColor = 'red'
-        }
-
-        if (message.data.name === 'webchatClosed') {
-          webchatOpen = false
-          document.getElementById('toggle-bp').style.backgroundColor = 'green'
-        }
-      })
 
       document.getElementById('origin').innerText = window.location.origin
 
@@ -149,6 +138,64 @@
 
       document.getElementById('toggle-bp').addEventListener('click', function() {
         window.botpressWebChat.sendEvent({ type: webchatOpen ? 'hide' : 'show' })
+      })
+
+      let secondInit = false
+      const secondChatId = 'second'
+      function toggleChat2() {
+        window.setTimeout(function() {
+          window.botpressWebChat.sendEvent({ type: 'toggle' }, secondChatId)
+        }, 100)
+      }
+      document.getElementById('show-second-bp').addEventListener('click', function() {
+        if (secondInit) {
+          toggleChat2()
+          return
+        }
+        const config = {
+          host: window.location.origin || 'http://localhost:3000',
+          botId: botId,
+          userId: Math.random()
+            .toString()
+            .slice(-25),
+          showConversationsButton: false,
+          botName: 'Chat window #2',
+          className: 'chat2',
+          enableReset: false,
+          chatId: secondChatId,
+          hideWidget: true,
+          disableAnimations: true,
+          containerWidth: 700,
+          layoutWidth: 700,
+          exposeStore: true
+        }
+        window.botpressWebChat.init(config, '#chat2')
+        secondInit = true
+      })
+
+      window.addEventListener('message', function(message) {
+        // chat2
+        if (message.data.chatId === secondChatId) {
+          if (message.data.name === 'webchatLoaded') {
+            toggleChat2()
+          }
+        } else {
+          // chat 1
+          if (message.data.userId) {
+            userId = message.data.userId
+            document.getElementById('user-id-bp').innerText = userId
+          }
+
+          if (message.data.name === 'webchatOpened') {
+            webchatOpen = true
+            document.getElementById('toggle-bp').style.backgroundColor = 'red'
+          }
+
+          if (message.data.name === 'webchatClosed') {
+            webchatOpen = false
+            document.getElementById('toggle-bp').style.backgroundColor = 'green'
+          }
+        }
       })
     </script>
   </body>

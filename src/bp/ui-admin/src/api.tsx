@@ -4,7 +4,13 @@ import _ from 'lodash'
 import React from 'react'
 
 import { toastFailure } from './utils/toaster'
-import { getActiveWorkspace, logout, pullToken } from './Auth'
+import { getActiveWorkspace, getToken, logout } from './Auth'
+
+interface SecuredApi {
+  token?: string
+  toastErrors?: boolean
+  timeout?: number
+}
 
 export const toastError = error => {
   const errorCode = _.get(error, 'response.data.errorCode') || _.get(error, 'errorCode')
@@ -70,10 +76,9 @@ export default {
     return overrideApiUrl.baseURL
   },
 
-  getSecured({ token = undefined, toastErrors = true, timeout = 10000 } = {}) {
+  getSecured({ token = undefined, toastErrors = true, timeout = 10000 }: SecuredApi = {}) {
     if (!token) {
-      const ls = pullToken()
-      token = ls && ls.token
+      token = getToken() as string
     }
 
     return createClient(

@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { Promise as BbPromise } from 'bluebird'
+import { encodeFolderPath } from 'common/http'
 import _ from 'lodash'
 
 type DebounceUpdateFunc = ((flow: any, callback: any) => Promise<void>) & _.Cancelable
@@ -55,7 +56,7 @@ export namespace FlowsAPI {
   }
 
   const apiDeleteFlow = async (flowName: string) => {
-    flowName = escapeForwardSlashes(flowName)
+    flowName = encodeFolderPath(flowName)
     return axios.post(`${window.BOT_API_PATH}/flow/${flowName}/delete`)
   }
 
@@ -64,12 +65,8 @@ export namespace FlowsAPI {
   }
 
   const apiUpdateFlow = async (flowName: string, flow) => {
-    flowName = escapeForwardSlashes(flowName)
+    flowName = encodeFolderPath(flowName)
     return axios.post(`${window.BOT_API_PATH}/flow/${flowName}`, { flow })
-  }
-
-  const escapeForwardSlashes = (pathParam: string) => {
-    return pathParam.replace(/\//g, '%2F')
   }
 
   const buildUpdateDebounced = (flowName: string) => async (f, callback) => {
@@ -90,13 +87,18 @@ export namespace FlowsAPI {
       name,
       version: '0.0.1',
       flow: name,
-      location: flow.location,
-      startNode: flow.startNode,
-      catchAll: flow.catchAll,
-      links: flow.links,
-      nodes: flow.nodes,
-      skillData: flow.skillData,
-      timeoutNode: flow.timeoutNode
+      ..._.pick(flow, [
+        'location',
+        'startNode',
+        'catchAll',
+        'links',
+        'nodes',
+        'skillData',
+        'timeoutNode',
+        'triggers', // TODO: NDU Remove
+        'description',
+        'label'
+      ])
     }
   }
 }

@@ -1,4 +1,5 @@
 import { Button, Classes } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import c from 'classnames'
 import React from 'react'
 import { ListGroupItem } from 'react-bootstrap'
@@ -101,7 +102,7 @@ export default class ElementsList extends React.Component<Props> {
           <div className={style.contentButton}>
             <Button
               tabIndex={-1}
-              text="Content"
+              text={lang.tr('studio.sideBar.content')}
               icon="add"
               type="button"
               onClick={() => this.setState({ showPicker: true })}

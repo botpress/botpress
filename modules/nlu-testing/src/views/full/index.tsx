@@ -1,18 +1,17 @@
-import { Button, ContextMenuTarget, Icon, Menu, MenuItem, Position, Spinner, Tooltip } from '@blueprintjs/core'
+import { Button, Icon, Spinner } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
 import { Container, SplashScreen } from 'botpress/ui'
 import { toastFailure, toastSuccess } from 'botpress/utils'
 import _ from 'lodash'
 import React from 'react'
 
-import { Test, TestResult, XValidationResults } from '../../shared/typings'
+import { Test, TestResult } from '../../shared/typings'
 import { computeSummary } from '../../shared/utils'
 
 import { makeApi } from './api'
 import style from './style.scss'
-import { CreateTestModal } from './CreateTestModal'
-import { CrossValidationResults } from './F1Metrics'
 import { ImportModal } from './ImportModal'
+import { TestModal } from './TestModal'
 import { TestTable } from './TestTable'
 
 interface State {
@@ -22,7 +21,7 @@ interface State {
   testResults: _.Dictionary<TestResult>
   loading: boolean
   working: boolean
-  f1Metrics: XValidationResults
+  currentTest?: Test
 }
 
 interface Props {
@@ -40,8 +39,15 @@ export default class NLUTests extends React.Component<Props, State> {
     tests: [],
     testResults: {},
     loading: true,
-    working: false,
-    f1Metrics: null
+    working: false
+  }
+
+  createTest = () => {
+    this.setState({ createModalVisible: true, currentTest: undefined })
+  }
+
+  editTest = (test: Test) => {
+    this.setState({ createModalVisible: true, currentTest: test })
   }
 
   setModalVisible(createModalVisible: boolean) {
@@ -58,13 +64,7 @@ export default class NLUTests extends React.Component<Props, State> {
 
   refreshTests = async () => {
     // tslint:disable-next-line: no-floating-promises
-    this.api.fetchTests().then(tests => this.setState({ tests, loading: false }))
-  }
-
-  computeXValidation = async () => {
-    this.setState({ working: true })
-    const f1Metrics = await this.api.computeCrossValidation(this.props.contentLang)
-    this.setState({ f1Metrics, working: false })
+    this.api.fetchTests().then(tests => this.setState({ tests, loading: false, currentTest: undefined }))
   }
 
   runTests = async () => {
@@ -103,7 +103,7 @@ export default class NLUTests extends React.Component<Props, State> {
   }
 
   render() {
-    const shouldRenderSplash = !this.state.loading && !this.state.tests.length && !this.state.f1Metrics
+    const shouldRenderSplash = !this.state.loading && !this.state.tests.length
     return (
       <Container sidePanelHidden={true} yOverflowScroll={true}>
         <div />
@@ -117,7 +117,7 @@ export default class NLUTests extends React.Component<Props, State> {
                   small
                   icon="add"
                   text="Create your first test"
-                  onClick={this.setModalVisible.bind(this, true)}
+                  onClick={this.createTest}
                 />
               )}
               <Button
@@ -131,15 +131,6 @@ export default class NLUTests extends React.Component<Props, State> {
               {!!this.state.tests.length && (
                 <Button intent="primary" minimal icon="play" text="Run tests" onClick={() => this.runTests()} />
               )}
-              <Button
-                disabled={this.state.tests.length === 0}
-                type="button"
-                intent="primary"
-                minimal
-                icon="function"
-                onClick={() => this.computeXValidation()}
-                text="Run Cross Validation"
-              />
               {this.state.working && (
                 <span className={style.working}>
                   <Spinner size={20} />
@@ -175,13 +166,14 @@ export default class NLUTests extends React.Component<Props, State> {
                 <TestTable
                   tests={this.state.tests}
                   testResults={this.state.testResults}
-                  createTest={this.setModalVisible.bind(this, true)}
+                  createTest={this.createTest}
                   runTest={this.runSingleTest}
+                  editTest={this.editTest}
                   deleteTest={this.deleteTest}
                 />
               )}
-              <CrossValidationResults f1Metrics={this.state.f1Metrics} />
-              <CreateTestModal
+              <TestModal
+                test={this.state.currentTest}
                 api={this.api}
                 hide={this.setModalVisible.bind(this, false)}
                 visible={this.state.createModalVisible}

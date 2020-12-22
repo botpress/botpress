@@ -1,7 +1,9 @@
 {
   "name": "channel-web",
-  "version": "11.9.0",
-  "description": "An embeddable webchat for Botpress",
+  "fullName": "Channel - Web",
+  "version": "1.0.0",
+  "status": "stable",
+  "description": "Provides an embeddable webchat that can be easily integrated in an existing website. It is also used for the Emulator when developing bots in the Studio",
   "private": true,
   "main": "dist/backend/index.js",
   "scripts": {
@@ -24,12 +26,12 @@
     "bluebird-global": "^1.0.1",
     "classnames": "^2.2.6",
     "date-fns": "^2.4.1",
-    "lodash": "^4.17.11",
+    "html-truncate": "^1.2.2",
+    "lodash": "^4.17.19",
     "lodash-decorators": "^6.0.1",
     "mime": "^2.4.3",
     "mobx": "4.9.4",
     "mobx-react": "^5.4.4",
-    "mobx-react-devtools": "^6.1.1",
     "moment": "^2.24.0",
     "ms": "^2.1.1",
     "multer": "^1.4.0",
@@ -45,6 +47,6 @@
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
+    "lodash": ">=4.17.19"
   }
 }

@@ -1,5 +1,6 @@
 import { Classes, InputGroup, MenuItem } from '@blueprintjs/core'
 import { DateRange, IDateRangeShortcut } from '@blueprintjs/datetime'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import moment from 'moment'
 import React from 'react'
@@ -8,7 +9,7 @@ import { Filter } from 'react-table'
 export const getDateShortcuts = (): IDateRangeShortcut[] => {
   return [
     {
-      label: 'Last 15 minutes',
+      label: lang.tr('admin.logs.timespan.last15m'),
       dateRange: [
         moment()
           .subtract(15, 'm')
@@ -18,7 +19,7 @@ export const getDateShortcuts = (): IDateRangeShortcut[] => {
       includeTime: true
     },
     {
-      label: 'Last 60 minutes',
+      label: lang.tr('admin.logs.timespan.last60m'),
       dateRange: [
         moment()
           .subtract(1, 'h')
@@ -28,7 +29,7 @@ export const getDateShortcuts = (): IDateRangeShortcut[] => {
       includeTime: true
     },
     {
-      label: 'Last 4 hours',
+      label: lang.tr('admin.logs.timespan.last4h'),
       dateRange: [
         moment()
           .subtract(6, 'h')
@@ -38,7 +39,7 @@ export const getDateShortcuts = (): IDateRangeShortcut[] => {
       includeTime: true
     },
     {
-      label: 'Last 24 hours',
+      label: lang.tr('admin.logs.timespan.last24h'),
       dateRange: [
         moment()
           .subtract(24, 'h')
@@ -48,7 +49,7 @@ export const getDateShortcuts = (): IDateRangeShortcut[] => {
       includeTime: true
     },
     {
-      label: 'Today',
+      label: lang.tr('admin.logs.timespan.today'),
       dateRange: [
         moment()
           .startOf('day')
@@ -58,7 +59,7 @@ export const getDateShortcuts = (): IDateRangeShortcut[] => {
       includeTime: true
     },
     {
-      label: 'Yesterday',
+      label: lang.tr('admin.logs.timespan.yesterday'),
       dateRange: [
         moment()
           .startOf('day')
@@ -71,7 +72,7 @@ export const getDateShortcuts = (): IDateRangeShortcut[] => {
       includeTime: true
     },
     {
-      label: 'This week',
+      label: lang.tr('admin.logs.timespan.thisWeek'),
       dateRange: [
         moment()
           .startOf('week')
@@ -81,7 +82,7 @@ export const getDateShortcuts = (): IDateRangeShortcut[] => {
       includeTime: true
     },
     {
-      label: 'Last week',
+      label: lang.tr('admin.logs.timespan.lastWeek'),
       dateRange: [
         moment()
           .startOf('week')
@@ -94,7 +95,7 @@ export const getDateShortcuts = (): IDateRangeShortcut[] => {
       includeTime: true
     },
     {
-      label: 'Last 30 days',
+      label: lang.tr('admin.logs.timespan.last30d'),
       dateRange: [
         moment()
           .subtract(30, 'd')
@@ -115,7 +116,11 @@ export const getRangeLabel = (dateRange?: DateRange) => {
   const from = moment(dateRange[0])
   const to = moment(dateRange[1])
 
-  return `${from.format(DATE_FORMAT)} to ${to.format(DATE_FORMAT)} - ${to.from(from, true)}`
+  return lang.tr('admin.logs.rangeLabel', {
+    start: from.format(DATE_FORMAT),
+    end: to.format(DATE_FORMAT),
+    timespan: to.from(from, true)
+  })
 }
 
 export const dropdownRenderer = (option, { modifiers, handleClick }) => {

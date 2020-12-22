@@ -1,0 +1,49 @@
+{
+  "fullName": "Broadcast",
+  "title": "Broadcast",
+  "cantFetchFromServer": "Can't fetch broadcast list from the server.",
+  "contentFieldRequired": "Content field is required.",
+  "unknownErrorOccurred": "An unknown error occurred",
+  "processing": "Processing",
+  "notStarted": "Not started",
+  "done": "Done",
+  "usersTime": "users time",
+  "yourTime": "your time",
+  "noFilter": "No filter",
+  "filters": "filters",
+  "youHaveNoBroadcasts": "You have no broadcasts",
+  "newBroadcast": "New Broadcast",
+
+  "section": {
+    "upcoming": "Upcoming broadcasts (next 3 days)",
+    "past": "Past broadcasts (last 3 days)",
+    "other": "Other broadcasts"
+  },
+
+  "table": {
+    "date": "Date",
+    "content": "Content",
+    "filters": "Filters",
+    "progress": "Progress",
+    "action": "Action"
+  },
+
+  "alert": {
+    "title": "An error occurred sending a broadcast",
+    "message": "Have a look at the logs to see what happened",
+    "hide": "Hide Alert"
+  },
+
+  "form": {
+    "content": "Content",
+    "pickContent": "Pick Content",
+    "date": "Date",
+    "time": "Time",
+    "userTimeZone": "User time zone",
+    "filters": "Filters",
+    "modify": "Modify",
+    "create": "Create",
+    "modifyBroadcast": "Modify Broadcast",
+    "createBroadcast": "Create Broadcast"
+  }
+}

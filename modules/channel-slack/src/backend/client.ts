@@ -1,4 +1,7 @@
+import { createEventAdapter } from '@slack/events-api'
+import SlackEventAdapter from '@slack/events-api/dist/adapter'
 import { createMessageAdapter } from '@slack/interactive-messages'
+import SlackMessageAdapter from '@slack/interactive-messages/dist/adapter'
 import { RTMClient } from '@slack/rtm-api'
 import { WebClient } from '@slack/web-api'
 import axios from 'axios'
@@ -22,7 +25,8 @@ const userCache = new LRU({ max: 1000, maxAge: ms('1h') })
 export class SlackClient {
   private client: WebClient
   private rtm: RTMClient
-  private interactive: any
+  private events: SlackEventAdapter
+  private interactive: SlackMessageAdapter
   private logger: sdk.Logger
 
   constructor(private bp: typeof sdk, private botId: string, private config: Config, private router) {
@@ -37,11 +41,16 @@ export class SlackClient {
     }
 
     this.client = new WebClient(this.config.botToken)
-    this.rtm = new RTMClient(this.config.botToken)
-    this.interactive = createMessageAdapter(this.config.signingSecret, {}) as any
+    if (this.config.useRTM || this.config.useRTM === undefined) {
+      this.logger.warn(`[${this.botId}] Slack configured to used legacy RTM`)
+      this.rtm = new RTMClient(this.config.botToken)
+    } else {
+      this.events = createEventAdapter(this.config.signingSecret)
+    }
+    this.interactive = createMessageAdapter(this.config.signingSecret)
 
-    await this._setupInteractiveListener()
     await this._setupRealtime()
+    await this._setupInteractiveListener()
   }
 
   async shutdown() {
@@ -52,7 +61,7 @@ export class SlackClient {
 
   private async _setupInteractiveListener() {
     this.interactive.action({ type: 'button' }, async payload => {
-      debugIncoming(`Received interactive message %o`, payload)
+      debugIncoming('Received interactive message %o', payload)
 
       const actionId = _.get(payload, 'actions[0].action_id', '')
       const label = _.get(payload, 'actions[0].text.text', '')
@@ -79,23 +88,44 @@ export class SlackClient {
       await this.sendEvent(payload, { type: 'quick_reply', text: label, payload: value })
     })
 
-    this.router.use(`/bots/${this.botId}/callback`, this.interactive.requestListener())
-    const publicPath = await this.router.getPublicPath()
+    this.interactive.action({ actionId: 'feedback-overflow' }, async payload => {
+      debugIncoming('Received feedback %o', payload)
 
-    // Bot ID is used twice, because slack must setup multiple listeners itself, so can't just be redirected
-    this.logger.info(
-      `[${this.botId}] Interactive Endpoint URL: ${publicPath.replace('BOT_ID', this.botId)}/bots/${
-        this.botId
-      }/callback`
-    )
+      const action = payload.actions[0]
+      const blockId = action.block_id
+      const selectedOption = action.selected_option.value
+
+      const incomingEventId = blockId.replace('feedback-', '')
+      const feedback = parseInt(selectedOption)
+
+      const events = await this.bp.events.findEvents({ incomingEventId, direction: 'incoming' })
+      const event = events[0]
+      await this.bp.events.updateEvent(event.id, { feedback })
+    })
+
+    this.router.use(`/bots/${this.botId}/callback`, this.interactive.requestListener())
+
+    await this.displayUrl('Interactive', 'callback')
   }
 
   private async _setupRealtime() {
-    const discardedSubtypes = ['bot_message', 'message_deleted', 'message_changed']
-    this.rtm.on('message', async payload => {
-      debugIncoming(`Received real time payload %o`, payload)
+    if (this.rtm) {
+      this.listenMessages(this.rtm)
+      await this.rtm.start()
+    } else {
+      this.listenMessages(this.events)
+      this.router.post(`/bots/${this.botId}/events-callback`, this.events.requestListener())
+      await this.displayUrl('Events', 'events-callback')
+    }
+  }
 
-      if (!discardedSubtypes.includes(payload.subtype)) {
+  private listenMessages(com: SlackEventAdapter | RTMClient) {
+    const discardedSubtypes = ['bot_message', 'message_deleted', 'message_changed']
+
+    com.on('message', async payload => {
+      debugIncoming('Received real time payload %o', payload)
+
+      if (!discardedSubtypes.includes(payload.subtype) && !payload.bot_id) {
         await this.sendEvent(payload, {
           type: 'text',
           text: _.find(_.at(payload, ['text', 'files.0.name', 'files.0.title']), x => x && x.length) || 'N/A'
@@ -103,7 +133,7 @@ export class SlackClient {
       }
     })
 
-    return this.rtm.start()
+    com.on('error', err => this.bp.logger.attachError(err).error('An error occurred'))
   }
 
   private async _getUserInfo(userId: string) {
@@ -123,10 +153,19 @@ export class SlackClient {
     return userCache.get(userId) || {}
   }
 
-  async handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
+  private async displayUrl(title: string, end: string) {
+    const publicPath = await this.router.getPublicPath()
+    this.logger.info(
+      `[${this.botId}] ${title} Endpoint URL: ${publicPath.replace('BOT_ID', this.botId)}/bots/${this.botId}/${end}`
+    )
+  }
+
+  async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     if (event.type === 'typing') {
-      await this.rtm.sendTyping(event.threadId || event.target)
-      await new Promise(resolve => setTimeout(() => resolve(), 1000))
+      if (this.rtm) {
+        await this.rtm.sendTyping(event.threadId || event.target)
+        await new Promise(resolve => setTimeout(() => resolve(), 1000))
+      }
 
       return next(undefined, false)
     }
@@ -154,7 +193,37 @@ export class SlackClient {
       blocks
     }
 
-    debugOutgoing(`Sending message %o`, message)
+    if (event.payload.collectFeedback && messageType === 'text') {
+      message.blocks = [
+        {
+          type: 'section',
+          block_id: `feedback-${event.incomingEventId}`,
+          text: { type: 'mrkdwn', text: event.payload.text },
+          accessory: {
+            type: 'overflow',
+            options: [
+              {
+                text: {
+                  type: 'plain_text',
+                  text: '👍'
+                },
+                value: '1'
+              },
+              {
+                text: {
+                  type: 'plain_text',
+                  text: '👎'
+                },
+                value: '-1'
+              }
+            ],
+            action_id: 'feedback-overflow'
+          }
+        }
+      ]
+    }
+
+    debugOutgoing('Sending message %o', message)
     await this.client.chat.postMessage(message)
 
     next(undefined, false)

@@ -30,7 +30,7 @@ const OPERATION_ALIASES = {
 
 const KNOWN_OPERATIONS = ['r', 'w']
 
-export type Rule = {
+export interface Rule {
   op: string
   res: string
 }

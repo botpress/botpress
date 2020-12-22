@@ -1,3 +1,6 @@
+import axios from 'axios'
+import { StoredToken } from 'common/typings'
+import ms from 'ms'
 import { Component } from 'react'
 import { connect } from 'react-redux'
 import {
@@ -7,11 +10,12 @@ import {
   fetchNotifications,
   fetchSkills,
   fetchUser,
+  getModuleTranslations,
   handleReceiveFlowsModification,
   refreshHints,
   replaceNotifications
 } from '~/actions'
-import { authEvents } from '~/util/Auth'
+import { authEvents, getToken, REFRESH_INTERVAL, setToken, tokenNeedsRefresh } from '~/util/Auth'
 import EventBus from '~/util/EventBus'
 
 import routes, { history } from '../Routes'
@@ -22,6 +26,7 @@ interface Props {
   refreshHints: () => void
   fetchNotifications: () => void
   fetchBotInformation: () => void
+  getModuleTranslations: () => void
   fetchUser: () => void
   replaceNotifications: (notifications: any) => void
   handleReceiveFlowsModification: (modifications: any) => void
@@ -30,7 +35,10 @@ interface Props {
 }
 
 class App extends Component<Props> {
+  private interval
+
   fetchData = () => {
+    this.props.getModuleTranslations()
     this.props.fetchBotInformation()
     this.props.fetchModules()
     this.props.fetchSkills()
@@ -50,6 +58,19 @@ class App extends Component<Props> {
     const appName = window.APP_NAME || 'Botpress Studio'
     const botName = window.BOT_NAME ? ` – ${window.BOT_NAME}` : ''
     window.document.title = `${appName}${botName}`
+
+    if (window.APP_FAVICON) {
+      const link = document.querySelector('link[rel="icon"]')
+      link.setAttribute('href', window.APP_FAVICON)
+    }
+
+    if (window.APP_CUSTOM_CSS) {
+      const sheet = document.createElement('link')
+      sheet.rel = 'stylesheet'
+      sheet.href = window.APP_CUSTOM_CSS
+      sheet.type = 'text/css'
+      document.head.appendChild(sheet)
+    }
 
     EventBus.default.setup()
 
@@ -91,6 +112,32 @@ class App extends Component<Props> {
         history.push(payload)
       }
     })
+
+    this.interval = setInterval(async () => {
+      await this.tryRefreshToken()
+    }, REFRESH_INTERVAL)
+  }
+
+  async tryRefreshToken() {
+    try {
+      if (!tokenNeedsRefresh()) {
+        return
+      }
+
+      const tokenData = getToken(false) as StoredToken
+
+      const { data } = await axios.get(`${window.API_PATH}/auth/refresh`)
+      const { newToken } = data.payload
+
+      if (newToken !== tokenData.token) {
+        setToken(newToken)
+        console.info('Token refreshed successfully')
+      } else {
+        clearInterval(this.interval)
+      }
+    } catch (err) {
+      console.error('Error validating & refreshing token', err)
+    }
   }
 
   render() {
@@ -107,7 +154,8 @@ const mapDispatchToProps = {
   fetchNotifications,
   replaceNotifications,
   addNotifications,
-  handleReceiveFlowsModification
+  handleReceiveFlowsModification,
+  getModuleTranslations
 }
 
 const mapStateToProps = state => ({

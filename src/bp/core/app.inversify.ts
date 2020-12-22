@@ -10,11 +10,13 @@ import { applyDisposeOnExit, applyInitializeFromConfig } from './misc/inversify'
 import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModules } from './repositories/repositories.inversify'
 import HTTPServer from './server'
+import { LocalActionServer } from './services/action/local-action-server'
 import { EventCollector } from './services/middleware/event-collector'
 import { MigrationService } from './services/migration'
 import { DataRetentionJanitor } from './services/retention/janitor'
 import { DataRetentionService } from './services/retention/service'
 import { ServicesContainerModules } from './services/services.inversify'
+import { TelemetryContainerModules } from './services/telemetry/telemetry.inversify'
 import { WorkspaceService } from './services/workspace-service'
 import { Statistics } from './stats'
 import { TYPES } from './types'
@@ -114,6 +116,11 @@ container
   .to(MigrationService)
   .inSingletonScope()
 
+container
+  .bind<LocalActionServer>(TYPES.LocalActionServer)
+  .to(LocalActionServer)
+  .inSingletonScope()
+
 const isPackaged = !!eval('process.pkg')
 
 container.bind<boolean>(TYPES.IsPackaged).toConstantValue(isPackaged)
@@ -121,6 +128,7 @@ container.bind<boolean>(TYPES.IsPackaged).toConstantValue(isPackaged)
 container.load(...DatabaseContainerModules)
 container.load(...RepositoriesContainerModules)
 container.load(...ServicesContainerModules)
+container.load(...TelemetryContainerModules)
 
 if (process.IS_PRO_ENABLED) {
   // Otherwise this will fail on compile when the submodule is not available.

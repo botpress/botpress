@@ -4,7 +4,9 @@ export default class BpSocket {
   private events: any
   private userId: string
   private userIdScope: string
+  private chatId: string | undefined
 
+  public onClear: (event: any) => void
   public onMessage: (event: any) => void
   public onTyping: (event: any) => void
   public onData: (event: any) => void
@@ -13,6 +15,7 @@ export default class BpSocket {
   constructor(bp, config: Config) {
     this.events = bp?.events
     this.userIdScope = config.userIdScope
+    this.chatId = config.chatId
   }
 
   public setup() {
@@ -23,6 +26,7 @@ export default class BpSocket {
     // Connect the Botpress Web Socket to the server
     this.events.setup(this.userIdScope)
 
+    this.events.on('guest.webchat.clear', this.onClear)
     this.events.on('guest.webchat.message', this.onMessage)
     this.events.on('guest.webchat.typing', this.onTyping)
     this.events.on('guest.webchat.data', this.onData)
@@ -33,19 +37,20 @@ export default class BpSocket {
 
   public postToParent = (type: string, payload: any) => {
     // we could filter on event type if necessary
-    window.parent?.postMessage(payload, '*')
+    window.parent?.postMessage({ ...payload, chatId: this.chatId }, '*')
   }
 
-  public changeUserId(newId: string): Promise<void> {
-    this.events.updateVisitorId(newId, this.userIdScope)
-    return this.waitForUserId()
+  public changeUserId(newId: string) {
+    if (typeof newId === 'string' && newId !== 'undefined') {
+      this.events.updateVisitorId(newId, this.userIdScope)
+    }
   }
 
   /** Waits until the VISITOR ID is set  */
   public waitForUserId(): Promise<void> {
     return new Promise((resolve, reject) => {
       const interval = setInterval(() => {
-        if (window.__BP_VISITOR_ID) {
+        if (typeof window.__BP_VISITOR_ID === 'string' && window.__BP_VISITOR_ID !== 'undefined') {
           clearInterval(interval)
 
           this.userId = window.__BP_VISITOR_ID

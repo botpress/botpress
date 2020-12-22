@@ -105,12 +105,22 @@ export class KnexSessionRepository implements SessionRepository {
   }
 
   async getExpiredContextSessionIds(botId: string): Promise<string[]> {
-    return (await this.database
+    let query = this.database
       .knex(this.tableName)
       .where('botId', botId)
       .andWhere(this.database.knex.date.isBefore('context_expiry', new Date()))
+
+    // We only process expired context if there is actually a context
+    if (this.database.knex.isLite) {
+      query = query.andWhereRaw(this.database.knex.raw("context <> '{}' "))
+    } else {
+      query = query.andWhereRaw(this.database.knex.raw("context::text <> '{}'::text"))
+    }
+
+    return (await query
       .select('id')
       .limit(250)
+      .orderBy('modified_on')
       .then(rows => {
         return rows.map(r => r.id)
       })) as string[]

@@ -1,13 +1,16 @@
 .diagram {
   height: calc(100%);
-  background-color: white;
 }
 
 .diagram :global(.srd-diagram) {
   height: calc(100%);
-  background: url('assets/ui-studio/public/img/grid.png') repeat;
+  background: linear-gradient(90deg, var(--bg) 10px, transparent 1%) center,
+    linear-gradient(var(--bg) 10px, transparent 1%) center, #e2e2e2;
+  background-position: top left;
+  background-size: 12px 12px;
+  margin: 0 calc(var(--spacing-x-large) * -1);
 }
 
 .wrapper {
-  background-color: white;
+  background-color: #f1f1f1;
 }

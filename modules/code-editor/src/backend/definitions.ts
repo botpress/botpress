@@ -27,7 +27,17 @@ export interface FileDefinition {
 }
 
 export const FileTypes: { [type: string]: FileDefinition } = {
-  action: {
+  action_http: {
+    allowGlobal: false,
+    allowScoped: true,
+    permission: 'actions',
+    ghost: {
+      baseDir: '/actions',
+      shouldSyncToDisk: true,
+      upsertFilename: (file: EditableFile) => file.location.replace('.js', '.http.js')
+    }
+  },
+  action_legacy: {
     allowGlobal: true,
     allowScoped: true,
     permission: 'actions',
@@ -49,7 +59,7 @@ export const FileTypes: { [type: string]: FileDefinition } = {
     },
     validate: async (file: EditableFile, isWriting?: boolean) => {
       if (isWriting && file.botId && !BOT_SCOPED_HOOKS.includes(file.hookType)) {
-        return `This hook can't be scoped to a bot`
+        return "This hook can't be scoped to a bot"
       }
       return HOOK_SIGNATURES[file.hookType] === undefined && `Invalid hook type "${file.hookType}"`
     }

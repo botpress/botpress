@@ -7,6 +7,7 @@ import { Button, Label } from 'react-bootstrap'
 import ConditionItem from '../common/condition'
 
 import ConditionModalForm from './ConditionModalForm'
+import { lang } from 'botpress/shared'
 
 const style = require('./style.scss')
 
@@ -63,15 +64,15 @@ export default class TransitionSection extends Component {
 
     const renderType = i => {
       if (!i.node || i.node === '') {
-        return <Label bsStyle="danger">Missing Link</Label>
+        return <Label bsStyle="danger">{lang.tr('studio.flow.node.missingLink')}</Label>
       }
 
       if (i.node === 'END') {
-        return <Label bsStyle="warning">End</Label>
+        return <Label bsStyle="warning">{lang.tr('studio.flow.node.end')}</Label>
       }
 
       if (i.node === '#') {
-        return <Label bsStyle="warning">Return</Label>
+        return <Label bsStyle="warning">{lang.tr('studio.flow.node.return')}</Label>
       }
 
       if (i.node.includes('.flow.json')) {
@@ -89,9 +90,9 @@ export default class TransitionSection extends Component {
               {renderType(item)}
               {!readOnly && (
                 <div className={style.actions}>
-                  <a onClick={() => this.onEdit(i)}>Edit</a>
-                  <a onClick={() => this.onRemove(i)}>Remove</a>
-                  <a onClick={() => this.onCopyAction(i)}>Copy</a>
+                  <a onClick={() => this.onEdit(i)}>{lang.tr('edit')}</a>
+                  <a onClick={() => this.onRemove(i)}>{lang.tr('remove')}</a>
+                  <a onClick={() => this.onCopyAction(i)}>{lang.tr('copy')}</a>
                   {renderMoveUp(i)}
                   {renderMoveDown(i)}
                 </div>

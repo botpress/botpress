@@ -1,7 +1,10 @@
 import React from 'react'
-import { Grid, Row, Col, Button, Glyphicon } from 'react-bootstrap'
+import { Grid, Row, Col, Button } from 'react-bootstrap'
+import { Icon, Intent } from '@blueprintjs/core'
+import { IconNames } from '@blueprintjs/icons'
 import style from './style.scss'
 import ScenarioRecorder from './ScenarioRecorder'
+import { confirmDialog } from 'botpress/shared'
 import NoScenarios from './NoScenarios'
 import Scenario from './Scenario'
 
@@ -45,6 +48,16 @@ export default class Testing extends React.Component {
     this.setState(newState)
   }
 
+  deleteAllScenarios = async () => {
+    const shouldDelete = await confirmDialog('Are you sure you want to delete all of the scenarios?', {
+      acceptLabel: 'Delete all'
+    })
+    if (shouldDelete) {
+      await this.props.bp.axios.post('/mod/testing/deleteAllScenarios')
+      await this.loadScenarios()
+    }
+  }
+
   loadPreviews = async () => {
     const { scenarios } = this.state
     const elementPreviews = await this.getElementPreviews(scenarios)
@@ -80,6 +93,11 @@ export default class Testing extends React.Component {
     await this.props.bp.axios.post('/mod/testing/run', { scenario })
 
     this.longPoll()
+  }
+
+  deleteSingleScenario = async scenario => {
+    await this.props.bp.axios.post('/mod/testing/deleteScenario', { name: scenario.name })
+    await this.loadScenarios()
   }
 
   getQnaPreviews(scenarios) {
@@ -147,25 +165,26 @@ export default class Testing extends React.Component {
             <Col md={10} mdOffset={1}>
               <Row>
                 {/* TODO extract this in header component ? */}
-                <Col md={8}>
-                  <h2>Scenarios</h2>
-                  {this.renderSummary()}
-                </Col>
-                {!this.state.isRecording && (
-                  <Col md={4}>
-                    <div className="pull-right">
-                      <Button bsSize="small" onClick={this.runAllScenarios} disabled={this.state.isRunning}>
-                        <Glyphicon glyph="play" /> Run All
-                      </Button>
-                      &nbsp;
-                      <Button bsSize="small" onClick={this.startRecording}>
-                        <Glyphicon glyph="record " /> Record new
-                      </Button>
-                    </div>
-                  </Col>
-                )}
+                <h2>Scenarios</h2>
+                {this.renderSummary()}
               </Row>
-
+              {!this.state.isRecording && (
+                <Row className={style['actions-container']}>
+                  <Button bsSize="small" variant="danger" className={'btn-danger'} onClick={this.deleteAllScenarios}>
+                    <Icon icon={IconNames.TRASH} /> Delete all
+                  </Button>
+                  <Button bsSize="small" onClick={this.runAllScenarios} disabled={this.state.isRunning}>
+                    <Icon icon={IconNames.PLAY} intent={Intent.SUCCESS} /> Run All
+                  </Button>
+                  <Button bsSize="small" onClick={this.startRecording}>
+                    <Icon icon={IconNames.RECORD} /> Record new
+                  </Button>
+                </Row>
+              )}
+            </Col>
+          </Row>
+          <Row>
+            <Col md={10} mdOffset={1}>
               {this.state.isRecording && (
                 <ScenarioRecorder
                   bp={this.props.bp}
@@ -182,6 +201,7 @@ export default class Testing extends React.Component {
                       key={s.name}
                       scenario={s}
                       run={this.runSingleScenario.bind(this, s)}
+                      delete={this.deleteSingleScenario.bind(this, s)}
                       previews={this.state.previews}
                       bp={this.props.bp}
                       isRunning={this.state.isRunning}

@@ -1,0 +1,114 @@
+.bpcmd-modal {
+  width: 605px;
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  border: 0px none;
+  background: rgb(48, 51, 56);
+  overflow: hidden;
+  border-radius: 4px;
+  outline: none;
+  padding: 10px;
+  box-shadow: rgb(0, 0, 0) 0px 2px 4px 0px;
+  margin-right: -50%;
+  transform: translate(-50%, 0px);
+}
+
+.bpcmd-overlay {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  background-color: rgba(0, 0, 0, 0.75);
+  z-index: 1000;
+}
+
+.bpcmd-header {
+  color: #d7dae0;
+}
+
+.bpcmd-content {
+  box-shadow: rgb(0, 0, 0) 0px 2px 4px 0px;
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  margin-right: -50%;
+  transform: translate(-50%, 0);
+  border: 0px none;
+  background: rgb(48, 51, 56);
+  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 4px;
+  outline: none;
+  padding: 10px;
+  min-width: 600px;
+}
+
+.bpcmd-container {
+  font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-weight: lighter;
+  font-size: 12px;
+}
+
+.bpcmd-input {
+  font-size: 14px;
+  border-radius: 4px;
+  border: 2px solid #181a1f;
+  width: 590px;
+  padding: 6px;
+  outline: none;
+  background-color: #202634;
+  color: #d7dae0;
+  caret-color: #568af2;
+}
+
+.bpcmd-inputFocused {
+  border: 2px solid #568af2;
+  background-color: #1b1d23;
+}
+
+.bpcmd-suggestionsContainerOpen {
+  overflow: hidden;
+  border-top: 1px solid #111;
+  border-bottom: 1px solid #111;
+  max-height: 315px;
+  margin-top: 10px;
+}
+
+.bpcmd-suggestionsList {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+.bpcmd-suggestion {
+  color: #9da5b4;
+  border: 1px solid #181a1f;
+  border-top: 0px none;
+  background-color: #2c313a;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.bpcmd-suggestion b {
+  color: #598cef;
+  font-weight: bold;
+}
+
+.bpcmd-suggestionHighlighted {
+  color: #ffffff;
+  background-color: #3a3f4b;
+}
+
+.bpcmd-spinner {
+  border-top: 0.4em solid rgba(255, 255, 255, 0.2);
+  border-right: 0.4em solid rgba(255, 255, 255, 0.2);
+  border-bottom: 0.4em solid rgba(255, 255, 255, 0.2);
+  border-left: 0.4em solid rgb(255, 255, 255);
+}

@@ -11,7 +11,7 @@ html {
 
 body {
   height: 100%;
-  font-family: 'Lato', sans-serif !important;
+  font-family: Roboto !important;
   font-weight: 400;
   background-color: $background-color;
   color: $content-color-normal;
@@ -92,14 +92,18 @@ b {
   outline: 0;
   transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, color 0.15s ease-in-out;
 
-  &:hover,
-  &:focus,
-  &:active {
+  &:not(:disabled):hover,
+  &:not(:disabled):focus,
+  &:not(:disabled):active {
     color: $btn-text-color;
     background-color: $btn-bg-color-hover;
     outline: 0;
     box-shadow: none;
     border: 1px solid transparent;
+  }
+
+  &:disabled {
+    opacity: 0.4;
   }
 }
 
@@ -129,7 +133,7 @@ b {
   width: 240px;
   height: 30px;
   padding: 10px 20px;
-  font-family: Helvetica, sans-serif;
+  font-family: Roboto;
   font-weight: 300;
   font-size: 16px;
   border: 1px solid #aaa;
@@ -156,7 +160,7 @@ b {
   width: 280px;
   border: 1px solid #aaa;
   background-color: #fff;
-  font-family: Helvetica, sans-serif;
+  font-family: Roboto;
   font-weight: 300;
   font-size: 16px;
   border-bottom-left-radius: 4px;

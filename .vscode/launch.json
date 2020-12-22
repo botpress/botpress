@@ -2,25 +2,57 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "node",
-      "runtimeVersion": "10.11.0",
+      "type": "pwa-node",
+      "runtimeVersion": "12.13.0",
       "request": "launch",
       "name": "Debug App",
       "program": "${workspaceFolder}/out/bp/index.js",
       "cwd": "${workspaceFolder}",
       "args": ["start"],
+      "env": {
+        "BP_MODULES_PATH": "${workspaceFolder}/modules:${workspaceFolder}/internal-modules",
+        "NODE_PATH": "${workspaceFolder}/out/bp",
+        "DEBUG": "bp:none",
+        "BLUEBIRD_DEBUG": "1",
+        "TELEMETRY_URL": "https://telemetry.botpress.dev/ingest"
+      },
+      "smartStep": true,
+      "outFiles": [
+        "${workspaceFolder}/out/**/*.js",
+        "${workspaceFolder}/modules/**/dist/**/*.js",
+        "${workspaceFolder}/private-modules/**/dist/**/*.js",
+        "!${workspaceFolder}/**/node_modules/**/*.js"
+      ],
+      "console": "integratedTerminal",
+      "sourceMaps": true,
+      "autoAttachChildProcesses": true
+    },
+    {
+      "type": "node",
+      "runtimeVersion": "12.13.0",
+      "request": "launch",
+      "name": "Debug Stan",
+      "program": "${workspaceFolder}/out/bp/index.js",
+      "cwd": "${workspaceFolder}",
+      "args": [
+        "nlu",
+        "--languageURL=http://localhost:3100",
+        "--ducklingURL=http://localhost:8000",
+        "--modelCacheSize=1gb"
+      ],
       "protocol": "auto",
       "env": {
         "BP_MODULES_PATH": "${workspaceFolder}/modules:${workspaceFolder}/internal-modules",
         "NODE_PATH": "${workspaceFolder}/out/bp",
-        "DEBUG": "bp:none"
+        "DEBUG": "bp:none",
+        "BLUEBIRD_DEBUG": "1"
       },
       "smartStep": true,
       "outFiles": [
-        "${workspaceFolder}/out",
-        "${workspaceFolder}/modules/*/dist",
-        "${workspaceFolder}/private-modules/*/dist",
-        "!${workspaceFolder}/**/node_modules"
+        "${workspaceFolder}/out/**/*.js",
+        "${workspaceFolder}/modules/**/dist/**/*.js",
+        "${workspaceFolder}/private-modules/**/dist/**/*.js",
+        "!${workspaceFolder}/**/node_modules/**/*.js"
       ],
       "console": "integratedTerminal",
       "sourceMaps": true,
@@ -31,7 +63,9 @@
       "request": "launch",
       "name": "Debug Jest Tests",
       "cwd": "${workspaceFolder}",
-      "env": { "NATIVE_EXTENSIONS_DIR": "./build/native-extensions" },
+      "env": {
+        "NATIVE_EXTENSIONS_DIR": "./build/native-extensions"
+      },
       "args": [
         "--inspect-brk",
         "${workspaceFolder}/node_modules/.bin/jest",
@@ -48,7 +82,6 @@
           "-c=${workspaceFolder}/jest.config.js"
         ]
       },
-      "outFiles": ["${workspaceFolder}/out/"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "sourceMaps": true,
@@ -59,7 +92,10 @@
       "request": "launch",
       "name": "Debug Jest Integration Tests",
       "cwd": "${workspaceFolder}",
-      "env": { "NATIVE_EXTENSIONS_DIR": "./build/native-extensions", "JEST_TIMEOUT": "30000" },
+      "env": {
+        "NATIVE_EXTENSIONS_DIR": "./build/native-extensions",
+        "JEST_TIMEOUT": "30000"
+      },
       "args": [
         "--inspect-brk",
         "${workspaceFolder}/node_modules/.bin/jest",
@@ -79,7 +115,7 @@
       "autoAttachChildProcesses": true
     },
     {
-      "name": "(lldb) Launch",
+      "name": "(lldb) ",
       "type": "lldb",
       "request": "launch",
       "program": "node",
@@ -91,7 +127,7 @@
       "cwd": "${workspaceFolder}/out/bp"
     },
     {
-      "name": "(lldb) CRFSuite Launch",
+      "name": "(lldb) CRFSuite ",
       "type": "lldb",
       "request": "launch",
       "program": "node",
@@ -99,7 +135,7 @@
       "cwd": "${workspaceFolder}/src/bp/ml/crfsuite"
     },
     {
-      "name": "(lldb) FastText Launch",
+      "name": "(lldb) FastText ",
       "type": "lldb",
       "request": "launch",
       "program": "node",

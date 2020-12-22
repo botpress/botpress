@@ -39,9 +39,9 @@ const getTargetOSConfig = () => {
 async function installProductionDeps(modulePath) {
   debug('Installing production modules...')
   const { stdout } = await execAsync(
-    `yarn install --modules-folder node_production_modules --production --no-lockfile --ignore-scripts --force`,
+    'yarn install --modules-folder node_production_modules --production --no-lockfile --ignore-scripts --force',
     {
-      env: { npm_config_target_platform: getTargetOSConfig() },
+      env: { npm_config_target_platform: getTargetOSConfig(), PATH: process.env.PATH },
       cwd: modulePath
     }
   )

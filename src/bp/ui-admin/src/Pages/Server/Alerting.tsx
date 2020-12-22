@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import moment from 'moment'
 import ms from 'ms'
 import React, { Component } from 'react'
@@ -11,14 +12,6 @@ import SplitPage from '~/App/SplitPage'
 import CheckRequirements from '~/Pages/Components/CheckRequirements'
 import LoadingSection from '~/Pages/Components/LoadingSection'
 import IncidentsTable from '~/Pages/Components/Monitoring/IncidentsTable'
-
-const timeFrameOptions = [
-  { value: '1h', label: '1 hour' },
-  { value: '2h', label: '2 hours' },
-  { value: '5h', label: '5 hours' },
-  { value: '15h', label: '15 hours' },
-  { value: '24h', label: '24 hours' }
-]
 
 interface Props {
   incidents: any
@@ -35,16 +28,24 @@ interface State {
 }
 
 class Alerts extends Component<Props, State> {
+  timeFrameOptions = [
+    { value: '1h', label: lang.tr('admin.alerting.timespanHour') },
+    { value: '2h', label: lang.tr('admin.alerting.timespanHours', { nb: 2 }) },
+    { value: '5h', label: lang.tr('admin.alerting.timespanHours', { nb: 5 }) },
+    { value: '15h', label: lang.tr('admin.alerting.timespanHours', { nb: 15 }) },
+    { value: '24h', label: lang.tr('admin.alerting.timespanHours', { nb: 24 }) }
+  ]
+
   state: State = {
     intervalId: undefined,
     timeFrame: undefined,
-    timeFrameOptions,
+    timeFrameOptions: this.timeFrameOptions,
     autoRefresh: false,
     error: undefined
   }
 
   componentDidMount() {
-    this.setState({ timeFrame: timeFrameOptions[0] }, this.queryData)
+    this.setState({ timeFrame: this.timeFrameOptions[0] }, this.queryData)
   }
 
   componentWillUnmount() {
@@ -94,10 +95,10 @@ class Alerts extends Component<Props, State> {
 
     return (
       <div>
-        <h4>Active Incidents</h4>
+        <h4>{lang.tr('admin.alerting.activeIncidents')}</h4>
         <IncidentsTable data={this.props.incidents.active} />
 
-        <h4>Resolved Incidents</h4>
+        <h4>{lang.tr('admin.alerting.resolvedIncidents')}</h4>
         <IncidentsTable data={this.props.incidents.resolved} />
       </div>
     )
@@ -105,18 +106,15 @@ class Alerts extends Component<Props, State> {
 
   renderNoData() {
     return (
-      <PageContainer title="Alerting & Incidents">
+      <PageContainer title={lang.tr('admin.alerting.alertingAndIncidents')}>
         <Jumbotron>
           <Row>
             <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
               <h1>
                 <IoIosArchive />
-                &nbsp; Alerting is not enabled or there is no statistics.
+                &nbsp; {lang.tr('admin.alerting.notEnabled')}
               </h1>
-              <p>
-                Make sure that alerting is enabled in your Botpress Config (and that you have restarted the server if
-                you just made the change).
-              </p>
+              <p>{lang.tr('admin.alerting.makeSureEnabled')}</p>
             </Col>
           </Row>
         </Jumbotron>
@@ -147,15 +145,15 @@ class Alerts extends Component<Props, State> {
 
     return (
       <div style={{ fontSize: '80%' }}>
-        <strong>Time Frame</strong>
+        <strong>{lang.tr('admin.alerting.timeFrame')}</strong>
         <Select
           styles={reactSelectStyle}
-          options={timeFrameOptions}
+          options={this.timeFrameOptions}
           value={this.state.timeFrame}
           onChange={this.handleTimeFrameChanged}
           isSearchable={false}
         />
-        <strong>Auto-Refresh</strong>
+        <strong>{lang.tr('admin.alerting.autoRefresh')}</strong>
         <br />
         <Label>
           <input
@@ -165,7 +163,7 @@ class Alerts extends Component<Props, State> {
             checked={this.state.autoRefresh}
             onChange={this.handleAutoRefreshChanged}
           />{' '}
-          <strong>Enabled</strong>
+          <strong>{lang.tr('enabled')}</strong>
         </Label>
       </div>
     )
@@ -173,7 +171,7 @@ class Alerts extends Component<Props, State> {
 
   render() {
     return (
-      <PageContainer title="Alerting & Incidents" fullWidth={true} superAdmin={true}>
+      <PageContainer title={lang.tr('admin.alerting.alertingAndIncidents')} fullWidth={true} superAdmin={true}>
         <CheckRequirements requirements={['redis', 'pro', 'monitoring']} feature="alerting">
           {this.renderChild()}
         </CheckRequirements>
@@ -188,7 +186,4 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = { fetchIncidents }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Alerts)
+export default connect(mapStateToProps, mapDispatchToProps)(Alerts)

@@ -2,32 +2,33 @@ import React from 'react'
 import ReactTable from 'react-table'
 import 'react-table/react-table.css'
 import moment from 'moment'
+import { lang } from 'botpress/shared'
 
 const IncidentsTable = ({ data }) => {
   const columns = [
     {
-      Header: 'Rule',
+      Header: lang.tr('admin.monitoring.column.rule'),
       accessor: 'ruleName'
     },
     {
-      Header: 'Host',
+      Header: lang.tr('admin.monitoring.column.host'),
       accessor: 'hostName'
     },
     {
-      Header: 'Start Time',
+      Header: lang.tr('admin.monitoring.column.startTime'),
       Cell: x => moment(x.value).format('YYYY-MM-DD HH:mm:ss'),
       width: 140,
       className: 'center',
       accessor: 'startTime'
     },
     {
-      Header: 'End Time',
+      Header: lang.tr('admin.monitoring.column.endTime'),
       Cell: x => (x.value && moment(x.value).format('YYYY-MM-DD HH:mm:ss')) || '',
       width: 140,
       accessor: 'endTime'
     },
     {
-      Header: 'Trigger Value',
+      Header: lang.tr('admin.monitoring.column.triggerValue'),
       width: 100,
       accessor: 'triggerValue'
     }

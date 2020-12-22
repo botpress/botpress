@@ -1,0 +1,32 @@
+.shortcut {
+  align-items: center;
+  color: var(--c-background--dark-2);
+  display: inline-flex;
+  font-size: 12px;
+  justify-content: center;
+  line-height: 1.25;
+
+  & > span:not(:first-of-type) {
+    margin-left: 3px;
+  }
+
+  .noLineHeight {
+    line-height: 0;
+  }
+
+  .baseLineHeight {
+    line-height: 1;
+  }
+
+  svg {
+    fill: var(--c-background--dark-2) !important;
+  }
+
+  &.light {
+    color: #fff;
+
+    svg {
+      fill: #fff !important;
+    }
+  }
+}

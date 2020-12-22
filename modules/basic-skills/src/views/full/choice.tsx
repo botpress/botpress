@@ -154,7 +154,7 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
         }
         return acc
       }, {})
-      this.setState({ contentId: element.id, keywords: keywords })
+      this.setState({ contentId: element.id, keywords })
     }
   }
 
@@ -187,8 +187,8 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
       this.choices && this.choices.length ? (
         this.renderMatchingSection()
       ) : (
-          <Callout intent={Intent.DANGER}>No choices available. Pick a content element that contains choices.</Callout>
-        )
+        <Callout intent={Intent.DANGER}>No choices available. Pick a content element that contains choices.</Callout>
+      )
 
     const contentPickerProps: any = {}
     const contentType = this.getContentType()
@@ -226,9 +226,11 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
   }
 
   getNbRetries() {
-    return (
-      this.state.config.nbMaxRetries || (this.state.defaultConfig && this.state.defaultConfig.defaultMaxAttempts) || 0
-    )
+    if (this.state.config.nbMaxRetries !== undefined || this.state.config.nbMaxRetries !== null) {
+      return this.state.config.nbMaxRetries
+    }
+
+    return (this.state.defaultConfig && this.state.defaultConfig.defaultMaxAttempts) || 0
   }
 
   handleConfigTextChanged = name => event => {

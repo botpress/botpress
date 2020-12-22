@@ -1,7 +1,9 @@
 {
   "name": "channel-teams",
+  "fullName": "Channel - Teams",
   "version": "1.0.0",
-  "description": "A Botpress connector for MS Teams",
+  "status": "stable",
+  "description": "A Botpress connector for Microsoft Teams",
   "private": true,
   "main": "dist/backend/index.js",
   "scripts": {
@@ -20,10 +22,10 @@
     "bluebird": "^3.5.3",
     "bluebird-global": "^1.0.1",
     "botbuilder": "^4.5.2",
-    "lodash": "^4.17.11"
+    "lodash": "^4.17.19"
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
+    "lodash": ">=4.17.19"
   }
 }

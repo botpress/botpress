@@ -3,6 +3,7 @@ import chalk from 'chalk'
 import { BotpressAPIProvider } from 'core/api'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
+import { PersistedConsoleLogger } from 'core/logger'
 import center from 'core/logger/center'
 import { stringify } from 'core/misc/utils'
 import { TYPES } from 'core/types'
@@ -10,8 +11,10 @@ import fse from 'fs-extra'
 import glob from 'glob'
 import { Container, inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
+import moment from 'moment'
 import path from 'path'
 import semver from 'semver'
+import stripAnsi from 'strip-ansi'
 import yn from 'yn'
 
 import { container } from '../../app.inversify'
@@ -25,7 +28,7 @@ const types = {
   content: 'Changes to Content Files (*.json)'
 }
 /**
- * Use a combination of these environment variables to easily test migrations.à
+ * Use a combination of these environment variables to easily test migrations.
  * TESTMIG_ALL: Runs every migration since 12.0.0
  * TESTMIG_NEW: Runs new migrations after package.json version
  * TESTMIG_BP_VERSION: Change the target version of your migration
@@ -34,10 +37,18 @@ const types = {
  * TESTMIG_IGNORE_LIST: Comma separated list of migration filename part to ignore
  */
 
+interface MigrationEntry {
+  initialVersion: string
+  targetVersion: string
+  details: string | string[]
+  created_at: any
+}
+
 @injectable()
 export class MigrationService {
   /** This is the actual running version (package.json) */
   private currentVersion: string
+  private configVersion?: string
   private loadedMigrations: { [filename: string]: Migration | sdk.ModuleMigration } = {}
 
   constructor(
@@ -46,18 +57,18 @@ export class MigrationService {
     private logger: sdk.Logger,
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
-    @inject(TYPES.GhostService) private ghostService: GhostService
+    @inject(TYPES.GhostService) private bpfs: GhostService
   ) {
     this.currentVersion = process.env.TESTMIG_BP_VERSION || process.BOTPRESS_VERSION
   }
 
   async initialize() {
-    let configVersion = process.env.TESTMIG_CONFIG_VERSION || (await this.configProvider.getBotpressConfig()).version
+    this.configVersion = process.env.TESTMIG_CONFIG_VERSION || (await this.configProvider.getBotpressConfig()).version
 
-    debug(`Migration Check: %o`, { configVersion, currentVersion: this.currentVersion })
+    debug('Migration Check: %o', { configVersion: this.configVersion, currentVersion: this.currentVersion })
 
     if (yn(process.env.SKIP_MIGRATIONS)) {
-      debug(`Skipping Migrations`)
+      debug('Skipping Migrations')
       return
     }
 
@@ -67,20 +78,26 @@ export class MigrationService {
       const versions = allMigrations.map(x => x.version).sort(semver.compare)
 
       this.currentVersion = _.last(versions)!
-      configVersion = yn(process.core_env.TESTMIG_NEW) ? process.BOTPRESS_VERSION : '12.0.0'
+      this.configVersion = yn(process.core_env.TESTMIG_NEW) ? process.BOTPRESS_VERSION : '12.0.0'
     }
 
-    const missingMigrations = this.filterMissing(allMigrations, configVersion)
+    const missingMigrations = this.filterMissing(allMigrations, this.configVersion)
     if (!missingMigrations.length) {
       return
     }
 
     this._loadMigrations(missingMigrations)
-    this.displayMigrationStatus(configVersion, missingMigrations, this.logger)
+
+    const logs: string[] = []
+    const captureLogger = PersistedConsoleLogger.listenForAllLogs((level, message) => {
+      logs.push(`[${level}] ${stripAnsi(message)}`)
+    })
+
+    this.displayMigrationStatus(this.configVersion, missingMigrations, this.logger)
 
     if (!process.AUTO_MIGRATE) {
       this.logger.error(
-        `Botpress needs to migrate your data. Please make a copy of your data, then start it with "./bp --auto-migrate"`
+        'Botpress needs to migrate your data. Please make a copy of your data, then start it with "./bp --auto-migrate"'
       )
 
       // When failsafe is enabled, simply stop executing migrations
@@ -92,42 +109,101 @@ export class MigrationService {
     }
 
     await this.executeMigrations(missingMigrations)
+
+    captureLogger.dispose()
+
+    const entry: Partial<MigrationEntry> = {
+      initialVersion: this.configVersion,
+      targetVersion: this.currentVersion
+    }
+
+    await this.database
+      .knex('srv_migrations')
+      .insert({ ...entry, details: logs.join('\n'), created_at: this.database.knex.date.now() })
+
+    const hasBotMigrations = !!missingMigrations.find(x => this.loadedMigrations[x.filename].info.target === 'bot')
+    if (hasBotMigrations) {
+      const botIds = (await this.bpfs.bots().directoryListing('/', 'bot.config.json')).map(path.dirname)
+
+      for (const id of botIds) {
+        await this.saveBotMigrationLog(id, { ...entry, details: logs, created_at: new Date() } as MigrationEntry)
+      }
+    }
+  }
+
+  async saveBotMigrationLog(botId: string, entry: MigrationEntry) {
+    const entries: MigrationEntry[] = [entry]
+
+    if (await this.bpfs.forBot(botId).fileExists('/', 'migrations.json')) {
+      const pastMigrations = await this.bpfs.forBot(botId).readFileAsObject<MigrationEntry[]>('/', 'migrations.json')
+      entries.push(...pastMigrations)
+    }
+
+    await this.bpfs.forBot(botId).upsertFile('/', 'migrations.json', JSON.stringify(entries, undefined, 2))
   }
 
   async executeMissingBotMigrations(botId: string, botVersion: string) {
-    debug.forBot(botId, `Checking missing migrations for bot `, { botId, botVersion })
+    debug.forBot(botId, 'Checking missing migrations for bot ', { botId, botVersion })
 
     const missingMigrations = this.filterBotTarget(this.filterMissing(this.getAllMigrations(), botVersion))
     if (!missingMigrations.length) {
       return
     }
 
-    this.displayMigrationStatus(botVersion, missingMigrations, this.logger.forBot(botId))
+    const logs: string[] = []
+    const captureLogger = PersistedConsoleLogger.listenForAllLogs((level, message) => {
+      logs.push(`[${level}] ${stripAnsi(message)}`)
+    }, botId)
+
+    try {
+      this.displayMigrationStatus(botVersion, missingMigrations, this.logger.forBot(botId))
+      await this.executeBotMigrations(botId, missingMigrations)
+    } finally {
+      captureLogger.dispose()
+
+      await this.saveBotMigrationLog(botId, {
+        initialVersion: botVersion,
+        targetVersion: this.currentVersion,
+        created_at: new Date(),
+        details: logs
+      })
+    }
+  }
+
+  private async executeBotMigrations(botId: string, missingMigrations: MigrationFile[]) {
+    this.logger.info(chalk`
+${_.repeat(' ', 9)}========================================
+{bold ${center(`Executing ${missingMigrations.length} migration${missingMigrations.length === 1 ? '' : 's'}`, 40, 9)}}
+${_.repeat(' ', 9)}========================================`)
+
     const opts = await this.getMigrationOpts({ botId })
     let hasFailures = false
 
     await Promise.mapSeries(missingMigrations, async ({ filename }) => {
       const result = await this.loadedMigrations[filename].up(opts)
-      debug.forBot(botId, `Migration step finished`, { filename, result })
+      debug.forBot(botId, 'Migration step finished', { filename, result })
       if (result.success) {
-        this.logger.info(`- ${result.message || 'Success'}`)
+        this.logger.forBot(botId).info(`- ${result.message || 'Success'}`)
       } else {
         hasFailures = true
-        this.logger.error(`- ${result.message || 'Failure'}`)
+        this.logger.forBot(botId).error(`- ${result.message || 'Failure'}`)
       }
     })
 
     if (hasFailures) {
-      return this.logger.error(`Could not complete bot migration. It may behave unexpectedly.`)
+      return this.logger.error('Could not complete bot migration. It may behave unexpectedly.')
     }
 
     await this.configProvider.mergeBotConfig(botId, { version: this.currentVersion })
+
+    this.logger.info(`Migration${missingMigrations.length === 1 ? '' : 's'} completed successfully! `)
   }
 
   private async executeMigrations(missingMigrations: MigrationFile[]) {
     const opts = await this.getMigrationOpts()
 
-    this.logger.info(chalk`========================================
+    this.logger.info(chalk`
+${_.repeat(' ', 9)}========================================
 {bold ${center(`Executing ${missingMigrations.length} migration${missingMigrations.length === 1 ? '' : 's'}`, 40, 9)}}
 ${_.repeat(' ', 9)}========================================`)
 
@@ -168,7 +244,7 @@ ${_.repeat(' ', 9)}========================================`)
 
     if (hasFailures) {
       this.logger.error(
-        `Some steps failed to complete. Please fix errors manually, then restart Botpress so the update process may finish.`
+        'Some steps failed to complete. Please fix errors manually, then restart Botpress so the update process may finish.'
       )
 
       if (!process.IS_FAILSAFE) {
@@ -183,7 +259,7 @@ ${_.repeat(' ', 9)}========================================`)
   private async updateAllVersions() {
     await this.configProvider.mergeBotpressConfig({ version: this.currentVersion })
 
-    const botIds = (await this.ghostService.bots().directoryListing('/', 'bot.config.json')).map(path.dirname)
+    const botIds = (await this.bpfs.bots().directoryListing('/', 'bot.config.json')).map(path.dirname)
     for (const botId of botIds) {
       await this.configProvider.mergeBotConfig(botId, { version: this.currentVersion }, true)
     }
@@ -192,7 +268,8 @@ ${_.repeat(' ', 9)}========================================`)
   private displayMigrationStatus(configVersion: string, missingMigrations: MigrationFile[], logger: sdk.Logger) {
     const migrations = missingMigrations.map(x => this.loadedMigrations[x.filename].info)
 
-    logger.warn(chalk`========================================
+    logger.warn(chalk`
+${_.repeat(' ', 9)}========================================
 {bold ${center(`Migration${migrations.length === 1 ? '' : 's'} Required`, 40, 9)}}
 {dim ${center(`Version ${configVersion} => ${this.currentVersion} `, 40, 9)}}
 {dim ${center(`${migrations.length} change${migrations.length === 1 ? '' : 's'}`, 40, 9)}}
@@ -205,7 +282,7 @@ ${_.repeat(' ', 9)}========================================`)
       if (filtered.length) {
         filtered.map(x => logger.warn(`- ${x.description}`))
       } else {
-        logger.warn(`- None`)
+        logger.warn('- None')
       }
     })
   }
@@ -243,11 +320,11 @@ ${_.repeat(' ', 9)}========================================`)
       return []
     }
 
-    return this.ghostService.root().directoryListing('migrations')
+    return this.bpfs.root().directoryListing('migrations')
   }
 
   private _saveCompletedMigration(filename: string, result: sdk.MigrationResult): Promise<void> {
-    return this.ghostService.root().upsertFile('migrations', filename, stringify(result))
+    return this.bpfs.root().upsertFile('migrations', filename, stringify(result))
   }
 
   private _loadMigrations = (fileList: MigrationFile[]) =>
@@ -263,7 +340,7 @@ ${_.repeat(' ', 9)}========================================`)
         const [rawVersion, timestamp, title] = path.basename(filepath).split('-')
         return {
           filename: path.basename(filepath),
-          version: semver.valid(rawVersion.replace(/_/g, '.')),
+          version: semver.valid(rawVersion.replace(/_/g, '.')) as string,
           title: (title || '').replace(/\.js$/i, ''),
           date: Number(timestamp),
           location: path.join(rootPath, filepath)

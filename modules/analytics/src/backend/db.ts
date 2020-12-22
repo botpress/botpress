@@ -15,15 +15,16 @@ const Metric = <const>[
   'top_msg_nlu_none',
   'enter_flow_count',
   'msg_nlu_intent',
+  'msg_nlu_language',
 
-  // TODO: implement these below in 12.8+
-  'goals_started_count',
-  'goals_completed_count',
-  'goals_failed_count',
+  'workflow_started_count',
+  'workflow_completed_count',
+  'workflow_failed_count',
+
   'feedback_positive_qna',
   'feedback_negative_qna',
-  'feedback_positive_goal',
-  'feedback_negative_goal'
+  'feedback_positive_workflow',
+  'feedback_negative_workflow'
 ]
 type MetricTypes = typeof Metric[number]
 
@@ -64,7 +65,7 @@ export default class Database {
 
   private getCacheKey(botId: string, channel: string, metric: string, subMetric?: string) {
     const today = moment().format('YYYY-MM-DD')
-    return `${today}/${botId}/${channel}/${metric}/${subMetric || ''}`
+    return `${today}|${botId}|${channel}|${metric}|${subMetric || ''}`
   }
 
   incrementMetric(botId: string, channel: string, metric: MetricTypes, subMetric?: string) {
@@ -91,10 +92,10 @@ export default class Database {
 
       const values = keys
         .map(key => {
-          const [date, botId, channel, metric, subMetric] = key.split('/')
+          const [date, botId, channel, metric, subMetric] = key.split('|')
           const value = original[key]
           return this.knex
-            .raw(`(:date:, :botId, :channel, :metric, :subMetric, :value)`, {
+            .raw('(:date:, :botId, :channel, :metric, :subMetric, :value)', {
               date: this.knex.raw(`date('${date}')`),
               botId,
               channel,
@@ -131,13 +132,8 @@ export default class Database {
   }
 
   async getMetrics(botId: string, options?: { startDate: Date; endDate: Date; channel: string }) {
-    const startDate = moment(options?.startDate ?? new Date())
-      .startOf('day')
-      .toDate()
-
-    const endDate = moment(options?.endDate ?? new Date())
-      .endOf('day')
-      .toDate()
+    const startDate = options?.startDate ?? new Date()
+    const endDate = options?.endDate ?? new Date()
 
     let queryMetrics = this.knex(TABLE_NAME)
       .select()
@@ -175,9 +171,9 @@ export default class Database {
 
       return [
         ...metrics,
-        ...newUsersCount.map(x => ({ ...x, metric: 'new_users_count' })),
-        ...activeUsersCount.map(x => ({ ...x, metric: 'active_users_count' }))
-      ].map(x => ({ ...x, created_on: x.date }))
+        ...newUsersCount.map(x => ({ ...x, value: Number(x.value), metric: 'new_users_count' })),
+        ...activeUsersCount.map(x => ({ ...x, value: Number(x.value), metric: 'active_users_count' }))
+      ].map(x => ({ ...x, created_on: x.date, date: moment(x.date).format('YYYY-MM-DD') }))
     } catch (err) {
       this.bp.logger.attachError(err).warn('Could not retrieve analytics')
       return []

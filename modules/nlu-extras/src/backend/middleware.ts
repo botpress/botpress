@@ -18,7 +18,7 @@ export const registerMiddleware = async (bp: typeof sdk) => {
   bp.events.registerMiddleware({
     name: 'nlu-extras.incoming',
     direction: 'incoming',
-    order: 11,
+    order: 129,
     description:
       'Process natural language in the form of text. Structured data with an action and parameters for that action is injected in the incoming message event.',
     handler: async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
@@ -44,7 +44,7 @@ export const registerMiddleware = async (bp: typeof sdk) => {
           event.nlu['dialogflow-nlu'] = { ...result, engine: 'dialogflow' }
         }
       } catch (err) {
-        bp.logger.warn('Error extracting NLU from Dialogflow: ' + err.message)
+        bp.logger.warn(`Error extracting NLU from Dialogflow: ${err.message}`)
       } finally {
         next()
       }

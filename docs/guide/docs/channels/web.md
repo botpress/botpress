@@ -54,7 +54,7 @@ If the default Botpress button doesn't work for you, it can be changed by adding
 
 ```html
 <script>
-  window.botpressWebChat.init({ host: '<your-url-here>', botId: '<your-bot-id>' hideWidget: true })
+  window.botpressWebChat.init({ host: '<your-url-here>', botId: '<your-bot-id>', hideWidget: true })
 </script>
 ```
 

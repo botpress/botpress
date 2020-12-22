@@ -44,6 +44,9 @@ export function config(projectPath) {
       modules: ['node_modules', path.resolve(__dirname, '../node_modules')]
     },
     resolve: {
+      alias: {
+        common: path.resolve(__dirname, '../../../out/bp/common')
+      },
       modules: ['node_modules', path.resolve(__dirname, '../../../src/bp/ui-studio/node_modules')],
       extensions: ['.js', '.jsx', '.tsx', '.ts']
     },
@@ -78,7 +81,7 @@ export function config(projectPath) {
               options: {
                 modules: true,
                 importLoaders: 1,
-                localIdentName: packageJson.name + '__[name]__[local]___[hash:base64:5]'
+                localIdentName: `${packageJson.name}__[name]__[local]___[hash:base64:5]`
               }
             },
             { loader: 'sass-loader' }
@@ -130,16 +133,16 @@ export function config(projectPath) {
 
   const webpackFile = path.join(projectPath, 'webpack.frontend.js')
   if (fs.existsSync(webpackFile)) {
-    debug('Webpack override found for frontend')
+    debug('Webpack override found for frontend', path.basename(projectPath))
     return require(webpackFile)({ full, lite })
   }
 
   return [full, lite]
 }
 
-function writeStats(err, stats, exitOnError = true, callback?) {
+function writeStats(err, stats, exitOnError = true, callback?, moduleName?: string) {
   if (err || stats.hasErrors()) {
-    error(stats.toString('minimal'))
+    error(stats.toString('minimal'), moduleName)
 
     if (exitOnError) {
       return process.exit(1)
@@ -147,7 +150,7 @@ function writeStats(err, stats, exitOnError = true, callback?) {
   }
 
   for (const child of stats.toJson().children) {
-    normal(`Generated frontend bundle (${child.time} ms)`)
+    normal(`Generated frontend bundle (${child.time} ms)`, moduleName)
   }
 
   callback?.()
@@ -156,13 +159,13 @@ function writeStats(err, stats, exitOnError = true, callback?) {
 export function watch(projectPath: string) {
   const confs = config(projectPath)
   const compiler = webpack(confs)
-  compiler.watch({}, (err, stats) => writeStats(err, stats, false))
+  compiler.watch({}, (err, stats) => writeStats(err, stats, false, undefined, path.basename(projectPath)))
 }
 
 export async function build(projectPath: string): Promise<void> {
   const confs = config(projectPath)
 
   await new Promise(resolve => {
-    webpack(confs, (err, stats) => writeStats(err, stats, true, resolve))
+    webpack(confs, (err, stats) => writeStats(err, stats, true, resolve, path.basename(projectPath)))
   })
 }

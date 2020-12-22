@@ -20,14 +20,14 @@ const migration: Migration = {
     const workspaceRepo = inversify.get<WorkspaceUsersRepository>(TYPES.WorkspaceUsersRepository)
 
     const strategyTable = new StrategyUserTable()
-    await strategyTable.createStrategyTable(database.knex, `strategy_default`)
+    await strategyTable.createStrategyTable(database.knex, 'strategy_default')
 
     try {
-      const workspaces: any = await bp.ghost.forGlobal().readFileAsObject('/', `workspaces.json`)
+      const workspaces: any = await bp.ghost.forGlobal().readFileAsObject('/', 'workspaces.json')
       const users = _.get(workspaces, '[0].users')
 
       if (!_.isArray(users)) {
-        return { success: true, message: `No users in the workspaces file to migrate.` }
+        return { success: true, message: 'No users in the workspaces file to migrate.' }
       }
 
       for (const user of users) {

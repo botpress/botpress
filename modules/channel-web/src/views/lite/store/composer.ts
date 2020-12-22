@@ -1,6 +1,6 @@
 import last from 'lodash/last'
 import takeRight from 'lodash/takeRight'
-import { action, observable } from 'mobx'
+import { action, computed, observable } from 'mobx'
 
 import constants from '../core/constants'
 
@@ -16,6 +16,9 @@ class ComposerStore {
   public message: string = ''
 
   @observable
+  public locked: boolean = false
+
+  @observable
   private _sentHistory: string[] = []
 
   @observable
@@ -27,6 +30,11 @@ class ComposerStore {
     if (window.BP_STORAGE) {
       this._sentHistory = JSON.parse(window.BP_STORAGE.get(SENT_HISTORY_KEY) || '[]')
     }
+  }
+
+  @computed
+  get composerPlaceholder(): string {
+    return this.rootStore.config?.composerPlaceholder
   }
 
   @action.bound
@@ -65,6 +73,11 @@ class ComposerStore {
 
     this.updateMessage(this._sentHistory[newIndex])
     this._sentHistoryIndex = newIndex
+  }
+
+  @action.bound
+  setLocked(locked: boolean) {
+    this.locked = locked
   }
 }
 

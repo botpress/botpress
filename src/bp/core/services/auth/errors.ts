@@ -1,4 +1,4 @@
-import { ResponseError } from 'core/routers/errors'
+import { ResponseError } from 'common/http'
 
 export class InvalidOperationError extends ResponseError {
   constructor(message: string) {

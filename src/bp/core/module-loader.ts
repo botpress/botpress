@@ -1,5 +1,6 @@
 import {
   BotTemplate,
+  Condition,
   ContentElement,
   ElementChangedAction,
   Flow,
@@ -15,9 +16,11 @@ import joi from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import path from 'path'
+import tmp from 'tmp'
 
 import { createForModule } from './api' // TODO
 import { ConfigProvider } from './config/config-loader'
+import { extractArchive } from './misc/archive'
 import { clearModuleScriptCache } from './modules/require'
 import ModuleResolver from './modules/resolver'
 import { GhostService } from './services'
@@ -32,11 +35,14 @@ const MODULE_SCHEMA = joi.object().keys({
   onBotMount: joi.func().optional(),
   onBotUnmount: joi.func().optional(),
   onModuleUnmount: joi.func().optional(),
+  onTopicChanged: joi.func().optional(),
   onFlowChanged: joi.func().optional(),
   onFlowRenamed: joi.func().optional(),
   onElementChanged: joi.func().optional(),
   skills: joi.array().optional(),
+  translations: joi.object().optional(),
   botTemplates: joi.array().optional(),
+  dialogConditions: joi.array().optional(),
   definition: joi.object().keys({
     name: joi.string().required(),
     fullName: joi.string().optional(),
@@ -82,7 +88,13 @@ const extractModuleInfo = async ({ location, enabled }, resolver: ModuleResolver
 
     return {
       ...moduleInfo,
-      ..._.pick(require(path.resolve(status.path, 'package.json')), ['name', 'fullName', 'description'])
+      ..._.pick(require(path.resolve(status.path, 'package.json')), [
+        'name',
+        'fullName',
+        'description',
+        'status',
+        'version'
+      ])
     }
     // silent catch
   } catch (err) {}
@@ -176,7 +188,7 @@ export class ModuleLoader {
     // Module loaded successfully, we will process its regular lifecycle
     if (isModuleLoaded) {
       const api = await createForModule(moduleName)
-      await (entryPoint.onServerReady && entryPoint.onServerReady(api))
+      await entryPoint.onServerReady?.(api)
 
       if (entryPoint.onBotMount) {
         await Promise.mapSeries(BotService.getMountedBots(), x => entryPoint.onBotMount!(api, x))
@@ -188,7 +200,7 @@ export class ModuleLoader {
     try {
       ModuleLoader.processModuleEntryPoint(module, name)
       const api = await createForModule(name)
-      await (module.onServerStarted && module.onServerStarted(api))
+      await module.onServerStarted?.(api)
 
       this.entryPoints.set(name, module)
 
@@ -216,7 +228,7 @@ export class ModuleLoader {
       await Promise.mapSeries(BotService.getMountedBots(), x => loadedModule.onBotUnmount!(api, x))
     }
 
-    await (loadedModule.onModuleUnmount && loadedModule.onModuleUnmount(api))
+    await loadedModule.onModuleUnmount?.(api)
 
     const resourceLoader = new ModuleResourceLoader(this.logger, moduleName, this.ghost)
     await resourceLoader.disableResources()
@@ -231,7 +243,16 @@ export class ModuleLoader {
     for (const module of modules) {
       const entryPoint = this.getModule(module.name)
       const api = await createForModule(module.name)
-      await (entryPoint.onBotUnmount && entryPoint.onBotUnmount(api, botId))
+      await entryPoint.onBotUnmount?.(api, botId)
+    }
+  }
+
+  public async onTopicChanged(botId: string, oldName?: string, newName?: string) {
+    const modules = this.getLoadedModules()
+    for (const module of modules) {
+      const entryPoint = this.getModule(module.name)
+      const api = await createForModule(module.name)
+      await entryPoint.onTopicChanged?.(api, botId, oldName, newName)
     }
   }
 
@@ -240,7 +261,7 @@ export class ModuleLoader {
     for (const module of modules) {
       const entryPoint = this.getModule(module.name)
       const api = await createForModule(module.name)
-      await (entryPoint.onFlowChanged && entryPoint.onFlowChanged(api, botId, flow))
+      await entryPoint.onFlowChanged?.(api, botId, flow)
     }
   }
 
@@ -249,7 +270,7 @@ export class ModuleLoader {
     for (const module of modules) {
       const entryPoint = this.getModule(module.name)
       const api = await createForModule(module.name)
-      await (entryPoint.onFlowRenamed && entryPoint.onFlowRenamed(api, botId, previousFlowName, newFlowName))
+      await entryPoint.onFlowRenamed?.(api, botId, previousFlowName, newFlowName)
     }
   }
 
@@ -263,7 +284,7 @@ export class ModuleLoader {
     for (const module of modules) {
       const entryPoint = this.getModule(module.name)
       const api = await createForModule(module.name)
-      await (entryPoint.onElementChanged && entryPoint.onElementChanged(api, botId, action, element, oldElement))
+      await entryPoint.onElementChanged?.(api, botId, action, element, oldElement)
     }
   }
 
@@ -281,11 +302,13 @@ export class ModuleLoader {
 
       try {
         const api = await createForModule(name)
-        await (module.onServerReady && module.onServerReady(api))
+        await module.onServerReady?.(api)
       } catch (err) {
         this.logger.warn(`Error in module "${name}" 'onServerReady'. Module will still be loaded. Err: ${err.message}`)
       }
     }
+
+    AppLifecycle.setDone(AppLifecycleEvents.MODULES_READY)
   }
 
   public async loadModulesForBot(botId: string) {
@@ -294,7 +317,7 @@ export class ModuleLoader {
       try {
         const entryPoint = this.getModule(module.name)
         const api = await createForModule(module.name)
-        await (entryPoint.onBotMount && entryPoint.onBotMount(api, botId))
+        await entryPoint.onBotMount?.(api, botId)
       } catch (err) {
         throw new Error(`while mounting bot in module ${module.name}: ${err}`)
       }
@@ -314,6 +337,16 @@ export class ModuleLoader {
     return _.flatten(templates)
   }
 
+  public getDialogConditions(): Condition[] {
+    const modules = Array.from(this.entryPoints.values())
+    const conditions = _.flatMap(
+      modules.filter(module => module.dialogConditions),
+      x => x.dialogConditions
+    ) as Condition[]
+
+    return _.orderBy(conditions, x => x?.displayOrder)
+  }
+
   public getLoadedModules(): ModuleDefinition[] {
     return Array.from(this.entryPoints.values()).map(x => x.definition)
   }
@@ -321,7 +354,7 @@ export class ModuleLoader {
   public getFlowGenerator(moduleName: string, skillId: string): Function | undefined {
     const module = this.getModule(moduleName)
     const skill = _.find(module.skills, x => x.id === skillId)
-    return skill && skill.flowGenerator
+    return skill?.flowGenerator
   }
 
   public async getAllSkills(): Promise<Partial<Skill>[]> {
@@ -337,6 +370,26 @@ export class ModuleLoader {
       )
 
     return _.flatten(skills)
+  }
+
+  public async getTranslations(): Promise<any> {
+    const allTranslations = {}
+
+    Array.from(this.entryPoints.values())
+      .filter(module => module.translations)
+      .forEach(mod => {
+        Object.keys(mod.translations!).map(lang => {
+          _.merge(allTranslations, {
+            [lang]: {
+              module: {
+                [mod.definition.name]: mod.translations![lang]
+              }
+            }
+          })
+        })
+      })
+
+    return allTranslations
   }
 
   private getModule(module: string): ModuleEntryPoint {
@@ -362,5 +415,21 @@ export class ModuleLoader {
 
     const filtered = _.uniqBy(allModules.filter(Boolean), 'location')
     return _.orderBy(filtered, 'name') as ModuleInfo[]
+  }
+
+  public async getArchiveModuleInfo(archive: Buffer): Promise<ModuleInfo | undefined> {
+    const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+    const tmpFolder = tmpDir.name
+
+    try {
+      await extractArchive(archive, tmpFolder)
+
+      const resolver = new ModuleResolver(this.logger)
+      return await extractModuleInfo({ location: tmpFolder, enabled: false }, resolver)
+    } catch (err) {
+      this.logger.attachError(err).warn('Invalid module archive')
+    } finally {
+      tmpDir.removeCallback()
+    }
   }
 }

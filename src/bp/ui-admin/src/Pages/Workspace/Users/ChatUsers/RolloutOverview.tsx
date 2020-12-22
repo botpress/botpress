@@ -1,5 +1,6 @@
 import { Tooltip } from '@blueprintjs/core'
 import { WorkspaceRollout } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -31,7 +32,7 @@ const RolloutOverview: FC<Props> = props => {
   return (
     <div style={{ marginBottom: 10, display: 'flex' }}>
       <div className="infosquare">
-        Current Strategy
+        {lang.tr('admin.workspace.users.currentStrategy')}
         <br />
         <strong>
           <Tooltip content={strategyInfo.desc}>{strategyInfo.label}</Tooltip>
@@ -40,9 +41,13 @@ const RolloutOverview: FC<Props> = props => {
 
       {strategyInfo.inviteRequired && (
         <div className="infosquare">
-          Invite Code
+          {lang.tr('admin.workspace.users.inviteCode')}
           <br />
-          <strong>{inviteCode}</strong> ({allowedUsages === -1 ? 'unlimited usage' : `${allowedUsages} usage left`})
+          <strong>{inviteCode}</strong> (
+          {allowedUsages === -1
+            ? lang.tr('admin.workspace.users.unlimitedUsage')
+            : lang.tr('admin.workspace.users.usageLeft', { allowedUsages })}
+          )
         </div>
       )}
     </div>
@@ -53,7 +58,4 @@ const mapStateToProps = state => ({
   workspaceRollout: state.user.workspaceRollout
 })
 
-export default connect(
-  mapStateToProps,
-  { fetchWorkspaceRollout }
-)(RolloutOverview)
+export default connect(mapStateToProps, { fetchWorkspaceRollout })(RolloutOverview)

@@ -1,7 +1,6 @@
 import { Logger } from 'botpress/sdk'
+import { AsyncMiddleware, asyncMiddleware } from 'common/http'
 import { Router } from 'express'
-
-import { AsyncMiddleware, asyncMiddleware } from './util'
 
 export abstract class CustomRouter {
   protected readonly asyncMiddleware: AsyncMiddleware

@@ -15,6 +15,8 @@ import {
 } from '.'
 import { KnexLogsRepository, LogsRepository } from './logs'
 import { StrategyUsersRepository } from './strategy_users'
+import { TasksRepository } from './tasks'
+import { TelemetryRepository } from './telemetry'
 import { WorkspaceUsersRepository } from './workspace_users'
 
 const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
@@ -42,12 +44,20 @@ const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) 
     .to(StrategyUsersRepository)
     .inSingletonScope()
 
+  bind<TelemetryRepository>(TYPES.TelemetryRepository)
+    .to(TelemetryRepository)
+    .inSingletonScope()
+
   bind<WorkspaceUsersRepository>(TYPES.WorkspaceUsersRepository)
     .to(WorkspaceUsersRepository)
     .inSingletonScope()
 
   bind<WorkspaceInviteCodesRepository>(TYPES.WorkspaceInviteCodesRepository)
     .to(WorkspaceInviteCodesRepository)
+    .inSingletonScope()
+
+  bind<TasksRepository>(TYPES.TasksRepository)
+    .to(TasksRepository)
     .inSingletonScope()
 })
 

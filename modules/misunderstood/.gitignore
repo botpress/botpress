@@ -1,5 +1,6 @@
 /bin
 /node_modules
+/node_production_modules
 /dist
 /assets/web/
 /assets/config.schema.json

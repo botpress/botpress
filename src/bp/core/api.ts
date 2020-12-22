@@ -6,6 +6,9 @@ import Knex from 'knex'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import MLToolkit from 'ml/toolkit'
+import Engine from 'nlu-core/engine'
+import { isTrainingAlreadyStarted, isTrainingCanceled } from 'nlu-core/errors'
+import modelIdService from 'nlu-core/model-id-service'
 
 import { container } from './app.inversify'
 import { ConfigProvider } from './config/config-loader'
@@ -63,16 +66,23 @@ const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk
     sendEvent: eventEngine.sendEvent.bind(eventEngine),
     replyToEvent: eventEngine.replyToEvent.bind(eventEngine),
     isIncomingQueueEmpty: eventEngine.isIncomingQueueEmpty.bind(eventEngine),
-    findEvents: eventRepo.findEvents.bind(eventRepo)
+    findEvents: eventRepo.findEvents.bind(eventRepo),
+    updateEvent: eventRepo.updateEvent.bind(eventRepo),
+    saveUserFeedback: eventRepo.saveUserFeedback.bind(eventRepo)
   }
 }
 
-const dialog = (dialogEngine: DialogEngine, stateManager: StateManager): typeof sdk.dialog => {
+const dialog = (
+  dialogEngine: DialogEngine,
+  stateManager: StateManager,
+  moduleLoader: ModuleLoader
+): typeof sdk.dialog => {
   return {
     createId: SessionIdFactory.createIdFromEvent.bind(SessionIdFactory),
     processEvent: dialogEngine.processEvent.bind(dialogEngine),
     deleteSession: stateManager.deleteDialogSession.bind(stateManager),
-    jumpTo: dialogEngine.jumpTo.bind(dialogEngine)
+    jumpTo: dialogEngine.jumpTo.bind(dialogEngine),
+    getConditions: moduleLoader.getDialogConditions.bind(moduleLoader)
   }
 }
 
@@ -96,7 +106,8 @@ const bots = (botService: BotService): typeof sdk.bots => {
     exportBot(botId: string): Promise<Buffer> {
       return botService.exportBot(botId)
     },
-    importBot: botService.importBot.bind(botService)
+    importBot: botService.importBot.bind(botService),
+    getBotTemplate: botService.getBotTemplate.bind(botService)
   }
 }
 
@@ -113,36 +124,16 @@ const users = (userRepo: UserRepository): typeof sdk.users => {
 
 const kvs = (kvs: KeyValueStore): typeof sdk.kvs => {
   return {
-    forBot(botId: string): sdk.KvsService {
-      return kvs.forBot(botId)
-    },
-    global(): sdk.KvsService {
-      return kvs.global()
-    },
-    async get(botId: string, key: string, path?: string): Promise<any> {
-      return kvs.get(botId, key, path)
-    },
-    async set(botId: string, key: string, value: string, path?: string) {
-      return kvs.set(botId, key, value, path)
-    },
-    async getStorageWithExpiry(botId, key): Promise<any> {
-      return kvs.getStorageWithExpiry(botId, key)
-    },
-    async setStorageWithExpiry(botId: string, key: string, value, expiryInMs?: string): Promise<void> {
-      return kvs.setStorageWithExpiry(botId, key, value, expiryInMs)
-    },
-    async removeStorageKeysStartingWith(key): Promise<void> {
-      return kvs.removeStorageKeysStartingWith(key)
-    },
-    getConversationStorageKey(sessionId, variable): string {
-      return kvs.getConversationStorageKey(sessionId, variable)
-    },
-    getUserStorageKey(userId, variable): string {
-      return kvs.getUserStorageKey(userId, variable)
-    },
-    getGlobalStorageKey(variable): string {
-      return kvs.getGlobalStorageKey(variable)
-    }
+    forBot: kvs.forBot.bind(kvs),
+    global: kvs.global.bind(kvs),
+    get: kvs.get.bind(kvs),
+    set: kvs.set.bind(kvs),
+    getStorageWithExpiry: kvs.getStorageWithExpiry.bind(kvs),
+    setStorageWithExpiry: kvs.setStorageWithExpiry.bind(kvs),
+    removeStorageKeysStartingWith: kvs.removeStorageKeysStartingWith.bind(kvs),
+    getConversationStorageKey: kvs.getConversationStorageKey.bind(kvs),
+    getUserStorageKey: kvs.getUserStorageKey.bind(kvs),
+    getGlobalStorageKey: kvs.getGlobalStorageKey.bind(kvs)
   }
 }
 
@@ -156,7 +147,7 @@ const notifications = (notificationService: NotificationsService): typeof sdk.no
 
 const security = (): typeof sdk.security => {
   return {
-    getMessageSignature: getMessageSignature
+    getMessageSignature
   }
 }
 
@@ -202,7 +193,8 @@ const workspaces = (workspaceService: WorkspaceService): typeof sdk.workspaces =
     getBotWorkspaceId: workspaceService.getBotWorkspaceId.bind(workspaceService),
     getWorkspaceRollout: workspaceService.getWorkspaceRollout.bind(workspaceService),
     addUserToWorkspace: workspaceService.addUserToWorkspace.bind(workspaceService),
-    consumeInviteCode: workspaceService.consumeInviteCode.bind(workspaceService)
+    consumeInviteCode: workspaceService.consumeInviteCode.bind(workspaceService),
+    getWorkspaceUsers: workspaceService.getWorkspaceUsers.bind(workspaceService)
   }
 }
 
@@ -276,7 +268,7 @@ export class BotpressAPIProvider {
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
-    this.dialog = dialog(dialogEngine, stateManager)
+    this.dialog = dialog(dialogEngine, stateManager, moduleLoader)
     this.config = config(moduleLoader, configProvider)
     this.realtime = new RealTimeAPI(realtimeService)
     this.database = db.knex
@@ -297,13 +289,13 @@ export class BotpressAPIProvider {
   async create(loggerName: string, owner: string): Promise<typeof sdk> {
     return {
       version: '',
-      RealTimePayload: RealTimePayload,
+      RealTimePayload,
       LoggerLevel: require('./sdk/enums').LoggerLevel,
       LogLevel: require('./sdk/enums').LogLevel,
       NodeActionType: require('./sdk/enums').NodeActionType,
       IO: {
-        Event: Event,
-        WellKnownFlags: WellKnownFlags
+        Event,
+        WellKnownFlags
       },
       MLToolkit: this.mlToolkit,
       dialog: this.dialog,
@@ -322,7 +314,21 @@ export class BotpressAPIProvider {
       security: this.security,
       experimental: this.experimental,
       workspaces: this.workspaces,
-      distributed: this.distributed
+      distributed: this.distributed,
+      NLU: {
+        makeEngine: async (config: sdk.NLU.Config, logger: sdk.NLU.Logger) => {
+          const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = config
+          const langConfig = { ducklingEnabled, ducklingURL, languageSources }
+          const engine = new Engine({ maxCacheSize: modelCacheSize })
+          await engine.initialize(langConfig, logger)
+          return engine
+        },
+        errors: {
+          isTrainingAlreadyStarted,
+          isTrainingCanceled
+        },
+        modelIdService
+      }
     }
   }
 }
@@ -334,11 +340,11 @@ export function createForModule(moduleId: string): Promise<typeof sdk> {
 
 export function createForGlobalHooks(): Promise<typeof sdk> {
   // return Promise.resolve(<typeof sdk>{})
-  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Hooks`, 'hooks')
+  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create('Hooks', 'hooks')
 }
 
 export function createForBotpress(): Promise<typeof sdk> {
-  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Botpress`, 'botpress')
+  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create('Botpress', 'botpress')
 }
 
 export function createForAction(): Promise<typeof sdk> {

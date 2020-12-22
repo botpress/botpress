@@ -15,7 +15,11 @@ const debugHttpOut = debugHttp.sub('out')
 const outgoingTypes = ['text', 'typing', 'login_prompt', 'carousel']
 type MessengerAction = 'typing_on' | 'typing_off' | 'mark_seen'
 
-type MountedBot = { pageId: string; botId: string; client: MessengerClient }
+interface MountedBot {
+  pageId: string
+  botId: string
+  client: MessengerClient
+}
 
 export class MessengerService {
   private readonly http = axios.create({ baseURL: 'https://graph.facebook.com/v3.2/me' })
@@ -33,7 +37,7 @@ export class MessengerService {
     }
 
     if (!config.appSecret?.length || config.appSecret === 'app_secret') {
-      throw new Error(`You need to set a valid value for "appSecret" in data/global/config/channel-messenger.json`)
+      throw new Error('You need to set a valid value for "appSecret" in data/global/config/channel-messenger.json')
     }
 
     this.appSecret = config.appSecret
@@ -76,23 +80,22 @@ export class MessengerService {
           .error('You need to configure an Access Token to enable it. Messenger Channel is disabled for this bot.')
       }
 
-      const { data } = await this.http.get('/', { params: { access_token: config.accessToken } })
+      try {
+        const { data } = await this.http.get('/', { params: { access_token: config.accessToken } })
 
-      if (!data?.id) {
+        const pageId = data.id
+        const client = new MessengerClient(botId, this.bp, this.http)
+        this.mountedBots.push({ botId, client, pageId })
+
+        await client.setupGreeting()
+        await client.setupGetStarted()
+        await client.setupPersistentMenu()
+      } catch (error) {
+        const errorMessage = _.get(error, 'response.data.error.message', 'are you sure your Access Token is valid?')
         return this.bp.logger
           .forBot(botId)
-          .error(
-            'Could not register bot, are you sure your Access Token is valid? Messenger Channel is disabled for this bot.'
-          )
+          .error(`Could not register bot, ${errorMessage}. Messenger Channel is disabled for this bot.`)
       }
-
-      const pageId = data.id
-      const client = new MessengerClient(botId, this.bp, this.http)
-      this.mountedBots.push({ botId: botId, client, pageId })
-
-      await client.setupGreeting()
-      await client.setupGetStarted()
-      await client.setupPersistentMenu()
     }
   }
 
@@ -144,7 +147,7 @@ export class MessengerService {
     if (body.object !== 'page') {
       // TODO: Handle other cases here
     } else {
-      res.status(200).send('EVENT_RECEIVED')
+      res.send('EVENT_RECEIVED')
     }
 
     for (const entry of body.entry) {
@@ -202,7 +205,7 @@ export class MessengerService {
 
     if (mode && token && mode === 'subscribe' && token === config.verifyToken) {
       this.bp.logger.debug('Webhook Verified')
-      res.status(200).send(challenge)
+      res.send(challenge)
     } else {
       res.sendStatus(403)
     }
@@ -217,7 +220,7 @@ export class MessengerService {
     const messenger = this.getMessengerClientByBotId(event.botId)
 
     if (!_.includes(outgoingTypes, messageType)) {
-      return next(new Error('Unsupported event type: ' + event.type))
+      return next(new Error(`Unsupported event type: ${event.type}`))
     }
 
     if (messageType === 'typing') {
@@ -305,12 +308,14 @@ export class MessengerClient {
     await this._callEndpoint('/messages', body)
   }
 
-  async sendTextMessage(senderId: string, message: string) {
+  async sendTextMessage(senderId: string, message: { [key: string]: any }) {
+    const acceptableKeys = ['text', 'quick_replies', 'metadata', 'attachment']
+
     const body = {
       recipient: {
         id: senderId
       },
-      message
+      message: _.pick(message, acceptableKeys)
     }
 
     debugMessages('outgoing text message', { senderId, message, body })

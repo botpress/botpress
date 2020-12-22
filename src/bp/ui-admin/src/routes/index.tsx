@@ -22,7 +22,7 @@ import Workspaces from '~/Pages/Workspaces'
 import store, { history } from '../store'
 import { extractCookie } from '../utils/cookies'
 import App from '../App/Layout'
-import Auth, { getActiveWorkspace } from '../Auth'
+import Auth, { getActiveWorkspace, setToken } from '../Auth'
 import ChangePassword from '../Pages/Account/ChangePassword'
 import LoginPage from '../Pages/Account/Login'
 import RegisterPage from '../Pages/Account/Register'
@@ -31,11 +31,33 @@ import Modules from '../Pages/Server/Modules'
 
 import PrivateRoute from './PrivateRoute'
 
+const setupBranding = () => {
+  window.document.title = window.APP_NAME || 'Botpress Admin Panel'
+
+  if (window.APP_FAVICON) {
+    const link = document.querySelector('link[rel="icon"]')
+    link && link.setAttribute('href', window.APP_FAVICON)
+  }
+
+  if (window.APP_CUSTOM_CSS) {
+    const sheet = document.createElement('link')
+    sheet.rel = 'stylesheet'
+    sheet.href = window.APP_CUSTOM_CSS
+    sheet.type = 'text/css'
+    document.head.appendChild(sheet)
+  }
+}
+
 export const makeMainRoutes = () => {
   const auth = new Auth()
+  setupBranding()
 
   const ExtractToken = () => {
-    auth.setSession({ expiresIn: 7200, idToken: extractCookie('userToken') })
+    const token = extractCookie('userToken')
+    if (token) {
+      setToken(token)
+    }
+
     // tslint:disable-next-line: no-floating-promises
     auth.afterLoginRedirect()
 
@@ -52,7 +74,7 @@ export const makeMainRoutes = () => {
   }
 
   return (
-    <Provider store={store}>
+    <Provider store={store as any}>
       <ConnectedRouter history={history}>
         <Switch>
           <Route path="/login/:strategy?/:workspace?" render={props => <LoginPage auth={auth} {...props} />} />

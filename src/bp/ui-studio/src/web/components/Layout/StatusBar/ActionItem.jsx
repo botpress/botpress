@@ -2,7 +2,7 @@ import React from 'react'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import _ from 'lodash'
 import classNames from 'classnames'
-import style from './StatusBar.styl'
+import style from './style.scss'
 
 const titleToId = txt => txt.replace(/[^\W]/gi, '_')
 

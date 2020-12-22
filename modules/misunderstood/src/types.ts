@@ -18,16 +18,16 @@ export enum RESOLUTION_TYPE {
   intent = 'intent'
 }
 
-export type FlaggedEvent = {
+export interface FlaggedEvent {
   eventId: string
   botId: string
   language: string
   preview: string
   reason: FLAG_REASON
-  status: FLAGGED_MESSAGE_STATUS
-  resolutionType: RESOLUTION_TYPE
-  resolution: string | null
-  resolutionParams: string | object | null
+  status?: FLAGGED_MESSAGE_STATUS
+  resolutionType?: RESOLUTION_TYPE
+  resolution?: string | null
+  resolutionParams?: string | object | null
 }
 
 export type DbFlaggedEvent = FlaggedEvent & {
@@ -36,7 +36,7 @@ export type DbFlaggedEvent = FlaggedEvent & {
   updatedAt: string
 }
 
-export type ContextMessage = {
+export interface ContextMessage {
   direction: 'incoming' | 'outgoing'
   preview: string
   payloadMessage: string
@@ -48,7 +48,7 @@ export type ApiFlaggedEvent = DbFlaggedEvent & {
   nluContexts: string[]
 }
 
-export type ResolutionData = {
+export interface ResolutionData {
   resolutionType: RESOLUTION_TYPE
   resolution: string | null
   resolutionParams?: object | null

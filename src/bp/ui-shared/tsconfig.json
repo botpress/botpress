@@ -18,8 +18,9 @@
     "noImplicitAny": false,
     "baseUrl": "./src",
     "paths": {
-      "botpress/sdk": ["../../../sdk/botpress.d.ts"],
-      "botpress/common/typings": ["../../../out/bp/common/typings.d.ts"],
+      "~/*": ["*"],
+      "botpress/sdk": ["../../sdk/botpress.d.ts"],
+      "common/*": ["../../common/*"],
       "@blueprintjs/core": ["../../ui-studio/node_modules/@blueprintjs/core"],
       "@blueprintjs/select": ["../../ui-studio/node_modules/@blueprintjs/select"],
       "react": ["../../ui-studio/node_modules/@types/react"],

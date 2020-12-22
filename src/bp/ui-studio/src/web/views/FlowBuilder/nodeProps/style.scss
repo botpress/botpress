@@ -1,3 +1,5 @@
+@import '../../../palette.scss';
+
 h5 {
   font-weight: 500;
 }
@@ -138,4 +140,47 @@ h5 {
     border: 1px solid #ddd;
     border-radius: unset;
   }
+}
+
+.formHeader {
+  position: relative;
+
+  h4 {
+    font-size: 22px;
+    font-weight: 500;
+    color: $main-dark-color;
+    margin: 0 0 5px;
+  }
+}
+
+.actionDialogContent {
+  padding: 10px;
+}
+
+.actionSelectItem {
+  transition: background-color 0.15s ease-in-out;
+  border-radius: 2px;
+  padding: 3px;
+  max-width: 450px;
+}
+
+.actionSelectItem:not(:last-child) {
+  margin-bottom: 5px;
+}
+
+.actionSelectItem:hover {
+  cursor: pointer;
+  background-color: rgba(167, 182, 194, 0.3);
+}
+
+.actionSelectItem .category {
+  font-weight: bold;
+}
+
+.actionSelectItem .description {
+  font-size: small;
+}
+
+.actionServer {
+  margin: 5px 6px 0 0;
 }

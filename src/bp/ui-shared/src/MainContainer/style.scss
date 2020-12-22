@@ -1,0 +1,25 @@
+.container {
+  position: relative;
+  height: 100%;
+  display: flex;
+}
+
+.fullsize, .fullsize > div {
+  height: 100%;
+}
+
+.mainContent {
+  height: 100%;
+  flex-grow: 1;
+  position: relative;
+}
+
+.yOverflowScroll {
+  overflow-y: scroll;
+}
+
+.leftSideBar {
+  flex-shrink: 1;
+  flex-grow: 0;
+  width: 240px;
+}

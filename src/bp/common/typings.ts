@@ -1,8 +1,7 @@
-import { BotDetails, Flow, FlowNode, RolloutStrategy, StageRequestApprovers } from 'botpress/sdk'
+import { BotDetails, Flow, FlowNode, IO, RolloutStrategy, StageRequestApprovers, StrategyUser } from 'botpress/sdk'
 import { Request } from 'express'
 
 import { BotpressConfig } from '../core/config/botpress.config'
-import { StrategyUser } from '../core/repositories/strategy_users'
 
 export interface IDisposeOnExit {
   disposeOnExit(): void
@@ -21,18 +20,6 @@ export interface CreatedUser {
   email: string
   tempPassword: string
 }
-
-export interface WorkspaceUser {
-  email: string
-  strategy: string
-  role: string
-  workspace: string
-  workspaceName?: string
-}
-
-export type WorkspaceUserInfo = {
-  attributes: any
-} & WorkspaceUser
 
 export interface AuthStrategyConfig {
   strategyType: string
@@ -76,6 +63,13 @@ export interface TokenUser {
   strategy: string
   isSuperAdmin: boolean
   exp?: number
+  iat?: number
+}
+
+export interface StoredToken {
+  token: string
+  expiresAt: number
+  issuedAt: number
 }
 
 export type RequestWithUser = Request & {
@@ -114,7 +108,7 @@ export interface Stage {
 
 export interface UserProfile {
   email: string
-  isSuperAdmin?: boolean
+  isSuperAdmin: boolean
   strategyType: string
   strategy: string
   firstname?: string
@@ -155,6 +149,11 @@ export interface ServerConfig {
   live: { [keyName: string]: string }
 }
 
+export interface NodeProblem {
+  nodeName: string
+  missingPorts: any
+}
+
 export interface ChatUserAuth {
   sessionId: string
   botId: string
@@ -182,6 +181,31 @@ export interface ModuleInfo {
   /** The complete location of the module */
   fullPath: string
   enabled: boolean
+  status?: 'stable' | 'experimental'
+}
+
+export interface LibraryElement {
+  contentId: string
+  type: 'say_something' | 'execute'
+  preview: string
+  path: string
+}
+
+export interface OutgoingEventCommonArgs {
+  event: IO.Event
+  // Any other additional property
+  [property: string]: any
+}
+
+export interface EventCommonArgs {
+  event: IO.IncomingEvent
+  user: { [attribute: string]: any }
+  temp: { [property: string]: any }
+  bot: { [property: string]: any }
+  session: IO.CurrentSession
+  workflow: IO.WorkflowHistory
+  // Any other additional property
+  [property: string]: any
 }
 
 export interface ServerHealth {
@@ -195,4 +219,38 @@ export interface BotHealth {
   errorCount: number
   criticalCount: number
   warningCount: number
+}
+
+export interface ActionServer {
+  id: string
+  baseUrl: string
+}
+
+export type ActionScope = 'bot' | 'global'
+
+export interface ActionDefinition {
+  name: string
+  category: string
+  description: string
+  author: string
+  params: ActionParameterDefinition[]
+}
+
+export type LocalActionDefinition = ActionDefinition & {
+  title: string
+  scope: ActionScope
+  legacy: boolean
+  hidden: boolean
+}
+
+export interface ActionParameterDefinition {
+  name: string
+  description: string
+  required: boolean
+  type: string
+  default: any
+}
+
+export type ActionServerWithActions = ActionServer & {
+  actions: ActionDefinition[] | undefined
 }

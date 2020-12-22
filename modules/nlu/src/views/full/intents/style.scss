@@ -10,9 +10,13 @@
   justify-content: flex-end;
   flex-grow: 1;
   min-height: 1px;
+
   > div:first-child {
     overflow: auto;
     flex-grow: 1;
+  }
+
+  &:not(.liteIntentEditor) > div:first-child {
     padding: 10px;
   }
 }
@@ -24,7 +28,10 @@
 
   .hint {
     color: #738694;
-    max-width: 50%;
+
+    &:not(.lightEditorHint) {
+      max-width: 50%;
+    }
   }
 }
 
@@ -71,6 +78,7 @@ p.utterance {
     margin-right: 5px;
     opacity: 0.5;
     text-align: center;
+    user-select: none;
 
     &.count {
       width: inherit;
@@ -199,6 +207,7 @@ p.utterance {
   max-width: 300px;
   border-left: solid 1px #eee;
   flex-grow: 0.2;
+  overflow: auto;
 }
 
 .centerContainer {

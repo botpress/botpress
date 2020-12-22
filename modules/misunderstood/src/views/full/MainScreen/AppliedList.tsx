@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import React from 'react'
 
 import { DbFlaggedEvent } from '../../../types'
@@ -11,7 +12,7 @@ interface Props {
 
 const AppliedList = ({ events, totalEventsCount }: Props) => (
   <>
-    <h3>Applied Misunderstood ({totalEventsCount})</h3>
+    <h3>{lang.tr('module.misunderstood.appliedMisunderstood', { count: totalEventsCount })}</h3>
     <ResolvedEventsList events={events} />
   </>
 )

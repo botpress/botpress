@@ -185,5 +185,16 @@ $status-bar-height: 24px;
 }
 
 .chooseContainer {
-  padding: 10px;
+  padding: 10px 0;
+}
+
+.chooseLabel {
+  display: block;
+  width: 100%;
+  font-size: 14px;
+  margin: 0 0 var(--spacing-small);
+}
+
+.createBtn {
+  display: block;
 }

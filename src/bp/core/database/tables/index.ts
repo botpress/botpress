@@ -3,6 +3,7 @@ import Knex from 'knex'
 import { Table } from '../interfaces'
 
 import {
+  BotUsersTable,
   DialogSessionTable,
   EventsTable,
   GhostFilesTable,
@@ -10,12 +11,14 @@ import {
   KeyValueStoreTable,
   LogsTable,
   NotificationsTable,
-  BotUsersTable
+  TasksTable
 } from './bot-specific'
 import {
   ChannelUsersTable,
   DataRetentionTable,
+  MigrationsTable,
   ServerMetadataTable,
+  TelemetryTable,
   WorkspaceInviteCodesTable,
   WorkspaceUsersTable
 } from './server-wide'
@@ -34,8 +37,11 @@ const tables: typeof Table[] = [
   NotificationsTable,
   KeyValueStoreTable,
   DataRetentionTable,
+  TelemetryTable,
   EventsTable,
-  BotUsersTable
+  TasksTable,
+  BotUsersTable,
+  MigrationsTable
 ]
 
 export default <(new (knex: Knex) => Table)[]>tables

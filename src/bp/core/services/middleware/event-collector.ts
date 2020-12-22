@@ -13,10 +13,78 @@ import { SessionIdFactory } from '../dialog/session/id-factory'
 
 type BatchEvent = sdk.IO.StoredEvent & { retry?: number }
 
+export const StepScopes = {
+  Received: 'received',
+  StateLoaded: 'stateLoaded',
+  Middleware: 'mw',
+  Dialog: 'dialog',
+  Action: 'action',
+  Hook: 'hook',
+  EndProcessing: 'completed'
+}
+
+export const StepStatus = {
+  Started: 'start',
+  Completed: 'completed',
+  Error: 'error',
+  TimedOut: 'timedOut',
+  Swallowed: 'swallowed',
+  Skipped: 'skipped'
+}
+
+export const addStepToEvent = (event: sdk.IO.Event, scope: string, name?: string, status?: string) => {
+  if (!event?.debugger) {
+    return
+  }
+
+  event.processing = {
+    ...(event.processing || {}),
+    [`${scope}${name ? `:${name}` : ''}${status ? `:${status}` : ''}`]: {
+      ...(event?.activeProcessing || {}),
+      date: new Date()
+    }
+  }
+
+  event.activeProcessing = {}
+}
+
+export const addLogToEvent = (logEntry: string, event: sdk.IO.Event) => {
+  if (event?.debugger && event?.activeProcessing) {
+    event.activeProcessing.logs = [...(event.activeProcessing.logs ?? []), logEntry]
+  }
+}
+
+export const addErrorToEvent = (eventError: sdk.IO.EventError, event: sdk.IO.Event | sdk.IO.IncomingEvent) => {
+  if (event?.debugger && event?.activeProcessing) {
+    if (event.direction === 'incoming') {
+      const { context } = (event as sdk.IO.IncomingEvent).state
+      eventError = { ...eventError, flowName: context?.currentFlow, nodeName: context?.currentNode }
+    }
+
+    event.activeProcessing.errors = [...(event.activeProcessing.errors ?? []), eventError]
+  }
+}
+
+const eventsFields = [
+  'id',
+  'botId',
+  'channel',
+  'threadId',
+  'target',
+  'sessionId',
+  'direction',
+  'type',
+  'incomingEventId',
+  'workflowId',
+  'feedback',
+  'success',
+  'event',
+  'createdOn'
+]
+
 @injectable()
 export class EventCollector {
   private readonly MAX_RETRY_ATTEMPTS = 3
-  private readonly BATCH_SIZE = 100
   private readonly PRUNE_INTERVAL = ms('30s')
   private readonly TABLE_NAME = 'events'
   private knex!: Knex & sdk.KnexExtension
@@ -27,9 +95,11 @@ export class EventCollector {
   private enabled = false
   private interval!: number
   private retentionPeriod!: number
+  private batchSize: number = 100
   private batch: BatchEvent[] = []
   private ignoredTypes: string[] = []
   private ignoredProperties: string[] = []
+  private debuggerProperties: string[] = []
 
   constructor(
     @inject(TYPES.Logger)
@@ -45,39 +115,58 @@ export class EventCollector {
       return
     }
 
+    // SQLite supports max 999 variables (13 fields * batch size). Being conservative
+    if (database.knex.isLite) {
+      this.batchSize = 50
+    }
+
     this.knex = database.knex
     this.interval = ms(config.collectionInterval)
     this.retentionPeriod = ms(config.retentionPeriod)
     this.ignoredTypes = config.ignoredEventTypes || []
     this.ignoredProperties = config.ignoredEventProperties || []
+    this.debuggerProperties = config.debuggerProperties || []
     this.enabled = true
   }
 
-  public storeEvent(event: sdk.IO.OutgoingEvent | sdk.IO.IncomingEvent) {
+  public storeEvent(event: sdk.IO.OutgoingEvent | sdk.IO.IncomingEvent, activeWorkflow?: sdk.IO.WorkflowHistory) {
     if (!this.enabled || this.ignoredTypes.includes(event.type)) {
       return
     }
 
     if (!event.botId || !event.channel || !event.direction) {
-      throw new Error(`Can't store event missing required fields (botId, channel, direction)`)
+      throw new Error("Can't store event missing required fields (botId, channel, direction)")
     }
 
-    const { id, botId, channel, threadId, target, direction } = event
+    const { id, botId, channel, threadId, target, direction, type } = event
 
     const incomingEventId = (event as sdk.IO.OutgoingEvent).incomingEventId
     const sessionId = SessionIdFactory.createIdFromEvent(event)
 
-    this.batch.push({
+    const ignoredProps = [...this.ignoredProperties, ...(event.debugger ? [] : this.debuggerProperties), 'debugger']
+
+    const entry: sdk.IO.StoredEvent = {
+      id,
       botId,
       channel,
       threadId,
       target,
       sessionId,
       direction,
+      type,
+      workflowId: activeWorkflow?.eventId,
+      success: activeWorkflow?.success,
       incomingEventId: event.direction === 'outgoing' ? incomingEventId : id,
-      event: this.knex.json.set(this.ignoredProperties ? _.omit(event, this.ignoredProperties) : event || {}),
+      event: ignoredProps.length ? (_.omit(event, ignoredProps) as sdk.IO.Event) : event,
       createdOn: this.knex.date.now()
-    })
+    }
+
+    const existingIndex = this.batch.findIndex(x => x.id === id)
+    if (existingIndex !== -1) {
+      this.batch.splice(existingIndex, 1, entry)
+    } else {
+      this.batch.push(entry)
+    }
   }
 
   public start() {
@@ -93,20 +182,36 @@ export class EventCollector {
     this.logger.info('Stopped')
   }
 
+  private buildQuery = (elements: BatchEvent[]) => {
+    const values = elements
+      .map(entry => {
+        const mappedValues = eventsFields.map(x => (x === 'event' ? JSON.stringify(entry[x]) : entry[x]) ?? null)
+        return this.knex.raw(`(${eventsFields.map(() => '?').join(',')})`, mappedValues).toQuery()
+      })
+      .join(',')
+
+    return this.knex
+      .raw(
+        `INSERT INTO ${this.TABLE_NAME}
+      (${eventsFields.map(x => `"${x}"`).join(',')}) VALUES ${values}
+        ON CONFLICT("id")
+        DO UPDATE SET event = EXCLUDED.event`
+      )
+      .toQuery()
+  }
+
   private _runTask = async () => {
     if (this.currentPromise || !this.batch.length) {
       return
     }
 
-    const batchCount = this.batch.length >= this.BATCH_SIZE ? this.BATCH_SIZE : this.batch.length
+    const batchCount = this.batch.length >= this.batchSize ? this.batchSize : this.batch.length
     const elements = this.batch.splice(0, batchCount)
 
     this.currentPromise = this.knex
-      .batchInsert(
-        this.TABLE_NAME,
-        elements.map(x => _.omit(x, 'retry')),
-        this.BATCH_SIZE
-      )
+      .transaction(async trx => {
+        await trx.raw(this.buildQuery(elements))
+      })
       .then(() => {
         if (Date.now() - this.lastPruneTs >= this.PRUNE_INTERVAL) {
           this.lastPruneTs = Date.now()
@@ -116,7 +221,7 @@ export class EventCollector {
         }
       })
       .catch(err => {
-        this.logger.attachError(err).error(`Couldn't store events to the database. Re-queuing elements`)
+        this.logger.attachError(err).error("Couldn't store events to the database. Re-queuing elements")
         const elementsToRetry = elements
           .map(x => ({ ...x, retry: x.retry ? x.retry + 1 : 1 }))
           .filter(x => x.retry < this.MAX_RETRY_ATTEMPTS)

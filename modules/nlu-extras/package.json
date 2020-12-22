@@ -1,6 +1,8 @@
 {
   "name": "nlu-extras",
-  "version": "10.47.1",
+  "fullName": "NLU Extra Tools",
+  "version": "1.0.0",
+  "status": "stable",
   "description": "Extra NLU tools, such as external NLU engines",
   "private": true,
   "main": "dist/backend/index.js",
@@ -30,7 +32,7 @@
     "https-proxy-agent": "^2.2.1",
     "joi": "^13.6.0",
     "jszip": "^3.2.2",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.19",
     "lru-cache": "^5.1.1",
     "ms": "^2.1.1",
     "nanoid": "^2.0.1",
@@ -40,6 +42,6 @@
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
+    "lodash": ">=4.17.19"
   }
 }

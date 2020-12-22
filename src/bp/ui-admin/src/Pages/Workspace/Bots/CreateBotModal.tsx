@@ -1,5 +1,6 @@
 import { Button, Classes, Dialog, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
-import { BotTemplate } from 'botpress/sdk'
+import { BotConfig, BotTemplate } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
@@ -14,10 +15,15 @@ export const sanitizeBotId = (text: string) =>
     .replace(/\s/g, '-')
     .replace(/[^a-z0-9_-]/g, '')
 
-type SelectOption<T> = { label: string; value: T; __isNew__?: boolean }
+interface SelectOption<T> {
+  label: string
+  value: T
+  __isNew__?: boolean
+}
 
 interface OwnProps {
   isOpen: boolean
+  existingBots: BotConfig[]
   onCreateBotSuccess: () => void
   toggle: () => void
 }
@@ -126,7 +132,7 @@ class CreateBotModal extends Component<Props, State> {
     }
 
     try {
-      await api.getSecured().post(`/admin/bots`, newBot)
+      await api.getSecured().post('/admin/bots', newBot)
       this.props.onCreateBotSuccess()
       this.toggleDialog()
     } catch (error) {
@@ -141,13 +147,17 @@ class CreateBotModal extends Component<Props, State> {
 
   get isButtonDisabled() {
     const { isProcessing, botId, botName, selectedTemplate } = this.state
-    return isProcessing || !botId || !botName || !selectedTemplate || !this._form || !this._form.checkValidity()
+    const isNameOrIdInvalid =
+      !botId ||
+      !botName ||
+      (this.props.existingBots && this.props.existingBots.some(bot => bot.name === botName || bot.id === botId))
+    return isNameOrIdInvalid || isProcessing || !selectedTemplate || !this._form || !this._form.checkValidity()
   }
 
   render() {
     return (
       <Dialog
-        title="Create a new bot"
+        title={lang.tr('admin.workspace.bots.create.newBot')}
         icon="add"
         isOpen={this.props.isOpen}
         onClose={this.toggleDialog}
@@ -157,43 +167,42 @@ class CreateBotModal extends Component<Props, State> {
         <form ref={form => (this._form = form)}>
           <div className={Classes.DIALOG_BODY}>
             <FormGroup
-              label="Bot Name"
+              label={lang.tr('admin.workspace.bots.create.name')}
               labelFor="bot-name"
               labelInfo="*"
-              helperText={`It will be displayed to your visitors. You can change it anytime.`}
+              helperText={lang.tr('admin.workspace.bots.create.nameHelper')}
             >
               <InputGroup
                 id="input-bot-name"
                 tabIndex={1}
-                placeholder="The name of your bot"
+                placeholder={lang.tr('admin.workspace.bots.create.namePlaceholder')}
                 minLength={3}
-                required={true}
+                required
                 value={this.state.botName}
                 onChange={this.handleNameChanged}
-                autoFocus={true}
+                autoFocus
               />
             </FormGroup>
 
             <FormGroup
-              label="Bot ID"
+              label={lang.tr('admin.workspace.bots.create.id')}
               labelFor="botid"
               labelInfo="*"
-              helperText="This ID cannot be changed, so choose wisely. It will be displayed in the URL and your visitors can see it.
-              Special characters are not allowed. Minimum length: 3"
+              helperText={lang.tr('admin.workspace.bots.create.idHelper')}
             >
               <InputGroup
                 id="botid"
                 tabIndex={2}
-                placeholder="The ID of your bot (must be unique)"
+                placeholder={lang.tr('admin.workspace.bots.create.idPlaceholder')}
                 minLength={3}
-                required={true}
+                required
                 value={this.state.botId}
                 onChange={this.handleBotIdChanged}
               />
             </FormGroup>
 
             {this.state.templates.length > 0 && (
-              <FormGroup label="Bot Template" labelFor="template">
+              <FormGroup label={lang.tr('admin.workspace.bots.create.template')} labelFor="template">
                 <Select
                   id="select-bot-templates"
                   tabIndex="3"
@@ -206,7 +215,7 @@ class CreateBotModal extends Component<Props, State> {
               </FormGroup>
             )}
             {this.state.categories.length > 0 && (
-              <FormGroup label="Bot Category">
+              <FormGroup label={lang.tr('admin.workspace.bots.create.category')}>
                 <Select
                   tabIndex="4"
                   options={this.state.categories}
@@ -222,7 +231,7 @@ class CreateBotModal extends Component<Props, State> {
               <Button
                 id="btn-modal-create-bot"
                 type="submit"
-                text={this.state.isProcessing ? 'Please wait...' : 'Create Bot'}
+                text={this.state.isProcessing ? lang.tr('pleaseWait') : lang.tr('admin.workspace.bots.create.create')}
                 onClick={this.createBot}
                 disabled={this.isButtonDisabled}
                 intent={Intent.PRIMARY}
@@ -244,7 +253,4 @@ const mapDispatchToProps = {
   fetchBotCategories
 }
 
-export default connect<StateProps, DispatchProps, OwnProps>(
-  mapStateToProps,
-  mapDispatchToProps
-)(CreateBotModal)
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(CreateBotModal)

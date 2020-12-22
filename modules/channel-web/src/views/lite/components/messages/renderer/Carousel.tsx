@@ -53,7 +53,7 @@ export class Carousel extends React.Component<ICarouselProps, ICarouselState> {
 
   render() {
     return (
-      <div ref={el => (this.ref = el)} style={{ width: '100%' }}>
+      <div ref={el => (this.ref = el)} style={{ width: '100%', ...this.props.style }}>
         {this.state.adjustedWidth && this.renderCarousel()}
       </div>
     )
@@ -85,7 +85,7 @@ export const Card = props => {
                   {/^javascript:/.test(btn.url) ? null : <i className={'bpw-card-external-icon'} />}
                 </a>
               )
-            } else if (btn.type == 'postback' || btn.payload) {
+            } else if (btn.type === 'postback' || btn.payload) {
               return (
                 <a
                   onClick={props.onSendData?.bind(this, { type: 'postback', payload: btn.payload })}
@@ -95,7 +95,7 @@ export const Card = props => {
                   {btn.title || btn}
                 </a>
               )
-            } else if (btn.type == 'say_something' || btn.text) {
+            } else if (btn.type === 'say_something' || btn.text) {
               return (
                 <a
                   onClick={props.onSendData?.bind(this, { type: 'say_something', text: btn.text })}
@@ -123,6 +123,7 @@ export const Card = props => {
 interface ICarouselProps {
   carousel: Renderer.Carousel
   onSendData: any
+  style?: object
 }
 
 interface ICarouselState {

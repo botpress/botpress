@@ -1,8 +1,8 @@
 import { Button, Callout } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import { ServerConfig } from 'common/typings'
 import _ from 'lodash'
-import React from 'react'
-import { FC, useEffect, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import api from '~/api'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
@@ -59,22 +59,22 @@ const CheckRequirements: FC<Props> = props => {
   const enableFeature = async () => {
     try {
       await api.getSecured().post(`/admin/server/features/enable/${props.feature}`)
-      toastSuccess(`Configuration updated successfully! Restart Botpress for changes to take effect`)
+      toastSuccess(lang.tr('admin.requirements.confUpdated'))
       props.fetchServerConfig()
     } catch (err) {
-      toastFailure(`Could not update configuration: ${err.message}`)
+      toastFailure(lang.tr('admin.requirements.confNotUpdated', { msg: err.message }))
     }
   }
 
   if (missingReq.length) {
     return (
       <div className="requirements">
-        <Callout title="Missing requirements">
-          {props.messageReqMissing || 'To use this feature, these features are also required:'}
+        <Callout title={lang.tr('admin.requirements.missing')}>
+          {props.messageReqMissing || lang.tr('admin.requirements.alsoRequired')}
           <div style={{ padding: '20px 0' }}>
-            {missingReq.includes('pro') && <strong>Botpress Pro must be enabled with a valid license</strong>}
-            {missingReq.includes('redis') && <strong>Redis must be enabled and correctly configured</strong>}
-            {missingReq.includes('monitoring') && <strong>Monitoring must be enabled</strong>}
+            {missingReq.includes('pro') && <strong>{lang.tr('admin.requirements.pro')}</strong>}
+            {missingReq.includes('redis') && <strong>{lang.tr('admin.requirements.redis')}</strong>}
+            {missingReq.includes('monitoring') && <strong>{lang.tr('admin.requirements.monitoring')}</strong>}
           </div>
         </Callout>
       </div>
@@ -85,11 +85,10 @@ const CheckRequirements: FC<Props> = props => {
     <div>{props.children}</div>
   ) : (
     <div className="requirements">
-      <Callout title="Feature disabled">
-        {props.messageDisabled ||
-          'To use this feature, click on the button below. A server restart will be required for changes to take effect.'}
+      <Callout title={lang.tr('admin.requirements.featureDisabled')}>
+        {props.messageDisabled || lang.tr('admin.requirements.toUseRestart')}
         <div style={{ padding: '20px 0' }}>
-          <Button onClick={enableFeature} text="Enable this feature" />
+          <Button onClick={enableFeature} text={lang.tr('admin.requirements.enableFeature')} />
         </div>
       </Callout>
     </div>
@@ -101,7 +100,4 @@ const mapStateToProps = state => ({
   serverConfigLoaded: state.server.serverConfigLoaded
 })
 
-export default connect(
-  mapStateToProps,
-  { fetchServerConfig }
-)(CheckRequirements)
+export default connect(mapStateToProps, { fetchServerConfig })(CheckRequirements)

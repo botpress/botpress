@@ -1,11 +1,11 @@
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, lang, toast } from 'botpress/shared'
 import { action, observable, runInAction } from 'mobx'
 import path from 'path'
 
 import { EditableFile, FilePermissions, FilesDS, FileType } from '../../../backend/typings'
 import { FileFilters } from '../typings'
-import { FILENAME_REGEX, toastFailure, toastSuccess } from '../utils'
-import { baseAction, baseHook } from '../utils/templates'
+import { FILENAME_REGEX } from '../utils'
+import { baseHook, httpAction, legacyAction } from '../utils/templates'
 
 import CodeEditorApi from './api'
 import { EditorStore } from './editor'
@@ -94,22 +94,35 @@ class RootStore {
 
   @action.bound
   async createFilePrompt(type: FileType, isGlobal?: boolean, hookType?: string) {
-    let name = window.prompt(`Choose the name of your ${type}. No special chars. Use camel case`)
+    let name = window.prompt(lang.tr('module.code-editor.store.chooseName', { type }))
     if (!name) {
       return
     }
 
     if (!FILENAME_REGEX.test(name)) {
-      alert('Invalid filename')
+      alert(lang.tr('module.code-editor.store.invalidFilename'))
       return
     }
 
     name = name.endsWith('.js') ? name : name + '.js'
 
+    let content
+    switch (type) {
+      case 'action_legacy':
+        content = legacyAction
+        break
+      case 'action_http':
+        content = httpAction
+        break
+      default:
+        content = baseHook
+        break
+    }
+
     await this.editor.openFile({
       name,
       location: name,
-      content: type === 'action' ? baseAction : baseHook,
+      content,
       type,
       hookType,
       botId: isGlobal ? undefined : window.BOT_ID
@@ -119,19 +132,19 @@ class RootStore {
   @action.bound
   createNewAction() {
     // This is called by the code editor & the shortcut, so it's the default create
-    return this.createFilePrompt('action', false)
+    return this.createFilePrompt('action_http', false)
   }
 
   @action.bound
   async deleteFile(file: EditableFile): Promise<void> {
     if (
-      await confirmDialog(`Are you sure you want to delete the file named ${file.name}?`, {
-        acceptLabel: 'Delete'
+      await confirmDialog(lang.tr('module.code-editor.store.confirmDeleteFile', { file: file.name }), {
+        acceptLabel: lang.tr('delete')
       })
     ) {
       if (await this.api.deleteFile(file)) {
         this.editor.closeFile()
-        toastSuccess('File deleted successfully!')
+        toast.success(lang.tr('module.code-editor.store.fileDeleted'))
         await this.fetchFiles()
       }
     }
@@ -141,7 +154,7 @@ class RootStore {
   async disableFile(file: EditableFile): Promise<void> {
     const newName = file.name.charAt(0) !== '.' ? '.' + file.name : file.name
     if (await this.api.renameFile(file, newName)) {
-      toastSuccess('File disabled successfully!')
+      toast.success(lang.tr('module.code-editor.store.fileDisabled'))
       await this.fetchFiles()
     }
   }
@@ -151,7 +164,7 @@ class RootStore {
     const newName = file.name.charAt(0) === '.' ? file.name.substr(1) : file.name
 
     if (await this.api.renameFile(file, newName)) {
-      toastSuccess('File enabled successfully!')
+      toast.success(lang.tr('module.code-editor.store.fileEnabled'))
       await this.fetchFiles()
     }
   }
@@ -159,7 +172,7 @@ class RootStore {
   @action.bound
   async renameFile(file: EditableFile, newName: string) {
     if (await this.api.renameFile(file, newName)) {
-      toastSuccess('File renamed successfully!')
+      toast.success(lang.tr('module.code-editor.store.fileRenamed'))
       await this.fetchFiles()
     }
   }
@@ -179,12 +192,20 @@ class RootStore {
     }
 
     if (await this.api.fileExists(duplicate)) {
-      toastFailure('A file with that name already exists')
+      toast.failure(lang.tr('module.code-editor.store.alreadyExists'))
       return
     }
 
     if (await this.api.saveFile(duplicate)) {
-      toastSuccess('File duplicated successfully!')
+      toast.success(lang.tr('module.code-editor.store.fileDuplicated'))
+      await this.fetchFiles()
+    }
+  }
+
+  @action.bound
+  async uploadFile(data: FormData) {
+    if (await this.api.uploadFile(data)) {
+      toast.success(lang.tr('module.code-editor.store.fileUploaded'))
       await this.fetchFiles()
     }
   }

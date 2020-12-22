@@ -32,7 +32,7 @@ export const gotoAndExpect = async (url: string, matchUrl?: string) => {
 const getResponse = async (url: string, method?: HttpMethod) => {
   return page.waitForResponse(res => {
     const resUrl = res.url()
-    console.log(`url: ${url}, resUrl: ${resUrl}`)
+    console.info(`url: ${url}, resUrl: ${resUrl}`)
     return resUrl.includes(url) && (method ? res.request().method() === method : true)
   })
 }
@@ -63,7 +63,7 @@ export enum CONFIRM_DIALOG {
 }
 
 export const autoAnswerDialog = (promptText?: string, repeat?: boolean) => {
-  const dialog = async (dialog: Dialog) => await dialog.accept(promptText)
+  const dialog = async (dialog: Dialog) => dialog.accept(promptText)
 
   if (!repeat) {
     page.once('dialog', dialog)
@@ -112,18 +112,18 @@ const shouldLogRequest = (url: string) => {
 
 page.on('request', req => {
   if (shouldLogRequest(req.url())) {
-    console.log(`${getTime()} > REQUEST: ${req.method()} ${req.url()}`)
+    console.info(`${getTime()} > REQUEST: ${req.method()} ${req.url()}`)
   }
 })
 
 page.on('response', resp => {
   if (shouldLogRequest(resp.url())) {
-    console.log(`${getTime()} < RESPONSE: ${resp.request().method()} ${resp.url()} (${resp.status()})`)
+    console.info(`${getTime()} < RESPONSE: ${resp.request().method()} ${resp.url()} (${resp.status()})`)
   }
 })
 
 page.on('framenavigated', frame => {
-  console.log(`${getTime()} FRAME NAVIGATED: ${frame.url()}`)
+  console.info(`${getTime()} FRAME NAVIGATED: ${frame.url()}`)
 })
 
 export const getTime = () => {

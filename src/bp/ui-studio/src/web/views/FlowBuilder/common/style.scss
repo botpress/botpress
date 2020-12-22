@@ -1,3 +1,5 @@
+@import '../../../palette.scss';
+
 .action-item {
   &.fn {
     color: blue;
@@ -20,7 +22,7 @@
   }
 
   .name {
-    line-height: 1.7;
+    line-height: 1.25;
 
     span {
       padding: 2px 4px;
@@ -37,6 +39,13 @@
       color: #ff7c40;
     }
   }
+}
+
+.extraItems {
+  color: $content-color-light;
+  display: block;
+  font-size: 12px;
+  margin-top: 5px;
 }
 
 .editableInput {

@@ -6,9 +6,11 @@ import Database from './db'
 export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[]) => {
   await db.initialize()
 
-  process.BOTPRESS_EVENTS.on('bp_core_decision_elected', ({ channel, botId, source }) => {
+  const removeExt = (name: string) => name?.replace(/\.flow\.json$/i, '')
+
+  process.BOTPRESS_EVENTS.on('bp_core_send_content', ({ channel, botId, source, details }) => {
     if (source === 'qna') {
-      db.incrementMetric(botId, channel, 'msg_sent_qna_count')
+      db.incrementMetric(botId, channel, 'msg_sent_qna_count', details)
     }
   })
 
@@ -17,14 +19,42 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
   })
 
   process.BOTPRESS_EVENTS.on('bp_core_enter_flow', ({ channel, botId, flowName }) => {
-    db.incrementMetric(botId, channel, 'enter_flow_count', flowName)
+    db.incrementMetric(botId, channel, 'enter_flow_count', removeExt(flowName))
+  })
+
+  process.BOTPRESS_EVENTS.on('bp_core_workflow_started', ({ channel, botId, wfName }) => {
+    db.incrementMetric(botId, channel, 'workflow_started_count', removeExt(wfName))
+  })
+
+  process.BOTPRESS_EVENTS.on('bp_core_workflow_completed', ({ channel, botId, wfName }) => {
+    db.incrementMetric(botId, channel, 'workflow_completed_count', removeExt(wfName))
+  })
+
+  process.BOTPRESS_EVENTS.on('bp_core_workflow_failed', ({ channel, botId, wfName }) => {
+    db.incrementMetric(botId, channel, 'workflow_failed_count', removeExt(wfName))
+  })
+
+  process.BOTPRESS_EVENTS.on('bp_core_feedback_positive', ({ channel, botId, type }) => {
+    if (type === 'qna') {
+      db.incrementMetric(botId, channel, 'feedback_positive_qna')
+    } else if (type === 'workflow') {
+      db.incrementMetric(botId, channel, 'feedback_positive_workflow')
+    }
+  })
+
+  process.BOTPRESS_EVENTS.on('bp_core_feedback_negative', ({ channel, botId, type }) => {
+    if (type === 'qna') {
+      db.incrementMetric(botId, channel, 'feedback_negative_qna')
+    } else if (type === 'workflow') {
+      db.incrementMetric(botId, channel, 'feedback_negative_workflow')
+    }
   })
 
   bp.events.registerMiddleware({
     name: 'analytics.incoming',
     direction: 'incoming',
     handler: incomingMiddleware,
-    order: 12, // after nlu and qna
+    order: 140, // after nlu election and qna
     description: 'Tracks incoming messages for Analytics purposes'
   })
 
@@ -52,6 +82,11 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
     }
     if (!!intentName?.length) {
       db.incrementMetric(event.botId, event.channel, 'msg_nlu_intent', event.nlu?.intent?.name)
+    }
+
+    const language = event.nlu?.language
+    if (language) {
+      db.incrementMetric(event.botId, event.channel, 'msg_nlu_language', language)
     }
 
     next()

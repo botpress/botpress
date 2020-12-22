@@ -3,17 +3,14 @@
 interface CssExports {
   'description': string;
   'editor': string;
-  'focused': string;
   'insertBtn': string;
+  'insertBtnMoreSpacing': string;
   'mention': string;
   'mentionSuggestions': string;
   'mentionSuggestionsEntry': string;
   'mentionSuggestionsEntryFocused': string;
   'mentionSuggestionsEntryText': string;
-  'properties': string;
-  'suggestion-type': string;
   'variable': string;
-  'variables': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

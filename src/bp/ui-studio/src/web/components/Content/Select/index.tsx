@@ -1,16 +1,18 @@
 import axios from 'axios'
+import { Dialog, lang } from 'botpress/shared'
 import classnames from 'classnames'
 import React, { Component } from 'react'
-import { Alert, Button, Modal } from 'react-bootstrap'
+import { Alert, Button } from 'react-bootstrap'
 import Markdown from 'react-markdown'
 import { connect } from 'react-redux'
-import { fetchContentCategories, fetchContentItems, fetchContentItemsCount, upsertContentItem } from '~/actions'
+import { deleteMedia, fetchContentCategories, fetchContentItems, upsertContentItem } from '~/actions'
 import Loading from '~/components/Util/Loading'
+import { CONTENT_TYPES_MEDIA } from '~/util/ContentDeletion'
 
 import withLanguage from '../../Util/withLanguage'
 import CreateOrEditModal from '../CreateOrEditModal'
 
-const style = require('./style.scss')
+import style from './style.scss'
 
 const SEARCH_RESULTS_LIMIT = 10
 
@@ -21,17 +23,16 @@ const formSteps = {
 }
 
 interface Props {
-  fetchContentCategories: any
+  fetchContentCategories: Function
   container: any
-  fetchContentItems: any
-  fetchContentItemsCount: any
+  deleteMedia: Function
+  fetchContentItems: Function
   contentItems: any
   categories: any
-  upsertContentItem: any
+  upsertContentItem: Function
   onSelect: any
   onClose: any
   contentType: any
-  itemsCount: number
   contentLang: any
 }
 
@@ -66,7 +67,6 @@ class SelectContent extends Component<Props, State> {
 
   componentDidMount() {
     this.searchContentItems()
-    this.fetchContentItemsCount()
     this.props.fetchContentCategories()
 
     this.props.container.addEventListener('keyup', this.handleChangeActiveItem)
@@ -96,10 +96,6 @@ class SelectContent extends Component<Props, State> {
     })
   }
 
-  fetchContentItemsCount() {
-    return this.props.fetchContentItemsCount(this.state.contentType)
-  }
-
   handleChangeActiveItem = e => {
     const index = this.state.activeItemIndex
     if (e.key === 'ArrowUp') {
@@ -110,7 +106,7 @@ class SelectContent extends Component<Props, State> {
       this.setState({ activeItemIndex: index < itemsCount - 1 ? index + 1 : index })
     } else if (e.key === 'Enter' && this.state.step === formSteps.PICK_CATEGORY) {
       this.setCurrentCategory(this.props.categories.filter(cat => !cat.hidden)[this.state.activeItemIndex].id)
-    } else if (e.key === 'Enter') {
+    } else if (e.key === 'Enter' && !this.state.newItemCategory) {
       this.handlePick(this.props.contentItems[this.state.activeItemIndex])
     }
   }
@@ -133,7 +129,7 @@ class SelectContent extends Component<Props, State> {
         formData: this.state.newItemData
       })
       .then(this.resetCreateContent(true))
-      .then(() => Promise.all([this.searchContentItems(), this.fetchContentItemsCount()]))
+      .then(() => this.searchContentItems())
   }
 
   handlePick(item) {
@@ -146,8 +142,12 @@ class SelectContent extends Component<Props, State> {
   }
 
   resetCreateContent = (resetSearch = false) => response => {
-    // @ts-ignore
     const { data: id } = response || {}
+
+    if (!id && CONTENT_TYPES_MEDIA.includes(this.state.newItemCategory.id)) {
+      this.props.deleteMedia(this.state.newItemData)
+    }
+
     const stateUpdate = { newItemCategory: null, newItemData: null }
     if (resetSearch) {
       Object.assign(stateUpdate, {
@@ -186,9 +186,7 @@ class SelectContent extends Component<Props, State> {
   setCurrentCategory(contentType) {
     this.setState({ contentType }, () => {
       // tslint:disable-next-line: no-floating-promises
-      Promise.all([this.searchContentItems(), this.fetchContentItemsCount()]).then(() =>
-        this.setState({ step: formSteps.MAIN })
-      )
+      this.searchContentItems().then(() => this.setState({ step: formSteps.MAIN }))
     })
   }
 
@@ -196,10 +194,10 @@ class SelectContent extends Component<Props, State> {
     const { categories } = this.props
     return (
       <div>
-        <strong>Search in:</strong>
+        <strong>{lang.tr('studio.content.searchIn')}</strong>
         <div className="list-group">
           <a onClick={() => this.setCurrentCategory(null)} className="list-group-item list-group-item-action">
-            All
+            {lang.tr('all')}
           </a>
           {categories
             .filter(cat => !cat.hidden)
@@ -211,7 +209,7 @@ class SelectContent extends Component<Props, State> {
                   active: i === this.state.activeItemIndex
                 })}
               >
-                {category.title}
+                {lang.tr(category.title)}
               </a>
             ))}
         </div>
@@ -235,10 +233,10 @@ class SelectContent extends Component<Props, State> {
 
     return (
       <p>
-        Currently Searching in: <strong>{title}</strong>
+        {lang.tr('studio.content.currentlySearching')}: <strong>{lang.tr(title)}</strong>
         .&nbsp;
         <Button className="btn btn-warning btn-sm" onClick={this.resetCurrentCategory}>
-          Change
+          {lang.tr('change')}
         </Button>
       </p>
     )
@@ -248,7 +246,7 @@ class SelectContent extends Component<Props, State> {
     const { categories } = this.props
     const { contentType } = this.state
     const title = contentType ? categories.find(({ id }) => id === contentType).title : 'all content elements'
-    return `Search ${title} (${this.props.itemsCount})`
+    return `${lang.tr('search')} ${lang.tr(title)} (${this.props.contentItems?.length})`
   }
 
   renderMainBody() {
@@ -258,7 +256,7 @@ class SelectContent extends Component<Props, State> {
       return (
         <Alert bsStyle="warning">
           <strong>We think you don&apos;t have any content types defined.</strong> Please&nbsp;
-          <a href="https://botpress.com/docs/foundamentals/content/" target="_blank" rel="noopener noreferrer">
+          <a href="https://botpress.com/docs/main/content" target="_blank" rel="noopener noreferrer">
             <strong>read the docs</strong>
           </a>
           &nbsp;to see how you can make use of this feature.
@@ -307,7 +305,7 @@ class SelectContent extends Component<Props, State> {
               onClick={() => this.setState({ newItemCategory: category, newItemData: null })}
               className={`list-group-item list-group-item-action ${style.createItem}`}
             >
-              Create new {category.title}
+              {lang.tr('studio.content.createNew', { title: lang.tr(category.title) })}
             </a>
           ))}
           {this.props.contentItems.map((contentItem, i) => (
@@ -341,19 +339,8 @@ class SelectContent extends Component<Props, State> {
     const schema = (newItemCategory || {}).schema || { json: {}, ui: {} }
 
     return (
-      <Modal
-        animation={false}
-        show={show}
-        onHide={this.onClose}
-        container={container}
-        style={{ zIndex: 1051 }}
-        backdrop={'static'}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Pick Content</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{this.renderBody()}</Modal.Body>
-
+      <Dialog.Wrapper title={lang.tr('studio.content.selectContent')} isOpen={show} onClose={this.onClose}>
+        <Dialog.Body>{this.renderBody()}</Dialog.Body>
         <CreateOrEditModal
           show={!!newItemCategory}
           schema={schema.json}
@@ -363,20 +350,19 @@ class SelectContent extends Component<Props, State> {
           handleEdit={this.handleFormEdited}
           handleCreateOrUpdate={this.handleCreate}
         />
-      </Modal>
+      </Dialog.Wrapper>
     )
   }
 }
 
 const mapStateToProps = state => ({
   contentItems: state.content.currentItems,
-  itemsCount: state.content.itemsCount,
   categories: state.content.categories
 })
 
 const mapDispatchToProps = {
+  deleteMedia,
   fetchContentItems,
-  fetchContentItemsCount,
   fetchContentCategories,
   upsertContentItem
 }

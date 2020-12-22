@@ -1,12 +1,15 @@
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, lang, toast } from 'botpress/shared'
 import { action, computed, observable, runInAction } from 'mobx'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+import path from 'path'
 
 import { EditableFile } from '../../../backend/typings'
-import { calculateHash, toastSuccess } from '../utils'
+import { calculateHash } from '../utils'
 import { wrapper } from '../utils/wrapper'
 
 import { RootStore } from '.'
+
+const NO_EDIT_EXTENSIONS = ['.tgz', '.sqlite', '.png', '.gif', '.jpg']
 
 class EditorStore {
   /** Reference to monaco the editor so we can call triggers */
@@ -50,7 +53,10 @@ class EditorStore {
 
   @action.bound
   async openFile(file: EditableFile) {
-    const { type, hookType } = file
+    if (NO_EDIT_EXTENSIONS.includes(path.extname(file.location))) {
+      toast.warning('module.code-editor.error.cannotOpenFile')
+      return
+    }
 
     let content = file.content
     if (!content) {
@@ -59,7 +65,7 @@ class EditorStore {
 
     runInAction('-> setFileContent', () => {
       this.fileContent = content
-      this.fileContentWrapped = wrapper.add(content, type, hookType)
+      this.fileContentWrapped = wrapper.add(file, content)
 
       this.currentFile = file
       this._isFileLoaded = true
@@ -90,7 +96,7 @@ class EditorStore {
       this.isAdvanced = isAdvanced
       await this.rootStore.fetchFiles()
     } else {
-      console.error(`Only Super Admins can use the raw file editor`)
+      console.error(lang.tr('module.code-editor.store.onlySuperAdmins'))
     }
   }
 
@@ -103,7 +109,7 @@ class EditorStore {
     await this._editorRef.getAction('editor.action.formatDocument').run()
 
     if (await this.rootStore.api.saveFile({ ...this.currentFile, content: this.fileContent })) {
-      toastSuccess('File saved successfully!')
+      toast.success(lang.tr('module.code-editor.store.fileSaved'))
 
       await this.rootStore.fetchFiles()
       this.resetOriginalHash()
@@ -114,9 +120,9 @@ class EditorStore {
   async discardChanges() {
     if (this.isDirty && this.fileContent) {
       if (
-        await confirmDialog(`Do you want to save the changes you made to ${this.currentFile.name}?`, {
-          acceptLabel: 'Save',
-          declineLabel: 'Discard'
+        await confirmDialog(lang.tr('module.code-editor.store.confirmSaveFile', { file: this.currentFile.name }), {
+          acceptLabel: lang.tr('save'),
+          declineLabel: lang.tr('discard')
         })
       ) {
         await this.saveChanges()

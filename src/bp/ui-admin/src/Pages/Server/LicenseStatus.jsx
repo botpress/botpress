@@ -12,7 +12,7 @@ import { fetchLicensing } from '../../reducers/license'
 import api from '../../api'
 
 import PageContainer from '~/App/PageContainer'
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, lang } from 'botpress/shared'
 
 class LicenseStatus extends React.Component {
   state = {
@@ -71,8 +71,8 @@ class LicenseStatus extends React.Component {
   enableProEdition = async () => {
     try {
       if (
-        await confirmDialog('Are you sure?', {
-          acceptLabel: 'Enable'
+        await confirmDialog(lang.tr('admin.license.status.areYouSure'), {
+          acceptLabel: lang.tr('enable')
         })
       ) {
         const result = await api.getSecured().post('/admin/server/config/enablePro')
@@ -90,7 +90,7 @@ class LicenseStatus extends React.Component {
       <Jumbotron>
         <Row>
           <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 10, offset: 1 }}>
-            <p>Please wait while the server reboots, this may take a couple of seconds.</p>
+            <p>{lang.tr('admin.license.status.waitWhileReboot')}</p>
           </Col>
         </Row>
       </Jumbotron>
@@ -102,8 +102,14 @@ class LicenseStatus extends React.Component {
       <div className={'license-status ' + (this.isLicensed ? 'licensed' : 'unlicensed')}>
         <div>
           <span className="license-status__badge" />
-          <span className="license-status__status">{this.isLicensed ? 'Licensed' : 'Unlicensed'}</span>
-          <span className="license-status__limits">{this.isUnderLimits ? 'Under Limits' : 'Limits breached'}</span>
+          <span className="license-status__status">
+            {this.isLicensed ? lang.tr('admin.license.status.licensed') : lang.tr('admin.license.status.unlicensed')}
+          </span>
+          <span className="license-status__limits">
+            {this.isUnderLimits
+              ? lang.tr('admin.license.status.underLimits')
+              : lang.tr('admin.license.status.limitsBreached')}
+          </span>
         </div>
 
         <Button color="link" className="license-status__refresh" onClick={this.refreshKey}>
@@ -122,7 +128,7 @@ class LicenseStatus extends React.Component {
     return (
       <Fragment>
         <div className="license-infos license-infos--fingerprint">
-          <strong className="license-infos__label">Cluster fingerprint:</strong>
+          <strong className="license-infos__label">{lang.tr('admin.license.status.clusterFingerprint')}:</strong>
           <code>{this.serverFingerprints.cluster_url}</code>
           <CopyToClipboard text={this.serverFingerprints.cluster_url}>
             <Button color="link" size="sm" className="license-infos__icon">
@@ -136,12 +142,10 @@ class LicenseStatus extends React.Component {
             </Button>
           </CopyToClipboard>
           <UncontrolledTooltip placement="right" target="TooltipCopy">
-            Copy to clipboard
+            {lang.tr('admin.license.status.copyToClipboard')}
           </UncontrolledTooltip>
         </div>
-        {this.isWrongFingerprint && (
-          <Alert color="danger">Your license fingerprint doesn't match your machine/cluster fingerprints.</Alert>
-        )}
+        {this.isWrongFingerprint && <Alert color="danger">{lang.tr('admin.license.status.fingerprintNoMatch')}</Alert>}
       </Fragment>
     )
   }
@@ -154,24 +158,25 @@ class LicenseStatus extends React.Component {
             <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 10, offset: 1 }}>
               <h4>Enable Botpress Professional</h4>
               <p>
-                Make you use an <strong>official botpress binary or docker image</strong>, you won't be able to activate
-                pro otherwise.
+                {lang.tr('admin.license.status.useOfficial', {
+                  officialBinary: <strong>{lang.tr('admin.license.status.officialBinary')}</strong>
+                })}
               </p>
               <p>
-                <u>Method 1</u>
+                <u>{lang.tr('admin.license.status.method1')}</u>
                 <br />
-                You can enable Botpress Pro by manually editing the file{' '}
-                <strong>data/global/botpress.config.json</strong> and setting the value <strong>pro.enabled</strong> to
-                true.
+                {lang.tr('admin.license.status.enableMethod1', {
+                  file: <strong>data/global/botpress.config.json</strong>,
+                  field: <strong>pro.enabled</strong>
+                })}
               </p>
               <p>
-                <u>Method 2</u>
-                <br /> Click on the button below. This will enable the required configuration and will automatically
-                reboot the server. Please note: Rebooting the server this way will prevent you from reading the logs on
-                screen (except if you output logs to the file system).
+                <u>{lang.tr('admin.license.status.method2')}</u>
+                <br />
+                {lang.tr('admin.license.status.enabledMethod2')}
                 <br />
                 <br />
-                <Button onClick={this.enableProEdition}>Enable Pro & Reboot Server</Button>
+                <Button onClick={this.enableProEdition}>{lang.tr('admin.license.status.enabledAndReboot')}</Button>
               </p>
             </Col>
           </Row>
@@ -186,11 +191,12 @@ class LicenseStatus extends React.Component {
         <Jumbotron>
           <Row>
             <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 10, offset: 1 }}>
-              <h4>Unofficial Botpress Build</h4>
+              <h4>{lang.tr('admin.license.status.unofficialBuild')}</h4>
               <p>
-                We noticed that you are running a custom build of Botpress, which doesn't contain the Botpress
-                Professional extensions. Make you use an <strong>official botpress binary or docker image</strong>. You
-                won't be able to activate <strong>Pro</strong> otherwise.
+                {lang.tr('admin.license.status.unofficialBuildText', {
+                  official: <strong>{lang.tr('admin.license.status.official')}</strong>,
+                  pro: <strong>{lang.tr('admin.license.status.pro')}</strong>
+                })}
               </p>
             </Col>
           </Row>
@@ -213,7 +219,7 @@ class LicenseStatus extends React.Component {
     }
 
     return (
-      <PageContainer title="Server License" superAdmin={true}>
+      <PageContainer title={lang.tr('admin.sideMenu.serverLicense')} superAdmin={true}>
         <Row>
           <Col sm="12" lg="7">
             {this.renderLicenseStatus()}
@@ -222,15 +228,15 @@ class LicenseStatus extends React.Component {
           </Col>
           <Col sm="12" lg="5">
             <div className="license-infos">
-              <strong className="license-infos__label">Friendly name:</strong>
+              <strong className="license-infos__label">{lang.tr('admin.license.status.friendlyName')}:</strong>
               {this.license.label || 'N/A'}
             </div>
             <div className="license-infos">
-              <strong className="license-infos__label">Renew date:</strong>
+              <strong className="license-infos__label">{lang.tr('admin.license.status.renewDate')}:</strong>
               {this.renewDate}
             </div>
             <div className="license-infos">
-              <strong className="license-infos__label">Support:</strong>
+              <strong className="license-infos__label">{lang.tr('admin.license.status.support')}:</strong>
               {this.license.support}
               <svg
                 className="license-infos__icon"
@@ -248,17 +254,17 @@ class LicenseStatus extends React.Component {
                 />
               </svg>
               <UncontrolledTooltip placement="right" target="TooltipSupport">
-                This is the support offered by Botpress
+                {lang.tr('admin.license.status.thisIsSupport')}
               </UncontrolledTooltip>
             </div>
             <div className="license-infos">
-              <strong className="license-infos__label">Allowed Nodes:</strong>
+              <strong className="license-infos__label">{lang.tr('admin.license.status.allowedNodes')}:</strong>
               {this.license.limits && Number(this.license.limits.nodes) + 1}
             </div>
             <hr />
             {this.props.licensing && (
               <div>
-                <h5>Policies</h5>
+                <h5>{lang.tr('admin.license.status.policies')}</h5>
                 <LicensePolicies license={this.license} breachs={this.props.licensing.breachReasons} />
               </div>
             )}

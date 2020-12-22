@@ -21,11 +21,14 @@ export interface TreeViewProps<T> {
   visibleElements?: { value: string; field: string }[]
   /** Whether or not to highlight the folder's name on click */
   highlightFolders?: boolean
+  /** Node having "field" set to "value" to select programmatically */
+  forceSelect?: { value: string; field: string }
 
+  waitDoubleClick?: (element: T | string, elementType: ElementType) => number
   onDoubleClick?: (element: T | string, elementType: ElementType) => void
-  onClick?: (element: T | string, elementType: ElementType) => void
+  onClick?: (element: T | string, elementType: ElementType) => undefined | boolean
   onContextMenu?: (element: T | string, elementType: ElementType) => JSX.Element | undefined
-  onExpandToggle?: (node: TreeNode<T>, isExpanded: boolean) => void
+  onExpandToggle?: (path: string, isExpanded: boolean) => void
 }
 
 /** These are the default properties required if you want to avoid providing any renderers */
@@ -46,7 +49,7 @@ export type TreeNode<T> = ITreeNode<T> & {
   childNodes?: TreeNode<T>[]
 }
 
-type ElementRenderer<T> = (element: T) => { label: JSX.Element | string; icon?: any }
+type ElementRenderer<T> = (element: T) => { label: JSX.Element | string; icon?: any; name?: string }
 type PostProcessing<T> = (nodes: TreeNode<T>[]) => TreeNode<T>[]
 
 interface BuildTreeParams<T> {

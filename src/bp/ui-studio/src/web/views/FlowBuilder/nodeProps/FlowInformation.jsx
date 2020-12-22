@@ -5,6 +5,7 @@ import { Tabs, Tab, Badge } from 'react-bootstrap'
 
 import ActionSection from './ActionSection'
 import TransitionSection from './TransitionSection'
+import { lang } from 'botpress/shared'
 
 const style = require('./style.scss')
 
@@ -34,7 +35,7 @@ export default class FlowPropertiesPanel extends Component {
             <ActionSection
               readOnly={readOnly}
               items={catchAll.onReceive}
-              header="On Receive"
+              header={lang.tr('studio.flow.node.onReceive')}
               onItemsUpdated={items => this.props.updateFlow({ catchAll: { ...catchAll, onReceive: items } })}
               copyItem={item => this.props.copyFlowNodeElement({ action: item })}
               pasteItem={() => this.props.pasteFlowNodeElement('onReceive')}
@@ -52,7 +53,7 @@ export default class FlowPropertiesPanel extends Component {
             <TransitionSection
               readOnly={readOnly}
               items={catchAll.next}
-              header="Transitions"
+              header={lang.tr('studio.flow.node.transitions')}
               currentFlow={this.props.currentFlow}
               subflows={this.props.subflows}
               onItemsUpdated={items => this.props.updateFlow({ catchAll: { ...catchAll, next: items } })}

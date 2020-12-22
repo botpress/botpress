@@ -10,6 +10,8 @@ interface Props {
   onNotFound?: any
   extraProps?: any
   contentLang?: string
+  defaultLanguage?: string
+  languages?: string[]
 }
 
 interface State {
@@ -120,7 +122,7 @@ Please check our migration guide here: https://botpress.com/docs/developers/migr
     const { moduleComponent } = this.state
 
     if (this.state.error) {
-      console.log('Error rendering plugin', this.state.error)
+      console.error('Error rendering plugin', this.state.error)
       return (this.props.onNotFound && this.props.onNotFound(this.state.error)) || null
     }
 
@@ -143,6 +145,8 @@ Please check our migration guide here: https://botpress.com/docs/developers/migr
         component={moduleComponent}
         name={this.props.moduleName}
         contentLang={this.props.contentLang}
+        defaultLanguage={this.props.defaultLanguage}
+        languages={this.props.languages}
         bp={bp}
         {...extraProps}
       />

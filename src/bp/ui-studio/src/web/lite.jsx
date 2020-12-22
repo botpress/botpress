@@ -14,7 +14,7 @@ import { getToken } from '~/util/Auth'
 
 const token = getToken()
 if (token) {
-  axios.defaults.headers.common['Authorization'] = `Bearer ${token.token}`
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
 }
 
 const { m, v } = queryString.parse(location.search)

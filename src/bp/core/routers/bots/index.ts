@@ -1,23 +1,29 @@
 import { Logger, RouterOptions } from 'botpress/sdk'
 import { Serialize } from 'cerialize'
+import { decodeFolderPath, UnexpectedError } from 'common/http'
 import { gaId, machineUUID } from 'common/stats'
 import { FlowView } from 'common/typings'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import { asBytes } from 'core/misc/utils'
+import { ModuleLoader } from 'core/module-loader'
 import { GhostService } from 'core/services'
+import ActionServersService from 'core/services/action/action-servers-service'
 import ActionService from 'core/services/action/action-service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { BotService } from 'core/services/bot-service'
-import { FlowService, MutexError } from 'core/services/dialog/flow/service'
+import { CMSService } from 'core/services/cms'
+import { FlowService, MutexError, TopicSchema } from 'core/services/dialog/flow/service'
 import { LogsService } from 'core/services/logs/service'
 import MediaService from 'core/services/media'
 import { NotificationsService } from 'core/services/notification/service'
 import { getSocketTransports } from 'core/services/realtime'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { Express, RequestHandler, Router } from 'express'
+import { validate } from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
+import mime from 'mime-types'
 import moment from 'moment'
 import ms from 'ms'
 import multer from 'multer'
@@ -32,9 +38,19 @@ import { checkMethodPermissions, checkTokenHeader, needPermissions } from '../ut
 const debugMedia = DEBUG('audit:action:media-upload')
 const DEFAULT_MAX_SIZE = '10mb'
 
+const parseFlowNameMiddleware = (req, _, next) => {
+  const { flowName } = req.params
+  if (flowName) {
+    req.params.flowName = decodeFolderPath(flowName)
+  }
+  next()
+}
+
 export class BotsRouter extends CustomRouter {
   private actionService: ActionService
+  private actionServersService: ActionServersService
   private botService: BotService
+  private cmsService: CMSService
   private configProvider: ConfigProvider
   private flowService: FlowService
   private mediaService: MediaService
@@ -42,6 +58,7 @@ export class BotsRouter extends CustomRouter {
   private notificationService: NotificationsService
   private authService: AuthService
   private ghostService: GhostService
+  private moduleLoader: ModuleLoader
   private checkTokenHeader: RequestHandler
   private needPermissions: (operation: string, resource: string) => RequestHandler
   private checkMethodPermissions: (resource: string) => RequestHandler
@@ -52,7 +69,9 @@ export class BotsRouter extends CustomRouter {
 
   constructor(args: {
     actionService: ActionService
+    actionServersService: ActionServersService
     botService: BotService
+    cmsService: CMSService
     configProvider: ConfigProvider
     flowService: FlowService
     mediaService: MediaService
@@ -61,11 +80,14 @@ export class BotsRouter extends CustomRouter {
     authService: AuthService
     ghostService: GhostService
     workspaceService: WorkspaceService
+    moduleLoader: ModuleLoader
     logger: Logger
   }) {
     super('Bots', args.logger, Router({ mergeParams: true }))
     this.actionService = args.actionService
+    this.actionServersService = args.actionServersService
     this.botService = args.botService
+    this.cmsService = args.cmsService
     this.configProvider = args.configProvider
     this.flowService = args.flowService
     this.mediaService = args.mediaService
@@ -74,16 +96,17 @@ export class BotsRouter extends CustomRouter {
     this.authService = args.authService
     this.ghostService = args.ghostService
     this.workspaceService = args.workspaceService
+    this.moduleLoader = args.moduleLoader
     this.needPermissions = needPermissions(this.workspaceService)
     this.checkMethodPermissions = checkMethodPermissions(this.workspaceService)
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.mediaPathRegex = new RegExp(/^\/api\/v(\d)\/bots\/[A-Z0-9_-]+\/media\//, 'i')
+    this.router.use(this.checkBotVisibility)
   }
 
   async initialize() {
     this.botpressConfig = await this.configProvider.getBotpressConfig()
     this.machineId = await machineUUID()
-    this.router.use(this.checkBotVisibility)
     this.setupRoutes()
   }
 
@@ -95,18 +118,22 @@ export class BotsRouter extends CustomRouter {
       return next()
     }
 
-    const config = await this.configProvider.getBotConfig(req.params.botId)
-    if (config.disabled) {
-      // The user must be able to get the config to change the bot status
-      if (req.originalUrl.endsWith(`/api/v1/bots/${req.params.botId}`)) {
-        return next()
+    try {
+      const config = await this.configProvider.getBotConfig(req.params.botId)
+      if (config.disabled) {
+        // The user must be able to get the config to change the bot status
+        if (req.originalUrl.endsWith(`/api/v1/bots/${req.params.botId}`)) {
+          return next()
+        }
+
+        return next(new NotFoundError('Bot is disabled'))
       }
 
-      return next(new NotFoundError('Bot is disabled'))
-    }
-
-    if (config.private && !this.mediaPathRegex.test(req.originalUrl)) {
-      return this.checkTokenHeader(req, res, next)
+      if (config.private && !this.mediaPathRegex.test(req.originalUrl)) {
+        return this.checkTokenHeader(req, res, next)
+      }
+    } catch (err) {
+      return next(new NotFoundError('Invalid Bot ID'))
     }
 
     next()
@@ -117,7 +144,7 @@ export class BotsRouter extends CustomRouter {
    * A good explanation is available here: https://github.com/expressjs/express/issues/2596
    */
   deleteRouter(path: string, app: Express) {
-    const relPath = '/mod/' + path
+    const relPath = `/mod/${path}`
 
     // We need to access the global stack and dig in it to find the desired stack
     const mainRouterStack = app._router.stack
@@ -133,7 +160,7 @@ export class BotsRouter extends CustomRouter {
     if (_.get(options, 'checkAuthentication', true)) {
       router.use(this.checkTokenHeader)
 
-      if (options && options.checkMethodPermissions) {
+      if (options?.checkMethodPermissions) {
         router.use(this.checkMethodPermissions(identity))
       } else {
         router.use(this.needPermissions('write', identity))
@@ -148,18 +175,20 @@ export class BotsRouter extends CustomRouter {
       disableForModule('bodyParserUrlEncoder', path)
     }
 
-    const relPath = '/mod/' + path
+    const relPath = `/mod/${path}`
     this.router.use(relPath, router)
 
     router['getPublicPath'] = async () => {
       await AppLifecycle.waitFor(AppLifecycleEvents.HTTP_SERVER_READY)
-      return new URL('/api/v1/bots/BOT_ID' + relPath, process.EXTERNAL_URL).href
+      const externalUrl = new URL(process.EXTERNAL_URL)
+      const subPath = `${externalUrl.pathname}/api/v1/bots/BOT_ID${relPath}`
+      return new URL(subPath.replace('//', '/'), externalUrl.origin).href
     }
 
     return router
   }
 
-  private studioParams(botId) {
+  private studioParams(botId: string) {
     return {
       botId,
       authentication: {
@@ -167,12 +196,8 @@ export class BotsRouter extends CustomRouter {
       },
       sendUsageStats: this.botpressConfig!.sendUsageStats,
       uuid: this.machineId,
-      gaId: gaId,
-      flowEditorDisabled: !process.IS_LICENSED,
-      botpress: {
-        name: 'Botpress Studio',
-        version: process.BOTPRESS_VERSION
-      }
+      gaId,
+      flowEditorDisabled: !process.IS_LICENSED
     }
   }
 
@@ -196,6 +221,7 @@ export class BotsRouter extends CustomRouter {
           return res.sendStatus(404)
         }
 
+        const branding = await this.configProvider.getBrandingConfig('studio')
         const config = await this.configProvider.getBotpressConfig()
         const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
 
@@ -213,6 +239,7 @@ export class BotsRouter extends CustomRouter {
         const totalEnv = `
           (function(window) {
               // Common
+              window.TELEMETRY_URL = "${process.TELEMETRY_URL}";
               window.SEND_USAGE_STATS = ${data.sendUsageStats};
               window.UUID = "${data.uuid}"
               window.ANALYTICS_ID = "${data.gaId}";
@@ -221,10 +248,13 @@ export class BotsRouter extends CustomRouter {
               window.BOT_ID = "${botId}";
               window.BOT_NAME = "${bot.name}";
               window.BP_BASE_PATH = "${process.ROOT_PATH}/${app}/${botId}";
-              window.BOTPRESS_VERSION = "${data.botpress.version}";
-              window.APP_NAME = "${data.botpress.name}";
+              window.APP_VERSION = "${process.BOTPRESS_VERSION}";
+              window.APP_NAME = "${branding.title}";
+              window.APP_FAVICON = "${branding.favicon}";
+              window.APP_CUSTOM_CSS = "${branding.customCss}";
               window.SHOW_POWERED_BY = ${!!config.showPoweredBy};
               window.BOT_LOCKED = ${!!bot.locked};
+              window.USE_ONEFLOW = ${!!bot['oneflow']};
               window.WORKSPACE_ID = "${workspaceId}";
               window.IS_BOT_MOUNTED = ${this.botService.isBotMounted(botId)};
               window.EXPERIMENTAL = ${config.experimental};
@@ -287,7 +317,7 @@ export class BotsRouter extends CustomRouter {
         const botsRefs = await this.workspaceService.getBotRefs(req.workspace)
         const bots = await this.botService.findBotsByIds(botsRefs)
 
-        return res.send(bots && bots.filter(Boolean).map(x => ({ name: x.name, id: x.id })))
+        return res.send(bots?.filter(Boolean).map(x => ({ name: x.name, id: x.id })))
       })
     )
 
@@ -321,6 +351,7 @@ export class BotsRouter extends CustomRouter {
       '/flow/:flowName',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
+      parseFlowNameMiddleware,
       this.asyncMiddleware(async (req, res) => {
         const { botId, flowName } = req.params
         const flow = <FlowView>req.body.flow
@@ -328,17 +359,19 @@ export class BotsRouter extends CustomRouter {
 
         if (_.has(flow, 'name') && flowName !== flow.name) {
           await this.flowService.renameFlow(botId, flowName, flow.name, userEmail)
-        } else {
-          try {
-            await this.flowService.updateFlow(botId, flow, userEmail)
-          } catch (err) {
-            if (err.type && err.type === MutexError.name) {
-              res.send(423) // Mutex locked
-              return
-            }
-          }
+          return res.sendStatus(200)
         }
-        res.sendStatus(200)
+
+        try {
+          await this.flowService.updateFlow(botId, flow, userEmail)
+          res.sendStatus(200)
+        } catch (err) {
+          if (err.type && err.type === MutexError.name) {
+            return res.send(423) // Mutex locked
+          }
+
+          throw new UnexpectedError('Error saving flow', err)
+        }
       })
     )
 
@@ -346,6 +379,7 @@ export class BotsRouter extends CustomRouter {
       '/flow/:flowName/delete',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
+      parseFlowNameMiddleware,
       this.asyncMiddleware(async (req, res) => {
         const { botId, flowName } = req.params
 
@@ -357,31 +391,82 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
+    this.router.get('/topics', this.checkTokenHeader, async (req, res) => {
+      res.send(await this.flowService.getTopics(req.params.botId))
+    })
+
+    this.router.post(
+      '/topic/:topicName?',
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.flows'),
+      this.asyncMiddleware(async (req, res) => {
+        const { topicName, botId } = req.params
+
+        const topic = await validate(req.body, TopicSchema)
+
+        if (!topicName) {
+          await this.flowService.createTopic(botId, topic)
+        } else {
+          await this.flowService.updateTopic(botId, topic, topicName)
+        }
+
+        res.sendStatus(200)
+      })
+    )
+
+    this.router.post(
+      '/deleteTopic/:topicName',
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.flows'),
+      this.asyncMiddleware(async (req, res) => {
+        const { topicName, botId } = req.params
+        await this.flowService.deleteTopic(botId, topicName)
+
+        res.sendStatus(200)
+      })
+    )
+
     this.router.get(
       '/actions',
       this.checkTokenHeader,
       this.needPermissions('read', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
-        const actions = await this.actionService.forBot(botId).listActions()
+
+        const service = await this.actionService.forBot(botId)
+        const actions = await service.listActions()
         res.send(Serialize(actions))
       })
     )
 
+    this.router.get(
+      '/actionServers',
+      this.checkTokenHeader,
+      this.needPermissions('read', 'bot.flows'),
+      this.asyncMiddleware(async (req, res) => {
+        const { botId } = req.params
+
+        const serversWithActions = await this.actionServersService.getServersWithActionsForBot(botId)
+
+        res.send(serversWithActions)
+      })
+    )
+
     const mediaUploadMulter = multer({
-      fileFilter: (req, file, cb) => {
+      fileFilter: (_req, file, cb) => {
         let allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif']
+        const extMimeType = mime.lookup(file.originalname)
 
         const uploadConfig = this.botpressConfig!.fileUpload
-        if (uploadConfig && uploadConfig.allowedMimeTypes) {
+        if (uploadConfig?.allowedMimeTypes) {
           allowedMimeTypes = uploadConfig.allowedMimeTypes
         }
 
-        if (allowedMimeTypes.includes(file.mimetype)) {
+        if (allowedMimeTypes.includes(file.mimetype) && allowedMimeTypes.includes(extMimeType)) {
           return cb(undefined, true)
         }
 
-        cb(new Error(`Invalid mime type (${file.mimetype})`), false)
+        cb(new Error(`This type of file is not allowed (${file.mimetype})`), false)
       },
       limits: {
         fileSize: asBytes(_.get(this.botpressConfig, 'fileUpload.maxFileSize', DEFAULT_MAX_SIZE))
@@ -412,6 +497,23 @@ export class BotsRouter extends CustomRouter {
           const url = `/api/v1/bots/${botId}/media/${fileName}`
           res.json({ url })
         })
+      })
+    )
+
+    this.router.post(
+      '/media/delete',
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.media'),
+      this.asyncMiddleware(async (req, res) => {
+        const email = req.tokenUser!.email
+        const botId = req.params.botId
+        const files = this.cmsService.getMediaFiles(req.body)
+        files.forEach(async f => {
+          await this.mediaService.deleteFile(botId, f)
+          debugMedia(`successful deletion (${email} from ${req.ip}). file: ${f}`)
+        })
+
+        res.sendStatus(200)
       })
     )
 
@@ -495,6 +597,15 @@ export class BotsRouter extends CustomRouter {
           ? await this.notificationService.archive(botId, notificationId)
           : await this.notificationService.archiveAll(botId)
         res.sendStatus(201)
+      })
+    )
+
+    this.router.get(
+      '/dialogConditions',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req, res) => {
+        const conditions = await this.moduleLoader.getDialogConditions()
+        res.send(conditions)
       })
     )
   }

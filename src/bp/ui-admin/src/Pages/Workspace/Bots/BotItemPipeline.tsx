@@ -12,6 +12,7 @@ import {
   Tooltip
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import React, { FC, Fragment } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import history from '~/history'
@@ -68,23 +69,36 @@ const BotItemPipeline: FC<Props> = ({
             <Menu>
               {!bot.disabled && !hasError && (
                 <Fragment>
-                  <MenuItem icon="chat" text="Open chat" href={botShortLink} />
-                  <MenuItem disabled={bot.locked} icon="edit" text="Edit in Studio" href={botStudioLink} />
+                  <MenuItem icon="chat" text={lang.tr('admin.workspace.bots.item.openChat')} href={botShortLink} />
+                  <MenuItem
+                    disabled={bot.locked}
+                    icon="edit"
+                    text={lang.tr('admin.workspace.bots.item.editInStudio')}
+                    href={botStudioLink}
+                  />
                 </Fragment>
               )}
 
-              <CopyToClipboard text={botShortLink} onCopy={() => toastInfo('Copied to clipboard')}>
-                <MenuItem icon="link" text="Copy link to clipboard" />
+              <CopyToClipboard
+                text={botShortLink}
+                onCopy={() => toastInfo(lang.tr('admin.workspace.bots.item.copyToClipboard'))}
+              >
+                <MenuItem icon="link" text={lang.tr('admin.workspace.bots.item.copyLinkToClipboard')} />
               </CopyToClipboard>
               <MenuDivider />
 
               <AccessControl resource="admin.logs" operation="read">
-                <MenuItem text="View Logs" icon="manual" id="btn-viewLogs" onClick={viewLogs} />
+                <MenuItem
+                  text={lang.tr('admin.workspace.bots.item.viewLogs')}
+                  icon="manual"
+                  id="btn-viewLogs"
+                  onClick={viewLogs}
+                />
               </AccessControl>
 
               {allowStageChange && (
                 <MenuItem
-                  text="Promote to next stage"
+                  text={lang.tr('admin.workspace.bots.item.promoteToNextStage')}
                   icon="double-chevron-right"
                   id="btn-promote"
                   onClick={requestStageChange}
@@ -92,12 +106,39 @@ const BotItemPipeline: FC<Props> = ({
               )}
 
               <AccessControl resource="admin.bots.*" operation="write">
-                <MenuItem text="Config" icon="cog" id="btn-config" onClick={() => history.push(`bots/${bot.id}`)} />
-                <MenuItem text="Create Revision" icon="cloud-upload" id="btn-createRevision" onClick={createRevision} />
-                <MenuItem text="Rollback" icon="undo" id="btn-rollbackRevision" onClick={rollback} />
-                <MenuItem text="Export" icon="export" id="btn-export" onClick={exportBot} />
-                <MenuItem text="Delete" icon="trash" id="btn-delete" onClick={deleteBot} />
-                {hasError && <MenuItem text="Reload" icon="refresh" onClick={reloadBot} />}
+                <MenuItem
+                  text={lang.tr('admin.workspace.bots.item.config')}
+                  icon="cog"
+                  id="btn-config"
+                  onClick={() => history.push(`bots/${bot.id}`)}
+                />
+                <MenuItem
+                  text={lang.tr('admin.workspace.bots.item.createRevision')}
+                  icon="cloud-upload"
+                  id="btn-createRevision"
+                  onClick={createRevision}
+                />
+                <MenuItem
+                  text={lang.tr('admin.workspace.bots.item.rollback')}
+                  icon="undo"
+                  id="btn-rollbackRevision"
+                  onClick={rollback}
+                />
+                <MenuItem
+                  text={lang.tr('admin.workspace.bots.item.export')}
+                  icon="export"
+                  id="btn-export"
+                  onClick={exportBot}
+                />
+                <MenuItem
+                  text={lang.tr('admin.workspace.bots.item.delete')}
+                  icon="trash"
+                  id="btn-delete"
+                  onClick={deleteBot}
+                />
+                {hasError && (
+                  <MenuItem text={lang.tr('admin.workspace.bots.item.reload')} icon="refresh" onClick={reloadBot} />
+                )}
               </AccessControl>
             </Menu>
           </Popover>
@@ -119,16 +160,16 @@ const BotItemPipeline: FC<Props> = ({
         )}
         {requiresApproval && (
           <Tag intent={Intent.DANGER} className="botbadge reviewNeeded">
-            Needs your review
+            {lang.tr('admin.workspace.bots.item.needsYourReview')}
           </Tag>
         )}
         {bot.pipeline_status.stage_request && isApprover && !requiresApproval && (
           <Tag intent={Intent.SUCCESS} className="botbadge reviewNeeded">
-            Approved
+            {lang.tr('admin.workspace.bots.item.approved')}
           </Tag>
         )}
         {!bot.defaultLanguage && (
-          <Tooltip position="right" content="Bot language is missing. Please set it in bot config.">
+          <Tooltip position="right" content={lang.tr('admin.workspace.bots.item.languageIsMissing')}>
             <Icon icon="warning-sign" intent={Intent.DANGER} style={{ marginLeft: 10 }} />
           </Tooltip>
         )}
@@ -137,17 +178,17 @@ const BotItemPipeline: FC<Props> = ({
       <div className="bottomRow">
         {bot.disabled && (
           <Tag intent={Intent.WARNING} className="botbadge">
-            disabled
+            {lang.tr('admin.workspace.bots.item.disabled')}
           </Tag>
         )}
         {bot.private && (
           <Tag intent={Intent.PRIMARY} className="botbadge">
-            private
+            {lang.tr('admin.workspace.bots.item.private')}
           </Tag>
         )}
         {hasError && (
           <Tag intent={Intent.DANGER} className="botbadge">
-            error
+            {lang.tr('admin.workspace.bots.item.error')}
           </Tag>
         )}
         {bot.pipeline_status.stage_request && (
@@ -155,9 +196,13 @@ const BotItemPipeline: FC<Props> = ({
             content={
               <div>
                 <p>
-                  Requested by: {bot.pipeline_status.stage_request.requested_by} <br />
-                  on&nbsp;
-                  {new Date(bot.pipeline_status.stage_request.requested_on).toLocaleDateString()}
+                  {lang.tr('admin.workspace.bots.item.requestedBy', {
+                    requester: bot.pipeline_status.stage_request.requested_by
+                  })}
+                  <br />
+                  {lang.tr('admin.workspace.bots.item.onDate', {
+                    date: new Date(bot.pipeline_status.stage_request.requested_on).toLocaleDateString()
+                  })}
                 </p>
                 {bot.pipeline_status.stage_request.message && <p>{bot.pipeline_status.stage_request.message}</p>}
               </div>
@@ -171,7 +216,7 @@ const BotItemPipeline: FC<Props> = ({
         {requiresApproval && (
           <div className="stage-approval-btns">
             <Button onClick={approveStageChange} small intent="success">
-              Approve
+              {lang.tr('admin.workspace.bots.item.approve')}
             </Button>
           </div>
         )}

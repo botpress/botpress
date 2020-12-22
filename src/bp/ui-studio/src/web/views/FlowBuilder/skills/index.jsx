@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal, Button } from 'react-bootstrap'
+import { Button } from 'react-bootstrap'
 import axios from 'axios'
 import find from 'lodash/find'
 import includes from 'lodash/includes'
@@ -13,6 +13,7 @@ const style = require('./style.scss')
 const VALID_WINDOW_SIZES = ['normal', 'large', 'small']
 
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
+import { lang, Dialog } from 'botpress/shared'
 
 class WrappedInjectedModule extends React.Component {
   shouldComponentUpdate(nextProps) {
@@ -51,7 +52,7 @@ class SkillsBuilder extends React.Component {
   }
 
   renderModuleNotFound = () => {
-    return <div>Could not load skill&apos;s view</div>
+    return <div>{lang.tr('studio.flow.skills.couldNotLoad')}</div>
   }
 
   onDataChanged = data => {
@@ -101,7 +102,7 @@ class SkillsBuilder extends React.Component {
 
     return (
       <div className={style.loadingContainer}>
-        <h2>Generating your skill flow...</h2>
+        <h2>{lang.tr('studio.flow.skills.generatingSkillFlow')}</h2>
         <Loader type="ball-pulse" color="#26A65B" style={{ margin: '4px' }} />
       </div>
     )
@@ -110,7 +111,12 @@ class SkillsBuilder extends React.Component {
   onWindowResized = size => {
     if (!includes(VALID_WINDOW_SIZES, size)) {
       const sizes = VALID_WINDOW_SIZES.join(', ')
-      return console.log(`ERROR – Skill "${size}" is an invalid size for Skill window. Valid sizes are ${sizes}.`)
+      return console.log(
+        lang.tr('studio.flow.skills.error', {
+          size,
+          sizes
+        })
+      )
     }
 
     this.setState({
@@ -133,7 +139,7 @@ class SkillsBuilder extends React.Component {
 
     return axios
       .post(
-        `${window.API_PATH}/modules/${skill.moduleName}/skill/${skill.id}/generateFlow?botId=${window.BOT_ID}`,
+        `${window.API_PATH}/modules/${skill.moduleName}/skill/${skill.id}/generateFlow?botId=${window.BOT_ID}&isOneFlow=${window.USE_ONEFLOW}`,
         this.data
       )
       .then(({ data }) => data)
@@ -151,23 +157,19 @@ class SkillsBuilder extends React.Component {
   render() {
     const skill = this.findInstalledSkill()
     const modalClassName = style['size-' + this.state.windowSize]
-    const submitName = this.props.action === 'new' ? 'Insert' : 'Save'
-    const title = this.props.action === 'new' ? 'Insert a new skill' : 'Edit a skill'
+    const submitName = this.props.action === 'new' ? lang.tr('insert') : lang.tr('save')
+    const title =
+      this.props.action === 'new' ? lang.tr('studio.flow.skills.insert') : lang.tr('studio.flow.skills.edit')
 
     return (
-      <Modal
-        dialogClassName={modalClassName}
-        animation={false}
-        show={this.props.opened}
-        onHide={this.onCancel}
-        backdrop="static"
+      <Dialog.Wrapper
+        title={`${title} | ${lang.tr(skill && skill.name)}`}
+        size="lg"
+        className={modalClassName}
+        isOpen={this.props.opened}
+        onClose={this.onCancel}
       >
-        <Modal.Header closeButton>
-          <Modal.Title>
-            {title} | {skill && skill.name}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
+        <Dialog.Body>
           {this.renderLoading()}
           {!this.state.loading && (
             <WrappedInjectedModule
@@ -177,14 +179,14 @@ class SkillsBuilder extends React.Component {
               extraProps={this.state.moduleProps}
             />
           )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={this.onCancel}>Cancel</Button>
+        </Dialog.Body>
+        <Dialog.Footer>
+          <Button onClick={this.onCancel}>{lang.tr('cancel')}</Button>
           <Button onClick={this.onSubmit} disabled={!this.state.canSubmit} bsStyle="primary">
             {submitName}
           </Button>
-        </Modal.Footer>
-      </Modal>
+        </Dialog.Footer>
+      </Dialog.Wrapper>
     )
   }
 }
@@ -200,7 +202,4 @@ const mapDispatchToProps = {
   updateSkill
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withLanguage(SkillsBuilder))
+export default connect(mapStateToProps, mapDispatchToProps)(withLanguage(SkillsBuilder))

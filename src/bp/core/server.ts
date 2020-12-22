@@ -13,6 +13,7 @@ import fs from 'fs'
 import { createServer, Server } from 'http'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
+import jwksRsa from 'jwks-rsa'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
@@ -20,20 +21,26 @@ import ms from 'ms'
 import path from 'path'
 import portFinder from 'portfinder'
 import { URL } from 'url'
+import yn from 'yn'
 
 import { ExternalAuthConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
 import { LogsRepository } from './repositories/logs'
+import { TelemetryRepository } from './repositories/telemetry'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
 import { HintsRouter } from './routers/bots/hints'
+import { NLURouter } from './routers/bots/nlu'
 import { isDisabled } from './routers/conditionalMiddleware'
 import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
+import { SdkApiRouter } from './routers/sdk/router'
 import { ShortLinksRouter } from './routers/shortlinks'
+import { TelemetryRouter } from './routers/telemetry'
 import { hasPermissions, monitoringMiddleware, needPermissions } from './routers/util'
 import { GhostService } from './services'
+import ActionServersService from './services/action/action-servers-service'
 import ActionService from './services/action/action-service'
 import { AlertingService } from './services/alerting-service'
 import { AuthStrategies } from './services/auth-strategies'
@@ -49,6 +56,7 @@ import { JobService } from './services/job-service'
 import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
 import { MonitoringService } from './services/monitoring'
+import { NLUService } from './services/nlu/nlu-service'
 import { NotificationsService } from './services/notification/service'
 import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
@@ -79,10 +87,13 @@ export default class HTTPServer {
   private readonly adminRouter: AdminRouter
   private readonly botsRouter: BotsRouter
   private contentRouter!: ContentRouter
+  private nluRouter!: NLURouter
   private readonly modulesRouter: ModulesRouter
-  private readonly shortlinksRouter: ShortLinksRouter
+  private readonly shortLinksRouter: ShortLinksRouter
   private converseRouter!: ConverseRouter
   private hintsRouter!: HintsRouter
+  private telemetryRouter!: TelemetryRouter
+  private readonly sdkApiRouter!: SdkApiRouter
   private _needPermissions: (
     operation: string,
     resource: string
@@ -95,6 +106,9 @@ export default class HTTPServer {
   ) => Promise<boolean>
   private indexCache: { [pageUrl: string]: string } = {}
 
+  private jwksClient?: jwksRsa.JwksClient
+  private jwksKeyId?: string
+
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Logger)
@@ -103,6 +117,7 @@ export default class HTTPServer {
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.FlowService) flowService: FlowService,
     @inject(TYPES.ActionService) actionService: ActionService,
+    @inject(TYPES.ActionServersService) actionServersService: ActionServersService,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.MediaService) mediaService: MediaService,
@@ -119,7 +134,9 @@ export default class HTTPServer {
     @inject(TYPES.MonitoringService) private monitoringService: MonitoringService,
     @inject(TYPES.AlertingService) private alertingService: AlertingService,
     @inject(TYPES.JobService) private jobService: JobService,
-    @inject(TYPES.LogsRepository) private logsRepo: LogsRepository
+    @inject(TYPES.LogsRepository) private logsRepo: LogsRepository,
+    @inject(TYPES.NLUService) private nluService: NLUService,
+    @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository
   ) {
     this.app = express()
 
@@ -128,7 +145,8 @@ export default class HTTPServer {
     }
 
     if (process.core_env.REVERSE_PROXY) {
-      this.app.set('trust proxy', process.core_env.REVERSE_PROXY)
+      const boolVal = yn(process.core_env.REVERSE_PROXY)
+      this.app.set('trust proxy', boolVal === null ? process.core_env.REVERSE_PROXY : boolVal)
     }
 
     this.app.use(debugRequestMw)
@@ -162,10 +180,12 @@ export default class HTTPServer {
       this.jobService,
       this.logsRepo
     )
-    this.shortlinksRouter = new ShortLinksRouter(this.logger)
+    this.shortLinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
       actionService,
+      actionServersService,
       botService,
+      cmsService,
       configProvider,
       flowService,
       mediaService,
@@ -174,8 +194,12 @@ export default class HTTPServer {
       authService,
       ghostService,
       workspaceService,
+      moduleLoader,
       logger: this.logger
     })
+    this.sdkApiRouter = new SdkApiRouter(this.logger)
+    this.telemetryRouter = new TelemetryRouter(this.logger, this.authService, this.telemetryRepo)
+
     this._needPermissions = needPermissions(this.workspaceService)
     this._hasPermissions = hasPermissions(this.workspaceService)
   }
@@ -202,11 +226,19 @@ export default class HTTPServer {
     this.httpServer = createServer(app)
 
     await this.botsRouter.initialize()
-    this.contentRouter = new ContentRouter(this.logger, this.authService, this.cmsService, this.workspaceService)
+    this.contentRouter = new ContentRouter(
+      this.logger,
+      this.authService,
+      this.cmsService,
+      this.workspaceService,
+      this.ghostService
+    )
+    this.nluRouter = new NLURouter(this.logger, this.authService, this.workspaceService, this.nluService)
     this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this)
     this.hintsRouter = new HintsRouter(this.logger, this.hintsService, this.authService, this.workspaceService)
     this.botsRouter.router.use('/content', this.contentRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
+    this.botsRouter.router.use('/nlu', this.nluRouter.router)
 
     // tslint:disable-next-line: no-floating-promises
     AppLifecycle.waitFor(AppLifecycleEvents.BOTPRESS_READY).then(() => {
@@ -221,6 +253,7 @@ export default class HTTPServer {
   async start() {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = botpressConfig.httpServer
+    await this.sdkApiRouter.initialize()
 
     /**
      * The loading of language models can take some time, access to Botpress is disabled until it is completed
@@ -231,7 +264,11 @@ export default class HTTPServer {
       res.set(config.headers)
       if (!this.isBotpressReady) {
         if (!(req.headers['user-agent'] || '').includes('axios') || !req.headers.authorization) {
-          return res.status(503).send('Botpress is loading. Please try again in a minute.')
+          return res
+            .status(503)
+            .send(
+              '<html><head><meta http-equiv="refresh" content="2"> </head><body>Botpress is loading. Please try again in a minute.</body></html>'
+            )
         }
       }
       next()
@@ -279,6 +316,22 @@ export default class HTTPServer {
       res.send(process.BOTPRESS_VERSION)
     })
 
+    this.app.get('/env.js', async (req, res) => {
+      const branding = await this.configProvider.getBrandingConfig('admin')
+
+      res.contentType('text/javascript')
+      res.send(`
+      (function(window) {
+          window.APP_VERSION = "${process.BOTPRESS_VERSION}";
+          window.APP_NAME = "${branding.title}";
+          window.APP_FAVICON = "${branding.favicon}";
+          window.APP_CUSTOM_CSS = "${branding.customCss}";
+          window.TELEMETRY_URL = "${process.TELEMETRY_URL}";
+          window.SEND_USAGE_STATS = "${botpressConfig!.sendUsageStats}";
+        })(typeof window != 'undefined' ? window : {})
+      `)
+    })
+
     this.app.use('/assets', this.guardWhiteLabel(), express.static(this.resolveAsset('')))
     this.app.use(rewrite('/:app/:botId/*env.js', '/api/v1/bots/:botId/:app/js/env.js'))
 
@@ -286,9 +339,11 @@ export default class HTTPServer {
     this.app.use(`${BASE_API_PATH}/admin`, this.adminRouter.router)
     this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
-    this.app.use(`/s`, this.shortlinksRouter.router)
+    this.app.use(`${BASE_API_PATH}/sdk`, this.sdkApiRouter.router)
+    this.app.use(`${BASE_API_PATH}/telemetry`, this.telemetryRouter.router)
+    this.app.use('/s', this.shortLinksRouter.router)
 
-    this.app.use((err, req, res, next) => {
+    this.app.use((err, _req, _res, next) => {
       if (err instanceof UnlicensedError) {
         next(new PaymentRequiredError(`Server is unlicensed "${err.message}"`))
       } else {
@@ -300,9 +355,10 @@ export default class HTTPServer {
     })
 
     this.app.use(function handleUnexpectedError(err, req, res, next) {
-      const statusCode = err.statusCode || 500
-      const errorCode = err.errorCode || 'BP_000'
-      const message = (err.errorCode && err.message) || 'Unexpected error'
+      const statusCode = err.statusCode || 400
+      const errorCode = err.errorCode
+      const message = err.message || err || 'Unexpected error'
+      const details = err.details || ''
       const docs = err.docs || 'https://botpress.com/docs'
       const devOnly = process.IS_PRODUCTION ? {} : { showStackInDev: true, stack: err.stack, full: err.message }
 
@@ -311,6 +367,7 @@ export default class HTTPServer {
         errorCode,
         type: err.type || Object.getPrototypeOf(err).name || 'Exception',
         message,
+        details,
         docs,
         ...devOnly
       })
@@ -410,11 +467,11 @@ export default class HTTPServer {
   }
 
   createShortLink(name: string, destination: string, params: any) {
-    this.shortlinksRouter.createShortLink(name, destination, params)
+    this.shortLinksRouter.createShortLink(name, destination, params)
   }
 
   deleteShortLink(name: string) {
-    this.shortlinksRouter.deleteShortLink(name)
+    this.shortLinksRouter.deleteShortLink(name)
   }
 
   async getAxiosConfigForBot(botId: string, options?: AxiosOptions): Promise<AxiosBotConfig> {
@@ -444,10 +501,22 @@ export default class HTTPServer {
     const externalAuth = await this._getExternalAuthConfig()
 
     if (!externalAuth || !externalAuth.enabled) {
-      return undefined
+      return
     }
 
-    const { publicKey, audience, algorithms, issuer } = externalAuth
+    const { audience, algorithms, issuer } = externalAuth
+    let publicKey = externalAuth.publicKey
+
+    if (this.jwksClient && this.jwksKeyId) {
+      try {
+        const key = await Promise.fromCallback<jwksRsa.SigningKey>(cb =>
+          this.jwksClient!.getSigningKey(this.jwksKeyId!, cb)
+        )
+        publicKey = key.getPublicKey()
+      } catch (err) {
+        return new Error(`There was an error while trying to fetch the jwks keys. ${err}`)
+      }
+    }
 
     const [scheme, token] = externalToken.split(' ')
     if (scheme.toLowerCase() !== 'bearer') {
@@ -455,7 +524,7 @@ export default class HTTPServer {
     }
 
     return Promise.fromCallback(cb => {
-      jsonwebtoken.verify(token, publicKey, { issuer, audience, algorithms }, (err, user) => {
+      jsonwebtoken.verify(token, publicKey!, { issuer, audience, algorithms }, (err, user) => {
         cb(err, !err ? user : undefined)
       })
     })
@@ -466,24 +535,34 @@ export default class HTTPServer {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = botpressConfig.pro.externalAuth
 
-    if (!config) {
+    if (!config || !config.enabled) {
       return
     }
 
-    if (config.enabled) {
-      if (!config.publicKey) {
-        try {
-          config.publicKey = await this.ghostService.global().readFileAsString('/', 'end_users_auth.pub')
-        } catch (error) {
-          this.logger
-            .attachError(error)
-            .error(`External User Auth: Couldn't open public key file /data/global/end_users_auth.pub`)
-          return undefined
-        }
-      } else if (config.publicKey.length < 128) {
-        this.logger.error(`External User Auth: The provided publicKey is invalid (too short). Min length is 128 chars.`)
-        return undefined
+    if (config.jwksClient) {
+      const { keyId, jwksUri } = config.jwksClient
+
+      if (!keyId || !jwksUri) {
+        this.logger.error(
+          "External User Auth: Couldn't configure the JWKS Client. They keyId and jwksUri parameters must be set"
+        )
+        return
       }
+
+      this.jwksClient = jwksRsa(config.jwksClient)
+      this.jwksKeyId = config.jwksClient.keyId
+    } else if (!config.publicKey) {
+      try {
+        config.publicKey = await this.ghostService.global().readFileAsString('/', 'end_users_auth.pub')
+      } catch (error) {
+        this.logger
+          .attachError(error)
+          .error("External User Auth: Couldn't open public key file /data/global/end_users_auth.pub")
+        return
+      }
+    } else if (config.publicKey.length < 128) {
+      this.logger.error('External User Auth: The provided publicKey is invalid (too short). Min length is 128 chars.')
+      return
     }
 
     return config

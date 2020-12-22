@@ -5,6 +5,7 @@ import { ContainerModule, interfaces } from 'inversify'
 
 import { TYPES } from '../types'
 
+import ActionServersService from './action/action-servers-service'
 import ActionService from './action/action-service'
 import { AlertingService, CEAlertingService } from './alerting-service'
 import { AuthStrategies, CEAuthStrategies } from './auth-strategies'
@@ -24,6 +25,7 @@ import { LogsService } from './logs/service'
 import MediaService from './media'
 import { EventEngine } from './middleware/event-engine'
 import { CEMonitoringService, MonitoringService } from './monitoring'
+import { NLUService } from './nlu/nlu-service'
 import { NotificationsService } from './notification/service'
 import { Queue } from './queue'
 import MemoryQueue from './queue/memory-queue'
@@ -35,12 +37,20 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
     .to(CMSService)
     .inSingletonScope()
 
+  bind<NLUService>(TYPES.NLUService)
+    .to(NLUService)
+    .inSingletonScope()
+
   bind<MediaService>(TYPES.MediaService)
     .to(MediaService)
     .inSingletonScope()
 
   bind<ActionService>(TYPES.ActionService)
     .to(ActionService)
+    .inSingletonScope()
+
+  bind<ActionServersService>(TYPES.ActionServersService)
+    .to(ActionServersService)
     .inSingletonScope()
 
   bind<LicensingService>(TYPES.LicensingService)

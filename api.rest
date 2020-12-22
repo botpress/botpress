@@ -32,15 +32,34 @@ text=hello how are you today
 &reftime={{$datetime "xx"}}
 &tz=America/Toronto
 
-
 ### Reboot server
 POST {{baseUrl}}/api/v1/admin/server/rebootServer
 Authorization: Bearer {{authToken}}
 X-BP-Workspace: default
 
-
 ### Test Lang Server
 GET https://lang-01.botpress.io/info
+
+### Get server archive (pull)
+GET {{baseUrl}}/api/v1/admin/versioning/export
+Content-Type:application/tar+gzip
+Authorization: Bearer {{authToken}}
+# Once you get the response, save it to archive.tgz using the second button in the top right of the response window 'Save response body'
+
+### The two following requests requires BPFS_STORAGE=database
+### Check for changes
+POST {{baseUrl}}/api/v1/admin/versioning/changes
+Content-Type: application/xml
+Authorization: Bearer {{authToken}}
+# Set the absolute path of the archive, or relative to where VS Code was executed from
+< ./.rest-client/responses/body/archive.tgz
+
+### Push changes
+POST {{baseUrl}}/api/v1/admin/versioning/update
+Content-Type: application/xml
+Authorization: Bearer {{authToken}}
+# Set the absolute path of the archive, or relative to where VS Code was executed from
+< ./.rest-client/responses/body/archive.tgz
 
 ### SETUP 
 

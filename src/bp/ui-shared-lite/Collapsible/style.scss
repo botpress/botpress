@@ -1,0 +1,30 @@
+.collapsibleContainer {
+  .subSection {
+    margin-top: var(--spacing-medium);
+  }
+
+  .collapseBtn {
+    background: none !important;
+    padding: 0;
+
+    &:hover {
+      background: none !important;
+    }
+
+    svg {
+      fill: var(--shark);
+    }
+
+    :global {
+      .bp3-icon {
+        margin-right: var(--spacing-large);
+      }
+
+      .bp3-button-text {
+        color: var(--shark);
+        font-size: 12px;
+        line-height: 1.25;
+      }
+    }
+  }
+}

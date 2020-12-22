@@ -10,21 +10,21 @@ describe('Module - NLU', () => {
 
   it('Load NLU', async () => {
     await clickOn('#bp-menu_nlu')
-    await expectBotApiCallSuccess('mod/nlu/intents', 'GET')
+    await expectBotApiCallSuccess('nlu/intents', 'GET')
   })
 
   it('Create new intent', async () => {
     await clickOn('#btn-add-intent')
     await fillField('#input-intent-name', 'hello_there')
 
-    await Promise.all([expectBotApiCallSuccess('mod/nlu/intents', 'POST'), clickOn('#btn-submit')])
+    await Promise.all([expectBotApiCallSuccess('nlu/intents', 'POST'), clickOn('#btn-submit')])
   })
 
   it('Create new entity', async () => {
     await clickOn('span', { text: 'Entities' })
     await clickOn('button', { text: 'New entity' })
-    await fillField('input[placeholder="Entity name"]', 'cars')
+    await fillField('input[name="name"]', 'cars')
 
-    await Promise.all([expectBotApiCallSuccess('mod/nlu/entities', 'POST'), clickOn('#entity-submit')])
+    await Promise.all([expectBotApiCallSuccess('nlu/entities', 'POST'), clickOn('#entity-submit')])
   })
 })

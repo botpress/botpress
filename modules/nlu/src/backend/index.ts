@@ -2,13 +2,23 @@ import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { createApi } from '../api'
+import en from '../translations/en.json'
+import es from '../translations/es.json'
+import fr from '../translations/fr.json'
+
+import dialogConditions from './dialog-conditions'
 import { getOnBotMount } from './module-lifecycle/on-bot-mount'
 import { getOnBotUnmount } from './module-lifecycle/on-bot-unmount'
 import { getOnServerReady } from './module-lifecycle/on-server-ready'
 import { getOnSeverStarted } from './module-lifecycle/on-server-started'
 import { NLUState } from './typings'
 
-const state: NLUState = { nluByBot: {} }
+const state: NLUState = {
+  engine: undefined,
+  nluByBot: {},
+  sendNLUStatusEvent: async () => {}
+}
 
 const onServerStarted = getOnSeverStarted(state)
 const onServerReady = getOnServerReady(state)
@@ -21,12 +31,40 @@ const onModuleUnmount = async (bp: typeof sdk) => {
   Object.keys(state.nluByBot).forEach(botID => () => onBotUnmount(bp, botID))
 }
 
+const onTopicChanged = async (bp: typeof sdk, botId: string, oldName?: string, newName?: string) => {
+  const isRenaming = !!(oldName && newName)
+  const isDeleting = !newName
+
+  if (!isRenaming && !isDeleting) {
+    return
+  }
+
+  const api = await createApi(bp, botId)
+  const intentDefs = await api.fetchIntentsWithQNAs()
+
+  for (const intentDef of intentDefs) {
+    const ctxIdx = intentDef.contexts.indexOf(oldName as string)
+    if (ctxIdx !== -1) {
+      intentDef.contexts.splice(ctxIdx, 1)
+
+      if (isRenaming) {
+        intentDef.contexts.push(newName!)
+      }
+
+      await api.updateIntent(intentDef.name, intentDef)
+    }
+  }
+}
+
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   onBotMount,
   onBotUnmount,
   onModuleUnmount,
+  dialogConditions,
+  onTopicChanged,
+  translations: { en, fr, es },
   definition: {
     name: 'nlu',
     moduleView: {

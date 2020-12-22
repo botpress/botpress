@@ -1,5 +1,8 @@
 const path = require('path')
 
+// Required in order for the Jest VS Code Extension to work properly
+process.env.NATIVE_EXTENSIONS_DIR = './build/native-extensions'
+
 module.exports = {
   preset: 'ts-jest',
   globals: {
@@ -16,6 +19,7 @@ module.exports = {
   verbose: true,
   modulePaths: ['<rootDir>/src/bp/'],
   moduleFileExtensions: ['js', 'json', 'jsx', 'ts', 'tsx'],
+  modulePathIgnorePatterns: ['out'],
   transform: {
     '^.+\\.(ts|tsx|js)$': 'ts-jest'
   },

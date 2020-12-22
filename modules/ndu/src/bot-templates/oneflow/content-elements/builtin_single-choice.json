@@ -1,0 +1,22 @@
+[
+  {
+    "id": "builtin_single-choice-feedback",
+    "formData": {
+      "text$en": "Was this helpful?",
+      "choices$en": [
+        {
+          "title": "Yes 👍",
+          "value": "yes"
+        },
+        {
+          "title": "No 👎",
+          "value": "no"
+        }
+      ],
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2020-01-15T16:48:38.141Z",
+    "modifiedOn": "2020-01-15T16:48:38.141Z"
+  }
+]

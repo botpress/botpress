@@ -13,7 +13,7 @@ const migration: Migration = {
     const hasCollabStrategy = config.pro.collaboratorsAuthStrategies && config.pro.collaboratorsAuthStrategies.length
 
     if (hasAuthStrategy && hasCollabStrategy) {
-      return { success: true, message: `Auth Strategies already configured, skipping...` }
+      return { success: true, message: 'Auth Strategies already configured, skipping...' }
     }
 
     await configProvider.mergeBotpressConfig({

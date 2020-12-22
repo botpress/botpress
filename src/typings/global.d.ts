@@ -9,7 +9,7 @@ declare namespace NodeJS {
     printErrorDefault(err: Error): void
     DEBUG: IDebug
     BOTPRESS_CORE_EVENT: IEmitCoreEvent
-    BOTPRESS_CORE_EVENT_TYPES: BOTPRESS_CORE_EVENTS
+    BOTPRESS_CORE_EVENT_TYPES: BotpressCoreEvents
     require: ExtraRequire
     rewire: (name: string) => string
     printBotLog(botId: string, args: any[]): void
@@ -42,6 +42,7 @@ declare namespace NodeJS {
     CLUSTER_ENABLED: boolean
     ASSERT_LICENSED: Function
     BOTPRESS_VERSION: string
+    TELEMETRY_URL: string
     core_env: BotpressEnvironmentVariables
     distro: OSDistribution
     BOTPRESS_EVENTS: EventEmitter
@@ -49,13 +50,12 @@ declare namespace NodeJS {
     IS_FAILSAFE: boolean
     /** A random ID generated on server start to identify each server in a cluster */
     SERVER_ID: string
-    /**
-     * When true, global hooks and actions will be executed outside of the sandbox.
-     * This gives a boost in performances for code deemed "safe", while bot-specific content is executed in the sandbox
-     */
     DISABLE_GLOBAL_SANDBOX: boolean
+    DISABLE_BOT_SANDBOX: boolean
+    DISABLE_TRANSITION_SANDBOX: boolean
+    DISABLE_CONTENT_SANDBOX: boolean
     WEB_WORKER: number
-    ML_WORKERS: number[]
+    TRAINING_WORKERS: number[]
   }
 }
 
@@ -66,7 +66,7 @@ declare type PRO_FEATURES = 'seats'
 /**
  * This is a copy of process.env to add typing and documentation to variables
  */
-declare type BotpressEnvironmentVariables = {
+declare interface BotpressEnvironmentVariables {
   /** Replace the path of the NodeJS Native Extensions for external OS-specific libraries such as fastText and CRFSuite */
   readonly NATIVE_EXTENSIONS_DIR?: string
 
@@ -97,7 +97,7 @@ declare type BotpressEnvironmentVariables = {
   /** If pro features are enabled or not. When enabled, the license key must be provided */
   readonly PRO_ENABLED?: boolean
 
-  /** When running botpress in production, some optimizations are applied*/
+  /** When running botpress in production, some optimizations are applied */
   readonly BP_PRODUCTION?: boolean
 
   /** Enable cluster mode */
@@ -117,6 +117,7 @@ declare type BotpressEnvironmentVariables = {
 
   /**
    * Set this to true if you're exposing Botpress through a reverse proxy such as Nginx
+   * Can also be either an IP address or a hostname
    * Read more: https://expressjs.com/en/guide/behind-proxies.html
    */
   readonly REVERSE_PROXY?: string
@@ -173,6 +174,12 @@ declare type BotpressEnvironmentVariables = {
   readonly BP_DISABLE_SERVER_CONFIG?: boolean
 
   /**
+   * Disable API call to generate a diagnostic report. Command line/environment variables will still work
+   * @default false
+   */
+  readonly BP_DISABLE_SERVER_DIAG?: boolean
+
+  /**
    * Prevents Botpress from closing cleanly when an error is encountered.
    * This only affects fatal errors, it will not affect business rules checks (eg: licensing)
    */
@@ -191,6 +198,15 @@ declare type BotpressEnvironmentVariables = {
    * Can give a significant performance improvement but removes some protections.
    */
   readonly DISABLE_GLOBAL_SANDBOX?: boolean
+
+  /** When true, bot-scoped actions and hooks are executed outside of the sandbox  */
+  readonly DISABLE_BOT_SANDBOX?: boolean
+
+  /** When true, transitions are executed outside of the sandbox  */
+  readonly DISABLE_TRANSITION_SANDBOX?: boolean
+
+  /** When true, content elements rendering will be executed outside of the sandbox */
+  readonly DISABLE_CONTENT_SANDBOX?: boolean
 
   /** Runs all migrations from v12.0.0 up to the latest migration found in modules and core */
   readonly TESTMIG_ALL?: boolean
@@ -215,7 +231,32 @@ declare type BotpressEnvironmentVariables = {
    * Defaults to 4 if supported by CPU
    * @default 4
    */
-  readonly BP_NUM_ML_WORKERS?: number
+  readonly BP_NUM_ML_THREADS?: number
+
+  /**
+   * Overrides the maximum file size allowed for the BPFS
+   * @default 100mb
+   */
+  readonly BP_BPFS_MAX_FILE_SIZE?: string
+
+  /**
+   * Disable the file upload feature on the Code Editor
+   * @default false
+   */
+  readonly BP_CODE_EDITOR_DISABLE_UPLOAD?: boolean
+
+  /**
+   * Disable the advanced editor feature on the Code Editor
+   * @default false
+   */
+  readonly BP_CODE_EDITOR_DISABLE_ADVANCED?: boolean
+
+  /**
+   * Overwrites the modules that are enabled by default.
+   * Has to be formatted as JSON,
+   * ex: ['nlu', 'nlu-testing']
+   */
+  readonly BP_ENABLED_MODULES?: string
 }
 
 interface IDebug {
@@ -251,19 +292,21 @@ declare interface Dic<T> {
   [Key: string]: T
 }
 
-declare type BOTPRESS_CORE_EVENTS = {
+declare interface BotpressCoreEvents {
   bp_core_session_created: { botId: string; channel: string }
-  bp_core_decision_elected: { botId: string; channel: string; source: string }
-  bp_core_goal_started: { botId: string; channel: string; goalName: string }
-  bp_core_goal_completed: { botId: string; channel: string; goalName: string }
-  bp_core_goal_failed: { botId: string; channel: string; goalName: string }
+  bp_core_send_content: { botId: string; channel: string; source: string; details: string }
+  bp_core_workflow_started: { botId: string; channel: string; wfName: string }
+  bp_core_workflow_completed: { botId: string; channel: string; wfName: string }
+  bp_core_workflow_failed: { botId: string; channel: string; wfName: string }
   bp_core_enter_flow: { botId: string; channel: string; flowName: string }
+  bp_core_feedback_positive: { botId: string; channel: string; type: string; eventId?: string }
+  bp_core_feedback_negative: { botId: string; channel: string; type: string; eventId?: string }
 }
 
 interface IEmitCoreEvent {
-  <T extends keyof BOTPRESS_CORE_EVENTS>(
+  <T extends keyof BotpressCoreEvents>(
     event: T,
-    args: { [key in keyof BOTPRESS_CORE_EVENTS[T]]: BOTPRESS_CORE_EVENTS[T][key] }
+    args: { [key in keyof BotpressCoreEvents[T]]: BotpressCoreEvents[T][key] }
   ): void
 }
 

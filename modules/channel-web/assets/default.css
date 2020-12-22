@@ -1,15 +1,19 @@
+/* Old version IE 10 and 11 only */
 :root {
   --main-bg-color: #ffffff;
   --main-bg-color-hover: rgba(255, 255, 255, 0.9);
   --main-fg-color: #000000;
   --main-fg-color-hover: rgba(0, 0, 0, 0.07);
-}
 
-@import url('https://fonts.googleapis.com/css?family=Lato');
+  --seashell: #e2e2e2;
+  --lighthouse: #f66f48;
+  --focus-lighthouse: #e06542;
+  --hover-lighthouse: #f39c82;
+}
 
 body {
   margin: 0 !important;
-  font-family: 'Lato', sans-serif;
+  font-family: Roboto !important;
   overflow: hidden;
 }
 
@@ -18,12 +22,17 @@ body {
   outline: none !important;
 }
 
-.bpw-from-user .bpw-chat-bubble {
+.hidden {
+  visibility: hidden !important;
+  height: 0 !important;
+}
+
+.bpw-from-user .bpw-chat-bubble .bpw-chat-bubble-content {
   background-color: #000000;
   color: #ffffff;
 }
 
-.bpw-from-bot .bpw-chat-bubble {
+.bpw-from-bot .bpw-chat-bubble .bpw-chat-bubble-content {
   background-color: #ffffff;
   color: #000000;
 }
@@ -42,6 +51,24 @@ body {
 
 .bpw-widget-btn {
   background-color: #000000;
+}
+
+.bpw-message-read-more {
+  color: #00f;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 15px;
+  line-height: 23px;
+  margin: 5px 0 0;
+  padding: 0;
+  text-align: left;
+  text-decoration: underline;
+}
+
+.bpw-widget-btn:focus,
+.bpw-widget-btn:hover {
+  background-color: #333;
 }
 
 .bpw-chat-container {
@@ -87,7 +114,7 @@ body {
   font-size: 1rem;
   padding: 0.4rem 0.8rem;
   min-width: 5rem;
-  height: 40px;
+  min-height: 40px;
   text-align: center;
   border: 1px solid currentColor;
   border-radius: 0px;
@@ -179,7 +206,7 @@ body {
   width: 100%;
 }
 
-.bpw-message-group > :not(:last-child) {
+.bpw-message-group > :not(:last-child):not(.hidden) {
   margin-bottom: 2px;
 }
 
@@ -277,30 +304,72 @@ body {
   border-top-right-radius: 0px;
   border-bottom-right-radius: 0px;
 
-  max-width: 80%;
-  border: 1px solid #f1f1f1;
-  background-color: rgba(255, 255, 255, 0.9);
-
-  padding: 0.5rem 0.75rem;
   white-space: pre-wrap;
   word-break: break-word;
 }
 
-.bpw-from-bot .bpw-bubble-highlight {
+.bpw-chat-bubble-content {
+  border: 1px solid #f1f1f1;
+  padding: 0.5rem 0.75rem;
+}
+
+.bpw-message-feedback {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.bpw-message-feedback button {
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: none;
+}
+
+.bpw-message-feedback i {
+  cursor: pointer;
+  height: 16px;
+
+  margin: 0 4px;
+  fill: #b3b3b3;
+}
+
+.bpw-message-feedback i:hover {
+  fill: black;
+}
+
+.bpw-message-feedback > div {
+  border-radius: 21px;
+  border: 1px solid #f1f1f1;
+  margin-top: -8px;
+  margin-right: -10px;
+  background-color: white;
+  padding: 8px;
+
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.bpw-from-bot .bpw-bubble-highlight .bpw-chat-bubble-content {
   background-color: rgba(255, 192, 114, 0.25);
 }
 
-.bpw-from-user .bpw-bubble-highlight {
+.bpw-from-user .bpw-bubble-highlight .bpw-chat-bubble-content {
   background-color: #ffa73a;
 }
 
 .bpw-bubble-session_reset {
   color: red !important;
-  background: none !important;
   border: none;
   border-top: 1px solid red;
   border-bottom: 1px solid red;
-  margin: 10px 0;
+}
+
+.bpw-bubble-session_reset .bpw-chat-bubble-content {
+  color: red !important;
+  background: none !important;
+  padding: 0;
+  margin: 5px 0;
 }
 
 .bpw-bubble-carousel {
@@ -360,17 +429,17 @@ body {
 
 /* CAROUSEL  */
 .slick-arrow {
-  background-color: #fff;
-  border: 1px solid #dddfe2;
-  width: 32px;
-  height: 32px;
+  background-color: #fff !important;
+  border: 1px solid #dddfe2 !important;
+  width: 32px !important;
+  height: 32px !important;
   border-radius: 3px;
   box-shadow: none;
   color: #444;
   z-index: 1;
 }
 .slick-arrow:before {
-  color: #444;
+  color: #444 !important;
 }
 
 .slick-track {
@@ -579,7 +648,8 @@ body {
   cursor: pointer;
 }
 
-.bpw-send-button:hover {
+.bpw-send-button:hover,
+.bpw-send-button:focus {
   background: #d8d8d8;
 }
 
@@ -668,18 +738,43 @@ body {
   background-color: #ff5d5d;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
 .bpw-header-icon {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
   color: #bbb;
-  margin-left: 17px;
+  margin-left: 12px;
   text-align: right;
   vertical-align: middle;
   cursor: pointer;
-  fill: #bbb;
-  width: 15px;
+  fill: #1a1e22;
+  width: 16px;
+  height: 16px;
+  transition: fill 0.3s;
 }
 
-.bpw-header-icon :hover {
-  fill: black;
+.bpw-header-icon svg,
+.bpw-header-icon svg path {
+  fill: #1a1e22;
+  transition: fill 0.3s;
+}
+
+.bpw-header-icon:hover,
+.bpw-header-icon:hover svg,
+.bpw-header-icon:hover svg path {
+  fill: #5c7080;
 }
 
 .bpw-floating-button {

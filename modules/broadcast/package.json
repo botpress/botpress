@@ -1,0 +1,33 @@
+{
+  "name": "broadcast",
+  "fullName": "Broadcast",
+  "version": "1.0.0",
+  "status": "experimental",
+  "description": "Broadcast messages to all (or a subset) of your users",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "scripts": {
+    "build": "node ../../build/module-builder/bin/entry build",
+    "watch": "node ../../build/module-builder/bin/entry watch",
+    "package": "node ../../build/module-builder/bin/entry package"
+  },
+  "author": "Botpress",
+  "license": "AGPL-3.0-only",
+  "devDependencies": {
+    "@blueprintjs/core": "^3.26.1",
+    "classnames": "^2.2.5",
+    "core-js": "^2.4.1"
+  },
+  "dependencies": {
+    "@blueprintjs/datetime": "^3.17.0",
+    "bluebird": "^3.4.6",
+    "bluebird-retry": "^0.8.0",
+    "dateformat": "^1.0.12",
+    "lodash": "^4.17.19",
+    "moment": "^2.16.0"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12",
+    "lodash": ">=4.17.19"
+  }
+}

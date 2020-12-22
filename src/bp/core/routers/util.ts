@@ -1,6 +1,5 @@
-import { Logger } from 'botpress/sdk'
+import { Logger, StrategyUser } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
-import { StrategyUser } from 'core/repositories/strategy_users'
 import { InvalidOperationError } from 'core/services/auth/errors'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { NextFunction, Request, Response } from 'express'
@@ -25,6 +24,8 @@ const debugSuccess = DEBUG('audit:collab:success')
 const debugSuperSuccess = DEBUG('audit:admin:success')
 const debugSuperFailure = DEBUG('audit:admin:fail')
 
+// TODO: Remove BPRequest, AsyncMiddleware and asyncMiddleware from this file
+
 export type BPRequest = Request & {
   authUser: StrategyUser | undefined
   tokenUser: TokenUser | undefined
@@ -38,6 +39,13 @@ export type AsyncMiddleware = (
 
 export const asyncMiddleware = (logger: Logger, routerName: string): AsyncMiddleware => fn => (req, res, next) => {
   Promise.resolve(fn(req as BPRequest, res, next)).catch(err => {
+    if (typeof err === 'string') {
+      err = {
+        skipLogging: false,
+        message: err
+      }
+    }
+
     err.router = routerName
     if (!err.skipLogging && !process.IS_PRODUCTION) {
       logger.attachError(err).debug(`[${routerName}] Async request error ${err.message}`)
@@ -161,7 +169,7 @@ export const assertSuperAdmin = (req: Request, res: Response, next: Function) =>
 
 export const assertWorkspace = async (req: RequestWithUser, _res: Response, next: NextFunction) => {
   if (!req.workspace) {
-    return next(new InvalidOperationError(`Workspace is missing. Set header X-BP-Workspace`))
+    return next(new InvalidOperationError('Workspace is missing. Set header X-BP-Workspace'))
   }
   next()
 }
@@ -243,7 +251,7 @@ const checkPermissions = (workspaceService: WorkspaceService) => (
 
   if (!req.tokenUser) {
     audit(debugFailure, { email: 'n/a', reason: 'unauthenticated' })
-    return new ForbiddenError(`Unauthorized`)
+    return new ForbiddenError('Unauthorized')
   }
 
   if (!req.workspace && req.params.botId) {
@@ -251,7 +259,7 @@ const checkPermissions = (workspaceService: WorkspaceService) => (
   }
 
   if (!req.workspace) {
-    throw new InvalidOperationError(`Workspace is missing. Set header X-BP-Workspace`)
+    throw new InvalidOperationError('Workspace is missing. Set header X-BP-Workspace')
   }
 
   const { email, strategy, isSuperAdmin } = req.tokenUser
@@ -264,7 +272,7 @@ const checkPermissions = (workspaceService: WorkspaceService) => (
 
   if (!email || !strategy) {
     audit(debugFailure, { reason: 'missing auth parameter' })
-    return new NotFoundError(`Missing one of the required parameters: email or strategy`)
+    return new NotFoundError('Missing one of the required parameters: email or strategy')
   }
 
   const user = await workspaceService.findUser(email, strategy, req.workspace)
@@ -282,4 +290,12 @@ const checkPermissions = (workspaceService: WorkspaceService) => (
   }
 
   audit(debugSuccess, { userRole: role?.id })
+}
+
+export interface TypedRequest<T> extends Request {
+  body: T
+}
+
+export interface TypedResponse<T> extends Response {
+  send: (body: T) => TypedResponse<T>
 }

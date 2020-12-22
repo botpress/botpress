@@ -1,6 +1,8 @@
 {
   "name": "nlu-testing",
+  "fullName": "NLU - Testing",
   "version": "1.0.0",
+  "status": "experimental",
   "description": "Utility module used by the Botpress team to perform regression testing on native NLU",
   "private": true,
   "main": "dist/backend/index.js",
@@ -23,6 +25,6 @@
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
+    "lodash": ">=4.17.19"
   }
 }

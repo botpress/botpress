@@ -2,7 +2,6 @@ import {
   Checkbox,
   Colors,
   FormGroup,
-  H1,
   Icon,
   InputGroup,
   Label,
@@ -12,6 +11,7 @@ import {
   Tooltip
 } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 
@@ -30,13 +30,26 @@ export const PatternEntityEditor: React.FC<Props> = props => {
   const [examplesStr, setExampleStr] = useState((props.entity.examples || []).join('\n'))
   const [allExamplesMatch, setExamplesMatch] = useState<boolean>(true)
 
+  useEffect(() => {
+    setMatchCase(!!props.entity.matchCase)
+    setSensitive(props.entity.sensitive)
+    setPattern(props.entity.pattern)
+    setExampleStr((props.entity.examples || []).join('\n'))
+  }, [props.entity])
+
+  const getEntityId = (entityName: string) =>
+    entityName
+      .trim()
+      .toLowerCase()
+      .replace(/[\t\s]/g, '-')
+
   const validateExamples = _.debounce(() => {
     let p = pattern
     if (!p.startsWith('^')) {
-      p = '^' + p
+      p = `^${p}`
     }
     if (!p.endsWith('$')) {
-      p = p + '$'
+      p = `${p}$`
     }
     const rx = new RegExp(p, matchCase ? '' : 'i')
     const allMatching = examplesStr
@@ -47,6 +60,12 @@ export const PatternEntityEditor: React.FC<Props> = props => {
 
     setExamplesMatch(allMatching)
   }, 750)
+
+  const updateEntity = _.debounce(newEntity => {
+    if (!_.isEqual(props.entity, newEntity)) {
+      props.updateEntity(getEntityId(newEntity.name), newEntity)
+    }
+  }, 100)
 
   useEffect(() => {
     try {
@@ -60,22 +79,22 @@ export const PatternEntityEditor: React.FC<Props> = props => {
         examples: examplesStr.trim().split('\n')
       }
       validateExamples()
-      props.updateEntity(newEntity.id, newEntity)
+      updateEntity(newEntity)
     } catch (e) {
       setPatternValid(false)
     }
-  }, [pattern, matchCase, sensitive, examplesStr])
+  }, [pattern, matchCase, sensitive, examplesStr]) // TODO useReducer and watch state instead or explicitly call update entity while
 
   return (
-    <div className={style.entityEditorBody}>
+    <div key={getEntityId(props.entity?.name)} className={style.entityEditorBody}>
       <div className={style.dataPane}>
         <FormGroup
-          label="Regular expression"
+          label={lang.tr('module.nlu.entities.patternLabel')}
           labelFor="pattern"
           labelInfo={
             patternValid ? null : (
               <Tag intent="danger" minimal className={style.validationTag}>
-                Invalid pattern
+                {lang.tr('module.nlu.entities.patternInvalid')}
               </Tag>
             )
           }
@@ -85,20 +104,22 @@ export const PatternEntityEditor: React.FC<Props> = props => {
             rightElement={<Icon iconSize={20} className={style.regexInputDash} icon="slash" />}
             type="text"
             id="pattern"
-            placeholder="Insert a valid pattern"
+            placeholder={lang.tr('module.nlu.entities.patternPlaceholder')}
             value={pattern}
             intent={patternValid ? 'none' : 'danger'}
             onChange={e => setPattern(e.target.value)}
           />
         </FormGroup>
         <FormGroup
-          label="Matching examples"
+          label={lang.tr('module.nlu.entities.examplesLabel')}
           labelFor="examples"
           labelInfo={
             examplesStr &&
             patternValid && (
               <Tag intent={allExamplesMatch ? 'success' : 'danger'} minimal className={style.validationTag}>
-                {allExamplesMatch ? 'All examples match' : "Some examples don't match"}
+                {allExamplesMatch
+                  ? lang.tr('module.nlu.entities.matchingSuccess')
+                  : lang.tr('module.nlu.entities.matchingError')}
               </Tag>
             )
           }
@@ -108,7 +129,7 @@ export const PatternEntityEditor: React.FC<Props> = props => {
             fill
             rows={6}
             growVertically={true}
-            placeholder="Add examples that match your pattern (one per line)"
+            placeholder={lang.tr('module.nlu.entities.examplesPlaceholder')}
             value={examplesStr}
             intent={allExamplesMatch ? 'none' : 'danger'}
             onChange={e => setExampleStr(e.target.value)}
@@ -116,14 +137,14 @@ export const PatternEntityEditor: React.FC<Props> = props => {
         </FormGroup>
       </div>
       <div className={style.configPane}>
-        <Label>Options</Label>
+        <Label>{lang.tr('options')}</Label>
         <Checkbox
           checked={matchCase}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMatchCase(e.target.checked)}
         >
-          <span>Match case</span>&nbsp;
+          <span>{lang.tr('module.nlu.entities.matchCaseLabel')}</span>&nbsp;
           <Tooltip
-            content="Whether your pattern is case sensitive"
+            content={lang.tr('module.nlu.entities.matchCaseTooltip')}
             position={Position.RIGHT}
             popoverClassName={style.configPopover}
           >
@@ -134,9 +155,9 @@ export const PatternEntityEditor: React.FC<Props> = props => {
           checked={sensitive}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSensitive(e.target.checked)}
         >
-          <span>Contains sensitive data</span>&nbsp;
+          <span>{lang.tr('module.nlu.entities.sensitiveLabel')}</span>&nbsp;
           <Tooltip
-            content="Sensitive information are replaced by * before being saved in the database"
+            content={lang.tr('module.nlu.entities.sensitiveTooltip')}
             position={Position.RIGHT}
             popoverClassName={style.configPopover}
           >

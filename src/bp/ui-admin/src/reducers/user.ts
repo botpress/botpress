@@ -1,5 +1,5 @@
-import { WorkspaceRollout } from 'botpress/sdk'
-import { AuthRule, AuthStrategyConfig, UserProfile, WorkspaceUser, WorkspaceUserInfo } from 'common/typings'
+import { WorkspaceRollout, WorkspaceUser, WorkspaceUserWithAttributes } from 'botpress/sdk'
+import { AuthRule, AuthStrategyConfig, UserProfile } from 'common/typings'
 
 import api from '../api'
 import { getActiveWorkspace, logout, setActiveWorkspace } from '../Auth'
@@ -23,8 +23,8 @@ export interface UserState {
   permissions?: AuthRule[]
   authConfig?: AuthStrategyConfig[]
   profile?: UserProfile
-  users?: WorkspaceUserInfo[]
-  availableUsers?: WorkspaceUserInfo[]
+  users?: WorkspaceUserWithAttributes[]
+  availableUsers?: WorkspaceUserWithAttributes[]
   currentWorkspace?: string
   workspaceRollout?: WorkspaceRollout
 }

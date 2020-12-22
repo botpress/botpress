@@ -1,0 +1,40 @@
+:root {
+  --font-family: Roboto;
+
+  // Albert variables
+  // We should start using these variables from now on and phase out the rest of this file
+  --white: #ffffff;
+  --bg: #f5f6f8;
+  --seashell: #e2e2e2;
+  --gray: #bec5c9;
+  --reef: #5c7080;
+  --shark: #1a1e22;
+  --overlay: rgba(26, 30, 34, 0.8);
+  --success: #019d90;
+  --say: #a4ded0;
+  --trigger: #ffe5b4;
+  --execute: #b0c4de;
+  --listen: #ffe699;
+  --prompt: #e2c7e0;
+  --standard: #000000;
+  --skill-call: #0000ff;
+  --if-else: #febbad;
+  --lighthouse: #f66f48;
+  --focus-lighthouse: #e06542;
+  --hover-lighthouse: #f39c82;
+  --hover-lighthouse-30: #f9ddd5;
+  --ocean: #3276ea;
+  --hover-ocean: #cad7f5;
+
+  --spacing-x-small: 2px;
+  --spacing-small: 4px;
+  --spacing-medium: 8px;
+  --spacing-large: 12px;
+  --spacing-x-large: 16px;
+  --spacing-xx-large: 20px;
+  --spacing-xxx-large: 24px;
+  --spacing-xxxx-large: 28px;
+
+  --right-sidebar-width: 240px;
+  --emulator-width: 300px;
+}

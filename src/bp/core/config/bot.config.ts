@@ -1,6 +1,6 @@
 /** ONLY FOR SCHEMA BUILDING - ALSO EDIT IN BOTPRESS.D.TS */
 
-export type BotConfig = {
+export interface BotConfig {
   $schema?: string
   id: string
   name: string
@@ -22,6 +22,7 @@ export type BotConfig = {
   languages: string[]
   locked: boolean
   pipeline_status: BotPipelineStatus
+  oneflow?: boolean
 }
 
 export interface BotPipelineStatus {
@@ -69,7 +70,7 @@ export interface DialogConfig {
   sessionTimeoutInterval?: string
 }
 
-export type ConverseConfig = {
+export interface ConverseConfig {
   /**
    * The timeout of the converse API requests
    * @default 5s
