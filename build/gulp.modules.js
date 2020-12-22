@@ -43,8 +43,8 @@ const buildModule = (modulePath, cb) => {
   const targetOs = getTargetOSConfig()
   const linkCmd = process.env.LINK ? `&& yarn link "module-builder"` : ''
   const buildCommand = process.argv.find(x => x.toLowerCase() === '--prod')
-    ? `cross-env NODE_ENV=production yarn build --nomap`
-    : 'yarn build'
+    ? `cross-env NODE_ENV=production yarn build --nomap --fail-on-error`
+    : 'yarn build --fail-on-error'
 
   exec(
     `cross-env npm_config_target_platform=${targetOs} yarn ${linkCmd} && ${buildCommand}`,
@@ -93,7 +93,21 @@ const buildModuleBuilder = cb => {
 }
 
 const buildModules = () => {
-  const modules = getAllModulesRoot()
+  const allModules = getAllModulesRoot()
+
+  const command = process.argv[process.argv.length - 2]
+  const moduleArgs = process.argv[process.argv.length - 1].split(',')
+
+  let moduleFilter = m => true
+  if (command === '--m') {
+    moduleFilter = m => moduleArgs.includes(m)
+  } else if (command === '--a') {
+    // if command="--a nlu" we match nlu, nlu-testing and nlu-extras
+    moduleFilter = m => moduleArgs.some(arg => !!m.match(new RegExp(`${arg}`)))
+  }
+
+  const modules = allModules.filter(m => moduleFilter(path.basename(m)))
+
   const tasks = modules.map(m => {
     const config = readModuleConfig(m)
     const moduleName = _.get(config, 'name', 'Unknown')
@@ -113,7 +127,21 @@ const buildModules = () => {
 
 const packageModules = () => {
   mkdirp.sync('out/binaries/modules')
-  const modules = getAllModulesRoot()
+  const allModules = getAllModulesRoot()
+
+  const command = process.argv[process.argv.length - 2]
+  const moduleArgs = process.argv[process.argv.length - 1].split(',')
+
+  let moduleFilter = m => true
+  if (command === '--m') {
+    moduleFilter = m => moduleArgs.includes(m)
+  } else if (command === '--a') {
+    // if command="--a nlu" we match nlu, nlu-testing and nlu-extras
+    moduleFilter = m => moduleArgs.some(arg => !!m.match(new RegExp(`${arg}`)))
+  }
+
+  const modules = allModules.filter(m => moduleFilter(path.basename(m)))
+
   const tasks = modules.map(m => {
     const config = readModuleConfig(m)
     const moduleName = _.get(config, 'name', 'Unknown')
@@ -174,9 +202,52 @@ const createAllModulesSymlink = () => {
   return gulp.series(tasks)
 }
 
+const watchModules = cb => {
+  const allModuleNames = getAllModulesRoot().map(x => path.basename(x))
+  const command = process.argv[process.argv.length - 2]
+  const moduleArgs = process.argv[process.argv.length - 1].split(',')
+
+  if (!['--m', '--a'].includes(command)) {
+    console.error(`Argument missing. Use --m for specific modules, or --a for a partial match. 
+Modules must be comma-separated.
+Example: 'yarn watch:modules --m channel-web,nlu,qna' or 'yarn watch:modules --a web,qna,basic'`)
+    return cb()
+  }
+
+  const modules =
+    command === '--m'
+      ? allModuleNames.filter(m => moduleArgs.includes(m))
+      : allModuleNames.filter(m => moduleArgs.find(x => m.includes(x)))
+
+  if (!modules.length) {
+    console.error('No module found matching provided arguments')
+    return cb()
+  }
+
+  console.log(`Watching Modules: ${modules.join(', ')}`)
+
+  modules.forEach(moduleName => {
+    try {
+      gulp.src(`./out/bp/data/assets/modules/${moduleName}`, { allowEmpty: true }).pipe(rimraf())
+      gulp
+        .src(`./modules/${moduleName}/assets/`)
+        .pipe(symlink(`./out/bp/data/assets/modules/${moduleName}/`, { type: 'dir' }))
+    } catch (err) {
+      console.log('Cant create symlink for', moduleName)
+    }
+
+    const watch = exec('yarn && yarn watch', { cwd: `modules/${moduleName}` }, err => cb(err))
+    watch.stdout.pipe(process.stdout)
+    watch.stderr.pipe(process.stderr)
+  })
+
+  cb()
+}
+
 module.exports = {
   build,
   buildModules,
+  watchModules,
   packageModules,
   buildModuleBuilder,
   cleanModuleAssets,

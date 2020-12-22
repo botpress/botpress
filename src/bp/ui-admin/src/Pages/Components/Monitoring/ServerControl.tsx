@@ -1,4 +1,5 @@
 import { Button, Classes, Dialog, Intent } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 import { toastFailure } from '~/utils/toaster'
 
@@ -28,7 +29,7 @@ const ServerControl: FC<Props> = props => {
 
   return (
     <Dialog
-      title="Server Control"
+      title={lang.tr('admin.monitoring.serverControl')}
       isOpen={props.isOpen}
       onClose={props.toggle}
       transitionDuration={0}
@@ -37,15 +38,11 @@ const ServerControl: FC<Props> = props => {
       <div className={Classes.DIALOG_BODY}>
         {!isRestarting ? (
           <div>
-            You are about to restart the Botpress server hosted on <br /> <strong>{props.hostname}</strong>. <br />{' '}
-            <br />
-            Are you sure?
+            {lang.tr('admin.monitoring.youAreAboutToRestart')} <br /> <strong>{props.hostname}</strong>. <br /> <br />
+            {lang.tr('admin.monitoring.areYouSure')}
           </div>
         ) : (
-          <div>
-            Server restart in progress. To know when the server is back up, watch the uptime for that server in the
-            Overview. You can close this window safely.
-          </div>
+          <div>{lang.tr('admin.monitoring.restartInProgress')}</div>
         )}
       </div>
 
@@ -53,13 +50,18 @@ const ServerControl: FC<Props> = props => {
         <div className={Classes.DIALOG_FOOTER_ACTIONS}>
           {!isRestarting ? (
             <div>
-              <Button id="btn-cancel" text="Cancel" onClick={props.toggle} intent={Intent.NONE} />
-              <Button id="btn-restart" text="Restart server now" onClick={restartServer} intent={Intent.DANGER} />
+              <Button id="btn-cancel" text={lang.tr('cancel')} onClick={props.toggle} intent={Intent.NONE} />
+              <Button
+                id="btn-restart"
+                text={lang.tr('admin.monitoring.restartNow')}
+                onClick={restartServer}
+                intent={Intent.DANGER}
+              />
             </div>
           ) : (
             <div>
               {' '}
-              <Button id="btn-cancel" text="Close" onClick={props.toggle} intent={Intent.NONE} />
+              <Button id="btn-cancel" text={lang.tr('close')} onClick={props.toggle} intent={Intent.NONE} />
             </div>
           )}
         </div>

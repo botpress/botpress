@@ -1,5 +1,6 @@
 import 'bluebird-global'
 import LicensingService from 'common/licensing-service'
+import { LocalActionServer as LocalActionServerImpl } from 'core/services/action/local-action-server'
 import { FatalError } from 'errors'
 import 'reflect-metadata'
 
@@ -16,6 +17,7 @@ let logger: LoggerProvider | undefined
 let config: ConfigProvider | undefined
 let ghost: GhostService | undefined
 let database: Database | undefined
+let localActionServer: LocalActionServerImpl | undefined
 
 try {
   botpress = container.get<Core>(TYPES.Botpress)
@@ -23,6 +25,7 @@ try {
   config = container.get<ConfigProvider>(TYPES.ConfigProvider)
   ghost = container.get<GhostService>(TYPES.GhostService)
   database = container.get<Database>(TYPES.Database)
+  localActionServer = container.get<LocalActionServerImpl>(TYPES.LocalActionServer)
 
   const licensing = container.get<LicensingService>(TYPES.LicensingService)
   licensing.installProtection()
@@ -35,3 +38,4 @@ export const Logger = logger!
 export const Config = config
 export const Ghost = ghost
 export const Db = database
+export const LocalActionServer = localActionServer

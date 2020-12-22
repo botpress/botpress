@@ -14,7 +14,7 @@ import { Config } from '../config'
 
 import { Clients } from './typings'
 
-const outgoingTypes = ['message', 'typing', 'carousel', 'text']
+const outgoingTypes = ['message', 'typing', 'carousel', 'text', 'dropdown_choice']
 
 export class TeamsClient {
   private inMemoryConversationRefs: _.Dictionary<Partial<ConversationReference>> = {}
@@ -40,6 +40,10 @@ If you have a restricted app, you may need to specify the tenantId also.`
       )
     }
 
+    this.bp.logger.info(
+      `Successfully validated credentials for Microsoft Teams channel with App ID: ${this.config.appId}`
+    )
+
     if (!this.publicPath || this.publicPath.indexOf('https://') !== 0) {
       return this.logger.error(
         'You need to configure an HTTPS url for this channel to work properly. See EXTERNAL_URL in botpress config.'
@@ -60,6 +64,9 @@ If you have a restricted app, you may need to specify the tenantId also.`
       const { activity } = turnContext
 
       const conversationReference = TurnContext.getConversationReference(activity)
+      if (activity.value?.text) {
+        activity.text = activity.value.text
+      }
       if (!activity.text) {
         // To prevent from emojis reactions to launch actual events
         return
@@ -89,7 +96,7 @@ If you have a restricted app, you may need to specify the tenantId also.`
     }
 
     // cache miss
-    convRef = await this.bp.kvs.get(this.botId, threadId)
+    convRef = await this.bp.kvs.forBot(this.botId).get(threadId)
     this.inMemoryConversationRefs[threadId] = convRef
     return convRef
   }
@@ -100,7 +107,7 @@ If you have a restricted app, you may need to specify the tenantId also.`
     }
 
     this.inMemoryConversationRefs[threadId] = convRef
-    return this.bp.kvs.set(this.botId, threadId, convRef)
+    return this.bp.kvs.forBot(this.botId).set(threadId, convRef)
   }
 
   private _sendIncomingEvent = async (activity: Activity, threadId: string) => {
@@ -124,7 +131,7 @@ If you have a restricted app, you may need to specify the tenantId also.`
     const messageType = event.type === 'default' ? 'text' : event.type
 
     if (!_.includes(outgoingTypes, messageType)) {
-      throw new Error('Unsupported event type: ' + event.type)
+      throw new Error(`Unsupported event type: ${event.type}`)
     }
 
     const ref = await this._getConversationRef(event.threadId)
@@ -144,6 +151,8 @@ If you have a restricted app, you may need to specify the tenantId also.`
       msg = this._prepareCarouselPayload(event)
     } else if (msg.quick_replies && msg.quick_replies.length) {
       msg = this._prepareChoicePayload(event)
+    } else if (msg.type === 'dropdown_choice') {
+      msg = this._prepareDropdownPayload(event)
     }
 
     try {
@@ -174,6 +183,45 @@ If you have a restricted app, you may need to specify the tenantId also.`
             })
           )
         )
+      ]
+    }
+  }
+
+  private _prepareDropdownPayload(event: sdk.IO.Event) {
+    return {
+      type: 'message',
+      attachments: [
+        CardFactory.adaptiveCard({
+          type: 'AdaptiveCard',
+          body: [
+            {
+              type: 'TextBlock',
+              size: 'Medium',
+              weight: 'Bolder',
+              text: event.payload.message
+            },
+            {
+              type: 'Input.ChoiceSet',
+              choices: event.payload.options.map((opt, idx) => ({
+                title: opt.label,
+                id: `choice-${idx}`,
+                value: opt.value
+              })),
+              id: 'text',
+              placeholder: 'Select a choice',
+              wrap: true
+            }
+          ],
+          actions: [
+            {
+              type: 'Action.Submit',
+              title: event.payload.buttonText,
+              id: 'btnSubmit'
+            }
+          ],
+          $schema: 'http://adaptivecards.io/schemas/adaptive-card.json',
+          version: '1.2'
+        })
       ]
     }
   }

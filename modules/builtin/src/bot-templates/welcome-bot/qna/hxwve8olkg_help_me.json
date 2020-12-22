@@ -23,7 +23,7 @@
     "redirectFlow": "",
     "redirectNode": "",
     "action": "text",
-    "category": "contexts",
-    "enabled": true
+    "enabled": true,
+    "contexts": ["contexts"]
   }
 }

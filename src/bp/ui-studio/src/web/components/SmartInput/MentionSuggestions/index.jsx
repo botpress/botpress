@@ -9,10 +9,6 @@ import cx from 'classnames'
 
 import style from '../styles.scss'
 
-const Category = ({ category = 'UNKNOWN' }) => (
-  <span className={cx(style['suggestion-type'], style[category.toLowerCase()])}>{category[0]}</span>
-)
-
 const defaultEntryComponent = props => {
   const {
     mention,
@@ -21,20 +17,13 @@ const defaultEntryComponent = props => {
     searchValue, // eslint-disable-line no-unused-vars
     ...parentProps
   } = props
-  const { category = 'VARIABLES', value } = mention
-
   return (
     <div {...parentProps}>
-      <Category category={category} />
       <span className={cx(style.variable, { [style.focused]: isFocused })}>{mention.name}</span>
 
-      {isFocused && (
-        <div className={style.info}>
-          <div className={style.description}>{mention.description}</div>
-          <div className={style.source}>{mention.source}</div>
-          <div className={style.location}>{mention.location}</div>
-        </div>
-      )}
+      <div className={style.info}>
+        <div className={style.description}>{mention.description}</div>
+      </div>
     </div>
   )
 }
@@ -161,6 +150,9 @@ export class MentionSuggestions extends Component {
   onEditorStateChange = editorState => {
     const searches = this.props.store.getAllSearches()
 
+    // TODO max.cloutier this doesn't work when there was already a string in the field in the sidebar form
+    //                   we should look into it, also when editing an existing string, it will put the variable
+    //                   at the begining all the time
     // if no search portal is active there is no need to show the popover
     if (searches.size === 0) {
       return editorState
@@ -198,15 +190,17 @@ export class MentionSuggestions extends Component {
     // the word (search term). Setting it to allow the cursor to be left of
     // the @ causes troubles due selection confusion.
     const plainText = editorState.getCurrentContent().getPlainText()
-    const selectionIsInsideWord = leaves.filter(leave => leave !== undefined).map(
-      ({ start, end }) =>
-        (start === 0 &&
-          anchorOffset === this.props.mentionTrigger.length &&
-          plainText.charAt(anchorOffset) !== this.props.mentionTrigger &&
-          new RegExp(String.raw({ raw: `${escapeRegExp(this.props.mentionTrigger)}` }), 'g').test(plainText) &&
-          anchorOffset <= end) || // @ is the first character
-        (anchorOffset > start + this.props.mentionTrigger.length && anchorOffset <= end) // @ is in the text or at the end
-    )
+    const selectionIsInsideWord = leaves
+      .filter(leave => leave !== undefined)
+      .map(
+        ({ start, end }) =>
+          (start === 0 &&
+            anchorOffset === this.props.mentionTrigger.length &&
+            plainText.charAt(anchorOffset) !== this.props.mentionTrigger &&
+            new RegExp(String.raw({ raw: `${escapeRegExp(this.props.mentionTrigger)}` }), 'g').test(plainText) &&
+            anchorOffset <= end) || // @ is the first character
+          (anchorOffset > start + this.props.mentionTrigger.length && anchorOffset <= end) // @ is in the text or at the end
+      )
 
     if (selectionIsInsideWord.every(isInside => isInside === false)) return removeList()
 

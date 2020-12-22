@@ -1,11 +1,14 @@
+import { ModuleDefinition } from 'botpress/sdk'
+import { ModuleInfo } from 'common/typings'
+
 import api from '../api'
 
 export const FETCH_MODULES_RECEIVED = 'bots/FETCH_MODULES_RECEIVED'
 export const FETCH_LOADED_MODULES_RECEIVED = 'bots/FETCH_LOADED_MODULES_RECEIVED'
 
 export interface ModulesState {
-  loadedModules: []
-  modules: []
+  loadedModules: ModuleDefinition[]
+  modules: ModuleInfo[]
 }
 const initialState: ModulesState = {
   loadedModules: [],

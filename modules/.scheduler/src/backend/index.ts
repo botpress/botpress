@@ -33,14 +33,14 @@ let db = undefined
 const onServerStarted = async (bp: typeof sdk & Extension) => {
   db = new SchedulerDb(bp)
   await db.initialize()
-
-  const daemon = Daemon(bp, db)
-  await daemon.revive()
-  daemon.start()
 }
 
 const onServerReady = async (bp: typeof sdk & Extension) => {
   await api(bp, db)
+
+  const daemon = Daemon(bp, db)
+  await daemon.revive()
+  daemon.start()
 }
 
 const obj: sdk.ModuleEntryPoint = {

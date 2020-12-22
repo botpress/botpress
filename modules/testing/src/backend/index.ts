@@ -1,6 +1,9 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import en from '../translations/en.json'
+import fr from '../translations/fr.json'
+
 import api from './api'
 import { Testing } from './testing'
 import { TestByBot } from './typings'
@@ -28,9 +31,10 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onModuleUnmount,
   onBotMount,
   onBotUnmount,
+  translations: { en, fr },
   definition: {
     name: 'testing',
-    menuIcon: 'polymer',
+    menuIcon: 'record',
     menuText: 'Testing',
     noInterface: false,
     fullName: 'Testing',

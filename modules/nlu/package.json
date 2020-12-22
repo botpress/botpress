@@ -1,7 +1,9 @@
 {
   "name": "nlu",
-  "version": "10.47.1",
-  "description": "Botpress NLU module",
+  "fullName": "Natural Language Understanding",
+  "version": "1.2.2",
+  "status": "stable",
+  "description": "Provides everything required to understand the user's request",
   "private": true,
   "main": "dist/backend/index.js",
   "scripts": {
@@ -13,42 +15,41 @@
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0-only",
   "devDependencies": {
+    "@types/bytes": "^3.1.0",
+    "@types/bluebird-retry": "^0.11.4",
     "@types/jest": "^23.3.9",
     "@types/lru-cache": "^5.1.0",
+    "@types/semver": "^7.2.0",
     "@types/slate": "^0.47.1",
     "@types/slate-react": "^0.22.5",
     "@types/tar": "^4.0.3",
     "rimraf": "^3.0.2"
   },
   "dependencies": {
+    "fs-extra": "^7.0.1",
+    "tmp": "^0.0.33",
     "axios": "^0.19.0",
     "bluebird": "^3.5.3",
+    "bytes": "^3.1.0",
     "bluebird-global": "^1.0.1",
     "bluebird-retry": "^0.11.0",
     "classnames": "^2.2.6",
-    "fs-extra": "^8.0.1",
-    "https-proxy-agent": "^2.2.1",
     "immutable": "^4.0.0-rc.12",
     "joi": "^13.6.0",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.19",
     "lru-cache": "^5.1.1",
     "mathjs": "^5.9.0",
-    "moment": "^2.24.0",
     "ms": "^2.1.1",
     "nanoid": "^2.0.1",
-    "object-sizeof": "^1.5.2",
-    "seedrandom": "^3.0.5",
+    "semver": "^7.3.2",
     "slate": "^0.47.4",
     "slate-react": "^0.22.4",
     "slate-react-placeholder": "^0.2.4",
-    "tar": "^6.0.1",
-    "tmp": "^0.0.33",
-    "utility-types": "^3.7.0",
-    "verror": "^1.10.0",
+    "tar": "^4.4.6",
     "yn": "^3.1.1"
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
+    "lodash": ">=4.17.19"
   }
 }

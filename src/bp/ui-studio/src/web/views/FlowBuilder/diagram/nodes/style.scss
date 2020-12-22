@@ -1,9 +1,27 @@
-:global(.srd-diagram .node) {
-  opacity: 0.9;
+:global(.srd-diagram .srd-default-link--path-selected) {
+  stroke: var(--gray) !important;
+  animation: none;
+  stroke-dasharray: 6, 2;
+}
+
+:global(.srd-diagram .srd-default-link--path-dragging) {
+  stroke: var(--ocean) !important;
+  animation: none;
+  stroke-dasharray: none;
 }
 
 :global(.srd-diagram .node.selected) > .node-container {
   border-color: #028aee !important;
+}
+
+.removeLinkButton {
+  cursor: pointer;
+  rect {
+    fill: var(--hover-lighthouse-30);
+  }
+  .trash {
+    fill: var(--lighthouse) !important;
+  }
 }
 
 .node-container {
@@ -13,7 +31,7 @@
 }
 
 .highlightedNode {
-  outline: 5px solid #ffde33 !important;
+  outline: 2px solid var(--ocean) !important;
 }
 
 .item {
@@ -154,7 +172,7 @@
 }
 
 .portLabel .label {
-  position: relative;
+  position: absolute;
   padding: 5px;
   right: -20px;
   display: inline;
@@ -165,6 +183,10 @@
 
 .subflowPort .label {
   color: blue;
+}
+
+.subflowPort .invalidFlow {
+  color: red !important;
 }
 
 .returnPort .label {
@@ -178,6 +200,7 @@
 .startPort .label {
   color: green;
   font-size: 11px;
-  right: -83px;
-  top: -40px;
+  left: -40px;
+  right: auto;
+  top: -7px;
 }

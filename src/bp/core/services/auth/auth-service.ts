@@ -1,11 +1,11 @@
-import { Logger, RolloutStrategy } from 'botpress/sdk'
+import { Logger, RolloutStrategy, StrategyUser } from 'botpress/sdk'
 import { AuthStrategy, AuthStrategyBasic } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
 import { StrategyUserTable } from 'core/database/tables/server-wide/strategy_users'
 import { getMessageSignature } from 'core/misc/security'
 import { ModuleLoader } from 'core/module-loader'
-import { StrategyUser, StrategyUsersRepository } from 'core/repositories/strategy_users'
+import { StrategyUsersRepository } from 'core/repositories/strategy_users'
 import { BadRequestError } from 'core/routers/errors'
 import { Event } from 'core/sdk/impl'
 import { inject, injectable, tagged } from 'inversify'
@@ -78,7 +78,7 @@ export default class AuthService {
   async getCollaboratorsConfig() {
     const config = await this.configProvider.getBotpressConfig()
     if (!config.pro.collaboratorsAuthStrategies || !config.pro.collaboratorsAuthStrategies.length) {
-      throw new Error(`There must be at least one global strategy configured.`)
+      throw new Error('There must be at least one global strategy configured.')
     }
 
     const strategies = await Promise.mapSeries(_.uniq(config.pro.collaboratorsAuthStrategies), async strategyName => {
@@ -108,7 +108,7 @@ export default class AuthService {
     const duration = config.jwtToken && config.jwtToken.duration
 
     const key = `${channel}::${target}`
-    await this.kvs.setStorageWithExpiry('', key, { email, strategy }, duration)
+    await this.kvs.global().set(key, { email, strategy }, undefined, duration)
 
     return generateUserToken(email, strategy, false, duration, CHAT_USERS_AUDIENCE)
   }
@@ -193,7 +193,7 @@ export default class AuthService {
 
   private async _createFirstUser(user: Partial<StrategyUser>, strategy: string): Promise<StrategyUser> {
     if (!(await this.isFirstUser())) {
-      throw new Error(`Only the first user can be created from this method.`)
+      throw new Error('Only the first user can be created from this method.')
     }
 
     const createdUser = await this.users.createUser({
@@ -265,7 +265,7 @@ export default class AuthService {
     const { rolloutStrategy } = await this.workspaceService.getWorkspaceRollout(workspaceId)
 
     if (rolloutStrategy.includes('anonymous')) {
-      throw new BadRequestError(`Authentication not required for anonymous strategies`)
+      throw new BadRequestError('Authentication not required for anonymous strategies')
     }
 
     if (rolloutStrategy === 'authenticated-invite' && !isMember && !isSuperAdmin) {

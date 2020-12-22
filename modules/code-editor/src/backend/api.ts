@@ -1,15 +1,19 @@
 import * as sdk from 'botpress/sdk'
+import { asyncMiddleware as asyncMw, BPRequest, UnexpectedError } from 'common/http'
 import _ from 'lodash'
+import multer from 'multer'
+import path from 'path'
 
 import Editor from './editor'
 import { RequestWithPerms } from './typings'
-import { getPermissionsMw, validateFilePayloadMw } from './utils_router'
+import { getPermissionsMw, validateFilePayloadMw, validateFileUploadMw } from './utils_router'
 
 const debugRead = DEBUG('audit:code-editor:read')
 const debugWrite = DEBUG('audit:code-editor:write')
 
 export default async (bp: typeof sdk, editor: Editor) => {
   const loadPermsMw = getPermissionsMw(bp)
+  const asyncMiddleware = asyncMw(bp.logger)
   const router = bp.http.createRouterForBot('code-editor')
 
   const audit = (debugMethod: Function, label: string, req: RequestWithPerms, args?: any) => {
@@ -29,39 +33,52 @@ export default async (bp: typeof sdk, editor: Editor) => {
     )
   }
 
-  router.get('/files', loadPermsMw, async (req: RequestWithPerms, res, next) => {
-    try {
-      const rawFiles = req.query.rawFiles === 'true'
-      res.send(await editor.forBot(req.params.botId).getAllFiles(req.permissions, rawFiles))
-    } catch (err) {
-      bp.logger.attachError(err).error('Error fetching files')
-      next(err)
-    }
-  })
+  router.get(
+    '/files',
+    loadPermsMw,
+    asyncMiddleware(async (req: BPRequest & RequestWithPerms, res) => {
+      try {
+        const rawFiles = req.query.rawFiles === 'true'
+        const includeBuiltin = req.query.includeBuiltin === 'true'
+        res.send(await editor.forBot(req.params.botId).getAllFiles(req.permissions, rawFiles, includeBuiltin))
+      } catch (err) {
+        throw new UnexpectedError('Error fetching files', err)
+      }
+    })
+  )
 
-  router.post('/save', loadPermsMw, validateFilePayloadMw('write'), async (req: RequestWithPerms, res, next) => {
-    try {
-      audit(debugWrite, 'saveFile', req)
+  router.post(
+    '/save',
+    loadPermsMw,
+    validateFilePayloadMw('write'),
+    asyncMiddleware(async (req: BPRequest & RequestWithPerms, res) => {
+      try {
+        audit(debugWrite, 'saveFile', req)
 
-      await editor.forBot(req.params.botId).saveFile(req.body)
-      res.sendStatus(200)
-    } catch (err) {
-      bp.logger.attachError(err).error('Could not save file')
-      next(err)
-    }
-  })
+        await editor.forBot(req.params.botId).saveFile(req.body)
+        res.sendStatus(200)
+      } catch (err) {
+        throw new UnexpectedError('Cannot save file', err)
+      }
+    })
+  )
 
-  router.post('/readFile', loadPermsMw, validateFilePayloadMw('read'), async (req: RequestWithPerms, res, next) => {
-    try {
-      const fileContent = await editor.forBot(req.params.botId).readFileContent(req.body)
+  router.post(
+    '/readFile',
+    loadPermsMw,
+    validateFilePayloadMw('read'),
+    asyncMiddleware(async (req: BPRequest & RequestWithPerms, res) => {
+      try {
+        const fileContent = await editor.forBot(req.params.botId).readFileContent(req.body)
 
-      audit(debugRead, 'readFile', req, { file: { size: fileContent?.length } })
+        audit(debugRead, 'readFile', req, { file: { size: fileContent?.length } })
 
-      res.send({ fileContent })
-    } catch (err) {
-      next(err)
-    }
-  })
+        res.send({ fileContent })
+      } catch (err) {
+        throw new UnexpectedError('Error reading file', err)
+      }
+    })
+  )
 
   router.post('/download', loadPermsMw, validateFilePayloadMw('read'), async (req: RequestWithPerms, res, next) => {
     const buffer = await editor.forBot(req.params.botId).readFileBuffer(req.body)
@@ -79,45 +96,76 @@ export default async (bp: typeof sdk, editor: Editor) => {
     }
   })
 
-  router.post('/rename', loadPermsMw, validateFilePayloadMw('write'), async (req: RequestWithPerms, res, next) => {
-    try {
-      audit(debugWrite, 'renameFile', req, { newName: req.body.newName })
+  router.post(
+    '/rename',
+    loadPermsMw,
+    validateFilePayloadMw('write'),
+    asyncMiddleware(async (req: BPRequest & RequestWithPerms, res) => {
+      try {
+        audit(debugWrite, 'renameFile', req, { newName: req.body.newName })
 
-      await editor.forBot(req.params.botId).renameFile(req.body.file, req.body.newName)
-      res.sendStatus(200)
-    } catch (err) {
-      bp.logger.attachError(err).error('Could not rename file')
-      next(err)
-    }
-  })
+        await editor.forBot(req.params.botId).renameFile(req.body.file, req.body.newName)
+        res.sendStatus(200)
+      } catch (err) {
+        throw new UnexpectedError('Could not rename file', err)
+      }
+    })
+  )
 
-  router.post('/remove', loadPermsMw, validateFilePayloadMw('write'), async (req: RequestWithPerms, res, next) => {
-    try {
-      audit(debugWrite, 'deleteFile', req)
+  router.post(
+    '/remove',
+    loadPermsMw,
+    validateFilePayloadMw('write'),
+    asyncMiddleware(async (req: BPRequest & RequestWithPerms, res, next) => {
+      try {
+        audit(debugWrite, 'deleteFile', req)
 
-      await editor.forBot(req.params.botId).deleteFile(req.body)
-      res.sendStatus(200)
-    } catch (err) {
-      bp.logger.attachError(err).error('Could not delete file')
-      next(err)
-    }
-  })
+        await editor.forBot(req.params.botId).deleteFile(req.body)
+        res.sendStatus(200)
+      } catch (err) {
+        throw new UnexpectedError('Could not delete file', err)
+      }
+    })
+  )
 
-  router.get('/permissions', loadPermsMw, async (req: RequestWithPerms, res, next) => {
-    try {
-      res.send(req.permissions)
-    } catch (err) {
-      bp.logger.attachError(err).error('Error fetching permissions')
-      next(err)
-    }
-  })
+  router.post(
+    '/upload',
+    loadPermsMw,
+    validateFileUploadMw,
+    multer().single('file'),
+    asyncMiddleware(async (req: BPRequest & RequestWithPerms, res) => {
+      const folder = path.dirname(req.body.location)
+      const filename = path.basename(req.body.location)
 
-  router.get('/typings', async (_req, res, next) => {
-    try {
-      res.send(await editor.loadTypings())
-    } catch (err) {
-      bp.logger.attachError(err).error('Could not load typings. Code completion will not be available')
-      next(err)
-    }
-  })
+      try {
+        await bp.ghost.forRoot().upsertFile(folder, filename, req.file.buffer)
+        res.sendStatus(200)
+      } catch (err) {
+        throw new UnexpectedError('Could not upload file', err)
+      }
+    })
+  )
+
+  router.get(
+    '/permissions',
+    loadPermsMw,
+    asyncMiddleware(async (req: BPRequest & RequestWithPerms, res) => {
+      try {
+        res.send(req.permissions)
+      } catch (err) {
+        throw new UnexpectedError('Could not fetch permissions', err)
+      }
+    })
+  )
+
+  router.get(
+    '/typings',
+    asyncMiddleware(async (_req, res) => {
+      try {
+        res.send(await editor.loadTypings())
+      } catch (err) {
+        throw new UnexpectedError('Could not load typings. Code completion will not be available', err)
+      }
+    })
+  )
 }

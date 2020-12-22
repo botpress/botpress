@@ -1,5 +1,5 @@
 import { Button, Radio, RadioGroup } from '@blueprintjs/core'
-import { BaseDialog, DialogBody, DialogFooter } from 'botpress/shared'
+import { Dialog } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import api from '~/api'
@@ -8,7 +8,7 @@ import { toastFailure, toastSuccess } from '~/utils/toaster'
 import InviteCode from './InviteCode'
 
 interface Props {
-  workspaceId: string
+  workspaceId?: string
   isOpen: boolean
   toggle: () => void
   refreshWorkspaces?: () => void
@@ -25,24 +25,24 @@ interface RolloutInfo {
 export const rolloutInfo: RolloutInfo = {
   anonymous: {
     label: 'Anonymous',
-    desc: `Anonymous users can talk to the bots (default)`
+    desc: 'Anonymous users can talk to the bots (default)'
   },
   authenticated: {
     label: 'Authenticated',
-    desc: `Authenticated users will be added to the workspace automatically, then can talk to bots`
+    desc: 'Authenticated users will be added to the workspace automatically, then can talk to bots'
   },
   authorized: {
     label: 'Authorized',
-    desc: `Authenticated users with an existing access to the workspace can talk to bots`
+    desc: 'Authenticated users with an existing access to the workspace can talk to bots'
   },
   'anonymous-invite': {
     label: 'Anonymous + Code',
-    desc: `Anonymous users with an invite code can talk to bots`,
+    desc: 'Anonymous users with an invite code can talk to bots',
     inviteRequired: true
   },
   'authenticated-invite': {
     label: 'Auth + Code',
-    desc: `Authenticated users with an invite code will be added to the workspace, then can talk to bots`,
+    desc: 'Authenticated users with an invite code will be added to the workspace, then can talk to bots',
     inviteRequired: true
   }
 }
@@ -70,7 +70,7 @@ const RolloutStrategyModal: FC<Props> = props => {
   const submit = async () => {
     try {
       await api.getSecured().post(`/admin/workspaces/${props.workspaceId}/rollout/${strategy}`)
-      toastSuccess(`Rollout strategy updated successfully`)
+      toastSuccess('Rollout strategy updated successfully')
       props.refreshWorkspaces && props.refreshWorkspaces()
     } catch (err) {
       toastFailure(err.message)
@@ -80,14 +80,14 @@ const RolloutStrategyModal: FC<Props> = props => {
   const inviteRequired = ['anonymous-invite', 'authenticated-invite'].includes(strategy)
 
   return (
-    <BaseDialog
+    <Dialog.Wrapper
       title="Rollout Strategy"
       icon="send-to-graph"
       isOpen={props.isOpen}
       onClose={() => props.toggle()}
       size="md"
     >
-      <DialogBody>
+      <Dialog.Body>
         <p>
           The rollout strategy is applied to all bots of the workspace when a user encounters an Auth Gate on the flow.
           Without an Auth Gate, the policy has no effect.
@@ -114,14 +114,14 @@ const RolloutStrategyModal: FC<Props> = props => {
             inviteCode={inviteCode}
             allowedUsages={allowedUsages}
             onUpdate={loadRolloutInfo}
-            workspaceId={props.workspaceId}
+            workspaceId={props.workspaceId!}
           />
         )}
-      </DialogBody>
-      <DialogFooter>
+      </Dialog.Body>
+      <Dialog.Footer>
         <Button id="btn-submit" text="Submit" onClick={submit} />
-      </DialogFooter>
-    </BaseDialog>
+      </Dialog.Footer>
+    </Dialog.Wrapper>
   )
 }
 

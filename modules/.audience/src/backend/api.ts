@@ -24,7 +24,7 @@ export default async (bp: SDK) => {
   router.get('/users/count', async (req, res) => {
     try {
       const userCount = await bp.users.getUserCount()
-      res.status(200).send(userCount.toString())
+      res.send(userCount.toString())
     } catch (err) {
       res.status(500).send({ message: err.message })
     }

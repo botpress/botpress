@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import React, { FC, useState } from 'react'
 import { RouteComponentProps } from 'react-router'
 import { Redirect } from 'react-router-dom'
@@ -17,7 +18,7 @@ export const ChangePassword: FC<Props> = props => {
 
   const updatePassword = async (newPassword: string, confirmPassword: string) => {
     if (newPassword !== confirmPassword) {
-      return setError(`Passwords don't match`)
+      return setError(lang.tr('admin.passwordsDontMatch'))
     }
 
     try {
@@ -28,10 +29,7 @@ export const ChangePassword: FC<Props> = props => {
     }
   }
 
-  const subtitle =
-    password === ''
-      ? 'This is the first time you run Botpress. Please pick a password.'
-      : 'Your password has expired or was temporary. Please set a new password.'
+  const subtitle = password === '' ? lang.tr('admin.firstTimeYouRun') : lang.tr('admin.setANewPassword')
 
   if (props.auth.isAuthenticated() || !email || !loginUrl) {
     return <Redirect to="/" />

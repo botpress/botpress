@@ -19,6 +19,7 @@ const TYPES = {
   DBStorageDriver: Symbol.for('DBStorageDriver'),
   ObjectCache: Symbol.for('ObjectCache'),
   ActionService: Symbol.for('ActionService'),
+  ActionServersService: Symbol.for('ActionServersService'),
   IsPackaged: Symbol.for('IsPackaged'),
   IncomingQueue: Symbol.for('IncomingQueue'),
   OutgoingQueue: Symbol.for('OutgoingQueue'),
@@ -36,10 +37,8 @@ const TYPES = {
   InstructionProcessor: Symbol.for('InstructionProcessor'),
   InstructionFactory: Symbol.for('InstructionFactory'),
   FlowNavigator: Symbol.for('FlowNavigator'),
-  StrategyFactory: Symbol.for('StrategyFactory'),
   ActionStrategy: Symbol.for('ActionStrategy'),
   TransitionStrategy: Symbol.for('TransitionStrategy'),
-  WaitStrategy: Symbol.for('WaitStrategy'),
   StrategyProvider: Symbol.for('StrategyProvider'),
   MediaService: Symbol.for('MediaService'),
   JanitorRunner: Symbol.for('JanitorRunner'),
@@ -77,8 +76,18 @@ const TYPES = {
   EventCollector: Symbol.for('EventCollector'),
   StatsService: Symbol.for('StatsService'),
   StrategyUsersRepository: Symbol.for('StrategyUsersRepository'),
+  TasksRepository: Symbol.for('TasksRepository'),
   WorkspaceUsersRepository: Symbol.for('WorkspaceUsersRepository'),
-  WorkspaceInviteCodesRepository: Symbol.for('WorkspaceInviteCodesRepository')
+  WorkspaceInviteCodesRepository: Symbol.for('WorkspaceInviteCodesRepository'),
+  LocalActionServer: Symbol.for('LocalActionServer'),
+  NLUService: Symbol.for('NLUService'),
+  TelemetryRepository: Symbol.for('TelemetryRepository'),
+  ActionStats: Symbol.for('ActionStats'),
+  LegacyStats: Symbol.for('LegacyStats'),
+  RolesStats: Symbol.for('RolesStats'),
+  SDKStats: Symbol.for('SDKStats'),
+  HooksStats: Symbol.for('HooksStats'),
+  ConfigsStats: Symbol.for('ConfigsStats')
 }
 
 export { TYPES }

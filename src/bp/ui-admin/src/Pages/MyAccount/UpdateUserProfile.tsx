@@ -1,4 +1,5 @@
 import { Button, Classes, Dialog, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import { UserProfile } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import api from '~/api'
@@ -12,8 +13,8 @@ interface Props {
 }
 
 const UpdateUserProfile: FC<Props> = props => {
-  const [firstname, setFirstname] = useState()
-  const [lastname, setLastname] = useState()
+  const [firstname, setFirstname] = useState<string>()
+  const [lastname, setLastname] = useState<string>()
 
   useEffect(() => {
     setFirstname(props.profile.firstname)
@@ -29,15 +30,15 @@ const UpdateUserProfile: FC<Props> = props => {
       props.fetchProfile()
       props.toggle()
 
-      toastSuccess('Profile updated successfully')
+      toastSuccess(lang.tr('admin.profileUpdatedSuccessfully'))
     } catch (err) {
-      toastFailure(`Error while updating profile: ${err.message}`)
+      toastFailure(lang.tr('admin.errorUpdatingProfile', { msg: err.message }))
     }
   }
 
   return (
     <Dialog
-      title="Update your profile"
+      title={lang.tr('admin.updateYourProfile')}
       icon="user"
       isOpen={props.isOpen}
       onClose={props.toggle}
@@ -46,7 +47,7 @@ const UpdateUserProfile: FC<Props> = props => {
     >
       <form onSubmit={submit}>
         <div className={Classes.DIALOG_BODY}>
-          <FormGroup label="First Name">
+          <FormGroup label={lang.tr('admin.firstName')}>
             <InputGroup
               id="input-firstname"
               value={firstname}
@@ -56,14 +57,14 @@ const UpdateUserProfile: FC<Props> = props => {
             />
           </FormGroup>
 
-          <FormGroup label="Last Name">
+          <FormGroup label={lang.tr('admin.lastName')}>
             <InputGroup id="input-lastname" value={lastname} onChange={e => setLastname(e.target.value)} tabIndex={2} />
           </FormGroup>
         </div>
 
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button id="btn-submit" type="submit" text="Save" tabIndex={3} intent={Intent.PRIMARY} />
+            <Button id="btn-submit" type="submit" text={lang.tr('save')} tabIndex={3} intent={Intent.PRIMARY} />
           </div>
         </div>
       </form>

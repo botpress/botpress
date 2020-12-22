@@ -1,7 +1,9 @@
 {
   "name": "hitl",
-  "version": "10.43.0",
-  "description": "Official HITL (Human In The Loop) module for Botpress",
+  "fullName": "Human In The Loop",
+  "version": "1.0.0",
+  "status": "stable",
+  "description": "Provides an interface for a Botpress user to take over conversations with chat users",
   "private": true,
   "main": "dist/backend/index.js",
   "botpress": {
@@ -26,13 +28,13 @@
   "dependencies": {
     "bluebird": "^3.5.3",
     "classnames": "^2.2.6",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.19",
     "mime": "^2.4.4",
     "moment": "^2.24.0",
     "react-audio-player": "^0.11.0"
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
+    "lodash": ">=4.17.19"
   }
 }

@@ -76,7 +76,7 @@ export class StateManager {
           return
         }
       } catch (err) {
-        this.logger.attachError(err).error(`Error reading user state from Redis`)
+        this.logger.attachError(err).error('Error reading user state from Redis')
       }
     }
 
@@ -88,10 +88,18 @@ export class StateManager {
     const session = await this.sessionRepo.get(sessionId)
 
     state.context = (session && session.context) || {}
-    state.session = (session && session.session_data) || { lastMessages: [] }
+    state.session = (session && session.session_data) || { lastMessages: [], workflows: {} }
     state.temp = (session && session.temp_data) || {}
-    state.bot = await this.kvs.get(event.botId, this.BOT_GLOBAL_KEY)
+    state.bot = await this.kvs.forBot(event.botId).get(this.BOT_GLOBAL_KEY)
     state.__stacktrace = []
+
+    if (!state.workflow) {
+      Object.defineProperty(state, 'workflow', {
+        get() {
+          return state.session.workflows[state.session.currentWorkflow!]
+        }
+      })
+    }
   }
 
   public async persist(event: sdk.IO.IncomingEvent, ignoreContext: boolean) {
@@ -100,7 +108,7 @@ export class StateManager {
     if (this.useRedis) {
       await this._redisClient.set(
         getRedisSessionKey(sessionId),
-        JSON.stringify(_.omit(event.state, ['__stacktrace', '__error'])),
+        JSON.stringify(_.omit(event.state, ['__stacktrace', 'workflow'])),
         'PX',
         REDIS_MEMORY_DURATION
       )

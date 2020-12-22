@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect } from 'react'
 import { connect } from 'react-redux'
@@ -40,7 +41,7 @@ const DownloadLinks: FC<{ version: string; dockerUrl: string }> = props => {
       <br />
       Docker Image
       <hr />
-      <a href={props.dockerUrl || `https://hub.docker.com/r/botpress/server`} target="_blank">
+      <a href={props.dockerUrl || 'https://hub.docker.com/r/botpress/server'} target="_blank">
         <code>botpress/server:{version}</code>
       </a>
     </div>
@@ -53,7 +54,7 @@ const LastRelease: FC<{ latestReleases: GithubRelease[]; fetchLatestVersions: Fu
   }, [])
 
   return (
-    <PageContainer title="Latest Releases">
+    <PageContainer title={lang.tr('admin.sideMenu.latestReleases')}>
       <div className="releases">
         {props.latestReleases.map(release => {
           return (
@@ -78,7 +79,4 @@ const LastRelease: FC<{ latestReleases: GithubRelease[]; fetchLatestVersions: Fu
 const mapStateToProps = state => ({ latestReleases: state.version.latestReleases })
 const mapDispatchToProps = { fetchLatestVersions }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(LastRelease)
+export default connect(mapStateToProps, mapDispatchToProps)(LastRelease)

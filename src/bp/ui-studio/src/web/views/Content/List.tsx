@@ -1,6 +1,6 @@
 import { AnchorButton, Button, Divider, InputGroup, Position, Tooltip } from '@blueprintjs/core'
-import { confirmDialog } from 'botpress/shared'
-import classnames from 'classnames'
+import { confirmDialog, lang } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
 import React, { Component } from 'react'
@@ -86,14 +86,9 @@ class ListView extends Component<Props, State> {
 
   handleDeleteSelected = async () => {
     if (
-      await confirmDialog(
-        `Do you really want to delete ${this.state.checkedIds.length} item${
-          this.state.checkedIds.length === 1 ? '' : 's'
-        }?`,
-        {
-          acceptLabel: 'Delete'
-        }
-      )
+      await confirmDialog(lang.tr('studio.content.confirmDeleteItem', { count: this.state.checkedIds.length }), {
+        acceptLabel: lang.tr('delete')
+      })
     ) {
       this.props.handleDeleteSelected(this.state.checkedIds)
       this.setState({ checkedIds: [], allChecked: false })
@@ -135,7 +130,7 @@ class ListView extends Component<Props, State> {
       return { column: sort.id, desc: sort.desc }
     })
 
-    if (sortOrder[0].column == 'usage') {
+    if (sortOrder[0].column === 'usage') {
       // we save the sorting locally, because the database doesn't have the 'usage' column
       this.state.sortOrderUsage = sortOrder[0].desc ? 'desc' : 'asc'
       sortOrder = []
@@ -222,25 +217,25 @@ class ListView extends Component<Props, State> {
         width: 35
       },
       {
-        Header: 'ID',
+        Header: lang.tr('id'),
         Cell: x => `#!${x.value}`,
         filterable: false,
         accessor: 'id',
         width: 170
       },
       {
-        Header: 'Content Type',
+        Header: lang.tr('studio.content.contentType'),
         filterable: false,
         accessor: 'contentType',
         width: 150
       },
       {
-        Header: 'Preview',
+        Header: lang.tr('preview'),
         accessor: 'previews',
         filterable: false,
         Cell: x => {
           const preview = x.original.previews?.[this.props.contentLang]
-          const className = classnames({ [style.missingTranslation]: preview.startsWith('(missing translation) ') })
+          const className = cx({ [style.missingTranslation]: preview.startsWith('(missing translation) ') })
           return (
             <React.Fragment>
               <span className={className}>
@@ -261,21 +256,22 @@ class ListView extends Component<Props, State> {
         }
       },
       {
-        Header: 'Modified On',
-        Cell: x => (x.original.modifiedOn ? moment(x.original.modifiedOn).format('MMM Do YYYY, h:mm') : 'Never'),
+        Header: lang.tr('modifiedOn'),
+        Cell: x =>
+          x.original.modifiedOn ? moment(x.original.modifiedOn).format('MMM Do YYYY, h:mm') : lang.tr('never'),
         accessor: 'modifiedOn',
         filterable: false,
         width: 150
       },
       {
-        Header: 'Created On',
-        Cell: x => (x.original.createdOn ? moment(x.original.createdOn).format('MMM Do YYYY, h:mm') : 'Never'),
+        Header: lang.tr('createdOn'),
+        Cell: x => (x.original.createdOn ? moment(x.original.createdOn).format('MMM Do YYYY, h:mm') : lang.tr('never')),
         accessor: 'createdOn',
         filterable: false,
         width: 150
       },
       {
-        Header: 'Usage',
+        Header: lang.tr('usage'),
         id: 'usage',
         Cell: x => {
           const count = this.getCountUsage(x.original.usage)
@@ -300,8 +296,8 @@ class ListView extends Component<Props, State> {
   renderTable() {
     const pageCount = Math.ceil(this.props.count / this.state.pageSize)
     const noDataMessage = this.props.readOnly
-      ? "There's no content here."
-      : "There's no content yet. You can create some using the 'Add' button."
+      ? lang.tr('studio.content.noContent')
+      : lang.tr('studio.content.noContentYet')
 
     if (this.state.sortOrderUsage) {
       const desc = this.state.sortOrderUsage === 'desc'
@@ -328,6 +324,11 @@ class ListView extends Component<Props, State> {
         pages={pageCount}
         manual
         filterable
+        previousText={lang.tr('previous')}
+        nextText={lang.tr('next')}
+        pageText={lang.tr('page')}
+        ofText={lang.tr('of')}
+        rowsText={lang.tr('rows')}
       />
     )
   }
@@ -342,13 +343,13 @@ class ListView extends Component<Props, State> {
         <Downloader url={this.state.downloadUrl} />
         <Toolbar>
           <LeftToolbarButtons>
-            <Tooltip content="Refresh" position={Position.BOTTOM}>
+            <Tooltip content={lang.tr('refresh')} position={Position.BOTTOM}>
               <AnchorButton id="btn-refresh" icon="refresh" onClick={this.props.handleRefresh} />
             </Tooltip>
 
             <Divider />
             {!this.props.readOnly && (
-              <Tooltip content="Delete selected elements" position={Position.BOTTOM}>
+              <Tooltip content={lang.tr('studio.content.deleteElements')} position={Position.BOTTOM}>
                 <AnchorButton
                   id="btn-delete"
                   icon="trash"
@@ -359,7 +360,7 @@ class ListView extends Component<Props, State> {
             )}
 
             {!this.props.readOnly && (
-              <Tooltip content="Clone selected elements" position={Position.BOTTOM}>
+              <Tooltip content={lang.tr('studio.content.cloneElements')} position={Position.BOTTOM}>
                 <AnchorButton
                   id="btn-duplicate"
                   icon="duplicate"
@@ -372,7 +373,7 @@ class ListView extends Component<Props, State> {
             <InputGroup
               id="input-search"
               style={{ marginTop: 3, width: 250 }}
-              placeholder="Search content"
+              placeholder={lang.tr('studio.content.searchContent')}
               small
               value={this.state.searchTerm}
               onChange={this.handleSearchChanged}
@@ -391,7 +392,7 @@ class ListView extends Component<Props, State> {
             />
           </RightToolbarButtons> */}
         </Toolbar>
-        <div style={{ padding: 5 }}>{this.renderTable()}</div>
+        <div className={cx(style.tableWrapper, this.props.className)}>{this.renderTable()}</div>
         <UsageModal
           usage={this.state.contentUsage}
           handleClose={() => this.setState({ showUsageModal: false })}
@@ -404,6 +405,7 @@ class ListView extends Component<Props, State> {
 export default withLanguage(ListView)
 
 interface Props {
+  className: string
   count: number
   contentItems: any
   readOnly: boolean

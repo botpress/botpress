@@ -1,7 +1,9 @@
 {
   "name": "basic-skills",
+  "fullName": "Basic Skills",
   "version": "11.5.0",
-  "description": "Botpress Skill that allows users to pick an option",
+  "status": "stable",
+  "description": "Provides easy-to-use components to execute repetitive tasks",
   "private": true,
   "main": "dist/backend/index.js",
   "webpack": {
@@ -28,13 +30,13 @@
   "dependencies": {
     "bluebird": "^3.5.3",
     "bluebird-global": "^1.0.1",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.19",
     "nanoid": "^2.1.6",
     "nodemailer": "^6.3.0",
     "yn": "^3.1.0"
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
+    "lodash": ">=4.17.19"
   }
 }

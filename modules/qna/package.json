@@ -1,7 +1,9 @@
 {
   "name": "qna",
-  "version": "10.47.1",
-  "description": "Botpress Q&A module",
+  "fullName": "Questions & Answers",
+  "version": "1.0.0",
+  "status": "stable",
+  "description": "An easy-to-use interface for providing answers to user questions",
   "private": true,
   "main": "dist/backend/index.js",
   "scripts": {
@@ -17,6 +19,8 @@
       "react-dom": "ReactDOM",
       "react-bootstrap": "ReactBootstrap",
       "botpress/elements-list": "ElementsList",
+      "botpress/content-type-picker": "BotpressContentTypePicker",
+      "botpress/content-picker": "BotpressContentPicker",
       "botpress/utils": "BotpressUtils"
     }
   },
@@ -33,10 +37,11 @@
     "moment": "^2.24.0",
     "multer": "^1.4.2",
     "nanoid": "^2.0.1",
+    "react-copy-to-clipboard": "^5.0.2",
     "react-select": "^2.4.2"
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
+    "lodash": ">=4.17.19"
   }
 }

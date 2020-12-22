@@ -41,13 +41,13 @@ export default class ActionModalSmall extends React.Component<any> {
   render() {
     return (
       <div onDoubleClick={() => this.setState({ showActionModalForm: true })}>
-        <ActionItem text={this.props.text} layoutv2={true} />
+        <ActionItem text={this.props.text} layoutv2 />
         <ActionModalForm
           show={this.state.showActionModalForm}
           onClose={() => this.setState({ showActionModalForm: false, itemToEditIndex: null })}
           onSubmit={this.onSubmitAction}
           item={this.itemToOptions(this.props.text)}
-          layoutv2={true}
+          layoutv2
         />
       </div>
     )

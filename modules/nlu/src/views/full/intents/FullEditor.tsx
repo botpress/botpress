@@ -1,9 +1,11 @@
 import { AxiosInstance } from 'axios'
 import { NLU } from 'botpress/sdk'
+import { utils } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useEffect, useRef, useState } from 'react'
 
-import { NLUApi } from '../../api'
+import { NLUApi } from '../../../api'
 
 import Slots from './slots/Slots'
 import style from './style.scss'
@@ -17,16 +19,24 @@ interface Props {
   api: NLUApi
   contentLang: string
   showSlotPanel?: boolean
-  axios: AxiosInstance
   liteEditor?: boolean
 }
 
 export const IntentEditor: FC<Props> = props => {
   const [intent, setIntent] = useState<NLU.IntentDefinition>()
 
+  const debouncedApiSaveIntent = useRef(
+    _.debounce((newIntent: NLU.IntentDefinition) => props.api.createIntent(newIntent), 2500)
+  )
+
   useEffect(() => {
     // tslint:disable-next-line: no-floating-promises
-    props.api.fetchIntent(props.intent).then(setIntent)
+    props.api.fetchIntent(props.intent).then(intent => {
+      setIntent(intent)
+      utils.inspect(intent)
+    })
+
+    return () => debouncedApiSaveIntent.current.flush()
   }, [props.intent])
 
   if (!intent) {
@@ -42,7 +52,8 @@ export const IntentEditor: FC<Props> = props => {
 
   const handleUtterancesChange = (newUtterances: string[]) => {
     const newIntent = { ...intent, utterances: { ...intent.utterances, [props.contentLang]: newUtterances } }
-    saveIntent(newIntent)
+    setIntent(newIntent)
+    debouncedApiSaveIntent.current(newIntent)
   }
 
   const handleSlotsChange = (slots: NLU.SlotDefinition[], { operation, name, oldName }) => {
@@ -60,7 +71,7 @@ export const IntentEditor: FC<Props> = props => {
   const utterances = (intent && intent.utterances[props.contentLang]) || []
 
   return (
-    <div className={style.intentEditor}>
+    <div className={cx(style.intentEditor, { [style.liteIntentEditor]: props.liteEditor })}>
       <div>
         <div className={style.header}>
           {!props.liteEditor && (
@@ -70,7 +81,7 @@ export const IntentEditor: FC<Props> = props => {
               api={props.api}
             />
           )}
-          <IntentHint intent={intent} contentLang={props.contentLang} axios={props.axios} />
+          <IntentHint intent={intent} liteEditor={props.liteEditor} contentLang={props.contentLang} />
         </div>
         <UtterancesEditor
           intentName={intent.name}
@@ -79,9 +90,7 @@ export const IntentEditor: FC<Props> = props => {
           slots={intent.slots}
         />
       </div>
-      {props.showSlotPanel && (
-        <Slots slots={intent.slots} api={props.api} axios={props.axios} onSlotsChanged={handleSlotsChange} />
-      )}
+      {props.showSlotPanel && <Slots slots={intent.slots} api={props.api} onSlotsChanged={handleSlotsChange} />}
     </div>
   )
 }

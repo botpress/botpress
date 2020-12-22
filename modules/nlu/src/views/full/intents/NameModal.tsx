@@ -1,5 +1,6 @@
 import { Button, Callout, Classes, Dialog, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
@@ -48,11 +49,11 @@ const NameModal: FC<Props> = props => {
     >
       <form onSubmit={submit}>
         <div className={Classes.DIALOG_BODY}>
-          <FormGroup label="Intent Name">
+          <FormGroup label={lang.tr('name')}>
             <InputGroup
               id="input-intent-name"
               tabIndex={1}
-              placeholder="Choose a name for your intent"
+              placeholder={lang.tr('module.nlu.intents.namePlaceholder')}
               required={true}
               value={name}
               onChange={e => setName(e.currentTarget.value)}
@@ -60,11 +61,7 @@ const NameModal: FC<Props> = props => {
             />
           </FormGroup>
 
-          {alreadyExists && (
-            <Callout intent={Intent.WARNING}>
-              An intent with that name already exists. Please choose another one.
-            </Callout>
-          )}
+          {alreadyExists && <Callout intent={Intent.WARNING}>{lang.tr('module.nlu.intents.nameDupe')}</Callout>}
         </div>
 
         <div className={Classes.DIALOG_FOOTER}>

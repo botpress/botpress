@@ -10,12 +10,11 @@
   }
 }
 
-.cancel {
-  position: absolute;
-  left: 90px;
-  bottom: 14px;
-  height: 34px;
-  padding-right: 12px;
-  padding-left: 12px;
-  min-width: 70px;
+.formBtns {
+  display: flex;
+  justify-content: flex-end;
+
+  button + button {
+    margin-left: 10px;
+  }
 }

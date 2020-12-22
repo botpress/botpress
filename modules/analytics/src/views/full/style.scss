@@ -3,18 +3,54 @@ $colorMessenger: #83aeee;
 $colorTelegram: #463cff;
 $colorSlack: #ff8989;
 $textColor: #182026;
+$lightText: #5c7080;
+$linkText: #1f8ffa;
+$danger-color: #d14319;
+$success-color: #56b149;
 
 .mainWrapper {
-  background: #fff;
+  background: #ebf1f5;
   height: 100%;
   overflow-y: scroll;
-  padding: 15px 20px;
+  padding: 25px;
+}
+
+.innerWrapper {
+  margin: 0 auto;
+  max-width: 945px;
+  width: 100%;
+}
+
+.sectionsWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.section {
+  h2 {
+    color: $textColor;
+    font-size: 22px;
+    font-weight: 500;
+    margin: 0 0 25px;
+  }
+
+  &:not(.half) {
+    width: 100%;
+  }
 }
 
 .header {
   display: flex;
   justify-content: space-between;
-  margin: 0 0 10px;
+  margin: 0 0 50px;
+
+  h1 {
+    font-size: 28px;
+    font-weight: 500;
+    color: $textColor;
+    margin: 0;
+  }
 }
 
 .pageTitle {
@@ -25,36 +61,43 @@ $textColor: #182026;
 }
 
 .filters {
-  &Button {
-    font-size: 16px;
-    font-weight: 300;
+  .filterItem {
+    height: 40px;
+    justify-content: left;
+    margin-left: 20px;
+    width: 220px;
   }
 
-  &InputWrapper {
-    display: block;
-    font-weight: 400;
-    margin: 10px 10px 0 0;
+  .exportButton {
+    height: 40px;
+    justify-content: left;
+    margin-left: 20px;
+    width: 110px;
   }
 
-  &Wrapper {
-    padding: 10px;
-    display: flex;
-    justify-content: flex-end;
+  .filterItem select {
+    height: 40px;
+    width: 220px;
+  }
 
-    .inputLabel {
-      display: block;
-      font-size: 12px;
-      font-weight: 700;
-      margin-bottom: 3px;
-    }
+  .filterItem select + span {
+    top: 50%;
+    transform: translate(0, -50%);
   }
 }
 
+:global(svg.recharts-surface) {
+  overflow: visible;
+}
+
 .emptyState {
-  color: #757575;
+  color: var(--reef);
   font-size: 14px;
   margin: 20px 0;
-  text-align: center;
+
+  &:not(.alignedLeft) {
+    text-align: center;
+  }
 }
 
 .appliedFilters {
@@ -72,73 +115,227 @@ $textColor: #182026;
 .metricsContainer {
   display: flex;
   flex-wrap: wrap;
-  margin: 0 -1%;
-  width: 100%;
+  margin: 0 -2%;
+
+  &.fullWidth {
+    margin: 0 -1%;
+  }
+}
+
+.radialChart {
+  margin: 0 auto;
+
+  &Label {
+    color: $textColor;
+    font-size: 28px;
+    font-weight: 500;
+  }
 }
 
 .metricName {
   color: $textColor;
-  font-size: 14px;
-  font-weight: 400;
+  font-size: 16px;
+  font-weight: 500;
   margin: 0 0 10px;
-  text-align: center;
+  min-height: 34px;
   width: 100%;
+}
 
-  span {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+.progressMetric {
+  border-radius: 5px;
+  height: 10px;
+  margin-top: 14px;
+  min-width: 10px;
+
+  &Label {
+    color: $lightText;
+    font-size: 12px;
+    line-height: 15px;
+    margin: 5px 0 0;
   }
 }
 
-.numberMetric {
-  align-items: center;
-  background: #f3f3f3;
-  border-radius: 4px;
-  box-shadow: none;
+.diffNumber {
+  display: block;
+  font-size: 12px;
+
+  &Up {
+    color: $success-color;
+  }
+
+  &Down {
+    color: $danger-color;
+  }
+}
+
+.half {
+  width: 49%;
+}
+
+.genericMetric {
+  background: #fff;
+  border-radius: 3px;
   color: $textColor;
   display: flex;
-  height: 125px;
-  justify-content: center;
-  margin: 0 auto;
-  padding: 20px 15px;
-  width: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: 0 2% 20px;
+  min-width: 140px;
+  padding: 20px;
+  width: 29%;
+
+  &.wIcon {
+    min-height: 240px;
+  }
+
+  &.half {
+    width: 46%;
+
+    .metricName {
+      min-height: 0;
+    }
+  }
+
+  &.quarter {
+    margin: 0 1% 20px;
+    width: 23%;
+
+    .metricName {
+      min-height: 0;
+    }
+  }
+
+  &.list {
+    justify-content: flex-start;
+    min-height: 204px;
+
+    &.multiple {
+      justify-content: space-between;
+      background: transparent;
+      padding: 0;
+
+      .list {
+        background: #fff;
+        border-radius: 3px;
+        margin: 0;
+        padding: 20px;
+
+        &:first-child {
+          margin-bottom: 20px;
+        }
+      }
+    }
+
+    ol {
+      counter-reset: li;
+      list-style: none;
+      margin: 0;
+      padding: 5px 0 0;
+
+      li {
+        color: $linkText;
+        counter-increment: li;
+        font-size: 12px;
+        line-height: 14px;
+
+        :global(.bp3-popover-target) {
+          display: block;
+        }
+      }
+    }
+
+    a {
+      &::before {
+        color: $lightText;
+        content: counter(li) '.';
+        display: inline-block;
+        margin-right: 4px;
+      }
+
+      color: $linkText;
+      display: flex;
+
+      span:nth-child(1) {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      span:nth-child(2) {
+        margin-left: 5px;
+      }
+
+      &.disabled {
+        color: var(--reef);
+      }
+
+      &.disabled:hover {
+        cursor: default;
+        text-decoration: none;
+      }
+    }
+  }
+
+  &.inline {
+    align-items: center;
+    flex-direction: row;
+    min-height: 0;
+    width: 100%;
+
+    .metricName {
+      min-height: 0;
+      width: auto;
+    }
+
+    p {
+      color: $lightText;
+      font-size: 12px;
+      font-weight: 400;
+      margin: 0;
+    }
+  }
+
+  .metricName {
+    margin: 0;
+  }
+}
+
+.alignBottom {
+  margin-top: auto;
 }
 
 .numberMetricValue {
-  margin: 0;
-  text-align: center;
-  width: 100%;
-
-  span {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+  color: $textColor;
+  display: block;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 32px;
+  margin: 0 0 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .metricWrapper {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin: 0 1% 20px;
-  min-width: 439px;
-  width: 30%;
+  margin: 0 2% 20px;
 
-  &.number,
-  &.empty {
-    min-width: 152px;
-    width: 16%;
+  &.threeQuarterGrid {
+    width: 62%;
+  }
+
+  &.fullGrid {
+    width: 96%;
   }
 }
 
 .chartMetric {
-  background: #f3f3f3;
-  border-radius: 4px;
-  height: 190px;
-  padding: 20px 15px;
+  background: #fff;
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  height: 240px;
+  justify-content: space-between;
+  padding: 20px;
   width: 100%;
 
   &.empty {
@@ -150,5 +347,11 @@ $textColor: #182026;
     justify-content: center;
     margin: 0 auto;
     width: 100%;
+  }
+
+  text {
+    fill: $lightText;
+    font-size: 12px;
+    font-weight: 400;
   }
 }

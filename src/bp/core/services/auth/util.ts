@@ -1,4 +1,3 @@
-import { BotpressConfig } from 'core/config/botpress.config'
 import crypto from 'crypto'
 import jsonwebtoken from 'jsonwebtoken'
 

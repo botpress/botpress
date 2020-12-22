@@ -1,4 +1,5 @@
 import { Button, Checkbox, Intent, Tooltip } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import React from 'react'
 import CheckboxTree from 'react-checkbox-tree'
 import 'react-checkbox-tree/lib/react-checkbox-tree.css'
@@ -32,7 +33,7 @@ export default class Debug extends React.Component<Props, State> {
   }
 
   loadConfiguration = async () => {
-    const { data } = await api.getSecured().get(`/admin/server/debug`)
+    const { data } = await api.getSecured().get('/admin/server/debug')
     const rootNode = { label: 'bp', children: [], expandDisabled: true }
 
     for (const element of Object.keys(data).sort()) {
@@ -56,9 +57,9 @@ export default class Debug extends React.Component<Props, State> {
 
   saveConfiguration = async () => {
     const debugScope = this.state.checked && this.state.checked.join(',')
-    await api.getSecured().post(`/admin/server/debug`, { debugScope, persist: this.state.persist })
+    await api.getSecured().post('/admin/server/debug', { debugScope, persist: this.state.persist })
 
-    toastSuccess('Debug configuration updated successfully!')
+    toastSuccess(lang.tr('admin.debug.confUpdated'))
   }
 
   handlePersistChanged = (e: any) => this.setState({ persist: e.target.checked })
@@ -95,15 +96,21 @@ export default class Debug extends React.Component<Props, State> {
   renderSide() {
     return (
       <div>
-        <Button id="btn-refresh" onClick={this.loadConfiguration} fill={true} icon="refresh" text="Refresh" />
+        <Button
+          id="btn-refresh"
+          onClick={this.loadConfiguration}
+          fill={true}
+          icon="refresh"
+          text={lang.tr('refresh')}
+        />
         <br />
         <br />
-        <Tooltip content="When checked, the selected debug options will be enabled after each server restart">
+        <Tooltip content={lang.tr('admin.debug.persistChecked')}>
           <Checkbox
             id="chk-persist"
             checked={this.state.persist}
             onChange={this.handlePersistChanged}
-            label="Persist"
+            label={lang.tr('admin.debug.persist')}
           />
         </Tooltip>
 
@@ -113,7 +120,7 @@ export default class Debug extends React.Component<Props, State> {
           intent={Intent.PRIMARY}
           fill={true}
           icon="floppy-disk"
-          text="Save"
+          text={lang.tr('save')}
         />
       </div>
     )
@@ -122,8 +129,8 @@ export default class Debug extends React.Component<Props, State> {
   render() {
     return (
       <PageContainer
-        title="Configure Debug"
-        helpText="This page allows you to enable or disable some debug scopes while using Botpress. This list is populated while features are being used, so some items may be missing"
+        title={lang.tr('admin.debug.configureDebug')}
+        helpText={lang.tr('admin.debug.helpText')}
         superAdmin={true}
       >
         <SplitPage sideMenu={this.renderSide()}>{this.renderTree()}</SplitPage>

@@ -15,7 +15,8 @@ function render(data) {
     {
       type: 'text',
       markdown: data.markdown,
-      text: data.text
+      text: data.text,
+      collectFeedback: data.collectFeedback
     }
   ]
 }
@@ -33,6 +34,7 @@ function renderMessenger(data) {
   return [
     ...events,
     {
+      type: 'text',
       text: data.text
     }
   ]
@@ -69,20 +71,20 @@ function renderElement(data, channel) {
 module.exports = {
   id: 'builtin_text',
   group: 'Built-in Messages',
-  title: 'Text',
+  title: 'text',
 
   jsonSchema: {
-    description: 'A regular text message with optional typing indicators and alternates',
+    description: 'module.builtin.types.text.description',
     type: 'object',
     required: ['text'],
     properties: {
       text: {
         type: 'string',
-        title: 'Message'
+        title: 'module.builtin.types.text.message'
       },
       variations: {
         type: 'array',
-        title: 'Alternates (optional)',
+        title: 'module.builtin.types.text.alternatives',
         items: {
           type: 'string',
           default: ''
@@ -90,7 +92,7 @@ module.exports = {
       },
       markdown: {
         type: 'boolean',
-        title: 'Use markdown',
+        title: 'module.builtin.useMarkdown',
         default: true
       },
       ...base.typingIndicators
@@ -108,7 +110,7 @@ module.exports = {
       }
     }
   },
-  computePreviewText: formData => formData.text && 'Text: ' + formData.text,
+  computePreviewText: formData => formData.text,
 
   renderElement: renderElement
 }

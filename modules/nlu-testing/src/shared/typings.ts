@@ -1,4 +1,5 @@
-export type Condition = ['intent' | 'slot', 'is', string]
+import { IO } from 'botpress/sdk'
+export type Condition = ['intent' | 'slot' | 'context', 'is', string]
 
 export interface Test {
   id: string
@@ -24,15 +25,5 @@ export interface TestResult {
   id: string
   success: boolean
   details: TestResultDetails[]
-}
-
-export interface F1 {
-  precision: number
-  recall: number
-  f1: number
-}
-
-export type XValidationResults = {
-  intents: _.Dictionary<F1>
-  slots: F1
+  nlu: IO.EventUnderstanding
 }

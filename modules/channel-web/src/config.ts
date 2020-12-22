@@ -71,4 +71,15 @@ export interface Config {
    * @default 24h
    */
   chatUserAuthDuration: string
+
+  /**
+   * Path to an additional stylesheet. It will be applied on top of the default style
+   */
+  extraStylesheet: string
+
+  /**
+   * If true, Websocket is created when the Webchat is opened. Bot cannot be proactive.
+   * @default false
+   */
+  lazySocket: boolean
 }

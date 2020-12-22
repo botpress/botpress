@@ -13,6 +13,7 @@ export class LogsTable extends Table {
       table.string('scope')
       table.text('message')
       table.text('metadata')
+      table.index(['botId', 'timestamp'], 'sld_idx')
       created = true
     })
     return created

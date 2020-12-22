@@ -7,16 +7,17 @@ import './common/polyfills'
 import sdk from 'botpress/sdk'
 import chalk from 'chalk'
 import cluster from 'cluster'
-import { Botpress, Config, Db, Ghost, Logger } from 'core/app'
+import { Botpress, Config, Db, Ghost, LocalActionServer, Logger } from 'core/app'
+import { ModuleConfigEntry } from 'core/config/botpress.config'
 import center from 'core/logger/center'
 import { ModuleLoader } from 'core/module-loader'
 import ModuleResolver from 'core/modules/resolver'
 import fs from 'fs'
+
 import _ from 'lodash'
 import os from 'os'
 
 import { setupMasterNode, WORKER_TYPES } from './cluster'
-import { FatalError } from './errors'
 
 async function setupEnv() {
   await Db.initialize()
@@ -61,6 +62,51 @@ async function setupDebugLogger() {
   }
 }
 
+interface LoadedModule {
+  entry: ModuleConfigEntry
+  entryPoint: sdk.ModuleEntryPoint
+  rawEntry: sdk.ModuleEntryPoint
+  moduleLocation: string
+}
+
+interface ErroredModule {
+  entry: ModuleConfigEntry
+  err: Error
+}
+
+async function resolveModules(moduleConfigs: ModuleConfigEntry[], resolver: ModuleResolver) {
+  const loadedModules: LoadedModule[] = []
+  const erroredModules: ErroredModule[] = []
+
+  for (const entry of moduleConfigs) {
+    try {
+      const moduleLocation = await resolver.resolve(entry.location)
+      const rawEntry = resolver.requireModule(moduleLocation)
+      const entryPoint = ModuleLoader.processModuleEntryPoint(rawEntry, entry.location)
+      loadedModules.push({ entry, entryPoint, rawEntry, moduleLocation })
+    } catch (e) {
+      erroredModules.push({ entry, err: e })
+    }
+  }
+
+  return { loadedModules, erroredModules }
+}
+
+async function prepareLocalModules(logger: sdk.Logger) {
+  if (!Ghost.useDbDriver) {
+    return
+  }
+
+  try {
+    // We remove the local copy in case something is deleted from the database
+    await Ghost.root(false).deleteFolder('modules')
+  } catch (err) {
+    logger.attachError(err).warn('Could not clear local modules cache')
+  }
+
+  await Ghost.root().syncDatabaseFilesToDisk('modules')
+}
+
 async function start() {
   await setupDebugLogger()
 
@@ -69,17 +115,39 @@ async function start() {
     return setupMasterNode(await getLogger('Cluster'))
   }
 
+  if (process.env.WORKER_TYPE === WORKER_TYPES.LOCAL_ACTION_SERVER) {
+    LocalActionServer.listen()
+    return
+  }
+
   if (cluster.isWorker && process.env.WORKER_TYPE !== WORKER_TYPES.WEB) {
     return
   }
+
   // Server ID is provided by the master node
   process.SERVER_ID = process.env.SERVER_ID!
 
   await setupEnv()
 
   const logger = await getLogger('Launcher')
+
+  await prepareLocalModules(logger)
+
+  const globalConfig = await Config.getBotpressConfig()
+  const modules = _.uniqBy(globalConfig.modules, x => x.location)
+  const enabledModules = modules.filter(m => m.enabled)
+  const disabledModules = modules.filter(m => !m.enabled)
+
+  const resolver = new ModuleResolver(logger)
+
+  const { loadedModules, erroredModules } = await resolveModules(enabledModules, resolver)
+
+  for (const loadedModule of loadedModules) {
+    process.LOADED_MODULES[loadedModule.entryPoint.definition.name] = loadedModule.moduleLocation
+  }
+
   logger.info(chalk`========================================
-{bold ${center(`Botpress Server`, 40, 9)}}
+{bold ${center('Botpress Server', 40, 9)}}
 {dim ${center(`Version ${sdk.version}`, 40, 9)}}
 {dim ${center(`OS ${process.distro}`, 40, 9)}}
 ${_.repeat(' ', 9)}========================================`)
@@ -102,47 +170,33 @@ This is a fatal error, process will exit.`
 
   logger.info(`App Data Dir: "${process.APP_DATA_PATH}"`)
 
-  const modules: sdk.ModuleEntryPoint[] = []
+  const loadedModulesLog = loadedModules
+    .map(m => m.rawEntry?.definition?.name || m.entry.location)
+    .reduce((log, displayName) => {
+      return log + os.EOL + `${chalk.greenBright('⦿')} ${displayName}`
+    }, '')
 
-  const globalConfig = await Config.getBotpressConfig()
-  const loadingErrors: Error[] = []
-  let loadedModulesLog = ''
-  let disabledModulesLog = ''
-  let erroredModulesLog = ''
+  const disabledModulesLog = disabledModules.reduce((log, module) => {
+    const displayName = module.location.replace(/^MODULES_ROOT\/|\\/, '')
+    return log + os.EOL + `${chalk.dim('⊝')} ${displayName} ${chalk.gray('(disabled)')}`
+  }, '')
 
-  const resolver = new ModuleResolver(logger)
-
-  for (const entry of globalConfig.modules) {
-    try {
-      if (!entry.enabled) {
-        const displayName = entry.location.replace(/^MODULES_ROOT\/|\\/, '')
-        disabledModulesLog += os.EOL + `${chalk.dim('⊝')} ${displayName} ${chalk.gray('(disabled)')}`
-        continue
-      }
-
-      const moduleLocation = await resolver.resolve(entry.location)
-      const rawEntry = resolver.requireModule(moduleLocation)
-      const displayName = rawEntry?.definition?.name || entry.location
-
-      const entryPoint = ModuleLoader.processModuleEntryPoint(rawEntry, entry.location)
-      modules.push(entryPoint)
-      process.LOADED_MODULES[entryPoint.definition.name] = moduleLocation
-      loadedModulesLog += os.EOL + `${chalk.greenBright('⦿')} ${displayName}`
-    } catch (err) {
-      erroredModulesLog += os.EOL + `${chalk.redBright('⊗')} ${entry.location} ${chalk.gray('(error)')}`
-      loadingErrors.push(new FatalError(err, `Fatal error loading module "${entry.location}"`))
-    }
-  }
+  const erroredModulesLog = erroredModules.reduce((log, module) => {
+    return (log += os.EOL + `${chalk.redBright('⊗')} ${module.entry.location} ${chalk.gray('(error)')}`)
+  }, '')
 
   logger.info(
-    `Using ${chalk.bold(modules.length.toString())} modules` + loadedModulesLog + disabledModulesLog + erroredModulesLog
+    `Using ${chalk.bold(loadedModules.length.toString())} modules` +
+      loadedModulesLog +
+      disabledModulesLog +
+      erroredModulesLog
   )
 
-  for (const err of loadingErrors) {
+  for (const err of erroredModules.map(m => m.err)) {
     logger.attachError(err).error('Error while loading some modules, they will be disabled')
   }
 
-  await Botpress.start({ modules }).catch(err => {
+  await Botpress.start({ modules: loadedModules.map(m => m.entryPoint) }).catch(err => {
     logger.attachError(err).error('Error starting Botpress')
 
     if (!process.IS_FAILSAFE) {

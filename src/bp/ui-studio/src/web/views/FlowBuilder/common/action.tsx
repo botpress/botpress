@@ -1,4 +1,6 @@
+import { lang } from 'botpress/shared'
 import classnames from 'classnames'
+import { parseActionInstruction } from 'common/action'
 import _ from 'lodash'
 import Mustache from 'mustache'
 import React, { Component } from 'react'
@@ -7,8 +9,8 @@ import Markdown from 'react-markdown'
 import { connect } from 'react-redux'
 import { fetchContentItem, refreshFlowsLinks } from '~/actions'
 
+import { isMissingCurlyBraceClosure } from '../../../components/Util/form.util'
 import withLanguage from '../../../components/Util/withLanguage'
-import { textToItemId } from '../diagram/nodes_v2/utils'
 
 import style from './style.scss'
 
@@ -21,6 +23,8 @@ interface Props {
   contentLang: string
   layoutv2?: boolean
 }
+
+export const textToItemId = text => text?.match(/^say #!(.*)$/)?.[1]
 
 class ActionItem extends Component<Props> {
   state = {
@@ -46,18 +50,19 @@ class ActionItem extends Component<Props> {
   }
 
   renderAction() {
-    const action = this.props.text.trim()
+    const actionInstruction = parseActionInstruction(this.props.text.trim())
 
-    let actionName = action
-    let parameters = {}
+    const actionName = `${actionInstruction.actionName} (args)`
 
-    if (action.indexOf(' ') >= 0) {
-      const tokens = action.split(' ')
-      actionName = _.head(tokens) + ' (args)'
-      parameters = JSON.parse(_.tail(tokens).join(' '))
+    let callPreview
+    if (actionInstruction.argsStr) {
+      try {
+        const parameters = JSON.parse(actionInstruction.argsStr)
+        callPreview = JSON.stringify(parameters, null, 2)
+      } catch (err) {
+        console.error(err)
+      }
     }
-
-    const callPreview = JSON.stringify(parameters, null, 2)
 
     const popoverHoverFocus = (
       <Popover id="popover-action" title={`⚡ ${actionName}`}>
@@ -125,7 +130,8 @@ class ActionItem extends Component<Props> {
       )
     }
 
-    const textContent = (item && `${item.schema?.title} | ${preview}`) || ''
+    const textContent =
+      item && this.props.layoutv2 ? preview : item ? `${lang.tr(item.schema?.title)} | ${preview}` : ''
     const vars = {}
 
     const stripDots = str => str.replace(/\./g, '--dot--')
@@ -133,11 +139,15 @@ class ActionItem extends Component<Props> {
 
     const htmlTpl = textContent.replace(/{{([a-z$@0-9. _-]*?)}}/gi, x => {
       const name = stripDots(x.replace(/{|}/g, ''))
-      vars[name] = '<span class="var">' + x + '</span>'
-      return '{' + stripDots(x) + '}'
+      vars[name] = `<span class="var">${x}</span>`
+      return `{${stripDots(x)}}`
     })
 
-    const mustached = restoreDots(Mustache.render(htmlTpl, vars))
+    let mustached = restoreDots(htmlTpl)
+
+    if (!isMissingCurlyBraceClosure(htmlTpl)) {
+      mustached = restoreDots(Mustache.render(htmlTpl, vars))
+    }
 
     const html = { __html: mustached }
 

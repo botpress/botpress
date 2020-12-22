@@ -19,7 +19,7 @@ import {
 
 export const FILENAME_REGEX = /^[0-9a-zA-Z_\-.]+$/
 
-const RAW_FILES_FILTERS = ['**/*.map']
+const RAW_FILES_FILTERS = ['**/*.map', 'modules/.cache/**/*', 'modules/*.cache', 'modules/*.temp_cache']
 
 export default class Editor {
   private bp: typeof sdk
@@ -37,7 +37,7 @@ export default class Editor {
     return this
   }
 
-  async getAllFiles(permissions: FilePermissions, rawFiles?: boolean): Promise<FilesDS> {
+  async getAllFiles(permissions: FilePermissions, rawFiles?: boolean, listBuiltin?: boolean): Promise<FilesDS> {
     if (rawFiles && permissions['root.raw'].read) {
       return {
         raw: await this.loadRawFiles()
@@ -49,12 +49,12 @@ export default class Editor {
     await Promise.mapSeries(Object.keys(permissions), async type => {
       const userPermissions = permissions[type]
       if (userPermissions.read) {
-        files[type] = await this.loadFiles(userPermissions.type, !userPermissions.isGlobal && this._botId)
+        files[type] = await this.loadFiles(userPermissions.type, !userPermissions.isGlobal && this._botId, listBuiltin)
       }
     })
 
     const examples = await this._getExamples()
-    files['action_example'] = examples.filter(x => x.type === 'action')
+    files['action_example'] = examples.filter(x => x.type === 'action_legacy')
     files['hook_example'] = examples.filter(x => x.type === 'hook')
 
     return files
@@ -95,7 +95,7 @@ export default class Editor {
     }))
   }
 
-  async loadFiles(fileTypeId: string, botId?: string): Promise<EditableFile[]> {
+  async loadFiles(fileTypeId: string, botId?: string, listBuiltin?: boolean): Promise<EditableFile[]> {
     const def: FileDefinition = FileTypes[fileTypeId]
     const { baseDir, dirListingAddFields } = def.ghost
 
@@ -103,7 +103,7 @@ export default class Editor {
       return []
     }
 
-    const excluded = this._config.includeBuiltin ? undefined : getBuiltinExclusion()
+    const excluded = this._config.includeBuiltin || listBuiltin ? undefined : getBuiltinExclusion()
     const ghost = botId ? this.bp.ghost.forBot(botId) : this.bp.ghost.forGlobal()
     const files = def.filenames
       ? def.filenames
@@ -128,7 +128,7 @@ export default class Editor {
 
       return {
         name: path.basename(filepath),
-        type: (isHook ? 'hook' : 'action') as FileType,
+        type: (isHook ? 'hook' : 'action_legacy') as FileType,
         location,
         readOnly: true,
         isExample: true,
@@ -172,30 +172,48 @@ export default class Editor {
     return ghost.renameFile(folder, filename, newFilename)
   }
 
+  async readFile(name: string, filePath: string) {
+    let fileContent = ''
+    try {
+      const typings = fs.readFileSync(filePath, 'utf-8')
+
+      fileContent = typings.toString()
+      if (name === 'botpress.d.ts') {
+        fileContent = fileContent.replace("'botpress/sdk'", 'sdk')
+      }
+    } catch (err) {
+      this.bp.logger.warn(`Couldn't load file ${filePath} `)
+    }
+
+    return { name, fileContent }
+  }
+
   async loadTypings() {
     if (this._typings) {
       return this._typings
     }
 
-    const sdkTyping = fs.readFileSync(path.join(__dirname, '/../botpress.d.js'), 'utf-8')
-    const nodeTyping = fs.readFileSync(path.join(__dirname, `/../typings/node.d.txt`), 'utf-8')
-
     const ghost = this.bp.ghost.forRoot()
     const botConfigSchema = await ghost.readFileAsString('/', 'bot.config.schema.json')
     const botpressConfigSchema = await ghost.readFileAsString('/', 'botpress.config.schema.json')
 
-    // Required so array.includes() can be used without displaying an error
-    const es6include = fs.readFileSync(path.join(__dirname, '/../typings/es6include.txt'), 'utf-8')
-
     const moduleTypings = await this.getModuleTypings()
+
+    const files = [
+      { name: 'node.d.ts', location: path.join(__dirname, '/../typings/node.d.txt') },
+      { name: 'botpress.d.ts', location: path.join(__dirname, '/../botpress.d.js') },
+      // Required so array.includes() can be used without displaying an error
+      { name: 'es6include.d.ts', location: path.join(__dirname, '/../typings/es6include.txt') }
+    ]
+
+    const content = await Promise.mapSeries(files, file => this.readFile(file.name, file.location))
+    const localTypings = _.mapValues(_.keyBy(content, 'name'), 'fileContent')
 
     this._typings = {
       'process.d.ts': buildRestrictedProcessVars(),
-      'node.d.ts': nodeTyping.toString(),
-      'botpress.d.ts': sdkTyping.toString().replace(`'botpress/sdk'`, `sdk`),
       'bot.config.schema.json': botConfigSchema,
       'botpress.config.schema.json': botpressConfigSchema,
-      'es6include.d.ts': es6include.toString(),
+      ...localTypings,
       ...moduleTypings
     }
 

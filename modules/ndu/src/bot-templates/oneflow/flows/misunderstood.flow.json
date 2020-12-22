@@ -1,0 +1,61 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "entry",
+  "label": "Misunderstood",
+  "description": "This is where users end up when their intention is misunderstood by the bot",
+  "nodes": [
+    {
+      "id": "103fskd8c0",
+      "name": "success",
+      "onEnter": [],
+      "onReceive": null,
+      "next": [],
+      "type": "success"
+    },
+    {
+      "id": "fb32f8c720",
+      "name": "misunderstood_trigger",
+      "next": [
+        {
+          "condition": "true",
+          "node": "say-misunderstood"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "trigger",
+      "conditions": [
+        {
+          "id": "user_intent_misunderstood",
+          "params": {}
+        },
+        {
+          "id": "outside_flow_node",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "id": "5f54deb864",
+      "name": "say-misunderstood",
+      "next": [
+        {
+          "condition": "true",
+          "node": "success"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "content": {
+        "contentType": "builtin_text",
+        "formData": {
+          "markdown$en": true,
+          "typing$en": true,
+          "text$en": "Sorry, I didn't understand"
+        }
+      }
+    }
+  ]
+}

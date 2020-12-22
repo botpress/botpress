@@ -1,6 +1,7 @@
 import { Button, Card, ControlGroup, InputGroup, MenuItem } from '@blueprintjs/core'
 import { MultiSelect } from '@blueprintjs/select'
 import { AxiosStatic } from 'axios'
+import { lang } from 'botpress/shared'
 import classnames from 'classnames'
 import without from 'lodash/without'
 import React from 'react'
@@ -21,7 +22,7 @@ interface Params {
 interface Props {
   axios: AxiosStatic
   language: string
-  event: ApiFlaggedEvent
+  event: ApiFlaggedEvent | null
   selected: string
   params: Params
   onSelect: (id: string | null) => void
@@ -103,7 +104,7 @@ class IntentPicker extends React.Component<Props, State> {
           large
           leftIcon="filter"
           onChange={this.handleFilterChange}
-          placeholder="Search for an intent..."
+          placeholder={lang.tr('module.misunderstood.searchForAnIntent')}
           value={this.state.filterIntent}
         />
       </ControlGroup>
@@ -113,7 +114,7 @@ class IntentPicker extends React.Component<Props, State> {
   renderParamsForm() {
     const { event, params, selected: selectedItemName } = this.props
 
-    const eventContexts = event.nluContexts || []
+    const eventContexts = event?.nluContexts || []
     const selectedItem = this.state.intents.find(intent => intent.name === selectedItemName)
     const newContexts = without(eventContexts, ...selectedItem.contexts)
 
@@ -136,12 +137,12 @@ class IntentPicker extends React.Component<Props, State> {
 
     return (
       <div className={style.paramsForm}>
-        <h5>Add extra contexts?</h5>
+        <h5>{lang.tr('module.misunderstood.addExtraContexts')}</h5>
         <StringMultiSelect
           items={newContexts}
           selectedItems={(params && params.contexts) || []}
           onItemSelect={toggleContext}
-          placeholder="Search for a context..."
+          placeholder={lang.tr('module.misunderstood.searchForAContext')}
           popoverProps={{
             minimal: true
           }}
@@ -206,7 +207,7 @@ class IntentPicker extends React.Component<Props, State> {
               }}
               icon="undo"
             >
-              Select another
+              {lang.tr('module.misunderstood.selectAnother')}
             </Button>
           </>
         )}
@@ -221,7 +222,13 @@ class IntentPicker extends React.Component<Props, State> {
       return displayIntents.map(item => this.renderListItem(item))
     }
 
-    return <h3>{filterIntent ? 'No intents match the query.' : 'No intents found'}</h3>
+    return (
+      <h3>
+        {filterIntent
+          ? lang.tr('module.misunderstood.noIntentsMatchQuery')
+          : lang.tr('module.misunderstood.noIntentsFound')}
+      </h3>
+    )
   }
 
   render() {

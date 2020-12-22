@@ -177,9 +177,9 @@ class Bench {
 
   log = (message, showTimestamp = false) => {
     if (showTimestamp) {
-      console.log(`[${moment().format('HH:mm:ss')}] ${message}`)
+      console.info(`[${moment().format('HH:mm:ss')}] ${message}`)
     } else {
-      console.log(message)
+      console.info(message)
     }
   }
 }

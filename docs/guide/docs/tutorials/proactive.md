@@ -44,13 +44,14 @@ if (event.type === 'proactive-trigger') {
 
 ## Webchat events
 
-There's currently 3 events that can be caught in your page :
+There's currently 4 events that can be caught in your page :
 
-| name            | Description                                                 |
-| --------------- | ----------------------------------------------------------- |
-| `webchatLoaded` | Triggered when the webchat is loaded and ready to be opened |
-| `webchatOpened` | Triggered when the webchat button bubble is clicked         |
-| `webchatClosed` | Triggered when the webchat close button is clicked          |
+| name            | Description                                                                   |
+| --------------- | ----------------------------------------------------------------------------- |
+| `webchatLoaded` | Triggered when the webchat is loaded and ready to be opened                   |
+| `webchatOpened` | Triggered when the webchat button bubble is clicked                           |
+| `webchatClosed` | Triggered when the webchat close button is clicked                            |
+| `webchatReady`  | Triggered when the webchat is ready to accept events, like proactive triggers |
 
 ## Common use cases
 
@@ -82,7 +83,7 @@ Use this code in your `index.html`:
     })
 
     window.addEventListener('message', function(event) {
-      if (event.data.name === 'webchatLoaded') {
+      if (event.data.name === 'webchatReady') {
         window.botpressWebChat.sendEvent({
           type: 'proactive-trigger',
           channel: 'web',
@@ -94,7 +95,7 @@ Use this code in your `index.html`:
 </html>
 ```
 
-### Send message when openning webchat
+### Send message when opening webchat
 
 This will send an event when the webchat button bubble is clicked
 

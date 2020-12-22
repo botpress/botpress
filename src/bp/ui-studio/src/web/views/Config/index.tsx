@@ -1,6 +1,7 @@
 import { Button, Callout, FileInput, FormGroup, InputGroup, Intent, TextArea } from '@blueprintjs/core'
 import axios from 'axios'
 import { BotConfig } from 'botpress/sdk'
+import { confirmDialog, lang } from 'botpress/shared'
 import { BotEditSchema } from 'common/validation'
 import Joi from 'joi'
 import _ from 'lodash'
@@ -12,16 +13,11 @@ import { Container, SidePanel, SidePanelSection } from '~/components/Shared/Inte
 import { Item } from '~/components/Shared/Interface/typings'
 import { toastFailure, toastSuccess } from '~/components/Shared/Utils/Toaster'
 
-import confirmDialog from '../../../../../ui-shared/src/ConfirmDialog'
 import { ItemList } from '../../components/Shared/Interface'
 
 import style from './style.scss'
 
-const statusList: SelectItem[] = [
-  { label: 'Published', value: 'public' },
-  { label: 'Collaborators Only', value: 'private' },
-  { label: 'Unmounted', value: 'disabled' }
-]
+const statusList = ['public', 'private', 'disabled']
 
 const axiosConfig = {
   baseURL: 'api/v1/'
@@ -81,19 +77,19 @@ class ConfigView extends Component<Props, State> {
 
   sideBarItems: Item[] = [
     {
-      label: 'General',
+      label: lang.tr('general'),
       value: 'main',
       icon: 'cog',
       selected: true
     },
     {
-      label: 'Additional Details',
+      label: lang.tr('config.additionalDetails'),
       value: 'details',
       icon: 'list-detail-view',
       selected: false
     },
     {
-      label: 'Avatar & Cover picture',
+      label: lang.tr('config.avatarAndCover'),
       value: 'pictures',
       icon: 'media',
       selected: false
@@ -104,7 +100,7 @@ class ConfigView extends Component<Props, State> {
     ...this.initialFormState,
     licensing: undefined,
     languages: [],
-    statuses: statusList,
+    statuses: [],
     error: undefined,
     isSaving: false,
     items: this.sideBarItems,
@@ -114,6 +110,10 @@ class ConfigView extends Component<Props, State> {
   async componentDidMount() {
     const languages = await this.fetchLanguages()
     const licensing = await this.fetchLicensing()
+    const statuses = statusList.map<SelectItem>(x => ({
+      label: lang.tr(`status.${x}`),
+      value: x
+    }))
 
     if (!this.props.bot) {
       this.props.fetchBotInformation()
@@ -124,7 +124,7 @@ class ConfigView extends Component<Props, State> {
 
     this.initialFormState = {
       name: bot.name || '',
-      status: this.state.statuses.find(s => s.value === status),
+      status: statuses.find(s => s.value === status),
       description: bot.description || '',
       selectedDefaultLang: languages.find(l => l.value === bot.defaultLanguage),
       selectedLanguages: languages.filter(x => bot.languages && bot.languages.includes(x.value)),
@@ -140,15 +140,16 @@ class ConfigView extends Component<Props, State> {
     this.setState({
       ...this.initialFormState,
       licensing,
-      languages
+      languages,
+      statuses
     })
   }
 
   async fetchLanguages(): Promise<SelectItem[]> {
     const { data } = await axios.get('admin/languages/available', axiosConfig)
-    const languages = _.sortBy(data.languages, 'name').map(lang => ({
-      label: lang.name,
-      value: lang.code
+    const languages = _.sortBy(data.languages, 'name').map(language => ({
+      label: lang.tr(`language.${language.name.toLowerCase()}`),
+      value: language.code
     }))
     return languages
   }
@@ -185,8 +186,8 @@ class ConfigView extends Component<Props, State> {
 
     const { error } = Joi.validate(bot, BotEditSchema)
     if (error) {
-      toastFailure('The form contains errors')
-      this.setState({ error: error, isSaving: false })
+      toastFailure(lang.tr('config.formContainsErrors'))
+      this.setState({ error, isSaving: false })
       return
     }
 
@@ -195,15 +196,14 @@ class ConfigView extends Component<Props, State> {
       let allow = true
 
       if (disableChanged && bot.disabled) {
-        allow = await confirmDialog(
-          `Are you sure want to unmount this bot? All of the functionalities of this bot will become unavailable.`,
-          { acceptLabel: 'Unmount' }
-        )
+        allow = await confirmDialog(lang.tr('config.confirmUnmount'), {
+          acceptLabel: 'Unmount'
+        })
       }
 
       if (allow) {
         await axios.post(`admin/bots/${this.props.bot.id}`, bot, axiosConfig)
-        toastSuccess('Bot configuration updated successfully')
+        toastSuccess(lang.tr('config.configUpdated'))
         this.setState({ error: undefined, isSaving: false })
 
         if (disableChanged) {
@@ -215,7 +215,7 @@ class ConfigView extends Component<Props, State> {
         this.setState({ error: undefined, isSaving: false })
       }
     } catch (err) {
-      this.setState({ error: err, isSaving: false })
+      this.setState({ error: err.response?.data, isSaving: false })
     }
   }
 
@@ -228,22 +228,21 @@ class ConfigView extends Component<Props, State> {
     this.setState({ status })
   }
 
-  handleDefaultLangChanged = async lang => {
+  handleDefaultLangChanged = async language => {
     if (!this.state.selectedDefaultLang) {
-      this.setState({ selectedDefaultLang: lang })
+      this.setState({ selectedDefaultLang: language })
       return
     }
 
-    if (this.state.selectedDefaultLang !== lang) {
+    if (this.state.selectedDefaultLang !== language) {
       const currentName = this.state.languages.find(x => x.value === this.state.selectedDefaultLang.value).label
-      const newName = this.state.languages.find(x => x.value === lang.value).label
-      const conf = await confirmDialog(
-        `Are you sure you want to change the language of your bot from ${currentName} to ${newName}? All of your content elements will be copied, make sure you translate them.`,
-        { acceptLabel: 'Change' }
-      )
+      const newName = this.state.languages.find(x => x.value === language.value).label
+      const conf = await confirmDialog(lang.tr('confirmChangeLanguage', { currentName, newName }), {
+        acceptLabel: 'Change'
+      })
 
       if (conf) {
-        this.setState({ selectedDefaultLang: lang })
+        this.setState({ selectedDefaultLang: language })
       }
     }
   }
@@ -264,7 +263,7 @@ class ConfigView extends Component<Props, State> {
 
     if (!event.target.files[0].type.includes('image/')) {
       this.setState({
-        error: `${targetProp} requires an image file`
+        error: lang.tr('config.requireImageFile', { targetProp })
       })
       return
     }
@@ -310,7 +309,7 @@ class ConfigView extends Component<Props, State> {
     return (
       <Container keyHandlers={keyHandlers} keyMap={keyMap}>
         <SidePanel>
-          <SidePanelSection label="Bot Configuration">
+          <SidePanelSection label={lang.tr('config.botConfiguration')}>
             <ItemList items={this.state.items} onElementClicked={this.handleElementClicked} />
           </SidePanelSection>
         </SidePanel>
@@ -323,11 +322,11 @@ class ConfigView extends Component<Props, State> {
           <form>
             {this.state.activeTab === 'main' && (
               <div>
-                <h1>General</h1>
-                <FormGroup label="Name" labelFor="name">
+                <h1 className={style.title}>{lang.tr('general')}</h1>
+                <FormGroup label={lang.tr('name')} labelFor="name">
                   <InputGroup id="name" name="name" value={this.state.name} onChange={this.handleInputChanged} />
                 </FormGroup>
-                <FormGroup label="Status" labelFor="status">
+                <FormGroup label={lang.tr('status')} labelFor="status">
                   <Select
                     id="status"
                     name="status"
@@ -336,7 +335,7 @@ class ConfigView extends Component<Props, State> {
                     onChange={this.handleStatusChanged}
                   />
                 </FormGroup>
-                <FormGroup label="Description" labelFor="description">
+                <FormGroup label={lang.tr('config.description')} labelFor="description">
                   <TextArea
                     id="description"
                     name="description"
@@ -351,8 +350,8 @@ class ConfigView extends Component<Props, State> {
             )}
             {this.state.activeTab === 'details' && (
               <div>
-                <h1>Details</h1>
-                <FormGroup label="Website" labelFor="website">
+                <h1>{lang.tr('details')}</h1>
+                <FormGroup label={lang.tr('config.website')} labelFor="website">
                   <InputGroup
                     id="website"
                     leftIcon="globe"
@@ -362,7 +361,7 @@ class ConfigView extends Component<Props, State> {
                     onChange={this.handleInputChanged}
                   />
                 </FormGroup>
-                <FormGroup label="Phone Number" labelFor="phone-number">
+                <FormGroup label={lang.tr('config.phoneNumber')} labelFor="phone-number">
                   <InputGroup
                     id="phone-number"
                     leftIcon="phone"
@@ -372,7 +371,7 @@ class ConfigView extends Component<Props, State> {
                     onChange={this.handleInputChanged}
                   />
                 </FormGroup>
-                <FormGroup label="Contact E-mail" labelFor="email-address">
+                <FormGroup label={lang.tr('config.contactEmail')} labelFor="email-address">
                   <InputGroup
                     id="email-address"
                     leftIcon="envelope"
@@ -382,7 +381,7 @@ class ConfigView extends Component<Props, State> {
                     onChange={this.handleInputChanged}
                   />
                 </FormGroup>
-                <FormGroup label="Link to Terms &amp; Conditions" labelFor="terms-conditions">
+                <FormGroup label={lang.tr('config.linkToTerms')} labelFor="terms-conditions">
                   <InputGroup
                     id="terms-conditions"
                     name="termsConditions"
@@ -391,7 +390,7 @@ class ConfigView extends Component<Props, State> {
                     onChange={this.handleInputChanged}
                   />
                 </FormGroup>
-                <FormGroup label="Link to Privacy Policy" labelFor="privacy-policy">
+                <FormGroup label={lang.tr('config.linkToPolicy')} labelFor="privacy-policy">
                   <InputGroup
                     id="privacy-policy"
                     placeholder="https://botpress.com/privacy-policy"
@@ -404,10 +403,10 @@ class ConfigView extends Component<Props, State> {
             )}
             {this.state.activeTab === 'pictures' && (
               <div>
-                <h1>Pictures</h1>
-                <FormGroup label="Bot Avatar" labelFor="avatar-url">
+                <h1>{lang.tr('pictures')}</h1>
+                <FormGroup label={lang.tr('config.botAvatar')} labelFor="avatar-url">
                   <FileInput
-                    text="Choose file"
+                    text={lang.tr('config.chooseFile')}
                     inputProps={{
                       id: 'avatar-url',
                       name: 'avatarUrl',
@@ -416,18 +415,15 @@ class ConfigView extends Component<Props, State> {
                     }}
                   />
                   {this.state.avatarUrl !== this.initialFormState.avatarUrl && (
-                    <p className={style.configUploadSuccess}>
-                      The bot avatar has been uploaded successfully. You need to save the form in order for the changes
-                      to take effect.
-                    </p>
+                    <p className={style.configUploadSuccess}>{lang.tr('config.avatarUploadSuccess')}</p>
                   )}
                   {this.state.avatarUrl && (
                     <img className={style.avatarPreview} alt="avatar" src={this.state.avatarUrl} />
                   )}
                 </FormGroup>
-                <FormGroup label="Cover Picture" labelFor="cover-picture-url">
+                <FormGroup label={lang.tr('config.coverPicture')} labelFor="cover-picture-url">
                   <FileInput
-                    text="Choose file"
+                    text={lang.tr('config.chooseFile')}
                     inputProps={{
                       id: 'cover-picture-url',
                       name: 'coverPictureUrl',
@@ -436,10 +432,7 @@ class ConfigView extends Component<Props, State> {
                     }}
                   />
                   {this.state.coverPictureUrl !== this.initialFormState.coverPictureUrl && (
-                    <p className={style.configUploadSuccess}>
-                      The cover picture has been uploaded successfully. You need to save the form in order for the
-                      changes to take effect.
-                    </p>
+                    <p className={style.configUploadSuccess}>{lang.tr('config.coverUploadSuccess')}</p>
                   )}
                   {this.state.coverPictureUrl && (
                     <img className={style.coverPreview} alt="cover" src={this.state.coverPictureUrl} />
@@ -449,7 +442,7 @@ class ConfigView extends Component<Props, State> {
             )}
             <FormGroup>
               <Button
-                text="Save changes"
+                text={lang.tr('saveChanges')}
                 intent="primary"
                 icon="floppy-disk"
                 disabled={this.state.isSaving}
@@ -466,7 +459,7 @@ class ConfigView extends Component<Props, State> {
     if (this.state.licensing && this.state.licensing.isPro) {
       return (
         <div>
-          <FormGroup label="Default language" labelFor="selected-default-lang">
+          <FormGroup label={lang.tr('config.defaultLanguage')} labelFor="selected-default-lang">
             <Select
               id="selected-default-lang"
               name="selectedDefaultLang"
@@ -475,7 +468,7 @@ class ConfigView extends Component<Props, State> {
               onChange={this.handleDefaultLangChanged}
             />
           </FormGroup>
-          <FormGroup label="Supported languages" labelFor="selected-languages">
+          <FormGroup label={lang.tr('config.supportedLanguages')} labelFor="selected-languages">
             <Select
               id="selected-languages"
               name="selectedLanguages"
@@ -489,7 +482,7 @@ class ConfigView extends Component<Props, State> {
       )
     } else {
       return (
-        <FormGroup label="Language" labelFor="selected-default-lang">
+        <FormGroup label={lang.tr('config.language')} labelFor="selected-default-lang">
           <Select
             id="selected-default-lang"
             name="selectedDefaultLang"

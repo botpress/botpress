@@ -1,3 +1,5 @@
+import { FlowNode } from 'botpress/sdk'
+import { FlowView } from 'common/typings'
 import _ from 'lodash'
 
 import { Instruction } from './instruction'
@@ -10,7 +12,7 @@ export class InstructionsQueueBuilder {
   private _skipOnEnters = false
   private _hasJumped = false
 
-  constructor(private currentNode, private currentFlow) {}
+  constructor(private currentNode: FlowNode, private currentFlow: FlowView) {}
 
   static fromInstructions(instructions: Instruction[]) {
     const queue = new InstructionQueue()
@@ -51,6 +53,14 @@ export class InstructionsQueueBuilder {
       if (onReceive) {
         this._queue.enqueue({ type: 'wait' })
         this._queue.enqueue(...onReceive)
+      }
+
+      if (this.currentNode.type === 'say_something' && this.currentNode.content) {
+        this._queue.enqueue({
+          type: 'on-enter',
+          fn: `say @${this.currentNode.content.contentType}`,
+          args: this.currentNode.content.formData
+        })
       }
     }
 

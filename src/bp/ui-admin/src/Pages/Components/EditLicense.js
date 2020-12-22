@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Button, Modal, Input, Label, ModalHeader, ModalBody, ModalFooter, FormGroup, Alert } from 'reactstrap'
 import api from '../../api'
+import { lang } from 'botpress/shared'
 
 export default class EditLicense extends Component {
   state = { isModalOpen: false, licenseKey: undefined, error: undefined }
@@ -43,11 +44,11 @@ export default class EditLicense extends Component {
   renderModal() {
     return (
       <Modal isOpen={this.state.isModalOpen} toggle={this.toggleModal}>
-        <ModalHeader toggle={this.toggleModal}>Enter your license key</ModalHeader>
+        <ModalHeader toggle={this.toggleModal}>{lang.tr('admin.license.enterYourLicense')}</ModalHeader>
         <ModalBody>
           {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
           <FormGroup>
-            <Label for="firstName">New License Key</Label>
+            <Label for="firstName">{lang.tr('admin.license.newLicenseKey')}</Label>
             <Input
               name="licenseKey"
               type="textarea"
@@ -61,7 +62,7 @@ export default class EditLicense extends Component {
         </ModalBody>
         <ModalFooter>
           <Button color="primary" onClick={() => this.changeKey()}>
-            Validate & Change
+            {lang.tr('admin.license.validateChange')}
           </Button>
         </ModalFooter>
       </Modal>
@@ -72,7 +73,7 @@ export default class EditLicense extends Component {
     return (
       <div>
         <Button size="sm" color="primary" outline onClick={this.toggleModal}>
-          Enter license key
+          {lang.tr('admin.license.enterLicenseKey')}
         </Button>
         {this.renderModal()}
       </div>

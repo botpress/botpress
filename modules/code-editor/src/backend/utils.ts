@@ -1,3 +1,5 @@
+import { BUILTIN_MODULES } from 'common/defaults'
+import jsonlintMod from 'jsonlint-mod'
 import _ from 'lodash'
 
 import { FileDefinition, FileTypes } from './definitions'
@@ -6,26 +8,6 @@ import { EditorError } from './editorError'
 import { EditableFile, FilePermissions, FileType } from './typings'
 
 export const RAW_TYPE: FileType = 'raw'
-
-export const BUILTIN_MODULES = [
-  'analytics',
-  'basic-skills',
-  'builtin',
-  'builtin',
-  'channel-messenger',
-  'channel-slack',
-  'channel-teams',
-  'channel-telegram',
-  'channel-web',
-  'code-editor',
-  'examples',
-  'extensions',
-  'history',
-  'hitl',
-  'nlu',
-  'qna',
-  'testing'
-]
 
 export const getBuiltinExclusion = () => {
   return _.flatMap(BUILTIN_MODULES, mod => [`${mod}/*`, `*/${mod}/*`])
@@ -46,7 +28,11 @@ export const assertValidJson = (content: string): boolean => {
     JSON.parse(content)
     return true
   } catch (err) {
-    throw new EditorError(`Invalid JSON file. ${err}`)
+    try {
+      jsonlintMod.parse(content)
+    } catch (e) {
+      throw new Error(`Invalid JSON file. ${e.message.split(':')[0]}`)
+    }
   }
 }
 
@@ -91,7 +77,7 @@ export const validateFilePayload = async (
   }
 
   if (!arePermissionsValid(def, editableFile, permissions, actionType)) {
-    throw new EditorError(`No permission`)
+    throw new EditorError('No permission')
   }
 
   if (def.isJSON && content) {

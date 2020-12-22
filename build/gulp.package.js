@@ -11,11 +11,11 @@ const execAsync = promisify(exec)
 
 const getTargetOSNodeVersion = () => {
   if (process.argv.find(x => x.toLowerCase() === '--win32')) {
-    return 'node10-win32-x64'
+    return 'node12-win32-x64'
   } else if (process.argv.find(x => x.toLowerCase() === '--linux')) {
-    return 'node10-linux-x64'
+    return 'node12-linux-x64'
   } else {
-    return 'node10-macos-x64'
+    return 'node12-macos-x64'
   }
 }
 
@@ -38,7 +38,7 @@ const packageApp = async () => {
     const packageJson = Object.assign(realPackageJson, additionalPackageJson)
     await fse.writeFile(tempPkgPath, JSON.stringify(packageJson, null, 2), 'utf8')
     await execAsync(
-      `cross-env ../../node_modules/.bin/pkg --targets ${getTargetOSNodeVersion()} --output ../binaries/bp ./package.json`,
+      `cross-env ../../node_modules/.bin/pkg --targets ${getTargetOSNodeVersion()} --options max_old_space_size=16384 --output ../binaries/bp ./package.json`,
       {
         cwd
       }

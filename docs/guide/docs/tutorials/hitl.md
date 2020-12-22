@@ -21,20 +21,28 @@ Once you have this module installed, you will be able to:
 
 There are several ways you can pause the conversation:
 
-- from the admin-panel, toggling the appropriate button
+- from the HITL module, toggling the pause button
+
+![Pause button](hitl_pause.png)
+
 - by performing an API-request:
-  - POST /mod/hitl/sessions/{$id}/pause
-  - POST /mod/hitl/sessions/{$id}/unpause
-  - POST /mod/hitl/channel/{$channel}/user/{$userId}/pause
-  - POST /mod/hitl/channel/{$channel}/user/{$userId}/unpause
+
+   `let base = EXTERNAL_URL + '/api/v1/bots/' + botId + '/mod/hitl` 
+  - POST {$base}/sessions/{$id}/pause
+  - POST {$base}/sessions/{$id}/unpause
+  - POST {$base}/channel/{$channel}/user/{$userId}/pause
+  - POST {$base}/channel/{$channel}/user/{$userId}/unpause
+  
+For example: POST http://localhost:3000/api/v1/bots/welcome-bot/mod/hitl/sessions/13/pause
 
 ## Alerting agents
 
 There are a number of ways to alert your agents of a paused conversation, an email, a call to an external API or, as in the example below, via a notification in the admin-panel:
 
 ```js
-const message = event.user.first_name + ' wants to talk to a human'
-bp.notifications.create({ message, level: 'info', url: '/modules/hitl' })
+const { botId } = event
+const message = user.first_name + ' wants to talk to a human'
+bp.notifications.create(botId, { message, level: 'info', url: '/modules/hitl' })
 ```
 
 The agent can then navigate to the appropriate conversation and take over the conversation from the bot.

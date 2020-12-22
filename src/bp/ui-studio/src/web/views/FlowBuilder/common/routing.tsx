@@ -4,6 +4,8 @@ import Mustache from 'mustache'
 import React, { Component } from 'react'
 import { OverlayTrigger, Popover, Well } from 'react-bootstrap'
 
+import { ROUTER_CONDITON_REGEX } from '../utils/general.util'
+
 const style = require('./style.scss')
 
 interface Props {
@@ -22,7 +24,7 @@ const parseCondition = condition => {
   condition = condition.trim()
 
   const extractProps = () => {
-    const props = condition.match(/(.*)\.(.*?) (.*)/)
+    const props = condition.match(ROUTER_CONDITON_REGEX)
     if (props && props.length > 3) {
       return { type: availableProps.find(x => x.value === props[1]), field: props[2], expression: props[3] }
     }
@@ -33,7 +35,7 @@ const parseCondition = condition => {
   } else if (condition.includes('event.nlu.intent.name')) {
     const intent = condition.match(/'(.*)'/)
     return { type: 'intent', value: intent && intent[1] }
-  } else if (availableProps.some(props => condition.indexOf(props.value + '.') === 0)) {
+  } else if (availableProps.some(props => condition.indexOf(`${props.value}.`) === 0)) {
     return { type: 'props', value: extractProps() }
   } else {
     return { type: 'raw' }
@@ -47,7 +49,7 @@ const getLabel = parsedCondition => {
   } else if (type === 'intent') {
     return `Intent is ${value}`
   } else if (type === 'props') {
-    return `Property ${value.field} is ${value.expression}`
+    return `Property ${value?.field} is ${value?.expression}`
   } else if (type === 'raw') {
     return value
   }
@@ -57,6 +59,7 @@ export default class RoutingItem extends Component<Props> {
   renderNormal(child) {
     return child
   }
+
   // TODO migrate styling to blueprint
   renderOverlay = child => {
     const popoverHoverFocus = (
@@ -88,8 +91,8 @@ export default class RoutingItem extends Component<Props> {
 
       const htmlTpl = caption.replace(/\[(.+)]/gi, x => {
         const name = stripDots(x.replace(/\[|]/g, ''))
-        vars[name] = '<span class="val">' + _.escape(name) + '</span>'
-        return '{{{' + name + '}}}'
+        vars[name] = `<span class="val">${_.escape(name)}</span>`
+        return `{{{${name}}}}`
       })
 
       const mustached = restoreDots(Mustache.render(htmlTpl, vars))

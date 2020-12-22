@@ -1,6 +1,7 @@
 import { Button, FormGroup } from '@blueprintjs/core'
-import { BaseDialog, DialogBody, DialogFooter } from 'botpress/shared'
-import { AuthRole, AuthStrategyConfig, CreatedUser, WorkspaceUser, WorkspaceUserInfo } from 'common/typings'
+import { WorkspaceUser, WorkspaceUserWithAttributes } from 'botpress/sdk'
+import { Dialog, lang } from 'botpress/shared'
+import { AuthRole, AuthStrategyConfig, CreatedUser } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import AsyncSelect from 'react-select/lib/AsyncCreatable'
@@ -24,7 +25,7 @@ interface DispatchProps {
 }
 
 interface StateProps {
-  availableUsers: WorkspaceUserInfo[]
+  availableUsers: WorkspaceUserWithAttributes[]
 }
 
 type Props = DispatchProps & StateProps & OwnProps
@@ -86,18 +87,18 @@ export const CreateUserModal: FC<Props> = props => {
   }
 
   return (
-    <BaseDialog
-      title="Add Collaborator"
+    <Dialog.Wrapper
+      title={lang.tr('admin.workspace.users.collaborators.add')}
       icon="add"
       isOpen={props.isOpen}
       onClose={props.toggleOpen}
       onSubmit={createUser}
     >
-      <DialogBody>
+      <Dialog.Body>
         <FormGroup
-          label="Email"
+          label={lang.tr('email')}
           labelFor="select-email"
-          helperText="Invite an existing user, or type his e-mail address and press Enter"
+          helperText={lang.tr('admin.workspace.users.collaborators.inviteExistingUser')}
         >
           <AsyncSelect
             id="select-email"
@@ -111,25 +112,29 @@ export const CreateUserModal: FC<Props> = props => {
         </FormGroup>
 
         {isCreating && (
-          <FormGroup label="Authentication Strategy" labelFor="select-strategy">
+          <FormGroup label={lang.tr('admin.workspace.users.collaborators.authStrategy')} labelFor="select-strategy">
             <AuthStrategyDropdown onChange={strategy => setStrategy(strategy)} />
           </FormGroup>
         )}
 
-        <FormGroup label="Choose a role for that user" labelFor="select-role">
+        <FormGroup label={lang.tr('admin.workspace.users.collaborators.chooseRole')} labelFor="select-role">
           <RoleDropdown onChange={role => setRole(role)} />
         </FormGroup>
-      </DialogBody>
-      <DialogFooter>
+      </Dialog.Body>
+      <Dialog.Footer>
         <Button
           id="btn-submit"
           className="float-right"
           type="submit"
-          text={isCreating ? 'Create account' : 'Add to workspace'}
+          text={
+            isCreating
+              ? lang.tr('admin.workspace.users.collaborators.createAccount')
+              : lang.tr('admin.workspace.users.collaborators.addToWorkspace')
+          }
           disabled={!isValid}
         />
-      </DialogFooter>
-    </BaseDialog>
+      </Dialog.Footer>
+    </Dialog.Wrapper>
   )
 }
 

@@ -1,9 +1,10 @@
 {
   "docs": {
-    "Release Notes": ["releases/release-notes", "releases/migrate"],
+    "Release Notes": ["releases/migrate", "releases/release-notes", "releases/v12_10_0"],
     "Getting Started": ["introduction", "installation", "quickstart", "updating", "troubleshoot"],
     "Main Concepts": [
       "main/overview",
+      "main/glossary",
       "main/content",
       "main/dialog",
       "main/code",
@@ -16,16 +17,12 @@
       "advanced/debug",
       "advanced/configuration",
       "advanced/authentication",
-      "advanced/i18n",
       "advanced/custom-module",
-      "advanced/analytics",
       "advanced/performances",
       "advanced/hosting",
       "advanced/versions",
-      "advanced/pipelines",
       "advanced/development-pipeline",
-      "advanced/cluster",
-      "advanced/monitoring"
+      "advanced/cluster"
     ],
     "Channels": [
       "channels/web",
@@ -58,6 +55,6 @@
       "tutorials/3rd-party-NLU",
       "tutorials/uipath"
     ],
-    "Pro Edition": ["pro/about-pro", "pro/licensing", "pro/rbac"]
+    "Pro Edition": ["pro/about-pro", "pro/licensing", "pro/rbac", "pro/monitoring", "pro/pipelines", "pro/i18n"]
   }
 }

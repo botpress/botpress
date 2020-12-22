@@ -1,9 +1,13 @@
+import { Button, Popover } from '@blueprintjs/core'
+import { DateRange, DateRangePicker } from '@blueprintjs/datetime'
+import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import { AxiosStatic } from 'axios'
+import { date, lang } from 'botpress/shared'
 import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import classnames from 'classnames'
 import React from 'react'
 
-import { FLAGGED_MESSAGE_STATUS, FlaggedEvent, ResolutionData } from '../../types'
+import { FlaggedEvent, FLAGGED_MESSAGE_STATUS, ResolutionData } from '../../types'
 
 import style from './style.scss'
 import ApiClient from './ApiClient'
@@ -25,7 +29,11 @@ interface State {
   events: FlaggedEvent[] | null
   selectedEventIndex: number | null
   selectedEvent: FlaggedEvent | null
+  eventNotFound: boolean
+  dateRange?: DateRange
 }
+
+const shortcuts = date.createDateRangeShortcuts()
 
 export default class MisunderstoodMainView extends React.Component<Props, State> {
   state = {
@@ -35,7 +43,9 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     selectedStatus: FLAGGED_MESSAGE_STATUS.new,
     events: null,
     selectedEventIndex: null,
-    selectedEvent: null
+    selectedEvent: null,
+    eventNotFound: false,
+    dateRange: undefined
   }
 
   apiClient: ApiClient
@@ -45,16 +55,23 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     this.apiClient = new ApiClient(props.bp.axios)
   }
 
-  fetchEventCounts(language: string) {
-    return this.apiClient.getEventCounts(language)
+  fetchEventCounts(language: string, dataRange?: DateRange) {
+    return this.apiClient.getEventCounts(language, dataRange ?? this.state.dateRange)
   }
 
-  fetchEvents(language: string, status: string) {
-    return this.apiClient.getEvents(language, status)
+  fetchEvents(language: string, status: string, dataRange?: DateRange) {
+    return this.apiClient.getEvents(language, status, dataRange || this.state.dateRange)
   }
 
-  fetchEvent(id: string) {
-    return this.apiClient.getEvent(id)
+  async fetchEvent(id: string) {
+    try {
+      return await this.apiClient.getEvent(id)
+    } catch (e) {
+      if (e.isAxiosError && e.response.status === 404) {
+        return
+      }
+      throw e
+    }
   }
 
   async componentDidMount() {
@@ -69,8 +86,8 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     })
   }
 
-  updateEventsCounts = async (language?: string) => {
-    const eventCounts = await this.fetchEventCounts(language || this.state.language)
+  updateEventsCounts = async (language?: string, dateRange?: DateRange) => {
+    const eventCounts = await this.fetchEventCounts(language || this.state.language, dateRange || this.state.dateRange)
     await this.setStateP({ eventCounts })
   }
 
@@ -95,7 +112,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     await this.setStateP({ selectedEventIndex, selectedEvent: null })
     if (events && events.length) {
       const event = await this.fetchEvent(events[selectedEventIndex].id)
-      await this.setStateP({ selectedEvent: event })
+      await this.setStateP({ selectedEvent: event, eventNotFound: !event })
     }
   }
 
@@ -112,7 +129,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
 
   async alterEventsList(oldStatus: FLAGGED_MESSAGE_STATUS, newStatus: FLAGGED_MESSAGE_STATUS) {
     // do some local state patching to prevent unneeded content flash
-    const { eventCounts, selectedEventIndex, events, selectedEvent } = this.state
+    const { eventCounts, selectedEventIndex, events } = this.state
     const newEventCounts = {
       ...eventCounts,
       [oldStatus]: eventCounts[oldStatus] - 1,
@@ -121,7 +138,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     await this.setStateP({
       eventCounts: newEventCounts,
       selectedEvent: null,
-      events: events.filter(event => event.id !== selectedEvent.id)
+      events: events.filter(event => event.id !== events[selectedEventIndex].id)
     })
 
     // advance to the next event
@@ -132,13 +149,12 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
   }
 
   deleteCurrentEvent = async () => {
-    const { selectedEvent } = this.state
+    await this.apiClient.updateStatus(
+      this.state.events[this.state.selectedEventIndex].id,
+      FLAGGED_MESSAGE_STATUS.deleted
+    )
 
-    if (selectedEvent) {
-      await this.apiClient.updateStatus(selectedEvent.id, FLAGGED_MESSAGE_STATUS.deleted)
-
-      return this.alterEventsList(FLAGGED_MESSAGE_STATUS.new, FLAGGED_MESSAGE_STATUS.deleted)
-    }
+    return this.alterEventsList(FLAGGED_MESSAGE_STATUS.new, FLAGGED_MESSAGE_STATUS.deleted)
   }
 
   undeleteEvent = async (id: string) => {
@@ -152,9 +168,11 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
   }
 
   amendCurrentEvent = async (resolutionData: ResolutionData) => {
-    const { selectedEvent } = this.state
-
-    await this.apiClient.updateStatus(selectedEvent.id, FLAGGED_MESSAGE_STATUS.pending, resolutionData)
+    await this.apiClient.updateStatus(
+      this.state.events[this.state.selectedEventIndex].id,
+      FLAGGED_MESSAGE_STATUS.pending,
+      resolutionData
+    )
     return this.alterEventsList(FLAGGED_MESSAGE_STATUS.new, FLAGGED_MESSAGE_STATUS.pending)
   }
 
@@ -170,8 +188,31 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     }
   }
 
+  handleDateChange = async (dateRange: DateRange) => {
+    const eventCounts = await this.fetchEventCounts(this.state.language, dateRange || this.state.dateRange)
+    const events = await this.fetchEvents(
+      this.state.language,
+      this.state.selectedStatus,
+      dateRange || this.state.dateRange
+    )
+
+    const event = null
+    if (events && events.length) {
+      const event = await this.fetchEvent(events[0].id)
+    }
+
+    await this.setStateP({
+      dateRange,
+      events,
+      selectedEventIndex: 0,
+      selectedEvent: event,
+      eventNotFound: !event,
+      eventCounts
+    })
+  }
+
   render() {
-    const { eventCounts, selectedStatus, events, selectedEventIndex, selectedEvent } = this.state
+    const { eventCounts, selectedStatus, events, selectedEventIndex, selectedEvent, eventNotFound } = this.state
 
     const { contentLang } = this.props
 
@@ -181,6 +222,18 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     return (
       <Container sidePanelWidth={320}>
         <SidePanel>
+          <Popover usePortal={true} position={'bottom-right'}>
+            <Button icon="calendar" className={style.filterItem}>
+              {lang.tr('module.misunderstood.dateRange')}
+            </Button>
+            <DateRangePicker
+              onChange={this.handleDateChange.bind(this)}
+              allowSingleDayRange={true}
+              shortcuts={shortcuts}
+              maxDate={date.relativeDates.now}
+              value={this.state.dateRange}
+            />
+          </Popover>
           <SidePanelContent
             eventCounts={eventCounts}
             selectedStatus={selectedStatus}
@@ -192,12 +245,13 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
           />
         </SidePanel>
 
-        {eventCounts && dataLoaded ? (
+        {eventCounts && (dataLoaded || eventNotFound) ? (
           <div className={classnames(style.padded, style.mainView, style.withStickyActionBar)}>
             <MainScreen
               axios={this.props.bp.axios}
               language={contentLang}
               selectedEvent={selectedEvent}
+              eventNotFound={eventNotFound}
               selectedEventIndex={selectedEventIndex}
               totalEventsCount={eventCounts[selectedStatus] || 0}
               selectedStatus={selectedStatus}
@@ -211,7 +265,10 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
             />
           </div>
         ) : (
-          <SplashScreen title="Loading..." description="Please wait while we're loading data" />
+          <SplashScreen
+            title={lang.tr('module.misunderstood.loading')}
+            description={lang.tr('module.misunderstood.waitWhileDataLoading')}
+          />
         )}
       </Container>
     )

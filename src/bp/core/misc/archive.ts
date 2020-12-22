@@ -26,8 +26,8 @@ const isZip = buf => {
 
 export const extractArchive = async (archive: Buffer, destination: string): Promise<string[]> => {
   try {
-    if (!fse.existsSync(destination)) {
-      fse.mkdirSync(destination)
+    if (!(await fse.pathExists(destination))) {
+      await mkdirp(destination)
     }
 
     const buffStream = new stream.PassThrough()
@@ -37,7 +37,7 @@ export const extractArchive = async (archive: Buffer, destination: string): Prom
     if (isZip(archive)) {
       writeStream = unzipper.Extract({ path: destination })
     } else {
-      writeStream = tar.x({ sync: true, strict: true, cwd: destination })
+      writeStream = tar.extract({ strict: true, cwd: destination })
     }
 
     buffStream.pipe(writeStream)
@@ -81,8 +81,8 @@ export const createArchiveFromFolder = async (folder: string, ignoredFiles: stri
     )
 
     for (const file of files) {
-      await mkdirp.sync(path.dirname(path.join(tmpDir.name, file)))
-      fse.copyFileSync(path.resolve(folder, file), path.resolve(tmpDir.name, file))
+      await mkdirp(path.dirname(path.join(tmpDir.name, file)))
+      await fse.copyFile(path.resolve(folder, file), path.resolve(tmpDir.name, file))
     }
 
     const filename = path.join(tmpDir.name, 'archive.tgz')

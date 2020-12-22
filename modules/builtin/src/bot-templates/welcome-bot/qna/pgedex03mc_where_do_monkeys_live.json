@@ -23,7 +23,9 @@
     "redirectFlow": "",
     "redirectNode": "",
     "action": "text",
-    "category": "monkeys",
-    "enabled": true
+    "enabled": true,
+    "contexts": [
+      "monkeys"
+    ]
   }
 }

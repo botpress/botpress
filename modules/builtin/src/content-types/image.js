@@ -1,7 +1,5 @@
 const base = require('./_base')
 const path = require('path')
-const url = require('url')
-const { tail } = _
 
 function render(data) {
   const events = []
@@ -18,7 +16,8 @@ function render(data) {
     {
       type: 'file',
       title: data.title,
-      url: url.resolve(data.BOT_URL, data.image)
+      url: `${data.BOT_URL}${data.image}`,
+      collectFeedback: data.collectFeedback
     }
   ]
 }
@@ -40,7 +39,7 @@ function renderMessenger(data) {
         type: 'image',
         payload: {
           is_reusable: true,
-          url: url.resolve(data.BOT_URL, data.image)
+          url: `${data.BOT_URL}${data.image}`
         }
       }
     }
@@ -61,7 +60,7 @@ function renderTelegram(data) {
     ...events,
     {
       type: 'image',
-      url: url.resolve(data.BOT_URL, data.image)
+      url: `${data.BOT_URL}${data.image}`
     }
   ]
 }
@@ -84,7 +83,7 @@ function renderSlack(data) {
         type: 'plain_text',
         text: data.title
       },
-      image_url: url.resolve(data.BOT_URL, data.image),
+      image_url: `${data.BOT_URL}${data.image}`,
       alt_text: 'image'
     }
   ]
@@ -107,7 +106,7 @@ function renderTeams(data) {
         {
           name: data.title,
           contentType: 'image/png',
-          contentUrl: url.resolve(data.BOT_URL, data.image)
+          contentUrl: `${data.BOT_URL}${data.image}`
         }
       ]
     }
@@ -131,10 +130,10 @@ function renderElement(data, channel) {
 module.exports = {
   id: 'builtin_image',
   group: 'Built-in Messages',
-  title: 'Image',
+  title: 'image',
 
   jsonSchema: {
-    description: 'A message showing an image with an optional title',
+    description: 'module.builtin.types.image.description',
     type: 'object',
     required: ['image'],
     properties: {
@@ -142,12 +141,12 @@ module.exports = {
         type: 'string',
         $subtype: 'media',
         $filter: '.jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*',
-        title: 'Image'
+        title: 'module.builtin.types.image.title'
       },
       title: {
         type: 'string',
-        description: 'Some platforms require to name the images.',
-        title: 'Title (optional)'
+        title: 'module.builtin.types.image.imageLabel',
+        description: 'module.builtin.types.image.labelDesc'
       },
       ...base.typingIndicators
     }
@@ -166,10 +165,14 @@ module.exports = {
 
     let fileName = path.basename(formData.image)
     if (fileName.includes('-')) {
-      fileName = tail(fileName.split('-')).join('-')
+      fileName = fileName
+        .split('-')
+        .slice(1)
+        .join('-')
     }
+    const link = `${formData.BOT_URL}${formData.image}`
     const title = formData.title ? ' | ' + formData.title : ''
-    return `Image: [![${formData.title || ''}](<${formData.image}>)](<${formData.image}>) - (${fileName}) ${title}`
+    return `Image: [![${formData.title || ''}](<${link}>)](<${link}>) - (${fileName}) ${title}`
   },
 
   renderElement: renderElement

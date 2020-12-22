@@ -1,14 +1,16 @@
 import { Icon, Tab, Tabs, Tag } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
+import { lang } from 'botpress/shared'
 import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
-import { makeApi } from '../api'
+import { makeApi } from '../../api'
 
-import EntityEditor from './entities/EntityEditor'
+import { EntityEditor } from './entities/EntityEditor'
 import { EntitySidePanelSection } from './entities/SidePanelSection'
 import { IntentEditor } from './intents/FullEditor'
+import { LiteEditor } from './intents/LiteEditor'
 import { IntentSidePanelSection } from './intents/SidePanelSection'
 import style from './style.scss'
 
@@ -18,7 +20,7 @@ export interface NluItem {
 }
 
 interface Props {
-  bp: { axios: AxiosInstance }
+  bp: { axios: AxiosInstance; events: any }
   contentLang: string
 }
 
@@ -31,7 +33,12 @@ const NLU: FC<Props> = props => {
   const [intents, setIntents] = useState([])
   const [entities, setEntities] = useState([])
 
-  const loadIntents = () => api.fetchIntents().then(setIntents)
+  const loadIntents = () =>
+    api
+      .fetchIntents()
+      .then(setIntents)
+      .then(x => setCurrentItem(undefined))
+      .then(x => setCurrentItem(currentItem)) // this is little hack to trigger update for IntentEditor->Slots->SlotModal
   const loadEntities = () => api.fetchEntities().then(setEntities)
 
   useEffect(() => {
@@ -76,7 +83,7 @@ const NLU: FC<Props> = props => {
   const updateEntity = (targetEntity: string, entity) => {
     // tslint:disable-next-line: no-floating-promises
     api.updateEntity(targetEntity, entity)
-    const i = entities.findIndex(ent => ent.id == entity.id)
+    const i = entities.findIndex(ent => ent.name === entity.name)
     setEntities([...entities.slice(0, i), entity, ...entities.slice(i + 1)])
   }
 
@@ -108,6 +115,7 @@ const NLU: FC<Props> = props => {
       currentItem={currentItem}
       setCurrentItem={handleSelectItem}
       reloadEntities={loadEntities}
+      reloadIntents={loadIntents}
     />
   )
 
@@ -116,13 +124,13 @@ const NLU: FC<Props> = props => {
       <SidePanel>
         <Tabs id="nlu-tabs" className={style.headerTabs} defaultSelectedTabId="intents" large={false}>
           <Tab id="intents" panel={intentsPanel}>
-            <span>Intents</span>{' '}
+            <span>{lang.tr('module.nlu.intents.title')}&nbsp;</span>
             <Tag large={false} round={true} minimal={true}>
               {intents.length}
             </Tag>
           </Tab>
           <Tab id="entities" panel={entitiesPanel}>
-            <span>Entities</span>{' '}
+            <span>{lang.tr('module.nlu.entities.title')}</span>{' '}
             <Tag large={false} round={true} minimal={true}>
               {customEntities.length}
             </Tag>
@@ -133,21 +141,16 @@ const NLU: FC<Props> = props => {
         {!currentItemExists() && (
           <SplashScreen
             icon={<Icon iconSize={80} icon="translate" style={{ marginBottom: '3em' }} />}
-            title="Understanding"
-            description="Use Botpress native Natural language understanding engine to make your bot smarter."
+            title={lang.tr('module.nlu.title')}
+            description={lang.tr('module.nlu.description')}
           />
         )}
         {!!intents.length && currentItem && currentItem.type === 'intent' && (
-          <IntentEditor
-            intent={currentItem.name}
-            api={api}
-            contentLang={props.contentLang}
-            showSlotPanel
-            axios={props.bp.axios} // to be removed for api, requires a lot of refactoring
-          />
+          <IntentEditor intent={currentItem.name} api={api} contentLang={props.contentLang} showSlotPanel />
         )}
         {currentItem && currentItem.type === 'entity' && (
           <EntityEditor
+            entities={entities}
             entity={entities.find(ent => ent.name === currentItem.name)}
             updateEntity={_.debounce(updateEntity, 2500)}
           />
@@ -159,4 +162,4 @@ const NLU: FC<Props> = props => {
 
 export default NLU
 
-export { LiteEditor } from './intents/LiteEditor'
+export { LiteEditor, EntityEditor }

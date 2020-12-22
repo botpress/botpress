@@ -29,6 +29,7 @@ export namespace Renderer {
     payload?: any
     store?: RootStore
     bp?: StudioConnector
+    fromLabel?: string
     incomingEventId?: string
     /** When true, the message isn't wrapped by its bubble */
     noBubble?: boolean
@@ -41,6 +42,7 @@ export namespace Renderer {
     isBotMessage?: boolean
     isLastMessage?: boolean
     sentOn?: Date
+    inlineFeedback?: any
 
     onSendData?: (data: any) => Promise<void>
     onFileUpload?: (label: string, payload: any, file: File) => Promise<void>
@@ -57,11 +59,14 @@ export namespace Renderer {
     text: string
     markdown: boolean
     escapeHTML: boolean
+    intl?: any
+    maxLength?: number
   } & Message
 
   export type QuickReply = {
     buttons: any
     quick_replies: any
+    disableFreeText: boolean
   } & Message
 
   export type QuickReplyButton = {
@@ -123,22 +128,27 @@ export interface StudioConnector {
   loadModuleView: any
 }
 
-export type Config = {
+export interface Config {
   botId?: string
   externalAuthToken?: string
   userId?: string
+  conversationId?: number
   /** Allows to set a different user id for different windows (eg: studio, specific bot, etc) */
   userIdScope?: string
   enableReset: boolean
   stylesheet: string
+  isEmulator?: boolean
   extraStylesheet: string
   showConversationsButton: boolean
   showUserName: boolean
   showUserAvatar: boolean
   showTimestamp: boolean
   enableTranscriptDownload: boolean
+  enableConversationDeletion: boolean
   enableArrowNavigation: boolean
+  closeOnEscape: boolean
   botName?: string
+  composerPlaceholder?: string
   avatarUrl?: string
   /** Force the display language of the webchat (en, fr, ar, ru, etc..)
    * Defaults to the user's browser language if not set
@@ -168,6 +178,12 @@ export type Config = {
   exposeStore: boolean
   /** Reference ensures that a specific value and its signature are valid */
   reference: string
+  /** If true, Websocket is created when the Webchat is opened. Bot cannot be proactive. */
+  lazySocket?: boolean
+  /** Refers to a specific webchat reference in parent window. Useful when using multiple chat window */
+  chatId?: string
+  /** CSS class to be applied to iframe */
+  className?: string
 }
 
 type OverridableComponents = 'below_conversation' | 'before_container' | 'composer'
@@ -199,6 +215,7 @@ export interface BotInfo {
   security: {
     escapeHTML: boolean
   }
+  lazySocket: boolean
 }
 
 interface Conversation {
@@ -232,6 +249,7 @@ export type CurrentConversation = {
 export interface Message {
   id: string
   userId: string
+  eventId: string
   incomingEventId: string
   conversationId: number
   avatar_url: string | undefined
@@ -244,6 +262,11 @@ export interface Message {
   sent_on: Date
   // The typing delay in ms
   timeInMs: number
+}
+
+export interface QueuedMessage {
+  message: Message
+  showAt: Date
 }
 
 export interface HTMLInputEvent extends Event {
@@ -286,4 +309,9 @@ interface MessageWrapper {
   module: string
   /** Name of the component exposed by the module */
   component: string
+}
+
+export interface EventFeedback {
+  incomingEventId: string
+  feedback?: number
 }

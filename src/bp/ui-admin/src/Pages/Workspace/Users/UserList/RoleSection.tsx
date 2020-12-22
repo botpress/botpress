@@ -1,12 +1,14 @@
 import { Collapse, Icon, Tag } from '@blueprintjs/core'
-import { AuthRole, WorkspaceUserInfo } from 'common/typings'
+import { WorkspaceUserWithAttributes } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
+import { AuthRole } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
 
 import User from './User'
 
 interface Props {
-  users: WorkspaceUserInfo[]
+  users: WorkspaceUserWithAttributes[]
   role: AuthRole
   currentUserEmail: string
   onUserUpdated: () => void
@@ -20,11 +22,11 @@ const RoleSection: FC<Props> = props => {
   const showPicture = _.some(users, u => u.attributes && u.attributes.picture_url)
 
   return (
-    <div key={'role-' + role.id}>
+    <div key={`role-${role.id}`}>
       <div onClick={() => setOpen(!isOpen)} id={`div-role-${role.id}`} className="bp_users-role_header">
         <div className="role float-left">
           <Tag minimal={true}>{users.length}</Tag>
-          <span className="title">{role.name}</span>
+          <span className="title">{lang.tr(role.name)}</span>
         </div>
         {isOpen ? <Icon icon="caret-up" /> : <Icon icon="caret-down" />}
       </div>

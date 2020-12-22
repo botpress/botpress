@@ -19,11 +19,12 @@ function splitPath<T>(
 
   for (const folder of parentFolders) {
     currentPath.push(folder)
-    const { label, icon } = folderRenderer(folder)
+    const { label, icon, name } = folderRenderer(folder)
 
     folders.push({
       id: folder,
       label,
+      name,
       icon: icon || FOLDER_ICON,
       fullPath: currentPath.join('/'),
       type: 'folder',
@@ -34,18 +35,18 @@ function splitPath<T>(
   currentPath.push(nodeLabel)
 
   const id = currentPath.join('/')
-  const { label, icon } = nodeRenderer(nodeData)
+  const { label, icon, name } = nodeRenderer(nodeData)
 
   return {
     folders,
-    leafNode: { id, label, icon: icon || DOCUMENT_ICON, fullPath: id, type: 'node' }
+    leafNode: { id, label, icon: icon || DOCUMENT_ICON, name, fullPath: id, type: 'node' }
   }
 }
 
 export function buildTree<T>({
   elements,
   filterText,
-  nodeRenderer = (element: T) => ({ label: element['label'] }),
+  nodeRenderer = (element: T) => ({ label: element['label'], icon: element['icon'] }),
   folderRenderer = (label: string) => ({ label }),
   postProcessing,
   filterProps = 'path',
@@ -68,7 +69,7 @@ export function buildTree<T>({
   for (const nodeData of elements) {
     const nodePath = nodeData[pathProps]
     if (!nodePath) {
-      console.error(`Invalid path`)
+      console.error('Invalid path')
       return []
     }
 
@@ -114,7 +115,7 @@ const sortChildren = tree => {
 
   tree.childNodes.sort((a, b) => {
     if (a.type === b.type) {
-      return a.name < b.name ? -1 : 1
+      return a.name.localeCompare(b.name, undefined, { numeric: true })
     }
     if (a.type === 'folder') {
       return -1

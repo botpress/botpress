@@ -1,4 +1,6 @@
 import { Tag } from '@blueprintjs/core'
+import { NLU } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import classnames from 'classnames'
 import React from 'react'
 import ReactDOM from 'react-dom'
@@ -7,7 +9,13 @@ import style from '../style.scss'
 
 const MENU_WIDTH = 300
 
-export const TagSlotPopover = props => {
+interface Props {
+  show: boolean
+  slots: NLU.SlotDefinition[]
+  onSlotClicked: (s: NLU.SlotDefinition) => void
+}
+
+export const TagSlotPopover = (props: Props) => {
   if (!props.show || !window.getSelection().rangeCount) {
     return null
   }
@@ -25,15 +33,14 @@ export const TagSlotPopover = props => {
     <div id="slot-menu" className={style['slotMenu']} style={{ top, left, width: MENU_WIDTH }}>
       {props.slots.length === 0 && (
         <React.Fragment>
-          <p>Selection can't be tagged</p>
-          <p>Define a slot first</p>
+          <p>{lang.tr('module.nlu.slots.noSlotsToTag')}</p>
         </React.Fragment>
       )}
 
       {props.slots.length > 0 && (
         <React.Fragment>
-          <p>Tag selection</p>
-          <p>Click on a slot or use numbers as keyboard shortcuts</p>
+          <p>{lang.tr('module.nlu.slots.tagSelectionLabel')}</p>
+          <p>{lang.tr('module.nlu.slots.tagSelectionMessage')}</p>
           <div>
             {props.slots.map((s, idx) => (
               <Tag

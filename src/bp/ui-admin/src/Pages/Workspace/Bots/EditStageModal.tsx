@@ -9,6 +9,8 @@ import {
   Radio,
   RadioGroup
 } from '@blueprintjs/core'
+import { WorkspaceUserWithAttributes } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import React, { ChangeEvent, FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import Select from 'react-select'
@@ -16,11 +18,10 @@ import api from '~/api'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
 import { getActiveWorkspace } from '~/Auth'
 
-import { WorkspaceUserInfo } from '../../../../../common/typings'
 import { fetchUsers } from '../../../reducers/user'
 
 interface StateProps {
-  users: WorkspaceUserInfo[]
+  users: WorkspaceUserWithAttributes[]
   loading: boolean
 }
 
@@ -52,7 +53,7 @@ const EditStageModal: FC<Props> = props => {
     if (props.stage) {
       const { id, label, action, reviewers, minimumApprovals } = props.stage
       const formatedReviewers = formatedUsers.filter(
-        user => reviewers && reviewers.find(x => user.user.email == x.email && user.user.strategy == x.strategy)
+        user => reviewers && reviewers.find(x => user.user.email === x.email && user.user.strategy === x.strategy)
       )
 
       setIsLastPipeline(pipeline[pipeline.length - 1].id === id)
@@ -87,7 +88,7 @@ const EditStageModal: FC<Props> = props => {
     let newPipeline
 
     if (!pipeline.find(p => p.id === id)) {
-      toastFailure('Could not find the pipeline to save')
+      toastFailure(lang.tr('admin.workspace.bots.edit.couldNotFindPipeline'))
     } else {
       newPipeline = pipeline.map(p =>
         p.id !== id
@@ -108,10 +109,10 @@ const EditStageModal: FC<Props> = props => {
         .post(`/admin/workspaces/${getActiveWorkspace()}/pipeline`, { updateCustom: true, pipeline: newPipeline })
 
       props.onEditSuccess()
-      toastSuccess('Stage saved successfully')
+      toastSuccess(lang.tr('admin.workspace.bots.edit.stageSaved'))
       closeModal()
     } catch (error) {
-      toastFailure(`Error while updating pipeline: ${error.message}`)
+      toastFailure(lang.tr('admin.workspace.bots.edit.errorUpdatingPipeline', { message: error.message }))
     } finally {
       setProcessing(false)
     }
@@ -154,7 +155,7 @@ const EditStageModal: FC<Props> = props => {
   return (
     <Dialog isOpen={props.isOpen} onClose={closeModal} transitionDuration={0} title={`Configure Stage: ${label}`}>
       <div className={Classes.DIALOG_BODY}>
-        <FormGroup label="Label">
+        <FormGroup label={lang.tr('label')}>
           <InputGroup
             id="input-label"
             type="text"
@@ -164,14 +165,14 @@ const EditStageModal: FC<Props> = props => {
           />
         </FormGroup>
         {!isLastPipeline && (
-          <FormGroup label="Action">
+          <FormGroup label={lang.tr('action')}>
             <RadioGroup onChange={({ currentTarget: { value } }) => setAction(value)} selectedValue={action} inline>
-              <Radio label="Copy" value="promote_copy" />
-              <Radio label="Move" value="promote_move" />
+              <Radio label={lang.tr('copy')} value="promote_copy" />
+              <Radio label={lang.tr('move')} value="promote_move" />
             </RadioGroup>
           </FormGroup>
         )}
-        <FormGroup label="Reviewers">
+        <FormGroup label={lang.tr('admin.workspace.bots.edit.reviewers')}>
           <Select
             id="select-reviewers"
             isMulti={true}
@@ -181,7 +182,7 @@ const EditStageModal: FC<Props> = props => {
             autoFocus={true}
           />
         </FormGroup>
-        <FormGroup label="Number of approvals required">
+        <FormGroup label={lang.tr('admin.workspace.bots.edit.approvalsRequired')}>
           <NumericInput
             id="input-minimumApprovals"
             min={0}
@@ -197,10 +198,10 @@ const EditStageModal: FC<Props> = props => {
 
       <div className={Classes.DIALOG_FOOTER}>
         <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-          <Button id="btn-cancel" text="Cancel" tabIndex={3} onClick={toggle} disabled={isProcessing} />
+          <Button id="btn-cancel" text={lang.tr('cancel')} tabIndex={3} onClick={toggle} disabled={isProcessing} />
           <Button
             id="btn-submit"
-            text={isProcessing ? 'Please wait...' : 'Save'}
+            text={isProcessing ? lang.tr('pleaseWait') : lang.tr('save')}
             tabIndex={3}
             onClick={submit}
             disabled={isProcessing}

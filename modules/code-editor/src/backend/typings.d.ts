@@ -1,5 +1,5 @@
 import Editor from './editor'
-import { RequestWithUser } from 'botpress/common/typings'
+import { RequestWithUser } from 'common/typings'
 export type EditorByBot = { [botId: string]: Editor }
 
 export interface TypingDefinitions {
@@ -7,7 +7,8 @@ export interface TypingDefinitions {
 }
 
 export type FileType =
-  | 'action'
+  | 'action_legacy'
+  | 'action_http'
   | 'hook'
   | 'bot_config'
   | 'main_config'

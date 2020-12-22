@@ -1,4 +1,5 @@
 import { Spinner } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
@@ -55,21 +56,21 @@ const LanguageManagement: FC<Props> = props => {
       {languages && languages.available.length > 0 && !props.readOnly && !!downloadables.length && (
         <div className="languages-list">
           {/* TODO add a select when we have too many languages */}
-          <h4>Add Languages</h4>
+          <h4>{lang.tr('admin.languages.addLanguages')}</h4>
           {downloadables.map(lang => (
             <Language
               key={lang.code}
               language={lang}
               allowActions={!props.readOnly}
               languageSource={props.languageSource}
-              downloadProgress={languages.downloading.find(l => l.lang == lang.code)}
+              downloadProgress={languages.downloading.find(l => l.lang === lang.code)}
             />
           ))}
         </div>
       )}
       <div className="languages-list">
-        <h4>Installed Languages</h4>
-        {installed.length === 0 && <p>No languages yet</p>}
+        <h4>{lang.tr('admin.languages.installedLanguages')}</h4>
+        {installed.length === 0 && <p>{lang.tr('admin.languages.noLanguagesYet')}</p>}
         {installed.map(lang => (
           <Language
             key={lang.code}

@@ -1,6 +1,8 @@
 import { Callout, InputGroup } from '@blueprintjs/core'
+import { WorkspaceUserWithAttributes } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import { CHAT_USER_ROLE } from 'common/defaults'
-import { AuthRole, UserProfile, WorkspaceUserInfo } from 'common/typings'
+import { AuthRole, UserProfile } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
 import { connect } from 'react-redux'
@@ -13,7 +15,7 @@ const userFilterFields = ['email', 'attributes.firstname', 'attributes.lastname'
 
 interface StateProps {
   profile: UserProfile
-  users: WorkspaceUserInfo[]
+  users: WorkspaceUserWithAttributes[]
   loading: boolean
   roles: AuthRole[]
 }
@@ -35,18 +37,23 @@ const UserList: FC<Props> = props => {
   }
 
   if (!props.users.length) {
-    return <Callout title="This workspace has no collaborators, yet" style={{ textAlign: 'center' }} />
+    return (
+      <Callout
+        title={lang.tr('admin.workspace.users.collaborators.noCollaboratorsYet')}
+        style={{ textAlign: 'center' }}
+      />
+    )
   }
 
   const currentUserEmail = _.get(props.profile, 'email', '').toLowerCase()
-  const filteredUsers = filterList<WorkspaceUserInfo>(props.users, userFilterFields, filter)
+  const filteredUsers = filterList<WorkspaceUserWithAttributes>(props.users, userFilterFields, filter)
   const roles = [...props.roles, CHAT_USER_ROLE]
 
   return (
     <div>
       <InputGroup
         id="input-filter"
-        placeholder="Filter users"
+        placeholder={lang.tr('admin.workspace.users.collaborators.filterUsers')}
         value={filter}
         onChange={e => setFilter(e.target.value.toLowerCase())}
         autoComplete="off"
@@ -54,7 +61,9 @@ const UserList: FC<Props> = props => {
       />
 
       <div className="bp_users-container">
-        {filter && !filteredUsers.length && <Callout title="No user matches your query" className="filterCallout" />}
+        {filter && !filteredUsers.length && (
+          <Callout title={lang.tr('admin.workspace.users.collaborators.noMatch')} className="filterCallout" />
+        )}
 
         {roles.map(role => {
           const users = filteredUsers.filter(user => user.role === role.id)
@@ -81,7 +90,4 @@ const mapStateToProps = state => ({
   loading: state.user.loadingUsers
 })
 
-export default connect<StateProps, DispatchProps, OwnProps>(
-  mapStateToProps,
-  {}
-)(UserList)
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, {})(UserList)

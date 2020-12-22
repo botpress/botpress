@@ -6,21 +6,22 @@ export function configure(verboseLevel) {
   level = verboseLevel
 }
 
-export function log(color, message) {
-  console.log(chalk[color]('[module-builder] ' + message))
+export function log(color: string, message: string, source?: string) {
+  // tslint:disable-next-line: no-console
+  console.log(chalk[color](`[${source || 'module-builder'}] ` + message))
 }
 
-export function debug(message) {
+export function debug(message: string, source?: string) {
   if (!level) {
     return
   }
-  log('cyan', message)
+  log('cyan', message, source)
 }
 
-export function error(message) {
-  log('red', message)
+export function error(message: string, source?: string) {
+  log('red', message, source)
 }
 
-export function normal(message) {
-  log('grey', message)
+export function normal(message: string, source?: string) {
+  log('grey', message, source)
 }

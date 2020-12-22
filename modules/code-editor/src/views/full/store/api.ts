@@ -1,7 +1,7 @@
+import { lang, toast } from 'botpress/shared'
 import _ from 'lodash'
 
 import { EditableFile, FilePermissions, FilesDS } from '../../../backend/typings'
-import { toastFailure } from '../utils'
 
 export default class CodeEditorApi {
   private axios
@@ -15,7 +15,7 @@ export default class CodeEditorApi {
       const { data } = await this.axios.get('/mod/code-editor/permissions')
       return data
     } catch (err) {
-      console.error(`Error while fetching code editor permissions`, err)
+      console.error('Error while fetching code editor permissions', err)
     }
   }
 
@@ -33,7 +33,7 @@ export default class CodeEditorApi {
       const { data } = await this.axios.get('/mod/code-editor/typings')
       return data
     } catch (err) {
-      console.error(`Error while fetching typings`, err)
+      console.error('Error while fetching typings', err)
     }
   }
 
@@ -91,7 +91,18 @@ export default class CodeEditorApi {
       await this.axios.post('/mod/code-editor/save', file)
       return true
     } catch (err) {
-      this.handleApiError(err, 'Could not save your file')
+      this.handleApiError(err, 'module.code-editor.error.cannotSaveFile')
+    }
+  }
+
+  async uploadFile(data: FormData): Promise<boolean> {
+    try {
+      await this.axios.post('/mod/code-editor/upload', data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      return true
+    } catch (err) {
+      this.handleApiError(err, 'module.code-editor.error.cannotUploadFile')
     }
   }
 
@@ -101,6 +112,9 @@ export default class CodeEditorApi {
     }
     const data = _.get(error, 'response.data', {})
     const errorInfo = data.full || data.message
-    customMessage ? toastFailure(`${customMessage}: ${errorInfo}`) : toastFailure(errorInfo)
+
+    customMessage
+      ? toast.failure(`${lang.tr(customMessage)}: ${lang.tr(errorInfo, { details: data.details })}`)
+      : toast.failure(errorInfo, data.details)
   }
 }

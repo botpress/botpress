@@ -1,4 +1,4 @@
-import { IconName, MaybeElement, Position } from '@blueprintjs/core'
+import { IconName, MaybeElement, Position, IDialogProps } from '@blueprintjs/core'
 import React from 'react'
 
 declare module 'botpress/ui' {
@@ -14,7 +14,6 @@ declare module 'botpress/ui' {
   export function LeftToolbarButtons(props: ToolbarButtonsProps): JSX.Element
   export function RightToolbarButtons(props: ToolbarButtonsProps): JSX.Element
   export function InfoTooltip(props: InfoTooltipProps): JSX.Element
-
   export const { Item, ItemAction, SectionAction }
 }
 
@@ -25,7 +24,7 @@ declare global {
     botpressWebChat: any
     BOT_API_PATH: string
     API_PATH: string
-    BOTPRESS_VERSION: string
+    APP_VERSION: string
     BOT_NAME: string
     BOT_ID: string
     BP_BASE_PATH: string
@@ -158,16 +157,21 @@ export interface KeyboardShortcutsProps {
 }
 
 export interface SearchBarProps {
+  className?: string
   /** The input element ID */
   id?: string
   /** Text to display when there's no input value */
   placeholder?: string
+  /** Set value when used as controled component */
+  value?: string
   /** This is called whenever the text in the input changes */
   onChange?: (text: string) => void
   /** The name of the icon to use. Can also be a JSX element */
   icon?: IconName | MaybeElement
   /** Show or hide button */
   showButton?: boolean
+  /** Called when search input loses focus */
+  onBlur?: (e: React.FocusEvent) => void
   /** This is called when the user clicks on the button */
   onButtonClick?: (e: React.MouseEvent) => void
 }

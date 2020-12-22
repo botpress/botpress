@@ -1,0 +1,91 @@
+// Copyright 2015 Palantir Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0.
+
+@import "../../common/variables";
+
+/*
+Cards
+
+Markup:
+<div class="#{$ns}-card {{.modifier}}">
+  We build products that make people better at their most important work.
+</div>
+
+.#{$ns}-elevation-0 - Ground floor. This level provides just a gentle border shadow.
+.#{$ns}-elevation-1 - First. Subtle drop shadow intended for static containers.
+.#{$ns}-elevation-2 - Second. An even stronger shadow, moving on up.
+.#{$ns}-elevation-3 - Third. For containers overlaying content temporarily.
+.#{$ns}-elevation-4 - Fourth. The strongest shadow, usually for overlay containers on top of backdrops.
+.#{$ns}-interactive - On hover, increase elevation and use pointer cursor.
+
+Styleguide card
+*/
+
+$card-padding: $pt-grid-size * 2 !default;
+
+$card-background-color: $white !default;
+$dark-card-background-color: $dark-gray4 !default;
+
+$elevation-shadows: (
+  $pt-elevation-shadow-0
+  $pt-elevation-shadow-1
+  $pt-elevation-shadow-2
+  $pt-elevation-shadow-3
+  $pt-elevation-shadow-4
+);
+$dark-elevation-shadows: (
+  $pt-dark-elevation-shadow-0
+  $pt-dark-elevation-shadow-1
+  $pt-dark-elevation-shadow-2
+  $pt-dark-elevation-shadow-3
+  $pt-dark-elevation-shadow-4
+);
+
+.#{$ns}-card {
+  border-radius: $pt-border-radius;
+  box-shadow: $pt-elevation-shadow-0;
+  background-color: $card-background-color;
+  padding: $card-padding;
+  transition: transform ($pt-transition-duration * 2) $pt-transition-ease,
+              box-shadow ($pt-transition-duration * 2) $pt-transition-ease;
+
+  &.#{$ns}-dark,
+  .#{$ns}-dark & {
+    box-shadow: $pt-dark-elevation-shadow-0;
+    background-color: $dark-card-background-color;
+  }
+}
+
+@for $index from 1 through length($elevation-shadows) {
+  .#{$ns}-elevation-#{$index - 1} {
+    box-shadow: nth($elevation-shadows, $index);
+
+    &.#{$ns}-dark,
+    .#{$ns}-dark & {
+      box-shadow: nth($dark-elevation-shadows, $index);
+    }
+  }
+}
+
+.#{$ns}-card.#{$ns}-interactive {
+  &:hover {
+    box-shadow: $pt-elevation-shadow-3;
+    cursor: pointer;
+
+    &.#{$ns}-dark,
+    .#{$ns}-dark & {
+      box-shadow: $pt-dark-elevation-shadow-3;
+    }
+  }
+
+  &:active {
+    opacity: 0.9;
+    box-shadow: $pt-elevation-shadow-1;
+    transition-duration: 0;
+
+    &.#{$ns}-dark,
+    .#{$ns}-dark & {
+      box-shadow: $pt-dark-elevation-shadow-1;
+    }
+  }
+}

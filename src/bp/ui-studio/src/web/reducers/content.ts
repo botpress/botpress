@@ -1,3 +1,4 @@
+import { LibraryElement } from 'common/typings'
 import _ from 'lodash'
 import { handleActions } from 'redux-actions'
 import {
@@ -5,9 +6,9 @@ import {
   receiveContentItem,
   receiveContentItems,
   receiveContentItemsCount,
+  receiveLibrary,
   receiveQNAContentElement
 } from '~/actions'
-
 const defaultState = {
   categories: null,
   currentItems: [],
@@ -43,6 +44,11 @@ export default handleActions(
     [receiveQNAContentElement]: (state, { payload }) => ({
       ...state,
       qnaUsage: payload
+    }),
+
+    [receiveLibrary]: (state, { payload }) => ({
+      ...state,
+      library: payload
     })
   },
   defaultState
@@ -52,4 +58,5 @@ export interface ContentReducer {
   categories: any
   currentItems: any
   qnaUsage: any
+  library: LibraryElement[]
 }

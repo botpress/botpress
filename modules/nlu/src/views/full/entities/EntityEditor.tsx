@@ -7,11 +7,12 @@ import { ListEntityEditor } from './ListEntity'
 import { PatternEntityEditor } from './PatternEntity'
 
 interface Props {
+  entities: NLU.EntityDefinition[]
   entity: NLU.EntityDefinition
   updateEntity: (targetEntity: string, e: NLU.EntityDefinition) => void
 }
 
-export default (props: Props) => {
+export const EntityEditor = (props: Props) => {
   const { entity } = props
 
   return entity ? (

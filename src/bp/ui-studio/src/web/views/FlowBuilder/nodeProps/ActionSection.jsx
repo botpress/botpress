@@ -6,6 +6,7 @@ import { Button } from 'react-bootstrap'
 
 import ActionModalForm from './ActionModalForm'
 import ActionItem from '../common/action'
+import { lang } from 'botpress/shared'
 
 const style = require('./style.scss')
 
@@ -89,7 +90,7 @@ export default class ActionSection extends Component {
     return (
       <label>
         <input name="isGoing" type="checkbox" checked={checked} disabled={readOnly} onChange={changeChecked} />
-        {'  Wait for user message'}
+        {lang.tr('studio.flow.node.waitForUserMessage')}
       </label>
     )
   }
@@ -116,13 +117,13 @@ export default class ActionSection extends Component {
               {!readOnly && (
                 <div className={style.actions}>
                   <a className="btn-edit" onClick={() => this.onEdit(i)}>
-                    Edit
+                    {lang.tr('edit')}
                   </a>
                   <a className="btn-remove" onClick={() => this.onRemoveAction(i)}>
-                    Remove
+                    {lang.tr('remove')}
                   </a>
                   <a className="btn-copy" onClick={() => this.onCopyAction(i)}>
-                    Copy
+                    {lang.tr('copy')}
                   </a>
                   {renderMoveUp(i)}
                   {renderMoveDown(i)}

@@ -1,6 +1,7 @@
 import { Button, Classes, MenuItem } from '@blueprintjs/core'
 import { ItemPredicate, ItemRenderer, Select } from '@blueprintjs/select'
-import { WorkspaceUser } from 'common/typings'
+import { WorkspaceUser } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { RouteComponentProps, withRouter } from 'react-router'
@@ -63,8 +64,8 @@ const WorkspaceSelect: FC<Props> = props => {
       return
     }
 
-    const urlId = props.workspaces.find(x => x.workspace == urlWorkspaceId)
-    const storageId = props.workspaces.find(x => x.workspace == getActiveWorkspace())
+    const urlId = props.workspaces.find(x => x.workspace === urlWorkspaceId)
+    const storageId = props.workspaces.find(x => x.workspace === getActiveWorkspace())
     return (urlId && urlId.workspace) || (storageId && storageId.workspace) || props.workspaces[0].workspace
   }
 
@@ -104,7 +105,7 @@ const WorkspaceSelect: FC<Props> = props => {
       <Button
         minimal={true}
         disabled={true}
-        text={`Workspace: ${props.workspaces[0].workspaceName}`}
+        text={lang.tr('admin.workspaceName', { name: props.workspaces[0].workspaceName })}
         className="workspaceButton"
       />
     )
@@ -122,7 +123,7 @@ const WorkspaceSelect: FC<Props> = props => {
     >
       <Button
         minimal={true}
-        text={`Workspace: ${selected.workspaceName}`}
+        text={lang.tr('admin.workspaceName', { name: selected.workspaceName })}
         rightIcon="caret-down"
         className="workspaceButton"
       />
@@ -161,9 +162,4 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = { fetchMyWorkspaces, switchWorkspace, fetchUsers, fetchBots, fetchRoles }
 
-export default withRouter(
-  connect<StateProps, DispatchProps>(
-    mapStateToProps,
-    mapDispatchToProps
-  )(WorkspaceSelect)
-)
+export default withRouter(connect<StateProps, DispatchProps>(mapStateToProps, mapDispatchToProps)(WorkspaceSelect))

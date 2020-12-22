@@ -1,3 +1,5 @@
+@import '../../palette.scss';
+
 .editor {
   :global(.public-DraftEditorPlaceholder-root) {
     display: inline;
@@ -15,81 +17,81 @@
   .insertBtn {
     position: absolute;
     z-index: 5;
-    right: 6px;
-    top: 3px;
-    display: inline-block;
+    right: 2px;
+    top: 2px;
+    display: flex;
+    transition: background 0.2s ease-in-out;
+
+    &MoreSpacing {
+      right: 5px;
+      top: 5px;
+    }
 
     span[icon] {
-      transition: opacity 0.1s ease-in-out;
+      transition: opacity 0.2s ease-in-out;
       opacity: 0;
+    }
+
+    button + button {
+      margin-left: 4px;
     }
   }
 
-  &:hover {
-    .insertBtn span[icon] {
-      opacity: 0.5;
+  &:hover, &:focus-within {
+    .insertBtn {
+      background: rgba(255, 255, 255, 0.9);
+      span[icon] {
+        opacity: 1;
+      }
     }
   }
 }
 
 .mentionSuggestions {
-  border: 1px solid #eee;
-  margin-top: 0.4em;
-  position: absolute;
-  min-width: 400px;
-  width: 400px;
-  max-width: 600px;
   background: #fff;
+  border: 1px solid #eee;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
   cursor: pointer;
-  z-index: 200;
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
+  left: 0;
+  margin-bottom: 20px;
+  max-height: 200px;
+  overflow: scroll;
+  padding: 6px;
+  position: absolute;
+  right: 0;
+  top: 100%;
   transform: scale(0);
-}
-
-.mentionSuggestions .suggestion-type {
-  border-radius: 50%;
-  background: #eee;
-  width: 20px;
-  height: 20px;
-  display: inline-block;
-  text-align: center;
-  line-height: 20px;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.mentionSuggestions .suggestion-type.variables {
-  background: pink;
-}
-
-.mentionSuggestions .suggestion-type.properties {
-  background: greenyellow;
+  width: auto;
+  z-index: 200;
 }
 
 .mentionSuggestions .variable {
-  font-size: 14px;
-  color: blue;
-  margin-left: 5px;
-  &.focused {
-    font-weight: bold;
-  }
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 20px;
+  color: $main-text-dark-color;
 }
 
 .mentionSuggestions .description {
   font-size: 12px;
-  color: #555;
+  color: #5C7080;
+  line-height: 15px;
 }
 
 .mentionSuggestionsEntry,
 .mentionSuggestionsEntryFocused {
-  padding: 7px 10px 3px 10px;
+  border-radius: 3px;
+  padding: 6px 8px;
   transition: background-color 0.4s cubic-bezier(0.27, 1.27, 0.48, 0.56);
 
   &:active,
   &.mentionSuggestionsEntryFocused {
-    background-color: #cce7ff;
+    background-color: #E5EAEC;
   }
 }
 

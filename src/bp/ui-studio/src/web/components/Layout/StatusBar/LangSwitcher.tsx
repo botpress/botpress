@@ -1,12 +1,12 @@
+import { lang, utils } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Fragment } from 'react'
 import { Dropdown } from 'react-bootstrap'
-import { keyMap } from '~/keyboardShortcuts'
 
 import withLanguage from '../../Util/withLanguage'
 
+import style from './style.scss'
 import ActionItem from './ActionItem'
-import style from './StatusBar.styl'
 
 const requireFlag = code => {
   try {
@@ -34,8 +34,8 @@ class LangSwitcher extends React.Component<Props> {
   }
 
   componentDidUpdate(prevProps) {
-    const idx = this.props.languages.findIndex(l => l == this.props.contentLang)
-    if (idx != -1 && !_.isEmpty(this.elems)) {
+    const idx = this.props.languages.findIndex(l => l === this.props.contentLang)
+    if (idx !== -1 && !_.isEmpty(this.elems)) {
       this.elems[idx].focus()
     }
 
@@ -60,7 +60,7 @@ class LangSwitcher extends React.Component<Props> {
   }
 
   handleKeyDown = (l, e) => {
-    if (e.key == 'Enter') {
+    if (e.key === 'Enter') {
       this.switchLang(l)
     }
   }
@@ -83,15 +83,14 @@ class LangSwitcher extends React.Component<Props> {
     return (
       <Fragment>
         <ActionItem
-          shortcut={keyMap['lang-switcher']}
-          title="Content Language"
-          description={`Change the bot content language. Currently editing: ${this.props.contentLang.toUpperCase()}`}
+          shortcut={utils.keyMap['lang-switcher']}
+          title={lang.tr('statusBar.contentLanguage')}
+          description={lang.tr('statusBar.switchLang', { currentLang: this.props.contentLang.toUpperCase() })}
           onClick={this.props.toggleLangSwitcher}
         >
-          <span>
+          <span className={style.flagWrapper}>
             <img src={requireFlag(this.props.contentLang)} alt={this.props.contentLang} className={style.flag} />
-            &nbsp;
-            {this.props.contentLang.toUpperCase()}
+            <span>{this.props.contentLang.toUpperCase()}</span>
           </span>
         </ActionItem>
         <Dropdown

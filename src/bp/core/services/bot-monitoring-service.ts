@@ -105,7 +105,7 @@ export class BotMonitoringService {
         }
       })
       .catch(err => {
-        this.logger.attachError(err).error(`Error while processing logs for hook onBotError`)
+        this.logger.attachError(err).error('Error while processing logs for hook onBotError')
       })
       .finally(() => {
         this._currentPromise = undefined

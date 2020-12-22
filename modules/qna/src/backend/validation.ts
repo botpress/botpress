@@ -2,7 +2,11 @@ import Joi from 'joi'
 
 export const QnaDefSchema = Joi.object().keys({
   action: Joi.string().required(),
-  category: Joi.string().required(),
+  // Keeping optional category for import schema validation
+  category: Joi.string().optional(),
+  contexts: Joi.array()
+    .items(Joi.string())
+    .optional(),
   enabled: Joi.bool().required(),
   redirectFlow: Joi.string()
     .allow('')

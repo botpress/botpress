@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { StandardError } from 'common/http'
 import HTTPServer from 'core/server'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { ConverseService } from 'core/services/converse'
@@ -35,21 +36,17 @@ export class ConverseRouter extends CustomRouter {
     this.setupRoutes()
   }
 
-  private async validatePayload(req, res, next) {
-    try {
-      await joi.validate(req.body, conversePayloadSchema)
-      next()
-    } catch (err) {
-      res.status(400).send(err.message)
-    }
-  }
-
   setupRoutes() {
     this.router.post(
       '/:userId',
       this.httpServer.extractExternalToken,
-      this.validatePayload,
       this.asyncMiddleware(async (req, res) => {
+        try {
+          await joi.validate(req.body, conversePayloadSchema)
+        } catch (err) {
+          throw new StandardError('Invalid payload', err)
+        }
+
         const { userId, botId } = req.params
         const params = req.query.include
 

@@ -33,17 +33,18 @@ describe('Module - Channel Web', () => {
 
   it('Testing Context discussion ', async () => {
     await clickOn('button', { text: 'What is a Context?' })
-    await expectMatch(`Okay, let's use a simple example. Let's talk about animals. Pick one.`)
+    await expectMatch("Okay, let's use a simple example. Let's talk about animals. Pick one.")
     await clickOn('button', { text: 'Monkey' })
-    await expectMatch(`Please ask questions about that animal`)
+    await expectMatch('Please ask questions about that animal')
   })
 
   it('Reset conversation', async () => {
     await clickOn('#btn-reset')
-    await expectMatch(`Reset the conversation`)
+    await expectMatch('Reset the conversation')
   })
 
   it('Create new conversation', async () => {
+    await page.waitFor(1000)
     await clickOn('#btn-conversations')
     await clickOn('#btn-convo-add')
     await expect(await getMessageCount(page)).toBe(0)

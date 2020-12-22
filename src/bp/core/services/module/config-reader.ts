@@ -8,10 +8,11 @@ import { VError } from 'verror'
 import yn from 'yn'
 
 import { GhostService } from '../'
+import { getPropertiesRecursive, getValueFromEnvKey } from '../../config/config-utils'
 
 const debug = DEBUG('configuration').sub('modules')
 
-type Config = { [key: string]: any }
+export type Config = Dic<any>
 
 /**
  * Load configuration for a specific module in the following precedence order:
@@ -51,7 +52,7 @@ export default class ConfigReader {
     return {}
   }
 
-  private async loadFromDefaultValues(moduleId) {
+  public async loadFromDefaultValues(moduleId) {
     return defaultJsonBuilder(await this.getModuleConfigSchema(moduleId))
   }
 
@@ -82,40 +83,23 @@ export default class ConfigReader {
 
     /* START DEPRECATED */
     // TODO: Remove support for those old env variables in BP 12 (we need to add those to 11 -> 12 migration guide)
-    for (const option of Object.keys(schema.properties)) {
+    for (const option of Object.keys(schema.properties || {})) {
       const keyOld = `BP_${moduleId}_${option}`.toUpperCase()
       if (keyOld in process.env) {
-        debugConfig('(deprecated) setting env variable', { variable: option, env: keyOld, module: moduleId })
+        const keyNew = `BP_MODULE_${moduleId}_${option}`.toUpperCase()
+        this.logger.warn(
+          `(Deprecated) use standard syntax to set module configuration by environment variable ${keyOld} ==> ${keyNew}`
+        )
         config[option] = process.env[keyOld]
       }
     } /* END DEPRECATED */
-
-    const getPropertiesRecursive = (obj: any, path: string = ''): string[] => {
-      if (obj && obj.type === 'object' && obj.properties) {
-        return _.chain(Object.keys(obj.properties))
-          .filter(x => !x.startsWith('$'))
-          .map(key => getPropertiesRecursive(obj.properties[key], path.length ? path + '.' + key : key))
-          .flatten()
-          .value()
-      }
-
-      return [path]
-    }
-
-    const getValue = (key: string) => {
-      try {
-        return JSON.parse(process.env[key]!)
-      } catch (err) {
-        return process.env[key]
-      }
-    }
 
     for (const option of getPropertiesRecursive(schema)) {
       const envOption = `${moduleId}_${option}`.replace(/[^A-Z0-9_]+/gi, '_')
       const envKey = `BP_MODULE_${envOption}`.toUpperCase()
       if (envKey in process.env) {
         // Using .set because it supports set on a path with dots
-        const value = getValue(envKey)
+        const value = getValueFromEnvKey(envKey)
         _.set(config, option, value)
         debugConfig('ENV SET', { variable: option, env: envKey, value })
       } else {

@@ -1,29 +1,33 @@
 import { Logger } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
+import { ModuleLoader } from 'core/module-loader'
 import { GhostService } from 'core/services'
 import { AlertingService } from 'core/services/alerting-service'
 import { JobService } from 'core/services/job-service'
 import { MonitoringService } from 'core/services/monitoring'
 import { WorkspaceService } from 'core/services/workspace-service'
+import diag from 'diag'
 import { Router } from 'express'
+import fse from 'fs-extra'
 import _ from 'lodash'
+import multer from 'multer'
 import os from 'os'
+import { tmpNameSync } from 'tmp'
 import yn from 'yn'
 
 import { getDebugScopes, setDebugScopes } from '../../../debug'
 import { CustomRouter } from '../customRouter'
-
 export class ServerRouter extends CustomRouter {
   private _rebootServer!: Function
 
   constructor(
     private logger: Logger,
     private monitoringService: MonitoringService,
-    private workspaceService: WorkspaceService,
     private alertingService: AlertingService,
     private configProvider: ConfigProvider,
     private ghostService: GhostService,
-    private jobService: JobService
+    private jobService: JobService,
+    private moduleLoader: ModuleLoader
   ) {
     super('Server', logger, Router({ mergeParams: true }))
     // tslint:disable-next-line: no-floating-promises
@@ -87,7 +91,7 @@ export class ServerRouter extends CustomRouter {
 
         if (!config.allowServerReboot) {
           this.logger.warn(`User ${user} requested a server reboot, but the feature is disabled.`)
-          return res.status(400).send(`Rebooting the server is disabled in the botpress.config.json file`)
+          return res.status(400).send('Rebooting the server is disabled in the botpress.config.json file')
         }
 
         this.logger.info(`User ${user} requested a server reboot for ${req.query.hostname}`)
@@ -156,6 +160,19 @@ export class ServerRouter extends CustomRouter {
       })
     )
 
+    router.get(
+      '/diag',
+      this.asyncMiddleware(async (req, res) => {
+        if (yn(process.core_env.BP_DISABLE_SERVER_DIAG)) {
+          return res.send('Diagnostic report is disabled by the system administrator (BP_DISABLE_SERVER_DIAG)')
+        }
+
+        const tmpFile = tmpNameSync()
+        await diag({ outputFile: tmpFile, noExit: true, config: true })
+        res.send(await fse.readFile(tmpFile, 'utf-8'))
+      })
+    )
+
     router.post(
       '/features/enable/:featureId',
       this.asyncMiddleware(async (req, res) => {
@@ -172,6 +189,20 @@ export class ServerRouter extends CustomRouter {
         res.sendStatus(200)
       })
     )
+
+    router.post('/modules/upload', multer().single('file'), async (req, res) => {
+      const file = req['file'].buffer
+
+      const moduleInfo = await this.moduleLoader.getArchiveModuleInfo(file)
+
+      if (moduleInfo) {
+        this.logger.info(`Uploaded module ${moduleInfo.name}`)
+        await this.ghostService.root().upsertFile('modules', `${moduleInfo.name}.tgz`, file)
+        return res.send(moduleInfo)
+      }
+
+      res.sendStatus(400)
+    })
 
     this._rebootServer = await this.jobService.broadcast<void>(this.__local_rebootServer.bind(this))
   }

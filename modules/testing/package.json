@@ -1,7 +1,9 @@
 {
   "name": "testing",
+  "fullName": "Testing",
   "version": "1.0.0",
-  "description": "",
+  "status": "stable",
+  "description": "Provides the tools required to record a conversation and ensure answers stay consistent",
   "private": true,
   "main": "dist/backend/index.js",
   "author": "Botpress, Inc.",
@@ -17,6 +19,6 @@
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
+    "lodash": ">=4.17.19"
   }
 }

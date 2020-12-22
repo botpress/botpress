@@ -2,7 +2,7 @@ module.exports = {
   typingIndicators: {
     typing: {
       type: 'boolean',
-      title: 'Show typing indicators',
+      title: 'module.builtin.typingIndicator',
       default: true
     }
   }

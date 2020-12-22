@@ -1,0 +1,197 @@
+// Copyright 2015 Palantir Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0.
+
+@import "../../common/variables";
+@import "~@blueprintjs/icons/src/icons";
+@import "../../common/mixins";
+
+@import "./common";
+@import "./submenu";
+
+/*
+Menus
+
+Markup:
+<ul class="#{$ns}-menu {{.modifier}} #{$ns}-elevation-1">
+  <li>
+    <a class="#{$ns}-menu-item #{$ns}-icon-people" tabindex="0">Share...</a>
+  </li>
+  <li>
+    <a class="#{$ns}-menu-item #{$ns}-icon-circle-arrow-right" tabindex="0">Move...</a>
+  </li>
+  <li>
+    <a class="#{$ns}-menu-item #{$ns}-icon-edit" tabindex="0">Rename</a>
+  </li>
+  <li class="#{$ns}-menu-divider"></li>
+  <li>
+    <a class="#{$ns}-menu-item #{$ns}-icon-trash #{$ns}-intent-danger" tabindex="0">Delete</a>
+  </li>
+</ul>
+
+.#{$ns}-large - Large size (only supported on <code>.#{$ns}-menu</code>)
+
+Styleguide menu
+*/
+
+.#{$ns}-menu {
+  margin: 0;
+  border-radius: $pt-border-radius;
+  background: $menu-background-color;
+  min-width: $menu-min-width;
+  padding: $half-grid-size;
+  list-style: none;
+  text-align: left;
+  color: $pt-text-color;
+}
+
+.#{$ns}-menu-divider {
+  @include menu-divider();
+}
+
+.#{$ns}-menu-item {
+  @include menu-item();
+  @include menu-item-intent();
+
+  &::before {
+    // support pt-icon-* classes directly on this element
+    @include pt-icon();
+    margin-right: $menu-item-padding;
+  }
+
+  &::before,
+  > .#{$ns}-icon {
+    margin-top: ($menu-item-line-height - $pt-icon-size-standard) / 2;
+    color: $pt-icon-color;
+  }
+
+  .#{$ns}-menu-item-label {
+    color: $pt-text-color-muted;
+  }
+
+  &:hover {
+    color: inherit;
+  }
+
+  &.#{$ns}-active,
+  &:active {
+    background-color: $menu-item-color-active;
+  }
+
+  // pt-disable always overrides over styles
+  // stylelint-disable declaration-no-important
+  &.#{$ns}-disabled {
+    // override global a:focus styles
+    outline: none !important;
+    background-color: inherit !important;
+    cursor: not-allowed !important;
+    color: $pt-text-color-disabled !important;
+
+    &::before,
+    > .#{$ns}-icon,
+    .#{$ns}-menu-item-label {
+      color: $pt-icon-color-disabled !important;
+    }
+  }
+  // stylelint-enable declaration-no-important
+
+  .#{$ns}-large & {
+    @include menu-item-large();
+
+    .#{$ns}-icon {
+      // SVG icons remain standard size when menu is large
+      margin-top: ($menu-item-line-height-large - $pt-icon-size-standard) / 2;
+    }
+
+    &::before {
+      @include pt-icon($pt-icon-size-large);
+      margin-top: ($menu-item-line-height-large - $pt-icon-size-large) / 2;
+      margin-right: $menu-item-padding-large;
+    }
+  }
+}
+
+button.#{$ns}-menu-item {
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+
+/*
+Menu headers
+
+Markup:
+<ul class="#{$ns}-menu #{$ns}-elevation-1">
+  <li class="#{$ns}-menu-header"><h6 class="#{$ns}-heading">Layouts</h6></li>
+  <li><button type="button" class="#{$ns}-menu-item #{$ns}-icon-layout-auto">Auto</button></li>
+  <li><button type="button" class="#{$ns}-menu-item #{$ns}-icon-layout-circle">Circle</button></li>
+  <li><button type="button" class="#{$ns}-menu-item #{$ns}-icon-layout-grid">Grid</button></li>
+  <li class="#{$ns}-menu-header"><h6 class="#{$ns}-heading">Views</h6></li>
+  <li><button type="button" class="#{$ns}-menu-item #{$ns}-icon-history">History</button></li>
+  <li><button type="button" class="#{$ns}-menu-item #{$ns}-icon-star">Favorites</button></li>
+  <li><button type="button" class="#{$ns}-menu-item #{$ns}-icon-envelope">Messages</button></li>
+</ul>
+
+Styleguide menu-header
+*/
+
+.#{$ns}-menu-header {
+  @include menu-header($heading-selector: "> h6");
+
+  .#{$ns}-large & {
+    @include menu-header-large($heading-selector: "> h6");
+  }
+}
+
+// dark theme
+.#{$ns}-dark {
+  .#{$ns}-menu {
+    background: $dark-menu-background-color;
+    color: $pt-dark-text-color;
+  }
+
+  .#{$ns}-menu-item {
+    @include menu-item-intent($pt-dark-intent-text-colors);
+
+    &::before,
+    > .#{$ns}-icon {
+      color: $pt-dark-icon-color;
+    }
+
+    .#{$ns}-menu-item-label {
+      color: $pt-dark-text-color-muted;
+    }
+
+    &.#{$ns}-active,
+    &:active {
+      background-color: $dark-menu-item-color-active;
+    }
+
+    // pt-disable always overrides over styles
+    // stylelint-disable declaration-no-important
+    &.#{$ns}-disabled {
+      color: $pt-dark-text-color-disabled !important;
+
+      &::before,
+      > .#{$ns}-icon,
+      .#{$ns}-menu-item-label {
+        color: $pt-dark-icon-color-disabled !important;
+      }
+    }
+    // stylelint-enable declaration-no-important
+  }
+
+  .#{$ns}-menu-divider,
+  .#{$ns}-menu-header {
+    border-color: $pt-dark-divider-white;
+  }
+
+  .#{$ns}-menu-header > h6 {
+    color: $pt-dark-heading-color;
+  }
+}
+
+// #402 support menu inside label
+.#{$ns}-label .#{$ns}-menu {
+  margin-top: $pt-grid-size / 2;
+}

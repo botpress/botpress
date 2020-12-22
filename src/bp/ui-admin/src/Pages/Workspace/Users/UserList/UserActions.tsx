@@ -8,15 +8,16 @@ import {
   PopoverInteractionKind,
   Position
 } from '@blueprintjs/core'
-import { AuthRole, AuthStrategyConfig, WorkspaceUser } from 'common/typings'
+import { WorkspaceUserWithAttributes } from 'botpress/sdk'
+import { confirmDialog, lang } from 'botpress/shared'
+import { AuthRole, AuthStrategyConfig } from 'common/typings'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
-import { confirmDialog } from 'botpress/shared'
 import api from '~/api'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
 
 interface OwnProps {
-  user: WorkspaceUser
+  user: WorkspaceUserWithAttributes
   onUserUpdated: () => void
   onPasswordReset: (email, newPassword) => void
 }
@@ -33,69 +34,92 @@ const UserActions: FC<Props> = props => {
 
   const resetPassword = async () => {
     if (
-      !(await confirmDialog(`Are you sure you want to reset ${user.email}'s password?`, {
-        acceptLabel: 'Reset'
-      }))
+      !(await confirmDialog(
+        lang.tr('admin.workspace.users.collaborators.passwordResetConfirm', {
+          user: user.email
+        }),
+        {
+          acceptLabel: lang.tr('reset')
+        }
+      ))
     ) {
       return
     }
 
     try {
       const { data } = await api.getSecured().get(`/admin/users/reset/${user.strategy}/${user.email}`)
-      toastSuccess(`Password reset successful`)
+      toastSuccess(lang.tr('admin.workspace.users.collaborators.passwordResetSuccess'))
       props.onPasswordReset(user.email, data.payload.tempPassword)
     } catch (err) {
-      toastFailure(`Could not reset password: ${err.message}`)
+      toastFailure(lang.tr('admin.workspace.users.collaborators.passwordResetFail', { msg: err.message }))
     }
   }
 
   const deleteUser = async () => {
     if (
-      !(await confirmDialog(`Are you sure you want to delete ${user.email}'s account?`, {
-        acceptLabel: 'Delete'
-      }))
+      !(await confirmDialog(
+        lang.tr('admin.workspace.users.collaborators.deleteAccountConfirm', {
+          user: user.email
+        }),
+        {
+          acceptLabel: lang.tr('delete')
+        }
+      ))
     ) {
       return
     }
 
     try {
       await api.getSecured().post(`/admin/users/${user.strategy}/${user.email}/delete`)
-      toastSuccess(`User ${user.email} was deleted successfully`)
+      toastSuccess(
+        lang.tr('admin.workspace.users.collaborators.deleteAccountSuccess', {
+          user: user.email
+        })
+      )
       props.onUserUpdated()
     } catch (err) {
-      toastFailure(`Could not delete user: ${err.message}`)
+      toastFailure(lang.tr('admin.workspace.users.collaborators.deleteAccountFail', { msg: err.message }))
     }
   }
 
   const removeUser = async () => {
     if (
-      !(await confirmDialog(`Are you sure you want to remove ${user.email} from this workspace?`, {
-        acceptLabel: 'Remove'
-      }))
+      !(await confirmDialog(
+        lang.tr('admin.workspace.users.collaborators.removeConfirm', {
+          user: user.email
+        }),
+        {
+          acceptLabel: lang.tr('remove')
+        }
+      ))
     ) {
       return
     }
 
     try {
       await api.getSecured().post(`/admin/users/workspace/remove/${user.strategy}/${user.email}/delete`)
-      toastSuccess(`User ${user.email} was removed from workspace successfully`)
+      toastSuccess(
+        lang.tr('admin.workspace.users.collaborators.removeSuccess', {
+          user: user.email
+        })
+      )
       props.onUserUpdated()
     } catch (err) {
-      toastFailure(`Could not remove user from workspace: ${err.message}`)
+      toastFailure(lang.tr('admin.workspace.users.collaborators.removeFail', { msg: err.message }))
     }
   }
 
   const changeRole = async (newRoleId: string) => {
     try {
-      await api.getSecured().post(`/admin/users/workspace/update_role`, {
+      await api.getSecured().post('/admin/users/workspace/update_role', {
         ...props.user,
         role: newRoleId
       })
 
-      toastSuccess(`Role updated successfully`)
+      toastSuccess(lang.tr('admin.workspace.users.collaborators.roleUpdateSuccess'))
       props.onUserUpdated()
     } catch (err) {
-      toastFailure(`Could not update role: ${err.message}`)
+      toastFailure(lang.tr('admin.workspace.users.collaborators.roleUpdateFail', { msg: err.message }))
     }
   }
 
@@ -108,13 +132,19 @@ const UserActions: FC<Props> = props => {
 
   return (
     <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
-      <Button id="btn-menu" rightIcon="caret-down" text="Action" />
+      <Button id="btn-menu" rightIcon="caret-down" text={lang.tr('admin.workspace.users.collaborators.action')} />
       <Menu>
         {canChangePassword && (
-          <MenuItem text="Reset Password" onClick={resetPassword} icon="key" key="reset" id="btn-resetPassword" />
+          <MenuItem
+            text={lang.tr('admin.workspace.users.collaborators.resetPassword')}
+            onClick={resetPassword}
+            icon="key"
+            key="reset"
+            id="btn-resetPassword"
+          />
         )}
 
-        <MenuItem id="btn-changeRole" text="Change Role" icon="people">
+        <MenuItem id="btn-changeRole" text={lang.tr('admin.workspace.users.collaborators.changeRole')} icon="people">
           {props.roles.map(role => (
             <MenuItem
               text={role.name}
@@ -138,9 +168,15 @@ const UserActions: FC<Props> = props => {
 
         <MenuDivider />
 
-        <MenuItem text="Remove from workspace" onClick={removeUser} icon="remove" key="remove" id="btn-removeUser" />
         <MenuItem
-          text="Delete"
+          text={lang.tr('admin.workspace.users.collaborators.removeFromWorkspace')}
+          onClick={removeUser}
+          icon="remove"
+          key="remove"
+          id="btn-removeUser"
+        />
+        <MenuItem
+          text={lang.tr('delete')}
           onClick={deleteUser}
           icon="trash"
           key="delete"
