@@ -2,17 +2,12 @@
 // Please do not change this file!
 interface CssExports {
   'botName': string;
-  'button': string;
-  'danger': string;
   'flag': string;
   'flagWrapper': string;
   'item': string;
   'langItem': string;
   'langSwitherMenu': string;
-  'message': string;
-  'pending': string;
   'statusBar': string;
-  'text': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

@@ -12,7 +12,7 @@ export interface Config {
   messageCount: number
 
   /**
-   * @param defaultUsername Wether or not to display a random username for anonymous users
+   * @param defaultUsername Whether or not to display a random username for anonymous users
    * @default false
    */
   defaultUsername: boolean
@@ -21,4 +21,10 @@ export interface Config {
    * @param botAvatarUrl Image url you want to display as avatar when an agent takes control
    */
   botAvatarUrl?: string
+
+  /**
+   * @param enableConversationDeletion Whether or not to allow the agent to delete the user conversation
+   * @default false
+   */
+  enableConversationDeletion: boolean
 }

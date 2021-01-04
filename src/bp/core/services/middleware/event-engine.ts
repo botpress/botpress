@@ -60,7 +60,8 @@ const eventSchema = {
         .array()
         .items(joi.string())
         .optional(),
-      ms: joi.number().optional()
+      ms: joi.number().optional(),
+      spellChecked: joi.string().optional()
     })
     .optional()
     .default({})
