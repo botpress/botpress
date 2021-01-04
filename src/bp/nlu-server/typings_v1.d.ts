@@ -59,9 +59,11 @@ export interface PredictOutput {
   detectedLanguage: string
 }
 
+export type EntityType = 'pattern' | 'list' | 'system'
+
 export interface EntityPrediction {
   name: string
-  type: 'pattern' | 'list' | 'system'
+  type: EntityType
   value: string
   confidence: number
   source: string
@@ -72,6 +74,7 @@ export interface EntityPrediction {
 
 export interface ContextPrediction {
   name: string
+  oos: number
   confidence: number
   intents: IntentPrediction[]
 }

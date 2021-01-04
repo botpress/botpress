@@ -1,12 +1,13 @@
 import { NLU } from 'botpress/sdk'
 
+import { BpPredictOutput } from './api-mapper'
 import removeNoneIntent from './remove-none'
 
 test('remove none intent', () => {
   // arrange
-  const nlu: NLU.PredictOutput = {
+  const nlu: BpPredictOutput = {
     entities: [],
-    predictions: {
+    contexts: {
       global: {
         confidence: 0.5,
         oos: 0.666,
@@ -23,15 +24,18 @@ test('remove none intent', () => {
           { label: 'none', confidence: 0.99, extractor: 'classifier', slots: {} }
         ]
       }
-    }
+    },
+    detectedLanguage: 'en',
+    spellChecked: 'heyheyheyhey',
+    utterance: 'heyheyheyhey'
   }
 
   // act
   const withoutNone = removeNoneIntent(nlu)
 
   // assert
-  expect(withoutNone.predictions.global.oos).toBe(0.666)
-  expect(withoutNone.predictions.someTopic.oos).toBe(0.99)
-  expect(withoutNone.predictions.global.intents.some(i => i.label === 'none')).toBe(false)
-  expect(withoutNone.predictions.someTopic.intents.some(i => i.label === 'none')).toBe(false)
+  expect(withoutNone.contexts.global.oos).toBe(0.666)
+  expect(withoutNone.contexts.someTopic.oos).toBe(0.99)
+  expect(withoutNone.contexts.global.intents.some(i => i.label === 'none')).toBe(false)
+  expect(withoutNone.contexts.someTopic.intents.some(i => i.label === 'none')).toBe(false)
 })

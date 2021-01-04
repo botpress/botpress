@@ -11,11 +11,12 @@ import modelIdService from 'nlu-core/model-id-service'
 import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../http-utils'
 import Logger from '../simple-logger'
 
+import { BpPredictOutput, mapPredictOutput, mapTrainInput } from './api-mapper'
 import ModelRepository from './model-repo'
 import removeNoneIntent from './remove-none'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
-import { mapTrainInput } from './utils'
+import { PredictOutput } from './typings_v1'
 import validateInput from './validation/validate'
 
 export interface APIOptions {
@@ -185,12 +186,14 @@ export default async function(options: APIOptions, engine: Engine) {
         await engine.loadModel(model)
       }
 
-      const rawPredictions = await Promise.map(texts as string[], async t => {
-        const spellChecked = await engine.spellCheck(t, modelId)
-        const output = await engine.predict(t, modelId)
-        return { ...output, spellChecked }
+      const rawPredictions: BpPredictOutput[] = await Promise.map(texts as string[], async utterance => {
+        const detectedLanguage = await engine.detectLanguage(utterance, { [modelId.languageCode]: modelId })
+        const spellChecked = await engine.spellCheck(utterance, modelId)
+        const { entities, predictions } = await engine.predict(utterance, modelId)
+        return { entities, contexts: predictions, spellChecked, detectedLanguage, utterance }
       })
-      const withoutNone = rawPredictions.map(removeNoneIntent)
+
+      const withoutNone: PredictOutput[] = rawPredictions.map(removeNoneIntent).map(mapPredictOutput)
 
       return res.send({ success: true, predictions: withoutNone })
     } catch (err) {
