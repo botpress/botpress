@@ -12,24 +12,23 @@
 }
 
 body {
-  margin: 0 !important;
-  font-family: Roboto !important;
+  margin: 0;
+  font-family: Roboto;
   overflow: hidden;
 }
 
 * {
-  box-sizing: border-box !important;
+  box-sizing: border-box;
   outline: none !important;
 }
 
 .hidden {
-  visibility: hidden !important;
-  height: 0 !important;
+  visibility: hidden;
+  height: 0;
 }
 
 .bpw-from-user .bpw-chat-bubble .bpw-chat-bubble-content {
   background-color: #000000;
-  color: #ffffff;
 }
 
 .bpw-from-bot .bpw-chat-bubble .bpw-chat-bubble-content {
@@ -80,13 +79,9 @@ body {
   position: fixed;
   bottom: 0;
   right: 0;
-  width: 100%;
   height: 100%;
   border-left: 1px solid #ccc;
-  visibility: hidden;
-
   -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
   -ms-flex-direction: column;
   flex-direction: column;
   display: -webkit-box;
@@ -95,7 +90,7 @@ body {
 }
 
 .bpw-layout-fullscreen {
-  visibility: visible !important;
+  visibility: visible;
 }
 
 .bpw-bot-avatar {
@@ -299,17 +294,11 @@ body {
 .bpw-chat-bubble {
   color: rgb(255, 255, 255);
 
-  border-top-left-radius: 0px;
-  border-bottom-left-radius: 0px;
-  border-top-right-radius: 0px;
-  border-bottom-right-radius: 0px;
-
   white-space: pre-wrap;
   word-break: break-word;
 }
 
 .bpw-chat-bubble-content {
-  border: 1px solid #f1f1f1;
   padding: 0.5rem 0.75rem;
 }
 
@@ -359,14 +348,13 @@ body {
 }
 
 .bpw-bubble-session_reset {
-  color: red !important;
   border: none;
   border-top: 1px solid red;
   border-bottom: 1px solid red;
 }
 
 .bpw-bubble-session_reset .bpw-chat-bubble-content {
-  color: red !important;
+  color: red;
   background: none !important;
   padding: 0;
   margin: 5px 0;
@@ -374,10 +362,7 @@ body {
 
 .bpw-bubble-carousel {
   background: none;
-  border: 0px;
-  padding: 0 !important;
   margin: 10px 0;
-  text-align: left;
   width: 100%;
 }
 
@@ -430,29 +415,30 @@ body {
 /* CAROUSEL  */
 .slick-arrow {
   background-color: #fff !important;
-  border: 1px solid #dddfe2 !important;
-  width: 32px !important;
-  height: 32px !important;
+  border: 1px solid #dddfe2;
+  width: 32px;
+  height: 32px;
   border-radius: 3px;
   box-shadow: none;
   color: #444;
   z-index: 1;
 }
 .slick-arrow:before {
-  color: #444 !important;
+  color: #444;
+}
+.slick-next {
+  right: -23px;
 }
 
 .slick-track {
-  margin: 0px !important;
+  margin: 0px;
 }
 
 .bpw-card-container {
-  margin-right: 0px !important;
   box-sizing: border-box;
   color: rgba(0, 0, 0, 1);
   line-height: 1.28em;
-
-  margin-right: 10px;
+  margin-right: 3px;
   min-height: 150px;
   max-height: 410px;
   border: 1px solid rgba(0, 0, 0, 0.1);
@@ -817,8 +803,8 @@ body {
   position: absolute;
   right: 2px;
   bottom: 54px;
-  width: 20px !important;
-  height: 20px !important;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   line-height: 20px;
 
