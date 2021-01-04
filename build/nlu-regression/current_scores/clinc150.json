@@ -1,23 +1,23 @@
 {
-  "generatedOn": "2020-11-27T19:35:25.227Z",
+  "generatedOn": "2021-01-04T21:32:08.422Z",
   "scores": [
     {
       "metric": "accuracy",
       "problem": "clinc150, 20 utt/intent, seed 42",
       "seed": 42,
-      "score": 0.7248837209302326
+      "score": 0.7255813953488373
     },
     {
       "metric": "oosAccuracy",
       "problem": "clinc150, 20 utt/intent, seed 42",
       "seed": 42,
-      "score": 0.8563953488372092
+      "score": 0.8565116279069768
     },
     {
       "metric": "oosPrecision",
       "problem": "clinc150, 20 utt/intent, seed 42",
       "seed": 42,
-      "score": 0.29357798165137616
+      "score": 0.294478527607362
     },
     {
       "metric": "oosRecall",
@@ -29,7 +29,7 @@
       "metric": "oosF1",
       "problem": "clinc150, 20 utt/intent, seed 42",
       "seed": 42,
-      "score": 0.1345480028030834
+      "score": 0.13464235624123425
     }
   ]
 }
