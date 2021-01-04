@@ -13,7 +13,7 @@ interface Props {
   handoff: IHandoff
 }
 
-const StringMultiSelect = MultiSelect.ofType<string>()
+const TagMultiSelect = MultiSelect.ofType<string>()
 
 export const Tags: FC<Props> = ({ handoff, api }) => {
   const { tags, id } = handoff
@@ -21,10 +21,13 @@ export const Tags: FC<Props> = ({ handoff, api }) => {
 
   const [expanded, setExpanded] = useState(true)
   const [items, setItems] = useState(_.compact(_.castArray(tags)))
-  const [availableItems, setAvailableItems] = useState(state.config.tags)
 
-  function handleSelect(value: string) {
-    const updated = [...items, value]
+  function handleSelect(tag: string) {
+    if (isSelected(tag)) {
+      return
+    }
+
+    const updated = [...items, tag]
     setItems(updated) // Optimistic update
     api.updateHandoff(id, { tags: updated }).catch(error => setItems(updated.slice(0, -1)))
   }
@@ -74,11 +77,11 @@ export const Tags: FC<Props> = ({ handoff, api }) => {
     >
       {_.isEmpty(state.config.tags) && <EmptyState text={lang.tr('module.hitlnext.tags.empty')} />}
       {!_.isEmpty(state.config.tags) && (
-        <StringMultiSelect
+        <TagMultiSelect
           fill={true}
           placeholder={lang.tr('module.hitlnext.tags.placeholder')}
-          items={availableItems}
           noResults={<MenuItem disabled={true} text={lang.tr('module.hitlnext.tags.noResults')} />}
+          items={state.config.tags}
           selectedItems={items}
           itemRenderer={renderItem}
           itemPredicate={filterTag}
