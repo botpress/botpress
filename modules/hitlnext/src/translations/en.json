@@ -83,6 +83,7 @@
   "tags": {
     "heading": "Handoff labels",
     "empty": "Tags are not enabled for this bot.",
-    "placeholder": "Add or remove labels"
+    "placeholder": "Add or remove labels",
+    "noResults": "No results."
   }
 }

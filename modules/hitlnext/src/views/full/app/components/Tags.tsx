@@ -77,8 +77,8 @@ export const Tags: FC<Props> = ({ handoff, api }) => {
         <StringMultiSelect
           fill={true}
           placeholder={lang.tr('module.hitlnext.tags.placeholder')}
-          noResults={<MenuItem disabled={true} text="No results." />}
           items={availableItems}
+          noResults={<MenuItem disabled={true} text={lang.tr('module.hitlnext.tags.noResults')} />}
           selectedItems={items}
           itemRenderer={renderItem}
           itemPredicate={filterTag}

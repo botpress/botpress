@@ -84,6 +84,7 @@
   "tags": {
     "heading": "Étiquettes d'escalation",
     "empty": "Les étiquettes ne sont pas activées pour ce bot.",
-    "placeholder": "Ajoutez ou suprimmez des étiquettes"
+    "placeholder": "Ajoutez ou suprimmez des étiquettes",
+    "noResults": "Aucun résultat."
   }
 }
