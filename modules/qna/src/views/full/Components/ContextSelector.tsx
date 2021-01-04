@@ -17,7 +17,7 @@ const ContextSelector: FC<Props> = props => {
   const contexts = props.contexts || []
 
   useEffect(() => {
-    props.bp.axios.get('/nlu/contexts').then(({ data }) => setContexts(data))
+    props.bp.axios.get('/nlu/contexts').then(({ data }) => setContexts(data.sort()))
   }, [])
 
   const removeCtx = (_, idx: number) => {
@@ -26,7 +26,7 @@ const ContextSelector: FC<Props> = props => {
 
   const addCtx = (ctx: string) => {
     if (availableContexts.indexOf(ctx) === -1) {
-      setContexts([...availableContexts, ctx])
+      setContexts([...availableContexts, ctx].sort())
     }
     props.saveContexts([...contexts, ctx])
   }
