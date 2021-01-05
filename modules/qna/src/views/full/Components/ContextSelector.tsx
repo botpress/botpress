@@ -16,17 +16,19 @@ const ContextSelector: FC<Props> = props => {
   const [availableContexts, setContexts] = useState([])
   const contexts = props.contexts || []
 
+  const updateContexts = (contexts: string[]) => setContexts(contexts.sort())
+
   useEffect(() => {
-    props.bp.axios.get('/nlu/contexts').then(({ data }) => setContexts(data))
+    props.bp.axios.get('/nlu/contexts').then(({ data }) => updateContexts(data))
   }, [])
 
-  const removeCtx = (_, idx: number) => {
+  const removeCtx = (_value: string, idx: number) => {
     props.saveContexts([...contexts.slice(0, idx), ...contexts.slice(idx + 1)])
   }
 
   const addCtx = (ctx: string) => {
     if (availableContexts.indexOf(ctx) === -1) {
-      setContexts([...availableContexts, ctx])
+      updateContexts([...availableContexts, ctx])
     }
     props.saveContexts([...contexts, ctx])
   }
