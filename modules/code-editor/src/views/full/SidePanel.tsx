@@ -48,7 +48,9 @@ class PanelContent extends React.Component<Props> {
     const files = this.props.files[fileType]
 
     if (files && files.length) {
-      fileList.push({ label, files })
+      const sorted_files = files.slice().sort((a, b) => a.location.localeCompare(b.location))
+
+      fileList.push({ label, files: sorted_files })
     }
   }
 
