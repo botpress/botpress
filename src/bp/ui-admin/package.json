@@ -23,7 +23,7 @@
     "@blueprintjs/datetime": "^3.15.2",
     "@blueprintjs/select": "^3.11.2",
     "@botpress/util-roles": "^10.36.1",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "babel-polyfill": "^6.26.0",
     "bluebird": "^3.5.5",
     "bootstrap": "^4.3.1",
