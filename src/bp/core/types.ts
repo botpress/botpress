@@ -26,6 +26,7 @@ const TYPES = {
   HookService: Symbol.for('HookService'),
   HintsService: Symbol.for('HintsService'),
   EventEngine: Symbol.for('EventEngine'),
+  MessagingAPI: Symbol.for('MessagingAPI'),
   DialogEngine: Symbol.for('DialogEngine'),
   DecisionEngine: Symbol.for('DecisionEngine'),
   SessionRepository: Symbol.for('SessionRepository'),

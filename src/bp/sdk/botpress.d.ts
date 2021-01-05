@@ -311,8 +311,8 @@ declare module 'botpress/sdk' {
       }
 
       export interface ModelConstructor {
-        new (): Model
-        new (lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
+        new(): Model
+        new(lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
       }
 
       export const Model: ModelConstructor
@@ -809,11 +809,11 @@ declare module 'botpress/sdk' {
 
       // pre-prediction
       readonly detectedLanguage:
-        | string
-        | undefined /** Language detected from users input. If undefined, detection failed. */
+      | string
+      | undefined /** Language detected from users input. If undefined, detection failed. */
       readonly spellChecked:
-        | string
-        | undefined /** Result of spell checking on users input. If undefined, spell check failed. */
+      | string
+      | undefined /** Result of spell checking on users input. If undefined, spell check failed. */
 
       readonly language: string /** The language used for prediction */
       readonly includedContexts: string[]
@@ -1972,6 +1972,36 @@ declare module 'botpress/sdk' {
       feedback: number,
       type?: string
     ): Promise<boolean>
+  }
+
+  export type UserEndpoint = {
+    userId: string,
+    botId: string
+  }
+
+  export type Conversation = {
+    id: string
+    endpoint: UserEndpoint
+  }
+
+  export type Message = {
+    id: string
+    channel: string
+    conversation: Conversation
+    // etc
+  }
+
+  export type MessagePayload = {
+
+  }
+
+  export namespace messaging {
+    export function createConversation(endpoint: UserEndpoint): Conversation
+    export function getConversation(endpoint: UserEndpoint): Conversation
+    export function deleteConversation(endpoint: UserEndpoint): boolean
+
+    export function sendMessage(conversation: Conversation, payload: MessagePayload): Message
+    export function getAllMessages(conversation: Conversation): Message[]
   }
 
   export type GetOrCreateResult<T> = Promise<{

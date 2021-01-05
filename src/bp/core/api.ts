@@ -29,6 +29,7 @@ import { HookService } from './services/hook/hook-service'
 import { JobService } from './services/job-service'
 import { KeyValueStore } from './services/kvs'
 import MediaService from './services/media'
+import { MessagingAPI } from './services/messaging/messaging'
 import { EventEngine } from './services/middleware/event-engine'
 import { StateManager } from './services/middleware/state-manager'
 import { NotificationsService } from './services/notification/service'
@@ -69,6 +70,16 @@ const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk
     findEvents: eventRepo.findEvents.bind(eventRepo),
     updateEvent: eventRepo.updateEvent.bind(eventRepo),
     saveUserFeedback: eventRepo.saveUserFeedback.bind(eventRepo)
+  }
+}
+
+const messaging = (messagingApi: MessagingAPI): typeof sdk.messaging => {
+  return {
+    createConversation: messagingApi.createConversation.bind(messagingApi),
+    getConversation: messagingApi.getConversation.bind(messagingApi),
+    deleteConversation: messagingApi.deleteConversation.bind(messagingApi),
+    sendMessage: messagingApi.sendMessage.bind(messagingApi),
+    getAllMessages: messagingApi.getAllMessages.bind(messagingApi)
   }
 }
 
@@ -217,7 +228,7 @@ const experimental = (hookService: HookService): typeof sdk.experimental => {
  * Socket.IO API to emit payloads to front-end clients
  */
 export class RealTimeAPI implements RealTimeAPI {
-  constructor(private realtimeService: RealtimeService) {}
+  constructor(private realtimeService: RealtimeService) { }
 
   sendPayload(payload: RealTimePayload) {
     this.realtimeService.sendToSocket(payload)
@@ -228,6 +239,7 @@ export class RealTimeAPI implements RealTimeAPI {
 export class BotpressAPIProvider {
   http: (owner: string) => typeof sdk.http
   events: typeof sdk.events
+  messaging: typeof sdk.messaging
   dialog: typeof sdk.dialog
   config: typeof sdk.config
   realtime: RealTimeAPI
@@ -248,6 +260,7 @@ export class BotpressAPIProvider {
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
     @inject(TYPES.Database) db: Database,
     @inject(TYPES.EventEngine) eventEngine: EventEngine,
+    @inject(TYPES.MessagingAPI) messagingAPI: MessagingAPI,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.HTTPServer) httpServer: HTTPServer,
@@ -268,6 +281,7 @@ export class BotpressAPIProvider {
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
+    this.messaging = messaging(messagingAPI);
     this.dialog = dialog(dialogEngine, stateManager, moduleLoader)
     this.config = config(moduleLoader, configProvider)
     this.realtime = new RealTimeAPI(realtimeService)
@@ -300,6 +314,7 @@ export class BotpressAPIProvider {
       MLToolkit: this.mlToolkit,
       dialog: this.dialog,
       events: this.events,
+      messaging: this.messaging,
       http: this.http(owner),
       logger: await this.loggerProvider(loggerName),
       config: this.config,
