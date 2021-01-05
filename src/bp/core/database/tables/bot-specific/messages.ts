@@ -16,11 +16,11 @@ export class MessagesTable extends Table {
       table.string('full_name')
       table.string('avatar_url')
       table.timestamp('sent_on')
-      table.index(['conversationId', 'sent_on'], 'wmcs_idx')
+      table.index(['conversationId', 'sent_on'], 'mcs_idx')
       created = true
     })
     await this.knex.raw(
-      `CREATE INDEX IF NOT EXISTS wmcms_idx ON web_messages ("conversationId", message_type, sent_on DESC) WHERE message_type != 'visit';`
+      `CREATE INDEX IF NOT EXISTS mcms_idx ON web_messages ("conversationId", message_type, sent_on DESC) WHERE message_type != 'visit';`
     )
     return created
   }

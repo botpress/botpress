@@ -17,7 +17,7 @@ export class ConversationsTable extends Table {
       table.timestamp('last_heard_on') // The last time the user interacted with the bot. Used for "recent" conversation
       table.timestamp('user_last_seen_on')
       table.timestamp('bot_last_seen_on')
-      table.index(['userId', 'botId'], 'wcub_idx')
+      table.index(['userId', 'botId'], 'cub_idx')
       created = true
     })
     return created
