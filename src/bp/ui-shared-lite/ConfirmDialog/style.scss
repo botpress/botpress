@@ -1,0 +1,46 @@
+.ConfirmDialogContainer > div {
+  z-index: 9999;
+
+  :global {
+    .bp3-button-text {
+      font-size: 12px !important;
+    }
+
+    .bp3-dialog-body {
+      display: flex;
+    }
+
+    .bp3-button {
+      box-shadow: unset !important;
+      background-image: unset !important;
+      border-radius: 5px !important;
+      padding-top: 6px;
+    }
+
+    .bp3-button.bp3-intent-warning {
+      background-color: var(--lighthouse);
+
+      &:hover {
+        background-color: var(--hover-lighthouse);
+      }
+
+      &:focus {
+        background-color: var(--focus-lighthouse);
+      }
+    }
+
+    .bp3-button:not([class*='bp3-intent']) {
+      background-color: white;
+
+      &:hover,
+      &:focus {
+        background-color: var(--seashell);
+      }
+    }
+  }
+}
+
+.icon {
+  margin-right: 16px;
+  color: var(--lighthouse) !important;
+}
