@@ -1,6 +1,6 @@
 import { MenuItem } from '@blueprintjs/core'
 import { MultiSelect } from '@blueprintjs/select'
-import { Collapsible, EmptyState, lang } from 'botpress/shared'
+import { Collapsible, EmptyState, isOperationAllowed, lang, PermissionOperation } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useContext, useState } from 'react'
 
@@ -17,26 +17,41 @@ const TagMultiSelect = MultiSelect.ofType<string>()
 
 export const Tags: FC<Props> = ({ handoff, api }) => {
   const { tags, id } = handoff
-  const { state } = useContext(Context)
+  const { state, dispatch } = useContext(Context)
 
   const [expanded, setExpanded] = useState(true)
-  const [items, setItems] = useState(_.compact(_.castArray(tags)))
 
-  function handleSelect(tag: string) {
+  const items = _.compact(_.castArray(tags))
+
+  function currentAgentHasPermission(operation: PermissionOperation): boolean {
+    return (
+      state.currentAgent?.online &&
+      isOperationAllowed({ user: state.currentAgent, resource: 'module.hitlnext', operation })
+    )
+  }
+
+  async function handleSelect(tag: string) {
     if (isSelected(tag)) {
       return
     }
 
     const updated = [...items, tag]
-    setItems(updated) // Optimistic update
-    api.updateHandoff(id, { tags: updated }).catch(error => setItems(updated.slice(0, -1)))
+
+    try {
+      await api.updateHandoff(id, { tags: updated })
+    } catch (error) {
+      dispatch({ type: 'setError', payload: error })
+    }
   }
 
-  function handleRemove(v: string, index: number) {
-    const initial = items
-    const updated = _.filter(items, (v, i) => i !== index)
-    setItems(updated) // Optimistic update
-    api.updateHandoff(id, { tags: updated }).catch(error => setItems(initial))
+  async function handleRemove(_value: string, index: number) {
+    const updated = _.filter(items, (_, i) => i !== index)
+
+    try {
+      await api.updateHandoff(id, { tags: updated })
+    } catch (error) {
+      dispatch({ type: 'setError', payload: error })
+    }
   }
 
   function renderTag(tag: string) {
@@ -87,7 +102,7 @@ export const Tags: FC<Props> = ({ handoff, api }) => {
           itemPredicate={filterTag}
           onItemSelect={handleSelect}
           tagRenderer={renderTag}
-          tagInputProps={{ onRemove: handleRemove }}
+          tagInputProps={{ onRemove: handleRemove, disabled: !currentAgentHasPermission('write') }}
         />
       )}
     </Collapsible>

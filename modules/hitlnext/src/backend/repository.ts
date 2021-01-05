@@ -444,6 +444,7 @@ export default class Repository {
       .select('*')
       .where({ id })
       .limit(1)
+      .then(this.hydrateHandoffs.bind(this))
       .then(data => _.head(data))
   }
 
