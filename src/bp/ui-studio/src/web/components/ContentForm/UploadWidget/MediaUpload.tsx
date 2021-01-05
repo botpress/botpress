@@ -6,7 +6,7 @@ import style from '~/views/FlowBuilder/sidePanelTopics/form/style.scss'
 
 import { isBpUrl } from '../../../../../../common/url'
 
-import Image from './DeletableImage'
+import DeletableImage from './DeletableImage'
 
 interface IMediaUploadProps {
   value: string | null
@@ -37,7 +37,7 @@ const MediaUpload: FC<IMediaUploadProps> = props => {
   return (
     <div className={style.fieldWrapper}>
       {value && isBpUrl(value) && (
-        <Image value={value} onDelete={props.onDelete} />
+        <DeletableImage value={value} onDelete={props.onDelete} />
       )}
 
       {!value && (

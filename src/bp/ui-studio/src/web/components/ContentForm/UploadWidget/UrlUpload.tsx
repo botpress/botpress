@@ -5,7 +5,7 @@ import SmartInput from '~/components/SmartInput'
 import style from '~/views/FlowBuilder/sidePanelTopics/form/style.scss'
 
 import localStyle from './style.scss'
-import Image from './DeletableImage'
+import DeletableImage from './DeletableImage'
 
 interface IUrlUploadProps {
   value: string | null
@@ -45,7 +45,7 @@ const UrlUpload: FC<IUrlUploadProps> = props => {
   return (
     <div className={style.fieldWrapper}>
       {value && isUrlOrRelativePath(value) && (
-        <Image value={value} onDelete={onDelete} />
+        <DeletableImage value={value} onDelete={onDelete} />
       )}
 
       {value && !isUrlOrRelativePath(value) && (
