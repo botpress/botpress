@@ -6,6 +6,8 @@ import {
   BotUsersTable,
   DialogSessionTable,
   EventsTable,
+  ConversationsTable,
+  MessagesTable,
   GhostFilesTable,
   GhostRevisionsTable,
   KeyValueStoreTable,
@@ -39,6 +41,8 @@ const tables: typeof Table[] = [
   DataRetentionTable,
   TelemetryTable,
   EventsTable,
+  ConversationsTable,
+  MessagesTable,
   TasksTable,
   BotUsersTable,
   MigrationsTable
