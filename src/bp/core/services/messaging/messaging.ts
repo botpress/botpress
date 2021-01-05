@@ -1,23 +1,31 @@
 import { inject, injectable, tagged } from 'inversify'
 import * as sdk from 'botpress/sdk'
 import { TYPES } from '../../types'
+import Database from 'core/database'
+import { MessagingDB } from './messaging-db'
 
 @injectable()
 export class MessagingAPI {
+  private db: MessagingDB
+
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'MessagingAPI')
     private logger: sdk.Logger,
+    @inject(TYPES.Database) db: Database
   ) {
+    this.db = new MessagingDB(db.knex)
   }
 
   public createConversation(endpoint: sdk.UserEndpoint): sdk.Conversation {
-    // TODO
-    this.logger.info("createConversation called!")
-    return {
+    const conversation: sdk.Conversation = {
       id: '',
       endpoint: endpoint
     }
+
+    this.db.addConversation(conversation);
+
+    return conversation;
   }
   public getConversation(endpoint: sdk.UserEndpoint): sdk.Conversation {
     // TODO
