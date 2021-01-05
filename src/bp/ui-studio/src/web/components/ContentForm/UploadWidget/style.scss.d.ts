@@ -3,6 +3,7 @@
 interface CssExports {
   'expressionWrapper': string;
   'expressionWrapperActions': string;
+  'fieldContainer': string;
   'fieldError': string;
   'flexContainer': string;
   'italic': string;

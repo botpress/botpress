@@ -1,11 +1,3 @@
-.toggleLink {
-  text-align: right;
-  margin-top: 8px;
-  font-size: 12px;
-  display: inline-block;
-  width: 100%;
-}
-
 .flexContainer {
   display: flex;
   margin-bottom: 5px;
@@ -13,6 +5,18 @@
 
 .flexContainer > div:first-child {
   min-width: 0;
+  width: 100%;
+}
+
+.fieldContainer {
+  margin-bottom: 20px;
+}
+
+.toggleLink {
+  text-align: right;
+  margin-top: 8px;
+  font-size: 12px;
+  display: inline-block;
   width: 100%;
 }
 
