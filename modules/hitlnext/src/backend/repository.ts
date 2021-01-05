@@ -2,6 +2,7 @@ import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import { SortOrder } from 'botpress/sdk'
 import { BPRequest } from 'common/http'
+import { Workspace } from 'common/typings'
 import Knex from 'knex'
 import _ from 'lodash'
 import ms from 'ms'
@@ -289,10 +290,32 @@ export default class Repository {
     } as IAgent
   }
 
-  listAgents = async (botId: string, workspace: string): Promise<Partial<IAgent>[]> => {
+  /**
+   * List all agents across workspaces and bots
+   */
+  listAllAgents = async () => {
+    // TODO move this in workspace service
+    const list = () => {
+      return this.bp.ghost.forGlobal().readFileAsObject<Workspace[]>('/', 'workspaces.json')
+    }
+
+    return Promise.map(list(), workspace => {
+      return this.listAgents(workspace.id)
+    }).then(collection =>
+      _(collection)
+        .flatten()
+        .uniqBy('agentId')
+        .value()
+    )
+  }
+
+  /**
+   * List all agents for a given bot and workspace
+   */
+  listAgents = async (workspace: string): Promise<Omit<IAgent, 'online'>[]> => {
     const options: sdk.GetWorkspaceUsersOptions = {
       includeSuperAdmins: true,
-      attributes: ['firstname', 'lastname', 'created_at', 'updated_at']
+      attributes: ['firstname', 'lastname', 'picture_url', 'created_at', 'updated_at']
     }
 
     // TODO filter out properly this is a quick fix
@@ -304,8 +327,7 @@ export default class Repository {
       const agentId = makeAgentId(user.strategy, user.email)
       return {
         ...user,
-        agentId,
-        online: await this.getAgentOnline(botId, agentId)
+        agentId
       }
     })
   }

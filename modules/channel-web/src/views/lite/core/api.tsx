@@ -14,7 +14,7 @@ export default class WebchatApi {
       config => {
         if (!config.url.includes('/botInfo')) {
           const prefix = config.url.indexOf('?') > 0 ? '&' : '?'
-          config.url += prefix + '__ts=' + new Date().getTime()
+          config.url =  `${config.url}${prefix}__ts=${new Date().getTime()}`
         }
         return config
       },
@@ -130,6 +130,14 @@ export default class WebchatApi {
     try {
       const config = { params: { conversationId: convoId }, ...this.axiosConfig }
       return this.axios.post(`/messages/${this.userId}`, data, config)
+    } catch (err) {
+      await this.handleApiError(err)
+    }
+  }
+
+  async deleteMessages(convoId: number) {
+    try {
+      await this.axios.post(`/conversations/${this.userId}/${convoId}/messages/delete`, {}, this.axiosConfig)
     } catch (err) {
       await this.handleApiError(err)
     }

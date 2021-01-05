@@ -124,6 +124,7 @@ class Web extends React.Component<MainProps> {
 
   async initializeSocket() {
     this.socket = new BpSocket(this.props.bp, this.config)
+    this.socket.onClear = this.handleClearMessages
     this.socket.onMessage = this.handleNewMessage
     this.socket.onTyping = this.handleTyping
     this.socket.onData = this.handleDataMessage
@@ -170,6 +171,10 @@ class Web extends React.Component<MainProps> {
     })
   }
 
+  isCurrentConversation = (event: Message) => {
+    return !this.props.config?.conversationId || Number(this.props.config.conversationId) === Number(event.conversationId)
+  }
+
   handleIframeApi = async ({ data: { action, payload } }) => {
     if (action === 'configure') {
       this.props.updateConfig(Object.assign({}, constants.DEFAULT_CONFIG, payload))
@@ -200,13 +205,19 @@ class Web extends React.Component<MainProps> {
     }
   }
 
-  handleNewMessage = async event => {
+  handleClearMessages = (event: Message) => {
+    if (this.isCurrentConversation(event)) {
+      this.props.clearMessages()
+    }
+  }
+
+  handleNewMessage = async (event: Message) => {
     if (event.payload?.type === 'visit' || event.message_type === 'visit') {
       // don't do anything, it's the system message
       return
     }
 
-    if (this.props.config.conversationId && Number(this.props.config.conversationId) !== Number(event.conversationId)) {
+    if (!this.isCurrentConversation(event)) {
       // don't do anything, it's a message from another conversation
       return
     }
@@ -224,7 +235,7 @@ class Web extends React.Component<MainProps> {
   }
 
   handleTyping = async (event: Message) => {
-    if (this.props.config.conversationId && Number(this.props.config.conversationId) !== Number(event.conversationId)) {
+    if (!this.isCurrentConversation(event)) {
       // don't do anything, it's a message from another conversation
       return
     }
@@ -345,6 +356,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   updateConfig: store.updateConfig,
   mergeConfig: store.mergeConfig,
   addEventToConversation: store.addEventToConversation,
+  clearMessages: store.clearMessages,
   setUserId: store.setUserId,
   updateTyping: store.updateTyping,
   sendMessage: store.sendMessage,
@@ -394,6 +406,7 @@ type MainProps = { store: RootStore } & Pick<
   | 'hasUnreadMessages'
   | 'showWidgetButton'
   | 'addEventToConversation'
+  | 'clearMessages'
   | 'updateConfig'
   | 'mergeConfig'
   | 'isWebchatReady'
