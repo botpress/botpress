@@ -151,7 +151,7 @@ function mapOutputSlot(slot: NLU.Slot): SlotPrediction {
     confidence,
     start,
     end,
-    entity: entity && mapEntity(entity),
+    entity: entity ? mapEntity(entity) : null,
     name,
     source,
     value

@@ -93,7 +93,7 @@ export interface SlotPrediction {
   source: string
   start: number
   end: number
-  entity: EntityPrediction | undefined
+  entity: EntityPrediction | null
 }
 
 /**
