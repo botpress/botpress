@@ -21,6 +21,8 @@ import API, { APIOptions } from './api'
 
 const debug = DEBUG('api')
 
+const GH_TYPINGS_FILE = 'https://github.com/botpress/botpress/blob/master/src/bp/nlu-server/typings_v1.d.ts'
+
 type ArgV = APIOptions & {
   languageURL: string
   languageAuthToken?: string
@@ -133,13 +135,52 @@ ${_.repeat(' ', 9)}========================================`)
 
     logger.info(chalk`
 
-{bold Available Routes:}
+{bold {underline Available Routes}}
 
-{bold GET ${baseUrl}/info} {dim // to get current version of botpress standalone NLU and test if your installation is working}
-{bold POST ${baseUrl}/train} {dim // to start a training; returns a model id}
-{bold GET ${baseUrl}/train/:modelId} {dim // to get the training progress status of a model}
-{bold POST ${baseUrl}/train/:modelId/cancel} {dim // to cancel the training of a model}
-{bold POST ${baseUrl}/predict/:modelId} {dim // to predict with a previously trained model}
+{green /**
+ * Gets the current version of botpress core NLU. Usefull to test if your installation is working.
+ * @returns version: botpress core NLU version number.
+*/}
+{bold GET ${baseUrl}/info}
+
+{green /**
+  * Starts a training.
+  * @body_parameter {bold language} Language to use for training.
+  * @body_parameter {bold intents} Intents definitions.
+  * @body_parameter {bold contexts} All available contexts.
+  * @body_parameter {bold entities} Entities definitions.
+  * @body_parameter {bold password} Password to protect your model. {yellow ** Optionnal **}
+  * @body_parameter {bold seed} Number to seed random number generators used during training (beta feature). {yellow ** Optionnal **}
+  * @returns {bold modelId} A model id for futur API calls
+ */}
+{bold POST ${baseUrl}/train}
+
+{green /**
+  * Gets a training progress status.
+  * @path_parameter {bold modelId} The model id for which you seek the training progress.
+  * @body_parameter {bold password} The password protecting your model.
+  * @returns {bold session} A training session data structure with information on desired model.
+ */}
+{bold GET ${baseUrl}/train/:modelId}
+
+{green /**
+  * Cancels a training.
+  * @path_parameter {bold modelId} The model id for which you want to cancel the training.
+  * @body_parameter {bold password} The password protecting your model.
+ */}
+{bold POST ${baseUrl}/train/:modelId/cancel}
+
+{green /**
+  * Perform prediction for a text input.
+  * @path_parameter {bold modelId} The model id you want to use for prediction.
+  * @body_parameter {bold password} The password protecting your model.
+  * @body_parameter {bold texts} Array of text for which you want a prediction.
+  * @returns {bold predictions} Array of predictions; Each prediction is a data structure reprensenting our understanding of the text.
+ */}
+{bold POST ${baseUrl}/predict/:modelId}
+
+{bold For more detailed information on typings, see
+${GH_TYPINGS_FILE}}.
 
     `)
   }

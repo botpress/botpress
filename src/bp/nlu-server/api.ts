@@ -74,7 +74,7 @@ const createExpressApp = (options: APIOptions): Application => {
 
 export default async function(options: APIOptions, engine: Engine) {
   const app = createExpressApp(options)
-  const logger = new Logger('API', options.silent)
+  const logger = new Logger('API')
 
   const modelRepo = new ModelRepository(options.modelDir)
   await modelRepo.init()
@@ -214,4 +214,5 @@ export default async function(options: APIOptions, engine: Engine) {
   })
 
   logger.info(`NLU Server is ready at http://${options.host}:${options.port}/`)
+  options.silent && logger.silence()
 }
