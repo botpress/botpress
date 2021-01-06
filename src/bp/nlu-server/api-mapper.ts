@@ -123,7 +123,7 @@ function mapEntity(entity: NLU.Entity): EntityPrediction {
 
   return {
     name,
-    type: type.split('.')[0] as EntityType,
+    type,
     start,
     end,
     confidence,

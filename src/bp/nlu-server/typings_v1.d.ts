@@ -63,7 +63,7 @@ export type EntityType = 'pattern' | 'list' | 'system'
 
 export interface EntityPrediction {
   name: string
-  type: EntityType
+  type: string // ex: ['custom.list.fruits', 'system.time']
   value: string
   confidence: number
   source: string
@@ -95,12 +95,6 @@ export interface SlotPrediction {
   end: number
   entity: EntityPrediction | undefined
 }
-
-/**
- * ################################
- * ############ OTHERS ############
- * ################################
- */
 
 /**
  * done : when a training is complete

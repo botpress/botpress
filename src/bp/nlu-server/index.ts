@@ -159,10 +159,10 @@ ${_.repeat(' ', 9)}========================================`)
 {green /**
   * Gets a training progress status.
   * @path_parameter {bold modelId} The model id for which you seek the training progress.
-  * @body_parameter {bold password} The password protecting your model.
+  * @query_parameter {bold password} The password protecting your model.
   * @returns {bold session} A training session data structure with information on desired model.
  */}
-{bold GET ${baseUrl}/train/:modelId}
+{bold GET ${baseUrl}/train/:modelId?password=XXXXXX}
 
 {green /**
   * Cancels a training.
@@ -175,7 +175,7 @@ ${_.repeat(' ', 9)}========================================`)
   * Perform prediction for a text input.
   * @path_parameter {bold modelId} The model id you want to use for prediction.
   * @body_parameter {bold password} The password protecting your model.
-  * @body_parameter {bold texts} Array of text for which you want a prediction.
+  * @body_parameter {bold utterances} Array of text for which you want a prediction.
   * @returns {bold predictions} Array of predictions; Each prediction is a data structure reprensenting our understanding of the text.
  */}
 {bold POST ${baseUrl}/predict/:modelId}
