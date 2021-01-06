@@ -140,7 +140,7 @@ ${_.repeat(' ', 9)}========================================`)
 
 {green /**
  * Gets the current version of botpress core NLU. Usefull to test if your installation is working.
- * @returns version: botpress core NLU version number.
+ * @returns {bold version}: botpress core NLU version number.
 */}
 {bold GET ${baseUrl}/info}
 
