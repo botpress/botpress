@@ -4,14 +4,14 @@ import _ from 'lodash'
 import React, { FC } from 'react'
 
 import { IHandoff } from '../../../../types'
+import { HitlClient } from '../../../client'
 import style from '../../style.scss'
-import { ApiType } from '../../Api'
 
 import { Comments } from './Comments'
 import UserProfile from './UserProfile'
 
 interface Props {
-  api: ApiType
+  api: HitlClient
   handoff: IHandoff
 }
 
