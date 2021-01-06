@@ -12,6 +12,10 @@ export class MessagesTable extends Table {
       table.string('incomingEventId')
       table.string('eventId')
       table.string('userId')
+      table.string('message_type') // @ deprecated Remove in a future release (11.9)
+      table.text('message_text') // @ deprecated Remove in a future release (11.9)
+      table.jsonb('message_raw') // @ deprecated Remove in a future release (11.9)
+      table.jsonb('message_data') // @ deprecated Remove in a future release (11.9)
       table.jsonb('payload')
       table.string('full_name')
       table.string('avatar_url')
@@ -20,7 +24,7 @@ export class MessagesTable extends Table {
       created = true
     })
     await this.knex.raw(
-      `CREATE INDEX IF NOT EXISTS mcms_idx ON web_messages ("conversationId", message_type, sent_on DESC) WHERE message_type != 'visit';`
+      `CREATE INDEX IF NOT EXISTS mcms_idx ON messages ("conversationId", message_type, sent_on DESC) WHERE message_type != 'visit';`
     )
     return created
   }
