@@ -1996,12 +1996,12 @@ declare module 'botpress/sdk' {
   }
 
   export namespace messaging {
-    export function createConversation(endpoint: UserEndpoint): Conversation
-    export function getConversation(endpoint: UserEndpoint): Conversation
-    export function deleteConversation(endpoint: UserEndpoint): boolean
+    export function createConversation(endpoint: UserEndpoint): Promise<Conversation>
+    export function getConversation(endpoint: UserEndpoint): Promise<Conversation>
+    export function deleteConversation(endpoint: UserEndpoint): Promise<boolean>
 
-    export function sendMessage(conversation: Conversation, payload: MessagePayload): Message
-    export function getAllMessages(conversation: Conversation): Message[]
+    export function sendMessage(conversation: Conversation, payload: MessagePayload): Promise<Message>
+    export function getAllMessages(conversation: Conversation): Promise<Message[]>
   }
 
   export type GetOrCreateResult<T> = Promise<{

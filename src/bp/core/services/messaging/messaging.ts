@@ -17,17 +17,17 @@ export class MessagingAPI {
     this.db = new MessagingDB(db.knex)
   }
 
-  public createConversation(endpoint: sdk.UserEndpoint): sdk.Conversation {
+  public async createConversation(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation> {
     const conversation: sdk.Conversation = {
       id: '',
       endpoint: endpoint
     }
 
-    this.db.addConversation(conversation);
+    await this.db.addConversation(conversation);
 
     return conversation;
   }
-  public getConversation(endpoint: sdk.UserEndpoint): sdk.Conversation {
+  public async getConversation(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation> {
     // TODO
     this.logger.info("getConversation called!")
     return {
@@ -35,13 +35,13 @@ export class MessagingAPI {
       endpoint: endpoint
     }
   }
-  public deleteConversation(endpoint: sdk.UserEndpoint): boolean {
+  public async deleteConversation(endpoint: sdk.UserEndpoint): Promise<boolean> {
     // TODO
     this.logger.info("deleteConversation called!")
     return false
   }
 
-  public sendMessage(conversation: sdk.Conversation, payload: sdk.MessagePayload): sdk.Message {
+  public async sendMessage(conversation: sdk.Conversation, payload: sdk.MessagePayload): Promise<sdk.Message> {
     // TODO
     this.logger.info("sendMessage called!")
     return {
@@ -50,7 +50,7 @@ export class MessagingAPI {
       conversation
     }
   }
-  public getAllMessages(conversation: sdk.Conversation): sdk.Message[] {
+  public async getAllMessages(conversation: sdk.Conversation): Promise<sdk.Message[]> {
     // TODO
     this.logger.info("getAllMessages called!")
     return []
