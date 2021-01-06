@@ -1,37 +1,58 @@
 import { validate } from 'joi'
 import { DUCKLING_ENTITIES } from 'nlu-core/entities/duckling-extractor'
+import { isListEntity, isPatternEntity } from 'nlu-server/api-mapper'
 
-import { Enum, Intent, Pattern, TrainInput, Variable } from '../typings'
+import {
+  IntentDefinition,
+  ListEntityDefinition,
+  PatternEntityDefinition,
+  SlotDefinition,
+  TrainInput
+} from '../typings_v1'
 
 import { TrainInputSchema } from './schemas'
 
 const SLOT_ANY = 'any'
 
-const makeVariableChecker = (enums: Enum[], patterns: Pattern[]) => (variable: Variable) => {
-  const { types, name } = variable
+const makeVariableChecker = (enums: ListEntityDefinition[], patterns: PatternEntityDefinition[]) => (
+  variable: SlotDefinition
+) => {
+  const { entities, name } = variable
 
   const supportedTypes = [...enums.map(e => e.name), ...patterns.map(p => p.name), ...DUCKLING_ENTITIES, SLOT_ANY]
-  for (const type of types) {
-    if (!supportedTypes.includes(type)) {
-      throw new Error(`Variable ${name} references variable type ${type}, but it does not exist.`)
+  for (const entity of entities) {
+    if (!supportedTypes.includes(entity)) {
+      throw new Error(`Slot ${name} references entity ${entity}, but it does not exist.`)
     }
   }
 }
 
-function validateIntent(intent: Intent, enums: Enum[], patterns: Pattern[]) {
+const makeIntentChecker = (contexts: string[]) => (
+  intent: IntentDefinition,
+  enums: ListEntityDefinition[],
+  patterns: PatternEntityDefinition[]
+) => {
+  for (const ctx of intent.contexts) {
+    if (!contexts.includes(ctx)) {
+      throw new Error(`Context ${ctx} of Intent ${intent.name} does not seem to appear in all contexts`)
+    }
+  }
   const variableChecker = makeVariableChecker(enums, patterns)
-  intent.variables.forEach(variableChecker)
+  intent.slots.forEach(variableChecker)
 }
 
 async function validateInput(rawInput: any): Promise<TrainInput> {
   const validatedInput: TrainInput = await validate(rawInput, TrainInputSchema, {})
 
-  const { enums, patterns } = validatedInput
+  const { entities, contexts } = validatedInput
 
-  for (const ctx of validatedInput.topics) {
-    for (const intent of ctx.intents) {
-      validateIntent(intent, enums, patterns)
-    }
+  const listEntities = entities.filter(isListEntity)
+  const patternEntities = entities.filter(isPatternEntity)
+
+  const validateIntent = makeIntentChecker(contexts)
+
+  for (const intent of validatedInput.intents) {
+    validateIntent(intent, listEntities, patternEntities)
   }
 
   return validatedInput
