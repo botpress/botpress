@@ -44,7 +44,7 @@ const createExpressApp = (options: APIOptions): Application => {
   app.use(bodyParser.json({ limit: options.bodySize }))
 
   app.use((req, res, next) => {
-    res.header('X-Powered-By', 'Botpress')
+    res.header('X-Powered-By', 'Botpress NLU')
     debugRequest(`incoming ${req.path}`, { ip: req.ip })
     next()
   })
@@ -126,9 +126,10 @@ export default async function(options: APIOptions, engine: Engine) {
         const model = await modelRepo.getModel(modelId, password ?? '')
 
         if (!model) {
-          return res
-            .status(404)
-            .send({ success: false, error: `no model or training could be found for modelId: ${stringId}` })
+          return res.status(404).send({
+            success: false,
+            error: `no model or training could be found for modelId: ${stringId}`
+          })
         }
 
         session = {
@@ -159,7 +160,7 @@ export default async function(options: APIOptions, engine: Engine) {
         return res.send({ success: true })
       }
 
-      res.status(404).send({ success: true, error: `no current training for model id: ${stringId}` })
+      res.status(404).send({ success: false, error: `no current training for model id: ${stringId}` })
     } catch (err) {
       res.status(500).send({ success: false, error: err.message })
     }
@@ -177,6 +178,7 @@ export default async function(options: APIOptions, engine: Engine) {
       }
 
       const modelId = modelIdService.fromString(stringId)
+      // once the model is loaded, there's no more password check
       if (!engine.hasModel(modelId)) {
         const model = await modelRepo.getModel(modelId, password)
         if (!model) {

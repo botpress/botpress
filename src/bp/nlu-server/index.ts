@@ -92,7 +92,7 @@ export default async function(options: ArgV) {
   const { nluVersion } = engine.getSpecifications()
 
   logger.info(chalk`========================================
-{bold ${center('Botpress NLU Server', 40, 9)}}
+{bold ${center('Botpress Standalone NLU', 40, 9)}}
 {dim ${center(`Version ${nluVersion}`, 40, 9)}}
 {dim ${center(`OS ${process.distro}`, 40, 9)}}
 ${_.repeat(' ', 9)}========================================`)
@@ -124,6 +124,24 @@ ${_.repeat(' ', 9)}========================================`)
 
   if (options.batchSize > 0) {
     logger.info(`batch size: allowing up to ${options.batchSize} predictions in one call to POST /predict`)
+  }
+
+  if (!options.silent) {
+    const { host, port } = options
+
+    const baseUrl = `http://${host}:${port}/v1`
+
+    logger.info(chalk`
+
+{bold Available Routes:}
+
+{bold GET ${baseUrl}/info} {dim // to get current version of botpress standalone NLU and test if your installation is working}
+{bold POST ${baseUrl}/train} {dim // to start a training; returns a model id}
+{bold GET ${baseUrl}/train/:modelId} {dim // to get the training progress status of a model}
+{bold POST ${baseUrl}/train/:modelId/cancel} {dim // to cancel the training of a model}
+{bold POST ${baseUrl}/predict/:modelId} {dim // to predict with a previously trained model}
+
+    `)
   }
 
   await API(options, engine)

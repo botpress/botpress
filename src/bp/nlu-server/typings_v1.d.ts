@@ -95,3 +95,25 @@ export interface SlotPrediction {
   end: number
   entity: EntityPrediction | undefined
 }
+
+/**
+ * ################################
+ * ############ OTHERS ############
+ * ################################
+ */
+
+/**
+ * done : when a training is complete
+ * training-pending : when a training was launched, but the training process is not started yet
+ * training: when a chatbot is currently training
+ * canceled: when a training was canceled
+ * errored: when a chatbot failed to train
+ */
+export type TrainingStatus = 'done' | 'training-pending' | 'training' | 'canceled' | 'errored'
+
+export interface TrainingSession {
+  key: string
+  status: TrainingStatus
+  language: string
+  progress: number
+}
