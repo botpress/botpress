@@ -22,6 +22,7 @@ import API, { APIOptions } from './api'
 const debug = DEBUG('api')
 
 const GH_TYPINGS_FILE = 'https://github.com/botpress/botpress/blob/master/src/bp/nlu-server/typings_v1.d.ts'
+const GH_TRAIN_INPUT_EXAMPLE = 'https://github.com/botpress/botpress/blob/master/src/bp/nlu-server/train-example.json'
 
 type ArgV = APIOptions & {
   languageURL: string
@@ -181,6 +182,9 @@ ${_.repeat(' ', 9)}========================================`)
 
 {bold For more detailed information on typings, see
 ${GH_TYPINGS_FILE}}.
+
+{bold For a complete example on training input, see
+${GH_TRAIN_INPUT_EXAMPLE}}.
 
     `)
   }
