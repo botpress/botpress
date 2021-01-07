@@ -100,11 +100,14 @@
     background: none;
     border: none;
     box-shadow: none;
-    cursor: pointer;
     font-size: 14px;
     font-weight: 500;
     min-width: 40px;
     padding: 0;
+    height: 40px;
+    &:not([disabled]) {
+      cursor: pointer;
+    }
     path {
       fill: var(--shark);
     }
