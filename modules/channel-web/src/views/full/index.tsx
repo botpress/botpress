@@ -31,6 +31,7 @@ export class WebBotpressUIInjection extends React.Component {
         useSessionStorage: false,
         showPoweredBy: false,
         enableResetSessionShortcut: true,
+        enableConversationDeletion: true,
         containerWidth: EMULATOR_WIDTH,
         layoutWidth: EMULATOR_WIDTH,
         overrides: {
