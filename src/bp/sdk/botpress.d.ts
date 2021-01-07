@@ -1983,14 +1983,14 @@ declare module 'botpress/sdk' {
     id: number
     userId: string
     botId: string
-    createdOn: Date
+    createdOn: string
   }
 
   export type Message = {
     id: number
     conversationId: number
     eventId: number
-    sentOn: Date
+    sentOn: string
   }
 
   export type MessagePayload = {}

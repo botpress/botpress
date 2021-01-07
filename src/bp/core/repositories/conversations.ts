@@ -26,7 +26,7 @@ export class KnexConversationRepository implements ConversationRepository {
     const result = await this.query().insert(row)
     const id = result[0]
 
-    return <any>{
+    return {
       id,
       ...row
     }
