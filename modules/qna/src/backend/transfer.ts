@@ -58,18 +58,16 @@ export const importQuestions = async (data: ImportData, storage, bp, statusCallb
 
   let questionsSavedCount = 0
   return Promise.each(questions, async (qnaItem: QnaItem & { data: { category?: string } }) => {
-    const { data, id } = qnaItem
-
     // Support for previous QnA
-    if (data.category) {
-      data.contexts = [data.category]
-      delete data.category
+    if (qnaItem.data.category) {
+      qnaItem.data.contexts = [qnaItem.data.category]
+      delete qnaItem.data.category
     }
 
-    if (existingQnaIds.includes(id)) {
-      await (storage as Storage).update(data, id)
+    if (existingQnaIds.includes(qnaItem.id)) {
+      await (storage as Storage).update(qnaItem.data, qnaItem.id)
     } else {
-      await (storage as Storage).insert(data)
+      await (storage as Storage).insertItem(qnaItem)
     }
 
     questionsSavedCount += 1

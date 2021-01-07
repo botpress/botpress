@@ -93,8 +93,10 @@ export default class Storage {
 
   async update(data: QnaEntry, id: string): Promise<string> {
     await this.checkForDuplicatedQuestions(data, id)
-
-    id = id || makeID(data)
+    if (!id) {
+      // Updates only no inserts
+      return
+    }
     const item: QnaItem = { id, data }
 
     if (data.enabled) {
@@ -117,6 +119,34 @@ export default class Storage {
     } catch (err) {
       /* swallow error */
     }
+  }
+
+  async insertItem(item: QnaItem | QnaItem[]): Promise<string[]> {
+    const items = _.isArray(item) ? item : [item]
+    const qnaMap: { [key: string]: QnaEntry } = {}
+
+    items.forEach(async item => {
+      if (item.id in qnaMap) {
+        this.bp.logger.warn(`Duplicate ID found while inserting items ${item.id}`)
+        qnaMap[makeID(item.data)] = item.data
+      }
+      qnaMap[item.id] = item.data
+    })
+
+    return Promise.all(
+      Object.entries(qnaMap).map(async ([id, data]) => {
+        await this.checkForDuplicatedQuestions(data, id)
+        const item: QnaItem = { id, data }
+        if (data.enabled) {
+          await this.createNLUIntentFromQnaItem(item, true)
+        }
+
+        await this.bp.ghost
+          .forBot(this.botId)
+          .upsertFile(this.config.qnaDir, `${id}.json`, JSON.stringify(item, undefined, 2))
+        return id
+      })
+    )
   }
 
   async insert(qna: QnaEntry | QnaEntry[]): Promise<string[]> {

@@ -83,6 +83,7 @@
     "analysis": "Análisis",
     "botContains": "El bot contiene preguntas {qnaCount} y elementos de contenido {cmsCount}.",
     "clearQuestionsThenInsert": "Borrar preguntas existentes, luego insertar mis nuevas preguntas y crear/actualizar elementos de contenido",
+    "clearQuestionsAnalyticsWarning": "Si se aclaran las preguntas, no estarán disponibles en el informe de análisis",
     "fileContains": "Su archivo contiene preguntas {fileQnaCount} y elementos de contenido {fileCmsCount}.",
     "insertNewQuestions": "Insertar las nuevas preguntas de mi archivo y crear/actualizar elementos de contenido asociados",
     "notAbleToExtract": "No hemos podido extraer ningún dato de su archivo. O el archivo está vacío o no coincide con ningún formato conocido.",
