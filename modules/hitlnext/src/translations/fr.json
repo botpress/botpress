@@ -61,7 +61,8 @@
   "conversation": {
     "empty": "Sélectionnez une escalation en attente pour engager la conversation avec vos clients.",
     "tab": "Conversation",
-    "composerPlaceholder": "Répondre à l'utilisateur"
+    "composerPlaceholder": "Répondre à l'utilisateur",
+    "send": "Envoyer"
   },
   "handoffs": {
     "empty": "Il n'y a présentement aucune escalation grâce à vous et votre équipe."

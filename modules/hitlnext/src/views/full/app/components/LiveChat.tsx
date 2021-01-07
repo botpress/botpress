@@ -1,8 +1,8 @@
 import { Spinner } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import React, { useEffect, useState } from 'react'
-import { MODULE_NAME } from '../../../../constants'
 
+import { MODULE_NAME } from '../../../../constants'
 import { IAgent, IHandoff } from '../../../../types'
 import style from '../../style.scss'
 
@@ -60,7 +60,7 @@ const LiveChat: React.FC<Props> = ({ handoff, currentAgent }) => {
         composer: [
           {
             module: MODULE_NAME,
-            component: 'AutocompleteComposer'
+            component: 'SuggestionsComposer'
           }
         ]
       }

@@ -1,6 +1,6 @@
 import React from 'react'
 
-import AutocompleteComposer from './AutocompleteComposer'
+import SuggestionsComposer from './SuggestionsComposer'
 import { HandoffAssignedForAgent, HandoffAssignedForUser } from './HandoffAssigned'
 
 export class LiteView extends React.Component {
@@ -9,4 +9,4 @@ export class LiteView extends React.Component {
   }
 }
 
-export { AutocompleteComposer, HandoffAssignedForAgent, HandoffAssignedForUser }
+export { SuggestionsComposer, HandoffAssignedForAgent, HandoffAssignedForUser }
