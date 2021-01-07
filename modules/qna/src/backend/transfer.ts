@@ -64,11 +64,7 @@ export const importQuestions = async (data: ImportData, storage, bp, statusCallb
       delete qnaItem.data.category
     }
 
-    if (existingQnaIds.includes(qnaItem.id)) {
-      await (storage as Storage).update(qnaItem.data, qnaItem.id)
-    } else {
-      await (storage as Storage).insertItem(qnaItem)
-    }
+    await (storage as Storage).upsertItem(qnaItem)
 
     questionsSavedCount += 1
     statusCallback(

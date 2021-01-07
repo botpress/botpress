@@ -121,13 +121,13 @@ export default class Storage {
     }
   }
 
-  async insertItem(item: QnaItem | QnaItem[]): Promise<string[]> {
+  async upsertItem(item: QnaItem | QnaItem[]): Promise<string[]> {
     const items = _.isArray(item) ? item : [item]
     const qnaMap: { [key: string]: QnaEntry } = {}
 
     items.forEach(async item => {
       if (item.id in qnaMap) {
-        this.bp.logger.warn(`Duplicate ID found while inserting items ${item.id}`)
+        this.bp.logger.warn(`Duplicate IDs found in input while batch importing: ${item.id}`)
         qnaMap[makeID(item.data)] = item.data
       }
       qnaMap[item.id] = item.data
@@ -149,23 +149,10 @@ export default class Storage {
     )
   }
 
-  async insert(qna: QnaEntry | QnaEntry[]): Promise<string[]> {
-    const ids = await Promise.mapSeries(_.isArray(qna) ? qna : [qna], async (data, i) => {
-      const id = makeID(data)
-      await this.checkForDuplicatedQuestions(data, id)
-      const item: QnaItem = { id, data }
-      if (data.enabled) {
-        await this.createNLUIntentFromQnaItem(item, true)
-      }
-
-      await this.bp.ghost
-        .forBot(this.botId)
-        .upsertFile(this.config.qnaDir, `${id}.json`, JSON.stringify(item, undefined, 2))
-
-      return id
-    })
-
-    return ids
+  async insert(data: QnaEntry): Promise<string> {
+    const id = makeID(data)
+    const createdIds = await this.upsertItem({ id, data })
+    return createdIds[0]
   }
 
   private async checkForDuplicatedQuestions(newItem: QnaEntry, editingQnaId?: string) {
