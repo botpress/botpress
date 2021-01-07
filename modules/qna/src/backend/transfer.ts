@@ -50,8 +50,6 @@ export const importQuestions = async (data: ImportData, storage, bp, statusCallb
     }
   }
 
-  const existingQnaIds = (await (storage as Storage).fetchQNAs()).map(item => item.id)
-
   for (const qnaItem of questions) {
     qnaItem.data.enabled = true
   }
