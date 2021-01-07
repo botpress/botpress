@@ -88,7 +88,9 @@ const TYPES = {
   RolesStats: Symbol.for('RolesStats'),
   SDKStats: Symbol.for('SDKStats'),
   HooksStats: Symbol.for('HooksStats'),
-  ConfigsStats: Symbol.for('ConfigsStats')
+  ConfigsStats: Symbol.for('ConfigsStats'),
+  MessageRepository: Symbol.for('MessageRepository'),
+  ConversationRepository: Symbol.for('ConversationRepository')
 }
 
 export { TYPES }

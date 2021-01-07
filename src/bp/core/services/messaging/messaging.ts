@@ -1,58 +1,25 @@
-import { inject, injectable, tagged } from 'inversify'
+import { inject, injectable } from 'inversify'
 import * as sdk from 'botpress/sdk'
 import { TYPES } from '../../types'
-import Database from 'core/database'
-import { MessagingDB } from './messaging-db'
+import { MessageRepository } from 'core/repositories/messages'
+import { ConversationRepository } from 'core/repositories/conversations'
 
 @injectable()
 export class MessagingAPI {
-  private db: MessagingDB
-
   constructor(
-    @inject(TYPES.Logger)
-    @tagged('name', 'MessagingAPI')
-    private logger: sdk.Logger,
-    @inject(TYPES.Database) db: Database
-  ) {
-    this.db = new MessagingDB(db.knex)
-  }
+    @inject(TYPES.MessageRepository) private messageRepo: MessageRepository,
+    @inject(TYPES.ConversationRepository) private conversationRepo: ConversationRepository
+  ) {}
 
   public async createConversation(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation> {
-    const conversation: sdk.Conversation = {
-      id: '',
-      endpoint: endpoint
-    }
-
-    await this.db.addConversation(conversation);
-
-    return conversation;
-  }
-  public async getConversation(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation> {
-    // TODO
-    this.logger.info("getConversation called!")
-    return {
-      id: '',
-      endpoint: endpoint
-    }
-  }
-  public async deleteConversation(endpoint: sdk.UserEndpoint): Promise<boolean> {
-    // TODO
-    this.logger.info("deleteConversation called!")
-    return false
+    return this.conversationRepo.create(endpoint)
   }
 
-  public async sendMessage(conversation: sdk.Conversation, payload: sdk.MessagePayload): Promise<sdk.Message> {
-    // TODO
-    this.logger.info("sendMessage called!")
-    return {
-      id: '',
-      channel: '',
-      conversation
-    }
+  public async getAllConversations(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation[]> {
+    return this.conversationRepo.getAll(endpoint)
   }
-  public async getAllMessages(conversation: sdk.Conversation): Promise<sdk.Message[]> {
-    // TODO
-    this.logger.info("getAllMessages called!")
-    return []
+
+  public async getOrCreateRecentConversation(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation> {
+    return this.conversationRepo.getMostRecent(endpoint) ?? this.conversationRepo.create(endpoint)
   }
 }

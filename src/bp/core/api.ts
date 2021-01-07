@@ -76,10 +76,8 @@ const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk
 const messaging = (messagingApi: MessagingAPI): typeof sdk.messaging => {
   return {
     createConversation: messagingApi.createConversation.bind(messagingApi),
-    getConversation: messagingApi.getConversation.bind(messagingApi),
-    deleteConversation: messagingApi.deleteConversation.bind(messagingApi),
-    sendMessage: messagingApi.sendMessage.bind(messagingApi),
-    getAllMessages: messagingApi.getAllMessages.bind(messagingApi)
+    getAllConversations: messagingApi.getAllConversations.bind(messagingApi),
+    getOrCreateRecentConversation: messagingApi.getOrCreateRecentConversation.bind(messagingApi)
   }
 }
 
@@ -228,7 +226,7 @@ const experimental = (hookService: HookService): typeof sdk.experimental => {
  * Socket.IO API to emit payloads to front-end clients
  */
 export class RealTimeAPI implements RealTimeAPI {
-  constructor(private realtimeService: RealtimeService) { }
+  constructor(private realtimeService: RealtimeService) {}
 
   sendPayload(payload: RealTimePayload) {
     this.realtimeService.sendToSocket(payload)
@@ -281,7 +279,7 @@ export class BotpressAPIProvider {
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
-    this.messaging = messaging(messagingAPI);
+    this.messaging = messaging(messagingAPI)
     this.dialog = dialog(dialogEngine, stateManager, moduleLoader)
     this.config = config(moduleLoader, configProvider)
     this.realtime = new RealTimeAPI(realtimeService)

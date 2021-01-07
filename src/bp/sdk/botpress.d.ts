@@ -311,8 +311,8 @@ declare module 'botpress/sdk' {
       }
 
       export interface ModelConstructor {
-        new(): Model
-        new(lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
+        new (): Model
+        new (lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
       }
 
       export const Model: ModelConstructor
@@ -809,11 +809,11 @@ declare module 'botpress/sdk' {
 
       // pre-prediction
       readonly detectedLanguage:
-      | string
-      | undefined /** Language detected from users input. If undefined, detection failed. */
+        | string
+        | undefined /** Language detected from users input. If undefined, detection failed. */
       readonly spellChecked:
-      | string
-      | undefined /** Result of spell checking on users input. If undefined, spell check failed. */
+        | string
+        | undefined /** Result of spell checking on users input. If undefined, spell check failed. */
 
       readonly language: string /** The language used for prediction */
       readonly includedContexts: string[]
@@ -1975,33 +1975,45 @@ declare module 'botpress/sdk' {
   }
 
   export type UserEndpoint = {
-    userId: string,
+    userId: string
     botId: string
   }
 
   export type Conversation = {
-    id: string
-    endpoint: UserEndpoint
+    id: number
+    userId: string
+    botId: string
+    createdOn: Date
   }
 
   export type Message = {
-    id: string
-    channel: string
-    conversation: Conversation
-    // etc
+    id: number
+    conversationId: number
+    eventId: number
+    sentOn: Date
   }
 
-  export type MessagePayload = {
-
-  }
+  export type MessagePayload = {}
 
   export namespace messaging {
+    /**
+     * Creates a conversation associated to a user endpoint
+     * @param endpoint
+     */
     export function createConversation(endpoint: UserEndpoint): Promise<Conversation>
-    export function getConversation(endpoint: UserEndpoint): Promise<Conversation>
-    export function deleteConversation(endpoint: UserEndpoint): Promise<boolean>
 
-    export function sendMessage(conversation: Conversation, payload: MessagePayload): Promise<Message>
-    export function getAllMessages(conversation: Conversation): Promise<Message[]>
+    /**
+     * Gets all conversations linked to a user endpoint
+     * @param endpoint
+     */
+    export function getAllConversations(endpoint: UserEndpoint): Promise<Conversation[]>
+
+    /**
+     * Gets the most recent conversation associated with a user
+     * endpoint or creates one if no such conversation exists
+     * @param endpoint
+     */
+    export function getOrCreateRecentConversation(endpoint: UserEndpoint): Promise<Conversation>
   }
 
   export type GetOrCreateResult<T> = Promise<{
