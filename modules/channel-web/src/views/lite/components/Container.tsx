@@ -17,7 +17,7 @@ import OverridableComponent from './OverridableComponent'
 class Container extends React.Component<ContainerProps> {
   renderBody() {
     if (!this.props.isInitialized) {
-      return (<div className="bpw-msg-list-container" />)
+      return (<div className="bpw-msg-list-container"><div className="bpw-msg-list-loading" /></div>)
     }
 
     if (this.props.isConversationsDisplayed) {
