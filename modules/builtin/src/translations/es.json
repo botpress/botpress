@@ -21,7 +21,10 @@
       "imageLabel": "Título (opcional)",
       "labelDesc": "Algunas plataformas requieren nombrar las imágenes.",
       "permissionDenied": "You don't have permission to upload files for this bot. Talk to your team owner.",
+      "infoInterpreted": "Esta información será interpretada:",
       "title": "Imagen",
+      "uploadFileChoice": "O sube una imagen",
+      "enterUrlChoice": "O ingrese la URL de la imagen",
       "uploadImage": "Cargar imagen"
     },
     "singleChoice": {
