@@ -1,7 +1,8 @@
 import { Button } from '@blueprintjs/core'
 import ReactTextareaAutocomplete from '@webscopeio/react-textarea-autocomplete'
+// import '@webscopeio/react-textarea-autocomplete/style.css'
 import cx from 'classnames'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useEffect, useRef, useState } from 'react'
 
 import { Config, IShortcut } from '../../config'
 import { makeClient } from '../client'
@@ -32,11 +33,12 @@ const ShortcutItem: FC<ShortcutItemProps> = props => (
   </div>
 )
 
-const SuggestionsComposer: FC<ComposerProps> = props => {
+const ShortcutComposer: FC<ComposerProps> = props => {
   const bp = props.store.bp
   const [config, setConfig] = useState<Config>()
   const [isLoading, setIsLoading] = useState(true)
   const [text, setText] = useState<string>('')
+  const rtaRef = useRef()
 
   const hitlClient = makeClient(bp)
 
@@ -75,7 +77,7 @@ const SuggestionsComposer: FC<ComposerProps> = props => {
 
   return (
     !isLoading && (
-      <div className={style.composerContainer}>
+      <div id="shortcutContainer" className={style.composerContainer}>
         <ReactTextareaAutocomplete
           containerClassName={cx('bpw-composer', style.composer)}
           className={'bpw-composer-inner'}
@@ -87,6 +89,9 @@ const SuggestionsComposer: FC<ComposerProps> = props => {
           value={text}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
+          scrollToItem={false}
+          boundariesElement="#shortcutContainer"
+          ref={rtaRef}
           trigger={{
             [config.autoComplete.trigger]: {
               dataProvider: (token: string) =>
@@ -104,4 +109,4 @@ const SuggestionsComposer: FC<ComposerProps> = props => {
   )
 }
 
-export default SuggestionsComposer
+export default ShortcutComposer
