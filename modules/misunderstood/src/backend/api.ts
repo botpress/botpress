@@ -50,10 +50,10 @@ export default async (bp: typeof sdk, db: Db) => {
     '/events/count',
     asyncMiddleware(async (req: Request, res: Response) => {
       const { botId } = req.params
-      const { language, startDate, endDate } = extractQuery(req.query)
+      const { language, startDate, endDate, reason } = extractQuery(req.query)
 
       try {
-        const data = await db.countEvents(botId, language, { startDate, endDate })
+        const data = await db.countEvents(botId, language, { startDate, endDate, reason })
         res.json(data)
       } catch (err) {
         throw new StandardError(err)
@@ -65,10 +65,10 @@ export default async (bp: typeof sdk, db: Db) => {
     `/events/:status(${FLAGGED_MESSAGE_STATUSES.join('|')})`,
     asyncMiddleware(async (req: Request, res: Response) => {
       const { botId, status } = req.params
-      const { language, startDate, endDate } = extractQuery(req.query)
+      const { language, startDate, endDate, reason } = extractQuery(req.query)
 
       try {
-        const data = await db.listEvents(botId, language, status, { startDate, endDate })
+        const data = await db.listEvents(botId, language, status, { startDate, endDate, reason })
         res.json(data)
       } catch (err) {
         throw new StandardError('Error listing events', err)
@@ -124,10 +124,10 @@ export default async (bp: typeof sdk, db: Db) => {
   }
 
   const extractQuery = query => {
-    const { language, start, end } = query
+    const { language, start, end, reason } = query
     const startDate = start && unixToDate(start)
     const endDate = end && unixToDate(end)
 
-    return { language, startDate, endDate }
+    return { language, startDate, endDate, reason }
   }
 }
