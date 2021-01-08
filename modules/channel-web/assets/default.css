@@ -325,6 +325,7 @@ body {
 }
 
 .bpw-chat-bubble-content {
+  border: 1px solid #f1f1f1;
   padding: 0.5rem 0.75rem;
 }
 
