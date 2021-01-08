@@ -23,6 +23,12 @@ export interface Config {
   botAvatarUrl?: string
 
   /**
+   * @param tags List of tags that a handoff can be associated with
+   * @default []
+   */
+  tags?: string[]
+
+  /**
    * @param enableConversationDeletion Whether or not to allow the agent to delete the user conversation
    * @default false
    */

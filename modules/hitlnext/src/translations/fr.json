@@ -80,5 +80,11 @@
       "heading": "Escalations Récentes",
       "empty": "Il n'y a présentement aucune escalation grâce à vous et votre équipe."
     }
+  },
+  "tags": {
+    "heading": "Étiquettes d'escalation",
+    "empty": "Les étiquettes ne sont pas activées pour ce bot.",
+    "placeholder": "Ajoutez ou suprimmez des étiquettes",
+    "noResults": "Aucun résultat."
   }
 }

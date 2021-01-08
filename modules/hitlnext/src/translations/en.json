@@ -56,7 +56,7 @@
   },
   "comments": {
     "heading": "Notes from agents",
-    "empty": "No comments"
+    "empty": "No comments yet."
   },
   "conversation": {
     "delete": "Delete conversation",
@@ -79,5 +79,11 @@
       "heading": "Most Recent Handoffs",
       "empty": "Thanks to you and your team, there are no pending handoffs right now."
     }
+  },
+  "tags": {
+    "heading": "Handoff labels",
+    "empty": "Tags are not enabled for this bot.",
+    "placeholder": "Add or remove labels",
+    "noResults": "No results."
   }
 }
