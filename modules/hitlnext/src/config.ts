@@ -8,7 +8,7 @@ export interface Config {
   /**
    * @param autoComplete
    */
-  autoComplete: IAutoComplete
+  autoComplete?: IAutoComplete
 
   /**
    * @param messageCount Number of messages to display in the conversation history
@@ -42,7 +42,7 @@ export interface IShortcut {
 export interface IAutoComplete {
   /**
    * @param trigger
-   * @default /
+   * @default :
    */
   trigger: string
 

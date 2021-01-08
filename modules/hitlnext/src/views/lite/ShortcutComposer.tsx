@@ -1,10 +1,10 @@
 import { Button } from '@blueprintjs/core'
 import ReactTextareaAutocomplete from '@webscopeio/react-textarea-autocomplete'
-// import '@webscopeio/react-textarea-autocomplete/style.css'
 import cx from 'classnames'
+import isEmpty from 'lodash/isEmpty'
 import React, { FC, useEffect, useRef, useState } from 'react'
 
-import { Config, IShortcut } from '../../config'
+import { IAutoComplete, IShortcut } from '../../config'
 import { makeClient } from '../client'
 import lang from '../lang'
 
@@ -35,7 +35,7 @@ const ShortcutItem: FC<ShortcutItemProps> = props => (
 
 const ShortcutComposer: FC<ComposerProps> = props => {
   const bp = props.store.bp
-  const [config, setConfig] = useState<Config>()
+  const [autoComplete, setAutoComplete] = useState<IAutoComplete>()
   const [isLoading, setIsLoading] = useState(true)
   const [text, setText] = useState<string>('')
   const rtaRef = useRef()
@@ -45,7 +45,8 @@ const ShortcutComposer: FC<ComposerProps> = props => {
   useEffect(() => {
     hitlClient
       .getConfig()
-      .then(config => setConfig(config))
+      .then(config => setAutoComplete(config.autoComplete))
+      .catch(err => console.error('could not fetch module config'))
       .finally(() => setIsLoading(false))
   })
 
@@ -76,7 +77,8 @@ const ShortcutComposer: FC<ComposerProps> = props => {
   const canSendText = (): boolean => text.trim().length > 0
 
   return (
-    !isLoading && (
+    !isLoading &&
+    !isEmpty(autoComplete) && (
       <div id="shortcutContainer" className={style.composerContainer}>
         <ReactTextareaAutocomplete
           containerClassName={cx('bpw-composer', style.composer)}
@@ -93,10 +95,9 @@ const ShortcutComposer: FC<ComposerProps> = props => {
           boundariesElement="#shortcutContainer"
           ref={rtaRef}
           trigger={{
-            [config.autoComplete.trigger]: {
-              dataProvider: (token: string) =>
-                config.autoComplete.shortcuts.filter(s => s.name.toLowerCase().includes(token)),
-              component: props => <ShortcutItem {...props} trigger={config.autoComplete.trigger} />,
+            [autoComplete.trigger]: {
+              dataProvider: (token: string) => autoComplete.shortcuts.filter(s => s.name.toLowerCase().includes(token)),
+              component: props => <ShortcutItem {...props} trigger={autoComplete.trigger} />,
               output: (s: IShortcut) => s.value
             }
           }}
