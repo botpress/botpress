@@ -16,6 +16,12 @@ export const CreateHandoffSchema = Joi.object({
   userChannel: Joi.string().required()
 })
 
+export const UpdateHandoffSchema = Joi.object({
+  tags: Joi.array()
+    .items(Joi.string())
+    .required()
+})
+
 export const AssignHandoffSchema = Joi.object({
   agentId: Joi.string().required(),
   status: Joi.string()

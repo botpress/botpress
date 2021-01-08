@@ -1,15 +1,3 @@
-@api = http://localhost:3200
-
-### get info
-# @name info
-GET {{api}}/info
-
-
-### do a training
-# @name train
-POST {{api}}/train
-Content-Type: application/json
-
 {
   "language": "en",
   "intents": [
@@ -22,7 +10,7 @@ Content-Type: application/json
         "this [banana](fruit) is not good to eat",
         "theses [oranges](fruit) have passed",
         "theses [grapes](fruit) look bad",
-        "theses [apples](fruit) look soo moldy"
+        "theses [apples](fruit) look so moldy"
       ],
       "slots": [
         {
@@ -56,7 +44,7 @@ Content-Type: application/json
         "talk to manager",
         "I want to talk to the manager",
         "Who's your boss?",
-        "Can talk to the person in charge?",
+        "Can I talk to the person in charge?",
         "I'd like to speak to your manager",
         "Can I talk to your boss? plz",
         "I wanna speak to manager please",
@@ -99,36 +87,4 @@ Content-Type: application/json
   ],
   "password": "123456",
   "seed": 42
-}
-###
-@modelId = {{train.response.body.modelId}}
-
-
-
-### get training-status
-# @name train-status
-GET {{api}}/train/{{modelId}}?password=123456
-
-
-### cancel training
-# @name cancel-training
-POST {{api}}/train/{{modelId}}/cancel
-Content-Type: application/json
-
-{
-  "password": "123456"
-}
-
-### predict for sentence
-# @name predict
-POST {{api}}/predict/{{modelId}}
-Content-Type: application/json
-
-{
-  "utterances" : [
-    "These grapes look moldy",
-    "Can I talk with the person in charge?",
-    "My flight is at 9 pm"
-  ],
-  "password": "123456"
 }

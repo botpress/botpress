@@ -17,7 +17,7 @@ import removeNoneIntent from './remove-none'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
 import { PredictOutput } from './typings_v1'
-import validateInput from './validation/validate'
+import { validateCancelRequestInput, validatePredictInput, validateTrainInput } from './validation/validate'
 
 export interface APIOptions {
   host: string
@@ -44,7 +44,7 @@ const createExpressApp = (options: APIOptions): Application => {
   app.use(bodyParser.json({ limit: options.bodySize }))
 
   app.use((req, res, next) => {
-    res.header('X-Powered-By', 'Botpress')
+    res.header('X-Powered-By', 'Botpress NLU')
     debugRequest(`incoming ${req.path}`, { ip: req.ip })
     next()
   })
@@ -74,7 +74,7 @@ const createExpressApp = (options: APIOptions): Application => {
 
 export default async function(options: APIOptions, engine: Engine) {
   const app = createExpressApp(options)
-  const logger = new Logger('API', options.silent)
+  const logger = new Logger('API')
 
   const modelRepo = new ModelRepository(options.modelDir)
   await modelRepo.init()
@@ -89,7 +89,7 @@ export default async function(options: APIOptions, engine: Engine) {
 
   router.post('/train', async (req, res) => {
     try {
-      const input = await validateInput(req.body)
+      const input = await validateTrainInput(req.body)
       const { intents, entities, seed, language, password } = mapTrainInput(input)
 
       const pickedSeed = seed ?? Math.round(Math.random() * 10000)
@@ -126,9 +126,10 @@ export default async function(options: APIOptions, engine: Engine) {
         const model = await modelRepo.getModel(modelId, password ?? '')
 
         if (!model) {
-          return res
-            .status(404)
-            .send({ success: false, error: `no model or training could be found for modelId: ${stringId}` })
+          return res.status(404).send({
+            success: false,
+            error: `no model or training could be found for modelId: ${stringId}`
+          })
         }
 
         session = {
@@ -148,8 +149,7 @@ export default async function(options: APIOptions, engine: Engine) {
   router.post('/train/:modelId/cancel', async (req, res) => {
     try {
       const { modelId: stringId } = req.params
-      let { password } = req.body
-      password = password ?? ''
+      const { password } = await validateCancelRequestInput(req.body)
 
       const modelId = modelIdService.fromString(stringId)
       const session = trainSessionService.getTrainingSession(modelId, password)
@@ -159,7 +159,7 @@ export default async function(options: APIOptions, engine: Engine) {
         return res.send({ success: true })
       }
 
-      res.status(404).send({ success: true, error: `no current training for model id: ${stringId}` })
+      res.status(404).send({ success: false, error: `no current training for model id: ${stringId}` })
     } catch (err) {
       res.status(500).send({ success: false, error: err.message })
     }
@@ -168,15 +168,16 @@ export default async function(options: APIOptions, engine: Engine) {
   router.post('/predict/:modelId', async (req, res) => {
     try {
       const { modelId: stringId } = req.params
-      const { texts, password } = req.body
+      const { utterances, password } = await validatePredictInput(req.body)
 
-      if (!_.isArray(texts) || (options.batchSize > 0 && texts.length > options.batchSize)) {
+      if (!_.isArray(utterances) || (options.batchSize > 0 && utterances.length > options.batchSize)) {
         throw new Error(
-          `Batch size of ${texts.length} is larger than the allowed maximum batch size (${options.batchSize}).`
+          `Batch size of ${utterances.length} is larger than the allowed maximum batch size (${options.batchSize}).`
         )
       }
 
       const modelId = modelIdService.fromString(stringId)
+      // once the model is loaded, there's no more password check
       if (!engine.hasModel(modelId)) {
         const model = await modelRepo.getModel(modelId, password)
         if (!model) {
@@ -186,7 +187,7 @@ export default async function(options: APIOptions, engine: Engine) {
         await engine.loadModel(model)
       }
 
-      const rawPredictions: BpPredictOutput[] = await Promise.map(texts as string[], async utterance => {
+      const rawPredictions: BpPredictOutput[] = await Promise.map(utterances as string[], async utterance => {
         const detectedLanguage = await engine.detectLanguage(utterance, { [modelId.languageCode]: modelId })
         const spellChecked = await engine.spellCheck(utterance, modelId)
         const { entities, predictions } = await engine.predict(utterance, modelId)
@@ -212,4 +213,5 @@ export default async function(options: APIOptions, engine: Engine) {
   })
 
   logger.info(`NLU Server is ready at http://${options.host}:${options.port}/`)
+  options.silent && logger.silence()
 }

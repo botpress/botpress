@@ -63,7 +63,7 @@ export type EntityType = 'pattern' | 'list' | 'system'
 
 export interface EntityPrediction {
   name: string
-  type: EntityType
+  type: string // ex: ['custom.list.fruits', 'system.time']
   value: string
   confidence: number
   source: string
@@ -93,5 +93,21 @@ export interface SlotPrediction {
   source: string
   start: number
   end: number
-  entity: EntityPrediction | undefined
+  entity: EntityPrediction | null
+}
+
+/**
+ * done : when a training is complete
+ * training-pending : when a training was launched, but the training process is not started yet
+ * training: when a chatbot is currently training
+ * canceled: when a training was canceled
+ * errored: when a chatbot failed to train
+ */
+export type TrainingStatus = 'done' | 'training-pending' | 'training' | 'canceled' | 'errored'
+
+export interface TrainingSession {
+  key: string
+  status: TrainingStatus
+  language: string
+  progress: number
 }
