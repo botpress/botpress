@@ -40,15 +40,17 @@ const ShortcutComposer: FC<ComposerProps> = props => {
 
   const hitlClient = makeClient(props.store.bp)
 
-  const fetchShortcuts = () => {
-    hitlClient
-      .getConfig()
-      .then(config => setAutoComplete(config.autoComplete))
-      .catch(err => console.error('could not fetch module config'))
-      .finally(() => setIsLoading(false))
+  const fetchShortcuts = async () => {
+    try {
+      const configs = await hitlClient.getConfig()
+      setAutoComplete(configs.autoComplete)
+    } catch {
+      console.error('could not fetch module config')
+    }
   }
+
   useEffect(() => {
-    fetchShortcuts()
+    fetchShortcuts().finally(() => setIsLoading(false))
   })
 
   const sendMessage = async (): Promise<void> => {
