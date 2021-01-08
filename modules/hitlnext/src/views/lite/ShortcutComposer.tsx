@@ -50,6 +50,7 @@ const ShortcutComposer: FC<ComposerProps> = props => {
   }
 
   useEffect(() => {
+    // tslint:disable-next-line: no-floating-promises
     fetchShortcuts().finally(() => setIsLoading(false))
   })
 
