@@ -22,13 +22,14 @@ select VERSION in patch minor major "Specific Version"
 
       if [[ $REPLY =~ ^[Yy]$ || -z $REPLY ]]; then
         # Bump version
+        CURRENT_VERSION=$(node -p "require('./package.json').version")
         yarn version --new-version $VERSION --no-git-tag-version
         NEW_VERSION=$(node -p "require('./package.json').version")
         cd docs/guide/website && yarn && yarn $DOCS_VERSION_COMMAND $NEW_VERSION && cd ../../..
         
         # Update changelog from git history
         yarn cmd changelog
-        node build/remove_changelog_dupes.js
+        V=$CURRENT_VERSION node build/remove_changelog_dupes.js
 
         node build/update_pkg_version.js
 
