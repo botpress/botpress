@@ -3,10 +3,13 @@ import * as sdk from 'botpress/sdk'
 import { TYPES } from '../../types'
 import { MessageRepository } from 'core/repositories/messages'
 import { ConversationRepository } from 'core/repositories/conversations'
+import { IOEvent } from 'core/sdk/impl'
+import { EventEngine } from '../middleware/event-engine'
 
 @injectable()
 export class MessagingAPI {
   constructor(
+    @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.MessageRepository) private messageRepo: MessageRepository,
     @inject(TYPES.ConversationRepository) private conversationRepo: ConversationRepository
   ) {}
@@ -21,5 +24,29 @@ export class MessagingAPI {
 
   public async getOrCreateRecentConversation(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation> {
     return this.conversationRepo.getMostRecent(endpoint) ?? this.conversationRepo.create(endpoint)
+  }
+
+  public async getConversationById(conversationId: number) {}
+
+  public async getConversationMessages(conversationId: number): Promise<sdk.Message[]> {
+    return this.messageRepo.getAll(conversationId)
+  }
+
+  public async sendMessage(destination: sdk.MessageDestination, payload: any): Promise<sdk.Message> {
+    const event = new IOEvent({
+      botId: destination.botId,
+      channel: destination.channel,
+      direction: 'incoming',
+      payload,
+      target: destination.userId,
+      threadId: destination.conversationId.toString(),
+      type: payload.type
+      // TODO
+      // credentials
+    })
+
+    await this.eventEngine.sendEvent(event)
+
+    return this.messageRepo.create(destination.conversationId, event.id, payload)
   }
 }

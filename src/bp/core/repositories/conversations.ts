@@ -48,8 +48,6 @@ export class KnexConversationRepository implements ConversationRepository {
       .orderBy('createdOn', 'desc')
       .limit(1)
 
-    console.log('getMostRecent ->', rows)
-
     return rows[0]
   }
 

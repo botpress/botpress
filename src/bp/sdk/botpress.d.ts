@@ -1989,11 +1989,17 @@ declare module 'botpress/sdk' {
   export type Message = {
     id: number
     conversationId: number
-    eventId: number
+    eventId: string
     sentOn: string
+    payload: any
   }
 
-  export type MessagePayload = {}
+  export type MessageDestination = {
+    userId: string
+    botId: string
+    conversationId: number
+    channel: string
+  }
 
   export namespace messaging {
     /**
@@ -2014,6 +2020,10 @@ declare module 'botpress/sdk' {
      * @param endpoint
      */
     export function getOrCreateRecentConversation(endpoint: UserEndpoint): Promise<Conversation>
+
+    export function getConversationMessages(conversationId: number): Promise<Message[]>
+
+    export function sendMessage(destination: MessageDestination, payload: any): Promise<Message>
   }
 
   export type GetOrCreateResult<T> = Promise<{
