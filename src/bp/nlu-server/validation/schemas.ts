@@ -76,3 +76,21 @@ export const TrainInputSchema = Joi.object().keys({
     .default(''),
   seed: Joi.number().optional()
 })
+
+export const CancelInputSchema = Joi.object().keys({
+  password: Joi.string()
+    .allow('')
+    .optional()
+    .default('')
+})
+
+export const PredictInputSchema = Joi.object().keys({
+  password: Joi.string()
+    .allow('')
+    .optional()
+    .default(''),
+  utterances: Joi.array()
+    .items(Joi.string())
+    .required()
+    .min(1)
+})

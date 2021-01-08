@@ -21,6 +21,9 @@ import API, { APIOptions } from './api'
 
 const debug = DEBUG('api')
 
+const GH_TYPINGS_FILE = 'https://github.com/botpress/botpress/blob/master/src/bp/nlu-server/typings_v1.d.ts'
+const GH_TRAIN_INPUT_EXAMPLE = 'https://github.com/botpress/botpress/blob/master/src/bp/nlu-server/train-example.json'
+
 type ArgV = APIOptions & {
   languageURL: string
   languageAuthToken?: string
@@ -92,7 +95,7 @@ export default async function(options: ArgV) {
   const { nluVersion } = engine.getSpecifications()
 
   logger.info(chalk`========================================
-{bold ${center('Botpress NLU Server', 40, 9)}}
+{bold ${center('Botpress Standalone NLU', 40, 9)}}
 {dim ${center(`Version ${nluVersion}`, 40, 9)}}
 {dim ${center(`OS ${process.distro}`, 40, 9)}}
 ${_.repeat(' ', 9)}========================================`)
@@ -124,6 +127,66 @@ ${_.repeat(' ', 9)}========================================`)
 
   if (options.batchSize > 0) {
     logger.info(`batch size: allowing up to ${options.batchSize} predictions in one call to POST /predict`)
+  }
+
+  if (!options.silent) {
+    const { host, port } = options
+
+    const baseUrl = `http://${host}:${port}/v1`
+
+    logger.info(chalk`
+
+{bold {underline Available Routes}}
+
+{green /**
+ * Gets the current version of botpress core NLU. Usefull to test if your installation is working.
+ * @returns {bold version}: botpress core NLU version number.
+*/}
+{bold GET ${baseUrl}/info}
+
+{green /**
+  * Starts a training.
+  * @body_parameter {bold language} Language to use for training.
+  * @body_parameter {bold intents} Intents definitions.
+  * @body_parameter {bold contexts} All available contexts.
+  * @body_parameter {bold entities} Entities definitions.
+  * @body_parameter {bold password} Password to protect your model. {yellow ** Optionnal **}
+  * @body_parameter {bold seed} Number to seed random number generators used during training (beta feature). {yellow ** Optionnal **}
+  * @returns {bold modelId} A model id for futur API calls
+ */}
+{bold POST ${baseUrl}/train}
+
+{green /**
+  * Gets a training progress status.
+  * @path_parameter {bold modelId} The model id for which you seek the training progress.
+  * @query_parameter {bold password} The password protecting your model.
+  * @returns {bold session} A training session data structure with information on desired model.
+ */}
+{bold GET ${baseUrl}/train/:modelId?password=XXXXXX}
+
+{green /**
+  * Cancels a training.
+  * @path_parameter {bold modelId} The model id for which you want to cancel the training.
+  * @body_parameter {bold password} The password protecting your model.
+ */}
+{bold POST ${baseUrl}/train/:modelId/cancel}
+
+{green /**
+  * Perform prediction for a text input.
+  * @path_parameter {bold modelId} The model id you want to use for prediction.
+  * @body_parameter {bold password} The password protecting your model.
+  * @body_parameter {bold utterances} Array of text for which you want a prediction.
+  * @returns {bold predictions} Array of predictions; Each prediction is a data structure reprensenting our understanding of the text.
+ */}
+{bold POST ${baseUrl}/predict/:modelId}
+
+{bold For more detailed information on typings, see
+${GH_TYPINGS_FILE}}.
+
+{bold For a complete example on training input, see
+${GH_TRAIN_INPUT_EXAMPLE}}.
+
+    `)
   }
 
   await API(options, engine)

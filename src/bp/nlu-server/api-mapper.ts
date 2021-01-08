@@ -123,7 +123,7 @@ function mapEntity(entity: NLU.Entity): EntityPrediction {
 
   return {
     name,
-    type: type.split('.')[0] as EntityType,
+    type,
     start,
     end,
     confidence,
@@ -151,7 +151,7 @@ function mapOutputSlot(slot: NLU.Slot): SlotPrediction {
     confidence,
     start,
     end,
-    entity: entity && mapEntity(entity),
+    entity: entity ? mapEntity(entity) : null,
     name,
     source,
     value
