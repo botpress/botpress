@@ -93,8 +93,10 @@ export default class Storage {
 
   async update(data: QnaEntry, id: string): Promise<string> {
     await this.checkForDuplicatedQuestions(data, id)
-
-    id = id || makeID(data)
+    if (!id) {
+      // Updates only no inserts
+      return
+    }
     const item: QnaItem = { id, data }
 
     if (data.enabled) {
@@ -119,9 +121,20 @@ export default class Storage {
     }
   }
 
-  async insert(qna: QnaEntry | QnaEntry[]): Promise<string[]> {
-    const ids = await Promise.mapSeries(_.isArray(qna) ? qna : [qna], async (data, i) => {
-      const id = makeID(data)
+  async upsertItem(item: QnaItem | QnaItem[]): Promise<string[]> {
+    const items = _.isArray(item) ? item : [item]
+    const qnaMap: { [key: string]: QnaEntry } = {}
+
+    items.forEach(async item => {
+      if (item.id in qnaMap) {
+        this.bp.logger.warn(`Duplicate IDs found in input while batch importing: ${item.id}`)
+        qnaMap[makeID(item.data)] = item.data
+      } else {
+        qnaMap[item.id] = item.data
+      }
+    })
+
+    return Promise.map(Object.entries(qnaMap), async ([id, data]) => {
       await this.checkForDuplicatedQuestions(data, id)
       const item: QnaItem = { id, data }
       if (data.enabled) {
@@ -131,11 +144,14 @@ export default class Storage {
       await this.bp.ghost
         .forBot(this.botId)
         .upsertFile(this.config.qnaDir, `${id}.json`, JSON.stringify(item, undefined, 2))
-
       return id
     })
+  }
 
-    return ids
+  async insert(data: QnaEntry): Promise<string> {
+    const id = makeID(data)
+    await this.upsertItem({ id, data })
+    return id
   }
 
   private async checkForDuplicatedQuestions(newItem: QnaEntry, editingQnaId?: string) {

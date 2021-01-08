@@ -50,27 +50,19 @@ export const importQuestions = async (data: ImportData, storage, bp, statusCallb
     }
   }
 
-  const existingQnaIds = (await (storage as Storage).fetchQNAs()).map(item => item.id)
-
   for (const qnaItem of questions) {
     qnaItem.data.enabled = true
   }
 
   let questionsSavedCount = 0
   return Promise.each(questions, async (qnaItem: QnaItem & { data: { category?: string } }) => {
-    const { data, id } = qnaItem
-
     // Support for previous QnA
-    if (data.category) {
-      data.contexts = [data.category]
-      delete data.category
+    if (qnaItem.data.category) {
+      qnaItem.data.contexts = [qnaItem.data.category]
+      delete qnaItem.data.category
     }
 
-    if (existingQnaIds.includes(id)) {
-      await (storage as Storage).update(data, id)
-    } else {
-      await (storage as Storage).insert(data)
-    }
+    await (storage as Storage).upsertItem(qnaItem)
 
     questionsSavedCount += 1
     statusCallback(
