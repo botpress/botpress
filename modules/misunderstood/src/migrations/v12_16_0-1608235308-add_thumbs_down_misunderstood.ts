@@ -1,12 +1,11 @@
 import * as sdk from 'botpress/sdk'
-import { Migration, MigrationOpts } from 'core/services/migration'
 
-const migration: Migration = {
+const migration: sdk.ModuleMigration = {
   info: {
     description: 'Adds thumbs down as as reason in the misunderstood table',
     type: 'database'
   },
-  up: async ({ bp }: MigrationOpts): Promise<sdk.MigrationResult> => {
+  up: async ({ bp }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
     try {
       enum FLAG_REASON {
         auto_hook = 'auto_hook',
