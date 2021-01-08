@@ -2,7 +2,7 @@ import { Button } from '@blueprintjs/core'
 import ReactTextareaAutocomplete from '@webscopeio/react-textarea-autocomplete'
 import cx from 'classnames'
 import isEmpty from 'lodash/isEmpty'
-import React, { FC, useEffect, useRef, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 
 import { IAutoComplete, IShortcut } from '../../config'
 import { makeClient } from '../client'
@@ -34,20 +34,21 @@ const ShortcutItem: FC<ShortcutItemProps> = props => (
 )
 
 const ShortcutComposer: FC<ComposerProps> = props => {
-  const bp = props.store.bp
   const [autoComplete, setAutoComplete] = useState<IAutoComplete>()
   const [isLoading, setIsLoading] = useState(true)
   const [text, setText] = useState<string>('')
-  const rtaRef = useRef()
 
-  const hitlClient = makeClient(bp)
+  const hitlClient = makeClient(props.store.bp)
 
-  useEffect(() => {
+  const fetchShortcuts = () => {
     hitlClient
       .getConfig()
       .then(config => setAutoComplete(config.autoComplete))
       .catch(err => console.error('could not fetch module config'))
       .finally(() => setIsLoading(false))
+  }
+  useEffect(() => {
+    fetchShortcuts()
   })
 
   const sendMessage = async (): Promise<void> => {
@@ -92,8 +93,6 @@ const ShortcutComposer: FC<ComposerProps> = props => {
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           scrollToItem={false}
-          boundariesElement="#shortcutContainer"
-          ref={rtaRef}
           trigger={{
             [autoComplete.trigger]: {
               dataProvider: (token: string) => autoComplete.shortcuts.filter(s => s.name.toLowerCase().includes(token)),
