@@ -7,7 +7,7 @@ import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import classnames from 'classnames'
 import React from 'react'
 
-import { FlaggedEvent, FLAGGED_MESSAGE_STATUS, ResolutionData } from '../../types'
+import { FlaggedEvent, FLAGGED_MESSAGE_STATUS, FLAG_REASON, ResolutionData } from '../../types'
 
 import style from './style.scss'
 import ApiClient from './ApiClient'
@@ -31,6 +31,7 @@ interface State {
   selectedEvent: FlaggedEvent | null
   eventNotFound: boolean
   dateRange?: DateRange
+  reason?: FLAG_REASON
 }
 
 const shortcuts = date.createDateRangeShortcuts()
@@ -45,7 +46,8 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     selectedEventIndex: null,
     selectedEvent: null,
     eventNotFound: false,
-    dateRange: undefined
+    dateRange: undefined,
+    reason: undefined
   }
 
   apiClient: ApiClient
@@ -55,12 +57,12 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     this.apiClient = new ApiClient(props.bp.axios)
   }
 
-  fetchEventCounts(language: string, dataRange?: DateRange) {
-    return this.apiClient.getEventCounts(language, dataRange ?? this.state.dateRange)
+  fetchEventCounts(language: string, dataRange?: DateRange, reason?: FLAG_REASON) {
+    return this.apiClient.getEventCounts(language, dataRange ?? this.state.dateRange, reason)
   }
 
-  fetchEvents(language: string, status: string, dataRange?: DateRange) {
-    return this.apiClient.getEvents(language, status, dataRange || this.state.dateRange)
+  fetchEvents(language: string, status: string, dataRange?: DateRange, reason?: FLAG_REASON) {
+    return this.apiClient.getEvents(language, status, dataRange || this.state.dateRange, reason)
   }
 
   async fetchEvent(id: string) {
@@ -86,8 +88,12 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     })
   }
 
-  updateEventsCounts = async (language?: string, dateRange?: DateRange) => {
-    const eventCounts = await this.fetchEventCounts(language || this.state.language, dateRange || this.state.dateRange)
+  updateEventsCounts = async (language?: string, dateRange?: DateRange, reason?: FLAG_REASON) => {
+    const eventCounts = await this.fetchEventCounts(
+      language || this.state.language,
+      dateRange || this.state.dateRange,
+      reason !== undefined ? reason : this.state.reason
+    )
     await this.setStateP({ eventCounts })
   }
 
@@ -188,18 +194,29 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     }
   }
 
-  handleDateChange = async (dateRange: DateRange) => {
-    const eventCounts = await this.fetchEventCounts(this.state.language, dateRange || this.state.dateRange)
+  fetchEventsAndCounts = async (language: string, dataRange?: DateRange, reason?: FLAG_REASON) => {
+    const eventCounts = await this.fetchEventCounts(
+      language || this.state.language,
+      dataRange || this.state.dateRange,
+      reason !== undefined ? reason : this.state.reason
+    )
     const events = await this.fetchEvents(
-      this.state.language,
+      language || this.state.language,
       this.state.selectedStatus,
-      dateRange || this.state.dateRange
+      dataRange || this.state.dateRange,
+      reason !== undefined ? reason : this.state.reason
     )
 
     const event = null
     if (events && events.length) {
       const event = await this.fetchEvent(events[0].id)
     }
+
+    return { eventCounts, events, event }
+  }
+
+  handleDateChange = async (dateRange: DateRange) => {
+    const { eventCounts, events, event } = await this.fetchEventsAndCounts(this.state.language, dateRange)
 
     await this.setStateP({
       dateRange,
@@ -208,6 +225,25 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
       selectedEvent: event,
       eventNotFound: !event,
       eventCounts
+    })
+  }
+
+  handleReasonChange = async (reason: FLAG_REASON) => {
+    reason = this.state.reason !== reason ? reason : null
+
+    const { eventCounts, events, event } = await this.fetchEventsAndCounts(
+      this.state.language,
+      this.state.dateRange,
+      reason
+    )
+
+    await this.setStateP({
+      events,
+      selectedEventIndex: 0,
+      selectedEvent: event,
+      eventNotFound: !event,
+      eventCounts,
+      reason
     })
   }
 
@@ -222,6 +258,20 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     return (
       <Container sidePanelWidth={320}>
         <SidePanel>
+          <div className={style.filterContainer}>
+            <Button
+              className={(this.state.reason === FLAG_REASON.auto_hook && 'selected') || ''}
+              onClick={() => this.handleReasonChange(FLAG_REASON.auto_hook)}
+            >
+              {lang.tr('module.misunderstood.misunderstood').toUpperCase()}
+            </Button>
+            <Button
+              className={(this.state.reason === FLAG_REASON.thumbs_down && 'selected') || ''}
+              onClick={() => this.handleReasonChange(FLAG_REASON.thumbs_down)}
+            >
+              {lang.tr('module.misunderstood.qnaThumbsDown').toUpperCase()}
+            </Button>
+          </div>
           <Popover usePortal={true} position={'bottom-right'}>
             <Button icon="calendar" className={style.filterItem}>
               {lang.tr('module.misunderstood.dateRange')}

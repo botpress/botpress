@@ -29,6 +29,10 @@ export const REASONS = {
   [FLAG_REASON.action]: {
     title: lang.tr('module.misunderstood.flaggedByAction'),
     icon: 'code'
+  },
+  [FLAG_REASON.thumbs_down]: {
+    title: lang.tr('module.misunderstood.flaggedByThumbsDown'),
+    icon: 'thumbs-down'
   }
 }
 

@@ -10,7 +10,8 @@ import {
   FLAGGED_MESSAGE_STATUSES,
   FLAG_REASON,
   ResolutionData,
-  RESOLUTION_TYPE
+  RESOLUTION_TYPE,
+  FilteringOptions
 } from '../types'
 
 import applyChanges from './applyChanges'
@@ -62,17 +63,13 @@ export default class Db {
     botId: string,
     language: string,
     status: FLAGGED_MESSAGE_STATUS,
-    options?: { startDate: Date; endDate: Date }
+    options?: FilteringOptions
   ): Promise<DbFlaggedEvent[]> {
-    const { startDate, endDate } = options || {}
-
     const query = this.knex(TABLE_NAME)
       .select('*')
       .where({ botId, language, status })
 
-    if (startDate && endDate) {
-      query.andWhere(this.knex.date.isBetween('updatedAt', startDate, endDate))
-    }
+    this.filterQuery(query, options)
 
     const data: DbFlaggedEvent[] = await query.orderBy('updatedAt', 'desc')
 
@@ -85,17 +82,13 @@ export default class Db {
     }))
   }
 
-  async countEvents(botId: string, language: string, options?: { startDate: Date; endDate: Date }) {
-    const { startDate, endDate } = options || {}
-
+  async countEvents(botId: string, language: string, options?: FilteringOptions) {
     const query = this.knex(TABLE_NAME)
       .where({ botId, language })
       .select('status')
       .count({ count: 'id' })
 
-    if (startDate && endDate) {
-      query.andWhere(this.knex.date.isBetween('updatedAt', startDate, endDate))
-    }
+    this.filterQuery(query, options)
 
     const data: { status: string; count: number }[] = await query.groupBy('status')
 
@@ -177,5 +170,19 @@ export default class Db {
 
   applyChanges(botId: string) {
     return applyChanges(this.bp, botId, TABLE_NAME)
+  }
+
+  filterQuery(query, options?: FilteringOptions) {
+    const { startDate, endDate, reason } = options || {}
+
+    if (startDate && endDate) {
+      query.andWhere(this.knex.date.isBetween('updatedAt', startDate, endDate))
+    }
+
+    if (reason === 'thumbs_down') {
+      query.andWhere({ reason })
+    } else if (reason && reason !== 'thumbs_down') {
+      query.andWhereNot('reason', 'thumbs_down')
+    }
   }
 }

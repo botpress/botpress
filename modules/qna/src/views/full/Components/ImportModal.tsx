@@ -190,6 +190,9 @@ export const ImportModal: FC<Props> = props => {
                   label={lang.tr('module.qna.import.clearQuestionsThenInsert')}
                   value="clear_insert"
                 />
+                <Callout intent="warning">
+                  {lang.tr('module.qna.import.clearQuestionsAnalyticsWarning')}
+                </Callout>
               </RadioGroup>
             </p>
           </div>

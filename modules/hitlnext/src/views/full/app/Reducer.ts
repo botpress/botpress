@@ -53,7 +53,10 @@ const Reducer = (state: IState, action: ActionType): IState => {
       return produce(state, draft => {
         draft.handoffs = {
           ...draft.handoffs,
-          [action.payload.id]: _.merge(draft.handoffs[action.payload.id], action.payload.payload)
+          [action.payload.id]: {
+            ..._.merge(draft.handoffs[action.payload.id], action.payload.payload),
+            tags: action.payload.payload.tags
+          }
         }
         // Note: Because it is the current handoff, it is assumed to be instantly read
         if (draft.selectedHandoffId === action.payload.id) {

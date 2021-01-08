@@ -4,11 +4,20 @@ interface CssExports {
   'bot': string;
   'bpwChatBubble': string;
   'bpwChatBubbleContent': string;
+  'composer': string;
+  'composerContainer': string;
   'createdDate': string;
   'handoffAssigned': string;
   'message': string;
   'messageContainer': string;
   'messageList': string;
+  'selected': string;
+  'sendButton': string;
+  'shortcutDropdown': string;
+  'shortcutItem': string;
+  'shortcutKey': string;
+  'shortcutListItem': string;
+  'shortcutValue': string;
   'user': string;
 }
 declare var cssExports: CssExports;
