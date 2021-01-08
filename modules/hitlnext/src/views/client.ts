@@ -1,14 +1,14 @@
 import { AxiosInstance } from 'axios'
 import _ from 'lodash'
-import moment from 'moment'
 
-import { Config } from '../../config'
-import { IAgent, IComment, IEvent, IHandoff } from '../../types'
+import { Config } from '../config'
+import { IAgent, IComment, IEvent, IHandoff } from '../types'
 
 // TODO Handle casting when object is undefined
 function castDate<T extends object>(object: T, paths: string[]): T {
-  paths.map(path => {
-    _.get(object, path, false) && _.set(object, path, moment(_.get(object, path)).toDate())
+  paths.forEach(path => {
+    const dateStr = _.get(object, path, false)
+    dateStr && _.set(object, path, new Date(dateStr))
   })
   return object
 }
@@ -38,7 +38,7 @@ export function castHandoff(item: IHandoff) {
 export function castComment(item: IComment) {
   return castDate(item, ['createdAt', 'updatedAt'])
 }
-export interface ApiType {
+export interface HitlClient {
   getConfig: () => Promise<Config>
   setOnline: (online: boolean) => Promise<{ online: boolean }>
   getAgents: (online?: boolean) => Promise<IAgent[]>
@@ -53,7 +53,7 @@ export interface ApiType {
   getMessages: (id: string, column?: string, desc?: boolean, limit?: number) => Promise<IEvent[]>
 }
 
-export const Api = (bp: { axios: AxiosInstance }): ApiType => {
+export const makeClient = (bp: { axios: AxiosInstance }): HitlClient => {
   const config = {
     baseURL: bp.axios.defaults.baseURL.concat('/mod/hitlnext')
   }

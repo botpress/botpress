@@ -73,6 +73,14 @@
   resolved "https://registry.yarnpkg.com/@types/random-seed/-/random-seed-0.3.3.tgz#7741f7b0a4513198a9396ce4ad25832f799a6727"
   integrity sha512-kHsCbIRHNXJo6EN5W8EA5b4i1hdT6jaZke5crBPLUcLqaLdZ0QBq8QVMbafHzhjFF83Cl9qlee2dChD18d/kPg==
 
+"@webscopeio/react-textarea-autocomplete@^4.7.2":
+  version "4.7.2"
+  resolved "https://registry.yarnpkg.com/@webscopeio/react-textarea-autocomplete/-/react-textarea-autocomplete-4.7.2.tgz#e8cf8349ec285739a58b965a9c3cd7b3b71a5f34"
+  integrity sha512-ehSH7oplghxTsbsjOnjAk/JT7bLjl7dRvnFgu36coYrqP0F3Ir/0ErA6ub26JunjOAyeQduj4xtnDGSiD9u0/w==
+  dependencies:
+    custom-event "^1.0.1"
+    textarea-caret "3.0.2"
+
 axios@^0.21.0:
   version "0.21.1"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.1.tgz#22563481962f4d6bde9a76d516ef0e5d3c09b2b8"
@@ -123,6 +131,11 @@ create-react-context@^0.3.0:
   dependencies:
     gud "^1.0.0"
     warning "^4.0.3"
+
+custom-event@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/custom-event/-/custom-event-1.0.1.tgz#5d02a46850adf1b4a317946a3928fccb5bfd0425"
+  integrity sha1-XQKkaFCt8bSjF5RqOSj8y1v9BCU=
 
 deep-equal@^1.1.1:
   version "1.1.1"
@@ -575,6 +588,11 @@ string.prototype.trimstart@^1.0.1:
   dependencies:
     call-bind "^1.0.0"
     define-properties "^1.1.3"
+
+textarea-caret@3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/textarea-caret/-/textarea-caret-3.0.2.tgz#f360c48699aa1abf718680a43a31a850665c2caf"
+  integrity sha1-82DEhpmqGr9xhoCkOjGoUGZcLK8=
 
 tslib@~1.13.0:
   version "1.13.0"

@@ -16,6 +16,7 @@
   "dependencies": {
     "@blueprintjs/core": "^3.36.0",
     "axios": "^0.21.0",
+    "@webscopeio/react-textarea-autocomplete": "^4.7.2",
     "bluebird": "^3.5",
     "classnames": "^2.2.6",
     "haikunator": "^2.1.2",

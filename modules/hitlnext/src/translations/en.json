@@ -63,7 +63,8 @@
     "deleted": "Conversation successfully deleted",
     "empty": "Select a pending handoff to engage conversation with your clients.",
     "tab": "Conversation",
-    "composerPlaceholder": "Reply to user"
+    "composerPlaceholder": "Reply to user",
+    "send": "Send"
   },
   "handoffs": {
     "empty": "Thanks to you and your team, there are no pending handoffs right now."

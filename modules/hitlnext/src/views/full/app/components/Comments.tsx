@@ -3,14 +3,14 @@ import _ from 'lodash'
 import React, { FC, Fragment, useContext, useState } from 'react'
 
 import { IHandoff } from '../../../../types'
-import { ApiType } from '../../Api'
+import { HitlClient } from '../../../client'
 import { Context } from '../Store'
 
 import Comment from './Comment'
 import CommentForm from './CommentForm'
 
 interface Props {
-  api: ApiType
+  api: HitlClient
   handoff: IHandoff
 }
 
