@@ -1,16 +1,16 @@
-const bitfan = require("@botpress/bitfan").default
-const chalk = require("chalk")
+const bitfan = require('@botpress/bitfan').default
+const chalk = require('chalk')
 
-const bpdsIntents = require("./tests/bpds-intents")
-const bpdsSlots = require("./tests/bpds-slots")
-const clincIntents = require("./tests/clinc-intents")
-const bpdsSpell = require("./tests/bpds-spell")
+const bpdsIntents = require('./tests/bpds-intents')
+const bpdsSlots = require('./tests/bpds-slots')
+const clincIntents = require('./tests/clinc-intents')
+const bpdsSpell = require('./tests/bpds-spell')
 
-const { updateResults, readResults } = require("./score-service")
+const { updateResults, readResults } = require('./score-service')
 
 async function runTest(test, { update, keepGoing }) {
   const { name, computePerformance, evaluatePerformance } = test(bitfan)
-  const performance = await computePerformance() 
+  const performance = await computePerformance()
 
   if (update) {
     await updateResults(name, performance)
@@ -21,29 +21,29 @@ async function runTest(test, { update, keepGoing }) {
   const comparison = evaluatePerformance(performance, previousPerformance)
 
   bitfan.visualisation.showComparisonReport(name, comparison)
-  console.log("")
+  console.log('')
 
-  if (comparison.status === "regression") {
+  if (comparison.status === 'regression') {
     if (!keepGoing) {
-      throw new Error("Regression")
+      throw new Error('Regression')
     }
-    console.log(chalk.gray("Skipping to next test...\n"))
+    console.log(chalk.gray('Skipping to next test...\n'))
     return false
-  } 
-  
-  if (comparison.status !== "success") {
+  }
+
+  if (comparison.status !== 'success') {
     return true
   }
-  
+
   return true
 }
 
 async function main(args) {
-  const update = args.includes("--update") || args.includes("-u")
-  const keepGoing = args.includes("--keep-going") || args.includes("-k")
+  const update = args.includes('--update') || args.includes('-u')
+  const keepGoing = args.includes('--keep-going') || args.includes('-k')
 
   const tests = [
-    bpdsIntents, 
+    bpdsIntents,
     bpdsSlots,
     bpdsSpell,
     clincIntents
@@ -56,18 +56,18 @@ async function main(args) {
   }
 
   if (update) {
-    console.log(chalk.green("Test results where update with success."))
+    console.log(chalk.green('Test results where update with success.'))
     return
   }
-  
+
   if (!testsPass) {
-    throw new Error("There was a regression in at least one test.")
+    throw new Error('There was a regression in at least one test.')
   }
 }
 
 main(process.argv.slice(2))
   .then(() => {})
   .catch(err => {
-    console.error(chalk.red("The following error occured:\n"), err)
+    console.error(chalk.red('The following error occured:\n'), err)
     process.exit(1)
   })

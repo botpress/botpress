@@ -1,281 +1,281 @@
 {
-  "generatedOn": "2020-11-27T19:30:08.495Z",
+  "generatedOn": "2021-01-04T21:36:12.110Z",
   "scores": [
     {
       "metric": "accuracy",
-      "problem": "bpsd A",
+      "problem": "bpsd A-en",
       "seed": 42,
-      "score": 0.6772727272727272
+      "score": 0.6863636363636364
     },
     {
       "metric": "oosAccuracy",
-      "problem": "bpsd A",
+      "problem": "bpsd A-en",
       "seed": 42,
       "score": 0.7818181818181819
     },
     {
       "metric": "oosPrecision",
-      "problem": "bpsd A",
+      "problem": "bpsd A-en",
       "seed": 42,
-      "score": 0.7954545454545454
+      "score": 0.7888888888888889
     },
     {
       "metric": "oosRecall",
-      "problem": "bpsd A",
+      "problem": "bpsd A-en",
       "seed": 42,
-      "score": 0.7
-    },
-    {
-      "metric": "oosF1",
-      "problem": "bpsd A",
-      "seed": 42,
-      "score": 0.7446808510638298
-    },
-    {
-      "metric": "accuracy",
-      "problem": "bpsd A",
-      "seed": 69,
-      "score": 0.6863636363636364
-    },
-    {
-      "metric": "oosAccuracy",
-      "problem": "bpsd A",
-      "seed": 69,
-      "score": 0.7863636363636364
-    },
-    {
-      "metric": "oosPrecision",
-      "problem": "bpsd A",
-      "seed": 69,
-      "score": 0.797752808988764
-    },
-    {
-      "metric": "oosRecall",
-      "problem": "bpsd A",
-      "seed": 69,
       "score": 0.71
     },
     {
       "metric": "oosF1",
-      "problem": "bpsd A",
-      "seed": 69,
-      "score": 0.7513227513227513
+      "problem": "bpsd A-en",
+      "seed": 42,
+      "score": 0.7473684210526317
     },
     {
       "metric": "accuracy",
-      "problem": "bpsd A",
+      "problem": "bpsd A-en",
+      "seed": 69,
+      "score": 0.6909090909090909
+    },
+    {
+      "metric": "oosAccuracy",
+      "problem": "bpsd A-en",
+      "seed": 69,
+      "score": 0.7954545454545454
+    },
+    {
+      "metric": "oosPrecision",
+      "problem": "bpsd A-en",
+      "seed": 69,
+      "score": 0.8313253012048193
+    },
+    {
+      "metric": "oosRecall",
+      "problem": "bpsd A-en",
+      "seed": 69,
+      "score": 0.69
+    },
+    {
+      "metric": "oosF1",
+      "problem": "bpsd A-en",
+      "seed": 69,
+      "score": 0.7540983606557377
+    },
+    {
+      "metric": "accuracy",
+      "problem": "bpsd A-en",
       "seed": 666,
       "score": 0.6954545454545454
     },
     {
       "metric": "oosAccuracy",
-      "problem": "bpsd A",
+      "problem": "bpsd A-en",
       "seed": 666,
       "score": 0.7863636363636364
     },
     {
       "metric": "oosPrecision",
-      "problem": "bpsd A",
+      "problem": "bpsd A-en",
       "seed": 666,
       "score": 0.7912087912087912
     },
     {
       "metric": "oosRecall",
-      "problem": "bpsd A",
+      "problem": "bpsd A-en",
       "seed": 666,
       "score": 0.72
     },
     {
       "metric": "oosF1",
-      "problem": "bpsd A",
+      "problem": "bpsd A-en",
       "seed": 666,
       "score": 0.7539267015706805
     },
     {
       "metric": "accuracy",
-      "problem": "bpds A imbalanced",
+      "problem": "bpds A imbalanced-en",
       "seed": 42,
-      "score": 0.45
+      "score": 0.4772727272727273
     },
     {
       "metric": "oosAccuracy",
-      "problem": "bpds A imbalanced",
+      "problem": "bpds A imbalanced-en",
       "seed": 42,
-      "score": 0.6090909090909091
+      "score": 0.6363636363636364
     },
     {
       "metric": "oosPrecision",
-      "problem": "bpds A imbalanced",
+      "problem": "bpds A imbalanced-en",
       "seed": 42,
-      "score": 0.5660377358490566
+      "score": 0.5961538461538461
     },
     {
       "metric": "oosRecall",
-      "problem": "bpds A imbalanced",
+      "problem": "bpds A imbalanced-en",
       "seed": 42,
-      "score": 0.6
-    },
-    {
-      "metric": "oosF1",
-      "problem": "bpds A imbalanced",
-      "seed": 42,
-      "score": 0.5825242718446602
-    },
-    {
-      "metric": "accuracy",
-      "problem": "bpds A imbalanced",
-      "seed": 69,
-      "score": 0.6090909090909091
-    },
-    {
-      "metric": "oosAccuracy",
-      "problem": "bpds A imbalanced",
-      "seed": 69,
-      "score": 0.7272727272727273
-    },
-    {
-      "metric": "oosPrecision",
-      "problem": "bpds A imbalanced",
-      "seed": 69,
-      "score": 0.7702702702702703
-    },
-    {
-      "metric": "oosRecall",
-      "problem": "bpds A imbalanced",
-      "seed": 69,
-      "score": 0.57
-    },
-    {
-      "metric": "oosF1",
-      "problem": "bpds A imbalanced",
-      "seed": 69,
-      "score": 0.6551724137931034
-    },
-    {
-      "metric": "accuracy",
-      "problem": "bpds A imbalanced",
-      "seed": 666,
-      "score": 0.5545454545454546
-    },
-    {
-      "metric": "oosAccuracy",
-      "problem": "bpds A imbalanced",
-      "seed": 666,
-      "score": 0.6818181818181818
-    },
-    {
-      "metric": "oosPrecision",
-      "problem": "bpds A imbalanced",
-      "seed": 666,
-      "score": 0.7419354838709677
-    },
-    {
-      "metric": "oosRecall",
-      "problem": "bpds A imbalanced",
-      "seed": 666,
-      "score": 0.46
-    },
-    {
-      "metric": "oosF1",
-      "problem": "bpds A imbalanced",
-      "seed": 666,
-      "score": 0.5679012345679013
-    },
-    {
-      "metric": "accuracy",
-      "problem": "bpds A fewshot",
-      "seed": 42,
-      "score": 0.6045454545454545
-    },
-    {
-      "metric": "oosAccuracy",
-      "problem": "bpds A fewshot",
-      "seed": 42,
-      "score": 0.7090909090909091
-    },
-    {
-      "metric": "oosPrecision",
-      "problem": "bpds A fewshot",
-      "seed": 42,
-      "score": 0.6836734693877551
-    },
-    {
-      "metric": "oosRecall",
-      "problem": "bpds A fewshot",
-      "seed": 42,
-      "score": 0.67
-    },
-    {
-      "metric": "oosF1",
-      "problem": "bpds A fewshot",
-      "seed": 42,
-      "score": 0.6767676767676768
-    },
-    {
-      "metric": "accuracy",
-      "problem": "bpds A fewshot",
-      "seed": 69,
-      "score": 0.5272727272727272
-    },
-    {
-      "metric": "oosAccuracy",
-      "problem": "bpds A fewshot",
-      "seed": 69,
-      "score": 0.65
-    },
-    {
-      "metric": "oosPrecision",
-      "problem": "bpds A fewshot",
-      "seed": 69,
-      "score": 0.6716417910447762
-    },
-    {
-      "metric": "oosRecall",
-      "problem": "bpds A fewshot",
-      "seed": 69,
-      "score": 0.45
-    },
-    {
-      "metric": "oosF1",
-      "problem": "bpds A fewshot",
-      "seed": 69,
-      "score": 0.5389221556886228
-    },
-    {
-      "metric": "accuracy",
-      "problem": "bpds A fewshot",
-      "seed": 666,
-      "score": 0.6227272727272727
-    },
-    {
-      "metric": "oosAccuracy",
-      "problem": "bpds A fewshot",
-      "seed": 666,
-      "score": 0.7227272727272728
-    },
-    {
-      "metric": "oosPrecision",
-      "problem": "bpds A fewshot",
-      "seed": 666,
-      "score": 0.7294117647058823
-    },
-    {
-      "metric": "oosRecall",
-      "problem": "bpds A fewshot",
-      "seed": 666,
       "score": 0.62
     },
     {
       "metric": "oosF1",
-      "problem": "bpds A fewshot",
+      "problem": "bpds A imbalanced-en",
+      "seed": 42,
+      "score": 0.607843137254902
+    },
+    {
+      "metric": "accuracy",
+      "problem": "bpds A imbalanced-en",
+      "seed": 69,
+      "score": 0.5909090909090909
+    },
+    {
+      "metric": "oosAccuracy",
+      "problem": "bpds A imbalanced-en",
+      "seed": 69,
+      "score": 0.7
+    },
+    {
+      "metric": "oosPrecision",
+      "problem": "bpds A imbalanced-en",
+      "seed": 69,
+      "score": 0.7428571428571429
+    },
+    {
+      "metric": "oosRecall",
+      "problem": "bpds A imbalanced-en",
+      "seed": 69,
+      "score": 0.52
+    },
+    {
+      "metric": "oosF1",
+      "problem": "bpds A imbalanced-en",
+      "seed": 69,
+      "score": 0.6117647058823529
+    },
+    {
+      "metric": "accuracy",
+      "problem": "bpds A imbalanced-en",
       "seed": 666,
-      "score": 0.6702702702702702
+      "score": 0.5636363636363636
+    },
+    {
+      "metric": "oosAccuracy",
+      "problem": "bpds A imbalanced-en",
+      "seed": 666,
+      "score": 0.6909090909090909
+    },
+    {
+      "metric": "oosPrecision",
+      "problem": "bpds A imbalanced-en",
+      "seed": 666,
+      "score": 0.75
+    },
+    {
+      "metric": "oosRecall",
+      "problem": "bpds A imbalanced-en",
+      "seed": 666,
+      "score": 0.48
+    },
+    {
+      "metric": "oosF1",
+      "problem": "bpds A imbalanced-en",
+      "seed": 666,
+      "score": 0.5853658536585366
+    },
+    {
+      "metric": "accuracy",
+      "problem": "bpds A fewshot-en",
+      "seed": 42,
+      "score": 0.6
+    },
+    {
+      "metric": "oosAccuracy",
+      "problem": "bpds A fewshot-en",
+      "seed": 42,
+      "score": 0.6909090909090909
+    },
+    {
+      "metric": "oosPrecision",
+      "problem": "bpds A fewshot-en",
+      "seed": 42,
+      "score": 0.6509433962264151
+    },
+    {
+      "metric": "oosRecall",
+      "problem": "bpds A fewshot-en",
+      "seed": 42,
+      "score": 0.69
+    },
+    {
+      "metric": "oosF1",
+      "problem": "bpds A fewshot-en",
+      "seed": 42,
+      "score": 0.6699029126213591
+    },
+    {
+      "metric": "accuracy",
+      "problem": "bpds A fewshot-en",
+      "seed": 69,
+      "score": 0.5227272727272727
+    },
+    {
+      "metric": "oosAccuracy",
+      "problem": "bpds A fewshot-en",
+      "seed": 69,
+      "score": 0.6454545454545455
+    },
+    {
+      "metric": "oosPrecision",
+      "problem": "bpds A fewshot-en",
+      "seed": 69,
+      "score": 0.6666666666666666
+    },
+    {
+      "metric": "oosRecall",
+      "problem": "bpds A fewshot-en",
+      "seed": 69,
+      "score": 0.44
+    },
+    {
+      "metric": "oosF1",
+      "problem": "bpds A fewshot-en",
+      "seed": 69,
+      "score": 0.5301204819277109
+    },
+    {
+      "metric": "accuracy",
+      "problem": "bpds A fewshot-en",
+      "seed": 666,
+      "score": 0.6
+    },
+    {
+      "metric": "oosAccuracy",
+      "problem": "bpds A fewshot-en",
+      "seed": 666,
+      "score": 0.7
+    },
+    {
+      "metric": "oosPrecision",
+      "problem": "bpds A fewshot-en",
+      "seed": 666,
+      "score": 0.6808510638297872
+    },
+    {
+      "metric": "oosRecall",
+      "problem": "bpds A fewshot-en",
+      "seed": 666,
+      "score": 0.64
+    },
+    {
+      "metric": "oosF1",
+      "problem": "bpds A fewshot-en",
+      "seed": 666,
+      "score": 0.6597938144329897
     },
     {
       "metric": "accuracy",
       "problem": "bpds B",
       "seed": 42,
-      "score": 0.6954545454545454
+      "score": 0.7
     },
     {
       "metric": "oosAccuracy",
@@ -305,7 +305,7 @@
       "metric": "accuracy",
       "problem": "bpds B",
       "seed": 69,
-      "score": 0.6590909090909091
+      "score": 0.6545454545454545
     },
     {
       "metric": "oosAccuracy",
@@ -335,31 +335,301 @@
       "metric": "accuracy",
       "problem": "bpds B",
       "seed": 666,
-      "score": 0.6818181818181818
+      "score": 0.6727272727272727
     },
     {
       "metric": "oosAccuracy",
       "problem": "bpds B",
       "seed": 666,
-      "score": 0.8
+      "score": 0.7909090909090909
     },
     {
       "metric": "oosPrecision",
       "problem": "bpds B",
       "seed": 666,
-      "score": 0.8888888888888888
+      "score": 0.8970588235294118
     },
     {
       "metric": "oosRecall",
       "problem": "bpds B",
       "seed": 666,
-      "score": 0.64
+      "score": 0.61
     },
     {
       "metric": "oosF1",
       "problem": "bpds B",
       "seed": 666,
-      "score": 0.7441860465116279
+      "score": 0.7261904761904763
+    },
+    {
+      "metric": "accuracy",
+      "problem": "bpsd A-fr",
+      "seed": 42,
+      "score": 0.6545454545454545
+    },
+    {
+      "metric": "oosAccuracy",
+      "problem": "bpsd A-fr",
+      "seed": 42,
+      "score": 0.7136363636363636
+    },
+    {
+      "metric": "oosPrecision",
+      "problem": "bpsd A-fr",
+      "seed": 42,
+      "score": 0.6831683168316832
+    },
+    {
+      "metric": "oosRecall",
+      "problem": "bpsd A-fr",
+      "seed": 42,
+      "score": 0.69
+    },
+    {
+      "metric": "oosF1",
+      "problem": "bpsd A-fr",
+      "seed": 42,
+      "score": 0.6865671641791044
+    },
+    {
+      "metric": "accuracy",
+      "problem": "bpsd A-fr",
+      "seed": 69,
+      "score": 0.6636363636363637
+    },
+    {
+      "metric": "oosAccuracy",
+      "problem": "bpsd A-fr",
+      "seed": 69,
+      "score": 0.7318181818181818
+    },
+    {
+      "metric": "oosPrecision",
+      "problem": "bpsd A-fr",
+      "seed": 69,
+      "score": 0.7029702970297029
+    },
+    {
+      "metric": "oosRecall",
+      "problem": "bpsd A-fr",
+      "seed": 69,
+      "score": 0.71
+    },
+    {
+      "metric": "oosF1",
+      "problem": "bpsd A-fr",
+      "seed": 69,
+      "score": 0.7064676616915423
+    },
+    {
+      "metric": "accuracy",
+      "problem": "bpsd A-fr",
+      "seed": 666,
+      "score": 0.6590909090909091
+    },
+    {
+      "metric": "oosAccuracy",
+      "problem": "bpsd A-fr",
+      "seed": 666,
+      "score": 0.7363636363636363
+    },
+    {
+      "metric": "oosPrecision",
+      "problem": "bpsd A-fr",
+      "seed": 666,
+      "score": 0.723404255319149
+    },
+    {
+      "metric": "oosRecall",
+      "problem": "bpsd A-fr",
+      "seed": 666,
+      "score": 0.68
+    },
+    {
+      "metric": "oosF1",
+      "problem": "bpsd A-fr",
+      "seed": 666,
+      "score": 0.7010309278350516
+    },
+    {
+      "metric": "accuracy",
+      "problem": "bpds A imbalanced-fr",
+      "seed": 42,
+      "score": 0.45454545454545453
+    },
+    {
+      "metric": "oosAccuracy",
+      "problem": "bpds A imbalanced-fr",
+      "seed": 42,
+      "score": 0.6636363636363637
+    },
+    {
+      "metric": "oosPrecision",
+      "problem": "bpds A imbalanced-fr",
+      "seed": 42,
+      "score": 0.6444444444444445
+    },
+    {
+      "metric": "oosRecall",
+      "problem": "bpds A imbalanced-fr",
+      "seed": 42,
+      "score": 0.58
+    },
+    {
+      "metric": "oosF1",
+      "problem": "bpds A imbalanced-fr",
+      "seed": 42,
+      "score": 0.6105263157894737
+    },
+    {
+      "metric": "accuracy",
+      "problem": "bpds A imbalanced-fr",
+      "seed": 69,
+      "score": 0.5545454545454546
+    },
+    {
+      "metric": "oosAccuracy",
+      "problem": "bpds A imbalanced-fr",
+      "seed": 69,
+      "score": 0.6909090909090909
+    },
+    {
+      "metric": "oosPrecision",
+      "problem": "bpds A imbalanced-fr",
+      "seed": 69,
+      "score": 0.6777777777777778
+    },
+    {
+      "metric": "oosRecall",
+      "problem": "bpds A imbalanced-fr",
+      "seed": 69,
+      "score": 0.61
+    },
+    {
+      "metric": "oosF1",
+      "problem": "bpds A imbalanced-fr",
+      "seed": 69,
+      "score": 0.6421052631578946
+    },
+    {
+      "metric": "accuracy",
+      "problem": "bpds A imbalanced-fr",
+      "seed": 666,
+      "score": 0.5
+    },
+    {
+      "metric": "oosAccuracy",
+      "problem": "bpds A imbalanced-fr",
+      "seed": 666,
+      "score": 0.6818181818181818
+    },
+    {
+      "metric": "oosPrecision",
+      "problem": "bpds A imbalanced-fr",
+      "seed": 666,
+      "score": 0.7027027027027027
+    },
+    {
+      "metric": "oosRecall",
+      "problem": "bpds A imbalanced-fr",
+      "seed": 666,
+      "score": 0.52
+    },
+    {
+      "metric": "oosF1",
+      "problem": "bpds A imbalanced-fr",
+      "seed": 666,
+      "score": 0.5977011494252874
+    },
+    {
+      "metric": "accuracy",
+      "problem": "bpds A fewshot-fr",
+      "seed": 42,
+      "score": 0.5772727272727273
+    },
+    {
+      "metric": "oosAccuracy",
+      "problem": "bpds A fewshot-fr",
+      "seed": 42,
+      "score": 0.7136363636363636
+    },
+    {
+      "metric": "oosPrecision",
+      "problem": "bpds A fewshot-fr",
+      "seed": 42,
+      "score": 0.6608695652173913
+    },
+    {
+      "metric": "oosRecall",
+      "problem": "bpds A fewshot-fr",
+      "seed": 42,
+      "score": 0.76
+    },
+    {
+      "metric": "oosF1",
+      "problem": "bpds A fewshot-fr",
+      "seed": 42,
+      "score": 0.7069767441860464
+    },
+    {
+      "metric": "accuracy",
+      "problem": "bpds A fewshot-fr",
+      "seed": 69,
+      "score": 0.5318181818181819
+    },
+    {
+      "metric": "oosAccuracy",
+      "problem": "bpds A fewshot-fr",
+      "seed": 69,
+      "score": 0.759090909090909
+    },
+    {
+      "metric": "oosPrecision",
+      "problem": "bpds A fewshot-fr",
+      "seed": 69,
+      "score": 0.7901234567901234
+    },
+    {
+      "metric": "oosRecall",
+      "problem": "bpds A fewshot-fr",
+      "seed": 69,
+      "score": 0.64
+    },
+    {
+      "metric": "oosF1",
+      "problem": "bpds A fewshot-fr",
+      "seed": 69,
+      "score": 0.7071823204419889
+    },
+    {
+      "metric": "accuracy",
+      "problem": "bpds A fewshot-fr",
+      "seed": 666,
+      "score": 0.45454545454545453
+    },
+    {
+      "metric": "oosAccuracy",
+      "problem": "bpds A fewshot-fr",
+      "seed": 666,
+      "score": 0.7045454545454546
+    },
+    {
+      "metric": "oosPrecision",
+      "problem": "bpds A fewshot-fr",
+      "seed": 666,
+      "score": 0.7397260273972602
+    },
+    {
+      "metric": "oosRecall",
+      "problem": "bpds A fewshot-fr",
+      "seed": 666,
+      "score": 0.54
+    },
+    {
+      "metric": "oosF1",
+      "problem": "bpds A fewshot-fr",
+      "seed": 666,
+      "score": 0.624277456647399
     }
   ]
 }

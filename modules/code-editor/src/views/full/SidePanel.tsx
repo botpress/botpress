@@ -1,6 +1,7 @@
 import { Icon } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import { SearchBar, SectionAction, SidePanel, SidePanelSection } from 'botpress/ui'
+import _ from 'lodash'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
 
@@ -48,7 +49,8 @@ class PanelContent extends React.Component<Props> {
     const files = this.props.files[fileType]
 
     if (files && files.length) {
-      fileList.push({ label, files })
+      const sortedFiles = _.sortBy(files, 'location')
+      fileList.push({ label, files: sortedFiles })
     }
   }
 
