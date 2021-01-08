@@ -1,9 +1,19 @@
-import React from 'react'
-import style from '../style.scss'
 import { Tag } from '@blueprintjs/core'
+import { NLU } from 'botpress/sdk'
 import { confirmDialog, lang } from 'botpress/shared'
+import React from 'react'
 
-export default class SlotItem extends React.Component {
+import style from '../style.scss'
+
+interface State {}
+interface Props {
+  key: string
+  slot: NLU.SlotDefinition
+  onDelete: (slot: NLU.SlotDefinition) => void
+  onEdit: (slot: NLU.SlotDefinition) => void
+}
+
+export default class SlotItem extends React.Component<Props, State> {
   handleDeleteClicked = async e => {
     e.preventDefault()
 

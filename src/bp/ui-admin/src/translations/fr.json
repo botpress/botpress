@@ -229,6 +229,11 @@
       "forcePush": "Forcer à pousser mes changements",
       "pleaseWait": "Veuillez patienter...",
       "pullToFileSystem": "Récupérer les changements distants",
+      "preparingArchive": "Préparation de l'archive...",
+      "downloadProgress": "Téléchargement... {progress}% complété",
+      "uploadProgress": "Téléversement... {progress}% complété",
+      "forcePushInfo": "Forcer les changements va ignorer la comparaison des changements locaux et distants, et va écraser les données distantes.",
+      "processing": "Traitement de l'archive...",
       "pushChanges": "Pousser les changements",
       "pushLocal": "Pousser les changements locaux sur ce serveur",
       "pushLocalNeedsBFFS": "Pousser les modifications locales vers un serveur distant n'est possible que lorsque vous utilisez le stockage BPFS \"Base de données\".",
@@ -277,7 +282,8 @@
           "archive": "Archive de Bot",
           "fromArchive": "Importer le bot depuis l'archive",
           "import": "Importer un bot",
-          "overwrite": "Remplacer le bot existant"
+          "overwrite": "Remplacer le bot existant",
+          "successful": "Importation du bot {details} réussi!"
         },
         "importExisting": "Importer existant",
         "item": {

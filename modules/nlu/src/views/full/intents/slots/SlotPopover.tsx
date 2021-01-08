@@ -1,4 +1,5 @@
 import { Tag } from '@blueprintjs/core'
+import { NLU } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import classnames from 'classnames'
 import React from 'react'
@@ -8,7 +9,13 @@ import style from '../style.scss'
 
 const MENU_WIDTH = 300
 
-export const TagSlotPopover = props => {
+interface Props {
+  show: boolean
+  slots: NLU.SlotDefinition[]
+  onSlotClicked: (s: NLU.SlotDefinition) => void
+}
+
+export const TagSlotPopover = (props: Props) => {
   if (!props.show || !window.getSelection().rangeCount) {
     return null
   }

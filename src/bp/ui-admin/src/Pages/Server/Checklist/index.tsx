@@ -122,8 +122,8 @@ export const Checklist: FC<Props> = props => {
           docs="https://botpress.com/docs/pro/about-pro/"
           status={getEnv('PRO_ENABLED') === 'true' || getConfig('pro.enabled') === 'true' ? 'success' : 'warning'}
           source={[
-            { type: 'env', key: 'PRO_ENABLED', value: getEnv('PRO_ENABLED') },
-            { type: 'env', key: 'BP_LICENSE_KEY', value: getEnv('BP_LICENSE_KEY') },
+            { type: 'env', key: 'PRO_ENABLED', value: getEnv('PRO_ENABLED') }, // deprecated
+            { type: 'env', key: 'BP_LICENSE_KEY', value: getEnv('BP_LICENSE_KEY') }, // deprecated
             { type: 'config', key: 'pro.enabled', value: getConfig('pro.enabled') },
             { type: 'config', key: 'pro.licenseKey', value: getConfig('pro.licenseKey') }
           ]}

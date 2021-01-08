@@ -1,7 +1,6 @@
 const base = require('./_base')
 const path = require('path')
-const url = require('url')
-const { tail } = _
+const utils = require('./_utils')
 
 function render(data) {
   const events = []
@@ -18,7 +17,7 @@ function render(data) {
     {
       type: 'file',
       title: data.title,
-      url: `${data.BOT_URL}${data.image}`,
+      url: utils.formatURL(data.BOT_URL, data.image),
       collectFeedback: data.collectFeedback
     }
   ]
@@ -41,7 +40,7 @@ function renderMessenger(data) {
         type: 'image',
         payload: {
           is_reusable: true,
-          url: `${data.BOT_URL}${data.image}`
+          url: utils.formatURL(data.BOT_URL, data.image)
         }
       }
     }
@@ -62,7 +61,7 @@ function renderTelegram(data) {
     ...events,
     {
       type: 'image',
-      url: `${data.BOT_URL}${data.image}`
+      url: utils.formatURL(data.BOT_URL, data.image)
     }
   ]
 }
@@ -85,7 +84,7 @@ function renderSlack(data) {
         type: 'plain_text',
         text: data.title
       },
-      image_url: `${data.BOT_URL}${data.image}`,
+      image_url: utils.formatURL(data.BOT_URL, data.image),
       alt_text: 'image'
     }
   ]
@@ -108,7 +107,7 @@ function renderTeams(data) {
         {
           name: data.title,
           contentType: 'image/png',
-          contentUrl: `${data.BOT_URL}${data.image}`
+          contentUrl: utils.formatURL(data.BOT_URL, data.image)
         }
       ]
     }
@@ -165,13 +164,22 @@ module.exports = {
       return
     }
 
-    let fileName = path.basename(formData.image)
-    if (fileName.includes('-')) {
-      fileName = tail(fileName.split('-')).join('-')
-    }
-    const link = `${formData.BOT_URL}${formData.image}`
+    const link = utils.formatURL(formData.BOT_URL, formData.image)
     const title = formData.title ? ' | ' + formData.title : ''
-    return `Image: [![${formData.title || ''}](<${link}>)](<${link}>) - (${fileName}) ${title}`
+    let fileName = ''
+
+    if (utils.isUrl(link)) {
+      fileName = path.basename(formData.image)
+      if (fileName.includes('-')) {
+        fileName = fileName
+          .split('-')
+          .slice(1)
+          .join('-')
+      }
+      return `Image: [![${formData.title || ''}](<${link}>)](<${link}>) - (${fileName}) ${title}`
+    } else {
+      return `Expression: ${link}${title}`
+    }
   },
 
   renderElement: renderElement

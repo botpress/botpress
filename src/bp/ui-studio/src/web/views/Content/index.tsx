@@ -79,7 +79,7 @@ class ContentView extends Component<Props, State> {
   }
 
   currentContentType() {
-    this.props.contentItems.forEach(async (element: ContentElementUsage) => {
+    this.props.contentItems.forEach((element: ContentElementUsage) => {
       element.usage = []
       Object.values(this.props.flows.flowsByName).forEach((flow: FlowView) => {
         flow.nodes.forEach((node: NodeView) => {

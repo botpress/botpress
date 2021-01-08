@@ -27,7 +27,7 @@ const onServerReady = async (bp: typeof sdk) => {
         l => l && l !== 'n/a'
       )[0],
       preview: event.preview,
-      reason: 'auto_hook' as FLAG_REASON
+      reason: 'thumbs_down' as FLAG_REASON
     }
 
     await db.addEvent(data)

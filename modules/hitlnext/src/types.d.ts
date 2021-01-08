@@ -9,6 +9,7 @@ declare global {
     }
     BOT_ID: string
     BP_STORAGE: any
+    ROOT_PATH: string
   }
 }
 export interface AuthRule {
@@ -32,7 +33,7 @@ export type IAgent = {
   online: boolean
   role?: Pick<WorkspaceUserWithAttributes, 'role'>
   workspace?: Pick<WorkspaceUserWithAttributes, 'workspace'>
-  attributes?: Pick<IUserProfile, 'firstname' | 'lastname'>
+  attributes?: Pick<IUserProfile, 'firstname' | 'lastname' | 'picture_url'>
 } & Pick<IUserProfile, 'email' | 'strategy' | 'isSuperAdmin' | 'permissions'>
 
 export type HandoffType = 'pending' | 'assigned' | 'resolved'
@@ -47,6 +48,7 @@ export interface IHandoff {
   agentThreadId: string
   userConversation: IEvent
   comments: IComment[]
+  tags: string[]
   user: IUser
   assignedAt?: Date
   resolvedAt?: Date

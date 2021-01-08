@@ -10,6 +10,7 @@ import ToolTip from '../../ui-shared-lite/ToolTip'
 
 import { sendTelemetry, startFallback } from './telemetry'
 import { defaultLocale, lang, langAvaibale, langExtend, langInit, langLocale } from './translations'
+import { createDateRangeShortcuts, relativeDates } from './utils/dates'
 import { isInputFocused } from './utils/inputs'
 import { inspect } from './utils/inspect'
 import { controlKey, keyMap } from './utils/keyboardShortcuts'
@@ -70,4 +71,8 @@ exports.utils = { controlKey, keyMap, isInputFocused, inspect }
 exports.telemetry = {
   startFallback,
   sendTelemetry
+}
+exports.date = {
+  createDateRangeShortcuts,
+  relativeDates
 }

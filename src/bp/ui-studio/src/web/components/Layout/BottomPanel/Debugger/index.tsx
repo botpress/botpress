@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Divider, Tab, Tabs } from '@blueprintjs/core'
+import { Button, ButtonGroup, Divider, Icon, Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
@@ -14,6 +14,7 @@ import { setDebuggerEvent } from '~/actions'
 
 import btStyle from '../style.scss'
 
+import Settings from './components/Settings'
 import EventNotFound from './status/EventNotFound'
 import FetchingEvent from './status/FetchingEvent'
 import SplashScreen from './status/SplashScreen'
@@ -229,6 +230,7 @@ export class Debugger extends React.Component<Props, State> {
             panel={<Inspector data={this.state.event} />}
           />
         )}
+        <Tab id="settings" title={<Icon icon="cog" />} className={btStyle.tab} panel={<Settings />} />
         <Tabs.Expander />
         <ButtonGroup minimal={true}>
           <ToolTip content={lang.tr('bottomPanel.debugger.newSession')}>

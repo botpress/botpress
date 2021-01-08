@@ -51,6 +51,14 @@ export default class DiskStorageDriver implements StorageDriver {
     }
   }
 
+  async fileSize(filePath: string): Promise<number> {
+    try {
+      return (await fse.stat(filePath)).size
+    } catch (e) {
+      throw new VError(e, `[Disk Storage] Error calculating the size for file "${filePath}"`)
+    }
+  }
+
   async deleteFile(filePath: string): Promise<void>
   async deleteFile(filePath: string, recordRevision: boolean = false): Promise<void> {
     try {

@@ -1,6 +1,7 @@
 import { Button, Checkbox, Classes, Dialog, FileInput, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { lang, toast } from 'botpress/shared'
 import _ from 'lodash'
+import ms from 'ms'
 import React, { Component } from 'react'
 
 import api from '../../../api'
@@ -20,6 +21,7 @@ interface State {
   isIdTaken: boolean
   isProcessing: boolean
   overwrite: boolean
+  progress: number
 }
 
 const defaultState: State = {
@@ -29,7 +31,8 @@ const defaultState: State = {
   fileContent: null,
   isIdTaken: false,
   isProcessing: false,
-  overwrite: false
+  overwrite: false,
+  progress: 0
 }
 
 class ImportBotModal extends Component<Props, State> {
@@ -42,19 +45,27 @@ class ImportBotModal extends Component<Props, State> {
     if (this.isButtonDisabled) {
       return
     }
-    this.setState({ isProcessing: true })
+
+    this.setState({ isProcessing: true, progress: 0 })
 
     try {
       await api
-        .getSecured({ timeout: 60000 })
+        .getSecured({ timeout: ms('20m') })
         .post(`/admin/bots/${this.state.botId}/import?overwrite=${this.state.overwrite}`, this.state.fileContent, {
-          headers: { 'Content-Type': 'application/tar+gzip' }
+          headers: { 'Content-Type': 'application/tar+gzip' },
+          onUploadProgress: evt => {
+            this.setState({ progress: Math.round((evt.loaded / evt.total) * 100) })
+          }
         })
+
+      toast.success('admin.workspace.bots.import.successful', this.state.botId)
 
       this.props.onCreateBotSuccess()
       this.toggleDialog()
     } catch (error) {
       this.setState({ error: error.message, isProcessing: false })
+    } finally {
+      this.setState({ progress: 0 })
     }
   }
 
@@ -114,6 +125,16 @@ class ImportBotModal extends Component<Props, State> {
   }
 
   render() {
+    const { isProcessing, progress } = this.state
+
+    let buttonText = lang.tr('admin.workspace.bots.import.import')
+    if (isProcessing) {
+      if (progress !== 0) {
+        buttonText = lang.tr('admin.versioning.uploadProgress', { progress })
+      } else {
+        buttonText = lang.tr('admin.versioning.processing')
+      }
+    }
     return (
       <Dialog
         title={lang.tr('admin.workspace.bots.import.fromArchive')}
@@ -179,7 +200,7 @@ class ImportBotModal extends Component<Props, State> {
                 id="btn-upload"
                 tabIndex={3}
                 type="submit"
-                text={this.state.isProcessing ? lang.tr('pleaseWait') : lang.tr('admin.workspace.bots.import.import')}
+                text={buttonText}
                 onClick={this.importBot}
                 disabled={this.isButtonDisabled}
                 intent={Intent.PRIMARY}

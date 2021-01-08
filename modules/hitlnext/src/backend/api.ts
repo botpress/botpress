@@ -20,6 +20,7 @@ import {
   CreateCommentSchema,
   CreateHandoffSchema,
   ResolveHandoffSchema,
+  UpdateHandoffSchema,
   validateHandoffStatusRule
 } from './validation'
 
@@ -83,7 +84,15 @@ export default async (bp: typeof sdk, state: StateType) => {
   router.get(
     '/agents',
     errorMiddleware(async (req: RequestWithUser, res: Response) => {
-      const agents = await repository.listAgents(req.params.botId, req.workspace)
+      const agents = await repository.listAgents(req.workspace).then(agents => {
+        return Promise.map(agents, async agent => {
+          return {
+            ...agent,
+            online: await repository.getAgentOnline(req.params.botId, agent.agentId)
+          }
+        })
+      })
+
       res.send(agents)
     })
   )
@@ -177,6 +186,30 @@ export default async (bp: typeof sdk, state: StateType) => {
       })
 
       res.status(201).send(handoff)
+    })
+  )
+
+  router.post(
+    '/handoffs/:id',
+    errorMiddleware(async (req: Request, res: Response) => {
+      const { botId, id } = req.params
+      const payload: Pick<IHandoff, 'tags'> = {
+        ..._.pick(req.body, ['tags'])
+      }
+
+      Joi.attempt(payload, UpdateHandoffSchema)
+
+      const handoff = await repository.updateHandoff(botId, id, payload)
+      state.cacheHandoff(botId, handoff.userThreadId, handoff)
+
+      realtime.sendPayload(botId, {
+        resource: 'handoff',
+        type: 'update',
+        id: handoff.id,
+        payload: handoff
+      })
+
+      res.send(handoff)
     })
   )
 

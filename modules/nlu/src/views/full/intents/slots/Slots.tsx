@@ -1,14 +1,26 @@
-import React from 'react'
+import { Button, NonIdealState } from '@blueprintjs/core'
+import { AxiosInstance } from 'axios'
+import { NLU } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
+import React from 'react'
 
+import { NLUApi } from '../../../../api'
+import style from '../style.scss'
+
+import { SlotModification } from './typings'
+import SlotItem from './SlotItem'
 import SlotModal from './SlotModal'
 
-import style from '../style.scss'
-import SlotItem from './SlotItem'
-import { NonIdealState, Button } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+interface State {}
 
-export default class Slots extends React.Component {
+interface Props {
+  api: NLUApi
+  slots: NLU.SlotDefinition[]
+  onSlotsChanged: (slot: NLU.SlotDefinition[], mod: SlotModification) => void
+}
+
+export default class Slots extends React.Component<Props, State> {
   state = {
     slotModalVisible: false,
     editingSlotIdx: null
@@ -32,12 +44,12 @@ export default class Slots extends React.Component {
     this.props.onSlotsChanged && this.props.onSlotsChanged(slots, { operation, oldName, name: slot.name })
   }
 
-  onSlotDeleted = slot => {
+  onSlotDeleted = (slot: NLU.SlotDefinition) => {
     const slots = [...this.getSlots().filter(s => s.id !== slot.id)]
     this.props.onSlotsChanged && this.props.onSlotsChanged(slots, { operation: 'deleted', name: slot.name })
   }
 
-  showSlotModal = idx => {
+  showSlotModal = (idx: number) => {
     this.setState({
       slotModalVisible: true,
       editingSlotIdx: idx
@@ -88,7 +100,6 @@ export default class Slots extends React.Component {
       <div className={style.slotSidePanel}>
         <SlotModal
           api={this.props.api}
-          axios={this.props.axios}
           show={this.state.slotModalVisible}
           slot={this.props.slots[this.state.editingSlotIdx]}
           onSlotSave={this.onSlotSave}

@@ -4,6 +4,8 @@ interface CssExports {
   'applyAllButton': string;
   'contentFixed': string;
   'contentStretch': string;
+  'filterContainer': string;
+  'filterItem': string;
   'headerTabs': string;
   'mainView': string;
   'mainViewTable': string;

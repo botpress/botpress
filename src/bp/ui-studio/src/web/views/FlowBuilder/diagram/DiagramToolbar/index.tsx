@@ -1,23 +1,29 @@
-import { Popover, Position, Tag, Tooltip } from '@blueprintjs/core'
+import { Button, Icon, Intent, Popover, Position, Tag, Tooltip } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import { FlowMutex } from 'common/typings'
-import React from 'react'
+import _ from 'lodash'
+import React, { FC, Fragment } from 'react'
 import { connect } from 'react-redux'
-import { RightToolbarButtons, Toolbar } from '~/components/Shared/Interface'
 import { getCurrentFlow } from '~/reducers'
 
 import style from './style.scss'
 
-export interface MutexInfo {
+interface MutexInfo {
   currentMutex?: FlowMutex
   someoneElseIsEditingOtherFlow?: boolean
 }
 
+interface OwnProps {
+  currentFlow: any
+  handleFlowWideClicked: () => void
+  mutexInfo: string
+  highlightNode: (node: any) => void
+}
+
+type StateProps = ReturnType<typeof mapStateToProps>
+type Props = StateProps & OwnProps
+
 const FlowProblems = props => {
-  const highlightNode = node => {
-    // @ts-ignore
-    window.highlightNode(props.currentFlow && props.currentFlow.name, node)
-  }
   const hasProblems = !!props.flowProblems.length
 
   if (!hasProblems) {
@@ -36,14 +42,15 @@ const FlowProblems = props => {
         }
         position={Position.BOTTOM}
       >
-        <Tag icon="error" className={style.flowProblems} minimal>
+        <div>
+          <Icon icon="error" className={style.flowProblems} />
           {props.flowProblems.length}
-        </Tag>
+        </div>
       </Tooltip>
       <div style={{ padding: 10 }}>
         {props.flowProblems.map(node => (
           <div key={node.nodeName}>
-            <a onClick={() => highlightNode(node.nodeName)}>
+            <a onClick={() => props.highlightNode({ flow: props.currentFlow.name, node: node.nodeName })}>
               <strong>{node.nodeName}</strong>
             </a>
             : {lang.tr('studio.flow.toolbar.missingDetails', { nb: <strong>{node.missingPorts}</strong> })}
@@ -73,26 +80,53 @@ const FlowMutexInfo = (props: { mutexInfo: MutexInfo }) => {
   )
 
   return (
-    <Popover>
-      <Tooltip content={<span>{tooltipContent}</span>} position={Position.BOTTOM}>
-        <Tag icon={isLock ? 'lock' : 'user'} minimal />
-      </Tooltip>
-    </Popover>
+    <Tooltip content={<span>{tooltipContent}</span>} position={Position.BOTTOM}>
+      <Icon icon={isLock ? 'lock' : 'user'} />
+    </Tooltip>
   )
 }
 
-const MiniToolbar = props => {
+const CatchAll = props => {
+  const nbNext = _.get(props.currentFlow, 'catchAll.next.length', 0)
+  const nbReceive = _.get(props.currentFlow, 'catchAll.onReceive.length', 0)
+
+  if (window.USE_ONEFLOW) {
+    return null
+  }
+
+  return (
+    <Fragment>
+      <Button onClick={props.handleFlowWideClicked} minimal>
+        <Tag intent={nbNext > 0 ? Intent.PRIMARY : Intent.NONE}>{nbNext}</Tag>{' '}
+        {lang.tr('studio.flow.flowWideTransitions', { count: nbNext })}
+      </Button>
+      <Button onClick={props.handleFlowWideClicked} minimal>
+        <Tag intent={nbReceive > 0 ? Intent.PRIMARY : Intent.NONE}>{nbReceive}</Tag>{' '}
+        {lang.tr('studio.flow.flowWideOnReceives', { count: nbReceive })}
+      </Button>
+    </Fragment>
+  )
+}
+
+const FlowBar = props => {
   if (!props.mutexInfo && !props.flowProblems.length) {
     return null
   }
 
   return (
-    <Toolbar>
-      <RightToolbarButtons>
-        <FlowMutexInfo {...props} />
-        <FlowProblems {...props} />
-      </RightToolbarButtons>
-    </Toolbar>
+    <div>
+      <FlowMutexInfo {...props} />
+      <FlowProblems {...props} />
+    </div>
+  )
+}
+
+const DiagramToolbar: FC<Props> = props => {
+  return (
+    <div className={style.toolbar}>
+      <CatchAll {...props}></CatchAll>
+      <FlowBar {...props}></FlowBar>
+    </div>
   )
 }
 
@@ -101,4 +135,4 @@ const mapStateToProps = state => ({
   currentFlow: getCurrentFlow(state)
 })
 
-export default connect(mapStateToProps)(MiniToolbar)
+export default connect(mapStateToProps)(DiagramToolbar)

@@ -8,30 +8,30 @@ interface VocabMatch {
 }
 
 export default (vocab: string[]) => (token: string) => {
-  const matchingVocabTokens = _(vocab)
+  let matchingVocabTokens: VocabMatch[] = vocab
     .map(t => {
       try {
         const regexp = new RegExp(t, 'i')
-        return token.match(regexp)
+        const match: RegExpMatchArray | null = token.match(regexp)
+        return match
       } catch {
         return undefined
       }
     })
-    .filter(x => !!x)
+    .filter(x => !!x && x.length && x[0].length)
     .map(match => {
       const start = match!.index
       const src = match![0]
       const length = src.length
       const end = start! + length
-      return {
+      return <VocabMatch>{
         start,
         end,
         length,
         src
-      } as VocabMatch
+      }
     })
-    .orderBy(match => match.length, 'desc')
-    .value()
+  matchingVocabTokens = _.orderBy(matchingVocabTokens, (match: VocabMatch) => match.length, 'desc')
 
   const coverAllToken = matchesCoverAllToken(token)
 

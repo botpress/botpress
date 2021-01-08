@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
 import chalk from 'chalk'
+import { bytesToString } from 'common/utils'
 import followRedirects from 'follow-redirects'
 import fse from 'fs-extra'
 import glob from 'glob'
@@ -8,7 +9,7 @@ import path from 'path'
 import rimraf from 'rimraf'
 
 import { createArchiveFromFolder, extractArchive } from './core/misc/archive'
-import { asBytes, bytesToString } from './core/misc/utils'
+import { asBytes } from './core/misc/utils'
 import { BpfsScopedChange, FileChange } from './core/services'
 
 // This is a dependency of axios, and sets the default body limit to 10mb. Need it to be higher
@@ -65,7 +66,7 @@ class BPFS {
         console.info(chalk.blue('Cleaning data folder before pulling data...'))
         await this._clearDir(path.join(this.targetDir, 'global'))
         await this._clearDir(path.join(this.targetDir, 'bots'))
-      } else if (fse.existsSync(this.targetDir)) {
+      } else if (await fse.pathExists(this.targetDir)) {
         const fileCount = await this._filesCount(this.targetDir)
         console.info(chalk.blue(`Remote files will be pulled in an existing folder containing ${fileCount} files`))
       }
@@ -97,7 +98,7 @@ class BPFS {
     const dryRun = process.argv.includes('--dry')
     const keepRevisions = process.argv.includes('--keep-revisions')
 
-    if (!fse.existsSync(this.sourceDir)) {
+    if (!(await fse.pathExists(this.sourceDir))) {
       this._endWithError(`Specified folder "${this.sourceDir}" doesn't exist.`)
     }
 
@@ -107,13 +108,26 @@ class BPFS {
       const archive = await createArchiveFromFolder(this.sourceDir, pushedArchiveIgnoredFiles)
       const axiosClient = this._getPushAxiosClient(archive.length)
 
+      if (useForce) {
+        console.info(chalk.blue(`Force pushing local changes to ${this.serverUrl}...`))
+
+        await axiosClient.post('update', archive)
+
+        if (!keepRevisions) {
+          await this._clearRevisions(this.sourceDir)
+        }
+
+        console.info(chalk.green('Successfully force pushed to remote server!'))
+        return
+      }
+
       console.info(
         chalk.blue(`Sending archive to server for comparison... (archive size: ${bytesToString(archive.length)})`)
       )
       const { data } = await axiosClient.post('changes', archive)
       const { changeList, blockingChanges, localFiles } = this._processChanges(data)
 
-      if (_.isEmpty(blockingChanges) || useForce) {
+      if (_.isEmpty(blockingChanges)) {
         this._printChangeList(changeList)
 
         if (dryRun) {
@@ -198,13 +212,17 @@ class BPFS {
     }
   }
 
-  private _printLine({ action, path, add, del }): string {
+  private _printLine({ action, path, add, del, sizeDiff }): string {
     if (action === 'add') {
       return chalk.green(` + ${path}`)
     } else if (action === 'del') {
       return chalk.red(` - ${path}`)
     } else if (action === 'edit') {
-      return ` o ${path} (${chalk.green('+' + add)} / -${chalk.redBright(del)})`
+      if (sizeDiff) {
+        return ` o ${path} (difference: ${chalk.green(bytesToString(sizeDiff))})`
+      }
+
+      return ` o ${path} (${chalk.green(`+ ${add}`)} / -${chalk.redBright(del)})`
     }
     return ''
   }

@@ -10,7 +10,8 @@ import {
   FLAGGED_MESSAGE_STATUSES,
   FLAG_REASON,
   ResolutionData,
-  RESOLUTION_TYPE
+  RESOLUTION_TYPE,
+  FilteringOptions
 } from '../types'
 
 import applyChanges from './applyChanges'
@@ -58,11 +59,19 @@ export default class Db {
       .update({ status, ...resolutionData, updatedAt: this.knex.fn.now() })
   }
 
-  async listEvents(botId: string, language: string, status: FLAGGED_MESSAGE_STATUS): Promise<DbFlaggedEvent[]> {
-    const data: DbFlaggedEvent[] = await this.knex(TABLE_NAME)
+  async listEvents(
+    botId: string,
+    language: string,
+    status: FLAGGED_MESSAGE_STATUS,
+    options?: FilteringOptions
+  ): Promise<DbFlaggedEvent[]> {
+    const query = this.knex(TABLE_NAME)
       .select('*')
       .where({ botId, language, status })
-      .orderBy('updatedAt', 'desc')
+
+    this.filterQuery(query, options)
+
+    const data: DbFlaggedEvent[] = await query.orderBy('updatedAt', 'desc')
 
     return data.map((event: DbFlaggedEvent) => ({
       ...event,
@@ -73,12 +82,15 @@ export default class Db {
     }))
   }
 
-  async countEvents(botId: string, language: string) {
-    const data: { status: string; count: number }[] = await this.knex(TABLE_NAME)
+  async countEvents(botId: string, language: string, options?: FilteringOptions) {
+    const query = this.knex(TABLE_NAME)
       .where({ botId, language })
       .select('status')
       .count({ count: 'id' })
-      .groupBy('status')
+
+    this.filterQuery(query, options)
+
+    const data: { status: string; count: number }[] = await query.groupBy('status')
 
     return data.reduce((acc, row) => {
       acc[row.status] = Number(row.count)
@@ -158,5 +170,19 @@ export default class Db {
 
   applyChanges(botId: string) {
     return applyChanges(this.bp, botId, TABLE_NAME)
+  }
+
+  filterQuery(query, options?: FilteringOptions) {
+    const { startDate, endDate, reason } = options || {}
+
+    if (startDate && endDate) {
+      query.andWhere(this.knex.date.isBetween('updatedAt', startDate, endDate))
+    }
+
+    if (reason === 'thumbs_down') {
+      query.andWhere({ reason })
+    } else if (reason && reason !== 'thumbs_down') {
+      query.andWhereNot('reason', 'thumbs_down')
+    }
   }
 }
