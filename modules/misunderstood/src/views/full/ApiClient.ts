@@ -2,7 +2,7 @@ import { DateRange } from '@blueprintjs/datetime'
 import { AxiosRequestConfig, AxiosStatic } from 'axios'
 import moment from 'moment'
 
-import { FLAGGED_MESSAGE_STATUS, ResolutionData, RESOLUTION_TYPE } from '../../types'
+import { FLAGGED_MESSAGE_STATUS, FLAG_REASON, ResolutionData, RESOLUTION_TYPE } from '../../types'
 
 const MODULE_URL_PREFIX = '/mod/misunderstood'
 
@@ -27,26 +27,28 @@ class ApiClient {
     return this.post(MODULE_URL_PREFIX + url, data, config)
   }
 
-  getEventCounts(language: string, dateRange?: DateRange) {
+  getEventCounts(language: string, dateRange?: DateRange, reason?: FLAG_REASON) {
     const { start, end } = this.getRangeUnix(dateRange)
 
     return this.getForModule('/events/count', {
       params: {
         language,
         start,
-        end
+        end,
+        reason
       }
     })
   }
 
-  getEvents(language: string, status: string, dateRange?: DateRange) {
+  getEvents(language: string, status: string, dateRange?: DateRange, reason?: FLAG_REASON) {
     const { start, end } = this.getRangeUnix(dateRange)
 
     return this.getForModule(`/events/${status}`, {
       params: {
         language,
         start,
-        end
+        end,
+        reason
       }
     })
   }
