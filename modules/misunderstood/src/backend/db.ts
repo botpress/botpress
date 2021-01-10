@@ -5,13 +5,13 @@ import moment from 'moment'
 
 import {
   DbFlaggedEvent,
+  FilteringOptions,
   FlaggedEvent,
   FLAGGED_MESSAGE_STATUS,
   FLAGGED_MESSAGE_STATUSES,
   FLAG_REASON,
   ResolutionData,
-  RESOLUTION_TYPE,
-  FilteringOptions
+  RESOLUTION_TYPE
 } from '../types'
 
 import applyChanges from './applyChanges'
