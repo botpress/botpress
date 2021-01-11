@@ -32,6 +32,7 @@ export type Predictors = {
   exact_match_index: ExactMatchIndex
   pattern_entities: PatternEntity[]
   intents: Intent<Utterance>[]
+  hook_memory: Object
 } & Partial<{
   ctx_classifier: MLToolkit.SVM.Predictor
   intent_classifier_per_ctx: _.Dictionary<MLToolkit.SVM.Predictor>
@@ -49,11 +50,21 @@ interface InitialStep {
   rawText: string
   languageCode: string
 }
-type PredictStep = InitialStep & { utterance: Utterance }
-type OutOfScopeStep = PredictStep & { oos_predictions: _.Dictionary<number> }
+type PredictStepDS = InitialStep & { utterance: Utterance }
+type OutOfScopeStep = PredictStepDS & { oos_predictions: _.Dictionary<number> }
 type ContextStep = OutOfScopeStep & { ctx_predictions: MLToolkit.SVM.Prediction[] }
 type IntentStep = ContextStep & { intent_predictions: _.Dictionary<MLToolkit.SVM.Prediction[]> }
 type SlotStep = IntentStep & { slot_predictions_per_intent: _.Dictionary<SlotExtractionResult[]> }
+
+export interface PredictStep {
+  name: string
+  eval: (stepDs: PredictStepDS) => Promise<PredictStepDS>
+}
+
+export interface PredictHook {
+  name: string
+  eval: (stepName: string, stepDs: InitialStep, predictors: Predictors) => Promise<void>
+}
 
 const NONE_INTENT = 'none'
 
@@ -77,7 +88,11 @@ async function preprocessInput(
   return { step }
 }
 
-async function makePredictionUtterance(input: InitialStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
+async function makePredictionUtterance(
+  input: InitialStep,
+  predictors: Predictors,
+  tools: Tools
+): Promise<PredictStepDS> {
   const { tfidf, vocabVectors, kmeans } = predictors
 
   const text = preprocessRawUtterance(input.rawText.trim())
@@ -93,7 +108,7 @@ async function makePredictionUtterance(input: InitialStep, predictors: Predictor
   }
 }
 
-async function extractEntities(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
+async function extractEntities(input: PredictStepDS, predictors: Predictors, tools: Tools): Promise<PredictStepDS> {
   const { utterance } = input
 
   _.forEach(
@@ -185,7 +200,7 @@ export async function predictIntent(input: ContextStep, predictors: Predictors):
   }
 }
 
-async function predictOutOfScope(input: PredictStep, predictors: Predictors): Promise<OutOfScopeStep> {
+async function predictOutOfScope(input: PredictStepDS, predictors: Predictors): Promise<OutOfScopeStep> {
   const oos_predictions = {} as _.Dictionary<number>
   if (
     !isPOSAvailable(input.languageCode) ||
@@ -327,18 +342,34 @@ export function findExactIntentForCtx(
   }
 }
 
+const hookRunner = (hooks: PredictHook[], predictors: Predictors) => {
+  hooks = _.sortBy(hooks, h => h.name)
+  return async (stepName: string, step: InitialStep) => {
+    return Promise.mapSeries(hooks, h => h.eval(stepName, step, predictors))
+  }
+}
+
 export const Predict = async (
   input: PredictInput,
   tools: Tools,
-  predictors: Predictors
+  predictors: Predictors,
+  hooks: PredictHook[]
 ): Promise<NLU.PredictOutput> => {
+  const runHooks = hookRunner(hooks, predictors)
   const { step } = await preprocessInput(input, tools, predictors)
+  await runHooks('preprocessInput', step)
   const initialStep = await makePredictionUtterance(step, predictors, tools)
+  await runHooks('makePredictionUtterance', step)
   const entitesStep = await extractEntities(initialStep, predictors, tools)
+  await runHooks('extractEntities', step)
   const oosStep = await predictOutOfScope(entitesStep, predictors)
+  await runHooks('predictOutOfScope', step)
   const ctxStep = await predictContext(oosStep, predictors)
+  await runHooks('predictContext', step)
   const intentStep = await predictIntent(ctxStep, predictors)
+  await runHooks('predictIntent', step)
   const slotStep = await extractSlots(intentStep, predictors)
+  await runHooks('extractSlots', step)
   const output = MapStepToOutput(slotStep)
   return output
 }

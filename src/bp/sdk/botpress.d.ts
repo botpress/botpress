@@ -652,7 +652,7 @@ declare module 'botpress/sdk' {
 
     export interface PredictOutput {
       readonly entities: Entity[]
-      readonly predictions: Predictions
+      readonly contexts: ContextPrediction[]
     }
   }
 
