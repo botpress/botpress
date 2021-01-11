@@ -83,36 +83,41 @@ class ContentView extends Component<Props, State> {
       element.usage = []
       Object.values(this.props.flows.flowsByName).forEach((flow: FlowView) => {
         // Skip skill flows
-        if (!flow.skillData) {
-          flow.nodes.forEach((node: NodeView) => {
-            const usage: ContentUsage = {
-              type: 'Flow',
-              name: flow.name,
-              node: node.name,
-              count: 0
-            }
-
-            const addUsage = (v: string | ActionBuilderProps) => {
-              if (typeof v === 'string' && v.startsWith(`say #!${element.id}`)) {
-                if (!usage.count) {
-                  element.usage.push(usage)
-                }
-                usage.count++
-              }
-            }
-
-            if (node.flow && node.type && node.type === 'skill-call' ) {
-              const nodeSubFlow = this.props.flows.flowsByName[node.flow]
-              nodeSubFlow.nodes.forEach((node: NodeView) => {
-                node.onEnter?.forEach(addUsage)
-                node.onReceive?.forEach(addUsage)
-              })
-            } else {
-              node.onEnter?.forEach(addUsage)
-              node.onReceive?.forEach(addUsage)
-            }
-          })
+        if (flow.skillData) {
+          return
         }
+
+        flow.nodes.forEach((node: NodeView) => {
+          const usage: ContentUsage = {
+            type: 'Flow',
+            name: flow.name,
+            node: node.name,
+            count: 0
+          }
+
+          const addUsage = (v: string | ActionBuilderProps) => {
+            if (typeof v === 'string' && v.startsWith(`say #!${element.id}`)) {
+              if (!usage.count) {
+                element.usage.push(usage)
+              }
+              usage.count++
+            }
+          }
+
+          const addNodeUsage = (node: NodeView) => {
+            node.onEnter?.forEach(addUsage)
+            node.onReceive?.forEach(addUsage)
+          }
+
+          if (node.flow && node.type === 'skill-call' ) {
+            const nodeSubFlow = this.props.flows.flowsByName[node.flow]
+            nodeSubFlow.nodes.forEach((node: NodeView) => {
+              addNodeUsage(node)
+            })
+          } else {
+            addNodeUsage(node)
+          }
+        })
       })
 
       const usage = this.props.qnaUsage?.[`#!${element.id}`]
