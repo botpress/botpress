@@ -82,25 +82,39 @@ class ContentView extends Component<Props, State> {
     this.props.contentItems.forEach((element: ContentElementUsage) => {
       element.usage = []
       Object.values(this.props.flows.flowsByName).forEach((flow: FlowView) => {
-        flow.nodes.forEach((node: NodeView) => {
-          const usage: ContentUsage = {
-            type: 'Flow',
-            name: flow.name,
-            node: node.name,
-            count: 0
-          }
-
-          const addUsage = (v: string | ActionBuilderProps) => {
-            if (typeof v === 'string' && v.startsWith(`say #!${element.id}`)) {
-              if (!usage.count) {
-                element.usage.push(usage)
-              }
-              usage.count++
+        // Skip skill flows
+        if (!flow.skillData) {
+          flow.nodes.forEach((node: NodeView) => {
+            const usage: ContentUsage = {
+              type: 'Flow',
+              name: flow.name,
+              node: node.name,
+              count: 0
             }
-          }
-          node.onEnter?.forEach(addUsage)
-          node.onReceive?.forEach(addUsage)
-        })
+
+            const addUsage = (v: string | ActionBuilderProps) => {
+              if (typeof v === 'string' && v.startsWith(`say #!${element.id}`)) {
+                if (!usage.count) {
+                  element.usage.push(usage)
+                }
+                usage.count++
+              }
+            }
+
+            if (node.flow && node.type && node.type === 'skill-call' ) {
+              const nodeSubFlow = this.props.flows.flowsByName[node.flow]
+              nodeSubFlow.nodes.forEach((node: NodeView) => {
+                if (node.name === nodeSubFlow.startNode) {
+                  node.onEnter?.forEach(addUsage)
+                  node.onReceive?.forEach(addUsage)
+                }
+              })
+            } else {
+              node.onEnter?.forEach(addUsage)
+              node.onReceive?.forEach(addUsage)
+            }
+          })
+        }
       })
 
       const usage = this.props.qnaUsage?.[`#!${element.id}`]
