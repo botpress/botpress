@@ -22,11 +22,11 @@ export class MessagingAPI {
     return this.conversationRepo.getAll(endpoint)
   }
 
-  public async getOrCreateRecentConversation(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation> {
+  public async getOrCreateRecentConversation(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation | undefined> {
     return this.conversationRepo.getMostRecent(endpoint) ?? this.conversationRepo.create(endpoint)
   }
 
-  public async getConversationById(conversationId: number): Promise<sdk.Conversation> {
+  public async getConversationById(conversationId: number): Promise<sdk.Conversation | undefined> {
     return this.conversationRepo.getById(conversationId)
   }
 

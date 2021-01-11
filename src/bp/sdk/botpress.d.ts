@@ -2019,9 +2019,9 @@ declare module 'botpress/sdk' {
      * endpoint or creates one if no such conversation exists
      * @param endpoint
      */
-    export function getOrCreateRecentConversation(endpoint: UserEndpoint): Promise<Conversation>
+    export function getOrCreateRecentConversation(endpoint: UserEndpoint): Promise<Conversation | undefined>
 
-    export function getConversationById(conversationId: number): Promise<Conversation>
+    export function getConversationById(conversationId: number): Promise<Conversation | undefined>
 
     export function getConversationMessages(conversationId: number): Promise<Message[]>
 

@@ -6,9 +6,9 @@ import { TYPES } from '../types'
 
 export interface ConversationRepository {
   create(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation>
-  getById(conversationId: number): Promise<sdk.Conversation>
+  getById(conversationId: number): Promise<sdk.Conversation | undefined>
   getAll(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation[]>
-  getMostRecent(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation>
+  getMostRecent(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation | undefined>
 }
 
 @injectable()
@@ -33,7 +33,7 @@ export class KnexConversationRepository implements ConversationRepository {
     }
   }
 
-  public async getById(conversationId: number): Promise<sdk.Conversation> {
+  public async getById(conversationId: number): Promise<sdk.Conversation | undefined> {
     const rows = await this.query()
       .select('*')
       .where({ id: conversationId })
@@ -46,10 +46,10 @@ export class KnexConversationRepository implements ConversationRepository {
       .select('*')
       .where({ userId: endpoint.userId, botId: endpoint.botId })
 
-    return rows.map(x => this.deserialize(x))
+    return rows.map(x => <sdk.Conversation>this.deserialize(x))
   }
 
-  public async getMostRecent(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation> {
+  public async getMostRecent(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation | undefined> {
     const rows = await this.query()
       .select('*')
       .where({ userId: endpoint.userId, botId: endpoint.botId })
@@ -71,7 +71,11 @@ export class KnexConversationRepository implements ConversationRepository {
     }
   }
 
-  private deserialize(conversation: any): sdk.Conversation {
+  private deserialize(conversation: any): sdk.Conversation | undefined {
+    if (!conversation) {
+      return undefined
+    }
+
     return {
       ...conversation,
       createdOn: new Date(conversation.createdOn)
