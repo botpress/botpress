@@ -119,7 +119,7 @@ export class MigrationService {
 
     await this.database
       .knex('srv_migrations')
-      .insert({ ...entry, details: logs.join('\n').slice(-255), created_at: this.database.knex.date.now() })
+      .insert({ ...entry, details: logs.join('\n'), created_at: this.database.knex.date.now() })
 
     const hasBotMigrations = !!missingMigrations.find(x => this.loadedMigrations[x.filename].info.target === 'bot')
     if (hasBotMigrations) {
