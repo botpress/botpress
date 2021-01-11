@@ -16,28 +16,45 @@ export class KnexMessageRepository implements MessageRepository {
   constructor(@inject(TYPES.Database) private database: Database) {}
 
   public async create(conversationId: number, eventId: string, payload: any): Promise<sdk.Message> {
-    const row = {
+    const message = {
       conversationId,
-      eventId: eventId,
-      sentOn: this.database.knex.date.now(),
-      payload: this.database.knex.json.set(payload)
+      eventId,
+      sentOn: new Date(),
+      payload
     }
 
-    const result = await this.query().insert(row)
+    const result = await this.query().insert(this.serialize(message))
     const id = result[0]
 
-    // TODO remove <any>
-    return <any>{
+    return {
       id,
-      ...row
+      ...message
     }
   }
 
   public async getAll(conversationId: number): Promise<sdk.Message[]> {
-    return await this.query().where({ conversationId })
+    const rows = await this.query().where({ conversationId })
+
+    return rows.map(x => this.deserialize(x))
   }
 
   private query() {
     return this.database.knex(this.TABLE_NAME)
+  }
+
+  private serialize(message: Partial<sdk.Message>) {
+    return {
+      ...message,
+      sentOn: message.sentOn?.toISOString(),
+      payload: JSON.stringify(message.payload)
+    }
+  }
+
+  private deserialize(message: any): sdk.Message {
+    return {
+      ...message,
+      sentOn: new Date(message.sentOn),
+      payload: JSON.parse(message.payload)
+    }
   }
 }

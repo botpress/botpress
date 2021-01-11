@@ -6,6 +6,7 @@ import { TYPES } from '../types'
 
 export interface ConversationRepository {
   create(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation>
+  getById(conversationId: number): Promise<sdk.Conversation>
   getAll(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation[]>
   getMostRecent(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation>
 }
@@ -17,19 +18,27 @@ export class KnexConversationRepository implements ConversationRepository {
   constructor(@inject(TYPES.Database) private database: Database) {}
 
   public async create(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation> {
-    const row = {
+    const conversation = {
       userId: endpoint.userId,
       botId: endpoint.botId,
-      createdOn: new Date().toISOString()
+      createdOn: new Date()
     }
 
-    const result = await this.query().insert(row)
+    const result = await this.query().insert(this.serialize(conversation))
     const id = result[0]
 
     return {
       id,
-      ...row
+      ...conversation
     }
+  }
+
+  public async getById(conversationId: number): Promise<sdk.Conversation> {
+    const rows = await this.query()
+      .select('*')
+      .where({ id: conversationId })
+
+    return this.deserialize(rows[0])
   }
 
   public async getAll(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation[]> {
@@ -37,7 +46,7 @@ export class KnexConversationRepository implements ConversationRepository {
       .select('*')
       .where({ userId: endpoint.userId, botId: endpoint.botId })
 
-    return rows
+    return rows.map(x => this.deserialize(x))
   }
 
   public async getMostRecent(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation> {
@@ -48,10 +57,24 @@ export class KnexConversationRepository implements ConversationRepository {
       .orderBy('createdOn', 'desc')
       .limit(1)
 
-    return rows[0]
+    return this.deserialize(rows[0])
   }
 
   private query() {
     return this.database.knex(this.TABLE_NAME)
+  }
+
+  private serialize(conversation: Partial<sdk.Conversation>) {
+    return {
+      ...conversation,
+      createdOn: conversation.createdOn?.toISOString()
+    }
+  }
+
+  private deserialize(conversation: any): sdk.Conversation {
+    return {
+      ...conversation,
+      createdOn: new Date(conversation.createdOn)
+    }
   }
 }
