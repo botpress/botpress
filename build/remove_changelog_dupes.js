@@ -1,20 +1,17 @@
 const fs = require('fs')
 
-const lines = fs
-  .readFileSync('CHANGELOG.md')
-  .toString()
-  .split('\n')
+const changelog = fs.readFileSync('CHANGELOG.md').toString()
 
-const finalLines = []
+const whitelist = ['', '### Bug Fixes', '### Features']
+const prevVersionMark = process.env.V.endsWith('0') ? `# [${process.env.V}]` : `## [${process.env.V}]`
+const preVersionIdx = changelog.indexOf(prevVersionMark)
 
-for (let i = 0; i < lines.length; i++) {
-  const currentLine = lines[i].split('([')[0]
-  const nextLine = i + 1 < lines.length && lines[i + 1].split('([')[0]
+const newLines = changelog.slice(0, preVersionIdx).split('\n')
+const prevContent = changelog.slice(preVersionIdx)
 
-  // ignore the first dupe commit (merge) & keeps all new lines
-  if (currentLine !== nextLine || currentLine === '') {
-    finalLines.push(lines[i])
-  }
-}
+const finalLines = newLines
+  .map(l => (whitelist.includes(l) || !prevContent.includes(l)) && l)
+  .filter(l => typeof l === 'string')
+  .join('\n')
 
-fs.writeFileSync('CHANGELOG.md', finalLines.join('\n'), 'UTF-8')
+fs.writeFileSync('CHANGELOG.md', `${finalLines}${prevContent}`, 'UTF-8')
