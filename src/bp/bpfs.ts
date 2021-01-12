@@ -80,7 +80,7 @@ class BPFS {
       }
 
       console.info(
-        chalk.blue(`Extracting archive to local file system... (archive size: ${bytesToString(archive.length)}`)
+        chalk.blue(`Extracting archive to local file system... (archive size: ${bytesToString(archive.length)})`)
       )
 
       await extractArchive(archive, this.targetDir)
