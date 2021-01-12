@@ -11,4 +11,6 @@ jobs:
         id: assert_pr
         env:
           token: ${{ secrets.GITHUB_TOKEN }}
-        run: node .github/workflows/code/check-pr/index.js
+        run: |
+          npm install @actions/core @actions/github
+          node .github/workflows/code/check-pr/index.js
