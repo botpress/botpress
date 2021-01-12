@@ -12,5 +12,5 @@ jobs:
         env:
           token: ${{ secrets.GITHUB_TOKEN }}
         run: |
-        ls
-        node index.js
+          ls
+          node index.js
