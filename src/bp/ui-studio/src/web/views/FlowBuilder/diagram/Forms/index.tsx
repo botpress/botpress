@@ -73,7 +73,7 @@ const Forms: FC<Props> = ({
 
   return (
     <Fragment>
-      {formType === 'say_something' && (
+      {/* {formType === 'say_something' && (
         <ContentForm
           customKey={`${node.id}${index}`}
           contentTypes={contentTypes.filter(type => type.schema.newJson?.displayedIn.includes('sayNode'))}
@@ -86,7 +86,7 @@ const Forms: FC<Props> = ({
           onUpdate={updateNodeContent}
           close={close}
         />
-      )}
+      )} */}
     </Fragment>
   )
 }
