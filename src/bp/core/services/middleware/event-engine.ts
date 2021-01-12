@@ -10,6 +10,7 @@ import yn from 'yn'
 import { Event } from '../../sdk/impl'
 import { TYPES } from '../../types'
 import { incrementMetric } from '../monitoring'
+import { NLUEngine } from '../nlu/nlu-engine'
 import { Queue } from '../queue'
 
 import { addStepToEvent, EventCollector, StepScopes } from './event-collector'
@@ -101,11 +102,15 @@ export class EventEngine {
     private logger: sdk.Logger,
     @inject(TYPES.IncomingQueue) private incomingQueue: Queue,
     @inject(TYPES.OutgoingQueue) private outgoingQueue: Queue,
-    @inject(TYPES.EventCollector) private eventCollector: EventCollector
+    @inject(TYPES.EventCollector) private eventCollector: EventCollector,
+    @inject(TYPES.NLUEngine) private nluEngine: NLUEngine
   ) {
     this.incomingQueue.subscribe(async event => {
       await this._infoMiddleware(event)
       this.onBeforeIncomingMiddleware && (await this.onBeforeIncomingMiddleware(event))
+
+      await this.nluEngine.processEvent(event)
+
       const { incoming } = await this.getBotMiddlewareChains(event.botId)
       await incoming.run(event)
       this.onAfterIncomingMiddleware && (await this.onAfterIncomingMiddleware(event))

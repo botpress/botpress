@@ -31,7 +31,7 @@ const ignoreEvent = (bp: typeof sdk, state: NLUState, event: sdk.IO.IncomingEven
 }
 
 const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
-  bp.events.registerMiddleware({
+  const predictMw: sdk.IO.MiddlewareDefinition = {
     name: 'nlu-predict.incoming',
     direction: 'incoming',
     order: 100,
@@ -68,7 +68,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
         next()
       }
     }
-  })
+  }
 
   function removeSensitiveText(event: sdk.IO.IncomingEvent) {
     if (!event.nlu.entities || !event.payload.text) {
@@ -86,7 +86,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
     }
   }
 
-  bp.events.registerMiddleware({
+  const electMw: sdk.IO.MiddlewareDefinition = {
     name: 'nlu-elect.incoming',
     direction: 'incoming',
     order: 120,
@@ -106,6 +106,12 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
         next()
       }
     }
+  }
+
+  process.BOTPRESS_EVENTS.on('NLU_PREDICT_REQUEST', async (event: sdk.IO.Event) => {
+    await predictMw.handler(event, () => {})
+    await electMw.handler(event, () => {})
+    process.BOTPRESS_EVENTS.emit('NLU_PREDICT_RESPONSE', event.id)
   })
 }
 

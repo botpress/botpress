@@ -25,6 +25,7 @@ import { LogsService } from './logs/service'
 import MediaService from './media'
 import { EventEngine } from './middleware/event-engine'
 import { CEMonitoringService, MonitoringService } from './monitoring'
+import { NLUEngine } from './nlu/nlu-engine'
 import { NLUService } from './nlu/nlu-service'
 import { NotificationsService } from './notification/service'
 import { Queue } from './queue'
@@ -39,6 +40,10 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<NLUService>(TYPES.NLUService)
     .to(NLUService)
+    .inSingletonScope()
+
+  bind<NLUEngine>(TYPES.NLUEngine)
+    .to(NLUEngine)
     .inSingletonScope()
 
   bind<MediaService>(TYPES.MediaService)
