@@ -1,8 +1,5 @@
 name: 'Check PR'
 on: [workflow_dispatch, pull_request]
-defaults:
-  run:
-    working-directory: .github/workflows/code/check-pr
 jobs:
   check-pr:
     name: Asserts PR is in shape
@@ -11,6 +8,9 @@ jobs:
       - uses: actions/setup-node@v1
       - name: Assert PR
         id: assert_pr
+        working-directory: .github/workflows/code/check-pr
         env:
           token: ${{ secrets.GITHUB_TOKEN }}
-        run: node index.js
+        run: |
+        ls
+        node index.js
