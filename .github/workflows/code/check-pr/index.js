@@ -5,8 +5,9 @@ const titleRE = /^(chore|feat|fix|revert|test)(\(\w+\)?((?=:\s)|(?=!:\s)))?!?:\s
 async function run() {
   try {
     const pull_request = JSON.parse(process.env.pull_request)
+    const title = pull_request.title
 
-    if (!titleRE.test(pull_request.title)) {
+    if (!titleRE.test(title)) {
       core.setFailed(
         'Title should be a conventionnal commit. Please refer to specification: https://www.conventionalcommits.org/en/v1.0.0/'
       )
