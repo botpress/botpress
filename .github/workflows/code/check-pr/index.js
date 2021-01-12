@@ -4,7 +4,7 @@ const titleRE = /^(chore|feat|fix|revert|test)(\(\w+\)?((?=:\s)|(?=!:\s)))?!?:\s
 
 async function run() {
   try {
-    const pull_request = process.env.pull_requests
+    const pull_request = process.env.pull_request
     console.log(pull_request)
 
     if (!titleRE.test(pull_request.title)) {
