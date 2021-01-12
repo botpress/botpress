@@ -2,6 +2,7 @@ import { Spinner } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import React, { useEffect, useState } from 'react'
 
+import { MODULE_NAME } from '../../../../constants'
 import { IAgent, IHandoff } from '../../../../types'
 import style from '../../style.scss'
 
@@ -55,7 +56,15 @@ const LiveChat: React.FC<Props> = ({ handoff, currentAgent }) => {
       enableConversationDeletion: false,
       closeOnEscape: false,
       composerPlaceholder: lang.tr('module.hitlnext.conversation.composerPlaceholder'),
-      stylesheet: 'assets/modules/hitlnext/webchat-theme.css'
+      stylesheet: 'assets/modules/hitlnext/webchat-theme.css',
+      overrides: {
+        composer: [
+          {
+            module: MODULE_NAME,
+            component: 'ShortcutComposer'
+          }
+        ]
+      }
     }
     window.botpressWebChat.init(webchatConfig, `#${WRAPPER_ID}`)
     window.addEventListener('message', webchatEventListener)

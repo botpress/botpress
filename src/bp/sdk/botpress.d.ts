@@ -636,16 +636,18 @@ declare module 'botpress/sdk' {
     export type SlotCollection = Dic<Slot>
 
     export interface Predictions {
-      [context: string]: {
+      [context: string]: ContextPrediction
+    }
+
+    export interface ContextPrediction {
+      confidence: number
+      oos: number
+      intents: {
+        label: string
         confidence: number
-        oos: number
-        intents: {
-          label: string
-          confidence: number
-          slots: SlotCollection
-          extractor: 'exact-matcher' | 'classifier'
-        }[]
-      }
+        slots: SlotCollection
+        extractor: 'exact-matcher' | 'classifier'
+      }[]
     }
 
     export interface PredictOutput {

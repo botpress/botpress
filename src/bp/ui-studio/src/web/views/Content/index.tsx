@@ -79,9 +79,14 @@ class ContentView extends Component<Props, State> {
   }
 
   currentContentType() {
-    this.props.contentItems.forEach(async (element: ContentElementUsage) => {
+    this.props.contentItems.forEach((element: ContentElementUsage) => {
       element.usage = []
       Object.values(this.props.flows.flowsByName).forEach((flow: FlowView) => {
+        // Skip skill flows
+        if (flow.skillData) {
+          return
+        }
+
         flow.nodes.forEach((node: NodeView) => {
           const usage: ContentUsage = {
             type: 'Flow',
@@ -98,8 +103,20 @@ class ContentView extends Component<Props, State> {
               usage.count++
             }
           }
-          node.onEnter?.forEach(addUsage)
-          node.onReceive?.forEach(addUsage)
+
+          const addNodeUsage = (node: NodeView) => {
+            node.onEnter?.forEach(addUsage)
+            node.onReceive?.forEach(addUsage)
+          }
+
+          if (node.flow && node.type === 'skill-call' ) {
+            const nodeSubFlow = this.props.flows.flowsByName[node.flow]
+            nodeSubFlow.nodes.forEach((node: NodeView) => {
+              addNodeUsage(node)
+            })
+          } else {
+            addNodeUsage(node)
+          }
         })
       })
 

@@ -1,8 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import Engine from 'nlu-core/engine'
-import { isTrainingAlreadyStarted } from 'nlu-core/errors'
+import { isTrainingAlreadyStarted, isTrainingCanceled } from 'nlu-core/errors'
 import modelIdService from 'nlu-core/model-id-service'
-import { isTrainingCanceled } from 'nlu-core/training-worker-queue/communication'
 
 import ModelRepository from './model-repo'
 import TrainSessionService from './train-session-service'
@@ -30,6 +29,9 @@ export default class TrainService {
     this.trainSessionService.setTrainingSession(modelId, password, ts)
 
     const progressCallback = (progress: number) => {
+      if (ts.status === 'training-pending') {
+        ts.status = 'training'
+      }
       ts.progress = progress
       this.trainSessionService.setTrainingSession(modelId, password, ts)
     }

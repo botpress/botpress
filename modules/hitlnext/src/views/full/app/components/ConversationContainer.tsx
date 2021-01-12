@@ -5,8 +5,8 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useContext } from 'react'
 
+import { HitlClient } from '../../../client'
 import style from '../../style.scss'
-import { ApiType } from '../../Api'
 import { Context } from '../Store'
 
 import ConversationDetails from './ConversationDetails'
@@ -14,7 +14,7 @@ import ConversationHistory from './ConversationHistory'
 import LiveChat from './LiveChat'
 
 interface Props {
-  api: ApiType
+  api: HitlClient
   bp: { axios: AxiosInstance; events: any }
 }
 
@@ -67,58 +67,61 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
     selectedHandoff.status === 'assigned' &&
     selectedHandoff.agentId === state.currentAgent.agentId
 
-  const liveChatButtons = () => [
-    {
-      content: (
-        <Button
-          className={style.coversationButton}
-          minimal
-          rightIcon="tick-circle"
-          onClick={handleResolve}
-          text={lang.tr('module.hitlnext.handoff.resolve')}
-        />
-      )
-    },
-    state.config.enableConversationDeletion && {
-      content: (
-        <Button
-          className={style.coversationButton}
-          minimal
-          rightIcon="delete"
-          onClick={handleDeleteConversation}
-          text={lang.tr('module.hitlnext.conversation.delete')}
-        />
-      )
-    }
-  ]
+  const liveChatButtons = () =>
+    [
+      {
+        content: (
+          <Button
+            className={style.coversationButton}
+            minimal
+            rightIcon="tick-circle"
+            onClick={handleResolve}
+            text={lang.tr('module.hitlnext.handoff.resolve')}
+          />
+        )
+      },
+      state.config.enableConversationDeletion && {
+        content: (
+          <Button
+            className={style.coversationButton}
+            minimal
+            rightIcon="delete"
+            onClick={handleDeleteConversation}
+            text={lang.tr('module.hitlnext.conversation.delete')}
+          />
+        )
+      }
+    ].filter(Boolean)
 
-  const historyButtons = () => [
-    {
-      content: (
-        <Button
-          className={style.coversationButton}
-          minimal
-          rightIcon="following"
-          disabled={
-            !(selectedHandoff.status === 'pending' && currentAgentHasPermission('write') && state.currentAgent.online)
-          }
-          onClick={handleAssign}
-          text={lang.tr('module.hitlnext.handoff.assign')}
-        />
-      )
-    },
-    state.config.enableConversationDeletion && selectedHandoff.status === 'resolved' && {
-      content: (
-        <Button
-          className={style.coversationButton}
-          minimal
-          rightIcon="delete"
-          onClick={handleDeleteConversation}
-          text={lang.tr('module.hitlnext.conversation.delete')}
-        />
-      )
-    }
-  ]
+  const historyButtons = () =>
+    [
+      {
+        content: (
+          <Button
+            className={style.coversationButton}
+            minimal
+            rightIcon="following"
+            disabled={
+              !(selectedHandoff.status === 'pending' && currentAgentHasPermission('write') && state.currentAgent.online)
+            }
+            onClick={handleAssign}
+            text={lang.tr('module.hitlnext.handoff.assign')}
+          />
+        )
+      },
+      state.config.enableConversationDeletion &&
+        selectedHandoff.status === 'resolved' && {
+          content: (
+            <Button
+              className={style.coversationButton}
+              minimal
+              rightIcon="delete"
+              onClick={handleDeleteConversation}
+              text={lang.tr('module.hitlnext.conversation.delete')}
+            />
+          )
+        }
+    ].filter(Boolean)
 
   const content = shouldRenderLiveChat ? (
     <LiveChat handoff={selectedHandoff} currentAgent={state.currentAgent} />

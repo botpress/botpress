@@ -84,3 +84,84 @@
     }
   }
 }
+
+.composerContainer {
+  display: flex;
+  align-items: baseline;
+  .composer {
+    width: calc(100% - 50px);
+    padding: var(--spacing-large) var(--spacing-medium);
+    display: flex;
+    flex-direction: column-reverse;
+    textarea {
+      min-height: 40px;
+      padding: var(--spacing-large);
+    }
+
+    .shortcutDropdown {
+      background-color: #fff;
+      padding: var(--spacing-small);
+      border-radius: var(--spacing-small);
+      color: var(--shark);
+      font-size: 13px;
+      min-width: 200px;
+      box-shadow: 0 3px 8px 0 rgba(16, 22, 26, 0.2);
+      margin-bottom: var(--spacing-medium);
+
+      > ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        border: none;
+        box-shadow: none;
+        > .shortcutListItem {
+          border: none;
+          > div {
+            background: #fff;
+          }
+          .shortcutItem {
+            height: 30px;
+            padding: var(--spacing-medium) var(--spacing-large);
+            border-radius: var(--spacing-small);
+            background-color: #fff;
+            color: var(--shark);
+            display: flex;
+            &.selected {
+              background-color: var(--hover-ocean);
+            }
+            .shortcutKey {
+              width: 100px;
+            }
+            .shortcutValue {
+              width: 100%;
+              text-overflow: ellipsis;
+              overflow-y: hidden;
+              white-space: nowrap;
+            }
+          }
+        }
+      }
+    }
+  }
+  :global(.bp3-button).sendButton {
+    background: none;
+    border: none;
+    box-shadow: none;
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 40px;
+    padding: 0;
+    height: 40px;
+    &:not([disabled]) {
+      cursor: pointer;
+    }
+    path {
+      fill: var(--shark);
+    }
+    &:hover {
+      path {
+        fill: var(--ocean);
+      }
+    }
+  }
+}
