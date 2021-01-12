@@ -5,7 +5,7 @@ const titleRE = /^(chore|feat|fix|revert|test)(\(\w+\)?((?=:\s)|(?=!:\s)))?!?:\s
 
 async function run() {
   try {
-    console.log(process.env.ctx)
+    console.log(process.env.event)
     const pull_request = github.context.payload.pull_request
 
     if (!titleRE.test(pull_request.title)) {
