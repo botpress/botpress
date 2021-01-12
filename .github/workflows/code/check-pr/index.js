@@ -4,8 +4,7 @@ const titleRE = /^(chore|feat|fix|revert|test)(\(\w+\)?((?=:\s)|(?=!:\s)))?!?:\s
 
 async function run() {
   try {
-    const event = JSON.parse(process.env.event)
-    const pull_request = event.pull_request
+    const pull_request = JSON.parse(process.env.pull_request)
 
     if (!titleRE.test(pull_request.title)) {
       core.setFailed(
