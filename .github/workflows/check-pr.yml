@@ -1,5 +1,7 @@
 name: 'Check PR'
-on: [pull_request]
+on:
+  pull_request:
+    types: [synchronize, edited]
 jobs:
   check-pr:
     name: Asserts PR is in shape
