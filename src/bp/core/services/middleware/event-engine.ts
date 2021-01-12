@@ -85,9 +85,10 @@ const debugOutgoing = debug.sub('outgoing')
 
 @injectable()
 export class EventEngine {
-  public onBeforeIncomingMiddleware?: (event) => Promise<void>
-  public onAfterIncomingMiddleware?: (event) => Promise<void>
-  public onBeforeOutgoingMiddleware?: (event) => Promise<void>
+  public onBeforeIncomingMiddleware?: (event: sdk.IO.IncomingEvent) => Promise<void>
+  public onAfterIncomingMiddleware?: (event: sdk.IO.IncomingEvent) => Promise<void>
+
+  public onBeforeOutgoingMiddleware?: (event: sdk.IO.OutgoingEvent) => Promise<void>
 
   private readonly _incomingPerf = new TimedPerfCounter('mw_incoming')
   private readonly _outgoingPerf = new TimedPerfCounter('mw_outgoing')
@@ -99,11 +100,11 @@ export class EventEngine {
     @inject(TYPES.Logger)
     @tagged('name', 'EventEngine')
     private logger: sdk.Logger,
-    @inject(TYPES.IncomingQueue) private incomingQueue: Queue,
-    @inject(TYPES.OutgoingQueue) private outgoingQueue: Queue,
+    @inject(TYPES.IncomingQueue) private incomingQueue: Queue<sdk.IO.IncomingEvent>,
+    @inject(TYPES.OutgoingQueue) private outgoingQueue: Queue<sdk.IO.OutgoingEvent>,
     @inject(TYPES.EventCollector) private eventCollector: EventCollector
   ) {
-    this.incomingQueue.subscribe(async event => {
+    this.incomingQueue.subscribe(async (event: sdk.IO.IncomingEvent) => {
       await this._infoMiddleware(event)
       this.onBeforeIncomingMiddleware && (await this.onBeforeIncomingMiddleware(event))
       const { incoming } = await this.getBotMiddlewareChains(event.botId)
@@ -112,7 +113,7 @@ export class EventEngine {
       this._incomingPerf.record()
     })
 
-    this.outgoingQueue.subscribe(async event => {
+    this.outgoingQueue.subscribe(async (event: sdk.IO.OutgoingEvent) => {
       this.onBeforeOutgoingMiddleware && (await this.onBeforeOutgoingMiddleware(event))
       const { outgoing } = await this.getBotMiddlewareChains(event.botId)
       await outgoing.run(event)
@@ -184,7 +185,7 @@ export class EventEngine {
       this.eventCollector.storeEvent(event)
     }
 
-    if (event.direction === 'incoming') {
+    if (this.isIncomming(event)) {
       debugIncoming.forBot(event.botId, 'send ', event)
       incrementMetric('eventsIn.count')
       await this.incomingQueue.enqueue(event, 1, false)
@@ -193,6 +194,10 @@ export class EventEngine {
       incrementMetric('eventsOut.count')
       await this.outgoingQueue.enqueue(event, 1, false)
     }
+  }
+
+  private isIncomming(event: sdk.IO.Event): event is sdk.IO.IncomingEvent {
+    return event.direction === 'incoming'
   }
 
   async replyToEvent(eventDestination: sdk.IO.EventDestination, payloads: any[], incomingEventId?: string) {
@@ -212,7 +217,7 @@ export class EventEngine {
     }
   }
 
-  isIncomingQueueEmpty(event: sdk.IO.Event): boolean {
+  isIncomingQueueEmpty(event: sdk.IO.IncomingEvent): boolean {
     return this.incomingQueue.isEmptyForJob(event)
   }
 
