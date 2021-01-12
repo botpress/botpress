@@ -8,7 +8,8 @@ jobs:
     name: Asserts PR is in shape
     runs-on: ubuntu-latest
     steps:
-      - name: 'Assert PR'
+      - name: Assert PR
+        id: assert_pr
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
         run: |
