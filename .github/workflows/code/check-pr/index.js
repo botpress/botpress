@@ -22,7 +22,6 @@ async function run() {
       core.setFailed('Request at least one reviewer on your Pull Request')
     }
 
-    // TODO you are here aat checking if this works fine
     if (title.includes(':')) {
       //dont forget to put feat instead of :
       const token = process.env.token
@@ -35,9 +34,8 @@ async function run() {
       }
 
       const files = await octokit.pulls.listFiles(options)
-      core.info(`${files.data.length} mofified files in this PR`)
-      console.log(JSON.stringify(files.data.map(f => f.filename)))
-      const hasTests = !files.data.some(f => f.filename.includes('.test.'))
+
+      const hasTests = files.data.some(f => f.filename.includes('.test.'))
       if (!hasTests) {
         core.setFailed(
           `New features require new tests, please write e2e tests.\nThis eases review process and makes sure we don't introduce regressions in the long run.`
