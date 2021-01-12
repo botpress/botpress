@@ -11,5 +11,5 @@ jobs:
       - name: 'Assert PR'
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          run: |
-            node index.js
+        run: |
+          node index.js
