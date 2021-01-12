@@ -1,0 +1,15 @@
+name: 'Check PR'
+on: [push, pull_request]
+defaults:
+  run:
+    working-directory: .github/workflows/code/check-pr
+jobs:
+  check-pr:
+    name: Asserts PR is in shape
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Assert PR'
+        with:
+          c: ${{ secrets.GITHUB_TOKEN }}
+          run: |
+            node index.js
