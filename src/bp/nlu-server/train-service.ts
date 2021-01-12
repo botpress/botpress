@@ -1,44 +1,58 @@
 import * as sdk from 'botpress/sdk'
 import Engine from 'nlu-core/engine'
+import { isTrainingAlreadyStarted, isTrainingCanceled } from 'nlu-core/errors'
+import modelIdService from 'nlu-core/model-id-service'
 
-import ModelService from './model/model-service'
+import ModelRepository from './model-repo'
 import TrainSessionService from './train-session-service'
 
 export default class TrainService {
   constructor(
     private logger: sdk.Logger,
     private engine: Engine,
-    private modelService: ModelService,
+    private modelRepo: ModelRepository,
     private trainSessionService: TrainSessionService
   ) {}
 
   train = async (
-    modelId: string,
+    modelId: sdk.NLU.ModelId,
     password: string,
     intents: sdk.NLU.IntentDefinition[],
     entities: sdk.NLU.EntityDefinition[],
     language: string,
     nluSeed: number
   ) => {
-    try {
-      this.logger.info(`[${modelId}] Training Started.`)
+    const stringId = modelIdService.toString(modelId)
+    this.logger.info(`[${stringId}] Training Started.`)
 
-      const ts = this.trainSessionService.makeTrainingSession(modelId, password, language)
-      this.trainSessionService.setTrainingSession(modelId, password, ts)
+    const ts = this.trainSessionService.makeTrainingSession(modelId, password, language)
+    this.trainSessionService.setTrainingSession(modelId, password, ts)
 
-      const progressCallback = (progress: number) => {
-        ts.progress = progress
-        this.trainSessionService.setTrainingSession(modelId, password, ts)
+    const progressCallback = (progress: number) => {
+      if (ts.status === 'training-pending') {
+        ts.status = 'training'
       }
+      ts.progress = progress
+      this.trainSessionService.setTrainingSession(modelId, password, ts)
+    }
 
-      const model = await this.engine.train(ts.key, intents, entities, language, {
-        forceTrain: true,
-        nluSeed,
-        progressCallback
-      })
+    try {
+      const trainSet: sdk.NLU.TrainingSet = {
+        intentDefs: intents,
+        entityDefs: entities,
+        languageCode: language,
+        seed: nluSeed
+      }
+      const model = await this.engine.train(ts.key, trainSet, { progressCallback })
+      this.logger.info(`[${stringId}] Training Done.`)
 
-      if (!model) {
-        this.logger.info(`[${modelId}] Training Canceled.`)
+      await this.modelRepo.saveModel(model, password)
+      ts.status = 'done'
+      this.trainSessionService.setTrainingSession(modelId, password, ts)
+      this.trainSessionService.releaseTrainingSession(modelId, password)
+    } catch (err) {
+      if (isTrainingCanceled(err)) {
+        this.logger.info(`[${stringId}] Training Canceled.`)
 
         ts.status = 'canceled'
         this.trainSessionService.setTrainingSession(modelId, password, ts)
@@ -46,14 +60,16 @@ export default class TrainService {
         return
       }
 
-      this.logger.info(`[${modelId}] Training Done.`)
+      if (isTrainingAlreadyStarted(err)) {
+        this.logger.error('training already started')
+        return
+      }
 
-      await this.modelService.saveModel(model, modelId, password)
-      ts.status = 'done'
+      ts.status = 'errored'
       this.trainSessionService.setTrainingSession(modelId, password, ts)
       this.trainSessionService.releaseTrainingSession(modelId, password)
-    } catch (err) {
       this.logger.attachError(err).error('an error occured during training')
+      return
     }
   }
 }

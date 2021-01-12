@@ -9,14 +9,14 @@ import { Workspace } from 'common/typings'
 import { Db, Ghost } from 'core/app'
 import { getOrCreate as redisFactory } from 'core/services/redis'
 import fse from 'fs-extra'
+import IORedis from 'ioredis'
 import _ from 'lodash'
+import moment from 'moment'
 import nanoid from 'nanoid'
 import os from 'os'
 import path from 'path'
 import stripAnsi from 'strip-ansi'
 import yn from 'yn'
-
-import IORedis from 'ioredis'
 import { startMonitor } from './monitor'
 import {
   printHeader,
@@ -57,6 +57,7 @@ export const ENV_VARS = [
   'DISABLE_GLOBAL_SANDBOX',
   'DISABLE_BOT_SANDBOX',
   'DISABLE_TRANSITION_SANDBOX',
+  'DISABLE_CONTENT_SANDBOX',
   'FORCE_TRAIN_ON_MOUNT',
   'VERBOSITY_LEVEL',
   'DEBUG',
@@ -90,7 +91,7 @@ export const print = (text: string) => {
   if (outputFile && typeof outputFile === 'string') {
     fse.appendFileSync(outputFile!, stripAnsi(text) + os.EOL, 'utf8')
   } else {
-    console.log(text)
+    console.info(text)
   }
 }
 
@@ -257,6 +258,19 @@ const printBotsList = async () => {
   })
 }
 
+const printMigrationHistory = async () => {
+  const history = await Db.knex('srv_migrations')
+    .select('*')
+    .orderBy('created_at', 'desc')
+
+  printHeader('Migration History')
+  history.forEach(entry => {
+    print(`Migration from ${entry.initialVersion} to ${entry.targetVersion} (${moment(entry.created_at)})`)
+    print('_________________________________________________________________________________________________\n')
+    print(`${entry.details}\n\n`)
+  })
+}
+
 export default async function(options: Options) {
   includePasswords = options.includePasswords || yn(process.env.BP_DIAG_INCLUDE_PASSWORDS)
   outputFile = options.outputFile || yn(process.env.BP_DIAG_OUTPUT)
@@ -276,6 +290,7 @@ export default async function(options: Options) {
     await printConfig()
     await printBotsList()
     await printDatabaseTables()
+    await printMigrationHistory()
   }
 
   if (options.monitor || yn(process.env.BP_DIAG_MONITOR)) {

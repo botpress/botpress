@@ -30,15 +30,17 @@ class MessageList extends React.Component<MessageListProps, State> {
       focus.newValue === 'convo' && this.messagesDiv.focus()
     })
 
-    observe(this.props.currentMessages, messages => {
-      if (this.state.manualScroll) {
-        if (!this.state.showNewMessageIndicator) {
-          this.setState({ showNewMessageIndicator: true })
+    if (this.props.currentMessages) {
+      observe(this.props.currentMessages, messages => {
+        if (this.state.manualScroll) {
+          if (!this.state.showNewMessageIndicator) {
+            this.setState({ showNewMessageIndicator: true })
+          }
+          return
         }
-        return
-      }
-      this.tryScrollToBottom()
-    })
+        this.tryScrollToBottom()
+      })
+    }
 
     // this should account for keyboard rendering as it triggers a resize of the messagesDiv
     this.divSizeObserver = new ResizeObserver(
@@ -109,7 +111,8 @@ class MessageList extends React.Component<MessageListProps, State> {
   }
 
   renderAvatar(name, url) {
-    return <Avatar name={name} avatarUrl={url} height={40} width={40} />
+    const avatarSize = this.props.isEmulator ? 20 : 40 // quick fix
+    return <Avatar name={name} avatarUrl={url} height={avatarSize} width={avatarSize} />
   }
 
   renderMessageGroups() {
@@ -121,7 +124,7 @@ class MessageList extends React.Component<MessageListProps, State> {
     let currentGroup = undefined
 
     messages.forEach(m => {
-      const speaker = m.full_name
+      const speaker = m.payload.from || m.full_name
       const date = m.sent_on
 
       // Create a new group if messages are separated by more than X minutes or if different speaker
@@ -229,6 +232,7 @@ class MessageList extends React.Component<MessageListProps, State> {
 
 export default inject(({ store }: { store: RootStore }) => ({
   intl: store.intl,
+  isEmulator: store.isEmulator,
   botName: store.botName,
   isBotTyping: store.isBotTyping,
   botAvatarUrl: store.botAvatarUrl,
@@ -249,6 +253,7 @@ type MessageListProps = InjectedIntlProps &
     | 'focusPrevious'
     | 'focusNext'
     | 'botAvatarUrl'
+    | 'isEmulator'
     | 'botName'
     | 'enableArrowNavigation'
     | 'showUserAvatar'

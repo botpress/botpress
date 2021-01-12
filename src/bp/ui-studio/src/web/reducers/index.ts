@@ -7,7 +7,7 @@ import codeEditor, { CodeEditorReducer } from './code-editor'
 import content, { ContentReducer } from './content'
 import flows, { FlowReducer } from './flows'
 import hints from './hints'
-import language from './language'
+import language, { LangReducer } from './language'
 import modules from './modules'
 import ndu, { NduReducer } from './ndu'
 import nlu, { NLUReducer } from './nlu'
@@ -48,4 +48,5 @@ export interface RootReducer {
   nlu: NLUReducer
   codeEditor: CodeEditorReducer
   hints: { inputs: any }
+  language: LangReducer
 }

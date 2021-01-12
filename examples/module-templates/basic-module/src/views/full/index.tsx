@@ -19,11 +19,11 @@ export default class MyMainView extends React.Component {
     loaded: false
   }
 
-  handleItemSelected = (item: Item) => console.log('Selected object:', item)
-  handleSearchChanged = value => console.log(value)
-  handleSearchClicked = () => console.log('Search clicked')
-  handleContextClicked = item => console.log('Item: ', item)
-  test = () => console.log('clicked button')
+  handleItemSelected = (item: Item) => console.info('Selected object:', item)
+  handleSearchChanged = value => console.info(value)
+  handleSearchClicked = () => console.info('Search clicked')
+  handleContextClicked = item => console.info('Item: ', item)
+  test = () => console.info('clicked button')
 
   render() {
     const actions: SectionAction[] = [

@@ -19,7 +19,8 @@ function render(data) {
         payload: c.value.toUpperCase()
       })),
       typing: data.typing,
-      markdown: data.markdown
+      markdown: data.markdown,
+      disableFreeText: data.disableFreeText
     }
   ]
 }
@@ -128,6 +129,11 @@ module.exports = {
         title: 'module.builtin.useMarkdown',
         default: true
       },
+      disableFreeText: {
+        type: 'boolean',
+        title: 'module.builtin.disableFreeText',
+        default: false
+      },
       ...base.typingIndicators
     }
   },
@@ -138,6 +144,26 @@ module.exports = {
     },
     choices: {
       'ui:field': 'i18n_array'
+    }
+  },
+
+  newSchema: {
+    displayedIn: ['qna', 'sayNode'],
+    order: 4,
+
+    fields: {
+      text: {
+        type: 'string',
+        label: 'message'
+      },
+      choices: {
+        type: 'array',
+        translatable: true,
+        label: 'suggestions',
+        placeholder: 'studio.library.quickAddAlternative',
+        addLabel: 'studio.flow.node.addSuggestion',
+        addLabelTooltip: 'studio.flow.node.addSuggestionTooltip'
+      }
     }
   },
   computePreviewText: formData =>

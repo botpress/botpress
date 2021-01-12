@@ -1,9 +1,9 @@
 import * as sdk from 'botpress/sdk'
+import bytes from 'bytes'
 import _ from 'lodash'
 
-import legacyElectionPipeline from '../legacy-election'
-import { makeLoggerWrapper } from '../logger'
-import { getLatestModel } from '../model-service'
+import { Config } from '../../config'
+import legacyElectionPipeline from '../election/legacy-election'
 import { PredictionHandler } from '../prediction-handler'
 import { setTrainingSession } from '../train-session-service'
 import { NLUProgressEvent, NLUState } from '../typings'
@@ -20,7 +20,7 @@ async function initializeReportingTool(bp: typeof sdk, state: NLUState) {
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
 
 const ignoreEvent = (bp: typeof sdk, state: NLUState, event: sdk.IO.IncomingEvent) => {
-  const health = bp.NLU.Engine.getHealth()
+  const health = state.engine.getHealth()
   return (
     !state.nluByBot[event.botId] ||
     !health.isEnabled ||
@@ -43,19 +43,24 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
       }
 
       try {
-        const { engine, defaultLanguage } = state.nluByBot[event.botId]
-        const { botId, preview, nlu } = event
-
-        const ghost = bp.ghost.forBot(botId)
-        const modelProvider = {
-          getLatestModel: (language: string) => getLatestModel(ghost, language)
-        }
+        const { botId, preview } = event
+        const { engine, nluByBot } = state
+        const { defaultLanguage, modelsByLang, modelService } = nluByBot[botId]
 
         const anticipatedLanguage = event.state.user?.language || defaultLanguage
-        const predictionHandler = new PredictionHandler(modelProvider, engine, anticipatedLanguage, defaultLanguage)
-        const nluResults = await predictionHandler.predict(preview, nlu?.includedContexts)
+        const predictionHandler = new PredictionHandler(
+          modelsByLang,
+          modelService,
+          bp.NLU.modelIdService,
+          engine,
+          anticipatedLanguage,
+          defaultLanguage,
+          bp.logger.forBot(botId)
+        )
+        const nluResults = await predictionHandler.predict(preview)
 
-        _.merge(event, { nlu: nluResults ?? {} })
+        const nlu = { ...nluResults, includedContexts: event.nlu?.includedContexts ?? [] }
+        _.merge(event, { nlu })
         removeSensitiveText(event)
       } catch (err) {
         bp.logger.warn(`Error extracting metadata for incoming text: ${err.message}`)
@@ -107,8 +112,23 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
 export function getOnSeverStarted(state: NLUState) {
   return async (bp: typeof sdk) => {
     await initializeReportingTool(bp, state)
-    const globalConfig = await bp.config.getModuleConfig('nlu')
-    await bp.NLU.Engine.initialize(globalConfig, makeLoggerWrapper(bp))
+    const globalConfig: Config = await bp.config.getModuleConfig('nlu')
+
+    const logger = <sdk.NLU.Logger>{
+      info: (msg: string) => bp.logger.info(msg),
+      warning: (msg: string, err?: Error) => (err ? bp.logger.attachError(err).warn(msg) : bp.logger.warn(msg)),
+      error: (msg: string, err?: Error) => (err ? bp.logger.attachError(err).error(msg) : bp.logger.error(msg))
+    }
+
+    const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = globalConfig
+    const parsedConfig: sdk.NLU.Config = {
+      languageSources,
+      ducklingEnabled,
+      ducklingURL,
+      modelCacheSize: bytes(modelCacheSize)
+    }
+    state.engine = await bp.NLU.makeEngine(parsedConfig, logger)
+
     await registerMiddleware(bp, state)
   }
 }

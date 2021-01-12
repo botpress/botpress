@@ -8,6 +8,7 @@
   "done": "Terminé",
   "flaggedByAction": "Signalé par action",
   "flaggedByHook": "Signalé par hook",
+  "flaggedByThumbsDown": "Signalé par désapprobateur",
   "fullName": "Incompris",
   "goal": "Objectif",
   "ignore": "Ignorer",
@@ -41,5 +42,8 @@
   "waitWhileDataLoading": "Veuillez patienter pendant le chargement des données",
   "whatIsMessageType": "Quel est ce type de message?",
   "couldNotLoadConversation": "Impossible de trouver la conversation",
-  "conversationDeleted": "La conversation était trop vieille et a été effacée"
+  "conversationDeleted": "La conversation était trop vieille et a été effacée",
+  "dateRange": "Plage de dates",
+  "misunderstood": "Incompris",
+  "qnaThumbsDown": "QNA désapprobateur"
 }

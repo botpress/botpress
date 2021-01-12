@@ -14,7 +14,7 @@ export default class WebchatApi {
       config => {
         if (!config.url.includes('/botInfo')) {
           const prefix = config.url.indexOf('?') > 0 ? '&' : '?'
-          config.url += prefix + '__ts=' + new Date().getTime()
+          config.url =  `${config.url}${prefix}__ts=${new Date().getTime()}`
         }
         return config
       },
@@ -135,6 +135,14 @@ export default class WebchatApi {
     }
   }
 
+  async deleteMessages(convoId: number) {
+    try {
+      await this.axios.post(`/conversations/${this.userId}/${convoId}/messages/delete`, {}, this.axiosConfig)
+    } catch (err) {
+      await this.handleApiError(err)
+    }
+  }
+
   async sendFeedback(feedback: number, eventId: string): Promise<void> {
     try {
       return this.axios.post('/saveFeedback', { eventId, target: this.userId, feedback }, this.axiosConfig)
@@ -173,7 +181,7 @@ export default class WebchatApi {
     // @deprecated 11.9 (replace with proper error management)
     const data = get(error, 'response.data', {})
     if (data && typeof data === 'string' && data.includes('BP_CONV_NOT_FOUND')) {
-      console.log('Conversation not found, starting a new one...')
+      console.error('Conversation not found, starting a new one...')
       await this.createConversation()
     }
 

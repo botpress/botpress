@@ -33,7 +33,89 @@ module.exports = {
     }
   },
 
-  uiSchema: {
+  uiSchema: {},
+
+  newSchema: {
+    displayedIn: ['qna', 'sayNode'],
+    order: 2,
+    fields: {
+      image: {
+        type: 'file',
+        label: 'module.builtin.types.image.uploadImage'
+      },
+      title: {
+        type: 'string',
+        label: 'title',
+        translatable: true,
+        placeholder: 'module.builtin.types.card.cardSubject'
+      },
+      subtitle: {
+        type: 'string',
+        label: 'text',
+        translatable: true,
+        placeholder: 'optional'
+      },
+      actions: {
+        type: 'group',
+        label: 'fields::title',
+        addLabel: 'module.builtin.types.actionButton.addButton',
+        contextMenu: [
+          {
+            type: 'delete',
+            label: 'module.builtin.types.actionButton.delete'
+          }
+        ],
+        fields: {
+          title: {
+            type: 'string',
+            superInput: true,
+            translatable: true,
+            label: 'module.builtin.types.actionButton.textLabel',
+            placeholder: 'module.builtin.types.actionButton.textPlaceholder'
+          },
+          action: {
+            type: 'enum',
+            defaultValue: 'Say something',
+            label: 'module.builtin.types.actionButton.actionLabel',
+            options: [
+              {
+                value: 'Say something',
+                label: 'module.builtin.types.actionButton.sayLabel',
+                related: {
+                  placeholder: 'module.builtin.types.actionButton.sayPlaceholder',
+                  type: 'text',
+                  key: 'text',
+                  label: 'module.builtin.types.actionButton.sayTextLabel',
+                  translatable: true,
+                  superInput: true
+                }
+              },
+              {
+                value: 'Open URL',
+                label: 'module.builtin.types.actionButton.urlLabel',
+                related: {
+                  placeholder: 'module.builtin.types.actionButton.urlPlaceholder',
+                  type: 'url',
+                  key: 'url',
+                  label: 'URL',
+                  superInput: true
+                }
+              },
+              {
+                value: 'Postback',
+                label: 'module.builtin.types.actionButton.postLabel',
+                related: {
+                  key: 'payload',
+                  type: 'textarea',
+                  label: 'module.builtin.types.actionButton.postFieldLabel',
+                  superInput: true
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
   },
 
   computePreviewText: formData => formData.title && `Card: ${formData.title}`,

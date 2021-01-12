@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
 import en from '../translations/en.json'
+import es from '../translations/es.json'
 import fr from '../translations/fr.json'
 import { FlaggedEvent, FLAG_REASON } from '../types'
 
@@ -26,7 +27,7 @@ const onServerReady = async (bp: typeof sdk) => {
         l => l && l !== 'n/a'
       )[0],
       preview: event.preview,
-      reason: 'auto_hook' as FLAG_REASON
+      reason: 'thumbs_down' as FLAG_REASON
     }
 
     await db.addEvent(data)
@@ -35,7 +36,7 @@ const onServerReady = async (bp: typeof sdk) => {
 
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerReady,
-  translations: { en, fr },
+  translations: { en, fr, es },
   definition: {
     name: 'misunderstood',
     menuIcon: 'gesture',

@@ -7,7 +7,13 @@
 }
 
 :global(.emulator-open) {
-  padding-right: calc(var(--spacing-x-large) + var(--emulator-width) + var(--debugger-width)) !important;
+  padding-right: calc(var(--spacing-x-large) + var(--emulator-width)) !important;
+}
+
+.diagram {
+  outline: none;
+  width: 100%;
+  height: 100%;
 }
 
 .floatingInfo {

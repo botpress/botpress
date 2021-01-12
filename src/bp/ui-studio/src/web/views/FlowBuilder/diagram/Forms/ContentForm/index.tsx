@@ -69,7 +69,7 @@ const ContentForm: FC<Props> = ({
   }
 
   return (
-    <MainLayout.RightSidebar
+    <MainLayout.RightSidePanel
       className={sharedStyle.wrapper}
       canOutsideClickClose={canOutsideClickClose}
       close={() => close(editingContent)}
@@ -102,13 +102,13 @@ const ContentForm: FC<Props> = ({
             fields={fields}
             formData={formData}
             overrideFields={{
-              smartInput: props => <SmartInput {...props} onChange={value => props.onChange({ text: value })} />
+              smartInput: props => <SmartInput {...props} onChange={value => props.onChange(value)} />
             }}
             onUpdate={data => prepareUpdate({ ...data, contentType: contentType.current })}
           />
         )}
       </Fragment>
-    </MainLayout.RightSidebar>
+    </MainLayout.RightSidePanel>
   )
 }
 

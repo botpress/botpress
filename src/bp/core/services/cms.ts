@@ -1,5 +1,4 @@
-import { IO, Logger } from 'botpress/sdk'
-import { ContentElement, ContentType, KnexExtended, SearchParams } from 'botpress/sdk'
+import { ContentElement, ContentType, IO, KnexExtended, Logger, SearchParams } from 'botpress/sdk'
 import { renderRecursive, renderTemplate } from 'core/misc/templating'
 import { ModuleLoader } from 'core/module-loader'
 import { inject, injectable, tagged } from 'inversify'
@@ -179,10 +178,10 @@ export class CMSService implements IDisposeOnExit {
     const contentType = <ContentType>await this.sandbox.run(fileName)
 
     if (!contentType || !contentType.id) {
-      throw new Error('Invalid content type ' + fileName)
+      throw new Error(`Invalid content type ${fileName}`)
     }
 
-    this.filesById[contentType.id] = contentType.id + '.json'
+    this.filesById[contentType.id] = `${contentType.id}.json`
     this.contentTypes.push(contentType)
   }
 
@@ -282,9 +281,9 @@ export class CMSService implements IDisposeOnExit {
   getMediaFiles(formData): string[] {
     const media = '/media/'
     const iterator = (result: string[], value, key: string) => {
-      if (key.startsWith('image') && value.includes(media)) {
+      if (key.startsWith('image') && value && value.includes(media)) {
         result.push(value.substr(value.indexOf(media) + media.length))
-      } else if (key.startsWith('items$')) {
+      } else if (key.startsWith('items$') && value.length) {
         value.forEach(e => _.reduce(e, iterator, result))
       }
       return result
@@ -539,9 +538,10 @@ export class CMSService implements IDisposeOnExit {
 
         if (!preview) {
           const defaultTranslation = this.getOriginalProps(formData, contentType, defaultLang)
-          preview =
-            '(missing translation) ' +
-            contentType.computePreviewText({ ...defaultTranslation, ...this._getAdditionalData() })
+          preview = `(missing translation) ${contentType.computePreviewText({
+            ...defaultTranslation,
+            ...this._getAdditionalData()
+          })}`
         }
 
         result[lang] = preview
@@ -573,7 +573,7 @@ export class CMSService implements IDisposeOnExit {
   }
 
   private _hasTranslation(formData: object, lang: string) {
-    return Object.keys(formData).find(x => x.endsWith('$' + lang))
+    return Object.keys(formData).find(x => x.endsWith(`$${lang}`))
   }
 
   // This methods finds the translated property and returns the original properties
@@ -582,7 +582,7 @@ export class CMSService implements IDisposeOnExit {
 
     if (originalProps) {
       return originalProps.reduce((result, key) => {
-        result[key] = formData[key + '$' + lang] || (defaultLang && formData[key + '$' + defaultLang])
+        result[key] = formData[`${key}$${lang}`] || (defaultLang && formData[`${key}$${defaultLang}`])
         return result
       }, {})
     } else {

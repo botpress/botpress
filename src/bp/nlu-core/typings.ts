@@ -1,5 +1,5 @@
 import { AxiosInstance } from 'axios'
-import sdk from 'botpress/sdk'
+import sdk, { NLU } from 'botpress/sdk'
 import LRUCache from 'lru-cache'
 
 export const BIO = {
@@ -12,11 +12,6 @@ export type Tag = 'o' | 'B' | 'I'
 
 export interface Token2Vec {
   [token: string]: number[]
-}
-
-export interface NLUVersionInfo {
-  nluVersion: string
-  langServerInfo: LangServerInfo
 }
 
 export interface LangServerInfo {
@@ -40,7 +35,7 @@ export interface LanguageProvider {
   languages: string[]
   langServerInfo: LangServerInfo
   vectorize(tokens: string[], lang: string): Promise<Float32Array[]>
-  tokenize(utterances: string[], lang: string, vocab?: Token2Vec): Promise<string[][]>
+  tokenize(utterances: string[], lang: string, vocab?: string[]): Promise<string[][]>
   generateSimilarJunkWords(subsetVocab: string[], lang: string): Promise<string[]>
   getHealth(): Partial<sdk.NLU.Health>
 }
@@ -120,13 +115,13 @@ export interface SeededLodashProvider {
 }
 
 export interface Tools {
-  tokenize_utterances(utterances: string[], languageCode: string, vocab?: Token2Vec): Promise<string[][]>
+  tokenize_utterances(utterances: string[], languageCode: string, vocab?: string[]): Promise<string[][]>
   vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
   partOfSpeechUtterances(utterances: string[][], languageCode: string): string[][]
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
   getHealth(): sdk.NLU.Health
   getLanguages(): string[]
-  getVersionInfo(): NLUVersionInfo
+  getSpecifications(): NLU.Specifications
   seededLodashProvider: SeededLodashProvider
   duckling: SystemEntityExtractor
   mlToolkit: typeof sdk.MLToolkit
@@ -150,3 +145,5 @@ type SlotDefinition = Readonly<{
   name: string
   entities: string[]
 }>
+
+export type SerializedKmeansResult = Omit<sdk.MLToolkit.KMeans.KmeansResult, 'nearest'>

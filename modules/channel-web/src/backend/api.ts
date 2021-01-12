@@ -246,7 +246,7 @@ export default async (bp: typeof sdk, db: Database) => {
   })
 
   function validateUserId(userId: string) {
-    if (!userId || userId.length > USER_ID_MAX_LENGTH) {
+    if (!userId || userId.length > USER_ID_MAX_LENGTH || userId.toLowerCase() === 'undefined') {
       return false
     }
 
@@ -503,5 +503,19 @@ export default async (bp: typeof sdk, db: Database) => {
     const txt = await convertToTxtFile(conversation)
 
     res.send({ txt, name: `${conversation.title}.txt` })
+  })
+
+  router.post('/conversations/:userId/:conversationId/messages/delete', async (req: BPRequest, res: Response) => {
+    const { userId, conversationId } = req.params
+
+    if (!validateUserId(userId)) {
+      return res.status(400).send(ERR_USER_ID_REQ)
+    }
+
+    bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.clear', { conversationId }))
+
+    await db.deleteConversationMessages(conversationId)
+
+    res.sendStatus(204)
   })
 }

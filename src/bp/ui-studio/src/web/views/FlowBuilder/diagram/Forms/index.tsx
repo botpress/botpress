@@ -28,12 +28,12 @@ const Forms: FC<Props> = ({
   currentLang,
   defaultLang,
   currentFlowNode,
+  switchFlowNode,
+  updateFlowNode,
   updateEditingNodeItem,
   deleteSelectedElements,
   diagramEngine,
   activeFormItem,
-  updateFlowNode,
-  switchFlowNode,
   setActiveFormItem,
   updateTimeout,
   actions,
@@ -52,12 +52,12 @@ const Forms: FC<Props> = ({
     currentItem = node?.execute
   }
 
-  const getEmptyContent = content => {
+  const getEmptyContent = (content?: { contentType: string; [prop: string]: any }) => {
     if (!content) {
       return { contentType: 'builtin_text' }
     }
     return {
-      contentType: content[Object.keys(content)[0]]?.contentType
+      contentType: Object.values(content)[0]?.contentType
     }
   }
 
@@ -91,7 +91,7 @@ const Forms: FC<Props> = ({
       {/* {formType === 'say_something' && (
         <ContentForm
           customKey={`${node.id}${index}`}
-          contentTypes={contentTypes}
+          contentTypes={contentTypes.filter(type => type.schema.newJson?.displayedIn.includes('sayNode'))}
           deleteContent={() => deleteNodeContent()}
           contentLang={currentLang}
           node={currentFlowNode}

@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { serializeKmeans } from './clustering'
 import { extractListEntitiesWithCache, extractPatternEntities } from './entities/custom-entity-extractor'
 import { warmEntityCache } from './entities/entity-cache-manager'
 import { getCtxFeatures } from './intents/context-featurizer'
@@ -20,7 +21,7 @@ import {
   ListEntity,
   ListEntityModel,
   PatternEntity,
-  SeededLodashProvider,
+  SerializedKmeansResult,
   TFIDF,
   Token2Vec,
   Tools,
@@ -33,7 +34,6 @@ type ListEntityWithCache = ListEntity & {
 }
 
 export type TrainInput = Readonly<{
-  botId: string
   nluSeed: number
   languageCode: string
   pattern_entities: PatternEntity[]
@@ -61,7 +61,7 @@ export interface TrainOutput {
   list_entities: ColdListEntityModel[]
   tfidf: TFIDF
   vocabVectors: Token2Vec
-  // kmeans: KmeansResult
+  kmeans: SerializedKmeansResult | undefined
   contexts: string[]
   ctx_model: string
   intent_model_by_ctx: Dic<string>
@@ -95,7 +95,7 @@ const KMEANS_OPTIONS = {
 } as sdk.MLToolkit.KMeans.KMeansOptions
 
 const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainStep> => {
-  debugTraining.forBot(input.botId, 'Preprocessing intents')
+  debugTraining('Preprocessing intents')
   input = _.cloneDeep(input)
   const list_entities = await Promise.map(input.list_entities, list =>
     makeListEntityModel(list, input.languageCode, tools)
@@ -510,17 +510,11 @@ const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progres
 
 const NB_STEPS = 6 // change this if the training pipeline changes
 
-export type Trainer = (
+export const Trainer = async (
   input: TrainInput,
   tools: Tools,
   progress?: (x: number) => void
-) => Promise<TrainOutput | undefined>
-
-export const Trainer: Trainer = async (
-  input: TrainInput,
-  tools: Tools,
-  progress?: (x: number) => void
-): Promise<TrainOutput | undefined> => {
+): Promise<TrainOutput> => {
   let totalProgress = 0
   let normalizedProgress = 0
 
@@ -575,7 +569,7 @@ export const Trainer: Trainer = async (
     slots_model: slots_model!,
     vocabVectors: step.vocabVectors,
     exact_match_index,
-    // kmeans: {} add this when mlKmeans supports loading from serialized data,
+    kmeans: step.kmeans && serializeKmeans(step.kmeans),
     contexts: input.contexts
   }
 

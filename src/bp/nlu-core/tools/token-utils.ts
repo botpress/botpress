@@ -58,19 +58,19 @@ export const mergeSimilarCharsetTokens = (
 const mergeSpaces = (tokens: string[]): string[] => mergeSimilarCharsetTokens(tokens, [SPACE])
 const mergeNumeral = (tokens: string[]): string[] => mergeSimilarCharsetTokens(tokens, ['[0-9]'])
 const mergeSpecialChars = (tokens: string[]): string[] => mergeSimilarCharsetTokens(tokens, SPECIAL_CHARSET)
-const mergeLatin = (tokens: string[], vocab: Token2Vec): string[] => {
+const mergeLatin = (tokens: string[], vocab: string[]): string[] => {
   const oovMatcher = (token: string) => {
-    return !!token && !vocab[token.toLowerCase()]
+    return !!token && !vocab.includes(token.toLowerCase())
   }
 
-  const vocabTokenizer = getVocabTokenizer(Object.keys(vocab))
+  const vocabTokenizer = getVocabTokenizer(vocab)
   const vocabTransformer = (prev: string, next: string) => {
     return vocabTokenizer(`${prev}${next}`)
   }
   return mergeSimilarCharsetTokens(tokens, LATIN_CHARSET, oovMatcher, vocabTransformer)
 }
 
-export const processUtteranceTokens = (tokens: string[], vocab: Token2Vec = {}): string[] => {
+export const processUtteranceTokens = (tokens: string[], vocab: string[] = []): string[] => {
   return _.chain(tokens)
     .flatMap(splitSpaceToken)
     .thru(mergeSpaces)

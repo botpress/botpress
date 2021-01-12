@@ -2,22 +2,23 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import makeApi from '../api'
-import { getModel } from '../model-service'
 import { setTrainingSession } from '../train-session-service'
 import { NLUState } from '../typings'
 
 export function getOnServerReady(state: NLUState) {
   return async (bp: typeof sdk) => {
-    const loadModel = async (botId: string, hash: string, language: string) => {
+    const loadModel = async (botId: string, modelId: sdk.NLU.ModelId) => {
       if (!state.nluByBot[botId]) {
         return
       }
 
       const ghost = bp.ghost.forBot(botId)
-      const model = await getModel(ghost, hash, language)
+      const model = await state.nluByBot[botId].modelService.getModel(modelId)
       if (model) {
-        if (state.nluByBot[botId]) {
-          await state.nluByBot[botId].engine.loadModel(model)
+        const botState = state.nluByBot[botId]
+        if (botState) {
+          botState.modelsByLang[model.languageCode] = modelId
+          await state.engine.loadModel(model)
         } else {
           bp.logger.warn(`Can't load model for unmounted bot ${botId}`)
         }
@@ -33,7 +34,7 @@ export function getOnServerReady(state: NLUState) {
         trainSession.status = 'canceled'
         await setTrainingSession(bp, botId, trainSession)
 
-        return state.nluByBot[botId].engine.cancelTraining(trainSession.key)
+        return state.engine.cancelTraining(trainSession.key)
       }
     }
 

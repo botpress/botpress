@@ -8,7 +8,7 @@ import Dropdown from '../../Dropdown'
 
 import { SelectProps } from './typings'
 
-const Select: FC<SelectProps> = ({ onChange, printField, parent, field, data, axios }) => {
+const Select: FC<SelectProps> = ({ onChange, printField, parent, field, fieldKey, data, axios }) => {
   const [options, setOptions] = useState<FormOption[]>([])
 
   useEffect(() => {
@@ -40,7 +40,7 @@ const Select: FC<SelectProps> = ({ onChange, printField, parent, field, data, ax
     }
   }
 
-  const value = data[field.key] ?? field.defaultValue ?? (!field.placeholder && options?.[0]?.value)
+  const value = data[fieldKey] ?? field.defaultValue ?? (!field.placeholder && options?.[0]?.value)
   const currentOption = options?.find(option => option.value === value)
 
   return (
@@ -54,7 +54,7 @@ const Select: FC<SelectProps> = ({ onChange, printField, parent, field, data, ax
         rightIcon="chevron-down"
         onChange={option => onChange?.(option.value)}
       />
-      {currentOption?.related && printField(currentOption.related, data, parent)}
+      {currentOption?.related && printField(currentOption.related, currentOption.related.key, data, parent)}
     </Fragment>
   )
 }

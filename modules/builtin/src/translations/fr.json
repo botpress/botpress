@@ -21,7 +21,10 @@
       "imageLabel": "Titre",
       "labelDesc": "Certaines plateformes exigent que les images soient nommé.",
       "permissionDenied": "Vous n'avez pas les permissions pour télécharger un fichier pour ce bot. Contactez votre chef d'équipe.",
+      "infoInterpreted": "Cette information sera interprétée:",
       "title": "Image",
+      "uploadFileChoice": "Ou téléchargez une image",
+      "enterUrlChoice": "Ou entrez l'URL de l'image",
       "uploadImage": "Choisir une image"
     },
     "singleChoice": {
@@ -38,5 +41,6 @@
     }
   },
   "typingIndicator": "Afficher l'indicateur de frappe",
-  "useMarkdown": "Utiliser markdown"
+  "useMarkdown": "Utiliser markdown",
+  "disableFreeText": "Désactiver le texte libre"
 }

@@ -30,7 +30,20 @@ interface Props {
   onChange: (x: string[]) => void
 }
 
-export class UtterancesEditor extends React.Component<Props> {
+interface Selected {
+  utterance: number
+  block: number
+  from: number
+  to: number
+}
+
+interface State {
+  selection: Selected
+  value: Value
+  showSlotMenu: boolean
+}
+
+export class UtterancesEditor extends React.Component<Props, State> {
   state = {
     selection: { utterance: -1, block: -1, from: -1, to: -1 },
     value: utterancesToValue([]),
@@ -109,7 +122,6 @@ export class UtterancesEditor extends React.Component<Props> {
   }
 
   render() {
-
     return (
       <Editor
         value={this.state.value}
@@ -139,7 +151,9 @@ export class UtterancesEditor extends React.Component<Props> {
           show={this.state.showSlotMenu}
           onSlotClicked={this.tag.bind(this, editor)}
         />
-        <div className={style.utterances} onCopy={this.onCopy}>{children}</div>
+        <div className={style.utterances} onCopy={this.onCopy}>
+          {children}
+        </div>
       </div>
     )
   }
@@ -152,9 +166,10 @@ export class UtterancesEditor extends React.Component<Props> {
       lines = valueToUtterances(this.state.value)
     } else {
       // Partial selection, we remove the heading numbers and empty lines
-      lines = selection.split('\n').map(txt =>
-        txt.replace(/^\d{1,4}$/, '')
-      ).filter(x => x.length)
+      lines = selection
+        .split('\n')
+        .map(txt => txt.replace(/^\d{1,4}$/, ''))
+        .filter(x => x.length)
     }
 
     event.clipboardData.setData('text/plain', lines.join('\n'))
@@ -193,9 +208,9 @@ export class UtterancesEditor extends React.Component<Props> {
     }
   }
 
-  dispatchChanges = _.debounce(value => {
+  dispatchChanges = (value: Value) => {
     this.props.onChange(valueToUtterances(value))
-  }, 2500)
+  }
 
   dispatchNeeded = operations => {
     return operations
@@ -203,13 +218,14 @@ export class UtterancesEditor extends React.Component<Props> {
       .filter(x => ['insert_text', 'remove_text', 'add_mark', 'remove_mark', 'split_node'].includes(x)).size
   }
 
-  onChange = ({ value, operations }) => {
-    let selectionState = {}
+  onChange = ({ value, operations }: { value: Value; operations: any }) => {
+    let selection: Selected | undefined
     if (operations.filter(x => x.get('type') === 'set_selection').size) {
-      selectionState = this.onSelectionChanged(value)
+      selection = this.onSelectionChanged(value)
     }
 
-    this.setState({ value, ...selectionState })
+    const newState: Partial<State> = selection ? { value, selection } : { value }
+    this.setState(newState as State)
 
     if (this.dispatchNeeded(operations)) {
       this.dispatchChanges(value)
@@ -289,7 +305,7 @@ export class UtterancesEditor extends React.Component<Props> {
     )
   }
 
-  onSelectionChanged = (value: Value) => {
+  onSelectionChanged = (value: Value): Selected => {
     const selection: Selection = value.get('selection').toJS()
 
     let from = -1
@@ -301,7 +317,6 @@ export class UtterancesEditor extends React.Component<Props> {
       block = selection.anchor.path['1']
       from = Math.min(selection.anchor.offset, selection.focus.offset)
       to = Math.max(selection.anchor.offset, selection.focus.offset)
-
 
       if (from !== to) {
         if (selection.isFocused) {
@@ -318,6 +333,6 @@ export class UtterancesEditor extends React.Component<Props> {
       this.hideSlotPopover()
     }
 
-    return { selection: { utterance, block, from, to } }
+    return { utterance, block, from, to }
   }
 }

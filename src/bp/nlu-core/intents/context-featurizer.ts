@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-import { computeNorm, scalarDivide, vectorAdd, zeroes } from '../tools/math'
+import { zeroes } from '../tools/math'
 import Utterance, { UtteranceToken } from '../utterance/utterance'
 
 import { getEntitiesEncoding } from './entities-featurizer'
@@ -19,13 +19,11 @@ export function getCtxFeatures(utt: Utterance, customEntities: string[]): number
     return zeroes(utt.tokens[0].vector.length + entitiesOH.length)
   }
 
-  const totalWeight = toks.reduce((sum, t) => sum + Math.min(1, t.tfidf), 0) || 1
-  const weightedSum = toks.reduce((sum, t) => {
-    const norm = computeNorm(<number[]>t.vector)
-    const weightedVec = scalarDivide(<number[]>t.vector, norm / Math.min(1, t.tfidf))
-    return vectorAdd(sum, weightedVec)
-  }, zeroes(utt.tokens[0].vector.length))
-
-  const sentenceEmbedding = scalarDivide(weightedSum, totalWeight)
+  /**
+   * TODO:
+   * - should maybe use a topic computed tfidf (tfid is computed on intents)
+   * - why do we even filter out patterns and systems ?
+   */
+  const sentenceEmbedding = utt.sentenceEmbedding({ keepToken: shouldConsiderToken })
   return [...sentenceEmbedding, ...entitiesOH]
 }

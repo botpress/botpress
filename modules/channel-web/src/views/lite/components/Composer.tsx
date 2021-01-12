@@ -57,10 +57,18 @@ class Composer extends React.Component<ComposerProps> {
 
   handleMessageChanged = e => this.props.updateMessage(e.target.value)
 
+  isLastMessageFromBot = (): boolean => {
+    return this.props.currentConversation &&
+      this.props.currentConversation.messages &&
+      this.props.currentConversation.messages.length &&
+      !this.props.currentConversation.messages.slice(-1).pop().userId
+  }
+
   render() {
     const placeholder =
       this.props.composerPlaceholder ||
-      this.props.intl.formatMessage({ id: 'composer.placeholder' }, { name: this.props.botName })
+      this.props.intl.formatMessage({
+        id: this.isLastMessageFromBot() ? 'placeholder' : 'composer.placeholderInit' }, { name: this.props.botName })
 
     return (
       <div role="region" className={'bpw-composer'}>
@@ -78,15 +86,15 @@ class Composer extends React.Component<ComposerProps> {
               id: 'composer.message',
               defaultMessage: 'Message to send'
             })}
+            disabled={this.props.composerLocked}
           />
           <label htmlFor="input-message" style={{ display: 'none' }}>
             {placeholder}
           </label>
-
           <ToolTip childId="btn-send" content={this.props.isEmulator ? 'Interact with your chatbot' : 'Send Message'}>
             <button
               className={'bpw-send-button'}
-              disabled={!this.props.message.length}
+              disabled={!this.props.message.length || this.props.composerLocked}
               onClick={this.props.sendMessage.bind(this, undefined)}
               aria-label={this.props.intl.formatMessage({
                 id: 'composer.send',
@@ -105,12 +113,13 @@ class Composer extends React.Component<ComposerProps> {
 
 export default inject(({ store }: { store: RootStore }) => ({
   message: store.composer.message,
-  intl: store.intl,
-  updateMessage: store.composer.updateMessage,
-  sendMessage: store.sendMessage,
-  recallHistory: store.composer.recallHistory,
-  botName: store.botName,
+  composerLocked: store.composer.locked,
   composerPlaceholder: store.composer.composerPlaceholder,
+  updateMessage: store.composer.updateMessage,
+  recallHistory: store.composer.recallHistory,
+  intl: store.intl,
+  sendMessage: store.sendMessage,
+  botName: store.botName,
   setFocus: store.view.setFocus,
   focusedArea: store.view.focusedArea,
   focusPrevious: store.view.focusPrevious,
@@ -118,12 +127,14 @@ export default inject(({ store }: { store: RootStore }) => ({
   enableArrowNavigation: store.config.enableArrowNavigation,
   enableResetSessionShortcut: store.config.enableResetSessionShortcut,
   resetSession: store.resetSession,
+  currentConversation: store.currentConversation,
   isEmulator: store.isEmulator
 }))(injectIntl(observer(Composer)))
 
 type ComposerProps = {
   focused: boolean
   composerPlaceholder: string
+  composerLocked: boolean
 } & InjectedIntlProps &
   Pick<
     StoreDef,
@@ -142,4 +153,5 @@ type ComposerProps = {
     | 'resetSession'
     | 'isEmulator'
     | 'enableResetSessionShortcut'
+    | 'currentConversation'
   >

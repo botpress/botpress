@@ -11,6 +11,7 @@ const { Debug } = require('./debug')
 const { getAppDataPath } = require('./core/misc/app_data')
 
 const printPlainError = err => {
+  // tslint:disable: no-console
   console.log('Error starting botpress')
   console.log(err)
   console.log(err.message)
@@ -80,6 +81,7 @@ try {
   process.DISABLE_GLOBAL_SANDBOX = yn(process.env.DISABLE_GLOBAL_SANDBOX)
   process.DISABLE_BOT_SANDBOX = yn(process.env.DISABLE_BOT_SANDBOX)
   process.DISABLE_TRANSITION_SANDBOX = yn(process.env.DISABLE_TRANSITION_SANDBOX)
+  process.DISABLE_CONTENT_SANDBOX = yn(process.env.DISABLE_CONTENT_SANDBOX)
   process.IS_LICENSED = true
   process.ASSERT_LICENSED = () => {}
   process.BOTPRESS_VERSION = metadataContent.version
@@ -87,16 +89,17 @@ try {
 
   const configPath = path.join(process.PROJECT_LOCATION, '/data/global/botpress.config.json')
 
+  // We can't move this in bootstrap because process.IS_PRO_ENABLED is necessary for other than default CLI command
   if (process.IS_PRO_AVAILABLE) {
     process.CLUSTER_ENABLED = yn(process.env.CLUSTER_ENABLED)
 
-    if (process.env.PRO_ENABLED === undefined) {
+    if (process.env.PRO_ENABLED === undefined && process.env['BP_CONFIG_PRO.ENABLED'] === undefined) {
       if (fs.existsSync(configPath)) {
         const config = require(configPath)
         process.IS_PRO_ENABLED = config.pro && config.pro.enabled
       }
     } else {
-      process.IS_PRO_ENABLED = yn(process.env.PRO_ENABLED)
+      process.IS_PRO_ENABLED = yn(process.env.PRO_ENABLED) || yn(process.env['BP_CONFIG_PRO.ENABLED'])
     }
   }
 
@@ -125,6 +128,7 @@ try {
           process.env.AUTO_MIGRATE === undefined ? yn(argv.autoMigrate) : yn(process.env.AUTO_MIGRATE)
 
         process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : defaultVerbosity
+        process.TELEMETRY_URL = process.env.TELEMETRY_URL || 'https://telemetry.botpress.cloud/ingest'
 
         getos.default().then(distro => {
           process.distro = distro
@@ -353,18 +357,39 @@ try {
           description: 'Time window on which the limit is applied (use standard notation, ex: 25m or 1h)',
           default: '1h'
         },
-        config: {
-          description:
-            'Path of the NLU configuration file (ex: "~/bp-nlu-config.json"). \
-            Use to configure the duckling and language servers endpoints.'
+        languageURL: {
+          description: 'URL of your language server',
+          default: 'https://lang-01.botpress.io'
+        },
+        languageAuthToken: {
+          description: 'Authentification token for your language server'
+        },
+        ducklingURL: {
+          description: 'URL of your Duckling server; Only relevant if "ducklingEnabled" is true',
+          default: 'https://duckling.botpress.io'
+        },
+        ducklingEnabled: {
+          description: 'Whether or not to enable Duckling',
+          default: true,
+          type: 'boolean'
         },
         bodySize: {
           description: 'Allowed size of HTTP requests body',
           default: '250kb'
         },
         batchSize: {
-          description: 'Allowed number of text inputs in one call to POST /predict.',
+          description: 'Allowed number of text inputs in one call to POST /predict',
           default: -1
+        },
+        silent: {
+          description: 'No logging after server is launched',
+          default: false,
+          type: 'boolean'
+        },
+        modelCacheSize: {
+          description:
+            'Max allocated memory for model cache. Too few memory will result in more access to file system.',
+          default: '250mb'
         }
       },
       argv => {
@@ -376,6 +401,8 @@ try {
         })
       }
     )
+    .boolean('config')
+    .boolean('includePasswords')
     .command(
       'diag',
       'Generate a diagnostic report\nAlternative: set BP_DIAG=true',
@@ -417,8 +444,8 @@ try {
       description: 'verbosity level'
     })
     .command('version', "Display the server's version", {}, () => {
-      console.log(`Botpress: v${metadataContent.version}`)
-      console.log(`NodeJS: ${process.version}`)
+      console.info(`Botpress: v${metadataContent.version}`)
+      console.info(`NodeJS: ${process.version}`)
     })
     .count('verbose')
     .help().argv

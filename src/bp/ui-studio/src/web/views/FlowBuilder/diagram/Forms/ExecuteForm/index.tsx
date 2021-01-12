@@ -155,7 +155,7 @@ const ExecuteForm: FC<Props> = ({
   const commonProps = { customKey, contentLang, formData, events, onUpdate }
 
   return (
-    <MainLayout.RightSidebar
+    <MainLayout.RightSidePanel
       className={cx(sharedStyle.wrapper, style.formWrap)}
       canOutsideClickClose={canOutsideClickClose}
       close={() => close()}
@@ -201,10 +201,11 @@ const ExecuteForm: FC<Props> = ({
             fields={{
               title: {
                 type: ControlType.String,
-                title: 'title'
+                label: 'title'
               },
               code: {
                 type: ControlType.CodeEditor,
+                label: 'Code',
                 template: 'action'
               }
             }}
@@ -218,7 +219,7 @@ const ExecuteForm: FC<Props> = ({
           <ConfigAction {...commonProps} actions={actions} actionName={state.selectedAction} />
         )}
       </Fragment>
-    </MainLayout.RightSidebar>
+    </MainLayout.RightSidePanel>
   )
 }
 

@@ -6,17 +6,18 @@ import { createServer } from 'http'
 import _ from 'lodash'
 import ms from 'ms'
 import Engine from 'nlu-core/engine'
+import modelIdService from 'nlu-core/model-id-service'
 
 import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../http-utils'
 import Logger from '../simple-logger'
 
-import makeLoggerWrapper from './logger-wrapper'
-import ModelService from './model/model-service'
+import { BpPredictOutput, mapPredictOutput, mapTrainInput } from './api-mapper'
+import ModelRepository from './model-repo'
 import removeNoneIntent from './remove-none'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
-import { mapTrainInput } from './utils'
-import validateInput from './validation/validate'
+import { PredictOutput } from './typings_v1'
+import { validateCancelRequestInput, validatePredictInput, validateTrainInput } from './validation/validate'
 
 export interface APIOptions {
   host: string
@@ -27,6 +28,8 @@ export interface APIOptions {
   limit: number
   bodySize: string
   batchSize: number
+  silent: boolean
+  modelCacheSize: string
 }
 
 const debug = DEBUG('api')
@@ -41,7 +44,7 @@ const createExpressApp = (options: APIOptions): Application => {
   app.use(bodyParser.json({ limit: options.bodySize }))
 
   app.use((req, res, next) => {
-    res.header('X-Powered-By', 'Botpress')
+    res.header('X-Powered-By', 'Botpress NLU')
     debugRequest(`incoming ${req.path}`, { ip: req.ip })
     next()
   })
@@ -69,37 +72,40 @@ const createExpressApp = (options: APIOptions): Application => {
   return app
 }
 
-export default async function(options: APIOptions, nluVersion: string) {
+export default async function(options: APIOptions, engine: Engine) {
   const app = createExpressApp(options)
   const logger = new Logger('API')
-  const loggerWrapper = makeLoggerWrapper(logger)
 
-  const engine = new Engine('nlu-server', loggerWrapper)
-  const modelService = new ModelService(options.modelDir)
-  await modelService.init()
+  const modelRepo = new ModelRepository(options.modelDir)
+  await modelRepo.init()
   const trainSessionService = new TrainSessionService()
-  const trainService = new TrainService(logger, engine, modelService, trainSessionService)
+  const trainService = new TrainService(logger, engine, modelRepo, trainSessionService)
 
-  app.get('/info', (req, res) => {
+  const router = express.Router({ mergeParams: true })
+  router.get('/info', async (req, res) => {
+    const { nluVersion } = engine.getSpecifications()
     res.send({ version: nluVersion })
   })
 
-  const router = express.Router({ mergeParams: true })
   router.post('/train', async (req, res) => {
     try {
-      const input = await validateInput(req.body)
+      const input = await validateTrainInput(req.body)
       const { intents, entities, seed, language, password } = mapTrainInput(input)
 
-      const modelHash = engine.computeModelHash(intents, entities, language)
-
       const pickedSeed = seed ?? Math.round(Math.random() * 10000)
-      const modelId = modelService.makeModelId(modelHash, input.language, pickedSeed)
+      const modelId = modelIdService.makeId({
+        specifications: engine.getSpecifications(),
+        intentDefs: intents,
+        entityDefs: entities,
+        languageCode: language,
+        seed: pickedSeed
+      })
 
       // return the modelId as fast as possible
       // tslint:disable-next-line: no-floating-promises
       trainService.train(modelId, password, intents, entities, language, pickedSeed)
 
-      return res.send({ success: true, modelId })
+      return res.send({ success: true, modelId: modelIdService.toString(modelId) })
     } catch (err) {
       res.status(500).send({ success: false, error: err.message })
     }
@@ -107,20 +113,27 @@ export default async function(options: APIOptions, nluVersion: string) {
 
   router.get('/train/:modelId', async (req, res) => {
     try {
-      const { modelId } = req.params
+      const { modelId: stringId } = req.params
+      if (!_.isString(stringId) || !modelIdService.isId(stringId)) {
+        return res.status(400).send({ success: false, error: `model id "${stringId}" has invalid format` })
+      }
+
       const { password } = req.query
+
+      const modelId = modelIdService.fromString(stringId)
       let session = trainSessionService.getTrainingSession(modelId, password)
       if (!session) {
-        const model = await modelService.getModel(modelId, password ?? '')
+        const model = await modelRepo.getModel(modelId, password ?? '')
 
         if (!model) {
-          return res
-            .status(404)
-            .send({ success: false, error: `no model or training could be found for modelId: ${modelId}` })
+          return res.status(404).send({
+            success: false,
+            error: `no model or training could be found for modelId: ${stringId}`
+          })
         }
 
         session = {
-          key: modelId,
+          key: stringId,
           status: 'done',
           progress: 1,
           language: model!.languageCode
@@ -135,10 +148,10 @@ export default async function(options: APIOptions, nluVersion: string) {
 
   router.post('/train/:modelId/cancel', async (req, res) => {
     try {
-      const { modelId } = req.params
-      let { password } = req.body
-      password = password ?? ''
+      const { modelId: stringId } = req.params
+      const { password } = await validateCancelRequestInput(req.body)
 
+      const modelId = modelIdService.fromString(stringId)
       const session = trainSessionService.getTrainingSession(modelId, password)
 
       if (session?.status === 'training') {
@@ -146,7 +159,7 @@ export default async function(options: APIOptions, nluVersion: string) {
         return res.send({ success: true })
       }
 
-      res.status(404).send({ success: true, error: `no current training for model id: ${modelId}` })
+      res.status(404).send({ success: false, error: `no current training for model id: ${stringId}` })
     } catch (err) {
       res.status(500).send({ success: false, error: err.message })
     }
@@ -154,35 +167,42 @@ export default async function(options: APIOptions, nluVersion: string) {
 
   router.post('/predict/:modelId', async (req, res) => {
     try {
-      const { modelId } = req.params
-      const { texts, password } = req.body
+      const { modelId: stringId } = req.params
+      const { utterances, password } = await validatePredictInput(req.body)
 
-      if (!_.isArray(texts) || (options.batchSize > 0 && texts.length > options.batchSize)) {
+      if (!_.isArray(utterances) || (options.batchSize > 0 && utterances.length > options.batchSize)) {
         throw new Error(
-          `Batch size of ${texts.length} is larger than the allowed maximum batch size (${options.batchSize}).`
+          `Batch size of ${utterances.length} is larger than the allowed maximum batch size (${options.batchSize}).`
         )
       }
 
-      const model = await modelService.getModel(modelId, password)
+      const modelId = modelIdService.fromString(stringId)
+      // once the model is loaded, there's no more password check
+      if (!engine.hasModel(modelId)) {
+        const model = await modelRepo.getModel(modelId, password)
+        if (!model) {
+          return res.status(404).send({ success: false, error: `modelId ${stringId} can't be found` })
+        }
 
-      if (model) {
         await engine.loadModel(model)
-
-        const rawPredictions = await Promise.map(texts as string[], t => engine.predict(t, [], model.languageCode))
-        const withoutNone = rawPredictions.map(removeNoneIntent)
-
-        engine.unloadModel(model.languageCode)
-
-        return res.send({ success: true, predictions: withoutNone })
       }
 
-      res.status(404).send({ success: false, error: `modelId ${modelId} can't be found` })
+      const rawPredictions: BpPredictOutput[] = await Promise.map(utterances as string[], async utterance => {
+        const detectedLanguage = await engine.detectLanguage(utterance, { [modelId.languageCode]: modelId })
+        const spellChecked = await engine.spellCheck(utterance, modelId)
+        const { entities, predictions } = await engine.predict(utterance, modelId)
+        return { entities, contexts: predictions, spellChecked, detectedLanguage, utterance }
+      })
+
+      const withoutNone: PredictOutput[] = rawPredictions.map(removeNoneIntent).map(mapPredictOutput)
+
+      return res.send({ success: true, predictions: withoutNone })
     } catch (err) {
-      res.status(404).send({ success: false, error: err.message })
+      res.status(500).send({ success: false, error: err.message })
     }
   })
 
-  app.use('/', router)
+  app.use(['/v1', '/'], router)
   app.use(handleErrorLogging)
 
   const httpServer = createServer(app)
@@ -193,4 +213,5 @@ export default async function(options: APIOptions, nluVersion: string) {
   })
 
   logger.info(`NLU Server is ready at http://${options.host}:${options.port}/`)
+  options.silent && logger.silence()
 }

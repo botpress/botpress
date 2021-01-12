@@ -5,8 +5,7 @@ import { HotKeys } from 'react-hotkeys'
 import { connect } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import SplitPane from 'react-split-pane'
-import { bindActionCreators } from 'redux'
-import { setEmulatorOpen, toggleBottomPanel, trainSessionReceived, viewModeChanged } from '~/actions'
+import { setEmulatorOpen, toggleBottomPanel, toggleInspector, trainSessionReceived, viewModeChanged } from '~/actions'
 import SelectContentManager from '~/components/Content/Select/Manager'
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 import storage from '~/util/storage'
@@ -17,6 +16,7 @@ import Logs from '~/views/Logs'
 import Module from '~/views/Module'
 
 import { TrainingStatusService } from './training-status-service'
+import BottomPanel from './BottomPanel'
 import BotUmountedWarning from './BotUnmountedWarning'
 import CommandPalette from './CommandPalette'
 import GuidedTour from './GuidedTour'
@@ -25,27 +25,24 @@ import layout from './Layout.scss'
 import Sidebar from './Sidebar'
 import StatusBar from './StatusBar'
 import Toolbar from './Toolbar'
-import BottomPanel from './Toolbar/BottomPanel'
 
 const { isInputFocused } = utils
 const WEBCHAT_PANEL_STATUS = 'bp::webchatOpened'
+const EXPANDED_PANEL_HEIGHT = 200
 
-interface ILayoutProps {
-  viewModeChanged: any
-  viewMode: number
-  docModal: any
-  docHints: any
+interface OwnProps {
   location: any
-  toggleBottomPanel: () => null
   history: any
-  bottomPanel: boolean
-  translations: any
   setEmulatorOpen: (state: boolean) => void
-  contentLang: string
   trainSessionReceived: (ts: NLU.TrainingSession) => void
 }
 
-const Layout: FC<ILayoutProps> = (props: ILayoutProps) => {
+type StateProps = ReturnType<typeof mapStateToProps>
+type DispatchProps = typeof mapDispatchToProps
+
+type Props = DispatchProps & StateProps & OwnProps
+
+const Layout: FC<Props> = (props: Props) => {
   const mainElRef = useRef(null)
   const [langSwitcherOpen, setLangSwitcherOpen] = useState(false)
   const [guidedTourOpen, setGuidedTourOpen] = useState(false)
@@ -60,6 +57,9 @@ const Layout: FC<ILayoutProps> = (props: ILayoutProps) => {
     setTimeout(() => BotUmountedWarning(), 500)
 
     const handleWebChatPanel = message => {
+      if (message.data.chatId) {
+        return // event is not coming from emulator
+      }
       if (message.data.name === 'webchatLoaded' && storage.get(WEBCHAT_PANEL_STATUS) === 'opened') {
         toggleEmulator()
       }
@@ -177,12 +177,14 @@ const Layout: FC<ILayoutProps> = (props: ILayoutProps) => {
     'go-module-qna': () => gotoUrl('/modules/qna'),
     'go-module-testing': () => gotoUrl('/modules/testing'),
     'go-module-analytics': () => gotoUrl('/modules/analytics'),
-    'go-understanding': () => gotoUrl('/modules/nlu')
+    'go-understanding': () => gotoUrl('/modules/nlu'),
+    'toggle-inspect': props.toggleInspector
   }
 
   const splitPanelLastSizeKey = `bp::${window.BOT_ID}::bottom-panel-size`
   const lastSize = parseInt(localStorage.getItem(splitPanelLastSizeKey) || '175', 10)
-  const bottomBarSize = props.bottomPanel ? lastSize : '100%'
+  const bottomPanelHeight = props.bottomPanelExpanded ? EXPANDED_PANEL_HEIGHT : lastSize
+  const bottomBarSize = props.bottomPanel ? bottomPanelHeight : '100%'
 
   return (
     <Fragment>
@@ -244,11 +246,17 @@ const mapStateToProps = state => ({
   viewMode: state.ui.viewMode,
   docHints: state.ui.docHints,
   bottomPanel: state.ui.bottomPanel,
+  bottomPanelExpanded: state.ui.bottomPanelExpanded,
   translations: state.language.translations,
   contentLang: state.language.contentLang
 })
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators({ viewModeChanged, toggleBottomPanel, setEmulatorOpen, trainSessionReceived }, dispatch)
+const mapDispatchToProps = {
+  viewModeChanged,
+  toggleBottomPanel,
+  setEmulatorOpen,
+  trainSessionReceived,
+  toggleInspector
+}
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layout)

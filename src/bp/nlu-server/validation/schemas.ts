@@ -1,8 +1,6 @@
 import Joi from 'joi'
 
-import { DEFAULT_DUCK_SERVER, DEFAULT_LANG_SERVER, DEFAULT_LANG_SOURCES } from '../config'
-
-const EnumOccurenceSchema = Joi.object({
+const ListEntityOccurenceSchema = Joi.object({
   name: Joi.string().required(), // ex: 'Paris', 'Montreal', 'Québec'
   synonyms: Joi.array() // ex: 'La Ville des lumières', 'City of Paris'
     .items(Joi.string())
@@ -10,16 +8,16 @@ const EnumOccurenceSchema = Joi.object({
     .default([])
 })
 
-const EnumSchema = Joi.object().keys({
+const ListEntitySchema = Joi.object().keys({
   name: Joi.string().required(), // ex: 'cities'
   values: Joi.array()
-    .items(EnumOccurenceSchema)
+    .items(ListEntityOccurenceSchema)
     .required()
     .min(1),
   fuzzy: Joi.number().default(0.9)
 })
 
-const PatternSchema = Joi.object().keys({
+const PatternEntitySchema = Joi.object().keys({
   name: Joi.string().required(),
   regex: Joi.string().required(),
   case_sensitive: Joi.bool().default(true),
@@ -29,9 +27,14 @@ const PatternSchema = Joi.object().keys({
     .default([])
 })
 
-const VariableSchema = Joi.object().keys({
+const EntitySchema = Joi.when('type', { is: 'list', then: ListEntitySchema }).when('type', {
+  is: 'pattern',
+  then: PatternEntitySchema
+})
+
+const SlotSchema = Joi.object().keys({
   name: Joi.string().required(),
-  types: Joi.array()
+  entities: Joi.array()
     .items(Joi.string())
     .optional()
     .default([])
@@ -39,35 +42,32 @@ const VariableSchema = Joi.object().keys({
 
 const IntentSchema = Joi.object().keys({
   name: Joi.string().required(),
-  variables: Joi.array()
-    .items(VariableSchema)
-    .optional()
-    .default([]),
-  examples: Joi.array()
+  contexts: Joi.array()
     .items(Joi.string())
     .required()
-    .min(1)
-})
-
-const TopicSchema = Joi.object().keys({
-  name: Joi.string().required(),
-  intents: Joi.array()
-    .items(IntentSchema)
+    .min(1),
+  slots: Joi.array()
+    .items(SlotSchema)
+    .optional()
+    .default([]),
+  utterances: Joi.array()
+    .items(Joi.string())
     .required()
     .min(1)
 })
 
 export const TrainInputSchema = Joi.object().keys({
   language: Joi.string().required(),
-  topics: Joi.array()
-    .items(TopicSchema)
-    .required(), // train input with empty topics array just for entity extraction is allowed
-  enums: Joi.array()
-    .items(EnumSchema)
-    .optional()
-    .default([]),
-  patterns: Joi.array()
-    .items(PatternSchema)
+  intents: Joi.array()
+    .items(IntentSchema)
+    .required()
+    .min(1),
+  contexts: Joi.array()
+    .items(Joi.string())
+    .required()
+    .min(1),
+  entities: Joi.array()
+    .items(EntitySchema)
     .optional()
     .default([]),
   password: Joi.string()
@@ -77,15 +77,20 @@ export const TrainInputSchema = Joi.object().keys({
   seed: Joi.number().optional()
 })
 
-const LanguageSourcesSchema = Joi.object().keys({
-  endpoint: Joi.string().default(DEFAULT_LANG_SERVER),
-  authToken: Joi.string().optional()
+export const CancelInputSchema = Joi.object().keys({
+  password: Joi.string()
+    .allow('')
+    .optional()
+    .default('')
 })
 
-export const NLUConfigSchema = Joi.object().keys({
-  ducklingURL: Joi.string().default(DEFAULT_DUCK_SERVER),
-  ducklingEnabled: Joi.bool().default(true),
-  languageSources: Joi.array()
-    .items(LanguageSourcesSchema)
-    .default(DEFAULT_LANG_SOURCES)
+export const PredictInputSchema = Joi.object().keys({
+  password: Joi.string()
+    .allow('')
+    .optional()
+    .default(''),
+  utterances: Joi.array()
+    .items(Joi.string())
+    .required()
+    .min(1)
 })

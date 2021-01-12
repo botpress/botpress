@@ -6,6 +6,8 @@ import {
   setActiveView,
   setEmulatorOpen,
   toggleBottomPanel,
+  toggleBottomPanelExpand,
+  toggleInspector,
   updateDocumentationModal,
   updateGlobalStyle,
   viewModeChanged,
@@ -28,10 +30,15 @@ export interface UiReducer {
   zoomLevel: number
   bottomPanel: boolean
   activeView: ViewType
+  bottomPanelExpanded: boolean
+  inspectorEnabled: boolean
+  setEmulatorOpen: (newState: boolean) => void
 }
 
 const bottomPanelStorageKey = `bp::${window.BOT_ID}::bottom-panel-open`
+const inspectorEnabledStorageKey = `bp::${window.BOT_ID}::enable-inspector`
 const defaultBottomPanelOpen = storage.get(bottomPanelStorageKey) === 'true'
+const defaultInspectorEnabled = storage.get(inspectorEnabledStorageKey) === 'true'
 
 const defaultState = {
   viewMode: -1,
@@ -39,6 +46,8 @@ const defaultState = {
   docHints: [],
   docModal: null,
   bottomPanel: defaultBottomPanelOpen || false,
+  bottomPanelExpanded: false,
+  inspectorEnabled: defaultInspectorEnabled,
   emulatorOpen: false,
   zoomLevel: 100,
   activeView: ViewType.Diagram
@@ -66,12 +75,24 @@ const reducer = handleActions(
       ...state,
       docModal: payload
     }),
+    [toggleBottomPanelExpand]: state => ({
+      ...state,
+      bottomPanelExpanded: !state.bottomPanelExpanded
+    }),
     [toggleBottomPanel]: (state, {}) => {
       const value = !state.bottomPanel
       localStorage.setItem(bottomPanelStorageKey, value.toString())
       return {
         ...state,
         bottomPanel: value
+      }
+    },
+    [toggleInspector]: (state, {}) => {
+      const value = !state.inspectorEnabled
+      localStorage.setItem(inspectorEnabledStorageKey, value.toString())
+      return {
+        ...state,
+        inspectorEnabled: value
       }
     },
     [zoomIn]: (state, {}) => {

@@ -34,11 +34,11 @@ export default async (argv, action) => {
   const { file, dest } = argv
 
   if (argv.list) {
-    console.log(`Directory listing of ${path.join('data', argv.list)}
+    console.info(`Directory listing of ${path.join('data', argv.list)}
 =========================================`)
 
     const files = await ghost.root().directoryListing(argv.list)
-    files.forEach(file => console.log(chalk.green(` - ${file}`)))
+    files.forEach(file => console.info(chalk.green(` - ${file}`)))
     process.exit()
   }
 
@@ -65,7 +65,7 @@ export default async (argv, action) => {
     mkdirpSync(path.dirname(dest || file))
     fs.writeFileSync(dest || file, fileBuffer)
 
-    console.log(chalk.green(`File "${filename}" saved at ${path.resolve(dest || file)}`))
+    console.info(chalk.green(`File "${filename}" saved at ${path.resolve(dest || file)}`))
   }
 
   if (action === 'pushfile') {
@@ -78,7 +78,7 @@ export default async (argv, action) => {
     const destFile = path.basename(dest || file)
 
     await ghost.root().upsertFile(destFolder, destFile, fs.readFileSync(path.resolve(file), 'UTF-8'))
-    console.log(chalk.green(`File "${file}" saved at ${path.join(destFolder, destFile)}`))
+    console.info(chalk.green(`File "${file}" saved at ${path.join(destFolder, destFile)}`))
   }
 
   process.exit()

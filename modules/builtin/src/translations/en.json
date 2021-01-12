@@ -3,13 +3,29 @@
   "fullName": "Basic Skills",
   "types": {
     "actionButton": {
+      "add": "Add Button",
+      "addButton": "Add Button",
+      "actionLabel": "Button Action",
       "buttonTitle": "Title of the button",
+      "delete": "Delete Button",
       "description": "A button that triggers an action, often used in cards",
+      "sayLabel": "Chatbot Says",
+      "sayTextLabel": "Text",
+      "sayPlaceholder": "What will your chatbot say?",
+      "postLabel": "Post Back",
+      "postFieldLabel": "Payload",
       "textTitle": "Enter text or the ID of a content element (ex: #!builtin_text-myid)",
-      "title": "Action Button"
+      "textLabel": "Button Text",
+      "textPlaceholder": "What is written on the button?",
+      "title": "Button Action",
+      "urlLabel": "Open URL",
+      "urlPlaceholder": "Write a valid URL"
     },
     "card": {
-      "description": "A card message with a title with optional subtitle, image and action buttons."
+      "add": "Add Card",
+      "delete": "Delete Card",
+      "description": "A card message with a title with optional subtitle, image and action buttons.",
+      "cardSubject": "What is your card subject?"
     },
     "carousel": {
       "cards": "Carousel cards",
@@ -21,7 +37,10 @@
       "imageLabel": "Title",
       "labelDesc": "Some platforms require to name the images.",
       "permissionDenied": "You don't have permission to upload files for this bot. Talk to your team owner.",
+      "infoInterpreted": "This information will be interpreted:",
       "title": "Image",
+      "uploadFileChoice": "Or upload an image",
+      "enterUrlChoice": "Or enter the image URL",
       "uploadImage": "Upload Image"
     },
     "singleChoice": {
@@ -32,11 +51,17 @@
       "title": "Single Choice"
     },
     "text": {
-      "alternatives": "Alternates",
+      "add": "Add Text Alternatives",
+      "alternative": "Alternative",
+      "alternative_plural": "Alternatives",
+      "alternativeLabel": "Text",
+      "delete": "Delete Alternative",
       "description": "A regular text message with optional typing indicators and alternates",
+      "text": "Text",
       "message": "Message"
     }
   },
   "typingIndicator": "Show typing indicators",
-  "useMarkdown": "Use markdown"
+  "useMarkdown": "Use markdown",
+  "disableFreeText": "Disable free text"
 }

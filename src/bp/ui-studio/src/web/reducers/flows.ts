@@ -1,4 +1,4 @@
-import { FlowNode } from 'botpress/sdk'
+import { FlowNode, IO } from 'botpress/sdk'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import reduceReducers from 'reduce-reducers'
@@ -32,6 +32,7 @@ import {
   requestUpdateFlowNode,
   requestUpdateSkill,
   setActiveFormItem,
+  setDebuggerEvent,
   setDiagramAction,
   switchFlow,
   switchFlowNode,
@@ -59,6 +60,7 @@ export interface FlowReducer {
   nodeInBuffer?: FlowNode
   /** The element currently being edited on the right inspector form */
   activeFormItem?: ActiveFormItem
+  debuggerEvent?: IO.IncomingEvent
 }
 
 const MAX_UNDO_STACK_SIZE = 25
@@ -745,6 +747,11 @@ reducer = reduceReducers(
           }
         }
       },
+
+      [setDebuggerEvent]: (state, { payload }) => ({
+        ...state,
+        debuggerEvent: payload
+      }),
 
       [copyFlowNodeElement]: (state, { payload }) => ({
         ...state,

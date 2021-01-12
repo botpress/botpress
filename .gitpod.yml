@@ -1,0 +1,23 @@
+image: node:12-alpine
+tasks:
+  - init: yarn && yarn build
+    command: yarn run start
+    openMode: split-right
+    name: Builds & run Botpress
+
+vscode:
+  extensions:
+    - esbenp.prettier-vscode@5.7.1:GDba64T6G+TUi1qmc6BE3A==
+    - oderwat.indent-rainbow@7.4.0:fDVCkGVYd1R2lfcs1tHk+Q==
+    - humao.rest-client@0.24.4:zy4YO0p/vGcDbgPap4k4+A==
+    - wayou.vscode-todo-highlight@1.0.4:TEjqQVt71hdvHUZA7eWgHA==
+
+github:
+  prebuilds:
+    master: true
+    branches: true
+    pullRequests: true
+    pullRequestsFromForks: false
+    addComment: true
+    addBadge: true
+    addLabel: prebuilt-ready

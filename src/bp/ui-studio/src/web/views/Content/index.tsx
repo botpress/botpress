@@ -1,5 +1,5 @@
 import { ActionBuilderProps, ContentElement } from 'botpress/sdk'
-import { lang } from 'botpress/shared'
+import { lang, utils } from 'botpress/shared'
 import classnames from 'classnames'
 import { FlowView, NodeView } from 'common/typings'
 import _ from 'lodash'
@@ -79,9 +79,14 @@ class ContentView extends Component<Props, State> {
   }
 
   currentContentType() {
-    this.props.contentItems.forEach(async (element: ContentElementUsage) => {
+    this.props.contentItems.forEach((element: ContentElementUsage) => {
       element.usage = []
       Object.values(this.props.flows.flowsByName).forEach((flow: FlowView) => {
+        // Skip skill flows
+        if (flow.skillData) {
+          return
+        }
+
         flow.nodes.forEach((node: NodeView) => {
           const usage: ContentUsage = {
             type: 'Flow',
@@ -91,19 +96,31 @@ class ContentView extends Component<Props, State> {
           }
 
           const addUsage = (v: string | ActionBuilderProps) => {
-            if (typeof v === 'string' && v.startsWith('say #!' + element.id)) {
+            if (typeof v === 'string' && v.startsWith(`say #!${element.id}`)) {
               if (!usage.count) {
                 element.usage.push(usage)
               }
               usage.count++
             }
           }
-          node.onEnter?.forEach(addUsage)
-          node.onReceive?.forEach(addUsage)
+
+          const addNodeUsage = (node: NodeView) => {
+            node.onEnter?.forEach(addUsage)
+            node.onReceive?.forEach(addUsage)
+          }
+
+          if (node.flow && node.type === 'skill-call' ) {
+            const nodeSubFlow = this.props.flows.flowsByName[node.flow]
+            nodeSubFlow.nodes.forEach((node: NodeView) => {
+              addNodeUsage(node)
+            })
+          } else {
+            addNodeUsage(node)
+          }
         })
       })
 
-      const usage = this.props.qnaUsage?.['#!' + element.id]
+      const usage = this.props.qnaUsage?.[`#!${element.id}`]
       usage &&
         element.usage.push({
           type: 'Q&A',
@@ -172,8 +189,9 @@ class ContentView extends Component<Props, State> {
   }
 
   handleModalShowForEdit = (id: string) => {
-    const contentToEdit = _.find(this.props.contentItems, { id }).formData
-    this.setState({ modifyId: id, showModal: true, contentToEdit })
+    const contentToEdit = _.find(this.props.contentItems, { id })
+    utils.inspect(contentToEdit)
+    this.setState({ modifyId: id, showModal: true, contentToEdit: contentToEdit.formData })
   }
 
   handleRefresh = () => {

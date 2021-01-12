@@ -93,7 +93,7 @@ export default class ActionService {
 
   private _listenForCacheInvalidation() {
     this.cache.events.on('invalidation', key => {
-      if (key.toLowerCase().indexOf('/actions') > -1) {
+      if (key.toLowerCase().indexOf('/actions') > -1 || key.toLowerCase().indexOf('/libraries') > -1) {
         this._invalidateDebounce(key)
       }
     })
@@ -102,7 +102,7 @@ export default class ActionService {
   // Debouncing invalidate since we get a lot of events when it happens
   private _invalidateRequire() {
     Object.keys(require.cache)
-      .filter(r => r.match(/(\\|\/)actions(\\|\/)/g))
+      .filter(r => r.match(/(\\|\/)actions(\\|\/)/g) || r.match(/(\\|\/)shared_libs(\\|\/)/g))
       .map(file => delete require.cache[file])
 
     clearRequireCache()
@@ -360,7 +360,7 @@ export class ScopedActionService {
 
     const botFolder = action.scope === 'global' ? 'global' : `bots/${this.botId}`
     const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}.js`))
-    const lookups = getBaseLookupPaths(dirPath)
+    const lookups = getBaseLookupPaths(dirPath, 'actions')
 
     return { code, dirPath, lookups, action }
   }
@@ -368,7 +368,7 @@ export class ScopedActionService {
   private async _getCodeActionDetails(actionCode: string) {
     const botFolder = `bots/${this.botId}`
     const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/__internal.js`))
-    const lookups = getBaseLookupPaths(dirPath)
+    const lookups = getBaseLookupPaths(dirPath, 'actions')
     const _require = prepareRequire(dirPath, lookups)
 
     return { code: actionCode, dirPath, _require, action: { scope: botFolder as any } }

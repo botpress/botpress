@@ -1,85 +1,102 @@
 import { MLToolkit, NLU } from 'botpress/sdk'
-import crypto from 'crypto'
+import bytes from 'bytes'
 import _ from 'lodash'
+import LRUCache from 'lru-cache'
+import sizeof from 'object-sizeof'
 
+import { deserializeKmeans } from './clustering'
 import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
 import DetectLanguage from './language/language-identifier'
-import { deserializeModel, PredictableModel, serializeModel } from './model-manager'
-import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
+import makeSpellChecker from './language/spell-checker'
+import modelIdService from './model-id-service'
+import { deserializeModel, PredictableModel, serializeModel } from './model-serializer'
+import { Predict, PredictInput, Predictors } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
-import { computeKmeans, ProcessIntents, TrainInput, TrainOutput } from './training-pipeline'
-import { TrainingCanceledError, TrainingWorkerQueue } from './training-worker-queue'
-import { EntityCacheDump, Intent, ListEntity, PatternEntity, Tools } from './typings'
+import { ProcessIntents, TrainInput, TrainOutput } from './training-pipeline'
+import { TrainingWorkerQueue } from './training-worker-queue'
+import { EntityCacheDump, ListEntity, PatternEntity, Tools } from './typings'
+import { preprocessRawUtterance } from './utterance/utterance'
+import { getModifiedContexts, mergeModelOutputs } from './warm-training-handler'
 
 const trainDebug = DEBUG('nlu').sub('training')
+const lifecycleDebug = DEBUG('nlu').sub('lifecycle')
+const debugPredict = DEBUG('nlu').sub('extract')
+
+interface LoadedModel {
+  model: PredictableModel
+  predictors: Predictors
+  entityCache: EntityCacheManager
+}
+
+const DEFAULT_TRAINING_OPTIONS: NLU.TrainingOptions = {
+  progressCallback: () => {},
+  previousModel: undefined
+}
+
+const DEFAULT_ENGINE_OPTIONS: EngineOptions = {
+  maxCacheSize: 262144000 // 250mb of model cache
+}
+
+interface EngineOptions {
+  maxCacheSize: number
+}
 
 export default class Engine implements NLU.Engine {
-  private static _tools: Tools
-  private static _trainingWorkerQueue: TrainingWorkerQueue
+  private _tools!: Tools
+  private _trainingWorkerQueue!: TrainingWorkerQueue
 
-  private predictorsByLang: _.Dictionary<Predictors> = {}
-  private modelsByLang: _.Dictionary<PredictableModel> = {}
-  private entitiesCacheByLang: _.Dictionary<EntityCacheManager> = {}
+  private modelsById: LRUCache<string, LoadedModel>
 
-  constructor(private botId: string, private logger: NLU.Logger) {}
-
-  // NOTE: removed private in order to prevent important refactor (which will be done later)
-  public static get tools() {
-    return this._tools
+  constructor(opt?: Partial<EngineOptions>) {
+    const options: EngineOptions = { ...DEFAULT_ENGINE_OPTIONS, ...opt }
+    this.modelsById = new LRUCache({
+      max: options.maxCacheSize,
+      length: sizeof // ignores size of functions, but let's assume it's small
+    })
+    trainDebug(`model cache size is: ${bytes(options.maxCacheSize)}`)
   }
 
-  public static getHealth() {
+  public getHealth() {
     return this._tools.getHealth()
   }
 
-  public static getLanguages() {
+  public getLanguages() {
     return this._tools.getLanguages()
   }
 
-  public static getVersionInfo() {
-    return this._tools.getVersionInfo()
+  public getSpecifications() {
+    return this._tools.getSpecifications()
   }
 
-  public static async initialize(config: NLU.Config, logger: NLU.Logger): Promise<void> {
+  public async initialize(config: NLU.LanguageConfig, logger: NLU.Logger): Promise<void> {
     this._tools = await initializeTools(config, logger)
-    const version = this._tools.getVersionInfo()
-    if (!version.nluVersion.length || !version.langServerInfo.version.length) {
+    const { nluVersion, languageServer } = this._tools.getSpecifications()
+    if (!_.isString(nluVersion) || !this._dictionnaryIsFilled(languageServer)) {
       logger.warning('Either the nlu version or the lang server version is not set correctly.')
     }
 
     this._trainingWorkerQueue = new TrainingWorkerQueue(config, logger)
   }
 
-  public hasModel(language: string, hash: string) {
-    return this.modelsByLang[language]?.hash === hash
-  }
-
-  public hasModelForLang(language: string) {
-    return !!this.modelsByLang[language]
-  }
-
-  // we might want to make this language specific
-  public computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string {
-    const { nluVersion, langServerInfo } = Engine._tools.getVersionInfo()
-
-    const singleLangIntents = intents.map(i => ({ ...i, utterances: i.utterances[lang] }))
-
-    return crypto
-      .createHash('md5')
-      .update(JSON.stringify({ singleLangIntents, entities, nluVersion, langServerInfo }))
-      .digest('hex')
+  public hasModel(modelId: NLU.ModelId) {
+    const stringId = modelIdService.toString(modelId)
+    return !!this.modelsById.get(stringId)
   }
 
   async train(
     trainSessionId: string,
-    intentDefs: NLU.IntentDefinition[],
-    entityDefs: NLU.EntityDefinition[],
-    languageCode: string,
-    options: NLU.TrainingOptions
-  ): Promise<NLU.Model | undefined> {
-    trainDebug.forBot(this.botId, `Started ${languageCode} training`)
+    trainSet: NLU.TrainingSet,
+    opt: Partial<NLU.TrainingOptions> = {}
+  ): Promise<NLU.Model> {
+    const { languageCode, seed, entityDefs, intentDefs } = trainSet
+    trainDebug(`Started ${languageCode} training`)
+
+    const options = { ...DEFAULT_TRAINING_OPTIONS, ...opt }
+
+    const { previousModel: previousModelId, progressCallback } = options
+    const previousModel = previousModelId && this.modelsById.get(modelIdService.toString(previousModelId))
 
     const list_entities = entityDefs
       .filter(ent => ent.type === 'list')
@@ -92,7 +109,7 @@ export default class Engine implements NLU.Engine {
             .keyBy('name')
             .mapValues('synonyms')
             .value(),
-          cache: this.entitiesCacheByLang[languageCode]?.getCache(e.name) || []
+          cache: previousModel?.entityCache.getCache(e.name) || []
         }
       })
 
@@ -120,29 +137,20 @@ export default class Engine implements NLU.Engine {
         slot_definitions: x.slots
       }))
 
-    const { forceTrain, nluSeed, progressCallback } = options
-
-    const previousModel = this.modelsByLang[languageCode]
-    let trainAllCtx = forceTrain || !previousModel
     let ctxToTrain = contexts
-
-    if (!trainAllCtx) {
-      const previousIntents = previousModel.data.input.intents
-      const ctxHasChanged = this._ctxHasChanged(previousIntents, intents)
-      const modifiedCtx = contexts.filter(ctxHasChanged)
-
-      trainAllCtx = modifiedCtx.length >= contexts.length
-      ctxToTrain = trainAllCtx ? contexts : modifiedCtx
+    if (previousModel) {
+      const previousIntents = previousModel.model.data.input.intents
+      const contextChangeLog = getModifiedContexts(intents, previousIntents)
+      ctxToTrain = [...contextChangeLog.createdContexts, ...contextChangeLog.modifiedContexts]
     }
 
-    const debugMsg = trainAllCtx
-      ? `Training all contexts for language: ${languageCode}`
-      : `Retraining only contexts: [${ctxToTrain}] for language: ${languageCode}`
-    trainDebug.forBot(this.botId, debugMsg)
+    const debugMsg = previousModel
+      ? `Retraining only contexts: [${ctxToTrain}] for language: ${languageCode}`
+      : `Training all contexts for language: ${languageCode}`
+    trainDebug(debugMsg)
 
     const input: TrainInput = {
-      botId: this.botId,
-      nluSeed,
+      nluSeed: seed,
       languageCode,
       list_entities,
       pattern_entities,
@@ -151,107 +159,80 @@ export default class Engine implements NLU.Engine {
       ctxToTrain
     }
 
-    const hash = this.computeModelHash(intentDefs, entityDefs, languageCode)
-    const model = await this._trainAndMakeModel(trainSessionId, input, hash, progressCallback)
-
-    if (!model) {
-      return
-    }
-
-    if (!trainAllCtx) {
-      model.data.output = this._mergeModelOutputs(model.data.output, previousModel.data.output, contexts)
-    }
-
-    trainDebug.forBot(this.botId, `Successfully finished ${languageCode} training`)
-
-    return serializeModel(model)
-  }
-
-  cancelTraining(trainSessionId: string): Promise<void> {
-    return Engine._trainingWorkerQueue.cancelTraining(trainSessionId)
-  }
-
-  private _mergeModelOutputs(
-    currentOutput: TrainOutput,
-    previousOutput: TrainOutput,
-    allContexts: string[]
-  ): TrainOutput {
-    const output = { ...currentOutput }
-
-    const previousIntents = _.pick(previousOutput.intent_model_by_ctx, allContexts)
-    const previousOOS = _.pick(previousOutput.oos_model, allContexts)
-
-    output.intent_model_by_ctx = { ...previousIntents, ...currentOutput.intent_model_by_ctx }
-    output.oos_model = { ...previousOOS, ...currentOutput.oos_model }
-    return output
-  }
-
-  private async _trainAndMakeModel(
-    trainSessionId: string,
-    input: TrainInput,
-    hash: string,
-    progressCallback: (progress: number) => void
-  ): Promise<PredictableModel | undefined> {
     const startedAt = new Date()
-    let output: TrainOutput | undefined
+    const output = await this._trainingWorkerQueue.startTraining(trainSessionId, input, progressCallback)
 
-    try {
-      output = await Engine._trainingWorkerQueue.startTraining(trainSessionId, input, progressCallback)
-    } catch (err) {
-      if (err instanceof TrainingCanceledError) {
-        this.logger.info('Training cancelled')
-        return
-      }
-      this.logger.error('Could not finish training NLU model', err)
-      return
-    }
+    const modelId = modelIdService.makeId({
+      ...trainSet,
+      specifications: this.getSpecifications()
+    })
 
-    if (!output) {
-      return
-    }
-
-    return {
+    const model: PredictableModel = {
+      ...modelId,
       startedAt,
       finishedAt: new Date(),
-      languageCode: input.languageCode,
-      hash,
       data: {
         input,
         output
       }
     }
-  }
 
-  private modelAlreadyLoaded(model: NLU.Model) {
-    if (!model?.languageCode) {
-      return false
+    if (previousModel) {
+      model.data.output = mergeModelOutputs(model.data.output, previousModel.model.data.output, contexts)
     }
-    const lang = model.languageCode
 
-    return (
-      !!this.predictorsByLang[lang] &&
-      !!this.modelsByLang[lang] &&
-      !!this.modelsByLang[lang].hash &&
-      !!model.hash &&
-      this.modelsByLang[lang].hash === model.hash
-    )
+    trainDebug(`Successfully finished ${languageCode} training`)
+
+    return serializeModel(model)
   }
 
-  async loadModel(serialized: NLU.Model | undefined) {
-    if (!serialized || this.modelAlreadyLoaded(serialized)) {
+  cancelTraining(trainSessionId: string): Promise<void> {
+    return this._trainingWorkerQueue.cancelTraining(trainSessionId)
+  }
+
+  async loadModel(serialized: NLU.Model) {
+    const stringId = modelIdService.toString(serialized)
+    lifecycleDebug(`Load model ${stringId}`)
+
+    if (this.hasModel(serialized)) {
+      lifecycleDebug(`Model ${stringId} already loaded.`)
       return
     }
 
     const model = deserializeModel(serialized)
-
     const { input, output } = model.data
 
-    const trainOutput = output as TrainOutput
+    const modelCacheItem: LoadedModel = {
+      model,
+      predictors: await this._makePredictors(input, output),
+      entityCache: this._makeCacheManager(output)
+    }
 
-    const { languageCode } = model
-    this.predictorsByLang[languageCode] = await this._makePredictors(input, trainOutput)
-    this.entitiesCacheByLang[languageCode] = this._makeCacheManager(trainOutput)
-    this.modelsByLang[languageCode] = model
+    const modelSize = sizeof(modelCacheItem)
+    lifecycleDebug(`Size of model ${stringId} is ${bytes(modelSize)}`)
+
+    if (modelSize >= this.modelsById.max) {
+      const msg = `Can't load model ${stringId} as it is bigger than the maximum allowed size`
+      const details = `model size: ${bytes(modelSize)}, max allowed: ${bytes(this.modelsById.max)}`
+      throw new Error(`${msg} (${details}).`)
+    }
+
+    this.modelsById.set(stringId, modelCacheItem)
+    lifecycleDebug('Model loaded with success')
+    lifecycleDebug(`Model cache entries are: [${this.modelsById.keys().join(', ')}]`)
+  }
+
+  unloadModel(modelId: NLU.ModelId) {
+    const stringId = modelIdService.toString(modelId)
+    lifecycleDebug(`Unload model ${stringId}`)
+
+    if (!this.hasModel(modelId)) {
+      lifecycleDebug(`No model with id ${stringId} was found in cache.`)
+      return
+    }
+
+    this.modelsById.del(stringId)
+    lifecycleDebug('Model unloaded with success')
   }
 
   private _makeCacheManager(output: TrainOutput) {
@@ -262,18 +243,24 @@ export default class Engine implements NLU.Engine {
   }
 
   private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {
-    const tools = Engine._tools
+    const tools = this._tools
+
+    const { ctx_model, intent_model_by_ctx, oos_model, list_entities, kmeans } = output
 
     /**
      * TODO: extract this function some place else,
-     * Engine shouldn't be dependant of training pipeline...
+     * Engine's predict() shouldn't be dependant of training pipeline...
      */
-    const intents = await ProcessIntents(input.intents, input.languageCode, output.list_entities, Engine._tools)
+    const intents = await ProcessIntents(input.intents, input.languageCode, list_entities, this._tools)
+
+    const warmKmeans = kmeans && deserializeKmeans(kmeans)
 
     const basePredictors: Predictors = {
       ...output,
+      lang: input.languageCode,
       intents,
-      pattern_entities: input.pattern_entities
+      pattern_entities: input.pattern_entities,
+      kmeans: warmKmeans
     }
 
     if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
@@ -282,7 +269,6 @@ export default class Engine implements NLU.Engine {
       return basePredictors
     }
 
-    const { ctx_model, intent_model_by_ctx, oos_model } = output
     const ctx_classifier = ctx_model ? new tools.mlToolkit.SVM.Predictor(ctx_model) : undefined
     const intent_classifier_per_ctx = _.toPairs(intent_model_by_ctx).reduce(
       (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
@@ -299,51 +285,71 @@ export default class Engine implements NLU.Engine {
       slot_tagger.load(output.slots_model)
     }
 
-    const kmeans = computeKmeans(intents!, tools) // TODO load from artefacts when persisted
-
     return {
       ...basePredictors,
       ctx_classifier,
       oos_classifier_per_ctx: oos_classifier,
       intent_classifier_per_ctx,
-      slot_tagger,
-      kmeans
+      slot_tagger
     }
   }
 
-  async predict(sentence: string, includedContexts: string[], language: string): Promise<PredictOutput> {
-    const input: PredictInput = {
-      language,
-      sentence,
-      includedContexts
+  async predict(text: string, modelId: NLU.ModelId): Promise<NLU.PredictOutput> {
+    debugPredict(`Predict for input: "${text}"`)
+
+    const stringId = modelIdService.toString(modelId)
+    const loaded = this.modelsById.get(stringId)
+    if (!loaded) {
+      throw new Error(`model ${stringId} not loaded`)
     }
 
-    // error handled a level higher
-    return Predict(input, Engine._tools, this.predictorsByLang)
+    const language = loaded.model.languageCode
+    return Predict(
+      {
+        language,
+        text
+      },
+      this._tools,
+      loaded.predictors
+    )
   }
 
-  unloadModel(lang: string) {
-    if (this.modelsByLang[lang]) {
-      delete this.modelsByLang[lang]
-      delete this.predictorsByLang[lang]
+  async spellCheck(sentence: string, modelId: NLU.ModelId) {
+    const stringId = modelIdService.toString(modelId)
+    const loaded = this.modelsById.get(stringId)
+    if (!loaded) {
+      throw new Error(`model ${stringId} not loaded`)
     }
+
+    const preprocessed = preprocessRawUtterance(sentence)
+    const spellChecker = makeSpellChecker(
+      Object.keys(loaded.predictors.vocabVectors),
+      loaded.model.languageCode,
+      this._tools
+    )
+    return spellChecker(preprocessed)
   }
 
-  async detectLanguage(sentence: string): Promise<string> {
-    return DetectLanguage(sentence, this.predictorsByLang, Engine._tools)
+  async detectLanguage(text: string, modelsByLang: _.Dictionary<NLU.ModelId>): Promise<string> {
+    debugPredict(`Detecting language for input: "${text}"`)
+
+    const predictorsByLang = _.mapValues(modelsByLang, id => {
+      const stringId = modelIdService.toString(id)
+      return this.modelsById.get(stringId)?.predictors
+    })
+
+    if (!this._dictionnaryIsFilled(predictorsByLang)) {
+      const missingLangs = _(predictorsByLang)
+        .pickBy(pred => _.isUndefined(pred))
+        .keys()
+        .value()
+      throw new Error(`No models loaded for the following languages: [${missingLangs.join(', ')}]`)
+    }
+    return DetectLanguage(text, predictorsByLang, this._tools)
   }
 
-  private _ctxHasChanged = (previousIntents: Intent<string>[], currentIntents: Intent<string>[]) => (ctx: string) => {
-    const prevHash = this._computeCtxHash(previousIntents, ctx)
-    const currHash = this._computeCtxHash(currentIntents, ctx)
-    return prevHash !== currHash
-  }
-
-  private _computeCtxHash = (intents: Intent<string>[], ctx: string) => {
-    const intentsOfCtx = intents.filter(i => i.contexts.includes(ctx))
-    return crypto
-      .createHash('md5')
-      .update(JSON.stringify(intentsOfCtx))
-      .digest('hex')
+  // TODO: this should go someplace else, but I find it very handy
+  private _dictionnaryIsFilled = <T>(dictionnary: { [key: string]: T | undefined }): dictionnary is Dic<T> => {
+    return !Object.values(dictionnary).some(_.isUndefined)
   }
 }

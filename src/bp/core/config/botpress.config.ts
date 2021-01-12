@@ -19,7 +19,7 @@ export interface DialogConfig {
   janitorInterval: string
   /**
    * Interval before a session's context expires.
-   * e.g. when the conversation is stale and has not reach the END of the flow.
+   * e.g. when the conversation is stale and has not reached the END of the flow.
    * This will reset the position of the user in the flow.
    * @default 2m
    */
@@ -318,6 +318,14 @@ export interface BotpressConfig {
    * @default false
    */
   experimental: boolean
+
+  telemetry: {
+    /**
+     * The number of entries stored in the telemetry database
+     * @default 1000
+     */
+    entriesLimit: number
+  }
 }
 
 export interface ExternalAuthConfig {
