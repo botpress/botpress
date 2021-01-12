@@ -21,7 +21,10 @@ async function run() {
     if (!pull_request.requested_reviewers.length) {
       core.setFailed('Request at least one reviewer on your Pull Request')
     }
+
+    // TODO you are here aat checking if this works fine
     if (title.includes(':')) {
+      //dont forget to put feat instead of :
       const token = process.env.token
       const octokit = github.getOctokit(token)
       const options = {
@@ -33,7 +36,7 @@ async function run() {
 
       const files = await octokit.pulls.listFiles(options)
       core.info(`${files.length} mofified files in this PR`)
-      console.log(JSON.stringify(filtes.map(f => f.filename)))
+      console.log(JSON.stringify(files.map(f => f.filename)))
       const hasTests = !files.data.some(f => f.filename.includes('.test.'))
       if (!hasTests) {
         core.setFailed(
