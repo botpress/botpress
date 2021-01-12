@@ -21,7 +21,7 @@ async function run() {
       core.setFailed('Request at least one reviewer on your Pull Request')
     }
     if (title.includes('feat')) {
-      const token = core.getInput('token')
+      const token = process.env.token
       const octokit = github.getOctokit(token)
       const options = {
         ...github.context.repo,

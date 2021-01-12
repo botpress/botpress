@@ -11,6 +11,6 @@ jobs:
       - uses: actions/setup-node@v1
       - name: Assert PR
         id: assert_pr
-        with:
+        env:
           token: ${{ secrets.GITHUB_TOKEN }}
         run: node index.js
