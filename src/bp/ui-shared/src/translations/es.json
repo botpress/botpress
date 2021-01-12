@@ -252,5 +252,13 @@
   "uncategorized": "Sin categorizar",
   "incomplete": "Incompleto",
   "active": "Activo",
-  "visibility": "Visibilidad"
+  "visibility": "Visibilidad",
+  "timespan": {
+    "lastMonth": "Mes Pasado",
+    "lastWeek": "Semana Pasada",
+    "lastYear": "Año Pasado",
+    "thisMonth": "Este Mes",
+    "thisWeek": "Esta Semana",
+    "thisYear": "Este Año"
+  }
 }

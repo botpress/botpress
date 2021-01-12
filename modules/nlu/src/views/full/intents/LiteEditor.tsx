@@ -92,15 +92,7 @@ export const LiteEditor: FC<Props> = props => {
         onSubmit={createIntent}
         title={lang.tr('module.nlu.intents.createLabel')}
       />
-      {currentIntent && (
-        <IntentEditor
-          liteEditor
-          intent={currentIntent}
-          api={api}
-          contentLang={props.contentLang}
-          axios={props.bp.axios} // to be removed for api, requires a lot of refactoring
-        />
-      )}
+      {currentIntent && <IntentEditor liteEditor intent={currentIntent} api={api} contentLang={props.contentLang} />}
 
       <div className={style.chooseContainer}>
         <ControlGroup>

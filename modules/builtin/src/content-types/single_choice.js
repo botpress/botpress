@@ -19,7 +19,8 @@ function render(data) {
         payload: c.value.toUpperCase()
       })),
       typing: data.typing,
-      markdown: data.markdown
+      markdown: data.markdown,
+      disableFreeText: data.disableFreeText
     }
   ]
 }
@@ -127,6 +128,11 @@ module.exports = {
         type: 'boolean',
         title: 'module.builtin.useMarkdown',
         default: true
+      },
+      disableFreeText: {
+        type: 'boolean',
+        title: 'module.builtin.disableFreeText',
+        default: false
       },
       ...base.typingIndicators
     }

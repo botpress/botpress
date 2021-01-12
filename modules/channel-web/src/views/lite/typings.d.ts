@@ -66,6 +66,7 @@ export namespace Renderer {
   export type QuickReply = {
     buttons: any
     quick_replies: any
+    disableFreeText: boolean
   } & Message
 
   export type QuickReplyButton = {
@@ -143,6 +144,7 @@ export interface Config {
   showUserAvatar: boolean
   showTimestamp: boolean
   enableTranscriptDownload: boolean
+  enableConversationDeletion: boolean
   enableArrowNavigation: boolean
   closeOnEscape: boolean
   botName?: string

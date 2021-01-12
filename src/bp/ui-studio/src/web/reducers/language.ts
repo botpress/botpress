@@ -1,13 +1,17 @@
 import { handleActions } from 'redux-actions'
+import { botInfoReceived, changeContentLanguage, receiveModuleTranslations } from '~/actions'
 
-import { changeContentLanguage, botInfoReceived, receiveModuleTranslations } from '~/actions'
+export interface LanguageReducer {
+  contentLang: string
+  translations: any | undefined
+}
 
 export interface LangReducer {
   contentLang: string
   ttranslations: any
 }
 
-const defaultState = {
+const defaultState: LanguageReducer = {
   contentLang: 'en',
   translations: undefined
 }

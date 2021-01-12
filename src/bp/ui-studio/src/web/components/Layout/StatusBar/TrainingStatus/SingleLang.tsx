@@ -3,14 +3,12 @@ import axios from 'axios'
 import { NLU } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
-import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { RootReducer } from '~/reducers'
 
 import style from './style.scss'
 
 interface Props {
+  dark?: boolean
   trainSession: NLU.TrainingSession
 }
 
@@ -18,7 +16,9 @@ interface Props {
 const BASE_NLU_URL = `${window.BOT_API_PATH}/mod/nlu`
 
 const TrainingStatusComponent: FC<Props> = (props: Props) => {
-  const { status, progress } = props.trainSession ?? {}
+  const { trainSession, dark } = props
+
+  const { status, progress } = trainSession ?? {}
   const [loading, setLoading] = useState(false)
 
   const [message, setMessage] = useState('')
@@ -50,7 +50,7 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
     setLoading(true)
     e.preventDefault()
     try {
-      await axios.post(`${BASE_NLU_URL}/train`)
+      await axios.post(`${BASE_NLU_URL}/train/${trainSession.language}`)
     } catch (err) {
       onError()
     } finally {
@@ -63,7 +63,7 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
     e.preventDefault()
     onCanceling()
     try {
-      await axios.post(`${BASE_NLU_URL}/train/delete`)
+      await axios.post(`${BASE_NLU_URL}/train/${trainSession.language}/delete`)
     } catch (err) {
       console.error('cannot cancel training')
     } finally {
@@ -71,12 +71,19 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
     }
   }
 
-  if (status === null) {
+  if (!status) {
     return null
   } else {
     return (
-      <div className={style.item}>
-        <span className={style.message}>{message}</span>
+      <div className={style.trainStatus}>
+        <span
+          className={cx(
+            dark ? style.trainStatus_message_dark : style.trainStatus_message_light,
+            style.trainStatus_message_spaced
+          )}
+        >
+          {message}
+        </span>
 
         {status === 'needs-training' && (
           <Button minimal className={style.button} onClick={onTrainClicked} disabled={loading}>
@@ -84,9 +91,9 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
           </Button>
         )}
         {status === 'training-pending' && (
-          <div className={style.pending}>
-            <span className={cx(style.pending, style.text)}>{lang.tr('statusBar.trainingPending')}</span>
-            <Spinner size={5}/>
+          <div className={style.trainStatus_pending}>
+            <span className={cx(style.trainStatus_pending, style.text)}>{lang.tr('statusBar.trainingPending')}</span>
+            <Spinner size={5} />
           </div>
         )}
         {status === 'training' && (
@@ -94,12 +101,8 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
             {lang.tr('statusBar.cancelTraining')}
           </Button>
         )}
-      </div >
+      </div>
     )
   }
 }
-
-const mapStateToProps = (state: RootReducer) => ({
-  trainSession: state.nlu.trainSession
-})
-export default connect(mapStateToProps)(TrainingStatusComponent)
+export default TrainingStatusComponent

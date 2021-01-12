@@ -70,13 +70,8 @@ export function getOnBotMount(state: NLUState) {
     const modelService = new ModelService(modelIdService, ghost, botId)
     await modelService.initialize()
 
-    const languages = _.intersection(bot.languages, state.engine.getLanguages())
-    if (bot.languages.length !== languages.length) {
-      bp.logger.forBot(botId).warn(missingLangMsg(botId), { notSupported: _.difference(bot.languages, languages) })
-    }
-
     const { engine } = state
-    const trainOrLoad = async (disableTraining: boolean) => {
+    const trainOrLoad = async (languageCode: string, disableTraining: boolean) => {
       // bot got deleted
       const botState = state.nluByBot[botId]
       if (!botState) {
@@ -91,102 +86,104 @@ export function getOnBotMount(state: NLUState) {
       await kvs.set(KVS_TRAINING_STATUS_KEY, 'training')
 
       try {
-        await Promise.mapSeries(languages, async languageCode => {
-          // shorter lock and extend in training steps
-          const lock = await bp.distributed.acquireLock(makeTrainSessionKey(botId, languageCode), ms('5m'))
-          if (!lock) {
-            return
-          }
+        // shorter lock and extend in training steps
+        const lock = await bp.distributed.acquireLock(makeTrainSessionKey(botId, languageCode), ms('5m'))
+        if (!lock) {
+          return
+        }
 
-          const trainSet: sdk.NLU.TrainingSet = {
-            intentDefs,
-            entityDefs,
-            languageCode,
-            seed: getSeed(bot)
-          }
+        const trainSet: sdk.NLU.TrainingSet = {
+          intentDefs,
+          entityDefs,
+          languageCode,
+          seed: getSeed(bot)
+        }
 
-          const specifications = engine.getSpecifications()
-          const modelId = modelIdService.makeId({
-            ...trainSet,
-            specifications
-          })
+        const specifications = engine.getSpecifications()
+        const modelId = modelIdService.makeId({
+          ...trainSet,
+          specifications
+        })
 
-          const modelsOfLang = await modelService.listModels({ languageCode })
-          await modelService.pruneModels(modelsOfLang, { toKeep: 2 })
+        const modelsOfLang = await modelService.listModels({ languageCode })
+        await modelService.pruneModels(modelsOfLang, { toKeep: 2 })
 
-          let model = await modelService.getModel(modelId)
+        let model = await modelService.getModel(modelId)
 
-          const trainSession = makeTrainingSession(botId, languageCode, lock)
+        const trainSession = makeTrainingSession(botId, languageCode, lock)
 
-          botState.trainSessions[languageCode] = trainSession
-          if (!model && !disableTraining) {
+        botState.trainSessions[languageCode] = trainSession
+        if (!model && !disableTraining) {
+          await state.sendNLUStatusEvent(botId, trainSession)
+
+          const progressCallback = async (progress: number) => {
+            trainSession.status = 'training'
+            trainSession.progress = progress
             await state.sendNLUStatusEvent(botId, trainSession)
+          }
 
-            const progressCallback = async (progress: number) => {
-              trainSession.status = 'training'
-              trainSession.progress = progress
-              await state.sendNLUStatusEvent(botId, trainSession)
-            }
+          const previousModel = botState.modelsByLang[languageCode]
+          const options: sdk.NLU.TrainingOptions = { previousModel, progressCallback }
+          try {
+            model = await engine.train(trainSession.key, trainSet, options)
 
-            const previousModel = botState.modelsByLang[languageCode]
-            const options: sdk.NLU.TrainingOptions = { previousModel, progressCallback }
-            try {
-              model = await engine.train(trainSession.key, trainSet, options)
-
-              trainSession.status = 'done'
-              await state.sendNLUStatusEvent(botId, trainSession)
-              botState.modelsByLang[languageCode] = modelId
-              await engine.loadModel(model)
-              await modelService.saveModel(model)
-            } catch (err) {
-              if (bp.NLU.errors.isTrainingCanceled(err)) {
-                bp.logger.forBot(botId).info('Training cancelled')
-                trainSession.status = 'needs-training'
-                await state.sendNLUStatusEvent(botId, trainSession)
-              } else if (bp.NLU.errors.isTrainingAlreadyStarted(err)) {
-                bp.logger.forBot(botId).info('Training already started')
-              } else {
-                bp.logger
-                  .forBot(botId)
-                  .attachError(err)
-                  .error('Training could not finish because of an unexpected error.')
-                trainSession.status = 'needs-training'
-                await state.sendNLUStatusEvent(botId, trainSession)
-              }
-            }
-          } else {
-            trainSession.progress = 1
             trainSession.status = 'done'
             await state.sendNLUStatusEvent(botId, trainSession)
-          }
-          try {
-            if (model) {
-              const modelId = modelIdService.toId(model)
-              await state.broadcastLoadModel(botId, modelId)
+            botState.modelsByLang[languageCode] = modelId
+            await engine.loadModel(model)
+            await modelService.saveModel(model)
+          } catch (err) {
+            if (bp.NLU.errors.isTrainingCanceled(err)) {
+              bp.logger.forBot(botId).info('Training cancelled')
+              trainSession.status = 'needs-training'
+              await state.sendNLUStatusEvent(botId, trainSession)
+            } else if (bp.NLU.errors.isTrainingAlreadyStarted(err)) {
+              bp.logger.forBot(botId).info('Training already started')
+            } else {
+              bp.logger
+                .forBot(botId)
+                .attachError(err)
+                .error('Training could not finish because of an unexpected error.')
+              trainSession.status = 'needs-training'
+              await state.sendNLUStatusEvent(botId, trainSession)
             }
-          } finally {
-            await lock.unlock()
           }
-        })
+        } else {
+          trainSession.progress = 1
+          trainSession.status = 'done'
+          await state.sendNLUStatusEvent(botId, trainSession)
+        }
+        try {
+          if (model) {
+            const modelId = modelIdService.toId(model)
+            await state.broadcastLoadModel(botId, modelId)
+          }
+        } finally {
+          await lock.unlock()
+        }
       } finally {
         await kvs.delete(KVS_TRAINING_STATUS_KEY)
       }
     }
 
-    const cancelTraining = async () => {
-      await Promise.map(languages, async lang => {
-        const key = makeTrainSessionKey(botId, lang)
-        await bp.distributed.clearLock(key)
-        return state.broadcastCancelTraining(botId, lang)
-      })
+    const cancelTraining = async (lang: string) => {
+      const key = makeTrainSessionKey(botId, lang)
+      await bp.distributed.clearLock(key)
+      return state.broadcastCancelTraining(botId, lang)
     }
 
     const needsTrainingWatcher = registerNeedTrainingWatcher(bp, botId, engine, state)
 
     const { defaultLanguage } = bot
+    const languages = _.intersection(bot.languages, state.engine.getLanguages())
+    if (bot.languages.length !== languages.length) {
+      bp.logger.forBot(botId).warn(missingLangMsg(botId), { notSupported: _.difference(bot.languages, languages) })
+    }
+
     state.nluByBot[botId] = {
       botId,
       defaultLanguage,
+      languages,
       trainOrLoad,
       trainSessions: {},
       cancelTraining,
@@ -196,7 +193,7 @@ export function getOnBotMount(state: NLUState) {
     }
 
     const disableTraining = true
-    await trainOrLoad(disableTraining)
+    await Promise.mapSeries(languages, lang => trainOrLoad(lang, disableTraining))
     await annouceNeedsTraining(bp, bot.id, state)
   }
 }
