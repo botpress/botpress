@@ -1,5 +1,5 @@
 name: 'Check PR'
-on: [workflow_dispatch, pull_request]
+on: [pull_request]
 jobs:
   check-pr:
     name: Asserts PR is in shape
