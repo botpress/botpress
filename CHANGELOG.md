@@ -1,3 +1,14 @@
+## [12.16.2](https://github.com/botpress/botpress/compare/v12.14.1...v12.16.2) (2021-01-12)
+
+
+### Bug Fixes
+
+* **channel-web:** disable conversation deletion by default ([#4357](https://github.com/botpress/botpress/issues/4357)) ([da9434d](https://github.com/botpress/botpress/commit/da9434d))
+* **core:** migrate srv_migrations details to text ([#4354](https://github.com/botpress/botpress/issues/4354)) ([8ebb27c](https://github.com/botpress/botpress/commit/8ebb27c))
+* **studio:** single choice content type usage points to proper node ([#4355](https://github.com/botpress/botpress/issues/4355)) ([a9d5f64](https://github.com/botpress/botpress/commit/a9d5f64))
+
+
+
 ## [12.16.1](https://github.com/botpress/botpress/compare/v12.14.1...v12.16.1) (2021-01-11)
 
 
