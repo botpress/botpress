@@ -1,13 +1,11 @@
 const core = require('@actions/core')
-// const github = require('@actions/github')
 
 const titleRE = /^(chore|feat|fix|revert|test)(\(\w+\)?((?=:\s)|(?=!:\s)))?!?:\s.+/
 
 async function run() {
   try {
-    console.log(process.env.github)
-    const github = process.github
-    const pull_request = github.context.payload.pull_request
+    const event = JSON.parse(process.env.event)
+    const pull_request = event.pull_request
 
     if (!titleRE.test(pull_request.title)) {
       core.setFailed(
@@ -22,12 +20,13 @@ async function run() {
     if (!pull_request.requested_reviewers.length) {
       core.setFailed('Request at least one reviewer on your Pull Request')
     }
-    if (title.includes('feat')) {
+    if (title.includes(':')) {
       const token = process.env.token
       const octokit = github.getOctokit(token)
       const options = {
-        ...github.context.repo,
-        pull_number: github.context.payload.pull_request.number,
+        repo: 'botpress',
+        owner: 'botpress',
+        pull_number: pull_request.number,
         per_page: 300
       }
 
