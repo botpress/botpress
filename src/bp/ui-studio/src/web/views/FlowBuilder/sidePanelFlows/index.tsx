@@ -13,7 +13,6 @@ import Inspector from '../inspector'
 
 import FlowsList from './FlowsList'
 import FlowNameModal from './FlowNameModal'
-import Toolbar from './Toolbar'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
 
@@ -70,8 +69,6 @@ const SidePanelContent: FC<Props> = props => {
 
   return (
     <SidePanel>
-      <Toolbar mutexInfo={props.mutexInfo} />
-
       {props.showFlowNodeProps ? (
         <Inspector />
       ) : (

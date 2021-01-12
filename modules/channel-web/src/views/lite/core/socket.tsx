@@ -6,6 +6,7 @@ export default class BpSocket {
   private userIdScope: string
   private chatId: string | undefined
 
+  public onClear: (event: any) => void
   public onMessage: (event: any) => void
   public onTyping: (event: any) => void
   public onData: (event: any) => void
@@ -25,6 +26,7 @@ export default class BpSocket {
     // Connect the Botpress Web Socket to the server
     this.events.setup(this.userIdScope)
 
+    this.events.on('guest.webchat.clear', this.onClear)
     this.events.on('guest.webchat.message', this.onMessage)
     this.events.on('guest.webchat.typing', this.onTyping)
     this.events.on('guest.webchat.data', this.onData)

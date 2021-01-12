@@ -25,9 +25,14 @@ export default class Logger implements sdk.Logger {
   private attachedError: Error | undefined
   public readonly displayLevel: number
   private currentMessageLevel: LogLevel | undefined
+  private silent = false
 
-  constructor(private name: string, private silent = false) {
+  constructor(private name: string) {
     this.displayLevel = process.VERBOSITY_LEVEL || 0
+  }
+
+  public silence(): void {
+    this.silent = true
   }
 
   forBot(botId: string): this {

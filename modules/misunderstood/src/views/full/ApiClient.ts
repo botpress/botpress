@@ -1,6 +1,8 @@
+import { DateRange } from '@blueprintjs/datetime'
 import { AxiosRequestConfig, AxiosStatic } from 'axios'
+import moment from 'moment'
 
-import { FLAGGED_MESSAGE_STATUS, ResolutionData, RESOLUTION_TYPE } from '../../types'
+import { FLAGGED_MESSAGE_STATUS, FLAG_REASON, ResolutionData, RESOLUTION_TYPE } from '../../types'
 
 const MODULE_URL_PREFIX = '/mod/misunderstood'
 
@@ -25,18 +27,28 @@ class ApiClient {
     return this.post(MODULE_URL_PREFIX + url, data, config)
   }
 
-  getEventCounts(language: string) {
+  getEventCounts(language: string, dateRange?: DateRange, reason?: FLAG_REASON) {
+    const { start, end } = this.getRangeUnix(dateRange)
+
     return this.getForModule('/events/count', {
       params: {
-        language
+        language,
+        start,
+        end,
+        reason
       }
     })
   }
 
-  getEvents(language: string, status: string) {
+  getEvents(language: string, status: string, dateRange?: DateRange, reason?: FLAG_REASON) {
+    const { start, end } = this.getRangeUnix(dateRange)
+
     return this.getForModule(`/events/${status}`, {
       params: {
-        language
+        language,
+        start,
+        end,
+        reason
       }
     })
   }
@@ -56,6 +68,17 @@ class ApiClient {
 
   applyAllPending() {
     return this.postForModule('/apply-all-pending')
+  }
+
+  getRangeUnix(dateRange?: DateRange) {
+    let start, end
+    if (dateRange) {
+      // Use end day if start is null to get single day
+      start = (dateRange[0] ? moment(dateRange[0]) : moment(dateRange[1])).unix()
+      // Use start day if end is null to get single day and add a day to end in order to get full
+      end = (dateRange[1] ? moment(dateRange[1]) : moment(dateRange[0])).add(1, 'days').unix()
+    }
+    return { start, end }
   }
 }
 

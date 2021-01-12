@@ -23,7 +23,9 @@ function render(data) {
       allowCreation: data.allowCreation,
       allowMultiple: data.allowMultiple,
       width: data.width,
-      collectFeedback: data.collectFeedback
+      collectFeedback: data.collectFeedback,
+      placeholderText: data.placeholderText,
+      markdown: data.markdown
     }
   ]
 }
@@ -87,6 +89,11 @@ module.exports = {
         description: 'module.extensions.types.dropdown.buttonDesc',
         default: ''
       },
+      placeholderText: {
+        type: 'string',
+        title: 'module.extensions.types.dropdown.placeholderText',
+        default: 'Select a choice'
+      },
       options: {
         type: 'array',
         title: 'module.extensions.types.dropdown.optionsList',
@@ -127,12 +134,18 @@ module.exports = {
         type: 'boolean',
         title: 'module.extensions.types.dropdown.allowMultiple'
       },
+      markdown: {
+        type: 'boolean',
+        title: 'module.extensions.types.dropdown.useMarkdown',
+        default: true
+      },
       ...base.typingIndicators
     }
   },
   uiSchema: {
     message: {
-      'ui:field': 'i18n_field'
+      'ui:field': 'i18n_field',
+      $subtype: 'textarea'
     },
     buttonText: {
       'ui:field': 'i18n_field'

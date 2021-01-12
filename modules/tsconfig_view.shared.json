@@ -16,7 +16,6 @@
       "botpress/utils": ["../../../../src/bp/ui-studio/src/web/components/Shared/Utils/typings.d.ts"],
       "botpress/shared": ["../../../../src/bp/ui-shared/src/typings.d.ts"],
       "botpress/sdk": ["../../../../src/bp/sdk/botpress.d.ts"],
-      "botpress/common/typings": ["../../../../out/bp/common/typings.d.ts"],
       "common/*": ["../../../../src/bp/common/*"],
       "@blueprintjs/core": ["../../../../src/bp/ui-studio/node_modules/@blueprintjs/core"],
       "@blueprintjs/select": ["../../../../src/bp/ui-studio/node_modules/@blueprintjs/select"],

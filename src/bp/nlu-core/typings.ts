@@ -1,5 +1,5 @@
 import { AxiosInstance } from 'axios'
-import sdk from 'botpress/sdk'
+import sdk, { NLU } from 'botpress/sdk'
 import LRUCache from 'lru-cache'
 
 export const BIO = {
@@ -12,11 +12,6 @@ export type Tag = 'o' | 'B' | 'I'
 
 export interface Token2Vec {
   [token: string]: number[]
-}
-
-export interface NLUVersionInfo {
-  nluVersion: string
-  langServerInfo: LangServerInfo
 }
 
 export interface LangServerInfo {
@@ -126,7 +121,7 @@ export interface Tools {
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
   getHealth(): sdk.NLU.Health
   getLanguages(): string[]
-  getVersionInfo(): NLUVersionInfo
+  getSpecifications(): NLU.Specifications
   seededLodashProvider: SeededLodashProvider
   duckling: SystemEntityExtractor
   mlToolkit: typeof sdk.MLToolkit

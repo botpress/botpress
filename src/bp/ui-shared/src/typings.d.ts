@@ -1,4 +1,6 @@
 import { FormField, MultiLangText } from 'botpress/sdk'
+import { IDateRangeShortcut } from '@blueprintjs/datetime'
+import { IDates } from 'common/dates'
 import React from 'react'
 
 import { CheckboxProps } from '../../ui-shared-lite/Checkbox/typings'
@@ -87,6 +89,10 @@ declare module 'botpress/shared' {
     getAvailable(): string[]
     defaultLocale: string
   }
+  export const date: {
+    createDateRangeShortcuts: () => IDateRangeShortcut[]
+    relativeDates: IDates
+  }
 
   export const telemetry: {
     startFallback(api: AxiosInstance): Promise<void>
@@ -112,6 +118,8 @@ declare module 'botpress/shared' {
     controlKey: string
     keyMap: { [key: string]: string }
     isInputFocused(): boolean
+    /** Loads the specified data to the inspector on the bottom panel */
+    inspect: (data: any) => void
   }
 
   export const sharedStyle: CssExports

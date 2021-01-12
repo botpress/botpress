@@ -76,6 +76,22 @@ export default class DBStorageDriver implements StorageDriver {
     }
   }
 
+  async fileSize(filePath: string): Promise<number> {
+    try {
+      const size = await this.database
+        .knex('srv_ghost_files')
+        .where({ file_path: filePath, deleted: false })
+        .select(this.database.knex.raw('length(content) as len'))
+        .limit(1)
+        .first()
+        .then(entry => entry.len)
+
+      return size
+    } catch (e) {
+      throw new VError(e, `[DB Driver] Error checking file size for "${filePath}"`)
+    }
+  }
+
   async readFile(filePath: string): Promise<Buffer> {
     try {
       const file = await this.database
@@ -160,7 +176,7 @@ export default class DBStorageDriver implements StorageDriver {
         })
 
       if (folder.length) {
-        query = query.andWhere('file_path', 'like', folder + '%')
+        query = query.andWhere('file_path', 'like', `${folder}%`)
       }
 
       if (options.sortOrder) {
@@ -189,7 +205,7 @@ export default class DBStorageDriver implements StorageDriver {
 
       if (pathPrefix.length) {
         pathPrefix = pathPrefix.replace(/^.\//g, '') // Remove heading './' if present
-        query = query.where('file_path', 'like', pathPrefix + '%')
+        query = query.where('file_path', 'like', `${pathPrefix}%`)
       }
 
       return await query.then(entries =>

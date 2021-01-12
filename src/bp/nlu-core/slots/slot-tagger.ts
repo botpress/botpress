@@ -155,6 +155,7 @@ export default class SlotTagger {
   }
 
   async train(intents: Intent<Utterance>[]): Promise<void> {
+    debugTrain('Started Slot tagger training')
     const elements: sdk.MLToolkit.CRF.DataPoint[] = []
 
     for (const intent of intents) {
@@ -170,6 +171,7 @@ export default class SlotTagger {
 
     const trainer = new this.mlToolkit.CRF.Trainer()
     this._crfModelFn = await trainer.train(elements, CRF_TRAINER_PARAMS)
+    debugTrain('Done with Slot tagger training')
   }
 
   get serialized(): Promise<Buffer> {
