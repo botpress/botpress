@@ -68,7 +68,7 @@ class Composer extends React.Component<ComposerProps> {
     const placeholder =
       this.props.composerPlaceholder ||
       this.props.intl.formatMessage({
-        id: this.isLastMessageFromBot() ? 'placeholder' : 'composer.placeholderInit' }, { name: this.props.botName })
+        id: this.isLastMessageFromBot() ? 'composer.placeholder' : 'composer.placeholderInit' }, { name: this.props.botName })
 
     return (
       <div role="region" className={'bpw-composer'}>
