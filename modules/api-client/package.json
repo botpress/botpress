@@ -1,0 +1,24 @@
+{
+  "name": "api-client",
+  "fullName": "ApiClient",
+  "version": "1",
+  "status": "stable",
+  "description": "Provides high level analytics about your bot's usage",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "build": "node ../../build/module-builder/bin/entry build",
+    "watch": "node ../../build/module-builder/bin/entry watch",
+    "package": "node ../../build/module-builder/bin/entry package"
+  },
+  "dependencies": {
+    "@rdcdev/dbank-client": "../../../dbank-client/",
+    "bluebird-global": "^1.0.1"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12",
+    "lodash": ">=4.17.19"
+  }
+}
