@@ -7,27 +7,21 @@ export interface QueueOptions {
 
 export const defaultOptions: QueueOptions = { retries: 2, drainInterval: 2000 }
 
-export interface JobWithEvent {
-  event: IO.Event
-}
-
-export type Job = JobWithEvent | IO.Event
-
-export interface JobWrapper {
-  job: Job
+export interface JobWrapper<E extends IO.Event> {
+  job: E
   id: string
   timestamp: Date
   retries: number
 }
 
-export type QueueConsumer = (message: IO.Event) => Promise<void>
+export type QueueConsumer<E extends IO.Event> = (message: E) => Promise<void>
 
-export interface Queue {
+export interface Queue<E extends IO.Event> {
   isEmpty(): boolean
-  isEmptyForJob(job: Job): boolean
-  enqueue(job: Job, retries: number, isPriority: boolean): Promise<void>
-  dequeue(): Promise<JobWrapper | undefined>
-  cancelAll(job: Job): Promise<void>
-  peek(job: Job): Promise<JobWrapper | undefined>
-  subscribe(fn: QueueConsumer): void
+  isEmptyForJob(job: E): boolean
+  enqueue(job: E, retries: number, isPriority: boolean): Promise<void>
+  dequeue(): Promise<JobWrapper<E> | undefined>
+  cancelAll(job: E): Promise<void>
+  peek(job: E): Promise<JobWrapper<E> | undefined>
+  subscribe(fn: QueueConsumer<E>): void
 }
