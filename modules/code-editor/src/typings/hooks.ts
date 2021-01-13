@@ -1,5 +1,6 @@
 export const HOOK_SIGNATURES = {
   before_incoming_middleware: 'function hook(bp: typeof sdk, event: sdk.IO.IncomingEvent)',
+  after_nlu_election: 'function hook(bp: typeof sdk, event: sdk.IO.IncomingEvent)',
   after_incoming_middleware: 'function hook(bp: typeof sdk, event: sdk.IO.IncomingEvent)',
   before_outgoing_middleware: 'function hook(bp: typeof sdk, event: sdk.IO.IncomingEvent)',
   after_event_processed: 'function hook(bp: typeof sdk, event: sdk.IO.IncomingEvent)',
@@ -32,6 +33,7 @@ export const HOOK_SIGNATURES = {
 export const BOT_SCOPED_HOOKS = [
   'before_incoming_middleware',
   'after_incoming_middleware',
+  'after_nlu_election',
   'before_outgoing_middleware',
   'after_event_processed',
   'before_suggestions_election',

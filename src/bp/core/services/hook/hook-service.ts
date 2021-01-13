@@ -62,6 +62,12 @@ export namespace Hooks {
     }
   }
 
+  export class AfterNluElectionMiddleware extends BaseHook {
+    constructor(bp: typeof sdk, event: sdk.IO.Event) {
+      super('after_nlu_election', { bp, event })
+    }
+  }
+
   export class AfterIncomingMiddleware extends BaseHook {
     constructor(bp: typeof sdk, event: sdk.IO.Event) {
       super('after_incoming_middleware', { bp, event })

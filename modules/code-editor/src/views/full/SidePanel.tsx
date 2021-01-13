@@ -264,6 +264,7 @@ class PanelContent extends React.Component<Props> {
         items: hooks.filter(x =>
           [
             'before_incoming_middleware',
+            'after_nlu_election',
             'after_incoming_middleware',
             'before_outgoing_middleware',
             'after_event_processed',

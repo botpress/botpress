@@ -89,6 +89,7 @@ export class EventEngine {
   public onBeforeIncomingMiddleware?: (event) => Promise<void>
   public onAfterIncomingMiddleware?: (event) => Promise<void>
   public onBeforeOutgoingMiddleware?: (event) => Promise<void>
+  public onAfterNluElection?: (event) => Promise<void>
 
   private readonly _incomingPerf = new TimedPerfCounter('mw_incoming')
   private readonly _outgoingPerf = new TimedPerfCounter('mw_outgoing')
@@ -110,6 +111,7 @@ export class EventEngine {
       this.onBeforeIncomingMiddleware && (await this.onBeforeIncomingMiddleware(event))
 
       await this.nluEngine.processEvent(event)
+      this.onAfterNluElection && (await this.onAfterNluElection(event))
 
       const { incoming } = await this.getBotMiddlewareChains(event.botId)
       await incoming.run(event)

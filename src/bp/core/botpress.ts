@@ -357,6 +357,10 @@ export class Botpress {
       await this.hookService.executeHook(new Hooks.BeforeIncomingMiddleware(this.api, event))
     }
 
+    this.eventEngine.onAfterNluElection = async (event: sdk.IO.IncomingEvent) => {
+      await this.hookService.executeHook(new Hooks.AfterNluElectionMiddleware(this.api, event))
+    }
+
     this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       if (event.isPause) {
         this.eventCollector.storeEvent(event)
