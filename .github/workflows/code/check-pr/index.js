@@ -1,7 +1,7 @@
 const core = require('@actions/core')
 const github = require('@actions/github')
 
-const titleRE = /^(chore|feat|fix|revert|test)(\(\w+\)?((?=:\s)|(?=!:\s)))?!?:\s.+/
+const titleRE = /^(chore|feat|fix|revert|test)(\([a-z-_]+\)?((?=:\s)|(?=!:\s)))?!?:\s.+/
 
 async function run() {
   try {
