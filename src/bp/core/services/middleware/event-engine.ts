@@ -185,8 +185,8 @@ export class EventEngine {
       this.eventCollector.storeEvent(event)
     }
 
-    const isIncomming = (event: sdk.IO.Event): event is sdk.IO.IncomingEvent => event.direction === 'incoming'
-    if (isIncomming(event)) {
+    const isIncoming = (event: sdk.IO.Event): event is sdk.IO.IncomingEvent => event.direction === 'incoming'
+    if (isIncoming(event)) {
       debugIncoming.forBot(event.botId, 'send ', event)
       incrementMetric('eventsIn.count')
       await this.incomingQueue.enqueue(event, 1, false)
