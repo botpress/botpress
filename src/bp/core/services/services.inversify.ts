@@ -1,3 +1,4 @@
+import { IO } from 'botpress/sdk'
 import LicensingService from 'common/licensing-service'
 import { DialogContainerModule } from 'core/services/dialog/dialog.inversify'
 import { CEJobService, JobService } from 'core/services/job-service'
@@ -82,11 +83,11 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
     .inSingletonScope()
     .when(() => !process.IS_PRO_ENABLED)
 
-  bind<Queue>(TYPES.IncomingQueue).toDynamicValue((context: interfaces.Context) => {
+  bind<Queue<IO.IncomingEvent>>(TYPES.IncomingQueue).toDynamicValue((context: interfaces.Context) => {
     return new MemoryQueue('Incoming', context.container.getTagged(TYPES.Logger, 'name', 'IQueue'))
   })
 
-  bind<Queue>(TYPES.OutgoingQueue).toDynamicValue((context: interfaces.Context) => {
+  bind<Queue<IO.OutgoingEvent>>(TYPES.OutgoingQueue).toDynamicValue((context: interfaces.Context) => {
     return new MemoryQueue('Outgoing', context.container.getTagged(TYPES.Logger, 'name', 'OQueue'))
   })
 
