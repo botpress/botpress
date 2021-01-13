@@ -16,17 +16,25 @@ const ContextSelector: FC<Props> = props => {
   const [availableContexts, setContexts] = useState([])
   const contexts = props.contexts || []
 
+  const updateContexts = (contexts: string[]) => setContexts(contexts.sort())
+
   useEffect(() => {
-    props.bp.axios.get('/nlu/contexts').then(({ data }) => setContexts(data))
+    fetchContexts()
   }, [])
 
-  const removeCtx = (_, idx: number) => {
+  const fetchContexts = () => {
+    props.bp.axios.get('/nlu/contexts').then(({ data }) => {
+      updateContexts(data)
+    })
+  }
+
+  const removeCtx = (_value: string, idx: number) => {
     props.saveContexts([...contexts.slice(0, idx), ...contexts.slice(idx + 1)])
   }
 
   const addCtx = (ctx: string) => {
     if (availableContexts.indexOf(ctx) === -1) {
-      setContexts([...availableContexts, ctx])
+      updateContexts([...availableContexts, ctx])
     }
     props.saveContexts([...contexts, ctx])
   }
@@ -86,7 +94,7 @@ const ContextSelector: FC<Props> = props => {
         tagInputProps={{
           tagProps: { minimal: true },
           onRemove: removeCtx,
-          inputProps: { id: `select-context${props.customIdSuffix ? props.customIdSuffix : ''}` }
+          inputProps: { id: `select-context${props.customIdSuffix ? props.customIdSuffix : ''}`, onFocus: fetchContexts }
         }}
         popoverProps={{ minimal: true, fill: true, usePortal: false }}
         selectedItems={contexts}

@@ -2,6 +2,7 @@ import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import { SortOrder } from 'botpress/sdk'
 import { BPRequest } from 'common/http'
+import { Workspace } from 'common/typings'
 import Knex from 'knex'
 import _ from 'lodash'
 import ms from 'ms'
@@ -30,6 +31,7 @@ const handoffColumns = [
   'userChannel',
   'agentThreadId',
   'status',
+  'tags',
   'assignedAt',
   'resolvedAt',
   'createdAt',
@@ -54,12 +56,24 @@ export default class Repository {
    */
   constructor(private bp: typeof sdk, private timeouts: object) {}
 
-  // This mutates object
-  private castDate(object: object, paths: string[]) {
+  private serializeDate(object: object, paths: string[]) {
+    const result = _.clone(object)
+
     paths.map(path => {
-      _.has(object, path) && _.set(object, path, this.bp.database.date.format(_.get(object, path)))
+      _.has(object, path) && _.set(result, path, this.bp.database.date.format(_.get(object, path)))
     })
-    return object
+
+    return result
+  }
+
+  private serializeJson(object: object, paths: string[]) {
+    const result = _.clone(object)
+
+    paths.map(path => {
+      _.has(object, path) && _.set(result, path, this.bp.database.json.set(_.get(object, path)))
+    })
+
+    return result
   }
 
   private applyLimit(query: Knex.QueryBuilder, conditions?: CollectionConditions) {
@@ -94,6 +108,10 @@ export default class Repository {
         memo[row.id] = memo[row.id] || {
           ..._.pick(row, handoffColumns),
           comments: {}
+        }
+
+        if (row['tags']) {
+          memo[row.id].tags = this.bp.database.json.get(row.tags)
         }
 
         if (row[`${commentPrefix}:id`]) {
@@ -289,10 +307,32 @@ export default class Repository {
     } as IAgent
   }
 
-  listAgents = async (botId: string, workspace: string): Promise<Partial<IAgent>[]> => {
+  /**
+   * List all agents across workspaces and bots
+   */
+  listAllAgents = async () => {
+    // TODO move this in workspace service
+    const list = () => {
+      return this.bp.ghost.forGlobal().readFileAsObject<Workspace[]>('/', 'workspaces.json')
+    }
+
+    return Promise.map(list(), workspace => {
+      return this.listAgents(workspace.id)
+    }).then(collection =>
+      _(collection)
+        .flatten()
+        .uniqBy('agentId')
+        .value()
+    )
+  }
+
+  /**
+   * List all agents for a given bot and workspace
+   */
+  listAgents = async (workspace: string): Promise<Omit<IAgent, 'online'>[]> => {
     const options: sdk.GetWorkspaceUsersOptions = {
       includeSuperAdmins: true,
-      attributes: ['firstname', 'lastname', 'created_at', 'updated_at']
+      attributes: ['firstname', 'lastname', 'picture_url', 'created_at', 'updated_at']
     }
 
     // TODO filter out properly this is a quick fix
@@ -304,8 +344,7 @@ export default class Repository {
       const agentId = makeAgentId(user.strategy, user.email)
       return {
         ...user,
-        agentId,
-        online: await this.getAgentOnline(botId, agentId)
+        agentId
       }
     })
   }
@@ -405,12 +444,13 @@ export default class Repository {
       .select('*')
       .where({ id })
       .limit(1)
+      .then(this.hydrateHandoffs.bind(this))
       .then(data => _.head(data))
   }
 
   createHandoff = async (botId: string, attributes: Partial<IHandoff>) => {
     const now = new Date()
-    const payload = this.castDate(
+    const payload = this.serializeDate(
       {
         ...attributes,
         botId,
@@ -428,13 +468,13 @@ export default class Repository {
 
   updateHandoff = async (botId: string, id: string, attributes: Partial<IHandoff>) => {
     const now = new Date()
-    const payload = this.castDate(
-      {
-        ...attributes,
-        updatedAt: now
-      },
-      ['assignedAt', 'resolvedAt', 'updatedAt']
-    )
+    const payload = _.flow(
+      attrs => this.serializeDate(attrs, ['assignedAt', 'resolvedAt', 'updatedAt']),
+      attrs => this.serializeJson(attrs, ['tags'])
+    )({
+      ...attributes,
+      updatedAt: now
+    })
 
     return this.bp.database.transaction(async trx => {
       await trx<IHandoff>(HANDOFF_TABLE_NAME)
@@ -446,7 +486,7 @@ export default class Repository {
 
   createComment = (attributes: Partial<IComment>) => {
     const now = new Date()
-    const payload = this.castDate(
+    const payload = this.serializeDate(
       {
         ...attributes,
         updatedAt: now,

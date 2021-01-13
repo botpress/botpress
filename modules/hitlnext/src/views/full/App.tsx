@@ -5,6 +5,7 @@ import _ from 'lodash'
 import React, { FC, useContext, useEffect, useState } from 'react'
 
 import { IHandoff, ISocketMessage } from '../../types'
+import { castHandoff, makeClient } from '../client'
 
 import { WEBSOCKET_TOPIC } from './../../constants'
 import AgentList from './app/components/AgentList'
@@ -14,14 +15,13 @@ import EmptyConversation from './app/components/EmptyConversation'
 import HandoffList from './app/components/HandoffList'
 import { Context, Store } from './app/Store'
 import style from './style.scss'
-import { Api, castHandoff } from './Api'
 
 interface Props {
   bp: { axios: AxiosInstance; events: any }
 }
 
 const App: FC<Props> = ({ bp }) => {
-  const api = Api(bp)
+  const api = makeClient(bp)
 
   const { state, dispatch } = useContext(Context)
 

@@ -6,13 +6,13 @@ import _ from 'lodash'
 import React, { FC, useContext, useEffect, useState } from 'react'
 
 import { WEBSOCKET_TOPIC } from '../../constants'
+import { castHandoff, makeClient } from '../client'
 
 import { IHandoff, ISocketMessage } from './../../types'
 import AgentList from './studio-sidebar/components/AgentList'
 import HandoffList from './studio-sidebar/components/HandoffList'
 import { Context, Store } from './studio-sidebar/Store'
 import styles from './style.scss'
-import { Api, castHandoff } from './Api'
 
 interface Props {
   bp: { axios: AxiosInstance; events: any }
@@ -20,7 +20,7 @@ interface Props {
 }
 
 const Sidebar: FC<Props> = ({ bp, close }) => {
-  const api = Api(bp)
+  const api = makeClient(bp)
 
   const { state, dispatch } = useContext(Context)
 
