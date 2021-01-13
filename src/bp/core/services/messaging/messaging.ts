@@ -49,6 +49,6 @@ export class MessagingAPI {
 
     await this.eventEngine.sendEvent(event)
 
-    return this.messageRepo.create(destination.conversationId, event.id, payload)
+    return this.messageRepo.create(destination.conversationId, event.id, 'user', payload)
   }
 }

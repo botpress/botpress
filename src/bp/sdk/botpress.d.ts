@@ -1990,6 +1990,7 @@ declare module 'botpress/sdk' {
     id: number
     conversationId: number
     eventId: string
+    from: string
     sentOn: Date
     payload: any
   }

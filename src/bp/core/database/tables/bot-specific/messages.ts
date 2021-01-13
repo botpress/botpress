@@ -15,7 +15,16 @@ export class MessagesTable extends Table {
         .inTable('conversations')
         .notNullable()
         .onDelete('cascade')
-      table.string('eventId') // .references('id').inTable('events')
+      table.string('eventId')
+      /* 
+        this whole thing can't work because the event is inserted after so the foreign key constraint fails
+        .references('id')
+        .inTable('events')
+        .nullable()
+        // not sure if this works
+        .onDelete('set null')
+        */
+      table.string('from')
       table.timestamp('sentOn')
       table.jsonb('payload')
       table.index(['conversationId', 'sentOn'], 'mcs_idx')
