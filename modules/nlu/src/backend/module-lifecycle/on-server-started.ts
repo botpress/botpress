@@ -3,7 +3,7 @@ import bytes from 'bytes'
 import _ from 'lodash'
 
 import { Config } from '../../config'
-import legacyElectionPipeline from '../election/legacy-election'
+import simpleElection from '../election/simple-election'
 import { PredictionHandler } from '../prediction-handler'
 import { setTrainingSession } from '../train-session-service'
 import { NLUProgressEvent, NLUState } from '../typings'
@@ -58,8 +58,8 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
           bp.logger.forBot(botId)
         )
         const nluResults = await predictionHandler.predict(preview)
+        const nlu = simpleElection({ ...nluResults, includedContexts: event.nlu?.includedContexts ?? [] })
 
-        const nlu = { ...nluResults, includedContexts: event.nlu?.includedContexts ?? [] }
         _.merge(event, { nlu })
         removeSensitiveText(event)
       } catch (err) {
@@ -86,31 +86,8 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
     }
   }
 
-  const electMw: sdk.IO.MiddlewareDefinition = {
-    name: 'nlu-elect.incoming',
-    direction: 'incoming',
-    order: 120,
-    description: 'Perform intent election for the outputed NLU.',
-    handler: async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
-      if (ignoreEvent(bp, state, event) || !event.nlu) {
-        return next()
-      }
-
-      try {
-        // TODO: use the 'intent-is' condition logic when bot uses NDU
-        const nlu = legacyElectionPipeline(event.nlu)
-        _.merge(event, { nlu })
-      } catch (err) {
-        bp.logger.warn(`Error making nlu election for incoming text: ${err.message}`)
-      } finally {
-        next()
-      }
-    }
-  }
-
   process.BOTPRESS_EVENTS.on('NLU_PREDICT_REQUEST', async (event: sdk.IO.Event) => {
     await predictMw.handler(event, () => {})
-    await electMw.handler(event, () => {})
     process.BOTPRESS_EVENTS.emit('NLU_PREDICT_RESPONSE', event.id)
   })
 }

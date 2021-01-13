@@ -1,7 +1,9 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { NONE_INTENT, ValueOf } from './typings'
+export const NONE_INTENT = 'none'
+
+export type ValueOf<T> = T[keyof T]
 
 const mergeSpellChecked = (
   originalOutput: sdk.NLU.PredictOutput,

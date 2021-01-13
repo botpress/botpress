@@ -3,7 +3,7 @@ import Joi from 'joi'
 import _ from 'lodash'
 import yn from 'yn'
 
-import legacyElectionPipeline from './election/legacy-election'
+import simpleElection from './election/simple-election'
 import mergeSpellChecked from './election/spellcheck-handler'
 import { getTrainingSession } from './train-session-service'
 import { NLUState } from './typings'
@@ -77,7 +77,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
         ms,
         spellChecked
       }
-      res.send({ nlu: legacyElectionPipeline(event) })
+      res.send({ nlu: simpleElection(event) })
     } catch (err) {
       res.status(500).send('Could not extract nlu data')
     }

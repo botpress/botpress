@@ -1,25 +1,34 @@
-import * as sdk from 'botpress/sdk'
-import _ from 'lodash'
-
-import { allInRange, GetZPercent, std } from '../tools/math'
-
-import { NONE_INTENT } from './typings'
+/**
+ * NLU Legacy election
+ *
+ * Contains previous NLU election logic with a bunch of custom magic numbers.
+ *
+ * To enable, simply remove the leading dot in the file name.
+ *
+ * This file only exist not to break old users and is not recommanded for new users.
+ *
+ */
+const _ = require('lodash')
+const { std } = require('mathjs')
 
 const OOS_AS_NONE_TRESH = 0.4
 const LOW_INTENT_CONFIDENCE_TRESH = 0.4
+const NONE_INTENT = 'none'
 
-// @deprecated > 13
-export default function legacyElectionPipeline(input: sdk.IO.EventUnderstanding) {
-  if (!input.predictions) {
-    return input
+function legacyElectionPipeline(event) {
+  const { nlu } = event
+
+  if (!nlu.predictions) {
+    return nlu
   }
-  let step = electIntent(input)
+  let step = electIntent(nlu)
   step = detectAmbiguity(step)
   step = extractElectedIntentSlot(step)
-  return step
+
+  event.nlu = nlu
 }
 
-function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {
+function electIntent(input) {
   const allCtx = Object.keys(input.predictions)
 
   const ctx_predictions = allCtx.map(label => {
@@ -61,7 +70,7 @@ function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstandin
         })
         .map(p => ({ ...p, confidence: _.round(p.confidence, 2) }))
         .orderBy('confidence', 'desc')
-        .value() as (sdk.MLToolkit.SVM.Prediction & { context: string })[]
+        .value()
 
       const noneIntent = { label: NONE_INTENT, context: ctx, confidence: 1 }
       if (!intentPreds.length) {
@@ -121,9 +130,9 @@ function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstandin
   }
 }
 
-function detectAmbiguity(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {
+function detectAmbiguity(input) {
   // +- 10% away from perfect median leads to ambiguity
-  const preds = input.intents!
+  const preds = input.intents
   const perfectConfusion = 1 / preds.length
   const low = perfectConfusion - 0.1
   const up = perfectConfusion + 0.1
@@ -137,21 +146,22 @@ function detectAmbiguity(input: sdk.IO.EventUnderstanding): sdk.IO.EventUndersta
   return { ...input, ambiguous }
 }
 
-function extractElectedIntentSlot(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {
-  const intentWasElectedWithoutAmbiguity = input?.intent?.name && !_.isEmpty(input.predictions) && !input.ambiguous
-  const intentIsNone = input?.intent?.name === NONE_INTENT
+function extractElectedIntentSlot(input) {
+  const intentWasElectedWithoutAmbiguity =
+    input.intent && input.intent.name && !_.isEmpty(input.predictions) && !input.ambiguous
+  const intentIsNone = input.intent && input.intent.name === NONE_INTENT
   if (!intentWasElectedWithoutAmbiguity || intentIsNone) {
     return input
   }
 
-  const elected = input.intent!
+  const elected = input.intent
   const electedIntent = input.predictions[elected.context].intents.find(i => i.label === elected.name)
-  return { ...input, slots: electedIntent!.slots }
+  return { ...input, slots: electedIntent.slots }
 }
 
 // taken from svm classifier #295
 // this means that the 3 best predictions are really close, do not change magic numbers
-function predictionsReallyConfused(predictions: sdk.MLToolkit.SVM.Prediction[]): boolean {
+function predictionsReallyConfused(predictions) {
   if (predictions.length <= 2) {
     return false
   }
@@ -165,3 +175,37 @@ function predictionsReallyConfused(predictions: sdk.MLToolkit.SVM.Prediction[]):
   const bestOf3STD = std(predictions.slice(0, 3).map(p => p.confidence))
   return bestOf3STD <= 0.03
 }
+
+function GetZPercent(z) {
+  if (z < -6.5) {
+    return 0.0
+  }
+
+  if (z > 6.5) {
+    return 1.0
+  }
+
+  let factK = 1
+  let sum = 0
+  let term = 1
+  let k = 0
+  const loopStop = Math.exp(-23)
+
+  while (Math.abs(term) > loopStop) {
+    term =
+      (((0.3989422804 * Math.pow(-1, k) * Math.pow(z, k)) / (2 * k + 1) / Math.pow(2, k)) * Math.pow(z, k + 1)) / factK
+    sum += term
+    k++
+    factK *= k
+  }
+
+  sum += 0.5
+
+  return sum
+}
+
+function allInRange(vec, lower, upper) {
+  return vec.map(v => _.inRange(v, lower, upper)).every(_.identity)
+}
+
+legacyElectionPipeline(event)
