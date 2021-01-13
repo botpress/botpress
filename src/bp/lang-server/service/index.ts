@@ -12,12 +12,15 @@ import Logger from '../../simple-logger'
 import { LoadedBPEModel, LoadedFastTextModel, ModelFileInfo, ModelSet } from './typing'
 
 interface RamInfos {
-  used: number
+  free: number
   total: number
   prediction: number
 }
 
 const maxAgeCacheInMS = ms('24h')
+
+const MARGIN_PRED = 0.2 // Adds some % to the predicted ram usage
+const MARGIN_LOW = 0.01 // How much % of total ram is considerer threshold
 
 // Examples:  "scope.en.300.bin" "bp.fr.150.bin"
 const FAST_TEXT_MODEL_REGEX = /^(\w+)\.(\w+)\.(\d+)\.bin$/i
@@ -25,11 +28,15 @@ const FAST_TEXT_MODEL_REGEX = /^(\w+)\.(\w+)\.(\d+)\.bin$/i
 // Examples: "scope.en.bpe.model" "bp.en.bpe.model"
 const BPE_MODEL_REGEX = /^(\w+)\.(\w+)\.bpe\.model$/i
 
+const getModelSize = (dims: number) => {
+  return (7.009615385 * dims + 913.7019231) / 1000
+}
+
 const checkEnoughRam = (langNb: number, dims: number): RamInfos => {
   return {
-    used: Number.parseFloat((os.freemem() / (1024 * 1024 * 1024)).toFixed(2)),
+    free: Number.parseFloat((os.freemem() / (1024 * 1024 * 1024)).toFixed(2)),
     total: Number.parseFloat((os.totalmem() / (1024 * 1024 * 1024)).toFixed(2)),
-    prediction: (dims > 101 ? 4.0 : 2.0) * langNb
+    prediction: getModelSize(dims) * langNb
   }
 }
 
@@ -58,14 +65,13 @@ export default class LanguageService {
     if (languages.length > 0) {
       const ramInfos = checkEnoughRam(languages.length, this.dim)
 
-      if (ramInfos.prediction < ramInfos.total - ramInfos.used) {
-        this.logger.info(`Lang server will take ~${ramInfos.prediction}Gb or more`)
-      } else {
+      if (ramInfos.prediction + ramInfos.prediction * MARGIN_PRED > ramInfos.free) {
         this.logger.warn(
-          `Lang server will take at least ${ramInfos.prediction}Gb and you have approximately ${ramInfos.total -
-            ramInfos.used}Gb left on ${ramInfos.total}`
+          'Warning, this program can crash silently if it lacks free memory space. Make you sure you have enough RAM available.'
         )
-        this.logger.warn('Botpress language server will possibly crash due to ram usage.')
+        this.logger.warn(
+          `Lang server will take ${ramInfos.prediction}Gb and you have approximately ${ramInfos.free}Gb left on ${ramInfos.total}`
+        )
       }
     }
 
@@ -73,6 +79,17 @@ export default class LanguageService {
     await Promise.mapSeries(languages, this._loadModels.bind(this))
 
     this._ready = true
+
+    setInterval(() => {
+      const ramInfos = checkEnoughRam(languages.length, this.dim)
+
+      if (ramInfos.free < ramInfos.total * MARGIN_LOW) {
+        this.logger.warn(
+          `Warning, the language server may silently crash due to a lack of free memory space. (${ramInfos.total -
+            ramInfos.free}/${ramInfos.total})`
+        )
+      }
+    }, 60000)
   }
 
   get isReady(): boolean {
