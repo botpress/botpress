@@ -185,7 +185,8 @@ export class EventEngine {
       this.eventCollector.storeEvent(event)
     }
 
-    if (this.isIncomming(event)) {
+    const isIncomming = (event: sdk.IO.Event): event is sdk.IO.IncomingEvent => event.direction === 'incoming'
+    if (isIncomming(event)) {
       debugIncoming.forBot(event.botId, 'send ', event)
       incrementMetric('eventsIn.count')
       await this.incomingQueue.enqueue(event, 1, false)
@@ -194,10 +195,6 @@ export class EventEngine {
       incrementMetric('eventsOut.count')
       await this.outgoingQueue.enqueue(event, 1, false)
     }
-  }
-
-  private isIncomming(event: sdk.IO.Event): event is sdk.IO.IncomingEvent {
-    return event.direction === 'incoming'
   }
 
   async replyToEvent(eventDestination: sdk.IO.EventDestination, payloads: any[], incomingEventId?: string) {
