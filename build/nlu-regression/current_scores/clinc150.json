@@ -1,5 +1,5 @@
 {
-  "generatedOn": "2021-01-04T21:32:08.422Z",
+  "generatedOn": "2021-01-13T22:13:02.778Z",
   "scores": [
     {
       "metric": "accuracy",
@@ -11,25 +11,25 @@
       "metric": "oosAccuracy",
       "problem": "clinc150, 20 utt/intent, seed 42",
       "seed": 42,
-      "score": 0.8565116279069768
+      "score": 0.8575581395348837
     },
     {
       "metric": "oosPrecision",
       "problem": "clinc150, 20 utt/intent, seed 42",
       "seed": 42,
-      "score": 0.294478527607362
+      "score": 0.2977346278317152
     },
     {
       "metric": "oosRecall",
       "problem": "clinc150, 20 utt/intent, seed 42",
       "seed": 42,
-      "score": 0.08727272727272728
+      "score": 0.08363636363636363
     },
     {
       "metric": "oosF1",
       "problem": "clinc150, 20 utt/intent, seed 42",
       "seed": 42,
-      "score": 0.13464235624123425
+      "score": 0.13058907026259758
     }
   ]
 }
