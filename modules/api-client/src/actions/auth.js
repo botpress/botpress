@@ -1,3 +1,4 @@
+const axios = require('axios')
 const { apiAuthService } = require('@rdcdev/dbank-client');
 
 /**
@@ -9,8 +10,17 @@ const { apiAuthService } = require('@rdcdev/dbank-client');
  * @param {string} password The password of the ecb user
  */
 const auth = async (login, password) => {
-  const authData = await apiAuthService.auth(login, password);
-  console.log(authData);
+  try {
+    const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
+    const authData = await apiAuthService.auth(login, password);
+    console.log(authData);
+    const res = await axios.get('/mod/clients', axiosConfig)
+    console.log('clients');
+    console.log(res.data);
+    console.log('clients');
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 return auth(args.login, args.password);
