@@ -23,5 +23,8 @@
   "resolutions": {
     "fstream": ">=1.0.12",
     "lodash": ">=4.17.19"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.11"
   }
 }
