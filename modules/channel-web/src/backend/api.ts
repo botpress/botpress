@@ -459,24 +459,20 @@ export default async (bp: typeof sdk) => {
     return (payload && payload.text) || message.message_text || wrappedText || `Event (${type})`
   }
 
-  const convertToTxtFile = async conversation => {
-    // TODO doesn't work anymore
-
-    const { messages } = conversation
+  const convertToTxtFile = async (conversation: sdk.Conversation, messages: sdk.Message[]) => {
     const { result: user } = await bp.users.getOrCreateUser('web', conversation.userId)
     const timeFormat = 'MM/DD/YY HH:mm'
     const fullName = `${user.attributes['first_name'] || ''} ${user.attributes['last_name'] || ''}`
-    const metadata = `Title: ${conversation.title}\r\nCreated on: ${moment(conversation.created_on).format(
+    const metadata = `Title: Conversation ${conversation.id}\r\nCreated on: ${moment(conversation.createdOn).format(
       timeFormat
     )}\r\nUser: ${fullName}\r\n-----------------\r\n`
 
     const messagesAsTxt = messages.map(message => {
-      const type = (message.payload && message.payload.type) || message.message_type
+      const type = message.payload?.type
       if (type === 'session_reset') {
         return ''
       }
-      const userName = message.full_name.indexOf('undefined') > -1 ? 'User' : message.full_name
-      return `[${moment(message.sent_on).format(timeFormat)}] ${userName}: ${getMessageContent(message, type)}\r\n`
+      return `[${moment(message.sentOn).format(timeFormat)}] ${message.from}: ${getMessageContent(message, type)}\r\n`
     })
 
     return [metadata, ...messagesAsTxt].join('')
@@ -498,7 +494,8 @@ export default async (bp: typeof sdk) => {
     }
 
     const conversation = await bp.messaging.getConversationById(conversationId)
-    const txt = await convertToTxtFile(conversation)
+    const messages = await bp.messaging.getConversationMessages(conversationId)
+    const txt = await convertToTxtFile(conversation, messages)
 
     res.send({ txt, name: `Conversation ${conversation.id}.txt` })
   })
