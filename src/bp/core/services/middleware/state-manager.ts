@@ -17,7 +17,7 @@ import { SessionIdFactory } from '../dialog/session/id-factory'
 import { JobService } from '../job-service'
 import { KeyValueStore } from '../kvs'
 
-const getRedisSessionKey = sessionId => `sessionstate_${sessionId}`
+const getRedisSessionKey = (sessionId: string, botId: string) => `sessionstate_${botId}_${sessionId}`
 const BATCH_SIZE = 100
 const MEMORY_PERSIST_INTERVAL = ms('5s')
 const REDIS_MEMORY_DURATION = ms('30s')
@@ -69,7 +69,7 @@ export class StateManager {
 
     if (this.useRedis) {
       try {
-        const userState = await this._redisClient.get(getRedisSessionKey(sessionId))
+        const userState = await this._redisClient.get(getRedisSessionKey(sessionId, event.botId))
         if (userState) {
           event.state = JSON.parse(userState)
           event.state.__stacktrace = []
@@ -107,7 +107,7 @@ export class StateManager {
 
     if (this.useRedis) {
       await this._redisClient.set(
-        getRedisSessionKey(sessionId),
+        getRedisSessionKey(sessionId, event.botId),
         JSON.stringify(_.omit(event.state, ['__stacktrace', 'workflow'])),
         'PX',
         REDIS_MEMORY_DURATION
@@ -119,11 +119,11 @@ export class StateManager {
     await this._saveState(event, ignoreContext)
   }
 
-  public async deleteDialogSession(sessionId: string) {
+  public async deleteDialogSession(sessionId: string, botId: string) {
     await this.sessionRepo.delete(sessionId)
 
     if (this.useRedis) {
-      await this._redisClient.del(getRedisSessionKey(sessionId))
+      await this._redisClient.del(getRedisSessionKey(sessionId, botId))
     }
   }
 
