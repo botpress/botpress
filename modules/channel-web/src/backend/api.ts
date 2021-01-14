@@ -11,8 +11,6 @@ import path from 'path'
 
 import { Config } from '../config'
 
-import Database from './db'
-
 const ERR_USER_ID_REQ = '`userId` is required and must be valid'
 const ERR_MSG_TYPE = '`type` is required and must be valid'
 const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
@@ -29,7 +27,7 @@ const SUPPORTED_MESSAGES = [
   'postback'
 ]
 
-export default async (bp: typeof sdk, db: Database) => {
+export default async (bp: typeof sdk) => {
   const asyncMiddleware = asyncMw(bp.logger)
   const globalConfig = (await bp.config.getModuleConfig('channel-web')) as Config
 
@@ -298,7 +296,7 @@ export default async (bp: typeof sdk, db: Database) => {
       await bp.users.getOrCreateUser('web', userId, botId)
 
       if (!conversationId) {
-        conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
+        conversationId = (await bp.messaging.getOrCreateRecentConversation({ userId, botId })).id
       }
 
       const event = bp.IO.Event({
@@ -346,7 +344,7 @@ export default async (bp: typeof sdk, db: Database) => {
         return res.status(400).send('Missing required fields')
       }
 
-      res.send(await db.getFeedbackInfoForEventIds(target, eventIds))
+      res.send(await getFeedbackInfoForEventIds(target, eventIds))
     })
   )
 
@@ -391,7 +389,7 @@ export default async (bp: typeof sdk, db: Database) => {
       }
 
       if (!conversationId || conversationId === 'null') {
-        conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
+        conversationId = (await bp.messaging.getOrCreateRecentConversation({ userId, botId })).id
       }
 
       const message = reference.slice(0, reference.lastIndexOf('='))
@@ -462,6 +460,8 @@ export default async (bp: typeof sdk, db: Database) => {
   }
 
   const convertToTxtFile = async conversation => {
+    // TODO doesn't work anymore
+
     const { messages } = conversation
     const { result: user } = await bp.users.getOrCreateUser('web', conversation.userId)
     const timeFormat = 'MM/DD/YY HH:mm'
@@ -482,17 +482,25 @@ export default async (bp: typeof sdk, db: Database) => {
     return [metadata, ...messagesAsTxt].join('')
   }
 
+  const getFeedbackInfoForEventIds = async (target: string, eventIds: string[]) => {
+    return bp
+      .database('events')
+      .select(['incomingEventId', 'feedback'])
+      .whereIn('incomingEventId', eventIds)
+      .andWhere({ target, direction: 'incoming' })
+  }
+
   router.get('/conversations/:userId/:conversationId/download/txt', async (req: BPRequest, res: Response) => {
-    const { userId, conversationId, botId } = req.params
+    const { userId, conversationId } = req.params
 
     if (!validateUserId(userId)) {
       return res.status(400).send(ERR_USER_ID_REQ)
     }
 
-    const conversation = await db.getConversation(userId, conversationId, botId)
+    const conversation = await bp.messaging.getConversationById(conversationId)
     const txt = await convertToTxtFile(conversation)
 
-    res.send({ txt, name: `${conversation.title}.txt` })
+    res.send({ txt, name: `Conversation ${conversation.id}.txt` })
   })
 
   router.post('/conversations/:userId/:conversationId/messages/delete', async (req: BPRequest, res: Response) => {
@@ -504,7 +512,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.clear', { conversationId }))
 
-    await db.deleteConversationMessages(conversationId)
+    await bp.messaging.deleteConversationMessages(conversationId)
 
     res.sendStatus(204)
   })

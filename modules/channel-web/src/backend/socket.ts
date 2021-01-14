@@ -1,15 +1,9 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import path from 'path'
-
-import Database from './db'
 
 const outgoingTypes = ['text', 'typing', 'login_prompt', 'file', 'carousel', 'custom', 'data']
 
-export default async (bp: typeof sdk, db: Database) => {
-  const config: any = {} // FIXME
-  const { botName = 'Bot', botAvatarUrl = undefined } = config || {} // FIXME
-
+export default async (bp: typeof sdk) => {
   bp.events.registerMiddleware({
     description:
       'Sends out messages that targets platform = webchat.' +
@@ -27,7 +21,8 @@ export default async (bp: typeof sdk, db: Database) => {
 
     const messageType = event.type === 'default' ? 'text' : event.type
     const userId = event.target
-    const conversationId = event.threadId || (await db.getOrCreateRecentConversation(event.botId, userId))
+    const botId = event.botId
+    const conversationId = +event.threadId || (await bp.messaging.getOrCreateRecentConversation({ userId, botId })).id
 
     if (!_.includes(outgoingTypes, messageType)) {
       bp.logger.warn(`Unsupported event type: ${event.type}`)
