@@ -1937,7 +1937,7 @@ declare module 'botpress/sdk' {
      * from the user waiting in the queue.
      * @param event - Current event in the action context, used to identify the queue
      */
-    export function isIncomingQueueEmpty(event: IO.Event): boolean
+    export function isIncomingQueueEmpty(event: IO.IncomingEvent): boolean
 
     /**
      * When Event Storage is enabled, you can use this API to query data about stored events. You can use multiple fields
