@@ -1,4 +1,5 @@
 import { RootStore } from './store'
+import * as sdk from 'botpress/sdk'
 
 declare global {
   interface Window {
@@ -246,24 +247,11 @@ export type CurrentConversation = {
   typingUntil: any
 } & Conversation
 
-export interface Message {
-  id: string
-  userId: string
-  eventId: string
-  from: string
+export type Message = {
   incomingEventId: string
-  conversationId: number
-  avatar_url: string | undefined
-  full_name: string
-  message_data: any | undefined
-  message_raw: any | undefined
-  message_text: string | undefined
-  message_type: string | undefined
-  payload: any
-  sentOn: Date
   // The typing delay in ms
   timeInMs: number
-}
+} & sdk.Message
 
 export interface QueuedMessage {
   message: Message

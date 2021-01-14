@@ -160,7 +160,7 @@ class RootStore {
     }
 
     const message: Message = { ...event, conversationId: +event.conversationId }
-    if (this.isBotTyping.get() && !event.userId) {
+    if (this.isBotTyping.get() && event.from !== 'user') {
       this.delayedMessages.push({ message, showAt: this.currentConversation.typingUntil })
     } else {
       this.currentConversation.messages.push(message)
