@@ -53,10 +53,15 @@ export class MessagingAPI {
 
     await this.eventEngine.sendEvent(event)
 
-    return this.messageRepo.create(destination.conversationId, event.id, 'user', payload)
+    return this.messageRepo.create(destination.conversationId, event.id, event.id, 'user', payload)
   }
 
-  public async appendMessage(conversationId: number, eventId: string, payload: any): Promise<sdk.Message> {
-    return this.messageRepo.create(conversationId, eventId, 'bot', payload)
+  public async appendMessage(
+    conversationId: number,
+    eventId: string,
+    incomingEventId: string,
+    payload: any
+  ): Promise<sdk.Message> {
+    return this.messageRepo.create(conversationId, eventId, incomingEventId, 'bot', payload)
   }
 }

@@ -5,7 +5,13 @@ import Database from '../database'
 import { TYPES } from '../types'
 
 export interface MessageRepository {
-  create(conversationId: number, eventId: string, from: string, payload: any): Promise<sdk.Message>
+  create(
+    conversationId: number,
+    eventId: string,
+    incomingEventId: string,
+    from: string,
+    payload: any
+  ): Promise<sdk.Message>
   getAll(conversationId: number): Promise<sdk.Message[]>
   deleteAll(conversationId: number): Promise<number>
 }
@@ -16,10 +22,17 @@ export class KnexMessageRepository implements MessageRepository {
 
   constructor(@inject(TYPES.Database) private database: Database) {}
 
-  public async create(conversationId: number, eventId: string, from: string, payload: any): Promise<sdk.Message> {
+  public async create(
+    conversationId: number,
+    eventId: string,
+    incomingEventId: string,
+    from: string,
+    payload: any
+  ): Promise<sdk.Message> {
     const message = {
       conversationId,
       eventId,
+      incomingEventId,
       from,
       sentOn: new Date(),
       payload

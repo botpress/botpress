@@ -24,6 +24,7 @@ export class MessagesTable extends Table {
         // not sure if this works
         .onDelete('set null')
         */
+      table.string('incomingEventId')
       table.string('from')
       table.timestamp('sentOn')
       table.jsonb('payload')

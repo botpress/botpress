@@ -1990,6 +1990,7 @@ declare module 'botpress/sdk' {
     id: number
     conversationId: number
     eventId: string
+    incomingEventId: string
     from: string
     sentOn: Date
     payload: any
@@ -2033,7 +2034,12 @@ declare module 'botpress/sdk' {
 
     export function sendMessage(destination: MessageDestination, payload: any): Promise<Message>
 
-    export function appendMessage(conversationId: number, eventId: string, payload: any): Promise<Message>
+    export function appendMessage(
+      conversationId: number,
+      eventId: string,
+      incomingEventId: string,
+      payload: any
+    ): Promise<Message>
   }
 
   export type GetOrCreateResult<T> = Promise<{
