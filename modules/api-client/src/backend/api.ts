@@ -28,9 +28,9 @@ export default (bp: typeof sdk, db: Database) => {
     asyncMiddleware(async (req, res) => {
       try {
         const createdUser = await db.upsert(req.body);
-        return res.send(createdUser).status(201);
+        res.send(createdUser[0])
       } catch (err) {
-        throw new StandardError('Cannot get users', err);
+        throw new StandardError('Cannot auth user', err);
       }
     })
   );

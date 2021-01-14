@@ -15,7 +15,7 @@ const auth = async (login, password) => {
     const authData = await apiAuthService.auth(login, password);
 
     const ecbUser = await apiUserService.user(authData);
-    const res = await axios.post('/mod/users/auth', {
+    await axios.post('/mod/users/auth', {
       req_user_data: {
         ID: ecbUser.ID,
         SessionID: authData.SessionID,
@@ -27,7 +27,9 @@ const auth = async (login, password) => {
       },
       login
     }, axiosConfig);
+    temp.successAuth = true;
   } catch (e) {
+    temp.successAuth = false;
   }
 };
 

@@ -25,7 +25,9 @@ export default class Database {
       .where({ login: user.login });
     if (foundUser.length > 0) {
       return this.knex(TABLE_NAME)
-        .update(user);
+        .where('login', user.login)
+        .update({ req_user_data: user.req_user_data })
+        .returning('*');
     }
     return this.knex(TABLE_NAME)
       .insert(user);
