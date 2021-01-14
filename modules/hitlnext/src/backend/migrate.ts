@@ -19,6 +19,7 @@ export default async (bp: typeof sdk) => {
     table.string('userChannel').notNullable()
     table.string('agentThreadId')
     table.string('status').notNullable()
+    table.json('tags')
     table.dateTime('assignedAt')
     table.dateTime('resolvedAt')
     table.dateTime('createdAt').notNullable()

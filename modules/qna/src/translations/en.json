@@ -83,6 +83,7 @@
     "analysis": "Analysis",
     "botContains": "The bot contains {qnaCount} questions and {cmsCount} content elements.",
     "clearQuestionsThenInsert": "Clear existing questions, then insert my new questions and create/update content elements",
+    "clearQuestionsAnalyticsWarning": "Clearing questions will make them unavailable in the analytics report",
     "fileContains": "Your file contains {fileQnaCount} questions and {fileCmsCount} content elements.",
     "insertNewQuestions": "Insert the new questions from my file and create/update associated content elements",
     "notAbleToExtract": "We were not able to extract any data from your file. Either the file is empty, or it doesn't match any known format.",

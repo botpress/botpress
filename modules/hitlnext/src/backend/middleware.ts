@@ -95,7 +95,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
 
     Object.assign(event.payload, {
       from: 'agent',
-      botAvatarUrl: botAvatarUrl || attributes.picture_url
+      botAvatarUrl: botAvatarUrl || attributes?.picture_url
     })
 
     await pipeEvent(event, {

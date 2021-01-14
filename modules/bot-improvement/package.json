@@ -17,7 +17,7 @@
     "@types/jest": "^25.1.1"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "bluebird": "^3.5.3",
     "classnames": "^2.2.6",
     "joi": "^13.6.0",

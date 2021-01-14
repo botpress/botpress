@@ -35,7 +35,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
       const qnaEntry = (await validate(req.body, QnaDefSchema)) as QnaEntry
       const { storage } = bots[req.params.botId]
       const id = await storage.insert(qnaEntry)
-      res.send(id)
+      res.send([id])
     } catch (e) {
       next(new Error(e.message))
     }

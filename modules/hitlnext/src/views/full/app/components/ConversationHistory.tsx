@@ -6,12 +6,12 @@ import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
 
 import { WEBSOCKET_TOPIC } from '../../../../constants'
 import { ISocketMessage } from '../../../../types'
+import { HitlClient } from '../../../client'
 import MessageList from '../../../lite/MessageList'
-import { ApiType } from '../../Api'
 import { Context } from '../Store'
 
 interface Props {
-  api: ApiType
+  api: HitlClient
   bp: { axios: AxiosInstance; events: any }
   conversationId: string
 }

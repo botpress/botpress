@@ -18,7 +18,7 @@
     "@slack/interactive-messages": "^1.5.0",
     "@slack/rtm-api": "^5.0.3",
     "@slack/web-api": "^5.8.0",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "lru-cache": "^5.1.1",
     "ms": "^2.1.2"
   },
