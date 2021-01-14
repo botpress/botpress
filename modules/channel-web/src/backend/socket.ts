@@ -50,14 +50,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.data', event.payload)
       bp.realtime.sendPayload(payload)
     } else if (standardTypes.includes(messageType)) {
-      const message = await db.appendBotMessage(
-        (event.payload || {}).botName || botName,
-        (event.payload || {}).botAvatarUrl || botAvatarUrl,
-        conversationId,
-        event.payload,
-        event.incomingEventId,
-        event.id
-      )
+      const message = await bp.messaging.appendMessage(conversationId, event.id, event.payload)
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     } else {
       bp.logger.warn(`Message type "${messageType}" not implemented yet`)

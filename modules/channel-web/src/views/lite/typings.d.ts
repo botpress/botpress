@@ -250,6 +250,7 @@ export interface Message {
   id: string
   userId: string
   eventId: string
+  from: string
   incomingEventId: string
   conversationId: number
   avatar_url: string | undefined
@@ -259,7 +260,7 @@ export interface Message {
   message_text: string | undefined
   message_type: string | undefined
   payload: any
-  sent_on: Date
+  sentOn: Date
   // The typing delay in ms
   timeInMs: number
 }

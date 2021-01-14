@@ -158,7 +158,7 @@ export default async (bp: typeof sdk, db: Database) => {
       }
 
       if (!conversationId) {
-        conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
+        conversationId = (await bp.messaging.getOrCreateRecentConversation({ userId, botId })).id
       }
 
       await sendNewMessage(
@@ -220,9 +220,10 @@ export default async (bp: typeof sdk, db: Database) => {
       return res.status(400).send(ERR_USER_ID_REQ)
     }
 
-    const conversation = await db.getConversation(userId, conversationId, botId)
+    const conversation = await bp.messaging.getConversationById(conversationId)
+    const messages = await bp.messaging.getConversationMessages(conversationId)
 
-    return res.send(conversation)
+    return res.send({ ...conversation, messages })
   })
 
   router.get('/conversations/:userId', async (req: BPRequest, res: Response) => {
@@ -234,8 +235,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
     await bp.users.getOrCreateUser('web', userId, botId)
 
-    const conversations = await db.listConversations(userId, botId)
-
+    const conversations = await bp.messaging.getAllConversations({ userId, botId })
     const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
     return res.send({
@@ -277,25 +277,15 @@ export default async (bp: typeof sdk, db: Database) => {
       sanitizedPayload = _.omit(payload, [...sensitive, 'sensitive'])
     }
 
-    const event = bp.IO.Event({
+    const destination: sdk.MessageDestination = {
+      userId,
       botId,
-      channel: 'web',
-      direction: 'incoming',
-      payload,
-      target: userId,
-      threadId: conversationId,
-      type: payload.type,
-      credentials
-    })
-
-    if (useDebugger) {
-      event.debugger = true
+      conversationId,
+      channel: 'web'
     }
 
-    const message = await db.appendUserMessage(botId, userId, conversationId, sanitizedPayload, event.id, user)
+    const message = await bp.messaging.sendMessage(destination, payload)
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
-
-    await bp.events.sendEvent(event)
   }
 
   router.post(
@@ -385,8 +375,8 @@ export default async (bp: typeof sdk, db: Database) => {
     if (!userId) {
       return res.status(400).send({ message: 'Invalid user ID' })
     }
-    const convoId = await db.createConversation(botId, userId)
-    res.send({ convoId })
+    const conversation = await bp.messaging.createConversation({ botId, userId })
+    res.send({ convoId: conversation.id })
   })
 
   router.post('/conversations/:userId/:conversationId/reference/:reference', async (req: BPRequest, res: Response) => {
