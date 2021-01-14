@@ -16,7 +16,7 @@ const onServerReady = async (bp: typeof sdk) => {
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {
-  bp.http.deleteRouterForBot('clients')
+  bp.http.deleteRouterForBot('users')
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
