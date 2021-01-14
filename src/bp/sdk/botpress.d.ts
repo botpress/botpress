@@ -2018,13 +2018,18 @@ declare module 'botpress/sdk' {
     /**
      * Gets the most recent conversation associated with a user
      * endpoint or creates one if no such conversation exists
-     * @param endpoint
      */
     export function getOrCreateRecentConversation(endpoint: UserEndpoint): Promise<Conversation | undefined>
 
     export function getConversationById(conversationId: number): Promise<Conversation | undefined>
 
     export function getConversationMessages(conversationId: number): Promise<Message[]>
+
+    /**
+     * Deletes all messages associated with a conversationId
+     * @returns The number of messages deleted
+     */
+    export function deleteConversationMessages(conversationId: number): Promise<number>
 
     export function sendMessage(destination: MessageDestination, payload: any): Promise<Message>
 

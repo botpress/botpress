@@ -7,6 +7,7 @@ import { TYPES } from '../types'
 export interface MessageRepository {
   create(conversationId: number, eventId: string, from: string, payload: any): Promise<sdk.Message>
   getAll(conversationId: number): Promise<sdk.Message[]>
+  deleteAll(conversationId: number): Promise<number>
 }
 
 @injectable()
@@ -37,6 +38,14 @@ export class KnexMessageRepository implements MessageRepository {
     const rows = await this.query().where({ conversationId })
 
     return rows.map(x => this.deserialize(x))
+  }
+
+  public async deleteAll(conversationId: number): Promise<number> {
+    const numberOfDeletedRows = await this.query()
+      .where({ conversationId })
+      .del()
+
+    return numberOfDeletedRows
   }
 
   private query() {
