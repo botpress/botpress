@@ -51,4 +51,8 @@ export class MessagingAPI {
 
     return this.messageRepo.create(destination.conversationId, event.id, 'user', payload)
   }
+
+  public async appendMessage(conversationId: number, eventId: string, payload: any): Promise<sdk.Message> {
+    return this.messageRepo.create(conversationId, eventId, 'bot', payload)
+  }
 }

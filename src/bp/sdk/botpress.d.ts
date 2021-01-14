@@ -2027,6 +2027,8 @@ declare module 'botpress/sdk' {
     export function getConversationMessages(conversationId: number): Promise<Message[]>
 
     export function sendMessage(destination: MessageDestination, payload: any): Promise<Message>
+
+    export function appendMessage(conversationId: number, eventId: string, payload: any): Promise<Message>
   }
 
   export type GetOrCreateResult<T> = Promise<{
