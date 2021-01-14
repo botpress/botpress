@@ -375,7 +375,7 @@ export default async (bp: typeof sdk, db: Database) => {
       await sendNewMessage(botId, userId, conversationId, payload, req.credentials)
 
       const sessionId = await bp.dialog.createId({ botId, target: userId, threadId: conversationId, channel: 'web' })
-      await bp.dialog.deleteSession(sessionId)
+      await bp.dialog.deleteSession(sessionId, botId)
       res.sendStatus(200)
     })
   )
