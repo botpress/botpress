@@ -72,7 +72,7 @@ test('ajdust to 100', () => {
   const withoutNone = removeNoneIntent(nlu)
 
   // assert
-  const expectedOOS = 0.99 / (0.99 + 0.98) // 0.502
+  const expectedOOS = 0.99 / (0.99 + 0.98) // 0.503
   expect(withoutNone.contexts.global.oos).toBe(expectedOOS)
   expect(withoutNone.contexts.global.intents.some(i => i.label === 'none')).toBe(false)
 })
