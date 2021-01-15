@@ -3,10 +3,10 @@ import _ from 'lodash'
 
 import { BpPredictOutput } from './api-mapper'
 
-export const adjustTotalConfidenceTo100 = (context: NLU.ContextPrediction): NLU.ContextPrediction => {
+const _adjustTotalConfidenceTo100 = (context: NLU.ContextPrediction): NLU.ContextPrediction => {
   const totalConfidence = context.oos + _.sum(context.intents.map(i => i.confidence))
   context.oos = context.oos / totalConfidence
-  context.intents.map(i => ({ ...i, confidence: i.confidence / totalConfidence }))
+  context.intents = context.intents.map(i => ({ ...i, confidence: i.confidence / totalConfidence }))
   return context
 }
 
@@ -25,7 +25,7 @@ export default function removeNoneIntent(nlu: BpPredictOutput): BpPredictOutput 
     context.intents.splice(noneIdx, 1)
     context.oos = Math.max(none.confidence, context.oos)
 
-    return adjustTotalConfidenceTo100(context)
+    return _adjustTotalConfidenceTo100(context)
   })
 
   return { ...nlu, contexts }
