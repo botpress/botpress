@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import React from 'react'
-import { AbstractLinkFactory, DefaultLinkModel, DefaultLinkWidget, PointModel, Toolkit } from 'storm-react-diagrams'
+import { AbstractLinkFactory, DefaultLinkModel, DefaultLinkWidget, DiagramEngine, Toolkit } from 'storm-react-diagrams'
 
 import style from './style.scss'
 
@@ -9,29 +9,35 @@ class DeletableLinkWidget extends DefaultLinkWidget {
 
   generatePoint(pointIndex: number): JSX.Element {
     const { link } = this.props
-    const x = link.points[pointIndex].x
-    const y = link.points[pointIndex].y
+    const point = link.points[pointIndex]
+    const x = point.x
+    const y = point.y
+    const id = point.id
 
-    this.currentLink = link.getID()
+    // When adding a new link
+    if (link.points.length <= 2) {
+      this.currentLink = link.getID()
+    }
 
     return (
-      <g key={`point-${link.points[pointIndex].id}`}>
+      <g key={`point-${id}`}>
         <circle
           cx={x}
           cy={y}
           r={5}
-          className={`point ${this.bem('__point')}${
-            link.points[pointIndex].isSelected() ? this.bem('--point-selected') : ''
-          }`}
+          fill={point.isSelected() ?  'var(--ocean)' : 'var(--gray)'}
         />
         <circle
+          onContextMenu={() => point.remove()}
           onMouseLeave={() => {
-            this.setState({ selected: false })
+            point.setSelected(false)
+            this.forceUpdate()
           }}
           onMouseEnter={() => {
-            this.setState({ selected: true })
+            point.setSelected(true)
+            this.forceUpdate()
           }}
-          data-id={link.points[pointIndex].id}
+          data-id={id}
           data-linkid={link.id}
           cx={x}
           cy={y}
@@ -76,18 +82,22 @@ class DeletableLinkWidget extends DefaultLinkWidget {
     const Top = (
       <path
         strokeLinecap="round"
+        onMouseLeave={() => this.setState({ selected: false })}
+        onMouseEnter={() => this.setState({ selected: true })}
         data-linkid={link.getID()}
         stroke={color}
         strokeOpacity={this.state.selected ? 0.1 : 0}
         strokeWidth={10}
         d={path}
+        fill={'none'}
         {...extraProps}
       />
     )
 
     const deleteBorderWidth = 30
-    const removeX = (link.points[0]?.x + link.points[1]?.x) / 2 - deleteBorderWidth / 2
-    const removeY = (link.points[0]?.y + link.points[1]?.y) / 2 - deleteBorderWidth / 2
+    const middlePoint = Math.floor(link.points.length / 2)
+    const removeX = (link.points[middlePoint - 1]?.x + link.points[middlePoint]?.x) / 2 - deleteBorderWidth / 2
+    const removeY = (link.points[middlePoint - 1]?.y + link.points[middlePoint]?.y) / 2 - deleteBorderWidth / 2
     const showRemove = link.sourcePort && link.targetPort && (this.state.selected || link.isSelected())
 
     const RemoveLinkButton = (
@@ -199,7 +209,8 @@ class DeletableLinkWidget extends DefaultLinkWidget {
           this.generateLink(
             Toolkit.generateCurvePath(pointLeft, pointRight, this.props.link.curvyness),
             {
-              onMouseDown: event => {
+              onMouseDown: (event: MouseEvent) => {
+                console.log('onMouseDown called')
                 this.addPointToLink(event, 1)
               }
             },
@@ -207,7 +218,7 @@ class DeletableLinkWidget extends DefaultLinkWidget {
           )
         )
 
-        // draw the link as dangeling
+        // draw the link as dangling
         if (this.props.link.targetPort === null) {
           paths.push(this.generatePoint(1))
         }
@@ -221,6 +232,7 @@ class DeletableLinkWidget extends DefaultLinkWidget {
                 'data-linkid': this.props.link.id,
                 'data-point': j,
                 onMouseDown: (event: MouseEvent) => {
+                  console.log('onMouseDown called')
                   this.addPointToLink(event, j + 1)
                 }
               },
@@ -257,7 +269,7 @@ export class DeletableLinkFactory extends AbstractLinkFactory {
     super('default')
   }
 
-  generateReactWidget(diagramEngine, link) {
+  generateReactWidget(diagramEngine: DiagramEngine, link: DefaultLinkModel) {
     return <DeletableLinkWidget link={link} color="var(--gray)" width={2} diagramEngine={diagramEngine} />
   }
 

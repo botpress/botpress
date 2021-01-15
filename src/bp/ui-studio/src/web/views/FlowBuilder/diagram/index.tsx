@@ -18,7 +18,7 @@ import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
-import { DefaultPortModel, DiagramEngine, DiagramWidget, NodeModel, PointModel } from 'storm-react-diagrams'
+import { DefaultLinkModel, DefaultPortModel, DiagramEngine, DiagramWidget, NodeModel, PointModel } from 'storm-react-diagrams'
 import {
   buildNewSkill,
   closeFlowNodeProps,
@@ -507,13 +507,19 @@ class Diagram extends Component<Props> {
 
   onDiagramClick = (event: MouseEvent) => {
     const selectedNode = this.manager.getSelectedNode() as BlockModel
+
     const currentNode = this.props.currentFlowNode
     const target = this.diagramWidget.getMouseElement(event)
 
     this.manager.sanitizeLinks()
     this.manager.cleanPortLinks()
 
-    if (selectedNode && selectedNode instanceof PointModel) {
+    if (selectedNode && selectedNode instanceof DefaultLinkModel) {
+      return
+    }
+
+    // Only when creating a link
+    if (selectedNode && selectedNode instanceof PointModel && selectedNode.parent.points.length <= 2) {
       this.dragPortSource = selectedNode
       this.handleContextMenu(event as any)
     }
@@ -703,7 +709,7 @@ class Diagram extends Component<Props> {
             ref={w => (this.diagramWidget = w)}
             deleteKeys={[]}
             diagramEngine={this.diagramEngine}
-            maxNumberPointsPerLink={0}
+            maxNumberPointsPerLink={3}
             inverseZoom
           />
           <ZoomToolbar />
