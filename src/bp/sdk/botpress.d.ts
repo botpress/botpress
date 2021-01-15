@@ -2014,7 +2014,7 @@ declare module 'botpress/sdk' {
 
     /**
      * Deletes all conversations linked to a user endpoint
-     * @returns The amount of conversations deleted
+     * @returns The number of conversations deleted
      */
     export function deleteAllConversations(endpoint: UserEndpoint): Promise<number>
 
@@ -2035,7 +2035,7 @@ declare module 'botpress/sdk' {
     export function getConversationById(conversationId: number): Promise<Conversation | undefined>
 
     /**
-     * Deletes a conversation by its id. This deletes all its messages as well
+     * Deletes a conversation by its id. This deletes all of its messages as well
      * @returns `true` if a conversation was deleted
      */
     export function deleteConversation(conversationId: number): Promise<boolean>
@@ -2046,8 +2046,8 @@ declare module 'botpress/sdk' {
     export function getAllMessages(conversationId: number): Promise<Message[]>
 
     /**
-     * Deletes all messages belonging to a conversation
-     * @returns The amount of messages deleted
+     * Deletes all the messages belonging to a conversation
+     * @returns The number of messages deleted
      */
     export function deleteAllMessages(conversationId: number): Promise<number>
 
