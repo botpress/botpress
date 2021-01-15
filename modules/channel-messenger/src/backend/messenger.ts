@@ -298,7 +298,7 @@ export class MessengerClient {
 
   async sendAction(senderId: string, action: MessengerAction) {
     const config = await this.getConfig()
-    if (config.blacklistedActions.includes(action)) {
+    if (config.disabledActions?.length && config.disabledActions.includes(action)) {
       debugMessages('outgoing action skipped (blacklisted)', { action })
       return
     }

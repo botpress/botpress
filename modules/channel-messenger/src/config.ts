@@ -54,7 +54,7 @@ export interface Config {
    * Example: https://developers.facebook.com/blog/post/2020/12/04/upcoming-changes-messenger-api/
    * @default []
    */
-  blacklistedActions?: Array<MessengerAction>
+  disabledActions?: MessengerAction[]
 }
 
 export type MessengerAction = 'typing_on' | 'typing_off' | 'mark_seen'
