@@ -219,7 +219,7 @@ export default async (bp: typeof sdk) => {
     }
 
     const conversation = await bp.messaging.getConversationById(conversationId)
-    const messages = await bp.messaging.getConversationMessages(conversationId)
+    const messages = await bp.messaging.getAllMessages(conversationId)
 
     return res.send({ ...conversation, messages })
   })
@@ -494,7 +494,7 @@ export default async (bp: typeof sdk) => {
     }
 
     const conversation = await bp.messaging.getConversationById(conversationId)
-    const messages = await bp.messaging.getConversationMessages(conversationId)
+    const messages = await bp.messaging.getAllMessages(conversationId)
     const txt = await convertToTxtFile(conversation, messages)
 
     res.send({ txt, name: `Conversation ${conversation.id}.txt` })
@@ -509,7 +509,7 @@ export default async (bp: typeof sdk) => {
 
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.clear', { conversationId }))
 
-    await bp.messaging.deleteConversationMessages(conversationId)
+    await bp.messaging.deleteAllMessages(conversationId)
 
     res.sendStatus(204)
   })

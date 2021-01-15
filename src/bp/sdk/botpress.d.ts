@@ -2008,16 +2008,20 @@ declare module 'botpress/sdk' {
 
   export namespace messaging {
     /**
-     * Creates a conversation associated to a user endpoint
-     * @param endpoint
-     */
-    export function createConversation(endpoint: UserEndpoint): Promise<Conversation>
-
-    /**
      * Gets all conversations linked to a user endpoint
-     * @param endpoint
      */
     export function getAllConversations(endpoint: UserEndpoint): Promise<Conversation[]>
+
+    /**
+     * Deletes all conversations linked to a user endpoint
+     * @returns The amount of conversations deleted
+     */
+    export function deleteAllConversations(endpoint: UserEndpoint): Promise<number>
+
+    /**
+     * Creates a conversation associated to a user endpoint
+     */
+    export function createConversation(endpoint: UserEndpoint): Promise<Conversation>
 
     /**
      * Gets the most recent conversation associated with a user
@@ -2026,20 +2030,51 @@ declare module 'botpress/sdk' {
     export function getOrCreateRecentConversation(endpoint: UserEndpoint): Promise<Conversation | undefined>
 
     /**
-     * Gets as conversation by its id
+     * Gets a conversation by its id
      */
     export function getConversationById(conversationId: number): Promise<Conversation | undefined>
 
     /**
+     * Deletes a conversation by its id
+     * @returns `true` if a conversation was deleted
+     */
+    export function deleteConversation(conversationId: number): Promise<boolean>
+
+    /**
      * Gets all the messages associated with a conversation
      */
-    export function getConversationMessages(conversationId: number): Promise<Message[]>
+    export function getAllMessages(conversationId: number): Promise<Message[]>
 
     /**
      * Deletes all messages associated with a conversationId
-     * @returns The number of messages deleted
+     * @returns The amount of messages deleted
      */
-    export function deleteConversationMessages(conversationId: number): Promise<number>
+    export function deleteAllMessages(conversationId: number): Promise<number>
+
+    /**
+     * Adds a message to the message history. This is usally used to add the bot's response
+     * @param conversationId Id of the conversation to which this message belongs to
+     * @param eventId Id of the event that corresponds to this message
+     * @param incomingEventId Id of the event that this message is responding to
+     * @param payload Payload of the message
+     */
+    export function createMessage(
+      conversationId: number,
+      eventId: string,
+      incomingEventId: string,
+      payload: any
+    ): Promise<Message>
+
+    /**
+     * Gets a message by its id
+     */
+    export function getMessageById(messageId: number): Promise<Message | undefined>
+
+    /**
+     * Deletes a message by its id
+     * @returns `true` if a message was deleted
+     */
+    export function deleteMessage(messageId: number): Promise<boolean>
 
     /**
      * Sends a message through the event loop. The message is stored in the database
@@ -2051,20 +2086,6 @@ declare module 'botpress/sdk' {
       destination: MessageDestination,
       payload: any,
       args: Partial<IO.EventCtorArgs>
-    ): Promise<Message>
-
-    /**
-     * Adds a message to the message history. This is usally used to add the bot's response
-     * @param conversationId Id of the conversation to which this message belongs to
-     * @param eventId Id of the event that corresponds to this message
-     * @param incomingEventId Id of the event that this message is responding to
-     * @param payload Payload of the message
-     */
-    export function appendMessage(
-      conversationId: number,
-      eventId: string,
-      incomingEventId: string,
-      payload: any
     ): Promise<Message>
   }
 

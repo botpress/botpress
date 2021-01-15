@@ -5,10 +5,12 @@ import Database from '../database'
 import { TYPES } from '../types'
 
 export interface ConversationRepository {
-  create(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation>
-  getById(conversationId: number): Promise<sdk.Conversation | undefined>
   getAll(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation[]>
+  deleteAll(endpoint: sdk.UserEndpoint): Promise<number>
+  create(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation>
   getMostRecent(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation | undefined>
+  getById(conversationId: number): Promise<sdk.Conversation | undefined>
+  delete(conversationId: number): Promise<boolean>
 }
 
 @injectable()
@@ -16,6 +18,22 @@ export class KnexConversationRepository implements ConversationRepository {
   private readonly TABLE_NAME = 'conversations'
 
   constructor(@inject(TYPES.Database) private database: Database) {}
+
+  public async getAll(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation[]> {
+    const rows = await this.query()
+      .select('*')
+      .where(endpoint)
+
+    return rows.map(x => <sdk.Conversation>this.deserialize(x))
+  }
+
+  public async deleteAll(endpoint: sdk.UserEndpoint): Promise<number> {
+    const numberOfDeletedRows = await this.query()
+      .where(endpoint)
+      .del()
+
+    return numberOfDeletedRows
+  }
 
   public async create(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation> {
     const conversation = {
@@ -33,6 +51,17 @@ export class KnexConversationRepository implements ConversationRepository {
     }
   }
 
+  public async getMostRecent(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation | undefined> {
+    const rows = await this.query()
+      .select('*')
+      .where(endpoint)
+      // TODO createdOn is not a good measure
+      .orderBy('createdOn', 'desc')
+      .limit(1)
+
+    return this.deserialize(rows[0])
+  }
+
   public async getById(conversationId: number): Promise<sdk.Conversation | undefined> {
     const rows = await this.query()
       .select('*')
@@ -41,23 +70,12 @@ export class KnexConversationRepository implements ConversationRepository {
     return this.deserialize(rows[0])
   }
 
-  public async getAll(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation[]> {
-    const rows = await this.query()
-      .select('*')
-      .where({ userId: endpoint.userId, botId: endpoint.botId })
+  public async delete(conversationId: number): Promise<boolean> {
+    const numberOfDeletedRows = await this.query()
+      .where({ id: conversationId })
+      .del()
 
-    return rows.map(x => <sdk.Conversation>this.deserialize(x))
-  }
-
-  public async getMostRecent(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation | undefined> {
-    const rows = await this.query()
-      .select('*')
-      .where({ userId: endpoint.userId, botId: endpoint.botId })
-      // TODO createdOn is not a good measure
-      .orderBy('createdOn', 'desc')
-      .limit(1)
-
-    return this.deserialize(rows[0])
+    return numberOfDeletedRows > 0
   }
 
   private query() {

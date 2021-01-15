@@ -13,13 +13,16 @@ export class MessagingAPI {
     @inject(TYPES.MessageRepository) private messageRepo: MessageRepository,
     @inject(TYPES.ConversationRepository) private conversationRepo: ConversationRepository
   ) {}
+  public async getAllConversations(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation[]> {
+    return this.conversationRepo.getAll(endpoint)
+  }
+
+  public async deleteAllConversations(endpoint: sdk.UserEndpoint): Promise<number> {
+    return this.conversationRepo.deleteAll(endpoint)
+  }
 
   public async createConversation(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation> {
     return this.conversationRepo.create(endpoint)
-  }
-
-  public async getAllConversations(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation[]> {
-    return this.conversationRepo.getAll(endpoint)
   }
 
   public async getOrCreateRecentConversation(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation | undefined> {
@@ -30,12 +33,33 @@ export class MessagingAPI {
     return this.conversationRepo.getById(conversationId)
   }
 
-  public async getConversationMessages(conversationId: number): Promise<sdk.Message[]> {
+  public async deleteConversation(conversationId: number): Promise<boolean> {
+    return this.conversationRepo.delete(conversationId)
+  }
+
+  public async getAllMessages(conversationId: number): Promise<sdk.Message[]> {
     return this.messageRepo.getAll(conversationId)
   }
 
-  public async deleteConversationMessages(conversationId: number): Promise<number> {
+  public async deleteAllMessages(conversationId: number): Promise<number> {
     return this.messageRepo.deleteAll(conversationId)
+  }
+
+  public async createMessage(
+    conversationId: number,
+    eventId: string,
+    incomingEventId: string,
+    payload: any
+  ): Promise<sdk.Message> {
+    return this.messageRepo.create(conversationId, eventId, incomingEventId, 'bot', payload)
+  }
+
+  public async getMessageById(messageId: number): Promise<sdk.Message | undefined> {
+    return this.messageRepo.getById(messageId)
+  }
+
+  public async deleteMessage(messageId: number): Promise<boolean> {
+    return this.messageRepo.delete(messageId)
   }
 
   public async sendMessage(
@@ -59,14 +83,5 @@ export class MessagingAPI {
     await this.eventEngine.sendEvent(event)
 
     return this.messageRepo.create(destination.conversationId, event.id, event.id, 'user', payload)
-  }
-
-  public async appendMessage(
-    conversationId: number,
-    eventId: string,
-    incomingEventId: string,
-    payload: any
-  ): Promise<sdk.Message> {
-    return this.messageRepo.create(conversationId, eventId, incomingEventId, 'bot', payload)
   }
 }

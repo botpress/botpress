@@ -75,14 +75,18 @@ const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk
 
 const messaging = (messagingApi: MessagingAPI): typeof sdk.messaging => {
   return {
-    createConversation: messagingApi.createConversation.bind(messagingApi),
     getAllConversations: messagingApi.getAllConversations.bind(messagingApi),
+    deleteAllConversations: messagingApi.deleteAllConversations.bind(messagingApi),
+    createConversation: messagingApi.createConversation.bind(messagingApi),
     getOrCreateRecentConversation: messagingApi.getOrCreateRecentConversation.bind(messagingApi),
     getConversationById: messagingApi.getConversationById.bind(messagingApi),
-    getConversationMessages: messagingApi.getConversationMessages.bind(messagingApi),
-    deleteConversationMessages: messagingApi.deleteConversationMessages.bind(messagingApi),
-    sendMessage: messagingApi.sendMessage.bind(messagingApi),
-    appendMessage: messagingApi.appendMessage.bind(messagingApi)
+    deleteConversation: messagingApi.deleteConversation.bind(messagingApi),
+    getAllMessages: messagingApi.getAllMessages.bind(messagingApi),
+    deleteAllMessages: messagingApi.deleteAllMessages.bind(messagingApi),
+    createMessage: messagingApi.createMessage.bind(messagingApi),
+    getMessageById: messagingApi.getMessageById.bind(messagingApi),
+    deleteMessage: messagingApi.deleteMessage.bind(messagingApi),
+    sendMessage: messagingApi.sendMessage.bind(messagingApi)
   }
 }
 

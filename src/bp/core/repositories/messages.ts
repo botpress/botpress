@@ -5,6 +5,8 @@ import Database from '../database'
 import { TYPES } from '../types'
 
 export interface MessageRepository {
+  getAll(conversationId: number): Promise<sdk.Message[]>
+  deleteAll(conversationId: number): Promise<number>
   create(
     conversationId: number,
     eventId: string,
@@ -12,8 +14,8 @@ export interface MessageRepository {
     from: string,
     payload: any
   ): Promise<sdk.Message>
-  getAll(conversationId: number): Promise<sdk.Message[]>
-  deleteAll(conversationId: number): Promise<number>
+  getById(messageId: number): Promise<sdk.Message | undefined>
+  delete(messageId: number): Promise<boolean>
 }
 
 @injectable()
@@ -21,6 +23,20 @@ export class KnexMessageRepository implements MessageRepository {
   private readonly TABLE_NAME = 'messages'
 
   constructor(@inject(TYPES.Database) private database: Database) {}
+
+  public async getAll(conversationId: number): Promise<sdk.Message[]> {
+    const rows = await this.query().where({ conversationId })
+
+    return rows.map(x => this.deserialize(x))
+  }
+
+  public async deleteAll(conversationId: number): Promise<number> {
+    const numberOfDeletedRows = await this.query()
+      .where({ conversationId })
+      .del()
+
+    return numberOfDeletedRows
+  }
 
   public async create(
     conversationId: number,
@@ -47,18 +63,20 @@ export class KnexMessageRepository implements MessageRepository {
     }
   }
 
-  public async getAll(conversationId: number): Promise<sdk.Message[]> {
-    const rows = await this.query().where({ conversationId })
+  public async getById(messageId: number): Promise<sdk.Message | undefined> {
+    const rows = await this.query()
+      .select('*')
+      .where({ id: messageId })
 
-    return rows.map(x => this.deserialize(x))
+    return this.deserialize(rows[0])
   }
 
-  public async deleteAll(conversationId: number): Promise<number> {
+  public async delete(messageId: number): Promise<boolean> {
     const numberOfDeletedRows = await this.query()
-      .where({ conversationId })
+      .where({ id: messageId })
       .del()
 
-    return numberOfDeletedRows
+    return numberOfDeletedRows > 0
   }
 
   private query() {
