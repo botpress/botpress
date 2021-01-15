@@ -2019,13 +2019,13 @@ declare module 'botpress/sdk' {
     export function deleteAllConversations(endpoint: UserEndpoint): Promise<number>
 
     /**
-     * Creates a conversation associated to a user endpoint
+     * Creates a conversation linked to a user endpoint
      */
     export function createConversation(endpoint: UserEndpoint): Promise<Conversation>
 
     /**
-     * Gets the most recent conversation associated with a user
-     * endpoint or creates one if no such conversation exists
+     * Gets the most recent conversation linked to a user endpoint
+     * or creates one if no such conversation exists
      */
     export function getOrCreateRecentConversation(endpoint: UserEndpoint): Promise<Conversation | undefined>
 
@@ -2035,24 +2035,24 @@ declare module 'botpress/sdk' {
     export function getConversationById(conversationId: number): Promise<Conversation | undefined>
 
     /**
-     * Deletes a conversation by its id
+     * Deletes a conversation by its id. This deletes all its messages as well
      * @returns `true` if a conversation was deleted
      */
     export function deleteConversation(conversationId: number): Promise<boolean>
 
     /**
-     * Gets all the messages associated with a conversation
+     * Gets all the messages belonging to a conversation
      */
     export function getAllMessages(conversationId: number): Promise<Message[]>
 
     /**
-     * Deletes all messages associated with a conversationId
+     * Deletes all messages belonging to a conversation
      * @returns The amount of messages deleted
      */
     export function deleteAllMessages(conversationId: number): Promise<number>
 
     /**
-     * Adds a message to the message history. This is usally used to add the bot's response
+     * Adds a message to a conversation. This is usally used to add the bot's response
      * @param conversationId Id of the conversation to which this message belongs to
      * @param eventId Id of the event that corresponds to this message
      * @param incomingEventId Id of the event that this message is responding to
