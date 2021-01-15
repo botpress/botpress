@@ -49,9 +49,10 @@ export class MessagingAPI {
     conversationId: number,
     eventId: string,
     incomingEventId: string,
+    from: string,
     payload: any
   ): Promise<sdk.Message> {
-    return this.messageRepo.create(conversationId, eventId, incomingEventId, 'bot', payload)
+    return this.messageRepo.create(conversationId, eventId, incomingEventId, from, payload)
   }
 
   public async getMessageById(messageId: number): Promise<sdk.Message | undefined> {

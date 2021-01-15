@@ -45,7 +45,13 @@ export default async (bp: typeof sdk) => {
       const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.data', event.payload)
       bp.realtime.sendPayload(payload)
     } else if (standardTypes.includes(messageType)) {
-      const message = await bp.messaging.createMessage(conversationId, event.id, event.incomingEventId, event.payload)
+      const message = await bp.messaging.createMessage(
+        conversationId,
+        event.id,
+        event.incomingEventId,
+        'bot',
+        event.payload
+      )
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     } else {
       bp.logger.warn(`Message type "${messageType}" not implemented yet`)

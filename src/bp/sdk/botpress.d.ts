@@ -2056,12 +2056,14 @@ declare module 'botpress/sdk' {
      * @param conversationId Id of the conversation to which this message belongs to
      * @param eventId Id of the event that corresponds to this message
      * @param incomingEventId Id of the event that this message is responding to
+     * @param from Author of this message (`bot` or `user` or a custom value)
      * @param payload Payload of the message
      */
     export function createMessage(
       conversationId: number,
       eventId: string,
       incomingEventId: string,
+      from: string,
       payload: any
     ): Promise<Message>
 
