@@ -76,8 +76,6 @@ export class MessagingAPI {
       target: destination.userId,
       threadId: destination.conversationId.toString(),
       type: payload.type
-      // TODO
-      // credentials
     })
 
     await this.eventEngine.sendEvent(event)

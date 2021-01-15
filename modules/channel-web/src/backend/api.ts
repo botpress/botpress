@@ -282,7 +282,7 @@ export default async (bp: typeof sdk) => {
       channel: 'web'
     }
 
-    const message = await bp.messaging.sendMessage(destination, payload, { debugger: true })
+    const message = await bp.messaging.sendMessage(destination, payload, { credentials, debugger: useDebugger })
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
   }
 
