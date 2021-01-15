@@ -46,6 +46,7 @@ export class IOEvent implements sdk.IO.Event {
   public readonly state: any
   public readonly credentials?: any
   public readonly incomingEventId?: string
+  public readonly debugger?: boolean
   private readonly flags: any
   private readonly nlu?: sdk.IO.EventUnderstanding
 
@@ -62,6 +63,7 @@ export class IOEvent implements sdk.IO.Event {
     this.preview = args.preview || this.constructPreview()
     this.flags = {}
     this.state = { __stacktrace: [] }
+    this.debugger = args.debugger
     args.nlu = args.nlu || {}
 
     if (this.direction === 'incoming') {

@@ -38,8 +38,13 @@ export class MessagingAPI {
     return this.messageRepo.deleteAll(conversationId)
   }
 
-  public async sendMessage(destination: sdk.MessageDestination, payload: any): Promise<sdk.Message> {
+  public async sendMessage(
+    destination: sdk.MessageDestination,
+    payload: any,
+    args?: Partial<sdk.IO.EventCtorArgs>
+  ): Promise<sdk.Message> {
     const event = new IOEvent({
+      ...args,
       botId: destination.botId,
       channel: destination.channel,
       direction: 'incoming',

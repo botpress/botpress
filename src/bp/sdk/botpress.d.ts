@@ -736,6 +736,7 @@ declare module 'botpress/sdk' {
       credentials?: any
       nlu?: Partial<EventUnderstanding>
       incomingEventId?: string
+      debugger?: boolean
     }
 
     /**
@@ -2024,8 +2025,14 @@ declare module 'botpress/sdk' {
      */
     export function getOrCreateRecentConversation(endpoint: UserEndpoint): Promise<Conversation | undefined>
 
+    /**
+     * Gets as conversation by its id
+     */
     export function getConversationById(conversationId: number): Promise<Conversation | undefined>
 
+    /**
+     * Gets all the messages associated with a conversation
+     */
     export function getConversationMessages(conversationId: number): Promise<Message[]>
 
     /**
@@ -2034,8 +2041,25 @@ declare module 'botpress/sdk' {
      */
     export function deleteConversationMessages(conversationId: number): Promise<number>
 
-    export function sendMessage(destination: MessageDestination, payload: any): Promise<Message>
+    /**
+     * Sends a message through the event loop. The message is stored in the database
+     * @param destination Destination of the message
+     * @param payload Payload of the event
+     * @param eventArgs Additional arguments to pass to the event constructor. Optional
+     */
+    export function sendMessage(
+      destination: MessageDestination,
+      payload: any,
+      args: Partial<IO.EventCtorArgs>
+    ): Promise<Message>
 
+    /**
+     * Adds a message to the message history. This is usally used to add the bot's response
+     * @param conversationId Id of the conversation to which this message belongs to
+     * @param eventId Id of the event that corresponds to this message
+     * @param incomingEventId Id of the event that this message is responding to
+     * @param payload Payload of the message
+     */
     export function appendMessage(
       conversationId: number,
       eventId: string,
