@@ -10,7 +10,7 @@
   }
 }
 
-:global(.layout-emulator-open) {
+:global(.emulator-open) {
   .rightSidebar {
     right: calc(var(--emulator-width));
     border-right: 1px solid var(--seashell);

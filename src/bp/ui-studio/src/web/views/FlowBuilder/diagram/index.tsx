@@ -738,16 +738,16 @@ class Diagram extends Component<Props> {
               toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
             />
           </div>
-        </MainLayout.Wrapper>
 
-        <Forms
-          diagramEngine={this.diagramEngine}
-          deleteSelectedElements={this.deleteSelectedElements.bind(this)}
-          updateEditingNodeItem={activeFormItem => this.props.setActiveFormItem(activeFormItem)}
-          updateTimeout={timeout => (this.timeout = timeout)}
-          currentLang={this.props.currentLang}
-          defaultLang={this.props.defaultLang}
-        />
+          <Forms
+            diagramEngine={this.diagramEngine}
+            deleteSelectedElements={this.deleteSelectedElements.bind(this)}
+            updateEditingNodeItem={activeFormItem => this.props.setActiveFormItem(activeFormItem)}
+            updateTimeout={timeout => (this.timeout = timeout)}
+            currentLang={this.props.currentLang}
+            defaultLang={this.props.defaultLang}
+          />
+        </MainLayout.Wrapper>
       </Fragment>
     )
   }

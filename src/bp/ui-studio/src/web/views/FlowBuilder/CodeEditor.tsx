@@ -21,7 +21,8 @@ const CodeEditor: FC<Props> = ({
   updateCode,
   currentCode,
   editorCallback,
-  currentFlowNode
+  currentFlowNode,
+  emulatorOpen
 }) => {
   const visible = activeView === ViewType.CodeEditor
   const title = currentFlowNode ? `${lang.tr(currentFlowNode.type)}: ${currentFlowNode.name}` : ''
@@ -32,7 +33,7 @@ const CodeEditor: FC<Props> = ({
   }
 
   return (
-    <div className={cx(style.codeEditor, { [style.hidden]: !visible })}>
+    <div className={cx(style.codeEditor, { [style.hidden]: !visible, 'emulator-open': emulatorOpen })}>
       <div className={style.header}>
         <div className={style.title}>{title}</div>
         <div className={style.actions}>
@@ -58,7 +59,8 @@ const mapStateToProps = (state: RootReducer) => ({
   activeView: state.ui.activeView,
   template: state.codeEditor.template,
   editorCallback: state.codeEditor.editorCallback,
-  currentCode: state.codeEditor.code
+  currentCode: state.codeEditor.code,
+  emulatorOpen: state.ui.emulatorOpen
 })
 
 const mapDispatchToProps = {

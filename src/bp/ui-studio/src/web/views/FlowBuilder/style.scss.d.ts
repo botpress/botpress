@@ -4,6 +4,7 @@ interface CssExports {
   'actions': string;
   'codeEditor': string;
   'diagram': string;
+  'emulator-open': string;
   'header': string;
   'hidden': string;
   'title': string;
