@@ -124,38 +124,46 @@ export default class BroadcastDb {
       })
   }
 
-  async getUsersTimezone() {
+  async getUsersTimezone(): Promise<number[]> {
     const attrs = await this.knex('srv_channel_users').select('attributes')
-    const timezones = attrs.map(({ attributes: { timezone } }) => timezone)
+    const timezones = attrs.map(({ attributes: value }) =>
+      // SQLite returns a JSON string
+      typeof value === 'string' ? JSON.parse(value)?.timezone : value.timezone
+    )
 
     return [...new Set(timezones)]
   }
 
-  setBroadcastOutbox(botId, schedule, tz) {
+  async setBroadcastOutbox(botId: string, schedule: Schedule, tz: number): Promise<any> {
     const initialTz = tz
     const sign = Number(tz) >= 0 ? '+' : '-'
-    tz = padDigits(Math.abs(Number(tz)), 2)
-    const relTime = moment(`${schedule['date_time']}${sign}${tz}`, 'YYYY-MM-DD HH:mmZ').toDate()
+    const paddedTz = padDigits(Math.abs(Number(tz)), 2)
+    const relTime = moment(`${schedule['date_time']}${sign}${paddedTz}`, 'YYYY-MM-DD HH:mmZ').toDate()
     const adjustedTime = this.knex.date.format(schedule['ts'] ? schedule['ts'] : relTime)
-    // const whereClause = _.isNil(initialTz)
-    //  ? 'where attributes->timezone IS NULL'
-    //  : 'where attributes->>timezone = :initialTz'
+    const whereClause = this.knex.isLite
+      ? _.isNil(initialTz)
+        ? "where json_extract(attributes, '$.timezone') IS NULL"
+        : "where json_extract(attributes, '$.timezone') = :initialTz"
+      : _.isNil(initialTz)
+      ? "where attributes-> 'timezone' IS NULL"
+      : "where cast (attributes->> 'timezone' as integer) = :initialTz"
 
     const sql = `insert into broadcast_outbox ("userId", "scheduleId", "botId", "ts")
       select userId, :scheduleId, :botId, :adjustedTime
       from (
         select id as userId
-        from srv_channel_users
+        from srv_channel_users as scu
+        inner join bot_chat_users as bcu on bcu."userId" = scu.user_id
+        ${whereClause}
+        and bcu."botId" = :botId
       ) as q1`
 
-    return this.knex
-      .raw(sql, {
-        scheduleId: schedule['id'],
-        adjustedTime,
-        initialTz,
-        botId
-      })
-      .then()
+    return this.knex.raw(sql, {
+      scheduleId: schedule['id'],
+      adjustedTime,
+      initialTz,
+      botId
+    })
   }
 
   async getOutboxCount(botId: string, schedule: Schedule): Promise<number> {
