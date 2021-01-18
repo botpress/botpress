@@ -1,10 +1,10 @@
-import axios, { AxiosInstance } from 'axios'
+import axios, { AxiosError, AxiosInstance } from 'axios'
 import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
 import { json as expressJson, Router } from 'express'
 import _ from 'lodash'
 
-import { Config } from '../config'
+import { Config, MessengerAction } from '../config'
 
 const debug = DEBUG('channel-messenger')
 const debugMessages = debug.sub('messages')
@@ -13,7 +13,6 @@ const debugWebhook = debugHttp.sub('webhook')
 const debugHttpOut = debugHttp.sub('out')
 
 const outgoingTypes = ['text', 'typing', 'login_prompt', 'carousel']
-type MessengerAction = 'typing_on' | 'typing_off' | 'mark_seen'
 
 interface MountedBot {
   pageId: string
@@ -298,6 +297,12 @@ export class MessengerClient {
   }
 
   async sendAction(senderId: string, action: MessengerAction) {
+    const config = await this.getConfig()
+    if (config.disabledActions?.includes(action)) {
+      debugMessages('outgoing action skipped (blacklisted)', { action })
+      return
+    }
+
     const body = {
       recipient: {
         id: senderId
