@@ -2,6 +2,7 @@ import bodyParser from 'body-parser'
 import { AxiosBotConfig, AxiosOptions, http, Logger, RouterOptions } from 'botpress/sdk'
 import LicensingService from 'common/licensing-service'
 import { RequestWithUser } from 'common/typings'
+import compression from 'compression'
 import session from 'cookie-session'
 import cors from 'cors'
 import errorHandler from 'errorhandler'
@@ -150,6 +151,10 @@ export default class HTTPServer {
     }
 
     this.app.use(debugRequestMw)
+
+    if (!yn(process.core_env.BP_HTTP_DISABLE_GZIP)) {
+      this.app.use(compression())
+    }
 
     this.modulesRouter = new ModulesRouter(
       this.logger,
