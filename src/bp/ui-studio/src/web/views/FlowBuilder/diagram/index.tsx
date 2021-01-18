@@ -82,6 +82,7 @@ type ExtendedDiagramEngine = {
 } & DiagramEngine
 
 const EXPANDED_NODES_KEY = `bp::${window.BOT_ID}::expandedNodes`
+export const MAX_NUMBER_OF_POINTS_PER_LINK = 3
 
 const getExpandedNodes = () => {
   try {
@@ -709,7 +710,7 @@ class Diagram extends Component<Props> {
             ref={w => (this.diagramWidget = w)}
             deleteKeys={[]}
             diagramEngine={this.diagramEngine}
-            maxNumberPointsPerLink={3}
+            maxNumberPointsPerLink={MAX_NUMBER_OF_POINTS_PER_LINK}
             inverseZoom
           />
           <ZoomToolbar />

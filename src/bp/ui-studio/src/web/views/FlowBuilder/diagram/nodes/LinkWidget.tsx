@@ -4,18 +4,19 @@ import { AbstractLinkFactory, DefaultLinkModel, DefaultLinkWidget, DiagramEngine
 
 import style from './style.scss'
 
+// the end and beginning of a link counts as two points
+export const LINK_DEFAULT_NUMBER_OF_POINTS = 2
+
 class DeletableLinkWidget extends DefaultLinkWidget {
   private currentLink: string
 
   generatePoint(pointIndex: number): JSX.Element {
     const { link } = this.props
     const point = link.points[pointIndex]
-    const x = point.x
-    const y = point.y
-    const id = point.id
+    const { x, y, id } = link.points[pointIndex]
 
     // When adding a new link
-    if (link.points.length <= 2) {
+    if (link.points.length <= LINK_DEFAULT_NUMBER_OF_POINTS) {
       this.currentLink = link.getID()
     }
 
@@ -184,7 +185,7 @@ class DeletableLinkWidget extends DefaultLinkWidget {
     // true when smart routing was skipped or not enabled.
     // See @link{#isSmartRoutingApplicable()}.
     if (paths.length === 0) {
-      if (points.length === 2) {
+      if (points.length === LINK_DEFAULT_NUMBER_OF_POINTS) {
         const isHorizontal = Math.abs(points[0].x - points[1].x) > Math.abs(points[0].y - points[1].y)
         const xOrY = isHorizontal ? 'x' : 'y'
 
