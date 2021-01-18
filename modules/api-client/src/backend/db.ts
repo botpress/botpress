@@ -20,6 +20,12 @@ export default class Database {
     });
   }
 
+  public getUserByLogin(login: string): Promise<[User]> {
+    return this.knex(TABLE_NAME)
+      .select()
+      .where({ login }) as unknown as Promise<[User]>
+  }
+
   public async upsert(user: User): Promise<any> {
     const foundUser = await this.knex(TABLE_NAME)
       .where({ login: user.login });

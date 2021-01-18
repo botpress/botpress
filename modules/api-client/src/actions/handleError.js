@@ -1,5 +1,5 @@
 async function handleError({ bp, error, event }) {
-  switch (error.status) {
+  switch (error.code) {
     case 401: {
       const payloads = await bp.cms.renderElement(
         'builtin_text', { text: 'Sesiunea a expirat' }, event
