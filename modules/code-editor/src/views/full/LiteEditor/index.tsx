@@ -17,6 +17,7 @@ interface Parameters {
 
 interface Props {
   onChange: (code: string) => void
+  onSave?: () => void
   args?: Parameters[]
   customKey: string
   code: string
@@ -177,6 +178,7 @@ export default class MinimalEditor extends React.Component<Props> {
 
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, async () => {
       await this.editor.getAction('editor.action.formatDocument').run()
+      this.props.onSave?.()
     })
 
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_P, () =>

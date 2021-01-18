@@ -1,5 +1,5 @@
 import { Button } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { lang, toast } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
@@ -37,13 +37,14 @@ const CodeEditor: FC<Props> = ({
       <div className={style.header}>
         <div className={style.title}>{title}</div>
         <div className={style.actions}>
-          <Button onClick={onClose} text={lang.tr('close')}></Button>
+          <Button onClick={onClose} text={lang.tr('saveAndClose')}></Button>
         </div>
       </div>
       <WrappedEditor
         code={currentCode}
         template={template}
         onChange={code => updateCode(code)}
+        onSave={() => editorCallback(currentCode)}
         customKey={`${currentFlowNode?.name}${visible}`}
       />
     </div>
