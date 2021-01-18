@@ -21,7 +21,7 @@ const ConfigAction: FC<Props> = ({ actions, actionName, formData, contentLang, o
       ...acc,
       [name]: {
         type: ControlType.String,
-        title: name,
+        label: name,
         required,
         placeholder: description,
         defaultValue
