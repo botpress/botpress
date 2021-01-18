@@ -27,8 +27,12 @@ const auth = async (login, password) => {
       },
       login
     }, axiosConfig);
+    user.isAuth = true;
     temp.successAuth = true;
-  } catch (e) {
+  } catch (error) {
+    const { handleError } = require('handleError')
+    handleError({ bp, error, event });
+    user.isAuth = false;
     temp.successAuth = false;
   }
 };
