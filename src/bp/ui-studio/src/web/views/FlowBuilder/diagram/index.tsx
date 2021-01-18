@@ -507,18 +507,18 @@ class Diagram extends Component<Props> {
 
   onDiagramClick = (event: MouseEvent) => {
     const selectedNode = this.manager.getSelectedNode() as BlockModel
-
     const currentNode = this.props.currentFlowNode
     const target = this.diagramWidget.getMouseElement(event)
 
     this.manager.sanitizeLinks()
     this.manager.cleanPortLinks()
 
+    // skip when a link is selected
     if (selectedNode && selectedNode instanceof DefaultLinkModel) {
       return
     }
 
-    // Only when creating a link
+    // only when creating a link
     if (selectedNode && selectedNode instanceof PointModel && selectedNode.parent.points.length <= 2) {
       this.dragPortSource = selectedNode
       this.handleContextMenu(event as any)

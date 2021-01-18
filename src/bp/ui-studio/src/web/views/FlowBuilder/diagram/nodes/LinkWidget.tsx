@@ -209,11 +209,7 @@ class DeletableLinkWidget extends DefaultLinkWidget {
           this.generateLink(
             Toolkit.generateCurvePath(pointLeft, pointRight, this.props.link.curvyness),
             {
-              onMouseDown: (event: MouseEvent) => {
-                console.log('onMouseDown called')
-                this.addPointToLink(event, 1)
-              }
-            },
+              onMouseDown: (event: MouseEvent) => this.addPointToLink(event, 1)},
             '0'
           )
         )
@@ -231,11 +227,7 @@ class DeletableLinkWidget extends DefaultLinkWidget {
               {
                 'data-linkid': this.props.link.id,
                 'data-point': j,
-                onMouseDown: (event: MouseEvent) => {
-                  console.log('onMouseDown called')
-                  this.addPointToLink(event, j + 1)
-                }
-              },
+                onMouseDown: (event: MouseEvent) => this.addPointToLink(event, j + 1)},
               j
             )
           )
