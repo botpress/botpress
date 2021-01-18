@@ -51,11 +51,11 @@ export default class BroadcastDb {
   }
 
   async addSchedule({ botId, date, time, timezone, content, type, filters }: Schedule): Promise<ScheduleRow> {
-    const dateTime = date + ' ' + time
+    const dateTime = `${date} ${time}`
     let ts = undefined
 
     if (timezone) {
-      ts = moment(new Date(dateTime + ' ' + timezone)).toDate()
+      ts = moment(new Date(`${dateTime} ${timezone}`)).toDate()
     }
 
     const row: ScheduleRow = {
@@ -76,10 +76,10 @@ export default class BroadcastDb {
   }
 
   async updateSchedule({ id, botId, date, time, timezone, content, type, filters }: Schedule): Promise<void> {
-    const dateTime = date + ' ' + time
+    const dateTime = `${date} ${time}`
     let ts = undefined
     if (timezone) {
-      ts = moment(new Date(dateTime + ' ' + timezone)).toDate()
+      ts = moment(new Date(`${dateTime} ${timezone}`)).toDate()
     }
 
     const row: Partial<ScheduleRow> = {
