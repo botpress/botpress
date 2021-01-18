@@ -15,7 +15,7 @@ import { BotService } from 'core/services/bot-service'
 import { CMSService } from 'core/services/cms'
 import { FlowService, MutexError, TopicSchema } from 'core/services/dialog/flow/service'
 import { LogsService } from 'core/services/logs/service'
-import MediaService from 'core/services/media'
+import { MediaServiceProvider } from 'core/services/media'
 import { NotificationsService } from 'core/services/notification/service'
 import { getSocketTransports } from 'core/services/realtime'
 import { WorkspaceService } from 'core/services/workspace-service'
@@ -53,11 +53,10 @@ export class BotsRouter extends CustomRouter {
   private cmsService: CMSService
   private configProvider: ConfigProvider
   private flowService: FlowService
-  private mediaService: MediaService
+  private mediaServiceProvider: MediaServiceProvider
   private logsService: LogsService
   private notificationService: NotificationsService
   private authService: AuthService
-  private ghostService: GhostService
   private moduleLoader: ModuleLoader
   private checkTokenHeader: RequestHandler
   private needPermissions: (operation: string, resource: string) => RequestHandler
@@ -74,11 +73,10 @@ export class BotsRouter extends CustomRouter {
     cmsService: CMSService
     configProvider: ConfigProvider
     flowService: FlowService
-    mediaService: MediaService
+    mediaServiceProvider: MediaServiceProvider
     logsService: LogsService
     notificationService: NotificationsService
     authService: AuthService
-    ghostService: GhostService
     workspaceService: WorkspaceService
     moduleLoader: ModuleLoader
     logger: Logger
@@ -90,11 +88,10 @@ export class BotsRouter extends CustomRouter {
     this.cmsService = args.cmsService
     this.configProvider = args.configProvider
     this.flowService = args.flowService
-    this.mediaService = args.mediaService
+    this.mediaServiceProvider = args.mediaServiceProvider
     this.logsService = args.logsService
     this.notificationService = args.notificationService
     this.authService = args.authService
-    this.ghostService = args.ghostService
     this.workspaceService = args.workspaceService
     this.moduleLoader = args.moduleLoader
     this.needPermissions = needPermissions(this.workspaceService)
@@ -274,9 +271,11 @@ export class BotsRouter extends CustomRouter {
       '/media/:filename',
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
-        const type = path.extname(req.params.filename)
+        const fileName = req.params.filename
+        const type = path.extname(fileName)
+        const mediaService = this.mediaServiceProvider.forBot(botId)
 
-        const contents = await this.mediaService.readFile(botId, req.params.filename).catch(() => undefined)
+        const contents = await mediaService.readFile(fileName).catch(() => undefined)
         if (!contents) {
           return res.sendStatus(404)
         }
@@ -463,9 +462,11 @@ export class BotsRouter extends CustomRouter {
         }
 
         if (allowedMimeTypes.includes(file.mimetype) && allowedMimeTypes.includes(extMimeType)) {
+          // @ts-ignore
           return cb(undefined, true)
         }
 
+        // @ts-ignore
         cb(new Error(`This type of file is not allowed (${file.mimetype})`), false)
       },
       limits: {
@@ -473,6 +474,7 @@ export class BotsRouter extends CustomRouter {
       }
     }).single('file')
 
+    // This route should proxy to the media router
     this.router.post(
       '/media',
       this.checkTokenHeader,
@@ -487,7 +489,7 @@ export class BotsRouter extends CustomRouter {
 
           const file = req['file']
           const botId = req.params.botId
-          const fileName = await this.mediaService.saveFile(botId, file.originalname, file.buffer)
+          const fileName = await this.mediaServiceProvider.forBot(botId).saveFile(file.originalname, file.buffer)
 
           debugMedia(
             `success (${email} from ${req.ip}). file: ${fileName} %o`,
@@ -508,8 +510,10 @@ export class BotsRouter extends CustomRouter {
         const email = req.tokenUser!.email
         const botId = req.params.botId
         const files = this.cmsService.getMediaFiles(req.body)
-        files.forEach(async f => {
-          await this.mediaService.deleteFile(botId, f)
+        const mediaService = this.mediaServiceProvider.forBot(botId)
+
+        await Promise.map(files, f => {
+          mediaService.deleteFile(f)
           debugMedia(`successful deletion (${email} from ${req.ip}). file: ${f}`)
         })
 

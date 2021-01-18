@@ -35,6 +35,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
   const diskStorage = multer.diskStorage({
     destination: globalConfig.fileUploadPath,
+    // @ts-ignore typing indicates that limits isn't supported
     limits: {
       files: 1,
       fileSize: 5242880 // 5MB
@@ -70,6 +71,7 @@ export default async (bp: typeof sdk, db: Database) => {
       delete awsConfig.region
     }
 
+    // TODO use media service with a 's3' backend
     const s3 = new aws.S3(awsConfig)
     const s3Storage = multers3({
       s3,
