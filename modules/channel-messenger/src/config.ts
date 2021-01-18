@@ -47,8 +47,17 @@ export interface Config {
    * @default 24h
    */
   chatUserAuthDuration: string
+
+  /**
+   * Allows to disable certain actions.
+   * Could be used to comply with some region's restrictions.
+   * Example: https://developers.facebook.com/blog/post/2020/12/04/upcoming-changes-messenger-api/
+   * @default []
+   */
+  disabledActions?: MessengerAction[]
 }
 
+export type MessengerAction = 'typing_on' | 'typing_off' | 'mark_seen'
 export interface PersistentMenuItem {
   locale: string
   composer_input_disabled?: boolean
