@@ -118,13 +118,17 @@ export class AuthRouter extends CustomRouter {
               .min(0)
               .max(35)
               .trim()
+              .allow(''),
+            picture_url: Joi.string()
+              .uri()
               .allow('')
           })
         )
 
         await this.authService.updateAttributes(email, strategy, {
           firstname: req.body.firstname,
-          lastname: req.body.lastname
+          lastname: req.body.lastname,
+          picture_url: req.body.picture_url
         })
 
         return sendSuccess(res, 'Updated profile successfully')
