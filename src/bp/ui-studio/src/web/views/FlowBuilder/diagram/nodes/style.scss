@@ -204,3 +204,15 @@
   right: auto;
   top: -7px;
 }
+
+.startPort .emulatorLabel {
+  top: 20px !important;
+}
+
+.emulatorStartPort .emulatorLabel {
+  color: red !important;
+  font-size: 11px;
+  left: -60px;
+  right: auto;
+  top: -16px;
+}

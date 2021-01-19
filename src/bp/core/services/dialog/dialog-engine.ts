@@ -282,7 +282,16 @@ export class DialogEngine {
     event.state.temp = {}
   }
 
-  private initializeContext(event) {
+  private initializeContext(event: IO.IncomingEvent) {
+    if (event.state.user.emulatorStartNode) {
+      const { flow, node } = event.state.user.emulatorStartNode
+      event.state.__stacktrace.push({ flow, node })
+      event.state.context = { currentFlow: flow, currentNode: node }
+
+      this._debug(event.botId, event.target, 'starting from custom location', { ...event.state.context })
+      return event.state.context
+    }
+
     const defaultFlow = this._findFlow(event.botId, event.ndu ? 'misunderstood.flow.json' : 'main.flow.json')
     const startNode = this._findNode(event.botId, defaultFlow, defaultFlow.startNode)
     event.state.__stacktrace.push({ flow: defaultFlow.name, node: startNode.name })

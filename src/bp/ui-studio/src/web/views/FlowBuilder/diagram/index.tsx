@@ -42,7 +42,7 @@ import {
 import { SearchBar } from '~/components/Shared/Interface'
 import { getAllFlows, getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
 import storage from '~/util/storage'
-
+import axios from 'axios'
 import { prepareEventForDiagram } from './debugger'
 import { defaultTransition, DiagramManager, DIAGRAM_PADDING, nodeTypes, Point } from './manager'
 import { BlockModel, BlockProps, BlockWidgetFactory } from './nodes/Block'
@@ -81,11 +81,25 @@ type ExtendedDiagramEngine = {
   flowBuilder?: any
 } & DiagramEngine
 
+export interface SingleNode {
+  flow: string
+  node: string
+}
+
 const EXPANDED_NODES_KEY = `bp::${window.BOT_ID}::expandedNodes`
+const EMULATOR_START_NODES_KEY = `bp::${window.BOT_ID}::emulatorStart`
 
 const getExpandedNodes = () => {
   try {
     return JSON.parse(storage.get(EXPANDED_NODES_KEY) || '[]')
+  } catch (error) {
+    return []
+  }
+}
+
+const getEmulatorStartNodes = () => {
+  try {
+    return JSON.parse(storage.get(EMULATOR_START_NODES_KEY) || '[]')
   } catch (error) {
     return []
   }
@@ -102,6 +116,7 @@ class Diagram extends Component<Props> {
 
   state = {
     expandedNodes: [],
+    emulatorStartNodes: [],
     nodeInfos: [],
     currentTriggerNode: null,
     isTriggerEditOpen: false
@@ -131,6 +146,11 @@ class Diagram extends Component<Props> {
       getFlows: () => this.getPropsProperty('flows'),
       getSkills: () => this.getPropsProperty('skills'),
       disconnectNode: this.disconnectNode.bind(this),
+      emulatorStartNode: {
+        set: this.setEmulatorStartNode.bind(this),
+        clear: this.clearEmulatorStartNode.bind(this),
+        list: () => this.getStateProperty('emulatorStartNodes')
+      },
       // Temporary, maybe we could open the elementinstead of double-click?
       // tslint:disable-next-line: no-console
       editNodeItem: (node, idx) => console.log(node, idx)
@@ -149,6 +169,49 @@ class Diagram extends Component<Props> {
 
     if (this.props.highlightFilter) {
       this.manager.setHighlightFilter(this.props.highlightFilter)
+    }
+  }
+
+  async updateEmulatorStartNode() {
+    const currentFlowName = this.props.currentFlow.name
+    const currentFlowStart = this.state.emulatorStartNodes.find(x => x.flow === currentFlowName)
+    let startNode
+
+    if (currentFlowStart) {
+      startNode = currentFlowStart
+    }
+
+    const userId = storage.get('bp/socket/studio/user')
+    await axios.post(`${window.BOT_API_PATH}/mod/channel-web-secure/setEmulatorStartNode/${userId}`, startNode)
+  }
+
+  persistEmulatorStartNodes(newNodes) {
+    storage.set(EMULATOR_START_NODES_KEY, JSON.stringify(newNodes))
+    this.setState({ emulatorStartNodes: newNodes }, this.updateEmulatorStartNode)
+  }
+
+  async setEmulatorStartNode(node) {
+    const startNodes = this.state.emulatorStartNodes
+    const currentFlowName = this.props.currentFlow.name
+    const startNode = { flow: currentFlowName, node: node.name }
+
+    let newNodes = [...startNodes, startNode]
+
+    const idx = startNodes.findIndex(x => x.flow === currentFlowName)
+    if (idx !== -1) {
+      newNodes = [...startNodes.slice(0, idx), startNode, ...startNodes.slice(idx + 1)]
+    }
+
+    this.persistEmulatorStartNodes(newNodes)
+  }
+
+  clearEmulatorStartNode() {
+    const startNodes = this.state.emulatorStartNodes
+    const currentFlowName = this.props.currentFlow.name
+
+    const idx = startNodes.findIndex(x => x.flow === currentFlowName)
+    if (idx !== -1) {
+      this.persistEmulatorStartNodes([...startNodes.slice(0, idx), ...startNodes.slice(idx + 1)])
     }
   }
 
@@ -223,7 +286,7 @@ class Diagram extends Component<Props> {
 
   componentDidMount() {
     this.props.fetchFlows()
-    this.setState({ expandedNodes: getExpandedNodes() })
+    this.setState({ expandedNodes: getExpandedNodes(), emulatorStartNodes: getEmulatorStartNodes() })
 
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('dblclick', this.onDiagramDoubleClick)
@@ -268,6 +331,7 @@ class Diagram extends Component<Props> {
       // Update the diagram model only if we changed the current flow
       this.manager.initializeModel()
       this.checkForProblems()
+      this.updateEmulatorStartNode()
     } else {
       // Update the current model with the new properties
       this.manager.syncModel()

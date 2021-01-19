@@ -19,6 +19,7 @@ import SaySomethingContents from '../SaySomethingContents'
 import SkillCallContents, { SkillDefinition } from '../SkillCallContents'
 import StandardContents from '../StandardContents'
 import TriggerContents from '../TriggerContents'
+import { SingleNode } from '../../'
 
 export interface BlockProps {
   node: BlockModel
@@ -39,6 +40,11 @@ export interface BlockProps {
   updateFlowNode: (args: any) => void
   updateFlow: (args: any) => void
   getSkills: () => SkillDefinition[]
+  emulatorStartNode: {
+    set: (node: BlockModel) => void
+    clear: () => void
+    list: () => SingleNode[]
+  }
 }
 
 const defaultLabels = {
@@ -69,10 +75,15 @@ const BlockWidget: FC<BlockProps> = ({
   getDebugInfo,
   editTriggers,
   disconnectNode,
+  emulatorStartNode,
   getSkills
 }) => {
   const { nodeType } = node
   const { currentLang, defaultLang } = getLanguage()
+
+  const isEmulatorStartNode = emulatorStartNode
+    .list()
+    .find(x => x.flow === getCurrentFlow().name && x.node === node.name)
 
   const handleContextMenu = e => {
     e.stopPropagation()
@@ -92,6 +103,11 @@ const BlockWidget: FC<BlockProps> = ({
     contextMenu(
       e,
       <Menu>
+        <MenuItem
+          icon="selection"
+          text={isEmulatorStartNode ? lang.tr('Remove emulator start node') : lang.tr('Start emulator here')}
+          onClick={() => (isEmulatorStartNode ? emulatorStartNode.clear() : emulatorStartNode.set(node))}
+        />
         <MenuItem
           icon="trash"
           text={
@@ -218,7 +234,13 @@ const BlockWidget: FC<BlockProps> = ({
         debugInfo={debugInfo}
         nodeType={nodeType}
       >
-        <StandardPortWidget hidden={!inputPortInHeader} name="in" node={node} className={style.in} />
+        <StandardPortWidget
+          hidden={!inputPortInHeader}
+          name="in"
+          node={node}
+          className={style.in}
+          isEmulatorStartNode={isEmulatorStartNode}
+        />
         {outPortInHeader && <StandardPortWidget name="out0" node={node} className={style.out} />}
       </NodeHeader>
       {(!canCollapse || expanded) && renderContents()}
@@ -308,6 +330,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
   private disconnectNode: BlockProps['disconnectNode']
   private updateFlow: BlockProps['updateFlow']
   private getSkills: BlockProps['getSkills']
+  private emulatorStartNode: BlockProps['emulatorStartNode']
 
   constructor(methods: BlockProps) {
     super('block')
@@ -327,6 +350,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
     this.updateFlowNode = methods.updateFlowNode
     this.editTriggers = methods.editTriggers
     this.disconnectNode = methods.disconnectNode
+    this.emulatorStartNode = methods.emulatorStartNode
     this.updateFlow = methods.updateFlow
     this.getSkills = methods.getSkills
   }
@@ -350,6 +374,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
         getFlows={this.getFlows}
         editTriggers={this.editTriggers}
         disconnectNode={this.disconnectNode}
+        emulatorStartNode={this.emulatorStartNode}
         updateFlow={this.updateFlow}
         getSkills={this.getSkills}
       />

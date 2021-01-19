@@ -44,6 +44,7 @@ type Props = {
   node: any
   next?: sdk.NodeTransition[]
   flowsName: any
+  isEmulatorStartNode: boolean
 } & RouteComponentProps
 
 export class StandardPortWidgetDisconnected extends React.PureComponent<Props> {
@@ -83,6 +84,10 @@ export class StandardPortWidgetDisconnected extends React.PureComponent<Props> {
     return <div className={cx(style.label, 'label')}>Return ({returnTo})</div>
   }
 
+  renderEmulatorStartNode() {
+    return <div className={cx(style.label, style.emulatorLabel, 'label')}>Emulator</div>
+  }
+
   render() {
     let type = 'normal'
     let missingConnection = false
@@ -106,12 +111,15 @@ export class StandardPortWidgetDisconnected extends React.PureComponent<Props> {
       }
     }
 
+    const { isEmulatorStartNode } = this.props
+
     const className = cx(this.props.className, style.portContainer, 'portContainer', {
       [style.startPort]: type === 'start',
       [style.subflowPort]: type === 'subflow',
       [style.endPort]: type === 'end',
       [style.returnPort]: type === 'return',
-      [style.portLabel]: /end|subflow|start|return/i.test(type),
+      [style.emulatorStartPort]: isEmulatorStartNode,
+      [style.portLabel]: /end|subflow|start|return/i.test(type) || isEmulatorStartNode,
       [style.missingConnection]: missingConnection
     })
 
@@ -122,6 +130,7 @@ export class StandardPortWidgetDisconnected extends React.PureComponent<Props> {
         {type === 'end' && this.renderEndNode()}
         {type === 'start' && this.renderStartNode()}
         {type === 'return' && this.renderReturnNode()}
+        {isEmulatorStartNode && this.renderEmulatorStartNode()}
       </div>
     )
   }
