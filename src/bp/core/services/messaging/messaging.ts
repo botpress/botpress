@@ -25,8 +25,8 @@ export class MessagingAPI {
     return this.conversationRepo.create(endpoint)
   }
 
-  public async getOrCreateRecentConversation(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation | undefined> {
-    return this.conversationRepo.getMostRecent(endpoint) ?? this.conversationRepo.create(endpoint)
+  public async getOrCreateRecentConversation(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation> {
+    return (await this.conversationRepo.getMostRecent(endpoint)) ?? this.conversationRepo.create(endpoint)
   }
 
   public async getConversationById(conversationId: number): Promise<sdk.Conversation | undefined> {

@@ -2027,7 +2027,7 @@ declare module 'botpress/sdk' {
      * Gets the most recent conversation linked to a user endpoint
      * or creates one if no such conversation exists
      */
-    export function getOrCreateRecentConversation(endpoint: UserEndpoint): Promise<Conversation | undefined>
+    export function getOrCreateRecentConversation(endpoint: UserEndpoint): Promise<Conversation>
 
     /**
      * Gets a conversation by its id
