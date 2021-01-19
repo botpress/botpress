@@ -44,7 +44,6 @@ export type TrainInput = Readonly<{
 }>
 
 export type TrainStep = Readonly<{
-  botId: string
   nluSeed: number
   languageCode: string
   list_entities: WarmedListEntityModel[]
@@ -74,6 +73,7 @@ export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] 
 
 type progressCB = (p?: number) => void
 
+// TODO: make sure those logs are passed to main process
 const debugTraining = DEBUG('nlu').sub('training')
 const NONE_INTENT = 'none'
 const NONE_UTTERANCES_BOUNDS = {
@@ -219,7 +219,7 @@ const TrainIntentClassifier = async (
   tools: Tools,
   progress: progressCB
 ): Promise<_.Dictionary<string>> => {
-  debugTraining.forBot(input.botId, 'Training intent classifier')
+  debugTraining('Training intent classifier')
   const customEntities = getCustomEntitiesNames(input)
   const svmPerCtx: _.Dictionary<string> = {}
 
@@ -273,12 +273,12 @@ const TrainIntentClassifier = async (
     svmPerCtx[ctx] = model
   }
 
-  debugTraining.forBot(input.botId, 'Done training intent classifier')
+  debugTraining('Done training intent classifier')
   return svmPerCtx
 }
 
 const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<string> => {
-  debugTraining.forBot(input.botId, 'Training context classifier')
+  debugTraining('Training context classifier')
   const customEntities = getCustomEntitiesNames(input)
   const points = _.flatMapDeep(input.contexts, ctx => {
     return input.intents
@@ -294,7 +294,7 @@ const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: 
   const classCount = _.uniq(points.map(p => p.label)).length
   if (points.length === 0 || classCount <= 1) {
     progress()
-    debugTraining.forBot(input.botId, 'No context to train')
+    debugTraining('No context to train')
     return ''
   }
 
@@ -305,7 +305,7 @@ const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: 
     progress(_.round(p, 1))
   })
 
-  debugTraining.forBot(input.botId, 'Done training context classifier')
+  debugTraining('Done training context classifier')
   return model
 }
 
@@ -450,19 +450,19 @@ const TrainSlotTagger = async (input: TrainStep, tools: Tools, progress: progres
     return Buffer.from('')
   }
 
-  debugTraining.forBot(input.botId, 'Training slot tagger')
+  debugTraining('Training slot tagger')
   const slotTagger = new SlotTagger(tools.mlToolkit)
 
   await slotTagger.train(input.intents.filter(i => i.name !== NONE_INTENT))
 
-  debugTraining.forBot(input.botId, 'Done training slot tagger')
+  debugTraining('Done training slot tagger')
   progress()
 
   return slotTagger.serialized
 }
 
 const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<_.Dictionary<string>> => {
-  debugTraining.forBot(input.botId, 'Training out of scope classifier')
+  debugTraining('Training out of scope classifier')
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
     c: [10], // so there's no grid search
     kernel: 'LINEAR',
@@ -499,7 +499,7 @@ const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progres
     return [ctx, model] as [string, string]
   })
 
-  debugTraining.forBot(input.botId, 'Done training out of scope')
+  debugTraining('Done training out of scope')
   progress(1)
   return ctxModels.reduce((acc, cur) => {
     const [ctx, model] = cur!
