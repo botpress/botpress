@@ -8,7 +8,7 @@ const { updateResults, readResults } = require('./score-service')
 const TEST_FILE_EXT = '.nlu.test.js'
 
 async function runTest(test, { update, keepGoing }) {
-  const { name, computePerformance, evaluatePerformance } = test(bitfan)
+  const { name, computePerformance, evaluatePerformance } = test
   const performance = await computePerformance()
 
   if (update) {

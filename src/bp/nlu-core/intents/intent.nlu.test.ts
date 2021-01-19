@@ -1,16 +1,14 @@
-import * as bitfanSDK from '@botpress/bitfan'
+import bitfan from '@botpress/bitfan'
 
-export default function(bitfan: typeof bitfanSDK) {
-  return {
-    name: 'bpds-intent',
-    computePerformance: async () => {
-      return bitfan.evaluateMetrics([], [])
-    },
-    evaluatePerformance: async (
-      currentPerformance: bitfanSDK.PerformanceReport,
-      previousPerformance: bitfanSDK.PerformanceReport
-    ) => {
-      return bitfan.comparePerformances(currentPerformance, previousPerformance)
-    }
+export default {
+  name: 'bpds-intent',
+  computePerformance: async () => {
+    return bitfan.evaluateMetrics([], [])
+  },
+  evaluatePerformance: async (
+    currentPerformance: bitfan.PerformanceReport,
+    previousPerformance: bitfan.PerformanceReport
+  ) => {
+    return bitfan.comparePerformances(currentPerformance, previousPerformance)
   }
 }
