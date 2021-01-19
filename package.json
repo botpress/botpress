@@ -19,7 +19,8 @@
     "test": "cross-env NATIVE_EXTENSIONS_DIR=./build/native-extensions node_modules/.bin/jest -i --detectOpenHandles -c jest.config.js",
     "itest": "cross-env NATIVE_EXTENSIONS_DIR=./build/native-extensions node_modules/.bin/jest -i --detectOpenHandles -c jest.e2e.config.js all",
     "tslint": "node_modules/.bin/tslint --project tslint.json",
-    "commitmsg": "commitlint -e $GIT_PARAMS"
+    "commitmsg": "commitlint -e $GIT_PARAMS",
+    "nlu-test": "node ./build/nlu-regression/index.js"
   },
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^9.0.6",
@@ -107,6 +108,7 @@
     "lodash": ">=4.17.19"
   },
   "devDependencies": {
+    "@botpress/bitfan": "0.3.3",
     "@commitlint/cli": "^7.2.1",
     "@commitlint/config-conventional": "^7.1.2",
     "@types/bluebird-global": "^3.5.9",
@@ -164,6 +166,7 @@
     "prettier": "^1.19.1",
     "puppeteer": "^2.0.0",
     "rimraf": "^2.6.2",
+    "recursive-readdir": "^2.2.2",
     "showdown": "^1.9.1",
     "stylus": "^0.54.5",
     "ts-jest": "^24.3.0",

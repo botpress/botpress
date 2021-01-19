@@ -1,12 +1,11 @@
 const bitfan = require('@botpress/bitfan').default
 const chalk = require('chalk')
-
-const bpdsIntents = require('./tests/bpds-intents')
-const bpdsSlots = require('./tests/bpds-slots')
-const clincIntents = require('./tests/clinc-intents')
-const bpdsSpell = require('./tests/bpds-spell')
+const readdir = require('recursive-readdir')
+const yargs = require('yargs')
 
 const { updateResults, readResults } = require('./score-service')
+
+const TEST_FILE_EXT = '.nlu.test.js'
 
 async function runTest(test, { update, keepGoing }) {
   const { name, computePerformance, evaluatePerformance } = test(bitfan)
@@ -18,7 +17,7 @@ async function runTest(test, { update, keepGoing }) {
   }
 
   const previousPerformance = await readResults(name)
-  const comparison = evaluatePerformance(performance, previousPerformance)
+  const comparison = await evaluatePerformance(performance, previousPerformance)
 
   bitfan.visualisation.showComparisonReport(name, comparison)
   console.log('')
@@ -38,16 +37,15 @@ async function runTest(test, { update, keepGoing }) {
   return true
 }
 
-async function main(args) {
-  const update = args.includes('--update') || args.includes('-u')
-  const keepGoing = args.includes('--keep-going') || args.includes('-k')
+async function listTests(srcPath) {
+  const files = await readdir(srcPath)
+  return files.filter(f => f.endsWith(TEST_FILE_EXT)).map(f => require(f).default)
+}
 
-  const tests = [
-    bpdsIntents,
-    bpdsSlots,
-    bpdsSpell,
-    clincIntents
-  ]
+async function main(args) {
+  const { update, keepGoing, srcPath } = args
+
+  const tests = await listTests(srcPath)
 
   let testsPass = true
   for (const test of tests) {
@@ -65,9 +63,31 @@ async function main(args) {
   }
 }
 
-main(process.argv.slice(2))
-  .then(() => {})
-  .catch(err => {
-    console.error(chalk.red('The following error occured:\n'), err)
-    process.exit(1)
-  })
+yargs
+  .command(
+    ['test', '$0'],
+    'run nlu regression tests',
+    {
+      update: {
+        description: 'Weither or not to update previous results',
+        alias: 'u',
+        type: 'boolean'
+      },
+      keepGoing: {
+        description: "Which problem to keep running tests when there's a regression",
+        alias: 'k',
+        type: 'boolean'
+      },
+      srcPath: {
+        description: 'Path where to find test files',
+        type: 'string',
+        default: `${__dirname}/../../out/bp`
+      }
+    },
+    argv => {
+      main(argv)
+        .then(() => console.log('Done.'))
+        .catch(err => console.log(err))
+    }
+  )
+  .help().argv
