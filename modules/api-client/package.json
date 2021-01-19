@@ -16,10 +16,14 @@
   "dependencies": {
     "@rdcdev/dbank-client": "../../../../dbank-client/",
     "bluebird": "^3.7.2",
-    "bluebird-global": "^1.0.1"
+    "bluebird-global": "^1.0.1",
+    "moment": "^2.29.1"
   },
   "resolutions": {
     "fstream": ">=1.0.12",
     "lodash": ">=4.17.19"
+  },
+  "devDependencies": {
+    "@types/moment": "^2.13.0"
   }
 }

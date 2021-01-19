@@ -11,14 +11,17 @@ const initUser = async () => {
   try {
     const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true });
 
-    const user = await axios.get(`/mod/users/dv0001`, axiosConfig)
+    const res = await axios.get(`/mod/users/${user.login}`, axiosConfig)
 
-    const ecbUser = await apiUserService.user(user.data.req_user_data);
+    await apiUserService.user(res.data.req_user_data);
 
+    user.req_user_data = res.data.req_user_data
     user.isAuth = true;
   } catch (error) {
-    const { handleError } = require('handleError')
-    handleError({ bp, error, event });
+
+    const sessionId = bp.dialog.createId(event);
+    await bp.dialog.jumpTo(sessionId, event, 'error.flow.json', 'unauthorized');
+
     user.isAuth = false;
   }
 };
