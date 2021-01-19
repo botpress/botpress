@@ -10,6 +10,7 @@ import _ from 'lodash'
 import ms from 'ms'
 
 import { Event } from '../sdk/impl'
+import { MessagingAPI } from './messaging/messaging'
 
 import { EventEngine } from './middleware/event-engine'
 
@@ -32,7 +33,8 @@ export class ConverseService {
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.UserRepository) private userRepository: UserRepository
+    @inject(TYPES.UserRepository) private userRepository: UserRepository,
+    @inject(TYPES.MessagingAPI) private messagingApi: MessagingAPI
   ) {}
 
   @postConstruct()
@@ -96,24 +98,19 @@ export class ConverseService {
 
     await this.userRepository.getOrCreate('api', userId, botId)
 
-    const incomingEvent = Event({
-      type: payload.type,
-      channel: 'api',
-      direction: 'incoming',
-      payload,
-      target: userId,
+    const conversation = await this.messagingApi.getOrCreateRecentConversation({ userId, botId })
+    const destination = {
+      userId,
       botId,
-      credentials,
-      nlu: {
-        includedContexts
-      }
-    })
+      conversationId: conversation.id,
+      channel: 'api'
+    }
 
     const userKey = buildUserKey(botId, userId)
     const timeoutPromise = this._createTimeoutPromise(botId, userKey)
     const donePromise = this._createDonePromise(userKey)
 
-    await this.eventEngine.sendEvent(incomingEvent)
+    await this.messagingApi.sendMessage(destination, payload, { credentials, nlu: { includedContexts } })
 
     return Promise.race([timeoutPromise, donePromise]).finally(() => {
       converseApiEvents.removeAllListeners(`done.${userKey}`)
@@ -170,13 +167,17 @@ export class ConverseService {
     })
   }
 
-  private _handleCapturePayload(event: IO.Event) {
+  private _handleCapturePayload(event: IO.OutgoingEvent) {
     const userKey = buildUserKey(event.botId, event.target)
     if (!this._responseMap[userKey]) {
       this._responseMap[userKey] = { responses: [] }
     }
 
     this._responseMap[userKey].responses!.push(event.payload)
+
+    if (event.type !== 'typing' && event.type !== 'data') {
+      this.messagingApi.createMessage(+event.threadId!, event.id, event.incomingEventId!, 'bot', event.payload)
+    }
   }
 
   private _handleCaptureContext(event: IO.IncomingEvent) {
