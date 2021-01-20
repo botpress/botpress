@@ -1,13 +1,9 @@
-process.env.NATIVE_EXTENSIONS_DIR = './build/native-extensions'
-process.APP_DATA_PATH = require('../../core/misc/app_data').getAppDataPath()
-import '../../jest-rewire'
-
-// tslint:disable-next-line:ordered-imports
 import bitfan from '@botpress/bitfan'
+import { isSpace } from 'nlu-core/tools/token-utils'
+import { Tools } from 'nlu-core/typings'
 
 import { initializeTools } from '../initialize-tools'
 
-import { isSpace } from 'nlu-core/tools/token-utils'
 import makeSpellChecker from './spell-checker'
 
 class SpellingEngine implements bitfan.UnsupervisedEngine<'spell'> {
@@ -15,29 +11,24 @@ class SpellingEngine implements bitfan.UnsupervisedEngine<'spell'> {
 
   constructor(private langServerUrl: string) {}
 
+  private _initializeTools(): Promise<Tools> {
+    // tslint:disable-next-line:no-console
+    const log = (...x: any[]) => console.log(...x)
+    const logger = { error: log, info: log, warning: log }
+    const config = {
+      ducklingEnabled: false,
+      ducklingURL: '',
+      languageSources: [{ endpoint: this.langServerUrl }]
+    }
+    return initializeTools(config, logger)
+  }
+
   public train = async (corpus: bitfan.Document[], seed: number, progress: bitfan.ProgressCb) => {
-    const tools = await initializeTools(
-      {
-        ducklingEnabled: false,
-        ducklingURL: '',
-        languageSources: [{ endpoint: this.langServerUrl }]
-      },
-      {
-        // tslint:disable-next-line:no-console
-        error: (msg: string, err?: Error) => console.log(msg, err),
-        // tslint:disable-next-line:no-console
-        info: (msg: string, err?: Error) => console.log(msg, err),
-        // tslint:disable-next-line:no-console
-        warning: (msg: string, err?: Error) => console.log(msg, err)
-      }
-    )
-
+    const tools = await this._initializeTools()
     const lang = corpus[0].lang
-
     const wholeText = corpus.map(c => c.text).join(' ')
     const [raw_tokens] = await tools.tokenize_utterances([wholeText], lang)
     const tokens = raw_tokens.filter(t => !isSpace(t))
-
     this.spellChecker = makeSpellChecker(tokens, lang, tools)
     progress(1)
   }

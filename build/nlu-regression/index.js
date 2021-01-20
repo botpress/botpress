@@ -6,6 +6,7 @@ const yargs = require('yargs')
 const { updateResults, readResults } = require('./score-service')
 
 const TEST_FILE_EXT = '.nlu.test.js'
+const SETUP_FILE_EXT = 'setup.nlu.test.js'
 
 async function runTest(test, { update, keepGoing }) {
   const { name, computePerformance, evaluatePerformance } = test
@@ -37,14 +38,20 @@ async function runTest(test, { update, keepGoing }) {
   return true
 }
 
+async function runSetupFiles(srcPath) {
+  const files = await readdir(srcPath)
+  files.filter(f => f.endsWith(SETUP_FILE_EXT)).map(f => require(f).default)
+}
+
 async function listTests(srcPath) {
   const files = await readdir(srcPath)
-  return files.filter(f => f.endsWith(TEST_FILE_EXT)).map(f => require(f).default)
+  return files.filter(f => f.endsWith(TEST_FILE_EXT) && !f.endsWith(SETUP_FILE_EXT)).map(f => require(f).default)
 }
 
 async function main(args) {
   const { update, keepGoing, srcPath } = args
 
+  await runSetupFiles(srcPath)
   const tests = await listTests(srcPath)
 
   let testsPass = true
@@ -54,7 +61,7 @@ async function main(args) {
   }
 
   if (update) {
-    console.log(chalk.green('Test results where update with success.'))
+    console.log(chalk.green('Test results where updated with success.'))
     return
   }
 
