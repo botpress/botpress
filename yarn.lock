@@ -259,10 +259,10 @@
     lodash "^4.17.19"
     to-fast-properties "^2.0.0"
 
-"@botpress/bitfan@0.3.3":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@botpress/bitfan/-/bitfan-0.3.3.tgz#bd17a19854a284a8df76d5445984548ce5eec7f9"
-  integrity sha512-N1xOzvTZGSknNLiwW667zKVtSmWwFm2emZr6qskWQj/vw9K8CRFW5ioGLJZgdSaE1hsZAh3Hzh+hgnPQ0/+EjQ==
+"@botpress/bitfan@0.3.4":
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/@botpress/bitfan/-/bitfan-0.3.4.tgz#a08121d22e30d7548cc6ab2cd9a5d4d1b4156fe9"
+  integrity sha512-ksghZmP+09HfqDaPWzo1vSQHK0PmxHrWn1NeZMv1rim/SqFdUj8pSw09uGEtzrq05v+EyJoUKqJ9FhmCZZ8o1A==
   dependencies:
     axios "^0.20.0"
     bluebird "^3.7.2"

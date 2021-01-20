@@ -1,5 +1,6 @@
 import { NLU } from 'botpress/sdk'
-import MLToolkit from 'ml/toolkit'
+
+import MLToolkit from '../ml/toolkit'
 
 import { DucklingEntityExtractor } from './entities/duckling-extractor'
 import LangProvider from './language/language-provider'

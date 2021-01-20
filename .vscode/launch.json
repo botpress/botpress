@@ -60,6 +60,32 @@
     },
     {
       "type": "node",
+      "runtimeVersion": "12.13.0",
+      "request": "launch",
+      "name": "Debug NLU benchmarks",
+      "program": "${workspaceFolder}/build/nlu-regression/index.js",
+      "cwd": "${workspaceFolder}",
+      "args": [],
+      "protocol": "auto",
+      "env": {
+        "BP_MODULES_PATH": "${workspaceFolder}/modules:${workspaceFolder}/internal-modules",
+        "NODE_PATH": "${workspaceFolder}/out/bp",
+        "DEBUG": "bp:none",
+        "BLUEBIRD_DEBUG": "1"
+      },
+      "smartStep": true,
+      "outFiles": [
+        "${workspaceFolder}/out/**/*.js",
+        "${workspaceFolder}/modules/**/dist/**/*.js",
+        "${workspaceFolder}/private-modules/**/dist/**/*.js",
+        "!${workspaceFolder}/**/node_modules/**/*.js"
+      ],
+      "console": "integratedTerminal",
+      "sourceMaps": true,
+      "autoAttachChildProcesses": true
+    },
+    {
+      "type": "node",
       "request": "launch",
       "name": "Debug Jest Tests",
       "cwd": "${workspaceFolder}",

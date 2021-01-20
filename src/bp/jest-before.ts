@@ -2,7 +2,7 @@ import { EventEmitter } from 'events'
 
 import { Distro } from './common/getos'
 
-const { Debug: _Debug } = require('./debug.ts')
+const { Debug: _Debug } = require('./debug')
 
 global.DEBUG = _Debug
 
