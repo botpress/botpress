@@ -26,7 +26,7 @@ export class DialogSession {
 export interface SessionRepository {
   insert(session: DialogSession): Promise<DialogSession>
   getOrCreateSession(sessionId: string, botId: string, trx?: Knex.Transaction): Promise<DialogSession>
-  get(id: string): Promise<DialogSession>
+  get(id: string, botId: string): Promise<DialogSession>
   getExpiredContextSessionIds(botId: string): Promise<string[]>
   deleteExpiredSessions(botId: string)
   delete(id: string)
@@ -40,7 +40,7 @@ export class KnexSessionRepository implements SessionRepository {
   constructor(@inject(TYPES.Database) private database: Database) {}
 
   async getOrCreateSession(sessionId: string, botId: string, trx?: Knex.Transaction): Promise<DialogSession> {
-    const session = await this.get(sessionId)
+    const session = await this.get(sessionId, botId)
     if (!session) {
       return this.createSession(sessionId, botId, {}, {}, {}, trx)
     }
@@ -88,10 +88,10 @@ export class KnexSessionRepository implements SessionRepository {
     return newSession
   }
 
-  async get(id: string): Promise<DialogSession> {
+  async get(id: string, botId: string): Promise<DialogSession> {
     const session = <DialogSession>await this.database
       .knex<DialogSession>(this.tableName)
-      .where({ id })
+      .where({ id, botId })
       .select('*')
       .first()
       .then()
