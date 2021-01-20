@@ -26,7 +26,6 @@ export class KnexMessageRepository implements MessageRepository {
 
   public async getAll(conversationId: number): Promise<sdk.Message[]> {
     const rows = await this.query().where({ conversationId })
-
     return rows.map(x => this.deserialize(x))
   }
 
@@ -54,8 +53,9 @@ export class KnexMessageRepository implements MessageRepository {
       payload
     }
 
-    const result = await this.query().insert(this.serialize(message))
-    const id = result[0]
+    const [id] = await this.query()
+      .insert(this.serialize(message))
+      .returning('id')
 
     return {
       id,
@@ -87,7 +87,7 @@ export class KnexMessageRepository implements MessageRepository {
     return {
       ...message,
       sentOn: message.sentOn?.toISOString(),
-      payload: JSON.stringify(message.payload)
+      payload: this.database.knex.json.set(message.payload)
     }
   }
 
@@ -95,7 +95,7 @@ export class KnexMessageRepository implements MessageRepository {
     return {
       ...message,
       sentOn: new Date(message.sentOn),
-      payload: JSON.parse(message.payload)
+      payload: this.database.knex.json.get(message.payload)
     }
   }
 }
