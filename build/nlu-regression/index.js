@@ -46,10 +46,20 @@ async function runSetupFiles(srcPath) {
   files.filter(f => f.endsWith(SETUP_FILE_EXT)).map(f => require(f).default)
 }
 
-async function listTests(srcPath) {
+async function listTests(srcPath, pattern) {
   const files = await readdir(srcPath)
+
+  const keepFile = filePath => {
+    const fileName = path.basename(filePath)
+    const fileAsCorrectExtension = fileName.endsWith(TEST_FILE_EXT) && fileName !== SETUP_FILE_EXT
+    if (pattern) {
+      return fileAsCorrectExtension && fileName.startsWith(pattern)
+    }
+    return fileAsCorrectExtension
+  }
+
   return _(files)
-    .filter(filePath => filePath.endsWith(TEST_FILE_EXT) && !filePath.endsWith(SETUP_FILE_EXT))
+    .filter(keepFile)
     .flatMap(filePath => {
       const fileName = path.basename(filePath).replace(TEST_FILE_EXT, '')
       return Object.entries(require(filePath)).map(([testName, test]) => ({
@@ -61,10 +71,17 @@ async function listTests(srcPath) {
 }
 
 async function main(args) {
-  const { update, keepGoing, srcPath } = args
+  const { update, keepGoing, srcPath, pattern } = args
 
   await runSetupFiles(srcPath)
-  const tests = await listTests(srcPath)
+  const tests = await listTests(srcPath, pattern)
+
+  if (!tests.length) {
+    const msg = pattern
+      ? `No test to run in directory "${srcPath}" with pattern "${pattern}".`
+      : `No test to run in directory "${srcPath}".`
+    console.log(chalk.red(msg))
+  }
 
   let testsPass = true
   for (const test of tests) {
@@ -101,6 +118,12 @@ yargs
         description: 'Path where to find test files',
         type: 'string',
         default: `${__dirname}/../../out/bp`
+      },
+      pattern: {
+        description: 'Test files to run',
+        alias: 'p',
+        type: 'string',
+        default: ''
       }
     },
     argv => {
