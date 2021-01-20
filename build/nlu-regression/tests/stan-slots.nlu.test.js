@@ -27,9 +27,7 @@ const avgSlotCountAccuray = bitfan.metrics.averageScore(bitfan.criterias.slotCou
 
 const metrics = [avgStrictSlotAccuray, avgLooseSlotAccuray, avgSlotCountAccuray]
 
-module.exports.default = {
-  name: 'bpds-slots',
-
+module.exports.bpds = {
   computePerformance: async function() {
     const allTopics = [
       'A',

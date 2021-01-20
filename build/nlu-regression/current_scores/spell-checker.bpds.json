@@ -1,11 +1,11 @@
 {
-  "generatedOn": "2021-01-04T21:28:34.797Z",
+  "generatedOn": "2021-01-20T17:31:21.046Z",
   "scores": [
     {
       "metric": "accuracy",
       "problem": "bpds A spelling",
       "seed": 42,
-      "score": 0.7384615384615385
+      "score": 0.7230769230769231
     }
   ]
 }

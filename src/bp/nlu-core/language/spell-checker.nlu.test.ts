@@ -63,8 +63,7 @@ class SpellingEngine implements bitfan.UnsupervisedEngine<'spell'> {
   }
 }
 
-export default {
-  name: 'bpds-spell',
+export const bpds = {
   computePerformance: async () => {
     const stanEndpoint = 'https://lang-01.botpress.io'
     const engine = new SpellingEngine(stanEndpoint)

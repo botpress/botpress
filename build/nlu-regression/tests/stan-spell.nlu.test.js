@@ -1,9 +1,7 @@
 const bitfan = require('@botpress/bitfan').default
 const metrics = [bitfan.metrics.accuracy]
 
-module.exports.default = {
-  name: 'bpds-spell',
-
+module.exports.bpds = {
   computePerformance: async function() {
     const stanEndpoint = 'http://localhost:3200'
     const password = '123456'

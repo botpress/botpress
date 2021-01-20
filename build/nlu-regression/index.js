@@ -2,14 +2,17 @@ const bitfan = require('@botpress/bitfan').default
 const chalk = require('chalk')
 const readdir = require('recursive-readdir')
 const yargs = require('yargs')
+const _ = require('lodash')
+const path = require('path')
 
 const { updateResults, readResults } = require('./score-service')
 
 const TEST_FILE_EXT = '.nlu.test.js'
 const SETUP_FILE_EXT = 'setup.nlu.test.js'
 
-async function runTest(test, { update, keepGoing }) {
-  const { name, computePerformance, evaluatePerformance } = test
+async function runTest(testDescription, { update, keepGoing }) {
+  const { name, test } = testDescription
+  const { computePerformance, evaluatePerformance } = test
   const performance = await computePerformance()
 
   if (update) {
@@ -45,7 +48,16 @@ async function runSetupFiles(srcPath) {
 
 async function listTests(srcPath) {
   const files = await readdir(srcPath)
-  return files.filter(f => f.endsWith(TEST_FILE_EXT) && !f.endsWith(SETUP_FILE_EXT)).map(f => require(f).default)
+  return _(files)
+    .filter(filePath => filePath.endsWith(TEST_FILE_EXT) && !filePath.endsWith(SETUP_FILE_EXT))
+    .flatMap(filePath => {
+      const fileName = path.basename(filePath).replace(TEST_FILE_EXT, '')
+      return Object.entries(require(filePath)).map(([testName, test]) => ({
+        name: `${fileName}.${testName}`,
+        test
+      }))
+    })
+    .value()
 }
 
 async function main(args) {
