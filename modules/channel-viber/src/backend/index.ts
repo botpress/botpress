@@ -17,7 +17,7 @@ const onServerReady = async (bp: typeof sdk) => {
 const onBotMount = async (bp: typeof sdk, botId: string) => {
   setTimeout(async () => {
     await service.mountBot(botId);
-  }, 5000)
+  }, 5000);
 };
 
 const onBotUnmount = async (bp: typeof sdk, botId: string) => {
@@ -25,20 +25,19 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
 };
 
 const onModuleUnmount = async (bp: typeof sdk) => {
-  // bp.events.removeMiddleware('messenger.sendMessages')
   bp.http.deleteRouterForBot('channel-viber');
 };
 
-// const entryPoint: sdk.ModuleEntryPoint = {
-//   onServerReady,
-//   onBotMount,
-//   onBotUnmount,
-//   onModuleUnmount,
-//   definition: {
-//     name: 'channel-viber',
-//     noInterface: true,
-//     fullName: 'Viber Channel'
-//   }
-// };
-//
-// export default entryPoint;
+const entryPoint: sdk.ModuleEntryPoint = {
+  onServerReady,
+  onBotMount,
+  onBotUnmount,
+  onModuleUnmount,
+  definition: {
+    name: 'channel-viber',
+    noInterface: true,
+    fullName: 'Viber Channel'
+  }
+};
+
+export default entryPoint;
