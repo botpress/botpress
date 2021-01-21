@@ -40,10 +40,6 @@ export class ViberService {
       return next();
     }
 
-    console.log('event');
-    console.log(event);
-    console.log('event');
-
     const messageType = event.type === 'default' ? 'text' : event.type;
     const client = this.mountedBots[0].client;
 
@@ -75,9 +71,6 @@ export class ViberService {
 
   private async handleIncomingMessage(req: Request, res: Response): Promise<Response> {
     const { message, event, sender } = req.body;
-    console.log('req.body');
-    console.log(req.body);
-    console.log('req.body');
     if (event === 'message') {
       await this.bp.events.sendEvent(
         this.bp.IO.Event({
