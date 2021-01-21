@@ -126,10 +126,7 @@ export default class BroadcastDb {
 
   async getUsersTimezone(): Promise<number[]> {
     const attrs = await this.knex('srv_channel_users').select('attributes')
-    const timezones = attrs.map(({ attributes: value }) =>
-      // SQLite returns a JSON string
-      typeof value === 'string' ? JSON.parse(value)?.timezone : value.timezone
-    )
+    const timezones = attrs.map(({ attributes }) => attributes && this.knex.json.get(attributes).timezone)
 
     return [...new Set(timezones)]
   }
