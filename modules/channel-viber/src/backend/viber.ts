@@ -3,9 +3,6 @@ import { ViberClient } from 'messaging-api-viber';
 
 import _ from 'lodash';
 
-import { Config } from '../config';
-import { Client } from './client';
-
 import * as sdk from 'botpress/sdk';
 import * as http from 'http';
 
@@ -13,18 +10,21 @@ const debug = DEBUG('channel-viber');
 const debugIncoming = debug.sub('incoming');
 const debugOutgoing = debug.sub('outgoing');
 
+import { Config } from '../config';
+import { Client } from './client';
+
 interface MountedBot {
   botId: string
   client: Client
 }
 
 enum EventType {
-  Delivered = "delivered",
-  Seen = "seen",
-  Failed = "failed",
-  Subscribed = "subscribed",
-  Unsubscribed = "unsubscribed",
-  ConversationStarted = "conversation_started"
+  Delivered = 'delivered',
+  Seen = 'seen',
+  Failed = 'failed',
+  Subscribed = 'subscribed',
+  Unsubscribed = 'unsubscribed',
+  ConversationStarted = 'conversation_started'
 }
 
 export class ViberService {
@@ -40,20 +40,33 @@ export class ViberService {
       return next();
     }
 
+    console.log('event');
+    console.log(event);
+    console.log('event');
+
     const messageType = event.type === 'default' ? 'text' : event.type;
     const client = this.mountedBots[0].client;
 
     if (messageType === 'text') {
-      // @ts-ignore
-      await client.sendMessage({
-        id: event.target
-      }, event.payload)
+      if (event.payload?.text) {
+        // @ts-ignore
+        await client.sendMessage({
+          id: event.target
+        }, event.payload)
+      } else if (event.payload?.options?.Type === 'keyboard') {
+        // @ts-ignore
+        await client.sendText({
+          id: event.target
+        }, event.payload.title, {
+          keyboard: {
+            type: 'keyboard',
+            buttons: event.payload.options.Buttons
+          }
+        });
+      }
     }
 
-    next(undefined, false)
-  }
-
-  private handleIncomingEvent(req, res): void {
+    next(undefined, false);
   }
 
   private getConfig(): Promise<Config> {
@@ -62,6 +75,9 @@ export class ViberService {
 
   private async handleIncomingMessage(req: Request, res: Response): Promise<Response> {
     const { message, event, sender } = req.body;
+    console.log('req.body');
+    console.log(req.body);
+    console.log('req.body');
     if (event === 'message') {
       await this.bp.events.sendEvent(
         this.bp.IO.Event({
@@ -73,7 +89,7 @@ export class ViberService {
           target: sender.id,
           type: message.type,
         })
-      )
+      );
     }
     return res.send();
   }
@@ -104,6 +120,7 @@ export class ViberService {
 
     this.router.use(json());
 
+    this.router.post('/webhook', this.handleIncomingMessage.bind(this));
     this.bp.events.registerMiddleware({
       description: 'Sends outgoing messages for the viber channel',
       direction: 'outgoing',
@@ -113,10 +130,8 @@ export class ViberService {
     });
   }
 
-  async mountBot(botId: string): Promise<void> {
+  public async mountBot(botId: string): Promise<void> {
     try {
-      this.router.post('/webhook', this.handleIncomingMessage.bind(this));
-
       const config = await this.getConfig();
       const webhookPath = ((await this.router.getPublicPath()) + '/webhook').replace('BOT_ID', botId);
       const viberClient = new ViberClient(
@@ -130,7 +145,7 @@ export class ViberService {
         }
       );
       await viberClient.setWebhook(
-        'https://29cd44ba7cee.ngrok.io/api/v1/bots/ecbv2/mod/channel-viber/webhook',
+        'https://4f22e34b9654.ngrok.io/api/v1/bots/ecbv2/mod/channel-viber/webhook',
         {
           eventTypes: [EventType.Delivered, EventType.Seen],
         }
@@ -138,11 +153,15 @@ export class ViberService {
       const client = new Client(viberClient);
       this.mountedBots.push({ client, botId });
     } catch (e) {
-      console.log(e);
+      const errorMessage = _.get(e, 'response.data.error.message', 'are you sure your Access Token is valid?')
+      return this.bp.logger
+        .forBot(botId)
+        .error(`Could not register bot, ${errorMessage}. Viber Channel is disabled for this bot.`)
+
     }
   }
 
-  async unmountBot(botId: string) {
+  public async unmountBot(botId: string) {
     this.mountedBots = _.remove(this.mountedBots, x => x.botId === botId);
   }
 }
