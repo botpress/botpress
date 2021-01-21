@@ -85,7 +85,7 @@ export class StateManager {
     const { result: user } = await this.userRepo.getOrCreate(event.channel, event.target, event.botId)
     state.user = user.attributes
 
-    const session = await this.sessionRepo.get(sessionId)
+    const session = await this.sessionRepo.get(sessionId, event.botId)
 
     state.context = (session && session.context) || {}
     state.session = (session && session.session_data) || { lastMessages: [], workflows: {} }
