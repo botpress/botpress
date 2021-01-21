@@ -78,11 +78,46 @@ function renderSlack(data) {
   ]
 }
 
+function renderViber(data) {
+  const events = []
+
+  if (data.typing) {
+    events.push({
+      type: 'typing',
+      value: data.typing
+    })
+  }
+
+  return [
+    ...events,
+    {
+      on: 'viber',
+      title: data.text,
+      options: {
+        Type: 'keyboard',
+        Buttons: data.choices.map(choice => ({
+          Columns: 3,
+          Rows: 1,
+          Text: `<font color="#FFFFFF">${choice.title}</font>`,
+          TextSize: 'large',
+          TextHAlign: 'center',
+          TextVAlign: 'middle',
+          ActionType: 'reply',
+          ActionBody: choice.value,
+          BgColor: '#0071E6'
+        }))
+      }
+    }
+  ]
+}
+
 function renderElement(data, channel) {
   if (channel === 'messenger') {
     return renderMessenger(data)
   } else if (channel === 'slack') {
     return renderSlack(data)
+  } else if (channel === 'viber') {
+    return renderViber(data)
   } else {
     return render(data)
   }
