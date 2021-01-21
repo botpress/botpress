@@ -9,6 +9,7 @@ export interface Config {
   /**
    * This this in the LOCAL config (unique to every bot/page)
    * The Facebook Page Access Token
+   * @default 4ca2b2be59000d19-b49363357bf1b496-c941a1ab955b7eb6
    */
   accessToken: string
   /**
@@ -18,17 +19,11 @@ export interface Config {
    * @default app_secret
    */
   appSecret: string
-  /**
-   * Set this in the GLOBAL config (same for all the bots)
-   * The verify token, should be a random string unique to your server. This is a random (hard to guess) string of your choosing.
-   * Docs: https://developers.facebook.com/docs/messenger-platform/getting-started/webhook-setup/#verify_webhook
-   * @default verify_token
-   */
-  verifyToken: string
+  verifyToken?: string
   name?: string
   avatar?: string
   origin: string
-  webHook: string
+  webHook?: string
   /**
    * The greeting message people will see on the welcome screen
    * Docs: https://developers.facebook.com/docs/messenger-platform/reference/messenger-profile-api/greeting
@@ -50,7 +45,7 @@ export interface Config {
    * The duration of the authentication session when a user authenticate through this channel.
    * @default 24h
    */
-  chatUserAuthDuration: string
+  chatUserAuthDuration?: string
 }
 
 export interface PersistentMenuItem {
