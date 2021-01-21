@@ -53,17 +53,12 @@ export class KnexConversationRepository implements ConversationRepository {
   }
 
   public async getMostRecent(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation | undefined> {
-    const query = this.query()
+    const rows = await this.query()
       .select('*')
       .where(endpoint)
       // TODO createdOn is not a good measure
       .orderBy('createdOn', 'desc')
       .limit(1)
-
-    const sql = query.toSQL()
-    console.log('sql', sql)
-
-    const rows = await query
 
     return this.deserialize(rows[0])
   }
