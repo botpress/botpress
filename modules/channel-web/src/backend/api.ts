@@ -275,14 +275,11 @@ export default async (bp: typeof sdk) => {
       sanitizedPayload = _.omit(payload, [...sensitive, 'sensitive'])
     }
 
-    const destination: sdk.MessageDestination = {
-      userId,
-      botId,
-      conversationId,
-      channel: 'web'
-    }
-
-    const message = await bp.messaging.sendMessage(destination, payload, { credentials, debugger: useDebugger })
+    const message = await bp.messaging.sendIncoming(conversationId, payload, {
+      channel: 'web',
+      credentials,
+      debugger: useDebugger
+    })
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
   }
 

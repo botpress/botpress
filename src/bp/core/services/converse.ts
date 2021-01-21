@@ -99,18 +99,16 @@ export class ConverseService {
     await this.userRepository.getOrCreate('api', userId, botId)
 
     const conversation = await this.messagingApi.getOrCreateRecentConversation({ userId, botId })
-    const destination = {
-      userId,
-      botId,
-      conversationId: conversation.id,
-      channel: 'api'
-    }
 
     const userKey = buildUserKey(botId, userId)
     const timeoutPromise = this._createTimeoutPromise(botId, userKey)
     const donePromise = this._createDonePromise(userKey)
 
-    await this.messagingApi.sendMessage(destination, payload, { credentials, nlu: { includedContexts } })
+    await this.messagingApi.sendIncoming(conversation.id, payload, {
+      channel: 'api',
+      credentials,
+      nlu: { includedContexts }
+    })
 
     return Promise.race([timeoutPromise, donePromise]).finally(() => {
       converseApiEvents.removeAllListeners(`done.${userKey}`)

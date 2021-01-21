@@ -2079,15 +2079,27 @@ declare module 'botpress/sdk' {
     export function deleteMessage(messageId: number): Promise<boolean>
 
     /**
-     * Sends a message through the event loop. The message is stored in the database
-     * @param destination Destination of the message
-     * @param payload Payload of the event
-     * @param eventArgs Additional arguments to pass to the event constructor. Optional
+     * Sends a incoming message (user message) through the event loop. The message is stored in the database
+     * @param conversationId Id of the conversation to which this message belongs to
+     * @param payload Payload of the message
+     * @param args Additional arguments to pass to the event constructor. Optional
      */
-    export function sendMessage(
-      destination: MessageDestination,
+    export function sendIncoming(
+      conversationId: number,
       payload: any,
-      args: Partial<IO.EventCtorArgs>
+      args?: Partial<IO.EventCtorArgs>
+    ): Promise<Message>
+
+    /**
+     * Sends a outgoing message (bot message) through the event loop. The message is stored in the database
+     * @param conversationId Id of the conversation to which this message belongs to
+     * @param payload Payload of the message
+     * @param args Additional arguments to pass to the event constructor. Optional
+     */
+    export function sendOutgoing(
+      conversationId: number,
+      payload: any,
+      args?: Partial<IO.EventCtorArgs>
     ): Promise<Message>
   }
 

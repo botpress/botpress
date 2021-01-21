@@ -86,7 +86,8 @@ const messaging = (messagingApi: MessagingAPI): typeof sdk.messaging => {
     createMessage: messagingApi.createMessage.bind(messagingApi),
     getMessageById: messagingApi.getMessageById.bind(messagingApi),
     deleteMessage: messagingApi.deleteMessage.bind(messagingApi),
-    sendMessage: messagingApi.sendMessage.bind(messagingApi)
+    sendIncoming: messagingApi.sendIncoming.bind(messagingApi),
+    sendOutgoing: messagingApi.sendOutgoing.bind(messagingApi)
   }
 }
 
