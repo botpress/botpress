@@ -70,7 +70,7 @@ export default class Repository {
     const result = _.clone(object)
 
     paths.map(path => {
-      _.has(object, path) && _.set(result, path, this.bp.database.json.set(_.get(object, path)))
+      _.has(object, path) && _.set(result, path, JSON.stringify(_.get(object, path)))
     })
 
     return result
