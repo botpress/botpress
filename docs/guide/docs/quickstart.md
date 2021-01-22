@@ -63,7 +63,7 @@ Open the chat window and say, "_Hello_." If you selected the **Welcome Bot** tem
 
 ![Hello from the bot](assets/flow_page.png)
 
-You can get additional information from the emulator's debugger by selecting the debug button. This panel is specifically designed for you, as the bot owner, to understand why you get a specific answer. Note that it is only available for authenticated users. It includes all sorts of useful information: the dialog engine's elected suggestion, nodes flowed through, and natural language intents or questions. You can also view the raw JSON event that contains all details if you need further data.
+You can get additional information from the emulator's debugger by selecting the debug button. This panel is specifically designed for you, as the chatbot developer, to understand why you get a specific answer. Note that it is only available for authenticated users. It includes all sorts of useful information: the dialog engine's elected suggestion, nodes flowed through, and natural language intents or questions. You can also view the raw JSON event that contains all details if you need further data.
 
 ![Emulator Hello](assets/debugger.png)
 
@@ -89,11 +89,11 @@ The Q&A module will automatically retrain the NLU model in the background and te
 
 ### Standalone chat
 
-Congratulations on building your first bot! You can share this bot with your friends, provided they have access to your computer. It is available at `http://localhost:3000/s/<<Bot ID>>`.
+Congratulations on building your first chatbot! You can share this bot with your friends, provided they have access to your computer. It is available at `http://localhost:3000/s/<<Bot ID>>`.
 
 ### Website embedding
 
-You can also embed this bot on a website. To learn how, check out the example provided in `assets/modules/channel-web/examples/embedded-webchat.html`, which you can see by browsing [**here**](http://localhost:3000/assets/modules/channel-web/examples/embedded-webchat.html).
+You can also embed this bot on a website. To learn how, check out the example provided in `assets/modules/channel-web/examples/embedded-webchat.html`, which you can see by browsing [**here**](http://localhost:3000/assets/modules/channel-web/examples/embedded-webchat.html). You can also check out the [website embedding tutorial](channels/web.md)
 
 ## Learn More
 
