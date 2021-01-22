@@ -20,12 +20,12 @@ const state: StateType = { timeouts: {} }
 
 const onServerStarted = async (bp: typeof sdk) => {
   await migrate(bp)
+  await registerMiddleware(bp, state)
 }
 
 const onServerReady = async (bp: typeof sdk) => {
   await upsertAgentRoles(bp)
   await api(bp, state)
-  await registerMiddleware(bp, state)
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {
