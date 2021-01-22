@@ -47,9 +47,7 @@ describe('makeExtractedSlots', () => {
   let u: Utterance
   const out: TagResult = { name: '', tag: BIO.OUT, probability: 1 }
   let tagResults: TagResult[]
-  const testIntent = {
-    slot_entities: ['CS_Field']
-  } as Intent<Utterance>
+  const slot_entities = ['CS_Field']
 
   beforeEach(() => {
     u = makeTestUtterance('No one is safe big AI is watching')
@@ -65,7 +63,7 @@ describe('makeExtractedSlots', () => {
       { name: 'threath', probability: 1, tag: BIO.INSIDE }
     )
 
-    const extractedSlots = makeExtractedSlots(testIntent, u, tagResults)
+    const extractedSlots = makeExtractedSlots(slot_entities, u, tagResults)
 
     expect(extractedSlots.length).toEqual(1)
     expect(extractedSlots[0].slot.source).toEqual('big AI')
@@ -84,7 +82,7 @@ describe('makeExtractedSlots', () => {
       { name: 'action', probability: 1, tag: BIO.INSIDE }
     )
 
-    const extractedSlots = makeExtractedSlots(testIntent, u, tagResults)
+    const extractedSlots = makeExtractedSlots(slot_entities, u, tagResults)
 
     expect(extractedSlots.length).toEqual(2)
     expect(extractedSlots[0].slot.source).toEqual('big AI')
@@ -108,7 +106,7 @@ describe('makeExtractedSlots', () => {
     const entity = { type: 'CS_Field', value, confidence: 0.42, sensitive: false, metadata: {} } as ExtractedEntity
     u.tagEntity(entity, 19, 21)
 
-    const extractedSlots = makeExtractedSlots(testIntent, u, tagResults)
+    const extractedSlots = makeExtractedSlots(slot_entities, u, tagResults)
 
     expect(extractedSlots.length).toEqual(1)
     expect(extractedSlots[0].slot.source).toEqual('big AI')
@@ -127,7 +125,7 @@ describe('makeExtractedSlots', () => {
     )
     u.tagEntity({ type: 'verb', value: 'to watch' } as ExtractedEntity, 25, 33)
 
-    const extractedSlots = makeExtractedSlots(testIntent, u, tagResults)
+    const extractedSlots = makeExtractedSlots(slot_entities, u, tagResults)
 
     expect(extractedSlots.length).toEqual(1)
     expect(extractedSlots[0].slot.entity).toBeUndefined()

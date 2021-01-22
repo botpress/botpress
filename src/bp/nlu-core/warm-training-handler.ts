@@ -46,9 +46,7 @@ const _computeCtxHash = (intents: Intent<string>[], ctx: string) => {
   const informationToTrack = intentsOfCtx.map(i => ({
     name: i.name,
     slot_definitions: i.slot_definitions,
-    utterances: i.utterances,
-    vocab: i.vocab,
-    slot_entities: i.slot_entities
+    utterances: i.utterances
   }))
 
   return crypto

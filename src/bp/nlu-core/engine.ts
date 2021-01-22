@@ -245,13 +245,13 @@ export default class Engine implements NLU.Engine {
   private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {
     const tools = this._tools
 
-    const { ctx_model, intent_model_by_ctx, oos_model, list_entities, kmeans } = output
+    const { ctx_model, intent_model_by_ctx, oos_model, kmeans } = output
 
     /**
      * TODO: extract this function some place else,
      * Engine's predict() shouldn't be dependant of training pipeline...
      */
-    const intents = await ProcessIntents(input.intents, input.languageCode, list_entities, this._tools)
+    const intents = await ProcessIntents(input.intents, input.languageCode, this._tools)
 
     const warmKmeans = kmeans && deserializeKmeans(kmeans)
 
@@ -282,7 +282,7 @@ export default class Engine implements NLU.Engine {
     let slot_tagger: SlotTagger | undefined
     if (output.slots_model.length) {
       slot_tagger = new SlotTagger(tools.mlToolkit)
-      slot_tagger.load(output.slots_model)
+      slot_tagger.load(output.slots_model, intents, output.list_entities)
     }
 
     return {

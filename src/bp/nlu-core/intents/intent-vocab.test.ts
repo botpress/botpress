@@ -1,8 +1,9 @@
 import { POSClass } from '../language/pos-tagger'
 import { SPACE } from '../tools/token-utils'
-import { buildIntentVocab } from '../training-pipeline'
 import { ExtractedSlot, ListEntityModel } from '../typings'
 import Utterance from '../utterance/utterance'
+
+import { buildIntentVocab } from './intent-vocab'
 
 const LIST_ENTITIES: ListEntityModel[] = [
   {

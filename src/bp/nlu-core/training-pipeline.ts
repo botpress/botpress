@@ -101,7 +101,7 @@ const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainSt
     makeListEntityModel(list, input.languageCode, tools)
   )
 
-  const intents = await ProcessIntents(input.intents, input.languageCode, list_entities, tools)
+  const intents = await ProcessIntents(input.intents, input.languageCode, tools)
   const vocabVectors = buildVectorsVocab(intents)
 
   return {
@@ -164,20 +164,6 @@ const ClusterTokens = (input: TrainStep, tools: Tools): TrainStep => {
   copy.intents.forEach(x => x.utterances.forEach(u => u.setKmeans(kmeans)))
 
   return copy
-}
-
-export const buildIntentVocab = (utterances: Utterance[], intentEntities: ListEntityModel[]): _.Dictionary<boolean> => {
-  // @ts-ignore
-  const entitiesTokens: string[] = _.chain(intentEntities)
-    .flatMapDeep(e => Object.values(e.mappingsTokens))
-    .map((t: string) => t.toLowerCase().replace(SPACE, ' '))
-    .value()
-
-  return _.chain(utterances)
-    .flatMap(u => u.tokens.filter(t => _.isEmpty(t.slots)).map(t => t.toString({ lowerCase: true })))
-    .concat(entitiesTokens)
-    .reduce((vocab: _.Dictionary<boolean>, tok) => ({ ...vocab, [tok]: true }), {})
-    .value()
 }
 
 const buildVectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]> => {
@@ -312,26 +298,12 @@ const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: 
 export const ProcessIntents = async (
   intents: Intent<string>[],
   languageCode: string,
-  list_entities: ListEntityModel[],
   tools: Tools
 ): Promise<Intent<Utterance>[]> => {
   return Promise.map(intents, async intent => {
     const cleaned = intent.utterances.map(_.flow([_.trim, replaceConsecutiveSpaces]))
     const utterances = await buildUtteranceBatch(cleaned, languageCode, tools)
-
-    const allowedEntities = _.chain(intent.slot_definitions)
-      .flatMap(s => s.entities)
-      .filter(e => e !== 'any')
-      .uniq()
-      .value() as string[]
-
-    const entityModels = _.intersectionWith(list_entities, allowedEntities, (entity, name) => {
-      return entity.entityName === name
-    })
-
-    const vocab = buildIntentVocab(utterances, entityModels)
-
-    return { ...intent, utterances, vocab, slot_entities: allowedEntities }
+    return { ...intent, utterances }
   })
 }
 
@@ -419,9 +391,7 @@ export const AppendNoneIntent = async (input: TrainStep, tools: Tools): Promise<
       input.languageCode,
       tools
     ),
-    contexts: [...input.contexts],
-    vocab: {},
-    slot_entities: []
+    contexts: [...input.contexts]
   }
 
   return { ...input, intents: [...input.intents, intent] }
@@ -453,7 +423,10 @@ const TrainSlotTagger = async (input: TrainStep, tools: Tools, progress: progres
   debugTraining.forBot(input.botId, 'Training slot tagger')
   const slotTagger = new SlotTagger(tools.mlToolkit)
 
-  await slotTagger.train(input.intents.filter(i => i.name !== NONE_INTENT))
+  await slotTagger.train(
+    input.intents.filter(i => i.name !== NONE_INTENT),
+    input.list_entities
+  )
 
   debugTraining.forBot(input.botId, 'Done training slot tagger')
   progress()

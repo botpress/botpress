@@ -1,9 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import fs from 'fs'
 import _ from 'lodash'
+import { getEntitiesAndVocabOfIntent } from 'nlu-core/intents/intent-vocab'
 import tmp from 'tmp'
 
-import { BIO, Intent, SlotExtractionResult, Tag } from '../typings'
+import { BIO, Intent, ListEntityModel, SlotExtractionResult, Tag } from '../typings'
 import Utterance, { UtteranceToken } from '../utterance/utterance'
 
 import * as featurizer from './slot-featurizer'
@@ -12,6 +13,12 @@ export interface TagResult {
   tag: Tag | string
   name: string
   probability: number
+}
+
+export interface IntentSlotFeatures {
+  name: string
+  vocab: string[]
+  slot_entities: string[]
 }
 
 const debugTrain = DEBUG('nlu').sub('training')
@@ -80,7 +87,7 @@ export function removeInvalidTagsForIntent(intent: Intent<Utterance>, tag: TagRe
 }
 
 export function makeExtractedSlots(
-  intent: Intent<Utterance>,
+  slot_entities: string[],
   utterance: Utterance,
   slotTagResults: TagResult[]
 ): SlotExtractionResult[] {
@@ -123,7 +130,7 @@ export function makeExtractedSlots(
         e =>
           ((e.startPos <= extracted.start && e.endPos >= extracted.end) || // slot is fully contained by an entity
             (e.startPos >= extracted.start && e.endPos <= extracted.end)) && // entity is fully within the tagged slot
-          _.includes(intent.slot_entities, e.type) // entity is part of the possible entities
+          _.includes(slot_entities, e.type) // entity is part of the possible entities
       )
       if (associatedEntityInRange) {
         extracted.slot.entity = {
@@ -140,13 +147,15 @@ export function makeExtractedSlots(
 export default class SlotTagger {
   private _crfModelFn = ''
   private _crfTagger!: sdk.MLToolkit.CRF.Tagger
+  private _intentSlotFeatures: IntentSlotFeatures[] = []
 
   constructor(private mlToolkit: typeof sdk.MLToolkit) {}
 
-  load(crf: Buffer) {
+  load(crf: Buffer, intents: Intent<Utterance>[], entities: ListEntityModel[]) {
     this._crfModelFn = tmp.tmpNameSync()
     fs.writeFileSync(this._crfModelFn, crf)
     this._readTagger()
+    this._intentSlotFeatures = getEntitiesAndVocabOfIntent(intents, entities)
   }
 
   private _readTagger() {
@@ -154,11 +163,13 @@ export default class SlotTagger {
     this._crfTagger.open(this._crfModelFn)
   }
 
-  async train(intents: Intent<Utterance>[]): Promise<void> {
+  async train(intents: Intent<Utterance>[], entities: ListEntityModel[]): Promise<void> {
     debugTrain('Started Slot tagger training')
     const elements: sdk.MLToolkit.CRF.DataPoint[] = []
 
-    for (const intent of intents) {
+    const intentSlotFeatures = getEntitiesAndVocabOfIntent(intents, entities)
+
+    for (const intent of intentSlotFeatures) {
       for (const utterance of intent.utterances) {
         const features: string[][] = utterance.tokens
           .filter(x => !x.isSpace)
@@ -179,7 +190,7 @@ export default class SlotTagger {
   }
 
   private tokenSliceFeatures(
-    intent: Intent<Utterance>,
+    intent: IntentSlotFeatures,
     utterance: Utterance,
     isPredict: boolean,
     token: UtteranceToken
@@ -204,7 +215,7 @@ export default class SlotTagger {
       ? featurizer.getFeatPairs(current, nextFeats[0], ['word', 'vocab', 'weight', 'POS'])
       : []
 
-    const intentFeat = featurizer.getIntentFeature(intent)
+    const intentFeat = featurizer.getIntentFeature(intent.name)
     const bos = token.isBOS ? ['__BOS__'] : []
     const eos = token.isEOS ? ['__EOS__'] : []
 
@@ -221,7 +232,7 @@ export default class SlotTagger {
   }
 
   private _getTokenFeatures(
-    intent: Intent<Utterance>,
+    intent: IntentSlotFeatures,
     utterance: Utterance,
     token: UtteranceToken,
     isPredict: boolean
@@ -234,7 +245,7 @@ export default class SlotTagger {
       featurizer.getTokenQuartile(utterance, token),
       featurizer.getClusterFeat(token),
       featurizer.getWordWeight(token),
-      featurizer.getInVocabFeat(token, intent),
+      featurizer.getInVocabFeat(token, intent.vocab),
       featurizer.getSpaceFeat(utterance.tokens[token.index - 1]),
       featurizer.getAlpha(token),
       featurizer.getNum(token),
@@ -245,7 +256,7 @@ export default class SlotTagger {
     ].filter(_.identity) as featurizer.CRFFeature[] // some features can be undefined
   }
 
-  getSequenceFeatures(intent: Intent<Utterance>, utterance: Utterance, isPredict: boolean): string[][] {
+  getSequenceFeatures(intent: IntentSlotFeatures, utterance: Utterance, isPredict: boolean): string[][] {
     return _.chain(utterance.tokens)
       .filter(t => !t.isSpace)
       .map(t => this.tokenSliceFeatures(intent, utterance, isPredict, t))
@@ -253,7 +264,8 @@ export default class SlotTagger {
   }
 
   async extract(utterance: Utterance, intent: Intent<Utterance>): Promise<SlotExtractionResult[]> {
-    const features = this.getSequenceFeatures(intent, utterance, true)
+    const intentSlotFeatures = this._intentSlotFeatures.find(i => i.name === intent.name)!
+    const features = this.getSequenceFeatures(intentSlotFeatures, utterance, true)
     debugExtract('vectorize', features)
 
     const predictions = this._crfTagger.marginal(features)
@@ -262,7 +274,7 @@ export default class SlotTagger {
     return _.chain(predictions)
       .map(predictionLabelToTagResult)
       .map(tagRes => removeInvalidTagsForIntent(intent, tagRes))
-      .thru(tagRess => makeExtractedSlots(intent, utterance, tagRess))
+      .thru(tagRess => makeExtractedSlots(intentSlotFeatures.slot_entities, utterance, tagRess))
       .value() as SlotExtractionResult[]
   }
 }
