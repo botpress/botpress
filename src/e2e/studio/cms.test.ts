@@ -1,14 +1,19 @@
 import path from 'path'
 
 import { clickOn, uploadFile } from '../expectPuppeteer'
-import { expectBotApiCallSuccess, gotoStudio } from '../utils'
+import { expectBotApiCallSuccess, gotoStudio, loginIfNeeded } from '../utils'
 
-const getElementCount = async (): Promise<number> => {
+const getElementCount = async (all: boolean = false): Promise<number> => {
+  if (all) {
+    await clickOn('#btn-filter-all')
+  }
+  await page.waitForFunction('document.querySelectorAll(".icon-edit").length > 0')
   return (await page.$$('.icon-edit')).length
 }
 
 describe('Studio - CMS', () => {
   beforeAll(async () => {
+    await loginIfNeeded()
     if (!page.url().includes('studio')) {
       await gotoStudio()
     }
@@ -20,29 +25,27 @@ describe('Studio - CMS', () => {
   })
 
   it('Filter text elements', async () => {
-    await page.waitForFunction('document.querySelectorAll(".icon-edit").length > 0')
     const before = await getElementCount()
 
     await clickOn('#btn-filter-builtin_text')
     await expectBotApiCallSuccess('content/builtin_text/elements', 'POST')
     const after = await getElementCount()
-    await expect(after).toBeLessThan(before)
+    expect(after).toBeLessThan(before)
   })
 
   it('Create an image element', async () => {
-    const before = await getElementCount()
-    await page.waitForSelector('#btn-filter-builtin_image')
+    const before = await getElementCount(true)
+    // await page.waitForSelector('#btn-filter-builtin_image')
     await page.hover('#btn-filter-builtin_image')
     await clickOn('#btn-list-create-builtin_image')
     await uploadFile('input[type="file"]', path.join(__dirname, '../assets/alien.png'))
     await expectBotApiCallSuccess('media', 'POST')
     await clickOn('.style__textarea___2P8hT')
-    await page.keyboard.type('We are not the same I am a martian')
+    await page.keyboard.type('I am a martian')
     await clickOn('button[type="submit"]')
     await expectBotApiCallSuccess('content/builtin_image/elements', 'POST')
-    const after = await getElementCount()
+    const after = await getElementCount(true)
     expect(after).toBeGreaterThan(before)
-    //
   })
 
   // it('Create text element', async () => {
