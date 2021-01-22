@@ -19,7 +19,7 @@ It is a complete platform that ships with all the tools you need to build, deplo
 - An administration interface that can be viewed from a browser, exposing modules to manage content and show chatbot  statistics, among other things. 
 - A visual workflow builder used for creating conversations and other interactions.
 - A chat emulator/debugger to simulate conversations and inspect the chatbot engine's logic.
-- Support for popular messaging channels like Facebook Messenger, Slack, Telegram, and others.
+- Support for popular messaging channels like Facebook Messenger, Slack, Telegram, Microsoft Teams, and others.
 
 ## Why Botpress
 
@@ -38,5 +38,4 @@ Developers start by **Building** a chatbot, which consists of adding the require
 
 Once done, you'll need to **Deploy** your chatbot somewhere, which could be on a cloud server or your internal hosting infrastructure.
 
-Finally, you'll give other people access to your chatbot so they can **Manage** it once it is in use. Managing a chatbot entails analyzing the conversations, refining the conversational experience by building new flows, and making it smarter by continuously improving the NLU.
-
+Finally, you'll give other people access to your chatbot so they can **Manage** it once it is in use. Managing a chatbot entails analyzing the conversations, refining the conversational experience by building new workflows, and making it smarter by continuously improving the NLU.
