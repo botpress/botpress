@@ -588,7 +588,6 @@ declare module 'botpress/sdk' {
       utterances: {
         [lang: string]: string[]
       }
-      filename: string
       slots: SlotDefinition[]
       contexts: string[]
     }
