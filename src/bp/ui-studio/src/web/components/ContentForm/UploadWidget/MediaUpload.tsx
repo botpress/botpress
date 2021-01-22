@@ -4,8 +4,6 @@ import { lang } from 'botpress/shared'
 import React, { FC, FormEvent } from 'react'
 import style from '~/views/FlowBuilder/sidePanelTopics/form/style.scss'
 
-import { isBpUrl } from '../../../../../../common/url'
-
 import DeletableImage from './DeletableImage'
 
 interface IMediaUploadProps {
@@ -15,6 +13,7 @@ interface IMediaUploadProps {
   onError(value: string | Error): void
 }
 
+// Use Uploader in botpress/shared will do in next PR
 const MediaUpload: FC<IMediaUploadProps> = props => {
   const { value } = props
 
@@ -26,7 +25,6 @@ const MediaUpload: FC<IMediaUploadProps> = props => {
       .post(`${window.BOT_API_PATH}/media`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then(response => {
         const { url } = response.data
-
         props.onChange(url)
       })
       .catch(e => {
@@ -36,9 +34,7 @@ const MediaUpload: FC<IMediaUploadProps> = props => {
 
   return (
     <div className={style.fieldWrapper}>
-      {value && isBpUrl(value) && (
-        <DeletableImage value={value} onDelete={props.onDelete} />
-      )}
+      {value && <DeletableImage value={value} onDelete={props.onDelete} />}
 
       {!value && (
         <FileInput

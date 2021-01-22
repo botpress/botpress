@@ -16,8 +16,8 @@ const DEFAULT_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif'] // use ['*']
 const ONE_YEAR_SEC = ms('1y') / 1000
 const debug = DEBUG('media')
 
-// This uses the exact same interface as the Bot Media router
-// We shold have a single media router, will merge both later on
+// This uses the same "interface" as the Bot Media router
+// We should have a single media router in my opinion
 export class MediaRouter extends CustomRouter {
   private resource = 'media'
   private checkTokenHeader: RequestHandler
@@ -45,11 +45,11 @@ export class MediaRouter extends CustomRouter {
 
   private setupRoutes() {
     // Public routes
+    // if the need apprears, add useStream param to which we can stream file straight from media service
     this.router.get(
       '/:filename',
       this.asyncMiddleware(async (req, res) => {
         const fn = req.params.filename
-        // TODO add useStream param to which we can stream the file in request instead of sending the whole buffer
 
         const type = path.extname(fn)
         const buff = await this.mediaServiceProvider
@@ -94,21 +94,5 @@ export class MediaRouter extends CustomRouter {
         })
       })
     )
-
-    // TODO check what we do with this bulk delete
-    // this.router.post(
-    //   '/media/delete',
-    //   this.checkTokenHeader,
-    //   this.checkPermissions('write', this.resource),
-    //   this.asyncMiddleware(async (req, res) => {
-    //     const email = req.tokenUser!.email
-    //     const files = this.cmsService.getMediaFiles(req.body)
-    //     files.forEach(async f => {
-    //       await this.mediaService.deleteFile(botId, f)
-    //       debugMedia(`successful deletion (${email} from ${req.ip}). file: ${f}`)
-    //     })
-    //     res.sendStatus(200)
-    //   })
-    // )
   }
 }
