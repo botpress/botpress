@@ -17,7 +17,6 @@ The following features and configurations are done in the Admin Dashboard.
 - Unpacking and activating modules
 
 To open the Admin Dashboard, visit [`http://localhost:3000`](http://localhost:3000) in your favorite web browser. After that, register the main admin account to start using Botpress.
-![First Time Login](assets/first-run.png)
 
 ### Creating a new bot
 
