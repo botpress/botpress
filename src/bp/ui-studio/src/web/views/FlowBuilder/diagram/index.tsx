@@ -18,7 +18,7 @@ import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
-import { DefaultPortModel, DiagramEngine, DiagramWidget, NodeModel, PointModel } from 'storm-react-diagrams'
+import { DefaultLinkModel, DefaultPortModel, DiagramEngine, DiagramWidget, NodeModel, PointModel } from 'storm-react-diagrams'
 import {
   buildNewSkill,
   closeFlowNodeProps,
@@ -82,6 +82,7 @@ type ExtendedDiagramEngine = {
 } & DiagramEngine
 
 const EXPANDED_NODES_KEY = `bp::${window.BOT_ID}::expandedNodes`
+export const MAX_NUMBER_OF_POINTS_PER_LINK = 3
 
 const getExpandedNodes = () => {
   try {
@@ -513,7 +514,13 @@ class Diagram extends Component<Props> {
     this.manager.sanitizeLinks()
     this.manager.cleanPortLinks()
 
-    if (selectedNode && selectedNode instanceof PointModel) {
+    // skip when a link is selected
+    if (selectedNode && selectedNode instanceof DefaultLinkModel) {
+      return
+    }
+
+    // only when creating a link
+    if (selectedNode && selectedNode instanceof PointModel && selectedNode.parent.points.length <= 2) {
       this.dragPortSource = selectedNode
       this.handleContextMenu(event as any)
     }
@@ -703,7 +710,7 @@ class Diagram extends Component<Props> {
             ref={w => (this.diagramWidget = w)}
             deleteKeys={[]}
             diagramEngine={this.diagramEngine}
-            maxNumberPointsPerLink={0}
+            maxNumberPointsPerLink={MAX_NUMBER_OF_POINTS_PER_LINK}
             inverseZoom
           />
           <ZoomToolbar />

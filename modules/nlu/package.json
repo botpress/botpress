@@ -28,7 +28,7 @@
   "dependencies": {
     "fs-extra": "^7.0.1",
     "tmp": "^0.0.33",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "bluebird": "^3.5.3",
     "bytes": "^3.1.0",
     "bluebird-global": "^1.0.1",
