@@ -1,3 +1,30 @@
+## [12.16.3](https://github.com/botpress/botpress/compare/v12.14.1...v12.16.3) (2021-01-22)
+
+
+### Bug Fixes
+
+* **broadcast:** set proper timezone and take botId into account ([#4388](https://github.com/botpress/botpress/issues/4388)) ([e97ff44](https://github.com/botpress/botpress/commit/e97ff44))
+* **builtin:** ResetSession - Dont remove workflows ([#4365](https://github.com/botpress/botpress/issues/4365)) ([0509ac8](https://github.com/botpress/botpress/commit/0509ac8))
+* **channel-messenger:** add page id as event thread id ([#4396](https://github.com/botpress/botpress/issues/4396)) ([b4b128c](https://github.com/botpress/botpress/commit/b4b128c))
+* **channel-messenger:** added config to disable api actions ([#4376](https://github.com/botpress/botpress/issues/4376)) ([d5c1ea2](https://github.com/botpress/botpress/commit/d5c1ea2))
+* **channel-web:** delete conversation button wrong action ([#4367](https://github.com/botpress/botpress/issues/4367)) ([f2f2dbe](https://github.com/botpress/botpress/commit/f2f2dbe))
+* **channel-web:** remove custom action on component unmount ([#4368](https://github.com/botpress/botpress/issues/4368)) ([d1c4b28](https://github.com/botpress/botpress/commit/d1c4b28))
+* **channel-web:** wrong intl id ([#4369](https://github.com/botpress/botpress/issues/4369)) ([556f4e8](https://github.com/botpress/botpress/commit/556f4e8))
+* **core:** conflict between dialog_sessions ids ([#4394](https://github.com/botpress/botpress/issues/4394)) ([262ab08](https://github.com/botpress/botpress/commit/262ab08))
+* **core:** conflict between session ids ([#4375](https://github.com/botpress/botpress/issues/4375)) ([0824eb9](https://github.com/botpress/botpress/commit/0824eb9))
+* **core:** use gzip compression for responses ([#4385](https://github.com/botpress/botpress/issues/4385)) ([a4677ec](https://github.com/botpress/botpress/commit/a4677ec))
+* **core:** wrong import path ([#4363](https://github.com/botpress/botpress/issues/4363)) ([ae88195](https://github.com/botpress/botpress/commit/ae88195))
+* **hitl2:** stringify tags with postgresql ([#4391](https://github.com/botpress/botpress/issues/4391)) ([78e215c](https://github.com/botpress/botpress/commit/78e215c))
+* **nlu:** warn of duplication on synonym removal ([#4387](https://github.com/botpress/botpress/issues/4387)) ([09da1ec](https://github.com/botpress/botpress/commit/09da1ec))
+
+
+### Features
+
+* **qna:** display count when expanding ([#4364](https://github.com/botpress/botpress/issues/4364)) ([b2f13de](https://github.com/botpress/botpress/commit/b2f13de))
+* **studio:** enable multi-point connectors ([#4386](https://github.com/botpress/botpress/issues/4386)) ([f711c9b](https://github.com/botpress/botpress/commit/f711c9b))
+
+
+
 ## [12.16.2](https://github.com/botpress/botpress/compare/v12.14.1...v12.16.2) (2021-01-12)
 
 
