@@ -102,12 +102,17 @@ const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainSt
   const intents = await ProcessIntents(input.intents, input.languageCode, tools)
   const vocabVectors = buildVectorsVocab(intents)
 
+  const { nluSeed, languageCode, pattern_entities, contexts, ctxToTrain } = input
   return {
-    ..._.omit(input, 'list_entities', 'intents'),
+    nluSeed,
+    languageCode,
+    pattern_entities,
+    contexts,
+    ctxToTrain,
     list_entities,
     intents,
     vocabVectors
-  } as TrainStep
+  }
 }
 
 const makeListEntityModel = async (entity: ListEntityWithCache, languageCode: string, tools: Tools) => {
