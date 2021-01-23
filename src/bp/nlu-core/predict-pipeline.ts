@@ -3,11 +3,10 @@ import _ from 'lodash'
 
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
 import { getCtxFeatures } from './intents/context-featurizer'
-import { getIntentFeatures } from './intents/intent-featurizer'
+import { IntentClassifier } from './intents/intent-classifier'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
-import { ExactMatchIndex, EXACT_MATCH_STR_OPTIONS } from './training-pipeline'
 import {
   EntityExtractionResult,
   ExtractedEntity,
@@ -21,20 +20,17 @@ import {
 } from './typings'
 import Utterance, { buildUtteranceBatch, preprocessRawUtterance, UtteranceEntity } from './utterance/utterance'
 
-export type ExactMatchResult = (MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
-
 export type Predictors = {
   lang: string
   list_entities: ListEntityModel[] // no need for cache
   tfidf: TFIDF
   vocabVectors: Token2Vec
   contexts: string[]
-  exact_match_index: ExactMatchIndex
   pattern_entities: PatternEntity[]
   intents: Intent<Utterance>[]
+  intent_classifier_per_ctx: _.Dictionary<IntentClassifier>
 } & Partial<{
   ctx_classifier: MLToolkit.SVM.Predictor
-  intent_classifier_per_ctx: _.Dictionary<MLToolkit.SVM.Predictor>
   oos_classifier_per_ctx: _.Dictionary<MLToolkit.SVM.Predictor>
   kmeans: MLToolkit.KMeans.KmeansResult
   slot_tagger: SlotTagger // TODO replace this by MlToolkit.CRF.Tagger
@@ -155,28 +151,9 @@ export async function predictIntent(input: ContextStep, predictors: Predictors):
     return { ...input, intent_predictions }
   }
 
-  const customEntities = getCustomEntitiesNames(predictors)
-
   const ctxToPredict = input.ctx_predictions.map(p => p.label)
   const predictions = (
-    await Promise.map(ctxToPredict, async ctx => {
-      const preds: MLToolkit.SVM.Prediction[] = []
-
-      const predictor = predictors.intent_classifier_per_ctx?.[ctx]
-      if (predictor) {
-        const features = getIntentFeatures(input.utterance, customEntities)
-        const prediction = await predictor.predict(features)
-        preds.push(...prediction)
-      }
-      const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.utterance, ctx)
-      if (exactPred) {
-        const idxToRemove = preds.findIndex(p => p.label === exactPred.label)
-        preds.splice(idxToRemove, 1)
-        preds.unshift(exactPred)
-      }
-
-      return preds
-    })
+    await Promise.map(ctxToPredict, async ctx => predictors.intent_classifier_per_ctx[ctx].predict(input.utterance))
   ).filter(_.identity)
 
   return {
@@ -310,20 +287,6 @@ function MapStepToOutput(step: SlotStep): NLU.PredictOutput {
       .orderBy(x => x[1].confidence, 'desc')
       .fromPairs()
       .value()
-  }
-}
-
-export function findExactIntentForCtx(
-  exactMatchIndex: ExactMatchIndex,
-  utterance: Utterance,
-  ctx: string
-): ExactMatchResult {
-  const candidateKey = utterance.toString(EXACT_MATCH_STR_OPTIONS)
-
-  const maybeMatch = exactMatchIndex[candidateKey]
-  const matchedCtx = _.get(maybeMatch, 'contexts', [] as string[])
-  if (matchedCtx.includes(ctx)) {
-    return { label: maybeMatch.intent, confidence: 1, extractor: 'exact-matcher' }
   }
 }
 
