@@ -2,7 +2,7 @@ import { SPECIAL_CHARSET } from '../tools/chars'
 import { Intent } from '../typings'
 import Utterance, { makeTestUtterance } from '../utterance/utterance'
 
-import { BuildExactMatchIndex, findExactIntent } from './intent-classifier'
+import { BuildExactMatchIndex } from './exact-matcher'
 
 const u1 = 'Hi my name is Alex W and I try to make NLU for a living'
 const u2 = "Hi I'm Justine and I'm a smart bot with very scoped skills"
@@ -52,31 +52,8 @@ describe('Exact match', () => {
         u.replace(new RegExp(`(${SPECIAL_CHARSET.join('|')}|\\s)`, 'gi'), '').toLowerCase()
       )
       expect(exactMatchIndex[k1].intent).toEqual(intent1.name)
-      expect(exactMatchIndex[k1].contexts).toEqual(intent1.contexts)
       expect(exactMatchIndex[k2].intent).toEqual(intent1.name)
-      expect(exactMatchIndex[k2].contexts).toEqual(intent1.contexts)
       expect(exactMatchIndex[k3].intent).toEqual(intent2.name)
-      expect(exactMatchIndex[k3].contexts).toEqual(intent2.contexts)
     })
   })
-
-  // test('find exact match', () => {
-  //   const [utt1, utt2, utt3] = [u1, u3, 'This is just a test'].map(makeTestUtterance)
-  //   const pred1 = findExactIntent(exactMatchIndex, utt1)
-  //   const pred2 = findExactIntent(exactMatchIndex, utt1)
-  //   const pred3 = findExactIntent(exactMatchIndex, utt2)
-  //   const pred4 = findExactIntent(exactMatchIndex, utt2)
-  //   const pred5 = findExactIntent(exactMatchIndex, utt3)
-  //   const pred6 = findExactIntent(exactMatchIndex, utt3)
-
-  //   expect(pred1).toBeUndefined()
-  //   expect(pred2!.label).toEqual(intent1.name)
-  //   expect(pred2!.confidence).toEqual(1)
-  //   expect(pred3!.label).toEqual(intent2.name)
-  //   expect(pred3!.confidence).toEqual(1)
-  //   expect(pred4!.label).toEqual(intent2.name)
-  //   expect(pred4!.confidence).toEqual(1)
-  //   expect(pred5).toBeUndefined()
-  //   expect(pred6).toBeUndefined()
-  // })
 })

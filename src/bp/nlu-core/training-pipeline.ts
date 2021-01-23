@@ -5,7 +5,7 @@ import { serializeKmeans } from './clustering'
 import { extractListEntitiesWithCache, extractPatternEntities } from './entities/custom-entity-extractor'
 import { warmEntityCache } from './entities/entity-cache-manager'
 import { getCtxFeatures } from './intents/context-featurizer'
-import { getCustomEntitiesNames, IntentClassifier, IntentClassifierModel } from './intents/intent-classifier'
+import { IntentClassifier, IntentClassifierModel } from './intents/intent-classifier'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
 import { featurizeInScopeUtterances, featurizeOOSUtterances } from './out-of-scope-featurizer'
@@ -67,12 +67,10 @@ export interface TrainOutput {
   oos_model: _.Dictionary<string>
 }
 
-export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
-
 type progressCB = (p?: number) => void
 
 const debugTraining = DEBUG('nlu').sub('training') // TODO: make sure logs get wired up to web process
-const NONE_INTENT = 'none'
+export const NONE_INTENT = 'none'
 const NONE_UTTERANCES_BOUNDS = {
   MIN: 20,
   MAX: 200
@@ -213,7 +211,10 @@ const TrainIntentClassifiers = async (
 
 const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<string> => {
   debugTraining('Training context classifier')
-  const customEntities = getCustomEntitiesNames(input.list_entities, input.pattern_entities)
+
+  const { list_entities, pattern_entities } = input
+  const customEntities = [...list_entities.map(e => e.entityName), ...pattern_entities.map(e => e.name)]
+
   const points = _.flatMapDeep(input.contexts, ctx => {
     return input.intents
       .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
