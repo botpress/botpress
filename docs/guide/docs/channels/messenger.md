@@ -8,7 +8,7 @@ title: Facebook Messenger
 Messenger requires you to have a Facebook App and a Facebook Page to set up your chatbot connection to their platform.
 
 ### Messenger Module
-Navigate to the `botpress-v12_16_2-win-x64\modules` folder and check if the archive `channel-messenger.tgz` exists. 
+Navigate to the `\modules` folder and check if the archive `channel-messenger.tgz` exists. 
 
 ### Facebook App
 To fulfill this, log in to your Facebook account. Please ensure that this Facebook account has admin rights for the Facebook page to which you desire to connect the chatbot.
