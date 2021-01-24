@@ -3,7 +3,7 @@ id: smooch
 title: Smooch (Sunshine Conversations)
 ---
 
-## Prerequisite
+## Requirements
 
 - An HTTPS Endpoint to your bot
 
@@ -13,19 +13,20 @@ title: Smooch (Sunshine Conversations)
 
 - Create a [smooch.io](https://smooch.io/) account (you will need a business email)
 
-## Steps
+## Setup
 
-### Create the app on Smooch
+### Smooch App
+Firstly, you need to create an app on smooch. To do so, please follow the steps below:
 
 1. On the `app.smooch.io` home page, click on `Create new app`
 
 2. Enter a name for your app and click `Create App`
 
-3. Connect a channel to your app (ex: telegram)
+3. Connect a channel to your app (Telegram, Whatsapp, or any other listed channel)
 
-4. You should now see a channel in `Overview` section of your app
+4. You should will see a channel in the `Overview` section of your app
 
-### Connect Smooch to botpress
+### Botpress Connection
 
 1. Go in the `Settings` section of your app
 
@@ -33,7 +34,7 @@ title: Smooch (Sunshine Conversations)
 
 3. You will need the `id` (the one that starts with app\_) and `secret` key to setup your bot
 
-### Configure your bot
+## Configuration
 
 1. Edit `data/bots/YOUR_BOT_ID/config/channel-smooch.json` (or create it) and set
 
@@ -41,4 +42,16 @@ title: Smooch (Sunshine Conversations)
 - keyId: Paste the `id` of your key from `Settings` section
 - secret: Paste the `secret` of your key from `Settings` section
 
-2. Restart Botpress
+The resulting json will appear as follows:
+
+```json
+{
+  "$schema": "../../assets/modules/channel-smooch/config.schema.json",
+  "enabled": true,
+  "keyId": "app_5f079386f6480a000c121f71",
+  "secret": "g9XWmyPlfKfv4Q9B7mclI9R2CIIosxHncRO1PQeMkCmLNczWSw0I9B_lCmOiMR2Uof37fxLcJXwaxcHOw63ryQ",
+  "chatUserAuthDuration": "24h"
+}
+```
+
+2. Restart Botpress and test if your chatbot has been succesfully connected to your desired channel.
