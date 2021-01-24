@@ -24,13 +24,13 @@ Firstly, you need to create an app on smooch. To do so, please follow the steps 
 
 3. Connect a channel to your app (Telegram, Whatsapp, or any other listed channel)
 
-4. You should will see a channel in the `Overview` section of your app
+4. You should see a channel in the `Overview` section of your app
 
 ### Botpress Connection
 
-1. Go in the `Settings` section of your app
+1. Go to the `Settings` section of your app
 
-2. At the bottom you will find an `API Keys` menu. Create a new API key
+2. At the bottom, you will find an `API Keys` menu. Create a new API key
 
 3. You will need the `id` (the one that starts with app\_) and `secret` key to setup your bot
 
@@ -39,19 +39,19 @@ Firstly, you need to create an app on smooch. To do so, please follow the steps 
 1. Edit `data/bots/YOUR_BOT_ID/config/channel-smooch.json` (or create it) and set
 
 - enabled: Set to `true`
-- keyId: Paste the `id` of your key from `Settings` section
-- secret: Paste the `secret` of your key from `Settings` section
+- keyId: Paste the `id` of your key from the `Settings` section
+- secret: Paste the `secret` of your key from the `Settings` section
 
 The resulting json will appear as follows:
 
 ```json
 {
-  "$schema": "../../assets/modules/channel-smooch/config.schema.json",
-  "enabled": true,
-  "keyId": "app_5f079386f6480a000c121f71",
-  "secret": "g9XWmyPlfKfv4Q9B7mclI9R2CIIosxHncRO1PQeMkCmLNczWSw0I9B_lCmOiMR2Uof37fxLcJXwaxcHOw63ryQ",
-  "chatUserAuthDuration": "24h"
+  "$schema": "../../assets/modules/channel-smooch/config.schema.json",
+  "enabled": true,
+  "keyId": "app_5f079386f6480a000c121f71",
+  "secret": "g9XWmyPlfKfv4Q9B7mclI9R2CIIosxHncRO1PQeMkCmLNczWSw0I9B_lCmOiMR2Uof37fxLcJXwaxcHOw63ryQ",
+  "chatUserAuthDuration": "24h"
 }
 ```
 
-2. Restart Botpress and test if your chatbot has been succesfully connected to your desired channel.
+2. Restart Botpress and test if your chatbot has been successfully connected to your desired channel.
