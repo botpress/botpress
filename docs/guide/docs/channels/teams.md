@@ -32,13 +32,13 @@ To connect to Microsoft Teams, an HTTPS endpoint is required. This is set in the
 
 ### Before getting started...
 
-Since the framework V4 is still in active development, some of these instructions may be a little bit different. If you ever get stuck, have a look at the [Official Bot Framework documentation](https://docs.microsoft.com/en-us/microsoftteams/platform/concepts/bots/bots-create).
+Since the framework V4 is still in active development, some of these instructions may be slightly different. If you ever get stuck, check the [Official Bot Framework documentation](https://docs.microsoft.com/en-us/microsoftteams/platform/concepts/bots/bots-create).
 
 ## Setup
 
 These instructions will guide you through any steps required to be up and running with that channel.
 
-### Create application & get a password
+### Create application & generate password
 
 1. Log on to your account on [Microsoft Azure](https://azure.microsoft.com)
 
@@ -48,7 +48,7 @@ These instructions will guide you through any steps required to be up and runnin
 
 4. In the section `Supported account types`, choose `Accounts in any organizational directory and personal Microsoft accounts`, then click on `Register`.
 
-5. Write down the value of `Application (client) ID`, we'll need it later for the channel configuration.
+5. Write down the value of `Application (client) ID`; we'll need it later for the channel configuration.
 
 6. Click on `Certificates & secrets`, then click on `New client secret`, then fill in the required fields.
 
@@ -56,7 +56,7 @@ These instructions will guide you through any steps required to be up and runnin
 
 ### Create your bot
 
-1. Navigate to the [Bot Framework Registration Page](https://dev.botframework.com/bots/new) and fill the required information:
+1. Navigate to the [Bot Framework Registration Page](https://dev.botframework.com/bots/new) and fill in the required information:
 
 - Display name
 - Bot handle
@@ -67,16 +67,16 @@ You can also fill the other fields as you wish, but they will not impact Botpres
 
 2. Click on `Register`
 
-3. On the next page (`Connect to channels`), under the section `Add a featured channel`, click on `Configure Microsoft Teams Channel`, then click on `Save`. No other configuration is needed at this point.
+3. On the next page (`Connect to channels`), under the section, `Add a featured channel`, click on `Configure Microsoft Teams Channel`, then click on `Save`. No other configuration is needed at this point.
 
 ## Configuration
 
 
-### Configure the channel on Botpress
+### Configure channel on Botpress
 
-1. Open MS Teams (either the web version or the desktop client), then start a new conversation. In the search bar, paste your microsoft App Id. You should see your registered bot.
+1. Open MS Teams (either the web version or the desktop client), then start a new conversation. In the search bar, paste your Microsoft App Id. You should see your registered bot.
 
-2. Try talking to your bot. If you get a message saying that your bot has been disabled by administrator, you have to enable App sideloading in your microsoft admin portal. See this [article](https://docs.microsoft.com/en-us/microsoftteams/enable-features-office-365) for more details.
+2. Try talking to your bot. If you get a message saying that an administrator has disabled your bot, you must enable App sideloading in your Microsoft admin portal. See this [article](https://docs.microsoft.com/en-us/microsoftteams/enable-features-office-365) for more details.
 
 You can now continue to next [section](#setting-up-ms-teams-channel-from-an-already-configured-ms-bot-with-an-appid-and-password).
 
