@@ -5,13 +5,15 @@ import { MessageRepository } from 'core/repositories/messages'
 import { ConversationRepository } from 'core/repositories/conversations'
 import { IOEvent } from 'core/sdk/impl'
 import { EventEngine } from '../middleware/event-engine'
+import { KeyValueStore } from '../kvs'
 
 @injectable()
 export class MessagingAPI {
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.MessageRepository) private messageRepo: MessageRepository,
-    @inject(TYPES.ConversationRepository) private conversationRepo: ConversationRepository
+    @inject(TYPES.ConversationRepository) private conversationRepo: ConversationRepository,
+    @inject(TYPES.KeyValueStore) private kvs: KeyValueStore
   ) {}
   public async getAllConversations(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation[]> {
     return this.conversationRepo.getAll(endpoint)
@@ -96,6 +98,16 @@ export class MessagingAPI {
       ctorArgs.threadId = conversation.id.toString()
       ctorArgs.target = conversation.userId
       ctorArgs.botId = conversation.botId
+    }
+
+    if (!ctorArgs.channel) {
+      const lastChannel = await this.kvs.forBot(ctorArgs.botId).get(`lastChannel_${ctorArgs.botId}_${ctorArgs.target}`)
+
+      if (lastChannel) {
+        throw new Error('No previous channel was set for the user. You must provide a threadId in the args parameter')
+      }
+
+      ctorArgs.threadId = lastChannel
     }
 
     const event = new IOEvent(<sdk.IO.EventCtorArgs>ctorArgs)

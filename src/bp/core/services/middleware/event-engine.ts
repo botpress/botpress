@@ -9,6 +9,7 @@ import yn from 'yn'
 
 import { Event } from '../../sdk/impl'
 import { TYPES } from '../../types'
+import { KeyValueStore } from '../kvs'
 import { incrementMetric } from '../monitoring'
 import { Queue } from '../queue'
 
@@ -102,7 +103,8 @@ export class EventEngine {
     private logger: sdk.Logger,
     @inject(TYPES.IncomingQueue) private incomingQueue: Queue<sdk.IO.IncomingEvent>,
     @inject(TYPES.OutgoingQueue) private outgoingQueue: Queue<sdk.IO.OutgoingEvent>,
-    @inject(TYPES.EventCollector) private eventCollector: EventCollector
+    @inject(TYPES.EventCollector) private eventCollector: EventCollector,
+    @inject(TYPES.KeyValueStore) private kvs: KeyValueStore
   ) {
     this.incomingQueue.subscribe(async (event: sdk.IO.IncomingEvent) => {
       await this._infoMiddleware(event)
@@ -189,6 +191,7 @@ export class EventEngine {
     if (isIncoming(event)) {
       debugIncoming.forBot(event.botId, 'send ', event)
       incrementMetric('eventsIn.count')
+      this.kvs.forBot(event.botId).set(`lastChannel_${event.botId}_${event.target}`, event.channel)
       await this.incomingQueue.enqueue(event, 1, false)
     } else {
       debugOutgoing.forBot(event.botId, 'send ', event)
