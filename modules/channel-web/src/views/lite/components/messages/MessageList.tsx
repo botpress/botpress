@@ -117,14 +117,14 @@ class MessageList extends React.Component<MessageListProps, State> {
 
   renderMessageGroups() {
     const messages = (this.props.currentMessages || []).filter(m => this.shouldDisplayMessage(m))
-    const groups = []
+    const groups: Message[][] = []
 
-    let lastSpeaker = undefined
-    let lastDate = undefined
-    let currentGroup = undefined
+    let lastSpeaker: string = undefined
+    let lastDate: Date = undefined
+    let currentGroup: Message[] = undefined
 
     messages.forEach(m => {
-      const speaker = m.from
+      const speaker = m.from || m.payload.web?.userName
       const date = m.sentOn
 
       // Create a new group if messages are separated by more than X minutes or if different speaker
@@ -153,9 +153,8 @@ class MessageList extends React.Component<MessageListProps, State> {
 
       currentGroup.push({
         sentOn: new Date(),
-        userId: undefined,
-        message_type: 'typing'
-      })
+        payload: { type: 'typing' }
+      } as any)
     }
     return (
       <div>
@@ -168,12 +167,12 @@ class MessageList extends React.Component<MessageListProps, State> {
             !groups[i - 1] ||
             differenceInMinutes(new Date(groupDate), new Date(lastDate)) > constants.TIME_BETWEEN_DATES
 
-          const [{ userId, full_name: userName, avatar_url: avatarUrl, from }] = group
+          const [{ from, payload }] = group
 
           const avatar =
             from === 'user'
-              ? this.props.showUserAvatar && this.renderAvatar(userName, avatarUrl)
-              : this.renderAvatar(this.props.botName, avatarUrl || this.props.botAvatarUrl)
+              ? this.props.showUserAvatar && this.renderAvatar(payload.web?.userName, payload.web?.avatarUrl)
+              : this.renderAvatar(this.props.botName, payload.web?.avatarUrl || this.props.botAvatarUrl)
 
           return (
             <div key={i}>
@@ -181,7 +180,7 @@ class MessageList extends React.Component<MessageListProps, State> {
               <MessageGroup
                 isBot={from !== 'user'}
                 avatar={avatar}
-                userName={userName}
+                userName={payload.web?.userName}
                 key={`msg-group-${i}`}
                 isLastGroup={i >= groups.length - 1}
                 messages={group}

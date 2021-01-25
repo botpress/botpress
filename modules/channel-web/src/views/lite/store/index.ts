@@ -11,7 +11,6 @@ import { getUserLocale, initializeLocale } from '../translations'
 import {
   BotInfo,
   Config,
-  ConversationSummary,
   CurrentConversation,
   EventFeedback,
   Message,
@@ -19,6 +18,7 @@ import {
   QueuedMessage,
   StudioConnector
 } from '../typings'
+import * as sdk from 'botpress/sdk'
 import { downloadFile, trackMessage } from '../utils'
 
 import ComposerStore from './composer'
@@ -39,7 +39,7 @@ class RootStore {
   private api: WebchatApi
 
   @observable
-  public conversations: ConversationSummary[] = []
+  public conversations: sdk.Conversation[] = []
 
   @observable
   public currentConversation: CurrentConversation
@@ -487,7 +487,7 @@ class RootStore {
     }
 
     const lifeTimeMargin = Date.now() - ms(this.config.recentConversationLifetime)
-    const isConversationExpired = new Date(this.conversations[0].last_heard_on).getTime() < lifeTimeMargin
+    const isConversationExpired = false // TODO fix this // new Date(this.conversations[0].last_heard_on).getTime() < lifeTimeMargin
     if (isConversationExpired && this.config.startNewConvoOnTimeout) {
       return
     }

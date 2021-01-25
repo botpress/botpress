@@ -219,36 +219,14 @@ export interface BotInfo {
   lazySocket: boolean
 }
 
-interface Conversation {
-  id: number
-  last_heard_on: Date | undefined
-  logo_url: string | undefined
-  created_on: Date
-  description: string | undefined
-  title: string
-}
-
-/** This is the interface representing the conversations in the list  */
-export type ConversationSummary = {
-  message_sent_on: Date
-  message_author: string
-  message_author_avatar: string
-  message_text: string
-  message_type: string
-} & Conversation
-
 /** Represents the current conversation with all messages */
 export type CurrentConversation = {
-  botId: string
   messages: Message[]
-  userId: string
-  user_last_seen_on: Date | undefined
   /** Event ?  */
   typingUntil: any
-} & Conversation
+} & sdk.Conversation
 
 export type Message = {
-  incomingEventId: string
   // The typing delay in ms
   timeInMs: number
 } & sdk.Message
