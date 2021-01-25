@@ -311,7 +311,7 @@ export class DialogEngine {
   }
 
   private async initializeContext(event: IO.IncomingEvent): Promise<IO.DialogContext> {
-    const customStartNode = this.isCustomStartNode(event)
+    const customStartNode = await this.isCustomStartNode(event)
     if (customStartNode) {
       return customStartNode as IO.DialogContext
     }
