@@ -518,26 +518,4 @@ export default async (bp: typeof sdk, db: Database) => {
 
     res.sendStatus(204)
   })
-
-  const routerAuth = bp.http.createRouterForBot('channel-web-secure')
-  routerAuth.post(
-    '/setEmulatorStartNode/:userId',
-    asyncMiddleware(async (req: BPRequest, res: Response) => {
-      const { userId = undefined } = req.params
-
-      if (!validateUserId(userId)) {
-        return res.status(400).send(ERR_USER_ID_REQ)
-      }
-
-      const { flow, node } = req.body
-      let emulatorStartNode
-      if (flow && flow.endsWith('.flow.json') && node) {
-        emulatorStartNode = { flow, node }
-      }
-
-      await bp.users.updateAttributes('web', userId, { emulatorStartNode })
-
-      return res.sendStatus(200)
-    })
-  )
 }
