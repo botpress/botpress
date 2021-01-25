@@ -143,7 +143,7 @@ class RootStore {
       })
     ) {
       if (await this.api.deleteFile(file)) {
-        this.editor.closeFile()
+        this.editor.closeFile(file)
         toast.success(lang.tr('module.code-editor.store.fileDeleted'))
         await this.fetchFiles()
       }
