@@ -25,12 +25,15 @@ import yn from 'yn'
 
 import { ExternalAuthConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
+import Database from './database'
 import { ModuleLoader } from './module-loader'
+import { UserRepository } from './repositories'
 import { LogsRepository } from './repositories/logs'
 import { TelemetryRepository } from './repositories/telemetry'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
+import { EmulatorRouter } from './routers/bots/emulator'
 import { HintsRouter } from './routers/bots/hints'
 import { NLURouter } from './routers/bots/nlu'
 import { isDisabled } from './routers/conditionalMiddleware'
@@ -53,6 +56,7 @@ import { FlowService } from './services/dialog/flow/service'
 import { SkillService } from './services/dialog/skill/service'
 import { HintsService } from './services/hints'
 import { JobService } from './services/job-service'
+import { KeyValueStore } from './services/kvs'
 import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
 import { MonitoringService } from './services/monitoring'
@@ -94,6 +98,7 @@ export default class HTTPServer {
   private hintsRouter!: HintsRouter
   private telemetryRouter!: TelemetryRouter
   private readonly sdkApiRouter!: SdkApiRouter
+  private emulatorRouter!: EmulatorRouter
   private _needPermissions: (
     operation: string,
     resource: string
@@ -136,7 +141,10 @@ export default class HTTPServer {
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.LogsRepository) private logsRepo: LogsRepository,
     @inject(TYPES.NLUService) private nluService: NLUService,
-    @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository
+    @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository,
+    @inject(TYPES.KeyValueStore) private kvs: KeyValueStore,
+    @inject(TYPES.Database) private database: Database,
+    @inject(TYPES.UserRepository) private userRepo: UserRepository
   ) {
     this.app = express()
 
@@ -236,6 +244,14 @@ export default class HTTPServer {
     this.nluRouter = new NLURouter(this.logger, this.authService, this.workspaceService, this.nluService)
     this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this)
     this.hintsRouter = new HintsRouter(this.logger, this.hintsService, this.authService, this.workspaceService)
+    this.emulatorRouter = new EmulatorRouter(
+      this.logger,
+      this.kvs,
+      this.database,
+      this.userRepo,
+      this.authService,
+      this.workspaceService
+    )
     this.botsRouter.router.use('/content', this.contentRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
     this.botsRouter.router.use('/nlu', this.nluRouter.router)
@@ -246,6 +262,7 @@ export default class HTTPServer {
     })
 
     this.botsRouter.router.use('/hints', this.hintsRouter.router)
+    this.botsRouter.router.use('/emulator/:userId', this.emulatorRouter.router)
   }
 
   resolveAsset = file => path.resolve(process.PROJECT_LOCATION, 'data/assets', file)

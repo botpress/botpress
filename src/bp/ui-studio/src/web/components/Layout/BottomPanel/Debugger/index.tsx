@@ -2,7 +2,7 @@ import { Button, ButtonGroup, Divider, Icon, Tab, Tabs } from '@blueprintjs/core
 import axios from 'axios'
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
-import { lang, ToolTip } from 'botpress/shared'
+import { Dropdown, lang, ToolTip } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import ms from 'ms'
@@ -10,7 +10,7 @@ import nanoid from 'nanoid'
 import React, { Fragment } from 'react'
 import { connect } from 'react-redux'
 import 'ui-shared/dist/theme.css'
-import { setDebuggerEvent } from '~/actions'
+import { setDebuggerEvent, setEmulatorStartNode, refreshEmulatorStartNodes } from '~/actions'
 
 import btStyle from '../style.scss'
 
@@ -29,6 +29,11 @@ const DELAY_BETWEEN_CALLS = 500
 const RETRY_SECURITY_FACTOR = 3
 const DEBOUNCE_DELAY = 100
 
+interface StartNodeOption {
+  value: EmulatorStartNode
+  label: string
+}
+
 interface Props {
   eventId: string
   autoFocus: boolean
@@ -36,6 +41,10 @@ interface Props {
   commonButtons: any
   setDebuggerEvent: any
   hidden: boolean
+  emulatorStartNode?: EmulatorStartNode
+  emulatorStartNodes: EmulatorStartNode[]
+  setEmulatorStartNode: (item: EmulatorStartNode) => void
+  refreshEmulatorStartNodes: () => void
 }
 
 interface State {
@@ -46,7 +55,20 @@ interface State {
   unauthorized: boolean
   eventsCache: sdk.IO.IncomingEvent[]
   updateDiagram: boolean
+  startNodes: EmulatorStartNode[]
+  selectedStartNode: StartNodeOption
 }
+
+export interface EmulatorStartNode {
+  flow?: string
+  node?: string
+  id?: string
+  label?: string
+}
+
+export const START_NODE_CUSTOM = 'custom'
+
+const defaultNode = { value: undefined, label: 'Normal Flow' }
 
 export class Debugger extends React.Component<Props, State> {
   state = {
@@ -56,7 +78,9 @@ export class Debugger extends React.Component<Props, State> {
     fetching: false,
     unauthorized: false,
     eventsCache: [],
-    updateDiagram: true
+    updateDiagram: true,
+    startNodes: [],
+    selectedStartNode: defaultNode
   }
 
   allowedRetryCount = 0
@@ -65,6 +89,8 @@ export class Debugger extends React.Component<Props, State> {
   lastMessage = undefined
 
   async componentDidMount() {
+    this.props.refreshEmulatorStartNodes()
+
     if (this.props.eventId) {
       await this.loadEvent(this.props.eventId)
     }
@@ -86,6 +112,28 @@ export class Debugger extends React.Component<Props, State> {
     if (prevProps.eventId !== this.props.eventId) {
       await this.loadEvent(this.props.eventId)
     }
+
+    if (prevProps.emulatorStartNode !== this.props.emulatorStartNode) {
+      this.updateStartNode()
+    }
+
+    if (prevProps.emulatorStartNodes !== this.props.emulatorStartNodes) {
+      this.setState({
+        startNodes: [defaultNode, ...this.props.emulatorStartNodes.map(x => ({ value: x, label: x.label }))]
+      })
+    }
+  }
+
+  updateStartNode = () => {
+    const { emulatorStartNode } = this.props
+    let selectedStartNode = defaultNode
+
+    if (emulatorStartNode) {
+      const label = emulatorStartNode.id === START_NODE_CUSTOM ? 'Custom Start Node' : emulatorStartNode.label
+      selectedStartNode = { value: emulatorStartNode, label }
+    }
+
+    this.setState({ selectedStartNode })
   }
 
   loadEvent = async (eventId: string) => {
@@ -233,6 +281,11 @@ export class Debugger extends React.Component<Props, State> {
         <Tab id="settings" title={<Icon icon="cog" />} className={btStyle.tab} panel={<Settings />} />
         <Tabs.Expander />
         <ButtonGroup minimal={true}>
+          <Dropdown
+            items={this.state.startNodes}
+            defaultItem={this.state.selectedStartNode}
+            onChange={item => this.props.setEmulatorStartNode(item.value)}
+          />
           <ToolTip content={lang.tr('bottomPanel.debugger.newSession')}>
             <Button id="btn-new-session" icon="refresh" small onClick={this.handleNewSession} />
           </ToolTip>
@@ -266,6 +319,11 @@ export class Debugger extends React.Component<Props, State> {
   }
 }
 
-const mapDispatchToProps = { setDebuggerEvent }
+const mapStateToProps = state => ({
+  emulatorStartNode: state.flows.emulatorStartNode,
+  emulatorStartNodes: state.flows.emulatorStartNodes
+})
 
-export default connect(undefined, mapDispatchToProps)(Debugger)
+const mapDispatchToProps = { setDebuggerEvent, setEmulatorStartNode, refreshEmulatorStartNodes }
+
+export default connect(mapStateToProps, mapDispatchToProps)(Debugger)

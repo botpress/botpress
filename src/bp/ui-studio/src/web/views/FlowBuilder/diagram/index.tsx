@@ -37,7 +37,9 @@ import {
   updateFlow,
   updateFlowNode,
   updateFlowProblems,
-  zoomToLevel
+  refreshEmulatorStartNodes,
+  zoomToLevel,
+  setEmulatorStartNode
 } from '~/actions'
 import { SearchBar } from '~/components/Shared/Interface'
 import { getAllFlows, getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
@@ -53,6 +55,7 @@ import NodeToolbar from './NodeToolbar'
 import TriggerEditor from './TriggerEditor'
 import WorkflowToolbar from './WorkflowToolbar'
 import ZoomToolbar from './ZoomToolbar'
+import { START_NODE_CUSTOM } from '~/components/Layout/BottomPanel/Debugger'
 
 interface OwnProps {
   childRef: (el: any) => void
@@ -81,25 +84,11 @@ type ExtendedDiagramEngine = {
   flowBuilder?: any
 } & DiagramEngine
 
-export interface SingleNode {
-  flow: string
-  node: string
-}
-
 const EXPANDED_NODES_KEY = `bp::${window.BOT_ID}::expandedNodes`
-const EMULATOR_START_NODES_KEY = `bp::${window.BOT_ID}::emulatorStart`
 
 const getExpandedNodes = () => {
   try {
     return JSON.parse(storage.get(EXPANDED_NODES_KEY) || '[]')
-  } catch (error) {
-    return []
-  }
-}
-
-const getEmulatorStartNodes = () => {
-  try {
-    return JSON.parse(storage.get(EMULATOR_START_NODES_KEY) || '[]')
   } catch (error) {
     return []
   }
@@ -149,7 +138,8 @@ class Diagram extends Component<Props> {
       emulatorStartNode: {
         set: this.setEmulatorStartNode.bind(this),
         clear: this.clearEmulatorStartNode.bind(this),
-        list: () => this.getStateProperty('emulatorStartNodes')
+        save: this.saveEmulatorStartNode.bind(this),
+        getActive: () => this.getPropsProperty('emulatorStartNode')
       },
       // Temporary, maybe we could open the elementinstead of double-click?
       // tslint:disable-next-line: no-console
@@ -172,46 +162,33 @@ class Diagram extends Component<Props> {
     }
   }
 
-  async updateEmulatorStartNode() {
-    const currentFlowName = this.props.currentFlow.name
-    const currentFlowStart = this.state.emulatorStartNodes.find(x => x.flow === currentFlowName)
-    let startNode
-
-    if (currentFlowStart) {
-      startNode = currentFlowStart
-    }
-
+  async saveEmulatorStartNode() {
+    const label = prompt('Choose a label for this start node')
     const userId = storage.get('bp/socket/studio/user')
-    await axios.post(`${window.BOT_API_PATH}/mod/channel-web-secure/setEmulatorStartNode/${userId}`, startNode)
-  }
 
-  persistEmulatorStartNodes(newNodes) {
-    storage.set(EMULATOR_START_NODES_KEY, JSON.stringify(newNodes))
-    this.setState({ emulatorStartNodes: newNodes }, this.updateEmulatorStartNode)
+    await axios.post(`${window.BOT_API_PATH}/emulator/${userId}/startNode/save`, { label })
+    await this.props.refreshEmulatorStartNodes()
   }
 
   async setEmulatorStartNode(node) {
-    const startNodes = this.state.emulatorStartNodes
-    const currentFlowName = this.props.currentFlow.name
-    const startNode = { flow: currentFlowName, node: node.name }
-
-    let newNodes = [...startNodes, startNode]
-
-    const idx = startNodes.findIndex(x => x.flow === currentFlowName)
-    if (idx !== -1) {
-      newNodes = [...startNodes.slice(0, idx), startNode, ...startNodes.slice(idx + 1)]
-    }
-
-    this.persistEmulatorStartNodes(newNodes)
+    const startNode = { flow: this.props.currentFlow.name, node: node.name, id: 'custom' }
+    this.props.setEmulatorStartNode(startNode)
   }
 
-  clearEmulatorStartNode() {
-    const startNodes = this.state.emulatorStartNodes
-    const currentFlowName = this.props.currentFlow.name
+  async clearEmulatorStartNode(options = { flowChanged: false }) {
+    const { id } = this.props.emulatorStartNode || {}
 
-    const idx = startNodes.findIndex(x => x.flow === currentFlowName)
-    if (idx !== -1) {
-      this.persistEmulatorStartNodes([...startNodes.slice(0, idx), ...startNodes.slice(idx + 1)])
+    if (!options.flowChanged && id !== START_NODE_CUSTOM) {
+      const userId = storage.get('bp/socket/studio/user')
+
+      await axios.post(`${window.BOT_API_PATH}/emulator/${userId}/startNode/delete/${id}`)
+      await this.props.refreshEmulatorStartNodes()
+
+      this.props.setEmulatorStartNode()
+    }
+
+    if (id === START_NODE_CUSTOM) {
+      this.props.setEmulatorStartNode()
     }
   }
 
@@ -286,7 +263,7 @@ class Diagram extends Component<Props> {
 
   componentDidMount() {
     this.props.fetchFlows()
-    this.setState({ expandedNodes: getExpandedNodes(), emulatorStartNodes: getEmulatorStartNodes() })
+    this.setState({ expandedNodes: getExpandedNodes() })
 
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('dblclick', this.onDiagramDoubleClick)
@@ -331,7 +308,7 @@ class Diagram extends Component<Props> {
       // Update the diagram model only if we changed the current flow
       this.manager.initializeModel()
       this.checkForProblems()
-      this.updateEmulatorStartNode()
+      this.clearEmulatorStartNode({ flowChanged: true })
     } else {
       // Update the current model with the new properties
       this.manager.syncModel()
@@ -794,7 +771,8 @@ const mapStateToProps = (state: RootReducer) => ({
   debuggerEvent: state.flows.debuggerEvent,
   zoomLevel: state.ui.zoomLevel,
   conditions: state.ndu.conditions,
-  skills: state.skills.installed
+  skills: state.skills.installed,
+  emulatorStartNode: state.flows.emulatorStartNode
 })
 
 const mapDispatchToProps = {
@@ -815,6 +793,8 @@ const mapDispatchToProps = {
   insertNewSkillNode,
   updateFlowProblems,
   zoomToLevel,
+  setEmulatorStartNode,
+  refreshEmulatorStartNodes,
   buildSkill: buildNewSkill
 }
 

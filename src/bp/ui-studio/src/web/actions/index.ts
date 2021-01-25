@@ -3,6 +3,8 @@ import * as sdk from 'botpress/sdk'
 import { FlowPoint, FlowView, NodeProblem } from 'common/typings'
 import _ from 'lodash'
 import { createAction } from 'redux-actions'
+import { EmulatorStartNode } from '~/components/Layout/BottomPanel/Debugger'
+import storage from '~/util/storage'
 
 import { getDeletedFlows, getDirtyFlows, getModifiedFlows, getNewFlows } from '../reducers/selectors'
 
@@ -504,5 +506,26 @@ export const fetchBotIds = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises
   axios.get(`${window.BOT_API_PATH}/workspaceBotsIds`).then(res => {
     dispatch(botsReceived(res.data))
+  })
+}
+
+export const emulatorStartNodeUpdated = createAction('FLOWS/EMULATOR_NODE_UPDATED')
+export const setEmulatorStartNode = (location?: EmulatorStartNode) => dispatch => {
+  const userId = storage.get('bp/socket/studio/user')
+
+  // tslint:disable-next-line: no-floating-promises
+  axios.post(`${window.BOT_API_PATH}/emulator/${userId}/startNode/set`, location).then(res => {
+    dispatch(emulatorStartNodeUpdated(location))
+  })
+}
+
+export const receivedEmulatorStartNodes = createAction('FLOWS/REFRESH_EMULATOR_START_NODE')
+export const refreshEmulatorStartNodes = () => dispatch => {
+  const userId = storage.get('bp/socket/studio/user')
+
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.BOT_API_PATH}/emulator/${userId}/startNode/list`).then(res => {
+    console.log('GOT', res.data)
+    dispatch(receivedEmulatorStartNodes(res.data))
   })
 }

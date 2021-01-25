@@ -25,6 +25,8 @@ import {
   requestInsertNewSkill,
   requestInsertNewSkillNode,
   requestPasteFlowNode,
+  emulatorStartNodeUpdated,
+  receivedEmulatorStartNodes,
   requestPasteFlowNodeElement,
   requestRemoveFlowNode,
   requestRenameFlow,
@@ -37,6 +39,7 @@ import {
   switchFlowNode,
   updateFlowProblems
 } from '~/actions'
+import { EmulatorStartNode } from '~/components/Layout/BottomPanel/Debugger'
 import { hashCode, prettyId } from '~/util'
 
 export interface FlowReducer {
@@ -48,6 +51,7 @@ export interface FlowReducer {
   currentDiagramAction: string
   nodeInBuffer?: FlowNode
   debuggerEvent?: IO.IncomingEvent
+  emulatorStartNode?: EmulatorStartNode
 }
 
 const MAX_UNDO_STACK_SIZE = 25
@@ -66,7 +70,8 @@ const defaultState = {
   nodeInBuffer: null, // TODO: move it to buffer.node
   buffer: { action: null, transition: null },
   flowProblems: [],
-  errorSavingFlows: undefined
+  errorSavingFlows: undefined,
+  emulatorStartNode: undefined
 }
 
 const findNodesThatReferenceFlow = (state, flowName) =>
@@ -351,6 +356,17 @@ let reducer = handleActions(
         ...state
       }
     },
+
+    [emulatorStartNodeUpdated]: (state, { payload }) => ({
+      ...state,
+      emulatorStartNode: payload,
+      currentFlow: payload?.flow || state.currentFlow
+    }),
+
+    [receivedEmulatorStartNodes]: (state, { payload }) => ({
+      ...state,
+      emulatorStartNodes: payload
+    }),
 
     [clearFlowMutex]: (state, { payload: name }) => ({
       ...state,

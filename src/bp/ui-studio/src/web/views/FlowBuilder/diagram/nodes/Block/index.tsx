@@ -19,7 +19,7 @@ import SaySomethingContents from '../SaySomethingContents'
 import SkillCallContents, { SkillDefinition } from '../SkillCallContents'
 import StandardContents from '../StandardContents'
 import TriggerContents from '../TriggerContents'
-import { SingleNode } from '../../'
+import { EmulatorStartNode, START_NODE_CUSTOM } from '~/components/Layout/BottomPanel/Debugger'
 
 export interface BlockProps {
   node: BlockModel
@@ -43,7 +43,8 @@ export interface BlockProps {
   emulatorStartNode: {
     set: (node: BlockModel) => void
     clear: () => void
-    list: () => SingleNode[]
+    save: () => void
+    getActive: () => EmulatorStartNode
   }
 }
 
@@ -81,9 +82,8 @@ const BlockWidget: FC<BlockProps> = ({
   const { nodeType } = node
   const { currentLang, defaultLang } = getLanguage()
 
-  const isEmulatorStartNode = emulatorStartNode
-    .list()
-    .find(x => x.flow === getCurrentFlow().name && x.node === node.name)
+  const activeNode = emulatorStartNode?.getActive()
+  const isEmulatorStartNode = activeNode?.flow === getCurrentFlow().name && activeNode?.node === node.name
 
   const handleContextMenu = e => {
     e.stopPropagation()
@@ -105,9 +105,16 @@ const BlockWidget: FC<BlockProps> = ({
       <Menu>
         <MenuItem
           icon="selection"
-          text={isEmulatorStartNode ? lang.tr('Remove emulator start node') : lang.tr('Start emulator here')}
+          text={isEmulatorStartNode ? lang.tr('Remove emulator Start Node') : lang.tr('Set emulator Start Node')}
           onClick={() => (isEmulatorStartNode ? emulatorStartNode.clear() : emulatorStartNode.set(node))}
         />
+        {isEmulatorStartNode && activeNode?.id === START_NODE_CUSTOM && (
+          <MenuItem
+            icon="floppy-disk"
+            text={lang.tr('Save emulator Start Node')}
+            onClick={() => emulatorStartNode.save()}
+          />
+        )}
         <MenuItem
           icon="trash"
           text={

@@ -7,6 +7,7 @@ import _ from 'lodash'
 
 import { buildUserKey, converseApiEvents } from '../converse'
 import { Hooks, HookService } from '../hook/hook-service'
+import { KeyValueStore } from '../kvs'
 import { addErrorToEvent } from '../middleware/event-collector'
 
 import { FlowError, TimeoutNodeNotFound } from './errors'
@@ -30,7 +31,8 @@ export class DialogEngine {
     private logger: Logger,
     @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.HookService) private hookService: HookService,
-    @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor
+    @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
+    @inject(TYPES.KeyValueStore) private kvs: KeyValueStore
   ) {}
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent): Promise<IO.IncomingEvent> {
@@ -38,7 +40,7 @@ export class DialogEngine {
     await this._loadFlows(botId)
 
     const context: IO.DialogContext = _.isEmpty(event.state.context)
-      ? this.initializeContext(event)
+      ? await this.initializeContext(event)
       : event.state.context
 
     const currentFlow = this._findFlow(botId, context.currentFlow!)
@@ -282,14 +284,36 @@ export class DialogEngine {
     event.state.temp = {}
   }
 
-  private initializeContext(event: IO.IncomingEvent) {
-    if (event.state.user.emulatorStartNode) {
-      const { flow, node } = event.state.user.emulatorStartNode
-      event.state.__stacktrace.push({ flow, node })
-      event.state.context = { currentFlow: flow, currentNode: node }
+  private async isCustomStartNode(event: IO.IncomingEvent): Promise<IO.DialogContext | undefined> {
+    const { emulatorStartNode } = event.state.user
 
-      this._debug(event.botId, event.target, 'starting from custom location', { ...event.state.context })
-      return event.state.context
+    if (!emulatorStartNode) {
+      return undefined
+    }
+
+    const key = this.kvs.forBot(event.botId).getUserStorageKey(event.target, `emulator/${emulatorStartNode}`)
+    const { flow, node, data } = (await this.kvs.forBot(event.botId).get(key)) || {}
+
+    if (!flow || !node) {
+      return undefined
+    }
+
+    event.state.__stacktrace.push({ flow, node })
+    event.state.context = { currentFlow: flow, currentNode: node }
+
+    if (data) {
+      event.state.context = data.context
+      event.state.temp = data.temp
+    }
+
+    this._debug(event.botId, event.target, 'starting from custom location', { ...event.state.context })
+    return event.state.context
+  }
+
+  private async initializeContext(event: IO.IncomingEvent): Promise<IO.DialogContext> {
+    const customStartNode = this.isCustomStartNode(event)
+    if (customStartNode) {
+      return customStartNode as IO.DialogContext
     }
 
     const defaultFlow = this._findFlow(event.botId, event.ndu ? 'misunderstood.flow.json' : 'main.flow.json')
