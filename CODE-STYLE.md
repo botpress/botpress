@@ -122,7 +122,7 @@ const myMethod = (name: string, type: string) => {
 }
 ```
 
-- Use [Arrow functions](http://es6-features.org/#ExpressionBodies) instead of function declaration (although sometimes a function is really necessary)
+- We recommend using [Arrow functions](http://es6-features.org/#ExpressionBodies) instead of function declaration (although sometimes a function is really necessary)
 - Use [Template literals](http://es6-features.org/#StringInterpolation) to build a string instead of using the + sign
 - Use [Destructuring](http://es6-features.org/#ObjectMatchingShorthandNotation) when you access multiple properties of an object.
 
@@ -135,7 +135,7 @@ return { text: type === 'say' ? value : label }
 return { text: option.type === 'type' ? option.value : option.label }
 ```
 
-- Use Async/Await instead of then/catch.
+- We recommend using Async/Await instead of then/catch.
 
 ```js
 // Do
