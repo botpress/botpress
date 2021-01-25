@@ -2,8 +2,8 @@ import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
+import { BaseIntentClassifier } from './intents/base-intent-classifier'
 import { getCtxFeatures } from './intents/context-featurizer'
-import { IntentClassifier } from './intents/intent-classifier'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
@@ -28,7 +28,7 @@ export type Predictors = {
   contexts: string[]
   pattern_entities: PatternEntity[]
   intents: Intent<Utterance>[]
-  intent_classifier_per_ctx: _.Dictionary<IntentClassifier>
+  intent_classifier_per_ctx: _.Dictionary<BaseIntentClassifier>
 } & Partial<{
   ctx_classifier: MLToolkit.SVM.Predictor
   oos_classifier_per_ctx: _.Dictionary<MLToolkit.SVM.Predictor>
@@ -154,7 +154,11 @@ export async function predictIntent(input: ContextStep, predictors: Predictors):
   const ctxToPredict = input.ctx_predictions.map(p => p.label)
   const predictions = (
     await Promise.map(ctxToPredict, async ctx => predictors.intent_classifier_per_ctx[ctx].predict(input.utterance))
-  ).filter(_.identity)
+  )
+    .filter(_.identity)
+    .map(output => {
+      return output.intents.map(({ name, confidence }) => ({ label: name, confidence }))
+    })
 
   return {
     ...input,
@@ -176,7 +180,7 @@ async function predictOutOfScope(input: PredictStep, predictors: Predictors): Pr
   }
 
   const utt = input.utterance
-  const feats = getUtteranceFeatures(utt, predictors.vocabVectors)
+  const feats = getUtteranceFeatures(utt, Object.keys(predictors.vocabVectors))
   for (const ctx of predictors.contexts) {
     try {
       const preds = await predictors.oos_classifier_per_ctx[ctx].predict(feats)

@@ -4,8 +4,8 @@ import _ from 'lodash'
 import { serializeKmeans } from './clustering'
 import { extractListEntitiesWithCache, extractPatternEntities } from './entities/custom-entity-extractor'
 import { warmEntityCache } from './entities/entity-cache-manager'
+import { BaseIntentClassifier } from './intents/base-intent-classifier'
 import { getCtxFeatures } from './intents/context-featurizer'
-import { IntentClassifier, IntentClassifierModel } from './intents/intent-classifier'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
 import { featurizeInScopeUtterances, featurizeOOSUtterances } from './out-of-scope-featurizer'
@@ -26,7 +26,7 @@ import {
   Tools,
   WarmedListEntityModel
 } from './typings'
-import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
+import Utterance, { buildUtteranceBatch, UtteranceToken } from './utterance/utterance'
 
 type ListEntityWithCache = ListEntity & {
   cache: EntityCacheDump
@@ -62,7 +62,7 @@ export interface TrainOutput {
   kmeans: SerializedKmeansResult | undefined
   contexts: string[]
   ctx_model: string
-  intent_model_by_ctx: Dic<IntentClassifierModel>
+  intent_model_by_ctx: Dic<string>
   slots_model: Buffer
   oos_model: _.Dictionary<string>
 }
@@ -176,18 +176,18 @@ const TrainIntentClassifiers = async (
   input: TrainStep,
   tools: Tools,
   progress: progressCB
-): Promise<_.Dictionary<IntentClassifierModel>> => {
+): Promise<_.Dictionary<string>> => {
   debugTraining('Training intent classifier')
 
   const { list_entities, pattern_entities, intents, ctxToTrain, nluSeed } = input
 
-  const svmPerCtx: _.Dictionary<IntentClassifierModel> = {}
+  const svmPerCtx: _.Dictionary<string> = {}
 
   for (let i = 0; i < ctxToTrain.length; i++) {
     const ctx = ctxToTrain[i]
     const trainableIntents = intents.filter(i => i.contexts.includes(ctx))
 
-    const intentClf = new IntentClassifier(tools)
+    const intentClf = new BaseIntentClassifier(tools)
     await intentClf.train(
       {
         intents: trainableIntents,
@@ -291,7 +291,6 @@ export const AppendNoneIntent = async (input: TrainStep, tools: Tools): Promise<
 
   const lo = tools.seededLodashProvider.getSeededLodash()
 
-  // TODO: we should filter out augmented + we should create none utterances by context
   const allUtterances = lo.flatten(input.intents.map(x => x.utterances))
   const vocabWithDupes = lo
     .chain(allUtterances)
@@ -402,7 +401,7 @@ const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progres
     return {}
   }
 
-  const oos_points = featurizeOOSUtterances(noneUtts, input.vocabVectors, tools)
+  const oos_points = featurizeOOSUtterances(noneUtts, Object.keys(input.vocabVectors), tools)
   let combinedProgress = 0
 
   type ContextModel = [string, string]
