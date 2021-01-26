@@ -47,6 +47,16 @@ export const expectAdminApiCallSuccess = async (endOfUrl: string, method?: HttpM
   expect(response.status()).toBe(200)
 }
 
+export const expectModuleApiCallSuccess = async (
+  module: string,
+  bot: string,
+  resource: string,
+  method?: HttpMethod
+): Promise<void> => {
+  const response = await getResponse(`${bpConfig.apiHost}/api/v1/bots/${bot}/mod/${module}/${resource}`, method)
+  expect(response.status()).toBe(200)
+}
+
 export const expectBotApiCallSuccess = async (endOfUrl: string, method?: HttpMethod): Promise<void> => {
   const response = await getResponse(`${bpConfig.apiHost}/api/v1/bots/${bpConfig.botId}/${endOfUrl}`, method)
   expect(response.status()).toBe(200)
