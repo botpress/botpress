@@ -19,6 +19,10 @@ export class MessagingAPI {
     return this.conversationRepo.getAll(endpoint)
   }
 
+  public async getAllRecentConversations(endpoint: sdk.UserEndpoint): Promise<sdk.RecentConversation[]> {
+    return this.conversationRepo.getAllRecent(endpoint)
+  }
+
   public async deleteAllConversations(endpoint: sdk.UserEndpoint): Promise<number> {
     return this.conversationRepo.deleteAll(endpoint)
   }
@@ -27,8 +31,8 @@ export class MessagingAPI {
     return this.conversationRepo.create(endpoint)
   }
 
-  public async getOrCreateRecentConversation(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation> {
-    return (await this.conversationRepo.getMostRecent(endpoint)) ?? this.conversationRepo.create(endpoint)
+  public async getOrCreateRecentConversation(endpoint: sdk.UserEndpoint): Promise<sdk.RecentConversation> {
+    return (await this.conversationRepo.getAllRecent(endpoint, 1))[0] ?? this.conversationRepo.create(endpoint)
   }
 
   public async getConversationById(conversationId: number): Promise<sdk.Conversation | undefined> {

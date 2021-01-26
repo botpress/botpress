@@ -76,6 +76,7 @@ const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk
 const messaging = (messagingApi: MessagingAPI): typeof sdk.messaging => {
   return {
     getAllConversations: messagingApi.getAllConversations.bind(messagingApi),
+    getAllRecentConversations: messagingApi.getAllRecentConversations.bind(messagingApi),
     deleteAllConversations: messagingApi.deleteAllConversations.bind(messagingApi),
     createConversation: messagingApi.createConversation.bind(messagingApi),
     getOrCreateRecentConversation: messagingApi.getOrCreateRecentConversation.bind(messagingApi),

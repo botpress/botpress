@@ -5,14 +5,19 @@ import Database from '../database'
 import { TYPES } from '../types'
 import LRU from 'lru-cache'
 import ms from 'ms'
+import { MessageRepository } from './messages'
 
 export interface ConversationRepository {
   getAll(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation[]>
+  getAllRecent(endpoint: sdk.UserEndpoint, limit?: number): Promise<sdk.RecentConversation[]>
   deleteAll(endpoint: sdk.UserEndpoint): Promise<number>
   create(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation>
-  getMostRecent(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation | undefined>
+  getMostRecent(endpoint: sdk.UserEndpoint): Promise<sdk.RecentConversation | undefined>
   getById(conversationId: number): Promise<sdk.Conversation | undefined>
   delete(conversationId: number): Promise<boolean>
+  query()
+  serialize(conversation: Partial<sdk.Conversation>)
+  deserialize(conversation: any)
 }
 
 @injectable()
@@ -20,14 +25,57 @@ export class KnexConversationRepository implements ConversationRepository {
   private readonly TABLE_NAME = 'conversations'
   private cache = new LRU<number, sdk.Conversation>({ max: 10000, maxAge: ms('5min') })
 
-  constructor(@inject(TYPES.Database) private database: Database) {}
+  constructor(
+    @inject(TYPES.Database) private database: Database,
+    @inject(TYPES.MessageRepository) private messageRepo: MessageRepository
+  ) {}
 
   public async getAll(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation[]> {
     const rows = await this.query()
       .select('*')
       .where(endpoint)
 
-    return rows.map(x => <sdk.Conversation>this.deserialize(x))
+    return rows.map(x => this.deserialize(x)!)
+  }
+
+  public async getAllRecent(endpoint: sdk.UserEndpoint, limit?: number): Promise<sdk.RecentConversation[]> {
+    let query = this.query()
+      .select(
+        'conversations.id',
+        'conversations.userId',
+        'conversations.botId',
+        'conversations.createdOn',
+        'messages.id as messageId',
+        'messages.eventId',
+        'messages.incomingEventId',
+        'messages.from',
+        'messages.payload',
+        'messages.sentOn'
+      )
+      .leftJoin('messages', 'messages.conversationId', 'conversations.id')
+      .where({
+        userId: endpoint.userId,
+        botId: endpoint.botId,
+        sentOn: this.database.knex
+          .max('sentOn')
+          .from('messages')
+          .where('messages.conversationId', this.database.knex.ref('conversations.id'))
+      })
+      .groupBy('conversations.id', 'messages.id')
+      .orderBy('sentOn', 'desc')
+
+    if (limit) {
+      query = query.limit(limit)
+    }
+
+    return (await query).map(row => {
+      const conversation = this.deserialize(row)!
+      const message = this.messageRepo.deserialize({ ...row, id: row.messageId, conversationId: row.id })
+
+      this.cache.set(conversation.id, conversation)
+
+      return { ...conversation, lastMessage: message }
+    })
   }
 
   public async deleteAll(endpoint: sdk.UserEndpoint): Promise<number> {
@@ -60,20 +108,37 @@ export class KnexConversationRepository implements ConversationRepository {
     return conversation
   }
 
-  public async getMostRecent(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation | undefined> {
-    const rows = await this.query()
-      .select('*')
+  public async getMostRecent(endpoint: sdk.UserEndpoint): Promise<sdk.RecentConversation | undefined> {
+    const query = this.query()
+      .select(
+        'conversations.id',
+        'conversations.userId',
+        'conversations.botId',
+        'conversations.createdOn',
+        'messages.id as messageId',
+        'messages.eventId',
+        'messages.incomingEventId',
+        'messages.from',
+        'messages.payload'
+      )
+      .max('messages.sentOn', { as: 'sentOn' })
+      .leftJoin('messages', 'messages.conversationId', 'conversations.id')
       .where(endpoint)
-      // TODO createdOn is not a good measure
-      .orderBy('createdOn', 'desc')
+      .groupBy('conversations.id', 'messages.id')
+      .orderBy('sentOn')
       .limit(1)
+
+    console.log(query.toSQL())
+    const rows = await query
+    console.log(rows)
 
     const conversation = this.deserialize(rows[0])
     if (conversation) {
       this.cache.set(conversation.id, conversation)
-    }
 
-    return conversation
+      const message = this.messageRepo.deserialize({ ...rows[0], id: rows[0].messageId, conversationId: rows[0].id })
+      return { ...conversation, lastMessage: message }
+    }
   }
 
   public async getById(conversationId: number): Promise<sdk.Conversation | undefined> {
@@ -104,25 +169,30 @@ export class KnexConversationRepository implements ConversationRepository {
     return numberOfDeletedRows > 0
   }
 
-  private query() {
+  public query() {
     return this.database.knex(this.TABLE_NAME)
   }
 
-  private serialize(conversation: Partial<sdk.Conversation>) {
+  public serialize(conversation: Partial<sdk.Conversation>) {
+    const { userId, botId, createdOn } = conversation
     return {
-      ...conversation,
-      createdOn: conversation.createdOn?.toISOString()
+      userId,
+      botId,
+      createdOn: createdOn?.toISOString()
     }
   }
 
-  private deserialize(conversation: any): sdk.Conversation | undefined {
+  public deserialize(conversation: any): sdk.Conversation | undefined {
     if (!conversation) {
       return undefined
     }
 
+    const { id, userId, botId, createdOn } = conversation
     return {
-      ...conversation,
-      createdOn: new Date(conversation.createdOn)
+      id,
+      userId,
+      botId,
+      createdOn: new Date(createdOn)
     }
   }
 }

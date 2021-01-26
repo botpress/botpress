@@ -1989,6 +1989,10 @@ declare module 'botpress/sdk' {
     createdOn: Date
   }
 
+  export type RecentConversation = {
+    lastMessage?: Message
+  } & Conversation
+
   export type Message = {
     id: number
     conversationId: number
@@ -2013,6 +2017,12 @@ declare module 'botpress/sdk' {
     export function getAllConversations(endpoint: UserEndpoint): Promise<Conversation[]>
 
     /**
+     * Gets all the recent conversations linked to a user endpoint (most recent at index 0)
+     * (includes the last message of each conversation)
+     */
+    export function getAllRecentConversations(endpoint: UserEndpoint): Promise<Conversation[]>
+
+    /**
      * Deletes all conversations linked to a user endpoint
      * @returns The number of conversations deleted
      */
@@ -2027,7 +2037,7 @@ declare module 'botpress/sdk' {
      * Gets the most recent conversation linked to a user endpoint
      * or creates one if no such conversation exists
      */
-    export function getOrCreateRecentConversation(endpoint: UserEndpoint): Promise<Conversation>
+    export function getOrCreateRecentConversation(endpoint: UserEndpoint): Promise<RecentConversation>
 
     /**
      * Gets a conversation by its id

@@ -16,6 +16,9 @@ export interface MessageRepository {
   ): Promise<sdk.Message>
   getById(messageId: number): Promise<sdk.Message | undefined>
   delete(messageId: number): Promise<boolean>
+  query()
+  serialize(message: Partial<sdk.Message>)
+  deserialize(message: any): sdk.Message
 }
 
 @injectable()
@@ -79,23 +82,32 @@ export class KnexMessageRepository implements MessageRepository {
     return numberOfDeletedRows > 0
   }
 
-  private query() {
+  public query() {
     return this.database.knex(this.TABLE_NAME)
   }
 
-  private serialize(message: Partial<sdk.Message>) {
+  public serialize(message: Partial<sdk.Message>) {
+    const { conversationId, eventId, incomingEventId, from, sentOn, payload } = message
     return {
-      ...message,
-      sentOn: message.sentOn?.toISOString(),
-      payload: this.database.knex.json.set(message.payload)
+      conversationId,
+      eventId,
+      incomingEventId,
+      from,
+      sentOn: sentOn?.toISOString(),
+      payload: this.database.knex.json.set(payload)
     }
   }
 
-  private deserialize(message: any): sdk.Message {
+  public deserialize(message: any): sdk.Message {
+    const { id, conversationId, eventId, incomingEventId, from, sentOn, payload } = message
     return {
-      ...message,
-      sentOn: new Date(message.sentOn),
-      payload: this.database.knex.json.get(message.payload)
+      id,
+      conversationId,
+      eventId,
+      incomingEventId,
+      from,
+      sentOn: new Date(sentOn),
+      payload: this.database.knex.json.get(payload)
     }
   }
 }
