@@ -35,9 +35,12 @@ const AgentList: FC<Props> = ({ agents, loading }) => {
           .map(agent => (
             <li key={agent.agentId} className={cx(styles.agentListItem)}>
               <Tooltip content={agentName(agent)} position={Position.BOTTOM}>
-                <div style={{ position: 'relative', display: 'inline-block' }}>
+                {agent.attributes?.picture_url && (
+                  <img className={styles.agentItem} src={agent.attributes.picture_url} />
+                )}
+                {!agent.attributes?.picture_url && (
                   <Initial
-                    style={{ borderRadius: '50%' }}
+                    className={styles.agentItem}
                     name={agentName(agent)}
                     charCount={2}
                     height={30}
@@ -45,7 +48,7 @@ const AgentList: FC<Props> = ({ agents, loading }) => {
                     fontSize={12}
                     fontWeight={500}
                   ></Initial>
-                </div>
+                )}
               </Tooltip>
             </li>
           ))}
