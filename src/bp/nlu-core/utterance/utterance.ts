@@ -163,7 +163,7 @@ export default class Utterance {
   }
 
   setGlobalTfidf(tfidf: TFIDF) {
-    this._globalTfidf = tfidf
+    this._globalTfidf = _.mapKeys(tfidf, (tfidf, token) => token.toLowerCase())
   }
 
   setKmeans(kmeans?: sdk.MLToolkit.KMeans.KmeansResult) {
