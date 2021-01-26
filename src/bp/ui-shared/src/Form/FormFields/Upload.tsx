@@ -66,7 +66,6 @@ const Upload: FC<UploadFieldProps> = props => {
       .then(response => {
         const { url } = response.data
 
-        debugger
         dispatch({ type: 'uploadSuccess', data: { url } })
       })
       .catch(e => {
