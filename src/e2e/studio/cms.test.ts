@@ -5,6 +5,7 @@ import { expectBotApiCallSuccess, gotoStudio, loginIfNeeded } from '../utils'
 
 const getElementCount = async (all: boolean = false): Promise<number> => {
   if (all) {
+    await page.select('.select-wrap.-pageSizeOptions select', '100')
     await clickOn('#btn-filter-all')
   }
   await page.waitForFunction('document.querySelectorAll(".icon-edit").length > 0')

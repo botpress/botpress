@@ -28,7 +28,8 @@ export const loginIfNeeded = async () => {
 }
 
 export const gotoStudio = async (section?: string) => {
-  await gotoAndExpect(`${bpConfig.host}/studio/${bpConfig.botId}${section ? '/' + section : ''}`)
+  const trailingPath = section ? `/${section}` : ''
+  await gotoAndExpect(`${bpConfig.host}/studio/${bpConfig.botId}${trailingPath}`)
   return page.waitFor(200)
 }
 
