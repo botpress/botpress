@@ -19,7 +19,8 @@ export const getPage = async (): Promise<Page> => {
 }
 
 export const gotoStudio = async (section?: string) => {
-  await gotoAndExpect(`${bpConfig.host}/studio/${bpConfig.botId}${section ? '/' + section : ''}`)
+  const resource = section ? `/${section}` : ''
+  await gotoAndExpect(`${bpConfig.host}/studio/${bpConfig.botId}${resource}`)
   return page.waitFor(200)
 }
 
