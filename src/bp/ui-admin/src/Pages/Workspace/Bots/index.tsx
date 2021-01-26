@@ -260,6 +260,8 @@ class Bots extends Component<Props> {
     const botsByStage = _.groupBy(bots, 'pipeline_status.current_stage.id')
     const colSize = Math.floor(12 / pipeline.length)
 
+    const nluModule = this.props.modules.find(m => m.name === 'nlu')
+
     return (
       <Fragment>
         <Row className="pipeline_view bot_views">
@@ -281,6 +283,7 @@ class Bots extends Component<Props> {
                 {(botsByStage[stage.id] || []).map(bot => (
                   <Fragment key={bot.id}>
                     <BotItemPipeline
+                      nluModuleEnabled={nluModule && nluModule.enabled}
                       bot={bot}
                       isApprover={stage.reviewers.find(r => r.email === email && r.strategy === strategy) !== undefined}
                       userEmail={email}
