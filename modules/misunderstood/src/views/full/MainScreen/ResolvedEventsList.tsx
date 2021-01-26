@@ -8,7 +8,7 @@ import { RESOLUTION } from '../util'
 
 interface Props {
   events: DbFlaggedEvent[]
-  resetEvent?: (id: string) => Promise<void>
+  resetEvent?: (id: number) => Promise<void>
 }
 
 const ResolvedEventsList = ({ events, resetEvent }: Props) =>
@@ -37,7 +37,7 @@ const ResolvedEventsList = ({ events, resetEvent }: Props) =>
             </td>
             <td>{event.updatedAt}</td>
             <td>
-              {resetEvent && (<Button onClick={() => resetEvent(`${event.id}`)} small icon="refresh" intent={Intent.PRIMARY}>
+              {resetEvent && (<Button onClick={() => resetEvent(event.id)} small icon="refresh" intent={Intent.PRIMARY}>
                 {lang.tr('module.misunderstood.reset')}
               </Button>)}
             </td>
