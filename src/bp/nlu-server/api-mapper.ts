@@ -169,14 +169,30 @@ function mapContext(context: NLU.ContextPrediction, name: string): ContextPredic
   }
 }
 
+const N_DIGITS = 3
+
+const _roundConfidencesTo3Digits = (output: PredictOutput): PredictOutput => {
+  const contexts = output.contexts.map(context => {
+    context.confidence = _.round(context.confidence, N_DIGITS)
+    context.oos = _.round(context.oos, N_DIGITS)
+    context.intents = context.intents.map(i => {
+      const slots = i.slots.map(s => ({ ...s, confidence: _.round(s.confidence, N_DIGITS) }))
+      return { ...i, confidence: _.round(i.confidence, N_DIGITS), slots }
+    })
+    return context
+  })
+  return { ...output, contexts }
+}
+
 export function mapPredictOutput(output: BpPredictOutput): PredictOutput {
   const { entities, contexts, utterance, detectedLanguage, spellChecked } = output
 
-  return {
+  const ret = {
     entities: entities.map(mapEntity),
     contexts: Object.entries(contexts).map(([name, ctx]) => mapContext(ctx, name)),
     detectedLanguage,
     spellChecked,
     utterance
   }
+  return _roundConfidencesTo3Digits(ret)
 }

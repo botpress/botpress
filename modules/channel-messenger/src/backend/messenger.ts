@@ -4,7 +4,7 @@ import crypto from 'crypto'
 import { json as expressJson, Router } from 'express'
 import _ from 'lodash'
 
-import { Config } from '../config'
+import { Config, MessengerAction } from '../config'
 
 const debug = DEBUG('channel-messenger')
 const debugMessages = debug.sub('messages')
@@ -13,7 +13,6 @@ const debugWebhook = debugHttp.sub('webhook')
 const debugHttpOut = debugHttp.sub('out')
 
 const outgoingTypes = ['text', 'typing', 'login_prompt', 'carousel']
-type MessengerAction = 'typing_on' | 'typing_off' | 'mark_seen'
 
 interface MountedBot {
   pageId: string
@@ -174,15 +173,21 @@ export class MessengerService {
         await bot.client.sendAction(senderId, 'mark_seen')
 
         if (webhookEvent.message) {
-          await this._sendEvent(bot.botId, senderId, webhookEvent.message, { type: 'message' })
+          await this._sendEvent(bot.botId, senderId, pageId, webhookEvent.message, { type: 'message' })
         } else if (webhookEvent.postback) {
-          await this._sendEvent(bot.botId, senderId, { text: webhookEvent.postback.payload }, { type: 'callback' })
+          await this._sendEvent(
+            bot.botId,
+            senderId,
+            pageId,
+            { text: webhookEvent.postback.payload },
+            { type: 'callback' }
+          )
         }
       }
     }
   }
 
-  private async _sendEvent(botId: string, senderId: string, message, args: { type: string }) {
+  private async _sendEvent(botId: string, senderId: string, pageId: string, message: any, args: { type: string }) {
     await this.bp.events.sendEvent(
       this.bp.IO.Event({
         botId,
@@ -190,6 +195,7 @@ export class MessengerService {
         direction: 'incoming',
         payload: message,
         preview: message.text,
+        threadId: pageId,
         target: senderId,
         ...args
       })
@@ -298,6 +304,12 @@ export class MessengerClient {
   }
 
   async sendAction(senderId: string, action: MessengerAction) {
+    const config = await this.getConfig()
+    if (config.disabledActions?.includes(action)) {
+      debugMessages('outgoing action skipped (blacklisted)', { action })
+      return
+    }
+
     const body = {
       recipient: {
         id: senderId

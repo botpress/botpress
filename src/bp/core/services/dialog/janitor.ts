@@ -74,7 +74,7 @@ export class DialogJanitor extends Janitor {
 
     try {
       const { channel, target, threadId } = SessionIdFactory.extractDestinationFromId(sessionId)
-      const session = await this.sessionRepo.get(sessionId)
+      const session = await this.sessionRepo.get(sessionId, botId)
 
       // This event only exists so that processTimeout can call processEvent
       const fakeEvent = Event({
@@ -117,7 +117,7 @@ export class DialogJanitor extends Janitor {
   private async _resetContext(botId, botConfig, sessionId, resetContext: boolean) {
     const botpressConfig = await this.getBotpressConfig()
     const expiry = createExpiry(botConfig!, botpressConfig)
-    const session = await this.sessionRepo.get(sessionId)
+    const session = await this.sessionRepo.get(sessionId, botId)
 
     if (resetContext) {
       session.context = {}

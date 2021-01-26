@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@types/multer": "^1.4.2",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "bluebird": "^3.7.2",
     "csv-parse": "^4.8.3",
     "csv-stringify": "^5.3.6",
