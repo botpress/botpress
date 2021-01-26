@@ -38,6 +38,20 @@ export interface Config {
    * @default false
    */
   enableConversationDeletion: boolean
+
+  /**
+   * @param transferMessage The message sent to the user when he is being transferred to an agent. E.g. ̀`{ "lang": "message"}`.
+   */
+  transferMessage: {
+    [Key: string]: string
+  }
+
+  /**
+   * @param assignMessage The message sent to the user when he has been assigned to an agent. E.g. ̀`{ "lang": "message"}`.
+   */
+  assignMessage: {
+    [Key: string]: string
+  }
 }
 
 export interface IShortcut {

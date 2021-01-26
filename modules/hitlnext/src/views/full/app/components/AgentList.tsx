@@ -4,8 +4,8 @@ import _, { Dictionary } from 'lodash'
 import React, { FC } from 'react'
 import { Initial } from 'react-initial'
 
+import { agentName } from '../../../../helper'
 import { IAgent } from '../../../../types'
-import { agentName } from '../../shared/helper'
 
 import styles from './../../style.scss'
 

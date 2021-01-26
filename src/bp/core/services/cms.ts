@@ -607,12 +607,11 @@ export class CMSService implements IDisposeOnExit {
     const { botId, channel } = eventDestination
     contentId = contentId.replace(/^#?/i, '')
     let contentTypeRenderer: ContentType
+    const defaultLang = (await this.configProvider.getBotConfig(eventDestination.botId)).defaultLanguage
+    const userLang = _.get(args, 'event.state.user.language')
 
     const translateFormData = async (formData: object): Promise<object> => {
-      const defaultLang = (await this.configProvider.getBotConfig(eventDestination.botId)).defaultLanguage
-      const lang = _.get(args, 'event.state.user.language')
-
-      return this.getOriginalProps(formData, contentTypeRenderer, lang, defaultLang)
+      return this.getOriginalProps(formData, contentTypeRenderer, userLang, defaultLang)
     }
 
     if (contentId.startsWith('!')) {
@@ -653,6 +652,12 @@ export class CMSService implements IDisposeOnExit {
         ...args,
         text: renderTemplate(args.text, args)
       }
+    }
+
+    const isObject = (a: any) => !!a && a.constructor === Object
+
+    if (isObject(args.text)) {
+      args.text = args.text[userLang] || (defaultLang && args.text[defaultLang]) || args.text
     }
 
     let payloads = contentTypeRenderer.renderElement({ ...this._getAdditionalData(), ...args }, channel)
