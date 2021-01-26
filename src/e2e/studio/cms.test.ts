@@ -12,7 +12,7 @@ const getElementCount = async (all: boolean = false): Promise<number> => {
   return (await page.$$('.icon-edit')).length
 }
 
-describe.only('Studio - CMS', () => {
+describe('Studio - CMS', () => {
   beforeAll(async () => {
     await loginIfNeeded()
     if (!page.url().includes('studio')) {
