@@ -137,8 +137,6 @@ export type Intent<T> = Readonly<{
   contexts: string[]
   slot_definitions: SlotDefinition[]
   utterances: T[]
-  vocab?: _.Dictionary<boolean>
-  slot_entities?: string[]
 }>
 
 type SlotDefinition = Readonly<{

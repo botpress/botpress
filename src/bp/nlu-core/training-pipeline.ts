@@ -19,7 +19,6 @@ import {
   EntityExtractionResult,
   Intent,
   ListEntity,
-  ListEntityModel,
   PatternEntity,
   SerializedKmeansResult,
   TFIDF,
@@ -44,7 +43,6 @@ export type TrainInput = Readonly<{
 }>
 
 export type TrainStep = Readonly<{
-  botId: string
   nluSeed: number
   languageCode: string
   list_entities: WarmedListEntityModel[]
@@ -74,7 +72,7 @@ export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] 
 
 type progressCB = (p?: number) => void
 
-const debugTraining = DEBUG('nlu').sub('training')
+const debugTraining = DEBUG('nlu').sub('training') // TODO: make sure logs get wired up to web process
 const NONE_INTENT = 'none'
 const NONE_UTTERANCES_BOUNDS = {
   MIN: 20,
@@ -101,15 +99,20 @@ const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainSt
     makeListEntityModel(list, input.languageCode, tools)
   )
 
-  const intents = await ProcessIntents(input.intents, input.languageCode, list_entities, tools)
+  const intents = await ProcessIntents(input.intents, input.languageCode, tools)
   const vocabVectors = buildVectorsVocab(intents)
 
+  const { nluSeed, languageCode, pattern_entities, contexts, ctxToTrain } = input
   return {
-    ..._.omit(input, 'list_entities', 'intents'),
+    nluSeed,
+    languageCode,
+    pattern_entities,
+    contexts,
+    ctxToTrain,
     list_entities,
     intents,
     vocabVectors
-  } as TrainStep
+  }
 }
 
 const makeListEntityModel = async (entity: ListEntityWithCache, languageCode: string, tools: Tools) => {
@@ -166,20 +169,6 @@ const ClusterTokens = (input: TrainStep, tools: Tools): TrainStep => {
   return copy
 }
 
-export const buildIntentVocab = (utterances: Utterance[], intentEntities: ListEntityModel[]): _.Dictionary<boolean> => {
-  // @ts-ignore
-  const entitiesTokens: string[] = _.chain(intentEntities)
-    .flatMapDeep(e => Object.values(e.mappingsTokens))
-    .map((t: string) => t.toLowerCase().replace(SPACE, ' '))
-    .value()
-
-  return _.chain(utterances)
-    .flatMap(u => u.tokens.filter(t => _.isEmpty(t.slots)).map(t => t.toString({ lowerCase: true })))
-    .concat(entitiesTokens)
-    .reduce((vocab: _.Dictionary<boolean>, tok) => ({ ...vocab, [tok]: true }), {})
-    .value()
-}
-
 const buildVectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]> => {
   return _.chain(intents)
     .filter(i => i.name !== NONE_INTENT)
@@ -219,7 +208,7 @@ const TrainIntentClassifier = async (
   tools: Tools,
   progress: progressCB
 ): Promise<_.Dictionary<string>> => {
-  debugTraining.forBot(input.botId, 'Training intent classifier')
+  debugTraining('Training intent classifier')
   const customEntities = getCustomEntitiesNames(input)
   const svmPerCtx: _.Dictionary<string> = {}
 
@@ -273,12 +262,12 @@ const TrainIntentClassifier = async (
     svmPerCtx[ctx] = model
   }
 
-  debugTraining.forBot(input.botId, 'Done training intent classifier')
+  debugTraining('Done training intent classifier')
   return svmPerCtx
 }
 
 const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<string> => {
-  debugTraining.forBot(input.botId, 'Training context classifier')
+  debugTraining('Training context classifier')
   const customEntities = getCustomEntitiesNames(input)
   const points = _.flatMapDeep(input.contexts, ctx => {
     return input.intents
@@ -294,7 +283,7 @@ const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: 
   const classCount = _.uniq(points.map(p => p.label)).length
   if (points.length === 0 || classCount <= 1) {
     progress()
-    debugTraining.forBot(input.botId, 'No context to train')
+    debugTraining('No context to train')
     return ''
   }
 
@@ -305,33 +294,19 @@ const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: 
     progress(_.round(p, 1))
   })
 
-  debugTraining.forBot(input.botId, 'Done training context classifier')
+  debugTraining('Done training context classifier')
   return model
 }
 
 export const ProcessIntents = async (
   intents: Intent<string>[],
   languageCode: string,
-  list_entities: ListEntityModel[],
   tools: Tools
 ): Promise<Intent<Utterance>[]> => {
   return Promise.map(intents, async intent => {
     const cleaned = intent.utterances.map(_.flow([_.trim, replaceConsecutiveSpaces]))
     const utterances = await buildUtteranceBatch(cleaned, languageCode, tools)
-
-    const allowedEntities = _.chain(intent.slot_definitions)
-      .flatMap(s => s.entities)
-      .filter(e => e !== 'any')
-      .uniq()
-      .value() as string[]
-
-    const entityModels = _.intersectionWith(list_entities, allowedEntities, (entity, name) => {
-      return entity.entityName === name
-    })
-
-    const vocab = buildIntentVocab(utterances, entityModels)
-
-    return { ...intent, utterances, vocab, slot_entities: allowedEntities }
+    return { ...intent, utterances }
   })
 }
 
@@ -419,9 +394,7 @@ export const AppendNoneIntent = async (input: TrainStep, tools: Tools): Promise<
       input.languageCode,
       tools
     ),
-    contexts: [...input.contexts],
-    vocab: {},
-    slot_entities: []
+    contexts: [...input.contexts]
   }
 
   return { ...input, intents: [...input.intents, intent] }
@@ -450,19 +423,22 @@ const TrainSlotTagger = async (input: TrainStep, tools: Tools, progress: progres
     return Buffer.from('')
   }
 
-  debugTraining.forBot(input.botId, 'Training slot tagger')
+  debugTraining('Training slot tagger')
   const slotTagger = new SlotTagger(tools.mlToolkit)
 
-  await slotTagger.train(input.intents.filter(i => i.name !== NONE_INTENT))
+  await slotTagger.train(
+    input.intents.filter(i => i.name !== NONE_INTENT),
+    input.list_entities
+  )
 
-  debugTraining.forBot(input.botId, 'Done training slot tagger')
+  debugTraining('Done training slot tagger')
   progress()
 
   return slotTagger.serialized
 }
 
 const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<_.Dictionary<string>> => {
-  debugTraining.forBot(input.botId, 'Training out of scope classifier')
+  debugTraining('Training out of scope classifier')
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
     c: [10], // so there's no grid search
     kernel: 'LINEAR',
@@ -499,7 +475,7 @@ const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progres
     return [ctx, model] as [string, string]
   })
 
-  debugTraining.forBot(input.botId, 'Done training out of scope')
+  debugTraining('Done training out of scope')
   progress(1)
   return ctxModels.reduce((acc, cur) => {
     const [ctx, model] = cur!

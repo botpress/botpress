@@ -6,7 +6,6 @@ import { HALF_MD5_REG } from './tools/crypto'
 const intentDefs: NLU.IntentDefinition[] = [
   {
     contexts: ['global'],
-    filename: 'Frodo',
     name: 'Frodo',
     slots: [],
     utterances: {

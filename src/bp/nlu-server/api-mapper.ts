@@ -62,7 +62,6 @@ const makeIntentMapper = (ctx: string, lang: string) => (intent: IntentDefinitio
 
   return {
     contexts: [ctx],
-    filename: '',
     name,
     utterances: {
       [lang]: utterances
