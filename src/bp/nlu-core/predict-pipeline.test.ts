@@ -68,7 +68,7 @@ describe('predict pipeline', () => {
     const intents = Object.values(intent_predictions)
     expect(ctxs).toEqual(contexts)
     for (const i of intents) {
-      expect(i).toEqual([{ label: 'none', confidence: 1 }])
+      expect(i).toEqual({ oos: 1, intents: [{ name: 'none', confidence: 1 }] })
     }
   })
 })
