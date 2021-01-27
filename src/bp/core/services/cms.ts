@@ -580,11 +580,11 @@ export class CMSService implements IDisposeOnExit {
   private getOriginalProps(formData: object, contentType: ContentType, lang: string, defaultLang?: string) {
     const originalProps = Object.keys(_.get(contentType, 'jsonSchema.properties'))
 
-    // When data is accessed through a single key containing the '$' separator. e.g. { 'text$en': '...' }
+    // When data is accessible through a single key containing the '$' separator. e.g. { 'text$en': '...' }
     const separatorExtraction = (prop: string) =>
       formData[`${prop}$${lang}`] || (defaultLang && formData[`${prop}$${defaultLang}`])
 
-    // When data is accessed through keys of a nested dictionary. e.g. { 'text': { 'en': '...' } }
+    // When data is accessible through keys of a nested dictionary. e.g. { 'text': { 'en': '...' } }
     const nestedDictExtraction = (prop: string) =>
       formData[prop] && (formData[prop][lang] || (defaultLang && formData[prop][defaultLang]))
 
