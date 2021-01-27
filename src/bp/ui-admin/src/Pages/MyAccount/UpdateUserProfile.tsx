@@ -41,7 +41,6 @@ const UpdateUserProfile: FC<Props> = props => {
   }
 
   const uploadFieldChange = (url: string | undefined) => {
-    // TODO we might want to set it as null or '' instead
     setPictureUrl(url)
   }
 
