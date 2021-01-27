@@ -176,7 +176,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       if (configs.transferMessage) {
         bp.events.replyToEvent(
           eventDestination,
-          await bp.cms.renderElement('builtin_text', { type: 'text', text: configs.transferMessage }, eventDestination)
+          await bp.cms.renderElement('@builtin_text', { type: 'text', text: configs.transferMessage }, eventDestination)
         )
       }
 
@@ -272,8 +272,8 @@ export default async (bp: typeof sdk, state: StateType) => {
         bp.events.replyToEvent(
           eventDestination,
           await bp.cms.renderElement(
-            'builtin_text',
-            { type: 'text', text: bp.cms.renderTemplate(configs.assignMessage, { agentName: agentName(agent) }) },
+            '@builtin_text',
+            { type: 'text', text: configs.assignMessage, agentName: agentName(agent) },
             eventDestination
           )
         )
