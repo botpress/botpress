@@ -7,11 +7,12 @@ import sizeof from 'object-sizeof'
 import { deserializeKmeans } from './clustering'
 import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
+import { BaseIntentClassifier } from './intents/base-intent-classifier'
 import DetectLanguage from './language/language-identifier'
 import makeSpellChecker from './language/spell-checker'
 import modelIdService from './model-id-service'
 import { deserializeModel, PredictableModel, serializeModel } from './model-serializer'
-import { Predict, PredictInput, Predictors } from './predict-pipeline'
+import { Predict, Predictors } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { ProcessIntents, TrainInput, TrainOutput } from './training-pipeline'
@@ -255,12 +256,19 @@ export default class Engine implements NLU.Engine {
 
     const warmKmeans = kmeans && deserializeKmeans(kmeans)
 
+    const intent_classifier_per_ctx: Dic<BaseIntentClassifier> = _.mapValues(intent_model_by_ctx, model => {
+      const intentClf = new BaseIntentClassifier(tools)
+      intentClf.load(model)
+      return intentClf
+    })
+
     const basePredictors: Predictors = {
       ...output,
       lang: input.languageCode,
       intents,
       pattern_entities: input.pattern_entities,
-      kmeans: warmKmeans
+      kmeans: warmKmeans,
+      intent_classifier_per_ctx
     }
 
     if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
@@ -270,10 +278,6 @@ export default class Engine implements NLU.Engine {
     }
 
     const ctx_classifier = ctx_model ? new tools.mlToolkit.SVM.Predictor(ctx_model) : undefined
-    const intent_classifier_per_ctx = _.toPairs(intent_model_by_ctx).reduce(
-      (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
-      {} as _.Dictionary<MLToolkit.SVM.Predictor>
-    )
     const oos_classifier = _.toPairs(oos_model).reduce(
       (c, [ctx, mod]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(mod) }),
       {} as _.Dictionary<MLToolkit.SVM.Predictor>
@@ -289,7 +293,6 @@ export default class Engine implements NLU.Engine {
       ...basePredictors,
       ctx_classifier,
       oos_classifier_per_ctx: oos_classifier,
-      intent_classifier_per_ctx,
       slot_tagger
     }
   }

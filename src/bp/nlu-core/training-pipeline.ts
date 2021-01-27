@@ -4,8 +4,8 @@ import _ from 'lodash'
 import { serializeKmeans } from './clustering'
 import { extractListEntitiesWithCache, extractPatternEntities } from './entities/custom-entity-extractor'
 import { warmEntityCache } from './entities/entity-cache-manager'
+import { BaseIntentClassifier } from './intents/base-intent-classifier'
 import { getCtxFeatures } from './intents/context-featurizer'
-import { getIntentFeatures } from './intents/intent-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
 import { featurizeInScopeUtterances, featurizeOOSUtterances } from './out-of-scope-featurizer'
@@ -26,7 +26,7 @@ import {
   Tools,
   WarmedListEntityModel
 } from './typings'
-import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
+import Utterance, { buildUtteranceBatch, UtteranceToken } from './utterance/utterance'
 
 type ListEntityWithCache = ListEntity & {
   cache: EntityCacheDump
@@ -64,27 +64,18 @@ export interface TrainOutput {
   ctx_model: string
   intent_model_by_ctx: Dic<string>
   slots_model: Buffer
-  exact_match_index: ExactMatchIndex
   oos_model: _.Dictionary<string>
 }
-
-export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
 
 type progressCB = (p?: number) => void
 
 const debugTraining = DEBUG('nlu').sub('training') // TODO: make sure logs get wired up to web process
-const NONE_INTENT = 'none'
+export const NONE_INTENT = 'none'
 const NONE_UTTERANCES_BOUNDS = {
   MIN: 20,
   MAX: 200
 }
-export const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
-  lowerCase: true,
-  onlyWords: true,
-  slots: 'keep-value', // slot extraction is done in || with intent prediction
-  entities: 'keep-name'
-}
-export const MIN_NB_UTTERANCES = 3
+
 const NUM_CLUSTERS = 8
 const KMEANS_OPTIONS = {
   iterations: 250,
@@ -181,84 +172,36 @@ const buildVectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]>
     .value()
 }
 
-export const BuildExactMatchIndex = (input: TrainStep): ExactMatchIndex => {
-  return _.chain(input.intents)
-    .filter(i => i.name !== NONE_INTENT)
-    .flatMap(i =>
-      i.utterances.map(u => ({
-        utterance: u.toString(EXACT_MATCH_STR_OPTIONS),
-        contexts: i.contexts,
-        intent: i.name
-      }))
-    )
-    .filter(({ utterance }) => !!utterance)
-    .reduce((index, { utterance, contexts, intent }) => {
-      index[utterance] = { intent, contexts }
-      return index
-    }, {} as ExactMatchIndex)
-    .value()
-}
-
-const getCustomEntitiesNames = (input: TrainStep): string[] => {
-  return [...input.list_entities.map(e => e.entityName), ...input.pattern_entities.map(e => e.name)]
-}
-
-const TrainIntentClassifier = async (
+const TrainIntentClassifiers = async (
   input: TrainStep,
   tools: Tools,
   progress: progressCB
 ): Promise<_.Dictionary<string>> => {
   debugTraining('Training intent classifier')
-  const customEntities = getCustomEntitiesNames(input)
+
+  const { list_entities, pattern_entities, intents, ctxToTrain, nluSeed } = input
+
   const svmPerCtx: _.Dictionary<string> = {}
 
-  const noneUtts = _.chain(input.intents)
-    .filter(i => i.name === NONE_INTENT) // in case use defines a none intent we want to combine utterances
-    .flatMap(i => i.utterances)
-    .filter(u => u.tokens.filter(t => t.isWord).length >= 3)
-    .value()
+  for (let i = 0; i < ctxToTrain.length; i++) {
+    const ctx = ctxToTrain[i]
+    const trainableIntents = intents.filter(i => i.contexts.includes(ctx))
 
-  const lo = tools.seededLodashProvider.getSeededLodash()
-  for (let i = 0; i < input.ctxToTrain.length; i++) {
-    const ctx = input.ctxToTrain[i]
-    const trainableIntents = input.intents.filter(
-      i => i.name !== NONE_INTENT && i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES
+    const intentClf = new BaseIntentClassifier(tools)
+    await intentClf.train(
+      {
+        intents: trainableIntents,
+        list_entities,
+        nluSeed,
+        pattern_entities
+      },
+      p => {
+        const completion = (i + p) / input.ctxToTrain.length
+        progress(completion)
+      }
     )
 
-    const nAvgUtts = Math.ceil(_.meanBy(trainableIntents, 'utterances.length'))
-
-    const points = _.chain(trainableIntents)
-      .thru(ints => [
-        ...ints,
-        {
-          name: NONE_INTENT,
-          utterances: lo
-            .chain(noneUtts)
-            .shuffle()
-            .take(nAvgUtts * 2.5) // undescriptible magic n, no sens to extract constant
-            .value()
-        }
-      ])
-      .flatMap(i =>
-        i.utterances.map(utt => ({
-          label: i.name,
-          coordinates: getIntentFeatures(utt, customEntities)
-        }))
-      )
-      .filter(x => !x.coordinates.some(isNaN))
-      .value()
-
-    if (points.length <= 0) {
-      progress(1 / input.ctxToTrain.length)
-      continue
-    }
-    const svm = new tools.mlToolkit.SVM.Trainer()
-
-    const seed = input.nluSeed
-    const model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC', seed }, p => {
-      const completion = (i + p) / input.ctxToTrain.length
-      progress(completion)
-    })
+    const model = intentClf.serialize()
     svmPerCtx[ctx] = model
   }
 
@@ -268,7 +211,10 @@ const TrainIntentClassifier = async (
 
 const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<string> => {
   debugTraining('Training context classifier')
-  const customEntities = getCustomEntitiesNames(input)
+
+  const { list_entities, pattern_entities } = input
+  const customEntities = [...list_entities.map(e => e.entityName), ...pattern_entities.map(e => e.name)]
+
   const points = _.flatMapDeep(input.contexts, ctx => {
     return input.intents
       .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
@@ -345,7 +291,6 @@ export const AppendNoneIntent = async (input: TrainStep, tools: Tools): Promise<
 
   const lo = tools.seededLodashProvider.getSeededLodash()
 
-  // TODO: we should filter out augmented + we should create none utterances by context
   const allUtterances = lo.flatten(input.intents.map(x => x.utterances))
   const vocabWithDupes = lo
     .chain(allUtterances)
@@ -456,7 +401,7 @@ const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progres
     return {}
   }
 
-  const oos_points = featurizeOOSUtterances(noneUtts, input.vocabVectors, tools)
+  const oos_points = featurizeOOSUtterances(noneUtts, Object.keys(input.vocabVectors), tools)
   let combinedProgress = 0
 
   type ContextModel = [string, string]
@@ -517,13 +462,12 @@ export const Trainer = async (
   step = ClusterTokens(step, tools)
   step = await ExtractEntities(step, tools)
   step = await AppendNoneIntent(step, tools)
-  const exact_match_index = BuildExactMatchIndex(step)
   reportProgress() // 20%
 
   const models = await Promise.all([
     TrainOutOfScope(step, tools, reportProgress),
     TrainContextClassifier(step, tools, reportProgress),
-    TrainIntentClassifier(step, tools, reportProgress),
+    TrainIntentClassifiers(step, tools, reportProgress),
     TrainSlotTagger(step, tools, reportProgress)
   ])
 
@@ -538,13 +482,12 @@ export const Trainer = async (
 
   const output: TrainOutput = {
     list_entities: coldEntities,
-    oos_model: oos_model!,
+    oos_model,
     tfidf: step.tfIdf!,
-    ctx_model: ctx_model!,
-    intent_model_by_ctx: intent_model_by_ctx!,
-    slots_model: slots_model!,
+    ctx_model,
+    intent_model_by_ctx,
+    slots_model,
     vocabVectors: step.vocabVectors,
-    exact_match_index,
     kmeans: step.kmeans && serializeKmeans(step.kmeans),
     contexts: input.contexts
   }

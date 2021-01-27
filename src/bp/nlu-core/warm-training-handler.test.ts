@@ -22,7 +22,6 @@ const _makeTrainOuput = (
   return {
     contexts,
     ctx_model: '',
-    exact_match_index: {},
     list_entities: [],
     slots_model: Buffer.from(''),
     tfidf: {},
