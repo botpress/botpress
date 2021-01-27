@@ -488,7 +488,7 @@ class RootStore {
 
     const lifeTimeMargin = Date.now() - ms(this.config.recentConversationLifetime)
     const isConversationExpired =
-      (this.conversations[0].lastMessage?.sentOn || this.conversations[0].createdOn).getTime() < lifeTimeMargin
+      new Date(this.conversations[0].lastMessage?.sentOn || this.conversations[0].createdOn).getTime() < lifeTimeMargin
     if (isConversationExpired && this.config.startNewConvoOnTimeout) {
       return
     }
