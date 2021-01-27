@@ -7,7 +7,7 @@ import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import classnames from 'classnames'
 import React from 'react'
 
-import { FlaggedEvent, FLAGGED_MESSAGE_STATUS, FLAG_REASON, ResolutionData } from '../../types'
+import { DbFlaggedEvent, FLAGGED_MESSAGE_STATUS, FLAG_REASON, ResolutionData } from '../../types'
 
 import style from './style.scss'
 import ApiClient from './ApiClient'
@@ -26,9 +26,9 @@ interface State {
   language: string | null
   eventCounts: { [status: string]: number } | null
   selectedStatus: FLAGGED_MESSAGE_STATUS
-  events: FlaggedEvent[] | null
+  events: DbFlaggedEvent[] | null
   selectedEventIndex: number | null
-  selectedEvent: FlaggedEvent | null
+  selectedEvent: DbFlaggedEvent | null
   eventNotFound: boolean
   dateRange?: DateRange
   reason?: FLAG_REASON
@@ -37,7 +37,7 @@ interface State {
 const shortcuts = date.createDateRangeShortcuts()
 
 export default class MisunderstoodMainView extends React.Component<Props, State> {
-  state = {
+  state: State = {
     languages: null,
     language: null,
     eventCounts: null,
@@ -65,7 +65,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     return this.apiClient.getEvents(language, status, dataRange || this.state.dateRange, reason)
   }
 
-  async fetchEvent(id: string) {
+  async fetchEvent(id: number) {
     try {
       return await this.apiClient.getEvent(id)
     } catch (e) {
@@ -163,12 +163,12 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     return this.alterEventsList(FLAGGED_MESSAGE_STATUS.new, FLAGGED_MESSAGE_STATUS.deleted)
   }
 
-  undeleteEvent = async (id: string) => {
+  undeleteEvent = async (id: number) => {
     await this.apiClient.updateStatus(id, FLAGGED_MESSAGE_STATUS.new)
     return this.alterEventsList(FLAGGED_MESSAGE_STATUS.deleted, FLAGGED_MESSAGE_STATUS.new)
   }
 
-  resetPendingEvent = async (id: string) => {
+  resetPendingEvent = async (id: number) => {
     await this.apiClient.updateStatus(id, FLAGGED_MESSAGE_STATUS.new)
     return this.alterEventsList(FLAGGED_MESSAGE_STATUS.pending, FLAGGED_MESSAGE_STATUS.new)
   }
