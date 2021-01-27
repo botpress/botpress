@@ -7,7 +7,7 @@ import sizeof from 'object-sizeof'
 import { deserializeKmeans } from './clustering'
 import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
-import { BaseIntentClassifier } from './intents/base-intent-classifier'
+import { OOSIntentClassifier } from './intents/oos-intent-classfier'
 import DetectLanguage from './language/language-identifier'
 import makeSpellChecker from './language/spell-checker'
 import modelIdService from './model-id-service'
@@ -256,8 +256,8 @@ export default class Engine implements NLU.Engine {
 
     const warmKmeans = kmeans && deserializeKmeans(kmeans)
 
-    const intent_classifier_per_ctx: Dic<BaseIntentClassifier> = _.mapValues(intent_model_by_ctx, model => {
-      const intentClf = new BaseIntentClassifier(tools)
+    const intent_classifier_per_ctx: Dic<OOSIntentClassifier> = _.mapValues(intent_model_by_ctx, model => {
+      const intentClf = new OOSIntentClassifier(tools)
       intentClf.load(model)
       return intentClf
     })

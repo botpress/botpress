@@ -4,8 +4,8 @@ import _ from 'lodash'
 import { serializeKmeans } from './clustering'
 import { extractListEntitiesWithCache, extractPatternEntities } from './entities/custom-entity-extractor'
 import { warmEntityCache } from './entities/entity-cache-manager'
-import { BaseIntentClassifier } from './intents/base-intent-classifier'
 import { getCtxFeatures } from './intents/context-featurizer'
+import { OOSIntentClassifier } from './intents/oos-intent-classfier'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
 import { featurizeInScopeUtterances, featurizeOOSUtterances } from './out-of-scope-featurizer'
@@ -185,15 +185,23 @@ const TrainIntentClassifiers = async (
 
   for (let i = 0; i < ctxToTrain.length; i++) {
     const ctx = ctxToTrain[i]
-    const trainableIntents = intents.filter(i => i.contexts.includes(ctx))
 
-    const intentClf = new BaseIntentClassifier(tools)
+    const allUtterances = _(intents)
+      .filter(i => i.name !== NONE_INTENT)
+      .flatMap(i => i.utterances)
+      .value()
+    const trainableIntents = intents.filter(i => i.contexts.includes(ctx) && i.name !== NONE_INTENT)
+    const [noneIntent] = intents.filter(i => i.name === NONE_INTENT)
+
+    const intentClf = new OOSIntentClassifier(tools)
     await intentClf.train(
       {
         intents: trainableIntents,
         list_entities,
         nluSeed,
-        pattern_entities
+        pattern_entities,
+        noneIntent,
+        allUtterances
       },
       p => {
         const completion = (i + p) / input.ctxToTrain.length

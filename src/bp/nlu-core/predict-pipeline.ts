@@ -2,8 +2,8 @@ import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
-import { BaseIntentClassifier } from './intents/base-intent-classifier'
 import { getCtxFeatures } from './intents/context-featurizer'
+import { OOSIntentClassifier } from './intents/oos-intent-classfier'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
@@ -28,7 +28,7 @@ export type Predictors = {
   contexts: string[]
   pattern_entities: PatternEntity[]
   intents: Intent<Utterance>[]
-  intent_classifier_per_ctx: _.Dictionary<BaseIntentClassifier>
+  intent_classifier_per_ctx: _.Dictionary<OOSIntentClassifier>
 } & Partial<{
   ctx_classifier: MLToolkit.SVM.Predictor
   oos_classifier_per_ctx: _.Dictionary<MLToolkit.SVM.Predictor>
