@@ -28,7 +28,9 @@ export class KnexMessageRepository implements MessageRepository {
   constructor(@inject(TYPES.Database) private database: Database) {}
 
   public async getAll(conversationId: number): Promise<sdk.Message[]> {
-    const rows = await this.query().where({ conversationId })
+    const rows = await this.query()
+      .where({ conversationId })
+      .orderBy('sentOn', 'desc')
     return rows.map(x => this.deserialize(x))
   }
 

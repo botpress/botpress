@@ -12,7 +12,6 @@ export interface ConversationRepository {
   getAllRecent(endpoint: sdk.UserEndpoint, limit?: number): Promise<sdk.RecentConversation[]>
   deleteAll(endpoint: sdk.UserEndpoint): Promise<number>
   create(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation>
-  getMostRecent(endpoint: sdk.UserEndpoint): Promise<sdk.RecentConversation | undefined>
   getById(conversationId: number): Promise<sdk.Conversation | undefined>
   delete(conversationId: number): Promise<boolean>
   query()
@@ -106,39 +105,6 @@ export class KnexConversationRepository implements ConversationRepository {
     this.cache.set(id, conversation)
 
     return conversation
-  }
-
-  public async getMostRecent(endpoint: sdk.UserEndpoint): Promise<sdk.RecentConversation | undefined> {
-    const query = this.query()
-      .select(
-        'conversations.id',
-        'conversations.userId',
-        'conversations.botId',
-        'conversations.createdOn',
-        'messages.id as messageId',
-        'messages.eventId',
-        'messages.incomingEventId',
-        'messages.from',
-        'messages.payload'
-      )
-      .max('messages.sentOn', { as: 'sentOn' })
-      .leftJoin('messages', 'messages.conversationId', 'conversations.id')
-      .where(endpoint)
-      .groupBy('conversations.id', 'messages.id')
-      .orderBy('sentOn')
-      .limit(1)
-
-    console.log(query.toSQL())
-    const rows = await query
-    console.log(rows)
-
-    const conversation = this.deserialize(rows[0])
-    if (conversation) {
-      this.cache.set(conversation.id, conversation)
-
-      const message = this.messageRepo.deserialize({ ...rows[0], id: rows[0].messageId, conversationId: rows[0].id })
-      return { ...conversation, lastMessage: message }
-    }
   }
 
   public async getById(conversationId: number): Promise<sdk.Conversation | undefined> {
