@@ -64,7 +64,6 @@ export interface TrainOutput {
   ctx_model: string
   intent_model_by_ctx: Dic<string>
   slots_model: Buffer
-  oos_model: _.Dictionary<string>
 }
 
 type progressCB = (p?: number) => void
@@ -390,53 +389,6 @@ const TrainSlotTagger = async (input: TrainStep, tools: Tools, progress: progres
   return slotTagger.serialized
 }
 
-const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<_.Dictionary<string>> => {
-  debugTraining('Training out of scope classifier')
-  const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
-    c: [10], // so there's no grid search
-    kernel: 'LINEAR',
-    classifier: 'C_SVC',
-    seed: input.nluSeed
-  }
-
-  const noneUtts = _.chain(input.intents)
-    .filter(i => i.name === NONE_INTENT)
-    .flatMap(i => i.utterances)
-    .value()
-
-  if (!isPOSAvailable(input.languageCode) || noneUtts.length === 0) {
-    progress()
-    return {}
-  }
-
-  const oos_points = featurizeOOSUtterances(noneUtts, Object.keys(input.vocabVectors), tools)
-  let combinedProgress = 0
-
-  type ContextModel = [string, string]
-  const ctxModels: ContextModel[] = await Promise.map(input.ctxToTrain, async ctx => {
-    const in_ctx_scope_points = _.chain(input.intents)
-      .filter(i => i.name !== NONE_INTENT && i.contexts.includes(ctx))
-      .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
-      .value()
-
-    const svm = new tools.mlToolkit.SVM.Trainer()
-    const model = await svm.train([...in_ctx_scope_points, ...oos_points], trainingOptions, p => {
-      combinedProgress += p / input.ctxToTrain.length
-      progress(combinedProgress)
-    })
-
-    return [ctx, model] as [string, string]
-  })
-
-  debugTraining('Done training out of scope')
-  progress(1)
-  return ctxModels.reduce((acc, cur) => {
-    const [ctx, model] = cur!
-    acc[ctx] = model
-    return acc
-  }, {} as _.Dictionary<string>)
-}
-
 const NB_STEPS = 6 // change this if the training pipeline changes
 
 export const Trainer = async (
@@ -473,7 +425,6 @@ export const Trainer = async (
   reportProgress() // 20%
 
   const models = await Promise.all([
-    TrainOutOfScope(step, tools, reportProgress),
     TrainContextClassifier(step, tools, reportProgress),
     TrainIntentClassifiers(step, tools, reportProgress),
     TrainSlotTagger(step, tools, reportProgress)
@@ -481,7 +432,7 @@ export const Trainer = async (
 
   debouncedProgress.flush()
 
-  const [oos_model, ctx_model, intent_model_by_ctx, slots_model] = models
+  const [ctx_model, intent_model_by_ctx, slots_model] = models
 
   const coldEntities: ColdListEntityModel[] = step.list_entities.map(e => ({
     ...e,
@@ -490,7 +441,6 @@ export const Trainer = async (
 
   const output: TrainOutput = {
     list_entities: coldEntities,
-    oos_model,
     tfidf: step.tfIdf!,
     ctx_model,
     intent_model_by_ctx,

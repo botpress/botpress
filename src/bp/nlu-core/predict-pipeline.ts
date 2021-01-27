@@ -3,9 +3,8 @@ import _ from 'lodash'
 
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
 import { getCtxFeatures } from './intents/context-featurizer'
+import { NoneableIntentPredictions } from './intents/intent-classifier'
 import { OOSIntentClassifier } from './intents/oos-intent-classfier'
-import { isPOSAvailable } from './language/pos-tagger'
-import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import {
   EntityExtractionResult,
@@ -31,7 +30,6 @@ export type Predictors = {
   intent_classifier_per_ctx: _.Dictionary<OOSIntentClassifier>
 } & Partial<{
   ctx_classifier: MLToolkit.SVM.Predictor
-  oos_classifier_per_ctx: _.Dictionary<MLToolkit.SVM.Predictor>
   kmeans: MLToolkit.KMeans.KmeansResult
   slot_tagger: SlotTagger // TODO replace this by MlToolkit.CRF.Tagger
 }>
@@ -46,9 +44,8 @@ interface InitialStep {
   languageCode: string
 }
 type PredictStep = InitialStep & { utterance: Utterance }
-type OutOfScopeStep = PredictStep & { oos_predictions: _.Dictionary<number> }
-type ContextStep = OutOfScopeStep & { ctx_predictions: MLToolkit.SVM.Prediction[] }
-type IntentStep = ContextStep & { intent_predictions: _.Dictionary<MLToolkit.SVM.Prediction[]> }
+type ContextStep = PredictStep & { ctx_predictions: MLToolkit.SVM.Prediction[] }
+type IntentStep = ContextStep & { intent_predictions: _.Dictionary<NoneableIntentPredictions> }
 type SlotStep = IntentStep & { slot_predictions_per_intent: _.Dictionary<SlotExtractionResult[]> }
 
 const NONE_INTENT = 'none'
@@ -111,7 +108,7 @@ const getCustomEntitiesNames = (predictors: Predictors): string[] => [
   ...predictors.pattern_entities.map(e => e.name)
 ]
 
-export async function predictContext(input: OutOfScopeStep, predictors: Predictors): Promise<ContextStep> {
+export async function predictContext(input: PredictStep, predictors: Predictors): Promise<ContextStep> {
   const classifier = predictors.ctx_classifier
   if (!classifier) {
     const ctxCount = predictors.contexts.length
@@ -142,11 +139,14 @@ export async function predictContext(input: OutOfScopeStep, predictors: Predicto
 
 export async function predictIntent(input: ContextStep, predictors: Predictors): Promise<IntentStep> {
   if (_.flatMap(predictors.intents, i => i.utterances).length <= 0) {
-    const noneIntent = { label: NONE_INTENT, confidence: 1 }
+    const nonePrediction = <NoneableIntentPredictions>{
+      oos: 1,
+      intents: [{ name: NONE_INTENT, confidence: 1 }]
+    }
     const allCtxs = predictors.contexts
     const intent_predictions = _.zipObject(
       allCtxs,
-      allCtxs.map(_ => [{ ...noneIntent }])
+      allCtxs.map(_ => ({ ...nonePrediction }))
     )
     return { ...input, intent_predictions }
   }
@@ -154,49 +154,11 @@ export async function predictIntent(input: ContextStep, predictors: Predictors):
   const ctxToPredict = input.ctx_predictions.map(p => p.label)
   const predictions = (
     await Promise.map(ctxToPredict, async ctx => predictors.intent_classifier_per_ctx[ctx].predict(input.utterance))
-  )
-    .filter(_.identity)
-    .map(output => {
-      return output.intents.map(({ name, confidence }) => ({ label: name, confidence }))
-    })
+  ).filter(_.identity)
 
   return {
     ...input,
     intent_predictions: _.zipObject(ctxToPredict, predictions)
-  }
-}
-
-async function predictOutOfScope(input: PredictStep, predictors: Predictors): Promise<OutOfScopeStep> {
-  const oos_predictions = {} as _.Dictionary<number>
-  if (
-    !isPOSAvailable(input.languageCode) ||
-    !predictors.oos_classifier_per_ctx ||
-    _.isEmpty(predictors.oos_classifier_per_ctx)
-  ) {
-    return {
-      ...input,
-      oos_predictions: predictors.contexts.reduce((preds, ctx) => ({ ...preds, [ctx]: 0 }), {})
-    }
-  }
-
-  const utt = input.utterance
-  const feats = getUtteranceFeatures(utt, Object.keys(predictors.vocabVectors))
-  for (const ctx of predictors.contexts) {
-    try {
-      const preds = await predictors.oos_classifier_per_ctx[ctx].predict(feats)
-      oos_predictions[ctx] = _.chain(preds)
-        .filter(p => p.label.startsWith('out'))
-        .maxBy('confidence')
-        .get('confidence', 0)
-        .value()
-    } catch (err) {
-      oos_predictions[ctx] = 0
-    }
-  }
-
-  return {
-    ...input,
-    oos_predictions
   }
 }
 
@@ -266,19 +228,18 @@ function MapStepToOutput(step: SlotStep): NLU.PredictOutput {
     const intentPred = step.intent_predictions[label]
     const intents = !intentPred
       ? []
-      : intentPred.map(i => ({
+      : intentPred.intents.map(({ name, confidence }) => ({
           extractor: 'classifier', // exact-matcher overwrites this field in line below
-          ...i,
-          slots: (step.slot_predictions_per_intent?.[i.label] || []).reduce(slotsCollectionReducer, {})
+          label: name,
+          confidence,
+          slots: (step.slot_predictions_per_intent?.[name] || []).reduce(slotsCollectionReducer, {})
         }))
-
-    const includeOOS = !intents.filter(x => x.extractor === 'exact-matcher').length
 
     return {
       ...preds,
       [label]: {
         confidence,
-        oos: includeOOS ? step.oos_predictions[label] || 0 : 0,
+        oos: intentPred?.oos || 0,
         intents
       }
     }
@@ -302,8 +263,7 @@ export const Predict = async (
   const { step } = await preprocessInput(input, tools, predictors)
   const initialStep = await makePredictionUtterance(step, predictors, tools)
   const entitesStep = await extractEntities(initialStep, predictors, tools)
-  const oosStep = await predictOutOfScope(entitesStep, predictors)
-  const ctxStep = await predictContext(oosStep, predictors)
+  const ctxStep = await predictContext(entitesStep, predictors)
   const intentStep = await predictIntent(ctxStep, predictors)
   const slotStep = await extractSlots(intentStep, predictors)
   const output = MapStepToOutput(slotStep)

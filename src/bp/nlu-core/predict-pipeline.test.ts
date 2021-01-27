@@ -12,8 +12,7 @@ describe('predict pipeline', () => {
       {
         rawText: "hello, I love you won't you tell me your name",
         languageCode,
-        utterance: new Utterance([], [], [], languageCode),
-        oos_predictions: {}
+        utterance: new Utterance([], [], [], languageCode)
       },
       <Predictors>{ contexts, ctx_classifier: undefined }
     )
@@ -32,8 +31,7 @@ describe('predict pipeline', () => {
       {
         rawText: "hello, I love you won't you tell me your name",
         languageCode,
-        utterance: new Utterance([], [], [], languageCode),
-        oos_predictions: {}
+        utterance: new Utterance([], [], [], languageCode)
       },
       <Predictors>{ contexts, ctx_classifier: undefined }
     )
@@ -55,8 +53,7 @@ describe('predict pipeline', () => {
       {
         rawText: "hello, I love you won't you tell me your name",
         languageCode,
-        utterance: new Utterance([], [], [], languageCode),
-        oos_predictions: {}
+        utterance: new Utterance([], [], [], languageCode)
       },
       <Predictors>{ contexts, ctx_classifier: undefined }
     )

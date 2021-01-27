@@ -246,7 +246,7 @@ export default class Engine implements NLU.Engine {
   private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {
     const tools = this._tools
 
-    const { ctx_model, intent_model_by_ctx, oos_model, kmeans } = output
+    const { ctx_model, intent_model_by_ctx, kmeans } = output
 
     /**
      * TODO: extract this function some place else,
@@ -278,10 +278,6 @@ export default class Engine implements NLU.Engine {
     }
 
     const ctx_classifier = ctx_model ? new tools.mlToolkit.SVM.Predictor(ctx_model) : undefined
-    const oos_classifier = _.toPairs(oos_model).reduce(
-      (c, [ctx, mod]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(mod) }),
-      {} as _.Dictionary<MLToolkit.SVM.Predictor>
-    )
 
     let slot_tagger: SlotTagger | undefined
     if (output.slots_model.length) {
@@ -292,7 +288,6 @@ export default class Engine implements NLU.Engine {
     return {
       ...basePredictors,
       ctx_classifier,
-      oos_classifier_per_ctx: oos_classifier,
       slot_tagger
     }
   }
