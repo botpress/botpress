@@ -590,7 +590,7 @@ export class CMSService implements IDisposeOnExit {
 
     if (originalProps) {
       return originalProps.reduce(
-        (result, prop) => (result[prop] = separatorExtraction(prop) || nestedDictExtraction(prop)),
+        (result, prop) => ((result[prop] = separatorExtraction(prop) || nestedDictExtraction(prop)), result),
         {}
       )
     } else {
