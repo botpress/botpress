@@ -2,6 +2,7 @@ import { Intent, ListEntityModel, PatternEntity } from 'nlu-core/typings'
 import Utterance from 'nlu-core/utterance/utterance'
 
 export interface IntentTrainInput {
+  languageCode: string
   list_entities: ListEntityModel[]
   pattern_entities: PatternEntity[]
   intents: Intent<Utterance>[]

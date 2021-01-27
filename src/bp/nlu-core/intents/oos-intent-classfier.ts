@@ -1,21 +1,22 @@
 import { MLToolkit } from 'botpress/sdk'
 import _ from 'lodash'
 import { isPOSAvailable } from 'nlu-core/language/pos-tagger'
+import { getStopWordsForLang } from 'nlu-core/language/stopWords'
 import {
   featurizeInScopeUtterances,
   featurizeOOSUtterances,
   getUtteranceFeatures
 } from 'nlu-core/out-of-scope-featurizer'
-import { NONE_INTENT } from 'nlu-core/training-pipeline'
+import { SMALL_TFIDF } from 'nlu-core/tools/tfidf'
+import { isSpace, SPACE } from 'nlu-core/tools/token-utils'
 import { Intent, Tools } from 'nlu-core/typings'
-import Utterance from 'nlu-core/utterance/utterance'
+import Utterance, { buildUtteranceBatch } from 'nlu-core/utterance/utterance'
 
 import { BaseIntentClassifier, MIN_NB_UTTERANCES } from './base-intent-classifier'
 import { IntentTrainInput, NoneableIntentClassifier, NoneableIntentPredictions } from './intent-classifier'
 
 interface TrainInput extends IntentTrainInput {
   allUtterances: Utterance[]
-  noneIntent: Intent<Utterance>
 }
 
 interface Model {
@@ -30,6 +31,12 @@ interface Predictors {
   trainingVocab: string[]
 }
 
+export const NONE_INTENT = 'none'
+const NONE_UTTERANCES_BOUNDS = {
+  MIN: 20,
+  MAX: 200
+}
+
 export class OOSIntentClassifier implements NoneableIntentClassifier {
   private model: Model | undefined
   private predictors: Predictors | undefined
@@ -37,7 +44,8 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
   constructor(private tools: Tools) {}
 
   public async train(trainInput: TrainInput, progress: (p: number) => void): Promise<void> {
-    const { noneIntent } = trainInput
+    const { languageCode, allUtterances } = trainInput
+    const noneIntent = await this.makeNoneIntent(allUtterances, languageCode)
 
     const [ooScopeModel, inScopeModel] = await Promise.all([
       this._trainOOScopeSvm(trainInput, noneIntent, (p: number) => progress(p / 2)),
@@ -48,6 +56,66 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
       oosSvmModel: ooScopeModel,
       baseIntentClfModel: inScopeModel,
       trainingVocab: this.getVocab(trainInput.allUtterances)
+    }
+  }
+
+  private makeNoneIntent = async (allUtterances: Utterance[], languageCode: string): Promise<Intent<Utterance>> => {
+    const allTokens = _.flatMap(allUtterances, u => u.tokens)
+
+    const vocab = _(allTokens)
+      .map(t => t.toString({ lowerCase: true }))
+      .uniq()
+      .value()
+
+    const lo = this.tools.seededLodashProvider.getSeededLodash()
+
+    const vocabWithDupes = lo(allTokens)
+      .map(t => t.value)
+      .flattenDeep<string>()
+      .value()
+
+    const junkWords = await this.tools.generateSimilarJunkWords(vocab, languageCode)
+    const avgTokens = lo.meanBy(allUtterances, x => x.tokens.length)
+    const nbOfNoneUtterances = lo.clamp(
+      (allUtterances.length * 2) / 3,
+      NONE_UTTERANCES_BOUNDS.MIN,
+      NONE_UTTERANCES_BOUNDS.MAX
+    )
+    const stopWords = await getStopWordsForLang(languageCode)
+    const vocabWords = lo(allTokens)
+      .filter(t => t.tfidf <= SMALL_TFIDF)
+      .map(t => t.toString({ lowerCase: true }))
+      .uniq()
+      .orderBy(t => t)
+      .value()
+
+    // If 30% in utterances is a space, language is probably space-separated so we'll join tokens using spaces
+    const joinChar = vocabWithDupes.filter(x => isSpace(x)).length >= vocabWithDupes.length * 0.3 ? SPACE : ''
+
+    const vocabUtts = lo.range(0, nbOfNoneUtterances).map(() => {
+      const nbWords = Math.round(lo.random(1, avgTokens * 2, false))
+      return lo.sampleSize(lo.uniq([...stopWords, ...vocabWords]), nbWords).join(joinChar)
+    })
+
+    const junkWordsUtts = lo.range(0, nbOfNoneUtterances).map(() => {
+      const nbWords = Math.round(lo.random(1, avgTokens * 2, false))
+      return lo.sampleSize(junkWords, nbWords).join(joinChar)
+    })
+
+    const mixedUtts = lo.range(0, nbOfNoneUtterances).map(() => {
+      const nbWords = Math.round(lo.random(1, avgTokens * 2, false))
+      return lo.sampleSize([...junkWords, ...stopWords], nbWords).join(joinChar)
+    })
+
+    return <Intent<Utterance>>{
+      name: NONE_INTENT,
+      slot_definitions: [],
+      utterances: await buildUtteranceBatch(
+        [...mixedUtts, ...vocabUtts, ...junkWordsUtts, ...stopWords],
+        languageCode,
+        this.tools
+      ),
+      contexts: []
     }
   }
 
@@ -101,18 +169,21 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
 
     const lo = this.tools.seededLodashProvider.getSeededLodash()
 
-    trainInput.intents.push({
-      name: NONE_INTENT,
-      utterances: lo
-        .chain(noneUtts)
-        .shuffle()
-        .take(nAvgUtts * 2.5) // undescriptible magic n, no sens to extract constant
-        .value(),
-      contexts: [...trainInput.intents[0].contexts],
-      slot_definitions: []
-    })
+    const intents: Intent<Utterance>[] = [
+      ...trainInput.intents,
+      {
+        name: NONE_INTENT,
+        utterances: lo
+          .chain(noneUtts)
+          .shuffle()
+          .take(nAvgUtts * 2.5) // undescriptible magic n, no sens to extract constant
+          .value(),
+        contexts: [...trainInput.intents[0].contexts],
+        slot_definitions: []
+      }
+    ]
 
-    await baseIntentClf.train(trainInput, progress)
+    await baseIntentClf.train({ ...trainInput, intents }, progress)
     return baseIntentClf.serialize()
   }
 

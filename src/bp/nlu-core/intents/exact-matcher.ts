@@ -1,8 +1,9 @@
 import { MLToolkit } from 'botpress/sdk'
 import _ from 'lodash'
-import { NONE_INTENT } from 'nlu-core/training-pipeline'
 import { Intent } from 'nlu-core/typings'
 import Utterance, { UtteranceToStringOptions } from 'nlu-core/utterance/utterance'
+
+import { NONE_INTENT } from './oos-intent-classfier'
 
 export const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
   lowerCase: true,
