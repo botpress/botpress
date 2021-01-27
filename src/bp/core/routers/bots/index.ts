@@ -466,8 +466,7 @@ export class BotsRouter extends CustomRouter {
           const botId = req.params.botId
           const mediaService = this.mediaServiceProvider.forBot(botId)
           const file = req['file']
-          const fileName = await mediaService.saveFile(file.originalname, file.buffer)
-          const url = mediaService.getPublicURL(fileName)
+          const { url, fileName } = await mediaService.saveFile(file.originalname, file.buffer)
 
           debugMedia(
             `success (${email} from ${req.ip}). file: ${fileName} %o`,

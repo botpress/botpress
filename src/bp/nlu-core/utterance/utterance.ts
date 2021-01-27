@@ -83,7 +83,8 @@ export default class Utterance {
             return that.entities.filter(x => x.startTokenIdx <= i && x.endTokenIdx >= i)
           },
           get tfidf(): number {
-            return (that._globalTfidf && that._globalTfidf[value]) || 1
+            const lowerCased = this.toString({ lowerCase: true }) // global tfidf is built with lowercased vocab
+            return (that._globalTfidf && that._globalTfidf[lowerCased]) || 1
           },
           get cluster(): number {
             const wordVec = vectors[i]
@@ -162,7 +163,7 @@ export default class Utterance {
   }
 
   setGlobalTfidf(tfidf: TFIDF) {
-    this._globalTfidf = tfidf
+    this._globalTfidf = _.mapKeys(tfidf, (tfidf, token) => token.toLowerCase())
   }
 
   setKmeans(kmeans?: sdk.MLToolkit.KMeans.KmeansResult) {

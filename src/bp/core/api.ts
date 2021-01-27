@@ -174,7 +174,10 @@ const cms = (cmsService: CMSService, mediaServiceProvider: MediaServiceProvider)
     },
     createOrUpdateContentElement: cmsService.createOrUpdateContentElement.bind(cmsService),
     async saveFile(botId: string, fileName: string, content: Buffer): Promise<string> {
-      return mediaServiceProvider.forBot(botId).saveFile(fileName, content)
+      return mediaServiceProvider
+        .forBot(botId)
+        .saveFile(fileName, content)
+        .then(({ fileName }) => fileName)
     },
     async readFile(botId, fileName): Promise<Buffer> {
       return mediaServiceProvider.forBot(botId).readFile(fileName)
