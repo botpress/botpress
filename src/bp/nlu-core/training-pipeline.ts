@@ -317,7 +317,9 @@ export const AppendNoneIntent = async (input: TrainStep, tools: Tools): Promise<
     .chain(input.tfIdf)
     .toPairs()
     .filter(([word, tfidf]) => tfidf <= SMALL_TFIDF)
-    .map('0')
+    .map(p => p[0])
+    .uniq()
+    .orderBy(t => t)
     .value()
 
   // If 30% in utterances is a space, language is probably space-separated so we'll join tokens using spaces
