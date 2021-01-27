@@ -41,13 +41,18 @@ export interface Config {
 
   /**
    * @param transferMessage The message sent to the user when he is being transferred to an agent. E.g. ̀`{ "lang": "message"}`.
+   * @example { "en": "You are being transferred to an agent.", "fr": "Vous êtes transféré à un agent."}
+   * @default {}
    */
   transferMessage: {
     [Key: string]: string
   }
 
   /**
-   * @param assignMessage The message sent to the user when he has been assigned to an agent. E.g. ̀`{ "lang": "message"}`.
+   * @param assignMessage The message sent to the user when he has been assigned to an agent.
+   * @argument agentName It is possible to specify the agent name as an argument to the message. See the example below.
+   * @example { "en": "You have been assigned to our agent {{agentName}}.", "fr": "Vous avez été assigné à notre agent(e) {{agentName}}."}
+   * @default {}
    */
   assignMessage: {
     [Key: string]: string
