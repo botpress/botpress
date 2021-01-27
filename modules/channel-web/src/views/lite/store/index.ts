@@ -39,7 +39,7 @@ class RootStore {
   private api: WebchatApi
 
   @observable
-  public conversations: sdk.Conversation[] = []
+  public conversations: sdk.RecentConversation[] = []
 
   @observable
   public currentConversation: CurrentConversation
@@ -487,7 +487,8 @@ class RootStore {
     }
 
     const lifeTimeMargin = Date.now() - ms(this.config.recentConversationLifetime)
-    const isConversationExpired = false // TODO fix this // new Date(this.conversations[0].last_heard_on).getTime() < lifeTimeMargin
+    const isConversationExpired =
+      (this.conversations[0].lastMessage?.sentOn || this.conversations[0].createdOn).getTime() < lifeTimeMargin
     if (isConversationExpired && this.config.startNewConvoOnTimeout) {
       return
     }

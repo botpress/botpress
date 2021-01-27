@@ -124,7 +124,7 @@ class MessageList extends React.Component<MessageListProps, State> {
     let currentGroup: Message[] = undefined
 
     messages.forEach(m => {
-      const speaker = m.from || m.payload.web?.userName
+      const speaker = m.payload.web?.userName || m.from
       const date = m.sentOn
 
       // Create a new group if messages are separated by more than X minutes or if different speaker
@@ -193,7 +193,6 @@ class MessageList extends React.Component<MessageListProps, State> {
   }
 
   shouldDisplayMessage = (m: Message): boolean => {
-    // TODO not sure this works
     return m.payload.type !== 'postback'
   }
 
