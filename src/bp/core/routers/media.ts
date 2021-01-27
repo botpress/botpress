@@ -17,7 +17,6 @@ const ONE_YEAR_SEC = ms('1y') / 1000
 const debug = DEBUG('media')
 
 // This uses the same "interface" as the Bot Media router
-// We should have a single media router in my opinion
 export class MediaRouter extends CustomRouter {
   private resource = 'media'
   private checkTokenHeader: RequestHandler
@@ -35,7 +34,8 @@ export class MediaRouter extends CustomRouter {
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.checkPermissions = needPermissions(this.workspaceService)
     this.fileMulter = fileUploadMulter(DEFAULT_MIME_TYPES, DEFAULT_MAX_SIZE)
-    this.setupRoutes()
+    this.setupPublicRoutes()
+    this.setupPrivateRoutes()
   }
 
   async initialize() {
@@ -43,18 +43,17 @@ export class MediaRouter extends CustomRouter {
     this.fileMulter = fileUploadMulter(allowedMimeTypes, maxFileSize)
   }
 
-  private setupRoutes() {
-    // Public routes
+  private setupPublicRoutes() {
     // if the need apprears, add useStream param to which we can stream file straight from media service
     this.router.get(
       '/:filename',
       this.asyncMiddleware(async (req, res) => {
-        const fn = req.params.filename
+        const { filename } = req.params
 
-        const type = path.extname(fn)
+        const type = path.extname(filename)
         const buff = await this.mediaServiceProvider
           .global()
-          .readFile(fn)
+          .readFile(filename)
           .catch(() => undefined)
         if (!buff) {
           return res.sendStatus(404)
@@ -67,8 +66,9 @@ export class MediaRouter extends CustomRouter {
           .send(buff)
       })
     )
-    // End of public routes
+  }
 
+  private setupPrivateRoutes() {
     this.router.post(
       '/',
       this.checkTokenHeader,
@@ -82,8 +82,7 @@ export class MediaRouter extends CustomRouter {
           }
           const mediaService = this.mediaServiceProvider.global()
           const file = req['file']
-          const fileName = await mediaService.saveFile(file.originalname, file.buffer)
-          const url = mediaService.getPublicURL(fileName)
+          const { url, fileName } = await mediaService.saveFile(file.originalname, file.buffer)
 
           debug(
             `success (${email} from ${req.ip}). file: ${fileName} %o`,

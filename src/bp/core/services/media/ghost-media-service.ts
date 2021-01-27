@@ -5,7 +5,7 @@ import path from 'path'
 
 import { GhostService } from '../ghost/service'
 
-import { IMediaService as MediaService } from './typings'
+import { MediaService } from './typings'
 
 const safeId = (length = 10) => nanoid('1234567890abcdefghijklmnopqrsuvwxyz', length)
 
@@ -18,11 +18,15 @@ export class GhostMediaService implements MediaService {
     this.ghost = this.botId ? ghostProvider.forBot(this.botId) : ghostProvider.global()
   }
 
-  async saveFile(name: string, content: Buffer): Promise<string> {
+  async saveFile(name: string, content: Buffer): Promise<{ url: string; fileName: string }> {
     const fileName = sanitize(`${safeId(20)}-${path.basename(name)}`)
 
     this.debug(`Saving media ${fileName}`)
-    return this.ghost.upsertFile(this.MEDIA_DIR, fileName, content).then(() => fileName)
+    await this.ghost.upsertFile(this.MEDIA_DIR, fileName, content)
+    return {
+      url: this.getPublicURL(fileName),
+      fileName
+    }
   }
 
   async readFile(fileName: string): Promise<Buffer> {
@@ -43,12 +47,11 @@ export class GhostMediaService implements MediaService {
     }
   }
 
-  // I kind of dislike this to be honest
   getPublicURL(fileName: string): string {
     if (this.botId) {
-      return `${process.EXTERNAL_URL}/api/v1/bots/${this.botId}/media/${fileName}`
+      return `/api/v1/bots/${this.botId}/media/${fileName}`
     } else {
-      return `${process.EXTERNAL_URL}/api/v1/media/${fileName}`
+      return `/api/v1/media/${fileName}`
     }
   }
 }

@@ -1,19 +1,16 @@
-import { Logger } from 'botpress/sdk'
-import { sanitize } from 'core/misc/utils'
 import { inject, injectable, tagged } from 'inversify'
 import nanoid from 'nanoid/generate'
-import path from 'path'
 
 import { GhostService } from '..'
 import { TYPES } from '../../types'
 
 import { GhostMediaService } from './ghost-media-service'
-import { IMediaService } from './typings'
+import { MediaService } from './typings'
 
 const safeId = (length = 10) => nanoid('1234567890abcdefghijklmnopqrsuvwxyz', length)
 @injectable()
 export class MediaServiceProvider {
-  private _scopeServices: Dic<IMediaService> = {}
+  private _scopeServices: Dic<MediaService> = {}
   private GLOBAL_KEY = '__GLOBAL_MEDIA__'
 
   // TODO add backend config

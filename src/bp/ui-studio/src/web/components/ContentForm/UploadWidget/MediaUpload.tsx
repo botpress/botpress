@@ -13,7 +13,6 @@ interface IMediaUploadProps {
   onError(value: string | Error): void
 }
 
-// Use Uploader in botpress/shared will do in next PR
 const MediaUpload: FC<IMediaUploadProps> = props => {
   const { value } = props
 
@@ -24,7 +23,10 @@ const MediaUpload: FC<IMediaUploadProps> = props => {
     return axios
       .post(`${window.BOT_API_PATH}/media`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then(response => {
-        const { url } = response.data
+        let url: string = response.data.url
+        if (url.startsWith('/')) {
+          url = `${window.location.protocol}//${window.location.host}${url}`
+        }
         props.onChange(url)
       })
       .catch(e => {
