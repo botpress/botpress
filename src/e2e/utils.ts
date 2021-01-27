@@ -28,8 +28,8 @@ export const loginIfNeeded = async () => {
 }
 
 export const gotoStudio = async (section?: string) => {
-  const trailingPath = section ? `/${section}` : ''
-  await gotoAndExpect(`${bpConfig.host}/studio/${bpConfig.botId}${trailingPath}`)
+  const resource = section ? `/${section}` : ''
+  await gotoAndExpect(`${bpConfig.host}/studio/${bpConfig.botId}${resource}`)
   return page.waitFor(200)
 }
 
@@ -54,6 +54,16 @@ export const expectCallSuccess = async (url: string, method?: HttpMethod): Promi
 
 export const expectAdminApiCallSuccess = async (endOfUrl: string, method?: HttpMethod): Promise<void> => {
   const response = await getResponse(`${bpConfig.apiHost}/api/v1/admin/${endOfUrl}`, method)
+  expect(response.status()).toBe(200)
+}
+
+export const expectModuleApiCallSuccess = async (
+  module: string,
+  bot: string,
+  resource: string,
+  method?: HttpMethod
+): Promise<void> => {
+  const response = await getResponse(`${bpConfig.apiHost}/api/v1/bots/${bot}/mod/${module}/${resource}`, method)
   expect(response.status()).toBe(200)
 }
 
