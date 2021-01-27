@@ -71,8 +71,6 @@ export class KnexConversationRepository implements ConversationRepository {
       const conversation = this.deserialize(row)!
       const message = this.messageRepo.deserialize({ ...row, id: row.messageId, conversationId: row.id })
 
-      this.cache.set(conversation.id, conversation)
-
       return { ...conversation, lastMessage: message }
     })
   }
