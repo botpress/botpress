@@ -1,52 +1,16 @@
+import { RootIntentClassifier } from './intents/root-intent-classifier'
 import { predictContext, predictIntent, Predictors } from './predict-pipeline'
+import { Tools } from './typings'
 import Utterance from './utterance/utterance'
 
 describe('predict pipeline', () => {
-  test('predict with no ctx classifier and no ctxs returns empty array', async () => {
-    // arrange
-    const languageCode = 'en'
-    const contexts: string[] = []
-
-    // act
-    const { ctx_predictions } = await predictContext(
-      {
-        rawText: "hello, I love you won't you tell me your name",
-        languageCode,
-        utterance: new Utterance([], [], [], languageCode)
-      },
-      <Predictors>{ contexts, ctx_classifier: undefined }
-    )
-
-    // assert
-    expect(ctx_predictions.length).toEqual(0)
-  })
-
-  test('predict with no ctx classifier returns equi-confident ctx with none intent in each', async () => {
-    // arrange
-    const languageCode = 'en'
-    const contexts = ['A', 'B', 'C', 'D']
-
-    // act
-    const { ctx_predictions } = await predictContext(
-      {
-        rawText: "hello, I love you won't you tell me your name",
-        languageCode,
-        utterance: new Utterance([], [], [], languageCode)
-      },
-      <Predictors>{ contexts, ctx_classifier: undefined }
-    )
-
-    // assert
-    const labels = ctx_predictions.map(ctx => ctx.label)
-    const confs = ctx_predictions.map(ctx => ctx.confidence)
-    expect(labels).toEqual(contexts)
-    expect(confs).toEqual([0.25, 0.25, 0.25, 0.25])
-  })
-
   test('predict with no intent classifier returns only none intent for each ctx', async () => {
     // arrange
     const languageCode = 'en'
     const contexts = ['A', 'B', 'C', 'D']
+
+    const rootIntentClassifier = new RootIntentClassifier({} as Tools)
+    rootIntentClassifier.load(JSON.stringify({ svmModel: undefined, intentNames: contexts }))
 
     // act
     const step = await predictContext(
@@ -55,12 +19,13 @@ describe('predict pipeline', () => {
         languageCode,
         utterance: new Utterance([], [], [], languageCode)
       },
-      <Predictors>{ contexts, ctx_classifier: undefined }
+      <Predictors>{ contexts, ctx_classifier: rootIntentClassifier }
     )
+
     const { intent_predictions } = await predictIntent(step, <Predictors>{
       contexts,
-      ctx_classifier: undefined,
-      intent_classifier_per_ctx: {}
+      intent_classifier_per_ctx: {},
+      ctx_classifier: rootIntentClassifier
     })
 
     // assert

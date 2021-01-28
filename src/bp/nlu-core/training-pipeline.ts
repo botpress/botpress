@@ -6,6 +6,7 @@ import { extractListEntitiesWithCache, extractPatternEntities } from './entities
 import { warmEntityCache } from './entities/entity-cache-manager'
 import { getCtxFeatures } from './intents/context-featurizer'
 import { OOSIntentClassifier } from './intents/oos-intent-classfier'
+import { RootIntentClassifier } from './intents/root-intent-classifier'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import tfidf from './tools/tfidf'
@@ -205,36 +206,38 @@ const TrainIntentClassifiers = async (
 const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<string> => {
   debugTraining('Training context classifier')
 
-  const { list_entities, pattern_entities } = input
-  const customEntities = [...list_entities.map(e => e.entityName), ...pattern_entities.map(e => e.name)]
+  const { languageCode, intents, contexts, list_entities, pattern_entities, nluSeed } = input
 
-  const points = _.flatMapDeep(input.contexts, ctx => {
-    return input.intents
+  const rootIntents = contexts.map(ctx => {
+    const utterances = _(intents)
       .filter(intent => intent.contexts.includes(ctx))
-      .map(intent =>
-        intent.utterances.map(utt => ({
-          label: ctx,
-          coordinates: getCtxFeatures(utt, customEntities)
-        }))
-      )
-  }).filter(x => x.coordinates.filter(isNaN).length === 0)
+      .flatMap(intent => intent.utterances)
+      .value()
 
-  const classCount = _.uniq(points.map(p => p.label)).length
-  if (points.length === 0 || classCount <= 1) {
-    progress()
-    debugTraining('No context to train')
-    return ''
-  }
-
-  const svm = new tools.mlToolkit.SVM.Trainer()
-
-  const seed = input.nluSeed
-  const model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC', seed }, p => {
-    progress(_.round(p, 1))
+    return <Intent<Utterance>>{
+      name: ctx,
+      contexts: [],
+      slot_definitions: [],
+      utterances
+    }
   })
 
+  const rootIntentClassifier = new RootIntentClassifier(tools)
+  await rootIntentClassifier.train(
+    {
+      intents: rootIntents,
+      languageCode,
+      list_entities,
+      pattern_entities,
+      nluSeed
+    },
+    p => {
+      progress(_.round(p, 1))
+    }
+  )
+
   debugTraining('Done training context classifier')
-  return model
+  return rootIntentClassifier.serialize()
 }
 
 export const ProcessIntents = async (

@@ -8,6 +8,7 @@ import { deserializeKmeans } from './clustering'
 import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
 import { OOSIntentClassifier } from './intents/oos-intent-classfier'
+import { RootIntentClassifier } from './intents/root-intent-classifier'
 import DetectLanguage from './language/language-identifier'
 import makeSpellChecker from './language/spell-checker'
 import modelIdService from './model-id-service'
@@ -262,13 +263,17 @@ export default class Engine implements NLU.Engine {
       return intentClf
     })
 
+    const ctx_classifier = new RootIntentClassifier(tools)
+    ctx_classifier.load(ctx_model)
+
     const basePredictors: Predictors = {
       ...output,
       lang: input.languageCode,
       intents,
       pattern_entities: input.pattern_entities,
       kmeans: warmKmeans,
-      intent_classifier_per_ctx
+      intent_classifier_per_ctx,
+      ctx_classifier
     }
 
     if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
@@ -276,8 +281,6 @@ export default class Engine implements NLU.Engine {
       // we want to make it possible to extract entities without having any intents
       return basePredictors
     }
-
-    const ctx_classifier = ctx_model ? new tools.mlToolkit.SVM.Predictor(ctx_model) : undefined
 
     let slot_tagger: SlotTagger | undefined
     if (output.slots_model.length) {

@@ -2,9 +2,9 @@ import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
-import { getCtxFeatures } from './intents/context-featurizer'
-import { NoneableIntentPredictions } from './intents/intent-classifier'
+import { IntentPredictions, NoneableIntentPredictions } from './intents/intent-classifier'
 import { OOSIntentClassifier } from './intents/oos-intent-classfier'
+import { RootIntentClassifier } from './intents/root-intent-classifier'
 import SlotTagger from './slots/slot-tagger'
 import {
   EntityExtractionResult,
@@ -27,9 +27,9 @@ export type Predictors = {
   contexts: string[]
   pattern_entities: PatternEntity[]
   intents: Intent<Utterance>[]
+  ctx_classifier: RootIntentClassifier
   intent_classifier_per_ctx: _.Dictionary<OOSIntentClassifier>
 } & Partial<{
-  ctx_classifier: MLToolkit.SVM.Predictor
   kmeans: MLToolkit.KMeans.KmeansResult
   slot_tagger: SlotTagger // TODO replace this by MlToolkit.CRF.Tagger
 }>
@@ -44,7 +44,7 @@ interface InitialStep {
   languageCode: string
 }
 type PredictStep = InitialStep & { utterance: Utterance }
-type ContextStep = PredictStep & { ctx_predictions: MLToolkit.SVM.Prediction[] }
+type ContextStep = PredictStep & { ctx_predictions: IntentPredictions }
 type IntentStep = ContextStep & { intent_predictions: _.Dictionary<NoneableIntentPredictions> }
 type SlotStep = IntentStep & { slot_predictions_per_intent: _.Dictionary<SlotExtractionResult[]> }
 
@@ -103,34 +103,9 @@ async function extractEntities(input: PredictStep, predictors: Predictors, tools
   return { ...input }
 }
 
-const getCustomEntitiesNames = (predictors: Predictors): string[] => [
-  ...predictors.list_entities.map(e => e.entityName),
-  ...predictors.pattern_entities.map(e => e.name)
-]
-
 export async function predictContext(input: PredictStep, predictors: Predictors): Promise<ContextStep> {
-  const classifier = predictors.ctx_classifier
-  if (!classifier) {
-    const ctxCount = predictors.contexts.length
-    if (ctxCount <= 0) {
-      return {
-        ...input,
-        ctx_predictions: []
-      }
-    }
-
-    const confidence = 1 / ctxCount
-    const ctx_predictions = predictors.contexts.map(ctx => ({ label: ctx, confidence }))
-    return {
-      ...input,
-      ctx_predictions
-    }
-  }
-
-  const customEntities = getCustomEntitiesNames(predictors)
-  const features = getCtxFeatures(input.utterance, customEntities)
-  const ctx_predictions = await classifier.predict(features)
-
+  const { ctx_classifier } = predictors
+  const ctx_predictions = await ctx_classifier.predict(input.utterance)
   return {
     ...input,
     ctx_predictions
@@ -151,7 +126,7 @@ export async function predictIntent(input: ContextStep, predictors: Predictors):
     return { ...input, intent_predictions }
   }
 
-  const ctxToPredict = input.ctx_predictions.map(p => p.label)
+  const ctxToPredict = input.ctx_predictions.intents.map(p => p.name)
   const predictions = (
     await Promise.map(ctxToPredict, async ctx => predictors.intent_classifier_per_ctx[ctx].predict(input.utterance))
   ).filter(_.identity)
@@ -222,8 +197,8 @@ function MapStepToOutput(step: SlotStep): NLU.PredictOutput {
     }
   }
 
-  const predictions: NLU.Predictions = step.ctx_predictions!.reduce((preds, current) => {
-    const { label, confidence } = current
+  const predictions: NLU.Predictions = step.ctx_predictions.intents.reduce((preds, current) => {
+    const { name: label, confidence } = current
 
     const intentPred = step.intent_predictions[label]
     const intents = !intentPred
