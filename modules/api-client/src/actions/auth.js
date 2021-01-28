@@ -26,7 +26,7 @@ const auth = async (login, password) => {
       RoleID: ecbUser.Customers[1].RoleID,
     }
 
-    await axios.post('/mod/users/auth', { req_user_data, login }, axiosConfig);
+    await axios.post('/mod/users/auth', { req_user_data, login, userId: event.target, channel: event.channel  }, axiosConfig);
 
     user.req_user_data = req_user_data
     user.login = login
