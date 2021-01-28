@@ -19,7 +19,8 @@ export interface ConversationRepository {
   query()
   serialize(conversation: Partial<sdk.Conversation>)
   deserialize(conversation: any)
-  checkMostRecent(conversation: sdk.Conversation)
+  flagAsCertainlyMostRecent(conversation: sdk.Conversation)
+  flagAsPossiblyNotMostRecent(conversation: sdk.Conversation)
 }
 
 @injectable()
@@ -204,12 +205,20 @@ export class KnexConversationRepository implements ConversationRepository {
     }
   }
 
-  public async checkMostRecent(conversation: sdk.Conversation) {
+  public async flagAsCertainlyMostRecent(conversation: sdk.Conversation) {
     const key = this.getEnpointCacheKey(conversation)
     const currentMostRecent = this.mostRecentCache.peek(key)
     if (currentMostRecent?.id !== conversation.id) {
       this.invalidateMostRecentCache(conversation)
       this.mostRecentCache.set(key, conversation)
+    }
+  }
+
+  public async flagAsPossiblyNotMostRecent(conversation: sdk.Conversation) {
+    const key = this.getEnpointCacheKey(conversation)
+    const currentMostRecent = this.mostRecentCache.peek(key)
+    if (currentMostRecent?.id === conversation.id) {
+      this.invalidateMostRecentCache(conversation)
     }
   }
 

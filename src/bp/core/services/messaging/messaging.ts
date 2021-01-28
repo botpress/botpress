@@ -48,6 +48,8 @@ export class MessagingAPI {
   }
 
   public async deleteAllMessages(conversationId: number): Promise<number> {
+    const conversation = (await this.conversationRepo.getById(conversationId))!
+    await this.conversationRepo.flagAsPossiblyNotMostRecent(conversation)
     return this.messageRepo.deleteAll(conversationId)
   }
 
@@ -60,7 +62,7 @@ export class MessagingAPI {
   ): Promise<sdk.Message> {
     const message = await this.messageRepo.create(conversationId, eventId, incomingEventId, from, payload)
     const conversation = (await this.getConversationById(conversationId))!
-    await this.conversationRepo.checkMostRecent(conversation)
+    await this.conversationRepo.flagAsCertainlyMostRecent(conversation)
     return message
   }
 
@@ -69,6 +71,13 @@ export class MessagingAPI {
   }
 
   public async deleteMessage(messageId: number): Promise<boolean> {
+    const message = await this.messageRepo.getById(messageId)
+
+    if (message) {
+      const conversation = (await this.conversationRepo.getById(message.conversationId))!
+      await this.conversationRepo.flagAsPossiblyNotMostRecent(conversation)
+    }
+
     return this.messageRepo.delete(messageId)
   }
 
@@ -121,7 +130,7 @@ export class MessagingAPI {
       event.direction === 'incoming' ? 'user' : 'bot',
       payload
     )
-    await this.conversationRepo.checkMostRecent(conversation)
+    await this.conversationRepo.flagAsCertainlyMostRecent(conversation)
     return message
   }
 }
