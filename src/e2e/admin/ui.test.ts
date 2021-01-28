@@ -2,7 +2,7 @@ import path from 'path'
 
 import { bpConfig } from '../../../jest-puppeteer.config'
 import { clickOn, expectMatch, fillField, uploadFile } from '../expectPuppeteer'
-import { closeToaster, expectAdminApiCallSuccess, expectCallSuccess } from '../utils'
+import { closeToaster, expectAdminApiCallSuccess, expectCallSuccess, loginIfNeeded } from '../utils'
 
 describe('Admin - UI', () => {
   it('Load server license page', async () => {
@@ -26,7 +26,7 @@ describe('Admin - UI', () => {
     await Promise.all([expectCallSuccess(`${bpConfig.host}/api/v1/auth/me/profile`, 'POST'), clickOn('#btn-submit')])
     await closeToaster()
     const src = await page.$eval('img.dropdown-picture', img => img.getAttribute('src'))
-    expect(src).toEqual(url)
+    expect(src.includes(url)).toBeTrue
     await clickOn('#btn-menu')
     await expectMatch('Signed in as Bob Lalancette')
     await clickOn('#btn-menu')
