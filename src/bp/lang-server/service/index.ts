@@ -30,9 +30,9 @@ const FAST_TEXT_MODEL_REGEX = /^(\w+)\.(\w+)\.(\d+)\.bin$/i
 const BPE_MODEL_REGEX = /^(\w+)\.(\w+)\.bpe\.model$/i
 
 const getModelSize = (dims: number) => {
-  const linear_regresion_alpha = 7.009615385
+  const linear_regression_alpha = 7.009615385
   const linear_regression_beta = 913.7019231
-  return (linear_regresion_alpha * dims + linear_regression_beta) / 1000
+  return (linear_regression_alpha * dims + linear_regression_beta) / 1000
 }
 
 const checkEnoughRam = (langNb: number, dims: number): RamInfos => {
