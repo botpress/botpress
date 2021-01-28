@@ -580,11 +580,19 @@ export class CMSService implements IDisposeOnExit {
   private getOriginalProps(formData: object, contentType: ContentType, lang: string, defaultLang?: string) {
     const originalProps = Object.keys(_.get(contentType, 'jsonSchema.properties'))
 
+    // When data is accessible through a single key containing the '$' separator. e.g. { 'text$en': '...' }
+    const separatorExtraction = (prop: string) =>
+      formData[`${prop}$${lang}`] || (defaultLang && formData[`${prop}$${defaultLang}`])
+
+    // When data is accessible through keys of a nested dictionary. e.g. { 'text': { 'en': '...' } }
+    const nestedDictExtraction = (prop: string) =>
+      formData[prop] && (formData[prop][lang] || (defaultLang && formData[prop][defaultLang]))
+
     if (originalProps) {
-      return originalProps.reduce((result, key) => {
-        result[key] = formData[`${key}$${lang}`] || (defaultLang && formData[`${key}$${defaultLang}`])
-        return result
-      }, {})
+      return originalProps.reduce(
+        (result, prop) => ((result[prop] = separatorExtraction(prop) || nestedDictExtraction(prop)), result),
+        {}
+      )
     } else {
       return formData
     }
@@ -610,9 +618,9 @@ export class CMSService implements IDisposeOnExit {
 
     const translateFormData = async (formData: object): Promise<object> => {
       const defaultLang = (await this.configProvider.getBotConfig(eventDestination.botId)).defaultLanguage
-      const lang = _.get(args, 'event.state.user.language')
+      const userLang = _.get(args, 'event.state.user.language')
 
-      return this.getOriginalProps(formData, contentTypeRenderer, lang, defaultLang)
+      return this.getOriginalProps(formData, contentTypeRenderer, userLang, defaultLang)
     }
 
     if (contentId.startsWith('!')) {
