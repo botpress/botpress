@@ -1,6 +1,6 @@
 ---
 id: azure-oauth2
-title: Azure Active Directory OAuth2
+title: Setting up SSO with Azure AD OAuth2
 ---
 
 **Note**: This is a Botpress Pro feature

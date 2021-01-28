@@ -1,6 +1,6 @@
 ---
 id: github-oauth2
-title: GitHub OAuth2
+title: Setting up SSO with GitHub OAuth2
 ---
 
 **Note**: This is a Botpress Pro feature
