@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
 import { IntentPredictions, NoneableIntentPredictions } from './intents/intent-classifier'
 import { OOSIntentClassifier } from './intents/oos-intent-classfier'
-import { RootIntentClassifier } from './intents/root-intent-classifier'
+import { SvmIntentClassifier } from './intents/svm-intent-classifier'
 import SlotTagger from './slots/slot-tagger'
 import {
   EntityExtractionResult,
@@ -27,7 +27,7 @@ export type Predictors = {
   contexts: string[]
   pattern_entities: PatternEntity[]
   intents: Intent<Utterance>[]
-  ctx_classifier: RootIntentClassifier
+  ctx_classifier: SvmIntentClassifier
   intent_classifier_per_ctx: _.Dictionary<OOSIntentClassifier>
 } & Partial<{
   kmeans: MLToolkit.KMeans.KmeansResult

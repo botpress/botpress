@@ -1,4 +1,4 @@
-import { RootIntentClassifier } from './intents/root-intent-classifier'
+import { SvmIntentClassifier } from './intents/svm-intent-classifier'
 import { predictContext, predictIntent, Predictors } from './predict-pipeline'
 import { Tools } from './typings'
 import Utterance from './utterance/utterance'
@@ -9,7 +9,7 @@ describe('predict pipeline', () => {
     const languageCode = 'en'
     const contexts = ['A', 'B', 'C', 'D']
 
-    const rootIntentClassifier = new RootIntentClassifier({} as Tools)
+    const rootIntentClassifier = new SvmIntentClassifier({} as Tools, () => [0])
     rootIntentClassifier.load(JSON.stringify({ svmModel: undefined, intentNames: contexts }))
 
     // act

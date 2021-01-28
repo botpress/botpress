@@ -6,7 +6,7 @@ import { extractListEntitiesWithCache, extractPatternEntities } from './entities
 import { warmEntityCache } from './entities/entity-cache-manager'
 import { getCtxFeatures } from './intents/context-featurizer'
 import { OOSIntentClassifier } from './intents/oos-intent-classfier'
-import { RootIntentClassifier } from './intents/root-intent-classifier'
+import { SvmIntentClassifier } from './intents/svm-intent-classifier'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import tfidf from './tools/tfidf'
@@ -222,7 +222,7 @@ const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: 
     }
   })
 
-  const rootIntentClassifier = new RootIntentClassifier(tools)
+  const rootIntentClassifier = new SvmIntentClassifier(tools, getCtxFeatures)
   await rootIntentClassifier.train(
     {
       intents: rootIntents,

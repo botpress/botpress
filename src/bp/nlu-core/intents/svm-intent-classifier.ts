@@ -3,7 +3,6 @@ import _ from 'lodash'
 import { ListEntityModel, PatternEntity, Tools } from 'nlu-core/typings'
 import Utterance from 'nlu-core/utterance/utterance'
 
-import { getCtxFeatures } from './context-featurizer'
 import { IntentClassifier, IntentPredictions, IntentTrainInput } from './intent-classifier'
 
 interface Model {
@@ -20,21 +19,24 @@ interface Predictors {
   pattern_entities: PatternEntity[]
 }
 
-export class RootIntentClassifier implements IntentClassifier {
+type Featurizer = (u: Utterance, entities: string[]) => number[]
+
+export class SvmIntentClassifier implements IntentClassifier {
   private model: Model | undefined
   private predictors: Predictors | undefined
 
-  constructor(private tools: Tools) {}
+  constructor(private tools: Tools, private featurizer: Featurizer) {}
 
   async train(input: IntentTrainInput, progress: (p: number) => void): Promise<void> {
-    const { list_entities, pattern_entities, intents } = input
-    const customEntities = [...list_entities.map(e => e.entityName), ...pattern_entities.map(e => e.name)]
+    const { intents, nluSeed, list_entities, pattern_entities } = input
+
+    const entitiesName = this._getEntitiesName(list_entities, pattern_entities)
 
     const points = _(intents)
       .flatMap(({ utterances, name }) => {
         return utterances.map(utt => ({
           label: name,
-          coordinates: getCtxFeatures(utt, customEntities)
+          coordinates: this.featurizer(utt, entitiesName)
         }))
       })
       .filter(x => x.coordinates.filter(isNaN).length === 0)
@@ -54,11 +56,11 @@ export class RootIntentClassifier implements IntentClassifier {
 
     const svm = new this.tools.mlToolkit.SVM.Trainer()
 
-    const seed = input.nluSeed
-    const model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC', seed }, progress)
+    const seed = nluSeed
+    const svmModel = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC', seed }, progress)
 
     this.model = {
-      svmModel: model,
+      svmModel,
       intentNames: intents.map(i => i.name),
       list_entities,
       pattern_entities
@@ -66,6 +68,9 @@ export class RootIntentClassifier implements IntentClassifier {
   }
 
   serialize(): string {
+    if (!this.model) {
+      throw new Error('SVM Intent classifier must be trained before calling serialize')
+    }
     return JSON.stringify(this.model)
   }
 
@@ -88,13 +93,13 @@ export class RootIntentClassifier implements IntentClassifier {
   async predict(utterance: Utterance): Promise<IntentPredictions> {
     if (!this.predictors) {
       if (!this.model) {
-        throw new Error('Root classifier must be trained before you call predict on it.')
+        throw new Error('SVM Intent classifier must be trained before calling predict.')
       }
 
       this.predictors = this._makePredictors(this.model)
     }
 
-    const { svm, intentNames, pattern_entities, list_entities } = this.predictors
+    const { svm, intentNames, list_entities, pattern_entities } = this.predictors
     if (!svm) {
       if (intentNames.length <= 0) {
         return {
@@ -108,8 +113,8 @@ export class RootIntentClassifier implements IntentClassifier {
       }
     }
 
-    const customEntities = this._getCustomEntitiesNames(list_entities, pattern_entities)
-    const features = getCtxFeatures(utterance, customEntities)
+    const entitiesName = this._getEntitiesName(list_entities, pattern_entities)
+    const features = this.featurizer(utterance, entitiesName)
     const preds = await svm.predict(features)
 
     return {
@@ -117,7 +122,7 @@ export class RootIntentClassifier implements IntentClassifier {
     }
   }
 
-  private _getCustomEntitiesNames(list_entities: ListEntityModel[], pattern_entities: PatternEntity[]) {
+  private _getEntitiesName(list_entities: ListEntityModel[], pattern_entities: PatternEntity[]) {
     return [...list_entities.map(e => e.entityName), ...pattern_entities.map(e => e.name)]
   }
 }

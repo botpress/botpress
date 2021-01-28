@@ -1,13 +1,13 @@
 import { Tools } from 'nlu-core/typings'
 import { makeTestUtterance } from 'nlu-core/utterance/utterance'
 
-import { RootIntentClassifier } from './root-intent-classifier'
+import { SvmIntentClassifier } from './svm-intent-classifier'
 
 const tools = (<Partial<Tools>>{}) as Tools
 
 test('predict with no ctx classifier and no ctxs returns empty array', async () => {
   // arrange
-  const rootIntentClassifier = new RootIntentClassifier(tools)
+  const rootIntentClassifier = new SvmIntentClassifier(tools, () => [])
   rootIntentClassifier.load(JSON.stringify({ svmModel: undefined, intentNames: [] }))
 
   // act
@@ -21,7 +21,7 @@ test('predict with no ctx classifier and no ctxs returns empty array', async () 
 
 test('predict with no ctx classifier returns equi-confident ctx with none intent in each', async () => {
   // arrange
-  const rootIntentClassifier = new RootIntentClassifier(tools)
+  const rootIntentClassifier = new SvmIntentClassifier(tools, () => [])
   const intentNames = ['A', 'B', 'C', 'D']
   rootIntentClassifier.load(JSON.stringify({ svmModel: undefined, intentNames }))
 

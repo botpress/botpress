@@ -1,4 +1,4 @@
-import { MLToolkit, NLU } from 'botpress/sdk'
+import { NLU } from 'botpress/sdk'
 import bytes from 'bytes'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
@@ -7,8 +7,9 @@ import sizeof from 'object-sizeof'
 import { deserializeKmeans } from './clustering'
 import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
+import { getCtxFeatures } from './intents/context-featurizer'
 import { OOSIntentClassifier } from './intents/oos-intent-classfier'
-import { RootIntentClassifier } from './intents/root-intent-classifier'
+import { SvmIntentClassifier } from './intents/svm-intent-classifier'
 import DetectLanguage from './language/language-identifier'
 import makeSpellChecker from './language/spell-checker'
 import modelIdService from './model-id-service'
@@ -263,7 +264,7 @@ export default class Engine implements NLU.Engine {
       return intentClf
     })
 
-    const ctx_classifier = new RootIntentClassifier(tools)
+    const ctx_classifier = new SvmIntentClassifier(tools, getCtxFeatures)
     ctx_classifier.load(ctx_model)
 
     const basePredictors: Predictors = {
