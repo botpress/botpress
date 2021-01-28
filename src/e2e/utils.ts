@@ -47,9 +47,10 @@ const getResponse = async (url: string, method?: HttpMethod) => {
   })
 }
 
-export const expectCallSuccess = async (url: string, method?: HttpMethod): Promise<void> => {
+export const expectCallSuccess = async (url: string, method?: HttpMethod): Promise<any> => {
   const response = await getResponse(url, method)
   expect(response.status()).toBe(200)
+  return response.json()
 }
 
 export const expectAdminApiCallSuccess = async (endOfUrl: string, method?: HttpMethod): Promise<void> => {

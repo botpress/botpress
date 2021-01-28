@@ -1,5 +1,5 @@
 import { Button, Classes, Dialog, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { FormFields, lang } from 'botpress/shared'
 import { UserProfile } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import api from '~/api'
@@ -15,17 +15,21 @@ interface Props {
 const UpdateUserProfile: FC<Props> = props => {
   const [firstname, setFirstname] = useState<string>()
   const [lastname, setLastname] = useState<string>()
+  const [picture_url, setPictureUrl] = useState<string>()
 
   useEffect(() => {
     setFirstname(props.profile.firstname)
     setLastname(props.profile.lastname)
+    setPictureUrl(props.profile.picture_url)
   }, [props.isOpen])
+
+  const client = api.getSecured()
 
   const submit = async event => {
     event.preventDefault()
 
     try {
-      await api.getSecured().post('/auth/me/profile', { firstname, lastname })
+      await client.post('/auth/me/profile', { firstname, lastname, picture_url })
 
       props.fetchProfile()
       props.toggle()
@@ -34,6 +38,10 @@ const UpdateUserProfile: FC<Props> = props => {
     } catch (err) {
       toastFailure(lang.tr('admin.errorUpdatingProfile', { msg: err.message }))
     }
+  }
+
+  const uploadFieldChange = (url: string | undefined) => {
+    setPictureUrl(url)
   }
 
   return (
@@ -47,7 +55,7 @@ const UpdateUserProfile: FC<Props> = props => {
     >
       <form onSubmit={submit}>
         <div className={Classes.DIALOG_BODY}>
-          <FormGroup label={lang.tr('admin.firstName')}>
+          <FormGroup label={lang.tr('admin.firstName')} labelFor="input-firstname">
             <InputGroup
               id="input-firstname"
               value={firstname}
@@ -57,8 +65,12 @@ const UpdateUserProfile: FC<Props> = props => {
             />
           </FormGroup>
 
-          <FormGroup label={lang.tr('admin.lastName')}>
+          <FormGroup label={lang.tr('admin.lastName')} labelFor="input-lastname">
             <InputGroup id="input-lastname" value={lastname} onChange={e => setLastname(e.target.value)} tabIndex={2} />
+          </FormGroup>
+
+          <FormGroup label={lang.tr('admin.profilePicture')}>
+            <FormFields.Upload axios={client} onChange={uploadFieldChange} value={picture_url} />
           </FormGroup>
         </div>
 

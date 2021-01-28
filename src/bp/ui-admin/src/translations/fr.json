@@ -47,6 +47,7 @@
       "usingLangServerAt": "Utilisation du serveur lang sur"
     },
     "lastName": "Nom de famille",
+    "profilePicture": "Photo de profile",
     "license": {
       "enterLicenseKey": "Entrez la clé de licence",
       "enterYourLicense": "Entrez votre clé de licence",
