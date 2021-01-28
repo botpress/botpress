@@ -25,7 +25,7 @@ A popup with your client ID and client secret will show up, keep them for the ne
 
 ## Step 3: Configure Botpress
 
-In your Botpress instance navigate to the code editor by going into any of your bots and add a new entry within "authStrategies" (should be around line 229) in the _botpress.config.json_ file, you may name the strategy whatever you want (keep the name URL safe) and fill in the entry in the following way:
+In your Botpress instance navigate to the code editor by going into any of your bots and add a new entry within `authStrategies` in the _botpress.config.json_ file, you may name the strategy whatever you want (keep the name URL safe) and fill in the entry in the following way:
 
 ```json
 "<your strategy name>": {
@@ -48,11 +48,11 @@ In your Botpress instance navigate to the code editor by going into any of your 
 
 ## Step 4: Enable the strategy in Botpress
 
-Under the "pro" settings in the _botpress.config.json_ file (should be around line 143), add your strategy name to the "collaboratorsAuthStrategies" array.
+Under the `pro` settings in the _botpress.config.json_ file (should be around line 143), add your strategy name to the `collaboratorsAuthStrategies` array.
 
 ![Enable strategy](assets/oauth/az_5_enable_strategy.png)
 
-Also make sure that the "externalAuth" object has "enabled" set to true:
+Also make sure that the `externalAuth` object has `enabled` set to `true`:
 
 ![Enable external auth](assets/oauth/az_5_enable_external_auth.png)
 

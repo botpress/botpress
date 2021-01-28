@@ -21,7 +21,7 @@ Create a new application and choose the appropriate configuration for your use c
 
 ## Step 3: Configure Botpress
 
-In your Botpress instance navigate to the code editor by going into any of your bots and add a new entry within "authStrategies" in the _botpress.config.json_ file, you may name the strategy whatever you want (keep the name URL safe) and fill in the entry in the following way:
+In your Botpress instance navigate to the code editor by going into any of your bots and add a new entry within `authStrategies` in the _botpress.config.json_ file, you may name the strategy whatever you want (keep the name URL safe) and fill in the entry in the following way:
 
 ```json
 "<your strategy name>": {
@@ -44,17 +44,17 @@ In your Botpress instance navigate to the code editor by going into any of your 
 
 ## Step 4: Create a client secret
 
-Next navigate to "Certificates & secrets" and create a new client secret, copy its value and paste in the "clientSecret" field of your created strategy in the _botpress.config.json_ file
+Next navigate to "Certificates & secrets" and create a new client secret, copy its value and paste in the `clientSecret` field of your created strategy in the _botpress.config.json_ file
 
 ![Secret creation](assets/oauth/az_4_create_secret.png)
 
 ## Step 5: Enable the strategy in Botpress
 
-Under the "pro" settings in the _botpress.config.json_ file (should be around line 143), add your strategy name to the "collaboratorsAuthStrategies" array.
+Under the `pro` settings in the _botpress.config.json_ file (should be around line 143), add your strategy name to the `collaboratorsAuthStrategies` array.
 
 ![Enable strategy](assets/oauth/az_5_enable_strategy.png)
 
-Also make sure that the "externalAuth" object has "enabled" set to true:
+Also make sure that the `externalAuth` object has `enabled` set to `true`:
 
 ![Enable external auth](assets/oauth/az_5_enable_external_auth.png)
 
