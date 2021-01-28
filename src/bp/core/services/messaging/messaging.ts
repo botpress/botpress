@@ -32,7 +32,7 @@ export class MessagingAPI {
   }
 
   public async getOrCreateRecentConversation(endpoint: sdk.UserEndpoint): Promise<sdk.RecentConversation> {
-    return (await this.conversationRepo.getAllRecent(endpoint, 1))[0] ?? this.conversationRepo.create(endpoint)
+    return (await this.conversationRepo.getMostRecent(endpoint)) ?? this.conversationRepo.create(endpoint)
   }
 
   public async getConversationById(conversationId: number): Promise<sdk.Conversation | undefined> {
@@ -58,7 +58,10 @@ export class MessagingAPI {
     from: string,
     payload: any
   ): Promise<sdk.Message> {
-    return this.messageRepo.create(conversationId, eventId, incomingEventId, from, payload)
+    const message = await this.messageRepo.create(conversationId, eventId, incomingEventId, from, payload)
+    const conversation = (await this.getConversationById(conversationId))!
+    await this.conversationRepo.checkMostRecent(conversation)
+    return message
   }
 
   public async getMessageById(messageId: number): Promise<sdk.Message | undefined> {
@@ -83,46 +86,42 @@ export class MessagingAPI {
     direction: sdk.EventDirection,
     args?: Partial<sdk.IO.EventCtorArgs>
   ) {
-    const ctorArgs: Partial<sdk.IO.EventCtorArgs> = {
+    const conversation = await this.getConversationById(conversationId)
+    if (!conversation) {
+      throw new Error(
+        'conversationId: conversation not found. conversationId must be the id of an existing conversation'
+      )
+    }
+
+    args = {
+      ...args,
       direction,
       type: payload.type,
       payload,
-      ...args
+      threadId: conversation.id.toString(),
+      target: conversation.userId,
+      botId: conversation.botId
     }
 
-    if (!ctorArgs.threadId || !ctorArgs.target || !ctorArgs.botId) {
-      const conversation = await this.getConversationById(conversationId)
-
-      if (!conversation) {
-        throw new Error(
-          'conversationId: conversation not found. conversationId must be the id of an existing conversation'
-        )
-      }
-
-      ctorArgs.threadId = conversation.id.toString()
-      ctorArgs.target = conversation.userId
-      ctorArgs.botId = conversation.botId
-    }
-
-    if (!ctorArgs.channel) {
-      const lastChannel = await this.kvs.forBot(ctorArgs.botId).get(`lastChannel_${ctorArgs.botId}_${ctorArgs.target}`)
-
+    if (!args.channel) {
+      const lastChannel = await this.kvs.forBot(args.botId!).get(`lastChannel_${args.botId}_${args.target}`)
       if (lastChannel) {
         throw new Error('No previous channel was set for the user. You must provide a threadId in the args parameter')
       }
-
-      ctorArgs.threadId = lastChannel
+      args.threadId = lastChannel
     }
 
-    const event = new IOEvent(<sdk.IO.EventCtorArgs>ctorArgs)
+    const event = new IOEvent(<sdk.IO.EventCtorArgs>args)
     await this.eventEngine.sendEvent(event)
 
-    return this.messageRepo.create(
+    const message = await this.messageRepo.create(
       conversationId,
       event.id,
       event.id,
       event.direction === 'incoming' ? 'user' : 'bot',
       payload
     )
+    await this.conversationRepo.checkMostRecent(conversation)
+    return message
   }
 }

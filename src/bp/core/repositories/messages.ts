@@ -30,7 +30,7 @@ export class KnexMessageRepository implements MessageRepository {
   public async getAll(conversationId: number): Promise<sdk.Message[]> {
     const rows = await this.query()
       .where({ conversationId })
-      .orderBy('sentOn', 'desc')
+      .orderBy('sentOn')
     return rows.map(x => this.deserialize(x))
   }
 
