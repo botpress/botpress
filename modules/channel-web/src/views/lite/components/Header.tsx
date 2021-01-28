@@ -266,7 +266,7 @@ class Header extends React.Component<HeaderProps> {
     if (this.props.showDeleteConversationButton) {
       optionsItems.push({
         label: 'Delete conversation',
-        action: this.renderDeleteConversationButton
+        action: this.props.deleteConversation
       })
     }
 

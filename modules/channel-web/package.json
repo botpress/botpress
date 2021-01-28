@@ -21,7 +21,7 @@
     "@juggle/resize-observer": "^3.0.2",
     "apicache": "^1.5.3",
     "aws-sdk": "^2.108.0",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "bluebird": "^3.5.3",
     "bluebird-global": "^1.0.1",
     "classnames": "^2.2.6",

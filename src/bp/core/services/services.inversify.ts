@@ -1,3 +1,4 @@
+import { IO } from 'botpress/sdk'
 import LicensingService from 'common/licensing-service'
 import { DialogContainerModule } from 'core/services/dialog/dialog.inversify'
 import { CEJobService, JobService } from 'core/services/job-service'
@@ -22,7 +23,7 @@ import { KeyValueStore } from './kvs'
 import CELicensingService from './licensing'
 import { LogsJanitor } from './logs/janitor'
 import { LogsService } from './logs/service'
-import MediaService from './media'
+import { MediaServiceProvider } from './media'
 import { EventEngine } from './middleware/event-engine'
 import { CEMonitoringService, MonitoringService } from './monitoring'
 import { NLUService } from './nlu/nlu-service'
@@ -41,8 +42,8 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
     .to(NLUService)
     .inSingletonScope()
 
-  bind<MediaService>(TYPES.MediaService)
-    .to(MediaService)
+  bind<MediaServiceProvider>(TYPES.MediaServiceProvider)
+    .to(MediaServiceProvider)
     .inSingletonScope()
 
   bind<ActionService>(TYPES.ActionService)
@@ -82,11 +83,11 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
     .inSingletonScope()
     .when(() => !process.IS_PRO_ENABLED)
 
-  bind<Queue>(TYPES.IncomingQueue).toDynamicValue((context: interfaces.Context) => {
+  bind<Queue<IO.IncomingEvent>>(TYPES.IncomingQueue).toDynamicValue((context: interfaces.Context) => {
     return new MemoryQueue('Incoming', context.container.getTagged(TYPES.Logger, 'name', 'IQueue'))
   })
 
-  bind<Queue>(TYPES.OutgoingQueue).toDynamicValue((context: interfaces.Context) => {
+  bind<Queue<IO.OutgoingEvent>>(TYPES.OutgoingQueue).toDynamicValue((context: interfaces.Context) => {
     return new MemoryQueue('Outgoing', context.container.getTagged(TYPES.Logger, 'name', 'OQueue'))
   })
 

@@ -47,6 +47,7 @@
       "usingLangServerAt": "Usando el servidor de idiomas en"
     },
     "lastName": "Apellido",
+    "profilePicture": "Foto",
     "license": {
       "enterLicenseKey": "Introduzca la clave de la licencia",
       "enterYourLicense": "Introduce tu clave de licencia",

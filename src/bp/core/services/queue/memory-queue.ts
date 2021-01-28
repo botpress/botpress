@@ -1,16 +1,16 @@
-import { Logger } from 'botpress/sdk'
+import { IO, Logger } from 'botpress/sdk'
 import { inject, injectable, optional, tagged } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 
 import { TYPES } from '../../types'
 
-import { defaultOptions, Job, JobWithEvent, JobWrapper, Queue, QueueConsumer, QueueOptions } from '.'
+import { defaultOptions, JobWrapper, Queue, QueueConsumer, QueueOptions } from '.'
 
 @injectable()
-export default class MemoryQueue implements Queue {
+export default class MemoryQueue<E extends IO.Event> implements Queue<E> {
   private _options: QueueOptions
-  private _queue: Array<JobWrapper> = []
+  private _queue: Array<JobWrapper<E>> = []
   private _subscribers: Array<Function> = []
   private _lock: { [queueId: string]: boolean } = {}
   private _drain: NodeJS.Timer
@@ -47,19 +47,19 @@ export default class MemoryQueue implements Queue {
     return !this._queue.length
   }
 
-  isEmptyForJob(job: Job) {
+  isEmptyForJob(job: E) {
     const jobQueueId = this.getQueueId(job)
     const subqueueLength = this._queue.filter(item => this.getQueueId(item.job) === jobQueueId).length
     return !subqueueLength
   }
 
-  getQueueId(job: Job): string {
-    const event = (job as JobWithEvent).event || job
+  getQueueId(job: E): string {
+    const event = job
     return `${event.botId}::${event.channel}::${event.target}`
   }
 
-  async enqueue(job: Job, retries: number = 0, isPriority: boolean = false) {
-    const jobWrapped: JobWrapper = { job, id: nanoid(), timestamp: new Date(), retries }
+  async enqueue(job: E, retries: number = 0, isPriority: boolean = false) {
+    const jobWrapped: JobWrapper<E> = { job, id: nanoid(), timestamp: new Date(), retries }
     if (isPriority) {
       this._queue.unshift(jobWrapped)
     } else {
@@ -72,12 +72,12 @@ export default class MemoryQueue implements Queue {
     return this._queue.shift()
   }
 
-  async cancelAll(job: Job) {
+  async cancelAll(job: E) {
     const jobQueueId = this.getQueueId(job)
     this._queue = this._queue.filter(item => this.getQueueId(item.job) !== jobQueueId)
   }
 
-  async peek(job: Job) {
+  async peek(job: E) {
     const jobQueueId = this.getQueueId(job)
     return this._queue.find(item => this.getQueueId(item.job) === jobQueueId)
   }
@@ -114,7 +114,7 @@ export default class MemoryQueue implements Queue {
     }
   }
 
-  subscribe(fn: QueueConsumer) {
+  subscribe(fn: QueueConsumer<E>) {
     this._subscribers.push(fn)
   }
 }
