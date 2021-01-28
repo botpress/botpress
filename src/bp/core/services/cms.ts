@@ -16,7 +16,7 @@ import { TYPES } from '../types'
 
 import { GhostService } from '.'
 import { JobService } from './job-service'
-import MediaService from './media'
+import { MediaServiceProvider } from './media'
 
 const UNLIMITED_ELEMENTS = -1
 export const DefaultSearchParams: SearchParams = {
@@ -57,7 +57,7 @@ export class CMSService implements IDisposeOnExit {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.InMemoryDatabase) private memDb: KnexExtended,
     @inject(TYPES.JobService) private jobService: JobService,
-    @inject(TYPES.MediaService) private mediaService: MediaService,
+    @inject(TYPES.MediaServiceProvider) private mediaServiceProvider: MediaServiceProvider,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
   ) {}
 
@@ -292,9 +292,10 @@ export class CMSService implements IDisposeOnExit {
   }
 
   deleteMedia(botId: string, elements: ContentElement[]) {
+    const mediaService = this.mediaServiceProvider.forBot(botId)
     _.map(elements, 'formData').forEach(formData => {
       const filesToDelete = this.getMediaFiles(formData)
-      filesToDelete.forEach(e => this.mediaService.deleteFile(botId, e))
+      filesToDelete.forEach(f => mediaService.deleteFile(f))
     })
   }
 
