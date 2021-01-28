@@ -21,7 +21,7 @@ Create a new application and choose the appropriate configuration for your use c
 
 ## Step 3: Configure Botpress
 
-In your Botpress instance navigate to the code editor by going into any of your bots and add a new entry within "authStrategies" (should be around line 229) in the _botpress.config.json_ file, you may name the strategy whatever you want (keep the name URL safe) and fill in the entry in the following way:
+In your Botpress instance navigate to the code editor by going into any of your bots and add a new entry within "authStrategies" in the _botpress.config.json_ file, you may name the strategy whatever you want (keep the name URL safe) and fill in the entry in the following way:
 
 ```json
 "<your strategy name>": {
