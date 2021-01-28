@@ -9,15 +9,14 @@ import React, { FC, useContext, useEffect, useState } from 'react'
 import { agentName } from '../../../../helper'
 import { IHandoff } from '../../../../types'
 import style from '../../style.scss'
-import { generateUsername, getOrSet } from '../utils'
 import { Context } from '../Store'
 
 import HandoffBadge from './HandoffBadge'
+import UserName from './UserName'
 
-const HandoffItem: FC<IHandoff> = ({ createdAt, id, status, agentId, userConversation, userChannel }) => {
+const HandoffItem: FC<IHandoff> = ({ createdAt, id, status, agentId, userConversation, userChannel, user }) => {
   const { state, dispatch } = useContext(Context)
 
-  const [defaultUsername, setDefaultUsername] = useState()
   const [readStatus, setReadStatus] = useState(false)
   const [fromNow, setFromNow] = useState(moment(createdAt).fromNow())
 
@@ -48,36 +47,6 @@ const HandoffItem: FC<IHandoff> = ({ createdAt, id, status, agentId, userConvers
     }
   }, [userConversation, state.reads])
 
-  useEffect(() => {
-    const key = _.get(userConversation.event, 'target')
-    const username = getOrSet(
-      () => {
-        return _.get(state, `defaults.user.${key}.username`)
-      },
-      value => {
-        dispatch({
-          type: 'setDefault',
-          payload: {
-            user: {
-              [key]: {
-                username: value
-              }
-            }
-          }
-        })
-      },
-      generateUsername()
-    )
-
-    setDefaultUsername(username)
-  }, [userConversation])
-
-  const userName = () => {
-    return _.get(userConversation.event, 'state.user.fullName') || state.config.defaultUsername
-      ? defaultUsername
-      : lang.tr('module.hitlnext.user.anonymous')
-  }
-
   const displayAgentName = () => {
     if (agentId && agentId === state.currentAgent?.agentId) {
       return lang.tr('module.hitlnext.handoff.you')
@@ -94,7 +63,8 @@ const HandoffItem: FC<IHandoff> = ({ createdAt, id, status, agentId, userConvers
     >
       {!readStatus && <span className={style.unreadDot}></span>}
       <div className={style.info}>
-        <span className={style.clientName}>{userName()}</span> <strong>#{id}</strong>
+        <UserName user={user} />
+        &nbsp;<strong>#{id}</strong>
         <p>
           <span>{lang.tr('module.hitlnext.handoff.from', { channel: userChannel })}</span> {agentId && '⋅'}{' '}
           <span>{displayAgentName()}</span>

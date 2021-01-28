@@ -68,6 +68,7 @@ const Upload: FC<UploadFieldProps> = props => {
         if (url.startsWith('/')) {
           url = `${window.location.protocol}//${window.location.host}${url}`
         }
+
         dispatch({ type: 'uploadSuccess', data: { url } })
       })
       .catch(e => {
