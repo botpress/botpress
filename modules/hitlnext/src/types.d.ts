@@ -60,6 +60,7 @@ interface IUserAttributes extends Object {
   timezone: string
   language: string
   email: string
+  [key: string]: any
 }
 
 export interface IUser {
