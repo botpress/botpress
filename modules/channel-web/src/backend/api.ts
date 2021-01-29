@@ -218,8 +218,9 @@ export default async (bp: typeof sdk) => {
       return res.status(400).send(ERR_USER_ID_REQ)
     }
 
+    const config = (await bp.config.getModuleConfigForBot('channel-web', botId)) as Config
     const conversation = await bp.messaging.getConversationById(conversationId)
-    const messages = await bp.messaging.getAllMessages(conversationId)
+    const messages = await bp.messaging.getAllMessages(conversationId, config.maxMessagesHistory)
 
     return res.send({ ...conversation, messages })
   })
@@ -233,7 +234,7 @@ export default async (bp: typeof sdk) => {
 
     await bp.users.getOrCreateUser('web', userId, botId)
 
-    const conversations = await bp.messaging.getAllRecentConversations({ userId, botId })
+    const conversations = await bp.messaging.getAllRecentConversations({ userId, botId }, 100)
     const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
     return res.send({
@@ -484,14 +485,15 @@ export default async (bp: typeof sdk) => {
   }
 
   router.get('/conversations/:userId/:conversationId/download/txt', async (req: BPRequest, res: Response) => {
-    const { userId, conversationId } = req.params
+    const { userId, conversationId, botId } = req.params
 
     if (!validateUserId(userId)) {
       return res.status(400).send(ERR_USER_ID_REQ)
     }
 
+    const config = (await bp.config.getModuleConfigForBot('channel-web', botId)) as Config
     const conversation = await bp.messaging.getConversationById(conversationId)
-    const messages = await bp.messaging.getAllMessages(conversationId)
+    const messages = await bp.messaging.getAllMessages(conversationId, config.maxMessagesHistory)
     const txt = await convertToTxtFile(conversation, messages)
 
     res.send({ txt, name: `Conversation ${conversation.id}.txt` })

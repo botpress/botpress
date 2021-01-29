@@ -95,8 +95,8 @@ export class MessagingAPI {
     return this.conversationRepo.delete(conversationId)
   }
 
-  public async getAllMessages(conversationId: number): Promise<sdk.Message[]> {
-    return this.messageRepo.getAll(conversationId)
+  public async getAllMessages(conversationId: number, limit?: number): Promise<sdk.Message[]> {
+    return this.messageRepo.getAll(conversationId, limit)
   }
 
   public async deleteAllMessages(conversationId: number): Promise<number> {

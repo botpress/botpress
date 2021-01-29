@@ -8,7 +8,7 @@ import ms from 'ms'
 import { JobService } from 'core/services/job-service'
 
 export interface MessageRepository {
-  getAll(conversationId: number): Promise<sdk.Message[]>
+  getAll(conversationId: number, limit?: number): Promise<sdk.Message[]>
   deleteAll(conversationId: number): Promise<number>
   create(
     conversationId: number,
@@ -40,11 +40,16 @@ export class KnexMessageRepository implements MessageRepository {
     this.invalidateMsgCache = await this.jobService.broadcast<void>(this._localInvalidateMsgCache.bind(this))
   }
 
-  public async getAll(conversationId: number): Promise<sdk.Message[]> {
-    const rows = await this.query()
+  public async getAll(conversationId: number, limit?: number): Promise<sdk.Message[]> {
+    let query = this.query()
       .where({ conversationId })
       .orderBy('sentOn')
-    return rows.map(x => this.deserialize(x))
+
+    if (limit) {
+      query = query.limit(limit)
+    }
+
+    return (await query).map(x => this.deserialize(x))
   }
 
   public async deleteAll(conversationId: number): Promise<number> {
