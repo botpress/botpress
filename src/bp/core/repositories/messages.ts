@@ -1,8 +1,11 @@
 import * as sdk from 'botpress/sdk'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, postConstruct } from 'inversify'
 
 import Database from '../database'
 import { TYPES } from '../types'
+import LRU from 'lru-cache'
+import ms from 'ms'
+import { JobService } from 'core/services/job-service'
 
 export interface MessageRepository {
   getAll(conversationId: number): Promise<sdk.Message[]>
@@ -24,8 +27,18 @@ export interface MessageRepository {
 @injectable()
 export class KnexMessageRepository implements MessageRepository {
   private readonly TABLE_NAME = 'messages'
+  private cache = new LRU<number, sdk.Message>({ max: 10000, maxAge: ms('5min') })
+  public invalidateMsgCache: Function = this._localInvalidateMsgCache
 
-  constructor(@inject(TYPES.Database) private database: Database) {}
+  constructor(
+    @inject(TYPES.Database) private database: Database,
+    @inject(TYPES.JobService) private jobService: JobService
+  ) {}
+
+  @postConstruct()
+  async init() {
+    this.invalidateMsgCache = await this.jobService.broadcast<void>(this._localInvalidateMsgCache.bind(this))
+  }
 
   public async getAll(conversationId: number): Promise<sdk.Message[]> {
     const rows = await this.query()
@@ -39,6 +52,8 @@ export class KnexMessageRepository implements MessageRepository {
       .where({ conversationId })
       .del()
 
+    this.invalidateMsgCache(undefined)
+
     return numberOfDeletedRows
   }
 
@@ -49,7 +64,7 @@ export class KnexMessageRepository implements MessageRepository {
     from: string,
     payload: any
   ): Promise<sdk.Message> {
-    const message = {
+    const row = {
       conversationId,
       eventId,
       incomingEventId,
@@ -59,27 +74,42 @@ export class KnexMessageRepository implements MessageRepository {
     }
 
     const [id] = await this.query()
-      .insert(this.serialize(message))
+      .insert(this.serialize(row))
       .returning('id')
 
-    return {
+    const message = {
       id,
-      ...message
+      ...row
     }
+    this.cache.set(id, message)
+
+    return message
   }
 
   public async getById(messageId: number): Promise<sdk.Message | undefined> {
+    const cached = this.cache.get(messageId)
+    if (cached) {
+      return cached
+    }
+
     const rows = await this.query()
       .select('*')
       .where({ id: messageId })
 
-    return this.deserialize(rows[0])
+    const message = this.deserialize(rows[0])
+    if (message) {
+      this.cache.set(messageId, message)
+    }
+
+    return message
   }
 
   public async delete(messageId: number): Promise<boolean> {
     const numberOfDeletedRows = await this.query()
       .where({ id: messageId })
       .del()
+
+    this.invalidateMsgCache(messageId)
 
     return numberOfDeletedRows > 0
   }
@@ -110,6 +140,14 @@ export class KnexMessageRepository implements MessageRepository {
       from,
       sentOn: new Date(sentOn),
       payload: this.database.knex.json.get(payload)
+    }
+  }
+
+  private _localInvalidateMsgCache(id: number) {
+    if (id) {
+      this.cache.del(id)
+    } else {
+      this.cache.reset()
     }
   }
 }

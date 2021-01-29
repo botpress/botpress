@@ -5,7 +5,7 @@ import Database from '../database'
 import { TYPES } from '../types'
 import LRU from 'lru-cache'
 import ms from 'ms'
-import { KnexMessageRepository, MessageRepository } from './messages'
+import { MessageRepository } from './messages'
 import { JobService } from 'core/services/job-service'
 
 export interface ConversationRepository {
