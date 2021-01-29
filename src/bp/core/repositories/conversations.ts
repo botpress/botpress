@@ -19,32 +19,23 @@ export interface ConversationRepository {
   query()
   serialize(conversation: Partial<sdk.Conversation>)
   deserialize(conversation: any)
-  flagAsCertainlyMostRecent(conversation: sdk.Conversation)
-  flagAsPossiblyNotMostRecent(conversation: sdk.Conversation)
 }
 
 @injectable()
 export class KnexConversationRepository implements ConversationRepository {
   private readonly TABLE_NAME = 'conversations'
   private cache = new LRU<number, sdk.Conversation>({ max: 10000, maxAge: ms('5min') })
-  private mostRecentCache = new LRU<string, sdk.Conversation>({ max: 10000, maxAge: ms('5min') })
-  private messageRepo: MessageRepository
   public invalidateConvCache: Function = this._localInvalidateConvCache
-  public invalidateMostRecentCache: Function = this._localInvalidateMostRecentCache
 
   constructor(
     @inject(TYPES.Database) private database: Database,
-    @inject(TYPES.JobService) private jobService: JobService
-  ) {
-    this.messageRepo = new KnexMessageRepository(database)
-  }
+    @inject(TYPES.JobService) private jobService: JobService,
+    @inject(TYPES.MessageRepository) private messageRepo: MessageRepository
+  ) {}
 
   @postConstruct()
   async init() {
     this.invalidateConvCache = await this.jobService.broadcast<void>(this._localInvalidateConvCache.bind(this))
-    this.invalidateMostRecentCache = await this.jobService.broadcast<void>(
-      this._localInvalidateMostRecentCache.bind(this)
-    )
   }
 
   public async getAll(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation[]> {
@@ -76,7 +67,6 @@ export class KnexConversationRepository implements ConversationRepository {
       .del()
 
     this.invalidateConvCache(undefined)
-    this.invalidateMostRecentCache(endpoint)
 
     return numberOfDeletedRows
   }
@@ -102,22 +92,10 @@ export class KnexConversationRepository implements ConversationRepository {
   }
 
   public async getMostRecent(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation | undefined> {
-    const cacheKey = this.getEnpointCacheKey(endpoint)
-    const cached = this.mostRecentCache.get(cacheKey)
-    if (cached) {
-      return cached
-    }
-
     let query = this.queryRecents(endpoint)
     query = query.limit(1)
-    const rows = await query
 
-    const conversation = this.deserialize(rows[0])
-    if (conversation) {
-      this.mostRecentCache.set(cacheKey, conversation)
-    }
-
-    return conversation
+    return this.deserialize((await query)[0])
   }
 
   public async getById(conversationId: number): Promise<sdk.Conversation | undefined> {
@@ -139,14 +117,11 @@ export class KnexConversationRepository implements ConversationRepository {
   }
 
   public async delete(conversationId: number): Promise<boolean> {
-    const conversation = this.getById(conversationId)
-
     const numberOfDeletedRows = await this.query()
       .where({ id: conversationId })
       .del()
 
     this.invalidateConvCache(conversationId)
-    this.invalidateMostRecentCache(conversation)
 
     return numberOfDeletedRows > 0
   }
@@ -205,35 +180,11 @@ export class KnexConversationRepository implements ConversationRepository {
     }
   }
 
-  public async flagAsCertainlyMostRecent(conversation: sdk.Conversation) {
-    const key = this.getEnpointCacheKey(conversation)
-    const currentMostRecent = this.mostRecentCache.peek(key)
-    if (currentMostRecent?.id !== conversation.id) {
-      this.invalidateMostRecentCache(conversation)
-      this.mostRecentCache.set(key, conversation)
-    }
-  }
-
-  public async flagAsPossiblyNotMostRecent(conversation: sdk.Conversation) {
-    const key = this.getEnpointCacheKey(conversation)
-    const currentMostRecent = this.mostRecentCache.peek(key)
-    if (currentMostRecent?.id === conversation.id) {
-      this.invalidateMostRecentCache(conversation)
-    }
-  }
-
-  private getEnpointCacheKey(endpoint: sdk.UserEndpoint) {
-    return `${endpoint.botId}_${endpoint.userId}`
-  }
-
   private _localInvalidateConvCache(id: number) {
     if (id) {
       this.cache.del(id)
     } else {
       this.cache.reset()
     }
-  }
-  private _localInvalidateMostRecentCache(endpoint: sdk.UserEndpoint) {
-    this.mostRecentCache.del(this.getEnpointCacheKey(endpoint))
   }
 }

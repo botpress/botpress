@@ -1,4 +1,4 @@
-import { inject, injectable } from 'inversify'
+import { inject, injectable, postConstruct } from 'inversify'
 import * as sdk from 'botpress/sdk'
 import { TYPES } from '../../types'
 import { MessageRepository } from 'core/repositories/messages'
@@ -6,15 +6,29 @@ import { ConversationRepository } from 'core/repositories/conversations'
 import { IOEvent } from 'core/sdk/impl'
 import { EventEngine } from '../middleware/event-engine'
 import { KeyValueStore } from '../kvs'
+import LRU from 'lru-cache'
+import { JobService } from '../job-service'
+import ms from 'ms'
 
 @injectable()
 export class MessagingAPI {
+  private mostRecentCache = new LRU<string, sdk.Conversation>({ max: 10000, maxAge: ms('5min') })
+  public invalidateMostRecent: (endpoint: sdk.UserEndpoint, mostRecentConvoId?: number) => void = this
+    ._localInvalidateMostRecent
+
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
+    @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.MessageRepository) private messageRepo: MessageRepository,
     @inject(TYPES.ConversationRepository) private conversationRepo: ConversationRepository,
     @inject(TYPES.KeyValueStore) private kvs: KeyValueStore
   ) {}
+
+  @postConstruct()
+  async init() {
+    this.invalidateMostRecent = <any>await this.jobService.broadcast<void>(this._localInvalidateMostRecent.bind(this))
+  }
+
   public async getAllConversations(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation[]> {
     return this.conversationRepo.getAll(endpoint)
   }
@@ -24,6 +38,8 @@ export class MessagingAPI {
   }
 
   public async deleteAllConversations(endpoint: sdk.UserEndpoint): Promise<number> {
+    this.invalidateMostRecent(endpoint)
+
     return this.conversationRepo.deleteAll(endpoint)
   }
 
@@ -32,7 +48,20 @@ export class MessagingAPI {
   }
 
   public async getOrCreateRecentConversation(endpoint: sdk.UserEndpoint): Promise<sdk.RecentConversation> {
-    return (await this.conversationRepo.getMostRecent(endpoint)) ?? this.conversationRepo.create(endpoint)
+    const cacheKey = this.getEnpointCacheKey(endpoint)
+    const cached = this.mostRecentCache.get(cacheKey)
+    if (cached) {
+      return cached
+    }
+
+    let conversation = await this.conversationRepo.getMostRecent(endpoint)
+    if (!conversation) {
+      conversation = await this.conversationRepo.create(endpoint)
+    }
+
+    this.mostRecentCache.set(cacheKey, conversation)
+
+    return conversation
   }
 
   public async getConversationById(conversationId: number): Promise<sdk.Conversation | undefined> {
@@ -40,6 +69,9 @@ export class MessagingAPI {
   }
 
   public async deleteConversation(conversationId: number): Promise<boolean> {
+    const conversation = (await this.conversationRepo.getById(conversationId))!
+    this.invalidateMostRecent(conversation)
+
     return this.conversationRepo.delete(conversationId)
   }
 
@@ -49,7 +81,8 @@ export class MessagingAPI {
 
   public async deleteAllMessages(conversationId: number): Promise<number> {
     const conversation = (await this.conversationRepo.getById(conversationId))!
-    await this.conversationRepo.flagAsPossiblyNotMostRecent(conversation)
+    await this.invalidateMostRecent(conversation)
+
     return this.messageRepo.deleteAll(conversationId)
   }
 
@@ -62,7 +95,7 @@ export class MessagingAPI {
   ): Promise<sdk.Message> {
     const message = await this.messageRepo.create(conversationId, eventId, incomingEventId, from, payload)
     const conversation = (await this.getConversationById(conversationId))!
-    await this.conversationRepo.flagAsCertainlyMostRecent(conversation)
+    await this.flagAsMostRecent(conversation)
     return message
   }
 
@@ -75,7 +108,7 @@ export class MessagingAPI {
 
     if (message) {
       const conversation = (await this.conversationRepo.getById(message.conversationId))!
-      await this.conversationRepo.flagAsPossiblyNotMostRecent(conversation)
+      await this.invalidateMostRecent(conversation)
     }
 
     return this.messageRepo.delete(messageId)
@@ -130,7 +163,31 @@ export class MessagingAPI {
       event.direction === 'incoming' ? 'user' : 'bot',
       payload
     )
-    await this.conversationRepo.flagAsCertainlyMostRecent(conversation)
+    await this.flagAsMostRecent(conversation)
     return message
+  }
+
+  private getEnpointCacheKey(endpoint: sdk.UserEndpoint) {
+    return `${endpoint.botId}_${endpoint.userId}`
+  }
+
+  private async flagAsMostRecent(conversation: sdk.Conversation) {
+    const key = this.getEnpointCacheKey(conversation)
+    const currentMostRecent = this.mostRecentCache.peek(key)
+
+    if (currentMostRecent?.id !== conversation.id) {
+      this.invalidateMostRecent({ userId: conversation.userId, botId: conversation.botId }, conversation.id)
+      this.mostRecentCache.set(key, conversation)
+    }
+  }
+
+  private _localInvalidateMostRecent(endpoint: sdk.UserEndpoint, mostRecentConvoId?: number) {
+    if (endpoint) {
+      const key = this.getEnpointCacheKey(endpoint)
+      const cachedMostRecent = this.mostRecentCache.peek(key)
+      if (cachedMostRecent?.id != mostRecentConvoId) {
+        this.mostRecentCache.del(key)
+      }
+    }
   }
 }
