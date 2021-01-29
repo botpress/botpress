@@ -166,7 +166,7 @@ class Diagram extends Component<Props> {
     const label = prompt('Choose a label for this start node')
     const userId = storage.get('bp/socket/studio/user')
 
-    await axios.post(`${window.BOT_API_PATH}/emulator/${userId}/startNode/save`, { label })
+    await axios.post(`${window.BOT_API_PATH}/emulator/startNode/save`, { label })
     await this.props.refreshEmulatorStartNodes()
   }
 
@@ -181,7 +181,7 @@ class Diagram extends Component<Props> {
     if (!options.flowChanged && id !== START_NODE_CUSTOM) {
       const userId = storage.get('bp/socket/studio/user')
 
-      await axios.post(`${window.BOT_API_PATH}/emulator/${userId}/startNode/delete/${id}`)
+      await axios.post(`${window.BOT_API_PATH}/emulator/startNode/delete/${id}`)
       await this.props.refreshEmulatorStartNodes()
 
       this.props.setEmulatorStartNode()

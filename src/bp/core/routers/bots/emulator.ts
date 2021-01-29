@@ -14,7 +14,7 @@ import { CustomRouter } from '../customRouter'
 import { checkTokenHeader, needPermissions, validateBodySchema } from '../util'
 
 const USER_ID_MAX_LENGTH = 40
-function validateUserId(userId: string) {
+const validateUserId = (userId: string) => {
   if (!userId || userId.length > USER_ID_MAX_LENGTH || userId.toLowerCase() === 'undefined') {
     return false
   }
@@ -22,18 +22,7 @@ function validateUserId(userId: string) {
   return /[a-z0-9-_]+/i.test(userId)
 }
 
-export const sanitizeName = (text: string) => text.replace(/\s/g, '-').replace(/[^a-zA-Z0-9\/_-]/g, '')
-
-export const assertUserId = async (req: RequestWithUser, _res: Response, next: NextFunction) => {
-  const { userId = undefined } = req.params
-
-  console.log(req.params)
-  if (!validateUserId(userId)) {
-    return next(new InvalidOperationError('Invalid user ID'))
-  }
-
-  next()
-}
+const sanitizeName = (text: string) => text.replace(/\s/g, '-').replace(/[^a-zA-Z0-9\/_-]/g, '')
 
 interface StartNodeEntry {
   flow: string
@@ -74,7 +63,7 @@ export class EmulatorRouter extends CustomRouter {
 
   setupRoutes() {
     this.router.use(this._checkTokenHeader)
-    this.router.use(assertUserId)
+
     //this._needPermissions('read', 'bot.content'),
 
     this.router.get(
@@ -83,19 +72,24 @@ export class EmulatorRouter extends CustomRouter {
         const { botId, userId } = req.params
         const kvs = this.kvs.forBot(botId)
 
-        const list = await kvs.get(kvs.getUserStorageKey(userId, 'emulator/list'))
+        const list = await kvs.get(kvs.getUserStorageKey(req.tokenUser!.email, 'emulator/list'))
 
         res.send(list || [])
       })
     )
 
     this.router.post(
-      '/startNode/set',
+      '/startNode/set/:userId',
       this.asyncMiddleware(async (req: RequestWithUser, res: Response) => {
         validateBodySchema(req, SetStartNodeSchema)
 
         const { botId, userId } = req.params
         const { flow, node, id } = req.body
+        const email = req.tokenUser!.email
+
+        if (!validateUserId(userId)) {
+          return res.status(400).send('User ID invalid')
+        }
 
         if (id === 'custom' && flow?.endsWith('.flow.json') && node) {
           const threadId = await this.getRecentConversation(botId, userId)
@@ -103,6 +97,7 @@ export class EmulatorRouter extends CustomRouter {
             SessionIdFactory.createIdFromEvent({ target: userId, channel: 'web', botId, threadId })
           )
 
+          console.log({ botId, userId, threadId, session })
           const { context, temp_data } = session || {}
           let payload: StartNodeEntry = { flow, node, data: undefined }
 
@@ -110,11 +105,11 @@ export class EmulatorRouter extends CustomRouter {
             payload.data = { context: JSON.parse(context), temp: JSON.parse(temp_data) }
           }
 
-          const key = this.kvs.forBot(botId).getUserStorageKey(userId, 'emulator/custom')
+          const key = this.kvs.forBot(botId).getUserStorageKey(email, 'emulator/custom')
           await this.kvs.forBot(botId).set(key, payload)
         }
 
-        await this.userRepo.updateAttributes('web', userId, { emulatorStartNode: id })
+        await this.userRepo.updateAttributes('web', userId, { emulatorStartNode: `${email}//${id}` })
 
         res.sendStatus(200)
       })
@@ -126,15 +121,16 @@ export class EmulatorRouter extends CustomRouter {
         validateBodySchema(
           req,
           Joi.object().keys({
-            label: Joi.string().max(150)
+            label: Joi.string()
+              .max(150)
+              .optional()
           })
         )
 
-        const { botId, userId } = req.params
-        const kvs = this.kvs.forBot(botId)
-        const getStorageKey = name => kvs.getUserStorageKey(userId, `emulator/${name}`)
-
         const { label } = req.body
+
+        const kvs = this.kvs.forBot(req.params.botId)
+        const getStorageKey = name => kvs.getUserStorageKey(req.tokenUser!.email, `emulator/${name}`)
 
         const customInfo = await kvs.get(getStorageKey('custom'))
         if (customInfo) {
@@ -154,10 +150,11 @@ export class EmulatorRouter extends CustomRouter {
     this.router.post(
       '/startNode/delete/:id',
       this.asyncMiddleware(async (req: RequestWithUser, res: Response) => {
-        const { botId, userId, id } = req.params
+        const { botId, id } = req.params
+        const email = req.tokenUser!.email
 
         const kvs = this.kvs.forBot(botId)
-        const getStorageKey = name => kvs.getUserStorageKey(userId, `emulator/${name}`)
+        const getStorageKey = name => kvs.getUserStorageKey(email, `emulator/${name}`)
 
         await kvs.delete(getStorageKey(id))
 

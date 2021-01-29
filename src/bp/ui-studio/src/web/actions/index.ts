@@ -514,18 +514,15 @@ export const setEmulatorStartNode = (location?: EmulatorStartNode) => dispatch =
   const userId = storage.get('bp/socket/studio/user')
 
   // tslint:disable-next-line: no-floating-promises
-  axios.post(`${window.BOT_API_PATH}/emulator/${userId}/startNode/set`, location).then(res => {
+  axios.post(`${window.BOT_API_PATH}/emulator/startNode/set/${userId}`, location).then(res => {
     dispatch(emulatorStartNodeUpdated(location))
   })
 }
 
 export const receivedEmulatorStartNodes = createAction('FLOWS/REFRESH_EMULATOR_START_NODE')
 export const refreshEmulatorStartNodes = () => dispatch => {
-  const userId = storage.get('bp/socket/studio/user')
-
   // tslint:disable-next-line: no-floating-promises
-  axios.get(`${window.BOT_API_PATH}/emulator/${userId}/startNode/list`).then(res => {
-    console.log('GOT', res.data)
+  axios.get(`${window.BOT_API_PATH}/emulator/startNode/list`).then(res => {
     dispatch(receivedEmulatorStartNodes(res.data))
   })
 }

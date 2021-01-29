@@ -291,7 +291,8 @@ export class DialogEngine {
       return undefined
     }
 
-    const key = this.kvs.forBot(event.botId).getUserStorageKey(event.target, `emulator/${emulatorStartNode}`)
+    const [email, nodeId] = emulatorStartNode.split('//')
+    const key = this.kvs.forBot(event.botId).getUserStorageKey(email, `emulator/${nodeId}`)
     const { flow, node, data } = (await this.kvs.forBot(event.botId).get(key)) || {}
 
     if (!flow || !node) {

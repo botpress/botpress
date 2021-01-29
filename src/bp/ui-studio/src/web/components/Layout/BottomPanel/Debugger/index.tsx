@@ -2,8 +2,9 @@ import { Button, ButtonGroup, Divider, Icon, Tab, Tabs } from '@blueprintjs/core
 import axios from 'axios'
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
-import { Dropdown, lang, ToolTip } from 'botpress/shared'
+import { Dropdown, lang, toast, ToolTip } from 'botpress/shared'
 import cx from 'classnames'
+import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import ms from 'ms'
 import nanoid from 'nanoid'
@@ -11,6 +12,7 @@ import React, { Fragment } from 'react'
 import { connect } from 'react-redux'
 import 'ui-shared/dist/theme.css'
 import { setDebuggerEvent, setEmulatorStartNode, refreshEmulatorStartNodes } from '~/actions'
+import { getAllFlows } from '~/reducers'
 
 import btStyle from '../style.scss'
 
@@ -45,6 +47,7 @@ interface Props {
   emulatorStartNodes: EmulatorStartNode[]
   setEmulatorStartNode: (item: EmulatorStartNode) => void
   refreshEmulatorStartNodes: () => void
+  flows: FlowView[]
 }
 
 interface State {
@@ -68,7 +71,7 @@ export interface EmulatorStartNode {
 
 export const START_NODE_CUSTOM = 'custom'
 
-const defaultNode = { value: undefined, label: 'Normal Flow' }
+const defaultNode = { value: undefined, label: 'Main/entry' }
 
 export class Debugger extends React.Component<Props, State> {
   state = {
@@ -86,6 +89,7 @@ export class Debugger extends React.Component<Props, State> {
   allowedRetryCount = 0
   currentRetryCount = 0
   loadEventDebounced = _.debounce(m => this.loadEvent(m), DEBOUNCE_DELAY)
+  filterInvalidDebounced = _.debounce(() => this.filterStartNodes(), 1000)
   lastMessage = undefined
 
   async componentDidMount() {
@@ -117,10 +121,37 @@ export class Debugger extends React.Component<Props, State> {
       this.updateStartNode()
     }
 
+    if (prevProps.flows !== this.props.flows) {
+      this.filterInvalidDebounced()
+    }
+
     if (prevProps.emulatorStartNodes !== this.props.emulatorStartNodes) {
+      this.filterInvalidDebounced()
       this.setState({
-        startNodes: [defaultNode, ...this.props.emulatorStartNodes.map(x => ({ value: x, label: x.label }))]
+        startNodes: [
+          defaultNode,
+          ...this.props.emulatorStartNodes.map(x => ({ value: x, label: x.label || `${x.flow}/${x.node}` }))
+        ]
       })
+    }
+  }
+
+  filterStartNodes = async () => {
+    if (!this.props.flows.length || !this.props.emulatorStartNodes) {
+      return
+    }
+
+    const validDest = (flowName, nodeName) =>
+      this.props.flows.find(x => x.name === flowName && x.nodes.find(node => node.name === nodeName))
+
+    const invalidEntries = this.props.emulatorStartNodes.filter(x => !validDest(x.flow, x.node))
+
+    if (invalidEntries.length) {
+      for (const item of invalidEntries) {
+        await axios.post(`${window.BOT_API_PATH}/emulator/startNode/delete/${item.id}`)
+        toast.info(`Removed start node ${item.label} because the flow or node doesn't exist anymore`)
+      }
+      await this.props.refreshEmulatorStartNodes()
     }
   }
 
@@ -321,7 +352,8 @@ export class Debugger extends React.Component<Props, State> {
 
 const mapStateToProps = state => ({
   emulatorStartNode: state.flows.emulatorStartNode,
-  emulatorStartNodes: state.flows.emulatorStartNodes
+  emulatorStartNodes: state.flows.emulatorStartNodes,
+  flows: getAllFlows(state)
 })
 
 const mapDispatchToProps = { setDebuggerEvent, setEmulatorStartNode, refreshEmulatorStartNodes }

@@ -262,7 +262,7 @@ export default class HTTPServer {
     })
 
     this.botsRouter.router.use('/hints', this.hintsRouter.router)
-    this.botsRouter.router.use('/emulator/:userId', this.emulatorRouter.router)
+    this.botsRouter.router.use('/emulator', this.emulatorRouter.router)
   }
 
   resolveAsset = file => path.resolve(process.PROJECT_LOCATION, 'data/assets', file)
