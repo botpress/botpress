@@ -36,7 +36,7 @@ const migration: Migration = {
       await db.raw('ALTER TABLE srv_migrations ALTER COLUMN details TYPE text')
     } else {
       await db.transaction(async trx => {
-        await db.schema.transacting(trx).createTableIfNotExists('srv_migrations_temp', table => {
+        await db.schema.transacting(trx).createTableIfNotExists(TEMP_TABLE_NAME, table => {
           table.increments('id')
           table.string('initialVersion')
           table.string('targetVersion')
