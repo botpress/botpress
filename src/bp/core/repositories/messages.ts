@@ -28,7 +28,7 @@ export interface MessageRepository {
 export class KnexMessageRepository implements MessageRepository {
   private readonly TABLE_NAME = 'messages'
   private cache = new LRU<number, sdk.Message>({ max: 10000, maxAge: ms('5min') })
-  public invalidateMsgCache: Function = this._localInvalidateMsgCache
+  private invalidateMsgCache: Function = this._localInvalidateMsgCache
 
   constructor(
     @inject(TYPES.Database) private database: Database,

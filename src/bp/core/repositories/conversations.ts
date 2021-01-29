@@ -25,7 +25,7 @@ export interface ConversationRepository {
 export class KnexConversationRepository implements ConversationRepository {
   private readonly TABLE_NAME = 'conversations'
   private cache = new LRU<number, sdk.Conversation>({ max: 10000, maxAge: ms('5min') })
-  public invalidateConvCache: Function = this._localInvalidateConvCache
+  private invalidateConvCache: Function = this._localInvalidateConvCache
 
   constructor(
     @inject(TYPES.Database) private database: Database,
