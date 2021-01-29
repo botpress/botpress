@@ -28,6 +28,12 @@ export default class Database {
       .where({ login }) as unknown as Promise<[User]>
   }
 
+  public getUserByUserID(userId: string): Promise<[User]> {
+    return this.knex(TABLE_NAME)
+      .select()
+      .where({ userId }) as unknown as Promise<[User]>
+  }
+
   public getUsers(): Promise<User[]> {
     return this.knex(TABLE_NAME)
       .select() as unknown as Promise<User[]>

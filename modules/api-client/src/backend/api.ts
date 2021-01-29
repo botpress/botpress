@@ -61,16 +61,22 @@ export default (bp: typeof sdk, db: Database) => {
       '/',
       asyncMiddleware(async (req, res) => {
         try {
-          const event = {
-            channel: 'web', target: req.body.target, botId: 'ecbv2'
+          const [user] = await db.getUserByUserID(req.body.target);
+          if (!user) {
+            return res.status(404).send({
+              error: 'Not found user by target'
+            });
           }
+          const event = {
+            channel: user.channel, target: user.userId, botId: 'ecbv2' // TODO - get bot id from req
+          };
           const payloads = await bp.cms.renderElement(
             'builtin_text', { text: req.body.message.body.en }, event
           );
           await bp.events.replyToEvent(event, payloads);
           return res.status(200).send([]);
         } catch (err) {
-          throw new StandardError('Cannot get users', err);
+          throw new StandardError('Cannot get user', err);
         }
       })
     );
