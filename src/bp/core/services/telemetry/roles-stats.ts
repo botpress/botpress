@@ -15,7 +15,7 @@ import { JobService } from '../job-service'
 
 import { REDACTED, TelemetryStats } from './telemetry-stats'
 
-const DEFAULT_ROLES = ['dev', 'admin', 'editor']
+const DEFAULT_ROLES = ['dev', 'admin', 'editor', 'agent']
 
 interface Role {
   id: string
