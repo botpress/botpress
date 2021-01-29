@@ -1,9 +1,8 @@
 import { Intent, ListEntityModel, PatternEntity } from 'nlu-core/typings'
 import Utterance from 'nlu-core/utterance/utterance'
 
-import { ExactMatchIndex } from './exact-matcher'
-
 export interface IntentTrainInput {
+  languageCode: string
   list_entities: ListEntityModel[]
   pattern_entities: PatternEntity[]
   intents: Intent<Utterance>[]

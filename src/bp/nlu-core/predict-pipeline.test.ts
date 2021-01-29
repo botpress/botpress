@@ -12,8 +12,7 @@ describe('predict pipeline', () => {
       {
         rawText: "hello, I love you won't you tell me your name",
         languageCode,
-        utterance: new Utterance([], [], [], languageCode),
-        oos_predictions: {}
+        utterance: new Utterance([], [], [], languageCode)
       },
       <Predictors>{ contexts, ctx_classifier: undefined }
     )
@@ -32,8 +31,7 @@ describe('predict pipeline', () => {
       {
         rawText: "hello, I love you won't you tell me your name",
         languageCode,
-        utterance: new Utterance([], [], [], languageCode),
-        oos_predictions: {}
+        utterance: new Utterance([], [], [], languageCode)
       },
       <Predictors>{ contexts, ctx_classifier: undefined }
     )
@@ -55,8 +53,7 @@ describe('predict pipeline', () => {
       {
         rawText: "hello, I love you won't you tell me your name",
         languageCode,
-        utterance: new Utterance([], [], [], languageCode),
-        oos_predictions: {}
+        utterance: new Utterance([], [], [], languageCode)
       },
       <Predictors>{ contexts, ctx_classifier: undefined }
     )
@@ -71,7 +68,7 @@ describe('predict pipeline', () => {
     const intents = Object.values(intent_predictions)
     expect(ctxs).toEqual(contexts)
     for (const i of intents) {
-      expect(i).toEqual([{ label: 'none', confidence: 1 }])
+      expect(i).toEqual({ oos: 1, intents: [{ name: 'none', confidence: 1 }] })
     }
   })
 })

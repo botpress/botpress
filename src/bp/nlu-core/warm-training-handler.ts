@@ -63,9 +63,7 @@ export const mergeModelOutputs = (
   const output = { ...currentOutput }
 
   const previousIntents = _.pick(previousOutput.intent_model_by_ctx, contexts)
-  const previousOOS = _.pick(previousOutput.oos_model, contexts)
 
   output.intent_model_by_ctx = { ...previousIntents, ...currentOutput.intent_model_by_ctx }
-  output.oos_model = { ...previousOOS, ...currentOutput.oos_model }
   return output
 }

@@ -1,6 +1,5 @@
 import { MLToolkit } from 'botpress/sdk'
 import _ from 'lodash'
-import { NONE_INTENT } from 'nlu-core/training-pipeline'
 import { ListEntityModel, PatternEntity, Tools } from 'nlu-core/typings'
 import Utterance from 'nlu-core/utterance/utterance'
 
@@ -10,7 +9,7 @@ import { getIntentFeatures } from './intent-featurizer'
 
 export const MIN_NB_UTTERANCES = 3
 
-export interface IntentClassifierModel {
+export interface Model {
   svmModel: string | undefined
   exact_match_index: ExactMatchIndex
   list_entities: ListEntityModel[]
@@ -18,7 +17,7 @@ export interface IntentClassifierModel {
 }
 
 export class BaseIntentClassifier implements IntentClassifier {
-  private model: IntentClassifierModel | undefined
+  private model: Model | undefined
   private svm: MLToolkit.SVM.Predictor | undefined
 
   constructor(private tools: Tools) {}
@@ -28,30 +27,7 @@ export class BaseIntentClassifier implements IntentClassifier {
 
     const customEntities = this._getCustomEntitiesNames(list_entities, pattern_entities)
 
-    const noneUtts = _.chain(intents)
-      .filter(i => i.name === NONE_INTENT) // in case user defines a none intent we want to combine utterances
-      .flatMap(i => i.utterances)
-      .filter(u => u.tokens.filter(t => t.isWord).length >= 3)
-      .value()
-
-    const trainableIntents = intents.filter(i => i.name !== NONE_INTENT && i.utterances.length >= MIN_NB_UTTERANCES)
-
-    const nAvgUtts = Math.ceil(_.meanBy(trainableIntents, i => i.utterances.length))
-
-    const lo = this.tools.seededLodashProvider.getSeededLodash()
-
-    const points = _.chain(trainableIntents)
-      .thru(ints => [
-        ...ints,
-        {
-          name: NONE_INTENT,
-          utterances: lo
-            .chain(noneUtts)
-            .shuffle()
-            .take(nAvgUtts * 2.5) // undescriptible magic n, no sens to extract constant
-            .value()
-        }
-      ])
+    const points = _.chain(intents)
       .flatMap(i =>
         i.utterances.map(utt => ({
           label: i.name,
@@ -63,7 +39,12 @@ export class BaseIntentClassifier implements IntentClassifier {
 
     const exact_match_index = BuildExactMatchIndex(intents)
 
-    if (points.length <= 0) {
+    const allClasses = _(points)
+      .map(p => p.label)
+      .uniq()
+      .value()
+
+    if (points.length <= 0 || allClasses.length <= 1) {
       this.model = {
         svmModel: undefined,
         exact_match_index,

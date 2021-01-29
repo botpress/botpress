@@ -7,7 +7,7 @@ import sizeof from 'object-sizeof'
 import { deserializeKmeans } from './clustering'
 import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
-import { BaseIntentClassifier } from './intents/base-intent-classifier'
+import { OOSIntentClassifier } from './intents/oos-intent-classfier'
 import DetectLanguage from './language/language-identifier'
 import makeSpellChecker from './language/spell-checker'
 import modelIdService from './model-id-service'
@@ -246,7 +246,7 @@ export default class Engine implements NLU.Engine {
   private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {
     const tools = this._tools
 
-    const { ctx_model, intent_model_by_ctx, oos_model, kmeans } = output
+    const { ctx_model, intent_model_by_ctx, kmeans } = output
 
     /**
      * TODO: extract this function some place else,
@@ -256,8 +256,8 @@ export default class Engine implements NLU.Engine {
 
     const warmKmeans = kmeans && deserializeKmeans(kmeans)
 
-    const intent_classifier_per_ctx: Dic<BaseIntentClassifier> = _.mapValues(intent_model_by_ctx, model => {
-      const intentClf = new BaseIntentClassifier(tools)
+    const intent_classifier_per_ctx: Dic<OOSIntentClassifier> = _.mapValues(intent_model_by_ctx, model => {
+      const intentClf = new OOSIntentClassifier(tools)
       intentClf.load(model)
       return intentClf
     })
@@ -278,10 +278,6 @@ export default class Engine implements NLU.Engine {
     }
 
     const ctx_classifier = ctx_model ? new tools.mlToolkit.SVM.Predictor(ctx_model) : undefined
-    const oos_classifier = _.toPairs(oos_model).reduce(
-      (c, [ctx, mod]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(mod) }),
-      {} as _.Dictionary<MLToolkit.SVM.Predictor>
-    )
 
     let slot_tagger: SlotTagger | undefined
     if (output.slots_model.length) {
@@ -292,7 +288,6 @@ export default class Engine implements NLU.Engine {
     return {
       ...basePredictors,
       ctx_classifier,
-      oos_classifier_per_ctx: oos_classifier,
       slot_tagger
     }
   }

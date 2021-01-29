@@ -30,10 +30,6 @@ const _makeTrainOuput = (
       .map(i => [i.ctx, i.model])
       .fromPairs()
       .value(),
-    oos_model: _(oosModels)
-      .map(i => [i.ctx, i.model])
-      .fromPairs()
-      .value(),
     kmeans: {
       centroids: [],
       clusters: [],
@@ -197,7 +193,6 @@ describe('mergeModelsOutputs', () => {
     expect(output.contexts.length).toBe(1)
     expect(output.contexts[0]).toBe('A')
 
-    expect(output.oos_model['A']).toBe('oos model for A')
     expect(output.intent_model_by_ctx['A']).toBe('intent model for A')
   })
 
@@ -233,8 +228,6 @@ describe('mergeModelsOutputs', () => {
     expect(output.contexts.sort()[0]).toBe('A')
     expect(output.contexts.sort()[1]).toBe('B')
 
-    expect(output.oos_model['A']).toBe('oos model for A')
-    expect(output.oos_model['B']).toBe('modified oos model for B')
     expect(output.intent_model_by_ctx['A']).toBe('intent model for A')
     expect(output.intent_model_by_ctx['B']).toBe('modified intent model for B')
   })
@@ -265,8 +258,6 @@ describe('mergeModelsOutputs', () => {
     expect(output.contexts.sort()[0]).toBe('A')
     expect(output.contexts.sort()[1]).toBe('B')
 
-    expect(output.oos_model['A']).toBe('oos model for A')
-    expect(output.oos_model['B']).toBe('created oos model for B')
     expect(output.intent_model_by_ctx['A']).toBe('intent model for A')
     expect(output.intent_model_by_ctx['B']).toBe('created intent model for B')
   })
@@ -306,9 +297,6 @@ describe('mergeModelsOutputs', () => {
     expect(output.contexts.sort()[1]).toBe('B')
     expect(output.contexts.sort()[2]).toBe('C')
 
-    expect(output.oos_model['A']).toBe('modified oos model for A')
-    expect(output.oos_model['B']).toBe('modified oos model for B')
-    expect(output.oos_model['C']).toBe('created oos model for C')
     expect(output.intent_model_by_ctx['A']).toBe('modified intent model for A')
     expect(output.intent_model_by_ctx['B']).toBe('modified intent model for B')
     expect(output.intent_model_by_ctx['C']).toBe('created intent model for C')
