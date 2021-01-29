@@ -55,8 +55,9 @@ export class DialogJanitor extends Janitor {
     const botsConfigs = await this.botService.getBots()
     const botsIds = Array.from(botsConfigs.keys())
 
+    await this.sessionRepo.deleteExpiredSessions()
+
     for (const botId of botsIds) {
-      await this.sessionRepo.deleteExpiredSessions(botId)
       const sessionsIds = await this.sessionRepo.getExpiredContextSessionIds(botId)
 
       if (sessionsIds.length > 0) {

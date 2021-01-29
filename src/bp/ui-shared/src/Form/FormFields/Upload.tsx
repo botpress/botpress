@@ -6,12 +6,7 @@ import ToolTip from '../../../../ui-shared-lite/ToolTip'
 import { lang } from '../../translations'
 
 import style from './style.scss'
-import { FieldProps } from './typings'
-
-interface UploadFieldProps extends FieldProps {
-  axios: any
-  customPath?: string
-}
+import { UploadFieldProps } from './typings'
 
 const Upload: FC<UploadFieldProps> = props => {
   const uploadReducer = (state, action) => {
@@ -22,7 +17,7 @@ const Upload: FC<UploadFieldProps> = props => {
         uploading: true
       }
     } else if (action.type === 'deleteFile') {
-      props.onChange?.(null)
+      props.onChange?.(undefined)
       return {
         ...state,
         error: null,
@@ -69,7 +64,10 @@ const Upload: FC<UploadFieldProps> = props => {
     await props.axios
       .post(props.customPath ? props.customPath : 'media', data, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then(response => {
-        const { url } = response.data
+        let url: string = response.data.url
+        if (url.startsWith('/')) {
+          url = `${window.location.protocol}//${window.location.host}${url}`
+        }
 
         dispatch({ type: 'uploadSuccess', data: { url } })
       })

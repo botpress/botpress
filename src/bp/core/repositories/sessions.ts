@@ -28,7 +28,7 @@ export interface SessionRepository {
   getOrCreateSession(sessionId: string, botId: string, trx?: Knex.Transaction): Promise<DialogSession>
   get(id: string, botId: string): Promise<DialogSession>
   getExpiredContextSessionIds(botId: string): Promise<string[]>
-  deleteExpiredSessions(botId: string)
+  deleteExpiredSessions()
   delete(id: string)
   update(session: DialogSession, trx?: Knex.Transaction)
 }
@@ -126,10 +126,9 @@ export class KnexSessionRepository implements SessionRepository {
       })) as string[]
   }
 
-  async deleteExpiredSessions(botId: string): Promise<void> {
+  async deleteExpiredSessions(): Promise<void> {
     await this.database
       .knex(this.tableName)
-      .where('botId', botId)
       .andWhere(this.database.knex.date.isBefore('session_expiry', new Date()))
       .del()
   }

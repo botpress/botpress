@@ -23,8 +23,8 @@ import { KeyValueStore } from './kvs'
 import CELicensingService from './licensing'
 import { LogsJanitor } from './logs/janitor'
 import { LogsService } from './logs/service'
-import MediaService from './media'
 import { MessagingAPI } from './messaging/messaging'
+import { MediaServiceProvider } from './media'
 import { EventEngine } from './middleware/event-engine'
 import { CEMonitoringService, MonitoringService } from './monitoring'
 import { NLUService } from './nlu/nlu-service'
@@ -47,8 +47,8 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
     .to(NLUService)
     .inSingletonScope()
 
-  bind<MediaService>(TYPES.MediaService)
-    .to(MediaService)
+  bind<MediaServiceProvider>(TYPES.MediaServiceProvider)
+    .to(MediaServiceProvider)
     .inSingletonScope()
 
   bind<ActionService>(TYPES.ActionService)
