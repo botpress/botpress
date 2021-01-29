@@ -23,7 +23,7 @@ const _makeTrainOuput = (
     contexts,
     ctx_model: '',
     list_entities: [],
-    slots_model: Buffer.from(''),
+    slots_model_by_intent: {},
     tfidf: {},
     vocabVectors: {},
     intent_model_by_ctx: _(intentModels)

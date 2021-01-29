@@ -65,6 +65,8 @@ export class SvmIntentClassifier implements IntentClassifier {
       list_entities,
       pattern_entities
     }
+
+    progress(1)
   }
 
   serialize(): string {

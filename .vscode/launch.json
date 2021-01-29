@@ -38,7 +38,8 @@
         "nlu",
         "--languageURL=http://localhost:3100",
         "--ducklingURL=http://localhost:8000",
-        "--modelCacheSize=1gb"
+        "--modelCacheSize=1gb",
+        "--silent"
       ],
       "protocol": "auto",
       "env": {

@@ -19,7 +19,7 @@ import {
 } from './typings'
 import Utterance, { buildUtteranceBatch, preprocessRawUtterance, UtteranceEntity } from './utterance/utterance'
 
-export type Predictors = {
+export interface Predictors {
   lang: string
   list_entities: ListEntityModel[] // no need for cache
   tfidf: TFIDF
@@ -29,10 +29,9 @@ export type Predictors = {
   intents: Intent<Utterance>[]
   ctx_classifier: SvmIntentClassifier
   intent_classifier_per_ctx: _.Dictionary<OOSIntentClassifier>
-} & Partial<{
-  kmeans: MLToolkit.KMeans.KmeansResult
-  slot_tagger: SlotTagger // TODO replace this by MlToolkit.CRF.Tagger
-}>
+  slot_tagger_per_intent: _.Dictionary<SlotTagger>
+  kmeans?: MLToolkit.KMeans.KmeansResult
+}
 
 export interface PredictInput {
   language: string
@@ -138,13 +137,11 @@ export async function predictIntent(input: ContextStep, predictors: Predictors):
 }
 
 async function extractSlots(input: IntentStep, predictors: Predictors): Promise<SlotStep> {
-  if (!predictors.slot_tagger) {
-    return { ...input, slot_predictions_per_intent: {} }
-  }
-
   const slots_per_intent: _.Dictionary<SlotExtractionResult[]> = {}
+
   for (const intent of predictors.intents.filter(x => x.slot_definitions.length > 0)) {
-    const slots = await predictors.slot_tagger.extract(input.utterance, intent)
+    const slotTagger = predictors.slot_tagger_per_intent[intent.name]
+    const slots = await slotTagger.predict(input.utterance)
     slots_per_intent[intent.name] = slots
   }
 

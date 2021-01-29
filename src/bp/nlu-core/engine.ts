@@ -248,7 +248,7 @@ export default class Engine implements NLU.Engine {
   private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {
     const tools = this._tools
 
-    const { ctx_model, intent_model_by_ctx, kmeans } = output
+    const { ctx_model, intent_model_by_ctx, kmeans, slots_model_by_intent } = output
 
     /**
      * TODO: extract this function some place else,
@@ -267,32 +267,21 @@ export default class Engine implements NLU.Engine {
     const ctx_classifier = new SvmIntentClassifier(tools, getCtxFeatures)
     ctx_classifier.load(ctx_model)
 
-    const basePredictors: Predictors = {
+    const slot_tagger_per_intent: Dic<SlotTagger> = _.mapValues(slots_model_by_intent, model => {
+      const slotTagger = new SlotTagger(tools)
+      slotTagger.load(model)
+      return slotTagger
+    })
+
+    return <Predictors>{
       ...output,
       lang: input.languageCode,
       intents,
       pattern_entities: input.pattern_entities,
       kmeans: warmKmeans,
       intent_classifier_per_ctx,
-      ctx_classifier
-    }
-
-    if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
-      // we don't want to return undefined as extraction won't be triggered
-      // we want to make it possible to extract entities without having any intents
-      return basePredictors
-    }
-
-    let slot_tagger: SlotTagger | undefined
-    if (output.slots_model.length) {
-      slot_tagger = new SlotTagger(tools.mlToolkit)
-      slot_tagger.load(output.slots_model, intents, output.list_entities)
-    }
-
-    return {
-      ...basePredictors,
       ctx_classifier,
-      slot_tagger
+      slot_tagger_per_intent
     }
   }
 
