@@ -139,8 +139,8 @@ export default class BasicAuthentication {
     history.replace(HOME_ROUTE)
   }
 
-  logout = () => {
-    logout()
+  logout = async () => {
+    await logout()
   }
 
   isAuthenticated() {
