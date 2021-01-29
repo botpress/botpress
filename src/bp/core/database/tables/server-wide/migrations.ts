@@ -9,7 +9,7 @@ export class MigrationsTable extends Table {
       table.increments('id')
       table.string('initialVersion')
       table.string('targetVersion')
-      table.string('details')
+      table.text('details')
       table.timestamps(true, true)
       created = true
     })

@@ -117,9 +117,13 @@ export class MigrationService {
       targetVersion: this.currentVersion
     }
 
-    await this.database
-      .knex('srv_migrations')
-      .insert({ ...entry, details: logs.join('\n'), created_at: this.database.knex.date.now() })
+    try {
+      await this.database
+        .knex('srv_migrations')
+        .insert({ ...entry, details: logs.join('\n'), created_at: this.database.knex.date.now() })
+    } catch (err) {
+      this.logger.error('Error persisting migrations')
+    }
 
     const hasBotMigrations = !!missingMigrations.find(x => this.loadedMigrations[x.filename].info.target === 'bot')
     if (hasBotMigrations) {
