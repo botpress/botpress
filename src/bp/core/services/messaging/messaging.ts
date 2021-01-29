@@ -12,7 +12,7 @@ import ms from 'ms'
 
 @injectable()
 export class MessagingAPI {
-  private mostRecentCache = new LRU<string, sdk.Conversation>({ max: 10000, maxAge: ms('5min') })
+  private mostRecentCaches: { [botId: string]: LRU<string, sdk.Conversation> } = {}
   public invalidateMostRecent: (endpoint: sdk.UserEndpoint, mostRecentConvoId?: number) => void = this
     ._localInvalidateMostRecent
 
@@ -48,8 +48,7 @@ export class MessagingAPI {
   }
 
   public async getOrCreateRecentConversation(endpoint: sdk.UserEndpoint): Promise<sdk.RecentConversation> {
-    const cacheKey = this.getEnpointCacheKey(endpoint)
-    const cached = this.mostRecentCache.get(cacheKey)
+    const cached = this.cacheForBot(endpoint.botId).get(endpoint.userId)
     if (cached) {
       return cached
     }
@@ -59,7 +58,7 @@ export class MessagingAPI {
       conversation = await this.conversationRepo.create(endpoint)
     }
 
-    this.mostRecentCache.set(cacheKey, conversation)
+    this.cacheForBot(endpoint.botId).set(endpoint.userId, conversation)
 
     return conversation
   }
@@ -81,7 +80,7 @@ export class MessagingAPI {
 
   public async deleteAllMessages(conversationId: number): Promise<number> {
     const conversation = (await this.conversationRepo.getById(conversationId))!
-    await this.invalidateMostRecent(conversation)
+    this.invalidateMostRecent(conversation)
 
     return this.messageRepo.deleteAll(conversationId)
   }
@@ -108,7 +107,7 @@ export class MessagingAPI {
 
     if (message) {
       const conversation = (await this.conversationRepo.getById(message.conversationId))!
-      await this.invalidateMostRecent(conversation)
+      this.invalidateMostRecent(conversation)
     }
 
     return this.messageRepo.delete(messageId)
@@ -167,26 +166,32 @@ export class MessagingAPI {
     return message
   }
 
-  private getEnpointCacheKey(endpoint: sdk.UserEndpoint) {
-    return `${endpoint.botId}_${endpoint.userId}`
+  private cacheForBot(botId: string) {
+    let cache = this.mostRecentCaches[botId]
+    if (!cache) {
+      cache = new LRU<string, sdk.Conversation>({ max: 10000, maxAge: ms('5min') })
+      this.mostRecentCaches[botId] = cache
+    }
+
+    return cache
   }
 
   private async flagAsMostRecent(conversation: sdk.Conversation) {
-    const key = this.getEnpointCacheKey(conversation)
-    const currentMostRecent = this.mostRecentCache.peek(key)
+    const cache = this.cacheForBot(conversation.botId)
+    const currentMostRecent = cache.peek(conversation.userId)
 
     if (currentMostRecent?.id !== conversation.id) {
       this.invalidateMostRecent({ userId: conversation.userId, botId: conversation.botId }, conversation.id)
-      this.mostRecentCache.set(key, conversation)
+      cache.set(conversation.userId, conversation)
     }
   }
 
   private _localInvalidateMostRecent(endpoint: sdk.UserEndpoint, mostRecentConvoId?: number) {
     if (endpoint) {
-      const key = this.getEnpointCacheKey(endpoint)
-      const cachedMostRecent = this.mostRecentCache.peek(key)
+      const cache = this.cacheForBot(endpoint.botId)
+      const cachedMostRecent = cache.peek(endpoint.userId)
       if (cachedMostRecent?.id != mostRecentConvoId) {
-        this.mostRecentCache.del(key)
+        cache.del(endpoint.userId)
       }
     }
   }
