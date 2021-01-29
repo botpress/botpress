@@ -22,15 +22,8 @@ const intent2: Intent<Utterance> = {
   utterances: [makeTestUtterance(u3)]
 }
 
-const noneIntent: Intent<Utterance> = {
-  name: 'none',
-  contexts: ['global'],
-  slot_definitions: [],
-  utterances: [makeTestUtterance('lorem ipsum dolor sit amet')]
-}
-
 describe('Exact match', () => {
-  const intents = [intent1, intent2, noneIntent]
+  const intents = [intent1, intent2]
 
   const exactMatchIndex = BuildExactMatchIndex(intents)
   describe('Build exact match index', () => {
