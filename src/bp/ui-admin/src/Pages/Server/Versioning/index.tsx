@@ -18,7 +18,12 @@ const DisplayCommand = ({ command }) => {
 
   return (
     <code>
-      {text} <Button small onClick={() => setVisible(!visible)} text={visible ? 'Hide token' : 'Show token'}></Button>
+      {text}{' '}
+      <Button
+        small
+        onClick={() => setVisible(!visible)}
+        text={lang.tr(visible ? 'admin.hideToken' : 'admin.showToken')}
+      ></Button>
     </code>
   )
 }
