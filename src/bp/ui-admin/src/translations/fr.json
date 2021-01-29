@@ -18,6 +18,8 @@
     "change": "Changement",
     "changeLanguage": "Changer la langue",
     "changePassword": "Changer le mot de passe",
+    "showToken": "Afficher le jeton",
+    "hideToken": "Cacher le jeton",
     "changeYourPassword": "Changez votre mot de passe",
     "confirmPassword": "Confirmez le mot de passe",
     "createAccount": "Créer un compte",
