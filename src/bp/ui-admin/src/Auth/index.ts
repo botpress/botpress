@@ -63,7 +63,12 @@ export function getChatUserAuth(): ChatUserAuth | undefined {
   }
 }
 
-export function logout() {
+export const logout = async () => {
+  await api
+    .getSecured({ toastErrors: false })
+    .post('/auth/logout')
+    .catch(() => {})
+
   // Clear access token and ID token from local storage
   localStorage.removeItem(TOKEN_KEY)
   // need to force reload otherwise the token wont clear properly

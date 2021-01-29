@@ -8,6 +8,7 @@ export class StrategyUserTable {
       table.string('salt').nullable()
       table.string('strategy').notNullable()
       table.json('attributes').notNullable()
+      table.integer('tokenVersion').notNullable()
       table.timestamps(true, true)
       created = true
     })
