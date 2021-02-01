@@ -5,12 +5,12 @@ import _ from 'lodash'
 import { Config } from '../../config'
 import legacyElectionPipeline from '../election/legacy-election'
 import { PredictionHandler } from '../prediction-handler'
-import { setTrainingSession } from '../train-session-service'
+import TrainSessionService from '../train-session-service'
 import { NLUProgressEvent, NLUState } from '../typings'
 
 async function initializeReportingTool(bp: typeof sdk, state: NLUState) {
   state.sendNLUStatusEvent = async (botId: string, trainSession: sdk.NLU.TrainingSession) => {
-    await setTrainingSession(bp, botId, trainSession)
+    await state.trainSessionService.setTrainingSession(botId, trainSession)
 
     const ev: NLUProgressEvent = { type: 'nlu', botId, trainSession: _.omit(trainSession, 'lock') }
     bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', ev))
@@ -111,6 +111,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
 
 export function getOnSeverStarted(state: NLUState) {
   return async (bp: typeof sdk) => {
+    state.trainSessionService = new TrainSessionService(bp)
     await initializeReportingTool(bp, state)
     const globalConfig: Config = await bp.config.getModuleConfig('nlu')
 

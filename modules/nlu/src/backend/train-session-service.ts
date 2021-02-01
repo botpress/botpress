@@ -6,34 +6,30 @@ const DEFAULT_TRAINING_SESSION: Partial<sdk.NLU.TrainingSession> = {
   progress: 0
 }
 
-export const makeTrainSessionKey = (botId: string, language: string): string => `training:${botId}:${language}`
+export default class TrainSessionService {
+  constructor(private bp: typeof sdk) {}
 
-export const makeTrainingSession = (botId: string, language: string, lock: sdk.RedisLock): sdk.NLU.TrainingSession => ({
-  key: makeTrainSessionKey(botId, language),
-  status: 'training-pending',
-  progress: 0,
-  language,
-  lock
-})
+  public makeTrainSessionKey = (botId: string, language: string): string => `training:${botId}:${language}`
 
-export async function getTrainingSession(
-  bp: typeof sdk,
-  botId: string,
-  language: string
-): Promise<sdk.NLU.TrainingSession> {
-  const key = makeTrainSessionKey(botId, language)
-  const trainSession = await bp.kvs.forBot(botId).get(key)
-  return trainSession || { ...DEFAULT_TRAINING_SESSION, language, key }
-}
+  public makeTrainingSession = (botId: string, language: string, lock: sdk.RedisLock): sdk.NLU.TrainingSession => ({
+    key: this.makeTrainSessionKey(botId, language),
+    status: 'training-pending',
+    progress: 0,
+    language,
+    lock
+  })
 
-export function setTrainingSession(bp: typeof sdk, botId: string, trainSession: sdk.NLU.TrainingSession): Promise<any> {
-  return bp.kvs.forBot(botId).set(trainSession.key, _.omit(trainSession, 'lock'))
-}
+  public async getTrainingSession(botId: string, language: string): Promise<sdk.NLU.TrainingSession> {
+    const key = this.makeTrainSessionKey(botId, language)
+    const trainSession = await this.bp.kvs.forBot(botId).get(key)
+    return trainSession || { ...DEFAULT_TRAINING_SESSION, language, key }
+  }
 
-export async function removeTrainingSession(
-  bp: typeof sdk,
-  botId: string,
-  trainSession: sdk.NLU.TrainingSession
-): Promise<void> {
-  await bp.kvs.forBot(botId).removeStorageKeysStartingWith(trainSession.key)
+  public setTrainingSession(botId: string, trainSession: sdk.NLU.TrainingSession): Promise<any> {
+    return this.bp.kvs.forBot(botId).set(trainSession.key, _.omit(trainSession, 'lock'))
+  }
+
+  public async removeTrainingSession(botId: string, trainSession: sdk.NLU.TrainingSession): Promise<void> {
+    await this.bp.kvs.forBot(botId).removeStorageKeysStartingWith(trainSession.key)
+  }
 }

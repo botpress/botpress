@@ -5,7 +5,6 @@ import yn from 'yn'
 
 import legacyElectionPipeline from './election/legacy-election'
 import mergeSpellChecked from './election/spellcheck-handler'
-import { getTrainingSession } from './train-session-service'
 import { NLUState } from './typings'
 
 export const PredictSchema = Joi.object().keys({
@@ -34,7 +33,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
   router.get('/training/:language', async (req, res) => {
     const { language, botId } = req.params
-    const session = await getTrainingSession(bp, botId, language)
+    const session = await state.trainSessionService.getTrainingSession(botId, language)
     res.send(session)
   })
 

@@ -5,12 +5,7 @@ import ms from 'ms'
 import { createApi } from '../../api'
 import ModelService from '../model-service'
 import { getSeed } from '../seed-service'
-import {
-  getTrainingSession,
-  makeTrainingSession,
-  makeTrainSessionKey,
-  setTrainingSession
-} from '../train-session-service'
+import TrainSessionService from '../train-session-service'
 import { NLUState } from '../typings'
 
 const missingLangMsg = botId =>
@@ -19,7 +14,7 @@ const missingLangMsg = botId =>
 const KVS_TRAINING_STATUS_KEY = 'nlu:trainingStatus'
 
 async function annouceNeedsTraining(bp: typeof sdk, botId: string, state: NLUState) {
-  const { engine } = state
+  const { engine, trainSessionService } = state
   const { modelIdService } = bp.NLU
 
   const api = await createApi(bp, botId)
@@ -29,7 +24,9 @@ async function annouceNeedsTraining(bp: typeof sdk, botId: string, state: NLUSta
   const bot = await bp.bots.getBotById(botId)
   const { languages: botLanguages } = bot
   const seed = getSeed(bot)
-  const trainSessions = await Promise.map(botLanguages, (lang: string) => getTrainingSession(bp, botId, lang))
+  const trainSessions = await Promise.map(botLanguages, (lang: string) =>
+    trainSessionService.getTrainingSession(botId, lang)
+  )
 
   const languageWithChanges = botLanguages.filter(lang => {
     const ts = trainSessions.find(t => t.language === lang)
@@ -43,9 +40,12 @@ async function annouceNeedsTraining(bp: typeof sdk, botId: string, state: NLUSta
   })
 
   await Promise.map(languageWithChanges, async lang => {
-    const trainSession = await getTrainingSession(bp, botId, lang)
+    const trainSession = await trainSessionService.getTrainingSession(botId, lang)
     trainSession.status = 'needs-training'
-    return Promise.all([setTrainingSession(bp, botId, trainSession), state.sendNLUStatusEvent(botId, trainSession)])
+    return Promise.all([
+      trainSessionService.setTrainingSession(botId, trainSession),
+      state.sendNLUStatusEvent(botId, trainSession)
+    ])
   })
 }
 
@@ -70,6 +70,8 @@ export function getOnBotMount(state: NLUState) {
     const modelService = new ModelService(modelIdService, ghost, botId)
     await modelService.initialize()
 
+    const { trainSessionService } = state
+
     const { engine } = state
     const trainOrLoad = async (languageCode: string, disableTraining: boolean) => {
       // bot got deleted
@@ -87,7 +89,10 @@ export function getOnBotMount(state: NLUState) {
 
       try {
         // shorter lock and extend in training steps
-        const lock = await bp.distributed.acquireLock(makeTrainSessionKey(botId, languageCode), ms('5m'))
+        const lock = await bp.distributed.acquireLock(
+          trainSessionService.makeTrainSessionKey(botId, languageCode),
+          ms('5m')
+        )
         if (!lock) {
           return
         }
@@ -110,7 +115,7 @@ export function getOnBotMount(state: NLUState) {
 
         let model = await modelService.getModel(modelId)
 
-        const trainSession = makeTrainingSession(botId, languageCode, lock)
+        const trainSession = trainSessionService.makeTrainingSession(botId, languageCode, lock)
 
         botState.trainSessions[languageCode] = trainSession
         if (!model && !disableTraining) {
@@ -167,7 +172,7 @@ export function getOnBotMount(state: NLUState) {
     }
 
     const cancelTraining = async (lang: string) => {
-      const key = makeTrainSessionKey(botId, lang)
+      const key = trainSessionService.makeTrainSessionKey(botId, lang)
       await bp.distributed.clearLock(key)
       return state.broadcastCancelTraining(botId, lang)
     }

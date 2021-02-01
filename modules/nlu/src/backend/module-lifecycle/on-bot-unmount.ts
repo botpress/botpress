@@ -1,7 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { removeTrainingSession } from '../train-session-service'
 import { NLUState } from '../typings'
 
 export function getOnBotUnmount(state: NLUState) {
@@ -17,7 +16,7 @@ export function getOnBotUnmount(state: NLUState) {
 
     await Promise.map(activeTrainSession, async ts => {
       await state.broadcastCancelTraining(botId, ts.language)
-      await removeTrainingSession(bp, botId, ts)
+      await state.trainSessionService.removeTrainingSession(botId, ts)
     })
 
     botState.needsTrainingWatcher.remove()

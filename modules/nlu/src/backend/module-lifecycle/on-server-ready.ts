@@ -2,7 +2,6 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import makeApi from '../api'
-import { setTrainingSession } from '../train-session-service'
 import { NLUState } from '../typings'
 
 export function getOnServerReady(state: NLUState) {
@@ -32,7 +31,7 @@ export function getOnServerReady(state: NLUState) {
           await trainSession.lock.unlock()
         }
         trainSession.status = 'canceled'
-        await setTrainingSession(bp, botId, trainSession)
+        await state.trainSessionService.setTrainingSession(botId, trainSession)
 
         return state.engine.cancelTraining(trainSession.key)
       }

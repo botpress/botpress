@@ -16,6 +16,7 @@ import { NLUState } from './typings'
 
 const state: NLUState = {
   engine: undefined,
+  trainSessionService: undefined,
   nluByBot: {},
   sendNLUStatusEvent: async () => {}
 }
