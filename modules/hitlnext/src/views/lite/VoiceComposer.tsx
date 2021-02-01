@@ -1,6 +1,6 @@
 import { Button } from '@blueprintjs/core'
 import cx from 'classnames'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useEffect, useRef, useState } from 'react'
 import { FaMicrophone } from 'react-icons/fa'
 
 import lang from '../lang'
@@ -23,26 +23,18 @@ const VoiceComposer: FC<ComposerProps> = props => {
   const [isLoading, setIsLoading] = useState(true)
   const [isListening, setIsListening] = useState(false)
   const [text, setText] = useState<string>('')
+  const ref = useRef<HTMLTextAreaElement>()
 
   const onResult = (ev: SpeechRecognitionEvent) => {
     const res = ev.results[0] // cumulated result
-    setText(res[0].transcript) // most confident
+    if (res[0].transcript.length > text.length) {
+      setText(res[0].transcript) // most confident
+    }
     if (res.isFinal) {
       recognition.stop()
       setIsListening(false)
     }
   }
-
-  // @ts-ignore
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-  if (!SpeechRecognition) {
-    console.log('not available fuck this')
-    return
-  }
-  recognition = new SpeechRecognition()
-  recognition.continuous = false
-  recognition.interimResults = true
-  recognition.addEventListener('result', onResult)
 
   useEffect(() => {
     setIsLoading(false)
@@ -60,6 +52,10 @@ const VoiceComposer: FC<ComposerProps> = props => {
     recognition.start()
   }
 
+  const onStart = e => {
+    ref.current?.focus()
+  }
+
   const onChange = e => {
     const value = e.target.value
     if (text !== value) {
@@ -67,27 +63,26 @@ const VoiceComposer: FC<ComposerProps> = props => {
     }
   }
 
+  // @ts-ignore
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+  if (!SpeechRecognition) {
+    console.log('not available fuck this')
+    return
+  }
+  recognition = new SpeechRecognition()
+  recognition.continuous = false
+  recognition.interimResults = true
+  recognition.addEventListener('result', onResult)
+  recognition.addEventListener('start', onStart)
+
   if (isLoading) {
     return <div>loading</div>
   }
 
   return (
-    <div id="shortcutContainer" className={cx(style.composerContainer)}>
+    <div id="voiceComposer" className={cx(style.composerContainer)}>
       <div className={cx(style.composer, 'bpw-composer')}>
-        <textarea
-          // ref={this.textInput}
-          // id="input-message"
-          // onFocus={this.props.setFocus.bind(this, 'input')}
-          // placeholder={placeholder}
-          onChange={onChange}
-          value={text}
-          // onKeyPress={this.handleKeyPress}
-          // onKeyDown={this.handleKeyDown}
-          // aria-label={this.props.intl.formatMessage({
-          //   id: 'composer.message',
-          //   defaultMessage: 'Message to send'
-          // })}
-        />
+        <textarea ref={el => (ref.current = el)} placeholder="Type something" onChange={onChange} value={text} />
       </div>
       <Button icon={<FaMicrophone />} disabled={isLoading || isListening} onClick={startListening} />
       <Button className={style.sendButton} disabled={isLoading || isListening} onClick={sendMessage}>
