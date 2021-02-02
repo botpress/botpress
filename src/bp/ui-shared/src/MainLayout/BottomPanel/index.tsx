@@ -1,5 +1,7 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
+import style from './style.scss'
+import cx from 'classnames'
 
 class Portal extends React.Component<KeyboardElementsProps> {
   private container: HTMLElement
@@ -54,8 +56,10 @@ export class Container extends React.Component<Partial<KeyboardElementsProps>> {
   // static setActiveTab =
 
   render() {
+    const isHidden = !this.props.activeTab || !Container.tabs.includes(this.props.activeTab)
+
     return (
-      <div>
+      <div className={cx({ [style.hide]: isHidden })}>
         <div ref={Container.containerRef} />
       </div>
     )

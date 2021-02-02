@@ -94,6 +94,7 @@ const BottomPanel = props => {
     </Fragment>
   )
 
+  // @ts-ignore
   DevPanel.Container.onTabChanged = tabs => setCustomTabs(tabs)
 
   return (

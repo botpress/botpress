@@ -5,6 +5,7 @@ interface CssExports {
   'btn': string;
   'editor': string;
   'editorContainer': string;
+  'floatingButtons': string;
   'hidden': string;
   'padding': string;
   'sidePanel': string;

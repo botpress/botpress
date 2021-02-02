@@ -1,4 +1,4 @@
-import { Icon, Position, Tooltip } from '@blueprintjs/core'
+import { Icon, Position, Tooltip, Button } from '@blueprintjs/core'
 import { confirmDialog, lang, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -114,7 +114,7 @@ class Editor extends React.Component<Props> {
     toast.success(lang.tr('module.code-editor.store.fileSaved'))
   }
 
-  closeFile = async (uri: monaco.Uri) => {
+  closeFile = async (uri?: monaco.Uri) => {
     const file = this.props.editor.currentFile
     if (file?.hasChanges) {
       if (
@@ -210,7 +210,17 @@ class Editor extends React.Component<Props> {
               )
             })}{' '}
           </div>
-          <div id="monaco-editor" ref={ref => (this.editorContainer = ref)} className={style.editor} />
+          <div id="monaco-editor" ref={ref => (this.editorContainer = ref)} className={style.editor}>
+            <div className={style.floatingButtons}>
+              <Tooltip content={lang.tr('save')}>
+                <Button onClick={this.props.editor.saveCurrentFile} icon="floppy-disk"></Button>
+              </Tooltip>
+              &nbsp;
+              <Tooltip content={lang.tr('discard')}>
+                <Button onClick={() => this.closeFile()} icon="disable"></Button>
+              </Tooltip>
+            </div>
+          </div>
         </div>
       </React.Fragment>
     )

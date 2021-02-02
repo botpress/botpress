@@ -1,0 +1,29 @@
+.tabs {
+  height: 100%;
+
+  :global(.bp3-tab-indicator) {
+    background-color: #3c3c3c;
+  }
+
+  .tab {
+    height: calc(100% - 40px);
+    color: 888;
+    position: relative;
+  }
+
+  .tab[aria-selected='true'] {
+    color: white;
+  }
+
+  .divide {
+    margin: 0 5px;
+  }
+}
+
+.tabContainer {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: auto;
+  position: absolute;
+}
