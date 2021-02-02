@@ -21,8 +21,8 @@ const FileStatus = props => {
         title={`${lang.tr('problems')}${problems.length ? ` (${problems.length})` : ''}`}
         panel={
           <div>
-            {problems.map(x => (
-              <div key={x.message} style={{ marginBottom: 10 }}>
+            {problems.map((x, idx) => (
+              <div key={`${idx}_${x.message.substr(0, 10)}`} style={{ marginBottom: 10 }}>
                 {lang.tr('line')} <strong>{x.startLineNumber}</strong> - {x.message}
               </div>
             ))}

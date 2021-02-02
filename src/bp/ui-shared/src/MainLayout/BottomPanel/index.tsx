@@ -22,8 +22,6 @@ class Portal extends React.Component<KeyboardElementsProps> {
   }
 
   render() {
-    console.log(Container)
-    if (this.props) console.log(this.props)
     return ReactDOM.createPortal(this.props.children, this.container)
   }
 }

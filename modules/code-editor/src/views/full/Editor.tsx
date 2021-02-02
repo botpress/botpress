@@ -1,4 +1,4 @@
-import { Icon, Position, Tooltip, Button } from '@blueprintjs/core'
+import { Icon, Position, Tooltip, AnchorButton } from '@blueprintjs/core'
 import { confirmDialog, lang, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -74,7 +74,7 @@ class Editor extends React.Component<Props> {
     })
 
     this.editor = monaco.editor.create(this.editorContainer, { theme: 'vs-light', automaticLayout: true })
-    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, this.saveChanges)
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => this.saveChanges())
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.KEY_N, this.props.createNewAction)
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_P, () =>
       this.editor.trigger('', 'editor.action.quickCommand', '')
@@ -107,15 +107,23 @@ class Editor extends React.Component<Props> {
     this.editor.focus()
   }
 
-  saveChanges = async () => {
-    await this.editor.getAction('editor.action.formatDocument').run()
-    await this.props.editor.saveCurrentFile()
+  saveChanges = async (uri?: monaco.Uri) => {
+    if (!uri) {
+      uri = this.props.editor.currentFile.uri
+      await this.editor.getAction('editor.action.formatDocument').run()
+    }
+
+    await this.props.editor.saveFile(uri)
 
     toast.success(lang.tr('module.code-editor.store.fileSaved'))
   }
 
   closeFile = async (uri?: monaco.Uri) => {
-    const file = this.props.editor.currentFile
+    if (!uri) {
+      uri = this.props.editor.currentFile.uri
+    }
+
+    const file = this.props.editor.openedFiles.find(x => x.uri === uri)
     if (file?.hasChanges) {
       if (
         await confirmDialog(lang.tr('module.code-editor.store.confirmSaveFile', { file: file.name }), {
@@ -123,11 +131,11 @@ class Editor extends React.Component<Props> {
           declineLabel: lang.tr('discard')
         })
       ) {
-        await this.saveChanges()
+        await this.saveChanges(uri)
       }
     }
 
-    this.props.editor.closeFile(this.props.editor.currentTab)
+    this.props.editor.closeFile(file)
   }
 
   loadTypings = async () => {
@@ -166,7 +174,7 @@ class Editor extends React.Component<Props> {
     const currentFile = this.props.editor.currentFile
     const hasChanges = currentFile?.lastSaveVersion !== currentVersion
 
-    this.props.editor.updateCurrentFileContent({ hasChanges })
+    this.props.editor.updateFileContent({ hasChanges }, currentFile.uri)
   }
 
   handleDecorationChanged = () => {
@@ -182,6 +190,7 @@ class Editor extends React.Component<Props> {
     const hasRawPermissions = this.props.permissions?.['root.raw']?.read
     const { isAdvanced, setAdvanced } = this.props.editor
     const isFileOpened = !!this.props.editor.openedFiles.length
+    const hasChanges = !!this.props.editor.currentFile?.hasChanges
 
     return (
       <React.Fragment>
@@ -212,12 +221,12 @@ class Editor extends React.Component<Props> {
           </div>
           <div id="monaco-editor" ref={ref => (this.editorContainer = ref)} className={style.editor}>
             <div className={style.floatingButtons}>
-              <Tooltip content={lang.tr('save')}>
-                <Button onClick={this.props.editor.saveCurrentFile} icon="floppy-disk"></Button>
+              <Tooltip content={lang.tr('save')} position={Position.TOP}>
+                <AnchorButton onClick={() => this.saveChanges()} disabled={!hasChanges} icon="floppy-disk" />
               </Tooltip>
               &nbsp;
-              <Tooltip content={lang.tr('discard')}>
-                <Button onClick={() => this.closeFile()} icon="disable"></Button>
+              <Tooltip content={lang.tr(hasChanges ? 'discard' : 'close')} position={Position.TOP}>
+                <AnchorButton onClick={() => this.closeFile()} icon={hasChanges ? 'disable' : 'cross'} />
               </Tooltip>
             </div>
           </div>

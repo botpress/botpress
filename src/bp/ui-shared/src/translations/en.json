@@ -64,6 +64,7 @@
   "deleteWorkflow": "Delete Workflow",
   "description": "Description",
   "details": "Details",
+  "discard": "Discard",
   "disabled": "Disabled",
   "duplicate": "Duplicate",
   "edit": "Edit",

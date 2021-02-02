@@ -52,31 +52,40 @@ class EditorStore {
   }
 
   @action.bound
-  updateCurrentFileContent(obj) {
-    const idx = this.openedFiles.findIndex(x => x.uri === this.currentTab?.uri)
+  updateFileContent(obj, uri?: monaco.Uri) {
+    const idx = this.openedFiles.findIndex(x => x.uri === uri)
+
     if (idx !== -1) {
       this.openedFiles[idx] = { ...this.openedFiles[idx], ...obj }
     }
   }
 
   @action.bound
-  async saveCurrentFile() {
+  async saveFile(uri: monaco.Uri) {
+    const file = this.openedFiles.find(x => x.uri === uri)
+    const model = monaco.editor.getModel(uri)
+
     this.rootStore.api.saveFile({
-      ...this.currentTab,
-      content: wrapper.remove(this._editorRef.getValue(), this.currentTab.type)
+      ...file,
+      content: wrapper.remove(model.getValue(), file.type)
     })
 
     setTimeout(() => {
-      this.updateCurrentFileContent({
-        lastSaveVersion: this._editorRef.getModel().getAlternativeVersionId(),
-        hasChanges: false
-      })
+      this.updateFileContent(
+        {
+          lastSaveVersion: model.getAlternativeVersionId(),
+          hasChanges: false
+        },
+        uri
+      )
     }, 200)
   }
 
   @action.bound
   async switchTab(nextUri: monaco.Uri) {
-    this.updateCurrentFileContent({ state: this._editorRef.saveViewState() })
+    if (this.currentTab) {
+      this.updateFileContent({ state: this._editorRef.saveViewState() }, this.currentTab.uri)
+    }
 
     this.currentTab = this.openedFiles.find(x => x.uri.path === nextUri.path)
   }
@@ -88,9 +97,11 @@ class EditorStore {
       return
     }
 
-    let content = file.content
-    if (!content) {
-      file.content = await this.rootStore.api.readFile(file)
+    if (!file.content) {
+      file = {
+        ...file,
+        content: await this.rootStore.api.readFile(file)
+      }
     }
 
     runInAction('-> openFile', () => {
@@ -127,7 +138,7 @@ class EditorStore {
     const uri = getFileUri(file)
     monaco.editor.getModel(uri).dispose()
 
-    const idx = this.openedFiles.findIndex(x => x.uri === uri)
+    const idx = this.openedFiles.findIndex(x => x.uri.path === uri.path)
     this.openedFiles.splice(idx, 1)
 
     if (this.openedFiles.length) {
