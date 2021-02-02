@@ -167,12 +167,12 @@ export class MessagingAPI {
 
     if (!args.channel) {
       const lastChannel = await this.getLastChannel({ userId: args.target!, botId: args.botId! })
-      if (lastChannel) {
-        throw new Error('No previous channel was set for the user. You must provide a threadId in the args parameter')
+      if (!lastChannel) {
+        throw new Error('No previous channel was set for the user. You must provide a channel in the args parameter')
       }
       args.threadId = lastChannel
     } else if (direction === 'incoming') {
-      this.updateLastChannel({ userId: args.target!, botId: args.botId! }, args.channel)
+      await this.updateLastChannel({ userId: args.target!, botId: args.botId! }, args.channel)
     }
 
     const event = new IOEvent(<sdk.IO.EventCtorArgs>args)
