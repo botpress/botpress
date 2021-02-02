@@ -20,7 +20,7 @@ const FileStatus = props => {
         className={style.tab}
         title={`${lang.tr('problems')}${problems.length ? ` (${problems.length})` : ''}`}
         panel={
-          <div className={style.tabContainer}>
+          <div>
             {problems.map(x => (
               <div key={x.message} style={{ marginBottom: 10 }}>
                 {lang.tr('line')} <strong>{x.startLineNumber}</strong> - {x.message}
