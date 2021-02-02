@@ -16,7 +16,7 @@ The problem is that you wouldn't want to spend hundreds of hours learning and pu
 Botpress is a complete platform that ships with all the tools you need to build, deploy and manage production-grade bots in record time. Here are some of the components that are installed by default:
 
 - An NLU Engine which understands the meaning and intentions behind user statements even where grammatical mistakes exist.
-- An administration interface that can be viewed from a browser, exposing modules to manage content and show chatbot  statistics, among other things. 
+- An **administration interface** that can be viewed from a browser, to manage and monitor your instances, bots and users.
 - A visual workflow builder used for creating conversations and other interactions.
 - A chat emulator/debugger to simulate conversations and inspect the chatbot engine's logic.
 - Support for popular messaging channels like Facebook Messenger, Slack, Telegram, Microsoft Teams, and others.
