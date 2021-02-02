@@ -13,7 +13,7 @@ Navigate to the `\modules` folder and check if the archive `channel-messenger.tg
 ### Facebook App
 To fulfill this, log in to your Facebook account. Please ensure that this Facebook account has admin rights for the Facebook page to which you desire to connect the chatbot.
 
-Thereafter go to the [Facebook developers website](https://developers.facebook.com/), select "My Apps" from the top menu, and create a new app. For more details and assistance, visit the [Facebook developer documentation](https://developers.facebook.com/docs/development)
+Thereafter go to the [Facebook for Developers website](https://developers.facebook.com/), select "My Apps" from the top menu, and create a new app. For more details and assistance, visit the [Facebook developer documentation](https://developers.facebook.com/docs/development)
 
 ### Facebook Page
 This step is only required if you do not already have a Facebook page to link your bot. [You can find details on how to create a new Facebook page here](https://www.facebook.com/pages/creation/).
