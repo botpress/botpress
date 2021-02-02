@@ -18,7 +18,7 @@ Botpress is a complete platform that ships with all the tools you need to build,
 - An **NLU Engine** for intent detection and variable extraction.
 - An **administration interface** that can be viewed from a browser, to manage and monitor your instances, bots and users.
 - A **visual workflow builder** to create conversation flow and workflow automations.
-- A chat emulator/debugger to simulate conversations and inspect the chatbot engine's logic.
+- A **chat emulator/debugger** to simulate conversations and debug your chatbot.
 - Support for popular messaging channels like Facebook Messenger, Slack, Telegram, Microsoft Teams, and others.
 
 ## Why Botpress
