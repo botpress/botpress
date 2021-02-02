@@ -26,7 +26,7 @@ It is a complete platform that ships with all the tools you need to build, deplo
 Botpress has many advantages over other platforms and frameworks:
 
 - It runs **fully on-premise**, so you can host it on a server of your choice. This gives you full control over the data that comes in and out and helps you secure your data. 
-The Botpress platform's core is **open-source** with thousands of Github contributors and will be free forever.
+The Botpress platform's core is **open-source** with thousands of GitHub contributors and will be free forever.
 - The framework is very **flexible** and developer-friendly because Botpress can be customized primarily using Javascript with capabilities to include code in other languages.
 - Botpress relies on **zero** third-party services, making it the only fully featured Chatbot-Building platform
 
