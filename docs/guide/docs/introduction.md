@@ -11,7 +11,7 @@ The catch is that you (or anyone else) wouldn't want to spend hundreds of hours 
 
 ## What is Botpress
 
-> A **lightweight**, **fast**, and **flexible** chatbot building framework that you can host anywhere, whether it be on the cloud or your servers.
+> A **lightweight**, **fast**, and **flexible** chatbot building framework that you can host anywhere, whether it be on the cloud or on-premise.
 
 It is a complete platform that ships with all the tools you need to build, deploy, and manage production-grade bots in record time. Here are some of the components that are installed by default:
 
