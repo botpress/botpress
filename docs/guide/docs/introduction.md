@@ -13,7 +13,7 @@ The problem is that you wouldn't want to spend hundreds of hours learning and pu
 
 > A **lightweight**, **fast**, and **flexible** chatbot building framework that you can host anywhere, whether it be on the cloud or on-premise.
 
-It is a complete platform that ships with all the tools you need to build, deploy, and manage production-grade bots in record time. Here are some of the components that are installed by default:
+Botpress is a complete platform that ships with all the tools you need to build, deploy and manage production-grade bots in record time. Here are some of the components that are installed by default:
 
 - An NLU Engine which understands the meaning and intentions behind user statements even where grammatical mistakes exist.
 - An administration interface that can be viewed from a browser, exposing modules to manage content and show chatbot  statistics, among other things. 
