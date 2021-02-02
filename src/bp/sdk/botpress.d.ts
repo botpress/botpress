@@ -2020,7 +2020,7 @@ declare module 'botpress/sdk' {
      * Gets all the recent conversations linked to a user endpoint (most recent at index 0)
      * (includes the last message of each conversation)
      */
-    export function getAllRecentConversations(endpoint: UserEndpoint, limit?: number): Promise<Conversation[]>
+    export function getAllRecentConversations(endpoint: UserEndpoint, limit?: number): Promise<RecentConversation[]>
 
     /**
      * Deletes all conversations linked to a user endpoint
