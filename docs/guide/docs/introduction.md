@@ -7,7 +7,7 @@ Building chatbots is a new, exciting challenge for most developers. Creating sof
 
 ![Simple Pizza Bot](assets/pizzabot.gif)
 
-The catch is that you (or anyone else) wouldn't want to spend hundreds of hours learning and putting together all the infrastructure and boilerplate code required to get a conversational backend up and running.
+The problem is that you wouldn't want to spend hundreds of hours learning and putting together all the infrastructure and boilerplate code required to get a conversational backend up and running. Luckily, you don't have to.
 
 ## What is Botpress
 
