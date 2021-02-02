@@ -199,11 +199,11 @@ class Editor extends React.Component<Props> {
         )}
         <div className={cx(style.editorContainer, { [style.hidden]: !isFileOpened })}>
           <div className={style.tabsContainer}>
-            {this.props.editor.openedFiles.map(({ uri, hasChanges }) => {
+            {this.props.editor.openedFiles.map(({ uri, hasChanges, location }) => {
               const isActive = uri === this.props.editor.currentFile?.uri
               return (
                 <div className={cx(style.tab, { [style.active]: isActive })}>
-                  <span onClick={() => this.props.editor.switchTab(uri)}>{uri.path}</span>
+                  <span onClick={() => this.props.editor.switchTab(uri)}>{location}</span>
 
                   <div>
                     <Tooltip content={lang.tr('close')} position={Position.RIGHT}>

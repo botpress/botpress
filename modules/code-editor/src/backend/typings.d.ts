@@ -34,13 +34,6 @@ export interface EditableFile {
   isExample?: boolean
 }
 
-export type FileWithMetadata = EditableFile & {
-  uri: any
-  state?: any
-  lastSaveVersion?: number
-  hasChanges?: boolean
-}
-
 export interface FilesDS {
   [type: string]: EditableFile[]
 }

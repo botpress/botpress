@@ -65,11 +65,14 @@ class EditorStore {
     const file = this.openedFiles.find(x => x.uri === uri)
     const model = monaco.editor.getModel(uri)
 
-    this.rootStore.api.saveFile({
+    await this.rootStore.api.saveFile({
       ...file,
       content: wrapper.remove(model.getValue(), file.type)
     })
 
+    await this.rootStore.fetchFiles()
+
+    // Necessary so monaco has the time to update the version correctly
     setTimeout(() => {
       this.updateFileContent(
         {

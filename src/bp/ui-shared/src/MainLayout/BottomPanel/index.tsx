@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom'
 import style from './style.scss'
 import cx from 'classnames'
 
-class Portal extends React.Component<KeyboardElementsProps> {
+class Portal extends React.Component<BottomPanelProps> {
   private container: HTMLElement
 
   constructor(props) {
@@ -26,7 +26,7 @@ class Portal extends React.Component<KeyboardElementsProps> {
   }
 }
 
-export class Register extends React.Component<Partial<KeyboardElementsProps>> {
+export class Register extends React.Component<Partial<BottomPanelProps>> {
   render() {
     return (
       <div>
@@ -36,22 +36,20 @@ export class Register extends React.Component<Partial<KeyboardElementsProps>> {
   }
 }
 
-export class Container extends React.Component<Partial<KeyboardElementsProps>> {
+export class Container extends React.Component<Partial<BottomPanelProps>> {
   static containerRef: React.RefObject<HTMLDivElement> = React.createRef()
   static tabs: string[] = []
-  static onTabChanged
+  static onTabsChanged: (tabs: string[]) => void
 
   static addTab = val => {
     Container.tabs.push(val)
-    Container.onTabChanged(Container.tabs)
+    Container.onTabsChanged(Container.tabs)
   }
 
   static removeTab = val => {
     Container.tabs = Container.tabs.filter(x => x !== val)
-    Container.onTabChanged(Container.tabs)
+    Container.onTabsChanged(Container.tabs)
   }
-
-  // static setActiveTab =
 
   render() {
     const isHidden = !this.props.activeTab || !Container.tabs.includes(this.props.activeTab)
@@ -64,11 +62,10 @@ export class Container extends React.Component<Partial<KeyboardElementsProps>> {
   }
 }
 
-interface KeyboardElementsProps {
-  visible?: boolean
+interface BottomPanelProps {
   activeTab?: string
   tabName?: string
-  onTabChanged?: any
+  onTabsChanged?: (tabs: string[]) => void
 }
 
 export default { Container, Register }

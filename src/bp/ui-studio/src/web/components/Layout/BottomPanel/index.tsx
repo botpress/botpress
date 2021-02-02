@@ -95,7 +95,7 @@ const BottomPanel = props => {
   )
 
   // @ts-ignore
-  DevPanel.Container.onTabChanged = tabs => setCustomTabs(tabs)
+  DevPanel.Container.onTabsChanged = tabs => setCustomTabs(tabs)
 
   return (
     <div className={style.container}>
