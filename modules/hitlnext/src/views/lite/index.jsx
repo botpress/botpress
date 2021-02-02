@@ -1,7 +1,7 @@
 import React from 'react'
 
 import ShortcutComposer from './ShortcutComposer'
-import { HandoffAssignedForAgent, HandoffAssignedForUser } from './HandoffAssigned'
+import { HandoffAssignedForAgent } from './HandoffAssigned'
 
 export class LiteView extends React.Component {
   render() {
@@ -9,4 +9,4 @@ export class LiteView extends React.Component {
   }
 }
 
-export { ShortcutComposer, HandoffAssignedForAgent, HandoffAssignedForUser }
+export { ShortcutComposer, HandoffAssignedForAgent }

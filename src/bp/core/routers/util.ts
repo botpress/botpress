@@ -1,9 +1,12 @@
 import { Logger, StrategyUser } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
+import { asBytes } from 'core/misc/utils'
 import { InvalidOperationError } from 'core/services/auth/errors'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
+import mime from 'mime-types'
+import multer from 'multer'
 import onHeaders from 'on-headers'
 
 import { RequestWithUser, TokenUser } from '../../common/typings'
@@ -201,6 +204,24 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
   const err = await checkPermissions(workspaceService)(operation, resource)(req)
   return next(err)
 }
+
+/**
+ * This method checks that uploaded file respects constraints
+ * TODO add * in allowedMimeTypes ==> accepts all
+ */
+export const fileUploadMulter = (allowedMimeTypes: string[] = [], maxFileSize?: string) =>
+  multer({
+    fileFilter: (_req, file, cb) => {
+      const extMimeType = mime.lookup(file.originalname)
+      if (allowedMimeTypes.includes(file.mimetype) && allowedMimeTypes.includes(extMimeType)) {
+        return cb(null, true)
+      }
+      cb(new Error(`This type of file is not allowed (${file.mimetype})`))
+    },
+    limits: {
+      fileSize: (maxFileSize && asBytes(maxFileSize)) || undefined
+    }
+  }).single('file')
 
 /**
  * This method checks if the user has read access if method is get, and write access otherwise

@@ -9,6 +9,8 @@ import { Config } from '../config'
 
 import { DBMessage } from './typings'
 
+const SEPARATOR = '*'
+
 export default class WebchatDb {
   private readonly MAX_RETRY_ATTEMPTS = 3
   private knex: sdk.KnexExtended
@@ -70,7 +72,7 @@ export default class WebchatDb {
         const queries = []
 
         for (const key in this.batchedConvos) {
-          const [conversationId, userId, botId] = key.split('_')
+          const [conversationId, userId, botId] = key.split(SEPARATOR)
           const value = this.batchedConvos[key]
 
           const query = this.knex('web_conversations')
@@ -180,7 +182,7 @@ export default class WebchatDb {
     }
 
     this.batchedMessages.push(message)
-    this.batchedConvos[`${conversationId}_${userId}_${botId}`] = this.knex.date.format(now)
+    this.batchedConvos[`${conversationId}${SEPARATOR}${userId}${SEPARATOR}${botId}`] = this.knex.date.format(now)
 
     return {
       ...message,

@@ -56,3 +56,11 @@ export interface FieldWrapperProps {
   label?: string
   invalid?: InvalidField
 }
+
+export type TextProps = FieldProps & { field: FormField }
+
+export interface UploadFieldProps extends FieldProps {
+  axios: any
+  customPath?: string
+  onChange?: (url: string | undefined) => void
+}
