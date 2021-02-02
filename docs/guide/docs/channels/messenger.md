@@ -43,7 +43,7 @@ You can do this by opening the file `data/global/botpress.config.json` in a text
 
 #### App Secret
 - Go to your Facebook App
-- In the left sidebar, expand the Settings menu and select Basic. Here you can find the App ID and  App Secret.
+- In the left sidebar, expand the Settings menu and select Basic. Here you can find the App ID and App Secret.
 - Click on the "Show" button in the "App Secret" text box. You can copy the "App Id" and "App Secret" to use for your Facebook API calls.
 
 #### Verify Token
