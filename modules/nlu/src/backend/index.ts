@@ -1,35 +1,77 @@
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
+import bytes from 'bytes'
 import _ from 'lodash'
+import { Config } from 'src/config'
 
 import { createApi } from '../api'
 import en from '../translations/en.json'
 import es from '../translations/es.json'
 import fr from '../translations/fr.json'
 
+import { registerRouter, removeRouter } from './api'
+import { NLUApplication } from './application'
 import dialogConditions from './dialog-conditions'
-import { getOnBotMount } from './module-lifecycle/on-bot-mount'
-import { getOnBotUnmount } from './module-lifecycle/on-bot-unmount'
-import { getOnServerReady } from './module-lifecycle/on-server-ready'
-import { getOnSeverStarted } from './module-lifecycle/on-server-started'
-import { NLUState } from './typings'
+import { registerMiddlewares, removeMiddlewares } from './middlewares'
+import TrainSessionService from './train-session-service'
+import { NLUProgressEvent, NLUState } from './typings'
 
-const state: NLUState = {
-  engine: undefined,
-  trainSessionService: undefined,
-  nluByBot: {},
-  sendNLUStatusEvent: async () => {}
+let state: NLUState | undefined
+
+const onServerStarted = async (bp: typeof sdk) => {
+  const globalConfig: Config = await bp.config.getModuleConfig('nlu')
+
+  const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = globalConfig
+  const parsedConfig: sdk.NLU.Config = {
+    languageSources,
+    ducklingEnabled,
+    ducklingURL,
+    modelCacheSize: bytes(modelCacheSize)
+  }
+
+  const logger = <sdk.NLU.Logger>{
+    info: (msg: string) => bp.logger.info(msg),
+    warning: (msg: string, err?: Error) => (err ? bp.logger.attachError(err).warn(msg) : bp.logger.warn(msg)),
+    error: (msg: string, err?: Error) => (err ? bp.logger.attachError(err).error(msg) : bp.logger.error(msg))
+  }
+
+  const engine = await bp.NLU.makeEngine(parsedConfig, logger)
+
+  const trainSessionService = new TrainSessionService(bp)
+
+  const socket = async (botId: string, trainSession: sdk.NLU.TrainingSession) => {
+    await trainSessionService.setTrainingSession(botId, trainSession)
+    const ev: NLUProgressEvent = { type: 'nlu', botId, trainSession: _.omit(trainSession, 'lock') }
+    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', ev))
+  }
+
+  const app = new NLUApplication(bp, engine, trainSessionService, socket)
+
+  state = {
+    engine,
+    application: app,
+    trainSessionService
+  }
+
+  registerMiddlewares(bp, state)
 }
 
-const onServerStarted = getOnSeverStarted(state)
-const onServerReady = getOnServerReady(state)
-const onBotMount = getOnBotMount(state)
-const onBotUnmount = getOnBotUnmount(state)
+const onServerReady = async (bp: typeof sdk) => {
+  await registerRouter(bp, state)
+}
+
+const onBotMount = async (bp: typeof sdk, botId: string) => {
+  await state.application.mountBot(botId)
+}
+
+const onBotUnmount = async (bp: typeof sdk, botId: string) => {
+  return state.application.unmountBot(botId)
+}
+
 const onModuleUnmount = async (bp: typeof sdk) => {
-  bp.events.removeMiddleware('nlu.incoming')
-  bp.http.deleteRouterForBot('nlu')
-  // if module gets deactivated but server keeps running, we want to destroy bot state
-  Object.keys(state.nluByBot).forEach(botID => () => onBotUnmount(bp, botID))
+  removeMiddlewares(bp)
+  removeRouter(bp)
+  await state.application.teardown()
 }
 
 const onTopicChanged = async (bp: typeof sdk, botId: string, oldName?: string, newName?: string) => {

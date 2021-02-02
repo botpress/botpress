@@ -4,8 +4,10 @@ import _ from 'lodash'
 import yn from 'yn'
 
 import legacyElectionPipeline from './election/legacy-election'
-import mergeSpellChecked from './election/spellcheck-handler'
+import { BotDoesntSpeakLanguageError, BotNotMountedError } from './errors'
 import { NLUState } from './typings'
+
+const ROUTER_ID = 'nlu'
 
 export const PredictSchema = Joi.object().keys({
   contexts: Joi.array()
@@ -14,26 +16,19 @@ export const PredictSchema = Joi.object().keys({
   text: Joi.string().required()
 })
 
-export default async (bp: typeof sdk, state: NLUState) => {
-  const router = bp.http.createRouterForBot('nlu')
+export const registerRouter = async (bp: typeof sdk, state: NLUState) => {
+  const { application, engine, trainSessionService } = state
+  const router = bp.http.createRouterForBot(ROUTER_ID)
 
   router.get('/health', async (req, res) => {
-    // When the health is bad, we'll refresh the status in case it changed (eg: user added languages)
-    const health = state.engine.getHealth()
+    // When the health is bad, we'll refresh the status in case it has changed (eg: user added languages)
+    const health = engine.getHealth()
     res.send(health)
-  })
-
-  // TODO remove this
-  router.post('/cross-validation/:lang', async (req, res) => {
-    // there used to be a cross validation tool but I got rid of it when extracting standalone nlu
-    // the code is somewhere in the source control
-    // to find it back, juste git blame this comment
-    res.sendStatus(410)
   })
 
   router.get('/training/:language', async (req, res) => {
     const { language, botId } = req.params
-    const session = await state.trainSessionService.getTrainingSession(botId, language)
+    const session = await trainSessionService.getTrainingSession(botId, language)
     res.send(session)
   })
 
@@ -44,37 +39,11 @@ export default async (bp: typeof sdk, state: NLUState) => {
       return res.status(400).send('Predict body is invalid')
     }
 
-    const botNLU = state.nluByBot[botId]
-    if (!botNLU) {
-      return res.status(404).send(`Bot ${botId} doesn't exist`)
-    }
-
-    const predictLang = lang ?? botNLU.defaultLanguage
-    const modelId = botNLU.modelsByLang[predictLang]
-
     try {
-      let nlu: sdk.NLU.PredictOutput
-
-      const spellChecked = await state.engine.spellCheck(value.text, modelId)
-
-      const t0 = Date.now()
-      if (spellChecked !== value.text) {
-        const originalPrediction = await state.engine.predict(value.text, modelId)
-        const spellCheckedPrediction = await state.engine.predict(spellChecked, modelId)
-        nlu = mergeSpellChecked(originalPrediction, spellCheckedPrediction)
-      } else {
-        nlu = await state.engine.predict(value.text, modelId)
-      }
-      const ms = Date.now() - t0
-
+      const nlu = await application.predict(botId, value.text, lang)
       const event: sdk.IO.EventUnderstanding = {
         ...nlu,
-        includedContexts: value.contexts,
-        language: predictLang,
-        detectedLanguage: undefined,
-        errored: false,
-        ms,
-        spellChecked
+        includedContexts: value.contexts
       }
       res.send({ nlu: legacyElectionPipeline(event) })
     } catch (err) {
@@ -83,45 +52,46 @@ export default async (bp: typeof sdk, state: NLUState) => {
   })
 
   router.post('/train/:lang', async (req, res) => {
+    const { botId, lang } = req.params
     try {
-      const { botId, lang } = req.params
-
-      const botNLU = state.nluByBot[botId]
-      if (!botNLU) {
-        return res.status(404).send(`Bot ${botId} doesn't exist`)
-      }
-      if (!_.isString(lang) || !botNLU.languages.includes(lang)) {
-        return res.status(422).send(`Language ${lang} is either not supported by bot or by language server`)
-      }
-
-      // Is it this even necessary anymore ?
       const disableTraining = yn(process.env.BP_NLU_DISABLE_TRAINING)
 
       // to return as fast as possible
       // tslint:disable-next-line: no-floating-promises
-      state.nluByBot[botId].trainOrLoad(lang, disableTraining)
+      application.trainOrLoad(botId, lang, disableTraining)
       res.sendStatus(200)
-    } catch {
+    } catch (err) {
+      if (err instanceof BotNotMountedError) {
+        return res.status(404).send(`Bot ${botId} doesn't exist`)
+      }
+
+      if (err instanceof BotDoesntSpeakLanguageError) {
+        return res.status(422).send(`Language ${lang} is either not supported by bot or by language server`)
+      }
+
       res.sendStatus(500)
     }
   })
 
   router.post('/train/:lang/delete', async (req, res) => {
+    const { botId, lang } = req.params
     try {
-      const { botId, lang } = req.params
-
-      const botNLU = state.nluByBot[botId]
-      if (!botNLU) {
+      await application.broadcastCancelTraining(botId, lang)
+      res.sendStatus(200)
+    } catch (err) {
+      if (err instanceof BotNotMountedError) {
         return res.status(404).send(`Bot ${botId} doesn't exist`)
       }
-      if (!_.isString(lang) || !botNLU.languages.includes(lang)) {
+
+      if (err instanceof BotDoesntSpeakLanguageError) {
         return res.status(422).send(`Language ${lang} is either not supported by bot or by language server`)
       }
 
-      await state.nluByBot[botId].cancelTraining(lang)
-      res.sendStatus(200)
-    } catch {
       res.sendStatus(500)
     }
   })
+}
+
+export const removeRouter = (bp: typeof sdk) => {
+  bp.http.deleteRouterForBot(ROUTER_ID)
 }

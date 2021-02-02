@@ -27,12 +27,14 @@ const DEFAULT_LISTING_OPTIONS: ListingOptions = {
   negateFilter: false
 }
 
-export default class ModelService {
-  constructor(
-    private _modelIdService: typeof sdk.NLU.modelIdService,
-    private _ghost: sdk.ScopedGhostService,
-    private _botId: string
-  ) {}
+export default class ScopedModelService {
+  private _modelIdService: typeof sdk.NLU.modelIdService
+  private _ghost: sdk.ScopedGhostService
+
+  constructor(bp: typeof sdk, private _botId: string) {
+    this._modelIdService = bp.NLU.modelIdService
+    this._ghost = bp.ghost.forBot(_botId)
+  }
 
   async initialize() {
     debug.forBot(this._botId, 'Model service initializing...')
