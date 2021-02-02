@@ -30,7 +30,7 @@ The Botpress platform's core is **open-source** with thousands of Github contrib
 - The framework is very **flexible** and developer-friendly because Botpress can be customized primarily using Javascript with capabilities to include code in other languages.
 - Botpress relies on **zero** third-party services, making it the only fully featured Chatbot-Building platform
 
-## How to build a Chatbot
+## How to build a chatbot
 
 There are three main steps involved in creating chatbots.
 
