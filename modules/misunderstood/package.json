@@ -17,7 +17,8 @@
     "@types/classnames": "^2.2.9"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "@blueprintjs/datetime": "3.15.2",
+    "axios": "^0.21.1",
     "bluebird": "^3.7.0",
     "classnames": "^2.2.6",
     "lodash": "^4.17.19"

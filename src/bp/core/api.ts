@@ -8,6 +8,7 @@ import { Memoize } from 'lodash-decorators'
 import MLToolkit from 'ml/toolkit'
 import Engine from 'nlu-core/engine'
 import { isTrainingAlreadyStarted, isTrainingCanceled } from 'nlu-core/errors'
+import modelIdService from 'nlu-core/model-id-service'
 
 import { container } from './app.inversify'
 import { ConfigProvider } from './config/config-loader'
@@ -16,7 +17,7 @@ import { LoggerProvider } from './logger'
 import { getMessageSignature } from './misc/security'
 import { renderRecursive } from './misc/templating'
 import { ModuleLoader } from './module-loader'
-import { EventRepository, SessionRepository, UserRepository } from './repositories'
+import { EventRepository, UserRepository } from './repositories'
 import { Event, RealTimePayload } from './sdk/impl'
 import HTTPServer from './server'
 import { GhostService } from './services'
@@ -27,7 +28,7 @@ import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { HookService } from './services/hook/hook-service'
 import { JobService } from './services/job-service'
 import { KeyValueStore } from './services/kvs'
-import MediaService from './services/media'
+import { MediaServiceProvider } from './services/media'
 import { EventEngine } from './services/middleware/event-engine'
 import { StateManager } from './services/middleware/state-manager'
 import { NotificationsService } from './services/notification/service'
@@ -159,7 +160,7 @@ const ghost = (ghostService: GhostService): typeof sdk.ghost => {
   }
 }
 
-const cms = (cmsService: CMSService, mediaService: MediaService): typeof sdk.cms => {
+const cms = (cmsService: CMSService, mediaServiceProvider: MediaServiceProvider): typeof sdk.cms => {
   return {
     getContentElement: cmsService.getContentElement.bind(cmsService),
     getContentElements: cmsService.getContentElements.bind(cmsService),
@@ -173,13 +174,16 @@ const cms = (cmsService: CMSService, mediaService: MediaService): typeof sdk.cms
     },
     createOrUpdateContentElement: cmsService.createOrUpdateContentElement.bind(cmsService),
     async saveFile(botId: string, fileName: string, content: Buffer): Promise<string> {
-      return mediaService.saveFile(botId, fileName, content)
+      return mediaServiceProvider
+        .forBot(botId)
+        .saveFile(fileName, content)
+        .then(({ fileName }) => fileName)
     },
     async readFile(botId, fileName): Promise<Buffer> {
-      return mediaService.readFile(botId, fileName)
+      return mediaServiceProvider.forBot(botId).readFile(fileName)
     },
     getFilePath(botId: string, fileName: string): string {
-      return mediaService.getFilePath(botId, fileName)
+      return mediaServiceProvider.forBot(botId).getPublicURL(fileName)
     },
     renderTemplate(templateItem: sdk.cms.TemplateItem, context): sdk.cms.TemplateItem {
       return renderRecursive(templateItem, context)
@@ -258,7 +262,7 @@ export class BotpressAPIProvider {
     @inject(TYPES.GhostService) ghostService: GhostService,
     @inject(TYPES.CMSService) cmsService: CMSService,
     @inject(TYPES.ConfigProvider) configProvider: ConfigProvider,
-    @inject(TYPES.MediaService) mediaService: MediaService,
+    @inject(TYPES.MediaServiceProvider) mediaServiceProvider: MediaServiceProvider,
     @inject(TYPES.HookService) hookService: HookService,
     @inject(TYPES.EventRepository) eventRepo: EventRepository,
     @inject(TYPES.WorkspaceService) workspaceService: WorkspaceService,
@@ -276,7 +280,7 @@ export class BotpressAPIProvider {
     this.notifications = notifications(notificationService)
     this.bots = bots(botService)
     this.ghost = ghost(ghostService)
-    this.cms = cms(cmsService, mediaService)
+    this.cms = cms(cmsService, mediaServiceProvider)
     this.mlToolkit = MLToolkit
     this.experimental = experimental(hookService)
     this.security = security()
@@ -325,7 +329,8 @@ export class BotpressAPIProvider {
         errors: {
           isTrainingAlreadyStarted,
           isTrainingCanceled
-        }
+        },
+        modelIdService
       }
     }
   }

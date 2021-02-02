@@ -1,6 +1,6 @@
 import { Button, Colors, FormGroup, Icon, InputGroup, Position, Radio, RadioGroup, Tooltip } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
-import { lang } from 'botpress/shared'
+import { lang, utils } from 'botpress/shared'
 import { toastFailure } from 'botpress/utils'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
@@ -51,6 +51,7 @@ export const ListEntityEditor: React.FC<Props> = props => {
 
   useEffect(() => {
     dispatch({ type: 'setStateFromEntity', data: { entity: props.entity } })
+    utils.inspect(props.entity)
   }, [props.entity.name])
 
   useEffect(() => {
@@ -89,9 +90,16 @@ export const ListEntityEditor: React.FC<Props> = props => {
   }
 
   const editOccurrence = (idx: number, occurrence: NLU.EntityDefOccurrence) => {
-    const newSynonym = _.last(occurrence.synonyms)
-    if (!isUnique(newSynonym)) {
-      return toastFailure('Synonyms duplication is not allowed')
+    const synonymAdded = () => {
+      const oldOccurence = state.occurrences[idx]
+      return oldOccurence.synonyms.length < occurrence.synonyms.length
+    }
+
+    if (synonymAdded()) {
+      const newSynonym = _.last(occurrence.synonyms)
+      if (!isUnique(newSynonym)) {
+        return toastFailure('Synonyms duplication is not allowed')
+      }
     }
 
     const occurrences = [...state.occurrences.slice(0, idx), occurrence, ...state.occurrences.slice(idx + 1)]

@@ -214,5 +214,13 @@
   "uploading": "Téléversement",
   "incomplete": "Incomplètes",
   "active": "Actives",
-  "visibility": "Visibilité"
+  "visibility": "Visibilité",
+  "timespan": {
+    "lastMonth": "Le mois dernier",
+    "lastWeek": "La semaine dernière",
+    "lastYear": "L'année dernière",
+    "thisMonth": "Ce mois-ci",
+    "thisWeek": "Cette semaine",
+    "thisYear": "Cette année"
+  }
 }

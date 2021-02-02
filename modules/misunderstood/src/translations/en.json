@@ -8,6 +8,7 @@
   "done": "Done",
   "flaggedByAction": "Flagged by action",
   "flaggedByHook": "Flagged by hook",
+  "flaggedByThumbsDown": "Flagged by thumbs down",
   "fullName": "Misunderstood",
   "goal": "Goal",
   "ignore": "Ignore",
@@ -41,5 +42,8 @@
   "waitWhileDataLoading": "Please wait while we're loading data",
   "whatIsMessageType": "What is this message type?",
   "couldNotLoadConversation": "Could not load conversation",
-  "conversationDeleted": "This conversation was too old and has been deleted"
+  "conversationDeleted": "This conversation was too old and has been deleted",
+  "dateRange": "Date Range",
+  "misunderstood": "Misunderstood",
+  "qnaThumbsDown": "QNA Thumbs Down"
 }

@@ -8,7 +8,7 @@ import style from '../style.scss'
 interface Props {
   events: DbFlaggedEvent[]
   totalEventsCount: number
-  undeleteEvent: (id: string) => void
+  undeleteEvent: (id: number) => void
 }
 
 const DeletedList = ({ events, totalEventsCount, undeleteEvent }: Props) => (
@@ -29,7 +29,7 @@ const DeletedList = ({ events, totalEventsCount, undeleteEvent }: Props) => (
               <td>{event.preview}</td>
               <td>{event.updatedAt}</td>
               <td>
-                <Button onClick={() => undeleteEvent('' + event.id)} small icon="refresh" intent={Intent.PRIMARY}>
+                <Button onClick={() => undeleteEvent(event.id)} small icon="refresh" intent={Intent.PRIMARY}>
                   {lang.tr('module.misunderstood.restore')}
                 </Button>
               </td>

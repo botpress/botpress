@@ -41,6 +41,7 @@ const TYPES = {
   TransitionStrategy: Symbol.for('TransitionStrategy'),
   StrategyProvider: Symbol.for('StrategyProvider'),
   MediaService: Symbol.for('MediaService'),
+  MediaServiceProvider: Symbol.for('MediaServiceProvider'),
   JanitorRunner: Symbol.for('JanitorRunner'),
   DialogJanitorRunner: Symbol.for('DialogJanitorRunner'),
   LoggerDbPersister: Symbol.for('LoggerDbPersister'),

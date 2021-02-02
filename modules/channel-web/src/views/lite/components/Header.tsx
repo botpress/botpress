@@ -2,8 +2,10 @@ import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
 
+import confirmDialog from '../../../../../../src/bp/ui-shared-lite/ConfirmDialog'
 import MoreOptions from '../../../../../../src/bp/ui-shared-lite/MoreOptions'
 import Close from '../icons/Close'
+import Delete from '../icons/Delete'
 import Download from '../icons/Download'
 import Information from '../icons/Information'
 import List from '../icons/List'
@@ -74,13 +76,46 @@ class Header extends React.Component<HeaderProps> {
     )
   }
 
+  handleDeleteConversation = async () => {
+    if (await confirmDialog(this.props.intl.formatMessage({
+        id: 'header.deleteConversation'
+      }), {
+        acceptLabel: this.props.intl.formatMessage({
+          id: 'header.deleteConversationYes'
+        }),
+        declineLabel: this.props.intl.formatMessage({
+          id: 'header.deleteConversationNo'
+        })
+      })
+    ) {
+      await this.props.deleteConversation()
+    }
+  }
+
+  renderDeleteConversationButton() {
+    return (
+      <button
+        type="button"
+        tabIndex={-1}
+        id="btn-delete"
+        ref={el => (this.btnEls[0] = el)}
+        className={'bpw-header-icon bpw-header-icon-delete'}
+        onClick={this.handleDeleteConversation}
+        onKeyDown={this.handleKeyDown.bind(this, this.handleDeleteConversation)}
+        onBlur={this.onBlur}
+      >
+        <Delete />
+      </button>
+    )
+  }
+
   renderResetButton() {
     return (
       <button
         type="button"
         tabIndex={-1}
         id="btn-reset"
-        ref={el => (this.btnEls[0] = el)}
+        ref={el => (this.btnEls[1] = el)}
         className={'bpw-header-icon bpw-header-icon-reset'}
         onClick={this.props.resetSession}
         onKeyDown={this.handleKeyDown.bind(this, this.props.resetSession)}
@@ -97,7 +132,7 @@ class Header extends React.Component<HeaderProps> {
         type="button"
         tabIndex={-1}
         id="btn-download"
-        ref={el => (this.btnEls[1] = el)}
+        ref={el => (this.btnEls[2] = el)}
         className={'bpw-header-icon bpw-header-icon-download'}
         onClick={this.props.downloadConversation}
         onKeyDown={this.handleKeyDown.bind(this, this.props.downloadConversation)}
@@ -114,7 +149,7 @@ class Header extends React.Component<HeaderProps> {
         type="button"
         tabIndex={-1}
         id="btn-conversations"
-        ref={el => (this.btnEls[2] = el)}
+        ref={el => (this.btnEls[3] = el)}
         className={'bpw-header-icon bpw-header-icon-convo'}
         onClick={this.props.toggleConversations}
         onKeyDown={this.handleKeyDown.bind(this, this.props.toggleConversations)}
@@ -131,7 +166,7 @@ class Header extends React.Component<HeaderProps> {
         type="button"
         tabIndex={-1}
         id="btn-botinfo"
-        ref={el => (this.btnEls[3] = el)}
+        ref={el => (this.btnEls[4] = el)}
         className={'bpw-header-icon bpw-header-icon-botinfo'}
         onClick={this.props.toggleBotInfo}
         onKeyDown={this.handleKeyDown.bind(this, this.props.toggleBotInfo)}
@@ -151,7 +186,7 @@ class Header extends React.Component<HeaderProps> {
           id: 'header.hideChatWindow',
           defaultMessage: 'Hide the chat window'
         })}
-        ref={el => (this.btnEls[4] = el)}
+        ref={el => (this.btnEls[5] = el)}
         className={'bpw-header-icon bpw-header-icon-close'}
         onClick={this.props.hideChat}
         onKeyDown={this.handleKeyDown.bind(this, this.props.hideChat)}
@@ -207,12 +242,6 @@ class Header extends React.Component<HeaderProps> {
   render() {
     const optionsItems = []
 
-    if (this.props.showResetButton) {
-      optionsItems.push({
-        label: 'Reload',
-        action: this.props.resetSession
-      })
-    }
     if (this.props.showDownloadButton) {
       optionsItems.push({
         label: 'Download Conversation',
@@ -234,11 +263,21 @@ class Header extends React.Component<HeaderProps> {
       })
     }
 
+    if (this.props.showDeleteConversationButton) {
+      optionsItems.push({
+        label: 'Delete conversation',
+        action: this.props.deleteConversation
+      })
+    }
+
     if (this.props.isEmulator) {
       return (
         <div className="bpw-emulator-header">
           <span className="bpw-emulator-header-tab">Emulator</span>
-          <MoreOptions show={this.state.showingOption} onToggle={this.setShowingOption} items={optionsItems} />
+          <div>
+            <span className="bpw-emulator-buttons">{this.props.showResetButton && this.renderResetButton()}</span>
+            <MoreOptions show={this.state.showingOption} onToggle={this.setShowingOption} items={optionsItems} />
+          </div>
         </div>
       )
     }
@@ -252,6 +291,7 @@ class Header extends React.Component<HeaderProps> {
           </div>
         </div>
         {!!this.props.customButtons.length && this.renderCustomButtons()}
+        {this.props.showDeleteConversationButton && this.renderDeleteConversationButton()}
         {this.props.showResetButton && this.renderResetButton()}
         {this.props.showDownloadButton && this.renderDownloadButton()}
         {this.props.showConversationsButton && this.renderConvoButton()}
@@ -265,6 +305,7 @@ class Header extends React.Component<HeaderProps> {
 export default inject(({ store }: { store: RootStore }) => ({
   intl: store.intl,
   isConversationsDisplayed: store.view.isConversationsDisplayed,
+  showDeleteConversationButton: store.view.showDeleteConversationButton,
   showDownloadButton: store.view.showDownloadButton,
   showBotInfoButton: store.view.showBotInfoButton,
   showConversationsButton: store.view.showConversationsButton,
@@ -280,6 +321,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   toggleBotInfo: store.view.toggleBotInfo,
   customButtons: store.view.customButtons,
 
+  deleteConversation: store.deleteConversation,
   resetSession: store.resetSession,
   downloadConversation: store.downloadConversation,
   botName: store.botName,
@@ -303,6 +345,7 @@ type HeaderProps = Pick<
   | 'hasUnreadMessages'
   | 'unreadCount'
   | 'hasBotInfoDescription'
+  | 'deleteConversation'
   | 'resetSession'
   | 'downloadConversation'
   | 'toggleConversations'
@@ -310,6 +353,7 @@ type HeaderProps = Pick<
   | 'toggleBotInfo'
   | 'botAvatarUrl'
   | 'showResetButton'
+  | 'showDeleteConversationButton'
   | 'showDownloadButton'
   | 'showConversationsButton'
   | 'showBotInfoButton'

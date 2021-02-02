@@ -1,6 +1,6 @@
 import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 import { Flow, FlowNode } from 'botpress/sdk'
-import { confirmDialog, lang, MoreOptions, MoreOptionsItems, toast } from 'botpress/shared'
+import { confirmDialog, lang, MoreOptions, MoreOptionsItems, toast, utils } from 'botpress/shared'
 import { getFlowLabel } from 'botpress/utils'
 import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
@@ -143,7 +143,15 @@ const QnA: FC<Props> = props => {
   return (
     <div className={style.questionWrapper}>
       <div className={style.headerWrapper}>
-        <Button minimal small onClick={() => setExpanded(!expanded)} className={style.questionHeader}>
+        <Button
+          minimal
+          small
+          onClick={() => {
+            utils.inspect(props.qnaItem)
+            setExpanded(!expanded)
+          }}
+          className={style.questionHeader}
+        >
           <div className={style.left}>
             <Icon icon={!expanded ? 'chevron-right' : 'chevron-down'} />{' '}
             {!isNewQna && (
@@ -185,11 +193,10 @@ const QnA: FC<Props> = props => {
                 <span className={cx(style.tag)}>{lang.tr('module.qna.form.incomplete')}</span>
               </Tooltip>
             )}
-            {!expanded && (
-              <span className={style.tag}>{`${questions?.filter(q => q.trim()).length || 0} ${lang.tr(
-                'module.qna.form.q'
-              )} · ${answers?.filter(a => a.trim()).length || 0}  ${lang.tr('module.qna.form.a')}`}</span>
-            )}
+            <span className={style.tag}>
+              {`${questions?.filter(q => q.trim()).length || 0} ${lang.tr('module.qna.form.q')}
+               · ${answers?.filter(a => a.trim()).length || 0}  ${lang.tr('module.qna.form.a')}`}
+            </span>
           </div>
         </Button>
         <MoreOptions show={showOption} onToggle={() => setShowOption(!showOption)} items={moreOptionsItems} />

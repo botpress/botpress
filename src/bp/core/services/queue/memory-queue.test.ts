@@ -1,6 +1,7 @@
 // tslint:disable no-floating-promises
 
 import 'bluebird-global'
+import { IO } from 'botpress/sdk'
 import _ from 'lodash'
 import 'reflect-metadata'
 
@@ -12,7 +13,7 @@ import MemoryQueue from './memory-queue'
 describe('Lite Queues', () => {
   const options = { retries: 1 }
   const logger = createMockLogger()
-  let queue: MemoryQueue
+  let queue: MemoryQueue<IO.Event>
 
   const stubEvent = Event({
     type: '',

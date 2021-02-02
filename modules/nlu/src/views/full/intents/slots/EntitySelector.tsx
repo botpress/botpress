@@ -10,7 +10,6 @@ interface EntityOption {
   type: string
   name: string
 }
-
 interface Props {
   entities: string[]
   api: NLUApi

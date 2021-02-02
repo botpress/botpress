@@ -21,7 +21,10 @@
       "imageLabel": "Title",
       "labelDesc": "Some platforms require to name the images.",
       "permissionDenied": "You don't have permission to upload files for this bot. Talk to your team owner.",
+      "infoInterpreted": "This information will be interpreted:",
       "title": "Image",
+      "uploadFileChoice": "Or upload an image",
+      "enterUrlChoice": "Or enter the image URL",
       "uploadImage": "Upload Image"
     },
     "singleChoice": {
@@ -38,5 +41,6 @@
     }
   },
   "typingIndicator": "Show typing indicators",
-  "useMarkdown": "Use markdown"
+  "useMarkdown": "Use markdown",
+  "disableFreeText": "Disable free text"
 }

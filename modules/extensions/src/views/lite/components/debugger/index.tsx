@@ -6,8 +6,6 @@ import 'ui-shared/dist/theme.css'
 
 export const updater = { callback: undefined }
 
-const WEBCHAT_WIDTH = 240
-
 interface Props {
   store: any
 }
@@ -27,16 +25,15 @@ interface State {
 
 export class Debugger extends React.Component<Props, State> {
   lastMessage = undefined
+  readonly customActionId = 'actionDebug'
 
   async componentDidMount() {
     updater.callback = this.loadEvent
 
     this.props.store.setMessageWrapper({ module: 'extensions', component: 'Wrapper' })
 
-    this.props.store.view.setLayoutWidth(WEBCHAT_WIDTH)
-    this.props.store.view.setContainerWidth(WEBCHAT_WIDTH)
     this.props.store.view.addCustomAction({
-      id: 'actionDebug',
+      id: this.customActionId,
       label: 'Inspect in Debugger',
       onClick: this.handleSelect
     })
@@ -57,6 +54,8 @@ export class Debugger extends React.Component<Props, State> {
 
   componentWillUnmount() {
     this.props.store.bp.events.off('guest.webchat.message', this.handleNewMessage)
+
+    this.props.store.view.removeCustomAction(this.customActionId)
   }
 
   handleNewMessage = async ({ payload, incomingEventId }) => {

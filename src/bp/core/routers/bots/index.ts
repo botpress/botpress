@@ -1,13 +1,11 @@
 import { Logger, RouterOptions } from 'botpress/sdk'
 import { Serialize } from 'cerialize'
-import { UnexpectedError } from 'common/http'
+import { decodeFolderPath, UnexpectedError } from 'common/http'
 import { gaId, machineUUID } from 'common/stats'
 import { FlowView } from 'common/typings'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
-import { asBytes } from 'core/misc/utils'
 import { ModuleLoader } from 'core/module-loader'
-import { GhostService } from 'core/services'
 import ActionServersService from 'core/services/action/action-servers-service'
 import ActionService from 'core/services/action/action-service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
@@ -15,7 +13,7 @@ import { BotService } from 'core/services/bot-service'
 import { CMSService } from 'core/services/cms'
 import { FlowService, MutexError, TopicSchema } from 'core/services/dialog/flow/service'
 import { LogsService } from 'core/services/logs/service'
-import MediaService from 'core/services/media'
+import { MediaServiceProvider } from 'core/services/media'
 import { NotificationsService } from 'core/services/notification/service'
 import { getSocketTransports } from 'core/services/realtime'
 import { WorkspaceService } from 'core/services/workspace-service'
@@ -23,20 +21,25 @@ import { Express, RequestHandler, Router } from 'express'
 import { validate } from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
-import mime from 'mime-types'
 import moment from 'moment'
 import ms from 'ms'
-import multer from 'multer'
 import path from 'path'
 import { URL } from 'url'
 
 import { disableForModule } from '../conditionalMiddleware'
 import { CustomRouter } from '../customRouter'
 import { NotFoundError } from '../errors'
-import { checkMethodPermissions, checkTokenHeader, needPermissions } from '../util'
+import { checkMethodPermissions, checkTokenHeader, fileUploadMulter, needPermissions } from '../util'
 
 const debugMedia = DEBUG('audit:action:media-upload')
-const DEFAULT_MAX_SIZE = '10mb'
+
+const parseFlowNameMiddleware = (req, _, next) => {
+  const { flowName } = req.params
+  if (flowName) {
+    req.params.flowName = decodeFolderPath(flowName)
+  }
+  next()
+}
 
 export class BotsRouter extends CustomRouter {
   private actionService: ActionService
@@ -45,11 +48,10 @@ export class BotsRouter extends CustomRouter {
   private cmsService: CMSService
   private configProvider: ConfigProvider
   private flowService: FlowService
-  private mediaService: MediaService
+  private mediaServiceProvider: MediaServiceProvider
   private logsService: LogsService
   private notificationService: NotificationsService
   private authService: AuthService
-  private ghostService: GhostService
   private moduleLoader: ModuleLoader
   private checkTokenHeader: RequestHandler
   private needPermissions: (operation: string, resource: string) => RequestHandler
@@ -66,11 +68,10 @@ export class BotsRouter extends CustomRouter {
     cmsService: CMSService
     configProvider: ConfigProvider
     flowService: FlowService
-    mediaService: MediaService
+    mediaServiceProvider: MediaServiceProvider
     logsService: LogsService
     notificationService: NotificationsService
     authService: AuthService
-    ghostService: GhostService
     workspaceService: WorkspaceService
     moduleLoader: ModuleLoader
     logger: Logger
@@ -82,11 +83,10 @@ export class BotsRouter extends CustomRouter {
     this.cmsService = args.cmsService
     this.configProvider = args.configProvider
     this.flowService = args.flowService
-    this.mediaService = args.mediaService
+    this.mediaServiceProvider = args.mediaServiceProvider
     this.logsService = args.logsService
     this.notificationService = args.notificationService
     this.authService = args.authService
-    this.ghostService = args.ghostService
     this.workspaceService = args.workspaceService
     this.moduleLoader = args.moduleLoader
     this.needPermissions = needPermissions(this.workspaceService)
@@ -136,7 +136,7 @@ export class BotsRouter extends CustomRouter {
    * A good explanation is available here: https://github.com/expressjs/express/issues/2596
    */
   deleteRouter(path: string, app: Express) {
-    const relPath = '/mod/' + path
+    const relPath = `/mod/${path}`
 
     // We need to access the global stack and dig in it to find the desired stack
     const mainRouterStack = app._router.stack
@@ -167,13 +167,13 @@ export class BotsRouter extends CustomRouter {
       disableForModule('bodyParserUrlEncoder', path)
     }
 
-    const relPath = '/mod/' + path
+    const relPath = `/mod/${path}`
     this.router.use(relPath, router)
 
     router['getPublicPath'] = async () => {
       await AppLifecycle.waitFor(AppLifecycleEvents.HTTP_SERVER_READY)
       const externalUrl = new URL(process.EXTERNAL_URL)
-      const subPath = externalUrl.pathname + '/api/v1/bots/BOT_ID' + relPath
+      const subPath = `${externalUrl.pathname}/api/v1/bots/BOT_ID${relPath}`
       return new URL(subPath.replace('//', '/'), externalUrl.origin).href
     }
 
@@ -266,9 +266,11 @@ export class BotsRouter extends CustomRouter {
       '/media/:filename',
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
-        const type = path.extname(req.params.filename)
+        const fileName = req.params.filename
+        const type = path.extname(fileName)
+        const mediaService = this.mediaServiceProvider.forBot(botId)
 
-        const contents = await this.mediaService.readFile(botId, req.params.filename).catch(() => undefined)
+        const contents = await mediaService.readFile(fileName).catch(() => undefined)
         if (!contents) {
           return res.sendStatus(404)
         }
@@ -343,6 +345,7 @@ export class BotsRouter extends CustomRouter {
       '/flow/:flowName',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
+      parseFlowNameMiddleware,
       this.asyncMiddleware(async (req, res) => {
         const { botId, flowName } = req.params
         const flow = <FlowView>req.body.flow
@@ -370,6 +373,7 @@ export class BotsRouter extends CustomRouter {
       '/flow/:flowName/delete',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
+      parseFlowNameMiddleware,
       this.asyncMiddleware(async (req, res) => {
         const { botId, flowName } = req.params
 
@@ -442,26 +446,10 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
-    const mediaUploadMulter = multer({
-      fileFilter: (_req, file, cb) => {
-        let allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif']
-        const extMimeType = mime.lookup(file.originalname)
-
-        const uploadConfig = this.botpressConfig!.fileUpload
-        if (uploadConfig?.allowedMimeTypes) {
-          allowedMimeTypes = uploadConfig.allowedMimeTypes
-        }
-
-        if (allowedMimeTypes.includes(file.mimetype) && allowedMimeTypes.includes(extMimeType)) {
-          return cb(undefined, true)
-        }
-
-        cb(new Error(`This type of file is not allowed (${file.mimetype})`), false)
-      },
-      limits: {
-        fileSize: asBytes(_.get(this.botpressConfig, 'fileUpload.maxFileSize', DEFAULT_MAX_SIZE))
-      }
-    }).single('file')
+    const mediaUploadMulter = fileUploadMulter(
+      ['image/jpeg', 'image/png', 'image/gif'],
+      this.botpressConfig?.fileUpload?.maxFileSize ?? '10mb'
+    )
 
     this.router.post(
       '/media',
@@ -475,16 +463,16 @@ export class BotsRouter extends CustomRouter {
             return res.sendStatus(400)
           }
 
-          const file = req['file']
           const botId = req.params.botId
-          const fileName = await this.mediaService.saveFile(botId, file.originalname, file.buffer)
+          const mediaService = this.mediaServiceProvider.forBot(botId)
+          const file = req['file']
+          const { url, fileName } = await mediaService.saveFile(file.originalname, file.buffer)
 
           debugMedia(
             `success (${email} from ${req.ip}). file: ${fileName} %o`,
             _.pick(file, 'originalname', 'mimetype', 'size')
           )
 
-          const url = `/api/v1/bots/${botId}/media/${fileName}`
           res.json({ url })
         })
       })
@@ -498,8 +486,10 @@ export class BotsRouter extends CustomRouter {
         const email = req.tokenUser!.email
         const botId = req.params.botId
         const files = this.cmsService.getMediaFiles(req.body)
-        files.forEach(async f => {
-          await this.mediaService.deleteFile(botId, f)
+        const mediaService = this.mediaServiceProvider.forBot(botId)
+
+        await Promise.map(files, f => {
+          mediaService.deleteFile(f)
           debugMedia(`successful deletion (${email} from ${req.ip}). file: ${f}`)
         })
 

@@ -9,6 +9,8 @@ import { Config } from '../config'
 
 import { DBMessage } from './typings'
 
+const SEPARATOR = '*'
+
 export default class WebchatDb {
   private readonly MAX_RETRY_ATTEMPTS = 3
   private knex: sdk.KnexExtended
@@ -21,8 +23,7 @@ export default class WebchatDb {
 
   constructor(private bp: typeof sdk) {
     this.users = bp.users
-    this.knex = bp['database'] // TODO Fixme
-
+    this.knex = bp.database
     this.batchSize = this.knex.isLite ? 40 : 2000
 
     setInterval(() => this.flush(), ms('1s'))
@@ -71,7 +72,7 @@ export default class WebchatDb {
         const queries = []
 
         for (const key in this.batchedConvos) {
-          const [conversationId, userId, botId] = key.split('_')
+          const [conversationId, userId, botId] = key.split(SEPARATOR)
           const value = this.batchedConvos[key]
 
           const query = this.knex('web_conversations')
@@ -181,7 +182,7 @@ export default class WebchatDb {
     }
 
     this.batchedMessages.push(message)
-    this.batchedConvos[`${conversationId}_${userId}_${botId}`] = this.knex.date.format(now)
+    this.batchedConvos[`${conversationId}${SEPARATOR}${userId}${SEPARATOR}${botId}`] = this.knex.date.format(now)
 
     return {
       ...message,
@@ -364,6 +365,16 @@ export default class WebchatDb {
 
     return Object.assign({}, conversation, {
       messages: _.orderBy(messages, ['sent_on'], ['asc'])
+    })
+  }
+
+  async deleteConversationMessages(conversationId: string) {
+    return this.knex.transaction(async trx => {
+      // TODO: Delete the related events using bp SDK
+
+      await trx('web_messages')
+        .del()
+        .where({ conversationId })
     })
   }
 

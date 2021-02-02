@@ -53,6 +53,7 @@ declare namespace NodeJS {
     DISABLE_GLOBAL_SANDBOX: boolean
     DISABLE_BOT_SANDBOX: boolean
     DISABLE_TRANSITION_SANDBOX: boolean
+    DISABLE_CONTENT_SANDBOX: boolean
     WEB_WORKER: number
     TRAINING_WORKERS: number[]
   }
@@ -126,6 +127,11 @@ declare interface BotpressEnvironmentVariables {
    * @example http://username:password@hostname:port
    */
   readonly BP_PROXY?: string
+
+  /**
+   * Disable the use of GZIP compression while serving assets to the end users
+   */
+  readonly BP_HTTP_DISABLE_GZIP?: boolean
 
   /**
    * Use to set default debug namespaces
@@ -203,6 +209,9 @@ declare interface BotpressEnvironmentVariables {
 
   /** When true, transitions are executed outside of the sandbox  */
   readonly DISABLE_TRANSITION_SANDBOX?: boolean
+
+  /** When true, content elements rendering will be executed outside of the sandbox */
+  readonly DISABLE_CONTENT_SANDBOX?: boolean
 
   /** Runs all migrations from v12.0.0 up to the latest migration found in modules and core */
   readonly TESTMIG_ALL?: boolean

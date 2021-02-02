@@ -1,0 +1,91 @@
+{
+  "name": "hitlnext",
+  "fullName": "HITL Next",
+  "sort": {
+    "mostRecentlyCreated": "Modifié plus récemment",
+    "leastRecentlyCreated": "Modifié plus anciennement"
+  },
+  "filter": {
+    "unassigned": "Non-assigné",
+    "assignedMe": "Assigné à moi",
+    "assignedOther": "Assigné à d'autres",
+    "resolved": "Résolue"
+  },
+  "sortBy": "Trier Par",
+  "filterBy": "Filtrer Par",
+  "newMessage": "Nouveau Message",
+  "agent": {
+    "status": "Status: {status}",
+    "name": "Nom: {name}",
+    "online": "Connecté",
+    "offline": "Déconnecté",
+    "getOnline": "Se connecter",
+    "getOffline": "Se déconnecter",
+    "onlineSuccess": "Vous êtes maintenant connecté",
+    "offlineSuccess": "Vous êtes maintenant déconnecté"
+  },
+  "handoff": {
+    "created": "Créée {date}",
+    "contactDetails": "Détails du contact",
+    "status": {
+      "pending": "en attente",
+      "assigned": "assignée",
+      "resolved": "résolue"
+    },
+    "assignedToAgent": "Vous avez été assigné à un agent",
+    "assignedToYou": "La conversation vous a été assigné",
+    "assign": "M'assigner",
+    "resolve": "Résoudre",
+    "assigned": "L'escalation {id} a été assignée avec succès",
+    "resolved": "L'escalation {id} a été résoulue avec succès",
+    "noPreviousAgent": "Aucun agent précédent",
+    "you": "Vous",
+    "from": "Via {channel}"
+  },
+  "user": {
+    "anonymous": "Anonyme",
+    "variables": {
+      "heading": "Variables",
+      "empty": "Aucune variables",
+      "variable": "Variable",
+      "value": "Valeur"
+    }
+  },
+  "commentForm": {
+    "addNote": "Ajouter une note",
+    "submit": "Ajouter"
+  },
+  "comments": {
+    "heading": "Notes d'agents",
+    "empty": "Aucun commentaires"
+  },
+  "conversation": {
+    "delete": "Supprimer la conversation",
+    "deleted": "La conversation a été supprimée avec succès",
+    "empty": "Sélectionnez une escalation en attente pour engager la conversation avec vos clients.",
+    "tab": "Conversation",
+    "composerPlaceholder": "Répondre à l'utilisateur",
+    "send": "Envoyer"
+  },
+  "handoffs": {
+    "empty": "Il n'y a présentement aucune escalation grâce à vous et votre équipe."
+  },
+  "sidebar": {
+    "tab": "Escalations",
+    "access": "Accéder aux Escalations Botpress",
+    "agents": {
+      "heading": "Agents Connectés",
+      "empty": "Il n'y a aucun agent connecté actuellement"
+    },
+    "handoffs": {
+      "heading": "Escalations Récentes",
+      "empty": "Il n'y a présentement aucune escalation grâce à vous et votre équipe."
+    }
+  },
+  "tags": {
+    "heading": "Étiquettes d'escalation",
+    "empty": "Les étiquettes ne sont pas activées pour ce bot.",
+    "placeholder": "Ajoutez ou suprimmez des étiquettes",
+    "noResults": "Aucun résultat."
+  }
+}

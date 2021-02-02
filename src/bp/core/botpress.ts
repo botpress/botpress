@@ -359,6 +359,7 @@ export class Botpress {
 
     this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       if (event.isPause) {
+        this.eventCollector.storeEvent(event)
         return
       }
 
@@ -390,7 +391,7 @@ export class Botpress {
       await converseApiEvents.emitAsync(`done.${buildUserKey(event.botId, event.target)}`, event)
     }
 
-    this.eventEngine.onBeforeOutgoingMiddleware = async (event: sdk.IO.IncomingEvent) => {
+    this.eventEngine.onBeforeOutgoingMiddleware = async (event: sdk.IO.OutgoingEvent) => {
       this.eventCollector.storeEvent(event)
       await this.hookService.executeHook(new Hooks.BeforeOutgoingMiddleware(this.api, event))
     }
@@ -477,10 +478,14 @@ export class Botpress {
   }
 
   private async cleanDisabledModules() {
-    const config = await this.configProvider.getBotpressConfig()
-    const disabledModules = config.modules.filter(m => !m.enabled).map(m => path.basename(m.location))
+    try {
+      const config = await this.configProvider.getBotpressConfig()
+      const disabledModules = config.modules.filter(m => !m.enabled).map(m => path.basename(m.location))
 
-    await this.moduleLoader.disableModuleResources(disabledModules)
+      await this.moduleLoader.disableModuleResources(disabledModules)
+    } catch (err) {
+      this.logger.attachError(err).error('Error while disabling module resources')
+    }
   }
 
   private async startServer() {

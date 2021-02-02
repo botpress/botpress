@@ -4,7 +4,7 @@ import crypto from 'crypto'
 import { json as expressJson, Router } from 'express'
 import _ from 'lodash'
 
-import { Config } from '../config'
+import { Config, MessengerAction } from '../config'
 
 const debug = DEBUG('channel-messenger')
 const debugMessages = debug.sub('messages')
@@ -13,7 +13,6 @@ const debugWebhook = debugHttp.sub('webhook')
 const debugHttpOut = debugHttp.sub('out')
 
 const outgoingTypes = ['text', 'typing', 'login_prompt', 'carousel']
-type MessengerAction = 'typing_on' | 'typing_off' | 'mark_seen'
 
 interface MountedBot {
   pageId: string
@@ -80,23 +79,22 @@ export class MessengerService {
           .error('You need to configure an Access Token to enable it. Messenger Channel is disabled for this bot.')
       }
 
-      const { data } = await this.http.get('/', { params: { access_token: config.accessToken } })
+      try {
+        const { data } = await this.http.get('/', { params: { access_token: config.accessToken } })
 
-      if (!data?.id) {
+        const pageId = data.id
+        const client = new MessengerClient(botId, this.bp, this.http)
+        this.mountedBots.push({ botId, client, pageId })
+
+        await client.setupGreeting()
+        await client.setupGetStarted()
+        await client.setupPersistentMenu()
+      } catch (error) {
+        const errorMessage = _.get(error, 'response.data.error.message', 'are you sure your Access Token is valid?')
         return this.bp.logger
           .forBot(botId)
-          .error(
-            'Could not register bot, are you sure your Access Token is valid? Messenger Channel is disabled for this bot.'
-          )
+          .error(`Could not register bot, ${errorMessage}. Messenger Channel is disabled for this bot.`)
       }
-
-      const pageId = data.id
-      const client = new MessengerClient(botId, this.bp, this.http)
-      this.mountedBots.push({ botId, client, pageId })
-
-      await client.setupGreeting()
-      await client.setupGetStarted()
-      await client.setupPersistentMenu()
     }
   }
 
@@ -175,15 +173,21 @@ export class MessengerService {
         await bot.client.sendAction(senderId, 'mark_seen')
 
         if (webhookEvent.message) {
-          await this._sendEvent(bot.botId, senderId, webhookEvent.message, { type: 'message' })
+          await this._sendEvent(bot.botId, senderId, pageId, webhookEvent.message, { type: 'message' })
         } else if (webhookEvent.postback) {
-          await this._sendEvent(bot.botId, senderId, { text: webhookEvent.postback.payload }, { type: 'callback' })
+          await this._sendEvent(
+            bot.botId,
+            senderId,
+            pageId,
+            { text: webhookEvent.postback.payload },
+            { type: 'callback' }
+          )
         }
       }
     }
   }
 
-  private async _sendEvent(botId: string, senderId: string, message, args: { type: string }) {
+  private async _sendEvent(botId: string, senderId: string, pageId: string, message: any, args: { type: string }) {
     await this.bp.events.sendEvent(
       this.bp.IO.Event({
         botId,
@@ -191,6 +195,7 @@ export class MessengerService {
         direction: 'incoming',
         payload: message,
         preview: message.text,
+        threadId: pageId,
         target: senderId,
         ...args
       })
@@ -221,7 +226,7 @@ export class MessengerService {
     const messenger = this.getMessengerClientByBotId(event.botId)
 
     if (!_.includes(outgoingTypes, messageType)) {
-      return next(new Error('Unsupported event type: ' + event.type))
+      return next(new Error(`Unsupported event type: ${event.type}`))
     }
 
     if (messageType === 'typing') {
@@ -299,6 +304,12 @@ export class MessengerClient {
   }
 
   async sendAction(senderId: string, action: MessengerAction) {
+    const config = await this.getConfig()
+    if (config.disabledActions?.includes(action)) {
+      debugMessages('outgoing action skipped (blacklisted)', { action })
+      return
+    }
+
     const body = {
       recipient: {
         id: senderId

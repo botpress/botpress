@@ -7,6 +7,7 @@ Content-Type: application/x-www-form-urlencoded
 
 email={{email}}&password={{password}}
 
+###
 @authToken = {{login.response.body.payload.token}}
 
 ### List All Bots (need to login first)
@@ -14,8 +15,11 @@ GET {{baseUrl}}/api/v1/admin/bots
 Authorization: Bearer {{authToken}}
 X-BP-Workspace: default
 
+### 
+@botId = YOUR_BOT_ID
+
 ### Send a request using Converse
-POST {{baseUrl}}/api/v1/bots/welcome-bot/converse/benchmarkUser
+POST {{baseUrl}}/api/v1/bots/{{botId}}/converse/benchmarkUser
 Content-Type: application/json
 
 {

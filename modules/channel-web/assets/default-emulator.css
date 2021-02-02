@@ -33,24 +33,22 @@
     --spacing-xxxx-large: 28px;
 
     --right-sidebar-width: 240px;
-    --emulator-width: 240px;
-    --debugger-width: 240px;
+    --emulator-width: 300px;
   }
 
   body {
-    margin: 0 !important;
-    font-family: Roboto !important;
+    font-family: Roboto;
     overflow: hidden;
   }
 
   * {
-    box-sizing: border-box !important;
+    box-sizing: border-box;
     outline: none !important;
   }
 
   .hidden {
-    visibility: hidden !important;
-    height: 0 !important;
+    visibility: hidden;
+    height: 0;
   }
 
   .bpw-chat-bubble-content {
@@ -72,8 +70,8 @@
   }
 
   .bpw-from-user .bpw-chat-bubble .bpw-chat-bubble-content {
-    border-color: var(--hover-ocean);
-    background-color: var(--hover-ocean);
+    border-color: var(--bg);
+    background-color: var(--bg);
     color: var(--shark);
   }
 
@@ -173,9 +171,8 @@
     right: 0;
     width: 100%;
     height: 100%;
-    border-left: 1px solid var(--gray);
+    border-left: 1px solid var(--bg);
     visibility: hidden;
-
     -webkit-box-orient: vertical;
     -webkit-box-direction: normal;
     -ms-flex-direction: column;
@@ -186,7 +183,7 @@
   }
 
   .bpw-layout-fullscreen {
-    visibility: visible !important;
+    visibility: visible;
   }
 
   .bpw-bot-avatar {
@@ -462,7 +459,7 @@
   .bpw-bubble-carousel {
     background: none;
     border: 0px;
-    padding: 0 !important;
+    padding: 0px;
     margin: 10px 0;
     text-align: left;
     width: 100%;
@@ -525,24 +522,24 @@
   /* CAROUSEL  */
   .slick-arrow {
     background-color: #fff !important;
-    border: 1px solid #dddfe2 !important;
-    width: 32px !important;
-    height: 32px !important;
+    border: 1px solid #dddfe2;
+    width: 32px;
+    height: 32px;
     border-radius: 3px;
     box-shadow: none;
     color: #444;
     z-index: 1;
   }
   .slick-arrow:before {
-    color: #444 !important;
+    color: #444;
   }
 
   .slick-track {
-    margin: 0px !important;
+    margin: 0px;
   }
 
   .bpw-card-container {
-    margin-right: 0px !important;
+    margin-right: 0px;
     box-sizing: border-box;
     color: rgba(0, 0, 0, 1);
     line-height: 1.28em;
@@ -716,13 +713,13 @@
 
   .bpw-composer textarea {
     background: var(--white);
-    border-radius: 15px;
+    border-radius: 10px;
     border: solid 1px var(--seashell);
     color: var(--shark);
     font-family: inherit;
     font-size: 12px;
-    height: 37px;
-    line-height: 1.25;
+    height: 43px;
+    line-height: 1.15;
     padding: 10px var(--spacing-medium);
     resize: none;
     transition: border 0.3s;
@@ -930,8 +927,8 @@
     position: absolute;
     right: 2px;
     bottom: 54px;
-    width: 20px !important;
-    height: 20px !important;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     line-height: 20px;
 
@@ -1162,6 +1159,10 @@
     top: 6px;
   }
 
+  .bpw-emulator-buttons {
+    margin-right: 40px;
+  }
+
   .bpw-emulator-header .more-options-more-menu {
     right: 4px;
     top: 24px;
@@ -1184,5 +1185,5 @@
 
 .bpw-emulator .bpw-chat-quick_reply-dropdown {
   margin-top: 5px;
-  zoom: 0.8 !important;
+  zoom: 0.8; /* This feature is non-standard */
 }

@@ -35,6 +35,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
   const diskStorage = multer.diskStorage({
     destination: globalConfig.fileUploadPath,
+    // @ts-ignore typing indicates that limits isn't supported
     limits: {
       files: 1,
       fileSize: 5242880 // 5MB
@@ -70,6 +71,7 @@ export default async (bp: typeof sdk, db: Database) => {
       delete awsConfig.region
     }
 
+    // TODO use media service with a 's3' backend
     const s3 = new aws.S3(awsConfig)
     const s3Storage = multers3({
       s3,
@@ -375,7 +377,7 @@ export default async (bp: typeof sdk, db: Database) => {
       await sendNewMessage(botId, userId, conversationId, payload, req.credentials)
 
       const sessionId = await bp.dialog.createId({ botId, target: userId, threadId: conversationId, channel: 'web' })
-      await bp.dialog.deleteSession(sessionId)
+      await bp.dialog.deleteSession(sessionId, botId)
       res.sendStatus(200)
     })
   )
@@ -503,5 +505,19 @@ export default async (bp: typeof sdk, db: Database) => {
     const txt = await convertToTxtFile(conversation)
 
     res.send({ txt, name: `${conversation.title}.txt` })
+  })
+
+  router.post('/conversations/:userId/:conversationId/messages/delete', async (req: BPRequest, res: Response) => {
+    const { userId, conversationId } = req.params
+
+    if (!validateUserId(userId)) {
+      return res.status(400).send(ERR_USER_ID_REQ)
+    }
+
+    bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.clear', { conversationId }))
+
+    await db.deleteConversationMessages(conversationId)
+
+    res.sendStatus(204)
   })
 }
