@@ -1,9 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { NLUApplication } from './application'
 import legacyElectionPipeline from './election/legacy-election'
-import { ScopedPredictionHandler } from './prediction-handler'
 import { NLUState } from './typings'
 
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
@@ -23,8 +21,24 @@ const _ignoreEvent = (bp: typeof sdk, state: NLUState, event: sdk.IO.IncomingEve
   )
 }
 
+const removeSensitiveText = (bp: typeof sdk, event: sdk.IO.IncomingEvent) => {
+  if (!event.nlu.entities || !event.payload.text) {
+    return
+  }
+
+  try {
+    const sensitiveEntities = event.nlu.entities.filter(ent => ent.meta.sensitive)
+    for (const entity of sensitiveEntities) {
+      const stars = '*'.repeat(entity.data.value.length)
+      event.payload.text = event.payload.text.replace(entity.data.value, stars)
+    }
+  } catch (err) {
+    bp.logger.warn(`Error removing sensitive information: ${err.message}`)
+  }
+}
+
 export const registerMiddlewares = (bp: typeof sdk, state: NLUState) => {
-  const { application, engine } = state
+  const { application } = state
 
   bp.events.registerMiddleware({
     name: PREDICT_MW,
@@ -39,11 +53,12 @@ export const registerMiddlewares = (bp: typeof sdk, state: NLUState) => {
 
       try {
         const { botId, preview } = event
-        const anticipatedLanguage = event.state.user?.language
+        const anticipatedLanguage: string | undefined = event.state.user?.language
+
         const nluResults = await application.predict(botId, preview, anticipatedLanguage)
         const nlu = { ...nluResults, includedContexts: event.nlu?.includedContexts ?? [] }
         _.merge(event, { nlu })
-        removeSensitiveText(event)
+        removeSensitiveText(bp, event)
       } catch (err) {
         bp.logger.warn(`Error extracting metadata for incoming text: ${err.message}`)
       } finally {
@@ -51,22 +66,6 @@ export const registerMiddlewares = (bp: typeof sdk, state: NLUState) => {
       }
     }
   })
-
-  function removeSensitiveText(event: sdk.IO.IncomingEvent) {
-    if (!event.nlu.entities || !event.payload.text) {
-      return
-    }
-
-    try {
-      const sensitiveEntities = event.nlu.entities.filter(ent => ent.meta.sensitive)
-      for (const entity of sensitiveEntities) {
-        const stars = '*'.repeat(entity.data.value.length)
-        event.payload.text = event.payload.text.replace(entity.data.value, stars)
-      }
-    } catch (err) {
-      bp.logger.warn(`Error removing sensitive information: ${err.message}`)
-    }
-  }
 
   bp.events.registerMiddleware({
     name: ELECT_MW,

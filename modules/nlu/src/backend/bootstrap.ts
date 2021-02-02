@@ -6,9 +6,9 @@ import { Config } from '../config'
 
 import { NLUApplication } from './application'
 import TrainSessionService from './train-session-service'
-import { NLUProgressEvent } from './typings'
+import { NLUProgressEvent, NLUState } from './typings'
 
-export async function bootStrap(bp: typeof sdk) {
+export async function bootStrap(bp: typeof sdk): Promise<NLUState> {
   const globalConfig: Config = await bp.config.getModuleConfig('nlu')
 
   const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = globalConfig
@@ -27,15 +27,15 @@ export async function bootStrap(bp: typeof sdk) {
 
   const engine = await bp.NLU.makeEngine(parsedConfig, logger)
 
-  const trainSessionService = new TrainSessionService(bp)
-
   const socket = async (botId: string, trainSession: sdk.NLU.TrainingSession) => {
-    await trainSessionService.setTrainingSession(botId, trainSession)
-    const ev: NLUProgressEvent = { type: 'nlu', botId, trainSession: _.omit(trainSession, 'lock') }
+    const ev: NLUProgressEvent = { type: 'nlu', botId, trainSession }
     bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', ev))
   }
 
-  const application = new NLUApplication(bp, engine, trainSessionService, socket)
+  const trainSessionService = new TrainSessionService(bp, socket)
+
+  const application = new NLUApplication(bp, engine, trainSessionService)
+  await application.initialize()
 
   return { application, trainSessionService, engine }
 }

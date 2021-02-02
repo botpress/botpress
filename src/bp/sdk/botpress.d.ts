@@ -554,7 +554,6 @@ declare module 'botpress/sdk' {
       status: TrainingStatus
       language: string
       progress: number
-      lock?: RedisLock
     }
 
     export type EntityType = 'system' | 'pattern' | 'list'

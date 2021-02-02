@@ -6,17 +6,17 @@ const DEFAULT_TRAINING_SESSION: Partial<sdk.NLU.TrainingSession> = {
   progress: 0
 }
 
+type Socket = (botId: string, ts: sdk.NLU.TrainingSession) => Promise<void>
 export default class TrainSessionService {
-  constructor(private bp: typeof sdk) {}
+  constructor(private bp: typeof sdk, private socket: Socket) {}
 
   public makeTrainSessionKey = (botId: string, language: string): string => `training:${botId}:${language}`
 
-  public makeTrainingSession = (botId: string, language: string, lock: sdk.RedisLock): sdk.NLU.TrainingSession => ({
+  public makeTrainingSession = (botId: string, language: string): sdk.NLU.TrainingSession => ({
     key: this.makeTrainSessionKey(botId, language),
     status: 'training-pending',
     progress: 0,
-    language,
-    lock
+    language
   })
 
   public async getTrainingSession(botId: string, language: string): Promise<sdk.NLU.TrainingSession> {
@@ -25,7 +25,8 @@ export default class TrainSessionService {
     return trainSession || { ...DEFAULT_TRAINING_SESSION, language, key }
   }
 
-  public setTrainingSession(botId: string, trainSession: sdk.NLU.TrainingSession): Promise<any> {
+  public async setTrainingSession(botId: string, trainSession: sdk.NLU.TrainingSession): Promise<any> {
+    await this.socket(botId, trainSession)
     return this.bp.kvs.forBot(botId).set(trainSession.key, _.omit(trainSession, 'lock'))
   }
 

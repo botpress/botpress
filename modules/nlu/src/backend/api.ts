@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import { Response } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
 import yn from 'yn'
@@ -16,9 +17,30 @@ export const PredictSchema = Joi.object().keys({
   text: Joi.string().required()
 })
 
+const makeErrorMapper = (bp: typeof sdk) => (err: { botId: string; lang: string; error: Error }, res: Response) => {
+  const { error, botId, lang } = err
+
+  if (error instanceof BotNotMountedError) {
+    return res.status(404).send(`Bot ${botId} doesn't exist`)
+  }
+
+  if (error instanceof BotDoesntSpeakLanguageError) {
+    return res.status(422).send(`Language ${lang} is either not supported by bot or by language server`)
+  }
+
+  const msg = 'An unexpected error occured.'
+  bp.logger
+    .forBot(botId)
+    .attachError(error)
+    .error(msg)
+  return res.status(500).send(msg)
+}
+
 export const registerRouter = async (bp: typeof sdk, state: NLUState) => {
   const { application, engine, trainSessionService } = state
   const router = bp.http.createRouterForBot(ROUTER_ID)
+
+  const mapError = makeErrorMapper(bp)
 
   router.get('/health', async (req, res) => {
     // When the health is bad, we'll refresh the status in case it has changed (eg: user added languages)
@@ -43,11 +65,12 @@ export const registerRouter = async (bp: typeof sdk, state: NLUState) => {
       const nlu = await application.predict(botId, value.text, lang)
       const event: sdk.IO.EventUnderstanding = {
         ...nlu,
-        includedContexts: value.contexts
+        includedContexts: value.contexts,
+        detectedLanguage: nlu.detectedLanguage
       }
       res.send({ nlu: legacyElectionPipeline(event) })
-    } catch (err) {
-      res.status(500).send('Could not extract nlu data')
+    } catch (error) {
+      return mapError({ botId, lang, error }, res)
     }
   })
 
@@ -58,36 +81,22 @@ export const registerRouter = async (bp: typeof sdk, state: NLUState) => {
 
       // to return as fast as possible
       // tslint:disable-next-line: no-floating-promises
-      application.trainOrLoad(botId, lang, disableTraining)
+      if (!disableTraining) {
+        application.train(botId, lang)
+      }
       res.sendStatus(200)
-    } catch (err) {
-      if (err instanceof BotNotMountedError) {
-        return res.status(404).send(`Bot ${botId} doesn't exist`)
-      }
-
-      if (err instanceof BotDoesntSpeakLanguageError) {
-        return res.status(422).send(`Language ${lang} is either not supported by bot or by language server`)
-      }
-
-      res.sendStatus(500)
+    } catch (error) {
+      return mapError({ botId, lang, error }, res)
     }
   })
 
   router.post('/train/:lang/delete', async (req, res) => {
     const { botId, lang } = req.params
     try {
-      await application.broadcastCancelTraining(botId, lang)
+      await application.cancelTraining(botId, lang)
       res.sendStatus(200)
-    } catch (err) {
-      if (err instanceof BotNotMountedError) {
-        return res.status(404).send(`Bot ${botId} doesn't exist`)
-      }
-
-      if (err instanceof BotDoesntSpeakLanguageError) {
-        return res.status(422).send(`Language ${lang} is either not supported by bot or by language server`)
-      }
-
-      res.sendStatus(500)
+    } catch (error) {
+      return mapError({ botId, lang, error }, res)
     }
   })
 }

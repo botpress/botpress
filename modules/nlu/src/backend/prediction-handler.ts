@@ -1,12 +1,9 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { BotState } from './application'
 import mergeSpellChecked from './election/spellcheck-handler'
 import ScopedModelService from './model-service'
-
-type WithoutIncludedContexts = Omit<sdk.IO.EventUnderstanding, 'includedContexts'>
-type WithoutDetectedLanguage = Omit<WithoutIncludedContexts, 'detectedLanguage'>
+import { EventUnderstanding } from './typings'
 
 export class ScopedPredictionHandler {
   constructor(
@@ -14,10 +11,10 @@ export class ScopedPredictionHandler {
     private modelService: ScopedModelService,
     private modelIdService: typeof sdk.NLU.modelIdService,
     private logger: sdk.Logger,
-    private botState: BotState
+    private botState: { modelsByLang: _.Dictionary<sdk.NLU.ModelId>; defaultLanguage: string }
   ) {}
 
-  async predict(textInput: string, anticipatedLanguage: string): Promise<WithoutIncludedContexts> {
+  async predict(textInput: string, anticipatedLanguage: string): Promise<EventUnderstanding> {
     const { modelsByLang, defaultLanguage } = this.botState
 
     const modelCacheState = _.mapValues(modelsByLang, model => ({ model, loaded: this.engine.hasModel(model) }))
@@ -48,7 +45,7 @@ export class ScopedPredictionHandler {
       this.logger.attachError(err).error(msg)
     }
 
-    let nluResults: WithoutDetectedLanguage | undefined
+    let nluResults: EventUnderstanding | undefined
 
     const languagesToTry = _([detectedLanguage, anticipatedLanguage, defaultLanguage])
       .filter(l => !_.isUndefined(l))
@@ -69,7 +66,7 @@ export class ScopedPredictionHandler {
     return { ...nluResults, detectedLanguage }
   }
 
-  private async tryPredictInLanguage(textInput: string, language: string): Promise<WithoutDetectedLanguage> {
+  private async tryPredictInLanguage(textInput: string, language: string): Promise<EventUnderstanding> {
     const { modelsByLang } = this.botState
 
     if (!modelsByLang[language] || !this.engine.hasModel(modelsByLang[language])) {
@@ -124,7 +121,7 @@ export class ScopedPredictionHandler {
     return modelService.getLatestModel(query)
   }
 
-  private isEmptyOrError(nluResults: WithoutDetectedLanguage | undefined) {
+  private isEmptyOrError(nluResults: EventUnderstanding | undefined) {
     return !nluResults || nluResults.errored
   }
 }
