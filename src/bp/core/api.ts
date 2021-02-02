@@ -33,6 +33,7 @@ import { EventEngine } from './services/middleware/event-engine'
 import { StateManager } from './services/middleware/state-manager'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
+import { DynamicSdkService } from './services/sdks'
 import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
 
@@ -216,6 +217,13 @@ const experimental = (hookService: HookService): typeof sdk.experimental => {
   }
 }
 
+const sdks = (sdkService: DynamicSdkService): typeof sdk.sdks => {
+  return {
+    forBot: sdkService.forBot.bind(sdkService),
+    global: sdkService.global.bind(sdkService)
+  }
+}
+
 /**
  * Socket.IO API to emit payloads to front-end clients
  */
@@ -246,6 +254,7 @@ export class BotpressAPIProvider {
   security: typeof sdk.security
   workspaces: typeof sdk.workspaces
   distributed: typeof sdk.distributed
+  sdks: typeof sdk.sdks
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -267,7 +276,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.EventRepository) eventRepo: EventRepository,
     @inject(TYPES.WorkspaceService) workspaceService: WorkspaceService,
     @inject(TYPES.JobService) jobService: JobService,
-    @inject(TYPES.StateManager) stateManager: StateManager
+    @inject(TYPES.StateManager) stateManager: StateManager,
+    @inject(TYPES.DynamicSdkService) sdkService: DynamicSdkService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
@@ -286,6 +296,7 @@ export class BotpressAPIProvider {
     this.security = security()
     this.workspaces = workspaces(workspaceService)
     this.distributed = distributed(jobService)
+    this.sdks = sdks(sdkService)
   }
 
   @Memoize()
@@ -318,6 +329,7 @@ export class BotpressAPIProvider {
       experimental: this.experimental,
       workspaces: this.workspaces,
       distributed: this.distributed,
+      sdks: this.sdks,
       NLU: {
         makeEngine: async (config: sdk.NLU.Config, logger: sdk.NLU.Logger) => {
           const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = config
