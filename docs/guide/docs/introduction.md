@@ -36,6 +36,6 @@ There are three main steps involved in creating chatbots.
 
 Developers start by **Building** a chatbot, which consists of adding the required messaging channels, integrating the necessary backend components and applications your chatbot will need to interact with, and creating conversation workflows.
 
-Once done, you'll need to **Deploy** your chatbot somewhere, which could be on a cloud server or your internal hosting infrastructure.
+Once done, you'll need to **Deploy** your chatbot somewhere, which could be on a cloud server or on-premise.
 
 Finally, you'll give other people access to your chatbot so they can **Manage** it once it is in use. Managing a chatbot entails analyzing the conversations, refining the conversational experience by building new workflows, and making it smarter by continuously improving the NLU.
