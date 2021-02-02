@@ -222,7 +222,7 @@ export default async (bp: typeof sdk) => {
 
     const config = (await bp.config.getModuleConfigForBot('channel-web', botId)) as Config
     const conversation = await bp.messaging.getConversationById(conversationId)
-    const messages = await bp.messaging.getAllMessages(conversationId, config.maxMessagesHistory)
+    const messages = await bp.messaging.getRecentMessages(conversationId, config.maxMessagesHistory)
 
     return res.send({ ...conversation, messages })
   })
@@ -236,7 +236,7 @@ export default async (bp: typeof sdk) => {
 
     await bp.users.getOrCreateUser('web', userId, botId)
 
-    const conversations = await bp.messaging.getAllRecentConversations({ userId, botId }, 100)
+    const conversations = await bp.messaging.getRecentConversations({ userId, botId }, 100)
     const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
     return res.send({
@@ -495,7 +495,7 @@ export default async (bp: typeof sdk) => {
 
     const config = (await bp.config.getModuleConfigForBot('channel-web', botId)) as Config
     const conversation = await bp.messaging.getConversationById(conversationId)
-    const messages = await bp.messaging.getAllMessages(conversationId, config.maxMessagesHistory)
+    const messages = await bp.messaging.getRecentMessages(conversationId, config.maxMessagesHistory)
     const txt = await convertToTxtFile(conversation, messages)
 
     res.send({ txt, name: `Conversation ${conversation.id}.txt` })
