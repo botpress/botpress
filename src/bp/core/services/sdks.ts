@@ -18,6 +18,10 @@ export class DynamicSdkService {
   public global(): DynamicSdkRepo {
     return this.globalDsdk
   }
+
+  public removeSdksForBot(botId: string) {
+    delete this.botDsdks[botId]
+  }
 }
 
 export class DynamicSdkRepo implements sdk.SdkService {
