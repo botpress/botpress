@@ -85,16 +85,6 @@ If you have a restricted app, you may need to specify the tenantId also.`
     })
   }
 
-  async _sendProactiveMessage(conversationReference: Partial<ConversationReference>): Promise<void> {
-    const message = this.config.proactiveMessage
-
-    if (message) {
-      await this.adapter.continueConversation(conversationReference, async turnContext => {
-        await turnContext.sendActivity(message)
-      })
-    }
-  }
-
   private async validateCredentials() {
     try {
       const credentials = new MicrosoftAppCredentials(this.config.appId, this.config.appPassword, this.config.tenantId)
@@ -124,6 +114,17 @@ If you have a restricted app, you may need to specify the tenantId also.`
 
     this.inMemoryConversationRefs[threadId] = convRef
     return this.bp.kvs.forBot(this.botId).set(threadId, convRef)
+  }
+
+  async _sendProactiveMessage(conversationReference: Partial<ConversationReference>): Promise<void> {
+    const message = this.config.proactiveMessage
+
+    if (message) {
+      conversationReference.serviceUrl && MicrosoftAppCredentials.trustServiceUrl(conversationReference.serviceUrl)
+      await this.adapter.continueConversation(conversationReference, async turnContext => {
+        await turnContext.sendActivity(message)
+      })
+    }
   }
 
   private _sendIncomingEvent = async (activity: Activity, threadId: string) => {
