@@ -2338,6 +2338,74 @@ declare module 'botpress/sdk' {
     export function renderTemplate(item: TemplateItem, context): TemplateItem
   }
 
+  export namespace render {
+    /**
+     * Render a text element
+     * @param text Text to show
+     * @param markdown Indicates whether to use markdown
+     */
+    export function text(text: string | MultiLangText, markdown?: boolean): Text
+
+    /**
+     * Render a image element
+     * @param url Url of the image to send
+     * @param caption Caption to appear alongside your image
+     */
+    export function image(url: string, caption?: string | MultiLangText): Image
+
+    /**
+     * Translates a content element to a specific language
+     * @param content Content element to be translated
+     * @param lang Language code in which to translate (en, fr, es, etc.)
+     * @example
+     * const content = bp.render.text({ en: 'hello!', fr: 'salut!' })
+     * // content.text : { en: 'hello!', fr: 'salut!' }
+     * const translated = bp.render.translate(content, 'fr')
+     * // content.text : 'salut!'
+     */
+    export function translate<T extends Content>(content: T, lang: string): T
+
+    /**
+     * Renders a content element's {{mustaches}} using the provided context
+     * @param content The content element to be rendered
+     * @param context The context used to filled the {{mustaches}}
+     * @example
+     * const content = bp.render.text('{{user.name}} is awesome!')
+     * // content.text : '{{user.name}} is awesome!'
+     * const payload = bp.render.template(content, { user: { name: 'bob' } })
+     * // payload.text : 'bob is awesome!'
+     */
+    export function template<T extends Content>(content: T, context: Context): T
+
+    export interface Context {}
+
+    /**
+     * Base type of all content elements
+     */
+    export interface Content {
+      type: string
+      typing?: boolean
+    }
+
+    /**
+     * Content element to send text messages
+     */
+    export interface Text extends Content {
+      type: 'text'
+      text: string | MultiLangText
+      markdown?: boolean
+    }
+
+    /**
+     * Content element to send images (with optional captions)
+     */
+    export interface Image extends Content {
+      type: 'image'
+      image: string
+      title?: string | MultiLangText
+    }
+  }
+
   /**
    * Utility security-related features offered to developers
    * to create more secure extensions.

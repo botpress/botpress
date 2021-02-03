@@ -33,6 +33,7 @@ import { EventEngine } from './services/middleware/event-engine'
 import { StateManager } from './services/middleware/state-manager'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
+import { RenderService } from './services/render/render'
 import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
 
@@ -216,6 +217,15 @@ const experimental = (hookService: HookService): typeof sdk.experimental => {
   }
 }
 
+const render = (renderService: RenderService): typeof sdk.render => {
+  return {
+    text: renderService.renderText.bind(renderService),
+    image: renderService.renderImage.bind(renderService),
+    translate: renderService.renderTranslated.bind(renderService),
+    template: renderService.renderTemplate.bind(renderService)
+  }
+}
+
 /**
  * Socket.IO API to emit payloads to front-end clients
  */
@@ -246,6 +256,7 @@ export class BotpressAPIProvider {
   security: typeof sdk.security
   workspaces: typeof sdk.workspaces
   distributed: typeof sdk.distributed
+  render: typeof sdk.render
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -267,7 +278,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.EventRepository) eventRepo: EventRepository,
     @inject(TYPES.WorkspaceService) workspaceService: WorkspaceService,
     @inject(TYPES.JobService) jobService: JobService,
-    @inject(TYPES.StateManager) stateManager: StateManager
+    @inject(TYPES.StateManager) stateManager: StateManager,
+    @inject(TYPES.RenderService) renderService: RenderService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
@@ -286,6 +298,7 @@ export class BotpressAPIProvider {
     this.security = security()
     this.workspaces = workspaces(workspaceService)
     this.distributed = distributed(jobService)
+    this.render = render(renderService)
   }
 
   @Memoize()
@@ -318,6 +331,7 @@ export class BotpressAPIProvider {
       experimental: this.experimental,
       workspaces: this.workspaces,
       distributed: this.distributed,
+      render: this.render,
       NLU: {
         makeEngine: async (config: sdk.NLU.Config, logger: sdk.NLU.Logger) => {
           const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = config
