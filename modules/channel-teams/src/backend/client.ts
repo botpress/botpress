@@ -65,9 +65,12 @@ If you have a restricted app, you may need to specify the tenantId also.`
 
       const conversationReference = TurnContext.getConversationReference(activity)
 
+      // A new user is reaching the bot for the first time
       if (activity.type === 'conversationUpdate' && activity.membersAdded?.length) {
-        // A new user is reaching the bot for the first time
-        return this._sendProactiveMessage(conversationReference)
+        // Locale format: {lang}-{subtag1}-{subtag2}-... https://en.wikipedia.org/wiki/IETF_language_tag
+        // TODO: Use Intl.Locale().language once its types are part of TS. See: https://github.com/microsoft/TypeScript/issues/37326
+        const lang = activity.locale && activity.locale.split('-')[0]
+        return this._sendProactiveMessage(conversationReference, lang)
       }
 
       if (activity.value?.text) {
@@ -116,8 +119,10 @@ If you have a restricted app, you may need to specify the tenantId also.`
     return this.bp.kvs.forBot(this.botId).set(threadId, convRef)
   }
 
-  async _sendProactiveMessage(conversationReference: Partial<ConversationReference>): Promise<void> {
-    const message = this.config.proactiveMessage
+  async _sendProactiveMessage(conversationReference: Partial<ConversationReference>, lang?: string): Promise<void> {
+    const defaultLanguage = (await this.bp.bots.getBotById(this.botId)).defaultLanguage
+    const proactiveMessages = this.config.proactiveMessages || {}
+    const message = (lang && proactiveMessages[lang]) || proactiveMessages[defaultLanguage]
 
     if (message) {
       conversationReference.serviceUrl && MicrosoftAppCredentials.trustServiceUrl(conversationReference.serviceUrl)

@@ -28,7 +28,11 @@ export interface Config {
   chatUserAuthDuration: string
 
   /**
-   * The proactive message sent to a user that communicates with the bot for the first time
+   * @param proactiveMessages The proactive message sent to a user that communicates with the bot for the first time
+   * @example { "en": "proactive message", "fr": "message proactif" }
+   * @default {}
    */
-  proactiveMessage?: string
+  proactiveMessages: {
+    [Key: string]: string
+  }
 }
