@@ -1,8 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { allInRange, GetZPercent, std } from '../tools/math'
-
+import { allInRange, GetZPercent, std } from './math'
 import { NONE_INTENT } from './typings'
 
 const OOS_AS_NONE_TRESH = 0.4

@@ -5,10 +5,10 @@ import _ from 'lodash'
 import { Config } from '../config'
 
 import { NLUApplication } from './application'
-import TrainSessionService from './train-session-service'
-import { NLUProgressEvent, NLUState } from './typings'
+import { InMemoryTrainingQueue } from './application/memory-training-queue'
+import { NLUProgressEvent } from './typings'
 
-export async function bootStrap(bp: typeof sdk): Promise<NLUState> {
+export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
   const globalConfig: Config = await bp.config.getModuleConfig('nlu')
 
   const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = globalConfig
@@ -32,10 +32,10 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUState> {
     bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', ev))
   }
 
-  const trainSessionService = new TrainSessionService(bp, socket)
+  // TODO: resolve an in-memory Vs database or distributed training queue depending on weither of not the botpress instance runs on multiple clusters
+  const memoryTrainingQueue = new InMemoryTrainingQueue(socket)
 
-  const application = new NLUApplication(bp, engine, trainSessionService)
-  await application.initialize()
+  const application = new NLUApplication(bp, memoryTrainingQueue, engine, bp.logger, bp.NLU.modelIdService)
 
-  return { application, trainSessionService, engine }
+  return application
 }

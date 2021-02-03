@@ -8,41 +8,34 @@ import es from '../translations/es.json'
 import fr from '../translations/fr.json'
 
 import { registerRouter, removeRouter } from './api'
+import { NLUApplication } from './application'
 import { bootStrap } from './bootstrap'
 import dialogConditions from './dialog-conditions'
 import { registerMiddlewares, removeMiddlewares } from './middlewares'
-import { NLUState } from './typings'
 
-let state: NLUState | undefined
+let app: NLUApplication | undefined
 
 const onServerStarted = async (bp: typeof sdk) => {
-  const { application, engine, trainSessionService } = await bootStrap(bp)
-
-  state = {
-    engine,
-    application,
-    trainSessionService
-  }
-
-  registerMiddlewares(bp, state)
+  app = await bootStrap(bp)
+  registerMiddlewares(bp, app)
 }
 
 const onServerReady = async (bp: typeof sdk) => {
-  await registerRouter(bp, state)
+  await registerRouter(bp, app)
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
-  await state.application.mountBot(botId)
+  await app.mountBot(botId)
 }
 
 const onBotUnmount = async (bp: typeof sdk, botId: string) => {
-  return state.application.unmountBot(botId)
+  return app.unmountBot(botId)
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {
   removeMiddlewares(bp)
   removeRouter(bp)
-  await state.application.teardown()
+  await app.teardown()
 }
 
 const onTopicChanged = async (bp: typeof sdk, botId: string, oldName?: string, newName?: string) => {

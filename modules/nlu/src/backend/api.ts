@@ -4,9 +4,9 @@ import Joi from 'joi'
 import _ from 'lodash'
 import yn from 'yn'
 
+import { NLUApplication } from './application'
+import { BotDoesntSpeakLanguageError, BotNotMountedError } from './application/errors'
 import legacyElectionPipeline from './election/legacy-election'
-import { BotDoesntSpeakLanguageError, BotNotMountedError } from './errors'
-import { NLUState } from './typings'
 
 const ROUTER_ID = 'nlu'
 
@@ -36,21 +36,20 @@ const makeErrorMapper = (bp: typeof sdk) => (err: { botId: string; lang: string;
   return res.status(500).send(msg)
 }
 
-export const registerRouter = async (bp: typeof sdk, state: NLUState) => {
-  const { application, engine, trainSessionService } = state
+export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
   const router = bp.http.createRouterForBot(ROUTER_ID)
 
   const mapError = makeErrorMapper(bp)
 
   router.get('/health', async (req, res) => {
     // When the health is bad, we'll refresh the status in case it has changed (eg: user added languages)
-    const health = engine.getHealth()
+    const health = app.getHealth()
     res.send(health)
   })
 
   router.get('/training/:language', async (req, res) => {
     const { language, botId } = req.params
-    const session = await trainSessionService.getTrainingSession(botId, language)
+    const session = await app.getTraining(botId, language)
     res.send(session)
   })
 
@@ -62,7 +61,8 @@ export const registerRouter = async (bp: typeof sdk, state: NLUState) => {
     }
 
     try {
-      const nlu = await application.predict(botId, value.text, lang)
+      const bot = app.getBot(botId)
+      const nlu = await bot.predict(value.text, lang)
       const event: sdk.IO.EventUnderstanding = {
         ...nlu,
         includedContexts: value.contexts,
@@ -82,7 +82,7 @@ export const registerRouter = async (bp: typeof sdk, state: NLUState) => {
       // to return as fast as possible
       // tslint:disable-next-line: no-floating-promises
       if (!disableTraining) {
-        application.train(botId, lang)
+        app.queueTraining(botId, lang)
       }
       res.sendStatus(200)
     } catch (error) {
@@ -93,7 +93,7 @@ export const registerRouter = async (bp: typeof sdk, state: NLUState) => {
   router.post('/train/:lang/delete', async (req, res) => {
     const { botId, lang } = req.params
     try {
-      await application.cancelTraining(botId, lang)
+      await app.cancelTraining(botId, lang)
       res.sendStatus(200)
     } catch (error) {
       return mapError({ botId, lang, error }, res)

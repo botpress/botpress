@@ -1,19 +1,18 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { NLUApplication } from './application'
 import legacyElectionPipeline from './election/legacy-election'
-import { NLUState } from './typings'
 
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
 
 const PREDICT_MW = 'nlu-predict.incoming'
 const ELECT_MW = 'nlu-elect.incoming'
 
-const _ignoreEvent = (bp: typeof sdk, state: NLUState, event: sdk.IO.IncomingEvent) => {
-  const { application, engine } = state
-  const health = engine.getHealth()
+const _ignoreEvent = (bp: typeof sdk, app: NLUApplication, event: sdk.IO.IncomingEvent) => {
+  const health = app.getHealth()
   return (
-    !application.hasBot(event.botId) ||
+    !app.hasBot(event.botId) ||
     !health.isEnabled ||
     !event.preview ||
     EVENTS_TO_IGNORE.includes(event.type) ||
@@ -37,9 +36,7 @@ const removeSensitiveText = (bp: typeof sdk, event: sdk.IO.IncomingEvent) => {
   }
 }
 
-export const registerMiddlewares = (bp: typeof sdk, state: NLUState) => {
-  const { application } = state
-
+export const registerMiddlewares = (bp: typeof sdk, app: NLUApplication) => {
   bp.events.registerMiddleware({
     name: PREDICT_MW,
     direction: 'incoming',
@@ -47,7 +44,7 @@ export const registerMiddlewares = (bp: typeof sdk, state: NLUState) => {
     description:
       'Process natural language in the form of text. Structured data with an action and parameters for that action is injected in the incoming message event.',
     handler: async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
-      if (_ignoreEvent(bp, state, event)) {
+      if (_ignoreEvent(bp, app, event)) {
         return next(undefined, false, true)
       }
 
@@ -55,7 +52,8 @@ export const registerMiddlewares = (bp: typeof sdk, state: NLUState) => {
         const { botId, preview } = event
         const anticipatedLanguage: string | undefined = event.state.user?.language
 
-        const nluResults = await application.predict(botId, preview, anticipatedLanguage)
+        const bot = app.getBot(botId)
+        const nluResults = await bot.predict(preview, anticipatedLanguage)
         const nlu = { ...nluResults, includedContexts: event.nlu?.includedContexts ?? [] }
         _.merge(event, { nlu })
         removeSensitiveText(bp, event)
@@ -73,7 +71,7 @@ export const registerMiddlewares = (bp: typeof sdk, state: NLUState) => {
     order: 120,
     description: 'Perform intent election for the outputed NLU.',
     handler: async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
-      if (_ignoreEvent(bp, state, event) || !event.nlu) {
+      if (_ignoreEvent(bp, app, event) || !event.nlu) {
         return next()
       }
 

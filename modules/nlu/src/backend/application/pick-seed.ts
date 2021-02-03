@@ -22,7 +22,7 @@ const _hashToNumber = (text: string): number => {
   return parseInt(truncated, BASE)
 }
 
-export const getSeed = (bot: sdk.BotConfig): number => {
+export default function pickSeed(bot: sdk.BotConfig) {
   const rawSeed = _.isNumber(bot.nluSeed) && !_.isNaN(bot.nluSeed) ? bot.nluSeed : _hashToNumber(bot.id)
   return Math.abs(rawSeed) % MAX_SEED
 }

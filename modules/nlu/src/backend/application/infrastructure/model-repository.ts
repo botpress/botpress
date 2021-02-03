@@ -27,13 +27,19 @@ const DEFAULT_LISTING_OPTIONS: ListingOptions = {
   negateFilter: false
 }
 
-export default class ScopedModelService {
-  private _modelIdService: typeof sdk.NLU.modelIdService
-  private _ghost: sdk.ScopedGhostService
+interface BotDefinition {
+  botId: string
+}
 
-  constructor(bp: typeof sdk, private _botId: string) {
-    this._modelIdService = bp.NLU.modelIdService
-    this._ghost = bp.ghost.forBot(_botId)
+export class ScopedModelRepository {
+  private _botId: string
+
+  constructor(
+    bot: BotDefinition,
+    private _modelIdService: typeof sdk.NLU.modelIdService,
+    private _ghost: sdk.ScopedGhostService
+  ) {
+    this._botId = bot.botId
   }
 
   async initialize() {

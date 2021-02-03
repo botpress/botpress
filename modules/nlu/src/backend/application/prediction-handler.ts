@@ -1,23 +1,33 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import mergeSpellChecked from './election/spellcheck-handler'
-import ScopedModelService from './model-service'
+import mergeSpellChecked from '../election/spellcheck-handler'
+
+import { ScopedModelRepository } from './infrastructure/model-repository'
 import { EventUnderstanding } from './typings'
 
+interface BotDefinition {
+  defaultLanguage: string
+}
+
 export class ScopedPredictionHandler {
+  private defaultLanguage: string
+
   constructor(
+    bot: BotDefinition,
     private engine: sdk.NLU.Engine,
-    private modelService: ScopedModelService,
+    private modelRepo: ScopedModelRepository,
     private modelIdService: typeof sdk.NLU.modelIdService,
-    private logger: sdk.Logger,
-    private botState: { modelsByLang: _.Dictionary<sdk.NLU.ModelId>; defaultLanguage: string }
-  ) {}
+    private modelsByLang: _.Dictionary<sdk.NLU.ModelId>,
+    private logger: sdk.Logger
+  ) {
+    this.defaultLanguage = bot.defaultLanguage
+  }
 
   async predict(textInput: string, anticipatedLanguage: string): Promise<EventUnderstanding> {
-    const { modelsByLang, defaultLanguage } = this.botState
+    const { defaultLanguage } = this
 
-    const modelCacheState = _.mapValues(modelsByLang, model => ({ model, loaded: this.engine.hasModel(model) }))
+    const modelCacheState = _.mapValues(this.modelsByLang, model => ({ model, loaded: this.engine.hasModel(model) }))
 
     const missingModels = _(modelCacheState)
       .pickBy(mod => !mod.loaded)
@@ -67,10 +77,9 @@ export class ScopedPredictionHandler {
   }
 
   private async tryPredictInLanguage(textInput: string, language: string): Promise<EventUnderstanding> {
-    const { modelsByLang } = this.botState
-
-    if (!modelsByLang[language] || !this.engine.hasModel(modelsByLang[language])) {
-      const model = await this.fetchModel(language)
+    const { modelsByLang } = this
+    if (!this.modelsByLang[language] || !this.engine.hasModel(modelsByLang[language])) {
+      const model = await this.fetchModel(language, modelsByLang)
       if (!model) {
         return
       }
@@ -108,9 +117,9 @@ export class ScopedPredictionHandler {
     }
   }
 
-  private fetchModel(languageCode: string): Promise<sdk.NLU.Model> {
-    const { modelService, botState } = this
-    const { modelsByLang } = botState
+  private fetchModel(languageCode: string, modelsByLang: _.Dictionary<sdk.NLU.ModelId>): Promise<sdk.NLU.Model> {
+    const { modelRepo: modelService } = this
+
     const modelId = modelsByLang[languageCode]
     if (modelId) {
       return modelService.getModel(modelId)
