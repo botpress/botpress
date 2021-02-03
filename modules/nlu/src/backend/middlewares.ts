@@ -21,7 +21,7 @@ const _ignoreEvent = (bp: typeof sdk, app: NLUApplication, event: sdk.IO.Incomin
 }
 
 const removeSensitiveText = (bp: typeof sdk, event: sdk.IO.IncomingEvent) => {
-  if (!event.nlu.entities || !event.payload.text) {
+  if (!event.nlu || !event.nlu.entities || !event.payload.text) {
     return
   }
 

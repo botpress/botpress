@@ -13,6 +13,12 @@ import { bootStrap } from './bootstrap'
 import dialogConditions from './dialog-conditions'
 import { registerMiddlewares, removeMiddlewares } from './middlewares'
 
+class AppNotInitializedError extends Error {
+  constructor() {
+    super('NLU Application not initialized')
+  }
+}
+
 let app: NLUApplication | undefined
 
 const onServerStarted = async (bp: typeof sdk) => {
@@ -21,18 +27,31 @@ const onServerStarted = async (bp: typeof sdk) => {
 }
 
 const onServerReady = async (bp: typeof sdk) => {
+  if (!app) {
+    throw new AppNotInitializedError()
+  }
   await registerRouter(bp, app)
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
+  if (!app) {
+    throw new AppNotInitializedError()
+  }
   await app.mountBot(botId)
 }
 
 const onBotUnmount = async (bp: typeof sdk, botId: string) => {
+  if (!app) {
+    throw new AppNotInitializedError()
+  }
   return app.unmountBot(botId)
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {
+  if (!app) {
+    throw new AppNotInitializedError()
+  }
+
   removeMiddlewares(bp)
   removeRouter(bp)
   await app.teardown()

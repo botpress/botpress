@@ -45,7 +45,11 @@ export class NLUApplication {
     return !!this._bots[botId]
   }
 
-  public getBot(botId: string): Predictor | undefined {
+  public getBot(botId: string): Predictor {
+    const bot = this._bots[botId]
+    if (!bot) {
+      throw new BotNotMountedError(botId)
+    }
     return this._bots[botId]
   }
 
@@ -53,6 +57,9 @@ export class NLUApplication {
     const { _engine } = this
 
     const botConfig = await this._bp.bots.getBotById(botId)
+    if (!botConfig) {
+      throw new BotNotMountedError(botId)
+    }
 
     const { defaultLanguage } = botConfig
     const languages = _.intersection(botConfig.languages, _engine.getLanguages())

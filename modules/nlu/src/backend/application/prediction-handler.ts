@@ -57,26 +57,27 @@ export class ScopedPredictionHandler {
 
     let nluResults: EventUnderstanding | undefined
 
+    const isDefined = _.negate(_.isUndefined)
     const languagesToTry = _([detectedLanguage, anticipatedLanguage, defaultLanguage])
-      .filter(l => !_.isUndefined(l))
+      .filter(isDefined)
       .uniq()
       .value()
 
     for (const lang of languagesToTry) {
       nluResults = await this.tryPredictInLanguage(textInput, lang)
-      if (!this.isEmptyOrError(nluResults)) {
+      if (!this.isEmpty(nluResults) && !this.isError(nluResults)) {
         break
       }
     }
 
-    if (this.isEmptyOrError(nluResults)) {
+    if (this.isEmpty(nluResults) || this.isError(nluResults)) {
       throw new Error(`No model found for the following languages: ${languagesToTry}`)
     }
 
     return { ...nluResults, detectedLanguage }
   }
 
-  private async tryPredictInLanguage(textInput: string, language: string): Promise<EventUnderstanding> {
+  private async tryPredictInLanguage(textInput: string, language: string): Promise<EventUnderstanding | undefined> {
     const { modelsByLang } = this
     if (!this.modelsByLang[language] || !this.engine.hasModel(modelsByLang[language])) {
       const model = await this.fetchModel(language, modelsByLang)
@@ -117,7 +118,10 @@ export class ScopedPredictionHandler {
     }
   }
 
-  private fetchModel(languageCode: string, modelsByLang: _.Dictionary<sdk.NLU.ModelId>): Promise<sdk.NLU.Model> {
+  private fetchModel(
+    languageCode: string,
+    modelsByLang: _.Dictionary<sdk.NLU.ModelId>
+  ): Promise<sdk.NLU.Model | undefined> {
     const { modelRepo: modelService } = this
 
     const modelId = modelsByLang[languageCode]
@@ -130,7 +134,11 @@ export class ScopedPredictionHandler {
     return modelService.getLatestModel(query)
   }
 
-  private isEmptyOrError(nluResults: EventUnderstanding | undefined) {
+  private isEmpty(nluResults: EventUnderstanding | undefined): nluResults is undefined {
+    return !nluResults
+  }
+
+  private isError(nluResults: EventUnderstanding): boolean {
     return !nluResults || nluResults.errored
   }
 }

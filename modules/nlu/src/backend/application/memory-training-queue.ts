@@ -40,7 +40,7 @@ class TrainingList {
     return !!el
   }
 
-  public rm(trainId: TrainingId): QueueElement {
+  public rm(trainId: TrainingId): QueueElement | undefined {
     const idx = this._getIdx(trainId)
     if (idx < 0) {
       return
@@ -54,7 +54,11 @@ class TrainingList {
   }
 
   public progress(trainId: TrainingId, progress: number) {
-    this.get(trainId).progress = progress
+    const el = this.get(trainId)
+    if (!el) {
+      return
+    }
+    el.progress = progress
   }
 
   public get(trainId: TrainingId): QueueElement | undefined {
@@ -124,7 +128,7 @@ export class InMemoryTrainingQueue implements TrainingQueue {
     }
 
     if (this._training.has(trainId)) {
-      const { language, trainer } = this._training.rm(trainId)
+      const { language, trainer } = this._training.rm(trainId)!
       await trainer.cancelTraining(language)
     }
   }
@@ -135,7 +139,7 @@ export class InMemoryTrainingQueue implements TrainingQueue {
     const key = this._makeKey({ botId, language })
 
     if (this._training.has(trainId)) {
-      const { progress } = this._training.get(trainId)
+      const { progress } = this._training.get(trainId)!
       return {
         key,
         language,
@@ -168,7 +172,7 @@ export class InMemoryTrainingQueue implements TrainingQueue {
       return
     }
 
-    const next = this._pending.pop()
+    const next = this._pending.pop()!
     this._training.queue(next)
 
     const { trainer, language, botId } = next
