@@ -26,4 +26,9 @@ export interface Config {
    * @default 24h
    */
   chatUserAuthDuration: string
+
+  /**
+   * The proactive message sent to a user that communicates with the bot for the first time
+   */
+  proactiveMessage?: string
 }

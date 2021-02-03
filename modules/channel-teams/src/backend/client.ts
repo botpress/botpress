@@ -64,6 +64,12 @@ If you have a restricted app, you may need to specify the tenantId also.`
       const { activity } = turnContext
 
       const conversationReference = TurnContext.getConversationReference(activity)
+
+      if (activity.type === 'conversationUpdate' && activity.membersAdded?.length) {
+        // A new user is reaching the bot for the first time
+        return this._sendProactiveMessage(conversationReference)
+      }
+
       if (activity.value?.text) {
         activity.text = activity.value.text
       }
@@ -77,6 +83,16 @@ If you have a restricted app, you may need to specify the tenantId also.`
 
       await this._sendIncomingEvent(activity, threadId)
     })
+  }
+
+  async _sendProactiveMessage(conversationReference: Partial<ConversationReference>): Promise<void> {
+    const message = this.config.proactiveMessage
+
+    if (message) {
+      await this.adapter.continueConversation(conversationReference, async turnContext => {
+        await turnContext.sendActivity(message)
+      })
+    }
   }
 
   private async validateCredentials() {
