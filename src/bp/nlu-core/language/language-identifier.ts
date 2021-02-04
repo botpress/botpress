@@ -73,7 +73,7 @@ export default async function(
         .map(lang => ({
           lang,
           sentence: sentence.toLowerCase(),
-          tokens: _.orderBy(Object.keys(predictorsByLang[lang].vocabVectors), 'length', 'desc')
+          tokens: _.orderBy(predictorsByLang[lang].vocab, 'length', 'desc')
         }))
         .map(({ lang, sentence, tokens }) => {
           for (const token of tokens) {

@@ -278,14 +278,14 @@ export async function buildUtteranceBatch(
   raw_utterances: string[],
   language: string,
   tools: Tools,
-  vocab?: Token2Vec
+  vocab?: string[]
 ): Promise<Utterance[]> {
   const preprocessed = raw_utterances.map(preprocessRawUtterance)
   const parsed = preprocessed.map(parseUtterance)
   const tokenUtterances = await tools.tokenize_utterances(
     parsed.map(p => p.utterance),
     language,
-    vocab ? Object.keys(vocab) : []
+    vocab ?? []
   )
   const POSUtterances = tools.partOfSpeechUtterances(tokenUtterances, language) as POSClass[][]
   const uniqTokens = _.uniq(_.flatten(tokenUtterances))
