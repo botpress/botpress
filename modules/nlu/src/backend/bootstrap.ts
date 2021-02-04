@@ -33,9 +33,10 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
   }
 
   // TODO: resolve an in-memory Vs database or distributed training queue depending on weither of not the botpress instance runs on multiple clusters
-  const memoryTrainingQueue = new InMemoryTrainingQueue(socket)
+  const memoryTrainingQueue = new InMemoryTrainingQueue(bp.NLU.errors, socket, bp.logger)
 
   const application = new NLUApplication(bp, memoryTrainingQueue, engine, bp.logger, bp.NLU.modelIdService)
+  await application.initialize()
 
   return application
 }

@@ -82,7 +82,7 @@ export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
       // to return as fast as possible
       // tslint:disable-next-line: no-floating-promises
       if (!disableTraining) {
-        app.queueTraining(botId, lang)
+        await app.queueTraining(botId, lang)
       }
       res.sendStatus(200)
     } catch (error) {

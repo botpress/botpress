@@ -1,3 +1,4 @@
+import * as sdk from 'botpress/sdk'
 import { NLU } from 'botpress/sdk'
 import ms from 'ms'
 
@@ -83,8 +84,9 @@ export class InMemoryTrainingQueue implements TrainingQueue {
 
   private _pending: TrainingList = new TrainingList()
   private _training: TrainingList = new TrainingList()
+  private _done: TrainingList = new TrainingList()
 
-  constructor(private _socket: TrainSessionSocket) {}
+  constructor(private _errors: typeof NLU.errors, private _socket: TrainSessionSocket, private _logger: sdk.Logger) {}
 
   async initialize() {
     this.consumerHandle = setInterval(this._runTask, JOB_INTERVAL)
@@ -93,6 +95,7 @@ export class InMemoryTrainingQueue implements TrainingQueue {
   async teardown() {
     clearInterval(this.consumerHandle)
     this._pending.clear()
+    this._done.clear()
 
     for (const el of this._training.elements()) {
       const { language, trainer } = el
@@ -108,6 +111,10 @@ export class InMemoryTrainingQueue implements TrainingQueue {
       return // do not notify socket if currently training
     }
 
+    if (this._done.has(trainId)) {
+      this._done.rm(trainId)
+    }
+
     await this._socket(botId, {
       key: this._makeKey({ botId, language }),
       language,
@@ -118,19 +125,46 @@ export class InMemoryTrainingQueue implements TrainingQueue {
 
   async queueTraining(trainId: TrainingId, trainer: Trainer): Promise<void> {
     const { language, botId } = trainId
+
+    if (this._training.has(trainId)) {
+      return // do not queue training if currently training
+    }
+
+    if (this._done.has(trainId)) {
+      this._done.rm(trainId)
+    }
+
     this._pending.queue({ language, botId, trainer, progress: 0 })
+    await this._socket(botId, {
+      key: this._makeKey({ botId, language }),
+      language,
+      progress: 0,
+      status: 'training-pending'
+    })
   }
 
   async cancelTraining(trainId: TrainingId): Promise<void> {
+    const { language, botId } = trainId
+    await this._socket(botId, {
+      key: this._makeKey({ botId, language }),
+      language,
+      progress: 0,
+      status: 'canceled'
+    })
+
     if (this._pending.has(trainId)) {
       this._pending.rm(trainId)
-      return
-    }
-
-    if (this._training.has(trainId)) {
+    } else if (this._training.has(trainId)) {
       const { language, trainer } = this._training.rm(trainId)!
       await trainer.cancelTraining(language)
     }
+
+    await this._socket(botId, {
+      key: this._makeKey({ botId, language }),
+      language,
+      progress: 0,
+      status: 'needs-training'
+    })
   }
 
   async getTraining(trainId: TrainingId): Promise<NLU.TrainingSession> {
@@ -145,6 +179,15 @@ export class InMemoryTrainingQueue implements TrainingQueue {
         language,
         progress,
         status: 'training'
+      }
+    }
+
+    if (this._done.has(trainId)) {
+      return {
+        key,
+        language,
+        progress: 1,
+        status: 'done'
       }
     }
 
@@ -163,7 +206,7 @@ export class InMemoryTrainingQueue implements TrainingQueue {
     return `training:${botId}:${language}`
   }
 
-  private _runTask = () => {
+  private _runTask = async () => {
     if (this._training.length() >= MAX_ALLOWED_TRAINING_PER_NODE) {
       return
     }
@@ -175,10 +218,69 @@ export class InMemoryTrainingQueue implements TrainingQueue {
     const next = this._pending.pop()!
     this._training.queue(next)
 
-    const { trainer, language, botId } = next
+    // floating promise to return fast from task
+    this._train(next)
+  }
 
-    trainer.train(language, (progress: number) => {
-      this._training.progress({ botId, language }, progress)
-    })
+  private _train = async (queueElement: QueueElement) => {
+    const { trainer, language, botId } = queueElement
+
+    const key = this._makeKey({ botId, language })
+
+    try {
+      const modelId = await trainer.train(language, async (progress: number) => {
+        this._training.progress({ botId, language }, progress)
+
+        await this._socket(botId, {
+          key,
+          language,
+          progress,
+          status: 'training'
+        })
+      })
+
+      await this._socket(botId, {
+        key,
+        language,
+        progress: 1,
+        status: 'done'
+      })
+
+      await trainer.load(modelId)
+
+      const done = this._training.rm({ botId, language })!
+      this._done.queue(done)
+    } catch (err) {
+      if (this._errors.isTrainingCanceled(err)) {
+        this._logger.forBot(botId).info('Training cancelled')
+        this._training.rm({ botId, language })
+        await this._socket(botId, {
+          key,
+          language,
+          progress: 0,
+          status: 'needs-training'
+        })
+      } else if (this._errors.isTrainingAlreadyStarted(err)) {
+        this._logger.forBot(botId).info('Training already started')
+        await this._socket(botId, {
+          key,
+          language,
+          progress: 0,
+          status: 'needs-training'
+        })
+      } else {
+        this._logger
+          .forBot(botId)
+          .attachError(err)
+          .error('Training could not finish because of an unexpected error.')
+        this._training.rm({ botId, language })
+        await this._socket(botId, {
+          key,
+          language,
+          progress: 0,
+          status: 'errored'
+        })
+      }
+    }
   }
 }

@@ -7,7 +7,7 @@ export interface BotDefinition {
   seed: number
 }
 
-export type ProgressCallback = (p: number) => void
+export type ProgressCallback = (p: number) => Promise<void>
 
 export interface Trainer {
   train(language: string, progressCallback: ProgressCallback): Promise<NLU.ModelId>
