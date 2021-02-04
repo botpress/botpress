@@ -18,7 +18,14 @@ import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
-import { DefaultLinkModel, DefaultPortModel, DiagramEngine, DiagramWidget, NodeModel, PointModel } from 'storm-react-diagrams'
+import {
+  DefaultLinkModel,
+  DefaultPortModel,
+  DiagramEngine,
+  DiagramWidget,
+  NodeModel,
+  PointModel
+} from 'storm-react-diagrams'
 import {
   buildNewSkill,
   closeFlowNodeProps,
@@ -320,7 +327,7 @@ class Diagram extends Component<Props> {
   }
 
   add = {
-    flowNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'standard' }),
+    flowNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'standard', next: [defaultTransition] }),
     skillNode: (point: Point, skillId: string) => this.props.buildSkill({ location: point, id: skillId }),
     triggerNode: (point: Point) => {
       this.props.createFlowNode({ ...point, type: 'trigger', conditions: [], next: [defaultTransition] })
