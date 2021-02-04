@@ -100,7 +100,7 @@ export class NLUApplication {
     for (const language of languages) {
       const needsTraining = await defService.needsTraining(language)
       if (needsTraining) {
-        await this._trainingQueue.needsTraining({ botId, language })
+        await this._trainingQueue.queueTraining({ botId, language }, bot)
       }
     }
   }
