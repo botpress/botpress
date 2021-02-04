@@ -50,7 +50,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
 
   public async train(trainInput: TrainInput, progress: (p: number) => void): Promise<void> {
     const { languageCode, allUtterances, intents } = trainInput
-    const noneIntent = await this.makeNoneIntent(allUtterances, languageCode)
+    const noneIntent = await this._makeNoneIntent(allUtterances, languageCode)
 
     let combinedProgress = 0
     const scaledProgress = (p: number) => {
@@ -73,7 +73,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
     }
   }
 
-  private makeNoneIntent = async (allUtterances: Utterance[], languageCode: string): Promise<Intent<Utterance>> => {
+  private _makeNoneIntent = async (allUtterances: Utterance[], languageCode: string): Promise<Intent<Utterance>> => {
     const allTokens = _.flatMap(allUtterances, u => u.tokens)
 
     const vocab = _(allTokens)

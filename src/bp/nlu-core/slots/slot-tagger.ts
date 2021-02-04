@@ -212,7 +212,7 @@ export default class SlotTagger {
     const intentFeatures = getEntitiesAndVocabOfIntent(intent, list_entites)
     const { slot_definitions } = intent
 
-    if (slot_definitions.length < 1) {
+    if (slot_definitions.length <= 0) {
       // TODO: prevent from persisting to much bytes when theres no slots
       this.model = {
         crfModel: undefined,

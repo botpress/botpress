@@ -66,7 +66,7 @@ export interface TrainOutput {
 
 type progressCB = (p?: number) => void
 
-const debugTraining = DEBUG('nlu').sub('training') // TODO: make sure logs get wired up to web process
+const debugTraining = DEBUG('nlu').sub('training')
 
 const NUM_CLUSTERS = 8
 const KMEANS_OPTIONS = {

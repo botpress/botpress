@@ -42,7 +42,7 @@ export class SvmIntentClassifier implements IntentClassifier {
       .filter(x => x.coordinates.filter(isNaN).length === 0)
       .value()
 
-    const classCount = _.uniq(points.map(p => p.label)).length
+    const classCount = _.uniqBy(points, p => p.label).length
     if (points.length === 0 || classCount <= 1) {
       this.model = {
         svmModel: undefined,
