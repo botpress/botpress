@@ -21,15 +21,17 @@ const DEBOUNCE_DELAY = ms('2s')
 
 interface HookOptions {
   timeout: number
+  throwOnError: boolean
 }
 
 const debugInstances: { [hookType: string]: IDebugInstance } = {}
+const defaultHookOptions = Object.freeze({ timeout: 1000, throwOnError: false })
 
 export namespace Hooks {
   export class BaseHook {
     debug: IDebugInstance
 
-    constructor(public folder: string, public args: any, public options: HookOptions = { timeout: 1000 }) {
+    constructor(public folder: string, public args: any, public options: HookOptions = defaultHookOptions) {
       if (debugInstances[folder]) {
         this.debug = debugInstances[folder]
       } else {
@@ -51,7 +53,7 @@ export namespace Hooks {
   }
 
   export class AfterBotUnmount extends BaseHook {
-    constructor(private bp: typeof sdk, botId) {
+    constructor(private bp: typeof sdk, botId: string) {
       super('after_bot_unmount', { bp, botId })
     }
   }
@@ -118,7 +120,7 @@ export namespace Hooks {
       pipeline: sdk.Pipeline,
       hookResult: any
     ) {
-      super('on_stage_request', { bp, bot, users, pipeline, hookResult })
+      super('on_stage_request', { bp, bot, users, pipeline, hookResult }, { ...defaultHookOptions, throwOnError: true })
     }
   }
 
@@ -148,7 +150,7 @@ class HookScript {
 @injectable()
 export class HookService {
   private _scriptsCache: Map<string, HookScript[]> = new Map()
-  private _invalidateDebounce
+  private _invalidateDebounce: ReturnType<typeof _.debounce>
 
   constructor(
     @inject(TYPES.Logger)
@@ -179,12 +181,10 @@ export class HookService {
     clearRequireCache()
   }
 
-  async executeHook(hook: Hooks.BaseHook, throwOnError = false): Promise<void> {
+  async executeHook(hook: Hooks.BaseHook): Promise<void> {
     const botId = hook.args?.event?.botId || hook.args?.botId
     const scripts = await this.extractScripts(hook, botId)
-    await Promise.mapSeries(_.orderBy(scripts, ['filename'], ['asc']), script =>
-      this.runScript(script, hook, throwOnError)
-    )
+    await Promise.mapSeries(_.orderBy(scripts, ['filename'], ['asc']), script => this.runScript(script, hook))
   }
 
   async disableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean> {
@@ -248,10 +248,10 @@ export class HookService {
   private _prepareRequire(fullPath: string, hookType: string) {
     const lookups = getBaseLookupPaths(fullPath, hookType)
 
-    return module => requireAtPaths(module, lookups, fullPath)
+    return (module: string) => requireAtPaths(module, lookups, fullPath)
   }
 
-  private async runScript(hookScript: HookScript, hook: Hooks.BaseHook, throwOnError: boolean) {
+  private async runScript(hookScript: HookScript, hook: Hooks.BaseHook) {
     const scope = (hookScript.botId ? `bots/${hookScript.botId}` : 'global') as ActionScope
     const hookPath = `/data/${scope}/hooks/${hook.folder}/${hookScript.path}.js`
 
@@ -267,7 +267,7 @@ export class HookService {
     if (runOutsideVm(scope)) {
       await this.runWithoutVm(hookScript, hook, botId, _require)
     } else {
-      await this.runInVm(hookScript, hook, botId, _require, throwOnError)
+      await this.runInVm(hookScript, hook, botId, _require)
     }
 
     hook.debug.forBot(botId, 'after execute')
@@ -312,13 +312,7 @@ export class HookService {
     }
   }
 
-  private async runInVm(
-    hookScript: HookScript,
-    hook: Hooks.BaseHook,
-    botId: string,
-    _require: Function,
-    throwOnError: boolean
-  ) {
+  private async runInVm(hookScript: HookScript, hook: Hooks.BaseHook, botId: string, _require: Function) {
     const modRequire = new Proxy(
       {},
       {
@@ -350,13 +344,13 @@ export class HookService {
         this.addEventStep(hookScript.name, 'error', hook, err)
         this.logScriptError(err, botId, hookScript.path, hook.folder)
 
-        if (throwOnError) {
+        if (hook.options.throwOnError) {
           throw err
         }
       })
   }
 
-  private logScriptError(err, botId, path, folder) {
+  private logScriptError(err: Error, botId: string, path: string, folder: string) {
     const message = `An error occurred on "${path}" on "${folder}". ${err}`
     if (botId) {
       this.logger
