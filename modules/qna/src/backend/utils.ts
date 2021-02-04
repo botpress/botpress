@@ -47,7 +47,8 @@ export const getQnaEntryPayloads = async (
     args = {
       ...args,
       text: electedAnswer,
-      typing: true
+      typing: true,
+      markdown: true
     }
   }
 
