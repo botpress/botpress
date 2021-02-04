@@ -4,8 +4,6 @@ import { SPACE } from 'nlu-core/tools/token-utils'
 import { Intent, ListEntityModel } from 'nlu-core/typings'
 import Utterance from 'nlu-core/utterance/utterance'
 
-type IntentWithSlotFeatures = Intent<Utterance> & IntentSlotFeatures
-
 export const buildIntentVocab = (utterances: Utterance[], intentEntities: ListEntityModel[]): Dic<boolean> => {
   // @ts-ignore
   const entitiesTokens: string[] = _.chain(intentEntities)
@@ -21,25 +19,23 @@ export const buildIntentVocab = (utterances: Utterance[], intentEntities: ListEn
 }
 
 export const getEntitiesAndVocabOfIntent = (
-  intents: Intent<Utterance>[],
+  intent: Intent<Utterance>,
   entities: ListEntityModel[]
-): IntentWithSlotFeatures[] => {
-  return intents.map(intent => {
-    const allowedEntities = _.chain(intent.slot_definitions)
-      .flatMap(s => s.entities)
-      .filter(e => e !== 'any')
-      .uniq()
-      .value() as string[]
+): IntentSlotFeatures => {
+  const allowedEntities = _.chain(intent.slot_definitions)
+    .flatMap(s => s.entities)
+    .filter(e => e !== 'any')
+    .uniq()
+    .value() as string[]
 
-    const entityModels = _.intersectionWith(entities, allowedEntities, (entity, name) => {
-      return entity.entityName === name
-    })
-
-    const vocab = Object.keys(buildIntentVocab(intent.utterances, entityModels))
-    return {
-      ...intent,
-      vocab,
-      slot_entities: allowedEntities
-    }
+  const entityModels = _.intersectionWith(entities, allowedEntities, (entity, name) => {
+    return entity.entityName === name
   })
+
+  const vocab = Object.keys(buildIntentVocab(intent.utterances, entityModels))
+  return {
+    name: intent.name,
+    vocab,
+    slot_entities: allowedEntities
+  }
 }

@@ -9,11 +9,13 @@ import {
 } from 'nlu-core/out-of-scope-featurizer'
 import { SMALL_TFIDF } from 'nlu-core/tools/tfidf'
 import { isSpace, SPACE } from 'nlu-core/tools/token-utils'
-import { Intent, Tools } from 'nlu-core/typings'
+import { Intent, ListEntityModel, PatternEntity, Tools } from 'nlu-core/typings'
 import Utterance, { buildUtteranceBatch } from 'nlu-core/utterance/utterance'
 
-import { BaseIntentClassifier, MIN_NB_UTTERANCES } from './base-intent-classifier'
+import { BuildExactMatchIndex, ExactMatchIndex, findExactIntent } from './exact-matcher'
 import { IntentTrainInput, NoneableIntentClassifier, NoneableIntentPredictions } from './intent-classifier'
+import { getIntentFeatures } from './intent-featurizer'
+import { SvmIntentClassifier } from './svm-intent-classifier'
 
 interface TrainInput extends IntentTrainInput {
   allUtterances: Utterance[]
@@ -23,15 +25,18 @@ interface Model {
   trainingVocab: string[]
   baseIntentClfModel: string
   oosSvmModel: string | undefined
+  exact_match_index: ExactMatchIndex
 }
 
 interface Predictors {
-  baseIntentClf: BaseIntentClassifier
+  baseIntentClf: SvmIntentClassifier
   oosSvm: MLToolkit.SVM.Predictor | undefined
   trainingVocab: string[]
+  exact_match_index: ExactMatchIndex
 }
 
-export const NONE_INTENT = 'none'
+const MIN_NB_UTTERANCES = 3
+const NONE_INTENT = 'none'
 const NONE_UTTERANCES_BOUNDS = {
   MIN: 20,
   MAX: 200
@@ -44,18 +49,27 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
   constructor(private tools: Tools) {}
 
   public async train(trainInput: TrainInput, progress: (p: number) => void): Promise<void> {
-    const { languageCode, allUtterances } = trainInput
+    const { languageCode, allUtterances, intents } = trainInput
     const noneIntent = await this.makeNoneIntent(allUtterances, languageCode)
 
+    let combinedProgress = 0
+    const scaledProgress = (p: number) => {
+      combinedProgress += p / 2
+      progress(combinedProgress)
+    }
+
     const [ooScopeModel, inScopeModel] = await Promise.all([
-      this._trainOOScopeSvm(trainInput, noneIntent, (p: number) => progress(p / 2)),
-      this._trainInScopeSvm(trainInput, noneIntent, (p: number) => progress(p / 2))
+      this._trainOOScopeSvm(trainInput, noneIntent, scaledProgress),
+      this._trainInScopeSvm(trainInput, noneIntent, scaledProgress)
     ])
+
+    const exact_match_index = BuildExactMatchIndex(intents)
 
     this.model = {
       oosSvmModel: ooScopeModel,
       baseIntentClfModel: inScopeModel,
-      trainingVocab: this.getVocab(trainInput.allUtterances)
+      trainingVocab: this.getVocab(trainInput.allUtterances),
+      exact_match_index
     }
   }
 
@@ -160,7 +174,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
     noneIntent: Omit<Intent<Utterance>, 'contexts'>,
     progress: (p: number) => void
   ): Promise<string> {
-    const baseIntentClf = new BaseIntentClassifier(this.tools)
+    const baseIntentClf = new SvmIntentClassifier(this.tools, getIntentFeatures)
     const noneUtts = noneIntent.utterances.filter(u => u.tokens.filter(t => t.isWord).length >= 3)
     const trainableIntents = trainInput.intents.filter(
       i => i.name !== NONE_INTENT && i.utterances.length >= MIN_NB_UTTERANCES
@@ -200,27 +214,43 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
 
   public load(serialized: string): void {
     const model: Model = JSON.parse(serialized) // TODO: validate input
+    this.predictors = this._makePredictors(model)
+    this.model = model
+  }
 
-    const { oosSvmModel, baseIntentClfModel, trainingVocab } = model
+  private _makePredictors(model: Model): Predictors {
+    const { oosSvmModel, baseIntentClfModel, trainingVocab, exact_match_index } = model
 
-    const baseIntentClf = new BaseIntentClassifier(this.tools)
+    const baseIntentClf = new SvmIntentClassifier(this.tools, getIntentFeatures)
     baseIntentClf.load(baseIntentClfModel)
 
-    this.predictors = {
+    return {
       oosSvm: oosSvmModel ? new this.tools.mlToolkit.SVM.Predictor(oosSvmModel) : undefined,
       baseIntentClf,
-      trainingVocab
+      trainingVocab,
+      exact_match_index
     }
   }
 
   public async predict(utterance: Utterance): Promise<NoneableIntentPredictions> {
     if (!this.predictors) {
-      throw new Error('Intent classifier must be either trained or a model must be loaded before calling predict')
+      if (!this.model) {
+        throw new Error('Intent classifier must be trained before you call predict on it.')
+      }
+
+      this.predictors = this._makePredictors(this.model)
     }
 
-    const { oosSvm, baseIntentClf, trainingVocab } = this.predictors
+    const { oosSvm, baseIntentClf, trainingVocab, exact_match_index } = this.predictors
 
     const intentPredictions = await baseIntentClf.predict(utterance)
+
+    const exactPred = findExactIntent(exact_match_index, utterance)
+    if (exactPred) {
+      const idxToRemove = intentPredictions.intents.findIndex(p => p.name === exactPred.name)
+      intentPredictions.intents.splice(idxToRemove, 1)
+      intentPredictions.intents.unshift(exactPred)
+    }
 
     let oosPrediction = 0
     if (oosSvm) {

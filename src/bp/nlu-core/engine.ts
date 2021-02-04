@@ -1,4 +1,4 @@
-import { MLToolkit, NLU } from 'botpress/sdk'
+import { NLU } from 'botpress/sdk'
 import bytes from 'bytes'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
@@ -7,7 +7,9 @@ import sizeof from 'object-sizeof'
 import { deserializeKmeans } from './clustering'
 import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
+import { getCtxFeatures } from './intents/context-featurizer'
 import { OOSIntentClassifier } from './intents/oos-intent-classfier'
+import { SvmIntentClassifier } from './intents/svm-intent-classifier'
 import DetectLanguage from './language/language-identifier'
 import makeSpellChecker from './language/spell-checker'
 import modelIdService from './model-id-service'
@@ -246,7 +248,7 @@ export default class Engine implements NLU.Engine {
   private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {
     const tools = this._tools
 
-    const { ctx_model, intent_model_by_ctx, kmeans } = output
+    const { ctx_model, intent_model_by_ctx, kmeans, slots_model_by_intent } = output
 
     /**
      * TODO: extract this function some place else,
@@ -262,33 +264,24 @@ export default class Engine implements NLU.Engine {
       return intentClf
     })
 
-    const basePredictors: Predictors = {
+    const ctx_classifier = new SvmIntentClassifier(tools, getCtxFeatures)
+    ctx_classifier.load(ctx_model)
+
+    const slot_tagger_per_intent: Dic<SlotTagger> = _.mapValues(slots_model_by_intent, model => {
+      const slotTagger = new SlotTagger(tools)
+      slotTagger.load(model)
+      return slotTagger
+    })
+
+    return <Predictors>{
       ...output,
       lang: input.languageCode,
       intents,
       pattern_entities: input.pattern_entities,
       kmeans: warmKmeans,
-      intent_classifier_per_ctx
-    }
-
-    if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
-      // we don't want to return undefined as extraction won't be triggered
-      // we want to make it possible to extract entities without having any intents
-      return basePredictors
-    }
-
-    const ctx_classifier = ctx_model ? new tools.mlToolkit.SVM.Predictor(ctx_model) : undefined
-
-    let slot_tagger: SlotTagger | undefined
-    if (output.slots_model.length) {
-      slot_tagger = new SlotTagger(tools.mlToolkit)
-      slot_tagger.load(output.slots_model, intents, output.list_entities)
-    }
-
-    return {
-      ...basePredictors,
+      intent_classifier_per_ctx,
       ctx_classifier,
-      slot_tagger
+      slot_tagger_per_intent
     }
   }
 

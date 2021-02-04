@@ -1,9 +1,6 @@
-import { MLToolkit } from 'botpress/sdk'
 import _ from 'lodash'
 import { Intent } from 'nlu-core/typings'
 import Utterance, { UtteranceToStringOptions } from 'nlu-core/utterance/utterance'
-
-import { NONE_INTENT } from './oos-intent-classfier'
 
 export const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
   lowerCase: true,
@@ -14,7 +11,6 @@ export const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
 
 export const BuildExactMatchIndex = (intents: Intent<Utterance>[]): ExactMatchIndex => {
   return _.chain(intents)
-    .filter(i => i.name !== NONE_INTENT)
     .flatMap(i =>
       i.utterances.map(u => ({
         utterance: u.toString(EXACT_MATCH_STR_OPTIONS),
@@ -31,12 +27,16 @@ export const BuildExactMatchIndex = (intents: Intent<Utterance>[]): ExactMatchIn
 }
 
 export type ExactMatchIndex = _.Dictionary<{ intent: string }>
-export type ExactMatchResult = MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }
+export interface ExactMatchResult {
+  name: string
+  confidence: number
+  extractor: 'exact-matcher'
+}
 
 export function findExactIntent(exactMatchIndex: ExactMatchIndex, utterance: Utterance): ExactMatchResult | undefined {
   const candidateKey = utterance.toString(EXACT_MATCH_STR_OPTIONS)
   const maybeMatch = exactMatchIndex[candidateKey]
   if (maybeMatch) {
-    return { label: maybeMatch.intent, confidence: 1, extractor: 'exact-matcher' }
+    return { name: maybeMatch.intent, confidence: 1, extractor: 'exact-matcher' }
   }
 }

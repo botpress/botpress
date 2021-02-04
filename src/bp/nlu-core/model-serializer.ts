@@ -47,6 +47,5 @@ export function deserializeModel(serialized: sdk.NLU.Model): PredictableModel {
       output: JSON.parse(data.output)
     }
   }
-  model.data.output.slots_model = Buffer.from(model.data.output.slots_model)
   return model
 }
