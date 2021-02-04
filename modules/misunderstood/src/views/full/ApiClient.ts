@@ -53,11 +53,11 @@ class ApiClient {
     })
   }
 
-  getEvent(id: string) {
+  getEvent(id: number) {
     return this.getForModule(`/events/${id}`)
   }
 
-  updateStatus(id: string, status: FLAGGED_MESSAGE_STATUS, resolutionData?: ResolutionData) {
+  updateStatus(id: number, status: FLAGGED_MESSAGE_STATUS, resolutionData?: ResolutionData) {
     return this.postForModule(`/events/${id}/status`, {
       status,
       ...resolutionData,

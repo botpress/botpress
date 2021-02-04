@@ -1937,7 +1937,7 @@ declare module 'botpress/sdk' {
      * from the user waiting in the queue.
      * @param event - Current event in the action context, used to identify the queue
      */
-    export function isIncomingQueueEmpty(event: IO.Event): boolean
+    export function isIncomingQueueEmpty(event: IO.IncomingEvent): boolean
 
     /**
      * When Event Storage is enabled, you can use this API to query data about stored events. You can use multiple fields
@@ -2026,8 +2026,9 @@ declare module 'botpress/sdk' {
     /**
      * Deletes a session
      * @param sessionId The Id of the session to delete
+     * @param botId The Id of the bot to which the session is tied
      */
-    export function deleteSession(sessionId: string): Promise<void>
+    export function deleteSession(sessionId: string, botId: string): Promise<void>
 
     /**
      * Jumps to a specific flow and optionally a specific node. This is useful when the default flow behavior needs to be bypassed.

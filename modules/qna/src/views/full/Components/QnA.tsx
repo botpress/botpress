@@ -193,11 +193,10 @@ const QnA: FC<Props> = props => {
                 <span className={cx(style.tag)}>{lang.tr('module.qna.form.incomplete')}</span>
               </Tooltip>
             )}
-            {!expanded && (
-              <span className={style.tag}>{`${questions?.filter(q => q.trim()).length || 0} ${lang.tr(
-                'module.qna.form.q'
-              )} · ${answers?.filter(a => a.trim()).length || 0}  ${lang.tr('module.qna.form.a')}`}</span>
-            )}
+            <span className={style.tag}>
+              {`${questions?.filter(q => q.trim()).length || 0} ${lang.tr('module.qna.form.q')}
+               · ${answers?.filter(a => a.trim()).length || 0}  ${lang.tr('module.qna.form.a')}`}
+            </span>
           </div>
         </Button>
         <MoreOptions show={showOption} onToggle={() => setShowOption(!showOption)} items={moreOptionsItems} />

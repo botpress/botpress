@@ -2,6 +2,7 @@ import bodyParser from 'body-parser'
 import { AxiosBotConfig, AxiosOptions, http, Logger, RouterOptions } from 'botpress/sdk'
 import LicensingService from 'common/licensing-service'
 import { RequestWithUser } from 'common/typings'
+import compression from 'compression'
 import session from 'cookie-session'
 import cors from 'cors'
 import errorHandler from 'errorhandler'
@@ -28,7 +29,7 @@ import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
 import { LogsRepository } from './repositories/logs'
 import { TelemetryRepository } from './repositories/telemetry'
-import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
+import { AdminRouter, AuthRouter, BotsRouter, MediaRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
 import { HintsRouter } from './routers/bots/hints'
@@ -54,7 +55,7 @@ import { SkillService } from './services/dialog/skill/service'
 import { HintsService } from './services/hints'
 import { JobService } from './services/job-service'
 import { LogsService } from './services/logs/service'
-import MediaService from './services/media'
+import { MediaServiceProvider } from './services/media'
 import { MonitoringService } from './services/monitoring'
 import { NLUService } from './services/nlu/nlu-service'
 import { NotificationsService } from './services/notification/service'
@@ -93,6 +94,7 @@ export default class HTTPServer {
   private converseRouter!: ConverseRouter
   private hintsRouter!: HintsRouter
   private telemetryRouter!: TelemetryRouter
+  private mediaRouter: MediaRouter
   private readonly sdkApiRouter!: SdkApiRouter
   private _needPermissions: (
     operation: string,
@@ -120,7 +122,7 @@ export default class HTTPServer {
     @inject(TYPES.ActionServersService) actionServersService: ActionServersService,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.AuthService) private authService: AuthService,
-    @inject(TYPES.MediaService) mediaService: MediaService,
+    @inject(TYPES.MediaServiceProvider) mediaServiceProvider: MediaServiceProvider,
     @inject(TYPES.LogsService) logsService: LogsService,
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
     @inject(TYPES.SkillService) skillService: SkillService,
@@ -150,6 +152,10 @@ export default class HTTPServer {
     }
 
     this.app.use(debugRequestMw)
+
+    if (!yn(process.core_env.BP_HTTP_DISABLE_GZIP)) {
+      this.app.use(compression())
+    }
 
     this.modulesRouter = new ModulesRouter(
       this.logger,
@@ -188,17 +194,23 @@ export default class HTTPServer {
       cmsService,
       configProvider,
       flowService,
-      mediaService,
+      mediaServiceProvider,
       logsService,
       notificationService,
       authService,
-      ghostService,
       workspaceService,
       moduleLoader,
       logger: this.logger
     })
     this.sdkApiRouter = new SdkApiRouter(this.logger)
     this.telemetryRouter = new TelemetryRouter(this.logger, this.authService, this.telemetryRepo)
+    this.mediaRouter = new MediaRouter(
+      this.logger,
+      this.authService,
+      this.workspaceService,
+      mediaServiceProvider,
+      this.configProvider
+    )
 
     this._needPermissions = needPermissions(this.workspaceService)
     this._hasPermissions = hasPermissions(this.workspaceService)
@@ -225,6 +237,7 @@ export default class HTTPServer {
     app.use(process.ROOT_PATH, this.app)
     this.httpServer = createServer(app)
 
+    await this.mediaRouter.initialize()
     await this.botsRouter.initialize()
     this.contentRouter = new ContentRouter(
       this.logger,
@@ -341,6 +354,7 @@ export default class HTTPServer {
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
     this.app.use(`${BASE_API_PATH}/sdk`, this.sdkApiRouter.router)
     this.app.use(`${BASE_API_PATH}/telemetry`, this.telemetryRouter.router)
+    this.app.use(`${BASE_API_PATH}/media`, this.mediaRouter.router)
     this.app.use('/s', this.shortLinksRouter.router)
 
     this.app.use((err, _req, _res, next) => {

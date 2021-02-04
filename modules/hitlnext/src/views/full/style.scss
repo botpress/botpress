@@ -181,6 +181,12 @@
     margin: 0;
     list-style-type: 'none';
 
+    .agentItem {
+      height: 30px;
+      width: 30px;
+      border-radius: 50%;
+    }
+
     .agentListItem {
       display: inline;
       margin-right: 8px;

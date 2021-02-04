@@ -1,6 +1,5 @@
 import axios, { AxiosInstance } from 'axios'
 import chalk from 'chalk'
-import { bytesToString } from 'common/utils'
 import followRedirects from 'follow-redirects'
 import fse from 'fs-extra'
 import glob from 'glob'
@@ -8,6 +7,7 @@ import _ from 'lodash'
 import path from 'path'
 import rimraf from 'rimraf'
 
+import { bytesToString } from './common/utils'
 import { createArchiveFromFolder, extractArchive } from './core/misc/archive'
 import { asBytes } from './core/misc/utils'
 import { BpfsScopedChange, FileChange } from './core/services'
@@ -80,7 +80,7 @@ class BPFS {
       }
 
       console.info(
-        chalk.blue(`Extracting archive to local file system... (archive size: ${bytesToString(archive.length)}`)
+        chalk.blue(`Extracting archive to local file system... (archive size: ${bytesToString(archive.length)})`)
       )
 
       await extractArchive(archive, this.targetDir)
