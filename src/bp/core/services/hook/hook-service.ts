@@ -179,10 +179,12 @@ export class HookService {
     clearRequireCache()
   }
 
-  async executeHook(hook: Hooks.BaseHook): Promise<void> {
+  async executeHook(hook: Hooks.BaseHook, throwOnError = false): Promise<void> {
     const botId = hook.args?.event?.botId || hook.args?.botId
     const scripts = await this.extractScripts(hook, botId)
-    await Promise.mapSeries(_.orderBy(scripts, ['filename'], ['asc']), script => this.runScript(script, hook))
+    await Promise.mapSeries(_.orderBy(scripts, ['filename'], ['asc']), script =>
+      this.runScript(script, hook, throwOnError)
+    )
   }
 
   async disableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean> {
@@ -249,7 +251,7 @@ export class HookService {
     return module => requireAtPaths(module, lookups, fullPath)
   }
 
-  private async runScript(hookScript: HookScript, hook: Hooks.BaseHook) {
+  private async runScript(hookScript: HookScript, hook: Hooks.BaseHook, throwOnError: boolean) {
     const scope = (hookScript.botId ? `bots/${hookScript.botId}` : 'global') as ActionScope
     const hookPath = `/data/${scope}/hooks/${hook.folder}/${hookScript.path}.js`
 
@@ -265,7 +267,7 @@ export class HookService {
     if (runOutsideVm(scope)) {
       await this.runWithoutVm(hookScript, hook, botId, _require)
     } else {
-      await this.runInVm(hookScript, hook, botId, _require)
+      await this.runInVm(hookScript, hook, botId, _require, throwOnError)
     }
 
     hook.debug.forBot(botId, 'after execute')
@@ -310,7 +312,13 @@ export class HookService {
     }
   }
 
-  private async runInVm(hookScript: HookScript, hook: Hooks.BaseHook, botId: string, _require: Function) {
+  private async runInVm(
+    hookScript: HookScript,
+    hook: Hooks.BaseHook,
+    botId: string,
+    _require: Function,
+    throwOnError: boolean
+  ) {
     const modRequire = new Proxy(
       {},
       {
@@ -341,6 +349,10 @@ export class HookService {
       .catch(err => {
         this.addEventStep(hookScript.name, 'error', hook, err)
         this.logScriptError(err, botId, hookScript.path, hook.folder)
+
+        if (throwOnError) {
+          throw err
+        }
       })
   }
 

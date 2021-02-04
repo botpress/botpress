@@ -440,7 +440,10 @@ export class BotService {
       actions: [currentStage.action]
     }
 
-    await this.hookService.executeHook(new Hooks.OnStageChangeRequest(api, alteredBot, users, pipeline, hookResult))
+    await this.hookService.executeHook(
+      new Hooks.OnStageChangeRequest(api, alteredBot, users, pipeline, hookResult),
+      true
+    )
     if (_.isArray(hookResult.actions)) {
       await Promise.map(hookResult.actions, async action => {
         if (bpConfig.autoRevision && (await this.botExists(alteredBot.id))) {
