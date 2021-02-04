@@ -2,7 +2,7 @@ import _ from 'lodash'
 
 import { tokenizeLatinTextForTests } from './tools/token-utils'
 import { TfidfTokens, TrainStep } from './training-pipeline'
-import { Intent } from './typings'
+import { Intent, Tools } from './typings'
 import Utterance from './utterance/utterance'
 
 test('tfidf has a value for all tokens of the training set', async () => {
@@ -35,7 +35,7 @@ test('tfidf has a value for all tokens of the training set', async () => {
   const intents: Intent<Utterance>[] = [installBpIntent, reportBugIntent]
 
   // act
-  const { tfIdf } = await TfidfTokens({ intents } as TrainStep)
+  const { tfIdf } = await TfidfTokens({ intents } as TrainStep, {} as Tools)
 
   // assert
   const botpressToken = 'botpress'

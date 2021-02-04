@@ -1,7 +1,7 @@
 import { findExactIntentForCtx } from '../predict-pipeline'
 import { SPECIAL_CHARSET } from '../tools/chars'
 import { BuildExactMatchIndex, TrainStep } from '../training-pipeline'
-import { Intent } from '../typings'
+import { Intent, Tools } from '../typings'
 import Utterance, { makeTestUtterance } from '../utterance/utterance'
 
 const u1 = 'Hi my name is Alex W and I try to make NLU for a living'
@@ -34,7 +34,7 @@ describe('Exact match', () => {
     intents: [intent1, intent2, noneIntent]
   } as TrainStep
 
-  const exactMatchIndex = BuildExactMatchIndex(input)
+  const exactMatchIndex = BuildExactMatchIndex(input, {} as Tools)
   describe('Build exact match index', () => {
     test('none intent not added', () => {
       Object.values(exactMatchIndex).forEach(entry => {

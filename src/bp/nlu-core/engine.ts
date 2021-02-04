@@ -150,6 +150,7 @@ export default class Engine implements NLU.Engine {
     trainDebug(debugMsg)
 
     const input: TrainInput = {
+      trainId: trainSessionId,
       nluSeed: seed,
       languageCode,
       list_entities,
@@ -160,7 +161,7 @@ export default class Engine implements NLU.Engine {
     }
 
     const startedAt = new Date()
-    const output = await this._trainingWorkerQueue.startTraining(trainSessionId, input, progressCallback)
+    const output = await this._trainingWorkerQueue.startTraining(input, progressCallback)
 
     const modelId = modelIdService.makeId({
       ...trainSet,

@@ -24,7 +24,7 @@ import {
   SerializedKmeansResult,
   TFIDF,
   Token2Vec,
-  Tools,
+  Tools as LanguageTools,
   WarmedListEntityModel
 } from './typings'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
@@ -34,6 +34,7 @@ type ListEntityWithCache = ListEntity & {
 }
 
 export type TrainInput = Readonly<{
+  trainId: string
   nluSeed: number
   languageCode: string
   pattern_entities: PatternEntity[]
@@ -44,7 +45,7 @@ export type TrainInput = Readonly<{
 }>
 
 export type TrainStep = Readonly<{
-  botId: string
+  trainId: string
   nluSeed: number
   languageCode: string
   list_entities: WarmedListEntityModel[]
@@ -74,7 +75,10 @@ export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] 
 
 type progressCB = (p?: number) => void
 
-const debugTraining = DEBUG('nlu').sub('training')
+type Tools = LanguageTools & {
+  logger?: sdk.NLU.Logger
+}
+
 const NONE_INTENT = 'none'
 const NONE_UTTERANCES_BOUNDS = {
   MIN: 20,
@@ -95,7 +99,7 @@ const KMEANS_OPTIONS = {
 } as sdk.MLToolkit.KMeans.KMeansOptions
 
 const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainStep> => {
-  debugTraining('Preprocessing intents')
+  tools.logger?.debug(`[${input.trainId}] Preprocessing input`)
   input = _.cloneDeep(input)
   const list_entities = await Promise.map(input.list_entities, list =>
     makeListEntityModel(list, input.languageCode, tools)
@@ -104,6 +108,7 @@ const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainSt
   const intents = await ProcessIntents(input.intents, input.languageCode, list_entities, tools)
   const vocabVectors = buildVectorsVocab(intents)
 
+  tools.logger?.debug(`[${input.trainId}] Done preprocessing input`)
   return {
     ..._.omit(input, 'list_entities', 'intents'),
     list_entities,
@@ -159,6 +164,8 @@ export const computeKmeans = (
 }
 
 const ClusterTokens = (input: TrainStep, tools: Tools): TrainStep => {
+  tools.logger?.debug(`[${input.trainId}] Computing kmeans`)
+
   const kmeans = computeKmeans(input.intents, tools)
   const copy = { ...input, kmeans }
   copy.intents.forEach(x => x.utterances.forEach(u => u.setKmeans(kmeans)))
@@ -192,8 +199,10 @@ const buildVectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]>
     .value()
 }
 
-export const BuildExactMatchIndex = (input: TrainStep): ExactMatchIndex => {
-  return _.chain(input.intents)
+export const BuildExactMatchIndex = (input: TrainStep, tools: Tools): ExactMatchIndex => {
+  tools.logger?.debug(`[${input.trainId}] Building exact match index`)
+
+  const exact_match_index = _.chain(input.intents)
     .filter(i => i.name !== NONE_INTENT)
     .flatMap(i =>
       i.utterances.map(u => ({
@@ -208,6 +217,9 @@ export const BuildExactMatchIndex = (input: TrainStep): ExactMatchIndex => {
       return index
     }, {} as ExactMatchIndex)
     .value()
+
+  tools.logger?.debug(`[${input.trainId}] Done building exact match index`)
+  return exact_match_index
 }
 
 const getCustomEntitiesNames = (input: TrainStep): string[] => {
@@ -219,7 +231,7 @@ const TrainIntentClassifier = async (
   tools: Tools,
   progress: progressCB
 ): Promise<_.Dictionary<string>> => {
-  debugTraining.forBot(input.botId, 'Training intent classifier')
+  tools.logger?.debug(`[${input.trainId}] Training intent classifier`)
   const customEntities = getCustomEntitiesNames(input)
   const svmPerCtx: _.Dictionary<string> = {}
 
@@ -273,12 +285,12 @@ const TrainIntentClassifier = async (
     svmPerCtx[ctx] = model
   }
 
-  debugTraining.forBot(input.botId, 'Done training intent classifier')
+  tools.logger?.debug(`[${input.trainId}] Done training intent classifier`)
   return svmPerCtx
 }
 
 const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<string> => {
-  debugTraining.forBot(input.botId, 'Training context classifier')
+  tools.logger?.debug(`[${input.trainId}] Training context classifier`)
   const customEntities = getCustomEntitiesNames(input)
   const points = _.flatMapDeep(input.contexts, ctx => {
     return input.intents
@@ -294,7 +306,7 @@ const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: 
   const classCount = _.uniq(points.map(p => p.label)).length
   if (points.length === 0 || classCount <= 1) {
     progress()
-    debugTraining.forBot(input.botId, 'No context to train')
+    tools.logger?.debug(`[${input.trainId}] No context to train`)
     return ''
   }
 
@@ -305,7 +317,7 @@ const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: 
     progress(_.round(p, 1))
   })
 
-  debugTraining.forBot(input.botId, 'Done training context classifier')
+  tools.logger?.debug(`[${input.trainId}] Done training context classifier`)
   return model
 }
 
@@ -336,6 +348,8 @@ export const ProcessIntents = async (
 }
 
 export const ExtractEntities = async (input: TrainStep, tools: Tools): Promise<TrainStep> => {
+  tools.logger?.debug(`[${input.trainId}] Extracting entities`)
+
   const utterances: Utterance[] = _.chain(input.intents)
     .filter(i => i.name !== NONE_INTENT)
     .flatMap('utterances')
@@ -360,6 +374,8 @@ export const ExtractEntities = async (input: TrainStep, tools: Tools): Promise<T
         utt.tagEntity(entity, ent.start, ent.end)
       })
     })
+
+  tools.logger?.debug(`[${input.trainId}] Done extracting entities`)
   return input
 }
 
@@ -367,6 +383,8 @@ export const AppendNoneIntent = async (input: TrainStep, tools: Tools): Promise<
   if (input.intents.length === 0) {
     return input
   }
+
+  tools.logger?.debug(`[${input.trainId}] Appending none intent`)
 
   const lo = tools.seededLodashProvider.getSeededLodash()
 
@@ -424,10 +442,13 @@ export const AppendNoneIntent = async (input: TrainStep, tools: Tools): Promise<
     slot_entities: []
   }
 
+  tools.logger?.debug(`[${input.trainId}] Done appending none intent`)
   return { ...input, intents: [...input.intents, intent] }
 }
 
-export const TfidfTokens = async (input: TrainStep): Promise<TrainStep> => {
+export const TfidfTokens = async (input: TrainStep, tools: Tools): Promise<TrainStep> => {
+  tools.logger?.debug(`[${input.trainId}] Computing TFIDF`)
+
   const tfidfInput = input.intents.reduce(
     (tfidfInput, intent) => ({
       ...tfidfInput,
@@ -439,6 +460,8 @@ export const TfidfTokens = async (input: TrainStep): Promise<TrainStep> => {
   const { __avg__: avg_tfidf } = tfidf(tfidfInput)
   const copy = { ...input, tfIdf: avg_tfidf }
   copy.intents.forEach(x => x.utterances.forEach(u => u.setGlobalTfidf(avg_tfidf)))
+
+  tools.logger?.debug(`[${input.trainId}] Done computing TFIDF`)
   return copy
 }
 
@@ -450,19 +473,19 @@ const TrainSlotTagger = async (input: TrainStep, tools: Tools, progress: progres
     return Buffer.from('')
   }
 
-  debugTraining.forBot(input.botId, 'Training slot tagger')
+  tools.logger?.debug(`[${input.trainId}] Training slot tagger`)
   const slotTagger = new SlotTagger(tools.mlToolkit)
 
   await slotTagger.train(input.intents.filter(i => i.name !== NONE_INTENT))
 
-  debugTraining.forBot(input.botId, 'Done training slot tagger')
+  tools.logger?.debug(`[${input.trainId}] Done training slot tagger`)
   progress()
 
   return slotTagger.serialized
 }
 
 const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<_.Dictionary<string>> => {
-  debugTraining.forBot(input.botId, 'Training out of scope classifier')
+  tools.logger?.debug(`[${input.trainId}] Training out of scope classifier`)
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
     c: [10], // so there's no grid search
     kernel: 'LINEAR',
@@ -499,7 +522,7 @@ const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progres
     return [ctx, model] as [string, string]
   })
 
-  debugTraining.forBot(input.botId, 'Done training out of scope')
+  tools.logger?.debug(`[${input.trainId}] Done training out of scope`)
   progress(1)
   return ctxModels.reduce((acc, cur) => {
     const [ctx, model] = cur!
@@ -510,11 +533,7 @@ const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progres
 
 const NB_STEPS = 6 // change this if the training pipeline changes
 
-export const Trainer = async (
-  input: TrainInput,
-  tools: Tools,
-  progress?: (x: number) => void
-): Promise<TrainOutput> => {
+export const Trainer = async (input: TrainInput, tools: Tools, progress: (x: number) => void): Promise<TrainOutput> => {
   let totalProgress = 0
   let normalizedProgress = 0
 
@@ -537,11 +556,11 @@ export const Trainer = async (
   let step = await PreprocessInput(input, tools)
   reportProgress() // 10%
 
-  step = await TfidfTokens(step)
+  step = await TfidfTokens(step, tools)
   step = ClusterTokens(step, tools)
   step = await ExtractEntities(step, tools)
   step = await AppendNoneIntent(step, tools)
-  const exact_match_index = BuildExactMatchIndex(step)
+  const exact_match_index = BuildExactMatchIndex(step, tools)
   reportProgress() // 20%
 
   const models = await Promise.all([
@@ -550,6 +569,8 @@ export const Trainer = async (
     TrainIntentClassifier(step, tools, reportProgress),
     TrainSlotTagger(step, tools, reportProgress)
   ])
+
+  tools.logger?.debug(`[${input.trainId}] Done training.`)
 
   debouncedProgress.flush()
 
