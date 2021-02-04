@@ -188,8 +188,7 @@ const cms = (cmsService: CMSService, mediaServiceProvider: MediaServiceProvider)
     },
     renderTemplate(templateItem: sdk.cms.TemplateItem, context): sdk.cms.TemplateItem {
       return renderRecursive(templateItem, context)
-    },
-    renderForChannel: cmsService.renderForChannel.bind(cmsService)
+    }
   }
 }
 
@@ -222,6 +221,8 @@ const render = (renderService: RenderService): typeof sdk.render => {
   return {
     text: renderService.renderText.bind(renderService),
     image: renderService.renderImage.bind(renderService),
+    card: renderService.renderCard.bind(renderService),
+    choice: renderService.renderChoice.bind(renderService),
     translate: renderService.renderTranslated.bind(renderService),
     template: renderService.renderTemplate.bind(renderService)
   }

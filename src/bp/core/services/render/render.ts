@@ -20,6 +20,24 @@ export class RenderService {
     }
   }
 
+  renderCard(title: string, image?: string, subtitle?: string, ...buttons: sdk.render.ActionButton[]) {
+    return {
+      type: 'card',
+      title,
+      image,
+      subtitle,
+      buttons
+    }
+  }
+
+  renderChoice(message: string, ...choices: sdk.render.ChoiceOption[]): sdk.render.Choice {
+    return {
+      type: 'single-choice',
+      message,
+      choices
+    }
+  }
+
   renderTranslated<T extends sdk.render.Content>(content: T, lang: string): T {
     if (typeof content !== 'object' || content === null) {
       return content

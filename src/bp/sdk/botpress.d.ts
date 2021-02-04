@@ -2336,8 +2336,6 @@ declare module 'botpress/sdk' {
      * @param context Variables to use for the template rendering
      */
     export function renderTemplate(item: TemplateItem, context): TemplateItem
-
-    export function renderForChannel(content: any, channel: string): any[]
   }
 
   export namespace render {
@@ -2354,6 +2352,10 @@ declare module 'botpress/sdk' {
      * @param caption Caption to appear alongside your image
      */
     export function image(url: string, caption?: string | MultiLangText): Image
+
+    export function card(title: string, image?: string, subtitle?: string, ...buttons: ActionButton[])
+
+    export function choice(message: string, ...choices: ChoiceOption[])
 
     /**
      * Translates a content element to a specific language
@@ -2405,6 +2407,30 @@ declare module 'botpress/sdk' {
       type: 'image'
       image: string
       title?: string | MultiLangText
+    }
+
+    export interface Card extends Content {
+      type: 'card'
+      title: string
+      subtitle?: string
+      image?: string
+      actions: ActionButton[]
+    }
+
+    export interface Choice extends Content {
+      type: 'single-choice'
+      message: string
+      choices: ChoiceOption[]
+    }
+
+    export interface ChoiceOption {
+      message: string
+      value: string
+    }
+
+    export interface ActionButton {
+      title: string
+      action: string
     }
   }
 

@@ -17,6 +17,7 @@ import { TYPES } from '../types'
 import { GhostService } from '.'
 import { JobService } from './job-service'
 import { MediaServiceProvider } from './media'
+import { EventEngine } from './middleware/event-engine'
 
 const UNLIMITED_ELEMENTS = -1
 export const DefaultSearchParams: SearchParams = {
@@ -58,7 +59,8 @@ export class CMSService implements IDisposeOnExit {
     @inject(TYPES.InMemoryDatabase) private memDb: KnexExtended,
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.MediaServiceProvider) private mediaServiceProvider: MediaServiceProvider,
-    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
+    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
+    @inject(TYPES.EventEngine) private eventEngine: EventEngine
   ) {}
 
   disposeOnExit() {
@@ -75,6 +77,25 @@ export class CMSService implements IDisposeOnExit {
 
     await this.prepareDb()
     await this._loadContentTypesFromFiles()
+    this.registerMiddleware()
+  }
+
+  private registerMiddleware() {
+    // TODO : remove this
+    this.eventEngine.register({
+      name: 'cms.renderForChannel',
+      description: 'Renders unrendered payloads for their respective channels',
+      order: 1,
+      direction: 'outgoing',
+      handler: (event: IO.Event, next) => {
+        if (!event.payload.rendered && event.payload.type !== 'custom') {
+          const payloads = this.renderForChannel(event.payload, event.channel)
+          const mevent = <any>event
+          mevent.payload = payloads[payloads.length - 1]
+          mevent.type = mevent.payload.type
+        }
+      }
+    })
   }
 
   private async prepareDb() {
