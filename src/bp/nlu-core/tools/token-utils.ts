@@ -1,7 +1,5 @@
 import _ from 'lodash'
 
-import { Token2Vec } from '../typings'
-
 import { LATIN_CHARSET, SPECIAL_CHARSET } from './chars'
 import getVocabTokenizer from './vocab-tokenizer'
 

@@ -171,7 +171,6 @@ function MapStepToOutput(step: SlotStep): NLU.PredictOutput {
     }
   }
 
-  // legacy pre-ndu
   const entities = step.utterance.entities.map(entitiesMapper)
 
   const slotsCollectionReducer = (slots: NLU.SlotCollection, s: SlotExtractionResult): NLU.SlotCollection => {
@@ -200,8 +199,8 @@ function MapStepToOutput(step: SlotStep): NLU.PredictOutput {
     const intentPred = step.intent_predictions[label]
     const intents = !intentPred
       ? []
-      : intentPred.intents.map(({ name, confidence }) => ({
-          extractor: 'classifier', // exact-matcher overwrites this field in line below
+      : intentPred.intents.map(({ name, confidence, extractor }) => ({
+          extractor,
           label: name,
           confidence,
           slots: (step.slot_predictions_per_intent?.[name] || []).reduce(slotsCollectionReducer, {})
