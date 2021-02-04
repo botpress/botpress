@@ -188,7 +188,8 @@ const cms = (cmsService: CMSService, mediaServiceProvider: MediaServiceProvider)
     },
     renderTemplate(templateItem: sdk.cms.TemplateItem, context): sdk.cms.TemplateItem {
       return renderRecursive(templateItem, context)
-    }
+    },
+    renderForChannel: cmsService.renderForChannel.bind(cmsService)
   }
 }
 

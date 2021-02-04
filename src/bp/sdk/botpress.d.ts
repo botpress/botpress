@@ -2336,6 +2336,8 @@ declare module 'botpress/sdk' {
      * @param context Variables to use for the template rendering
      */
     export function renderTemplate(item: TemplateItem, context): TemplateItem
+
+    export function renderForChannel(content: any, channel: string): any[]
   }
 
   export namespace render {
