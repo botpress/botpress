@@ -1977,23 +1977,23 @@ declare module 'botpress/sdk' {
     ): Promise<boolean>
   }
 
-  export type UserEndpoint = {
+  export interface UserEndpoint {
     userId: string
     botId: string
   }
 
-  export type Conversation = {
+  export interface Conversation {
     id: number
     userId: string
     botId: string
     createdOn: Date
   }
 
-  export type RecentConversation = {
+  export interface RecentConversation extends Conversation {
     lastMessage?: Message
-  } & Conversation
+  }
 
-  export type Message = {
+  export interface Message {
     id: number
     conversationId: number
     eventId: string
@@ -2001,13 +2001,6 @@ declare module 'botpress/sdk' {
     from: string
     sentOn: Date
     payload: any
-  }
-
-  export type MessageDestination = {
-    userId: string
-    botId: string
-    conversationId: number
-    channel: string
   }
 
   export namespace messaging {
