@@ -25,8 +25,6 @@ import {
 
 const debugTraining = DEBUG('nlu').sub('training')
 
-const MASTER_WORKER_ID: number = NaN
-
 export class TrainingWorkerQueue {
   private readyWorkers: number[] = []
   private activeWorkers: { [trainSessionId: string]: number } = {}
@@ -180,7 +178,7 @@ if (cluster.isMaster) {
     const log: IncomingMessage<'log'> = {
       type: 'log',
       payload: { log: { debug: msg }, requestId },
-      srcWorkerId: MASTER_WORKER_ID
+      srcWorkerId: 0
     }
     sendToWebWorker(log)
   }
