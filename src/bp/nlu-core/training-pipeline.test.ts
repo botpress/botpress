@@ -35,7 +35,7 @@ test('tfidf has a value for all tokens of the training set', async () => {
   const intents: Intent<Utterance>[] = [installBpIntent, reportBugIntent]
 
   // act
-  const { tfIdf } = await TfidfTokens({ intents } as TrainStep, {} as Tools)
+  const { tfIdf } = await TfidfTokens({ intents } as TrainStep)
 
   // assert
   const botpressToken = 'botpress'

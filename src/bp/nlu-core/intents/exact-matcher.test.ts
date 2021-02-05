@@ -34,7 +34,7 @@ describe('Exact match', () => {
     intents: [intent1, intent2, noneIntent]
   } as TrainStep
 
-  const exactMatchIndex = BuildExactMatchIndex(input, {} as Tools)
+  const exactMatchIndex = BuildExactMatchIndex(input)
   describe('Build exact match index', () => {
     test('none intent not added', () => {
       Object.values(exactMatchIndex).forEach(entry => {
