@@ -222,7 +222,12 @@ const render = (renderService: RenderService): typeof sdk.render => {
     text: renderService.renderText.bind(renderService),
     image: renderService.renderImage.bind(renderService),
     card: renderService.renderCard.bind(renderService),
+    carousel: renderService.renderCarousel.bind(renderService),
     choice: renderService.renderChoice.bind(renderService),
+    buttonSay: renderService.renderButtonSay.bind(renderService),
+    buttonUrl: renderService.renderButtonUrl.bind(renderService),
+    buttonPostback: renderService.renderButtonPostback.bind(renderService),
+    option: renderService.renderOption.bind(renderService),
     translate: renderService.renderTranslated.bind(renderService),
     template: renderService.renderTemplate.bind(renderService)
   }

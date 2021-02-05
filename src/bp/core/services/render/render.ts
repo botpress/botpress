@@ -20,21 +20,64 @@ export class RenderService {
     }
   }
 
-  renderCard(title: string, image?: string, subtitle?: string, ...buttons: sdk.render.ActionButton[]) {
+  renderCard(
+    title: string | sdk.MultiLangText,
+    image?: string,
+    subtitle?: string | sdk.MultiLangText,
+    ...buttons: sdk.render.ActionButton[]
+  ): sdk.render.Card {
     return {
       type: 'card',
       title,
       image,
       subtitle,
-      buttons
+      actions: buttons
     }
   }
 
-  renderChoice(message: string, ...choices: sdk.render.ChoiceOption[]): sdk.render.Choice {
+  renderCarousel(...cards: sdk.render.Card[]): sdk.render.Carousel {
+    return {
+      type: 'carousel',
+      items: cards
+    }
+  }
+
+  renderChoice(message: string | sdk.MultiLangText, ...choices: sdk.render.ChoiceOption[]): sdk.render.Choice {
     return {
       type: 'single-choice',
       message,
       choices
+    }
+  }
+
+  renderButtonSay(title: string, text: string): sdk.render.ActionSaySomething {
+    return {
+      action: 'Say something',
+      title,
+      text
+    }
+  }
+
+  renderButtonUrl(title: string, url: string): sdk.render.ActionOpenURL {
+    return {
+      action: 'Open URL',
+      title,
+      url
+    }
+  }
+
+  renderButtonPostback(title: string, payload: string): sdk.render.ActionPostback {
+    return {
+      action: 'Postback',
+      title,
+      payload
+    }
+  }
+
+  renderOption(value: string, message?: string): sdk.render.ChoiceOption {
+    return {
+      value,
+      message: message ?? value
     }
   }
 

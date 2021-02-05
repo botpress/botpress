@@ -694,7 +694,7 @@ export class CMSService implements IDisposeOnExit {
     return payloads
   }
 
-  renderForChannel(content: any, channel: string): any[] {
+  private renderForChannel(content: any, channel: string): any[] {
     const type = this.contentTypes.find(x => x.id.includes(content.type))!
     const payloads = type.renderElement({ ...content, ...this._getAdditionalData() }, channel)
     payloads.forEach(p => ((<any>p).rendered = true))

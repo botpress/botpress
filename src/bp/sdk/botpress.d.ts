@@ -2353,9 +2353,24 @@ declare module 'botpress/sdk' {
      */
     export function image(url: string, caption?: string | MultiLangText): Image
 
-    export function card(title: string, image?: string, subtitle?: string, ...buttons: ActionButton[])
+    export function card(
+      title: string | MultiLangText,
+      image?: string,
+      subtitle?: string | MultiLangText,
+      ...buttons: ActionButton[]
+    )
 
-    export function choice(message: string, ...choices: ChoiceOption[])
+    export function carousel(...cards: Card[])
+
+    export function choice(message: string | MultiLangText, ...choices: ChoiceOption[])
+
+    export function buttonSay(title: string, text: string): ActionSaySomething
+
+    export function buttonUrl(title: string, url: string): ActionOpenURL
+
+    export function buttonPostback(title: string, payload: string): ActionPostback
+
+    export function option(value: string, message?: string): ChoiceOption
 
     /**
      * Translates a content element to a specific language
@@ -2379,9 +2394,7 @@ declare module 'botpress/sdk' {
      * const payload = bp.render.template(content, { user: { name: 'bob' } })
      * // payload.text : 'bob is awesome!'
      */
-    export function template<T extends Content>(content: T, context: Context): T
-
-    export interface Context {}
+    export function template<T extends Content>(content: T, context: any): T
 
     /**
      * Base type of all content elements
@@ -2411,26 +2424,46 @@ declare module 'botpress/sdk' {
 
     export interface Card extends Content {
       type: 'card'
-      title: string
-      subtitle?: string
+      title: string | MultiLangText
+      subtitle?: string | MultiLangText
       image?: string
       actions: ActionButton[]
-    }
-
-    export interface Choice extends Content {
-      type: 'single-choice'
-      message: string
-      choices: ChoiceOption[]
-    }
-
-    export interface ChoiceOption {
-      message: string
-      value: string
     }
 
     export interface ActionButton {
       title: string
       action: string
+    }
+
+    export interface ActionSaySomething extends ActionButton {
+      action: 'Say something'
+      text: string
+    }
+
+    export interface ActionOpenURL extends ActionButton {
+      action: 'Open URL'
+      url: string
+    }
+
+    export interface ActionPostback extends ActionButton {
+      action: 'Postback'
+      payload: string
+    }
+
+    export interface Carousel extends Content {
+      type: 'carousel'
+      items: Card[]
+    }
+
+    export interface Choice extends Content {
+      type: 'single-choice'
+      message: string | MultiLangText
+      choices: ChoiceOption[]
+    }
+
+    export interface ChoiceOption {
+      message: string | MultiLangText
+      value: string
     }
   }
 
