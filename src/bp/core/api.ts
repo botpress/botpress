@@ -229,7 +229,8 @@ const render = (renderService: RenderService): typeof sdk.render => {
     buttonPostback: renderService.renderButtonPostback.bind(renderService),
     option: renderService.renderOption.bind(renderService),
     translate: renderService.renderTranslated.bind(renderService),
-    template: renderService.renderTemplate.bind(renderService)
+    template: renderService.renderTemplate.bind(renderService),
+    pipeline: renderService.getPipeline.bind(renderService)
   }
 }
 

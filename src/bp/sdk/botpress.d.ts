@@ -2396,6 +2396,20 @@ declare module 'botpress/sdk' {
      */
     export function template<T extends Content>(content: T, context: any): T
 
+    export function pipeline(lang: string, context: any): Pipeline
+
+    export interface Pipeline {
+      text: typeof text
+      image: typeof image
+      card: typeof card
+      carousel: typeof carousel
+      choice: typeof choice
+      buttonSay: typeof buttonSay
+      buttonUrl: typeof buttonUrl
+      buttonPostback: typeof buttonPostback
+      option: typeof option
+    }
+
     /**
      * Base type of all content elements
      */

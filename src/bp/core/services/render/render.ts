@@ -104,4 +104,26 @@ export class RenderService {
   renderTemplate<T extends sdk.render.Content>(content: T, context): T {
     return renderRecursive(content, context)
   }
+
+  getPipeline(lang: string, context: any): sdk.render.Pipeline {
+    const wrap = <T extends Array<any>, U>(fn: (...args: T) => U) => {
+      return (...args: T): U => {
+        const content = fn(...args)
+        const translated = this.renderTranslated(<any>content, lang)
+        return this.renderTemplate(translated, context)
+      }
+    }
+
+    return {
+      text: wrap(this.renderText),
+      image: wrap(this.renderImage),
+      card: wrap(this.renderCard),
+      carousel: wrap(this.renderCarousel),
+      choice: wrap(this.renderChoice),
+      buttonSay: wrap(this.renderButtonSay),
+      buttonUrl: wrap(this.renderButtonUrl),
+      buttonPostback: wrap(this.renderButtonPostback),
+      option: wrap(this.renderOption)
+    }
+  }
 }
