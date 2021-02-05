@@ -130,7 +130,7 @@ export class KnexMessageRepository implements MessageRepository {
       eventId,
       incomingEventId,
       from,
-      sentOn: sentOn?.toISOString(),
+      sentOn: this.database.knex.date.set(sentOn),
       payload: this.database.knex.json.set(payload)
     }
   }
@@ -143,7 +143,7 @@ export class KnexMessageRepository implements MessageRepository {
       eventId,
       incomingEventId,
       from,
-      sentOn: new Date(sentOn),
+      sentOn: this.database.knex.date.get(sentOn),
       payload: this.database.knex.json.get(payload)
     }
   }

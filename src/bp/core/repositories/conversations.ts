@@ -162,7 +162,7 @@ export class KnexConversationRepository implements ConversationRepository {
     return {
       userId,
       botId,
-      createdOn: createdOn?.toISOString()
+      createdOn: this.database.knex.date.set(createdOn)
     }
   }
 
@@ -176,7 +176,7 @@ export class KnexConversationRepository implements ConversationRepository {
       id,
       userId,
       botId,
-      createdOn: new Date(createdOn)
+      createdOn: this.database.knex.date.get(createdOn)
     }
   }
 

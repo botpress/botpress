@@ -10,6 +10,9 @@ declare module 'knex' {
   type ColumnOrDate = string | OriginalDate | Sql
 
   interface Date {
+    set(date?: OriginalDate): any
+    get(date: any): OriginalDate
+
     format(exp: any): Raw
     now(): Raw
     today(): Raw
