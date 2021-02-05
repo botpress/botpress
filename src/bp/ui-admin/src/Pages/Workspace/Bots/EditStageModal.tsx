@@ -79,7 +79,7 @@ const EditStageModal: FC<Props> = props => {
       setPipeline(pipeline)
       props.fetchUsers(adminRole)
     }
-  }, [])
+  }, [props.workspace])
 
   const submit = async () => {
     const {
@@ -89,6 +89,8 @@ const EditStageModal: FC<Props> = props => {
 
     if (!pipeline.find(p => p.id === id)) {
       toastFailure(lang.tr('admin.workspace.bots.edit.couldNotFindPipeline'))
+
+      return
     } else {
       newPipeline = pipeline.map(p =>
         p.id !== id
