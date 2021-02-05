@@ -8,6 +8,7 @@ import {
 } from 'botbuilder'
 import { MicrosoftAppCredentials } from 'botframework-connector'
 import * as sdk from 'botpress/sdk'
+import { Request, Response } from 'express'
 import _ from 'lodash'
 
 import { Config } from '../config'
@@ -59,32 +60,31 @@ If you have a restricted app, you may need to specify the tenantId also.`
     })
   }
 
-  async receiveIncomingEvent(req, res) {
+  async receiveIncomingEvent(req: Request, res: Response) {
     await this.adapter.processActivity(req, res, async turnContext => {
       const { activity } = turnContext
 
       const conversationReference = TurnContext.getConversationReference(activity)
+      const threadId = conversationReference.conversation.id
 
-      // A new user is reaching the bot for the first time
-      if (activity.type === 'conversationUpdate' && activity.membersAdded?.length) {
+      if (!(await this._getConversationRef(threadId))) {
         // Locale format: {lang}-{subtag1}-{subtag2}-... https://en.wikipedia.org/wiki/IETF_language_tag
         // TODO: Use Intl.Locale().language once its types are part of TS. See: https://github.com/microsoft/TypeScript/issues/37326
-        const lang = activity.locale && activity.locale.split('-')[0]
-        return this._sendProactiveMessage(conversationReference, lang)
+        const lang = activity.locale?.split('-')[0]
+        await this._sendProactiveMessage(conversationReference, lang)
+      } else {
+        if (activity.value?.text) {
+          activity.text = activity.value.text
+        }
+        if (!activity.text) {
+          // To prevent from emojis reactions to launch actual events
+          return
+        }
+
+        await this._sendIncomingEvent(activity, threadId)
       }
 
-      if (activity.value?.text) {
-        activity.text = activity.value.text
-      }
-      if (!activity.text) {
-        // To prevent from emojis reactions to launch actual events
-        return
-      }
-
-      const threadId = conversationReference.conversation.id
       await this._setConversationRef(threadId, conversationReference)
-
-      await this._sendIncomingEvent(activity, threadId)
     })
   }
 
