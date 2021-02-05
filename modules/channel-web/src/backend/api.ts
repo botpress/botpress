@@ -11,6 +11,8 @@ import path from 'path'
 
 import { Config } from '../config'
 
+import Database from './db'
+
 const ERR_USER_ID_REQ = '`userId` is required and must be valid'
 const ERR_MSG_TYPE = '`type` is required and must be valid'
 const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
@@ -27,7 +29,7 @@ const SUPPORTED_MESSAGES = [
   'postback'
 ]
 
-export default async (bp: typeof sdk) => {
+export default async (bp: typeof sdk, db: Database) => {
   const asyncMiddleware = asyncMw(bp.logger)
   const globalConfig = (await bp.config.getModuleConfig('channel-web')) as Config
 
@@ -344,7 +346,7 @@ export default async (bp: typeof sdk) => {
         return res.status(400).send('Missing required fields')
       }
 
-      res.send(await getFeedbackInfoForEventIds(target, eventIds))
+      res.send(await db.getFeedbackInfoForEventIds(target, eventIds))
     })
   )
 
@@ -476,14 +478,6 @@ export default async (bp: typeof sdk) => {
     })
 
     return [metadata, ...messagesAsTxt].join('')
-  }
-
-  const getFeedbackInfoForEventIds = async (target: string, eventIds: string[]) => {
-    return bp
-      .database('events')
-      .select(['incomingEventId', 'feedback'])
-      .whereIn('incomingEventId', eventIds)
-      .andWhere({ target, direction: 'incoming' })
   }
 
   router.get('/conversations/:userId/:conversationId/download/txt', async (req: BPRequest, res: Response) => {
