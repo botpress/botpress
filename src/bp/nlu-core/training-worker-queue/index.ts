@@ -25,6 +25,8 @@ import {
 
 const debugTraining = DEBUG('nlu').sub('training')
 
+const MASTER_WORKER_ID: number = NaN
+
 export class TrainingWorkerQueue {
   private readyWorkers: number[] = []
   private activeWorkers: { [trainSessionId: string]: number } = {}
@@ -64,11 +66,14 @@ export class TrainingWorkerQueue {
     }
 
     if (!this.readyWorkers.length) {
+      debugTraining(`[${input.trainId}] About to make new training worker`)
       const newWorker = await this._createNewWorker(trainId)
+      debugTraining(`[${input.trainId}] Creation of training worker done. Worker id is ${newWorker}`)
       this.readyWorkers.push(newWorker)
     }
 
     const worker = this.readyWorkers.pop()!
+    debugTraining(`[${input.trainId}] worker ${worker} picked for training.`)
     this.activeWorkers[trainId] = worker
 
     let output: TrainOutput
@@ -171,6 +176,15 @@ if (cluster.isMaster) {
     webWorker?.isConnected() && webWorker.send(msg)
   }
 
+  function debugLog(msg: string, requestId: string) {
+    const log: IncomingMessage<'log'> = {
+      type: 'log',
+      payload: { log: { debug: msg }, requestId },
+      srcWorkerId: MASTER_WORKER_ID
+    }
+    sendToWebWorker(log)
+  }
+
   function sendToTrainingWorker(msg: AllOutgoingMessages) {
     const worker = cluster.workers[msg.destWorkerId]
     worker?.send(msg) // TODO: find out why this is sometimes undefined.
@@ -201,9 +215,11 @@ if (cluster.isMaster) {
     worker.process.kill('SIGKILL')
   }
 
-  registerMsgHandler('make_new_worker', async (msg: OutgoingMessage<'make_new_worker'>) =>
+  registerMsgHandler('make_new_worker', async (msg: OutgoingMessage<'make_new_worker'>) => {
+    debugLog('About to spawn new process.', msg.payload.requestId)
     spawnNewTrainingWorker(msg.payload.config, msg.payload.requestId)
-  )
+    debugLog('Done spawning new process.', msg.payload.requestId)
+  })
   registerMsgHandler('cancel_training', killTrainingWorker)
   registerMsgHandler('start_training', sendToTrainingWorker)
 
@@ -217,6 +233,7 @@ if (cluster.isMaster) {
 if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.TRAINING) {
   const config = JSON.parse(process.env.NLU_CONFIG!)
   const requestId = process.env.REQUEST_ID!
+  const processId = process.pid
   const srcWorkerId = cluster.worker.id
 
   const logger: NLU.Logger = {
@@ -239,6 +256,7 @@ if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.TRAINING) {
       process.send!(response)
     }
   }
+  logger.info(`Training worker ${srcWorkerId} successfully started on process with pid ${processId}.`)
 
   const msgHandler = (tools: Tools) => async (msg: AllOutgoingMessages) => {
     if (isStartTraining(msg)) {

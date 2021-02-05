@@ -521,6 +521,8 @@ const makeLogDecorator = (trainId: string, logger?: sdk.NLU.Logger) => {
 }
 
 export const Trainer = async (input: TrainInput, tools: Tools, progress: (x: number) => void): Promise<TrainOutput> => {
+  tools.logger?.debug(`[${input.trainId}] Started running training pipeline.`)
+
   let totalProgress = 0
   let normalizedProgress = 0
 
@@ -559,7 +561,6 @@ export const Trainer = async (input: TrainInput, tools: Tools, progress: (x: num
   ])
 
   debouncedProgress.flush()
-  tools.logger?.debug(`[${input.trainId}] Done training.`)
 
   const [oos_model, ctx_model, intent_model_by_ctx, slots_model] = models
 
@@ -581,5 +582,6 @@ export const Trainer = async (input: TrainInput, tools: Tools, progress: (x: num
     contexts: input.contexts
   }
 
+  tools.logger?.debug(`[${input.trainId}] Done running training pipeline.`)
   return output
 }
