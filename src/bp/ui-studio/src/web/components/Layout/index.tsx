@@ -1,5 +1,6 @@
 import { NLU } from 'botpress/sdk'
 import { lang, utils } from 'botpress/shared'
+import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { HotKeys } from 'react-hotkeys'
 import { connect } from 'react-redux'
@@ -203,7 +204,9 @@ const Layout: FC<Props> = (props: Props) => {
             onChange={size => size > 100 && localStorage.setItem(splitPanelLastSizeKey, size.toString())}
             size={bottomBarSize}
             maxSize={-100}
-            className={layout.mainSplitPaneWToolbar}
+            className={cx(layout.mainSplitPaneWToolbar, {
+              'emulator-open': props.emulatorOpen
+            })}
           >
             <main ref={mainElRef} className={layout.main} id="main" tabIndex={9999}>
               <Switch>
@@ -248,7 +251,8 @@ const mapStateToProps = state => ({
   bottomPanel: state.ui.bottomPanel,
   bottomPanelExpanded: state.ui.bottomPanelExpanded,
   translations: state.language.translations,
-  contentLang: state.language.contentLang
+  contentLang: state.language.contentLang,
+  emulatorOpen: state.ui.emulatorOpen
 })
 
 const mapDispatchToProps = {
