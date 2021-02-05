@@ -217,7 +217,7 @@ if (cluster.isMaster) {
 
   registerMsgHandler('make_new_worker', async (msg: OutgoingMessage<'make_new_worker'>) => {
     debugLog('About to spawn new process.', msg.payload.requestId)
-    spawnNewTrainingWorker(msg.payload.config, msg.payload.requestId)
+    await spawnNewTrainingWorker(msg.payload.config, msg.payload.requestId)
     debugLog('Done spawning new process.', msg.payload.requestId)
   })
   registerMsgHandler('cancel_training', killTrainingWorker)
