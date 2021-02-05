@@ -2340,19 +2340,36 @@ declare module 'botpress/sdk' {
 
   export namespace render {
     /**
-     * Render a text element
+     * Renders a text element
      * @param text Text to show
      * @param markdown Indicates whether to use markdown
      */
     export function text(text: string | MultiLangText, markdown?: boolean): Text
 
     /**
-     * Render a image element
+     * Renders an image element
      * @param url Url of the image to send
      * @param caption Caption to appear alongside your image
      */
     export function image(url: string, caption?: string | MultiLangText): Image
 
+    /**
+     * Renders a carousel element
+     * @param cards The cards of the carousel
+     * @example
+     * bp.render.carousel(bp.render.card('my card'), bp.render.card('my card 2'))
+     */
+    export function carousel(...cards: Card[])
+
+    /**
+     * Renders a card element
+     * @param title The title of your card
+     * @param image The url of a pictured shown in your card
+     * @param subtitle A subtitle below your image
+     * @param buttons Action buttons for your card
+     * @example
+     * bp.render.card('my card', 'https://mysite.com/mypicture.png', 'an interesting subtitle', bp.render.buttonSay('hello'))
+     */
     export function card(
       title: string | MultiLangText,
       image?: string,
@@ -2360,16 +2377,42 @@ declare module 'botpress/sdk' {
       ...buttons: ActionButton[]
     )
 
-    export function carousel(...cards: Card[])
-
-    export function choice(message: string | MultiLangText, ...choices: ChoiceOption[])
-
+    /**
+     * Renders an action button used to send a message to the conversation
+     * @param title Title shown on the button
+     * @param text Message to send
+     */
     export function buttonSay(title: string, text: string): ActionSaySomething
 
+    /**
+     * Renders an action button for opening urls
+     * @param title Title shown on the button
+     * @param text Url to open
+     */
     export function buttonUrl(title: string, url: string): ActionOpenURL
 
+    /**
+     * Renders an action button for posting content
+     * @param title Title shown on the button
+     * @param payload Payload to post
+     */
     export function buttonPostback(title: string, payload: string): ActionPostback
 
+    /**
+     * Render a choice element
+     * @param message Message to ask to the user
+     * @param choices Choices that the user can select
+     * @example
+     * bp.render.choice("Yes or no?", bp.render.option('yes'), bp.render.option('no'))
+     */
+    export function choice(message: string | MultiLangText, ...choices: ChoiceOption[])
+
+    /**
+     * Renders an option for a choice element
+     * @param value Value associated with the option
+     * @param message Text to shown to the user (has no impact on the processing).
+     * If not provided the value will be shown by default
+     */
     export function option(value: string, message?: string): ChoiceOption
 
     /**
@@ -2396,6 +2439,27 @@ declare module 'botpress/sdk' {
      */
     export function template<T extends Content>(content: T, context: any): T
 
+    /**
+     * Creates a pipeline for rendering, translating and templating content
+     * @param lang Language to use for translation
+     * @param context Context to use for templating
+     * @example
+     * // Doing all this
+     * const content = bp.render.text({ en: 'hello {{user.name}}', fr: 'salut {{user.name}}' })
+       const translated = bp.render.translate(content, 'fr')
+       const templated = bp.render.template(translated, { user: { name: 'bob' } })
+
+       // Can be replaced by this
+       const content = bp.render
+         .pipeline('fr', { user: { name: 'bob' } })
+         .text({ en: 'hello {{user.name}}', fr: 'salut {{user.name}}' })
+
+       // You can reuse the same pipeline for multiple contents
+       const render = bp.render.pipeline('fr', { user: { name: 'bob', age: 43, pin: 3030 } })
+       const text1 = render.text({ en: 'hello {{user.name}}', fr: 'salut {{user.name}}' })
+       const text2 = render.text({ en: 'age : {{user.age}}', fr: 'âge : {{user.age}}' })
+       const text3 = render.text('PIN : {{user.pin}}')
+     */
     export function pipeline(lang: string, context: any): Pipeline
 
     export interface Pipeline {
@@ -2410,30 +2474,25 @@ declare module 'botpress/sdk' {
       option: typeof option
     }
 
-    /**
-     * Base type of all content elements
-     */
     export interface Content {
       type: string
-      typing?: boolean
     }
 
-    /**
-     * Content element to send text messages
-     */
     export interface Text extends Content {
       type: 'text'
       text: string | MultiLangText
       markdown?: boolean
     }
 
-    /**
-     * Content element to send images (with optional captions)
-     */
     export interface Image extends Content {
       type: 'image'
       image: string
       title?: string | MultiLangText
+    }
+
+    export interface Carousel extends Content {
+      type: 'carousel'
+      items: Card[]
     }
 
     export interface Card extends Content {
@@ -2462,11 +2521,6 @@ declare module 'botpress/sdk' {
     export interface ActionPostback extends ActionButton {
       action: 'Postback'
       payload: string
-    }
-
-    export interface Carousel extends Content {
-      type: 'carousel'
-      items: Card[]
     }
 
     export interface Choice extends Content {
