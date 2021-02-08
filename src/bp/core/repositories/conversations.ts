@@ -25,7 +25,7 @@ export interface ConversationRepository {
 export class KnexConversationRepository implements ConversationRepository {
   private readonly TABLE_NAME = 'conversations'
   private cache = new LRU<number, sdk.Conversation>({ max: 10000, maxAge: ms('5min') })
-  private invalidateConvCache: Function = this._localInvalidateConvCache
+  private invalidateConvCache: (ids: number[]) => void = this._localInvalidateConvCache
 
   constructor(
     @inject(TYPES.Database) private database: Database,
@@ -35,7 +35,7 @@ export class KnexConversationRepository implements ConversationRepository {
 
   @postConstruct()
   async init() {
-    this.invalidateConvCache = await this.jobService.broadcast<void>(this._localInvalidateConvCache.bind(this))
+    this.invalidateConvCache = <any>await this.jobService.broadcast<void>(this._localInvalidateConvCache.bind(this))
   }
 
   public async getAll(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation[]> {
@@ -62,13 +62,21 @@ export class KnexConversationRepository implements ConversationRepository {
   }
 
   public async deleteAll(endpoint: sdk.UserEndpoint): Promise<number> {
-    const numberOfDeletedRows = await this.query()
-      .where(endpoint)
-      .del()
+    const deletedIds = (
+      await this.query()
+        .select('id')
+        .where(endpoint)
+    ).map(x => x.id)
 
-    this.invalidateConvCache(undefined)
+    if (deletedIds.length) {
+      await this.query()
+        .where(endpoint)
+        .del()
 
-    return numberOfDeletedRows
+      this.invalidateConvCache(deletedIds)
+    }
+
+    return deletedIds.length
   }
 
   public async create(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation> {
@@ -121,7 +129,7 @@ export class KnexConversationRepository implements ConversationRepository {
       .where({ id: conversationId })
       .del()
 
-    this.invalidateConvCache(conversationId)
+    this.invalidateConvCache([conversationId])
 
     return numberOfDeletedRows > 0
   }
@@ -180,11 +188,7 @@ export class KnexConversationRepository implements ConversationRepository {
     }
   }
 
-  private _localInvalidateConvCache(id: number) {
-    if (id) {
-      this.cache.del(id)
-    } else {
-      this.cache.reset()
-    }
+  private _localInvalidateConvCache(ids: number[]) {
+    ids?.forEach(id => this.cache.del(id))
   }
 }

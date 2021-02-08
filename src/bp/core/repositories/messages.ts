@@ -28,7 +28,7 @@ export interface MessageRepository {
 export class KnexMessageRepository implements MessageRepository {
   private readonly TABLE_NAME = 'messages'
   private cache = new LRU<number, sdk.Message>({ max: 10000, maxAge: ms('5min') })
-  private invalidateMsgCache: Function = this._localInvalidateMsgCache
+  private invalidateMsgCache: (ids: number[]) => void = this._localInvalidateMsgCache
 
   constructor(
     @inject(TYPES.Database) private database: Database,
@@ -37,7 +37,7 @@ export class KnexMessageRepository implements MessageRepository {
 
   @postConstruct()
   async init() {
-    this.invalidateMsgCache = await this.jobService.broadcast<void>(this._localInvalidateMsgCache.bind(this))
+    this.invalidateMsgCache = <any>await this.jobService.broadcast<void>(this._localInvalidateMsgCache.bind(this))
   }
 
   public async getAll(conversationId: number, limit?: number): Promise<sdk.Message[]> {
@@ -53,13 +53,21 @@ export class KnexMessageRepository implements MessageRepository {
   }
 
   public async deleteAll(conversationId: number): Promise<number> {
-    const numberOfDeletedRows = await this.query()
-      .where({ conversationId })
-      .del()
+    const deletedIds = (
+      await this.query()
+        .select('id')
+        .where({ conversationId })
+    ).map(x => x.id)
 
-    this.invalidateMsgCache(undefined)
+    if (deletedIds.length) {
+      await this.query()
+        .where({ conversationId })
+        .del()
 
-    return numberOfDeletedRows
+      this.invalidateMsgCache(deletedIds)
+    }
+
+    return deletedIds.length
   }
 
   public async create(
@@ -114,7 +122,7 @@ export class KnexMessageRepository implements MessageRepository {
       .where({ id: messageId })
       .del()
 
-    this.invalidateMsgCache(messageId)
+    this.invalidateMsgCache([messageId])
 
     return numberOfDeletedRows > 0
   }
@@ -148,11 +156,7 @@ export class KnexMessageRepository implements MessageRepository {
     }
   }
 
-  private _localInvalidateMsgCache(id: number) {
-    if (id) {
-      this.cache.del(id)
-    } else {
-      this.cache.reset()
-    }
+  private _localInvalidateMsgCache(ids: number[]) {
+    ids?.forEach(id => this.cache.del(id))
   }
 }
