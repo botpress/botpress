@@ -56,9 +56,6 @@ export const setupMasterNode = (logger: sdk.Logger) => {
     const { exitedAfterDisconnect, id } = worker
 
     if (process.TRAINING_WORKERS?.includes(id)) {
-      if (signal !== 'SIGKILL') {
-        logger.error(`Training worker ${id} exited. Exit code is ${code}. Signal is ${signal}.`)
-      }
       process.TRAINING_WORKERS = process.TRAINING_WORKERS.filter(w => w !== id)
       return
     }
@@ -114,7 +111,8 @@ export async function spawnNewTrainingWorker(config: sdk.NLU.LanguageConfig, req
   const worker = cluster.fork({
     WORKER_TYPE: WORKER_TYPES.TRAINING,
     NLU_CONFIG: JSON.stringify(config),
-    REQUEST_ID: requestId
+    REQUEST_ID: requestId,
+    BP_FAILSAFE: false // training workers are allowed to fail and exit
   })
   const workerId = worker.id
   process.TRAINING_WORKERS.push(workerId)
