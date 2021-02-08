@@ -35,16 +35,9 @@ export class MessagingAPI {
     this.invalidateMostRecent = <any>await this.jobService.broadcast<void>(this._localInvalidateMostRecent.bind(this))
     this.invalidateLastChannel = <any>await this.jobService.broadcast<void>(this._localInvalidateLastChannel.bind(this))
 
-    this.eventEngine.register({
-      name: 'messaging.incoming',
-      description: 'Registers the last channel of a user',
-      order: 10000,
-      direction: 'incoming',
-      handler: (event: sdk.IO.Event, next) => {
-        this.updateLastChannel({ userId: event.target, botId: event.botId }, event.channel)
-        next(undefined, false, false)
-      }
-    })
+    this.eventEngine.onSendIncoming = async event => {
+      await this.updateLastChannel({ userId: event.target, botId: event.botId }, event.channel)
+    }
   }
 
   public async getAllConversations(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation[]> {
