@@ -77,8 +77,10 @@ This module uses the `channel-web` to display conversations, so make sure it's e
 
 ### Setup
 
-Simply turn on HITL-next on the module management page of you Botpress admin.
-[enable-module image here]
+Simply turn on HITL-next on the module management page of your Botpress admin.
+![Enable Module](assets/hitl/enable-module.png)
+
+You can also enable the module directly in your `botpress.config.json` file as shown [here](https://botpress.com/docs/main/module#enabling-or-disabling-modules)
 
 ### Agent Interface
 
@@ -197,11 +199,11 @@ Before adding any message template, you need to choose a `trigger` character tha
 
 #### Handoff Labels
 
-Call them tags, labels or categories, they are useful for your agents to categorize handoffs prior resolution so future agents can quickly know what a conversation is about. Tags also come in handy when doing an overview of resolved handoffs either for quality assurance or for reporting. You can add as many tags as you want but a good practice is to start with a small number of tags and adding new when necessary. Here is how they show up in the agent interface:
+Handoff labels are useful for your agents to categorize handoffs prior resolution so future agents can quickly know what a conversation is about. Labels also come in handy when doing an overview of resolved handoffs either for quality assurance or for reporting. You can add as many as you want but a good practice is to start with a small number of labels and adding new when necessary. Here is how they show up in the agent interface:
 
 ![Labels](assets/hitl/labels.png)
 
-The 3 tags here are set in a simply json array as follows:
+The 3 labels here are set in a simply json array as follows:
 
 ```
 "tags": ["shipping", "warranty","complaints"]
