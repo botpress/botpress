@@ -1,6 +1,5 @@
 ---
 id: hitl
-
 title: Human in the loop
 ---
 
@@ -8,18 +7,15 @@ Botpress allows you to build a powerful tool for autonomous communication with y
 
 The **Human-in-the-Loop** module (aka HITL) allows you to do just that.
 
-> A new, more feature-rich version of HITL is in beta, you can try it today. See docs [here](##HITL-next)\*\*
+> A new, more feature-rich version of HITL is in beta, you can try it today. See docs [here](#hitl-next-beta)
 
 Human-in-the-Loop is currently supported on `channel-web` and `channel-messenger`.
 
 Once you have this module installed, you will be able to:
 
 1. Pause a user's conversation with the bot
-
 2. Alert your agents that a conversation requires attention
-
 3. As an agent you will be able to continue the conversation via the admin-panel
-
 4. Resume conversation with the bot
 
 ## Pausing conversation
@@ -35,11 +31,8 @@ There are several ways you can pause the conversation:
 `let base = EXTERNAL_URL + '/api/v1/bots/' + botId + '/mod/hitl`
 
 - POST {$base}/sessions/{$id}/pause
-
 - POST {$base}/sessions/{$id}/unpause
-
 - POST {$base}/channel/{$channel}/user/{\$userId}/pause
-
 - POST {$base}/channel/{$channel}/user/{\$userId}/unpause
 
 For example: POST http://localhost:3000/api/v1/bots/welcome-bot/mod/assets/hitl/sessions/13/pause
@@ -50,9 +43,7 @@ There are a number of ways to alert your agents of a paused conversation, an ema
 
 ```js
 const { botId } = event
-
 const message = user.first_name + ' wants to talk to a human'
-
 bp.notifications.create(botId, { message, level: 'info', url: '/modules/hitl' })
 ```
 
