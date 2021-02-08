@@ -56,9 +56,6 @@ export const setupMasterNode = (logger: sdk.Logger) => {
     const { exitedAfterDisconnect, id } = worker
 
     if (process.TRAINING_WORKERS?.includes(id)) {
-      if (signal !== 'SIGKILL') {
-        logger.error(`Training worker ${id} exited. Exit code is ${code}. Signal is ${signal}.`)
-      }
       process.TRAINING_WORKERS = process.TRAINING_WORKERS.filter(w => w !== id)
       return
     }
