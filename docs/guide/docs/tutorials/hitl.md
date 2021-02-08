@@ -60,7 +60,7 @@ It is also possible for the user to unpause the conversation by calling the API 
 This revamped HITL works on **all existing and future channels**. It supports all features of its predecessor and a few more :
 
 - Multi-agents ( _enterprise edition only_ )
-- Human handoff from workflow x
+- Human handoff from any workflow
 - Realtime agent interface
 - Agent notes
 - End user profile
@@ -73,7 +73,7 @@ This revamped HITL works on **all existing and future channels**. It supports al
 
 ### Requirements
 
-This module uses the `channel-web` to display conversations, so make sure it's enabled. Moreover, a multi-agents setup needs an enterprise license.
+This module uses the `channel-web` to display conversations, so make sure it's enabled. Moreover, a multi-agent setup needs an enterprise license.
 
 ### Setup
 
@@ -114,7 +114,7 @@ The module ships with a `Handoff` [action](https://botpress.com/docs/main/code#a
 
 ![Handoff Action](assets/hitl/handoff-action.png)
 
-Now, ever time a user conversation goes on that node. Agents on the interface will see a new pending handoff appear in the list and will be be able to see a preview of the conversation. On the user side, your chatbot automatically send a **transfer message**. This message is customizable, see [configuration](#advanced-features-and-customization) section.
+Now, ever time a user conversation goes on that node. Agents on the interface will see a new pending handoff appear in the list and will be be able to see a preview of the conversation. On the user side, your chatbots automatically send a **transfer message**. This message is customizable, see [configuration](#advanced-features-and-customization) section.
 
 ![Tranfer Message](assets/hitl/transfer-message.png)
 
@@ -148,9 +148,9 @@ Simple but powerful tool for collaboration over time, notes are associated with 
 
 ### Advanced features and customization
 
-Here are the most commonly used module configuration. Some more are available, please refer to the [module configuration file](https://github.com/botpress/botpress/blob/master/modules/hitlnext/src/config.ts) for more options.
+Here are the most commonly used module configurations. Some more are available, please refer to the [module configuration file](https://github.com/botpress/botpress/blob/master/modules/hitlnext/src/config.ts) for more options.
 
-To set any of those configuration, you'll first need to open up the `hitlnext.json` in the code editor section of your Botpress Studio.
+To set any of those configurations, you'll first need to open up the `hitlnext.json` in the code editor section of your Botpress Studio.
 
 ![Module Configuration](assets/hitl/hitl-config.png)
 
