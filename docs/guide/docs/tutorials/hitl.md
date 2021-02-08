@@ -60,7 +60,7 @@ It is also possible for the user to unpause the conversation by calling the API 
 This revamped HITL works on **all existing and future channels**. It supports all features of its predecessor and a few more :
 
 - Multi-agents ( _enterprise edition only_ )
-- Human handoff from workflow x
+- Human handoff from any workflow
 - Realtime agent interface
 - Agent notes
 - End user profile
