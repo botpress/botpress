@@ -59,6 +59,9 @@ process.stderr.write = stripDeprecationWrite
 
 process.on('unhandledRejection', err => {
   global.printErrorDefault(err)
+  if (!process.IS_FAILSAFE) {
+    process.exit(1)
+  }
 })
 
 process.on('uncaughtException', err => {

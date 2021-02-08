@@ -111,7 +111,8 @@ export async function spawnNewTrainingWorker(config: sdk.NLU.LanguageConfig, req
   const worker = cluster.fork({
     WORKER_TYPE: WORKER_TYPES.TRAINING,
     NLU_CONFIG: JSON.stringify(config),
-    REQUEST_ID: requestId
+    REQUEST_ID: requestId,
+    BP_FAILSAFE: false // training workers are allowed to fail and exit
   })
   const workerId = worker.id
   process.TRAINING_WORKERS.push(workerId)
