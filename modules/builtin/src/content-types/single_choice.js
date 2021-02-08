@@ -10,6 +10,23 @@ function render(data) {
     })
   }
 
+  if (data.isDropdown) {
+    // Render dropdown
+    return [
+      ...events,
+      {
+        type: 'custom',
+        module: 'extensions',
+        component: 'Dropdown',
+        message: data.text,
+        buttonText: '',
+        displayInKeyboard: true,
+        options: data.choices.map(c => ({ label: c.title, value: c.value.toUpperCase() })),
+        width: 300,
+        placeholder: data.DropdownPlaceholder
+      }];
+  }
+
   return [
     ...events,
     {
@@ -101,6 +118,15 @@ module.exports = {
       text: {
         type: 'string',
         title: 'message'
+      },
+      isDropdown: {
+        type: 'boolean',
+        title: 'Show as a dropdown'
+      },
+      dropdownPlaceholder: {
+        type: 'string',
+        title: 'Dropdown placeholder',
+        default: 'Select...'
       },
       choices: {
         type: 'array',
