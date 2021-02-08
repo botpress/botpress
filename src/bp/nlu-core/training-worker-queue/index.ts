@@ -66,7 +66,7 @@ export class TrainingWorkerQueue {
     if (!this.readyWorkers.length) {
       debugTraining(`[${input.trainId}] About to make new training worker`)
       const newWorker = await this._createNewWorker(trainId)
-      debugTraining(`[${input.trainId}] Creation of training worker done. Worker id is ${newWorker}`)
+      debugTraining(`[${input.trainId}] Creation of training worker ${newWorker} done.`)
       this.readyWorkers.push(newWorker)
     }
 
@@ -214,9 +214,9 @@ if (cluster.isMaster) {
   }
 
   registerMsgHandler('make_new_worker', async (msg: OutgoingMessage<'make_new_worker'>) => {
-    debugLog('About to spawn new process.', msg.payload.requestId)
+    debugLog('About to spawn new training process.', msg.payload.requestId)
     await spawnNewTrainingWorker(msg.payload.config, msg.payload.requestId)
-    debugLog('Done spawning new process.', msg.payload.requestId)
+    debugLog('Done spawning new training process.', msg.payload.requestId)
   })
   registerMsgHandler('cancel_training', killTrainingWorker)
   registerMsgHandler('start_training', sendToTrainingWorker)
