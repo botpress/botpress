@@ -2,7 +2,7 @@ import { NLU } from 'botpress/sdk'
 import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
 import { deserializeError, serializeError } from 'ml/error-utils'
-import { TrainingAlreadyStarted, TrainingCanceled } from 'nlu-core/errors'
+import { TrainingAlreadyStarted, TrainingCanceled, TrainingExitedUnexpectedly } from 'nlu-core/errors'
 
 import { registerMsgHandler, spawnNewTrainingWorker, WORKER_TYPES } from '../../cluster'
 import { initializeTools } from '../initialize-tools'
@@ -18,12 +18,15 @@ import {
   isTrainingCanceled,
   isTrainingDone,
   isTrainingError,
+  isTrainingExited,
   isTrainingProgress,
   isWorkerReady,
   OutgoingMessage
 } from './communication'
 
 const debugTraining = DEBUG('nlu').sub('training')
+
+const SIG_KILL = 'SIGKILL'
 
 export class TrainingWorkerQueue {
   private readyWorkers: number[] = []
@@ -123,6 +126,10 @@ export class TrainingWorkerQueue {
           process.off('message', handler)
           reject(new TrainingCanceled())
         }
+        if (isTrainingExited(msg)) {
+          process.off('message', handler)
+          reject(new TrainingExitedUnexpectedly(msg.srcWorkerId, msg.payload))
+        }
         if (isTrainingProgress(msg)) {
           progress(msg.payload.progress)
         }
@@ -143,7 +150,7 @@ export class TrainingWorkerQueue {
       destWorkerId: NaN
     }
 
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       const handler = (msg: AllIncomingMessages) => {
         if (isLog(msg) && msg.payload.requestId === requestId) {
           this._logMessage(msg)
@@ -152,6 +159,11 @@ export class TrainingWorkerQueue {
         if (isWorkerReady(msg) && msg.payload.requestId === requestId) {
           process.off('message', handler)
           resolve(msg.srcWorkerId)
+        }
+
+        if (isTrainingExited(msg)) {
+          process.off('message', handler)
+          reject(new TrainingExitedUnexpectedly(msg.srcWorkerId, msg.payload))
         }
       }
       process.send!(msg)
@@ -199,25 +211,42 @@ if (cluster.isMaster) {
       }
       return sendToWebWorker(response)
     }
+    worker.process.kill(SIG_KILL)
+  }
 
-    const exitHandler = (worker: Worker, _exitCode: number, _signal: string) => {
-      const response: IncomingMessage<'training_canceled'> = {
-        type: 'training_canceled',
-        payload: {},
+  async function makeNewWorker(msg: OutgoingMessage<'make_new_worker'>) {
+    debugLog('About to spawn new training process.', msg.payload.requestId)
+    const workerId = await spawnNewTrainingWorker(msg.payload.config, msg.payload.requestId)
+    debugLog('Done spawning new training process.', msg.payload.requestId)
+
+    const exitHandler = (worker: Worker, exitCode: number, signal: string) => {
+      if (worker.id !== workerId) {
+        return
+      }
+
+      cluster.removeListener('exit', exitHandler)
+
+      if (signal === SIG_KILL) {
+        const response: IncomingMessage<'training_canceled'> = {
+          type: 'training_canceled',
+          payload: {},
+          srcWorkerId: worker.id
+        }
+        sendToWebWorker(response)
+        return
+      }
+
+      const response: IncomingMessage<'training_exited'> = {
+        type: 'training_exited',
+        payload: { exitCode, signal },
         srcWorkerId: worker.id
       }
       sendToWebWorker(response)
     }
-    cluster.once('exit', exitHandler)
-
-    worker.process.kill('SIGKILL')
+    cluster.on('exit', exitHandler)
   }
 
-  registerMsgHandler('make_new_worker', async (msg: OutgoingMessage<'make_new_worker'>) => {
-    debugLog('About to spawn new training process.', msg.payload.requestId)
-    await spawnNewTrainingWorker(msg.payload.config, msg.payload.requestId)
-    debugLog('Done spawning new training process.', msg.payload.requestId)
-  })
+  registerMsgHandler('make_new_worker', makeNewWorker)
   registerMsgHandler('cancel_training', killTrainingWorker)
   registerMsgHandler('start_training', sendToTrainingWorker)
 
