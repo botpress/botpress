@@ -3,8 +3,6 @@
 }
 
 :global(.emulator-open) {
-  padding-right: calc(var(--spacing-x-large) + var(--emulator-width)) !important;
-
   &.wRightSidebar {
     padding-right: calc(var(--spacing-x-large) + var(--right-sidebar-width) + var(--emulator-width)) !important;
   }
