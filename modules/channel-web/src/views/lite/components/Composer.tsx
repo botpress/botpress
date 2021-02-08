@@ -58,7 +58,7 @@ class Composer extends React.Component<ComposerProps> {
   handleMessageChanged = e => this.props.updateMessage(e.target.value)
 
   isLastMessageFromBot = (): boolean => {
-    return this.props.currentConversation?.messages?.slice(-1).pop().from !== 'user'
+    return this.props.currentConversation?.messages?.slice(-1)?.pop()?.from !== 'user'
   }
 
   render() {
