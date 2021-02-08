@@ -271,12 +271,6 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
           />
         </FormGroup>
 
-        <FormGroup label="Dropdown options">
-          <Checkbox
-            label="Render choices in a dropdown menu"
-            checked={this.state.config.}
-        </FormGroup>
-
         <FormGroup label="Default choice content type">
           <InputGroup
             id="contentElementType"
