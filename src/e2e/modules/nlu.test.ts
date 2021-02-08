@@ -30,6 +30,7 @@ describe('Module - NLU', () => {
 
   it('Train Chatbot', async () => {
     await clickOn('button', { text: 'Train Chatbot' })
-    await expectMatch('Ready')
+    await expectMatch('Training')
+    await page.waitFor(7000) // Awaits for a while to give botpress time to train
   })
 })
