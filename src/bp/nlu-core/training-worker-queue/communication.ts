@@ -16,7 +16,7 @@ export interface OutgoingMessage<T extends OutgoingMessageType> {
   destWorkerId: number
 }
 
-export type Log = Partial<{ info: string; warning: string; error: string }>
+export type Log = Partial<{ info: string; warning: string; error: string; debug: string }>
 export type IncomingPayload<T extends IncomingMessageType> = T extends 'log'
   ? { log: Log; requestId: string }
   : T extends 'worker_ready'

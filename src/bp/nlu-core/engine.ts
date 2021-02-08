@@ -85,13 +85,9 @@ export default class Engine implements NLU.Engine {
     return !!this.modelsById.get(stringId)
   }
 
-  async train(
-    trainSessionId: string,
-    trainSet: NLU.TrainingSet,
-    opt: Partial<NLU.TrainingOptions> = {}
-  ): Promise<NLU.Model> {
+  async train(trainId: string, trainSet: NLU.TrainingSet, opt: Partial<NLU.TrainingOptions> = {}): Promise<NLU.Model> {
     const { languageCode, seed, entityDefs, intentDefs } = trainSet
-    trainDebug(`Started ${languageCode} training`)
+    trainDebug(`[${trainId}] Started ${languageCode} training`)
 
     const options = { ...DEFAULT_TRAINING_OPTIONS, ...opt }
 
@@ -147,9 +143,10 @@ export default class Engine implements NLU.Engine {
     const debugMsg = previousModel
       ? `Retraining only contexts: [${ctxToTrain}] for language: ${languageCode}`
       : `Training all contexts for language: ${languageCode}`
-    trainDebug(debugMsg)
+    trainDebug(`[${trainId}] ${debugMsg}`)
 
     const input: TrainInput = {
+      trainId,
       nluSeed: seed,
       languageCode,
       list_entities,
@@ -160,7 +157,7 @@ export default class Engine implements NLU.Engine {
     }
 
     const startedAt = new Date()
-    const output = await this._trainingWorkerQueue.startTraining(trainSessionId, input, progressCallback)
+    const output = await this._trainingWorkerQueue.startTraining(input, progressCallback)
 
     const modelId = modelIdService.makeId({
       ...trainSet,
@@ -181,7 +178,7 @@ export default class Engine implements NLU.Engine {
       model.data.output = mergeModelOutputs(model.data.output, previousModel.model.data.output, contexts)
     }
 
-    trainDebug(`Successfully finished ${languageCode} training`)
+    trainDebug(`[${trainId}] Successfully finished ${languageCode} training`)
 
     return serializeModel(model)
   }
