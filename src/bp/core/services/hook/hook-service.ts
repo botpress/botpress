@@ -21,15 +21,17 @@ const DEBOUNCE_DELAY = ms('2s')
 
 interface HookOptions {
   timeout: number
+  throwOnError: boolean
 }
 
 const debugInstances: { [hookType: string]: IDebugInstance } = {}
+const defaultHookOptions = Object.freeze({ timeout: 1000, throwOnError: false })
 
 export namespace Hooks {
   export class BaseHook {
     debug: IDebugInstance
 
-    constructor(public folder: string, public args: any, public options: HookOptions = { timeout: 1000 }) {
+    constructor(public folder: string, public args: any, public options: HookOptions = defaultHookOptions) {
       if (debugInstances[folder]) {
         this.debug = debugInstances[folder]
       } else {
@@ -51,7 +53,7 @@ export namespace Hooks {
   }
 
   export class AfterBotUnmount extends BaseHook {
-    constructor(private bp: typeof sdk, botId) {
+    constructor(private bp: typeof sdk, botId: string) {
       super('after_bot_unmount', { bp, botId })
     }
   }
@@ -118,7 +120,7 @@ export namespace Hooks {
       pipeline: sdk.Pipeline,
       hookResult: any
     ) {
-      super('on_stage_request', { bp, bot, users, pipeline, hookResult })
+      super('on_stage_request', { bp, bot, users, pipeline, hookResult }, { ...defaultHookOptions, throwOnError: true })
     }
   }
 
@@ -148,7 +150,7 @@ class HookScript {
 @injectable()
 export class HookService {
   private _scriptsCache: Map<string, HookScript[]> = new Map()
-  private _invalidateDebounce
+  private _invalidateDebounce: ReturnType<typeof _.debounce>
 
   constructor(
     @inject(TYPES.Logger)
@@ -246,7 +248,7 @@ export class HookService {
   private _prepareRequire(fullPath: string, hookType: string) {
     const lookups = getBaseLookupPaths(fullPath, hookType)
 
-    return module => requireAtPaths(module, lookups, fullPath)
+    return (module: string) => requireAtPaths(module, lookups, fullPath)
   }
 
   private async runScript(hookScript: HookScript, hook: Hooks.BaseHook) {
@@ -341,10 +343,14 @@ export class HookService {
       .catch(err => {
         this.addEventStep(hookScript.name, 'error', hook, err)
         this.logScriptError(err, botId, hookScript.path, hook.folder)
+
+        if (hook.options.throwOnError) {
+          throw err
+        }
       })
   }
 
-  private logScriptError(err, botId, path, folder) {
+  private logScriptError(err: Error, botId: string, path: string, folder: string) {
     const message = `An error occurred on "${path}" on "${folder}". ${err}`
     if (botId) {
       this.logger
