@@ -96,6 +96,14 @@ export const patchKnex = (knex: Knex): KnexExtended => {
     )
   }
 
+  const insertAndGetId = async (table: string, data: any, column: string = 'id') => {
+    let query = knex(table).insert(data)
+    if (!isLite) {
+      query = query.returning(column)
+    }
+    return (await query)[0]
+  }
+
   const binary: Knex.Binary = {
     set: (data: string | Buffer): any => {
       if (isLite || typeof data !== 'string') {
@@ -176,7 +184,8 @@ export const patchKnex = (knex: Knex): KnexExtended => {
     json,
     bool,
     createTableIfNotExists,
-    insertAndRetrieve
+    insertAndRetrieve,
+    insertAndGetId
   }
 
   return Object.assign(knex, extensions)

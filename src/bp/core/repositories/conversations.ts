@@ -86,10 +86,7 @@ export class KnexConversationRepository implements ConversationRepository {
       createdOn: new Date()
     }
 
-    const [id] = await this.query()
-      .insert(this.serialize(row))
-      .returning('id')
-
+    const id = await this.database.knex.insertAndGetId(this.TABLE_NAME, this.serialize(row))
     const conversation = {
       id,
       ...row
