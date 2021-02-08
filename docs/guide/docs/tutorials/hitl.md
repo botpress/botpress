@@ -148,7 +148,7 @@ Simple but powerful tool for collaboration over time, notes are associated with 
 
 Here are the most commonly used module configuration. Some more are available, please refer to the [module configuration file](https://github.com/botpress/botpress/blob/master/modules/hitlnext/src/config.ts) for more options.
 
-To set any of those configuration, you'll first need to open up the `hitlnext.json` in the code editor section of your Botpress Studio.
+To set any of those configurations, you'll first need to open up the `hitlnext.json` in the code editor section of your Botpress Studio.
 
 ![Module Configuration](assets/hitl/hitl-config.png)
 
