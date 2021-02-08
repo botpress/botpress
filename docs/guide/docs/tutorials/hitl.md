@@ -112,7 +112,7 @@ The module ships with a `Handoff` [action](https://botpress.com/docs/main/code#a
 
 ![Handoff Action](assets/hitl/handoff-action.png)
 
-Now, ever time a user conversation goes on that node. Agents on the interface will see a new pending handoff appear in the list and will be be able to see a preview of the conversation. On the user side, your chatbot automatically send a **transfer message**. This message is customizable, see [configuration](#advanced-features-and-customization) section.
+Now, ever time a user conversation goes on that node. Agents on the interface will see a new pending handoff appear in the list and will be be able to see a preview of the conversation. On the user side, your chatbots automatically send a **transfer message**. This message is customizable, see [configuration](#advanced-features-and-customization) section.
 
 ![Tranfer Message](assets/hitl/transfer-message.png)
 
