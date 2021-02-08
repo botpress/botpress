@@ -120,7 +120,7 @@ export class StateManager {
   }
 
   public async deleteDialogSession(sessionId: string, botId: string) {
-    await this.sessionRepo.delete(sessionId)
+    await this.sessionRepo.delete(sessionId, botId)
 
     if (this.useRedis) {
       await this._redisClient.del(getRedisSessionKey(sessionId, botId))

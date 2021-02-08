@@ -28,9 +28,9 @@ export interface SessionRepository {
   getOrCreateSession(sessionId: string, botId: string, trx?: Knex.Transaction): Promise<DialogSession>
   get(id: string, botId: string): Promise<DialogSession>
   getExpiredContextSessionIds(botId: string): Promise<string[]>
-  deleteExpiredSessions()
-  delete(id: string)
-  update(session: DialogSession, trx?: Knex.Transaction)
+  deleteExpiredSessions(): Promise<void>
+  delete(id: string, botId: string): Promise<void>
+  update(session: DialogSession, trx?: Knex.Transaction): Promise<void>
 }
 
 @injectable()
@@ -42,17 +42,17 @@ export class KnexSessionRepository implements SessionRepository {
   async getOrCreateSession(sessionId: string, botId: string, trx?: Knex.Transaction): Promise<DialogSession> {
     const session = await this.get(sessionId, botId)
     if (!session) {
-      return this.createSession(sessionId, botId, {}, {}, {}, trx)
+      return this.createSession(sessionId, botId, {}, {}, { lastMessages: [], workflows: {} }, trx)
     }
     return session
   }
 
   async createSession(
-    sessionId,
-    botId,
-    context,
-    temp_data,
-    session_data,
+    sessionId: string,
+    botId: string,
+    context?: sdk.IO.DialogContext,
+    temp_data?: any,
+    session_data?: sdk.IO.CurrentSession,
     trx?: Knex.Transaction
   ): Promise<DialogSession> {
     const session = new DialogSession(sessionId, botId, context, temp_data, session_data)
@@ -76,7 +76,7 @@ export class KnexSessionRepository implements SessionRepository {
         session_expiry: session.session_expiry ? this.database.knex.date.format(session.session_expiry) : eval('null')
       },
       ['id', 'botId', 'context', 'temp_data', 'session_data', 'modified_on', 'created_on'],
-      undefined,
+      this.database.knex.isLite ? 'rowid' : undefined, // Use rowid with sqlite since dialog_sessions uses a composite pkey
       trx
     )
 
@@ -136,7 +136,7 @@ export class KnexSessionRepository implements SessionRepository {
   async update(session: DialogSession, trx?: Knex.Transaction): Promise<void> {
     const req = this.database
       .knex(this.tableName)
-      .where('id', session.id)
+      .where({ id: session.id, botId: session.botId })
       .update({
         context: this.database.knex.json.set(session.context),
         temp_data: this.database.knex.json.set(session.temp_data),
@@ -153,10 +153,10 @@ export class KnexSessionRepository implements SessionRepository {
     await req
   }
 
-  async delete(id: string) {
+  async delete(id: string, botId: string): Promise<void> {
     await this.database
       .knex(this.tableName)
-      .where({ id })
+      .where({ id, botId })
       .del()
   }
 }

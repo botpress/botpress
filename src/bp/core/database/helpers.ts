@@ -70,8 +70,12 @@ export const patchKnex = (knex: Knex): KnexExtended => {
           knex
             .select(knex.raw('last_insert_rowid() as id'))
             .transacting(trx)
-            .then(([{ id: dbId }]) => {
-              const id = (data && data.id) || dbId
+            .then(([{ id: rowid }]) => {
+              let id = data && data.id
+              if (!id || idColumnName === 'rowid') {
+                id = rowid
+              }
+
               if (returnColumns === idColumnName) {
                 return id
               }
