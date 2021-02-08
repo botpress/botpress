@@ -2,7 +2,7 @@ import { NLU } from 'botpress/sdk'
 import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
 import { deserializeError, serializeError } from 'ml/error-utils'
-import { TrainingAlreadyStarted, TrainingCanceled } from 'nlu-core/errors'
+import { TrainingAlreadyStarted, TrainingCanceled, TrainingExitedUnexpectedly } from 'nlu-core/errors'
 
 import { registerMsgHandler, spawnNewTrainingWorker, WORKER_TYPES } from '../../cluster'
 import { initializeTools } from '../initialize-tools'
@@ -128,9 +128,7 @@ export class TrainingWorkerQueue {
         }
         if (isTrainingExited(msg)) {
           process.off('message', handler)
-          const { exitCode, signal } = msg.payload
-          const errorMsg = `Training process exited with exit code ${exitCode} and signal ${signal}.`
-          reject(new Error(errorMsg))
+          reject(new TrainingExitedUnexpectedly(msg.srcWorkerId, msg.payload))
         }
         if (isTrainingProgress(msg)) {
           progress(msg.payload.progress)
@@ -165,9 +163,7 @@ export class TrainingWorkerQueue {
 
         if (isTrainingExited(msg)) {
           process.off('message', handler)
-          const { exitCode, signal } = msg.payload
-          const errorMsg = `Training process exited with exit code ${exitCode} and signal ${signal}.`
-          reject(new Error(errorMsg))
+          reject(new TrainingExitedUnexpectedly(msg.srcWorkerId, msg.payload))
         }
       }
       process.send!(msg)
