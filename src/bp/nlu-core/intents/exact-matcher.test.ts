@@ -1,7 +1,7 @@
 import { findExactIntentForCtx } from '../predict-pipeline'
 import { SPECIAL_CHARSET } from '../tools/chars'
 import { BuildExactMatchIndex, TrainStep } from '../training-pipeline'
-import { Intent } from '../typings'
+import { Intent, Tools } from '../typings'
 import Utterance, { makeTestUtterance } from '../utterance/utterance'
 
 const u1 = 'Hi my name is Alex W and I try to make NLU for a living'

@@ -55,7 +55,8 @@ export default async function(options: ArgV) {
 
   options.modelDir = options.modelDir || path.join(process.APP_DATA_PATH, 'models')
 
-  const loggerWrapper = <NLU.Logger>{
+  const loggerWrapper: NLU.Logger = {
+    debug: (msg: string) => logger.debug(msg),
     info: (msg: string) => logger.info(msg),
     warning: (msg: string, err?: Error) => (err ? logger.attachError(err).warn(msg) : logger.warn(msg)),
     error: (msg: string, err?: Error) => (err ? logger.attachError(err).error(msg) : logger.error(msg))
