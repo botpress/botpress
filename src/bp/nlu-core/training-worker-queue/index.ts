@@ -23,6 +23,8 @@ import {
   OutgoingMessage
 } from './communication'
 
+const debugTraining = DEBUG('nlu').sub('training')
+
 export class TrainingWorkerQueue {
   private readyWorkers: number[] = []
   private activeWorkers: { [trainSessionId: string]: number } = {}
@@ -55,22 +57,22 @@ export class TrainingWorkerQueue {
     })
   }
 
-  public async startTraining(
-    trainSessionId: string,
-    input: TrainInput,
-    progress: (x: number) => void
-  ): Promise<TrainOutput> {
-    if (!!this.activeWorkers[trainSessionId]) {
-      throw new TrainingAlreadyStarted(`Training ${trainSessionId} already started`)
+  public async startTraining(input: TrainInput, progress: (x: number) => void): Promise<TrainOutput> {
+    const { trainId } = input
+    if (!!this.activeWorkers[trainId]) {
+      throw new TrainingAlreadyStarted(`Training ${trainId} already started`)
     }
 
     if (!this.readyWorkers.length) {
-      const newWorker = await this._createNewWorker(trainSessionId)
+      debugTraining(`[${input.trainId}] About to make new training worker`)
+      const newWorker = await this._createNewWorker(trainId)
+      debugTraining(`[${input.trainId}] Creation of training worker ${newWorker} done.`)
       this.readyWorkers.push(newWorker)
     }
 
     const worker = this.readyWorkers.pop()!
-    this.activeWorkers[trainSessionId] = worker
+    debugTraining(`[${input.trainId}] worker ${worker} picked for training.`)
+    this.activeWorkers[trainId] = worker
 
     let output: TrainOutput
     try {
@@ -78,11 +80,11 @@ export class TrainingWorkerQueue {
     } catch (err) {
       const isTrainingCanceled = err instanceof TrainingCanceled
       if (!isTrainingCanceled) {
-        this._prepareForNextTraining(trainSessionId)
+        this._prepareForNextTraining(trainId)
       }
       throw err
     }
-    this._prepareForNextTraining(trainSessionId)
+    this._prepareForNextTraining(trainId)
     return output
   }
 
@@ -124,6 +126,9 @@ export class TrainingWorkerQueue {
         if (isTrainingProgress(msg)) {
           progress(msg.payload.progress)
         }
+        if (isLog(msg)) {
+          this._logMessage(msg)
+        }
       }
       process.send!(msg)
       process.on('message', handler)
@@ -156,6 +161,7 @@ export class TrainingWorkerQueue {
 
   private _logMessage(msg: IncomingMessage<'log'>) {
     const { log } = msg.payload
+    log.debug && debugTraining(log.debug)
     log.info && this.logger.info(log.info)
     log.warning && this.logger.warning(log.warning)
     log.error && this.logger.error(log.error)
@@ -166,6 +172,15 @@ if (cluster.isMaster) {
   function sendToWebWorker(msg: AllIncomingMessages) {
     const webWorker = cluster.workers[process.WEB_WORKER]
     webWorker?.isConnected() && webWorker.send(msg)
+  }
+
+  function debugLog(msg: string, requestId: string) {
+    const log: IncomingMessage<'log'> = {
+      type: 'log',
+      payload: { log: { debug: msg }, requestId },
+      srcWorkerId: 0
+    }
+    sendToWebWorker(log)
   }
 
   function sendToTrainingWorker(msg: AllOutgoingMessages) {
@@ -198,9 +213,11 @@ if (cluster.isMaster) {
     worker.process.kill('SIGKILL')
   }
 
-  registerMsgHandler('make_new_worker', async (msg: OutgoingMessage<'make_new_worker'>) =>
-    spawnNewTrainingWorker(msg.payload.config, msg.payload.requestId)
-  )
+  registerMsgHandler('make_new_worker', async (msg: OutgoingMessage<'make_new_worker'>) => {
+    debugLog('About to spawn new training process.', msg.payload.requestId)
+    await spawnNewTrainingWorker(msg.payload.config, msg.payload.requestId)
+    debugLog('Done spawning new training process.', msg.payload.requestId)
+  })
   registerMsgHandler('cancel_training', killTrainingWorker)
   registerMsgHandler('start_training', sendToTrainingWorker)
 
@@ -214,9 +231,14 @@ if (cluster.isMaster) {
 if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.TRAINING) {
   const config = JSON.parse(process.env.NLU_CONFIG!)
   const requestId = process.env.REQUEST_ID!
-
+  const processId = process.pid
   const srcWorkerId = cluster.worker.id
+
   const logger: NLU.Logger = {
+    debug: (msg: string) => {
+      const response: IncomingMessage<'log'> = { type: 'log', payload: { log: { debug: msg }, requestId }, srcWorkerId }
+      process.send!(response)
+    },
     info: (msg: string) => {
       const response: IncomingMessage<'log'> = { type: 'log', payload: { log: { info: msg }, requestId }, srcWorkerId }
       process.send!(response)
@@ -232,6 +254,7 @@ if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.TRAINING) {
       process.send!(response)
     }
   }
+  logger.info(`Training worker ${srcWorkerId} successfully started on process with pid ${processId}.`)
 
   const msgHandler = (tools: Tools) => async (msg: AllOutgoingMessages) => {
     if (isStartTraining(msg)) {
@@ -250,7 +273,7 @@ if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.TRAINING) {
 
       let output: TrainOutput | undefined
       try {
-        output = await Trainer(input, tools, progressCb)
+        output = await Trainer(input, { ...tools, logger }, progressCb)
       } catch (err) {
         const res: IncomingMessage<'training_error'> = {
           type: 'training_error',
