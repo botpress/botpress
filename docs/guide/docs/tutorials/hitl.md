@@ -73,7 +73,7 @@ This revamped HITL works on **all existing and future channels**. It supports al
 
 ### Requirements
 
-This module uses the `channel-web` to display conversations, so make sure it's enabled. Moreover, a multi-agents setup needs an enterprise license.
+This module uses the `channel-web` to display conversations, so make sure it's enabled. Moreover, a multi-agent setup needs an enterprise license.
 
 ### Setup
 
