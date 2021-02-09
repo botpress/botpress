@@ -1,9 +1,9 @@
 {
   "name": "hitlnext",
-  "fullName": "HITL Next",
+  "fullName": "HITL-next",
   "version": "1.0.0",
   "status": "stable",
-  "description": "Human-in-the-loop",
+  "description": "Simple system to handoff tricky user conversations to your team of agents",
   "private": true,
   "main": "dist/backend/index.js",
   "scripts": {

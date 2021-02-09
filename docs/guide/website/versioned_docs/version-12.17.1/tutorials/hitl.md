@@ -1,6 +1,7 @@
 ---
-id: hitl
+id: version-12.17.1-hitl
 title: Human in the loop
+original_id: hitl
 ---
 
 Botpress allows you to build a powerful tool for autonomous communication with your users. However, there might be use cases hard to implement as a workflow in a Botpress chatbot or sometimes a user wants something that is not yet supported by your chatbot. To offer the best user experience, it's common to set a human handoff system where a conversation between your chatbot and a user is transferred to an agent.
