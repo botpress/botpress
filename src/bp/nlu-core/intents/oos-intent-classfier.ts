@@ -187,7 +187,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
     const lo = this.tools.seededLodashProvider.getSeededLodash()
 
     const intents: Intent<Utterance>[] = [
-      ...trainInput.intents,
+      ...trainableIntents,
       {
         name: NONE_INTENT,
         utterances: lo
@@ -195,7 +195,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
           .shuffle()
           .take(nAvgUtts * 2.5) // undescriptible magic n, no sens to extract constant
           .value(),
-        contexts: [...trainInput.intents[0].contexts],
+        contexts: [],
         slot_definitions: []
       }
     ]

@@ -1,3 +1,4 @@
+import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 import { makeFakeTools } from 'nlu-core/test-utils/fake-tools'
 import { makeTestUtterance } from 'nlu-core/test-utils/fake-utterance'
@@ -96,4 +97,44 @@ test('predict with no exact match returns confidence that sums up to 1', async (
   expect(intents.map(i => i.name).sort()).toEqual(['A', 'B', 'none'])
   expect(intents.map(i => i.extractor)).toEqual(['svm-classifier', 'svm-classifier', 'svm-classifier'])
   expect(intents.map(i => i.confidence).some(c => c === 1)).toEqual(false)
+})
+
+test('predict with less than min utterances for ml should not match', async () => {
+  // arrange
+  const oosIntentClassifier = new OOSIntentClassifier(fakeTools, { debug: console.log } as NLU.Logger)
+
+  await oosIntentClassifier.train(
+    {
+      languageCode: 'en',
+      list_entities: [],
+      pattern_entities: [],
+      nluSeed: 42,
+      intents: [
+        {
+          name: 'A',
+          contexts: [],
+          slot_definitions: [],
+          utterances: [u1]
+        },
+        {
+          name: 'B',
+          contexts: [],
+          slot_definitions: [],
+          utterances: [u2]
+        }
+      ],
+      allUtterances: [u1, u2, u3, u4, u5, u6, u7]
+    },
+    dummyProgress
+  )
+
+  // act
+  const { intents } = await oosIntentClassifier.predict(
+    makeTestUtterance('you better check yourself before you wreck yourself')
+  )
+
+  // assert
+  expect(intents.map(i => i.name).sort()).toEqual(['none'])
+  expect(intents.map(i => i.extractor)).toEqual(['svm-classifier'])
+  expect(intents.map(i => i.confidence)).toEqual([1])
 })

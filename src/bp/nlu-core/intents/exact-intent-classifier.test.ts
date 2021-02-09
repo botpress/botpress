@@ -31,7 +31,7 @@ describe('Exact match', () => {
   const dummyProgress = () => {}
 
   describe('Build exact match index', () => {
-    test('when no match clf returns an array with all confidences zero', async () => {
+    test('when no match clf returns an empty array', async () => {
       await exactMatchIntentClf.train(
         {
           intents,
@@ -45,20 +45,11 @@ describe('Exact match', () => {
 
       const { intents: prediction } = await exactMatchIntentClf.predict(makeTestUtterance('Some random string'))
 
-      const actualKeys = _(prediction)
-        .map(i => i.name)
-        .orderBy(n => n)
-        .value()
-
-      const expectedKeys = ['intent1', 'intent2']
-
       const actualValues = prediction.map(p => p.confidence)
-
-      expect(actualKeys).toEqual(expectedKeys)
-      expect(actualValues).toEqual([0, 0])
+      expect(actualValues).toEqual([])
     })
 
-    test('when match clf returns one hot confidence vector', async () => {
+    test('when match clf returns length 1 vector', async () => {
       await exactMatchIntentClf.train(
         {
           intents,
@@ -78,10 +69,9 @@ describe('Exact match', () => {
 
       for (const [u, i] of pairs) {
         const { intents } = await exactMatchIntentClf.predict(makeTestUtterance(u))
-        const pred1 = intents.find(p => p.name === i.name)
-        const pred2 = intents.filter(p => p.name !== i.name)
-        expect(pred1?.confidence).toBe(1)
-        expect(pred2.map(p => p.confidence).some(x => x !== 0)).toBe(false)
+
+        expect(intents.length).toBe(1)
+        expect(intents[0].confidence).toBe(1)
       }
     })
 
@@ -110,10 +100,8 @@ describe('Exact match', () => {
 
       for (const [u, i] of pairs) {
         const { intents } = await exactMatchIntentClf.predict(makeTestUtterance(u))
-        const pred1 = intents.find(p => p.name === i.name)
-        const pred2 = intents.filter(p => p.name !== i.name)
-        expect(pred1?.confidence).toBe(1)
-        expect(pred2.map(p => p.confidence).some(x => x !== 0)).toBe(false)
+        expect(intents.length).toBe(1)
+        expect(intents[0].confidence).toBe(1)
       }
     })
   })
