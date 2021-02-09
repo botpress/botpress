@@ -89,7 +89,7 @@ export default class BasicAuthentication {
 
     const { data } = await api
       .getAnonymous({ toastErrors: false })
-      .post('/auth' + loginUrl, credentials, { timeout: 15000 })
+      .post(`/auth${loginUrl}`, credentials, { timeout: 15000 })
 
     setToken(data.payload.token)
 
@@ -128,7 +128,7 @@ export default class BasicAuthentication {
       return
     }
 
-    const { data } = await api.getAnonymous({ toastErrors: false }).post('/auth' + registerUrl, {
+    const { data } = await api.getAnonymous({ toastErrors: false }).post(`/auth${registerUrl}`, {
       email,
       password
     })
