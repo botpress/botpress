@@ -1,7 +1,8 @@
 import _ from 'lodash'
+import { makeTestUtterance } from 'nlu-core/test-utils/fake-utterance'
 
 import { Intent } from '../typings'
-import Utterance, { makeTestUtterance } from '../utterance/utterance'
+import Utterance from '../utterance/utterance'
 
 import { ExactIntenClassifier } from './exact-intent-classifier'
 

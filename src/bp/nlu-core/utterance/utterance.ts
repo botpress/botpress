@@ -315,14 +315,3 @@ export async function buildUtteranceBatch(
       return utterance
     })
 }
-
-/**
- * @description Utility function that returns an utterance using a space tokenizer
- * @param str sentence as a textual value
- */
-export function makeTestUtterance(str: string): Utterance {
-  const toks = str.split(new RegExp(`(${SPECIAL_CHARSET.join('|')}|\\s)`, 'gi'))
-  const vecs = new Array(toks.length).fill([0])
-  const pos = new Array(toks.length).fill('N/A')
-  return new Utterance(toks, vecs, pos, 'en')
-}

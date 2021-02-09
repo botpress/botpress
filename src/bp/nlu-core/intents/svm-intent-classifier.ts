@@ -110,9 +110,9 @@ export class SvmIntentClassifier implements IntentClassifier {
         }
       }
 
-      const confidence = 1 / intentNames.length
+      const intent = intentNames[0]
       return {
-        intents: intentNames.map(ctx => ({ name: ctx, confidence, extractor: 'svm-classifier' }))
+        intents: [{ name: intent, confidence: 1, extractor: 'svm-classifier' }]
       }
     }
 
