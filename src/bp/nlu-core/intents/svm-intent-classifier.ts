@@ -1,4 +1,4 @@
-import { MLToolkit } from 'botpress/sdk'
+import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 import { ListEntityModel, PatternEntity, Tools } from 'nlu-core/typings'
 import Utterance from 'nlu-core/utterance/utterance'
@@ -25,7 +25,7 @@ export class SvmIntentClassifier implements IntentClassifier {
   private model: Model | undefined
   private predictors: Predictors | undefined
 
-  constructor(private tools: Tools, private featurizer: Featurizer) {}
+  constructor(private tools: Tools, private featurizer: Featurizer, private logger?: NLU.Logger) {}
 
   async train(input: IntentTrainInput, progress: (p: number) => void): Promise<void> {
     const { intents, nluSeed, list_entities, pattern_entities } = input
@@ -44,6 +44,7 @@ export class SvmIntentClassifier implements IntentClassifier {
 
     const classCount = _.uniqBy(points, p => p.label).length
     if (points.length === 0 || classCount <= 1) {
+      this.logger?.debug('No SVM to train because there is less than two classes.')
       this.model = {
         svmModel: undefined,
         intentNames: intents.map(i => i.name),

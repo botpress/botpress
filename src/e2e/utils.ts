@@ -3,7 +3,7 @@ import { Dialog, ElementHandle, HttpMethod, MouseButtons, Page } from 'puppeteer
 
 import { bpConfig } from '../../jest-puppeteer.config'
 
-import { clickOn, expectMatchElement } from './expectPuppeteer'
+import { clickOn, expectMatchElement, fillField } from './expectPuppeteer'
 
 export const getPage = async (): Promise<Page> => {
   await page.setViewport(bpConfig.windowSize)
@@ -16,6 +16,15 @@ export const getPage = async (): Promise<Page> => {
   // @ts-ignore
   global.page = page
   return page
+}
+
+export const loginIfNeeded = async () => {
+  if (page.url().includes('login')) {
+    await fillField('#email', bpConfig.email)
+    await fillField('#password', bpConfig.password)
+    await clickOn('#btn-signin')
+    return page.waitForNavigation()
+  }
 }
 
 export const gotoStudio = async (section?: string) => {
@@ -38,9 +47,10 @@ const getResponse = async (url: string, method?: HttpMethod) => {
   })
 }
 
-export const expectCallSuccess = async (url: string, method?: HttpMethod): Promise<void> => {
+export const expectCallSuccess = async (url: string, method?: HttpMethod): Promise<any> => {
   const response = await getResponse(url, method)
   expect(response.status()).toBe(200)
+  return response.json()
 }
 
 export const expectAdminApiCallSuccess = async (endOfUrl: string, method?: HttpMethod): Promise<void> => {

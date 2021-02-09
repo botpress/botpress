@@ -28,15 +28,3 @@ export const HandoffAssignedForAgent = props => {
     </Fragment>
   )
 }
-
-export const HandoffAssignedForUser = () => {
-  const [isLangInit, setLangInit] = useState(false)
-
-  useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
-    initLang().then(() => setLangInit(true))
-  }, [])
-
-  // TODO render agent name
-  return <Fragment>{isLangInit && <span>{lang.tr('module.hitlnext.handoff.assignedToAgent')}</span>}</Fragment>
-}

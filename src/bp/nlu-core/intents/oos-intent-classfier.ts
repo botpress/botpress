@@ -1,4 +1,4 @@
-import { MLToolkit } from 'botpress/sdk'
+import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 import { isPOSAvailable } from 'nlu-core/language/pos-tagger'
 import { getStopWordsForLang } from 'nlu-core/language/stopWords'
@@ -46,7 +46,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
   private model: Model | undefined
   private predictors: Predictors | undefined
 
-  constructor(private tools: Tools) {}
+  constructor(private tools: Tools, private logger?: NLU.Logger) {}
 
   public async train(trainInput: TrainInput, progress: (p: number) => void): Promise<void> {
     const { languageCode, allUtterances, intents } = trainInput
@@ -154,6 +154,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
     const noneUtts = noneIntent.utterances
 
     if (!isPOSAvailable(languageCode) || noneUtts.length === 0) {
+      this.logger?.debug('Cannot train OOS svm because there is no training data.')
       progress(1)
       return
     }
@@ -177,7 +178,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
     noneIntent: Omit<Intent<Utterance>, 'contexts'>,
     progress: (p: number) => void
   ): Promise<string> {
-    const baseIntentClf = new SvmIntentClassifier(this.tools, getIntentFeatures)
+    const baseIntentClf = new SvmIntentClassifier(this.tools, getIntentFeatures, this.logger)
     const noneUtts = noneIntent.utterances.filter(u => u.tokens.filter(t => t.isWord).length >= 3)
     const trainableIntents = trainInput.intents.filter(
       i => i.name !== NONE_INTENT && i.utterances.length >= MIN_NB_UTTERANCES

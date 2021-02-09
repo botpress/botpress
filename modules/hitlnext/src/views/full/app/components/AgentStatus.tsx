@@ -2,17 +2,16 @@ import { Button, Icon } from '@blueprintjs/core'
 import { lang, MoreOptions } from 'botpress/shared'
 import React, { FC, useState } from 'react'
 
+import { IAgent } from '../../../../types'
 import AgentIcon from '../../shared/components/AgentIcon'
 import style from '../../style.scss'
-
-import { IAgent } from './../../../../types'
 
 type Props = {
   setOnline: (online) => {}
   loading: boolean
 } & Partial<IAgent>
 
-const AgentProfile: FC<Props> = ({ setOnline, online, loading }) => {
+const AgentStatus: FC<Props> = ({ setOnline, online, loading }) => {
   const [display, setDisplay] = useState(false)
 
   const optionsItems = [
@@ -44,4 +43,4 @@ const AgentProfile: FC<Props> = ({ setOnline, online, loading }) => {
   )
 }
 
-export default AgentProfile
+export default AgentStatus

@@ -99,7 +99,7 @@ const BottomPanel = props => {
         {props.inspectorEnabled && <Tab id="inspector" title={lang.tr('inspector')} />}
       </Tabs>
 
-      <div className={cx(style.padded, style.fullWidth, { 'emulator-open': props.emulatorOpen })}>
+      <div className={cx(style.padded, style.fullWidth)}>
         <Logs commonButtons={commonButtons} hidden={tab !== 'logs'} />
 
         <Debugger

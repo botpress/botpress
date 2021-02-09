@@ -301,9 +301,9 @@ export default class Repository {
     })
 
     return {
-      ...data.payload,
       agentId,
-      online: await this.getAgentOnline(botId, agentId)
+      online: await this.getAgentOnline(botId, agentId),
+      attributes: data.payload
     } as IAgent
   }
 
