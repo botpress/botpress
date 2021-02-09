@@ -33,9 +33,9 @@ const UserDropdownMenu: FC<Props> = props => {
     !props.profile && props.fetchProfile()
   }, [])
 
-  const logout = () => {
+  const logout = async () => {
     const auth: BasicAuthentication = new BasicAuthentication()
-    auth.logout()
+    await auth.logout()
   }
 
   if (!props.profile) {
