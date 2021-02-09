@@ -14,19 +14,18 @@ import {
   PatternEntity,
   SlotExtractionResult,
   TFIDF,
-  Token2Vec,
   Tools
 } from './typings'
 import Utterance, { buildUtteranceBatch, preprocessRawUtterance, UtteranceEntity } from './utterance/utterance'
 
 export interface Predictors {
   lang: string
-  list_entities: ListEntityModel[] // no need for cache
   tfidf: TFIDF
-  vocabVectors: Token2Vec
+  vocab: string[]
   contexts: string[]
+  list_entities: ListEntityModel[] // no need for cache
   pattern_entities: PatternEntity[]
-  intents: Intent<Utterance>[]
+  intents: Intent<string>[]
   ctx_classifier: SvmIntentClassifier
   intent_classifier_per_ctx: _.Dictionary<OOSIntentClassifier>
   slot_tagger_per_intent: _.Dictionary<SlotTagger>
@@ -70,11 +69,11 @@ async function preprocessInput(
 }
 
 async function makePredictionUtterance(input: InitialStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
-  const { tfidf, vocabVectors, kmeans } = predictors
+  const { tfidf, vocab, kmeans } = predictors
 
   const text = preprocessRawUtterance(input.rawText.trim())
 
-  const [utterance] = await buildUtteranceBatch(_.uniq([text]), input.languageCode, tools, vocabVectors)
+  const [utterance] = await buildUtteranceBatch(_.uniq([text]), input.languageCode, tools, vocab)
 
   utterance.setGlobalTfidf(tfidf)
   utterance.setKmeans(kmeans)
@@ -171,7 +170,6 @@ function MapStepToOutput(step: SlotStep): NLU.PredictOutput {
     }
   }
 
-  // legacy pre-ndu
   const entities = step.utterance.entities.map(entitiesMapper)
 
   const slotsCollectionReducer = (slots: NLU.SlotCollection, s: SlotExtractionResult): NLU.SlotCollection => {
@@ -200,8 +198,8 @@ function MapStepToOutput(step: SlotStep): NLU.PredictOutput {
     const intentPred = step.intent_predictions[label]
     const intents = !intentPred
       ? []
-      : intentPred.intents.map(({ name, confidence }) => ({
-          extractor: 'classifier', // exact-matcher overwrites this field in line below
+      : intentPred.intents.map(({ name, confidence, extractor }) => ({
+          extractor,
           label: name,
           confidence,
           slots: (step.slot_predictions_per_intent?.[name] || []).reduce(slotsCollectionReducer, {})

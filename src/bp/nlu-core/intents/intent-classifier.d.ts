@@ -9,8 +9,13 @@ export interface IntentTrainInput {
   nluSeed: number
 }
 
+export interface IntentPrediction {
+  name: string
+  confidence: number
+  extractor: string
+}
 export interface IntentPredictions {
-  intents: { name: string; confidence: number }[]
+  intents: IntentPrediction[]
 }
 export interface NoneableIntentPredictions extends IntentPredictions {
   oos: number

@@ -42,7 +42,7 @@ export class SvmIntentClassifier implements IntentClassifier {
       .filter(x => x.coordinates.filter(isNaN).length === 0)
       .value()
 
-    const classCount = _.uniq(points.map(p => p.label)).length
+    const classCount = _.uniqBy(points, p => p.label).length
     if (points.length === 0 || classCount <= 1) {
       this.model = {
         svmModel: undefined,
@@ -111,7 +111,7 @@ export class SvmIntentClassifier implements IntentClassifier {
 
       const confidence = 1 / intentNames.length
       return {
-        intents: intentNames.map(ctx => ({ name: ctx, confidence }))
+        intents: intentNames.map(ctx => ({ name: ctx, confidence, extractor: 'svm-classifier' }))
       }
     }
 
@@ -120,7 +120,7 @@ export class SvmIntentClassifier implements IntentClassifier {
     const preds = await svm.predict(features)
 
     return {
-      intents: preds.map(({ label, confidence }) => ({ name: label, confidence }))
+      intents: preds.map(({ label, confidence }) => ({ name: label, confidence, extractor: 'svm-classifier' }))
     }
   }
 

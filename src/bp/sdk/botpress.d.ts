@@ -644,7 +644,7 @@ declare module 'botpress/sdk' {
         label: string
         confidence: number
         slots: SlotCollection
-        extractor: 'exact-matcher' | 'classifier'
+        extractor: string
       }[]
     }
 

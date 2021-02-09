@@ -56,7 +56,7 @@ export type TrainStep = Readonly<{
 export interface TrainOutput {
   list_entities: ColdListEntityModel[]
   tfidf: TFIDF
-  vocabVectors: Token2Vec
+  vocab: string[]
   kmeans: SerializedKmeansResult | undefined
   contexts: string[]
   ctx_model: string
@@ -66,7 +66,7 @@ export interface TrainOutput {
 
 type progressCB = (p?: number) => void
 
-const debugTraining = DEBUG('nlu').sub('training') // TODO: make sure logs get wired up to web process
+const debugTraining = DEBUG('nlu').sub('training')
 
 const NUM_CLUSTERS = 8
 const KMEANS_OPTIONS = {
@@ -123,10 +123,7 @@ const makeListEntityModel = async (entity: ListEntityWithCache, languageCode: st
   }
 }
 
-export const computeKmeans = (
-  intents: Intent<Utterance>[],
-  tools: Tools
-): sdk.MLToolkit.KMeans.KmeansResult | undefined => {
+const computeKmeans = (intents: Intent<Utterance>[], tools: Tools): sdk.MLToolkit.KMeans.KmeansResult | undefined => {
   const data = _.chain(intents)
     .flatMap(i => i.utterances)
     .flatMap(u => u.tokens)
@@ -240,7 +237,7 @@ const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: 
   return rootIntentClassifier.serialize()
 }
 
-export const ProcessIntents = async (
+const ProcessIntents = async (
   intents: Intent<string>[],
   languageCode: string,
   tools: Tools
@@ -252,7 +249,7 @@ export const ProcessIntents = async (
   })
 }
 
-export const ExtractEntities = async (input: TrainStep, tools: Tools): Promise<TrainStep> => {
+const ExtractEntities = async (input: TrainStep, tools: Tools): Promise<TrainStep> => {
   const utterances: Utterance[] = _.chain(input.intents)
     .flatMap('utterances')
     .value()
@@ -382,9 +379,9 @@ export const Trainer = async (
     ctx_model,
     intent_model_by_ctx,
     slots_model_by_intent,
-    vocabVectors: step.vocabVectors,
-    kmeans: step.kmeans && serializeKmeans(step.kmeans),
-    contexts: input.contexts
+    contexts: input.contexts,
+    vocab: Object.keys(step.vocabVectors),
+    kmeans: step.kmeans && serializeKmeans(step.kmeans)
   }
 
   return output

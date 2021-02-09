@@ -9,10 +9,10 @@ import {
 } from 'nlu-core/out-of-scope-featurizer'
 import { SMALL_TFIDF } from 'nlu-core/tools/tfidf'
 import { isSpace, SPACE } from 'nlu-core/tools/token-utils'
-import { Intent, ListEntityModel, PatternEntity, Tools } from 'nlu-core/typings'
+import { Intent, Tools } from 'nlu-core/typings'
 import Utterance, { buildUtteranceBatch } from 'nlu-core/utterance/utterance'
 
-import { BuildExactMatchIndex, ExactMatchIndex, findExactIntent } from './exact-matcher'
+import { ExactIntenClassifier } from './exact-intent-classifier'
 import { IntentTrainInput, NoneableIntentClassifier, NoneableIntentPredictions } from './intent-classifier'
 import { getIntentFeatures } from './intent-featurizer'
 import { SvmIntentClassifier } from './svm-intent-classifier'
@@ -25,14 +25,14 @@ interface Model {
   trainingVocab: string[]
   baseIntentClfModel: string
   oosSvmModel: string | undefined
-  exact_match_index: ExactMatchIndex
+  exact_match_index: string
 }
 
 interface Predictors {
   baseIntentClf: SvmIntentClassifier
   oosSvm: MLToolkit.SVM.Predictor | undefined
   trainingVocab: string[]
-  exact_match_index: ExactMatchIndex
+  exact_match_index: string
 }
 
 const MIN_NB_UTTERANCES = 3
@@ -50,7 +50,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
 
   public async train(trainInput: TrainInput, progress: (p: number) => void): Promise<void> {
     const { languageCode, allUtterances, intents } = trainInput
-    const noneIntent = await this.makeNoneIntent(allUtterances, languageCode)
+    const noneIntent = await this._makeNoneIntent(allUtterances, languageCode)
 
     let combinedProgress = 0
     const scaledProgress = (p: number) => {
@@ -63,7 +63,10 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
       this._trainInScopeSvm(trainInput, noneIntent, scaledProgress)
     ])
 
-    const exact_match_index = BuildExactMatchIndex(intents)
+    const exactIntenClassifier = new ExactIntenClassifier()
+    const dummyProgress = () => {}
+    await exactIntenClassifier.train(trainInput, dummyProgress)
+    const exact_match_index = exactIntenClassifier.serialize()
 
     this.model = {
       oosSvmModel: ooScopeModel,
@@ -73,7 +76,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
     }
   }
 
-  private makeNoneIntent = async (allUtterances: Utterance[], languageCode: string): Promise<Intent<Utterance>> => {
+  private _makeNoneIntent = async (allUtterances: Utterance[], languageCode: string): Promise<Intent<Utterance>> => {
     const allTokens = _.flatMap(allUtterances, u => u.tokens)
 
     const vocab = _(allTokens)
@@ -243,14 +246,17 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
 
     const { oosSvm, baseIntentClf, trainingVocab, exact_match_index } = this.predictors
 
-    const intentPredictions = await baseIntentClf.predict(utterance)
+    const svmPredictions = await baseIntentClf.predict(utterance)
 
-    const exactPred = findExactIntent(exact_match_index, utterance)
-    if (exactPred) {
-      const idxToRemove = intentPredictions.intents.findIndex(p => p.name === exactPred.name)
-      intentPredictions.intents.splice(idxToRemove, 1)
-      intentPredictions.intents.unshift(exactPred)
-    }
+    const exactIntenClassifier = new ExactIntenClassifier()
+    exactIntenClassifier.load(exact_match_index)
+    const exactPredictions = await exactIntenClassifier.predict(utterance)
+
+    const intentPredictions = _([...svmPredictions.intents, ...exactPredictions.intents])
+      .groupBy(p => p.name)
+      .mapValues(preds => _.maxBy(preds, p => p.confidence)!)
+      .values()
+      .value()
 
     let oosPrediction = 0
     if (oosSvm) {
@@ -268,7 +274,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
     // TODO: proceed to election between none intent and oos, remove none intent and make sure confidences sum to 1.
 
     return {
-      ...intentPredictions,
+      intents: intentPredictions,
       oos: oosPrediction
     }
   }

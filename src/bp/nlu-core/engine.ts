@@ -17,7 +17,7 @@ import { deserializeModel, PredictableModel, serializeModel } from './model-seri
 import { Predict, Predictors } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
-import { ProcessIntents, TrainInput, TrainOutput } from './training-pipeline'
+import { TrainInput, TrainOutput } from './training-pipeline'
 import { TrainingWorkerQueue } from './training-worker-queue'
 import { EntityCacheDump, ListEntity, PatternEntity, Tools } from './typings'
 import { preprocessRawUtterance } from './utterance/utterance'
@@ -248,13 +248,8 @@ export default class Engine implements NLU.Engine {
   private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {
     const tools = this._tools
 
-    const { ctx_model, intent_model_by_ctx, kmeans, slots_model_by_intent } = output
-
-    /**
-     * TODO: extract this function some place else,
-     * Engine's predict() shouldn't be dependant of training pipeline...
-     */
-    const intents = await ProcessIntents(input.intents, input.languageCode, this._tools)
+    const { intents, languageCode, pattern_entities, contexts } = input
+    const { ctx_model, intent_model_by_ctx, kmeans, slots_model_by_intent, tfidf, vocab, list_entities } = output
 
     const warmKmeans = kmeans && deserializeKmeans(kmeans)
 
@@ -273,11 +268,14 @@ export default class Engine implements NLU.Engine {
       return slotTagger
     })
 
-    return <Predictors>{
-      ...output,
-      lang: input.languageCode,
+    return {
+      contexts,
+      tfidf,
+      vocab,
+      lang: languageCode,
       intents,
-      pattern_entities: input.pattern_entities,
+      pattern_entities,
+      list_entities,
       kmeans: warmKmeans,
       intent_classifier_per_ctx,
       ctx_classifier,
@@ -313,11 +311,7 @@ export default class Engine implements NLU.Engine {
     }
 
     const preprocessed = preprocessRawUtterance(sentence)
-    const spellChecker = makeSpellChecker(
-      Object.keys(loaded.predictors.vocabVectors),
-      loaded.model.languageCode,
-      this._tools
-    )
+    const spellChecker = makeSpellChecker(loaded.predictors.vocab, loaded.model.languageCode, this._tools)
     return spellChecker(preprocessed)
   }
 

@@ -25,7 +25,7 @@ const _makeTrainOuput = (
     list_entities: [],
     slots_model_by_intent: {},
     tfidf: {},
-    vocabVectors: {},
+    vocab: [],
     intent_model_by_ctx: _(intentModels)
       .map(i => [i.ctx, i.model])
       .fromPairs()
