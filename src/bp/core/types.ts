@@ -89,7 +89,7 @@ const TYPES = {
   SDKStats: Symbol.for('SDKStats'),
   HooksStats: Symbol.for('HooksStats'),
   ConfigsStats: Symbol.for('ConfigsStats'),
-  DynamicSdkService: Symbol.for('DynamicSdkService')
+  CustomFunctionService: Symbol.for('CustomFunctionService')
 }
 
 export { TYPES }

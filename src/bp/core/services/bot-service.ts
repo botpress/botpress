@@ -1,4 +1,4 @@
-import { BotConfig, BotTemplate, Logger, SdkService, Stage, WorkspaceUserWithAttributes } from 'botpress/sdk'
+import { BotConfig, BotTemplate, Logger, Stage, WorkspaceUserWithAttributes } from 'botpress/sdk'
 import cluster from 'cluster'
 import { BotHealth, ServerHealth } from 'common/typings'
 import { BotCreationSchema, BotEditSchema, isValidBotId } from 'common/validation'
@@ -37,7 +37,7 @@ import { JobService } from './job-service'
 import { MigrationService } from './migration'
 import { ModuleResourceLoader } from './module/resources-loader'
 import RealtimeService from './realtime'
-import { DynamicSdkService } from './sdks'
+import { CustomFunctionService } from './functions'
 import { WorkspaceService } from './workspace-service'
 
 const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
@@ -85,7 +85,7 @@ export class BotService {
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
     @inject(TYPES.RealtimeService) private realtimeService: RealtimeService,
     @inject(TYPES.MigrationService) private migrationService: MigrationService,
-    @inject(TYPES.DynamicSdkService) private sdkService: DynamicSdkService
+    @inject(TYPES.CustomFunctionService) private functionService: CustomFunctionService
   ) {
     this._botIds = undefined
   }
@@ -653,7 +653,7 @@ export class BotService {
 
     await this.cms.clearElementsFromCache(botId)
     await this.moduleLoader.unloadModulesForBot(botId)
-    await this.sdkService.removeSdksForBot(botId)
+    await this.functionService.removeFunctionsForBot(botId)
 
     const api = await createForGlobalHooks()
     await this.hookService.executeHook(new Hooks.AfterBotUnmount(api, botId))

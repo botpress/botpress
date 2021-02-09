@@ -2359,17 +2359,17 @@ declare module 'botpress/sdk' {
     export function enableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
   }
 
-  export namespace sdks {
-    export function forBot(botId: string): SdkService
-    export function global(): SdkService
+  export namespace functions {
+    export function forBot(botId: string): FunctionService
+    export function global(): FunctionService
   }
 
-  export interface SdkService {
-    register(name: string, impl: DynamicSdk)
-    get(name: string): DynamicSdk
+  export interface FunctionService {
+    register(name: string, impl: FunctionGroup)
+    get(name: string): FunctionGroup
   }
 
-  export interface DynamicSdk {
+  export interface FunctionGroup {
     [funcName: string]: Function
   }
 }

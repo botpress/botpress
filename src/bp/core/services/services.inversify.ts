@@ -31,7 +31,7 @@ import { NotificationsService } from './notification/service'
 import { Queue } from './queue'
 import MemoryQueue from './queue/memory-queue'
 import RealtimeService from './realtime'
-import { DynamicSdkService } from './sdks'
+import { CustomFunctionService } from './functions'
 import { StatsService } from './stats-service'
 
 const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
@@ -144,8 +144,8 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
     .to(StatsService)
     .inSingletonScope()
 
-  bind<DynamicSdkService>(TYPES.DynamicSdkService)
-    .to(DynamicSdkService)
+  bind<CustomFunctionService>(TYPES.CustomFunctionService)
+    .to(CustomFunctionService)
     .inSingletonScope()
 })
 
