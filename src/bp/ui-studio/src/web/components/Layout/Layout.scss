@@ -22,6 +22,10 @@
   top: 50px !important;
 }
 
+:global(.emulator-open) {
+  padding-right: var(--emulator-width) !important;
+}
+
 .aside {
   background-color: var(--c-background--dark-3);
   overflow-x: hidden;

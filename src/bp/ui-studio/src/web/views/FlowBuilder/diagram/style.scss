@@ -6,10 +6,6 @@
   }
 }
 
-:global(.emulator-open) {
-  padding-right: calc(var(--spacing-x-large) + var(--emulator-width)) !important;
-}
-
 .floatingInfo {
   position: absolute;
   left: 10px;
