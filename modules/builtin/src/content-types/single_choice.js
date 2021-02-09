@@ -23,7 +23,7 @@ function render(data) {
         displayInKeyboard: true,
         options: data.choices.map(c => ({ label: c.title, value: c.value.toUpperCase() })),
         width: 300,
-        placeholder: data.DropdownPlaceholder
+        placeholderText: data.dropdownPlaceholder
       }];
   }
 
