@@ -10,7 +10,9 @@ const debug = DEBUG('libraries')
 const LIB_FOLDER = 'libraries/'
 
 const packageNameRegex = /^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/
-const versionRegex = /@[~^]?([\dvx*]+(?:[-.](?:[\dx*]+|alpha|beta))*)/
+
+// Taken from https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
+const versionRegex = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
 
 const sanitizeArg = (text: string) => text.replace(/[^a-zA-Z0-9\/_.@^\-\(\) ]/g, '').replace(/\/\//, '/')
 
@@ -18,6 +20,7 @@ export const validateNameVersion = ({ name, version }: { name: string; version?:
   const nameValid = name && packageNameRegex.test(name)
   const versionValid = !version || (version && versionRegex.test(version))
 
+  console.log(nameValid, versionValid, name, version)
   if (!nameValid || !versionValid) {
     throw new Error('Invalid characters found')
   }
