@@ -674,11 +674,7 @@ class Diagram extends Component<Props> {
     const canAdd = !this.props.defaultLang || this.props.defaultLang === this.props.currentLang
 
     return (
-      <MainLayout.Wrapper
-        className={cx({
-          'emulator-open': this.props.emulatorOpen
-        })}
-      >
+      <MainLayout.Wrapper>
         <WorkflowToolbar />
 
         <div className={style.searchWrapper}>
