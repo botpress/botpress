@@ -14,10 +14,6 @@
 * **studio:** emulator push content to the left when open ([#4487](https://github.com/botpress/botpress/issues/4487)) ([72cd3e3](https://github.com/botpress/botpress/commit/72cd3e3))
 
 
-### Features
-
-
-
 
 # [12.17.0](https://github.com/botpress/botpress/compare/v12.14.1...v12.17.0) (2021-01-29)
 
