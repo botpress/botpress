@@ -1,5 +1,6 @@
 import {
   Activity,
+  ActivityTypes,
   AttachmentLayoutTypes,
   BotFrameworkAdapter,
   CardFactory,
@@ -8,6 +9,7 @@ import {
 } from 'botbuilder'
 import { MicrosoftAppCredentials } from 'botframework-connector'
 import * as sdk from 'botpress/sdk'
+import { Request, Response } from 'express'
 import _ from 'lodash'
 
 import { Config } from '../config'
@@ -59,23 +61,27 @@ If you have a restricted app, you may need to specify the tenantId also.`
     })
   }
 
-  async receiveIncomingEvent(req, res) {
+  async receiveIncomingEvent(req: Request, res: Response) {
     await this.adapter.processActivity(req, res, async turnContext => {
       const { activity } = turnContext
 
       const conversationReference = TurnContext.getConversationReference(activity)
+      const threadId = conversationReference.conversation.id
+
       if (activity.value?.text) {
         activity.text = activity.value.text
       }
-      if (!activity.text) {
-        // To prevent from emojis reactions to launch actual events
-        return
+
+      if (this._botAddedToConversation(activity)) {
+        // Locale format: {lang}-{subtag1}-{subtag2}-... https://en.wikipedia.org/wiki/IETF_language_tag
+        // TODO: Use Intl.Locale().language once its types are part of TS. See: https://github.com/microsoft/TypeScript/issues/37326
+        const lang = activity.locale?.split('-')[0]
+        await this._sendProactiveMessage(conversationReference, lang)
+      } else if (activity.text) {
+        await this._sendIncomingEvent(activity, threadId)
       }
 
-      const threadId = conversationReference.conversation.id
       await this._setConversationRef(threadId, conversationReference)
-
-      await this._sendIncomingEvent(activity, threadId)
     })
   }
 
@@ -87,6 +93,17 @@ If you have a restricted app, you may need to specify the tenantId also.`
     } catch (err) {
       return false
     }
+  }
+
+  /**
+   * Determine whether the bot has just been added to the conversation or not
+   */
+  private _botAddedToConversation(activity: Activity): boolean {
+    // https://docs.microsoft.com/en-us/previous-versions/azure/bot-service/dotnet/bot-builder-dotnet-activities?view=azure-bot-service-3.0#conversationupdate
+    return (
+      activity.type === ActivityTypes.ConversationUpdate &&
+      activity.membersAdded?.some(member => member.id === activity.recipient.id)
+    )
   }
 
   private async _getConversationRef(threadId: string): Promise<Partial<ConversationReference>> {
@@ -108,6 +125,19 @@ If you have a restricted app, you may need to specify the tenantId also.`
 
     this.inMemoryConversationRefs[threadId] = convRef
     return this.bp.kvs.forBot(this.botId).set(threadId, convRef)
+  }
+
+  async _sendProactiveMessage(conversationReference: Partial<ConversationReference>, lang?: string): Promise<void> {
+    const defaultLanguage = (await this.bp.bots.getBotById(this.botId)).defaultLanguage
+    const proactiveMessages = this.config.proactiveMessages || {}
+    const message = (lang && proactiveMessages[lang]) || proactiveMessages[defaultLanguage]
+
+    if (message) {
+      conversationReference.serviceUrl && MicrosoftAppCredentials.trustServiceUrl(conversationReference.serviceUrl)
+      await this.adapter.continueConversation(conversationReference, async turnContext => {
+        await turnContext.sendActivity(message)
+      })
+    }
   }
 
   private _sendIncomingEvent = async (activity: Activity, threadId: string) => {
