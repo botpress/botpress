@@ -17,7 +17,7 @@ import { SessionIdFactory } from '../dialog/session/id-factory'
 import { JobService } from '../job-service'
 import { KeyValueStore } from '../kvs'
 
-const getRedisSessionKey = (sessionId: string, botId: string) => `sessionstate_${botId}_${sessionId}`
+const getRedisSessionKey = (sessionId: string) => `sessionstate_${sessionId}`
 const BATCH_SIZE = 100
 const MEMORY_PERSIST_INTERVAL = ms('5s')
 const REDIS_MEMORY_DURATION = ms('30s')
@@ -27,8 +27,8 @@ export class StateManager {
   private _redisClient!: Redis
   private batch!: { event: sdk.IO.IncomingEvent; ignoreContext?: boolean }[]
   private knex!: sdk.KnexExtended
-  private currentPromise
-  private useRedis
+  private currentPromise?: Promise<void>
+  private useRedis: boolean
 
   constructor(
     @inject(TYPES.Logger)
@@ -69,7 +69,7 @@ export class StateManager {
 
     if (this.useRedis) {
       try {
-        const userState = await this._redisClient.get(getRedisSessionKey(sessionId, event.botId))
+        const userState = await this._redisClient.get(getRedisSessionKey(sessionId))
         if (userState) {
           event.state = JSON.parse(userState)
           event.state.__stacktrace = []
@@ -85,7 +85,7 @@ export class StateManager {
     const { result: user } = await this.userRepo.getOrCreate(event.channel, event.target, event.botId)
     state.user = user.attributes
 
-    const session = await this.sessionRepo.get(sessionId, event.botId)
+    const session = await this.sessionRepo.get(sessionId)
 
     state.context = (session && session.context) || {}
     state.session = (session && session.session_data) || { lastMessages: [], workflows: {} }
@@ -107,7 +107,7 @@ export class StateManager {
 
     if (this.useRedis) {
       await this._redisClient.set(
-        getRedisSessionKey(sessionId, event.botId),
+        getRedisSessionKey(sessionId),
         JSON.stringify(_.omit(event.state, ['__stacktrace', 'workflow'])),
         'PX',
         REDIS_MEMORY_DURATION
@@ -119,11 +119,11 @@ export class StateManager {
     await this._saveState(event, ignoreContext)
   }
 
-  public async deleteDialogSession(sessionId: string, botId: string) {
-    await this.sessionRepo.delete(sessionId, botId)
+  public async deleteDialogSession(sessionId: string) {
+    await this.sessionRepo.delete(sessionId)
 
     if (this.useRedis) {
-      await this._redisClient.del(getRedisSessionKey(sessionId, botId))
+      await this._redisClient.del(getRedisSessionKey(sessionId))
     }
   }
 

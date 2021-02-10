@@ -75,7 +75,7 @@ export class DialogJanitor extends Janitor {
 
     try {
       const { channel, target, threadId } = SessionIdFactory.extractDestinationFromId(sessionId)
-      const session = await this.sessionRepo.get(sessionId, botId)
+      const session = await this.sessionRepo.get(sessionId)
 
       // This event only exists so that processTimeout can call processEvent
       const fakeEvent = Event({
@@ -107,7 +107,7 @@ export class DialogJanitor extends Janitor {
     }
   }
 
-  private _handleError(error, botId) {
+  private _handleError(error: Error, botId: string) {
     if (error instanceof TimeoutNodeNotFound) {
       dialogDebug.forBot(botId, 'No timeout node found. Clearing context now.')
     } else {
@@ -115,10 +115,10 @@ export class DialogJanitor extends Janitor {
     }
   }
 
-  private async _resetContext(botId, botConfig, sessionId, resetContext: boolean) {
+  private async _resetContext(botId: string, botConfig: BotConfig, sessionId: string, resetContext: boolean) {
     const botpressConfig = await this.getBotpressConfig()
     const expiry = createExpiry(botConfig!, botpressConfig)
-    const session = await this.sessionRepo.get(sessionId, botId)
+    const session = await this.sessionRepo.get(sessionId)
 
     if (resetContext) {
       session.context = {}
