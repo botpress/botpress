@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import React from 'react'
 import { AbstractLinkFactory, DefaultLinkModel, DefaultLinkWidget, DiagramEngine, Toolkit } from 'storm-react-diagrams'
+import { ExtendedDiagramEngine } from '..'
 
 import style from './style.scss'
 
@@ -54,8 +55,7 @@ class DeletableLinkWidget extends DefaultLinkWidget {
     const { link, diagramEngine } = this.props
     let { color, width } = this.props
 
-    // @ts-ignore
-    const flowManager = diagramEngine.flowBuilder.manager
+    const flowManager = (diagramEngine as ExtendedDiagramEngine).flowBuilder.manager
     if (flowManager.shouldHighlightLink(link.getID())) {
       color = 'var(--ocean)'
       width = 4
@@ -108,7 +108,9 @@ class DeletableLinkWidget extends DefaultLinkWidget {
         onMouseEnter={() => this.setState({ selected: true })}
         onClick={() => {
           link.remove()
-          this.props.diagramEngine.repaintCanvas()
+
+          const diagramEngine = (this.props.diagramEngine as ExtendedDiagramEngine)
+          diagramEngine.flowBuilder.checkForLinksUpdate()
         }}
       >
         <rect
