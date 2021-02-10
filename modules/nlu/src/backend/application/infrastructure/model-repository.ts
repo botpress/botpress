@@ -61,6 +61,10 @@ export class ScopedModelRepository {
     return Promise.map(invalidModels, file => this._ghost.deleteFile(MODELS_DIR, this._makeFileName(file)))
   }
 
+  public async hasModel(modelId: sdk.NLU.ModelId): Promise<boolean> {
+    return !!(await this.getModel(modelId))
+  }
+
   /**
    *
    * @param modelId The desired model id

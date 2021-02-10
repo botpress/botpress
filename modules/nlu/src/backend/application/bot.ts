@@ -49,19 +49,10 @@ export class Bot implements Trainer, Predictor {
   public async mount() {
     await this._modelRepo.initialize()
     await this._defService.initialize()
-
-    return Promise.map(this._languages, async language => {
-      const modelId = await this._defService.getLatestModelId(language)
-      const model = await this._modelRepo.getModel(modelId)
-      if (model) {
-        await this._load(model)
-      }
-    })
   }
 
   public async unmount() {
     await this._defService.teardown()
-
     for (const model of Object.values(this._modelsByLang)) {
       this._engine.unloadModel(model)
     }
@@ -82,19 +73,19 @@ export class Bot implements Trainer, Predictor {
   }
 
   public train = async (language: string, progressCallback: ProgressCallback): Promise<NLU.ModelId> => {
-    const { _engine, _languages, _modelRepo: _modelService, _defService: _definitionsService, _botId } = this
+    const { _engine, _languages, _modelRepo, _defService, _botId } = this
 
     if (!_languages.includes(language)) {
       throw new BotDoesntSpeakLanguageError(_botId, language)
     }
 
-    const trainSet: NLU.TrainingSet = await _definitionsService.getTrainSet(language)
+    const trainSet: NLU.TrainingSet = await _defService.getTrainSet(language)
 
     const previousModel = this._modelsByLang[language]
     const options: sdk.NLU.TrainingOptions = { previousModel, progressCallback }
 
     const model = await _engine.train(this._makeTrainingId(language), trainSet, options)
-    await _modelService.saveModel(model)
+    await _modelRepo.saveModel(model)
 
     const modelId = this._modelIdService.toId(model)
     this._modelsByLang[language] = modelId

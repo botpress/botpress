@@ -1,25 +1,23 @@
-import * as sdk from 'botpress/sdk'
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import { Bot } from './bot'
+import { BotFactory } from './bot-factory'
 import { ScopedDefinitionsService } from './definitions-service'
 import { BotNotMountedError } from './errors'
-import { ScopedDefinitionsRepository } from './infrastructure/definitions-repository'
 import { ScopedModelRepository } from './infrastructure/model-repository'
-import pickSeed from './pick-seed'
-import { BotDefinition, Predictor, TrainingQueue } from './typings'
+import { Predictor, TrainingQueue } from './typings'
+
+interface ScopedServices {
+  bot: Bot
+  defService: ScopedDefinitionsService
+  modelRepo: ScopedModelRepository
+}
 
 export class NLUApplication {
-  private _bots: _.Dictionary<Bot> = {}
+  private _bots: _.Dictionary<ScopedServices> = {}
 
-  constructor(
-    private _bp: typeof sdk,
-    private _trainingQueue: TrainingQueue,
-    private _engine: NLU.Engine,
-    private _logger: sdk.Logger,
-    private _modelIdService: typeof sdk.NLU.modelIdService
-  ) {}
+  constructor(private _trainingQueue: TrainingQueue, private _engine: NLU.Engine, private _botFactory: BotFactory) {}
 
   public async initialize() {
     await this._trainingQueue.initialize()
@@ -46,81 +44,48 @@ export class NLUApplication {
   }
 
   public getBot(botId: string): Predictor {
-    const bot = this._bots[botId]
-    if (!bot) {
+    const scoped = this._bots[botId]
+    if (!scoped) {
       throw new BotNotMountedError(botId)
     }
-    return this._bots[botId]
+    return scoped.bot
   }
 
   public mountBot = async (botId: string) => {
-    const { _engine } = this
-
-    const botConfig = await this._bp.bots.getBotById(botId)
-    if (!botConfig) {
-      throw new BotNotMountedError(botId)
-    }
-
-    const { defaultLanguage } = botConfig
-    const languages = _.intersection(botConfig.languages, _engine.getLanguages())
-    if (botConfig.languages.length !== languages.length) {
-      const missingLangMsg = `Bot ${botId} has configured languages that are not supported by language sources. Configure a before incoming hook to call an external NLU provider for those languages.`
-      this._logger.forBot(botId).warn(missingLangMsg, { notSupported: _.difference(botConfig.languages, languages) })
-    }
-
-    const botDefinition: BotDefinition = {
-      botId,
-      defaultLanguage,
-      languages,
-      seed: pickSeed(botConfig)
-    }
-
-    const needsTrainingCallback = (language: string) => {
-      return this._trainingQueue.needsTraining({ botId, language })
-    }
-
-    // TODO: should resolve those using a factory provided at ctor
-    const scopedGhost = this._bp.ghost.forBot(botId)
-    const defRepo = new ScopedDefinitionsRepository(botDefinition, this._bp)
-    const modelRepo = new ScopedModelRepository(botDefinition, this._modelIdService, scopedGhost)
-    const defService = new ScopedDefinitionsService(
-      botDefinition,
-      this._engine,
-      scopedGhost,
-      defRepo,
-      this._modelIdService,
-      needsTrainingCallback
-    )
-
-    const bot = new Bot(botDefinition, this._engine, modelRepo, defService, this._modelIdService, this._logger)
+    const { bot, defService, modelRepo } = await this._botFactory.makeBot(botId)
+    this._bots[botId] = { bot, defService, modelRepo }
 
     await bot.mount()
-    this._bots[botId] = bot
 
-    for (const language of languages) {
-      const needsTraining = await defService.needsTraining(language)
-      if (needsTraining) {
-        await this._trainingQueue.queueTraining({ botId, language }, bot)
+    const dirtyModelListener = async (language: string) => {
+      const latestModelId = await defService.getLatestModelId(language)
+      if (modelRepo.hasModel(latestModelId)) {
+        bot.load(latestModelId)
       }
+      this._trainingQueue.needsTraining({ botId, language })
     }
+
+    defService.listenForDirtyModels(dirtyModelListener)
+    await defService.scanForDirtyModels()
   }
 
   public unmountBot = async (botId: string) => {
-    const bot = this._bots[botId]
-    if (!bot) {
+    const scoped = this._bots[botId]
+    if (!scoped) {
       throw new BotNotMountedError(botId)
     }
 
-    await this._bots[botId].unmount()
+    const { bot } = scoped
+    await bot.unmount()
     delete this._bots[botId]
   }
 
   public async queueTraining(botId: string, language: string) {
-    const bot = this._bots[botId]
-    if (!bot) {
+    const scoped = this._bots[botId]
+    if (!scoped) {
       throw new BotNotMountedError(botId)
     }
-    return this._trainingQueue.queueTraining({ botId, language }, bot)
+    return this._trainingQueue.queueTraining({ botId, language }, scoped.bot)
   }
 
   public async cancelTraining(botId: string, language: string) {

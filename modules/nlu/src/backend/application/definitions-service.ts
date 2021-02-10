@@ -3,7 +3,7 @@ import { NLU } from 'botpress/sdk'
 
 import { ScopedDefinitionsRepository } from './infrastructure/definitions-repository'
 
-type NeedsTrainingCallback = (language: string) => Promise<void>
+type DirtyModelCallback = (language: string) => Promise<void>
 
 interface BotDefinition {
   languages: string[]
@@ -16,13 +16,14 @@ export class ScopedDefinitionsService {
 
   private _needTrainingWatcher: sdk.ListenHandle
 
+  private _dirtyModelsListeners: DirtyModelCallback[] = []
+
   constructor(
     bot: BotDefinition,
     private _engine: NLU.Engine,
     private _ghost: sdk.ScopedGhostService,
     private _nluRepository: ScopedDefinitionsRepository,
-    private _modelIdService: typeof sdk.NLU.modelIdService,
-    private _needsTrainingCallback: NeedsTrainingCallback
+    private _modelIdService: typeof sdk.NLU.modelIdService
   ) {
     this._languages = bot.languages
     this._seed = bot.seed
@@ -36,7 +37,15 @@ export class ScopedDefinitionsService {
     this._needTrainingWatcher.remove()
   }
 
-  public async needsTraining(language: string): Promise<boolean> {
+  public listenForDirtyModels = (listener: DirtyModelCallback) => {
+    this._dirtyModelsListeners.push(listener)
+  }
+
+  public scanForDirtyModels = async () => {
+    await Promise.filter(this._languages, this._needsTraining).mapSeries(this._notifyListeners)
+  }
+
+  private async _needsTraining(language: string): Promise<boolean> {
     const modelId = await this.getLatestModelId(language)
     if (this._engine.hasModel(modelId)) {
       return false
@@ -74,7 +83,11 @@ export class ScopedDefinitionsService {
       if (!hasPotentialNLUChange) {
         return
       }
-      await Promise.filter(this._languages, this.needsTraining).map(this._needsTrainingCallback)
+      await this.scanForDirtyModels()
     })
+  }
+
+  private _notifyListeners = (language: string) => {
+    return Promise.mapSeries(this._dirtyModelsListeners, l => l(language))
   }
 }
