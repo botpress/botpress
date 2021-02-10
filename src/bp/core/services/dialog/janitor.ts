@@ -53,18 +53,16 @@ export class DialogJanitor extends Janitor {
     dialogDebug('Running task')
 
     const botsConfigs = await this.botService.getBots()
-    const botsIds = Array.from(botsConfigs.keys())
 
     await this.sessionRepo.deleteExpiredSessions()
 
-    for (const botId of botsIds) {
-      const sessionsIds = await this.sessionRepo.getExpiredContextSessionIds(botId)
+    const sessionsIds = await this.sessionRepo.getExpiredContextSessionIds()
 
-      if (sessionsIds.length > 0) {
-        dialogDebug.forBot(botId, 'Found stale sessions', sessionsIds)
-        for (const sessionId of sessionsIds) {
-          await this._processSessionTimeout(sessionId, botId, botsConfigs.get(botId)!)
-        }
+    if (sessionsIds.length > 0) {
+      dialogDebug('Found stale sessions', sessionsIds)
+      for (const sessionId of sessionsIds) {
+        const { botId } = SessionIdFactory.extractDestinationFromId(sessionId)
+        await this._processSessionTimeout(sessionId, botId, botsConfigs.get(botId)!)
       }
     }
   }

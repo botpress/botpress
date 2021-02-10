@@ -27,7 +27,7 @@ export interface SessionRepository {
   insert(session: DialogSession): Promise<DialogSession>
   getOrCreateSession(sessionId: string, botId: string, trx?: Knex.Transaction): Promise<DialogSession>
   get(id: string): Promise<DialogSession>
-  getExpiredContextSessionIds(botId: string): Promise<string[]>
+  getExpiredContextSessionIds(): Promise<string[]>
   deleteExpiredSessions(): Promise<void>
   delete(id: string): Promise<void>
   update(session: DialogSession, trx?: Knex.Transaction): Promise<void>
@@ -93,10 +93,9 @@ export class KnexSessionRepository implements SessionRepository {
     return session
   }
 
-  async getExpiredContextSessionIds(botId: string): Promise<string[]> {
+  async getExpiredContextSessionIds(): Promise<string[]> {
     let query = this.database
       .knex(this.tableName)
-      .where('botId', botId)
       .andWhere(this.database.knex.date.isBefore('context_expiry', new Date()))
 
     // We only process expired context if there is actually a context
