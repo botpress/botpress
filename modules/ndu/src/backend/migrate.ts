@@ -3,8 +3,8 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import generate from 'nanoid/generate'
 
-import { bots as mountedBots, conditions } from '.'
 import { DEFAULT_MIN_CONFIDENCE, UnderstandingEngine } from './ndu-engine'
+import { bots as mountedBots, conditions } from '.'
 
 const prettyId = (length = 10) => generate('1234567890abcdef', length)
 const debug = DEBUG('ndu').sub('migrate')
@@ -41,7 +41,6 @@ const addSuccessFailureNodes = (flow: sdk.Flow, flowPath: string, flowUi: FlowNo
       id,
       name: type,
       onEnter: [],
-      // tslint:disable-next-line: no-null-keyword
       onReceive: null,
       next: [],
       type

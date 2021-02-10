@@ -11,8 +11,8 @@ import queryString from 'query-string'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import ReactTable, { Column } from 'react-table'
-import { toastSuccess } from '~/utils/toaster'
 import PageContainer from '~/App/PageContainer'
+import { toastSuccess } from '~/utils/toaster'
 
 import api from '../../api'
 import { fetchBots } from '../../reducers/bots'
@@ -59,7 +59,7 @@ const Logs: FC<Props> = props => {
       setDateRange(getDateShortcuts()[1].dateRange)
     }
 
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     fetchLogs()
   }, [dateRange, onlyWorkspace, props.currentWorkspace])
 

@@ -51,12 +51,12 @@ import { getAllFlows, getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/
 import storage from '~/util/storage'
 
 import { prepareEventForDiagram } from './debugger'
+import DiagramToolbar from './DiagramToolbar'
 import { defaultTransition, DiagramManager, DIAGRAM_PADDING, nodeTypes, Point } from './manager'
 import { BlockModel, BlockProps, BlockWidgetFactory } from './nodes/Block'
 import { DeletableLinkFactory } from './nodes/LinkWidget'
-import style from './style.scss'
-import DiagramToolbar from './DiagramToolbar'
 import NodeToolbar from './NodeToolbar'
+import style from './style.scss'
 import TriggerEditor from './TriggerEditor'
 import WorkflowToolbar from './WorkflowToolbar'
 import ZoomToolbar from './ZoomToolbar'
@@ -140,7 +140,7 @@ class Diagram extends Component<Props> {
       getSkills: () => this.getPropsProperty('skills'),
       disconnectNode: this.disconnectNode.bind(this),
       // Temporary, maybe we could open the elementinstead of double-click?
-      // tslint:disable-next-line: no-console
+      // eslint-disable-next-line no-console
       editNodeItem: (node, idx) => console.log(node, idx)
     }
 
@@ -256,7 +256,7 @@ class Diagram extends Component<Props> {
     }
 
     if (this.dragPortSource && !prevProps.currentFlowNode && this.props.currentFlowNode) {
-      // tslint:disable-next-line: no-floating-promises
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.linkCreatedNode()
     }
 

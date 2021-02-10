@@ -7,7 +7,7 @@ export function configure(verboseLevel) {
 }
 
 export function log(color: string, message: string, source?: string) {
-  // tslint:disable-next-line: no-console
+  // eslint-disable-next-line no-console
   console.log(chalk[color](`[${source || 'module-builder'}] ` + message))
 }
 

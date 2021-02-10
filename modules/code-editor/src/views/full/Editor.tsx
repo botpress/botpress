@@ -20,7 +20,7 @@ class Editor extends React.Component<Props> {
 
   async componentDidMount() {
     this.setupEditor()
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.loadTypings()
 
     observe(this.props.editor, 'currentFile', this.loadFile, true)
