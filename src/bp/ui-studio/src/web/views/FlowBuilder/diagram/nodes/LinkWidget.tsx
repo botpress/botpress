@@ -172,7 +172,7 @@ class DeletableLinkWidget extends DefaultLinkWidget {
           this.generateLink(
             Toolkit.generateDynamicPath(simplifiedPath),
             {
-              onMouseDown: event => {
+              onMouseDown: (event: MouseEvent) => {
                 this.addPointToLink(event, 1)
               }
             },
