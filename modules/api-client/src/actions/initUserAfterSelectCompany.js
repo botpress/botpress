@@ -36,15 +36,9 @@ const initUserAfterSelectCompany = async () => {
 
     user.req_user_data = req_user_data;
     user.isAuth = true;
-  } catch (error) {
-    console.log('INIT AFTER');
-    console.log(error);
-    console.log('INIT AFTER');
-
+  } catch (e) {
     const sessionId = bp.dialog.createId(event);
-    await bp.dialog.jumpTo(sessionId, event, 'error.flow.json', 'unauthorized');
-
-    user.isAuth = false;
+    await bp.dialog.jumpTo(sessionId, event, 'error.flow.json', e.httpCode);
   }
 };
 

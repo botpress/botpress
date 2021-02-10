@@ -35,9 +35,9 @@ const selectCompany = async () => {
     );
 
     await bp.events.replyToEvent(event, payloads);
-  } catch (error) {
+  } catch (e) {
     const sessionId = bp.dialog.createId(event);
-    await bp.dialog.jumpTo(sessionId, event, 'error.flow.json', 'unauthorized');
+    await bp.dialog.jumpTo(sessionId, event, 'error.flow.json', e.httpCode);
   }
 };
 

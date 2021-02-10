@@ -1,5 +1,4 @@
-const axios = require('axios');
-const { apiAuthService, apiUserService } = require('@rdcdev/dbank-client');
+const { apiAuthService } = require('@rdcdev/dbank-client');
 
 /**
  * Auth user
@@ -17,7 +16,7 @@ const auth = async (login, password) => {
   } catch (error) {
 
     const sessionId = bp.dialog.createId(event);
-    await bp.dialog.jumpTo(sessionId, event, 'error.flow.json', 'unauthorized');
+    await bp.dialog.jumpTo(sessionId, event, 'error.flow.json', e.httpCode);
 
     temp.successAuth = false;
   }

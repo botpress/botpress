@@ -27,7 +27,7 @@ const getExchanges = async (rateType) => {
     await bp.events.replyToEvent(event, payloads);
   } catch (e) {
     const sessionId = bp.dialog.createId(event);
-    await bp.dialog.jumpTo(sessionId, event, 'error.flow.json', 'badRequest');
+    await bp.dialog.jumpTo(sessionId, event, 'error.flow.json', e.httpCode);
   }
 };
 
