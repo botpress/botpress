@@ -11,6 +11,7 @@ import { getUserLocale, initializeLocale } from '../translations'
 import {
   BotInfo,
   Config,
+  ConversationSummary,
   CurrentConversation,
   EventFeedback,
   Message,
@@ -18,7 +19,6 @@ import {
   QueuedMessage,
   StudioConnector
 } from '../typings'
-import * as sdk from 'botpress/sdk'
 import { downloadFile, trackMessage } from '../utils'
 
 import ComposerStore from './composer'
@@ -39,7 +39,7 @@ class RootStore {
   private api: WebchatApi
 
   @observable
-  public conversations: sdk.RecentConversation[] = []
+  public conversations: ConversationSummary[] = []
 
   @observable
   public currentConversation: CurrentConversation
@@ -160,7 +160,7 @@ class RootStore {
     }
 
     const message: Message = { ...event, conversationId: +event.conversationId }
-    if (this.isBotTyping.get() && event.from !== 'user') {
+    if (this.isBotTyping.get() && !event.userId) {
       this.delayedMessages.push({ message, showAt: this.currentConversation.typingUntil })
     } else {
       this.currentConversation.messages.push(message)
@@ -487,8 +487,7 @@ class RootStore {
     }
 
     const lifeTimeMargin = Date.now() - ms(this.config.recentConversationLifetime)
-    const isConversationExpired =
-      new Date(this.conversations[0].lastMessage?.sentOn || this.conversations[0].createdOn).getTime() < lifeTimeMargin
+    const isConversationExpired = new Date(this.conversations[0].last_heard_on).getTime() < lifeTimeMargin
     if (isConversationExpired && this.config.startNewConvoOnTimeout) {
       return
     }

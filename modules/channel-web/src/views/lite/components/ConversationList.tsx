@@ -4,12 +4,16 @@ import { InjectedIntlProps, injectIntl } from 'react-intl'
 
 import Add from '../icons/Add'
 import { RootStore, StoreDef } from '../store'
-import * as sdk from 'botpress/sdk'
+import { ConversationSummary } from '../typings'
 
 const ConversationListItem = injectIntl(({ conversation, onClick, hasFocus, intl }: ConversationListItemProps) => {
-  const title = intl.formatMessage({ id: 'conversationList.title' }, { id: conversation.id })
-  const date = intl.formatRelative(conversation.lastMessage?.sentOn || conversation.createdOn)
-  const message = conversation.lastMessage?.payload?.text || '...'
+  const title =
+    conversation.title ||
+    conversation.message_author ||
+    intl.formatMessage({ id: 'conversationList.untitledConversation', defaultMessage: 'Untitled Conversation' })
+
+  const date = intl.formatRelative(conversation.message_sent_on || conversation.created_on)
+  const message = conversation.message_text || '...'
 
   return (
     <div className={'bpw-convo-item'} onClick={onClick}>
@@ -27,7 +31,7 @@ const ConversationListItem = injectIntl(({ conversation, onClick, hasFocus, intl
 })
 
 type ConversationListItemProps = {
-  conversation: sdk.RecentConversation
+  conversation: ConversationSummary
   hasFocus: boolean
   onClick: (event: React.MouseEvent) => void
 } & InjectedIntlProps &

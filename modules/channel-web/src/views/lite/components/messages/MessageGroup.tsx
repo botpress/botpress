@@ -87,7 +87,7 @@ class MessageGroup extends React.Component<Props> {
 
               return (
                 <Message
-                  key={message.id}
+                  key={message.eventId}
                   isHighlighted={
                     this.props.highlightedMessages && this.props.highlightedMessages.includes(message.incomingEventId)
                   }
@@ -105,10 +105,10 @@ class MessageGroup extends React.Component<Props> {
                   fromLabel={fromLabel}
                   isLastOfGroup={i >= this.props.messages.length - 1}
                   isLastGroup={this.props.isLastGroup}
-                  isBotMessage={isBot}
+                  isBotMessage={!message.userId}
                   incomingEventId={message.incomingEventId}
                   payload={payload}
-                  sentOn={message.sentOn}
+                  sentOn={message.sent_on}
                   onSendData={this.props.onSendData}
                   onFileUpload={this.props.onFileUpload}
                   bp={this.props.bp}
