@@ -10,7 +10,6 @@ import { TYPES } from '../types'
 export class DialogSession {
   constructor(
     public id: string,
-    public botId: string,
     public context: sdk.IO.DialogContext = {},
     public temp_data: any = {},
     public session_data: sdk.IO.CurrentSession = { lastMessages: [], workflows: {} }
@@ -25,7 +24,7 @@ export class DialogSession {
 
 export interface SessionRepository {
   insert(session: DialogSession): Promise<DialogSession>
-  getOrCreateSession(sessionId: string, botId: string, trx?: Knex.Transaction): Promise<DialogSession>
+  getOrCreateSession(sessionId: string, trx?: Knex.Transaction): Promise<DialogSession>
   get(id: string): Promise<DialogSession>
   getExpiredContextSessionIds(): Promise<string[]>
   deleteExpiredSessions(): Promise<void>
@@ -39,11 +38,11 @@ export class KnexSessionRepository implements SessionRepository {
 
   constructor(@inject(TYPES.Database) private database: Database) {}
 
-  async getOrCreateSession(sessionId: string, botId: string, trx?: Knex.Transaction): Promise<DialogSession> {
+  async getOrCreateSession(sessionId: string, trx?: Knex.Transaction): Promise<DialogSession> {
     const session = await this.get(sessionId)
     if (!session) {
-      const session = new DialogSession(sessionId, botId, {}, {}, { lastMessages: [], workflows: {} })
-      const { channel } = SessionIdFactory.extractDestinationFromId(sessionId)
+      const session = new DialogSession(sessionId, {}, {}, { lastMessages: [], workflows: {} })
+      const { botId, channel } = SessionIdFactory.extractDestinationFromId(sessionId)
       BOTPRESS_CORE_EVENT('bp_core_session_created', { botId, channel })
       return this.insert(session, trx)
     }
@@ -55,7 +54,6 @@ export class KnexSessionRepository implements SessionRepository {
       this.tableName,
       {
         id: session.id,
-        botId: session.botId,
         context: this.database.knex.json.set(session.context || {}),
         temp_data: this.database.knex.json.set(session.temp_data || {}),
         session_data: this.database.knex.json.set(session.session_data || {}),
@@ -64,7 +62,7 @@ export class KnexSessionRepository implements SessionRepository {
         context_expiry: session.context_expiry ? this.database.knex.date.format(session.context_expiry) : eval('null'),
         session_expiry: session.session_expiry ? this.database.knex.date.format(session.session_expiry) : eval('null')
       },
-      ['id', 'botId', 'context', 'temp_data', 'session_data', 'modified_on', 'created_on'],
+      ['id', 'context', 'temp_data', 'session_data', 'modified_on', 'created_on'],
       undefined,
       trx
     )
