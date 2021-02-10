@@ -4,7 +4,7 @@
   "editor.formatOnSave": true,
   "files.eol": "\n",
   "editor.codeActionsOnSave": {
-    "source.fixAll.tslint": true
+    "source.fixAll": true
   },
   "files.associations": {
     "*.styl": "scss",

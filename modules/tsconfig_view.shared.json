@@ -23,5 +23,6 @@
       "react-dom": ["../../../../src/bp/ui-studio/node_modules/@types/react-dom"]
     }
   },
-  "exclude": ["**/*.test.ts"]
+  "exclude": ["**/*.test.ts"],
+  "include": ["*/src/views/**/*.ts","*/src/views/**/*.tsx"]
 }

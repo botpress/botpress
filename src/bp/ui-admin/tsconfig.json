@@ -22,8 +22,7 @@
     "isolatedModules": true,
     "noEmit": true
   },
-  "include": [
-    "src"
-  ],
+  "include": ["src/**/*.ts","src/**/*.tsx"],
+ 
   "extends": "./tsconfig_bp.json"
 }

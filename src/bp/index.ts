@@ -11,7 +11,7 @@ const { Debug } = require('./debug')
 const { getAppDataPath } = require('./core/misc/app_data')
 
 const printPlainError = err => {
-  // tslint:disable: no-console
+  /* eslint-disable no-console */
   console.log('Error starting botpress')
   console.log(err)
   console.log(err.message)

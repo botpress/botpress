@@ -1,6 +1,7 @@
 const core = require('./build/gulp.core')
 const modules = require('./build/gulp.modules')
 const package = require('./build/gulp.package')
+const eslint = require('./build/gulp.eslint')
 const gulp = require('gulp')
 const ui = require('./build/gulp.ui')
 const docs = require('./build/gulp.docs')
@@ -19,10 +20,19 @@ process.on('uncaughtException', err => {
 if (yn(process.env.GULP_PARALLEL)) {
   gulp.task(
     'build',
-    gulp.series([ui.buildSharedLite(), core.build(), ui.buildShared(), ui.initStudio, gulp.parallel(modules.build(), ui.build())])
+    gulp.series([
+      ui.buildSharedLite(),
+      core.build(),
+      ui.buildShared(),
+      ui.initStudio,
+      gulp.parallel(modules.build(), ui.build())
+    ])
   )
 } else {
-  gulp.task('build', gulp.series([ui.buildSharedLite(), core.build(), ui.buildShared(), ui.initStudio, modules.build(), ui.build()]))
+  gulp.task(
+    'build',
+    gulp.series([ui.buildSharedLite(), core.build(), ui.buildShared(), ui.initStudio, modules.build(), ui.build()])
+  )
 }
 
 gulp.task('default', cb => {
@@ -70,6 +80,8 @@ gulp.task('watch:admin', ui.watchAdmin)
 gulp.task('watch:ui', ui.watchAll)
 gulp.task('watch:shared', ui.watchShared)
 gulp.task('watch:modules', modules.watchModules)
+gulp.task('lint:all', gulp.parallel([eslint.lintAdmin, eslint.lintStudio]))
+gulp.task('lint:admin', eslint.lintAdmin)
 
 gulp.task('clean:node', cb => rimraf('**/node_modules/**', cb))
 gulp.task('clean:out', cb => rimraf('out', cb))
@@ -108,25 +120,25 @@ gulp.task('changelog', () => {
     .pipe(gulp.dest('./'))
 })
 
-gulp.task('lint', cb => {
-  if (argv.staged) {
-    const command = `yarn run lint-staged --no-stash -c config/lint-staged${argv.fix ? '.fix' : ''}.config.js`
-    spawnSync(command, { shell: true, stdio: 'inherit' }, err => cb(err))
-    cb()
-    return
-  }
+// gulp.task('lint', cb => {
+//   if (argv.staged) {
+//     const command = `yarn run lint-staged --no-stash -c config/lint-staged${argv.fix ? '.fix' : ''}.config.js`
+//     spawnSync(command, { shell: true, stdio: 'inherit' }, err => cb(err))
+//     cb()
+//     return
+//   }
 
-  const baseBranch = argv.baseBranch || 'dev'
-  const gitResult = spawnSync('git', ['--no-pager', 'diff', `${baseBranch}..`, '--name-only'], { stdio: 'pipe' })
+//   const baseBranch = argv.baseBranch || 'dev'
+//   const gitResult = spawnSync('git', ['--no-pager', 'diff', `${baseBranch}..`, '--name-only'], { stdio: 'pipe' })
 
-  const files = String(gitResult.output)
-    .split('\n')
-    .filter(file => /\.tsx?$/.test(file))
+//   const files = String(gitResult.output)
+//     .split('\n')
+//     .filter(file => /\.tsx?$/.test(file))
 
-  for (const batch of _.chunk(files, 100)) {
-    const command = `yarn run tslint -c tslint.newrules.json ${argv.fix ? '--fix' : ''}`
-    spawnSync(command, [batch.join(' ')], { shell: true, stdio: 'inherit' }, err => cb(err))
-  }
+//   for (const batch of _.chunk(files, 100)) {
+//     const command = `yarn run tslint -c tslint.newrules.json ${argv.fix ? '--fix' : ''}`
+//     spawnSync(command, [batch.join(' ')], { shell: true, stdio: 'inherit' }, err => cb(err))
+//   }
 
-  cb()
-})
+//   cb()
+// })
