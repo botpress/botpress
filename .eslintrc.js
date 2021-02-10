@@ -11,7 +11,7 @@ module.exports = {
     tsconfigRootDir: __dirname,
     sourceType: 'module'
   },
-  ignorePatterns: ['**/*.d.ts', '*.css', '*.js'],
+  ignorePatterns: ['**/*.d.ts', '**/*.test.ts', '*.js'],
   plugins: ['eslint-plugin-import', 'eslint-plugin-jsdoc', '@typescript-eslint'],
   rules: {
     '@typescript-eslint/consistent-type-definitions': 'error',
@@ -40,7 +40,6 @@ module.exports = {
       }
     ],
     '@typescript-eslint/semi': ['error', 'never'],
-
     '@typescript-eslint/type-annotation-spacing': 'error',
     'brace-style': ['error', '1tbs'],
     curly: 'error',
@@ -99,18 +98,12 @@ module.exports = {
         ]
       }
     ],
-    'no-duplicate-imports': 'error',
+    // TODO: Change this to error once fixed everywhere
+    'no-duplicate-imports': 'warn',
     'no-return-await': 'error',
     'no-trailing-spaces': 'error',
     'no-var': 'error',
     'object-shorthand': 'error',
-    'prefer-const': 'error',
-    'spaced-comment': [
-      'error',
-      'always',
-      {
-        markers: ['/']
-      }
-    ]
+    'prefer-const': 'error'
   }
 }

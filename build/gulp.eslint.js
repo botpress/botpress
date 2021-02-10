@@ -13,7 +13,7 @@ const lintAdmin = cb => {
 }
 
 const lintStudio = cb => {
-  const admin = exec(`yarn run eslint src/bp/ui-admin --ext .ts,.tsx`, err => cb(err))
+  const admin = exec(`yarn run eslint src/bp/ui-studio --ext .ts,.tsx`, err => cb(err))
   admin.stdout.pipe(process.stdout)
   admin.stderr.pipe(process.stderr)
 }
