@@ -5,19 +5,12 @@ import path from 'path'
 import { Stream } from 'stream'
 import tar from 'tar'
 import tmp from 'tmp'
+import { ListingOptions, PruningOptions, ModelRepository } from '../typings'
 
 export const MODELS_DIR = './models'
 export const MODEL_EXTENSION = 'model'
 
 const debug = DEBUG('nlu').sub('lifecycle')
-
-interface PruningOptions {
-  toKeep: number
-}
-
-interface ListingOptions {
-  negateFilter: boolean
-}
 
 const DEFAULT_PRUNING_OPTIONS: PruningOptions = {
   toKeep: 0
@@ -31,7 +24,7 @@ interface BotDefinition {
   botId: string
 }
 
-export class ScopedModelRepository {
+export class ScopedModelRepository implements ModelRepository {
   private _botId: string
 
   constructor(
@@ -58,7 +51,7 @@ export class ScopedModelRepository {
       `About to prune the following files : [${invalidModels.join(', ')}] as they have an invalid format.`
     )
 
-    return Promise.map(invalidModels, file => this._ghost.deleteFile(MODELS_DIR, this._makeFileName(file)))
+    await Promise.map(invalidModels, file => this._ghost.deleteFile(MODELS_DIR, this._makeFileName(file)))
   }
 
   public async hasModel(modelId: sdk.NLU.ModelId): Promise<boolean> {
@@ -130,10 +123,6 @@ export class ScopedModelRepository {
     const buffer = await fse.readFile(archiveName)
     await this._ghost.upsertFile(MODELS_DIR, modelName, buffer)
     tmpDir.removeCallback()
-
-    const { languageCode } = model
-    const modelsOfLang = await this.listModels({ languageCode })
-    return this.pruneModels(modelsOfLang, { toKeep: 2 })
   }
 
   public async listModels(

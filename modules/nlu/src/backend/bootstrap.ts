@@ -9,6 +9,9 @@ import { BotFactory } from './application/bot-factory'
 import { InMemoryTrainingQueue } from './application/memory-training-queue'
 import { NLUProgressEvent } from './typings'
 import { BotService } from './application/bot-service'
+import { BotDefinition } from './application/typings'
+import { ScopedDefinitionsRepository } from './application/scoped/infrastructure/definitions-repository'
+import { ScopedModelRepository } from './application/scoped/infrastructure/model-repository'
 
 export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
   const globalConfig: Config = await bp.config.getModuleConfig('nlu')
@@ -35,7 +38,13 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
   }
 
   const botService = new BotService()
-  const botFactory = new BotFactory(bp, engine, bp.logger, bp.NLU.modelIdService)
+
+  const makeModelRepo = (bot: BotDefinition) =>
+    new ScopedModelRepository(bot, bp.NLU.modelIdService, bp.ghost.forBot(bot.botId))
+
+  const makeDefRepo = (bot: BotDefinition) => new ScopedDefinitionsRepository(bot, bp)
+
+  const botFactory = new BotFactory(engine, bp.logger, bp.NLU.modelIdService, makeDefRepo, makeModelRepo)
 
   // TODO: resolve an in-memory Vs database or distributed training queue depending on weither of not the botpress instance runs on multiple clusters
   const memoryTrainingQueue = new InMemoryTrainingQueue(bp.NLU.errors, socket, bp.logger, botService)

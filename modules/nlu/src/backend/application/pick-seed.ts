@@ -1,5 +1,5 @@
-import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
+import { BotConfig } from './typings'
 
 const MAX_SEED = 10000
 
@@ -22,7 +22,7 @@ const _hashToNumber = (text: string): number => {
   return parseInt(truncated, BASE)
 }
 
-export default function pickSeed(bot: sdk.BotConfig) {
+export default function pickSeed(bot: BotConfig) {
   const rawSeed = _.isNumber(bot.nluSeed) && !_.isNaN(bot.nluSeed) ? bot.nluSeed : _hashToNumber(bot.id)
   return Math.abs(rawSeed) % MAX_SEED
 }

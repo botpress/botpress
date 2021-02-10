@@ -1,5 +1,12 @@
 import { IO, NLU } from 'botpress/sdk'
 
+export interface BotConfig {
+  id: string
+  defaultLanguage: string
+  languages: string[]
+  nluSeed?: number
+}
+
 export interface BotDefinition {
   botId: string
   defaultLanguage: string

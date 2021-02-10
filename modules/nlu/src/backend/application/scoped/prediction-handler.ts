@@ -3,8 +3,7 @@ import _ from 'lodash'
 
 import mergeSpellChecked from '../../election/spellcheck-handler'
 import { EventUnderstanding } from '../typings'
-
-import { ScopedModelRepository } from './infrastructure/model-repository'
+import { ModelRepository } from './typings'
 
 interface BotDefinition {
   defaultLanguage: string
@@ -17,7 +16,7 @@ export class ScopedPredictionHandler {
   constructor(
     bot: BotDefinition,
     private engine: sdk.NLU.Engine,
-    private modelRepo: ScopedModelRepository,
+    private modelRepo: ModelRepository,
     private modelIdService: typeof sdk.NLU.modelIdService,
     private modelsByLang: _.Dictionary<sdk.NLU.ModelId>,
     private logger: sdk.Logger

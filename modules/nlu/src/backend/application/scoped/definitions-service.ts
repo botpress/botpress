@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import { NLU } from 'botpress/sdk'
 
-import { ScopedDefinitionsRepository } from './infrastructure/definitions-repository'
+import { DefinitionRepository } from './typings'
 
 type DirtyModelCallback = (language: string) => Promise<void>
 
@@ -21,8 +21,7 @@ export class ScopedDefinitionsService {
   constructor(
     bot: BotDefinition,
     private _engine: NLU.Engine,
-    private _ghost: sdk.ScopedGhostService,
-    private _nluRepository: ScopedDefinitionsRepository,
+    private _definitionRepository: DefinitionRepository,
     private _modelIdService: typeof sdk.NLU.modelIdService
   ) {
     this._languages = bot.languages
@@ -66,9 +65,7 @@ export class ScopedDefinitionsService {
   }
 
   public async getTrainSet(languageCode: string): Promise<sdk.NLU.TrainingSet> {
-    const { _nluRepository } = this
-
-    const trainDefinitions = await _nluRepository.getTrainDefinitions()
+    const trainDefinitions = await this._definitionRepository.getTrainDefinitions()
 
     return {
       ...trainDefinitions,
@@ -78,7 +75,7 @@ export class ScopedDefinitionsService {
   }
 
   private _registerNeedTrainingWatcher = () => {
-    return this._ghost.onFileChanged(async filePath => {
+    return this._definitionRepository.onFileChanged(async filePath => {
       const hasPotentialNLUChange = filePath.includes('/intents/') || filePath.includes('/entities/')
       if (!hasPotentialNLUChange) {
         return

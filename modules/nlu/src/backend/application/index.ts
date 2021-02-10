@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import { NLU, BotConfig } from 'botpress/sdk'
 import _ from 'lodash'
 
 import { BotFactory } from './bot-factory'
@@ -45,8 +45,9 @@ export class NLUApplication {
     return bot
   }
 
-  public mountBot = async (botId: string) => {
-    const { bot, defService, modelRepo } = await this._botFactory.makeBot(botId)
+  public mountBot = async (botConfig: BotConfig) => {
+    const { id: botId } = botConfig
+    const { bot, defService, modelRepo } = await this._botFactory.makeBot(botConfig)
     this._botService.setBot(botId, bot)
 
     await bot.mount()

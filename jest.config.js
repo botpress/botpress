@@ -18,7 +18,7 @@ module.exports = {
   resetModules: true,
   verbose: true,
   modulePaths: ['<rootDir>/src/bp/'],
-  moduleFileExtensions: ['js', 'json', 'jsx', 'ts', 'tsx'],
+  moduleFileExtensions: ['js', 'json', 'jsx', 'ts', 'tsx', 'd.ts'],
   modulePathIgnorePatterns: ['out'],
   transform: {
     '^.+\\.(ts|tsx|js)$': 'ts-jest'

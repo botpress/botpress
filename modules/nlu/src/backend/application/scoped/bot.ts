@@ -6,8 +6,8 @@ import { BotDoesntSpeakLanguageError } from '../errors'
 import { Predictor, ProgressCallback, Trainer } from '../typings'
 
 import { ScopedDefinitionsService } from './definitions-service'
-import { ScopedModelRepository } from './infrastructure/model-repository'
 import { ScopedPredictionHandler } from './prediction-handler'
+import { ModelRepository } from './typings'
 
 interface BotDefinition {
   botId: string
@@ -26,7 +26,7 @@ export class Bot implements Trainer, Predictor {
   constructor(
     bot: BotDefinition,
     private _engine: NLU.Engine,
-    private _modelRepo: ScopedModelRepository,
+    private _modelRepo: ModelRepository,
     private _defService: ScopedDefinitionsService,
     private _modelIdService: typeof sdk.NLU.modelIdService,
     private _logger: sdk.Logger
@@ -93,6 +93,9 @@ export class Bot implements Trainer, Predictor {
 
     const model = await _engine.train(this._makeTrainingId(language), trainSet, options)
     await _modelRepo.saveModel(model)
+
+    const modelsOfLang = await _modelRepo.listModels({ languageCode: language })
+    await _modelRepo.pruneModels(modelsOfLang, { toKeep: 2 })
   }
 
   public cancelTraining = async (language: string) => {

@@ -8,7 +8,7 @@ const JOB_INTERVAL = ms('2s')
 
 const MAX_ALLOWED_TRAINING_PER_NODE = 2 // TODO: make this configurable
 
-type TrainSessionSocket = (botId: string, ts: NLU.TrainingSession) => Promise<void>
+export type TrainSessionSocket = (botId: string, ts: NLU.TrainingSession) => Promise<void>
 
 interface TrainStatus {
   status: NLU.TrainingStatus
