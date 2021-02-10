@@ -54,7 +54,7 @@ module.exports = {
     'import/order': [
       'warn',
       {
-        groups: [['builtin', 'external'], 'parent', 'sibling', 'index'],
+        groups: [['builtin', 'external'], 'parent', 'index', 'sibling'],
         // TODO: Eventually enable this in the future for consistency
         // 'newlines-between': 'always',
         alphabetize: {
