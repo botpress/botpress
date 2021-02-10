@@ -39,6 +39,12 @@ export default class Database {
       .select() as unknown as Promise<User[]>
   }
 
+  public delete(login: string): Promise<number> {
+    return this.knex(TABLE_NAME)
+      .where('login', login)
+      .delete() as unknown as Promise<number>
+  }
+
   public async upsert(user: User): Promise<any> {
     const foundUser = await this.knex(TABLE_NAME)
       .where({ login: user.login });
