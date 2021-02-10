@@ -20,5 +20,5 @@
     }
   },
   "exclude": ["**/*.test.ts", "**/views/**"],
-  "include": ["../src/typings/*.d.ts", "*/src/**/*.ts"]
+  "include": ["../src/typings/*.d.ts", "**/*.ts"]
 }
