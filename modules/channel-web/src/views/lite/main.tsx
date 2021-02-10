@@ -172,7 +172,9 @@ class Web extends React.Component<MainProps> {
   }
 
   isCurrentConversation = (event: Message) => {
-    return !this.props.config?.conversationId || Number(this.props.config.conversationId) === Number(event.conversationId)
+    return (
+      !this.props.config?.conversationId || Number(this.props.config.conversationId) === Number(event.conversationId)
+    )
   }
 
   handleIframeApi = async ({ data: { action, payload } }) => {
@@ -212,7 +214,7 @@ class Web extends React.Component<MainProps> {
   }
 
   handleNewMessage = async (event: Message) => {
-    if (event.payload?.type === 'visit' || event.message_type === 'visit') {
+    if (event.payload?.type === 'visit') {
       // don't do anything, it's the system message
       return
     }

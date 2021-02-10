@@ -7,10 +7,8 @@ import socket from './socket'
 
 const onServerStarted = async (bp: typeof sdk) => {
   const db = new WebchatDatabase(bp)
-  await db.initialize()
-
   await api(bp, db)
-  await socket(bp, db)
+  await socket(bp)
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {
