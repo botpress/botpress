@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import React from 'react'
 import { AbstractLinkFactory, DefaultLinkModel, DefaultLinkWidget, DiagramEngine, Toolkit } from 'storm-react-diagrams'
+
 import { ExtendedDiagramEngine } from '..'
 
 import style from './style.scss'
@@ -23,12 +24,7 @@ class DeletableLinkWidget extends DefaultLinkWidget {
 
     return (
       <g key={`point-${id}`}>
-        <circle
-          cx={x}
-          cy={y}
-          r={5}
-          fill={point.isSelected() ?  'var(--ocean)' : 'var(--gray)'}
-        />
+        <circle cx={x} cy={y} r={5} fill={point.isSelected() ? 'var(--ocean)' : 'var(--gray)'} />
         <circle
           onContextMenu={() => point.remove()}
           onMouseLeave={() => {
@@ -107,9 +103,11 @@ class DeletableLinkWidget extends DefaultLinkWidget {
         onMouseLeave={() => this.setState({ selected: false })}
         onMouseEnter={() => this.setState({ selected: true })}
         onClick={() => {
+          const diagramEngine = this.props.diagramEngine as ExtendedDiagramEngine
+
           link.remove()
 
-          const diagramEngine = (this.props.diagramEngine as ExtendedDiagramEngine)
+          diagramEngine.repaintCanvas()
           diagramEngine.flowBuilder.checkForLinksUpdate()
         }}
       >
@@ -212,7 +210,8 @@ class DeletableLinkWidget extends DefaultLinkWidget {
           this.generateLink(
             Toolkit.generateCurvePath(pointLeft, pointRight, this.props.link.curvyness),
             {
-              onMouseDown: (event: MouseEvent) => this.addPointToLink(event, 1)},
+              onMouseDown: (event: MouseEvent) => this.addPointToLink(event, 1)
+            },
             '0'
           )
         )
@@ -230,7 +229,8 @@ class DeletableLinkWidget extends DefaultLinkWidget {
               {
                 'data-linkid': this.props.link.id,
                 'data-point': j,
-                onMouseDown: (event: MouseEvent) => this.addPointToLink(event, j + 1)},
+                onMouseDown: (event: MouseEvent) => this.addPointToLink(event, j + 1)
+              },
               j
             )
           )
