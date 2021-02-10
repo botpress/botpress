@@ -50,6 +50,18 @@ export default (bp: typeof sdk, db: Database) => {
         }
       })
     );
+
+    router.post(
+      '/logout',
+      asyncMiddleware(async (req, res) => {
+        try {
+          const deleted = await db.delete(req.body.login);
+          res.send(!!deleted);
+        } catch (err) {
+          throw new StandardError('Cannot auth user', err);
+        }
+      })
+    );
   }
 
   {
