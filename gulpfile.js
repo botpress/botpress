@@ -1,7 +1,6 @@
 const core = require('./build/gulp.core')
 const modules = require('./build/gulp.modules')
 const package = require('./build/gulp.package')
-const eslint = require('./build/gulp.eslint')
 const gulp = require('gulp')
 const ui = require('./build/gulp.ui')
 const docs = require('./build/gulp.docs')
