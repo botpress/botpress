@@ -8,6 +8,7 @@ import { NLUApplication } from './application'
 import { BotFactory } from './application/bot-factory'
 import { InMemoryTrainingQueue } from './application/memory-training-queue'
 import { NLUProgressEvent } from './typings'
+import { BotService } from './application/bot-service'
 
 export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
   const globalConfig: Config = await bp.config.getModuleConfig('nlu')
@@ -33,11 +34,12 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
     bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', ev))
   }
 
-  // TODO: resolve an in-memory Vs database or distributed training queue depending on weither of not the botpress instance runs on multiple clusters
-  const memoryTrainingQueue = new InMemoryTrainingQueue(bp.NLU.errors, socket, bp.logger)
-
+  const botService = new BotService()
   const botFactory = new BotFactory(bp, engine, bp.logger, bp.NLU.modelIdService)
-  const application = new NLUApplication(memoryTrainingQueue, engine, botFactory)
+
+  // TODO: resolve an in-memory Vs database or distributed training queue depending on weither of not the botpress instance runs on multiple clusters
+  const memoryTrainingQueue = new InMemoryTrainingQueue(bp.NLU.errors, socket, bp.logger, botService)
+  const application = new NLUApplication(memoryTrainingQueue, engine, botFactory, botService)
 
   await application.initialize()
   return application

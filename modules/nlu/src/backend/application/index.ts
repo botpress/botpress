@@ -3,21 +3,16 @@ import _ from 'lodash'
 
 import { BotFactory } from './bot-factory'
 import { BotNotMountedError } from './errors'
-import { Bot } from './scoped/bot'
-import { ScopedDefinitionsService } from './scoped/definitions-service'
-import { ScopedModelRepository } from './scoped/infrastructure/model-repository'
 import { Predictor, TrainingQueue } from './typings'
-
-interface ScopedServices {
-  bot: Bot
-  defService: ScopedDefinitionsService
-  modelRepo: ScopedModelRepository
-}
+import { BotService } from './bot-service'
 
 export class NLUApplication {
-  private _bots: _.Dictionary<ScopedServices> = {}
-
-  constructor(private _trainingQueue: TrainingQueue, private _engine: NLU.Engine, private _botFactory: BotFactory) {}
+  constructor(
+    private _trainingQueue: TrainingQueue,
+    private _engine: NLU.Engine,
+    private _botFactory: BotFactory,
+    private _botService: BotService
+  ) {}
 
   public async initialize() {
     await this._trainingQueue.initialize()
@@ -25,8 +20,7 @@ export class NLUApplication {
 
   public teardown = async () => {
     await this._trainingQueue.teardown()
-
-    for (const botId of Object.keys(this._bots)) {
+    for (const botId of this._botService.getIds()) {
       await this.unmountBot(botId)
     }
   }
@@ -40,20 +34,20 @@ export class NLUApplication {
   }
 
   public hasBot = (botId: string) => {
-    return !!this._bots[botId]
+    return !!this._botService.getBot(botId)
   }
 
   public getBot(botId: string): Predictor {
-    const scoped = this._bots[botId]
-    if (!scoped) {
+    const bot = this._botService.getBot(botId)
+    if (!bot) {
       throw new BotNotMountedError(botId)
     }
-    return scoped.bot
+    return bot
   }
 
   public mountBot = async (botId: string) => {
     const { bot, defService, modelRepo } = await this._botFactory.makeBot(botId)
-    this._bots[botId] = { bot, defService, modelRepo }
+    this._botService.setBot(botId, bot)
 
     await bot.mount()
 
@@ -61,15 +55,16 @@ export class NLUApplication {
     const dirtyModelListener = async (language: string) => {
       const latestModelId = await defService.getLatestModelId(language)
       if (await modelRepo.hasModel(latestModelId)) {
+        botMounted = true
         await bot.load(latestModelId)
-        return // TODO: announce that training is done
+        return
       }
 
       if (botMounted) {
         return this._trainingQueue.needsTraining({ botId, language })
       }
       botMounted = true
-      return this._trainingQueue.queueTraining({ botId, language }, bot)
+      return this._trainingQueue.queueTraining({ botId, language })
     }
 
     defService.listenForDirtyModels(dirtyModelListener)
@@ -77,26 +72,24 @@ export class NLUApplication {
   }
 
   public unmountBot = async (botId: string) => {
-    const scoped = this._bots[botId]
-    if (!scoped) {
+    const bot = this._botService.getBot(botId)
+    if (!bot) {
       throw new BotNotMountedError(botId)
     }
-
-    const { bot } = scoped
     await bot.unmount()
-    delete this._bots[botId]
+    this._botService.removeBot(botId)
   }
 
   public async queueTraining(botId: string, language: string) {
-    const scoped = this._bots[botId]
-    if (!scoped) {
+    const bot = this._botService.getBot(botId)
+    if (!bot) {
       throw new BotNotMountedError(botId)
     }
-    return this._trainingQueue.queueTraining({ botId, language }, scoped.bot)
+    return this._trainingQueue.queueTraining({ botId, language })
   }
 
   public async cancelTraining(botId: string, language: string) {
-    const bot = this._bots[botId]
+    const bot = this._botService.getBot(botId)
     if (!bot) {
       throw new BotNotMountedError(botId)
     }

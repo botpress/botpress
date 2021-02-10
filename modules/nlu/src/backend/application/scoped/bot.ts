@@ -54,8 +54,9 @@ export class Bot implements Trainer, Predictor {
 
   public async unmount() {
     await this._defService.teardown()
-    for (const model of Object.values(this._modelsByLang)) {
+    for (const [botId, model] of Object.entries(this._modelsByLang)) {
       this._engine.unloadModel(model)
+      delete this._modelsByLang[botId]
     }
   }
 

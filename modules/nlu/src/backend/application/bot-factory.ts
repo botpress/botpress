@@ -2,7 +2,6 @@ import * as sdk from 'botpress/sdk'
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
-import { BotNotMountedError } from './errors'
 import pickSeed from './pick-seed'
 import { Bot } from './scoped/bot'
 import { ScopedDefinitionsService } from './scoped/definitions-service'
@@ -29,7 +28,7 @@ export class BotFactory {
 
     const botConfig = await this._bp.bots.getBotById(botId)
     if (!botConfig) {
-      throw new BotNotMountedError(botId)
+      throw new Error(`No config found for bot ${botId}`)
     }
 
     const { defaultLanguage } = botConfig

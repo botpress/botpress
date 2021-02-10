@@ -10,6 +10,7 @@ interface BotDefinition {
   defaultLanguage: string
 }
 
+// TODO: rm this class and put all the logic inside Bot. This class no longer has a reason to be.
 export class ScopedPredictionHandler {
   private defaultLanguage: string
 

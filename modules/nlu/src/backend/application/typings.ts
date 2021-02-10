@@ -28,12 +28,16 @@ export interface TrainingId {
   language: string
 }
 
+export interface TrainerService {
+  getBot(botId: string): Trainer | undefined
+}
+
 export interface TrainingQueue {
   initialize(): Promise<void>
   teardown(): Promise<void>
 
   needsTraining(trainId: TrainingId): Promise<void>
-  queueTraining(trainId: TrainingId, trainer: Trainer): Promise<void>
+  queueTraining(trainId: TrainingId): Promise<void>
   cancelTraining(trainId: TrainingId): Promise<void>
   getTraining(trainId: TrainingId): Promise<NLU.TrainingSession>
 }

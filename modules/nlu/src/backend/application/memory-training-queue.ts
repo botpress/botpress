@@ -2,279 +2,214 @@ import * as sdk from 'botpress/sdk'
 import { NLU } from 'botpress/sdk'
 import ms from 'ms'
 
-import { Trainer, TrainingId, TrainingQueue } from './typings'
+import { TrainingId, TrainingQueue, TrainerService } from './typings'
 
 const JOB_INTERVAL = ms('2s')
 
-const MAX_ALLOWED_TRAINING_PER_NODE = 2 // make this configurable with module config
+const MAX_ALLOWED_TRAINING_PER_NODE = 2 // TODO: make this configurable
 
 type TrainSessionSocket = (botId: string, ts: NLU.TrainingSession) => Promise<void>
 
-interface QueueElement {
-  botId: string
-  language: string
+interface TrainStatus {
+  status: NLU.TrainingStatus
   progress: number
-  trainer: Trainer
 }
 
-class TrainingList {
-  private _list: QueueElement[] = []
+const DEFAULT_STATUS: TrainStatus = { status: 'idle', progress: 0 }
 
-  public length() {
-    return this._list.length
+const _toKey = (id: TrainingId) => {
+  const { botId, language } = id
+  return `training:${botId}:${language}`
+}
+
+const _fromKey = (key: string) => {
+  const [_, botId, language] = key.split(':')
+  return { botId, language }
+}
+
+class TrainingContainer {
+  private _trainings: { [key: string]: TrainStatus } = {}
+
+  public has(id: TrainingId): boolean {
+    return !!this.get(id)
   }
 
-  public elements() {
-    return [...this._list]
+  public get(id: TrainingId): TrainStatus | undefined {
+    return this._trainings[_toKey(id)]
   }
 
-  public pop() {
-    return this._list.pop()
+  public set(id: TrainingId, status: TrainStatus) {
+    this._trainings[_toKey(id)] = status
   }
 
   public clear() {
-    this._list.splice(0, this._list.length)
-  }
-
-  public has(trainId: TrainingId): boolean {
-    const el = this.get(trainId)
-    return !!el
-  }
-
-  public rm(trainId: TrainingId): QueueElement | undefined {
-    const idx = this._getIdx(trainId)
-    if (idx < 0) {
-      return
+    for (const key of Object.keys(this._trainings)) {
+      delete this._trainings[key]
     }
-    const [el] = this._list.splice(idx, 1)
-    return el
   }
 
-  public queue(el: QueueElement) {
-    this._list.unshift(el)
-  }
-
-  public progress(trainId: TrainingId, progress: number) {
-    const el = this.get(trainId)
-    if (!el) {
-      return
-    }
-    el.progress = progress
-  }
-
-  public get(trainId: TrainingId): QueueElement | undefined {
-    const idx = this._getIdx(trainId)
-    if (idx < 0) {
-      return
-    }
-    return this._list[idx]
-  }
-
-  private _getIdx(trainId: TrainingId): number {
-    return this._list.findIndex(el => this._isEqual(el, trainId))
-  }
-
-  private _isEqual = (trainId1: TrainingId, trainId2: TrainingId) => {
-    return trainId1.botId === trainId2.botId && trainId1.language === trainId2.language
+  public query(query: { status: NLU.TrainingStatus }): TrainingId[] {
+    const keep = ([key, t]: [string, TrainStatus]) => t.status === query.status
+    const keys = Object.entries(this._trainings)
+      .filter(keep)
+      .map(p => p[0])
+    return keys.map(_fromKey)
   }
 }
 
 export class InMemoryTrainingQueue implements TrainingQueue {
-  private consumerHandle: NodeJS.Timeout
+  private _consumerHandle: NodeJS.Timeout
 
-  private _pending: TrainingList = new TrainingList()
-  private _training: TrainingList = new TrainingList()
-  private _done: TrainingList = new TrainingList()
+  private _trainings = new TrainingContainer()
 
-  constructor(private _errors: typeof NLU.errors, private _socket: TrainSessionSocket, private _logger: sdk.Logger) {}
+  constructor(
+    private _errors: typeof NLU.errors,
+    private _socket: TrainSessionSocket,
+    private _logger: sdk.Logger,
+    private _trainerService: TrainerService
+  ) {}
 
   async initialize() {
-    this.consumerHandle = setInterval(this._runTask, JOB_INTERVAL)
+    this._consumerHandle = setInterval(this._runTask, JOB_INTERVAL)
   }
 
   async teardown() {
-    clearInterval(this.consumerHandle)
-    this._pending.clear()
-    this._done.clear()
-
-    for (const el of this._training.elements()) {
-      const { language, trainer } = el
-      await trainer.cancelTraining(language)
-    }
-    this._training.clear()
+    clearInterval(this._consumerHandle)
+    this._trainings.clear()
   }
 
   async needsTraining(trainId: TrainingId): Promise<void> {
-    const { botId, language } = trainId
-
-    if (this._training.has(trainId)) {
+    const currentTraining = this._trainings.get(trainId)
+    if (currentTraining?.status === 'training') {
       return // do not notify socket if currently training
     }
-
-    if (this._done.has(trainId)) {
-      this._done.rm(trainId)
-    }
-
-    await this._socket(botId, {
-      key: this._makeKey({ botId, language }),
-      language,
-      progress: 0,
-      status: 'needs-training'
-    })
+    return this._update(trainId, { status: 'needs-training' })
   }
 
-  async queueTraining(trainId: TrainingId, trainer: Trainer): Promise<void> {
-    const { language, botId } = trainId
-
-    if (this._training.has(trainId)) {
+  async queueTraining(trainId: TrainingId): Promise<void> {
+    const currentTraining = this._trainings.get(trainId)
+    if (currentTraining?.status === 'training') {
+      this._logger.warn('Training already started')
       return // do not queue training if currently training
     }
-
-    if (this._done.has(trainId)) {
-      this._done.rm(trainId)
-    }
-
-    this._pending.queue({ language, botId, trainer, progress: 0 })
-    await this._socket(botId, {
-      key: this._makeKey({ botId, language }),
-      language,
-      progress: 0,
-      status: 'training-pending'
-    })
+    return this._update(trainId, { status: 'training-pending' })
   }
 
   async cancelTraining(trainId: TrainingId): Promise<void> {
-    const { language, botId } = trainId
-    await this._socket(botId, {
-      key: this._makeKey({ botId, language }),
-      language,
-      progress: 0,
-      status: 'canceled'
-    })
+    await this._notify(trainId, { status: 'canceled', progress: 0 })
+    const { botId, language } = trainId
 
-    if (this._pending.has(trainId)) {
-      this._pending.rm(trainId)
-    } else if (this._training.has(trainId)) {
-      const { language, trainer } = this._training.rm(trainId)!
-      await trainer.cancelTraining(language)
+    const currentTraining = this._trainings.get(trainId)
+    if (!currentTraining) {
+      return
     }
 
-    await this._socket(botId, {
-      key: this._makeKey({ botId, language }),
-      language,
-      progress: 0,
-      status: 'needs-training'
-    })
+    if (currentTraining.status === 'training-pending') {
+      return this._update(trainId, { status: 'needs-training' })
+    }
+
+    if (currentTraining.status === 'training') {
+      const trainer = this._trainerService.getBot(botId)
+      if (trainer) {
+        await trainer.cancelTraining(language)
+      } else {
+        // This case should never happend
+        this._logger.warn(`About to cancel training for ${botId}, but no bot found.`)
+      }
+
+      return this._update(trainId, { status: 'needs-training' })
+    }
+
+    this._logger.warn(`No training canceled as ${botId} is not currently training language ${language}.`)
   }
 
   async getTraining(trainId: TrainingId): Promise<NLU.TrainingSession> {
-    const { botId, language } = trainId
-
-    const key = this._makeKey({ botId, language })
-
-    if (this._training.has(trainId)) {
-      const { progress } = this._training.get(trainId)!
-      return {
-        key,
-        language,
-        progress,
-        status: 'training'
-      }
-    }
-
-    if (this._done.has(trainId)) {
-      return {
-        key,
-        language,
-        progress: 1,
-        status: 'done'
-      }
-    }
-
-    const status: NLU.TrainingStatus = this._pending.has(trainId) ? 'training-pending' : 'needs-training'
-
-    return {
-      key,
-      language,
-      progress: 0,
-      status
-    }
+    const status = this._trainings.get(trainId) ?? DEFAULT_STATUS
+    return this._toTrainSession(trainId, status)
   }
 
-  private _makeKey = (trainId: TrainingId) => {
-    const { botId, language } = trainId
-    return `training:${botId}:${language}`
+  private _update = (id: TrainingId, training: Partial<TrainStatus>) => {
+    const current = this._trainings.get(id) ?? DEFAULT_STATUS
+    if (training.status) {
+      current.status = training.status
+    }
+    if (training.progress) {
+      current.progress = training.progress
+    }
+    this._trainings.set(id, current)
+    return this._notify(id, current)
+  }
+
+  private _notify = (id: TrainingId, status: TrainStatus) => {
+    const { botId } = id
+    const ts = this._toTrainSession(id, status)
+    return this._socket(botId, ts)
+  }
+
+  private _toTrainSession = (id: TrainingId, training: TrainStatus): NLU.TrainingSession => {
+    const key = _toKey(id)
+    const { language } = id
+    const { progress, status } = training
+    return { key, language, progress: progress ?? 0, status }
   }
 
   private _runTask = async () => {
-    if (this._training.length() >= MAX_ALLOWED_TRAINING_PER_NODE) {
+    if (this._trainings.query({ status: 'training' }).length >= MAX_ALLOWED_TRAINING_PER_NODE) {
       return
     }
 
-    if (this._pending.length() <= 0) {
+    const pendings = this._trainings.query({ status: 'training-pending' })
+    if (pendings.length <= 0) {
       return
     }
 
-    const next = this._pending.pop()!
-    this._training.queue(next)
+    const next = pendings[0]
+    await this._update(next, { status: 'training' })
 
     // floating promise to return fast from task
     this._train(next)
   }
 
-  private _train = async (queueElement: QueueElement) => {
-    const { trainer, language, botId } = queueElement
-
-    const key = this._makeKey({ botId, language })
+  private _train = async (trainId: TrainingId) => {
+    const { botId, language } = trainId
+    const trainer = this._trainerService.getBot(botId)
+    if (!trainer) {
+      // This case should never happend
+      this._logger.warn(`About to train ${botId}, but no bot found.`)
+      return this._update(trainId, { status: 'needs-training' })
+    }
 
     try {
       await trainer.train(language, async (progress: number) => {
-        this._training.progress({ botId, language }, progress)
-
-        await this._socket(botId, {
-          key,
-          language,
-          progress,
-          status: 'training'
-        })
+        await this._update(trainId, { progress })
       })
-
-      await this._socket(botId, {
-        key,
-        language,
-        progress: 1,
-        status: 'done'
-      })
-
+      await this._update(trainId, { status: 'done', progress: 1 })
       await trainer.loadLatest(language)
-
-      const done = this._training.rm({ botId, language })!
-      this._done.queue(done)
     } catch (err) {
-      if (this._errors.isTrainingCanceled(err)) {
-        this._logger.forBot(botId).info('Training cancelled')
-        this._training.rm({ botId, language })
-        await this._socket(botId, {
-          key,
-          language,
-          progress: 0,
-          status: 'needs-training'
-        })
-      } else if (this._errors.isTrainingAlreadyStarted(err)) {
-        this._logger.forBot(botId).info('Training already started')
-      } else {
-        this._logger
-          .forBot(botId)
-          .attachError(err)
-          .error('Training could not finish because of an unexpected error.')
-        this._training.rm({ botId, language })
-        await this._socket(botId, {
-          key,
-          language,
-          progress: 0,
-          status: 'errored'
-        })
-      }
+      await this._handleTrainError(trainId, err)
     }
+  }
+
+  private _handleTrainError = async (trainId: TrainingId, err: Error) => {
+    const { botId } = trainId
+
+    if (this._errors.isTrainingCanceled(err)) {
+      this._logger.forBot(botId).info('Training cancelled')
+      return this._update(trainId, { status: 'needs-training', progress: 0 })
+    }
+
+    if (this._errors.isTrainingAlreadyStarted(err)) {
+      // This should not happend
+      this._logger.forBot(botId).warn('Training already started')
+      return
+    }
+
+    this._logger
+      .forBot(botId)
+      .attachError(err)
+      .error('Training could not finish because of an unexpected error.')
+
+    this._notify(trainId, { status: 'errored', progress: 0 })
+    this._trainings.set(trainId, { status: 'needs-training', progress: 0 })
   }
 }
