@@ -83,9 +83,9 @@ type DispatchProps = typeof mapDispatchToProps
 
 type Props = DispatchProps & StateProps & OwnProps
 
-type ExtendedDiagramEngine = {
+export type ExtendedDiagramEngine = {
   enableLinkPoints?: boolean
-  flowBuilder?: any
+  flowBuilder?: Diagram
 } & DiagramEngine
 
 const EXPANDED_NODES_KEY = `bp::${window.BOT_ID}::expandedNodes`
@@ -104,7 +104,7 @@ class Diagram extends Component<Props> {
   private diagramWidget: DiagramWidget
   private diagramContainer: HTMLDivElement
   private searchRef: React.RefObject<HTMLInputElement>
-  private manager: DiagramManager
+  public manager: DiagramManager
   /** Represents the source port clicked when the user is connecting a node */
   private dragPortSource: any
 
