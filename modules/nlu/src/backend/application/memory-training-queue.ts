@@ -228,7 +228,7 @@ export class InMemoryTrainingQueue implements TrainingQueue {
     const key = this._makeKey({ botId, language })
 
     try {
-      const modelId = await trainer.train(language, async (progress: number) => {
+      await trainer.train(language, async (progress: number) => {
         this._training.progress({ botId, language }, progress)
 
         await this._socket(botId, {
@@ -246,7 +246,7 @@ export class InMemoryTrainingQueue implements TrainingQueue {
         status: 'done'
       })
 
-      await trainer.load(modelId)
+      await trainer.loadLatest(language)
 
       const done = this._training.rm({ botId, language })!
       this._done.queue(done)
@@ -262,12 +262,6 @@ export class InMemoryTrainingQueue implements TrainingQueue {
         })
       } else if (this._errors.isTrainingAlreadyStarted(err)) {
         this._logger.forBot(botId).info('Training already started')
-        await this._socket(botId, {
-          key,
-          language,
-          progress: 0,
-          status: 'needs-training'
-        })
       } else {
         this._logger
           .forBot(botId)

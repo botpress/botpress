@@ -10,8 +10,8 @@ export interface BotDefinition {
 export type ProgressCallback = (p: number) => Promise<void>
 
 export interface Trainer {
-  train(language: string, progressCallback: ProgressCallback): Promise<NLU.ModelId>
-  load(modelId: NLU.ModelId): Promise<void>
+  train(language: string, progressCallback: ProgressCallback): Promise<void>
+  loadLatest(language: string): Promise<void>
   cancelTraining(language: string): Promise<void>
 }
 

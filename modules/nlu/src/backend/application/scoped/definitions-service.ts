@@ -45,7 +45,7 @@ export class ScopedDefinitionsService {
     await Promise.filter(this._languages, this._needsTraining).mapSeries(this._notifyListeners)
   }
 
-  private async _needsTraining(language: string): Promise<boolean> {
+  private _needsTraining = async (language: string): Promise<boolean> => {
     const modelId = await this.getLatestModelId(language)
     if (this._engine.hasModel(modelId)) {
       return false

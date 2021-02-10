@@ -1,10 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import mergeSpellChecked from '../election/spellcheck-handler'
+import mergeSpellChecked from '../../election/spellcheck-handler'
+import { EventUnderstanding } from '../typings'
 
 import { ScopedModelRepository } from './infrastructure/model-repository'
-import { EventUnderstanding } from './typings'
 
 interface BotDefinition {
   defaultLanguage: string

@@ -2,11 +2,12 @@ import * as sdk from 'botpress/sdk'
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
+import { BotDoesntSpeakLanguageError } from '../errors'
+import { Predictor, ProgressCallback, Trainer } from '../typings'
+
 import { ScopedDefinitionsService } from './definitions-service'
-import { BotDoesntSpeakLanguageError } from './errors'
 import { ScopedModelRepository } from './infrastructure/model-repository'
 import { ScopedPredictionHandler } from './prediction-handler'
-import { Predictor, ProgressCallback, Trainer } from './typings'
 
 interface BotDefinition {
   botId: string
@@ -58,6 +59,11 @@ export class Bot implements Trainer, Predictor {
     }
   }
 
+  public loadLatest = async (language: string) => {
+    const modelId = await this._defService.getLatestModelId(language)
+    return this.load(modelId)
+  }
+
   public load = async (modelId: NLU.ModelId) => {
     const model = await this._modelRepo.getModel(modelId)
     if (!model) {
@@ -72,7 +78,7 @@ export class Bot implements Trainer, Predictor {
     await this._engine.loadModel(model)
   }
 
-  public train = async (language: string, progressCallback: ProgressCallback): Promise<NLU.ModelId> => {
+  public train = async (language: string, progressCallback: ProgressCallback): Promise<void> => {
     const { _engine, _languages, _modelRepo, _defService, _botId } = this
 
     if (!_languages.includes(language)) {
@@ -86,11 +92,6 @@ export class Bot implements Trainer, Predictor {
 
     const model = await _engine.train(this._makeTrainingId(language), trainSet, options)
     await _modelRepo.saveModel(model)
-
-    const modelId = this._modelIdService.toId(model)
-    this._modelsByLang[language] = modelId
-
-    return modelId
   }
 
   public cancelTraining = async (language: string) => {

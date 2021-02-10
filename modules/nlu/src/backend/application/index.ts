@@ -1,11 +1,11 @@
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
-import { Bot } from './bot'
 import { BotFactory } from './bot-factory'
-import { ScopedDefinitionsService } from './definitions-service'
 import { BotNotMountedError } from './errors'
-import { ScopedModelRepository } from './infrastructure/model-repository'
+import { Bot } from './scoped/bot'
+import { ScopedDefinitionsService } from './scoped/definitions-service'
+import { ScopedModelRepository } from './scoped/infrastructure/model-repository'
 import { Predictor, TrainingQueue } from './typings'
 
 interface ScopedServices {
@@ -57,12 +57,19 @@ export class NLUApplication {
 
     await bot.mount()
 
+    let botMounted = false
     const dirtyModelListener = async (language: string) => {
       const latestModelId = await defService.getLatestModelId(language)
-      if (modelRepo.hasModel(latestModelId)) {
-        bot.load(latestModelId)
+      if (await modelRepo.hasModel(latestModelId)) {
+        await bot.load(latestModelId)
+        return // TODO: announce that training is done
       }
-      this._trainingQueue.needsTraining({ botId, language })
+
+      if (botMounted) {
+        return this._trainingQueue.needsTraining({ botId, language })
+      }
+      botMounted = true
+      return this._trainingQueue.queueTraining({ botId, language }, bot)
     }
 
     defService.listenForDirtyModels(dirtyModelListener)

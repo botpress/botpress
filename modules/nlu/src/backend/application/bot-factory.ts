@@ -2,12 +2,12 @@ import * as sdk from 'botpress/sdk'
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
-import { Bot } from './bot'
-import { ScopedDefinitionsService } from './definitions-service'
 import { BotNotMountedError } from './errors'
-import { ScopedDefinitionsRepository } from './infrastructure/definitions-repository'
-import { ScopedModelRepository } from './infrastructure/model-repository'
 import pickSeed from './pick-seed'
+import { Bot } from './scoped/bot'
+import { ScopedDefinitionsService } from './scoped/definitions-service'
+import { ScopedDefinitionsRepository } from './scoped/infrastructure/definitions-repository'
+import { ScopedModelRepository } from './scoped/infrastructure/model-repository'
 import { BotDefinition } from './typings'
 
 interface ScopedServices {

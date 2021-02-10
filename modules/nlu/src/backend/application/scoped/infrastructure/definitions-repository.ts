@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 
-import { createApi } from '../../../api'
+import { createApi } from '../../../../api'
 
 interface TrainDefinitions {
   intentDefs: sdk.NLU.IntentDefinition[]
