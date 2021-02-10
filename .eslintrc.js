@@ -44,7 +44,8 @@ module.exports = {
     'brace-style': ['error', '1tbs'],
     curly: 'error',
     'eol-last': 'error',
-    eqeqeq: ['error', 'smart'],
+    // TODO: Eventually change this to error
+    eqeqeq: ['warn', 'smart'],
     'import/order': [
       'warn',
       {
@@ -66,7 +67,6 @@ module.exports = {
       }
     ],
     'jsdoc/check-alignment': 'error',
-    'jsdoc/check-indentation': 'error',
     'linebreak-style': ['error', 'unix'],
     'no-console': [
       'warn',
@@ -104,6 +104,6 @@ module.exports = {
     'no-trailing-spaces': 'error',
     'no-var': 'error',
     'object-shorthand': 'error',
-    'prefer-const': 'error'
+    'prefer-const': 'warn'
   }
 }

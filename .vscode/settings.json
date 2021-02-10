@@ -4,6 +4,7 @@
   "editor.formatOnSave": true,
   "files.eol": "\n",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "eslint.nodePath": "./node_modules",
   "editor.codeActionsOnSave": {
     "source.fixAll": true
   },
@@ -56,9 +57,7 @@
     "string": "cpp",
     "__split_buffer": "cpp"
   },
-  "favorites.resources": [
-    "out/bp/data"
-  ],
+  "favorites.resources": ["out/bp/data"],
   "sqltools.connections": [
     {
       "askForPassword": false,
