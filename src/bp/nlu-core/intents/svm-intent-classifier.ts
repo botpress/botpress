@@ -1,10 +1,14 @@
 import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
+import Joi, { validate } from 'joi'
 import { ListEntityModel, PatternEntity, Tools } from 'nlu-core/typings'
 import Utterance from 'nlu-core/utterance/utterance'
 
 import { IntentClassifier, IntentPredictions, IntentTrainInput } from './intent-classifier'
+import { ListEntityModelSchema, PatternEntitySchema } from 'nlu-core/entities/schemas'
+import { ModelLoadingError } from 'nlu-core/errors'
 
+type Featurizer = (u: Utterance, entities: string[]) => number[]
 interface Model {
   svmModel: string | undefined
   intentNames: string[]
@@ -19,7 +23,12 @@ interface Predictors {
   pattern_entities: PatternEntity[]
 }
 
-type Featurizer = (u: Utterance, entities: string[]) => number[]
+const modelSchema = Joi.object().keys({
+  svmModel: Joi.string().optional(),
+  intentNames: Joi.array().items(Joi.string()),
+  list_entities: Joi.array().items(ListEntityModelSchema),
+  pattern_entities: Joi.array().items(PatternEntitySchema)
+})
 
 export class SvmIntentClassifier implements IntentClassifier {
   private static _name = 'SVM Intent Classifier'
@@ -79,10 +88,15 @@ export class SvmIntentClassifier implements IntentClassifier {
     return JSON.stringify(this.model)
   }
 
-  load(serialized: string): void {
-    const model: Model = JSON.parse(serialized) // TODO: validate input
-    this.predictors = this._makePredictors(model)
-    this.model = model
+  async load(serialized: string): Promise<void> {
+    try {
+      const raw = JSON.parse(serialized)
+      const model: Model = await validate(raw, modelSchema)
+      this.predictors = this._makePredictors(model)
+      this.model = model
+    } catch (err) {
+      throw new ModelLoadingError(SvmIntentClassifier._name, err)
+    }
   }
 
   private _makePredictors(model: Model): Predictors {

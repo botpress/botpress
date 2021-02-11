@@ -1,8 +1,10 @@
 import _ from 'lodash'
+import Joi, { validate } from 'joi'
 import { Intent } from 'nlu-core/typings'
 import Utterance, { UtteranceToStringOptions } from 'nlu-core/utterance/utterance'
 
 import { IntentClassifier, IntentPredictions, IntentTrainInput } from './intent-classifier'
+import { ModelLoadingError } from 'nlu-core/errors'
 
 interface Model {
   intents: string[]
@@ -17,6 +19,12 @@ const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
   slots: 'keep-value', // slot extraction is done in || with intent prediction
   entities: 'keep-name'
 }
+
+const schemaKeys: Record<keyof Model, Joi.AnySchema> = {
+  intents: Joi.array().items(Joi.string()),
+  exact_match_index: Joi.object().pattern(/^/, Joi.object().keys({ intent: Joi.string() }))
+}
+const modelSchema = Joi.object().keys(schemaKeys)
 
 export class ExactIntenClassifier implements IntentClassifier {
   private static _name = 'Exact Intent Classifier'
@@ -57,9 +65,14 @@ export class ExactIntenClassifier implements IntentClassifier {
     return JSON.stringify(this.model)
   }
 
-  load(serialized: string) {
-    const model: Model = JSON.parse(serialized) // TODO: validate input
-    this.model = model
+  async load(serialized: string) {
+    try {
+      const raw = JSON.parse(serialized)
+      const model: Model = await validate(raw, modelSchema)
+      this.model = model
+    } catch (err) {
+      throw new ModelLoadingError(ExactIntenClassifier._name, err)
+    }
   }
 
   async predict(utterance: Utterance): Promise<IntentPredictions> {

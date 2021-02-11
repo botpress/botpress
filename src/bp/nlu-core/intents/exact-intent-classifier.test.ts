@@ -5,6 +5,7 @@ import { Intent } from '../typings'
 import Utterance from '../utterance/utterance'
 
 import { ExactIntenClassifier } from './exact-intent-classifier'
+import { ModelLoadingError } from 'nlu-core/errors'
 
 const u1 = 'Hi my name is Alex W and I try to make NLU for a living'
 const u2 = "Hi I'm Justine and I'm a smart bot with very scoped skills"
@@ -103,6 +104,48 @@ describe('Exact match', () => {
         expect(intents.length).toBe(1)
         expect(intents[0].confidence).toBe(1)
       }
+    })
+
+    test('When no model corruption, loading a model doesnt throw', async () => {
+      // arrange
+      await exactMatchIntentClf.train(
+        {
+          intents,
+          languageCode: 'en',
+          list_entities: [],
+          pattern_entities: [],
+          nluSeed: 42
+        },
+        dummyProgress
+      )
+      const model = exactMatchIntentClf.serialize()
+
+      // act
+      await exactMatchIntentClf.load(model)
+
+      // assert
+      const { intents: predictions } = await exactMatchIntentClf.predict(makeTestUtterance(u1))
+      const actual = predictions.find(p => p.name === intent1.name)
+      expect(actual?.confidence).toBe(1)
+    })
+
+    test('When model is corrupted, loading a model throws', async () => {
+      // arrange
+      await exactMatchIntentClf.train(
+        {
+          intents,
+          languageCode: 'en',
+          list_entities: [],
+          pattern_entities: [],
+          nluSeed: 42
+        },
+        dummyProgress
+      )
+      let model = exactMatchIntentClf.serialize()
+      model += 'heyhey I will kill this model'
+
+      // act
+      await expect(exactMatchIntentClf.load(model)).rejects.toThrowError(ModelLoadingError)
     })
   })
 })

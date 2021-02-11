@@ -1,5 +1,6 @@
 import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
+import Joi, { validate } from 'joi'
 import { isPOSAvailable } from 'nlu-core/language/pos-tagger'
 import {
   featurizeInScopeUtterances,
@@ -15,6 +16,7 @@ import { ExactIntenClassifier } from './exact-intent-classifier'
 import { IntentTrainInput, NoneableIntentClassifier, NoneableIntentPredictions } from './intent-classifier'
 import { getIntentFeatures } from './intent-featurizer'
 import { SvmIntentClassifier } from './svm-intent-classifier'
+import { ModelLoadingError } from 'nlu-core/errors'
 
 interface TrainInput extends IntentTrainInput {
   allUtterances: Utterance[]
@@ -40,6 +42,13 @@ const NONE_UTTERANCES_BOUNDS = {
   MIN: 20,
   MAX: 200
 }
+
+const modelSchema = Joi.object().keys({
+  trainingVocab: Joi.array().items(Joi.string()),
+  baseIntentClfModel: Joi.string(),
+  oosSvmModel: Joi.string().optional(),
+  exactMatchModel: Joi.string()
+})
 
 /**
  * @description Intent classfier composed of 3 smaller components:
@@ -225,17 +234,25 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
     return JSON.stringify(this.model)
   }
 
-  public load(serialized: string): void {
-    const model: Model = JSON.parse(serialized) // TODO: validate input
-    this.predictors = this._makePredictors(model)
-    this.model = model
+  public async load(serialized: string): Promise<void> {
+    try {
+      const raw = JSON.parse(serialized)
+      const model: Model = await validate(raw, modelSchema)
+      this.predictors = await this._makePredictors(model)
+      this.model = model
+    } catch (err) {
+      throw new ModelLoadingError(OOSIntentClassifier._name, err)
+    }
   }
 
-  private _makePredictors(model: Model): Predictors {
+  private async _makePredictors(model: Model): Promise<Predictors> {
     const { oosSvmModel, baseIntentClfModel, trainingVocab, exactMatchModel } = model
 
     const baseIntentClf = new SvmIntentClassifier(this.tools, getIntentFeatures)
-    baseIntentClf.load(baseIntentClfModel)
+    await baseIntentClf.load(baseIntentClfModel)
+
+    const exactMatcher = new ExactIntenClassifier()
+    await exactMatcher.load(exactMatchModel)
 
     const exactIntenClassifier = new ExactIntenClassifier()
     exactIntenClassifier.load(exactMatchModel)
@@ -254,7 +271,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
         throw new Error(`${OOSIntentClassifier._name} must be trained before calling predict.`)
       }
 
-      this.predictors = this._makePredictors(this.model)
+      this.predictors = await this._makePredictors(this.model)
     }
 
     const { oosSvm, baseIntentClf, trainingVocab, exactIntenClassifier } = this.predictors
