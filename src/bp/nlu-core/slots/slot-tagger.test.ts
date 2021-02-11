@@ -4,7 +4,8 @@ import { makeTestUtterance } from 'nlu-core/test-utils/fake-utterance'
 import { BIO, ExtractedEntity, ExtractedSlot } from '../typings'
 import Utterance from '../utterance/utterance'
 
-import { labelizeUtterance, makeExtractedSlots, TagResult } from './slot-tagger'
+import { labelizeUtterance, makeExtractedSlots } from './slot-tagger'
+import { TagResult } from './typings'
 
 describe('Slot tagger labels for utterance', () => {
   test('without slots', () => {

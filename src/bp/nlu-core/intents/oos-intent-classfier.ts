@@ -41,7 +41,17 @@ const NONE_UTTERANCES_BOUNDS = {
   MAX: 200
 }
 
+/**
+ * @description Intent classfier composed of 3 smaller components:
+ *  1 - an SVM intent classifier
+ *  2 - an SVM to predict weither the sample is in scope or oos
+ *  3 - an exact-matcher to override the prediction made by the SVM when there's an exact match
+ *
+ * @returns A confidence level for all possible labels including none
+ */
 export class OOSIntentClassifier implements NoneableIntentClassifier {
+  private static _name = 'OOS Intent Classifier'
+
   private model: Model | undefined
   private predictors: Predictors | undefined
 
@@ -210,7 +220,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
 
   public serialize(): string {
     if (!this.model) {
-      throw new Error('Intent classifier must be trained before calling serialize')
+      throw new Error(`${OOSIntentClassifier._name} must be trained before calling serialize.`)
     }
     return JSON.stringify(this.model)
   }
@@ -241,7 +251,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
   public async predict(utterance: Utterance): Promise<NoneableIntentPredictions> {
     if (!this.predictors) {
       if (!this.model) {
-        throw new Error('Intent classifier must be trained before you call predict on it.')
+        throw new Error(`${OOSIntentClassifier._name} must be trained before calling predict.`)
       }
 
       this.predictors = this._makePredictors(this.model)

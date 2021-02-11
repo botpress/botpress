@@ -19,6 +19,7 @@ const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
 }
 
 export class ExactIntenClassifier implements IntentClassifier {
+  private static _name = 'Exact Intent Classifier'
   private model: Model | undefined
 
   async train(trainInput: IntentTrainInput, progress: (p: number) => void) {
@@ -51,7 +52,7 @@ export class ExactIntenClassifier implements IntentClassifier {
 
   serialize() {
     if (!this.model) {
-      throw new Error('Exact match intent classifier must be trained before calling serialize')
+      throw new Error(`${ExactIntenClassifier._name} must be trained before calling serialize.`)
     }
     return JSON.stringify(this.model)
   }
@@ -63,7 +64,7 @@ export class ExactIntenClassifier implements IntentClassifier {
 
   async predict(utterance: Utterance): Promise<IntentPredictions> {
     if (!this.model) {
-      throw new Error('Exact match intent classifier must be trained before you call predict on it.')
+      throw new Error(`${ExactIntenClassifier._name} must be trained before calling predict.`)
     }
 
     const { exact_match_index, intents: intentNames } = this.model

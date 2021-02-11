@@ -1,9 +1,7 @@
 import { SPACE } from '../tools/token-utils'
-import { Intent } from '../typings'
 import Utterance, { UtteranceEntity, UtteranceToken } from '../utterance/utterance'
 
 import * as featurizer from './slot-featurizer'
-import { IntentSlotFeatures } from './slot-tagger'
 
 describe('CRF Featurizer 2', () => {
   test('featToCRFsuiteAttr', () => {

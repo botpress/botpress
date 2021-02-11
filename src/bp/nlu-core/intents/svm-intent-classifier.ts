@@ -22,6 +22,8 @@ interface Predictors {
 type Featurizer = (u: Utterance, entities: string[]) => number[]
 
 export class SvmIntentClassifier implements IntentClassifier {
+  private static _name = 'SVM Intent Classifier'
+
   private model: Model | undefined
   private predictors: Predictors | undefined
 
@@ -72,7 +74,7 @@ export class SvmIntentClassifier implements IntentClassifier {
 
   serialize(): string {
     if (!this.model) {
-      throw new Error('SVM Intent classifier must be trained before calling serialize')
+      throw new Error(`${SvmIntentClassifier._name} must be trained before calling serialize.`)
     }
     return JSON.stringify(this.model)
   }
@@ -96,7 +98,7 @@ export class SvmIntentClassifier implements IntentClassifier {
   async predict(utterance: Utterance): Promise<IntentPredictions> {
     if (!this.predictors) {
       if (!this.model) {
-        throw new Error('SVM Intent classifier must be trained before calling predict.')
+        throw new Error(`${SvmIntentClassifier._name} must be trained before calling predict.`)
       }
 
       this.predictors = this._makePredictors(this.model)
