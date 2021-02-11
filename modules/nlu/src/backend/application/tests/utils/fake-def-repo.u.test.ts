@@ -2,17 +2,23 @@ import { ListenHandle, NLU } from 'botpress/sdk'
 
 import { DefinitionRepository, FileListener, TrainDefinitions } from '../../scoped/typings'
 
+import { Definitions, makeDefinitions } from './data.u.test'
+
 export class FakeDefinitionRepo implements DefinitionRepository {
   private _listeners: FileListener[] = []
 
   private intents: NLU.IntentDefinition[] = []
   private entities: NLU.EntityDefinition[] = []
 
-  constructor() {}
-
-  initialize(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[]) {
-    this.intents = [...intents]
-    this.entities = [...entities]
+  constructor(defs?: Definitions) {
+    if (defs) {
+      const { intentDefs, entityDefs } = defs
+      this.intents = intentDefs
+      this.entities = entityDefs
+    }
+    const { intentDefs, entityDefs } = makeDefinitions(['en', 'fr'])
+    this.intents = intentDefs
+    this.entities = entityDefs
   }
 
   async getTrainDefinitions(): Promise<TrainDefinitions> {

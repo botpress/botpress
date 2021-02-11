@@ -7,12 +7,12 @@ import { BotService } from '../../bot-service'
 import { InMemoryTrainingQueue, TrainingQueueOptions } from '../../memory-training-queue'
 import { TrainingQueue, TrainSessionListener } from '../../typings'
 
-import { FakeDefinitionRepo } from './fake-def-repo'
-import { FakeEngine, FakeEngineOptions } from './fake-engine'
-import { FakeLogger } from './fake-logger'
-import { modelIdService } from './fake-model-id-service'
-import { FakeModelRepo } from './fake-model-repo'
-import { sleep } from './utils'
+import { FakeDefinitionRepo } from './fake-def-repo.u.test'
+import { FakeEngine, FakeEngineOptions } from './fake-engine.u.test'
+import { FakeLogger } from './fake-logger.u.test'
+import { modelIdService } from './fake-model-id-service.u.test'
+import { FakeModelRepo } from './fake-model-repo.u.test'
+import { sleep } from './utils.u.test'
 
 const MAX_TIME_PER_TEST = ms('3 s')
 const DEFAULT_TRAINING_DELAY = 1 // ms

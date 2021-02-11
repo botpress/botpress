@@ -1,7 +1,7 @@
 import { NLU } from 'botpress/sdk'
 import ms from 'ms'
 
-import { areEqual, computeContentHash, computeSpecificationsHash, sleep } from './utils'
+import { areEqual, computeContentHash, computeSpecificationsHash, sleep } from './utils.u.test'
 
 export interface FakeEngineOptions {
   trainDelayBetweenProgress: number

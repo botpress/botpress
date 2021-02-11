@@ -1,7 +1,7 @@
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
-import { computeContentHash, computeSpecificationsHash } from './utils'
+import { computeContentHash, computeSpecificationsHash } from './utils.u.test'
 
 // Copied from actual core modelIdService
 // Once nlu is in core, use the actual modelIdService, not a fake or mock (This class is easely testable)

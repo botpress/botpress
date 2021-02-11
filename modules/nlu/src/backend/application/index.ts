@@ -50,31 +50,27 @@ export class NLUApplication {
     const { bot, defService, modelRepo } = await this._botFactory.makeBot(botConfig)
     this._botService.setBot(botId, bot)
 
-    await bot.mount()
-
-    const botMounted: _.Dictionary<boolean> = _.zipObject(
-      languages,
-      languages.map(l => false)
-    )
-
-    const dirtyModelListener = async (language: string) => {
+    const makeDirtyModelHandler = (queueTraining = false) => async (language: string) => {
       const latestModelId = await defService.getLatestModelId(language)
       if (await modelRepo.hasModel(latestModelId)) {
-        botMounted[language] = true
         await bot.load(latestModelId)
         return
       }
 
-      if (botMounted[language]) {
-        return this._trainingQueue.needsTraining({ botId, language })
+      if (queueTraining) {
+        return this._trainingQueue.queueTraining({ botId, language })
       }
-
-      botMounted[language] = true
-      return this._trainingQueue.queueTraining({ botId, language })
+      return this._trainingQueue.needsTraining({ botId, language })
     }
 
-    defService.listenForDirtyModels(dirtyModelListener)
-    await defService.scanForDirtyModels()
+    const loadOrSetTrainingNeeded = makeDirtyModelHandler()
+    defService.listenForDirtyModels(loadOrSetTrainingNeeded)
+
+    const loadModelOrQueue = makeDirtyModelHandler(true)
+    for (const language of languages) {
+      await loadModelOrQueue(language)
+    }
+    await bot.mount()
   }
 
   public unmountBot = async (botId: string) => {

@@ -6,11 +6,11 @@ import { NLU } from 'botpress/sdk'
 import { DefinitionRepositoryFactory, ModelRepositoryFactory } from '../bot-factory'
 import { TrainingQueueOptions } from '../memory-training-queue'
 
-import { runTest } from './utils/app-factory'
-import { train_data_en, train_data_en_fr } from './utils/data'
-import { FakeDefinitionRepo } from './utils/fake-def-repo'
-import { FakeEngine } from './utils/fake-engine'
-import { FakeModelRepo } from './utils/fake-model-repo'
+import { runTest } from './utils/app-factory.u.test'
+import { makeDatasets, makeDefinitions } from './utils/data.u.test'
+import { FakeDefinitionRepo } from './utils/fake-def-repo.u.test'
+import { FakeEngine } from './utils/fake-engine.u.test'
+import { FakeModelRepo } from './utils/fake-model-repo.u.test'
 
 const expectTs = (ts: Partial<NLU.TrainingSession>) => expect.objectContaining<Partial<NLU.TrainingSession>>(ts)
 
@@ -44,23 +44,21 @@ describe('NLU API', () => {
     // arrange
     const socket = jest.fn()
     const botId = 'myBot'
-    const engine = new FakeEngine(['en', 'fr'])
+    const languages = ['en', 'fr']
+    const engine = new FakeEngine(languages)
+    const defRepo = new FakeDefinitionRepo(makeDefinitions(languages))
 
-    const { entities, intents } = train_data_en_fr
-
-    const defRepo = new FakeDefinitionRepo()
-    defRepo.initialize(intents, entities)
-
+    const defRepoFactory = () => defRepo
     const trainingQueueOptions: TrainingQueueOptions = { maxTraining: 2, jobInterval: 1 }
 
     await runTest(
-      { socket, engine, trainingQueueOptions },
+      { socket, engine, trainingQueueOptions, defRepoFactory },
       async app => {
         // act
         await app.mountBot({
           id: botId,
           defaultLanguage: 'en',
-          languages: ['en', 'fr']
+          languages
         })
       },
       async () => {
@@ -78,11 +76,12 @@ describe('NLU API', () => {
 
   test('When a model is on fs no training should start on bot mount', async () => {
     // arrange
-    const fakeDefRepo = new FakeDefinitionRepo()
+    const lang = 'en'
+    const nluSeed = 42
+    const [dataset] = makeDatasets([lang], nluSeed)
+    const { modelId, trainSet } = dataset
 
-    const { entities, intents, modelId, nluSeed, lang } = train_data_en
-
-    fakeDefRepo.initialize(intents, entities)
+    const fakeDefRepo = new FakeDefinitionRepo(trainSet)
     const defRepoFactory: DefinitionRepositoryFactory = () => fakeDefRepo
 
     const fakeModelRepo = new FakeModelRepo()

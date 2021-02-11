@@ -40,10 +40,6 @@ export class ScopedDefinitionsService {
     this._dirtyModelsListeners.push(listener)
   }
 
-  public scanForDirtyModels = async () => {
-    await Promise.filter(this._languages, this._needsTraining).mapSeries(this._notifyListeners)
-  }
-
   private _needsTraining = async (language: string): Promise<boolean> => {
     const modelId = await this.getLatestModelId(language)
     if (this._engine.hasModel(modelId)) {
@@ -80,7 +76,7 @@ export class ScopedDefinitionsService {
       if (!hasPotentialNLUChange) {
         return
       }
-      await this.scanForDirtyModels()
+      await Promise.filter(this._languages, this._needsTraining).mapSeries(this._notifyListeners)
     })
   }
 
