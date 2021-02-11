@@ -88,7 +88,7 @@ const makeTrainingWaiter = (queue: TrainingQueue) => {
       if (allFinish) {
         return true
       }
-      await sleep(MAX_TIME_PER_TEST / 10)
+      await sleep(MAX_TIME_PER_TEST / 100)
     }
     return true
   }

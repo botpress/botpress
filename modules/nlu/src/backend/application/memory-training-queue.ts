@@ -39,11 +39,12 @@ class TrainingContainer {
   }
 
   public get(id: TrainingId): TrainStatus | undefined {
-    return this._trainings[_toKey(id)]
+    const training = this._trainings[_toKey(id)]
+    return { ...training }
   }
 
   public set(id: TrainingId, status: TrainStatus) {
-    this._trainings[_toKey(id)] = status
+    this._trainings[_toKey(id)] = { ...status }
   }
 
   public clear() {
@@ -190,7 +191,7 @@ export class InMemoryTrainingQueue implements TrainingQueue {
     }
 
     const next = pendings[0]
-    await this._update(next, { status: 'training' })
+    await this._update(next, { status: 'training' }) // TODO: wait for the first progress call to switch status to training
 
     // floating promise to return fast from task
     this._train(next)

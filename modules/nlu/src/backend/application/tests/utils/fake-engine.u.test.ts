@@ -28,8 +28,9 @@ export class FakeEngine implements NLU.Engine {
 
   constructor(private languages: string[], private opt: Partial<FakeEngineOptions> = {}) {
     this._options = { ...DEFAULT_OPTIONS, ...opt }
-    if (this._options.nProgressCalls < 2) {
-      throw new Error("There's a minimum of 2 progress calls for a training...")
+    const { nProgressCalls } = this._options
+    if (nProgressCalls < 2 || nProgressCalls > 10) {
+      throw new Error("There's a minimum of 2 progress calls and a maximum of 10 for a training...")
     }
   }
 
@@ -71,9 +72,14 @@ export class FakeEngine implements NLU.Engine {
     trainSet: NLU.TrainingSet,
     options: Partial<NLU.TrainingOptions> = {}
   ): Promise<NLU.Model> => {
-    options.progressCallback?.(0)
-    await sleep(this._options.trainDelayBetweenProgress)
-    options.progressCallback?.(1)
+    const { nProgressCalls, trainDelayBetweenProgress } = this._options
+    let progressCallsCount = 0
+    const deltaProgress = 1 / nProgressCalls
+    while (progressCallsCount < nProgressCalls) {
+      progressCallsCount++
+      options.progressCallback?.(progressCallsCount * deltaProgress)
+      await sleep(trainDelayBetweenProgress)
+    }
 
     const { languageCode, seed, intentDefs, entityDefs } = trainSet
     const specs = this.getSpecifications()

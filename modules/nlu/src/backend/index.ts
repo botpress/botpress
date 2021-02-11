@@ -38,7 +38,7 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
     throw new AppNotInitializedError()
   }
 
-  const botConfig = await this._configResolver.getBotById(botId)
+  const botConfig = await bp.bots.getBotById(botId)
   if (!botConfig) {
     throw new Error(`No config found for bot ${botId}`)
   }
