@@ -1,7 +1,7 @@
 import 'bluebird-global'
-// tslint:disable-next-line:ordered-imports
+// eslint-disable-next-line import/order
 import './sdk/rewire'
-// tslint:disable-next-line:ordered-imports
+// eslint-disable-next-line import/order
 import './common/polyfills'
 
 import sdk from 'botpress/sdk'
@@ -13,7 +13,6 @@ import center from 'core/logger/center'
 import { ModuleLoader } from 'core/module-loader'
 import ModuleResolver from 'core/modules/resolver'
 import fs from 'fs'
-
 import _ from 'lodash'
 import os from 'os'
 

@@ -109,7 +109,7 @@ const BottomPanel = props => {
         })}
       </Tabs>
 
-      <div className={cx(style.padded, style.fullWidth, { 'emulator-open': props.emulatorOpen })}>
+      <div className={cx(style.padded, style.fullWidth)}>
         <DevPanel.Container activeTab={tab} />
         <Logs commonButtons={commonButtons} hidden={tab !== 'logs'} />
 

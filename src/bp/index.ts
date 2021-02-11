@@ -11,7 +11,7 @@ const { Debug } = require('./debug')
 const { getAppDataPath } = require('./core/misc/app_data')
 
 const printPlainError = err => {
-  // tslint:disable: no-console
+  /* eslint-disable no-console */
   console.log('Error starting botpress')
   console.log(err)
   console.log(err.message)
@@ -59,6 +59,9 @@ process.stderr.write = stripDeprecationWrite
 
 process.on('unhandledRejection', err => {
   global.printErrorDefault(err)
+  if (!process.IS_FAILSAFE) {
+    process.exit(1)
+  }
 })
 
 process.on('uncaughtException', err => {

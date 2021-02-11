@@ -1,5 +1,5 @@
-import { FormField, MultiLangText } from 'botpress/sdk'
 import { IDateRangeShortcut } from '@blueprintjs/datetime'
+import { FormField, MultiLangText } from 'botpress/sdk'
 import { IDates } from 'common/dates'
 import React from 'react'
 
@@ -23,7 +23,14 @@ import { DialogProps } from './Dialog/typings'
 import { DropdownProps, Option } from './Dropdown/typings'
 import { EmptyStateProps } from './EmptyState/typings'
 import { FormProps } from './Form/typings'
-import { AddButtonProps, FieldWrapperProps, SelectProps, TextFieldsArrayProps } from './Form/FormFields/typings'
+import {
+  AddButtonProps,
+  FieldWrapperProps,
+  SelectProps,
+  TextFieldsArrayProps,
+  TextProps,
+  UploadFieldProps
+} from './Form/FormFields/typings'
 import { MainContainerProps } from './MainContainer/typings'
 import { HeaderButton, HeaderProps } from './MainLayout/Header/typings'
 import { MenuItem, MenuProps } from './MainLayout/Menu/typings'
@@ -68,6 +75,8 @@ declare module 'botpress/shared' {
     Select(props: SelectProps): JSX.Element
     TextFieldsArray(props: TextFieldsArrayProps): JSX.Element
     VariablePicker(props: VariablePickerProps): JSX.Element
+    Text(props: TextProps): JSX.Element
+    Upload(props: UploadFieldProps): JSX.Element
   }
   export function Dropdown(props: DropdownProps): JSX.Element
   export function EmptyState(props: EmptyStateProps): JSX.Element

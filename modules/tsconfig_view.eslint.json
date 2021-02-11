@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig_view.shared.json",
+  "include": ["*/src/views/**/*.ts","*/src/views/**/*.tsx"]
+}

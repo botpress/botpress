@@ -23,6 +23,8 @@
     "createAccount": "Create Account",
     "createMasterAdminAccount": "This is the first time you run Botpress. Please create the master admin account.",
     "currentPassword": "Current password",
+    "showToken": "Show token",
+    "hideToken": "Hide token",
     "debug": {
       "confUpdated": "Debug configuration updated successfully!",
       "configureDebug": "Configure Debug",
@@ -47,6 +49,7 @@
       "usingLangServerAt": "Using lang server at"
     },
     "lastName": "Last Name",
+    "profilePicture": "Profile Picture",
     "license": {
       "enterLicenseKey": "Enter license key",
       "enterYourLicense": "Enter your license key",

@@ -62,7 +62,7 @@ function addToNodePath(path) {
 }
 
 function reloadPaths() {
-  ;(Module as any)._initPaths() // tslint:disable-line
+  ;(Module as any)._initPaths() // eslint-disable-line
 }
 
 function getPaths(): string[] {

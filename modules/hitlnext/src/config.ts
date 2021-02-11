@@ -38,6 +38,23 @@ export interface Config {
    * @default false
    */
   enableConversationDeletion: boolean
+
+  /**
+   * @param transferMessage The message sent to the user when he is being transferred to an agent. E.g. ̀`{ "lang": "message"}`.
+   * @default { "en": "You are being transferred to an agent.", "fr": "Vous êtes transféré à un agent."}
+   */
+  transferMessage: {
+    [Key: string]: string
+  }
+
+  /**
+   * @param assignMessage The message sent to the user when he has been assigned to an agent.
+   * @argument agentName It is possible to specify the agent name as an argument to the message. See the example below.
+   * @default { "en": "You have been assigned to our agent {{agentName}}.", "fr": "Vous avez été assigné à notre agent(e) {{agentName}}."}
+   */
+  assignMessage: {
+    [Key: string]: string
+  }
 }
 
 export interface IShortcut {

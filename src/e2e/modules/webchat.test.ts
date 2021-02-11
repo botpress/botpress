@@ -38,6 +38,12 @@ describe('Module - Channel Web', () => {
     await expectMatch('Please ask questions about that animal')
   })
 
+  it('Test QNA text markdown', async () => {
+    await fillField('#input-message', 'help me')
+    await clickOn('#btn-send')
+    await expectMatch('a Contextual FAQ,') // Test markdown
+  })
+
   it('Reset conversation', async () => {
     await clickOn('#btn-reset')
     await expectMatch('Reset the conversation')

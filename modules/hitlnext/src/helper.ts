@@ -1,4 +1,4 @@
-import { IAgent } from '../../../types'
+import { IAgent } from './types'
 
 export function agentName(agent: IAgent) {
   const { firstname, lastname } = agent.attributes || {}

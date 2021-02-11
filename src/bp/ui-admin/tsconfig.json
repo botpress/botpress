@@ -23,7 +23,8 @@
     "noEmit": true
   },
   "include": [
-    "src"
+    "src/**/*.ts",
+    "src/**/*.tsx"
   ],
   "extends": "./tsconfig_bp.json"
 }

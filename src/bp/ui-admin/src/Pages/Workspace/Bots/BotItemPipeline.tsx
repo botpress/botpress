@@ -20,6 +20,8 @@ import { toastInfo } from '~/utils/toaster'
 
 import AccessControl, { isChatUser } from '../../../App/AccessControl'
 
+import { NeedsTrainingWarning } from './NeedsTrainingWarning'
+
 interface Props {
   bot: BotConfig
   isApprover: boolean
@@ -35,6 +37,7 @@ interface Props {
   allowStageChange?: boolean
   reloadBot?: () => void
   viewLogs?: () => void
+  nluModuleEnabled: boolean | undefined
 }
 
 const BotItemPipeline: FC<Props> = ({
@@ -51,7 +54,8 @@ const BotItemPipeline: FC<Props> = ({
   createRevision,
   rollback,
   reloadBot,
-  viewLogs
+  viewLogs,
+  nluModuleEnabled
 }) => {
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
@@ -168,6 +172,9 @@ const BotItemPipeline: FC<Props> = ({
             {lang.tr('admin.workspace.bots.item.approved')}
           </Tag>
         )}
+
+        {nluModuleEnabled && <NeedsTrainingWarning bot={bot.id} languages={bot.languages} />}
+
         {!bot.defaultLanguage && (
           <Tooltip position="right" content={lang.tr('admin.workspace.bots.item.languageIsMissing')}>
             <Icon icon="warning-sign" intent={Intent.DANGER} style={{ marginLeft: 10 }} />

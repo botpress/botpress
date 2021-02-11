@@ -27,9 +27,9 @@ export class AuthRouter extends CustomRouter {
     super('Auth', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
 
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.setupRoutes()
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.setupStrategies()
   }
 
@@ -118,13 +118,17 @@ export class AuthRouter extends CustomRouter {
               .min(0)
               .max(35)
               .trim()
+              .allow(''),
+            picture_url: Joi.string()
+              .uri()
               .allow('')
           })
         )
 
         await this.authService.updateAttributes(email, strategy, {
           firstname: req.body.firstname,
-          lastname: req.body.lastname
+          lastname: req.body.lastname,
+          picture_url: req.body.picture_url
         })
 
         return sendSuccess(res, 'Updated profile successfully')
