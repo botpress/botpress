@@ -5,8 +5,8 @@ import React, { FC, useEffect, useState } from 'react'
 
 import api from '../../../api'
 
-import { LanguageSource } from './typings'
 import Language from './Language'
+import { LanguageSource } from './typings'
 
 // TODO better typings
 interface LanguageData {
@@ -28,7 +28,7 @@ interface Props {
 const LanguageManagement: FC<Props> = props => {
   const [languages, setLanguages] = useState<LanguageData | undefined>()
   useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     fetchLanguages(setLanguages)
   }, [])
 

@@ -1,4 +1,4 @@
-// tslint:disable:ordered-imports
+/* eslint-disable import/order */
 import './sdk/rewire'
 
 import { Config, Logger } from 'core/app'

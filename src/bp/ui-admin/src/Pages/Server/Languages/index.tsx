@@ -6,9 +6,9 @@ import PageContainer from '~/App/PageContainer'
 
 import api from '../../../api'
 
-import { LangServerInfo, LanguageSource } from './typings'
-import LanguageManagement from './LanguageManagement'
 import LangServer from './LangServer'
+import LanguageManagement from './LanguageManagement'
+import { LangServerInfo, LanguageSource } from './typings'
 
 const fetchLangSource = async (setLangSource: Function) => {
   const { data } = (await api.getSecured().get('/admin/languages/sources')) as {
@@ -36,7 +36,7 @@ export default () => {
       await fetchLangServerInfo(source, setLangServerInfo)
     }
 
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     init()
   }, [])
 
