@@ -1,11 +1,37 @@
 import { NLU } from 'botpress/sdk'
+import ms from 'ms'
 
-import { areEqual } from './utils.test'
+import { areEqual, computeContentHash, computeSpecificationsHash, sleep } from './utils.test'
+
+export interface FakeEngineOptions {
+  trainDelayBetweenProgress: number
+  nProgressCalls: number // TODO: actually implement this
+}
+
+const DEFAULT_OPTIONS: FakeEngineOptions = {
+  trainDelayBetweenProgress: 0,
+  nProgressCalls: 2
+}
+
+export const ENGINE_SPECS: NLU.Specifications = {
+  languageServer: {
+    dimensions: 300,
+    domain: 'lol',
+    version: '1.0.0'
+  },
+  nluVersion: '1.0.0'
+}
 
 export class FakeEngine implements NLU.Engine {
   private _models: NLU.Model[] = []
+  private _options: FakeEngineOptions
 
-  constructor(private languages: string[]) {}
+  constructor(private languages: string[], private opt: Partial<FakeEngineOptions> = {}) {
+    this._options = { ...DEFAULT_OPTIONS, ...opt }
+    if (this._options.nProgressCalls < 2) {
+      throw new Error("There's a minimum of 2 progress calls for a training...")
+    }
+  }
 
   getHealth = (): NLU.Health => {
     return {
@@ -20,14 +46,7 @@ export class FakeEngine implements NLU.Engine {
   }
 
   getSpecifications = (): NLU.Specifications => {
-    return {
-      languageServer: {
-        dimensions: 300,
-        domain: 'lol',
-        version: '1.0.0'
-      },
-      nluVersion: '1.0.0'
-    }
+    return ENGINE_SPECS
   }
 
   loadModel = async (model: NLU.Model): Promise<void> => {
@@ -52,14 +71,20 @@ export class FakeEngine implements NLU.Engine {
     trainSet: NLU.TrainingSet,
     options?: Partial<NLU.TrainingOptions> | undefined
   ): Promise<NLU.Model> => {
-    const { languageCode, seed } = trainSet
+    options.progressCallback?.(0)
+    await sleep(this._options.trainDelayBetweenProgress)
+    options.progressCallback?.(1)
+
+    const { languageCode, seed, intentDefs, entityDefs } = trainSet
+    const specs = this.getSpecifications()
+
     return {
       startedAt: new Date(),
       finishedAt: new Date(),
-      contentHash: 'lol1234',
+      contentHash: computeContentHash(entityDefs, intentDefs, languageCode),
       languageCode,
       seed,
-      specificationHash: 'hihi5432',
+      specificationHash: computeSpecificationsHash(specs),
       data: {
         input: '',
         output: ''

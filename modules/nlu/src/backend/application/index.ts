@@ -1,9 +1,9 @@
-import { NLU, BotConfig } from 'botpress/sdk'
+import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import { BotFactory } from './bot-factory'
 import { BotNotMountedError } from './errors'
-import { Predictor, TrainingQueue } from './typings'
+import { Predictor, TrainingQueue, BotConfig } from './typings'
 import { BotService } from './bot-service'
 
 export class NLUApplication {
@@ -46,25 +46,30 @@ export class NLUApplication {
   }
 
   public mountBot = async (botConfig: BotConfig) => {
-    const { id: botId } = botConfig
+    const { id: botId, languages } = botConfig
     const { bot, defService, modelRepo } = await this._botFactory.makeBot(botConfig)
     this._botService.setBot(botId, bot)
 
     await bot.mount()
 
-    let botMounted = false
+    const botMounted: _.Dictionary<boolean> = _.zipObject(
+      languages,
+      languages.map(l => false)
+    )
+
     const dirtyModelListener = async (language: string) => {
       const latestModelId = await defService.getLatestModelId(language)
       if (await modelRepo.hasModel(latestModelId)) {
-        botMounted = true
+        botMounted[language] = true
         await bot.load(latestModelId)
         return
       }
 
-      if (botMounted) {
+      if (botMounted[language]) {
         return this._trainingQueue.needsTraining({ botId, language })
       }
-      botMounted = true
+
+      botMounted[language] = true
       return this._trainingQueue.queueTraining({ botId, language })
     }
 

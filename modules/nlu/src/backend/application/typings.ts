@@ -39,10 +39,13 @@ export interface TrainerService {
   getBot(botId: string): Trainer | undefined
 }
 
+export type TrainSessionListener = (botId: string, ts: NLU.TrainingSession) => Promise<void>
+
 export interface TrainingQueue {
   initialize(): Promise<void>
   teardown(): Promise<void>
 
+  listenForChange(listener: TrainSessionListener): void
   needsTraining(trainId: TrainingId): Promise<void>
   queueTraining(trainId: TrainingId): Promise<void>
   cancelTraining(trainId: TrainingId): Promise<void>

@@ -2,17 +2,21 @@ import * as sdk from 'botpress/sdk'
 import { NLU } from 'botpress/sdk'
 import ms from 'ms'
 
-import { TrainingId, TrainingQueue, TrainerService } from './typings'
+import { TrainingId, TrainingQueue, TrainerService, TrainSessionListener } from './typings'
 
-const JOB_INTERVAL = ms('2s')
-
-const MAX_ALLOWED_TRAINING_PER_NODE = 2 // TODO: make this configurable
-
-export type TrainSessionSocket = (botId: string, ts: NLU.TrainingSession) => Promise<void>
+export interface TrainingQueueOptions {
+  maxTraining: number
+  jobInterval: number // ms
+}
 
 interface TrainStatus {
   status: NLU.TrainingStatus
   progress: number
+}
+
+const DEFAULT_OPTIONS: TrainingQueueOptions = {
+  maxTraining: 2,
+  jobInterval: ms('2s')
 }
 
 const DEFAULT_STATUS: TrainStatus = { status: 'idle', progress: 0 }
@@ -59,22 +63,31 @@ class TrainingContainer {
 
 export class InMemoryTrainingQueue implements TrainingQueue {
   private _consumerHandle: NodeJS.Timeout
-
   private _trainings = new TrainingContainer()
+  private _options: TrainingQueueOptions
+  private _listeners: TrainSessionListener[] = []
 
   constructor(
     private _errors: typeof NLU.errors,
-    private _socket: TrainSessionSocket,
     private _logger: sdk.Logger,
-    private _trainerService: TrainerService
-  ) {}
+    private _trainerService: TrainerService,
+    options: Partial<TrainingQueueOptions> = {}
+  ) {
+    this._options = { ...DEFAULT_OPTIONS, ...options }
+  }
+
+  public listenForChange(listener: TrainSessionListener) {
+    this._listeners.push(listener)
+  }
 
   async initialize() {
-    this._consumerHandle = setInterval(this._runTask, JOB_INTERVAL)
+    this._consumerHandle = setInterval(this._runTask, this._options.jobInterval)
   }
 
   async teardown() {
     clearInterval(this._consumerHandle)
+    const currentTrainings = this._trainings.query({ status: 'training' })
+    await Promise.mapSeries(currentTrainings, this.cancelTraining)
     this._trainings.clear()
   }
 
@@ -95,7 +108,7 @@ export class InMemoryTrainingQueue implements TrainingQueue {
     return this._update(trainId, { status: 'training-pending' })
   }
 
-  async cancelTraining(trainId: TrainingId): Promise<void> {
+  cancelTraining = async (trainId: TrainingId): Promise<void> => {
     await this._notify(trainId, { status: 'canceled', progress: 0 })
     const { botId, language } = trainId
 
@@ -140,10 +153,12 @@ export class InMemoryTrainingQueue implements TrainingQueue {
     return this._notify(id, current)
   }
 
-  private _notify = (id: TrainingId, status: TrainStatus) => {
+  private _notify = async (id: TrainingId, status: TrainStatus) => {
     const { botId } = id
     const ts = this._toTrainSession(id, status)
-    return this._socket(botId, ts)
+    for (const l of this._listeners) {
+      await l(botId, ts)
+    }
   }
 
   private _toTrainSession = (id: TrainingId, training: TrainStatus): NLU.TrainingSession => {
@@ -154,7 +169,7 @@ export class InMemoryTrainingQueue implements TrainingQueue {
   }
 
   private _runTask = async () => {
-    if (this._trainings.query({ status: 'training' }).length >= MAX_ALLOWED_TRAINING_PER_NODE) {
+    if (this._trainings.query({ status: 'training' }).length >= this._options.maxTraining) {
       return
     }
 

@@ -1,19 +1,12 @@
 import { NLU } from 'botpress/sdk'
-import crypto from 'crypto'
 import _ from 'lodash'
+
+import { computeContentHash, computeSpecificationsHash } from './utils.test'
 
 // Copied from actual core modelIdService
 // Once nlu is in core, use the actual modelIdService, not a fake or mock (This class is easely testable)
 
 export const HALF_MD5_REG = /^[a-fA-F0-9]{16}$/
-
-const halfmd5 = (text: string) => {
-  return crypto
-    .createHash('md5')
-    .update(text)
-    .digest('hex')
-    .slice(16)
-}
 
 const toString = (modelId: NLU.ModelId) => {
   const { contentHash, specificationHash, languageCode: lang, seed } = modelId
@@ -65,24 +58,11 @@ const toId = (model: NLU.Model) => {
   return { contentHash, specificationHash, seed, languageCode }
 }
 
-const _computeContentHash = (
-  entityDefs: NLU.EntityDefinition[],
-  intentDefs: NLU.IntentDefinition[],
-  languageCode: string
-) => {
-  const singleLangIntents = intentDefs.map(i => ({ ...i, utterances: i.utterances[languageCode] }))
-  return halfmd5(JSON.stringify({ singleLangIntents, entityDefs }))
-}
-
-const _computeSpecificationsHash = (specifications: NLU.Specifications) => {
-  return halfmd5(JSON.stringify({ specifications }))
-}
-
 const makeId = (factors: NLU.ModelIdArgs): NLU.ModelId => {
   const { entityDefs, intentDefs, languageCode, seed, specifications } = factors
 
-  const contentHash = _computeContentHash(entityDefs, intentDefs, languageCode)
-  const specificationHash = _computeSpecificationsHash(specifications)
+  const contentHash = computeContentHash(entityDefs, intentDefs, languageCode)
+  const specificationHash = computeSpecificationsHash(specifications)
 
   return {
     contentHash,
@@ -97,14 +77,14 @@ const briefId = (factors: Partial<NLU.ModelIdArgs>): Partial<NLU.ModelId> => {
 
   let briefedId: Partial<NLU.ModelId> = {}
   if (entityDefs && intentDefs && languageCode) {
-    const contentHash = _computeContentHash(entityDefs, intentDefs, languageCode)
+    const contentHash = computeContentHash(entityDefs, intentDefs, languageCode)
     briefedId = { ...briefedId, contentHash }
   }
   if (languageCode) {
     briefedId = { ...briefedId, languageCode }
   }
   if (specifications) {
-    const specificationHash = _computeSpecificationsHash(specifications)
+    const specificationHash = computeSpecificationsHash(specifications)
     briefedId = { ...briefedId, specificationHash }
   }
   if (seed) {
