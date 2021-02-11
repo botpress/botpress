@@ -7,6 +7,9 @@ interface BotDefinition {
   botId: string
 }
 
+/**
+ * TODO: keep a cache of definitions files in memory and invalidate cache onFileChange
+ */
 export class ScopedDefinitionsRepository implements DefinitionRepository {
   private _botId: string
 

@@ -70,6 +70,11 @@ class TrainingContainer {
 }
 
 export class InMemoryTrainingQueue implements TrainingQueue {
+  /**
+   * TODO: no need for a setInterval:
+   * 1 - runTask when training is queued
+   * 2 - runTask when training is done
+   */
   private _consumerHandle: NodeJS.Timeout
   private _trainings = new TrainingContainer()
   private _options: TrainingQueueOptions
