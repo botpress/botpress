@@ -1,20 +1,18 @@
-import '../../../../../../src/bp/sdk/botpress'
-
-// tslint:disable-next-line: ordered-imports
-import { resolve } from 'bluebird'
 import { Logger, NLU } from 'botpress/sdk'
 import ms from 'ms'
-import { NLUApplication } from '..'
-import { BotFactory, DefinitionRepositoryFactory, ModelRepositoryFactory } from '../bot-factory'
-import { BotService } from '../bot-service'
-import { InMemoryTrainingQueue, TrainingQueueOptions } from '../memory-training-queue'
-import { TrainingId, TrainingQueue, TrainSessionListener } from '../typings'
-import { FakeDefinitionRepo } from './fake-def-repo.test'
-import { FakeEngine, FakeEngineOptions } from './fake-engine.test'
-import { FakeLogger } from './fake-logger.test'
-import { modelIdService } from './fake-model-id-service.test'
-import { FakeModelRepo } from './fake-model-repo.test'
-import { sleep } from './utils.test'
+
+import { NLUApplication } from '../../'
+import { BotFactory, DefinitionRepositoryFactory, ModelRepositoryFactory } from '../../bot-factory'
+import { BotService } from '../../bot-service'
+import { InMemoryTrainingQueue, TrainingQueueOptions } from '../../memory-training-queue'
+import { TrainingQueue, TrainSessionListener } from '../../typings'
+
+import { FakeDefinitionRepo } from './fake-def-repo'
+import { FakeEngine, FakeEngineOptions } from './fake-engine'
+import { FakeLogger } from './fake-logger'
+import { modelIdService } from './fake-model-id-service'
+import { FakeModelRepo } from './fake-model-repo'
+import { sleep } from './utils'
 
 const MAX_TIME_PER_TEST = ms('3 s')
 const DEFAULT_TRAINING_DELAY = 1 // ms
@@ -76,23 +74,23 @@ const makeApp = (deps: Partial<AppDependencies>) => {
 }
 
 const makeTrainingWaiter = (queue: TrainingQueue) => {
-  const queueTrainingSpy = jest.spyOn(queue, 'queueTraining')
-  return () => {
-    const trainIds: TrainingId[] = queueTrainingSpy.mock.calls.map(([c]) => c)
-    return new Promise<boolean>(resolve => {
-      if (trainIds.length <= 0) {
-        resolve(true)
-      }
+  return async () => {
+    const allTrainings = await queue.getAllTrainings()
+    if (!allTrainings.length) {
+      return true
+    }
 
-      let nTrainingDone = 0
-      queue.listenForChange(async (botId: string, ts: NLU.TrainingSession) => {
-        const doneStatus: NLU.TrainingStatus[] = ['done', 'canceled', 'errored']
-        doneStatus.includes(ts.status) && nTrainingDone++
-        if (nTrainingDone >= trainIds.length) {
-          resolve(true)
-        }
-      })
-    })
+    const doneStatus: NLU.TrainingStatus[] = ['done', 'errored', 'canceled']
+    let allFinish = false
+    while (!allFinish) {
+      const allTrainings = await queue.getAllTrainings()
+      allFinish = !allTrainings.some(ts => !doneStatus.includes(ts.status))
+      if (allFinish) {
+        return true
+      }
+      await sleep(MAX_TIME_PER_TEST / 10)
+    }
+    return true
   }
 }
 
@@ -106,12 +104,10 @@ export const runTest = async (deps: Partial<AppDependencies>, act: Test, assert:
     await act(app)
     const res = await Promise.race([sleep(MAX_TIME_PER_TEST), waitForTrainingsToBeDone()])
     if (!res) {
-      throw new Error(`Test ${test.name} could not finish under ${MAX_TIME_PER_TEST} ms`)
+      throw new Error(`Test ${act.name} could not finish under ${MAX_TIME_PER_TEST} ms`)
     }
   } finally {
     await assert(app)
     await app.teardown()
   }
 }
-
-test(__filename, () => {})

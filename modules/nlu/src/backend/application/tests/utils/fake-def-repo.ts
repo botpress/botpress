@@ -1,6 +1,6 @@
 import { ListenHandle, NLU } from 'botpress/sdk'
 
-import { DefinitionRepository, FileListener, TrainDefinitions } from '../scoped/typings'
+import { DefinitionRepository, FileListener, TrainDefinitions } from '../../scoped/typings'
 
 export class FakeDefinitionRepo implements DefinitionRepository {
   private _listeners: FileListener[] = []
@@ -54,5 +54,3 @@ export class FakeDefinitionRepo implements DefinitionRepository {
     }
   }
 }
-
-test(__filename, () => {})

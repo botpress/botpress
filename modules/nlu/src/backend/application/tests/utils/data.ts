@@ -1,7 +1,7 @@
 import { NLU } from 'botpress/sdk'
 
-import { ENGINE_SPECS } from './fake-engine.test'
-import { computeContentHash, computeSpecificationsHash } from './utils.test'
+import { ENGINE_SPECS } from './fake-engine'
+import { computeContentHash, computeSpecificationsHash } from './utils'
 
 export namespace train_data_en {
   export const lang = 'en'
@@ -64,5 +64,3 @@ export namespace train_data_en_fr {
     seed: nluSeed
   }
 }
-
-test(__filename, () => {})

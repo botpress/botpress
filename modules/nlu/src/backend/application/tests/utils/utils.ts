@@ -36,5 +36,3 @@ export const sleep = async (ms: number) => {
     setTimeout(resolve, ms)
   })
 }
-
-test(__filename, () => {})

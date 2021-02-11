@@ -59,6 +59,13 @@ class TrainingContainer {
       .map(p => p[0])
     return keys.map(_fromKey)
   }
+
+  public getAll() {
+    return Object.entries(this._trainings).map(([k, v]) => ({
+      trainId: _fromKey(k),
+      status: v
+    }))
+  }
 }
 
 export class InMemoryTrainingQueue implements TrainingQueue {
@@ -139,6 +146,10 @@ export class InMemoryTrainingQueue implements TrainingQueue {
   async getTraining(trainId: TrainingId): Promise<NLU.TrainingSession> {
     const status = this._trainings.get(trainId) ?? DEFAULT_STATUS
     return this._toTrainSession(trainId, status)
+  }
+
+  async getAllTrainings(): Promise<NLU.TrainingSession[]> {
+    return this._trainings.getAll().map(({ trainId, status }) => this._toTrainSession(trainId, status))
   }
 
   private _update = (id: TrainingId, training: Partial<TrainStatus>) => {

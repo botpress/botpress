@@ -1,9 +1,9 @@
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
-import { ListingOptions, ModelRepository, PruningOptions } from '../scoped/typings'
+import { ListingOptions, ModelRepository, PruningOptions } from '../../scoped/typings'
 
-import { areEqual } from './utils.test'
+import { areEqual } from './utils'
 
 const _satisfies = (id: NLU.ModelId, query: Partial<NLU.ModelId>): boolean => {
   return !Object.entries(query).some(([prop, value]) => id[prop] !== value)
@@ -74,5 +74,3 @@ export class FakeModelRepo implements ModelRepository {
     }
   }
 }
-
-test(__filename, () => {})

@@ -25,5 +25,3 @@ export class FakeLogger implements sdk.Logger {
   error(message: string, metadata?: any): void {}
   critical(message: string, metadata?: any): void {}
 }
-
-test(__filename, () => {})

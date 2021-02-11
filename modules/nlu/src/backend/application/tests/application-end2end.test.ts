@@ -1,13 +1,16 @@
+import '../../../../../../src/bp/sdk/botpress'
+
+// tslint:disable-next-line: ordered-imports
 import { NLU } from 'botpress/sdk'
 
 import { DefinitionRepositoryFactory, ModelRepositoryFactory } from '../bot-factory'
 import { TrainingQueueOptions } from '../memory-training-queue'
 
-import { runTest } from './app-factory.test'
-import { train_data_en, train_data_en_fr } from './data.test'
-import { FakeDefinitionRepo } from './fake-def-repo.test'
-import { FakeEngine } from './fake-engine.test'
-import { FakeModelRepo } from './fake-model-repo.test'
+import { runTest } from './utils/app-factory'
+import { train_data_en, train_data_en_fr } from './utils/data'
+import { FakeDefinitionRepo } from './utils/fake-def-repo'
+import { FakeEngine } from './utils/fake-engine'
+import { FakeModelRepo } from './utils/fake-model-repo'
 
 const expectTs = (ts: Partial<NLU.TrainingSession>) => expect.objectContaining<Partial<NLU.TrainingSession>>(ts)
 
@@ -29,9 +32,10 @@ describe('NLU API', () => {
       },
       async () => {
         // assert
-        expect(socket.mock.calls.length).toBeGreaterThanOrEqual(5)
+        expect(socket.mock.calls.length).toBeGreaterThanOrEqual(4)
         expect(socket).toHaveBeenNthCalledWith(1, botId, expectTs({ status: 'training-pending' }))
         expect(socket).toHaveBeenNthCalledWith(2, botId, expectTs({ status: 'training' }))
+        expect(socket).toHaveBeenLastCalledWith(botId, expectTs({ status: 'done' }))
       }
     )
   })
@@ -61,7 +65,7 @@ describe('NLU API', () => {
       },
       async () => {
         // assert
-        expect(socket.mock.calls.length).toBeGreaterThanOrEqual(10)
+        expect(socket.mock.calls.length).toBeGreaterThanOrEqual(8)
         expect(socket).toHaveBeenCalledWith(botId, expectTs({ status: 'training-pending', language: 'en' }))
         expect(socket).toHaveBeenCalledWith(botId, expectTs({ status: 'training', language: 'en' }))
         expect(socket).toHaveBeenCalledWith(botId, expectTs({ status: 'done', language: 'en' }))

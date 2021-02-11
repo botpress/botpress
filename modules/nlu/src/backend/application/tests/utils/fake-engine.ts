@@ -1,7 +1,7 @@
 import { NLU } from 'botpress/sdk'
 import ms from 'ms'
 
-import { areEqual, computeContentHash, computeSpecificationsHash, sleep } from './utils.test'
+import { areEqual, computeContentHash, computeSpecificationsHash, sleep } from './utils'
 
 export interface FakeEngineOptions {
   trainDelayBetweenProgress: number
@@ -69,7 +69,7 @@ export class FakeEngine implements NLU.Engine {
   train = async (
     trainSessionId: string,
     trainSet: NLU.TrainingSet,
-    options?: Partial<NLU.TrainingOptions> | undefined
+    options: Partial<NLU.TrainingOptions> = {}
   ): Promise<NLU.Model> => {
     options.progressCallback?.(0)
     await sleep(this._options.trainDelayBetweenProgress)
@@ -117,5 +117,3 @@ export class FakeEngine implements NLU.Engine {
     return sentence
   }
 }
-
-test(__filename, () => {})
