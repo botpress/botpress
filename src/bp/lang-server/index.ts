@@ -5,9 +5,9 @@ import path from 'path'
 import center from '../core/logger/center'
 import { LogLevel } from '../core/sdk/enums'
 
-// tslint:disable-next-line:ordered-imports
+// eslint-disable-next-line import/order
 import rewire from '../sdk/rewire'
-// tslint:disable-next-line:ordered-imports
+// eslint-disable-next-line import/order
 
 global.rewire = rewire as any
 import Logger from '../simple-logger'

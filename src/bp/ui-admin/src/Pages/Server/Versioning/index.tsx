@@ -5,9 +5,9 @@ import React, { FC, useEffect, useState } from 'react'
 import CopyToClipboard from 'react-copy-to-clipboard'
 import { connect } from 'react-redux'
 import api from '~/api'
-import { toastInfo } from '~/utils/toaster'
 import PageContainer from '~/App/PageContainer'
 import { getToken } from '~/Auth'
+import { toastInfo } from '~/utils/toaster'
 
 import DownloadArchive from './DownloadArchive'
 import UploadArchive from './UploadArchive'
@@ -41,7 +41,7 @@ const Versioning: FC<{ profile: any }> = props => {
     setPullCommand(`${bpcli} pull --url ${host}${window['ROOT_PATH']} --authToken ${token} --targetDir data`)
     setPushCommand(`${bpcli} push --url ${host}${window['ROOT_PATH']} --authToken ${token} --sourceDir data`)
 
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     getBpfsStatus()
   }, [])
 

@@ -1,4 +1,4 @@
-// tslint:disable no-floating-promises
+// eslint-disable  @typescript-eslint/no-floating-promises
 
 import 'bluebird-global'
 import { IO } from 'botpress/sdk'

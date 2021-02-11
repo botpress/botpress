@@ -16,8 +16,8 @@ jobs:
       - name: Run Prettier
         run: |
           ./node_modules/prettier/bin-prettier.js --check '{src,modules}/**/*.ts' '!**/*.d.ts'
-  tslint:
-    name: Run TSLint on codebase
+  eslint:
+    name: Run ESLint on codebase
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -28,20 +28,6 @@ jobs:
       - name: Install Dependencies
         run: |
           yarn
-      - name: Run TSLint
+      - name: Run ESLint
         run: |
-          yarn run tslint
-      - name: Get file changes
-        id: get_file_changes
-        uses: dorner/file-changes-action@v1.2.0
-        with:
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
-          plaintext: true
-      - name: Filter files
-        id: filtered_files
-        run: |
-          echo ::set-output name=files::$(node build/tslint-filter-files.js ${{ steps.get_file_changes.outputs.files }})
-      - if: steps.filtered_files.outputs.files != null
-        name: Run TSLint (new rules)
-        run: |
-          yarn run tslint -c tslint.newrules.json ${{ steps.filtered_files.outputs.files }}
+          yarn run eslint

@@ -15,7 +15,6 @@ export const convertLastMessages = (lastMessages, eventId) => {
     userMessage: lastConvo[0].incomingPreview,
     botReplies: lastConvo.map(x => {
       return {
-        // tslint:disable-next-line:no-null-keyword
         botResponse: x.replyPreview === undefined ? null : x.replyPreview,
         replySource: x.replySource
       }

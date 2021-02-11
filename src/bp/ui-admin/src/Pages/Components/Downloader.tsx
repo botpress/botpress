@@ -37,7 +37,7 @@ export const Downloader: FC<DownloadProps> = props => {
 
   useEffect(() => {
     if (props.url && props.filename) {
-      // tslint:disable-next-line: no-floating-promises
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       startDownload(props.url, props.filename)
     }
   }, [props.url])
