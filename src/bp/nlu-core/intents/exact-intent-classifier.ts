@@ -69,13 +69,13 @@ export class ExactIntenClassifier implements IntentClassifier {
     const { exact_match_index, intents: intentNames } = this.model
     const exactPred = this._findExactIntent(exact_match_index, utterance)
 
-    const intents = intentNames.map(name => {
-      const confidence = exactPred && exactPred === name ? 1 : 0
-      return { name, confidence, extractor: 'exact-matcher' }
-    })
-
+    if (exactPred) {
+      return {
+        intents: [{ name: exactPred, confidence: 1, extractor: 'exact-matcher' }]
+      }
+    }
     return {
-      intents
+      intents: []
     }
   }
 

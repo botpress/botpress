@@ -115,15 +115,20 @@ export interface SeededLodashProvider {
 }
 
 export interface Tools {
+  // pre-trained language focused tools
   tokenize_utterances(utterances: string[], languageCode: string, vocab?: string[]): Promise<string[][]>
   vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
   partOfSpeechUtterances(utterances: string[][], languageCode: string): string[][]
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
+  getStopWordsForLang(lang: string): Promise<string[]>
+  duckling: SystemEntityExtractor
+
+  // system info
   getHealth(): sdk.NLU.Health
   getLanguages(): string[]
   getSpecifications(): NLU.Specifications
+
   seededLodashProvider: SeededLodashProvider
-  duckling: SystemEntityExtractor
   mlToolkit: typeof sdk.MLToolkit
 }
 

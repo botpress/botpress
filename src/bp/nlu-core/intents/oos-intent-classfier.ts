@@ -1,7 +1,6 @@
 import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 import { isPOSAvailable } from 'nlu-core/language/pos-tagger'
-import { getStopWordsForLang } from 'nlu-core/language/stopWords'
 import {
   featurizeInScopeUtterances,
   featurizeOOSUtterances,
@@ -25,14 +24,14 @@ interface Model {
   trainingVocab: string[]
   baseIntentClfModel: string
   oosSvmModel: string | undefined
-  exact_match_index: string
+  exactMatchModel: string
 }
 
 interface Predictors {
   baseIntentClf: SvmIntentClassifier
   oosSvm: MLToolkit.SVM.Predictor | undefined
   trainingVocab: string[]
-  exact_match_index: string
+  exactIntenClassifier: ExactIntenClassifier
 }
 
 const MIN_NB_UTTERANCES = 3
@@ -49,7 +48,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
   constructor(private tools: Tools, private logger?: NLU.Logger) {}
 
   public async train(trainInput: TrainInput, progress: (p: number) => void): Promise<void> {
-    const { languageCode, allUtterances, intents } = trainInput
+    const { languageCode, allUtterances } = trainInput
     const noneIntent = await this._makeNoneIntent(allUtterances, languageCode)
 
     let combinedProgress = 0
@@ -66,13 +65,13 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
     const exactIntenClassifier = new ExactIntenClassifier()
     const dummyProgress = () => {}
     await exactIntenClassifier.train(trainInput, dummyProgress)
-    const exact_match_index = exactIntenClassifier.serialize()
+    const exactMatchModel = exactIntenClassifier.serialize()
 
     this.model = {
       oosSvmModel: ooScopeModel,
       baseIntentClfModel: inScopeModel,
       trainingVocab: this.getVocab(trainInput.allUtterances),
-      exact_match_index
+      exactMatchModel
     }
   }
 
@@ -98,7 +97,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
       NONE_UTTERANCES_BOUNDS.MIN,
       NONE_UTTERANCES_BOUNDS.MAX
     )
-    const stopWords = await getStopWordsForLang(languageCode)
+    const stopWords = await this.tools.getStopWordsForLang(languageCode)
     const vocabWords = lo(allTokens)
       .filter(t => t.tfidf <= SMALL_TFIDF)
       .map(t => t.toString({ lowerCase: true }))
@@ -162,14 +161,14 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
     const vocab = this.getVocab(allUtterances)
     const oos_points = featurizeOOSUtterances(noneUtts, vocab, this.tools)
 
-    const in_ctx_scope_points = _.chain(intents)
+    const in_scope_points = _.chain(intents)
       .filter(i => i.name !== NONE_INTENT)
       .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
       .value()
 
     const svm = new this.tools.mlToolkit.SVM.Trainer()
 
-    const model = await svm.train([...in_ctx_scope_points, ...oos_points], trainingOptions, progress)
+    const model = await svm.train([...in_scope_points, ...oos_points], trainingOptions, progress)
     return model
   }
 
@@ -188,7 +187,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
     const lo = this.tools.seededLodashProvider.getSeededLodash()
 
     const intents: Intent<Utterance>[] = [
-      ...trainInput.intents,
+      ...trainableIntents,
       {
         name: NONE_INTENT,
         utterances: lo
@@ -196,7 +195,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
           .shuffle()
           .take(nAvgUtts * 2.5) // undescriptible magic n, no sens to extract constant
           .value(),
-        contexts: [...trainInput.intents[0].contexts],
+        contexts: [],
         slot_definitions: []
       }
     ]
@@ -223,16 +222,19 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
   }
 
   private _makePredictors(model: Model): Predictors {
-    const { oosSvmModel, baseIntentClfModel, trainingVocab, exact_match_index } = model
+    const { oosSvmModel, baseIntentClfModel, trainingVocab, exactMatchModel } = model
 
     const baseIntentClf = new SvmIntentClassifier(this.tools, getIntentFeatures)
     baseIntentClf.load(baseIntentClfModel)
+
+    const exactIntenClassifier = new ExactIntenClassifier()
+    exactIntenClassifier.load(exactMatchModel)
 
     return {
       oosSvm: oosSvmModel ? new this.tools.mlToolkit.SVM.Predictor(oosSvmModel) : undefined,
       baseIntentClf,
       trainingVocab,
-      exact_match_index
+      exactIntenClassifier
     }
   }
 
@@ -245,12 +247,10 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
       this.predictors = this._makePredictors(this.model)
     }
 
-    const { oosSvm, baseIntentClf, trainingVocab, exact_match_index } = this.predictors
+    const { oosSvm, baseIntentClf, trainingVocab, exactIntenClassifier } = this.predictors
 
     const svmPredictions = await baseIntentClf.predict(utterance)
 
-    const exactIntenClassifier = new ExactIntenClassifier()
-    exactIntenClassifier.load(exact_match_index)
     const exactPredictions = await exactIntenClassifier.predict(utterance)
 
     const intentPredictions = _([...svmPredictions.intents, ...exactPredictions.intents])

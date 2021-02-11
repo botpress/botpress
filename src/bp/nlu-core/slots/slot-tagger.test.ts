@@ -1,7 +1,8 @@
 import _ from 'lodash'
+import { makeTestUtterance } from 'nlu-core/test-utils/fake-utterance'
 
-import { BIO, ExtractedEntity, ExtractedSlot, Intent } from '../typings'
-import Utterance, { makeTestUtterance } from '../utterance/utterance'
+import { BIO, ExtractedEntity, ExtractedSlot } from '../typings'
+import Utterance from '../utterance/utterance'
 
 import { labelizeUtterance, makeExtractedSlots, TagResult } from './slot-tagger'
 

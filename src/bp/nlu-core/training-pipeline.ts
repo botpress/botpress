@@ -127,10 +127,7 @@ async function makeListEntityModel(entity: ListEntityWithCache, languageCode: st
   }
 }
 
-export function computeKmeans(
-  intents: Intent<Utterance>[],
-  tools: Tools
-): sdk.MLToolkit.KMeans.KmeansResult | undefined {
+function computeKmeans(intents: Intent<Utterance>[], tools: Tools): sdk.MLToolkit.KMeans.KmeansResult | undefined {
   const data = _.chain(intents)
     .flatMap(i => i.utterances)
     .flatMap(u => u.tokens)
