@@ -2005,6 +2005,11 @@ declare module 'botpress/sdk' {
     payload: any
   }
 
+  export interface MessageArgs
+    extends Partial<Omit<IO.EventCtorArgs, 'type' | 'direction' | 'payload' | 'target' | 'botId' | 'threadId'>> {
+    persist?: boolean
+  }
+
   export namespace messaging {
     /**
      * Gets all conversations linked to a user endpoint
@@ -2091,11 +2096,7 @@ declare module 'botpress/sdk' {
      * @param payload Payload of the message
      * @param args Additional arguments to pass to the event constructor. Optional
      */
-    export function sendIncoming(
-      conversationId: number,
-      payload: any,
-      args?: Partial<IO.EventCtorArgs>
-    ): Promise<Message>
+    export function sendIncoming(conversationId: number, payload: any, args?: MessageArgs): Promise<Message | undefined>
 
     /**
      * Sends a outgoing message (bot message) through the event loop. The message is stored in the database
@@ -2103,11 +2104,7 @@ declare module 'botpress/sdk' {
      * @param payload Payload of the message
      * @param args Additional arguments to pass to the event constructor. Optional
      */
-    export function sendOutgoing(
-      conversationId: number,
-      payload: any,
-      args?: Partial<IO.EventCtorArgs>
-    ): Promise<Message>
+    export function sendOutgoing(conversationId: number, payload: any, args?: MessageArgs): Promise<Message | undefined>
   }
 
   export type GetOrCreateResult<T> = Promise<{

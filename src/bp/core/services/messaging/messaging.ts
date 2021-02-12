@@ -124,11 +124,11 @@ export class MessagingAPI {
     return this.messageRepo.delete(messageId)
   }
 
-  public async sendIncoming(conversationId: number, payload: any, args?: Partial<sdk.IO.EventCtorArgs>) {
+  public async sendIncoming(conversationId: number, payload: any, args?: sdk.MessageArgs) {
     return this.sendMessage(conversationId, payload, 'incoming', args)
   }
 
-  public async sendOutgoing(conversationId: number, payload: any, args?: Partial<sdk.IO.EventCtorArgs>) {
+  public async sendOutgoing(conversationId: number, payload: any, args?: sdk.MessageArgs) {
     return this.sendMessage(conversationId, payload, 'outgoing', args)
   }
 
@@ -136,7 +136,7 @@ export class MessagingAPI {
     conversationId: number,
     payload: any,
     direction: sdk.EventDirection,
-    args?: Partial<sdk.IO.EventCtorArgs>
+    args?: sdk.MessageArgs
   ) {
     const conversation = await this.getConversationById(conversationId)
     if (!conversation) {
@@ -145,7 +145,7 @@ export class MessagingAPI {
       )
     }
 
-    args = {
+    const ctorArgs = {
       ...args,
       direction,
       type: payload.type,
@@ -155,28 +155,32 @@ export class MessagingAPI {
       botId: conversation.botId
     }
 
-    if (!args.channel) {
-      const lastChannel = await this.getLastChannel({ userId: args.target!, botId: args.botId! })
+    if (!ctorArgs.channel) {
+      const lastChannel = await this.getLastChannel({ userId: ctorArgs.target, botId: ctorArgs.botId })
       if (!lastChannel) {
         throw new Error('No previous channel was set for the user. You must provide a channel in the args parameter')
       }
-      args.channel = lastChannel
+      ctorArgs.channel = lastChannel
     } else if (direction === 'incoming') {
-      await this.updateLastChannel({ userId: args.target!, botId: args.botId! }, args.channel)
+      await this.updateLastChannel({ userId: ctorArgs.target, botId: ctorArgs.botId }, ctorArgs.channel)
     }
 
-    const event = new IOEvent(<sdk.IO.EventCtorArgs>args)
+    const event = new IOEvent(<sdk.IO.EventCtorArgs>ctorArgs)
     await this.eventEngine.sendEvent(event)
 
-    const message = await this.messageRepo.create(
-      conversationId,
-      event.id,
-      event.id,
-      event.direction === 'incoming' ? 'user' : 'bot',
-      payload
-    )
-    await this.flagAsMostRecent(conversation)
-    return message
+    if (args?.persist) {
+      const message = await this.messageRepo.create(
+        conversationId,
+        event.id,
+        event.id,
+        event.direction === 'incoming' ? 'user' : 'bot',
+        payload
+      )
+      await this.flagAsMostRecent(conversation)
+      return message
+    } else {
+      return undefined
+    }
   }
 
   private lastChannelCacheForBot(botId: string) {
