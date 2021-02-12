@@ -185,7 +185,7 @@ describe('Slot tagger component lifecycle', () => {
     const model = slotTagger.serialize()
 
     // act && asert
-    await expect(slotTagger.load(model + "I'm not a rapper")).rejects.toThrowError(ModelLoadingError)
+    await expect(slotTagger.load(`${model} I'm not a rapper`)).rejects.toThrowError(ModelLoadingError)
 
     const parsed = JSON.parse(model)
     parsed['someKey'] = 'someValue'

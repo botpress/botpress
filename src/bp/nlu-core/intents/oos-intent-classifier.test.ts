@@ -226,7 +226,7 @@ test('When model is corrupted, loading a model throws', async () => {
   const model = oosIntentClassifier.serialize()
 
   // act & assert
-  await expect(oosIntentClassifier.load(model + 'good and bad are relative concepts')).rejects.toThrowError()
+  await expect(oosIntentClassifier.load(`${model} good and bad are relative concepts`)).rejects.toThrowError()
 
   const parsed = JSON.parse(model)
   parsed['someKey'] = 'someValue'

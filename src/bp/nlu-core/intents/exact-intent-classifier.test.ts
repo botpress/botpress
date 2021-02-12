@@ -135,7 +135,7 @@ describe('Exact match intent classifier', () => {
     const model = exactMatchIntentClf.serialize()
 
     // act && asert
-    await expect(exactMatchIntentClf.load(model + 'heyhey I will kill this model')).rejects.toThrowError(
+    await expect(exactMatchIntentClf.load(`${model} heyhey I will kill this model`)).rejects.toThrowError(
       ModelLoadingError
     )
 

@@ -109,7 +109,7 @@ test('When model is corrupted, loading a model throws', async () => {
   const model = intentClassifier.serialize()
 
   // act && asert
-  await expect(intentClassifier.load(model + "I'm about to end this model's whole career")).rejects.toThrowError(
+  await expect(intentClassifier.load(`${model} I'm about to end this model's whole career`)).rejects.toThrowError(
     ModelLoadingError
   )
 
