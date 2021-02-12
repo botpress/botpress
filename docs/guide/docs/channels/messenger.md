@@ -12,7 +12,7 @@ To fulfill this, log in to your Facebook account. Please ensure that this Facebo
 
 Thereafter go to the [Facebook for Developers website](https://developers.facebook.com/), select "My Apps" from the top menu, and create a new app. For more details and assistance, visit the [Facebook developer documentation](https://developers.facebook.com/docs/development)
 
-### Facebook Page
+### Create a Facebook Page
 This step is only required if you do not already have a Facebook page to link your chatbot. [You can find details on how to create a new Facebook page here](https://www.facebook.com/pages/creation/).
 
 Please note that if you link your chatbot to a pre-existing page, you must have an administrator or developer role on that page. Without such a privilege, you will be unable to link your Facebook app to your Facebook page.
