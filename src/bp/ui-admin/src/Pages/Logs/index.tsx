@@ -1,7 +1,6 @@
 import { Button, Checkbox, Popover } from '@blueprintjs/core'
 import { DateRange, DateRangePicker } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
-import { BotConfig } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
 import { Dropdown, lang, Option } from 'botpress/shared'
 import { UserProfile } from 'common/typings'
@@ -20,7 +19,7 @@ import { fetchBots } from '../../reducers/bots'
 import { filterText, getDateShortcuts, getRangeLabel, lowercaseFilter } from './utils'
 
 interface Props {
-  bots: BotConfig[]
+  bots: sdk.BotConfig[]
   fetchBots: () => void
   profile: UserProfile
   currentWorkspace: any

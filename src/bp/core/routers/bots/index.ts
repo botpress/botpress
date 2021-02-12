@@ -488,8 +488,8 @@ export class BotsRouter extends CustomRouter {
         const files = this.cmsService.getMediaFiles(req.body)
         const mediaService = this.mediaServiceProvider.forBot(botId)
 
-        await Promise.map(files, f => {
-          mediaService.deleteFile(f)
+        await Promise.map(files, async f => {
+          await mediaService.deleteFile(f)
           debugMedia(`successful deletion (${email} from ${req.ip}). file: ${f}`)
         })
 

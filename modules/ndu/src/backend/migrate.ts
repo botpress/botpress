@@ -3,8 +3,8 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import generate from 'nanoid/generate'
 
-import { DEFAULT_MIN_CONFIDENCE, UnderstandingEngine } from './ndu-engine'
 import { bots as mountedBots, conditions } from '.'
+import { DEFAULT_MIN_CONFIDENCE, UnderstandingEngine } from './ndu-engine'
 
 const prettyId = (length = 10) => generate('1234567890abcdef', length)
 const debug = DEBUG('ndu').sub('migrate')
@@ -24,7 +24,7 @@ interface FlowNodeView {
 
 const addTriggersToListenNodes = (flow: sdk.Flow, flowPath: string) => {
   for (const node of flow.nodes) {
-    if (node.onReceive != undefined) {
+    if (node.onReceive != null) {
       const listenNode = (node as unknown) as sdk.ListenNode
       if (!listenNode.triggers?.length) {
         debug('Add triggers property to node %o', { flow: flowPath, node: node.name })
