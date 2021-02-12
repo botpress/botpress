@@ -43,7 +43,7 @@ export class KnexMessageRepository implements MessageRepository {
   public async getAll(conversationId: number, limit?: number): Promise<sdk.Message[]> {
     let query = this.query()
       .where({ conversationId })
-      .orderBy('sentOn')
+      .orderBy('sentOn', 'desc')
 
     if (limit) {
       query = query.limit(limit)

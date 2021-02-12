@@ -2047,7 +2047,7 @@ declare module 'botpress/sdk' {
     export function deleteConversation(conversationId: number): Promise<boolean>
 
     /**
-     * Gets all the messages belonging to a conversation (least recent at index 0)
+     * Gets all the messages belonging to a conversation (most recent at index 0)
      * @param limit Limits the amount of messages to get. If left undefined gets all messages
      */
     export function getRecentMessages(conversationId: number, limit?: number): Promise<Message[]>
