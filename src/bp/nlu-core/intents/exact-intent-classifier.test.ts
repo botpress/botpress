@@ -27,11 +27,11 @@ const intent2: Intent<Utterance> = {
 
 const intents = [intent1, intent2]
 
-const exactMatchIntentClf = new ExactIntenClassifier()
 const dummyProgress = () => {}
 
 describe('Exact match intent classifier', () => {
   test('when no match clf returns an empty array', async () => {
+    let exactMatchIntentClf = new ExactIntenClassifier()
     await exactMatchIntentClf.train(
       {
         intents,
@@ -42,6 +42,10 @@ describe('Exact match intent classifier', () => {
       },
       dummyProgress
     )
+
+    const model = exactMatchIntentClf.serialize()
+    exactMatchIntentClf = new ExactIntenClassifier()
+    await exactMatchIntentClf.load(model)
 
     const { intents: prediction } = await exactMatchIntentClf.predict(makeTestUtterance('Some random string'))
 
@@ -50,6 +54,7 @@ describe('Exact match intent classifier', () => {
   })
 
   test('when match clf returns length 1 vector', async () => {
+    let exactMatchIntentClf = new ExactIntenClassifier()
     await exactMatchIntentClf.train(
       {
         intents,
@@ -60,6 +65,10 @@ describe('Exact match intent classifier', () => {
       },
       dummyProgress
     )
+
+    const model = exactMatchIntentClf.serialize()
+    exactMatchIntentClf = new ExactIntenClassifier()
+    await exactMatchIntentClf.load(model)
 
     const pairs: [string, Intent<Utterance>][] = [
       [u1, intent1],
@@ -77,6 +86,7 @@ describe('Exact match intent classifier', () => {
 
   // This test is dependant of utterance.toString() implementation. Ideally we would mock the utterance class.
   test('clf matches even when casing or special characters', async () => {
+    let exactMatchIntentClf = new ExactIntenClassifier()
     await exactMatchIntentClf.train(
       {
         intents,
@@ -87,6 +97,10 @@ describe('Exact match intent classifier', () => {
       },
       dummyProgress
     )
+
+    const model = exactMatchIntentClf.serialize()
+    exactMatchIntentClf = new ExactIntenClassifier()
+    await exactMatchIntentClf.load(model)
 
     const u1_hat = 'hi mY nAMe is Alex W and I try to maKe nLu for a living' // case insensitive
     const u2_hat = 'Hi I_m Justine and I_m a smart bot with very scoped skills' // ignore special characters
@@ -105,31 +119,9 @@ describe('Exact match intent classifier', () => {
     }
   })
 
-  test('When no model corruption, loading a model doesnt throw', async () => {
-    // arrange
-    await exactMatchIntentClf.train(
-      {
-        intents,
-        languageCode: 'en',
-        list_entities: [],
-        pattern_entities: [],
-        nluSeed: 42
-      },
-      dummyProgress
-    )
-    const model = exactMatchIntentClf.serialize()
-
-    // act
-    await exactMatchIntentClf.load(model)
-
-    // assert
-    const { intents: predictions } = await exactMatchIntentClf.predict(makeTestUtterance(u1))
-    const actual = predictions.find(p => p.name === intent1.name)
-    expect(actual?.confidence).toBe(1)
-  })
-
   test('When model is corrupted, loading a model throws', async () => {
     // arrange
+    let exactMatchIntentClf = new ExactIntenClassifier()
     await exactMatchIntentClf.train(
       {
         intents,

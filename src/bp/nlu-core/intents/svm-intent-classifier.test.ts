@@ -48,8 +48,12 @@ const helloILoveYou = makeTestUtterance("hello, I love you won't you tell me you
 
 test('predict with no data points returns empty array', async () => {
   // arrange
-  const intentClassifier = new SvmIntentClassifier(fakeTools, fakeFeaturizer)
+  let intentClassifier = new SvmIntentClassifier(fakeTools, fakeFeaturizer)
   await intentClassifier.train(emptyDataset, dummyProgress)
+
+  const model = intentClassifier.serialize()
+  intentClassifier = new SvmIntentClassifier(fakeTools, fakeFeaturizer)
+  await intentClassifier.load(model)
 
   // act
   const { intents } = await intentClassifier.predict(helloILoveYou)
@@ -60,8 +64,12 @@ test('predict with no data points returns empty array', async () => {
 
 test('predict with only one class returns the only class with confidence 1', async () => {
   // arrange
-  const intentClassifier = new SvmIntentClassifier(fakeTools, fakeFeaturizer)
+  let intentClassifier = new SvmIntentClassifier(fakeTools, fakeFeaturizer)
   await intentClassifier.train(makeTrainset([intentA]), dummyProgress)
+
+  const model = intentClassifier.serialize()
+  intentClassifier = new SvmIntentClassifier(fakeTools, fakeFeaturizer)
+  await intentClassifier.load(model)
 
   // act
   const { intents } = await intentClassifier.predict(helloILoveYou)
@@ -75,42 +83,28 @@ test('predict with only one class returns the only class with confidence 1', asy
 
 test('predict with multiple class returns svm prediction', async () => {
   // arrange
-  const intentClassifier = new SvmIntentClassifier(fakeTools, fakeFeaturizer)
+  let intentClassifier = new SvmIntentClassifier(fakeTools, fakeFeaturizer)
   await intentClassifier.train(makeTrainset([intentA, intentB, intentC]), dummyProgress)
 
-  // act
-  const { intents } = await intentClassifier.predict(helloILoveYou)
-
-  // assert
-  const labels = intents.map(i => i.name)
-  const confs = intents.map(i => i.confidence)
-  expect(labels.sort()).toEqual(['A', 'B', 'C'])
-
-  const totalConf = confs.reduce((sum, x) => sum + x, 0)
-  expect(totalConf).toEqual(1)
-})
-
-test('When no model corruption, loading a model doesnt throw', async () => {
-  // arrange
-  const intentClassifier = new SvmIntentClassifier(fakeTools, fakeFeaturizer)
-  await intentClassifier.train(makeTrainset([intentA, intentB, intentC]), dummyProgress)
   const model = intentClassifier.serialize()
-
-  // act
+  intentClassifier = new SvmIntentClassifier(fakeTools, fakeFeaturizer)
   await intentClassifier.load(model)
 
-  // assert
+  // act
   const { intents } = await intentClassifier.predict(helloILoveYou)
+
+  // assert
   const labels = intents.map(i => i.name)
   const confs = intents.map(i => i.confidence)
   expect(labels.sort()).toEqual(['A', 'B', 'C'])
+
   const totalConf = confs.reduce((sum, x) => sum + x, 0)
   expect(totalConf).toEqual(1)
 })
 
 test('When model is corrupted, loading a model throws', async () => {
   // arrange
-  const intentClassifier = new SvmIntentClassifier(fakeTools, fakeFeaturizer)
+  let intentClassifier = new SvmIntentClassifier(fakeTools, fakeFeaturizer)
   await intentClassifier.train(makeTrainset([intentA, intentB, intentC]), dummyProgress)
   const model = intentClassifier.serialize()
 
