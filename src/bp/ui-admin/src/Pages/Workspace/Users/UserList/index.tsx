@@ -6,8 +6,8 @@ import { AuthRole, UserProfile } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
 import { connect } from 'react-redux'
-import { filterList } from '~/utils/util'
 import LoadingSection from '~/Pages/Components/LoadingSection'
+import { filterList } from '~/utils/util'
 
 import RoleSection from '../UserList/RoleSection'
 

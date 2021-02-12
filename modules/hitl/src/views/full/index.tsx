@@ -9,8 +9,8 @@ import { HitlSessionOverview, Message as HitlMessage } from '../../backend/typin
 import { Attribute } from '../../config'
 
 import { makeApi } from './api'
-import Conversation from './components/messages/Conversation'
 import Composer from './components/Composer'
+import Conversation from './components/messages/Conversation'
 import Profile from './components/Profile'
 import Sidebar from './components/Sidebar'
 
