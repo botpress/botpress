@@ -280,7 +280,7 @@ export default async (bp: typeof sdk, db: Database) => {
       sanitizedPayload = _.omit(payload, [...sensitive, 'sensitive'])
     }
 
-    const message = await bp.messaging.sendIncoming(conversationId, payload, {
+    const message = await bp.messaging.sendIncoming(conversationId, sanitizedPayload, {
       channel: 'web',
       credentials,
       debugger: useDebugger
