@@ -6,9 +6,7 @@ import sharedStyle from '../../../../ui-shared-lite/style.scss'
 import { lang } from '../../translations'
 import { getFieldDefaultValue } from '../utils/fields'
 
-import { FieldProps } from './typings'
-
-type TextProps = FieldProps & { field: FormField }
+import { TextProps } from './typings'
 
 const Text: FC<TextProps> = ({
   onBlur,

@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import { WorkspaceUserWithAttributes } from 'botpress/sdk'
 
 // TODO fix this and use those from common/typings
 declare global {
@@ -31,8 +30,8 @@ export interface IUserProfile {
 export type IAgent = {
   agentId: string
   online: boolean
-  role?: Pick<WorkspaceUserWithAttributes, 'role'>
-  workspace?: Pick<WorkspaceUserWithAttributes, 'workspace'>
+  role?: Pick<sdk.WorkspaceUserWithAttributes, 'role'>
+  workspace?: Pick<sdk.WorkspaceUserWithAttributes, 'workspace'>
   attributes?: Pick<IUserProfile, 'firstname' | 'lastname' | 'picture_url'>
 } & Pick<IUserProfile, 'email' | 'strategy' | 'isSuperAdmin' | 'permissions'>
 
@@ -60,6 +59,7 @@ interface IUserAttributes extends Object {
   timezone: string
   language: string
   email: string
+  [key: string]: any
 }
 
 export interface IUser {

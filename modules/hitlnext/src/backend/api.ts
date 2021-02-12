@@ -6,7 +6,9 @@ import { Request, Response } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
 
+import { Config } from '../config'
 import { MODULE_NAME } from '../constants'
+import { agentName } from '../helper'
 
 import { HandoffType, IAgent, IComment, IHandoff } from './../types'
 import { UnprocessableEntityError } from './errors'
@@ -157,6 +159,8 @@ export default async (bp: typeof sdk, state: StateType) => {
         return res.sendStatus(200)
       }
 
+      const configs: Config = await bp.config.getModuleConfigForBot(MODULE_NAME, req.params.botId)
+
       const handoff = await repository.createHandoff(req.params.botId, payload).then(handoff => {
         state.cacheHandoff(req.params.botId, handoff.userThreadId, handoff)
         return handoff
@@ -169,14 +173,12 @@ export default async (bp: typeof sdk, state: StateType) => {
         channel: handoff.userChannel
       }
 
-      bp.events.replyToEvent(
-        eventDestination,
-        await bp.cms.renderElement(
-          'builtin_text',
-          { type: 'text', text: 'You are being transfered to an agent.' },
-          eventDestination
+      if (configs.transferMessage) {
+        bp.events.replyToEvent(
+          eventDestination,
+          await bp.cms.renderElement('@builtin_text', { type: 'text', text: configs.transferMessage }, eventDestination)
         )
-      )
+      }
 
       realtime.sendPayload(req.params.botId, {
         resource: 'handoff',
@@ -221,6 +223,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       const { email, strategy } = req.tokenUser!
 
       const agentId = makeAgentId(strategy, email)
+      const agent = await repository.getCurrentAgent(req as BPRequest, req.params.botId, agentId)
 
       let handoff = await repository.findHandoff(req.params.botId, req.params.id)
 
@@ -246,6 +249,8 @@ export default async (bp: typeof sdk, state: StateType) => {
 
       await extendAgentSession(repository, realtime, req.params.botId, agentId)
 
+      const configs: Config = await bp.config.getModuleConfigForBot(MODULE_NAME, req.params.botId)
+
       const baseCustomEventPayload: Partial<sdk.IO.EventCtorArgs> = {
         botId: handoff.botId,
         direction: 'outgoing',
@@ -256,17 +261,23 @@ export default async (bp: typeof sdk, state: StateType) => {
         }
       }
 
-      // custom event to user
-      await bp.events.sendEvent(
-        bp.IO.Event(
-          _.merge(_.cloneDeep(baseCustomEventPayload), {
-            target: handoff.userId,
-            threadId: handoff.userThreadId,
-            channel: handoff.userChannel,
-            payload: { from: 'bot', component: 'HandoffAssignedForUser' }
-          }) as sdk.IO.EventCtorArgs
+      const eventDestination = {
+        botId: req.params.botId,
+        target: handoff.userId,
+        threadId: handoff.userThreadId,
+        channel: handoff.userChannel
+      }
+
+      if (configs.assignMessage) {
+        bp.events.replyToEvent(
+          eventDestination,
+          await bp.cms.renderElement(
+            '@builtin_text',
+            { type: 'text', text: configs.assignMessage, agentName: agentName(agent) },
+            eventDestination
+          )
         )
-      )
+      }
 
       const recentEvents = await bp.events.findEvents(
         { botId, threadId: handoff.userThreadId },

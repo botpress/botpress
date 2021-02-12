@@ -99,7 +99,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
       const disableTraining = yn(process.env.BP_NLU_DISABLE_TRAINING)
 
       // to return as fast as possible
-      // tslint:disable-next-line: no-floating-promises
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       state.nluByBot[botId].trainOrLoad(lang, disableTraining)
       res.sendStatus(200)
     } catch {

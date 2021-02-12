@@ -5,6 +5,7 @@ interface CssExports {
   'agentBtn': string;
   'agentBtnText': string;
   'agentBtnWrapper': string;
+  'agentItem': string;
   'agentList': string;
   'agentListItem': string;
   'app': string;

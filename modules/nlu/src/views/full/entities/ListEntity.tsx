@@ -5,8 +5,8 @@ import { toastFailure } from 'botpress/utils'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 
-import style from './style.scss'
 import { Occurrence } from './ListEntityOccurrence'
+import style from './style.scss'
 
 interface Props {
   entities: NLU.EntityDefinition[]

@@ -54,7 +54,7 @@ const RolloutStrategyModal: FC<Props> = props => {
 
   useEffect(() => {
     if (props.workspaceId) {
-      // tslint:disable-next-line: no-floating-promises
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       loadRolloutInfo()
     }
   }, [props.workspaceId, props.isOpen])

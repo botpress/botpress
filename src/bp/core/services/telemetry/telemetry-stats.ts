@@ -32,7 +32,7 @@ export abstract class TelemetryStats {
   ) {}
 
   public start() {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.run(this.lock, this.interval, this.url)
 
     setInterval(this.run.bind(this, this.lock, this.interval, this.url), this.interval)

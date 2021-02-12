@@ -1,22 +1,31 @@
+import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import { BpPredictOutput } from './api-mapper'
+
+const _adjustTotalConfidenceTo100 = (context: NLU.ContextPrediction): NLU.ContextPrediction => {
+  const totalConfidence = context.oos + _.sum(context.intents.map(i => i.confidence))
+  context.oos = context.oos / totalConfidence
+  context.intents = context.intents.map(i => ({ ...i, confidence: i.confidence / totalConfidence }))
+  return context
+}
 
 /**
  * TODO: move this inside the actual NLU code
  * and find the best possible decision function to merge both none intent and oos.
  */
 export default function removeNoneIntent(nlu: BpPredictOutput): BpPredictOutput {
-  const contexts = _.mapValues(nlu.contexts, t => {
-    const topic = { ...t }
-    const noneIdx = topic.intents.findIndex(i => i.label === 'none')
+  const contexts = _.mapValues(nlu.contexts, ctx => {
+    const context = { ...ctx }
+    const noneIdx = context.intents.findIndex(i => i.label === 'none')
     if (noneIdx < 0) {
-      return topic
+      return context
     }
-    const none = topic.intents[noneIdx]
-    topic.intents.splice(noneIdx, 1)
-    topic.oos = Math.max(none.confidence, topic.oos)
-    return topic
+    const none = context.intents[noneIdx]
+    context.intents.splice(noneIdx, 1)
+    context.oos = Math.max(none.confidence, context.oos)
+
+    return _adjustTotalConfidenceTo100(context)
   })
 
   return { ...nlu, contexts }

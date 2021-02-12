@@ -6,8 +6,8 @@ import { generatePath, Redirect, RouteComponentProps } from 'react-router'
 import { matchPath, Route, Switch } from 'react-router-dom'
 import { Col, Container, Nav, NavItem, NavLink, Row } from 'reactstrap'
 
-import { fetchLicensing } from '../../reducers/license'
 import AccessControl, { isOperationAllowed } from '../../App/AccessControl'
+import { fetchLicensing } from '../../reducers/license'
 
 export interface AdminTab {
   id?: string

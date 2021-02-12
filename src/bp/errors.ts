@@ -17,9 +17,9 @@ export const DefaultErrorOptions: ErrorOptions = {
 
 export function WrapErrorsWith(message: string | MessageFn, options: ErrorOptions = DefaultErrorOptions) {
   return (target: Object, propertyKey: string, descriptor: TypedPropertyDescriptor<any>) => {
-    if (descriptor.value != undefined) {
+    if (descriptor.value != null) {
       descriptor.value = getNewFunction(descriptor.value, message, options)
-    } else if (descriptor.get != undefined) {
+    } else if (descriptor.get != null) {
       descriptor.get = getNewFunction(descriptor.get, message, options)
     } else {
       throw 'Only put a WrapErrorsWith() decorator on a method or get accessor.'
