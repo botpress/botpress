@@ -226,7 +226,7 @@ test('slot tagger model validation', async () => {
       intentFeatures: {
         name: 'someIntent',
         slot_entities: []
-        //missing key
+        // missing key
       },
       slot_definitions: []
     },

@@ -121,7 +121,7 @@ describe('Exact match intent classifier', () => {
 
   test('When model is corrupted, loading a model throws', async () => {
     // arrange
-    let exactMatchIntentClf = new ExactIntenClassifier()
+    const exactMatchIntentClf = new ExactIntenClassifier()
     await exactMatchIntentClf.train(
       {
         intents,

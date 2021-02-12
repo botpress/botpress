@@ -104,7 +104,7 @@ test('predict with multiple class returns svm prediction', async () => {
 
 test('When model is corrupted, loading a model throws', async () => {
   // arrange
-  let intentClassifier = new SvmIntentClassifier(fakeTools, fakeFeaturizer)
+  const intentClassifier = new SvmIntentClassifier(fakeTools, fakeFeaturizer)
   await intentClassifier.train(makeTrainset([intentA, intentB, intentC]), dummyProgress)
   const model = intentClassifier.serialize()
 

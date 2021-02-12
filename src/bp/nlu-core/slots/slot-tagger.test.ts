@@ -168,7 +168,7 @@ describe('Slot tagger component lifecycle', () => {
   })
 
   test('When model is corrupted, loading throws', async () => {
-    let slotTagger = new SlotTagger(fakeTools)
+    const slotTagger = new SlotTagger(fakeTools)
     await slotTagger.train(
       {
         intent: {

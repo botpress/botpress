@@ -206,7 +206,7 @@ test('predict with unavailable oos should return oos 0', async () => {
 
 test('When model is corrupted, loading a model throws', async () => {
   // arrange
-  let oosIntentClassifier = new OOSIntentClassifier(fakeTools)
+  const oosIntentClassifier = new OOSIntentClassifier(fakeTools)
 
   const intentsDefs = [
     {
