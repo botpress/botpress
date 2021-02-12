@@ -3,9 +3,9 @@ import { configure } from 'mobx'
 import { Provider } from 'mobx-react'
 import React from 'react'
 
-import { RootStore } from './store'
 import Editor from './Editor'
 import SidePanel from './SidePanel'
+import { RootStore } from './store'
 
 configure({ enforceActions: 'observed' })
 
@@ -18,7 +18,7 @@ export default class CodeEditor extends React.Component<{ bp: any }> {
   }
 
   componentDidMount() {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.store.initialize()
   }
 

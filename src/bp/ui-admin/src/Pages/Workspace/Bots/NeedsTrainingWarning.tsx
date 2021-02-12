@@ -10,7 +10,6 @@ interface Props {
 }
 
 export const NeedsTrainingWarning: FC<Props> = (props: Props) => {
-
   const { bot, languages } = props
 
   const [needsTraining, setNeedsTraining] = useState(false)
@@ -18,7 +17,7 @@ export const NeedsTrainingWarning: FC<Props> = (props: Props) => {
   useEffect(() => {
     const axios = api.getSecured()
 
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     BbPromise.map(languages, async lang => {
       try {
         const { data } = await axios.get(`bots/${bot}/mod/nlu/training/${lang}`)
@@ -26,29 +25,24 @@ export const NeedsTrainingWarning: FC<Props> = (props: Props) => {
       } catch (err) {
         return false
       }
-    }).then((langNeedsTraining) => {
+    }).then(langNeedsTraining => {
       setNeedsTraining(langNeedsTraining.some(Boolean))
     })
-
   }, [])
 
-  const message = () => <Fragment>
-    <div>
-      {lang.tr('admin.needsTraining')}
-    </div>
-    <div>
-      {lang.tr('admin.howToTrain')}
-    </div>
-  </Fragment >
+  const message = () => (
+    <Fragment>
+      <div>{lang.tr('admin.needsTraining')}</div>
+      <div>{lang.tr('admin.howToTrain')}</div>
+    </Fragment>
+  )
 
   if (needsTraining) {
     return (
-      <Tooltip intent={Intent.WARNING}
-               content={message()}
-               position={Position.TOP}>
+      <Tooltip intent={Intent.WARNING} content={message()} position={Position.TOP}>
         <Icon icon="warning-sign" intent={Intent.WARNING} style={{ marginLeft: 10 }} />
       </Tooltip>
-      )
+    )
   }
   return null
 }

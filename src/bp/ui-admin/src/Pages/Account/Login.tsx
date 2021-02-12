@@ -30,7 +30,7 @@ const Login: FC<Props> = props => {
   }, [props.match.params.strategy, isLoading])
 
   useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     initialize()
   }, [])
 

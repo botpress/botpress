@@ -466,7 +466,7 @@ export class Botpress {
 
     lang.init(await this.moduleLoader.getTranslations())
 
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.hintsService.refreshAll()
 
     AppLifecycle.setDone(AppLifecycleEvents.SERVICES_READY)

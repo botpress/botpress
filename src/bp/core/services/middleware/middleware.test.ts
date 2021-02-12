@@ -103,7 +103,7 @@ describe('Middleware', () => {
       ...base
     })
 
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     expect(middleware.run({} as IO.Event)).rejects.toEqual(err)
   })
 })

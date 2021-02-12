@@ -5,13 +5,12 @@ import { ContentState, EditorState, getDefaultKeyBinding, KeyBindingUtil, Modifi
 import Editor from 'draft-js-plugins-editor'
 import createSingleLinePlugin from 'draft-js-single-line-plugin'
 import * as React from 'react'
-import { Component } from 'react'
 import { connect } from 'react-redux'
 import { refreshHints } from '~/actions'
 import store from '~/store'
 
-import style from './styles.scss'
 import createMentionPlugin, { defaultSuggestionsFilter } from './Base'
+import style from './styles.scss'
 
 interface ExposedProps {
   children?: any
@@ -35,7 +34,7 @@ interface State {
   suggestions: any[]
 }
 
-class SmartInput extends Component<ConnectedProps, State> {
+class SmartInput extends React.Component<ConnectedProps, State> {
   valueAsText = '' // A local cache of what the last text value of the input was for performance reasons
   editor: any
 

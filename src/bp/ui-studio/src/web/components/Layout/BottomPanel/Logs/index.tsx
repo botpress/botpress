@@ -15,8 +15,8 @@ import EventBus from '~/util/EventBus'
 
 import style from '../style.scss'
 
-import logStyle from './style.scss'
 import Debug from './Debug'
+import logStyle from './style.scss'
 
 const INITIAL_LOGS_LIMIT = 200
 const MAX_LOGS_LIMIT = 500
@@ -55,7 +55,7 @@ class BottomPanel extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.queryLogs()
     this.setupListener()
   }

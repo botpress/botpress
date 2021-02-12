@@ -65,7 +65,7 @@ export const Checklist: FC<Props> = props => {
     if (!props.serverConfigLoaded) {
       props.fetchServerConfig()
     }
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     loadData()
   }, [])
 

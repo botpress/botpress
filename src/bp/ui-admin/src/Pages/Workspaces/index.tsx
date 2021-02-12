@@ -2,9 +2,9 @@ import { Button, Icon, Menu, MenuDivider, MenuItem, Popover, PopoverInteractionK
 import { Workspace } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import history from '~/history'
 import PageContainer from '~/App/PageContainer'
 import SplitPage from '~/App/SplitPage'
+import history from '~/history'
 
 import { fetchWorkspaces } from '../../reducers/server'
 import { fetchMyWorkspaces } from '../../reducers/user'

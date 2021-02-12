@@ -18,7 +18,7 @@
     "package": "yarn cmd package",
     "test": "cross-env NATIVE_EXTENSIONS_DIR=./build/native-extensions node_modules/.bin/jest -i --detectOpenHandles -c jest.config.js",
     "itest": "cross-env NATIVE_EXTENSIONS_DIR=./build/native-extensions node_modules/.bin/jest -i --detectOpenHandles -c jest.e2e.config.js all",
-    "tslint": "node_modules/.bin/tslint --project tslint.json",
+    "eslint": "node_modules/.bin/eslint src/bp modules --ext .ts,.tsx",
     "commitmsg": "commitlint -e $GIT_PARAMS"
   },
   "dependencies": {
@@ -138,8 +138,14 @@
     "@types/tmp": "^0.0.33",
     "@types/universal-analytics": "^0.4.2",
     "@types/verror": "^1.10.3",
+    "@typescript-eslint/eslint-plugin": "^4.15.0",
+    "@typescript-eslint/parser": "^4.15.0",
     "cheerio": "^1.0.0-rc.2",
     "cross-env": "^5.2.0",
+    "eslint": "^7.19.0",
+    "eslint-config-prettier": "^7.2.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsdoc": "^31.6.1",
     "expect-puppeteer": "^4.4.0",
     "gulp": "^4.0.0",
     "gulp-cli": "^2.0.1",
@@ -169,7 +175,6 @@
     "showdown": "^1.9.1",
     "stylus": "^0.54.5",
     "ts-jest": "^24.3.0",
-    "tslint": "^6.1.2",
     "typedoc": "^0.13.0",
     "typescript": "^3.9.7",
     "typescript-json-schema": "^0.32.0"

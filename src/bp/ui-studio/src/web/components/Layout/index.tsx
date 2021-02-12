@@ -16,7 +16,6 @@ import FlowBuilder from '~/views/FlowBuilder'
 import Logs from '~/views/Logs'
 import Module from '~/views/Module'
 
-import { TrainingStatusService } from './training-status-service'
 import BottomPanel from './BottomPanel'
 import BotUmountedWarning from './BotUnmountedWarning'
 import CommandPalette from './CommandPalette'
@@ -26,6 +25,7 @@ import layout from './Layout.scss'
 import Sidebar from './Sidebar'
 import StatusBar from './StatusBar'
 import Toolbar from './Toolbar'
+import { TrainingStatusService } from './training-status-service'
 
 const { isInputFocused } = utils
 const WEBCHAT_PANEL_STATUS = 'bp::webchatOpened'
@@ -84,7 +84,7 @@ const Layout: FC<Props> = (props: Props) => {
 
   useEffect(() => {
     const trainStatusService = new TrainingStatusService(props.contentLang, props.trainSessionReceived)
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     trainStatusService.fetchTrainingStatus()
     trainStatusService.listen()
     return () => trainStatusService.stopListening()

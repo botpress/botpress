@@ -2,8 +2,8 @@ import React, { FC } from 'react'
 
 import ActionModalSmall from '../../../nodeProps/ActionModalSmall'
 import { BlockProps } from '../Block'
-import style from '../Components/style.scss'
 import NodeContentItem from '../Components/NodeContentItem'
+import style from '../Components/style.scss'
 
 type Props = Pick<BlockProps, 'node' | 'updateFlowNode' | 'switchFlowNode' | 'editNodeItem'>
 

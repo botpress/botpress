@@ -42,7 +42,7 @@ async function makeWorker() {
       release: 'N/A'
     }))) as typeof process.distro
 
-  const clean = data => _.omitBy(data, val => val == undefined || typeof val === 'object')
+  const clean = data => _.omitBy(data, val => val == null || typeof val === 'object')
   const processData = {
     VERBOSITY_LEVEL: process.VERBOSITY_LEVEL,
     IS_PRODUCTION: process.IS_PRODUCTION,
