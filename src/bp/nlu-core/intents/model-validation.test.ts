@@ -32,7 +32,7 @@ test('exact-match intent clf model validation', async () => {
     await expectValidates(m, exactMatchModelSchema)
   }
 
-  const shouldThrow = [
+  const shouldFail = [
     undefined,
     null,
     {},
@@ -62,9 +62,9 @@ test('exact-match intent clf model validation', async () => {
       }
     }
   ]
-  for (const m of shouldThrow) {
-    await expectThrows(m, exactMatchModelSchema)
-  }
+
+  await Promise.map(shouldPass, m => expectValidates(m, exactMatchModelSchema))
+  await Promise.map(shouldFail, m => expectThrows(m, exactMatchModelSchema))
 })
 
 test('oos intent clf model validation', async () => {
@@ -82,11 +82,8 @@ test('oos intent clf model validation', async () => {
       trainingVocab: []
     }
   ]
-  for (const m of shouldPass) {
-    await expectValidates(m, oosModelSchema)
-  }
 
-  const shouldThrow = [
+  const shouldFail = [
     undefined,
     null,
     {},
@@ -121,9 +118,8 @@ test('oos intent clf model validation', async () => {
       // missing key
     }
   ]
-  for (const m of shouldThrow) {
-    await expectThrows(m, oosModelSchema)
-  }
+  await Promise.map(shouldPass, m => expectValidates(m, oosModelSchema))
+  await Promise.map(shouldFail, m => expectThrows(m, oosModelSchema))
 })
 
 test('svm intent clf model validation', async () => {
@@ -131,21 +127,16 @@ test('svm intent clf model validation', async () => {
     {
       svmModel: '',
       intentNames: [],
-      list_entities: [],
-      pattern_entities: []
+      entitiesName: []
     },
     {
       svmModel: undefined,
       intentNames: [],
-      list_entities: [],
-      pattern_entities: []
+      entitiesName: []
     }
   ]
-  for (const m of shouldPass) {
-    await expectValidates(m, svmModelSchema)
-  }
 
-  const shouldThrow = [
+  const shouldFail = [
     undefined,
     null,
     {},
@@ -181,9 +172,9 @@ test('svm intent clf model validation', async () => {
       // missing key
     }
   ]
-  for (const m of shouldThrow) {
-    await expectThrows(m, svmModelSchema)
-  }
+
+  await Promise.map(shouldPass, m => expectValidates(m, svmModelSchema))
+  await Promise.map(shouldFail, m => expectThrows(m, svmModelSchema))
 })
 
 test('slot tagger model validation', async () => {
@@ -225,11 +216,8 @@ test('slot tagger model validation', async () => {
       slot_definitions: [{ name: 'some-name', entities: ['entity'] }]
     }
   ]
-  for (const m of shouldPass) {
-    await expectValidates(m, slotModelSchema)
-  }
 
-  const shouldThrow = [
+  const shouldFail = [
     undefined,
     null,
     {},
@@ -265,9 +253,19 @@ test('slot tagger model validation', async () => {
       },
       slot_definitions: [],
       someExtraKey: 42
+    },
+    {
+      crfModel: undefined,
+      intentFeatures: {
+        name: 'someIntent',
+        slot_entities: [],
+        vocab: []
+      },
+      slot_definitions: [undefined],
+      someExtraKey: 42
     }
   ]
-  for (const m of shouldThrow) {
-    await expectThrows(m, slotModelSchema)
-  }
+
+  await Promise.map(shouldPass, m => expectValidates(m, slotModelSchema))
+  await Promise.map(shouldFail, m => expectThrows(m, slotModelSchema))
 })

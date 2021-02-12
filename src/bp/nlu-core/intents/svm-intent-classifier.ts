@@ -5,39 +5,34 @@ import { ListEntityModel, PatternEntity, Tools } from 'nlu-core/typings'
 import Utterance from 'nlu-core/utterance/utterance'
 
 import { IntentClassifier, IntentPredictions, IntentTrainInput } from './intent-classifier'
-import { ListEntityModelSchema, PatternEntitySchema } from 'nlu-core/entities/schemas'
 import { ModelLoadingError } from 'nlu-core/errors'
 
 type Featurizer = (u: Utterance, entities: string[]) => number[]
 export interface Model {
   svmModel: string | undefined
   intentNames: string[]
-  list_entities: ListEntityModel[]
-  pattern_entities: PatternEntity[]
+  entitiesName: string[]
 }
 
 interface Predictors {
   svm: MLToolkit.SVM.Predictor | undefined
   intentNames: string[]
-  list_entities: ListEntityModel[]
-  pattern_entities: PatternEntity[]
+  entitiesName: string[]
 }
 
+const keys: Record<keyof Model, Joi.AnySchema> = {
+  svmModel: Joi.string()
+    .allow('')
+    .optional(),
+  intentNames: Joi.array()
+    .items(Joi.string())
+    .required(),
+  entitiesName: Joi.array()
+    .items(Joi.string())
+    .required()
+}
 export const modelSchema = Joi.object()
-  .keys({
-    svmModel: Joi.string()
-      .allow('')
-      .optional(),
-    intentNames: Joi.array()
-      .items(Joi.string())
-      .required(),
-    list_entities: Joi.array()
-      .items(ListEntityModelSchema)
-      .required(),
-    pattern_entities: Joi.array()
-      .items(PatternEntitySchema)
-      .required()
-  })
+  .keys(keys)
   .required()
 
 export class SvmIntentClassifier implements IntentClassifier {
@@ -69,8 +64,7 @@ export class SvmIntentClassifier implements IntentClassifier {
       this.model = {
         svmModel: undefined,
         intentNames: intents.map(i => i.name),
-        list_entities,
-        pattern_entities
+        entitiesName
       }
       progress(1)
       return
@@ -84,8 +78,7 @@ export class SvmIntentClassifier implements IntentClassifier {
     this.model = {
       svmModel,
       intentNames: intents.map(i => i.name),
-      list_entities,
-      pattern_entities
+      entitiesName
     }
 
     progress(1)
@@ -110,12 +103,11 @@ export class SvmIntentClassifier implements IntentClassifier {
   }
 
   private _makePredictors(model: Model): Predictors {
-    const { svmModel, intentNames, list_entities, pattern_entities } = model
+    const { svmModel, intentNames, entitiesName } = model
     return {
       svm: svmModel ? new this.tools.mlToolkit.SVM.Predictor(svmModel) : undefined,
       intentNames,
-      list_entities,
-      pattern_entities
+      entitiesName
     }
   }
 
@@ -128,7 +120,7 @@ export class SvmIntentClassifier implements IntentClassifier {
       this.predictors = this._makePredictors(this.model)
     }
 
-    const { svm, intentNames, list_entities, pattern_entities } = this.predictors
+    const { svm, intentNames, entitiesName } = this.predictors
     if (!svm) {
       if (intentNames.length <= 0) {
         return {
@@ -142,7 +134,6 @@ export class SvmIntentClassifier implements IntentClassifier {
       }
     }
 
-    const entitiesName = this._getEntitiesName(list_entities, pattern_entities)
     const features = this.featurizer(utterance, entitiesName)
     const preds = await svm.predict(features)
 
