@@ -44,3 +44,15 @@ export const expectTrainingToStartAndComplete = (socket: jest.Mock, trainId: { b
   expect(socket).toHaveBeenCalledWith(botId, expectTs({ status: 'training', language }))
   expect(socket).toHaveBeenCalledWith(botId, expectTs({ status: 'done', language }))
 }
+
+export const expectEngineToHaveTrained = (trainMock: jest.SpyInstance, languageCode: string) => {
+  expect(trainMock).toHaveBeenCalledWith(
+    expect.stringContaining(languageCode),
+    expect.objectContaining({ languageCode }),
+    expect.anything()
+  )
+}
+
+export const expectEngineToHaveLoaded = (loadMock: jest.SpyInstance, languageCode: string) => {
+  expect(loadMock).toHaveBeenCalledWith(expect.objectContaining({ languageCode }))
+}

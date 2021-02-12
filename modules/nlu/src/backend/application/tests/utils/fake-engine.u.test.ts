@@ -1,32 +1,28 @@
 import { NLU } from 'botpress/sdk'
-import ms from 'ms'
 
 import { areEqual, computeContentHash, computeSpecificationsHash, sleep } from './utils.u.test'
 
 export interface FakeEngineOptions {
   trainDelayBetweenProgress: number
   nProgressCalls: number // TODO: actually implement this
+  trainingThrows: Error | undefined
 }
 
 const DEFAULT_OPTIONS: FakeEngineOptions = {
   trainDelayBetweenProgress: 0,
-  nProgressCalls: 2
-}
-
-export const ENGINE_SPECS: NLU.Specifications = {
-  languageServer: {
-    dimensions: 300,
-    domain: 'lol',
-    version: '1.0.0'
-  },
-  nluVersion: '1.0.0'
+  nProgressCalls: 2,
+  trainingThrows: undefined
 }
 
 export class FakeEngine implements NLU.Engine {
   private _models: NLU.Model[] = []
   private _options: FakeEngineOptions
 
-  constructor(private languages: string[], private opt: Partial<FakeEngineOptions> = {}) {
+  constructor(
+    private languages: string[],
+    private specs: NLU.Specifications,
+    private opt: Partial<FakeEngineOptions> = {}
+  ) {
     this._options = { ...DEFAULT_OPTIONS, ...opt }
     const { nProgressCalls } = this._options
     if (nProgressCalls < 2 || nProgressCalls > 10) {
@@ -47,7 +43,7 @@ export class FakeEngine implements NLU.Engine {
   }
 
   getSpecifications = (): NLU.Specifications => {
-    return ENGINE_SPECS
+    return this.specs
   }
 
   loadModel = async (model: NLU.Model): Promise<void> => {
@@ -72,6 +68,11 @@ export class FakeEngine implements NLU.Engine {
     trainSet: NLU.TrainingSet,
     options: Partial<NLU.TrainingOptions> = {}
   ): Promise<NLU.Model> => {
+    const { trainingThrows } = this._options
+    if (trainingThrows) {
+      throw trainingThrows
+    }
+
     const { nProgressCalls, trainDelayBetweenProgress } = this._options
     let progressCallsCount = 0
     const deltaProgress = 1 / nProgressCalls

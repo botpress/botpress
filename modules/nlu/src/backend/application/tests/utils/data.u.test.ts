@@ -1,7 +1,7 @@
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
-import { ENGINE_SPECS } from './fake-engine.u.test'
+import { ENGINE_SPECS } from './app-factory.u.test'
 import { computeContentHash, computeSpecificationsHash } from './utils.u.test'
 
 export interface Definitions {
@@ -10,7 +10,6 @@ export interface Definitions {
 }
 
 interface Dataset {
-  specs: NLU.Specifications
   trainSet: NLU.TrainingSet
   modelId: NLU.ModelId
 }
@@ -71,7 +70,6 @@ export const makeDatasets = (langs: string[], seed = 42): Dataset[] => {
     }
 
     return {
-      specs: ENGINE_SPECS,
       trainSet,
       modelId
     }

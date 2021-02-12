@@ -33,6 +33,10 @@ export class NLUApplication {
     return this._trainingQueue.getTraining({ botId, language })
   }
 
+  async getAllTrainings(): Promise<NLU.TrainingSession[]> {
+    return this._trainingQueue.getAllTrainings()
+  }
+
   public hasBot = (botId: string) => {
     return !!this._botService.getBot(botId)
   }

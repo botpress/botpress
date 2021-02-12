@@ -34,22 +34,22 @@ export class FakeDefinitionRepo implements DefinitionRepository {
       this.entities.splice(idx, 1)
     }
     this.entities.push(entity)
-    this._notify('entities', entity.name)
+    return this._notify('entities', entity.name)
   }
 
-  public upsertIntent = (intent: NLU.IntentDefinition) => {
+  public upsertIntent = async (intent: NLU.IntentDefinition) => {
     const idx = this.intents.findIndex(i => i.name === intent.name)
     if (idx >= 0) {
       this.intents.splice(idx, 1)
     }
     this.intents.push(intent)
-    this._notify('intents', intent.name)
+    return this._notify('intents', intent.name)
   }
 
-  private _notify(base: 'intents' | 'entities', objectName: string) {
+  private async _notify(base: 'intents' | 'entities', objectName: string) {
     for (const l of this._listeners) {
       // tslint:disable-next-line: no-floating-promises
-      l(`/${base}/${objectName}.json`)
+      await l(`/${base}/${objectName}.json`)
     }
   }
 

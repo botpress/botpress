@@ -19,6 +19,15 @@ const DEFAULT_TRAINING_DELAY = 1 // ms
 const DEFAULT_PROGRESS_CALLS = 2 // ms
 const DEFAULT_JOB_INTERVAL = 1 // ms
 
+export const ENGINE_SPECS: NLU.Specifications = {
+  languageServer: {
+    dimensions: 300,
+    domain: 'lol',
+    version: '1.0.0'
+  },
+  nluVersion: '1.0.0'
+}
+
 interface AppDependencies {
   socket: TrainSessionListener
   modelRepoFactory: ModelRepositoryFactory
@@ -35,9 +44,10 @@ const makeDefaultDependencies = (): AppDependencies => {
   const defRepoFactory = () => new FakeDefinitionRepo()
   const fakeEngineOptions: FakeEngineOptions = {
     trainDelayBetweenProgress: DEFAULT_TRAINING_DELAY,
-    nProgressCalls: DEFAULT_PROGRESS_CALLS
+    nProgressCalls: DEFAULT_PROGRESS_CALLS,
+    trainingThrows: undefined
   }
-  const engine = new FakeEngine(['en'], fakeEngineOptions)
+  const engine = new FakeEngine(['en'], ENGINE_SPECS, fakeEngineOptions)
   const trainingQueueOptions = {
     maxTraining: 1,
     jobInterval: DEFAULT_JOB_INTERVAL
@@ -70,22 +80,21 @@ const makeApp = (deps: Partial<AppDependencies>) => {
   trainingQueue.listenForChange(socket)
   const app = new NLUApplication(trainingQueue, engine, botFactory, botService)
 
-  return { app, trainingQueue }
+  return app
 }
 
-const makeTrainingWaiter = (queue: TrainingQueue) => {
+const makeTrainingWaiter = (app: NLUApplication) => {
   return async () => {
-    const allTrainings = await queue.getAllTrainings()
+    const allTrainings = await app.getAllTrainings()
     if (!allTrainings.length) {
       return true
     }
 
-    const doneStatus: NLU.TrainingStatus[] = ['done', 'errored', 'canceled']
-    let allFinish = false
-    while (!allFinish) {
-      const allTrainings = await queue.getAllTrainings()
-      allFinish = !allTrainings.some(ts => !doneStatus.includes(ts.status))
-      if (allFinish) {
+    let pendingOrRunning = true
+    while (pendingOrRunning) {
+      const allTrainings = await app.getAllTrainings()
+      pendingOrRunning = allTrainings.some(ts => ['training', 'training-pending'].includes(ts.status))
+      if (!pendingOrRunning) {
         return true
       }
       await sleep(MAX_TIME_PER_TEST / 100)
@@ -96,18 +105,22 @@ const makeTrainingWaiter = (queue: TrainingQueue) => {
 
 type Test = (app: NLUApplication) => Promise<void>
 export const runTest = async (deps: Partial<AppDependencies>, act: Test, assert: Test) => {
-  const { app, trainingQueue } = makeApp(deps)
-  const waitForTrainingsToBeDone = makeTrainingWaiter(trainingQueue)
+  const app = makeApp(deps)
+  const waitForTrainingsToBeDone = makeTrainingWaiter(app)
 
   await app.initialize()
   try {
     await act(app)
+
     const res = await Promise.race([sleep(MAX_TIME_PER_TEST), waitForTrainingsToBeDone()])
     if (!res) {
-      throw new Error(`Test ${act.name} could not finish under ${MAX_TIME_PER_TEST} ms`)
+      throw new Error(
+        `Test ${act.name} could not finish under ${MAX_TIME_PER_TEST} ms. This is due to some training not finishing.`
+      )
     }
-  } finally {
+
     await assert(app)
+  } finally {
     await app.teardown()
   }
 }
