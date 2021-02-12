@@ -73,8 +73,11 @@ export const executeNpm = async (args: string[] = ['install'], customLibsDir?: s
 export const createNodeSymlink = async () => {
   const nodePath = path.join(path.dirname(process.execPath), 'node')
 
-  if (!(await fse.pathExists(nodePath))) {
-    await fse.symlink(process.execPath, nodePath)
+  // The symlink is only necessary when running the binary and node is not installed
+  if (process.execPath.endsWith('bp.exe') || process.execPath.endsWith('bp')) {
+    if (!(await fse.pathExists(nodePath))) {
+      await fse.symlink(process.execPath, nodePath)
+    }
   }
 }
 
