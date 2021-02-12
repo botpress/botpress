@@ -12,8 +12,8 @@ import { EditableFile } from '../../backend/typings'
 
 import SplashScreen from './components/SplashScreen'
 import { RootStore, StoreDef } from './store'
-import { EditorStore } from './store/editor'
 import CodeEditorApi from './store/api'
+import { EditorStore } from './store/editor'
 import style from './style.scss'
 import { wrapper } from './utils/wrapper'
 
@@ -199,10 +199,10 @@ class Editor extends React.Component<Props> {
         )}
         <div className={cx(style.editorContainer, { [style.hidden]: !isFileOpened })}>
           <div className={style.tabsContainer}>
-            {this.props.editor.openedFiles.map(({ uri, hasChanges, location }) => {
+            {this.props.editor.openedFiles.map(({ uri, hasChanges, location, name }) => {
               const isActive = uri === this.props.editor.currentFile?.uri
               return (
-                <div className={cx(style.tab, { [style.active]: isActive })}>
+                <div className={cx(style.tab, { [style.active]: isActive })} key={name} id={name}>
                   <span onClick={() => this.props.editor.switchTab(uri)}>{location}</span>
 
                   <div>
