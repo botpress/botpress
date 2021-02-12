@@ -5,6 +5,8 @@ title: Setting up SSO with Azure AD OAuth2
 
 **Note**: This is a Botpress Pro feature
 
+**Note**: Azure OAuth2 only works for version 12.17.2 and later
+
 ## Step 1: Create a tenant
 
 Navigate to Azure Active Directory Page in your Azure Portal and create a new tenant
@@ -15,7 +17,7 @@ In the page of your newly created tenant navigate to "App registrations".
 
 ![App Registrations](assets/oauth/az_2_register_app.png)
 
-Create a new application and choose the appropriate configuration for your use case in "Supported account types" and keep the "Redirect URI" blank for now.
+Create a new application and choose the appropriate configuration for your use case in "Supported account types", single and multi tenant options are supported, and keep the "Redirect URI" blank for now.
 
 ![App Creation](assets/oauth/az_2.1_app_creation.png)
 
@@ -28,7 +30,7 @@ In your Botpress instance navigate to the code editor by going into any of your 
   "type": "oauth2",
   "allowSelfSignup": false,
   "options": {
-    "authorizationURL": "<Application (client) ID>",
+    "authorizationURL": "<OAuth 2.0 authorization endpoint (v2)>",
     "tokenURL": "<OAuth 2.0 token endpoint (v2)>",
     "clientSecret": "<See step 4>",
     "clientID": "<Application (client) ID>",

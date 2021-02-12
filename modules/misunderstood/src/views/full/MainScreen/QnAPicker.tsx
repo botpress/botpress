@@ -5,9 +5,9 @@ import { lang } from 'botpress/shared'
 import classnames from 'classnames'
 import React from 'react'
 
-import style from './style.scss'
 import Pager from './Pager'
 import ApiClient from './QnAApiClient'
+import style from './style.scss'
 import VariationsOverlay from './VariationsOverlay'
 
 const ITEMS_PER_PAGE = 5

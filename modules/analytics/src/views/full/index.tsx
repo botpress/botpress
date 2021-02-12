@@ -180,7 +180,7 @@ const Analytics: FC<any> = ({ bp }) => {
       return
     }
 
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     fetchAnalytics(state.selectedChannel, state.dateRange).then(metrics => {
       utils.inspect({ id: state.dateRange, metrics })
       dispatch({ type: 'receivedMetrics', data: { dateRange: state.dateRange, metrics } })
@@ -196,14 +196,14 @@ const Analytics: FC<any> = ({ bp }) => {
     const oldEndDate = moment(state.dateRange[0]).subtract(1, 'days')
     const previousRange = [startDate.subtract(endDate.diff(startDate, 'days') + 1, 'days'), oldEndDate]
 
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     fetchAnalytics(state.selectedChannel, previousRange).then(metrics => {
       dispatch({ type: 'receivedPreviousRangeMetrics', data: { dateRange: previousRange, metrics } })
     })
   }, [state.dateRange, state.selectedChannel])
 
   useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     fetchQnaQuestions()
   }, [state.metrics])
 

@@ -1,6 +1,5 @@
 import '../../../../src/bp/sdk/botpress.d'
 
-// tslint:disable-next-line: ordered-imports
 import { NLU, IO, Logger } from 'botpress/sdk'
 
 import _ from 'lodash'

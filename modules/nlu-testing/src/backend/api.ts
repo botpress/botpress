@@ -267,7 +267,7 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
       expected
     }
   } else if (key === 'context') {
-    // tslint:disable-next-line
+    // eslint-disable-next-line
     let [received, ctxPred] = _.chain(nlu.predictions)
       .toPairs()
       .maxBy('1.confidence')

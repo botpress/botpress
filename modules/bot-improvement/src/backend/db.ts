@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { IO } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
@@ -22,7 +21,7 @@ export interface Database {
   getMessageGroups: (sessionId: string) => Promise<MessageGroup[]>
 }
 
-const isQna = (event: IO.IncomingEvent): boolean => {
+const isQna = (event: sdk.IO.IncomingEvent): boolean => {
   const intentName = getIntentName(event)
   return intentName.startsWith(QNA_IDENTIFIER)
 }
@@ -31,17 +30,17 @@ const getQnaIdFromIntentName = (intentName: string): string => {
   return intentName.replace(QNA_IDENTIFIER, '')
 }
 
-const getIntentName = (event: IO.IncomingEvent): string => {
+const getIntentName = (event: sdk.IO.IncomingEvent): string => {
   return event.nlu?.intent?.name || ''
 }
 
-const getQnaItemFromEvent = (event: IO.IncomingEvent, qnaItems: QnAItem[]): QnAItem => {
+const getQnaItemFromEvent = (event: sdk.IO.IncomingEvent, qnaItems: QnAItem[]): QnAItem => {
   const intentName = getIntentName(event)
   const qnaId = getQnaIdFromIntentName(intentName)
   return qnaItems.find(item => item.id === qnaId)
 }
 
-const convertStoredEventToMessage = ({ id, event, sessionId }: IO.StoredEvent): Message => {
+const convertStoredEventToMessage = ({ id, event, sessionId }: sdk.IO.StoredEvent): Message => {
   const payload = event.payload || {}
   const text = event.preview || payload.text || (payload.wrapped && payload.wrapped.text)
   const direction = event.direction === 'outgoing' ? 'out' : 'in'
@@ -112,7 +111,7 @@ export default (bp: typeof sdk): Database => {
     }
 
     const feedbackItems = flaggedEvents.map(flaggedEvent => {
-      const incomingEvent = <IO.IncomingEvent>flaggedEvent.event
+      const incomingEvent = <sdk.IO.IncomingEvent>flaggedEvent.event
 
       let source: { type: 'qna' | 'goal'; qnaItem?: QnAItem; goal?: Goal }
       if (isQna(incomingEvent)) {
@@ -149,7 +148,7 @@ export default (bp: typeof sdk): Database => {
   }
 
   const getMessageGroups = async (sessionId: string) => {
-    const sessionEvents: IO.StoredEvent[] = await bp.events.findEvents({ sessionId }, { count: -1 })
+    const sessionEvents: sdk.IO.StoredEvent[] = await bp.events.findEvents({ sessionId }, { count: -1 })
 
     const storedEventsByIncomingEventId = _.groupBy(sessionEvents, 'incomingEventId')
 
