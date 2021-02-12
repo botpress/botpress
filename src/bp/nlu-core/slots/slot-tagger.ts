@@ -139,7 +139,7 @@ interface TrainInput {
   list_entites: ListEntityModel[]
 }
 
-interface Model {
+export interface Model {
   crfModel: Buffer | undefined
   intentFeatures: IntentSlotFeatures
   slot_definitions: SlotDefinition[]
@@ -151,17 +151,29 @@ interface Predictors {
   slot_definitions: SlotDefinition[]
 }
 
-const intentSlotFeaturesSchema = Joi.object().keys({
-  name: Joi.string(),
-  vocab: Joi.array().items(Joi.string()),
-  slot_entities: Joi.array().items(Joi.string())
-})
+const intentSlotFeaturesSchema = Joi.object()
+  .keys({
+    name: Joi.string().required(),
+    vocab: Joi.array()
+      .items(Joi.string().allow(''))
+      .required(),
+    slot_entities: Joi.array()
+      .items(Joi.string())
+      .required()
+  })
+  .required()
 
-const modelSchema = Joi.object().keys({
-  crfModel: Joi.string().optional(), // this is a string when serialized
-  intentFeatures: intentSlotFeaturesSchema,
-  slot_definitions: Joi.array().items(SlotDefinitionSchema)
-})
+export const modelSchema = Joi.object()
+  .keys({
+    crfModel: Joi.string()
+      .allow('')
+      .optional(),
+    intentFeatures: intentSlotFeaturesSchema,
+    slot_definitions: Joi.array()
+      .items(SlotDefinitionSchema)
+      .required()
+  })
+  .required()
 
 export default class SlotTagger {
   private static _name = 'CRF Slot Tagger'

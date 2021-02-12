@@ -9,7 +9,7 @@ import { ListEntityModelSchema, PatternEntitySchema } from 'nlu-core/entities/sc
 import { ModelLoadingError } from 'nlu-core/errors'
 
 type Featurizer = (u: Utterance, entities: string[]) => number[]
-interface Model {
+export interface Model {
   svmModel: string | undefined
   intentNames: string[]
   list_entities: ListEntityModel[]
@@ -23,12 +23,22 @@ interface Predictors {
   pattern_entities: PatternEntity[]
 }
 
-const modelSchema = Joi.object().keys({
-  svmModel: Joi.string().optional(),
-  intentNames: Joi.array().items(Joi.string()),
-  list_entities: Joi.array().items(ListEntityModelSchema),
-  pattern_entities: Joi.array().items(PatternEntitySchema)
-})
+export const modelSchema = Joi.object()
+  .keys({
+    svmModel: Joi.string()
+      .allow('')
+      .optional(),
+    intentNames: Joi.array()
+      .items(Joi.string())
+      .required(),
+    list_entities: Joi.array()
+      .items(ListEntityModelSchema)
+      .required(),
+    pattern_entities: Joi.array()
+      .items(PatternEntitySchema)
+      .required()
+  })
+  .required()
 
 export class SvmIntentClassifier implements IntentClassifier {
   private static _name = 'SVM Intent Classifier'

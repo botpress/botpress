@@ -6,7 +6,7 @@ import Utterance, { UtteranceToStringOptions } from 'nlu-core/utterance/utteranc
 import { IntentClassifier, IntentPredictions, IntentTrainInput } from './intent-classifier'
 import { ModelLoadingError } from 'nlu-core/errors'
 
-interface Model {
+export interface Model {
   intents: string[]
   exact_match_index: ExactMatchIndex
 }
@@ -21,10 +21,16 @@ const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
 }
 
 const schemaKeys: Record<keyof Model, Joi.AnySchema> = {
-  intents: Joi.array().items(Joi.string()),
-  exact_match_index: Joi.object().pattern(/^/, Joi.object().keys({ intent: Joi.string() }))
+  intents: Joi.array()
+    .items(Joi.string())
+    .required(),
+  exact_match_index: Joi.object()
+    .pattern(/^/, Joi.object().keys({ intent: Joi.string() }))
+    .required()
 }
-const modelSchema = Joi.object().keys(schemaKeys)
+export const modelSchema = Joi.object()
+  .keys(schemaKeys)
+  .required()
 
 export class ExactIntenClassifier implements IntentClassifier {
   private static _name = 'Exact Intent Classifier'

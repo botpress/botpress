@@ -22,7 +22,7 @@ interface TrainInput extends IntentTrainInput {
   allUtterances: Utterance[]
 }
 
-interface Model {
+export interface Model {
   trainingVocab: string[]
   baseIntentClfModel: string
   oosSvmModel: string | undefined
@@ -43,12 +43,22 @@ const NONE_UTTERANCES_BOUNDS = {
   MAX: 200
 }
 
-const modelSchema = Joi.object().keys({
-  trainingVocab: Joi.array().items(Joi.string()),
-  baseIntentClfModel: Joi.string(),
-  oosSvmModel: Joi.string().optional(),
-  exactMatchModel: Joi.string()
-})
+export const modelSchema = Joi.object()
+  .keys({
+    trainingVocab: Joi.array()
+      .items(Joi.string().allow(''))
+      .required(),
+    baseIntentClfModel: Joi.string()
+      .allow('')
+      .required(),
+    oosSvmModel: Joi.string()
+      .allow('')
+      .optional(),
+    exactMatchModel: Joi.string()
+      .allow('')
+      .required()
+  })
+  .required()
 
 /**
  * @description Intent classfier composed of 3 smaller components:
