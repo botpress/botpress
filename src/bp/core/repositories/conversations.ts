@@ -55,7 +55,9 @@ export class KnexConversationRepository implements ConversationRepository {
 
     return (await query).map(row => {
       const conversation = this.deserialize(row)!
-      const message = this.messageRepo.deserialize({ ...row, id: row.messageId, conversationId: row.id })
+      const message = row.messageId
+        ? this.messageRepo.deserialize({ ...row, id: row.messageId, conversationId: row.id })
+        : undefined
 
       return { ...conversation, lastMessage: message }
     })
@@ -148,11 +150,17 @@ export class KnexConversationRepository implements ConversationRepository {
       .leftJoin('messages', 'messages.conversationId', 'conversations.id')
       .where({
         userId: endpoint.userId,
-        botId: endpoint.botId,
-        sentOn: this.database.knex
-          .max('sentOn')
-          .from('messages')
-          .where('messages.conversationId', this.database.knex.ref('conversations.id'))
+        botId: endpoint.botId
+      })
+      .andWhere(builder => {
+        builder
+          .where({
+            sentOn: this.database.knex
+              .max('sentOn')
+              .from('messages')
+              .where('messages.conversationId', this.database.knex.ref('conversations.id'))
+          })
+          .orWhereNull('sentOn')
       })
       .groupBy('conversations.id', 'messages.id')
       .orderBy('sentOn', 'desc')
