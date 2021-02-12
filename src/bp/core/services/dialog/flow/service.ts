@@ -72,7 +72,7 @@ class FlowCache {
     return this._flows.has(botId)
   }
 
-  public empty(): boolean {
+  public isEmpty(): boolean {
     return this._flows.size === 0
   }
 
@@ -121,7 +121,7 @@ export class FlowService {
 
   private _listenForCacheInvalidation() {
     this.cache.events.on('invalidation', async (key: string) => {
-      if (this._flowCache.empty()) {
+      if (this._flowCache.isEmpty()) {
         return
       }
 
