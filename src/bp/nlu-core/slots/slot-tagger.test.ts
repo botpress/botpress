@@ -135,3 +135,7 @@ describe('makeExtractedSlots', () => {
     expect(extractedSlots[0].slot.value).toEqual('is watching')
   })
 })
+
+describe('Slot tagger component lifecycle', () => {
+  // TODO: add a bunch of theses
+})

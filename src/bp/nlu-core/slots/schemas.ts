@@ -5,4 +5,6 @@ const keys: Record<keyof SlotDefinition, Joi.AnySchema> = {
   name: Joi.string(),
   entities: Joi.array().items(Joi.string())
 }
-export const SlotDefinitionSchema = Joi.object().keys(keys)
+export const SlotDefinitionSchema = Joi.object()
+  .keys(keys)
+  .unknown(true) // extra keys are accepted

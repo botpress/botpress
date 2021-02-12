@@ -187,10 +187,9 @@ test('svm intent clf model validation', async () => {
 })
 
 test('slot tagger model validation', async () => {
-  const unknownString: unknown = ''
   const shouldPass: SlotModel[] = [
     {
-      crfModel: <Buffer>unknownString,
+      crfModel: Buffer.from(''),
       intentFeatures: {
         name: 'someIntent',
         slot_entities: [],
@@ -206,6 +205,15 @@ test('slot tagger model validation', async () => {
         vocab: []
       },
       slot_definitions: []
+    },
+    {
+      crfModel: undefined,
+      intentFeatures: {
+        name: 'someIntent',
+        slot_entities: ['entity'],
+        vocab: ['']
+      },
+      slot_definitions: [{ name: 'some-name', entities: ['entity'] }]
     },
     {
       crfModel: undefined,

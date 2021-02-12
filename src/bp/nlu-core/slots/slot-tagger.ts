@@ -165,9 +165,7 @@ const intentSlotFeaturesSchema = Joi.object()
 
 export const modelSchema = Joi.object()
   .keys({
-    crfModel: Joi.string()
-      .allow('')
-      .optional(),
+    crfModel: Joi.binary().optional(),
     intentFeatures: intentSlotFeaturesSchema,
     slot_definitions: Joi.array()
       .items(SlotDefinitionSchema)
@@ -186,12 +184,12 @@ export default class SlotTagger {
     this.mlToolkit = tools.mlToolkit
   }
 
-  async load(serialized: string) {
+  public load = async (serialized: string) => {
     try {
-      const raw = JSON.parse(serialized)
-      const model: Model = await validate(raw, modelSchema)
+      const raw: Model = JSON.parse(serialized)
+      raw.crfModel = raw.crfModel && Buffer.from(raw.crfModel)
 
-      model.crfModel = model.crfModel && Buffer.from(model.crfModel)
+      const model: Model = await validate(raw, modelSchema)
 
       this.predictors = this._makePredictors(model)
       this.model = model
