@@ -15,7 +15,7 @@ Thereafter go to the [Facebook for Developers website](https://developers.facebo
 ### Create a Facebook Page
 This step is only required if you do not already have a Facebook page to link your chatbot. [You can find details on how to create a new Facebook page here](https://www.facebook.com/pages/creation/).
 
-Please note that if you link your chatbot to a pre-existing page, you must have an administrator or developer role on that page. Without such a privilege, you will be unable to link your Facebook app to your Facebook page.
+To link your bot to a pre-existing page, you must have an administrator or developer role.
 
 ### HTTPS Endpoint to your bot
 Facebook only integrates its apps and services to secured endpoints. This means that you are mandatorily required to create such an endpoint to your chatbot. If your chatbot already has such an endpoint, you can skip this step. However, below are two tutorials to help you create an HTTPS endpoint if you do not have one.
