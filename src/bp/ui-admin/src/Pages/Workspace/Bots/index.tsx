@@ -82,6 +82,7 @@ class Bots extends Component<Props> {
       this.props.fetchLicensing()
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     telemetry.startFallback(api.getSecured()).catch()
   }
 

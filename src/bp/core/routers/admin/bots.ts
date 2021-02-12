@@ -285,7 +285,7 @@ export class BotsRouter extends CustomRouter {
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
-        Joi.validate(req.body, { revision: Joi.string() })
+        await Joi.validate(req.body, { revision: Joi.string() })
 
         await this.botService.rollback(botId, req.body.revision)
 

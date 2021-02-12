@@ -24,7 +24,7 @@ interface FlowNodeView {
 
 const addTriggersToListenNodes = (flow: sdk.Flow, flowPath: string) => {
   for (const node of flow.nodes) {
-    if (node.onReceive != undefined) {
+    if (node.onReceive != null) {
       const listenNode = (node as unknown) as sdk.ListenNode
       if (!listenNode.triggers?.length) {
         debug('Add triggers property to node %o', { flow: flowPath, node: node.name })

@@ -50,10 +50,10 @@ export const IntentEditor: FC<Props> = props => {
     props.api.createIntent(newIntent)
   }
 
-  const handleUtterancesChange = (newUtterances: string[]) => {
+  const handleUtterancesChange = async (newUtterances: string[]) => {
     const newIntent = { ...intent, utterances: { ...intent.utterances, [props.contentLang]: newUtterances } }
     setIntent(newIntent)
-    debouncedApiSaveIntent.current(newIntent)
+    await debouncedApiSaveIntent.current(newIntent)
   }
 
   const handleSlotsChange = (slots: NLU.SlotDefinition[], { operation, name, oldName }) => {
