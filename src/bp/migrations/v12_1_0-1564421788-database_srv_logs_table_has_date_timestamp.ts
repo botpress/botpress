@@ -66,8 +66,8 @@ async function migrateSqlite3(db: Database): Promise<sdk.MigrationResult> {
         })
       })
       .then(trx.commit)
-      .catch(err => {
-        trx.rollback()
+      .catch(async err => {
+        await trx.rollback()
         errorStatus = err
       })
   })

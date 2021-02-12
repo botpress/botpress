@@ -8,9 +8,9 @@ import React from 'react'
 import { NLUApi } from '../../../../api'
 import style from '../style.scss'
 
-import { SlotModification } from './typings'
 import SlotItem from './SlotItem'
 import SlotModal from './SlotModal'
+import { SlotModification } from './typings'
 
 interface State {}
 

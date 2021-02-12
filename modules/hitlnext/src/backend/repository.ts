@@ -1,6 +1,5 @@
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
-import { SortOrder } from 'botpress/sdk'
 import { BPRequest } from 'common/http'
 import { Workspace } from 'common/typings'
 import Knex from 'knex'
@@ -14,7 +13,7 @@ import { makeAgentId } from './helpers'
 
 const debug = DEBUG(MODULE_NAME)
 
-export interface CollectionConditions extends Partial<SortOrder> {
+export interface CollectionConditions extends Partial<sdk.SortOrder> {
   limit?: number
 }
 

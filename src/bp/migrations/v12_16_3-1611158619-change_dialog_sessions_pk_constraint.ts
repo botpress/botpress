@@ -42,8 +42,8 @@ const migration: Migration = {
         })
       } else {
         await db.transaction(async trx => {
-          trx.raw(`ALTER TABLE ${TABLE_NAME} DROP CONSTRAINT ${TABLE_NAME}_pkey;`)
-          trx.raw(`ALTER TABLE ${TABLE_NAME} ADD PRIMARY KEY (id, "botId");`)
+          await trx.raw(`ALTER TABLE ${TABLE_NAME} DROP CONSTRAINT ${TABLE_NAME}_pkey;`)
+          await trx.raw(`ALTER TABLE ${TABLE_NAME} ADD PRIMARY KEY (id, "botId");`)
         })
       }
     } catch (err) {

@@ -55,6 +55,7 @@ export const applyDisposeOnExit = (container: Container) => {
 export const applyInitializeFromConfig = (container: Container) => {
   const provider = getBoundInstancesFn(container, 'initializeFromConfig')
 
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   AppLifecycle.waitFor(AppLifecycleEvents.CONFIGURATION_LOADED).then(async () => {
     const configProvider = container.get<ConfigProvider>(TYPES.ConfigProvider)
     const botpressConfig = await configProvider.getBotpressConfig()

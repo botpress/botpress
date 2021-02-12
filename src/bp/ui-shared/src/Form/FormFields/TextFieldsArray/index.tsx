@@ -5,10 +5,10 @@ import _uniqueId from 'lodash/uniqueId'
 import React, { FC, useEffect, useRef, useState } from 'react'
 
 import sharedStyle from '../../../../../ui-shared-lite/style.scss'
-import { lang } from '../../../translations'
 import Textarea from '../../../Textarea'
-import { TextFieldsArrayProps } from '../typings'
+import { lang } from '../../../translations'
 import AddButton from '../AddButton'
+import { TextFieldsArrayProps } from '../typings'
 
 import style from './style.scss'
 

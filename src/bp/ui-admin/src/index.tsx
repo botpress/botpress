@@ -2,10 +2,10 @@ import 'babel-polyfill'
 import 'element-closest-polyfill'
 import 'ui-shared/dist/theme.css'
 
-/* tslint:disable */
+/* eslint-disable */
 import 'expose-loader?React!react'
 import 'expose-loader?ReactDOM!react-dom'
-/* tslint:enable */
+/* eslint-enable */
 
 /*
   esnext needs the library to be used in the project otherwise it won't include it

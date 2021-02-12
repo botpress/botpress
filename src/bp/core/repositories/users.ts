@@ -186,7 +186,7 @@ export class KnexUserRepository implements UserRepository {
       .where({ channel, user_id })
 
     if (trx) {
-      req.transacting(trx)
+      await req.transacting(trx)
     }
 
     await req

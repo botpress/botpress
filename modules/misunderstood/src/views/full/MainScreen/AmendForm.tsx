@@ -6,9 +6,9 @@ import React from 'react'
 import { ApiFlaggedEvent, RESOLUTION_TYPE } from '../../../types'
 import StickyActionBar from '../StickyActionBar'
 
-import style from './style.scss'
 import IntentPicker from './IntentPicker'
 import QnAPicker from './QnAPicker'
+import style from './style.scss'
 
 interface Props {
   axios: AxiosStatic

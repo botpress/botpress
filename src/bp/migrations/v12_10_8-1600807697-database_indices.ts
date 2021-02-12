@@ -23,7 +23,7 @@ const migration: Migration = {
       await db.schema.raw('CREATE INDEX IF NOT EXISTS wcub_idx ON web_conversations("userId", "botId");')
       await db.schema.raw('CREATE INDEX IF NOT EXISTS wmcs_idx ON web_messages("conversationId", "sent_on" DESC);')
       await db.schema.raw(
-        `CREATE INDEX IF NOT EXISTS wmcms_idx ON web_messages ("conversationId", message_type, sent_on DESC) WHERE message_type != 'visit';`
+        'CREATE INDEX IF NOT EXISTS wmcms_idx ON web_messages ("conversationId", message_type, sent_on DESC) WHERE message_type != \'visit\';'
       )
     } catch (err) {
       bp.logger.attachError(err).error('Could not add indices')

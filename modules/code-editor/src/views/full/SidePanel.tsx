@@ -12,10 +12,10 @@ import FileStatus from './components/FileStatus'
 import NameModal from './components/NameModal'
 import NewFileModal from './components/NewFileModal'
 import { UploadModal } from './components/UploadModal'
+import FileNavigator from './FileNavigator'
 import { RootStore, StoreDef } from './store'
 import { EditorStore } from './store/editor'
 import { EXAMPLE_FOLDER_LABEL } from './utils/tree'
-import FileNavigator from './FileNavigator'
 
 class PanelContent extends React.Component<Props> {
   private expandedNodes = {}
