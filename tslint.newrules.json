@@ -1,7 +1,0 @@
-{
-  "defaultSeverity": "error",
-  "extends": "./tslint.json",
-  "rules": {
-    "prefer-template": true
-  }
-}

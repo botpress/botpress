@@ -3,8 +3,8 @@ import Promise from 'bluebird'
 import _ from 'lodash'
 import React from 'react'
 
-import { toastFailure } from './utils/toaster'
 import { getActiveWorkspace, getToken, logout } from './Auth'
+import { toastFailure } from './utils/toaster'
 
 interface SecuredApi {
   token?: string

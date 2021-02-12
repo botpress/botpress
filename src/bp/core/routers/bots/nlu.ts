@@ -1,4 +1,3 @@
-import { Logger } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
 import { EntityDefCreateSchema, IntentDefCreateSchema } from 'common/validation'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
@@ -25,7 +24,7 @@ export class NLURouter extends CustomRouter {
   private _needPermissions: (operation: string, resource: string) => RequestHandler
 
   constructor(
-    private logger: Logger,
+    private logger: sdk.Logger,
     private authService: AuthService,
     private workspaceService: WorkspaceService,
     private nluService: NLUService

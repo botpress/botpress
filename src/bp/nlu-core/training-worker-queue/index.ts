@@ -2,7 +2,7 @@ import { NLU } from 'botpress/sdk'
 import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
 import { deserializeError, serializeError } from 'ml/error-utils'
-import { TrainingAlreadyStarted, TrainingCanceled } from 'nlu-core/errors'
+import { TrainingAlreadyStarted, TrainingCanceled, TrainingExitedUnexpectedly } from 'nlu-core/errors'
 
 import { registerMsgHandler, spawnNewTrainingWorker, WORKER_TYPES } from '../../cluster'
 import { initializeTools } from '../initialize-tools'
@@ -18,10 +18,15 @@ import {
   isTrainingCanceled,
   isTrainingDone,
   isTrainingError,
+  isTrainingExited,
   isTrainingProgress,
   isWorkerReady,
   OutgoingMessage
 } from './communication'
+
+const debugTraining = DEBUG('nlu').sub('training')
+
+const SIG_KILL = 'SIGKILL'
 
 export class TrainingWorkerQueue {
   private readyWorkers: number[] = []
@@ -55,22 +60,22 @@ export class TrainingWorkerQueue {
     })
   }
 
-  public async startTraining(
-    trainSessionId: string,
-    input: TrainInput,
-    progress: (x: number) => void
-  ): Promise<TrainOutput> {
-    if (!!this.activeWorkers[trainSessionId]) {
-      throw new TrainingAlreadyStarted(`Training ${trainSessionId} already started`)
+  public async startTraining(input: TrainInput, progress: (x: number) => void): Promise<TrainOutput> {
+    const { trainId } = input
+    if (!!this.activeWorkers[trainId]) {
+      throw new TrainingAlreadyStarted(`Training ${trainId} already started`)
     }
 
     if (!this.readyWorkers.length) {
-      const newWorker = await this._createNewWorker(trainSessionId)
+      debugTraining(`[${input.trainId}] About to make new training worker`)
+      const newWorker = await this._createNewWorker(trainId)
+      debugTraining(`[${input.trainId}] Creation of training worker ${newWorker} done.`)
       this.readyWorkers.push(newWorker)
     }
 
     const worker = this.readyWorkers.pop()!
-    this.activeWorkers[trainSessionId] = worker
+    debugTraining(`[${input.trainId}] worker ${worker} picked for training.`)
+    this.activeWorkers[trainId] = worker
 
     let output: TrainOutput
     try {
@@ -78,11 +83,11 @@ export class TrainingWorkerQueue {
     } catch (err) {
       const isTrainingCanceled = err instanceof TrainingCanceled
       if (!isTrainingCanceled) {
-        this._prepareForNextTraining(trainSessionId)
+        this._prepareForNextTraining(trainId)
       }
       throw err
     }
-    this._prepareForNextTraining(trainSessionId)
+    this._prepareForNextTraining(trainId)
     return output
   }
 
@@ -121,8 +126,15 @@ export class TrainingWorkerQueue {
           process.off('message', handler)
           reject(new TrainingCanceled())
         }
+        if (isTrainingExited(msg)) {
+          process.off('message', handler)
+          reject(new TrainingExitedUnexpectedly(msg.srcWorkerId, msg.payload))
+        }
         if (isTrainingProgress(msg)) {
           progress(msg.payload.progress)
+        }
+        if (isLog(msg)) {
+          this._logMessage(msg)
         }
       }
       process.send!(msg)
@@ -138,7 +150,7 @@ export class TrainingWorkerQueue {
       destWorkerId: NaN
     }
 
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       const handler = (msg: AllIncomingMessages) => {
         if (isLog(msg) && msg.payload.requestId === requestId) {
           this._logMessage(msg)
@@ -148,6 +160,11 @@ export class TrainingWorkerQueue {
           process.off('message', handler)
           resolve(msg.srcWorkerId)
         }
+
+        if (isTrainingExited(msg)) {
+          process.off('message', handler)
+          reject(new TrainingExitedUnexpectedly(msg.srcWorkerId, msg.payload))
+        }
       }
       process.send!(msg)
       process.on('message', handler)
@@ -156,6 +173,7 @@ export class TrainingWorkerQueue {
 
   private _logMessage(msg: IncomingMessage<'log'>) {
     const { log } = msg.payload
+    log.debug && debugTraining(log.debug)
     log.info && this.logger.info(log.info)
     log.warning && this.logger.warning(log.warning)
     log.error && this.logger.error(log.error)
@@ -166,6 +184,15 @@ if (cluster.isMaster) {
   function sendToWebWorker(msg: AllIncomingMessages) {
     const webWorker = cluster.workers[process.WEB_WORKER]
     webWorker?.isConnected() && webWorker.send(msg)
+  }
+
+  function debugLog(msg: string, requestId: string) {
+    const log: IncomingMessage<'log'> = {
+      type: 'log',
+      payload: { log: { debug: msg }, requestId },
+      srcWorkerId: 0
+    }
+    sendToWebWorker(log)
   }
 
   function sendToTrainingWorker(msg: AllOutgoingMessages) {
@@ -184,23 +211,42 @@ if (cluster.isMaster) {
       }
       return sendToWebWorker(response)
     }
+    worker.process.kill(SIG_KILL)
+  }
 
-    const exitHandler = (worker: Worker, _exitCode: number, _signal: string) => {
-      const response: IncomingMessage<'training_canceled'> = {
-        type: 'training_canceled',
-        payload: {},
+  async function makeNewWorker(msg: OutgoingMessage<'make_new_worker'>) {
+    debugLog('About to spawn new training process.', msg.payload.requestId)
+    const workerId = await spawnNewTrainingWorker(msg.payload.config, msg.payload.requestId)
+    debugLog('Done spawning new training process.', msg.payload.requestId)
+
+    const exitHandler = (worker: Worker, exitCode: number, signal: string) => {
+      if (worker.id !== workerId) {
+        return
+      }
+
+      cluster.removeListener('exit', exitHandler)
+
+      if (signal === SIG_KILL) {
+        const response: IncomingMessage<'training_canceled'> = {
+          type: 'training_canceled',
+          payload: {},
+          srcWorkerId: worker.id
+        }
+        sendToWebWorker(response)
+        return
+      }
+
+      const response: IncomingMessage<'training_exited'> = {
+        type: 'training_exited',
+        payload: { exitCode, signal },
         srcWorkerId: worker.id
       }
       sendToWebWorker(response)
     }
-    cluster.once('exit', exitHandler)
-
-    worker.process.kill('SIGKILL')
+    cluster.on('exit', exitHandler)
   }
 
-  registerMsgHandler('make_new_worker', async (msg: OutgoingMessage<'make_new_worker'>) =>
-    spawnNewTrainingWorker(msg.payload.config, msg.payload.requestId)
-  )
+  registerMsgHandler('make_new_worker', makeNewWorker)
   registerMsgHandler('cancel_training', killTrainingWorker)
   registerMsgHandler('start_training', sendToTrainingWorker)
 
@@ -214,9 +260,14 @@ if (cluster.isMaster) {
 if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.TRAINING) {
   const config = JSON.parse(process.env.NLU_CONFIG!)
   const requestId = process.env.REQUEST_ID!
-
+  const processId = process.pid
   const srcWorkerId = cluster.worker.id
+
   const logger: NLU.Logger = {
+    debug: (msg: string) => {
+      const response: IncomingMessage<'log'> = { type: 'log', payload: { log: { debug: msg }, requestId }, srcWorkerId }
+      process.send!(response)
+    },
     info: (msg: string) => {
       const response: IncomingMessage<'log'> = { type: 'log', payload: { log: { info: msg }, requestId }, srcWorkerId }
       process.send!(response)
@@ -232,6 +283,7 @@ if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.TRAINING) {
       process.send!(response)
     }
   }
+  logger.info(`Training worker ${srcWorkerId} successfully started on process with pid ${processId}.`)
 
   const msgHandler = (tools: Tools) => async (msg: AllOutgoingMessages) => {
     if (isStartTraining(msg)) {
@@ -250,7 +302,7 @@ if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.TRAINING) {
 
       let output: TrainOutput | undefined
       try {
-        output = await Trainer(input, tools, progressCb)
+        output = await Trainer(input, { ...tools, logger }, progressCb)
       } catch (err) {
         const res: IncomingMessage<'training_error'> = {
           type: 'training_error',
@@ -267,7 +319,7 @@ if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.TRAINING) {
     }
   }
 
-  // tslint:disable-next-line: no-floating-promises
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   initializeTools(config, logger)
     .then(tools => {
       process.on('message', msgHandler(tools))

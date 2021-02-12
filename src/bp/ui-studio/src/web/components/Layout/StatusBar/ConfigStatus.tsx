@@ -14,7 +14,7 @@ const ConfigStatus = () => {
   const [isOpen, setOpen] = useState(false)
 
   useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     fetchHash()
 
     const configUpdated = event => setDifferent(event.initialHash !== event.newHash)

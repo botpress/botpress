@@ -20,7 +20,7 @@ const Dropdown: FC<Props> = props => {
   const [selected, setSelected] = useState<Option>()
 
   useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     loadListElements()
   }, [])
 

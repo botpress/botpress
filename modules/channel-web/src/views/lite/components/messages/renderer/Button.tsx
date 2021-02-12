@@ -29,7 +29,7 @@ export class Button extends Component<Renderer.Button> {
       return
     }
 
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.props.onFileUpload?.(this.props.label, this.props.payload, event.target.files[0])
   }
 

@@ -9,10 +9,10 @@ import React from 'react'
 
 import { DbFlaggedEvent, FLAGGED_MESSAGE_STATUS, FLAG_REASON, ResolutionData } from '../../types'
 
-import style from './style.scss'
 import ApiClient from './ApiClient'
 import MainScreen from './MainScreen'
 import SidePanelContent from './SidePanel'
+import style from './style.scss'
 
 interface Props {
   contentLang: string

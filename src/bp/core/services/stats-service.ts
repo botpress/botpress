@@ -34,7 +34,7 @@ export class StatsService {
     this.configStats.start()
     this.rolesStats.start()
     this.sdkStats.start()
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.refreshDB(DB_REFRESH_INTERVAL)
 
     setInterval(this.refreshDB.bind(this, DB_REFRESH_INTERVAL), DB_REFRESH_INTERVAL)

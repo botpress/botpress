@@ -2,8 +2,8 @@ import React, { Fragment, useEffect, useState } from 'react'
 
 import lang from '../lang'
 
-import style from './style.scss'
 import MessageList from './MessageList'
+import style from './style.scss'
 
 async function initLang(): Promise<void> {
   return new Promise(resolve => {
@@ -16,7 +16,7 @@ export const HandoffAssignedForAgent = props => {
   const [isLangInit, setLangInit] = useState(false)
 
   useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     initLang().then(() => setLangInit(true))
   }, [])
 

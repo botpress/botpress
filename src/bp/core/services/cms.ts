@@ -430,7 +430,7 @@ export class CMSService implements IDisposeOnExit {
 
   private async _writeElementsToFile(botId: string, contentTypeId: string) {
     process.ASSERT_LICENSED()
-    const params = { ...DefaultSearchParams, count: 10000 }
+    const params = { ...DefaultSearchParams, count: UNLIMITED_ELEMENTS }
     const elements = (await this.listContentElements(botId, contentTypeId, params)).map(element =>
       _.pick(element, 'id', 'formData', 'createdBy', 'createdOn', 'modifiedOn')
     )
@@ -513,7 +513,7 @@ export class CMSService implements IDisposeOnExit {
   }
 
   private async fillComputedProps(contentType: ContentType, formData: object, languages: string[], defaultLanguage) {
-    if (formData == undefined) {
+    if (formData == null) {
       throw new Error(`"formData" must be a valid object (content type: ${contentType.id})`)
     }
 

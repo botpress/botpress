@@ -147,7 +147,7 @@ export class KnexSessionRepository implements SessionRepository {
       })
 
     if (trx) {
-      req.transacting(trx)
+      await req.transacting(trx)
     }
 
     await req

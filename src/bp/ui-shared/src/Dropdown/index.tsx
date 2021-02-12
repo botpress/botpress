@@ -3,8 +3,8 @@ import { ItemPredicate, Select } from '@blueprintjs/select'
 import cx from 'classnames'
 import React, { FC, useEffect, useState } from 'react'
 
-import { lang } from '../translations'
 import confirmDialog from '../ConfirmDialog'
+import { lang } from '../translations'
 
 import style from './style.scss'
 import { DropdownProps, Option } from './typings'

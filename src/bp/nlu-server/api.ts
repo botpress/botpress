@@ -102,7 +102,7 @@ export default async function(options: APIOptions, engine: Engine) {
       })
 
       // return the modelId as fast as possible
-      // tslint:disable-next-line: no-floating-promises
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       trainService.train(modelId, password, intents, entities, language, pickedSeed)
 
       return res.send({ success: true, modelId: modelIdService.toString(modelId) })
