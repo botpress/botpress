@@ -2,13 +2,13 @@ import { EventEmitter } from 'events'
 
 global['NativePromise'] = global.Promise
 
-const yn = require('yn')
-const path = require('path')
 const fs = require('fs')
+const path = require('path')
+const yn = require('yn')
 const metadataContent = require('../../metadata.json')
 const getos = require('./common/getos')
-const { Debug } = require('./debug')
 const { getAppDataPath } = require('./core/misc/app_data')
+const { Debug } = require('./debug')
 
 const printPlainError = err => {
   /* eslint-disable no-console */

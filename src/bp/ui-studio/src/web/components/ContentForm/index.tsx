@@ -8,10 +8,10 @@ import style from '~/views/FlowBuilder/sidePanelTopics/form/style.scss'
 
 import withLanguage from '../Util/withLanguage'
 
-import ArrayMl from './i18n/Array'
-import renderWrapped from './i18n/I18nWrapper'
 import ArrayFieldTemplate from './ArrayFieldTemplate'
 import FlowPickWidget from './FlowPickWidget'
+import ArrayMl from './i18n/Array'
+import renderWrapped from './i18n/I18nWrapper'
 import RefWidget from './RefWidget'
 import Text from './Text'
 import UploadWidget from './UploadWidget'
