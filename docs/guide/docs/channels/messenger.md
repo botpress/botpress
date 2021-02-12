@@ -18,7 +18,7 @@ This step is only required if you do not already have a Facebook page to link yo
 To link your bot to a pre-existing page, you must have an administrator or developer role.
 
 ### HTTPS Endpoint to your bot
-Facebook only integrates its apps and services to secured endpoints. This means that you are mandatorily required to create such an endpoint to your chatbot. If your chatbot already has such an endpoint, you can skip this step. However, below are two tutorials to help you create an HTTPS endpoint if you do not have one.
+Facebook only integrates its apps and services to secured endpoints. Below are tutorials to help you create an HTTPS endpoint if you do not have one:
   
   - Create an HTTPS tunnel to your machine using Ngrok. [**Tutorial**](https://api.slack.com/tutorials/tunneling-with-ngrok)
   - Using Nginx and Let's Encrypt. This tutorial is based on the Linux Ubuntu 16.04 Operating System. [**Tutorial**](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-16-04)
