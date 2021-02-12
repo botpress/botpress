@@ -4,8 +4,8 @@ import React, { FC, useContext, useEffect, useState } from 'react'
 
 import { IUser } from '../../../../types'
 import style from '../../style.scss'
-import { generateUsername, getOrSet } from '../utils'
 import { Context } from '../Store'
+import { generateUsername, getOrSet } from '../utils'
 
 interface Props {
   user: IUser
