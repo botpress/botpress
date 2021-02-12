@@ -1,4 +1,5 @@
 import { lang, toast } from 'botpress/shared'
+import { FileWithMetadata } from 'full/Editor'
 import { action, computed, observable, runInAction } from 'mobx'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import path from 'path'
@@ -8,7 +9,6 @@ import { EditableFile } from '../../../backend/typings'
 import { wrapper } from '../utils/wrapper'
 
 import { RootStore } from '.'
-import { FileWithMetadata } from 'full/Editor'
 
 const NO_EDIT_EXTENSIONS = ['.tgz', '.sqlite', '.png', '.gif', '.jpg']
 
@@ -85,7 +85,7 @@ class EditorStore {
   }
 
   @action.bound
-  async switchTab(nextUri: monaco.Uri) {
+  switchTab(nextUri: monaco.Uri) {
     if (this.currentTab) {
       this.updateFileContent({ state: this._editorRef.saveViewState() }, this.currentTab.uri)
     }
@@ -139,7 +139,10 @@ class EditorStore {
   @action.bound
   closeFile(file: EditableFile) {
     const uri = getFileUri(file)
-    monaco.editor.getModel(uri).dispose()
+    const model = monaco.editor.getModel(uri)
+    if (model) {
+      model.dispose()
+    }
 
     const idx = this.openedFiles.findIndex(x => x.uri.path === uri.path)
     this.openedFiles.splice(idx, 1)
