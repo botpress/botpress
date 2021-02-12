@@ -25,9 +25,9 @@ import { FlowReducer } from '~/reducers/flows'
 import { UserReducer } from '~/reducers/user'
 import { CONTENT_TYPES_MEDIA } from '~/util/ContentDeletion'
 
-import style from './style.scss'
 import List from './List'
 import Sidebar from './SideBar'
+import style from './style.scss'
 
 class ContentView extends Component<Props, State> {
   private canRead = false

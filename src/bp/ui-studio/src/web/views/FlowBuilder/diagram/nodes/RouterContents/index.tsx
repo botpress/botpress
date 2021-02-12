@@ -4,8 +4,8 @@ import RoutingItem from '~/views/FlowBuilder/common/routing'
 import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
 
 import { BlockProps } from '../Block'
-import style from '../Components/style.scss'
 import NodeContentItem from '../Components/NodeContentItem'
+import style from '../Components/style.scss'
 
 type Props = Pick<BlockProps, 'node' | 'editNodeItem'>
 

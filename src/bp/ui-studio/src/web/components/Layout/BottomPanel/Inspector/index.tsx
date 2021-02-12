@@ -4,8 +4,8 @@ import cx from 'classnames'
 import React, { FC, useEffect, useState } from 'react'
 import JSONTree from 'react-json-tree'
 
-import style from '../style.scss'
 import inspectorTheme from '../Debugger/inspectorTheme'
+import style from '../style.scss'
 
 export interface DataEntry {
   id: string
