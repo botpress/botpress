@@ -62,7 +62,7 @@ While the first three are mandatory, the last three configurations (greeting tex
   - `appSecret`. You will find this value on your Facebook App page.
   - `verifyToken`. This is a random string you need to generate and keep secret. You'll need to copy/paste this token in the Facebook App portal when setting up your webhook.
 
-- Make sure you have an HTTPS URL pointing to your Botpress Server and set the `EXTERNAL_URL'environment variable as follows:
+- Make sure you have an HTTPS URL pointing to your Botpress Server and set the `EXTERNAL_URL` environment variable as follows:
   - Open `data/global/botpress.config.json` and set the value of the `
 httpServer.externalUrl` configuration variable to the complete hostname of your HTTPS endpoint, for example, `https://bot.botpress.com`. The resulting file should be as below:
 "`json
