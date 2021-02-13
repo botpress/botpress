@@ -186,6 +186,6 @@ class Bench {
 
 export default argv => {
   const benchmark = new Bench(argv)
-  // tslint:disable-next-line: no-floating-promises
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   benchmark.start()
 }

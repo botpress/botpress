@@ -1,6 +1,6 @@
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
-import { Paging } from 'botpress/sdk'
+
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
 
@@ -191,7 +191,7 @@ export default class Storage {
     return this.migrate_11_2_to_11_3(data)
   }
 
-  async fetchQNAs(opts?: Paging) {
+  async fetchQNAs(opts?: sdk.Paging) {
     try {
       let questions = await this.bp.ghost.forBot(this.botId).directoryListing(this.config.qnaDir, '*.json')
       if (opts && opts.count) {

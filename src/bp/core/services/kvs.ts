@@ -84,7 +84,6 @@ export class KvsService implements sdk.KvsService {
       botId: this.botId,
       key,
       value: safeStringify(value),
-      // tslint:disable-next-line: no-null-keyword
       expireOn: expireOn ?? null,
       now: this.database.knex.date.now()
     }

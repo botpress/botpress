@@ -22,7 +22,6 @@ import { ConfirmDialogOptions } from './ConfirmDialog/typings'
 import { DialogProps } from './Dialog/typings'
 import { DropdownProps, Option } from './Dropdown/typings'
 import { EmptyStateProps } from './EmptyState/typings'
-import { FormProps } from './Form/typings'
 import {
   AddButtonProps,
   FieldWrapperProps,
@@ -31,6 +30,7 @@ import {
   TextProps,
   UploadFieldProps
 } from './Form/FormFields/typings'
+import { FormProps } from './Form/typings'
 import { MainContainerProps } from './MainContainer/typings'
 import { HeaderButton, HeaderProps } from './MainLayout/Header/typings'
 import { MenuItem, MenuProps } from './MainLayout/Menu/typings'

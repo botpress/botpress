@@ -30,7 +30,7 @@ export class ServerRouter extends CustomRouter {
     private moduleLoader: ModuleLoader
   ) {
     super('Server', logger, Router({ mergeParams: true }))
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.setupRoutes()
   }
 

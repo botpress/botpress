@@ -14,7 +14,7 @@ import { GhostService } from './service'
 const BOT_ID = 'bot123'
 
 describe('Ghost Service', () => {
-  let ghost: GhostService // tslint:disable-line
+  let ghost: GhostService // eslint-disable-line
   let diskDriver: MockObject<DiskStorageDriver>,
     dbDriver: MockObject<DBStorageDriver>,
     cache: MockObject<ObjectCache>,

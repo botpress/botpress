@@ -534,7 +534,7 @@ export class CMSService implements IDisposeOnExit {
   }
 
   private async fillComputedProps(contentType: ContentType, formData: object, languages: string[], defaultLanguage) {
-    if (formData == undefined) {
+    if (formData == null) {
       throw new Error(`"formData" must be a valid object (content type: ${contentType.id})`)
     }
 
