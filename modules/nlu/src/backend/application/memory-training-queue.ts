@@ -1,12 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import { NLU } from 'botpress/sdk'
-import ms from 'ms'
 
 import { TrainingId, TrainingQueue, TrainerService, TrainSessionListener } from './typings'
 
 export interface TrainingQueueOptions {
   maxTraining: number
-  jobInterval: number // ms
 }
 
 interface TrainStatus {
@@ -15,8 +13,7 @@ interface TrainStatus {
 }
 
 const DEFAULT_OPTIONS: TrainingQueueOptions = {
-  maxTraining: 2,
-  jobInterval: ms('2s')
+  maxTraining: 2
 }
 
 const DEFAULT_STATUS: TrainStatus = { status: 'idle', progress: 0 }
@@ -70,12 +67,6 @@ class TrainingContainer {
 }
 
 export class InMemoryTrainingQueue implements TrainingQueue {
-  /**
-   * TODO: no need for a setInterval:
-   * 1 - runTask when training is queued
-   * 2 - runTask when training is done
-   */
-  private _consumerHandle: NodeJS.Timeout
   private _trainings = new TrainingContainer()
   private _options: TrainingQueueOptions
   private _listeners: TrainSessionListener[] = []
@@ -93,12 +84,9 @@ export class InMemoryTrainingQueue implements TrainingQueue {
     this._listeners.push(listener)
   }
 
-  async initialize() {
-    this._consumerHandle = setInterval(this._runTask, this._options.jobInterval)
-  }
+  async initialize() {}
 
   async teardown() {
-    clearInterval(this._consumerHandle)
     const currentTrainings = this._trainings.query({ status: 'training' })
     await Promise.mapSeries(currentTrainings, this.cancelTraining)
     this._trainings.clear()
@@ -118,7 +106,9 @@ export class InMemoryTrainingQueue implements TrainingQueue {
       this._logger.warn('Training already started')
       return // do not queue training if currently training
     }
-    return this._update(trainId, { status: 'training-pending' })
+    await this._update(trainId, { status: 'training-pending' })
+
+    return this._runTask()
   }
 
   cancelTraining = async (trainId: TrainingId): Promise<void> => {
@@ -219,6 +209,8 @@ export class InMemoryTrainingQueue implements TrainingQueue {
       await trainer.loadLatest(language)
     } catch (err) {
       await this._handleTrainError(trainId, err)
+    } finally {
+      await this._runTask()
     }
   }
 

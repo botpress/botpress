@@ -75,7 +75,7 @@ describe('NLU API', () => {
     const defRepo = new FakeDefinitionRepo(makeDefinitions(languages))
     const defRepoFactory = () => defRepo
 
-    const trainingQueueOptions: TrainingQueueOptions = { maxTraining: 2, jobInterval: 1 }
+    const trainingQueueOptions: TrainingQueueOptions = { maxTraining: 2 }
 
     await runTest(
       { socket, engine, trainingQueueOptions, defRepoFactory },
@@ -123,7 +123,7 @@ describe('NLU API', () => {
     const defRepo = new FakeDefinitionRepo(makeDefinitions(languages))
     const defRepoFactory = () => defRepo
 
-    const trainingQueueOptions: TrainingQueueOptions = { maxTraining: 1, jobInterval: 1 }
+    const trainingQueueOptions: TrainingQueueOptions = { maxTraining: 1 }
 
     await runTest(
       { socket, engine, trainingQueueOptions, defRepoFactory },
@@ -174,7 +174,7 @@ describe('NLU API', () => {
     const defRepo = new FakeDefinitionRepo(makeDefinitions(languages))
 
     const defRepoFactory = () => defRepo
-    const trainingQueueOptions: TrainingQueueOptions = { maxTraining: 2, jobInterval: 1 }
+    const trainingQueueOptions: TrainingQueueOptions = { maxTraining: 2 }
 
     await runTest(
       { socket, engine, trainingQueueOptions, defRepoFactory },
