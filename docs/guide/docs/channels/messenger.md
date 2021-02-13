@@ -188,29 +188,3 @@ Read more about persistent menu [here](https://developers.facebook.com/docs/mess
     }
   ]
 ```
-## Configuration Example
-
-Below is a configuration example showing how your `channel-messenger.json` may look after complete configuration in `botpress-vxx\data\global\config`
-
-```json
-{
-  "$schema": "../../assets/modules/channel-messenger/config.schema.json",
-  "enabled": false,
-  "appSecret": "5d789e4cvmlbvfbflb3efd68407d97942ecbf4fc0af",
-  "verifyToken": "KjhkjyHAusOPOYYGIijoijpoij",
-  "persistentMenu": [],
-  "chatUserAuthDuration": "24h"
-}
-```
-
-You will also  need to add a configuration file in the directory of the chatbot you wish to connect to Messenger `botpress-vxx\data\bots\<your_bot>\config`
-
-```
-{
-  "$schema": "../../assets/modules/channel-web/config.schema.json",
-  "showBotInfoPage": true,
-  "infoPage": {
-    "enabled": true
-  },
-}
-```
