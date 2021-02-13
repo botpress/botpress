@@ -7,7 +7,7 @@ const migration: sdk.ModuleMigration = {
   },
   up: async ({ bp }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
     if (await bp.database.schema.hasTable('web_conversations')) {
-      console.log('Migrating conversations...')
+      bp.logger.info('Migrating conversations...')
 
       await bp.database.raw(`
         INSERT INTO "conversations" (
@@ -28,7 +28,7 @@ const migration: sdk.ModuleMigration = {
     }
 
     if (await bp.database.schema.hasTable('web_messages')) {
-      console.log('Migrating messages...')
+      bp.logger.info('Migrating messages...')
 
       await bp.database.raw(`
         INSERT INTO "messages" ("conversationId",

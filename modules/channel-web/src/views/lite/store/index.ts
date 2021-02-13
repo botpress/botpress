@@ -1,3 +1,4 @@
+import * as sdk from 'botpress/sdk'
 import isBefore from 'date-fns/is_before'
 import isValid from 'date-fns/is_valid'
 import merge from 'lodash/merge'
@@ -18,7 +19,6 @@ import {
   QueuedMessage,
   StudioConnector
 } from '../typings'
-import * as sdk from 'botpress/sdk'
 import { downloadFile, trackMessage } from '../utils'
 
 import ComposerStore from './composer'

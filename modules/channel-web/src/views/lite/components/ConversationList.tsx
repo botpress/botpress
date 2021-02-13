@@ -1,10 +1,10 @@
+import * as sdk from 'botpress/sdk'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
 import { InjectedIntlProps, injectIntl } from 'react-intl'
 
 import Add from '../icons/Add'
 import { RootStore, StoreDef } from '../store'
-import * as sdk from 'botpress/sdk'
 
 const ConversationListItem = injectIntl(({ conversation, onClick, hasFocus, intl }: ConversationListItemProps) => {
   const title = intl.formatMessage({ id: 'conversationList.title' }, { id: conversation.id })

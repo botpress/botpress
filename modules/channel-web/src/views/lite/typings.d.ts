@@ -1,5 +1,5 @@
-import { RootStore } from './store'
 import * as sdk from 'botpress/sdk'
+import { RootStore } from './store'
 
 declare global {
   interface Window {
