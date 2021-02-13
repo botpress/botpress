@@ -2360,14 +2360,57 @@ declare module 'botpress/sdk' {
     export function enableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
   }
 
+  /**
+   * Utility to store functions in-memory for use in actions and hooks
+   */
   export namespace functions {
+    /**
+     * Retrieves a repository of functions scoped for a bot.
+     * These functions are automatically removed when a bot is unmounted
+     */
     export function forBot(botId: string): FunctionService
+
+    /**
+     * Retrieves a global repository of functions. These functions live
+     * in memory and will be cleard whenever the server restarts
+     */
     export function global(): FunctionService
   }
 
   export interface FunctionService {
-    register(name: string, impl: FunctionGroup)
-    remove(name: string)
+    /**
+     * Allows registering a custom group of functions
+     * @param name Name of your group of functions
+     * @param impl Implementation of your functions
+     * @example
+     * // Register your API like this in an on_bot_mount hook
+     * const impl = {
+     *   myApiFunc: (name: string) => `hello ${name}!`,
+     *   otherApiFunc: () => 'this is a function!'
+     * }
+     * bp.functions.forBot('myBot').register('myApi', impl)
+     *
+     * // Then later in an action access your functions like this
+     * const myApi = bp.functions.forBot('myBot').get('myApi')
+     * myApi.myApiFunc('bob')
+     */
+    register(name: string, impl: FunctionGroup): void
+
+    /**
+     * Removes a registered function group
+     * @param name Name of your function group
+     * @example
+     * const myApi = bp.functions.forBot('myBot').remove('myApi')
+     */
+    remove(name: string): void
+
+    /**
+     * Retrieves a registered function group
+     * @param name
+     * @example
+     * const myApi = bp.functions.forBot('myBot').get('myApi')
+     * myApi.myApiFunc('bob')
+     */
     get(name: string): FunctionGroup
   }
 
