@@ -8,9 +8,9 @@ import React from 'react'
 import { ApiFlaggedEvent, ResolutionData, RESOLUTION_TYPE } from '../../../types'
 import StickyActionBar from '../StickyActionBar'
 
-import style from './style.scss'
 import AmendForm from './AmendForm'
 import ChatPreview from './ChatPreview'
+import style from './style.scss'
 
 interface Props {
   axios: AxiosStatic

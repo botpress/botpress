@@ -3,7 +3,7 @@
   "data": {
     "answers": {
       "en": [
-        "To learn more about how to setup a Contextual FAQ, please refer to our [tutorial](https://botpress.com/docs/tutorials/contextual-faq)"
+        "To learn more about how to setup a Contextual <strong>FAQ</strong>, please refer to our [tutorial](https://botpress.com/docs/tutorials/contextual-faq)"
       ]
     },
     "questions": {

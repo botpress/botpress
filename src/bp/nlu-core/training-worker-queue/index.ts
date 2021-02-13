@@ -319,7 +319,7 @@ if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.TRAINING) {
     }
   }
 
-  // tslint:disable-next-line: no-floating-promises
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   initializeTools(config, logger)
     .then(tools => {
       process.on('message', msgHandler(tools))

@@ -9,8 +9,8 @@ import { Test, TestResult } from '../../shared/typings'
 import { computeSummary } from '../../shared/utils'
 
 import { makeApi } from './api'
-import style from './style.scss'
 import { ImportModal } from './ImportModal'
+import style from './style.scss'
 import { TestModal } from './TestModal'
 import { TestTable } from './TestTable'
 
@@ -63,7 +63,7 @@ export default class NLUTests extends React.Component<Props, State> {
   }
 
   refreshTests = async () => {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.api.fetchTests().then(tests => this.setState({ tests, loading: false, currentTest: undefined }))
   }
 

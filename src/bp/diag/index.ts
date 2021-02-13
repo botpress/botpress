@@ -1,7 +1,7 @@
 import 'bluebird-global'
-// tslint:disable-next-line:ordered-imports
+// eslint-disable-next-line import/order
 import '../sdk/rewire'
-// tslint:disable-next-line:ordered-imports
+// eslint-disable-next-line import/order
 
 import { BotConfig } from 'botpress/sdk'
 

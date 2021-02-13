@@ -3,8 +3,8 @@ import cx from 'classnames'
 import React, { FC, Fragment } from 'react'
 
 import { BlockProps } from '../Block'
-import style from '../Components/style.scss'
 import NodeContentItem from '../Components/NodeContentItem'
+import style from '../Components/style.scss'
 
 type Props = { currentLang: string; defaultLang: string } & Pick<
   BlockProps,
