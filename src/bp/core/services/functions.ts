@@ -1,5 +1,5 @@
-import { injectable } from 'inversify'
 import * as sdk from 'botpress/sdk'
+import { injectable } from 'inversify'
 
 @injectable()
 export class CustomFunctionService {

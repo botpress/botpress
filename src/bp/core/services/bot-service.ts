@@ -30,6 +30,7 @@ import { extractArchive } from '../misc/archive'
 
 import { InvalidOperationError } from './auth/errors'
 import { CMSService } from './cms'
+import { CustomFunctionService } from './functions'
 import { ReplaceContent } from './ghost'
 import { FileContent, GhostService } from './ghost/service'
 import { Hooks, HookService } from './hook/hook-service'
@@ -37,7 +38,6 @@ import { JobService } from './job-service'
 import { MigrationService } from './migration'
 import { ModuleResourceLoader } from './module/resources-loader'
 import RealtimeService from './realtime'
-import { CustomFunctionService } from './functions'
 import { WorkspaceService } from './workspace-service'
 
 const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
