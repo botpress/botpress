@@ -2383,7 +2383,7 @@ declare module 'botpress/sdk' {
      * @param title Title shown on the button
      * @param text Message to send
      */
-    export function buttonSay(title: string, text: string): ActionSaySomething
+    export function buttonSay(title: string, text: string | MultiLangText): ActionSaySomething
 
     /**
      * Renders an action button for opening urls
@@ -2511,7 +2511,7 @@ declare module 'botpress/sdk' {
 
     export interface ActionSaySomething extends ActionButton {
       action: 'Say something'
-      text: string
+      text: string | MultiLangText
     }
 
     export interface ActionOpenURL extends ActionButton {

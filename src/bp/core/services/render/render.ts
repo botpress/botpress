@@ -50,7 +50,7 @@ export class RenderService {
     }
   }
 
-  renderButtonSay(title: string, text: string): sdk.render.ActionSaySomething {
+  renderButtonSay(title: string, text: string | sdk.MultiLangText): sdk.render.ActionSaySomething {
     return {
       action: 'Say something',
       title,
