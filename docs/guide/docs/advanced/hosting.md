@@ -5,19 +5,47 @@ title: Hosting
 
 ## Overview
 
-When you are ready to open your bot to the world, you should deploy it in production mode. When the bot is started in production, the botpress file system (BPFS) is enabled [click here for more details](versions) and debug logs are no longer displayed. We also **strongly** recommend using PostgreSQL instead of the embedded SQLite.
+When you are ready to make your chatbot public, you should deploy it in production mode. Starting Botpress in production mode enables the botpress file system (BPFS) [(click here for more details)](versions) and debug logs are no longer displayed. We also **strongly** recommend using a PostgreSQL database instead of the embedded SQLite.
 
-## Offline Servers
+To enforce these changes, run the following commands in your command line program:
 
-Botpress communicates with two services in order to work properly (i.e. Duckling and a Language Server). If your Botpress installation has **no internet** access, you'll have to host these services on-prem. When following the different hosting methods, look for a section on on-prem hosting for further details.
+```bash
+EXTERNAL_URL=<public_url> \
+BP_PRODUCTION=true \
+BPFS_STORAGE=database \
+DATABASE_URL=postgres://login:password@host:port/database \
+./bp
+```
 
-### Duckling
+## Offline NLU Servers
 
-We use Duckling to extract system entities (e.g. time, email, currency, etc.). This service is very light and requires minimal resources.
+Botpress communicates with the NLU module's two services to work properly, namely Duckling and a Language Server. If your Botpress installation has **no internet** access, you'll have to host these services yourself. Let us look at how you can achieve this.
+
+> Self-hosting these servers is optional. Your Botpress installation will use our hosted services by default. However, these need an internet connection and, in the absence of one, should be self-hosted.
+
+### Duckling Entity Server
+
+The Duckling Library, which is very light and requires minimal resources, extracts information from the user's message like time, email, currency, and more. This data is referred to as system entities.
+
+#### Installing Duckling
+- **Linux and Mac**: You must compile Duckling to run correctly on your specific system. Therefore, you will need to install the software development tools and build Duckling from source.
+  Please follow the instructions on the [GitHub page of Duckling](https://github.com/facebook/duckling). We may provide some binaries in the future for the common OS'.
+
+- **Windows**: If you run Botpress on windows, there is a zip file available [here](https://s3.amazonaws.com/botpress-binaries/tools/duckling/duckling-windows.zip).
+  Double-click on run-duckling.bat (the bat file sets the console's code page to UTF-8, then runs the executable). The folder `zoneinfo` includes the Olson timezones, which are already available by default on other OS.
+
+#### How To Use
+When you have the duckling binary, edit the file `data/global/config/nlu.json` and set the parameter `ducklingURL` to where you run Duckling, for example, if it's on the same server as Botpress (and if you use the default port of `8000`), you will set:
+```js
+{
+  ...
+  "ducklingURL": "http://localhost:8000"
+}
+```
 
 ### Language Server
 
-The Language Server is used to provide the language models necessary to run the NLU.
+The Language Server is used to provide the language models necessary to run the NLU. Language models allow your bot to learn text representations and text classifiers.
 
 By default, the Language Server is configured to get `100` dimensions for words. If you plan to use that Language Server in production, we highly recommend setting the dimensions to `300` for a better vocabulary.
 
@@ -28,12 +56,13 @@ By default, the Language Server is configured to get `100` dimensions for words.
 
 \* Per language
 
+#### Installing Language Server
 1. Open this metadata file: https://botpress-public.nyc3.digitaloceanspaces.com/embeddings/index.json
-1. Download the `bpe` and `embeddings` files corresponding to your languages. For instance, for french, download the `bp.fr.bpe.model` file located under `remoteUrl` and the `bp.fr.300.bin` also located under `remoteUrl`.
-1. Once the files are downloaded, place them somewhere on your server filesystem and take note of the path.
-1. Add the `--offline` and the `--dim <number>` arguments to your command when starting the language server. i.e. `./bp lang --offline --dim <number> --langDir <some_path>`. Make sure that the dimension argument match the dimensions of the models you have downloaded e.g. `bp.en.300.bin`.
+2. Download the `bpe` and `embeddings` files corresponding to your languages. For instance, for french, download the `bp.fr.bpe.model` file located under `remoteUrl` and the `bp.fr.300.bin` also located under `remoteUrl`.
+3. Once you download the files, place them somewhere on your server file system and take note of the path.
+4. Add the `--offline` and the `--dim <number>` arguments to your command when starting the language server. i.e. `./bp lang --offline --dim <number> --langDir <some_path>`. Ensure that the dimension argument matches the dimensions of the models you have downloaded, e.g., `bp.en.300.bin`.
 
-> **Note**: `300` is the number of dimensions the model has. More dimensions means the model size is bigger. You can choose a lighter model if your server specs are limited, but keep in mind that you need to change the `--dim` parameter when you start the Language Server (e.g. `./bp lang --dim <number>`).
+> **Note**: `300` is the number of dimensions the model has. More dimensions mean the model size is bigger. You can choose a lighter model if your server specs are limited, but keep in mind that you need to change the `--dim` parameter when you start the Language Server (e.g. `./bp lang --dim <number>`).
 
 | Abbreviation | Language   |
 | ------------ | ---------- |
@@ -50,42 +79,9 @@ By default, the Language Server is configured to get `100` dimensions for words.
 | nl           | Dutch      |
 | pl           | Polish     |
 
-## Binary
+#### Using your Language Server
 
-Run the following command in your command line:
-
-```bash
-EXTERNAL_URL=<public_url> \
-BP_PRODUCTION=true \
-BPFS_STORAGE=database \
-DATABASE_URL=postgres://login:password@host:port/database \
-./bp
-```
-
-### Hosting Duckling and the Language Server
-
-This step is optional. Your Botpress installation will use our hosted services by default.
-
-#### Duckling
-
-When you have the duckling binary, simply edit the file `data/global/config/nlu.json` and set the parameter `ducklingURL` to where you run Duckling, for example, if it's on the same server as Botpress (and if you use the default port of `8000`), you would set:
-
-```js
-{
-  ...
-  "ducklingURL": "http://localhost:8000"
-}
-```
-
-- **Linux and Mac**: Duckling must be compiled to run correctly on your specific system. Therefore, you will need to install the software development tools and build it from source.
-  Please follow the instructions on the [GitHub page of Duckling](https://github.com/facebook/duckling). We may provide some binaries in the future for common OS.
-
-- **Windows**: If you run Botpress on windows, there is a zip file available [here](https://s3.amazonaws.com/botpress-binaries/tools/duckling/duckling-windows.zip).
-  Simply double-click on run-duckling.bat (the bat file simply sets the code page of the console to UTF-8, then runs the executable). The folder `zoneinfo` includes the Olson timezones which are already available by default on other OS.
-
-#### Language Server
-
-The language server is embedded in Botpress and can be started by command line. Here are the steps to run it and use it with your Botpress Server:
+The language server embedded in Botpress is started using a command-line program. Here are the steps to run it and use it with your Botpress Server:
 
 1. Start the language server with `./bp lang`
 2. In `data/global/config/nlu.json`, change `languageSources.endpoint` to `http://localhost:3100`
@@ -93,9 +89,27 @@ The language server is embedded in Botpress and can be started by command line. 
 4. Install the desired languages your server should support
 5. Restart the language server with parameters `./bp lang --readOnly`
 
-ReadOnly prevents anyone from adding or removing languages and can only be used to fetch embeddings. There are additional parameters that can be configured (for example, to require authentication), you can see them by typing `./bp lang help`.
+ReadOnly prevents anyone from adding or removing languages and can only be used to fetch embeddings. There are additional parameters that can be configured (for example, to require authentication); you can see them by typing `./bp lang help`.
 
-**Offline Server**: Follow the Offline Server [instructions](#offline-servers) if you're running a server without Internet access.
+A common configuration of the server is `./bp lang --offline --dim 300 --langDir C:/<path_to_fasttext-library>`
+
+```
+Options:
+      --version           Show version number                          [boolean]
+  -v, --verbose           verbosity level                                [count]
+      --help              Show help                                    [boolean]
+      --port              The port to listen to                  [default: 3100]
+      --host              Binds the language server to a specific hostname [default: "localhost"]
+      --langDir           Directory where language embeddings will be saved
+      --authToken         When enabled, this token is required for clients to query your language server
+      --adminToken        This token is required to access the server as admin and manage language.
+      --limit             Maximum number of requests per IP per "limitWindow" interval (0 means unlimited)              [default: 0]
+      --limitWindow       Time window on which the limit is applied (use standard notation, ex: 25m or 1h)      [default: "1h"]
+      --metadataLocation  URL of metadata file which lists available languages [default: "https://nyc3.digitaloceanspaces.com/botpress-public/embeddings/index.json"]
+      --offline           Whether or not the language server has internet access   [boolean] [default: false]
+      --dim               Number of language dimensions provided (25, 100 or 300 at the moment)                          [default: 100]
+      --domain            Name of the domain where those embeddings were trained on.                                    [default: "bp"]
+```
 
 ## Docker
 
@@ -111,17 +125,12 @@ docker run -d \
 botpress/server:$TAG
 ```
 
-### Hosting Duckling and the Language Server
+Choose to either run one of two containers (two containers are recommended).
 
-This step is optional. Your Botpress installation will use our hosted services by default.
+### Running a Single Container
+Doing this will run Duckling, the Language Server, and Botpress Server within the same container. It will set some environment variables so that services talk to each other.
 
-Choose to either run one of two containers (two containers is recommended).
-
-#### Running a Single Container
-
-> ⚠️ Running multiple processes inside a single container should **never** be done in production.
-
-This will run Duckling, the Language Server and Botpress Server within the same container. It will set some environment variables so that services talk to each other.
+> ⚠️ You should **never** run multiple processes inside a single container in production.
 
 ```bash
 docker run -d \
@@ -133,9 +142,9 @@ botpress/server:$TAG \
 bash -c "./duckling & ./bp lang --langDir /botpress/data/embeddings & ./bp"
 ```
 
-**Offline Server**: Follow the Offline Server [instructions](#offline-servers) if you're running a server without Internet access.
+**Offline Server**: Follow the Offline Server [instructions](#offline-nlu-servers) if you're running a server without Internet access.
 
-#### Running Multiple Containers
+### Running Multiple Containers
 
 1. Run the Language Server.
 
@@ -148,7 +157,7 @@ botpress/server:$TAG \
 bash -c "./bp lang --langDir /botpress/data/embeddings"
 ```
 
-2. Run Botpress Server and Duckling within the same container. The usage of Duckling is very light here so we can justify using it in the same container as Botpress Server.
+2. Run Botpress Server and Duckling within the same container. Duckling's usage is very light here, so we can justify using it in the same container as Botpress Server.
 
 ```bash
 docker run -d \
@@ -160,7 +169,7 @@ botpress/server:$TAG \
 bash -c "./duckling & ./bp"
 ```
 
-**Offline Server**: Follow the Offline Server [instructions](#offline-servers) if you're running a server without Internet access.
+**Offline Server**: Follow the Offline Server [instructions](#offline-nlu-servers) if you're running a server without Internet access.
 
 ## Heroku
 
@@ -172,7 +181,7 @@ bash -c "./duckling & ./bp"
 
 ### Preparing the Docker image
 
-To create a new bot from scratch, simply create a file named `Dockerfile` in any directory. Write this snippet in the file (and replace \$VERSION with the latest one in [hub.docker.com](https://hub.docker.com/r/botpress/server/tags/))
+To create a new bot from scratch, create a file named `Dockerfile` in any directory. Write this snippet in the file (and replace \$VERSION with the latest one in [hub.docker.com](https://hub.docker.com/r/botpress/server/tags/))
 
 ```docker
 FROM botpress/server:$VERSION
@@ -199,6 +208,7 @@ heroku container:push web --app $APP_NAME
 heroku container:release web --app $APP_NAME
 ```
 
+
 ### Deploying with existing data
 
 If you have already built a bot and want to host it on Heroku, add your `data` folder in the same folder as the `Dockerfile`. The structure should look like this:
@@ -211,6 +221,8 @@ my-new-bot
     └── global
 ```
 
+Make sure that `Dockerfile` has no extension. If you save it as `Dockerfile.txt`, for example, it will not be loaded.
+
 Edit the `Dockerfile` so it looks like this, then deploy it with the same instructions as before:
 
 ```docker
@@ -221,8 +233,7 @@ CMD ["./bp"]
 ```
 
 ### Using Postgres as the database
-
-By default, Botpress uses SQLite as a database for persistence. This doesn't work well on Heroku because it has ephemeral storage, which means data will get lost every day or so. The best is to switch the database to Postgres (please make sure you are using Postgres 9.5 or higher):
+By default, Botpress uses SQLite as a database for persistence, which doesn't work well on Heroku because it has temporary storage, which means data will get lost every day or two. The best is to switch the database to Postgres (please make sure you are using Postgres 9.5 or higher):
 
 ```bash
 # Get a free Postgres database
@@ -232,11 +243,11 @@ heroku addons:create heroku-postgresql --app $APP_NAME
 heroku config:set DATABASE=postgres --app $APP_NAME
 ```
 
-You don't have to change anything else, since Heroku will define the DATABASE_URL environment variable with the required parameters. It is also possible to find your Postgres credentials on the Heroku dashboard: Overview > Heroku Postgres > Settings > View Credentials.
+You don't have to change anything else since Heroku will define the DATABASE_URL environment variable with the required parameters. It is also possible to find your Postgres credentials on the Heroku dashboard: Overview > Heroku Postgres > Settings > View Credentials.
 
 ## AWS
 
-These steps shows how to deploy manually your bot on Amazon EC2. Create a new instance on EC2 (or use an existing one), and type the following commands:
+The steps below show how to deploy your bot on Amazon EC2 manually. Create a new instance on EC2 (or use an existing one), and type the following commands:
 
 ```bash
 sudo apt update
@@ -252,10 +263,9 @@ unzip botpress-$VERSION-linux-x64.zip
 ./bp
 ```
 
-This gets you up and running locally on port 3000.
+The instructions above get you up and running locally on port 3000.
 
 ### Setting up NGINX
-
 NGINX will allow us to reach two goals: serve as a reverse proxy and handle caching of assets.
 
 ```bash
@@ -263,33 +273,11 @@ apt install nginx
 sudo mkdir /tmp/nginx_cache
 ```
 
-Then, edit the file `/etc/nginx/sites-available/default` and configure it using our suggested configuration (in a section below)
-
-### Securing your bot (HTTPS)
-
-To secure your installation, we will use Let's encrypt:
-
-```bash
-sudo apt-get install software-properties-common
-sudo add-apt-repository ppa:certbot/certbot
-sudo apt-get update
-sudo apt-get install python-certbot-nginx
-sudo certbot --nginx
-```
-
-### Monitoring and resilience
-
-If you want to add resilience so your bot is restarted if there's an issue, we recommend using PM2.
-
-```bash
-sudo apt install npm
-sudo npm install -g pm2
-sudo pm2 startup
-```
+Then, edit the file `/etc/nginx/sites-available/default` and configure it using our suggested configuration.
 
 ### Secure configuration for the NGINX server
 
-This is the configuration we recommend deploying Botpress in production.
+We recommend deploying Botpress in production using this configuration.
 
 ```bash
 http {
@@ -375,14 +363,36 @@ http {
 }
 ```
 
+### Securing your bot (HTTPS)
+
+To secure your installation, we will use Let's encrypt:
+
+```bash
+sudo apt-get install software-properties-common
+sudo add-apt-repository ppa:certbot/certbot
+sudo apt-get update
+sudo apt-get install python-certbot-nginx
+sudo certbot --nginx
+```
+
+### Monitoring and resilience
+
+If you want to add resilience, so your bot is restarted, if there's an issue, we recommend using PM2.
+
+```bash
+sudo apt install npm
+sudo npm install -g pm2
+sudo pm2 startup
+```
+
 ## AWS using Dokku
 
-Dokku is like a mini heroku on-prem. Once setup on your host, it's very easy to push deployments via a simple git push.
+Dokku is like a mini Heroku on-prem. Once set up on your host, it's effortless to push deployments via a simple git push.
 
 ### Creating your EC2 instance
 
 1. Open the EC2 Dashboard and click on `Instances`. Press the `Launch Instance` button
-2. At the `Choose AMI` step, we recommend using Ubuntu Server 18.04 LTS, we also support Centos 7.5, Debian 8.11, Red-hat 7.5, Ununtu 16.04
+2. At the `Choose AMI` step, we recommend using Ubuntu Server 18.04 LTS; we also support Centos 7.5, Debian 8.11, Red-hat 7.5, Ubuntu 16.04
 3. Click on the tab named `6. Configure Security Group`
 4. Add these rules:
 
@@ -401,7 +411,7 @@ wget https://raw.githubusercontent.com/dokku/dokku/v0.12.13/bootstrap.sh
 sudo DOKKU_TAG=v0.12.13 bash bootstrap.sh
 ```
 
-Once setup is completed, open your web browser to your server's IP address and follow the instructions to configure your public key. This is the key that will be used when you will push your content to deploy your bot.
+Once you complete setup, open your web browser to your server's IP address and follow the instructions to configure your public key. This key is used when you will push your content to deploy your bot.
 
 Then, on your Dokku host, type this command to create a new app. We are using `botpress-server` in this guide, but it could be anything you'd like.
 
@@ -409,9 +419,9 @@ Then, on your Dokku host, type this command to create a new app. We are using `b
 dokku apps:create botpress-server
 ```
 
-Now that everything is setup correctly on your remote host, let's deploy it.
+Now that everything is set up correctly on your remote host let's deploy it.
 
-On your local host, create an empty directory and add a file named `Dockerfile` with the following content:
+On your localhost, create an empty directory and add a file named `Dockerfile` with the following content:
 
 ```docker
 FROM botpress/server:$VERSION
@@ -439,7 +449,7 @@ git push dokku master
 
 ### Adding a POSTGRES database
 
-Now your bot is running on the host, but it is still using the SQLite database. Fortunately, Dokku has an open-source plugin that makes it very easy to setup the required database.
+Now your bot is running on the host, but it is still using the SQLite database. Fortunately, Dokku has an open-source plugin that makes it very easy to set up the required database.
 
 ```bash
 # This will download and install the Postgres plugin
@@ -453,10 +463,10 @@ dokku postgres:link botpress-db botpress-server
 dokku config:set botpress-server DATABASE=postgres
 ```
 
-As with Heroku, the `DATABASE_URL` environment variable will already be set.
+As with Heroku, the `DATABASE_URL` environment variable is already set.
 
 ### Example
 
 `channel-web.infoPage.description` --> `BP_MODULE_CHANNEL_WEB_INFOPAGE_DESCRIPTION`
 
-> **Deprecation warning**: The old `BP_%MODULENAME%_%config%` is deprecated and will be removed in Botpress 12.
+> **Deprecation warning**: The old `BP_%MODULENAME%_%config%` is deprecated in Botpress 12.
