@@ -2367,6 +2367,7 @@ declare module 'botpress/sdk' {
 
   export interface FunctionService {
     register(name: string, impl: FunctionGroup)
+    remove(name: string)
     get(name: string): FunctionGroup
   }
 

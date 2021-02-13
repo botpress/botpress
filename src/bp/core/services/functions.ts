@@ -31,6 +31,10 @@ export class CustomFunctionRepo implements sdk.FunctionService {
     this.functions[name] = impl
   }
 
+  public remove(name: string) {
+    delete this.functions[name]
+  }
+
   public get(name: string): sdk.FunctionGroup {
     return this.functions[name]
   }

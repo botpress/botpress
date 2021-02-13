@@ -27,6 +27,18 @@ describe('Functions', () => {
     expect(api.doThing(4)).toEqual(6)
   })
 
+  test('Remove function group', () => {
+    functions.global().register('api', {
+      doThing: (number: number) => number + 2
+    })
+
+    expect(functions.global().get('api')).not.toEqual(undefined)
+
+    functions.global().remove('api')
+
+    expect(functions.global().get('api')).toEqual(undefined)
+  })
+
   test('Remove functions for bot', () => {
     functions.forBot('bakugan').register('bakuganAPI', {
       goBankrupt: () => 'yes'
