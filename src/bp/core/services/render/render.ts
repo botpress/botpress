@@ -1,6 +1,6 @@
-import { injectable } from 'inversify'
 import * as sdk from 'botpress/sdk'
 import { renderRecursive } from 'core/misc/templating'
+import { injectable } from 'inversify'
 
 @injectable()
 export class RenderService {
@@ -87,7 +87,7 @@ export class RenderService {
     }
 
     for (const [key, value] of Object.entries(content)) {
-      if (key == lang) {
+      if (key === lang) {
         return value
       } else if (Array.isArray(value)) {
         for (let i = 0; i < value.length; i++) {

@@ -2447,19 +2447,19 @@ declare module 'botpress/sdk' {
      * @example
      * // Doing all this
      * const content = bp.render.text({ en: 'hello {{user.name}}', fr: 'salut {{user.name}}' })
-       const translated = bp.render.translate(content, 'fr')
-       const templated = bp.render.template(translated, { user: { name: 'bob' } })
-
-       // Can be replaced by this
-       const content = bp.render
-         .pipeline('fr', { user: { name: 'bob' } })
-         .text({ en: 'hello {{user.name}}', fr: 'salut {{user.name}}' })
-
-       // You can reuse the same pipeline for multiple contents
-       const render = bp.render.pipeline('fr', { user: { name: 'bob', age: 43, pin: 3030 } })
-       const text1 = render.text({ en: 'hello {{user.name}}', fr: 'salut {{user.name}}' })
-       const text2 = render.text({ en: 'age : {{user.age}}', fr: 'âge : {{user.age}}' })
-       const text3 = render.text('PIN : {{user.pin}}')
+     * const translated = bp.render.translate(content, 'fr')
+     * const templated = bp.render.template(translated, { user: { name: 'bob' } })
+     *
+     * // Can be replaced by this
+     * const content = bp.render
+     *   .pipeline('fr', { user: { name: 'bob' } })
+     *   .text({ en: 'hello {{user.name}}', fr: 'salut {{user.name}}' })
+     *
+     * // You can reuse the same pipeline for multiple contents
+     * const render = bp.render.pipeline('fr', { user: { name: 'bob', age: 43, pin: 3030 } })
+     * const text1 = render.text({ en: 'hello {{user.name}}', fr: 'salut {{user.name}}' })
+     * const text2 = render.text({ en: 'age : {{user.age}}', fr: 'âge : {{user.age}}' })
+     * const text3 = render.text('PIN : {{user.pin}}')
      */
     export function pipeline(lang: string, context: any): Pipeline
 
