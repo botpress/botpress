@@ -245,6 +245,9 @@ class RootStore {
 
     const conversation: CurrentConversation = await this.api.fetchConversation(convoId || this._getCurrentConvoId())
     if (conversation?.messages) {
+      conversation.messages = conversation.messages.sort(
+        (a, b) => new Date(a.sentOn).getTime() - new Date(b.sentOn).getTime()
+      )
       await this.extractFeedback(conversation.messages)
     }
 
