@@ -1,12 +1,12 @@
 import * as sdk from 'botpress/sdk'
+import { JobService } from 'core/services/job-service'
 import { inject, injectable, postConstruct } from 'inversify'
 
-import Database from '../database'
-import { TYPES } from '../types'
 import LRU from 'lru-cache'
 import ms from 'ms'
+import Database from '../database'
+import { TYPES } from '../types'
 import { MessageRepository } from './messages'
-import { JobService } from 'core/services/job-service'
 
 export interface ConversationRepository {
   getAll(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation[]>
@@ -82,7 +82,7 @@ export class KnexConversationRepository implements ConversationRepository {
   }
 
   public async create(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation> {
-    let row = {
+    const row = {
       userId: endpoint.userId,
       botId: endpoint.botId,
       createdOn: new Date()
@@ -153,7 +153,7 @@ export class KnexConversationRepository implements ConversationRepository {
         botId: endpoint.botId
       })
       .andWhere(builder => {
-        builder
+        void builder
           .where({
             sentOn: this.database.knex
               .max('sentOn')
