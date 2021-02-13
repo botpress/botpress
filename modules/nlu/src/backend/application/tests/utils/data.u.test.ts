@@ -1,17 +1,9 @@
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
-import { ENGINE_SPECS } from './app-factory.u.test'
-import { computeContentHash, computeSpecificationsHash } from './utils.u.test'
-
 export interface Definitions {
   intentDefs: NLU.IntentDefinition[]
   entityDefs: NLU.EntityDefinition[]
-}
-
-interface Dataset {
-  trainSet: NLU.TrainingSet
-  modelId: NLU.ModelId
 }
 
 const utts = {
@@ -47,31 +39,4 @@ export const makeDefinitions = (langs: string[]): Definitions => {
     intentDefs,
     entityDefs
   }
-}
-
-export const makeDatasets = (langs: string[], seed = 42): Dataset[] => {
-  const { intentDefs, entityDefs } = makeDefinitions(langs)
-
-  return langs.map(languageCode => {
-    const trainSet: NLU.TrainingSet = {
-      entityDefs,
-      intentDefs,
-      languageCode,
-      seed
-    }
-
-    const contentHash = computeContentHash(entityDefs, intentDefs, languageCode)
-    const specificationHash = computeSpecificationsHash(ENGINE_SPECS)
-    const modelId: NLU.ModelId = {
-      contentHash,
-      specificationHash,
-      languageCode,
-      seed
-    }
-
-    return {
-      trainSet,
-      modelId
-    }
-  })
 }

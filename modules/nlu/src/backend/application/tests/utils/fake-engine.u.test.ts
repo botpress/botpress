@@ -1,6 +1,7 @@
 import { NLU } from 'botpress/sdk'
 
-import { areEqual, computeContentHash, computeSpecificationsHash, sleep } from './utils.u.test'
+import { modelIdService } from './fake-model-id-service.u.test'
+import { areEqual, sleep } from './utils.u.test'
 
 export interface FakeEngineOptions {
   trainDelayBetweenProgress: number
@@ -18,11 +19,7 @@ export class FakeEngine implements NLU.Engine {
   private _models: NLU.Model[] = []
   private _options: FakeEngineOptions
 
-  constructor(
-    private languages: string[],
-    private specs: NLU.Specifications,
-    private opt: Partial<FakeEngineOptions> = {}
-  ) {
+  constructor(private languages: string[], private specs: NLU.Specifications, opt: Partial<FakeEngineOptions> = {}) {
     this._options = { ...DEFAULT_OPTIONS, ...opt }
     const { nProgressCalls } = this._options
     if (nProgressCalls < 2 || nProgressCalls > 10) {
@@ -83,15 +80,19 @@ export class FakeEngine implements NLU.Engine {
     }
 
     const { languageCode, seed, intentDefs, entityDefs } = trainSet
-    const specs = this.getSpecifications()
 
-    return {
-      startedAt: new Date(),
-      finishedAt: new Date(),
-      contentHash: computeContentHash(entityDefs, intentDefs, languageCode),
+    const modelId = modelIdService.makeId({
+      entityDefs,
+      intentDefs,
       languageCode,
       seed,
-      specificationHash: computeSpecificationsHash(specs),
+      specifications: this.getSpecifications()
+    })
+
+    return {
+      ...modelId,
+      startedAt: new Date(),
+      finishedAt: new Date(),
       data: {
         input: '',
         output: ''

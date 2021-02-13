@@ -16,9 +16,10 @@ import {
   expectTrainingToStartAndComplete,
   expectTs
 } from './utils/custom-expects.u.test'
-import { makeDatasets, makeDefinitions } from './utils/data.u.test'
+import { makeDefinitions } from './utils/data.u.test'
 import { FakeDefinitionRepo } from './utils/fake-def-repo.u.test'
 import { FakeEngine } from './utils/fake-engine.u.test'
+import { modelIdService } from './utils/fake-model-id-service.u.test'
 import { FakeModelRepo } from './utils/fake-model-repo.u.test'
 
 const botId = 'myBot'
@@ -227,10 +228,17 @@ describe('NLU API', () => {
     // arrange
     const lang = 'en'
     const nluSeed = 42
-    const [dataset] = makeDatasets([lang], nluSeed)
-    const { modelId, trainSet } = dataset
+    const { entityDefs, intentDefs } = makeDefinitions([lang])
 
-    const fakeDefRepo = new FakeDefinitionRepo(trainSet)
+    const modelId = modelIdService.makeId({
+      entityDefs,
+      intentDefs,
+      languageCode: lang,
+      seed: nluSeed,
+      specifications: ENGINE_SPECS
+    })
+
+    const fakeDefRepo = new FakeDefinitionRepo({ entityDefs, intentDefs })
     const defRepoFactory: DefinitionRepositoryFactory = () => fakeDefRepo
 
     const engine = new FakeEngine([lang], ENGINE_SPECS)
@@ -272,14 +280,21 @@ describe('NLU API', () => {
   test('When 2 languages, but only one model on fs, only one training should start on bot mount', async () => {
     // arrange
     const nluSeed = 42
-    const [dataset] = makeDatasets(['en'], nluSeed)
-    const { modelId, trainSet } = dataset
+    const { entityDefs, intentDefs } = makeDefinitions(['en'])
+
+    const modelId = modelIdService.makeId({
+      entityDefs,
+      intentDefs,
+      languageCode: 'en',
+      seed: nluSeed,
+      specifications: ENGINE_SPECS
+    })
 
     const engine = new FakeEngine(['en', 'fr'], ENGINE_SPECS, { nProgressCalls: 2 })
     const engineTrainMock = jest.spyOn(engine, 'train')
     const engineLoadMock = jest.spyOn(engine, 'loadModel')
 
-    const fakeDefRepo = new FakeDefinitionRepo(trainSet)
+    const fakeDefRepo = new FakeDefinitionRepo({ entityDefs, intentDefs })
     const defRepoFactory: DefinitionRepositoryFactory = () => fakeDefRepo
 
     const fakeModelRepo = new FakeModelRepo()
@@ -322,12 +337,21 @@ describe('NLU API', () => {
   test('When no training needed, but updating definition files, socket is called with a needs-training event', async () => {
     // arrange
     const nluSeed = 42
+    const langs = ['en', 'fr']
 
-    const [datasetEn, datasetFr] = makeDatasets(['en', 'fr'], nluSeed)
-    const { modelId: modelEn, trainSet } = datasetEn
-    const { modelId: modelFr } = datasetFr
+    const { entityDefs, intentDefs } = makeDefinitions(langs)
 
-    const fakeDefRepo = new FakeDefinitionRepo(trainSet)
+    const [modelEn, modelFr] = langs.map(lang =>
+      modelIdService.makeId({
+        entityDefs,
+        intentDefs,
+        languageCode: lang,
+        seed: nluSeed,
+        specifications: ENGINE_SPECS
+      })
+    )
+
+    const fakeDefRepo = new FakeDefinitionRepo({ entityDefs, intentDefs })
     const defRepoFactory: DefinitionRepositoryFactory = () => fakeDefRepo
 
     const fakeModelRepo = new FakeModelRepo()
@@ -337,7 +361,7 @@ describe('NLU API', () => {
 
     const socket = jest.fn()
 
-    const engine = new FakeEngine(['en', 'fr'], ENGINE_SPECS)
+    const engine = new FakeEngine(langs, ENGINE_SPECS)
 
     await runTest(
       { socket, engine, defRepoFactory, modelRepoFactory },
@@ -346,11 +370,10 @@ describe('NLU API', () => {
         await app.mountBot({
           id: botId,
           defaultLanguage: 'en',
-          languages: ['en', 'fr'],
+          languages: langs,
           nluSeed
         })
 
-        const { intentDefs } = trainSet
         const intent = intentDefs[0]
         intent.utterances['fr'].push('new utterance')
         await fakeDefRepo.upsertIntent({ ...intent })
@@ -397,11 +420,18 @@ describe('NLU API', () => {
   test('when model is loaded, predict calls engine with the expected modelId', async () => {
     // arrange
     const nluSeed = 42
+    const lang = 'en'
 
-    const [dataSet] = makeDatasets(['en'], nluSeed)
-    const { modelId } = dataSet
+    const { entityDefs, intentDefs } = makeDefinitions([lang])
+    const modelId = modelIdService.makeId({
+      entityDefs,
+      intentDefs,
+      languageCode: lang,
+      seed: nluSeed,
+      specifications: ENGINE_SPECS
+    })
 
-    const engine = new FakeEngine(['en'], ENGINE_SPECS)
+    const engine = new FakeEngine([lang], ENGINE_SPECS)
     await engine.loadModel(modelId as NLU.Model)
 
     const modelRepo = new FakeModelRepo()
@@ -419,13 +449,13 @@ describe('NLU API', () => {
         // act
         await app.mountBot({
           id: botId,
-          defaultLanguage: 'en',
-          languages: ['en'],
+          defaultLanguage: lang,
+          languages: [lang],
           nluSeed
         })
 
         const predictor = app.getBot(botId)
-        const prediction = await predictor.predict(userInput, 'en')
+        const prediction = await predictor.predict(userInput, lang)
       },
       async () => {
         // assert
@@ -489,6 +519,7 @@ describe('NLU API', () => {
       { socket, engine },
       async app => {
         application = app
+
         // act
         await app.mountBot({
           id: botId,
@@ -497,20 +528,11 @@ describe('NLU API', () => {
           nluSeed
         })
       },
-      async app => {
+      async () => {
         // assert
         expect(cancelMock).toHaveBeenCalledTimes(1)
         expect(cancelMock).toHaveBeenCalledWith(expect.stringContaining('en'))
       }
     )
   })
-
-  /**
-   * TODO: add the following e2e tests
-   * [X] - when 2 bots, one with invalid model and the second with valid, one training starts and the other loads from fs
-   * [X] - when updating definitions, socket receives a "needs-training" event
-   * [X] - when an unexpected error occurs during training, socket receives an "errored" event, but reloading the pages gives a "needs-training" event
-   * [X] - when model is loaded, predict calls engine with the expected modelId
-   * [X] - when training is canceled, socket receives a "canceled" event followed by a "needs-training" event
-   */
 })

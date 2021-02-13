@@ -1,12 +1,32 @@
 import { NLU } from 'botpress/sdk'
+import crypto from 'crypto'
 import _ from 'lodash'
-
-import { computeContentHash, computeSpecificationsHash } from './utils.u.test'
 
 // Copied from actual core modelIdService
 // Once nlu is in core, use the actual modelIdService, not a fake or mock (This class is easely testable)
 
 export const HALF_MD5_REG = /^[a-fA-F0-9]{16}$/
+
+const halfmd5 = (text: string) => {
+  return crypto
+    .createHash('md5')
+    .update(text)
+    .digest('hex')
+    .slice(16)
+}
+
+export const computeContentHash = (
+  entityDefs: NLU.EntityDefinition[],
+  intentDefs: NLU.IntentDefinition[],
+  languageCode: string
+) => {
+  const singleLangIntents = intentDefs.map(i => ({ ...i, utterances: i.utterances[languageCode] }))
+  return halfmd5(JSON.stringify({ singleLangIntents, entityDefs }))
+}
+
+export const computeSpecificationsHash = (specifications: NLU.Specifications) => {
+  return halfmd5(JSON.stringify({ specifications }))
+}
 
 const toString = (modelId: NLU.ModelId) => {
   const { contentHash, specificationHash, languageCode: lang, seed } = modelId

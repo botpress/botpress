@@ -7,17 +7,20 @@ import { BotService } from '../../bot-service'
 import { InMemoryTrainingQueue, TrainingQueueOptions } from '../../memory-training-queue'
 import { TrainSessionListener } from '../../typings'
 
+import { makeDefinitions } from './data.u.test'
 import { FakeDefinitionRepo } from './fake-def-repo.u.test'
 import { FakeEngine, FakeEngineOptions } from './fake-engine.u.test'
-import { FakeLogger } from './fake-logger.u.test'
 import { modelIdService } from './fake-model-id-service.u.test'
 import { FakeModelRepo } from './fake-model-repo.u.test'
+import { StubLogger } from './stub-logger.u.test'
 import { sleep } from './utils.u.test'
 
 const MAX_TIME_PER_TEST = ms('3 s')
 const DEFAULT_TRAINING_DELAY = 1 // ms
 const DEFAULT_PROGRESS_CALLS = 2 // ms
 const DEFAULT_JOB_INTERVAL = 1 // ms
+
+const DEFAULT_LANGS = ['en']
 
 export const ENGINE_SPECS: NLU.Specifications = {
   languageServer: {
@@ -41,13 +44,13 @@ interface AppDependencies {
 const makeDefaultDependencies = (): AppDependencies => {
   const socket: TrainSessionListener = async () => {}
   const modelRepoFactory = () => new FakeModelRepo()
-  const defRepoFactory = () => new FakeDefinitionRepo()
+  const defRepoFactory = () => new FakeDefinitionRepo(makeDefinitions(DEFAULT_LANGS))
   const fakeEngineOptions: FakeEngineOptions = {
     trainDelayBetweenProgress: DEFAULT_TRAINING_DELAY,
     nProgressCalls: DEFAULT_PROGRESS_CALLS,
     trainingThrows: undefined
   }
-  const engine = new FakeEngine(['en'], ENGINE_SPECS, fakeEngineOptions)
+  const engine = new FakeEngine(DEFAULT_LANGS, ENGINE_SPECS, fakeEngineOptions)
   const trainingQueueOptions = {
     maxTraining: 1,
     jobInterval: DEFAULT_JOB_INTERVAL
@@ -56,7 +59,7 @@ const makeDefaultDependencies = (): AppDependencies => {
     isTrainingAlreadyStarted: () => false,
     isTrainingCanceled: () => false
   }
-  const logger = new FakeLogger()
+  const logger = new StubLogger()
   return {
     socket,
     modelRepoFactory,

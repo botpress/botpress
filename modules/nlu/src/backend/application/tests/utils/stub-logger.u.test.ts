@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 
-export class FakeLogger implements sdk.Logger {
+export class StubLogger implements sdk.Logger {
   forBot(botId: string): this {
     return this
   }
