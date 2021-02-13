@@ -4,7 +4,7 @@ import { areEqual, computeContentHash, computeSpecificationsHash, sleep } from '
 
 export interface FakeEngineOptions {
   trainDelayBetweenProgress: number
-  nProgressCalls: number // TODO: actually implement this
+  nProgressCalls: number
   trainingThrows: Error | undefined
 }
 
