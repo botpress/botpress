@@ -19,9 +19,11 @@ const DEFAULT_LISTING_OPTIONS: ListingOptions = {
 }
 
 export class FakeModelRepo implements ModelRepository {
-  constructor() {}
+  private _models: NLU.Model[]
 
-  private _models: NLU.Model[] = []
+  constructor(modelsOnFs: NLU.Model[] = []) {
+    this._models = [...modelsOnFs]
+  }
 
   async initialize(): Promise<void> {}
 

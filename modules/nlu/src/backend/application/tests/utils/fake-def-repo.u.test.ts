@@ -2,8 +2,12 @@ import { ListenHandle, NLU } from 'botpress/sdk'
 
 import { DefinitionRepository, FileListener, TrainDefinitions } from '../../scoped/typings'
 
-import { Definitions } from './data.u.test'
 import './sdk.u.test'
+
+interface Definitions {
+  intentDefs: NLU.IntentDefinition[]
+  entityDefs: NLU.EntityDefinition[]
+}
 
 export class FakeDefinitionRepo implements DefinitionRepository {
   private _listeners: FileListener[] = []

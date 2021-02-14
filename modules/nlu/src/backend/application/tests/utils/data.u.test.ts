@@ -3,42 +3,57 @@ import _ from 'lodash'
 
 import './sdk.u.test'
 
-export interface Definitions {
-  intentDefs: NLU.IntentDefinition[]
-  entityDefs: NLU.EntityDefinition[]
+export const fruitEntity: NLU.EntityDefinition = {
+  name: 'fruits',
+  id: 'list.fruits',
+  type: 'list',
+  fuzzy: 1,
+  examples: ['banana', 'blueberry']
 }
 
-const utts = {
+export const cityEntity: NLU.EntityDefinition = {
+  name: 'city',
+  id: 'list.city',
+  type: 'list',
+  fuzzy: 1,
+  examples: ['new-york', 'nyk', 'mtl', 'montreal']
+}
+
+const hello_utts = {
   en: ['hey', 'hello man', 'hi', 'whatsup'],
   fr: ['héhé', 'allo', 'salut', 'ça va?']
 }
+export const hello = (langs: string[]): NLU.IntentDefinition => ({
+  name: 'hello',
+  contexts: ['global'],
+  filename: 'hello.json',
+  slots: [],
+  utterances: _.pick(hello_utts, langs)
+})
 
-export const makeDefinitions = (langs: string[]): Definitions => {
-  const supportedLangs = Object.keys(utts)
-  if (_.intersection(supportedLangs, langs).length < langs.length) {
-    throw new Error(`makeDataset only supports languages ${supportedLangs}.`)
-  }
-
-  const intent: NLU.IntentDefinition = {
-    name: 'hello',
-    contexts: ['global'],
-    filename: 'who cares',
-    slots: [],
-    utterances: _.pick(utts, langs)
-  }
-
-  const entity: NLU.EntityDefinition = {
-    name: 'fruits',
-    id: 'list.fruits',
-    type: 'list',
-    fuzzy: 1,
-    examples: ['banana', 'blueberry']
-  }
-
-  const intentDefs = [intent]
-  const entityDefs = [entity]
-  return {
-    intentDefs,
-    entityDefs
-  }
+const book_flight_utts = {
+  en: ['I want to book a flight', 'book flight', 'go from mtl to nyk'],
+  fr: ['Je veux réserver un vol', 'réserver vol', 'aller de montreal à new-york']
 }
+export const book_flight = (langs: string[]): NLU.IntentDefinition => ({
+  name: 'book_flight',
+  contexts: ['global'],
+  filename: 'book_flight.json',
+  slots: [
+    { name: 'city-from', id: 'city-from', entities: ['city'], color: 1 },
+    { name: 'city-to', id: 'city-to', entities: ['city'], color: 1 }
+  ],
+  utterances: _.pick(book_flight_utts, langs)
+})
+
+const i_love_hockey_utts = {
+  en: ['I like hockey', 'I love hockey', 'I wanna play hockey forever'],
+  fr: ["J'aime le hockey", "J'adore le hockey", 'Je veux jouer au hockey toujours']
+}
+export const i_love_hockey = (langs: string[]): NLU.IntentDefinition => ({
+  name: 'i_love_hockey',
+  contexts: ['global'],
+  filename: 'i_love_hockey.json',
+  slots: [],
+  utterances: _.pick(i_love_hockey_utts, langs)
+})
