@@ -180,12 +180,21 @@ export class FlowService {
     const PATH_SEPARATOR = '/'
     const tree = new TreeSearch(PATH_SEPARATOR)
 
-    flows.forEach(f => tree.insert(f.name.replace('.flow.json', '')))
+    flows.forEach(f => {
+      const filename = f.name.replace('.flow.json', '')
+      // the value we are looking for is the parent filename
+      tree.insert(filename, filename)
+    })
 
-    return flows.map(f => ({
-      ...f,
-      parent: tree.getClosestParent(f.name.replace('.flow.json', ''))
-    }))
+    return flows.map(f => {
+      const filename = f.name.replace('.flow.json', '')
+      const parentFlow = tree.get(filename, true)
+
+      return {
+        ...f,
+        parent: parentFlow === filename ? undefined : parentFlow
+      }
+    })
   }
 
   private async parseFlow(botId: string, flowPath: string): Promise<FlowView> {

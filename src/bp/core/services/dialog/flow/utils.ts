@@ -1,78 +1,95 @@
-class TreeNode {
-  public value: string | undefined
-  public children: Map<string, TreeNode> = new Map()
+class TreeNode<T> {
+  public value: T | undefined
+  public children: Map<string, TreeNode<T>> = new Map()
 
-  constructor(value?: string) {
+  constructor(value?: T) {
     if (value) {
       this.value = value
     }
   }
 }
 
-export class TreeSearch {
-  private root: TreeNode = new TreeNode()
+export class TreeSearch<T = string> {
+  private root: TreeNode<T> = new TreeNode()
   private elements: number = 0
 
-  constructor(private separator: string, private caseSensitive = false) {}
+  constructor(private separator: string) {}
 
-  public get length(): number {
+  public get count(): number {
     return this.elements
   }
 
-  public getClosestParent(path: string): string | undefined {
-    const split: string[] = this.preparePath(path)
+  public get(key: string, returnOnFirstHit = false): T | undefined {
+    if (!key) {
+      return
+    }
 
-    return this.searchNode(split, this.root)
+    const chunks: string[] = this.prepareKey(key)
+
+    return this.searchNode(chunks, this.root, returnOnFirstHit)
   }
 
-  private searchNode(split: string[], node: TreeNode) {
-    if (split) {
-      const name = split.shift()!
+  public insert(key: string, value: T, override = false): void {
+    if (!key) {
+      return
+    }
+
+    const chunks: string[] = this.prepareKey(key)
+
+    const inserted = this.addNode(chunks, value, override, this.root)
+    if (inserted) {
+      this.elements++
+    }
+  }
+
+  private searchNode(chunks: string[], node: TreeNode<T>, returnOnFirstHit: boolean): T | undefined {
+    if (chunks) {
+      const name = chunks.shift()!
       const child = node.children.get(name)
+
       if (!child) {
         return undefined
-      } else if (child.value && split.length !== 0) {
+      } else if ((returnOnFirstHit || chunks.length === 0) && child.value) {
         return child.value
       } else {
-        return this.searchNode(split, child)
+        return this.searchNode(chunks, child, returnOnFirstHit)
       }
     }
   }
 
-  public insert(path: string): void {
-    const split: string[] = this.preparePath(path)
-    this.addNode(path, split, this.root)
-  }
+  private addNode(chunks: string[], value: T, override: boolean, node: TreeNode<T>): boolean {
+    const name = chunks.shift()!
+    const child = node.children.get(name)
 
-  private addNode(path: string, split: string[], node: TreeNode) {
-    if (split) {
-      const name = split.shift()!
-      const child = node.children.get(name)
-      if (!child) {
-        if (split.length !== 0) {
-          const treeNode = new TreeNode()
-          node.children.set(name, treeNode)
+    if (!child) {
+      if (chunks.length !== 0) {
+        const treeNode = new TreeNode<T>()
+        node.children.set(name, treeNode)
 
-          this.addNode(path, split, treeNode)
-        } else {
-          node.children.set(name, new TreeNode(path))
-        }
+        return this.addNode(chunks, value, override, treeNode)
       } else {
-        if (split.length !== 0) {
-          this.addNode(path, split, child)
-        } else {
-          child.value = path
+        node.children.set(name, new TreeNode(value))
+
+        return true
+      }
+    } else {
+      if (chunks.length !== 0) {
+        return this.addNode(chunks, value, override, child)
+      } else {
+        if (!child.value || override) {
+          const newInsert = child.value === undefined
+          child.value = value
+
+          return newInsert
         }
+        return false
       }
     }
   }
 
-  private preparePath(path: string): string[] {
-    path = path.trim()
-    if (!this.caseSensitive) {
-      path = path.toLowerCase()
-    }
+  private prepareKey(key: string): string[] {
+    key = key.trim().toLowerCase()
 
-    return path.split(this.separator)
+    return key.split(this.separator)
   }
 }
