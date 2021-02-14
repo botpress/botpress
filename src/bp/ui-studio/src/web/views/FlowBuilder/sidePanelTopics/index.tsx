@@ -21,11 +21,11 @@ import { getAllFlows, getFlowNamesList, RootReducer } from '~/reducers'
 
 import Inspector from '../../FlowBuilder/inspector'
 
-import style from './style.scss'
 import Library from './Library'
-import { exportCompleteTopic } from './TopicEditor/export'
+import style from './style.scss'
 import CreateTopicModal from './TopicEditor/CreateTopicModal'
 import EditTopicModal from './TopicEditor/EditTopicModal'
+import { exportCompleteTopic } from './TopicEditor/export'
 import ImportModal from './TopicEditor/ImportModal'
 import TopicList from './TopicList'
 import EditTopicQnAModal from './TopicQnAEditor/EditTopicQnAModal'
