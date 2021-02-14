@@ -3,6 +3,7 @@ import _ from 'lodash'
 
 import { ListingOptions, ModelRepository, PruningOptions } from '../../scoped/typings'
 
+import './sdk.u.test'
 import { areEqual } from './utils.u.test'
 
 const _satisfies = (id: NLU.ModelId, query: Partial<NLU.ModelId>): boolean => {

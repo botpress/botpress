@@ -1,18 +1,18 @@
 import { NLU } from 'botpress/sdk'
+import _ from 'lodash'
 
 import { modelIdService } from './fake-model-id-service.u.test'
+import './sdk.u.test'
 import { areEqual, sleep } from './utils.u.test'
 
 export interface FakeEngineOptions {
   trainDelayBetweenProgress: number
   nProgressCalls: number
-  trainingThrows: Error | undefined
 }
 
 const DEFAULT_OPTIONS: FakeEngineOptions = {
   trainDelayBetweenProgress: 0,
-  nProgressCalls: 2,
-  trainingThrows: undefined
+  nProgressCalls: 2
 }
 
 export class FakeEngine implements NLU.Engine {
@@ -65,17 +65,12 @@ export class FakeEngine implements NLU.Engine {
     trainSet: NLU.TrainingSet,
     options: Partial<NLU.TrainingOptions> = {}
   ): Promise<NLU.Model> => {
-    const { trainingThrows } = this._options
-    if (trainingThrows) {
-      throw trainingThrows
-    }
-
     const { nProgressCalls, trainDelayBetweenProgress } = this._options
-    let progressCallsCount = 0
-    const deltaProgress = 1 / nProgressCalls
-    while (progressCallsCount < nProgressCalls) {
-      progressCallsCount++
-      options.progressCallback?.(progressCallsCount * deltaProgress)
+
+    const delta = 1 / (nProgressCalls - 1)
+    const updates = _.range(nProgressCalls).map(i => i * delta)
+    for (const u of updates) {
+      options.progressCallback?.(u)
       await sleep(trainDelayBetweenProgress)
     }
 

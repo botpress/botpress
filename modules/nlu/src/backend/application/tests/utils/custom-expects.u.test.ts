@@ -1,6 +1,8 @@
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
+import './sdk.u.test'
+
 export const expectTs = (ts: Partial<NLU.TrainingSession>) => expect.objectContaining<Partial<NLU.TrainingSession>>(ts)
 
 // TODO: this function is a mess, maybe I should unit test it...

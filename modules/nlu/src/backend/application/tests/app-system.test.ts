@@ -8,7 +8,7 @@ import { TrainingQueueOptions } from '../memory-training-queue'
 
 import _ from 'lodash'
 import { NLUApplication } from '..'
-import { ENGINE_SPECS, runTest } from './utils/app-factory.u.test'
+import { ENGINE_SPECS, runTest } from './utils/app.u.test'
 import {
   expectEngineToHaveLoaded,
   expectEngineToHaveTrained,
@@ -390,8 +390,9 @@ describe('NLU API', () => {
     // arrange
     const nluSeed = 42
 
-    const engine = new FakeEngine(['en'], ENGINE_SPECS, {
-      trainingThrows: new Error('Unexpected weird looking error with no stack trace')
+    const engine = new FakeEngine(['en'], ENGINE_SPECS)
+    jest.spyOn(engine, 'train').mockImplementation(() => {
+      throw new Error('Unexpected weird looking error with no stack trace')
     })
 
     const socket = jest.fn()
@@ -469,9 +470,9 @@ describe('NLU API', () => {
     const nluSeed = 42
 
     const cancelMessage = 'CANCEL'
-
-    const engine = new FakeEngine(['en'], ENGINE_SPECS, {
-      trainingThrows: new Error(cancelMessage)
+    const engine = new FakeEngine(['en'], ENGINE_SPECS)
+    jest.spyOn(engine, 'train').mockImplementation(() => {
+      throw new Error(cancelMessage)
     })
 
     const socket = jest.fn()

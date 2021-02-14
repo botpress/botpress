@@ -1,5 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
+import './sdk.u.test'
+
 export class StubLogger implements sdk.Logger {
   forBot(botId: string): this {
     return this

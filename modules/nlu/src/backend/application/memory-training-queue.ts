@@ -69,19 +69,15 @@ class TrainingContainer {
 export class InMemoryTrainingQueue implements TrainingQueue {
   private _trainings = new TrainingContainer()
   private _options: TrainingQueueOptions
-  private _listeners: TrainSessionListener[] = []
 
   constructor(
     private _errors: typeof NLU.errors,
     private _logger: sdk.Logger,
     private _trainerService: TrainerService,
+    private _onChange: TrainSessionListener,
     options: Partial<TrainingQueueOptions> = {}
   ) {
     this._options = { ...DEFAULT_OPTIONS, ...options }
-  }
-
-  public listenForChange(listener: TrainSessionListener) {
-    this._listeners.push(listener)
   }
 
   async initialize() {}
@@ -112,7 +108,6 @@ export class InMemoryTrainingQueue implements TrainingQueue {
   }
 
   cancelTraining = async (trainId: TrainingId): Promise<void> => {
-    await this._notify(trainId, { status: 'canceled', progress: 0 })
     const { botId, language } = trainId
 
     const currentTraining = this._trainings.get(trainId)
@@ -125,6 +120,7 @@ export class InMemoryTrainingQueue implements TrainingQueue {
     }
 
     if (currentTraining.status === 'training') {
+      await this._notify(trainId, { status: 'canceled', progress: 0 })
       const trainer = this._trainerService.getBot(botId)
       if (trainer) {
         await trainer.cancelTraining(language)
@@ -163,9 +159,7 @@ export class InMemoryTrainingQueue implements TrainingQueue {
   private _notify = async (id: TrainingId, status: TrainStatus) => {
     const { botId } = id
     const ts = this._toTrainSession(id, status)
-    for (const l of this._listeners) {
-      await l(botId, ts)
-    }
+    return this._onChange(botId, ts)
   }
 
   private _toTrainSession = (id: TrainingId, training: TrainStatus): NLU.TrainingSession => {

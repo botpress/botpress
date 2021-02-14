@@ -1,5 +1,7 @@
 import { NLU } from 'botpress/sdk'
 
+import './sdk.u.test'
+
 export const areEqual = (id1: NLU.ModelId, id2: NLU.ModelId): boolean => {
   return (
     id1.contentHash === id2.contentHash &&

@@ -2,10 +2,12 @@ import { NLU } from 'botpress/sdk'
 import crypto from 'crypto'
 import _ from 'lodash'
 
+import './sdk.u.test'
+
 // Copied from actual core modelIdService
 // Once nlu is in core, use the actual modelIdService, not a fake or mock (This class is easely testable)
 
-export const HALF_MD5_REG = /^[a-fA-F0-9]{16}$/
+const HALF_MD5_REG = /^[a-fA-F0-9]{16}$/
 
 const halfmd5 = (text: string) => {
   return crypto

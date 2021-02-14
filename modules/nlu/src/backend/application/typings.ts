@@ -45,7 +45,6 @@ export interface TrainingQueue {
   initialize(): Promise<void>
   teardown(): Promise<void>
 
-  listenForChange(listener: TrainSessionListener): void
   needsTraining(trainId: TrainingId): Promise<void>
   queueTraining(trainId: TrainingId): Promise<void>
   cancelTraining(trainId: TrainingId): Promise<void>

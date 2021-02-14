@@ -1,6 +1,8 @@
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
+import './sdk.u.test'
+
 export interface Definitions {
   intentDefs: NLU.IntentDefinition[]
   entityDefs: NLU.EntityDefinition[]
