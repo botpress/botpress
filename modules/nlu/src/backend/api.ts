@@ -80,7 +80,7 @@ export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
       const disableTraining = yn(process.env.BP_NLU_DISABLE_TRAINING)
 
       // to return as fast as possible
-      // tslint:disable-next-line: no-floating-promises
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       if (!disableTraining) {
         await app.queueTraining(botId, lang)
       }

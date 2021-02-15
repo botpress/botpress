@@ -5,8 +5,8 @@ import { Dropdown } from 'react-bootstrap'
 
 import withLanguage from '../../Util/withLanguage'
 
-import style from './style.scss'
 import ActionItem from './ActionItem'
+import style from './style.scss'
 
 const requireFlag = code => {
   try {

@@ -7,8 +7,8 @@ import { ListGroupItem } from 'react-bootstrap'
 import Widget from '../../Content/Select'
 import ContentPickerWidget from '../../Content/Select/Widget'
 
-import style from './style.scss'
 import { InputElement } from './InputElement'
+import style from './style.scss'
 
 interface Props {
   onUpdate: (id: string, index: number) => void

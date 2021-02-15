@@ -11,8 +11,8 @@ import { getAllFlows, getCurrentFlow, getDirtyFlows, getFlowNamesList } from '~/
 
 import Inspector from '../inspector'
 
-import FlowsList from './FlowsList'
 import FlowNameModal from './FlowNameModal'
+import FlowsList from './FlowsList'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
 

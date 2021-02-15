@@ -1,7 +1,6 @@
 import { Button, Checkbox, Popover } from '@blueprintjs/core'
 import { DateRange, DateRangePicker } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
-import { BotConfig } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
 import { Dropdown, lang, Option } from 'botpress/shared'
 import { UserProfile } from 'common/typings'
@@ -11,8 +10,8 @@ import queryString from 'query-string'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import ReactTable, { Column } from 'react-table'
-import { toastSuccess } from '~/utils/toaster'
 import PageContainer from '~/App/PageContainer'
+import { toastSuccess } from '~/utils/toaster'
 
 import api from '../../api'
 import { fetchBots } from '../../reducers/bots'
@@ -20,7 +19,7 @@ import { fetchBots } from '../../reducers/bots'
 import { filterText, getDateShortcuts, getRangeLabel, lowercaseFilter } from './utils'
 
 interface Props {
-  bots: BotConfig[]
+  bots: sdk.BotConfig[]
   fetchBots: () => void
   profile: UserProfile
   currentWorkspace: any
@@ -59,7 +58,7 @@ const Logs: FC<Props> = props => {
       setDateRange(getDateShortcuts()[1].dateRange)
     }
 
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     fetchLogs()
   }, [dateRange, onlyWorkspace, props.currentWorkspace])
 

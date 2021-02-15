@@ -30,9 +30,9 @@ export default class WebchatDb {
   }
 
   flush() {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.flushMessages()
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.flushConvoUpdates()
   }
 
@@ -148,7 +148,7 @@ export default class WebchatDb {
       .then(() => {
         // Index creation with where condition is unsupported by knex
         return this.knex.raw(
-          `CREATE INDEX IF NOT EXISTS wmcms_idx ON web_messages ("conversationId", message_type, sent_on DESC) WHERE message_type != 'visit';`
+          'CREATE INDEX IF NOT EXISTS wmcms_idx ON web_messages ("conversationId", message_type, sent_on DESC) WHERE message_type != \'visit\';'
         )
       })
   }

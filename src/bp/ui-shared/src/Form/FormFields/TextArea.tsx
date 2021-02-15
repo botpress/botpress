@@ -3,8 +3,8 @@ import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
 import sharedStyle from '../../../../ui-shared-lite/style.scss'
-import { lang } from '../../translations'
 import Textarea from '../../Textarea'
+import { lang } from '../../translations'
 
 import { FieldProps } from './typings'
 

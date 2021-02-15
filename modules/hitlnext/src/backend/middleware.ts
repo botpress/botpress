@@ -6,9 +6,9 @@ import ms from 'ms'
 import { Config } from '../config'
 import { MODULE_NAME } from '../constants'
 
+import { StateType } from './index'
 import { IAgent, IHandoff } from './../types'
 import { extendAgentSession, measure } from './helpers'
-import { StateType } from './index'
 import Repository from './repository'
 import Socket from './socket'
 

@@ -8,8 +8,8 @@ import React from 'react'
 
 import { NLUApi } from '../../../../api'
 
-import { SlotOperation } from './typings'
 import { EntitySelector } from './EntitySelector'
+import { SlotOperation } from './typings'
 
 const N_COLORS = 12
 const INITIAL_STATE: State = {

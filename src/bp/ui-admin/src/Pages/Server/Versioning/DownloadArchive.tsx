@@ -2,8 +2,8 @@ import { Button } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { useState } from 'react'
-import { toastInfo } from '~/utils/toaster'
 import { Downloader } from '~/Pages/Components/Downloader'
+import { toastInfo } from '~/utils/toaster'
 
 const DownloadArchive = () => {
   const [downloadUrl, setDownloadUrl] = useState('')
