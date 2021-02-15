@@ -168,7 +168,7 @@ export class MessagingAPI {
     const event = new IOEvent(<sdk.IO.EventCtorArgs>ctorArgs)
     await this.eventEngine.sendEvent(event)
 
-    if (args?.persist) {
+    if (args?.persist === undefined || args.persist) {
       const message = await this.messageRepo.create(
         conversationId,
         event.id,
