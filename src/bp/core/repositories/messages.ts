@@ -1,11 +1,11 @@
 import * as sdk from 'botpress/sdk'
+import { JobService } from 'core/services/job-service'
 import { inject, injectable, postConstruct } from 'inversify'
 
-import Database from '../database'
-import { TYPES } from '../types'
 import LRU from 'lru-cache'
 import ms from 'ms'
-import { JobService } from 'core/services/job-service'
+import Database from '../database'
+import { TYPES } from '../types'
 
 export interface MessageRepository {
   getAll(conversationId: number, limit?: number): Promise<sdk.Message[]>

@@ -1,15 +1,15 @@
-import { inject, injectable, postConstruct } from 'inversify'
 import * as sdk from 'botpress/sdk'
-import { TYPES } from '../../types'
-import { MessageRepository } from 'core/repositories/messages'
 import { ConversationRepository } from 'core/repositories/conversations'
+import { MessageRepository } from 'core/repositories/messages'
 import { IOEvent } from 'core/sdk/impl'
-import { EventEngine } from '../middleware/event-engine'
-import { KeyValueStore } from '../kvs'
-import LRU from 'lru-cache'
-import { JobService } from '../job-service'
-import ms from 'ms'
+import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
+import LRU from 'lru-cache'
+import ms from 'ms'
+import { TYPES } from '../../types'
+import { JobService } from '../job-service'
+import { KeyValueStore } from '../kvs'
+import { EventEngine } from '../middleware/event-engine'
 
 @injectable()
 export class MessagingAPI {
@@ -168,7 +168,7 @@ export class MessagingAPI {
     const event = new IOEvent(<sdk.IO.EventCtorArgs>ctorArgs)
     await this.eventEngine.sendEvent(event)
 
-    if (args?.persist) {
+    if (args?.persist === undefined || args.persist) {
       const message = await this.messageRepo.create(
         conversationId,
         event.id,
@@ -225,7 +225,7 @@ export class MessagingAPI {
     if (endpoint) {
       const cache = this.lastChannelCacheForBot(endpoint.botId)
       const cachedLastChannel = cache.peek(endpoint.userId)
-      if (cachedLastChannel != lastChannel) {
+      if (cachedLastChannel !== lastChannel) {
         cache.del(endpoint.userId)
       }
     }
@@ -255,7 +255,7 @@ export class MessagingAPI {
     if (endpoint) {
       const cache = this.recentConvoCacheForBot(endpoint.botId)
       const cachedMostRecent = cache.peek(endpoint.userId)
-      if (cachedMostRecent?.id != mostRecentConvoId) {
+      if (cachedMostRecent?.id !== mostRecentConvoId) {
         cache.del(endpoint.userId)
       }
     }

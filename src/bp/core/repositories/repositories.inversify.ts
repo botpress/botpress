@@ -13,13 +13,13 @@ import {
   UserRepository,
   WorkspaceInviteCodesRepository
 } from '.'
+import { ConversationRepository, KnexConversationRepository } from './conversations'
 import { KnexLogsRepository, LogsRepository } from './logs'
+import { KnexMessageRepository, MessageRepository } from './messages'
 import { StrategyUsersRepository } from './strategy_users'
 import { TasksRepository } from './tasks'
 import { TelemetryRepository } from './telemetry'
 import { WorkspaceUsersRepository } from './workspace_users'
-import { KnexMessageRepository, MessageRepository } from './messages'
-import { ConversationRepository, KnexConversationRepository } from './conversations'
 
 const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<SessionRepository>(TYPES.SessionRepository)

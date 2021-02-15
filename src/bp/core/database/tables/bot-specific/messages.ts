@@ -16,7 +16,7 @@ export class MessagesTable extends Table {
         .notNullable()
         .onDelete('cascade')
       table.string('eventId')
-      /* 
+      /*
         this whole thing can't work because the event is inserted after so the foreign key constraint fails
         .references('id')
         .inTable('events')
