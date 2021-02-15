@@ -1,18 +1,20 @@
-import { Bot } from './scoped/bot'
-import { TrainerService } from './typings'
+import { IBot } from './scoped/bot'
+import { TrainerService, I } from './typings'
+
+export type IBotService = I<BotService>
 
 export class BotService implements TrainerService {
-  private _bots: { [botId: string]: Bot } = {}
+  private _bots: { [botId: string]: IBot } = {}
 
   getIds() {
     return Object.keys(this._bots)
   }
 
-  setBot(botId: string, bot: Bot) {
+  setBot(botId: string, bot: IBot) {
     this._bots[botId] = bot
   }
 
-  getBot(botId: string): Bot | undefined {
+  getBot(botId: string): IBot | undefined {
     return this._bots[botId]
   }
 

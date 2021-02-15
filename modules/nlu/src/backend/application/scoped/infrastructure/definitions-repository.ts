@@ -1,16 +1,24 @@
 import * as sdk from 'botpress/sdk'
 
 import { createApi } from '../../../../api'
-import { TrainDefinitions, DefinitionRepository, FileListener } from '../typings'
+import { I } from '../../typings'
 
 interface BotDefinition {
   botId: string
 }
 
+export type FileListener = (fileName: string) => Promise<void>
+export type IDefinitionsRepository = I<ScopedDefinitionsRepository>
+
+export interface TrainDefinitions {
+  intentDefs: sdk.NLU.IntentDefinition[]
+  entityDefs: sdk.NLU.EntityDefinition[]
+}
+
 /**
  * TODO: keep a cache of definitions files in memory and invalidate cache onFileChange
  */
-export class ScopedDefinitionsRepository implements DefinitionRepository {
+export class ScopedDefinitionsRepository {
   private _botId: string
 
   constructor(bot: BotDefinition, private _bp: typeof sdk) {

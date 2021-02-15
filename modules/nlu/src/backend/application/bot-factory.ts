@@ -3,23 +3,26 @@ import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import pickSeed from './pick-seed'
-import { Bot } from './scoped/bot'
-import { ScopedDefinitionsService } from './scoped/definitions-service'
-import { BotDefinition, BotConfig } from './typings'
-import { ModelRepository, DefinitionRepository } from './scoped/typings'
+import { Bot, IBot } from './scoped/bot'
+import { ScopedDefinitionsService, IDefinitionsService } from './scoped/definitions-service'
+import { BotDefinition, BotConfig, I } from './typings'
+import { IModelRepository } from './scoped/infrastructure/model-repository'
+import { IDefinitionsRepository } from './scoped/infrastructure/definitions-repository'
 
-interface ScopedServices {
-  bot: Bot
-  defService: ScopedDefinitionsService
-  modelRepo: ModelRepository
+export interface ScopedServices {
+  bot: IBot
+  defService: IDefinitionsService
+  modelRepo: IModelRepository
 }
 
-export type DefinitionRepositoryFactory = (botDef: BotDefinition) => DefinitionRepository
-export type ModelRepositoryFactory = (botDef: BotDefinition) => ModelRepository
+export type DefinitionRepositoryFactory = (botDef: BotDefinition) => IDefinitionsRepository
+export type ModelRepositoryFactory = (botDef: BotDefinition) => IModelRepository
 
 export interface ConfigResolver {
   getBotById(botId: string): Promise<BotConfig | undefined>
 }
+
+export type IBotFactory = I<BotFactory>
 
 export class BotFactory {
   constructor(

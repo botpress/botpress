@@ -1,5 +1,9 @@
 import { IO, NLU } from 'botpress/sdk'
 
+export type I<C> = {
+  [k in keyof C]: C[k]
+}
+
 export interface BotConfig {
   id: string
   defaultLanguage: string

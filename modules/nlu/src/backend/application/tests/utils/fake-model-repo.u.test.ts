@@ -1,7 +1,7 @@
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
-import { ListingOptions, ModelRepository, PruningOptions } from '../../scoped/typings'
+import { IModelRepository, ListingOptions, PruningOptions } from '../../scoped/infrastructure/model-repository'
 
 import './sdk.u.test'
 import { areEqual } from './utils.u.test'
@@ -18,7 +18,7 @@ const DEFAULT_LISTING_OPTIONS: ListingOptions = {
   negateFilter: false
 }
 
-export class FakeModelRepo implements ModelRepository {
+export class FakeModelRepo implements IModelRepository {
   private _models: NLU.Model[]
 
   constructor(modelsOnFs: NLU.Model[] = []) {

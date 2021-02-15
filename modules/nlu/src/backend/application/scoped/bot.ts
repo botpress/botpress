@@ -3,17 +3,19 @@ import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import { BotDoesntSpeakLanguageError } from '../errors'
-import { Predictor, ProgressCallback, Trainer } from '../typings'
+import { Predictor, ProgressCallback, Trainer, I } from '../typings'
 
-import { ScopedDefinitionsService } from './definitions-service'
+import { IDefinitionsService } from './definitions-service'
 import { ScopedPredictionHandler } from './prediction-handler'
-import { ModelRepository } from './typings'
+import { IModelRepository } from './infrastructure/model-repository'
 
 interface BotDefinition {
   botId: string
   defaultLanguage: string
   languages: string[]
 }
+
+export type IBot = I<Bot>
 
 export class Bot implements Trainer, Predictor {
   private _botId: string
@@ -26,8 +28,8 @@ export class Bot implements Trainer, Predictor {
   constructor(
     bot: BotDefinition,
     private _engine: NLU.Engine,
-    private _modelRepo: ModelRepository,
-    private _defService: ScopedDefinitionsService,
+    private _modelRepo: IModelRepository,
+    private _defService: IDefinitionsService,
     private _modelIdService: typeof sdk.NLU.modelIdService,
     private _logger: sdk.Logger
   ) {

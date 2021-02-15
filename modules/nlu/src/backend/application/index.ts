@@ -1,17 +1,17 @@
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
-import { BotFactory } from './bot-factory'
+import { IBotFactory } from './bot-factory'
 import { BotNotMountedError } from './errors'
 import { Predictor, TrainingQueue, BotConfig } from './typings'
-import { BotService } from './bot-service'
+import { IBotService } from './bot-service'
 
 export class NLUApplication {
   constructor(
     private _trainingQueue: TrainingQueue,
     private _engine: NLU.Engine,
-    private _botFactory: BotFactory,
-    private _botService: BotService
+    private _botFactory: IBotFactory,
+    private _botService: IBotService
   ) {}
 
   public async initialize() {

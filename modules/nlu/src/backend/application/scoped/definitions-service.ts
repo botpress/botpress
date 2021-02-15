@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import { NLU } from 'botpress/sdk'
-
-import { DefinitionRepository } from './typings'
+import { I } from '../typings'
+import { IDefinitionsRepository } from './infrastructure/definitions-repository'
 
 type DirtyModelCallback = (language: string) => Promise<void>
 
@@ -9,6 +9,8 @@ interface BotDefinition {
   languages: string[]
   seed: number
 }
+
+export type IDefinitionsService = I<ScopedDefinitionsService>
 
 export class ScopedDefinitionsService {
   private _languages: string[]
@@ -21,7 +23,7 @@ export class ScopedDefinitionsService {
   constructor(
     bot: BotDefinition,
     private _engine: NLU.Engine,
-    private _definitionRepository: DefinitionRepository,
+    private _definitionRepository: IDefinitionsRepository,
     private _modelIdService: typeof sdk.NLU.modelIdService
   ) {
     this._languages = bot.languages

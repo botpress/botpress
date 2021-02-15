@@ -5,7 +5,7 @@ import { NLUApplication } from '../../'
 import { BotFactory, DefinitionRepositoryFactory, ModelRepositoryFactory } from '../../bot-factory'
 import { BotService } from '../../bot-service'
 import { InMemoryTrainingQueue, TrainingQueueOptions } from '../../memory-training-queue'
-import { TrainDefinitions } from '../../scoped/typings'
+import { TrainDefinitions } from '../../scoped/infrastructure/definitions-repository'
 
 import { FakeDefinitionRepo } from './fake-def-repo.u.test'
 import { FakeEngine, FakeEngineOptions } from './fake-engine.u.test'

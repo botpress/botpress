@@ -1,10 +1,12 @@
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
+import { IModelRepository } from '../scoped/infrastructure/model-repository'
 import { ScopedPredictionHandler } from '../scoped/prediction-handler'
-import { ModelRepository } from '../scoped/typings'
 import '../tests/utils/sdk.u.test'
 import { StubLogger } from '../tests/utils/stub-logger.u.test'
+
+import { mock } from './utils/mock-extra.u.test'
 
 // TODO: use the new testing infrastructure
 
@@ -72,8 +74,8 @@ function makeEngineMock(loadedLanguages: string[]): NLU.Engine {
   }) as NLU.Engine
 }
 
-function makeModelRepoMock(langsOnFs: string[]): ModelRepository {
-  const getModel = async (modelId: { languageCode: string }) => {
+function makeModelRepoMock(langsOnFs: string[]): IModelRepository {
+  const getModel = async (modelId: Partial<NLU.ModelId>) => {
     const { languageCode } = modelId
     if (langsOnFs.includes(languageCode)) {
       return <NLU.Model>{
@@ -91,10 +93,10 @@ function makeModelRepoMock(langsOnFs: string[]): ModelRepository {
       }
     }
   }
-  return (<Partial<ModelRepository>>{
-    getLatestModel: jest.fn(getModel),
-    getModel: jest.fn(getModel)
-  }) as ModelRepository
+  return mock<IModelRepository>({
+    getModel: jest.fn((m: NLU.ModelId) => getModel(m)),
+    getLatestModel: jest.fn(getModel)
+  })
 }
 
 const modelIdService = (<Partial<typeof NLU.modelIdService>>{

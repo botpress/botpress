@@ -5,10 +5,19 @@ import path from 'path'
 import { Stream } from 'stream'
 import tar from 'tar'
 import tmp from 'tmp'
-import { ListingOptions, PruningOptions, ModelRepository } from '../typings'
+
+import { I } from '../../typings'
 
 export const MODELS_DIR = './models'
 export const MODEL_EXTENSION = 'model'
+
+export interface PruningOptions {
+  toKeep: number
+}
+
+export interface ListingOptions {
+  negateFilter: boolean
+}
 
 const debug = DEBUG('nlu').sub('lifecycle')
 
@@ -24,7 +33,9 @@ interface BotDefinition {
   botId: string
 }
 
-export class ScopedModelRepository implements ModelRepository {
+export type IModelRepository = I<ScopedModelRepository>
+
+export class ScopedModelRepository {
   private _botId: string
 
   constructor(
