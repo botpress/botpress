@@ -32,6 +32,11 @@ const makeBaseDefinitions = (langs: string[]) => ({
   entityDefs: [fruitEntity]
 })
 
+/**
+ * TODO:
+ * - When unmounting a bot, all its trainings get canceled
+ */
+
 describe('NLU API integration tests', () => {
   let app: NLUApplication
 

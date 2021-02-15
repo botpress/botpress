@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import { NLU } from 'botpress/sdk'
 
 import { TrainingId, TrainingQueue, TrainerService, TrainSessionListener } from './typings'
 
@@ -8,7 +7,7 @@ export interface TrainingQueueOptions {
 }
 
 interface TrainStatus {
-  status: NLU.TrainingStatus
+  status: sdk.NLU.TrainingStatus
   progress: number
 }
 
@@ -50,7 +49,7 @@ class TrainingContainer {
     }
   }
 
-  public query(query: { status: NLU.TrainingStatus }): TrainingId[] {
+  public query(query: { status: sdk.NLU.TrainingStatus }): TrainingId[] {
     const keep = ([key, t]: [string, TrainStatus]) => t.status === query.status
     const keys = Object.entries(this._trainings)
       .filter(keep)
@@ -71,7 +70,7 @@ export class InMemoryTrainingQueue implements TrainingQueue {
   private _options: TrainingQueueOptions
 
   constructor(
-    private _errors: typeof NLU.errors,
+    private _errors: typeof sdk.NLU.errors,
     private _logger: sdk.Logger,
     private _trainerService: TrainerService,
     private _onChange: TrainSessionListener,
@@ -135,12 +134,20 @@ export class InMemoryTrainingQueue implements TrainingQueue {
     this._logger.warn(`No training canceled as ${botId} is not currently training language ${language}.`)
   }
 
-  async getTraining(trainId: TrainingId): Promise<NLU.TrainingSession> {
+  async getTraining(trainId: TrainingId): Promise<sdk.NLU.TrainingSession> {
     const status = this._trainings.get(trainId) ?? DEFAULT_STATUS
     return this._toTrainSession(trainId, status)
   }
 
-  async getAllTrainings(): Promise<NLU.TrainingSession[]> {
+  async cancelTrainings(botId: string): Promise<void[]> {
+    const currentTrainings = this._trainings
+      .getAll()
+      .map(({ trainId }) => trainId)
+      .filter(t => t.botId === botId)
+    return Promise.mapSeries(currentTrainings, t => this.cancelTraining(t))
+  }
+
+  async getAllTrainings(): Promise<sdk.NLU.TrainingSession[]> {
     return this._trainings.getAll().map(({ trainId, status }) => this._toTrainSession(trainId, status))
   }
 
@@ -162,7 +169,7 @@ export class InMemoryTrainingQueue implements TrainingQueue {
     return this._onChange(botId, ts)
   }
 
-  private _toTrainSession = (id: TrainingId, training: TrainStatus): NLU.TrainingSession => {
+  private _toTrainSession = (id: TrainingId, training: TrainStatus): sdk.NLU.TrainingSession => {
     const key = _toKey(id)
     const { language } = id
     const { progress, status } = training
@@ -183,6 +190,7 @@ export class InMemoryTrainingQueue implements TrainingQueue {
     this._trainings.set(next, { status: 'training', progress: 0 }) // wait for the first progress update to notify socket
 
     // floating promise to return fast from task
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this._train(next)
   }
 
@@ -227,7 +235,7 @@ export class InMemoryTrainingQueue implements TrainingQueue {
       .attachError(err)
       .error('Training could not finish because of an unexpected error.')
 
-    this._notify(trainId, { status: 'errored', progress: 0 })
+    await this._notify(trainId, { status: 'errored', progress: 0 })
     this._trainings.set(trainId, { status: 'needs-training', progress: 0 })
   }
 }

@@ -2,9 +2,9 @@ import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import { IBotFactory } from './bot-factory'
+import { IBotService } from './bot-service'
 import { BotNotMountedError } from './errors'
 import { Predictor, TrainingQueue, BotConfig } from './typings'
-import { IBotService } from './bot-service'
 
 export class NLUApplication {
   constructor(
@@ -83,6 +83,7 @@ export class NLUApplication {
       throw new BotNotMountedError(botId)
     }
     await bot.unmount()
+    await this._trainingQueue.cancelTrainings(botId)
     this._botService.removeBot(botId)
   }
 

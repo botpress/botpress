@@ -52,7 +52,9 @@ export interface TrainingQueue {
   needsTraining(trainId: TrainingId): Promise<void>
   queueTraining(trainId: TrainingId): Promise<void>
   cancelTraining(trainId: TrainingId): Promise<void>
+  cancelTrainings(botId: string): Promise<void[]>
 
+  // TODO: Training queue should not use NLU.TrainingSession, but instead use TrainId and StatusInfo
   getTraining(trainId: TrainingId): Promise<NLU.TrainingSession>
   getAllTrainings(): Promise<NLU.TrainingSession[]>
 }
