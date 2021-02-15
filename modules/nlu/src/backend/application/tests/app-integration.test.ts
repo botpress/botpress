@@ -276,8 +276,10 @@ describe('NLU API integration tests', () => {
     // arrange
     const lang = 'en'
 
+    const definitions = makeBaseDefinitions([lang])
+
     const modelId = modelIdService.makeId({
-      ...makeBaseDefinitions([lang]),
+      ...definitions,
       languageCode: lang,
       seed: nluSeed,
       specifications: specs
@@ -285,7 +287,7 @@ describe('NLU API integration tests', () => {
 
     const fileSystem = {
       [botId]: {
-        definitions: makeBaseDefinitions([lang]),
+        definitions,
         modelsOnFs: [modelId]
       }
     }
@@ -479,7 +481,7 @@ describe('NLU API integration tests', () => {
 
     const fileSystem = {
       [botId]: {
-        definitions: makeBaseDefinitions([lang]),
+        definitions,
         modelsOnFs: [modelId]
       }
     }
@@ -588,5 +590,51 @@ describe('NLU API integration tests', () => {
     // assert
     expect(cancelMock).toHaveBeenCalledTimes(1)
     expect(cancelMock).toHaveBeenCalledWith(expect.stringContaining('en'))
+  })
+
+  test('when training is queued, training occurs', async () => {
+    // arrange
+    const lang = 'en'
+
+    const definitions = makeBaseDefinitions([lang])
+
+    const modelId = modelIdService.makeId({
+      ...definitions,
+      languageCode: lang,
+      seed: nluSeed,
+      specifications: specs
+    })
+
+    const fileSystem = {
+      [botId]: {
+        definitions,
+        modelsOnFs: [modelId]
+      }
+    }
+
+    const core = { languages: [lang], specs }
+    const dependencies = makeDependencies(core, fileSystem)
+    const { engine, socket } = dependencies
+
+    await engine.loadModel(modelId as NLU.Model)
+    const engineTrainSpy = jest.spyOn(engine, 'train')
+
+    app = makeApp(dependencies)
+
+    // act
+    await app.initialize()
+    await app.mountBot({
+      id: botId,
+      defaultLanguage: lang,
+      languages: [lang],
+      nluSeed
+    })
+    await app.queueTraining(botId, lang) // called from HTTP API
+    await waitForTrainingsToBeDone(app)
+
+    // assert
+    expectTrainingToStartAndComplete(socket, { botId, language: lang })
+    expect(engineTrainSpy).toHaveBeenCalledTimes(1)
+    expectEngineToHaveTrained(engineTrainSpy, lang)
   })
 })
