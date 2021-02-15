@@ -15,7 +15,6 @@ export const BotCreationSchema = Joi.object().keys({
     .max(50)
     .allow('')
     .optional(),
-  // tslint:disable-next-line:no-null-keyword
   category: Joi.string().allow(null),
   description: Joi.string()
     .max(500)
@@ -34,7 +33,6 @@ export const BotEditSchema = Joi.object().keys({
   name: Joi.string()
     .allow('')
     .max(50),
-  // tslint:disable-next-line:no-null-keyword
   category: Joi.string().allow(null),
   description: Joi.string()
     .max(500)

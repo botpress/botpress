@@ -41,7 +41,7 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
   const regex = RegExp(`^data/bots/${botId}/(intents|entities)/`, 'i')
   const listen = bp.ghost.forBot(botId).onFileChanged(async file => {
     if (regex.test(file)) {
-      trainForBot()
+      await trainForBot()
     }
   })
 

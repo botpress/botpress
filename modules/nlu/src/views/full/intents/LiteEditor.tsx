@@ -39,7 +39,7 @@ export const LiteEditor: FC<Props> = props => {
   useEffect(() => {
     // Ensure the current topic is in the intent's contexts
     if (props.forceSave && dirtyIntents.length) {
-      // tslint:disable-next-line: no-floating-promises
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       api.syncIntentTopics()
     }
   }, [props.forceSave])
@@ -47,7 +47,7 @@ export const LiteEditor: FC<Props> = props => {
   const api = makeApi(props.bp)
 
   useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     loadIntents()
   }, [])
 

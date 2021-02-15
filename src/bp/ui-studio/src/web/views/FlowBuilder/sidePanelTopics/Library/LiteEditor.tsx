@@ -40,7 +40,7 @@ const ContentEdit: FC<Props> = props => {
   const { contentItem, itemId } = props
 
   useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     props.fetchContentItem(props.itemId)
   }, [props.itemId])
 

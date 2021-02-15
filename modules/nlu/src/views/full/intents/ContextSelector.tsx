@@ -17,7 +17,7 @@ export const ContextSelector: FC<Props> = props => {
   const [availableContexts, setContexts] = useState([])
 
   useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     props.api.fetchContexts().then(setContexts)
   }, [])
 
