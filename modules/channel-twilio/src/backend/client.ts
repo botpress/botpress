@@ -69,17 +69,13 @@ export class TwilioClient {
 
     await this.kvs.delete(this.getKvsKey(target, threadId))
 
-    await this.bp.events.sendEvent(
-      this.bp.IO.Event({
-        botId: this.botId,
-        channel: 'twilio',
-        direction: 'incoming',
-        type: payload.type,
-        payload,
-        threadId,
-        target
-      })
-    )
+    await this.kvs.set(`twilio_${target}`, threadId)
+
+    const conversation = await this.bp.messaging.getOrCreateRecentConversation({
+      botId: this.botId,
+      userId: target
+    })
+    await this.bp.messaging.sendIncoming(conversation.id, payload, { channel: 'twilio' })
   }
 
   async handleIndexReponse(index: number, target: string, threadId: string): Promise<any> {
@@ -103,7 +99,7 @@ export class TwilioClient {
     }
   }
 
-  async handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
+  async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     const payload = event.payload
 
     if (payload.quick_replies) {
@@ -120,6 +116,9 @@ export class TwilioClient {
     } else if (payload.type === 'carousel') {
       await this.sendCarousel(event, payload)
     }
+
+    await this.bp.messaging.createMessage(+event.threadId, event.id, event.incomingEventId, 'bot', payload)
+
     next(undefined, false)
   }
 
@@ -166,10 +165,12 @@ export class TwilioClient {
   }
 
   async sendMessage(event: sdk.IO.Event, args: any) {
+    const from = await this.kvs.get(`twilio_${event.target}`)
+
     const message: MessageInstance = {
       ...args,
       provideFeedback: false,
-      from: event.threadId,
+      from,
       to: event.target
     }
 
