@@ -1,9 +1,12 @@
+import _ from 'lodash'
 import { TreeSearch } from './utils'
 
 const PATH_SEPARATOR = '/'
-const KEY_SEPARATOR = '-'
+const KEY_SEPARATOR = ' '
+const EMPTY_KEY = ''
 const KEYS = ['a key', 'a second one', 'and a third one']
 const PATHS = ['abc', 'abc/def', 'xyz', 'abc/def/ghi', 'abc/def/abc/def']
+const OBJECT_VALUE = { key: 'value', nested: { key: '1', value: 1 } }
 const RANDOM = () => Math.random().toString(36)
 
 let randomKey = RANDOM()
@@ -16,20 +19,20 @@ describe('TreeSearch', () => {
   })
 
   describe('Insert', () => {
-    it('Inserts properly the value into the tree structure so it can be accessed quickly', () => {
-      const tree = new TreeSearch(KEY_SEPARATOR)
+    it('Inserts the value into the tree structure so it can be accessed by key', () => {
+      const tree = new TreeSearch()
 
       tree.insert(randomKey, randomValue)
 
       const children = tree['root'].children
 
-      expect(tree.count).toBe(1)
-      expect(children.size).toBe(1)
-      expect(children.get(randomKey)!.value).toBe(randomValue)
+      expect(tree.count).toEqual(1)
+      expect(children.size).toEqual(tree.count)
+      expect(children.get(randomKey)!.value).toEqual(randomValue)
     })
 
     it('Inserts all the keys into the tree structure', () => {
-      const tree = new TreeSearch(KEY_SEPARATOR)
+      const tree = new TreeSearch()
 
       for (const key of KEYS) {
         tree.insert(key, key)
@@ -37,117 +40,249 @@ describe('TreeSearch', () => {
 
       const children = tree['root'].children
 
-      expect(children.size).toBe(KEYS.length)
-      expect(tree.count).toBe(KEYS.length)
+      expect(children.size).toEqual(KEYS.length)
+      expect(tree.count).toEqual(KEYS.length)
       for (const key of KEYS) {
-        expect(children.get(key)!.value).toBe(key)
+        expect(children.get(key)!.value).toEqual(key)
       }
     })
 
     it('Inserts all the paths into the tree structure', () => {
       const tree = new TreeSearch(PATH_SEPARATOR)
 
-      for (const path of PATHS) {
+      for (const [i, path] of PATHS.entries()) {
         tree.insert(path, path)
       }
 
-      expect(tree.count).toBe(PATHS.length)
+      expect(tree.count).toEqual(PATHS.length)
       for (const path of PATHS) {
-        expect(tree.get(path)!).toBe(path)
+        expect(tree.get(path)!).toEqual(path)
       }
     })
 
-    it('Overrides the value if override is set to true', () => {
-      const tree = new TreeSearch(PATH_SEPARATOR)
+    it('Overrides the inserted value if override is set to true', () => {
+      const tree = new TreeSearch()
       const otherRandomValue = RANDOM()
 
       tree.insert(randomKey, randomValue)
       tree.insert(randomKey, otherRandomValue, true)
 
-      expect(tree.get(randomKey)!).toBe(otherRandomValue)
-      expect(tree.count).toBe(1)
+      expect(tree.get(randomKey)!).toEqual(otherRandomValue)
+      expect(tree.count).toEqual(1)
     })
 
     it('Does not override the value if override is set to false', () => {
-      const tree = new TreeSearch(PATH_SEPARATOR)
+      const tree = new TreeSearch()
       const otherRandomValue = RANDOM()
 
       tree.insert(randomKey, randomValue)
       tree.insert(randomKey, otherRandomValue, false)
 
-      expect(tree.get(randomKey)!).toBe(randomValue)
-      expect(tree.count).toBe(1)
+      expect(tree.get(randomKey)!).toEqual(randomValue)
+      expect(tree.count).toEqual(1)
     })
 
     it('Does not insert duplicate keys', () => {
-      const tree = new TreeSearch(PATH_SEPARATOR)
+      const tree = new TreeSearch()
 
       for (let i = 0; i < 10; i++) {
         tree.insert(randomKey, randomValue)
       }
 
-      expect(tree.count).toBe(1)
+      expect(tree.count).toEqual(1)
     })
 
     it('Does nothing if the key is empty', () => {
-      const tree = new TreeSearch(PATH_SEPARATOR)
+      const tree = new TreeSearch()
 
-      tree.insert('', randomValue)
+      tree.insert(EMPTY_KEY, randomValue)
 
-      expect(tree.count).toBe(0)
+      expect(tree.count).toEqual(0)
+    })
+
+    it('Inserts values only into the first level when no separator is provided', () => {
+      const tree = new TreeSearch()
+
+      for (const path of PATHS) {
+        tree.insert(path, path)
+      }
+
+      const children = tree['root'].children
+
+      expect(children.size).toEqual(PATHS.length)
+      expect(tree.count).toEqual(PATHS.length)
     })
   })
 
   describe('Get', () => {
-    it('Returns the proper value from the tree structure', () => {
-      const tree = new TreeSearch(KEY_SEPARATOR)
+    it('Returns undefined if the tree is empty', () => {
+      const tree = new TreeSearch()
+
+      const children = tree['root'].children
+
+      expect(tree.count).toEqual(0)
+      expect(children.size).toEqual(0)
+      expect(tree.get(randomKey)!).toBeUndefined()
+    })
+
+    it('Returns the proper value from the tree structure (single item)', () => {
+      const tree = new TreeSearch()
 
       tree.insert(randomKey, randomValue)
 
-      expect(tree.get(randomKey)!).toBe(randomValue)
+      const children = tree['root'].children
+
+      expect(children.get(randomKey)!.value).toEqual(randomValue)
+      expect(tree.get(randomKey)!).toEqual(randomValue)
     })
 
-    it('Returns undefined where the is not result for the search', () => {
+    it('Returns undefined when there is no result for the search', () => {
       const tree = new TreeSearch(KEY_SEPARATOR)
 
       for (const key of KEYS) {
         tree.insert(key, key)
       }
 
-      expect(tree.count).toBe(KEYS.length)
-      expect(tree.get(randomKey)!).toBeUndefined
+      expect(tree.count).toEqual(KEYS.length)
+      expect(tree.get(randomKey)!).toBeUndefined()
     })
 
     it('Returns undefined if the key is empty', () => {
-      const tree = new TreeSearch(PATH_SEPARATOR)
+      const tree = new TreeSearch()
 
       tree.insert(randomKey, randomValue)
 
-      expect(tree.count).toBe(1)
-      expect(tree.get('')!).toBeUndefined()
+      expect(tree.count).toEqual(1)
+      expect(tree.get(EMPTY_KEY)!).toBeUndefined()
+      expect(tree.get(null as any)!).toBeUndefined()
+      expect(tree.get(undefined as any)!).toBeUndefined()
+    })
+
+    it('Returns all the proper values from the tree (one level deep)', () => {
+      const tree = new TreeSearch()
+
+      for (const key of KEYS) {
+        tree.insert(key, key)
+      }
+
+      const children = tree['root'].children
+
+      // makes sure all items are at the same level
+      expect(children.size).toEqual(KEYS.length)
+      expect(tree.count).toEqual(KEYS.length)
+      expect(tree.get(randomKey)!).toBeUndefined()
+      for (const key of KEYS) {
+        expect(tree.get(key)).toEqual(key)
+      }
+    })
+
+    it('Returns all the proper values from the tree (few levels deep)', () => {
+      const tree = new TreeSearch(PATH_SEPARATOR)
+
+      for (const path of PATHS) {
+        tree.insert(path, path)
+      }
+
+      const children = tree['root'].children
+
+      // makes sure there is items on different levels
+      expect(children.size).not.toEqual(PATHS.length)
+      expect(tree.count).toEqual(PATHS.length)
+      expect(tree.get(randomKey)!).toBeUndefined()
+      for (const path of PATHS) {
+        expect(tree.get(path)).toEqual(path)
+      }
+    })
+
+    it('Returns the proper object value from the tree (one level deep)', () => {
+      const tree = new TreeSearch<typeof OBJECT_VALUE>()
+
+      tree.insert(randomKey, OBJECT_VALUE)
+
+      const children = tree['root'].children
+
+      expect(children.get(randomKey)!.value).toEqual(OBJECT_VALUE)
+      expect(tree.get(randomKey)!).toEqual(OBJECT_VALUE)
+    })
+
+    it('Returns the proper object values from the tree (few levels deep)', () => {
+      const tree = new TreeSearch<typeof OBJECT_VALUE>(PATH_SEPARATOR)
+      const objectValues: Array<typeof OBJECT_VALUE> = []
+
+      for (const [i, path] of PATHS.entries()) {
+        const obj = _.cloneDeep(OBJECT_VALUE)
+        obj.nested.key = path
+
+        tree.insert(path, objectValues[i])
+
+        expect(tree.get(path)).toEqual(objectValues[i])
+      }
+    })
+  })
+
+  describe('Remove', () => {
+    it('Removes all the inserted values from the tree', () => {
+      const tree = new TreeSearch(PATH_SEPARATOR)
+
+      for (const path of PATHS) {
+        tree.insert(path, path)
+      }
+      expect(tree.count).toEqual(PATHS.length)
+
+      for (const [i, path] of PATHS.entries()) {
+        expect(tree.get(path)).toEqual(path)
+        tree.remove(path)
+        expect(tree.get(path)).toBeUndefined()
+      }
+      expect(tree.count).toEqual(0)
+    })
+
+    it('Does not remove the value if the key is not present in the tree', () => {
+      const tree = new TreeSearch()
+
+      tree.insert(randomKey, randomValue)
+
+      tree.remove(PATHS[0])
+      expect(tree.get(randomKey)).toEqual(randomValue)
+    })
+
+    it('Does nothing if the key is empty', () => {
+      const tree = new TreeSearch()
+
+      tree.insert(randomKey, randomValue)
+
+      tree.remove(EMPTY_KEY)
+      expect(tree.get(randomKey)).toEqual(randomValue)
+    })
+
+    it('Does nothing if the tree is empty', () => {
+      const tree = new TreeSearch()
+
+      expect(tree.count).toEqual(0)
+      tree.remove(randomKey)
+      expect(tree.count).toEqual(0)
+      expect(tree.get(randomKey)).toBeUndefined()
     })
   })
 
   describe('Count', () => {
     it('Returns the number of inserted values', () => {
-      const tree = new TreeSearch(PATH_SEPARATOR)
+      const tree = new TreeSearch()
 
-      for (let i = 0; i < 10; i++) {
-        tree.insert(randomKey, randomValue)
-      }
+      tree.insert(randomKey, randomValue)
 
-      expect(tree.count).toBe(1)
+      expect(tree.count).toEqual(1)
     })
 
     it('Returns the number unique values inserted', () => {
-      const tree = new TreeSearch(PATH_SEPARATOR)
+      const tree = new TreeSearch()
       const iterations = 10
 
       for (let i = 0; i < iterations; i++) {
         tree.insert(RANDOM(), RANDOM())
       }
 
-      expect(tree.count).toBe(iterations)
+      expect(tree.count).toEqual(iterations)
     })
   })
 })

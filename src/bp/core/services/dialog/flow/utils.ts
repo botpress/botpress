@@ -13,7 +13,7 @@ export class TreeSearch<T = string> {
   private root: TreeNode<T> = new TreeNode()
   private elements: number = 0
 
-  constructor(private separator: string) {}
+  constructor(private separator?: string) {}
 
   public get count(): number {
     return this.elements
@@ -42,6 +42,19 @@ export class TreeSearch<T = string> {
     }
   }
 
+  public remove(key: string): void {
+    if (!key) {
+      return
+    }
+
+    const chunks: string[] = this.prepareKey(key)
+
+    const deleted = this.removeNode(chunks, this.root)
+    if (deleted) {
+      this.elements--
+    }
+  }
+
   private searchNode(chunks: string[], node: TreeNode<T>, returnOnFirstHit: boolean): T | undefined {
     if (chunks) {
       const name = chunks.shift()!
@@ -53,6 +66,26 @@ export class TreeSearch<T = string> {
         return child.value
       } else {
         return this.searchNode(chunks, child, returnOnFirstHit)
+      }
+    }
+  }
+
+  private removeNode(chunks: string[], node: TreeNode<T>): boolean {
+    const name = chunks.shift()!
+    const child = node.children.get(name)
+
+    if (!child) {
+      return false
+    } else {
+      if (chunks.length !== 0) {
+        return this.removeNode(chunks, child)
+      } else {
+        if (child.children.size > 0) {
+          child.value = undefined
+        } else {
+          node.children.delete(name)
+        }
+        return true
       }
     }
   }
@@ -90,6 +123,10 @@ export class TreeSearch<T = string> {
   private prepareKey(key: string): string[] {
     key = key.trim().toLowerCase()
 
-    return key.split(this.separator)
+    if (this.separator) {
+      return key.split(this.separator)
+    } else {
+      return [key]
+    }
   }
 }
