@@ -188,6 +188,18 @@ _Next Steps_
   ```
 - visit `localhost:3000` in a browser to confirm your change was implemented
 
+### Adding botpress-pro to your Dev Environment
+To do this you need access to the [botpress-pro repository](https://github.com/botpress/botpress-pro).
+
+1. Execute this command at the root of your project.
+   ```shell
+   git submodule update --init
+   ```
+2. You will need to [enable and activate](https://botpress.com/docs/pro/about-pro#activation) botpress-pro.
+   
+3. You are now able to [build and start](https://github.com/botpress/botpress#building-from-source) botpress-pro from sources.
+   
+
 ### Community
 
 The maintainers and the community members can be found on [the forum](https://forum.botpress.com/) and will try to reply to most messages.
