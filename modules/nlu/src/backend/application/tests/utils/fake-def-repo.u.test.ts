@@ -7,6 +7,7 @@ import {
 } from '../../scoped/infrastructure/definitions-repository'
 
 import './sdk.u.test'
+import _ from 'lodash'
 
 interface Definitions {
   intentDefs: NLU.IntentDefinition[]
@@ -20,7 +21,7 @@ export class FakeDefinitionRepo implements IDefinitionsRepository {
   private entities: NLU.EntityDefinition[] = []
 
   constructor(defs: Definitions) {
-    const { intentDefs, entityDefs } = defs
+    const { intentDefs, entityDefs } = _.cloneDeep(defs)
     this.intents = intentDefs
     this.entities = entityDefs
   }

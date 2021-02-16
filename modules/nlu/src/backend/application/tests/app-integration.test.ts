@@ -14,6 +14,7 @@ import {
 import { book_flight, cityEntity, fruitEntity, hello, i_love_hockey } from './utils/data.u.test'
 import { modelIdService } from './utils/fake-model-id-service.u.test'
 import './utils/sdk.u.test'
+import { areEqual } from './utils/utils.u.test'
 
 const specs: NLU.Specifications = {
   languageServer: {
@@ -427,7 +428,7 @@ describe('NLU API integration tests', () => {
 
     const toUpdate = definitions.intentDefs[0]
     toUpdate.utterances['fr'].push('nouvelle utterance')
-    await defRepoByBot[botId].upsertIntent({ ...toUpdate })
+    await defRepoByBot[botId].upsertIntent(_.cloneDeep(toUpdate))
 
     // assert
     expect(socket).toHaveBeenCalledWith(botId, expectTs({ language: 'fr', status: 'needs-training' }))
@@ -595,6 +596,59 @@ describe('NLU API integration tests', () => {
     // assert
     expect(cancelMock).toHaveBeenCalledTimes(1)
     expect(cancelMock).toHaveBeenCalledWith(expect.stringContaining('en'))
+  })
+
+  test('updating train definitions during a training should still load training result', async () => {
+    // arrange
+    const lang = 'en'
+    const definitions = makeBaseDefinitions([lang])
+    const fileSystem = {
+      [botId]: {
+        definitions,
+        modelsOnFs: []
+      }
+    }
+
+    const core = { languages: [lang], specs }
+    const dependencies = makeDependencies(core, fileSystem, { nProgressCalls: 3, trainDelayBetweenProgress: 10 })
+    const { engine, defRepoByBot, modelRepoByBot } = dependencies
+
+    const saveModel = jest.spyOn(modelRepoByBot[botId], 'saveModel')
+    const loadModel = jest.spyOn(engine, 'loadModel')
+
+    const socket = jest.fn(async (botId: string, ts: NLU.TrainingSession) => {
+      if (ts.status === 'training') {
+        const toUpdate = definitions.intentDefs[0]
+        toUpdate.utterances[lang].push('new utterance')
+        await defRepoByBot[botId].upsertIntent(_.cloneDeep(toUpdate))
+      }
+    })
+    app = makeApp({ ...dependencies, socket })
+
+    // act
+    await app.initialize()
+    await app.mountBot({
+      id: botId,
+      defaultLanguage: lang,
+      languages: [lang],
+      nluSeed
+    })
+
+    await waitForTrainingsToBeDone(app)
+
+    // assert
+    expect(socket).not.toHaveBeenCalledWith(botId, expectTs({ status: 'needs-training' }))
+
+    const [savedModel] = saveModel.mock.calls[0]
+    expect(loadModel).toHaveBeenNthCalledWith(1, savedModel)
+
+    const latestModelId = modelIdService.makeId({
+      ...definitions,
+      languageCode: lang,
+      seed: nluSeed,
+      specifications: specs
+    })
+    expect(areEqual(latestModelId, savedModel)).toBe(false) // current model is not synced with file system, but at least training finished and loaded
   })
 
   test('when training is queued, training occurs', async () => {

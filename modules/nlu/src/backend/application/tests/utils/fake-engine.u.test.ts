@@ -66,6 +66,7 @@ export class FakeEngine implements NLU.Engine {
     options: Partial<NLU.TrainingOptions> = {}
   ): Promise<NLU.Model> => {
     const { nProgressCalls, trainDelayBetweenProgress } = this._options
+    const { languageCode, seed, intentDefs, entityDefs } = trainSet
 
     const delta = 1 / (nProgressCalls - 1)
     const updates = _.range(nProgressCalls).map(i => i * delta)
@@ -73,8 +74,6 @@ export class FakeEngine implements NLU.Engine {
       options.progressCallback?.(u)
       await sleep(trainDelayBetweenProgress)
     }
-
-    const { languageCode, seed, intentDefs, entityDefs } = trainSet
 
     const modelId = modelIdService.makeId({
       entityDefs,

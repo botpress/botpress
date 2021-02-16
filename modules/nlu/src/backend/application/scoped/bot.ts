@@ -61,9 +61,12 @@ export class Bot implements Trainer, Predictor {
     }
   }
 
-  public loadLatest = async (language: string) => {
-    const modelId = await this._defService.getLatestModelId(language)
-    return this.load(modelId)
+  public loadLatest = async (languageCode: string) => {
+    const model = await this._modelRepo.getLatestModel({ languageCode })
+    if (!model) {
+      throw new Error(`No model found on file system for language ${languageCode}.`)
+    }
+    return this._load(model)
   }
 
   public load = async (modelId: sdk.NLU.ModelId) => {
