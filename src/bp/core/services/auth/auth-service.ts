@@ -156,6 +156,7 @@ export default class AuthService {
     const createdUser = await this.users.createUser({
       email: user.email,
       strategy,
+      tokenVersion: 1,
       attributes: { ...(user.attributes || {}), created_at: new Date() }
     })
 
@@ -268,6 +269,7 @@ export default class AuthService {
     const createdUser = await this.users.createUser({
       email: user.email!,
       strategy,
+      tokenVersion: 1,
       password: user.password,
       salt: user.salt,
       attributes: user.attributes || {}

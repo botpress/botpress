@@ -23,7 +23,7 @@ export class StrategyUsersRepository {
           strategy: user.strategy,
           password: user.password,
           salt: user.salt,
-          tokenVersion: 1,
+          tokenVersion: user.tokenVersion,
           attributes: this.database.knex.json.set(user.attributes || {})
         },
         ['email', 'password', 'salt', 'strategy', 'attributes', 'tokenVersion', 'created_at', 'updated_at']

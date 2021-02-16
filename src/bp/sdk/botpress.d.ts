@@ -37,7 +37,7 @@ declare module 'botpress/sdk' {
     id?: number
     password?: string
     salt?: string
-    tokenVersion?: number
+    tokenVersion: number
   } & UserInfo
 
   export interface UserInfo {
