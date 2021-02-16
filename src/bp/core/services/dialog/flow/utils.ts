@@ -15,23 +15,53 @@ export class TreeSearch<T = string> {
 
   constructor(private separator?: string) {}
 
+  /**
+   * The number of elements in the tree
+   */
   public get count(): number {
     return this.elements
   }
 
-  public get(key: string, returnOnFirstHit = false): T | undefined {
+  /**
+   * Operate a tree search to find the value associated with a certain key
+   * @param key The key used to retrieve its associated value in the tree
+   * @returns A value of type T or undefined when there is not hit
+   */
+  public get(key: string): T | undefined {
     if (!key) {
       return
     }
 
     const chunks: string[] = this.prepareKey(key)
 
-    return this.searchNode(chunks, this.root, returnOnFirstHit)
+    return this.searchNode(chunks, this.root)
   }
 
-  public insert(key: string, value: T, override = false): void {
+  /**
+   * Operate a tree search to find the parent value of a certain key
+   * @param key The key used to retrieve the parent value associated with it
+   * @returns A value of type T or undefined when the `key` has no parent value
+   */
+  public getParent(key: string): T | undefined {
     if (!key) {
       return
+    }
+
+    const chunks: string[] = this.prepareKey(key)
+
+    return this.searchNode(chunks, this.root, true)
+  }
+
+  /**
+   * Inserts a value with a given key into the tree so it can be retrieved fast
+   * @param key The key used to insert and retrieve the value
+   * @param value The value to insert
+   * @param override (default: false) Whether or not to override the value associated with a given key
+   * @returns Whether or not the value was inserted for the first time. _Note: in case of an update (e.g. `overrides=true` with an existing key), the returned value is false._
+   */
+  public insert(key: string, value: T, override = false): boolean {
+    if (!key) {
+      return false
     }
 
     const chunks: string[] = this.prepareKey(key)
@@ -40,11 +70,18 @@ export class TreeSearch<T = string> {
     if (inserted) {
       this.elements++
     }
+
+    return inserted
   }
 
-  public remove(key: string): void {
+  /**
+   * Removes a value from the tree
+   * @param key The key used access the value
+   * @returns Whether or not the value was removed from the tree
+   */
+  public remove(key: string): boolean {
     if (!key) {
-      return
+      return false
     }
 
     const chunks: string[] = this.prepareKey(key)
@@ -53,19 +90,34 @@ export class TreeSearch<T = string> {
     if (deleted) {
       this.elements--
     }
+
+    return deleted
   }
 
-  private searchNode(chunks: string[], node: TreeNode<T>, returnOnFirstHit: boolean): T | undefined {
+  private searchNode(
+    chunks: string[],
+    node: TreeNode<T>,
+    returnParent = false,
+    parent: T | undefined = undefined
+  ): T | undefined {
     if (chunks) {
       const name = chunks.shift()!
       const child = node.children.get(name)
 
       if (!child) {
         return undefined
-      } else if ((returnOnFirstHit || chunks.length === 0) && child.value) {
+      } else if (returnParent && chunks.length === 0 && child.value) {
+        // We found the element in the tree. Let's return its parent value.
+        return parent
+      } else if (chunks.length === 0) {
+        // We might have found the value
         return child.value
+      } else if (child.value) {
+        // Use the child value as the closest parent and go one level deeper
+        return this.searchNode(chunks, child, returnParent, child.value)
       } else {
-        return this.searchNode(chunks, child, returnOnFirstHit)
+        // Searching one level deeper with the same parent
+        return this.searchNode(chunks, child, returnParent, parent)
       }
     }
   }

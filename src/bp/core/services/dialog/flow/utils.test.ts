@@ -1,12 +1,22 @@
 import _ from 'lodash'
 import { TreeSearch } from './utils'
 
+const OBJECT_VALUE = { key: 'value', nested: { key: '1', value: 1 } }
 const PATH_SEPARATOR = '/'
 const KEY_SEPARATOR = ' '
 const EMPTY_KEY = ''
 const KEYS = ['a key', 'a second one', 'and a third one']
-const PATHS = ['abc', 'abc/def', 'xyz', 'abc/def/ghi', 'abc/def/abc/def']
-const OBJECT_VALUE = { key: 'value', nested: { key: '1', value: 1 } }
+const INVALID_KEY = 'a key invalid'
+const PATHS = ['abc', 'abc/def', 'xyz', 'abc/def/ghi', 'abc/def/abc/def'] as const
+const PATHS_PARENTS: { [path in typeof PATHS[number]]: typeof PATHS[number] | undefined } = {
+  abc: undefined,
+  'abc/def': 'abc',
+  xyz: undefined,
+  'abc/def/ghi': 'abc/def',
+  'abc/def/abc/def': 'abc/def'
+}
+// A path that will do a complete tree traversal
+const OVERFLOW_PATH = 'abc/def/abc/def/ghi'
 const RANDOM = () => Math.random().toString(36)
 
 let randomKey = RANDOM()
@@ -216,6 +226,106 @@ describe('TreeSearch', () => {
         tree.insert(path, objectValues[i])
 
         expect(tree.get(path)).toEqual(objectValues[i])
+      }
+    })
+  })
+
+  describe('GetParent', () => {
+    it('Returns undefined if the tree is empty', () => {
+      const tree = new TreeSearch()
+
+      const children = tree['root'].children
+
+      expect(tree.count).toEqual(0)
+      expect(children.size).toEqual(0)
+      expect(tree.getParent(randomKey)!).toBeUndefined()
+    })
+
+    it('Returns undefined if the key has no parent', () => {
+      const tree = new TreeSearch()
+
+      tree.insert(randomKey, randomValue)
+
+      const children = tree['root'].children
+
+      expect(children.get(randomKey)!.value).toEqual(randomValue)
+      expect(tree.getParent(randomKey)!).toBeUndefined()
+    })
+
+    it('Returns undefined when there is no result for the search (few levels deep)', () => {
+      const tree = new TreeSearch(KEY_SEPARATOR)
+
+      for (const key of KEYS) {
+        tree.insert(key, key)
+      }
+
+      const children = tree['root'].children
+
+      // makes sure there is items on different levels
+      expect(children.size).not.toEqual(PATHS.length)
+      expect(tree.count).toEqual(KEYS.length)
+      expect(tree.getParent(INVALID_KEY)!).toBeUndefined()
+    })
+
+    it('Returns undefined when there is no result for the search (complete tree traversal)', () => {
+      const tree = new TreeSearch(KEY_SEPARATOR)
+
+      for (const key of KEYS) {
+        tree.insert(key, key)
+      }
+
+      const children = tree['root'].children
+
+      // makes sure there is items on different levels
+      expect(children.size).not.toEqual(PATHS.length)
+      expect(tree.count).toEqual(KEYS.length)
+      expect(tree.getParent(OVERFLOW_PATH)!).toBeUndefined()
+    })
+
+    it('Returns undefined if the key is empty', () => {
+      const tree = new TreeSearch()
+
+      tree.insert(randomKey, randomValue)
+
+      expect(tree.count).toEqual(1)
+      expect(tree.getParent(EMPTY_KEY)!).toBeUndefined()
+      expect(tree.getParent(null as any)!).toBeUndefined()
+      expect(tree.getParent(undefined as any)!).toBeUndefined()
+    })
+
+    it('Returns undefined for all keys (one level deep)', () => {
+      const tree = new TreeSearch()
+
+      for (const key of KEYS) {
+        tree.insert(key, key)
+      }
+
+      const children = tree['root'].children
+
+      // makes sure all items are at the same level
+      expect(children.size).toEqual(KEYS.length)
+      expect(tree.count).toEqual(KEYS.length)
+      expect(tree.getParent(randomKey)!).toBeUndefined()
+      for (const key of KEYS) {
+        expect(tree.getParent(key)).toBeUndefined()
+      }
+    })
+
+    it('Returns all the proper parent values from the tree (few levels deep)', () => {
+      const tree = new TreeSearch(PATH_SEPARATOR)
+
+      for (const path of PATHS) {
+        tree.insert(path, path)
+      }
+
+      const children = tree['root'].children
+
+      // makes sure there is items on different levels
+      expect(children.size).not.toEqual(PATHS.length)
+      expect(tree.count).toEqual(PATHS.length)
+      expect(tree.getParent(randomKey)!).toBeUndefined()
+      for (const path of PATHS) {
+        expect(tree.getParent(path)).toEqual(PATHS_PARENTS[path])
       }
     })
   })

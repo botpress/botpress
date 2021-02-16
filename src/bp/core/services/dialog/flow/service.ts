@@ -188,11 +188,10 @@ export class FlowService {
 
     return flows.map(f => {
       const filename = f.name.replace('.flow.json', '')
-      const parentFlow = tree.get(filename, true)
 
       return {
         ...f,
-        parent: parentFlow === filename ? undefined : parentFlow
+        parent: tree.getParent(filename)
       }
     })
   }
