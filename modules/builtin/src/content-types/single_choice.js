@@ -11,7 +11,6 @@ function render(data) {
   }
 
   if (data.isDropdown) {
-    // Render dropdown
     return [
       ...events,
       {
