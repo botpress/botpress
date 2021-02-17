@@ -4,8 +4,8 @@ import React, { createContext, Dispatch, useEffect, useReducer } from 'react'
 import { Config } from '../../../config'
 import { IAgent, IHandoff } from '../../../types'
 
-import Storage from './storage'
 import Reducer, { ActionType } from './Reducer'
+import Storage from './storage'
 
 interface IStore {
   state: IState

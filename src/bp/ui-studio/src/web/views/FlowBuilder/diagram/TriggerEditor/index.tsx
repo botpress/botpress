@@ -13,10 +13,10 @@ import withLanguage from '../../../../components/Util/withLanguage'
 import { getCurrentFlow } from '../../../../reducers'
 import { BlockModel } from '../nodes/Block'
 
-import triggerStyles from './style.scss'
 import ConditionDropdown from './Condition/ConditionDropdown'
 import ConditionEditor from './Condition/Editor'
 import ConditionItem from './Condition/Item'
+import triggerStyles from './style.scss'
 
 interface OwnProps {
   node: BlockModel

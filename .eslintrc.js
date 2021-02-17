@@ -33,12 +33,10 @@ module.exports = {
         }
       }
     ],
-    // TODO: Change to error eventually
-    '@typescript-eslint/no-floating-promises': 'warn',
+    '@typescript-eslint/no-floating-promises': 'error',
     '@typescript-eslint/prefer-namespace-keyword': 'error',
     '@typescript-eslint/quotes': [
-      // TODO: Change to error eventually
-      'warn',
+      'error',
       'single',
       {
         avoidEscape: true
@@ -49,8 +47,7 @@ module.exports = {
     'brace-style': ['error', '1tbs'],
     curly: 'error',
     'eol-last': 'error',
-    // TODO: Eventually change this to error
-    eqeqeq: ['warn', 'smart'],
+    eqeqeq: ['error', 'smart'],
     'import/order': [
       'warn',
       {
@@ -103,8 +100,7 @@ module.exports = {
         ]
       }
     ],
-    // TODO: Change this to error once fixed everywhere
-    'no-duplicate-imports': 'warn',
+    'no-duplicate-imports': 'error',
     'no-return-await': 'error',
     'no-trailing-spaces': 'error',
     'no-var': 'error',
