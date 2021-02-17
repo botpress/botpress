@@ -58,7 +58,7 @@ const onModuleUnmount = async (bp: typeof sdk) => {
     throw new AppNotInitializedError()
   }
 
-  removeMiddlewares(bp)
+  await removeMiddlewares(bp)
   removeRouter(bp)
   await app.teardown()
 }

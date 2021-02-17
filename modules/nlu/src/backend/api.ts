@@ -6,7 +6,9 @@ import yn from 'yn'
 
 import { NLUApplication } from './application'
 import { BotDoesntSpeakLanguageError, BotNotMountedError } from './application/errors'
+import { TrainingSession } from './application/typings'
 import legacyElectionPipeline from './election/legacy-election'
+import { NLUProgressEvent } from './typings'
 
 const ROUTER_ID = 'nlu'
 
@@ -36,6 +38,21 @@ const makeErrorMapper = (bp: typeof sdk) => (err: { botId: string; lang: string;
   return res.status(500).send(msg)
 }
 
+const mapTrainSession = (ts: TrainingSession): sdk.NLU.TrainingSession => {
+  const { botId, language, progress, status } = ts
+  const key = `training:${botId}:${language}`
+  return { key, language, status, progress }
+}
+
+export const getWebsocket = (bp: typeof sdk) => {
+  return async (ts: TrainingSession) => {
+    const { botId } = ts
+    const trainSession = mapTrainSession(ts)
+    const ev: NLUProgressEvent = { type: 'nlu', botId, trainSession }
+    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', ev))
+  }
+}
+
 export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
   const router = bp.http.createRouterForBot(ROUTER_ID)
 
@@ -49,8 +66,10 @@ export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
 
   router.get('/training/:language', async (req, res) => {
     const { language, botId } = req.params
-    const session = await app.getTraining(botId, language)
-    res.send(session)
+
+    const state = await app.getTraining(botId, language)
+    const ts = mapTrainSession({ botId, language, ...state })
+    res.send(ts)
   })
 
   router.post(['/predict', '/predict/:lang'], async (req, res) => {

@@ -61,14 +61,6 @@ export class Bot implements Trainer, Predictor {
     }
   }
 
-  public loadLatest = async (languageCode: string) => {
-    const model = await this._modelRepo.getLatestModel({ languageCode })
-    if (!model) {
-      throw new Error(`No model found on file system for language ${languageCode}.`)
-    }
-    return this._load(model)
-  }
-
   public load = async (modelId: sdk.NLU.ModelId) => {
     const model = await this._modelRepo.getModel(modelId)
     if (!model) {
@@ -83,7 +75,7 @@ export class Bot implements Trainer, Predictor {
     await this._engine.loadModel(model)
   }
 
-  public train = async (language: string, progressCallback: ProgressCallback): Promise<void> => {
+  public train = async (language: string, progressCallback: ProgressCallback): Promise<sdk.NLU.ModelId> => {
     const { _engine, _languages, _modelRepo, _defService, _botId } = this
 
     if (!_languages.includes(language)) {
@@ -100,6 +92,8 @@ export class Bot implements Trainer, Predictor {
 
     const modelsOfLang = await _modelRepo.listModels({ languageCode: language })
     await _modelRepo.pruneModels(modelsOfLang, { toKeep: 2 })
+
+    return this._modelIdService.toId(model)
   }
 
   public cancelTraining = async (language: string) => {

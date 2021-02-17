@@ -14,9 +14,11 @@ import { FakeModelRepo } from './fake-model-repo.u.test'
 import './sdk.u.test'
 import { StubLogger } from './stub-logger.u.test'
 import { sleep } from './utils.u.test'
+import { InMemoryTrainingRepository } from '../../memory-training-repo'
+import { TrainingSession } from '../../typings'
 
 interface AppDependencies {
-  socket: jest.Mock<Promise<void>, [string, NLU.TrainingSession]>
+  socket: jest.Mock<Promise<void>, [TrainingSession]>
   modelRepoByBot: _.Dictionary<FakeModelRepo>
   defRepoByBot: _.Dictionary<FakeDefinitionRepo>
   engine: NLU.Engine
@@ -69,7 +71,15 @@ export const makeApp = (dependencies: AppDependencies, trainingQueueOptions: Par
   const botService = new BotService()
   const botFactory = new BotFactory(engine, logger, modelIdService, defRepoFactory, modelRepoFactory)
 
-  const trainingQueue = new InMemoryTrainingQueue(errors, logger, botService, socket, trainingQueueOptions)
+  const memoryTrainRepo = new InMemoryTrainingRepository()
+  const trainingQueue = new InMemoryTrainingQueue(
+    memoryTrainRepo,
+    errors,
+    logger,
+    botService,
+    socket,
+    trainingQueueOptions
+  )
 
   return new NLUApplication(trainingQueue, engine, botFactory, botService)
 }

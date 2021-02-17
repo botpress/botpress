@@ -1,22 +1,21 @@
-import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
+import { TrainingSession } from '../../typings'
 
-import './sdk.u.test'
-
-export const expectTs = (ts: Partial<NLU.TrainingSession>) => expect.objectContaining<Partial<NLU.TrainingSession>>(ts)
+export const expectTs = (ts: Partial<TrainingSession>) => expect.objectContaining<Partial<TrainingSession>>(ts)
 
 // TODO: this function is a mess, maybe I should unit test it...
-export const expectTrainingsOccurInOrder = (trainSessions: NLU.TrainingSession[], expectedOrder: number[]) => {
+export const expectTrainingsOccurInOrder = (trainSessions: TrainingSession[], expectedOrder: number[]) => {
   const progressUpdates = trainSessions.filter(ts => ['training', 'done'].includes(ts.status))
 
+  const key = (ts: TrainingSession) => `${ts.botId}:${ts.language}`
   const allKeys = _(trainSessions)
-    .map(ts => ts.key)
+    .map(ts => key(ts))
     .uniq()
     .value()
 
   const intervals = allKeys.map(k => {
-    const start = _.findIndex(progressUpdates, ts => ts.key === k)
-    const end = _.findLastIndex(progressUpdates, ts => ts.key === k)
+    const start = _.findIndex(progressUpdates, ts => key(ts) === k)
+    const end = _.findLastIndex(progressUpdates, ts => key(ts) === k)
     return { start, end }
   })
 
@@ -42,9 +41,9 @@ export const expectTrainingsOccurInOrder = (trainSessions: NLU.TrainingSession[]
 
 export const expectTrainingToStartAndComplete = (socket: jest.Mock, trainId: { botId: string; language: string }) => {
   const { botId, language } = trainId
-  expect(socket).toHaveBeenCalledWith(botId, expectTs({ status: 'training-pending', language }))
-  expect(socket).toHaveBeenCalledWith(botId, expectTs({ status: 'training', language }))
-  expect(socket).toHaveBeenCalledWith(botId, expectTs({ status: 'done', language }))
+  expect(socket).toHaveBeenCalledWith(expectTs({ botId, status: 'training-pending', language }))
+  expect(socket).toHaveBeenCalledWith(expectTs({ botId, status: 'training', language }))
+  expect(socket).toHaveBeenCalledWith(expectTs({ botId, status: 'done', language }))
 }
 
 export const expectEngineToHaveTrained = (trainMock: jest.SpyInstance, languageCode: string) => {

@@ -47,7 +47,8 @@ describe('NLU API unit tests', () => {
     trainingQueue = mock<TrainingQueue>({
       initialize: jest.fn(),
       teardown: jest.fn(),
-      queueTraining: jest.fn()
+      queueTraining: jest.fn(),
+      cancelTrainings: jest.fn()
     })
     engine = mock<NLU.Engine>({})
     botFactory = mock<IBotFactory>({})

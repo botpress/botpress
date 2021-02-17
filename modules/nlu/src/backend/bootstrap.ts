@@ -4,14 +4,15 @@ import _ from 'lodash'
 
 import { Config } from '../config'
 
+import { getWebsocket } from './api'
 import { NLUApplication } from './application'
 import { BotFactory } from './application/bot-factory'
-import { InMemoryTrainingQueue } from './application/memory-training-queue'
-import { NLUProgressEvent } from './typings'
 import { BotService } from './application/bot-service'
-import { BotDefinition } from './application/typings'
+import { InMemoryTrainingQueue } from './application/memory-training-queue'
+import { InMemoryTrainingRepository } from './application/memory-training-repo'
 import { ScopedDefinitionsRepository } from './application/scoped/infrastructure/definitions-repository'
 import { ScopedModelRepository } from './application/scoped/infrastructure/model-repository'
+import { BotDefinition } from './application/typings'
 
 export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
   const globalConfig: Config = await bp.config.getModuleConfig('nlu')
@@ -32,10 +33,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
 
   const engine = await bp.NLU.makeEngine(parsedConfig, logger)
 
-  const socket = async (botId: string, trainSession: sdk.NLU.TrainingSession) => {
-    const ev: NLUProgressEvent = { type: 'nlu', botId, trainSession }
-    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', ev))
-  }
+  const socket = getWebsocket(bp)
 
   const botService = new BotService()
 
@@ -46,8 +44,8 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
 
   const botFactory = new BotFactory(engine, bp.logger, bp.NLU.modelIdService, makeDefRepo, makeModelRepo)
 
-  // TODO: resolve an in-memory Vs database or distributed training queue depending on weither of not the botpress instance runs on multiple clusters
-  const memoryTrainingQueue = new InMemoryTrainingQueue(bp.NLU.errors, bp.logger, botService, socket)
+  const trainRepo = new InMemoryTrainingRepository()
+  const memoryTrainingQueue = new InMemoryTrainingQueue(trainRepo, bp.NLU.errors, bp.logger, botService, socket)
 
   const application = new NLUApplication(memoryTrainingQueue, engine, botFactory, botService)
 

@@ -1,79 +1,27 @@
 import * as sdk from 'botpress/sdk'
 
-import { TrainingId, TrainingQueue, TrainerService, TrainSessionListener } from './typings'
+import { ITrainingRepository } from './memory-training-repo'
+import { TrainingId, TrainingQueue, TrainerService, TrainingListener, TrainingState, TrainingSession } from './typings'
 
 export interface TrainingQueueOptions {
   maxTraining: number
-}
-
-interface TrainStatus {
-  status: sdk.NLU.TrainingStatus
-  progress: number
 }
 
 const DEFAULT_OPTIONS: TrainingQueueOptions = {
   maxTraining: 2
 }
 
-const DEFAULT_STATUS: TrainStatus = { status: 'idle', progress: 0 }
-
-const _toKey = (id: TrainingId) => {
-  const { botId, language } = id
-  return `training:${botId}:${language}`
-}
-
-const _fromKey = (key: string) => {
-  const [_, botId, language] = key.split(':')
-  return { botId, language }
-}
-
-class TrainingContainer {
-  private _trainings: { [key: string]: TrainStatus } = {}
-
-  public has(id: TrainingId): boolean {
-    return !!this.get(id)
-  }
-
-  public get(id: TrainingId): TrainStatus | undefined {
-    const training = this._trainings[_toKey(id)]
-    return { ...training }
-  }
-
-  public set(id: TrainingId, status: TrainStatus) {
-    this._trainings[_toKey(id)] = { ...status }
-  }
-
-  public clear() {
-    for (const key of Object.keys(this._trainings)) {
-      delete this._trainings[key]
-    }
-  }
-
-  public query(query: { status: sdk.NLU.TrainingStatus }): TrainingId[] {
-    const keep = ([key, t]: [string, TrainStatus]) => t.status === query.status
-    const keys = Object.entries(this._trainings)
-      .filter(keep)
-      .map(p => p[0])
-    return keys.map(_fromKey)
-  }
-
-  public getAll() {
-    return Object.entries(this._trainings).map(([k, v]) => ({
-      trainId: _fromKey(k),
-      status: v
-    }))
-  }
-}
+const DEFAULT_STATUS: TrainingState = { status: 'idle', progress: 0 }
 
 export class InMemoryTrainingQueue implements TrainingQueue {
-  private _trainings = new TrainingContainer()
   private _options: TrainingQueueOptions
 
   constructor(
+    private _trainings: ITrainingRepository,
     private _errors: typeof sdk.NLU.errors,
     private _logger: sdk.Logger,
     private _trainerService: TrainerService,
-    private _onChange: TrainSessionListener,
+    private _onChange: TrainingListener,
     options: Partial<TrainingQueueOptions> = {}
   ) {
     this._options = { ...DEFAULT_OPTIONS, ...options }
@@ -134,24 +82,20 @@ export class InMemoryTrainingQueue implements TrainingQueue {
     this._logger.warn(`No training canceled as ${botId} is not currently training language ${language}.`)
   }
 
-  async getTraining(trainId: TrainingId): Promise<sdk.NLU.TrainingSession> {
-    const status = this._trainings.get(trainId) ?? DEFAULT_STATUS
-    return this._toTrainSession(trainId, status)
+  async getTraining(trainId: TrainingId): Promise<TrainingState> {
+    return this._trainings.get(trainId) ?? DEFAULT_STATUS
   }
 
   async cancelTrainings(botId: string): Promise<void[]> {
-    const currentTrainings = this._trainings
-      .getAll()
-      .map(({ trainId }) => trainId)
-      .filter(t => t.botId === botId)
+    const currentTrainings = this._trainings.getAll().filter(ts => ts.botId === botId)
     return Promise.mapSeries(currentTrainings, t => this.cancelTraining(t))
   }
 
-  async getAllTrainings(): Promise<sdk.NLU.TrainingSession[]> {
-    return this._trainings.getAll().map(({ trainId, status }) => this._toTrainSession(trainId, status))
+  async getAllTrainings(): Promise<TrainingSession[]> {
+    return this._trainings.getAll()
   }
 
-  private _update = (id: TrainingId, training: Partial<TrainStatus>) => {
+  private _update = (id: TrainingId, training: Partial<TrainingState>) => {
     const current = this._trainings.get(id) ?? DEFAULT_STATUS
     if (training.status) {
       current.status = training.status
@@ -163,17 +107,8 @@ export class InMemoryTrainingQueue implements TrainingQueue {
     return this._notify(id, current)
   }
 
-  private _notify = async (id: TrainingId, status: TrainStatus) => {
-    const { botId } = id
-    const ts = this._toTrainSession(id, status)
-    return this._onChange(botId, ts)
-  }
-
-  private _toTrainSession = (id: TrainingId, training: TrainStatus): sdk.NLU.TrainingSession => {
-    const key = _toKey(id)
-    const { language } = id
-    const { progress, status } = training
-    return { key, language, progress: progress ?? 0, status }
+  private _notify = async (trainId: TrainingId, state: TrainingState) => {
+    return this._onChange({ ...trainId, ...state })
   }
 
   private _runTask = async () => {
@@ -204,11 +139,11 @@ export class InMemoryTrainingQueue implements TrainingQueue {
     }
 
     try {
-      await trainer.train(language, async (progress: number) => {
+      const modelId = await trainer.train(language, async (progress: number) => {
         await this._update(trainId, { progress })
       })
       await this._update(trainId, { status: 'done', progress: 1 })
-      await trainer.loadLatest(language)
+      await trainer.load(modelId)
     } catch (err) {
       await this._handleTrainError(trainId, err)
     } finally {

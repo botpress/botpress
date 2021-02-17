@@ -21,8 +21,8 @@ export interface BotDefinition {
 export type ProgressCallback = (p: number) => Promise<void>
 
 export interface Trainer {
-  train(language: string, progressCallback: ProgressCallback): Promise<void>
-  loadLatest(language: string): Promise<void>
+  train(language: string, progressCallback: ProgressCallback): Promise<NLU.ModelId>
+  load(modelId: NLU.ModelId): Promise<void>
   cancelTraining(language: string): Promise<void>
 }
 
@@ -34,16 +34,23 @@ export type EventUnderstanding = Omit<IO.EventUnderstanding, 'includedContexts' 
   detectedLanguage?: string
 }
 
+export interface TrainingState {
+  status: NLU.TrainingStatus
+  progress: number
+}
+
 export interface TrainingId {
   botId: string
   language: string
 }
 
+export interface TrainingSession extends TrainingId, TrainingState {}
+
 export interface TrainerService {
   getBot(botId: string): Trainer | undefined
 }
 
-export type TrainSessionListener = (botId: string, ts: NLU.TrainingSession) => Promise<void>
+export type TrainingListener = (ts: TrainingSession) => Promise<void>
 
 export interface TrainingQueue {
   initialize(): Promise<void>
@@ -54,7 +61,6 @@ export interface TrainingQueue {
   cancelTraining(trainId: TrainingId): Promise<void>
   cancelTrainings(botId: string): Promise<void[]>
 
-  // TODO: Training queue should not use NLU.TrainingSession, but instead use TrainId and StatusInfo
-  getTraining(trainId: TrainingId): Promise<NLU.TrainingSession>
-  getAllTrainings(): Promise<NLU.TrainingSession[]>
+  getTraining(trainId: TrainingId): Promise<TrainingState>
+  getAllTrainings(): Promise<TrainingSession[]>
 }

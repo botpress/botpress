@@ -15,6 +15,7 @@ import { book_flight, cityEntity, fruitEntity, hello, i_love_hockey } from './ut
 import { modelIdService } from './utils/fake-model-id-service.u.test'
 import './utils/sdk.u.test'
 import { areEqual } from './utils/utils.u.test'
+import { TrainingSession } from '../typings'
 
 const specs: NLU.Specifications = {
   languageServer: {
@@ -76,12 +77,12 @@ describe('NLU API integration tests', () => {
 
     // assert
     expect(socket).toHaveBeenCalledTimes(4)
-    expect(socket).toHaveBeenNthCalledWith(1, botId, expectTs({ status: 'training-pending' }))
-    expect(socket).toHaveBeenNthCalledWith(2, botId, expectTs({ status: 'training' }))
-    expect(socket).toHaveBeenNthCalledWith(3, botId, expectTs({ status: 'training' }))
-    expect(socket).toHaveBeenNthCalledWith(4, botId, expectTs({ status: 'done' }))
+    expect(socket).toHaveBeenNthCalledWith(1, expectTs({ botId, status: 'training-pending' }))
+    expect(socket).toHaveBeenNthCalledWith(2, expectTs({ botId, status: 'training' }))
+    expect(socket).toHaveBeenNthCalledWith(3, expectTs({ botId, status: 'training' }))
+    expect(socket).toHaveBeenNthCalledWith(4, expectTs({ botId, status: 'done' }))
 
-    const ts: NLU.TrainingSession[] = socket.mock.calls.map(([botId, ts]) => ts)
+    const ts: TrainingSession[] = socket.mock.calls.map(([ts]) => ts)
     expectTrainingsOccurInOrder(ts, [1])
 
     expect(engineTrainSpy).toHaveBeenCalledTimes(1)
@@ -127,7 +128,7 @@ describe('NLU API integration tests', () => {
     expectTrainingToStartAndComplete(socket, { botId, language: 'en' })
     expectTrainingToStartAndComplete(socket, { botId, language: 'fr' })
 
-    const ts: NLU.TrainingSession[] = socket.mock.calls.map(([botId, ts]) => ts)
+    const ts: TrainingSession[] = socket.mock.calls.map(([ts]) => ts)
     expectTrainingsOccurInOrder(ts, [2])
 
     expect(engineTrainSpy).toHaveBeenCalledTimes(nTrainings)
@@ -178,7 +179,7 @@ describe('NLU API integration tests', () => {
     expectTrainingToStartAndComplete(socket, { botId, language: 'en' })
     expectTrainingToStartAndComplete(socket, { botId, language: 'fr' })
 
-    const ts: NLU.TrainingSession[] = socket.mock.calls.map(([botId, ts]) => ts)
+    const ts: TrainingSession[] = socket.mock.calls.map(([ts]) => ts)
     expectTrainingsOccurInOrder(ts, [1, 1])
 
     expect(engineTrainSpy).toHaveBeenCalledTimes(2)
@@ -266,7 +267,7 @@ describe('NLU API integration tests', () => {
     expectTrainingToStartAndComplete(socket, { botId: botId2, language: 'fr' })
     expectTrainingToStartAndComplete(socket, { botId: botId3, language: 'en' })
 
-    const ts: NLU.TrainingSession[] = socket.mock.calls.map(([botId, ts]) => ts)
+    const ts: TrainingSession[] = socket.mock.calls.map(([ts]) => ts)
     expectTrainingsOccurInOrder(ts, [2, 2, 1])
 
     expect(engineTrainSpy).toHaveBeenCalledTimes(nTrainings)
@@ -373,7 +374,7 @@ describe('NLU API integration tests', () => {
     await waitForTrainingsToBeDone(app)
 
     // assert
-    expect(socket).not.toHaveBeenCalledWith(botId, expectTs({ language: 'en' }))
+    expect(socket).not.toHaveBeenCalledWith(expectTs({ botId, language: 'en' }))
     expectTrainingToStartAndComplete(socket, { botId, language: 'fr' })
 
     expect(fsHasModelMock).toHaveBeenCalledTimes(2)
@@ -431,8 +432,8 @@ describe('NLU API integration tests', () => {
     await defRepoByBot[botId].upsertIntent(_.cloneDeep(toUpdate))
 
     // assert
-    expect(socket).toHaveBeenCalledWith(botId, expectTs({ language: 'fr', status: 'needs-training' }))
-    expect(socket).not.toHaveBeenCalledWith(botId, expectTs({ language: 'en' }))
+    expect(socket).toHaveBeenCalledWith(expectTs({ botId, language: 'fr', status: 'needs-training' }))
+    expect(socket).not.toHaveBeenCalledWith(expectTs({ botId, language: 'en' }))
   })
 
   test('when an unexpected error occurs during training, socket receives an "errored" event, but reloading the pages gives a "needs-training" event', async () => {
@@ -466,7 +467,7 @@ describe('NLU API integration tests', () => {
     await waitForTrainingsToBeDone(app)
 
     // assert
-    expect(socket).toHaveBeenCalledWith(botId, expectTs({ language: 'en', status: 'errored' }))
+    expect(socket).toHaveBeenCalledWith(expectTs({ botId, language: 'en', status: 'errored' }))
 
     const currentTs = await app.getTraining(botId, 'en') // refresh browser page
     expect(currentTs.status).toBe('needs-training')
@@ -555,7 +556,7 @@ describe('NLU API integration tests', () => {
     await waitForTrainingsToBeDone(app)
 
     // assert
-    expect(socket).toHaveBeenCalledWith(botId, expectTs({ language: lang, status: 'needs-training' }))
+    expect(socket).toHaveBeenCalledWith(expectTs({ botId, language: lang, status: 'needs-training' }))
     const currentTs = await app.getTraining(botId, lang) // refresh browser page
     expect(currentTs.status).toBe('needs-training')
   })
@@ -576,7 +577,7 @@ describe('NLU API integration tests', () => {
 
     const cancelMock = jest.spyOn(engine, 'cancelTraining')
 
-    const socket = jest.fn(async (botId: string, ts: NLU.TrainingSession) => {
+    const socket = jest.fn(async (ts: TrainingSession) => {
       if (ts.status === 'training') {
         await app.cancelTraining(botId, ts.language)
       }
@@ -616,7 +617,7 @@ describe('NLU API integration tests', () => {
     const saveModel = jest.spyOn(modelRepoByBot[botId], 'saveModel')
     const loadModel = jest.spyOn(engine, 'loadModel')
 
-    const socket = jest.fn(async (botId: string, ts: NLU.TrainingSession) => {
+    const socket = jest.fn(async (ts: TrainingSession) => {
       if (ts.status === 'training') {
         const toUpdate = definitions.intentDefs[0]
         toUpdate.utterances[lang].push('new utterance')
@@ -637,7 +638,7 @@ describe('NLU API integration tests', () => {
     await waitForTrainingsToBeDone(app)
 
     // assert
-    expect(socket).not.toHaveBeenCalledWith(botId, expectTs({ status: 'needs-training' }))
+    expect(socket).not.toHaveBeenCalledWith(expectTs({ botId, status: 'needs-training' }))
 
     const [savedModel] = saveModel.mock.calls[0]
     expect(loadModel).toHaveBeenNthCalledWith(1, savedModel)

@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { IBotFactory } from './bot-factory'
 import { IBotService } from './bot-service'
 import { BotNotMountedError } from './errors'
-import { Predictor, TrainingQueue, BotConfig } from './typings'
+import { Predictor, TrainingQueue, BotConfig, TrainingId, TrainingSession, TrainingState } from './typings'
 
 export class NLUApplication {
   constructor(
@@ -29,11 +29,11 @@ export class NLUApplication {
     return this._engine.getHealth()
   }
 
-  public async getTraining(botId: string, language: string): Promise<NLU.TrainingSession> {
+  public async getTraining(botId: string, language: string): Promise<TrainingState> {
     return this._trainingQueue.getTraining({ botId, language })
   }
 
-  async getAllTrainings(): Promise<NLU.TrainingSession[]> {
+  async getAllTrainings(): Promise<TrainingSession[]> {
     return this._trainingQueue.getAllTrainings()
   }
 
