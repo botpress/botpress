@@ -6,7 +6,7 @@ const TEMP_TABLE_NAME = 'dialog_sessions_temp'
 
 const migration: Migration = {
   info: {
-    description: 'Change dialog_sessions pk constraint to include botId',
+    description: 'Change dialog_sessions PK constraint to include botId and remove botId column',
     target: 'core',
     type: 'database'
   },
@@ -21,6 +21,11 @@ const migration: Migration = {
     const { client } = db.client.config
 
     try {
+      const hasBotIdColumn = db.schema.hasColumn(TABLE_NAME, 'botId')
+      if (!hasBotIdColumn) {
+        return { success: true, message: 'PK constraint already changed and column botId already removed, skipping...' }
+      }
+
       if (client === 'sqlite3') {
         await db.transaction(async trx => {
           await db.schema.transacting(trx).createTable(TEMP_TABLE_NAME, table => {
