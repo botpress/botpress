@@ -32,8 +32,8 @@ export const types = {
  * TESTMIG_ALL: Runs every migration since 12.0.0
  * TESTMIG_NEW: Runs new migrations after package.json version
  * TESTMIG_BP_VERSION: Change the target version of your migration
- * TESTMIG_CONFIG_VERSION: Override the current version of the server
- * TESTMIG_IGNORE_COMPLETED: Ignore completed migrations (so they can be run again and again)
+ * TESTMIG_CONFIG_VERSION: Override the current version of the server configuration
+ * TESTMIG_DB_VERSION: Override the current version of the database
  * TESTMIG_IGNORE_LIST: Comma separated list of migration filename part to ignore
  */
 
@@ -53,7 +53,7 @@ export class MigrationService {
   /** The current version of the database tables */
   private dbVersion!: string
   public loadedMigrations: { [filename: string]: Migration | sdk.ModuleMigration } = {}
-  public botMigration: BotMigrationService
+  public botMigration!: BotMigrationService
 
   constructor(
     @tagged('name', 'Migration')
@@ -68,16 +68,6 @@ export class MigrationService {
   }
 
   async initialize() {
-    if (process.MIGRATE_TARGET && !semver.valid(process.MIGRATE_TARGET)) {
-      this.logger.error('A target version was specified but the format is invalid. Valid format: 12.0.0')
-      process.exit(0)
-    }
-
-    this.dbVersion = await this._getCurrentDbVersion()
-    this.configVersion = process.env.TESTMIG_CONFIG_VERSION || (await this.configProvider.getBotpressConfig()).version
-
-    debug('Migration Check: %o', { config: this.configVersion, db: this.dbVersion, target: this.targetVersion })
-
     if (yn(process.env.SKIP_MIGRATIONS)) {
       debug('Skipping Migrations')
       return
@@ -86,12 +76,7 @@ export class MigrationService {
     const allMigrations = this.getAllMigrations()
     const isDown = process.MIGRATE_CMD === 'down'
 
-    if (process.core_env.TESTMIG_ALL || process.core_env.TESTMIG_NEW) {
-      const versions = allMigrations.map(x => x.version).sort(semver.compare)
-
-      this.targetVersion = _.last(versions)!
-      this.configVersion = yn(process.core_env.TESTMIG_NEW) ? process.BOTPRESS_VERSION : '12.0.0'
-    }
+    await this.detectAndSetupVersions(allMigrations)
 
     const migrationsToExecute = _.sortBy(
       [
@@ -134,6 +119,33 @@ export class MigrationService {
 
     captureLogger.dispose()
 
+    await this.persistMigrationStatus(logs, migrationsToExecute)
+
+    if (process.MIGRATE_CMD !== undefined) {
+      process.exit(0)
+    }
+  }
+
+  async detectAndSetupVersions(migrations: MigrationFile[]) {
+    if (process.MIGRATE_TARGET && !semver.valid(process.MIGRATE_TARGET)) {
+      this.logger.error('A target version was specified but the format is invalid. Valid format: 12.0.0')
+      process.exit(0)
+    }
+
+    this.configVersion = process.env.TESTMIG_CONFIG_VERSION || (await this.configProvider.getBotpressConfig()).version
+    this.dbVersion = process.env.TESTMIG_DB_VERSION || (await this._getCurrentDbVersion())
+
+    if (process.core_env.TESTMIG_ALL || process.core_env.TESTMIG_NEW) {
+      const versions = migrations.map(x => x.version).sort(semver.compare)
+
+      this.targetVersion = _.last(versions)!
+      this.configVersion = yn(process.core_env.TESTMIG_NEW) ? process.BOTPRESS_VERSION : '12.0.0'
+    }
+
+    debug('Migration Check: %o', { config: this.configVersion, db: this.dbVersion, target: this.targetVersion })
+  }
+
+  async persistMigrationStatus(logs: string[], migrationsToExecute: MigrationFile[]) {
     const entry: MigrationEntry = {
       initialVersion: this.configVersion,
       targetVersion: this.targetVersion,
@@ -142,22 +154,22 @@ export class MigrationService {
     }
 
     // srv_migrations tracks migration of botpress config, while srv_metadata is for the database
-    await this.database
-      .knex('srv_migrations')
-      .insert({ ...entry, details: logs.join('\n'), created_at: this.database.knex.date.now() })
+    try {
+      await this.database
+        .knex('srv_migrations')
+        .insert({ ...entry, details: logs.join('\n'), created_at: this.database.knex.date.now() })
+    } catch (err) {
+      this.logger.attachError(err).warn("Couldn't save logs to database")
+    }
 
     if (this.dbVersion !== this.targetVersion) {
       await this.database.knex('srv_metadata').insert({ server_version: this.targetVersion })
     }
 
     await this.botMigration.coreMigrationCompleted(entry, migrationsToExecute)
-
-    if (process.MIGRATE_CMD !== undefined) {
-      process.exit(0)
-    }
   }
 
-  private async executeMigrations(missingMigrations: MigrationFile[]) {
+  async executeMigrations(missingMigrations: MigrationFile[]) {
     const isDown = process.MIGRATE_CMD === 'down'
     const opts = await this.getMigrationOpts()
 
@@ -166,7 +178,6 @@ ${_.repeat(' ', 9)}========================================
 {bold ${center(`Executing ${missingMigrations.length} migration${missingMigrations.length === 1 ? '' : 's'}`, 40, 9)}}
 ${_.repeat(' ', 9)}========================================`)
 
-    const completed = await this._getCompletedMigrations()
     let hasFailures = false
 
     // Clear the Botpress cache before executing any migrations
@@ -195,7 +206,6 @@ ${_.repeat(' ', 9)}========================================`)
       }
 
       if (result.success) {
-        await this._saveCompletedMigration(filename, result)
         this.logger.info(`- ${result.message || 'Success'}`)
       } else {
         hasFailures = true
@@ -288,22 +298,6 @@ ${_.repeat(' ', 9)}========================================`)
       .get(0)
 
     return query?.server_version || this.configVersion
-  }
-
-  private async _getCompletedMigrations(): Promise<string[]> {
-    if (
-      yn(process.core_env.TESTMIG_IGNORE_COMPLETED) ||
-      yn(process.core_env.TESTMIG_ALL) ||
-      yn(process.core_env.TESTMIG_NEW)
-    ) {
-      return []
-    }
-
-    return this.bpfs.root().directoryListing('migrations')
-  }
-
-  private _saveCompletedMigration(filename: string, result: sdk.MigrationResult): Promise<void> {
-    return this.bpfs.root().upsertFile('migrations', filename, stringify(result))
   }
 
   private _getMigrations(rootPath: string): MigrationFile[] {
