@@ -33,6 +33,7 @@ import { AdminRouter, AuthRouter, BotsRouter, MediaRouter, ModulesRouter } from 
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
 import { HintsRouter } from './routers/bots/hints'
+import { MessagingRouter } from './routers/bots/messaging'
 import { NLURouter } from './routers/bots/nlu'
 import { isDisabled } from './routers/conditionalMiddleware'
 import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
@@ -56,6 +57,7 @@ import { HintsService } from './services/hints'
 import { JobService } from './services/job-service'
 import { LogsService } from './services/logs/service'
 import { MediaServiceProvider } from './services/media'
+import { MessagingAPI } from './services/messaging/messaging'
 import { MonitoringService } from './services/monitoring'
 import { NLUService } from './services/nlu/nlu-service'
 import { NotificationsService } from './services/notification/service'
@@ -95,6 +97,7 @@ export default class HTTPServer {
   private hintsRouter!: HintsRouter
   private telemetryRouter!: TelemetryRouter
   private mediaRouter: MediaRouter
+  private messagingRouter: MessagingRouter
   private readonly sdkApiRouter!: SdkApiRouter
   private _needPermissions: (
     operation: string,
@@ -138,7 +141,8 @@ export default class HTTPServer {
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.LogsRepository) private logsRepo: LogsRepository,
     @inject(TYPES.NLUService) private nluService: NLUService,
-    @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository
+    @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository,
+    @inject(TYPES.MessagingAPI) private messagingApi: MessagingAPI
   ) {
     this.app = express()
 
@@ -211,6 +215,7 @@ export default class HTTPServer {
       mediaServiceProvider,
       this.configProvider
     )
+    this.messagingRouter = new MessagingRouter(this.logger, this.authService, this.messagingApi)
 
     this._needPermissions = needPermissions(this.workspaceService)
     this._hasPermissions = hasPermissions(this.workspaceService)
@@ -252,6 +257,7 @@ export default class HTTPServer {
     this.botsRouter.router.use('/content', this.contentRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
     this.botsRouter.router.use('/nlu', this.nluRouter.router)
+    this.botsRouter.router.use('/messaging', this.messagingRouter.router)
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     AppLifecycle.waitFor(AppLifecycleEvents.BOTPRESS_READY).then(() => {

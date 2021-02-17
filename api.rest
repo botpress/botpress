@@ -27,6 +27,85 @@ Content-Type: application/json
   "text": "hey"
 }
 
+@convoId = YOUR_CONVO_ID
+@messageId = YOUR_MESSAGE_ID
+@userId = YOUR_USER_ID
+
+### Create conversation
+POST {{baseUrl}}/api/v1/bots/{{botId}}/messaging/conversations
+Content-Type: application/json
+
+{
+  "userId": "text",
+  "botId": "{{botId}}"
+}
+
+### Delete conversation
+DELETE {{baseUrl}}/api/v1/bots/{{botId}}/messaging/conversations?id={{convoId}}
+
+### Get conversation
+GET {{baseUrl}}/api/v1/bots/{{botId}}/messaging/conversations/{{convoId}}
+
+### List conversations
+GET {{baseUrl}}/api/v1/bots/{{botId}}/messaging/conversations?userId={{userId}}&limit=100
+
+### Get or create recent conversation
+GET {{baseUrl}}/api/v1/bots/{{botId}}/messaging/conversations/{{userId}}/recent
+
+### Create message
+POST {{baseUrl}}/api/v1/bots/{{botId}}/messaging/messages
+Content-Type: application/json
+
+{
+  "conversationId": 2,
+  "eventId": 3434,
+  "incomingEventId": 343534,
+  "from": "user",
+  "payload": {
+    "type": "text",
+    "text": "hello"
+  }
+}
+
+### Delete message
+DELETE {{baseUrl}}/api/v1/bots/{{botId}}/messaging/messages?id={{messageId}}
+
+### Get message
+GET {{baseUrl}}/api/v1/bots/{{botId}}/messaging/messages/{{messageId}}
+
+### List messages
+GET {{baseUrl}}/api/v1/bots/{{botId}}/messaging/messages?conversationId={{convoId}}
+
+### Send message
+POST {{baseUrl}}/api/v1/bots/{{botId}}/messaging/messages/{{convoId}}/send
+Content-Type: application/json
+
+{
+  "payload": {
+    "type": "text",
+    "text": "hello"
+  },
+  "args": {
+    "channel": "http"
+  }
+}
+
+### Receive message
+POST {{baseUrl}}/api/v1/bots/{{botId}}/messaging/messages/{{convoId}}/receive
+Content-Type: application/json
+
+{
+  "payload": {
+    "type": "text",
+    "text": "hello"
+  },
+  "args": {
+    "channel": "http"
+  }
+}
+
+### 
+
 ### Test Duckling
 POST https://duckling.botpress.io/parse
 Content-Type: application/x-www-form-urlencoded
