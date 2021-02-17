@@ -21,6 +21,11 @@ const migration: Migration = {
     const { client } = db.client.config
 
     try {
+      const hasBotIdColumn = await db.schema.hasColumn(TABLE_NAME, 'botId')
+      if (!hasBotIdColumn) {
+        return { success: true, message: 'Column botId already merged, skipping...' }
+      }
+
       if (client === 'sqlite3') {
         await db.transaction(async trx => {
           await trx.raw(`UPDATE ${TABLE_NAME} SET id = botId || '::' || id;`)
