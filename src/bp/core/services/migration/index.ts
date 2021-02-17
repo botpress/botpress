@@ -93,11 +93,14 @@ export class MigrationService {
       this.configVersion = yn(process.core_env.TESTMIG_NEW) ? process.BOTPRESS_VERSION : '12.0.0'
     }
 
-    const migrationsToExecute = [
-      ...this.filterMigrations(allMigrations, this.dbVersion, { isDown, type: 'database' }),
-      ...this.filterMigrations(allMigrations, this.configVersion, { isDown, type: 'config' }),
-      ...this.filterMigrations(allMigrations, this.configVersion, { isDown, type: 'content' })
-    ]
+    const migrationsToExecute = _.sortBy(
+      [
+        ...this.filterMigrations(allMigrations, this.dbVersion, { isDown, type: 'database' }),
+        ...this.filterMigrations(allMigrations, this.configVersion, { isDown, type: 'config' }),
+        ...this.filterMigrations(allMigrations, this.configVersion, { isDown, type: 'content' })
+      ],
+      x => x.date
+    )
 
     if (!migrationsToExecute.length && process.MIGRATE_CMD === undefined) {
       return
