@@ -24,7 +24,31 @@ const migration: Migration = {
       }
     }
 
-    return { success: true, message: hasChanges ? 'Field added successfully' : 'Field already exists, skipping...' }
+    return {
+      success: true,
+      hasChanges,
+      message: hasChanges ? 'Field added successfully' : 'Field already exists, skipping...'
+    }
+  },
+  down: async ({ bp, configProvider }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
+    let hasChanges = false
+    const config = await configProvider.getBotpressConfig()
+
+    for (const strategy of Object.keys(config.authStrategies)) {
+      if (await bp.database.schema.hasColumn(`strategy_${strategy}`, 'tokenVersion')) {
+        await bp.database.schema.table(`strategy_${strategy}`, table => {
+          table.dropColumn('tokenVersion')
+        })
+
+        hasChanges = true
+      }
+    }
+
+    return {
+      success: true,
+      hasChanges,
+      message: hasChanges ? 'Field removed successfully' : 'Field doesnt exists, skipping...'
+    }
   }
 }
 
