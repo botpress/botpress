@@ -21,7 +21,7 @@ export interface MessageRepository {
   delete(messageId: number): Promise<boolean>
   query()
   serialize(message: Partial<sdk.Message>)
-  deserialize(message: any): sdk.Message
+  deserialize(message: any): sdk.Message | undefined
 }
 
 @injectable()
@@ -49,7 +49,7 @@ export class KnexMessageRepository implements MessageRepository {
       query = query.limit(limit)
     }
 
-    return (await query).map(x => this.deserialize(x))
+    return (await query).map(x => this.deserialize(x)!)
   }
 
   public async deleteAll(conversationId: number): Promise<number> {
@@ -140,7 +140,11 @@ export class KnexMessageRepository implements MessageRepository {
     }
   }
 
-  public deserialize(message: any): sdk.Message {
+  public deserialize(message: any): sdk.Message | undefined {
+    if (!message) {
+      return undefined
+    }
+
     const { id, conversationId, eventId, incomingEventId, from, sentOn, payload } = message
     return {
       id,
