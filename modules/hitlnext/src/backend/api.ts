@@ -10,10 +10,10 @@ import { Config } from '../config'
 import { MODULE_NAME } from '../constants'
 import { agentName } from '../helper'
 
+import { StateType } from './index'
 import { HandoffType, IAgent, IComment, IHandoff } from './../types'
 import { UnprocessableEntityError } from './errors'
 import { extendAgentSession, formatValidationError, makeAgentId } from './helpers'
-import { StateType } from './index'
 import Repository, { CollectionConditions } from './repository'
 import Socket from './socket'
 import {
