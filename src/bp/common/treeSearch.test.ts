@@ -1,9 +1,7 @@
 import _ from 'lodash'
-import { TreeSearch } from './utils'
+import { TreeSearch, PATH_SEPARATOR, SPACE_SEPARATOR } from './treeSearch'
 
 const OBJECT_VALUE = { key: 'value', nested: { key: '1', value: 1 } }
-const PATH_SEPARATOR = '/'
-const KEY_SEPARATOR = ' '
 const EMPTY_KEY = ''
 const KEYS = ['a key', 'a second one', 'and a third one']
 const INVALID_KEY = 'a key invalid'
@@ -147,7 +145,7 @@ describe('TreeSearch', () => {
     })
 
     it('Returns undefined when there is no result for the search', () => {
-      const tree = new TreeSearch(KEY_SEPARATOR)
+      const tree = new TreeSearch(SPACE_SEPARATOR)
 
       for (const key of KEYS) {
         tree.insert(key, key)
@@ -253,7 +251,7 @@ describe('TreeSearch', () => {
     })
 
     it('Returns undefined when there is no result for the search (few levels deep)', () => {
-      const tree = new TreeSearch(KEY_SEPARATOR)
+      const tree = new TreeSearch(SPACE_SEPARATOR)
 
       for (const key of KEYS) {
         tree.insert(key, key)
@@ -268,7 +266,7 @@ describe('TreeSearch', () => {
     })
 
     it('Returns undefined when there is no result for the search (complete tree traversal)', () => {
-      const tree = new TreeSearch(KEY_SEPARATOR)
+      const tree = new TreeSearch(SPACE_SEPARATOR)
 
       for (const key of KEYS) {
         tree.insert(key, key)

@@ -1,3 +1,6 @@
+export const PATH_SEPARATOR = '/'
+export const SPACE_SEPARATOR = ' '
+
 class TreeNode<T> {
   public value: T | undefined
   public children: Map<string, TreeNode<T>> = new Map()

@@ -1,5 +1,6 @@
 import { Flow, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
+import { TreeSearch, PATH_SEPARATOR } from 'common/treeSearch'
 import { FlowMutex, FlowView, NodeView } from 'common/typings'
 import { ModuleLoader } from 'core/module-loader'
 import { RealTimePayload } from 'core/sdk/impl'
@@ -16,7 +17,6 @@ import nanoid from 'nanoid/generate'
 import { GhostService } from '../..'
 import { TYPES } from '../../../types'
 import { validateFlowSchema } from '../validator'
-import { TreeSearch } from './utils'
 
 const PLACING_STEP = 250
 const MIN_POS_X = 50
@@ -135,10 +135,13 @@ export class FlowService {
           this._flowCache.deleteFlow(botId, flowPath)
         }
 
-        const flows = this._flowCache.get(botId)
-        const flowsWithParents = this.addParentsToFlows(flows)
+        // parent flows are only used by the NDU
+        if (this._isOneFlow(botId)) {
+          const flows = this._flowCache.get(botId)
+          const flowsWithParents = this.addParentsToFlows(flows)
 
-        this._flowCache.set(botId, flowsWithParents)
+          this._flowCache.set(botId, flowsWithParents)
+        }
       }
     })
   }
@@ -157,10 +160,17 @@ export class FlowService {
         return this.parseFlow(botId, flowPath)
       })
 
-      const flowsWithParents = this.addParentsToFlows(flows)
+      // parent flows are only used by the NDU
+      if (this._isOneFlow(botId)) {
+        const flowsWithParents = this.addParentsToFlows(flows)
+        this._flowCache.set(botId, flowsWithParents)
 
-      this._flowCache.set(botId, flowsWithParents)
-      return flowsWithParents
+        return flowsWithParents
+      } else {
+        this._flowCache.set(botId, flows)
+
+        return flows
+      }
     } catch (err) {
       this.logger
         .forBot(botId)
@@ -177,7 +187,6 @@ export class FlowService {
   }
 
   private addParentsToFlows(flows: FlowView[]): FlowView[] {
-    const PATH_SEPARATOR = '/'
     const tree = new TreeSearch(PATH_SEPARATOR)
 
     flows.forEach(f => {
