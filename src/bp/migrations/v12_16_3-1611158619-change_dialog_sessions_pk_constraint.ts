@@ -1,12 +1,30 @@
 import * as sdk from 'botpress/sdk'
 import { Migration } from 'core/services/migration'
+import _ from 'lodash'
 
 const TABLE_NAME = 'dialog_sessions'
 const TEMP_TABLE_NAME = 'dialog_sessions_temp'
+const PK_COLUMNS = ['botId', 'id'].sort() // needs to be sorted alphabetically
+
+// https://www.oreilly.com/library/view/using-sqlite/9781449394592/re205.html
+interface SQLiteColumnInfo {
+  cid: number
+  name: string
+  type: string
+  notnull: number
+  dflt_value: string | null
+  pk: number
+}
+type SQLiteTableInfo = SQLiteColumnInfo[]
+
+interface PostgreSQLPKInfo {
+  name: string
+}
+type PostgreSQLTablePK = PostgreSQLPKInfo[]
 
 const migration: Migration = {
   info: {
-    description: 'Change dialog_sessions PK constraint to include botId and remove botId column',
+    description: 'Change dialog_sessions PK constraint to include botId',
     target: 'core',
     type: 'database'
   },
@@ -21,9 +39,35 @@ const migration: Migration = {
     const { client } = db.client.config
 
     try {
-      const hasBotIdColumn = db.schema.hasColumn(TABLE_NAME, 'botId')
+      const noMigrationNeeded = { success: true, message: 'PK constraint already changed, skipping...' }
+
+      const hasBotIdColumn = await db.schema.hasColumn(TABLE_NAME, 'botId')
       if (!hasBotIdColumn) {
-        return { success: true, message: 'PK constraint already changed and column botId already removed, skipping...' }
+        return noMigrationNeeded
+      }
+
+      if (client === 'sqlite3') {
+        const tableInfo = (await db.raw(`PRAGMA table_info([${TABLE_NAME}])`)) as SQLiteTableInfo
+        const isSQLitePK = (pkIndex: number) => pkIndex > 0
+        const pks = tableInfo.filter(c => isSQLitePK(c.pk)).map(c => c.name)
+        if (_.isEqual(pks.sort(), PK_COLUMNS)) {
+          return noMigrationNeeded
+        }
+      } else {
+        const pks = await db
+          .raw(
+            `SELECT a.attname as name
+            FROM   pg_index i
+            JOIN   pg_attribute a ON a.attrelid = i.indrelid
+                                AND a.attnum = ANY(i.indkey)
+            WHERE  i.indrelid = '${TABLE_NAME}'::regclass
+            AND    i.indisprimary`
+          )
+          .then((x: { rows: PostgreSQLTablePK }) => x.rows.map(r => r.name))
+
+        if (_.isEqual(pks.sort(), PK_COLUMNS)) {
+          return noMigrationNeeded
+        }
       }
 
       if (client === 'sqlite3') {
