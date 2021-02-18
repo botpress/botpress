@@ -4,7 +4,7 @@ import { injectable } from 'inversify'
 
 @injectable()
 export class RenderService {
-  renderText(text: string | sdk.MultiLangText, markdown?: boolean): sdk.render.Text {
+  renderText(text: string | sdk.MultiLangText, markdown?: boolean): sdk.experimental.render.Text {
     return {
       type: 'text',
       text,
@@ -12,7 +12,7 @@ export class RenderService {
     }
   }
 
-  renderImage(url: string, caption?: string | sdk.MultiLangText): sdk.render.Image {
+  renderImage(url: string, caption?: string | sdk.MultiLangText): sdk.experimental.render.Image {
     return {
       type: 'image',
       image: url,
@@ -24,8 +24,8 @@ export class RenderService {
     title: string | sdk.MultiLangText,
     image?: string,
     subtitle?: string | sdk.MultiLangText,
-    ...buttons: sdk.render.ActionButton[]
-  ): sdk.render.Card {
+    ...buttons: sdk.experimental.render.ActionButton[]
+  ): sdk.experimental.render.Card {
     return {
       type: 'card',
       title,
@@ -35,14 +35,17 @@ export class RenderService {
     }
   }
 
-  renderCarousel(...cards: sdk.render.Card[]): sdk.render.Carousel {
+  renderCarousel(...cards: sdk.experimental.render.Card[]): sdk.experimental.render.Carousel {
     return {
       type: 'carousel',
       items: cards
     }
   }
 
-  renderChoice(message: string | sdk.MultiLangText, ...choices: sdk.render.ChoiceOption[]): sdk.render.Choice {
+  renderChoice(
+    message: string | sdk.MultiLangText,
+    ...choices: sdk.experimental.render.ChoiceOption[]
+  ): sdk.experimental.render.Choice {
     return {
       type: 'single-choice',
       message,
@@ -50,7 +53,7 @@ export class RenderService {
     }
   }
 
-  renderButtonSay(title: string, text: string | sdk.MultiLangText): sdk.render.ActionSaySomething {
+  renderButtonSay(title: string, text: string | sdk.MultiLangText): sdk.experimental.render.ActionSaySomething {
     return {
       action: 'Say something',
       title,
@@ -58,7 +61,7 @@ export class RenderService {
     }
   }
 
-  renderButtonUrl(title: string, url: string): sdk.render.ActionOpenURL {
+  renderButtonUrl(title: string, url: string): sdk.experimental.render.ActionOpenURL {
     return {
       action: 'Open URL',
       title,
@@ -66,7 +69,7 @@ export class RenderService {
     }
   }
 
-  renderButtonPostback(title: string, payload: string): sdk.render.ActionPostback {
+  renderButtonPostback(title: string, payload: string): sdk.experimental.render.ActionPostback {
     return {
       action: 'Postback',
       title,
@@ -74,14 +77,14 @@ export class RenderService {
     }
   }
 
-  renderOption(value: string, message?: string): sdk.render.ChoiceOption {
+  renderOption(value: string, message?: string): sdk.experimental.render.ChoiceOption {
     return {
       value,
       message: message ?? value
     }
   }
 
-  renderTranslated<T extends sdk.render.Content>(content: T, lang: string): T {
+  renderTranslated<T extends sdk.experimental.render.Content>(content: T, lang: string): T {
     if (typeof content !== 'object' || content === null) {
       return content
     }
@@ -101,11 +104,11 @@ export class RenderService {
     return content
   }
 
-  renderTemplate<T extends sdk.render.Content>(content: T, context): T {
+  renderTemplate<T extends sdk.experimental.render.Content>(content: T, context): T {
     return renderRecursive(content, context)
   }
 
-  getPipeline(lang: string, context: any): sdk.render.Pipeline {
+  getPipeline(lang: string, context: any): sdk.experimental.render.Pipeline {
     const wrap = <T extends Array<any>, U>(fn: (...args: T) => U) => {
       return (...args: T): U => {
         const content = fn(...args)
