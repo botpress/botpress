@@ -8,6 +8,7 @@
 * **core:** conflict between dialog sessions contexts on update ([#4493](https://github.com/botpress/botpress/issues/4493)) ([aa1328b](https://github.com/botpress/botpress/commit/aa1328b))
 * **core:** make sure column botId exists before doing migration ([#4526](https://github.com/botpress/botpress/issues/4526)) ([192d661](https://github.com/botpress/botpress/commit/192d661))
 * **core:** make sure migrations can be run multiple times ([#4531](https://github.com/botpress/botpress/issues/4531)) ([68679c6](https://github.com/botpress/botpress/commit/68679c6))
+* **hitlnext:** remove agent cache warmup ([#4527](https://github.com/botpress/botpress/issues/4527)) ([2d81241](https://github.com/botpress/botpress/commit/2d81241))
 * **pro:** Azure OAuth2 openID fix ([37475f0](https://github.com/botpress/botpress/commit/37475f0))
 * **studio:** update flow on link deletion ([#4502](https://github.com/botpress/botpress/issues/4502)) ([ada8a59](https://github.com/botpress/botpress/commit/ada8a59))
 * **webchat:** cleanup and fixed api ([#4523](https://github.com/botpress/botpress/issues/4523)) ([aedf08b](https://github.com/botpress/botpress/commit/aedf08b))
