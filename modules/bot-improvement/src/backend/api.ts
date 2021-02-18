@@ -1,8 +1,8 @@
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
+import { asyncMiddleware as asyncMw } from 'common/http'
 import { Response } from 'express'
 import _ from 'lodash'
-
 import { Database } from './db'
 import { flowsToGoals } from './helpers'
 import { FeedbackItem, FlowView, MessageGroup } from './typings'
@@ -17,42 +17,55 @@ interface SessionResponse extends Response {
 }
 
 export default async (bp: typeof sdk, db: Database) => {
+  const asyncMiddleware = asyncMw(bp.logger)
   const router = bp.http.createRouterForBot('bot-improvement')
 
-  router.get('/feedback-items', async (req, res: FeedbackItemsResponse) => {
-    const botId = req.params.botId
+  router.get(
+    '/feedback-items',
+    asyncMiddleware(async (req, res: FeedbackItemsResponse) => {
+      const botId = req.params.botId
 
-    const feedbackItems = await db.getFeedbackItems(botId)
+      const feedbackItems = await db.getFeedbackItems(botId)
 
-    res.send(feedbackItems)
-  })
+      res.send(feedbackItems)
+    })
+  )
 
-  router.get('/goals', async (req, res) => {
-    const axiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
-    const flows: FlowView[] = (await axios.get('/flows', axiosConfig)).data
-    const goals = flowsToGoals(flows)
-    res.send(goals)
-  })
+  router.get(
+    '/goals',
+    asyncMiddleware(async (req, res) => {
+      const axiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
+      const flows: FlowView[] = (await axios.get('/flows', axiosConfig)).data
+      const goals = flowsToGoals(flows)
+      res.send(goals)
+    })
+  )
 
-  router.post('/feedback-items/:eventId', async (req, res) => {
-    const { error, value } = FeedbackItemSchema.validate(req.body)
-    if (error) {
-      return res.status(400).send('Body is invalid')
-    }
+  router.post(
+    '/feedback-items/:eventId',
+    asyncMiddleware(async (req, res) => {
+      const { error, value } = FeedbackItemSchema.validate(req.body)
+      if (error) {
+        return res.status(400).send('Body is invalid')
+      }
 
-    const { eventId } = req.params
-    const { status, correctedActionType, correctedObjectId } = value
+      const { eventId } = req.params
+      const { status, correctedActionType, correctedObjectId } = value
 
-    await db.updateFeedbackItem({ eventId, status, correctedActionType, correctedObjectId })
+      await db.updateFeedbackItem({ eventId, status, correctedActionType, correctedObjectId })
 
-    res.sendStatus(200)
-  })
+      res.sendStatus(200)
+    })
+  )
 
-  router.get('/sessions/:sessionId', async (req, res: SessionResponse) => {
-    const { sessionId } = req.params
+  router.get(
+    '/sessions/:sessionId',
+    asyncMiddleware(async (req, res: SessionResponse) => {
+      const { sessionId } = req.params
 
-    const messageGroups = await db.getMessageGroups(sessionId)
+      const messageGroups = await db.getMessageGroups(sessionId)
 
-    res.send(messageGroups)
-  })
+      res.send(messageGroups)
+    })
+  )
 }
