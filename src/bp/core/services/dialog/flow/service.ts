@@ -1,5 +1,6 @@
 import { Flow, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
+import { TreeSearch, PATH_SEPARATOR } from 'common/treeSearch'
 import { FlowMutex, FlowView, NodeView } from 'common/typings'
 import { ModuleLoader } from 'core/module-loader'
 import { RealTimePayload } from 'core/sdk/impl'
@@ -49,11 +50,7 @@ export class MutexError extends Error {
 }
 
 class FlowCache {
-  private _flows: Map<string, Map<string, FlowView>>
-
-  constructor() {
-    this._flows = new Map()
-  }
+  private _flows: Map<string, Map<string, FlowView>> = new Map()
 
   public set(botId: string, flowViews: FlowView[]): void {
     const flows = new Map(flowViews.map(f => [f.name, f]))
@@ -132,11 +129,18 @@ export class FlowService {
 
         if (await this.ghost.forBot(botId).fileExists(FLOW_DIR, flowPath)) {
           const flow = await this.parseFlow(botId, flowPath)
-          const flowWithParents = this.addParentsToFlows([flow])[0]
 
-          this._flowCache.upsertFlow(botId, flowWithParents)
+          this._flowCache.upsertFlow(botId, flow)
         } else {
           this._flowCache.deleteFlow(botId, flowPath)
+        }
+
+        // parent flows are only used by the NDU
+        if (this._isOneFlow(botId)) {
+          const flows = this._flowCache.get(botId)
+          const flowsWithParents = this.addParentsToFlows(flows)
+
+          this._flowCache.set(botId, flowsWithParents)
         }
       }
     })
@@ -156,10 +160,17 @@ export class FlowService {
         return this.parseFlow(botId, flowPath)
       })
 
-      const flowsWithParents = this.addParentsToFlows(flows)
+      // parent flows are only used by the NDU
+      if (this._isOneFlow(botId)) {
+        const flowsWithParents = this.addParentsToFlows(flows)
+        this._flowCache.set(botId, flowsWithParents)
 
-      this._flowCache.set(botId, flowsWithParents)
-      return flowsWithParents
+        return flowsWithParents
+      } else {
+        this._flowCache.set(botId, flows)
+
+        return flows
+      }
     } catch (err) {
       this.logger
         .forBot(botId)
@@ -176,13 +187,20 @@ export class FlowService {
   }
 
   private addParentsToFlows(flows: FlowView[]): FlowView[] {
-    return flows.map(flow => {
-      const flowName = flow.name.replace('.flow.json', '')
-      const parentFlow = flows.find(x => x.name !== flow.name && flowName.startsWith(x.name.replace('.flow.json', '')))
+    const tree = new TreeSearch(PATH_SEPARATOR)
+
+    flows.forEach(f => {
+      const filename = f.name.replace('.flow.json', '')
+      // the value we are looking for is the parent filename
+      tree.insert(filename, filename)
+    })
+
+    return flows.map(f => {
+      const filename = f.name.replace('.flow.json', '')
 
       return {
-        ...flow,
-        parent: parentFlow?.name.replace('.flow.json', '')
+        ...f,
+        parent: tree.getParent(filename)
       }
     })
   }
