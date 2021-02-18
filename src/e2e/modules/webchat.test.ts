@@ -42,7 +42,7 @@ describe('Module - Channel Web', () => {
     expect(placeholderText).toEqual('Select option...')
 
     await clickOn('.bpw-keyboard-quick_reply-dropdown div[class*="-container"]')
-    await clickOn('.bpw-keyboard-quick_reply-dropdown #react-select-3-option-0')
+    await clickOn(`.bpw-keyboard-quick_reply-dropdown div[id^='react-select']:first-child`)
     await expectMatch('Please ask questions about that animal')
   })
 
