@@ -2,10 +2,10 @@ import { Dictionary } from 'lodash'
 import React, { createContext, Dispatch, useEffect, useReducer } from 'react'
 
 import { Config } from '../../../config'
-import { IAgent, IHandoff } from '../../../types'
+import { AgentWithPermissions, IAgent, IHandoff } from '../../../types'
 
-import Storage from './storage'
 import Reducer, { ActionType } from './Reducer'
+import Storage from './storage'
 
 interface IStore {
   state: IState
@@ -19,7 +19,7 @@ export interface UserDefaultsType {
 }
 
 export interface IState {
-  readonly currentAgent?: IAgent
+  readonly currentAgent?: AgentWithPermissions
   readonly selectedHandoffId: string | null
   readonly agents: Dictionary<IAgent>
   readonly handoffs: Dictionary<IHandoff>

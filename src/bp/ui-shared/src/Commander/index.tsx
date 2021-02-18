@@ -4,9 +4,9 @@ import React, { FC, useEffect, useState } from 'react'
 import CommandPalette from 'react-command-palette'
 import { generatePath } from 'react-router'
 
+import { isOperationAllowed } from '../AccessControl'
 import { lang } from '../translations'
 import { controlKey } from '../utils/keyboardShortcuts'
-import { isOperationAllowed } from '../AccessControl'
 
 import { getCommonShortcuts } from './shortcuts'
 import style from './style.scss'

@@ -6,12 +6,12 @@ import { InjectedIntlProps, injectIntl } from 'react-intl'
 import { RootStore, StoreDef } from '../store'
 
 import BotInfo from './common/BotInfo'
-import MessageList from './messages/MessageList'
 import Composer from './Composer'
 import ConversationList from './ConversationList'
 import Footer from './Footer'
 import Header from './Header'
 import * as Keyboard from './Keyboard'
+import MessageList from './messages/MessageList'
 import OverridableComponent from './OverridableComponent'
 
 class Container extends React.Component<ContainerProps> {

@@ -62,7 +62,7 @@ class Web extends React.Component<MainProps> {
   }
 
   componentDidUpdate() {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.initializeIfChatDisplayed()
   }
 

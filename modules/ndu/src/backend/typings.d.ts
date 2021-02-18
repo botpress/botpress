@@ -1,9 +1,11 @@
 import * as sdk from 'botpress/sdk'
 import { UnderstandingEngine } from './ndu-engine'
 
-export type MountedBots = { [key: string]: UnderstandingEngine }
+export interface MountedBots {
+  [key: string]: UnderstandingEngine
+}
 
-export type Features = {
+export interface Features {
   current_workflow_id: string
   current_node_id: string
   current_highest_ranking_trigger_id: string

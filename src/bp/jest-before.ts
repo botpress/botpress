@@ -2,6 +2,7 @@ import { EventEmitter } from 'events'
 
 import { Distro } from './common/getos'
 
+const os = require('os').platform()
 const { Debug: _Debug } = require('./debug.ts')
 
 global.DEBUG = _Debug
@@ -13,8 +14,6 @@ if (!process.core_env) {
 if (!process.BOTPRESS_EVENTS) {
   process.BOTPRESS_EVENTS = new EventEmitter()
 }
-
-const os = require('os').platform()
 
 const distribution =
   os !== 'linux'

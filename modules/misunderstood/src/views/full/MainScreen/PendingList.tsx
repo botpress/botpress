@@ -5,8 +5,8 @@ import React from 'react'
 import { DbFlaggedEvent } from '../../../types'
 import StickyActionBar from '../StickyActionBar'
 
-import style from './style.scss'
 import ResolvedEventsList from './ResolvedEventsList'
+import style from './style.scss'
 
 interface Props {
   events: DbFlaggedEvent[]

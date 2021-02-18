@@ -3,8 +3,8 @@ import cx from 'classnames'
 import sortby from 'lodash/sortBy'
 import React, { FC } from 'react'
 
-import style from './style.scss'
 import { Message } from './Message'
+import style from './style.scss'
 
 interface Props {
   events: sdk.IO.StoredEvent[]

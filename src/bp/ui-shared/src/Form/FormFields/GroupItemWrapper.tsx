@@ -2,9 +2,9 @@ import { Button } from '@blueprintjs/core'
 import cx from 'classnames'
 import React, { FC, useState } from 'react'
 
-import sharedStyle from '../../../../ui-shared-lite/style.scss'
 import MoreOptions from '../../../../ui-shared-lite/MoreOptions'
 import { MoreOptionsItems } from '../../../../ui-shared-lite/MoreOptions/typings'
+import sharedStyle from '../../../../ui-shared-lite/style.scss'
 import { lang } from '../../translations'
 
 import style from './style.scss'

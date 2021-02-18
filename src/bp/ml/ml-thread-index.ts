@@ -1,9 +1,9 @@
-// tslint:disable-next-line:ordered-imports
+// eslint-disable-next-line import/order
 import '../sdk/worker-before'
-// tslint:disable-next-line:ordered-imports
+// eslint-disable-next-line import/order
 import '../sdk/rewire'
 
-// tslint:disable-next-line:ordered-imports
+// eslint-disable-next-line import/order
 import * as sdk from 'botpress/sdk'
 import { parentPort } from 'worker_threads'
 

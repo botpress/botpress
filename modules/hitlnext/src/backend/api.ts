@@ -10,10 +10,10 @@ import { Config } from '../config'
 import { MODULE_NAME } from '../constants'
 import { agentName } from '../helper'
 
-import { HandoffType, IAgent, IComment, IHandoff } from './../types'
+import { StateType } from './index'
+import { HandoffStatus, IAgent, IComment, IHandoff } from './../types'
 import { UnprocessableEntityError } from './errors'
 import { extendAgentSession, formatValidationError, makeAgentId } from './helpers'
-import { StateType } from './index'
 import Repository, { CollectionConditions } from './repository'
 import Socket from './socket'
 import {
@@ -142,7 +142,7 @@ export default async (bp: typeof sdk, state: StateType) => {
     errorMiddleware(async (req: Request, res: Response) => {
       const payload: Pick<IHandoff, 'userId' | 'userThreadId' | 'userChannel' | 'status'> = {
         ..._.pick(req.body, ['userId', 'userThreadId', 'userChannel']),
-        status: <HandoffType>'pending'
+        status: <HandoffStatus>'pending'
       }
 
       Joi.attempt(payload, CreateHandoffSchema)

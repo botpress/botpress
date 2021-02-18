@@ -38,7 +38,7 @@ export default class MemoryQueue<E extends IO.Event> implements Queue<E> {
 
   drain = () => {
     if (this._queue.length > 0) {
-      // tslint:disable-next-line: no-floating-promises
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.tick()
     }
   }
@@ -99,7 +99,7 @@ export default class MemoryQueue<E extends IO.Event> implements Queue<E> {
       this.logger.attachError(err).warn(`${this.name} queue failed to process job: ${err.message}`)
 
       if (retries + 1 <= this._options.retries) {
-        // tslint:disable-next-line: no-floating-promises
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.enqueue(job, retries + 1, true)
       } else {
         this.logger.error(

@@ -20,7 +20,7 @@ export const EntitySelector: FC<Props> = props => {
   const [availableEntities, setAvbEntities] = useState([])
 
   useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     props.api.fetchEntities().then(setAvbEntities)
   }, [])
 

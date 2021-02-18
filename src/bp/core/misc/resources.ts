@@ -17,7 +17,7 @@ const _enrichResources = (resources: Resource[] | undefined, parent?: string): R
   }
 
   return resources.map(res => {
-    const fullName = parent != undefined ? `${parent}.${res.name}` : res.name
+    const fullName = parent != null ? `${parent}.${res.name}` : res.name
     return {
       ...res,
       displayName: res.name,
