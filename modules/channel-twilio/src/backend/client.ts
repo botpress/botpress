@@ -71,11 +71,11 @@ export class TwilioClient {
 
     await this.kvs.set(`twilio_${target}`, threadId)
 
-    const conversation = await this.bp.messaging.getOrCreateRecentConversation({
+    const conversation = await this.bp.experimental.messaging.getOrCreateRecentConversation({
       botId: this.botId,
       userId: target
     })
-    await this.bp.messaging.sendIncoming(conversation.id, payload, { channel: 'twilio' })
+    await this.bp.experimental.messaging.sendIncoming(conversation.id, payload, { channel: 'twilio' })
   }
 
   async handleIndexReponse(index: number, target: string, threadId: string): Promise<any> {
@@ -117,7 +117,7 @@ export class TwilioClient {
       await this.sendCarousel(event, payload)
     }
 
-    await this.bp.messaging.createMessage(+event.threadId, event.id, event.incomingEventId, 'bot', payload)
+    await this.bp.experimental.messaging.createMessage(+event.threadId, event.id, event.incomingEventId, 'bot', payload)
 
     next(undefined, false)
   }
