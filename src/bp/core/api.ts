@@ -73,7 +73,7 @@ const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk
   }
 }
 
-const messaging = (messagingApi: MessagingAPI): typeof sdk.messaging => {
+const messaging = (messagingApi: MessagingAPI): typeof sdk.experimental.messaging => {
   return {
     getAllConversations: messagingApi.getAllConversations.bind(messagingApi),
     getRecentConversations: messagingApi.getRecentConversations.bind(messagingApi),
@@ -229,10 +229,11 @@ const distributed = (jobService: JobService): typeof sdk.distributed => {
   }
 }
 
-const experimental = (hookService: HookService): typeof sdk.experimental => {
+const experimental = (hookService: HookService, messagingAPI: MessagingAPI): typeof sdk.experimental => {
   return {
     disableHook: hookService.disableHook.bind(hookService),
-    enableHook: hookService.enableHook.bind(hookService)
+    enableHook: hookService.enableHook.bind(hookService),
+    messaging: messaging(messagingAPI)
   }
 }
 
@@ -251,7 +252,6 @@ export class RealTimeAPI implements RealTimeAPI {
 export class BotpressAPIProvider {
   http: (owner: string) => typeof sdk.http
   events: typeof sdk.events
-  messaging: typeof sdk.messaging
   dialog: typeof sdk.dialog
   config: typeof sdk.config
   realtime: RealTimeAPI
@@ -293,7 +293,6 @@ export class BotpressAPIProvider {
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
-    this.messaging = messaging(messagingAPI)
     this.dialog = dialog(dialogEngine, stateManager, moduleLoader)
     this.config = config(moduleLoader, configProvider)
     this.realtime = new RealTimeAPI(realtimeService)
@@ -305,7 +304,7 @@ export class BotpressAPIProvider {
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService, mediaServiceProvider)
     this.mlToolkit = MLToolkit
-    this.experimental = experimental(hookService)
+    this.experimental = experimental(hookService, messagingAPI)
     this.security = security()
     this.workspaces = workspaces(workspaceService)
     this.distributed = distributed(jobService)
@@ -326,7 +325,6 @@ export class BotpressAPIProvider {
       MLToolkit: this.mlToolkit,
       dialog: this.dialog,
       events: this.events,
-      messaging: this.messaging,
       http: this.http(owner),
       logger: await this.loggerProvider(loggerName),
       config: this.config,
