@@ -28,6 +28,7 @@ export class WebBotpressUIInjection extends React.Component {
         userIdScope: 'studio',
         sendUsageStats: window.SEND_USAGE_STATS,
         disableAnimations: true,
+        disableNotificationSound: false,
         useSessionStorage: false,
         showPoweredBy: false,
         enableResetSessionShortcut: true,

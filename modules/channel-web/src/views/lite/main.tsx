@@ -172,7 +172,9 @@ class Web extends React.Component<MainProps> {
   }
 
   isCurrentConversation = (event: Message) => {
-    return !this.props.config?.conversationId || Number(this.props.config.conversationId) === Number(event.conversationId)
+    return (
+      !this.props.config?.conversationId || Number(this.props.config.conversationId) === Number(event.conversationId)
+    )
   }
 
   handleIframeApi = async ({ data: { action, payload } }) => {
@@ -226,7 +228,10 @@ class Web extends React.Component<MainProps> {
     await this.props.addEventToConversation(event)
 
     // there's no focus on the actual conversation
-    if ((document.hasFocus && !document.hasFocus()) || this.props.activeView !== 'side') {
+    if (
+      !this.config.disableNotificationSound &&
+      ((document.hasFocus && !document.hasFocus()) || this.props.activeView !== 'side')
+    ) {
       await this.playSound()
       this.props.incrementUnread()
     }
