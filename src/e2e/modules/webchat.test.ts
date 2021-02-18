@@ -35,6 +35,7 @@ describe('Module - Channel Web', () => {
     await clickOn('button', { text: 'What is a Context?' })
     await expectMatch("Okay, let's use a simple example. Let's talk about animals. Pick one.")
 
+    await page.waitForSelector('.bpw-keyboard-quick_reply-dropdown div[class*="-placeholder"]')
     const placeholderText = await page.$eval(
       '.bpw-keyboard-quick_reply-dropdown div[class*="-placeholder"]',
       el => el.textContent
