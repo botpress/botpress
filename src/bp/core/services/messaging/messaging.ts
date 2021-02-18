@@ -13,11 +13,11 @@ import { EventEngine } from '../middleware/event-engine'
 
 @injectable()
 export class MessagingAPI {
-  private mostRecentCaches: { [botId: string]: LRU<string, sdk.Conversation> } = {}
+  private mostRecentCaches: { [botId: string]: LRU<string, sdk.experimental.Conversation> } = {}
   private lastChannelCaches: { [botId: string]: LRU<string, string> } = {}
-  private invalidateMostRecent: (endpoint: sdk.UserEndpoint, mostRecentConvoId?: number) => void = this
+  private invalidateMostRecent: (endpoint: sdk.experimental.UserEndpoint, mostRecentConvoId?: number) => void = this
     ._localInvalidateMostRecent
-  private invalidateLastChannel: (endpoint: sdk.UserEndpoint, lastChannel: string) => void = this
+  private invalidateLastChannel: (endpoint: sdk.experimental.UserEndpoint, lastChannel: string) => void = this
     ._localInvalidateLastChannel
 
   constructor(
@@ -40,25 +40,30 @@ export class MessagingAPI {
     }
   }
 
-  public async getAllConversations(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation[]> {
+  public async getAllConversations(endpoint: sdk.experimental.UserEndpoint): Promise<sdk.experimental.Conversation[]> {
     return this.conversationRepo.getAll(endpoint)
   }
 
-  public async getRecentConversations(endpoint: sdk.UserEndpoint, limit?: number): Promise<sdk.RecentConversation[]> {
+  public async getRecentConversations(
+    endpoint: sdk.experimental.UserEndpoint,
+    limit?: number
+  ): Promise<sdk.experimental.RecentConversation[]> {
     return this.conversationRepo.getAllRecent(endpoint, limit)
   }
 
-  public async deleteAllConversations(endpoint: sdk.UserEndpoint): Promise<number> {
+  public async deleteAllConversations(endpoint: sdk.experimental.UserEndpoint): Promise<number> {
     this.invalidateMostRecent(endpoint)
 
     return this.conversationRepo.deleteAll(endpoint)
   }
 
-  public async createConversation(endpoint: sdk.UserEndpoint): Promise<sdk.Conversation> {
+  public async createConversation(endpoint: sdk.experimental.UserEndpoint): Promise<sdk.experimental.Conversation> {
     return this.conversationRepo.create(endpoint)
   }
 
-  public async getOrCreateRecentConversation(endpoint: sdk.UserEndpoint): Promise<sdk.RecentConversation> {
+  public async getOrCreateRecentConversation(
+    endpoint: sdk.experimental.UserEndpoint
+  ): Promise<sdk.experimental.RecentConversation> {
     const cached = this.recentConvoCacheForBot(endpoint.botId).get(endpoint.userId)
     if (cached) {
       return cached
@@ -74,7 +79,7 @@ export class MessagingAPI {
     return conversation
   }
 
-  public async getConversationById(conversationId: number): Promise<sdk.Conversation | undefined> {
+  public async getConversationById(conversationId: number): Promise<sdk.experimental.Conversation | undefined> {
     return this.conversationRepo.getById(conversationId)
   }
 
@@ -85,7 +90,7 @@ export class MessagingAPI {
     return this.conversationRepo.delete(conversationId)
   }
 
-  public async getRecentMessages(conversationId: number, limit?: number): Promise<sdk.Message[]> {
+  public async getRecentMessages(conversationId: number, limit?: number): Promise<sdk.experimental.Message[]> {
     return this.messageRepo.getAll(conversationId, limit)
   }
 
@@ -102,14 +107,14 @@ export class MessagingAPI {
     incomingEventId: string,
     from: string,
     payload: any
-  ): Promise<sdk.Message> {
+  ): Promise<sdk.experimental.Message> {
     const message = await this.messageRepo.create(conversationId, eventId, incomingEventId, from, payload)
     const conversation = (await this.getConversationById(conversationId))!
     await this.flagAsMostRecent(conversation)
     return message
   }
 
-  public async getMessageById(messageId: number): Promise<sdk.Message | undefined> {
+  public async getMessageById(messageId: number): Promise<sdk.experimental.Message | undefined> {
     return this.messageRepo.getById(messageId)
   }
 
@@ -124,11 +129,11 @@ export class MessagingAPI {
     return this.messageRepo.delete(messageId)
   }
 
-  public async sendIncoming(conversationId: number, payload: any, args?: sdk.MessageArgs) {
+  public async sendIncoming(conversationId: number, payload: any, args?: sdk.experimental.MessageArgs) {
     return this.sendMessage(conversationId, payload, 'incoming', args)
   }
 
-  public async sendOutgoing(conversationId: number, payload: any, args?: sdk.MessageArgs) {
+  public async sendOutgoing(conversationId: number, payload: any, args?: sdk.experimental.MessageArgs) {
     return this.sendMessage(conversationId, payload, 'outgoing', args)
   }
 
@@ -136,7 +141,7 @@ export class MessagingAPI {
     conversationId: number,
     payload: any,
     direction: sdk.EventDirection,
-    args?: sdk.MessageArgs
+    args?: sdk.experimental.MessageArgs
   ) {
     const conversation = await this.getConversationById(conversationId)
     if (!conversation) {
@@ -193,7 +198,7 @@ export class MessagingAPI {
     return cache
   }
 
-  private async getLastChannel(endpoint: sdk.UserEndpoint): Promise<string | undefined> {
+  private async getLastChannel(endpoint: sdk.experimental.UserEndpoint): Promise<string | undefined> {
     const cache = this.lastChannelCacheForBot(endpoint.botId)
     const cached = cache.get(endpoint.userId)
     if (cached) {
@@ -206,7 +211,7 @@ export class MessagingAPI {
     return lastChannel
   }
 
-  private async updateLastChannel(endpoint: sdk.UserEndpoint, channel: string) {
+  private async updateLastChannel(endpoint: sdk.experimental.UserEndpoint, channel: string) {
     const cache = this.lastChannelCacheForBot(endpoint.botId)
     const current = cache.get(endpoint.userId)
     if (current === channel) {
@@ -217,11 +222,11 @@ export class MessagingAPI {
     this.invalidateLastChannel(endpoint, channel)
   }
 
-  private getLastChannelKvsKey(endpoint: sdk.UserEndpoint) {
+  private getLastChannelKvsKey(endpoint: sdk.experimental.UserEndpoint) {
     return `lastChannel_${endpoint.botId}_${endpoint.userId}`
   }
 
-  private _localInvalidateLastChannel(endpoint: sdk.UserEndpoint, lastChannel: string) {
+  private _localInvalidateLastChannel(endpoint: sdk.experimental.UserEndpoint, lastChannel: string) {
     if (endpoint) {
       const cache = this.lastChannelCacheForBot(endpoint.botId)
       const cachedLastChannel = cache.peek(endpoint.userId)
@@ -234,14 +239,14 @@ export class MessagingAPI {
   private recentConvoCacheForBot(botId: string) {
     let cache = this.mostRecentCaches[botId]
     if (!cache) {
-      cache = new LRU<string, sdk.Conversation>({ max: 10000, maxAge: ms('5min') })
+      cache = new LRU<string, sdk.experimental.Conversation>({ max: 10000, maxAge: ms('5min') })
       this.mostRecentCaches[botId] = cache
     }
 
     return cache
   }
 
-  private async flagAsMostRecent(conversation: sdk.Conversation) {
+  private async flagAsMostRecent(conversation: sdk.experimental.Conversation) {
     const cache = this.recentConvoCacheForBot(conversation.botId)
     const currentMostRecent = cache.peek(conversation.userId)
 
@@ -251,7 +256,7 @@ export class MessagingAPI {
     }
   }
 
-  private _localInvalidateMostRecent(endpoint: sdk.UserEndpoint, mostRecentConvoId?: number) {
+  private _localInvalidateMostRecent(endpoint: sdk.experimental.UserEndpoint, mostRecentConvoId?: number) {
     if (endpoint) {
       const cache = this.recentConvoCacheForBot(endpoint.botId)
       const cachedMostRecent = cache.peek(endpoint.userId)
