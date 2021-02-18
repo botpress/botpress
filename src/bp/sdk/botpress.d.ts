@@ -1979,134 +1979,6 @@ declare module 'botpress/sdk' {
     ): Promise<boolean>
   }
 
-  export interface UserEndpoint {
-    userId: string
-    botId: string
-  }
-
-  export interface Conversation {
-    id: number
-    userId: string
-    botId: string
-    createdOn: Date
-  }
-
-  export interface RecentConversation extends Conversation {
-    lastMessage?: Message
-  }
-
-  export interface Message {
-    id: number
-    conversationId: number
-    eventId: string
-    incomingEventId: string
-    from: string
-    sentOn: Date
-    payload: any
-  }
-
-  export interface MessageArgs
-    extends Partial<Omit<IO.EventCtorArgs, 'type' | 'direction' | 'payload' | 'target' | 'botId' | 'threadId'>> {
-    persist?: boolean
-  }
-
-  export namespace messaging {
-    /**
-     * Gets all conversations linked to a user endpoint
-     */
-    export function getAllConversations(endpoint: UserEndpoint): Promise<Conversation[]>
-
-    /**
-     * Gets all the recent conversations linked to a user endpoint (most recent at index 0)
-     * (includes the last message of each conversation)
-     * @param limit Limits the amount of conversations to get. If left undefined gets all conversations
-     */
-    export function getRecentConversations(endpoint: UserEndpoint, limit?: number): Promise<RecentConversation[]>
-
-    /**
-     * Deletes all conversations linked to a user endpoint
-     * @returns The number of conversations deleted
-     */
-    export function deleteAllConversations(endpoint: UserEndpoint): Promise<number>
-
-    /**
-     * Creates a conversation linked to a user endpoint
-     */
-    export function createConversation(endpoint: UserEndpoint): Promise<Conversation>
-
-    /**
-     * Gets the most recent conversation linked to a user endpoint
-     * or creates one if no such conversation exists
-     */
-    export function getOrCreateRecentConversation(endpoint: UserEndpoint): Promise<RecentConversation>
-
-    /**
-     * Gets a conversation by its id
-     */
-    export function getConversationById(conversationId: number): Promise<Conversation | undefined>
-
-    /**
-     * Deletes a conversation by its id. This deletes all of its messages as well
-     * @returns `true` if a conversation was deleted
-     */
-    export function deleteConversation(conversationId: number): Promise<boolean>
-
-    /**
-     * Gets all the messages belonging to a conversation (most recent at index 0)
-     * @param limit Limits the amount of messages to get. If left undefined gets all messages
-     */
-    export function getRecentMessages(conversationId: number, limit?: number): Promise<Message[]>
-
-    /**
-     * Deletes all the messages belonging to a conversation
-     * @returns The number of messages deleted
-     */
-    export function deleteAllMessages(conversationId: number): Promise<number>
-
-    /**
-     * Adds a message to a conversation. This is usally used to add the bot's response
-     * @param conversationId Id of the conversation to which this message belongs to
-     * @param eventId Id of the event that corresponds to this message
-     * @param incomingEventId Id of the event that this message is responding to
-     * @param from Author of this message (`bot` or `user` or a custom value)
-     * @param payload Payload of the message
-     */
-    export function createMessage(
-      conversationId: number,
-      eventId: string,
-      incomingEventId: string,
-      from: string,
-      payload: any
-    ): Promise<Message>
-
-    /**
-     * Gets a message by its id
-     */
-    export function getMessageById(messageId: number): Promise<Message | undefined>
-
-    /**
-     * Deletes a message by its id
-     * @returns `true` if a message was deleted
-     */
-    export function deleteMessage(messageId: number): Promise<boolean>
-
-    /**
-     * Sends a incoming message (user message) through the event loop. The message is stored in the database
-     * @param conversationId Id of the conversation to which this message belongs to
-     * @param payload Payload of the message
-     * @param args Additional arguments to pass to the event constructor. Optional
-     */
-    export function sendIncoming(conversationId: number, payload: any, args?: MessageArgs): Promise<Message | undefined>
-
-    /**
-     * Sends a outgoing message (bot message) through the event loop. The message is stored in the database
-     * @param conversationId Id of the conversation to which this message belongs to
-     * @param payload Payload of the message
-     * @param args Additional arguments to pass to the event constructor. Optional
-     */
-    export function sendOutgoing(conversationId: number, payload: any, args?: MessageArgs): Promise<Message | undefined>
-  }
-
   export type GetOrCreateResult<T> = Promise<{
     created: boolean
     result: T
@@ -2488,5 +2360,141 @@ declare module 'botpress/sdk' {
   export namespace experimental {
     export function disableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
     export function enableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
+
+    export interface UserEndpoint {
+      userId: string
+      botId: string
+    }
+
+    export interface Conversation {
+      id: number
+      userId: string
+      botId: string
+      createdOn: Date
+    }
+
+    export interface RecentConversation extends Conversation {
+      lastMessage?: Message
+    }
+
+    export interface Message {
+      id: number
+      conversationId: number
+      eventId: string
+      incomingEventId: string
+      from: string
+      sentOn: Date
+      payload: any
+    }
+
+    export interface MessageArgs
+      extends Partial<Omit<IO.EventCtorArgs, 'type' | 'direction' | 'payload' | 'target' | 'botId' | 'threadId'>> {
+      persist?: boolean
+    }
+
+    export namespace messaging {
+      /**
+       * Gets all conversations linked to a user endpoint
+       */
+      export function getAllConversations(endpoint: UserEndpoint): Promise<Conversation[]>
+
+      /**
+       * Gets all the recent conversations linked to a user endpoint (most recent at index 0)
+       * (includes the last message of each conversation)
+       * @param limit Limits the amount of conversations to get. If left undefined gets all conversations
+       */
+      export function getRecentConversations(endpoint: UserEndpoint, limit?: number): Promise<RecentConversation[]>
+
+      /**
+       * Deletes all conversations linked to a user endpoint
+       * @returns The number of conversations deleted
+       */
+      export function deleteAllConversations(endpoint: UserEndpoint): Promise<number>
+
+      /**
+       * Creates a conversation linked to a user endpoint
+       */
+      export function createConversation(endpoint: UserEndpoint): Promise<Conversation>
+
+      /**
+       * Gets the most recent conversation linked to a user endpoint
+       * or creates one if no such conversation exists
+       */
+      export function getOrCreateRecentConversation(endpoint: UserEndpoint): Promise<RecentConversation>
+
+      /**
+       * Gets a conversation by its id
+       */
+      export function getConversationById(conversationId: number): Promise<Conversation | undefined>
+
+      /**
+       * Deletes a conversation by its id. This deletes all of its messages as well
+       * @returns `true` if a conversation was deleted
+       */
+      export function deleteConversation(conversationId: number): Promise<boolean>
+
+      /**
+       * Gets all the messages belonging to a conversation (most recent at index 0)
+       * @param limit Limits the amount of messages to get. If left undefined gets all messages
+       */
+      export function getRecentMessages(conversationId: number, limit?: number): Promise<Message[]>
+
+      /**
+       * Deletes all the messages belonging to a conversation
+       * @returns The number of messages deleted
+       */
+      export function deleteAllMessages(conversationId: number): Promise<number>
+
+      /**
+       * Adds a message to a conversation. This is usally used to add the bot's response
+       * @param conversationId Id of the conversation to which this message belongs to
+       * @param eventId Id of the event that corresponds to this message
+       * @param incomingEventId Id of the event that this message is responding to
+       * @param from Author of this message (`bot` or `user` or a custom value)
+       * @param payload Payload of the message
+       */
+      export function createMessage(
+        conversationId: number,
+        eventId: string,
+        incomingEventId: string,
+        from: string,
+        payload: any
+      ): Promise<Message>
+
+      /**
+       * Gets a message by its id
+       */
+      export function getMessageById(messageId: number): Promise<Message | undefined>
+
+      /**
+       * Deletes a message by its id
+       * @returns `true` if a message was deleted
+       */
+      export function deleteMessage(messageId: number): Promise<boolean>
+
+      /**
+       * Sends a incoming message (user message) through the event loop. The message is stored in the database
+       * @param conversationId Id of the conversation to which this message belongs to
+       * @param payload Payload of the message
+       * @param args Additional arguments to pass to the event constructor. Optional
+       */
+      export function sendIncoming(
+        conversationId: number,
+        payload: any,
+        args?: MessageArgs
+      ): Promise<Message | undefined>
+
+      /**
+       * Sends a outgoing message (bot message) through the event loop. The message is stored in the database
+       * @param conversationId Id of the conversation to which this message belongs to
+       * @param payload Payload of the message
+       * @param args Additional arguments to pass to the event constructor. Optional
+       */
+      export function sendOutgoing(
+        conversationId: number,
+        payload: any,
+        args?: MessageArgs
+      ): Promise<Message | undefined>
+    }
   }
 }
