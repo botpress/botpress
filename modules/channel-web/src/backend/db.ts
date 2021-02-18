@@ -336,6 +336,16 @@ export default class WebchatDb {
       )
   }
 
+  async isValidConversationOwner(userId: string, conversationId: number, botId: string): Promise<boolean> {
+    const conversation = await this.knex('web_conversations')
+      .select('id')
+      .where({ userId, botId, id: conversationId })
+      .then()
+      .get(0)
+
+    return conversation?.id === conversationId
+  }
+
   async getConversation(userId, conversationId, botId) {
     const config = (await this.bp.config.getModuleConfigForBot('channel-web', botId)) as Config
     const condition: any = { userId, botId }
@@ -368,7 +378,7 @@ export default class WebchatDb {
     })
   }
 
-  async deleteConversationMessages(conversationId: string) {
+  async deleteConversationMessages(conversationId: number) {
     return this.knex.transaction(async trx => {
       // TODO: Delete the related events using bp SDK
 

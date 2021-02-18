@@ -16,7 +16,6 @@ const debug = DEBUG(MODULE_NAME)
 
 const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   const handoffCache = new LRU<string, string>({ max: 1000, maxAge: ms('1 day') })
-  const agentCache = <Omit<IAgent, 'online'>>{}
   const repository = new Repository(bp, state.timeouts)
   const realtime = Socket(bp)
 
@@ -31,18 +30,9 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
     return handoffCache.get(handoffCacheKey(botId, threadId))
   }
 
-  const getCachedAgent = (agentId: string) => {
-    return agentCache[agentId]
-  }
-
   const cacheHandoff = (botId: string, threadId: string, handoff: IHandoff) => {
     debug.forBot(botId, 'Caching handoff', { id: handoff.id, threadId })
     handoffCache.set(handoffCacheKey(botId, threadId), handoff.id)
-  }
-
-  const cacheAgent = (agentId: string, agent: IAgent) => {
-    debug('Caching agent', { id: agent.agentId })
-    agentCache[agentId] = agent
   }
 
   const expireHandoff = (botId: string, threadId: string) => {
@@ -91,7 +81,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
 
   const handleIncomingFromAgent = async (handoff: IHandoff, event: sdk.IO.IncomingEvent) => {
     const { botAvatarUrl }: Config = await bp.config.getModuleConfigForBot(MODULE_NAME, event.botId)
-    const { attributes } = getCachedAgent(handoff.agentId)
+    const { attributes } = await repository.getAgent(handoff.agentId)
 
     Object.assign(event.payload, {
       from: 'agent',
@@ -148,20 +138,12 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   // - Handoffs must be accessible both via their respective agent thread ID and user thread ID
   // for two-way message piping
   const warmup = async () => {
-    const agents = repository.listAllAgents().then((agents: IAgent[]) => {
-      agents.forEach(agent => {
-        cacheAgent(agent.agentId, agent)
-      })
-    })
-
-    const handoffs = repository.listActiveHandoffs().then((handoffs: IHandoff[]) => {
+    return repository.listActiveHandoffs().then((handoffs: IHandoff[]) => {
       handoffs.forEach(handoff => {
         handoff.agentThreadId && cacheHandoff(handoff.botId, handoff.agentThreadId, handoff)
         handoff.userThreadId && cacheHandoff(handoff.botId, handoff.userThreadId, handoff)
       })
     })
-
-    return Promise.all([agents, handoffs])
   }
 
   if (debug.enabled) {
