@@ -8,7 +8,7 @@
   "main": "dist/backend/index.js",
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0-only",
-  "API_URL": "http://localhost:3001",
+  "API_URL": "https://ecb.innovapp.eu",
   "scripts": {
     "build": "node ../../build/module-builder/bin/entry build",
     "watch": "node ../../build/module-builder/bin/entry watch",

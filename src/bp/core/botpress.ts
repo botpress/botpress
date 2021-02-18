@@ -240,6 +240,7 @@ export class Botpress {
     }
 
     const bots = await this.botService.getBots()
+    process.IS_PRO_ENABLED = true
     bots.forEach(bot => {
       if (!process.IS_PRO_ENABLED && bot.languages && bot.languages.length > 1) {
         this._killServer(
