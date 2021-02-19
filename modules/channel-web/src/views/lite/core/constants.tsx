@@ -27,7 +27,6 @@ export default {
     showUserAvatar: false,
     showTimestamp: false,
     disableAnimations: false,
-    disableNotificationSound: false,
     hideWidget: false,
     externalAuthToken: undefined,
     showPoweredBy: window.SHOW_POWERED_BY,

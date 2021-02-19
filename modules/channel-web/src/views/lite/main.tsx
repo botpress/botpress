@@ -1,4 +1,5 @@
 import classnames from 'classnames'
+import { isUndefined } from 'lodash'
 import set from 'lodash/set'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
@@ -228,10 +229,7 @@ class Web extends React.Component<MainProps> {
     await this.props.addEventToConversation(event)
 
     // there's no focus on the actual conversation
-    if (
-      !this.config.disableNotificationSound &&
-      ((document.hasFocus && !document.hasFocus()) || this.props.activeView !== 'side')
-    ) {
+    if ((document.hasFocus && !document.hasFocus()) || this.props.activeView !== 'side') {
       await this.playSound()
       this.props.incrementUnread()
     }
@@ -262,7 +260,12 @@ class Web extends React.Component<MainProps> {
   }
 
   async playSound() {
-    if (this.state.played) {
+    // Preference for config object
+    const disableNotificationSound = isUndefined(this.config.disableNotificationSound)
+      ? this.props.config.disableNotificationSound
+      : this.config.disableNotificationSound
+
+    if (this.state.played || disableNotificationSound) {
       return
     }
 
