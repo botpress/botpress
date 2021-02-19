@@ -2392,85 +2392,97 @@ declare module 'botpress/sdk' {
       persist?: boolean
     }
 
-    export namespace messaging {
+    export interface ListOptions<T> {
+      limit?: number
+      offset?: number
+      sort?: {
+        field?: keyof T
+        order?: 'ASC' | 'DESC'
+      }
+    }
+
+    export namespace conversations {
       /**
-       * Gets all conversations linked to a user endpoint
+       * Create a conversation to store in the db
+       * @param args Properties of the conversation
+       * @returns The created conversation
+       * @example
+       * const conversation = await bp.conversations.create({ botId: 'myBot', userId: 'eEFoneif394' })
        */
-      export function getAllConversations(endpoint: UserEndpoint): Promise<Conversation[]>
+      export function create(args: CreateArgs): Promise<Conversation>
 
       /**
-       * Gets all the recent conversations linked to a user endpoint (most recent at index 0)
-       * (includes the last message of each conversation)
-       * @param limit Limits the amount of conversations to get. If left undefined gets all conversations
+       * Deletes conversations from the db
+       * @param filters Filters which conversations to delete
+       * @returns The number of deleted rows
+       * @example
+       * // Delete a conversation by id
+       * await bp.conversations.del({ id: 563 })
+       * // Delete all conversations of a bot user
+       * await bp.conversations.del({ botId: 'myBot', userId: 'eEFoneif394' })
        */
-      export function getRecentConversations(endpoint: UserEndpoint, limit?: number): Promise<RecentConversation[]>
+      export function del(filters: DeleteFilters): Promise<number>
 
       /**
-       * Deletes all conversations linked to a user endpoint
-       * @returns The number of conversations deleted
+       * Gets on conversation from the db
+       * @param filters Filters which conversation to get
+       * @returns The matching conversation or `undefined` if none were found
+       * @example
+       * // Get conversation by id
+       * const converation = await bp.conversations.get({ id: 3434 })
        */
-      export function deleteAllConversations(endpoint: UserEndpoint): Promise<number>
+      export function get(filters: GetFilters): Promise<Conversation | undefined>
 
       /**
-       * Creates a conversation linked to a user endpoint
+       * Gets many conversations from the db.
+       * The results are ordered from most recent to least recent by default
+       * (this can be overrided using the `sort` filter)
+       * @param filters Filters which conversations to get
+       * @example
+       * // Get the 20 most recent conversations of a bot user
+       * const conversations = await bp.conversations.list({ botId: 'myBot', userId: 'eEFoneif394', limit: 20 })
        */
-      export function createConversation(endpoint: UserEndpoint): Promise<Conversation>
+      export function list(filters: ListFilters): Promise<RecentConversation[]>
 
       /**
-       * Gets the most recent conversation linked to a user endpoint
-       * or creates one if no such conversation exists
+       * Gets the most recent conversation of a user.
+       * If the user has no matching conversation, creates one
+       * @param filters Filters which conversation to get
+       * @example
+       * const conversation = await bp.conversations.recent({ botId: 'myBot', userId: 'eEFoneif394' })
        */
-      export function getOrCreateRecentConversation(endpoint: UserEndpoint): Promise<RecentConversation>
+      export function recent(filters: RecentFilters): Promise<RecentConversation>
 
-      /**
-       * Gets a conversation by its id
-       */
-      export function getConversationById(conversationId: number): Promise<Conversation | undefined>
+      export interface CreateArgs {
+        botId: string
+        userId: string
+      }
+      export interface DeleteFilters {
+        id?: number
+        botId?: string
+        userId?: string
+      }
+      export interface GetFilters {
+        id: number
+      }
+      export interface ListFilters extends ListOptions<Conversation> {
+        botId?: string
+        userId?: string
+      }
+      export interface RecentFilters {
+        botId?: string
+        userId?: string
+      }
+    }
 
+    export namespace messages {
       /**
-       * Deletes a conversation by its id. This deletes all of its messages as well
-       * @returns `true` if a conversation was deleted
-       */
-      export function deleteConversation(conversationId: number): Promise<boolean>
-
-      /**
-       * Gets all the messages belonging to a conversation (most recent at index 0)
-       * @param limit Limits the amount of messages to get. If left undefined gets all messages
-       */
-      export function getRecentMessages(conversationId: number, limit?: number): Promise<Message[]>
-
-      /**
-       * Deletes all the messages belonging to a conversation
-       * @returns The number of messages deleted
-       */
-      export function deleteAllMessages(conversationId: number): Promise<number>
-
-      /**
-       * Adds a message to a conversation. This is usally used to add the bot's response
+       * Sends a outgoing message (bot message) through the event loop. The message is stored in the database
        * @param conversationId Id of the conversation to which this message belongs to
-       * @param eventId Id of the event that corresponds to this message
-       * @param incomingEventId Id of the event that this message is responding to
-       * @param from Author of this message (`bot` or `user` or a custom value)
        * @param payload Payload of the message
+       * @param args Additional arguments to pass to the event constructor. Optional
        */
-      export function createMessage(
-        conversationId: number,
-        eventId: string,
-        incomingEventId: string,
-        from: string,
-        payload: any
-      ): Promise<Message>
-
-      /**
-       * Gets a message by its id
-       */
-      export function getMessageById(messageId: number): Promise<Message | undefined>
-
-      /**
-       * Deletes a message by its id
-       * @returns `true` if a message was deleted
-       */
-      export function deleteMessage(messageId: number): Promise<boolean>
+      export function send(conversationId: number, payload: any, args: MessageArgs): Promise<Message | undefined>
 
       /**
        * Sends a incoming message (user message) through the event loop. The message is stored in the database
@@ -2478,23 +2490,68 @@ declare module 'botpress/sdk' {
        * @param payload Payload of the message
        * @param args Additional arguments to pass to the event constructor. Optional
        */
-      export function sendIncoming(
-        conversationId: number,
-        payload: any,
-        args?: MessageArgs
-      ): Promise<Message | undefined>
+      export function receive(conversationId: number, payload: any, args: MessageArgs): Promise<Message | undefined>
 
       /**
-       * Sends a outgoing message (bot message) through the event loop. The message is stored in the database
-       * @param conversationId Id of the conversation to which this message belongs to
-       * @param payload Payload of the message
-       * @param args Additional arguments to pass to the event constructor. Optional
+       * Creates a message to store in the db
+       * @param args Properties of the message
+       * @returns The created message
+       * @example
+       * const message = await bp.messages.create({
+           conversationId: 232,
+           eventId: 4343434,
+           incomingEventId: 243435,
+           from: 'bot',
+           payload: { type: 'text', text: 'hello' }
+         })
        */
-      export function sendOutgoing(
-        conversationId: number,
-        payload: any,
-        args?: MessageArgs
-      ): Promise<Message | undefined>
+      export function create(args: CreateArgs): Promise<Message>
+
+      /**
+       * Deletes messages from the db
+       * @param filters Filters which messages to delete
+       * @returns The number of deleted rows
+       * @example
+       * // Delete message by id
+       * await bp.messages.del({ id: 43 })
+       * @example
+       * // Delete all messages of a conversation
+       * await bp.messages.del({ conversationId: 343 })
+       */
+      export function del(filters: DeleteFilters): Promise<number>
+
+      /**
+       * Gets one message from the db
+       * @param filters Filters which message to get
+       * @returns The matching message or `undefined` if none were found
+       * @example
+       * // Get message by id
+       * const message = await bp.message.get({ id: 43 })
+       */
+      export function get(filters: GetFilters): Promise<Message | undefined>
+
+      /**
+       * Gets many messages from the db.
+       * The results are ordered from most recent to least recent by default
+       * (this can be overrided using the `sort` filter)
+       * @param filters Filters which messages to get
+       * @example
+       * // Get 20 most recent messages of a conversation
+       * const messages = await bp.messages.list({ conversationId: 343, limit: 20 })
+       */
+      export function list(filters: ListFilters): Promise<Message[]>
+
+      export interface CreateArgs extends Omit<Message, 'id' | 'sentOn'> {}
+      export interface DeleteFilters {
+        id?: number
+        conversationId?: number
+      }
+      export interface GetFilters {
+        id: number
+      }
+      export interface ListFilters extends ListOptions<Message> {
+        conversationId: number
+      }
     }
   }
 }
