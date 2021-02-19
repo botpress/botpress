@@ -8,7 +8,7 @@ import Database from '../database'
 import { TYPES } from '../types'
 
 export interface MessageRepository {
-  getAll(conversationId: number, limit?: number): Promise<experimental.Message[]>
+  list(conversationId: number, limit?: number): Promise<experimental.Message[]>
   deleteAll(conversationId: number): Promise<number>
   create(
     conversationId: number,
@@ -17,7 +17,7 @@ export interface MessageRepository {
     from: string,
     payload: any
   ): Promise<experimental.Message>
-  getById(messageId: number): Promise<experimental.Message | undefined>
+  get(messageId: number): Promise<experimental.Message | undefined>
   delete(messageId: number): Promise<boolean>
   serialize(message: Partial<experimental.Message>)
   deserialize(message: any): experimental.Message | undefined
@@ -39,7 +39,7 @@ export class KnexMessageRepository implements MessageRepository {
     this.invalidateMsgCache = <any>await this.jobService.broadcast<void>(this._localInvalidateMsgCache.bind(this))
   }
 
-  public async getAll(conversationId: number, limit?: number): Promise<experimental.Message[]> {
+  public async list(conversationId: number, limit?: number): Promise<experimental.Message[]> {
     let query = this.query()
       .where({ conversationId })
       .orderBy('sentOn', 'desc')
@@ -95,7 +95,7 @@ export class KnexMessageRepository implements MessageRepository {
     return message
   }
 
-  public async getById(messageId: number): Promise<experimental.Message | undefined> {
+  public async get(messageId: number): Promise<experimental.Message | undefined> {
     const cached = this.cache.get(messageId)
     if (cached) {
       return cached

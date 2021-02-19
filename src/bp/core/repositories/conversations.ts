@@ -9,14 +9,12 @@ import { TYPES } from '../types'
 import { MessageRepository } from './messages'
 
 export interface ConversationRepository {
-  getAllRecent(endpoint: experimental.UserEndpoint, limit?: number): Promise<experimental.RecentConversation[]>
+  list(endpoint: experimental.UserEndpoint, limit?: number): Promise<experimental.RecentConversation[]>
   deleteAll(endpoint: experimental.UserEndpoint): Promise<number>
-  create(endpoint: experimental.UserEndpoint): Promise<experimental.Conversation>
-  getMostRecent(endpoint: experimental.UserEndpoint): Promise<experimental.Conversation | undefined>
-  getById(conversationId: number): Promise<experimental.Conversation | undefined>
+  create(endpoint: experimental.conversations.CreateArgs): Promise<experimental.Conversation>
+  recent(endpoint: experimental.UserEndpoint): Promise<experimental.Conversation | undefined>
+  get(conversationId: number): Promise<experimental.Conversation | undefined>
   delete(conversationId: number): Promise<boolean>
-  serialize(conversation: Partial<experimental.Conversation>)
-  deserialize(conversation: any)
 }
 
 @injectable()
@@ -30,16 +28,12 @@ export class KnexConversationRepository implements ConversationRepository {
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.MessageRepository) private messageRepo: MessageRepository
   ) {}
-
   @postConstruct()
   async init() {
     this.invalidateConvCache = <any>await this.jobService.broadcast<void>(this._localInvalidateConvCache.bind(this))
   }
 
-  public async getAllRecent(
-    endpoint: experimental.UserEndpoint,
-    limit?: number
-  ): Promise<experimental.RecentConversation[]> {
+  public async list(endpoint: experimental.UserEndpoint, limit?: number): Promise<experimental.RecentConversation[]> {
     let query = this.queryRecents(endpoint)
 
     if (limit) {
@@ -74,7 +68,7 @@ export class KnexConversationRepository implements ConversationRepository {
     return deletedIds.length
   }
 
-  public async create(endpoint: experimental.UserEndpoint): Promise<experimental.Conversation> {
+  public async create(endpoint: experimental.conversations.CreateArgs): Promise<experimental.Conversation> {
     const row = {
       userId: endpoint.userId,
       botId: endpoint.botId,
@@ -91,14 +85,14 @@ export class KnexConversationRepository implements ConversationRepository {
     return conversation
   }
 
-  public async getMostRecent(endpoint: experimental.UserEndpoint): Promise<experimental.Conversation | undefined> {
+  public async recent(endpoint: experimental.UserEndpoint): Promise<experimental.Conversation | undefined> {
     let query = this.queryRecents(endpoint)
     query = query.limit(1)
 
     return this.deserialize((await query)[0])
   }
 
-  public async getById(conversationId: number): Promise<experimental.Conversation | undefined> {
+  public async get(conversationId: number): Promise<experimental.Conversation | undefined> {
     const cached = this.cache.get(conversationId)
     if (cached) {
       return cached

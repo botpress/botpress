@@ -98,7 +98,7 @@ export class ConverseService {
 
     await this.userRepository.getOrCreate('api', userId, botId)
 
-    const conversation = await this.messagingApi.getOrCreateRecentConversation({ userId, botId })
+    const conversation = await this.messagingApi.recentConversation({ userId, botId })
 
     const userKey = buildUserKey(botId, userId)
     const timeoutPromise = this._createTimeoutPromise(botId, userKey)
@@ -174,7 +174,13 @@ export class ConverseService {
     this._responseMap[userKey].responses!.push(event.payload)
 
     if (event.type !== 'typing' && event.type !== 'data') {
-      await this.messagingApi.createMessage(+event.threadId!, event.id, event.incomingEventId!, 'bot', event.payload)
+      await this.messagingApi.createMessage({
+        conversationId: +event.threadId!,
+        eventId: event.id,
+        incomingEventId: event.incomingEventId!,
+        from: 'bot',
+        payload: event.payload
+      })
     }
   }
 

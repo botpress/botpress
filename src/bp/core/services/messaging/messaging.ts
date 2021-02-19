@@ -40,32 +40,42 @@ export class MessagingAPI {
     }
   }
 
-  public async getRecentConversations(
-    endpoint: sdk.experimental.UserEndpoint,
-    limit?: number
+  public async listConversations(
+    filters: sdk.experimental.conversations.ListFilters
   ): Promise<sdk.experimental.RecentConversation[]> {
-    return this.conversationRepo.getAllRecent(endpoint, limit)
+    return this.conversationRepo.list({ userId: filters.userId!, botId: filters.botId! }, filters.limit)
   }
 
-  public async deleteAllConversations(endpoint: sdk.experimental.UserEndpoint): Promise<number> {
-    this.invalidateMostRecent(endpoint)
+  public async deleteConversations(filters: sdk.experimental.conversations.DeleteFilters): Promise<number> {
+    if (filters.id) {
+      const conversation = (await this.conversationRepo.get(filters.id))!
+      this.invalidateMostRecent(conversation)
 
-    return this.conversationRepo.deleteAll(endpoint)
+      return (await this.conversationRepo.delete(filters.id)) ? 1 : 0
+    } else {
+      const endpoint = { userId: filters.userId!, botId: filters.botId! }
+      this.invalidateMostRecent(endpoint)
+
+      return this.conversationRepo.deleteAll(endpoint)
+    }
   }
 
-  public async createConversation(endpoint: sdk.experimental.UserEndpoint): Promise<sdk.experimental.Conversation> {
+  public async createConversation(
+    endpoint: sdk.experimental.conversations.CreateArgs
+  ): Promise<sdk.experimental.Conversation> {
     return this.conversationRepo.create(endpoint)
   }
 
-  public async getOrCreateRecentConversation(
-    endpoint: sdk.experimental.UserEndpoint
+  public async recentConversation(
+    filters: sdk.experimental.conversations.RecentFilters
   ): Promise<sdk.experimental.RecentConversation> {
+    const endpoint = { userId: filters.userId!, botId: filters.botId! }
     const cached = this.recentConvoCacheForBot(endpoint.botId).get(endpoint.userId)
     if (cached) {
       return cached
     }
 
-    let conversation = await this.conversationRepo.getMostRecent(endpoint)
+    let conversation = await this.conversationRepo.recent(endpoint)
     if (!conversation) {
       conversation = await this.conversationRepo.create(endpoint)
     }
@@ -75,54 +85,51 @@ export class MessagingAPI {
     return conversation
   }
 
-  public async getConversationById(conversationId: number): Promise<sdk.experimental.Conversation | undefined> {
-    return this.conversationRepo.getById(conversationId)
+  public async getConversation(
+    filters: sdk.experimental.conversations.GetFilters
+  ): Promise<sdk.experimental.Conversation | undefined> {
+    return this.conversationRepo.get(filters.id)
   }
 
-  public async deleteConversation(conversationId: number): Promise<boolean> {
-    const conversation = (await this.conversationRepo.getById(conversationId))!
-    this.invalidateMostRecent(conversation)
-
-    return this.conversationRepo.delete(conversationId)
+  public async listMessages(filters: sdk.experimental.messages.ListFilters): Promise<sdk.experimental.Message[]> {
+    return this.messageRepo.list(filters.conversationId, filters.limit)
   }
 
-  public async getRecentMessages(conversationId: number, limit?: number): Promise<sdk.experimental.Message[]> {
-    return this.messageRepo.getAll(conversationId, limit)
+  public async deleteMessages(filters: sdk.experimental.messages.DeleteFilters): Promise<number> {
+    if (filters.id) {
+      const message = await this.messageRepo.get(filters.id)
+
+      if (message) {
+        const conversation = (await this.conversationRepo.get(message.conversationId))!
+        this.invalidateMostRecent(conversation)
+      }
+
+      return (await this.messageRepo.delete(filters.id)) ? 1 : 0
+    } else {
+      const conversation = (await this.conversationRepo.get(filters.conversationId!))!
+      this.invalidateMostRecent(conversation)
+
+      return this.messageRepo.deleteAll(filters.conversationId!)
+    }
   }
 
-  public async deleteAllMessages(conversationId: number): Promise<number> {
-    const conversation = (await this.conversationRepo.getById(conversationId))!
-    this.invalidateMostRecent(conversation)
-
-    return this.messageRepo.deleteAll(conversationId)
-  }
-
-  public async createMessage(
-    conversationId: number,
-    eventId: string,
-    incomingEventId: string,
-    from: string,
-    payload: any
-  ): Promise<sdk.experimental.Message> {
-    const message = await this.messageRepo.create(conversationId, eventId, incomingEventId, from, payload)
-    const conversation = (await this.getConversationById(conversationId))!
+  public async createMessage(args: sdk.experimental.messages.CreateArgs): Promise<sdk.experimental.Message> {
+    const message = await this.messageRepo.create(
+      args.conversationId,
+      args.eventId,
+      args.incomingEventId,
+      args.from,
+      args.payload
+    )
+    const conversation = (await this.getConversation({ id: args.conversationId }))!
     await this.flagAsMostRecent(conversation)
     return message
   }
 
-  public async getMessageById(messageId: number): Promise<sdk.experimental.Message | undefined> {
-    return this.messageRepo.getById(messageId)
-  }
-
-  public async deleteMessage(messageId: number): Promise<boolean> {
-    const message = await this.messageRepo.getById(messageId)
-
-    if (message) {
-      const conversation = (await this.conversationRepo.getById(message.conversationId))!
-      this.invalidateMostRecent(conversation)
-    }
-
-    return this.messageRepo.delete(messageId)
+  public async getMessage(
+    filters: sdk.experimental.messages.GetFilters
+  ): Promise<sdk.experimental.Message | undefined> {
+    return this.messageRepo.get(filters.id)
   }
 
   public async sendIncoming(conversationId: number, payload: any, args?: sdk.experimental.messages.MessageArgs) {
@@ -139,7 +146,7 @@ export class MessagingAPI {
     direction: sdk.EventDirection,
     args?: sdk.experimental.messages.MessageArgs
   ) {
-    const conversation = await this.getConversationById(conversationId)
+    const conversation = await this.getConversation({ id: conversationId })
     if (!conversation) {
       throw new Error(
         'conversationId: conversation not found. conversationId must be the id of an existing conversation'

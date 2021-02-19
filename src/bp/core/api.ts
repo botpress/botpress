@@ -221,52 +221,20 @@ const experimental = (hookService: HookService, messagingAPI: MessagingAPI): typ
 
 const conversations = (messagingAPI: MessagingAPI): typeof sdk.experimental.conversations => {
   return {
-    create: async (args: sdk.experimental.conversations.CreateArgs) => {
-      return messagingAPI.createConversation(args)
-    },
-    del: async (filters: sdk.experimental.conversations.DeleteFilters) => {
-      if (filters.id) {
-        return (await messagingAPI.deleteMessage(filters.id)) ? 1 : 0
-      } else {
-        return messagingAPI.deleteAllConversations({ userId: filters.userId!, botId: filters.botId! })
-      }
-    },
-    get: async (filters: sdk.experimental.conversations.GetFilters) => {
-      return messagingAPI.getConversationById(filters.id)
-    },
-    list: async (filters: sdk.experimental.conversations.ListFilters) => {
-      return messagingAPI.getRecentConversations({ userId: filters.userId!, botId: filters.botId! }, filters.limit)
-    },
-    recent: async (filters: sdk.experimental.conversations.RecentFilters) => {
-      return messagingAPI.getOrCreateRecentConversation({ userId: filters.userId!, botId: filters.botId! })
-    }
+    create: messagingAPI.createConversation.bind(messagingAPI),
+    del: messagingAPI.deleteConversations.bind(messagingAPI),
+    get: messagingAPI.getConversation.bind(messagingAPI),
+    list: messagingAPI.listConversations.bind(messagingAPI),
+    recent: messagingAPI.recentConversation.bind(messagingAPI)
   }
 }
 
 const messages = (messagingAPI: MessagingAPI): typeof sdk.experimental.messages => {
   return {
-    create: async (args: sdk.experimental.messages.CreateArgs) => {
-      return messagingAPI.createMessage(
-        args.conversationId,
-        args.eventId,
-        args.incomingEventId,
-        args.from,
-        args.payload
-      )
-    },
-    del: async (filters: sdk.experimental.messages.DeleteFilters) => {
-      if (filters.id) {
-        return (await messagingAPI.deleteMessage(filters.id)) ? 1 : 0
-      } else {
-        return messagingAPI.deleteAllMessages(filters.conversationId!)
-      }
-    },
-    get: async (filters: sdk.experimental.messages.GetFilters) => {
-      return messagingAPI.getMessageById(filters.id)
-    },
-    list: async (filters: sdk.experimental.messages.ListFilters) => {
-      return messagingAPI.getRecentMessages(filters.conversationId, filters.limit)
-    },
+    create: messagingAPI.createMessage.bind(messagingAPI),
+    del: messagingAPI.deleteMessages.bind(messagingAPI),
+    get: messagingAPI.getMessage.bind(messagingAPI),
+    list: messagingAPI.listMessages.bind(messagingAPI),
     send: messagingAPI.sendOutgoing.bind(messagingAPI),
     receive: messagingAPI.sendIncoming.bind(messagingAPI)
   }
