@@ -210,14 +210,15 @@ const distributed = (jobService: JobService): typeof sdk.distributed => {
   }
 }
 
-const experimental = (hookService: HookService): typeof sdk.experimental => {
+const experimental = (hookService: HookService, functionsService: CustomFunctionService): typeof sdk.experimental => {
   return {
     disableHook: hookService.disableHook.bind(hookService),
-    enableHook: hookService.enableHook.bind(hookService)
+    enableHook: hookService.enableHook.bind(hookService),
+    functions: functions(functionsService)
   }
 }
 
-const functions = (functionService: CustomFunctionService): typeof sdk.functions => {
+const functions = (functionService: CustomFunctionService): typeof sdk.experimental.functions => {
   return {
     forBot: functionService.forBot.bind(functionService),
     global: functionService.global.bind(functionService)
@@ -254,7 +255,6 @@ export class BotpressAPIProvider {
   security: typeof sdk.security
   workspaces: typeof sdk.workspaces
   distributed: typeof sdk.distributed
-  functions: typeof sdk.functions
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -292,11 +292,10 @@ export class BotpressAPIProvider {
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService, mediaServiceProvider)
     this.mlToolkit = MLToolkit
-    this.experimental = experimental(hookService)
+    this.experimental = experimental(hookService, functionService)
     this.security = security()
     this.workspaces = workspaces(workspaceService)
     this.distributed = distributed(jobService)
-    this.functions = functions(functionService)
   }
 
   @Memoize()
@@ -329,7 +328,6 @@ export class BotpressAPIProvider {
       experimental: this.experimental,
       workspaces: this.workspaces,
       distributed: this.distributed,
-      functions: this.functions,
       NLU: {
         makeEngine: async (config: sdk.NLU.Config, logger: sdk.NLU.Logger) => {
           const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = config

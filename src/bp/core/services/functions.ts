@@ -24,10 +24,10 @@ export class CustomFunctionService {
   }
 }
 
-export class CustomFunctionRepo implements sdk.FunctionService {
-  private functions: { [name: string]: sdk.FunctionGroup } = {}
+export class CustomFunctionRepo implements sdk.experimental.FunctionService {
+  private functions: { [name: string]: sdk.experimental.FunctionGroup } = {}
 
-  public register(name: string, impl: sdk.FunctionGroup) {
+  public register(name: string, impl: sdk.experimental.FunctionGroup) {
     this.functions[name] = impl
   }
 
@@ -35,7 +35,7 @@ export class CustomFunctionRepo implements sdk.FunctionService {
     delete this.functions[name]
   }
 
-  public get(name: string): sdk.FunctionGroup {
+  public get(name: string): sdk.experimental.FunctionGroup {
     return this.functions[name]
   }
 }
