@@ -16,7 +16,6 @@ export interface ConversationRepository {
   getMostRecent(endpoint: experimental.UserEndpoint): Promise<experimental.Conversation | undefined>
   getById(conversationId: number): Promise<experimental.Conversation | undefined>
   delete(conversationId: number): Promise<boolean>
-  query()
   serialize(conversation: Partial<experimental.Conversation>)
   deserialize(conversation: any)
 }
@@ -169,7 +168,7 @@ export class KnexConversationRepository implements ConversationRepository {
       .orderBy('sentOn', 'desc')
   }
 
-  public query() {
+  private query() {
     return this.database.knex(this.TABLE_NAME)
   }
 

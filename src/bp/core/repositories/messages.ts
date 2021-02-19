@@ -19,7 +19,6 @@ export interface MessageRepository {
   ): Promise<experimental.Message>
   getById(messageId: number): Promise<experimental.Message | undefined>
   delete(messageId: number): Promise<boolean>
-  query()
   serialize(message: Partial<experimental.Message>)
   deserialize(message: any): experimental.Message | undefined
 }
@@ -124,7 +123,7 @@ export class KnexMessageRepository implements MessageRepository {
     return numberOfDeletedRows > 0
   }
 
-  public query() {
+  private query() {
     return this.database.knex(this.TABLE_NAME)
   }
 
