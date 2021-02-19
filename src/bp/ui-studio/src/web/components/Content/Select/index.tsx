@@ -185,7 +185,7 @@ class SelectContent extends Component<Props, State> {
 
   setCurrentCategory(contentType) {
     this.setState({ contentType }, () => {
-      // tslint:disable-next-line: no-floating-promises
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.searchContentItems().then(() => this.setState({ step: formSteps.MAIN }))
     })
   }

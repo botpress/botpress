@@ -53,7 +53,10 @@
       "tutorials/chat-3rd-party-OAuth",
       "tutorials/listen-file-changes",
       "tutorials/3rd-party-NLU",
-      "tutorials/uipath"
+      "tutorials/uipath",
+      "tutorials/azure-oauth2",
+      "tutorials/google-oauth2",
+      "tutorials/github-oauth2"
     ],
     "Pro Edition": ["pro/about-pro", "pro/licensing", "pro/rbac", "pro/monitoring", "pro/pipelines", "pro/i18n"]
   }

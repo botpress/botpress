@@ -1,21 +1,22 @@
+import { NLU } from 'botpress/sdk'
 import bytes from 'bytes'
 import chalk from 'chalk'
 import cluster from 'cluster'
+import { copyDir } from 'core/misc/pkg-fs'
 import _ from 'lodash'
+import Engine from 'nlu-core/engine'
 import path from 'path'
 
+import { setupMasterNode, WORKER_TYPES } from '../cluster'
 import center from '../core/logger/center'
 import { LogLevel } from '../core/sdk/enums'
 
-// tslint:disable-next-line:ordered-imports
+// eslint-disable-next-line import/order
 import rewire from '../sdk/rewire'
-// tslint:disable-next-line:ordered-imports
+// eslint-disable-next-line import/order
 
 global.rewire = rewire as any
-import { NLU } from 'botpress/sdk'
-import { copyDir } from 'core/misc/pkg-fs'
-import Engine from 'nlu-core/engine'
-import { setupMasterNode, WORKER_TYPES } from '../cluster'
+
 import Logger from '../simple-logger'
 import API, { APIOptions } from './api'
 
@@ -55,7 +56,8 @@ export default async function(options: ArgV) {
 
   options.modelDir = options.modelDir || path.join(process.APP_DATA_PATH, 'models')
 
-  const loggerWrapper = <NLU.Logger>{
+  const loggerWrapper: NLU.Logger = {
+    debug: (msg: string) => logger.debug(msg),
     info: (msg: string) => logger.info(msg),
     warning: (msg: string, err?: Error) => (err ? logger.attachError(err).warn(msg) : logger.warn(msg)),
     error: (msg: string, err?: Error) => (err ? logger.attachError(err).error(msg) : logger.error(msg))

@@ -3,8 +3,8 @@ import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
 import Overlay from '../../../ui-shared-lite/Overlay'
-import { lang } from '../translations'
 import confirmDialog from '../ConfirmDialog'
+import { lang } from '../translations'
 
 import style from './style.scss'
 import { MultiLevelDropdownProps, Option } from './typings'

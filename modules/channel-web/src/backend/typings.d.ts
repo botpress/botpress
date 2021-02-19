@@ -3,7 +3,7 @@ import { Raw } from 'knex'
 export interface DBMessage {
   id: string
   userId: string
-  eventId: string,
+  eventId: string
   incomingEventId: string
   conversationId: number
   avatar_url?: string

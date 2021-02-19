@@ -2,7 +2,7 @@ import _ from 'lodash'
 
 import { tokenizeLatinTextForTests } from './tools/token-utils'
 import { TfidfTokens, TrainStep } from './training-pipeline'
-import { Intent } from './typings'
+import { Intent, Tools } from './typings'
 import Utterance from './utterance/utterance'
 
 test('tfidf has a value for all tokens of the training set', async () => {

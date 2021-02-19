@@ -2,9 +2,9 @@ import { Button, FormGroup, InputGroup, Intent, TextArea } from '@blueprintjs/co
 import { lang, toast } from 'botpress/shared'
 import React, { useEffect, useState } from 'react'
 
-import style from './style.scss'
 import ConfigEditor from './ConfigEditor'
 import RawPayloadSender from './RawPayloadSender'
+import style from './style.scss'
 
 const Settings = () => {
   const [config, setConfig] = useState('')

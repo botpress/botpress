@@ -8,10 +8,10 @@ import { bindActionCreators } from 'redux'
 import { toggleBottomPanel, toggleBottomPanelExpand } from '~/actions'
 import storage from '~/util/storage'
 
-import style from './style.scss'
 import Debugger from './Debugger'
 import Inspector, { DataEntry } from './Inspector'
 import Logs from './Logs'
+import style from './style.scss'
 
 const MAX_HISTORY = 10
 const BOTTOM_PANEL_TAB = 'bottomPanelTab'
@@ -99,7 +99,7 @@ const BottomPanel = props => {
         {props.inspectorEnabled && <Tab id="inspector" title={lang.tr('inspector')} />}
       </Tabs>
 
-      <div className={cx(style.padded, style.fullWidth, { 'emulator-open': props.emulatorOpen })}>
+      <div className={cx(style.padded, style.fullWidth)}>
         <Logs commonButtons={commonButtons} hidden={tab !== 'logs'} />
 
         <Debugger

@@ -4,8 +4,8 @@ import React, { FC, Fragment, useReducer, useState } from 'react'
 import SmartInput from '~/components/SmartInput'
 import style from '~/views/FlowBuilder/sidePanelTopics/form/style.scss'
 
-import localStyle from './style.scss'
 import DeletableImage from './DeletableImage'
+import localStyle from './style.scss'
 
 interface IUrlUploadProps {
   value: string | null

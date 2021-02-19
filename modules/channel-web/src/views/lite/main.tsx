@@ -62,7 +62,7 @@ class Web extends React.Component<MainProps> {
   }
 
   componentDidUpdate() {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.initializeIfChatDisplayed()
   }
 
@@ -172,7 +172,9 @@ class Web extends React.Component<MainProps> {
   }
 
   isCurrentConversation = (event: Message) => {
-    return !this.props.config?.conversationId || Number(this.props.config.conversationId) === Number(event.conversationId)
+    return (
+      !this.props.config?.conversationId || Number(this.props.config.conversationId) === Number(event.conversationId)
+    )
   }
 
   handleIframeApi = async ({ data: { action, payload } }) => {
