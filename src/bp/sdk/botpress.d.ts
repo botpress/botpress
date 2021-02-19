@@ -2392,7 +2392,7 @@ declare module 'botpress/sdk' {
       persist?: boolean
     }
 
-    export interface ListOptions<T> {
+    export interface ListOptions {
       limit?: number
       offset?: number
     }
@@ -2448,10 +2448,7 @@ declare module 'botpress/sdk' {
        */
       export function recent(filters: RecentFilters): Promise<RecentConversation>
 
-      export interface CreateArgs {
-        botId: string
-        userId: string
-      }
+      export interface CreateArgs extends Omit<Conversation, 'id' | 'createdOn'> {}
       export interface DeleteFilters {
         id?: number
         botId?: string
@@ -2460,7 +2457,7 @@ declare module 'botpress/sdk' {
       export interface GetFilters {
         id: number
       }
-      export interface ListFilters extends ListOptions<Conversation> {
+      export interface ListFilters extends ListOptions {
         botId?: string
         userId?: string
       }
@@ -2543,7 +2540,7 @@ declare module 'botpress/sdk' {
       export interface GetFilters {
         id: number
       }
-      export interface ListFilters extends ListOptions<Message> {
+      export interface ListFilters extends ListOptions {
         conversationId: number
       }
     }
