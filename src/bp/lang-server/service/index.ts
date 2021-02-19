@@ -1,4 +1,5 @@
 import { MLToolkit } from 'botpress/sdk'
+import bytes from 'bytes'
 import fs from 'fs'
 import _ from 'lodash'
 import lru from 'lru-cache'
@@ -7,9 +8,10 @@ import os from 'os'
 import path from 'path'
 import process from 'process'
 import { VError } from 'verror'
+
 import toolkit from '../../ml/toolkit'
 import Logger from '../../simple-logger'
-import bytes from 'bytes'
+
 import { LoadedBPEModel, LoadedFastTextModel, ModelFileInfo, ModelSet } from './typing'
 
 interface RamInfos {
@@ -21,7 +23,6 @@ interface RamInfos {
 const maxAgeCacheInMS = ms('24h')
 
 const MODEL_SAFETY_BUFFER = 0.1
-const RAM_SAFETY_THRESHOLD = 0.01
 
 // Examples:  "scope.en.300.bin" "bp.fr.150.bin"
 const FAST_TEXT_MODEL_REGEX = /^(\w+)\.(\w+)\.(\d+)\.bin$/i
@@ -44,28 +45,26 @@ export default class LanguageService {
   }
   private estimateModelSize = (dims: number, langNb: number): number => {
     const estimatedModelSizeInGb = (MODEL_MB_PER_DIM * dims + MODEL_MB_OFFSET) / 1024
-    const languageServerSize = Number.parseFloat((estimatedModelSizeInGb * langNb).toFixed(2))
-    return languageServerSize
+    return estimatedModelSizeInGb * langNb
   }
 
   private getRamInfos = (langNb: number, dims: number): RamInfos => {
     return {
-      free: Number.parseFloat((os.freemem() / bytes('1gb')).toFixed(2)),
-      total: Number.parseFloat((os.totalmem() / bytes('1gb')).toFixed(2)),
+      free: os.freemem() / bytes('1gb'),
+      total: os.totalmem() / bytes('1gb'),
       prediction: this.estimateModelSize(dims, langNb)
     }
   }
 
-  private checkRam(languages: string[]) {
+  private warnRam(languages: string[]) {
     const ramInfos = this.getRamInfos(languages.length, this.dim)
 
     if (ramInfos.prediction * (1 + MODEL_SAFETY_BUFFER) > ramInfos.free) {
+      const currentUsage = ramInfos.total - ramInfos.free
       this.logger.warn(
-        `Warning, the language server (${
-          ramInfos.prediction
-        }Gb) may silently crash due to a lack of free memory space. (${ramInfos.total - ramInfos.free}/${
-          ramInfos.total
-        }Gb)`
+        `The language server may silently crash due to a lack of free memory space.
+        Current usage : (${_.round(currentUsage, 2)}/${_.round(ramInfos.total, 2)})Gb,
+        Predicted usage : ${_.round(ramInfos.prediction, 2)}Gb.`
       )
     }
   }
@@ -83,16 +82,10 @@ export default class LanguageService {
     const languages = Object.keys(this._models)
 
     if (languages.length > 0) {
-      this.checkRam(languages)
-
-      const that = this
-      process.on('SIGINT', function() {
-        that.logger.info('Gracefully shutting down the language server from SIGINT (Ctrl-C)')
-        process.exit(1)
-      })
+      this.warnRam(languages)
 
       process.on('exit', code => {
-        this.checkRam(languages)
+        this.warnRam(languages)
       })
     }
 
