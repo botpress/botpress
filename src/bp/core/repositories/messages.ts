@@ -8,7 +8,7 @@ import Database from '../database'
 import { TYPES } from '../types'
 
 export interface MessageRepository {
-  getAll(conversationId: number, limit?: number): Promise<sdk.Message[]>
+  getAll(conversationId: number, limit?: number): Promise<sdk.experimental.Message[]>
   deleteAll(conversationId: number): Promise<number>
   create(
     conversationId: number,
@@ -16,18 +16,18 @@ export interface MessageRepository {
     incomingEventId: string,
     from: string,
     payload: any
-  ): Promise<sdk.Message>
-  getById(messageId: number): Promise<sdk.Message | undefined>
+  ): Promise<sdk.experimental.Message>
+  getById(messageId: number): Promise<sdk.experimental.Message | undefined>
   delete(messageId: number): Promise<boolean>
   query()
-  serialize(message: Partial<sdk.Message>)
-  deserialize(message: any): sdk.Message | undefined
+  serialize(message: Partial<sdk.experimental.Message>)
+  deserialize(message: any): sdk.experimental.Message | undefined
 }
 
 @injectable()
 export class KnexMessageRepository implements MessageRepository {
   private readonly TABLE_NAME = 'messages'
-  private cache = new LRU<number, sdk.Message>({ max: 10000, maxAge: ms('5min') })
+  private cache = new LRU<number, sdk.experimental.Message>({ max: 10000, maxAge: ms('5min') })
   private invalidateMsgCache: (ids: number[]) => void = this._localInvalidateMsgCache
 
   constructor(
@@ -40,7 +40,7 @@ export class KnexMessageRepository implements MessageRepository {
     this.invalidateMsgCache = <any>await this.jobService.broadcast<void>(this._localInvalidateMsgCache.bind(this))
   }
 
-  public async getAll(conversationId: number, limit?: number): Promise<sdk.Message[]> {
+  public async getAll(conversationId: number, limit?: number): Promise<sdk.experimental.Message[]> {
     let query = this.query()
       .where({ conversationId })
       .orderBy('sentOn', 'desc')
@@ -76,7 +76,7 @@ export class KnexMessageRepository implements MessageRepository {
     incomingEventId: string,
     from: string,
     payload: any
-  ): Promise<sdk.Message> {
+  ): Promise<sdk.experimental.Message> {
     const row = {
       conversationId,
       eventId,
@@ -96,7 +96,7 @@ export class KnexMessageRepository implements MessageRepository {
     return message
   }
 
-  public async getById(messageId: number): Promise<sdk.Message | undefined> {
+  public async getById(messageId: number): Promise<sdk.experimental.Message | undefined> {
     const cached = this.cache.get(messageId)
     if (cached) {
       return cached
@@ -128,7 +128,7 @@ export class KnexMessageRepository implements MessageRepository {
     return this.database.knex(this.TABLE_NAME)
   }
 
-  public serialize(message: Partial<sdk.Message>) {
+  public serialize(message: Partial<sdk.experimental.Message>) {
     const { conversationId, eventId, incomingEventId, from, sentOn, payload } = message
     return {
       conversationId,
@@ -140,7 +140,7 @@ export class KnexMessageRepository implements MessageRepository {
     }
   }
 
-  public deserialize(message: any): sdk.Message | undefined {
+  public deserialize(message: any): sdk.experimental.Message | undefined {
     if (!message) {
       return undefined
     }
