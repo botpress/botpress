@@ -9,7 +9,6 @@ import { TYPES } from '../types'
 import { MessageRepository } from './messages'
 
 export interface ConversationRepository {
-  getAll(endpoint: experimental.UserEndpoint): Promise<experimental.Conversation[]>
   getAllRecent(endpoint: experimental.UserEndpoint, limit?: number): Promise<experimental.RecentConversation[]>
   deleteAll(endpoint: experimental.UserEndpoint): Promise<number>
   create(endpoint: experimental.UserEndpoint): Promise<experimental.Conversation>
@@ -35,14 +34,6 @@ export class KnexConversationRepository implements ConversationRepository {
   @postConstruct()
   async init() {
     this.invalidateConvCache = <any>await this.jobService.broadcast<void>(this._localInvalidateConvCache.bind(this))
-  }
-
-  public async getAll(endpoint: experimental.UserEndpoint): Promise<experimental.Conversation[]> {
-    const rows = await this.query()
-      .select('*')
-      .where(endpoint)
-
-    return rows.map(x => this.deserialize(x)!)
   }
 
   public async getAllRecent(

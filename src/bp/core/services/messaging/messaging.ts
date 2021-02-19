@@ -40,10 +40,6 @@ export class MessagingAPI {
     }
   }
 
-  public async getAllConversations(endpoint: sdk.experimental.UserEndpoint): Promise<sdk.experimental.Conversation[]> {
-    return this.conversationRepo.getAll(endpoint)
-  }
-
   public async getRecentConversations(
     endpoint: sdk.experimental.UserEndpoint,
     limit?: number
