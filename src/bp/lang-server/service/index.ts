@@ -85,6 +85,12 @@ export default class LanguageService {
     if (languages.length > 0) {
       this.checkRam(languages)
 
+      const that = this
+      process.on('SIGINT', function() {
+        that.logger.info('Gracefully shutting down the language server from SIGINT (Ctrl-C)')
+        process.exit(1)
+      })
+
       process.on('exit', code => {
         this.checkRam(languages)
       })
