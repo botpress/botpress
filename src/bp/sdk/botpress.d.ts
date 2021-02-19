@@ -2395,10 +2395,6 @@ declare module 'botpress/sdk' {
     export interface ListOptions<T> {
       limit?: number
       offset?: number
-      sort?: {
-        field?: keyof T
-        order?: 'ASC' | 'DESC'
-      }
     }
 
     export namespace conversations {
@@ -2435,8 +2431,7 @@ declare module 'botpress/sdk' {
 
       /**
        * Gets many conversations from the db.
-       * The results are ordered from most recent to least recent by default
-       * (this can be overrided using the `sort` filter)
+       * The results are ordered from most recent to least recent
        * @param filters Filters which conversations to get
        * @example
        * // Get the 20 most recent conversations of a bot user
@@ -2532,8 +2527,7 @@ declare module 'botpress/sdk' {
 
       /**
        * Gets many messages from the db.
-       * The results are ordered from most recent to least recent by default
-       * (this can be overrided using the `sort` filter)
+       * The results are ordered from most recent to least recent
        * @param filters Filters which messages to get
        * @example
        * // Get 20 most recent messages of a conversation
