@@ -129,11 +129,11 @@ export class MessagingAPI {
     return this.messageRepo.delete(messageId)
   }
 
-  public async sendIncoming(conversationId: number, payload: any, args?: sdk.experimental.MessageArgs) {
+  public async sendIncoming(conversationId: number, payload: any, args?: sdk.experimental.messages.MessageArgs) {
     return this.sendMessage(conversationId, payload, 'incoming', args)
   }
 
-  public async sendOutgoing(conversationId: number, payload: any, args?: sdk.experimental.MessageArgs) {
+  public async sendOutgoing(conversationId: number, payload: any, args?: sdk.experimental.messages.MessageArgs) {
     return this.sendMessage(conversationId, payload, 'outgoing', args)
   }
 
@@ -141,7 +141,7 @@ export class MessagingAPI {
     conversationId: number,
     payload: any,
     direction: sdk.EventDirection,
-    args?: sdk.experimental.MessageArgs
+    args?: sdk.experimental.messages.MessageArgs
   ) {
     const conversation = await this.getConversationById(conversationId)
     if (!conversation) {
@@ -173,19 +173,15 @@ export class MessagingAPI {
     const event = new IOEvent(<sdk.IO.EventCtorArgs>ctorArgs)
     await this.eventEngine.sendEvent(event)
 
-    if (args?.persist === undefined || args.persist) {
-      const message = await this.messageRepo.create(
-        conversationId,
-        event.id,
-        event.id,
-        event.direction === 'incoming' ? 'user' : 'bot',
-        payload
-      )
-      await this.flagAsMostRecent(conversation)
-      return message
-    } else {
-      return undefined
-    }
+    const message = await this.messageRepo.create(
+      conversationId,
+      event.id,
+      event.id,
+      event.direction === 'incoming' ? 'user' : 'bot',
+      payload
+    )
+    await this.flagAsMostRecent(conversation)
+    return message
   }
 
   private lastChannelCacheForBot(botId: string) {

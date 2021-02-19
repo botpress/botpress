@@ -2387,11 +2387,6 @@ declare module 'botpress/sdk' {
       payload: any
     }
 
-    export interface MessageArgs
-      extends Partial<Omit<IO.EventCtorArgs, 'type' | 'direction' | 'payload' | 'target' | 'botId' | 'threadId'>> {
-      persist?: boolean
-    }
-
     export interface ListOptions {
       limit?: number
       offset?: number
@@ -2474,7 +2469,7 @@ declare module 'botpress/sdk' {
        * @param payload Payload of the message
        * @param args Additional arguments to pass to the event constructor. Optional
        */
-      export function send(conversationId: number, payload: any, args: MessageArgs): Promise<Message | undefined>
+      export function send(conversationId: number, payload: any, args?: MessageArgs): Promise<Message>
 
       /**
        * Sends a incoming message (user message) through the event loop. The message is stored in the database
@@ -2482,7 +2477,7 @@ declare module 'botpress/sdk' {
        * @param payload Payload of the message
        * @param args Additional arguments to pass to the event constructor. Optional
        */
-      export function receive(conversationId: number, payload: any, args: MessageArgs): Promise<Message | undefined>
+      export function receive(conversationId: number, payload: any, args?: MessageArgs): Promise<Message>
 
       /**
        * Creates a message to store in the db
@@ -2532,6 +2527,8 @@ declare module 'botpress/sdk' {
        */
       export function list(filters: ListFilters): Promise<Message[]>
 
+      export interface MessageArgs
+        extends Partial<Omit<IO.EventCtorArgs, 'type' | 'direction' | 'payload' | 'target' | 'botId' | 'threadId'>> {}
       export interface CreateArgs extends Omit<Message, 'id' | 'sentOn'> {}
       export interface DeleteFilters {
         id?: number
