@@ -20,7 +20,7 @@ interface RamInfos {
 
 const maxAgeCacheInMS = ms('24h')
 
-const MODEL_SAFETY_BUFFER = 0.2
+const MODEL_SAFETY_BUFFER = 0.1
 const RAM_SAFETY_THRESHOLD = 0.01
 
 // Examples:  "scope.en.300.bin" "bp.fr.150.bin"
@@ -29,19 +29,9 @@ const FAST_TEXT_MODEL_REGEX = /^(\w+)\.(\w+)\.(\d+)\.bin$/i
 // Examples: "scope.en.bpe.model" "bp.en.bpe.model"
 const BPE_MODEL_REGEX = /^(\w+)\.(\w+)\.bpe\.model$/i
 
-const getModelSize = (dims: number) => {
-  const linear_regression_alpha = 7.009615385
-  const linear_regression_beta = 913.7019231
-  return (linear_regression_alpha * dims + linear_regression_beta) / 1000
-}
-
-const checkEnoughRam = (langNb: number, dims: number): RamInfos => {
-  return {
-    free: Number.parseFloat((os.freemem() / bytes('1gb')).toFixed(2)),
-    total: Number.parseFloat((os.totalmem() / bytes('1gb')).toFixed(2)),
-    prediction: getModelSize(dims) * langNb
-  }
-}
+// Coefficient for linear regression to estimate model size
+const MODEL_MB_PER_DIM = 1.41e7 / bytes('1mb')
+const MODEL_MB_OFFSET = -2.35e8 / bytes('1mb')
 
 export default class LanguageService {
   private _models: Dic<ModelSet> = {}
@@ -52,12 +42,32 @@ export default class LanguageService {
   constructor(public readonly dim: number, public readonly domain: string, private readonly langDir: string) {
     this.logger = new Logger('Service')
   }
+  private estimateModelSize = (dims: number, langNb: number): number => {
+    const estimatedModelSizeInGb = (MODEL_MB_PER_DIM * dims + MODEL_MB_OFFSET) / 1024
+    const languageServerSize = Number.parseFloat((estimatedModelSizeInGb * langNb).toFixed(2))
+    return languageServerSize
+  }
 
-  private warnRam(ramInfos: RamInfos) {
-    this.logger.warn(
-      `Warning, the language server may silently crash due to a lack of free memory space. (${ramInfos.total -
-        ramInfos.free}/${ramInfos.total})`
-    )
+  private getRamInfos = (langNb: number, dims: number): RamInfos => {
+    return {
+      free: Number.parseFloat((os.freemem() / bytes('1gb')).toFixed(2)),
+      total: Number.parseFloat((os.totalmem() / bytes('1gb')).toFixed(2)),
+      prediction: this.estimateModelSize(dims, langNb)
+    }
+  }
+
+  private checkRam(languages: string[]) {
+    const ramInfos = this.getRamInfos(languages.length, this.dim)
+
+    if (ramInfos.prediction * (1 + MODEL_SAFETY_BUFFER) > ramInfos.free) {
+      this.logger.warn(
+        `Warning, the language server (${
+          ramInfos.prediction
+        }Gb) may silently crash due to a lack of free memory space. (${ramInfos.total - ramInfos.free}/${
+          ramInfos.total
+        }Gb)`
+      )
+    }
   }
 
   async initialize() {
@@ -73,28 +83,17 @@ export default class LanguageService {
     const languages = Object.keys(this._models)
 
     if (languages.length > 0) {
-      const ramInfos = checkEnoughRam(languages.length, this.dim)
+      this.checkRam(languages)
 
-      if (ramInfos.prediction + ramInfos.prediction * MODEL_SAFETY_BUFFER > ramInfos.free) {
-        this.warnRam(ramInfos)
-        this.logger.info(
-          `Lang server will take ${ramInfos.prediction}Gb and you have approximately ${ramInfos.free}Gb left on ${ramInfos.total}`
-        )
-      }
+      process.on('exit', code => {
+        this.checkRam(languages)
+      })
     }
 
     this.logger.info(`Found Languages: ${!languages.length ? 'None' : languages.join(', ')}`)
     await Promise.mapSeries(languages, this._loadModels.bind(this))
 
     this._ready = true
-
-    setInterval(() => {
-      const ramInfos = checkEnoughRam(languages.length, this.dim)
-
-      if (ramInfos.free < ramInfos.total * RAM_SAFETY_THRESHOLD) {
-        this.warnRam(ramInfos)
-      }
-    }, ms('1m'))
   }
 
   get isReady(): boolean {
