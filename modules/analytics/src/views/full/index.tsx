@@ -187,7 +187,7 @@ const Analytics: FC<any> = ({ bp }) => {
       const newChannels = _.uniq(_.map(metrics, 'channel')).map(x => {
         return { value: x, label: capitalize(x) }
       })
-      setChannels(_.uniq([...channels, ...newChannels]))
+      setChannels(_.uniqBy([...channels, ...newChannels], 'value'))
     })
 
     /* Get the previous range data so we can compare them and see what changed */
