@@ -8,7 +8,7 @@ import { getWebsocket } from './api'
 import { NLUApplication } from './application'
 import { BotFactory } from './application/bot-factory'
 import { BotService } from './application/bot-service'
-import { InMemoryTrainingQueue } from './application/memory-training-queue'
+import { TrainingQueue } from './application/training-queue'
 import { InMemoryTrainingRepository } from './application/memory-training-repo'
 import { ScopedDefinitionsRepository } from './application/scoped/infrastructure/definitions-repository'
 import { ScopedModelRepository } from './application/scoped/infrastructure/model-repository'
@@ -45,7 +45,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
   const botFactory = new BotFactory(engine, bp.logger, bp.NLU.modelIdService, makeDefRepo, makeModelRepo)
 
   const trainRepo = new InMemoryTrainingRepository()
-  const memoryTrainingQueue = new InMemoryTrainingQueue(trainRepo, bp.NLU.errors, bp.logger, botService, socket)
+  const memoryTrainingQueue = new TrainingQueue(trainRepo, bp.NLU.errors, bp.logger, botService, socket)
 
   const application = new NLUApplication(memoryTrainingQueue, engine, botFactory, botService)
 

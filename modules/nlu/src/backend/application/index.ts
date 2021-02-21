@@ -4,11 +4,12 @@ import _ from 'lodash'
 import { IBotFactory } from './bot-factory'
 import { IBotService } from './bot-service'
 import { BotNotMountedError } from './errors'
-import { Predictor, TrainingQueue, BotConfig, TrainingId, TrainingSession, TrainingState } from './typings'
+import { Predictor, BotConfig, TrainingSession, TrainingState } from './typings'
+import { ITrainingQueue } from './training-queue'
 
 export class NLUApplication {
   constructor(
-    private _trainingQueue: TrainingQueue,
+    private _trainingQueue: ITrainingQueue,
     private _engine: NLU.Engine,
     private _botFactory: IBotFactory,
     private _botService: IBotService

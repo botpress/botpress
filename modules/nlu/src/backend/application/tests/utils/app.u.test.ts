@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { NLUApplication } from '../../'
 import { BotFactory, DefinitionRepositoryFactory, ModelRepositoryFactory } from '../../bot-factory'
 import { BotService } from '../../bot-service'
-import { InMemoryTrainingQueue, TrainingQueueOptions } from '../../memory-training-queue'
+import { TrainingQueue, TrainingQueueOptions } from '../../training-queue'
 import { TrainDefinitions } from '../../scoped/infrastructure/definitions-repository'
 
 import { FakeDefinitionRepo } from './fake-def-repo.u.test'
@@ -72,14 +72,7 @@ export const makeApp = (dependencies: AppDependencies, trainingQueueOptions: Par
   const botFactory = new BotFactory(engine, logger, modelIdService, defRepoFactory, modelRepoFactory)
 
   const memoryTrainRepo = new InMemoryTrainingRepository()
-  const trainingQueue = new InMemoryTrainingQueue(
-    memoryTrainRepo,
-    errors,
-    logger,
-    botService,
-    socket,
-    trainingQueueOptions
-  )
+  const trainingQueue = new TrainingQueue(memoryTrainRepo, errors, logger, botService, socket, trainingQueueOptions)
 
   return new NLUApplication(trainingQueue, engine, botFactory, botService)
 }

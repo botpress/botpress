@@ -51,16 +51,3 @@ export interface TrainerService {
 }
 
 export type TrainingListener = (ts: TrainingSession) => Promise<void>
-
-export interface TrainingQueue {
-  initialize(): Promise<void>
-  teardown(): Promise<void>
-
-  needsTraining(trainId: TrainingId): Promise<void>
-  queueTraining(trainId: TrainingId): Promise<void>
-  cancelTraining(trainId: TrainingId): Promise<void>
-  cancelTrainings(botId: string): Promise<void[]>
-
-  getTraining(trainId: TrainingId): Promise<TrainingState>
-  getAllTrainings(): Promise<TrainingSession[]>
-}

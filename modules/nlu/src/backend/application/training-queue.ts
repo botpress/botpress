@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
 import { ITrainingRepository } from './memory-training-repo'
-import { TrainingId, TrainingQueue, TrainerService, TrainingListener, TrainingState, TrainingSession } from './typings'
+import { TrainingId, TrainerService, TrainingListener, TrainingState, TrainingSession, I } from './typings'
 
 export interface TrainingQueueOptions {
   maxTraining: number
@@ -13,7 +13,9 @@ const DEFAULT_OPTIONS: TrainingQueueOptions = {
 
 const DEFAULT_STATUS: TrainingState = { status: 'idle', progress: 0 }
 
-export class InMemoryTrainingQueue implements TrainingQueue {
+export type ITrainingQueue = I<TrainingQueue>
+
+export class TrainingQueue implements TrainingQueue {
   private _options: TrainingQueueOptions
 
   constructor(

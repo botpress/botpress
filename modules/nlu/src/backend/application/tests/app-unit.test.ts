@@ -6,10 +6,10 @@ import { NLUApplication } from '../index'
 import { IBot } from '../scoped/bot'
 import { IDefinitionsService } from '../scoped/definitions-service'
 import { IModelRepository } from '../scoped/infrastructure/model-repository'
-import { TrainingQueue } from '../typings'
 
 import { mock, Mock } from './utils/mock-extra.u.test'
 import './utils/sdk.u.test'
+import { ITrainingQueue } from '../training-queue'
 
 const botId = 'myBot'
 const makeModelId = (languageCode: string): NLU.ModelId => ({
@@ -38,13 +38,13 @@ const makeScopedServices = (): Mock<ScopedServices> => ({
 })
 
 describe('NLU API unit tests', () => {
-  let trainingQueue: Mock<TrainingQueue>
+  let trainingQueue: Mock<ITrainingQueue>
   let engine: Mock<NLU.Engine>
   let botFactory: Mock<IBotFactory>
   let botService: Mock<IBotService>
 
   beforeEach(() => {
-    trainingQueue = mock<TrainingQueue>({
+    trainingQueue = mock<ITrainingQueue>({
       initialize: jest.fn(),
       teardown: jest.fn(),
       queueTraining: jest.fn(),
