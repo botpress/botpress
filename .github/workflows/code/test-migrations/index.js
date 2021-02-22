@@ -1,6 +1,6 @@
 require('bluebird-global')
 const exec = require('child_process').exec
-const archive = require('./out/bp/core/misc/archive')
+const archive = require('../../../../out/bp/core/misc/archive')
 const fs = require('fs')
 const rimraf = require('rimraf')
 const path = require('path')
@@ -48,17 +48,15 @@ const testMigration = async (botName, startVersion, targetVersion, { isDown }) =
   })
 
   const success = stdoutBuffer.match(/Migration(s?) completed successfully/)
+  const status = success ? chalk.green(`[SUCCESS]`) : chalk.red(`[FAILURE]`)
+  const message = `${status} Migration ${isDown ? 'DOWN' : 'UP'} of ${botName} (${startVersion} -> ${targetVersion})`
 
   if (!success) {
-    core.setFailed(`Migration failed. Please fix it`)
+    core.setFailed(message)
     console.log(stdoutBuffer)
+  } else {
+    console.log(message)
   }
-
-  console.log(
-    `${success ? chalk.green(`[SUCCESS]`) : chalk.red(`[FAILURE]`)} Migration ${
-      isDown ? 'DOWN' : 'UP'
-    } of ${botName} (${startVersion} -> ${targetVersion})`
-  )
 }
 
 const getMostRecentVersion = () => {
