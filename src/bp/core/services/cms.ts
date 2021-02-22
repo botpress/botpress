@@ -88,7 +88,7 @@ export class CMSService implements IDisposeOnExit {
       order: 1,
       direction: 'outgoing',
       handler: (event: IO.Event, next) => {
-        if (!event.payload.rendered && event.payload.type !== 'custom') {
+        if (event.payload.__unrendered) {
           const payloads = this.renderForChannel(event.payload, event.channel)
           const mevent = <any>event
           mevent.payload = payloads[payloads.length - 1]
@@ -689,16 +689,13 @@ export class CMSService implements IDisposeOnExit {
     if (!_.isArray(payloads)) {
       payloads = [payloads]
     }
-    payloads.forEach(p => ((<any>p).rendered = true))
 
     return payloads
   }
 
   private renderForChannel(content: any, channel: string): any[] {
     const type = this.contentTypes.find(x => x.id.includes(content.type))!
-    const payloads = type.renderElement({ ...content, ...this._getAdditionalData() }, channel)
-    payloads.forEach(p => ((<any>p).rendered = true))
-    return payloads
+    return type.renderElement({ ...content, ...this._getAdditionalData() }, channel)
   }
 
   /**

@@ -2,22 +2,27 @@ import * as sdk from 'botpress/sdk'
 import { renderRecursive } from 'core/misc/templating'
 import { injectable } from 'inversify'
 
+const __unrendered = <T>(payload: T): T => {
+  ;(<any>payload).__unrendered = true
+  return payload
+}
+
 @injectable()
 export class RenderService {
   renderText(text: string | sdk.MultiLangText, markdown?: boolean): sdk.experimental.render.Text {
-    return {
+    return __unrendered({
       type: 'text',
       text,
       markdown
-    }
+    })
   }
 
   renderImage(url: string, caption?: string | sdk.MultiLangText): sdk.experimental.render.Image {
-    return {
+    return __unrendered({
       type: 'image',
       image: url,
       title: caption
-    }
+    })
   }
 
   renderCard(
@@ -26,31 +31,31 @@ export class RenderService {
     subtitle?: string | sdk.MultiLangText,
     ...buttons: sdk.experimental.render.ActionButton[]
   ): sdk.experimental.render.Card {
-    return {
+    return __unrendered({
       type: 'card',
       title,
       image,
       subtitle,
       actions: buttons
-    }
+    })
   }
 
   renderCarousel(...cards: sdk.experimental.render.Card[]): sdk.experimental.render.Carousel {
-    return {
+    return __unrendered({
       type: 'carousel',
       items: cards
-    }
+    })
   }
 
   renderChoice(
     message: string | sdk.MultiLangText,
     ...choices: sdk.experimental.render.ChoiceOption[]
   ): sdk.experimental.render.Choice {
-    return {
+    return __unrendered({
       type: 'single-choice',
       message,
       choices
-    }
+    })
   }
 
   renderButtonSay(title: string, text: string | sdk.MultiLangText): sdk.experimental.render.ActionSaySomething {

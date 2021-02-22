@@ -9,12 +9,13 @@ describe('Content Renders', () => {
 
   test('Render text content', () => {
     const content = render.renderText('yoyo')
-    expect(content).toEqual({ type: 'text', text: 'yoyo' })
+    expect(content).toEqual({ __unrendered: true, markdown: undefined, type: 'text', text: 'yoyo' })
   })
 
   test('Render image content', () => {
     const content = render.renderImage('image.com/image.png', 'this is image')
     expect(content).toEqual({
+      __unrendered: true,
       type: 'image',
       image: 'image.com/image.png',
       title: 'this is image'
@@ -32,6 +33,7 @@ describe('Content Renders', () => {
     )
 
     expect(content).toEqual({
+      __unrendered: true,
       type: 'card',
       title: 'myCard',
       image: 'image.com/image.png',
@@ -64,9 +66,11 @@ describe('Content Renders', () => {
     )
 
     expect(content).toEqual({
+      __unrendered: true,
       type: 'carousel',
       items: [
         {
+          __unrendered: true,
           type: 'card',
           title: 'card1',
           image: 'image.com/card1.png',
@@ -80,6 +84,7 @@ describe('Content Renders', () => {
           ]
         },
         {
+          __unrendered: true,
           type: 'card',
           title: 'card2',
           image: 'image.com/card2.png',
@@ -87,6 +92,7 @@ describe('Content Renders', () => {
           actions: []
         },
         {
+          __unrendered: true,
           type: 'card',
           title: 'card3',
           image: 'image.com/card3.png',
@@ -161,9 +167,11 @@ describe('Content Renders', () => {
     )
 
     expect(content).toEqual({
+      __unrendered: true,
       type: 'carousel',
       items: [
         {
+          __unrendered: true,
           type: 'card',
           title: { en: 'Card 1', fr: 'Carte 1' },
           image: 'image.com/card1.png',
@@ -171,6 +179,7 @@ describe('Content Renders', () => {
           actions: [{ action: 'Postback', title: 'myButton', payload: 'yo' }]
         },
         {
+          __unrendered: true,
           type: 'card',
           title: 'card2',
           image: 'image.com/card2.png',
@@ -178,6 +187,7 @@ describe('Content Renders', () => {
           actions: []
         },
         {
+          __unrendered: true,
           type: 'card',
           title: 'card3',
           image: 'image.com/card3.png',
@@ -195,9 +205,11 @@ describe('Content Renders', () => {
 
     const translated = render.renderTranslated(content, 'fr')
     expect(translated).toEqual({
+      __unrendered: true,
       type: 'carousel',
       items: [
         {
+          __unrendered: true,
           type: 'card',
           title: 'Carte 1',
           image: 'image.com/card1.png',
@@ -205,6 +217,7 @@ describe('Content Renders', () => {
           actions: [{ action: 'Postback', title: 'myButton', payload: 'yo' }]
         },
         {
+          __unrendered: true,
           type: 'card',
           title: 'card2',
           image: 'image.com/card2.png',
@@ -212,6 +225,7 @@ describe('Content Renders', () => {
           actions: []
         },
         {
+          __unrendered: true,
           type: 'card',
           title: 'card3',
           image: 'image.com/card3.png',
@@ -225,17 +239,27 @@ describe('Content Renders', () => {
 
     const templated = render.renderTemplate(translated, { state: { time: 223, user: 'bob' } })
     expect(templated).toEqual({
+      __unrendered: true,
       type: 'carousel',
       items: [
         {
+          __unrendered: true,
           type: 'card',
           title: 'Carte 1',
           image: 'image.com/card1.png',
           subtitle: 'myCard1 on 223',
           actions: [{ action: 'Postback', title: 'myButton', payload: 'yo' }]
         },
-        { type: 'card', title: 'card2', image: 'image.com/card2.png', subtitle: 'myCard2 for bob', actions: [] },
         {
+          __unrendered: true,
+          type: 'card',
+          title: 'card2',
+          image: 'image.com/card2.png',
+          subtitle: 'myCard2 for bob',
+          actions: []
+        },
+        {
+          __unrendered: true,
           type: 'card',
           title: 'card3',
           image: 'image.com/card3.png',
