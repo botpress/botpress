@@ -33,8 +33,6 @@ export class MessageService {
       await this.forBot(event.botId).updateLastChannel(event.target, event.channel)
     }
 
-    await AppLifecycle.waitFor(AppLifecycleEvents.CONFIGURATION_LOADED)
-
     this.invalidateLastChannel = <any>await this.jobService.broadcast<void>(this._localInvalidateLastChannel.bind(this))
   }
 
