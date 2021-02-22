@@ -1,4 +1,4 @@
-import * as sdk from 'botpress/sdk'
+import { experimental } from 'botpress/sdk'
 import { JobService } from 'core/services/job-service'
 import { inject, injectable, postConstruct } from 'inversify'
 
@@ -9,22 +9,21 @@ import { TYPES } from '../types'
 import { MessageRepository } from './messages'
 
 export interface ConversationRepository {
-  getAll(endpoint: sdk.experimental.UserEndpoint): Promise<sdk.experimental.Conversation[]>
-  getAllRecent(endpoint: sdk.experimental.UserEndpoint, limit?: number): Promise<sdk.experimental.RecentConversation[]>
-  deleteAll(endpoint: sdk.experimental.UserEndpoint): Promise<number>
-  create(endpoint: sdk.experimental.UserEndpoint): Promise<sdk.experimental.Conversation>
-  getMostRecent(endpoint: sdk.experimental.UserEndpoint): Promise<sdk.experimental.Conversation | undefined>
-  getById(conversationId: number): Promise<sdk.experimental.Conversation | undefined>
+  list(botId: string, filters: experimental.conversations.ListFilters): Promise<experimental.RecentConversation[]>
+  deleteAll(botId: string, userId: string): Promise<number>
+  create(botId: string, args: experimental.conversations.CreateArgs): Promise<experimental.Conversation>
+  recent(
+    botId: string,
+    filters: experimental.conversations.RecentFilters
+  ): Promise<experimental.Conversation | undefined>
+  get(conversationId: number): Promise<experimental.Conversation | undefined>
   delete(conversationId: number): Promise<boolean>
-  query()
-  serialize(conversation: Partial<sdk.experimental.Conversation>)
-  deserialize(conversation: any)
 }
 
 @injectable()
 export class KnexConversationRepository implements ConversationRepository {
   private readonly TABLE_NAME = 'conversations'
-  private cache = new LRU<number, sdk.experimental.Conversation>({ max: 10000, maxAge: ms('5min') })
+  private cache = new LRU<number, experimental.Conversation>({ max: 10000, maxAge: ms('5min') })
   private invalidateConvCache: (ids: number[]) => void = this._localInvalidateConvCache
 
   constructor(
@@ -32,28 +31,25 @@ export class KnexConversationRepository implements ConversationRepository {
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.MessageRepository) private messageRepo: MessageRepository
   ) {}
-
   @postConstruct()
   async init() {
     this.invalidateConvCache = <any>await this.jobService.broadcast<void>(this._localInvalidateConvCache.bind(this))
   }
 
-  public async getAll(endpoint: sdk.experimental.UserEndpoint): Promise<sdk.experimental.Conversation[]> {
-    const rows = await this.query()
-      .select('*')
-      .where(endpoint)
+  public async list(
+    botId: string,
+    filters: experimental.conversations.ListFilters
+  ): Promise<experimental.RecentConversation[]> {
+    const { userId, limit, offset } = filters
 
-    return rows.map(x => this.deserialize(x)!)
-  }
-
-  public async getAllRecent(
-    endpoint: sdk.experimental.UserEndpoint,
-    limit?: number
-  ): Promise<sdk.experimental.RecentConversation[]> {
-    let query = this.queryRecents(endpoint)
+    let query = this.queryRecents(botId, userId)
 
     if (limit) {
       query = query.limit(limit)
+    }
+
+    if (offset) {
+      query = query.offset(offset)
     }
 
     return (await query).map(row => {
@@ -66,16 +62,16 @@ export class KnexConversationRepository implements ConversationRepository {
     })
   }
 
-  public async deleteAll(endpoint: sdk.experimental.UserEndpoint): Promise<number> {
+  public async deleteAll(botId: string, userId: string): Promise<number> {
     const deletedIds = (
       await this.query()
         .select('id')
-        .where(endpoint)
+        .where({ botId, userId })
     ).map(x => x.id)
 
     if (deletedIds.length) {
       await this.query()
-        .where(endpoint)
+        .where({ botId, userId })
         .del()
 
       this.invalidateConvCache(deletedIds)
@@ -84,10 +80,10 @@ export class KnexConversationRepository implements ConversationRepository {
     return deletedIds.length
   }
 
-  public async create(endpoint: sdk.experimental.UserEndpoint): Promise<sdk.experimental.Conversation> {
+  public async create(botId: string, args: experimental.conversations.CreateArgs): Promise<experimental.Conversation> {
     const row = {
-      userId: endpoint.userId,
-      botId: endpoint.botId,
+      userId: args.userId,
+      botId,
       createdOn: new Date()
     }
 
@@ -101,16 +97,17 @@ export class KnexConversationRepository implements ConversationRepository {
     return conversation
   }
 
-  public async getMostRecent(
-    endpoint: sdk.experimental.UserEndpoint
-  ): Promise<sdk.experimental.Conversation | undefined> {
-    let query = this.queryRecents(endpoint)
+  public async recent(
+    botId: string,
+    filters: experimental.conversations.RecentFilters
+  ): Promise<experimental.Conversation | undefined> {
+    let query = this.queryRecents(botId, filters.userId)
     query = query.limit(1)
 
     return this.deserialize((await query)[0])
   }
 
-  public async getById(conversationId: number): Promise<sdk.experimental.Conversation | undefined> {
+  public async get(conversationId: number): Promise<experimental.Conversation | undefined> {
     const cached = this.cache.get(conversationId)
     if (cached) {
       return cached
@@ -138,7 +135,7 @@ export class KnexConversationRepository implements ConversationRepository {
     return numberOfDeletedRows > 0
   }
 
-  private queryRecents(endpoint: sdk.experimental.UserEndpoint) {
+  private queryRecents(botId: string, userId: string) {
     return this.query()
       .select(
         'conversations.id',
@@ -154,8 +151,8 @@ export class KnexConversationRepository implements ConversationRepository {
       )
       .leftJoin('messages', 'messages.conversationId', 'conversations.id')
       .where({
-        userId: endpoint.userId,
-        botId: endpoint.botId
+        botId,
+        userId
       })
       .andWhere(builder => {
         void builder
@@ -171,11 +168,11 @@ export class KnexConversationRepository implements ConversationRepository {
       .orderBy('sentOn', 'desc')
   }
 
-  public query() {
+  private query() {
     return this.database.knex(this.TABLE_NAME)
   }
 
-  public serialize(conversation: Partial<sdk.experimental.Conversation>) {
+  public serialize(conversation: Partial<experimental.Conversation>) {
     const { userId, botId, createdOn } = conversation
     return {
       userId,
@@ -184,7 +181,7 @@ export class KnexConversationRepository implements ConversationRepository {
     }
   }
 
-  public deserialize(conversation: any): sdk.experimental.Conversation | undefined {
+  public deserialize(conversation: any): experimental.Conversation | undefined {
     if (!conversation) {
       return undefined
     }
