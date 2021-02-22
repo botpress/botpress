@@ -46,12 +46,13 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
   const botFactory = new BotFactory(engine, bp.logger, bp.NLU.modelIdService, makeDefRepo, makeModelRepo)
 
   const trainRepo = new InMemoryTrainingRepository()
-  const concurentTrainingRepository = new ConcurentTrainingRepository(trainRepo)
+  const concurentTrainingRepository = new ConcurentTrainingRepository(trainRepo, bp.distributed)
   const memoryTrainingQueue = new TrainingQueue(
     concurentTrainingRepository,
     bp.NLU.errors,
     bp.logger,
     botService,
+    bp.distributed,
     socket
   )
 

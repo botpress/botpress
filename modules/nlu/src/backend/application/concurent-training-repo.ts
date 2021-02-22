@@ -1,3 +1,5 @@
+import * as sdk from 'botpress/sdk'
+import ms from 'ms'
 import {
   TrainingState,
   TrainingId,
@@ -9,20 +11,20 @@ import {
 
 export type TrainingTransaction<T> = (repo: TrainingRepository) => Promise<T>
 
-type TransactionCallback<T> = (x: T) => void
 interface TransactionHandle<T> {
-  maxTime: number
   run: TrainingTransaction<T>
-  cb?: TransactionCallback<T>
+  cb?: (x: T) => void
 }
 
 export type IConcurentTrainingRepository = I<ConcurentTrainingRepository>
 
+const MAX_TRX_TIME = ms('10s')
+const TRAINING_QUEUE_RESSOURCE = 'TRAINING_QUEUE_RESSOURCE' // TODO: have a global ressource + a ressource per trainingId
+
 export class ConcurentTrainingRepository implements ReadonlyTrainingRepository {
   private _queuedTransactions: TransactionHandle<any>[] = []
-  private _curentTransaction: TransactionHandle<any> | undefined
 
-  constructor(private _trainingRepo: TrainingRepository) {}
+  constructor(private _trainingRepo: TrainingRepository, private _distributed: typeof sdk.distributed) {}
 
   public initialize(): Promise<void> {
     return this._trainingRepo.initialize()
@@ -36,7 +38,7 @@ export class ConcurentTrainingRepository implements ReadonlyTrainingRepository {
     return this._trainingRepo.get(id)
   }
 
-  public query(query: Partial<TrainingState>): Promise<TrainingId[]> {
+  public query(query: Partial<TrainingSession>): Promise<TrainingSession[]> {
     return this._trainingRepo.query(query)
   }
 
@@ -48,10 +50,9 @@ export class ConcurentTrainingRepository implements ReadonlyTrainingRepository {
     return this._trainingRepo.clear()
   }
 
-  public queueAndWaitTransaction = <T>(run: TrainingTransaction<T>, maxTime: number) => {
+  public queueAndWaitTransaction = <T>(run: TrainingTransaction<T>) => {
     return new Promise<T>(resolve => {
       this._queueTransaction({
-        maxTime,
         run,
         cb: resolve
       })
@@ -80,20 +81,20 @@ export class ConcurentTrainingRepository implements ReadonlyTrainingRepository {
   }
 
   private _runTransaction = async <T>(next: TransactionHandle<T>) => {
-    while (this._curentTransaction) {
-      await this._sleep(this._curentTransaction.maxTime / 100)
+    let lock = await this._distributed.acquireLock(TRAINING_QUEUE_RESSOURCE, MAX_TRX_TIME)
+    while (!lock) {
+      await this._sleep(MAX_TRX_TIME / 100)
+      lock = await this._distributed.acquireLock(TRAINING_QUEUE_RESSOURCE, MAX_TRX_TIME)
     }
-
-    this._curentTransaction = next
 
     let res: T | null = null
     try {
-      res = await Promise.race([next.run(this._trainingRepo), this._sleep(next.maxTime)])
+      res = await Promise.race([next.run(this._trainingRepo), this._sleep(MAX_TRX_TIME)])
       if (res === null) {
-        throw new Error(`Training transaction could not finish under ${next.maxTime} ms.`)
+        throw new Error(`Training transaction could not finish under ${MAX_TRX_TIME} ms.`)
       }
     } finally {
-      this._curentTransaction = undefined
+      lock.unlock()
     }
 
     return res

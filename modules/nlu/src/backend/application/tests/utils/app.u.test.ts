@@ -17,12 +17,14 @@ import { sleep } from './utils.u.test'
 import { InMemoryTrainingRepository } from '../../memory-training-repo'
 import { TrainingSession } from '../../typings'
 import { ConcurentTrainingRepository } from '../../concurent-training-repo'
+import { FakeDistributed } from './fake-distributed.u.test'
 
 interface AppDependencies {
   socket: jest.Mock<Promise<void>, [TrainingSession]>
   modelRepoByBot: _.Dictionary<FakeModelRepo>
   defRepoByBot: _.Dictionary<FakeDefinitionRepo>
   trainingRepo: InMemoryTrainingRepository
+  distributed: FakeDistributed
   engine: NLU.Engine
   errors: typeof NLU.errors
   logger: Logger
@@ -55,12 +57,14 @@ export const makeDependencies = (
   const modelRepoByBot = _.mapValues(fsByBot, fs => new FakeModelRepo(fs.modelsOnFs as NLU.Model[]))
 
   const trainingRepo = new InMemoryTrainingRepository()
+  const distributed = new FakeDistributed()
 
   return {
     errors,
     logger,
     socket,
     engine,
+    distributed,
     trainingRepo,
     defRepoByBot,
     modelRepoByBot
@@ -68,7 +72,7 @@ export const makeDependencies = (
 }
 
 export const makeApp = (dependencies: AppDependencies, trainingQueueOptions: Partial<TrainingQueueOptions> = {}) => {
-  const { socket, engine, errors, logger, defRepoByBot, modelRepoByBot, trainingRepo } = dependencies
+  const { socket, engine, errors, logger, defRepoByBot, modelRepoByBot, trainingRepo, distributed } = dependencies
 
   const modelRepoFactory: ModelRepositoryFactory = ({ botId }) => modelRepoByBot[botId]
   const defRepoFactory: DefinitionRepositoryFactory = ({ botId }) => defRepoByBot[botId]
@@ -76,12 +80,13 @@ export const makeApp = (dependencies: AppDependencies, trainingQueueOptions: Par
   const botService = new BotService()
   const botFactory = new BotFactory(engine, logger, modelIdService, defRepoFactory, modelRepoFactory)
 
-  const concurentTrainingRepository = new ConcurentTrainingRepository(trainingRepo)
+  const concurentTrainingRepository = new ConcurentTrainingRepository(trainingRepo, distributed)
   const trainingQueue = new TrainingQueue(
     concurentTrainingRepository,
     errors,
     logger,
     botService,
+    distributed,
     socket,
     trainingQueueOptions
   )

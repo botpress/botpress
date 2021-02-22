@@ -23,18 +23,20 @@ const DEFAULT_OPTIONS: TrainingQueueOptions = {
 
 const DEFAULT_STATUS: TrainingState = { status: 'idle', progress: 0 }
 
-const MAX_TRX_TIME = ms('10s')
-
 export type ITrainingQueue = I<TrainingQueue>
 
 export class TrainingQueue implements TrainingQueue {
   private _options: TrainingQueueOptions
+
+  private _broadcastCancelTraining: (id: TrainingId) => Promise<void>
+  private _broadcastLoadModel: (botId: string, modelId: sdk.NLU.ModelId) => Promise<void>
 
   constructor(
     private _trainingRepo: IConcurentTrainingRepository,
     private _errors: typeof sdk.NLU.errors,
     private _logger: sdk.Logger,
     private _trainerService: TrainerService,
+    private _distributed: typeof sdk.distributed,
     private _onChange: TrainingListener,
     options: Partial<TrainingQueueOptions> = {}
   ) {
@@ -42,6 +44,14 @@ export class TrainingQueue implements TrainingQueue {
   }
 
   public initialize = async () => {
+    const { _localCancelTraining, _localLoadModel } = this
+
+    this._broadcastCancelTraining = (await this._distributed.broadcast(
+      _localCancelTraining
+    )) as typeof _localCancelTraining
+
+    this._broadcastLoadModel = (await this._distributed.broadcast(_localLoadModel)) as typeof _localLoadModel
+
     return this._trainingRepo.initialize()
   }
 
@@ -58,7 +68,7 @@ export class TrainingQueue implements TrainingQueue {
         return // do not notify socket if currently training
       }
       return update(trainId, { status: 'needs-training', progress: 0 })
-    }, MAX_TRX_TIME)
+    })
   }
 
   public queueTraining = async (trainId: TrainingId): Promise<void> => {
@@ -73,10 +83,14 @@ export class TrainingQueue implements TrainingQueue {
       await update(trainId, { status: 'training-pending', progress: 0 })
 
       return this._runTask(repo)
-    }, MAX_TRX_TIME)
+    })
   }
 
   public cancelTraining = async (trainId: TrainingId): Promise<void> => {
+    return this._broadcastCancelTraining(trainId)
+  }
+
+  private _localCancelTraining = async (trainId: TrainingId): Promise<void> => {
     return this._trainingRepo.queueAndWaitTransaction(async repo => {
       const { botId, language } = trainId
 
@@ -105,7 +119,14 @@ export class TrainingQueue implements TrainingQueue {
       }
 
       this._logger.warn(`No training canceled as ${botId} is not currently training language ${language}.`)
-    }, MAX_TRX_TIME)
+    })
+  }
+
+  private _localLoadModel = async (botId: string, modelId: sdk.NLU.ModelId): Promise<void> => {
+    const trainer = this._trainerService.getBot(botId)
+    if (trainer) {
+      return trainer.load(modelId)
+    }
   }
 
   public getTraining = async (trainId: TrainingId): Promise<TrainingState> => {
@@ -132,7 +153,7 @@ export class TrainingQueue implements TrainingQueue {
     await this._notify(id, newState)
     return this._trainingRepo.queueAndWaitTransaction(async repo => {
       return repo.set(id, newState)
-    }, MAX_TRX_TIME)
+    })
   }
 
   private _notify = (trainId: TrainingId, state: TrainingState) => {
@@ -171,12 +192,12 @@ export class TrainingQueue implements TrainingQueue {
       const modelId = await trainer.train(language, (progress: number) => {
         return this._lockAndUpdate(trainId, { status: 'training', progress })
       })
-      await trainer.load(modelId)
+      await this._broadcastLoadModel(botId, modelId)
       await this._lockAndUpdate(trainId, { status: 'done', progress: 1 })
     } catch (err) {
       await this._handleTrainError(trainId, err)
     } finally {
-      return this._trainingRepo.queueAndWaitTransaction(this._runTask, MAX_TRX_TIME)
+      return this._trainingRepo.queueAndWaitTransaction(this._runTask)
     }
   }
 
@@ -200,9 +221,8 @@ export class TrainingQueue implements TrainingQueue {
       .error('Training could not finish because of an unexpected error.')
 
     await this._notify(trainId, { status: 'errored', progress: 0 })
-    await this._trainingRepo.queueAndWaitTransaction(
-      repo => repo.set(trainId, { status: 'needs-training', progress: 0 }),
-      MAX_TRX_TIME
+    await this._trainingRepo.queueAndWaitTransaction(repo =>
+      repo.set(trainId, { status: 'needs-training', progress: 0 })
     )
   }
 }
