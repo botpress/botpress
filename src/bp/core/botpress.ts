@@ -238,33 +238,6 @@ export class Botpress {
         }
       }
     }
-
-    const bots = await this.botService.getBots()
-    process.IS_PRO_ENABLED = true
-    bots.forEach(bot => {
-      if (!process.IS_PRO_ENABLED && bot.languages && bot.languages.length > 1) {
-        this._killServer(
-          `A bot has more than a single language (${bot.id}). To enable the multilingual feature, please upgrade to Botpress Pro.`
-        )
-      }
-    })
-    if (process.IS_PRO_ENABLED && !process.CLUSTER_ENABLED) {
-      this.logger.warn(
-        'Botpress can be run on a cluster. If you want to do so, make sure Redis is running and properly configured in your environment variables'
-      )
-    }
-    if (process.IS_PRO_ENABLED && dbType !== 'postgres' && process.CLUSTER_ENABLED) {
-      this._killServer(
-        'Postgres is required to use Botpress in a cluster. Please migrate your database to Postgres and enable it in your Botpress configuration file.'
-      )
-    }
-    if (process.CLUSTER_ENABLED && !process.env.REDIS_URL) {
-      this._killServer('The environment variable REDIS_URL is required when cluster is enabled')
-    }
-
-    if (!process.IS_PRO_ENABLED && this.config?.pro.branding) {
-      this.logger.warn('Botpress Pro must be enabled to use a custom theme and customize the branding.')
-    }
   }
 
   async deployAssets() {

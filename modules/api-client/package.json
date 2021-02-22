@@ -15,7 +15,7 @@
     "package": "node ../../build/module-builder/bin/entry package"
   },
   "dependencies": {
-    "@rdcdev/dbank-client": "../../../../dbank-client/",
+    "@rdcdev/dbank-client": "../../../dbank-client",
     "bluebird": "^3.7.2",
     "bluebird-global": "^1.0.1",
     "moment": "^2.29.1"
