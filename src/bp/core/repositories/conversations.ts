@@ -11,7 +11,7 @@ import { MessageRepository } from './messages'
 export interface ConversationRepository {
   list(botId: string, userId: string, limit?: number): Promise<experimental.RecentConversation[]>
   deleteAll(botId: string, userId: string): Promise<number>
-  create(args: experimental.conversations.CreateArgs): Promise<experimental.Conversation>
+  create(botId: string, args: experimental.conversations.CreateArgs): Promise<experimental.Conversation>
   recent(botId: string, userId: string): Promise<experimental.Conversation | undefined>
   get(conversationId: number): Promise<experimental.Conversation | undefined>
   delete(conversationId: number): Promise<boolean>
@@ -68,10 +68,10 @@ export class KnexConversationRepository implements ConversationRepository {
     return deletedIds.length
   }
 
-  public async create(args: experimental.conversations.CreateArgs): Promise<experimental.Conversation> {
+  public async create(botId: string, args: experimental.conversations.CreateArgs): Promise<experimental.Conversation> {
     const row = {
       userId: args.userId,
-      botId: args.botId,
+      botId,
       createdOn: new Date()
     }
 

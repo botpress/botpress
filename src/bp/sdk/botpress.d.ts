@@ -2442,7 +2442,7 @@ declare module 'botpress/sdk' {
         recent(filters: RecentFilters): Promise<RecentConversation>
       }
 
-      export interface CreateArgs extends Omit<Conversation, 'id' | 'createdOn'> {}
+      export interface CreateArgs extends Omit<Conversation, 'id' | 'createdOn' | 'botId'> {}
       export interface DeleteFilters {
         id?: number
         userId?: string
