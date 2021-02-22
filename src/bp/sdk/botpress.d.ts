@@ -2361,11 +2361,6 @@ declare module 'botpress/sdk' {
     export function disableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
     export function enableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
 
-    export interface UserEndpoint {
-      userId: string
-      botId: string
-    }
-
     export interface Conversation {
       id: number
       userId: string
@@ -2387,114 +2382,174 @@ declare module 'botpress/sdk' {
       payload: any
     }
 
-    export interface MessageArgs
-      extends Partial<Omit<IO.EventCtorArgs, 'type' | 'direction' | 'payload' | 'target' | 'botId' | 'threadId'>> {
-      persist?: boolean
+    export interface ListOptions {
+      limit?: number
+      offset?: number
     }
 
-    export namespace messaging {
-      /**
-       * Gets all conversations linked to a user endpoint
-       */
-      export function getAllConversations(endpoint: UserEndpoint): Promise<Conversation[]>
+    export namespace conversations {
+      export function forBot(botId: string): BotConversations
 
-      /**
-       * Gets all the recent conversations linked to a user endpoint (most recent at index 0)
-       * (includes the last message of each conversation)
-       * @param limit Limits the amount of conversations to get. If left undefined gets all conversations
-       */
-      export function getRecentConversations(endpoint: UserEndpoint, limit?: number): Promise<RecentConversation[]>
+      export interface BotConversations {
+        /**
+         * Create a conversation to store in the db
+         * @param args Properties of the conversation
+         * @returns The created conversation
+         * @example
+         * const conversation = await bp.conversations.forBot('myBot').create({ userId: 'eEFoneif394' })
+         */
+        create(args: CreateArgs): Promise<Conversation>
 
-      /**
-       * Deletes all conversations linked to a user endpoint
-       * @returns The number of conversations deleted
-       */
-      export function deleteAllConversations(endpoint: UserEndpoint): Promise<number>
+        /**
+         * Deletes conversations from the db
+         * @param filters Filters which conversations to delete
+         * @returns The number of deleted rows
+         * @example
+         * // Delete a conversation by id
+         * await bp.conversations.forBot('myBot').delete({ id: 563 })
+         * // Delete all conversations of a bot user
+         * await bp.conversations.forBot('myBot').delete({ userId: 'eEFoneif394' })
+         */
+        delete(filters: DeleteFilters): Promise<number>
 
-      /**
-       * Creates a conversation linked to a user endpoint
-       */
-      export function createConversation(endpoint: UserEndpoint): Promise<Conversation>
+        /**
+         * Gets on conversation from the db
+         * @param filters Filters which conversation to get
+         * @returns The matching conversation or `undefined` if none were found
+         * @example
+         * // Get conversation by id
+         * const converation = await bp.conversations.forBot('myBot').get({ id: 3434 })
+         */
+        get(filters: GetFilters): Promise<Conversation | undefined>
 
-      /**
-       * Gets the most recent conversation linked to a user endpoint
-       * or creates one if no such conversation exists
-       */
-      export function getOrCreateRecentConversation(endpoint: UserEndpoint): Promise<RecentConversation>
+        /**
+         * Gets many conversations from the db.
+         * The results are ordered from most recent to least recent
+         * @param filters Filters which conversations to get
+         * @example
+         * // Get the 20 most recent conversations of a bot user
+         * const conversations = await bp.conversations.forBot('myBot').list({ userId: 'eEFoneif394', limit: 20 })
+         */
+        list(filters: ListFilters): Promise<RecentConversation[]>
 
-      /**
-       * Gets a conversation by its id
-       */
-      export function getConversationById(conversationId: number): Promise<Conversation | undefined>
+        /**
+         * Gets the most recent conversation of a user.
+         * If the user has no matching conversation, creates one
+         * @param filters Filters which conversation to get
+         * @example
+         * const conversation = await bp.conversations.forBot('myBot').recent({ userId: 'eEFoneif394' })
+         */
+        recent(filters: RecentFilters): Promise<RecentConversation>
+      }
 
-      /**
-       * Deletes a conversation by its id. This deletes all of its messages as well
-       * @returns `true` if a conversation was deleted
-       */
-      export function deleteConversation(conversationId: number): Promise<boolean>
+      export interface CreateArgs extends Omit<Conversation, 'id' | 'createdOn' | 'botId'> {}
+      export interface DeleteFilters {
+        id?: number
+        userId?: string
+      }
+      export interface GetFilters {
+        id: number
+      }
+      export interface ListFilters extends ListOptions {
+        userId: string
+      }
+      export interface RecentFilters {
+        userId: string
+      }
+    }
 
-      /**
-       * Gets all the messages belonging to a conversation (most recent at index 0)
-       * @param limit Limits the amount of messages to get. If left undefined gets all messages
-       */
-      export function getRecentMessages(conversationId: number, limit?: number): Promise<Message[]>
+    export namespace messages {
+      export function forBot(botId: string): BotMessages
 
-      /**
-       * Deletes all the messages belonging to a conversation
-       * @returns The number of messages deleted
-       */
-      export function deleteAllMessages(conversationId: number): Promise<number>
+      export interface BotMessages {
+        /**
+         * Sends a outgoing message (bot message) through the event loop. The message is stored in the database
+         * @param conversationId Id of the conversation to which this message belongs to
+         * @param payload Payload of the message
+         * @param args Additional arguments to pass to the event constructor. Optional
+         * @example
+         * // Get the most recent conversation of a user
+         * const conversation = await bp.conversations.forBot('myBot').recent({ userId: 'eEFoneif394' })
+         * // Then send a message to that conversation
+         * await bp.messages.forBot('myBot').send(conversation.id, { type: 'text', text: 'hello!' })
+         */
+        send(conversationId: number, payload: any, args?: MessageArgs): Promise<Message>
 
-      /**
-       * Adds a message to a conversation. This is usally used to add the bot's response
-       * @param conversationId Id of the conversation to which this message belongs to
-       * @param eventId Id of the event that corresponds to this message
-       * @param incomingEventId Id of the event that this message is responding to
-       * @param from Author of this message (`bot` or `user` or a custom value)
-       * @param payload Payload of the message
-       */
-      export function createMessage(
-        conversationId: number,
-        eventId: string,
-        incomingEventId: string,
-        from: string,
-        payload: any
-      ): Promise<Message>
+        /**
+         * Sends a incoming message (user message) through the event loop. The message is stored in the database
+         * @param conversationId Id of the conversation to which this message belongs to
+         * @param payload Payload of the message
+         * @param args Additional arguments to pass to the event constructor. Optional
+         * @example
+         * // Get the most recent conversation of a user
+         * const conversation = await bp.conversations.forBot('myBot').recent({ userId: 'eEFoneif394' })
+         * // Then simulate a user message in that conversation
+         * await bp.messages.forBot('myBot').receive(conversation.id, { type: 'text', text: 'this is a message from the user!' })
+         */
+        receive(conversationId: number, payload: any, args?: MessageArgs): Promise<Message>
 
-      /**
-       * Gets a message by its id
-       */
-      export function getMessageById(messageId: number): Promise<Message | undefined>
+        /**
+         * Creates a message to store in the db
+         * @param args Properties of the message
+         * @returns The created message
+         * @example
+         * const message = await bp.messages.forBot('myBot').create({
+             conversationId: 232,
+             eventId: 4343434,
+             incomingEventId: 243435,
+             from: 'bot',
+             payload: { type: 'text', text: 'hello' }
+           })
+         */
+        create(args: CreateArgs): Promise<Message>
 
-      /**
-       * Deletes a message by its id
-       * @returns `true` if a message was deleted
-       */
-      export function deleteMessage(messageId: number): Promise<boolean>
+        /**
+         * Deletes messages from the db
+         * @param filters Filters which messages to delete
+         * @returns The number of deleted rows
+         * @example
+         * // Delete message by id
+         * await bp.messages.forBot('myBot').delete({ id: 43 })
+         * @example
+         * // Delete all messages of a conversation
+         * await bp.messages.forBot('myBot').delete({ conversationId: 343 })
+         */
+        delete(filters: DeleteFilters): Promise<number>
 
-      /**
-       * Sends a incoming message (user message) through the event loop. The message is stored in the database
-       * @param conversationId Id of the conversation to which this message belongs to
-       * @param payload Payload of the message
-       * @param args Additional arguments to pass to the event constructor. Optional
-       */
-      export function sendIncoming(
-        conversationId: number,
-        payload: any,
-        args?: MessageArgs
-      ): Promise<Message | undefined>
+        /**
+         * Gets one message from the db
+         * @param filters Filters which message to get
+         * @returns The matching message or `undefined` if none were found
+         * @example
+         * // Get message by id
+         * const message = await bp.message.forBot('myBot').get({ id: 43 })
+         */
+        get(filters: GetFilters): Promise<Message | undefined>
 
-      /**
-       * Sends a outgoing message (bot message) through the event loop. The message is stored in the database
-       * @param conversationId Id of the conversation to which this message belongs to
-       * @param payload Payload of the message
-       * @param args Additional arguments to pass to the event constructor. Optional
-       */
-      export function sendOutgoing(
-        conversationId: number,
-        payload: any,
-        args?: MessageArgs
-      ): Promise<Message | undefined>
+        /**
+         * Gets many messages from the db.
+         * The results are ordered from most recent to least recent
+         * @param filters Filters which messages to get
+         * @example
+         * // Get 20 most recent messages of a conversation
+         * const messages = await bp.messages.forBot('myBot').list({ conversationId: 343, limit: 20 })
+         */
+        list(filters: ListFilters): Promise<Message[]>
+      }
+
+      export interface MessageArgs
+        extends Partial<Omit<IO.EventCtorArgs, 'type' | 'direction' | 'payload' | 'target' | 'botId' | 'threadId'>> {}
+      export interface CreateArgs extends Omit<Message, 'id' | 'sentOn'> {}
+      export interface DeleteFilters {
+        id?: number
+        conversationId?: number
+      }
+      export interface GetFilters {
+        id: number
+      }
+      export interface ListFilters extends ListOptions {
+        conversationId: number
+      }
     }
   }
 }
