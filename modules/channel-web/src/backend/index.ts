@@ -11,9 +11,6 @@ const onServerStarted = async (bp: typeof sdk) => {
 
   await api(bp, db)
   await socket(bp, db)
-
-  bp.experimental.conversations.forBot('dd')
-  bp.experimental.messages.forBot('fef')
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {
