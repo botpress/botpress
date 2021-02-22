@@ -46,7 +46,7 @@ export class ConcurentTrainingRepository implements ReadonlyTrainingRepository {
     return this._trainingRepo.getAll()
   }
 
-  public clear(): Promise<void> {
+  public clear(): Promise<void | void[]> {
     return this._trainingRepo.clear()
   }
 

@@ -60,7 +60,7 @@ export interface ReadonlyTrainingRepository {
   query(query: Partial<TrainingSession>): Promise<TrainingSession[]>
   getAll(): Promise<TrainingSession[]>
 
-  clear(): Promise<void> // not readonly, but thread safe
+  clear(): Promise<void | void[]> // not readonly, but thread safe
 }
 
 export interface TrainingRepository extends ReadonlyTrainingRepository {

@@ -1,7 +1,6 @@
 import * as sdk from 'botpress/sdk'
 
 import _ from 'lodash'
-import ms from 'ms'
 import { IConcurentTrainingRepository } from './concurent-training-repo'
 import {
   TrainingId,
