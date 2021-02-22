@@ -2396,7 +2396,7 @@ declare module 'botpress/sdk' {
          * @param args Properties of the conversation
          * @returns The created conversation
          * @example
-         * const conversation = await bp.conversations.create({ botId: 'myBot', userId: 'eEFoneif394' })
+         * const conversation = await bp.conversations.forBot('myBot').create({ userId: 'eEFoneif394' })
          */
         create(args: CreateArgs): Promise<Conversation>
 
@@ -2406,9 +2406,9 @@ declare module 'botpress/sdk' {
          * @returns The number of deleted rows
          * @example
          * // Delete a conversation by id
-         * await bp.conversations.del({ id: 563 })
+         * await bp.conversations.forBot('myBot').del({ id: 563 })
          * // Delete all conversations of a bot user
-         * await bp.conversations.del({ botId: 'myBot', userId: 'eEFoneif394' })
+         * await bp.conversations.forBot('myBot').del({ userId: 'eEFoneif394' })
          */
         del(filters: DeleteFilters): Promise<number>
 
@@ -2418,7 +2418,7 @@ declare module 'botpress/sdk' {
          * @returns The matching conversation or `undefined` if none were found
          * @example
          * // Get conversation by id
-         * const converation = await bp.conversations.get({ id: 3434 })
+         * const converation = await bp.conversations.forBot('myBot').get({ id: 3434 })
          */
         get(filters: GetFilters): Promise<Conversation | undefined>
 
@@ -2428,7 +2428,7 @@ declare module 'botpress/sdk' {
          * @param filters Filters which conversations to get
          * @example
          * // Get the 20 most recent conversations of a bot user
-         * const conversations = await bp.conversations.list({ botId: 'myBot', userId: 'eEFoneif394', limit: 20 })
+         * const conversations = await bp.conversations.forBot('myBot').list({ userId: 'eEFoneif394', limit: 20 })
          */
         list(filters: ListFilters): Promise<RecentConversation[]>
 
@@ -2437,7 +2437,7 @@ declare module 'botpress/sdk' {
          * If the user has no matching conversation, creates one
          * @param filters Filters which conversation to get
          * @example
-         * const conversation = await bp.conversations.recent({ botId: 'myBot', userId: 'eEFoneif394' })
+         * const conversation = await bp.conversations.forBot('myBot').recent({ userId: 'eEFoneif394' })
          */
         recent(filters: RecentFilters): Promise<RecentConversation>
       }
@@ -2467,6 +2467,11 @@ declare module 'botpress/sdk' {
          * @param conversationId Id of the conversation to which this message belongs to
          * @param payload Payload of the message
          * @param args Additional arguments to pass to the event constructor. Optional
+         * @example
+         * // Get the most recent conversation of a user
+         * const conversation = await bp.conversations.forBot('myBot').recent({ userId: 'eEFoneif394' })
+         * // Then send a message to that conversation
+         * await bp.messages.forBot('myBot').send(conversation.id, { type: 'text', text: 'hello!' })
          */
         send(conversationId: number, payload: any, args?: MessageArgs): Promise<Message>
 
@@ -2475,6 +2480,11 @@ declare module 'botpress/sdk' {
          * @param conversationId Id of the conversation to which this message belongs to
          * @param payload Payload of the message
          * @param args Additional arguments to pass to the event constructor. Optional
+         * @example
+         * // Get the most recent conversation of a user
+         * const conversation = await bp.conversations.forBot('myBot').recent({ userId: 'eEFoneif394' })
+         * // Then simulate a user message in that conversation
+         * await bp.messages.forBot('myBot').receive(conversation.id, { type: 'text', text: 'this is a message from the user!' })
          */
         receive(conversationId: number, payload: any, args?: MessageArgs): Promise<Message>
 
@@ -2483,13 +2493,13 @@ declare module 'botpress/sdk' {
          * @param args Properties of the message
          * @returns The created message
          * @example
-         * const message = await bp.messages.create({
-           conversationId: 232,
-           eventId: 4343434,
-           incomingEventId: 243435,
-           from: 'bot',
-           payload: { type: 'text', text: 'hello' }
-         })
+         * const message = await bp.messages.forBot('myBot').create({
+             conversationId: 232,
+             eventId: 4343434,
+             incomingEventId: 243435,
+             from: 'bot',
+             payload: { type: 'text', text: 'hello' }
+           })
          */
         create(args: CreateArgs): Promise<Message>
 
@@ -2499,10 +2509,10 @@ declare module 'botpress/sdk' {
          * @returns The number of deleted rows
          * @example
          * // Delete message by id
-         * await bp.messages.del({ id: 43 })
+         * await bp.messages.forBot('myBot').del({ id: 43 })
          * @example
          * // Delete all messages of a conversation
-         * await bp.messages.del({ conversationId: 343 })
+         * await bp.messages.forBot('myBot').del({ conversationId: 343 })
          */
         del(filters: DeleteFilters): Promise<number>
 
@@ -2512,7 +2522,7 @@ declare module 'botpress/sdk' {
          * @returns The matching message or `undefined` if none were found
          * @example
          * // Get message by id
-         * const message = await bp.message.get({ id: 43 })
+         * const message = await bp.message.forBot('myBot').get({ id: 43 })
          */
         get(filters: GetFilters): Promise<Message | undefined>
 
@@ -2522,7 +2532,7 @@ declare module 'botpress/sdk' {
          * @param filters Filters which messages to get
          * @example
          * // Get 20 most recent messages of a conversation
-         * const messages = await bp.messages.list({ conversationId: 343, limit: 20 })
+         * const messages = await bp.messages.forBot('myBot').list({ conversationId: 343, limit: 20 })
          */
         list(filters: ListFilters): Promise<Message[]>
       }
