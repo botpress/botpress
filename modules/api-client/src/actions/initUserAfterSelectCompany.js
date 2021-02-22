@@ -8,6 +8,9 @@ const axios = require('axios');
  */
 const initUserAfterSelectCompany = async () => {
   try {
+    event.payload.payload = event.payload.payload.replace(`"NEEDADDAUTH":FALSE`, `"NEEDADDAUTH":"FALSE"`)
+    event.payload.payload = event.payload.payload.replace(`"NEEDADDAUTH":TRUE`, `"NEEDADDAUTH":"TRUE"`)
+
     const parsed = JSON.parse(event.payload.payload);
 
     const eventPayload = {
