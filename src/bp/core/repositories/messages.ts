@@ -1,4 +1,4 @@
-import * as sdk from 'botpress/sdk'
+import { experimental } from 'botpress/sdk'
 import { JobService } from 'core/services/job-service'
 import { inject, injectable, postConstruct } from 'inversify'
 
@@ -8,26 +8,19 @@ import Database from '../database'
 import { TYPES } from '../types'
 
 export interface MessageRepository {
-  getAll(conversationId: number, limit?: number): Promise<sdk.experimental.Message[]>
+  list(filters: experimental.messages.ListFilters): Promise<experimental.Message[]>
   deleteAll(conversationId: number): Promise<number>
-  create(
-    conversationId: number,
-    eventId: string,
-    incomingEventId: string,
-    from: string,
-    payload: any
-  ): Promise<sdk.experimental.Message>
-  getById(messageId: number): Promise<sdk.experimental.Message | undefined>
+  create(args: experimental.messages.CreateArgs): Promise<experimental.Message>
+  get(messageId: number): Promise<experimental.Message | undefined>
   delete(messageId: number): Promise<boolean>
-  query()
-  serialize(message: Partial<sdk.experimental.Message>)
-  deserialize(message: any): sdk.experimental.Message | undefined
+  serialize(message: Partial<experimental.Message>)
+  deserialize(message: any): experimental.Message | undefined
 }
 
 @injectable()
 export class KnexMessageRepository implements MessageRepository {
   private readonly TABLE_NAME = 'messages'
-  private cache = new LRU<number, sdk.experimental.Message>({ max: 10000, maxAge: ms('5min') })
+  private cache = new LRU<number, experimental.Message>({ max: 10000, maxAge: ms('5min') })
   private invalidateMsgCache: (ids: number[]) => void = this._localInvalidateMsgCache
 
   constructor(
@@ -40,13 +33,19 @@ export class KnexMessageRepository implements MessageRepository {
     this.invalidateMsgCache = <any>await this.jobService.broadcast<void>(this._localInvalidateMsgCache.bind(this))
   }
 
-  public async getAll(conversationId: number, limit?: number): Promise<sdk.experimental.Message[]> {
+  public async list(filters: experimental.messages.ListFilters): Promise<experimental.Message[]> {
+    const { conversationId, limit, offset } = filters
+
     let query = this.query()
       .where({ conversationId })
       .orderBy('sentOn', 'desc')
 
     if (limit) {
       query = query.limit(limit)
+    }
+
+    if (offset) {
+      query = query.offset(offset)
     }
 
     return (await query).map(x => this.deserialize(x)!)
@@ -70,13 +69,9 @@ export class KnexMessageRepository implements MessageRepository {
     return deletedIds.length
   }
 
-  public async create(
-    conversationId: number,
-    eventId: string,
-    incomingEventId: string,
-    from: string,
-    payload: any
-  ): Promise<sdk.experimental.Message> {
+  public async create(args: experimental.messages.CreateArgs): Promise<experimental.Message> {
+    const { conversationId, eventId, incomingEventId, from, payload } = args
+
     const row = {
       conversationId,
       eventId,
@@ -96,7 +91,7 @@ export class KnexMessageRepository implements MessageRepository {
     return message
   }
 
-  public async getById(messageId: number): Promise<sdk.experimental.Message | undefined> {
+  public async get(messageId: number): Promise<experimental.Message | undefined> {
     const cached = this.cache.get(messageId)
     if (cached) {
       return cached
@@ -124,11 +119,11 @@ export class KnexMessageRepository implements MessageRepository {
     return numberOfDeletedRows > 0
   }
 
-  public query() {
+  private query() {
     return this.database.knex(this.TABLE_NAME)
   }
 
-  public serialize(message: Partial<sdk.experimental.Message>) {
+  public serialize(message: Partial<experimental.Message>) {
     const { conversationId, eventId, incomingEventId, from, sentOn, payload } = message
     return {
       conversationId,
@@ -140,7 +135,7 @@ export class KnexMessageRepository implements MessageRepository {
     }
   }
 
-  public deserialize(message: any): sdk.experimental.Message | undefined {
+  public deserialize(message: any): experimental.Message | undefined {
     if (!message) {
       return undefined
     }

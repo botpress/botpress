@@ -8,7 +8,8 @@ export class ConversationsTable extends Table {
 
     await this.knex.createTableIfNotExists(this.name, table => {
       table.increments('id').primary()
-      table.string('userId') // .references('id').inTable('users')
+      // TODO reference future users table
+      table.string('userId')
       table.string('botId')
       table.timestamp('createdOn')
       table.index(['userId', 'botId'], 'cub_idx')
