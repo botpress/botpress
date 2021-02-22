@@ -21,18 +21,20 @@ export const sendEvent = async (bp: typeof sdk, botId: string, ctx: ContextMessa
     convoId = +(await bp.kvs.forBot(botId).get(`convmap/telegram_${chatId}`))
 
     if (!convoId) {
-      const conversation = await bp.experimental.messaging.createConversation({ botId, userId })
+      const conversation = await bp.experimental.conversations.forBot(botId).create({ userId })
       convoId = conversation.id
 
       await bp.kvs.forBot(botId).set(`convmap/telegram_${chatId}`, conversation.id)
       await bp.kvs.forBot(botId).set(`rconvmap/telegram_${conversation.id}`, chatId)
     }
   } else {
-    const conversation = await bp.experimental.messaging.getOrCreateRecentConversation({ botId, userId })
+    const conversation = await bp.experimental.conversations.forBot(botId).recent({ userId })
     convoId = conversation.id
   }
 
-  await bp.experimental.messaging.sendIncoming(convoId, { ...args, ...payload }, { channel: 'telegram', preview })
+  await bp.experimental.messages
+    .forBot(botId)
+    .receive(convoId, { ...args, ...payload }, { channel: 'telegram', preview })
 }
 
 export const registerMiddleware = (bp: typeof sdk, outgoingHandler) => {
@@ -90,13 +92,13 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
       throw new Error(`Message type "${messageType}" not implemented yet`)
     }
 
-    await bp.experimental.messaging.createMessage(
-      +event.threadId,
-      event.id,
-      event.incomingEventId,
-      'bot',
-      event.payload
-    )
+    await bp.experimental.messages.forBot(event.botId).create({
+      conversationId: +event.threadId,
+      eventId: event.id,
+      incomingEventId: event.incomingEventId,
+      from: 'bot',
+      payload: event.payload
+    })
 
     next(undefined, false)
   }
