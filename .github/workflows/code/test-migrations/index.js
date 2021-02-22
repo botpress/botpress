@@ -11,8 +11,6 @@ const AWS = require('aws-sdk')
 const chalk = require('chalk')
 const core = require('@actions/core')
 
-const bpRoot = '../../../../'
-
 const start = async () => {
   const targetVersion = getMostRecentVersion()
 
@@ -36,14 +34,14 @@ const start = async () => {
 }
 
 const prepareDataFolder = async buffer => {
-  await Promise.fromCallback(cb => rimraf(`${bpRoot}out/bp/data`, cb))
-  await archive.extractArchive(buffer, `${bpRoot}out/bp`)
+  await Promise.fromCallback(cb => rimraf(`./out/bp/data`, cb))
+  await archive.extractArchive(buffer, `./out/bp`)
 }
 
 const testMigration = async (botName, startVersion, targetVersion, isDown) => {
   let stdoutBuffer = ''
   await Promise.fromCallback(cb => {
-    const ctx = exec(`yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion}`, { cwd: bpRoot }, err =>
+    const ctx = exec(`yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion}`, { cwd: './' }, err =>
       cb(err)
     )
     ctx.stdout.on('data', data => (stdoutBuffer += data))
@@ -64,10 +62,10 @@ const testMigration = async (botName, startVersion, targetVersion, isDown) => {
 }
 
 const getMostRecentVersion = () => {
-  const coreMigrations = getMigrations(`${bpRoot}out/bp`)
-  const modules = fs.readdirSync(`${bpRoot}modules`)
+  const coreMigrations = getMigrations(`./out/bp`)
+  const modules = fs.readdirSync(`./modules`)
 
-  const moduleMigrations = _.flatMap(modules, module => getMigrations(`${bpRoot}modules/${module}/dist`))
+  const moduleMigrations = _.flatMap(modules, module => getMigrations(`./modules/${module}/dist`))
   const versions = [...coreMigrations, ...moduleMigrations].map(x => x.version).sort(semver.compare)
 
   return _.last(versions)
