@@ -74,19 +74,9 @@ export class MigrationService {
     }
 
     const allMigrations = this.getAllMigrations()
-    const isDown = process.MIGRATE_CMD === 'down'
-
     await this.detectAndSetupVersions(allMigrations)
 
-    const migrationsToExecute = _.sortBy(
-      [
-        ...this.filterMigrations(allMigrations, this.dbVersion, { isDown, type: 'database' }),
-        ...this.filterMigrations(allMigrations, this.configVersion, { isDown, type: 'config' }),
-        ...this.filterMigrations(allMigrations, this.configVersion, { isDown, type: 'content' })
-      ],
-      x => x.date
-    )
-
+    const migrationsToExecute = this.getMigrationsToExecute(allMigrations)
     if (!migrationsToExecute.length && process.MIGRATE_CMD === undefined) {
       return
     }
@@ -124,6 +114,19 @@ export class MigrationService {
     if (process.MIGRATE_CMD !== undefined) {
       process.exit(0)
     }
+  }
+
+  getMigrationsToExecute(allMigrations: MigrationFile[]): MigrationFile[] {
+    const isDown = process.MIGRATE_CMD === 'down'
+
+    return _.sortBy(
+      [
+        ...this.filterMigrations(allMigrations, this.dbVersion, { isDown, type: 'database' }),
+        ...this.filterMigrations(allMigrations, this.configVersion, { isDown, type: 'config' }),
+        ...this.filterMigrations(allMigrations, this.configVersion, { isDown, type: 'content' })
+      ],
+      x => x.date
+    )
   }
 
   async detectAndSetupVersions(migrations: MigrationFile[]) {
