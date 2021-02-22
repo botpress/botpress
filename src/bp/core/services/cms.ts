@@ -93,6 +93,9 @@ export class CMSService implements IDisposeOnExit {
           const mevent = <any>event
           mevent.payload = payloads[payloads.length - 1]
           mevent.type = mevent.payload.type
+          next()
+        } else {
+          return next(undefined, false, true)
         }
       }
     })
