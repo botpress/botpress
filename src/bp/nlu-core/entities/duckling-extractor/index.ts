@@ -50,16 +50,26 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
 
   private _langToCulture = (lang: string): string => {
     switch (lang) {
-      case 'zh': return Recognizers.Culture.Chinese
-      case 'nl': return Recognizers.Culture.Dutch
-      case 'en': return Recognizers.Culture.English
-      case 'fr': return Recognizers.Culture.French
-      case 'de': return Recognizers.Culture.German
-      case 'it': return Recognizers.Culture.Italian
-      case 'ja': return Recognizers.Culture.Japanese
-      case 'pt': return Recognizers.Culture.Portuguese
-      case 'es': return Recognizers.Culture.Spanish
-      default: throw new Error('This language is not supported by Microsoft Recognizer')
+      case 'zh':
+        return Recognizers.Culture.Chinese
+      case 'nl':
+        return Recognizers.Culture.Dutch
+      case 'en':
+        return Recognizers.Culture.English
+      case 'fr':
+        return Recognizers.Culture.French
+      case 'de':
+        return Recognizers.Culture.German
+      case 'it':
+        return Recognizers.Culture.Italian
+      case 'ja':
+        return Recognizers.Culture.Japanese
+      case 'pt':
+        return Recognizers.Culture.Portuguese
+      case 'es':
+        return Recognizers.Culture.Spanish
+      default:
+        throw new Error('This language is not supported by Microsoft Recognizer')
     }
   }
 
@@ -79,7 +89,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
     Recognizers.recognizeHashtag,
     Recognizers.recognizeEmail,
     Recognizers.recognizeURL,
-    Recognizers.recognizeGUID,
+    Recognizers.recognizeGUID
   ]
 
   constructor(private readonly logger?: NLU.Logger) {
@@ -194,19 +204,19 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
       for (const typeRecognizer of this._recognizers) {
         const entities = typeRecognizer(utt.input, culture)
 
-        if(entities.length>0){
-          const formatedEntities: EntityExtractionResult[] = entities.map(ent=> {
+        if (entities.length > 0) {
+          const formatedEntities: EntityExtractionResult[] = entities.map(ent => {
             const formated: EntityExtractionResult = {
-              confidence:1.0,
-              type:ent.typeName,
-              value:ent.resolution.value,
-              start:ent.start,
-              end:ent.end+1,
-              metadata:{
-                source:ent.text,
+              confidence: 1.0,
+              type: ent.typeName,
+              value: ent.resolution.value,
+              start: ent.start,
+              end: ent.end + 1,
+              metadata: {
+                source: ent.text,
                 entityId: `system.${ent.typeName}`,
-                extractor:'system',
-                unit:ent.resolution.unit
+                extractor: 'system',
+                unit: ent.resolution.unit
               }
             }
             return formated
@@ -219,7 +229,10 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
       batchedEntities.push(utteranceEntities)
     }
 
-    await this._cacheBatchResults(batch.map(x=>x.input), batchedEntities)
+    await this._cacheBatchResults(
+      batch.map(x => x.input),
+      batchedEntities
+    )
 
     const allEntities = batch.map((batchItm, i) => {
       return { ...batchItm, entities: batchedEntities[i] }
