@@ -1,9 +1,12 @@
 import { MLToolkit } from 'botpress/sdk'
+import bytes from 'bytes'
 import fs from 'fs'
 import _ from 'lodash'
 import lru from 'lru-cache'
 import ms from 'ms'
+import os from 'os'
 import path from 'path'
+import process from 'process'
 import { VError } from 'verror'
 
 import toolkit from '../../ml/toolkit'
@@ -11,13 +14,25 @@ import Logger from '../../simple-logger'
 
 import { LoadedBPEModel, LoadedFastTextModel, ModelFileInfo, ModelSet } from './typing'
 
+interface RamInfos {
+  free: number
+  total: number
+  prediction: number
+}
+
 const maxAgeCacheInMS = ms('24h')
+
+const MODEL_SAFETY_BUFFER = 0.1
 
 // Examples:  "scope.en.300.bin" "bp.fr.150.bin"
 const FAST_TEXT_MODEL_REGEX = /^(\w+)\.(\w+)\.(\d+)\.bin$/i
 
 // Examples: "scope.en.bpe.model" "bp.en.bpe.model"
 const BPE_MODEL_REGEX = /^(\w+)\.(\w+)\.bpe\.model$/i
+
+// Coefficient for linear regression to estimate model size
+const MODEL_MB_PER_DIM = 1.41e7 / bytes('1mb')
+const MODEL_MB_OFFSET = -2.35e8 / bytes('1mb')
 
 export default class LanguageService {
   private _models: Dic<ModelSet> = {}
@@ -27,6 +42,31 @@ export default class LanguageService {
 
   constructor(public readonly dim: number, public readonly domain: string, private readonly langDir: string) {
     this.logger = new Logger('Service')
+  }
+  private estimateModelSize = (dims: number, langNb: number): number => {
+    const estimatedModelSizeInGb = (MODEL_MB_PER_DIM * dims + MODEL_MB_OFFSET) / 1024
+    return estimatedModelSizeInGb * langNb
+  }
+
+  private getRamInfos = (langNb: number, dims: number): RamInfos => {
+    return {
+      free: os.freemem() / bytes('1gb'),
+      total: os.totalmem() / bytes('1gb'),
+      prediction: this.estimateModelSize(dims, langNb)
+    }
+  }
+
+  private warnRam(languages: string[]) {
+    const ramInfos = this.getRamInfos(languages.length, this.dim)
+
+    if (ramInfos.prediction * (1 + MODEL_SAFETY_BUFFER) > ramInfos.free) {
+      const currentUsage = ramInfos.total - ramInfos.free
+      this.logger.warn(
+        `The language server may silently crash due to a lack of free memory space.
+        Current usage : (${_.round(currentUsage, 2)}/${_.round(ramInfos.total, 2)})Gb,
+        Predicted usage : ${_.round(ramInfos.prediction, 2)}Gb.`
+      )
+    }
   }
 
   async initialize() {
@@ -40,6 +80,14 @@ export default class LanguageService {
 
     this._models = this._getModels()
     const languages = Object.keys(this._models)
+
+    if (languages.length > 0) {
+      this.warnRam(languages)
+
+      process.on('exit', code => {
+        this.warnRam(languages)
+      })
+    }
 
     this.logger.info(`Found Languages: ${!languages.length ? 'None' : languages.join(', ')}`)
     await Promise.mapSeries(languages, this._loadModels.bind(this))
