@@ -57,7 +57,8 @@ import { HintsService } from './services/hints'
 import { JobService } from './services/job-service'
 import { LogsService } from './services/logs/service'
 import { MediaServiceProvider } from './services/media'
-import { MessagingAPI } from './services/messaging/messaging'
+import { ConversationService } from './services/messaging/conversations'
+import { MessageService } from './services/messaging/messages'
 import { MonitoringService } from './services/monitoring'
 import { NLUService } from './services/nlu/nlu-service'
 import { NotificationsService } from './services/notification/service'
@@ -142,7 +143,8 @@ export default class HTTPServer {
     @inject(TYPES.LogsRepository) private logsRepo: LogsRepository,
     @inject(TYPES.NLUService) private nluService: NLUService,
     @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository,
-    @inject(TYPES.MessagingAPI) private messagingApi: MessagingAPI
+    @inject(TYPES.ConversationService) private conversationService: ConversationService,
+    @inject(TYPES.MessageService) private messageService: MessageService
   ) {
     this.app = express()
 
@@ -215,7 +217,12 @@ export default class HTTPServer {
       mediaServiceProvider,
       this.configProvider
     )
-    this.messagingRouter = new MessagingRouter(this.logger, this.authService, this.messagingApi)
+    this.messagingRouter = new MessagingRouter(
+      this.logger,
+      this.authService,
+      this.conversationService,
+      this.messageService
+    )
 
     this._needPermissions = needPermissions(this.workspaceService)
     this._hasPermissions = hasPermissions(this.workspaceService)

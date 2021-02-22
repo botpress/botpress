@@ -36,8 +36,7 @@ POST {{baseUrl}}/api/v1/bots/{{botId}}/messaging/conversations
 Content-Type: application/json
 
 {
-  "userId": "text",
-  "botId": "{{botId}}"
+  "userId": "{{userId}}"
 }
 
 ### Delete conversation
@@ -57,7 +56,7 @@ POST {{baseUrl}}/api/v1/bots/{{botId}}/messaging/messages
 Content-Type: application/json
 
 {
-  "conversationId": 2,
+  "conversationId": 3,
   "eventId": 3434,
   "incomingEventId": 343534,
   "from": "user",
