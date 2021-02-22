@@ -57,7 +57,7 @@ export interface ReadonlyTrainingRepository {
 
   has(id: TrainingId): Promise<boolean>
   get(id: TrainingId): Promise<TrainingState | undefined>
-  query(query: Partial<TrainingState>): Promise<TrainingId[]>
+  query(query: Partial<TrainingSession>): Promise<TrainingSession[]>
   getAll(): Promise<TrainingSession[]>
 
   clear(): Promise<void> // not readonly, but thread safe

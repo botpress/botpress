@@ -60,7 +60,7 @@ describe('NLU API integration tests', () => {
     const engineOptions = { nProgressCalls: 2 }
     const dependencies = makeDependencies(core, fileSystem, engineOptions)
 
-    const { engine, socket } = dependencies
+    const { engine, socket, trainingRepo } = dependencies
     const engineTrainSpy = jest.spyOn(engine, 'train')
     const engineLoadSpy = jest.spyOn(engine, 'loadModel')
 
@@ -82,6 +82,10 @@ describe('NLU API integration tests', () => {
     expect(socket).toHaveBeenNthCalledWith(3, expectTs({ botId, status: 'training' }))
     expect(socket).toHaveBeenNthCalledWith(4, expectTs({ botId, status: 'done' }))
 
+    const botTrainings = await trainingRepo.query({ botId })
+    expect(botTrainings).toHaveLength(1)
+    expect(botTrainings[0]).toMatchObject(expectTs({ botId, status: 'done' }))
+
     expect(engineTrainSpy).toHaveBeenCalledTimes(1)
     expect(engineLoadSpy).toHaveBeenCalledTimes(1)
   })
@@ -101,7 +105,7 @@ describe('NLU API integration tests', () => {
     const engineOptions = { nProgressCalls, trainDelayBetweenProgress: 10 }
     const dependencies = makeDependencies(core, fileSystem, engineOptions)
 
-    const { engine, socket } = dependencies
+    const { engine, socket, trainingRepo } = dependencies
 
     const engineTrainSpy = jest.spyOn(engine, 'train')
     const engineLoadSpy = jest.spyOn(engine, 'loadModel')
@@ -123,8 +127,8 @@ describe('NLU API integration tests', () => {
     const nTrainings = 2
     expect(socket).toHaveBeenCalledTimes(nTrainings * (1 + nProgressCalls + 1))
 
-    expectTrainingToStartAndComplete(socket, { botId, language: 'en' })
-    expectTrainingToStartAndComplete(socket, { botId, language: 'fr' })
+    expectTrainingToStartAndComplete(socket, trainingRepo, { botId, language: 'en' })
+    expectTrainingToStartAndComplete(socket, trainingRepo, { botId, language: 'fr' })
 
     const ts: TrainingSession[] = socket.mock.calls.map(([ts]) => ts)
     expectMaxSimultaneousTrainings(ts, maxTraining)
@@ -153,7 +157,7 @@ describe('NLU API integration tests', () => {
     const engineOptions = { nProgressCalls, trainDelayBetweenProgress: 10 }
     const dependencies = makeDependencies(core, fileSystem, engineOptions)
 
-    const { engine, socket } = dependencies
+    const { engine, socket, trainingRepo } = dependencies
 
     const engineTrainSpy = jest.spyOn(engine, 'train')
     const engineLoadSpy = jest.spyOn(engine, 'loadModel')
@@ -175,8 +179,8 @@ describe('NLU API integration tests', () => {
     const nTrainings = 2
     expect(socket).toHaveBeenCalledTimes(nTrainings * (1 + nProgressCalls + 1))
 
-    expectTrainingToStartAndComplete(socket, { botId, language: 'en' })
-    expectTrainingToStartAndComplete(socket, { botId, language: 'fr' })
+    expectTrainingToStartAndComplete(socket, trainingRepo, { botId, language: 'en' })
+    expectTrainingToStartAndComplete(socket, trainingRepo, { botId, language: 'fr' })
 
     const ts: TrainingSession[] = socket.mock.calls.map(([ts]) => ts)
     expectMaxSimultaneousTrainings(ts, maxTraining)
@@ -241,7 +245,7 @@ describe('NLU API integration tests', () => {
     const core = { languages, specs }
     const engineOptions = { nProgressCalls, trainDelayBetweenProgress: 10 }
     const dependencies = makeDependencies(core, fileSystem, engineOptions)
-    const { engine, socket } = dependencies
+    const { engine, socket, trainingRepo } = dependencies
 
     const engineTrainSpy = jest.spyOn(engine, 'train')
     const engineLoadSpy = jest.spyOn(engine, 'loadModel')
@@ -261,11 +265,11 @@ describe('NLU API integration tests', () => {
     const nTrainings = 5
     expect(socket).toHaveBeenCalledTimes((nProgressCalls + 2) * nTrainings)
 
-    expectTrainingToStartAndComplete(socket, { botId: botId1, language: 'en' })
-    expectTrainingToStartAndComplete(socket, { botId: botId1, language: 'fr' })
-    expectTrainingToStartAndComplete(socket, { botId: botId2, language: 'en' })
-    expectTrainingToStartAndComplete(socket, { botId: botId2, language: 'fr' })
-    expectTrainingToStartAndComplete(socket, { botId: botId3, language: 'en' })
+    expectTrainingToStartAndComplete(socket, trainingRepo, { botId: botId1, language: 'en' })
+    expectTrainingToStartAndComplete(socket, trainingRepo, { botId: botId1, language: 'fr' })
+    expectTrainingToStartAndComplete(socket, trainingRepo, { botId: botId2, language: 'en' })
+    expectTrainingToStartAndComplete(socket, trainingRepo, { botId: botId2, language: 'fr' })
+    expectTrainingToStartAndComplete(socket, trainingRepo, { botId: botId3, language: 'en' })
 
     const ts: TrainingSession[] = socket.mock.calls.map(([ts]) => ts)
     expectMaxSimultaneousTrainings(ts, maxTraining)
@@ -353,7 +357,7 @@ describe('NLU API integration tests', () => {
     const core = { languages, specs }
     const dependencies = makeDependencies(core, fileSystem)
 
-    const { engine, socket, modelRepoByBot } = dependencies
+    const { engine, socket, modelRepoByBot, trainingRepo } = dependencies
 
     const engineTrainSpy = jest.spyOn(engine, 'train')
     const engineLoadSpy = jest.spyOn(engine, 'loadModel')
@@ -375,7 +379,7 @@ describe('NLU API integration tests', () => {
 
     // assert
     expect(socket).not.toHaveBeenCalledWith(expectTs({ botId, language: 'en' }))
-    expectTrainingToStartAndComplete(socket, { botId, language: 'fr' })
+    expectTrainingToStartAndComplete(socket, trainingRepo, { botId, language: 'fr' })
 
     expect(fsHasModelMock).toHaveBeenCalledTimes(2)
     expect(fsGetModelMock.mock.calls.length).toBeGreaterThanOrEqual(1)
@@ -674,7 +678,7 @@ describe('NLU API integration tests', () => {
 
     const core = { languages: [lang], specs }
     const dependencies = makeDependencies(core, fileSystem)
-    const { engine, socket } = dependencies
+    const { engine, socket, trainingRepo } = dependencies
 
     await engine.loadModel(modelId as NLU.Model)
     const engineTrainSpy = jest.spyOn(engine, 'train')
@@ -693,7 +697,7 @@ describe('NLU API integration tests', () => {
     await waitForTrainingsToBeDone(app)
 
     // assert
-    expectTrainingToStartAndComplete(socket, { botId, language: lang })
+    expectTrainingToStartAndComplete(socket, trainingRepo, { botId, language: lang })
     expect(engineTrainSpy).toHaveBeenCalledTimes(1)
     expectEngineToHaveTrained(engineTrainSpy, lang)
   })

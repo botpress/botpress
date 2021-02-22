@@ -22,6 +22,7 @@ interface AppDependencies {
   socket: jest.Mock<Promise<void>, [TrainingSession]>
   modelRepoByBot: _.Dictionary<FakeModelRepo>
   defRepoByBot: _.Dictionary<FakeDefinitionRepo>
+  trainingRepo: InMemoryTrainingRepository
   engine: NLU.Engine
   errors: typeof NLU.errors
   logger: Logger
@@ -53,18 +54,21 @@ export const makeDependencies = (
   const defRepoByBot = _.mapValues(fsByBot, fs => new FakeDefinitionRepo(fs.definitions))
   const modelRepoByBot = _.mapValues(fsByBot, fs => new FakeModelRepo(fs.modelsOnFs as NLU.Model[]))
 
+  const trainingRepo = new InMemoryTrainingRepository()
+
   return {
     errors,
     logger,
     socket,
     engine,
+    trainingRepo,
     defRepoByBot,
     modelRepoByBot
   }
 }
 
 export const makeApp = (dependencies: AppDependencies, trainingQueueOptions: Partial<TrainingQueueOptions> = {}) => {
-  const { socket, engine, errors, logger, defRepoByBot, modelRepoByBot } = dependencies
+  const { socket, engine, errors, logger, defRepoByBot, modelRepoByBot, trainingRepo } = dependencies
 
   const modelRepoFactory: ModelRepositoryFactory = ({ botId }) => modelRepoByBot[botId]
   const defRepoFactory: DefinitionRepositoryFactory = ({ botId }) => defRepoByBot[botId]
@@ -72,8 +76,7 @@ export const makeApp = (dependencies: AppDependencies, trainingQueueOptions: Par
   const botService = new BotService()
   const botFactory = new BotFactory(engine, logger, modelIdService, defRepoFactory, modelRepoFactory)
 
-  const memoryTrainRepo = new InMemoryTrainingRepository()
-  const concurentTrainingRepository = new ConcurentTrainingRepository(memoryTrainRepo)
+  const concurentTrainingRepository = new ConcurentTrainingRepository(trainingRepo)
   const trainingQueue = new TrainingQueue(
     concurentTrainingRepository,
     errors,

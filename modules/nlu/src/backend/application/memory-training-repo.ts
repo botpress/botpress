@@ -1,4 +1,3 @@
-import { NLU } from 'botpress/sdk'
 import { TrainingState, TrainingId, TrainingSession, TrainingRepository } from './typings'
 
 export class InMemoryTrainingRepository implements TrainingRepository {
@@ -25,12 +24,15 @@ export class InMemoryTrainingRepository implements TrainingRepository {
     }
   }
 
-  public async query(query: { status: NLU.TrainingStatus }): Promise<TrainingId[]> {
-    const keep = ([key, t]: [string, TrainingState]) => t.status === query.status
-    const keys = Object.entries(this._trainings)
-      .filter(keep)
-      .map(p => p[0])
-    return keys.map(this._fromKey)
+  public async query(query: Partial<TrainingSession>): Promise<TrainingSession[]> {
+    const toSession = ([key, state]: [string, TrainingState]): TrainingSession => {
+      const id = this._fromKey(key)
+      return { ...id, ...state }
+    }
+
+    return Object.entries(this._trainings)
+      .map(toSession)
+      .filter(this._matchQuery(query))
   }
 
   public async getAll(): Promise<TrainingSession[]> {
@@ -48,5 +50,9 @@ export class InMemoryTrainingRepository implements TrainingRepository {
   private _fromKey = (key: string) => {
     const [_, botId, language] = key.split(':')
     return { botId, language }
+  }
+
+  private _matchQuery = (query: Partial<TrainingSession>) => (ts: TrainingSession) => {
+    return !Object.keys(query).some(k => query[k] !== ts[k])
   }
 }

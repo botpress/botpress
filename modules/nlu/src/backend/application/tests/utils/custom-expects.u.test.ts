@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import { TrainingSession } from '../../typings'
+import { InMemoryTrainingRepository } from '../../memory-training-repo'
 
 const zeros = (len: number) => Array(len).fill(0)
 
@@ -36,11 +37,19 @@ export const expectMaxSimultaneousTrainings = (trainSessions: TrainingSession[],
   expect(axctualMaxSimultaneous).toBe(expectedMaxSimultaneous)
 }
 
-export const expectTrainingToStartAndComplete = (socket: jest.Mock, trainId: { botId: string; language: string }) => {
+export const expectTrainingToStartAndComplete = async (
+  socket: jest.Mock,
+  trainRepo: InMemoryTrainingRepository,
+  trainId: { botId: string; language: string }
+) => {
   const { botId, language } = trainId
   expect(socket).toHaveBeenCalledWith(expectTs({ botId, status: 'training-pending', language }))
   expect(socket).toHaveBeenCalledWith(expectTs({ botId, status: 'training', language }))
   expect(socket).toHaveBeenCalledWith(expectTs({ botId, status: 'done', language }))
+
+  const botTrainings = await trainRepo.query({ botId, language })
+  expect(botTrainings).toHaveLength(1)
+  expect(botTrainings[0]).toMatchObject(expectTs({ botId, status: 'done' }))
 }
 
 export const expectEngineToHaveTrained = (trainMock: jest.SpyInstance, languageCode: string) => {
