@@ -72,7 +72,7 @@ export class ScopedMessageService implements sdk.experimental.messages.BotMessag
   }
 
   public async list(filters: sdk.experimental.messages.ListFilters): Promise<sdk.experimental.Message[]> {
-    return this.messageRepo.list(filters.conversationId, filters.limit, filters.offset)
+    return this.messageRepo.list(filters)
   }
 
   public async delete(filters: sdk.experimental.messages.DeleteFilters): Promise<number> {
@@ -94,13 +94,7 @@ export class ScopedMessageService implements sdk.experimental.messages.BotMessag
   }
 
   public async create(args: sdk.experimental.messages.CreateArgs): Promise<sdk.experimental.Message> {
-    const message = await this.messageRepo.create(
-      args.conversationId,
-      args.eventId,
-      args.incomingEventId,
-      args.from,
-      args.payload
-    )
+    const message = await this.messageRepo.create(args)
     const conversation = (await this.conversationService.get({ id: args.conversationId }))!
     await this.conversationService.flagAsMostRecent(conversation)
     return message
@@ -154,13 +148,13 @@ export class ScopedMessageService implements sdk.experimental.messages.BotMessag
     const event = new IOEvent(<sdk.IO.EventCtorArgs>ctorArgs)
     await this.eventEngine.sendEvent(event)
 
-    const message = await this.messageRepo.create(
+    const message = await this.messageRepo.create({
       conversationId,
-      event.id,
-      event.id,
-      event.direction === 'incoming' ? 'user' : 'bot',
+      eventId: event.id,
+      incomingEventId: event.id,
+      from: event.direction === 'incoming' ? 'user' : 'bot',
       payload
-    )
+    })
     await this.conversationService.flagAsMostRecent(conversation)
     return message
   }

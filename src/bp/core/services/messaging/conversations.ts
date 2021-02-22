@@ -55,7 +55,7 @@ export class ScopedConversationService implements sdk.experimental.conversations
   public async list(
     filters: sdk.experimental.conversations.ListFilters
   ): Promise<sdk.experimental.RecentConversation[]> {
-    return this.conversationRepo.list(this.botId, filters.userId, filters.limit, filters.offset)
+    return this.conversationRepo.list(this.botId, filters)
   }
 
   public async delete(filters: sdk.experimental.conversations.DeleteFilters): Promise<number> {
@@ -84,7 +84,7 @@ export class ScopedConversationService implements sdk.experimental.conversations
       return cached
     }
 
-    let conversation = await this.conversationRepo.recent(this.botId, userId)
+    let conversation = await this.conversationRepo.recent(this.botId, filters)
     if (!conversation) {
       conversation = await this.conversationRepo.create(this.botId, { userId })
     }

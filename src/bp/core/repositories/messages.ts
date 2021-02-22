@@ -8,15 +8,9 @@ import Database from '../database'
 import { TYPES } from '../types'
 
 export interface MessageRepository {
-  list(conversationId: number, limit?: number, offset?: number): Promise<experimental.Message[]>
+  list(filters: experimental.messages.ListFilters): Promise<experimental.Message[]>
   deleteAll(conversationId: number): Promise<number>
-  create(
-    conversationId: number,
-    eventId: string,
-    incomingEventId: string,
-    from: string,
-    payload: any
-  ): Promise<experimental.Message>
+  create(args: experimental.messages.CreateArgs): Promise<experimental.Message>
   get(messageId: number): Promise<experimental.Message | undefined>
   delete(messageId: number): Promise<boolean>
   serialize(message: Partial<experimental.Message>)
@@ -39,7 +33,9 @@ export class KnexMessageRepository implements MessageRepository {
     this.invalidateMsgCache = <any>await this.jobService.broadcast<void>(this._localInvalidateMsgCache.bind(this))
   }
 
-  public async list(conversationId: number, limit?: number, offset?: number): Promise<experimental.Message[]> {
+  public async list(filters: experimental.messages.ListFilters): Promise<experimental.Message[]> {
+    const { conversationId, limit, offset } = filters
+
     let query = this.query()
       .where({ conversationId })
       .orderBy('sentOn', 'desc')
@@ -73,13 +69,9 @@ export class KnexMessageRepository implements MessageRepository {
     return deletedIds.length
   }
 
-  public async create(
-    conversationId: number,
-    eventId: string,
-    incomingEventId: string,
-    from: string,
-    payload: any
-  ): Promise<experimental.Message> {
+  public async create(args: experimental.messages.CreateArgs): Promise<experimental.Message> {
+    const { conversationId, eventId, incomingEventId, from, payload } = args
+
     const row = {
       conversationId,
       eventId,

@@ -9,10 +9,13 @@ import { TYPES } from '../types'
 import { MessageRepository } from './messages'
 
 export interface ConversationRepository {
-  list(botId: string, userId: string, limit?: number, offset?: number): Promise<experimental.RecentConversation[]>
+  list(botId: string, filters: experimental.conversations.ListFilters): Promise<experimental.RecentConversation[]>
   deleteAll(botId: string, userId: string): Promise<number>
   create(botId: string, args: experimental.conversations.CreateArgs): Promise<experimental.Conversation>
-  recent(botId: string, userId: string): Promise<experimental.Conversation | undefined>
+  recent(
+    botId: string,
+    filters: experimental.conversations.RecentFilters
+  ): Promise<experimental.Conversation | undefined>
   get(conversationId: number): Promise<experimental.Conversation | undefined>
   delete(conversationId: number): Promise<boolean>
 }
@@ -35,10 +38,10 @@ export class KnexConversationRepository implements ConversationRepository {
 
   public async list(
     botId: string,
-    userId: string,
-    limit?: number,
-    offset?: number
+    filters: experimental.conversations.ListFilters
   ): Promise<experimental.RecentConversation[]> {
+    const { userId, limit, offset } = filters
+
     let query = this.queryRecents(botId, userId)
 
     if (limit) {
@@ -94,8 +97,11 @@ export class KnexConversationRepository implements ConversationRepository {
     return conversation
   }
 
-  public async recent(botId: string, userId: string): Promise<experimental.Conversation | undefined> {
-    let query = this.queryRecents(botId, userId)
+  public async recent(
+    botId: string,
+    filters: experimental.conversations.RecentFilters
+  ): Promise<experimental.Conversation | undefined> {
+    let query = this.queryRecents(botId, filters.userId)
     query = query.limit(1)
 
     return this.deserialize((await query)[0])
