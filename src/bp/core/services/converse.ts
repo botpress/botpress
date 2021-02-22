@@ -9,9 +9,8 @@ import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import ms from 'ms'
 
-import { Event } from '../sdk/impl'
-import { MessagingAPI } from './messaging/messaging'
-
+import { ConversationService } from './messaging/conversations'
+import { MessageService } from './messaging/messages'
 import { EventEngine } from './middleware/event-engine'
 
 export const converseApiEvents = new EventEmitter2()
@@ -34,7 +33,8 @@ export class ConverseService {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.UserRepository) private userRepository: UserRepository,
-    @inject(TYPES.MessagingAPI) private messagingApi: MessagingAPI
+    @inject(TYPES.ConversationService) private conversationService: ConversationService,
+    @inject(TYPES.MessageService) private messageService: MessageService
   ) {}
 
   @postConstruct()
@@ -98,13 +98,13 @@ export class ConverseService {
 
     await this.userRepository.getOrCreate('api', userId, botId)
 
-    const conversation = await this.messagingApi.forBotConversations(botId).recent({ userId })
+    const conversation = await this.conversationService.forBot(botId).recent({ userId })
 
     const userKey = buildUserKey(botId, userId)
     const timeoutPromise = this._createTimeoutPromise(botId, userKey)
     const donePromise = this._createDonePromise(userKey)
 
-    await this.messagingApi.forBotMessages(botId).receive(conversation.id, payload, {
+    await this.messageService.forBot(botId).receive(conversation.id, payload, {
       channel: 'api',
       credentials,
       nlu: { includedContexts }
@@ -174,7 +174,7 @@ export class ConverseService {
     this._responseMap[userKey].responses!.push(event.payload)
 
     if (event.type !== 'typing' && event.type !== 'data') {
-      await this.messagingApi.forBotMessages(event.botId).create({
+      await this.messageService.forBot(event.botId).create({
         conversationId: +event.threadId!,
         eventId: event.id,
         incomingEventId: event.incomingEventId!,

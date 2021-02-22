@@ -29,7 +29,8 @@ import { HookService } from './services/hook/hook-service'
 import { JobService } from './services/job-service'
 import { KeyValueStore } from './services/kvs'
 import { MediaServiceProvider } from './services/media'
-import { MessagingAPI } from './services/messaging/messaging'
+import { ConversationService } from './services/messaging/conversations'
+import { MessageService } from './services/messaging/messages'
 import { EventEngine } from './services/middleware/event-engine'
 import { StateManager } from './services/middleware/state-manager'
 import { NotificationsService } from './services/notification/service'
@@ -210,24 +211,28 @@ const distributed = (jobService: JobService): typeof sdk.distributed => {
   }
 }
 
-const experimental = (hookService: HookService, messagingAPI: MessagingAPI): typeof sdk.experimental => {
+const experimental = (
+  hookService: HookService,
+  conversationService: ConversationService,
+  messageService: MessageService
+): typeof sdk.experimental => {
   return {
     disableHook: hookService.disableHook.bind(hookService),
     enableHook: hookService.enableHook.bind(hookService),
-    messages: messages(messagingAPI),
-    conversations: conversations(messagingAPI)
+    conversations: conversations(conversationService),
+    messages: messages(messageService)
   }
 }
 
-const conversations = (messagingAPI: MessagingAPI): typeof sdk.experimental.conversations => {
+const conversations = (conversationService: ConversationService): typeof sdk.experimental.conversations => {
   return {
-    forBot: messagingAPI.forBotConversations.bind(messagingAPI)
+    forBot: conversationService.forBot.bind(conversationService)
   }
 }
 
-const messages = (messagingAPI: MessagingAPI): typeof sdk.experimental.messages => {
+const messages = (messageService: MessageService): typeof sdk.experimental.messages => {
   return {
-    forBot: messagingAPI.forBotMessages.bind(messagingAPI)
+    forBot: messageService.forBot.bind(messageService)
   }
 }
 
@@ -266,7 +271,6 @@ export class BotpressAPIProvider {
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
     @inject(TYPES.Database) db: Database,
     @inject(TYPES.EventEngine) eventEngine: EventEngine,
-    @inject(TYPES.MessagingAPI) messagingAPI: MessagingAPI,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.HTTPServer) httpServer: HTTPServer,
@@ -283,7 +287,9 @@ export class BotpressAPIProvider {
     @inject(TYPES.EventRepository) eventRepo: EventRepository,
     @inject(TYPES.WorkspaceService) workspaceService: WorkspaceService,
     @inject(TYPES.JobService) jobService: JobService,
-    @inject(TYPES.StateManager) stateManager: StateManager
+    @inject(TYPES.StateManager) stateManager: StateManager,
+    @inject(TYPES.ConversationService) conversationService: ConversationService,
+    @inject(TYPES.MessageService) messageService: MessageService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
@@ -298,7 +304,7 @@ export class BotpressAPIProvider {
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService, mediaServiceProvider)
     this.mlToolkit = MLToolkit
-    this.experimental = experimental(hookService, messagingAPI)
+    this.experimental = experimental(hookService, conversationService, messageService)
     this.security = security()
     this.workspaces = workspaces(workspaceService)
     this.distributed = distributed(jobService)

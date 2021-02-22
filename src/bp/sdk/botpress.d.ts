@@ -2456,10 +2456,10 @@ declare module 'botpress/sdk' {
         id: number
       }
       export interface ListFilters extends ListOptions {
-        userId?: string
+        userId: string
       }
       export interface RecentFilters {
-        userId?: string
+        userId: string
       }
     }
 
