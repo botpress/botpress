@@ -1,10 +1,16 @@
 import _ from 'lodash'
 import { TrainingSession } from '../../typings'
 
+const zeros = (len: number) => Array(len).fill(0)
+
+const sum = (arr1: number[], arr2: number[]) => {
+  return _.zip(arr1, arr2).map(([x1, x2]) => x1 + x2)
+}
+
 export const expectTs = (ts: Partial<TrainingSession>) => expect.objectContaining<Partial<TrainingSession>>(ts)
 
 // TODO: this function is a mess, maybe I should unit test it...
-export const expectTrainingsOccurInOrder = (trainSessions: TrainingSession[], expectedOrder: number[]) => {
+export const expectMaxSimultaneousTrainings = (trainSessions: TrainingSession[], expectedMaxSimultaneous: number) => {
   const progressUpdates = trainSessions.filter(ts => ['training', 'done'].includes(ts.status))
 
   const key = (ts: TrainingSession) => `${ts.botId}:${ts.language}`
@@ -19,24 +25,15 @@ export const expectTrainingsOccurInOrder = (trainSessions: TrainingSession[], ex
     return { start, end }
   })
 
-  const zeros = (len: number) => Array(len).fill(0)
-  const buckets: number[] = zeros(intervals.length)
+  const totalTime = _.maxBy(intervals, i => i.end).end
+  const impulses = intervals.map(({ start, end }) => {
+    return zeros(totalTime).map((_v, i) => (i >= start && i <= end ? 1 : 0))
+  })
 
-  for (let i = 0; i < intervals.length; i++) {
-    if (i === 0) {
-      buckets[i] = 0
-      continue
-    }
-    const previousBucket = buckets[i - 1]
-    if (intervals[i].start < intervals[i - 1].end) {
-      buckets[i] = previousBucket
-      continue
-    }
-    buckets[i] = previousBucket + 1
-  }
+  const trainCount = impulses.reduce(sum, zeros(totalTime))
 
-  const actualOrder = _.uniq(buckets).map(i => buckets.filter(b => b === i).length)
-  expect([...actualOrder]).toStrictEqual([...expectedOrder])
+  const axctualMaxSimultaneous = _.max(trainCount)
+  expect(axctualMaxSimultaneous).toBe(expectedMaxSimultaneous)
 }
 
 export const expectTrainingToStartAndComplete = (socket: jest.Mock, trainId: { botId: string; language: string }) => {

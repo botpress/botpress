@@ -7,7 +7,7 @@ import { makeApp, makeDependencies, waitForTrainingsToBeDone } from './utils/app
 import {
   expectEngineToHaveLoaded,
   expectEngineToHaveTrained,
-  expectTrainingsOccurInOrder,
+  expectMaxSimultaneousTrainings,
   expectTrainingToStartAndComplete,
   expectTs
 } from './utils/custom-expects.u.test'
@@ -82,9 +82,6 @@ describe('NLU API integration tests', () => {
     expect(socket).toHaveBeenNthCalledWith(3, expectTs({ botId, status: 'training' }))
     expect(socket).toHaveBeenNthCalledWith(4, expectTs({ botId, status: 'done' }))
 
-    const ts: TrainingSession[] = socket.mock.calls.map(([ts]) => ts)
-    expectTrainingsOccurInOrder(ts, [1])
-
     expect(engineTrainSpy).toHaveBeenCalledTimes(1)
     expect(engineLoadSpy).toHaveBeenCalledTimes(1)
   })
@@ -109,7 +106,8 @@ describe('NLU API integration tests', () => {
     const engineTrainSpy = jest.spyOn(engine, 'train')
     const engineLoadSpy = jest.spyOn(engine, 'loadModel')
 
-    const trainingQueueOptions = { maxTraining: 2 }
+    const maxTraining = 2
+    const trainingQueueOptions = { maxTraining }
     app = makeApp(dependencies, trainingQueueOptions)
 
     // act
@@ -129,7 +127,7 @@ describe('NLU API integration tests', () => {
     expectTrainingToStartAndComplete(socket, { botId, language: 'fr' })
 
     const ts: TrainingSession[] = socket.mock.calls.map(([ts]) => ts)
-    expectTrainingsOccurInOrder(ts, [2])
+    expectMaxSimultaneousTrainings(ts, maxTraining)
 
     expect(engineTrainSpy).toHaveBeenCalledTimes(nTrainings)
     expectEngineToHaveTrained(engineTrainSpy, 'en')
@@ -160,7 +158,8 @@ describe('NLU API integration tests', () => {
     const engineTrainSpy = jest.spyOn(engine, 'train')
     const engineLoadSpy = jest.spyOn(engine, 'loadModel')
 
-    const trainingQueueOptions = { maxTraining: 1 }
+    const maxTraining = 1
+    const trainingQueueOptions = { maxTraining }
     app = makeApp(dependencies, trainingQueueOptions)
 
     // act
@@ -180,7 +179,7 @@ describe('NLU API integration tests', () => {
     expectTrainingToStartAndComplete(socket, { botId, language: 'fr' })
 
     const ts: TrainingSession[] = socket.mock.calls.map(([ts]) => ts)
-    expectTrainingsOccurInOrder(ts, [1, 1])
+    expectMaxSimultaneousTrainings(ts, maxTraining)
 
     expect(engineTrainSpy).toHaveBeenCalledTimes(2)
     expectEngineToHaveTrained(engineTrainSpy, 'en')
@@ -247,7 +246,8 @@ describe('NLU API integration tests', () => {
     const engineTrainSpy = jest.spyOn(engine, 'train')
     const engineLoadSpy = jest.spyOn(engine, 'loadModel')
 
-    const trainingQueueOptions = { maxTraining: 2 }
+    const maxTraining = 2
+    const trainingQueueOptions = { maxTraining }
     app = makeApp(dependencies, trainingQueueOptions)
 
     // act
@@ -268,7 +268,7 @@ describe('NLU API integration tests', () => {
     expectTrainingToStartAndComplete(socket, { botId: botId3, language: 'en' })
 
     const ts: TrainingSession[] = socket.mock.calls.map(([ts]) => ts)
-    expectTrainingsOccurInOrder(ts, [2, 2, 1])
+    expectMaxSimultaneousTrainings(ts, maxTraining)
 
     expect(engineTrainSpy).toHaveBeenCalledTimes(nTrainings)
     expectEngineToHaveTrained(engineTrainSpy, 'en')
@@ -579,7 +579,7 @@ describe('NLU API integration tests', () => {
 
     const socket = jest.fn(async (ts: TrainingSession) => {
       if (ts.status === 'training') {
-        await app.cancelTraining(botId, ts.language)
+        app.cancelTraining(botId, ts.language)
       }
     })
     app = makeApp({ ...dependencies, socket })

@@ -51,3 +51,18 @@ export interface TrainerService {
 }
 
 export type TrainingListener = (ts: TrainingSession) => Promise<void>
+
+export interface ReadonlyTrainingRepository {
+  initialize(): Promise<void>
+
+  has(id: TrainingId): Promise<boolean>
+  get(id: TrainingId): Promise<TrainingState | undefined>
+  query(query: Partial<TrainingState>): Promise<TrainingId[]>
+  getAll(): Promise<TrainingSession[]>
+
+  clear(): Promise<void> // not readonly, but thread safe
+}
+
+export interface TrainingRepository extends ReadonlyTrainingRepository {
+  set(id: TrainingId, state: TrainingState): Promise<void>
+}

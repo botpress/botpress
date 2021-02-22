@@ -1,31 +1,31 @@
 import { NLU } from 'botpress/sdk'
-import { TrainingState, TrainingId, I, TrainingSession } from './typings'
+import { TrainingState, TrainingId, TrainingSession, TrainingRepository } from './typings'
 
-export type ITrainingRepository = I<InMemoryTrainingRepository>
-
-export class InMemoryTrainingRepository {
+export class InMemoryTrainingRepository implements TrainingRepository {
   private _trainings: { [key: string]: TrainingState } = {}
 
-  public has(id: TrainingId): boolean {
+  async initialize(): Promise<void> {}
+
+  public async has(id: TrainingId): Promise<boolean> {
     return !!this.get(id)
   }
 
-  public get(id: TrainingId): TrainingState | undefined {
+  public async get(id: TrainingId): Promise<TrainingState | undefined> {
     const training = this._trainings[this._toKey(id)]
     return { ...training }
   }
 
-  public set(id: TrainingId, state: TrainingState) {
+  public async set(id: TrainingId, state: TrainingState) {
     this._trainings[this._toKey(id)] = { ...state }
   }
 
-  public clear() {
+  public async clear() {
     for (const key of Object.keys(this._trainings)) {
       delete this._trainings[key]
     }
   }
 
-  public query(query: { status: NLU.TrainingStatus }): TrainingId[] {
+  public async query(query: { status: NLU.TrainingStatus }): Promise<TrainingId[]> {
     const keep = ([key, t]: [string, TrainingState]) => t.status === query.status
     const keys = Object.entries(this._trainings)
       .filter(keep)
@@ -33,7 +33,7 @@ export class InMemoryTrainingRepository {
     return keys.map(this._fromKey)
   }
 
-  public getAll(): TrainingSession[] {
+  public async getAll(): Promise<TrainingSession[]> {
     return Object.entries(this._trainings).map(([k, v]) => ({
       ...this._fromKey(k),
       ...v

@@ -16,6 +16,7 @@ import { StubLogger } from './stub-logger.u.test'
 import { sleep } from './utils.u.test'
 import { InMemoryTrainingRepository } from '../../memory-training-repo'
 import { TrainingSession } from '../../typings'
+import { ConcurentTrainingRepository } from '../../concurent-training-repo'
 
 interface AppDependencies {
   socket: jest.Mock<Promise<void>, [TrainingSession]>
@@ -72,7 +73,15 @@ export const makeApp = (dependencies: AppDependencies, trainingQueueOptions: Par
   const botFactory = new BotFactory(engine, logger, modelIdService, defRepoFactory, modelRepoFactory)
 
   const memoryTrainRepo = new InMemoryTrainingRepository()
-  const trainingQueue = new TrainingQueue(memoryTrainRepo, errors, logger, botService, socket, trainingQueueOptions)
+  const concurentTrainingRepository = new ConcurentTrainingRepository(memoryTrainRepo)
+  const trainingQueue = new TrainingQueue(
+    concurentTrainingRepository,
+    errors,
+    logger,
+    botService,
+    socket,
+    trainingQueueOptions
+  )
 
   return new NLUApplication(trainingQueue, engine, botFactory, botService)
 }
