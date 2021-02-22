@@ -35,6 +35,7 @@ export class ConversationService {
       scope = new ScopedConversationService(botId, this.conversationRepo, (userId, mostRecentConvoId) =>
         this.invalidateMostRecent(botId, userId, mostRecentConvoId)
       )
+      this.scopes[botId] = scope
     }
     return scope
   }

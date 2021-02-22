@@ -53,6 +53,7 @@ export class MessageService {
         this.kvs,
         (userId, lastChannel) => this.invalidateLastChannel(botId, userId, lastChannel)
       )
+      this.scopes[botId] = scope
     }
     return scope
   }
