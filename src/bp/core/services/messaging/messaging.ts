@@ -13,6 +13,64 @@ import { EventEngine } from '../middleware/event-engine'
 
 @injectable()
 export class MessagingAPI {
+  private botMessages: { [botId: string]: sdk.experimental.messages.BotMessages } = {}
+  private botConversations: { [botId: string]: sdk.experimental.conversations.BotConversations } = {}
+
+  constructor(
+    @inject(TYPES.EventEngine) private eventEngine: EventEngine,
+    @inject(TYPES.JobService) private jobService: JobService,
+    @inject(TYPES.MessageRepository) private messageRepo: MessageRepository,
+    @inject(TYPES.ConversationRepository) private conversationRepo: ConversationRepository,
+    @inject(TYPES.KeyValueStore) private kvs: KeyValueStore
+  ) {}
+
+  public forBotMessages(botId: string): sdk.experimental.messages.BotMessages {
+    let botMessages = this.botMessages[botId]
+    if (!botMessages) {
+      const impl = new ScopedMessaging(
+        botId,
+        this.eventEngine,
+        this.jobService,
+        this.messageRepo,
+        this.conversationRepo,
+        this.kvs
+      )
+      botMessages = {
+        send: impl.sendOutgoing.bind(impl),
+        receive: impl.sendIncoming.bind(impl),
+        create: impl.createMessage.bind(impl),
+        del: impl.deleteMessages.bind(impl),
+        get: impl.getMessage.bind(impl),
+        list: impl.listMessages.bind(impl)
+      }
+    }
+    return botMessages
+  }
+
+  public forBotConversations(botId: string): sdk.experimental.conversations.BotConversations {
+    let botConversations = this.botConversations[botId]
+    if (!botConversations) {
+      const impl = new ScopedMessaging(
+        botId,
+        this.eventEngine,
+        this.jobService,
+        this.messageRepo,
+        this.conversationRepo,
+        this.kvs
+      )
+      botConversations = {
+        create: impl.createConversation.bind(impl),
+        del: impl.deleteConversations.bind(impl),
+        get: impl.getConversation.bind(impl),
+        list: impl.listConversations.bind(impl),
+        recent: impl.recentConversation.bind(impl)
+      }
+    }
+    return botConversations
+  }
+}
+
+export class ScopedMessaging {
   private mostRecentCaches: { [botId: string]: LRU<string, sdk.experimental.Conversation> } = {}
   private lastChannelCaches: { [botId: string]: LRU<string, string> } = {}
   private invalidateMostRecent: (endpoint: sdk.experimental.UserEndpoint, mostRecentConvoId?: number) => void = this
@@ -21,11 +79,12 @@ export class MessagingAPI {
     ._localInvalidateLastChannel
 
   constructor(
-    @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.JobService) private jobService: JobService,
-    @inject(TYPES.MessageRepository) private messageRepo: MessageRepository,
-    @inject(TYPES.ConversationRepository) private conversationRepo: ConversationRepository,
-    @inject(TYPES.KeyValueStore) private kvs: KeyValueStore
+    private botId: string,
+    private eventEngine: EventEngine,
+    private jobService: JobService,
+    private messageRepo: MessageRepository,
+    private conversationRepo: ConversationRepository,
+    private kvs: KeyValueStore
   ) {}
 
   @postConstruct()
@@ -43,7 +102,7 @@ export class MessagingAPI {
   public async listConversations(
     filters: sdk.experimental.conversations.ListFilters
   ): Promise<sdk.experimental.RecentConversation[]> {
-    return this.conversationRepo.list({ userId: filters.userId!, botId: filters.botId! }, filters.limit)
+    return this.conversationRepo.list({ userId: filters.userId!, botId: this.botId }, filters.limit)
   }
 
   public async deleteConversations(filters: sdk.experimental.conversations.DeleteFilters): Promise<number> {
@@ -53,7 +112,7 @@ export class MessagingAPI {
 
       return (await this.conversationRepo.delete(filters.id)) ? 1 : 0
     } else {
-      const endpoint = { userId: filters.userId!, botId: filters.botId! }
+      const endpoint = { userId: filters.userId!, botId: this.botId }
       this.invalidateMostRecent(endpoint)
 
       return this.conversationRepo.deleteAll(endpoint)
@@ -69,7 +128,7 @@ export class MessagingAPI {
   public async recentConversation(
     filters: sdk.experimental.conversations.RecentFilters
   ): Promise<sdk.experimental.RecentConversation> {
-    const endpoint = { userId: filters.userId!, botId: filters.botId! }
+    const endpoint = { userId: filters.userId!, botId: this.botId }
     const cached = this.recentConvoCacheForBot(endpoint.botId).get(endpoint.userId)
     if (cached) {
       return cached

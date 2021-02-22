@@ -221,22 +221,13 @@ const experimental = (hookService: HookService, messagingAPI: MessagingAPI): typ
 
 const conversations = (messagingAPI: MessagingAPI): typeof sdk.experimental.conversations => {
   return {
-    create: messagingAPI.createConversation.bind(messagingAPI),
-    del: messagingAPI.deleteConversations.bind(messagingAPI),
-    get: messagingAPI.getConversation.bind(messagingAPI),
-    list: messagingAPI.listConversations.bind(messagingAPI),
-    recent: messagingAPI.recentConversation.bind(messagingAPI)
+    forBot: messagingAPI.forBotConversations.bind(messagingAPI)
   }
 }
 
 const messages = (messagingAPI: MessagingAPI): typeof sdk.experimental.messages => {
   return {
-    create: messagingAPI.createMessage.bind(messagingAPI),
-    del: messagingAPI.deleteMessages.bind(messagingAPI),
-    get: messagingAPI.getMessage.bind(messagingAPI),
-    list: messagingAPI.listMessages.bind(messagingAPI),
-    send: messagingAPI.sendOutgoing.bind(messagingAPI),
-    receive: messagingAPI.sendIncoming.bind(messagingAPI)
+    forBot: messagingAPI.forBotMessages.bind(messagingAPI)
   }
 }
 
