@@ -2406,11 +2406,11 @@ declare module 'botpress/sdk' {
          * @returns The number of deleted rows
          * @example
          * // Delete a conversation by id
-         * await bp.conversations.forBot('myBot').del({ id: 563 })
+         * await bp.conversations.forBot('myBot').delete({ id: 563 })
          * // Delete all conversations of a bot user
-         * await bp.conversations.forBot('myBot').del({ userId: 'eEFoneif394' })
+         * await bp.conversations.forBot('myBot').delete({ userId: 'eEFoneif394' })
          */
-        del(filters: DeleteFilters): Promise<number>
+        delete(filters: DeleteFilters): Promise<number>
 
         /**
          * Gets on conversation from the db
@@ -2509,12 +2509,12 @@ declare module 'botpress/sdk' {
          * @returns The number of deleted rows
          * @example
          * // Delete message by id
-         * await bp.messages.forBot('myBot').del({ id: 43 })
+         * await bp.messages.forBot('myBot').delete({ id: 43 })
          * @example
          * // Delete all messages of a conversation
-         * await bp.messages.forBot('myBot').del({ conversationId: 343 })
+         * await bp.messages.forBot('myBot').delete({ conversationId: 343 })
          */
-        del(filters: DeleteFilters): Promise<number>
+        delete(filters: DeleteFilters): Promise<number>
 
         /**
          * Gets one message from the db
