@@ -118,7 +118,7 @@ export default async (bp: typeof sdk, db: Database) => {
     if (conversationId && conversationId !== 'null') {
       req.conversationId = parseInt(conversationId)
 
-      if ((await bp.experimental.messaging.getConversationById(conversationId)).userId !== userId) {
+      if ((await bp.experimental.conversations.forBot(botId).get({ id: conversationId })).userId !== userId) {
         next(ERR_BAD_CONV_ID)
       }
     }
@@ -192,7 +192,7 @@ export default async (bp: typeof sdk, db: Database) => {
       }
 
       if (!conversationId) {
-        conversationId = (await bp.experimental.messaging.getOrCreateRecentConversation({ userId, botId })).id
+        conversationId = (await bp.experimental.conversations.forBot(botId).recent({ userId })).id
       }
 
       await sendNewMessage(
@@ -244,8 +244,10 @@ export default async (bp: typeof sdk, db: Database) => {
       const { userId, conversationId, botId } = req
 
       const config = (await bp.config.getModuleConfigForBot('channel-web', botId)) as Config
-      const conversation = await bp.experimental.messaging.getConversationById(conversationId)
-      const messages = await bp.experimental.messaging.getRecentMessages(conversationId, config.maxMessagesHistory)
+      const conversation = await bp.experimental.conversations.forBot(botId).get({ id: conversationId })
+      const messages = await bp.experimental.messages
+        .forBot(botId)
+        .list({ conversationId, limit: config.maxMessagesHistory })
 
       return res.send({ ...conversation, messages })
     })
@@ -259,7 +261,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
       await bp.users.getOrCreateUser('web', userId, botId)
 
-      const conversations = await bp.experimental.messaging.getRecentConversations({ userId, botId }, 100)
+      const conversations = await bp.experimental.conversations.forBot(botId).list({ userId, limit: 100 })
       const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
       return res.send({
@@ -294,7 +296,7 @@ export default async (bp: typeof sdk, db: Database) => {
       sanitizedPayload = _.omit(payload, [...sensitive, 'sensitive'])
     }
 
-    const message = await bp.experimental.messaging.sendIncoming(conversationId, sanitizedPayload, {
+    const message = await bp.experimental.messages.forBot(botId).receive(conversationId, sanitizedPayload, {
       channel: 'web',
       credentials,
       debugger: useDebugger
@@ -315,7 +317,7 @@ export default async (bp: typeof sdk, db: Database) => {
       await bp.users.getOrCreateUser('web', userId, botId)
 
       if (!conversationId) {
-        conversationId = (await bp.experimental.messaging.getOrCreateRecentConversation({ userId, botId })).id
+        conversationId = (await bp.experimental.conversations.forBot(botId).recent({ userId })).id
       }
 
       const event = bp.IO.Event({
@@ -400,7 +402,7 @@ export default async (bp: typeof sdk, db: Database) => {
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { botId, userId } = req
 
-      const conversation = await bp.experimental.messaging.createConversation({ botId, userId })
+      const conversation = await bp.experimental.conversations.forBot(botId).create({ userId })
       res.send({ convoId: conversation.id })
     })
   )
@@ -421,7 +423,7 @@ export default async (bp: typeof sdk, db: Database) => {
         }
 
         if (!conversationId) {
-          conversationId = (await bp.experimental.messaging.getOrCreateRecentConversation({ userId, botId })).id
+          conversationId = (await bp.experimental.conversations.forBot(botId).recent({ userId })).id
         }
 
         const message = reference.slice(0, reference.lastIndexOf('='))
@@ -530,8 +532,10 @@ export default async (bp: typeof sdk, db: Database) => {
       const { userId, conversationId, botId } = req
 
       const config = (await bp.config.getModuleConfigForBot('channel-web', botId)) as Config
-      const conversation = await bp.experimental.messaging.getConversationById(conversationId)
-      const messages = await bp.experimental.messaging.getRecentMessages(conversationId, config.maxMessagesHistory)
+      const conversation = await bp.experimental.conversations.forBot(botId).get({ id: conversationId })
+      const messages = await bp.experimental.messages
+        .forBot(botId)
+        .list({ conversationId, limit: config.maxMessagesHistory })
       const txt = await convertToTxtFile(conversation, messages)
 
       res.send({ txt, name: `Conversation ${conversation.id}.txt` })
@@ -542,11 +546,11 @@ export default async (bp: typeof sdk, db: Database) => {
     '/conversations/:userId/:conversationId/messages/delete',
     assertUserInfo({ convoIdRequired: true }),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
-      const { userId, conversationId } = req
+      const { botId, userId, conversationId } = req
 
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.clear', { conversationId }))
 
-      await bp.experimental.messaging.deleteAllMessages(conversationId)
+      await bp.experimental.messages.forBot(botId).delete({ conversationId })
 
       res.sendStatus(204)
     })
