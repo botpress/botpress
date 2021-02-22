@@ -2361,11 +2361,6 @@ declare module 'botpress/sdk' {
     export function disableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
     export function enableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
 
-    export interface UserEndpoint {
-      userId: string
-      botId: string
-    }
-
     export interface Conversation {
       id: number
       userId: string

@@ -54,7 +54,7 @@ export class ScopedConversationService implements sdk.experimental.conversations
   public async list(
     filters: sdk.experimental.conversations.ListFilters
   ): Promise<sdk.experimental.RecentConversation[]> {
-    return this.conversationRepo.list({ userId: filters.userId!, botId: this.botId }, filters.limit)
+    return this.conversationRepo.list(this.botId, filters.userId!, filters.limit)
   }
 
   public async del(filters: sdk.experimental.conversations.DeleteFilters): Promise<number> {
@@ -66,7 +66,7 @@ export class ScopedConversationService implements sdk.experimental.conversations
     } else {
       this.invalidateMostRecent(filters.userId!)
 
-      return this.conversationRepo.deleteAll({ botId: this.botId, userId: filters.userId! })
+      return this.conversationRepo.deleteAll(this.botId, filters.userId!)
     }
   }
 
@@ -82,7 +82,7 @@ export class ScopedConversationService implements sdk.experimental.conversations
       return cached
     }
 
-    let conversation = await this.conversationRepo.recent({ botId: this.botId, userId: filters.userId! })
+    let conversation = await this.conversationRepo.recent(this.botId, filters.userId!)
     if (!conversation) {
       conversation = await this.conversationRepo.create({ botId: this.botId, userId: filters.userId! })
     }

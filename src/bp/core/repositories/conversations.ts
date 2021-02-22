@@ -9,10 +9,10 @@ import { TYPES } from '../types'
 import { MessageRepository } from './messages'
 
 export interface ConversationRepository {
-  list(endpoint: experimental.UserEndpoint, limit?: number): Promise<experimental.RecentConversation[]>
-  deleteAll(endpoint: experimental.UserEndpoint): Promise<number>
-  create(endpoint: experimental.conversations.CreateArgs): Promise<experimental.Conversation>
-  recent(endpoint: experimental.UserEndpoint): Promise<experimental.Conversation | undefined>
+  list(botId: string, userId: string, limit?: number): Promise<experimental.RecentConversation[]>
+  deleteAll(botId: string, userId: string): Promise<number>
+  create(args: experimental.conversations.CreateArgs): Promise<experimental.Conversation>
+  recent(botId: string, userId: string): Promise<experimental.Conversation | undefined>
   get(conversationId: number): Promise<experimental.Conversation | undefined>
   delete(conversationId: number): Promise<boolean>
 }
@@ -33,8 +33,8 @@ export class KnexConversationRepository implements ConversationRepository {
     this.invalidateConvCache = <any>await this.jobService.broadcast<void>(this._localInvalidateConvCache.bind(this))
   }
 
-  public async list(endpoint: experimental.UserEndpoint, limit?: number): Promise<experimental.RecentConversation[]> {
-    let query = this.queryRecents(endpoint)
+  public async list(botId: string, userId: string, limit?: number): Promise<experimental.RecentConversation[]> {
+    let query = this.queryRecents(botId, userId)
 
     if (limit) {
       query = query.limit(limit)
@@ -50,16 +50,16 @@ export class KnexConversationRepository implements ConversationRepository {
     })
   }
 
-  public async deleteAll(endpoint: experimental.UserEndpoint): Promise<number> {
+  public async deleteAll(botId: string, userId: string): Promise<number> {
     const deletedIds = (
       await this.query()
         .select('id')
-        .where(endpoint)
+        .where({ botId, userId })
     ).map(x => x.id)
 
     if (deletedIds.length) {
       await this.query()
-        .where(endpoint)
+        .where({ botId, userId })
         .del()
 
       this.invalidateConvCache(deletedIds)
@@ -68,10 +68,10 @@ export class KnexConversationRepository implements ConversationRepository {
     return deletedIds.length
   }
 
-  public async create(endpoint: experimental.conversations.CreateArgs): Promise<experimental.Conversation> {
+  public async create(args: experimental.conversations.CreateArgs): Promise<experimental.Conversation> {
     const row = {
-      userId: endpoint.userId,
-      botId: endpoint.botId,
+      userId: args.userId,
+      botId: args.botId,
       createdOn: new Date()
     }
 
@@ -85,8 +85,8 @@ export class KnexConversationRepository implements ConversationRepository {
     return conversation
   }
 
-  public async recent(endpoint: experimental.UserEndpoint): Promise<experimental.Conversation | undefined> {
-    let query = this.queryRecents(endpoint)
+  public async recent(botId: string, userId: string): Promise<experimental.Conversation | undefined> {
+    let query = this.queryRecents(botId, userId)
     query = query.limit(1)
 
     return this.deserialize((await query)[0])
@@ -120,7 +120,7 @@ export class KnexConversationRepository implements ConversationRepository {
     return numberOfDeletedRows > 0
   }
 
-  private queryRecents(endpoint: experimental.UserEndpoint) {
+  private queryRecents(botId: string, userId: string) {
     return this.query()
       .select(
         'conversations.id',
@@ -136,8 +136,8 @@ export class KnexConversationRepository implements ConversationRepository {
       )
       .leftJoin('messages', 'messages.conversationId', 'conversations.id')
       .where({
-        userId: endpoint.userId,
-        botId: endpoint.botId
+        botId,
+        userId
       })
       .andWhere(builder => {
         void builder
