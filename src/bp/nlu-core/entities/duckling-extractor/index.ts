@@ -1,3 +1,4 @@
+import Recognizers from '@microsoft/recognizers-text-suite'
 import { NLU } from 'botpress/sdk'
 import { ensureFile, pathExists, readJSON, writeJson } from 'fs-extra'
 import _ from 'lodash'
@@ -6,12 +7,10 @@ import ms from 'ms'
 import sizeof from 'object-sizeof'
 import path from 'path'
 
-import { extractPattern } from '../../tools/patterns-utils'
 import { SPACE } from '../../tools/token-utils'
 import { EntityExtractionResult, SystemEntityExtractor } from '../../typings'
 
-import { DucklingClient, DucklingParams } from './duckling-client'
-import { mapDucklingToEntity } from './map-duckling'
+import { DucklingParams } from './duckling-client'
 import { DucklingDimension } from './typings'
 
 interface KeyedItem {
@@ -45,13 +44,46 @@ const CACHE_PATH = path.join(process.APP_DATA_PATH || '', 'cache', 'sys_entities
 
 export class DucklingEntityExtractor implements SystemEntityExtractor {
   public static enabled: boolean
-  private _provider: DucklingClient
 
   private static _cache: lru<string, EntityExtractionResult[]>
   private _cacheDumpEnabled = true
 
+  private _langToCulture = (lang: string): string => {
+    switch (lang) {
+      case 'zh': return Recognizers.Culture.Chinese
+      case 'nl': return Recognizers.Culture.Dutch
+      case 'en': return Recognizers.Culture.English
+      case 'fr': return Recognizers.Culture.French
+      case 'de': return Recognizers.Culture.German
+      case 'it': return Recognizers.Culture.Italian
+      case 'ja': return Recognizers.Culture.Japanese
+      case 'pt': return Recognizers.Culture.Portuguese
+      case 'es': return Recognizers.Culture.Spanish
+      default: throw new Error('This language is not supported by Microsoft Recognizer')
+    }
+  }
+
+  private _recognizers = [
+    Recognizers.recognizeNumber,
+    Recognizers.recognizeOrdinal,
+    Recognizers.recognizePercentage,
+    Recognizers.recognizeAge,
+    Recognizers.recognizeCurrency,
+    Recognizers.recognizeDimension,
+    Recognizers.recognizeTemperature,
+    Recognizers.recognizeDateTime,
+    Recognizers.recognizeBoolean,
+    Recognizers.recognizePhoneNumber,
+    Recognizers.recognizeIpAddress,
+    Recognizers.recognizeMention,
+    Recognizers.recognizeHashtag,
+    Recognizers.recognizeEmail,
+    Recognizers.recognizeURL,
+    Recognizers.recognizeGUID,
+  ]
+
   constructor(private readonly logger?: NLU.Logger) {
-    this._provider = new DucklingClient(logger)
+    this.logger = logger
   }
 
   public static get entityTypes(): string[] {
@@ -60,7 +92,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
 
   public static async configure(enabled: boolean, url: string, logger?: NLU.Logger) {
     if (enabled) {
-      this.enabled = await DucklingClient.init(url, logger)
+      this.enabled = true
 
       this._cache = new lru<string, EntityExtractionResult[]>({
         length: (val: any, key: string) => sizeof(val) + sizeof(key),
@@ -98,6 +130,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
     if (!DucklingEntityExtractor.enabled) {
       return Array(inputs.length).fill([])
     }
+
     const options = {
       lang,
       tz: this._getTz(),
@@ -151,29 +184,48 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
     if (_.isEmpty(batch)) {
       return []
     }
-    // trailing JOIN_CHAR so we have n joints and n examples
-    const strBatch = batch.map(x => x.input)
-    const concatBatch = strBatch.join(JOIN_CHAR) + JOIN_CHAR
-    const batchEntities = await this._fetchDuckling(concatBatch, params)
-    const splitLocations = extractPattern(concatBatch, new RegExp(JOIN_CHAR)).map(v => v.sourceIndex)
-    const entities = splitLocations.map((to, idx, locs) => {
-      const from = idx === 0 ? 0 : locs[idx - 1] + JOIN_CHAR.length
-      return batchEntities
-        .filter(e => e.start >= from && e.end <= to)
-        .map(e => ({
-          ...e,
-          start: e.start - from,
-          end: e.end - from
-        }))
+
+    const culture = this._langToCulture(params.lang)
+
+    const batchedEntities: EntityExtractionResult[][] = []
+    for (const utt of batch) {
+      let utteranceEntities: any[] = []
+
+      for (const typeRecognizer of this._recognizers) {
+        const entities = typeRecognizer(utt.input, culture)
+
+        if(entities.length>0){
+          const formatedEntities: EntityExtractionResult[] = entities.map(ent=> {
+            const formated: EntityExtractionResult = {
+              confidence:1.0,
+              type:ent.typeName,
+              value:ent.resolution.value,
+              start:ent.start,
+              end:ent.end+1,
+              metadata:{
+                source:ent.text,
+                entityId: `system.${ent.typeName}`,
+                extractor:'system',
+                unit:ent.resolution.unit
+              }
+            }
+            return formated
+          })
+
+          utteranceEntities = utteranceEntities.concat(formatedEntities)
+        }
+      }
+
+      batchedEntities.push(utteranceEntities)
+    }
+
+    await this._cacheBatchResults(batch.map(x=>x.input), batchedEntities)
+
+    const allEntities = batch.map((batchItm, i) => {
+      return { ...batchItm, entities: batchedEntities[i] }
     })
-    await this._cacheBatchResults(strBatch, entities)
 
-    return batch.map((batchItm, i) => ({ ...batchItm, entities: entities[i] }))
-  }
-
-  private async _fetchDuckling(text: string, params: DucklingParams): Promise<EntityExtractionResult[]> {
-    const duckReturn = await this._provider.fetchDuckling(text, params)
-    return duckReturn.map(mapDucklingToEntity)
+    return allEntities
   }
 
   private async _cacheBatchResults(inputs: string[], results: EntityExtractionResult[][]) {
