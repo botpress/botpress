@@ -9,7 +9,7 @@ import { TYPES } from '../types'
 import { MessageRepository } from './messages'
 
 export interface ConversationRepository {
-  list(botId: string, userId: string, limit?: number): Promise<experimental.RecentConversation[]>
+  list(botId: string, userId: string, limit?: number, offset?: number): Promise<experimental.RecentConversation[]>
   deleteAll(botId: string, userId: string): Promise<number>
   create(botId: string, args: experimental.conversations.CreateArgs): Promise<experimental.Conversation>
   recent(botId: string, userId: string): Promise<experimental.Conversation | undefined>
@@ -33,11 +33,20 @@ export class KnexConversationRepository implements ConversationRepository {
     this.invalidateConvCache = <any>await this.jobService.broadcast<void>(this._localInvalidateConvCache.bind(this))
   }
 
-  public async list(botId: string, userId: string, limit?: number): Promise<experimental.RecentConversation[]> {
+  public async list(
+    botId: string,
+    userId: string,
+    limit?: number,
+    offset?: number
+  ): Promise<experimental.RecentConversation[]> {
     let query = this.queryRecents(botId, userId)
 
     if (limit) {
       query = query.limit(limit)
+    }
+
+    if (offset) {
+      query = query.offset(offset)
     }
 
     return (await query).map(row => {

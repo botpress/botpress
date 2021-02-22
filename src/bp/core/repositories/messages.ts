@@ -8,7 +8,7 @@ import Database from '../database'
 import { TYPES } from '../types'
 
 export interface MessageRepository {
-  list(conversationId: number, limit?: number): Promise<experimental.Message[]>
+  list(conversationId: number, limit?: number, offset?: number): Promise<experimental.Message[]>
   deleteAll(conversationId: number): Promise<number>
   create(
     conversationId: number,
@@ -39,13 +39,17 @@ export class KnexMessageRepository implements MessageRepository {
     this.invalidateMsgCache = <any>await this.jobService.broadcast<void>(this._localInvalidateMsgCache.bind(this))
   }
 
-  public async list(conversationId: number, limit?: number): Promise<experimental.Message[]> {
+  public async list(conversationId: number, limit?: number, offset?: number): Promise<experimental.Message[]> {
     let query = this.query()
       .where({ conversationId })
       .orderBy('sentOn', 'desc')
 
     if (limit) {
       query = query.limit(limit)
+    }
+
+    if (offset) {
+      query = query.offset(offset)
     }
 
     return (await query).map(x => this.deserialize(x)!)

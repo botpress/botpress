@@ -74,7 +74,7 @@ export class ScopedMessageService implements sdk.experimental.messages.BotMessag
   }
 
   public async list(filters: sdk.experimental.messages.ListFilters): Promise<sdk.experimental.Message[]> {
-    return this.messageRepo.list(filters.conversationId, filters.limit)
+    return this.messageRepo.list(filters.conversationId, filters.limit, filters.offset)
   }
 
   public async del(filters: sdk.experimental.messages.DeleteFilters): Promise<number> {

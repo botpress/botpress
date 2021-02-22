@@ -55,7 +55,7 @@ export class ScopedConversationService implements sdk.experimental.conversations
   public async list(
     filters: sdk.experimental.conversations.ListFilters
   ): Promise<sdk.experimental.RecentConversation[]> {
-    return this.conversationRepo.list(this.botId, filters.userId!, filters.limit)
+    return this.conversationRepo.list(this.botId, filters.userId!, filters.limit, filters.offset)
   }
 
   public async del(filters: sdk.experimental.conversations.DeleteFilters): Promise<number> {
