@@ -109,15 +109,15 @@ const getMigrations = rootPath => {
   )
 }
 
-// const execute = (cmd, cwd) => {
-//   const args = require('yargs')(process.argv).argv
-//   cwd = cwd || args.pgPath || __dirname
+const execute = (cmd, cwd) => {
+  const args = require('yargs')(process.argv).argv
+  cwd = cwd || args.pgPath || __dirname
 
-//   return Promise.fromCallback(cb => {
-//     let outBuffer = ''
-//     const ctx = exec(cmd, { cwd }, err => cb(err, outBuffer))
-//     ctx.stdout.on('data', data => (outBuffer += data))
-//   })
-// }
+  return Promise.fromCallback(cb => {
+    let outBuffer = ''
+    const ctx = exec(cmd, { cwd }, err => cb(err, outBuffer))
+    ctx.stdout.on('data', data => (outBuffer += data))
+  })
+}
 
 start()
