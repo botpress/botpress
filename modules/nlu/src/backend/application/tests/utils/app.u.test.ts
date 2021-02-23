@@ -7,6 +7,7 @@ import { BotService } from '../../bot-service'
 import { TrainingQueue, TrainingQueueOptions } from '../../training-queue'
 import { TrainDefinitions } from '../../scoped/infrastructure/definitions-repository'
 
+import { FakeTrainingRepository } from './fake-training-repo.u.test'
 import { FakeDefinitionRepo } from './fake-def-repo.u.test'
 import { FakeEngine, FakeEngineOptions } from './fake-engine.u.test'
 import { modelIdService } from './fake-model-id-service.u.test'
@@ -14,7 +15,7 @@ import { FakeModelRepo } from './fake-model-repo.u.test'
 import './sdk.u.test'
 import { StubLogger } from './stub-logger.u.test'
 import { sleep } from './utils.u.test'
-import { InMemoryTrainingRepository } from '../../memory-training-repo'
+
 import { TrainingSession } from '../../typings'
 import { ConcurentTrainingRepository } from '../../concurent-training-repo'
 import { FakeDistributed } from './fake-distributed.u.test'
@@ -23,7 +24,7 @@ interface AppDependencies {
   socket: jest.Mock<Promise<void>, [TrainingSession]>
   modelRepoByBot: _.Dictionary<FakeModelRepo>
   defRepoByBot: _.Dictionary<FakeDefinitionRepo>
-  trainingRepo: InMemoryTrainingRepository
+  trainingRepo: FakeTrainingRepository
   distributed: FakeDistributed
   engine: NLU.Engine
   errors: typeof NLU.errors
@@ -56,7 +57,7 @@ export const makeDependencies = (
   const defRepoByBot = _.mapValues(fsByBot, fs => new FakeDefinitionRepo(fs.definitions))
   const modelRepoByBot = _.mapValues(fsByBot, fs => new FakeModelRepo(fs.modelsOnFs as NLU.Model[]))
 
-  const trainingRepo = new InMemoryTrainingRepository()
+  const trainingRepo = new FakeTrainingRepository()
   const distributed = new FakeDistributed()
 
   return {

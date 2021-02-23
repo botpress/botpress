@@ -1,6 +1,6 @@
-import { TrainingState, TrainingId, TrainingSession, TrainingRepository } from './typings'
+import { TrainingState, TrainingId, TrainingSession, TrainingRepository } from '../../typings'
 
-export class InMemoryTrainingRepository implements TrainingRepository {
+export class FakeTrainingRepository implements TrainingRepository {
   private _trainings: { [key: string]: TrainingState } = {}
 
   async initialize(): Promise<void> {}
