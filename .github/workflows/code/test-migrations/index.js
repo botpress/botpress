@@ -1,7 +1,7 @@
 require('bluebird-global')
 const exec = require('child_process').exec
 const archive = require('../../../../out/bp/core/misc/archive')
-const fse = require('fs-extra')
+const fs = require('fs')
 const rimraf = require('rimraf')
 const path = require('path')
 const glob = require('glob')
@@ -20,16 +20,18 @@ const start = async () => {
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
   })
 
+  console.log('list obj')
   const dir = await Promise.fromCallback(cb => s3.listObjectsV2({ Bucket }, cb))
   for (const file of dir.Contents) {
-    const [botName, version] = file.Key.split('_')
-    const archiveVersion = version.replace(/.tgz|.zip/, '')
+    const [archiveName, version] = file.Key.split('_')
 
+    const archiveVersion = version.replace(/.tgz|.zip/, '')
+    console.log('processing', archiveName, archiveVersion)
     const buffer = await Promise.fromCallback(cb => s3.getObject({ Bucket, Key: file.Key }, cb))
     await prepareDataFolder(buffer.Body)
-
-    await testMigration(botName, archiveVersion, targetVersion, { isDown: false })
-    await testMigration(botName, targetVersion, archiveVersion, { isDown: true })
+    console.log('mig')
+    await testMigration(archiveName, archiveVersion, targetVersion, { isDown: false })
+    await testMigration(archiveName, targetVersion, archiveVersion, { isDown: true })
   }
 }
 
@@ -43,7 +45,7 @@ const restorePostgresDump = async () => {
   const dbUrl = process.env.DATABASE_URL
   const dumpPath = path.resolve('./out/bp/data/storage/postgres.dump')
 
-  if (!dbUrl || !dbUrl.startsWith('postgres') || !fse.pathExistsSync(dumpPath)) {
+  if (!dbUrl || !dbUrl.startsWith('postgres') || !fs.existsSync(dumpPath)) {
     return
   }
   console.log('Restoring Postgres dump file...')
@@ -76,7 +78,7 @@ const testMigration = async (botName, startVersion, targetVersion, { isDown }) =
 
 const getMostRecentVersion = () => {
   const coreMigrations = getMigrations('./out/bp')
-  const modules = fse.readdirSync('./modules')
+  const modules = fs.readdirSync('./modules')
 
   const moduleMigrations = _.flatMap(modules, module => getMigrations(`./modules/${module}/dist`))
   const versions = [...coreMigrations, ...moduleMigrations].map(x => x.version).sort(semver.compare)
