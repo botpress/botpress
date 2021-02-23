@@ -62,22 +62,15 @@ const prepareDataFolder = async buffer => {
 // }
 
 const testMigration = async (botName, startVersion, targetVersion, { isDown }) => {
-  // const result = await execute(`yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion}`, './')
-  let stdoutBuffer = ''
-  await Promise.fromCallback(cb => {
-    const ctx = exec(`yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion}`, { cwd: './' }, err =>
-      cb(err)
-    )
-    ctx.stdout.on('data', data => (stdoutBuffer += data))
-  })
+  const result = await execute(`yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion}`, './')
 
-  const success = stdoutBuffer.match(/Migration(s?) completed successfully/)
+  const success = result.match(/Migration(s?) completed successfully/)
   const status = success ? chalk.green(`[SUCCESS]`) : chalk.red(`[FAILURE]`)
   const message = `${status} Migration ${isDown ? 'DOWN' : 'UP'} of ${botName} (${startVersion} -> ${targetVersion})`
 
   if (!success) {
     core.setFailed(message)
-    console.log(stdoutBuffer)
+    console.log(result)
   } else {
     console.log(message)
   }
