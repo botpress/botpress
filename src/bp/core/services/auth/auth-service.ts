@@ -18,6 +18,7 @@ import { AuthPayload, AuthStrategyConfig, ChatUserAuth, TokenUser } from '../../
 import { Resource } from '../../misc/resources'
 import { TYPES } from '../../types'
 import { SessionIdFactory } from '../dialog/session/id-factory'
+import { JobService } from '../job-service'
 import { KeyValueStore } from '../kvs'
 import { EventEngine } from '../middleware/event-engine'
 import { WorkspaceService } from '../workspace-service'
@@ -32,9 +33,14 @@ export const EXTERNAL_AUTH_HEADER = 'x-bp-externalauth'
 export const SERVER_USER = 'server::modules'
 const DEFAULT_CHAT_USER_AUTH_DURATION = '24h'
 
+const getUserKey = (email, strategy) => `${email}_${strategy}`
+
 @injectable()
 export default class AuthService {
   public strategyBasic!: StrategyBasic
+  private tokenVersions: Dic<number> = {}
+  private broadcastTokenChange: Function = this.local__tokenVersionChange
+  public jobService!: JobService
 
   constructor(
     @inject(TYPES.Logger)
@@ -50,6 +56,8 @@ export default class AuthService {
   ) {}
 
   async initialize() {
+    this.broadcastTokenChange = await this.jobService.broadcast<void>(this.local__tokenVersionChange.bind(this))
+
     const config = await this.configProvider.getBotpressConfig()
     const strategyTable = new StrategyUserTable()
 
@@ -59,6 +67,10 @@ export default class AuthService {
         this.logger.info(`Created table for strategy ${strategy}`)
       }
     })
+  }
+
+  private async local__tokenVersionChange(email: string, strategy: string, tokenVersion: number): Promise<void> {
+    this.tokenVersions[getUserKey(email, strategy)] = tokenVersion
   }
 
   async isFirstUser() {
@@ -92,6 +104,7 @@ export default class AuthService {
   async generateSecureToken(email: string, strategy: string) {
     const config = await this.configProvider.getBotpressConfig()
     const isGlobalStrategy = config.pro.collaboratorsAuthStrategies.includes(strategy)
+    const user = await this.users.findUser(email, strategy)
 
     const duration = config.jwtToken && config.jwtToken.duration
     const audience = isGlobalStrategy ? TOKEN_AUDIENCE : CHAT_USERS_AUDIENCE
@@ -100,7 +113,14 @@ export default class AuthService {
       audience === TOKEN_AUDIENCE &&
       !!config.superAdmins.find(x => x.strategy === strategy && x.email.toLowerCase() === email.toLowerCase())
 
-    return generateUserToken(email, strategy, isSuperAdmin, duration, audience)
+    return generateUserToken({
+      email,
+      strategy,
+      tokenVersion: user!.tokenVersion!,
+      isSuperAdmin,
+      expiresIn: duration,
+      audience
+    })
   }
 
   async generateChatUserToken(email: string, strategy: string, channel: string, target: string) {
@@ -110,7 +130,14 @@ export default class AuthService {
     const key = `${channel}::${target}`
     await this.kvs.global().set(key, { email, strategy }, undefined, duration)
 
-    return generateUserToken(email, strategy, false, duration, CHAT_USERS_AUDIENCE)
+    return generateUserToken({
+      email,
+      strategy,
+      tokenVersion: 1,
+      isSuperAdmin: false,
+      expiresIn: duration,
+      audience: CHAT_USERS_AUDIENCE
+    })
   }
 
   async findUser(email: string, strategy: string): Promise<StrategyUser | undefined> {
@@ -129,6 +156,7 @@ export default class AuthService {
     const createdUser = await this.users.createUser({
       email: user.email,
       strategy,
+      tokenVersion: 1,
       attributes: { ...(user.attributes || {}), created_at: new Date() }
     })
 
@@ -140,6 +168,7 @@ export default class AuthService {
   }
 
   async resetPassword(email: string, strategy: string): Promise<string> {
+    await this.incrementTokenVersion(email, strategy)
     return this.strategyBasic.resetPassword(email, strategy)
   }
 
@@ -155,10 +184,30 @@ export default class AuthService {
     return this.users.deleteUser(email, strategy)
   }
 
+  async isTokenVersionValid({ email, strategy, tokenVersion }: TokenUser) {
+    if (email === SERVER_USER) {
+      return true
+    }
+
+    const currentVersion = this.tokenVersions[getUserKey(email, strategy)]
+    if (currentVersion !== undefined) {
+      return currentVersion === tokenVersion
+    }
+
+    const user = await this.users.findUser(email, strategy)
+    if (user) {
+      this.tokenVersions[getUserKey(email, strategy)] = user.tokenVersion!
+      return user.tokenVersion === tokenVersion
+    }
+  }
+
   async checkToken(token: string, audience?: string): Promise<TokenUser> {
     return Promise.fromCallback<TokenUser>(cb => {
-      jsonwebtoken.verify(token, process.APP_SECRET, { audience }, (err, user) => {
-        cb(err, !err ? (user as TokenUser) : undefined)
+      jsonwebtoken.verify(token, process.APP_SECRET, { audience }, async (err, user) => {
+        if (!err && (await this.isTokenVersionValid(user as TokenUser))) {
+          cb(undefined, user as TokenUser)
+        }
+        cb(err, undefined)
       })
     })
   }
@@ -183,6 +232,27 @@ export default class AuthService {
     return this.generateSecureToken(tokenUser.email, tokenUser.strategy)
   }
 
+  async incrementTokenVersion(email: string, strategy: string) {
+    const currentUser = await this.users.findUser(email, strategy)
+    if (currentUser) {
+      const newVersion = currentUser.tokenVersion! + 1
+
+      await this.users.updateUser(email, strategy, { tokenVersion: newVersion })
+      await this.broadcastTokenChange(email, strategy, newVersion)
+    }
+  }
+
+  async invalidateToken({ email, strategy, tokenVersion }: TokenUser): Promise<boolean> {
+    const currentUser = await this.users.findUser(email, strategy)
+
+    if (currentUser?.tokenVersion === tokenVersion) {
+      await this.incrementTokenVersion(email, strategy)
+      return true
+    }
+
+    return false
+  }
+
   async getResources(): Promise<Resource[]> {
     if (process.IS_PRO_ENABLED) {
       const resources = require('pro/services/admin/pro-resources')
@@ -199,6 +269,7 @@ export default class AuthService {
     const createdUser = await this.users.createUser({
       email: user.email!,
       strategy,
+      tokenVersion: 1,
       password: user.password,
       salt: user.salt,
       attributes: user.attributes || {}

@@ -31,10 +31,19 @@ describe('Module - Channel Web', () => {
     await page.waitFor(3000) // Deliberate wait in case the model needs to be trained (or qna/nlu tests in progress)
   })
 
-  it('Testing Context discussion ', async () => {
+  it('Testing Context discussion and Dropdown', async () => {
     await clickOn('button', { text: 'What is a Context?' })
     await expectMatch("Okay, let's use a simple example. Let's talk about animals. Pick one.")
-    await clickOn('button', { text: 'Monkey' })
+
+    await page.waitForSelector('.bpw-keyboard-quick_reply-dropdown div[class*="-placeholder"]')
+    const placeholderText = await page.$eval(
+      '.bpw-keyboard-quick_reply-dropdown div[class*="-placeholder"]',
+      el => el.textContent
+    )
+    expect(placeholderText).toEqual('Select option...')
+
+    await clickOn('.bpw-keyboard-quick_reply-dropdown div[class*="-container"]')
+    await clickOn(`.bpw-keyboard-quick_reply-dropdown div[id^='react-select']:first-child`)
     await expectMatch('Please ask questions about that animal')
   })
 
