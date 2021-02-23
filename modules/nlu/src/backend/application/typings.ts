@@ -53,7 +53,7 @@ export interface TrainerService {
 export type TrainingListener = (ts: TrainingSession) => Promise<void>
 
 export interface ReadonlyTrainingRepository {
-  initialize(): Promise<void>
+  initialize(): Promise<void | void[]>
 
   has(id: TrainingId): Promise<boolean>
   get(id: TrainingId): Promise<TrainingState | undefined>

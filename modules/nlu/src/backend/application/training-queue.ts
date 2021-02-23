@@ -46,10 +46,10 @@ export class TrainingQueue implements TrainingQueue {
     const { _localCancelTraining, _localLoadModel } = this
 
     this._broadcastCancelTraining = (await this._distributed.broadcast(
-      _localCancelTraining
+      _localCancelTraining.bind(this)
     )) as typeof _localCancelTraining
 
-    this._broadcastLoadModel = (await this._distributed.broadcast(_localLoadModel)) as typeof _localLoadModel
+    this._broadcastLoadModel = (await this._distributed.broadcast(_localLoadModel.bind(this))) as typeof _localLoadModel
 
     return this._trainingRepo.initialize()
   }
@@ -89,7 +89,8 @@ export class TrainingQueue implements TrainingQueue {
     return this._broadcastCancelTraining(trainId)
   }
 
-  private _localCancelTraining = async (trainId: TrainingId): Promise<void> => {
+  // Do not use arrow notation as _localCancelTraining.name needs to be defined
+  private async _localCancelTraining(trainId: TrainingId): Promise<void> {
     return this._trainingRepo.queueAndWaitTransaction(async repo => {
       const { botId, language } = trainId
 
@@ -121,7 +122,8 @@ export class TrainingQueue implements TrainingQueue {
     })
   }
 
-  private _localLoadModel = async (botId: string, modelId: sdk.NLU.ModelId): Promise<void> => {
+  // Do not use arrow notation as _localLoadModel.name needs to be defined
+  private async _localLoadModel(botId: string, modelId: sdk.NLU.ModelId): Promise<void> {
     const trainer = this._trainerService.getBot(botId)
     if (trainer) {
       return trainer.load(modelId)

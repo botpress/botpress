@@ -9,7 +9,7 @@ import { NLUApplication } from './application'
 import { BotFactory } from './application/bot-factory'
 import { BotService } from './application/bot-service'
 import { ConcurentTrainingRepository } from './application/concurent-training-repo'
-import { InMemoryTrainingRepository } from './application/memory-training-repo'
+import { DatabaseTrainingRepository } from './application/database-training-repo'
 import { ScopedDefinitionsRepository } from './application/scoped/infrastructure/definitions-repository'
 import { ScopedModelRepository } from './application/scoped/infrastructure/model-repository'
 import { TrainingQueue } from './application/training-queue'
@@ -45,8 +45,8 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
 
   const botFactory = new BotFactory(engine, bp.logger, bp.NLU.modelIdService, makeDefRepo, makeModelRepo)
 
-  const trainRepo = new InMemoryTrainingRepository()
-  const concurentTrainingRepository = new ConcurentTrainingRepository(trainRepo, bp.distributed)
+  const trainRepo = new DatabaseTrainingRepository(bp.database)
+  const concurentTrainingRepository = new ConcurentTrainingRepository(trainRepo, bp.distributed, bp.logger)
   const memoryTrainingQueue = new TrainingQueue(
     concurentTrainingRepository,
     bp.NLU.errors,

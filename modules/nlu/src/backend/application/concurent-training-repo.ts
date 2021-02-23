@@ -24,9 +24,13 @@ const TRAINING_QUEUE_RESSOURCE = 'TRAINING_QUEUE_RESSOURCE' // TODO: have a glob
 export class ConcurentTrainingRepository implements ReadonlyTrainingRepository {
   private _queuedTransactions: TransactionHandle<any>[] = []
 
-  constructor(private _trainingRepo: TrainingRepository, private _distributed: typeof sdk.distributed) {}
+  constructor(
+    private _trainingRepo: TrainingRepository,
+    private _distributed: typeof sdk.distributed,
+    private _logger: sdk.Logger
+  ) {}
 
-  public initialize(): Promise<void> {
+  public initialize(): Promise<void | void[]> {
     return this._trainingRepo.initialize()
   }
 
@@ -91,7 +95,7 @@ export class ConcurentTrainingRepository implements ReadonlyTrainingRepository {
     try {
       res = await Promise.race([next.run(this._trainingRepo), this._sleep(MAX_TRX_TIME)])
       if (res === null) {
-        throw new Error(`Training transaction could not finish under ${MAX_TRX_TIME} ms.`)
+        this._logger.error(`Training transaction could not finish under ${MAX_TRX_TIME} ms.`)
       }
     } finally {
       lock.unlock()
