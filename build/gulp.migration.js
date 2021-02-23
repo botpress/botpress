@@ -1,13 +1,11 @@
 require('bluebird-global')
 const path = require('path')
-const gulp = require('gulp')
 const fs = require('fs')
 const mkdirp = require('mkdirp')
 const exec = require('child_process').exec
 const fse = require('fs-extra')
 const glob = require('glob')
-const rimraf = require('gulp-rimraf')
-const { createArchive } = require('../out/bp/core/misc/archive')
+
 const dotenv = require('dotenv')
 
 const dumpMigration = async () => {
@@ -32,6 +30,7 @@ Please make sure that the credentials provided in DATABASE_URL are valid`)
   const files = await Promise.fromCallback(cb => glob('**/*', { cwd: tmpDir.name, nodir: true, dot: true }, cb))
 
   const currentVersion = require('../package.json').version
+  const { createArchive } = require('../src/bp/core/misc/archive')
   const filename = await createArchive(`./test-migration_${currentVersion}.tgz`, tmpDir.name, files)
 
   console.log(`Archive saved at ${path.join(__dirname, filename)}. Please upload it on S3`)
