@@ -21,7 +21,6 @@ const start = async () => {
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
   })
 
-  console.log('list obj')
   const dir = await Promise.fromCallback(cb => s3.listObjectsV2({ Bucket }, cb))
   for (const file of dir.Contents) {
     console.info(`Processing file ${file.Key}`)
@@ -43,14 +42,18 @@ const prepareDataFolder = async buffer => {
   await restorePostgresDump()
 }
 
-const restorePostgresDump = async () => {
-  const dbUrl = `postgres://postgres:pgsecret@${process.env.POSTGRES_HOST}:5432/bp`
-  // const dbUrl = process.env.DATABASE_URL
-  const dumpPath = path.resolve('./out/bp/data/storage/postgres.dump')
+const isPostgresDb = () => {
+  return fs.existsSync(path.resolve('./out/bp/data/storage/postgres.dump'))
+}
 
-  if (!dbUrl || !dbUrl.startsWith('postgres') || !fs.existsSync(dumpPath)) {
+const restorePostgresDump = async () => {
+  if (!isPostgresDb()) {
     return
   }
+
+  const dbUrl = process.env.DATABASE_URL
+  const dumpPath = path.resolve('./out/bp/data/storage/postgres.dump')
+
   console.log('Restoring Postgres dump file...')
 
   const dbName = dbUrl.substring(dbUrl.lastIndexOf('/') + 1)
@@ -65,9 +68,11 @@ const restorePostgresDump = async () => {
 }
 
 const testMigration = async (botName, startVersion, targetVersion, { isDown }) => {
-  console.log('test', { botName, startVersion, targetVersion })
-  const result = await execute(`yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion}`, './')
-  console.log('completed')
+  const env = {
+    DATABASE_URL: isPostgresDb() ? process.env.DATABASE_URL : undefined
+  }
+
+  const result = await execute(`yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion}`, './', env)
   const success = result.match(/Migration(s?) completed successfully/)
   const status = success ? chalk.green(`[SUCCESS]`) : chalk.red(`[FAILURE]`)
   const message = `${status} Migration ${isDown ? 'DOWN' : 'UP'} of ${botName} (${startVersion} -> ${targetVersion})`
@@ -106,16 +111,16 @@ const getMigrations = rootPath => {
   )
 }
 
-const execute = (cmd, cwd) => {
-  console.log(process.env.POSTGRES_HOST, process.env.POSTGRES_PORT)
-  console.log('ex', cmd)
+const execute = (cmd, cwd, env) => {
   const args = require('yargs')(process.argv).argv
   cwd = cwd || args.pgPath || __dirname
+  env = env || process.env
+
   const isVerbose = args.verbose
 
   return Promise.fromCallback(cb => {
     let outBuffer = ''
-    const ctx = exec(cmd, { cwd }, err => cb(err, outBuffer))
+    const ctx = exec(cmd, { cwd, env }, err => cb(err, outBuffer))
     ctx.stdout.on('data', data => (outBuffer += data))
 
     if (isVerbose) {
