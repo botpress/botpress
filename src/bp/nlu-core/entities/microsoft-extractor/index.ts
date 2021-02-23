@@ -134,7 +134,7 @@ export class MicrosoftEntityExtractor implements SystemEntityExtractor {
       value = entity.resolution.values[0]
       unit = entity.resolution.values[0].type
     } else {
-      unit = entity.resolution.unit
+      unit = entity.resolution.unit ? entity.resolution.unit : entity.typeName
       value = entity.resolution.value
     }
 
@@ -164,56 +164,177 @@ export class MicrosoftEntityExtractor implements SystemEntityExtractor {
     url: 'url'
   }
 
-  private ducklingUnitMappings = {
-    Mile: 'distance',
-    Kilometer: 'distance',
+  private ducklingUnitMapping = {
+    volume: [
+      'Barile',
+      'Millilitre',
+      'Baril',
+      'Tablespoon',
+      'Gallon',
+      'Barril',
+      'Volume unit',
+      'Litro',
+      'Cubic meter',
+      'Pé cúbico',
+      'Litre',
+      'Liter',
+      'Piede cubo',
+      'Cubic foot',
+      'Galón',
+      'Centímetro cúbico',
+      'Millilitro',
+      'Pieds cube',
+      'Teaspoon',
+      'Onces',
+      'Pie cúbico',
+      'Milliliter',
+      'Gallone',
+      'Galão',
+      'Mililitro'
+    ],
+    distance: [
+      'Foot',
+      'Pé',
+      'Picometer',
+      'Millimètres',
+      'Kilometer',
+      'Millimetro',
+      'Pie',
+      'Meter',
+      'Micrometer',
+      'Mile',
+      'Pollice',
+      'Light year',
+      'Mètres',
+      'Centimètres',
+      'Millimeter',
+      'Milímetro',
+      'Hectomètre',
+      'Décimètres',
+      'Miglio',
+      'Inch',
+      'Metro',
+      'Quilômetro',
+      'Milha',
+      'Nanometer',
+      'Milla',
+      'Kilómetro',
+      'Pulgada',
+      'Polegada',
+      'Pied',
+      'Kilomètres',
+      'Pouce',
+      'Piede',
+      'Chilometro'
+    ],
+    weight: [
+      'Ounce',
+      'Oncia',
+      'Libra',
+      'Metric ton',
+      'Gallon',
+      'Pound',
+      'Kilogram',
+      'Tonelada',
+      'Tonne métrique',
+      'Ton',
+      'Barrel',
+      'Tonelada métrica',
+      'Onza',
+      'Libbra',
+      'Gram',
+      'Tonnellata',
+      'Onça',
+      'Tonne',
+      'Livre'
+    ],
+    area: [
+      'Mètre carré',
+      'Metro cuadrado',
+      'Square decameter',
+      'Square hectometer',
+      'Square millimeter',
+      'Chilometro quadrato',
+      'Acro',
+      'Quilômetro quadrado',
+      'Square kilometer',
+      'Square meter',
+      'Kilómetro cuadrado',
+      'Square decimeter',
+      'Acre',
+      'Metro quadrato',
+      'Square centimeter',
+      'Metro quadrado',
+      'Hectare',
+      'Kilomètre carré'
+    ],
+    bits: ['Kilobyte', 'Terabyte', 'bit', 'Gigabyte', 'Megabit', 'Megabyte', 'Bit'],
+    speed: [
+      'Miles par heure',
+      'Kilometer per hour',
+      'Milla por hora',
+      'Meter per second',
+      "Miglia all'ora",
+      'Mile per hour',
+      'Milha por hora'
+    ]
+  }
 
-    duration: 'duration',
-    Milliliter: 'volume',
-    Ounce: 'volume'
+  private getDucklingUnitMappings = unit => {
+    for (const [type, subtypes] of Object.entries(this.ducklingUnitMapping)) {
+      if (subtypes.includes(unit)) {
+        return type
+      }
+    }
   }
 
   private ducklingDateMappings = {
+    // https://docs.microsoft.com/en-us/azure/cognitive-services/luis/luis-reference-prebuilt-datetimev2?tabs=1-3%2C2-1%2C3-1%2C4-1%2C5-1%2C6-1
     'datetimeV2.datetimerange': 'duration',
+    'datetimeV2.daterange': 'duration',
     'datetimeV2.timerange': 'duration',
     'datetimeV2.duration': 'duration',
     'datetimeV2.date': 'time',
-    'datetimeV2.datetime': 'time'
+    'datetimeV2.datetime': 'time',
+    'datetimeV2.time': 'time'
   }
 
   private mapDucklingDates(entity): EntityExtractionResult {
-    const i = 0
-    entity.type = this.ducklingDateMappings[entity.type]
+    const newEntity = { ...entity }
+    const newType = this.ducklingDateMappings[entity.type]
+    newEntity.type = newType
+    newEntity.entityId = `system.${newType}`
 
-    switch (entity.type) {
+    switch (newType) {
       case 'duration':
-        entity.value = {
-          to: {
-            value: entity.value.end,
-            grain: 'hour'
-          },
-          from: {
-            value: entity.value.start,
-            grain: 'hour'
-          }
+        let timeString = ''
+        if (newEntity.value.Mod) {
+          timeString += newEntity.value.Mod + '___'
         }
+        if (newEntity.value.start) {
+          timeString += newEntity.value.start
+        }
+        if (newEntity.value.end) {
+          timeString += '___' + newEntity.value.end
+        }
+        newEntity.value = timeString
         break
 
       case 'time':
-        entity.value = entity.value.value
+        newEntity.value = newEntity.value.value
         break
 
       default:
-        this.logger?.error(`DIDN't GET ${entity}`)
+        this.logger?.error(`Type not mapped for ${JSON.stringify(newType, null, 2)}`)
     }
 
-    return entity
+    return newEntity
   }
   private mapToDuckling(entity: EntityExtractionResult): EntityExtractionResult {
     if (entity.type in this.ducklingTypeMappings) {
       entity.type = this.ducklingTypeMappings[entity.type]
     } else if (entity.type === 'dimension') {
-      entity.type = this.ducklingUnitMappings[entity.metadata.unit!]
+      entity.type = this.getDucklingUnitMappings[entity.metadata.unit!]
     } else if (entity.type.includes('datetimeV2')) {
       entity = this.mapDucklingDates(entity)
     }
