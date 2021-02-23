@@ -37,34 +37,41 @@ const start = async () => {
 
 const prepareDataFolder = async buffer => {
   await Promise.fromCallback(cb => rimraf('./out/bp/data', cb))
-  await archive.extractArchive(buffer, './out/bp/data')
-  await restorePostgresDump()
+  await archive.extractArchive(buffer, './out/bp')
+  // await restorePostgresDump()
 }
 
-const restorePostgresDump = async () => {
-  const dbUrl = process.env.DATABASE_URL
-  const dumpPath = path.resolve('./out/bp/data/storage/postgres.dump')
+// const restorePostgresDump = async () => {
+//   const dbUrl = process.env.DATABASE_URL
+//   const dumpPath = path.resolve('./out/bp/data/storage/postgres.dump')
 
-  if (!dbUrl || !dbUrl.startsWith('postgres') || !fs.existsSync(dumpPath)) {
-    return
-  }
-  console.log('Restoring Postgres dump file...')
+//   if (!dbUrl || !dbUrl.startsWith('postgres') || !fs.existsSync(dumpPath)) {
+//     return
+//   }
+//   console.log('Restoring Postgres dump file...')
 
-  const dbName = dbUrl.substring(dbUrl.lastIndexOf('/') + 1)
-  const urlWithoutDb = dbUrl.replace(`/${dbName}`, '')
+//   const dbName = dbUrl.substring(dbUrl.lastIndexOf('/') + 1)
+//   const urlWithoutDb = dbUrl.replace(`/${dbName}`, '')
 
-  const res = await execute(`psql -tc "SELECT 'exists' FROM pg_database WHERE datname = '${dbName}'" ${urlWithoutDb}`)
-  if (!res.includes('exists')) {
-    await execute(`psql -c "CREATE DATABASE ${dbName}" ${urlWithoutDb}`)
-  }
+//   const res = await execute(`psql -tc "SELECT 'exists' FROM pg_database WHERE datname = '${dbName}'" ${urlWithoutDb}`)
+//   if (!res.includes('exists')) {
+//     await execute(`psql -c "CREATE DATABASE ${dbName}" ${urlWithoutDb}`)
+//   }
 
-  await execute(`psql -f ${dumpPath} ${dbUrl}`)
-}
+//   await execute(`psql -f ${dumpPath} ${dbUrl}`)
+// }
 
 const testMigration = async (botName, startVersion, targetVersion, { isDown }) => {
-  const result = await execute(`yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion}`, './')
+  // const result = await execute(`yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion}`, './')
+  let stdoutBuffer = ''
+  await Promise.fromCallback(cb => {
+    const ctx = exec(`yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion}`, { cwd: './' }, err =>
+      cb(err)
+    )
+    ctx.stdout.on('data', data => (stdoutBuffer += data))
+  })
 
-  const success = result.match(/Migration(s?) completed successfully/)
+  const success = stdoutBuffer.match(/Migration(s?) completed successfully/)
   const status = success ? chalk.green(`[SUCCESS]`) : chalk.red(`[FAILURE]`)
   const message = `${status} Migration ${isDown ? 'DOWN' : 'UP'} of ${botName} (${startVersion} -> ${targetVersion})`
 
@@ -102,15 +109,15 @@ const getMigrations = rootPath => {
   )
 }
 
-const execute = (cmd, cwd) => {
-  const args = require('yargs')(process.argv).argv
-  cwd = cwd || args.pgPath || __dirname
+// const execute = (cmd, cwd) => {
+//   const args = require('yargs')(process.argv).argv
+//   cwd = cwd || args.pgPath || __dirname
 
-  return Promise.fromCallback(cb => {
-    let outBuffer = ''
-    const ctx = exec(cmd, { cwd }, err => cb(err, outBuffer))
-    ctx.stdout.on('data', data => (outBuffer += data))
-  })
-}
+//   return Promise.fromCallback(cb => {
+//     let outBuffer = ''
+//     const ctx = exec(cmd, { cwd }, err => cb(err, outBuffer))
+//     ctx.stdout.on('data', data => (outBuffer += data))
+//   })
+// }
 
 start()
