@@ -5,19 +5,24 @@ const mkdirp = require('mkdirp')
 const exec = require('child_process').exec
 const fse = require('fs-extra')
 const glob = require('glob')
-
+const tmp = require('tmp')
 const dotenv = require('dotenv')
 
 const dumpMigration = async () => {
-  const tmp = require('tmp')
+  const args = require('yargs')(process.argv).argv
+
+  const rootPath = args.path || './'
+  const archiveName = args.name || 'test-migration'
+  const pgBinPath = args.pgPath || __dirname
+
   const tmpDir = tmp.dirSync({ unsafeCleanup: true })
 
-  fse.copySync('out/bp/data/global', `${tmpDir.name}/global`)
-  fse.copySync('out/bp/data/bots', `${tmpDir.name}/bots`)
-  fse.copySync('out/bp/data/storage', `${tmpDir.name}/storage`)
+  fse.copySync(path.resolve(rootPath, 'out/bp/data/global'), `${tmpDir.name}/global`)
+  fse.copySync(path.resolve(rootPath, 'out/bp/data/bots'), `${tmpDir.name}/bots`)
+  fse.copySync(path.resolve(rootPath, 'out/bp/data/storage'), `${tmpDir.name}/storage`)
 
   try {
-    await dumpPostgresData(`${tmpDir.name}/storage`)
+    await dumpPostgresData(`${tmpDir.name}/storage`, rootPath, pgBinPath)
   } catch (err) {
     console.error('Error:', err)
 
@@ -29,31 +34,31 @@ Please make sure that the credentials provided in DATABASE_URL are valid`)
 
   const files = await Promise.fromCallback(cb => glob('**/*', { cwd: tmpDir.name, nodir: true, dot: true }, cb))
 
-  const currentVersion = require('../package.json').version
-  const { createArchive } = require('../out/bp/core/misc/archive')
-  const filename = await createArchive(`./test-migration_${currentVersion}.tgz`, tmpDir.name, files)
+  const { createArchive } = require(path.resolve(rootPath, 'out/bp/core/misc/archive'))
+
+  const currentVersion = require(path.resolve(rootPath, 'package.json')).version
+  const filename = await createArchive(`./${archiveName}_${currentVersion}.tgz`, tmpDir.name, files)
 
   console.log(`Archive saved at ${path.join(__dirname, filename)}. Please upload it on S3`)
   tmpDir.removeCallback()
 }
 
-const dumpPostgresData = async storagePath => {
+const dumpPostgresData = async (storagePath, rootPath, pgBinPath) => {
   let databaseUrl = process.env.DATABASE_URL
-  if (fse.pathExistsSync('./out/bp/.env')) {
-    const dot = dotenv.config({ path: './out/bp/.env' })
+
+  if (fse.pathExistsSync(path.resolve(rootPath, 'out/bp/.env'))) {
+    const dot = dotenv.config({ path: path.resolve(rootPath, 'out/bp/.env') })
+
     if (dot && dot.parsed.DATABASE_URL) {
       databaseUrl = dot.parsed.DATABASE_URL
     }
   }
 
   if (databaseUrl && databaseUrl.startsWith('postgres')) {
-    const args = require('yargs')(process.argv).argv
-    const cwd = args.pgPath || __dirname
-
     const dumpPath = path.join(storagePath, 'postgres.dump')
+
     await Promise.fromCallback(cb => {
-      const ctx = exec(`pg_dump -f ${dumpPath} ${databaseUrl}`, { cwd }, err => cb(err))
-      ctx.stdout.on('data', data => (stdoutBuffer += data))
+      exec(`pg_dump -f ${dumpPath} ${databaseUrl}`, { cwd: pgBinPath }, err => cb(err))
     })
   }
 }

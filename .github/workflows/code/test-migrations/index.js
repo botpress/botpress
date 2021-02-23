@@ -69,8 +69,8 @@ const testMigration = async (botName, startVersion, targetVersion, { isDown }) =
   const message = `${status} Migration ${isDown ? 'DOWN' : 'UP'} of ${botName} (${startVersion} -> ${targetVersion})`
 
   if (!success) {
-    core.setFailed(message)
     console.log(result)
+    core.setFailed(message)
   } else {
     console.log(message)
   }

@@ -39,7 +39,7 @@ jobs:
           yarn --verbose
       - name: Build core, UI and modules
         run: |
-          NODE_OPTIONS="--max-old-space-size=6000" yarn cmd build:core
+          NODE_OPTIONS="--max-old-space-size=6000" yarn build
       # - name: Run Tests
       #   run: |
       #     yarn start & sleep 5s &&
