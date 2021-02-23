@@ -10,6 +10,7 @@ const _ = require('lodash')
 const AWS = require('aws-sdk')
 const chalk = require('chalk')
 const core = require('@actions/core')
+const yn = require('yn')
 
 const start = async () => {
   const targetVersion = getMostRecentVersion()
@@ -23,13 +24,14 @@ const start = async () => {
   console.log('list obj')
   const dir = await Promise.fromCallback(cb => s3.listObjectsV2({ Bucket }, cb))
   for (const file of dir.Contents) {
+    console.info(`Processing file ${file.Key}`)
     const [archiveName, version] = file.Key.split('_')
 
     const archiveVersion = version.replace(/.tgz|.zip/, '')
-    console.log('processing', archiveName, archiveVersion)
     const buffer = await Promise.fromCallback(cb => s3.getObject({ Bucket, Key: file.Key }, cb))
+
     await prepareDataFolder(buffer.Body)
-    console.log('mig')
+
     await testMigration(archiveName, archiveVersion, targetVersion, { isDown: false })
     await testMigration(archiveName, targetVersion, archiveVersion, { isDown: true })
   }
@@ -107,12 +109,17 @@ const execute = (cmd, cwd) => {
   console.log('ex', cmd)
   const args = require('yargs')(process.argv).argv
   cwd = cwd || args.pgPath || __dirname
+  const isVerbose = args.verbose
 
   return Promise.fromCallback(cb => {
     let outBuffer = ''
     const ctx = exec(cmd, { cwd }, err => cb(err, outBuffer))
     ctx.stdout.on('data', data => (outBuffer += data))
-    ctx.stdout.pipe(process.stdout)
+
+    if (isVerbose) {
+      ctx.stdout.pipe(process.stdout)
+      ctx.stderr.pipe(process.stderr)
+    }
   })
 }
 
