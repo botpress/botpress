@@ -62,8 +62,9 @@ const restorePostgresDump = async () => {
 }
 
 const testMigration = async (botName, startVersion, targetVersion, { isDown }) => {
+  console.log('test', { botName, startVersion, targetVersion })
   const result = await execute(`yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion}`, './')
-
+  console.log('completed')
   const success = result.match(/Migration(s?) completed successfully/)
   const status = success ? chalk.green(`[SUCCESS]`) : chalk.red(`[FAILURE]`)
   const message = `${status} Migration ${isDown ? 'DOWN' : 'UP'} of ${botName} (${startVersion} -> ${targetVersion})`
@@ -103,6 +104,7 @@ const getMigrations = rootPath => {
 }
 
 const execute = (cmd, cwd) => {
+  console.log('ex', cmd)
   const args = require('yargs')(process.argv).argv
   cwd = cwd || args.pgPath || __dirname
 
