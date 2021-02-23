@@ -6,6 +6,10 @@ export type IBotService = I<BotService>
 export class BotService implements TrainerService {
   private _bots: { [botId: string]: IBot } = {}
 
+  hasBot(botId: string): boolean {
+    return !!this.getBot(botId)
+  }
+
   getIds() {
     return Object.keys(this._bots)
   }

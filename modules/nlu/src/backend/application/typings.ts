@@ -47,6 +47,7 @@ export interface TrainingId {
 export interface TrainingSession extends TrainingId, TrainingState {}
 
 export interface TrainerService {
+  hasBot(botId: string): boolean
   getBot(botId: string): Trainer | undefined
 }
 

@@ -80,7 +80,7 @@ export const makeApp = (dependencies: AppDependencies, trainingQueueOptions: Par
   const botService = new BotService()
   const botFactory = new BotFactory(engine, logger, modelIdService, defRepoFactory, modelRepoFactory)
 
-  const concurentTrainingRepository = new ConcurentTrainingRepository(trainingRepo, distributed)
+  const concurentTrainingRepository = new ConcurentTrainingRepository(trainingRepo, distributed, logger)
   const trainingQueue = new TrainingQueue(
     concurentTrainingRepository,
     errors,
