@@ -1,7 +1,8 @@
 import 'bluebird-global'
 import _ from 'lodash'
 
-import { DucklingEntityExtractor, JOIN_CHAR } from '.'
+import { DucklingEntityExtractor } from '.'
+import { JOIN_CHAR } from '../../tools/token-utils'
 
 class FakeCache {
   private _cache = {}
@@ -36,8 +37,8 @@ describe('Extract Multiple', () => {
   })
 
   beforeEach(async () => {
-    await DucklingEntityExtractor.configure(true, '') // reset mocked cache
-    DucklingEntityExtractor.enabled = true // mock axios to remove this line
+    await duck.configure(true, '') // reset mocked cache
+    duck.enabled = true // mock axios to remove this line
   })
 
   afterEach(() => {
@@ -45,7 +46,7 @@ describe('Extract Multiple', () => {
   })
 
   test('When disabled returns empty array for each input', async () => {
-    DucklingEntityExtractor.enabled = false
+    duck.enabled = false
     const examples = ['this is one', 'this is two']
     const res = await duck.extractMultiple(examples, 'en')
     expect(mockedFetch).not.toHaveBeenCalled()

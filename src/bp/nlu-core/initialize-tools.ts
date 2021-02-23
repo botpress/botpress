@@ -2,10 +2,11 @@ import { NLU } from 'botpress/sdk'
 import MLToolkit from 'ml/toolkit'
 
 import { DucklingEntityExtractor } from './entities/duckling-extractor'
+import { MicrosoftEntityExtractor } from './entities/microsoft-extractor'
 import LangProvider from './language/language-provider'
 import { getPOSTagger, tagSentence } from './language/pos-tagger'
 import SeededLodashProvider from './tools/seeded-lodash'
-import { LanguageProvider, Tools } from './typings'
+import { LanguageProvider, SystemEntityExtractor, Tools } from './typings'
 
 const NLU_VERSION = '2.0.0'
 
@@ -57,13 +58,22 @@ const initializeLanguageProvider = async (
   }
 }
 
-const initDucklingExtractor = async (config: NLU.LanguageConfig, logger: NLU.Logger): Promise<void> => {
-  await DucklingEntityExtractor.configure(config.ducklingEnabled, config.ducklingURL, logger)
+const makeSystemEntityExtractor = async (
+  config: NLU.LanguageConfig,
+  logger: NLU.Logger
+): Promise<SystemEntityExtractor> => {
+  let extractor: SystemEntityExtractor
+  if (config.ducklingEnabled) {
+    extractor = new DucklingEntityExtractor(logger)
+    await extractor.configure(config.ducklingEnabled, config.ducklingURL)
+  } else {
+    extractor = new MicrosoftEntityExtractor(logger)
+    await extractor.configure()
+  }
+  return extractor
 }
 
 export async function initializeTools(config: NLU.LanguageConfig, logger: NLU.Logger): Promise<Tools> {
-  await initDucklingExtractor(config, logger)
-
   const seededLodashProvider = new SeededLodashProvider()
   const { languageProvider } = await initializeLanguageProvider(config, logger, seededLodashProvider)
 
@@ -84,6 +94,6 @@ export async function initializeTools(config: NLU.LanguageConfig, logger: NLU.Lo
     getSpecifications: versionGetter(languageProvider),
     seededLodashProvider,
     mlToolkit: MLToolkit,
-    duckling: new DucklingEntityExtractor(logger)
+    systemEntityExtractor: await makeSystemEntityExtractor(config, logger)
   }
 }

@@ -108,6 +108,12 @@ export interface ExtractedEntity {
 }
 export type EntityExtractionResult = ExtractedEntity & { start: number; end: number }
 
+export interface KeyedItem {
+  input: string
+  idx: number
+  entities?: EntityExtractionResult[]
+}
+
 export interface SeededLodashProvider {
   setSeed(seed: number): void
   getSeededLodash(): _.LoDashStatic
@@ -123,13 +129,14 @@ export interface Tools {
   getLanguages(): string[]
   getSpecifications(): NLU.Specifications
   seededLodashProvider: SeededLodashProvider
-  duckling: SystemEntityExtractor
+  systemEntityExtractor: SystemEntityExtractor
   mlToolkit: typeof sdk.MLToolkit
 }
 
 export interface SystemEntityExtractor {
   extractMultiple(input: string[], lang: string, useCache?: Boolean): Promise<EntityExtractionResult[][]>
   extract(input: string, lang: string): Promise<EntityExtractionResult[]>
+  configure(enabled?: boolean, url?: string): Promise<void>
 }
 
 export type Intent<T> = Readonly<{
