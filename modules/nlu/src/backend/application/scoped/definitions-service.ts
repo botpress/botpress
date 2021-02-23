@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { NLU } from 'botpress/sdk'
+
 import { I } from '../typings'
 import { IDefinitionsRepository } from './infrastructure/definitions-repository'
 
@@ -22,7 +22,7 @@ export class ScopedDefinitionsService {
 
   constructor(
     bot: BotDefinition,
-    private _engine: NLU.Engine,
+    private _engine: sdk.NLU.Engine,
     private _definitionRepository: IDefinitionsRepository,
     private _modelIdService: typeof sdk.NLU.modelIdService
   ) {
@@ -50,7 +50,7 @@ export class ScopedDefinitionsService {
     return true
   }
 
-  public async getLatestModelId(languageCode: string): Promise<NLU.ModelId> {
+  public async getLatestModelId(languageCode: string): Promise<sdk.NLU.ModelId> {
     const { _engine } = this
 
     const trainSet = await this.getTrainSet(languageCode)
