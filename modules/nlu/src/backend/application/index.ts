@@ -4,8 +4,8 @@ import _ from 'lodash'
 import { IBotFactory } from './bot-factory'
 import { IBotService } from './bot-service'
 import { BotNotMountedError } from './errors'
-import { Predictor, BotConfig, TrainingSession, TrainingState } from './typings'
 import { ITrainingQueue } from './training-queue'
+import { Predictor, BotConfig, TrainingSession, TrainingState, TrainingId } from './typings'
 
 export class NLUApplication {
   constructor(
@@ -55,23 +55,19 @@ export class NLUApplication {
     const { bot, defService, modelRepo } = await this._botFactory.makeBot(botConfig)
     this._botService.setBot(botId, bot)
 
-    const makeDirtyModelHandler = (queueTraining = false) => async (language: string) => {
+    const makeDirtyModelHandler = (cb: (trainId: TrainingId) => Promise<void>) => async (language: string) => {
       const latestModelId = await defService.getLatestModelId(language)
       if (await modelRepo.hasModel(latestModelId)) {
         await bot.load(latestModelId)
         return
       }
-
-      if (queueTraining) {
-        return this._trainingQueue.queueTraining({ botId, language })
-      }
-      return this._trainingQueue.needsTraining({ botId, language })
+      return cb({ botId, language })
     }
 
-    const loadOrSetTrainingNeeded = makeDirtyModelHandler()
+    const loadOrSetTrainingNeeded = makeDirtyModelHandler(this._trainingQueue.needsTraining)
     defService.listenForDirtyModels(loadOrSetTrainingNeeded)
 
-    const loadModelOrQueue = makeDirtyModelHandler(true)
+    const loadModelOrQueue = makeDirtyModelHandler(this._trainingQueue.queueTraining)
     for (const language of languages) {
       await loadModelOrQueue(language)
     }
@@ -84,7 +80,7 @@ export class NLUApplication {
       throw new BotNotMountedError(botId)
     }
     await bot.unmount()
-    await this._trainingQueue.cancelTrainings(botId)
+    await this._trainingQueue.cancelTrainings(botId) // TODO: fully remove training sessions
     this._botService.removeBot(botId)
   }
 

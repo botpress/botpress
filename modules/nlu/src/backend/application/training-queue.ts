@@ -118,6 +118,7 @@ export class TrainingQueue implements TrainingQueue {
         return update(trainId, { status: 'needs-training', progress: 0 })
       }
 
+      // occurs when training canceled by another cluster
       this._logger.warn(`No training canceled as ${botId} is not currently training language ${language}.`)
     })
   }
@@ -206,7 +207,7 @@ export class TrainingQueue implements TrainingQueue {
     const { botId } = trainId
 
     if (this._errors.isTrainingCanceled(err)) {
-      this._logger.forBot(botId).info('Training cancelled')
+      this._logger.forBot(botId).info('Training canceled')
       return this._lockAndUpdate(trainId, { status: 'needs-training', progress: 0 })
     }
 
