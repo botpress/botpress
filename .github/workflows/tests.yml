@@ -43,10 +43,10 @@ jobs:
           node-version: '12.13.0'
       - name: Fetch Node Packages
         run: |
-          yarn --verbose
+          yarn
       - name: Build core, UI and modules
         run: |
-          NODE_OPTIONS="--max-old-space-size=6000" yarn build
+          NODE_OPTIONS="--max-old-space-size=6000" yarn cmd build:core
       # - name: Run Tests
       #   run: |
       #     yarn start & sleep 5s &&
