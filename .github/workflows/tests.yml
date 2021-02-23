@@ -19,6 +19,15 @@ jobs:
     name: e2e
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:11.2-alpine
+        env:
+          PGPORT: 5432
+          POSTGRES_DB: bp
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+
     steps:
       - name: Checkout code
         uses: actions/checkout@master
