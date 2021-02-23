@@ -44,7 +44,8 @@ const prepareDataFolder = async buffer => {
 }
 
 const restorePostgresDump = async () => {
-  const dbUrl = process.env.DATABASE_URL
+  const dbUrl = `postgres://postgres:pgsecret@${process.env.POSTGRES_HOST}:5432/bp`
+  // const dbUrl = process.env.DATABASE_URL
   const dumpPath = path.resolve('./out/bp/data/storage/postgres.dump')
 
   if (!dbUrl || !dbUrl.startsWith('postgres') || !fs.existsSync(dumpPath)) {
@@ -106,6 +107,7 @@ const getMigrations = rootPath => {
 }
 
 const execute = (cmd, cwd) => {
+  console.log(process.env.POSTGRES_HOST, process.env.POSTGRES_PORT)
   console.log('ex', cmd)
   const args = require('yargs')(process.argv).argv
   cwd = cwd || args.pgPath || __dirname
