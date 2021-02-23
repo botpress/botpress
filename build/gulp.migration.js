@@ -30,7 +30,7 @@ Please make sure that the credentials provided in DATABASE_URL are valid`)
   const files = await Promise.fromCallback(cb => glob('**/*', { cwd: tmpDir.name, nodir: true, dot: true }, cb))
 
   const currentVersion = require('../package.json').version
-  const { createArchive } = require('../src/bp/core/misc/archive')
+  const { createArchive } = require('../out/bp/core/misc/archive')
   const filename = await createArchive(`./test-migration_${currentVersion}.tgz`, tmpDir.name, files)
 
   console.log(`Archive saved at ${path.join(__dirname, filename)}. Please upload it on S3`)
