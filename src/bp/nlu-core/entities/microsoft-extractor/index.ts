@@ -15,6 +15,7 @@ const SupportedLangsList = ['zh', 'nl', 'en', 'fr', 'de', 'it', 'ja', 'pt', 'es'
 
 interface MicrosoftParams {
   lang: SupportedLangs
+  recognizers: any[]
 }
 
 const BATCH_SIZE = 10000
@@ -59,7 +60,17 @@ export class MicrosoftEntityExtractor implements SystemEntityExtractor {
     }
   }
 
-  private _recognizers = [
+  private _globalRecognizers = [
+    Recognizers.recognizePhoneNumber,
+    Recognizers.recognizeIpAddress,
+    Recognizers.recognizeMention,
+    Recognizers.recognizeHashtag,
+    Recognizers.recognizeEmail,
+    Recognizers.recognizeURL,
+    Recognizers.recognizeGUID
+  ]
+
+  private _languageDependantRecognizers = [
     Recognizers.recognizeNumber,
     Recognizers.recognizeOrdinal,
     Recognizers.recognizePercentage,
@@ -68,14 +79,7 @@ export class MicrosoftEntityExtractor implements SystemEntityExtractor {
     Recognizers.recognizeDimension,
     Recognizers.recognizeTemperature,
     Recognizers.recognizeDateTime,
-    Recognizers.recognizeBoolean,
-    Recognizers.recognizePhoneNumber,
-    Recognizers.recognizeIpAddress,
-    Recognizers.recognizeMention,
-    Recognizers.recognizeHashtag,
-    Recognizers.recognizeEmail,
-    Recognizers.recognizeURL,
-    Recognizers.recognizeGUID
+    Recognizers.recognizeBoolean
   ]
 
   public static get entityTypes(): string[] {
@@ -91,11 +95,20 @@ export class MicrosoftEntityExtractor implements SystemEntityExtractor {
     lang: string,
     useCache?: boolean
   ): Promise<EntityExtractionResult[][]> {
+    let options: MicrosoftParams
+
     if (!SupportedLangsList.includes(lang)) {
-      return []
+      lang = 'en'
+      options = {
+        lang: 'en' as SupportedLangs,
+        recognizers: [this._globalRecognizers]
+      }
     }
 
-    const options = { lang: lang as SupportedLangs }
+    options = {
+      lang: lang as SupportedLangs,
+      recognizers: [...this._languageDependantRecognizers, ...this._globalRecognizers]
+    }
 
     const [cached, toFetch] = this._cache.getCachedAndToFetch(inputs)
 
@@ -114,6 +127,99 @@ export class MicrosoftEntityExtractor implements SystemEntityExtractor {
     return (await this.extractMultiple([input], lang, useCache))[0]
   }
 
+  private formatEntity(entity) {
+    let unit: string
+    let value: string
+    if (entity.resolution.values) {
+      value = entity.resolution.values[0]
+      unit = entity.resolution.values[0].type
+    } else {
+      unit = entity.resolution.unit
+      value = entity.resolution.value
+    }
+
+    const formated: EntityExtractionResult = {
+      confidence: 1.0,
+      type: entity.typeName,
+      value,
+      start: entity.start,
+      end: entity.end + 1,
+      metadata: {
+        source: entity.text,
+        entityId: `system.${entity.typeName}`,
+        extractor: 'system',
+        unit
+      }
+    }
+    return formated
+  }
+
+  private ducklingTypeMappings = {
+    currency: 'amountOfMoney',
+    email: 'email',
+    number: 'number',
+    ordinal: 'ordinal',
+    phonenumber: 'phoneNumber',
+    temperature: 'temperature',
+    url: 'url'
+  }
+
+  private ducklingUnitMappings = {
+    Mile: 'distance',
+    Kilometer: 'distance',
+
+    duration: 'duration',
+    Milliliter: 'volume',
+    Ounce: 'volume'
+  }
+
+  private ducklingDateMappings = {
+    'datetimeV2.datetimerange': 'duration',
+    'datetimeV2.timerange': 'duration',
+    'datetimeV2.duration': 'duration',
+    'datetimeV2.date': 'time',
+    'datetimeV2.datetime': 'time'
+  }
+
+  private mapDucklingDates(entity): EntityExtractionResult {
+    const i = 0
+    entity.type = this.ducklingDateMappings[entity.type]
+
+    switch (entity.type) {
+      case 'duration':
+        entity.value = {
+          to: {
+            value: entity.value.end,
+            grain: 'hour'
+          },
+          from: {
+            value: entity.value.start,
+            grain: 'hour'
+          }
+        }
+        break
+
+      case 'time':
+        entity.value = entity.value.value
+        break
+
+      default:
+        this.logger?.error(`DIDN't GET ${entity}`)
+    }
+
+    return entity
+  }
+  private mapToDuckling(entity: EntityExtractionResult): EntityExtractionResult {
+    if (entity.type in this.ducklingTypeMappings) {
+      entity.type = this.ducklingTypeMappings[entity.type]
+    } else if (entity.type === 'dimension') {
+      entity.type = this.ducklingUnitMappings[entity.metadata.unit!]
+    } else if (entity.type.includes('datetimeV2')) {
+      entity = this.mapDucklingDates(entity)
+    }
+    return entity
+  }
+
   private async _extractBatch(batch: KeyedItem[], params: MicrosoftParams): Promise<KeyedItem[]> {
     if (_.isEmpty(batch)) {
       return []
@@ -125,27 +231,13 @@ export class MicrosoftEntityExtractor implements SystemEntityExtractor {
     for (const utt of batch) {
       let utteranceEntities: any[] = []
 
-      for (const typeRecognizer of this._recognizers) {
+      for (const typeRecognizer of params.recognizers) {
         const entities = typeRecognizer(utt.input, culture)
 
         if (entities.length > 0) {
-          const formatedEntities: EntityExtractionResult[] = entities.map(ent => {
-            const formated: EntityExtractionResult = {
-              confidence: 1.0,
-              type: ent.typeName,
-              value: ent.resolution.value,
-              start: ent.start,
-              end: ent.end + 1,
-              metadata: {
-                source: ent.text,
-                entityId: `system.${ent.typeName}`,
-                extractor: 'system',
-                unit: ent.resolution.unit
-              }
-            }
-            return formated
-          })
-
+          const formatedEntities: EntityExtractionResult[] = entities.map(ent =>
+            this.mapToDuckling(this.formatEntity(ent))
+          )
           utteranceEntities = utteranceEntities.concat(formatedEntities)
         }
       }
