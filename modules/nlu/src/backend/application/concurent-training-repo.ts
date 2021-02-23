@@ -19,7 +19,7 @@ interface TransactionHandle<T> {
 export type IConcurentTrainingRepository = I<ConcurentTrainingRepository>
 
 const MAX_TRX_TIME = ms('10s')
-const TRAINING_QUEUE_RESSOURCE = 'TRAINING_QUEUE_RESSOURCE' // TODO: have a global ressource + a ressource per trainingId
+const TRAINING_QUEUE_RESSOURCE = 'TRAINING_QUEUE_RESSOURCE'
 
 export class ConcurentTrainingRepository implements ReadonlyTrainingRepository {
   private _queuedTransactions: TransactionHandle<any>[] = []

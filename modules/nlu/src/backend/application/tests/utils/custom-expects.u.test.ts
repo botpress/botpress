@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import { TrainingSession } from '../../typings'
-import { InMemoryTrainingRepository } from '../../memory-training-repo'
+import { FakeTrainingRepository } from './fake-training-repo.u.test'
 
 const zeros = (len: number) => Array(len).fill(0)
 
@@ -39,7 +39,7 @@ export const expectMaxSimultaneousTrainings = (trainSessions: TrainingSession[],
 
 export const expectTrainingToStartAndComplete = async (
   socket: jest.Mock,
-  trainRepo: InMemoryTrainingRepository,
+  trainRepo: FakeTrainingRepository,
   trainId: { botId: string; language: string }
 ) => {
   const { botId, language } = trainId

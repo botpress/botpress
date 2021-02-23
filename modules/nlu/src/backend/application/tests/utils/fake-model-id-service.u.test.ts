@@ -5,7 +5,7 @@ import _ from 'lodash'
 import './sdk.u.test'
 
 // Copied from actual core modelIdService
-// Once nlu is in core, use the actual modelIdService, not a fake or mock (This class is easely testable)
+// Once nlu module is moved in core, use the actual modelIdService, not a fake or mock (This class is easely testable)
 
 const HALF_MD5_REG = /^[a-fA-F0-9]{16}$/
 
@@ -36,7 +36,6 @@ const toString = (modelId: NLU.ModelId) => {
 }
 
 const fromString = (stringId: string) => {
-  // TODO: make sure it's actually a modelId
   const parts = stringId.split('.')
 
   const contentHash = parts[0]

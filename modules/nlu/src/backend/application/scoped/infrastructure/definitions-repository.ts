@@ -15,9 +15,6 @@ export interface TrainDefinitions {
   entityDefs: sdk.NLU.EntityDefinition[]
 }
 
-/**
- * TODO: keep a cache of definitions files in memory and invalidate cache onFileChange
- */
 export class ScopedDefinitionsRepository {
   private _botId: string
 

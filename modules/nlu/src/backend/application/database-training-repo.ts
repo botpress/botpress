@@ -8,7 +8,7 @@ export class DatabaseTrainingRepository implements TrainingRepository {
 
   public initialize = async (): Promise<void | void[]> => {
     return void this._database.createTableIfNotExists(TABLE_NAME, table => {
-      table.string('botId').notNullable() // TODO: this should not build if we change training sessions
+      table.string('botId').notNullable()
       table.string('language').notNullable()
       table.string('status').notNullable()
       table.float('progress').notNullable()

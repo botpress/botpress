@@ -35,7 +35,7 @@ export class LocalTrainingContainer {
     const ressource = this._makeRessourceName({ botId, language })
     const lock = await this._distributed.acquireLock(ressource, TRAINING_MUTEX_DURATION)
     if (!lock) {
-      // this should never happend
+      // this case should never happend
       throw new Error(
         `About to start local training ${ressource}, but it seems to be already handle by another worker.`
       )
