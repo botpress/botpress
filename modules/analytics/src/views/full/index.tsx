@@ -415,11 +415,18 @@ const Analytics: FC<any> = ({ bp }) => {
           value={getMetricCount('msg_sent_qna_count')}
           className={style.half}
         />
+      </div>
+    )
+  }
+
+  const renderInteractions = () => {
+    return(
+      <div className={cx(style.metricsContainer, style.fullWidth)}>
         <ItemsList
           name={lang.tr('module.analytics.mostUsedWorkflows')}
           items={getTopItems('enter_flow_count', 'workflow')}
           itemLimit={10}
-          className={cx(style.genericMetric, style.half, style.list)}
+          className={cx(style.genericMetric, style.quarter, style.list)}
         />
         <ItemsList
           name={lang.tr('module.analytics.mostAskedQuestions')}
@@ -428,7 +435,7 @@ const Analytics: FC<any> = ({ bp }) => {
             label: q.question || renderDeletedQna(q.id),
             onClick: q.question ? navigateToElement(q.id, 'qna') : undefined
           }))}
-          className={cx(style.genericMetric, style.half, style.list)}
+          className={cx(style.genericMetric, style.threeQuarter, style.list)}
         />
       </div>
     )
@@ -682,6 +689,10 @@ const Analytics: FC<any> = ({ bp }) => {
           <div className={cx(style.section, style.half)}>
             <h2>{lang.tr('module.analytics.conversations')}</h2>
             {renderConversations()}
+          </div>
+          <div className={style.section}>
+            <h2>{lang.tr('module.analytics.interactions')}</h2>
+            {renderInteractions()}
           </div>
           <div className={style.section}>
             <h2>{lang.tr('module.analytics.handlingAndUnderstanding')}</h2>
