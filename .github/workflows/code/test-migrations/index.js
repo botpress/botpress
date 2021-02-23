@@ -112,6 +112,7 @@ const execute = (cmd, cwd) => {
     let outBuffer = ''
     const ctx = exec(cmd, { cwd }, err => cb(err, outBuffer))
     ctx.stdout.on('data', data => (outBuffer += data))
+    ctx.stdout.pipe(process.stdout)
   })
 }
 
