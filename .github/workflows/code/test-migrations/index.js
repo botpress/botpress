@@ -37,29 +37,29 @@ const start = async () => {
 
 const prepareDataFolder = async buffer => {
   await Promise.fromCallback(cb => rimraf('./out/bp/data', cb))
-  await archive.extractArchive(buffer, './out/bp')
-  // await restorePostgresDump()
+  await archive.extractArchive(buffer, './out/bp/data')
+  await restorePostgresDump()
 }
 
-// const restorePostgresDump = async () => {
-//   const dbUrl = process.env.DATABASE_URL
-//   const dumpPath = path.resolve('./out/bp/data/storage/postgres.dump')
+const restorePostgresDump = async () => {
+  const dbUrl = process.env.DATABASE_URL
+  const dumpPath = path.resolve('./out/bp/data/storage/postgres.dump')
 
-//   if (!dbUrl || !dbUrl.startsWith('postgres') || !fs.existsSync(dumpPath)) {
-//     return
-//   }
-//   console.log('Restoring Postgres dump file...')
+  if (!dbUrl || !dbUrl.startsWith('postgres') || !fs.existsSync(dumpPath)) {
+    return
+  }
+  console.log('Restoring Postgres dump file...')
 
-//   const dbName = dbUrl.substring(dbUrl.lastIndexOf('/') + 1)
-//   const urlWithoutDb = dbUrl.replace(`/${dbName}`, '')
+  const dbName = dbUrl.substring(dbUrl.lastIndexOf('/') + 1)
+  const urlWithoutDb = dbUrl.replace(`/${dbName}`, '')
 
-//   const res = await execute(`psql -tc "SELECT 'exists' FROM pg_database WHERE datname = '${dbName}'" ${urlWithoutDb}`)
-//   if (!res.includes('exists')) {
-//     await execute(`psql -c "CREATE DATABASE ${dbName}" ${urlWithoutDb}`)
-//   }
+  const res = await execute(`psql -tc "SELECT 'exists' FROM pg_database WHERE datname = '${dbName}'" ${urlWithoutDb}`)
+  if (!res.includes('exists')) {
+    await execute(`psql -c "CREATE DATABASE ${dbName}" ${urlWithoutDb}`)
+  }
 
-//   await execute(`psql -f ${dumpPath} ${dbUrl}`)
-// }
+  await execute(`psql -f ${dumpPath} ${dbUrl}`)
+}
 
 const testMigration = async (botName, startVersion, targetVersion, { isDown }) => {
   const result = await execute(`yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion}`, './')
