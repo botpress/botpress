@@ -580,9 +580,9 @@ export class ScopedGhostService {
     const fileName = this._normalizeFileName(rootFolder, file)
     const cacheKey = this.bufferCacheKey(fileName)
 
-    if (!(await this.cache.has(cacheKey))) {
+    if (!this.cache.has(cacheKey)) {
       const value = await this.primaryDriver.readFile(fileName)
-      await this.cache.set(cacheKey, value)
+      this.cache.set(cacheKey, value)
       return value
     }
 
@@ -597,19 +597,19 @@ export class ScopedGhostService {
     const fileName = this._normalizeFileName(rootFolder, file)
     const cacheKey = this.objectCacheKey(fileName)
 
-    if (!(await this.cache.has(cacheKey))) {
+    if (!this.cache.has(cacheKey)) {
       const value = await this.readFileAsString(rootFolder, file)
-      let obj
+      let obj: T
       try {
         obj = <T>JSON.parse(value)
       } catch (e) {
         try {
-          jsonlintMod.parse(value)
+          obj = jsonlintMod.parse(value)
         } catch (e) {
           throw new Error(`SyntaxError in your JSON: ${file}: \n ${e}`)
         }
       }
-      await this.cache.set(cacheKey, obj)
+      this.cache.set(cacheKey, obj)
       return obj
     }
 
@@ -621,7 +621,7 @@ export class ScopedGhostService {
     const cacheKey = this.objectCacheKey(fileName)
 
     try {
-      if (await this.cache.has(cacheKey)) {
+      if (this.cache.has(cacheKey)) {
         return true
       }
 

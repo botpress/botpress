@@ -20,23 +20,23 @@ export default class MemoryObjectCache implements ObjectCache {
   private cache: LRU<string, any>
 
   public readonly events: EventEmitter = new EventEmitter()
+  public static readonly DEFAULT_MAX_MEMORY_CACHE_SIZE = '1gb'
 
   constructor(@inject(TYPES.FileCacheInvalidator) private cacheInvalidator: CacheInvalidators.FileChangedInvalidator) {
     this.cache = new LRU({
-      max: asBytes(process.core_env.BP_MAX_MEMORY_CACHE_SIZE || '1gb'),
+      max: asBytes(process.env.BP_MAX_MEMORY_CACHE_SIZE || MemoryObjectCache.DEFAULT_MAX_MEMORY_CACHE_SIZE),
       length: sizeof
     })
 
     this.cacheInvalidator.install(this)
   }
 
-  async get<T>(key: string): Promise<T> {
+  get<T>(key: string): T {
     return <T>this.cache.get(key)
   }
 
-  async set<T>(key: string, obj: T): Promise<void> {
-    const keyAlreadyExist = await this.has(key)
-
+  set<T>(key: string, obj: T): void {
+    const keyAlreadyExist = this.has(key)
     const keyUpdated = this.cache.set(key, obj)
 
     if (keyAlreadyExist && keyUpdated) {
@@ -44,12 +44,12 @@ export default class MemoryObjectCache implements ObjectCache {
     }
   }
 
-  async has(key: string): Promise<boolean> {
+  has(key: string): boolean {
     return this.cache.has(key)
   }
 
   async invalidate(key: string): Promise<void> {
-    if (await this.has(key)) {
+    if (this.has(key)) {
       this.cache.del(key)
 
       this.events.emit(EVENTS.invalidation, key)
