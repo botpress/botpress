@@ -2408,7 +2408,7 @@ declare module 'botpress/sdk' {
          * @returns The number of deleted rows
          * @example
          * // Delete a conversation by id
-         * await bp.conversations.forBot('myBot').delete({ id: 563 })
+         * await bp.conversations.forBot('myBot').delete({ id: '9aa7da7a-9ab1-4a60-bedd-8bdca22beb03' })
          * // Delete all conversations of a bot user
          * await bp.conversations.forBot('myBot').delete({ userId: 'eEFoneif394' })
          */
@@ -2420,7 +2420,7 @@ declare module 'botpress/sdk' {
          * @returns The matching conversation or `undefined` if none were found
          * @example
          * // Get conversation by id
-         * const converation = await bp.conversations.forBot('myBot').get({ id: 3434 })
+         * const converation = await bp.conversations.forBot('myBot').get({ id: '9aa7da7a-9ab1-4a60-bedd-8bdca22beb03' })
          */
         get(filters: GetFilters): Promise<Conversation | undefined>
 
@@ -2496,7 +2496,7 @@ declare module 'botpress/sdk' {
          * @returns The created message
          * @example
          * const message = await bp.messages.forBot('myBot').create({
-             conversationId: 232,
+             conversationId: '9aa7da7a-9ab1-4a60-bedd-8bdca22beb03',
              eventId: 4343434,
              incomingEventId: 243435,
              from: 'bot',
@@ -2511,10 +2511,10 @@ declare module 'botpress/sdk' {
          * @returns The number of deleted rows
          * @example
          * // Delete message by id
-         * await bp.messages.forBot('myBot').delete({ id: 43 })
+         * await bp.messages.forBot('myBot').delete({ id: '00001337-ca79-4235-8475-3785e41eb2be' })
          * @example
          * // Delete all messages of a conversation
-         * await bp.messages.forBot('myBot').delete({ conversationId: 343 })
+         * await bp.messages.forBot('myBot').delete({ conversationId: '9aa7da7a-9ab1-4a60-bedd-8bdca22beb03' })
          */
         delete(filters: DeleteFilters): Promise<number>
 
@@ -2524,7 +2524,7 @@ declare module 'botpress/sdk' {
          * @returns The matching message or `undefined` if none were found
          * @example
          * // Get message by id
-         * const message = await bp.message.forBot('myBot').get({ id: 43 })
+         * const message = await bp.message.forBot('myBot').get({ id: '00001337-ca79-4235-8475-3785e41eb2be' })
          */
         get(filters: GetFilters): Promise<Message | undefined>
 
@@ -2534,7 +2534,7 @@ declare module 'botpress/sdk' {
          * @param filters Filters which messages to get
          * @example
          * // Get 20 most recent messages of a conversation
-         * const messages = await bp.messages.forBot('myBot').list({ conversationId: 343, limit: 20 })
+         * const messages = await bp.messages.forBot('myBot').list({ conversationId: '9aa7da7a-9ab1-4a60-bedd-8bdca22beb03', limit: 20 })
          */
         list(filters: ListFilters): Promise<Message[]>
       }
