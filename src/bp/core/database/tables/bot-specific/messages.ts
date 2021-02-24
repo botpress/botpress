@@ -7,10 +7,9 @@ export class MessagesTable extends Table {
     let created = false
 
     await this.knex.createTableIfNotExists(this.name, table => {
-      table.increments('id').primary()
+      table.uuid('id').primary()
       table
-        .integer('conversationId')
-        .unsigned()
+        .uuid('conversationId')
         .references('id')
         .inTable('conversations')
         .notNullable()

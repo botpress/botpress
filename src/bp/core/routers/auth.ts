@@ -183,6 +183,15 @@ export class AuthRouter extends CustomRouter {
         res.send(await this.workspaceService.getBotWorkspaceId(botId))
       })
     )
+
+    router.post(
+      '/logout',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req: RequestWithUser, res) => {
+        await this.authService.invalidateToken(req.tokenUser!)
+        res.sendStatus(200)
+      })
+    )
   }
 
   getUserPermissions = async (user: TokenUser, workspaceId: string): Promise<AuthRule[]> => {

@@ -175,7 +175,7 @@ export class ConverseService {
 
     if (event.type !== 'typing' && event.type !== 'data') {
       await this.messageService.forBot(event.botId).create({
-        conversationId: +event.threadId!,
+        conversationId: event.threadId!,
         eventId: event.id,
         incomingEventId: event.incomingEventId!,
         from: 'bot',

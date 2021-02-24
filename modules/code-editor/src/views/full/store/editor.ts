@@ -1,15 +1,24 @@
-import { confirmDialog, lang, toast } from 'botpress/shared'
+import { lang, toast } from 'botpress/shared'
+import { FileWithMetadata } from 'full/Editor'
 import { action, computed, observable, runInAction } from 'mobx'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import path from 'path'
 
 import { EditableFile } from '../../../backend/typings'
-import { calculateHash } from '../utils'
+
 import { wrapper } from '../utils/wrapper'
 
 import { RootStore } from '.'
 
 const NO_EDIT_EXTENSIONS = ['.tgz', '.sqlite', '.png', '.gif', '.jpg']
+
+const getFileUri = (file: EditableFile): monaco.Uri => {
+  const { location } = file
+  const fileType = location.endsWith('.json') ? 'json' : 'typescript'
+  const filepath = fileType === 'json' ? location : location.replace(/\.js$/i, '.ts')
+
+  return monaco.Uri.parse(`bp://files/${filepath}`)
+}
 
 class EditorStore {
   /** Reference to monaco the editor so we can call triggers */
@@ -17,38 +26,71 @@ class EditorStore {
   private rootStore: RootStore
 
   @observable
-  public currentFile: EditableFile
+  public openedFiles: FileWithMetadata[] = []
 
   @observable
-  public fileContentWrapped: string
-
-  @observable
-  public fileContent: string
+  public currentTab: FileWithMetadata
 
   @observable
   public fileProblems: monaco.editor.IMarker[]
 
   @observable
-  private _isFileLoaded: boolean
-
-  @observable
   public isAdvanced: boolean = false
-
-  @observable
-  private _originalHash: string
 
   constructor(rootStore: RootStore) {
     this.rootStore = rootStore
   }
 
   @computed
-  get isDirty() {
-    return this.fileContentWrapped && this._originalHash !== calculateHash(this.fileContentWrapped)
+  get currentFile() {
+    return this.openedFiles.find(x => x.uri === this.currentTab?.uri)
   }
 
   @computed
-  get isOpenedFile() {
-    return !!this.currentFile && this._isFileLoaded
+  get fileChangeStatus() {
+    return this.openedFiles.map(x => ({ location: x.location, hasChanges: x.hasChanges }))
+  }
+
+  @action.bound
+  updateFileContent(obj, uri?: monaco.Uri) {
+    const idx = this.openedFiles.findIndex(x => x.uri === uri)
+
+    if (idx !== -1) {
+      this.openedFiles[idx] = { ...this.openedFiles[idx], ...obj }
+    }
+  }
+
+  @action.bound
+  async saveFile(uri: monaco.Uri) {
+    const file = this.openedFiles.find(x => x.uri === uri)
+    const model = monaco.editor.getModel(uri)
+
+    await this.rootStore.api.saveFile({
+      ...file,
+      content: wrapper.remove(model.getValue(), file.type)
+    })
+
+    await this.rootStore.fetchFiles()
+
+    // Necessary so monaco has the time to update the version correctly
+    setTimeout(() => {
+      this.updateFileContent(
+        {
+          lastSaveVersion: model.getAlternativeVersionId(),
+          hasChanges: false
+        },
+        uri
+      )
+    }, 200)
+  }
+
+  @action.bound
+  switchTab(nextUri: monaco.Uri) {
+    if (this.currentTab) {
+      this.updateFileContent({ state: this._editorRef.saveViewState() }, this.currentTab.uri)
+    }
+
+    this.currentTab = this.openedFiles.find(x => x.uri.path === nextUri.path)
   }
 
   @action.bound
@@ -58,31 +100,25 @@ class EditorStore {
       return
     }
 
-    let content = file.content
-    if (!content) {
-      content = await this.rootStore.api.readFile(file)
+    if (!file.content) {
+      file = {
+        ...file,
+        content: await this.rootStore.api.readFile(file)
+      }
     }
 
-    runInAction('-> setFileContent', () => {
-      this.fileContent = content
-      this.fileContentWrapped = wrapper.add(file, content)
+    runInAction('-> openFile', () => {
+      const uri = getFileUri(file)
+      const existingFile = this.openedFiles.find(x => x.uri.path === uri.path)
 
-      this.currentFile = file
-      this._isFileLoaded = true
+      if (existingFile) {
+        return this.switchTab(uri)
+      }
 
-      this.resetOriginalHash()
+      const newFile = { ...file, hasChanges: false, uri, lastSaveVersion: 1 }
+      this.openedFiles.push(newFile)
+      this.switchTab(uri)
     })
-  }
-
-  @action.bound
-  updateContent(newContent: string) {
-    this.fileContentWrapped = newContent
-    this.fileContent = wrapper.remove(newContent, this.currentFile.type)
-  }
-
-  @action.bound
-  resetOriginalHash() {
-    this._originalHash = calculateHash(this.fileContentWrapped)
   }
 
   @action.bound
@@ -101,43 +137,19 @@ class EditorStore {
   }
 
   @action.bound
-  async saveChanges() {
-    if (!this.fileContent || this.currentFile.readOnly || this.currentFile.isExample) {
-      return
+  closeFile(file: EditableFile) {
+    const uri = getFileUri(file)
+    const model = monaco.editor.getModel(uri)
+    if (model) {
+      model.dispose()
     }
 
-    await this._editorRef.getAction('editor.action.formatDocument').run()
+    const idx = this.openedFiles.findIndex(x => x.uri.path === uri.path)
+    this.openedFiles.splice(idx, 1)
 
-    if (await this.rootStore.api.saveFile({ ...this.currentFile, content: this.fileContent })) {
-      toast.success(lang.tr('module.code-editor.store.fileSaved'))
-
-      await this.rootStore.fetchFiles()
-      this.resetOriginalHash()
+    if (this.openedFiles.length) {
+      this.switchTab(this.openedFiles[0].uri)
     }
-  }
-
-  @action.bound
-  async discardChanges() {
-    if (this.isDirty && this.fileContent) {
-      if (
-        await confirmDialog(lang.tr('module.code-editor.store.confirmSaveFile', { file: this.currentFile.name }), {
-          acceptLabel: lang.tr('save'),
-          declineLabel: lang.tr('discard')
-        })
-      ) {
-        await this.saveChanges()
-      }
-    }
-
-    this.closeFile()
-  }
-
-  @action.bound
-  closeFile() {
-    this._isFileLoaded = false
-    this.currentFile = undefined
-    this.fileContent = undefined
-    this.fileContentWrapped = undefined
   }
 
   @action.bound
