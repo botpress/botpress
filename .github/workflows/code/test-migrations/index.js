@@ -75,7 +75,8 @@ const testMigration = async (botName, startVersion, targetVersion, { isDown }) =
   }
   await execute('node --version')
   await execute('yarn node --version')
-  await execute('yarn start migrate up')
+  console.log('v', env)
+  await execute(`yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion} --ignore-engines`)
   console.log(`yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion} --ignore-engines`)
   const result = await execute(
     `yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion} --ignore-engines`,
