@@ -19,7 +19,6 @@ const dumpServerData = async () => {
   const dataItems = await fse.readdir(path.resolve(rootPath, 'out/bp/data'))
 
   for (const item of dataItems.filter(x => x !== 'assets')) {
-    console.log(item)
     await fse.copy(path.resolve(rootPath, 'out/bp/data', item), `${tmpDir.name}/${item}`)
   }
 
