@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import { uuid } from 'botpress/sdk'
 import { MessageRepository } from 'core/repositories/messages'
 import { IOEvent } from 'core/sdk/impl'
 import { inject, injectable, postConstruct } from 'inversify'
@@ -104,16 +105,16 @@ export class ScopedMessageService implements sdk.experimental.messages.BotMessag
     return this.messageRepo.get(filters.id)
   }
 
-  public async receive(conversationId: string, payload: any, args?: sdk.experimental.messages.MessageArgs) {
+  public async receive(conversationId: uuid, payload: any, args?: sdk.experimental.messages.MessageArgs) {
     return this.sendMessage(conversationId, payload, 'incoming', args)
   }
 
-  public async send(conversationId: string, payload: any, args?: sdk.experimental.messages.MessageArgs) {
+  public async send(conversationId: uuid, payload: any, args?: sdk.experimental.messages.MessageArgs) {
     return this.sendMessage(conversationId, payload, 'outgoing', args)
   }
 
   private async sendMessage(
-    conversationId: string,
+    conversationId: uuid,
     payload: any,
     direction: sdk.EventDirection,
     args?: sdk.experimental.messages.MessageArgs

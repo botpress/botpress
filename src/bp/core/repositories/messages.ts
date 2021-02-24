@@ -1,4 +1,4 @@
-import { experimental } from 'botpress/sdk'
+import { experimental, uuid } from 'botpress/sdk'
 import { JobService } from 'core/services/job-service'
 import { inject, injectable, postConstruct } from 'inversify'
 
@@ -10,10 +10,10 @@ import { TYPES } from '../types'
 
 export interface MessageRepository {
   list(filters: experimental.messages.ListFilters): Promise<experimental.Message[]>
-  deleteAll(conversationId: string): Promise<number>
+  deleteAll(conversationId: uuid): Promise<number>
   create(args: experimental.messages.CreateArgs): Promise<experimental.Message>
-  get(messageId: string): Promise<experimental.Message | undefined>
-  delete(messageId: string): Promise<boolean>
+  get(messageId: uuid): Promise<experimental.Message | undefined>
+  delete(messageId: uuid): Promise<boolean>
   serialize(message: Partial<experimental.Message>)
   deserialize(message: any): experimental.Message | undefined
 }
@@ -21,8 +21,8 @@ export interface MessageRepository {
 @injectable()
 export class KnexMessageRepository implements MessageRepository {
   private readonly TABLE_NAME = 'messages'
-  private cache = new LRU<string, experimental.Message>({ max: 10000, maxAge: ms('5min') })
-  private invalidateMsgCache: (ids: string[]) => void = this._localInvalidateMsgCache
+  private cache = new LRU<uuid, experimental.Message>({ max: 10000, maxAge: ms('5min') })
+  private invalidateMsgCache: (ids: uuid[]) => void = this._localInvalidateMsgCache
 
   constructor(
     @inject(TYPES.Database) private database: Database,
@@ -52,7 +52,7 @@ export class KnexMessageRepository implements MessageRepository {
     return (await query).map(x => this.deserialize(x)!)
   }
 
-  public async deleteAll(conversationId: string): Promise<number> {
+  public async deleteAll(conversationId: uuid): Promise<number> {
     const deletedIds = (
       await this.query()
         .select('id')
@@ -89,7 +89,7 @@ export class KnexMessageRepository implements MessageRepository {
     return message
   }
 
-  public async get(messageId: string): Promise<experimental.Message | undefined> {
+  public async get(messageId: uuid): Promise<experimental.Message | undefined> {
     const cached = this.cache.get(messageId)
     if (cached) {
       return cached
@@ -107,7 +107,7 @@ export class KnexMessageRepository implements MessageRepository {
     return message
   }
 
-  public async delete(messageId: string): Promise<boolean> {
+  public async delete(messageId: uuid): Promise<boolean> {
     const numberOfDeletedRows = await this.query()
       .where({ id: messageId })
       .del()
@@ -150,7 +150,7 @@ export class KnexMessageRepository implements MessageRepository {
     }
   }
 
-  private _localInvalidateMsgCache(ids: string[]) {
+  private _localInvalidateMsgCache(ids: uuid[]) {
     ids?.forEach(id => this.cache.del(id))
   }
 }

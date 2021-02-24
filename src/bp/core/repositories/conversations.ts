@@ -1,4 +1,4 @@
-import { experimental } from 'botpress/sdk'
+import { experimental, uuid } from 'botpress/sdk'
 import { JobService } from 'core/services/job-service'
 import { inject, injectable, postConstruct } from 'inversify'
 
@@ -17,15 +17,15 @@ export interface ConversationRepository {
     botId: string,
     filters: experimental.conversations.RecentFilters
   ): Promise<experimental.Conversation | undefined>
-  get(conversationId: string): Promise<experimental.Conversation | undefined>
-  delete(conversationId: string): Promise<boolean>
+  get(conversationId: uuid): Promise<experimental.Conversation | undefined>
+  delete(conversationId: uuid): Promise<boolean>
 }
 
 @injectable()
 export class KnexConversationRepository implements ConversationRepository {
   private readonly TABLE_NAME = 'conversations'
-  private cache = new LRU<string, experimental.Conversation>({ max: 10000, maxAge: ms('5min') })
-  private invalidateConvCache: (ids: string[]) => void = this._localInvalidateConvCache
+  private cache = new LRU<uuid, experimental.Conversation>({ max: 10000, maxAge: ms('5min') })
+  private invalidateConvCache: (ids: uuid[]) => void = this._localInvalidateConvCache
 
   constructor(
     @inject(TYPES.Database) private database: Database,
@@ -105,7 +105,7 @@ export class KnexConversationRepository implements ConversationRepository {
     return this.deserialize((await query)[0])
   }
 
-  public async get(conversationId: string): Promise<experimental.Conversation | undefined> {
+  public async get(conversationId: uuid): Promise<experimental.Conversation | undefined> {
     const cached = this.cache.get(conversationId)
     if (cached) {
       return cached
@@ -123,7 +123,7 @@ export class KnexConversationRepository implements ConversationRepository {
     return conversation
   }
 
-  public async delete(conversationId: string): Promise<boolean> {
+  public async delete(conversationId: uuid): Promise<boolean> {
     const numberOfDeletedRows = await this.query()
       .where({ id: conversationId })
       .del()
@@ -193,7 +193,7 @@ export class KnexConversationRepository implements ConversationRepository {
     }
   }
 
-  private _localInvalidateConvCache(ids: string[]) {
+  private _localInvalidateConvCache(ids: uuid[]) {
     ids?.forEach(id => this.cache.del(id))
   }
 }

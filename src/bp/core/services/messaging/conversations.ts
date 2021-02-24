@@ -10,7 +10,7 @@ import { JobService } from '../job-service'
 @injectable()
 export class ConversationService {
   private scopes: { [botId: string]: ScopedConversationService } = {}
-  private invalidateMostRecent: (botId: string, userId: string, mostRecentConvoId?: string) => void = this
+  private invalidateMostRecent: (botId: string, userId: string, mostRecentConvoId?: sdk.uuid) => void = this
     ._localInvalidateMostRecent
 
   constructor(
@@ -25,7 +25,7 @@ export class ConversationService {
     this.invalidateMostRecent = <any>await this.jobService.broadcast<void>(this._localInvalidateMostRecent.bind(this))
   }
 
-  private _localInvalidateMostRecent(botId: string, userId: string, mostRecentConvoId?: string) {
+  private _localInvalidateMostRecent(botId: string, userId: string, mostRecentConvoId?: sdk.uuid) {
     this.forBot(botId).localInvalidateMostRecent(userId, mostRecentConvoId)
   }
 
@@ -47,7 +47,7 @@ export class ScopedConversationService implements sdk.experimental.conversations
   constructor(
     private botId: string,
     private conversationRepo: ConversationRepository,
-    public invalidateMostRecent: (userId: string, mostRecentConvoId?: string) => void
+    public invalidateMostRecent: (userId: string, mostRecentConvoId?: sdk.uuid) => void
   ) {
     this.mostRecentCache = new LRU<string, sdk.experimental.Conversation>({ max: 10000, maxAge: ms('5min') })
   }
@@ -109,7 +109,7 @@ export class ScopedConversationService implements sdk.experimental.conversations
     }
   }
 
-  public localInvalidateMostRecent(userId: string, mostRecentConvoId?: string) {
+  public localInvalidateMostRecent(userId: string, mostRecentConvoId?: sdk.uuid) {
     if (userId) {
       const cachedMostRecent = this.mostRecentCache.peek(userId)
       if (cachedMostRecent?.id !== mostRecentConvoId) {
