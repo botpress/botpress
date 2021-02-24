@@ -3,11 +3,18 @@ import { asBytes } from 'core/misc/utils'
 import { EventEmitter } from 'events'
 import { inject, injectable } from 'inversify'
 import LRU from 'lru-cache'
+import sizeof from 'object-sizeof'
 
 import { TYPES } from '../../types'
 
 import { CacheInvalidators } from './cache-invalidators'
 
+export const EVENTS = {
+  invalidation: 'invalidation',
+  syncDbFilesToDisk: 'syncDbFilesToDisk'
+}
+
+// TODO: Handle objects with size > than LRU max size + items that are removed from the cache when it's full
 @injectable()
 export default class MemoryObjectCache implements ObjectCache {
   private cache: LRU<string, any>
@@ -17,15 +24,7 @@ export default class MemoryObjectCache implements ObjectCache {
   constructor(@inject(TYPES.FileCacheInvalidator) private cacheInvalidator: CacheInvalidators.FileChangedInvalidator) {
     this.cache = new LRU({
       max: asBytes(process.core_env.BP_MAX_MEMORY_CACHE_SIZE || '1gb'),
-      length: obj => {
-        if (Buffer.isBuffer(obj)) {
-          return obj.length
-        } else if (typeof obj === 'string') {
-          return obj.length * 2 // chars are 2 bytes in ECMAScript
-        }
-
-        return 1024 // Assuming 1kb per object, this is kind of random
-      }
+      length: sizeof
     })
 
     this.cacheInvalidator.install(this)
@@ -36,8 +35,13 @@ export default class MemoryObjectCache implements ObjectCache {
   }
 
   async set<T>(key: string, obj: T): Promise<void> {
-    this.cache.set(key, obj)
-    this.events.emit('invalidation', key)
+    const keyAlreadyExist = await this.has(key)
+
+    const keyUpdated = this.cache.set(key, obj)
+
+    if (keyAlreadyExist && keyUpdated) {
+      this.events.emit(EVENTS.invalidation, key)
+    }
   }
 
   async has(key: string): Promise<boolean> {
@@ -45,20 +49,23 @@ export default class MemoryObjectCache implements ObjectCache {
   }
 
   async invalidate(key: string): Promise<void> {
-    this.cache.del(key)
-    this.events.emit('invalidation', key)
+    if (await this.has(key)) {
+      this.cache.del(key)
+
+      this.events.emit(EVENTS.invalidation, key)
+    }
   }
 
   async invalidateStartingWith(prefix: string): Promise<void> {
     const keys = this.cache.keys().filter(x => {
+      // TODO: Move buffer::, string:: and object:: into a constant/utils file
       return x.startsWith('buffer::' + prefix) || x.startsWith('string::' + prefix) || x.startsWith('object::' + prefix)
     })
 
-    keys.forEach(x => this.cache.del(x))
-    this.events.emit('invalidation', prefix)
+    keys.forEach(x => this.invalidate(x))
   }
 
   async sync(message: string): Promise<void> {
-    this.events.emit('syncDbFilesToDisk', message)
+    this.events.emit(EVENTS.syncDbFilesToDisk, message)
   }
 }
