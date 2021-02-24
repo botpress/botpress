@@ -48,6 +48,14 @@ jobs:
       - name: Build core, UI and modules
         run: |
           NODE_OPTIONS="--max-old-space-size=6000" yarn build
+      - name: Test Migrations
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          DATABASE_URL: postgres://postgres:pgsecret@localhost:5432/bp
+        run: |
+          yarn add @actions/core aws-sdk
+          node .github/workflows/code/test-migrations/index.js
       - name: Run Tests
         run: |
           yarn start & sleep 5s &&
@@ -58,11 +66,3 @@ jobs:
         with:
           name: screenshots
           path: build/tests/e2e/screenshots
-      - name: Test Migrations
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          DATABASE_URL: postgres://postgres:pgsecret@localhost:5432/bp
-        run: |
-          yarn add @actions/core aws-sdk
-          node .github/workflows/code/test-migrations/index.js
