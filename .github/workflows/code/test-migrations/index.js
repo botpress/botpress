@@ -74,6 +74,7 @@ const testMigration = async (botName, startVersion, targetVersion, { isDown }) =
     DATABASE_URL: isPostgresDb() ? process.env.DATABASE_URL : undefined
   }
   await execute('node --version')
+  await execute('yarn node')
   console.log(`yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion} --ignore-engines`)
   const result = await execute(
     `yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion} --ignore-engines`,
