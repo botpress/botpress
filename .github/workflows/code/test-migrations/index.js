@@ -73,7 +73,7 @@ const testMigration = async (botName, startVersion, targetVersion, { isDown }) =
   const env = {
     DATABASE_URL: isPostgresDb() ? process.env.DATABASE_URL : undefined
   }
-
+  await execute('node --version')
   const result = await execute(`yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion}`, './', env)
   const success = result.match(/Migration(s?) completed successfully/)
   const status = success ? chalk.green(`[SUCCESS]`) : chalk.red(`[FAILURE]`)
@@ -123,7 +123,7 @@ const execute = (cmd, cwd, env) => {
 
   return Promise.fromCallback(cb => {
     let outBuffer = ''
-    const ctx = exec(cmd, { env }, err => cb(err, outBuffer))
+    const ctx = exec(cmd, { cwd, env }, err => cb(err, outBuffer))
     ctx.stdout.on('data', data => (outBuffer += data))
 
     if (isVerbose) {
