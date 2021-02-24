@@ -16,9 +16,9 @@ export const sendEvent = async (bp: typeof sdk, botId: string, ctx: ContextMessa
   const payload = ctx.message || ctx.callbackQuery
   const preview = ctx.message.text || ctx.callbackQuery.data
 
-  let convoId: number
+  let convoId: sdk.uuid
   if (chatId) {
-    convoId = +(await bp.kvs.forBot(botId).get(`convmap/telegram_${chatId}`))
+    convoId = await bp.kvs.forBot(botId).get(`convmap/telegram_${chatId}`)
 
     if (!convoId) {
       const conversation = await bp.experimental.conversations.forBot(botId).create({ userId })
@@ -93,7 +93,7 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
     }
 
     await bp.experimental.messages.forBot(event.botId).create({
-      conversationId: +event.threadId,
+      conversationId: event.threadId,
       eventId: event.id,
       incomingEventId: event.incomingEventId,
       from: 'bot',
