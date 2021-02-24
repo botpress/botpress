@@ -28,8 +28,9 @@ const start = async () => {
 
     const archiveVersion = version.replace(/.tgz|.zip/, '')
     const buffer = await Promise.fromCallback(cb => s3.getObject({ Bucket, Key: file.Key }, cb))
-
+    console.log('read file')
     await prepareDataFolder(buffer.Body)
+    console.log('data prepared')
 
     await testMigration(archiveName, archiveVersion, targetVersion, { isDown: false })
     await testMigration(archiveName, targetVersion, archiveVersion, { isDown: true })
@@ -68,6 +69,7 @@ const restorePostgresDump = async () => {
 }
 
 const testMigration = async (botName, startVersion, targetVersion, { isDown }) => {
+  console.log('test mig')
   const env = {
     DATABASE_URL: isPostgresDb() ? process.env.DATABASE_URL : undefined
   }
@@ -116,6 +118,7 @@ const execute = (cmd, cwd, env) => {
   cwd = cwd || args.pgPath || __dirname
   env = env || process.env
 
+  console.log(cwd, __dirname)
   const isVerbose = args.verbose
 
   return Promise.fromCallback(cb => {
