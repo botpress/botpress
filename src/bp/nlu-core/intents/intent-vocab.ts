@@ -1,8 +1,13 @@
 import _ from 'lodash'
-import { IntentSlotFeatures } from 'nlu-core/slots/slot-tagger'
 import { SPACE } from 'nlu-core/tools/token-utils'
 import { Intent, ListEntityModel } from 'nlu-core/typings'
 import Utterance from 'nlu-core/utterance/utterance'
+
+interface IntentVocab {
+  name: string
+  vocab: string[]
+  slot_entities: string[]
+}
 
 export const buildIntentVocab = (utterances: Utterance[], intentEntities: ListEntityModel[]): Dic<boolean> => {
   // @ts-ignore
@@ -18,10 +23,7 @@ export const buildIntentVocab = (utterances: Utterance[], intentEntities: ListEn
     .value()
 }
 
-export const getEntitiesAndVocabOfIntent = (
-  intent: Intent<Utterance>,
-  entities: ListEntityModel[]
-): IntentSlotFeatures => {
+export const getEntitiesAndVocabOfIntent = (intent: Intent<Utterance>, entities: ListEntityModel[]): IntentVocab => {
   const allowedEntities = _.chain(intent.slot_definitions)
     .flatMap(s => s.entities)
     .filter(e => e !== 'any')

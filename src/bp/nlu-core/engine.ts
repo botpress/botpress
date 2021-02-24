@@ -250,20 +250,24 @@ export default class Engine implements NLU.Engine {
 
     const warmKmeans = kmeans && deserializeKmeans(kmeans)
 
-    const intent_classifier_per_ctx: Dic<OOSIntentClassifier> = _.mapValues(intent_model_by_ctx, model => {
-      const intentClf = new OOSIntentClassifier(tools)
-      intentClf.load(model)
-      return intentClf
-    })
+    const intent_classifier_per_ctx: Dic<OOSIntentClassifier> = await Promise.props(
+      _.mapValues(intent_model_by_ctx, async model => {
+        const intentClf = new OOSIntentClassifier(tools)
+        await intentClf.load(model)
+        return intentClf
+      })
+    )
 
     const ctx_classifier = new SvmIntentClassifier(tools, getCtxFeatures)
-    ctx_classifier.load(ctx_model)
+    await ctx_classifier.load(ctx_model)
 
-    const slot_tagger_per_intent: Dic<SlotTagger> = _.mapValues(slots_model_by_intent, model => {
-      const slotTagger = new SlotTagger(tools)
-      slotTagger.load(model)
-      return slotTagger
-    })
+    const slot_tagger_per_intent: Dic<SlotTagger> = await Promise.props(
+      _.mapValues(slots_model_by_intent, async model => {
+        const slotTagger = new SlotTagger(tools)
+        await slotTagger.load(model)
+        return slotTagger
+      })
+    )
 
     return {
       contexts,

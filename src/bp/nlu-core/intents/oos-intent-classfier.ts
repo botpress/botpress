@@ -1,5 +1,6 @@
 import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
+import Joi, { validate } from 'joi'
 import { isPOSAvailable } from 'nlu-core/language/pos-tagger'
 import {
   featurizeInScopeUtterances,
@@ -15,12 +16,13 @@ import { ExactIntenClassifier } from './exact-intent-classifier'
 import { IntentTrainInput, NoneableIntentClassifier, NoneableIntentPredictions } from './intent-classifier'
 import { getIntentFeatures } from './intent-featurizer'
 import { SvmIntentClassifier } from './svm-intent-classifier'
+import { ModelLoadingError } from 'nlu-core/errors'
 
 interface TrainInput extends IntentTrainInput {
   allUtterances: Utterance[]
 }
 
-interface Model {
+export interface Model {
   trainingVocab: string[]
   baseIntentClfModel: string
   oosSvmModel: string | undefined
@@ -41,7 +43,34 @@ const NONE_UTTERANCES_BOUNDS = {
   MAX: 200
 }
 
+export const modelSchema = Joi.object()
+  .keys({
+    trainingVocab: Joi.array()
+      .items(Joi.string().allow(''))
+      .required(),
+    baseIntentClfModel: Joi.string()
+      .allow('')
+      .required(),
+    oosSvmModel: Joi.string()
+      .allow('')
+      .optional(),
+    exactMatchModel: Joi.string()
+      .allow('')
+      .required()
+  })
+  .required()
+
+/**
+ * @description Intent classfier composed of 3 smaller components:
+ *  1 - an SVM intent classifier
+ *  2 - an SVM to predict weither the sample is in scope or oos
+ *  3 - an exact-matcher to override the prediction made by the SVM when there's an exact match
+ *
+ * @returns A confidence level for all possible labels including none
+ */
 export class OOSIntentClassifier implements NoneableIntentClassifier {
+  private static _name = 'OOS Intent Classifier'
+
   private model: Model | undefined
   private predictors: Predictors | undefined
 
@@ -210,25 +239,33 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
 
   public serialize(): string {
     if (!this.model) {
-      throw new Error('Intent classifier must be trained before calling serialize')
+      throw new Error(`${OOSIntentClassifier._name} must be trained before calling serialize.`)
     }
     return JSON.stringify(this.model)
   }
 
-  public load(serialized: string): void {
-    const model: Model = JSON.parse(serialized) // TODO: validate input
-    this.predictors = this._makePredictors(model)
-    this.model = model
+  public async load(serialized: string): Promise<void> {
+    try {
+      const raw = JSON.parse(serialized)
+      const model: Model = await validate(raw, modelSchema)
+      this.predictors = await this._makePredictors(model)
+      this.model = model
+    } catch (err) {
+      throw new ModelLoadingError(OOSIntentClassifier._name, err)
+    }
   }
 
-  private _makePredictors(model: Model): Predictors {
+  private async _makePredictors(model: Model): Promise<Predictors> {
     const { oosSvmModel, baseIntentClfModel, trainingVocab, exactMatchModel } = model
 
     const baseIntentClf = new SvmIntentClassifier(this.tools, getIntentFeatures)
-    baseIntentClf.load(baseIntentClfModel)
+    await baseIntentClf.load(baseIntentClfModel)
+
+    const exactMatcher = new ExactIntenClassifier()
+    await exactMatcher.load(exactMatchModel)
 
     const exactIntenClassifier = new ExactIntenClassifier()
-    exactIntenClassifier.load(exactMatchModel)
+    await exactIntenClassifier.load(exactMatchModel)
 
     return {
       oosSvm: oosSvmModel ? new this.tools.mlToolkit.SVM.Predictor(oosSvmModel) : undefined,
@@ -241,10 +278,10 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
   public async predict(utterance: Utterance): Promise<NoneableIntentPredictions> {
     if (!this.predictors) {
       if (!this.model) {
-        throw new Error('Intent classifier must be trained before you call predict on it.')
+        throw new Error(`${OOSIntentClassifier._name} must be trained before calling predict.`)
       }
 
-      this.predictors = this._makePredictors(this.model)
+      this.predictors = await this._makePredictors(this.model)
     }
 
     const { oosSvm, baseIntentClf, trainingVocab, exactIntenClassifier } = this.predictors

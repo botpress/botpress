@@ -1,10 +1,12 @@
 import _ from 'lodash'
+import Joi, { validate } from 'joi'
 import { Intent } from 'nlu-core/typings'
 import Utterance, { UtteranceToStringOptions } from 'nlu-core/utterance/utterance'
 
 import { IntentClassifier, IntentPredictions, IntentTrainInput } from './intent-classifier'
+import { ModelLoadingError } from 'nlu-core/errors'
 
-interface Model {
+export interface Model {
   intents: string[]
   exact_match_index: ExactMatchIndex
 }
@@ -18,7 +20,20 @@ const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
   entities: 'keep-name'
 }
 
+const schemaKeys: Record<keyof Model, Joi.AnySchema> = {
+  intents: Joi.array()
+    .items(Joi.string())
+    .required(),
+  exact_match_index: Joi.object()
+    .pattern(/^/, Joi.object().keys({ intent: Joi.string() }))
+    .required()
+}
+export const modelSchema = Joi.object()
+  .keys(schemaKeys)
+  .required()
+
 export class ExactIntenClassifier implements IntentClassifier {
+  private static _name = 'Exact Intent Classifier'
   private model: Model | undefined
 
   async train(trainInput: IntentTrainInput, progress: (p: number) => void) {
@@ -51,19 +66,24 @@ export class ExactIntenClassifier implements IntentClassifier {
 
   serialize() {
     if (!this.model) {
-      throw new Error('Exact match intent classifier must be trained before calling serialize')
+      throw new Error(`${ExactIntenClassifier._name} must be trained before calling serialize.`)
     }
     return JSON.stringify(this.model)
   }
 
-  load(serialized: string) {
-    const model: Model = JSON.parse(serialized) // TODO: validate input
-    this.model = model
+  async load(serialized: string) {
+    try {
+      const raw = JSON.parse(serialized)
+      const model: Model = await validate(raw, modelSchema)
+      this.model = model
+    } catch (err) {
+      throw new ModelLoadingError(ExactIntenClassifier._name, err)
+    }
   }
 
   async predict(utterance: Utterance): Promise<IntentPredictions> {
     if (!this.model) {
-      throw new Error('Exact match intent classifier must be trained before you call predict on it.')
+      throw new Error(`${ExactIntenClassifier._name} must be trained before calling predict.`)
     }
 
     const { exact_match_index, intents: intentNames } = this.model

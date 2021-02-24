@@ -1,29 +1,18 @@
 import * as sdk from 'botpress/sdk'
+import Joi, { validate } from 'joi'
 import fse from 'fs-extra'
 import _ from 'lodash'
 import { getEntitiesAndVocabOfIntent } from 'nlu-core/intents/intent-vocab'
 import { SlotDefinition } from 'nlu-server/typings_v1'
 import tmp from 'tmp'
 
-import { BIO, Intent, ListEntityModel, PatternEntity, SlotExtractionResult, Tag, Tools } from '../typings'
+import { BIO, Intent, ListEntityModel, SlotExtractionResult, Tools } from '../typings'
 import Utterance, { UtteranceToken } from '../utterance/utterance'
 
 import * as featurizer from './slot-featurizer'
-
-export interface TagResult {
-  tag: Tag | string
-  name: string
-  probability: number
-}
-
-export interface IntentSlotFeatures {
-  name: string
-  vocab: string[]
-  slot_entities: string[]
-}
-
-const debugTrain = DEBUG('nlu').sub('training')
-const debugExtract = DEBUG('nlu').sub('extract')
+import { TagResult, IntentSlotFeatures } from './typings'
+import { SlotDefinitionSchema } from './schemas'
+import { ModelLoadingError } from 'nlu-core/errors'
 
 const CRF_TRAINER_PARAMS = {
   c1: '0.0001',
@@ -150,7 +139,7 @@ interface TrainInput {
   list_entites: ListEntityModel[]
 }
 
-interface Model {
+export interface Model {
   crfModel: Buffer | undefined
   intentFeatures: IntentSlotFeatures
   slot_definitions: SlotDefinition[]
@@ -162,7 +151,31 @@ interface Predictors {
   slot_definitions: SlotDefinition[]
 }
 
+const intentSlotFeaturesSchema = Joi.object()
+  .keys({
+    name: Joi.string().required(),
+    vocab: Joi.array()
+      .items(Joi.string().allow(''))
+      .required(),
+    slot_entities: Joi.array()
+      .items(Joi.string())
+      .required()
+  })
+  .required()
+
+export const modelSchema = Joi.object()
+  .keys({
+    crfModel: Joi.binary().optional(),
+    intentFeatures: intentSlotFeaturesSchema,
+    slot_definitions: Joi.array()
+      .items(SlotDefinitionSchema)
+      .required()
+  })
+  .required()
+
 export default class SlotTagger {
+  private static _name = 'CRF Slot Tagger'
+
   private model: Model | undefined
   private predictors: Predictors | undefined
   private mlToolkit: typeof sdk.MLToolkit
@@ -171,12 +184,18 @@ export default class SlotTagger {
     this.mlToolkit = tools.mlToolkit
   }
 
-  load(serialized: string) {
-    const parsed = JSON.parse(serialized) // TODO: some sort of validation
-    parsed.crfModel = parsed.crfModel && Buffer.from(parsed.crfModel)
-    const model = parsed
-    this.predictors = this._makePredictors(model)
-    this.model = model
+  public load = async (serialized: string) => {
+    try {
+      const raw: Model = JSON.parse(serialized)
+      raw.crfModel = raw.crfModel && Buffer.from(raw.crfModel)
+
+      const model: Model = await validate(raw, modelSchema)
+
+      this.predictors = this._makePredictors(model)
+      this.model = model
+    } catch (err) {
+      throw new ModelLoadingError(SlotTagger._name, err)
+    }
   }
 
   private _makePredictors(model: Model): Predictors {
@@ -200,20 +219,17 @@ export default class SlotTagger {
 
   serialize(): string {
     if (!this.model) {
-      throw new Error('CRF Slot tagger must be trained before calling serialize')
+      throw new Error(`${SlotTagger._name} must be trained before calling serialize.`)
     }
     return JSON.stringify(this.model)
   }
 
   async train(trainSet: TrainInput, progress: (p: number) => void): Promise<void> {
-    debugTrain('Started Slot tagger training')
-
     const { intent, list_entites } = trainSet
     const intentFeatures = getEntitiesAndVocabOfIntent(intent, list_entites)
     const { slot_definitions } = intent
 
     if (slot_definitions.length <= 0) {
-      // TODO: prevent from persisting to much bytes when theres no slots
       this.model = {
         crfModel: undefined,
         intentFeatures,
@@ -246,8 +262,6 @@ export default class SlotTagger {
     }
 
     progress(1)
-
-    debugTrain('Done with Slot tagger training')
   }
 
   private tokenSliceFeatures(
@@ -327,7 +341,7 @@ export default class SlotTagger {
   async predict(utterance: Utterance): Promise<SlotExtractionResult[]> {
     if (!this.predictors) {
       if (!this.model) {
-        throw new Error('CRF Slot tagger must be trained before calling predict.')
+        throw new Error(`${SlotTagger._name} must be trained before calling predict.`)
       }
 
       this.predictors = this._makePredictors(this.model)
@@ -340,10 +354,8 @@ export default class SlotTagger {
     }
 
     const features = this._getSequenceFeatures(intentFeatures, utterance, true)
-    debugExtract('vectorize', features)
 
     const predictions = crfTagger.marginal(features)
-    debugExtract('slot crf predictions', predictions)
 
     return _.chain(predictions)
       .map(predictionLabelToTagResult)

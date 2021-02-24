@@ -14,3 +14,9 @@ export class TrainingExitedUnexpectedly extends Error {
     super(`Training worker ${srcWorkerId} exited with exit code ${exitCode} and signal ${signal}.`)
   }
 }
+
+export class ModelLoadingError extends Error {
+  constructor(component: string, innerError: Error | undefined) {
+    super(`${component} could load model. Inner error is: "${innerError?.message}"`)
+  }
+}

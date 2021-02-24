@@ -1,27 +1,43 @@
 import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
+import Joi, { validate } from 'joi'
 import { ListEntityModel, PatternEntity, Tools } from 'nlu-core/typings'
 import Utterance from 'nlu-core/utterance/utterance'
 
 import { IntentClassifier, IntentPredictions, IntentTrainInput } from './intent-classifier'
+import { ModelLoadingError } from 'nlu-core/errors'
 
-interface Model {
+type Featurizer = (u: Utterance, entities: string[]) => number[]
+export interface Model {
   svmModel: string | undefined
   intentNames: string[]
-  list_entities: ListEntityModel[]
-  pattern_entities: PatternEntity[]
+  entitiesName: string[]
 }
 
 interface Predictors {
   svm: MLToolkit.SVM.Predictor | undefined
   intentNames: string[]
-  list_entities: ListEntityModel[]
-  pattern_entities: PatternEntity[]
+  entitiesName: string[]
 }
 
-type Featurizer = (u: Utterance, entities: string[]) => number[]
+const keys: Record<keyof Model, Joi.AnySchema> = {
+  svmModel: Joi.string()
+    .allow('')
+    .optional(),
+  intentNames: Joi.array()
+    .items(Joi.string())
+    .required(),
+  entitiesName: Joi.array()
+    .items(Joi.string())
+    .required()
+}
+export const modelSchema = Joi.object()
+  .keys(keys)
+  .required()
 
 export class SvmIntentClassifier implements IntentClassifier {
+  private static _name = 'SVM Intent Classifier'
+
   private model: Model | undefined
   private predictors: Predictors | undefined
 
@@ -48,8 +64,7 @@ export class SvmIntentClassifier implements IntentClassifier {
       this.model = {
         svmModel: undefined,
         intentNames: intents.map(i => i.name),
-        list_entities,
-        pattern_entities
+        entitiesName
       }
       progress(1)
       return
@@ -63,8 +78,7 @@ export class SvmIntentClassifier implements IntentClassifier {
     this.model = {
       svmModel,
       intentNames: intents.map(i => i.name),
-      list_entities,
-      pattern_entities
+      entitiesName
     }
 
     progress(1)
@@ -72,37 +86,41 @@ export class SvmIntentClassifier implements IntentClassifier {
 
   serialize(): string {
     if (!this.model) {
-      throw new Error('SVM Intent classifier must be trained before calling serialize')
+      throw new Error(`${SvmIntentClassifier._name} must be trained before calling serialize.`)
     }
     return JSON.stringify(this.model)
   }
 
-  load(serialized: string): void {
-    const model: Model = JSON.parse(serialized) // TODO: validate input
-    this.predictors = this._makePredictors(model)
-    this.model = model
+  async load(serialized: string): Promise<void> {
+    try {
+      const raw = JSON.parse(serialized)
+      const model: Model = await validate(raw, modelSchema)
+      this.predictors = this._makePredictors(model)
+      this.model = model
+    } catch (err) {
+      throw new ModelLoadingError(SvmIntentClassifier._name, err)
+    }
   }
 
   private _makePredictors(model: Model): Predictors {
-    const { svmModel, intentNames, list_entities, pattern_entities } = model
+    const { svmModel, intentNames, entitiesName } = model
     return {
       svm: svmModel ? new this.tools.mlToolkit.SVM.Predictor(svmModel) : undefined,
       intentNames,
-      list_entities,
-      pattern_entities
+      entitiesName
     }
   }
 
   async predict(utterance: Utterance): Promise<IntentPredictions> {
     if (!this.predictors) {
       if (!this.model) {
-        throw new Error('SVM Intent classifier must be trained before calling predict.')
+        throw new Error(`${SvmIntentClassifier._name} must be trained before calling predict.`)
       }
 
       this.predictors = this._makePredictors(this.model)
     }
 
-    const { svm, intentNames, list_entities, pattern_entities } = this.predictors
+    const { svm, intentNames, entitiesName } = this.predictors
     if (!svm) {
       if (intentNames.length <= 0) {
         return {
@@ -116,7 +134,6 @@ export class SvmIntentClassifier implements IntentClassifier {
       }
     }
 
-    const entitiesName = this._getEntitiesName(list_entities, pattern_entities)
     const features = this.featurizer(utterance, entitiesName)
     const preds = await svm.predict(features)
 
