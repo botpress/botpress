@@ -77,7 +77,9 @@ const testMigration = async (botName, startVersion, targetVersion, { isDown }) =
   console.log('v', env)
 
   const result = await execute(
-    `yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion} --ignore-engines`
+    `yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion} --ignore-engines`,
+    undefined,
+    env
   )
   const success = result.match(/Migration(s?) completed successfully/)
   const status = success ? chalk.green(`[SUCCESS]`) : chalk.red(`[FAILURE]`)
