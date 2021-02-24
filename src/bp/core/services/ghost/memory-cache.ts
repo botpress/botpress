@@ -1,4 +1,4 @@
-import { ObjectCache } from 'common/object-cache'
+import { ObjectCache, OBJECT_CACHE_EVENTS } from 'common/object-cache'
 import { asBytes } from 'core/misc/utils'
 import { EventEmitter } from 'events'
 import { inject, injectable } from 'inversify'
@@ -8,11 +8,6 @@ import sizeof from 'object-sizeof'
 import { TYPES } from '../../types'
 
 import { CacheInvalidators } from './cache-invalidators'
-
-export const EVENTS = {
-  invalidation: 'invalidation',
-  syncDbFilesToDisk: 'syncDbFilesToDisk'
-}
 
 // TODO: Handle objects with size > than LRU max size + items that are removed from the cache when it's full
 @injectable()
@@ -40,7 +35,7 @@ export default class MemoryObjectCache implements ObjectCache {
     const keyUpdated = this.cache.set(key, obj)
 
     if (keyAlreadyExist && keyUpdated) {
-      this.events.emit(EVENTS.invalidation, key)
+      this.events.emit(OBJECT_CACHE_EVENTS.invalidation, key)
     }
   }
 
@@ -52,7 +47,7 @@ export default class MemoryObjectCache implements ObjectCache {
     if (this.has(key)) {
       this.cache.del(key)
 
-      this.events.emit(EVENTS.invalidation, key)
+      this.events.emit(OBJECT_CACHE_EVENTS.invalidation, key)
     }
   }
 
@@ -66,6 +61,6 @@ export default class MemoryObjectCache implements ObjectCache {
   }
 
   async sync(message: string): Promise<void> {
-    this.events.emit(EVENTS.syncDbFilesToDisk, message)
+    this.events.emit(OBJECT_CACHE_EVENTS.syncDbFilesToDisk, message)
   }
 }

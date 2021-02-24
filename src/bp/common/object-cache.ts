@@ -1,5 +1,10 @@
 import { EventEmitter } from 'events'
 
+export enum OBJECT_CACHE_EVENTS {
+  invalidation = 'invalidation',
+  syncDbFilesToDisk = 'syncDbFilesToDisk'
+}
+
 export interface ObjectCache {
   readonly events: EventEmitter
   get<T>(key: string): T
