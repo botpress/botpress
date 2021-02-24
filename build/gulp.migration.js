@@ -16,10 +16,12 @@ const dumpServerData = async () => {
   const pgBinPath = args.pgPath || __dirname
 
   const tmpDir = tmp.dirSync({ unsafeCleanup: true })
-  const dataItems = await fse.readdir(path.resolve(rootPath, 'out/bp/data'))
+
+  const dataFolder = await getValidPath(['out/bp/data', 'data'], rootPath)
+  const dataItems = await fse.readdir(dataFolder)
 
   for (const item of dataItems.filter(x => x !== 'assets')) {
-    await fse.copy(path.resolve(rootPath, 'out/bp/data', item), `${tmpDir.name}/${item}`)
+    await fse.copy(path.resolve(dataFolder, item), `${tmpDir.name}/${item}`)
   }
 
   try {
@@ -36,9 +38,10 @@ Please make sure that the credentials provided in DATABASE_URL are valid`)
 
   const files = await Promise.fromCallback(cb => glob('**/*', { cwd: tmpDir.name, nodir: true, dot: true }, cb))
 
-  const { createArchive } = require(path.resolve(rootPath, 'out/bp/core/misc/archive'))
+  // Not requiring the file at the top of the file, because it may not have been built yet
+  const { createArchive } = require(path.resolve('./out/bp/core/misc/archive'))
 
-  const currentVersion = require(path.resolve(rootPath, 'package.json')).version
+  const currentVersion = await getVersion(rootPath)
   const filename = await createArchive(`./${archiveName}_${currentVersion}.tgz`, tmpDir.name, files)
 
   console.log(`Complete server archive saved at ${path.join(__dirname, filename)}.`)
@@ -48,8 +51,9 @@ Please make sure that the credentials provided in DATABASE_URL are valid`)
 const dumpPostgresData = async (storagePath, rootPath, pgBinPath) => {
   let databaseUrl = process.env.DATABASE_URL
 
-  if (fse.pathExistsSync(path.resolve(rootPath, 'out/bp/.env'))) {
-    const dot = dotenv.config({ path: path.resolve(rootPath, 'out/bp/.env') })
+  const dotEnvPath = await getValidPath(['out/bp/.env', '.env'], rootPath)
+  if (dotEnvPath) {
+    const dot = dotenv.config({ path: dotEnvPath })
 
     if (dot && dot.parsed.DATABASE_URL) {
       databaseUrl = dot.parsed.DATABASE_URL
@@ -60,9 +64,36 @@ const dumpPostgresData = async (storagePath, rootPath, pgBinPath) => {
     console.info('Dumping Postgres database...')
     const dumpPath = path.join(storagePath, 'postgres.dump')
 
-    await Promise.fromCallback(cb => {
-      exec(`pg_dump -f ${dumpPath} ${databaseUrl}`, { cwd: pgBinPath }, err => cb(err))
-    })
+    await execute(`pg_dump -f ${dumpPath} ${databaseUrl}`, pgBinPath)
+  }
+}
+
+const execute = (cmd, cwd) => {
+  return Promise.fromCallback(cb => {
+    let outBuffer = ''
+    const ctx = exec(cmd, { cwd }, err => cb(err, outBuffer))
+    ctx.stdout.on('data', data => (outBuffer += data))
+  })
+}
+
+const getValidPath = async (paths, rootPath) => {
+  for (const item of paths) {
+    if (await fse.pathExists(path.resolve(rootPath, item))) {
+      return path.resolve(rootPath, item)
+    }
+  }
+}
+
+const getVersion = async rootPath => {
+  const pkgJson = path.resolve(rootPath, 'package.json')
+  if (await fse.pathExistsSync(pkgJson)) {
+    return require(pkgJson).version
+  }
+
+  try {
+    return (await execute(`bp --version`, rootPath)).trim()
+  } catch (err) {
+    return 'unknown'
   }
 }
 
