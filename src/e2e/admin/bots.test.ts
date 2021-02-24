@@ -80,6 +80,7 @@ describe('Admin - Bot Management', () => {
   })
 
   it('Rollback revision', async () => {
+    await page.waitForTimeout(500)
     await clickButtonForBot('#btn-rollbackRevision', tempBotId)
     await expectMatchElement('#select-revisions')
 
