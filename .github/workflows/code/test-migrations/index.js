@@ -123,7 +123,7 @@ const execute = (cmd, cwd, env) => {
 
   return Promise.fromCallback(cb => {
     let outBuffer = ''
-    const ctx = exec(cmd, { cwd, env }, err => cb(err, outBuffer))
+    const ctx = exec(cmd, { env }, err => cb(err, outBuffer))
     ctx.stdout.on('data', data => (outBuffer += data))
 
     if (isVerbose) {
