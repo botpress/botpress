@@ -74,7 +74,12 @@ const testMigration = async (botName, startVersion, targetVersion, { isDown }) =
     DATABASE_URL: isPostgresDb() ? process.env.DATABASE_URL : undefined
   }
   await execute('node --version')
-  const result = await execute(`yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion}`, './', env)
+  console.log(`yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion} --ignore-engines`)
+  const result = await execute(
+    `yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion} --ignore-engines`,
+    './',
+    env
+  )
   const success = result.match(/Migration(s?) completed successfully/)
   const status = success ? chalk.green(`[SUCCESS]`) : chalk.red(`[FAILURE]`)
   const message = `${status} Migration ${isDown ? 'DOWN' : 'UP'} of ${botName} (${startVersion} -> ${targetVersion})`
