@@ -30,7 +30,7 @@ const SUPPORTED_MESSAGES = [
   'postback'
 ]
 
-type ChatRequest = BPRequest & { userId: string; botId: string; conversationId: number }
+type ChatRequest = BPRequest & { userId: string; botId: string; conversationId: sdk.uuid }
 
 const validateUserId = (userId: string) => {
   if (!userId || userId.length > USER_ID_MAX_LENGTH || userId.toLowerCase() === 'undefined') {
@@ -116,7 +116,7 @@ export default async (bp: typeof sdk, db: Database) => {
     }
 
     if (conversationId && conversationId !== 'null') {
-      req.conversationId = parseInt(conversationId)
+      req.conversationId = conversationId
 
       if ((await bp.experimental.conversations.forBot(botId).get({ id: conversationId })).userId !== userId) {
         next(ERR_BAD_CONV_ID)

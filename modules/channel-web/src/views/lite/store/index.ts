@@ -122,7 +122,7 @@ class RootStore {
   }
 
   @computed
-  get currentConversationId(): number | undefined {
+  get currentConversationId(): sdk.uuid | undefined {
     return this.currentConversation?.id
   }
 
@@ -153,13 +153,13 @@ class RootStore {
 
   @action.bound
   async addEventToConversation(event: Message): Promise<void> {
-    if (this.isInitialized && this.currentConversationId !== Number(event.conversationId)) {
+    if (this.isInitialized && this.currentConversationId !== event.conversationId) {
       await this.fetchConversations()
-      await this.fetchConversation(Number(event.conversationId))
+      await this.fetchConversation(event.conversationId)
       return
     }
 
-    const message: Message = { ...event, conversationId: +event.conversationId }
+    const message: Message = { ...event, conversationId: event.conversationId }
     if (this.isBotTyping.get() && event.from !== 'user') {
       this.delayedMessages.push({ message, showAt: this.currentConversation.typingUntil })
     } else {
@@ -169,9 +169,9 @@ class RootStore {
 
   @action.bound
   async updateTyping(event: Message): Promise<void> {
-    if (this.isInitialized && this.currentConversationId !== Number(event.conversationId)) {
+    if (this.isInitialized && this.currentConversationId !== event.conversationId) {
       await this.fetchConversations()
-      await this.fetchConversation(Number(event.conversationId))
+      await this.fetchConversation(event.conversationId)
       return
     }
 
@@ -237,7 +237,7 @@ class RootStore {
 
   /** Fetch the specified conversation ID, or try to fetch a valid one from the list */
   @action.bound
-  async fetchConversation(convoId?: number): Promise<number> {
+  async fetchConversation(convoId?: sdk.uuid): Promise<sdk.uuid> {
     const conversationId = convoId || this._getCurrentConvoId()
     if (!conversationId) {
       return this.createConversation()
@@ -285,7 +285,7 @@ class RootStore {
 
   /** Creates a new conversation and switches to it */
   @action.bound
-  async createConversation(): Promise<number> {
+  async createConversation(): Promise<sdk.uuid> {
     const newId = await this.api.createConversation()
     await this.fetchConversations()
     await this.fetchConversation(newId)
@@ -480,7 +480,7 @@ class RootStore {
   }
 
   /** Returns the current conversation ID, or the last one if it didn't expired. Otherwise, returns nothing. */
-  private _getCurrentConvoId(): number | undefined {
+  private _getCurrentConvoId(): sdk.uuid | undefined {
     if (this.currentConversationId) {
       return this.currentConversationId
     }

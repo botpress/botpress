@@ -1,3 +1,4 @@
+import * as sdk from 'botpress/sdk'
 import { EventFeedback } from 'lite/typings'
 import get from 'lodash/get'
 
@@ -14,7 +15,7 @@ export default class WebchatApi {
       config => {
         if (!config.url.includes('/botInfo')) {
           const prefix = config.url.indexOf('?') > 0 ? '&' : '?'
-          config.url =  `${config.url}${prefix}__ts=${new Date().getTime()}`
+          config.url = `${config.url}${prefix}__ts=${new Date().getTime()}`
         }
         return config
       },
@@ -82,7 +83,7 @@ export default class WebchatApi {
     }
   }
 
-  async fetchConversation(convoId: number) {
+  async fetchConversation(convoId: sdk.uuid) {
     try {
       const { data } = await this.axios.get(`/conversations/${this.userId}/${convoId}`, this.axiosConfig)
       return data
@@ -91,7 +92,7 @@ export default class WebchatApi {
     }
   }
 
-  async resetSession(convoId: number) {
+  async resetSession(convoId: sdk.uuid) {
     try {
       this.axios.post(`/conversations/${this.userId}/${convoId}/reset`, {}, this.axiosConfig)
     } catch (err) {
@@ -99,7 +100,7 @@ export default class WebchatApi {
     }
   }
 
-  async createConversation(): Promise<number> {
+  async createConversation(): Promise<sdk.uuid> {
     try {
       const { data } = await this.axios.post(`/conversations/${this.userId}/new`, {}, this.axiosConfig)
       return data.convoId
@@ -108,7 +109,7 @@ export default class WebchatApi {
     }
   }
 
-  async downloadConversation(convoId: number): Promise<any> {
+  async downloadConversation(convoId: sdk.uuid): Promise<any> {
     try {
       const { data } = await this.axios.get(`/conversations/${this.userId}/${convoId}/download/txt`, this.axiosConfig)
       return { name: data.name, txt: data.txt }
@@ -117,7 +118,7 @@ export default class WebchatApi {
     }
   }
 
-  async sendEvent(data: any, convoId: number): Promise<void> {
+  async sendEvent(data: any, convoId: sdk.uuid): Promise<void> {
     try {
       const config = { params: { conversationId: convoId }, ...this.axiosConfig }
       return this.axios.post(`/events/${this.userId}`, data, config)
@@ -126,7 +127,7 @@ export default class WebchatApi {
     }
   }
 
-  async sendMessage(data: any, convoId: number): Promise<void> {
+  async sendMessage(data: any, convoId: sdk.uuid): Promise<void> {
     try {
       const config = { params: { conversationId: convoId }, ...this.axiosConfig }
       return this.axios.post(`/messages/${this.userId}`, data, config)
@@ -135,7 +136,7 @@ export default class WebchatApi {
     }
   }
 
-  async deleteMessages(convoId: number) {
+  async deleteMessages(convoId: sdk.uuid) {
     try {
       await this.axios.post(`/conversations/${this.userId}/${convoId}/messages/delete`, {}, this.axiosConfig)
     } catch (err) {
@@ -160,7 +161,7 @@ export default class WebchatApi {
     }
   }
 
-  async uploadFile(data: any, convoId: number): Promise<void> {
+  async uploadFile(data: any, convoId: sdk.uuid): Promise<void> {
     try {
       const config = { params: { conversationId: convoId }, ...this.axiosConfig }
       return this.axios.post(`/messages/${this.userId}/files`, data, config)
@@ -169,7 +170,7 @@ export default class WebchatApi {
     }
   }
 
-  async setReference(reference: string, convoId: number): Promise<void> {
+  async setReference(reference: string, convoId: sdk.uuid): Promise<void> {
     try {
       return this.axios.post(`/conversations/${this.userId}/${convoId}/reference/${reference}`, {}, this.axiosConfig)
     } catch (err) {

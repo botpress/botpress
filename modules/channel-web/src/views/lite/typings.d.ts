@@ -133,7 +133,7 @@ export interface Config {
   botId?: string
   externalAuthToken?: string
   userId?: string
-  conversationId?: number
+  conversationId?: sdk.uuid
   /** Allows to set a different user id for different windows (eg: studio, specific bot, etc) */
   userIdScope?: string
   enableReset: boolean
@@ -224,12 +224,12 @@ export type CurrentConversation = {
   messages: Message[]
   /** Event ?  */
   typingUntil: any
-} & sdk.Conversation
+} & sdk.experimental.Conversation
 
 export type Message = {
   // The typing delay in ms
   timeInMs: number
-} & sdk.Message
+} & sdk.experimental.Message
 
 export interface QueuedMessage {
   message: Message

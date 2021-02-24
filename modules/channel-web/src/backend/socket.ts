@@ -22,7 +22,7 @@ export default async (bp: typeof sdk) => {
     const messageType = event.type === 'default' ? 'text' : event.type
     const userId = event.target
     const botId = event.botId
-    const conversationId = +event.threadId || (await bp.experimental.conversations.forBot(botId).recent({ userId })).id
+    const conversationId = event.threadId || (await bp.experimental.conversations.forBot(botId).recent({ userId })).id
 
     if (!_.includes(outgoingTypes, messageType)) {
       bp.logger.warn(`Unsupported event type: ${event.type}`)
