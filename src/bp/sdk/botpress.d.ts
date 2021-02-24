@@ -38,6 +38,7 @@ declare module 'botpress/sdk' {
     id?: number
     password?: string
     salt?: string
+    tokenVersion: number
   } & UserInfo
 
   export interface UserInfo {
@@ -2353,6 +2354,8 @@ declare module 'botpress/sdk' {
     export function getMessageSignature(message: string): Promise<string>
   }
 
+  export type uuid = string
+
   /**
    * These features are subject to change and should not be relied upon.
    * They will eventually be either removed or moved in another namespace
@@ -2362,7 +2365,7 @@ declare module 'botpress/sdk' {
     export function enableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
 
     export interface Conversation {
-      id: number
+      id: uuid
       userId: string
       botId: string
       createdOn: Date
@@ -2373,8 +2376,8 @@ declare module 'botpress/sdk' {
     }
 
     export interface Message {
-      id: number
-      conversationId: number
+      id: uuid
+      conversationId: uuid
       eventId: string
       incomingEventId: string
       from: string
@@ -2406,7 +2409,7 @@ declare module 'botpress/sdk' {
          * @returns The number of deleted rows
          * @example
          * // Delete a conversation by id
-         * await bp.conversations.forBot('myBot').delete({ id: 563 })
+         * await bp.conversations.forBot('myBot').delete({ id: '9aa7da7a-9ab1-4a60-bedd-8bdca22beb03' })
          * // Delete all conversations of a bot user
          * await bp.conversations.forBot('myBot').delete({ userId: 'eEFoneif394' })
          */
@@ -2418,7 +2421,7 @@ declare module 'botpress/sdk' {
          * @returns The matching conversation or `undefined` if none were found
          * @example
          * // Get conversation by id
-         * const converation = await bp.conversations.forBot('myBot').get({ id: 3434 })
+         * const converation = await bp.conversations.forBot('myBot').get({ id: '9aa7da7a-9ab1-4a60-bedd-8bdca22beb03' })
          */
         get(filters: GetFilters): Promise<Conversation | undefined>
 
@@ -2444,11 +2447,11 @@ declare module 'botpress/sdk' {
 
       export interface CreateArgs extends Omit<Conversation, 'id' | 'createdOn' | 'botId'> {}
       export interface DeleteFilters {
-        id?: number
+        id?: uuid
         userId?: string
       }
       export interface GetFilters {
-        id: number
+        id: uuid
       }
       export interface ListFilters extends ListOptions {
         userId: string
@@ -2473,7 +2476,7 @@ declare module 'botpress/sdk' {
          * // Then send a message to that conversation
          * await bp.messages.forBot('myBot').send(conversation.id, { type: 'text', text: 'hello!' })
          */
-        send(conversationId: number, payload: any, args?: MessageArgs): Promise<Message>
+        send(conversationId: uuid, payload: any, args?: MessageArgs): Promise<Message>
 
         /**
          * Sends a incoming message (user message) through the event loop. The message is stored in the database
@@ -2486,7 +2489,7 @@ declare module 'botpress/sdk' {
          * // Then simulate a user message in that conversation
          * await bp.messages.forBot('myBot').receive(conversation.id, { type: 'text', text: 'this is a message from the user!' })
          */
-        receive(conversationId: number, payload: any, args?: MessageArgs): Promise<Message>
+        receive(conversationId: uuid, payload: any, args?: MessageArgs): Promise<Message>
 
         /**
          * Creates a message to store in the db
@@ -2494,7 +2497,7 @@ declare module 'botpress/sdk' {
          * @returns The created message
          * @example
          * const message = await bp.messages.forBot('myBot').create({
-             conversationId: 232,
+             conversationId: '9aa7da7a-9ab1-4a60-bedd-8bdca22beb03',
              eventId: 4343434,
              incomingEventId: 243435,
              from: 'bot',
@@ -2509,10 +2512,10 @@ declare module 'botpress/sdk' {
          * @returns The number of deleted rows
          * @example
          * // Delete message by id
-         * await bp.messages.forBot('myBot').delete({ id: 43 })
+         * await bp.messages.forBot('myBot').delete({ id: '00001337-ca79-4235-8475-3785e41eb2be' })
          * @example
          * // Delete all messages of a conversation
-         * await bp.messages.forBot('myBot').delete({ conversationId: 343 })
+         * await bp.messages.forBot('myBot').delete({ conversationId: '9aa7da7a-9ab1-4a60-bedd-8bdca22beb03' })
          */
         delete(filters: DeleteFilters): Promise<number>
 
@@ -2522,7 +2525,7 @@ declare module 'botpress/sdk' {
          * @returns The matching message or `undefined` if none were found
          * @example
          * // Get message by id
-         * const message = await bp.message.forBot('myBot').get({ id: 43 })
+         * const message = await bp.message.forBot('myBot').get({ id: '00001337-ca79-4235-8475-3785e41eb2be' })
          */
         get(filters: GetFilters): Promise<Message | undefined>
 
@@ -2532,7 +2535,7 @@ declare module 'botpress/sdk' {
          * @param filters Filters which messages to get
          * @example
          * // Get 20 most recent messages of a conversation
-         * const messages = await bp.messages.forBot('myBot').list({ conversationId: 343, limit: 20 })
+         * const messages = await bp.messages.forBot('myBot').list({ conversationId: '9aa7da7a-9ab1-4a60-bedd-8bdca22beb03', limit: 20 })
          */
         list(filters: ListFilters): Promise<Message[]>
       }
@@ -2541,14 +2544,14 @@ declare module 'botpress/sdk' {
         extends Partial<Omit<IO.EventCtorArgs, 'type' | 'direction' | 'payload' | 'target' | 'botId' | 'threadId'>> {}
       export interface CreateArgs extends Omit<Message, 'id' | 'sentOn'> {}
       export interface DeleteFilters {
-        id?: number
-        conversationId?: number
+        id?: uuid
+        conversationId?: uuid
       }
       export interface GetFilters {
-        id: number
+        id: uuid
       }
       export interface ListFilters extends ListOptions {
-        conversationId: number
+        conversationId: uuid
       }
     }
   }

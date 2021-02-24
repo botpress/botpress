@@ -61,6 +61,7 @@ export interface AuthRole {
 export interface TokenUser {
   email: string
   strategy: string
+  tokenVersion: number
   isSuperAdmin: boolean
   exp?: number
   iat?: number

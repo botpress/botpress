@@ -7,7 +7,7 @@ export class ConversationsTable extends Table {
     let created = false
 
     await this.knex.createTableIfNotExists(this.name, table => {
-      table.increments('id').primary()
+      table.uuid('id').primary()
       // TODO reference future users table
       table.string('userId')
       table.string('botId')

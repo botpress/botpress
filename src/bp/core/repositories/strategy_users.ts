@@ -23,9 +23,10 @@ export class StrategyUsersRepository {
           strategy: user.strategy,
           password: user.password,
           salt: user.salt,
+          tokenVersion: user.tokenVersion,
           attributes: this.database.knex.json.set(user.attributes || {})
         },
-        ['email', 'password', 'salt', 'strategy', 'attributes', 'created_at', 'updated_at']
+        ['email', 'password', 'salt', 'strategy', 'attributes', 'tokenVersion', 'created_at', 'updated_at']
       )
       .then(res => {
         return {
@@ -34,6 +35,7 @@ export class StrategyUsersRepository {
           password: res.password,
           salt: res.salt,
           attributes: res.attributes,
+          tokenVersion: res.tokenVersion,
           createdOn: res['created_at'],
           updatedOn: res['updated_at']
         }
