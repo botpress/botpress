@@ -78,8 +78,7 @@ const testMigration = async (botName, startVersion, targetVersion, { isDown }) =
 
   const result = await execute(
     `yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion} --ignore-engines`,
-    undefined,
-    env
+    undefined
   )
   const success = result.match(/Migration(s?) completed successfully/)
   const status = success ? chalk.green(`[SUCCESS]`) : chalk.red(`[FAILURE]`)
@@ -124,7 +123,7 @@ const execute = (cmd, cwd, env) => {
   cwd = cwd || args.pgPath || __dirname
   env = env || process.env
 
-  console.log(cwd, __dirname)
+  console.log(cwd, __dirname, env)
   const isVerbose = args.verbose
 
   return Promise.fromCallback(cb => {
