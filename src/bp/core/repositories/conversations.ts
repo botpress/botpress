@@ -4,6 +4,7 @@ import { inject, injectable, postConstruct } from 'inversify'
 
 import LRU from 'lru-cache'
 import ms from 'ms'
+import { v4 as uuidv4 } from 'uuid'
 import Database from '../database'
 import { TYPES } from '../types'
 import { MessageRepository } from './messages'
@@ -16,15 +17,15 @@ export interface ConversationRepository {
     botId: string,
     filters: experimental.conversations.RecentFilters
   ): Promise<experimental.Conversation | undefined>
-  get(conversationId: number): Promise<experimental.Conversation | undefined>
-  delete(conversationId: number): Promise<boolean>
+  get(conversationId: string): Promise<experimental.Conversation | undefined>
+  delete(conversationId: string): Promise<boolean>
 }
 
 @injectable()
 export class KnexConversationRepository implements ConversationRepository {
   private readonly TABLE_NAME = 'conversations'
-  private cache = new LRU<number, experimental.Conversation>({ max: 10000, maxAge: ms('5min') })
-  private invalidateConvCache: (ids: number[]) => void = this._localInvalidateConvCache
+  private cache = new LRU<string, experimental.Conversation>({ max: 10000, maxAge: ms('5min') })
+  private invalidateConvCache: (ids: string[]) => void = this._localInvalidateConvCache
 
   constructor(
     @inject(TYPES.Database) private database: Database,
@@ -81,18 +82,15 @@ export class KnexConversationRepository implements ConversationRepository {
   }
 
   public async create(botId: string, args: experimental.conversations.CreateArgs): Promise<experimental.Conversation> {
-    const row = {
+    const conversation = {
+      id: uuidv4(),
       userId: args.userId,
       botId,
       createdOn: new Date()
     }
 
-    const id = await this.database.knex.insertAndGetId(this.TABLE_NAME, this.serialize(row))
-    const conversation = {
-      id,
-      ...row
-    }
-    this.cache.set(id, conversation)
+    await this.query().insert(conversation)
+    this.cache.set(conversation.id, conversation)
 
     return conversation
   }
@@ -107,7 +105,7 @@ export class KnexConversationRepository implements ConversationRepository {
     return this.deserialize((await query)[0])
   }
 
-  public async get(conversationId: number): Promise<experimental.Conversation | undefined> {
+  public async get(conversationId: string): Promise<experimental.Conversation | undefined> {
     const cached = this.cache.get(conversationId)
     if (cached) {
       return cached
@@ -125,7 +123,7 @@ export class KnexConversationRepository implements ConversationRepository {
     return conversation
   }
 
-  public async delete(conversationId: number): Promise<boolean> {
+  public async delete(conversationId: string): Promise<boolean> {
     const numberOfDeletedRows = await this.query()
       .where({ id: conversationId })
       .del()
@@ -195,7 +193,7 @@ export class KnexConversationRepository implements ConversationRepository {
     }
   }
 
-  private _localInvalidateConvCache(ids: number[]) {
+  private _localInvalidateConvCache(ids: string[]) {
     ids?.forEach(id => this.cache.del(id))
   }
 }

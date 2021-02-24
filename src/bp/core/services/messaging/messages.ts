@@ -104,16 +104,16 @@ export class ScopedMessageService implements sdk.experimental.messages.BotMessag
     return this.messageRepo.get(filters.id)
   }
 
-  public async receive(conversationId: number, payload: any, args?: sdk.experimental.messages.MessageArgs) {
+  public async receive(conversationId: string, payload: any, args?: sdk.experimental.messages.MessageArgs) {
     return this.sendMessage(conversationId, payload, 'incoming', args)
   }
 
-  public async send(conversationId: number, payload: any, args?: sdk.experimental.messages.MessageArgs) {
+  public async send(conversationId: string, payload: any, args?: sdk.experimental.messages.MessageArgs) {
     return this.sendMessage(conversationId, payload, 'outgoing', args)
   }
 
   private async sendMessage(
-    conversationId: number,
+    conversationId: string,
     payload: any,
     direction: sdk.EventDirection,
     args?: sdk.experimental.messages.MessageArgs

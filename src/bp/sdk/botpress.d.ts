@@ -2362,7 +2362,7 @@ declare module 'botpress/sdk' {
     export function enableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
 
     export interface Conversation {
-      id: number
+      id: string
       userId: string
       botId: string
       createdOn: Date
@@ -2373,8 +2373,8 @@ declare module 'botpress/sdk' {
     }
 
     export interface Message {
-      id: number
-      conversationId: number
+      id: string
+      conversationId: string
       eventId: string
       incomingEventId: string
       from: string
@@ -2444,11 +2444,11 @@ declare module 'botpress/sdk' {
 
       export interface CreateArgs extends Omit<Conversation, 'id' | 'createdOn' | 'botId'> {}
       export interface DeleteFilters {
-        id?: number
+        id?: string
         userId?: string
       }
       export interface GetFilters {
-        id: number
+        id: string
       }
       export interface ListFilters extends ListOptions {
         userId: string
@@ -2473,7 +2473,7 @@ declare module 'botpress/sdk' {
          * // Then send a message to that conversation
          * await bp.messages.forBot('myBot').send(conversation.id, { type: 'text', text: 'hello!' })
          */
-        send(conversationId: number, payload: any, args?: MessageArgs): Promise<Message>
+        send(conversationId: string, payload: any, args?: MessageArgs): Promise<Message>
 
         /**
          * Sends a incoming message (user message) through the event loop. The message is stored in the database
@@ -2486,7 +2486,7 @@ declare module 'botpress/sdk' {
          * // Then simulate a user message in that conversation
          * await bp.messages.forBot('myBot').receive(conversation.id, { type: 'text', text: 'this is a message from the user!' })
          */
-        receive(conversationId: number, payload: any, args?: MessageArgs): Promise<Message>
+        receive(conversationId: string, payload: any, args?: MessageArgs): Promise<Message>
 
         /**
          * Creates a message to store in the db
@@ -2541,14 +2541,14 @@ declare module 'botpress/sdk' {
         extends Partial<Omit<IO.EventCtorArgs, 'type' | 'direction' | 'payload' | 'target' | 'botId' | 'threadId'>> {}
       export interface CreateArgs extends Omit<Message, 'id' | 'sentOn'> {}
       export interface DeleteFilters {
-        id?: number
-        conversationId?: number
+        id?: string
+        conversationId?: string
       }
       export interface GetFilters {
-        id: number
+        id: string
       }
       export interface ListFilters extends ListOptions {
-        conversationId: number
+        conversationId: string
       }
     }
   }
