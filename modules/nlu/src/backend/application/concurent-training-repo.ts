@@ -18,20 +18,35 @@ interface TransactionHandle<T> {
 
 export type IConcurentTrainingRepository = I<ConcurentTrainingRepository>
 
+export interface ConcurentTrainingRepositoryOptions {
+  jobInterval: number
+}
+
 const MAX_TRX_TIME = ms('10s')
 const TRAINING_QUEUE_RESSOURCE = 'TRAINING_QUEUE_RESSOURCE'
+const JOB_INTERVAL = ms('1s')
+
+class TransactionTimeoutError extends Error {}
 
 export class ConcurentTrainingRepository implements ReadonlyTrainingRepository {
   private _queuedTransactions: TransactionHandle<any>[] = []
 
+  private _taskHandle: NodeJS.Timeout
+
   constructor(
     private _trainingRepo: TrainingRepository,
     private _distributed: typeof sdk.distributed,
-    private _logger: sdk.Logger
+    private _logger: sdk.Logger,
+    private _config: Partial<ConcurentTrainingRepositoryOptions> = {}
   ) {}
 
-  public initialize(): Promise<void | void[]> {
-    return this._trainingRepo.initialize()
+  public async initialize(): Promise<void | void[]> {
+    await this._trainingRepo.initialize()
+    this._taskHandle = setInterval(this._runTask, this._config.jobInterval ?? JOB_INTERVAL)
+  }
+
+  public async teardown(): Promise<void> {
+    clearInterval(this._taskHandle)
   }
 
   public has(id: TrainingId): Promise<boolean> {
@@ -63,50 +78,57 @@ export class ConcurentTrainingRepository implements ReadonlyTrainingRepository {
     })
   }
 
+  public queueTransaction = <T>(run: TrainingTransaction<T>) => {
+    this._queueTransaction({
+      run
+    })
+  }
+
   private _queueTransaction = <T>(trx: TransactionHandle<T>) => {
     this._queuedTransactions.unshift(trx)
 
     // no need to await usage of callback function instead
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this._runNextTransaction()
+    this._runTask()
   }
 
-  private _runNextTransaction = async () => {
-    const next = this._queuedTransactions.pop()
-    if (!next) {
+  private _runTask = async () => {
+    if (!this._queuedTransactions.length) {
       return
     }
 
-    const res = await this._runTransaction(next)
-    next.cb?.(res)
+    const lock = await this._distributed.acquireLock(TRAINING_QUEUE_RESSOURCE, MAX_TRX_TIME)
+    if (!lock) {
+      return
+    }
 
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this._runNextTransaction()
+    try {
+      while (this._queuedTransactions.length) {
+        const next = this._queuedTransactions.pop()!
+        await this._runTransaction(next)
+      }
+    } finally {
+      await lock.unlock()
+    }
   }
 
   private _runTransaction = async <T>(next: TransactionHandle<T>) => {
-    let lock = await this._distributed.acquireLock(TRAINING_QUEUE_RESSOURCE, MAX_TRX_TIME)
-    while (!lock) {
-      await this._sleep(MAX_TRX_TIME / 100)
-      lock = await this._distributed.acquireLock(TRAINING_QUEUE_RESSOURCE, MAX_TRX_TIME)
-    }
-
-    let res: T | null = null
     try {
-      res = await Promise.race([next.run(this._trainingRepo), this._sleep(MAX_TRX_TIME)])
-      if (res === null) {
-        this._logger.error(`Training transaction could not finish under ${MAX_TRX_TIME} ms.`)
+      const timeout = this._makeTimeout(MAX_TRX_TIME)
+      const res = await Promise.race([next.run(this._trainingRepo), timeout])
+      next.cb?.(res!)
+    } catch (err) {
+      if (err instanceof TransactionTimeoutError) {
+        this._logger.error(`Training transaction could not complete under ${MAX_TRX_TIME} ms.`)
+        return
       }
-    } finally {
-      lock.unlock()
+      throw err
     }
-
-    return res
   }
 
-  private _sleep = async (ms: number): Promise<null> => {
-    return new Promise(resolve => {
-      setTimeout(() => resolve(null), ms)
+  private _makeTimeout = async (ms: number): Promise<undefined> => {
+    return new Promise((_resolve, reject) => {
+      setTimeout(() => reject(new TransactionTimeoutError()), ms)
     })
   }
 }

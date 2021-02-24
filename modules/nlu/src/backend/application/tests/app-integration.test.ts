@@ -1,8 +1,6 @@
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
-import { NLUApplication } from '..'
-
 import { makeApp, makeDependencies, waitForTrainingsToBeDone } from './utils/app.u.test'
 import {
   expectEngineToHaveLoaded,

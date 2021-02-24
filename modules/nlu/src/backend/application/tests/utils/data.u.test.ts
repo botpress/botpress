@@ -28,7 +28,7 @@ export const hello = (langs: string[]): NLU.IntentDefinition => ({
   contexts: ['global'],
   filename: 'hello.json',
   slots: [],
-  utterances: _.pick(hello_utts, langs)
+  utterances: _.pick(hello_utts, langs) as _.Dictionary<string[]>
 })
 
 const book_flight_utts = {
@@ -43,7 +43,7 @@ export const book_flight = (langs: string[]): NLU.IntentDefinition => ({
     { name: 'city-from', id: 'city-from', entities: ['city'], color: 1 },
     { name: 'city-to', id: 'city-to', entities: ['city'], color: 1 }
   ],
-  utterances: _.pick(book_flight_utts, langs)
+  utterances: _.pick(book_flight_utts, langs) as _.Dictionary<string[]>
 })
 
 const i_love_hockey_utts = {
@@ -55,5 +55,5 @@ export const i_love_hockey = (langs: string[]): NLU.IntentDefinition => ({
   contexts: ['global'],
   filename: 'i_love_hockey.json',
   slots: [],
-  utterances: _.pick(i_love_hockey_utts, langs)
+  utterances: _.pick(i_love_hockey_utts, langs) as _.Dictionary<string[]>
 })

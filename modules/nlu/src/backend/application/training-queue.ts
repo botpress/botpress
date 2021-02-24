@@ -65,7 +65,8 @@ export class TrainingQueue implements TrainingQueue {
   }
 
   public teardown = async () => {
-    return this._trainingRepo.clear()
+    await this._trainingRepo.clear()
+    return this._trainingRepo.teardown()
   }
 
   public needsTraining = async (trainId: TrainingId): Promise<void> => {
@@ -86,7 +87,11 @@ export class TrainingQueue implements TrainingQueue {
 
       const currentTraining = await this._trainingRepo.get(trainId)
       const isLocked = await this._localTrainings.isLocked(trainId)
-      if (currentTraining?.status === 'training' && isLocked) {
+
+      if (currentTraining?.status === 'training-pending') {
+        debug(`Training ${this._toString(trainId)} already queued`)
+        return
+      } else if (currentTraining?.status === 'training' && isLocked) {
         debug(`Training ${this._toString(trainId)} already started`)
         return
       } else if (currentTraining?.status === 'training' && !isLocked) {
@@ -166,7 +171,7 @@ export class TrainingQueue implements TrainingQueue {
 
   private _lockAndUpdate = async (id: TrainingId, newState: TrainingState) => {
     await this._notify(id, newState)
-    return this._trainingRepo.queueAndWaitTransaction(async repo => {
+    this._trainingRepo.queueTransaction(async repo => {
       return repo.set(id, newState)
     })
   }
@@ -176,7 +181,7 @@ export class TrainingQueue implements TrainingQueue {
   }
 
   private async _localRunTask(): Promise<void> {
-    return this._trainingRepo.queueAndWaitTransaction(async repo => {
+    this._trainingRepo.queueTransaction(async repo => {
       if (this._localTrainings.length() >= this._options.maxTraining) {
         return
       }
@@ -187,7 +192,8 @@ export class TrainingQueue implements TrainingQueue {
         return
       }
 
-      const next = pendings[0]
+      const { botId, language } = pendings[0]
+      const next = { botId, language }
       await this._localTrainings.startLocalTraining(next)
       await repo.set(next, { status: 'training', progress: 0 }) // wait for the first progress update to notify socket
 
@@ -246,9 +252,7 @@ export class TrainingQueue implements TrainingQueue {
       .error(`Training ${this._toString(trainId)} could not finish because of an unexpected error.`)
 
     await this._notify(trainId, { status: 'errored', progress: 0 })
-    await this._trainingRepo.queueAndWaitTransaction(repo =>
-      repo.set(trainId, { status: 'needs-training', progress: 0 })
-    )
+    this._trainingRepo.queueTransaction(repo => repo.set(trainId, { status: 'needs-training', progress: 0 }))
   }
 
   private _toString(id: TrainingId) {

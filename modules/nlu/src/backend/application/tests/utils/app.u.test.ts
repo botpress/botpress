@@ -17,7 +17,7 @@ import { StubLogger } from './stub-logger.u.test'
 import { sleep } from './utils.u.test'
 
 import { TrainingSession } from '../../typings'
-import { ConcurentTrainingRepository } from '../../concurent-training-repo'
+import { ConcurentTrainingRepository, ConcurentTrainingRepositoryOptions } from '../../concurent-training-repo'
 import { FakeDistributed } from './fake-distributed.u.test'
 
 interface AppDependencies {
@@ -72,7 +72,10 @@ export const makeDependencies = (
   }
 }
 
-export const makeApp = (dependencies: AppDependencies, trainingQueueOptions: Partial<TrainingQueueOptions> = {}) => {
+export const makeApp = (
+  dependencies: AppDependencies,
+  options: Partial<TrainingQueueOptions & ConcurentTrainingRepositoryOptions> = {}
+) => {
   const { socket, engine, errors, logger, defRepoByBot, modelRepoByBot, trainingRepo, distributed } = dependencies
 
   const modelRepoFactory: ModelRepositoryFactory = ({ botId }) => modelRepoByBot[botId]
@@ -81,7 +84,7 @@ export const makeApp = (dependencies: AppDependencies, trainingQueueOptions: Par
   const botService = new BotService()
   const botFactory = new BotFactory(engine, logger, modelIdService, defRepoFactory, modelRepoFactory)
 
-  const concurentTrainingRepository = new ConcurentTrainingRepository(trainingRepo, distributed, logger)
+  const concurentTrainingRepository = new ConcurentTrainingRepository(trainingRepo, distributed, logger, options)
   const trainingQueue = new TrainingQueue(
     concurentTrainingRepository,
     errors,
@@ -89,7 +92,7 @@ export const makeApp = (dependencies: AppDependencies, trainingQueueOptions: Par
     botService,
     distributed,
     socket,
-    trainingQueueOptions
+    options
   )
 
   return new NLUApplication(trainingQueue, engine, botFactory, botService)
@@ -104,7 +107,9 @@ export const waitForTrainingsToBeDone = async (app: NLUApplication) => {
   let pendingOrRunning = true
   while (pendingOrRunning) {
     const allTrainings = await app.getAllTrainings()
-    pendingOrRunning = allTrainings.some(ts => ['training', 'training-pending'].includes(ts.status))
+    pendingOrRunning = allTrainings.some(ts =>
+      (<NLU.TrainingStatus[]>['training', 'training-pending']).includes(ts.status)
+    )
     if (!pendingOrRunning) {
       return true
     }
