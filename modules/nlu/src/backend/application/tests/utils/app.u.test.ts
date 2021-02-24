@@ -17,7 +17,7 @@ import { StubLogger } from './stub-logger.u.test'
 import { sleep } from './utils.u.test'
 
 import { TrainingSession } from '../../typings'
-import { ConcurentTrainingRepository, ConcurentTrainingRepositoryOptions } from '../../concurent-training-repo'
+import { TrainingService, TrainingServiceOptions } from '../../training-service'
 import { FakeDistributed } from './fake-distributed.u.test'
 
 interface AppDependencies {
@@ -74,7 +74,7 @@ export const makeDependencies = (
 
 export const makeApp = (
   dependencies: AppDependencies,
-  options: Partial<TrainingQueueOptions & ConcurentTrainingRepositoryOptions> = {}
+  options: Partial<TrainingQueueOptions & TrainingServiceOptions> = {}
 ) => {
   const { socket, engine, errors, logger, defRepoByBot, modelRepoByBot, trainingRepo, distributed } = dependencies
 
@@ -84,7 +84,7 @@ export const makeApp = (
   const botService = new BotService()
   const botFactory = new BotFactory(engine, logger, modelIdService, defRepoFactory, modelRepoFactory)
 
-  const concurentTrainingRepository = new ConcurentTrainingRepository(trainingRepo, distributed, logger, options)
+  const concurentTrainingRepository = new TrainingService(trainingRepo, distributed, logger, options)
   const trainingQueue = new TrainingQueue(
     concurentTrainingRepository,
     errors,

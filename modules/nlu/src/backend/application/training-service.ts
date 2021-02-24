@@ -1,24 +1,17 @@
 import * as sdk from 'botpress/sdk'
+import moment from 'moment'
 import ms from 'ms'
-import {
-  TrainingState,
-  TrainingId,
-  TrainingSession,
-  TrainingRepository,
-  ReadonlyTrainingRepository,
-  I
-} from './typings'
+import { ITrainingRepository } from './training-repo'
+import { TrainingId, TrainingSession, I, LockedTrainingSession } from './typings'
 
-export type TrainingTransaction<T> = (repo: TrainingRepository) => Promise<T>
+export type TrainingTransaction<T> = (repo: ITrainingRepository) => Promise<T>
 
 interface TransactionHandle<T> {
   run: TrainingTransaction<T>
   cb?: (x: T) => void
 }
 
-export type IConcurentTrainingRepository = I<ConcurentTrainingRepository>
-
-export interface ConcurentTrainingRepositoryOptions {
+export interface TrainingServiceOptions {
   jobInterval: number
 }
 
@@ -28,16 +21,18 @@ const JOB_INTERVAL = ms('1s')
 
 class TransactionTimeoutError extends Error {}
 
-export class ConcurentTrainingRepository implements ReadonlyTrainingRepository {
+export type ITrainingService = I<TrainingService>
+
+export class TrainingService {
   private _queuedTransactions: TransactionHandle<any>[] = []
 
   private _taskHandle: NodeJS.Timeout
 
   constructor(
-    private _trainingRepo: TrainingRepository,
+    private _trainingRepo: ITrainingRepository,
     private _distributed: typeof sdk.distributed,
     private _logger: sdk.Logger,
-    private _config: Partial<ConcurentTrainingRepositoryOptions> = {}
+    private _config: Partial<TrainingServiceOptions> = {}
   ) {}
 
   public async initialize(): Promise<void | void[]> {
@@ -53,11 +48,11 @@ export class ConcurentTrainingRepository implements ReadonlyTrainingRepository {
     return this._trainingRepo.has(id)
   }
 
-  public get(id: TrainingId): Promise<TrainingState | undefined> {
+  public get(id: TrainingId) {
     return this._trainingRepo.get(id)
   }
 
-  public query(query: Partial<TrainingSession>): Promise<TrainingSession[]> {
+  public query(query: Partial<TrainingSession>) {
     return this._trainingRepo.query(query)
   }
 
@@ -67,6 +62,15 @@ export class ConcurentTrainingRepository implements ReadonlyTrainingRepository {
 
   public clear(): Promise<void | void[]> {
     return this._trainingRepo.clear()
+  }
+
+  public isAlive(training: LockedTrainingSession, ms: number) {
+    const now = moment()
+    const timeOfDeath = moment(now.clone()).subtract(ms, 'ms')
+
+    const { modifiedOn } = training
+    const lastlyUpdated = moment(modifiedOn)
+    return !lastlyUpdated.isBefore(timeOfDeath)
   }
 
   public queueAndWaitTransaction = <T>(run: TrainingTransaction<T>) => {

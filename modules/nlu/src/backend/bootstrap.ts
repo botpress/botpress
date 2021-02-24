@@ -8,11 +8,11 @@ import { getWebsocket } from './api'
 import { NLUApplication } from './application'
 import { BotFactory } from './application/bot-factory'
 import { BotService } from './application/bot-service'
-import { ConcurentTrainingRepository } from './application/concurent-training-repo'
-import { DatabaseTrainingRepository } from './application/database-training-repo'
 import { ScopedDefinitionsRepository } from './application/scoped/infrastructure/definitions-repository'
 import { ScopedModelRepository } from './application/scoped/infrastructure/model-repository'
 import { TrainingQueue } from './application/training-queue'
+import { TrainingRepository } from './application/training-repo'
+import { TrainingService } from './application/training-service'
 import { BotDefinition } from './application/typings'
 
 export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
@@ -45,8 +45,8 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
 
   const botFactory = new BotFactory(engine, bp.logger, bp.NLU.modelIdService, makeDefRepo, makeModelRepo)
 
-  const trainRepo = new DatabaseTrainingRepository(bp.database)
-  const concurentTrainingRepository = new ConcurentTrainingRepository(trainRepo, bp.distributed, bp.logger)
+  const trainRepo = new TrainingRepository(bp.database)
+  const concurentTrainingRepository = new TrainingService(trainRepo, bp.distributed, bp.logger)
   const memoryTrainingQueue = new TrainingQueue(
     concurentTrainingRepository,
     bp.NLU.errors,

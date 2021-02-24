@@ -2,8 +2,9 @@ import * as sdk from 'botpress/sdk'
 
 import _ from 'lodash'
 
-import { IConcurentTrainingRepository } from './concurent-training-repo'
-import { LocalTrainingContainer } from './local-training-container'
+import ms from 'ms'
+import { ITrainingRepository } from './training-repo'
+import { ITrainingService } from './training-service'
 import {
   TrainingId,
   TrainerService,
@@ -11,7 +12,7 @@ import {
   TrainingState,
   TrainingSession,
   I,
-  TrainingRepository
+  LockedTrainingSession
 } from './typings'
 
 export interface TrainingQueueOptions {
@@ -28,6 +29,29 @@ export type ITrainingQueue = I<TrainingQueue>
 
 const debug = DEBUG('nlu').sub('lifecycle')
 
+const TRAINING_LIFE_TIME = ms('5m')
+
+class LocalTrainingContainer {
+  private _localTrainings: TrainingId[] = []
+
+  public length() {
+    return this._localTrainings.length
+  }
+
+  public async startLocalTraining(id: TrainingId) {
+    this._localTrainings.push(id)
+  }
+
+  public async rmLocalTraining(id: TrainingId) {
+    const isTraining = (t: TrainingId) => this._areEqual(t, id)
+    this._localTrainings = this._localTrainings.filter(_.negate(isTraining))
+  }
+
+  private _areEqual(id1: TrainingId, id2: TrainingId) {
+    return id1.botId === id2.botId && id1.language === id2.language
+  }
+}
+
 export class TrainingQueue implements TrainingQueue {
   private _options: TrainingQueueOptions
 
@@ -35,10 +59,10 @@ export class TrainingQueue implements TrainingQueue {
   private _broadcastLoadModel: (botId: string, modelId: sdk.NLU.ModelId) => Promise<void>
   private _broadcastRunTask: () => Promise<void>
 
-  private _localTrainings: LocalTrainingContainer
+  private _localTrainings = new LocalTrainingContainer()
 
   constructor(
-    private _trainingRepo: IConcurentTrainingRepository,
+    private _trainingService: ITrainingService,
     private _errors: typeof sdk.NLU.errors,
     private _logger: sdk.Logger,
     private _trainerService: TrainerService,
@@ -47,7 +71,6 @@ export class TrainingQueue implements TrainingQueue {
     options: Partial<TrainingQueueOptions> = {}
   ) {
     this._options = { ...DEFAULT_OPTIONS, ...options }
-    this._localTrainings = new LocalTrainingContainer(this._distributed)
   }
 
   public initialize = async () => {
@@ -61,16 +84,16 @@ export class TrainingQueue implements TrainingQueue {
 
     this._broadcastRunTask = (await this._distributed.broadcast(_localRunTask.bind(this))) as typeof _localRunTask
 
-    return this._trainingRepo.initialize()
+    return this._trainingService.initialize()
   }
 
   public teardown = async () => {
-    await this._trainingRepo.clear()
-    return this._trainingRepo.teardown()
+    await this._trainingService.clear()
+    return this._trainingService.teardown()
   }
 
   public needsTraining = async (trainId: TrainingId): Promise<void> => {
-    return this._trainingRepo.queueAndWaitTransaction(async repo => {
+    return this._trainingService.queueAndWaitTransaction(async repo => {
       const update = this._makeUpdater(repo)
 
       const currentTraining = await repo.get(trainId)
@@ -82,19 +105,20 @@ export class TrainingQueue implements TrainingQueue {
   }
 
   public queueTraining = async (trainId: TrainingId): Promise<void> => {
-    await this._trainingRepo.queueAndWaitTransaction(async repo => {
+    await this._trainingService.queueAndWaitTransaction(async repo => {
       const update = this._makeUpdater(repo)
 
-      const currentTraining = await this._trainingRepo.get(trainId)
-      const isLocked = await this._localTrainings.isLocked(trainId)
+      const currentTraining = await this._trainingService.get(trainId)
+
+      const isAlive = (training: LockedTrainingSession) => this._trainingService.isAlive(training, TRAINING_LIFE_TIME)
 
       if (currentTraining?.status === 'training-pending') {
         debug(`Training ${this._toString(trainId)} already queued`)
         return
-      } else if (currentTraining?.status === 'training' && isLocked) {
+      } else if (currentTraining?.status === 'training' && isAlive(currentTraining)) {
         debug(`Training ${this._toString(trainId)} already started`)
         return
-      } else if (currentTraining?.status === 'training' && !isLocked) {
+      } else if (currentTraining?.status === 'training' && !isAlive(currentTraining)) {
         // occurs when app killed during training and rebooted
         this._logger.warn(`Training ${this._toString(trainId)} seems to be a zombie`)
       }
@@ -110,12 +134,12 @@ export class TrainingQueue implements TrainingQueue {
 
   // Do not use arrow notation as _localCancelTraining.name needs to be defined
   private async _localCancelTraining(trainId: TrainingId): Promise<void> {
-    return this._trainingRepo.queueAndWaitTransaction(async repo => {
+    return this._trainingService.queueAndWaitTransaction(async repo => {
       const { botId, language } = trainId
 
       const update = this._makeUpdater(repo)
 
-      const currentTraining = await this._trainingRepo.get(trainId)
+      const currentTraining = await this._trainingService.get(trainId)
       if (!currentTraining) {
         return
       }
@@ -150,28 +174,28 @@ export class TrainingQueue implements TrainingQueue {
   }
 
   public getTraining = async (trainId: TrainingId): Promise<TrainingState> => {
-    const state = await this._trainingRepo.get(trainId)
+    const state = await this._trainingService.get(trainId)
     return state ?? DEFAULT_STATUS
   }
 
   public cancelTrainings = async (botId: string): Promise<void[]> => {
-    const allTrainings = await this._trainingRepo.getAll()
+    const allTrainings = await this._trainingService.getAll()
     const currentTrainings = allTrainings.filter(ts => ts.botId === botId)
     return Promise.mapSeries(currentTrainings, t => this.cancelTraining(t))
   }
 
   public getAllTrainings = async (): Promise<TrainingSession[]> => {
-    return this._trainingRepo.getAll()
+    return this._trainingService.getAll()
   }
 
-  private _makeUpdater = (repo: TrainingRepository) => async (id: TrainingId, newState: TrainingState) => {
+  private _makeUpdater = (repo: ITrainingRepository) => async (id: TrainingId, newState: TrainingState) => {
     await this._notify(id, newState)
     return repo.set(id, newState)
   }
 
   private _lockAndUpdate = async (id: TrainingId, newState: TrainingState) => {
     await this._notify(id, newState)
-    this._trainingRepo.queueTransaction(async repo => {
+    this._trainingService.queueTransaction(async repo => {
       return repo.set(id, newState)
     })
   }
@@ -181,7 +205,7 @@ export class TrainingQueue implements TrainingQueue {
   }
 
   private async _localRunTask(): Promise<void> {
-    this._trainingRepo.queueTransaction(async repo => {
+    this._trainingService.queueTransaction(async repo => {
       if (this._localTrainings.length() >= this._options.maxTraining) {
         return
       }
@@ -218,7 +242,6 @@ export class TrainingQueue implements TrainingQueue {
 
     try {
       const modelId = await trainer.train(language, async (progress: number) => {
-        await this._localTrainings.refreshLocalTraining(trainId)
         return this._lockAndUpdate(trainId, { status: 'training', progress })
       })
       await this._broadcastLoadModel(botId, modelId)
@@ -252,7 +275,7 @@ export class TrainingQueue implements TrainingQueue {
       .error(`Training ${this._toString(trainId)} could not finish because of an unexpected error.`)
 
     await this._notify(trainId, { status: 'errored', progress: 0 })
-    this._trainingRepo.queueTransaction(repo => repo.set(trainId, { status: 'needs-training', progress: 0 }))
+    this._trainingService.queueTransaction(repo => repo.set(trainId, { status: 'needs-training', progress: 0 }))
   }
 
   private _toString(id: TrainingId) {

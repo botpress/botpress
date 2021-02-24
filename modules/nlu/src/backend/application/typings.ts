@@ -46,24 +46,13 @@ export interface TrainingId {
 
 export interface TrainingSession extends TrainingId, TrainingState {}
 
+export interface LockedTrainingSession extends TrainingSession {
+  modifiedOn: Date
+}
+
 export interface TrainerService {
   hasBot(botId: string): boolean
   getBot(botId: string): Trainer | undefined
 }
 
 export type TrainingListener = (ts: TrainingSession) => Promise<void>
-
-export interface ReadonlyTrainingRepository {
-  initialize(): Promise<void | void[]>
-
-  has(id: TrainingId): Promise<boolean>
-  get(id: TrainingId): Promise<TrainingState | undefined>
-  query(query: Partial<TrainingSession>): Promise<TrainingSession[]>
-  getAll(): Promise<TrainingSession[]>
-
-  clear(): Promise<void | void[]> // not readonly, but thread safe
-}
-
-export interface TrainingRepository extends ReadonlyTrainingRepository {
-  set(id: TrainingId, state: TrainingState): Promise<void>
-}
