@@ -153,6 +153,7 @@ export default async (bp: typeof sdk, db: Database) => {
         details: botInfo.details,
         languages: botInfo.languages,
         extraStylesheet: config.extraStylesheet,
+        disableNotificationSound: config.disableNotificationSound,
         security,
         lazySocket: config.lazySocket
       })
