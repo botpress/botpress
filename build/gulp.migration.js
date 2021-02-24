@@ -8,7 +8,7 @@ const glob = require('glob')
 const tmp = require('tmp')
 const dotenv = require('dotenv')
 
-const dumpMigration = async () => {
+const dumpServerData = async () => {
   const args = require('yargs')(process.argv).argv
 
   const rootPath = args.path || './'
@@ -16,12 +16,15 @@ const dumpMigration = async () => {
   const pgBinPath = args.pgPath || __dirname
 
   const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+  const dataItems = await fse.readdir(path.resolve(rootPath, 'out/bp/data'))
 
-  fse.copySync(path.resolve(rootPath, 'out/bp/data/global'), `${tmpDir.name}/global`)
-  fse.copySync(path.resolve(rootPath, 'out/bp/data/bots'), `${tmpDir.name}/bots`)
-  fse.copySync(path.resolve(rootPath, 'out/bp/data/storage'), `${tmpDir.name}/storage`)
+  for (const item of dataItems.filter(x => x !== 'assets')) {
+    console.log(item)
+    await fse.copy(path.resolve(rootPath, 'out/bp/data', item), `${tmpDir.name}/${item}`)
+  }
 
   try {
+    mkdirp.sync(`${tmpDir.name}/storage`)
     await dumpPostgresData(`${tmpDir.name}/storage`, rootPath, pgBinPath)
   } catch (err) {
     console.error('Error:', err)
@@ -39,7 +42,7 @@ Please make sure that the credentials provided in DATABASE_URL are valid`)
   const currentVersion = require(path.resolve(rootPath, 'package.json')).version
   const filename = await createArchive(`./${archiveName}_${currentVersion}.tgz`, tmpDir.name, files)
 
-  console.log(`Archive saved at ${path.join(__dirname, filename)}. Please upload it on S3`)
+  console.log(`Complete server archive saved at ${path.join(__dirname, filename)}.`)
   tmpDir.removeCallback()
 }
 
@@ -55,6 +58,7 @@ const dumpPostgresData = async (storagePath, rootPath, pgBinPath) => {
   }
 
   if (databaseUrl && databaseUrl.startsWith('postgres')) {
+    console.info('Dumping Postgres database...')
     const dumpPath = path.join(storagePath, 'postgres.dump')
 
     await Promise.fromCallback(cb => {
@@ -95,5 +99,5 @@ const createMigration = cb => {
 
 module.exports = {
   createMigration,
-  dumpMigration
+  dumpServerData
 }

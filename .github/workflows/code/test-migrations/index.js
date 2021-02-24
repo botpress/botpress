@@ -39,18 +39,13 @@ const start = async () => {
 const prepareDataFolder = async buffer => {
   await Promise.fromCallback(cb => rimraf('./out/bp/data', cb))
   await archive.extractArchive(buffer, './out/bp/data')
-  await restorePostgresDump()
-}
 
-const isPostgresDb = () => {
-  return fs.existsSync(path.resolve('./out/bp/data/storage/postgres.dump'))
+  if (isPostgresDb()) {
+    await restorePostgresDump()
+  }
 }
 
 const restorePostgresDump = async () => {
-  if (!isPostgresDb()) {
-    return
-  }
-
   const dbUrl = process.env.DATABASE_URL
   const dumpPath = path.resolve('./out/bp/data/storage/postgres.dump')
 
@@ -83,6 +78,10 @@ const testMigration = async (botName, startVersion, targetVersion, { isDown }) =
   } else {
     console.log(message)
   }
+}
+
+const isPostgresDb = () => {
+  return fs.existsSync(path.resolve('./out/bp/data/storage/postgres.dump'))
 }
 
 const getMostRecentVersion = () => {

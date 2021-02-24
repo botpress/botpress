@@ -93,7 +93,10 @@ gulp.task('dev:modules', modules.createAllModulesSymlink())
  * target can either be "core" or the name of any module
  */
 gulp.task('migration:create', migration.createMigration)
-gulp.task('migration:dump', migration.dumpMigration)
+/**
+ * This command dumps the content of the 'data' folder and the database in an archive
+ */
+gulp.task('server:dump', migration.dumpServerData)
 
 gulp.task('check-translations', core.checkTranslations)
 
