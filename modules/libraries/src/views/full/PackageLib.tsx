@@ -1,18 +1,13 @@
 import { Button } from '@blueprintjs/core'
-import { toast } from 'botpress/shared'
+import { lang, toast } from 'botpress/shared'
 import React, { FC, useRef, useState } from 'react'
+import { sanitizeName } from 'common/utils'
 
 interface Props {
   name: string
   version: string
   axios: any
 }
-
-const sanitizeName = (text: string) =>
-  text
-    .replace(/\s|\t|\n/g, '-')
-    .toLowerCase()
-    .replace(/[^a-z0-9-_.]/g, '')
 
 const PackageLib: FC<Props> = props => {
   const downloadLink = useRef(null)
@@ -33,7 +28,7 @@ const PackageLib: FC<Props> = props => {
 
       downloadLink.current!.click()
     } catch (err) {
-      toast.failure(`Couldn't create the bundle ${err}`)
+      toast.failure('module.libraries.bundleError')
     } finally {
       setLoading(false)
     }
@@ -41,7 +36,11 @@ const PackageLib: FC<Props> = props => {
 
   return (
     <div>
-      <Button onClick={packageDeps} disabled={loading} text={loading ? 'Please wait...' : 'Bundle with dependencies'} />
+      <Button
+        onClick={packageDeps}
+        disabled={loading}
+        text={lang.tr(loading ? 'pleaseWait' : 'module.libraries.bundleDeps')}
+      />
       <a ref={downloadLink} href={content} download={filename} />
     </div>
   )

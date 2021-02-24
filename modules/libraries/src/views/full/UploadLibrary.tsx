@@ -62,7 +62,7 @@ const UploadLibrary: FC<Props> = props => {
       dispatch({ type: 'uploadCompleted', data })
 
       props.refreshLibraries()
-      toast.success('Library added successfully!')
+      toast.success('module.libraries.addSuccess')
     } catch (err) {
       dispatch({ type: 'showError' })
       toast.failure(err.message)

@@ -4,7 +4,7 @@ import { isOperationAllowed } from 'botpress/utils'
 import React, { useState } from 'react'
 
 import style from './style.scss'
-import Dropdown from './Dropdown'
+import Dropdown from './LibDropdown'
 import PackageLib from './PackageLib'
 import UploadLibrary from './UploadLibrary'
 

@@ -1,6 +1,7 @@
 import { Button, Classes, IconName, MenuItem } from '@blueprintjs/core'
 import { Suggest } from '@blueprintjs/select'
 import React, { FC, useState } from 'react'
+import { lang } from 'botpress/shared'
 
 export interface Option {
   name: string
@@ -45,7 +46,7 @@ const Dropdown: FC<any> = props => {
     <SimpleDropdown
       className={className}
       inputValueRenderer={item => item.name}
-      inputProps={{ placeholder: 'Name of the library' }}
+      inputProps={{ placeholder: lang.tr('module.libraries.libraryName') }}
       items={items}
       activeItem={activeItem}
       popoverProps={{ minimal: true, usePortal: false }}

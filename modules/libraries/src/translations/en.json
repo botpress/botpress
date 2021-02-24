@@ -1,6 +1,6 @@
 {
   "fullName": "Shared Libraries",
-  "addLibrary": "Add a new library",
+  "addLibrary": "Add this library",
   "searchNpm": "Search library on NPM (recommended)",
   "searchGithub": "Add from a GitHub repository (can be slow)",
   "uploadArchive": "Upload an archive",
@@ -11,5 +11,12 @@
   },
   "viewGithub": "View on Github",
   "customCommand": "Type a custom command",
-  "openConsole": "Open the console to view command output"
+  "openConsole": "Open the console to view command output",
+  "bundleDeps": "Bundle with dependencies",
+  "addSuccess": "Library added successfully!",
+  "libraryName": "Name of the library",
+  "confirmRemove": "Are you sure you want to remove this library ?",
+  "deleteSuccess": "Library removed successfully",
+  "removeFailure": "There was an error while removing the library. Check server logs for more details",
+  "bundleError": "There was an error while trying to bundle the library"
 }

@@ -44,16 +44,16 @@ const MainView = props => {
   }
 
   const deleteLibrary = async (name: string) => {
-    if (!(await confirmDialog('Are you sure you want to remove this library ?', { acceptLabel: 'Remove' }))) {
+    if (!(await confirmDialog(lang.tr('module.libraries.confirmRemove'), { acceptLabel: 'Remove' }))) {
       return
     }
 
     try {
       await props.bp.axios.post('/mod/libraries/delete', { name })
       await refreshLibraries()
-      toast.info('Library removed successfully')
+      toast.info('module.libraries.deleteSuccess')
     } catch (err) {
-      toast.failure('There was an error while removing the library. Check server logs for more details')
+      toast.failure('module.libraries.removeFailure')
     }
   }
 

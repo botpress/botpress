@@ -16,8 +16,7 @@ export default async (bp: typeof sdk) => {
   router.get(
     '/list',
     asyncMiddleware(async (req: any, res: any) => {
-      const packageJson = await fse.readFile(packageJsonPath, 'UTF-8')
-      const { dependencies } = JSON.parse(packageJson.toString())
+      const { dependencies } = await fse.readJson(packageJsonPath)
 
       res.send(dependencies)
     })

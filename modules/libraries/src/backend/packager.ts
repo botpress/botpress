@@ -54,17 +54,17 @@ export const packageLibrary = async (name: string, version: string) => {
   const libPackageJson = path.join(libFolder, 'package.json')
 
   try {
-    await fse.writeFile(tempPackageJson, JSON.stringify(emptyPackage, undefined, 2))
+    await fse.writeJson(tempPackageJson, emptyPackage)
 
     // Legacy bundling ensures the library's dependencies are inside the library folder
     const installResult = await executeNpm(['install', `${name}@${version}`, '--legacy-bundling'], tmpDir.name)
     debug('Temporary installation of the library ', { installResult })
 
-    const pkg: Package = JSON.parse(await fse.readFile(libPackageJson, 'utf8'))
+    const pkg: Package = await fse.readJson(libPackageJson)
     addBundledDeps(pkg)
     disableScripts(pkg)
 
-    await fse.writeFile(libPackageJson, JSON.stringify(pkg, undefined, 2))
+    await fse.writeJson(libPackageJson, pkg)
 
     const packResult = await executeNpm(['pack'], libFolder)
     debug('Temporary packaging of the library ', { packResult })

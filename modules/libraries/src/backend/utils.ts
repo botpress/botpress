@@ -4,6 +4,7 @@ import fse from 'fs-extra'
 import path from 'path'
 
 import { isOffline, packageJsonPath, packageLockJsonPath, sharedLibsDir } from '.'
+import example from './example'
 
 const debug = DEBUG('libraries')
 
@@ -18,20 +19,18 @@ const sanitizeArg = (text: string) => text.replace(/[^a-zA-Z0-9\/_.@^\-\(\) ]/g,
 
 export const validateNameVersion = ({ name, version }: { name: string; version?: string }) => {
   const nameValid = name && packageNameRegex.test(name)
-  const versionValid = !version || (version && versionRegex.test(version))
+  const versionValid = !version || (version && versionRegex.test(version.replace('^', ''))) || version.startsWith('git')
 
-  console.log(nameValid, versionValid, name, version)
-  if (!nameValid || !versionValid) {
-    throw new Error('Invalid characters found')
+  if (!nameValid) {
+    throw new Error(`Library name is invalid: ${name}`)
+  } else if (!versionValid) {
+    throw new Error(`Library version is invalid: ${version}`)
   }
 
   return { name, version }
 }
 
-export const executeNpm = async (args: string[] = ['install'], customLibsDir?: string): Promise<string> => {
-  const moduleDir = process.LOADED_MODULES['libraries']
-  const nodeFolder = process.pkg ? 'node_production_modules' : 'node_modules'
-
+const prepareArgs = (args: string[]) => {
   if (isOffline) {
     args.push('--offline')
   }
@@ -42,7 +41,14 @@ export const executeNpm = async (args: string[] = ['install'], customLibsDir?: s
   // Necessary for post install scripts when running from the binary
   args.push('--scripts-prepend-node-path')
 
-  const cleanArgs = args.map(x => sanitizeArg(x))
+  return args.map(x => sanitizeArg(x))
+}
+
+export const executeNpm = async (args: string[] = ['install'], customLibsDir?: string): Promise<string> => {
+  const moduleDir = process.LOADED_MODULES['libraries']
+  const nodeFolder = process.pkg ? 'node_production_modules' : 'node_modules'
+
+  const cleanArgs = prepareArgs(args)
 
   const cwd = customLibsDir ? customLibsDir : sharedLibsDir
   debug('executing npm', { execPath: process.execPath, moduleDir, cwd, args, cleanArgs })
@@ -116,8 +122,14 @@ const deleteLibraryArchive = async (filename: string, bp: typeof sdk) => {
 }
 
 export const removeLibrary = async (name: string, bp: typeof sdk): Promise<boolean> => {
-  const packageContent = JSON.parse(await fse.readFile(packageJsonPath, 'UTF-8'))
-  const source = packageContent.dependencies[name]
+  let source, packageContent
+  try {
+    packageContent = await fse.readJson(packageJsonPath)
+    source = packageContent.dependencies[name]
+  } catch (err) {
+    bp.logger.attachError(err).error("Couldn't read package json")
+    return false
+  }
 
   if (!source) {
     return false
@@ -128,7 +140,7 @@ export const removeLibrary = async (name: string, bp: typeof sdk): Promise<boole
   }
 
   delete packageContent.dependencies[name]
-  await fse.writeFile(packageJsonPath, JSON.stringify(packageContent, undefined, 2))
+  await fse.writeJSON(packageJsonPath, packageContent)
 
   return true
 }
@@ -142,21 +154,7 @@ export const publishPackageChanges = async (bp: typeof sdk) => {
 }
 
 export const createDefaultExample = async (bp: typeof sdk) => {
-  const exampleFile = `
-  const axios = require('axios')
-
-module.exports = {
-  hello: () => console.log('Hello there!'),
-  printLog: message => console.log('Custom message:, message'),
-  getPage: url => axios.get(url)
-}
-
-// Usage in your hooks/actions:
-// const file = require('example')
-// file.hello()
-`
-
-  await bp.ghost.forGlobal().upsertFile(LIB_FOLDER, 'example.js', exampleFile)
+  await bp.ghost.forGlobal().upsertFile(LIB_FOLDER, 'example.js', example)
 }
 
 export const createDefaultPackageJson = async () => {
@@ -174,5 +172,5 @@ export const createDefaultPackageJson = async () => {
     private: true
   }
 
-  await fse.writeFile(packageJsonPath, JSON.stringify(baseJson, undefined, 2))
+  await fse.writeJson(packageJsonPath, baseJson)
 }
