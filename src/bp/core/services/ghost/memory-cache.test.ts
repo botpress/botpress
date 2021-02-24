@@ -7,8 +7,8 @@ import sizeof from 'object-sizeof'
 
 import { createSpyObject, MockObject, asBytes } from '../../misc/utils'
 
-import { ObjectCache } from 'common/object-cache'
-import MemoryObjectCache, { EVENTS } from './memory-cache'
+import { ObjectCache, OBJECT_CACHE_EVENTS } from 'common/object-cache'
+import MemoryObjectCache from './memory-cache'
 import { CacheInvalidators } from './cache-invalidators'
 
 const AN_INVALID_KEY = 'invalid key'
@@ -108,7 +108,7 @@ describe('Memory Cache', () => {
 
     it('Does not cache a value which size is bigger then the size of the cache', () => {
       const callback = jest.fn()
-      cache.events.on(EVENTS.invalidation, key => callback(key))
+      cache.events.on(OBJECT_CACHE_EVENTS.invalidation, key => callback(key))
 
       expect(sizeof(HUGE_OBJECT_VALUE) > MAX_CACHE_SIZE).toBeTrue()
 
@@ -121,7 +121,7 @@ describe('Memory Cache', () => {
 
     it('Removes a key that is being overridden if the value size is bigger then the size of the cache', () => {
       const callback = jest.fn()
-      cache.events.on(EVENTS.invalidation, key => callback(key))
+      cache.events.on(OBJECT_CACHE_EVENTS.invalidation, key => callback(key))
 
       expect(sizeof(HUGE_OBJECT_VALUE) > MAX_CACHE_SIZE).toBeTrue()
 
@@ -141,9 +141,9 @@ describe('Memory Cache', () => {
       expect(cache.get(A_KEY)).toEqual(AN_OBJECT_VALUE)
     })
 
-    it(`Emits an ${EVENTS.invalidation} event when a value is overridden`, () => {
+    it(`Emits an ${OBJECT_CACHE_EVENTS.invalidation} event when a value is overridden`, () => {
       const callback = jest.fn()
-      cache.events.on(EVENTS.invalidation, key => callback(key))
+      cache.events.on(OBJECT_CACHE_EVENTS.invalidation, key => callback(key))
 
       cache.set(A_KEY, A_VALUE)
       expect(cache.get(A_KEY)).toEqual(A_VALUE)
@@ -155,9 +155,9 @@ describe('Memory Cache', () => {
       expect(callback).toHaveBeenCalledWith(A_KEY)
     })
 
-    it(`Does not emit an ${EVENTS.invalidation} event when no value is overridden`, () => {
+    it(`Does not emit an ${OBJECT_CACHE_EVENTS.invalidation} event when no value is overridden`, () => {
       const callback = jest.fn()
-      cache.events.on(EVENTS.invalidation, key => callback(key))
+      cache.events.on(OBJECT_CACHE_EVENTS.invalidation, key => callback(key))
 
       cache.set(A_KEY, A_VALUE)
       expect(cache.get(A_KEY)).toEqual(A_VALUE)
@@ -165,9 +165,9 @@ describe('Memory Cache', () => {
       expect(callback).not.toHaveBeenCalled()
     })
 
-    it(`Does not emit an ${EVENTS.invalidation} event if the key was not inserted into the cache`, () => {
+    it(`Does not emit an ${OBJECT_CACHE_EVENTS.invalidation} event if the key was not inserted into the cache`, () => {
       const callback = jest.fn()
-      cache.events.on(EVENTS.invalidation, key => callback(key))
+      cache.events.on(OBJECT_CACHE_EVENTS.invalidation, key => callback(key))
 
       expect(sizeof(HUGE_OBJECT_VALUE) > MAX_CACHE_SIZE).toBeTrue()
 
@@ -208,9 +208,9 @@ describe('Memory Cache', () => {
       expect(cache.has(ANOTHER_KEY)).toBeTrue()
     })
 
-    it(`Emits an ${EVENTS.invalidation} event when a value is removed`, async () => {
+    it(`Emits an ${OBJECT_CACHE_EVENTS.invalidation} event when a value is removed`, async () => {
       const callback = jest.fn()
-      cache.events.on(EVENTS.invalidation, key => callback(key))
+      cache.events.on(OBJECT_CACHE_EVENTS.invalidation, key => callback(key))
 
       cache.set(A_KEY, A_VALUE)
       expect(cache.has(A_KEY)).toBeTrue()
@@ -222,9 +222,9 @@ describe('Memory Cache', () => {
       expect(callback).toHaveBeenCalledWith(A_KEY)
     })
 
-    it(`Does not emit an ${EVENTS.invalidation} event when no value is removed`, async () => {
+    it(`Does not emit an ${OBJECT_CACHE_EVENTS.invalidation} event when no value is removed`, async () => {
       const callback = jest.fn()
-      cache.events.on(EVENTS.invalidation, key => callback(key))
+      cache.events.on(OBJECT_CACHE_EVENTS.invalidation, key => callback(key))
 
       expect(cache.has(A_KEY)).toBeFalse()
       await cache.invalidate(A_KEY)
@@ -285,9 +285,9 @@ describe('Memory Cache', () => {
   })
 
   describe('Sync', () => {
-    it(`Emits an ${EVENTS.syncDbFilesToDisk} event with a message`, async () => {
+    it(`Emits a ${OBJECT_CACHE_EVENTS.syncDbFilesToDisk} event with a message`, async () => {
       const callback = jest.fn()
-      cache.events.on(EVENTS.syncDbFilesToDisk, key => callback(key))
+      cache.events.on(OBJECT_CACHE_EVENTS.syncDbFilesToDisk, key => callback(key))
 
       await cache.sync(SYNC_MESSAGE)
 
