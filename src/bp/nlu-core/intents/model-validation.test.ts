@@ -28,9 +28,6 @@ test('exact-match intent clf model validation', async () => {
       }
     }
   ]
-  for (const m of shouldPass) {
-    await expectValidates(m, exactMatchModelSchema)
-  }
 
   const shouldFail = [
     undefined,
