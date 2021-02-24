@@ -47,7 +47,6 @@ jobs:
       #   with:
       #     name: screenshots
       #     path: build/tests/e2e/screenshots
-      
 
   migration:
     name: migration
@@ -71,11 +70,11 @@ jobs:
           --health-retries 5
 
     steps:
-     - name: Get the previous build
+      - name: Get the previous build
         uses: actions/download-artifact@v2
         with:
           name: bp_build
-     - name: Test Migrations
+      - name: Test Migrations
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -83,6 +82,3 @@ jobs:
         run: |
           yarn add @actions/core aws-sdk
           node .github/workflows/code/test-migrations/index.js
-
-    
-
