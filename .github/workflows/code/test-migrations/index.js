@@ -28,9 +28,8 @@ const start = async () => {
 
     const archiveVersion = version.replace(/.tgz|.zip/, '')
     const buffer = await Promise.fromCallback(cb => s3.getObject({ Bucket, Key: file.Key }, cb))
-    console.log('read file')
+
     await prepareDataFolder(buffer.Body)
-    console.log('data prepared')
 
     await testMigration(archiveName, archiveVersion, targetVersion, { isDown: false })
     await testMigration(archiveName, targetVersion, archiveVersion, { isDown: true })
@@ -69,17 +68,11 @@ const restorePostgresDump = async () => {
 }
 
 const testMigration = async (botName, startVersion, targetVersion, { isDown }) => {
-  console.log('test mig')
   const env = {
     DATABASE_URL: isPostgresDb() ? process.env.DATABASE_URL : undefined
   }
 
-  console.log('v', env)
-
-  const result = await execute(
-    `yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion} --ignore-engines`,
-    undefined
-  )
+  const result = await execute(`yarn start migrate ${isDown ? 'down' : 'up'} --target ${targetVersion}`, './', env)
   const success = result.match(/Migration(s?) completed successfully/)
   const status = success ? chalk.green(`[SUCCESS]`) : chalk.red(`[FAILURE]`)
   const message = `${status} Migration ${isDown ? 'DOWN' : 'UP'} of ${botName} (${startVersion} -> ${targetVersion})`
@@ -121,14 +114,12 @@ const getMigrations = rootPath => {
 const execute = (cmd, cwd, env) => {
   const args = require('yargs')(process.argv).argv
   cwd = cwd || args.pgPath || __dirname
-  env = env || process.env
 
-  console.log(cwd, __dirname, env)
   const isVerbose = args.verbose
 
   return Promise.fromCallback(cb => {
     let outBuffer = ''
-    const ctx = exec(cmd, { cwd, env }, err => cb(err, outBuffer))
+    const ctx = exec(cmd, { cwd, env: { ...process.env, ...env } }, err => cb(err, outBuffer))
     ctx.stdout.on('data', data => (outBuffer += data))
 
     if (isVerbose) {
