@@ -6,6 +6,7 @@
     "api": "Api",
     "web": "Web"
   },
+  "interactions": "Interactions",
   "conversations": "Conversations",
   "dashboard": "Dashboard",
   "dateFormat": "MMMM Do YYYY",
