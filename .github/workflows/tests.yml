@@ -19,6 +19,41 @@ jobs:
     name: e2e
     runs-on: ubuntu-latest
 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.13.0'
+      - name: Fetch Node Packages
+        run: |
+          yarn
+      - name: Build core, UI and modules
+        run: |
+          NODE_OPTIONS="--max-old-space-size=6000" yarn cmd build:core
+      - name: Save build
+        uses: actions/upload-artifact@v2
+        with:
+          name: bp_build
+          path: .
+          retention-days: 1
+      # - name: Run Tests
+      #   run: |
+      #     yarn start & sleep 5s &&
+      #     HEADLESS=true JEST_TIMEOUT=30000 yarn itest
+      # - name: Upload Screenshots
+      #   uses: actions/upload-artifact@master
+      #   if: failure()
+      #   with:
+      #     name: screenshots
+      #     path: build/tests/e2e/screenshots
+      
+
+  migration:
+    name: migration
+    runs-on: ubuntu-latest
+    needs: e2e
+
     services:
       postgres:
         image: postgres:11.2-alpine
@@ -36,32 +71,18 @@ jobs:
           --health-retries 5
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@master
-      - uses: actions/setup-node@v1
+     - name: Get the previous build
+        uses: actions/download-artifact@v2
         with:
-          node-version: '12.13.0'
-      - name: Fetch Node Packages
-        run: |
-          yarn
-      - name: Build core, UI and modules
-        run: |
-          NODE_OPTIONS="--max-old-space-size=6000" yarn build
-      # - name: Run Tests
-      #   run: |
-      #     yarn start & sleep 5s &&
-      #     HEADLESS=true JEST_TIMEOUT=30000 yarn itest
-      # - name: Upload Screenshots
-      #   uses: actions/upload-artifact@master
-      #   if: failure()
-      #   with:
-      #     name: screenshots
-      #     path: build/tests/e2e/screenshots
-      - name: Test Migrations
+          name: bp_build
+     - name: Test Migrations
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           DATABASE_URL: postgres://postgres:pgsecret@localhost:5432/bp
         run: |
           yarn add @actions/core aws-sdk
-          node .github/workflows/code/test-migrations/index.js --verbose
+          node .github/workflows/code/test-migrations/index.js
+
+    
+
