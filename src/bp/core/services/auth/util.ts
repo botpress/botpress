@@ -1,6 +1,15 @@
 import crypto from 'crypto'
 import jsonwebtoken from 'jsonwebtoken'
 
+interface Token {
+  email: string
+  strategy: string
+  tokenVersion: number
+  isSuperAdmin: boolean
+  expiresIn: string
+  audience?: string
+}
+
 const generateRandomString = (length: number) => {
   return crypto
     .randomBytes(Math.ceil(length / 2))
@@ -28,12 +37,16 @@ export const validateHash = (password: string, hash: string, salt: string) => {
   }
 }
 
-export const generateUserToken = (
-  email: string,
-  strategy: string,
-  isSuperAdmin: boolean,
-  expiresIn: string = '6h',
-  audience?: string
-): string => {
-  return jsonwebtoken.sign({ email, strategy, isSuperAdmin }, process.APP_SECRET, { expiresIn, audience })
+export const generateUserToken = ({
+  email,
+  strategy,
+  tokenVersion,
+  isSuperAdmin,
+  expiresIn,
+  audience
+}: Token): string => {
+  return jsonwebtoken.sign({ email, strategy, tokenVersion, isSuperAdmin }, process.APP_SECRET, {
+    expiresIn: expiresIn || '2h',
+    audience
+  })
 }

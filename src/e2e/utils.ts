@@ -39,7 +39,7 @@ export const gotoAndExpect = async (url: string, matchUrl?: string) => {
   await expect(page.url()).toMatch(matchUrl || url)
 }
 
-const getResponse = async (url: string, method?: HttpMethod) => {
+export const getResponse = async (url: string, method?: HttpMethod) => {
   return page.waitForResponse(res => {
     const resUrl = res.url()
     console.info(`url: ${url}, resUrl: ${resUrl}`)
