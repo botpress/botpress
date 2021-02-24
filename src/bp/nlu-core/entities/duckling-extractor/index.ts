@@ -1,7 +1,6 @@
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
-import path from 'path'
 import { extractPattern } from '../../tools/patterns-utils'
 import { JOIN_CHAR } from '../../tools/token-utils'
 import { EntityExtractionResult, KeyedItem, SystemEntityExtractor } from '../../typings'
@@ -31,28 +30,33 @@ export const DUCKLING_ENTITIES: DucklingDimension[] = [
 // 1- in _extractBatch, shift results ==> don't walk whole array n times (nlog(n) vs n2)
 
 export class DucklingEntityExtractor implements SystemEntityExtractor {
-  public enabled: boolean
+  private _enabled: boolean
   private _provider: DucklingClient
-  private _cache: SystemEntityCacheManager
 
-  constructor(private readonly logger?: NLU.Logger) {
-    this.enabled = false
+  public enable() {
+    this._enabled = true
+  }
+  public disable() {
+    this._enabled = false
+  }
+
+  constructor(private _cache: SystemEntityCacheManager, private readonly logger?: NLU.Logger) {
+    this._enabled = false
     this.logger = logger
     this._provider = new DucklingClient(logger)
-    this._cache = new SystemEntityCacheManager(
-      path.join(process.APP_DATA_PATH || '', 'cache', 'duckling_sys_entities.json'),
-      true,
-      logger
-    )
+  }
+
+  public resetCache() {
+    this._cache.reset()
   }
 
   public get entityTypes(): string[] {
-    return this.enabled ? DUCKLING_ENTITIES : []
+    return this._enabled ? DUCKLING_ENTITIES : []
   }
 
   public async configure(enabled: boolean, url: string) {
     if (enabled) {
-      this.enabled = await DucklingClient.init(url, this.logger)
+      this._enabled = await DucklingClient.init(url, this.logger)
       await this._cache.restoreCache()
     }
   }
@@ -62,7 +66,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
     lang: string,
     useCache?: boolean
   ): Promise<EntityExtractionResult[][]> {
-    if (!this.enabled) {
+    if (!this._enabled) {
       return Array(inputs.length).fill([])
     }
 
@@ -72,7 +76,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
       refTime: Date.now()
     }
 
-    const [cached, toFetch] = this._cache.getCachedAndToFetch(inputs)
+    const [cached, toFetch] = this._cache.splitCacheHitFromCacheMiss(inputs, !!useCache)
 
     const chunks = _.chunk(toFetch, BATCH_SIZE)
     const batchedRes = await Promise.mapSeries(chunks, c => this._extractBatch(c, options))

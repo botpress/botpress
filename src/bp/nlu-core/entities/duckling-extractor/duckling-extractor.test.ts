@@ -1,52 +1,38 @@
 import 'bluebird-global'
 import _ from 'lodash'
-
+import path from 'path'
+import { unlinkSync } from 'fs'
 import { DucklingEntityExtractor } from '.'
 import { JOIN_CHAR } from '../../tools/token-utils'
+import { SystemEntityCacheManager } from '../entity-cache-manager'
 
-class FakeCache {
-  private _cache = {}
-  get(key) {
-    return this._cache[key]
-  }
-  set(key, val) {
-    this._cache[key] = val
-  }
-  has(key) {
-    return !!this._cache[key]
-  }
-  load() {}
-  dump() {}
-}
-
-jest.mock(
-  'lru-cache',
-  () =>
-    function() {
-      return new FakeCache()
-    }
-)
-
-describe('Extract Multiple', () => {
+describe('Duckling Extract Multiple', () => {
   let duck: DucklingEntityExtractor
   let mockedFetch: jest.SpyInstance
+  let testCachePath = path.join(process.APP_DATA_PATH || '', 'cache', 'testCache.json')
   beforeAll(() => {
-    duck = new DucklingEntityExtractor()
+    const duckCache = new SystemEntityCacheManager(testCachePath, true)
+    duck = new DucklingEntityExtractor(duckCache)
     // @ts-ignore
     mockedFetch = jest.spyOn(duck, '_fetchDuckling')
   })
 
   beforeEach(async () => {
-    await duck.configure(true, '') // reset mocked cache
-    duck.enabled = true // mock axios to remove this line
+    await duck.configure(true, '')
+    duck.resetCache()
+    duck.enable()
   })
 
   afterEach(() => {
     mockedFetch.mockReset()
   })
 
+  afterAll(() => {
+    unlinkSync(testCachePath)
+  })
+
   test('When disabled returns empty array for each input', async () => {
-    duck.enabled = false
+    duck.disable()
     const examples = ['this is one', 'this is two']
     const res = await duck.extractMultiple(examples, 'en')
     expect(mockedFetch).not.toHaveBeenCalled()

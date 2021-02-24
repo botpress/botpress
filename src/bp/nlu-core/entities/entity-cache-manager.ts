@@ -59,10 +59,14 @@ export class SystemEntityCacheManager {
     })
   }
 
-  public getCachedAndToFetch(inputs: string[]) {
+  public reset() {
+    this._cache.reset()
+  }
+
+  public splitCacheHitFromCacheMiss(inputs: string[], useCache: boolean): KeyedItem[][] {
     const [cachedItems, toFetchItems] = inputs.reduce(
       ([cached, toFetch], input, idx) => {
-        if (this._cache.has(input)) {
+        if (useCache && this._cache.has(input)) {
           const entities = this._cache.get(input)
           return [[...cached, { input, idx, entities }], toFetch]
         } else {
