@@ -89,7 +89,7 @@ export class KnexConversationRepository implements ConversationRepository {
       createdOn: new Date()
     }
 
-    await this.query().insert(conversation)
+    await this.query().insert(this.serialize(conversation))
     this.cache.set(conversation.id, conversation)
 
     return conversation

@@ -83,7 +83,7 @@ export class KnexMessageRepository implements MessageRepository {
       payload
     }
 
-    await this.query().insert(message)
+    await this.query().insert(this.serialize(message))
     this.cache.set(message.id, message)
 
     return message
