@@ -70,7 +70,7 @@ export class GhostService {
     @tagged('name', 'GhostService')
     private logger: Logger
   ) {
-    this.cache.events.on(OBJECT_CACHE_EVENTS.syncDbFilesToDisk, this._onSyncReceived)
+    this.cache.events.on && this.cache.events.on(OBJECT_CACHE_EVENTS.syncDbFilesToDisk, this._onSyncReceived)
   }
 
   async initialize(useDbDriver: boolean, ignoreSync?: boolean) {
