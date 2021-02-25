@@ -1,5 +1,5 @@
 import { DirectoryListingOptions, ListenHandle, Logger, UpsertOptions } from 'botpress/sdk'
-import { ObjectCache } from 'common/object-cache'
+import { ObjectCache, OBJECT_CACHE_EVENTS } from 'common/object-cache'
 import { isValidBotId } from 'common/validation'
 import { BotConfig } from 'core/config/bot.config'
 import { asBytes, filterByGlobs, forceForwardSlashes, sanitize } from 'core/misc/utils'
@@ -13,7 +13,7 @@ import minimatch from 'minimatch'
 import mkdirp from 'mkdirp'
 import path from 'path'
 import replace from 'replace-in-file'
-import tmp, { file } from 'tmp'
+import tmp from 'tmp'
 import { VError } from 'verror'
 
 import { createArchive } from '../../misc/archive'
@@ -54,6 +54,9 @@ const GLOBAL_GHOST_KEY = '__global__'
 const BOTS_GHOST_KEY = '__bots__'
 const DIFFABLE_EXTS = ['.js', '.json', '.txt', '.csv', '.yaml']
 
+const objectCacheKey = (str: string) => `object::${str}`
+const bufferCacheKey = (str: string) => `buffer::${str}`
+
 @injectable()
 export class GhostService {
   private _scopedGhosts: Map<string, ScopedGhostService> = new Map()
@@ -67,7 +70,7 @@ export class GhostService {
     @tagged('name', 'GhostService')
     private logger: Logger
   ) {
-    this.cache.events.on && this.cache.events.on('syncDbFilesToDisk', this._onSyncReceived)
+    this.cache.events.on(OBJECT_CACHE_EVENTS.syncDbFilesToDisk, this._onSyncReceived)
   }
 
   async initialize(useDbDriver: boolean, ignoreSync?: boolean) {
@@ -114,8 +117,8 @@ export class GhostService {
   // TODO: refactor this
   async forceUpdate(tmpFolder: string) {
     const invalidateFile = async (fileName: string) => {
-      await this.cache.invalidate(`object::${fileName}`)
-      await this.cache.invalidate(`buffer::${fileName}`)
+      await this.cache.invalidate(objectCacheKey(fileName))
+      await this.cache.invalidate(bufferCacheKey(fileName))
     }
 
     const dbRevs = await this.dbDriver.listRevisions('data/')
@@ -154,7 +157,7 @@ export class GhostService {
     const localBotIds = (await tmpDiskBot().directoryListing('/', 'bot.config.json')).map(path.dirname)
     const botsIds = _.uniq([...remoteBotIds, ...localBotIds])
 
-    const uniqueFile = file => `${file.path} | ${file.revision}`
+    const uniqueFile = (file: FileRevision) => `${file.path} | ${file.revision}`
 
     const getFileDiff = async (file: string): Promise<FileChange> => {
       try {
@@ -165,7 +168,7 @@ export class GhostService {
 
         return {
           path: file,
-          action: 'edit' as FileChangeAction,
+          action: 'edit',
           add: _.sumBy(
             diff.filter(d => d.added),
             'count'
@@ -176,9 +179,9 @@ export class GhostService {
           )
         }
       } catch (err) {
-        // Todo better handling
+        // TODO: better handling
         this.logger.attachError(err).error(`Error while checking diff for "${file}"`)
-        return { path: file, action: 'edit' as FileChangeAction }
+        return { path: file, action: 'edit' }
       }
     }
 
@@ -189,12 +192,12 @@ export class GhostService {
 
         return {
           path: file,
-          action: 'edit' as FileChangeAction,
+          action: 'edit',
           sizeDiff: Math.abs(dbFileSize - localFileSize)
         }
       } catch (err) {
         this.logger.attachError(err).error(`Error while checking file size for "${file}"`)
-        return { path: file, action: 'edit' as FileChangeAction }
+        return { path: file, action: 'edit' }
       }
     }
 
@@ -226,8 +229,8 @@ export class GhostService {
       const deleted = _.difference(remoteFiles, localFiles).map(x => ({ path: x, action: 'del' as FileChangeAction }))
       const added = _.difference(localFiles, remoteFiles).map(x => ({ path: x, action: 'add' as FileChangeAction }))
 
-      const filterDeleted = file => !_.map([...deleted, ...added], 'path').includes(file)
-      const filterDiffable = file => DIFFABLE_EXTS.includes(path.extname(file))
+      const filterDeleted = (file: string) => !_.map([...deleted, ...added], 'path').includes(file)
+      const filterDiffable = (file: string) => DIFFABLE_EXTS.includes(path.extname(file))
 
       const editedFiles = unsyncedFiles.filter(filterDeleted)
       const checkFileDiff = editedFiles.filter(filterDiffable)
@@ -287,14 +290,14 @@ export class GhostService {
       { botId }
     )
 
-    const listenForUnmount = args => {
+    const listenForUnmount = (args?: { botId: string }) => {
       if (args && args.botId === botId) {
         scopedGhost.events.removeAllListeners()
       } else {
         process.BOTPRESS_EVENTS.once('after_bot_unmount', listenForUnmount)
       }
     }
-    listenForUnmount({})
+    listenForUnmount()
 
     this._scopedGhosts.set(botId, scopedGhost)
     return scopedGhost
@@ -303,7 +306,7 @@ export class GhostService {
   public async exportArchive(): Promise<Buffer> {
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
 
-    const getFullPath = folder => path.join(tmpDir.name, folder)
+    const getFullPath = (folder: string) => path.join(tmpDir.name, folder)
 
     try {
       const botIds = (await this.bots().directoryListing('/', 'bot.config.json')).map(path.dirname)
@@ -411,12 +414,9 @@ export class ScopedGhostService {
     return forceForwardSlashes(path.join(folder, sanitize(path.basename(fullPath))))
   }
 
-  objectCacheKey = str => `object::${str}`
-  bufferCacheKey = str => `buffer::${str}`
-
   private async _invalidateFile(fileName: string) {
-    await this.cache.invalidate(this.objectCacheKey(fileName))
-    await this.cache.invalidate(this.bufferCacheKey(fileName))
+    await this.cache.invalidate(objectCacheKey(fileName))
+    await this.cache.invalidate(bufferCacheKey(fileName))
   }
 
   async invalidateFile(rootFolder: string, fileName: string): Promise<void> {
@@ -432,9 +432,9 @@ export class ScopedGhostService {
 
   // temporary until we implement a large file storage system
   // size is increased because NLU models are getting bigger
-  private getFileSizeLimit(fileName: string): number {
+  private getFileSizeLimit(fileName: string): string {
     const humanSize = fileName.endsWith('.model') ? '500mb' : MAX_GHOST_FILE_SIZE
-    return asBytes(humanSize)
+    return humanSize
   }
 
   async upsertFile(
@@ -456,8 +456,9 @@ export class ScopedGhostService {
     }
 
     const fileName = this._normalizeFileName(rootFolder, file)
-    if (content.length > this.getFileSizeLimit(fileName)) {
-      throw new Error(`The size of the file ${fileName} is over the 100mb limit`)
+    const fileSizeLimit = this.getFileSizeLimit(fileName)
+    if (content.length > asBytes(fileSizeLimit)) {
+      throw new Error(`The size of the file ${fileName} is over the ${fileSizeLimit} limit`)
     }
 
     await this.primaryDriver.upsertFile(fileName, content, !!options.recordRevision)
@@ -578,7 +579,7 @@ export class ScopedGhostService {
     }
 
     const fileName = this._normalizeFileName(rootFolder, file)
-    const cacheKey = this.bufferCacheKey(fileName)
+    const cacheKey = bufferCacheKey(fileName)
 
     if (!this.cache.has(cacheKey)) {
       const value = await this.primaryDriver.readFile(fileName)
@@ -595,7 +596,7 @@ export class ScopedGhostService {
 
   async readFileAsObject<T>(rootFolder: string, file: string): Promise<T> {
     const fileName = this._normalizeFileName(rootFolder, file)
-    const cacheKey = this.objectCacheKey(fileName)
+    const cacheKey = objectCacheKey(fileName)
 
     if (!this.cache.has(cacheKey)) {
       const value = await this.readFileAsString(rootFolder, file)
@@ -618,7 +619,7 @@ export class ScopedGhostService {
 
   async fileExists(rootFolder: string, file: string): Promise<boolean> {
     const fileName = this._normalizeFileName(rootFolder, file)
-    const cacheKey = this.objectCacheKey(fileName)
+    const cacheKey = objectCacheKey(fileName)
 
     try {
       if (this.cache.has(cacheKey)) {
@@ -649,6 +650,7 @@ export class ScopedGhostService {
     const toPath = this._normalizeFileName(rootFolder, toName)
 
     await this.primaryDriver.moveFile(fromPath, toPath)
+    await this._invalidateFile(fromPath)
   }
 
   async syncDatabaseFilesToDisk(rootFolder: string): Promise<void> {
@@ -657,7 +659,7 @@ export class ScopedGhostService {
     }
 
     const remoteFiles = await this.dbDriver.directoryListing(this._normalizeFolderName(rootFolder))
-    const filePath = filename => this._normalizeFileName(rootFolder, filename)
+    const filePath = (filename: string) => this._normalizeFileName(rootFolder, filename)
 
     await Promise.mapSeries(remoteFiles, async file =>
       this.diskDriver.upsertFile(filePath(file), await this.dbDriver.readFile(filePath(file)))
@@ -672,6 +674,7 @@ export class ScopedGhostService {
 
     const folderName = this._normalizeFolderName(folder)
     await this.primaryDriver.deleteDir(folderName)
+    await this.cache.invalidateStartingWith(folderName)
   }
 
   async directoryListing(
@@ -730,7 +733,7 @@ export class ScopedGhostService {
   }
 
   onFileChanged(callback: (filePath: string) => void): ListenHandle {
-    const cb = file => callback && callback(file)
+    const cb = (file: string) => callback && callback(file)
     this.events.on('changed', cb)
     return { remove: () => this.events.off('changed', cb) }
   }
