@@ -76,22 +76,7 @@ export class MicrosoftEntityExtractor implements SystemEntityExtractor {
 
       switch (entity.typeName) {
         case 'duration':
-          // TODO Uncomment this but do the same for the duckling extractor as well
-          // let timeString = ''
-
-          // if (metadatas.Mod) {
-          //   timeString += metadatas.Mod + '###'
-          // }
-
-          // if (metadatas.start) {
-          //   timeString += metadatas.start
-          // }
-
-          // if (metadatas.end) {
-          //   timeString += '___' + metadatas.end
-          // }
-
-          // value = timeString
+          // TODO Deal with intervals ! Also need to be fixed in duckling.
           value = metadatas.start || metadatas.end!
           break
 
