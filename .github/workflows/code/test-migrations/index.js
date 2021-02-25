@@ -15,7 +15,6 @@ const github = require('@actions/github')
 const ensureDownMigration = async () => {
   const pullRequest = JSON.parse(process.env.PULL_REQUEST)
   const octokit = github.getOctokit(process.env.TOKEN)
-  console.log('oct')
   const options = {
     repo: 'botpress',
     owner: 'botpress',
@@ -23,23 +22,45 @@ const ensureDownMigration = async () => {
     per_page: 300
   }
 
-  const { data: files } = await octokit.pulls.listFiles(options)
+  try {
+    const { data: files } = await octokit.pulls.listFiles(options)
 
-  console.log(files)
-  console.log(
-    'filtered',
-    files.filter(x => x.filename.includes('/migrations/'))
-  )
-  for (const { filename } of files.filter(x => x.filename.includes('/migrations/'))) {
-    console.log('mig', filename)
-    const content = fs.readFileSync(filename)
-    console.log('file', content)
+    for (const { filename } of files.filter(x => x.filename.includes('/migrations/'))) {
+      const fileContent = fs.readFileSync(filename, 'UTF-8').toString()
+
+      if (!fileContent.includes('down: ')) {
+        core.setFailed('Migrations must also implement the "down" method to revert back to a previous version.')
+      }
+    }
+  } catch (err) {
+    core.setFailed(err.message)
   }
 }
 
 const start = async () => {
   await ensureDownMigration()
-  return
+
+  const targetVersion = getMostRecentVersion()
+
+  const Bucket = 'botpress-migrations'
+  const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+  })
+
+  const dir = await Promise.fromCallback(cb => s3.listObjectsV2({ Bucket }, cb))
+  for (const file of dir.Contents) {
+    console.info(`Processing file ${file.Key}`)
+    const [archiveName, version] = file.Key.split('_')
+
+    const archiveVersion = version.replace(/.tgz|.zip/, '')
+    const buffer = await Promise.fromCallback(cb => s3.getObject({ Bucket, Key: file.Key }, cb))
+
+    await prepareDataFolder(buffer.Body)
+
+    await testMigration(archiveName, archiveVersion, targetVersion, { isDown: false })
+    await testMigration(archiveName, targetVersion, archiveVersion, { isDown: true })
+  }
 }
 
 const prepareDataFolder = async buffer => {
