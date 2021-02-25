@@ -73,11 +73,11 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
         // ~ 100 mb
       })
 
-      await this._restoreCache()
+      await this._restoreCache(logger)
     }
   }
 
-  private static async _restoreCache() {
+  private static async _restoreCache(logger?: NLU.Logger) {
     try {
       if (await pathExists(CACHE_PATH)) {
         const dump = await readJSON(CACHE_PATH)
@@ -86,7 +86,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
         }
       }
     } catch (err) {
-      console.error('could not load duckling cache')
+      logger?.error('could not load duckling cache')
     }
   }
 
