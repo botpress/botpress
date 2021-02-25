@@ -13,7 +13,6 @@ const core = require('@actions/core')
 const github = require('@actions/github')
 
 const ensureDownMigration = async () => {
-  console.log('check down', process.env.PULL_REQUEST)
   const pullRequest = JSON.parse(process.env.PULL_REQUEST)
   const octokit = github.getOctokit(process.env.TOKEN)
   console.log('oct')
@@ -24,13 +23,17 @@ const ensureDownMigration = async () => {
     per_page: 300
   }
 
-  const files = await octokit.pulls.listFiles(options)
+  const { data: files } = await octokit.pulls.listFiles(options)
 
   console.log(files)
-  for (const { filename } of files.data.filter(x => x.includes('/migrations/'))) {
+  console.log(
+    'filtered',
+    files.filter(x => x.filename.includes('/migrations/'))
+  )
+  for (const { filename } of files.filter(x => x.filename.includes('/migrations/'))) {
     console.log('mig', filename)
     const content = fs.readFileSync(filename)
-    console.log(content)
+    console.log('file', content)
   }
 }
 
