@@ -1,5 +1,5 @@
 name: Tests
-on: [pull_request, ready_for_review]
+on: [pull_request]
 paths:
   - '**/migrations/*'
 
