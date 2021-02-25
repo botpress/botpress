@@ -4,7 +4,7 @@ import { MODULE_NAME } from '../constants'
 
 const migration: sdk.ModuleMigration = {
   info: {
-    description: `Adds support for tags in ${MODULE_NAME} modulee`,
+    description: `Adds support for tags in ${MODULE_NAME} module`,
     target: 'core',
     type: 'database'
   },
