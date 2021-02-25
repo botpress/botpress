@@ -40,7 +40,7 @@ export class MessagingRouter extends CustomRouter {
         const { botId } = req.params
         const { id, userId } = req.query
 
-        const deleted = await this.conversations.forBot(botId).delete({ id: +id, userId })
+        const deleted = await this.conversations.forBot(botId).delete({ id, userId })
         res.send({ count: deleted })
       })
     )
@@ -51,7 +51,7 @@ export class MessagingRouter extends CustomRouter {
         const { botId } = req.params
         const { conversationId } = req.params
 
-        const conversation = await this.conversations.forBot(botId).get({ id: +conversationId })
+        const conversation = await this.conversations.forBot(botId).get({ id: conversationId })
 
         if (conversation) {
           res.send(conversation)
@@ -68,7 +68,7 @@ export class MessagingRouter extends CustomRouter {
         const { botId } = req.params
         const { userId, limit } = req.query
 
-        const conversations = await this.conversations.forBot(botId).list({ userId, limit: +limit })
+        const conversations = await this.conversations.forBot(botId).list({ userId, limit })
         res.send(conversations)
       })
     )
@@ -99,7 +99,7 @@ export class MessagingRouter extends CustomRouter {
         const { botId } = req.params
         const { id, conversationId } = req.query
 
-        const deleted = await this.messages.forBot(botId).delete({ id: +id, conversationId: +conversationId })
+        const deleted = await this.messages.forBot(botId).delete({ id, conversationId })
         res.send({ count: deleted })
       })
     )
@@ -110,7 +110,7 @@ export class MessagingRouter extends CustomRouter {
         const { botId } = req.params
         const { messageId } = req.params
 
-        const message = await this.messages.forBot(botId).get({ id: +messageId })
+        const message = await this.messages.forBot(botId).get({ id: messageId })
 
         if (message) {
           res.send(message)
@@ -127,7 +127,7 @@ export class MessagingRouter extends CustomRouter {
         const { botId } = req.params
         const { conversationId, limit } = req.query
 
-        const conversations = await this.messages.forBot(botId).list({ conversationId: +conversationId, limit })
+        const conversations = await this.messages.forBot(botId).list({ conversationId, limit })
         res.send(conversations)
       })
     )
@@ -138,7 +138,7 @@ export class MessagingRouter extends CustomRouter {
         const { botId, conversationId } = req.params
         const { payload, args } = req.body
 
-        const message = await this.messages.forBot(botId).send(+conversationId, payload, args)
+        const message = await this.messages.forBot(botId).send(conversationId, payload, args)
         res.send(message)
       })
     )
@@ -149,7 +149,7 @@ export class MessagingRouter extends CustomRouter {
         const { botId, conversationId } = req.params
         const { payload, args } = req.body
 
-        const message = await this.messages.forBot(botId).receive(+conversationId, payload, args)
+        const message = await this.messages.forBot(botId).receive(conversationId, payload, args)
         res.send(message)
       })
     )
