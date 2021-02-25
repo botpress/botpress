@@ -590,7 +590,6 @@ declare module 'botpress/sdk' {
       utterances: {
         [lang: string]: string[]
       }
-      filename: string
       slots: SlotDefinition[]
       contexts: string[]
     }
@@ -599,7 +598,6 @@ declare module 'botpress/sdk' {
       name: string
       confidence: number
       context: string
-      matches?: (intentPattern: string) => boolean
     }
 
     export interface Entity {
@@ -648,7 +646,7 @@ declare module 'botpress/sdk' {
         label: string
         confidence: number
         slots: SlotCollection
-        extractor: 'exact-matcher' | 'classifier'
+        extractor: string
       }[]
     }
 
