@@ -2,8 +2,8 @@ import { confirmDialog, lang, toast } from 'botpress/shared'
 import { Container, ItemList, SidePanel, SidePanelSection, SplashScreen } from 'botpress/ui'
 import React, { useEffect, useState } from 'react'
 
-import style from './style.scss'
 import AddLibrary from './AddLibrary'
+import style from './style.scss'
 
 export interface InstalledLibrary {
   name: string
@@ -16,7 +16,7 @@ const MainView = props => {
   const [lib, setLib] = useState<InstalledLibrary>()
 
   useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     refreshLibraries()
   }, [])
 
@@ -74,6 +74,7 @@ const MainView = props => {
         </SidePanelSection>
       </SidePanel>
       <div>
+        <div className={style.beta}>{lang.tr('module.libraries.betaWarning')}</div>
         {page === 'splash' && (
           <SplashScreen
             icon="book"

@@ -97,6 +97,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     menuIcon: 'book',
     menuText: 'Libraries',
     noInterface: false,
+    experimental: true,
     fullName: 'Libraries',
     homepage: 'https://botpress.com'
   }
