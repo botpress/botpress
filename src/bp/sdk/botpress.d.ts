@@ -22,7 +22,6 @@ declare module 'botpress/sdk' {
       idColumnName?: string,
       trx?: Knex.Transaction
     ): Promise<T>
-    insertAndGetId(table: string, data: any, column?: string): Promise<number>
   }
 
   export interface Incident {
