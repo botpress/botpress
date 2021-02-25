@@ -2442,7 +2442,7 @@ declare module 'botpress/sdk' {
          * @example
          * const conversation = await bp.conversations.forBot('myBot').recent({ userId: 'eEFoneif394' })
          */
-        recent(filters: RecentFilters): Promise<RecentConversation>
+        recent(filters: RecentFilters): Promise<Conversation>
       }
 
       export interface CreateArgs extends Omit<Conversation, 'id' | 'createdOn' | 'botId'> {}

@@ -75,9 +75,7 @@ export class ScopedConversationService implements sdk.experimental.conversations
     return this.conversationRepo.create(this.botId, args)
   }
 
-  public async recent(
-    filters: sdk.experimental.conversations.RecentFilters
-  ): Promise<sdk.experimental.RecentConversation> {
+  public async recent(filters: sdk.experimental.conversations.RecentFilters): Promise<sdk.experimental.Conversation> {
     const { userId } = filters
     const cached = this.mostRecentCache.get(userId)
     if (cached) {
