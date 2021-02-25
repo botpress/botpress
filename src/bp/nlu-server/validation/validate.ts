@@ -1,5 +1,5 @@
 import { validate } from 'joi'
-import { DUCKLING_ENTITIES } from 'nlu-core/entities/duckling-extractor'
+import { DUCKLING_ENTITIES } from 'nlu-core/entities/duckling-extractor/typings'
 import { isListEntity, isPatternEntity } from 'nlu-server/api-mapper'
 
 import {

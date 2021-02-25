@@ -1,30 +1,14 @@
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
-
 import { extractPattern } from '../../tools/patterns-utils'
 import { JOIN_CHAR } from '../../tools/token-utils'
 import { EntityExtractionResult, KeyedItem, SystemEntityExtractor } from '../../typings'
 import { SystemEntityCacheManager } from '../entity-cache-manager'
 import { DucklingClient, DucklingParams } from './duckling-client'
 import { mapDucklingToEntity } from './map-duckling'
-import { DucklingDimension } from './typings'
+import { DUCKLING_ENTITIES } from './typings'
 
 const BATCH_SIZE = 10
-
-export const DUCKLING_ENTITIES: DucklingDimension[] = [
-  'amountOfMoney',
-  'distance',
-  'duration',
-  'email',
-  'number',
-  'ordinal',
-  'phoneNumber',
-  'quantity',
-  'temperature',
-  'time',
-  'url',
-  'volume'
-]
 
 // Further improvements:
 // 1- in _extractBatch, shift results ==> don't walk whole array n times (nlog(n) vs n2)

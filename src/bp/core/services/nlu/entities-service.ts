@@ -1,27 +1,11 @@
 import * as sdk from 'botpress/sdk'
 import { sanitizeFileName } from 'core/misc/utils'
-
+import { DUCKLING_ENTITIES } from 'nlu-core/entities/duckling-extractor/typings'
 import { GhostService } from '..'
-
 import * as CacheManager from './cache-manager'
 import { NLUService } from './nlu-service'
 
 const ENTITIES_DIR = './entities'
-
-const DUCKLING_ENTITIES = [
-  'amountOfMoney',
-  'distance',
-  'duration',
-  'email',
-  'number',
-  'ordinal',
-  'phoneNumber',
-  'quantity',
-  'temperature',
-  'time',
-  'url',
-  'volume'
-]
 
 const getSystemEntities = (): sdk.NLU.EntityDefinition[] => {
   return [...DUCKLING_ENTITIES, 'any'].map(name => ({ name, type: 'system' })) as sdk.NLU.EntityDefinition[]
