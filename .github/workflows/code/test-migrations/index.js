@@ -13,25 +13,25 @@ const core = require('@actions/core')
 const github = require('@actions/github')
 
 const ensureDownMigration = async () => {
-  try {
-    const pull_request = JSON.parse(process.env.pull_request)
-    const octokit = github.getOctokit(process.env.token)
-    const options = {
-      repo: 'botpress',
-      owner: 'botpress',
-      pull_number: pull_request.number,
-      per_page: 300
-    }
+  console.log('check down')
+  const pull_request = JSON.parse(process.env.pull_request)
+  const octokit = github.getOctokit(process.env.token)
+  console.log('oct')
+  const options = {
+    repo: 'botpress',
+    owner: 'botpress',
+    pull_number: pull_request.number,
+    per_page: 300
+  }
 
-    const files = await octokit.pulls.listFiles(options)
+  const files = await octokit.pulls.listFiles(options)
 
-    console.log(files)
-    for (const { filename } of files.data.filter(x => x.includes('/migrations/'))) {
-      console.log('mig', filename)
-      const content = fs.readFileSync(filename)
-      console.log(content)
-    }
-  } catch (err) {}
+  console.log(files)
+  for (const { filename } of files.data.filter(x => x.includes('/migrations/'))) {
+    console.log('mig', filename)
+    const content = fs.readFileSync(filename)
+    console.log(content)
+  }
 }
 
 const start = async () => {
