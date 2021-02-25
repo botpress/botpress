@@ -143,7 +143,7 @@ class RootStore {
       })
     ) {
       if (await this.api.deleteFile(file)) {
-        this.editor.closeFile()
+        this.editor.closeFile(file)
         toast.success(lang.tr('module.code-editor.store.fileDeleted'))
         await this.fetchFiles()
       }
@@ -154,6 +154,7 @@ class RootStore {
   async disableFile(file: EditableFile): Promise<void> {
     const newName = file.name.charAt(0) !== '.' ? '.' + file.name : file.name
     if (await this.api.renameFile(file, newName)) {
+      this.editor.closeFile(file)
       toast.success(lang.tr('module.code-editor.store.fileDisabled'))
       await this.fetchFiles()
     }
@@ -164,6 +165,7 @@ class RootStore {
     const newName = file.name.charAt(0) === '.' ? file.name.substr(1) : file.name
 
     if (await this.api.renameFile(file, newName)) {
+      this.editor.closeFile(file)
       toast.success(lang.tr('module.code-editor.store.fileEnabled'))
       await this.fetchFiles()
     }

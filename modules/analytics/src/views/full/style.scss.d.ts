@@ -37,6 +37,7 @@ interface CssExports {
   'radialChartLabel': string;
   'section': string;
   'sectionsWrapper': string;
+  'threeQuarter': string;
   'threeQuarterGrid': string;
   'wIcon': string;
 }

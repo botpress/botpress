@@ -60,6 +60,10 @@ declare module 'botpress/shared' {
     Wrapper(props: WrapperProps): JSX.Element
     Menu(props: MenuProps): JSX.Element
     RightSidebar(props: RightSidebarProps): JSX.Element
+    BottomPanel: {
+      Container(props: any): any
+      Register(props: any): any
+    }
   }
   export const Form: {
     Form(props: FormProps): JSX.Element

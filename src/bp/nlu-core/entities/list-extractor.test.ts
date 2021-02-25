@@ -1,7 +1,7 @@
 import 'bluebird-global'
+import { makeTestUtterance } from 'nlu-core/test-utils/fake-utterance'
 
 import { EntityExtractionResult, ListEntityModel } from '../typings'
-import { makeTestUtterance } from '../utterance/utterance'
 import { parseUtterance } from '../utterance/utterance-parser'
 
 import { extractListEntities } from './custom-entity-extractor'

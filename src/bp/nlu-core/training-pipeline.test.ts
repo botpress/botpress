@@ -1,8 +1,8 @@
 import _ from 'lodash'
 
-import { tokenizeLatinTextForTests } from './tools/token-utils'
+import { tokenizeLatinTextForTests } from './test-utils/fake-tools'
 import { TfidfTokens, TrainStep } from './training-pipeline'
-import { Intent, Tools } from './typings'
+import { Intent } from './typings'
 import Utterance from './utterance/utterance'
 
 test('tfidf has a value for all tokens of the training set', async () => {

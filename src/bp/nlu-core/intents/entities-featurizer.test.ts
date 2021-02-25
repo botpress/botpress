@@ -1,6 +1,7 @@
 import _ from 'lodash'
+import { makeTestUtterance } from 'nlu-core/test-utils/fake-utterance'
 
-import { makeTestUtterance, UtteranceEntity, UtteranceRange } from '../utterance/utterance'
+import { UtteranceEntity, UtteranceRange } from '../utterance/utterance'
 
 import { getEntitiesEncoding } from './entities-featurizer'
 

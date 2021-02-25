@@ -1,5 +1,5 @@
 import { Button, Divider, Tab, Tabs } from '@blueprintjs/core'
-import { lang, ToolTip } from 'botpress/shared'
+import { lang, ToolTip, MainLayout } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { Fragment, useEffect, useState } from 'react'
@@ -17,11 +17,14 @@ const MAX_HISTORY = 10
 const BOTTOM_PANEL_TAB = 'bottomPanelTab'
 const AUTO_FOCUS_DEBUGGER = 'autoFocusDebugger'
 
+const DevPanel = MainLayout.BottomPanel
+
 const BottomPanel = props => {
   const [tab, setTab] = useState<string>(storage.get(BOTTOM_PANEL_TAB) || 'debugger')
   const [autoFocusDebugger, setAutoFocusDebugger] = useState<any>(storage.get(AUTO_FOCUS_DEBUGGER) ?? true)
   const [eventId, setEventId] = useState()
   const [dataHistory, setDataHistory] = useState<DataEntry[]>([])
+  const [customTabs, setCustomTabs] = useState([])
 
   useEffect(() => {
     window.addEventListener('message', handleNewMessage)
@@ -91,15 +94,23 @@ const BottomPanel = props => {
     </Fragment>
   )
 
+  // @ts-ignore
+  DevPanel.Container.onTabsChanged = tabs => setCustomTabs(tabs)
+
   return (
     <div className={style.container}>
       <Tabs className={style.verticalTab} vertical onChange={tab => handleChangeTab(tab)} selectedTabId={tab}>
         <Tab id="debugger" title={lang.tr('debugger')} />
         <Tab id="logs" title={lang.tr('logs')} />
         {props.inspectorEnabled && <Tab id="inspector" title={lang.tr('inspector')} />}
+
+        {customTabs.map(tab => {
+          return <Tab id={tab} title={tab} />
+        })}
       </Tabs>
 
       <div className={cx(style.padded, style.fullWidth)}>
+        <DevPanel.Container activeTab={tab} />
         <Logs commonButtons={commonButtons} hidden={tab !== 'logs'} />
 
         <Debugger

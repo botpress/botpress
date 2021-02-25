@@ -127,7 +127,7 @@ export const fetchProfile = () => {
       const { data } = await api.getSecured().get('/auth/me/profile')
       dispatch({ type: MY_PROFILE_RECEIVED, profile: data.payload })
     } catch (err) {
-      logout()
+      await logout()
     }
   }
 }

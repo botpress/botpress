@@ -82,4 +82,10 @@ export interface Config {
    * @default false
    */
   lazySocket: boolean
+
+  /**
+   * If true, chat will no longer play the notification sound for new messages.
+   * @default false
+   */
+  disableNotificationSound: boolean
 }
