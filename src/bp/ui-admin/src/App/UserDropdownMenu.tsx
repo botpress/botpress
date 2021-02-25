@@ -16,8 +16,8 @@ import ChangeLanguage from '~/Pages/MyAccount/ChangeLanguage'
 import UpdatePassword from '~/Pages/MyAccount/UpdatePassword'
 import UserProfile from '~/Pages/MyAccount/UpdateUserProfile'
 
-import { fetchProfile } from '../reducers/user'
 import BasicAuthentication from '../Auth/index'
+import { fetchProfile } from '../reducers/user'
 
 interface Props {
   fetchProfile: () => void
@@ -33,9 +33,9 @@ const UserDropdownMenu: FC<Props> = props => {
     !props.profile && props.fetchProfile()
   }, [])
 
-  const logout = () => {
+  const logout = async () => {
     const auth: BasicAuthentication = new BasicAuthentication()
-    auth.logout()
+    await auth.logout()
   }
 
   if (!props.profile) {

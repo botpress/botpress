@@ -27,9 +27,9 @@ export class AuthRouter extends CustomRouter {
     super('Auth', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
 
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.setupRoutes()
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.setupStrategies()
   }
 
@@ -181,6 +181,15 @@ export class AuthRouter extends CustomRouter {
 
         await this.authService.authChatUser(req.body, req.tokenUser!)
         res.send(await this.workspaceService.getBotWorkspaceId(botId))
+      })
+    )
+
+    router.post(
+      '/logout',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req: RequestWithUser, res) => {
+        await this.authService.invalidateToken(req.tokenUser!)
+        res.sendStatus(200)
       })
     )
   }

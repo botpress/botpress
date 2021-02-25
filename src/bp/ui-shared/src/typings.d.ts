@@ -22,7 +22,6 @@ import { ConfirmDialogOptions } from './ConfirmDialog/typings'
 import { DialogProps } from './Dialog/typings'
 import { DropdownProps, Option } from './Dropdown/typings'
 import { EmptyStateProps } from './EmptyState/typings'
-import { FormProps } from './Form/typings'
 import {
   AddButtonProps,
   FieldWrapperProps,
@@ -31,6 +30,7 @@ import {
   TextProps,
   UploadFieldProps
 } from './Form/FormFields/typings'
+import { FormProps } from './Form/typings'
 import { MainContainerProps } from './MainContainer/typings'
 import { HeaderButton, HeaderProps } from './MainLayout/Header/typings'
 import { MenuItem, MenuProps } from './MainLayout/Menu/typings'
@@ -60,6 +60,10 @@ declare module 'botpress/shared' {
     Wrapper(props: WrapperProps): JSX.Element
     Menu(props: MenuProps): JSX.Element
     RightSidebar(props: RightSidebarProps): JSX.Element
+    BottomPanel: {
+      Container(props: any): any
+      Register(props: any): any
+    }
   }
   export const Form: {
     Form(props: FormProps): JSX.Element

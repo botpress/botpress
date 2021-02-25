@@ -20,8 +20,8 @@ import {
   XAxis,
   YAxis
 } from 'recharts'
-import { fetchBotHealth } from '~/reducers/bots'
 import PageContainer from '~/App/PageContainer'
+import { fetchBotHealth } from '~/reducers/bots'
 
 import { fetchStats, refreshStats } from '../../reducers/monitoring'
 import CheckRequirements from '../Components/CheckRequirements'

@@ -32,13 +32,13 @@ import {
   thisWeek,
   thisYear
 } from './dates'
-import style from './style.scss'
-import { fillMissingValues, getNotNaN } from './utils'
 import FlatProgressChart from './FlatProgressChart'
 import ItemsList from './ItemsList'
 import NumberMetric from './NumberMetric'
 import RadialMetric from './RadialMetric'
+import style from './style.scss'
 import TimeSeriesChart from './TimeSeriesChart'
+import { fillMissingValues, getNotNaN } from './utils'
 
 interface State {
   previousRangeMetrics: MetricEntry[]
@@ -180,14 +180,14 @@ const Analytics: FC<any> = ({ bp }) => {
       return
     }
 
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     fetchAnalytics(state.selectedChannel, state.dateRange).then(metrics => {
       utils.inspect({ id: state.dateRange, metrics })
       dispatch({ type: 'receivedMetrics', data: { dateRange: state.dateRange, metrics } })
       const newChannels = _.uniq(_.map(metrics, 'channel')).map(x => {
         return { value: x, label: capitalize(x) }
       })
-      setChannels(_.uniq([...channels, ...newChannels]))
+      setChannels(_.uniqBy([...channels, ...newChannels], 'value'))
     })
 
     /* Get the previous range data so we can compare them and see what changed */
@@ -196,14 +196,14 @@ const Analytics: FC<any> = ({ bp }) => {
     const oldEndDate = moment(state.dateRange[0]).subtract(1, 'days')
     const previousRange = [startDate.subtract(endDate.diff(startDate, 'days') + 1, 'days'), oldEndDate]
 
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     fetchAnalytics(state.selectedChannel, previousRange).then(metrics => {
       dispatch({ type: 'receivedPreviousRangeMetrics', data: { dateRange: previousRange, metrics } })
     })
   }, [state.dateRange, state.selectedChannel])
 
   useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     fetchQnaQuestions()
   }, [state.metrics])
 
@@ -415,11 +415,18 @@ const Analytics: FC<any> = ({ bp }) => {
           value={getMetricCount('msg_sent_qna_count')}
           className={style.half}
         />
+      </div>
+    )
+  }
+
+  const renderInteractions = () => {
+    return(
+      <div className={cx(style.metricsContainer, style.fullWidth)}>
         <ItemsList
           name={lang.tr('module.analytics.mostUsedWorkflows')}
           items={getTopItems('enter_flow_count', 'workflow')}
           itemLimit={10}
-          className={cx(style.genericMetric, style.half, style.list)}
+          className={cx(style.genericMetric, style.quarter, style.list)}
         />
         <ItemsList
           name={lang.tr('module.analytics.mostAskedQuestions')}
@@ -428,7 +435,7 @@ const Analytics: FC<any> = ({ bp }) => {
             label: q.question || renderDeletedQna(q.id),
             onClick: q.question ? navigateToElement(q.id, 'qna') : undefined
           }))}
-          className={cx(style.genericMetric, style.half, style.list)}
+          className={cx(style.genericMetric, style.threeQuarter, style.list)}
         />
       </div>
     )
@@ -682,6 +689,10 @@ const Analytics: FC<any> = ({ bp }) => {
           <div className={cx(style.section, style.half)}>
             <h2>{lang.tr('module.analytics.conversations')}</h2>
             {renderConversations()}
+          </div>
+          <div className={style.section}>
+            <h2>{lang.tr('module.analytics.interactions')}</h2>
+            {renderInteractions()}
           </div>
           <div className={style.section}>
             <h2>{lang.tr('module.analytics.handlingAndUnderstanding')}</h2>

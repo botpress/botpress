@@ -1,7 +1,9 @@
 import * as sdk from 'botpress/sdk'
 import { Testing } from './testing'
 
-export type TestByBot = { [botId: string]: Testing }
+export interface TestByBot {
+  [botId: string]: Testing
+}
 
 export interface Scenario {
   name?: string

@@ -7,11 +7,11 @@ import React, { FC, useEffect, useRef, useState } from 'react'
 
 import { NLUApi } from '../../../api'
 
+import { ContextSelector } from './ContextSelector'
+import IntentHint from './IntentHint'
 import Slots from './slots/Slots'
 import style from './style.scss'
 import { removeSlotFromUtterances, renameSlotInUtterances } from './utterances-state-utils'
-import { ContextSelector } from './ContextSelector'
-import IntentHint from './IntentHint'
 import { UtterancesEditor } from './UtterancesEditor'
 
 interface Props {
@@ -30,7 +30,7 @@ export const IntentEditor: FC<Props> = props => {
   )
 
   useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     props.api.fetchIntent(props.intent).then(intent => {
       setIntent(intent)
       utils.inspect(intent)
@@ -46,14 +46,14 @@ export const IntentEditor: FC<Props> = props => {
 
   const saveIntent = (newIntent: NLU.IntentDefinition) => {
     setIntent(newIntent)
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     props.api.createIntent(newIntent)
   }
 
-  const handleUtterancesChange = (newUtterances: string[]) => {
+  const handleUtterancesChange = async (newUtterances: string[]) => {
     const newIntent = { ...intent, utterances: { ...intent.utterances, [props.contentLang]: newUtterances } }
     setIntent(newIntent)
-    debouncedApiSaveIntent.current(newIntent)
+    await debouncedApiSaveIntent.current(newIntent)
   }
 
   const handleSlotsChange = (slots: NLU.SlotDefinition[], { operation, name, oldName }) => {

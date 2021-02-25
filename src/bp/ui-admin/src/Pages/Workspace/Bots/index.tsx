@@ -19,18 +19,18 @@ import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { generatePath, RouteComponentProps } from 'react-router'
 import { Alert, Col, Row } from 'reactstrap'
-import { toastFailure, toastSuccess } from '~/utils/toaster'
-import { filterList } from '~/utils/util'
 import PageContainer from '~/App/PageContainer'
 import SplitPage from '~/App/SplitPage'
 import { getActiveWorkspace } from '~/Auth'
 import { Downloader } from '~/Pages/Components/Downloader'
+import { toastFailure, toastSuccess } from '~/utils/toaster'
+import { filterList } from '~/utils/util'
 
 import api from '../../../api'
+import AccessControl from '../../../App/AccessControl'
 import { fetchBotHealth, fetchBots } from '../../../reducers/bots'
 import { fetchLicensing } from '../../../reducers/license'
 import { fetchModules } from '../../../reducers/modules'
-import AccessControl from '../../../App/AccessControl'
 import LoadingSection from '../../Components/LoadingSection'
 
 import BotItemCompact from './BotItemCompact'
@@ -82,6 +82,7 @@ class Bots extends Component<Props> {
       this.props.fetchLicensing()
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     telemetry.startFallback(api.getSecured()).catch()
   }
 

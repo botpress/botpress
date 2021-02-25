@@ -214,6 +214,9 @@ export default class HTTPServer {
 
     this._needPermissions = needPermissions(this.workspaceService)
     this._hasPermissions = hasPermissions(this.workspaceService)
+
+    // Necessary to prevent circular dependency
+    this.authService.jobService = this.jobService
   }
 
   async setupRootPath() {
@@ -253,7 +256,7 @@ export default class HTTPServer {
     this.botsRouter.router.use('/converse', this.converseRouter.router)
     this.botsRouter.router.use('/nlu', this.nluRouter.router)
 
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     AppLifecycle.waitFor(AppLifecycleEvents.BOTPRESS_READY).then(() => {
       this.isBotpressReady = true
     })
@@ -490,7 +493,15 @@ export default class HTTPServer {
 
   async getAxiosConfigForBot(botId: string, options?: AxiosOptions): Promise<AxiosBotConfig> {
     const basePath = options && options.localUrl ? process.LOCAL_URL : process.EXTERNAL_URL
-    const serverToken = generateUserToken(SERVER_USER, SERVER_USER_STRATEGY, false, '5m', TOKEN_AUDIENCE)
+    const serverToken = generateUserToken({
+      email: SERVER_USER,
+      strategy: SERVER_USER_STRATEGY,
+      tokenVersion: 1,
+      isSuperAdmin: false,
+      expiresIn: '5m',
+      audience: TOKEN_AUDIENCE
+    })
+
     return {
       baseURL: `${basePath}/api/v1/bots/${botId}`,
       headers: {

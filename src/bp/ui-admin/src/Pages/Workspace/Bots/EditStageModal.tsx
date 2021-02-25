@@ -15,8 +15,8 @@ import React, { ChangeEvent, FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import Select from 'react-select'
 import api from '~/api'
-import { toastFailure, toastSuccess } from '~/utils/toaster'
 import { getActiveWorkspace } from '~/Auth'
+import { toastFailure, toastSuccess } from '~/utils/toaster'
 
 import { fetchUsers } from '../../../reducers/user'
 
@@ -79,7 +79,7 @@ const EditStageModal: FC<Props> = props => {
       setPipeline(pipeline)
       props.fetchUsers(adminRole)
     }
-  }, [])
+  }, [props.workspace])
 
   const submit = async () => {
     const {
@@ -89,6 +89,8 @@ const EditStageModal: FC<Props> = props => {
 
     if (!pipeline.find(p => p.id === id)) {
       toastFailure(lang.tr('admin.workspace.bots.edit.couldNotFindPipeline'))
+
+      return
     } else {
       newPipeline = pipeline.map(p =>
         p.id !== id

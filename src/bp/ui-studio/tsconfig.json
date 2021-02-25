@@ -19,6 +19,6 @@
       "botpress/sdk": ["../sdk/botpress.d.ts"]
     }
   },
-  "include": ["src"],
+  "include": ["src/**/*.ts","src/**/*.tsx"],
   "exclude": ["node_modules", "build", "dist", "example", "rollup.config.js", "webpack.config.js"]
 }

@@ -19,8 +19,6 @@ import Roles from '~/Pages/Workspace/Roles'
 import Collaborators from '~/Pages/Workspace/Users/Collaborators'
 import Workspaces from '~/Pages/Workspaces'
 
-import store, { history } from '../store'
-import { extractCookie } from '../utils/cookies'
 import App from '../App/Layout'
 import Auth, { getActiveWorkspace, setToken } from '../Auth'
 import ChangePassword from '../Pages/Account/ChangePassword'
@@ -28,6 +26,8 @@ import LoginPage from '../Pages/Account/Login'
 import RegisterPage from '../Pages/Account/Register'
 import Debug from '../Pages/Server/Debug'
 import Modules from '../Pages/Server/Modules'
+import store, { history } from '../store'
+import { extractCookie } from '../utils/cookies'
 
 import PrivateRoute from './PrivateRoute'
 
@@ -58,7 +58,7 @@ export const makeMainRoutes = () => {
       setToken(token)
     }
 
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     auth.afterLoginRedirect()
 
     return null
