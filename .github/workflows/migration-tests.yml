@@ -1,7 +1,8 @@
 name: Tests
-on: [pull_request]
-  paths:
-    - '**/migrations/*'
+on:
+  pull_request:
+    paths:
+      - '**/migrations/*'
 
 jobs:
   migration:
