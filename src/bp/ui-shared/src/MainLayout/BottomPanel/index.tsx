@@ -1,7 +1,7 @@
+import cx from 'classnames'
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import style from './style.scss'
-import cx from 'classnames'
 
 class Portal extends React.Component<BottomPanelProps> {
   private container: HTMLElement
