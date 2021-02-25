@@ -1,6 +1,7 @@
 import { NLU } from 'botpress/sdk'
 import MLToolkit from 'ml/toolkit'
 import path from 'path'
+import yn from 'yn'
 import { DucklingEntityExtractor } from './entities/duckling-extractor'
 import { SystemEntityCacheManager } from './entities/entity-cache-manager'
 import { MicrosoftEntityExtractor } from './entities/microsoft-extractor'
@@ -64,15 +65,8 @@ const makeSystemEntityExtractor = async (
   logger: NLU.Logger
 ): Promise<SystemEntityExtractor> => {
   let extractor: SystemEntityExtractor
-  if (config.ducklingEnabled) {
-    const duckCache = new SystemEntityCacheManager(
-      path.join(process.APP_DATA_PATH, 'cache', 'duckling_sys_entities.json'),
-      true,
-      logger
-    )
-    extractor = new DucklingEntityExtractor(duckCache, logger)
-    await extractor.configure(config.ducklingEnabled, config.ducklingURL)
-  } else {
+
+  if (yn(process.env.BP_MICROSOFT_RECOGNIZER)) {
     const msCache = new SystemEntityCacheManager(
       path.join(process.APP_DATA_PATH, 'cache', 'microsoft_sys_entities.json'),
       true,
@@ -80,7 +74,16 @@ const makeSystemEntityExtractor = async (
     )
     extractor = new MicrosoftEntityExtractor(msCache, logger)
     await extractor.configure()
+  } else {
+    const duckCache = new SystemEntityCacheManager(
+      path.join(process.APP_DATA_PATH, 'cache', 'duckling_sys_entities.json'),
+      true,
+      logger
+    )
+    extractor = new DucklingEntityExtractor(duckCache, logger)
+    await extractor.configure(config.ducklingEnabled, config.ducklingURL)
   }
+
   return extractor
 }
 

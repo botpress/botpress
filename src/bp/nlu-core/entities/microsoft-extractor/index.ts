@@ -94,7 +94,7 @@ export class MicrosoftEntityExtractor implements SystemEntityExtractor {
       value = metadatas.value
 
       if (entity.typeName === 'dimension') {
-        entity.typeName = this.getDucklingUnitMappings[metadatas.unit!]
+        entity.typeName = this.getDucklingUnitMappings(metadatas.unit!)
       } else if (entity.typeName in DucklingTypeMappings) {
         entity.typeName = DucklingTypeMappings[entity.typeName]
       }
@@ -116,12 +116,13 @@ export class MicrosoftEntityExtractor implements SystemEntityExtractor {
     return formated
   }
 
-  private getDucklingUnitMappings = unit => {
+  private getDucklingUnitMappings = (unit: string): string => {
     for (const [type, subtypes] of Object.entries(DucklingUnitMapping)) {
       if (subtypes.includes(unit)) {
         return type
       }
     }
+    return unit
   }
 
   private async _extractBatch(batch: KeyedItem[], params: MicrosoftParams): Promise<KeyedItem[]> {
