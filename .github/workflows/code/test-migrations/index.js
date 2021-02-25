@@ -10,30 +10,33 @@ const _ = require('lodash')
 const AWS = require('aws-sdk')
 const chalk = require('chalk')
 const core = require('@actions/core')
-const yn = require('yn')
+const github = require('@actions/github')
+
+const ensureDownMigration = async () => {
+  try {
+    const pull_request = JSON.parse(process.env.pull_request)
+    const octokit = github.getOctokit(process.env.token)
+    const options = {
+      repo: 'botpress',
+      owner: 'botpress',
+      pull_number: pull_request.number,
+      per_page: 300
+    }
+
+    const files = await octokit.pulls.listFiles(options)
+
+    console.log(files)
+    for (const { filename } of files.data.filter(x => x.includes('/migrations/'))) {
+      console.log('mig', filename)
+      const content = fs.readFileSync(filename)
+      console.log(content)
+    }
+  } catch (err) {}
+}
 
 const start = async () => {
-  const targetVersion = getMostRecentVersion()
-
-  const Bucket = 'botpress-migrations'
-  const s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-  })
-
-  const dir = await Promise.fromCallback(cb => s3.listObjectsV2({ Bucket }, cb))
-  for (const file of dir.Contents) {
-    console.info(`Processing file ${file.Key}`)
-    const [archiveName, version] = file.Key.split('_')
-
-    const archiveVersion = version.replace(/.tgz|.zip/, '')
-    const buffer = await Promise.fromCallback(cb => s3.getObject({ Bucket, Key: file.Key }, cb))
-
-    await prepareDataFolder(buffer.Body)
-
-    await testMigration(archiveName, archiveVersion, targetVersion, { isDown: false })
-    await testMigration(archiveName, targetVersion, archiveVersion, { isDown: true })
-  }
+  await ensureDownMigration()
+  return
 }
 
 const prepareDataFolder = async buffer => {
