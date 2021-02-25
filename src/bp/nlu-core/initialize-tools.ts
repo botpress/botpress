@@ -66,7 +66,7 @@ const makeSystemEntityExtractor = async (
   let extractor: SystemEntityExtractor
   if (config.ducklingEnabled) {
     const duckCache = new SystemEntityCacheManager(
-      path.join(process.APP_DATA_PATH || '', 'cache', 'duckling_sys_entities.json'),
+      path.join(process.APP_DATA_PATH, 'cache', 'duckling_sys_entities.json'),
       true,
       logger
     )
@@ -74,7 +74,7 @@ const makeSystemEntityExtractor = async (
     await extractor.configure(config.ducklingEnabled, config.ducklingURL)
   } else {
     const msCache = new SystemEntityCacheManager(
-      path.join(process.APP_DATA_PATH || '', 'cache', 'microsoft_sys_entities.json'),
+      path.join(process.APP_DATA_PATH, 'cache', 'microsoft_sys_entities.json'),
       true,
       logger
     )

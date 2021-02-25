@@ -9,7 +9,7 @@ import { SystemEntityCacheManager } from '../entity-cache-manager'
 describe('Duckling Extract Multiple', () => {
   let duck: DucklingEntityExtractor
   let mockedFetch: jest.SpyInstance
-  let testCachePath = path.join(process.APP_DATA_PATH || '', 'cache', 'testCache.json')
+  let testCachePath = path.join(' ', 'cache', 'testCache.json')
   beforeAll(() => {
     const duckCache = new SystemEntityCacheManager(testCachePath, true)
     duck = new DucklingEntityExtractor(duckCache)

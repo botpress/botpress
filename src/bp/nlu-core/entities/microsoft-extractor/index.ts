@@ -1,5 +1,3 @@
-import { Recognizer, IModel, ModelResult } from '@microsoft/recognizers-text'
-
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
@@ -16,14 +14,13 @@ import {
   langToCulture,
   MicrosoftValues,
   MicrosoftTimeValues,
-  MicrosoftValue
-} from './typings'
+  MicrosoftValue,
+  MicrosoftEntity
+} from './enums'
 interface MicrosoftParams {
   lang: SupportedLangs
   recognizers: any[]
 }
-
-const BATCH_SIZE = 10000
 
 // Further improvements:
 // 1- in _extractBatch, shift results ==> don't walk whole array n times (nlog(n) vs n2)
@@ -46,25 +43,13 @@ export class MicrosoftEntityExtractor implements SystemEntityExtractor {
     lang: string,
     useCache?: boolean
   ): Promise<EntityExtractionResult[][]> {
-    let options: MicrosoftParams
-
-    if (!SupportedLangsList.includes(lang)) {
-      lang = 'en'
-      options = {
-        lang: 'en' as SupportedLangs,
-        recognizers: [...GlobalRecognizers]
-      }
-    } else {
-      options = {
-        lang: lang as SupportedLangs,
-        recognizers: [...LanguageDependantRecognizers, ...GlobalRecognizers]
-      }
-    }
+    const options = !SupportedLangsList.includes(lang)
+      ? { lang: 'en' as SupportedLangs, recognizers: [...GlobalRecognizers] }
+      : { lang: lang as SupportedLangs, recognizers: [...LanguageDependantRecognizers, ...GlobalRecognizers] }
 
     const [cached, toFetch] = this._cache.splitCacheHitFromCacheMiss(inputs, !!useCache)
 
-    const chunks = _.chunk(toFetch, BATCH_SIZE)
-    const batchedRes = await Promise.mapSeries(chunks, c => this._extractBatch(c, options))
+    const batchedRes = await this._extractBatch(toFetch, options)
 
     return _.chain(batchedRes)
       .flatten()
@@ -78,7 +63,7 @@ export class MicrosoftEntityExtractor implements SystemEntityExtractor {
     return (await this.extractMultiple([input], lang, useCache))[0]
   }
 
-  private formatEntity(entity: ModelResult): EntityExtractionResult {
+  private formatEntity(entity: MicrosoftEntity): EntityExtractionResult {
     let unit: string
     let value: string
 
@@ -91,21 +76,23 @@ export class MicrosoftEntityExtractor implements SystemEntityExtractor {
 
       switch (entity.typeName) {
         case 'duration':
-          let timeString = ''
+          // TODO Uncomment this but do the same for the duckling extractor as well
+          // let timeString = ''
 
-          if (metadatas.Mod) {
-            timeString += metadatas.Mod + '###'
-          }
+          // if (metadatas.Mod) {
+          //   timeString += metadatas.Mod + '###'
+          // }
 
-          if (metadatas.start) {
-            timeString += metadatas.start
-          }
+          // if (metadatas.start) {
+          //   timeString += metadatas.start
+          // }
 
-          if (metadatas.end) {
-            timeString += '___' + metadatas.end
-          }
+          // if (metadatas.end) {
+          //   timeString += '___' + metadatas.end
+          // }
 
-          value = timeString
+          // value = timeString
+          value = metadatas.start || metadatas.end!
           break
 
         case 'time':
@@ -118,7 +105,7 @@ export class MicrosoftEntityExtractor implements SystemEntityExtractor {
       }
     } else {
       const metadatas = entity.resolution as MicrosoftValue
-      unit = metadatas.unit ? metadatas.unit : entity.typeName
+      unit = metadatas.unit || entity.typeName
       value = metadatas.value
 
       if (entity.typeName === 'dimension') {
@@ -164,7 +151,7 @@ export class MicrosoftEntityExtractor implements SystemEntityExtractor {
       let utteranceEntities: any[] = []
 
       for (const typeRecognizer of params.recognizers) {
-        const entities: ModelResult[] = typeRecognizer(utt.input, culture)
+        const entities: MicrosoftEntity[] = typeRecognizer(utt.input, culture)
 
         if (entities.length > 0) {
           const formatedEntities: EntityExtractionResult[] = entities.map(ent => this.formatEntity(ent))
@@ -183,6 +170,7 @@ export class MicrosoftEntityExtractor implements SystemEntityExtractor {
     return batch.map((batchItm, i) => ({ ...batchItm, entities: batchedEntities[i] }))
   }
 
+  // Maybe useful in the date formatting to add features so keeping it here
   private _getTz(): string {
     return Intl.DateTimeFormat().resolvedOptions().timeZone
   }

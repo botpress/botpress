@@ -1,16 +1,16 @@
 import 'bluebird-global'
+import { unlinkSync } from 'fs'
 import _ from 'lodash'
 import path from 'path'
-import { unlinkSync } from 'fs'
 import { MicrosoftEntityExtractor } from '.'
 import { SystemEntityCacheManager } from '../entity-cache-manager'
 
 describe('Microsoft Extract Multiple', () => {
   let microsoft: MicrosoftEntityExtractor
-  let testCachePath = path.join(process.APP_DATA_PATH || '', 'cache', 'testCache.json')
+  let testCachePath = path.join(' ', 'cache', 'testCache.json')
   beforeAll(() => {
-    const duckCache = new SystemEntityCacheManager(testCachePath, true)
-    microsoft = new MicrosoftEntityExtractor(duckCache)
+    const microsoftCache = new SystemEntityCacheManager(testCachePath, true)
+    microsoft = new MicrosoftEntityExtractor(microsoftCache)
   })
 
   beforeEach(async () => {
@@ -31,7 +31,7 @@ describe('Microsoft Extract Multiple', () => {
 
   // Note we could add numbers as global recognizers as well.
   test('Return phone number, ip address, mention, hashtag, email, url for unsupported lang', async () => {
-    const results = [
+    const expected = [
       [
         {
           confidence: 1,
@@ -133,21 +133,24 @@ describe('Microsoft Extract Multiple', () => {
       'Мой сайт www.thecuteboys.com, пожалуйста, напишите отзыв'
     ]
     const res = await microsoft.extractMultiple(examples, 'ru')
-    res
-      .map((val, idx) => [val, results[idx]])
-      .forEach(([prem, hyp]) => {
-        expect(prem).toEqual(hyp)
-      })
+
+    for (const [prem, hyp] of _.zip(res, expected)) {
+      expect(prem).toHaveLength(1)
+      expect(prem![0].type).toEqual(hyp![0].type)
+      expect(prem![0].value).toEqual(hyp![0].value)
+    }
   })
 
-  test('returns as many results as n examples with single batch', async () => {
-    const examples = ['this is one', 'this is two', 'this is three']
-    const res = await microsoft.extractMultiple(examples, 'en')
-    expect(res.length).toEqual(examples.length)
-  })
-
-  test('returns as many results as n examples with multiple batches', async () => {
-    const examples = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '11', '12', '13', '14']
+  test('returns as many results as n examples', async () => {
+    const examples = [
+      "Today it's my birthday. I'm one hundred percent happy !",
+      'I have one little girl born the 4 december 2020. She was 6 pounds',
+      'You can reach me at pierre.snell@botpress.com or @ierezell on github #botpress4ever',
+      "I wish I would have one million dollars before I'm 30 years old",
+      'Nothing none null undefined',
+      'Is it five degrees outside ?',
+      'Oh yes please'
+    ]
     const res = await microsoft.extractMultiple(examples, 'en')
     expect(res.length).toEqual(examples.length)
   })

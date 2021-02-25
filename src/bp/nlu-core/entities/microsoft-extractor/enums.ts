@@ -1,3 +1,4 @@
+import { ModelResult } from '@microsoft/recognizers-text'
 import Recognizers from '@microsoft/recognizers-text-suite'
 
 export interface MicrosoftValue {
@@ -24,13 +25,14 @@ export interface MicrosoftValues {
 
 export type MicrosoftResolution = MicrosoftValue | MicrosoftValues
 
-export interface MicrosoftEntity {
+export interface MicrosoftEntity extends ModelResult {
   start: number
   end: number
   resolution: MicrosoftResolution
   text: string
   typeName: string
 }
+
 export type SupportedLangs = 'zh' | 'nl' | 'en' | 'fr' | 'de' | 'it' | 'ja' | 'pt' | 'es'
 export const SupportedLangsList = ['zh', 'nl', 'en', 'fr', 'de', 'it', 'ja', 'pt', 'es']
 

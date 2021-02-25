@@ -3,7 +3,7 @@ import { ensureFile, pathExists, readJSON, writeJson } from 'fs-extra'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
 import ms from 'ms'
-import { ColdListEntityModel, EntityCache, KeyedItem, EntityCacheDump, EntityExtractionResult } from 'nlu-core/typings'
+import { ColdListEntityModel, EntityCache, EntityCacheDump, EntityExtractionResult, KeyedItem } from 'nlu-core/typings'
 import sizeof from 'object-sizeof'
 
 interface CacheByName {
