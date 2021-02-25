@@ -7,10 +7,11 @@ import { SystemEntityCacheManager } from './entities/entity-cache-manager'
 import { MicrosoftEntityExtractor } from './entities/microsoft-extractor'
 import LangProvider from './language/language-provider'
 import { getPOSTagger, tagSentence } from './language/pos-tagger'
+import { getStopWordsForLang } from './language/stopWords'
 import SeededLodashProvider from './tools/seeded-lodash'
 import { LanguageProvider, SystemEntityExtractor, Tools } from './typings'
 
-const NLU_VERSION = '2.0.0'
+const NLU_VERSION = '2.1.0'
 
 const healthGetter = (languageProvider: LanguageProvider) => (): NLU.Health => {
   const { validProvidersCount, validLanguages } = languageProvider.getHealth()
@@ -103,6 +104,8 @@ export async function initializeTools(config: NLU.LanguageConfig, logger: NLU.Lo
       return a.map(x => Array.from(x.values()))
     },
     generateSimilarJunkWords: (vocab: string[], lang: string) => languageProvider.generateSimilarJunkWords(vocab, lang),
+    getStopWordsForLang,
+
     getHealth: healthGetter(languageProvider),
     getLanguages: () => languageProvider.languages,
     getSpecifications: versionGetter(languageProvider),
