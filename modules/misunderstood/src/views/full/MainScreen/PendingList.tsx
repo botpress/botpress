@@ -5,14 +5,14 @@ import React from 'react'
 import { DbFlaggedEvent } from '../../../types'
 import StickyActionBar from '../StickyActionBar'
 
-import style from './style.scss'
 import ResolvedEventsList from './ResolvedEventsList'
+import style from './style.scss'
 
 interface Props {
   events: DbFlaggedEvent[]
   totalEventsCount: number
   applyAllPending: () => Promise<void>
-  resetPendingEvent: (id: string) => Promise<void>
+  resetPendingEvent: (id: number) => Promise<void>
 }
 
 const PendingList = ({ events, totalEventsCount, applyAllPending, resetPendingEvent }: Props) => (

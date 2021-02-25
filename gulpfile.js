@@ -19,10 +19,19 @@ process.on('uncaughtException', err => {
 if (yn(process.env.GULP_PARALLEL)) {
   gulp.task(
     'build',
-    gulp.series([ui.buildSharedLite(), core.build(), ui.buildShared(), ui.initStudio, gulp.parallel(modules.build(), ui.build())])
+    gulp.series([
+      ui.buildSharedLite(),
+      core.build(),
+      ui.buildShared(),
+      ui.initStudio,
+      gulp.parallel(modules.build(), ui.build())
+    ])
   )
 } else {
-  gulp.task('build', gulp.series([ui.buildSharedLite(), core.build(), ui.buildShared(), ui.initStudio, modules.build(), ui.build()]))
+  gulp.task(
+    'build',
+    gulp.series([ui.buildSharedLite(), core.build(), ui.buildShared(), ui.initStudio, modules.build(), ui.build()])
+  )
 }
 
 gulp.task('default', cb => {
@@ -106,27 +115,4 @@ gulp.task('changelog', () => {
     .src('CHANGELOG.md')
     .pipe(changelog(changelogOts, context, gitRawCommitsOpts, commitsParserOpts, changelogWriterOpts))
     .pipe(gulp.dest('./'))
-})
-
-gulp.task('lint', cb => {
-  if (argv.staged) {
-    const command = `yarn run lint-staged --no-stash -c config/lint-staged${argv.fix ? '.fix' : ''}.config.js`
-    spawnSync(command, { shell: true, stdio: 'inherit' }, err => cb(err))
-    cb()
-    return
-  }
-
-  const baseBranch = argv.baseBranch || 'dev'
-  const gitResult = spawnSync('git', ['--no-pager', 'diff', `${baseBranch}..`, '--name-only'], { stdio: 'pipe' })
-
-  const files = String(gitResult.output)
-    .split('\n')
-    .filter(file => /\.tsx?$/.test(file))
-
-  for (const batch of _.chunk(files, 100)) {
-    const command = `yarn run tslint -c tslint.newrules.json ${argv.fix ? '--fix' : ''}`
-    spawnSync(command, [batch.join(' ')], { shell: true, stdio: 'inherit' }, err => cb(err))
-  }
-
-  cb()
 })

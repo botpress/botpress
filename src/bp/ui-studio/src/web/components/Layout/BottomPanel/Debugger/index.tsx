@@ -277,17 +277,13 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   render() {
-    if (this.props.hidden) {
-      return null
-    }
-
     const hasEvent = !!this.state.event
     const ndu = _.get(this.state, 'event.ndu')
 
     return (
       <Tabs
         id="tabs"
-        className={cx(btStyle.tabs)}
+        className={cx(btStyle.tabs, { [btStyle.hidden]: this.props.hidden })}
         onChange={this.handleTabChange}
         selectedTabId={this.state.selectedTabId}
       >

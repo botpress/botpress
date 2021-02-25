@@ -2,6 +2,7 @@ import bodyParser from 'body-parser'
 import { AxiosBotConfig, AxiosOptions, http, Logger, RouterOptions } from 'botpress/sdk'
 import LicensingService from 'common/licensing-service'
 import { RequestWithUser } from 'common/typings'
+import compression from 'compression'
 import session from 'cookie-session'
 import cors from 'cors'
 import errorHandler from 'errorhandler'
@@ -30,7 +31,7 @@ import { ModuleLoader } from './module-loader'
 import { UserRepository } from './repositories'
 import { LogsRepository } from './repositories/logs'
 import { TelemetryRepository } from './repositories/telemetry'
-import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
+import { AdminRouter, AuthRouter, BotsRouter, MediaRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
 import { EmulatorRouter } from './routers/bots/emulator'
@@ -58,7 +59,7 @@ import { HintsService } from './services/hints'
 import { JobService } from './services/job-service'
 import { KeyValueStore } from './services/kvs'
 import { LogsService } from './services/logs/service'
-import MediaService from './services/media'
+import { MediaServiceProvider } from './services/media'
 import { MonitoringService } from './services/monitoring'
 import { NLUService } from './services/nlu/nlu-service'
 import { NotificationsService } from './services/notification/service'
@@ -97,6 +98,7 @@ export default class HTTPServer {
   private converseRouter!: ConverseRouter
   private hintsRouter!: HintsRouter
   private telemetryRouter!: TelemetryRouter
+  private mediaRouter: MediaRouter
   private readonly sdkApiRouter!: SdkApiRouter
   private emulatorRouter!: EmulatorRouter
   private _needPermissions: (
@@ -125,7 +127,7 @@ export default class HTTPServer {
     @inject(TYPES.ActionServersService) actionServersService: ActionServersService,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.AuthService) private authService: AuthService,
-    @inject(TYPES.MediaService) mediaService: MediaService,
+    @inject(TYPES.MediaServiceProvider) mediaServiceProvider: MediaServiceProvider,
     @inject(TYPES.LogsService) logsService: LogsService,
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
     @inject(TYPES.SkillService) skillService: SkillService,
@@ -158,6 +160,10 @@ export default class HTTPServer {
     }
 
     this.app.use(debugRequestMw)
+
+    if (!yn(process.core_env.BP_HTTP_DISABLE_GZIP)) {
+      this.app.use(compression())
+    }
 
     this.modulesRouter = new ModulesRouter(
       this.logger,
@@ -196,20 +202,29 @@ export default class HTTPServer {
       cmsService,
       configProvider,
       flowService,
-      mediaService,
+      mediaServiceProvider,
       logsService,
       notificationService,
       authService,
-      ghostService,
       workspaceService,
       moduleLoader,
       logger: this.logger
     })
     this.sdkApiRouter = new SdkApiRouter(this.logger)
     this.telemetryRouter = new TelemetryRouter(this.logger, this.authService, this.telemetryRepo)
+    this.mediaRouter = new MediaRouter(
+      this.logger,
+      this.authService,
+      this.workspaceService,
+      mediaServiceProvider,
+      this.configProvider
+    )
 
     this._needPermissions = needPermissions(this.workspaceService)
     this._hasPermissions = hasPermissions(this.workspaceService)
+
+    // Necessary to prevent circular dependency
+    this.authService.jobService = this.jobService
   }
 
   async setupRootPath() {
@@ -233,6 +248,7 @@ export default class HTTPServer {
     app.use(process.ROOT_PATH, this.app)
     this.httpServer = createServer(app)
 
+    await this.mediaRouter.initialize()
     await this.botsRouter.initialize()
     this.contentRouter = new ContentRouter(
       this.logger,
@@ -256,7 +272,7 @@ export default class HTTPServer {
     this.botsRouter.router.use('/converse', this.converseRouter.router)
     this.botsRouter.router.use('/nlu', this.nluRouter.router)
 
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     AppLifecycle.waitFor(AppLifecycleEvents.BOTPRESS_READY).then(() => {
       this.isBotpressReady = true
     })
@@ -358,6 +374,7 @@ export default class HTTPServer {
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
     this.app.use(`${BASE_API_PATH}/sdk`, this.sdkApiRouter.router)
     this.app.use(`${BASE_API_PATH}/telemetry`, this.telemetryRouter.router)
+    this.app.use(`${BASE_API_PATH}/media`, this.mediaRouter.router)
     this.app.use('/s', this.shortLinksRouter.router)
 
     this.app.use((err, _req, _res, next) => {
@@ -493,7 +510,15 @@ export default class HTTPServer {
 
   async getAxiosConfigForBot(botId: string, options?: AxiosOptions): Promise<AxiosBotConfig> {
     const basePath = options && options.localUrl ? process.LOCAL_URL : process.EXTERNAL_URL
-    const serverToken = generateUserToken(SERVER_USER, SERVER_USER_STRATEGY, false, '5m', TOKEN_AUDIENCE)
+    const serverToken = generateUserToken({
+      email: SERVER_USER,
+      strategy: SERVER_USER_STRATEGY,
+      tokenVersion: 1,
+      isSuperAdmin: false,
+      expiresIn: '5m',
+      audience: TOKEN_AUDIENCE
+    })
+
     return {
       baseURL: `${basePath}/api/v1/bots/${botId}`,
       headers: {

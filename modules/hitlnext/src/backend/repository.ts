@@ -1,6 +1,5 @@
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
-import { SortOrder } from 'botpress/sdk'
 import { BPRequest } from 'common/http'
 import { Workspace } from 'common/typings'
 import Knex from 'knex'
@@ -14,7 +13,7 @@ import { makeAgentId } from './helpers'
 
 const debug = DEBUG(MODULE_NAME)
 
-export interface CollectionConditions extends Partial<SortOrder> {
+export interface CollectionConditions extends Partial<sdk.SortOrder> {
   limit?: number
 }
 
@@ -49,6 +48,7 @@ const commentColumnsPrefixed = commentColumns.map(s => commentPrefix.concat(':',
 const userColumnsPrefixed = userColumns.map(s => userPrefix.concat(':', s))
 
 export default class Repository {
+  private agentCache: Dic<Omit<IAgent, 'online'>> = {}
   /**
    *
    * @param bp
@@ -70,7 +70,7 @@ export default class Repository {
     const result = _.clone(object)
 
     paths.map(path => {
-      _.has(object, path) && _.set(result, path, this.bp.database.json.set(_.get(object, path)))
+      _.has(object, path) && _.set(result, path, JSON.stringify(_.get(object, path)))
     })
 
     return result
@@ -288,6 +288,7 @@ export default class Repository {
   }
 
   // This returns an agent with the following additional properties:
+  // TODO replace this with get agent
   // - isSuperAdmin
   // - permissions
   // - strategyType
@@ -301,9 +302,9 @@ export default class Repository {
     })
 
     return {
-      ...data.payload,
       agentId,
-      online: await this.getAgentOnline(botId, agentId)
+      online: await this.getAgentOnline(botId, agentId),
+      attributes: data.payload
     } as IAgent
   }
 
@@ -338,15 +339,29 @@ export default class Repository {
     // TODO filter out properly this is a quick fix
     const users = (await this.bp.workspaces.getWorkspaceUsers(workspace, options)).filter(
       u => u.role === 'admin' || u.role === 'agent'
-    )
-    // @ts-ignore
+    ) as sdk.WorkspaceUserWithAttributes[]
+
     return Promise.map(users, async user => {
       const agentId = makeAgentId(user.strategy, user.email)
-      return {
+      const agent = {
         ...user,
         agentId
       }
+      this.agentCache[agentId] = agent
+      return agent
     })
+  }
+
+  async getAgent(agentId: string): Promise<Omit<IAgent, 'online'>> {
+    if (!this.agentCache[agentId]) {
+      //temp hack because there is no get user in the workspace sdk
+      // it'll cache all agents in all workspaces
+      await this.listAllAgents()
+    }
+    if (!this.agentCache[agentId]) {
+      throw Error('Agent doees not exist')
+    }
+    return this.agentCache[agentId]
   }
 
   listHandoffs(

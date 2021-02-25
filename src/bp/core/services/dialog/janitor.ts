@@ -53,17 +53,16 @@ export class DialogJanitor extends Janitor {
     dialogDebug('Running task')
 
     const botsConfigs = await this.botService.getBots()
-    const botsIds = Array.from(botsConfigs.keys())
 
-    for (const botId of botsIds) {
-      await this.sessionRepo.deleteExpiredSessions(botId)
-      const sessionsIds = await this.sessionRepo.getExpiredContextSessionIds(botId)
+    await this.sessionRepo.deleteExpiredSessions()
 
-      if (sessionsIds.length > 0) {
-        dialogDebug.forBot(botId, 'Found stale sessions', sessionsIds)
-        for (const sessionId of sessionsIds) {
-          await this._processSessionTimeout(sessionId, botId, botsConfigs.get(botId)!)
-        }
+    const sessionsIds = await this.sessionRepo.getExpiredContextSessionIds()
+
+    if (sessionsIds.length > 0) {
+      dialogDebug('Found stale sessions', sessionsIds)
+      for (const sessionId of sessionsIds) {
+        const { botId } = SessionIdFactory.extractDestinationFromId(sessionId)
+        await this._processSessionTimeout(sessionId, botId, botsConfigs.get(botId)!)
       }
     }
   }
@@ -106,7 +105,7 @@ export class DialogJanitor extends Janitor {
     }
   }
 
-  private _handleError(error, botId) {
+  private _handleError(error: Error, botId: string) {
     if (error instanceof TimeoutNodeNotFound) {
       dialogDebug.forBot(botId, 'No timeout node found. Clearing context now.')
     } else {
@@ -114,7 +113,7 @@ export class DialogJanitor extends Janitor {
     }
   }
 
-  private async _resetContext(botId, botConfig, sessionId, resetContext: boolean) {
+  private async _resetContext(botId: string, botConfig: BotConfig, sessionId: string, resetContext: boolean) {
     const botpressConfig = await this.getBotpressConfig()
     const expiry = createExpiry(botConfig!, botpressConfig)
     const session = await this.sessionRepo.get(sessionId)

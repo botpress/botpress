@@ -18,7 +18,14 @@ import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
-import { DefaultPortModel, DiagramEngine, DiagramWidget, NodeModel, PointModel } from 'storm-react-diagrams'
+import {
+  DefaultLinkModel,
+  DefaultPortModel,
+  DiagramEngine,
+  DiagramWidget,
+  NodeModel,
+  PointModel
+} from 'storm-react-diagrams'
 import {
   buildNewSkill,
   closeFlowNodeProps,
@@ -46,12 +53,12 @@ import { getAllFlows, getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/
 import storage from '~/util/storage'
 import axios from 'axios'
 import { prepareEventForDiagram } from './debugger'
+import DiagramToolbar from './DiagramToolbar'
 import { defaultTransition, DiagramManager, DIAGRAM_PADDING, nodeTypes, Point } from './manager'
 import { BlockModel, BlockProps, BlockWidgetFactory } from './nodes/Block'
 import { DeletableLinkFactory } from './nodes/LinkWidget'
-import style from './style.scss'
-import DiagramToolbar from './DiagramToolbar'
 import NodeToolbar from './NodeToolbar'
+import style from './style.scss'
 import TriggerEditor from './TriggerEditor'
 import WorkflowToolbar from './WorkflowToolbar'
 import ZoomToolbar from './ZoomToolbar'
@@ -79,12 +86,13 @@ type DispatchProps = typeof mapDispatchToProps
 
 type Props = DispatchProps & StateProps & OwnProps
 
-type ExtendedDiagramEngine = {
+export type ExtendedDiagramEngine = {
   enableLinkPoints?: boolean
-  flowBuilder?: any
+  flowBuilder?: Diagram
 } & DiagramEngine
 
 const EXPANDED_NODES_KEY = `bp::${window.BOT_ID}::expandedNodes`
+export const MAX_NUMBER_OF_POINTS_PER_LINK = 3
 
 const getExpandedNodes = () => {
   try {
@@ -99,7 +107,7 @@ class Diagram extends Component<Props> {
   private diagramWidget: DiagramWidget
   private diagramContainer: HTMLDivElement
   private searchRef: React.RefObject<HTMLInputElement>
-  private manager: DiagramManager
+  public manager: DiagramManager
   /** Represents the source port clicked when the user is connecting a node */
   private dragPortSource: any
 
@@ -142,7 +150,7 @@ class Diagram extends Component<Props> {
         getActive: () => this.getPropsProperty('emulatorStartNode')
       },
       // Temporary, maybe we could open the elementinstead of double-click?
-      // tslint:disable-next-line: no-console
+      // eslint-disable-next-line no-console
       editNodeItem: (node, idx) => console.log(node, idx)
     }
 
@@ -288,7 +296,7 @@ class Diagram extends Component<Props> {
     }
 
     if (this.dragPortSource && !prevProps.currentFlowNode && this.props.currentFlowNode) {
-      // tslint:disable-next-line: no-floating-promises
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.linkCreatedNode()
     }
 
@@ -360,7 +368,7 @@ class Diagram extends Component<Props> {
   }
 
   add = {
-    flowNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'standard' }),
+    flowNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'standard', next: [defaultTransition] }),
     skillNode: (point: Point, skillId: string) => this.props.buildSkill({ location: point, id: skillId }),
     triggerNode: (point: Point) => {
       this.props.createFlowNode({ ...point, type: 'trigger', conditions: [], next: [defaultTransition] })
@@ -554,7 +562,13 @@ class Diagram extends Component<Props> {
     this.manager.sanitizeLinks()
     this.manager.cleanPortLinks()
 
-    if (selectedNode && selectedNode instanceof PointModel) {
+    // skip when a link is selected
+    if (selectedNode && selectedNode instanceof DefaultLinkModel) {
+      return
+    }
+
+    // only when creating a link
+    if (selectedNode && selectedNode instanceof PointModel && selectedNode.parent.points.length <= 2) {
       this.dragPortSource = selectedNode
       this.handleContextMenu(event as any)
     }
@@ -701,11 +715,7 @@ class Diagram extends Component<Props> {
     const canAdd = !this.props.defaultLang || this.props.defaultLang === this.props.currentLang
 
     return (
-      <MainLayout.Wrapper
-        className={cx({
-          'emulator-open': this.props.emulatorOpen
-        })}
-      >
+      <MainLayout.Wrapper>
         <WorkflowToolbar />
 
         <div className={style.searchWrapper}>
@@ -744,7 +754,7 @@ class Diagram extends Component<Props> {
             ref={w => (this.diagramWidget = w)}
             deleteKeys={[]}
             diagramEngine={this.diagramEngine}
-            maxNumberPointsPerLink={0}
+            maxNumberPointsPerLink={MAX_NUMBER_OF_POINTS_PER_LINK}
             inverseZoom
           />
           <ZoomToolbar />

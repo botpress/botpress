@@ -3,8 +3,8 @@ import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
 import sharedStyle from '../../../../ui-shared-lite/style.scss'
-import { lang } from '../../translations'
 import Dropdown from '../../Dropdown'
+import { lang } from '../../translations'
 
 import { SelectProps } from './typings'
 
@@ -13,7 +13,7 @@ const Select: FC<SelectProps> = ({ onChange, printField, parent, field, data, ax
 
   useEffect(() => {
     if (field.dynamicOptions) {
-      // tslint:disable-next-line: no-floating-promises
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       loadListElements()
     } else {
       setOptions(field.options!)

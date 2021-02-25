@@ -2,16 +2,16 @@ import { EventEmitter } from 'events'
 
 global['NativePromise'] = global.Promise
 
-const yn = require('yn')
-const path = require('path')
 const fs = require('fs')
+const path = require('path')
+const yn = require('yn')
 const metadataContent = require('../../metadata.json')
 const getos = require('./common/getos')
-const { Debug } = require('./debug')
 const { getAppDataPath } = require('./core/misc/app_data')
+const { Debug } = require('./debug')
 
 const printPlainError = err => {
-  // tslint:disable: no-console
+  /* eslint-disable no-console */
   console.log('Error starting botpress')
   console.log(err)
   console.log(err.message)
@@ -59,6 +59,9 @@ process.stderr.write = stripDeprecationWrite
 
 process.on('unhandledRejection', err => {
   global.printErrorDefault(err)
+  if (!process.IS_FAILSAFE) {
+    process.exit(1)
+  }
 })
 
 process.on('uncaughtException', err => {

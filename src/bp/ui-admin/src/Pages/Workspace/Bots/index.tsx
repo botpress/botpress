@@ -19,18 +19,18 @@ import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { generatePath, RouteComponentProps } from 'react-router'
 import { Alert, Col, Row } from 'reactstrap'
-import { toastFailure, toastSuccess } from '~/utils/toaster'
-import { filterList } from '~/utils/util'
 import PageContainer from '~/App/PageContainer'
 import SplitPage from '~/App/SplitPage'
 import { getActiveWorkspace } from '~/Auth'
 import { Downloader } from '~/Pages/Components/Downloader'
+import { toastFailure, toastSuccess } from '~/utils/toaster'
+import { filterList } from '~/utils/util'
 
 import api from '../../../api'
+import AccessControl from '../../../App/AccessControl'
 import { fetchBotHealth, fetchBots } from '../../../reducers/bots'
 import { fetchLicensing } from '../../../reducers/license'
 import { fetchModules } from '../../../reducers/modules'
-import AccessControl from '../../../App/AccessControl'
 import LoadingSection from '../../Components/LoadingSection'
 
 import BotItemCompact from './BotItemCompact'
@@ -82,6 +82,7 @@ class Bots extends Component<Props> {
       this.props.fetchLicensing()
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     telemetry.startFallback(api.getSecured()).catch()
   }
 
@@ -260,6 +261,8 @@ class Bots extends Component<Props> {
     const botsByStage = _.groupBy(bots, 'pipeline_status.current_stage.id')
     const colSize = Math.floor(12 / pipeline.length)
 
+    const nluModule = this.props.modules.find(m => m.name === 'nlu')
+
     return (
       <Fragment>
         <Row className="pipeline_view bot_views">
@@ -281,6 +284,7 @@ class Bots extends Component<Props> {
                 {(botsByStage[stage.id] || []).map(bot => (
                   <Fragment key={bot.id}>
                     <BotItemPipeline
+                      nluModuleEnabled={nluModule && nluModule.enabled}
                       bot={bot}
                       isApprover={stage.reviewers.find(r => r.email === email && r.strategy === strategy) !== undefined}
                       userEmail={email}

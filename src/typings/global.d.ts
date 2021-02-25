@@ -129,6 +129,11 @@ declare interface BotpressEnvironmentVariables {
   readonly BP_PROXY?: string
 
   /**
+   * Disable the use of GZIP compression while serving assets to the end users
+   */
+  readonly BP_HTTP_DISABLE_GZIP?: boolean
+
+  /**
    * Use to set default debug namespaces
    * @example bp:dialog:*,bp:nlu:intents:*
    */

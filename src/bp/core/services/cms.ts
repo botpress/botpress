@@ -16,7 +16,7 @@ import { TYPES } from '../types'
 
 import { GhostService } from '.'
 import { JobService } from './job-service'
-import MediaService from './media'
+import { MediaServiceProvider } from './media'
 
 const UNLIMITED_ELEMENTS = -1
 export const DefaultSearchParams: SearchParams = {
@@ -57,7 +57,7 @@ export class CMSService implements IDisposeOnExit {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.InMemoryDatabase) private memDb: KnexExtended,
     @inject(TYPES.JobService) private jobService: JobService,
-    @inject(TYPES.MediaService) private mediaService: MediaService,
+    @inject(TYPES.MediaServiceProvider) private mediaServiceProvider: MediaServiceProvider,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
   ) {}
 
@@ -292,9 +292,10 @@ export class CMSService implements IDisposeOnExit {
   }
 
   deleteMedia(botId: string, elements: ContentElement[]) {
+    const mediaService = this.mediaServiceProvider.forBot(botId)
     _.map(elements, 'formData').forEach(formData => {
       const filesToDelete = this.getMediaFiles(formData)
-      filesToDelete.forEach(e => this.mediaService.deleteFile(botId, e))
+      filesToDelete.forEach(f => mediaService.deleteFile(f))
     })
   }
 
@@ -429,7 +430,7 @@ export class CMSService implements IDisposeOnExit {
 
   private async _writeElementsToFile(botId: string, contentTypeId: string) {
     process.ASSERT_LICENSED()
-    const params = { ...DefaultSearchParams, count: 10000 }
+    const params = { ...DefaultSearchParams, count: UNLIMITED_ELEMENTS }
     const elements = (await this.listContentElements(botId, contentTypeId, params)).map(element =>
       _.pick(element, 'id', 'formData', 'createdBy', 'createdOn', 'modifiedOn')
     )
@@ -512,7 +513,7 @@ export class CMSService implements IDisposeOnExit {
   }
 
   private async fillComputedProps(contentType: ContentType, formData: object, languages: string[], defaultLanguage) {
-    if (formData == undefined) {
+    if (formData == null) {
       throw new Error(`"formData" must be a valid object (content type: ${contentType.id})`)
     }
 
@@ -580,11 +581,19 @@ export class CMSService implements IDisposeOnExit {
   private getOriginalProps(formData: object, contentType: ContentType, lang: string, defaultLang?: string) {
     const originalProps = Object.keys(_.get(contentType, 'jsonSchema.properties'))
 
+    // When data is accessible through a single key containing the '$' separator. e.g. { 'text$en': '...' }
+    const separatorExtraction = (prop: string) =>
+      formData[`${prop}$${lang}`] || (defaultLang && formData[`${prop}$${defaultLang}`])
+
+    // When data is accessible through keys of a nested dictionary. e.g. { 'text': { 'en': '...' } }
+    const nestedDictExtraction = (prop: string) =>
+      formData[prop] && (formData[prop][lang] || (defaultLang && formData[prop][defaultLang]))
+
     if (originalProps) {
-      return originalProps.reduce((result, key) => {
-        result[key] = formData[`${key}$${lang}`] || (defaultLang && formData[`${key}$${defaultLang}`])
-        return result
-      }, {})
+      return originalProps.reduce(
+        (result, prop) => ((result[prop] = separatorExtraction(prop) || nestedDictExtraction(prop)), result),
+        {}
+      )
     } else {
       return formData
     }
@@ -610,9 +619,9 @@ export class CMSService implements IDisposeOnExit {
 
     const translateFormData = async (formData: object): Promise<object> => {
       const defaultLang = (await this.configProvider.getBotConfig(eventDestination.botId)).defaultLanguage
-      const lang = _.get(args, 'event.state.user.language')
+      const userLang = _.get(args, 'event.state.user.language')
 
-      return this.getOriginalProps(formData, contentTypeRenderer, lang, defaultLang)
+      return this.getOriginalProps(formData, contentTypeRenderer, userLang, defaultLang)
     }
 
     if (contentId.startsWith('!')) {

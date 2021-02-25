@@ -37,6 +37,7 @@ declare module 'botpress/sdk' {
     id?: number
     password?: string
     salt?: string
+    tokenVersion: number
   } & UserInfo
 
   export interface UserInfo {
@@ -455,6 +456,7 @@ declare module 'botpress/sdk' {
     }
 
     export interface Logger {
+      debug: (msg: string) => void
       info: (msg: string) => void
       warning: (msg: string, err?: Error) => void
       error: (msg: string, err?: Error) => void

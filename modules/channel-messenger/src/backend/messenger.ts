@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosInstance } from 'axios'
+import axios, { AxiosInstance } from 'axios'
 import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
 import { json as expressJson, Router } from 'express'
@@ -173,15 +173,21 @@ export class MessengerService {
         await bot.client.sendAction(senderId, 'mark_seen')
 
         if (webhookEvent.message) {
-          await this._sendEvent(bot.botId, senderId, webhookEvent.message, { type: 'message' })
+          await this._sendEvent(bot.botId, senderId, pageId, webhookEvent.message, { type: 'message' })
         } else if (webhookEvent.postback) {
-          await this._sendEvent(bot.botId, senderId, { text: webhookEvent.postback.payload }, { type: 'callback' })
+          await this._sendEvent(
+            bot.botId,
+            senderId,
+            pageId,
+            { text: webhookEvent.postback.payload },
+            { type: 'callback' }
+          )
         }
       }
     }
   }
 
-  private async _sendEvent(botId: string, senderId: string, message, args: { type: string }) {
+  private async _sendEvent(botId: string, senderId: string, pageId: string, message: any, args: { type: string }) {
     await this.bp.events.sendEvent(
       this.bp.IO.Event({
         botId,
@@ -189,6 +195,7 @@ export class MessengerService {
         direction: 'incoming',
         payload: message,
         preview: message.text,
+        threadId: pageId,
         target: senderId,
         ...args
       })

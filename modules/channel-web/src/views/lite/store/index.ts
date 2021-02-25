@@ -208,7 +208,10 @@ class RootStore {
     runInAction('-> setBotInfo', () => {
       this.botInfo = botInfo
     })
-    this.mergeConfig({ extraStylesheet: botInfo.extraStylesheet })
+    this.mergeConfig({
+      extraStylesheet: botInfo.extraStylesheet,
+      disableNotificationSound: botInfo.disableNotificationSound
+    })
   }
 
   @action.bound
@@ -309,7 +312,7 @@ class RootStore {
     await this.sendData({
       type: 'visit',
       text: 'User visit',
-      timezone: new Date().getTimezoneOffset() / 60,
+      timezone: -(new Date().getTimezoneOffset() / 60), // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/getTimezoneOffset#description
       language: getUserLocale()
     })
   }

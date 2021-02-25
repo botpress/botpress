@@ -5,8 +5,8 @@ import { toastFailure } from 'botpress/utils'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 
-import style from './style.scss'
 import { Occurrence } from './ListEntityOccurrence'
+import style from './style.scss'
 
 interface Props {
   entities: NLU.EntityDefinition[]
@@ -90,9 +90,16 @@ export const ListEntityEditor: React.FC<Props> = props => {
   }
 
   const editOccurrence = (idx: number, occurrence: NLU.EntityDefOccurrence) => {
-    const newSynonym = _.last(occurrence.synonyms)
-    if (!isUnique(newSynonym)) {
-      return toastFailure('Synonyms duplication is not allowed')
+    const synonymAdded = () => {
+      const oldOccurence = state.occurrences[idx]
+      return oldOccurence.synonyms.length < occurrence.synonyms.length
+    }
+
+    if (synonymAdded()) {
+      const newSynonym = _.last(occurrence.synonyms)
+      if (!isUnique(newSynonym)) {
+        return toastFailure('Synonyms duplication is not allowed')
+      }
     }
 
     const occurrences = [...state.occurrences.slice(0, idx), occurrence, ...state.occurrences.slice(idx + 1)]

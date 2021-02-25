@@ -1,5 +1,5 @@
 import { Icon } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { MainLayout, lang } from 'botpress/shared'
 import { SearchBar, SectionAction, SidePanel, SidePanelSection } from 'botpress/ui'
 import _ from 'lodash'
 import { inject, observer } from 'mobx-react'
@@ -12,10 +12,10 @@ import FileStatus from './components/FileStatus'
 import NameModal from './components/NameModal'
 import NewFileModal from './components/NewFileModal'
 import { UploadModal } from './components/UploadModal'
+import FileNavigator from './FileNavigator'
 import { RootStore, StoreDef } from './store'
 import { EditorStore } from './store/editor'
 import { EXAMPLE_FOLDER_LABEL } from './utils/tree'
-import FileNavigator from './FileNavigator'
 
 class PanelContent extends React.Component<Props> {
   private expandedNodes = {}
@@ -304,30 +304,31 @@ class PanelContent extends React.Component<Props> {
   }
 
   render() {
-    const { isOpenedFile, isDirty, isAdvanced } = this.props.editor
+    const { isAdvanced } = this.props.editor
     return (
       <SidePanel>
-        {isOpenedFile && isDirty ? (
+        <React.Fragment>
+          <SearchBar
+            icon="filter"
+            placeholder={lang.tr('module.code-editor.sidePanel.filterFiles')}
+            onChange={this.props.setFilenameFilter}
+          />
+          {isAdvanced ? (
+            this.renderSectionRaw()
+          ) : (
+            <React.Fragment>
+              {this.renderSectionActions()}
+              {this.renderSectionHooks()}
+              {this.renderSectionConfig()}
+              {this.renderSectionModuleConfig()}
+            </React.Fragment>
+          )}
+        </React.Fragment>
+
+        <MainLayout.BottomPanel.Register tabName="Code Editor">
           <FileStatus />
-        ) : (
-          <React.Fragment>
-            <SearchBar
-              icon="filter"
-              placeholder={lang.tr('module.code-editor.sidePanel.filterFiles')}
-              onChange={this.props.setFilenameFilter}
-            />
-            {isAdvanced ? (
-              this.renderSectionRaw()
-            ) : (
-              <React.Fragment>
-                {this.renderSectionActions()}
-                {this.renderSectionHooks()}
-                {this.renderSectionConfig()}
-                {this.renderSectionModuleConfig()}
-              </React.Fragment>
-            )}
-          </React.Fragment>
-        )}
+        </MainLayout.BottomPanel.Register>
+
         <NewFileModal
           isOpen={this.state.isCreateModalOpen}
           toggle={() => this.setState({ isCreateModalOpen: !this.state.isCreateModalOpen })}
@@ -352,7 +353,6 @@ export default inject(({ store }: { store: RootStore }) => ({
   store,
   editor: store.editor,
   files: store.files,
-  isDirty: store.editor.isDirty,
   setFilenameFilter: store.setFilenameFilter,
   createFilePrompt: store.createFilePrompt,
   permissions: store.permissions
