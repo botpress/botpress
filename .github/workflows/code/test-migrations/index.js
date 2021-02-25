@@ -13,14 +13,14 @@ const core = require('@actions/core')
 const github = require('@actions/github')
 
 const ensureDownMigration = async () => {
-  console.log('check down')
-  const pull_request = JSON.parse(process.env.pull_request)
-  const octokit = github.getOctokit(process.env.token)
+  console.log('check down', process.env.PULL_REQUEST)
+  const pullRequest = JSON.parse(process.env.PULL_REQUEST)
+  const octokit = github.getOctokit(process.env.TOKEN)
   console.log('oct')
   const options = {
     repo: 'botpress',
     owner: 'botpress',
-    pull_number: pull_request.number,
+    pull_number: pullRequest.number,
     per_page: 300
   }
 
