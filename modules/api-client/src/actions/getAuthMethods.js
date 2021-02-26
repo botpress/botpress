@@ -10,7 +10,7 @@ const getAuthMethods = async () => {
   try {
     const choices = temp.authData.Choice.map((choice) => ({
       title: choice.Type,
-      value: JSON.stringify(choice)
+      value: JSON.stringify({ ...choice, Image: "" })
     }));
 
     const payloads = await bp.cms.renderElement(

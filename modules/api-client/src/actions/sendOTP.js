@@ -9,8 +9,8 @@ const { apiAuthService } = require('@rdcdev/dbank-client')
  */
 const sendOTP = async (otp) => {
   try {
-    const data = await apiAuthService.confirmOTP({
-      ...temp.authData,
+    const authData = await apiAuthService.confirmOTP({
+      ...temp.authData.authData,
       Content: {
         Reference: temp.choice.Reference,
         TrustedConnection: 'N',
@@ -20,11 +20,15 @@ const sendOTP = async (otp) => {
       Type: temp.authData.Code,
     });
 
-    console.log(data)
-
-    temp.authData = data
+    temp.authData = {
+      SessionKey: authData.SessionKey,
+      secretKey: authData.secretKey,
+      ChannelID: authData.ChannelID,
+      token: authData.token,
+      SessionID: authData.SessionID,
+      SessionSalt: authData.SessionSalt,
+    }
   } catch (e) {
-    console.log(e)
     const sessionId = bp.dialog.createId(event)
     await bp.dialog.jumpTo(sessionId, event, 'error.flow.json', e.httpCode)
   }

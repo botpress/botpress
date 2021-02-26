@@ -8,7 +8,6 @@ const { apiUserService } = require('@rdcdev/dbank-client');
  */
 const selectCompany = async () => {
   try {
-
     const ecbUser = await apiUserService.user(temp.authData);
 
     const choices = ecbUser.Customers.map(({
