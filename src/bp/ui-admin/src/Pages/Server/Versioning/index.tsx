@@ -6,7 +6,7 @@ import CopyToClipboard from 'react-copy-to-clipboard'
 import { connect } from 'react-redux'
 import api from '~/api'
 import PageContainer from '~/App/PageContainer'
-import { getToken } from '~/Auth'
+
 import { toastInfo } from '~/utils/toaster'
 
 import DownloadArchive from './DownloadArchive'
@@ -35,7 +35,7 @@ const Versioning: FC<{ profile: any }> = props => {
 
   useEffect(() => {
     const bpcli = navigator.appVersion.indexOf('Win') !== -1 ? 'bp.exe' : './bp'
-    const token = getToken()
+    const token = undefined // getToken()
     const host = window.location.origin
 
     setPullCommand(`${bpcli} pull --url ${host}${window['ROOT_PATH']} --authToken ${token} --targetDir data`)
