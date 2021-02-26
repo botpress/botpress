@@ -674,7 +674,6 @@ export class ScopedGhostService {
 
     const folderName = this._normalizeFolderName(folder)
     await this.primaryDriver.deleteDir(folderName)
-    await this.cache.invalidateStartingWith(folderName)
   }
 
   async directoryListing(
