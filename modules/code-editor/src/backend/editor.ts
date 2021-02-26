@@ -103,11 +103,14 @@ export default class Editor {
       return []
     }
 
+    let fileExt = '*.*'
+    if (def.isJSON !== undefined) {
+      fileExt = def.isJSON ? '*.json' : '*.js'
+    }
+
     const excluded = this._config.includeBuiltin || listBuiltin ? undefined : getBuiltinExclusion()
     const ghost = botId ? this.bp.ghost.forBot(botId) : this.bp.ghost.forGlobal()
-    const files = def.filenames
-      ? def.filenames
-      : await ghost.directoryListing(baseDir, def.isJSON ? '*.json' : '*.js', excluded, true)
+    const files = def.filenames ? def.filenames : await ghost.directoryListing(baseDir, fileExt, excluded, true)
 
     return Promise.map(files, async (filepath: string) => ({
       name: path.basename(filepath),
