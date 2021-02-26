@@ -54,6 +54,7 @@ export namespace CacheInvalidators {
 
       const relativePath = this._relativePath(file)
 
+      await this.cache.invalidate(file)
       await this.cache.invalidateStartingWith(relativePath)
     }
   }

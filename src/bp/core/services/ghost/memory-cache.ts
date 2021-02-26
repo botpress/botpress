@@ -57,7 +57,7 @@ export default class MemoryObjectCache implements ObjectCache {
       return x.startsWith('buffer::' + prefix) || x.startsWith('string::' + prefix) || x.startsWith('object::' + prefix)
     })
 
-    keys.forEach(x => this.invalidate(x))
+    keys.forEach(x => this.cache.del(x))
   }
 
   async sync(message: string): Promise<void> {
