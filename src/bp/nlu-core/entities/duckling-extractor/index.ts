@@ -5,8 +5,8 @@ import { JOIN_CHAR } from '../../tools/token-utils'
 import { EntityExtractionResult, KeyedItem, SystemEntityExtractor } from '../../typings'
 import { SystemEntityCacheManager } from '../entity-cache-manager'
 import { DucklingClient, DucklingParams } from './duckling-client'
+import { DUCKLING_ENTITIES } from './enums'
 import { mapDucklingToEntity } from './map-duckling'
-import { DUCKLING_ENTITIES } from './typings'
 
 const BATCH_SIZE = 10
 

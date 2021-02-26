@@ -4,26 +4,26 @@ import _ from 'lodash'
 import { EntityExtractionResult, SystemEntityExtractor, KeyedItem } from '../../typings'
 import { SystemEntityCacheManager } from '../entity-cache-manager'
 import {
-  SupportedLangs,
-  SupportedLangsList,
   GlobalRecognizers,
   LanguageDependantRecognizers,
   DucklingUnitMapping,
   DucklingDateMappings,
   DucklingTypeMappings,
   langToCulture,
+  isSupportedLanguage
+} from './enums'
+
+import {
+  MicrosoftSupportedLanguage,
   MicrosoftValues,
   MicrosoftTimeValues,
   MicrosoftValue,
   MicrosoftEntity
-} from './enums'
+} from './typings'
 interface MicrosoftParams {
-  lang: SupportedLangs
+  lang: MicrosoftSupportedLanguage
   recognizers: any[]
 }
-
-// Further improvements:
-// 1- in _extractBatch, shift results ==> don't walk whole array n times (nlog(n) vs n2)
 
 export class MicrosoftEntityExtractor implements SystemEntityExtractor {
   constructor(private _cache: SystemEntityCacheManager, private readonly logger?: NLU.Logger) {
@@ -43,9 +43,12 @@ export class MicrosoftEntityExtractor implements SystemEntityExtractor {
     lang: string,
     useCache?: boolean
   ): Promise<EntityExtractionResult[][]> {
-    const options = !SupportedLangsList.includes(lang)
-      ? { lang: 'en' as SupportedLangs, recognizers: [...GlobalRecognizers] }
-      : { lang: lang as SupportedLangs, recognizers: [...LanguageDependantRecognizers, ...GlobalRecognizers] }
+    const options: MicrosoftParams = !isSupportedLanguage(lang)
+      ? { lang: 'en', recognizers: [...GlobalRecognizers] }
+      : {
+          lang,
+          recognizers: [...LanguageDependantRecognizers, ...GlobalRecognizers]
+        }
 
     const [cached, toFetch] = this._cache.splitCacheHitFromCacheMiss(inputs, !!useCache)
 
@@ -54,7 +57,7 @@ export class MicrosoftEntityExtractor implements SystemEntityExtractor {
     return _.chain(batchedRes)
       .flatten()
       .concat(cached)
-      .orderBy('idx')
+      .orderBy(x => x.idx)
       .map(x => x.entities!)
       .value()
   }
@@ -154,10 +157,5 @@ export class MicrosoftEntityExtractor implements SystemEntityExtractor {
     )
 
     return batch.map((batchItm, i) => ({ ...batchItm, entities: batchedEntities[i] }))
-  }
-
-  // Maybe useful in the date formatting to add features so keeping it here
-  private _getTz(): string {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone
   }
 }

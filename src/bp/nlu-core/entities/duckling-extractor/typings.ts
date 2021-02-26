@@ -22,21 +22,6 @@ export type DucklingDimension =
   | 'url'
   | 'volume'
 
-export const DUCKLING_ENTITIES: DucklingDimension[] = [
-  'amountOfMoney',
-  'distance',
-  'duration',
-  'email',
-  'number',
-  'ordinal',
-  'phoneNumber',
-  'quantity',
-  'temperature',
-  'time',
-  'url',
-  'volume'
-]
-
 export type DucklingType = 'value' | 'interval'
 
 export type DucklingValue<D extends DucklingDimension, T extends DucklingType> = {

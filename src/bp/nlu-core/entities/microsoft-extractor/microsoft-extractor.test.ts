@@ -4,6 +4,9 @@ import _ from 'lodash'
 import path from 'path'
 import { MicrosoftEntityExtractor } from '.'
 import { SystemEntityCacheManager } from '../entity-cache-manager'
+import { createSpyObject } from 'core/misc/utils'
+import { NLU } from 'botpress/sdk'
+import { KeyedItem } from 'nlu-core/typings'
 
 describe('Microsoft Extract Multiple', () => {
   let microsoft: MicrosoftEntityExtractor
@@ -262,5 +265,93 @@ describe('Microsoft Extract Multiple', () => {
     const res = await microsoft.extractMultiple(examples, 'en')
 
     expect(res).toEqual(result)
+  })
+})
+
+describe('Microsft Entity extractor cache usage', () => {
+  let mem: KeyedItem[]
+  const fakeSplitCache = (inputs: string[], useCache: boolean) => {
+    const toItem = (input: string, idx: number): KeyedItem => ({ idx, input, entities: [] })
+
+    if (!useCache) {
+      return [[], inputs.map(toItem)]
+    }
+
+    const knownInputs = mem.map(i => i.input)
+    const newInputs = inputs.filter(i => !knownInputs.includes(i))
+    const newItems: KeyedItem[] = newInputs.map(toItem)
+    const ret: KeyedItem[][] = [[...mem], [...newItems]]
+    mem.push(...newItems)
+    return ret
+  }
+
+  beforeEach(() => {
+    mem = []
+  })
+
+  test('when extracting multiple time with the same value and cache enabled, extractor uses cache', async () => {
+    // arrange
+    const recognizers = jest.requireActual('@microsoft/recognizers-text-suite')
+    let spy
+    jest.doMock('@microsoft/recognizers-text-suite', () => {
+      spy = jest.spyOn(recognizers, 'recognizeDateTime')
+      return {
+        ...recognizers
+      }
+    })
+
+    const cache = createSpyObject<SystemEntityCacheManager>()
+
+    cache.splitCacheHitFromCacheMiss.mockImplementation(fakeSplitCache)
+
+    const stubLogger = createSpyObject<NLU.Logger>()
+
+    const extractorModule = require('.')
+    const extractor = new extractorModule.MicrosoftEntityExtractor(cache.T, stubLogger.T) as MicrosoftEntityExtractor
+    await extractor.configure()
+
+    const utt = 'a really really really small mice at 4 pm stole my grandma'
+    // act
+    await extractor.extract(utt, 'en', true)
+    await extractor.extract(utt, 'en', true)
+    await extractor.extract(utt, 'en', true)
+    await extractor.extract(utt, 'en', true)
+
+    // assert
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(cache.splitCacheHitFromCacheMiss).toHaveBeenCalledTimes(4)
+  })
+
+  test('when extracting multiple time with the same value and cache disabled, extractor doesnt use cache', async () => {
+    // arrange
+    const recognizers = jest.requireActual('@microsoft/recognizers-text-suite')
+    const spy = jest.fn(() => [])
+    jest.doMock('@microsoft/recognizers-text-suite', () => {
+      return {
+        ...recognizers,
+        recognizeDateTime: spy
+      }
+    })
+
+    const cache = createSpyObject<SystemEntityCacheManager>()
+
+    cache.splitCacheHitFromCacheMiss.mockImplementation(fakeSplitCache)
+
+    const stubLogger = createSpyObject<NLU.Logger>()
+
+    const extractorModule = require('.')
+    const extractor = new extractorModule.MicrosoftEntityExtractor(cache.T, stubLogger.T) as MicrosoftEntityExtractor
+    await extractor.configure()
+
+    const utt = 'a really really really small mice at 4 pm stole my grandma'
+    // act
+    await extractor.extract(utt, 'en', false)
+    await extractor.extract(utt, 'en', false)
+    await extractor.extract(utt, 'en', false)
+    await extractor.extract(utt, 'en', false)
+
+    // assert
+    expect(spy).toHaveBeenCalledTimes(4)
+    expect(cache.splitCacheHitFromCacheMiss).toHaveBeenCalledTimes(4)
   })
 })

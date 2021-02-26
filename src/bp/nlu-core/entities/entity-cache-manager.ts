@@ -91,7 +91,7 @@ export class SystemEntityCacheManager {
     }
   }
 
-  public async dumpCache() {
+  private async _dumpCache() {
     await ensureFile(this._path)
     await writeJson(this._path, this._cache.dump())
   }
@@ -99,7 +99,7 @@ export class SystemEntityCacheManager {
   private _onCacheChanged = _.debounce(async () => {
     if (this._dumpEnabled) {
       try {
-        await this.dumpCache()
+        await this._dumpCache()
       } catch (err) {
         this._logger?.error(`Could not persist system entities cache, error ${err.message}`, err)
         this._dumpEnabled = false

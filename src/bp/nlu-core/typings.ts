@@ -141,7 +141,6 @@ export interface Tools {
 export interface SystemEntityExtractor {
   extractMultiple(input: string[], lang: string, useCache?: Boolean): Promise<EntityExtractionResult[][]>
   extract(input: string, lang: string): Promise<EntityExtractionResult[]>
-  configure(enabled?: boolean, url?: string): Promise<void>
 }
 
 export type Intent<T> = Readonly<{

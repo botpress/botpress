@@ -82,8 +82,7 @@ export const makeFakeTools = (dim: number, languages: string[]): Tools => {
 
   const fakeSystemEntityExtractor: SystemEntityExtractor = {
     extractMultiple: async (input: string[], lang: string, useCache?: Boolean) => [],
-    extract: async (input: string, lang: string) => [],
-    configure: async (enabled?: boolean, url?: string) => {}
+    extract: async (input: string, lang: string) => []
   }
 
   const fakeMlToolkit: Partial<typeof MLToolkit> = {
