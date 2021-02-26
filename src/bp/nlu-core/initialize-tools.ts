@@ -69,6 +69,9 @@ const makeSystemEntityExtractor = async (
     new SystemEntityCacheManager(path.join(process.APP_DATA_PATH, 'cache', cacheFileName), true, logger)
 
   if (yn(process.env.BP_MICROSOFT_RECOGNIZER)) {
+    logger.warning(
+      'You are using Microsoft Recognizer entity extractor which is experimental. This feature can disappear at any time.'
+    )
     const msCache = makeCacheManager('microsoft_sys_entities.json')
     const extractor = new MicrosoftEntityExtractor(msCache, logger)
     await extractor.configure()
