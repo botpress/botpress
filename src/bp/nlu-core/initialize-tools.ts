@@ -1,12 +1,15 @@
 import { NLU } from 'botpress/sdk'
 import MLToolkit from 'ml/toolkit'
-
+import path from 'path'
+import yn from 'yn'
 import { DucklingEntityExtractor } from './entities/duckling-extractor'
+import { SystemEntityCacheManager } from './entities/entity-cache-manager'
+import { MicrosoftEntityExtractor } from './entities/microsoft-extractor'
 import LangProvider from './language/language-provider'
 import { getPOSTagger, tagSentence } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
 import SeededLodashProvider from './tools/seeded-lodash'
-import { LanguageProvider, Tools } from './typings'
+import { LanguageProvider, SystemEntityExtractor, Tools } from './typings'
 
 const NLU_VERSION = '2.1.0'
 
@@ -58,13 +61,27 @@ const initializeLanguageProvider = async (
   }
 }
 
-const initDucklingExtractor = async (config: NLU.LanguageConfig, logger: NLU.Logger): Promise<void> => {
-  await DucklingEntityExtractor.configure(config.ducklingEnabled, config.ducklingURL, logger)
+const makeSystemEntityExtractor = async (
+  config: NLU.LanguageConfig,
+  logger: NLU.Logger
+): Promise<SystemEntityExtractor> => {
+  const makeCacheManager = (cacheFileName: string) =>
+    new SystemEntityCacheManager(path.join(process.APP_DATA_PATH, 'cache', cacheFileName), true, logger)
+
+  if (yn(process.env.BP_MICROSOFT_RECOGNIZER)) {
+    const msCache = makeCacheManager('microsoft_sys_entities.json')
+    const extractor = new MicrosoftEntityExtractor(msCache, logger)
+    await extractor.configure()
+    return extractor
+  }
+
+  const duckCache = makeCacheManager('duckling_sys_entities.json')
+  const extractor = new DucklingEntityExtractor(duckCache, logger)
+  await extractor.configure(config.ducklingEnabled, config.ducklingURL)
+  return extractor
 }
 
 export async function initializeTools(config: NLU.LanguageConfig, logger: NLU.Logger): Promise<Tools> {
-  await initDucklingExtractor(config, logger)
-
   const seededLodashProvider = new SeededLodashProvider()
   const { languageProvider } = await initializeLanguageProvider(config, logger, seededLodashProvider)
 
@@ -87,6 +104,6 @@ export async function initializeTools(config: NLU.LanguageConfig, logger: NLU.Lo
     getSpecifications: versionGetter(languageProvider),
     seededLodashProvider,
     mlToolkit: MLToolkit,
-    duckling: new DucklingEntityExtractor(logger)
+    systemEntityExtractor: await makeSystemEntityExtractor(config, logger)
   }
 }

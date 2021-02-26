@@ -91,7 +91,7 @@ async function extractEntities(input: PredictStep, predictors: Predictors, tools
     [
       ...extractListEntities(utterance, predictors.list_entities),
       ...extractPatternEntities(utterance, predictors.pattern_entities),
-      ...(await tools.duckling.extract(utterance.toString(), utterance.languageCode))
+      ...(await tools.systemEntityExtractor.extract(utterance.toString(), utterance.languageCode))
     ],
     entityRes => {
       utterance.tagEntity(_.omit(entityRes, ['start, end']) as ExtractedEntity, entityRes.start, entityRes.end)

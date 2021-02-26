@@ -80,7 +80,7 @@ export const makeFakeTools = (dim: number, languages: string[]): Tools => {
     resetSeed: () => {}
   }
 
-  const fakeDuckling: SystemEntityExtractor = {
+  const fakeSystemEntityExtractor: SystemEntityExtractor = {
     extractMultiple: async (input: string[], lang: string, useCache?: Boolean) => [],
     extract: async (input: string, lang: string) => []
   }
@@ -103,7 +103,7 @@ export const makeFakeTools = (dim: number, languages: string[]): Tools => {
     getLanguages,
     getSpecifications,
     seededLodashProvider: fakeSeededLodash,
-    duckling: fakeDuckling,
+    systemEntityExtractor: fakeSystemEntityExtractor,
     mlToolkit: fakeMlToolkit as typeof MLToolkit
   }
 }
