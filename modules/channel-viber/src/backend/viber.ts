@@ -1,17 +1,17 @@
-import { Request, Response, Router, json } from 'express';
-import { ViberClient } from 'messaging-api-viber';
+import * as sdk from 'botpress/sdk'
+import { json, Request, Response, Router } from 'express'
+import * as http from 'http'
+import _ from 'lodash'
+import { ViberClient } from 'messaging-api-viber'
 
-import _ from 'lodash';
+import { Config } from '../config'
 
-import * as sdk from 'botpress/sdk';
-import * as http from 'http';
+import { Client } from './client'
 
-const debug = DEBUG('channel-viber');
-const debugIncoming = debug.sub('incoming');
-const debugOutgoing = debug.sub('outgoing');
+const debug = DEBUG('channel-viber')
+const debugIncoming = debug.sub('incoming')
+const debugOutgoing = debug.sub('outgoing')
 
-import { Config } from '../config';
-import { Client } from './client';
 
 interface MountedBot {
   botId: string
@@ -28,20 +28,20 @@ enum EventType {
 }
 
 export class ViberService {
-  private mountedBots: MountedBot[] = [];
-  private appSecret: string;
-  private router: Router & sdk.http.RouterExtension;
+  private mountedBots: MountedBot[] = []
+  private appSecret: string
+  private router: Router & sdk.http.RouterExtension
 
   constructor(private bp: typeof sdk) {
   }
 
-  private async handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback): Promise<void> {
+  private handleOutgoingEvent = (botId) => async (event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback): Promise<void> =>  {
     if (event.channel !== 'viber') {
-      return next();
+      return next()
     }
 
-    const messageType = event.type === 'default' ? 'text' : event.type;
-    const client = this.mountedBots[0].client;
+    const messageType = event.type === 'default' ? 'text' : event.type
+    const client = this.mountedBots.find((bot) => bot.botId === botId).client
 
     if (messageType === 'text') {
       if (event.payload?.text) {
@@ -58,23 +58,23 @@ export class ViberService {
             type: 'keyboard',
             buttons: event.payload.options.Buttons
           }
-        });
+        })
       }
     }
 
-    next(undefined, false);
+    next(undefined, false)
   }
 
   private getConfig(): Promise<Config> {
-    return this.bp.config.getModuleConfig('channel-viber');
+    return this.bp.config.getModuleConfig('channel-viber')
   }
 
-  private async handleIncomingMessage(req: Request, res: Response): Promise<Response> {
-    const { message, event, sender } = req.body;
+  private handleIncomingMessage = (botId) => async (req: Request, res: Response): Promise<Response> => {
+    const { message, event, sender } = req.body
     if (event === 'message') {
       await this.bp.events.sendEvent(
         this.bp.IO.Event({
-          botId: 'ecbv2',
+          botId,
           channel: 'viber',
           direction: 'incoming',
           payload: message,
@@ -82,13 +82,13 @@ export class ViberService {
           target: sender.id,
           type: message.type,
         })
-      );
+      )
     }
-    return res.send();
+    return res.send()
   }
 
   public async initialize(): Promise<void> {
-    const config = await this.getConfig();
+    const config = await this.getConfig()
 
     // if (!config.verifyToken?.length || config.verifyToken === 'verify_token') {
     //   throw new Error('You need to set a valid value for "verifyToken" in data/global/config/channel-viber.json');
@@ -98,35 +98,36 @@ export class ViberService {
     //   throw new Error('You need to set a valid value for "appSecret" in data/global/config/channel-viber.json');
     // }
 
-    this.appSecret = config.appSecret;
+    this.appSecret = config.appSecret
 
     this.router = this.bp.http.createRouterForBot('channel-viber', {
       checkAuthentication: false,
       enableJsonBodyParser: false // we use our custom json body parser instead, see below
-    });
+    })
 
-    const publicPath = await this.router.getPublicPath();
+    const publicPath = await this.router.getPublicPath()
     if (!publicPath.startsWith('https://')) {
-      this.bp.logger.warn('Viber requires HTTPS to be setup to work properly. See EXTERNAL_URL botpress config.');
+      this.bp.logger.warn('Viber requires HTTPS to be setup to work properly. See EXTERNAL_URL botpress config.')
     }
-    this.bp.logger.info(`Viber Webhook URL is ${publicPath.replace('BOT_ID', '___')}/webhook`);
+    this.bp.logger.info(`Viber Webhook URL is ${publicPath.replace('BOT_ID', '___')}/webhook`)
 
-    this.router.use(json());
-
-    this.router.post('/webhook', this.handleIncomingMessage.bind(this));
-    this.bp.events.registerMiddleware({
-      description: 'Sends outgoing messages for the viber channel',
-      direction: 'outgoing',
-      handler: this.handleOutgoingEvent.bind(this),
-      name: 'viber.sendMessages',
-      order: 200
-    });
+    this.router.use(json())
   }
 
   public async mountBot(botId: string): Promise<void> {
     try {
-      const config = await this.getConfig();
-      const webhookPath = ((await this.router.getPublicPath()) + '/webhook').replace('BOT_ID', botId);
+      this.router.post('/webhook', this.handleIncomingMessage(botId))
+      this.bp.events.registerMiddleware({
+        description: 'Sends outgoing messages for the viber channel',
+        direction: 'outgoing',
+        handler: this.handleOutgoingEvent(botId),
+        name: 'viber.sendMessages',
+        order: 200
+      })
+
+      const config = await this.getConfig()
+      const webhookPath = ((await this.router.getPublicPath()) + '/webhook').replace('BOT_ID', botId)
+
       const viberClient = new ViberClient(
         {
           accessToken: config.accessToken,
@@ -136,15 +137,15 @@ export class ViberService {
           },
           origin: config.origin,
         }
-      );
+      )
       await viberClient.setWebhook(
-        'https://4f22e34b9654.ngrok.io/api/v1/bots/ecbv2/mod/channel-viber/webhook',
+        `https://c79fa6577578.ngrok.io/api/v1/bots/${botId}/mod/channel-viber/webhook`,
         {
           eventTypes: [EventType.Delivered, EventType.Seen],
         }
-      );
-      const client = new Client(viberClient);
-      this.mountedBots.push({ client, botId });
+      )
+      const client = new Client(viberClient)
+      this.mountedBots.push({ client, botId })
     } catch (e) {
       const errorMessage = _.get(e, 'response.data.error.message', 'are you sure your Access Token is valid?')
       return this.bp.logger
@@ -155,6 +156,6 @@ export class ViberService {
   }
 
   public async unmountBot(botId: string) {
-    this.mountedBots = _.remove(this.mountedBots, x => x.botId === botId);
+    this.mountedBots = _.remove(this.mountedBots, x => x.botId === botId)
   }
 }
