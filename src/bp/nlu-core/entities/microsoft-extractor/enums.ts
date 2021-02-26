@@ -1,42 +1,12 @@
-import { ModelResult } from '@microsoft/recognizers-text'
 import Recognizers from '@microsoft/recognizers-text-suite'
+import { MicrosoftSupportedLanguage } from './typings'
 
-export interface MicrosoftValue {
-  value: string
-  unit?: string
-  type?: string
-  score?: number
-  otherResults?: any[]
+export const supportedLangsList: MicrosoftSupportedLanguage[] = ['zh', 'nl', 'en', 'fr', 'de', 'it', 'ja', 'pt', 'es']
+export const isSupportedLanguage = (lang: string): lang is MicrosoftSupportedLanguage => {
+  return supportedLangsList.includes(lang as MicrosoftSupportedLanguage)
 }
 
-export interface MicrosoftTimeValues {
-  timex: string
-  type: string
-  start?: string
-  end?: string
-  value?: string
-  Mod?: string
-  sourceEntity?: string
-}
-
-export interface MicrosoftValues {
-  values: MicrosoftTimeValues[]
-}
-
-export type MicrosoftResolution = MicrosoftValue | MicrosoftValues
-
-export interface MicrosoftEntity extends ModelResult {
-  start: number
-  end: number
-  resolution: MicrosoftResolution
-  text: string
-  typeName: string
-}
-
-export type SupportedLangs = 'zh' | 'nl' | 'en' | 'fr' | 'de' | 'it' | 'ja' | 'pt' | 'es'
-export const SupportedLangsList = ['zh', 'nl', 'en', 'fr', 'de', 'it', 'ja', 'pt', 'es']
-
-export const langToCulture = (lang: SupportedLangs): string | undefined => {
+export const langToCulture = (lang: MicrosoftSupportedLanguage): string | undefined => {
   switch (lang) {
     case 'zh':
       return Recognizers.Culture.Chinese

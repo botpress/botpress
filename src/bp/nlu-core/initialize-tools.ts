@@ -65,26 +65,19 @@ const makeSystemEntityExtractor = async (
   config: NLU.LanguageConfig,
   logger: NLU.Logger
 ): Promise<SystemEntityExtractor> => {
-  let extractor: SystemEntityExtractor
+  const makeCacheManager = (cacheFileName: string) =>
+    new SystemEntityCacheManager(path.join(process.APP_DATA_PATH, 'cache', cacheFileName), true, logger)
 
   if (yn(process.env.BP_MICROSOFT_RECOGNIZER)) {
-    const msCache = new SystemEntityCacheManager(
-      path.join(process.APP_DATA_PATH, 'cache', 'microsoft_sys_entities.json'),
-      true,
-      logger
-    )
-    extractor = new MicrosoftEntityExtractor(msCache, logger)
+    const msCache = makeCacheManager('microsoft_sys_entities.json')
+    const extractor = new MicrosoftEntityExtractor(msCache, logger)
     await extractor.configure()
-  } else {
-    const duckCache = new SystemEntityCacheManager(
-      path.join(process.APP_DATA_PATH, 'cache', 'duckling_sys_entities.json'),
-      true,
-      logger
-    )
-    extractor = new DucklingEntityExtractor(duckCache, logger)
-    await extractor.configure(config.ducklingEnabled, config.ducklingURL)
+    return extractor
   }
 
+  const duckCache = makeCacheManager('duckling_sys_entities.json')
+  const extractor = new DucklingEntityExtractor(duckCache, logger)
+  await extractor.configure(config.ducklingEnabled, config.ducklingURL)
   return extractor
 }
 

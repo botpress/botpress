@@ -4,6 +4,9 @@ import _ from 'lodash'
 import path from 'path'
 import { MicrosoftEntityExtractor } from '.'
 import { SystemEntityCacheManager } from '../entity-cache-manager'
+import { createSpyObject, MockObject } from 'core/misc/utils'
+import { NLU } from 'botpress/sdk'
+import { KeyedItem } from 'nlu-core/typings'
 
 describe('Microsoft Extract Multiple', () => {
   let microsoft: MicrosoftEntityExtractor
@@ -262,5 +265,79 @@ describe('Microsoft Extract Multiple', () => {
     const res = await microsoft.extractMultiple(examples, 'en')
 
     expect(res).toEqual(result)
+  })
+})
+
+describe('Microsft Entity extractor cache usage', () => {
+  let mem: KeyedItem[]
+  const fakeSplitCache = (inputs: string[], useCache: boolean) => {
+    const toItem = (input: string, idx: number): KeyedItem => ({ idx, input, entities: [] })
+
+    if (!useCache) {
+      return [[], inputs.map(toItem)]
+    }
+
+    const knownInputs = mem.map(i => i.input)
+    const newInputs = inputs.filter(i => !knownInputs.includes(i))
+    const newItems: KeyedItem[] = newInputs.map(toItem)
+    const ret: KeyedItem[][] = [[...mem], [...newItems]]
+    mem.push(...newItems)
+    return ret
+  }
+
+  let recognizeDateTimeSpy: any
+  let cache: MockObject<SystemEntityCacheManager>
+  let extractor: MicrosoftEntityExtractor
+
+  beforeEach(async () => {
+    mem = []
+
+    const recognizers = jest.requireActual('@microsoft/recognizers-text-suite')
+    jest.doMock('@microsoft/recognizers-text-suite', () => {
+      recognizeDateTimeSpy = jest.spyOn(recognizers, 'recognizeDateTime')
+      return {
+        ...recognizers
+      }
+    })
+
+    cache = createSpyObject<SystemEntityCacheManager>()
+    cache.splitCacheHitFromCacheMiss.mockImplementation(fakeSplitCache)
+
+    const stubLogger = createSpyObject<NLU.Logger>()
+
+    const extractorModule = require('.')
+    extractor = new extractorModule.MicrosoftEntityExtractor(cache.T, stubLogger.T) as MicrosoftEntityExtractor
+    await extractor.configure()
+  })
+
+  test('when extracting multiple time with the same value and cache enabled, extractor uses cache', async () => {
+    // arrange
+    const utt = 'a really really really small mice at 4 pm stole my grandma'
+
+    // act
+    await extractor.extract(utt, 'en', true)
+    await extractor.extract(utt, 'en', true)
+    await extractor.extract(utt, 'en', true)
+    await extractor.extract(utt, 'en', true)
+
+    // assert
+    expect(recognizeDateTimeSpy).toHaveBeenCalledTimes(1)
+    expect(cache.splitCacheHitFromCacheMiss).toHaveBeenCalledTimes(4)
+    expect(cache.cacheBatchResults).toHaveBeenCalledTimes(1)
+  })
+
+  test('when extracting multiple time with the same value and cache disabled, extractor doesnt use cache', async () => {
+    // arrange
+    const utt = 'a really really really big boston Bruins player ate 5 gallons of of cookie at 4am'
+
+    // act
+    await extractor.extract(utt, 'en', false)
+    await extractor.extract(utt, 'en', false)
+    await extractor.extract(utt, 'en', false)
+    await extractor.extract(utt, 'en', false)
+
+    // assert
+    expect(recognizeDateTimeSpy).toHaveBeenCalledTimes(4)
+    expect(cache.splitCacheHitFromCacheMiss).toHaveBeenCalledTimes(4)
   })
 })

@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { sanitizeFileName } from 'core/misc/utils'
-import { DUCKLING_ENTITIES } from 'nlu-core/entities/duckling-extractor/typings'
+import { DUCKLING_ENTITIES } from 'nlu-core/entities/duckling-extractor/enums'
 import { GhostService } from '..'
 import * as CacheManager from './cache-manager'
 import { NLUService } from './nlu-service'
