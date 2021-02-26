@@ -161,7 +161,10 @@ export class AuthRouter extends CustomRouter {
 
         if (config.jwtToken && config.jwtToken.allowRefresh) {
           const newToken = await this.authService.refreshToken(req.tokenUser!)
-          sendSuccess(res, 'Token refreshed successfully', { newToken })
+
+          sendSuccess(res, 'Token refreshed successfully', {
+            newToken: process.USE_JWT_COOKIES ? _.omit(newToken, 'jwt') : newToken
+          })
         } else {
           const [, token] = req.headers.authorization!.split(' ')
           sendSuccess(res, 'Token not refreshed, sending back original', { newToken: token })

@@ -23,6 +23,24 @@ Moreover, you can access a specific workspace by using `/admin/login?workspaceId
 
 You can find the definition for the various authentication strategies [here](https://github.com/botpress/botpress/blob/master/src/bp/core/config/botpress.config.ts#L326).
 
+## Storage of the user token
+
+By default, tokens which identifies the user on the admin panel and on the studio are stored in the local storage. It does the job, but for additional security, we recommend enabling the storage of tokens in cookies. However, enabling this feature requires additional configurations, such as CORS.
+
+To enable, set `jwtToken.useCookieStorage` to `true` in the `botpress.config.json` file.
+
+You must also configure correctly the CORS parameters for your current domain.
+
+```js
+httpServer: {
+  cors: {
+      enabled: true,
+      origin: "http://localhost:3001", // change to your hostname
+      credentials: true
+    },
+}
+```
+
 ### Basic
 
 Basic Authentication allows a user to log in with a simple username / password. The password is salted for added security.

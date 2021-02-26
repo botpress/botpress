@@ -1,9 +1,11 @@
 import axios from 'axios'
 import Promise from 'bluebird'
+import { auth } from 'botpress/shared'
+import { CSRF_TOKEN_HEADER } from 'common/auth'
 import _ from 'lodash'
 import React from 'react'
 
-import { getActiveWorkspace, getToken, logout } from './Auth'
+import { getActiveWorkspace } from './Auth'
 import { toastFailure } from './utils/toaster'
 
 interface SecuredApi {
@@ -36,7 +38,7 @@ export const toastError = error => {
 }
 
 const createClient = (clientOptions: any, options: { toastErrors?: boolean }) => {
-  const client = axios.create({ timeout: 6000, ...clientOptions })
+  const client = axios.create({ timeout: 6000, withCredentials: true, ...clientOptions })
 
   client.interceptors.response.use(
     response => response,
@@ -46,7 +48,7 @@ const createClient = (clientOptions: any, options: { toastErrors?: boolean }) =>
       const url = _.get(error, 'response.config.url')
       if (errorCode) {
         if (['BP_0041'].includes(errorCode) && url !== '/auth/logout') {
-          return logout()
+          return auth.logout(() => client)
         }
         return Promise.reject(wrappedError)
       } else {
@@ -79,14 +81,14 @@ export default {
 
   getSecured({ token = undefined, toastErrors = true, timeout = 10000 }: SecuredApi = {}) {
     if (!token) {
-      token = getToken() as string
+      token = auth.getToken(true) as string
     }
 
     return createClient(
       {
         timeout,
         headers: {
-          Authorization: `Bearer ${token}`,
+          ...(window.USE_JWT_COOKIES ? { [CSRF_TOKEN_HEADER]: token } : { Authorization: `Bearer ${token}` }),
           'X-BP-Workspace': getActiveWorkspace()
         },
         ...overrideApiUrl

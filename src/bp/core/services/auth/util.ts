@@ -1,5 +1,8 @@
+import { TokenResponse } from 'common/typings'
 import crypto from 'crypto'
 import jsonwebtoken from 'jsonwebtoken'
+import ms from 'ms'
+import uuid from 'uuid'
 
 interface Token {
   email: string
@@ -44,9 +47,13 @@ export const generateUserToken = ({
   isSuperAdmin,
   expiresIn,
   audience
-}: Token): string => {
-  return jsonwebtoken.sign({ email, strategy, tokenVersion, isSuperAdmin }, process.APP_SECRET, {
-    expiresIn: expiresIn || '2h',
+}: Token): TokenResponse => {
+  const exp = expiresIn || '2h'
+  const csrf = uuid.v4()
+  const jwt = jsonwebtoken.sign({ email, strategy, tokenVersion, csrfToken: csrf, isSuperAdmin }, process.APP_SECRET, {
+    expiresIn: exp,
     audience
   })
+
+  return { jwt, csrf, exp: ms(exp) }
 }
