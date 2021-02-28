@@ -1,5 +1,5 @@
 import { Flow, Logger } from 'botpress/sdk'
-import { ObjectCache } from 'common/object-cache'
+import { ObjectCache, OBJECT_CACHE_EVENTS } from 'common/object-cache'
 import { TreeSearch, PATH_SEPARATOR } from 'common/treeSearch'
 import { FlowMutex, FlowView, NodeView } from 'common/typings'
 import { ModuleLoader } from 'core/module-loader'
@@ -117,7 +117,7 @@ export class FlowService {
   }
 
   private _listenForCacheInvalidation() {
-    this.cache.events.on('invalidation', async (key: string) => {
+    this.cache.events.on(OBJECT_CACHE_EVENTS.invalidation, async (key: string) => {
       if (this._flowCache.isEmpty()) {
         return
       }
