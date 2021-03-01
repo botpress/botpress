@@ -1,5 +1,4 @@
 import _ from 'lodash'
-import path from 'path'
 
 import Database from '../../database'
 import { createDatabaseSuite } from '../../database/index.tests'
