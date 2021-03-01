@@ -3,7 +3,7 @@ import { Migration } from 'core/services/migration'
 
 const TABLE_NAME = 'dialog_sessions'
 const TEMP_TABLE_NAME = 'dialog_sessions_temp'
-const ID_COLUMN_SIZE = 500
+const ID_COLUMN_SIZE = 510
 
 const migration: Migration = {
   info: {
