@@ -13,17 +13,6 @@
       "main/nlu",
       "main/emulator"
     ],
-    "Advanced Guides": [
-      "advanced/debug",
-      "advanced/configuration",
-      "advanced/authentication",
-      "advanced/custom-module",
-      "advanced/performances",
-      "advanced/hosting",
-      "advanced/versions",
-      "advanced/development-pipeline",
-      "advanced/cluster"
-    ],
     "Channels": [
       "channels/web",
       "channels/messenger",
@@ -45,7 +34,6 @@
       "infrastructure/cluster"
     ],
     "Improving Your Chatbot": [
-
       "tutorials/intent-matching",
       "tutorials/proactive",
       "tutorials/carousel-postback",
@@ -68,6 +56,20 @@
       "tutorials/google-oauth2",
       "tutorials/github-oauth2"
     ],
-    "Pro Edition": ["pro/about-pro", "pro/licensing", "pro/rbac", "pro/monitoring", "pro/pipelines", "pro/i18n"]
+    "Pro Edition": [
+      "pro/about-pro", 
+      "pro/licensing", 
+      "pro/rbac", 
+      "pro/monitoring", 
+      "pro/pipelines",
+      "pro/i18n"
+    ],
+    "Advanced Guides": [
+      "advanced/debug",
+      "advanced/configuration",
+      "advanced/authentication",
+      "advanced/custom-module",
+      "advanced/development-pipeline",
+    ],
   }
 }
