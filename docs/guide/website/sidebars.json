@@ -1,8 +1,8 @@
 {
   "docs": {
     "Release Notes": ["releases/migrate", "updating"],
-    "Getting Started": ["introduction", "installation", "quickstart"],
-    "Main Concepts": [
+    "Getting Started": ["installation", "quickstart"],
+    "Building A Chatbot": [
       "main/overview",
       "main/glossary",
       "main/content",
@@ -34,8 +34,18 @@
       "channels/smooch",
       "channels/faq"
     ],
-    "Tutorials": [
-      "tutorials/cluster-digital-ocean",
+    "Deployment And Infrastructure": [
+      "infrastructure/deploying",
+      "infrastructure/hosting",
+      "infrastructure/performances",
+      "infrastructure/pipeline",
+      "infrastructure/rbac",
+      "infrastructure/versions",
+      "infrastructure/databases",
+      "infrastructure/cluster"
+    ],
+    "Improving Your Chatbot": [
+
       "tutorials/intent-matching",
       "tutorials/proactive",
       "tutorials/carousel-postback",
