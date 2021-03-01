@@ -1,3 +1,4 @@
+import * as NLU from 'botpress/nlu'
 import * as sdk from 'botpress/sdk'
 import Joi from 'joi'
 import _ from 'lodash'
@@ -54,7 +55,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
     const modelId = botNLU.modelsByLang[predictLang]
 
     try {
-      let nlu: sdk.NLU.PredictOutput
+      let nlu: NLU.PredictOutput
 
       const spellChecked = await state.engine.spellCheck(value.text, modelId)
 

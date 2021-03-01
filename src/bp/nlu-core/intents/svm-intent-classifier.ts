@@ -1,11 +1,12 @@
-import { MLToolkit, NLU } from 'botpress/sdk'
-import _ from 'lodash'
+import * as NLU from 'botpress/nlu'
+import { MLToolkit } from 'botpress/sdk'
 import Joi, { validate } from 'joi'
+import _ from 'lodash'
+import { ModelLoadingError } from 'nlu-core/errors'
 import { ListEntityModel, PatternEntity, Tools } from 'nlu-core/typings'
 import Utterance from 'nlu-core/utterance/utterance'
 
 import { IntentClassifier, IntentPredictions, IntentTrainInput } from './intent-classifier'
-import { ModelLoadingError } from 'nlu-core/errors'
 
 type Featurizer = (u: Utterance, entities: string[]) => number[]
 export interface Model {

@@ -433,104 +433,10 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NLU {
-    export namespace errors {
-      export const isTrainingCanceled: (err: Error) => boolean
-      export const isTrainingAlreadyStarted: (err: Error) => boolean
-    }
-
-    export const makeEngine: (config: Config, logger: Logger) => Promise<Engine>
-
-    export interface Config extends LanguageConfig {
-      modelCacheSize: number
-    }
-
-    export interface LanguageConfig {
-      ducklingURL: string
-      ducklingEnabled: boolean
-      languageSources: LanguageSource[]
-    }
-
-    export interface LanguageSource {
-      endpoint: string
-      authToken?: string
-    }
-
-    export interface Logger {
-      debug: (msg: string) => void
-      info: (msg: string) => void
-      warning: (msg: string, err?: Error) => void
-      error: (msg: string, err?: Error) => void
-    }
-
-    export interface TrainingSet {
-      intentDefs: NLU.IntentDefinition[]
-      entityDefs: NLU.EntityDefinition[]
-      languageCode: string
-      seed: number // seeds random number generator in nlu training
-    }
-
-    export interface ModelIdArgs extends TrainingSet {
-      specifications: Specifications
-    }
-
-    export interface TrainingOptions {
-      progressCallback: (x: number) => void
-      previousModel: ModelId | undefined
-    }
-
-    export interface Engine {
-      getHealth: () => Health
-      getLanguages: () => string[]
-      getSpecifications: () => Specifications
-      loadModel: (model: Model) => Promise<void>
-      unloadModel: (modelId: ModelId) => void
-      hasModel: (modelId: ModelId) => boolean
-      train: (trainSessionId: string, trainSet: TrainingSet, options?: Partial<TrainingOptions>) => Promise<Model>
-      cancelTraining: (trainSessionId: string) => Promise<void>
-      detectLanguage: (text: string, modelByLang: Dic<ModelId>) => Promise<string>
-      predict: (text: string, modelId: ModelId) => Promise<PredictOutput>
-      spellCheck: (sentence: string, modelId: ModelId) => Promise<string>
-    }
-
-    export const modelIdService: {
-      toString: (modelId: ModelId) => string // to use ModelId as a key
-      fromString: (stringId: string) => ModelId // to parse information from a key
-      toId: (m: Model) => ModelId // keeps only minimal information to make an id
-      isId: (m: string) => boolean
-      makeId: (factors: ModelIdArgs) => ModelId
-      briefId: (factors: Partial<ModelIdArgs>) => Partial<ModelId> // makes incomplete Id from incomplete information
-    }
-
-    export interface ModelId {
-      specificationHash: string // represents the nlu engine that was used to train the model
-      contentHash: string // represents the intent and entity definitions the model was trained with
-      seed: number // number to seed the random number generators used during nlu training
-      languageCode: string // language of the model
-    }
-
-    export interface Specifications {
-      nluVersion: string // semver string
-      languageServer: {
-        dimensions: number
-        domain: string
-        version: string // semver string
-      }
-    }
-
-    export type Model = ModelId & {
-      startedAt: Date
-      finishedAt: Date
-      data: {
-        input: string
-        output: string
-      }
-    }
-
-    export interface Health {
-      isEnabled: boolean
-      validProvidersCount: number
-      validLanguages: string[]
-    }
+    /**
+     * @experimental every types and functions from core are subject to change at any time.
+     */
+    export const core: typeof import('botpress/nlu')
 
     /**
      * idle : occures when there are no training sessions for a bot
@@ -634,26 +540,6 @@ declare module 'botpress/sdk' {
     }
 
     export type SlotCollection = Dic<Slot>
-
-    export interface Predictions {
-      [context: string]: ContextPrediction
-    }
-
-    export interface ContextPrediction {
-      confidence: number
-      oos: number
-      intents: {
-        label: string
-        confidence: number
-        slots: SlotCollection
-        extractor: string
-      }[]
-    }
-
-    export interface PredictOutput {
-      readonly entities: Entity[]
-      readonly predictions: Predictions
-    }
   }
 
   export namespace NDU {
@@ -800,14 +686,8 @@ declare module 'botpress/sdk' {
       readonly threadId?: string
     }
 
-    export type EventUnderstanding = {
+    export interface EventUnderstanding {
       readonly errored: boolean
-
-      // election
-      readonly intent?: NLU.Intent
-      readonly intents?: NLU.Intent[]
-      readonly ambiguous?: boolean /** Predicted intents needs disambiguation */
-      readonly slots?: NLU.SlotCollection
 
       // pre-prediction
       readonly detectedLanguage:
@@ -820,7 +700,28 @@ declare module 'botpress/sdk' {
       readonly language: string /** The language used for prediction */
       readonly includedContexts: string[]
       readonly ms: number
-    } & Partial<NLU.PredictOutput>
+
+      // prediction
+      readonly predictions?: {
+        [context: string]: {
+          confidence: number
+          oos: number
+          intents: {
+            label: string
+            confidence: number
+            slots: NLU.SlotCollection
+            extractor: string
+          }[]
+        }
+      }
+
+      // election
+      readonly entities?: NLU.Entity[]
+      readonly intent?: NLU.Intent
+      readonly intents?: NLU.Intent[]
+      readonly ambiguous?: boolean /** Predicted intents needs disambiguation */
+      readonly slots?: NLU.SlotCollection
+    }
 
     export interface IncomingEvent extends Event {
       /** Array of possible suggestions that the Decision Engine can take  */

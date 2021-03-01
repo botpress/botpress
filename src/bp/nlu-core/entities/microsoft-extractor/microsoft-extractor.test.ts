@@ -5,7 +5,7 @@ import path from 'path'
 import { MicrosoftEntityExtractor } from '.'
 import { SystemEntityCacheManager } from '../entity-cache-manager'
 import { createSpyObject, MockObject } from 'core/misc/utils'
-import { NLU } from 'botpress/sdk'
+import * as NLU from 'botpress/nlu'
 import { KeyedItem } from 'nlu-core/typings'
 
 describe('Microsoft Extract Multiple', () => {

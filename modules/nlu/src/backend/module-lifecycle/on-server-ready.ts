@@ -1,3 +1,4 @@
+import * as NLU from 'botpress/nlu'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
@@ -7,7 +8,7 @@ import { NLUState } from '../typings'
 
 export function getOnServerReady(state: NLUState) {
   return async (bp: typeof sdk) => {
-    const loadModel = async (botId: string, modelId: sdk.NLU.ModelId) => {
+    const loadModel = async (botId: string, modelId: NLU.ModelId) => {
       if (!state.nluByBot[botId]) {
         return
       }

@@ -1,19 +1,20 @@
+import * as NLU from 'botpress/nlu'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { TrainInput, TrainOutput } from './training-pipeline'
 
-export type PredictableModel = Omit<sdk.NLU.Model, 'data'> & {
+export type PredictableModel = Omit<NLU.Model, 'data'> & {
   data: {
     input: TrainInput
     output: TrainOutput
   }
 }
 
-export function serializeModel(model: PredictableModel): sdk.NLU.Model {
+export function serializeModel(model: PredictableModel): NLU.Model {
   const { specificationHash, contentHash, languageCode: lang, startedAt, finishedAt, data, seed } = model
 
-  const serialized: sdk.NLU.Model = {
+  const serialized: NLU.Model = {
     specificationHash,
     contentHash,
     languageCode: lang,
@@ -32,7 +33,7 @@ export function serializeModel(model: PredictableModel): sdk.NLU.Model {
   return serialized
 }
 
-export function deserializeModel(serialized: sdk.NLU.Model): PredictableModel {
+export function deserializeModel(serialized: NLU.Model): PredictableModel {
   const { specificationHash, contentHash, languageCode, startedAt, finishedAt, data, seed } = serialized
 
   const model: PredictableModel = {

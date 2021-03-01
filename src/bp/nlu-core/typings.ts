@@ -1,5 +1,6 @@
 import { AxiosInstance } from 'axios'
-import sdk, { NLU } from 'botpress/sdk'
+import * as NLU from 'botpress/nlu'
+import sdk from 'botpress/sdk'
 import LRUCache from 'lru-cache'
 
 export const BIO = {
@@ -21,7 +22,7 @@ export interface LangServerInfo {
 }
 
 export interface Gateway {
-  source: sdk.NLU.LanguageSource
+  source: NLU.LanguageSource
   client: AxiosInstance
   errors: number
   disabledUntil?: Date
@@ -37,7 +38,7 @@ export interface LanguageProvider {
   vectorize(tokens: string[], lang: string): Promise<Float32Array[]>
   tokenize(utterances: string[], lang: string, vocab?: string[]): Promise<string[][]>
   generateSimilarJunkWords(subsetVocab: string[], lang: string): Promise<string[]>
-  getHealth(): Partial<sdk.NLU.Health>
+  getHealth(): Partial<NLU.Health>
 }
 
 export type TFIDF = _.Dictionary<number>
@@ -129,7 +130,7 @@ export interface Tools {
   getStopWordsForLang(lang: string): Promise<string[]>
 
   // system info
-  getHealth(): sdk.NLU.Health
+  getHealth(): NLU.Health
   getLanguages(): string[]
   getSpecifications(): NLU.Specifications
 

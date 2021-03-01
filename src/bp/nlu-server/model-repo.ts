@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import * as NLU from 'botpress/nlu'
 import crypto from 'crypto'
 import fse, { WriteStream } from 'fs-extra'
 import _ from 'lodash'

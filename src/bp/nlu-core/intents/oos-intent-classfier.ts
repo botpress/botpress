@@ -1,6 +1,8 @@
-import { MLToolkit, NLU } from 'botpress/sdk'
-import _ from 'lodash'
+import * as NLU from 'botpress/nlu'
+import { MLToolkit } from 'botpress/sdk'
 import Joi, { validate } from 'joi'
+import _ from 'lodash'
+import { ModelLoadingError } from 'nlu-core/errors'
 import { isPOSAvailable } from 'nlu-core/language/pos-tagger'
 import {
   featurizeInScopeUtterances,
@@ -16,7 +18,6 @@ import { ExactIntenClassifier } from './exact-intent-classifier'
 import { IntentTrainInput, NoneableIntentClassifier, NoneableIntentPredictions } from './intent-classifier'
 import { getIntentFeatures } from './intent-featurizer'
 import { SvmIntentClassifier } from './svm-intent-classifier'
-import { ModelLoadingError } from 'nlu-core/errors'
 
 interface TrainInput extends IntentTrainInput {
   allUtterances: Utterance[]

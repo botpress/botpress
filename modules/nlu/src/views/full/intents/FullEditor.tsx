@@ -1,4 +1,3 @@
-import { AxiosInstance } from 'axios'
 import { NLU } from 'botpress/sdk'
 import { utils } from 'botpress/shared'
 import cx from 'classnames'

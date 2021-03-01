@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import * as NLU from 'botpress/nlu'
 import _ from 'lodash'
 import { extractPattern } from '../../tools/patterns-utils'
 import { JOIN_CHAR } from '../../tools/token-utils'

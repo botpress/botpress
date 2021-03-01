@@ -1,3 +1,4 @@
+import * as NLU from 'botpress/nlu'
 import * as sdk from 'botpress/sdk'
 import bytes from 'bytes'
 import _ from 'lodash'
@@ -51,7 +52,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
         const predictionHandler = new PredictionHandler(
           modelsByLang,
           modelService,
-          bp.NLU.modelIdService,
+          bp.NLU.core.modelIdService,
           engine,
           anticipatedLanguage,
           defaultLanguage,
@@ -114,20 +115,20 @@ export function getOnSeverStarted(state: NLUState) {
     await initializeReportingTool(bp, state)
     const globalConfig: Config = await bp.config.getModuleConfig('nlu')
 
-    const logger = <sdk.NLU.Logger>{
+    const logger = <NLU.Logger>{
       info: (msg: string) => bp.logger.info(msg),
       warning: (msg: string, err?: Error) => (err ? bp.logger.attachError(err).warn(msg) : bp.logger.warn(msg)),
       error: (msg: string, err?: Error) => (err ? bp.logger.attachError(err).error(msg) : bp.logger.error(msg))
     }
 
     const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = globalConfig
-    const parsedConfig: sdk.NLU.Config = {
+    const parsedConfig: NLU.Config = {
       languageSources,
       ducklingEnabled,
       ducklingURL,
       modelCacheSize: bytes(modelCacheSize)
     }
-    state.engine = await bp.NLU.makeEngine(parsedConfig, logger)
+    state.engine = await bp.NLU.core.makeEngine(parsedConfig, logger)
 
     await registerMiddleware(bp, state)
   }

@@ -1,6 +1,6 @@
 import Axios, { AxiosInstance } from 'axios'
 import retry from 'bluebird-retry'
-import { NLU } from 'botpress/sdk'
+import * as NLU from 'botpress/nlu'
 import httpsProxyAgent from 'https-proxy-agent'
 import _ from 'lodash'
 

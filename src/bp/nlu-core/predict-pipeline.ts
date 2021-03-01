@@ -1,4 +1,5 @@
-import { MLToolkit, NLU } from 'botpress/sdk'
+import * as NLU from 'botpress/nlu'
+import { MLToolkit } from 'botpress/sdk'
 import _ from 'lodash'
 
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
@@ -172,7 +173,7 @@ function MapStepToOutput(step: SlotStep): NLU.PredictOutput {
 
   const entities = step.utterance.entities.map(entitiesMapper)
 
-  const slotsCollectionReducer = (slots: NLU.SlotCollection, s: SlotExtractionResult): NLU.SlotCollection => {
+  const slotsCollectionReducer = (slots: Dic<NLU.Slot>, s: SlotExtractionResult): Dic<NLU.Slot> => {
     if (slots[s.slot.name] && slots[s.slot.name].confidence > s.slot.confidence) {
       // we keep only the most confident slots
       return slots

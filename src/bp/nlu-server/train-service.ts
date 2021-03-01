@@ -1,3 +1,4 @@
+import * as NLU from 'botpress/nlu'
 import * as sdk from 'botpress/sdk'
 import Engine from 'nlu-core/engine'
 import { isTrainingAlreadyStarted, isTrainingCanceled } from 'nlu-core/errors'
@@ -15,7 +16,7 @@ export default class TrainService {
   ) {}
 
   train = async (
-    modelId: sdk.NLU.ModelId,
+    modelId: NLU.ModelId,
     password: string,
     intents: sdk.NLU.IntentDefinition[],
     entities: sdk.NLU.EntityDefinition[],
@@ -37,7 +38,7 @@ export default class TrainService {
     }
 
     try {
-      const trainSet: sdk.NLU.TrainingSet = {
+      const trainSet: NLU.TrainingSet = {
         intentDefs: intents,
         entityDefs: entities,
         languageCode: language,

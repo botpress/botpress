@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import * as NLU from 'botpress/nlu'
 import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
 import { deserializeError, serializeError } from 'ml/error-utils'

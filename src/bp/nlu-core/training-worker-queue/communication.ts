@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import * as NLU from 'botpress/nlu'
 import { ErrorMessage } from 'ml/error-utils'
 
 import { TrainInput, TrainOutput } from '../training-pipeline'

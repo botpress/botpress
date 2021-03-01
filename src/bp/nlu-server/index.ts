@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import * as NLU from 'botpress/nlu'
 import bytes from 'bytes'
 import chalk from 'chalk'
 import cluster from 'cluster'

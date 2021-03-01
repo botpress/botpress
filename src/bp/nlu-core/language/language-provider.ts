@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
 import retry from 'bluebird-retry'
-import { NLU } from 'botpress/sdk'
+import * as NLU from 'botpress/nlu'
 import crypto from 'crypto'
 import fse from 'fs-extra'
 import httpsProxyAgent from 'https-proxy-agent'

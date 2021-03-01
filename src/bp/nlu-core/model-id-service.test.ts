@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import * as NLU from 'botpress/nlu'
 
 import modelIdService from './model-id-service'
 import { HALF_MD5_REG } from './tools/crypto'

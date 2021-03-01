@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import * as NLU from 'botpress/nlu'
 import { ensureFile, pathExists, readJSON, writeJson } from 'fs-extra'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'

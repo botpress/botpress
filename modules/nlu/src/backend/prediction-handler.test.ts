@@ -1,6 +1,8 @@
 import '../../../../src/bp/sdk/botpress.d'
+import '../../../../src/bp/sdk/nlu.d'
 
-import { NLU, IO, Logger } from 'botpress/sdk'
+import { Logger } from 'botpress/sdk'
+import * as NLU from 'botpress/nlu'
 
 import _ from 'lodash'
 import ModelService from './model-service'

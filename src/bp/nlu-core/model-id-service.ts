@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import * as NLU from 'botpress/nlu'
 import _ from 'lodash'
 
 import { halfmd5, HALF_MD5_REG } from './tools/crypto'

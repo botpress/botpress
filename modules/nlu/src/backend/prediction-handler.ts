@@ -1,3 +1,4 @@
+import * as NLU from 'botpress/nlu'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
@@ -9,10 +10,10 @@ type WithoutDetectedLanguage = Omit<WithoutIncludedContexts, 'detectedLanguage'>
 
 export class PredictionHandler {
   constructor(
-    private modelsByLang: _.Dictionary<sdk.NLU.ModelId>,
+    private modelsByLang: _.Dictionary<NLU.ModelId>,
     private modelService: ModelService,
-    private modelIdService: typeof sdk.NLU.modelIdService,
-    private engine: sdk.NLU.Engine,
+    private modelIdService: typeof NLU.modelIdService,
+    private engine: NLU.Engine,
     private anticipatedLanguage: string,
     private defaultLanguage: string,
     private logger: sdk.Logger
@@ -108,7 +109,7 @@ export class PredictionHandler {
     }
   }
 
-  private fetchModel(languageCode: string): Promise<sdk.NLU.Model> {
+  private fetchModel(languageCode: string): Promise<NLU.Model> {
     const modelId = this.modelsByLang[languageCode]
     if (modelId) {
       return this.modelService.getModel(modelId)

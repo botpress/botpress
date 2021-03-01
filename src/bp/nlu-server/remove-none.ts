@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import * as NLU from 'botpress/nlu'
 import _ from 'lodash'
 
 import { BpPredictOutput } from './api-mapper'

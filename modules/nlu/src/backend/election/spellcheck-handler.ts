@@ -1,24 +1,24 @@
-import * as sdk from 'botpress/sdk'
+import * as NLU from 'botpress/nlu'
 import _ from 'lodash'
 
 import { NONE_INTENT, ValueOf } from './typings'
 
 const mergeSpellChecked = (
-  originalOutput: sdk.NLU.PredictOutput,
-  spellCheckedOutput: sdk.NLU.PredictOutput
-): sdk.NLU.PredictOutput => {
-  const mostConfidentContext = (preds: sdk.NLU.Predictions): ValueOf<sdk.NLU.Predictions> =>
+  originalOutput: NLU.PredictOutput,
+  spellCheckedOutput: NLU.PredictOutput
+): NLU.PredictOutput => {
+  const mostConfidentContext = (preds: NLU.Predictions): ValueOf<NLU.Predictions> =>
     _(preds)
       .values()
       .maxBy(p => p.confidence)!
 
-  const mostConfidentIntent = (preds: ValueOf<sdk.NLU.Predictions>) =>
+  const mostConfidentIntent = (preds: ValueOf<NLU.Predictions>) =>
     _(preds.intents)
       .filter(i => i.label !== NONE_INTENT)
       .maxBy(i => i.confidence)!
 
-  const originalPredictions: sdk.NLU.Predictions = originalOutput.predictions!
-  const spellCheckedPredictions: sdk.NLU.Predictions = spellCheckedOutput.predictions!
+  const originalPredictions: NLU.Predictions = originalOutput.predictions!
+  const spellCheckedPredictions: NLU.Predictions = spellCheckedOutput.predictions!
 
   const mergeContextConfidence =
     mostConfidentContext(originalPredictions).confidence < mostConfidentContext(spellCheckedPredictions).confidence

@@ -1,3 +1,4 @@
+import * as NLU from 'botpress/nlu'
 import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
 import LRUCache from 'lru-cache'
@@ -15,14 +16,14 @@ export default class TrainSessionService {
 
   constructor() {}
 
-  makeTrainingSession = (modelId: sdk.NLU.ModelId, password: string, language: string): TrainingSession => ({
+  makeTrainingSession = (modelId: NLU.ModelId, password: string, language: string): TrainingSession => ({
     key: this._makeTrainSessionKey(modelId, password),
     status: 'training-pending',
     progress: 0,
     language
   })
 
-  getTrainingSession(modelId: sdk.NLU.ModelId, password: string): TrainingSession | undefined {
+  getTrainingSession(modelId: NLU.ModelId, password: string): TrainingSession | undefined {
     const key = this._makeTrainSessionKey(modelId, password)
     const ts = this.trainSessions[key]
     if (ts) {
@@ -31,7 +32,7 @@ export default class TrainSessionService {
     return this.releasedTrainSessions.get(key)
   }
 
-  setTrainingSession(modelId: sdk.NLU.ModelId, password: string, trainSession: TrainingSession) {
+  setTrainingSession(modelId: NLU.ModelId, password: string, trainSession: TrainingSession) {
     const key = this._makeTrainSessionKey(modelId, password)
     if (this.releasedTrainSessions.get(key)) {
       this.releasedTrainSessions.del(key)
@@ -39,14 +40,14 @@ export default class TrainSessionService {
     this.trainSessions[key] = trainSession
   }
 
-  releaseTrainingSession(modelId: sdk.NLU.ModelId, password: string): void {
+  releaseTrainingSession(modelId: NLU.ModelId, password: string): void {
     const key = this._makeTrainSessionKey(modelId, password)
     const ts = this.trainSessions[key]
     delete this.trainSessions[key]
     this.releasedTrainSessions.set(key, ts)
   }
 
-  private _makeTrainSessionKey(modelId: sdk.NLU.ModelId, password: string) {
+  private _makeTrainSessionKey(modelId: NLU.ModelId, password: string) {
     const stringId = modelIdService.toString(modelId)
     return crypto
       .createHash('md5')

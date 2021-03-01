@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import * as NLU from 'botpress/nlu'
 import MLToolkit from 'ml/toolkit'
 import path from 'path'
 import yn from 'yn'

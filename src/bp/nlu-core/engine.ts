@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import * as NLU from 'botpress/nlu'
 import bytes from 'bytes'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
