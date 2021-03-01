@@ -1,25 +1,24 @@
+import { Button, Intent, Callout } from '@blueprintjs/core'
+import { confirmDialog } from 'botpress/shared'
+import { BotEditSchema } from 'common/validation'
+import Joi from 'joi'
+import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 
 import { MdInfoOutline } from 'react-icons/md'
+import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md'
 import { connect } from 'react-redux'
 
-import { BotEditSchema } from 'common/validation'
-import Joi from 'joi'
 import Select from 'react-select'
 import { Row, Col, FormGroup, Label, Input, Form, Alert, UncontrolledTooltip, Collapse } from 'reactstrap'
-import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md'
-import _ from 'lodash'
 
+import PageContainer from '~/App/PageContainer'
+import StickyActionBar from '~/App/StickyActionBar'
+import api from '../../api'
 import { fetchBots, fetchBotCategories } from '../../reducers/bots'
 import { fetchLicensing } from '../../reducers/license'
 import { fetchLanguages } from '../../reducers/server'
 import { toastSuccess, toastFailure } from '../../utils/toaster'
-
-import api from '../../api'
-import PageContainer from '~/App/PageContainer'
-import StickyActionBar from '~/App/StickyActionBar'
-import { Button, Intent, Callout } from '@blueprintjs/core'
-import { confirmDialog } from 'botpress/shared'
 
 const statusList = [
   { label: 'Published', value: 'public' },
@@ -200,7 +199,7 @@ class Bots extends Component {
     const { error } = Joi.validate(bot, BotEditSchema)
     if (error) {
       toastFailure('The form contains errors')
-      this.setState({ error: error, isSaving: false })
+      this.setState({ error, isSaving: false })
       return
     }
 
@@ -237,8 +236,13 @@ class Bots extends Component {
   handleCategoryChanged = category => this.setState({ category })
 
   handleDefaultLangChanged = async lang => {
+    let langs = this.state.selectedLanguages
+    if (!langs.find(x => x.value === lang.value)) {
+      langs = [...langs, lang]
+    }
+
     if (!this.state.selectedDefaultLang) {
-      this.setState({ selectedDefaultLang: lang })
+      this.setState({ selectedDefaultLang: lang, selectedLanguages: langs })
       return
     }
 
@@ -251,12 +255,16 @@ class Bots extends Component {
       )
 
       if (conf) {
-        this.setState({ selectedDefaultLang: lang })
+        this.setState({ selectedDefaultLang: lang, selectedLanguages: langs })
       }
     }
   }
 
   handleLanguagesChanged = langs => {
+    if (!langs.find(x => x.value === this.state.selectedDefaultLang.value)) {
+      langs = [...langs, this.state.selectedDefaultLang]
+    }
+
     this.setState({ selectedLanguages: langs })
   }
 
