@@ -42,7 +42,7 @@ const migration: Migration = {
         })
       } else {
         await db.transaction(async trx => {
-          await trx.raw(`ALTER TABLE ${TABLE_NAME} ALTER COLUMN id TYPE TEXTs;`)
+          await trx.raw(`ALTER TABLE ${TABLE_NAME} ALTER COLUMN id TYPE TEXT;`)
         })
       }
     } catch (err) {
