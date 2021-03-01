@@ -7,7 +7,7 @@ const ID_COLUMN_SIZE = 500
 
 const migration: Migration = {
   info: {
-    description: 'Merge botId column into dialog_sessions id',
+    description: 'Change dialog_sessions id column type',
     target: 'core',
     type: 'database'
   },
@@ -22,11 +22,6 @@ const migration: Migration = {
     const { client } = db.client.config
 
     try {
-      const hasBotIdColumn = await db.schema.hasColumn(TABLE_NAME, 'botId')
-      if (!hasBotIdColumn) {
-        return { success: true, message: 'Column botId already merged, skipping...' }
-      }
-
       if (client === 'sqlite3') {
         await db.transaction(async trx => {
           await db.schema.transacting(trx).createTable(TEMP_TABLE_NAME, table => {
@@ -41,9 +36,7 @@ const migration: Migration = {
             table.primary(['id'])
           })
 
-          await trx.raw(
-            `INSERT INTO ${TEMP_TABLE_NAME} SELECT botId || '::' || id AS id, context, temp_data, session_data, context_expiry, session_expiry, created_on, modified_on FROM ${TABLE_NAME};`
-          )
+          await trx.raw(`INSERT INTO ${TEMP_TABLE_NAME} SELECT * FROM ${TABLE_NAME};`)
 
           await database.knex.schema.transacting(trx).dropTable(TABLE_NAME)
           await database.knex.schema.transacting(trx).renameTable(TEMP_TABLE_NAME, TABLE_NAME)
@@ -51,17 +44,13 @@ const migration: Migration = {
       } else {
         await db.transaction(async trx => {
           await trx.raw(`ALTER TABLE ${TABLE_NAME} ALTER COLUMN id TYPE VARCHAR(${ID_COLUMN_SIZE});`)
-          await trx.raw(`UPDATE ${TABLE_NAME} SET id = "botId" || '::' || "id";`)
-          await trx.raw(`ALTER TABLE ${TABLE_NAME} DROP CONSTRAINT ${TABLE_NAME}_pkey;`)
-          await trx.raw(`ALTER TABLE ${TABLE_NAME} ADD PRIMARY KEY (id);`)
-          await trx.raw(`ALTER TABLE ${TABLE_NAME} DROP COLUMN "botId";`)
         })
       }
     } catch (err) {
-      bp.logger.attachError(err).error('Could not update the primary keys')
-      return { success: false, message: 'Could not update the primary keys' }
+      bp.logger.attachError(err).error('Could not update the primary key')
+      return { success: false, message: 'Could not update the primary key' }
     }
-    return { success: true, message: 'Primary keys successfully updated' }
+    return { success: true, message: 'Primary key successfully updated' }
   }
 }
 
