@@ -200,10 +200,16 @@ export class BotService {
       updatedFields.disabled = false
     }
 
-    await this.configProvider.setBotConfig(botId, {
+    const newConfig = {
       ...actualBot,
       ...updatedFields
-    })
+    } as BotConfig
+
+    if (!newConfig.languages.includes(newConfig.defaultLanguage)) {
+      throw new Error('Supported languages must include the language of the bot')
+    }
+
+    await this.configProvider.setBotConfig(botId, newConfig)
 
     if (!updatedBot.disabled) {
       if (this.isBotMounted(botId)) {
