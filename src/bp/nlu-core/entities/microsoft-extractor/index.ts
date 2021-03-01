@@ -113,7 +113,7 @@ export class MicrosoftEntityExtractor implements SystemEntityExtractor {
         source: entity.text,
         entityId: `system.${entity.typeName}`,
         extractor: 'system',
-        unit
+        unit: unit === entity.typeName ? '' : unit
       }
     }
     return formated
