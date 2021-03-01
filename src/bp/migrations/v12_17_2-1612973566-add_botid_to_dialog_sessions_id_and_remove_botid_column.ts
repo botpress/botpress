@@ -3,7 +3,6 @@ import { Migration } from 'core/services/migration'
 
 const TABLE_NAME = 'dialog_sessions'
 const TEMP_TABLE_NAME = 'dialog_sessions_temp'
-const ID_COLUMN_SIZE = 510
 
 const migration: Migration = {
   info: {
@@ -30,7 +29,7 @@ const migration: Migration = {
       if (client === 'sqlite3') {
         await db.transaction(async trx => {
           await db.schema.transacting(trx).createTable(TEMP_TABLE_NAME, table => {
-            table.string('id', ID_COLUMN_SIZE).notNullable()
+            table.text('id').notNullable()
             table.json('context').notNullable()
             table.json('temp_data').notNullable()
             table.json('session_data').notNullable()
@@ -50,7 +49,7 @@ const migration: Migration = {
         })
       } else {
         await db.transaction(async trx => {
-          await trx.raw(`ALTER TABLE ${TABLE_NAME} ALTER COLUMN id TYPE VARCHAR(${ID_COLUMN_SIZE});`)
+          await trx.raw(`ALTER TABLE ${TABLE_NAME} ALTER COLUMN id TYPE TEXT;`)
           await trx.raw(`UPDATE ${TABLE_NAME} SET id = "botId" || '::' || "id";`)
           await trx.raw(`ALTER TABLE ${TABLE_NAME} DROP CONSTRAINT ${TABLE_NAME}_pkey;`)
           await trx.raw(`ALTER TABLE ${TABLE_NAME} ADD PRIMARY KEY (id);`)
