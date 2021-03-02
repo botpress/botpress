@@ -18,6 +18,18 @@
   padding: 1px 3px 0;
 }
 
+.small_tag {
+  position: absolute;
+  top: 23px;
+  background: var(--ocean);
+  border-radius: 3px;
+  color: #fff;
+  font-size: 8px;
+  display: inline-block;
+  margin-left: 2px;
+  padding: 1px 3px 0;
+}
+
 .sidebar {
   background-color: var(--shark);
   color: var(--seashell);

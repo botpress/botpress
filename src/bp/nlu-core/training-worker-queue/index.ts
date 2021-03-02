@@ -314,6 +314,7 @@ if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.TRAINING) {
         tools.seededLodashProvider.resetSeed()
       }
 
+      // TODO: send multiple packet when output is to big
       const res: IncomingMessage<'training_done'> = { type: 'training_done', payload: { output }, srcWorkerId }
       process.send!(res)
     }

@@ -1,11 +1,10 @@
 import _ from 'lodash'
 
-import { Token2Vec } from '../typings'
-
 import { LATIN_CHARSET, SPECIAL_CHARSET } from './chars'
 import getVocabTokenizer from './vocab-tokenizer'
 
 export const SPACE = '\u2581'
+export const JOIN_CHAR = `::${SPACE}::`
 
 export const isWord = (str: string) => _.every(SPECIAL_CHARSET, c => !RegExp(c).test(str)) && !hasSpace(str)
 
@@ -15,16 +14,8 @@ export const isSpace = (str: string) => _.every(str, c => c === SPACE || c === '
 
 export const convertToRealSpaces = (str: string) => str.replace(new RegExp(SPACE, 'g'), ' ')
 
-function splitSpaceToken(token: string): string[] {
+export const splitSpaceToken = (token: string): string[] => {
   return token.split(new RegExp(`(${SPACE})`, 'g')).filter(_.identity)
-}
-
-/**
- * Basically mimics the language server tokenizer. Use this function for testing purposes
- * @param text text you want to tokenize
- */
-export function tokenizeLatinTextForTests(text: string): string[] {
-  return splitSpaceToken(text.replace(/\s/g, SPACE))
 }
 
 type CustomMatcher = (tok: string) => boolean

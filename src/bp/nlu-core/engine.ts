@@ -1,4 +1,4 @@
-import { MLToolkit, NLU } from 'botpress/sdk'
+import { NLU } from 'botpress/sdk'
 import bytes from 'bytes'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
@@ -7,14 +7,17 @@ import sizeof from 'object-sizeof'
 import { deserializeKmeans } from './clustering'
 import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
+import { getCtxFeatures } from './intents/context-featurizer'
+import { OOSIntentClassifier } from './intents/oos-intent-classfier'
+import { SvmIntentClassifier } from './intents/svm-intent-classifier'
 import DetectLanguage from './language/language-identifier'
 import makeSpellChecker from './language/spell-checker'
 import modelIdService from './model-id-service'
 import { deserializeModel, PredictableModel, serializeModel } from './model-serializer'
-import { Predict, PredictInput, Predictors } from './predict-pipeline'
+import { Predict, Predictors } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
-import { ProcessIntents, TrainInput, TrainOutput } from './training-pipeline'
+import { TrainInput, TrainOutput } from './training-pipeline'
 import { TrainingWorkerQueue } from './training-worker-queue'
 import { EntityCacheDump, ListEntity, PatternEntity, Tools } from './typings'
 import { preprocessRawUtterance } from './utterance/utterance'
@@ -242,52 +245,42 @@ export default class Engine implements NLU.Engine {
   private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {
     const tools = this._tools
 
-    const { ctx_model, intent_model_by_ctx, oos_model, list_entities, kmeans } = output
-
-    /**
-     * TODO: extract this function some place else,
-     * Engine's predict() shouldn't be dependant of training pipeline...
-     */
-    const intents = await ProcessIntents(input.intents, input.languageCode, list_entities, this._tools)
+    const { intents, languageCode, pattern_entities, contexts } = input
+    const { ctx_model, intent_model_by_ctx, kmeans, slots_model_by_intent, tfidf, vocab, list_entities } = output
 
     const warmKmeans = kmeans && deserializeKmeans(kmeans)
 
-    const basePredictors: Predictors = {
-      ...output,
-      lang: input.languageCode,
-      intents,
-      pattern_entities: input.pattern_entities,
-      kmeans: warmKmeans
-    }
-
-    if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
-      // we don't want to return undefined as extraction won't be triggered
-      // we want to make it possible to extract entities without having any intents
-      return basePredictors
-    }
-
-    const ctx_classifier = ctx_model ? new tools.mlToolkit.SVM.Predictor(ctx_model) : undefined
-    const intent_classifier_per_ctx = _.toPairs(intent_model_by_ctx).reduce(
-      (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
-      {} as _.Dictionary<MLToolkit.SVM.Predictor>
-    )
-    const oos_classifier = _.toPairs(oos_model).reduce(
-      (c, [ctx, mod]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(mod) }),
-      {} as _.Dictionary<MLToolkit.SVM.Predictor>
+    const intent_classifier_per_ctx: Dic<OOSIntentClassifier> = await Promise.props(
+      _.mapValues(intent_model_by_ctx, async model => {
+        const intentClf = new OOSIntentClassifier(tools)
+        await intentClf.load(model)
+        return intentClf
+      })
     )
 
-    let slot_tagger: SlotTagger | undefined
-    if (output.slots_model.length) {
-      slot_tagger = new SlotTagger(tools.mlToolkit)
-      slot_tagger.load(output.slots_model)
-    }
+    const ctx_classifier = new SvmIntentClassifier(tools, getCtxFeatures)
+    await ctx_classifier.load(ctx_model)
+
+    const slot_tagger_per_intent: Dic<SlotTagger> = await Promise.props(
+      _.mapValues(slots_model_by_intent, async model => {
+        const slotTagger = new SlotTagger(tools)
+        await slotTagger.load(model)
+        return slotTagger
+      })
+    )
 
     return {
-      ...basePredictors,
-      ctx_classifier,
-      oos_classifier_per_ctx: oos_classifier,
+      contexts,
+      tfidf,
+      vocab,
+      lang: languageCode,
+      intents,
+      pattern_entities,
+      list_entities,
+      kmeans: warmKmeans,
       intent_classifier_per_ctx,
-      slot_tagger
+      ctx_classifier,
+      slot_tagger_per_intent
     }
   }
 
@@ -319,11 +312,7 @@ export default class Engine implements NLU.Engine {
     }
 
     const preprocessed = preprocessRawUtterance(sentence)
-    const spellChecker = makeSpellChecker(
-      Object.keys(loaded.predictors.vocabVectors),
-      loaded.model.languageCode,
-      this._tools
-    )
+    const spellChecker = makeSpellChecker(loaded.predictors.vocab, loaded.model.languageCode, this._tools)
     return spellChecker(preprocessed)
   }
 

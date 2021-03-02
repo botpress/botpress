@@ -66,7 +66,7 @@ const Sidebar: FC<Props> = props => {
             }
           >
             <NavLink to={path} title={module.menuText} activeClassName={style.active}>
-              {moduleIcon}
+              {moduleIcon} {module.experimental && <span className={style.small_tag}>Beta</span>}
             </NavLink>
           </Tooltip>
         </li>
