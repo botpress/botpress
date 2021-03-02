@@ -2,7 +2,6 @@ import { Logger } from 'botpress/sdk'
 import crypto from 'crypto'
 import globrex from 'globrex'
 import _ from 'lodash'
-import path from 'path'
 
 export type MockObject<T> = { T: T } & { readonly [key in keyof T]: jest.Mock }
 
