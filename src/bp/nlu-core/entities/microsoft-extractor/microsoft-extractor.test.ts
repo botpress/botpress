@@ -175,7 +175,7 @@ describe('Microsoft Extract Multiple', () => {
             source: 'one',
             entityId: 'system.number',
             extractor: 'system',
-            unit: ''
+            unit: 'number'
           }
         },
         {
@@ -188,7 +188,7 @@ describe('Microsoft Extract Multiple', () => {
             source: 'two',
             entityId: 'system.number',
             extractor: 'system',
-            unit: ''
+            unit: 'number'
           }
         },
         {
@@ -201,7 +201,7 @@ describe('Microsoft Extract Multiple', () => {
             source: 'three',
             entityId: 'system.number',
             extractor: 'system',
-            unit: ''
+            unit: 'number'
           }
         }
       ],
@@ -217,7 +217,7 @@ describe('Microsoft Extract Multiple', () => {
             source: '3rd',
             entityId: 'system.ordinal',
             extractor: 'system',
-            unit: ''
+            unit: 'ordinal'
           }
         },
         {
@@ -230,7 +230,7 @@ describe('Microsoft Extract Multiple', () => {
             source: '2022',
             entityId: 'system.number',
             extractor: 'system',
-            unit: ''
+            unit: 'number'
           }
         },
         {
@@ -243,7 +243,7 @@ describe('Microsoft Extract Multiple', () => {
             source: '4',
             entityId: 'system.number',
             extractor: 'system',
-            unit: ''
+            unit: 'number'
           }
         },
         {
