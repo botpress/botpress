@@ -1,26 +1,19 @@
 const { apiAccountService } = require('@rdcdev/dbank-client');
 
-const moment = require('moment');
-
-const DATE_FORMAT = 'YYYYMMDD';
-
 /**
  * Transaction list
  *
  * @title Get transactions
- * @param {string} unit The unit of the date
  * @category Transaction list
  */
-const getTransactions = async (unit) => {
+const getTransactions = async () => {
   try {
-    const transactions = await apiAccountService.transactions({
+    const transaction = await apiAccountService.lastTransactions({
       ...user.req_user_data,
-      FromDate: prepareData(unit),
-      ToDate: moment().format(DATE_FORMAT),
-      ID: null,
+      ID: null
     });
 
-    const reduced = transactions.reduce(
+    const reduced = transaction.transactions.reduce(
       (acc, { Amount }) => `${acc} Amount: ${Amount}\n`,
       ''
     );
@@ -34,17 +27,5 @@ const getTransactions = async (unit) => {
     await bp.dialog.jumpTo(sessionId, event, 'error.flow.json', e.httpCode);
   }
 };
-
-/**
- * @title Prepare data
- * @param {string} unit The unit of the date
- */
-function prepareData(unit) {
-  const date = (unit === 'today')
-    ? moment()
-    : moment().subtract(1, unit);
-
-  return date.format(DATE_FORMAT);
-}
 
 return getTransactions(args.unit);
