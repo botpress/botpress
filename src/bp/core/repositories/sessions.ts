@@ -1,9 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import { SessionIdFactory } from 'core/services/dialog/session/id-factory'
-import { inject, injectable } from 'inversify'
+import { JobService } from 'core/services/job-service'
+import { inject, injectable, postConstruct } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
 
+import LRU from 'lru-cache'
+import ms from 'ms'
 import Database from '../database'
 import { TYPES } from '../types'
 
@@ -35,8 +38,21 @@ export interface SessionRepository {
 @injectable()
 export class KnexSessionRepository implements SessionRepository {
   private readonly tableName = 'dialog_sessions'
+  private cache = new LRU<string, DialogSession>({ max: 10000, maxAge: ms('5min') })
+  private invalidateSessionCache: (id: string, owner?: number) => void = this._localInvalidateSessionCache
+  private ownerId: number = Math.random() * 10000000 + 1
 
-  constructor(@inject(TYPES.Database) private database: Database) {}
+  constructor(
+    @inject(TYPES.Database) private database: Database,
+    @inject(TYPES.JobService) private jobService: JobService
+  ) {}
+
+  @postConstruct()
+  async init() {
+    this.invalidateSessionCache = <any>(
+      await this.jobService.broadcast<void>(this._localInvalidateSessionCache.bind(this))
+    )
+  }
 
   async getOrCreateSession(sessionId: string, trx?: Knex.Transaction): Promise<DialogSession> {
     const session = await this.get(sessionId)
@@ -71,11 +87,19 @@ export class KnexSessionRepository implements SessionRepository {
       newSession.context = this.database.knex.json.get(newSession.context)
       newSession.temp_data = this.database.knex.json.get(newSession.temp_data)
       newSession.session_data = this.database.knex.json.get(newSession.session_data)
+
+      this.cache.set(newSession.id, newSession)
     }
+
     return newSession
   }
 
   async get(id: string): Promise<DialogSession> {
+    const cached = this.cache.get(id)
+    if (cached) {
+      return cached
+    }
+
     const session = <DialogSession>await this.database
       .knex<DialogSession>(this.tableName)
       .where({ id })
@@ -87,7 +111,11 @@ export class KnexSessionRepository implements SessionRepository {
       session.context = this.database.knex.json.get(session.context)
       session.temp_data = this.database.knex.json.get(session.temp_data)
       session.session_data = this.database.knex.json.get(session.session_data)
+
+      this.invalidateSessionCache(session.id, this.ownerId)
+      this.cache.set(session.id, session)
     }
+
     return session
   }
 
@@ -137,6 +165,12 @@ export class KnexSessionRepository implements SessionRepository {
     }
 
     await req
+
+    if (this.cache.has(session.id)) {
+      this.cache.del(session.id)
+    } else {
+      this.invalidateSessionCache(session.id)
+    }
   }
 
   async delete(id: string): Promise<void> {
@@ -144,5 +178,17 @@ export class KnexSessionRepository implements SessionRepository {
       .knex(this.tableName)
       .where({ id })
       .del()
+
+    if (this.cache.has(id)) {
+      this.cache.del(id)
+    } else {
+      this.invalidateSessionCache(id)
+    }
+  }
+
+  private _localInvalidateSessionCache(id: string, owner?: number) {
+    if (this.ownerId !== owner) {
+      this.cache.del(id)
+    }
   }
 }
