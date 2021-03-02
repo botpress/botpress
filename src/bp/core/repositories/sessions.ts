@@ -39,6 +39,7 @@ export interface SessionRepository {
 export class KnexSessionRepository implements SessionRepository {
   private readonly tableName = 'dialog_sessions'
   private cache = new LRU<string, DialogSession>({ max: 10000, maxAge: ms('5min') })
+  private ownershipCache = new LRU<string, number>({ maxAge: ms('10min') })
   private invalidateSessionCache: (id: string, owner?: number) => void = this._localInvalidateSessionCache
   private ownerId: number = Math.random() * 10000000 + 1
 
@@ -112,7 +113,9 @@ export class KnexSessionRepository implements SessionRepository {
       session.temp_data = this.database.knex.json.get(session.temp_data)
       session.session_data = this.database.knex.json.get(session.session_data)
 
-      this.invalidateSessionCache(session.id, this.ownerId)
+      if (this.ownershipCache.has(session.id)) {
+        this.invalidateSessionCache(session.id, this.ownerId)
+      }
       this.cache.set(session.id, session)
     }
 
@@ -168,7 +171,7 @@ export class KnexSessionRepository implements SessionRepository {
 
     if (this.cache.has(session.id)) {
       this.cache.del(session.id)
-    } else {
+    } else if (this.ownershipCache.has(session.id)) {
       this.invalidateSessionCache(session.id)
     }
   }
@@ -181,7 +184,7 @@ export class KnexSessionRepository implements SessionRepository {
 
     if (this.cache.has(id)) {
       this.cache.del(id)
-    } else {
+    } else if (this.ownershipCache.has(id)) {
       this.invalidateSessionCache(id)
     }
   }
@@ -189,6 +192,9 @@ export class KnexSessionRepository implements SessionRepository {
   private _localInvalidateSessionCache(id: string, owner?: number) {
     if (this.ownerId !== owner) {
       this.cache.del(id)
+      if (owner) {
+        this.ownershipCache.set(id, owner)
+      }
     }
   }
 }
