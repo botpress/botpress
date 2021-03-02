@@ -1,6 +1,5 @@
 import 'bluebird-global'
 import { ObjectCache } from 'common/object-cache'
-import path from 'path'
 import 'reflect-metadata'
 
 import { PersistedConsoleLogger } from '../../logger'

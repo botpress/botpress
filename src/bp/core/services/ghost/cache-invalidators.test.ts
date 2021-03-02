@@ -20,6 +20,7 @@ import { ObjectCache } from 'common/object-cache'
 import MemoryObjectCache from './memory-cache'
 import { CacheInvalidators } from './cache-invalidators'
 import { PersistedConsoleLogger } from 'core/logger'
+import { EventEmitter } from 'events'
 
 const FILE_RELATIVE = 'test/subfolder/file.file'
 const FILE = join(process.cwd(), FILE_RELATIVE)
@@ -75,8 +76,7 @@ describe('Cache Invalidators', () => {
       })
 
       it('Configures the watcher properly', () => {
-        // @ts-ignore
-        cacheInvalidator.install(memoryCache)
+        cacheInvalidator.install(memoryCache.T)
 
         const cache = cacheInvalidator['cache'] as ObjectCache
         const watcher = cacheInvalidator['watcher'] as chokidar.FSWatcher
@@ -122,8 +122,9 @@ describe('Cache Invalidators', () => {
       })
 
       it('Calls cache.invalidateStartingWith with the proper path', async () => {
-        // @ts-ignore
-        cacheInvalidator.install(memoryCache)
+        Object.defineProperty(memoryCache, 'events', { get: () => new EventEmitter() })
+
+        cacheInvalidator.install(memoryCache.T)
 
         const handle = cacheInvalidator['_handle']
         const relativePath = cacheInvalidator['_relativePath']

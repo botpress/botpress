@@ -1,6 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import chokidar from 'chokidar'
-import { ObjectCache } from 'common/object-cache'
+import { ObjectCache, OBJECT_CACHE_EVENTS } from 'common/object-cache'
 import { inject, injectable, tagged } from 'inversify'
 import path from 'path'
 
@@ -54,6 +54,8 @@ export namespace CacheInvalidators {
 
       const relativePath = this._relativePath(file)
 
+      // mainly used for notifying changes in actions/hooks/libraries
+      this.cache.events.emit(OBJECT_CACHE_EVENTS.invalidation, relativePath)
       await this.cache.invalidateStartingWith(relativePath)
     }
   }
