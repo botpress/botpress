@@ -606,6 +606,11 @@ export class BotService {
     }
 
     try {
+      const config = await this.configProvider.getBotConfig(botId)
+      if (!config.languages.includes(config.defaultLanguage)) {
+        throw new Error('Supported languages must include the default language of the bot')
+      }
+
       await this.cms.loadElementsForBot(botId)
       await this.moduleLoader.loadModulesForBot(botId)
 
