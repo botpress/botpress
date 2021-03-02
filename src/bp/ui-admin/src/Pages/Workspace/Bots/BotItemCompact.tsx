@@ -60,7 +60,7 @@ const BotItemCompact: FC<Props> = ({
             icon="cog"
             minimal
             className="configBtn"
-            onClick={() => history.push(`bots/${bot.id}`)}
+            onClick={() => (location.href = `${botStudioLink}/config`)}
           />
         </AccessControl>
 
