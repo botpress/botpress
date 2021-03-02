@@ -121,14 +121,7 @@ export class ConfigProvider {
   }
 
   async getBotConfig(botId: string): Promise<BotConfig> {
-    const config = await this.getConfig<BotConfig>('bot.config.json', botId)
-
-    if (!config.languages.includes(config.defaultLanguage)) {
-      config.languages.push(config.defaultLanguage)
-      await this.setBotConfig(botId, config)
-    }
-
-    return config
+    return this.getConfig<BotConfig>('bot.config.json', botId)
   }
 
   async setBotConfig(botId: string, config: BotConfig, ignoreLock?: boolean) {
