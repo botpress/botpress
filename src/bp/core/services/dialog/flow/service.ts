@@ -1,4 +1,5 @@
 import { Flow, Logger } from 'botpress/sdk'
+import { BotDataCache } from 'common/bot-data-cache'
 import { ObjectCache, OBJECT_CACHE_EVENTS } from 'common/object-cache'
 import { TreeSearch, PATH_SEPARATOR } from 'common/treeSearch'
 import { FlowMutex, FlowView, NodeView } from 'common/typings'
@@ -49,58 +50,9 @@ export class MutexError extends Error {
   type = MutexError.name
 }
 
-class FlowCache {
-  private _flows: Map<string, Map<string, FlowView>> = new Map()
-
-  public set(botId: string, flowViews: FlowView[]): void {
-    const flows = new Map(flowViews.map(f => [f.name, f]))
-    this._flows.set(botId, flows)
-  }
-
-  public get(botId: string): FlowView[] {
-    if (this._flows.has(botId)) {
-      return Array.from(this._flows.get(botId)!.values())
-    } else {
-      return []
-    }
-  }
-
-  public has(botId: string): boolean {
-    return this._flows.has(botId)
-  }
-
-  public isEmpty(): boolean {
-    return this._flows.size === 0
-  }
-
-  public upsertFlow(botId: string, flow: FlowView): void {
-    if (this._flows.has(botId)) {
-      this._flows.get(botId)!.set(flow.name, flow)
-    } else {
-      this.set(botId, [flow])
-    }
-  }
-
-  public deleteFlow(botId: string, flowName: string): void {
-    if (this._flows.has(botId)) {
-      this._flows.get(botId)!.delete(flowName)
-    }
-  }
-
-  public renameFlow(botId: string, oldName: string, newName: string): void {
-    if (this._flows.has(botId) && this._flows.get(botId)!.has(oldName)) {
-      const flow = this._flows.get(botId)!.get(oldName)!
-      flow.name = newName
-
-      this.upsertFlow(botId, flow)
-      this.deleteFlow(botId, oldName)
-    }
-  }
-}
-
 @injectable()
 export class FlowService {
-  private _flowCache: FlowCache = new FlowCache()
+  private _flowCache = new BotDataCache<FlowView>('name')
 
   constructor(
     @inject(TYPES.Logger)
@@ -130,9 +82,14 @@ export class FlowService {
         if (await this.ghost.forBot(botId).fileExists(FLOW_DIR, flowPath)) {
           const flow = await this.parseFlow(botId, flowPath)
 
-          this._flowCache.upsertFlow(botId, flow)
+          this._flowCache.set(botId, flow)
         } else {
-          this._flowCache.deleteFlow(botId, flowPath)
+          this._flowCache.remove(botId, flowPath)
+
+          // Remove the bot if doesn't have any flows
+          if (this._flowCache.get(botId).length === 0) {
+            this._flowCache.remove(botId)
+          }
         }
 
         // parent flows are only used by the NDU
@@ -301,8 +258,6 @@ export class FlowService {
       ghost.upsertFile(FLOW_DIR, flowPath!, JSON.stringify(flowContent, undefined, 2)),
       ghost.upsertFile(FLOW_DIR, uiPath, JSON.stringify(uiContent, undefined, 2))
     ])
-
-    this._flowCache.upsertFlow(botId, flow)
   }
 
   async deleteFlow(botId: string, flowName: string, userEmail: string) {
@@ -318,8 +273,6 @@ export class FlowService {
 
     const uiPath = this.toUiPath(fileToDelete)
     await Promise.all([ghost.deleteFile(FLOW_DIR, fileToDelete!), ghost.deleteFile(FLOW_DIR, uiPath)])
-
-    this._flowCache.deleteFlow(botId, flowName)
 
     this.notifyChanges({
       name: flowName,
@@ -346,8 +299,6 @@ export class FlowService {
       ghost.renameFile(FLOW_DIR, fileToRename!, newName),
       ghost.renameFile(FLOW_DIR, previousUiName, newUiName)
     ])
-
-    this._flowCache.renameFlow(botId, previousName, newName)
 
     await this.moduleLoader.onFlowRenamed(botId, previousName, newName)
 
