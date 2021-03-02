@@ -3,6 +3,22 @@ import { Migration } from 'core/services/migration'
 
 const TABLE_NAME = 'dialog_sessions'
 const TEMP_TABLE_NAME = 'dialog_sessions_temp'
+const ID_COLUMN_TYPE = 'text'
+
+interface PostgreSQLColumnInfo {
+  type: string
+}
+
+// https://www.oreilly.com/library/view/using-sqlite/9781449394592/re205.html
+interface SQLiteColumnInfo {
+  cid: number
+  name: string
+  type: string
+  notnull: number
+  dflt_value: string | null
+  pk: number
+}
+type SQLiteTableInfo = SQLiteColumnInfo[]
 
 const migration: Migration = {
   info: {
@@ -20,8 +36,17 @@ const migration: Migration = {
     const db = database.knex as sdk.KnexExtended
     const { client } = db.client.config
 
+    const noMigrationNeeded = { success: true, message: 'PK column type already changed, skipping...' }
+
     try {
       if (client === 'sqlite3') {
+        const tableInfo = await db.raw<SQLiteTableInfo>(`PRAGMA table_info([${TABLE_NAME}])`)
+        const idColumn = tableInfo.find(column => column.name === 'id')!
+
+        if (idColumn.type.toLowerCase() === ID_COLUMN_TYPE) {
+          return noMigrationNeeded
+        }
+
         await db.transaction(async trx => {
           await db.schema.transacting(trx).createTable(TEMP_TABLE_NAME, table => {
             table.text('id').notNullable()
@@ -41,8 +66,16 @@ const migration: Migration = {
           await database.knex.schema.transacting(trx).renameTable(TEMP_TABLE_NAME, TABLE_NAME)
         })
       } else {
+        const idColumnInfo = await db.raw<{ rows: PostgreSQLColumnInfo[] }>(
+          `SELECT data_type as type FROM information_schema.columns WHERE table_name = '${TABLE_NAME}' and column_name = 'id'`
+        )
+
+        if (idColumnInfo.rows[0].type.toLowerCase() === ID_COLUMN_TYPE) {
+          return noMigrationNeeded
+        }
+
         await db.transaction(async trx => {
-          await trx.raw(`ALTER TABLE ${TABLE_NAME} ALTER COLUMN id TYPE TEXT;`)
+          await trx.raw(`ALTER TABLE ${TABLE_NAME} ALTER COLUMN id TYPE ${ID_COLUMN_TYPE};`)
         })
       }
     } catch (err) {
