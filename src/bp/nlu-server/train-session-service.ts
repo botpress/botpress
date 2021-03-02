@@ -1,7 +1,6 @@
-import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
 import LRUCache from 'lru-cache'
-import modelIdService from 'nlu-core/model-id-service'
+import * as nluCore from 'nlu-core'
 
 import { TrainingSession } from './typings_v1'
 
@@ -15,14 +14,14 @@ export default class TrainSessionService {
 
   constructor() {}
 
-  makeTrainingSession = (modelId: sdk.NLU.ModelId, password: string, language: string): TrainingSession => ({
+  makeTrainingSession = (modelId: nluCore.ModelId, password: string, language: string): TrainingSession => ({
     key: this._makeTrainSessionKey(modelId, password),
     status: 'training-pending',
     progress: 0,
     language
   })
 
-  getTrainingSession(modelId: sdk.NLU.ModelId, password: string): TrainingSession | undefined {
+  getTrainingSession(modelId: nluCore.ModelId, password: string): TrainingSession | undefined {
     const key = this._makeTrainSessionKey(modelId, password)
     const ts = this.trainSessions[key]
     if (ts) {
@@ -31,7 +30,7 @@ export default class TrainSessionService {
     return this.releasedTrainSessions.get(key)
   }
 
-  setTrainingSession(modelId: sdk.NLU.ModelId, password: string, trainSession: TrainingSession) {
+  setTrainingSession(modelId: nluCore.ModelId, password: string, trainSession: TrainingSession) {
     const key = this._makeTrainSessionKey(modelId, password)
     if (this.releasedTrainSessions.get(key)) {
       this.releasedTrainSessions.del(key)
@@ -39,15 +38,15 @@ export default class TrainSessionService {
     this.trainSessions[key] = trainSession
   }
 
-  releaseTrainingSession(modelId: sdk.NLU.ModelId, password: string): void {
+  releaseTrainingSession(modelId: nluCore.ModelId, password: string): void {
     const key = this._makeTrainSessionKey(modelId, password)
     const ts = this.trainSessions[key]
     delete this.trainSessions[key]
     this.releasedTrainSessions.set(key, ts)
   }
 
-  private _makeTrainSessionKey(modelId: sdk.NLU.ModelId, password: string) {
-    const stringId = modelIdService.toString(modelId)
+  private _makeTrainSessionKey(modelId: nluCore.ModelId, password: string) {
+    const stringId = nluCore.modelIdService.toString(modelId)
     return crypto
       .createHash('md5')
       .update(`${stringId}${password}`)

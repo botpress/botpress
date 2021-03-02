@@ -1,5 +1,5 @@
 import { validate } from 'joi'
-import { DUCKLING_ENTITIES } from 'nlu-core/entities/duckling-extractor/enums'
+import { SYSTEM_ENTITIES } from 'nlu-core'
 import { isListEntity, isPatternEntity } from 'nlu-server/api-mapper'
 
 import {
@@ -23,7 +23,7 @@ const makeSlotChecker = (listEntities: ListEntityDefinition[], patternEntities: 
   const supportedTypes = [
     ...listEntities.map(e => e.name),
     ...patternEntities.map(p => p.name),
-    ...DUCKLING_ENTITIES,
+    ...SYSTEM_ENTITIES,
     SLOT_ANY
   ]
   for (const entity of entities) {

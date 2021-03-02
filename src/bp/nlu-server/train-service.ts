@@ -1,7 +1,6 @@
 import * as sdk from 'botpress/sdk'
-import Engine from 'nlu-core/engine'
-import { isTrainingAlreadyStarted, isTrainingCanceled } from 'nlu-core/errors'
-import modelIdService from 'nlu-core/model-id-service'
+
+import * as nluCore from 'nlu-core'
 
 import ModelRepository from './model-repo'
 import TrainSessionService from './train-session-service'
@@ -9,20 +8,20 @@ import TrainSessionService from './train-session-service'
 export default class TrainService {
   constructor(
     private logger: sdk.Logger,
-    private engine: Engine,
+    private engine: nluCore.Engine,
     private modelRepo: ModelRepository,
     private trainSessionService: TrainSessionService
   ) {}
 
   train = async (
-    modelId: sdk.NLU.ModelId,
+    modelId: nluCore.ModelId,
     password: string,
     intents: sdk.NLU.IntentDefinition[],
     entities: sdk.NLU.EntityDefinition[],
     language: string,
     nluSeed: number
   ) => {
-    const stringId = modelIdService.toString(modelId)
+    const stringId = nluCore.modelIdService.toString(modelId)
     this.logger.info(`[${stringId}] Training Started.`)
 
     const ts = this.trainSessionService.makeTrainingSession(modelId, password, language)
@@ -37,7 +36,7 @@ export default class TrainService {
     }
 
     try {
-      const trainSet: sdk.NLU.TrainingSet = {
+      const trainSet: nluCore.TrainingSet = {
         intentDefs: intents,
         entityDefs: entities,
         languageCode: language,
@@ -51,7 +50,7 @@ export default class TrainService {
       this.trainSessionService.setTrainingSession(modelId, password, ts)
       this.trainSessionService.releaseTrainingSession(modelId, password)
     } catch (err) {
-      if (isTrainingCanceled(err)) {
+      if (nluCore.errors.isTrainingCanceled(err)) {
         this.logger.info(`[${stringId}] Training Canceled.`)
 
         ts.status = 'canceled'
@@ -60,7 +59,7 @@ export default class TrainService {
         return
       }
 
-      if (isTrainingAlreadyStarted(err)) {
+      if (nluCore.errors.isTrainingAlreadyStarted(err)) {
         this.logger.error('training already started')
         return
       }

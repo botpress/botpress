@@ -1,19 +1,18 @@
-import { NLU } from 'botpress/sdk'
+// eslint-disable-next-line import/order
+import rewire from '../sdk/rewire'
+// eslint-disable-next-line import/order
+
 import bytes from 'bytes'
 import chalk from 'chalk'
 import cluster from 'cluster'
 import { copyDir } from 'core/misc/pkg-fs'
 import _ from 'lodash'
-import Engine from 'nlu-core/engine'
+import * as nluCore from 'nlu-core'
 import path from 'path'
 
 import { setupMasterNode, WORKER_TYPES } from '../cluster'
 import center from '../core/logger/center'
 import { LogLevel } from '../core/sdk/enums'
-
-// eslint-disable-next-line import/order
-import rewire from '../sdk/rewire'
-// eslint-disable-next-line import/order
 
 global.rewire = rewire as any
 
@@ -30,6 +29,45 @@ type ArgV = APIOptions & {
   languageAuthToken?: string
   ducklingURL: string
   ducklingEnabled: boolean
+}
+
+const makeEngine = async (options: ArgV, logger: Logger) => {
+  const maxCacheSize = bytes(options.modelCacheSize)
+  if (!maxCacheSize) {
+    throw new Error(`Specified model cache-size "${options.modelCacheSize}" has an invalid format.`)
+  }
+
+  const loggerWrapper: nluCore.Logger = {
+    debug: (msg: string) => logger.debug(msg),
+    info: (msg: string) => logger.info(msg),
+    warning: (msg: string, err?: Error) => (err ? logger.attachError(err).warn(msg) : logger.warn(msg)),
+    error: (msg: string, err?: Error) => (err ? logger.attachError(err).error(msg) : logger.error(msg))
+  }
+
+  try {
+    const config: nluCore.Config = {
+      languageSources: [
+        {
+          endpoint: options.languageURL,
+          authToken: options.languageAuthToken
+        }
+      ],
+      ducklingEnabled: options.ducklingEnabled,
+      ducklingURL: options.ducklingURL,
+      modelCacheSize: maxCacheSize
+    }
+
+    const engine = await nluCore.makeEngine(config, loggerWrapper)
+    return engine
+  } catch (err) {
+    // TODO: Make lang provider throw if it can't connect.
+    logger
+      .attachError(err)
+      .error(
+        'There was an error while initializing Engine tools. Check out the connection to your language and Duckling server.'
+      )
+    process.exit(1)
+  }
 }
 
 export default async function(options: ArgV) {
@@ -49,41 +87,7 @@ export default async function(options: ArgV) {
     throw new Error(`Specified body-size "${options.bodySize}" has an invalid format.`)
   }
 
-  const maxCacheSize = bytes(options.modelCacheSize)
-  if (!maxCacheSize) {
-    throw new Error(`Specified model cache-size "${options.modelCacheSize}" has an invalid format.`)
-  }
-
   options.modelDir = options.modelDir || path.join(process.APP_DATA_PATH, 'models')
-
-  const loggerWrapper: NLU.Logger = {
-    debug: (msg: string) => logger.debug(msg),
-    info: (msg: string) => logger.info(msg),
-    warning: (msg: string, err?: Error) => (err ? logger.attachError(err).warn(msg) : logger.warn(msg)),
-    error: (msg: string, err?: Error) => (err ? logger.attachError(err).error(msg) : logger.error(msg))
-  }
-  const engine = new Engine({ maxCacheSize })
-  try {
-    const langConfig: NLU.LanguageConfig = {
-      languageSources: [
-        {
-          endpoint: options.languageURL,
-          authToken: options.languageAuthToken
-        }
-      ],
-      ducklingEnabled: options.ducklingEnabled,
-      ducklingURL: options.ducklingURL
-    }
-    await engine.initialize(langConfig, loggerWrapper)
-  } catch (err) {
-    // TODO: Make lang provider throw if it can't connect.
-    logger
-      .attachError(err)
-      .error(
-        'There was an error while initializing Engine tools. Check out the connection to your language and Duckling server.'
-      )
-    process.exit(1)
-  }
 
   global.printLog = args => {
     const message = args[0]
@@ -94,6 +98,7 @@ export default async function(options: ArgV) {
 
   debug('NLU Server Options %o', options)
 
+  const engine = await makeEngine(options, logger)
   const { nluVersion } = engine.getSpecifications()
 
   logger.info(chalk`========================================

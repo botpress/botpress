@@ -1,9 +1,9 @@
-import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
+import * as nluCore from 'nlu-core'
 
 import { BpPredictOutput } from './api-mapper'
 
-const _adjustTotalConfidenceTo100 = (context: NLU.ContextPrediction): NLU.ContextPrediction => {
+const _adjustTotalConfidenceTo100 = (context: nluCore.ContextPrediction): nluCore.ContextPrediction => {
   const totalConfidence = context.oos + _.sum(context.intents.map(i => i.confidence))
   context.oos = context.oos / totalConfidence
   context.intents = context.intents.map(i => ({ ...i, confidence: i.confidence / totalConfidence }))

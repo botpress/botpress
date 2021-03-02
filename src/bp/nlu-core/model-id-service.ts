@@ -1,7 +1,19 @@
-import { NLU } from 'botpress/sdk'
+import crypto from 'crypto'
 import _ from 'lodash'
+import * as NLU from './typings'
 
-import { halfmd5, HALF_MD5_REG } from './tools/crypto'
+export const HALF_MD5_REG = /^[a-fA-F0-9]{16}$/
+
+const MD5_BITE_SIZE = 16 // 128 / 8
+const MD5_NIBBLES_SIZE = MD5_BITE_SIZE * 2
+
+export const halfmd5 = (text: string) => {
+  return crypto
+    .createHash('md5')
+    .update(text)
+    .digest('hex')
+    .slice(MD5_NIBBLES_SIZE / 2)
+}
 
 const toString = (modelId: NLU.ModelId) => {
   const { contentHash, specificationHash, languageCode: lang, seed } = modelId
@@ -102,7 +114,7 @@ const briefId = (factors: Partial<NLU.ModelIdArgs>): Partial<NLU.ModelId> => {
   return briefedId
 }
 
-const modelIdService: typeof NLU.modelIdService = {
+const modelIdService: NLU.ModelIdService = {
   toString,
   fromString,
   isId,

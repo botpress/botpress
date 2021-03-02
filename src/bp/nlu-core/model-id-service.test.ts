@@ -1,7 +1,5 @@
-import { NLU } from 'botpress/sdk'
-
-import modelIdService from './model-id-service'
-import { HALF_MD5_REG } from './tools/crypto'
+import modelIdService, { HALF_MD5_REG } from './model-id-service'
+import * as NLU from '.'
 
 const intentDefs: NLU.IntentDefinition[] = [
   {

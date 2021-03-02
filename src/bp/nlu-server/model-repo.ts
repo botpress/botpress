@@ -1,9 +1,8 @@
-import { NLU } from 'botpress/sdk'
 import crypto from 'crypto'
 import fse, { WriteStream } from 'fs-extra'
 import _ from 'lodash'
 import mkdirp from 'mkdirp'
-import modelIdService from 'nlu-core/model-id-service'
+import * as nluCore from 'nlu-core'
 import path from 'path'
 import { Stream } from 'stream'
 import tar from 'tar'
@@ -16,7 +15,7 @@ export default class ModelRepository {
     mkdirp.sync(this.modelDir)
   }
 
-  public async getModel(modelId: NLU.ModelId, password: string): Promise<NLU.Model | undefined> {
+  public async getModel(modelId: nluCore.ModelId, password: string): Promise<nluCore.Model | undefined> {
     const modelFileName = this._makeFileName(modelId, password)
 
     const { modelDir } = this
@@ -45,7 +44,7 @@ export default class ModelRepository {
     }
   }
 
-  public async saveModel(model: NLU.Model, password: string): Promise<void> {
+  public async saveModel(model: nluCore.Model, password: string): Promise<void> {
     const { modelDir } = this
     const modelFileName = this._makeFileName(model, password)
 
@@ -71,8 +70,8 @@ export default class ModelRepository {
     tmpDir.removeCallback()
   }
 
-  private _makeFileName(modelId: NLU.ModelId, password: string): string {
-    const stringId = modelIdService.toString(modelId)
+  private _makeFileName(modelId: nluCore.ModelId, password: string): string {
+    const stringId = nluCore.modelIdService.toString(modelId)
     const fname = crypto
       .createHash('md5')
       .update(`${stringId}${password}`)
