@@ -206,7 +206,7 @@ export class BotService {
     } as BotConfig
 
     if (!newConfig.languages.includes(newConfig.defaultLanguage)) {
-      throw new Error('Supported languages must include the language of the bot')
+      throw new Error('Supported languages must include the default language of the bot')
     }
 
     await this.configProvider.setBotConfig(botId, newConfig)
