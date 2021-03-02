@@ -1,3 +1,6 @@
+// eslint-disable-next-line import/order
+import rewire from '../sdk/rewire'
+// eslint-disable-next-line import/order
 import { NLU } from 'botpress/sdk'
 import bytes from 'bytes'
 import chalk from 'chalk'
@@ -10,10 +13,6 @@ import path from 'path'
 import { setupMasterNode, WORKER_TYPES } from '../cluster'
 import center from '../core/logger/center'
 import { LogLevel } from '../core/sdk/enums'
-
-// eslint-disable-next-line import/order
-import rewire from '../sdk/rewire'
-// eslint-disable-next-line import/order
 
 global.rewire = rewire as any
 
