@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { WorkspaceUserWithAttributes } from 'botpress/sdk'
+import { UserProfile } from 'common/typings'
 
 // TODO fix this and use those from common/typings
 declare global {
@@ -16,33 +16,22 @@ export interface AuthRule {
   res: string
   op: string
 }
-export interface IUserProfile {
-  email: string
-  isSuperAdmin: boolean
-  strategyType: string
-  strategy: string
-  firstname?: string
-  lastname?: string
-  picture_url?: string
-  fullName: string
-  permissions: AuthRule[] | undefined
-}
 
-export type IAgent = {
+export type IAgent = sdk.WorkspaceUserWithAttributes & {
   agentId: string
   online: boolean
-  role?: Pick<WorkspaceUserWithAttributes, 'role'>
-  workspace?: Pick<WorkspaceUserWithAttributes, 'workspace'>
-  attributes?: Pick<IUserProfile, 'firstname' | 'lastname' | 'picture_url'>
-} & Pick<IUserProfile, 'email' | 'strategy' | 'isSuperAdmin' | 'permissions'>
+  attributes: Partial<{ firstname: string; lastname: string; picture_url: string }>
+}
 
-export type HandoffType = 'pending' | 'assigned' | 'resolved'
+export type AgentWithPermissions = IAgent & UserProfile
+
+export type HandoffStatus = 'pending' | 'assigned' | 'resolved'
 export interface IHandoff {
   id: string
   botId: string
   agentId?: string
   userId: string
-  status: HandoffType
+  status: HandoffStatus
   userChannel: string
   userThreadId: string
   agentThreadId: string
@@ -60,6 +49,7 @@ interface IUserAttributes extends Object {
   timezone: string
   language: string
   email: string
+  [key: string]: any
 }
 
 export interface IUser {

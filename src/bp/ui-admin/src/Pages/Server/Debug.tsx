@@ -14,9 +14,9 @@ import {
   FaPlusSquare,
   FaSquare
 } from 'react-icons/fa'
-import { toastSuccess } from '~/utils/toaster'
 import PageContainer from '~/App/PageContainer'
 import SplitPage from '~/App/SplitPage'
+import { toastSuccess } from '~/utils/toaster'
 
 import api from '../../api'
 

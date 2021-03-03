@@ -22,8 +22,8 @@ import { BOT_SCOPED_HOOKS } from '../../typings/hooks'
 import { RootStore, StoreDef } from './store'
 import { EditorStore } from './store/editor'
 import style from './style.scss'
-import { buildTree, EXAMPLE_FOLDER_LABEL, FOLDER_EXAMPLE, FOLDER_ICON } from './utils/tree'
 import { TreeNodeRenameInput } from './TreeNodeRenameInput'
+import { buildTree, EXAMPLE_FOLDER_LABEL, FOLDER_EXAMPLE, FOLDER_ICON } from './utils/tree'
 
 class FileNavigator extends React.Component<Props, State> {
   state = {
@@ -39,6 +39,7 @@ class FileNavigator extends React.Component<Props, State> {
 
   componentDidMount() {
     observe(this.props.filters, 'filename', this.refreshNodes, true)
+    observe(this.props.editor, 'fileChangeStatus', this.refreshNodes, true)
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -58,11 +59,14 @@ class FileNavigator extends React.Component<Props, State> {
       return
     }
 
-    const readOnlyIcon = (
-      <Tooltip content={lang.tr('module.code-editor.navigator.isReadOnly')}>
-        <Icon icon="lock" />
-      </Tooltip>
-    )
+    const icons = {
+      readOnly: (
+        <Tooltip content={lang.tr('module.code-editor.navigator.isReadOnly')}>
+          <Icon icon="lock" />
+        </Tooltip>
+      ),
+      hasChanges: <Icon icon="record" />
+    }
 
     const exampleLabel = (
       <Tooltip
@@ -87,7 +91,7 @@ class FileNavigator extends React.Component<Props, State> {
       icon: dir.label === EXAMPLE_FOLDER_LABEL ? FOLDER_EXAMPLE : FOLDER_ICON,
       hasCaret: true,
       isExpanded: true,
-      childNodes: buildTree(dir.files, this.props.expandedNodes, filter, readOnlyIcon)
+      childNodes: buildTree(dir.files, this.props.expandedNodes, this.props.editor.openedFiles, filter, icons)
     }))
 
     // Examples are hidden by default so the view is not cluttered

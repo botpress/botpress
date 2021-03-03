@@ -5,12 +5,12 @@ import cx from 'classnames'
 import { debounce } from 'lodash'
 import React, { FC, useCallback, useEffect, useReducer, useRef, useState } from 'react'
 
-import style from './style.scss'
-import { dispatchMiddleware, fetchReducer, itemHasError, ITEMS_PER_PAGE, Props } from './utils/qnaList.utils'
 import ContextSelector from './Components/ContextSelector'
 import { ImportModal } from './Components/ImportModal'
 import QnA from './Components/QnA'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
+import style from './style.scss'
+import { dispatchMiddleware, fetchReducer, itemHasError, ITEMS_PER_PAGE, Props } from './utils/qnaList.utils'
 
 const QnAList: FC<Props> = props => {
   const [flows, setFlows] = useState([])

@@ -2,8 +2,8 @@ import { Button, Classes, Icon, Intent } from '@blueprintjs/core'
 import React, { FC } from 'react'
 import ReactDOM from 'react-dom'
 
-import { lang } from '../translations'
 import { Body, Footer, Wrapper } from '../Dialog'
+import { lang } from '../translations'
 
 import styles from './style.scss'
 import { ConfirmDialogOptions, ConfirmDialogProps } from './typings'

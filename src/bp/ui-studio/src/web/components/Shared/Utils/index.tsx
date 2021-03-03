@@ -1,7 +1,7 @@
 export { default as ElementPreview } from './ElementPreview'
 export { toastSuccess, toastFailure, toastInfo, Timeout } from './Toaster'
 export { Downloader } from './Downloader'
-export { default as AccessControl } from './AccessControl'
+export { default as AccessControl, isOperationAllowed } from './AccessControl'
 
 export const reorderFlows = flows =>
   [

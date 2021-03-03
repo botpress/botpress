@@ -1,6 +1,4 @@
-import Editor from './editor'
 import { RequestWithUser } from 'common/typings'
-export type EditorByBot = { [botId: string]: Editor }
 
 export interface TypingDefinitions {
   [file: string]: string
@@ -16,6 +14,7 @@ export type FileType =
   | 'hook_example'
   | 'action_example'
   | 'raw'
+  | 'shared_libs'
 
 export interface EditableFile {
   /** The name of the file, extracted from its location */

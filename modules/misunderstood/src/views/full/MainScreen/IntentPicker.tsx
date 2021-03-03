@@ -8,9 +8,9 @@ import React from 'react'
 
 import { ApiFlaggedEvent } from '../../../types'
 
-import style from './style.scss'
 import ApiClient from './NLUApiClient'
 import Pager from './Pager'
+import style from './style.scss'
 import VariationsOverlay from './VariationsOverlay'
 
 const ITEMS_PER_PAGE = 5

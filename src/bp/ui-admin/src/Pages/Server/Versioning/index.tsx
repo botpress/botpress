@@ -1,16 +1,32 @@
-import { Callout, Position, Tooltip } from '@blueprintjs/core'
+import { Button, Callout, Position, Tooltip } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import CopyToClipboard from 'react-copy-to-clipboard'
 import { connect } from 'react-redux'
 import api from '~/api'
-import { toastInfo } from '~/utils/toaster'
 import PageContainer from '~/App/PageContainer'
 import { getToken } from '~/Auth'
+import { toastInfo } from '~/utils/toaster'
 
 import DownloadArchive from './DownloadArchive'
 import UploadArchive from './UploadArchive'
+
+const DisplayCommand = ({ command }) => {
+  const [visible, setVisible] = useState(false)
+  const text = visible ? command : `${command.split('authToken')[0]}authToken `
+
+  return (
+    <code>
+      {text}{' '}
+      <Button
+        small
+        onClick={() => setVisible(!visible)}
+        text={lang.tr(visible ? 'admin.hideToken' : 'admin.showToken')}
+      ></Button>
+    </code>
+  )
+}
 
 const Versioning: FC<{ profile: any }> = props => {
   const [pullCommand, setPullCommand] = useState('')
@@ -25,7 +41,7 @@ const Versioning: FC<{ profile: any }> = props => {
     setPullCommand(`${bpcli} pull --url ${host}${window['ROOT_PATH']} --authToken ${token} --targetDir data`)
     setPushCommand(`${bpcli} push --url ${host}${window['ROOT_PATH']} --authToken ${token} --sourceDir data`)
 
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     getBpfsStatus()
   }, [])
 
@@ -41,10 +57,10 @@ const Versioning: FC<{ profile: any }> = props => {
     <PageContainer title={lang.tr('admin.versioning.sourceControl')} superAdmin={true}>
       <Callout title={lang.tr('admin.versioning.pullToFileSystem')}>
         <p>{lang.tr('admin.versioning.useThisCommand')}</p>
-        <Tooltip content={lang.tr('admin.versioning.clickToCopy')} position={Position.RIGHT}>
+        <Tooltip content={lang.tr('admin.versioning.clickToCopy')} position={Position.BOTTOM}>
           <CopyToClipboard text={pullCommand} onCopy={toastCopiedClipboard}>
             <div style={{ cursor: 'pointer', outline: 'none' }}>
-              <code>{pullCommand}</code>
+              <DisplayCommand command={pullCommand}></DisplayCommand>
             </div>
           </CopyToClipboard>
         </Tooltip>
@@ -72,10 +88,10 @@ const Versioning: FC<{ profile: any }> = props => {
       {isPushAvailable && (
         <Callout title={lang.tr('admin.versioning.pushLocal')}>
           <p>{lang.tr('admin.versioning.youCanPushWithThisCommand')}</p>
-          <Tooltip content={lang.tr('admin.versioning.clickToCopy')} position={Position.RIGHT}>
+          <Tooltip content={lang.tr('admin.versioning.clickToCopy')} position={Position.BOTTOM}>
             <CopyToClipboard text={pushCommand} onCopy={toastCopiedClipboard}>
               <div style={{ cursor: 'pointer', outline: 'none' }}>
-                <code>{pushCommand}</code>
+                <DisplayCommand command={pushCommand}></DisplayCommand>
               </div>
             </CopyToClipboard>
           </Tooltip>

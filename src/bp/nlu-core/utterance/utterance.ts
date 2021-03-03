@@ -83,7 +83,8 @@ export default class Utterance {
             return that.entities.filter(x => x.startTokenIdx <= i && x.endTokenIdx >= i)
           },
           get tfidf(): number {
-            return (that._globalTfidf && that._globalTfidf[value]) || 1
+            const lowerCased = this.toString({ lowerCase: true }) // global tfidf is built with lowercased vocab
+            return (that._globalTfidf && that._globalTfidf[lowerCased]) || 1
           },
           get cluster(): number {
             const wordVec = vectors[i]
@@ -162,7 +163,7 @@ export default class Utterance {
   }
 
   setGlobalTfidf(tfidf: TFIDF) {
-    this._globalTfidf = tfidf
+    this._globalTfidf = _.mapKeys(tfidf, (tfidf, token) => token.toLowerCase())
   }
 
   setKmeans(kmeans?: sdk.MLToolkit.KMeans.KmeansResult) {
@@ -277,14 +278,14 @@ export async function buildUtteranceBatch(
   raw_utterances: string[],
   language: string,
   tools: Tools,
-  vocab?: Token2Vec
+  vocab?: string[]
 ): Promise<Utterance[]> {
   const preprocessed = raw_utterances.map(preprocessRawUtterance)
   const parsed = preprocessed.map(parseUtterance)
   const tokenUtterances = await tools.tokenize_utterances(
     parsed.map(p => p.utterance),
     language,
-    vocab ? Object.keys(vocab) : []
+    vocab ?? []
   )
   const POSUtterances = tools.partOfSpeechUtterances(tokenUtterances, language) as POSClass[][]
   const uniqTokens = _.uniq(_.flatten(tokenUtterances))
@@ -313,15 +314,4 @@ export async function buildUtteranceBatch(
 
       return utterance
     })
-}
-
-/**
- * @description Utility function that returns an utterance using a space tokenizer
- * @param str sentence as a textual value
- */
-export function makeTestUtterance(str: string): Utterance {
-  const toks = str.split(new RegExp(`(${SPECIAL_CHARSET.join('|')}|\\s)`, 'gi'))
-  const vecs = new Array(toks.length).fill([0])
-  const pos = new Array(toks.length).fill('N/A')
-  return new Utterance(toks, vecs, pos, 'en')
 }

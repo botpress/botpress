@@ -16,7 +16,7 @@ export interface OutgoingMessage<T extends OutgoingMessageType> {
   destWorkerId: number
 }
 
-export type Log = Partial<{ info: string; warning: string; error: string }>
+export type Log = Partial<{ info: string; warning: string; error: string; debug: string }>
 export type IncomingPayload<T extends IncomingMessageType> = T extends 'log'
   ? { log: Log; requestId: string }
   : T extends 'worker_ready'
@@ -29,12 +29,15 @@ export type IncomingPayload<T extends IncomingMessageType> = T extends 'log'
   ? { progress: number }
   : T extends 'training_error'
   ? { error: ErrorMessage }
+  : T extends 'training_exited'
+  ? { exitCode: number; signal: string }
   : {}
 
 export type IncomingMessageType =
   | 'log'
   | 'worker_ready'
   | 'training_canceled'
+  | 'training_exited'
   | 'training_done'
   | 'training_progress'
   | 'training_error'
@@ -60,6 +63,8 @@ export const isWorkerReady = (msg: AllIncomingMessages): msg is IncomingMessage<
   msg.type === 'worker_ready'
 export const isTrainingCanceled = (msg: AllIncomingMessages): msg is IncomingMessage<'training_canceled'> =>
   msg.type === 'training_canceled'
+export const isTrainingExited = (msg: AllIncomingMessages): msg is IncomingMessage<'training_exited'> =>
+  msg.type === 'training_exited'
 export const isTrainingDone = (msg: AllIncomingMessages): msg is IncomingMessage<'training_done'> =>
   msg.type === 'training_done'
 export const isTrainingProgress = (msg: AllIncomingMessages): msg is IncomingMessage<'training_progress'> =>

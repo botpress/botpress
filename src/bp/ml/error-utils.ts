@@ -16,7 +16,6 @@ export function serializeError(err: any): ErrorMessage {
   }
 
   if (_.isObject(err)) {
-    // tslint:disable-next-line: no-null-keyword
     return { message: JSON.stringify(err, null, 2) }
   }
 

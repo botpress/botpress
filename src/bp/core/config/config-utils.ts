@@ -95,6 +95,7 @@ export function getValueFromEnvKey(key: string): any {
  * @returns all valid nested schema paths corresponding in impl
  */
 export async function getValidJsonSchemaProperties(schema: SchemaNode, impl: object = {}): Promise<string[]> {
+  // @ts-ignore
   schema = await jsonSchemaRefParser.dereference(schema)
   const propsWithPlaceHolder = getPropertiesRecursive(schema)
   return resolveAdditionalProperties(propsWithPlaceHolder, impl)

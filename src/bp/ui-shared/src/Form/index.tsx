@@ -1,24 +1,24 @@
 import { Button } from '@blueprintjs/core'
 import React, { FC, Fragment, useEffect, useReducer, useRef } from 'react'
 
-import sharedStyle from '../../../ui-shared-lite/style.scss'
 import Checkbox from '../../../ui-shared-lite/Checkbox'
+import sharedStyle from '../../../ui-shared-lite/style.scss'
 import { lang } from '../translations'
 
-import style from './style.scss'
-import { FormProps } from './typings'
-import { createEmptyDataFromSchema } from './utils/fields'
-import { formReducer, printMoreInfo } from './utils/form.utils'
-import parentStyle from './FormFields/style.scss'
 import AddButton from './FormFields/AddButton'
 import FieldWrapper from './FormFields/FieldWrapper'
 import GroupItemWrapper from './FormFields/GroupItemWrapper'
 import MultiSelect from './FormFields/MultiSelect'
 import Select from './FormFields/Select'
+import parentStyle from './FormFields/style.scss'
 import Text from './FormFields/Text'
 import TextArea from './FormFields/TextArea'
 import TextFieldsArray from './FormFields/TextFieldsArray'
 import Upload from './FormFields/Upload'
+import style from './style.scss'
+import { FormProps } from './typings'
+import { createEmptyDataFromSchema } from './utils/fields'
+import { formReducer, printMoreInfo } from './utils/form.utils'
 
 const Form: FC<FormProps> = ({
   defaultLang,

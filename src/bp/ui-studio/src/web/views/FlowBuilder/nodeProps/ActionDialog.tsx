@@ -7,8 +7,8 @@ import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { InfoTooltip } from '~/components/Shared/Interface'
 
-import style from './style.scss'
 import { ActionParameters } from './ActionParameters'
+import style from './style.scss'
 
 type PropType<TObj, TProp extends keyof TObj> = TObj[TProp]
 
@@ -160,7 +160,7 @@ const ActionDialog: FC<{
     }
 
     if (opening) {
-      // tslint:disable-next-line: no-floating-promises
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       fetchActionServers()
     }
   }, [opening])

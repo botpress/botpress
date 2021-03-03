@@ -4,8 +4,8 @@ import React, { FC, SyntheticEvent, useState } from 'react'
 
 import { NodeDebugInfo } from '../../debugger'
 
-import style from './style.scss'
 import { DebugInfo } from './DebugInfo'
+import style from './style.scss'
 
 interface Props {
   setExpanded?: (expanded: boolean) => void

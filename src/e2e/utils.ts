@@ -3,7 +3,7 @@ import { Dialog, ElementHandle, HttpMethod, MouseButtons, Page } from 'puppeteer
 
 import { bpConfig } from '../../jest-puppeteer.config'
 
-import { clickOn, expectMatchElement } from './expectPuppeteer'
+import { clickOn, expectMatchElement, fillField } from './expectPuppeteer'
 
 export const getPage = async (): Promise<Page> => {
   await page.setViewport(bpConfig.windowSize)
@@ -18,8 +18,18 @@ export const getPage = async (): Promise<Page> => {
   return page
 }
 
+export const loginIfNeeded = async () => {
+  if (page.url().includes('login')) {
+    await fillField('#email', bpConfig.email)
+    await fillField('#password', bpConfig.password)
+    await clickOn('#btn-signin')
+    return page.waitForNavigation()
+  }
+}
+
 export const gotoStudio = async (section?: string) => {
-  await gotoAndExpect(`${bpConfig.host}/studio/${bpConfig.botId}${section ? '/' + section : ''}`)
+  const resource = section ? `/${section}` : ''
+  await gotoAndExpect(`${bpConfig.host}/studio/${bpConfig.botId}${resource}`)
   return page.waitFor(200)
 }
 
@@ -29,7 +39,7 @@ export const gotoAndExpect = async (url: string, matchUrl?: string) => {
   await expect(page.url()).toMatch(matchUrl || url)
 }
 
-const getResponse = async (url: string, method?: HttpMethod) => {
+export const getResponse = async (url: string, method?: HttpMethod) => {
   return page.waitForResponse(res => {
     const resUrl = res.url()
     console.info(`url: ${url}, resUrl: ${resUrl}`)
@@ -37,13 +47,24 @@ const getResponse = async (url: string, method?: HttpMethod) => {
   })
 }
 
-export const expectCallSuccess = async (url: string, method?: HttpMethod): Promise<void> => {
+export const expectCallSuccess = async (url: string, method?: HttpMethod): Promise<any> => {
   const response = await getResponse(url, method)
   expect(response.status()).toBe(200)
+  return response.json()
 }
 
 export const expectAdminApiCallSuccess = async (endOfUrl: string, method?: HttpMethod): Promise<void> => {
   const response = await getResponse(`${bpConfig.apiHost}/api/v1/admin/${endOfUrl}`, method)
+  expect(response.status()).toBe(200)
+}
+
+export const expectModuleApiCallSuccess = async (
+  module: string,
+  bot: string,
+  resource: string,
+  method?: HttpMethod
+): Promise<void> => {
+  const response = await getResponse(`${bpConfig.apiHost}/api/v1/bots/${bot}/mod/${module}/${resource}`, method)
   expect(response.status()).toBe(200)
 }
 

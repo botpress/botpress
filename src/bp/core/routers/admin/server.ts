@@ -30,7 +30,7 @@ export class ServerRouter extends CustomRouter {
     private moduleLoader: ModuleLoader
   ) {
     super('Server', logger, Router({ mergeParams: true }))
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.setupRoutes()
   }
 
@@ -190,19 +190,23 @@ export class ServerRouter extends CustomRouter {
       })
     )
 
-    router.post('/modules/upload', multer().single('file'), async (req, res) => {
-      const file = req['file'].buffer
+    router.post(
+      '/modules/upload',
+      multer().single('file'),
+      this.asyncMiddleware(async (req, res) => {
+        const file = req['file'].buffer
 
-      const moduleInfo = await this.moduleLoader.getArchiveModuleInfo(file)
+        const moduleInfo = await this.moduleLoader.getArchiveModuleInfo(file)
 
-      if (moduleInfo) {
-        this.logger.info(`Uploaded module ${moduleInfo.name}`)
-        await this.ghostService.root().upsertFile('modules', `${moduleInfo.name}.tgz`, file)
-        return res.send(moduleInfo)
-      }
+        if (moduleInfo) {
+          this.logger.info(`Uploaded module ${moduleInfo.name}`)
+          await this.ghostService.root().upsertFile('modules', `${moduleInfo.name}.tgz`, file)
+          return res.send(moduleInfo)
+        }
 
-      res.sendStatus(400)
-    })
+        res.sendStatus(400)
+      })
+    )
 
     this._rebootServer = await this.jobService.broadcast<void>(this.__local_rebootServer.bind(this))
   }

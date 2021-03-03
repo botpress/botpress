@@ -3,8 +3,8 @@ import Promise from 'bluebird'
 import _ from 'lodash'
 import React from 'react'
 
-import { toastFailure } from './utils/toaster'
 import { getActiveWorkspace, getToken, logout } from './Auth'
+import { toastFailure } from './utils/toaster'
 
 interface SecuredApi {
   token?: string
@@ -43,8 +43,9 @@ const createClient = (clientOptions: any, options: { toastErrors?: boolean }) =>
     error => {
       const wrappedError = _.get(error, 'response.data')
       const errorCode = _.get(wrappedError, 'errorCode')
+      const url = _.get(error, 'response.config.url')
       if (errorCode) {
-        if (['BP_0041'].includes(errorCode)) {
+        if (['BP_0041'].includes(errorCode) && url !== '/auth/logout') {
           return logout()
         }
         return Promise.reject(wrappedError)

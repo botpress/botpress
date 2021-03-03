@@ -37,6 +37,7 @@ declare module 'botpress/sdk' {
     id?: number
     password?: string
     salt?: string
+    tokenVersion: number
   } & UserInfo
 
   export interface UserInfo {
@@ -455,6 +456,7 @@ declare module 'botpress/sdk' {
     }
 
     export interface Logger {
+      debug: (msg: string) => void
       info: (msg: string) => void
       warning: (msg: string, err?: Error) => void
       error: (msg: string, err?: Error) => void
@@ -588,7 +590,6 @@ declare module 'botpress/sdk' {
       utterances: {
         [lang: string]: string[]
       }
-      filename: string
       slots: SlotDefinition[]
       contexts: string[]
     }
@@ -597,7 +598,6 @@ declare module 'botpress/sdk' {
       name: string
       confidence: number
       context: string
-      matches?: (intentPattern: string) => boolean
     }
 
     export interface Entity {
@@ -646,7 +646,7 @@ declare module 'botpress/sdk' {
         label: string
         confidence: number
         slots: SlotCollection
-        extractor: 'exact-matcher' | 'classifier'
+        extractor: string
       }[]
     }
 

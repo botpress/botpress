@@ -1,5 +1,6 @@
 import { Flow, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
+import { TreeSearch, PATH_SEPARATOR } from 'common/treeSearch'
 import { FlowMutex, FlowView, NodeView } from 'common/typings'
 import { ModuleLoader } from 'core/module-loader'
 import { RealTimePayload } from 'core/sdk/impl'
@@ -9,6 +10,7 @@ import RealtimeService from 'core/services/realtime'
 import { inject, injectable, tagged } from 'inversify'
 import Joi from 'joi'
 import _ from 'lodash'
+import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import nanoid from 'nanoid/generate'
 
@@ -47,9 +49,58 @@ export class MutexError extends Error {
   type = MutexError.name
 }
 
+class FlowCache {
+  private _flows: Map<string, Map<string, FlowView>> = new Map()
+
+  public set(botId: string, flowViews: FlowView[]): void {
+    const flows = new Map(flowViews.map(f => [f.name, f]))
+    this._flows.set(botId, flows)
+  }
+
+  public get(botId: string): FlowView[] {
+    if (this._flows.has(botId)) {
+      return Array.from(this._flows.get(botId)!.values())
+    } else {
+      return []
+    }
+  }
+
+  public has(botId: string): boolean {
+    return this._flows.has(botId)
+  }
+
+  public isEmpty(): boolean {
+    return this._flows.size === 0
+  }
+
+  public upsertFlow(botId: string, flow: FlowView): void {
+    if (this._flows.has(botId)) {
+      this._flows.get(botId)!.set(flow.name, flow)
+    } else {
+      this.set(botId, [flow])
+    }
+  }
+
+  public deleteFlow(botId: string, flowName: string): void {
+    if (this._flows.has(botId)) {
+      this._flows.get(botId)!.delete(flowName)
+    }
+  }
+
+  public renameFlow(botId: string, oldName: string, newName: string): void {
+    if (this._flows.has(botId) && this._flows.get(botId)!.has(oldName)) {
+      const flow = this._flows.get(botId)!.get(oldName)!
+      flow.name = newName
+
+      this.upsertFlow(botId, flow)
+      this.deleteFlow(botId, oldName)
+    }
+  }
+}
+
 @injectable()
 export class FlowService {
-  private _allFlows: Map<string, FlowView[]> = new Map()
+  private _flowCache: FlowCache = new FlowCache()
 
   constructor(
     @inject(TYPES.Logger)
@@ -66,20 +117,38 @@ export class FlowService {
   }
 
   private _listenForCacheInvalidation() {
-    this.cache.events.on('invalidation', (key: string) => {
-      const matches = key.match(/\/bots\/([A-Z0-9-_]+)\/flows\//i)
-      if (matches && matches.length >= 1) {
+    this.cache.events.on('invalidation', async (key: string) => {
+      if (this._flowCache.isEmpty()) {
+        return
+      }
+
+      const matches = key.match(/object::[\s\S]+\/bots\/([A-Z0-9-_]+)\/flows\/([\s\S]+(flow|ui)\.json)/i)
+      if (matches && matches.length >= 2) {
         const botId = matches[1]
-        if (this._allFlows.has(botId)) {
-          this._allFlows.delete(botId)
+        const flowPath = this.toFlowPath(matches[2])
+
+        if (await this.ghost.forBot(botId).fileExists(FLOW_DIR, flowPath)) {
+          const flow = await this.parseFlow(botId, flowPath)
+
+          this._flowCache.upsertFlow(botId, flow)
+        } else {
+          this._flowCache.deleteFlow(botId, flowPath)
+        }
+
+        // parent flows are only used by the NDU
+        if (this._isOneFlow(botId)) {
+          const flows = this._flowCache.get(botId)
+          const flowsWithParents = this.addParentsToFlows(flows)
+
+          this._flowCache.set(botId, flowsWithParents)
         }
       }
     })
   }
 
   async loadAll(botId: string): Promise<FlowView[]> {
-    if (this._allFlows.has(botId)) {
-      return this._allFlows.get(botId)!
+    if (this._flowCache.has(botId)) {
+      return this._flowCache.get(botId)!
     }
 
     const flowsPath = this.ghost.forBot(botId).directoryListing(FLOW_DIR, '*.flow.json', undefined, undefined, {
@@ -91,20 +160,17 @@ export class FlowService {
         return this.parseFlow(botId, flowPath)
       })
 
-      const flowsWithParents = flows.map(flow => {
-        const flowName = flow.name.replace('.flow.json', '')
-        const parentFlow = flows.find(
-          x => x.name !== flow.name && flowName.startsWith(x.name.replace('.flow.json', ''))
-        )
+      // parent flows are only used by the NDU
+      if (this._isOneFlow(botId)) {
+        const flowsWithParents = this.addParentsToFlows(flows)
+        this._flowCache.set(botId, flowsWithParents)
 
-        return {
-          ...flow,
-          parent: parentFlow?.name.replace('.flow.json', '')
-        }
-      })
+        return flowsWithParents
+      } else {
+        this._flowCache.set(botId, flows)
 
-      this._allFlows.set(botId, flowsWithParents)
-      return flowsWithParents
+        return flows
+      }
     } catch (err) {
       this.logger
         .forBot(botId)
@@ -114,9 +180,29 @@ export class FlowService {
     }
   }
 
+  @Memoize()
   private async _isOneFlow(botId: string): Promise<boolean> {
     const botConfig = await this.botService.findBotById(botId)
     return !!botConfig?.oneflow
+  }
+
+  private addParentsToFlows(flows: FlowView[]): FlowView[] {
+    const tree = new TreeSearch(PATH_SEPARATOR)
+
+    flows.forEach(f => {
+      const filename = f.name.replace('.flow.json', '')
+      // the value we are looking for is the parent filename
+      tree.insert(filename, filename)
+    })
+
+    return flows.map(f => {
+      const filename = f.name.replace('.flow.json', '')
+
+      return {
+        ...f,
+        parent: tree.getParent(filename)
+      }
+    })
   }
 
   private async parseFlow(botId: string, flowPath: string): Promise<FlowView> {
@@ -127,7 +213,7 @@ export class FlowService {
       throw new Error(`Invalid schema for "${flowPath}". ${schemaError} `)
     }
 
-    const uiEq = await this.ghost.forBot(botId).readFileAsObject<FlowView>(FLOW_DIR, this.uiPath(flowPath))
+    const uiEq = await this.ghost.forBot(botId).readFileAsObject<FlowView>(FLOW_DIR, this.toUiPath(flowPath))
     let unplacedIndex = -1
 
     const nodeViews: NodeView[] = flow.nodes.map(node => {
@@ -216,7 +302,7 @@ export class FlowService {
       ghost.upsertFile(FLOW_DIR, uiPath, JSON.stringify(uiContent, undefined, 2))
     ])
 
-    this._allFlows.clear()
+    this._flowCache.upsertFlow(botId, flow)
   }
 
   async deleteFlow(botId: string, flowName: string, userEmail: string) {
@@ -230,10 +316,10 @@ export class FlowService {
       throw new Error(`Can not delete a flow that does not exist: ${flowName}`)
     }
 
-    const uiPath = this.uiPath(fileToDelete)
+    const uiPath = this.toUiPath(fileToDelete)
     await Promise.all([ghost.deleteFile(FLOW_DIR, fileToDelete!), ghost.deleteFile(FLOW_DIR, uiPath)])
 
-    this._allFlows.clear()
+    this._flowCache.deleteFlow(botId, flowName)
 
     this.notifyChanges({
       name: flowName,
@@ -254,13 +340,14 @@ export class FlowService {
       throw new Error(`Can not rename a flow that does not exist: ${previousName}`)
     }
 
-    const previousUiName = this.uiPath(fileToRename)
-    const newUiName = this.uiPath(newName)
+    const previousUiName = this.toUiPath(fileToRename)
+    const newUiName = this.toUiPath(newName)
     await Promise.all([
       ghost.renameFile(FLOW_DIR, fileToRename!, newName),
       ghost.renameFile(FLOW_DIR, previousUiName, newUiName)
     ])
-    this._allFlows.clear()
+
+    this._flowCache.renameFlow(botId, previousName, newName)
 
     await this.moduleLoader.onFlowRenamed(botId, previousName, newName)
 
@@ -363,11 +450,15 @@ export class FlowService {
     }
 
     const flowPath = flow.location
-    return { flowPath, uiPath: this.uiPath(flowPath!), flowContent, uiContent }
+    return { flowPath, uiPath: this.toUiPath(flowPath!), flowContent, uiContent }
   }
 
-  private uiPath(flowPath: string) {
+  private toUiPath(flowPath: string) {
     return flowPath.replace(/\.flow\.json$/i, '.ui.json')
+  }
+
+  private toFlowPath(uiPath: string) {
+    return uiPath.replace(/\.ui\.json$/i, '.flow.json')
   }
 
   public async getTopics(botId: string): Promise<Topic[]> {

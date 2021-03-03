@@ -10,10 +10,9 @@ import { TYPES } from '../types'
 export class DialogSession {
   constructor(
     public id: string,
-    public botId: string,
-    public context?: sdk.IO.DialogContext,
-    public temp_data?: any,
-    public session_data?: sdk.IO.CurrentSession
+    public context: sdk.IO.DialogContext = {},
+    public temp_data: any = {},
+    public session_data: sdk.IO.CurrentSession = { lastMessages: [], workflows: {} }
   ) {}
 
   // Timestamps are optional because they have default values in the database
@@ -25,12 +24,12 @@ export class DialogSession {
 
 export interface SessionRepository {
   insert(session: DialogSession): Promise<DialogSession>
-  getOrCreateSession(sessionId: string, botId: string, trx?: Knex.Transaction): Promise<DialogSession>
-  get(id: string, botId: string): Promise<DialogSession>
-  getExpiredContextSessionIds(botId: string): Promise<string[]>
-  deleteExpiredSessions(botId: string)
-  delete(id: string)
-  update(session: DialogSession, trx?: Knex.Transaction)
+  getOrCreateSession(sessionId: string, trx?: Knex.Transaction): Promise<DialogSession>
+  get(id: string): Promise<DialogSession>
+  getExpiredContextSessionIds(): Promise<string[]>
+  deleteExpiredSessions(): Promise<void>
+  delete(id: string): Promise<void>
+  update(session: DialogSession, trx?: Knex.Transaction): Promise<void>
 }
 
 @injectable()
@@ -39,26 +38,15 @@ export class KnexSessionRepository implements SessionRepository {
 
   constructor(@inject(TYPES.Database) private database: Database) {}
 
-  async getOrCreateSession(sessionId: string, botId: string, trx?: Knex.Transaction): Promise<DialogSession> {
-    const session = await this.get(sessionId, botId)
+  async getOrCreateSession(sessionId: string, trx?: Knex.Transaction): Promise<DialogSession> {
+    const session = await this.get(sessionId)
     if (!session) {
-      return this.createSession(sessionId, botId, {}, {}, {}, trx)
+      const session = new DialogSession(sessionId, {}, {}, { lastMessages: [], workflows: {} })
+      const { botId, channel } = SessionIdFactory.extractDestinationFromId(sessionId)
+      BOTPRESS_CORE_EVENT('bp_core_session_created', { botId, channel })
+      return this.insert(session, trx)
     }
     return session
-  }
-
-  async createSession(
-    sessionId,
-    botId,
-    context,
-    temp_data,
-    session_data,
-    trx?: Knex.Transaction
-  ): Promise<DialogSession> {
-    const session = new DialogSession(sessionId, botId, context, temp_data, session_data)
-    const { channel } = SessionIdFactory.extractDestinationFromId(sessionId)
-    BOTPRESS_CORE_EVENT('bp_core_session_created', { botId, channel })
-    return this.insert(session, trx)
   }
 
   async insert(session: DialogSession, trx?: Knex.Transaction): Promise<DialogSession> {
@@ -66,7 +54,6 @@ export class KnexSessionRepository implements SessionRepository {
       this.tableName,
       {
         id: session.id,
-        botId: session.botId,
         context: this.database.knex.json.set(session.context || {}),
         temp_data: this.database.knex.json.set(session.temp_data || {}),
         session_data: this.database.knex.json.set(session.session_data || {}),
@@ -75,7 +62,7 @@ export class KnexSessionRepository implements SessionRepository {
         context_expiry: session.context_expiry ? this.database.knex.date.format(session.context_expiry) : eval('null'),
         session_expiry: session.session_expiry ? this.database.knex.date.format(session.session_expiry) : eval('null')
       },
-      ['id', 'botId', 'context', 'temp_data', 'session_data', 'modified_on', 'created_on'],
+      ['id', 'context', 'temp_data', 'session_data', 'modified_on', 'created_on'],
       undefined,
       trx
     )
@@ -88,10 +75,10 @@ export class KnexSessionRepository implements SessionRepository {
     return newSession
   }
 
-  async get(id: string, botId: string): Promise<DialogSession> {
+  async get(id: string): Promise<DialogSession> {
     const session = <DialogSession>await this.database
       .knex<DialogSession>(this.tableName)
-      .where({ id, botId })
+      .where({ id })
       .select('*')
       .first()
       .then()
@@ -104,10 +91,9 @@ export class KnexSessionRepository implements SessionRepository {
     return session
   }
 
-  async getExpiredContextSessionIds(botId: string): Promise<string[]> {
+  async getExpiredContextSessionIds(): Promise<string[]> {
     let query = this.database
       .knex(this.tableName)
-      .where('botId', botId)
       .andWhere(this.database.knex.date.isBefore('context_expiry', new Date()))
 
     // We only process expired context if there is actually a context
@@ -126,10 +112,9 @@ export class KnexSessionRepository implements SessionRepository {
       })) as string[]
   }
 
-  async deleteExpiredSessions(botId: string): Promise<void> {
+  async deleteExpiredSessions(): Promise<void> {
     await this.database
       .knex(this.tableName)
-      .where('botId', botId)
       .andWhere(this.database.knex.date.isBefore('session_expiry', new Date()))
       .del()
   }
@@ -137,7 +122,7 @@ export class KnexSessionRepository implements SessionRepository {
   async update(session: DialogSession, trx?: Knex.Transaction): Promise<void> {
     const req = this.database
       .knex(this.tableName)
-      .where('id', session.id)
+      .where({ id: session.id })
       .update({
         context: this.database.knex.json.set(session.context),
         temp_data: this.database.knex.json.set(session.temp_data),
@@ -148,13 +133,13 @@ export class KnexSessionRepository implements SessionRepository {
       })
 
     if (trx) {
-      req.transacting(trx)
+      await req.transacting(trx)
     }
 
     await req
   }
 
-  async delete(id: string) {
+  async delete(id: string): Promise<void> {
     await this.database
       .knex(this.tableName)
       .where({ id })
