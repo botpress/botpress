@@ -1,6 +1,5 @@
 import { Button, Callout, Position, Tooltip } from '@blueprintjs/core'
 import { lang, auth } from 'botpress/shared'
-import { TokenResponse } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import CopyToClipboard from 'react-copy-to-clipboard'
@@ -12,6 +11,8 @@ import { toastInfo } from '~/utils/toaster'
 
 import DownloadArchive from './DownloadArchive'
 import UploadArchive from './UploadArchive'
+
+const MIN_UUID_LENGTH = 50
 
 const DisplayCommand = ({ command }) => {
   const [visible, setVisible] = useState(false)
@@ -36,9 +37,9 @@ const Versioning: FC<{ profile: any }> = props => {
   const [userToken, setUserToken] = useState('')
 
   useEffect(() => {
-    const token = auth.getToken() as TokenResponse
-    if (token.jwt) {
-      setUserToken(token.jwt)
+    const token = auth.getToken(true) as string
+    if (token.length > MIN_UUID_LENGTH) {
+      setUserToken(token)
     } else {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       getCookieToken()

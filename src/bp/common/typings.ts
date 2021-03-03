@@ -68,6 +68,12 @@ export interface TokenUser {
   iat?: number
 }
 
+export interface StoredToken {
+  token: string
+  expiresAt: number
+  issuedAt: number
+}
+
 export interface TokenResponse {
   jwt: string
   csrf: string
