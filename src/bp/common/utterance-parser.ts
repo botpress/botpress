@@ -2,7 +2,7 @@ import _ from 'lodash'
 
 const ALL_SLOTS_REGEX = /\[(.+?)\]\(([\w_\. :-]+)\)/gi
 
-export interface ParsedSlot {
+interface ParsedSlot {
   name: string
   value: string
   rawPosition: {
@@ -15,12 +15,12 @@ export interface ParsedSlot {
   }
 }
 
-export interface UtterancePart {
+interface UtterancePart {
   text: string
   slot?: ParsedSlot
 }
 
-export interface ParsedUtterance {
+interface ParsedUtterance {
   utterance: string
   parsedSlots: ParsedSlot[]
   parts: UtterancePart[]

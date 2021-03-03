@@ -1,14 +1,12 @@
 import * as sdk from 'botpress/sdk'
+import { parseUtterance } from 'common/utterance-parser'
 import _ from 'lodash'
 
 import { POSClass } from '../language/pos-tagger'
-import { SPECIAL_CHARSET } from '../tools/chars'
 import { computeNorm, scalarDivide, scalarMultiply, vectorAdd, zeroes } from '../tools/math'
 import { replaceConsecutiveSpaces, replaceEllipsis } from '../tools/strings'
 import { convertToRealSpaces, isSpace, isWord, SPACE } from '../tools/token-utils'
-import { ExtractedEntity, ExtractedSlot, TFIDF, Token2Vec, Tools } from '../typings'
-
-import { parseUtterance } from './utterance-parser'
+import { ExtractedEntity, ExtractedSlot, TFIDF, Tools } from '../typings'
 
 export interface UtteranceToStringOptions {
   lowerCase?: boolean

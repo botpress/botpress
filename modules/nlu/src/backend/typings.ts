@@ -1,4 +1,5 @@
-import { ListenHandle, NLU } from 'botpress/sdk'
+import * as sdk from 'botpress/sdk'
+import * as NLU from 'nlu-core'
 
 import ModelService from './model-service'
 
@@ -7,7 +8,7 @@ export interface NLUState {
   nluByBot: _.Dictionary<BotState>
   broadcastLoadModel?: (botId: string, modelId: NLU.ModelId) => Promise<void>
   broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
-  sendNLUStatusEvent: (botId: string, trainSession: NLU.TrainingSession) => Promise<void>
+  sendNLUStatusEvent: (botId: string, trainSession: sdk.NLU.TrainingSession) => Promise<void>
 }
 
 export interface BotState {
@@ -18,10 +19,10 @@ export interface BotState {
 
   // TODO: we keep this DS in memory because it contains an unserializable lock,
   // but this should be abstracted by the train session service.
-  trainSessions: _.Dictionary<NLU.TrainingSession>
+  trainSessions: _.Dictionary<sdk.NLU.TrainingSession>
 
   cancelTraining: (lang: string) => Promise<void>
-  needsTrainingWatcher: ListenHandle
+  needsTrainingWatcher: sdk.ListenHandle
   modelsByLang: _.Dictionary<NLU.ModelId>
 
   modelService: ModelService
@@ -30,5 +31,5 @@ export interface BotState {
 export interface NLUProgressEvent {
   type: 'nlu'
   botId: string
-  trainSession: NLU.TrainingSession
+  trainSession: sdk.NLU.TrainingSession
 }

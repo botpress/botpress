@@ -45,7 +45,7 @@ export interface Engine {
   hasModel: (modelId: ModelId) => boolean
   train: (trainSessionId: string, trainSet: TrainingSet, options?: Partial<TrainingOptions>) => Promise<Model>
   cancelTraining: (trainSessionId: string) => Promise<void>
-  detectLanguage: (text: string, modelByLang: Dic<ModelId>) => Promise<string>
+  detectLanguage: (text: string, modelByLang: { [key: string]: ModelId }) => Promise<string>
   predict: (text: string, modelId: ModelId) => Promise<PredictOutput>
   spellCheck: (sentence: string, modelId: ModelId) => Promise<string>
 }
@@ -164,7 +164,9 @@ export interface Slot {
   end: number
 }
 
-export type SlotCollection = Dic<Slot>
+export interface SlotCollection {
+  [key: string]: Slot
+}
 
 export interface Predictions {
   [context: string]: ContextPrediction

@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import * as NLU from 'nlu-core'
 
 export interface Config {
   /**

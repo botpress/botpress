@@ -2,7 +2,7 @@ import 'bluebird-global'
 import { makeTestUtterance } from '../test-utils/fake-utterance'
 
 import { EntityExtractionResult, ListEntityModel } from '../typings'
-import { parseUtterance } from '../utterance/utterance-parser'
+import { parseUtterance } from 'common/utterance-parser'
 
 import { extractListEntities } from './custom-entity-extractor'
 
