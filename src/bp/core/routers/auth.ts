@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import { JWT_COOKIE_NAME } from 'common/auth'
 import { AuthRule, ChatUserAuth, RequestWithUser, TokenUser, UserProfile } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
 import { AuthStrategies } from 'core/services/auth-strategies'
@@ -193,6 +194,19 @@ export class AuthRouter extends CustomRouter {
       this.asyncMiddleware(async (req: RequestWithUser, res) => {
         await this.authService.invalidateToken(req.tokenUser!)
         res.sendStatus(200)
+      })
+    )
+
+    // Temporary route to obtain a token when using cookie authentication, for the bp pull/push command
+    router.get(
+      '/getToken',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req: RequestWithUser, res) => {
+        if (!process.USE_JWT_COOKIES) {
+          return res.sendStatus(201)
+        }
+
+        res.send(req.cookies[JWT_COOKIE_NAME])
       })
     )
   }

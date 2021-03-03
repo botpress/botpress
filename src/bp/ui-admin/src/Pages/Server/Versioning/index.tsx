@@ -1,5 +1,6 @@
 import { Button, Callout, Position, Tooltip } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { lang, auth } from 'botpress/shared'
+import { TokenResponse } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import CopyToClipboard from 'react-copy-to-clipboard'
@@ -32,22 +33,37 @@ const Versioning: FC<{ profile: any }> = props => {
   const [pullCommand, setPullCommand] = useState('')
   const [pushCommand, setPushCommand] = useState('')
   const [isPushAvailable, setPushAvailable] = useState(false)
+  const [userToken, setUserToken] = useState('')
 
   useEffect(() => {
-    const bpcli = navigator.appVersion.indexOf('Win') !== -1 ? 'bp.exe' : './bp'
-    const token = undefined // getToken()
-    const host = window.location.origin
-
-    setPullCommand(`${bpcli} pull --url ${host}${window['ROOT_PATH']} --authToken ${token} --targetDir data`)
-    setPushCommand(`${bpcli} push --url ${host}${window['ROOT_PATH']} --authToken ${token} --sourceDir data`)
+    const token = auth.getToken() as TokenResponse
+    if (token.jwt) {
+      setUserToken(token.jwt)
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      getCookieToken()
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     getBpfsStatus()
   }, [])
 
+  useEffect(() => {
+    const bpcli = navigator.appVersion.indexOf('Win') !== -1 ? 'bp.exe' : './bp'
+    const host = window.location.origin
+
+    setPullCommand(`${bpcli} pull --url ${host}${window['ROOT_PATH']} --authToken ${userToken} --targetDir data`)
+    setPushCommand(`${bpcli} push --url ${host}${window['ROOT_PATH']} --authToken ${userToken} --sourceDir data`)
+  }, [userToken])
+
   const getBpfsStatus = async () => {
     const { data } = await api.getSecured().get('/admin/versioning/bpfs_status')
     setPushAvailable(data.isAvailable)
+  }
+
+  const getCookieToken = async () => {
+    const { data } = await api.getSecured().get('/auth/getToken')
+    setUserToken(data)
   }
 
   const isSuperAdmin = props.profile && props.profile.isSuperAdmin

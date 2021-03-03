@@ -38,7 +38,7 @@ export const toastError = error => {
 }
 
 const createClient = (clientOptions: any, options: { toastErrors?: boolean }) => {
-  const client = axios.create({ timeout: 6000, withCredentials: true, ...clientOptions })
+  const client = axios.create({ timeout: 6000, withCredentials: window.USE_JWT_COOKIES, ...clientOptions })
 
   client.interceptors.response.use(
     response => response,
