@@ -40,7 +40,7 @@ export class KnexSessionRepository implements SessionRepository {
   private readonly tableName = 'dialog_sessions'
   private cache = new LRU<string, DialogSession>({ max: 10000, maxAge: ms('5min') })
   private ownershipCache = new LRU<string, number>({ maxAge: ms('10min') })
-  private invalidateSessionCache: (id: string, owner?: number) => void = this._localInvalidateSessionCache
+  private changeSessionOwnership: (id: string, owner: number | undefined) => void = this._localChangeSessionOwnership
   private ownerId: number = Math.random() * 10000000 + 1
 
   constructor(
@@ -50,8 +50,8 @@ export class KnexSessionRepository implements SessionRepository {
 
   @postConstruct()
   async init() {
-    this.invalidateSessionCache = <any>(
-      await this.jobService.broadcast<void>(this._localInvalidateSessionCache.bind(this))
+    this.changeSessionOwnership = <any>(
+      await this.jobService.broadcast<void>(this._localChangeSessionOwnership.bind(this))
     )
   }
 
@@ -89,6 +89,7 @@ export class KnexSessionRepository implements SessionRepository {
       newSession.temp_data = this.database.knex.json.get(newSession.temp_data)
       newSession.session_data = this.database.knex.json.get(newSession.session_data)
 
+      this.changeSessionOwnership(newSession.id, this.ownerId)
       this.cache.set(newSession.id, newSession)
     }
 
@@ -113,9 +114,7 @@ export class KnexSessionRepository implements SessionRepository {
       session.temp_data = this.database.knex.json.get(session.temp_data)
       session.session_data = this.database.knex.json.get(session.session_data)
 
-      if (this.ownershipCache.has(session.id)) {
-        this.invalidateSessionCache(session.id, this.ownerId)
-      }
+      this.changeSessionOwnership(session.id, this.ownerId)
       this.cache.set(session.id, session)
     }
 
@@ -172,7 +171,7 @@ export class KnexSessionRepository implements SessionRepository {
     if (this.cache.has(session.id)) {
       this.cache.del(session.id)
     } else if (this.ownershipCache.has(session.id)) {
-      this.invalidateSessionCache(session.id)
+      this.changeSessionOwnership(session.id, undefined)
     }
   }
 
@@ -185,11 +184,11 @@ export class KnexSessionRepository implements SessionRepository {
     if (this.cache.has(id)) {
       this.cache.del(id)
     } else if (this.ownershipCache.has(id)) {
-      this.invalidateSessionCache(id)
+      this.changeSessionOwnership(id, undefined)
     }
   }
 
-  private _localInvalidateSessionCache(id: string, owner?: number) {
+  private _localChangeSessionOwnership(id: string, owner: number | undefined) {
     if (this.ownerId !== owner) {
       this.cache.del(id)
       if (owner) {
