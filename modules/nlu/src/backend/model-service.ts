@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
+import { ModelIdService, ModelId, Model } from 'common/nlu/engine'
 import fse, { WriteStream } from 'fs-extra'
 import _ from 'lodash'
-import { ModelIdService, ModelId, Model } from 'nlu-core'
 import path from 'path'
 import { Stream } from 'stream'
 import tar from 'tar'

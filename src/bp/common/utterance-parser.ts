@@ -1,8 +1,6 @@
 import _ from 'lodash'
 
-const ALL_SLOTS_REGEX = /\[(.+?)\]\(([\w_\. :-]+)\)/gi
-
-interface ParsedSlot {
+export interface ParsedSlot {
   name: string
   value: string
   rawPosition: {
@@ -15,16 +13,18 @@ interface ParsedSlot {
   }
 }
 
-interface UtterancePart {
+export interface UtterancePart {
   text: string
   slot?: ParsedSlot
 }
 
-interface ParsedUtterance {
+export interface ParsedUtterance {
   utterance: string
   parsedSlots: ParsedSlot[]
   parts: UtterancePart[]
 }
+
+const ALL_SLOTS_REGEX = /\[(.+?)\]\(([\w_\. :-]+)\)/gi
 
 export const extractSlots = (utterance: string): RegExpExecArray[] => {
   const slotMatches: RegExpExecArray[] = []

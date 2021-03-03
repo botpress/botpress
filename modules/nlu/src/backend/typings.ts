@@ -1,12 +1,12 @@
 import * as sdk from 'botpress/sdk'
-import nluCore from 'nlu-core'
+import { Engine, ModelId } from 'common/nlu/engine'
 
 import ModelService from './model-service'
 
 export interface NLUState {
-  engine: nluCore.Engine
+  engine: Engine
   nluByBot: _.Dictionary<BotState>
-  broadcastLoadModel?: (botId: string, modelId: nluCore.ModelId) => Promise<void>
+  broadcastLoadModel?: (botId: string, modelId: ModelId) => Promise<void>
   broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
   sendNLUStatusEvent: (botId: string, trainSession: sdk.NLU.TrainingSession) => Promise<void>
 }
@@ -23,7 +23,7 @@ export interface BotState {
 
   cancelTraining: (lang: string) => Promise<void>
   needsTrainingWatcher: sdk.ListenHandle
-  modelsByLang: _.Dictionary<nluCore.ModelId>
+  modelsByLang: _.Dictionary<ModelId>
 
   modelService: ModelService
 }

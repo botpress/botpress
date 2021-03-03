@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { sanitizeFileName } from 'core/misc/utils'
-import nluCore from 'nlu-core'
+import nluCore from 'nlu/engine'
 import { GhostService } from '..'
 import * as CacheManager from './cache-manager'
 import { NLUService } from './nlu-service'

@@ -16,9 +16,7 @@
     "types": ["reflect-metadata", "bluebird-global"],
     "paths": {
       "common/*": ["../../src/bp/common/*"],
-      "botpress/sdk": ["../../src/bp/sdk/botpress.d.ts"],
-      "nlu-core": ["../../src/bp/nlu-core"],
-      "ml/*": ["../../src/bp/ml/*"]
+      "botpress/sdk": ["../../src/bp/sdk/botpress.d.ts"]
     }
   },
   "exclude": ["**/*.test.ts", "**/views/**"],

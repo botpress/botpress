@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import Joi from 'joi'
 import _ from 'lodash'
-import { PredictOutput } from 'nlu-core'
+import { PredictOutput } from 'common/nlu/engine'
 import yn from 'yn'
 
 import legacyElectionPipeline from './election/legacy-election'

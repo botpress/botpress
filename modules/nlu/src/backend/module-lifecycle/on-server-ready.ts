@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
+import { ModelId } from 'common/nlu/engine'
 import _ from 'lodash'
-import nluCore from 'nlu-core'
 
 import makeApi from '../api'
 import { setTrainingSession } from '../train-session-service'
@@ -8,7 +8,7 @@ import { NLUState } from '../typings'
 
 export function getOnServerReady(state: NLUState) {
   return async (bp: typeof sdk) => {
-    const loadModel = async (botId: string, modelId: nluCore.ModelId) => {
+    const loadModel = async (botId: string, modelId: ModelId) => {
       if (!state.nluByBot[botId]) {
         return
       }

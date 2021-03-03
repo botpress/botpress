@@ -1,4 +1,4 @@
-import nluCore from 'nlu-core'
+import { LanguageSource } from 'common/nlu/engine'
 
 export interface Config {
   /**
@@ -25,7 +25,7 @@ export interface Config {
    * The list of sources to load languages from
    * @default [{ "endpoint": "https://lang-01.botpress.io" }]
    */
-  languageSources: nluCore.LanguageSource[]
+  languageSources: LanguageSource[]
 
   /**
    * Maximum allowed model cache size

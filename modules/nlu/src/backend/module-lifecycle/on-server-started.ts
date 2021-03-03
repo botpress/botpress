@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import bytes from 'bytes'
+import nluEngine from 'common/nlu/engine'
 import _ from 'lodash'
-import nluCore from 'nlu-core'
 
 import { Config } from '../../config'
 import legacyElectionPipeline from '../election/legacy-election'
@@ -52,7 +52,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
         const predictionHandler = new PredictionHandler(
           modelsByLang,
           modelService,
-          nluCore.modelIdService,
+          nluEngine.modelIdService,
           engine,
           anticipatedLanguage,
           defaultLanguage,
@@ -115,20 +115,20 @@ export function getOnSeverStarted(state: NLUState) {
     await initializeReportingTool(bp, state)
     const globalConfig: Config = await bp.config.getModuleConfig('nlu')
 
-    const logger = <nluCore.Logger>{
+    const logger = <nluEngine.Logger>{
       info: (msg: string) => bp.logger.info(msg),
       warning: (msg: string, err?: Error) => (err ? bp.logger.attachError(err).warn(msg) : bp.logger.warn(msg)),
       error: (msg: string, err?: Error) => (err ? bp.logger.attachError(err).error(msg) : bp.logger.error(msg))
     }
 
     const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = globalConfig
-    const parsedConfig: nluCore.Config = {
+    const parsedConfig: nluEngine.Config = {
       languageSources,
       ducklingEnabled,
       ducklingURL,
       modelCacheSize: bytes(modelCacheSize)
     }
-    state.engine = await nluCore.makeEngine(parsedConfig, logger)
+    state.engine = await nluEngine.makeEngine(parsedConfig, logger)
 
     await registerMiddleware(bp, state)
   }
