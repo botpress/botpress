@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import fse, { WriteStream } from 'fs-extra'
 import _ from 'lodash'
-import * as NLU from 'nlu-core'
+import nluCore from 'nlu-core'
 import path from 'path'
 import { Stream } from 'stream'
 import tar from 'tar'
@@ -32,7 +32,7 @@ export async function getModel(
   ghost: sdk.ScopedGhostService,
   hash: string,
   lang: string
-): Promise<NLU.Model | undefined> {
+): Promise<nluCore.Model | undefined> {
   const fname = makeFileName(hash, lang)
   if (!(await ghost.fileExists(MODELS_DIR, fname))) {
     return
@@ -57,7 +57,7 @@ export async function getModel(
   }
 }
 
-export async function getLatestModel(ghost: sdk.ScopedGhostService, lang: string): Promise<NLU.Model | undefined> {
+export async function getLatestModel(ghost: sdk.ScopedGhostService, lang: string): Promise<nluCore.Model | undefined> {
   const availableModels = await listModelsForLang(ghost, lang)
   if (availableModels.length === 0) {
     return
@@ -65,7 +65,11 @@ export async function getLatestModel(ghost: sdk.ScopedGhostService, lang: string
   return getModel(ghost, availableModels[0].split('.')[0], lang)
 }
 
-export async function saveModel(ghost: sdk.ScopedGhostService, model: NLU.Model, hash: string): Promise<void | void[]> {
+export async function saveModel(
+  ghost: sdk.ScopedGhostService,
+  model: nluCore.Model,
+  hash: string
+): Promise<void | void[]> {
   const serialized = JSON.stringify(model)
   const modelName = makeFileName(hash, model.languageCode)
   const tmpDir = tmp.dirSync({ unsafeCleanup: true })

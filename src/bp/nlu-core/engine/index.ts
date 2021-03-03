@@ -2,9 +2,9 @@ import bytes from 'bytes'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
 import sizeof from 'object-sizeof'
-import * as NLU from '..'
-
 import modelIdService from '../model-id-service'
+import * as NLU from '../nlu-core'
+
 import { deserializeKmeans } from './clustering'
 import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'

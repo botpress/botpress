@@ -2,7 +2,7 @@ import { MLToolkit } from 'botpress/sdk'
 import Joi, { validate } from 'joi'
 import _ from 'lodash'
 import { ModelLoadingError } from '../../errors'
-import * as NLU from '../../typings'
+import * as NLU from '../../nlu-core'
 import { ListEntityModel, PatternEntity, Tools } from '../typings'
 import Utterance from '../utterance/utterance'
 

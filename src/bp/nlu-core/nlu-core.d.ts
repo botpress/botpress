@@ -1,3 +1,24 @@
+/** #######################
+ *  ### Implementations ###
+ *  #######################
+ */
+
+export const SYSTEM_ENTITIES: string[]
+
+export const makeEngine: (config: Config, logger: Logger) => Promise<Engine>
+
+export namespace errors {
+  export const isTrainingAlreadyStarted: (e: Error) => boolean
+  export const isTrainingCanceled: (e: Error) => boolean
+}
+
+export const modelIdService: ModelIdService
+
+/** #######################
+ *  ####### Typings #######
+ *  #######################
+ */
+
 export interface Config extends LanguageConfig {
   modelCacheSize: number
 }

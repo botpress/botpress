@@ -1,24 +1,24 @@
 import _ from 'lodash'
-import * as NLU from 'nlu-core'
+import nluCore from 'nlu-core'
 
 import { NONE_INTENT, ValueOf } from './typings'
 
 const mergeSpellChecked = (
-  originalOutput: NLU.PredictOutput,
-  spellCheckedOutput: NLU.PredictOutput
-): NLU.PredictOutput => {
-  const mostConfidentContext = (preds: NLU.Predictions): ValueOf<NLU.Predictions> =>
+  originalOutput: nluCore.PredictOutput,
+  spellCheckedOutput: nluCore.PredictOutput
+): nluCore.PredictOutput => {
+  const mostConfidentContext = (preds: nluCore.Predictions): ValueOf<nluCore.Predictions> =>
     _(preds)
       .values()
       .maxBy(p => p.confidence)!
 
-  const mostConfidentIntent = (preds: ValueOf<NLU.Predictions>) =>
+  const mostConfidentIntent = (preds: ValueOf<nluCore.Predictions>) =>
     _(preds.intents)
       .filter(i => i.label !== NONE_INTENT)
       .maxBy(i => i.confidence)!
 
-  const originalPredictions: NLU.Predictions = originalOutput.predictions!
-  const spellCheckedPredictions: NLU.Predictions = spellCheckedOutput.predictions!
+  const originalPredictions: nluCore.Predictions = originalOutput.predictions!
+  const spellCheckedPredictions: nluCore.Predictions = spellCheckedOutput.predictions!
 
   const mergeContextConfidence =
     mostConfidentContext(originalPredictions).confidence < mostConfidentContext(spellCheckedPredictions).confidence

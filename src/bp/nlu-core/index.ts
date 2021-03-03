@@ -1,24 +1,25 @@
 import Engine from './engine'
 import { DUCKLING_ENTITIES } from './engine/entities/duckling-extractor/enums'
-import * as _errors from './errors'
+import { isTrainingAlreadyStarted, isTrainingCanceled } from './errors'
+import modelIdService from './model-id-service'
+import * as sdk from './nlu-core'
 
-import * as NLU from './typings'
+const nluCore: typeof sdk = {
+  SYSTEM_ENTITIES: DUCKLING_ENTITIES,
 
-export * from './typings'
+  errors: {
+    isTrainingAlreadyStarted,
+    isTrainingCanceled
+  },
 
-export const SYSTEM_ENTITIES = DUCKLING_ENTITIES
+  makeEngine: async (config: sdk.Config, logger: sdk.Logger) => {
+    const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = config
+    const langConfig = { ducklingEnabled, ducklingURL, languageSources }
+    const engine = new Engine({ maxCacheSize: modelCacheSize })
+    await engine.initialize(langConfig, logger)
+    return engine
+  },
 
-export namespace errors {
-  export const isTrainingAlreadyStarted = _errors.isTrainingAlreadyStarted
-  export const isTrainingCanceled = _errors.isTrainingCanceled
+  modelIdService
 }
-
-export const makeEngine = async (config: NLU.Config, logger: NLU.Logger) => {
-  const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = config
-  const langConfig = { ducklingEnabled, ducklingURL, languageSources }
-  const engine = new Engine({ maxCacheSize: modelCacheSize })
-  await engine.initialize(langConfig, logger)
-  return engine
-}
-
-export { default as modelIdService } from './model-id-service'
+export default nluCore

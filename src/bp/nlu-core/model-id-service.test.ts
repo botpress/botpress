@@ -1,5 +1,5 @@
 import modelIdService, { HALF_MD5_REG } from './model-id-service'
-import * as NLU from '.'
+import * as NLU from './nlu-core'
 
 const intentDefs: NLU.IntentDefinition[] = [
   {

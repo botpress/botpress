@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 import _ from 'lodash'
-import * as NLU from './typings'
+import * as NLU from './nlu-core'
 
 export const HALF_MD5_REG = /^[a-fA-F0-9]{16}$/
 

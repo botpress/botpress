@@ -7,7 +7,7 @@ import chalk from 'chalk'
 import cluster from 'cluster'
 import { copyDir } from 'core/misc/pkg-fs'
 import _ from 'lodash'
-import * as nluCore from 'nlu-core'
+import nluCore from 'nlu-core'
 import path from 'path'
 
 import { setupMasterNode, WORKER_TYPES } from '../cluster'

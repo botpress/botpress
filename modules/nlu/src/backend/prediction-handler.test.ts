@@ -1,5 +1,5 @@
 import '../../../../src/bp/sdk/botpress.d'
-import * as NLU from '../../../../src/bp/nlu-core'
+import * as nluCore from '../../../../src/bp/nlu-core'
 
 import { Logger } from 'botpress/sdk'
 
@@ -24,17 +24,19 @@ const loggerMock = (<Partial<Logger>>{
 }) as Logger
 
 const makeModelsByLang = (langs: string[]) => {
-  const models: NLU.ModelId[] = (<Partial<NLU.ModelId>[]>langs.map(l => ({ languageCode: l }))) as NLU.ModelId[]
+  const models: nluCore.ModelId[] = (<Partial<nluCore.ModelId>[]>(
+    langs.map(l => ({ languageCode: l }))
+  )) as nluCore.ModelId[]
   return _.zipObject(langs, models)
 }
 
-function makeEngineMock(loadedLanguages: string[]): NLU.Engine {
-  const loadedModels: NLU.ModelId[] = (<Partial<NLU.ModelId>[]>(
+function makeEngineMock(loadedLanguages: string[]): nluCore.Engine {
+  const loadedModels: nluCore.ModelId[] = (<Partial<nluCore.ModelId>[]>(
     loadedLanguages.map(l => ({ languageCode: l }))
-  )) as NLU.ModelId[]
+  )) as nluCore.ModelId[]
 
-  return (<Partial<NLU.Engine>>{
-    spellCheck: async (text: string, modelId: NLU.ModelId) => text,
+  return (<Partial<nluCore.Engine>>{
+    spellCheck: async (text: string, modelId: nluCore.ModelId) => text,
 
     getSpecifications: () => {
       return {
@@ -47,7 +49,7 @@ function makeEngineMock(loadedLanguages: string[]): NLU.Engine {
       }
     },
 
-    loadModel: async (m: NLU.Model) => {
+    loadModel: async (m: nluCore.Model) => {
       loadedModels.push(m)
     },
 
@@ -63,25 +65,25 @@ function makeEngineMock(loadedLanguages: string[]): NLU.Engine {
       return detectedLanguage
     },
 
-    hasModel: (modelId: NLU.ModelId) => loadedModels.map(m => m.languageCode).includes(modelId.languageCode),
+    hasModel: (modelId: nluCore.ModelId) => loadedModels.map(m => m.languageCode).includes(modelId.languageCode),
 
-    predict: jest.fn(async (textInput: string, modelId: NLU.ModelId) => {
+    predict: jest.fn(async (textInput: string, modelId: nluCore.ModelId) => {
       if (loadedModels.map(m => m.languageCode).includes(modelId.languageCode)) {
-        return <NLU.PredictOutput>{
+        return <nluCore.PredictOutput>{
           entities: [],
           predictions: {}
         }
       }
       throw new Error('model not loaded')
     })
-  }) as NLU.Engine
+  }) as nluCore.Engine
 }
 
 function makeModelProviderMock(langsOnFs: string[]): ModelService {
   const getModel = async (modelId: { languageCode: string }) => {
     const { languageCode } = modelId
     if (langsOnFs.includes(languageCode)) {
-      return <NLU.Model>{
+      return <nluCore.Model>{
         startedAt: new Date(),
         finishedAt: new Date(),
         hash: languageCode,
@@ -102,12 +104,12 @@ function makeModelProviderMock(langsOnFs: string[]): ModelService {
   }) as ModelService
 }
 
-const modelIdService = (<Partial<typeof NLU.modelIdService>>{
-  toId: (m: NLU.ModelId) => m,
+const modelIdService = (<Partial<typeof nluCore.modelIdService>>{
+  toId: (m: nluCore.ModelId) => m,
   briefId: (q: { specifications: any; languageCode: string }) => ({
     languageCode: q.languageCode
   })
-}) as typeof NLU.modelIdService
+}) as typeof nluCore.modelIdService
 
 const assertNoModelLoaded = (modelGetterMock: jest.Mock) => {
   assertModelLoaded(modelGetterMock, [])

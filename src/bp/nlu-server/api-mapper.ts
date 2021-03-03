@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import * as nluCore from 'nlu-core'
+import nluCore from 'nlu-core'
 
 import {
   ContextPrediction,
