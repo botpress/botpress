@@ -108,7 +108,8 @@ export default async (bp: typeof sdk, db: Database) => {
   }).middleware
 
   const assertUserInfo = (options: { convoIdRequired?: boolean } = {}) => async (req: ChatRequest, _res, next) => {
-    const { botId, userId } = req.params
+    const { botId } = req.params
+    const { userId } = req.body || {}
     const conversationId = req.params.conversationId || req.query.conversationId
 
     if (!validateUserId(userId)) {
@@ -162,7 +163,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
   // ?conversationId=xxx (optional)
   router.post(
-    '/messages/:userId',
+    '/messages',
     bp.http.extractExternalToken,
     assertUserInfo(),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
@@ -212,7 +213,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
   // ?conversationId=xxx (required)
   router.post(
-    '/messages/:userId/files',
+    '/messages/files',
     upload.single('file'),
     bp.http.extractExternalToken,
     assertUserInfo({ convoIdRequired: true }),
@@ -238,8 +239,8 @@ export default async (bp: typeof sdk, db: Database) => {
     })
   )
 
-  router.get(
-    '/conversations/:userId/:conversationId',
+  router.post(
+    '/conversations/get/:conversationId',
     assertUserInfo({ convoIdRequired: true }),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { userId, conversationId, botId } = req
@@ -250,8 +251,8 @@ export default async (bp: typeof sdk, db: Database) => {
     })
   )
 
-  router.get(
-    '/conversations/:userId',
+  router.post(
+    '/conversations/get',
     assertUserInfo(),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { userId, botId } = req
@@ -315,7 +316,7 @@ export default async (bp: typeof sdk, db: Database) => {
   }
 
   router.post(
-    '/events/:userId',
+    '/events',
     bp.http.extractExternalToken,
     assertUserInfo(),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
@@ -380,7 +381,7 @@ export default async (bp: typeof sdk, db: Database) => {
   )
 
   router.post(
-    '/conversations/:userId/:conversationId/reset',
+    '/conversations/:conversationId/reset',
     bp.http.extractExternalToken,
     assertUserInfo({ convoIdRequired: true }),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
@@ -407,7 +408,7 @@ export default async (bp: typeof sdk, db: Database) => {
   )
 
   router.post(
-    '/conversations/:userId/new',
+    '/conversations/new',
     assertUserInfo(),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { botId, userId } = req
@@ -418,12 +419,12 @@ export default async (bp: typeof sdk, db: Database) => {
   )
 
   router.post(
-    '/conversations/:userId/:conversationId/reference/:reference',
+    '/conversations/:conversationId/reference',
     assertUserInfo(),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       try {
         const { botId, userId } = req
-        const { reference } = req.params
+        const { reference } = req.body
         let { conversationId } = req
 
         await bp.users.getOrCreateUser('web', userId, botId)
@@ -469,8 +470,8 @@ export default async (bp: typeof sdk, db: Database) => {
     })
   )
 
-  router.get(
-    '/preferences/:userId',
+  router.post(
+    '/preferences/get',
     assertUserInfo(),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { userId, botId } = req
@@ -481,7 +482,7 @@ export default async (bp: typeof sdk, db: Database) => {
   )
 
   router.post(
-    '/preferences/:userId',
+    '/preferences',
     assertUserInfo(),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { userId, botId } = req
@@ -534,8 +535,8 @@ export default async (bp: typeof sdk, db: Database) => {
     return [metadata, ...messagesAsTxt].join('')
   }
 
-  router.get(
-    '/conversations/:userId/:conversationId/download/txt',
+  router.post(
+    '/conversations/:conversationId/download/txt',
     assertUserInfo({ convoIdRequired: true }),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { userId, conversationId, botId } = req
@@ -548,7 +549,7 @@ export default async (bp: typeof sdk, db: Database) => {
   )
 
   router.post(
-    '/conversations/:userId/:conversationId/messages/delete',
+    '/conversations/:conversationId/messages/delete',
     assertUserInfo({ convoIdRequired: true }),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { userId, conversationId } = req
