@@ -32,4 +32,10 @@ export interface Config {
    * @default 850mb
    */
   modelCacheSize: string
+
+  /**
+   * Maximum number of concurrent trainings per Botpress instance
+   * @default 2
+   */
+  maxTrainingPerInstance: number
 }
