@@ -3,7 +3,6 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { createApi } from '../api'
-import { Config } from '../config'
 import en from '../translations/en.json'
 import es from '../translations/es.json'
 import fr from '../translations/fr.json'
@@ -38,13 +37,11 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
   if (!app) {
     throw new AppNotInitializedError()
   }
-  const moduleConfig: Config = await bp.config.getModuleConfig('nlu')
   const botConfig = await bp.bots.getBotById(botId)
   if (!botConfig) {
     throw new Error(`No config found for bot ${botId}`)
   }
-
-  await app.mountBot(botConfig, moduleConfig.queueTrainingOnBotMount)
+  await app.mountBot(botConfig)
 }
 
 const onBotUnmount = async (bp: typeof sdk, botId: string) => {

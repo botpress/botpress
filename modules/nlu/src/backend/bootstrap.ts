@@ -18,7 +18,15 @@ import { BotDefinition } from './application/typings'
 export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
   const globalConfig: Config = await bp.config.getModuleConfig('nlu')
 
-  const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize, maxTrainingPerInstance } = globalConfig
+  const {
+    ducklingEnabled,
+    ducklingURL,
+    languageSources,
+    modelCacheSize,
+    maxTrainingPerInstance,
+    queueTrainingOnBotMount
+  } = globalConfig
+
   const parsedConfig: sdk.NLU.Config = {
     languageSources,
     ducklingEnabled,
@@ -61,7 +69,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
     trainingQueueConfig
   )
 
-  const application = new NLUApplication(memoryTrainingQueue, engine, botFactory, botService)
+  const application = new NLUApplication(memoryTrainingQueue, engine, botFactory, botService, queueTrainingOnBotMount)
 
   await application.initialize()
   return application
