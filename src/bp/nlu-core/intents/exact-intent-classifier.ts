@@ -92,21 +92,19 @@ export class ExactIntenClassifier implements NoneableIntentClassifier {
       throw new Error(`${ExactIntenClassifier._displayName} must be trained before calling predict.`)
     }
 
-    const { _name: extractor } = ExactIntenClassifier
-
     const { exact_match_index, intents: intentNames } = this.model
 
     const exactPred = this._findExactIntent(exact_match_index, utterance)
 
     if (exactPred) {
-      const oneHot = intentNames.map(name => ({ name, confidence: name === exactPred ? 1 : 0, extractor }))
+      const oneHot = intentNames.map(name => ({ name, confidence: name === exactPred ? 1 : 0, extractor: this.name }))
       return {
         oos: 0,
         intents: oneHot
       }
     }
 
-    const zeros = intentNames.map(name => ({ name, confidence: 0, extractor }))
+    const zeros = intentNames.map(name => ({ name, confidence: 0, extractor: this.name }))
     return {
       oos: 1,
       intents: zeros
