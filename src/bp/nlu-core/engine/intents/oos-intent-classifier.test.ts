@@ -235,3 +235,29 @@ test('When model is corrupted, loading a model throws', async () => {
   const undef: unknown = undefined
   await expect(oosIntentClassifier.load(undef as string)).rejects.toThrowError()
 })
+
+test('Classifier always pick between exact match or svm', async () => {
+  // arrange
+  let oosIntentClassifier = new OOSIntentClassifier(fakeTools)
+
+  const intentsDefs = [
+    {
+      name: 'K',
+      contexts: [],
+      slot_definitions: [],
+      utterances: ['k', 'K'].map(makeTestUtterance) // no ml
+    }
+  ]
+  await oosIntentClassifier.train(makeTrainset(intentsDefs), dummyProgress)
+  const model = oosIntentClassifier.serialize()
+  oosIntentClassifier = new OOSIntentClassifier(fakeTools)
+  await oosIntentClassifier.load(model)
+
+  // act
+  const pred = await oosIntentClassifier.predict(makeTestUtterance('k'))
+
+  // assert
+  const [k, none] = _.orderBy(pred.intents, i => i.name)
+  expect(k.confidence).toBe(1)
+  expect(none.confidence).toBeLessThan(1)
+})

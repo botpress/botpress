@@ -66,12 +66,17 @@ export const modelSchema = Joi.object()
  * @returns A confidence level for all possible labels including none
  */
 export class OOSIntentClassifier implements NoneableIntentClassifier {
-  private static _name = 'OOS Intent Classifier'
+  private static _displayName = 'OOS Intent Classifier'
+  private static _name = 'classifier'
 
   private model: Model | undefined
   private predictors: Predictors | undefined
 
   constructor(private tools: Tools, private logger?: NLU.Logger) {}
+
+  get name() {
+    return OOSIntentClassifier._name
+  }
 
   public async train(trainInput: TrainInput, progress: (p: number) => void): Promise<void> {
     const { languageCode, allUtterances } = trainInput
@@ -236,7 +241,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
 
   public serialize(): string {
     if (!this.model) {
-      throw new Error(`${OOSIntentClassifier._name} must be trained before calling serialize.`)
+      throw new Error(`${OOSIntentClassifier._displayName} must be trained before calling serialize.`)
     }
     return JSON.stringify(this.model)
   }
@@ -248,7 +253,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
       this.predictors = await this._makePredictors(model)
       this.model = model
     } catch (err) {
-      throw new ModelLoadingError(OOSIntentClassifier._name, err)
+      throw new ModelLoadingError(OOSIntentClassifier._displayName, err)
     }
   }
 
@@ -275,7 +280,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
   public async predict(utterance: Utterance): Promise<NoneableIntentPredictions> {
     if (!this.predictors) {
       if (!this.model) {
-        throw new Error(`${OOSIntentClassifier._name} must be trained before calling predict.`)
+        throw new Error(`${OOSIntentClassifier._displayName} must be trained before calling predict.`)
       }
 
       this.predictors = await this._makePredictors(this.model)
@@ -287,11 +292,9 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
 
     const exactPredictions = await exactIntenClassifier.predict(utterance)
 
-    const intentPredictions = _([...svmPredictions.intents, ...exactPredictions.intents])
-      .groupBy(p => p.name)
-      .mapValues(preds => _.maxBy(preds, p => p.confidence)!)
-      .values()
-      .value()
+    const intentPredictions = exactPredictions.oos
+      ? svmPredictions.intents // no exact match
+      : [...exactPredictions.intents, { name: NONE_INTENT, confidence: 0, extractor: exactIntenClassifier.name }]
 
     let oosPrediction = 0
     if (oosSvm) {

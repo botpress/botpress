@@ -29,8 +29,13 @@ const intents = [intent1, intent2]
 
 const dummyProgress = () => {}
 
+const isOneHot = (x: number[]) => {
+  const N = x.length
+  return x.filter(xi => xi === 1).length === 1 && x.filter(xi => xi === 0).length === N - 1
+}
+
 describe('Exact match intent classifier', () => {
-  test('when no match clf returns an empty array', async () => {
+  test('when no match clf returns all confidence 0 and oos 1', async () => {
     let exactMatchIntentClf = new ExactIntenClassifier()
     await exactMatchIntentClf.train(
       {
@@ -47,13 +52,13 @@ describe('Exact match intent classifier', () => {
     exactMatchIntentClf = new ExactIntenClassifier()
     await exactMatchIntentClf.load(model)
 
-    const { intents: prediction } = await exactMatchIntentClf.predict(makeTestUtterance('Some random string'))
+    const preds = await exactMatchIntentClf.predict(makeTestUtterance('Some random string'))
 
-    const actualValues = prediction.map(p => p.confidence)
-    expect(actualValues).toEqual([])
+    expect(preds.oos).toBe(1)
+    expect(preds.intents.some(i => i.confidence > 0)).toBe(false)
   })
 
-  test('when match clf returns length 1 vector', async () => {
+  test('when match clf returns one hot vector', async () => {
     let exactMatchIntentClf = new ExactIntenClassifier()
     await exactMatchIntentClf.train(
       {
@@ -77,10 +82,11 @@ describe('Exact match intent classifier', () => {
     ]
 
     for (const [u, i] of pairs) {
-      const { intents } = await exactMatchIntentClf.predict(makeTestUtterance(u))
+      const preds = await exactMatchIntentClf.predict(makeTestUtterance(u))
 
-      expect(intents.length).toBe(1)
-      expect(intents[0].confidence).toBe(1)
+      expect(preds.oos).toBe(0)
+      const confs = preds.intents.map(i => i.confidence)
+      expect(isOneHot(confs)).toBe(true)
     }
   })
 
@@ -113,9 +119,11 @@ describe('Exact match intent classifier', () => {
     ]
 
     for (const [u, i] of pairs) {
-      const { intents } = await exactMatchIntentClf.predict(makeTestUtterance(u))
-      expect(intents.length).toBe(1)
-      expect(intents[0].confidence).toBe(1)
+      const preds = await exactMatchIntentClf.predict(makeTestUtterance(u))
+
+      expect(preds.oos).toBe(0)
+      const confs = preds.intents.map(i => i.confidence)
+      expect(isOneHot(confs)).toBe(true)
     }
   })
 

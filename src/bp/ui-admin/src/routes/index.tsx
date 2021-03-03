@@ -4,7 +4,6 @@ import { Provider } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import { ConnectedRouter } from 'react-router-redux'
 import ChatAuthResult from '~/Pages/Account/ChatAuthResult'
-import Details from '~/Pages/Bot/Details'
 import { LoginContainer } from '~/Pages/Layouts/LoginContainer'
 import Logs from '~/Pages/Logs'
 import Alerting from '~/Pages/Server/Alerting'
@@ -93,7 +92,6 @@ export const makeMainRoutes = () => {
               <Route path="/server/debug" component={Debug} />
               <Route path="/server/license" component={LicenseStatus} />
               <Route path="/server/alerting" component={Alerting} />
-              <Route path="/workspace/:workspaceId?/bots/:botId" component={Details} />
               <Route path="/workspace/:workspaceId?/bots" component={Bots} />
               <Route path="/workspace/:workspaceId?/users" component={Collaborators} />
               <Route path="/workspace/:workspaceId?/roles" component={Roles} />
