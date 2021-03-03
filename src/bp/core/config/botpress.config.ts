@@ -271,7 +271,7 @@ export interface BotpressConfig {
   jwtToken: {
     /**
      * The duration for which the token granting access to manage Botpress will be active.
-     * @default 1Sh
+     * @default 1h
      */
     duration: string
     /**
