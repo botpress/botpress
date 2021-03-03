@@ -4,7 +4,6 @@ import _ from 'lodash'
 import {
   ContextPrediction,
   EntityPrediction,
-  EntityType,
   IntentDefinition,
   IntentPrediction,
   ListEntityDefinition,
@@ -36,7 +35,7 @@ interface BpIntentPred {
   label: string
   confidence: number
   slots: _.Dictionary<NLU.Slot>
-  extractor: 'exact-matcher' | 'classifier'
+  extractor: string
 }
 
 export const isListEntity = (e: ListEntityDefinition | PatternEntityDefinition): e is ListEntityDefinition => {
@@ -62,7 +61,6 @@ const makeIntentMapper = (ctx: string, lang: string) => (intent: IntentDefinitio
 
   return {
     contexts: [ctx],
-    filename: '',
     name,
     utterances: {
       [lang]: utterances
