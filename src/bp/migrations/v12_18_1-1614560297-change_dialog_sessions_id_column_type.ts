@@ -60,7 +60,9 @@ const migration: Migration = {
             table.primary(['id'])
           })
 
-          await trx.raw(`INSERT INTO ${TEMP_TABLE_NAME} SELECT * FROM ${TABLE_NAME};`)
+          await trx.raw(
+            `INSERT INTO ${TEMP_TABLE_NAME} SELECT id, context, temp_data, session_data, context_expiry, session_expiry, created_on, modified_on FROM ${TABLE_NAME};`
+          )
 
           await database.knex.schema.transacting(trx).dropTable(TABLE_NAME)
           await database.knex.schema.transacting(trx).renameTable(TEMP_TABLE_NAME, TABLE_NAME)
