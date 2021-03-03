@@ -8,9 +8,6 @@ const axios = require('axios');
  */
 const initUserAfterSelectCompany = async () => {
   try {
-
-    console.log(temp.usersMAP[event.payload.text])
-
     const req_user_data = temp.usersMAP[event.payload.text]
 
     const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true });
