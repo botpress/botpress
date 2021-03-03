@@ -34,10 +34,6 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
     modelCacheSize: bytes(modelCacheSize)
   }
 
-  const trainingQueueConfig: Partial<TrainingQueueOptions> = {
-    ...(maxTrainingPerInstance && { maxTraining: maxTrainingPerInstance })
-  }
-
   const logger = <sdk.NLU.Logger>{
     info: (msg: string) => bp.logger.info(msg),
     warning: (msg: string, err?: Error) => (err ? bp.logger.attachError(err).warn(msg) : bp.logger.warn(msg)),
@@ -66,7 +62,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
     botService,
     bp.distributed,
     socket,
-    trainingQueueConfig
+    { maxTraining: maxTrainingPerInstance }
   )
 
   const application = new NLUApplication(memoryTrainingQueue, engine, botFactory, botService, queueTrainingOnBotMount)
