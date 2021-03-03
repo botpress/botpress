@@ -10,7 +10,7 @@ import { BotFactory } from './application/bot-factory'
 import { BotService } from './application/bot-service'
 import { ScopedDefinitionsRepository } from './application/scoped/infrastructure/definitions-repository'
 import { ScopedModelRepository } from './application/scoped/infrastructure/model-repository'
-import { TrainingQueue } from './application/training-queue'
+import { TrainingQueue, TrainingQueueOptions } from './application/training-queue'
 import { TrainingRepository } from './application/training-repo'
 import { TrainingService } from './application/training-service'
 import { BotDefinition } from './application/typings'
@@ -18,12 +18,16 @@ import { BotDefinition } from './application/typings'
 export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
   const globalConfig: Config = await bp.config.getModuleConfig('nlu')
 
-  const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = globalConfig
+  const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize, maxTrainingPerInstance } = globalConfig
   const parsedConfig: sdk.NLU.Config = {
     languageSources,
     ducklingEnabled,
     ducklingURL,
     modelCacheSize: bytes(modelCacheSize)
+  }
+
+  const trainingQueueConfig: Partial<TrainingQueueOptions> = {
+    ...(maxTrainingPerInstance && { maxTraining: maxTrainingPerInstance })
   }
 
   const logger = <sdk.NLU.Logger>{
@@ -54,7 +58,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
     botService,
     bp.distributed,
     socket,
-    { maxTraining: globalConfig.maxTrainingPerInstance }
+    trainingQueueConfig
   )
 
   const application = new NLUApplication(memoryTrainingQueue, engine, botFactory, botService)
