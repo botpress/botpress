@@ -8,12 +8,17 @@ import { ITrainingQueue } from './training-queue'
 import { Predictor, BotConfig, TrainingSession, TrainingState, TrainingId } from './typings'
 
 export class NLUApplication {
+  private _queueTrainingOnBotMount: boolean
+
   constructor(
     private _trainingQueue: ITrainingQueue,
     private _engine: NLU.Engine,
     private _botFactory: IBotFactory,
-    private _botService: IBotService
-  ) {}
+    private _botService: IBotService,
+    queueTrainingOnBotMount: boolean = true
+  ) {
+    this._queueTrainingOnBotMount = queueTrainingOnBotMount
+  }
 
   public async initialize() {
     await this._trainingQueue.initialize()
@@ -67,7 +72,11 @@ export class NLUApplication {
     const loadOrSetTrainingNeeded = makeDirtyModelHandler(this._trainingQueue.needsTraining)
     defService.listenForDirtyModels(loadOrSetTrainingNeeded)
 
-    const loadModelOrQueue = makeDirtyModelHandler(this._trainingQueue.queueTraining)
+    const trainingHandler = this._queueTrainingOnBotMount
+      ? this._trainingQueue.queueTraining
+      : this._trainingQueue.needsTraining
+
+    const loadModelOrQueue = makeDirtyModelHandler(trainingHandler)
     for (const language of languages) {
       await loadModelOrQueue(language)
     }

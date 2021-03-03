@@ -37,12 +37,10 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
   if (!app) {
     throw new AppNotInitializedError()
   }
-
   const botConfig = await bp.bots.getBotById(botId)
   if (!botConfig) {
     throw new Error(`No config found for bot ${botId}`)
   }
-
   await app.mountBot(botConfig)
 }
 
