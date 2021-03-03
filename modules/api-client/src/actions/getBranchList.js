@@ -8,7 +8,7 @@ const { apiBranchListService } = require('@rdcdev/dbank-client');
  */
 const getBranchList = async () => {
   try {
-    const branches = await apiBranchListService.branchList();
+    const branches = await apiBranchListService.branches();
 
     const reduced = branches.reduce(
       (acc, branch) => `${acc} Name: ${branch.Name}\n`,
