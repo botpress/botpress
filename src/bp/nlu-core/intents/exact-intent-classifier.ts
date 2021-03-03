@@ -1,10 +1,10 @@
-import _ from 'lodash'
 import Joi, { validate } from 'joi'
+import _ from 'lodash'
+import { ModelLoadingError } from 'nlu-core/errors'
 import { Intent } from 'nlu-core/typings'
 import Utterance, { UtteranceToStringOptions } from 'nlu-core/utterance/utterance'
 
-import { IntentClassifier, IntentPredictions, IntentTrainInput } from './intent-classifier'
-import { ModelLoadingError } from 'nlu-core/errors'
+import { IntentTrainInput, NoneableIntentClassifier, NoneableIntentPredictions } from './intent-classifier'
 
 export interface Model {
   intents: string[]
@@ -32,9 +32,15 @@ export const modelSchema = Joi.object()
   .keys(schemaKeys)
   .required()
 
-export class ExactIntenClassifier implements IntentClassifier {
-  private static _name = 'Exact Intent Classifier'
+export class ExactIntenClassifier implements NoneableIntentClassifier {
+  private static _displayName = 'Exact Intent Classifier'
+  private static _name = 'exact-matcher'
+
   private model: Model | undefined
+
+  get name() {
+    return ExactIntenClassifier._name
+  }
 
   async train(trainInput: IntentTrainInput, progress: (p: number) => void) {
     const { intents } = trainInput
@@ -66,7 +72,7 @@ export class ExactIntenClassifier implements IntentClassifier {
 
   serialize() {
     if (!this.model) {
-      throw new Error(`${ExactIntenClassifier._name} must be trained before calling serialize.`)
+      throw new Error(`${ExactIntenClassifier._displayName} must be trained before calling serialize.`)
     }
     return JSON.stringify(this.model)
   }
@@ -77,25 +83,33 @@ export class ExactIntenClassifier implements IntentClassifier {
       const model: Model = await validate(raw, modelSchema)
       this.model = model
     } catch (err) {
-      throw new ModelLoadingError(ExactIntenClassifier._name, err)
+      throw new ModelLoadingError(ExactIntenClassifier._displayName, err)
     }
   }
 
-  async predict(utterance: Utterance): Promise<IntentPredictions> {
+  async predict(utterance: Utterance): Promise<NoneableIntentPredictions> {
     if (!this.model) {
-      throw new Error(`${ExactIntenClassifier._name} must be trained before calling predict.`)
+      throw new Error(`${ExactIntenClassifier._displayName} must be trained before calling predict.`)
     }
 
+    const { _name: extractor } = ExactIntenClassifier
+
     const { exact_match_index, intents: intentNames } = this.model
+
     const exactPred = this._findExactIntent(exact_match_index, utterance)
 
     if (exactPred) {
+      const oneHot = intentNames.map(name => ({ name, confidence: name === exactPred ? 1 : 0, extractor }))
       return {
-        intents: [{ name: exactPred, confidence: 1, extractor: 'exact-matcher' }]
+        oos: 0,
+        intents: oneHot
       }
     }
+
+    const zeros = intentNames.map(name => ({ name, confidence: 0, extractor }))
     return {
-      intents: []
+      oos: 1,
+      intents: zeros
     }
   }
 
