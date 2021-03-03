@@ -2,7 +2,6 @@ import MLToolkit from 'ml/toolkit'
 import path from 'path'
 import yn from 'yn'
 import * as NLU from '..'
-import { version } from '../package.json'
 import { DucklingEntityExtractor } from './entities/duckling-extractor'
 import { SystemEntityCacheManager } from './entities/entity-cache-manager'
 import { MicrosoftEntityExtractor } from './entities/microsoft-extractor'
@@ -11,6 +10,8 @@ import { getPOSTagger, tagSentence } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
 import SeededLodashProvider from './tools/seeded-lodash'
 import { LanguageProvider, SystemEntityExtractor, Tools } from './typings'
+
+const NLU_VERSION = '2.1.0' // TODO: require from package.json instead
 
 const healthGetter = (languageProvider: LanguageProvider) => (): NLU.Health => {
   const { validProvidersCount, validLanguages } = languageProvider.getHealth()
@@ -26,7 +27,7 @@ const versionGetter = (languageProvider: LanguageProvider) => (): NLU.Specificat
   const { dim, domain, version } = langServerInfo
 
   return {
-    nluVersion: version,
+    nluVersion: NLU_VERSION,
     languageServer: {
       dimensions: dim,
       domain,
@@ -44,7 +45,7 @@ const initializeLanguageProvider = async (
     const languageProvider = await LangProvider.initialize(
       config.languageSources,
       logger,
-      version,
+      NLU_VERSION,
       seededLodashProvider
     )
     const getHealth = healthGetter(languageProvider)
