@@ -41,7 +41,7 @@ export interface Config {
   maxTrainingPerInstance?: number
 
   /**
-   * Whether or not to start bots that require training on mount
+   * Whether or not to train bots that require training on mount
    * @default true
    * @optional
    */
