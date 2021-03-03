@@ -74,7 +74,7 @@ export const makeDependencies = (
 
 export const makeApp = (
   dependencies: AppDependencies,
-  options: Partial<TrainingQueueOptions & TrainingServiceOptions> = {}
+  options: Partial<TrainingQueueOptions & TrainingServiceOptions & { queueTrainingOnBotMount?: boolean }> = {}
 ) => {
   const { socket, engine, errors, logger, defRepoByBot, modelRepoByBot, trainingRepo, distributed } = dependencies
 
@@ -95,7 +95,7 @@ export const makeApp = (
     options
   )
 
-  return new NLUApplication(trainingQueue, engine, botFactory, botService)
+  return new NLUApplication(trainingQueue, engine, botFactory, botService, options.queueTrainingOnBotMount)
 }
 
 export const waitForTrainingsToBeDone = async (app: NLUApplication) => {

@@ -745,19 +745,16 @@ describe('NLU API integration tests', () => {
     const core = { languages: [lang], specs }
     const dependencies = makeDependencies(core, fileSystem)
 
-    const app = makeApp(dependencies)
+    const app = makeApp(dependencies, { queueTrainingOnBotMount: false })
     const engineTrainSpy = jest.spyOn(dependencies.engine, 'train')
 
     // act
     await app.initialize()
-    await app.mountBot(
-      {
-        id: botId,
-        defaultLanguage: lang,
-        languages: [lang]
-      },
-      false
-    )
+    await app.mountBot({
+      id: botId,
+      defaultLanguage: lang,
+      languages: [lang]
+    })
 
     // assert
     expect(engineTrainSpy).toHaveBeenCalledTimes(0)
