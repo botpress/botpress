@@ -36,6 +36,14 @@ export interface Config {
   /**
    * Maximum number of concurrent trainings per Botpress instance
    * @default 2
+   * @optional
    */
-  maxTrainingPerInstance: number
+  maxTrainingPerInstance?: number
+
+  /**
+   * Whether or not to start bots that require training on mount
+   * @default true
+   * @optional
+   */
+  queueTrainingOnBotMount?: boolean
 }

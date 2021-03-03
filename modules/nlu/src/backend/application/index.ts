@@ -50,7 +50,7 @@ export class NLUApplication {
     return bot
   }
 
-  public mountBot = async (botConfig: BotConfig) => {
+  public mountBot = async (botConfig: BotConfig, autoQueueTrainings: boolean = true) => {
     const { id: botId, languages } = botConfig
     const { bot, defService, modelRepo } = await this._botFactory.makeBot(botConfig)
     this._botService.setBot(botId, bot)
@@ -67,7 +67,9 @@ export class NLUApplication {
     const loadOrSetTrainingNeeded = makeDirtyModelHandler(this._trainingQueue.needsTraining)
     defService.listenForDirtyModels(loadOrSetTrainingNeeded)
 
-    const loadModelOrQueue = makeDirtyModelHandler(this._trainingQueue.queueTraining)
+    const trainingHandler = autoQueueTrainings ? this._trainingQueue.queueTraining : this._trainingQueue.needsTraining
+
+    const loadModelOrQueue = makeDirtyModelHandler(trainingHandler)
     for (const language of languages) {
       await loadModelOrQueue(language)
     }

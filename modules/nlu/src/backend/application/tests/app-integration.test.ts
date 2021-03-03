@@ -721,4 +721,47 @@ describe('NLU API integration tests', () => {
 
     await app.teardown()
   })
+
+  test('When bot is mounted, no training is queued when queueTrainingOnBotMount is false', async () => {
+    // arrange
+    const lang = 'en'
+
+    const definitions = makeBaseDefinitions([lang])
+
+    const modelId = modelIdService.makeId({
+      ...definitions,
+      languageCode: lang,
+      seed: nluSeed,
+      specifications: specs
+    })
+
+    const fileSystem = {
+      [botId]: {
+        definitions,
+        modelsOnFs: [modelId]
+      }
+    }
+
+    const core = { languages: [lang], specs }
+    const dependencies = makeDependencies(core, fileSystem)
+
+    const app = makeApp(dependencies)
+    const engineTrainSpy = jest.spyOn(dependencies.engine, 'train')
+
+    // act
+    await app.initialize()
+    await app.mountBot(
+      {
+        id: botId,
+        defaultLanguage: lang,
+        languages: [lang]
+      },
+      false
+    )
+
+    // assert
+    expect(engineTrainSpy).toHaveBeenCalledTimes(0)
+    expect(dependencies.socket).toHaveBeenCalledWith(expectTs({ botId, status: 'needs-training' }))
+    expect(dependencies.socket).not.toHaveBeenCalledWith(expectTs({ botId, status: 'training-pending' }))
+  })
 })
