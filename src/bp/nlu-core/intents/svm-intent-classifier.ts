@@ -1,11 +1,11 @@
 import { MLToolkit, NLU } from 'botpress/sdk'
-import _ from 'lodash'
 import Joi, { validate } from 'joi'
+import _ from 'lodash'
+import { ModelLoadingError } from 'nlu-core/errors'
 import { ListEntityModel, PatternEntity, Tools } from 'nlu-core/typings'
 import Utterance from 'nlu-core/utterance/utterance'
 
 import { IntentClassifier, IntentPredictions, IntentTrainInput } from './intent-classifier'
-import { ModelLoadingError } from 'nlu-core/errors'
 
 type Featurizer = (u: Utterance, entities: string[]) => number[]
 export interface Model {
@@ -36,12 +36,17 @@ export const modelSchema = Joi.object()
   .required()
 
 export class SvmIntentClassifier implements IntentClassifier {
-  private static _name = 'SVM Intent Classifier'
+  private static _displayName = 'SVM Intent Classifier'
+  private static _name = 'svm-classifier'
 
   private model: Model | undefined
   private predictors: Predictors | undefined
 
   constructor(private tools: Tools, private featurizer: Featurizer, private logger?: NLU.Logger) {}
+
+  get name() {
+    return SvmIntentClassifier._name
+  }
 
   async train(input: IntentTrainInput, progress: (p: number) => void): Promise<void> {
     const { intents, nluSeed, list_entities, pattern_entities } = input
@@ -86,7 +91,7 @@ export class SvmIntentClassifier implements IntentClassifier {
 
   serialize(): string {
     if (!this.model) {
-      throw new Error(`${SvmIntentClassifier._name} must be trained before calling serialize.`)
+      throw new Error(`${SvmIntentClassifier._displayName} must be trained before calling serialize.`)
     }
     return JSON.stringify(this.model)
   }
@@ -98,7 +103,7 @@ export class SvmIntentClassifier implements IntentClassifier {
       this.predictors = this._makePredictors(model)
       this.model = model
     } catch (err) {
-      throw new ModelLoadingError(SvmIntentClassifier._name, err)
+      throw new ModelLoadingError(SvmIntentClassifier._displayName, err)
     }
   }
 
@@ -114,7 +119,7 @@ export class SvmIntentClassifier implements IntentClassifier {
   async predict(utterance: Utterance): Promise<IntentPredictions> {
     if (!this.predictors) {
       if (!this.model) {
-        throw new Error(`${SvmIntentClassifier._name} must be trained before calling predict.`)
+        throw new Error(`${SvmIntentClassifier._displayName} must be trained before calling predict.`)
       }
 
       this.predictors = this._makePredictors(this.model)
