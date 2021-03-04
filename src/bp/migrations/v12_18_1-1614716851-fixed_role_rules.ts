@@ -48,10 +48,10 @@ const migration: sdk.ModuleMigration = {
       originalWorkspaces = await service.getWorkspaces()
     } catch (err) {
       if (err.code === 'ENOENT') {
-        return { success: true, message: 'Nothing to migrate' }
+        return { success: true, message: 'No Workspaces to migrate' }
       } else {
         bp.logger.attachError(err).error('Error reading workspaces.json')
-        return { success: false, message: 'Could not migrate roles' }
+        return { success: false, message: 'Could not migrate workspace roles' }
       }
     }
 
@@ -61,8 +61,10 @@ const migration: sdk.ModuleMigration = {
 
     if (!_.isEqual(originalWorkspaces, alteredWorkspaces)) {
       await service.save(alteredWorkspaces)
+      return { success: true, message: 'Workspaces agent and editor roles have been changed' }
+    } else {
+      return { success: true, message: 'No Workspaces to migrate' }
     }
-    return { success: true, message: 'Configuration updated successfully' }
   }
 }
 
