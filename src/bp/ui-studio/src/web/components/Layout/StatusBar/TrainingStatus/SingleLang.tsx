@@ -4,6 +4,7 @@ import { NLU } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, useEffect, useState } from 'react'
+import { AccessControl } from '~/components/Shared/Utils'
 
 import style from './style.scss'
 
@@ -85,22 +86,24 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
           {message}
         </span>
 
-        {status === 'needs-training' && (
-          <Button minimal className={style.button} onClick={onTrainClicked} disabled={loading}>
-            {lang.tr('statusBar.trainChatbot')}
-          </Button>
-        )}
         {status === 'training-pending' && (
           <div className={style.trainStatus_pending}>
             <span className={cx(style.trainStatus_pending, style.text)}>{lang.tr('statusBar.trainingPending')}</span>
             <Spinner size={5} />
           </div>
         )}
-        {status === 'training' && (
-          <Button minimal className={cx(style.button, style.danger)} onClick={onCancelClicked} disabled={loading}>
-            {lang.tr('statusBar.cancelTraining')}
-          </Button>
-        )}
+        <AccessControl resource="bot.training" operation="write">
+          {status === 'needs-training' && (
+            <Button minimal className={style.button} onClick={onTrainClicked} disabled={loading}>
+              {lang.tr('statusBar.trainChatbot')}
+            </Button>
+          )}
+          {status === 'training' && (
+            <Button minimal className={cx(style.button, style.danger)} onClick={onCancelClicked} disabled={loading}>
+              {lang.tr('statusBar.cancelTraining')}
+            </Button>
+          )}
+        </AccessControl>
       </div>
     )
   }

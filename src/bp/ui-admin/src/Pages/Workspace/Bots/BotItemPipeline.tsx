@@ -114,6 +114,7 @@ const BotItemPipeline: FC<Props> = ({
                   text={lang.tr('admin.workspace.bots.item.config')}
                   icon="cog"
                   id="btn-config"
+                  href={`${botStudioLink}/config`}
                   onClick={() => history.push(`bots/${bot.id}`)}
                 />
                 <MenuItem
