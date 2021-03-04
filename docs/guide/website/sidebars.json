@@ -1,7 +1,7 @@
 {
   "docs": {
     "Release Notes": ["releases/migrate"],
-    "Getting Started": ["installation", "quickstart"],
+    "Getting Started": ["introduction", "installation", "quickstart"],
     "Main Concepts": [
       "main/overview",
       "main/glossary",
