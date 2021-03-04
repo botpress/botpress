@@ -8,27 +8,7 @@ const axios = require('axios');
  */
 const initUserAfterSelectCompany = async () => {
   try {
-    event.payload.payload = event.payload.payload.replace(`"NEEDADDAUTH":FALSE`, `"NEEDADDAUTH":"FALSE"`)
-    event.payload.payload = event.payload.payload.replace(`"NEEDADDAUTH":TRUE`, `"NEEDADDAUTH":"TRUE"`)
-
-    const parsed = JSON.parse(event.payload.payload);
-
-    const eventPayload = {
-      ID: parsed.ID,
-      Type: parsed.TYPE,
-      CustomerID: parsed.CUSTOMERID,
-      RoleID: parsed.ROLEID,
-    };
-
-    const req_user_data = {
-
-      SessionID: temp.authData.SessionID,
-      SessionSalt: temp.authData.SessionSalt,
-      token: temp.authData.token,
-
-      ...eventPayload,
-
-    };
+    const req_user_data = temp.usersMAP[event.payload.text]
 
     const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true });
     await axios.post(

@@ -8,17 +8,12 @@ const { apiAuthService } = require('@rdcdev/dbank-client')
  */
 const selectAuthMethod = async () => {
   try {
-    event.payload.payload = event.payload.payload.replace(`"NEEDADDAUTH":FALSE`, `"NEEDADDAUTH":"FALSE"`)
-    event.payload.payload = event.payload.payload.replace(`"NEEDADDAUTH":TRUE`, `"NEEDADDAUTH":"TRUE"`)
-
-    const parsed = JSON.parse(event.payload.payload);
-
     const choice = {
-      Type: parsed.TYPE,
-      Reference: parsed.REFERENCE,
-      Label: parsed.LABEL,
-      Description: parsed.DESCRIPTION,
-      Icon: parsed.ICON,
+      Type: temp.choiceMAP[event.payload.text].Type,
+      Reference: temp.choiceMAP[event.payload.text].Reference,
+      Label: temp.choiceMAP[event.payload.text].Label,
+      Description: temp.choiceMAP[event.payload.text].Description,
+      Icon: temp.choiceMAP[event.payload.text].Icon,
     }
 
     await apiAuthService.selectAuthMethod({
@@ -32,7 +27,6 @@ const selectAuthMethod = async () => {
 
     temp.choice = choice
   } catch (e) {
-    console.log(e)
     const sessionId = bp.dialog.createId(event)
     await bp.dialog.jumpTo(sessionId, event, 'error.flow.json', e.httpCode)
   }

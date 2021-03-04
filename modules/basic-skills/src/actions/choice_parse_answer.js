@@ -15,6 +15,7 @@ const validateChoice = async data => {
   const config = await bp.config.getModuleConfigForBot('basic-skills', event.botId)
   const nb = _.get(event.preview && event.preview.match(/^[#).!]?([\d]{1,2})[#).!]?$/), '[1]')
 
+  const lcstr = value => (typeof value === 'string' ? value.toLowerCase() : '')
   if (config.matchNumbers && nb) {
     const index = parseInt(nb) - 1
     const element = await bp.cms.getContentElement(event.botId, data.contentId)
@@ -31,7 +32,6 @@ const validateChoice = async data => {
   }
 
   if (!choice) {
-    const lcstr = value => (typeof value === 'string' ? value.toLowerCase() : '')
     const preview = lcstr(event.preview)
     const userText = lcstr(event.payload && event.payload.text)
     const choiceValue = lcstr(event.payload && event.payload.payload)
@@ -52,6 +52,12 @@ const validateChoice = async data => {
   }
 
   const keySuffix = args.randomId ? `-${args.randomId}` : ''
+
+  if (!choice && event.channel === 'telegram') {
+    const element = await bp.cms.getContentElement(event.botId, data.contentId)
+    choice = (element.formData[`choices$${user.language || 'en'}`].find(({ title }) => title === event.preview)).value
+  }
+
   if (choice) {
     temp[`skill-choice-valid${keySuffix}`] = true
     temp[`skill-choice-ret${keySuffix}`] = choice
