@@ -40,6 +40,10 @@ export class TrainingService {
     this._taskHandle = setInterval(this._runTask, this._config.jobInterval ?? JOB_INTERVAL)
   }
 
+  public get repository(): ITrainingRepository {
+    return this._trainingRepo
+  }
+
   public async teardown(): Promise<void> {
     clearInterval(this._taskHandle)
   }

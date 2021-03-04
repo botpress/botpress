@@ -5,6 +5,7 @@ import { IBotFactory } from './bot-factory'
 import { IBotService } from './bot-service'
 import { BotNotMountedError } from './errors'
 import { ITrainingQueue } from './training-queue'
+import { ITrainingRepository } from './training-repo'
 import { Predictor, BotConfig, TrainingSession, TrainingState, TrainingId } from './typings'
 
 export class NLUApplication {
@@ -22,6 +23,10 @@ export class NLUApplication {
 
   public async initialize() {
     await this._trainingQueue.initialize()
+  }
+
+  public get repository(): ITrainingRepository {
+    return this._trainingQueue.service.repository
   }
 
   public teardown = async () => {
