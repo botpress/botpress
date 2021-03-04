@@ -137,7 +137,7 @@ Messenger will use a webhook that you'll need to register to communicate with yo
 
 ### Greeting Text
 ```json
-"greeting": "Hello, I'm your bot!"
+"greeting": "Hello, I'm your chatbot!"
 ```
 
 Your bot's Messenger profile's greeting property allows you to specify the greeting message people will see on your bot's welcome screen. Your chatbot will display the welcome screen for people interacting with your chatbot for the first time.
