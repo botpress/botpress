@@ -1,40 +1,39 @@
 ---
 id: introduction
-title: Introduction
+title: About Botpress
 ---
-
-## Introduction
-Building chatbots is a new, exciting challenge for most developers. Creating software that holds a conversation and responds naturally to humans is a thrilling possibility, and Botpress is turning this into reality. 
-
-The problem is that you wouldn't want to spend hundreds of hours learning and putting together all the infrastructure and boilerplate code required to get a conversational backend up and running. Luckily, you don't have to.
 
 ## What is Botpress
 
-> A **lightweight**, **fast**, and **flexible** chatbot building framework that you can host anywhere, whether it be on the cloud or on-premise.
+> Botpress is an open-source platform for developers to build high-quality digital assistants.
 
-Botpress is a complete platform that ships with all the tools you need to build, deploy and manage production-grade bots in record time. Here are some of the components that are installed by default:
-
-- An **NLU Engine** for intent detection and variable extraction.
-- An **administration interface** that can be viewed from a browser, to manage and monitor your instances, bots and users.
-- A **visual workflow builder** to create conversation flow and workflow automations.
-- A **chat emulator/debugger** to simulate conversations and debug your chatbot.
-- Support for **popular messaging channels** like Facebook Messenger, Slack, Telegram, Microsoft Teams, and others.
+We make building chatbots much easier for developers. We have put together the boilerplate code and infrastructure you need to get a chatbot up and running. We propose you a complete dev-friendly platform that ships with all the tools you need to build, deploy and manage production-grade chatbots in record time. The platform includes:
+- Built-in **Natural Language Processing** tasks such as intent recognition, spell checking, entity extraction, and slot tagging (and many others)
+- A **visual conversation editor** to design multi-turn conversations and workflows.
+- An **emulator & a debugger** to simulate conversations and debug your chatbot
+- Support for **popular messaging channels** like Slack, Telegram, MS Teams, Facebook Messenger, and an embeddable web chat.
+- An **SDK and code editor** to extend the capabilities
+- **Post-deployment tools** like analytics dashboards, human handoff
+And more… (Complete Features Overview)[botpress.com/features/overview]
 
 ## Why Botpress
-
 Botpress has many advantages over other platforms and frameworks:
+- It is **cloud-agnostic**, therefore you can run it on the cloud platform or the on-premise infrastructure of your choice, giving you **full control over your data privacy.**
+- The core of the Botpress platform is **open-source** with thousands of GitHub contributors and stargazers, and a thriving community forum.
+- The platform offers a **great developer experience** by being remarkably flexible, easy to use, and fast.
+Support for **multiple languages**, including French, Arabic, Spanish, and 100 more
+- **No vendor lock-in**
 
-- It runs **fully on-premise**, so you can host it on a server of your choice, giving you full control over the data that comes in and out.
-The Botpress platform's core is **open-source** with thousands of GitHub contributors and will be free forever.
-- The platform is extremely **flexible** and developer-friendly.
-- **Zero** external dependencies, making it the only fully featured chatbot building platform
+Most importantly, our platform has proven to deliver a better conversational experience to end-users. 
 
-## How to build a chatbot
+## With Botpress You Can
+**Automate Workflows**: This is a real customer story; you can automate the workflow of applying for a Mortgage by gathering the information you need from potential customers through a chat on your website.
 
-There are three main steps involved in creating chatbots.
+**Support your customer 24/7**: If someone is not behind your Facebook Messenger, your customer is most likely not gonna get the answer they need and he might go to a different business. A chatbot can answer your customer’s questions even when you are asleep.
 
-Developers start by **Building** a chatbot, which consists of adding the required messaging channels, integrating the necessary backend components and applications your chatbot will need to interact with, and creating conversation workflows.
+**Allow employees to self-serve**: The classic example is resetting a password. Some people are required to ask a system administrator or an IT person to reset their password when they get logged out of their email. The truth is they could just ask in Slack for a password reset and it could take care of itself.
 
-Once done, you'll need to **Deploy** your chatbot somewhere, which could be on a cloud server or on-premise.
+**Create a conversational interface for an application**: Some applications are better delivered with a GUI, but in other cases, a conversational interface is simply a better option. It’s just really natural for someone to ask in plain English rather than browsing an interface. ‘’Hey, I am looking for a training plan for my next marathon’’
 
-Finally, you'll give other people access to your chatbot so they can **Manage** it once it is in use. Managing a chatbot entails analyzing the conversations, refining the conversational experience by building new workflows, and making it smarter by continuously improving the NLU.
+## Who else uses Botpress?
+Botpress has been deployed in production thousands of times across 4 continents. A wide range of companies, including digital agencies, Fortune 500 organizations, governments, and startups are building digital assistants with Botpress Platform.
