@@ -214,7 +214,11 @@ export const Checklist: FC<Props> = props => {
           title="Enable Cookie storage for the JWT Token"
           docs="https://botpress.com/docs/advanced/authentication/#storage-of-the-user-token"
           status={getConfig('jwtToken.useCookieStorage') === 'true' ? 'success' : 'warning'}
-          source={[{ type: 'config', key: 'jwtToken.useCookieStorage', value: getConfig('jwtToken.useCookieStorage') }]}
+          source={[
+            { type: 'config', key: 'jwtToken.useCookieStorage', value: getConfig('jwtToken.useCookieStorage') },
+            { type: 'config', key: 'jwtToken.cookieOptions', value: getConfig('jwtToken.cookieOptions') },
+            { type: 'config', key: 'httpServer.cors.credentials', value: getConfig('httpServer.cors.credentials') }
+          ]}
         >
           Storing the token in cookies adds an additional layer of security for the user's session. The CORS policy must
           be configured beforehand. Please refer to the documentation before enabling this feature.

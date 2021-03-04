@@ -71,7 +71,7 @@ const createClient = (clientOptions: any, options: { toastErrors?: boolean }) =>
 }
 
 const overrideApiUrl = process.env.REACT_APP_API_URL
-  ? { baseURL: `${process.env.REACT_APP_API_URL}/api/v1` }
+  ? { baseURL: `${process.env.REACT_APP_API_URL}api/v1` }
   : { baseURL: `${window['ROOT_PATH']}/api/v1` }
 
 export default {
