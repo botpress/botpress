@@ -1638,6 +1638,8 @@ declare module 'botpress/sdk' {
 
   export interface MigrationResult {
     success: boolean
+    /** Indicates if the migration had to be executed  */
+    hasChanges?: boolean
     message?: string
   }
 

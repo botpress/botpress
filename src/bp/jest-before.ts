@@ -15,6 +15,8 @@ if (!process.BOTPRESS_EVENTS) {
   process.BOTPRESS_EVENTS = new EventEmitter()
 }
 
+process.APP_DATA_PATH = ''
+
 const distribution =
   os !== 'linux'
     ? {
