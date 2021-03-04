@@ -138,7 +138,7 @@ const addTrainingServiceRoutes = (
   app: NLUApplication,
   errorMapper: (err: { botId: string; lang: string; error: Error }, res: Response) => Response
 ) => {
-  const repo = app.repository
+  const repo = app.trainRepository
   const SUBROUTE_NAME = 'trainrepo'
 
   router.get(`/${SUBROUTE_NAME}/trainings`, async (req, res) => {

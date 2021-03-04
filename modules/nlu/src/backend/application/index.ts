@@ -25,7 +25,7 @@ export class NLUApplication {
     await this._trainingQueue.initialize()
   }
 
-  public get repository(): ITrainingRepository {
+  public get trainRepository(): ITrainingRepository {
     return this._trainingQueue.service.repository
   }
 
