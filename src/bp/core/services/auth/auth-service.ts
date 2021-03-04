@@ -13,6 +13,7 @@ import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
+import nanoid from 'nanoid'
 
 import { AuthPayload, AuthStrategyConfig, ChatUserAuth, TokenUser } from '../../../common/typings'
 import { Resource } from '../../misc/resources'
@@ -24,6 +25,7 @@ import { EventEngine } from '../middleware/event-engine'
 import { WorkspaceService } from '../workspace-service'
 
 import StrategyBasic from './basic'
+import { InvalidCredentialsError } from './errors'
 import { generateUserToken } from './util'
 
 export const TOKEN_AUDIENCE = 'collaborators'
@@ -349,5 +351,21 @@ export default class AuthService {
     }
 
     return sendEvent({ authenticatedUntil, isAuthorized: isMember || isSuperAdmin })
+  }
+
+  public async resetApiKey(email: string, strategy: string): Promise<string> {
+    const apiKey = nanoid(50)
+    await this.users.updateUser(email, strategy, { apiKey })
+
+    return apiKey
+  }
+
+  public async generateApiToken(email: string, strategy: string, apiKey: string) {
+    const user = await this.findUser(email, strategy)
+    if (!user || user.apiKey !== apiKey) {
+      throw new InvalidCredentialsError('Invalid email, strategy or API Key')
+    }
+
+    return this.generateSecureToken(email, strategy)
   }
 }

@@ -273,6 +273,19 @@ export interface BotpressConfig {
      * @default true
      */
     allowRefresh: boolean
+
+    apiKey: {
+      /**
+       * Allow logged-on users to generate an API Key, which can then be used to obtain a JWT Token
+       * @default false
+       */
+      enabled: boolean
+      /**
+       * Once this delay is elapsed, the API Key is considered invalid and must be changed
+       * @default 30d
+       */
+      keyExpiry: string
+    }
   }
   /**
    * When enabled, a bot revision will be stored in the revisions directory when it change or its about to change stage

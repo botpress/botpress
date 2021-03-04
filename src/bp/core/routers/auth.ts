@@ -192,6 +192,41 @@ export class AuthRouter extends CustomRouter {
         res.sendStatus(200)
       })
     )
+
+    router.get(
+      '/apiKey',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req: RequestWithUser, res) => {
+        const { email, strategy } = req.tokenUser!
+        const user = await this.authService.findUser(email, strategy)
+
+        res.send({ apiKey: user?.apiKey })
+      })
+    )
+
+    router.post(
+      '/apiKey/reset',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req: RequestWithUser, res) => {
+        const { email, strategy } = req.tokenUser!
+        const apiKey = await this.authService.resetApiKey(email, strategy)
+
+        res.send({ apiKey })
+      })
+    )
+
+    router.post(
+      '/generateToken',
+      this.asyncMiddleware(async (req: RequestWithUser, res) => {
+        const { email, strategy, apiKey } = req.body
+        if (!email || !strategy || !apiKey) {
+          return res.status(400).send('You must provide a value for each fields (email, strategy and apiKey)')
+        }
+
+        const token = this.authService.generateApiToken(email, strategy, apiKey)
+        res.send({ token })
+      })
+    )
   }
 
   getUserPermissions = async (user: TokenUser, workspaceId: string): Promise<AuthRule[]> => {

@@ -38,6 +38,8 @@ declare module 'botpress/sdk' {
     password?: string
     salt?: string
     tokenVersion: number
+    /** The API key allows a user to obtain a valid JWT token to query various endpoints */
+    apiKey?: string
   } & UserInfo
 
   export interface UserInfo {
