@@ -9,7 +9,7 @@ title: About Botpress
 
 We make building chatbots much easier for developers. We have put together the boilerplate code and infrastructure you need to get a chatbot up and running. We propose you a complete dev-friendly platform that ships with all the tools you need to build, deploy and manage production-grade chatbots in record time. The platform includes:
 - Built-in **Natural Language Processing** tasks such as intent recognition, spell checking, entity extraction, and slot tagging (and many others)
-- A **visual conversation editor** to design multi-turn conversations and workflows.
+- A **visual conversation studio** to design multi-turn conversations and workflows.
 - An **emulator & a debugger** to simulate conversations and debug your chatbot
 - Support for **popular messaging channels** like Slack, Telegram, MS Teams, Facebook Messenger, and an embeddable web chat.
 - An **SDK and code editor** to extend the capabilities
