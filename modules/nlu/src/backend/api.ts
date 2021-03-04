@@ -6,7 +6,7 @@ import yn from 'yn'
 
 import { NLUApplication } from './application'
 import { BotDoesntSpeakLanguageError, BotNotMountedError } from './application/errors'
-import { TrainingSession, TrainingState } from './application/typings'
+import { TrainingSession } from './application/typings'
 import legacyElectionPipeline from './election/legacy-election'
 import { NLUProgressEvent } from './typings'
 
@@ -122,6 +122,17 @@ export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
   addTrainingServiceRoutes(router, app, mapError)
 }
 
+const trainingStatusSchema = Joi.object().keys({
+  status: Joi.string()
+    .valid(['idle', 'done', 'needs-training', 'training-pending', 'training', 'canceled', 'errored'])
+    .required(),
+  progress: Joi.number()
+    .default(0)
+    .min(0)
+    .max(1)
+    .required()
+})
+
 const addTrainingServiceRoutes = (
   router: sdk.http.RouterExtension,
   app: NLUApplication,
@@ -166,17 +177,6 @@ const addTrainingServiceRoutes = (
     res.status(200).send()
   })
 }
-
-const trainingStatusSchema = Joi.object().keys({
-  status: Joi.string()
-    .valid(['idle', 'done', 'needs-training', 'training-pending', 'training', 'canceled', 'errored'])
-    .required(),
-  progress: Joi.number()
-    .default(0)
-    .min(0)
-    .max(1)
-    .required()
-})
 
 export const removeRouter = (bp: typeof sdk) => {
   bp.http.deleteRouterForBot(ROUTER_ID)
