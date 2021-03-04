@@ -1630,7 +1630,8 @@ declare module 'botpress/sdk' {
      */
     baseURL: string
     headers: {
-      Authorization: string
+      'CSRF-Token'?: string
+      Authorization?: string
       'X-BP-Workspace'?: string
     }
   }

@@ -56,6 +56,7 @@ declare namespace NodeJS {
     DISABLE_CONTENT_SANDBOX: boolean
     WEB_WORKER: number
     TRAINING_WORKERS: number[]
+    USE_JWT_COOKIES: boolean
   }
 }
 

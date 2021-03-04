@@ -1,4 +1,5 @@
 import { ConverseConfig } from 'botpress/sdk'
+import { CookieOptions } from 'express'
 import { Algorithm } from 'jsonwebtoken'
 
 import { ActionServer, UniqueUser } from '../../common/typings'
@@ -102,12 +103,17 @@ export interface BotpressConfig {
      * @default 10mb
      */
     bodyLimit: string | number
+    /**
+     * CORS policy for the server. You can provide other configuration parameters
+     * listed on this page: https://expressjs.com/en/resources/middleware/cors.html
+     */
     cors: {
       /**
        * @default true
        */
       enabled?: boolean
       origin?: string
+      credentials?: boolean
     }
     /**
      * Represents the complete base URL exposed externally by your bot. This is useful if you configure the bot
@@ -282,7 +288,7 @@ export interface BotpressConfig {
   jwtToken: {
     /**
      * The duration for which the token granting access to manage Botpress will be active.
-     * @default 6h
+     * @default 1h
      */
     duration: string
     /**
@@ -290,6 +296,16 @@ export interface BotpressConfig {
      * @default true
      */
     allowRefresh: boolean
+    /**
+     * Use an HTTP-Only secure cookie instead of the local storage for the JWT Token
+     * @default false
+     */
+    useCookieStorage: boolean
+    /**
+     * Configure the options of the cookie sent to the user, for example the domain
+     * @default {}
+     */
+    cookieOptions?: CookieOptions
   }
   /**
    * When enabled, a bot revision will be stored in the revisions directory when it change or its about to change stage
