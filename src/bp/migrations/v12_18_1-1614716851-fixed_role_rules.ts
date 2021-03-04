@@ -37,7 +37,7 @@ const alterWorkspaceRoleRules = (ws: Workspace, roleID: string, newRules: AuthRu
 
 const migration: sdk.ModuleMigration = {
   info: {
-    description: 'Alter some role rules in order to prevenr users with low permissions to perform actions',
+    description: 'Alter some role rules in order to prevent users with low permissions to perform actions',
     target: 'core',
     type: 'content'
   },
