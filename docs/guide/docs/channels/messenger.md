@@ -17,7 +17,7 @@ You require if you do not already have a Facebook page to link your chatbot. [Yo
 
 To link your chatbot to a pre-existing page, you must have an administrator or developer role.
 
-### HTTPS Endpoint to your bot
+### HTTPS Endpoint to your chatbot
 Facebook only integrates its apps and services to secured endpoints. Below are tutorials to help you create an HTTPS endpoint if you do not have one:
   
   - Create an HTTPS tunnel to your machine using Ngrok. [**Tutorial**](https://api.slack.com/tutorials/tunneling-with-ngrok)
