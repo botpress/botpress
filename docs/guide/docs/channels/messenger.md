@@ -126,7 +126,7 @@ Read the [config definition file](https://github.com/botpress/botpress/blob/mast
 > All changes to the configuration will take effect on `onBotMount`. To refresh the at runtime, you can disable and enable the bot again without restarting the server.
 
 ### Facebook Webhook
-Messenger will use a webhook that you'll need to register to communicate with your bot.
+Messenger will use a webhook that you'll need to register to communicate with your chatbot.
 
 1. In your Facebook app, go to Products > Messenger > Settings > Webhooks > Setup Webhooks
 2. Under Callback URL, enter your secured public URL and make sure to point to the `/webhook` endpoint.
