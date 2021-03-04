@@ -1,4 +1,4 @@
-const { apiAccountService } = require('@rdcdev/dbank-client');
+const { apiAccountService, AccountType } = require('@rdcdev/dbank-client');
 
 /**
  * Account list
@@ -8,7 +8,7 @@ const { apiAccountService } = require('@rdcdev/dbank-client');
  */
 const getAccounts = async () => {
   try {
-    const accounts = await apiAccountService.accounts(user.req_user_data);
+    const accounts = await apiAccountService.accounts({ ...user.req_user_data, ID: null }, AccountType.Account);
 
     const reduced = accounts.reduce(
       (acc, account) => `${acc} CODE: ${account.Code} " ${account.Currency} ${account.Available} " \n`,

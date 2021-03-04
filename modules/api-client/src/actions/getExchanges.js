@@ -11,7 +11,8 @@ const moment = require('moment');
 const getExchanges = async (rateType) => {
   try {
     const exchange = (await apiExchangeService.exchange({
-      rateDate: moment().format('DD/MM/YYYY'),
+      // rateDate: moment().format('DD/MM/YYYY'),
+      rateDate: '17/01/2021',
       customerId: user.req_user_data.CustomerID
     }))
       .filter(({RateType}) => RateType === +rateType)

@@ -8,10 +8,16 @@ const { apiAuthService } = require('@rdcdev/dbank-client')
  */
 const getAuthMethods = async () => {
   try {
-    const choices = temp.authData.Choice.map((choice) => ({
-      title: choice.Type,
-      value: JSON.stringify({ ...choice, Image: "" })
-    }));
+    temp.choiceMAP = {}
+    const choices = temp.authData.Choice.map((choice) => {
+
+      temp.choiceMAP[choice.Type] = choice
+
+      return {
+        title: choice.Type,
+        value: choice.Type,
+      }
+    })
 
     const payloads = await bp.cms.renderElement(
       'builtin_single-choice', {
