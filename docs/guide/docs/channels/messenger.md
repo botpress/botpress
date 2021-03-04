@@ -154,7 +154,7 @@ The Get Started button will allow you to send a pro-active message to your chat 
 Read more about [get started](https://developers.facebook.com/docs/messenger-platform/reference/messenger-profile-api/get-started-button).
 
 ### Persistent Menu
-The persistent menu allows you to have an always-on user interface element inside Messenger conversations. It is an easy way to help people discover and access your Messenger bot's core functionality at any point in the conversation.
+The persistent menu allows you to have an always-on user interface element inside Messenger conversations. It is an easy way to help people discover and access your Messenger chatbot's core functionality at any point in the conversation.
 
 Read more about persistent menu [here](https://developers.facebook.com/docs/messenger-platform/send-messages/persistent-menu).
 
