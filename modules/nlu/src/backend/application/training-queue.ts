@@ -54,11 +54,10 @@ class LocalTrainingContainer {
 
 export class TrainingQueue implements TrainingQueue {
   private _options: TrainingQueueOptions
-
+  private _paused: boolean = true
   private _broadcastCancelTraining: (id: TrainingId) => Promise<void>
   private _broadcastLoadModel: (botId: string, modelId: sdk.NLU.ModelId) => Promise<void>
   private _broadcastRunTask: () => Promise<void>
-
   private _localTrainings = new LocalTrainingContainer()
 
   constructor(
@@ -125,9 +124,21 @@ export class TrainingQueue implements TrainingQueue {
       return update(trainId, { status: 'training-pending', progress: 0 })
     })
 
+    if (this._paused) {
+      return
+    }
+
     return this._broadcastRunTask()
   }
 
+  public pause = () => {
+    this._paused = true
+  }
+
+  public resume = async () => {
+    this._paused = false
+    await this._broadcastRunTask()
+  }
   public cancelTraining = async (trainId: TrainingId): Promise<void> => {
     return this._broadcastCancelTraining(trainId)
   }

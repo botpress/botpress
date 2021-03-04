@@ -31,6 +31,7 @@ const onServerReady = async (bp: typeof sdk) => {
     throw new AppNotInitializedError()
   }
   await registerRouter(bp, app)
+  await app.resumeTrainings()
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
