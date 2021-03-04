@@ -19,6 +19,10 @@ export class QuickReplies extends Component<Renderer.QuickReply> {
     this.props.store.composer.setLocked(this.props.disableFreeText)
   }
 
+  componentWillUnmount() {
+    this.props.store.composer.setLocked(false)
+  }
+
   handleButtonClicked = (title, payload) => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.props.onSendData?.({
