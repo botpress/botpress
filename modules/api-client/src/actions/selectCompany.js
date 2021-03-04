@@ -1,4 +1,4 @@
-const { apiUserService } = require('@rdcdev/dbank-client');
+const { apiUserService } = require('@rdcdev/dbank-client')
 
 /**
  * Select company
@@ -8,27 +8,35 @@ const { apiUserService } = require('@rdcdev/dbank-client');
  */
 const selectCompany = async () => {
   try {
-    const ecbUser = await apiUserService.user(temp.authData);
+    const ecbUser = await apiUserService.user(user.isAuth ? {
+      ChannelID: 0,
+      SessionKey: user.req_user_data.SessionKey,
+      secretKey: user.req_user_data.secretKey,
+      SessionID: user.req_user_data.SessionID,
+      SessionSalt: user.req_user_data.SessionSalt,
+      token: user.req_user_data.token,
+      lang: user.language,
+    } : temp.authData)
 
     temp.usersMAP = {}
 
     const choices = ecbUser.Customers.map(({
-                                          ID,
-                                          RoleID,
-                                          Name
-                                        }) => {
+                                             ID,
+                                             RoleID,
+                                             Name
+                                           }) => {
       temp.usersMAP[Name] = {
         ...temp.authData,
         RoleID,
         CustomerID: ID,
         ID: ecbUser.ID,
-        Type: ecbUser.Type,
+        Type: ecbUser.Type
       }
       return {
         title: Name,
-        value: Name,
+        value: Name
       }
-    });
+    })
 
     const payloads = await bp.cms.renderElement(
       'builtin_single-choice', {
@@ -36,13 +44,13 @@ const selectCompany = async () => {
         choices: choices,
         typing: true
       }, event
-    );
+    )
 
-    await bp.events.replyToEvent(event, payloads);
+    await bp.events.replyToEvent(event, payloads)
   } catch (e) {
-    const sessionId = bp.dialog.createId(event);
-    await bp.dialog.jumpTo(sessionId, event, 'error.flow.json', e.httpCode);
+    const sessionId = bp.dialog.createId(event)
+    await bp.dialog.jumpTo(sessionId, event, 'error.flow.json', e.httpCode)
   }
-};
+}
 
-return selectCompany();
+return selectCompany()
