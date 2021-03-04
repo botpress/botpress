@@ -23,6 +23,7 @@ import path from 'path'
 import portFinder from 'portfinder'
 import { URL } from 'url'
 import yn from 'yn'
+import rateLimit from 'express-rate-limit'
 
 import { ExternalAuthConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
@@ -322,6 +323,16 @@ export default class HTTPServer {
 
     if (config.cors && config.cors.enabled) {
       this.app.use(cors(config.cors.origin ? { origin: config.cors.origin } : {}))
+    }
+
+    if (config.rateLimit?.enabled) {
+      this.app.use(
+        rateLimit({
+          windowMs: ms(config.rateLimit.limitWindow),
+          max: config.rateLimit.limit,
+          message: 'Too many requests, please slow down.'
+        })
+      )
     }
 
     this.app.get('/status', async (req, res, next) => {
