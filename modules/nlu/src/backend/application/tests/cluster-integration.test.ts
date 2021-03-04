@@ -86,7 +86,8 @@ describe('NLU API integration tests with cluster enabled', () => {
     const nNodes = 2
 
     // act
-    await Promise.all([node1.initialize(true), node2.initialize(true)])
+    await Promise.all([node1.initialize(), node2.initialize()])
+    await Promise.all([node1.resumeTrainings(), node2.resumeTrainings()])
     await Promise.all([node1.mountBot(bot1), node2.mountBot(bot1)])
     await Promise.all([node1.mountBot(bot2), node2.mountBot(bot2)])
     await Promise.all([node1.mountBot(bot3), node2.mountBot(bot3)])

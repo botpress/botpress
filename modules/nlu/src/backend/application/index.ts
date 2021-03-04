@@ -20,11 +20,8 @@ export class NLUApplication {
     this._queueTrainingOnBotMount = queueTrainingOnBotMount
   }
 
-  public async initialize(autoResumeQueue: boolean = false) {
+  public async initialize() {
     await this._trainingQueue.initialize()
-    if (autoResumeQueue) {
-      await this.resumeTrainings()
-    }
   }
 
   public teardown = async () => {

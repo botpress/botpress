@@ -59,7 +59,8 @@ describe('NLU API integration tests', () => {
     const app = makeApp(dependencies)
 
     // act
-    await app.initialize(true)
+    await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: lang,
@@ -109,7 +110,8 @@ describe('NLU API integration tests', () => {
     const app = makeApp(dependencies, trainingQueueOptions)
 
     // act
-    await app.initialize(true)
+    await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: 'en',
@@ -163,7 +165,8 @@ describe('NLU API integration tests', () => {
     const app = makeApp(dependencies, trainingQueueOptions)
 
     // act
-    await app.initialize(true)
+    await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: 'en',
@@ -253,7 +256,8 @@ describe('NLU API integration tests', () => {
     const app = makeApp(dependencies, trainingQueueOptions)
 
     // act
-    await app.initialize(true)
+    await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot(bot1)
     await app.mountBot(bot2)
     await app.mountBot(bot3)
@@ -317,7 +321,8 @@ describe('NLU API integration tests', () => {
     const app = makeApp(dependencies)
 
     // act
-    await app.initialize(true)
+    await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: lang,
@@ -370,7 +375,8 @@ describe('NLU API integration tests', () => {
     const app = makeApp(dependencies)
 
     // act
-    await app.initialize(true)
+    await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: 'en',
@@ -426,7 +432,8 @@ describe('NLU API integration tests', () => {
     const app = makeApp(dependencies)
 
     // act
-    await app.initialize(true)
+    await app.initialize()
+    await app.resumeTrainings()
 
     await app.mountBot({
       id: botId,
@@ -467,7 +474,8 @@ describe('NLU API integration tests', () => {
     const app = makeApp(dependencies)
 
     // act
-    await app.initialize(true)
+    await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: 'en',
@@ -515,7 +523,8 @@ describe('NLU API integration tests', () => {
     const app = makeApp(dependencies)
 
     // act
-    await app.initialize(true)
+    await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: lang,
@@ -560,7 +569,8 @@ describe('NLU API integration tests', () => {
     const app = makeApp({ ...dependencies, errors })
 
     // act
-    await app.initialize(true)
+    await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: lang,
@@ -603,7 +613,8 @@ describe('NLU API integration tests', () => {
     const app = makeApp({ ...dependencies, socket })
 
     // act
-    await app.initialize(true)
+    await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: 'en',
@@ -647,7 +658,8 @@ describe('NLU API integration tests', () => {
     const app = makeApp({ ...dependencies, socket })
 
     // act
-    await app.initialize(true)
+    await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: lang,
@@ -704,7 +716,8 @@ describe('NLU API integration tests', () => {
     const app = makeApp(dependencies)
 
     // act
-    await app.initialize(true)
+    await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: lang,
@@ -749,7 +762,8 @@ describe('NLU API integration tests', () => {
     const engineTrainSpy = jest.spyOn(dependencies.engine, 'train')
 
     // act
-    await app.initialize(true)
+    await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: lang,
