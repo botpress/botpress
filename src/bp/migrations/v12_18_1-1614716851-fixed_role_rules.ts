@@ -9,7 +9,10 @@ const AGENT_ROLE_ID = 'agent'
 const AGENT_RULES_TO_ADD = [
   { res: 'admin.collaborators.*', op: '-r' },
   { res: 'admin.logs.*', op: '-r' },
-  { res: 'admin.roles.*', op: '-r' }
+  { res: 'admin.roles.*', op: '-r' },
+  { res: 'admin.bots.archive', op: '-r' },
+  { res: 'bot.flows', op: '-r' },
+  { res: 'bot.content', op: '-r' }
 ]
 const EDITOR_ROLE_ID = 'editor'
 const EDTITOR_RULES_TO_ADD = [
