@@ -8,6 +8,7 @@ import { NLUApplication } from './application'
 import { BotDoesntSpeakLanguageError, BotNotMountedError } from './application/errors'
 import { TrainingSession } from './application/typings'
 import legacyElectionPipeline from './election/legacy-election'
+import createRepositoryRouter from './repo-router'
 import { NLUProgressEvent } from './typings'
 
 const ROUTER_ID = 'nlu'
@@ -119,63 +120,9 @@ export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
     }
   })
 
-  addTrainingServiceRoutes(router, app, mapError)
-}
+  const repoRouter = createRepositoryRouter(app)
 
-const trainingStatusSchema = Joi.object().keys({
-  status: Joi.string()
-    .valid(['idle', 'done', 'needs-training', 'training-pending', 'training', 'canceled', 'errored'])
-    .required(),
-  progress: Joi.number()
-    .default(0)
-    .min(0)
-    .max(1)
-    .required()
-})
-
-const addTrainingServiceRoutes = (
-  router: sdk.http.RouterExtension,
-  app: NLUApplication,
-  errorMapper: (err: { botId: string; lang: string; error: Error }, res: Response) => Response
-) => {
-  const repo = app.trainRepository
-  const SUBROUTE_NAME = 'trainrepo'
-
-  router.get(`/${SUBROUTE_NAME}/trainings`, async (req, res) => {
-    const trainings = await repo.getAll()
-    res.status(200).json(trainings)
-  })
-
-  router.use(`/${SUBROUTE_NAME}/trainings/:botId/:lang`, async (req, res, next) => {
-    const { botId, lang } = req.params
-    try {
-      const training = await repo.get({ botId, language: lang })
-      if (!training) {
-        throw new Error('Training not found')
-      }
-      res.locals.training = training
-    } catch (error) {
-      return errorMapper({ botId, lang, error }, res)
-    }
-    next()
-  })
-
-  router.get(`/${SUBROUTE_NAME}/trainings/:botId/:lang`, async (req, res) => {
-    const trainings = res.locals.training as TrainingSession[]
-    res.status(200).json(trainings)
-  })
-
-  router.post(`/${SUBROUTE_NAME}/trainings/:botId/:lang`, async (req, res) => {
-    const { botId, lang } = req.params
-    const { error, value } = trainingStatusSchema.validate(req.body)
-
-    if (error) {
-      return res.status(400).send(`Training status body is invalid: ${error.message}`)
-    }
-
-    await repo.set({ botId, language: lang }, value)
-    res.status(200).send()
-  })
+  router.use('/trainrepo', repoRouter)
 }
 
 export const removeRouter = (bp: typeof sdk) => {
