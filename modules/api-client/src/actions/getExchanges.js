@@ -16,6 +16,11 @@ const getExchanges = async (rateType) => {
     }))
       .filter(({RateType}) => RateType === +rateType)
 
+    if (!exchange.length) {
+      const sessionId = bp.dialog.createId(event);
+      await bp.dialog.jumpTo(sessionId, event, 'error.flow.json', 400);
+    }
+
     const reduced = exchange.reduce(
       (acc, itm) => `${acc} Buy: ${itm.RateBuy}\n`,
       ''
