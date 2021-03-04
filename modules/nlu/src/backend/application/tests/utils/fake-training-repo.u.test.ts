@@ -37,6 +37,10 @@ export class FakeTrainingRepository implements ITrainingRepository {
       .filter(this._matchQuery(query))
   }
 
+  public async delete(id: TrainingId) {
+    delete this._trainings[this._toKey(id)]
+  }
+
   public async getAll(): Promise<TrainingSession[]> {
     return Object.entries(this._trainings).map(([k, v]) => ({
       ...this._fromKey(k),

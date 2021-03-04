@@ -87,6 +87,10 @@ export class TrainingQueue implements TrainingQueue {
     return this._trainingService.initialize()
   }
 
+  public get service(): ITrainingService {
+    return this._trainingService
+  }
+
   public teardown = async () => {
     await this._trainingService.clear()
     return this._trainingService.teardown()

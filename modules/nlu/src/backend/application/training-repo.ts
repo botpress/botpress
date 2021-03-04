@@ -59,6 +59,14 @@ export class TrainingRepository implements TrainingRepository {
       .select('*')
   }
 
+  public delete = async (trainId: TrainingId): Promise<void> => {
+    const { botId, language } = trainId
+    return this._database
+      .from(TABLE_NAME)
+      .where({ botId, language })
+      .delete()
+  }
+
   public clear = async (): Promise<void[]> => {
     return this._database.from(TABLE_NAME).delete('*')
   }
