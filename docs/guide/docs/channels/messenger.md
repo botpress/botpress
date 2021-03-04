@@ -8,7 +8,7 @@ title: Facebook Messenger
 Messenger requires you to have a Facebook App and a Facebook Page to connect your chatbot to their platform.
 
 ### Create a Facebook App
-To create a Facebook App, log in to your Facebook account and ensure you have admin rights for the Facebook page to which you want to connect your bot.
+To create a Facebook App, log in to your Facebook account and ensure you have admin rights for the Facebook page to which you want to connect your chatbot.
 
 After that, go to the [Facebook for Developers website](https://developers.facebook.com/), select "My Apps" from the top menu, and create a new app. For more details and assistance, visit the [Facebook developer documentation](https://developers.facebook.com/docs/development)
 
