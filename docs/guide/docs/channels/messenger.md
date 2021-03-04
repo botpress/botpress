@@ -123,7 +123,7 @@ You will need to set up the following properties:
 
 Read the [config definition file](https://github.com/botpress/botpress/blob/master/modules/channel-messenger/src/config.ts) to learn more about configurations.
 
-> All changes to the configuration will take effect on `onBotMount`. To refresh the at runtime, you can disable and enable the bot again without restarting the server.
+> All changes to the configuration will take effect on `onBotMount`. To refresh the at runtime, you can disable and enable the chatbot again without restarting the server.
 
 ### Facebook Webhook
 Messenger will use a webhook that you'll need to register to communicate with your chatbot.
