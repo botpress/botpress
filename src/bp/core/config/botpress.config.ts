@@ -286,6 +286,7 @@ export interface BotpressConfig {
     useCookieStorage: boolean
     /**
      * Configure the options of the cookie sent to the user, for example the domain
+     * @default {}
      */
     cookieOptions?: CookieOptions
   }
