@@ -36,7 +36,7 @@ const trainingStatusSchema = Joi.object().keys({
  *
  */
 const createRepositoryRouter = (app: NLUApplication): Router => {
-  const router = express.Router()
+  const router = express.Router({ mergeParams: true })
 
   const repo = app.trainRepository
 
@@ -62,7 +62,7 @@ const createRepositoryRouter = (app: NLUApplication): Router => {
     next()
   })
 
-  router.get('/trainings/:botId/:lang', async (req, res) => {
+  router.get('/trainings/:lang', async (req, res) => {
     const trainings = res.locals.training as TrainingSession[]
     res.status(200).json(trainings)
   })
