@@ -10,7 +10,7 @@ import store from './store'
 import { fetchModules } from './actions'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { moduleViewNames } from '~/util/Modules'
-import { getToken } from '~/util/Auth'
+import { getToken } from '../../../ui-shared-lite/auth'
 
 const token = getToken()
 if (token) {
