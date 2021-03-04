@@ -143,8 +143,8 @@ export interface BotpressConfig {
        */
       enabled: boolean
       /**
-       * * Time window to compute rate limiting
-       * @default '30s'
+       * Time window to compute rate limiting
+       * @default 30s
        */
       limitWindow: string
       /**
