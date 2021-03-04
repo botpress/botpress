@@ -46,9 +46,7 @@ const _computeCtxHash = (intents: Intent<string>[], ctx: string) => {
   const informationToTrack = intentsOfCtx.map(i => ({
     name: i.name,
     slot_definitions: i.slot_definitions,
-    utterances: i.utterances,
-    vocab: i.vocab,
-    slot_entities: i.slot_entities
+    utterances: i.utterances
   }))
 
   return crypto
@@ -65,9 +63,7 @@ export const mergeModelOutputs = (
   const output = { ...currentOutput }
 
   const previousIntents = _.pick(previousOutput.intent_model_by_ctx, contexts)
-  const previousOOS = _.pick(previousOutput.oos_model, contexts)
 
   output.intent_model_by_ctx = { ...previousIntents, ...currentOutput.intent_model_by_ctx }
-  output.oos_model = { ...previousOOS, ...currentOutput.oos_model }
   return output
 }

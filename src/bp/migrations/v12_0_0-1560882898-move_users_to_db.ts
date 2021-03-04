@@ -34,6 +34,7 @@ const migration: Migration = {
         await userRepo.createUser({
           email: user.email,
           strategy: 'default',
+          tokenVersion: 1,
           password: user.password,
           salt: user.salt,
           attributes: _.pick(user, [

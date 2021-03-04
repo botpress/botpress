@@ -1,3 +1,45 @@
+# [12.18.0](https://github.com/botpress/botpress/compare/v12.14.1...v12.18.0) (2021-02-26)
+
+
+### Bug Fixes
+
+* **nlu:** check ram usage ([#4321](https://github.com/botpress/botpress/issues/4321)) ([4d1a202](https://github.com/botpress/botpress/commit/4d1a202))
+
+
+### Features
+
+* **basic-skills:** Add dropdown option to single choice ([#4492](https://github.com/botpress/botpress/issues/4492)) ([a96787a](https://github.com/botpress/botpress/commit/a96787a))
+* **channel-web:** allow to disable notification sound ([#4535](https://github.com/botpress/botpress/issues/4535)) ([c759dc3](https://github.com/botpress/botpress/commit/c759dc3))
+* **code-editor:** add tab support to manage multiple files ([#4416](https://github.com/botpress/botpress/issues/4416)) ([9a53f86](https://github.com/botpress/botpress/commit/9a53f86))
+* **core:** improve security for tokens ([#4457](https://github.com/botpress/botpress/issues/4457)) ([4234aea](https://github.com/botpress/botpress/commit/4234aea))
+* **libraries:** shared libraries ([#4238](https://github.com/botpress/botpress/issues/4238)) ([b16fd36](https://github.com/botpress/botpress/commit/b16fd36))
+
+
+
+## [12.17.2](https://github.com/botpress/botpress/compare/v12.14.1...v12.17.2) (2021-02-18)
+
+
+### Bug Fixes
+
+* **api:** added missing async mw ([#4524](https://github.com/botpress/botpress/issues/4524)) ([7eb44d6](https://github.com/botpress/botpress/commit/7eb44d6))
+* **core:** changed details column to text ([#4513](https://github.com/botpress/botpress/issues/4513)) ([805092c](https://github.com/botpress/botpress/commit/805092c))
+* **core:** conflict between dialog sessions contexts on update ([#4493](https://github.com/botpress/botpress/issues/4493)) ([aa1328b](https://github.com/botpress/botpress/commit/aa1328b))
+* **core:** make sure column botId exists before doing migration ([#4526](https://github.com/botpress/botpress/issues/4526)) ([192d661](https://github.com/botpress/botpress/commit/192d661))
+* **core:** make sure migrations can be run multiple times ([#4531](https://github.com/botpress/botpress/issues/4531)) ([68679c6](https://github.com/botpress/botpress/commit/68679c6))
+* **hitlnext:** remove agent cache warmup ([#4527](https://github.com/botpress/botpress/issues/4527)) ([2d81241](https://github.com/botpress/botpress/commit/2d81241))
+* **pro:** Azure OAuth2 openID fix ([37475f0](https://github.com/botpress/botpress/commit/37475f0))
+* **studio:** update flow on link deletion ([#4502](https://github.com/botpress/botpress/issues/4502)) ([ada8a59](https://github.com/botpress/botpress/commit/ada8a59))
+* **webchat:** cleanup and fixed api ([#4523](https://github.com/botpress/botpress/issues/4523)) ([aedf08b](https://github.com/botpress/botpress/commit/aedf08b))
+
+
+### Features
+
+* **channel-teams:** add support for proactive messages ([#4466](https://github.com/botpress/botpress/issues/4466)) ([1966aba](https://github.com/botpress/botpress/commit/1966aba))
+* **qna:** default text enables markdown ([#4477](https://github.com/botpress/botpress/issues/4477)) ([33ecc63](https://github.com/botpress/botpress/commit/33ecc63))
+* **studio:** default empty transition on new nodes ([#4478](https://github.com/botpress/botpress/issues/4478)) ([82bc1f9](https://github.com/botpress/botpress/commit/82bc1f9))
+
+
+
 ## [12.17.1](https://github.com/botpress/botpress/compare/v12.14.1...v12.17.1) (2021-02-09)
 
 

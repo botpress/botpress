@@ -1,8 +1,9 @@
 import { MLToolkit } from 'botpress/sdk'
 import _ from 'lodash'
+import { tokenizeLatinTextForTests } from 'nlu-core/test-utils/fake-tools'
 
 import { POSClass } from '../language/pos-tagger'
-import { SPACE, tokenizeLatinTextForTests } from '../tools/token-utils'
+import { SPACE } from '../tools/token-utils'
 import { EntityExtractor, ExtractedEntity, ExtractedSlot } from '../typings'
 
 import Utterance, { preprocessRawUtterance, UtteranceToStringOptions } from './utterance'

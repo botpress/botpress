@@ -205,6 +205,15 @@ $success-color: #56b149;
     }
   }
 
+  &.threeQuarter {
+    margin: 0 1% 20px;
+    width: 73%;
+
+    .metricName {
+      min-height: 0;
+    }
+  }
+
   &.list {
     justify-content: flex-start;
     min-height: 204px;

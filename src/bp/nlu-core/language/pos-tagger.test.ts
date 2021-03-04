@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
+import { tokenizeLatinTextForTests } from 'nlu-core/test-utils/fake-tools'
 
-import { isSpace, tokenizeLatinTextForTests } from '../tools/token-utils'
+import { isSpace } from '../tools/token-utils'
 
 import { fallbackTagger, getPOSTagger, tagSentence } from './pos-tagger'
 

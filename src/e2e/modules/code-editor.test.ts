@@ -1,4 +1,4 @@
-import { clickOn, fillField } from '../expectPuppeteer'
+import { clickOn, fillField, expectMatchElement } from '../expectPuppeteer'
 import {
   autoAnswerDialog,
   clickOnTreeNode,
@@ -69,5 +69,17 @@ describe('Module - Code Editor', () => {
     await expectBotApiCallSuccess('mod/code-editor/remove', 'POST')
     const response = await waitForBotApiResponse('mod/code-editor/files')
     expect(response['bot.actions'].find(x => x.name === '.hello_copy.js')).toBeUndefined()
+  })
+
+  it('Open two tabs', async () => {
+    await waitForFilesToLoad()
+
+    await clickOnTreeNode('builtin.json', 'left')
+    await expectBotApiCallSuccess('mod/code-editor/readFile', 'POST')
+    await expectMatchElement('div[id="builtin.json"]', { text: 'builtin.json' })
+
+    await clickOnTreeNode('channel-web.json', 'left')
+    await expectBotApiCallSuccess('mod/code-editor/readFile', 'POST')
+    await expectMatchElement('div[id="channel-web.json"]', { text: 'channel-web.json' })
   })
 })

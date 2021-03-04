@@ -208,7 +208,10 @@ class RootStore {
     runInAction('-> setBotInfo', () => {
       this.botInfo = botInfo
     })
-    this.mergeConfig({ extraStylesheet: botInfo.extraStylesheet })
+    this.mergeConfig({
+      extraStylesheet: botInfo.extraStylesheet,
+      disableNotificationSound: botInfo.disableNotificationSound
+    })
   }
 
   @action.bound
@@ -301,6 +304,8 @@ class RootStore {
 
   @action.bound
   async resetSession(): Promise<void> {
+    this.composer.setLocked(false)
+
     return this.api.resetSession(this.currentConversationId)
   }
 

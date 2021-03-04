@@ -8,9 +8,9 @@ import ContentPickerWidget from '~/components/Content/Select/Widget'
 import { LinkDocumentationProvider } from '~/components/Util/DocumentationProvider'
 import { RootReducer } from '~/reducers'
 
-import style from './style.scss'
 import ParametersTable from './ParametersTable'
 import SelectActionDropdown from './SelectActionDropdown'
+import style from './style.scss'
 
 interface OwnProps {
   show: boolean
