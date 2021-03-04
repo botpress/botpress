@@ -68,7 +68,7 @@ export default class StrategyBasic {
         }
 
         const token = await this._register(email, strategyId, password, req.ip)
-        return sendSuccess(res, 'Registration successful', { token })
+        return sendSuccess(res, 'Registration successful', token)
       })
     )
   }
