@@ -10,6 +10,7 @@ import cors from 'cors'
 import errorHandler from 'errorhandler'
 import { UnlicensedError } from 'errors'
 import express, { NextFunction, Response } from 'express'
+import rateLimit from 'express-rate-limit'
 import { Request } from 'express-serve-static-core'
 import rewrite from 'express-urlrewrite'
 import fs from 'fs'
@@ -333,6 +334,16 @@ export default class HTTPServer {
 
     if (config.cors?.enabled) {
       this.app.use(cors(config.cors))
+    }
+
+    if (config.rateLimit?.enabled) {
+      this.app.use(
+        rateLimit({
+          windowMs: ms(config.rateLimit.limitWindow),
+          max: config.rateLimit.limit,
+          message: 'Too many requests, please slow down.'
+        })
+      )
     }
 
     this.app.get('/status', async (req, res, next) => {

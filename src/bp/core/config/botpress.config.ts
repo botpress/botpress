@@ -142,6 +142,23 @@ export interface BotpressConfig {
      * @default ["websocket","polling"]
      */
     socketTransports: string[]
+    rateLimit: {
+      /**
+       * * Security option to rate limit potential attacker trying to brute force something
+       * @default false
+       */
+      enabled: boolean
+      /**
+       * Time window to compute rate limiting
+       * @default 30s
+       */
+      limitWindow: string
+      /**
+       * * Maximum number of request in limit window to ban an IP. Keep in mind that this includes admin, studio and chat request so don't put it too low
+       * @default 600
+       */
+      limit: number
+    }
     /**
      * Adds default headers to the server's responses
      * @default {"X-Powered-By":"Botpress"}
@@ -441,7 +458,7 @@ export interface AuthStrategyBasic {
   /**
    * The maximum number of wrong passwords the user can enter before his account is locked out.
    * Set it to 0 for unlimited tries
-   * @default 0
+   * @default 3
    */
   maxLoginAttempt: number
   /**
