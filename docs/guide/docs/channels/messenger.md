@@ -5,7 +5,7 @@ title: Facebook Messenger
 
 ## Requirements
 
-Messenger requires you to have a Facebook App and a Facebook Page to connect your bot to their platform.
+Messenger requires you to have a Facebook App and a Facebook Page to connect your chatbot to their platform.
 
 ### Create a Facebook App
 To create a Facebook App, log in to your Facebook account and ensure you have admin rights for the Facebook page to which you want to connect your bot.
