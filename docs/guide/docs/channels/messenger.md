@@ -140,7 +140,7 @@ Messenger will use a webhook that you'll need to register to communicate with yo
 "greeting": "Hello, I'm your chatbot!"
 ```
 
-Your bot's Messenger profile's greeting property allows you to specify the greeting message people will see on your bot's welcome screen. Your chatbot will display the welcome screen for people interacting with your chatbot for the first time.
+Your chatbot's Messenger profile's greeting property allows you to specify the greeting message people will see on your chatbot's welcome screen. Your chatbot will display the welcome screen for people interacting with your chatbot for the first time.
 
 Read more about [greeting](https://developers.facebook.com/docs/messenger-platform/reference/messenger-profile-api/greeting).
 
