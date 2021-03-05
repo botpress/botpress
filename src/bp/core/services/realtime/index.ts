@@ -1,4 +1,5 @@
 import { Logger, RealTimePayload } from 'botpress/sdk'
+import cookie from 'cookie'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import { EventEmitter2 } from 'eventemitter2'
@@ -8,8 +9,8 @@ import _ from 'lodash'
 import socketio, { Adapter } from 'socket.io'
 import redisAdapter from 'socket.io-redis'
 import socketioJwt from 'socketio-jwt'
-
 import { TYPES } from '../../types'
+import AuthService from '../auth/auth-service'
 import { MonitoringService } from '../monitoring'
 
 const debug = DEBUG('realtime')
@@ -34,7 +35,8 @@ export default class RealtimeService {
     @tagged('name', 'Realtime')
     private logger: Logger,
     @inject(TYPES.MonitoringService) private monitoringService: MonitoringService,
-    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
+    @inject(TYPES.AuthService) private authService: AuthService
   ) {
     this.ee = new EventEmitter2({
       wildcard: true,
@@ -101,8 +103,29 @@ export default class RealtimeService {
     })
   }
 
+  checkCookieToken = async (socket: socketio.Socket, fn: (err?) => any) => {
+    try {
+      const csrfToken = socket.handshake.query.token
+      const { jwtToken } = cookie.parse(socket.handshake.headers.cookie)
+
+      if (jwtToken && csrfToken) {
+        await this.authService.checkToken(jwtToken, csrfToken)
+        fn(undefined)
+      }
+
+      fn('Mandatory parameters are missing')
+    } catch (err) {
+      fn(err)
+    }
+  }
+
   setupAdminSocket(admin: socketio.Namespace): void {
-    admin.use(socketioJwt.authorize({ secret: process.APP_SECRET, handshake: true }))
+    if (process.USE_JWT_COOKIES) {
+      admin.use(this.checkCookieToken)
+    } else {
+      admin.use(socketioJwt.authorize({ secret: process.APP_SECRET, handshake: true }))
+    }
+
     admin.on('connection', socket => {
       const visitorId = _.get(socket, 'handshake.query.visitorId')
 
