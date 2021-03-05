@@ -774,7 +774,10 @@ describe('NLU API integration tests', () => {
     expect(engineTrainSpy).toHaveBeenCalledTimes(0)
     expect(dependencies.socket).toHaveBeenCalledWith(expectTs({ botId, status: 'needs-training' }))
     expect(dependencies.socket).not.toHaveBeenCalledWith(expectTs({ botId, status: 'training-pending' }))
+
+    await app.teardown()
   })
+
   test('Training queue starts out paused and does not start any training', async () => {
     // arrange
     const lang = 'en'
@@ -809,14 +812,16 @@ describe('NLU API integration tests', () => {
       defaultLanguage: lang,
       languages: [lang]
     })
+    await sleep(30) // ms
 
     expect(engineTrainSpy).not.toHaveBeenCalled()
-    await sleep(10)
     await app.resumeTrainings()
 
     await waitForTrainingsToBeDone(app)
     expect(engineTrainSpy).toHaveBeenCalled()
 
     expectTrainingToStartAndComplete(dependencies.socket, dependencies.trainingRepo, { botId, language: lang })
+
+    await app.teardown()
   })
 })
