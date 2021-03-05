@@ -77,28 +77,6 @@ export class CMSService implements IDisposeOnExit {
 
     await this.prepareDb()
     await this._loadContentTypesFromFiles()
-    this.registerMiddleware()
-  }
-
-  private registerMiddleware() {
-    // TODO : remove this
-    this.eventEngine.register({
-      name: 'cms.renderForChannel',
-      description: 'Renders unrendered payloads for their respective channels',
-      order: 1,
-      direction: 'outgoing',
-      handler: (event: IO.Event, next) => {
-        if (event.payload.__unrendered) {
-          const payloads = this.renderForChannel(event.payload, event.channel)
-          const mevent = <any>event
-          mevent.payload = payloads[payloads.length - 1]
-          mevent.type = mevent.payload.type
-          next()
-        } else {
-          return next(undefined, false, true)
-        }
-      }
-    })
   }
 
   private async prepareDb() {
@@ -696,7 +674,7 @@ export class CMSService implements IDisposeOnExit {
     return payloads
   }
 
-  private renderForChannel(content: any, channel: string): any[] {
+  public renderForChannel(content: any, channel: string): any[] {
     const type = this.contentTypes.find(x => x.id.includes(content.type))!
     return type.renderElement({ ...content, ...this._getAdditionalData() }, channel)
   }

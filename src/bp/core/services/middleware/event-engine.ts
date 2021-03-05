@@ -90,6 +90,8 @@ export class EventEngine {
 
   public onBeforeOutgoingMiddleware?: (event: sdk.IO.OutgoingEvent) => Promise<void>
 
+  public renderForChannel?: (content: any, channel: string) => any[]
+
   private readonly _incomingPerf = new TimedPerfCounter('mw_incoming')
   private readonly _outgoingPerf = new TimedPerfCounter('mw_outgoing')
 
@@ -179,6 +181,14 @@ export class EventEngine {
 
   async sendEvent(event: sdk.IO.Event): Promise<void> {
     this.validateEvent(event)
+
+    // Todo : remove this when per channel rendering is no longer needed for builtin content types
+    if (event.payload.__unrendered) {
+      const payloads = this.renderForChannel!(event.payload, event.channel)
+      const mevent = <any>event
+      mevent.payload = payloads[payloads.length - 1]
+      mevent.type = mevent.payload.type
+    }
 
     if (event.debugger) {
       addStepToEvent(event, StepScopes.Received)
