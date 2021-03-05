@@ -13,6 +13,11 @@ interface Token {
   audience?: string
 }
 
+export interface ApiKey {
+  email: string
+  strategy: string
+}
+
 const generateRandomString = (length: number) => {
   return crypto
     .randomBytes(Math.ceil(length / 2))
@@ -56,4 +61,8 @@ export const generateUserToken = ({
   })
 
   return { jwt, csrf, exp: ms(exp) }
+}
+
+export const generateApiKey = ({ email, strategy }: ApiKey): string => {
+  return jsonwebtoken.sign({ email, strategy }, process.APP_SECRET)
 }

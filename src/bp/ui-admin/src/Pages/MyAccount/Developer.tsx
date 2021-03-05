@@ -1,5 +1,6 @@
-import { Button, Classes, FormGroup, InputGroup, Intent, Tab, Tabs } from '@blueprintjs/core'
-import { FormFields, lang, Dialog } from 'botpress/shared'
+import { Button, Intent, Tab, Tabs } from '@blueprintjs/core'
+import { AxiosResponse } from 'axios'
+import { lang, Dialog } from 'botpress/shared'
 import { UserProfile } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import api from '~/api'
@@ -11,10 +12,16 @@ interface Props {
   close: () => void
 }
 
+interface ApiKey {
+  apiKey: string
+}
+
+const DEFAULT_PAYLOAD = { email: '', strategy: '', apiKey: '' }
+
 const Developer: FC<Props> = props => {
   const [apiKey, setApiKey] = useState<string>()
-  const [payload, setPayload] = useState("{ email: '', strategy: '', apiKey: '' }")
-  const [tab, setTab] = useState<any>('apiKey')
+  const [payload, setPayload] = useState(JSON.stringify(DEFAULT_PAYLOAD, undefined, 2))
+  const [tab, setTab] = useState<string | number>('apiKey')
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -26,28 +33,41 @@ const Developer: FC<Props> = props => {
       const { email, strategy } = props.profile
       const example = { email, strategy, apiKey }
       setPayload(JSON.stringify(example, undefined, 2))
+    } else {
+      setPayload(JSON.stringify(DEFAULT_PAYLOAD, undefined, 2))
     }
   }, [apiKey])
 
   const getKey = async () => {
     try {
-      const { data } = await api.getSecured().get('/auth/apiKey')
+      const { data } = await api.getSecured().get<any, AxiosResponse<ApiKey>>('/auth/apiKey')
       setApiKey(data.apiKey)
     } catch (err) {
       toastFailure(lang.tr('admin.errorUpdatingProfile', { msg: err.message }))
     }
   }
 
-  const resetKey = async event => {
+  const generateKey = async (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
     event.preventDefault()
 
     try {
-      const { data } = await api.getSecured().post('/auth/resetApiKey')
+      const { data } = await api.getSecured().post<any, AxiosResponse<ApiKey>>('auth/apiKey')
       setApiKey(data.apiKey)
-      // props.fetchProfile()
-      //  props.close()
 
-      toastSuccess(lang.tr('API Key reset successfully'))
+      toastSuccess(lang.tr('API Key generated successfully'))
+    } catch (err) {
+      toastFailure(lang.tr('admin.errorUpdatingProfile', { msg: err.message }))
+    }
+  }
+
+  const revokeKey = async (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+    event.preventDefault()
+
+    try {
+      await api.getSecured().post('auth/apiKey/revoke')
+      setApiKey(undefined)
+
+      toastSuccess(lang.tr('API Key successfully revoked'))
     } catch (err) {
       toastFailure(lang.tr('admin.errorUpdatingProfile', { msg: err.message }))
     }
@@ -64,50 +84,29 @@ const Developer: FC<Props> = props => {
               panel={
                 <div>
                   API Key: <code>{apiKey || 'No API key yet'}</code>
+                  <br />
+                  {apiKey && <Button id="btn-revoke" text="Revoke" onClick={revokeKey} intent={Intent.DANGER} />}
                   <br /> <br />
-                  With an API Key, you will be able to obtain a valid authentication token, which you can then use to
-                  call the Botpress API.
+                  With an API Key, you will be able to cal the Converse API.
                   <br /> <br />
-                  Please note that generating a new API Key will render the previous one unusable
+                  Please note that generating a new API Key will render the previous one unusable.
                   <br /> <br />
-                  <Button id="btn-submit" text="Generate a new API Key" onClick={resetKey} intent={Intent.PRIMARY} />
-                </div>
-              }
-            ></Tab>
-            <Tab
-              id="obtain"
-              title="Using the API Key"
-              panel={
-                <div>
-                  <div>
-                    You can use CURL, Axios or any other library to send a POST request to the below endpoint
-                    <br></br> <br></br>
-                    <div>
-                      <code style={{ whiteSpace: 'pre' }}>
-                        POST {window.location.origin}/api/v1/auth/generateToken<br></br> {payload}
-                      </code>
-                    </div>
-                  </div>
+                  <Button id="btn-submit" text="Generate a new API Key" onClick={generateKey} intent={Intent.PRIMARY} />
                 </div>
               }
             ></Tab>
             <Tab
               id="usage"
-              title="Using the generated token"
+              title="Using the API Key"
               panel={
                 <div>
                   <div>
-                    Once you have the JWT Token, there are two headers that you need to add on your query. Here is an
-                    example with the Converse API:
+                    Here is an example with the Converse API:
                     <br></br>
                     <br></br>
                     <div>
                       <code style={{ whiteSpace: 'pre' }}>
-                        POST {window.location.origin}/api/v1/bots/BOT_ID/converse/benchmarkUser
-                        <br />
-                        Authorization: YOUR_TOKEN
-                        <br />
-                        X-BP-Workspace: default
+                        POST {window.location.origin}/api/v1/bots/[BOT_ID]/converse/benchmark[USER_ID]?apiKey=XXXXX
                         <br />
                         Content-Type: application/json
                         <br />

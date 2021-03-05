@@ -209,26 +209,24 @@ export class AuthRouter extends CustomRouter {
     )
 
     router.post(
-      '/apiKey/reset',
+      '/apiKey',
       this.checkTokenHeader,
       this.asyncMiddleware(async (req: RequestWithUser, res) => {
         const { email, strategy } = req.tokenUser!
-        const apiKey = await this.authService.resetApiKey(email, strategy)
+        const apiKey = await this.authService.generateUserApiKey(email, strategy)
 
         res.send({ apiKey })
       })
     )
 
     router.post(
-      '/generateToken',
+      '/apiKey/revoke',
+      this.checkTokenHeader,
       this.asyncMiddleware(async (req: RequestWithUser, res) => {
-        const { email, strategy, apiKey } = req.body
-        if (!email || !strategy || !apiKey) {
-          return res.status(400).send('You must provide a value for each fields (email, strategy and apiKey)')
-        }
+        const { email, strategy } = req.tokenUser!
+        await this.authService.revokeUserApiKey(email, strategy)
 
-        const token = this.authService.generateApiToken(email, strategy, apiKey)
-        res.send({ token })
+        res.sendStatus(201)
       })
     )
 

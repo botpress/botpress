@@ -15,7 +15,6 @@ import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
-import nanoid from 'nanoid'
 
 import { AuthPayload, AuthStrategyConfig, ChatUserAuth, TokenUser, TokenResponse } from '../../../common/typings'
 import { Resource } from '../../misc/resources'
@@ -27,8 +26,7 @@ import { EventEngine } from '../middleware/event-engine'
 import { WorkspaceService } from '../workspace-service'
 
 import StrategyBasic from './basic'
-import { InvalidCredentialsError } from './errors'
-import { generateUserToken } from './util'
+import { ApiKey, generateApiKey, generateUserToken } from './util'
 
 export const TOKEN_AUDIENCE = 'collaborators'
 export const CHAT_USERS_AUDIENCE = 'chat_users'
@@ -361,20 +359,37 @@ export default class AuthService {
     return sendEvent({ authenticatedUntil, isAuthorized: isMember || isSuperAdmin })
   }
 
-  public async resetApiKey(email: string, strategy: string): Promise<string> {
-    const apiKey = nanoid(50)
+  public async generateUserApiKey(email: string, strategy: string): Promise<string> {
+    const apiKey = generateApiKey({
+      email,
+      strategy
+    })
+
     await this.users.updateUser(email, strategy, { apiKey })
 
     return apiKey
   }
 
-  public async generateApiToken(email: string, strategy: string, apiKey: string) {
-    const user = await this.findUser(email, strategy)
-    if (!user || user.apiKey !== apiKey) {
-      throw new InvalidCredentialsError('Invalid email, strategy or API Key')
-    }
+  async checkApiKey(jwtToken: string): Promise<ApiKey> {
+    return Promise.fromCallback<ApiKey>(cb => {
+      jsonwebtoken.verify(jwtToken, process.APP_SECRET, async (err, key) => {
+        const apiKey = key as ApiKey
 
-    return this.generateSecureToken(email, strategy)
+        if (!err) {
+          const user = await this.users.findUser(apiKey.email, apiKey.strategy)
+          if (user && user.apiKey === jwtToken) {
+            cb(undefined, apiKey)
+          } else {
+            cb(new Error('Invalid api key'), undefined)
+          }
+        }
+        cb(err, undefined)
+      })
+    })
+  }
+
+  public async revokeUserApiKey(email: string, strategy: string): Promise<void> {
+    return this.users.updateUser(email, strategy, { apiKey: null })
   }
 
   public async setJwtCookieResponse(token: TokenResponse, res: Response): Promise<boolean> {

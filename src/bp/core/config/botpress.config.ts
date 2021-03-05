@@ -303,11 +303,6 @@ export interface BotpressConfig {
        * @default false
        */
       enabled: boolean
-      /**
-       * Once this delay is elapsed, the API Key is considered invalid and must be changed
-       * @default 30d
-       */
-      keyExpiry: string
     }
     /**
      * Use an HTTP-Only secure cookie instead of the local storage for the JWT Token
