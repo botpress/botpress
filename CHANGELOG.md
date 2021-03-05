@@ -1,3 +1,15 @@
+## [12.18.2](https://github.com/botpress/botpress/compare/v12.18.1...v12.18.2) (2021-03-05)
+
+
+### Bug Fixes
+
+* **core:** fix auth saml/oauth ([#4594](https://github.com/botpress/botpress/issues/4594)) ([09c7324](https://github.com/botpress/botpress/commit/09c7324))
+* **core:** point pro on master ([#4595](https://github.com/botpress/botpress/issues/4595)) ([19ffc7f](https://github.com/botpress/botpress/commit/19ffc7f))
+* **hitl2:** fixed agent rules ([dd91e69](https://github.com/botpress/botpress/commit/dd91e69))
+* **hitl2:** use new chan-web api ([#4596](https://github.com/botpress/botpress/issues/4596)) ([66949d1](https://github.com/botpress/botpress/commit/66949d1))
+
+
+
 ## [12.18.1](https://github.com/botpress/botpress/compare/v12.18.0...v12.18.1) (2021-03-05)
 
 
