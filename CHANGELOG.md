@@ -9,13 +9,14 @@
 * **core:** prevent editor to read archive and logs ([#4584](https://github.com/botpress/botpress/issues/4584)) ([6a222f8](https://github.com/botpress/botpress/commit/6a222f8))
 * **core,studio,admin:** bot has no language ([#4562](https://github.com/botpress/botpress/issues/4562)) ([7329afb](https://github.com/botpress/botpress/commit/7329afb))
 * **hitl2:** fixed agent rules ([#4570](https://github.com/botpress/botpress/issues/4570)) ([be47867](https://github.com/botpress/botpress/commit/be47867))
+* **hitl2:** fixed infinite loading of agent live chat ([#4550](https://github.com/botpress/botpress/issues/4550))
 * **mig:** ensure strategy table exist before alter ([#4574](https://github.com/botpress/botpress/issues/4574)) ([2187ddc](https://github.com/botpress/botpress/commit/2187ddc))
 * **nlu:** intent clf picks exact match over svm ([#4576](https://github.com/botpress/botpress/issues/4576)) ([dfc79db](https://github.com/botpress/botpress/commit/dfc79db))
 * **nlu:** minor fixes to new recognizer ([#4566](https://github.com/botpress/botpress/issues/4566)) ([0e95e9d](https://github.com/botpress/botpress/commit/0e95e9d))
 * **nlu:** rbac on training ([#4568](https://github.com/botpress/botpress/issues/4568)) ([033e1b0](https://github.com/botpress/botpress/commit/033e1b0))
 * **nlu-core:** race condition on import ml toolkit ([#4564](https://github.com/botpress/botpress/issues/4564)) ([8cab437](https://github.com/botpress/botpress/commit/8cab437))
 * **studio:** show turns instead of value ([#4577](https://github.com/botpress/botpress/issues/4577)) ([6a14dbd](https://github.com/botpress/botpress/commit/6a14dbd))
-
+* **telemetry:** fix infinite loop when telemetry server is out of reach ([#4559](https://github.com/botpress/botpress/issues/4559))
 
 ### Features
 
