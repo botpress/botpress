@@ -96,4 +96,7 @@ Congratulations on building your first chatbot! You can share this chatbot with 
 
 You can also embed this chatbot on a website. To learn how, check out the example provided in `assets/modules/channel-web/examples/embedded-webchat.html`, which you can see by browsing [**here**](http://localhost:3000/assets/modules/channel-web/examples/embedded-webchat.html).
 
+## Learn More
+Follow along as we create a simple starter bot that asks for your name and politely greets you.
+
 - [Hello < you>!, our equivalent of Hello World!](https://youtu.be/nYFX-P1zFEE)
