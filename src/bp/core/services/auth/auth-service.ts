@@ -1,4 +1,5 @@
 import { Logger, RolloutStrategy, StrategyUser } from 'botpress/sdk'
+import { JWT_COOKIE_NAME } from 'common/auth'
 import { AuthStrategy, AuthStrategyBasic } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
@@ -8,6 +9,7 @@ import { ModuleLoader } from 'core/module-loader'
 import { StrategyUsersRepository } from 'core/repositories/strategy_users'
 import { BadRequestError } from 'core/routers/errors'
 import { Event } from 'core/sdk/impl'
+import { Response } from 'express'
 import { inject, injectable, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
@@ -15,7 +17,7 @@ import moment from 'moment'
 import ms from 'ms'
 import nanoid from 'nanoid'
 
-import { AuthPayload, AuthStrategyConfig, ChatUserAuth, TokenUser } from '../../../common/typings'
+import { AuthPayload, AuthStrategyConfig, ChatUserAuth, TokenUser, TokenResponse } from '../../../common/typings'
 import { Resource } from '../../misc/resources'
 import { TYPES } from '../../types'
 import { SessionIdFactory } from '../dialog/session/id-factory'
@@ -203,11 +205,17 @@ export default class AuthService {
     }
   }
 
-  async checkToken(token: string, audience?: string): Promise<TokenUser> {
+  async checkToken(jwtToken: string, csrfToken: string, audience?: string): Promise<TokenUser> {
     return Promise.fromCallback<TokenUser>(cb => {
-      jsonwebtoken.verify(token, process.APP_SECRET, { audience }, async (err, user) => {
-        if (!err && (await this.isTokenVersionValid(user as TokenUser))) {
-          cb(undefined, user as TokenUser)
+      jsonwebtoken.verify(jwtToken, process.APP_SECRET, { audience }, async (err, user) => {
+        const tokenUser = user as TokenUser
+
+        if (!err && (await this.isTokenVersionValid(tokenUser))) {
+          if (process.USE_JWT_COOKIES && tokenUser.csrfToken !== csrfToken) {
+            cb('Invalid CSRF Token')
+          } else {
+            cb(undefined, tokenUser)
+          }
         }
         cb(err, undefined)
       })
@@ -230,7 +238,7 @@ export default class AuthService {
     return config.authStrategies[strategyId]
   }
 
-  async refreshToken(tokenUser: TokenUser): Promise<string> {
+  async refreshToken(tokenUser: TokenUser): Promise<TokenResponse> {
     return this.generateSecureToken(tokenUser.email, tokenUser.strategy)
   }
 
@@ -367,5 +375,17 @@ export default class AuthService {
     }
 
     return this.generateSecureToken(email, strategy)
+  }
+
+  public async setJwtCookieResponse(token: TokenResponse, res: Response): Promise<boolean> {
+    if (!process.USE_JWT_COOKIES) {
+      return false
+    }
+
+    const config = await this.configProvider.getBotpressConfig()
+    const cookieOptions = config.jwtToken.cookieOptions
+
+    res.cookie(JWT_COOKIE_NAME, token.jwt, { maxAge: token.exp, httpOnly: true, ...cookieOptions })
+    return true
   }
 }

@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import { JWT_COOKIE_NAME } from 'common/auth'
 import { AuthRule, ChatUserAuth, RequestWithUser, TokenUser, UserProfile } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
 import { AuthStrategies } from 'core/services/auth-strategies'
@@ -161,7 +162,10 @@ export class AuthRouter extends CustomRouter {
 
         if (config.jwtToken && config.jwtToken.allowRefresh) {
           const newToken = await this.authService.refreshToken(req.tokenUser!)
-          sendSuccess(res, 'Token refreshed successfully', { newToken })
+
+          sendSuccess(res, 'Token refreshed successfully', {
+            newToken: process.USE_JWT_COOKIES ? _.omit(newToken, 'jwt') : newToken
+          })
         } else {
           const [, token] = req.headers.authorization!.split(' ')
           sendSuccess(res, 'Token not refreshed, sending back original', { newToken: token })
@@ -225,6 +229,19 @@ export class AuthRouter extends CustomRouter {
 
         const token = this.authService.generateApiToken(email, strategy, apiKey)
         res.send({ token })
+      })
+    )
+
+    // Temporary route to obtain a token when using cookie authentication, for the bp pull/push command
+    router.get(
+      '/getToken',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req: RequestWithUser, res) => {
+        if (!process.USE_JWT_COOKIES) {
+          return res.sendStatus(201)
+        }
+
+        res.send(req.cookies[JWT_COOKIE_NAME])
       })
     )
   }

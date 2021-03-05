@@ -1,13 +1,16 @@
 import bodyParser from 'body-parser'
 import { AxiosBotConfig, AxiosOptions, http, Logger, RouterOptions } from 'botpress/sdk'
+import { CSRF_TOKEN_HEADER_LC, CSRF_TOKEN_HEADER, JWT_COOKIE_NAME } from 'common/auth'
 import LicensingService from 'common/licensing-service'
 import { RequestWithUser } from 'common/typings'
 import compression from 'compression'
+import cookieParser from 'cookie-parser'
 import session from 'cookie-session'
 import cors from 'cors'
 import errorHandler from 'errorhandler'
 import { UnlicensedError } from 'errors'
 import express, { NextFunction, Response } from 'express'
+import rateLimit from 'express-rate-limit'
 import { Request } from 'express-serve-static-core'
 import rewrite from 'express-urlrewrite'
 import fs from 'fs'
@@ -271,6 +274,8 @@ export default class HTTPServer {
     const config = botpressConfig.httpServer
     await this.sdkApiRouter.initialize()
 
+    process.USE_JWT_COOKIES = yn(botpressConfig.jwtToken.useCookieStorage)
+
     /**
      * The loading of language models can take some time, access to Botpress is disabled until it is completed
      * During this time, internal calls between modules can be made
@@ -279,7 +284,10 @@ export default class HTTPServer {
       res.removeHeader('X-Powered-By') // Removes the default X-Powered-By: Express
       res.set(config.headers)
       if (!this.isBotpressReady) {
-        if (!(req.headers['user-agent'] || '').includes('axios') || !req.headers.authorization) {
+        if (
+          !(req.headers['user-agent'] || '').includes('axios') ||
+          (!req.headers.authorization && !req.headers[CSRF_TOKEN_HEADER_LC])
+        ) {
           return res
             .status(503)
             .send(
@@ -304,6 +312,10 @@ export default class HTTPServer {
       )
     }
 
+    if (process.USE_JWT_COOKIES) {
+      this.app.use(cookieParser())
+    }
+
     this.app.use((req, res, next) => {
       if (!isDisabled('bodyParserJson', req)) {
         bodyParser.json({ limit: config.bodyLimit })(req, res, next)
@@ -320,8 +332,18 @@ export default class HTTPServer {
       }
     })
 
-    if (config.cors && config.cors.enabled) {
-      this.app.use(cors(config.cors.origin ? { origin: config.cors.origin } : {}))
+    if (config.cors?.enabled) {
+      this.app.use(cors(config.cors))
+    }
+
+    if (config.rateLimit?.enabled) {
+      this.app.use(
+        rateLimit({
+          windowMs: ms(config.rateLimit.limitWindow),
+          max: config.rateLimit.limit,
+          message: 'Too many requests, please slow down.'
+        })
+      )
     }
 
     this.app.get('/status', async (req, res, next) => {
@@ -338,6 +360,7 @@ export default class HTTPServer {
       res.contentType('text/javascript')
       res.send(`
       (function(window) {
+          window.USE_JWT_COOKIES = ${process.USE_JWT_COOKIES};
           window.APP_VERSION = "${process.BOTPRESS_VERSION}";
           window.APP_NAME = "${branding.title}";
           window.APP_FAVICON = "${branding.favicon}";
@@ -505,7 +528,9 @@ export default class HTTPServer {
     return {
       baseURL: `${basePath}/api/v1/bots/${botId}`,
       headers: {
-        Authorization: `Bearer ${serverToken}`
+        ...(process.USE_JWT_COOKIES
+          ? { Cookie: `${JWT_COOKIE_NAME}=${serverToken.jwt};`, [CSRF_TOKEN_HEADER]: serverToken.csrf }
+          : { Authorization: `Bearer ${serverToken.jwt}` })
       }
     }
   }

@@ -1632,13 +1632,16 @@ declare module 'botpress/sdk' {
      */
     baseURL: string
     headers: {
-      Authorization: string
+      'CSRF-Token'?: string
+      Authorization?: string
       'X-BP-Workspace'?: string
     }
   }
 
   export interface MigrationResult {
     success: boolean
+    /** Indicates if the migration had to be executed  */
+    hasChanges?: boolean
     message?: string
   }
 
