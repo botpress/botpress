@@ -1,5 +1,4 @@
 import _ from 'lodash'
-
 import { extractPattern } from '../tools/patterns-utils'
 import { jaroWinklerSimilarity, levenshteinSimilarity } from '../tools/strings'
 import { EntityExtractionResult, ListEntityModel, PatternEntity, WarmedListEntityModel } from '../typings'

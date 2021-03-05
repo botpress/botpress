@@ -253,7 +253,7 @@ async function ExtractEntities(input: TrainStep, tools: Tools): Promise<TrainSte
     .value()
 
   // we extract sys entities for all utterances, helps on training and exact matcher
-  const allSysEntities = await tools.duckling.extractMultiple(
+  const allSysEntities = await tools.systemEntityExtractor.extractMultiple(
     utterances.map(u => u.toString()),
     input.languageCode,
     true

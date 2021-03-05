@@ -4,6 +4,7 @@ import { LATIN_CHARSET, SPECIAL_CHARSET } from './chars'
 import getVocabTokenizer from './vocab-tokenizer'
 
 export const SPACE = '\u2581'
+export const JOIN_CHAR = `::${SPACE}::`
 
 export const isWord = (str: string) => _.every(SPECIAL_CHARSET, c => !RegExp(c).test(str)) && !hasSpace(str)
 

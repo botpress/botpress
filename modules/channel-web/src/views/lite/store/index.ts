@@ -304,6 +304,8 @@ class RootStore {
 
   @action.bound
   async resetSession(): Promise<void> {
+    this.composer.setLocked(false)
+
     return this.api.resetSession(this.currentConversationId)
   }
 

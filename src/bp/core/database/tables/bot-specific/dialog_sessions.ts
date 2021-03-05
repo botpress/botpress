@@ -7,7 +7,7 @@ export class DialogSessionTable extends Table {
     let created = false
 
     await this.knex.createTableIfNotExists(this.name, table => {
-      table.string('id').notNullable()
+      table.text('id').notNullable()
       table.json('context').notNullable()
       table.json('temp_data').notNullable()
       table.json('session_data').notNullable()

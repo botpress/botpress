@@ -1,0 +1,48 @@
+name: Migration Tests
+on:
+  pull_request:
+    paths:
+      - '**/migrations/*'
+
+jobs:
+  migration:
+    name: Test Server Migrations
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:11.2-alpine
+        env:
+          PGPORT: 5432
+          POSTGRES_DB: bp
+          POSTGRES_PASSWORD: pgsecret
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.13.0'
+      - name: Fetch Node Packages
+        run: |
+          yarn add @actions/core @actions/github aws-sdk
+      - name: Build core, UI and modules
+        run: |
+          NODE_OPTIONS="--max-old-space-size=6000" yarn build
+      - name: Test Migrations
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          DATABASE_URL: postgres://postgres:pgsecret@localhost:5432/bp
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PULL_REQUEST: ${{ toJson(github.event.pull_request) }}
+        run: |
+          node .github/workflows/code/test-migrations/index.js
