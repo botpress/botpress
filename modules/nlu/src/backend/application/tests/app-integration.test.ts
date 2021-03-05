@@ -814,7 +814,9 @@ describe('NLU API integration tests', () => {
     await sleep(10)
     await app.resumeTrainings()
 
-    expect(engineTrainSpy).not.toHaveBeenCalled()
-    expect(dependencies.socket).not.toHaveBeenCalledWith(expectTs({ botId, status: 'training' }))
+    await waitForTrainingsToBeDone(app)
+    expect(engineTrainSpy).toHaveBeenCalled()
+
+    expectTrainingToStartAndComplete(dependencies.socket, dependencies.trainingRepo, { botId, language: lang })
   })
 })
