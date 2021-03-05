@@ -1,15 +1,14 @@
 import { Logger } from 'botpress/sdk'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
+import { BotService } from 'core/services/bot-service'
+import { Janitor } from 'core/services/janitor'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import ms from 'ms'
-
-import { BotService } from '../bot-service'
-import { Janitor } from '../janitor'
 
 import { LogsService } from './service'
 

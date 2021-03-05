@@ -6,6 +6,7 @@ import { IDisposable } from 'core/misc/disposable'
 import { BotService } from 'core/services/bot-service'
 import { addLogToEvent } from 'core/services/middleware/event-collector'
 import { incrementMetric } from 'core/services/monitoring'
+import { TYPES } from 'core/types'
 import { InvalidParameterError } from 'errors'
 import { EventEmitter2 } from 'eventemitter2'
 import { inject, injectable } from 'inversify'
@@ -15,9 +16,7 @@ import os from 'os'
 import stripAnsi from 'strip-ansi'
 import util from 'util'
 
-import { TYPES } from '../types'
-
-import { LoggerDbPersister, LoggerFilePersister } from '.'
+import { LoggerDbPersister, LoggerFilePersister } from '..'
 
 export type LoggerProvider = (module: string) => Promise<Logger>
 

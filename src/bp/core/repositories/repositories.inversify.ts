@@ -1,3 +1,4 @@
+import { KnexLogsRepository, LogsRepository } from 'core/logger/logs-repository'
 import { ContainerModule, interfaces } from 'inversify'
 
 import { TYPES } from '../types'
@@ -13,7 +14,6 @@ import {
   UserRepository,
   WorkspaceInviteCodesRepository
 } from '.'
-import { KnexLogsRepository, LogsRepository } from './logs'
 import { StrategyUsersRepository } from './strategy_users'
 import { TasksRepository } from './tasks'
 import { TelemetryRepository } from './telemetry'

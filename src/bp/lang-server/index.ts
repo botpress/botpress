@@ -1,8 +1,8 @@
 import chalk from 'chalk'
+import center from 'core/logger/utils/center'
 import _ from 'lodash'
 import path from 'path'
 
-import center from '../core/logger/center'
 import { LogLevel } from '../core/sdk/enums'
 
 // eslint-disable-next-line import/order

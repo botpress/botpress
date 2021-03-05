@@ -1,6 +1,6 @@
 import axios from 'axios'
 import chalk from 'chalk'
-import center from 'core/logger/center'
+import center from 'core/logger/utils/center'
 import { OBFUSCATED, print, SECRET_KEYS } from 'diag'
 import dns from 'dns'
 import fs from 'fs'

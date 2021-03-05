@@ -5,13 +5,13 @@ import { NLU } from 'botpress/sdk'
 import bytes from 'bytes'
 import chalk from 'chalk'
 import cluster from 'cluster'
+
+import center from 'core/logger/utils/center'
 import { copyDir } from 'core/misc/pkg-fs'
 import _ from 'lodash'
 import Engine from 'nlu-core/engine'
 import path from 'path'
-
 import { setupMasterNode, WORKER_TYPES } from '../cluster'
-import center from '../core/logger/center'
 import { LogLevel } from '../core/sdk/enums'
 
 global.rewire = rewire as any
