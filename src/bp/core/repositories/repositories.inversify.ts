@@ -1,3 +1,5 @@
+import { StrategyUsersRepository } from 'core/collaborators/repositories/strategy_users'
+import { WorkspaceUsersRepository } from 'core/collaborators/repositories/workspace_users'
 import { ContainerModule, interfaces } from 'inversify'
 
 import { TYPES } from '../types'
@@ -14,10 +16,8 @@ import {
   WorkspaceInviteCodesRepository
 } from '.'
 import { KnexLogsRepository, LogsRepository } from './logs'
-import { StrategyUsersRepository } from './strategy_users'
 import { TasksRepository } from './tasks'
 import { TelemetryRepository } from './telemetry'
-import { WorkspaceUsersRepository } from './workspace_users'
 
 const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<SessionRepository>(TYPES.SessionRepository)
