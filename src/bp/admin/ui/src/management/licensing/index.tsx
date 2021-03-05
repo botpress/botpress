@@ -77,7 +77,7 @@ class LicenseStatus extends React.Component<Props> {
           acceptLabel: lang.tr('enable')
         })
       ) {
-        const result = await api.getSecured().post('/admin/management/config/enablePro')
+        const result = await api.getSecured().post('/admin/management/licensing/config/enablePro')
         if (result.status === 200) {
           await this.rebootServer()
         }
