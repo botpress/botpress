@@ -3,7 +3,8 @@ import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router'
 
-import { fetchBots } from '../reducers/bots'
+import { fetchBots } from '~/workspace/bots/reducer'
+import { AppState } from './reducer'
 
 const CommandPalette = props => {
   const [commands, setCommands] = useState<QuickShortcut[]>([])
@@ -46,7 +47,7 @@ const CommandPalette = props => {
   return <Commander location="admin" history={props.history} user={props.user} shortcuts={commands} />
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: AppState) => ({
   bots: state.bots.bots,
   user: state.user.profile,
   workspaces: state.user.workspaces

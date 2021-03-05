@@ -1,12 +1,11 @@
 import axios from 'axios'
 import Promise from 'bluebird'
-import { auth } from 'botpress/shared'
+import { auth, toast } from 'botpress/shared'
 import { CSRF_TOKEN_HEADER } from 'common/auth'
 import _ from 'lodash'
 import React from 'react'
 
-import { getActiveWorkspace } from './Auth'
-import { toastFailure } from './utils/toaster'
+import { getActiveWorkspace } from '~/auth/basicAuth'
 
 interface SecuredApi {
   token?: string
@@ -35,7 +34,7 @@ export const toastError = error => {
     message = <span>Something wrong happened. Please try again later.</span>
   }
 
-  toastFailure(message)
+  toast.failure(message)
 }
 
 const createClient = (clientOptions: any, options: { toastErrors?: boolean }) => {

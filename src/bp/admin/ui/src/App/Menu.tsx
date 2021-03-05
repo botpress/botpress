@@ -7,11 +7,10 @@ import { MdAndroid, MdCopyright } from 'react-icons/md'
 import { connect } from 'react-redux'
 import { generatePath, RouteComponentProps, withRouter } from 'react-router'
 import { matchPath } from 'react-router-dom'
-import { getActiveWorkspace } from '~/Auth'
 
-import { fetchCurrentVersion, fetchLatestVersions, VersionState } from '../reducers/versions'
-
-import AccessControl from './AccessControl'
+import AccessControl from '~/auth/AccessControl'
+import { getActiveWorkspace } from '~/auth/basicAuth'
+import { fetchCurrentVersion, fetchLatestVersions, VersionState } from '~/releases/reducer'
 
 type MenuProps = {
   licensing: any

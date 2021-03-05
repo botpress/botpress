@@ -20,9 +20,9 @@ import * as BlueprintJsSelect from 'expose-loader?BlueprintJsSelect!@blueprintjs
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+import { makeMainRoutes } from '~/app/routes'
 import { initializeTranslations } from '~/translations'
 import './index.css'
-import { makeMainRoutes } from './routes'
 
 const routes = makeMainRoutes()
 
