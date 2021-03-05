@@ -4,7 +4,6 @@ import { sanitize } from '../language/sanitizer'
 import { computeQuantile } from '../tools/math'
 import { countAlpha, countNum, countSpecial } from '../tools/strings'
 import { MAX_TFIDF, MIN_TFIDF } from '../tools/tfidf'
-import { Intent } from '../typings'
 import Utterance, { UtteranceToken } from '../utterance/utterance'
 
 type FeatureValue = string | number | boolean
@@ -72,11 +71,9 @@ export function getWordFeat(token: UtteranceToken, isPredict: boolean): CRFFeatu
   }
 }
 
-export function getInVocabFeat(token: UtteranceToken, intent: Intent<Utterance>): CRFFeature {
-  if (!intent.vocab) {
-    throw new Error('getInVocabFeat requires a vocab')
-  }
-  const inVocab = !!intent.vocab[token.toString({ lowerCase: true })]
+export function getInVocabFeat(token: UtteranceToken, vocab: string[]): CRFFeature {
+  const stringToken = token.toString({ lowerCase: true })
+  const inVocab = vocab.includes(stringToken)
   return {
     name: 'inVocab',
     value: inVocab
@@ -126,10 +123,10 @@ export function getSpecialChars(token: UtteranceToken): CRFFeature {
   }
 }
 
-export function getIntentFeature(intent: Intent<Utterance>): CRFFeature {
+export function getIntentFeature(intentName: string): CRFFeature {
   return {
     name: 'intent',
-    value: sanitize(intent.name.replace(/\s/g, '')),
+    value: sanitize(intentName.replace(/\s/g, '')),
     boost: 100
   }
 }

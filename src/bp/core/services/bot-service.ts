@@ -200,10 +200,16 @@ export class BotService {
       updatedFields.disabled = false
     }
 
-    await this.configProvider.setBotConfig(botId, {
+    const newConfig = {
       ...actualBot,
       ...updatedFields
-    })
+    } as BotConfig
+
+    if (!newConfig.languages.includes(newConfig.defaultLanguage)) {
+      throw new Error('Supported languages must include the default language of the bot')
+    }
+
+    await this.configProvider.setBotConfig(botId, newConfig)
 
     if (!updatedBot.disabled) {
       if (this.isBotMounted(botId)) {
@@ -334,7 +340,7 @@ export class BotService {
 
   private async _migrateBotContent(botId: string): Promise<void> {
     const config = await this.configProvider.getBotConfig(botId)
-    return this.migrationService.executeMissingBotMigrations(botId, config.version)
+    return this.migrationService.botMigration.executeMissingBotMigrations(botId, config.version)
   }
 
   async requestStageChange(botId: string, requestedBy: string) {
@@ -600,6 +606,11 @@ export class BotService {
     }
 
     try {
+      const config = await this.configProvider.getBotConfig(botId)
+      if (!config.languages.includes(config.defaultLanguage)) {
+        throw new Error('Supported languages must include the default language of the bot')
+      }
+
       await this.cms.loadElementsForBot(botId)
       await this.moduleLoader.loadModulesForBot(botId)
 

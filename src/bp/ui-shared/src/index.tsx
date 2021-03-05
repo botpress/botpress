@@ -1,3 +1,4 @@
+import * as auth from '../../ui-shared-lite/auth'
 import Checkbox from '../../ui-shared-lite/Checkbox'
 import Collapsible from '../../ui-shared-lite/Collapsible'
 import ContentSection from '../../ui-shared-lite/ContentSection'
@@ -7,6 +8,7 @@ import Overlay from '../../ui-shared-lite/Overlay'
 import style from '../../ui-shared-lite/style.scss'
 import Tabs from '../../ui-shared-lite/Tabs'
 import ToolTip from '../../ui-shared-lite/ToolTip'
+import * as storage from '../../ui-shared-lite/utils/storage'
 
 import { isOperationAllowed } from './AccessControl'
 import { Commander } from './Commander'
@@ -25,6 +27,7 @@ import ShortcutLabel from './ShortcutLabel'
 import { sendTelemetry, startFallback } from './telemetry'
 import Textarea from './Textarea'
 import { toast } from './Toaster'
+import TokenRefresher from './TokenRefresher'
 import { defaultLocale, lang, langAvaibale, langExtend, langInit, langLocale } from './translations'
 import TreeView from './TreeView'
 import { createDateRangeShortcuts, relativeDates } from './utils/dates'
@@ -55,7 +58,8 @@ exports.ToolTip = ToolTip
 exports.TreeView = TreeView
 exports.Icons = Icons
 exports.sharedStyle = style
-
+exports.TokenRefresher = TokenRefresher
+exports.auth = auth
 exports.contextMenu = contextMenu
 exports.confirmDialog = confirmDialog
 exports.lang = {
@@ -67,7 +71,7 @@ exports.lang = {
   defaultLocale
 }
 exports.toast = toast
-exports.utils = { controlKey, keyMap, isInputFocused, inspect }
+exports.utils = { controlKey, keyMap, isInputFocused, inspect, storage }
 exports.telemetry = {
   startFallback,
   sendTelemetry

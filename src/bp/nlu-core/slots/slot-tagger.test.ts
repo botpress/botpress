@@ -1,9 +1,18 @@
 import _ from 'lodash'
+import { makeTestUtterance } from 'nlu-core/test-utils/fake-utterance'
 
-import { BIO, ExtractedEntity, ExtractedSlot, Intent } from '../typings'
-import Utterance, { makeTestUtterance } from '../utterance/utterance'
+import { BIO, ExtractedEntity, ExtractedSlot } from '../typings'
+import Utterance from '../utterance/utterance'
 
-import { labelizeUtterance, makeExtractedSlots, TagResult } from './slot-tagger'
+import SlotTagger, { labelizeUtterance, makeExtractedSlots } from './slot-tagger'
+import { TagResult } from './typings'
+import { makeFakeTools } from 'nlu-core/test-utils/fake-tools'
+import { ModelLoadingError } from 'nlu-core/errors'
+
+const fakeTools = makeFakeTools(300, ['en'])
+const dummyProgress = (p: number) => {}
+
+const dudeWheresMyCar = makeTestUtterance("Dude, where's my car?")
 
 describe('Slot tagger labels for utterance', () => {
   test('without slots', () => {
@@ -47,9 +56,7 @@ describe('makeExtractedSlots', () => {
   let u: Utterance
   const out: TagResult = { name: '', tag: BIO.OUT, probability: 1 }
   let tagResults: TagResult[]
-  const testIntent = {
-    slot_entities: ['CS_Field']
-  } as Intent<Utterance>
+  const slot_entities = ['CS_Field']
 
   beforeEach(() => {
     u = makeTestUtterance('No one is safe big AI is watching')
@@ -65,7 +72,7 @@ describe('makeExtractedSlots', () => {
       { name: 'threath', probability: 1, tag: BIO.INSIDE }
     )
 
-    const extractedSlots = makeExtractedSlots(testIntent, u, tagResults)
+    const extractedSlots = makeExtractedSlots(slot_entities, u, tagResults)
 
     expect(extractedSlots.length).toEqual(1)
     expect(extractedSlots[0].slot.source).toEqual('big AI')
@@ -84,7 +91,7 @@ describe('makeExtractedSlots', () => {
       { name: 'action', probability: 1, tag: BIO.INSIDE }
     )
 
-    const extractedSlots = makeExtractedSlots(testIntent, u, tagResults)
+    const extractedSlots = makeExtractedSlots(slot_entities, u, tagResults)
 
     expect(extractedSlots.length).toEqual(2)
     expect(extractedSlots[0].slot.source).toEqual('big AI')
@@ -108,7 +115,7 @@ describe('makeExtractedSlots', () => {
     const entity = { type: 'CS_Field', value, confidence: 0.42, sensitive: false, metadata: {} } as ExtractedEntity
     u.tagEntity(entity, 19, 21)
 
-    const extractedSlots = makeExtractedSlots(testIntent, u, tagResults)
+    const extractedSlots = makeExtractedSlots(slot_entities, u, tagResults)
 
     expect(extractedSlots.length).toEqual(1)
     expect(extractedSlots[0].slot.source).toEqual('big AI')
@@ -127,11 +134,66 @@ describe('makeExtractedSlots', () => {
     )
     u.tagEntity({ type: 'verb', value: 'to watch' } as ExtractedEntity, 25, 33)
 
-    const extractedSlots = makeExtractedSlots(testIntent, u, tagResults)
+    const extractedSlots = makeExtractedSlots(slot_entities, u, tagResults)
 
     expect(extractedSlots.length).toEqual(1)
     expect(extractedSlots[0].slot.entity).toBeUndefined()
     expect(extractedSlots[0].slot.source).toEqual('is watching')
     expect(extractedSlots[0].slot.value).toEqual('is watching')
   })
+})
+
+describe('Slot tagger component lifecycle', () => {
+  test('Slot tagger with no slots should predict empty array', async () => {
+    let slotTagger = new SlotTagger(fakeTools)
+    await slotTagger.train(
+      {
+        intent: {
+          name: 'someIntent',
+          contexts: [],
+          utterances: [dudeWheresMyCar],
+          slot_definitions: []
+        },
+        list_entites: []
+      },
+      dummyProgress
+    )
+
+    const model = slotTagger.serialize()
+    slotTagger = new SlotTagger(fakeTools)
+    await slotTagger.load(model)
+
+    const prediction = await slotTagger.predict(dudeWheresMyCar)
+    expect(prediction.length).toBe(0)
+  })
+
+  test('When model is corrupted, loading throws', async () => {
+    const slotTagger = new SlotTagger(fakeTools)
+    await slotTagger.train(
+      {
+        intent: {
+          name: 'someIntent',
+          contexts: [],
+          utterances: [dudeWheresMyCar],
+          slot_definitions: []
+        },
+        list_entites: []
+      },
+      dummyProgress
+    )
+
+    const model = slotTagger.serialize()
+
+    // act && asert
+    await expect(slotTagger.load(`${model} I'm not a rapper`)).rejects.toThrowError(ModelLoadingError)
+
+    const parsed = JSON.parse(model)
+    parsed['someKey'] = 'someValue'
+    await expect(slotTagger.load(JSON.stringify(parsed))).rejects.toThrowError(ModelLoadingError)
+
+    const undef: unknown = undefined
+    await expect(slotTagger.load(undef as string)).rejects.toThrowError(ModelLoadingError)
+  })
+
+  // TODO: add a fake CRF tagger to the fake tools and assert the slot tagger works well as a whole
 })

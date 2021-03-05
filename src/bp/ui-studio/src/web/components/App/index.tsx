@@ -1,7 +1,6 @@
 import axios from 'axios'
-import { StoredToken } from 'common/typings'
-import ms from 'ms'
-import { Component } from 'react'
+import { TokenRefresher } from 'botpress/shared'
+import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import {
   addNotifications,
@@ -15,7 +14,7 @@ import {
   refreshHints,
   replaceNotifications
 } from '~/actions'
-import { authEvents, getToken, REFRESH_INTERVAL, setToken, tokenNeedsRefresh } from '~/util/Auth'
+import { authEvents, setToken } from '~/util/Auth'
 import EventBus from '~/util/EventBus'
 
 import routes, { history } from '../Routes'
@@ -35,8 +34,6 @@ interface Props {
 }
 
 class App extends Component<Props> {
-  private interval
-
   fetchData = () => {
     this.props.getModuleTranslations()
     this.props.fetchBotInformation()
@@ -112,36 +109,15 @@ class App extends Component<Props> {
         history.push(payload)
       }
     })
-
-    this.interval = setInterval(async () => {
-      await this.tryRefreshToken()
-    }, REFRESH_INTERVAL)
-  }
-
-  async tryRefreshToken() {
-    try {
-      if (!tokenNeedsRefresh()) {
-        return
-      }
-
-      const tokenData = getToken(false) as StoredToken
-
-      const { data } = await axios.get(`${window.API_PATH}/auth/refresh`)
-      const { newToken } = data.payload
-
-      if (newToken !== tokenData.token) {
-        setToken(newToken)
-        console.info('Token refreshed successfully')
-      } else {
-        clearInterval(this.interval)
-      }
-    } catch (err) {
-      console.error('Error validating & refreshing token', err)
-    }
   }
 
   render() {
-    return routes()
+    return (
+      <Fragment>
+        <TokenRefresher getAxiosClient={() => axios} onRefreshCompleted={token => setToken(token)} />
+        {routes()}
+      </Fragment>
+    )
   }
 }
 

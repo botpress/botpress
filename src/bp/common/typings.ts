@@ -61,7 +61,9 @@ export interface AuthRole {
 export interface TokenUser {
   email: string
   strategy: string
+  tokenVersion: number
   isSuperAdmin: boolean
+  csrfToken?: string
   exp?: number
   iat?: number
 }
@@ -70,6 +72,12 @@ export interface StoredToken {
   token: string
   expiresAt: number
   issuedAt: number
+}
+
+export interface TokenResponse {
+  jwt: string
+  csrf: string
+  exp: number
 }
 
 export type RequestWithUser = Request & {
