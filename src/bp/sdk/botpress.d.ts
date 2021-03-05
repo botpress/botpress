@@ -1732,6 +1732,78 @@ declare module 'botpress/sdk' {
     asChatUser?: boolean
   }
 
+  export interface RenderPipeline {
+    text: typeof experimental.render.text
+    image: typeof experimental.render.image
+    card: typeof experimental.render.card
+    carousel: typeof experimental.render.carousel
+    choice: typeof experimental.render.choice
+    buttonSay: typeof experimental.render.buttonSay
+    buttonUrl: typeof experimental.render.buttonUrl
+    buttonPostback: typeof experimental.render.buttonPostback
+    option: typeof experimental.render.option
+  }
+
+  export interface Content {
+    type: string
+  }
+
+  export interface TextContent extends Content {
+    type: 'text'
+    text: string | MultiLangText
+    markdown?: boolean
+  }
+
+  export interface ImageContent extends Content {
+    type: 'image'
+    image: string
+    title?: string | MultiLangText
+  }
+
+  export interface CarouselContent extends Content {
+    type: 'carousel'
+    items: CardContent[]
+  }
+
+  export interface CardContent extends Content {
+    type: 'card'
+    title: string | MultiLangText
+    subtitle?: string | MultiLangText
+    image?: string
+    actions: ActionButton[]
+  }
+
+  export interface ActionButton {
+    title: string
+    action: string
+  }
+
+  export interface ActionSaySomething extends ActionButton {
+    action: 'Say something'
+    text: string | MultiLangText
+  }
+
+  export interface ActionOpenURL extends ActionButton {
+    action: 'Open URL'
+    url: string
+  }
+
+  export interface ActionPostback extends ActionButton {
+    action: 'Postback'
+    payload: string
+  }
+
+  export interface ChoiceContent extends Content {
+    type: 'single-choice'
+    message: string | MultiLangText
+    choices: ChoiceOption[]
+  }
+
+  export interface ChoiceOption {
+    message: string | MultiLangText
+    value: string
+  }
+
   ////////////////
   //////// API
   ////////////////
@@ -2367,14 +2439,14 @@ declare module 'botpress/sdk' {
        * @param text Text to show
        * @param markdown Indicates whether to use markdown
        */
-      export function text(text: string | MultiLangText, markdown?: boolean): Text
+      export function text(text: string | MultiLangText, markdown?: boolean): TextContent
 
       /**
        * Renders an image element
        * @param url Url of the image to send
        * @param caption Caption to appear alongside your image
        */
-      export function image(url: string, caption?: string | MultiLangText): Image
+      export function image(url: string, caption?: string | MultiLangText): ImageContent
 
       /**
        * Renders a carousel element
@@ -2382,7 +2454,7 @@ declare module 'botpress/sdk' {
        * @example
        * bp.render.carousel(bp.render.card('my card'), bp.render.card('my card 2'))
        */
-      export function carousel(...cards: Card[]): Carousel
+      export function carousel(...cards: CardContent[]): CarouselContent
 
       /**
        * Renders a card element
@@ -2398,7 +2470,7 @@ declare module 'botpress/sdk' {
         image?: string,
         subtitle?: string | MultiLangText,
         ...buttons: ActionButton[]
-      ): Card
+      ): CardContent
 
       /**
        * Renders an action button used to send a message to the conversation
@@ -2428,7 +2500,7 @@ declare module 'botpress/sdk' {
        * @example
        * bp.render.choice("Yes or no?", bp.render.option('yes'), bp.render.option('no'))
        */
-      export function choice(message: string | MultiLangText, ...choices: ChoiceOption[]): Choice
+      export function choice(message: string | MultiLangText, ...choices: ChoiceOption[]): ChoiceContent
 
       /**
        * Renders an option for a choice element
@@ -2483,79 +2555,7 @@ declare module 'botpress/sdk' {
        * const text2 = render.text({ en: 'age : {{user.age}}', fr: 'âge : {{user.age}}' })
        * const text3 = render.text('PIN : {{user.pin}}')
        */
-      export function pipeline(lang: string, context: any): Pipeline
-
-      export interface Pipeline {
-        text: typeof text
-        image: typeof image
-        card: typeof card
-        carousel: typeof carousel
-        choice: typeof choice
-        buttonSay: typeof buttonSay
-        buttonUrl: typeof buttonUrl
-        buttonPostback: typeof buttonPostback
-        option: typeof option
-      }
-
-      export interface Content {
-        type: string
-      }
-
-      export interface Text extends Content {
-        type: 'text'
-        text: string | MultiLangText
-        markdown?: boolean
-      }
-
-      export interface Image extends Content {
-        type: 'image'
-        image: string
-        title?: string | MultiLangText
-      }
-
-      export interface Carousel extends Content {
-        type: 'carousel'
-        items: Card[]
-      }
-
-      export interface Card extends Content {
-        type: 'card'
-        title: string | MultiLangText
-        subtitle?: string | MultiLangText
-        image?: string
-        actions: ActionButton[]
-      }
-
-      export interface ActionButton {
-        title: string
-        action: string
-      }
-
-      export interface ActionSaySomething extends ActionButton {
-        action: 'Say something'
-        text: string | MultiLangText
-      }
-
-      export interface ActionOpenURL extends ActionButton {
-        action: 'Open URL'
-        url: string
-      }
-
-      export interface ActionPostback extends ActionButton {
-        action: 'Postback'
-        payload: string
-      }
-
-      export interface Choice extends Content {
-        type: 'single-choice'
-        message: string | MultiLangText
-        choices: ChoiceOption[]
-      }
-
-      export interface ChoiceOption {
-        message: string | MultiLangText
-        value: string
-      }
+      export function pipeline(lang: string, context: any): RenderPipeline
     }
   }
 }
