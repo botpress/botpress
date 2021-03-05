@@ -106,9 +106,10 @@ const EditStageModal: FC<Props> = props => {
     }
 
     try {
-      await api
-        .getSecured()
-        .post(`/admin/workspaces/${getActiveWorkspace()}/pipeline`, { updateCustom: true, pipeline: newPipeline })
+      await api.getSecured().post(`/admin/management/workspaces/${getActiveWorkspace()}/pipeline`, {
+        updateCustom: true,
+        pipeline: newPipeline
+      })
 
       props.onEditSuccess()
       toastSuccess(lang.tr('admin.workspace.bots.edit.stageSaved'))

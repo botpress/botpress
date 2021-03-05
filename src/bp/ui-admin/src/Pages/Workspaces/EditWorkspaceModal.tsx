@@ -26,7 +26,7 @@ const EditWorkspaceModal: FC<Props> = props => {
 
   const submit = async () => {
     try {
-      await api.getSecured().post(`/admin/workspaces/${props.workspace.id}`, { name, description })
+      await api.getSecured().post(`/admin/workspace/workspaces/${props.workspace.id}`, { name, description })
       props.refreshWorkspaces()
 
       toastSuccess('Workspace saved successfully')

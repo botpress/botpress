@@ -78,7 +78,7 @@ export default (state = initialState, action) => {
 
 export const fetchBotTemplates = () => {
   return async dispatch => {
-    const { data } = await api.getSecured().get('/modules/botTemplates')
+    const { data } = await api.getSecured().get('/admin/workspace/bots/templates')
     dispatch({
       type: RECEIVED_BOT_TEMPLATES,
       templates: data
@@ -88,7 +88,7 @@ export const fetchBotTemplates = () => {
 
 export const fetchBotCategories = () => {
   return async dispatch => {
-    const { data } = await api.getSecured().get('/admin/bots/categories')
+    const { data } = await api.getSecured().get('/admin/workspace/bots/categories')
 
     dispatch({
       type: RECEIVED_BOT_CATEGORIES,
@@ -103,7 +103,7 @@ export const fetchBots = () => {
       type: FETCH_BOTS_REQUESTED
     })
 
-    const { data } = await api.getSecured().get('/admin/bots')
+    const { data } = await api.getSecured().get('/admin/workspace/bots')
     if (!data || !data.payload) {
       return
     }
@@ -118,7 +118,7 @@ export const fetchBots = () => {
 
 export const fetchBotsByWorkspace = () => {
   return async dispatch => {
-    const { data } = await api.getSecured().get('/admin/bots/byWorkspaces')
+    const { data } = await api.getSecured().get('/admin/workspace/bots/byWorkspaces')
     if (!data || !data.payload) {
       return
     }
@@ -129,7 +129,7 @@ export const fetchBotsByWorkspace = () => {
 
 export const fetchBotHealth = () => {
   return async dispatch => {
-    const { data } = await api.getSecured().get('/admin/bots/health')
+    const { data } = await api.getSecured().get('/admin/workspace/bots/health')
     if (!data || !data.payload) {
       return
     }

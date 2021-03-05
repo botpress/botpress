@@ -51,7 +51,7 @@ const Modules: FC<Props> = props => {
           { acceptLabel: 'Restart server(s) now' }
         )
       ) {
-        await api.getSecured().post('/admin/server/rebootServer')
+        await api.getSecured().post('/admin/management/rebootServer')
         setRestart(true)
       }
     } catch (err) {
@@ -61,7 +61,7 @@ const Modules: FC<Props> = props => {
 
   const updateModuleStatus = async (moduleName: string, enabled: boolean) => {
     try {
-      const { data } = await api.getSecured().post(`/modules/${moduleName}/enabled/${enabled}`)
+      const { data } = await api.getSecured().post(`/admin/management/modules/${moduleName}/enabled/${enabled}`)
       setRebootRequired(data.rebootRequired)
       props.fetchModules()
       toastSuccess('Module status updated successfully')
@@ -72,7 +72,7 @@ const Modules: FC<Props> = props => {
 
   const unpackModule = async (moduleName: string) => {
     try {
-      await api.getSecured().post(`/modules/${moduleName}/unpack`)
+      await api.getSecured().post(`/admin/management/modules/${moduleName}/unpack`)
       toastSuccess('Module unpacked successfully')
       props.fetchModules()
     } catch (err) {

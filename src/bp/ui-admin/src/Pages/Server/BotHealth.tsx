@@ -166,7 +166,7 @@ const BotHealth: FC<Props> = props => {
     }
 
     try {
-      await api.getSecured().post(`/admin/bots/${botId}/reload`)
+      await api.getSecured().post(`/admin/workspace/bots/${botId}/reload`)
       toastSuccess('Bot remounted successfully')
     } catch (err) {
       console.error(err)

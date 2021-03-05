@@ -1,28 +1,15 @@
+import { AdminServices } from 'admin'
+import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import axios from 'axios'
-import { Logger } from 'botpress/sdk'
 import { StandardError, UnexpectedError } from 'common/http'
-import { ConfigProvider } from 'core/config/config-loader'
-import { ModuleLoader } from 'core/module-loader'
-import { WorkspaceService } from 'core/services/workspace-service'
-import { RequestHandler, Router } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
 
-import { CustomRouter } from '../customRouter'
-import { needPermissions } from '../util'
-
-export class LanguagesRouter extends CustomRouter {
-  private needPermissions: (operation: string, resource: string) => RequestHandler
+export class LanguagesRouter extends CustomAdminRouter {
   private readonly resource = 'admin.languages'
 
-  constructor(
-    private logger: Logger,
-    private moduleLoader: ModuleLoader,
-    private workspaceService: WorkspaceService,
-    private configProvider: ConfigProvider
-  ) {
-    super('Languages', logger, Router({ mergeParams: true }))
-    this.needPermissions = needPermissions(this.workspaceService)
+  constructor(services: AdminServices) {
+    super('Languages', services)
     this.setupRoutes()
   }
 

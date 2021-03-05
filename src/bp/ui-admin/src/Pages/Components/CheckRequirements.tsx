@@ -58,7 +58,7 @@ const CheckRequirements: FC<Props> = props => {
 
   const enableFeature = async () => {
     try {
-      await api.getSecured().post(`/admin/server/features/enable/${props.feature}`)
+      await api.getSecured().post(`/admin/management/features/enable/${props.feature}`)
       toastSuccess(lang.tr('admin.requirements.confUpdated'))
       props.fetchServerConfig()
     } catch (err) {

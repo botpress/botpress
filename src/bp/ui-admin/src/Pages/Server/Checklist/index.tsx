@@ -70,7 +70,7 @@ export const Checklist: FC<Props> = props => {
   }, [])
 
   const loadData = async () => {
-    const { data: sources } = await api.getSecured().get('/admin/languages/sources')
+    const { data: sources } = await api.getSecured().get('/admin/management/languages/sources')
     setLangSource(sources.languageSources)
 
     await checkAuditTrail()
@@ -78,7 +78,7 @@ export const Checklist: FC<Props> = props => {
   }
 
   const checkAuditTrail = async () => {
-    const { data: debug } = await api.getSecured().get('/admin/server/debug')
+    const { data: debug } = await api.getSecured().get('/admin/health/debug')
     const audit = Object.keys(debug)
       .filter(x => x.startsWith('bp:audit'))
       .map(x => debug[x])

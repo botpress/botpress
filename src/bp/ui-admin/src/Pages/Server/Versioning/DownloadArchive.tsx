@@ -13,7 +13,7 @@ const DownloadArchive = () => {
   const downloadArchive = () => {
     setProgress(0)
     setIsLoading(true)
-    setDownloadUrl('/admin/versioning/export')
+    setDownloadUrl('/admin/management/versioning/export')
   }
 
   const downloadCompleted = () => {

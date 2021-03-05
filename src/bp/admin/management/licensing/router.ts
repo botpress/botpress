@@ -1,13 +1,10 @@
-import { Logger } from 'botpress/sdk'
-import LicensingService, { LicenseInfo, LicenseStatus } from 'common/licensing-service'
+import { AdminServices } from 'admin'
+import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
+import { LicenseInfo, LicenseStatus } from 'common/licensing-service'
 import { RequestWithUser } from 'common/typings'
-import { ConfigProvider } from 'core/config/config-loader'
-import { Router } from 'express'
+import { BadRequestError } from 'core/routers/errors'
+import { assertSuperAdmin, success as sendSuccess } from 'core/routers/util'
 import _ from 'lodash'
-
-import { CustomRouter } from '../customRouter'
-import { BadRequestError } from '../errors'
-import { assertSuperAdmin, success as sendSuccess } from '../util'
 
 type LicensingStatus = {
   isPro: boolean
@@ -26,15 +23,15 @@ const defaultResponse: LicensingStatus = {
   isPro: process.IS_PRO_ENABLED
 }
 
-export class LicenseRouter extends CustomRouter {
-  constructor(logger: Logger, private licenseService: LicensingService, private configProvider: ConfigProvider) {
-    super('License', logger, Router({ mergeParams: true }))
+export class LicensingRouter extends CustomAdminRouter {
+  constructor(services: AdminServices) {
+    super('Licensing', services)
     this.setupRoutes()
   }
 
   setupRoutes() {
     const router = this.router
-    const svc = this.licenseService
+    const svc = this.licensingService
 
     router.get(
       '/status',
@@ -99,6 +96,18 @@ export class LicenseRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         await svc.refreshLicenseKey()
         return sendSuccess(res, 'License refreshed')
+      })
+    )
+
+    router.post(
+      '/config/enablePro',
+      this.asyncMiddleware(async (req, res) => {
+        if (process.IS_PRO_ENABLED) {
+          return res.send('Botpress Pro is already enabled.')
+        }
+
+        await this.configProvider.mergeBotpressConfig({ pro: { enabled: true } })
+        res.send('Enabled successfully')
       })
     )
   }

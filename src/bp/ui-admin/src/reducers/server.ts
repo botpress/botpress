@@ -39,21 +39,21 @@ export default (state = initialState, action) => {
 
 export const fetchLanguages = () => {
   return async dispatch => {
-    const { data } = await api.getSecured().get('/admin/languages/available')
+    const { data } = await api.getSecured().get('/admin/management/languages/available')
     dispatch({ type: FETCH_LANGUAGES_RECEIVED, languages: data.languages })
   }
 }
 
 export const fetchWorkspaces = () => {
   return async dispatch => {
-    const { data } = await api.getSecured().get('/admin/workspaces')
+    const { data } = await api.getSecured().get('/admin/workspace/workspaces')
     dispatch({ type: FETCH_WORKSPACES_RECEIVED, workspaces: data })
   }
 }
 
 export const fetchServerConfig = () => {
   return async dispatch => {
-    const { data } = await api.getSecured().get('/admin/server/serverConfig')
+    const { data } = await api.getSecured().get('/admin/management/checklist/serverConfig')
     dispatch({ type: FETCH_SERVER_CONFIG_RECEIVED, serverConfig: data })
   }
 }

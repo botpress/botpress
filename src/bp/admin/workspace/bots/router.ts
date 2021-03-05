@@ -1,24 +1,12 @@
-import { BotConfig, Logger } from 'botpress/sdk'
+import { AdminServices } from 'admin'
+import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
+import { BotConfig } from 'botpress/sdk'
 import { UnexpectedError } from 'common/http'
-import { RequestWithUser } from 'common/typings'
-import { ConfigProvider } from 'core/config/config-loader'
-import { BotService } from 'core/services/bot-service'
-import { WorkspaceService } from 'core/services/workspace-service'
-import { RequestHandler, Router } from 'express'
+import { ConflictError, ForbiddenError } from 'core/routers/errors'
+import { assertSuperAdmin, assertWorkspace, success as sendSuccess } from 'core/routers/util'
 import Joi from 'joi'
 import _ from 'lodash'
 import yn from 'yn'
-
-import { CustomRouter } from '../customRouter'
-import { ConflictError, ForbiddenError } from '../errors'
-import {
-  assertBotpressPro,
-  assertSuperAdmin,
-  assertWorkspace,
-  hasPermissions,
-  needPermissions,
-  success as sendSuccess
-} from '../util'
 
 const chatUserBotFields = [
   'id',
@@ -31,27 +19,11 @@ const chatUserBotFields = [
   'pipeline_status.current_stage.id'
 ]
 
-export class BotsRouter extends CustomRouter {
-  public readonly router: Router
-
+export class BotsRouter extends CustomAdminRouter {
   private readonly resource = 'admin.bots'
-  private needPermissions: (operation: string, resource: string) => RequestHandler
-  private hasPermissions: (req: RequestWithUser, operation: string, resource: string) => Promise<boolean>
-  private assertBotpressPro: RequestHandler
-  private logger!: Logger
 
-  constructor(
-    logger: Logger,
-    private workspaceService: WorkspaceService,
-    private botService: BotService,
-    private configProvider: ConfigProvider
-  ) {
-    super('Bots', logger, Router({ mergeParams: true }))
-    this.logger = logger
-    this.needPermissions = needPermissions(this.workspaceService)
-    this.hasPermissions = hasPermissions(this.workspaceService)
-    this.assertBotpressPro = assertBotpressPro(this.workspaceService)
-    this.router = Router({ mergeParams: true })
+  constructor(services: AdminServices) {
+    super('Bots', services)
     this.setupRoutes()
   }
 
@@ -90,6 +62,13 @@ export class BotsRouter extends CustomRouter {
         }, {})
 
         return sendSuccess(res, 'Retrieved bots', { bots })
+      })
+    )
+
+    this.router.get(
+      '/templates',
+      this.asyncMiddleware(async (_req, res, _next) => {
+        res.send(this.moduleLoader.getBotTemplates())
       })
     )
 

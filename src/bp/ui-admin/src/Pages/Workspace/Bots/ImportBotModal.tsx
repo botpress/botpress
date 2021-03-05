@@ -51,12 +51,16 @@ class ImportBotModal extends Component<Props, State> {
     try {
       await api
         .getSecured({ timeout: ms('20m') })
-        .post(`/admin/bots/${this.state.botId}/import?overwrite=${this.state.overwrite}`, this.state.fileContent, {
-          headers: { 'Content-Type': 'application/tar+gzip' },
-          onUploadProgress: evt => {
-            this.setState({ progress: Math.round((evt.loaded / evt.total) * 100) })
+        .post(
+          `/admin/workspace/bots/${this.state.botId}/import?overwrite=${this.state.overwrite}`,
+          this.state.fileContent,
+          {
+            headers: { 'Content-Type': 'application/tar+gzip' },
+            onUploadProgress: evt => {
+              this.setState({ progress: Math.round((evt.loaded / evt.total) * 100) })
+            }
           }
-        })
+        )
 
       toast.success('admin.workspace.bots.import.successful', this.state.botId)
 
@@ -75,7 +79,7 @@ class ImportBotModal extends Component<Props, State> {
     }
 
     try {
-      const { data: isIdTaken } = await api.getSecured().get(`/admin/bots/${this.state.botId}/exists`)
+      const { data: isIdTaken } = await api.getSecured().get(`/admin/workspace/bots/${this.state.botId}/exists`)
       this.setState({ isIdTaken })
     } catch (error) {
       this.setState({ error: error.message })

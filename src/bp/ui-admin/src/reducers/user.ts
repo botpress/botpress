@@ -115,7 +115,7 @@ export const fetchUsers = (filterRoles?: string) => {
 
     dispatch({ type: FETCH_USERS_REQUESTED })
     const query = (filterRoles && `?roles=${filterRoles}`) || ''
-    const { data: users } = await api.getSecured().get(`/admin/users${query}`)
+    const { data: users } = await api.getSecured().get(`/admin/workspace/collaborators${query}`)
     dispatch({ type: FETCH_USERS_RECEIVED, users: users.payload })
   }
 }
@@ -150,7 +150,7 @@ export const fetchAuthConfig = () => {
 export const fetchAvailableUsers = (filterRoles?: string) => {
   const query = (filterRoles && `?roles=${filterRoles}`) || ''
   return async dispatch => {
-    const { data } = await api.getSecured().get(`/admin/users/listAvailableUsers${query}`)
+    const { data } = await api.getSecured().get(`/admin/workspace/collaborators/listAvailableUsers${query}`)
     dispatch({ type: AVAILABLE_USERS_RECEIVED, availableUsers: data.payload })
   }
 }
@@ -168,7 +168,7 @@ export const switchWorkspace = (workspaceId: string) => {
 export const fetchWorkspaceRollout = () => {
   return async dispatch => {
     const workspaceId = getActiveWorkspace()
-    const { data } = await api.getSecured().get(`/admin/workspaces/${workspaceId}/rollout`)
+    const { data } = await api.getSecured().get(`/admin/workspace/workspaces/${workspaceId}/rollout`)
     dispatch({ type: WORKSPACE_ROLLOUT_RECEIVED, rollout: data })
   }
 }

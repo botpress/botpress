@@ -48,18 +48,18 @@ const Language: FC<Props> = props => {
         acceptLabel: lang.tr('delete')
       })
     ) {
-      await api.getSecured().post(`/admin/languages/${props.language.code}/delete`)
+      await api.getSecured().post(`/admin/management/languages/${props.language.code}/delete`)
     }
   }
 
   const installLanguage = async () => {
-    await api.getSecured().post(`/admin/languages/${props.language.code}`)
+    await api.getSecured().post(`/admin/management/languages/${props.language.code}`)
   }
 
   const loadLanguage = async () => {
     setLoading(true)
     try {
-      await api.getSecured({ timeout: 10000 }).post(`/admin/languages/${props.language.code}/load`)
+      await api.getSecured({ timeout: 10000 }).post(`/admin/management/languages/${props.language.code}/load`)
     } catch (err) {
       console.error('error loading model')
     } finally {

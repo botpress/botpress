@@ -52,7 +52,7 @@ export const ImportModal: FC<Props> = props => {
 
       const { data } = await api
         .getSecured({ timeout: 50000, toastErrors: false })
-        .post('/admin/server/modules/upload', form, {
+        .post('/admin/management/modules/upload', form, {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
 

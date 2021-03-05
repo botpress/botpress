@@ -45,7 +45,7 @@ export const fetchRoles = () => {
       type: FETCH_ROLES_REQUESTED
     })
 
-    const { data } = await api.getSecured().get('/admin/roles')
+    const { data } = await api.getSecured().get('/admin/workspace/roles')
 
     dispatch({
       type: FETCH_ROLES_RECEIVED,

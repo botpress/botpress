@@ -1,18 +1,17 @@
+import { confirmDialog, lang } from 'botpress/shared'
+import _ from 'lodash'
+import moment from 'moment'
 import React, { Fragment } from 'react'
-import { Button, Col, Row, UncontrolledTooltip, Alert, Jumbotron } from 'reactstrap'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { connect } from 'react-redux'
-import moment from 'moment'
-import _ from 'lodash'
-
-import LoadingSection from '../Components/LoadingSection'
-import LicensePolicies from '../Components/LicensePolicies'
-import EditLicense from '../Components/EditLicense'
-import { fetchLicensing } from '../../reducers/license'
-import api from '../../api'
+import { Button, Col, Row, UncontrolledTooltip, Alert, Jumbotron } from 'reactstrap'
 
 import PageContainer from '~/App/PageContainer'
-import { confirmDialog, lang } from 'botpress/shared'
+import api from '../../api'
+import { fetchLicensing } from '../../reducers/license'
+import EditLicense from '../Components/EditLicense'
+import LicensePolicies from '../Components/LicensePolicies'
+import LoadingSection from '../Components/LoadingSection'
 
 class LicenseStatus extends React.Component {
   state = {
@@ -51,13 +50,13 @@ class LicenseStatus extends React.Component {
   }
 
   refreshKey = async () => {
-    await api.getSecured().post('/admin/license/refresh')
+    await api.getSecured().post('/admin/management/licensing/refresh')
     await this.props.fetchLicensing()
   }
 
   rebootServer = async () => {
     try {
-      await api.getSecured().post('/admin/server/rebootServer')
+      await api.getSecured().post('/admin/management/rebootServer')
       this.setState({ waitingForReboot: true })
 
       setTimeout(() => {
@@ -75,7 +74,7 @@ class LicenseStatus extends React.Component {
           acceptLabel: lang.tr('enable')
         })
       ) {
-        const result = await api.getSecured().post('/admin/server/config/enablePro')
+        const result = await api.getSecured().post('/admin/management/config/enablePro')
         if (result.status === 200) {
           await this.rebootServer()
         }

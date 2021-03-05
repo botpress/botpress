@@ -45,7 +45,9 @@ const ChangePipelineModal: FC<Props> = props => {
 
   const submit = async () => {
     try {
-      await api.getSecured().post(`/admin/workspaces/${props.workspace.id}/pipeline`, { pipelineId, resetStage })
+      await api
+        .getSecured()
+        .post(`/admin/workspace/workspaces/${props.workspace.id}/pipeline`, { pipelineId, resetStage })
 
       toastSuccess('Pipeline updated successfully')
       props.toggle()

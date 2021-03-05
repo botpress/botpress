@@ -60,7 +60,7 @@ const RolloutStrategyModal: FC<Props> = props => {
   }, [props.workspaceId, props.isOpen])
 
   const loadRolloutInfo = async () => {
-    const { data } = await api.getSecured().get(`/admin/workspaces/${props.workspaceId}/rollout`)
+    const { data } = await api.getSecured().get(`/admin/workspace/workspaces/${props.workspaceId}/rollout`)
 
     setInviteCode(data.inviteCode)
     setAllowedUsages(data.allowedUsages)
@@ -69,7 +69,7 @@ const RolloutStrategyModal: FC<Props> = props => {
 
   const submit = async () => {
     try {
-      await api.getSecured().post(`/admin/workspaces/${props.workspaceId}/rollout/${strategy}`)
+      await api.getSecured().post(`/admin/workspace/workspaces/${props.workspaceId}/rollout/${strategy}`)
       toastSuccess('Rollout strategy updated successfully')
       props.refreshWorkspaces && props.refreshWorkspaces()
     } catch (err) {

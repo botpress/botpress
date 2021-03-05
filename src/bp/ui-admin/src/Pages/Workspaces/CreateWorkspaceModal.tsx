@@ -27,7 +27,7 @@ const CreateWorkspaceModal: FC<Props> = props => {
     const workspace = { id, name, audience, description, pipelineId }
 
     try {
-      await api.getSecured().post('/admin/workspaces', workspace)
+      await api.getSecured().post('/admin/workspace/workspaces', workspace)
       props.refreshWorkspaces()
 
       toastSuccess('Workspace created successfully')

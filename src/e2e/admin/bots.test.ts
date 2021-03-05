@@ -64,7 +64,7 @@ describe('Admin - Bot Management', () => {
   it('Export bot', async () => {
     await clickButtonForBot('#btn-export', tempBotId)
 
-    const response = await page.waitForResponse(`${bpConfig.host}/api/v1/admin/bots/${tempBotId}/export`)
+    const response = await page.waitForResponse(`${bpConfig.host}/api/v2/admin/workspace/bots/${tempBotId}/export`)
     expect(response.status()).toBe(200)
 
     const responseSize = Number(response.headers()['content-length'])

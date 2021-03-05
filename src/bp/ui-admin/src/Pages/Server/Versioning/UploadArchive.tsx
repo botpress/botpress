@@ -21,7 +21,7 @@ import { toastFailure, toastSuccess } from '~/utils/toaster'
 const _uploadArchive = async (fileContent: any, doUpdate: boolean, progressCb: (pct: number) => void) => {
   const { data } = await api
     .getSecured({ timeout: ms('20m') })
-    .post(`/admin/versioning/${doUpdate ? 'update' : 'changes'}`, fileContent, {
+    .post(`/admin/management/versioning/${doUpdate ? 'update' : 'changes'}`, fileContent, {
       headers: { 'Content-Type': 'application/tar+gzip' },
       onUploadProgress: evt => progressCb(Math.round((evt.loaded / evt.total) * 100))
     })

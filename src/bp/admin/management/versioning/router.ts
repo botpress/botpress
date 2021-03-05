@@ -1,19 +1,15 @@
-import { Logger } from 'botpress/sdk'
+import { AdminServices } from 'admin'
+import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import { UnexpectedError } from 'common/http'
 import { extractArchive } from 'core/misc/archive'
-import { GhostService } from 'core/services'
-import { BotService } from 'core/services/bot-service'
-import { Router } from 'express'
 import _ from 'lodash'
 import mkdirp from 'mkdirp'
 import path from 'path'
 import tmp from 'tmp'
 
-import { CustomRouter } from '../customRouter'
-
-export class VersioningRouter extends CustomRouter {
-  constructor(private logger: Logger, private ghost: GhostService, private botService: BotService) {
-    super('Versioning', logger, Router({ mergeParams: true }))
+export class VersioningRouter extends CustomAdminRouter {
+  constructor(services: AdminServices) {
+    super('Versioning', services)
     this.setupRoutes()
   }
 
@@ -21,7 +17,7 @@ export class VersioningRouter extends CustomRouter {
     this.router.get(
       '/export',
       this.asyncMiddleware(async (req, res) => {
-        const archive = await this.ghost.exportArchive()
+        const archive = await this.bpfs.exportArchive()
 
         res.writeHead(200, {
           'Content-Type': 'application/tar+gzip',
@@ -40,7 +36,7 @@ export class VersioningRouter extends CustomRouter {
         try {
           await this.extractArchiveFromRequest(req, tmpDir.name)
 
-          res.send(await this.ghost.listFileChanges(tmpDir.name))
+          res.send(await this.bpfs.listFileChanges(tmpDir.name))
         } catch (error) {
           res.status(500).send('Error while listing changes')
         } finally {
@@ -58,7 +54,7 @@ export class VersioningRouter extends CustomRouter {
 
         try {
           await this.extractArchiveFromRequest(req, tmpDir.name)
-          const newBotIds = await this.ghost.forceUpdate(tmpDir.name)
+          const newBotIds = await this.bpfs.forceUpdate(tmpDir.name)
 
           this.logger.info(`Unmounting bots: ${beforeBotIds.join(', ')}`)
           this.logger.info(`Mounting bots: ${newBotIds.join(', ')}`)

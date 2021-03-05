@@ -47,7 +47,7 @@ const UserActions: FC<Props> = props => {
     }
 
     try {
-      const { data } = await api.getSecured().get(`/admin/users/reset/${user.strategy}/${user.email}`)
+      const { data } = await api.getSecured().get(`/admin/workspace/collaborators/reset/${user.strategy}/${user.email}`)
       toastSuccess(lang.tr('admin.workspace.users.collaborators.passwordResetSuccess'))
       props.onPasswordReset(user.email, data.payload.tempPassword)
     } catch (err) {
@@ -70,7 +70,7 @@ const UserActions: FC<Props> = props => {
     }
 
     try {
-      await api.getSecured().post(`/admin/users/${user.strategy}/${user.email}/delete`)
+      await api.getSecured().post(`/admin/workspace/collaborators/${user.strategy}/${user.email}/delete`)
       toastSuccess(
         lang.tr('admin.workspace.users.collaborators.deleteAccountSuccess', {
           user: user.email
@@ -97,7 +97,9 @@ const UserActions: FC<Props> = props => {
     }
 
     try {
-      await api.getSecured().post(`/admin/users/workspace/remove/${user.strategy}/${user.email}/delete`)
+      await api
+        .getSecured()
+        .post(`/admin/workspace/collaborators/workspace/remove/${user.strategy}/${user.email}/delete`)
       toastSuccess(
         lang.tr('admin.workspace.users.collaborators.removeSuccess', {
           user: user.email
@@ -111,7 +113,7 @@ const UserActions: FC<Props> = props => {
 
   const changeRole = async (newRoleId: string) => {
     try {
-      await api.getSecured().post('/admin/users/workspace/update_role', {
+      await api.getSecured().post('/admin/workspace/collaborators/workspace/update_role', {
         ...props.user,
         role: newRoleId
       })

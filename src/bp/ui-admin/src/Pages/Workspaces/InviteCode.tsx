@@ -17,7 +17,7 @@ const InviteCode: FC<Props> = props => {
 
   const submit = async () => {
     try {
-      await api.getSecured().post(`/admin/workspaces/${props.workspaceId}/resetInvite`, { inviteLimit })
+      await api.getSecured().post(`/admin/workspace/workspaces/${props.workspaceId}/resetInvite`, { inviteLimit })
 
       toastSuccess('Invite code updated successfully')
       props.onUpdate()

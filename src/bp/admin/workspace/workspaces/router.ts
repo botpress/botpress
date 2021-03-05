@@ -1,26 +1,16 @@
-import { Logger } from 'botpress/sdk'
+import { AdminServices } from 'admin'
+import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import { defaultPipelines } from 'common/defaults'
 import { CreateWorkspace } from 'common/typings'
 import { PipelineSchema, WorkspaceCreationSchema } from 'common/validation'
-import { ConfigProvider } from 'core/config/config-loader'
 import { InvalidOperationError } from 'core/services/auth/errors'
-import { BotService } from 'core/services/bot-service'
-import { ROLLOUT_STRATEGIES, WorkspaceService } from 'core/services/workspace-service'
-import { Router } from 'express'
+import { ROLLOUT_STRATEGIES } from 'core/services/workspace-service'
 import Joi from 'joi'
 import _ from 'lodash'
 
-import { CustomRouter } from '../customRouter'
-import { NotFoundError } from '../errors'
-
-export class WorkspacesRouter extends CustomRouter {
-  constructor(
-    private logger: Logger,
-    private workspaceService: WorkspaceService,
-    private botService: BotService,
-    private configProvider: ConfigProvider
-  ) {
-    super('Workspace', logger, Router({ mergeParams: true }))
+export class WorkspacesRouter extends CustomAdminRouter {
+  constructor(services: AdminServices) {
+    super('Workspaces', services)
     this.setupRoutes()
   }
 

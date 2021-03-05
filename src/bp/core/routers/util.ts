@@ -90,6 +90,7 @@ export const success = <T extends {}>(res: Response, message: string = 'Success'
     payload: payload || {}
   })
 }
+export const sendSuccess = success
 
 export const checkTokenHeader = (authService: AuthService, audience?: string) => async (
   req: RequestWithUser,

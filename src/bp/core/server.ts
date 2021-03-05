@@ -27,12 +27,13 @@ import portFinder from 'portfinder'
 import { URL } from 'url'
 import yn from 'yn'
 
+import AdminRouter from '../admin'
 import { ExternalAuthConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
 import { LogsRepository } from './repositories/logs'
 import { TelemetryRepository } from './repositories/telemetry'
-import { AdminRouter, AuthRouter, BotsRouter, MediaRouter, ModulesRouter } from './routers'
+import { AuthRouter, BotsRouter, MediaRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
 import { HintsRouter } from './routers/bots/hints'
@@ -375,7 +376,7 @@ export default class HTTPServer {
     this.app.use(rewrite('/:app/:botId/*env.js', '/api/v1/bots/:botId/:app/js/env.js'))
 
     this.app.use(`${BASE_API_PATH}/auth`, this.authRouter.router)
-    this.app.use(`${BASE_API_PATH}/admin`, this.adminRouter.router)
+    this.adminRouter.setupRoutes(this.app)
     this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
     this.app.use(`${BASE_API_PATH}/sdk`, this.sdkApiRouter.router)

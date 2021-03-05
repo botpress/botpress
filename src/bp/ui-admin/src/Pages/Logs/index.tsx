@@ -90,7 +90,7 @@ const Logs: FC<Props> = props => {
 
     try {
       const args = `fromDate=${dateRange[0].getTime()}&toDate=${dateRange[1].getTime()}&onlyWorkspace=${onlyWorkspace}`
-      const logs = (await api.getSecured().get(`/admin/logs?${args}`)).data
+      const logs = (await api.getSecured().get(`/admin/workspace/logs?${args}`)).data
 
       setData(logs)
       setBotIds(_.uniq(logs.map(x => x.botId).filter(Boolean)))

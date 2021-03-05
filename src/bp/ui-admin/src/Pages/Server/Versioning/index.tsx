@@ -58,7 +58,7 @@ const Versioning: FC<{ profile: any }> = props => {
   }, [userToken])
 
   const getBpfsStatus = async () => {
-    const { data } = await api.getSecured().get('/admin/versioning/bpfs_status')
+    const { data } = await api.getSecured().get('/admin/management/versioning/bpfs_status')
     setPushAvailable(data.isAvailable)
   }
 

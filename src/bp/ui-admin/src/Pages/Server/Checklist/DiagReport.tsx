@@ -10,7 +10,7 @@ export const DiagReport = () => {
     setLoading(true)
 
     try {
-      const { data } = await api.getSecured().get('/admin/server/diag')
+      const { data } = await api.getSecured().get('/admin/management/checklist/diag')
 
       const link = document.createElement('a')
       link.href = URL.createObjectURL(new Blob([data]))

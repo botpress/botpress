@@ -20,7 +20,7 @@ const ServerControl: FC<Props> = props => {
 
   const restartServer = async () => {
     try {
-      await api.getSecured().post(`/admin/server/rebootServer?hostname=${props.hostname}`)
+      await api.getSecured().post(`/admin/management/rebootServer?hostname=${props.hostname}`)
       setRestarting(true)
     } catch (err) {
       toastFailure(err.message)

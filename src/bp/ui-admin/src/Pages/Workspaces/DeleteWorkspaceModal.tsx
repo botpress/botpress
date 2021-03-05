@@ -16,7 +16,7 @@ const DeleteWorkspaceModal: FC<Props> = props => {
 
   const submit = async () => {
     try {
-      await api.getSecured().post(`/admin/workspaces/${props.workspace.id}/delete`)
+      await api.getSecured().post(`/admin/workspace/workspaces/${props.workspace.id}/delete`)
       props.refreshWorkspaces()
 
       toastSuccess('Workspace deleted successfully')

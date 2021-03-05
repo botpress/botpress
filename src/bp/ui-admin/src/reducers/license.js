@@ -21,7 +21,7 @@ export default (state = initialState, action) => {
 
 export const fetchLicensing = () => {
   return async dispatch => {
-    const { data } = await api.getSecured({ toastErrors: false }).get(`admin/license/status`)
+    const { data } = await api.getSecured({ toastErrors: false }).get(`admin/management/licensing/status`)
 
     dispatch({
       type: FETCH_LICENSING_RECEIVED,

@@ -1,30 +1,17 @@
-import { Logger, WorkspaceUser } from 'botpress/sdk'
-import AuthService from 'core/services/auth/auth-service'
+import { AdminServices } from 'admin'
+import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
+import { WorkspaceUser } from 'botpress/sdk'
+import { ConflictError } from 'core/routers/errors'
+import { assertSuperAdmin, success as sendSuccess, validateBodySchema } from 'core/routers/util'
 import { InvalidOperationError } from 'core/services/auth/errors'
-import { WorkspaceService } from 'core/services/workspace-service'
-import { RequestHandler, Router } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
 
-import { CustomRouter } from '../customRouter'
-import { ConflictError } from '../errors'
-import {
-  assertBotpressPro,
-  assertSuperAdmin,
-  needPermissions,
-  success as sendSuccess,
-  validateBodySchema
-} from '../util'
-
-export class UsersRouter extends CustomRouter {
+export class CollaboratorsRouter extends CustomAdminRouter {
   private readonly resource = 'admin.collaborators'
-  private needPermissions: (operation: string, resource: string) => RequestHandler
-  private assertBotpressPro: RequestHandler
 
-  constructor(logger: Logger, private authService: AuthService, private workspaceService: WorkspaceService) {
-    super('Users', logger, Router({ mergeParams: true }))
-    this.needPermissions = needPermissions(this.workspaceService)
-    this.assertBotpressPro = assertBotpressPro(this.workspaceService)
+  constructor(services: AdminServices) {
+    super('Collaborators', services)
     this.setupRoutes()
   }
 

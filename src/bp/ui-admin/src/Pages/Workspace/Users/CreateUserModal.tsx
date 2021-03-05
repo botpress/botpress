@@ -59,7 +59,7 @@ export const CreateUserModal: FC<Props> = props => {
         return
       }
 
-      const { data } = await api.getSecured().post('/admin/users', {
+      const { data } = await api.getSecured().post('/admin/workspace/collaborators', {
         email: selectedUser.value,
         strategy: strategy.strategyId,
         role: role.id
@@ -68,7 +68,7 @@ export const CreateUserModal: FC<Props> = props => {
       props.onUserCreated && props.onUserCreated(data.payload)
     } else {
       const { email, strategy } = selectedUser.value
-      await api.getSecured().post('/admin/users/workspace/add', { email, strategy, role: role.id })
+      await api.getSecured().post('/admin/workspace/collaborators/workspace/add', { email, strategy, role: role.id })
       props.onUserAdded && props.onUserAdded()
     }
   }

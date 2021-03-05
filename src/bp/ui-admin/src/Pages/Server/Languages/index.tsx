@@ -11,7 +11,7 @@ import LanguageManagement from './LanguageManagement'
 import { LangServerInfo, LanguageSource } from './typings'
 
 const fetchLangSource = async (setLangSource: Function) => {
-  const { data } = (await api.getSecured().get('/admin/languages/sources')) as {
+  const { data } = (await api.getSecured().get('/admin/management/languages/sources')) as {
     data: { languageSources: LanguageSource[] }
   }
 
@@ -21,7 +21,9 @@ const fetchLangSource = async (setLangSource: Function) => {
 }
 
 const fetchLangServerInfo = async (langSource: LanguageSource, setLangServerInfo: Function) => {
-  const { data: langServerInfo } = (await api.getSecured().get('/admin/languages/info')) as { data: LangServerInfo }
+  const { data: langServerInfo } = (await api.getSecured().get('/admin/management/languages/info')) as {
+    data: LangServerInfo
+  }
 
   setLangServerInfo(langServerInfo)
 }

@@ -132,7 +132,7 @@ class CreateBotModal extends Component<Props, State> {
     }
 
     try {
-      await api.getSecured().post('/admin/bots', newBot)
+      await api.getSecured().post('/admin/workspace/bots', newBot)
       this.props.onCreateBotSuccess()
       this.toggleDialog()
     } catch (error) {

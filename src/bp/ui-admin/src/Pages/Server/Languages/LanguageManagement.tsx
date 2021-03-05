@@ -16,7 +16,7 @@ interface LanguageData {
 }
 
 const fetchLanguages = async (setLanguages: Function) => {
-  const { data } = (await api.getSecured().get('/admin/languages')) as { data: LanguageData }
+  const { data } = (await api.getSecured().get('/admin/management/languages')) as { data: LanguageData }
   setLanguages(data)
 }
 

@@ -96,7 +96,7 @@ class Bots extends Component<Props> {
 
   async exportBot(botId: string) {
     this.setState({
-      archiveUrl: `/admin/bots/${botId}/export`,
+      archiveUrl: `/admin/workspace/bots/${botId}/export`,
       archiveName: `bot_${botId}_${Date.now()}.tgz`
     })
   }
@@ -107,14 +107,14 @@ class Bots extends Component<Props> {
         acceptLabel: lang.tr('delete')
       })
     ) {
-      await api.getSecured().post(`/admin/bots/${botId}/delete`)
+      await api.getSecured().post(`/admin/workspace/bots/${botId}/delete`)
       this.props.fetchBots()
     }
   }
 
   async reloadBot(botId: string) {
     try {
-      await api.getSecured().post(`/admin/bots/${botId}/reload`)
+      await api.getSecured().post(`/admin/workspace/bots/${botId}/reload`)
       this.props.fetchBots()
       this.props.fetchBotHealth()
       toastSuccess(lang.tr('admin.workspace.bots.remounted'))
@@ -167,13 +167,13 @@ class Bots extends Component<Props> {
   }
 
   async requestStageChange(botId: string) {
-    await api.getSecured({ timeout: 60000 }).post(`/admin/bots/${botId}/stage`)
+    await api.getSecured({ timeout: 60000 }).post(`/admin/workspace/bots/${botId}/stage`)
     this.props.fetchBots()
     toastSuccess(lang.tr('admin.workspace.bots.promoted'))
   }
 
   async approveStageChange(botId) {
-    await api.getSecured({ timeout: 60000 }).post(`/admin/bots/${botId}/approve-stage`)
+    await api.getSecured({ timeout: 60000 }).post(`/admin/workspace/bots/${botId}/approve-stage`)
     this.props.fetchBots()
     toastSuccess(lang.tr('admin.workspace.bots.approvedPromotion'))
   }
@@ -183,7 +183,7 @@ class Bots extends Component<Props> {
   }
 
   async createRevision(botId) {
-    await api.getSecured().post(`admin/bots/${botId}/revisions`)
+    await api.getSecured().post(`admin/workspace/bots/${botId}/revisions`)
     toastSuccess(lang.tr('admin.workspace.bots.revisionsCreated'))
   }
 
