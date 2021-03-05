@@ -83,7 +83,7 @@ class Bots extends Component<Props> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    telemetry.startFallback(api.getSecured()).catch()
+    telemetry.startFallback(api.getSecured({ useV1: true })).catch()
   }
 
   toggleCreateBotModal = () => {

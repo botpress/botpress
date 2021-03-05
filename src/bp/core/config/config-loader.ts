@@ -239,7 +239,7 @@ export class ConfigProvider {
     const defaultConfig = {
       admin: {
         title: 'Botpress Admin Panel',
-        favicon: 'assets/ui-admin/public/favicon.ico',
+        favicon: 'assets/admin/ui/public/favicon.ico',
         customCss: ''
       },
       studio: {

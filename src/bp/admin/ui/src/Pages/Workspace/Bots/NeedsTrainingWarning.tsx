@@ -15,7 +15,7 @@ export const NeedsTrainingWarning: FC<Props> = (props: Props) => {
   const [needsTraining, setNeedsTraining] = useState(false)
 
   useEffect(() => {
-    const axios = api.getSecured()
+    const axios = api.getSecured({ useV1: true })
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     BbPromise.map(languages, async lang => {

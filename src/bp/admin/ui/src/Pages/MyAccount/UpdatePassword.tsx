@@ -22,7 +22,7 @@ const UpdatePassword: FC<Props> = props => {
     const { strategyType, strategy, email } = props.profile
 
     try {
-      await api.getSecured().post(`/auth/login/${strategyType}/${strategy}`, { email, password, newPassword })
+      await api.getSecured().post(`/admin/auth/login/${strategyType}/${strategy}`, { email, password, newPassword })
 
       props.toggle()
       toastSuccess(lang.tr('admin.passwordUpdatedSuccessfully'))

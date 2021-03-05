@@ -23,7 +23,10 @@ describe('Admin - UI', () => {
     await fillField('#input-lastname', 'Lalancette')
     await uploadFile('input[type="file"]', path.join(__dirname, '../assets/alien.png'))
     const { url } = await expectCallSuccess(`${bpConfig.host}/api/v1/media`, 'POST')
-    await Promise.all([expectCallSuccess(`${bpConfig.host}/api/v1/auth/me/profile`, 'POST'), clickOn('#btn-submit')])
+    await Promise.all([
+      expectCallSuccess(`${bpConfig.host}/api/v2/admin/auth/me/profile`, 'POST'),
+      clickOn('#btn-submit')
+    ])
     await closeToaster()
     const src = await page.$eval('img.dropdown-picture', img => img.getAttribute('src'))
     expect(src.includes(url)).toBeTrue
@@ -55,7 +58,7 @@ describe('Admin - UI', () => {
     await fillField('#input-newPassword', bpConfig.password)
     await fillField('#input-confirmPassword', bpConfig.password)
     await Promise.all([
-      expectCallSuccess(`${bpConfig.host}/api/v1/auth/login/basic/default`, 'POST'),
+      expectCallSuccess(`${bpConfig.host}/api/v2/admin/auth/login/basic/default`, 'POST'),
       clickOn('#btn-submit')
     ])
   })

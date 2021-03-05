@@ -63,7 +63,7 @@ const Versioning: FC<{ profile: any }> = props => {
   }
 
   const getCookieToken = async () => {
-    const { data } = await api.getSecured().get('/auth/getToken')
+    const { data } = await api.getSecured().get('/admin/auth/getToken')
     setUserToken(data)
   }
 

@@ -32,7 +32,7 @@ describe('Admin - Logout', () => {
 
     let profileStatus
     try {
-      const { status } = await axios.get(`${bpConfig.host}/api/v1/auth/me/profile`, {
+      const { status } = await axios.get(`${bpConfig.host}/api/v2/admin/auth/me/profile`, {
         headers: {
           Authorization: headers.authorization,
           'X-BP-Workspace': 'default'

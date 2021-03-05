@@ -36,7 +36,7 @@ export default (state = initialState, action): ModulesState => {
 
 export const fetchModules = () => {
   return async dispatch => {
-    const { data } = await api.getSecured().get('/modules/all')
+    const { data } = await api.getSecured({ useV1: true }).get('/modules/all')
     dispatch({ type: FETCH_MODULES_RECEIVED, modules: data })
   }
 }

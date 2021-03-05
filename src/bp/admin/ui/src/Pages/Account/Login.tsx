@@ -73,7 +73,7 @@ const Login: FC<Props> = props => {
   }
 
   const loadAuthConfig = async () => {
-    const { data } = await api.getAnonymous().get('/auth/config')
+    const { data } = await api.getAnonymous({ useV1: true }).get('/auth/config')
 
     setStrategies(data.payload.strategies)
     setFirstUser(data.payload.isFirstUser)
@@ -93,7 +93,7 @@ const Login: FC<Props> = props => {
     const { strategyType, strategyId, registerUrl } = strategy
 
     if (strategyType === 'saml' || strategyType === 'oauth2') {
-      return (window.location.href = `${api.getApiPath()}/auth/redirect/${strategyType}/${strategyId}`)
+      return (window.location.href = `${api.getApiPath()}/admin/auth/redirect/${strategyType}/${strategyId}`)
     }
 
     if (isFirstUser) {

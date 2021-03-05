@@ -12,6 +12,7 @@ interface SecuredApi {
   token?: string
   toastErrors?: boolean
   timeout?: number
+  useV1?: boolean
 }
 
 export const toastError = error => {
@@ -47,7 +48,7 @@ const createClient = (clientOptions: any, options: { toastErrors?: boolean }) =>
       const errorCode = _.get(wrappedError, 'errorCode')
       const url = _.get(error, 'response.config.url')
       if (errorCode) {
-        if (['BP_0041'].includes(errorCode) && url !== '/auth/logout') {
+        if (['BP_0041'].includes(errorCode) && url !== '/admin/auth/logout') {
           return auth.logout(() => client)
         }
         return Promise.reject(wrappedError)
@@ -70,16 +71,19 @@ const createClient = (clientOptions: any, options: { toastErrors?: boolean }) =>
   return client
 }
 
-const overrideApiUrl = process.env.REACT_APP_API_URL
-  ? { baseURL: `${process.env.REACT_APP_API_URL}api/v2` }
-  : { baseURL: `${window['ROOT_PATH']}/api/v2` }
+const getApiUrl = (useV1?: boolean) => {
+  const version = useV1 ? 'v1' : 'v2'
+  return process.env.REACT_APP_API_URL
+    ? { baseURL: `${process.env.REACT_APP_API_URL}api/${version}` }
+    : { baseURL: `${window['ROOT_PATH']}/api/${version}` }
+}
 
 export default {
   getApiPath() {
-    return overrideApiUrl.baseURL
+    return getApiUrl().baseURL
   },
 
-  getSecured({ token = undefined, toastErrors = true, timeout = 10000 }: SecuredApi = {}) {
+  getSecured({ token = undefined, toastErrors = true, timeout = 10000, useV1 = false }: SecuredApi = {}) {
     if (!token) {
       token = auth.getToken(true) as string
     }
@@ -91,13 +95,13 @@ export default {
           ...(window.USE_JWT_COOKIES ? { [CSRF_TOKEN_HEADER]: token } : { Authorization: `Bearer ${token}` }),
           'X-BP-Workspace': getActiveWorkspace()
         },
-        ...overrideApiUrl
+        ...getApiUrl(useV1)
       },
       { toastErrors }
     )
   },
 
-  getAnonymous({ toastErrors = true } = {}) {
-    return createClient(overrideApiUrl, { toastErrors })
+  getAnonymous({ toastErrors = true, useV1 = false } = {}) {
+    return createClient(getApiUrl(useV1), { toastErrors })
   }
 }

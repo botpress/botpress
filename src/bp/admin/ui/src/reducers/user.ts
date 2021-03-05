@@ -125,7 +125,7 @@ export const fetchProfile = () => {
     dispatch({ type: MY_PROFILE_REQUESTED })
 
     try {
-      const { data } = await api.getSecured().get('/auth/me/profile')
+      const { data } = await api.getSecured().get('/admin/auth/me/profile')
       dispatch({ type: MY_PROFILE_RECEIVED, profile: data.payload })
     } catch (err) {
       await auth.logout(() => api.getSecured())
@@ -135,14 +135,14 @@ export const fetchProfile = () => {
 
 export const fetchMyWorkspaces = () => {
   return async dispatch => {
-    const { data } = await api.getSecured().get('/auth/me/workspaces')
+    const { data } = await api.getSecured().get('/admin/auth/me/workspaces')
     dispatch({ type: MY_WORKSPACES_RECEIVED, workspaces: data })
   }
 }
 
 export const fetchAuthConfig = () => {
   return async dispatch => {
-    const { data } = await api.getAnonymous().get('/auth/config')
+    const { data } = await api.getAnonymous({ useV1: true }).get('/auth/config')
     dispatch({ type: AUTH_CONFIG_RECEIVED, authConfig: data.payload.strategies })
   }
 }

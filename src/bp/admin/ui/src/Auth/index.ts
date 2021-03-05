@@ -42,7 +42,7 @@ export default class BasicAuthentication {
 
     const { data } = await api
       .getAnonymous({ toastErrors: false })
-      .post(`/auth${loginUrl}`, credentials, { timeout: 15000 })
+      .post(`/admin/auth${loginUrl}`, credentials, { timeout: 15000 })
 
     auth.setToken(data.payload)
 
@@ -54,7 +54,7 @@ export default class BasicAuthentication {
     const chatUserAuth = getChatUserAuth()
     if (chatUserAuth) {
       try {
-        const { data: workspaceId } = await api.getSecured().post('/auth/me/chatAuth', chatUserAuth)
+        const { data: workspaceId } = await api.getSecured({ useV1: true }).post('/auth/me/chatAuth', chatUserAuth)
         setActiveWorkspace(workspaceId)
 
         return history.replace('/chatAuthResult')
@@ -65,7 +65,7 @@ export default class BasicAuthentication {
       }
     }
 
-    const { data: workspaces } = await api.getSecured().get('/auth/me/workspaces')
+    const { data: workspaces } = await api.getSecured().get('/admin/auth/me/workspaces')
     if (!workspaces || !workspaces.length) {
       return history.replace('/noAccess')
     }

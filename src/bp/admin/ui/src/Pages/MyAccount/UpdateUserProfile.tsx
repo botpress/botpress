@@ -29,7 +29,7 @@ const UpdateUserProfile: FC<Props> = props => {
     event.preventDefault()
 
     try {
-      await client.post('/auth/me/profile', { firstname, lastname, picture_url })
+      await client.post('/admin/auth/me/profile', { firstname, lastname, picture_url })
 
       props.fetchProfile()
       props.toggle()

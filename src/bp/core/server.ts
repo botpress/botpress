@@ -188,7 +188,8 @@ export default class HTTPServer {
       this.alertingService,
       moduleLoader,
       this.jobService,
-      this.logsRepo
+      this.logsRepo,
+      authStrategies
     )
     this.shortLinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
@@ -485,8 +486,8 @@ export default class HTTPServer {
 
     app.get(['/:app(studio)/:botId/*'], resolveIndexPaths('ui-studio/public/index.html'))
 
-    app.use('/admin', express.static(this.resolveAsset('ui-admin/public'), { index: false }))
-    app.get(['/admin', '/admin/*'], resolveIndexPaths('ui-admin/public/index.html'))
+    app.use('/admin', express.static(this.resolveAsset('admin/ui/public'), { index: false }))
+    app.get(['/admin', '/admin/*'], resolveIndexPaths('admin/ui/public/index.html'))
 
     app.get('/', (req, res) => res.redirect(`${process.ROOT_PATH}/admin`))
   }

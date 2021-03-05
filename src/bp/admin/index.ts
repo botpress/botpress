@@ -9,6 +9,7 @@ import { CustomRouter } from 'core/routers/customRouter'
 import { assertSuperAdmin, checkTokenHeader } from 'core/routers/util'
 import { GhostService } from 'core/services'
 import { AlertingService } from 'core/services/alerting-service'
+import { AuthStrategies } from 'core/services/auth-strategies'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { BotService } from 'core/services/bot-service'
 import { JobService } from 'core/services/job-service'
@@ -17,6 +18,7 @@ import { WorkspaceService } from 'core/services/workspace-service'
 import express, { RequestHandler, Router } from 'express'
 import httpsProxyAgent from 'https-proxy-agent'
 import _ from 'lodash'
+import { AuthRouter } from './auth/router'
 
 import { HealthRouter } from './health/router'
 import { ManagementRouter } from './management/router'
@@ -36,6 +38,7 @@ export interface AdminServices {
   licensingService: LicensingService
   alertingService: AlertingService
   jobService: JobService
+  authStrategies: AuthStrategies
 }
 
 class AdminRouter extends CustomRouter {
@@ -43,6 +46,7 @@ class AdminRouter extends CustomRouter {
   private managementRouter: ManagementRouter
   private healthRouter: HealthRouter
   private workspaceRouter: WorkspaceRouter
+  private authRouter: AuthRouter
 
   constructor(
     logger: Logger,
@@ -56,7 +60,8 @@ class AdminRouter extends CustomRouter {
     alertingService: AlertingService,
     moduleLoader: ModuleLoader,
     jobService: JobService,
-    logsRepository: LogsRepository
+    logsRepository: LogsRepository,
+    authStrategies: AuthStrategies
   ) {
     super('Admin', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
@@ -73,21 +78,24 @@ class AdminRouter extends CustomRouter {
       monitoringService,
       logsRepository,
       alertingService,
-      jobService
+      jobService,
+      authStrategies
     }
 
     this.managementRouter = new ManagementRouter(adminServices)
     this.healthRouter = new HealthRouter(adminServices)
     this.workspaceRouter = new WorkspaceRouter(adminServices)
+    this.authRouter = new AuthRouter(adminServices)
   }
 
   setupRoutes(app: express.Express) {
-    app.use('/api/v1/admin', this.checkTokenHeader, fixMappingMw, this.router)
-    app.use('/api/v2/admin', this.checkTokenHeader, this.router)
+    app.use('/api/v1/admin', fixMappingMw, this.router)
+    app.use('/api/v2/admin', this.router)
 
-    this.router.use('/management', assertSuperAdmin, this.managementRouter.router)
-    this.router.use('/health', assertSuperAdmin, this.healthRouter.router)
-    this.router.use('/workspace', this.workspaceRouter.router)
+    this.router.use('/auth', this.authRouter.router)
+    this.router.use('/management', this.checkTokenHeader, assertSuperAdmin, this.managementRouter.router)
+    this.router.use('/health', this.checkTokenHeader, assertSuperAdmin, this.healthRouter.router)
+    this.router.use('/workspace', this.checkTokenHeader, this.workspaceRouter.router)
 
     this.router.get(
       '/permissions',

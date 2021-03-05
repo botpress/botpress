@@ -7,10 +7,11 @@ import { ConfigProvider } from 'core/config/config-loader'
 import { ModuleLoader } from 'core/module-loader'
 import { LogsRepository } from 'core/repositories/logs'
 
-import { assertBotpressPro, hasPermissions, loadUser, needPermissions } from 'core/routers/util'
+import { assertBotpressPro, checkTokenHeader, hasPermissions, loadUser, needPermissions } from 'core/routers/util'
 import { GhostService } from 'core/services'
 import { AlertingService } from 'core/services/alerting-service'
-import AuthService from 'core/services/auth/auth-service'
+import { AuthStrategies } from 'core/services/auth-strategies'
+import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { BotService } from 'core/services/bot-service'
 import { JobService } from 'core/services/job-service'
 import { MonitoringService } from 'core/services/monitoring'
@@ -30,12 +31,14 @@ export abstract class CustomAdminRouter {
   protected licensingService: LicensingService
   protected alertingService: AlertingService
   protected jobService: JobService
+  protected authStrategies: AuthStrategies
 
   protected readonly needPermissions: (operation: string, resource: string) => RequestHandler
   protected readonly asyncMiddleware: AsyncMiddleware
   protected readonly hasPermissions: (req: RequestWithUser, operation: string, resource: string) => Promise<boolean>
   protected readonly assertBotpressPro: RequestHandler
   protected readonly loadUser: RequestHandler
+  protected readonly checkTokenHeader: RequestHandler
 
   public readonly router: Router
 
@@ -45,6 +48,7 @@ export abstract class CustomAdminRouter {
     this.hasPermissions = hasPermissions(services.workspaceService)
     this.assertBotpressPro = assertBotpressPro(services.workspaceService)
     this.loadUser = loadUser(services.authService)
+    this.checkTokenHeader = checkTokenHeader(services.authService, TOKEN_AUDIENCE)
 
     this.router = Router({ mergeParams: true })
 
@@ -60,5 +64,6 @@ export abstract class CustomAdminRouter {
     this.licensingService = services.licensingService
     this.alertingService = services.alertingService
     this.jobService = services.jobService
+    this.authStrategies = services.authStrategies
   }
 }

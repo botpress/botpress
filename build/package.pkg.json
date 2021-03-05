@@ -18,7 +18,7 @@
     "assets": [
       "../../node_modules/vm2/lib/*.js",
       "../../node_modules/xml-encryption/lib/templates/*.tpl.xml",
-      "./ui-admin/**",
+      "./admin/ui/**",
       "./ui-studio/**",
       "./core/config/schemas/**",
       "./ml/bin/**",
