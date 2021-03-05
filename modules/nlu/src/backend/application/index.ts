@@ -48,6 +48,14 @@ export class NLUApplication {
     return this._trainingQueue.getAllTrainings()
   }
 
+  async pauseTrainings() {
+    return this._trainingQueue.pause()
+  }
+
+  async resumeTrainings(): Promise<void> {
+    await this._trainingQueue.resume()
+  }
+
   public hasBot = (botId: string) => {
     return !!this._botService.getBot(botId)
   }

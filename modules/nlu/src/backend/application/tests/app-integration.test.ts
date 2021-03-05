@@ -12,7 +12,7 @@ import {
 import { book_flight, cityEntity, fruitEntity, hello, i_love_hockey } from './utils/data.u.test'
 import { modelIdService } from './utils/fake-model-id-service.u.test'
 import './utils/sdk.u.test'
-import { areEqual } from './utils/utils.u.test'
+import { areEqual, sleep } from './utils/utils.u.test'
 import { TrainingSession } from '../typings'
 
 const specs: NLU.Specifications = {
@@ -60,6 +60,7 @@ describe('NLU API integration tests', () => {
 
     // act
     await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: lang,
@@ -110,6 +111,7 @@ describe('NLU API integration tests', () => {
 
     // act
     await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: 'en',
@@ -164,6 +166,7 @@ describe('NLU API integration tests', () => {
 
     // act
     await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: 'en',
@@ -254,6 +257,7 @@ describe('NLU API integration tests', () => {
 
     // act
     await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot(bot1)
     await app.mountBot(bot2)
     await app.mountBot(bot3)
@@ -318,6 +322,7 @@ describe('NLU API integration tests', () => {
 
     // act
     await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: lang,
@@ -371,6 +376,7 @@ describe('NLU API integration tests', () => {
 
     // act
     await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: 'en',
@@ -427,6 +433,7 @@ describe('NLU API integration tests', () => {
 
     // act
     await app.initialize()
+    await app.resumeTrainings()
 
     await app.mountBot({
       id: botId,
@@ -468,6 +475,7 @@ describe('NLU API integration tests', () => {
 
     // act
     await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: 'en',
@@ -516,6 +524,7 @@ describe('NLU API integration tests', () => {
 
     // act
     await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: lang,
@@ -561,6 +570,7 @@ describe('NLU API integration tests', () => {
 
     // act
     await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: lang,
@@ -604,6 +614,7 @@ describe('NLU API integration tests', () => {
 
     // act
     await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: 'en',
@@ -648,6 +659,7 @@ describe('NLU API integration tests', () => {
 
     // act
     await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: lang,
@@ -705,6 +717,7 @@ describe('NLU API integration tests', () => {
 
     // act
     await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: lang,
@@ -750,6 +763,7 @@ describe('NLU API integration tests', () => {
 
     // act
     await app.initialize()
+    await app.resumeTrainings()
     await app.mountBot({
       id: botId,
       defaultLanguage: lang,
@@ -760,5 +774,54 @@ describe('NLU API integration tests', () => {
     expect(engineTrainSpy).toHaveBeenCalledTimes(0)
     expect(dependencies.socket).toHaveBeenCalledWith(expectTs({ botId, status: 'needs-training' }))
     expect(dependencies.socket).not.toHaveBeenCalledWith(expectTs({ botId, status: 'training-pending' }))
+
+    await app.teardown()
+  })
+
+  test('Training queue starts out paused and does not start any training', async () => {
+    // arrange
+    const lang = 'en'
+
+    const definitions = makeBaseDefinitions([lang])
+
+    const modelId = modelIdService.makeId({
+      ...definitions,
+      languageCode: lang,
+      seed: nluSeed,
+      specifications: specs
+    })
+
+    const fileSystem = {
+      [botId]: {
+        definitions,
+        modelsOnFs: [modelId]
+      }
+    }
+
+    const core = { languages: [lang], specs }
+    const dependencies = makeDependencies(core, fileSystem)
+
+    const app = makeApp(dependencies)
+    const engineTrainSpy = jest.spyOn(dependencies.engine, 'train')
+
+    // act
+    await app.initialize()
+
+    await app.mountBot({
+      id: botId,
+      defaultLanguage: lang,
+      languages: [lang]
+    })
+    await sleep(30) // ms
+
+    expect(engineTrainSpy).not.toHaveBeenCalled()
+    await app.resumeTrainings()
+
+    await waitForTrainingsToBeDone(app)
+    expect(engineTrainSpy).toHaveBeenCalled()
+
+    expectTrainingToStartAndComplete(dependencies.socket, dependencies.trainingRepo, { botId, language: lang })
+
+    await app.teardown()
   })
 })
