@@ -218,7 +218,7 @@ export class BotsRouter extends CustomRouter {
 
     router.get(
       '/:botId/export',
-      this.needPermissions('read', this.resource),
+      this.needPermissions('read', `${this.resource}.archive`),
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
         const tarball = await this.botService.exportBot(botId)
@@ -234,7 +234,7 @@ export class BotsRouter extends CustomRouter {
 
     router.post(
       '/:botId/import',
-      this.needPermissions('write', this.resource),
+      this.needPermissions('write', `${this.resource}.archive`),
       this.asyncMiddleware(async (req, res) => {
         if (!req.is('application/tar+gzip')) {
           return res.status(400).send('Bot should be imported from archive')

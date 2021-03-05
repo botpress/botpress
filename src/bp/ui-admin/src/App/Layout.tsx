@@ -1,11 +1,11 @@
 import { Alignment, Icon, Navbar } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
-import { StoredToken, UserProfile } from 'common/typings'
-import React, { FC, Fragment, useEffect, useState } from 'react'
+import { lang, TokenRefresher } from 'botpress/shared'
+import { UserProfile } from 'common/typings'
+import React, { FC, Fragment, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { NavLink } from 'reactstrap'
 import api from '~/api'
-import { getToken, REFRESH_INTERVAL, setToken, tokenNeedsRefresh } from '~/Auth'
+
 import WorkspaceSelect from '~/Pages/Components/WorkspaceSelect'
 
 import logo from '../media/logo_white.png'
@@ -27,40 +27,10 @@ interface Props {
 }
 
 const App: FC<Props> = props => {
-  const [tokenInterval, setTokenInterval] = useState<any>()
-
   useEffect(() => {
     props.fetchLicensing()
     props.fetchProfile()
-
-    setTokenInterval(
-      setInterval(async () => {
-        await tryRefreshToken()
-      }, REFRESH_INTERVAL)
-    )
   }, [])
-
-  const tryRefreshToken = async () => {
-    try {
-      if (!tokenNeedsRefresh()) {
-        return
-      }
-
-      const tokenData = getToken(false) as StoredToken
-
-      const { data } = await api.getSecured().get('/auth/refresh')
-      const { newToken } = data.payload
-
-      if (newToken !== tokenData.token) {
-        setToken(newToken)
-        console.info('Token refreshed successfully')
-      } else {
-        clearInterval(tokenInterval)
-      }
-    } catch (err) {
-      console.error('Error validating & refreshing token', err)
-    }
-  }
 
   if (!props.profile) {
     return null
@@ -72,6 +42,7 @@ const App: FC<Props> = props => {
     <Fragment>
       <Header />
       <CommandPalette />
+      <TokenRefresher getAxiosClient={() => api.getSecured()} />
 
       <div className="bp-sa-wrapper">
         <Menu />

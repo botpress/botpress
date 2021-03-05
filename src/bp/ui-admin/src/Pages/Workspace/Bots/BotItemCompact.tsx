@@ -60,7 +60,7 @@ const BotItemCompact: FC<Props> = ({
             icon="cog"
             minimal
             className="configBtn"
-            onClick={() => history.push(`bots/${bot.id}`)}
+            onClick={() => (location.href = `${botStudioLink}/config`)}
           />
         </AccessControl>
 
@@ -113,12 +113,16 @@ const BotItemCompact: FC<Props> = ({
                   id="btn-rollbackRevision"
                   onClick={rollback}
                 />
+              </AccessControl>
+              <AccessControl resource="admin.bots.archive" operation="read">
                 <MenuItem
                   text={lang.tr('admin.workspace.bots.item.export')}
                   icon="export"
                   id="btn-export"
                   onClick={exportBot}
                 />
+              </AccessControl>
+              <AccessControl resource="admin.bots.*" operation="write">
                 <MenuItem
                   text={lang.tr('admin.workspace.bots.item.delete')}
                   icon="trash"

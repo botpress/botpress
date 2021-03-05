@@ -116,7 +116,8 @@ export const DucklingUnitMapping = {
     'Piede',
     'Chilometro'
   ],
-  weight: [
+  quantity: [
+    // Weight
     'Ounce',
     'Oncia',
     'Libra',
@@ -135,9 +136,8 @@ export const DucklingUnitMapping = {
     'Tonnellata',
     'Onça',
     'Tonne',
-    'Livre'
-  ],
-  area: [
+    'Livre',
+    // Area
     'Mètre carré',
     'Metro cuadrado',
     'Square decameter',
@@ -155,10 +155,16 @@ export const DucklingUnitMapping = {
     'Square centimeter',
     'Metro quadrado',
     'Hectare',
-    'Kilomètre carré'
-  ],
-  bits: ['Kilobyte', 'Terabyte', 'bit', 'Gigabyte', 'Megabit', 'Megabyte', 'Bit'],
-  speed: [
+    'Kilomètre carré',
+    // Bits
+    'Kilobyte',
+    'Terabyte',
+    'bit',
+    'Gigabyte',
+    'Megabit',
+    'Megabyte',
+    'Bit',
+    // Speed
     'Miles par heure',
     'Kilometer per hour',
     'Milla por hora',

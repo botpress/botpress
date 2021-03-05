@@ -29,7 +29,9 @@ const sendSavedEvents = async (api: AxiosInstance) => {
   const success = await sendTelemetry(events)
   await sendFeedback(api, events, success)
 
-  await sendSavedEvents(api)
+  if (success) {
+    await sendSavedEvents(api)
+  }
 }
 
 const getSavedEvents = async (api: AxiosInstance): Promise<TelemetryEvent[]> => {
