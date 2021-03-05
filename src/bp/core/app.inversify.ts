@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { EventCollector } from 'core/events/event-collector'
 import { Container } from 'inversify'
 
 import { BotpressAPIProvider } from './api'
@@ -11,7 +12,6 @@ import { ModuleLoader } from './module-loader'
 import { RepositoriesContainerModules } from './repositories/repositories.inversify'
 import HTTPServer from './server'
 import { LocalActionServer } from './services/action/local-action-server'
-import { EventCollector } from './services/middleware/event-collector'
 import { MigrationService } from './services/migration'
 import { DataRetentionJanitor } from './services/retention/janitor'
 import { DataRetentionService } from './services/retention/service'
