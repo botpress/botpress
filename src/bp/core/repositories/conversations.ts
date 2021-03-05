@@ -4,7 +4,7 @@ import { inject, injectable, postConstruct } from 'inversify'
 
 import LRU from 'lru-cache'
 import ms from 'ms'
-import { v4 as uuidv4 } from 'uuid'
+import uuidgen from 'uuid'
 import Database from '../database'
 import { TYPES } from '../types'
 import { MessageRepository } from './messages'
@@ -83,7 +83,7 @@ export class KnexConversationRepository implements ConversationRepository {
 
   public async create(botId: string, args: experimental.conversations.CreateArgs): Promise<experimental.Conversation> {
     const conversation = {
-      id: uuidv4(),
+      id: uuidgen.v4(),
       userId: args.userId,
       botId,
       createdOn: new Date()

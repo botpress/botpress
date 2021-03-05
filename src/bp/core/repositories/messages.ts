@@ -4,7 +4,7 @@ import { inject, injectable, postConstruct } from 'inversify'
 
 import LRU from 'lru-cache'
 import ms from 'ms'
-import { v4 as uuidv4 } from 'uuid'
+import uuidgen from 'uuid'
 import Database from '../database'
 import { TYPES } from '../types'
 
@@ -74,7 +74,7 @@ export class KnexMessageRepository implements MessageRepository {
     const { conversationId, eventId, incomingEventId, from, payload } = args
 
     const message = {
-      id: uuidv4(),
+      id: uuidgen.v4(),
       conversationId,
       eventId,
       incomingEventId,
