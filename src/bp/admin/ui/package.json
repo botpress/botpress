@@ -52,7 +52,7 @@
     "redux": "^3.7.2",
     "redux-thunk": "^2.3.0",
     "snarkdown": "^1.2.2",
-    "ui-shared": "link:../ui-shared"
+    "ui-shared": "link:../../ui-shared"
   },
   "devDependencies": {
     "@types/react": "^16.9.19",
