@@ -2433,8 +2433,6 @@ declare module 'botpress/sdk' {
     export function disableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
     export function enableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
 
-    export function replyContentToEvent(payload: Content, event: IO.Event)
-
     /**
      * WARNING : these payloads do not produce typing indicators yet!
      */
