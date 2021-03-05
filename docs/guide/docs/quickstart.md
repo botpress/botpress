@@ -12,7 +12,7 @@ The Admin Dashboard is where you manage and configure everything related to your
 The following features and configurations are done in the Admin Dashboard.
 
 - Creating new chatbots
-- Managing your Botpress Pro license and sync with version control
+- Managing your Botpress Enterprise license and sync with version control
 - Updating your profile and your Botpress Account [^1]
 - Unpacking and activating modules
 [^1]: Please bear in mind that this account only exists on your local Botpress installation. There is no central authentication service linked to our servers.
