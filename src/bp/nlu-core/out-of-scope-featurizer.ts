@@ -26,13 +26,13 @@ function averageByPOS(utt: Utterance, posClasses: POS_SET) {
   return averageVectors(vectors)
 }
 
-function countInVocab(utt: Utterance, vocab: Token2Vec) {
+function countInVocab(utt: Utterance, vocab: string[]) {
   return utt.tokens.reduce((sum, t) => {
-    return sum + +!!vocab[t.toString({ lowerCase: true })]
+    return sum + +!!vocab.includes(t.toString({ lowerCase: true }))
   }, 0)
 }
 
-export function getUtteranceFeatures(utt: Utterance, vocab?: Token2Vec): number[] {
+export function getUtteranceFeatures(utt: Utterance, vocab?: string[]): number[] {
   const pos1 = averageByPOS(utt, POS1_SET)
   const pos2 = averageByPOS(utt, POS2_SET)
   const pos3 = averageByPOS(utt, POS3_SET)
@@ -42,7 +42,7 @@ export function getUtteranceFeatures(utt: Utterance, vocab?: Token2Vec): number[
   return feats
 }
 
-export function featurizeOOSUtterances(utts: Utterance[], vocab: Token2Vec, tools: Tools): MLToolkit.SVM.DataPoint[] {
+export function featurizeOOSUtterances(utts: Utterance[], vocab: string[], tools: Tools): MLToolkit.SVM.DataPoint[] {
   const noneEmbeddings = utts.map(u => getUtteranceFeatures(u, vocab))
   const kmeans = tools.mlToolkit.KMeans.kmeans(noneEmbeddings, K_CLUSTERS, KMEANS_OPTIONS)
   return noneEmbeddings.map(emb => ({

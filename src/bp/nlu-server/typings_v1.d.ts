@@ -83,7 +83,7 @@ export interface IntentPrediction {
   name: string
   confidence: number
   slots: SlotPrediction[]
-  extractor: 'exact-matcher' | 'classifier'
+  extractor: string
 }
 
 export interface SlotPrediction {

@@ -590,7 +590,6 @@ declare module 'botpress/sdk' {
       utterances: {
         [lang: string]: string[]
       }
-      filename: string
       slots: SlotDefinition[]
       contexts: string[]
     }
@@ -599,7 +598,6 @@ declare module 'botpress/sdk' {
       name: string
       confidence: number
       context: string
-      matches?: (intentPattern: string) => boolean
     }
 
     export interface Entity {
@@ -648,7 +646,7 @@ declare module 'botpress/sdk' {
         label: string
         confidence: number
         slots: SlotCollection
-        extractor: 'exact-matcher' | 'classifier'
+        extractor: string
       }[]
     }
 
@@ -1633,13 +1631,16 @@ declare module 'botpress/sdk' {
      */
     baseURL: string
     headers: {
-      Authorization: string
+      'CSRF-Token'?: string
+      Authorization?: string
       'X-BP-Workspace'?: string
     }
   }
 
   export interface MigrationResult {
     success: boolean
+    /** Indicates if the migration had to be executed  */
+    hasChanges?: boolean
     message?: string
   }
 

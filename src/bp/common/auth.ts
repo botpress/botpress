@@ -1,3 +1,7 @@
+export const CSRF_TOKEN_HEADER = 'CSRF-Token'
+export const CSRF_TOKEN_HEADER_LC = 'csrf-token'
+export const JWT_COOKIE_NAME = 'jwtToken'
+
 export const resourceMatches = (pattern: string, res: string) => {
   const separator = /[\/\.]/
   pattern = pattern || ''
