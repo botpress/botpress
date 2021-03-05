@@ -81,7 +81,7 @@ export default class BasicAuthentication {
       return
     }
 
-    const { data } = await api.getAnonymous({ toastErrors: false }).post(`/auth${registerUrl}`, {
+    const { data } = await api.getAnonymous({ toastErrors: false, useV1: true }).post(`/auth${registerUrl}`, {
       email,
       password
     })

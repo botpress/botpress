@@ -4,20 +4,12 @@ import React, { FC, useEffect } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import snarkdown from 'snarkdown'
 import PageContainer from '~/app/common/PageContainer'
+import { AppState } from '~/app/reducer'
 
 import linux from './media/linux.png'
 import mac from './media/mac.png'
 import window from './media/windows.png'
 import { fetchLatestVersions } from './reducer'
-
-interface GithubRelease {
-  version: string
-  details: string
-  githubUrl: string
-  releaseDate: Date
-  daysAgo: string
-  dockerUrl: string
-}
 
 type Props = ConnectedProps<typeof connector>
 
@@ -78,7 +70,7 @@ const LastRelease: FC<Props> = props => {
   )
 }
 
-const mapStateToProps = state => ({ latestReleases: state.version.latestReleases })
+const mapStateToProps = (state: AppState) => ({ latestReleases: state.version.latestReleases })
 const connector = connect(mapStateToProps, { fetchLatestVersions })
 
 export default connector(LastRelease)

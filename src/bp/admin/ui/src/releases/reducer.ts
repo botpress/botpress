@@ -10,6 +10,7 @@ interface GithubRelease {
   githubUrl: string
   releaseDate: Date
   daysAgo: string
+  dockerUrl: string
 }
 
 interface VersionState {

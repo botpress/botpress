@@ -1,5 +1,6 @@
 import { checkRule } from 'common/auth'
 import { connect } from 'react-redux'
+import { AppState } from '~/app/reducer'
 import store from '~/app/store'
 
 export interface PermissionAllowedProps {
@@ -19,7 +20,6 @@ export type AccessControlProps = {
 } & PermissionAllowedProps
 
 export const isOperationAllowed = (params: PermissionAllowedProps) => {
-  // @ts-ignore
   const profile = store.getState().user.profile
   if (!profile) {
     return false
@@ -54,6 +54,7 @@ const PermissionsChecker = (props: AccessControlProps) => {
   return isOperationAllowed({ resource, operation, superAdmin }) ? children : (fallback as any)
 }
 
-const mapStateToProps = state => ({ permissions: state.user.permissions })
+const mapStateToProps = (state: AppState) => ({ permissions: state.user.permissions })
+const connector = connect(mapStateToProps)
 
-export default connect(mapStateToProps, undefined)(PermissionsChecker)
+export default connector(PermissionsChecker)

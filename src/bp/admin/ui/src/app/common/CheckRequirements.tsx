@@ -3,25 +3,22 @@ import { lang, toast } from 'botpress/shared'
 import { ServerConfig } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 
 import api from '~/api'
 import { fetchServerConfig } from '~/management/checklist/reducer'
+import { AppState } from '../reducer'
 
 type Feature = 'redis' | 'pro' | 'monitoring' | 'alerting'
 
-interface Props {
+type Props = {
   requirements: Feature[]
   feature: Feature
   children: React.ReactNode
 
   messageReqMissing?: string
   messageDisabled?: string
-
-  serverConfig?: ServerConfig
-  serverConfigLoaded?: boolean
-  fetchServerConfig: () => void
-}
+} & ConnectedProps<typeof connector>
 
 const featureStatus = (serverCfg: ServerConfig) => {
   return {
@@ -94,9 +91,10 @@ const CheckRequirements: FC<Props> = props => {
   )
 }
 
-const mapStateToProps = state => ({
-  serverConfig: state.server.serverConfig,
-  serverConfigLoaded: state.server.serverConfigLoaded
+const mapStateToProps = (state: AppState) => ({
+  serverConfig: state.checklist.serverConfig,
+  serverConfigLoaded: state.checklist.serverConfigLoaded
 })
 
-export default connect(mapStateToProps, { fetchServerConfig })(CheckRequirements)
+const connector = connect(mapStateToProps, { fetchServerConfig })
+export default connector(CheckRequirements)
