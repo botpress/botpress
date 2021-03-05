@@ -19,7 +19,7 @@ const migration: Migration = {
         !(await bp.database.schema.hasColumn(tableName, 'apiKey'))
       ) {
         await bp.database.schema.alterTable(tableName, table => {
-          table.string('apiKey')
+          table.string('apiKey').nullable()
         })
 
         hasChanges = true
