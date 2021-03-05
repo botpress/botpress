@@ -2,7 +2,7 @@ import { Icon, Intent, Position, Tooltip } from '@blueprintjs/core'
 import { Promise as BbPromise } from 'bluebird'
 import { lang } from 'botpress/shared'
 import React, { FC, Fragment, useEffect, useState } from 'react'
-import api from '~/api'
+import api from '~/app/api'
 
 interface Props {
   bot: string

@@ -6,7 +6,7 @@ import { connect, ConnectedProps } from 'react-redux'
 import { generatePath, RouteComponentProps, withRouter } from 'react-router'
 import ReactTable from 'react-table'
 
-import api from '~/api'
+import api from '~/app/api'
 import Dropdown, { Option } from '~/app/common/Dropdown'
 import { AppState } from '~/app/reducer'
 import { getActiveWorkspace } from '~/auth/basicAuth'

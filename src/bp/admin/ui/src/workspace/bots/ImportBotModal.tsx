@@ -4,7 +4,7 @@ import _ from 'lodash'
 import ms from 'ms'
 import React, { Component } from 'react'
 
-import api from '~/api'
+import api from '~/app/api'
 
 import { sanitizeBotId } from './CreateBotModal'
 interface Props {

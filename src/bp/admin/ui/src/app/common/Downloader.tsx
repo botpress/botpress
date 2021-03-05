@@ -1,7 +1,7 @@
 import { Method } from 'axios'
 import ms from 'ms'
 import React, { FC, useEffect, useRef, useState } from 'react'
-import api from '~/api'
+import api from '~/app/api'
 
 interface DownloadProps {
   url?: string

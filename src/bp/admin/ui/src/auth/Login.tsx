@@ -4,7 +4,7 @@ import { get } from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { RouteComponentProps } from 'react-router'
 
-import api from '~/api'
+import api from '~/app/api'
 import { ExtendedHistory } from '~/app/history'
 import BasicAuthentication, { setActiveWorkspace, setChatUserAuth } from '~/auth/basicAuth'
 

@@ -1,7 +1,7 @@
 import { lang } from 'botpress/shared'
 import React, { Component } from 'react'
 import { Button, Modal, Input, Label, ModalHeader, ModalBody, ModalFooter, FormGroup, Alert } from 'reactstrap'
-import api from '~/api'
+import api from '~/app/api'
 
 interface Props {
   refresh: () => void
@@ -30,7 +30,7 @@ export default class EditLicense extends Component<Props> {
     await api
       .getSecured()
       .post(
-        'admin/license/update',
+        'admin/management/licensing/update',
         {
           licenseKey: this.state.licenseKey
         },

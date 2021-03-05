@@ -2,7 +2,7 @@ import { Button, Classes, Dialog, Intent } from '@blueprintjs/core'
 import { lang, toast } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 
-import api from '~/api'
+import api from '~/app/api'
 
 interface Props {
   hostname: string

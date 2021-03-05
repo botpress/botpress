@@ -1,7 +1,7 @@
 import { WorkspaceRollout } from 'botpress/sdk'
 import { Workspace } from 'common/typings'
 
-import api from '~/api'
+import api from '~/app/api'
 import { AppThunk } from '~/app/reducer'
 import { getActiveWorkspace } from '~/auth/basicAuth'
 

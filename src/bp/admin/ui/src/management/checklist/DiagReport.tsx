@@ -2,7 +2,7 @@ import { Button } from '@blueprintjs/core'
 import { toast } from 'botpress/shared'
 import { useState } from 'react'
 
-import api from '~/api'
+import api from '~/app/api'
 
 export const DiagReport = () => {
   const [loading, setLoading] = useState(false)

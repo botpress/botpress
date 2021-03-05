@@ -1,7 +1,7 @@
 import { ModuleDefinition } from 'botpress/sdk'
 import { ModuleInfo } from 'common/typings'
 
-import api from '~/api'
+import api from '~/app/api'
 import { AppThunk } from '~/app/reducer'
 
 const FETCH_MODULES_RECEIVED = 'bots/FETCH_MODULES_RECEIVED'

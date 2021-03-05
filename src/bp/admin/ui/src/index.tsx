@@ -21,8 +21,8 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 
 import { makeMainRoutes } from '~/app/routes'
-import { initializeTranslations } from '~/translations'
-import './index.css'
+import { initializeTranslations } from '~/app/translations'
+import '~/app/style/index.css'
 
 const routes = makeMainRoutes()
 

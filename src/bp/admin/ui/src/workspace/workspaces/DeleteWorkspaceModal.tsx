@@ -2,7 +2,7 @@ import { Button, Callout, Classes, Dialog, FormGroup, InputGroup, Intent, TextAr
 import { toast } from 'botpress/shared'
 import { Workspace } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
-import api from '~/api'
+import api from '~/app/api'
 
 interface Props {
   workspace: Workspace

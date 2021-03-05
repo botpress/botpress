@@ -4,7 +4,7 @@ import { defaultPipelines } from 'common/defaults'
 import { Workspace } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
-import api from '~/api'
+import api from '~/app/api'
 
 interface Props {
   workspace: Workspace

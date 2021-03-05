@@ -1,7 +1,7 @@
 import { BotConfig, BotTemplate } from 'botpress/sdk'
 import { ServerHealth } from 'common/typings'
 
-import api from '~/api'
+import api from '~/app/api'
 import { AppThunk } from '~/app/reducer'
 
 const FETCH_BOTS_REQUESTED = 'bots/FETCH_BOTS_REQUESTED'

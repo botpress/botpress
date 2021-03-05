@@ -4,7 +4,7 @@ import { UserProfile } from 'common/typings'
 import React, { FC, Fragment, useEffect } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { NavLink } from 'reactstrap'
-import api from '~/api'
+import api from '~/app/api'
 
 import { fetchLicensing } from '~/management/licensing/reducer'
 import { fetchProfile } from '~/user/reducer'

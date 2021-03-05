@@ -2,7 +2,7 @@ import { Button, Position, ProgressBar, Tooltip } from '@blueprintjs/core'
 import { confirmDialog, lang } from 'botpress/shared'
 import React, { FC, SFC, useState } from 'react'
 
-import api from '~/api'
+import api from '~/app/api'
 
 import { LanguageSource } from './typings'
 

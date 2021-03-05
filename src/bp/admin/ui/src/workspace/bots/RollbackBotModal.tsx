@@ -3,7 +3,7 @@ import { lang, toast } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 import Select from 'react-select'
 
-import api from '~/api'
+import api from '~/app/api'
 
 interface Props {
   botId: string | null

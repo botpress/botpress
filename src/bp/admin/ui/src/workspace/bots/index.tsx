@@ -20,7 +20,7 @@ import { connect, ConnectedProps } from 'react-redux'
 import { generatePath, RouteComponentProps } from 'react-router'
 import { Alert, Col, Row } from 'reactstrap'
 
-import api from '~/api'
+import api from '~/app/api'
 import { Downloader } from '~/app/common/Downloader'
 import LoadingSection from '~/app/common/LoadingSection'
 import PageContainer from '~/app/common/PageContainer'

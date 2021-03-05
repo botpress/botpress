@@ -1,5 +1,5 @@
 import { LicensingStatus } from 'common/typings'
-import api from '~/api'
+import api from '~/app/api'
 import { AppThunk } from '~/app/reducer'
 
 const FETCH_LICENSING_RECEIVED = 'license/FETCH_LICENSING_RECEIVED'

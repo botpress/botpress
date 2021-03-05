@@ -1,7 +1,7 @@
 import axios from 'axios'
 import _ from 'lodash'
 import moment from 'moment'
-import api from '~/api'
+import api from '~/app/api'
 import { AppThunk } from '~/app/reducer'
 
 interface GithubRelease {

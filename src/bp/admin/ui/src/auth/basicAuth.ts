@@ -1,7 +1,7 @@
 import { auth } from 'botpress/shared'
 import { ChatUserAuth } from 'common/typings'
 
-import api from '~/api'
+import api from '~/app/api'
 import history from '~/app/history'
 
 export const WORKSPACE_KEY = 'bp/workspace'

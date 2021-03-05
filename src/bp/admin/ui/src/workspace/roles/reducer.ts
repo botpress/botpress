@@ -1,6 +1,6 @@
 import { AuthRole } from 'common/typings'
 
-import api from '~/api'
+import api from '~/app/api'
 import { AppThunk } from '~/app/reducer'
 
 const FETCH_ROLES_REQUESTED = 'roles/FETCH_ROLES_REQUESTED'

@@ -5,7 +5,7 @@ import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 
-import api from '~/api'
+import api from '~/app/api'
 import { fetchServerConfig } from '~/management/checklist/reducer'
 import { AppState } from '../reducer'
 

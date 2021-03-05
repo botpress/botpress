@@ -5,7 +5,7 @@ import { AuthRole, AuthStrategyConfig, CreatedUser } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import AsyncSelect from 'react-select/lib/AsyncCreatable'
-import api from '~/api'
+import api from '~/app/api'
 import { AppState } from '~/app/reducer'
 
 import AuthStrategyDropdown from './AuthStrategyDropdown'

@@ -14,7 +14,7 @@ import {
   FaPlusSquare,
   FaSquare
 } from 'react-icons/fa'
-import api from '~/api'
+import api from '~/app/api'
 import PageContainer from '~/app/common/PageContainer'
 import SplitPage from '~/app/common/SplitPage'
 

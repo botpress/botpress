@@ -2,7 +2,7 @@ import { Button, Classes, Dialog, FormGroup, InputGroup, Intent } from '@bluepri
 import { FormFields, lang, toast } from 'botpress/shared'
 import { UserProfile } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
-import api from '~/api'
+import api from '~/app/api'
 
 interface Props {
   isOpen: boolean

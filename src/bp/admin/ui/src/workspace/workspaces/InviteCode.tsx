@@ -2,7 +2,7 @@ import { Button, ControlGroup, NumericInput, Tab, Tabs } from '@blueprintjs/core
 import { toast } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
-import api from '~/api'
+import api from '~/app/api'
 
 interface Props {
   workspaceId: string

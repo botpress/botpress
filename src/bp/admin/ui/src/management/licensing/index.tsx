@@ -7,7 +7,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { connect, ConnectedProps } from 'react-redux'
 import { Button, Col, Row, UncontrolledTooltip, Alert, Jumbotron } from 'reactstrap'
 
-import api from '~/api'
+import api from '~/app/api'
 import PageContainer from '~/app/common/PageContainer'
 import { AppState } from '~/app/reducer'
 import EditLicense from './EditLicense'

@@ -4,7 +4,7 @@ import { AuthRule, UserProfile } from 'common/typings'
 
 import { AppThunk } from '~/app/reducer'
 import { fetchLicensing } from '~/management/licensing/reducer'
-import api from '../api'
+import api from '../app/api'
 import { setActiveWorkspace } from '../auth/basicAuth'
 
 const MY_PROFILE_REQUESTED = 'user/MY_PROFILE_REQUESTED'

@@ -1,7 +1,7 @@
 import { Button, Classes, Dialog, FormGroup, InputGroup, Radio, RadioGroup, TextArea } from '@blueprintjs/core'
 import { toast } from 'botpress/shared'
 import React, { FC, Fragment, useState } from 'react'
-import api from '~/api'
+import api from '~/app/api'
 
 export const sanitizeText = (text: string) =>
   text

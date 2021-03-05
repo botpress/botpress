@@ -3,7 +3,7 @@ import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 
-import api from '~/api'
+import api from '~/app/api'
 import PageContainer from '~/app/common/PageContainer'
 import { AppState } from '~/app/reducer'
 

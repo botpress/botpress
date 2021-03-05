@@ -3,7 +3,7 @@ import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 
-import api from '~/api'
+import api from '~/app/api'
 import PageContainer from '~/app/common/PageContainer'
 import LangServer from './LangServer'
 import LanguageManagement from './LanguageManagement'
