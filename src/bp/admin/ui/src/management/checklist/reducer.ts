@@ -1,9 +1,10 @@
 import { ServerConfig } from 'common/typings'
 import api from '~/api'
+import { AppThunk } from '~/app/reducer'
 
 const FETCH_SERVER_CONFIG_RECEIVED = 'server/FETCH_FEATURE_RECEIVED'
 
-export interface ChecklistState {
+interface ChecklistState {
   serverConfig?: ServerConfig
   serverConfigLoaded: boolean
 }
@@ -13,7 +14,7 @@ const initialState: ChecklistState = {
   serverConfigLoaded: false
 }
 
-export default (state = initialState, action) => {
+export default (state = initialState, action): ChecklistState => {
   switch (action.type) {
     case FETCH_SERVER_CONFIG_RECEIVED:
       return {
@@ -27,7 +28,7 @@ export default (state = initialState, action) => {
   }
 }
 
-export const fetchServerConfig = () => {
+export const fetchServerConfig = (): AppThunk => {
   return async dispatch => {
     const { data } = await api.getSecured().get('/admin/management/checklist/serverConfig')
     dispatch({ type: FETCH_SERVER_CONFIG_RECEIVED, serverConfig: data })

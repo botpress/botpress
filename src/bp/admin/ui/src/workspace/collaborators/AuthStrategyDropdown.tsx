@@ -2,19 +2,14 @@ import { Button, Classes, MenuItem } from '@blueprintjs/core'
 import { ItemPredicate, ItemRenderer, Select } from '@blueprintjs/select'
 import { AuthStrategyConfig } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { AppState } from '~/app/reducer'
+import { connect, ConnectedProps } from 'react-redux'
 
+import { AppState } from '~/app/reducer'
 import { fetchAuthConfig } from '~/auth/reducer'
 
-interface OwnProps {
+type Props = {
   onChange: (strategy: AuthStrategyConfig) => void
-}
-
-type StateProps = ReturnType<typeof mapStateToProps>
-type DispatchProps = typeof mapDispatchToProps
-
-type Props = DispatchProps & StateProps & OwnProps
+} & ConnectedProps<typeof connector>
 
 const SelectDropdown = Select.ofType<AuthStrategyConfig>()
 
@@ -82,9 +77,5 @@ const mapStateToProps = (state: AppState) => ({
   authConfig: state.auth.authConfig
 })
 
-const mapDispatchToProps: any = { fetchAuthConfig }
-
-export default connect<StateProps, DispatchProps, OwnProps, AppState>(
-  mapStateToProps,
-  mapDispatchToProps
-)(AuthStrategyDropdown)
+const connector = connect(mapStateToProps, { fetchAuthConfig })
+export default connector(AuthStrategyDropdown)

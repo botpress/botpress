@@ -1,18 +1,14 @@
 import { Tooltip } from '@blueprintjs/core'
-import { WorkspaceRollout } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect } from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 import { AppState } from '~/app/reducer'
 
 import { fetchWorkspaceRollout } from '~/workspace/workspaces/reducer'
 import { rolloutInfo } from '~/workspace/workspaces/RolloutStrategyModal'
 
-interface Props {
-  fetchWorkspaceRollout: () => void
-  workspaceRollout?: WorkspaceRollout
-}
+type Props = ConnectedProps<typeof connector>
 
 const RolloutOverview: FC<Props> = props => {
   useEffect(() => {
@@ -59,4 +55,5 @@ const mapStateToProps = (state: AppState) => ({
   workspaceRollout: state.workspaces.workspaceRollout
 })
 
-export default connect(mapStateToProps, { fetchWorkspaceRollout })(RolloutOverview)
+const connector = connect(mapStateToProps, { fetchWorkspaceRollout })
+export default connector(RolloutOverview)

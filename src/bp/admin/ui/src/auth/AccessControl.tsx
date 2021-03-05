@@ -45,9 +45,8 @@ export const isOperationAllowed = (params: PermissionAllowedProps) => {
 }
 
 export const isChatUser = (): boolean => {
-  // @ts-ignore
   const permissions = store.getState().user.permissions
-  return permissions && !!permissions.find(p => p.res.startsWith('user.bots'))
+  return !permissions || !!permissions.find(p => p.res.startsWith('user.bots'))
 }
 
 const PermissionsChecker = (props: AccessControlProps) => {

@@ -1,5 +1,6 @@
-import { routerReducer } from 'react-router-redux'
-import { combineReducers } from 'redux'
+import { connectRouter } from 'connected-react-router'
+import { Action, combineReducers } from 'redux'
+import { ThunkAction } from 'redux-thunk'
 
 import auth from '~/auth/reducer'
 import alerting from '~/health/alerting/reducer'
@@ -13,11 +14,10 @@ import monitoring from '../health/monitoring/reducer'
 import modules from '../management/modules/reducer'
 import bots from '../workspace/bots/reducer'
 import roles from '../workspace/roles/reducer'
-
-export type AppState = ReturnType<typeof rootReducer>
+import history from './history'
 
 const rootReducer = combineReducers({
-  routing: routerReducer,
+  router: connectRouter(history),
   licensing,
   auth,
   checklist,
@@ -31,5 +31,8 @@ const rootReducer = combineReducers({
   workspaces,
   version
 })
+
+export type AppState = ReturnType<typeof rootReducer>
+export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, AppState, unknown, Action<string>>
 
 export default rootReducer

@@ -1,9 +1,8 @@
 import { Button } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import { CHAT_USER_ROLE } from 'common/defaults'
-import { AuthStrategyConfig } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 
 import PageContainer from '~/app/common/PageContainer'
 import SplitPage from '~/app/common/SplitPage'
@@ -18,11 +17,7 @@ import UserList from '../UserList'
 
 import RolloutOverview from './RolloutOverview'
 
-interface Props {
-  fetchUsers: (filterRole?: string) => void
-  fetchAuthConfig: () => void
-  authConfig?: AuthStrategyConfig[]
-}
+type Props = ConnectedProps<typeof connector>
 
 const List: FC<Props> = props => {
   useEffect(() => {
@@ -126,4 +121,6 @@ const mapStateToProps = (state: AppState) => ({
   authConfig: state.auth.authConfig
 })
 
-export default connect(mapStateToProps, { fetchUsers, fetchAuthConfig })(List)
+const connector = connect(mapStateToProps, { fetchUsers, fetchAuthConfig })
+
+export default connector(List)

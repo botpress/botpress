@@ -1,9 +1,12 @@
 import { lang } from 'botpress/shared'
-import React from 'react'
+import React, { FC } from 'react'
+import { RouteComponentProps } from 'react-router'
 
 import { LoginContainer } from './LoginContainer'
 
-const ChatAuthResult = props => {
+type Props = RouteComponentProps<undefined, {}, { error?: string }>
+
+const ChatAuthResult: FC<Props> = props => {
   const error = props.location.state && props.location.state.error
 
   if (error) {

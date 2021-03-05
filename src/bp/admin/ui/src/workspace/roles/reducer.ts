@@ -1,11 +1,12 @@
 import { AuthRole } from 'common/typings'
 
 import api from '~/api'
+import { AppThunk } from '~/app/reducer'
 
-export const FETCH_ROLES_REQUESTED = 'roles/FETCH_ROLES_REQUESTED'
-export const FETCH_ROLES_RECEIVED = 'roles/FETCH_ROLES_RECEIVED'
+const FETCH_ROLES_REQUESTED = 'roles/FETCH_ROLES_REQUESTED'
+const FETCH_ROLES_RECEIVED = 'roles/FETCH_ROLES_RECEIVED'
 
-export interface RoleState {
+interface RoleState {
   roles: AuthRole[]
   loading?: boolean
 }
@@ -33,7 +34,7 @@ export default (state = initialState, action): RoleState => {
   }
 }
 
-export const fetchRoles = () => {
+export const fetchRoles = (): AppThunk => {
   return async (dispatch, getState) => {
     const { roles: state } = getState()
 

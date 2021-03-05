@@ -18,7 +18,14 @@ import api from '~/api'
 import PageContainer from '~/app/common/PageContainer'
 import SplitPage from '~/app/common/SplitPage'
 
-export default class Debug extends React.Component<Props, State> {
+interface State {
+  nodes: any
+  checked: any
+  expanded: any
+  persist: boolean
+}
+
+export default class Debug extends React.Component<{}, State> {
   state = {
     nodes: undefined,
     checked: [],
@@ -135,13 +142,4 @@ export default class Debug extends React.Component<Props, State> {
       </PageContainer>
     )
   }
-}
-
-interface Props {}
-
-interface State {
-  nodes: any
-  checked: any
-  expanded: any
-  persist: boolean
 }

@@ -7,9 +7,8 @@ import BasicAuthentication from '~/auth/basicAuth'
 import { LoginContainer } from './LoginContainer'
 import { RegisterForm } from './RegisterForm'
 
-type Props = {
-  auth: BasicAuthentication
-} & RouteComponentProps<{ workspace: string }>
+type RouterProps = RouteComponentProps<{ workspace: string }, {}, { registerUrl?: string }>
+type Props = { auth: BasicAuthentication } & RouterProps
 
 export const Register: FC<Props> = props => {
   const [error, setError] = useState<string>()

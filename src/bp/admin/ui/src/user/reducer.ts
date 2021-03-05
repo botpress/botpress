@@ -2,16 +2,17 @@ import { WorkspaceUser } from 'botpress/sdk'
 import { auth } from 'botpress/shared'
 import { AuthRule, UserProfile } from 'common/typings'
 
+import { AppThunk } from '~/app/reducer'
 import { fetchLicensing } from '~/management/licensing/reducer'
 import api from '../api'
 import { setActiveWorkspace } from '../auth/basicAuth'
 
-export const MY_PROFILE_REQUESTED = 'user/MY_PROFILE_REQUESTED'
-export const MY_PROFILE_RECEIVED = 'user/MY_PROFILE_RECEIVED'
-export const MY_WORKSPACES_RECEIVED = 'user/MY_WORKSPACES_RECEIVED'
-export const CURRENT_WORKSPACE_CHANGED = 'user/CURRENT_WORKSPACE_CHANGED'
+const MY_PROFILE_REQUESTED = 'user/MY_PROFILE_REQUESTED'
+const MY_PROFILE_RECEIVED = 'user/MY_PROFILE_RECEIVED'
+const MY_WORKSPACES_RECEIVED = 'user/MY_WORKSPACES_RECEIVED'
+const CURRENT_WORKSPACE_CHANGED = 'user/CURRENT_WORKSPACE_CHANGED'
 
-export interface UserState {
+interface UserState {
   loading: boolean
   workspaces?: WorkspaceUser[]
   permissions?: AuthRule[]
@@ -27,7 +28,7 @@ const initialState: UserState = {
   currentWorkspace: undefined
 }
 
-export default (state = initialState, action) => {
+export default (state = initialState, action): UserState => {
   switch (action.type) {
     case MY_PROFILE_REQUESTED:
       return {
@@ -60,7 +61,7 @@ export default (state = initialState, action) => {
   }
 }
 
-export const fetchProfile = () => {
+export const fetchProfile = (): AppThunk => {
   return async dispatch => {
     dispatch({ type: MY_PROFILE_REQUESTED })
 
@@ -73,14 +74,14 @@ export const fetchProfile = () => {
   }
 }
 
-export const fetchMyWorkspaces = () => {
+export const fetchMyWorkspaces = (): AppThunk => {
   return async dispatch => {
     const { data } = await api.getSecured().get('/admin/user/workspaces')
     dispatch({ type: MY_WORKSPACES_RECEIVED, workspaces: data })
   }
 }
 
-export const switchWorkspace = (workspaceId: string) => {
+export const switchWorkspace = (workspaceId: string): AppThunk => {
   return async dispatch => {
     setActiveWorkspace(workspaceId)
     await dispatch(fetchProfile())

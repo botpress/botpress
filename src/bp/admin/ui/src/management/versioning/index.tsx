@@ -3,7 +3,7 @@ import { lang, auth, toast } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import CopyToClipboard from 'react-copy-to-clipboard'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 
 import api from '~/api'
 import PageContainer from '~/app/common/PageContainer'
@@ -29,7 +29,9 @@ const DisplayCommand = ({ command }) => {
   )
 }
 
-const Versioning: FC<{ profile: any }> = props => {
+type Props = ConnectedProps<typeof connector>
+
+const Versioning: FC<Props> = props => {
   const [pullCommand, setPullCommand] = useState('')
   const [pushCommand, setPushCommand] = useState('')
   const [isPushAvailable, setPushAvailable] = useState(false)
@@ -121,4 +123,5 @@ const Versioning: FC<{ profile: any }> = props => {
 
 const mapStateToProps = (state: AppState) => ({ profile: state.user.profile })
 
-export default connect(mapStateToProps, {})(Versioning)
+const connector = connect(mapStateToProps, {})
+export default connector(Versioning)

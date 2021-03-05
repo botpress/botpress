@@ -1,13 +1,11 @@
 import { lang } from 'botpress/shared'
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 import PageContainer from '~/app/common/PageContainer'
 import { AppState } from '~/app/reducer'
 import { fetchRoles } from './reducer'
 
-type StateProps = ReturnType<typeof mapStateToProps>
-type DispatchProps = typeof mapDispatchToProps
-type Props = DispatchProps & StateProps
+type Props = ConnectedProps<typeof connector>
 
 class Roles extends Component<Props> {
   componentDidMount() {
@@ -38,12 +36,7 @@ class Roles extends Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState) => ({
-  roles: state.roles.roles
-})
+const mapStateToProps = (state: AppState) => ({ roles: state.roles.roles })
+const connector = connect(mapStateToProps, { fetchRoles })
 
-const mapDispatchToProps: any = {
-  fetchRoles
-}
-
-export default connect<StateProps, DispatchProps, undefined, AppState>(mapStateToProps, mapDispatchToProps)(Roles)
+export default connector(Roles)

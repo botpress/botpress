@@ -1,16 +1,18 @@
+import { LicensingStatus } from 'common/typings'
 import api from '~/api'
+import { AppThunk } from '~/app/reducer'
 
 const FETCH_LICENSING_RECEIVED = 'license/FETCH_LICENSING_RECEIVED'
 
-export interface LicensingState {
-  license: any
+interface LicensingState {
+  license?: LicensingStatus
 }
 
-const initialState = {
-  license: null
+const initialState: LicensingState = {
+  license: undefined
 }
 
-export default (state = initialState, action) => {
+export default (state = initialState, action): LicensingState => {
   switch (action.type) {
     case FETCH_LICENSING_RECEIVED:
       return {
@@ -23,7 +25,7 @@ export default (state = initialState, action) => {
   }
 }
 
-export const fetchLicensing = () => {
+export const fetchLicensing = (): AppThunk => {
   return async dispatch => {
     const { data } = await api.getSecured({ toastErrors: false }).get('admin/management/licensing/status')
 

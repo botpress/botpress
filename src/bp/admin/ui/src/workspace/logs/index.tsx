@@ -3,24 +3,21 @@ import { DateRange, DateRangePicker } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import * as sdk from 'botpress/sdk'
 import { Dropdown, lang, Option, toast } from 'botpress/shared'
-import { UserProfile } from 'common/typings'
 import _ from 'lodash'
 import moment from 'moment'
 import queryString from 'query-string'
 import React, { FC, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 import ReactTable, { Column } from 'react-table'
+
 import api from '~/api'
 import PageContainer from '~/app/common/PageContainer'
-
 import { AppState } from '~/app/reducer'
 import { fetchBots } from '~/workspace/bots/reducer'
 
 import { filterText, getDateShortcuts, getRangeLabel, lowercaseFilter } from './utils'
 
-type StateProps = ReturnType<typeof mapStateToProps>
-type DispatchProps = typeof mapDispatchToProps
-type Props = DispatchProps & StateProps
+type Props = ConnectedProps<typeof connector>
 
 const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss'
 
@@ -43,7 +40,7 @@ const Logs: FC<Props> = props => {
   const [filters, setFilters] = useState<any>()
   const [hostNames, setHostNames] = useState<string[]>([])
 
-  const [onlyWorkspace, setOnlyWorkspace] = useState(!props.profile.isSuperAdmin)
+  const [onlyWorkspace, setOnlyWorkspace] = useState(!props.profile || !props.profile.isSuperAdmin)
   const [botIds, setBotIds] = useState<string[]>([])
 
   useEffect(() => {
@@ -249,7 +246,7 @@ const Logs: FC<Props> = props => {
           <Checkbox
             checked={onlyWorkspace}
             onChange={e => setOnlyWorkspace(e.currentTarget.checked)}
-            disabled={!props.profile.isSuperAdmin}
+            disabled={!props.profile || !props.profile.isSuperAdmin}
             label={lang.tr('admin.logs.onlyBotsFromThisWorkspace')}
             style={{ marginLeft: 10 }}
           />
@@ -283,6 +280,5 @@ const mapStateToProps = (state: AppState) => ({
   currentWorkspace: state.user.currentWorkspace
 })
 
-const mapDispatchToProps: any = { fetchBots }
-
-export default connect(mapStateToProps, mapDispatchToProps)(Logs)
+const connector = connect(mapStateToProps, { fetchBots })
+export default connector(Logs)

@@ -1,26 +1,19 @@
 import { Button } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
-import { AuthRole, AuthStrategyConfig } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
+
 import PageContainer from '~/app/common/PageContainer'
 import SplitPage from '~/app/common/SplitPage'
 import { AppState } from '~/app/reducer'
 import { fetchAuthConfig } from '~/auth/reducer'
-
 import { fetchRoles } from '~/workspace/roles/reducer'
 import CreateUserModal from './CreateUserModal'
 import { fetchUsers } from './reducer'
 import ShowInfoModal from './ShowInfoModal'
 import UserList from './UserList'
 
-interface Props {
-  fetchRoles: () => void
-  fetchUsers: (filterRole?: string) => void
-  fetchAuthConfig: () => void
-  roles: AuthRole[]
-  authConfig?: AuthStrategyConfig[]
-}
+type Props = ConnectedProps<typeof connector>
 
 const List: FC<Props> = props => {
   useEffect(() => {
@@ -111,4 +104,5 @@ const mapStateToProps = (state: AppState) => ({
   authConfig: state.auth.authConfig
 })
 
-export default connect(mapStateToProps, { fetchUsers, fetchRoles, fetchAuthConfig })(List)
+const connector = connect(mapStateToProps, { fetchUsers, fetchRoles, fetchAuthConfig })
+export default connector(List)

@@ -1,9 +1,9 @@
 import { Button, FormGroup } from '@blueprintjs/core'
-import { WorkspaceUser, WorkspaceUserWithAttributes } from 'botpress/sdk'
+import { WorkspaceUser } from 'botpress/sdk'
 import { Dialog, lang } from 'botpress/shared'
 import { AuthRole, AuthStrategyConfig, CreatedUser } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 import AsyncSelect from 'react-select/lib/AsyncCreatable'
 import api from '~/api'
 import { AppState } from '~/app/reducer'
@@ -12,18 +12,13 @@ import AuthStrategyDropdown from './AuthStrategyDropdown'
 import { fetchAvailableUsers } from './reducer'
 import RoleDropdown from './RoleDropdown'
 
-interface OwnProps {
+type Props = {
   isOpen?: boolean
   toggleOpen?: () => void
   onUserAdded?: () => void
   onUserCreated?: (newUser: CreatedUser) => void
   forcedRoleId?: string
-}
-
-type StateProps = ReturnType<typeof mapStateToProps>
-type DispatchProps = typeof mapDispatchToProps
-
-type Props = DispatchProps & StateProps & OwnProps
+} & ConnectedProps<typeof connector>
 
 interface UserOption {
   label: string
@@ -137,11 +132,6 @@ const mapStateToProps = (state: AppState) => ({
   availableUsers: state.collaborators.availableUsers
 })
 
-const mapDispatchToProps: any = {
-  fetchAvailableUsers
-}
+const connector = connect(mapStateToProps, { fetchAvailableUsers })
 
-export default connect<StateProps, DispatchProps, OwnProps, AppState>(
-  mapStateToProps,
-  mapDispatchToProps
-)(CreateUserModal)
+export default connector(CreateUserModal)

@@ -2,11 +2,12 @@ import { ModuleDefinition } from 'botpress/sdk'
 import { ModuleInfo } from 'common/typings'
 
 import api from '~/api'
+import { AppThunk } from '~/app/reducer'
 
-export const FETCH_MODULES_RECEIVED = 'bots/FETCH_MODULES_RECEIVED'
-export const FETCH_LOADED_MODULES_RECEIVED = 'bots/FETCH_LOADED_MODULES_RECEIVED'
+const FETCH_MODULES_RECEIVED = 'bots/FETCH_MODULES_RECEIVED'
+const FETCH_LOADED_MODULES_RECEIVED = 'bots/FETCH_LOADED_MODULES_RECEIVED'
 
-export interface ModulesState {
+interface ModulesState {
   loadedModules: ModuleDefinition[]
   modules: ModuleInfo[]
 }
@@ -34,14 +35,14 @@ export default (state = initialState, action): ModulesState => {
   }
 }
 
-export const fetchModules = () => {
+export const fetchModules = (): AppThunk => {
   return async dispatch => {
     const { data } = await api.getSecured({ useV1: true }).get('/modules/all')
     dispatch({ type: FETCH_MODULES_RECEIVED, modules: data })
   }
 }
 
-export const fetchLoadedModules = () => {
+export const fetchLoadedModules = (): AppThunk => {
   return async dispatch => {
     const { data } = await api.getSecured().get('/modules')
     dispatch({ type: FETCH_LOADED_MODULES_RECEIVED, modules: data })

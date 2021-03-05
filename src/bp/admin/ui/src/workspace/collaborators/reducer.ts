@@ -1,12 +1,13 @@
 import { WorkspaceUserWithAttributes } from 'botpress/sdk'
 
 import api from '~/api'
+import { AppThunk } from '~/app/reducer'
 
 const FETCH_USERS_REQUESTED = 'user/FETCH_USERS_REQUESTED'
 const FETCH_USERS_RECEIVED = 'user/FETCH_USERS_RECEIVED'
 const AVAILABLE_USERS_RECEIVED = 'user/AVAILABLE_USERS_RECEIVED'
 
-export interface CollaboratorsState {
+interface CollaboratorsState {
   loading: boolean
   users?: WorkspaceUserWithAttributes[]
   availableUsers?: WorkspaceUserWithAttributes[]
@@ -17,7 +18,7 @@ const initialState: CollaboratorsState = {
   loading: false
 }
 
-export default (state = initialState, action) => {
+export default (state = initialState, action): CollaboratorsState => {
   switch (action.type) {
     case FETCH_USERS_REQUESTED:
       return {
@@ -43,7 +44,7 @@ export default (state = initialState, action) => {
   }
 }
 
-export const fetchUsers = (filterRoles?: string) => {
+export const fetchUsers = (filterRoles?: string): AppThunk => {
   return async (dispatch, getState) => {
     const { user: state } = getState()
 
@@ -58,7 +59,7 @@ export const fetchUsers = (filterRoles?: string) => {
   }
 }
 
-export const fetchAvailableUsers = (filterRoles?: string) => {
+export const fetchAvailableUsers = (filterRoles?: string): AppThunk => {
   const query = (filterRoles && `?roles=${filterRoles}`) || ''
   return async dispatch => {
     const { data } = await api.getSecured().get(`/admin/workspace/collaborators/listAvailableUsers${query}`)

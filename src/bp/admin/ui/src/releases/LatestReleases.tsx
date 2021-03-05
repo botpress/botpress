@@ -1,7 +1,7 @@
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect } from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 import snarkdown from 'snarkdown'
 import PageContainer from '~/app/common/PageContainer'
 
@@ -18,6 +18,8 @@ interface GithubRelease {
   daysAgo: string
   dockerUrl: string
 }
+
+type Props = ConnectedProps<typeof connector>
 
 const DownloadLinks: FC<{ version: string; dockerUrl: string }> = props => {
   const version = `v${props.version.replace(/\./g, '_')}`
@@ -48,7 +50,7 @@ const DownloadLinks: FC<{ version: string; dockerUrl: string }> = props => {
   )
 }
 
-const LastRelease: FC<{ latestReleases: GithubRelease[]; fetchLatestVersions: Function }> = props => {
+const LastRelease: FC<Props> = props => {
   useEffect(() => {
     props.fetchLatestVersions()
   }, [])
@@ -77,6 +79,6 @@ const LastRelease: FC<{ latestReleases: GithubRelease[]; fetchLatestVersions: Fu
 }
 
 const mapStateToProps = state => ({ latestReleases: state.version.latestReleases })
-const mapDispatchToProps = { fetchLatestVersions }
+const connector = connect(mapStateToProps, { fetchLatestVersions })
 
-export default connect(mapStateToProps, mapDispatchToProps)(LastRelease)
+export default connector(LastRelease)

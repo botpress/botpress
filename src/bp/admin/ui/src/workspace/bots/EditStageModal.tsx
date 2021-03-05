@@ -9,34 +9,23 @@ import {
   Radio,
   RadioGroup
 } from '@blueprintjs/core'
-import { WorkspaceUserWithAttributes } from 'botpress/sdk'
 import { lang, toast } from 'botpress/shared'
 import React, { ChangeEvent, FC, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 import Select from 'react-select'
 
 import api from '~/api'
+import { AppState } from '~/app/reducer'
 import { getActiveWorkspace } from '~/auth/basicAuth'
 import { fetchUsers } from '~/workspace/collaborators/reducer'
 
-interface StateProps {
-  users: WorkspaceUserWithAttributes[]
-  loading: boolean
-}
-
-interface DispatchProps {
-  fetchUsers: (filterRole?: string) => void
-}
-
-interface OwnProps {
+type Props = {
   workspace: any
   stage: any
   isOpen: boolean
   toggle: () => void
   onEditSuccess: () => void
-}
-
-type Props = StateProps & OwnProps & DispatchProps
+} & ConnectedProps<typeof connector>
 
 const EditStageModal: FC<Props> = props => {
   const [isProcessing, setProcessing] = useState(false)
@@ -215,10 +204,12 @@ const EditStageModal: FC<Props> = props => {
   )
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: AppState) => ({
   roles: state.roles.roles,
-  users: state.user.users,
-  loading: state.user.loadingUsers
+  users: state.collaborators.users,
+  loading: state.collaborators.loading
 })
 
-export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, { fetchUsers })(EditStageModal)
+const connector = connect(mapStateToProps, { fetchUsers })
+
+export default connector(EditStageModal)

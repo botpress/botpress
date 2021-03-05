@@ -2,6 +2,7 @@ import axios from 'axios'
 import _ from 'lodash'
 import moment from 'moment'
 import api from '~/api'
+import { AppThunk } from '~/app/reducer'
 
 interface GithubRelease {
   version: string
@@ -11,7 +12,7 @@ interface GithubRelease {
   daysAgo: string
 }
 
-export interface VersionState {
+interface VersionState {
   currentVersion: string
   latestReleases: GithubRelease[]
 }
@@ -19,7 +20,29 @@ export interface VersionState {
 const RECEIVE_CURRENT_VERSION = 'version/RECEIVE_CURRENT_VERSION'
 const RECEIVE_LATEST_RELEASES = 'version/RECEIVE_LATEST_RELEASES'
 
-export const fetchCurrentVersion = () => {
+const initialState: VersionState = {
+  currentVersion: '',
+  latestReleases: []
+}
+
+export default (state = initialState, action): VersionState => {
+  switch (action.type) {
+    case RECEIVE_LATEST_RELEASES:
+      return {
+        ...state,
+        latestReleases: action.payload.releases
+      }
+    case RECEIVE_CURRENT_VERSION:
+      return {
+        ...state,
+        currentVersion: action.payload.version
+      }
+    default:
+      return state
+  }
+}
+
+export const fetchCurrentVersion = (): AppThunk => {
   return async dispatch => {
     try {
       const { data } = await axios.get('/version', { baseURL: process.env.REACT_APP_API_URL })
@@ -33,7 +56,7 @@ export const fetchCurrentVersion = () => {
   }
 }
 
-export const fetchLatestVersions = () => {
+export const fetchLatestVersions = (): AppThunk => {
   return async (dispatch, getState) => {
     if (getState().version.latestReleases.length !== 0) {
       return
@@ -76,24 +99,5 @@ export const fetchLatestVersions = () => {
     } catch (err) {
       console.error('could not fetch current version')
     }
-  }
-}
-
-const initialState = { currentVersion: '', latestReleases: [] }
-
-export default (state: VersionState = initialState, action) => {
-  switch (action.type) {
-    case RECEIVE_LATEST_RELEASES:
-      return {
-        ...state,
-        latestReleases: action.payload.releases
-      }
-    case RECEIVE_CURRENT_VERSION:
-      return {
-        ...state,
-        currentVersion: action.payload.version
-      }
-    default:
-      return state
   }
 }

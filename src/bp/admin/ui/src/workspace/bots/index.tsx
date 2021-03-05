@@ -16,7 +16,7 @@ import { confirmDialog, lang, telemetry, toast } from 'botpress/shared'
 import { ModuleInfo, ServerHealth, UserProfile } from 'common/typings'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 import { generatePath, RouteComponentProps } from 'react-router'
 import { Alert, Col, Row } from 'reactstrap'
 
@@ -42,25 +42,7 @@ import RollbackBotModal from './RollbackBotModal'
 
 const botFilterFields = ['name', 'id', 'description']
 
-interface OwnProps {}
-
-type StateProps = ReturnType<typeof mapStateToProps>
-type DispatchProps = typeof mapDispatchToProps
-
-type Props = DispatchProps & StateProps & OwnProps & RouteComponentProps
-
-// interface Props extends RouteComponentProps {
-//   modules: ModuleInfo[]
-//   bots: BotConfig[]
-//   health: ServerHealth[]
-//   workspace: any
-//   fetchBots: () => void
-//   fetchLicensing: () => void
-//   fetchBotHealth: () => void
-//   fetchModules: () => void
-//   licensing: any
-//   profile: UserProfile
-// }
+type Props = ConnectedProps<typeof connector> & RouteComponentProps
 
 class Bots extends Component<Props> {
   state = {
@@ -261,11 +243,9 @@ class Bots extends Component<Props> {
   }
 
   renderPipelineView(bots: BotConfig[]) {
-    const {
-      workspace: { pipeline },
-      profile
-    } = this.props
-    const { email, strategy } = profile || {}
+    const { pipeline } = this.props.workspace || {}
+    const { email, strategy } = this.props.profile || {}
+
     const botsByStage = _.groupBy(bots, 'pipeline_status.current_stage.id')
     const colSize = Math.floor(12 / pipeline.length)
 
@@ -443,7 +423,6 @@ const mapStateToProps = (state: AppState) => ({
   modules: state.modules.modules,
   bots: state.bots.bots,
   health: state.bots.health,
-  // @ts-ignore
   workspace: state.bots.workspace,
   loading: state.bots.loadingBots,
   licensing: state.licensing.license,
@@ -456,5 +435,7 @@ const mapDispatchToProps = {
   fetchBotHealth,
   fetchModules
 }
-// @ts-ignore
-export default connect(mapStateToProps, mapDispatchToProps)(Bots)
+
+const connector = connect(mapStateToProps, mapDispatchToProps)
+
+export default connector(Bots)

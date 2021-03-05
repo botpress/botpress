@@ -4,20 +4,16 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect } from 'react'
 import { MdAndroid, MdCopyright } from 'react-icons/md'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 import { generatePath, RouteComponentProps, withRouter } from 'react-router'
 import { matchPath } from 'react-router-dom'
 
 import AccessControl from '~/auth/AccessControl'
 import { getActiveWorkspace } from '~/auth/basicAuth'
-import { fetchCurrentVersion, fetchLatestVersions, VersionState } from '~/releases/reducer'
+import { fetchCurrentVersion, fetchLatestVersions } from '~/releases/reducer'
+import { AppState } from './reducer'
 
-type MenuProps = {
-  licensing: any
-  version: VersionState
-  fetchCurrentVersion: Function
-  fetchLatestVersions: Function
-} & RouteComponentProps
+type Props = ConnectedProps<typeof connector> & RouteComponentProps
 
 interface MenuItemProps {
   text: string
@@ -31,7 +27,7 @@ interface MenuItemProps {
   tag?: JSX.Element | undefined
 }
 
-const Menu: FC<MenuProps> = props => {
+const Menu: FC<Props> = props => {
   useEffect(() => {
     if (!props.version.currentVersion) {
       props.fetchCurrentVersion()
@@ -183,7 +179,11 @@ const Menu: FC<MenuProps> = props => {
   )
 }
 
-const mapStateToProps = state => ({ licensing: state.license.licensing, version: state.version })
+const mapStateToProps = (state: AppState) => ({
+  licensing: state.licensing.license,
+  version: state.version
+})
 const mapDispatchToProps = { fetchCurrentVersion, fetchLatestVersions }
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Menu))
+const connector = connect(mapStateToProps, mapDispatchToProps)
+export default withRouter(connector(Menu))

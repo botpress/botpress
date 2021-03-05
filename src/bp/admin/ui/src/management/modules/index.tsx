@@ -1,8 +1,7 @@
 import { Button, Callout, Intent, Switch } from '@blueprintjs/core'
 import { confirmDialog, lang, toast } from 'botpress/shared'
-import { ModuleInfo } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 import api from '~/api'
 import PageContainer from '~/app/common/PageContainer'
 import { AppState } from '~/app/reducer'
@@ -10,10 +9,7 @@ import { AppState } from '~/app/reducer'
 import { ImportModal } from './ModuleUpload'
 import { fetchModules } from './reducer'
 
-interface Props {
-  modules: ModuleInfo[]
-  fetchModules: () => void
-}
+type Props = ConnectedProps<typeof connector>
 
 const Modules: FC<Props> = props => {
   const [rebootRequired, setRebootRequired] = useState(false)
@@ -160,8 +156,7 @@ const Modules: FC<Props> = props => {
   )
 }
 
-const mapStateToProps = (state: AppState) => ({
-  ...state.modules
-})
+const mapStateToProps = (state: AppState) => state.modules
+const connector = connect(mapStateToProps, { fetchModules })
 
-export default connect(mapStateToProps, { fetchModules })(Modules)
+export default connector(Modules)

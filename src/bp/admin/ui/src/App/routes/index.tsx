@@ -1,9 +1,9 @@
 import { Button } from '@blueprintjs/core'
 import { auth as authentication } from 'botpress/shared'
+import { ConnectedRouter } from 'connected-react-router'
 import React from 'react'
 import { Provider } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
-import { ConnectedRouter } from 'react-router-redux'
 
 import App from '~/app'
 import Auth, { getActiveWorkspace } from '~/auth/basicAuth'
@@ -74,7 +74,7 @@ export const makeMainRoutes = () => {
   }
 
   return (
-    <Provider store={store as any}>
+    <Provider store={store}>
       <ConnectedRouter history={history}>
         <Switch>
           <Route path="/login/:strategy?/:workspace?" render={props => <LoginPage auth={auth} {...props} />} />

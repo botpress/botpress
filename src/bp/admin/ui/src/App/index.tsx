@@ -2,7 +2,7 @@ import { Alignment, Icon, Navbar } from '@blueprintjs/core'
 import { lang, TokenRefresher } from 'botpress/shared'
 import { UserProfile } from 'common/typings'
 import React, { FC, Fragment, useEffect } from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 import { NavLink } from 'reactstrap'
 import api from '~/api'
 
@@ -16,14 +16,7 @@ import Menu from './Menu'
 import { AppState } from './reducer'
 import WorkspaceSelect from './WorkspaceSelect'
 
-interface Props {
-  profile: UserProfile
-  licensing: any
-  version: string
-  fetchLicensing: () => void
-  fetchProfile: () => void
-  fetchCurrentVersion: Function
-}
+type Props = ConnectedProps<typeof connector>
 
 const App: FC<Props> = props => {
   useEffect(() => {
@@ -101,5 +94,5 @@ const mapDispatchToProps = {
   fetchProfile
 }
 
-// @ts-ignore
-export default connect(mapStateToProps, mapDispatchToProps)(App)
+const connector = connect(mapStateToProps, mapDispatchToProps)
+export default connector(App)

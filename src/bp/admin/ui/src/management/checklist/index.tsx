@@ -1,8 +1,8 @@
-import { Button, Callout, Intent, Tag } from '@blueprintjs/core'
-import { ServerConfig } from 'common/typings'
+import { Callout, Intent, Tag } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
+
 import api from '~/api'
 import PageContainer from '~/app/common/PageContainer'
 import { AppState } from '~/app/reducer'
@@ -28,10 +28,7 @@ const isSet = (value: any): boolean => value !== NOT_SET
 
 const protocol = window.location.protocol.substr(0, window.location.protocol.length - 1)
 
-type StateProps = ReturnType<typeof mapStateToProps>
-type DispatchProps = typeof mapDispatchToProps
-
-type Props = DispatchProps & StateProps
+type Props = ConnectedProps<typeof connector>
 
 const Container = props => {
   return (
@@ -107,9 +104,9 @@ export const Checklist: FC<Props> = props => {
     )
   }
 
-  const getEnv = (key: string): any => getDisplayValue(_.get(props.serverConfig.env, key))
-  const getConfig = (path: string): any => getDisplayValue(_.get(props.serverConfig.config, path))
-  const getLive = (path: string): any => getDisplayValue(_.get(props.serverConfig.live, path))
+  const getEnv = (key: string): any => getDisplayValue(_.get(props.serverConfig!.env, key))
+  const getConfig = (path: string): any => getDisplayValue(_.get(props.serverConfig!.config, path))
+  const getLive = (path: string): any => getDisplayValue(_.get(props.serverConfig!.live, path))
 
   const languageEndpoint = _.get(langSource, '[0].endpoint', '')
 
@@ -337,8 +334,10 @@ export const Checklist: FC<Props> = props => {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  serverConfig: state.checklist.serverConfig
+  serverConfig: state.checklist.serverConfig,
+  serverConfigLoaded: state.checklist.serverConfigLoaded
 })
-const mapDispatchToProps: any = { fetchServerConfig }
 
-export default connect<StateProps, DispatchProps, undefined, AppState>(mapStateToProps, mapDispatchToProps)(Checklist)
+const connector = connect(mapStateToProps, { fetchServerConfig })
+
+export default connector(Checklist)

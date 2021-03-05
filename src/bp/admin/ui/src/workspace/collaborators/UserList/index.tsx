@@ -4,7 +4,7 @@ import { lang } from 'botpress/shared'
 import { CHAT_USER_ROLE } from 'common/defaults'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 import LoadingSection from '~/app/common/LoadingSection'
 import { AppState } from '~/app/reducer'
 import { filterList } from '~/workspace/util'
@@ -13,15 +13,10 @@ import RoleSection from '../UserList/RoleSection'
 
 const userFilterFields = ['email', 'attributes.firstname', 'attributes.lastname']
 
-interface OwnProps {
+type Props = {
   onPasswordReset: any
   onUserUpdated: () => void
-}
-
-type StateProps = ReturnType<typeof mapStateToProps>
-type DispatchProps = typeof mapDispatchToProps
-
-type Props = StateProps & OwnProps
+} & ConnectedProps<typeof connector>
 
 const UserList: FC<Props> = props => {
   const [filter, setFilter] = useState('')
@@ -83,6 +78,7 @@ const mapStateToProps = (state: AppState) => ({
   users: state.collaborators.users,
   loading: state.collaborators.loading
 })
-const mapDispatchToProps = {}
 
-export default connect<StateProps, DispatchProps, OwnProps, AppState>(mapStateToProps, {})(UserList)
+const connector = connect(mapStateToProps)
+
+export default connector(UserList)

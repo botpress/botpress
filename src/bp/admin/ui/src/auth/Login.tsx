@@ -12,10 +12,13 @@ import { AuthMethodPicker } from './AuthMethodPicker'
 import { LoginContainer } from './LoginContainer'
 import { LoginForm } from './LoginForm'
 
-type Props = {
-  auth: BasicAuthentication
-} & RouteComponentProps<{ strategy: string; workspace: string }> &
-  ExtendedHistory
+type RouterProps = RouteComponentProps<
+  { strategy: string; workspace: string },
+  {},
+  { registerUrl?: string; from?: string; email?: string; password?: string; loginUrl?: string }
+>
+
+type Props = { auth: BasicAuthentication } & RouterProps & ExtendedHistory
 
 const Login: FC<Props> = props => {
   const [isLoading, setLoading] = useState(true)

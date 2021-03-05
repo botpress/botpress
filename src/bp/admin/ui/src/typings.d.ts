@@ -10,5 +10,6 @@ declare global {
     ROOT_PATH: string
     TELEMETRY_URL: string
     USE_JWT_COOKIES: boolean
+    __REDUX_DEVTOOLS_EXTENSION__: any
   }
 }

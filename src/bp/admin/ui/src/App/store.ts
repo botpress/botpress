@@ -1,22 +1,22 @@
+import { routerMiddleware } from 'connected-react-router'
 import { createStore, applyMiddleware, compose } from 'redux'
-import { routerMiddleware } from 'react-router-redux'
 import thunk from 'redux-thunk'
 import history from './history'
 import rootReducer from './reducer'
 
 const initialState = {}
-const enhancers = []
+const enhancers: any[] = []
 const middleware = [thunk, routerMiddleware(history)]
 
 if (process.env.NODE_ENV === 'development') {
-  const { devToolsExtension } = window
+  const { __REDUX_DEVTOOLS_EXTENSION__ } = window
 
-  if (typeof devToolsExtension === 'function') {
-    enhancers.push(devToolsExtension())
+  if (typeof __REDUX_DEVTOOLS_EXTENSION__ === 'function') {
+    enhancers.push(__REDUX_DEVTOOLS_EXTENSION__())
   }
 }
 
-const composedEnhancers = compose(applyMiddleware(...middleware), ...enhancers)
+const composedEnhancers = compose(applyMiddleware(...middleware))
 
 const store = createStore(rootReducer, initialState, composedEnhancers)
 

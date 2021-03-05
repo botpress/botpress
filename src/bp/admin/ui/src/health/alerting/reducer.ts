@@ -1,22 +1,26 @@
 import { Incident } from 'botpress/sdk'
 import api from '~/api'
+import { AppThunk } from '~/app/reducer'
 
 const FETCH_INCIDENTS_REQUESTED = 'bots/FETCH_INCIDENTS_REQUESTED'
 const FETCH_INCIDENTS_RECEIVED = 'bots/FETCH_INCIDENTS_RECEIVED'
 
-export interface AlertingState {
+interface AlertingState {
   lastDate?: Date
   loading: boolean
-  incidents: Incident[]
+  incidents?: {
+    active: Incident[]
+    resolved: Incident[]
+  }
 }
 
 const initialState: AlertingState = {
   lastDate: undefined,
   loading: true,
-  incidents: []
+  incidents: undefined
 }
 
-export default (state = initialState, action) => {
+export default (state = initialState, action): AlertingState => {
   switch (action.type) {
     case FETCH_INCIDENTS_RECEIVED:
       return {
@@ -36,20 +40,15 @@ export default (state = initialState, action) => {
   }
 }
 
-export const fetchIncidents = (fromTime, toTime) => {
+export const fetchIncidents = (fromTime, toTime): AppThunk => {
   return async dispatch => {
-    dispatch({
-      type: FETCH_INCIDENTS_REQUESTED
-    })
+    dispatch({ type: FETCH_INCIDENTS_REQUESTED })
 
     const { data } = await api.getSecured().post('/admin/health/alerting/incidents', {
       fromTime,
       toTime
     })
 
-    dispatch({
-      type: FETCH_INCIDENTS_RECEIVED,
-      data
-    })
+    dispatch({ type: FETCH_INCIDENTS_RECEIVED, data })
   }
 }

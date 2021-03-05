@@ -1,7 +1,7 @@
 import { Button, Icon, Menu, MenuDivider, MenuItem, Popover, PopoverInteractionKind, Position } from '@blueprintjs/core'
 import { Workspace } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 
 import PageContainer from '~/app/common/PageContainer'
 import SplitPage from '~/app/common/SplitPage'
@@ -16,10 +16,7 @@ import EditWorkspaceModal from './EditWorkspaceModal'
 import { fetchWorkspaces } from './reducer'
 import RolloutStrategyModal from './RolloutStrategyModal'
 
-type StateProps = ReturnType<typeof mapStateToProps>
-type DispatchProps = typeof mapDispatchToProps
-
-type Props = DispatchProps & StateProps
+type Props = ConnectedProps<typeof connector>
 
 const Workspaces: FC<Props> = props => {
   const [workspace, setWorkspace] = useState<Workspace>()
@@ -152,6 +149,6 @@ const Workspaces: FC<Props> = props => {
 }
 
 const mapStateToProps = (state: AppState) => ({ workspaces: state.workspaces.list })
-const mapDispatchToProps: any = { fetchWorkspaces, fetchMyWorkspaces }
+const connector = connect(mapStateToProps, { fetchWorkspaces, fetchMyWorkspaces })
 
-export default connect<StateProps, DispatchProps, undefined, AppState>(mapStateToProps, mapDispatchToProps)(Workspaces)
+export default connector(Workspaces)

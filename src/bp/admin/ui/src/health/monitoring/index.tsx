@@ -6,7 +6,7 @@ import moment from 'moment'
 import ms from 'ms'
 import React, { Component, Fragment } from 'react'
 import { IoIosArchive } from 'react-icons/io'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 import { Col, Jumbotron, Row } from 'reactstrap'
 import {
   Bar,
@@ -55,18 +55,7 @@ const resolutionOptions = [
 
 const tickSize = { fontSize: 11 }
 
-// interface Props {
-//   loading: boolean
-//   rawStats: any
-//   fetchStats: any
-//   refreshStats: any
-//   fetchBotStatus: () => void
-// }
-
-type StateProps = ReturnType<typeof mapStateToProps>
-type DispatchProps = typeof mapDispatchToProps
-
-type Props = DispatchProps & StateProps
+type Props = ConnectedProps<typeof connector>
 
 interface State {
   intervalId: any
@@ -404,6 +393,6 @@ const mapStateToProps = (state: AppState) => ({
   loading: state.monitoring.loading
 })
 
-const mapDispatchToProps: any = { fetchStats, refreshStats, fetchBotStatus: fetchBotHealth }
+const connector = connect(mapStateToProps, { fetchStats, refreshStats, fetchBotStatus: fetchBotHealth })
 
-export default connect<StateProps, DispatchProps, undefined, AppState>(mapStateToProps, mapDispatchToProps)(Monitoring)
+export default connector(Monitoring)

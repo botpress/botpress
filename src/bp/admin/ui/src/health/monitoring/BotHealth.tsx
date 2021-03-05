@@ -1,9 +1,8 @@
 import { Button, Tooltip } from '@blueprintjs/core'
 import { confirmDialog, toast } from 'botpress/shared'
-import { ServerHealth } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 import { generatePath, RouteComponentProps, withRouter } from 'react-router'
 import ReactTable from 'react-table'
 
@@ -15,13 +14,7 @@ import { switchWorkspace } from '~/user/reducer'
 import { fetchBotHealth, fetchBotsByWorkspace } from '~/workspace/bots/reducer'
 import { filterText } from '~/workspace/logs/utils'
 
-type Props = {
-  health?: ServerHealth[]
-  botsByWorkspace?: { [workspaceId: string]: string[] }
-  fetchBotHealth: () => void
-  fetchBotsByWorkspace: () => void
-  switchWorkspace: (workspaceName: string) => void
-} & RouteComponentProps
+type Props = ConnectedProps<typeof connector> & RouteComponentProps
 
 const getKey = entry => `${entry.hostname} (${entry.serverId})`
 
@@ -194,6 +187,6 @@ const mapStateToProps = (state: AppState) => ({
   botsByWorkspace: state.bots.botsByWorkspace
 })
 
-export default withRouter(
-  connect(mapStateToProps, { fetchBotHealth, switchWorkspace, fetchBotsByWorkspace })(BotHealth)
-)
+const connector = connect(mapStateToProps, { fetchBotHealth, switchWorkspace, fetchBotsByWorkspace })
+
+export default withRouter(connector(BotHealth))

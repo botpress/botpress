@@ -3,10 +3,11 @@ import { BotConfig, BotTemplate } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 import Select from 'react-select'
 
 import api from '~/api'
+import { AppState } from '~/app/reducer'
 import { fetchBotCategories, fetchBotTemplates } from './reducer'
 
 export const sanitizeBotId = (text: string) =>
@@ -21,26 +22,12 @@ interface SelectOption<T> {
   __isNew__?: boolean
 }
 
-interface OwnProps {
+type Props = {
   isOpen: boolean
   existingBots: BotConfig[]
   onCreateBotSuccess: () => void
   toggle: () => void
-}
-
-interface DispatchProps {
-  fetchBotCategories: () => void
-  fetchBotTemplates: () => void
-}
-
-interface StateProps {
-  botCategoriesFetched: boolean
-  botTemplatesFetched: boolean
-  botTemplates: BotTemplate[]
-  botCategories: string[]
-}
-
-type Props = DispatchProps & StateProps & OwnProps
+} & ConnectedProps<typeof connector>
 
 interface State {
   botId: string
@@ -244,13 +231,7 @@ class CreateBotModal extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = state => ({
-  ...state.bots
-})
+const mapStateToProps = (state: AppState) => state.bots
+const connector = connect(mapStateToProps, { fetchBotTemplates, fetchBotCategories })
 
-const mapDispatchToProps = {
-  fetchBotTemplates,
-  fetchBotCategories
-}
-
-export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(CreateBotModal)
+export default connector(CreateBotModal)

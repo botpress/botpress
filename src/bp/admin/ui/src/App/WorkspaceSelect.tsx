@@ -3,7 +3,7 @@ import { ItemPredicate, ItemRenderer, Select } from '@blueprintjs/select'
 import { WorkspaceUser } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 import { RouteComponentProps, withRouter } from 'react-router'
 import { isOperationAllowed } from '~/auth/AccessControl'
 import { getActiveWorkspace } from '~/auth/basicAuth'
@@ -12,21 +12,9 @@ import { fetchMyWorkspaces, switchWorkspace } from '~/user/reducer'
 import { fetchBots } from '~/workspace/bots/reducer'
 import { fetchUsers } from '~/workspace/collaborators/reducer'
 import { fetchRoles } from '~/workspace/roles/reducer'
+import { AppState } from './reducer'
 
-interface DispatchProps {
-  fetchMyWorkspaces: () => void
-  switchWorkspace: (workspaceId: string) => void
-  fetchUsers: () => void
-  fetchBots: () => void
-  fetchRoles: () => void
-}
-
-interface StateProps {
-  workspaces?: WorkspaceUser[]
-  currentWorkspace?: string
-}
-
-type Props = DispatchProps & StateProps & RouteComponentProps<{ workspaceId: string }>
+type Props = ConnectedProps<typeof connector> & RouteComponentProps<{ workspaceId: string }>
 
 const SelectDropdown = Select.ofType<WorkspaceUser>()
 
@@ -156,11 +144,12 @@ const renderOption: ItemRenderer<WorkspaceUser> = (option, { handleClick, modifi
   )
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: AppState) => ({
   workspaces: state.user.workspaces,
   currentWorkspace: state.user.currentWorkspace
 })
 
 const mapDispatchToProps = { fetchMyWorkspaces, switchWorkspace, fetchUsers, fetchBots, fetchRoles }
+const connector = connect(mapStateToProps, mapDispatchToProps)
 
-export default withRouter(connect<StateProps, DispatchProps>(mapStateToProps, mapDispatchToProps)(WorkspaceSelect))
+export default connector(withRouter(WorkspaceSelect))

@@ -1,12 +1,13 @@
 import moment from 'moment'
 
 import api from '~/api'
+import { AppThunk } from '~/app/reducer'
 
 const FETCH_STATS_FULL_REQUESTED = 'monitoring/FETCH_STATS_FULL_REQUESTED'
 const FETCH_STATS_FULL_RECEIVED = 'monitoring/FETCH_STATS_FULL_RECEIVED'
 const FETCH_STATS_PARTIAL_RECEIVED = 'bots/FETCH_STATS_PARTIAL_RECEIVED'
 
-export interface MonitoringState {
+interface MonitoringState {
   stats: any
   lastDate?: Date
   loading: boolean
@@ -18,7 +19,7 @@ const initialState: MonitoringState = {
   loading: true
 }
 
-export default (state = initialState, action) => {
+export default (state = initialState, action): MonitoringState => {
   switch (action.type) {
     case FETCH_STATS_FULL_RECEIVED:
       return {
@@ -46,7 +47,7 @@ export default (state = initialState, action) => {
   }
 }
 
-export const fetchStats = (fromTime, toTime) => {
+export const fetchStats = (fromTime, toTime): AppThunk => {
   return async dispatch => {
     dispatch({
       type: FETCH_STATS_FULL_REQUESTED
@@ -65,7 +66,7 @@ export const fetchStats = (fromTime, toTime) => {
   }
 }
 
-export const refreshStats = () => {
+export const refreshStats = (): AppThunk => {
   return async (dispatch, getState) => {
     const { monitoring: state } = getState()
 

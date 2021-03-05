@@ -2,12 +2,13 @@ import { WorkspaceRollout } from 'botpress/sdk'
 import { Workspace } from 'common/typings'
 
 import api from '~/api'
+import { AppThunk } from '~/app/reducer'
 import { getActiveWorkspace } from '~/auth/basicAuth'
 
 const FETCH_WORKSPACES_RECEIVED = 'server/FETCH_WORKSPACES_RECEIVED'
 const WORKSPACE_ROLLOUT_RECEIVED = 'user/WORKSPACE_ROLLOUT_RECEIVED'
 
-export interface WorkspacesState {
+interface WorkspacesState {
   workspaceRollout?: WorkspaceRollout
   list?: Workspace[]
 }
@@ -36,14 +37,14 @@ export default (state = initialState, action): WorkspacesState => {
   }
 }
 
-export const fetchWorkspaces = () => {
+export const fetchWorkspaces = (): AppThunk => {
   return async dispatch => {
     const { data } = await api.getSecured().get('/admin/workspace/workspaces')
     dispatch({ type: FETCH_WORKSPACES_RECEIVED, workspaces: data })
   }
 }
 
-export const fetchWorkspaceRollout = () => {
+export const fetchWorkspaceRollout = (): AppThunk => {
   return async dispatch => {
     const workspaceId = getActiveWorkspace()
     const { data } = await api.getSecured().get(`/admin/workspace/workspaces/${workspaceId}/rollout`)

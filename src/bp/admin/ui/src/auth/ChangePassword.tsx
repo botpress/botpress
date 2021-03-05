@@ -7,9 +7,8 @@ import BasicAuthentication from '~/auth/basicAuth'
 import { ChangePasswordForm } from './ChangePasswordForm'
 import { LoginContainer } from './LoginContainer'
 
-type Props = {
-  auth: BasicAuthentication
-} & RouteComponentProps
+type RouterProps = RouteComponentProps<undefined, {}, { email: string; password: string; loginUrl: string }>
+type Props = { auth: BasicAuthentication } & RouterProps
 
 export const ChangePassword: FC<Props> = props => {
   const [error, setError] = useState<string>()

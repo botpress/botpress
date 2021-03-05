@@ -4,7 +4,7 @@ import { Button, Modal, Input, Label, ModalHeader, ModalBody, ModalFooter, FormG
 import api from '~/api'
 
 interface Props {
-  refresh: any
+  refresh: () => void
 }
 
 export default class EditLicense extends Component<Props> {

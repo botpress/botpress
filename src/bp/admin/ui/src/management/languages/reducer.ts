@@ -1,12 +1,17 @@
 import api from '~/api'
+import { AppThunk } from '~/app/reducer'
 
-export const FETCH_LANGUAGES_RECEIVED = 'server/FETCH_LANGUAGES_RECEIVED'
+const FETCH_LANGUAGES_RECEIVED = 'server/FETCH_LANGUAGES_RECEIVED'
 
-const initialState = {
+interface LanguageState {
+  languages: any
+}
+
+const initialState: LanguageState = {
   languages: null
 }
 
-export default (state = initialState, action) => {
+export default (state = initialState, action): LanguageState => {
   switch (action.type) {
     case FETCH_LANGUAGES_RECEIVED:
       return {
@@ -19,7 +24,7 @@ export default (state = initialState, action) => {
   }
 }
 
-export const fetchLanguages = () => {
+export const fetchLanguages = (): AppThunk => {
   return async dispatch => {
     const { data } = await api.getSecured().get('/admin/management/languages/available')
     dispatch({ type: FETCH_LANGUAGES_RECEIVED, languages: data.languages })

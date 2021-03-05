@@ -11,7 +11,7 @@ import {
 } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 import { AppState } from '~/app/reducer'
 
 import BasicAuthentication from '~/auth/basicAuth'
@@ -20,10 +20,7 @@ import { fetchProfile } from './reducer'
 import UpdatePassword from './UpdatePassword'
 import UserProfile from './UpdateUserProfile'
 
-interface Props {
-  fetchProfile: () => void
-  profile: any
-}
+type Props = ConnectedProps<typeof connector>
 
 const UserDropdownMenu: FC<Props> = props => {
   const [isProfileOpen, setProfileOpen] = useState(false)
@@ -95,5 +92,6 @@ const UserDropdownMenu: FC<Props> = props => {
 }
 
 const mapStateToProps = (state: AppState) => ({ profile: state.user.profile })
+const connector = connect(mapStateToProps, { fetchProfile })
 
-export default connect(mapStateToProps, { fetchProfile })(UserDropdownMenu)
+export default connector(UserDropdownMenu)

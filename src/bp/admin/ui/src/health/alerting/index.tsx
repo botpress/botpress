@@ -3,7 +3,7 @@ import moment from 'moment'
 import ms from 'ms'
 import React, { Component } from 'react'
 import { IoIosArchive } from 'react-icons/io'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 import Select from 'react-select'
 import { Col, Jumbotron, Label, Row } from 'reactstrap'
 import CheckRequirements from '~/app/common/CheckRequirements'
@@ -14,11 +14,7 @@ import { AppState } from '~/app/reducer'
 import IncidentsTable from './IncidentsTable'
 import { fetchIncidents } from './reducer'
 
-interface Props {
-  incidents: any
-  loadingIncidents: boolean
-  fetchIncidents: (from, to) => void
-}
+type Props = ConnectedProps<typeof connector>
 
 interface State {
   intervalId: any
@@ -128,7 +124,7 @@ class Alerts extends Component<Props, State> {
       return this.renderNoData()
     }
 
-    if (this.props.loadingIncidents) {
+    if (this.props.loading) {
       return <LoadingSection />
     }
 
@@ -182,9 +178,9 @@ class Alerts extends Component<Props, State> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  incidents: state.alerting.incidents
+  incidents: state.alerting.incidents,
+  loading: state.alerting.loading
 })
 
-const mapDispatchToProps = { fetchIncidents }
-
-export default connect(mapStateToProps, mapDispatchToProps)(Alerts)
+const connector = connect(mapStateToProps, { fetchIncidents })
+export default connector(Alerts)

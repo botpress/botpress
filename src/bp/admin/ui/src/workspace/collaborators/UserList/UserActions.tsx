@@ -10,21 +10,17 @@ import {
 } from '@blueprintjs/core'
 import { WorkspaceUserWithAttributes } from 'botpress/sdk'
 import { confirmDialog, lang, toast } from 'botpress/shared'
-import { AuthRole, AuthStrategyConfig } from 'common/typings'
+
 import React, { FC } from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 import api from '~/api'
 import { AppState } from '~/app/reducer'
 
-interface OwnProps {
+type Props = {
   user: WorkspaceUserWithAttributes
   onUserUpdated: () => void
   onPasswordReset: (email, newPassword) => void
-}
-
-type StateProps = ReturnType<typeof mapStateToProps>
-
-type Props = StateProps & OwnProps
+} & ConnectedProps<typeof connector>
 
 const UserActions: FC<Props> = props => {
   const { user } = props
@@ -192,4 +188,5 @@ const mapStateToProps = (state: AppState) => ({
   authConfig: state.auth.authConfig
 })
 
-export default connect(mapStateToProps, {})(UserActions)
+const connector = connect(mapStateToProps)
+export default connector(UserActions)

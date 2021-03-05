@@ -1,9 +1,10 @@
 import { confirmDialog, lang } from 'botpress/shared'
+import { LicenseInfo } from 'common/licensing-service'
 import _ from 'lodash'
 import moment from 'moment'
 import React, { Fragment } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 import { Button, Col, Row, UncontrolledTooltip, Alert, Jumbotron } from 'reactstrap'
 
 import api from '~/api'
@@ -13,10 +14,7 @@ import EditLicense from './EditLicense'
 import LicensePolicies from './LicensePolicies'
 import { fetchLicensing } from './reducer'
 
-type StateProps = ReturnType<typeof mapStateToProps>
-type DispatchProps = typeof mapDispatchToProps
-
-type Props = DispatchProps & StateProps
+type Props = ConnectedProps<typeof connector>
 
 class LicenseStatus extends React.Component<Props> {
   state = {
@@ -39,11 +37,11 @@ class LicenseStatus extends React.Component<Props> {
   }
 
   get serverFingerprints() {
-    return _.get(this.props.licensing, 'fingerprints', {})
+    return this.props.licensing && this.props.licensing.fingerprints
   }
 
-  get license() {
-    return (this.props.licensing && this.props.licensing.license) || {}
+  get license(): LicenseInfo {
+    return (this.props.licensing && this.props.licensing.license) || ({} as LicenseInfo)
   }
 
   get isWrongFingerprint() {
@@ -129,6 +127,10 @@ class LicenseStatus extends React.Component<Props> {
   }
 
   renderFingerprintStatus() {
+    if (!this.serverFingerprints) {
+      return null
+    }
+
     return (
       <Fragment>
         <div className="license-infos license-infos--fingerprint">
@@ -222,6 +224,9 @@ class LicenseStatus extends React.Component<Props> {
       return this.renderProDisabled()
     }
 
+    // @ts-ignore
+    const nodes = Number(this.license.limits.nodes)
+
     return (
       <PageContainer title={lang.tr('admin.sideMenu.serverLicense')} superAdmin={true}>
         <Row>
@@ -263,7 +268,7 @@ class LicenseStatus extends React.Component<Props> {
             </div>
             <div className="license-infos">
               <strong className="license-infos__label">{lang.tr('admin.license.status.allowedNodes')}:</strong>
-              {this.license.limits && Number(this.license.limits.nodes) + 1}
+              {this.license.limits && nodes + 1}
             </div>
             <hr />
             {this.props.licensing && (
@@ -284,9 +289,7 @@ class LicenseStatus extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: AppState) => ({ licensing: state.licensing.license })
-const mapDispatchToProps: any = { fetchLicensing }
 
-export default connect<StateProps, DispatchProps, undefined, AppState>(
-  mapStateToProps,
-  mapDispatchToProps
-)(LicenseStatus)
+const connector = connect(mapStateToProps, { fetchLicensing })
+
+export default connector(LicenseStatus)

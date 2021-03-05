@@ -3,20 +3,15 @@ import { ItemPredicate, ItemRenderer, Select } from '@blueprintjs/select'
 import { lang } from 'botpress/shared'
 import { AuthRole } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, ConnectedProps } from 'react-redux'
 
 import { AppState } from '~/app/reducer'
 import { fetchRoles } from '~/workspace/roles/reducer'
 
-interface OwnProps {
+type Props = {
   defaultRole?: string
   onChange: (role: AuthRole) => void
-}
-
-type StateProps = ReturnType<typeof mapStateToProps>
-type DispatchProps = typeof mapDispatchToProps
-
-type Props = DispatchProps & StateProps & OwnProps
+} & ConnectedProps<typeof connector>
 
 const SelectDropdown = Select.ofType<AuthRole>()
 
@@ -81,6 +76,6 @@ const renderOption: ItemRenderer<AuthRole> = (option, { handleClick, modifiers }
 }
 
 const mapStateToProps = (state: AppState) => ({ roles: state.roles.roles })
-const mapDispatchToProps: any = { fetchRoles }
 
-export default connect<StateProps, DispatchProps, OwnProps, AppState>(mapStateToProps, mapDispatchToProps)(RoleDropdown)
+const connector = connect(mapStateToProps, { fetchRoles })
+export default connector(RoleDropdown)

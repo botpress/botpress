@@ -2,15 +2,16 @@ import { BotConfig, BotTemplate } from 'botpress/sdk'
 import { ServerHealth } from 'common/typings'
 
 import api from '~/api'
+import { AppThunk } from '~/app/reducer'
 
-export const FETCH_BOTS_REQUESTED = 'bots/FETCH_BOTS_REQUESTED'
-export const FETCH_BOTS_RECEIVED = 'bots/FETCH_BOTS_RECEIVED'
-export const FETCH_BOT_HEALTH_RECEIVED = 'bots/FETCH_BOT_STATUS_RECEIVED'
-export const FETCH_BOTS_BY_WORKSPACE = 'bots/FETCH_BOTS_BY_WORKSPACE'
-export const RECEIVED_BOT_CATEGORIES = 'bots/RECEIVED_BOT_CATEGORIES'
-export const RECEIVED_BOT_TEMPLATES = 'bots/RECEIVED_BOT_TEMPLATES'
+const FETCH_BOTS_REQUESTED = 'bots/FETCH_BOTS_REQUESTED'
+const FETCH_BOTS_RECEIVED = 'bots/FETCH_BOTS_RECEIVED'
+const FETCH_BOT_HEALTH_RECEIVED = 'bots/FETCH_BOT_STATUS_RECEIVED'
+const FETCH_BOTS_BY_WORKSPACE = 'bots/FETCH_BOTS_BY_WORKSPACE'
+const RECEIVED_BOT_CATEGORIES = 'bots/RECEIVED_BOT_CATEGORIES'
+const RECEIVED_BOT_TEMPLATES = 'bots/RECEIVED_BOT_TEMPLATES'
 
-export interface BotState {
+interface BotState {
   bots: BotConfig[]
   botsByWorkspace?: { [workspaceId: string]: string[] }
   health?: ServerHealth[]
@@ -19,6 +20,7 @@ export interface BotState {
   botTemplatesFetched: boolean
   botCategories: string[]
   botCategoriesFetched: boolean
+  workspace?: { name: string; pipeline: any }
 }
 
 const initialState: BotState = {
@@ -28,10 +30,11 @@ const initialState: BotState = {
   botTemplates: [],
   botTemplatesFetched: false,
   botCategories: [],
-  botCategoriesFetched: false
+  botCategoriesFetched: false,
+  workspace: undefined
 }
 
-export default (state = initialState, action) => {
+export default (state = initialState, action): BotState => {
   switch (action.type) {
     case RECEIVED_BOT_CATEGORIES:
       return {
@@ -76,7 +79,7 @@ export default (state = initialState, action) => {
   }
 }
 
-export const fetchBotTemplates = () => {
+export const fetchBotTemplates = (): AppThunk => {
   return async dispatch => {
     const { data } = await api.getSecured().get('/admin/workspace/bots/templates')
     dispatch({
@@ -86,7 +89,7 @@ export const fetchBotTemplates = () => {
   }
 }
 
-export const fetchBotCategories = () => {
+export const fetchBotCategories = (): AppThunk => {
   return async dispatch => {
     const { data } = await api.getSecured().get('/admin/workspace/bots/categories')
 
@@ -97,11 +100,9 @@ export const fetchBotCategories = () => {
   }
 }
 
-export const fetchBots = () => {
+export const fetchBots = (): AppThunk => {
   return async dispatch => {
-    dispatch({
-      type: FETCH_BOTS_REQUESTED
-    })
+    dispatch({ type: FETCH_BOTS_REQUESTED })
 
     const { data } = await api.getSecured().get('/admin/workspace/bots')
     if (!data || !data.payload) {
@@ -116,7 +117,7 @@ export const fetchBots = () => {
   }
 }
 
-export const fetchBotsByWorkspace = () => {
+export const fetchBotsByWorkspace = (): AppThunk => {
   return async dispatch => {
     const { data } = await api.getSecured().get('/admin/workspace/bots/byWorkspaces')
     if (!data || !data.payload) {
@@ -127,7 +128,7 @@ export const fetchBotsByWorkspace = () => {
   }
 }
 
-export const fetchBotHealth = () => {
+export const fetchBotHealth = (): AppThunk => {
   return async dispatch => {
     const { data } = await api.getSecured().get('/admin/workspace/bots/health')
     if (!data || !data.payload) {
