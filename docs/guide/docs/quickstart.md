@@ -36,7 +36,7 @@ You may start from scratch with the "Empty Bot," or you can use one of the avail
 
 Once created, click on the chatbot's name to open the Studio interface and edit your chatbot.
 
-## Studio Dashboard
+## Conversation Studio
 
 The studio is the main interface you'll use to build and edit your chatbot. From here, among other things, you can:
 
