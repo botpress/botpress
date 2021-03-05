@@ -229,8 +229,13 @@ class ConfigView extends Component<Props, State> {
   }
 
   handleDefaultLangChanged = async language => {
+    let langs = this.state.selectedLanguages
+    if (!langs.find(x => x.value === language.value)) {
+      langs = [...langs, language]
+    }
+
     if (!this.state.selectedDefaultLang) {
-      this.setState({ selectedDefaultLang: language })
+      this.setState({ selectedDefaultLang: language, selectedLanguages: langs })
       return
     }
 
@@ -242,12 +247,16 @@ class ConfigView extends Component<Props, State> {
       })
 
       if (conf) {
-        this.setState({ selectedDefaultLang: language })
+        this.setState({ selectedDefaultLang: language, selectedLanguages: langs })
       }
     }
   }
 
   handleLanguagesChanged = langs => {
+    if (!langs.find(x => x.value === this.state.selectedDefaultLang.value)) {
+      langs = [...langs, this.state.selectedDefaultLang]
+    }
+
     this.setState({ selectedLanguages: langs })
   }
 

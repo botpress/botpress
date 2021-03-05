@@ -1,4 +1,5 @@
 const core = require('./build/gulp.core')
+const migration = require('./build/gulp.migration')
 const modules = require('./build/gulp.modules')
 const package = require('./build/gulp.package')
 const gulp = require('gulp')
@@ -91,7 +92,11 @@ gulp.task('dev:modules', modules.createAllModulesSymlink())
  * Example: yarn cmd migration:create --target core --ver 13.0.0 --title "some config update"
  * target can either be "core" or the name of any module
  */
-gulp.task('migration:create', core.createMigration)
+gulp.task('migration:create', migration.createMigration)
+/**
+ * This command dumps the content of the 'data' folder and the database in an archive
+ */
+gulp.task('server:dump', migration.dumpServerData)
 
 gulp.task('check-translations', core.checkTranslations)
 

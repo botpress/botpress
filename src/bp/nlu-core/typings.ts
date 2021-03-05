@@ -108,6 +108,12 @@ export interface ExtractedEntity {
 }
 export type EntityExtractionResult = ExtractedEntity & { start: number; end: number }
 
+export interface KeyedItem {
+  input: string
+  idx: number
+  entities?: EntityExtractionResult[]
+}
+
 export interface SeededLodashProvider {
   setSeed(seed: number): void
   getSeededLodash(): _.LoDashStatic
@@ -121,7 +127,6 @@ export interface Tools {
   partOfSpeechUtterances(utterances: string[][], languageCode: string): string[][]
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
   getStopWordsForLang(lang: string): Promise<string[]>
-  duckling: SystemEntityExtractor
 
   // system info
   getHealth(): sdk.NLU.Health
@@ -130,6 +135,7 @@ export interface Tools {
 
   seededLodashProvider: SeededLodashProvider
   mlToolkit: typeof sdk.MLToolkit
+  systemEntityExtractor: SystemEntityExtractor
 }
 
 export interface SystemEntityExtractor {

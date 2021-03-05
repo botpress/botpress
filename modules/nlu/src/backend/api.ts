@@ -58,6 +58,7 @@ export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
   const router = bp.http.createRouterForBot(ROUTER_ID)
 
   const mapError = makeErrorMapper(bp)
+  const needsWriteMW = bp.http.needPermission('write', 'bot.training')
 
   router.get('/health', async (req, res) => {
     // When the health is bad, we'll refresh the status in case it has changed (eg: user added languages)
@@ -94,7 +95,7 @@ export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
     }
   })
 
-  router.post('/train/:lang', async (req, res) => {
+  router.post('/train/:lang', needsWriteMW, async (req, res) => {
     const { botId, lang } = req.params
     try {
       const disableTraining = yn(process.env.BP_NLU_DISABLE_TRAINING)
@@ -110,7 +111,7 @@ export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
     }
   })
 
-  router.post('/train/:lang/delete', async (req, res) => {
+  router.post('/train/:lang/delete', needsWriteMW, async (req, res) => {
     const { botId, lang } = req.params
     try {
       await app.cancelTraining(botId, lang)

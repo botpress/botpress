@@ -1,92 +1,47 @@
 import { NLU } from 'botpress/sdk'
-import { ensureFile, pathExists, readJSON, writeJson } from 'fs-extra'
 import _ from 'lodash'
-import lru from 'lru-cache'
-import ms from 'ms'
-import sizeof from 'object-sizeof'
-import path from 'path'
-
 import { extractPattern } from '../../tools/patterns-utils'
-import { SPACE } from '../../tools/token-utils'
-import { EntityExtractionResult, SystemEntityExtractor } from '../../typings'
-
+import { JOIN_CHAR } from '../../tools/token-utils'
+import { EntityExtractionResult, KeyedItem, SystemEntityExtractor } from '../../typings'
+import { SystemEntityCacheManager } from '../entity-cache-manager'
 import { DucklingClient, DucklingParams } from './duckling-client'
+import { DUCKLING_ENTITIES } from './enums'
 import { mapDucklingToEntity } from './map-duckling'
-import { DucklingDimension } from './typings'
 
-interface KeyedItem {
-  input: string
-  idx: number
-  entities?: EntityExtractionResult[]
-}
-
-export const JOIN_CHAR = `::${SPACE}::`
 const BATCH_SIZE = 10
-
-export const DUCKLING_ENTITIES: DucklingDimension[] = [
-  'amountOfMoney',
-  'distance',
-  'duration',
-  'email',
-  'number',
-  'ordinal',
-  'phoneNumber',
-  'quantity',
-  'temperature',
-  'time',
-  'url',
-  'volume'
-]
-
-const CACHE_PATH = path.join(process.APP_DATA_PATH || '', 'cache', 'sys_entities.json')
 
 // Further improvements:
 // 1- in _extractBatch, shift results ==> don't walk whole array n times (nlog(n) vs n2)
 
 export class DucklingEntityExtractor implements SystemEntityExtractor {
-  public static enabled: boolean
+  private _enabled: boolean
   private _provider: DucklingClient
 
-  private static _cache: lru<string, EntityExtractionResult[]>
-  private _cacheDumpEnabled = true
+  public enable() {
+    this._enabled = true
+  }
+  public disable() {
+    this._enabled = false
+  }
 
-  constructor(private readonly logger?: NLU.Logger) {
+  constructor(private _cache: SystemEntityCacheManager, private readonly logger?: NLU.Logger) {
+    this._enabled = false
+    this.logger = logger
     this._provider = new DucklingClient(logger)
   }
 
-  public static get entityTypes(): string[] {
-    return DucklingEntityExtractor.enabled ? DUCKLING_ENTITIES : []
+  public resetCache() {
+    this._cache.reset()
   }
 
-  public static async configure(enabled: boolean, url: string, logger?: NLU.Logger) {
+  public get entityTypes(): string[] {
+    return this._enabled ? DUCKLING_ENTITIES : []
+  }
+
+  public async configure(enabled: boolean, url: string) {
     if (enabled) {
-      this.enabled = await DucklingClient.init(url, logger)
-
-      this._cache = new lru<string, EntityExtractionResult[]>({
-        length: (val: any, key: string) => sizeof(val) + sizeof(key),
-        max:
-          1000 * // n bytes per entity
-          2 * // entities per utterance
-          10 * // n utterances per intent
-          100 * // n intents per bot
-          50 // n bots
-        // ~ 100 mb
-      })
-
-      await this._restoreCache(logger)
-    }
-  }
-
-  private static async _restoreCache(logger?: NLU.Logger) {
-    try {
-      if (await pathExists(CACHE_PATH)) {
-        const dump = await readJSON(CACHE_PATH)
-        if (dump) {
-          this._cache.load(dump)
-        }
-      }
-    } catch (err) {
-      logger?.error('could not load duckling cache')
+      this._enabled = await DucklingClient.init(url, this.logger)
+      await this._cache.restoreCache()
     }
   }
 
@@ -95,26 +50,17 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
     lang: string,
     useCache?: boolean
   ): Promise<EntityExtractionResult[][]> {
-    if (!DucklingEntityExtractor.enabled) {
+    if (!this._enabled) {
       return Array(inputs.length).fill([])
     }
+
     const options = {
       lang,
       tz: this._getTz(),
       refTime: Date.now()
     }
 
-    const [cached, toFetch] = inputs.reduce(
-      ([cached, toFetch], input, idx) => {
-        if (useCache && DucklingEntityExtractor._cache.has(input)) {
-          const entities = DucklingEntityExtractor._cache.get(input)
-          return [[...cached, { input, idx, entities }], toFetch]
-        } else {
-          return [cached, [...toFetch, { input, idx }]]
-        }
-      },
-      [[], []] as [KeyedItem[], KeyedItem[]]
-    )
+    const [cached, toFetch] = this._cache.splitCacheHitFromCacheMiss(inputs, !!useCache)
 
     const chunks = _.chunk(toFetch, BATCH_SIZE)
     const batchedRes = await Promise.mapSeries(chunks, c => this._extractBatch(c, options))
@@ -130,22 +76,6 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
   public async extract(input: string, lang: string, useCache?: boolean): Promise<EntityExtractionResult[]> {
     return (await this.extractMultiple([input], lang, useCache))[0]
   }
-
-  private async _dumpCache() {
-    try {
-      await ensureFile(CACHE_PATH)
-      await writeJson(CACHE_PATH, DucklingEntityExtractor._cache.dump())
-    } catch (err) {
-      this.logger?.error(`could not persist system entities cache, error ${err.message}`, err)
-      this._cacheDumpEnabled = false
-    }
-  }
-
-  private _onCacheChanged = _.debounce(async () => {
-    if (this._cacheDumpEnabled) {
-      await this._dumpCache()
-    }
-  }, ms('10s'))
 
   private async _extractBatch(batch: KeyedItem[], params: DucklingParams): Promise<KeyedItem[]> {
     if (_.isEmpty(batch)) {
@@ -166,7 +96,8 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
           end: e.end - from
         }))
     })
-    await this._cacheBatchResults(strBatch, entities)
+
+    await this._cache.cacheBatchResults(strBatch, entities)
 
     return batch.map((batchItm, i) => ({ ...batchItm, entities: entities[i] }))
   }
@@ -174,14 +105,6 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
   private async _fetchDuckling(text: string, params: DucklingParams): Promise<EntityExtractionResult[]> {
     const duckReturn = await this._provider.fetchDuckling(text, params)
     return duckReturn.map(mapDucklingToEntity)
-  }
-
-  private async _cacheBatchResults(inputs: string[], results: EntityExtractionResult[][]) {
-    _.zipWith(inputs, results, (input, entities) => ({ input, entities })).forEach(({ input, entities }) => {
-      DucklingEntityExtractor._cache.set(input, entities)
-    })
-
-    await this._onCacheChanged()
   }
 
   private _getTz(): string {
