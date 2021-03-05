@@ -22,7 +22,10 @@ const ROLE_CONFIGURATION = [
       },
       { res: 'admin.collaborators.*', op: '-r' },
       { res: 'admin.logs.*', op: '-r' },
-      { res: 'admin.roles.*', op: '-r' }
+      { res: 'admin.roles.*', op: '-r' },
+      { res: 'admin.bots.archive', op: '-r' },
+      { res: 'bot.flows', op: '-r' },
+      { res: 'bot.content', op: '-r' }
     ]
   }
 ]

@@ -340,7 +340,7 @@ export class BotService {
 
   private async _migrateBotContent(botId: string): Promise<void> {
     const config = await this.configProvider.getBotConfig(botId)
-    return this.migrationService.executeMissingBotMigrations(botId, config.version)
+    return this.migrationService.botMigration.executeMissingBotMigrations(botId, config.version)
   }
 
   async requestStageChange(botId: string, requestedBy: string) {
