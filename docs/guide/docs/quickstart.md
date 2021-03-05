@@ -3,7 +3,7 @@ id: quickstart
 title: Quick Start
 ---
 
-A Botpress Server installation has two main interfaces: the **Admin Dashboard** and the **Studio Dashboard**. Let's take a look at these two interfaces in detail.
+A Botpress Server installation has two main interfaces: the **Admin Dashboard** and the **Conversation Studio**. Let's take a look at these two interfaces in detail.
 
 ## Admin Dashboard
 The Admin Dashboard is where you manage and configure everything related to your Botpress Server installation. It is the one-stop-shop for all functionalities that affect all the chatbots on a Botpress Server instance.
