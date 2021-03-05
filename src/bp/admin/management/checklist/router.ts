@@ -6,7 +6,7 @@ import _ from 'lodash'
 import { tmpNameSync } from 'tmp'
 import yn from 'yn'
 
-export class ChecklistRouter extends CustomAdminRouter {
+class ChecklistRouter extends CustomAdminRouter {
   constructor(services: AdminServices) {
     super('Checklist', services)
     this.setupRoutes()
@@ -53,3 +53,5 @@ export class ChecklistRouter extends CustomAdminRouter {
     )
   }
 }
+
+export default ChecklistRouter

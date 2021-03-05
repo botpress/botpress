@@ -3,7 +3,7 @@ import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 
 import _ from 'lodash'
 
-export class AlertingRouter extends CustomAdminRouter {
+class AlertingRouter extends CustomAdminRouter {
   constructor(services: AdminServices) {
     super('Alerting', services)
     this.setupRoutes()
@@ -28,3 +28,5 @@ export class AlertingRouter extends CustomAdminRouter {
     )
   }
 }
+
+export default AlertingRouter

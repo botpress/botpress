@@ -1,13 +1,12 @@
 import { AdminServices } from 'admin'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
-import { assertSuperAdmin } from 'core/routers/util'
 import _ from 'lodash'
-import { AlertingRouter } from './alerting/router'
 
-import { DebugRouter } from './debug/router'
-import { MonitoringRouter } from './monitoring/router'
+import AlertingRouter from './alerting/router'
+import DebugRouter from './debug/router'
+import MonitoringRouter from './monitoring/router'
 
-export class HealthRouter extends CustomAdminRouter {
+class HealthRouter extends CustomAdminRouter {
   private debugRouter: DebugRouter
   private monitoringRouter: MonitoringRouter
   private alertingRouter: AlertingRouter
@@ -23,3 +22,5 @@ export class HealthRouter extends CustomAdminRouter {
     this.router.use('/alerting', this.alertingRouter.router)
   }
 }
+
+export default HealthRouter

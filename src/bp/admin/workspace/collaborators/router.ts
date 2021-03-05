@@ -7,7 +7,7 @@ import { InvalidOperationError } from 'core/services/auth/errors'
 import Joi from 'joi'
 import _ from 'lodash'
 
-export class CollaboratorsRouter extends CustomAdminRouter {
+class CollaboratorsRouter extends CustomAdminRouter {
   private readonly resource = 'admin.collaborators'
 
   constructor(services: AdminServices) {
@@ -170,3 +170,5 @@ export class CollaboratorsRouter extends CustomAdminRouter {
     )
   }
 }
+
+export default CollaboratorsRouter

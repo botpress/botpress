@@ -7,7 +7,7 @@ import mkdirp from 'mkdirp'
 import path from 'path'
 import tmp from 'tmp'
 
-export class VersioningRouter extends CustomAdminRouter {
+class VersioningRouter extends CustomAdminRouter {
   constructor(services: AdminServices) {
     super('Versioning', services)
     this.setupRoutes()
@@ -88,3 +88,5 @@ export class VersioningRouter extends CustomAdminRouter {
     await extractArchive(Buffer.concat(buffer), dataFolder)
   }
 }
+
+export default VersioningRouter

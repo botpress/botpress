@@ -8,7 +8,7 @@ import { ROLLOUT_STRATEGIES } from 'core/services/workspace-service'
 import Joi from 'joi'
 import _ from 'lodash'
 
-export class WorkspacesRouter extends CustomAdminRouter {
+class WorkspacesRouter extends CustomAdminRouter {
   constructor(services: AdminServices) {
     super('Workspaces', services)
     this.setupRoutes()
@@ -161,3 +161,5 @@ export class WorkspacesRouter extends CustomAdminRouter {
     )
   }
 }
+
+export default WorkspacesRouter

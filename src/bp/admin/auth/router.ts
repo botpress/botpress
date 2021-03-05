@@ -1,19 +1,17 @@
 import { AdminServices } from 'admin'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import { JWT_COOKIE_NAME } from 'common/auth'
-import { AuthRule, ChatUserAuth, RequestWithUser, TokenUser, UserProfile } from 'common/typings'
-import { BadRequestError, NotFoundError } from 'core/routers/errors'
-import { assertSuperAdmin, assertWorkspace, sendSuccess, validateBodySchema } from 'core/routers/util'
+import { ChatUserAuth, RequestWithUser } from 'common/typings'
+import { BadRequestError } from 'core/routers/errors'
+import { sendSuccess } from 'core/routers/util'
 import StrategyBasic from 'core/services/auth/basic'
-import Joi from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 
-export class AuthRouter extends CustomAdminRouter {
+class AuthRouter extends CustomAdminRouter {
   constructor(services: AdminServices) {
     super('Auth', services)
 
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.setupRoutes()
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.setupStrategies()
@@ -37,92 +35,8 @@ export class AuthRouter extends CustomAdminRouter {
     }
   }
 
-  async setupRoutes() {
+  setupRoutes() {
     const router = this.router
-
-    router.get(
-      '/me/profile',
-      this.checkTokenHeader,
-      assertWorkspace,
-      this.asyncMiddleware(async (req: RequestWithUser, res) => {
-        const { email, strategy, isSuperAdmin } = req.tokenUser!
-        const user = await this.authService.findUser(email, strategy)
-        if (!user) {
-          throw new NotFoundError(`User ${email || ''} not found`)
-        }
-        const { firstname, lastname, picture_url } = user.attributes
-        const { type } = await this.authService.getStrategy(strategy)
-
-        const permissions = await this.getUserPermissions(req.tokenUser!, req.workspace!)
-
-        const userProfile: UserProfile = {
-          firstname,
-          lastname,
-          email,
-          picture_url,
-          strategyType: type,
-          strategy,
-          isSuperAdmin,
-          fullName: [firstname, lastname].filter(Boolean).join(' '),
-          permissions
-        }
-
-        return sendSuccess(res, 'Retrieved profile successfully', userProfile)
-      })
-    )
-
-    router.post(
-      '/me/profile',
-      this.checkTokenHeader,
-      this.asyncMiddleware(async (req: RequestWithUser, res) => {
-        const { email, strategy } = req.tokenUser!
-
-        validateBodySchema(
-          req,
-          Joi.object().keys({
-            firstname: Joi.string()
-              .min(0)
-              .max(35)
-              .trim()
-              .allow(''),
-            lastname: Joi.string()
-              .min(0)
-              .max(35)
-              .trim()
-              .allow(''),
-            picture_url: Joi.string()
-              .uri()
-              .allow('')
-          })
-        )
-
-        await this.authService.updateAttributes(email, strategy, {
-          firstname: req.body.firstname,
-          lastname: req.body.lastname,
-          picture_url: req.body.picture_url
-        })
-
-        return sendSuccess(res, 'Updated profile successfully')
-      })
-    )
-
-    router.get(
-      '/me/workspaces',
-      this.checkTokenHeader,
-      this.asyncMiddleware(async (req: RequestWithUser, res) => {
-        const { email, strategy, isSuperAdmin } = req.tokenUser!
-
-        if (!isSuperAdmin) {
-          return res.send(await this.workspaceService.getUserWorkspaces(email, strategy))
-        }
-
-        res.send(
-          await Promise.map(this.workspaceService.getWorkspaces(), w => {
-            return { email, strategy, workspace: w.id, role: w.adminRole, workspaceName: w.name }
-          })
-        )
-      })
-    )
 
     router.get(
       '/refresh',
@@ -180,21 +94,6 @@ export class AuthRouter extends CustomAdminRouter {
       })
     )
   }
-
-  getUserPermissions = async (user: TokenUser, workspaceId: string): Promise<AuthRule[]> => {
-    const { email, strategy, isSuperAdmin } = user
-    const userRole = await this.workspaceService.getRoleForUser(email, strategy, workspaceId)
-
-    if (isSuperAdmin) {
-      return [{ res: '*', op: '+r+w' }]
-    } else if (!userRole) {
-      return [{ res: '*', op: '-r-w' }]
-    } else {
-      return userRole.rules
-    }
-  }
-
-  sendSuccess = async (req, res) => {
-    return sendSuccess(res)
-  }
 }
+
+export default AuthRouter

@@ -3,7 +3,7 @@ import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import { sendSuccess } from 'core/routers/util'
 import _ from 'lodash'
 
-export class RolesRouter extends CustomAdminRouter {
+class RolesRouter extends CustomAdminRouter {
   constructor(services: AdminServices) {
     super('Roles', services)
     this.setupRoutes()
@@ -22,3 +22,5 @@ export class RolesRouter extends CustomAdminRouter {
     )
   }
 }
+
+export default RolesRouter

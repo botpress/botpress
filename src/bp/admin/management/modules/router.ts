@@ -9,7 +9,7 @@ import _ from 'lodash'
 import multer from 'multer'
 import yn from 'yn'
 
-export class ModulesRouter extends CustomAdminRouter {
+class ModulesRouter extends CustomAdminRouter {
   constructor(services: AdminServices) {
     super('Modules', services)
     this.setupRoutes()
@@ -113,3 +113,5 @@ export class ModulesRouter extends CustomAdminRouter {
     return module
   }
 }
+
+export default ModulesRouter

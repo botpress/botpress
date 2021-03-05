@@ -5,7 +5,7 @@ import { StandardError, UnexpectedError } from 'common/http'
 import Joi from 'joi'
 import _ from 'lodash'
 
-export class LanguagesRouter extends CustomAdminRouter {
+class LanguagesRouter extends CustomAdminRouter {
   private readonly resource = 'admin.languages'
 
   constructor(services: AdminServices) {
@@ -161,3 +161,5 @@ export class LanguagesRouter extends CustomAdminRouter {
     )
   }
 }
+
+export default LanguagesRouter

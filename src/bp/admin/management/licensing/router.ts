@@ -23,7 +23,7 @@ const defaultResponse: LicensingStatus = {
   isPro: process.IS_PRO_ENABLED
 }
 
-export class LicensingRouter extends CustomAdminRouter {
+class LicensingRouter extends CustomAdminRouter {
   constructor(services: AdminServices) {
     super('Licensing', services)
     this.setupRoutes()
@@ -112,3 +112,5 @@ export class LicensingRouter extends CustomAdminRouter {
     )
   }
 }
+
+export default LicensingRouter

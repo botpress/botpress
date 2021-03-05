@@ -3,13 +3,13 @@ import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import { assertSuperAdmin } from 'core/routers/util'
 import _ from 'lodash'
 
-import { BotsRouter } from './bots/router'
-import { CollaboratorsRouter } from './collaborators/router'
-import { LogsRouter } from './logs/router'
-import { RolesRouter } from './roles/router'
-import { WorkspacesRouter } from './workspaces/router'
+import BotsRouter from './bots/router'
+import CollaboratorsRouter from './collaborators/router'
+import LogsRouter from './logs/router'
+import RolesRouter from './roles/router'
+import WorkspacesRouter from './workspaces/router'
 
-export class WorkspaceRouter extends CustomAdminRouter {
+class WorkspaceRouter extends CustomAdminRouter {
   private botsRouter: BotsRouter
   private collaboratorsRouter: CollaboratorsRouter
   private logsRouter: LogsRouter
@@ -32,3 +32,5 @@ export class WorkspaceRouter extends CustomAdminRouter {
     this.router.use('/workspaces', assertSuperAdmin, this.workspacesRouter.router)
   }
 }
+
+export default WorkspaceRouter

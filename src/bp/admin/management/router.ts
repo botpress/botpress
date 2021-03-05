@@ -4,13 +4,13 @@ import { assertSuperAdmin } from 'core/routers/util'
 import _ from 'lodash'
 import os from 'os'
 
-import { ChecklistRouter } from './checklist/router'
-import { LanguagesRouter } from './languages/router'
-import { LicensingRouter } from './licensing/router'
-import { ModulesRouter } from './modules/router'
-import { VersioningRouter } from './versioning/router'
+import ChecklistRouter from './checklist/router'
+import LanguagesRouter from './languages/router'
+import LicensingRouter from './licensing/router'
+import ModulesRouter from './modules/router'
+import VersioningRouter from './versioning/router'
 
-export class ManagementRouter extends CustomAdminRouter {
+class ManagementRouter extends CustomAdminRouter {
   private versioningRouter: VersioningRouter
   private modulesRouter: ModulesRouter
   private checklistRouter: ChecklistRouter
@@ -91,3 +91,5 @@ export class ManagementRouter extends CustomAdminRouter {
     }
   }
 }
+
+export default ManagementRouter

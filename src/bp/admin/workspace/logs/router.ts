@@ -4,7 +4,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import yn from 'yn'
 
-export class LogsRouter extends CustomAdminRouter {
+class LogsRouter extends CustomAdminRouter {
   constructor(services: AdminServices) {
     super('Logs', services)
     this.setupRoutes()
@@ -39,3 +39,5 @@ export class LogsRouter extends CustomAdminRouter {
     )
   }
 }
+
+export default LogsRouter

@@ -19,7 +19,7 @@ const chatUserBotFields = [
   'pipeline_status.current_stage.id'
 ]
 
-export class BotsRouter extends CustomAdminRouter {
+class BotsRouter extends CustomAdminRouter {
   private readonly resource = 'admin.bots'
 
   constructor(services: AdminServices) {
@@ -294,3 +294,5 @@ export class BotsRouter extends CustomAdminRouter {
     )
   }
 }
+
+export default BotsRouter

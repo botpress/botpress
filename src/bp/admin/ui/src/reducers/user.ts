@@ -125,7 +125,7 @@ export const fetchProfile = () => {
     dispatch({ type: MY_PROFILE_REQUESTED })
 
     try {
-      const { data } = await api.getSecured().get('/admin/auth/me/profile')
+      const { data } = await api.getSecured().get('/admin/user/profile')
       dispatch({ type: MY_PROFILE_RECEIVED, profile: data.payload })
     } catch (err) {
       await auth.logout(() => api.getSecured())

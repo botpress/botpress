@@ -2,7 +2,7 @@ import { AdminServices } from 'admin'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import _ from 'lodash'
 
-export class MonitoringRouter extends CustomAdminRouter {
+class MonitoringRouter extends CustomAdminRouter {
   constructor(services: AdminServices) {
     super('Debug', services)
     this.setupRoutes()
@@ -27,3 +27,5 @@ export class MonitoringRouter extends CustomAdminRouter {
     )
   }
 }
+
+export default MonitoringRouter
