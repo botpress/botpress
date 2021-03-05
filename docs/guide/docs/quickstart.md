@@ -41,7 +41,7 @@ Once created, click on the chatbot's name to open the Studio interface and edit 
 The studio is the main interface you'll use to build and edit your chatbot. From here, among other things, you can:
 
 - Train an NLU model
-- Create dialog workflows
+- Create conversation flow
 - Manage content
 - Test and debug your chatbot
 
