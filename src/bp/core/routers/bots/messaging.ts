@@ -51,7 +51,7 @@ export class MessagingRouter extends CustomRouter {
         const { botId } = req.params
         const { conversationId } = req.params
 
-        const conversation = await this.conversations.forBot(botId).get({ id: conversationId })
+        const conversation = await this.conversations.forBot(botId).get(conversationId)
 
         if (conversation) {
           res.send(conversation)
@@ -78,7 +78,7 @@ export class MessagingRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { botId, userId } = req.params
 
-        const conversation = await this.conversations.forBot(botId).recent({ userId })
+        const conversation = await this.conversations.forBot(botId).recent(userId)
         res.send(conversation)
       })
     )
@@ -87,8 +87,11 @@ export class MessagingRouter extends CustomRouter {
       '/messages',
       this.asyncMiddleware(async (req, res) => {
         const { botId } = req.params
-        const { conversationId } = req.body
-        const message = await this.messages.forBot(botId).create({ ...req.body, conversationId: +conversationId })
+        const { conversationId, payload, from, eventId, incomingEventId } = req.body
+
+        const message = await this.messages
+          .forBot(botId)
+          .create(conversationId, payload, from, eventId, incomingEventId)
         res.send(message)
       })
     )
@@ -110,7 +113,7 @@ export class MessagingRouter extends CustomRouter {
         const { botId } = req.params
         const { messageId } = req.params
 
-        const message = await this.messages.forBot(botId).get({ id: messageId })
+        const message = await this.messages.forBot(botId).get(messageId)
 
         if (message) {
           res.send(message)
