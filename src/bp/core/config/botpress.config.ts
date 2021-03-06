@@ -296,6 +296,14 @@ export interface BotpressConfig {
      * @default true
      */
     allowRefresh: boolean
+
+    apiKey: {
+      /**
+       * Allow logged-on users to generate an API Key, which can then be used to obtain a JWT Token
+       * @default false
+       */
+      enabled: boolean
+    }
     /**
      * Use an HTTP-Only secure cookie instead of the local storage for the JWT Token
      * @default false

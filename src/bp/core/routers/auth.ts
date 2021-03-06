@@ -197,6 +197,39 @@ export class AuthRouter extends CustomRouter {
       })
     )
 
+    router.get(
+      '/apiKey',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req: RequestWithUser, res) => {
+        const { email, strategy } = req.tokenUser!
+        const user = await this.authService.findUser(email, strategy)
+
+        res.send({ apiKey: user?.apiKey })
+      })
+    )
+
+    router.post(
+      '/apiKey',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req: RequestWithUser, res) => {
+        const { email, strategy } = req.tokenUser!
+        const apiKey = await this.authService.generateUserApiKey(email, strategy)
+
+        res.send({ apiKey })
+      })
+    )
+
+    router.post(
+      '/apiKey/revoke',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req: RequestWithUser, res) => {
+        const { email, strategy } = req.tokenUser!
+        await this.authService.revokeUserApiKey(email, strategy)
+
+        res.sendStatus(201)
+      })
+    )
+
     // Temporary route to obtain a token when using cookie authentication, for the bp pull/push command
     router.get(
       '/getToken',

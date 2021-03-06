@@ -13,6 +13,7 @@ import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import ChangeLanguage from '~/Pages/MyAccount/ChangeLanguage'
+import Developer from '~/Pages/MyAccount/Developer'
 import UpdatePassword from '~/Pages/MyAccount/UpdatePassword'
 import UserProfile from '~/Pages/MyAccount/UpdateUserProfile'
 
@@ -28,6 +29,7 @@ const UserDropdownMenu: FC<Props> = props => {
   const [isProfileOpen, setProfileOpen] = useState(false)
   const [isPasswordOpen, setPasswordOpen] = useState(false)
   const [isLanguageOpen, setLanguageOpen] = useState(false)
+  const [isDevOpen, setDevOpen] = useState(false)
 
   useEffect(() => {
     !props.profile && props.fetchProfile()
@@ -45,6 +47,7 @@ const UserDropdownMenu: FC<Props> = props => {
   const toggleProfile = () => setProfileOpen(!isProfileOpen)
   const togglePassword = () => setPasswordOpen(!isPasswordOpen)
   const toggleLanguage = () => setLanguageOpen(!isLanguageOpen)
+  const toggleDev = () => setDevOpen(!isDevOpen)
 
   const { email, fullName, strategyType, picture_url } = props.profile
   const canChangePassword = strategyType === 'basic'
@@ -74,6 +77,8 @@ const UserDropdownMenu: FC<Props> = props => {
             onClick={toggleLanguage}
           />
 
+          <MenuItem id="btn-developer" icon="code" text="Developer" onClick={toggleDev} />
+
           <MenuDivider />
           <MenuItem id="btn-logout" icon="log-out" text={lang.tr('admin.logout')} onClick={logout} />
         </Menu>
@@ -89,6 +94,8 @@ const UserDropdownMenu: FC<Props> = props => {
       />
 
       <ChangeLanguage isOpen={isLanguageOpen} toggle={toggleLanguage} />
+
+      <Developer isOpen={isDevOpen} profile={props.profile} close={toggleDev} />
     </div>
   )
 }

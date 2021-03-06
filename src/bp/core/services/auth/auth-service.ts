@@ -26,7 +26,7 @@ import { EventEngine } from '../middleware/event-engine'
 import { WorkspaceService } from '../workspace-service'
 
 import StrategyBasic from './basic'
-import { generateUserToken } from './util'
+import { ApiKey, generateApiKey, generateUserToken } from './util'
 
 export const TOKEN_AUDIENCE = 'collaborators'
 export const CHAT_USERS_AUDIENCE = 'chat_users'
@@ -357,6 +357,39 @@ export default class AuthService {
     }
 
     return sendEvent({ authenticatedUntil, isAuthorized: isMember || isSuperAdmin })
+  }
+
+  public async generateUserApiKey(email: string, strategy: string): Promise<string> {
+    const apiKey = generateApiKey({
+      email,
+      strategy
+    })
+
+    await this.users.updateUser(email, strategy, { apiKey })
+
+    return apiKey
+  }
+
+  async checkApiKey(jwtToken: string): Promise<ApiKey> {
+    return Promise.fromCallback<ApiKey>(cb => {
+      jsonwebtoken.verify(jwtToken, process.APP_SECRET, async (err, key) => {
+        const apiKey = key as ApiKey
+
+        if (!err) {
+          const user = await this.users.findUser(apiKey.email, apiKey.strategy)
+          if (user && user.apiKey === jwtToken) {
+            cb(undefined, apiKey)
+          } else {
+            cb(new Error('Invalid api key'), undefined)
+          }
+        }
+        cb(err, undefined)
+      })
+    })
+  }
+
+  public async revokeUserApiKey(email: string, strategy: string): Promise<void> {
+    return this.users.updateUser(email, strategy, { apiKey: null })
   }
 
   public async setJwtCookieResponse(token: TokenResponse, res: Response): Promise<boolean> {
