@@ -5,7 +5,7 @@ import { AuthRole } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 
-import { AppState } from '~/app/reducer'
+import { AppState } from '~/app/rootReducer'
 import { fetchRoles } from '~/workspace/roles/reducer'
 
 type Props = {

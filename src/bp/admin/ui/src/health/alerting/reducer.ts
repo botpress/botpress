@@ -1,6 +1,6 @@
 import { Incident } from 'botpress/sdk'
 import api from '~/app/api'
-import { AppThunk } from '~/app/reducer'
+import { AppThunk } from '~/app/rootReducer'
 
 const FETCH_INCIDENTS_REQUESTED = 'bots/FETCH_INCIDENTS_REQUESTED'
 const FETCH_INCIDENTS_RECEIVED = 'bots/FETCH_INCIDENTS_RECEIVED'

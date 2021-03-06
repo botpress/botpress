@@ -15,7 +15,7 @@ import { connect, ConnectedProps } from 'react-redux'
 import Select from 'react-select'
 
 import api from '~/app/api'
-import { AppState } from '~/app/reducer'
+import { AppState } from '~/app/rootReducer'
 import { getActiveWorkspace } from '~/auth/basicAuth'
 import { fetchUsers } from '~/workspace/collaborators/reducer'
 

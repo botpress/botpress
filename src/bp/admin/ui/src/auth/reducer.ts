@@ -1,7 +1,7 @@
 import { AuthStrategyConfig } from 'common/typings'
 
 import api from '~/app/api'
-import { AppThunk } from '~/app/reducer'
+import { AppThunk } from '~/app/rootReducer'
 
 const AUTH_CONFIG_RECEIVED = 'user/AUTH_CONFIG_RECEIVED'
 

@@ -9,7 +9,7 @@ import { Button, Col, Row, UncontrolledTooltip, Alert, Jumbotron } from 'reactst
 
 import api from '~/app/api'
 import PageContainer from '~/app/common/PageContainer'
-import { AppState } from '~/app/reducer'
+import { AppState } from '~/app/rootReducer'
 import EditLicense from './EditLicense'
 import LicensePolicies from './LicensePolicies'
 import { fetchLicensing } from './reducer'

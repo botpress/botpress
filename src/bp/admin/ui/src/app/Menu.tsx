@@ -11,7 +11,7 @@ import { matchPath } from 'react-router-dom'
 import AccessControl from '~/auth/AccessControl'
 import { getActiveWorkspace } from '~/auth/basicAuth'
 import { fetchCurrentVersion, fetchLatestVersions } from '~/releases/reducer'
-import { AppState } from './reducer'
+import { AppState } from './rootReducer'
 
 type Props = ConnectedProps<typeof connector> & RouteComponentProps
 
@@ -183,7 +183,6 @@ const mapStateToProps = (state: AppState) => ({
   licensing: state.licensing.license,
   version: state.version
 })
-const mapDispatchToProps = { fetchCurrentVersion, fetchLatestVersions }
 
-const connector = connect(mapStateToProps, mapDispatchToProps)
+const connector = connect(mapStateToProps, { fetchCurrentVersion, fetchLatestVersions })
 export default withRouter(connector(Menu))

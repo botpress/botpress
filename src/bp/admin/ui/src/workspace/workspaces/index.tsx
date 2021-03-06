@@ -6,7 +6,7 @@ import { connect, ConnectedProps } from 'react-redux'
 import PageContainer from '~/app/common/PageContainer'
 import SplitPage from '~/app/common/SplitPage'
 import history from '~/app/history'
-import { AppState } from '~/app/reducer'
+import { AppState } from '~/app/rootReducer'
 import { fetchMyWorkspaces } from '~/user/reducer'
 
 import ChangePipelineModal from './ChangePipelineModal'

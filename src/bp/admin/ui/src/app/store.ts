@@ -2,7 +2,7 @@ import { routerMiddleware } from 'connected-react-router'
 import { createStore, applyMiddleware, compose } from 'redux'
 import thunk from 'redux-thunk'
 import history from './history'
-import rootReducer from './reducer'
+import rootReducer from './rootReducer'
 
 const initialState = {}
 const enhancers: any[] = []
@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === 'development') {
   }
 }
 
-const composedEnhancers = compose(applyMiddleware(...middleware))
+const composedEnhancers = compose(applyMiddleware(...middleware), ...enhancers)
 
 const store = createStore(rootReducer, initialState, composedEnhancers)
 

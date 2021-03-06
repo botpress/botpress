@@ -5,7 +5,7 @@ import { Redirect } from 'react-router-dom'
 
 import BasicAuthentication from '~/auth/basicAuth'
 import { ChangePasswordForm } from './ChangePasswordForm'
-import { LoginContainer } from './LoginContainer'
+import LoginContainer from './LoginContainer'
 
 type RouterProps = RouteComponentProps<undefined, {}, { email: string; password: string; loginUrl: string }>
 type Props = { auth: BasicAuthentication } & RouterProps

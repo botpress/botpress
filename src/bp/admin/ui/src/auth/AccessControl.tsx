@@ -1,6 +1,6 @@
 import { checkRule } from 'common/auth'
 import { connect } from 'react-redux'
-import { AppState } from '~/app/reducer'
+import { AppState } from '~/app/rootReducer'
 import store from '~/app/store'
 
 export interface PermissionAllowedProps {
@@ -46,7 +46,8 @@ export const isOperationAllowed = (params: PermissionAllowedProps) => {
 
 export const isChatUser = (): boolean => {
   const permissions = store.getState().user.permissions
-  return !permissions || !!permissions.find(p => p.res.startsWith('user.bots'))
+  const isChat = permissions && permissions.find(p => p.res.startsWith('user.bots'))
+  return !!isChat
 }
 
 const PermissionsChecker = (props: AccessControlProps) => {

@@ -1,5 +1,5 @@
 import api from '~/app/api'
-import { AppThunk } from '~/app/reducer'
+import { AppThunk } from '~/app/rootReducer'
 
 const FETCH_LANGUAGES_RECEIVED = 'server/FETCH_LANGUAGES_RECEIVED'
 

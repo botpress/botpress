@@ -1,6 +1,6 @@
 import { ServerConfig } from 'common/typings'
 import api from '~/app/api'
-import { AppThunk } from '~/app/reducer'
+import { AppThunk } from '~/app/rootReducer'
 
 const FETCH_SERVER_CONFIG_RECEIVED = 'server/FETCH_FEATURE_RECEIVED'
 

@@ -4,7 +4,7 @@ import React, { FC, useEffect, useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import api from '~/app/api'
 import PageContainer from '~/app/common/PageContainer'
-import { AppState } from '~/app/reducer'
+import { AppState } from '~/app/rootReducer'
 
 import { ImportModal } from './ModuleUpload'
 import { fetchModules } from './reducer'

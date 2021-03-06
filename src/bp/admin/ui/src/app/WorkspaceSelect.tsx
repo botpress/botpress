@@ -12,7 +12,7 @@ import { fetchMyWorkspaces, switchWorkspace } from '~/user/reducer'
 import { fetchBots } from '~/workspace/bots/reducer'
 import { fetchUsers } from '~/workspace/collaborators/reducer'
 import { fetchRoles } from '~/workspace/roles/reducer'
-import { AppState } from './reducer'
+import { AppState } from './rootReducer'
 
 type Props = ConnectedProps<typeof connector> & RouteComponentProps<{ workspaceId: string }>
 

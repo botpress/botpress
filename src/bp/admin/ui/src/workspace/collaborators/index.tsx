@@ -5,7 +5,7 @@ import { connect, ConnectedProps } from 'react-redux'
 
 import PageContainer from '~/app/common/PageContainer'
 import SplitPage from '~/app/common/SplitPage'
-import { AppState } from '~/app/reducer'
+import { AppState } from '~/app/rootReducer'
 import { fetchAuthConfig } from '~/auth/reducer'
 import { fetchRoles } from '~/workspace/roles/reducer'
 import CreateUserModal from './CreateUserModal'

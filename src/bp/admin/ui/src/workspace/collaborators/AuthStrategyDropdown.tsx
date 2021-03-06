@@ -4,7 +4,7 @@ import { AuthStrategyConfig } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 
-import { AppState } from '~/app/reducer'
+import { AppState } from '~/app/rootReducer'
 import { fetchAuthConfig } from '~/auth/reducer'
 
 type Props = {

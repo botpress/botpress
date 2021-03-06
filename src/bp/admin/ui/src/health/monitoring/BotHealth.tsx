@@ -8,7 +8,7 @@ import ReactTable from 'react-table'
 
 import api from '~/app/api'
 import Dropdown, { Option } from '~/app/common/Dropdown'
-import { AppState } from '~/app/reducer'
+import { AppState } from '~/app/rootReducer'
 import { getActiveWorkspace } from '~/auth/basicAuth'
 import { switchWorkspace } from '~/user/reducer'
 import { fetchBotHealth, fetchBotsByWorkspace } from '~/workspace/bots/reducer'

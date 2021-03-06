@@ -12,7 +12,7 @@ interface Props {
   children: React.ReactNode
 }
 
-export const LoginContainer: FC<Props> = props => {
+const LoginContainer: FC<Props> = props => {
   return (
     <div className="centered-container">
       <div className="middle">
@@ -42,3 +42,5 @@ export const LoginContainer: FC<Props> = props => {
     </div>
   )
 }
+
+export default LoginContainer

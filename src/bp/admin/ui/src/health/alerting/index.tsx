@@ -10,7 +10,7 @@ import CheckRequirements from '~/app/common/CheckRequirements'
 import LoadingSection from '~/app/common/LoadingSection'
 import PageContainer from '~/app/common/PageContainer'
 import SplitPage from '~/app/common/SplitPage'
-import { AppState } from '~/app/reducer'
+import { AppState } from '~/app/rootReducer'
 import IncidentsTable from './IncidentsTable'
 import { fetchIncidents } from './reducer'
 

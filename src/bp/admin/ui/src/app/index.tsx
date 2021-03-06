@@ -1,11 +1,10 @@
 import { Alignment, Icon, Navbar } from '@blueprintjs/core'
 import { lang, TokenRefresher } from 'botpress/shared'
-import { UserProfile } from 'common/typings'
 import React, { FC, Fragment, useEffect } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { NavLink } from 'reactstrap'
-import api from '~/app/api'
 
+import api from '~/app/api'
 import { fetchLicensing } from '~/management/licensing/reducer'
 import { fetchProfile } from '~/user/reducer'
 import UserDropdownMenu from '~/user/UserDropdownMenu'
@@ -13,7 +12,7 @@ import UserDropdownMenu from '~/user/UserDropdownMenu'
 import CommandPalette from './CommandPalette'
 import logo from './media/logo_white.png'
 import Menu from './Menu'
-import { AppState } from './reducer'
+import { AppState } from './rootReducer'
 import WorkspaceSelect from './WorkspaceSelect'
 
 type Props = ConnectedProps<typeof connector>
@@ -89,10 +88,5 @@ const mapStateToProps = (state: AppState) => ({
   licensing: state.licensing.license
 })
 
-const mapDispatchToProps = {
-  fetchLicensing,
-  fetchProfile
-}
-
-const connector = connect(mapStateToProps, mapDispatchToProps)
+const connector = connect(mapStateToProps, { fetchLicensing, fetchProfile })
 export default connector(App)

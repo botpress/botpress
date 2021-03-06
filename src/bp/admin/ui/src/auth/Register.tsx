@@ -4,7 +4,7 @@ import { RouteComponentProps } from 'react-router'
 import { Redirect } from 'react-router-dom'
 
 import BasicAuthentication from '~/auth/basicAuth'
-import { LoginContainer } from './LoginContainer'
+import LoginContainer from './LoginContainer'
 import { RegisterForm } from './RegisterForm'
 
 type RouterProps = RouteComponentProps<{ workspace: string }, {}, { registerUrl?: string }>

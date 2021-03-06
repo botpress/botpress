@@ -12,7 +12,7 @@ import {
 import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
-import { AppState } from '~/app/reducer'
+import { AppState } from '~/app/rootReducer'
 
 import BasicAuthentication from '~/auth/basicAuth'
 import ChangeLanguage from '~/user/ChangeLanguage'

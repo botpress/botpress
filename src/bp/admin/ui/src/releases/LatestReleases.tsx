@@ -4,7 +4,7 @@ import React, { FC, useEffect } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import snarkdown from 'snarkdown'
 import PageContainer from '~/app/common/PageContainer'
-import { AppState } from '~/app/reducer'
+import { AppState } from '~/app/rootReducer'
 
 import linux from './media/linux.png'
 import mac from './media/mac.png'

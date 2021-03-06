@@ -12,7 +12,7 @@ import ReactTable, { Column } from 'react-table'
 
 import api from '~/app/api'
 import PageContainer from '~/app/common/PageContainer'
-import { AppState } from '~/app/reducer'
+import { AppState } from '~/app/rootReducer'
 import { fetchBots } from '~/workspace/bots/reducer'
 
 import { filterText, getDateShortcuts, getRangeLabel, lowercaseFilter } from './utils'

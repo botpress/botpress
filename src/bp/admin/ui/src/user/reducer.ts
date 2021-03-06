@@ -2,7 +2,7 @@ import { WorkspaceUser } from 'botpress/sdk'
 import { auth } from 'botpress/shared'
 import { AuthRule, UserProfile } from 'common/typings'
 
-import { AppThunk } from '~/app/reducer'
+import { AppThunk } from '~/app/rootReducer'
 import { fetchLicensing } from '~/management/licensing/reducer'
 import api from '../app/api'
 import { setActiveWorkspace } from '../auth/basicAuth'

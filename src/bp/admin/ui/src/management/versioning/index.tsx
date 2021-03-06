@@ -7,7 +7,7 @@ import { connect, ConnectedProps } from 'react-redux'
 
 import api from '~/app/api'
 import PageContainer from '~/app/common/PageContainer'
-import { AppState } from '~/app/reducer'
+import { AppState } from '~/app/rootReducer'
 import DownloadArchive from './DownloadArchive'
 import UploadArchive from './UploadArchive'
 

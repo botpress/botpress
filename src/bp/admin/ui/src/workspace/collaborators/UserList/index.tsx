@@ -6,7 +6,7 @@ import _ from 'lodash'
 import React, { FC, useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import LoadingSection from '~/app/common/LoadingSection'
-import { AppState } from '~/app/reducer'
+import { AppState } from '~/app/rootReducer'
 import { filterList } from '~/workspace/util'
 
 import RoleSection from '../UserList/RoleSection'

@@ -5,7 +5,7 @@ import { connect, ConnectedProps } from 'react-redux'
 
 import api from '~/app/api'
 import PageContainer from '~/app/common/PageContainer'
-import { AppState } from '~/app/reducer'
+import { AppState } from '~/app/rootReducer'
 
 import { DiagReport } from './DiagReport'
 import Item from './Item'

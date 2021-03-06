@@ -9,7 +9,7 @@ import { ExtendedHistory } from '~/app/history'
 import BasicAuthentication, { setActiveWorkspace, setChatUserAuth } from '~/auth/basicAuth'
 
 import { AuthMethodPicker } from './AuthMethodPicker'
-import { LoginContainer } from './LoginContainer'
+import LoginContainer from './LoginContainer'
 import { LoginForm } from './LoginForm'
 
 type RouterProps = RouteComponentProps<

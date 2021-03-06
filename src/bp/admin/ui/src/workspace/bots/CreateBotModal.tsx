@@ -7,7 +7,7 @@ import { connect, ConnectedProps } from 'react-redux'
 import Select from 'react-select'
 
 import api from '~/app/api'
-import { AppState } from '~/app/reducer'
+import { AppState } from '~/app/rootReducer'
 import { fetchBotCategories, fetchBotTemplates } from './reducer'
 
 export const sanitizeBotId = (text: string) =>

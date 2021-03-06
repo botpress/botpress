@@ -7,7 +7,7 @@ import { connect, ConnectedProps } from 'react-redux'
 
 import api from '~/app/api'
 import { fetchServerConfig } from '~/management/checklist/reducer'
-import { AppState } from '../reducer'
+import { AppState } from '../rootReducer'
 
 type Feature = 'redis' | 'pro' | 'monitoring' | 'alerting'
 

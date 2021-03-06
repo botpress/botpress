@@ -14,7 +14,7 @@ import { confirmDialog, lang, toast } from 'botpress/shared'
 import React, { FC } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import api from '~/app/api'
-import { AppState } from '~/app/reducer'
+import { AppState } from '~/app/rootReducer'
 
 type Props = {
   user: WorkspaceUserWithAttributes

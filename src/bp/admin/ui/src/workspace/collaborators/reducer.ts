@@ -1,7 +1,7 @@
 import { WorkspaceUserWithAttributes } from 'botpress/sdk'
 
 import api from '~/app/api'
-import { AppThunk } from '~/app/reducer'
+import { AppThunk } from '~/app/rootReducer'
 
 const FETCH_USERS_REQUESTED = 'user/FETCH_USERS_REQUESTED'
 const FETCH_USERS_RECEIVED = 'user/FETCH_USERS_RECEIVED'

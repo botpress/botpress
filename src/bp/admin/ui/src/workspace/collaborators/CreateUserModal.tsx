@@ -6,7 +6,7 @@ import React, { FC, useEffect, useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import AsyncSelect from 'react-select/lib/AsyncCreatable'
 import api from '~/app/api'
-import { AppState } from '~/app/reducer'
+import { AppState } from '~/app/rootReducer'
 
 import AuthStrategyDropdown from './AuthStrategyDropdown'
 import { fetchAvailableUsers } from './reducer'

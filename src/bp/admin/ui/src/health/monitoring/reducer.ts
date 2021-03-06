@@ -1,7 +1,7 @@
 import moment from 'moment'
 
 import api from '~/app/api'
-import { AppThunk } from '~/app/reducer'
+import { AppThunk } from '~/app/rootReducer'
 
 const FETCH_STATS_FULL_REQUESTED = 'monitoring/FETCH_STATS_FULL_REQUESTED'
 const FETCH_STATS_FULL_RECEIVED = 'monitoring/FETCH_STATS_FULL_RECEIVED'

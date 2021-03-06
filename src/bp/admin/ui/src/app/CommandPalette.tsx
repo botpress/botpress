@@ -1,12 +1,14 @@
 import { Commander, lang, QuickShortcut } from 'botpress/shared'
-import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
-import { withRouter } from 'react-router'
+import React, { useEffect, useState, FC } from 'react'
+import { connect, ConnectedProps } from 'react-redux'
+import { RouteComponentProps, withRouter } from 'react-router'
 
 import { fetchBots } from '~/workspace/bots/reducer'
-import { AppState } from './reducer'
+import { AppState } from './rootReducer'
 
-const CommandPalette = props => {
+type Props = ConnectedProps<typeof connector> & RouteComponentProps
+
+const CommandPalette: FC<Props> = props => {
   const [commands, setCommands] = useState<QuickShortcut[]>([])
 
   useEffect(() => {
@@ -53,6 +55,5 @@ const mapStateToProps = (state: AppState) => ({
   workspaces: state.user.workspaces
 })
 
-const mapDispatchToProps = { fetchBots }
-
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(CommandPalette))
+const connector = connect(mapStateToProps, { fetchBots })
+export default withRouter(connector(CommandPalette))

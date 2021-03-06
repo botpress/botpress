@@ -2,7 +2,7 @@ import { lang } from 'botpress/shared'
 import React, { Component } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import PageContainer from '~/app/common/PageContainer'
-import { AppState } from '~/app/reducer'
+import { AppState } from '~/app/rootReducer'
 import { fetchRoles } from './reducer'
 
 type Props = ConnectedProps<typeof connector>

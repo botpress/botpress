@@ -2,7 +2,7 @@ import { lang } from 'botpress/shared'
 import React, { FC } from 'react'
 import { RouteComponentProps } from 'react-router'
 
-import { LoginContainer } from './LoginContainer'
+import LoginContainer from './LoginContainer'
 
 type Props = RouteComponentProps<undefined, {}, { error?: string }>
 

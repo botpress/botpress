@@ -6,7 +6,7 @@ import { connect, ConnectedProps } from 'react-redux'
 
 import PageContainer from '~/app/common/PageContainer'
 import SplitPage from '~/app/common/SplitPage'
-import { AppState } from '~/app/reducer'
+import { AppState } from '~/app/rootReducer'
 import { getActiveWorkspace } from '~/auth/basicAuth'
 import { fetchAuthConfig } from '~/auth/reducer'
 import { fetchUsers } from '~/workspace/collaborators/reducer'

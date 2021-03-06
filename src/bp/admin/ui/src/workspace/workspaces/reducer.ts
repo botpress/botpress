@@ -2,7 +2,7 @@ import { WorkspaceRollout } from 'botpress/sdk'
 import { Workspace } from 'common/typings'
 
 import api from '~/app/api'
-import { AppThunk } from '~/app/reducer'
+import { AppThunk } from '~/app/rootReducer'
 import { getActiveWorkspace } from '~/auth/basicAuth'
 
 const FETCH_WORKSPACES_RECEIVED = 'server/FETCH_WORKSPACES_RECEIVED'
