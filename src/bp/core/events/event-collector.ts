@@ -1,7 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
-import { EventRepository } from 'core/repositories'
 import { SessionIdFactory } from 'core/services/dialog/session/id-factory'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
@@ -9,6 +8,7 @@ import Knex from 'knex'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
+import { EventRepository } from './event-repository'
 
 type BatchEvent = sdk.IO.StoredEvent & { retry?: number }
 
