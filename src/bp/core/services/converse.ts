@@ -98,7 +98,7 @@ export class ConverseService {
 
     await this.userRepository.getOrCreate('api', userId, botId)
 
-    const conversation = await this.conversationService.forBot(botId).recent({ userId })
+    const conversation = await this.conversationService.forBot(botId).recent(userId)
 
     const userKey = buildUserKey(botId, userId)
     const timeoutPromise = this._createTimeoutPromise(botId, userKey)

@@ -1,28 +1,28 @@
-import { experimental, uuid } from 'botpress/sdk'
+import sdk from 'botpress/sdk'
 import { JobService } from 'core/services/job-service'
 import { inject, injectable, postConstruct } from 'inversify'
 
 import LRU from 'lru-cache'
 import ms from 'ms'
-import uuidgen from 'uuid'
+import uuid from 'uuid'
 import Database from '../database'
 import { TYPES } from '../types'
 
 export interface MessageRepository {
-  list(filters: experimental.messages.ListFilters): Promise<experimental.Message[]>
-  deleteAll(conversationId: uuid): Promise<number>
-  create(args: experimental.messages.CreateArgs): Promise<experimental.Message>
-  get(messageId: uuid): Promise<experimental.Message | undefined>
-  delete(messageId: uuid): Promise<boolean>
-  serialize(message: Partial<experimental.Message>)
-  deserialize(message: any): experimental.Message | undefined
+  list(filters: sdk.MessageListFilters): Promise<sdk.Message[]>
+  deleteAll(conversationId: sdk.uuid): Promise<number>
+  create(args: sdk.MessageCreateArgs): Promise<sdk.Message>
+  get(messageId: sdk.uuid): Promise<sdk.Message | undefined>
+  delete(messageId: sdk.uuid): Promise<boolean>
+  serialize(message: Partial<sdk.Message>)
+  deserialize(message: any): sdk.Message | undefined
 }
 
 @injectable()
 export class KnexMessageRepository implements MessageRepository {
   private readonly TABLE_NAME = 'messages'
-  private cache = new LRU<uuid, experimental.Message>({ max: 10000, maxAge: ms('5min') })
-  private invalidateMsgCache: (ids: uuid[]) => void = this._localInvalidateMsgCache
+  private cache = new LRU<sdk.uuid, sdk.Message>({ max: 10000, maxAge: ms('5min') })
+  private invalidateMsgCache: (ids: sdk.uuid[]) => void = this._localInvalidateMsgCache
 
   constructor(
     @inject(TYPES.Database) private database: Database,
@@ -34,7 +34,7 @@ export class KnexMessageRepository implements MessageRepository {
     this.invalidateMsgCache = <any>await this.jobService.broadcast<void>(this._localInvalidateMsgCache.bind(this))
   }
 
-  public async list(filters: experimental.messages.ListFilters): Promise<experimental.Message[]> {
+  public async list(filters: sdk.MessageListFilters): Promise<sdk.Message[]> {
     const { conversationId, limit, offset } = filters
 
     let query = this.query()
@@ -52,7 +52,7 @@ export class KnexMessageRepository implements MessageRepository {
     return (await query).map(x => this.deserialize(x)!)
   }
 
-  public async deleteAll(conversationId: uuid): Promise<number> {
+  public async deleteAll(conversationId: sdk.uuid): Promise<number> {
     const deletedIds = (
       await this.query()
         .select('id')
@@ -70,11 +70,11 @@ export class KnexMessageRepository implements MessageRepository {
     return deletedIds.length
   }
 
-  public async create(args: experimental.messages.CreateArgs): Promise<experimental.Message> {
+  public async create(args: sdk.MessageCreateArgs): Promise<sdk.Message> {
     const { conversationId, eventId, incomingEventId, from, payload } = args
 
     const message = {
-      id: uuidgen.v4(),
+      id: uuid.v4(),
       conversationId,
       eventId,
       incomingEventId,
@@ -89,7 +89,7 @@ export class KnexMessageRepository implements MessageRepository {
     return message
   }
 
-  public async get(messageId: uuid): Promise<experimental.Message | undefined> {
+  public async get(messageId: sdk.uuid): Promise<sdk.Message | undefined> {
     const cached = this.cache.get(messageId)
     if (cached) {
       return cached
@@ -107,7 +107,7 @@ export class KnexMessageRepository implements MessageRepository {
     return message
   }
 
-  public async delete(messageId: uuid): Promise<boolean> {
+  public async delete(messageId: sdk.uuid): Promise<boolean> {
     const numberOfDeletedRows = await this.query()
       .where({ id: messageId })
       .del()
@@ -121,7 +121,7 @@ export class KnexMessageRepository implements MessageRepository {
     return this.database.knex(this.TABLE_NAME)
   }
 
-  public serialize(message: Partial<experimental.Message>) {
+  public serialize(message: Partial<sdk.Message>) {
     const { conversationId, eventId, incomingEventId, from, sentOn, payload } = message
     return {
       conversationId,
@@ -133,7 +133,7 @@ export class KnexMessageRepository implements MessageRepository {
     }
   }
 
-  public deserialize(message: any): experimental.Message | undefined {
+  public deserialize(message: any): sdk.Message | undefined {
     if (!message) {
       return undefined
     }
@@ -150,7 +150,7 @@ export class KnexMessageRepository implements MessageRepository {
     }
   }
 
-  private _localInvalidateMsgCache(ids: uuid[]) {
+  private _localInvalidateMsgCache(ids: sdk.uuid[]) {
     ids?.forEach(id => this.cache.del(id))
   }
 }
