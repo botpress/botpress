@@ -108,6 +108,12 @@ export interface ExtractedEntity {
 }
 export type EntityExtractionResult = ExtractedEntity & { start: number; end: number }
 
+export interface KeyedItem {
+  input: string
+  idx: number
+  entities?: EntityExtractionResult[]
+}
+
 export interface SeededLodashProvider {
   setSeed(seed: number): void
   getSeededLodash(): _.LoDashStatic
@@ -115,16 +121,21 @@ export interface SeededLodashProvider {
 }
 
 export interface Tools {
+  // pre-trained language focused tools
   tokenize_utterances(utterances: string[], languageCode: string, vocab?: string[]): Promise<string[][]>
   vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
   partOfSpeechUtterances(utterances: string[][], languageCode: string): string[][]
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
+  getStopWordsForLang(lang: string): Promise<string[]>
+
+  // system info
   getHealth(): sdk.NLU.Health
   getLanguages(): string[]
   getSpecifications(): NLU.Specifications
+
   seededLodashProvider: SeededLodashProvider
-  duckling: SystemEntityExtractor
   mlToolkit: typeof sdk.MLToolkit
+  systemEntityExtractor: SystemEntityExtractor
 }
 
 export interface SystemEntityExtractor {
@@ -137,11 +148,9 @@ export type Intent<T> = Readonly<{
   contexts: string[]
   slot_definitions: SlotDefinition[]
   utterances: T[]
-  vocab?: _.Dictionary<boolean>
-  slot_entities?: string[]
 }>
 
-type SlotDefinition = Readonly<{
+export type SlotDefinition = Readonly<{
   name: string
   entities: string[]
 }>

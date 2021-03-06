@@ -26,16 +26,17 @@ const sanitizeName = (text: string) =>
 
 const NewFileModal: FC<Props> = props => {
   const [name, setName] = useState('')
-  const [isScoped, setScoped] = useState(true)
+  const [isScoped, setScoped] = useState(FileTypes[props.selectedType]?.allowScoped ?? true)
 
   useEffect(() => {
+    setScoped(FileTypes[props.selectedType]?.allowScoped)
     setName('')
   }, [props.isOpen])
 
   const submit = async e => {
     e.preventDefault()
 
-    const finalName = name.endsWith('.js') || name.endsWith('.json') ? name : name + '.js'
+    const finalName = name.endsWith('.js') || name.endsWith('.json') ? name : `${name}.js`
 
     let content
     switch (props.selectedType) {

@@ -1,6 +1,7 @@
 import { EventEmitter2 } from 'eventemitter2'
 import io from 'socket.io-client'
-import { authEvents, getToken, getUniqueVisitorId, setVisitorId } from '~/util/Auth'
+import { authEvents, getUniqueVisitorId, setVisitorId } from '~/util/Auth'
+import { getToken } from '../../../../ui-shared-lite/auth'
 
 class EventBus extends EventEmitter2 {
   private adminSocket

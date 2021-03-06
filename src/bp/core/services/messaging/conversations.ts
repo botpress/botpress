@@ -42,23 +42,21 @@ export class ConversationService {
 }
 
 export class ScopedConversationService implements sdk.experimental.conversations.BotConversations {
-  private mostRecentCache: LRU<string, sdk.experimental.Conversation>
+  private mostRecentCache: LRU<string, sdk.Conversation>
 
   constructor(
     private botId: string,
     private conversationRepo: ConversationRepository,
     public invalidateMostRecent: (userId: string, mostRecentConvoId?: sdk.uuid) => void
   ) {
-    this.mostRecentCache = new LRU<string, sdk.experimental.Conversation>({ max: 10000, maxAge: ms('5min') })
+    this.mostRecentCache = new LRU<string, sdk.Conversation>({ max: 10000, maxAge: ms('5min') })
   }
 
-  public async list(
-    filters: sdk.experimental.conversations.ListFilters
-  ): Promise<sdk.experimental.RecentConversation[]> {
+  public async list(filters: sdk.ConversationListFilters): Promise<sdk.RecentConversation[]> {
     return this.conversationRepo.list(this.botId, filters)
   }
 
-  public async delete(filters: sdk.experimental.conversations.DeleteFilters): Promise<number> {
+  public async delete(filters: sdk.ConversationDeleteFilters): Promise<number> {
     if (filters.id) {
       const conversation = (await this.conversationRepo.get(filters.id))!
       this.invalidateMostRecent(conversation.userId)
@@ -71,22 +69,19 @@ export class ScopedConversationService implements sdk.experimental.conversations
     }
   }
 
-  public async create(args: sdk.experimental.conversations.CreateArgs): Promise<sdk.experimental.Conversation> {
-    return this.conversationRepo.create(this.botId, args)
+  public async create(userId: sdk.uuid): Promise<sdk.Conversation> {
+    return this.conversationRepo.create(this.botId, userId)
   }
 
-  public async recent(
-    filters: sdk.experimental.conversations.RecentFilters
-  ): Promise<sdk.experimental.RecentConversation> {
-    const { userId } = filters
+  public async recent(userId: sdk.uuid): Promise<sdk.Conversation> {
     const cached = this.mostRecentCache.get(userId)
     if (cached) {
       return cached
     }
 
-    let conversation = await this.conversationRepo.recent(this.botId, filters)
+    let conversation = await this.conversationRepo.recent(this.botId, userId)
     if (!conversation) {
-      conversation = await this.conversationRepo.create(this.botId, { userId })
+      conversation = await this.conversationRepo.create(this.botId, userId)
     }
 
     this.mostRecentCache.set(userId, conversation)
@@ -94,13 +89,11 @@ export class ScopedConversationService implements sdk.experimental.conversations
     return conversation
   }
 
-  public async get(
-    filters: sdk.experimental.conversations.GetFilters
-  ): Promise<sdk.experimental.Conversation | undefined> {
-    return this.conversationRepo.get(filters.id)
+  public async get(id: sdk.uuid): Promise<sdk.Conversation | undefined> {
+    return this.conversationRepo.get(id)
   }
 
-  public async flagAsMostRecent(conversation: sdk.experimental.Conversation) {
+  public async setAsMostRecent(conversation: sdk.Conversation) {
     const currentMostRecent = this.mostRecentCache.peek(conversation.userId)
 
     if (currentMostRecent?.id !== conversation.id) {
