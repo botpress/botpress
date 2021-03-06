@@ -69,8 +69,8 @@ export class ScopedConversationService implements sdk.experimental.conversations
     }
   }
 
-  public async create(args: sdk.ConversationCreateArgs): Promise<sdk.Conversation> {
-    return this.conversationRepo.create(this.botId, args)
+  public async create(userId: sdk.uuid): Promise<sdk.Conversation> {
+    return this.conversationRepo.create(this.botId, userId)
   }
 
   public async recent(userId: sdk.uuid): Promise<sdk.Conversation> {
@@ -81,7 +81,7 @@ export class ScopedConversationService implements sdk.experimental.conversations
 
     let conversation = await this.conversationRepo.recent(this.botId, userId)
     if (!conversation) {
-      conversation = await this.conversationRepo.create(this.botId, { userId })
+      conversation = await this.conversationRepo.create(this.botId, userId)
     }
 
     this.mostRecentCache.set(userId, conversation)

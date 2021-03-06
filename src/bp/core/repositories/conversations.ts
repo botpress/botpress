@@ -12,7 +12,7 @@ import { MessageRepository } from './messages'
 export interface ConversationRepository {
   list(botId: string, filters: sdk.ConversationListFilters): Promise<sdk.RecentConversation[]>
   deleteAll(botId: string, userId: string): Promise<number>
-  create(botId: string, args: sdk.ConversationCreateArgs): Promise<sdk.Conversation>
+  create(botId: string, userId: sdk.uuid): Promise<sdk.Conversation>
   recent(botId: string, userId: sdk.uuid): Promise<sdk.Conversation | undefined>
   get(conversationId: sdk.uuid): Promise<sdk.Conversation | undefined>
   delete(conversationId: sdk.uuid): Promise<boolean>
@@ -75,10 +75,10 @@ export class KnexConversationRepository implements ConversationRepository {
     return deletedIds.length
   }
 
-  public async create(botId: string, args: sdk.ConversationCreateArgs): Promise<sdk.Conversation> {
+  public async create(botId: string, userId: sdk.uuid): Promise<sdk.Conversation> {
     const conversation = {
       id: uuid.v4(),
-      userId: args.userId,
+      userId,
       botId,
       createdOn: new Date()
     }

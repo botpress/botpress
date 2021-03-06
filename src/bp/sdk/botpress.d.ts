@@ -1751,8 +1751,6 @@ declare module 'botpress/sdk' {
     lastMessage?: Message
   }
 
-  export interface ConversationCreateArgs extends Omit<Conversation, 'id' | 'createdOn' | 'botId'> {}
-
   export interface ConversationDeleteFilters {
     id?: uuid
     userId?: string
@@ -1765,8 +1763,8 @@ declare module 'botpress/sdk' {
   export interface Message {
     id: uuid
     conversationId: uuid
-    eventId: string
-    incomingEventId: string
+    eventId?: string
+    incomingEventId?: string
     from: string
     sentOn: Date
     payload: any
@@ -1774,8 +1772,6 @@ declare module 'botpress/sdk' {
 
   export interface MessageArgs
     extends Partial<Omit<IO.EventCtorArgs, 'type' | 'direction' | 'payload' | 'target' | 'botId' | 'threadId'>> {}
-
-  export interface MessageCreateArgs extends Omit<Message, 'id' | 'sentOn'> {}
 
   export interface MessageDeleteFilters {
     id?: uuid
@@ -2421,12 +2417,12 @@ declare module 'botpress/sdk' {
       export interface BotConversations {
         /**
          * Create a conversation to store in the db
-         * @param args Properties of the conversation
+         * @param userId Id of the user to create a conversation with
          * @returns The created conversation
          * @example
-         * const conversation = await bp.conversations.forBot('myBot').create({ userId: 'eEFoneif394' })
+         * const conversation = await bp.conversations.forBot('myBot').create('eEFoneif394')
          */
-        create(args: ConversationCreateArgs): Promise<Conversation>
+        create(userId: uuid): Promise<Conversation>
 
         /**
          * Deletes conversations from the db
@@ -2481,10 +2477,10 @@ declare module 'botpress/sdk' {
          * @param payload Payload of the message
          * @param args Additional arguments to pass to the event constructor. Optional
          * @example
-         * // Get the most recent conversation of a user
-         * const conversation = await bp.conversations.forBot('myBot').recent('eEFoneif394')
-         * // Then send a message to that conversation
-         * await bp.messages.forBot('myBot').send(conversation.id, { type: 'text', text: 'hello!' })
+         * // Inside an action
+         * await bp.messages
+         *   .forBot(event.botId)
+         *   .send(event.threadId, { type: 'text', text: 'hello user!' })
          */
         send(conversationId: uuid, payload: any, args?: MessageArgs): Promise<Message>
 
@@ -2494,10 +2490,10 @@ declare module 'botpress/sdk' {
          * @param payload Payload of the message
          * @param args Additional arguments to pass to the event constructor. Optional
          * @example
-         * // Get the most recent conversation of a user
-         * const conversation = await bp.conversations.forBot('myBot').recent('eEFoneif394')
-         * // Then simulate a user message in that conversation
-         * await bp.messages.forBot('myBot').receive(conversation.id, { type: 'text', text: 'this is a message from the user!' })
+         * // Inside an action
+         * await bp.messages
+         *   .forBot(event.botId)
+         *   .receive(event.threadId, { type: 'text', text: 'this is a message from the user!' })
          */
         receive(conversationId: uuid, payload: any, args?: MessageArgs): Promise<Message>
 
@@ -2506,15 +2502,17 @@ declare module 'botpress/sdk' {
          * @param args Properties of the message
          * @returns The created message
          * @example
-         * const message = await bp.messages.forBot('myBot').create({
-         *   conversationId: '9aa7da7a-9ab1-4a60-bedd-8bdca22beb03',
-         *   eventId: 4343434,
-         *   incomingEventId: 243435,
-         *   from: 'bot',
-         *   payload: { type: 'text', text: 'hello' }
-         * })
+         * const message = await bp.messages
+         *   .forBot('myBot')
+         *   .create('9aa7da7a-9ab1-4a60-bedd-8bdca22beb03', { type: 'text', text: 'hello' }, 'user', '32242', '242224')
          */
-        create(args: MessageCreateArgs): Promise<Message>
+        create(
+          conversationId: uuid,
+          payload: any,
+          from: string,
+          eventId?: string,
+          incomingEventId?: string
+        ): Promise<Message>
 
         /**
          * Deletes messages from the db

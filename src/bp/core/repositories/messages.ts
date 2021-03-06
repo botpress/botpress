@@ -11,7 +11,13 @@ import { TYPES } from '../types'
 export interface MessageRepository {
   list(filters: sdk.MessageListFilters): Promise<sdk.Message[]>
   deleteAll(conversationId: sdk.uuid): Promise<number>
-  create(args: sdk.MessageCreateArgs): Promise<sdk.Message>
+  create(
+    conversationId: sdk.uuid,
+    payload: any,
+    from: string,
+    eventId?: string,
+    incomingEventId?: string
+  ): Promise<sdk.Message>
   get(messageId: sdk.uuid): Promise<sdk.Message | undefined>
   delete(messageId: sdk.uuid): Promise<boolean>
   serialize(message: Partial<sdk.Message>)
@@ -70,9 +76,13 @@ export class KnexMessageRepository implements MessageRepository {
     return deletedIds.length
   }
 
-  public async create(args: sdk.MessageCreateArgs): Promise<sdk.Message> {
-    const { conversationId, eventId, incomingEventId, from, payload } = args
-
+  public async create(
+    conversationId: sdk.uuid,
+    payload: any,
+    from: string,
+    eventId?: string,
+    incomingEventId?: string
+  ): Promise<sdk.Message> {
     const message = {
       id: uuid.v4(),
       conversationId,

@@ -174,13 +174,9 @@ export class ConverseService {
     this._responseMap[userKey].responses!.push(event.payload)
 
     if (event.type !== 'typing' && event.type !== 'data') {
-      await this.messageService.forBot(event.botId).create({
-        conversationId: event.threadId!,
-        eventId: event.id,
-        incomingEventId: event.incomingEventId!,
-        from: 'bot',
-        payload: event.payload
-      })
+      await this.messageService
+        .forBot(event.botId)
+        .create(event.threadId!, event.payload, 'bot', event.id, event.incomingEventId)
     }
   }
 
