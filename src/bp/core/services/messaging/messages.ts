@@ -96,7 +96,7 @@ export class ScopedMessageService implements sdk.experimental.messages.BotMessag
   public async create(args: sdk.MessageCreateArgs): Promise<sdk.Message> {
     const message = await this.messageRepo.create(args)
     const conversation = (await this.conversationService.get(args.conversationId))!
-    await this.conversationService.flagAsMostRecent(conversation)
+    await this.conversationService.setAsMostRecent(conversation)
     return message
   }
 
@@ -155,7 +155,7 @@ export class ScopedMessageService implements sdk.experimental.messages.BotMessag
       from: event.direction === 'incoming' ? 'user' : 'bot',
       payload
     })
-    await this.conversationService.flagAsMostRecent(conversation)
+    await this.conversationService.setAsMostRecent(conversation)
     return message
   }
 

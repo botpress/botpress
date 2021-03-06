@@ -93,7 +93,7 @@ export class ScopedConversationService implements sdk.experimental.conversations
     return this.conversationRepo.get(id)
   }
 
-  public async flagAsMostRecent(conversation: sdk.Conversation) {
+  public async setAsMostRecent(conversation: sdk.Conversation) {
     const currentMostRecent = this.mostRecentCache.peek(conversation.userId)
 
     if (currentMostRecent?.id !== conversation.id) {
