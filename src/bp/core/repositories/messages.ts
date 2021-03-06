@@ -132,8 +132,9 @@ export class KnexMessageRepository implements MessageRepository {
   }
 
   public serialize(message: Partial<sdk.Message>) {
-    const { conversationId, eventId, incomingEventId, from, sentOn, payload } = message
+    const { id, conversationId, eventId, incomingEventId, from, sentOn, payload } = message
     return {
+      id,
       conversationId,
       eventId,
       incomingEventId,

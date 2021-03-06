@@ -162,8 +162,9 @@ export class KnexConversationRepository implements ConversationRepository {
   }
 
   public serialize(conversation: Partial<sdk.Conversation>) {
-    const { userId, botId, createdOn } = conversation
+    const { id, userId, botId, createdOn } = conversation
     return {
+      id,
       userId,
       botId,
       createdOn: this.database.knex.date.set(createdOn)
