@@ -12,6 +12,7 @@ export class StrategyUserTable {
         .integer('tokenVersion')
         .notNullable()
         .defaultTo(1)
+      table.string('apiKey').nullable()
       table.timestamps(true, true)
       created = true
     })

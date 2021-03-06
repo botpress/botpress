@@ -8,7 +8,7 @@ import joi from 'joi'
 import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
-import { checkTokenHeader } from '../util'
+import { checkApiKey, checkTokenHeader } from '../util'
 
 // this schema ensures a non breaking api signature (> 11.5)
 // see https://botpress.com/docs/build/channels/#usage-public-api
@@ -24,6 +24,7 @@ const conversePayloadSchema = {
 
 export class ConverseRouter extends CustomRouter {
   private checkTokenHeader!: RequestHandler
+  private checkApiKey!: RequestHandler
 
   constructor(
     logger: Logger,
@@ -33,6 +34,7 @@ export class ConverseRouter extends CustomRouter {
   ) {
     super('Converse', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
+    this.checkApiKey = checkApiKey(this.authService)
     this.setupRoutes()
   }
 
@@ -69,6 +71,7 @@ export class ConverseRouter extends CustomRouter {
 
     this.router.post(
       '/:userId/secured',
+      this.checkApiKey,
       this.checkTokenHeader,
       // Secured endpoint does not validate schema on purpose
       // DO NOT add this middleware: this.validatePayload

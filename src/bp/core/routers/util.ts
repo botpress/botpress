@@ -91,6 +91,30 @@ export const success = <T extends {}>(res: Response, message: string = 'Success'
   })
 }
 
+export const checkApiKey = (authService: AuthService) => async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction
+) => {
+  if (req.query.apiKey) {
+    const key = req.query.apiKey as string
+
+    try {
+      const apiKey = await authService.checkApiKey(key)
+
+      if (!apiKey) {
+        return next(new UnauthorizedError('Invalid api key'))
+      }
+
+      res.locals.authorized = true
+    } catch (err) {
+      return next(new UnauthorizedError('Invalid api key'))
+    }
+  }
+
+  next()
+}
+
 export const checkTokenHeader = (authService: AuthService, audience?: string) => async (
   req: RequestWithUser,
   res: Response,
@@ -98,7 +122,10 @@ export const checkTokenHeader = (authService: AuthService, audience?: string) =>
 ) => {
   let token
 
-  if (process.USE_JWT_COOKIES) {
+  // hack to allow bypassing this middleware when an API key was used instead
+  if (res.locals.authorized === true) {
+    return next()
+  } else if (process.USE_JWT_COOKIES) {
     if (!req.cookies[JWT_COOKIE_NAME]) {
       return next(new UnauthorizedError(`${JWT_COOKIE_NAME} cookie is missing`))
     }
