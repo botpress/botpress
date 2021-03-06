@@ -2441,8 +2441,8 @@ declare module 'botpress/sdk' {
         delete(filters: ConversationDeleteFilters): Promise<number>
 
         /**
-         * Gets on conversation from the db
-         * @param filters Filters which conversation to get
+         * Gets one conversation from the db
+         * @param id Id of the conversation to get
          * @returns The matching conversation or `undefined` if none were found
          * @example
          * // Get conversation by id
@@ -2463,9 +2463,9 @@ declare module 'botpress/sdk' {
         /**
          * Gets the most recent conversation of a user.
          * If the user has no matching conversation, creates one
-         * @param filters Filters which conversation to get
+         * @param userId Id of the user
          * @example
-         * const conversation = await bp.conversations.forBot('myBot').recent({ userId: 'eEFoneif394' })
+         * const conversation = await bp.conversations.forBot('myBot').recent('eEFoneif394')
          */
         recent(userId: uuid): Promise<Conversation>
       }
@@ -2482,7 +2482,7 @@ declare module 'botpress/sdk' {
          * @param args Additional arguments to pass to the event constructor. Optional
          * @example
          * // Get the most recent conversation of a user
-         * const conversation = await bp.conversations.forBot('myBot').recent({ userId: 'eEFoneif394' })
+         * const conversation = await bp.conversations.forBot('myBot').recent('eEFoneif394')
          * // Then send a message to that conversation
          * await bp.messages.forBot('myBot').send(conversation.id, { type: 'text', text: 'hello!' })
          */
@@ -2495,7 +2495,7 @@ declare module 'botpress/sdk' {
          * @param args Additional arguments to pass to the event constructor. Optional
          * @example
          * // Get the most recent conversation of a user
-         * const conversation = await bp.conversations.forBot('myBot').recent({ userId: 'eEFoneif394' })
+         * const conversation = await bp.conversations.forBot('myBot').recent('eEFoneif394')
          * // Then simulate a user message in that conversation
          * await bp.messages.forBot('myBot').receive(conversation.id, { type: 'text', text: 'this is a message from the user!' })
          */
