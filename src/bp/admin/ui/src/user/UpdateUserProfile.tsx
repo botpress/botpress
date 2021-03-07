@@ -22,13 +22,11 @@ const UpdateUserProfile: FC<Props> = props => {
     setPictureUrl(props.profile.picture_url)
   }, [props.isOpen])
 
-  const client = api.getSecured()
-
   const submit = async event => {
     event.preventDefault()
 
     try {
-      await client.post('/admin/user/profile', { firstname, lastname, picture_url })
+      await api.getSecured().post('/admin/user/profile', { firstname, lastname, picture_url })
 
       props.fetchProfile()
       props.toggle()
@@ -42,6 +40,8 @@ const UpdateUserProfile: FC<Props> = props => {
   const uploadFieldChange = (url: string | undefined) => {
     setPictureUrl(url)
   }
+
+  const v1Client = api.getSecured({ useV1: true })
 
   return (
     <Dialog
@@ -69,7 +69,7 @@ const UpdateUserProfile: FC<Props> = props => {
           </FormGroup>
 
           <FormGroup label={lang.tr('admin.profilePicture')}>
-            <FormFields.Upload axios={client} onChange={uploadFieldChange} value={picture_url} />
+            <FormFields.Upload axios={v1Client} onChange={uploadFieldChange} value={picture_url} />
           </FormGroup>
         </div>
 
