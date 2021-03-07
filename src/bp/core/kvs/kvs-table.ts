@@ -1,4 +1,4 @@
-import { Table } from '../../interfaces'
+import { Table } from 'core/database/interfaces'
 
 export class KeyValueStoreTable extends Table {
   readonly name: string = 'srv_kvs'
