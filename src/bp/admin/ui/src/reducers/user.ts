@@ -135,14 +135,14 @@ export const fetchProfile = () => {
 
 export const fetchMyWorkspaces = () => {
   return async dispatch => {
-    const { data } = await api.getSecured().get('/admin/auth/me/workspaces')
+    const { data } = await api.getSecured().get('/admin/user/workspaces')
     dispatch({ type: MY_WORKSPACES_RECEIVED, workspaces: data })
   }
 }
 
 export const fetchAuthConfig = () => {
   return async dispatch => {
-    const { data } = await api.getAnonymous({ useV1: true }).get('/auth/config')
+    const { data } = await api.getAnonymous().get('/admin/auth/config')
     dispatch({ type: AUTH_CONFIG_RECEIVED, authConfig: data.payload.strategies })
   }
 }

@@ -1,3 +1,4 @@
+import AdminRouter from 'admin'
 import bodyParser from 'body-parser'
 import { AxiosBotConfig, AxiosOptions, http, Logger, RouterOptions } from 'botpress/sdk'
 import { CSRF_TOKEN_HEADER_LC, CSRF_TOKEN_HEADER, JWT_COOKIE_NAME } from 'common/auth'
@@ -27,7 +28,6 @@ import portFinder from 'portfinder'
 import { URL } from 'url'
 import yn from 'yn'
 
-import AdminRouter from '../admin'
 import { ExternalAuthConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'

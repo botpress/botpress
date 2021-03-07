@@ -301,7 +301,7 @@ export const setEmulatorOpen = createAction('EMULATOR_OPENED')
 export const userReceived = createAction('USER/RECEIVED')
 export const fetchUser = () => dispatch => {
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  axios.get(`${window.API_PATH}/admin/auth/me/profile`).then(res => {
+  axios.get(`${window.API_PATH}/admin/user/profile`).then(res => {
     dispatch(userReceived(res.data?.payload))
   })
 }

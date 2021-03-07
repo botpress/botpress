@@ -4,7 +4,7 @@ import _ from 'lodash'
 
 class MonitoringRouter extends CustomAdminRouter {
   constructor(services: AdminServices) {
-    super('Debug', services)
+    super('Monitoring', services)
     this.setupRoutes()
   }
 
