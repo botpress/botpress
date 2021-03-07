@@ -33,7 +33,7 @@ import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
 import { LogsRepository } from './repositories/logs'
 import { TelemetryRepository } from './repositories/telemetry'
-import { AuthRouter, BotsRouter, MediaRouter, ModulesRouter } from './routers'
+import { BotsRouter, MediaRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
 import { HintsRouter } from './routers/bots/hints'
@@ -88,7 +88,6 @@ export default class HTTPServer {
   public readonly app: express.Express
   private isBotpressReady = false
 
-  private readonly authRouter: AuthRouter
   private readonly adminRouter: AdminRouter
   private readonly botsRouter: BotsRouter
   private contentRouter!: ContentRouter
@@ -169,13 +168,6 @@ export default class HTTPServer {
       this.configProvider
     )
 
-    this.authRouter = new AuthRouter(
-      this.logger,
-      this.authService,
-      this.configProvider,
-      this.workspaceService,
-      this.authStrategies
-    )
     this.adminRouter = new AdminRouter(
       this.logger,
       this.authService,
@@ -376,8 +368,8 @@ export default class HTTPServer {
     this.app.use('/assets', this.guardWhiteLabel(), express.static(this.resolveAsset('')))
     this.app.use(rewrite('/:app/:botId/*env.js', '/api/v1/bots/:botId/:app/js/env.js'))
 
-    this.app.use(`${BASE_API_PATH}/auth`, this.authRouter.router)
     this.adminRouter.setupRoutes(this.app)
+
     this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
     this.app.use(`${BASE_API_PATH}/sdk`, this.sdkApiRouter.router)

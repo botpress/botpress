@@ -39,6 +39,13 @@ class AuthRouter extends CustomAdminRouter {
     const router = this.router
 
     router.get(
+      '/config',
+      this.asyncMiddleware(async (req, res) => {
+        return sendSuccess(res, 'Auth Config', await this.authService.getCollaboratorsConfig())
+      })
+    )
+
+    router.get(
       '/refresh',
       this.checkTokenHeader,
       this.asyncMiddleware(async (req: RequestWithUser, res) => {

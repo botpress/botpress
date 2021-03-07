@@ -6,7 +6,7 @@ import { ConfigProvider } from 'core/config/config-loader'
 import { ModuleLoader } from 'core/module-loader'
 import { LogsRepository } from 'core/repositories/logs'
 import { CustomRouter } from 'core/routers/customRouter'
-import { assertSuperAdmin, checkTokenHeader } from 'core/routers/util'
+import { assertSuperAdmin, checkTokenHeader, sendSuccess } from 'core/routers/util'
 import { GhostService } from 'core/services'
 import { AlertingService } from 'core/services/alerting-service'
 import { AuthStrategies } from 'core/services/auth-strategies'
@@ -92,7 +92,12 @@ class AdminRouter extends CustomRouter {
   }
 
   setupRoutes(app: express.Express) {
+    // Redirect auth requests to the new router, since collaborators and chat users still need the admin ui to login
+    app.use('/api/v1/auth', this.authRouter.router)
+
+    // Rewrite old admin routes to the V2 version (slight changes in name only)
     app.use('/api/v1/admin', fixMappingMw, this.router)
+
     app.use('/api/v2/admin', this.router)
 
     this.router.use('/auth', this.authRouter.router)
@@ -100,6 +105,14 @@ class AdminRouter extends CustomRouter {
     this.router.use('/health', this.checkTokenHeader, assertSuperAdmin, this.healthRouter.router)
     this.router.use('/workspace', this.checkTokenHeader, this.workspaceRouter.router)
     this.router.use('/user', this.checkTokenHeader, this.userRouter.router)
+
+    this.router.get(
+      '/ping',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req, res) => {
+        sendSuccess(res, 'Pong', { serverId: process.SERVER_ID })
+      })
+    )
 
     this.router.get(
       '/permissions',
