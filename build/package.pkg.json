@@ -8,6 +8,7 @@
   "pkg": {
     "scripts": [
       "./core/**/*.js",
+      "./admin/**/*.js",
       "./*.js",
       "./pro/**/*.js",
       "./common/**/*.js",

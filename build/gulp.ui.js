@@ -78,7 +78,7 @@ const createStudioSymlink = () => {
 }
 
 const watchAdmin = cb => {
-  const admin = exec('yarn && yarn start:dev', { cwd: 'src/bp/ui-admin' }, err => cb(err))
+  const admin = exec('yarn && yarn start:dev', { cwd: 'src/bp/admin/ui' }, err => cb(err))
   admin.stdout.pipe(process.stdout)
   admin.stderr.pipe(process.stderr)
 }
