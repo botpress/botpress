@@ -76,7 +76,7 @@ const Login: FC<Props> = props => {
   }
 
   const loadAuthConfig = async () => {
-    const { data } = await api.getAnonymous({ useV1: true }).get('/auth/config')
+    const { data } = await api.getAnonymous().get('/admin/auth/config')
 
     setStrategies(data.payload.strategies)
     setFirstUser(data.payload.isFirstUser)

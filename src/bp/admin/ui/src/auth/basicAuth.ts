@@ -54,7 +54,7 @@ export default class BasicAuthentication {
     const chatUserAuth = getChatUserAuth()
     if (chatUserAuth) {
       try {
-        const { data: workspaceId } = await api.getSecured({ useV1: true }).post('/auth/me/chatAuth', chatUserAuth)
+        const { data: workspaceId } = await api.getSecured().post('/admin/auth/me/chatAuth', chatUserAuth)
         setActiveWorkspace(workspaceId)
 
         return history.replace('/chatAuthResult')
@@ -81,7 +81,7 @@ export default class BasicAuthentication {
       return
     }
 
-    const { data } = await api.getAnonymous({ toastErrors: false, useV1: true }).post(`/auth${registerUrl}`, {
+    const { data } = await api.getAnonymous({ toastErrors: false }).post(`/admin/auth${registerUrl}`, {
       email,
       password
     })
