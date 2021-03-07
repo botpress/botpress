@@ -89,7 +89,7 @@ export const Checklist: FC<Props> = props => {
   const checkStickySessions = async () => {
     const results: string[] = await Promise.all(
       _.times(NB_PING_FOR_STICKY_SESSIONS, async () => {
-        const { data } = await api.getSecured().get('/admin/auth/ping')
+        const { data } = await api.getSecured().get('/admin/ping')
         return data.payload.serverId
       })
     )
