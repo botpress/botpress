@@ -19,7 +19,7 @@ describe('Admin - Logout', () => {
     if (bpConfig.recreateBot) {
       await clickButtonForBot('#btn-delete')
       await clickOn(CONFIRM_DIALOG.ACCEPT)
-      await expectAdminApiCallSuccess(`bots/${bpConfig.botId}/delete`, 'POST')
+      await expectAdminApiCallSuccess(`workspace/bots/${bpConfig.botId}/delete`, 'POST')
     }
   })
 
@@ -27,12 +27,12 @@ describe('Admin - Logout', () => {
     await clickOn('#btn-menu')
     await clickOn('#btn-logout')
 
-    const response = await getResponse('/api/v1/auth/logout', 'POST')
+    const response = await getResponse('/api/v2/admin/auth/logout', 'POST')
     const headers = response.request().headers()
 
     let profileStatus
     try {
-      const { status } = await axios.get(`${bpConfig.host}/api/v2/admin/auth/me/profile`, {
+      const { status } = await axios.get(`${bpConfig.host}/api/v2/admin/user/profile`, {
         headers: {
           Authorization: headers.authorization,
           'X-BP-Workspace': 'default'
