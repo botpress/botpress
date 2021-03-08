@@ -67,23 +67,15 @@ h5 {
 
 .item {
   padding: 5px 0;
-
   .actions {
-    display: none;
-
     a {
-      cursor: pointer;
       margin-right: 5px;
     }
   }
 
   &:hover {
-    background: #fefefe;
-    border-left: 2px solid #999;
-    padding-left: 10px;
-
+    background: rgb(245, 245, 245);
     .actions {
-      padding: 10px 0;
       display: block;
     }
   }
