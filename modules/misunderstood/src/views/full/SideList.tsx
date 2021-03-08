@@ -1,7 +1,7 @@
 import { Button, Icon, Intent, Tab, Tabs, Checkbox } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import classnames from 'classnames'
-import React, { Fragment } from 'react'
+import React from 'react'
 
 import { FLAGGED_MESSAGE_STATUS } from '../../types'
 
