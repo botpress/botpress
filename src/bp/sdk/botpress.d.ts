@@ -2353,6 +2353,17 @@ declare module 'botpress/sdk' {
     export function getMessageSignature(message: string): Promise<string>
   }
 
+  export namespace aliasing {
+    export function forScope(context: string): AliasingContext
+
+    export interface AliasingContext {
+      make(localId: string, foreignId: string): Promise<void>
+      unmake(localId: string, foreignId: string): Promise<void>
+      getForeign(foreignId: string): Promise<string>
+      getLocal(localId: string): Promise<string>
+    }
+  }
+
   /**
    * These features are subject to change and should not be relied upon.
    * They will eventually be either removed or moved in another namespace

@@ -10,6 +10,7 @@ import { TYPES } from '../types'
 import ActionServersService from './action/action-servers-service'
 import ActionService from './action/action-service'
 import { AlertingService, CEAlertingService } from './alerting-service'
+import { AliasingService } from './aliasing'
 import { AuthStrategies, CEAuthStrategies } from './auth-strategies'
 import AuthService from './auth/auth-service'
 import { BotMonitoringService } from './bot-monitoring-service'
@@ -141,6 +142,10 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<StatsService>(TYPES.StatsService)
     .to(StatsService)
+    .inSingletonScope()
+
+  bind<AliasingService>(TYPES.AliasingService)
+    .to(AliasingService)
     .inSingletonScope()
 })
 

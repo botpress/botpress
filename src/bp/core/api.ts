@@ -22,6 +22,7 @@ import { EventRepository, UserRepository } from './repositories'
 import { Event, RealTimePayload } from './sdk/impl'
 import HTTPServer from './server'
 import { GhostService } from './services'
+import { AliasingService } from './services/aliasing'
 import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
 import { DialogEngine } from './services/dialog/dialog-engine'
@@ -209,6 +210,12 @@ const distributed = (jobService: JobService): typeof sdk.distributed => {
   }
 }
 
+const aliasing = (aliasingService: AliasingService): typeof sdk.aliasing => {
+  return {
+    forScope: aliasingService.forScope.bind(aliasingService)
+  }
+}
+
 const experimental = (hookService: HookService): typeof sdk.experimental => {
   return {
     disableHook: hookService.disableHook.bind(hookService),
@@ -246,6 +253,7 @@ export class BotpressAPIProvider {
   security: typeof sdk.security
   workspaces: typeof sdk.workspaces
   distributed: typeof sdk.distributed
+  aliasing: typeof sdk.aliasing
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -267,7 +275,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.EventRepository) eventRepo: EventRepository,
     @inject(TYPES.WorkspaceService) workspaceService: WorkspaceService,
     @inject(TYPES.JobService) jobService: JobService,
-    @inject(TYPES.StateManager) stateManager: StateManager
+    @inject(TYPES.StateManager) stateManager: StateManager,
+    @inject(TYPES.AliasingService) aliasingService: AliasingService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
@@ -286,6 +295,7 @@ export class BotpressAPIProvider {
     this.security = security()
     this.workspaces = workspaces(workspaceService)
     this.distributed = distributed(jobService)
+    this.aliasing = aliasing(aliasingService)
   }
 
   @Memoize()
@@ -318,6 +328,7 @@ export class BotpressAPIProvider {
       experimental: this.experimental,
       workspaces: this.workspaces,
       distributed: this.distributed,
+      aliasing: this.aliasing,
       NLU: {
         makeEngine: async (config: sdk.NLU.Config, logger: sdk.NLU.Logger) => {
           const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = config
