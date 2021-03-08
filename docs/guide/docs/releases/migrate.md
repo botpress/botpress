@@ -5,7 +5,7 @@ title: Migration & Updates
 
 ## Changelog and Release Notes
 
-Please find the Changelog [here](https://github.com/botpress/botpress/blob/master/CHANGELOG.md) for complete details of Botpress Framework changes by release.
+Please find the Changelog [here](https://github.com/botpress/botpress/releases) for complete details of Botpress Framework changes by release.
 
 ## Migration to Versions 12.X
 
