@@ -1,4 +1,17 @@
-import { Button, Colors, FormGroup, Icon, InputGroup, Position, Radio, RadioGroup, Tooltip } from '@blueprintjs/core'
+import {
+  Button,
+  Colors,
+  FormGroup,
+  Icon,
+  InputGroup,
+  Position,
+  Radio,
+  RadioGroup,
+  Tooltip,
+  Switch,
+  Tag,
+  Intent
+} from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
 import { lang, utils } from 'botpress/shared'
 import { toastFailure } from 'botpress/utils'
@@ -23,6 +36,7 @@ const FuzzyTolerance = {
 interface EntityState {
   fuzzy: number
   occurrences: NLU.EntityDefOccurrence[]
+  isProfane: boolean
 }
 
 function EntityContentReducer(state: EntityState, action): EntityState {
@@ -31,21 +45,25 @@ function EntityContentReducer(state: EntityState, action): EntityState {
     const entity: NLU.EntityDefinition = data.entity
     return {
       fuzzy: entity.fuzzy,
-      occurrences: entity.occurrences
+      occurrences: entity.occurrences,
+      isProfane: entity.isProfane
     }
   } else if (type === 'setFuzzy') {
     return { ...state, fuzzy: data.fuzzy }
   } else if (type === 'setOccurrences') {
     return { ...state, occurrences: data.occurrences }
+  } else if (type === 'setProfanity') {
+    return { ...state, isProfane: data.profanity }
   } else {
     return state
   }
 }
 
-export const ListEntityEditor: React.FC<Props> = props => {
+export const ListEntityEditor: React.FC<Props> = (props: Props) => {
   const [state, dispatch] = React.useReducer(EntityContentReducer, {
     fuzzy: props.entity.fuzzy,
-    occurrences: props.entity.occurrences
+    occurrences: props.entity.occurrences,
+    isProfane: !!props.entity.isProfane
   })
   const [newOccurrence, setNewOccurrence] = useState('')
 
@@ -124,6 +142,13 @@ export const ListEntityEditor: React.FC<Props> = props => {
     })
   }
 
+  const handleProfanityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch({
+      type: 'setProfanity',
+      data: { profanity: e.target.checked }
+    })
+  }
+
   return (
     <div className={style.entityEditorBody}>
       <div className={style.dataPane}>
@@ -189,6 +214,38 @@ export const ListEntityEditor: React.FC<Props> = props => {
           <Radio label={lang.tr('module.nlu.entities.medium')} value={FuzzyTolerance.Medium} />
           <Radio label={lang.tr('module.nlu.entities.loose')} value={FuzzyTolerance.Loose} />
         </RadioGroup>
+
+        <FormGroup
+          label={
+            <span className={style.profanityConfig}>
+              <Tooltip
+                content={lang.tr('module.nlu.entities.profanityTooltip')}
+                position={Position.LEFT}
+                popoverClassName={style.configPopover}
+              >
+                <span>
+                  {lang.tr('module.nlu.entities.profanityLabel')}&nbsp;
+                  <Icon icon="help" color={Colors.GRAY3} />
+                </span>
+              </Tooltip>
+
+              <Tooltip
+                content={lang.tr('module.nlu.entities.profanityWarning')}
+                position={Position.LEFT}
+                popoverClassName={style.configPopover}
+              >
+                <Tag intent={Intent.PRIMARY} style={{ margin: '5px' }}>
+                  Beta
+                </Tag>
+              </Tooltip>
+            </span>
+          }
+        />
+        <Switch
+          checked={state.isProfane}
+          label={lang.tr('module.nlu.entities.profanityLabel')}
+          onChange={handleProfanityChange}
+        />
       </div>
     </div>
   )

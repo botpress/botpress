@@ -8,6 +8,7 @@ interface CssExports {
   'occurrence': string;
   'occurrenceName': string;
   'occurrencesList': string;
+  'profanityConfig': string;
   'regexInputDash': string;
   'validationTag': string;
 }

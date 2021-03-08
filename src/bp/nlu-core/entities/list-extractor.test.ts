@@ -27,6 +27,7 @@ const list_entities: ListEntityModel[] = [
       Apple: ['apple', 'apples', 'red apple', 'yellow apple'].map(T)
     },
     sensitive: true,
+    isProfane: false,
     type: 'custom.list'
   },
   {
@@ -38,6 +39,7 @@ const list_entities: ListEntityModel[] = [
       Apple: ['Apple', 'Apple Computers', 'Apple Corporation', 'Apple Inc'].map(T)
     },
     sensitive: false,
+    isProfane: false,
     type: 'custom.list'
   },
   {
@@ -51,6 +53,7 @@ const list_entities: ListEntityModel[] = [
       YQB: ['YQB', 'Quebec', 'Quebec city', 'QUEB'].map(T)
     },
     sensitive: false,
+    isProfane: false,
     type: 'custom.list'
   }
 ]

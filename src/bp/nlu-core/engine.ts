@@ -104,6 +104,7 @@ export default class Engine implements NLU.Engine {
           name: e.name,
           fuzzyTolerance: e.fuzzy,
           sensitive: e.sensitive,
+          isProfane: e.isProfane,
           synonyms: _.chain(e.occurrences)
             .keyBy('name')
             .mapValues('synonyms')

@@ -165,7 +165,8 @@ function MapStepToOutput(step: SlotStep): NLU.PredictOutput {
         confidence: e.confidence,
         end: (e as EntityExtractionResult).end ?? (e as UtteranceEntity).endPos,
         source: e.metadata.source,
-        start: (e as EntityExtractionResult).start ?? (e as UtteranceEntity).startPos
+        start: (e as EntityExtractionResult).start ?? (e as UtteranceEntity).startPos,
+        isProfane: !!e.isProfane
       }
     }
   }
