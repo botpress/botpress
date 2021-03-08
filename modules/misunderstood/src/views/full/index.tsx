@@ -13,6 +13,7 @@ import ApiClient from './ApiClient'
 import MainScreen from './MainScreen'
 import SidePanelContent from './SidePanel'
 import style from './style.scss'
+import { groupEventsByUtterance } from './util'
 
 interface Props {
   contentLang: string
@@ -154,6 +155,27 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     await this.updateEventsCounts()
   }
 
+  async alterEventsList2(oldStatus: FLAGGED_MESSAGE_STATUS, newStatus: FLAGGED_MESSAGE_STATUS, alteredEvents) {
+    // do some local state patching to prevent unneeded content flash
+    const { eventCounts, selectedEventIndex, events } = this.state
+    const newEventCounts = {
+      ...eventCounts,
+      [oldStatus]: eventCounts[oldStatus] - alteredEvents.length,
+      [newStatus]: (eventCounts[newStatus] || 0) + alteredEvents.length
+    }
+    await this.setStateP({
+      eventCounts: newEventCounts,
+      selectedEvent: null,
+      events: events.filter(event => !alteredEvents.map(e => e.id).includes(event.id))
+    })
+
+    // advance to the next event
+    await this.setEventIndex(selectedEventIndex)
+
+    // update the real events counts from the back-end
+    await this.updateEventsCounts()
+  }
+
   deleteCurrentEvent = async () => {
     await this.apiClient.updateStatus(
       this.state.events[this.state.selectedEventIndex].id,
@@ -161,6 +183,24 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     )
 
     return this.alterEventsList(FLAGGED_MESSAGE_STATUS.new, FLAGGED_MESSAGE_STATUS.deleted)
+  }
+
+  deleteCurrentEvents = async () => {
+    const event = this.state.events[this.state.selectedEventIndex]
+
+    const eventsByUtterance = groupEventsByUtterance(this.state.events)
+    const eventsWithIndices = eventsByUtterance.get(event.preview)
+
+    await this.apiClient.updateStatuses(
+      eventsWithIndices.map(({ event, eventIndex }) => event.id),
+      FLAGGED_MESSAGE_STATUS.deleted
+    )
+
+    return this.alterEventsList2(
+      FLAGGED_MESSAGE_STATUS.new,
+      FLAGGED_MESSAGE_STATUS.deleted,
+      eventsWithIndices.map(({ event }) => event)
+    )
   }
 
   undeleteEvent = async (id: number) => {
@@ -307,7 +347,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
               selectedStatus={selectedStatus}
               events={events}
               skipEvent={this.skipCurrentEvent}
-              deleteEvent={this.deleteCurrentEvent}
+              deleteEvent={this.deleteCurrentEvents}
               undeleteEvent={this.undeleteEvent}
               resetPendingEvent={this.resetPendingEvent}
               amendEvent={this.amendCurrentEvent}

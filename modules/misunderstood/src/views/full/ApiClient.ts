@@ -66,6 +66,16 @@ class ApiClient {
     })
   }
 
+  updateStatuses(ids: number[], status: FLAGGED_MESSAGE_STATUS, resolutionData?: ResolutionData) {
+    return this.postForModule(`/events/status`, {
+      ids,
+      status,
+      ...resolutionData,
+      resolutionParams:
+        resolutionData && resolutionData.resolutionParams ? JSON.stringify(resolutionData.resolutionParams) : undefined
+    })
+  }
+
   applyAllPending() {
     return this.postForModule('/apply-all-pending')
   }

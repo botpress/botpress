@@ -6,7 +6,7 @@ import React from 'react'
 import { FLAGGED_MESSAGE_STATUS } from '../../types'
 
 import style from './style.scss'
-import { REASONS, STATUSES } from './util'
+import { REASONS, STATUSES, groupEventsByUtterance } from './util'
 
 const SideList = ({
   eventCounts,
@@ -19,6 +19,18 @@ const SideList = ({
 }) => {
   if (!eventCounts || selectedStatus == null) {
     return null
+  }
+
+  const newEvents = []
+  if (events) {
+    groupEventsByUtterance(events).forEach(function(events, utterance) {
+      const { event, eventIndex } = events[0]
+      newEvents.push({
+        event,
+        preview: events.length > 1 ? `${event.preview} (${events.length})` : event.preview,
+        eventIndex
+      })
+    })
   }
 
   return (
@@ -42,14 +54,14 @@ const SideList = ({
         </div>
       )}
 
-      {selectedStatus === FLAGGED_MESSAGE_STATUS.new && events && (
+      {selectedStatus === FLAGGED_MESSAGE_STATUS.new && newEvents.length > 0 && (
         <ul className={classnames(style.contentStretch, style.sideListList)}>
-          {events.map((event, i) => (
+          {newEvents.map(({ event, preview, eventIndex }) => (
             <li
-              onClick={() => onSelectedEventChange(i)}
+              onClick={() => onSelectedEventChange(eventIndex)}
               key={event.id}
               className={classnames(style.sideListItem, {
-                [style.sideListItemSelected]: i === selectedEventIndex
+                [style.sideListItemSelected]: eventIndex === selectedEventIndex
               })}
             >
               <Icon
@@ -58,7 +70,7 @@ const SideList = ({
                 iconSize={Icon.SIZE_STANDARD}
               />
               &nbsp;
-              <span className={style.sideListItemText}>{event.preview}</span>
+              <span className={style.sideListItemText}>{preview}</span>
             </li>
           ))}
         </ul>

@@ -59,6 +59,21 @@ export default class Db {
       .update({ status, ...resolutionData, updatedAt: this.knex.fn.now() })
   }
 
+  async updateStatuses(botId: string, ids: string[], status: FLAGGED_MESSAGE_STATUS, resolutionData?: ResolutionData) {
+    if (status !== FLAGGED_MESSAGE_STATUS.pending) {
+      resolutionData = { resolutionType: null, resolution: null, resolutionParams: null }
+    } else {
+      resolutionData = pick(resolutionData, 'resolutionType', 'resolution', 'resolutionParams')
+    }
+
+    await this.knex(TABLE_NAME)
+      .where({ botId })
+      .andWhere(function() {
+        this.whereIn('id', ids)
+      })
+      .update({ status, ...resolutionData, updatedAt: this.knex.fn.now() })
+  }
+
   async listEvents(
     botId: string,
     language: string,
