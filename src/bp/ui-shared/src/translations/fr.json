@@ -45,6 +45,7 @@
     "viewBot": "Voir le bot: {name}",
     "viewDocumentation": "Consulter la documentation dans un nouvel onglet"
   },
+  "confidence": "Confiance",
   "configuration": "Config",
   "confirmation": "Confirmation",
   "confirmPrompt": "Confirmation Requise",
@@ -54,7 +55,6 @@
   "create": "Créer",
   "code": "Code",
   "codeNewAction": "Coder une nouvelle action",
-  "confidence": "Confiance",
   "createdOn": "Créé le",
   "delete": "Supprimer",
   "deleteCondition": "Supprimer la condition",
@@ -78,6 +78,7 @@
   "execute": "Executer",
   "expandAll": "Tout développer",
   "export": "Exporter",
+  "exportToJson": "Exportar a JSON",  
   "failure": "Échec",
   "filter": "Filtrer",
   "filterBy": "Filtrer par",
@@ -88,8 +89,59 @@
   "ifElse": "If/Else",
   "image": "Image",
   "import": "Importer",
+  "importJson": "Importer JSON",  
   "insert": "Insérer",
   "intent": "intention",
+  "isoLangs": {
+    "ar": {
+      "name": "Arabe",
+      "nativeName": "العربية"
+    },
+    "nl": {
+      "name": "Néerlandaise",
+      "nativeName": "Nederlands, Vlaams"
+    },
+    "en": {
+      "name": "Anglaise",
+      "nativeName": "English"
+    },
+    "fr": {
+      "name": "Français",
+      "nativeName": "Français"
+    },
+    "de": {
+      "name": "Allemande",
+      "nativeName": "Deutsch"
+    },
+    "he": {
+      "name": "Hébreue",
+      "nativeName": "עברית"
+    },
+    "it": {
+      "name": "Italienne",
+      "nativeName": "Italiano"
+    },
+    "ja": {
+      "name": "Japonaise",
+      "nativeName": "日本語 (にほんご／にっぽんご)"
+    },
+    "pl": {
+      "name": "Polonais",
+      "nativeName": "polski"
+    },
+    "pt": {
+      "name": "Portugais",
+      "nativeName": "Português"
+    },
+    "ru": {
+      "name": "Russe",
+      "nativeName": "русский язык"
+    },
+    "es": {
+      "name": "Espagnole",
+      "nativeName": "español"
+    }
+  },  
   "label": "Étiquette",
   "language": "Langue",
   "learnMore": "Plus d'informations",
@@ -115,6 +167,10 @@
   "ok": "OK",
   "optional": "Optionnel",
   "options": "Options",
+  "or": "ou",
+  "overwrite": "Écraser",
+  "page": "Page",
+  "paste": "Pâte",  
   "decision": "Décision",
   "intents": "Intentions",
   "entities": "Entitées",
@@ -127,10 +183,6 @@
   "inspector": "Inspecteur",
   "triggers": "Déclencheurs",
   "actions": "Actions",
-  "or": "ou",
-  "overwrite": "Écraser",
-  "page": "Page",
-  "paste": "Coller",
   "pattern": "Expression régulière",
   "pictures": "Images",
   "pleaseTranslateField": "Veuillez traduire ce champ",
@@ -212,6 +264,7 @@
   "medium": "Médium",
   "loose": "Indulgent",
   "examples": "Exemples",
+  "private": "Privée",  
   "uploading": "Téléversement",
   "incomplete": "Incomplètes",
   "active": "Actives",
