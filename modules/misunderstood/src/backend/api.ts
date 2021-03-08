@@ -32,21 +32,6 @@ export default async (bp: typeof sdk, db: Db) => {
   )
 
   router.post(
-    '/events/:id/status',
-    asyncMiddleware(async (req: Request, res: Response) => {
-      const { id, botId } = req.params
-      const { status, ...resolutionData } = req.body
-
-      try {
-        await db.updateStatus(botId, id, status, resolutionData)
-        res.sendStatus(200)
-      } catch (err) {
-        throw new UnexpectedError('Could not update event', err)
-      }
-    })
-  )
-
-  router.post(
     '/events/status',
     asyncMiddleware(async (req: Request, res: Response) => {
       const { botId } = req.params

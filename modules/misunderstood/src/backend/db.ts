@@ -47,18 +47,6 @@ export default class Db {
     await this.knex(TABLE_NAME).insert(event)
   }
 
-  async updateStatus(botId: string, id: string, status: FLAGGED_MESSAGE_STATUS, resolutionData?: ResolutionData) {
-    if (status !== FLAGGED_MESSAGE_STATUS.pending) {
-      resolutionData = { resolutionType: null, resolution: null, resolutionParams: null }
-    } else {
-      resolutionData = pick(resolutionData, 'resolutionType', 'resolution', 'resolutionParams')
-    }
-
-    await this.knex(TABLE_NAME)
-      .where({ botId, id })
-      .update({ status, ...resolutionData, updatedAt: this.knex.fn.now() })
-  }
-
   async updateStatuses(botId: string, ids: string[], status: FLAGGED_MESSAGE_STATUS, resolutionData?: ResolutionData) {
     if (status !== FLAGGED_MESSAGE_STATUS.pending) {
       resolutionData = { resolutionType: null, resolution: null, resolutionParams: null }
