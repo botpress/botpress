@@ -246,6 +246,9 @@ const QnAList: FC<Props> = props => {
                   data: { qnaItem: data, index: 'highlighted', bp, currentLang }
                 })
               }
+              convertToIntent={() => {
+                dispatch({ type: 'convertQnA', data: { index: 'highlighted', bp } })
+              }}
               bp={bp}
               isLite={isLite}
               key={highlighted.id}
@@ -289,6 +292,7 @@ const QnAList: FC<Props> = props => {
               isLite={isLite}
               flows={flows}
               defaultLanguage={defaultLanguage}
+              convertToIntent={() => dispatch({ type: 'convertQnA', data: { index, bp } })}
               deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp } })}
               toggleEnabledQnA={() =>
                 dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, bp } })
