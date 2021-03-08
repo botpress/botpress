@@ -8,7 +8,7 @@
       "name": "entry",
       "onEnter": [],
       "onReceive": null,
-      "next": []
+      "next": [{ "condition": "true", "node": "" }]
     }
   ]
 }
