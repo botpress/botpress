@@ -1,7 +1,7 @@
 import { Button, Icon, Intent, Tab, Tabs, Checkbox } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import classnames from 'classnames'
-import React from 'react'
+import React, { Fragment } from 'react'
 
 import { FLAGGED_MESSAGE_STATUS } from '../../types'
 
@@ -18,7 +18,9 @@ const SideList = ({
   onSelectedEventChange,
   applyAllPending,
   deleteAllStatus,
-  onEventCheckedOrUnchecked
+  onEventCheckedOrUnchecked,
+  selectAllChecked,
+  onSelectAllChanged
 }) => {
   if (!eventCounts || selectedStatus == null) {
     return null
@@ -73,6 +75,14 @@ const SideList = ({
           <Button onClick={deleteAllStatus(FLAGGED_MESSAGE_STATUS.deleted)} intent={Intent.WARNING} icon="delete" fill>
             {lang.tr('module.misunderstood.deleteAllIgnored')}
           </Button>
+        </div>
+      )}
+
+      {selectedStatus === FLAGGED_MESSAGE_STATUS.new && newEvents.length > 0 && (
+        <div className={classnames(style.sideListItem)}>
+          <Checkbox checked={selectAllChecked} onChange={() => onSelectAllChanged()}>
+            {lang.tr('module.misunderstood.selectAll')}
+          </Checkbox>
         </div>
       )}
 

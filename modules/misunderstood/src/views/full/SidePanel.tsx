@@ -14,7 +14,9 @@ const SidePanel = ({
   onSelectedEventChange,
   applyAllPending,
   deleteAllStatus,
-  onEventCheckedOrUnchecked
+  onEventCheckedOrUnchecked,
+  selectAllChecked,
+  onSelectAllChanged
 }) => (
   <div className={style.sidePanel}>
     <div className={classnames(style.contentStretch, style.sidePanelContentStretch)}>
@@ -29,6 +31,8 @@ const SidePanel = ({
         onEventCheckedOrUnchecked={onEventCheckedOrUnchecked}
         applyAllPending={applyAllPending}
         deleteAllStatus={deleteAllStatus}
+        selectAllChecked={selectAllChecked}
+        onSelectAllChanged={onSelectAllChanged}
       />
     </div>
   </div>
