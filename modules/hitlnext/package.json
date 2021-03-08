@@ -15,8 +15,8 @@
   "license": "AGPL-3.0-only",
   "dependencies": {
     "@blueprintjs/core": "^3.36.0",
-    "axios": "^0.21.0",
     "@webscopeio/react-textarea-autocomplete": "^4.7.2",
+    "axios": "^0.21.0",
     "bluebird": "^3.5",
     "classnames": "^2.2.6",
     "haikunator": "^2.1.2",
@@ -25,6 +25,7 @@
     "lodash": ">=4.17",
     "lru-cache": "^6.0.0",
     "moment": "^2.24",
+    "react-icons": "^4.1.0",
     "react-initial": "^1.0.12",
     "serialize-javascript": "^5.0.1",
     "yn": "^4.0.0"
