@@ -15,7 +15,8 @@ const SideList = ({
   selectedEventIndex,
   onSelectedStatusChange,
   onSelectedEventChange,
-  applyAllPending
+  applyAllPending,
+  deleteAllStatus
 }) => {
   if (!eventCounts || selectedStatus == null) {
     return null
@@ -38,6 +39,22 @@ const SideList = ({
         <div className={style.applyAllButton}>
           <Button onClick={applyAllPending} intent={Intent.WARNING} icon="export" fill>
             {lang.tr('module.misunderstood.applyAllPending')}
+          </Button>
+        </div>
+      )}
+
+      {selectedStatus === FLAGGED_MESSAGE_STATUS.applied && events && events.length > 0 && (
+        <div className={style.applyAllButton}>
+          <Button onClick={deleteAllStatus(FLAGGED_MESSAGE_STATUS.applied)} intent={Intent.WARNING} icon="delete" fill>
+            {lang.tr('module.misunderstood.deleteAllDone')}
+          </Button>
+        </div>
+      )}
+
+      {selectedStatus === FLAGGED_MESSAGE_STATUS.deleted && events && events.length > 0 && (
+        <div className={style.applyAllButton}>
+          <Button onClick={deleteAllStatus(FLAGGED_MESSAGE_STATUS.deleted)} intent={Intent.WARNING} icon="delete" fill>
+            {lang.tr('module.misunderstood.deleteAllIgnored')}
           </Button>
         </div>
       )}

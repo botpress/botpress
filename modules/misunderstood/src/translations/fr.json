@@ -6,6 +6,8 @@
   "category": "Catégorie",
   "deleted": "Supprimé",
   "done": "Terminé",
+  "deleteAllDone": "Supprimer tout les terminés",
+  "deleteAllIgnored": "Supprimer tout les ignorés",
   "flaggedByAction": "Signalé par action",
   "flaggedByHook": "Signalé par hook",
   "flaggedByThumbsDown": "Signalé par désapprobateur",
