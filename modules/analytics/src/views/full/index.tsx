@@ -310,9 +310,9 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const getReturningUsers = () => {
-    const activeUsersCount = getMetricCount('active_users_count')
+    const returningUsersCount = getMetricCount('returning_users_count')
     const newUsersCount = getMetricCount('new_users_count')
-    const percent = Math.round((activeUsersCount / (newUsersCount + activeUsersCount)) * 100)
+    const percent = Math.round((returningUsersCount / (newUsersCount + returningUsersCount)) * 100)
 
     return getNotNaN(percent, '%')
   }
@@ -362,7 +362,7 @@ const Analytics: FC<any> = ({ bp }) => {
 
   const renderEngagement = () => {
     const newUserCountDiff = getMetricCount('new_users_count') - getPreviousRangeMetricCount('new_users_count')
-    const activeUserCountDiff = getMetricCount('active_users_count') - getPreviousRangeMetricCount('active_users_count')
+    const returningUserCountDiff = getMetricCount('returning_users_count') - getPreviousRangeMetricCount('returning_users_count')
     const activeUsers = fillMissingValues(getMetric('active_users_count'), state.dateRange[0], state.dateRange[1])
 
     return (
@@ -376,9 +376,9 @@ const Analytics: FC<any> = ({ bp }) => {
         />
         <NumberMetric
           className={style.half}
-          diffFromPreviousRange={activeUserCountDiff}
+          diffFromPreviousRange={returningUserCountDiff}
           previousDateRange={state.previousDateRange}
-          name={lang.tr('module.analytics.returningUsers', { nb: getMetricCount('active_users_count') })}
+          name={lang.tr('module.analytics.returningUsers', { nb: getMetricCount('returning_users_count') })}
           value={getReturningUsers()}
         />
         <TimeSeriesChart
