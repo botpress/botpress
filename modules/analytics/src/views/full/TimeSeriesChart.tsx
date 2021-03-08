@@ -49,7 +49,6 @@ const TimeSeriesChart: FC<Props> = props => {
                   ))}
               </defs>
               <Tooltip labelFormatter={formatTootilTick} />
-              {console.log("dataLen: ",Math.floor(data.length/12))}
               <XAxis
                 tickMargin={10}
                 height={28}
