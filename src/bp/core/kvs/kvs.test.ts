@@ -3,7 +3,7 @@ import { createDatabaseSuite } from '../database/index.tests'
 import { PersistedConsoleLogger } from '../logger'
 import { createSpyObject, MockObject } from '../misc/utils'
 
-import { KeyValueStore } from './kvs'
+import { KeyValueStore } from '.'
 
 createDatabaseSuite('KVS', (database: Database) => {
   const logger: MockObject<PersistedConsoleLogger> = createSpyObject<PersistedConsoleLogger>()
