@@ -29,6 +29,7 @@ interface State {
   selectedStatus: FLAGGED_MESSAGE_STATUS
   events: DbFlaggedEvent[] | null
   checkedEventIds: number[]
+  selectAllChecked: boolean
   selectedEventIndex: number | null
   selectedEvent: DbFlaggedEvent | null
   eventNotFound: boolean
@@ -48,6 +49,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     selectedEventIndex: null,
     selectedEvent: null,
     checkedEventIds: [],
+    selectAllChecked: false,
     eventNotFound: false,
     dateRange: undefined,
     reason: undefined
@@ -163,7 +165,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     let eventIds
     if (this.state.checkedEventIds.length > 0) {
       eventIds = [...this.state.checkedEventIds]
-      await this.setStateP({ checkedEventIds: [] })
+      await this.setStateP({ checkedEventIds: [], selectAllChecked: false })
     } else {
       const event = this.state.events[this.state.selectedEventIndex]
       const eventsByUtterance = groupEventsByUtterance(this.state.events)
@@ -247,7 +249,8 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
       selectedEvent: firstEvent,
       eventNotFound: !firstEvent,
       eventCounts,
-      checkedEventIds: []
+      checkedEventIds: [],
+      selectAllChecked: false
     })
   }
 
@@ -278,8 +281,21 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     } else {
       checkedEventIds = [...checkedEventIds, ...eventIds]
     }
-    await this.setStateP({
+    const newState = {
       checkedEventIds
+    }
+    if (remove) {
+      newState['selectAllChecked'] = false
+    }
+    await this.setStateP(newState)
+  }
+
+  onSelectAllChanged = async () => {
+    const selectAllChecked = !this.state.selectAllChecked
+
+    await this.setStateP({
+      selectAllChecked,
+      checkedEventIds: selectAllChecked ? this.state.events.map(e => e.id) : []
     })
   }
 
@@ -291,7 +307,8 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
       checkedEventIds,
       selectedEventIndex,
       selectedEvent,
-      eventNotFound
+      eventNotFound,
+      selectAllChecked
     } = this.state
 
     const { contentLang } = this.props
@@ -299,6 +316,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     const dataLoaded =
       selectedStatus === FLAGGED_MESSAGE_STATUS.new ? selectedEvent || (events && events.length === 0) : events
 
+    const manyEventsSelected = checkedEventIds.length >= 2
     return (
       <Container sidePanelWidth={320}>
         <SidePanel>
@@ -338,6 +356,8 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
             onSelectedEventChange={this.setEventIndex}
             onEventCheckedOrUnchecked={this.onEventCheckedOrUnchecked}
             applyAllPending={this.applyAllPending}
+            selectAllChecked={selectAllChecked}
+            onSelectAllChanged={this.onSelectAllChanged}
           />
         </SidePanel>
 
@@ -358,7 +378,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
               resetPendingEvent={this.resetPendingEvent}
               amendEvent={this.amendCurrentEvents}
               applyAllPending={this.applyAllPending}
-              manyEventsSelected={checkedEventIds.length >= 2}
+              manyEventsSelected={manyEventsSelected}
             />
           </div>
         ) : (
