@@ -171,6 +171,7 @@ function extractForListModel(utterance: Utterance, listModel: ListEntityModel): 
         entityId: listModel.id
       },
       sensitive: listModel.sensitive,
+      isProfane: listModel.isProfane,
       type: listModel.entityName
     })) as EntityExtractionResult[]
 }

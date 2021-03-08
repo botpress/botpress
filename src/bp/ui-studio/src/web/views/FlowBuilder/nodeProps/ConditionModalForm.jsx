@@ -15,6 +15,8 @@ const availableProps = [
   { label: 'Temporary Dialog Context', value: 'temp' }
 ]
 
+const IS_PROFANE_CONDITION = '!!event.nlu.entities.find(e => e.meta.isProfane)'
+
 class ConditionModalForm extends Component {
   state = {
     typeOfTransition: 'end',
@@ -93,6 +95,8 @@ class ConditionModalForm extends Component {
       return 'always'
     } else if (condition.includes('event.nlu.intent.name')) {
       return 'intent'
+    } else if (condition.includes(IS_PROFANE_CONDITION)) {
+      return 'profanity'
     } else if (availableProps.some(props => condition.indexOf(props.value + '.') === 0)) {
       return 'props'
     } else {
@@ -263,7 +267,9 @@ class ConditionModalForm extends Component {
     if (conditionType === 'always') {
       this.setState({ conditionType, condition: 'true' })
     } else if (conditionType === 'intent') {
-      this.setState({ conditionType, condition: `event.nlu.intent.name === ''` })
+      this.setState({ conditionType, condition: "event.nlu.intent.name === ''" })
+    } else if (conditionType === 'profanity') {
+      this.setState({ conditionType, condition: IS_PROFANE_CONDITION })
     } else {
       this.setState({ conditionType })
     }
@@ -361,6 +367,10 @@ class ConditionModalForm extends Component {
           {lang.tr('studio.flow.node.transition.condition.intentIs')}
         </Radio>
         {this.state.conditionType === 'intent' && this.renderIntentPicker()}
+
+        <Radio checked={this.state.conditionType === 'profanity'} value="profanity" onChange={this.changeConditionType}>
+          {lang.tr('studio.flow.node.transition.condition.containsProfanity')}
+        </Radio>
 
         <Radio checked={this.state.conditionType === 'props'} value="props" onChange={this.changeConditionType}>
           {lang.tr('studio.flow.node.transition.condition.matchesProperty')}

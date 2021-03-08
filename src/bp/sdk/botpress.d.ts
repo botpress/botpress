@@ -576,6 +576,7 @@ declare module 'botpress/sdk' {
       fuzzy?: number
       occurrences?: EntityDefOccurrence[]
       pattern?: string
+      isProfane?: boolean
     }
 
     export interface SlotDefinition {
@@ -621,6 +622,7 @@ declare module 'botpress/sdk' {
       start: number
       end: number
       raw?: any
+      isProfane: boolean
     }
 
     export interface Slot {

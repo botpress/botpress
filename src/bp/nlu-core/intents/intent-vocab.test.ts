@@ -18,7 +18,8 @@ const LIST_ENTITIES: ListEntityModel[] = [
       ]
     },
     languageCode: 'en',
-    sensitive: false
+    sensitive: false,
+    isProfane: false
   }
 ]
 

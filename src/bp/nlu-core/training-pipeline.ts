@@ -117,6 +117,7 @@ async function makeListEntityModel(entity: ListEntityWithCache, languageCode: st
     entityName: entity.name,
     fuzzyTolerance: entity.fuzzyTolerance,
     sensitive: entity.sensitive,
+    isProfane: entity.isProfane,
     mappingsTokens: _.mapValues(entity.synonyms, (synonyms, name) =>
       [...synonyms, name].map(syn => {
         const idx = allValues.indexOf(syn)

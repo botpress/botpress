@@ -55,6 +55,7 @@ export type ListEntity = Readonly<{
   synonyms: { [canonical: string]: string[] }
   fuzzyTolerance: number
   sensitive: boolean
+  isProfane: boolean
 }>
 
 export type EntityCache = LRUCache<string, EntityExtractionResult[]>
@@ -67,6 +68,7 @@ export interface ListEntityModel {
   entityName: string
   fuzzyTolerance: number
   sensitive: boolean
+  isProfane: boolean
   /** @example { 'Air Canada': [ ['Air', '_Canada'], ['air', 'can'] ] } */
   mappingsTokens: _.Dictionary<string[][]>
 }
@@ -104,6 +106,7 @@ export interface ExtractedEntity {
     occurrence?: string
   }
   sensitive?: boolean
+  isProfane?: boolean
   value: string
 }
 export type EntityExtractionResult = ExtractedEntity & { start: number; end: number }

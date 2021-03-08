@@ -191,6 +191,7 @@
           "condition": {
             "always": "Always",
             "intentIs": "Intent Is",
+            "containsProfanity": "Message Contains Profanity",
             "matchesProperty": "Matches Property",
             "rawExpression": "Raw Expression (advanced)"
           },

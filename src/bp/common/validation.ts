@@ -133,7 +133,8 @@ export const EntityDefCreateSchema = Joi.object().keys({
     .default([]),
   pattern: Joi.string()
     .default('')
-    .allow('')
+    .allow(''),
+  isProfane: Joi.boolean().optional()
 })
 
 export const SlotsCreateSchema = Joi.object().keys({
