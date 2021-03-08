@@ -176,12 +176,12 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
   }
 
   undeleteEvent = async (id: number) => {
-    await this.apiClient.updateStatus(id, FLAGGED_MESSAGE_STATUS.new)
+    await this.apiClient.updateStatuses([id], FLAGGED_MESSAGE_STATUS.new)
     return this.alterEventsList(FLAGGED_MESSAGE_STATUS.deleted, FLAGGED_MESSAGE_STATUS.new, [id])
   }
 
   resetPendingEvent = async (id: number) => {
-    await this.apiClient.updateStatus(id, FLAGGED_MESSAGE_STATUS.new)
+    await this.apiClient.updateStatuses([id], FLAGGED_MESSAGE_STATUS.new)
     return this.alterEventsList(FLAGGED_MESSAGE_STATUS.pending, FLAGGED_MESSAGE_STATUS.new, [id])
   }
 
