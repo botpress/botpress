@@ -67,24 +67,29 @@ h5 {
 
 .item {
   padding: 5px 0;
+  padding-left: 10px;
+  border-bottom: 1px solid #ddd;
 
   .actions {
-    display: none;
+    opacity: 0.2;
+    text-align: right;
+    font-size: 12pt;
+    color: lightgrey;
+    display: flex;
+    justify-content: space-between;
 
-    a {
+    * {
       cursor: pointer;
-      margin-right: 5px;
+      margin-right: 3px;
     }
   }
 
   &:hover {
-    background: #fefefe;
     border-left: 2px solid #999;
-    padding-left: 10px;
+    margin-left: -2px;
 
     .actions {
-      padding: 10px 0;
-      display: block;
+      opacity: 1;
     }
   }
 }
@@ -111,10 +116,21 @@ h5 {
   }
 }
 
-.actions {
-  margin-top: 10px;
-  width: 100%;
+.tooltip {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  line-height: 1.25;
 
+  .shortcutLabel {
+    margin-left: 4px;
+  }
+}
+
+.actions {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  width: 100%;
   button {
     border-radius: 3px;
   }

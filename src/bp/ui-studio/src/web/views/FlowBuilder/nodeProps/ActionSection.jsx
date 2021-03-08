@@ -10,6 +10,9 @@ import { lang } from 'botpress/shared'
 
 const style = require('./style.scss')
 
+import { Icon, Intent, Tooltip, Position } from '@blueprintjs/core'
+import { IconNames } from '@blueprintjs/icons'
+
 export default class ActionSection extends Component {
   state = {
     showActionModalForm: false
@@ -102,9 +105,30 @@ export default class ActionSection extends Component {
       items = []
     }
 
-    const renderMoveUp = i => (i > 0 ? <a onClick={() => this.onMoveAction(i, -1)}>Up</a> : null)
-
-    const renderMoveDown = i => (i < items.length - 1 ? <a onClick={() => this.onMoveAction(i, 1)}>Down</a> : null)
+    const renderMoveUp = i => {
+      const enabled = i > 0
+      return (
+        <Tooltip position={Position.LEFT} content="Up" hoverOpenDelay="500">
+          <Icon
+            icon={IconNames.CHEVRON_UP}
+            intent={enabled ? Intent.PRIMARY : Intent.NONE}
+            onClick={() => (enabled ? this.onMoveAction(i, -1) : null)}
+          />
+        </Tooltip>
+      )
+    }
+    const renderMoveDown = i => {
+      const enabled = i < items.length - 1
+      return (
+        <Tooltip position={Position.LEFT} content="Down" hoverOpenDelay="500">
+          <Icon
+            icon={IconNames.CHEVRON_DOWN}
+            intent={enabled ? Intent.PRIMARY : Intent.NONE}
+            onClick={() => (enabled ? this.onMoveAction(i, 1) : null)}
+          />
+        </Tooltip>
+      )
+    }
 
     const handleAddAction = () => this.setState({ showActionModalForm: true })
 
@@ -116,17 +140,27 @@ export default class ActionSection extends Component {
             <ActionItem className={style.item} text={item} key={`${i}.${item}`}>
               {!readOnly && (
                 <div className={style.actions}>
-                  <a className="btn-edit" onClick={() => this.onEdit(i)}>
-                    {lang.tr('edit')}
-                  </a>
-                  <a className="btn-remove" onClick={() => this.onRemoveAction(i)}>
-                    {lang.tr('remove')}
-                  </a>
-                  <a className="btn-copy" onClick={() => this.onCopyAction(i)}>
-                    {lang.tr('copy')}
-                  </a>
-                  {renderMoveUp(i)}
-                  {renderMoveDown(i)}
+                  <div>
+                    <Tooltip
+                      style={style.tooltip}
+                      position={Position.LEFT}
+                      content={lang.tr('edit')}
+                      hoverOpenDelay="500"
+                    >
+                      <Icon icon={IconNames.EDIT} intent={Intent.PRIMARY} onClick={() => this.onEdit(i)} />
+                    </Tooltip>
+                    <Tooltip position={Position.LEFT} content={lang.tr('copy')} hoverOpenDelay="500">
+                      <Icon icon={IconNames.DUPLICATE} intent={Intent.PRIMARY} onClick={() => this.onCopyAction(i)} />
+                    </Tooltip>
+                    {renderMoveUp(i)}
+                    {renderMoveDown(i)}
+                  </div>
+
+                  <div>
+                    <Tooltip position={Position.LEFT} content={lang.tr('remove')} hoverOpenDelay="500">
+                      <Icon icon={IconNames.TRASH} intent={Intent.DANGER} onClick={() => this.onRemoveAction(i)} />
+                    </Tooltip>
+                  </div>
                 </div>
               )}
             </ActionItem>

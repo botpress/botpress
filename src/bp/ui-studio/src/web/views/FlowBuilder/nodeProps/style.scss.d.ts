@@ -18,9 +18,11 @@ interface CssExports {
   'returnBloc': string;
   'returnToNodeSection': string;
   'section': string;
+  'shortcutLabel': string;
   'subflowBloc': string;
   'textFields': string;
   'tip': string;
+  'tooltip': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;
