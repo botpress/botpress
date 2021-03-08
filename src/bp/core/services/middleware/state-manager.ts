@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
+import { KeyValueStore } from 'core/kvs'
 import { createExpiry } from 'core/misc/expiry'
 import { inject, injectable, tagged } from 'inversify'
 import { Redis } from 'ioredis'
@@ -15,7 +16,6 @@ import { SessionRepository, UserRepository } from '../../repositories'
 import { TYPES } from '../../types'
 import { SessionIdFactory } from '../dialog/session/id-factory'
 import { JobService } from '../job-service'
-import { KeyValueStore } from '../kvs'
 
 const getRedisSessionKey = (sessionId: string) => `sessionstate_${sessionId}`
 const BATCH_SIZE = 100

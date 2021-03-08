@@ -1,8 +1,9 @@
 import { WorkspaceRollout, WorkspaceUser, WorkspaceUserWithAttributes } from 'botpress/sdk'
+import { auth } from 'botpress/shared'
 import { AuthRule, AuthStrategyConfig, UserProfile } from 'common/typings'
 
 import api from '../api'
-import { getActiveWorkspace, logout, setActiveWorkspace } from '../Auth'
+import { getActiveWorkspace, setActiveWorkspace } from '../Auth'
 
 import { fetchLicensing } from './license'
 
@@ -127,7 +128,7 @@ export const fetchProfile = () => {
       const { data } = await api.getSecured().get('/auth/me/profile')
       dispatch({ type: MY_PROFILE_RECEIVED, profile: data.payload })
     } catch (err) {
-      await logout()
+      await auth.logout(() => api.getSecured())
     }
   }
 }

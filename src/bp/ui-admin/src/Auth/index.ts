@@ -1,47 +1,12 @@
-import { ChatUserAuth, StoredToken, TokenUser } from 'common/typings'
-import moment from 'moment'
-import ms from 'ms'
+import { auth } from 'botpress/shared'
+import { ChatUserAuth } from 'common/typings'
 
 import api from '../api'
 import history from '../history'
-export const TOKEN_KEY = 'bp/token'
+
 export const WORKSPACE_KEY = 'bp/workspace'
 export const CHAT_USER_AUTH_KEY = 'bp/chat_user_auth'
 const HOME_ROUTE = '/home'
-
-export const REFRESH_INTERVAL = ms('5m')
-const MIN_MS_LEFT_BEFORE_REFRESH = ms('10m')
-
-export const getToken = (onlyToken: boolean = true): StoredToken | string | undefined => {
-  const token = localStorage.getItem(TOKEN_KEY)
-  const parsed = token && JSON.parse(token)
-
-  return onlyToken ? parsed && parsed.token : parsed
-}
-
-export const setToken = (token: string): void => {
-  const [, payload] = token.split('.')
-  const tokenUser = JSON.parse(atob(payload)) as TokenUser
-  const storedToken: StoredToken = { token, expiresAt: tokenUser.exp!, issuedAt: tokenUser.iat! }
-
-  localStorage.setItem(TOKEN_KEY, JSON.stringify(storedToken))
-}
-
-export const isTokenValid = (): boolean => {
-  const storedToken = getToken(false) as StoredToken
-  if (storedToken) {
-    const { token, expiresAt } = storedToken
-    return !!token && moment().unix() < expiresAt
-  }
-  return false
-}
-
-export const tokenNeedsRefresh = () => {
-  const tokenData = getToken(false) as StoredToken
-  const duration = moment.duration(moment.unix(tokenData.expiresAt).diff(moment()))
-
-  return duration.asMilliseconds() < MIN_MS_LEFT_BEFORE_REFRESH
-}
 
 export function setActiveWorkspace(workspaceName) {
   workspaceName ? localStorage.setItem(WORKSPACE_KEY, workspaceName) : localStorage.removeItem(WORKSPACE_KEY)
@@ -63,18 +28,6 @@ export function getChatUserAuth(): ChatUserAuth | undefined {
   }
 }
 
-export const logout = async () => {
-  await api
-    .getSecured({ toastErrors: false })
-    .post('/auth/logout')
-    .catch(() => {})
-
-  // Clear access token and ID token from local storage
-  localStorage.removeItem(TOKEN_KEY)
-  // need to force reload otherwise the token wont clear properly
-  window.location.href = window.location.origin + window['ROOT_PATH']
-}
-
 interface LoginCredentials {
   email: string
   password: string
@@ -91,7 +44,7 @@ export default class BasicAuthentication {
       .getAnonymous({ toastErrors: false })
       .post(`/auth${loginUrl}`, credentials, { timeout: 15000 })
 
-    setToken(data.payload.token)
+    auth.setToken(data.payload)
 
     await this.afterLoginRedirect(returnTo)
   }
@@ -133,17 +86,17 @@ export default class BasicAuthentication {
       password
     })
 
-    setToken(data.payload.token)
+    auth.setToken(data.payload)
     await this.afterLoginRedirect()
 
     history.replace(HOME_ROUTE)
   }
 
   logout = async () => {
-    await logout()
+    await auth.logout(() => api.getSecured())
   }
 
   isAuthenticated() {
-    return isTokenValid()
+    return auth.isTokenValid()
   }
 }

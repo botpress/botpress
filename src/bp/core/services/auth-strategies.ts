@@ -1,4 +1,5 @@
 import { StrategyUser } from 'botpress/sdk'
+import { TokenResponse } from 'common/typings'
 import { AuthStrategyType } from 'core/config/botpress.config'
 import { Router } from 'express'
 import { injectable } from 'inversify'
@@ -7,7 +8,7 @@ export interface AuthStrategies {
   setup(router: Router, strategyTypes: AuthStrategyType[])
   getAndUpsertUser(authUser: Partial<StrategyUser>, allowSelfSignup: boolean): Promise<StrategyUser>
   mapFields(userProfile: any, any: any)
-  createTokenForUser(email: string, strategy: string): Promise<string>
+  createTokenForUser(email: string, strategy: string): Promise<TokenResponse>
 }
 
 @injectable()
@@ -24,7 +25,7 @@ export class CEAuthStrategies implements AuthStrategies {
     throw new Error('Not implemented')
   }
 
-  createTokenForUser(email: string): Promise<string> {
+  createTokenForUser(email: string): Promise<TokenResponse> {
     throw new Error('Not implemented')
   }
 }
