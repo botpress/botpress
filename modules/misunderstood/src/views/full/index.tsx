@@ -136,18 +136,18 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     }
   }
 
-  async alterEventsList(oldStatus: FLAGGED_MESSAGE_STATUS, newStatus: FLAGGED_MESSAGE_STATUS) {
+  async alterEventsList(oldStatus: FLAGGED_MESSAGE_STATUS, newStatus: FLAGGED_MESSAGE_STATUS, eventIds: number[]) {
     // do some local state patching to prevent unneeded content flash
     const { eventCounts, selectedEventIndex, events } = this.state
     const newEventCounts = {
       ...eventCounts,
-      [oldStatus]: eventCounts[oldStatus] - 1,
-      [newStatus]: (eventCounts[newStatus] || 0) + 1
+      [oldStatus]: eventCounts[oldStatus] - eventIds.length,
+      [newStatus]: (eventCounts[newStatus] || 0) + eventIds.length
     }
     await this.setStateP({
       eventCounts: newEventCounts,
       selectedEvent: null,
-      events: events.filter(event => event.id !== events[selectedEventIndex].id)
+      events: events.filter(event => !eventIds.includes(event.id))
     })
 
     // advance to the next event
@@ -155,36 +155,6 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
 
     // update the real events counts from the back-end
     await this.updateEventsCounts()
-  }
-
-  async alterEventsList2(oldStatus: FLAGGED_MESSAGE_STATUS, newStatus: FLAGGED_MESSAGE_STATUS, alteredEvents) {
-    // do some local state patching to prevent unneeded content flash
-    const { eventCounts, selectedEventIndex, events } = this.state
-    const newEventCounts = {
-      ...eventCounts,
-      [oldStatus]: eventCounts[oldStatus] - alteredEvents.length,
-      [newStatus]: (eventCounts[newStatus] || 0) + alteredEvents.length
-    }
-    await this.setStateP({
-      eventCounts: newEventCounts,
-      selectedEvent: null,
-      events: events.filter(event => !alteredEvents.map(e => e.id).includes(event.id))
-    })
-
-    // advance to the next event
-    await this.setEventIndex(selectedEventIndex)
-
-    // update the real events counts from the back-end
-    await this.updateEventsCounts()
-  }
-
-  deleteCurrentEvent = async () => {
-    await this.apiClient.updateStatus(
-      this.state.events[this.state.selectedEventIndex].id,
-      FLAGGED_MESSAGE_STATUS.deleted
-    )
-
-    return this.alterEventsList(FLAGGED_MESSAGE_STATUS.new, FLAGGED_MESSAGE_STATUS.deleted)
   }
 
   deleteCurrentEvents = async () => {
@@ -198,30 +168,21 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
       FLAGGED_MESSAGE_STATUS.deleted
     )
 
-    return this.alterEventsList2(
+    return this.alterEventsList(
       FLAGGED_MESSAGE_STATUS.new,
       FLAGGED_MESSAGE_STATUS.deleted,
-      eventsWithIndices.map(({ event }) => event)
+      eventsWithIndices.map(({ event: { id } }) => id)
     )
   }
 
   undeleteEvent = async (id: number) => {
     await this.apiClient.updateStatus(id, FLAGGED_MESSAGE_STATUS.new)
-    return this.alterEventsList(FLAGGED_MESSAGE_STATUS.deleted, FLAGGED_MESSAGE_STATUS.new)
+    return this.alterEventsList(FLAGGED_MESSAGE_STATUS.deleted, FLAGGED_MESSAGE_STATUS.new, [id])
   }
 
   resetPendingEvent = async (id: number) => {
     await this.apiClient.updateStatus(id, FLAGGED_MESSAGE_STATUS.new)
-    return this.alterEventsList(FLAGGED_MESSAGE_STATUS.pending, FLAGGED_MESSAGE_STATUS.new)
-  }
-
-  amendCurrentEvent = async (resolutionData: ResolutionData) => {
-    await this.apiClient.updateStatus(
-      this.state.events[this.state.selectedEventIndex].id,
-      FLAGGED_MESSAGE_STATUS.pending,
-      resolutionData
-    )
-    return this.alterEventsList(FLAGGED_MESSAGE_STATUS.new, FLAGGED_MESSAGE_STATUS.pending)
+    return this.alterEventsList(FLAGGED_MESSAGE_STATUS.pending, FLAGGED_MESSAGE_STATUS.new, [id])
   }
 
   amendCurrentEvents = async (resolutionData: ResolutionData) => {
@@ -235,10 +196,10 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
       FLAGGED_MESSAGE_STATUS.pending,
       resolutionData
     )
-    return this.alterEventsList2(
+    return this.alterEventsList(
       FLAGGED_MESSAGE_STATUS.new,
       FLAGGED_MESSAGE_STATUS.pending,
-      eventsWithIndices.map(({ event }) => event)
+      eventsWithIndices.map(({ event: { id } }) => id)
     )
   }
 
