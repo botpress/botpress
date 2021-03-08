@@ -249,6 +249,35 @@ export const fetchReducer = (state: State, action): State => {
       ...state,
       items: newItems
     }
+  } else if (action.type === 'convertQnA') {
+    const { index, bp } = action.data
+    const newItems = state.items
+
+    if (index === 'highlighted') {
+      bp.axios
+        .post(`/mod/qna/questions/${state.highlighted.id}/convert`)
+        .then(() => {})
+        .catch(() => {})
+
+      return {
+        ...state,
+        highlighted: undefined
+      }
+    }
+
+    const [deletedItem] = newItems.splice(index, 1)
+
+    if (!deletedItem.id.startsWith(NEW_QNA_PREFIX)) {
+      bp.axios
+        .post(`/mod/qna/questions/${deletedItem.id}/convert`)
+        .then(() => {})
+        .catch(() => {})
+    }
+
+    return {
+      ...state,
+      items: newItems
+    }
   } else if (action.type === 'toggleExpandOne') {
     const { expandedItems } = state
 
