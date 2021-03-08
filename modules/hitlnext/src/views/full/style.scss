@@ -300,7 +300,7 @@
 
   .handoffList {
     background-color: var(--bg);
-    display: flex;
+    overflow-y: scroll;
     flex-direction: column;
     flex-grow: 1;
     height: 100%;
