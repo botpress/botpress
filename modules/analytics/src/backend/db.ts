@@ -148,6 +148,7 @@ export default class Database {
     let queryActiveUsers = this.knex('bot_chat_users')
       .where({ botId })
       .andWhere(this.knex.date.isBetween('lastSeenOn', startDate, endDate))
+      .andWhereRaw('lastSeenOn <> createdOn')
       .groupBy(['lastSeenOn', 'channel'])
 
     if (options?.channel !== 'all') {
