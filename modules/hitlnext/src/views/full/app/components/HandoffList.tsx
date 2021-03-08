@@ -10,7 +10,6 @@ import { Context } from '../Store'
 import HandoffItem from './HandoffItem'
 import HandoffListHeader, { FilterType, SortType } from './HandoffListHeader'
 
-import cx from 'classnames'
 import style from '../../style.scss'
 
 
