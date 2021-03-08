@@ -8,9 +8,11 @@ const SidePanel = ({
   eventCounts,
   selectedStatus,
   events,
+  checkedEventIds,
   selectedEventIndex,
   onSelectedStatusChange,
   onSelectedEventChange,
+  onEventCheckedOrUnchecked,
   applyAllPending
 }) => (
   <div className={style.sidePanel}>
@@ -19,9 +21,11 @@ const SidePanel = ({
         eventCounts={eventCounts}
         selectedStatus={selectedStatus}
         events={events}
+        checkedEventIds={checkedEventIds}
         selectedEventIndex={selectedEventIndex}
         onSelectedStatusChange={onSelectedStatusChange}
         onSelectedEventChange={onSelectedEventChange}
+        onEventCheckedOrUnchecked={onEventCheckedOrUnchecked}
         applyAllPending={applyAllPending}
       />
     </div>

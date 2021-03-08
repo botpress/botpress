@@ -1,4 +1,4 @@
-import { Button, Icon, Intent, Tab, Tabs } from '@blueprintjs/core'
+import { Button, Icon, Intent, Tab, Tabs, Checkbox } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import classnames from 'classnames'
 import React from 'react'
@@ -12,9 +12,11 @@ const SideList = ({
   eventCounts,
   selectedStatus,
   events,
+  checkedEventIds,
   selectedEventIndex,
   onSelectedStatusChange,
   onSelectedEventChange,
+  onEventCheckedOrUnchecked,
   applyAllPending
 }) => {
   if (!eventCounts || selectedStatus == null) {
@@ -22,8 +24,10 @@ const SideList = ({
   }
 
   const newEvents = []
+  let eventsByUtterance
   if (events) {
-    groupEventsByUtterance(events).forEach(function(events, utterance) {
+    eventsByUtterance = groupEventsByUtterance(events)
+    eventsByUtterance.forEach(function(events, utterance) {
       const { event, eventIndex } = events[0]
       newEvents.push({
         event,
@@ -64,13 +68,20 @@ const SideList = ({
                 [style.sideListItemSelected]: eventIndex === selectedEventIndex
               })}
             >
-              <Icon
-                icon={REASONS[event.reason].icon}
-                title={REASONS[event.reason].title}
-                iconSize={Icon.SIZE_STANDARD}
-              />
-              &nbsp;
-              <span className={style.sideListItemText}>{preview}</span>
+              <Checkbox
+                checked={checkedEventIds.includes(event.id)}
+                onChange={() =>
+                  onEventCheckedOrUnchecked(eventsByUtterance.get(event.preview).map(({ event: { id } }) => id))
+                }
+              >
+                <Icon
+                  icon={REASONS[event.reason].icon}
+                  title={REASONS[event.reason].title}
+                  iconSize={Icon.SIZE_STANDARD}
+                />
+                &nbsp;
+                <span className={style.sideListItemText}>{preview}</span>
+              </Checkbox>
             </li>
           ))}
         </ul>
