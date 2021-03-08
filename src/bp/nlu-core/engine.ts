@@ -20,7 +20,7 @@ import { isPatternValid } from './tools/patterns-utils'
 import { TrainInput, TrainOutput } from './training-pipeline'
 import { TrainingWorkerQueue } from './training-worker-queue'
 import { EntityCacheDump, ListEntity, PatternEntity, Tools } from './typings'
-import { preprocessRawUtterance } from './utterance/utterance'
+import { preprocessRawUtterance, buildUtteranceBatch } from './utterance/utterance'
 import { getModifiedContexts, mergeModelOutputs } from './warm-training-handler'
 
 const trainDebug = DEBUG('nlu').sub('training')
@@ -59,6 +59,12 @@ export default class Engine implements NLU.Engine {
       length: sizeof // ignores size of functions, but let's assume it's small
     })
     trainDebug(`model cache size is: ${bytes(options.maxCacheSize)}`)
+  }
+
+  async embed(utterances: string[]): Promise<number[][]> {
+    const utt = await buildUtteranceBatch(utterances, 'en', this._tools)
+    const utt_emb = utt.map(u => u.sentenceEmbedding())
+    return utt_emb
   }
 
   public getHealth() {

@@ -1,0 +1,26 @@
+.main {
+  width: 100%;
+}
+
+.inline {
+  display: inline;
+}
+
+.verticalText {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  padding-left: 1px;
+  padding-right: 1px;
+}
+
+table {
+  border: 1px solid black;
+}
+
+tr {
+  border: 1px solid black;
+}
+
+td {
+  border: 1px solid black;
+}

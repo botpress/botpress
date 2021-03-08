@@ -7,6 +7,7 @@
 declare module 'botpress/sdk' {
   import { NextFunction, Request, Response, Router } from 'express'
   import Knex from 'knex'
+  import { Tools } from 'nlu-core/typings'
   export interface KnexExtension {
     isLite: boolean
     location: string
@@ -479,6 +480,7 @@ declare module 'botpress/sdk' {
     }
 
     export interface Engine {
+      embed: (utterances: string[]) => Promise<number[][]>
       getHealth: () => Health
       getLanguages: () => string[]
       getSpecifications: () => Specifications
@@ -490,6 +492,7 @@ declare module 'botpress/sdk' {
       detectLanguage: (text: string, modelByLang: Dic<ModelId>) => Promise<string>
       predict: (text: string, modelId: ModelId) => Promise<PredictOutput>
       spellCheck: (sentence: string, modelId: ModelId) => Promise<string>
+      initialize: (config: NLU.LanguageConfig, logger: NLU.Logger) => Promise<void>
     }
 
     export const modelIdService: {
