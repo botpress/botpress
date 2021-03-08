@@ -315,7 +315,7 @@ export default class Storage {
 
   async convert(qnaId: string) {
     const item = await this.getQnaItem(qnaId)
-    await this.delete(qnaId)
-    return this._convertQnaToNLUIntent(item)
+    await this._convertQnaToNLUIntent(item)
+    return this.delete(qnaId)
   }
 }
