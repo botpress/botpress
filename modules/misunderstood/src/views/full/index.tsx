@@ -130,7 +130,9 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
       eventCounts &&
       selectedEventIndex < eventCounts[selectedStatus]
     ) {
-      return this.setEventIndex(selectedEventIndex + 1)
+      const currentEvent = this.state.events[selectedEventIndex]
+      const events = groupEventsByUtterance(this.state.events).get(currentEvent.preview)
+      return this.setEventIndex(selectedEventIndex + events.length)
     }
   }
 
