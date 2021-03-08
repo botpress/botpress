@@ -11,8 +11,6 @@ import HandoffItem from './HandoffItem'
 import HandoffListHeader, { FilterType, SortType } from './HandoffListHeader'
 
 import style from '../../style.scss'
-
-
 interface Props {
   handoffs: object
   loading: boolean
