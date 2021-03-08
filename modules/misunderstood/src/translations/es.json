@@ -35,6 +35,7 @@
   "searchForAContext": "Buscar un contexto...",
   "searchForAQuestion": "Buscar una Pregunta...",
   "searchForAnIntent": "Buscar un Intent...",
+  "selectAll": "Seleccionar todo",
   "selectAnother": "Seleccionar otro",
   "showMisunderstoodMessage": "Mensaje sin comprender: {preview}",
   "skip": "Saltar",
