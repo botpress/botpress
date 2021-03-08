@@ -1,7 +1,7 @@
+// @ts-nocheck
 import React from 'react'
 
-import ShortcutComposer from './ShortcutComposer'
-import VoiceComposer from './VoiceComposer'
+import HITLComposer from './HITLComposer'
 import { HandoffAssignedForAgent } from './HandoffAssigned'
 
 export class LiteView extends React.Component {
@@ -10,4 +10,4 @@ export class LiteView extends React.Component {
   }
 }
 
-export { ShortcutComposer, HandoffAssignedForAgent, VoiceComposer }
+export { HITLComposer, HandoffAssignedForAgent }
