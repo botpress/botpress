@@ -58,7 +58,7 @@ class ApiClient {
   }
 
   updateStatuses(ids: number[], status: FLAGGED_MESSAGE_STATUS, resolutionData?: ResolutionData) {
-    return this.postForModule(`/events/status`, {
+    return this.postForModule('/events/status', {
       ids,
       status,
       ...resolutionData,
