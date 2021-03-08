@@ -280,6 +280,8 @@
     flex-grow: 1;
     .webchatWrapper {
       height: 100%;
+      display: flex;
+      flex-direction: column;
       > div {
         height: 100%;
       }
