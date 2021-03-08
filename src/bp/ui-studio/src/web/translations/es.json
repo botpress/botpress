@@ -194,6 +194,7 @@
           "returnToCallingNode": "Continuar al nodo de llamada",
           "returnToCallingNodeExecute": "Ejecutar el nodo de llamada otra vez.",
           "returnToNodeCalled": "Volver al nodo llamado",
+          "specificNodeCalled": "Nodo específico",
           "showCondition": "Condición",
           "specifyCondition": "Especifique condición",
           "whenMetDo": "Cuando se cumpla la condición"

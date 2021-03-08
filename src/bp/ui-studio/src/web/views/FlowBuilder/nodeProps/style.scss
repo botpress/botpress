@@ -43,6 +43,17 @@ h5 {
   }
 }
 
+.toSubflowSection {
+  label {
+    margin: 5px 0px;
+    display: block;
+    font-weight: 400;
+  }
+  input {
+    padding: 5px;
+  }
+}
+
 .node {
   position: relative;
 

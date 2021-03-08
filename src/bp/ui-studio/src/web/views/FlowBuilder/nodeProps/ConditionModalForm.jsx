@@ -221,15 +221,16 @@ class ConditionModalForm extends Component {
       })
 
     return (
-      <React.Fragment>
+      <div className={style.toSubflowSection}>
         <Select
           name="flowToSubflow"
           value={flowToSubflow}
           options={subflowOptions}
           onChange={flowToSubflow => this.setState({ flowToSubflow })}
         />
+        <label>{lang.tr('studio.flow.node.transition.specificNodeCalled')}:</label>
         <input type="text" value={flowToSubflowNode} onChange={e => updateSubflowNode(e.target.value)} />
-      </React.Fragment>
+      </div>
     )
   }
 
