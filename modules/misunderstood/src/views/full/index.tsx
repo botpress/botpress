@@ -28,6 +28,7 @@ interface State {
   eventCounts: { [status: string]: number } | null
   selectedStatus: FLAGGED_MESSAGE_STATUS
   events: DbFlaggedEvent[] | null
+  checkedEventIds: number[]
   selectedEventIndex: number | null
   selectedEvent: DbFlaggedEvent | null
   eventNotFound: boolean
@@ -46,6 +47,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     events: null,
     selectedEventIndex: null,
     selectedEvent: null,
+    checkedEventIds: [],
     eventNotFound: false,
     dateRange: undefined,
     reason: undefined
@@ -158,21 +160,20 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
   }
 
   deleteCurrentEvents = async () => {
-    const event = this.state.events[this.state.selectedEventIndex]
+    let eventIds
+    if (this.state.checkedEventIds.length > 0) {
+      eventIds = [...this.state.checkedEventIds]
+      await this.setStateP({ checkedEventIds: [] })
+    } else {
+      const event = this.state.events[this.state.selectedEventIndex]
+      const eventsByUtterance = groupEventsByUtterance(this.state.events)
+      const eventsWithIndices = eventsByUtterance.get(event.preview)
+      eventIds = eventsWithIndices.map(({ event, eventIndex }) => event.id)
+    }
 
-    const eventsByUtterance = groupEventsByUtterance(this.state.events)
-    const eventsWithIndices = eventsByUtterance.get(event.preview)
+    await this.apiClient.updateStatuses(eventIds, FLAGGED_MESSAGE_STATUS.deleted)
 
-    await this.apiClient.updateStatuses(
-      eventsWithIndices.map(({ event, eventIndex }) => event.id),
-      FLAGGED_MESSAGE_STATUS.deleted
-    )
-
-    return this.alterEventsList(
-      FLAGGED_MESSAGE_STATUS.new,
-      FLAGGED_MESSAGE_STATUS.deleted,
-      eventsWithIndices.map(({ event: { id } }) => id)
-    )
+    return this.alterEventsList(FLAGGED_MESSAGE_STATUS.new, FLAGGED_MESSAGE_STATUS.deleted, eventIds)
   }
 
   undeleteEvent = async (id: number) => {
@@ -276,8 +277,29 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     })
   }
 
+  onEventCheckedOrUnchecked = async eventIds => {
+    let checkedEventIds = [...this.state.checkedEventIds]
+    const remove = checkedEventIds.filter(id => eventIds.includes(id)).length > 0
+    if (remove) {
+      checkedEventIds = checkedEventIds.filter(id => !eventIds.includes(id))
+    } else {
+      checkedEventIds = [...checkedEventIds, ...eventIds]
+    }
+    await this.setStateP({
+      checkedEventIds
+    })
+  }
+
   render() {
-    const { eventCounts, selectedStatus, events, selectedEventIndex, selectedEvent, eventNotFound } = this.state
+    const {
+      eventCounts,
+      selectedStatus,
+      events,
+      checkedEventIds,
+      selectedEventIndex,
+      selectedEvent,
+      eventNotFound
+    } = this.state
 
     const { contentLang } = this.props
 
@@ -317,9 +339,11 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
             eventCounts={eventCounts}
             selectedStatus={selectedStatus}
             events={events}
+            checkedEventIds={checkedEventIds}
             selectedEventIndex={selectedEventIndex}
             onSelectedStatusChange={this.setEventsStatus}
             onSelectedEventChange={this.setEventIndex}
+            onEventCheckedOrUnchecked={this.onEventCheckedOrUnchecked}
             applyAllPending={this.applyAllPending}
             deleteAllStatus={this.deleteAllStatus}
           />
@@ -342,6 +366,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
               resetPendingEvent={this.resetPendingEvent}
               amendEvent={this.amendCurrentEvents}
               applyAllPending={this.applyAllPending}
+              manyEventsSelected={checkedEventIds.length >= 2}
             />
           </div>
         ) : (
