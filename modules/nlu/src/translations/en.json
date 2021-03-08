@@ -12,6 +12,7 @@
     "fuzzyTooltip": "Fuzziness will tolerate slight errors (e.g: typos) in words of 4 characters or more. Strict means no errors allowed.",
     "profanityLabel": "Is profane language",
     "profanityTooltip": "Profane language can be used in flow editor to better react on a user saying mean stuff.",
+    "profanityWarning": "This feature is experimental and is subject to breaking changes.",
     "loose": "Loose",
     "matchCaseLabel": "Match case",
     "matchCaseTooltip": "Whether your pattern is case sensitive",

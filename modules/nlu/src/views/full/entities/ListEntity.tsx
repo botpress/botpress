@@ -8,7 +8,9 @@ import {
   Radio,
   RadioGroup,
   Tooltip,
-  Switch
+  Switch,
+  Tag,
+  Intent
 } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
 import { lang, utils } from 'botpress/shared'
@@ -215,16 +217,28 @@ export const ListEntityEditor: React.FC<Props> = (props: Props) => {
 
         <FormGroup
           label={
-            <Tooltip
-              content={lang.tr('module.nlu.entities.profanityTooltip')}
-              position={Position.LEFT}
-              popoverClassName={style.configPopover}
-            >
-              <span>
-                {lang.tr('module.nlu.entities.profanityLabel')}&nbsp;
-                <Icon icon="help" color={Colors.GRAY3} />
-              </span>
-            </Tooltip>
+            <span className={style.profanityConfig}>
+              <Tooltip
+                content={lang.tr('module.nlu.entities.profanityTooltip')}
+                position={Position.LEFT}
+                popoverClassName={style.configPopover}
+              >
+                <span>
+                  {lang.tr('module.nlu.entities.profanityLabel')}&nbsp;
+                  <Icon icon="help" color={Colors.GRAY3} />
+                </span>
+              </Tooltip>
+
+              <Tooltip
+                content={lang.tr('module.nlu.entities.profanityWarning')}
+                position={Position.LEFT}
+                popoverClassName={style.configPopover}
+              >
+                <Tag intent={Intent.PRIMARY} style={{ margin: '5px' }}>
+                  Beta
+                </Tag>
+              </Tooltip>
+            </span>
           }
         />
         <Switch
