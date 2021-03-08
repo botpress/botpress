@@ -2,9 +2,23 @@ import { MenuItem, Position } from '@blueprintjs/core'
 import { ItemRenderer, MultiSelect } from '@blueprintjs/select'
 import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
-
 import { NLUApi } from '../../../../api'
 import style from '../style.scss'
+
+const SYSTEM_ENTITIES = [
+  'amountOfMoney',
+  'distance',
+  'duration',
+  'email',
+  'number',
+  'ordinal',
+  'phoneNumber',
+  'quantity',
+  'temperature',
+  'time',
+  'url',
+  'volume'
+]
 
 interface EntityOption {
   type: string
@@ -43,7 +57,9 @@ export const EntitySelector: FC<Props> = props => {
 
   const entityItemRenderer: ItemRenderer<EntityOption> = (entity: EntityOption, { handleClick, modifiers }) => (
     <MenuItem
-      text={`${entity.type}.${entity.name}`}
+      text={`${entity.type}.${
+        SYSTEM_ENTITIES.includes(entity.name) ? lang.tr('module.nlu.slots.names.' + entity.name) : entity.name
+      }`}
       key={`${entity.name}${entity.type}`}
       onClick={handleClick}
       active={modifiers.active}
