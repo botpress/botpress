@@ -202,6 +202,7 @@
           "returnToCallingNode": "Continuer l'exécution du noeud appelant",
           "returnToCallingNodeExecute": "Exécuter le noeud appelant à nouveau",
           "returnToNodeCalled": "Retour au noeud appelé",
+          "specificNodeCalled": "Noeud spécifique",
           "showCondition": "Condition",
           "specifyCondition": "Spécifiez une condition",
           "whenMetDo": "Lorsque la condition est remplie, faire"
