@@ -224,6 +224,24 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     return this.alterEventsList(FLAGGED_MESSAGE_STATUS.new, FLAGGED_MESSAGE_STATUS.pending)
   }
 
+  amendCurrentEvents = async (resolutionData: ResolutionData) => {
+    const event = this.state.events[this.state.selectedEventIndex]
+
+    const eventsByUtterance = groupEventsByUtterance(this.state.events)
+    const eventsWithIndices = eventsByUtterance.get(event.preview)
+
+    await this.apiClient.updateStatuses(
+      eventsWithIndices.map(({ event, eventIndex }) => event.id),
+      FLAGGED_MESSAGE_STATUS.pending,
+      resolutionData
+    )
+    return this.alterEventsList2(
+      FLAGGED_MESSAGE_STATUS.new,
+      FLAGGED_MESSAGE_STATUS.pending,
+      eventsWithIndices.map(({ event }) => event)
+    )
+  }
+
   applyAllPending = async () => {
     await this.apiClient.applyAllPending()
     await this.updateEventsCounts()
@@ -352,7 +370,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
               deleteEvent={this.deleteCurrentEvents}
               undeleteEvent={this.undeleteEvent}
               resetPendingEvent={this.resetPendingEvent}
-              amendEvent={this.amendCurrentEvent}
+              amendEvent={this.amendCurrentEvents}
               applyAllPending={this.applyAllPending}
             />
           </div>
