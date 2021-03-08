@@ -246,7 +246,8 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
       selectedEventIndex: 0,
       selectedEvent: firstEvent,
       eventNotFound: !firstEvent,
-      eventCounts
+      eventCounts,
+      checkedEventIds: []
     })
   }
 
