@@ -232,7 +232,7 @@ const doCreateNewFlow = name => {
       name: 'entry',
       onEnter: [],
       onReceive: null,
-      next: [],
+      next: [{ condition: 'true', node: '' }],
       type: 'standard',
       x: 100,
       y: 100
