@@ -3,6 +3,7 @@ import LicensingService from 'common/licensing-service'
 import { KeyValueStore } from 'core/kvs'
 import { DialogContainerModule } from 'core/services/dialog/dialog.inversify'
 import { CEJobService, JobService } from 'core/services/job-service'
+import { SpeechService } from 'core/speech'
 import { ContainerModule, interfaces } from 'inversify'
 
 import { TYPES } from '../types'
@@ -141,6 +142,10 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<StatsService>(TYPES.StatsService)
     .to(StatsService)
+    .inSingletonScope()
+
+  bind<SpeechService>(TYPES.SpeechService)
+    .to(SpeechService)
     .inSingletonScope()
 })
 
