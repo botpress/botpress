@@ -41,7 +41,7 @@ You can do this by opening the file `data/global/botpress.config.json` in a text
 
 You can also enable the `channel-messenger` module directly from the admin user interface. Go to the module management tab to achieve this.
 
-![Module Management for Messenger](messenger-admin-config.png)
+![Module Management for Messenger](assets/messenger-admin-config.png)
 
 ### Get App Secret & Verify Token
 
