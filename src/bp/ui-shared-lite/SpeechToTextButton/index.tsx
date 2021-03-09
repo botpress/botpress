@@ -1,17 +1,19 @@
-import { Button } from '@blueprintjs/core'
+// @ts-nocheck
+import cx from 'classnames'
 import { get } from 'lodash'
 import React, { FC, useState, useEffect } from 'react'
-import { FaMicrophone } from 'react-icons/fa'
+import Microphone from '../Icons/Microphone'
 
 interface Props {
   onText: (text: string) => void
-  onStart: Function
+  onStart?: Function
   onDone?: Function
   onNotAvailable?: Function
   onReady?: Function
+  className?: string
 }
 export const RecordSpeechToText: FC<Props> = props => {
-  let recognition: SpeechRecognition
+  let recognition
   const [isListening, setIsListening] = useState(false)
   const [text, setText] = useState<string>('')
   const [isAvailable, setIsAvailable] = useState(true)
@@ -36,7 +38,10 @@ export const RecordSpeechToText: FC<Props> = props => {
   }
 
   useEffect(() => {
-    return () => recognition.removeEventListener('result', onResult)
+    return () => {
+      recognition.removeEventListener('result', onResult)
+      recognition.removeEventListener('start', props.onStart)
+    }
   }, [])
 
   const startListening = () => {
@@ -44,7 +49,6 @@ export const RecordSpeechToText: FC<Props> = props => {
     recognition.start()
   }
 
-  // @ts-ignore
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
   if (!SpeechRecognition) {
     setIsAvailable(false)
@@ -57,5 +61,9 @@ export const RecordSpeechToText: FC<Props> = props => {
   recognition.addEventListener('result', onResult)
   recognition.addEventListener('start', () => props.onStart())
 
-  return <Button icon={<FaMicrophone />} disabled={isListening} onClick={startListening} />
+  return (
+    <button className={cx('bpw-send-button', props.className)} disabled={isListening} onClick={startListening}>
+      <Microphone fill={isListening ? '#f1f1f1' : 'black'} />
+    </button>
+  )
 }

@@ -1,9 +1,9 @@
 import { Button } from '@blueprintjs/core'
 import ReactTextareaAutocomplete from '@webscopeio/react-textarea-autocomplete'
 import cx from 'classnames'
-import isEmpty from 'lodash/isEmpty'
 import React, { FC, useEffect, useState } from 'react'
 
+import { RecordSpeechToText } from '../../../../../src/bp/ui-shared-lite/SpeechToTextButton'
 import { IAutoComplete, IShortcut } from '../../config'
 import { makeClient } from '../client'
 import lang from '../lang'
@@ -33,9 +33,10 @@ const ShortcutItem: FC<ShortcutItemProps> = props => (
   </div>
 )
 
-const ShortcutComposer: FC<ComposerProps> = props => {
+const HITLComposer: FC<ComposerProps> = props => {
   const [autoComplete, setAutoComplete] = useState<IAutoComplete>()
   const [isLoading, setIsLoading] = useState(true)
+  const [isRecording, setIsRecording] = useState(false)
   const [text, setText] = useState<string>('')
 
   const hitlClient = makeClient(props.store.bp)
@@ -78,15 +79,28 @@ const ShortcutComposer: FC<ComposerProps> = props => {
     }
   }
 
-  const canSendText = (): boolean => text.trim().length > 0
+  const onVoiceStart = () => {
+    setIsRecording(true)
+  }
+
+  const onVoiceEnd = () => {
+    setIsRecording(false)
+  }
+
+  const onVoiceText = value => {
+    if (text !== value) {
+      setText(value)
+    }
+  }
+
+  const canSendText = (): boolean => !isRecording && text.trim().length > 0
 
   return (
-    !isLoading &&
-    !isEmpty(autoComplete) && (
+    !isLoading && (
       <div id="shortcutContainer" className={style.composerContainer}>
         <ReactTextareaAutocomplete
           containerClassName={cx('bpw-composer', style.composer)}
-          className={'bpw-composer-inner'}
+          className={cx('bpw-composer-inner', { [style.active]: isRecording })}
           dropdownClassName={style.shortcutDropdown}
           itemClassName={style.shortcutListItem}
           loadingComponent={() => null}
@@ -104,6 +118,12 @@ const ShortcutComposer: FC<ComposerProps> = props => {
             }
           }}
         />
+        <RecordSpeechToText
+          onText={onVoiceText}
+          onStart={onVoiceStart}
+          onDone={onVoiceEnd}
+          className={style.voiceButton}
+        />
         <Button className={style.sendButton} disabled={!canSendText()} onClick={sendMessage}>
           {lang.tr('module.hitlnext.conversation.send')}
         </Button>
@@ -112,4 +132,4 @@ const ShortcutComposer: FC<ComposerProps> = props => {
   )
 }
 
-export default ShortcutComposer
+export default HITLComposer
