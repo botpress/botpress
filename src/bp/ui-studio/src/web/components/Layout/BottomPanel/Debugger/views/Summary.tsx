@@ -28,6 +28,8 @@ export default class Summary extends React.Component<Props> {
     return { hasError: true }
   }
 
+  addAsTest() {}
+
   render() {
     if (this.state.hasError) {
       return <ContentSection title={lang.tr('bottomPanel.debugger.summary.cannotDisplay')} />
@@ -39,6 +41,7 @@ export default class Summary extends React.Component<Props> {
 
     return (
       <div className={style.sectionContainer}>
+        <h1>Add as test case</h1>
         <Dialog
           suggestions={this.props.event.suggestions}
           decision={this.props.event.decision}

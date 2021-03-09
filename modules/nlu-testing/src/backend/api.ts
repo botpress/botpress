@@ -33,30 +33,45 @@ const TestsSchema = Joi.array().items(
   })
 )
 
-export default async (bp: typeof sdk) => {
+export default async (bp: typeof sdk) =>
+{
   const router = bp.http.createRouterForBot('nlu-testing')
 
-  const getAllTests = async (botId: string) => {
-    try {
+  const addToTests = async (botId: string, test) =>
+  {
+    const tests: any[] = await bp.ghost.forBot(botId).readFileAsObject('', 'nlu-tests.json')
+    tests.push(test)
+    bp.ghost.forBot(botId).upsertFile('.', 'nlu-tests.json', JSON.stringify(test))
+  }
+
+  const getAllTests = async (botId: string) =>
+  {
+    try
+    {
       const content = await bp.ghost.forBot(botId).readFileAsObject<Test[]>('./', 'nlu-tests.json')
       const { error } = Joi.validate(content, TestsSchema)
-      if (error) {
+      if (error)
+      {
         bp.logger.attachError(error).error('Error parsing tests: invalid tests')
         return []
       }
 
       return content
-    } catch (err) {
-      if (err.code === 'ENOENT') {
+    } catch (err)
+    {
+      if (err.code === 'ENOENT')
+      {
         return []
       }
       throw err
     }
   }
 
-  const saveAllTests = async (botId: string, tests: Test[]) => {
+  const saveAllTests = async (botId: string, tests: Test[]) =>
+  {
     const { error } = Joi.validate(tests, TestsSchema)
-    if (error) {
+    if (error)
+    {
       bp.logger.attachError(error).error('Error saving tests: invalid schema')
       throw error
     }
@@ -64,57 +79,71 @@ export default async (bp: typeof sdk) => {
     await bp.ghost.forBot(botId).upsertFile('./', 'nlu-tests.json', JSON.stringify(tests, undefined, 2))
   }
 
-  router.get('/tests', async (req, res) => {
+  router.get('/tests', async (req, res) =>
+  {
     res.send(await getAllTests(req.params.botId))
   })
 
-  router.post('/tests/:testId', async (req, res) => {
+  router.post('/tests/:testId', async (req, res) =>
+  {
     let tests = await getAllTests(req.params.botId)
     tests = tests.filter(x => x.id !== req.params.testId)
 
-    try {
+    try
+    {
       await saveAllTests(req.params.botId, [...tests, req.body])
       res.sendStatus(204)
-    } catch (err) {
+    } catch (err)
+    {
       res.sendStatus(500)
     }
   })
 
-  router.delete('/tests/:testId', async (req, res) => {
+  router.delete('/tests/:testId', async (req, res) =>
+  {
     let tests = await getAllTests(req.params.botId)
     tests = tests.filter(x => x.id !== req.params.testId)
 
-    try {
+    try
+    {
       await saveAllTests(req.params.botId, tests)
       res.sendStatus(200)
-    } catch (err) {
+    } catch (err)
+    {
       res.sendStatus(500)
     }
   })
 
-  router.post('/tests/:testId/run', async (req, res) => {
+  router.post('/tests/:testId/run', async (req, res) =>
+  {
     const tests = await getAllTests(req.params.botId)
     const test = tests.find(x => x.id === req.params.testId)
 
-    if (!test) {
+    if (!test)
+    {
       return res.status(404).send({ result: 'failure', id: req.params.testId, reason: 'test not found' })
     }
 
     const axiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
 
-    try {
+    try
+    {
       const result = await runTest(test, axiosConfig)
 
       res.send(result)
-    } catch (err) {
+    } catch (err)
+    {
       bp.logger.warn('could not get response from converse api', err)
       res.send(400)
     }
   })
 
-  router.post('/import', multer().single('file'), (req, res) => {
-    parse(req.file.buffer, { columns: true }, async (err, data: CSVTest[]) => {
-      if (err) {
+  router.post('/import', multer().single('file'), (req, res) =>
+  {
+    parse(req.file.buffer, { columns: true }, async (err, data: CSVTest[]) =>
+    {
+      if (err)
+      {
         return res.status(500).send({ message: 'Cannot parse csv' })
       }
 
@@ -129,40 +158,48 @@ export default async (bp: typeof sdk) => {
           }))
         )
         .value()
-      try {
+      try
+      {
         await saveAllTests(req.params.botId, tests)
         res.send({ nTests: data.length })
-      } catch (err) {
+      } catch (err)
+      {
         res.status(400).send('Tests are invalid')
       }
     })
   })
 
-  router.post('/export', async (req, res) => {
+  router.post('/export', async (req, res) =>
+  {
     // TODO add a little validation
     const botId = req.params.botId
     const targetPath = await isRunningFromSources(bp, botId)
-    if (!targetPath) {
+    if (!targetPath)
+    {
       return res.status(400).send('Not in a git repository`')
     }
 
     const botConfig = await bp.bots.getBotById(botId)
     const tests = await getAllTests(req.params.botId)
-    try {
+    try
+    {
       const csv = results2CSV(tests, req.body.results, botConfig.nluSeed)
       fs.writeFileSync(targetPath, csv)
       res.sendStatus(200)
-    } catch (err) {
+    } catch (err)
+    {
       console.error(err)
       res.sendStatus(500)
     }
   })
 
-  router.post('/runAll', async (req, res) => {
+  router.post('/runAll', async (req, res) =>
+  {
     const tests = await getAllTests(req.params.botId)
     const axiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
 
-    const resultsBatch = await P.mapSeries(_.chunk(tests, 20), testChunk => {
+    const resultsBatch = await P.mapSeries(_.chunk(tests, 20), testChunk =>
+    {
       return P.map(testChunk, async test => runTest(test, axiosConfig))
     })
 
@@ -173,7 +210,8 @@ export default async (bp: typeof sdk) => {
   })
 }
 
-function results2CSV(tests: Test[], results: _.Dictionary<TestResult>, seed?: number) {
+function results2CSV(tests: Test[], results: _.Dictionary<TestResult>, seed?: number)
+{
   const summary = computeSummary(tests, results)
   const records = [
     [
@@ -195,11 +233,14 @@ function results2CSV(tests: Test[], results: _.Dictionary<TestResult>, seed?: nu
   return stringify(records)
 }
 
-async function isRunningFromSources(bp: typeof sdk, botId: string): Promise<string | undefined> {
-  try {
+async function isRunningFromSources(bp: typeof sdk, botId: string): Promise<string | undefined>
+{
+  try
+  {
     const botConfig = (await bp.bots.getBotById(botId)) as BPDS_BotConfig
     const bpdsId = botConfig.bpdsId
-    if (!bpdsId) {
+    if (!bpdsId)
+    {
       return
     }
 
@@ -207,13 +248,15 @@ async function isRunningFromSources(bp: typeof sdk, botId: string): Promise<stri
     const botTemplatesPath = path.resolve(sourceDirectory, './modules/nlu-testing/src/bot-templates')
     const childDirs = fs.readdirSync(botTemplatesPath)
 
-    const botTemplateUnderTesting = childDirs.find(template => {
+    const botTemplateUnderTesting = childDirs.find(template =>
+    {
       const configPath = path.resolve(botTemplatesPath, template, 'bot.config.json')
       const configContent = fs.readFileSync(configPath, { encoding: 'utf8' })
       const config = JSON.parse(configContent) as BPDS_BotConfig
       return config.bpdsId === bpdsId
     })
-    if (!botTemplateUnderTesting) {
+    if (!botTemplateUnderTesting)
+    {
       return
     }
 
@@ -226,7 +269,8 @@ async function isRunningFromSources(bp: typeof sdk, botId: string): Promise<stri
   }
 }
 
-async function runTest(test: Test, axiosConfig: AxiosRequestConfig): Promise<TestResult> {
+async function runTest(test: Test, axiosConfig: AxiosRequestConfig): Promise<TestResult>
+{
   const {
     data: { nlu }
   } = await Axios.post(
@@ -246,12 +290,15 @@ async function runTest(test: Test, axiosConfig: AxiosRequestConfig): Promise<Tes
   }
 }
 
-function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected], ctx: string): TestResultDetails {
-  if (key === 'intent') {
+function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected], ctx: string): TestResultDetails
+{
+  if (key === 'intent')
+  {
     expected = expected.endsWith(NONE) ? NONE : expected
     const received = nlu.intent.name
     let success = expected === received
-    if (expected.endsWith('disambiguation')) {
+    if (expected.endsWith('disambiguation'))
+    {
       success = !!nlu.ambiguous
     }
 
@@ -260,13 +307,14 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
       reason: success
         ? ''
         : `Intent doesn't match. \nexpected: ${expected} \nreceived: ${received} \nconfidence: ${_.round(
-            nlu.intent.confidence,
-            2
-          )}`,
+          nlu.intent.confidence,
+          2
+        )}`,
       received,
       expected
     }
-  } else if (key === 'context') {
+  } else if (key === 'context')
+  {
     // eslint-disable-next-line
     let [received, ctxPred] = _.chain(nlu.predictions)
       .toPairs()
@@ -280,22 +328,26 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
       reason: success
         ? ''
         : `Context doesn't match. \nexpected: ${expected} \nreceived: ${received} \nconfidence ${_.round(
-            ctxPred.confidence,
-            2
-          )}`,
+          ctxPred.confidence,
+          2
+        )}`,
       received,
       expected
     }
-  } else if (key.includes('slot')) {
+  } else if (key.includes('slot'))
+  {
     return checkSlotMatch(nlu, key.split(':')[1], expected)
   }
 }
 
-function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected], ctx: string): TestResultDetails {
-  if (key.includes('slot')) {
+function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected], ctx: string): TestResultDetails
+{
+  if (key.includes('slot'))
+  {
     return checkSlotMatch(nlu, key.split(':')[1], expected)
   }
-  if (key === 'context') {
+  if (key === 'context')
+  {
     const [received, ctxPredObj] = _.chain(nlu.predictions)
       .toPairs()
       .maxBy('1.confidence')
@@ -304,7 +356,8 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
     let conf = ctxPredObj.confidence
     let success = expected === received
 
-    if (expected === NONE) {
+    if (expected === NONE)
+    {
       const inConf = ctxPredObj.confidence * ctxPredObj.intents.filter(i => i.label !== NONE)[0].confidence
       const outConf = ctxPredObj.oos
       success = outConf > inConf
@@ -321,13 +374,17 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
     }
   }
 
-  if (key === 'intent') {
+  if (key === 'intent')
+  {
     const highestRankingIntent = _.chain(nlu.predictions)
       .values()
-      .flatMap(ctxPreds => {
-        return ctxPreds.intents.map(intentPred => {
+      .flatMap(ctxPreds =>
+      {
+        return ctxPreds.intents.map(intentPred =>
+        {
           let confidence = intentPred.confidence * (1 - ctxPreds.oos) * ctxPreds.confidence
-          if (intentPred.label === NONE) {
+          if (intentPred.label === NONE)
+          {
             confidence = Math.min(intentPred.confidence * ctxPreds.confidence * ctxPreds.oos, 1)
           }
           return {
@@ -352,7 +409,8 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
   }
 }
 
-function checkSlotMatch(nlu, slotName, expected) {
+function checkSlotMatch(nlu, slotName, expected)
+{
   const received = _.get(nlu, `slots.${slotName}.source`, 'undefined')
   const success = received === expected
 
