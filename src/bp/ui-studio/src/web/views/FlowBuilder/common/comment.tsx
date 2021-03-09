@@ -1,8 +1,9 @@
 import { ContentElement } from 'botpress/sdk'
 import classnames from 'classnames'
 import _ from 'lodash'
-import React, { Fragment } from 'react'
+import React, { Fragment, useEffect } from 'react'
 import { connect } from 'react-redux'
+import { fetchContentItem } from '~/actions'
 
 import withLanguage from '../../../components/Util/withLanguage'
 
@@ -15,8 +16,12 @@ interface CommentItemProps {
   className: string
 }
 
-const CommentItem: React.FunctionComponent<CommentItemProps> = props => {
+const CommentItem: React.FunctionComponent<CommentItemProps & typeof mapDispatchToProps> = props => {
   const { text, items, contentLang } = props
+
+  useEffect(() => {
+    props.fetchContentItem(text, { force: true, batched: true })
+  }, [])
 
   if (typeof text !== 'string') {
     // only display content elements of type text
@@ -26,9 +31,6 @@ const CommentItem: React.FunctionComponent<CommentItemProps> = props => {
   const item = items[text]
 
   const preview = item?.previews?.[contentLang] as string
-  const className = classnames(style.name, {
-    [style.missingTranslation]: preview?.startsWith('(missing translation) ')
-  })
 
   return (
     <div className={classnames(props.className, style['action-item'], style.msg)}>
@@ -44,5 +46,6 @@ const CommentItem: React.FunctionComponent<CommentItemProps> = props => {
 }
 
 const mapStateToProps = state => ({ items: state.content.itemsById })
+const mapDispatchToProps = { fetchContentItem }
 
-export default connect(mapStateToProps)(withLanguage(CommentItem))
+export default connect(mapStateToProps, mapDispatchToProps)(withLanguage(CommentItem))
