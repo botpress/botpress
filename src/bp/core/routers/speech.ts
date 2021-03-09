@@ -10,8 +10,6 @@ export class SpeechRouter extends CustomRouter {
   }
 
   private setupRoutes(): void {
-    console.log('speech api!')
-
     this.router.get(
       '/speech',
       this.asyncMiddleware(async (req, res) => {
