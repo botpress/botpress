@@ -213,29 +213,37 @@ const QnAList: FC<Props> = props => {
 
   const hasFilteredResults = questionSearch.length || filterContexts.length
 
+  const toolBarRightContent = (
+    <div className={style.searchWrapper}>
+      <input
+        className={style.input}
+        type="text"
+        value={questionSearch}
+        onChange={e => setQuestionSearch(e.currentTarget.value)}
+        placeholder={lang.tr('module.qna.search')}
+      />
+
+      {!isLite && (
+        <ContextSelector
+          className={style.contextInput}
+          contexts={filterContexts}
+          saveContexts={contexts => setFilterContexts(contexts)}
+          bp={bp}
+          isSearch
+        />
+      )}
+    </div>
+  )
+
   return (
     <MainLayout.Wrapper childRef={ref => (wrapperRef.current = ref)}>
-      <MainLayout.Toolbar className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
-
-      <div className={style.searchWrapper}>
-        <input
-          className={style.input}
-          type="text"
-          value={questionSearch}
-          onChange={e => setQuestionSearch(e.currentTarget.value)}
-          placeholder={lang.tr('module.qna.search')}
-        />
-
-        {!isLite && (
-          <ContextSelector
-            className={style.contextInput}
-            contexts={filterContexts}
-            saveContexts={contexts => setFilterContexts(contexts)}
-            bp={bp}
-            isSearch
-          />
-        )}
-      </div>
+      <MainLayout.Toolbar
+        className={style.header}
+        tabChange={setCurrentTab}
+        tabs={tabs}
+        buttons={buttons}
+        rightContent={toolBarRightContent}
+      />
       <div className={cx(style.content, { [style.empty]: !items.length && !highlighted })}>
         {highlighted && (
           <div className={style.highlightedQna}>
