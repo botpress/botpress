@@ -81,7 +81,8 @@ h5 {
   padding-left: 5px;
 
   .actions {
-    display: none;
+    padding: 10px 0;
+    display: block;
 
     a {
       cursor: pointer;
@@ -92,11 +93,6 @@ h5 {
   &:hover {
     background: #fefefe;
     border-left: 2px solid #999;
-
-    .actions {
-      padding: 10px 0;
-      display: block;
-    }
   }
 }
 

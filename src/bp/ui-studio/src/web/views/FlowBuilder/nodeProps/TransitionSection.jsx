@@ -1,8 +1,3 @@
-import {
-  Popover,
-  PopoverInteractionKind,
-  PopoverPosition
-} from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import classnames from 'classnames'
 import _ from 'lodash'
@@ -91,20 +86,20 @@ export default class TransitionSection extends Component {
       <Fragment>
         <div>
           {items.map((item, i) => (
-            <Popover interactionKind={PopoverInteractionKind.HOVER} position={PopoverPosition.LEFT}>
+            <Fragment>
               <ConditionItem className={style.item} condition={item} position={i} key={`${i}.${item.node || '-'}`}>
                 {renderType(item)}
               </ConditionItem>
               {!readOnly && (
-                  <div className={style.actions}>
-                    <a onClick={() => this.onEdit(i)}>{lang.tr('edit')}</a>
-                    <a onClick={() => this.onRemove(i)}>{lang.tr('remove')}</a>
-                    <a onClick={() => this.onCopyAction(i)}>{lang.tr('copy')}</a>
-                    {renderMoveUp(i)}
-                    {renderMoveDown(i)}
-                  </div>
+                <div className={style.actions}>
+                  <a onClick={() => this.onEdit(i)}>{lang.tr('edit')}</a>
+                  <a onClick={() => this.onRemove(i)}>{lang.tr('remove')}</a>
+                  <a onClick={() => this.onCopyAction(i)}>{lang.tr('copy')}</a>
+                  {renderMoveUp(i)}
+                  {renderMoveDown(i)}
+                </div>
               )}
-            </Popover>
+            </Fragment>
           ))}
           {!readOnly && (
             <div className={style.actions}>
