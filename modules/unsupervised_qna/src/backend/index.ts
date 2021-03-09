@@ -16,10 +16,9 @@ const onServerStarted = async (bp: typeof sdk) => {
   )
 
   const moduleEnabled = await buildNativeExtension(bp.logger)
-
-  const mw = await makeMw(storagePerBot)
-
   if (moduleEnabled) {
+    const mw = await makeMw(storagePerBot)
+
     bp.events.registerMiddleware(mw)
   }
 }
