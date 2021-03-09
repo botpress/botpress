@@ -103,7 +103,6 @@ class Diagram extends Component<Props> {
   private diagramEngine: ExtendedDiagramEngine
   private diagramWidget: DiagramWidget
   private diagramContainer: HTMLDivElement
-  private searchRef: React.RefObject<HTMLInputElement>
   public manager: DiagramManager
   /** Represents the source port clicked when the user is connecting a node */
   private dragPortSource: any
@@ -226,8 +225,6 @@ class Diagram extends Component<Props> {
         this.props.switchFlow(firstFlow)
       }
     }
-
-    this.searchRef = React.createRef()
   }
 
   componentDidMount() {
@@ -536,7 +533,7 @@ class Diagram extends Component<Props> {
       this.handleContextMenu(event as any)
     }
 
-    if(this.canTargetOpenInspector(target)) {
+    if (this.canTargetOpenInspector(target)) {
       this.props.openFlowNodeProps()
     }
 
@@ -678,19 +675,10 @@ class Diagram extends Component<Props> {
 
     return (
       <MainLayout.Wrapper>
-        <WorkflowToolbar />
-
-        <div className={style.searchWrapper}>
-          <SearchBar
-            id="input-highlight-name"
-            className={style.noPadding}
-            ref={this.searchRef}
-            onBlur={this.props.hideSearch}
-            value={this.props.highlightFilter}
-            placeholder={lang.tr('studio.flow.filterNodes')}
-            onChange={value => this.props.handleFilterChanged({ target: { value } })}
-          />
-        </div>
+        <WorkflowToolbar
+          highlightFilter={this.props.highlightFilter}
+          handleFilterChanged={value => this.props.handleFilterChanged({ target: { value } })}
+        />
         <div
           id="diagramContainer"
           ref={ref => (this.diagramContainer = ref)}
