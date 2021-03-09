@@ -13,8 +13,7 @@ const auth = async (login, password) => {
     temp.authData = await apiAuthService.auth(login, password)
     user.login = login;
     temp.successAuth = true;
-  } catch (error) {
-
+  } catch (e) {
     const sessionId = bp.dialog.createId(event);
     await bp.dialog.jumpTo(sessionId, event, 'error.flow.json', e.httpCode);
 

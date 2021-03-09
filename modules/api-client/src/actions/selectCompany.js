@@ -9,7 +9,7 @@ const { apiUserService } = require('@rdcdev/dbank-client')
 const selectCompany = async () => {
   try {
     const ecbUser = await apiUserService.user(user.isAuth ? {
-      ChannelID: 0,
+      ChannelID: event.channel || 0,
       SessionKey: user.req_user_data.SessionKey,
       secretKey: user.req_user_data.secretKey,
       SessionID: user.req_user_data.SessionID,
