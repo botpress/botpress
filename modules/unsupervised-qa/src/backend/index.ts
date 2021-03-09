@@ -2,11 +2,11 @@ import * as sdk from 'botpress/sdk'
 
 import en from '../translations/en.json'
 import fr from '../translations/fr.json'
+import { ModuleStatus } from '../typings'
 import { makeAPI } from './api'
 import buildNativeExtension from './build-native-extension'
 import makeMw from './middlewares'
 import { Storage } from './storage'
-import { ModuleStatus } from '../typings'
 
 const storagePerBot: { [botId: string]: Storage } = {}
 const moduleStatus: ModuleStatus = {
@@ -22,6 +22,8 @@ const onServerStarted = async (bp: typeof sdk) => {
   const moduleEnabled = await buildNativeExtension(bp.logger)
   moduleStatus.enabled = moduleEnabled
   if (moduleEnabled) {
+    // to prevent from blocking server
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     makeMw(storagePerBot, moduleStatus).then(mw => bp.events.registerMiddleware(mw))
   }
 }
