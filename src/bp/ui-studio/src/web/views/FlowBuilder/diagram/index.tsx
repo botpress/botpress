@@ -357,6 +357,9 @@ class Diagram extends Component<Props> {
     if (target?.model?.['nodeType'] === 'trigger') {
       this.editTriggers(target.model)
     }
+
+    this.props.switchFlowNode(null)
+    this.props.closeFlowNodeProps()
   }
 
   handleContextMenuNoElement = (event: React.MouseEvent) => {
@@ -532,12 +535,11 @@ class Diagram extends Component<Props> {
       this.handleContextMenu(event as any)
     }
 
-    this.canTargetOpenInspector(target) ? this.props.openFlowNodeProps() : this.props.closeFlowNodeProps()
+    if(this.canTargetOpenInspector(target)) {
+      this.props.openFlowNodeProps()
+    }
 
-    if (!selectedNode) {
-      this.props.closeFlowNodeProps()
-      this.props.switchFlowNode(null)
-    } else if (selectedNode && (!currentNode || selectedNode.id !== currentNode.id)) {
+    if (selectedNode && (!currentNode || selectedNode.id !== currentNode.id)) {
       // Different node selected
       this.props.switchFlowNode(selectedNode.id)
     }
