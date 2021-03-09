@@ -18,8 +18,11 @@ X-BP-Workspace: default
 ### 
 @botId = YOUR_BOT_ID
 
-### Get text from speech
-GET {{baseUrl}}/api/v1/speech/speech?file=test-mic&lang=fr
+### Upload wav and get text
+POST {{baseUrl}}/api/v1/speech/upload?lang=fr
+Content-Type: binary
+
+< ./TEST_FILE.wav
 
 ### Send a request using Converse
 POST {{baseUrl}}/api/v1/bots/{{botId}}/converse/benchmarkUser

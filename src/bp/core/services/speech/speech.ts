@@ -1,22 +1,34 @@
+import { Logger } from 'botpress/sdk'
+import { TYPES } from 'core/types'
 import fs from 'fs'
-import { injectable } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
+import path from 'path'
 import { Readable } from 'stream'
 import vosk from 'vosk'
 import wav from 'wav'
 import { VoskModel, VoskRecognizer } from './vosk'
 
+export type PipeCallback = (stream: NodeJS.WritableStream) => void
+export type SendCallback = (data: any) => void
+
 @injectable()
 export class SpeechService {
   private langs: { [lang: string]: LangSpeechService } = {}
 
-  public parse(file: string, lang: string): Promise<string> {
-    return this.getLang(lang).parse(file)
+  constructor(
+    @inject(TYPES.Logger)
+    @tagged('name', 'Speech')
+    private logger: Logger
+  ) {}
+
+  public parse(pipe: PipeCallback, send: SendCallback, lang: string): void {
+    this.getLang(lang).parse(pipe, send)
   }
 
-  getLang(lang: string) {
+  private getLang(lang: string) {
     let scope = this.langs[lang]
     if (!scope) {
-      scope = new LangSpeechService(lang, lang)
+      scope = new LangSpeechService(this.logger, lang, './speech')
       this.langs[lang] = scope
     }
     return scope
@@ -25,46 +37,53 @@ export class SpeechService {
 
 class LangSpeechService {
   private model: VoskModel
-  private recognizers: VoskRecognizer[] = []
+  private tempStorageFileId: number = 0
 
-  constructor(private lang: string, private dir: string) {
+  constructor(private logger: Logger, private lang: string, private dir: string) {
     vosk.setLogLevel(-1)
-    this.model = new vosk.Model(`./speech/${dir}`) as VoskModel
+    const modelFile = path.join(this.dir, this.lang)
+
+    if (fs.statSync(modelFile)) {
+      this.logger.info(`Loading ${lang} speech model...`)
+      this.model = new vosk.Model(modelFile)
+    } else {
+      throw `Speech model for ${lang} not found!`
+    }
   }
 
-  public parse(file: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      let recognizer = this.recognizers.pop()!
-      if (!recognizer) {
-        recognizer = new vosk.Recognizer(this.model, 16000.0) as VoskRecognizer
+  public parse(pipe: PipeCallback, send: SendCallback): void {
+    const file = path.join(this.dir, `${this.lang}-${this.tempStorageFileId++}`)
+    const writeStream = fs.createWriteStream(file)
+
+    writeStream.on('finish', () => {
+      this.parseFromFile(file, send)
+    })
+
+    pipe(writeStream)
+  }
+
+  private parseFromFile(file: string, send: SendCallback) {
+    const recognizer = new vosk.Recognizer(this.model, 16000.0) as VoskRecognizer
+
+    const fileStream = fs.createReadStream(file, { highWaterMark: 4096 })
+    const wavReader = new wav.Reader()
+
+    wavReader.on('format', async () => {
+      for await (const data of new Readable().wrap(wavReader)) {
+        recognizer.acceptWaveform(data)
       }
 
-      const fileStream = fs.createReadStream(`./speech/${file}.wav`, { highWaterMark: 4096 })
-      const wavReader = new wav.Reader()
+      const result = JSON.parse(recognizer.finalResult(recognizer))
+      send(result)
 
-      wavReader.on('format', async ({ audioFormat, sampleRate, channels }) => {
-        if (audioFormat !== 1 || channels !== 1) {
-          this.recognizers.push(recognizer)
-          reject('Audio file must be WAV format mono PCM.')
-          return
-        }
-
-        for await (const data of new Readable().wrap(wavReader)) {
-          recognizer.acceptWaveform(data)
-        }
-
-        this.recognizers.push(recognizer)
-
-        const result = JSON.parse(recognizer.finalResult(recognizer))
-        resolve(result.text)
-      })
-
-      fileStream.pipe(wavReader)
+      recognizer.free()
+      fs.unlink(file, () => {})
     })
+
+    fileStream.pipe(wavReader)
   }
 
   public free() {
     this.model.free()
-    this.recognizers.forEach(r => r.free())
   }
 }

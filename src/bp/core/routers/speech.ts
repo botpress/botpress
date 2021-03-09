@@ -10,11 +10,15 @@ export class SpeechRouter extends CustomRouter {
   }
 
   private setupRoutes(): void {
-    this.router.get(
-      '/speech',
+    this.router.post(
+      '/upload',
       this.asyncMiddleware(async (req, res) => {
-        const { file, lang } = req.query
-        res.send({ text: await this.speechService.parse(file, lang) })
+        const { lang } = req.query
+        this.speechService.parse(
+          stream => req.pipe(stream),
+          data => res.send(data),
+          lang
+        )
       })
     )
   }
