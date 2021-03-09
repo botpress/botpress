@@ -58,6 +58,12 @@ describe('Content Renders', () => {
     })
   })
 
+  test('Render text content with trash data', () => {
+    const list = [1, 34, 353, 3]
+    const content = render.renderText(<any>list)
+    expect(content).toEqual({ __unrendered: true, markdown: undefined, type: 'text', text: [1, 34, 353, 3] })
+  })
+
   test('Render carousel content', () => {
     const content = render.renderCarousel(
       render.renderCard('card1', 'image.com/card1.png', 'myCard1', render.renderButtonPostback('myButton', 'yo')),
@@ -123,11 +129,46 @@ describe('Content Renders', () => {
     expect(translated.text).toEqual({ en: 'hello {{user.name}}', fr: 'salut {{user.name}}' })
   })
 
+  test('Translate text with trash data language', () => {
+    const content = render.renderText({ en: 'hello', fr: 'salut' })
+
+    const translated = render.renderTranslated(content, <any>[34, 34, 34, 3])
+    expect(translated.text).toEqual({ en: 'hello', fr: 'salut' })
+  })
+
+  test('Translate array of text content', () => {
+    const content = render.renderText({ en: 'hello', fr: 'salut' })
+    const content2 = render.renderText({ en: 'hello2', fr: 'salut2' })
+    const content3 = render.renderText({ en: 'hello3', fr: 'salut3' })
+
+    // This technically works, and to test that the recursive function is implemented properly I'm making that test
+    // but I don't want to officially allow it. Just do contents.map(x => bp.render.translate(x)) if you have many contents
+    const translated = render.renderTranslated(<any>[content, content2, content3], 'fr')
+    expect(translated).toEqual([
+      { __unrendered: true, markdown: undefined, type: 'text', text: 'salut' },
+      { __unrendered: true, markdown: undefined, type: 'text', text: 'salut2' },
+      { __unrendered: true, markdown: undefined, type: 'text', text: 'salut3' }
+    ])
+  })
+
   test('Template text content', () => {
     const content = render.renderText('hello {{user.name}}')
 
     const templated = render.renderTemplate(content, { user: { name: 'bob' } })
     expect(templated.text).toEqual('hello bob')
+  })
+
+  test('Template array of text content', () => {
+    const content = render.renderText('{{user.name}}')
+    const content2 = render.renderText('{{user.name}}2')
+    const content3 = render.renderText('{{user.name}}3')
+
+    const templated = render.renderTemplate(<any>[content, content2, content3], { user: { name: 'bob' } })
+    expect(templated).toEqual([
+      { __unrendered: true, markdown: undefined, type: 'text', text: 'bob' },
+      { __unrendered: true, markdown: undefined, type: 'text', text: 'bob2' },
+      { __unrendered: true, markdown: undefined, type: 'text', text: 'bob3' }
+    ])
   })
 
   test('Translate then template text content', () => {
