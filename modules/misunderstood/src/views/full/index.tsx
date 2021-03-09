@@ -14,6 +14,7 @@ import MainScreen from './MainScreen'
 import SidePanelContent from './SidePanel'
 import style from './style.scss'
 import { groupEventsByUtterance } from './util'
+import { kebabCase } from 'lodash'
 
 interface Props {
   contentLang: string
@@ -324,7 +325,19 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     const dataLoaded =
       selectedStatus === FLAGGED_MESSAGE_STATUS.new ? selectedEvent || (events && events.length === 0) : events
 
-    const manyEventsSelected = checkedEventIds.length >= 2
+    const groups = groupEventsByUtterance(events || [])
+    const selectedUtterances = new Set()
+    groups.forEach(function(eventWithIndex, utterance) {
+      for (const {
+        event: { id }
+      } of eventWithIndex) {
+        if (checkedEventIds.includes(id)) {
+          selectedUtterances.add(utterance)
+        }
+      }
+    })
+    const manyEventsSelected = selectedUtterances.size >= 2
+
     return (
       <Container sidePanelWidth={320}>
         <SidePanel style={{ overflowY: 'hidden' }}>
