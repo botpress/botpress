@@ -12,8 +12,8 @@ class App extends React.Component<Props> {
   }
 
   async componentDidMount() {
-    const { data: corpus } = await this.props.bp.axios.get('/mod/unsupervised/corpus')
-    this.setState({ corpus })
+    const { data } = await this.props.bp.axios.get('/mod/unsupervised/corpus')
+    this.setState({ corpus: data.corpus })
   }
 
   onSubmit = () => {

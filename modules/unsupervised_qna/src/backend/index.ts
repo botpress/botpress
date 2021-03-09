@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
 import en from '../translations/en.json'
-import API from './api'
+import { makeAPI } from './api'
 import buildNativeExtension from './build-native-extension'
 import makeMw from './middlewares'
 import { Storage } from './storage'
@@ -21,7 +21,7 @@ const onServerStarted = async (bp: typeof sdk) => {
 }
 
 const onServerReady = async (bp: typeof sdk) => {
-  await API(bp.http, bp.logger, storagePerBot)
+  makeAPI(bp.http, bp.logger, storagePerBot)
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {

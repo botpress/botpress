@@ -18,7 +18,13 @@ export class Storage {
       return this.cache
     }
 
-    const corpus = await this.ghost.readFileAsString(DIRECTORY, FILE_NAME)
+    let corpus: string
+    try {
+      corpus = await this.ghost.readFileAsString(DIRECTORY, FILE_NAME)
+    } catch (err) {
+      return ''
+    }
+
     this.cache = corpus
     return this.cache
   }

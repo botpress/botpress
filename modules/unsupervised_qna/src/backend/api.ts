@@ -1,19 +1,20 @@
 import * as sdk from 'botpress/sdk'
 import { Storage } from './storage'
 
-const API = async (http: typeof sdk.http, logger: sdk.Logger, storagePerBot: { [botId: string]: Storage }) => {
+export const makeAPI = (http: typeof sdk.http, logger: sdk.Logger, storagePerBot: { [botId: string]: Storage }) => {
   const router = http.createRouterForBot('unsupervised')
 
-  router.post('corpus', async (req, res) => {
+  router.post('/corpus', async (req, res) => {
     const { botId } = req.params
-    const { corpus } = req.body
+    let corpus: string = req.body.corpus
+    corpus = corpus.replace(/'\n'/g, '')
     await storagePerBot[botId].persistCorpus(corpus)
+    res.end()
   })
 
-  router.get('corpus', async (req, res) => {
+  router.get('/corpus', async (req, res) => {
     const { botId } = req.params
     const corpus = await storagePerBot[botId].getCorpus()
-    res.send(corpus)
+    res.json({ corpus })
   })
 }
-export default API
