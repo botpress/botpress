@@ -49,6 +49,7 @@ import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
 import { DataRetentionJanitor } from './services/retention/janitor'
 import { DataRetentionService } from './services/retention/service'
+import { SpeechService } from './services/speech/speech'
 import { StatsService } from './services/stats-service'
 import { WorkspaceService } from './services/workspace-service'
 import { Statistics } from './stats'
@@ -101,7 +102,8 @@ export class Botpress {
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.MigrationService) private migrationService: MigrationService,
     @inject(TYPES.StatsService) private statsService: StatsService,
-    @inject(TYPES.BotMonitoringService) private botMonitor: BotMonitoringService
+    @inject(TYPES.BotMonitoringService) private botMonitor: BotMonitoringService,
+    @inject(TYPES.SpeechService) private speechService: SpeechService
   ) {
     this.botpressPath = path.join(process.cwd(), 'dist')
     this.configLocation = path.join(this.botpressPath, '/config')
