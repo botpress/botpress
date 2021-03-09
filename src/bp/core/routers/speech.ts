@@ -14,11 +14,7 @@ export class SpeechRouter extends CustomRouter {
       '/upload',
       this.asyncMiddleware(async (req, res) => {
         const { lang } = req.query
-        this.speechService.parse(
-          stream => req.pipe(stream),
-          data => res.send(data),
-          lang
-        )
+        res.send(await this.speechService.parse(req, lang))
       })
     )
   }
