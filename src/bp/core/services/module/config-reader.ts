@@ -42,13 +42,21 @@ export default class ConfigReader {
     const modulePath = process.LOADED_MODULES[moduleId]
     const configSchema = path.resolve(modulePath, 'assets', 'config.schema.json')
 
+    const customConfigSchema = path.resolve(`../../envs/${process.env.ENV}`, moduleId, 'assets', 'config.schema.json')
     try {
-      if (fs.existsSync(configSchema)) {
-        return JSON.parse(fs.readFileSync(configSchema, 'utf-8'))
+      if (fs.existsSync(customConfigSchema)) {
+        return JSON.parse(fs.readFileSync(customConfigSchema, 'utf-8'))
       }
     } catch (err) {
-      this.logger.attachError(err).error(`Error while loading the config schema for module "${moduleId}"`)
+      try {
+        if (fs.existsSync(configSchema)) {
+          return JSON.parse(fs.readFileSync(configSchema, 'utf-8'))
+        }
+      } catch (err) {
+        this.logger.attachError(err).error(`Error while loading the config schema for module "${moduleId}"`)
+      }
     }
+
     return {}
   }
 

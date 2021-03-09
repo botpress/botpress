@@ -1,0 +1,36 @@
+{
+  "type": "object",
+  "properties": {
+    "botToken": {
+      "description": "Bot token",
+      "default": "1461492135:AAFTlm05yohMHJESYL1xwVY0z9aUv0f57x8",
+      "type": "string"
+    },
+    "enabled": {
+      "description": "This this in the LOCAL config (unique to every bot/page)\nWhether or not the messenger module is enabled for this bot",
+      "default": true,
+      "type": "boolean"
+    },
+    "forceWebhook": {
+      "description": "Force usage of webhooks",
+      "type": "boolean"
+    },
+    "chatUserAuthDuration": {
+      "description": "The duration of the authentication session when a user authenticate through this channel.",
+      "default": "24h",
+      "type": "string"
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "botToken",
+    "chatUserAuthDuration",
+    "enabled",
+    "forceWebhook"
+  ],
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
+

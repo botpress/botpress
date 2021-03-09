@@ -21,6 +21,7 @@ WORKDIR /root/
 COPY ./out ./out
 COPY ./build ./build
 COPY ./modules ./modules
+COPY ./envs ./envs
 COPY ./app.json .
 COPY ./gulpfile.js .
 COPY ./metadata.json .
