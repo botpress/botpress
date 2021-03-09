@@ -29,7 +29,8 @@ const passThroughNodeProps: string[] = [
   'conditions',
   'type',
   'content',
-  'activeWorkflow'
+  'activeWorkflow',
+  'isResizable'
 ]
 export const DIAGRAM_PADDING: number = 100
 
@@ -471,7 +472,7 @@ export class DiagramManager {
     const model = this.activeModel.serializeDiagram()
     const nodes = model.nodes.map((node: any) => {
       return {
-        ..._.pick(node, 'id', 'name', 'onEnter', 'onReceive'),
+        ..._.pick(node, 'id', 'name', 'onEnter', 'onReceive', 'isResizable'),
         next: node.next.map((next, index) => {
           const port = _.find(node.ports, { name: `out${index}` })
 
@@ -490,7 +491,8 @@ export class DiagramManager {
 
           return { condition: next.condition, node: otherNode['name'] }
         }),
-        position: _.pick(node, 'x', 'y')
+        position: _.pick(node, 'x', 'y'),
+        size: _.pick(node, 'width', 'height')
       }
     })
 

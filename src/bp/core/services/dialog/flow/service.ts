@@ -217,12 +217,25 @@ export class FlowService {
     let unplacedIndex = -1
 
     const nodeViews: NodeView[] = flow.nodes.map(node => {
-      const position = _.get(_.find(uiEq.nodes, { id: node.id }), 'position')
+      const nodeUIInfo = _.find(uiEq.nodes, { id: node.id })
+
+      let sizeInfo = {}
+      const size = _.get(nodeUIInfo, 'size')
+      if (size) {
+        sizeInfo = {
+          width: size.width,
+          height: size.height
+        }
+      }
+
+      const position = _.get(nodeUIInfo, 'position')
       unplacedIndex = position ? unplacedIndex : unplacedIndex + 1
+
       return {
         ...node,
         x: position ? position.x : MIN_POS_X + unplacedIndex * PLACING_STEP,
-        y: position ? position.y : (_.maxBy(flow.nodes, 'y') || { y: 0 })['y'] + PLACING_STEP
+        y: position ? position.y : (_.maxBy(flow.nodes, 'y') || { y: 0 })['y'] + PLACING_STEP,
+        ...sizeInfo
       }
     })
 
@@ -439,7 +452,15 @@ export class FlowService {
     }
 
     const uiContent = {
-      nodes: flow.nodes.map(node => ({ id: node.id, position: _.pick(node, 'x', 'y') })),
+      nodes: flow.nodes.map(node => {
+        const nodes = { id: node.id, position: _.pick(node, 'x', 'y') }
+
+        if (_.get(node, 'width') && _.get(node, 'height')) {
+          nodes['size'] = _.pick(node, 'width', 'height')
+        }
+
+        return nodes
+      }),
       links: flow.links
     }
 

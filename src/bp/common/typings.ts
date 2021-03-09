@@ -149,7 +149,13 @@ export interface FlowPoint {
   y: number
 }
 
-export type NodeView = FlowNode & FlowPoint
+export interface NodeSize {
+  width?: number
+  height?: number
+  isResizable?: boolean
+}
+
+export type NodeView = FlowNode & FlowPoint & NodeSize
 
 export interface ServerConfig {
   config: BotpressConfig

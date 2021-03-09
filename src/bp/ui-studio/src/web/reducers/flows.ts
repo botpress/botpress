@@ -123,6 +123,11 @@ const computeHashForFlow = (flow: FlowView) => {
     buff += node.name
     buff += node.x
     buff += node.y
+
+    if (node.width && node.height) {
+      buff += node.width
+      buff += node.height
+    }
   })
 
   _.orderBy(flow.links, l => l.source + l.target).forEach(link => {

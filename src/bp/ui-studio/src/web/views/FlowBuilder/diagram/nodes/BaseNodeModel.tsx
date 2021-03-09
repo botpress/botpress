@@ -6,12 +6,15 @@ import { StandardIncomingPortModel, StandardOutgoingPortModel } from '../nodes/P
 export class BaseNodeModel extends NodeModel {
   public isStartNode = false
   public isHighlighted = false
+  public isResizable = false
   public onEnter = undefined
   public onReceive = undefined
   public waitOnReceive = undefined
   public next = undefined
   public oldX?: number
   public oldY?: number
+  public oldWidth?: number
+  public oldHeight?: number
   public lastModified?: Date
   public name: string
 
@@ -29,11 +32,12 @@ export class BaseNodeModel extends NodeModel {
     this.setData(data)
   }
 
-  setData({ name, onEnter = [], onReceive = [], next = [], isStartNode, isHighlighted }) {
+  setData({ name, onEnter = [], onReceive = [], next = [], isStartNode, isHighlighted, isResizable = false }) {
     const deprecatedFeature = window.USE_ONEFLOW // TODO: remove in 13+
 
     this.isStartNode = !deprecatedFeature && isStartNode
     this.isHighlighted = isHighlighted
+    this.isResizable = isResizable
     const inNodeType = isStartNode ? 'start' : 'normal'
     const waitOnReceive = !_.isNil(onReceive)
 

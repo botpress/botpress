@@ -36,18 +36,9 @@
   cursor: grabbing;
 }
 
-.large {
-  width: 200px !important;
-
-  .contentWrapper {
-    width: 187px;
-  }
-}
-
 .nodeWrapper {
   background: rgba(255, 255, 255, 0.7);
   border: 1px solid transparent !important;
-  width: 150px;
   border: 1px solid transparent;
   border-radius: 0 0 5px 5px;
   transition: border 0.3s;
@@ -458,7 +449,7 @@
   margin: var(--spacing-medium) var(--spacing-medium) 0 0;
   padding: 0;
   position: relative;
-  width: 135px;
+  right: -15;
   z-index: 1;
 
   &.small {

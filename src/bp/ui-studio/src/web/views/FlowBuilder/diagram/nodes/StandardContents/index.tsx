@@ -14,6 +14,12 @@ type Props = Pick<BlockProps, 'node'>
 const StandardContents: FC<Props> = ({ node }) => {
   const isWaiting = node.waitOnReceive
 
+  const getWidth = () => {
+    // This aligns the beginning of the transition the side of the node
+    // TODO: Figure out this magic number
+    return node.width - 14
+  }
+
   return (
     <div className={cx(style.contentsWrapper, style.standard)}>
       {node.onEnter?.map((item, i) => {
@@ -41,7 +47,11 @@ const StandardContents: FC<Props> = ({ node }) => {
       {node.next?.map((item, i) => {
         const outputPortName = `out${i}`
         return (
-          <div key={`${i}.${item}`} className={cx(style.contentWrapper, style.small)}>
+          <div
+            key={`${i}.${item}`}
+            style={{ width: `${getWidth()}px` }}
+            className={cx(style.contentWrapper, style.small)}
+          >
             <div className={cx(style.content, style.readOnly)}>
               <ConditionItem condition={item} position={i} />
               <StandardPortWidget name={outputPortName} node={node} className={style.outRouting} />

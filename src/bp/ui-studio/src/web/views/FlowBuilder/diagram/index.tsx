@@ -1,19 +1,6 @@
-import {
-  Button,
-  ContextMenu,
-  ControlGroup,
-  InputGroup,
-  Intent,
-  Menu,
-  MenuDivider,
-  MenuItem,
-  Position,
-  Tag,
-  Toaster
-} from '@blueprintjs/core'
+import { Intent, Menu, MenuDivider, MenuItem, Position, Toaster } from '@blueprintjs/core'
 import { IO } from 'botpress/sdk'
 import { contextMenu, Icons, lang, MainLayout, sharedStyle, ShortcutLabel } from 'botpress/shared'
-import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
@@ -542,9 +529,22 @@ class Diagram extends Component<Props> {
       this.props.switchFlowNode(selectedNode.id)
     }
 
+    let updatedNodeProps = {}
     if (selectedNode && (selectedNode.oldX !== selectedNode.x || selectedNode.oldY !== selectedNode.y)) {
-      this.props.updateFlowNode({ x: selectedNode.x, y: selectedNode.y })
+      updatedNodeProps = { ...updatedNodeProps, x: selectedNode.x, y: selectedNode.y }
       Object.assign(selectedNode, { oldX: selectedNode.x, oldY: selectedNode.y })
+    }
+
+    if (
+      selectedNode &&
+      (selectedNode.oldWidth !== selectedNode.width || selectedNode.oldHeight !== selectedNode.height)
+    ) {
+      updatedNodeProps = { ...updatedNodeProps, width: selectedNode.width, height: selectedNode.height }
+      Object.assign(selectedNode, { oldWidth: selectedNode.width, oldHeight: selectedNode.height })
+    }
+
+    if (updatedNodeProps) {
+      this.props.updateFlowNode(updatedNodeProps)
     }
 
     this.checkForLinksUpdate()

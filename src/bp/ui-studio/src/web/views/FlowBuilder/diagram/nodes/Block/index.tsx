@@ -19,6 +19,7 @@ import SaySomethingContents from '../SaySomethingContents'
 import SkillCallContents, { SkillDefinition } from '../SkillCallContents'
 import StandardContents from '../StandardContents'
 import TriggerContents from '../TriggerContents'
+import { ResizableBlock } from './ResizableBlock'
 
 export interface BlockProps {
   node: BlockModel
@@ -208,6 +209,8 @@ const BlockWidget: FC<BlockProps> = ({
       isHighlighed={node.isHighlighted || node.isSelected()}
       isLarge={isOldNode}
       onClick={() => utils.inspect(getCurrentFlow().nodes.find(x => x.id === node.id))}
+      height={node.height}
+      width={node.width}
     >
       <NodeHeader
         className={style[nodeType]}
@@ -252,7 +255,10 @@ export class BlockModel extends BaseNodeModel {
     isNew = false,
     isStartNode = false,
     isHighlighted = false,
-    isReadOnly = false
+    isReadOnly = false,
+    isResizable = false,
+    width = undefined,
+    height = undefined
   }) {
     super('block', id)
 
@@ -269,11 +275,15 @@ export class BlockModel extends BaseNodeModel {
       conditions,
       activeWorkflow,
       isNew,
-      isReadOnly
+      isReadOnly,
+      isResizable
     })
 
     this.x = this.oldX = x
     this.y = this.oldY = y
+
+    this.width = this.oldWidth = width
+    this.height = this.oldHeight = height
   }
 
   setData({ conditions = [], activeWorkflow = false, isNew = false, ...data }) {
@@ -331,8 +341,8 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
     this.getSkills = methods.getSkills
   }
 
-  generateReactWidget(diagramEngine: DiagramEngine, node: BlockModel) {
-    return (
+  generateReactWidget(_diagramEngine: DiagramEngine, node: BlockModel) {
+    const blockWidget = () => (
       <BlockWidget
         node={node}
         getCurrentFlow={this.getCurrentFlow}
@@ -354,6 +364,12 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
         getSkills={this.getSkills}
       />
     )
+
+    if (node.isResizable === true) {
+      return <ResizableBlock node={node}>{blockWidget()}</ResizableBlock>
+    } else {
+      return blockWidget()
+    }
   }
 
   getNewInstance() {
