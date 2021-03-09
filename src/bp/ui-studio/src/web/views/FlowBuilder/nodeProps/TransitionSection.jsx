@@ -1,13 +1,18 @@
-import React, { Component, Fragment } from 'react'
-import _ from 'lodash'
+import {
+  Popover,
+  PopoverInteractionKind,
+  PopoverPosition
+} from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import classnames from 'classnames'
+import _ from 'lodash'
+import React, { Component, Fragment } from 'react'
 
 import { Button, Label } from 'react-bootstrap'
 
 import ConditionItem from '../common/condition'
 
 import ConditionModalForm from './ConditionModalForm'
-import { lang } from 'botpress/shared'
 
 const style = require('./style.scss')
 
@@ -86,18 +91,20 @@ export default class TransitionSection extends Component {
       <Fragment>
         <div>
           {items.map((item, i) => (
-            <ConditionItem className={style.item} condition={item} position={i} key={`${i}.${item.node || '-'}`}>
-              {renderType(item)}
+            <Popover interactionKind={PopoverInteractionKind.HOVER} position={PopoverPosition.LEFT}>
+              <ConditionItem className={style.item} condition={item} position={i} key={`${i}.${item.node || '-'}`}>
+                {renderType(item)}
+              </ConditionItem>
               {!readOnly && (
-                <div className={style.actions}>
-                  <a onClick={() => this.onEdit(i)}>{lang.tr('edit')}</a>
-                  <a onClick={() => this.onRemove(i)}>{lang.tr('remove')}</a>
-                  <a onClick={() => this.onCopyAction(i)}>{lang.tr('copy')}</a>
-                  {renderMoveUp(i)}
-                  {renderMoveDown(i)}
-                </div>
+                  <div className={style.actions}>
+                    <a onClick={() => this.onEdit(i)}>{lang.tr('edit')}</a>
+                    <a onClick={() => this.onRemove(i)}>{lang.tr('remove')}</a>
+                    <a onClick={() => this.onCopyAction(i)}>{lang.tr('copy')}</a>
+                    {renderMoveUp(i)}
+                    {renderMoveDown(i)}
+                  </div>
               )}
-            </ConditionItem>
+            </Popover>
           ))}
           {!readOnly && (
             <div className={style.actions}>
