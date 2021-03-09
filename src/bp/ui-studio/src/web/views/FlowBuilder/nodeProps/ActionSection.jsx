@@ -1,12 +1,17 @@
-import React, { Component, Fragment } from 'react'
-import _ from 'lodash'
+import {
+  Popover,
+  PopoverInteractionKind,
+  PopoverPosition
+} from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import classnames from 'classnames'
+import _ from 'lodash'
+import React, { Component, Fragment } from 'react'
 
 import { Button } from 'react-bootstrap'
 
-import ActionModalForm from './ActionModalForm'
 import ActionItem from '../common/action'
-import { lang } from 'botpress/shared'
+import ActionModalForm from './ActionModalForm'
 
 const style = require('./style.scss')
 
@@ -113,7 +118,9 @@ export default class ActionSection extends Component {
         <div>
           {this.renderWait()}
           {items.map((item, i) => (
-            <ActionItem className={style.item} text={item} key={`${i}.${item}`}>
+            <Popover interactionKind={PopoverInteractionKind.HOVER} position={PopoverPosition.LEFT}>
+              <ActionItem className={style.item} text={item} key={`${i}.${item}`}>
+              </ActionItem>
               {!readOnly && (
                 <div className={style.actions}>
                   <a className="btn-edit" onClick={() => this.onEdit(i)}>
@@ -129,7 +136,7 @@ export default class ActionSection extends Component {
                   {renderMoveDown(i)}
                 </div>
               )}
-            </ActionItem>
+            </Popover>
           ))}
           {!readOnly && (
             <div className={style.actions}>

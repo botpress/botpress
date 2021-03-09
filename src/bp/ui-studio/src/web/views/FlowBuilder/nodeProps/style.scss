@@ -78,6 +78,7 @@ h5 {
 
 .item {
   padding: 5px 0;
+  padding-left: 5px;
 
   .actions {
     display: none;
@@ -91,7 +92,6 @@ h5 {
   &:hover {
     background: #fefefe;
     border-left: 2px solid #999;
-    padding-left: 10px;
 
     .actions {
       padding: 10px 0;
@@ -123,8 +123,16 @@ h5 {
 }
 
 .actions {
-  margin-top: 10px;
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 30px;
+  background-color: #ffffff;
+
+  a {
+    padding: 0px 5px;
+  }
 
   button {
     border-radius: 3px;
