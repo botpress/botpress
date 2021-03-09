@@ -1,0 +1,33 @@
+{
+  "name": "dictionary-en-gb",
+  "version": "2.3.0",
+  "description": "English (United Kingdom) spelling dictionary in UTF-8",
+  "license": "(MIT AND BSD)",
+  "keywords": [
+    "spelling",
+    "myspell",
+    "hunspell",
+    "dictionary",
+    "en",
+    "gb",
+    "english",
+    "united",
+    "kingdom"
+  ],
+  "repository": "https://github.com/wooorm/dictionaries/tree/main/dictionaries/en-GB",
+  "bugs": "https://github.com/wooorm/dictionaries/issues",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/wooorm"
+  },
+  "author": "Titus Wormer <tituswormer@gmail.com> (https://wooorm.com)",
+  "contributors": [
+    "Titus Wormer <tituswormer@gmail.com> (https://wooorm.com)",
+    "Thomas Beverley <tom.beverley101@gmail.com>"
+  ],
+  "files": [
+    "index.js",
+    "index.aff",
+    "index.dic"
+  ]
+}

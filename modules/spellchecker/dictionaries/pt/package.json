@@ -1,0 +1,30 @@
+{
+  "name": "dictionary-pt",
+  "version": "2.0.1",
+  "description": "Portuguese spelling dictionary in UTF-8",
+  "license": "(LGPL-3.0 OR MPL-2.0)",
+  "keywords": [
+    "spelling",
+    "myspell",
+    "hunspell",
+    "dictionary",
+    "pt",
+    "portuguese"
+  ],
+  "repository": "https://github.com/wooorm/dictionaries/tree/main/dictionaries/pt",
+  "bugs": "https://github.com/wooorm/dictionaries/issues",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/wooorm"
+  },
+  "author": "Titus Wormer <tituswormer@gmail.com> (https://wooorm.com)",
+  "contributors": [
+    "Titus Wormer <tituswormer@gmail.com> (https://wooorm.com)",
+    "Thomas Beverley <tom.beverley101@gmail.com>"
+  ],
+  "files": [
+    "index.js",
+    "index.aff",
+    "index.dic"
+  ]
+}

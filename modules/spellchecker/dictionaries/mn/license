@@ -1,0 +1,22 @@
+Hunspell Mongolian (Монгол) Dictionary Package
+----------------------------------------------
+Version 0.06-2
+2008-07-29
+Maintained By:
+  Sanlig Badral (Санлигийн Бадрал) <Badral at openmn org>
+  Dorjgotov Batumongke (Доржготовын Батмөнх) <bataak at gmail com>
+Copyright Terms: GPLv2 (see the file Copyright for the exact terms)
+Wordlist URL: http://mnspell.openmn.org
+This word list is considered both complete and accurate.
+
+This is the Mongolian dictionary for Hunspell. This dictionary is
+based on aspell dictionary package. This word list contains 2,17
+million words of the Mongolian language.
+
+Hyphenation dictionary
+----------------------
+Version 1.2
+2008-03-30
+Author: Dorjgotov Batumongke
+
+This hyphenation dictionary is based on TeX hyphenation pattern.

@@ -1,0 +1,30 @@
+{
+  "name": "dictionary-fr",
+  "version": "2.6.0",
+  "description": "French spelling dictionary in UTF-8",
+  "license": "MPL-2.0",
+  "keywords": [
+    "spelling",
+    "myspell",
+    "hunspell",
+    "dictionary",
+    "fr",
+    "french"
+  ],
+  "repository": "https://github.com/wooorm/dictionaries/tree/main/dictionaries/fr",
+  "bugs": "https://github.com/wooorm/dictionaries/issues",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/wooorm"
+  },
+  "author": "Titus Wormer <tituswormer@gmail.com> (https://wooorm.com)",
+  "contributors": [
+    "Titus Wormer <tituswormer@gmail.com> (https://wooorm.com)",
+    "Thomas Beverley <tom.beverley101@gmail.com>"
+  ],
+  "files": [
+    "index.js",
+    "index.aff",
+    "index.dic"
+  ]
+}

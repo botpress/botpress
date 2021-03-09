@@ -1,0 +1,30 @@
+{
+  "name": "dictionary-ko",
+  "version": "1.2.2",
+  "description": "Korean spelling dictionary in UTF-8",
+  "license": "(GPL-2.0 OR LGPL-2.1 OR MPL-1.1)",
+  "keywords": [
+    "spelling",
+    "myspell",
+    "hunspell",
+    "dictionary",
+    "ko",
+    "korean"
+  ],
+  "repository": "https://github.com/wooorm/dictionaries/tree/main/dictionaries/ko",
+  "bugs": "https://github.com/wooorm/dictionaries/issues",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/wooorm"
+  },
+  "author": "Titus Wormer <tituswormer@gmail.com> (https://wooorm.com)",
+  "contributors": [
+    "Titus Wormer <tituswormer@gmail.com> (https://wooorm.com)",
+    "Thomas Beverley <tom.beverley101@gmail.com>"
+  ],
+  "files": [
+    "index.js",
+    "index.aff",
+    "index.dic"
+  ]
+}
