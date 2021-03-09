@@ -3,9 +3,9 @@ import { inject, observer } from 'mobx-react'
 import React from 'react'
 import { FormattedMessage, InjectedIntlProps, injectIntl } from 'react-intl'
 
+import { RecordSpeechToText } from '../../../../../../src/bp/ui-shared-lite/SpeechToTextButton'
 import ToolTip from '../../../../../../src/bp/ui-shared-lite/ToolTip'
 import { RootStore, StoreDef } from '../store'
-import { RecordSpeechToText } from './RecordSpeechToText'
 
 class Composer extends React.Component<ComposerProps, { isRecording: boolean }> {
   private textInput: React.RefObject<HTMLTextAreaElement>
