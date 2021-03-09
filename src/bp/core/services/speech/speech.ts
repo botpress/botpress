@@ -8,8 +8,6 @@ import vosk from 'vosk'
 import wav from 'wav'
 import { VoskModel, VoskRecognizer } from './vosk'
 
-export type PipeCallback = (stream: NodeJS.WritableStream) => void
-
 @injectable()
 export class SpeechService {
   private langs: { [lang: string]: LangSpeechService } = {}
