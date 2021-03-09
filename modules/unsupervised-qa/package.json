@@ -1,0 +1,27 @@
+{
+  "name": "unsupervised-qa",
+  "fullName": "Unsupervised Q&A",
+  "version": "1.0.0",
+  "status": "experimental",
+  "description": "Finds answer in unstructured corpus",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "build": "node ../../build/module-builder/bin/entry build",
+    "watch": "node ../../build/module-builder/bin/entry watch",
+    "package": "node ../../build/module-builder/bin/entry package"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12",
+    "lodash": ">=4.17.19"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "install": "^0.13.0",
+    "node-pre-gyp": "^0.17.0",
+    "npm": "^7.6.1",
+    "question-answering": "^3.0.0"
+  }
+}
