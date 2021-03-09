@@ -1,6 +1,6 @@
 ---
 id: database
-title: Supported databases
+title: Supported Databases
 ---
 
 Botpress comes with support for SQL databases out-the-box and can be accessed by:
