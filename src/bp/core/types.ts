@@ -26,6 +26,7 @@ const TYPES = {
   HookService: Symbol.for('HookService'),
   HintsService: Symbol.for('HintsService'),
   EventEngine: Symbol.for('EventEngine'),
+  MessagingAPI: Symbol.for('MessagingAPI'),
   DialogEngine: Symbol.for('DialogEngine'),
   DecisionEngine: Symbol.for('DecisionEngine'),
   SessionRepository: Symbol.for('SessionRepository'),
@@ -89,6 +90,10 @@ const TYPES = {
   SDKStats: Symbol.for('SDKStats'),
   HooksStats: Symbol.for('HooksStats'),
   ConfigsStats: Symbol.for('ConfigsStats'),
+  MessageRepository: Symbol.for('MessageRepository'),
+  ConversationRepository: Symbol.for('ConversationRepository'),
+  MessageService: Symbol.for('MessageService'),
+  ConversationService: Symbol.for('ConversationService'),
   RenderService: Symbol.for('RenderService')
 }
 

@@ -1,5 +1,6 @@
 import { IO } from 'botpress/sdk'
 import LicensingService from 'common/licensing-service'
+import { KeyValueStore } from 'core/kvs'
 import { DialogContainerModule } from 'core/services/dialog/dialog.inversify'
 import { CEJobService, JobService } from 'core/services/job-service'
 import { ContainerModule, interfaces } from 'inversify'
@@ -19,11 +20,12 @@ import { SkillService } from './dialog/skill/service'
 import { GhostContainerModule } from './ghost/ghost.inversify'
 import { HintsService } from './hints'
 import { HookService } from './hook/hook-service'
-import { KeyValueStore } from './kvs'
 import CELicensingService from './licensing'
 import { LogsJanitor } from './logs/janitor'
 import { LogsService } from './logs/service'
 import { MediaServiceProvider } from './media'
+import { ConversationService } from './messaging/conversations'
+import { MessageService } from './messaging/messages'
 import { EventEngine } from './middleware/event-engine'
 import { CEMonitoringService, MonitoringService } from './monitoring'
 import { NLUService } from './nlu/nlu-service'
@@ -35,6 +37,14 @@ import { RenderService } from './render/render'
 import { StatsService } from './stats-service'
 
 const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
+  bind<ConversationService>(TYPES.ConversationService)
+    .to(ConversationService)
+    .inSingletonScope()
+
+  bind<MessageService>(TYPES.MessageService)
+    .to(MessageService)
+    .inSingletonScope()
+
   bind<CMSService>(TYPES.CMSService)
     .to(CMSService)
     .inSingletonScope()

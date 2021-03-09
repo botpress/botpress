@@ -13,6 +13,7 @@ import modelIdService from 'nlu-core/model-id-service'
 import { container } from './app.inversify'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
+import { KeyValueStore } from './kvs'
 import { LoggerProvider } from './logger'
 import { getMessageSignature } from './misc/security'
 import { renderRecursive } from './misc/templating'
@@ -27,8 +28,9 @@ import { DialogEngine } from './services/dialog/dialog-engine'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { HookService } from './services/hook/hook-service'
 import { JobService } from './services/job-service'
-import { KeyValueStore } from './services/kvs'
 import { MediaServiceProvider } from './services/media'
+import { ConversationService } from './services/messaging/conversations'
+import { MessageService } from './services/messaging/messages'
 import { EventEngine } from './services/middleware/event-engine'
 import { StateManager } from './services/middleware/state-manager'
 import { NotificationsService } from './services/notification/service'
@@ -210,11 +212,29 @@ const distributed = (jobService: JobService): typeof sdk.distributed => {
   }
 }
 
-const experimental = (hookService: HookService, renderService: RenderService): typeof sdk.experimental => {
+const experimental = (
+  hookService: HookService,
+  conversationService: ConversationService,
+  messageService: MessageService
+): typeof sdk.experimental => {
   return {
     disableHook: hookService.disableHook.bind(hookService),
     enableHook: hookService.enableHook.bind(hookService),
+    conversations: conversations(conversationService),
+    messages: messages(messageService),
     render: render(renderService)
+  }
+}
+
+const conversations = (conversationService: ConversationService): typeof sdk.experimental.conversations => {
+  return {
+    forBot: conversationService.forBot.bind(conversationService)
+  }
+}
+
+const messages = (messageService: MessageService): typeof sdk.experimental.messages => {
+  return {
+    forBot: messageService.forBot.bind(messageService)
   }
 }
 
@@ -232,127 +252,6 @@ const render = (renderService: RenderService): typeof sdk.experimental.render =>
     translate: renderService.renderTranslated.bind(renderService),
     template: renderService.renderTemplate.bind(renderService),
     pipeline: renderService.getPipeline.bind(renderService)
-  }
-}
-
-/**
- * Socket.IO API to emit payloads to front-end clients
- */
-export class RealTimeAPI implements RealTimeAPI {
-  constructor(private realtimeService: RealtimeService) {}
-
-  sendPayload(payload: RealTimePayload) {
-    this.realtimeService.sendToSocket(payload)
-  }
-}
-
-@injectable()
-export class BotpressAPIProvider {
-  http: (owner: string) => typeof sdk.http
-  events: typeof sdk.events
-  dialog: typeof sdk.dialog
-  config: typeof sdk.config
-  realtime: RealTimeAPI
-  database: Knex & sdk.KnexExtension
-  users: typeof sdk.users
-  kvs: typeof sdk.kvs
-  notifications: typeof sdk.notifications
-  bots: typeof sdk.bots
-  ghost: typeof sdk.ghost
-  cms: typeof sdk.cms
-  mlToolkit: typeof sdk.MLToolkit
-  experimental: typeof sdk.experimental
-  security: typeof sdk.security
-  workspaces: typeof sdk.workspaces
-  distributed: typeof sdk.distributed
-
-  constructor(
-    @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
-    @inject(TYPES.Database) db: Database,
-    @inject(TYPES.EventEngine) eventEngine: EventEngine,
-    @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
-    @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
-    @inject(TYPES.HTTPServer) httpServer: HTTPServer,
-    @inject(TYPES.UserRepository) userRepo: UserRepository,
-    @inject(TYPES.RealtimeService) realtimeService: RealtimeService,
-    @inject(TYPES.KeyValueStore) keyValueStore: KeyValueStore,
-    @inject(TYPES.NotificationsService) notificationService: NotificationsService,
-    @inject(TYPES.BotService) botService: BotService,
-    @inject(TYPES.GhostService) ghostService: GhostService,
-    @inject(TYPES.CMSService) cmsService: CMSService,
-    @inject(TYPES.ConfigProvider) configProvider: ConfigProvider,
-    @inject(TYPES.MediaServiceProvider) mediaServiceProvider: MediaServiceProvider,
-    @inject(TYPES.HookService) hookService: HookService,
-    @inject(TYPES.EventRepository) eventRepo: EventRepository,
-    @inject(TYPES.WorkspaceService) workspaceService: WorkspaceService,
-    @inject(TYPES.JobService) jobService: JobService,
-    @inject(TYPES.StateManager) stateManager: StateManager,
-    @inject(TYPES.RenderService) renderService: RenderService
-  ) {
-    this.http = http(httpServer)
-    this.events = event(eventEngine, eventRepo)
-    this.dialog = dialog(dialogEngine, stateManager, moduleLoader)
-    this.config = config(moduleLoader, configProvider)
-    this.realtime = new RealTimeAPI(realtimeService)
-    this.database = db.knex
-    this.users = users(userRepo)
-    this.kvs = kvs(keyValueStore)
-    this.notifications = notifications(notificationService)
-    this.bots = bots(botService)
-    this.ghost = ghost(ghostService)
-    this.cms = cms(cmsService, mediaServiceProvider)
-    this.mlToolkit = MLToolkit
-    this.experimental = experimental(hookService, renderService)
-    this.security = security()
-    this.workspaces = workspaces(workspaceService)
-    this.distributed = distributed(jobService)
-  }
-
-  @Memoize()
-  async create(loggerName: string, owner: string): Promise<typeof sdk> {
-    return {
-      version: '',
-      RealTimePayload,
-      LoggerLevel: require('./sdk/enums').LoggerLevel,
-      LogLevel: require('./sdk/enums').LogLevel,
-      NodeActionType: require('./sdk/enums').NodeActionType,
-      IO: {
-        Event,
-        WellKnownFlags
-      },
-      MLToolkit: this.mlToolkit,
-      dialog: this.dialog,
-      events: this.events,
-      http: this.http(owner),
-      logger: await this.loggerProvider(loggerName),
-      config: this.config,
-      database: this.database,
-      users: this.users,
-      realtime: this.realtime,
-      kvs: this.kvs,
-      notifications: this.notifications,
-      ghost: this.ghost,
-      bots: this.bots,
-      cms: this.cms,
-      security: this.security,
-      experimental: this.experimental,
-      workspaces: this.workspaces,
-      distributed: this.distributed,
-      NLU: {
-        makeEngine: async (config: sdk.NLU.Config, logger: sdk.NLU.Logger) => {
-          const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = config
-          const langConfig = { ducklingEnabled, ducklingURL, languageSources }
-          const engine = new Engine({ maxCacheSize: modelCacheSize })
-          await engine.initialize(langConfig, logger)
-          return engine
-        },
-        errors: {
-          isTrainingAlreadyStarted,
-          isTrainingCanceled
-        },
-        modelIdService
-      }
-    }
   }
 }
 

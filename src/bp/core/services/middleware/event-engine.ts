@@ -85,6 +85,8 @@ const debugOutgoing = debug.sub('outgoing')
 
 @injectable()
 export class EventEngine {
+  public onSendIncoming?: (event: sdk.IO.IncomingEvent) => Promise<void>
+
   public onBeforeIncomingMiddleware?: (event: sdk.IO.IncomingEvent) => Promise<void>
   public onAfterIncomingMiddleware?: (event: sdk.IO.IncomingEvent) => Promise<void>
 
@@ -199,6 +201,7 @@ export class EventEngine {
     if (isIncoming(event)) {
       debugIncoming.forBot(event.botId, 'send ', event)
       incrementMetric('eventsIn.count')
+      this.onSendIncoming && (await this.onSendIncoming(event))
       await this.incomingQueue.enqueue(event, 1, false)
     } else {
       debugOutgoing.forBot(event.botId, 'send ', event)
