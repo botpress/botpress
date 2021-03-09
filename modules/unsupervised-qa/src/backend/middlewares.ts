@@ -1,23 +1,21 @@
 import * as sdk from 'botpress/sdk'
 import path from 'path'
-import { QAClient, initModel, RuntimeType } from 'question-answering'
 import { Storage } from './storage'
 
 const MAX_PAD = 100
 
-const inititalizeQAClient = async (): Promise<QAClient> => {
-  const { QAClient } = require('question-answering')
-
-  // This will download the model to every server node in the cluster
-  const model = await initModel({
-    name: 'distilbert-base-cased-distilled-squad',
-    path: path.join(process.APP_DATA_PATH, 'qa-models'),
-    runtime: RuntimeType.SavedModel
-  })
-  return QAClient.fromOptions({ model })
-}
-
 const makeMw = async (storagePerBot: { [botId: string]: Storage }) => {
+  const { QAClient, initModel, RuntimeType } = require('question-answering') // do not import at top of file as this breaks on windows
+
+  const inititalizeQAClient = async (): Promise<typeof QAClient> => {
+    // This will download the model to every server node in the cluster
+    const model = await initModel({
+      name: 'distilbert-base-cased-distilled-squad',
+      path: path.join(process.APP_DATA_PATH, 'qa-models'),
+      runtime: RuntimeType.SavedModel
+    })
+    return QAClient.fromOptions({ model })
+  }
   const qaClient = await inititalizeQAClient()
 
   const mw: sdk.IO.MiddlewareDefinition = {
