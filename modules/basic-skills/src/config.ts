@@ -19,11 +19,6 @@ export interface Config {
    */
   disableIntegrityCheck: boolean
   /**
-   * @name Match Numbers
-   * @title fuck bitch
-   * @description When true, it will try to extract numbers from questions
-   * @ui:title fuck bitch
-   * @ui:description: When true, it will try to extract numbers from questions
    * @default true
    */
   matchNumbers: boolean
