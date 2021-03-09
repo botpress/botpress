@@ -39,7 +39,7 @@ class RootStore {
   private api: WebchatApi
 
   @observable
-  public conversations: sdk.experimental.RecentConversation[] = []
+  public conversations: sdk.RecentConversation[] = []
 
   @observable
   public currentConversation: CurrentConversation

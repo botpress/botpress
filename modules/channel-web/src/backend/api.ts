@@ -118,7 +118,7 @@ export default async (bp: typeof sdk, db: Database) => {
     if (conversationId && conversationId !== 'null') {
       req.conversationId = conversationId
 
-      if ((await bp.experimental.conversations.forBot(botId).get({ id: conversationId })).userId !== userId) {
+      if ((await bp.experimental.conversations.forBot(botId).get(conversationId)).userId !== userId) {
         next(ERR_BAD_CONV_ID)
       }
     }
@@ -192,7 +192,7 @@ export default async (bp: typeof sdk, db: Database) => {
       }
 
       if (!conversationId) {
-        conversationId = (await bp.experimental.conversations.forBot(botId).recent({ userId })).id
+        conversationId = (await bp.experimental.conversations.forBot(botId).recent(userId)).id
       }
 
       await sendNewMessage(
@@ -243,7 +243,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const { userId, conversationId, botId } = req
 
       const config = (await bp.config.getModuleConfigForBot('channel-web', botId)) as Config
-      const conversation = await bp.experimental.conversations.forBot(botId).get({ id: conversationId })
+      const conversation = await bp.experimental.conversations.forBot(botId).get(conversationId)
       const messages = await bp.experimental.messages
         .forBot(botId)
         .list({ conversationId, limit: config.maxMessagesHistory })
@@ -316,7 +316,7 @@ export default async (bp: typeof sdk, db: Database) => {
       await bp.users.getOrCreateUser('web', userId, botId)
 
       if (!conversationId) {
-        conversationId = (await bp.experimental.conversations.forBot(botId).recent({ userId })).id
+        conversationId = (await bp.experimental.conversations.forBot(botId).recent(userId)).id
       }
 
       const event = bp.IO.Event({
@@ -401,7 +401,7 @@ export default async (bp: typeof sdk, db: Database) => {
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { botId, userId } = req
 
-      const conversation = await bp.experimental.conversations.forBot(botId).create({ userId })
+      const conversation = await bp.experimental.conversations.forBot(botId).create(userId)
       res.send({ convoId: conversation.id })
     })
   )
@@ -422,7 +422,7 @@ export default async (bp: typeof sdk, db: Database) => {
         }
 
         if (!conversationId) {
-          conversationId = (await bp.experimental.conversations.forBot(botId).recent({ userId })).id
+          conversationId = (await bp.experimental.conversations.forBot(botId).recent(userId)).id
         }
 
         const message = reference.slice(0, reference.lastIndexOf('='))
@@ -502,10 +502,7 @@ export default async (bp: typeof sdk, db: Database) => {
     return (payload && payload.text) || message.message_text || wrappedText || `Event (${type})`
   }
 
-  const convertToTxtFile = async (
-    conversation: sdk.experimental.Conversation,
-    messages: sdk.experimental.Message[]
-  ) => {
+  const convertToTxtFile = async (conversation: sdk.Conversation, messages: sdk.Message[]) => {
     const { result: user } = await bp.users.getOrCreateUser('web', conversation.userId)
     const timeFormat = 'MM/DD/YY HH:mm'
     const fullName = `${user.attributes['first_name'] || ''} ${user.attributes['last_name'] || ''}`
@@ -531,7 +528,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const { userId, conversationId, botId } = req
 
       const config = (await bp.config.getModuleConfigForBot('channel-web', botId)) as Config
-      const conversation = await bp.experimental.conversations.forBot(botId).get({ id: conversationId })
+      const conversation = await bp.experimental.conversations.forBot(botId).get(conversationId)
       const messages = await bp.experimental.messages
         .forBot(botId)
         .list({ conversationId, limit: config.maxMessagesHistory })

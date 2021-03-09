@@ -22,7 +22,7 @@ export default async (bp: typeof sdk) => {
     const messageType = event.type === 'default' ? 'text' : event.type
     const userId = event.target
     const botId = event.botId
-    const conversationId = event.threadId || (await bp.experimental.conversations.forBot(botId).recent({ userId })).id
+    const conversationId = event.threadId || (await bp.experimental.conversations.forBot(botId).recent(userId)).id
 
     if (!_.includes(outgoingTypes, messageType)) {
       bp.logger.warn(`Unsupported event type: ${event.type}`)
@@ -45,13 +45,9 @@ export default async (bp: typeof sdk) => {
       const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.data', event.payload)
       bp.realtime.sendPayload(payload)
     } else if (standardTypes.includes(messageType)) {
-      const message = await bp.experimental.messages.forBot(botId).create({
-        conversationId,
-        eventId: event.id,
-        incomingEventId: event.incomingEventId,
-        from: 'bot',
-        payload: event.payload
-      })
+      const message = await bp.experimental.messages
+        .forBot(botId)
+        .create(conversationId, event.payload, 'bot', event.id, event.incomingEventId)
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     } else {
       bp.logger.warn(`Message type "${messageType}" not implemented yet`)

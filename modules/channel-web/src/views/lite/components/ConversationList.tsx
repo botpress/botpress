@@ -27,7 +27,7 @@ const ConversationListItem = injectIntl(({ conversation, onClick, hasFocus, intl
 })
 
 type ConversationListItemProps = {
-  conversation: sdk.experimental.RecentConversation
+  conversation: sdk.RecentConversation
   hasFocus: boolean
   onClick: (event: React.MouseEvent) => void
 } & InjectedIntlProps &
