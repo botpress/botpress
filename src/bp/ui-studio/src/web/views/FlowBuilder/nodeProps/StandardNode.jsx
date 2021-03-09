@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import React, { Component, Fragment } from 'react'
 
 import { Tabs, Tab, Badge, Panel } from 'react-bootstrap'
@@ -6,7 +7,6 @@ import EditableInput from '../common/EditableInput'
 
 import ActionSection from './ActionSection'
 import TransitionSection from './TransitionSection'
-import { lang } from 'botpress/shared'
 
 const style = require('./style.scss')
 
