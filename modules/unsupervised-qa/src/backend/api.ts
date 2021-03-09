@@ -1,7 +1,13 @@
 import * as sdk from 'botpress/sdk'
+import { ModuleStatus } from '../typings'
 import { Storage } from './storage'
 
-export const makeAPI = (http: typeof sdk.http, logger: sdk.Logger, storagePerBot: { [botId: string]: Storage }) => {
+export const makeAPI = (
+  http: typeof sdk.http,
+  logger: sdk.Logger,
+  storagePerBot: { [botId: string]: Storage },
+  moduleStatus: ModuleStatus
+) => {
   const router = http.createRouterForBot('unsupervised')
 
   router.post('/corpus', async (req, res) => {
@@ -16,5 +22,9 @@ export const makeAPI = (http: typeof sdk.http, logger: sdk.Logger, storagePerBot
     const { botId } = req.params
     const corpus = await storagePerBot[botId].getCorpus()
     res.json({ corpus })
+  })
+
+  router.get('/status', async (req, res) => {
+    res.json(moduleStatus)
   })
 }

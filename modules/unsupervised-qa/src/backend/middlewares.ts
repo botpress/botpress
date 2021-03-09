@@ -1,10 +1,11 @@
 import * as sdk from 'botpress/sdk'
 import path from 'path'
 import { Storage } from './storage'
+import { ModuleStatus } from '../typings'
 
 const MAX_PAD = 100
 
-const makeMw = async (storagePerBot: { [botId: string]: Storage }) => {
+const makeMw = async (storagePerBot: { [botId: string]: Storage }, moduleStatus: ModuleStatus) => {
   const { QAClient, initModel, RuntimeType } = require('question-answering') // do not import at top of file as this breaks on windows
 
   const inititalizeQAClient = async (): Promise<typeof QAClient> => {
@@ -14,6 +15,7 @@ const makeMw = async (storagePerBot: { [botId: string]: Storage }) => {
       path: path.join(process.APP_DATA_PATH, 'qa-models'),
       runtime: RuntimeType.SavedModel
     })
+    moduleStatus.modelLoaded = true
     return QAClient.fromOptions({ model })
   }
   const qaClient = await inititalizeQAClient()
