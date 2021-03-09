@@ -30,6 +30,8 @@ const makeMw = async (storagePerBot: { [botId: string]: Storage }) => {
         return
       }
 
+      const { QAClient } = require('question-answering')
+
       const corpus = await storagePerBot[botId].getCorpus()
 
       const answer = await qaClient.predict(preview, corpus)

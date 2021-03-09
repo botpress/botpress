@@ -15,11 +15,13 @@ const onServerStarted = async (bp: typeof sdk) => {
     'You are using botpress module unsupervised_qna. Keep in mind this module is experimental and is subject to breaking changes.'
   )
 
-  await buildNativeExtension()
+  const moduleEnabled = await buildNativeExtension(bp.logger)
 
   const mw = await makeMw(storagePerBot)
 
-  bp.events.registerMiddleware(mw)
+  if (moduleEnabled) {
+    bp.events.registerMiddleware(mw)
+  }
 }
 
 const onServerReady = async (bp: typeof sdk) => {
