@@ -4,8 +4,6 @@ interface CssExports {
   'floatingInfo': string;
   'insertMode': string;
   'insertNode': string;
-  'noPadding': string;
-  'searchWrapper': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;
