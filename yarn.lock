@@ -1163,6 +1163,13 @@
   resolved "https://registry.yarnpkg.com/@types/verror/-/verror-1.10.3.tgz#8be16b0e750018fd4e2e4a766b8f2351d8b5df6a"
   integrity sha512-7Jz0MPsW2pWg5dJfEp9nJYI0RDCYfgjg2wIo5HfQ8vOJvUq0/BxT7Mv2wNQvkKBmV9uT++6KF3reMnLmh/0HrA==
 
+"@types/wav@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@types/wav/-/wav-1.0.0.tgz#727aa6459b26123ffc9457c75e4e5d1e0379a055"
+  integrity sha512-AgF21At/Vsio4WFLGjKif6cNuibYJNL2Pf0mvRA25v20ausHRdKCe8rTe3TypqjzRHtgwWgkxExakQNl4L8hug==
+  dependencies:
+    "@types/node" "*"
+
 "@types/yargs-parser@*":
   version "13.1.0"
   resolved "https://registry.yarnpkg.com/@types/yargs-parser/-/yargs-parser-13.1.0.tgz#c563aa192f39350a1d18da36c5a8da382bbd8228"

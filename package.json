@@ -144,6 +144,7 @@
     "@types/tmp": "^0.0.33",
     "@types/universal-analytics": "^0.4.2",
     "@types/verror": "^1.10.3",
+    "@types/wav": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^4.15.0",
     "@typescript-eslint/parser": "^4.15.0",
     "cheerio": "^1.0.0-rc.2",
