@@ -1,10 +1,23 @@
 import * as sdk from 'botpress/sdk'
-import { QAClient } from 'question-answering'
+import path from 'path'
+import { QAClient, initModel, RuntimeType } from 'question-answering'
 import { Storage } from './storage'
 
 const MAX_PAD = 100
 
-const makeMw = (storagePerBot: { [botId: string]: Storage }) => {
+const inititalizeQAClient = async (): Promise<QAClient> => {
+  // Download and load model from
+  const model = await initModel({
+    name: 'distilbert-base-cased-distilled-squad',
+    path: path.join(process.APP_DATA_PATH, 'qa-models'),
+    runtime: RuntimeType.SavedModel
+  })
+  return QAClient.fromOptions({ model })
+}
+
+const makeMw = async (storagePerBot: { [botId: string]: Storage }) => {
+  const qaClient = await inititalizeQAClient()
+
   const mw: sdk.IO.MiddlewareDefinition = {
     name: 'run_unsupervised_qna',
     description: "runs question answering predict on event's text",
@@ -19,7 +32,6 @@ const makeMw = (storagePerBot: { [botId: string]: Storage }) => {
 
       const corpus = await storagePerBot[botId].getCorpus()
 
-      const qaClient = await QAClient.fromOptions()
       const answer = await qaClient.predict(preview, corpus)
       if (answer.score > 0.2) {
         // find start

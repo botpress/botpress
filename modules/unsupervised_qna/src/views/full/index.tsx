@@ -1,5 +1,8 @@
+import { Button, Spinner } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
+import { MainLayout, Textarea } from 'botpress/shared'
 import React from 'react'
+import style from './style.scss'
 
 interface Props {
   bp: { axios: AxiosInstance; events: any }
@@ -8,12 +11,13 @@ interface Props {
 
 class App extends React.Component<Props> {
   state = {
-    corpus: ''
+    corpus: '',
+    loading: true
   }
 
   async componentDidMount() {
     const { data } = await this.props.bp.axios.get('/mod/unsupervised/corpus')
-    this.setState({ corpus: data.corpus })
+    this.setState({ corpus: data.corpus, loading: false })
   }
 
   onSubmit = () => {
@@ -25,13 +29,25 @@ class App extends React.Component<Props> {
 
   render() {
     return (
-      <div>
-        <div>
-          <div>Corpus: </div>
-          <textarea value={this.state.corpus} onChange={e => this.setState({ corpus: e.target.value })} />
+      <MainLayout.Wrapper>
+        <MainLayout.Toolbar tabs={[{ title: 'Corpus Question Answering', id: 'qa' }]} />
+        <div className={style.content}>
+          {this.state.loading && <Spinner />}
+          {!this.state.loading && (
+            <React.Fragment>
+              <div>Enter a corpus</div>
+              <div className={style.textareaWrapper}>
+                <Textarea
+                  className={style.textarea}
+                  onChange={value => this.setState({ corpus: value })}
+                  value={this.state.corpus}
+                />
+                <Button onClick={this.onSubmit}>Update corpus</Button>
+              </div>
+            </React.Fragment>
+          )}
         </div>
-        <button onClick={this.onSubmit}>Submit</button>
-      </div>
+      </MainLayout.Wrapper>
     )
   }
 }

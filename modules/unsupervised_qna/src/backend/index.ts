@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 
+import child_process from 'child_process'
 import en from '../translations/en.json'
 import { makeAPI } from './api'
 import buildNativeExtension from './build-native-extension'
@@ -9,13 +10,14 @@ import { Storage } from './storage'
 const storagePerBot: { [botId: string]: Storage } = {}
 
 const onServerStarted = async (bp: typeof sdk) => {
+  child_process.exec('npx question-answering download')
   bp.logger.warn(
     'You are using botpress module unsupervised_qna. Keep in mind this module is experimental and is subject to breaking changes.'
   )
 
   await buildNativeExtension()
 
-  const mw = makeMw(storagePerBot)
+  const mw = await makeMw(storagePerBot)
 
   bp.events.registerMiddleware(mw)
 }
