@@ -5,9 +5,6 @@ import * as sdk from 'botpress/sdk'
 // https://extensions.openoffice.org/en/search?f%5B0%5D=field_project_tags%3A157
 // https://addons.mozilla.org/en-US/firefox/language-tools/
 // https://github.com/wooorm/dictionaries
-import en from '../translations/en.json'
-import es from '../translations/es.json'
-import fr from '../translations/fr.json'
 import api from './api'
 import { SpellChecker } from './spellchecker'
 import { LANGUAGES, Languages } from './typings'
@@ -35,7 +32,6 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onServerReady,
   onBotMount,
   onModuleUnmount,
-  translations: { en, fr, es },
   definition: {
     name: 'spellchecker',
     menuIcon: 'chat',

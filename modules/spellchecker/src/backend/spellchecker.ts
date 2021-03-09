@@ -7,8 +7,8 @@ export class SpellChecker {
   private model: Nodehun
 
   constructor(public lang: Languages) {
-    const affix = fs.readFileSync(`../../dictionaries/${lang}/index.aff`)
-    const dict = fs.readFileSync(`../../dictionaries/${lang}/index.aff`)
+    const affix = fs.readFileSync(`../../modules/spellchecker/dictionaries/${lang}/index.aff`)
+    const dict = fs.readFileSync(`../../modules/spellchecker/dictionaries/${lang}/index.dic`)
     this.model = new Nodehun(affix, dict)
   }
 

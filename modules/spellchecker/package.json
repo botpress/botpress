@@ -2,9 +2,9 @@
   "name": "spellchecker",
   "fullName": "Spell Checker",
   "version": "1.0.0",
-  "status": "stable",
+  "status": "experimental",
   "description": "An easy to use spell checker for all botpress",
-  "private": false,
+  "private": true,
   "main": "dist/backend/index.js",
   "scripts": {
     "build": "node ../../build/module-builder/bin/entry build",
@@ -13,24 +13,8 @@
   },
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0-only",
-  "webpack": {
-    "externals": {
-      "react": "React",
-      "react-dom": "ReactDOM",
-      "react-bootstrap": "ReactBootstrap",
-      "botpress/elements-list": "ElementsList",
-      "botpress/content-type-picker": "BotpressContentTypePicker",
-      "botpress/content-picker": "BotpressContentPicker",
-      "botpress/utils": "BotpressUtils"
-    }
-  },
-  "devDependencies": {
-    "@types/react-bootstrap": "^0.32.19",
-    "@types/react-select": "^2.0.19"
-  },
   "dependencies": {
     "axios": "^0.21.1",
-    "lodash": "^4.17.11",
     "nodehun": "^3.0.2",
     "react": "^17.0.1"
   },
