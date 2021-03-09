@@ -10,6 +10,7 @@ export class SpeechRouter extends CustomRouter {
   }
 
   private setupRoutes(): void {
+    // todo : add security
     this.router.post(
       '/upload',
       this.asyncMiddleware(async (req, res) => {
