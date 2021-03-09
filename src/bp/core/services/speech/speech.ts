@@ -1,7 +1,5 @@
-import * as sdk from 'botpress/sdk'
-import { TYPES } from 'core/types'
 import fs from 'fs'
-import { inject, injectable, postConstruct } from 'inversify'
+import { injectable } from 'inversify'
 import { Readable } from 'stream'
 import vosk from 'vosk'
 import wav from 'wav'
@@ -27,6 +25,7 @@ export class SpeechService {
 
 class LangSpeechService {
   private model: VoskModel
+  private recognizers: VoskRecognizer[] = []
 
   constructor(private lang: string, private dir: string) {
     vosk.setLogLevel(-1)
@@ -35,13 +34,17 @@ class LangSpeechService {
 
   public parse(file: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      const recognizer = new vosk.Recognizer(this.model, 16000.0) as VoskRecognizer
+      let recognizer = this.recognizers.pop()!
+      if (!recognizer) {
+        recognizer = new vosk.Recognizer(this.model, 16000.0) as VoskRecognizer
+      }
+
       const fileStream = fs.createReadStream(`./speech/${file}.wav`, { highWaterMark: 4096 })
       const wavReader = new wav.Reader()
 
       wavReader.on('format', async ({ audioFormat, sampleRate, channels }) => {
         if (audioFormat !== 1 || channels !== 1) {
-          recognizer.free()
+          this.recognizers.push(recognizer)
           reject('Audio file must be WAV format mono PCM.')
           return
         }
@@ -50,8 +53,9 @@ class LangSpeechService {
           recognizer.acceptWaveform(data)
         }
 
+        this.recognizers.push(recognizer)
+
         const result = JSON.parse(recognizer.finalResult(recognizer))
-        recognizer.free()
         resolve(result.text)
       })
 
@@ -61,5 +65,6 @@ class LangSpeechService {
 
   public free() {
     this.model.free()
+    this.recognizers.forEach(r => r.free())
   }
 }
