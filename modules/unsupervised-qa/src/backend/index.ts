@@ -6,8 +6,13 @@ import { makeAPI } from './api'
 import buildNativeExtension from './build-native-extension'
 import makeMw from './middlewares'
 import { Storage } from './storage'
+import { ModuleStatus } from '../typings'
 
 const storagePerBot: { [botId: string]: Storage } = {}
+const moduleStatus: ModuleStatus = {
+  enabled: false,
+  modelLoaded: false
+}
 
 const onServerStarted = async (bp: typeof sdk) => {
   bp.logger.warn(
@@ -15,15 +20,14 @@ const onServerStarted = async (bp: typeof sdk) => {
   )
 
   const moduleEnabled = await buildNativeExtension(bp.logger)
+  moduleStatus.enabled = moduleEnabled
   if (moduleEnabled) {
-    const mw = await makeMw(storagePerBot)
-
-    bp.events.registerMiddleware(mw)
+    makeMw(storagePerBot, moduleStatus).then(mw => bp.events.registerMiddleware(mw))
   }
 }
 
 const onServerReady = async (bp: typeof sdk) => {
-  makeAPI(bp.http, bp.logger, storagePerBot)
+  makeAPI(bp.http, bp.logger, storagePerBot, moduleStatus)
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {

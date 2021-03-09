@@ -2,8 +2,13 @@
 // Please do not change this file!
 interface CssExports {
   'content': string;
+  'green': string;
+  'modelLoading': string;
+  'red': string;
+  'status': string;
   'textarea': string;
   'textareaWrapper': string;
+  'title': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

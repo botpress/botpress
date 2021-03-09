@@ -38,3 +38,22 @@
   margin-top: var(--spacing-large);
   background-color: white;
 }
+
+.red {
+  color: red;
+}
+
+.green {
+  color: green;
+}
+
+.status {
+  margin: 1%;
+  .title {
+    font: bold
+  }
+}
+
+.modelLoading {
+  display: flex;
+}

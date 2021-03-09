@@ -1,8 +1,10 @@
-import { Button, Spinner } from '@blueprintjs/core'
+import { Button, Spinner, Tooltip, Position } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
 import { MainLayout, Textarea, lang } from 'botpress/shared'
 import React, { FC, useState, useEffect } from 'react'
 import style from './style.scss'
+
+import { ModuleStatus } from '../../typings'
 
 interface Props {
   bp: { axios: AxiosInstance; events: any }
@@ -13,11 +15,16 @@ const CorpusQA: FC<Props> = props => {
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
   const [corpus, setCorpus] = useState('')
+  const [status, setStatus] = useState<ModuleStatus>({ modelLoaded: false, enabled: false })
 
   useEffect(() => {
     props.bp.axios.get('/mod/unsupervised/corpus').then(({ data: { corpus } }) => {
       setCorpus(corpus)
       setLoading(false)
+    })
+
+    props.bp.axios.get('/mod/unsupervised/status').then(({ data: status }) => {
+      setStatus(status)
     })
   }, [])
 
@@ -30,9 +37,39 @@ const CorpusQA: FC<Props> = props => {
     setCorpus(text)
   }
 
+  const renderModuleDisabled = () => {
+    return <Tooltip
+      content={lang.tr('module.unsupervised-qa.moduleDisabledReason')}
+      position={Position.RIGHT}
+    >
+      <div className={style.red}>{lang.tr('module.unsupervised-qa.moduleDisabled')}</div>
+    </Tooltip>
+  }
+
+  const renderModelLoading = () => {
+    return <div className={style.modelLoading}>
+      <div className={style.red}>{lang.tr('module.unsupervised-qa.modelLoading')}</div>
+      <Spinner size={20}></Spinner>
+    </div>
+  }
+
   return (
     <MainLayout.Wrapper>
-      <MainLayout.Toolbar tabs={[{ title: lang.tr('module.unsupervisedQA.fullName'), id: 'qa' }]} />
+      <MainLayout.Toolbar tabs={[{ title: lang.tr('module.unsupervised-qa.fullName'), id: 'qa' }]} />
+
+      <div className={style.status}>
+        <span className={style.title}>Status:</span>
+
+        {status.enabled ?
+          <div className={style.green}>{lang.tr('module.unsupervised-qa.moduleEnabled')}</div>
+          : renderModuleDisabled()
+        }
+        {status.modelLoaded ?
+          <div className={style.green}>{lang.tr('module.unsupervised-qa.modelLoaded')}</div>
+          : renderModelLoading()
+        }
+      </div>
+
       <div className={style.content}>
         {loading && <Spinner />}
         {!loading && (
@@ -42,13 +79,13 @@ const CorpusQA: FC<Props> = props => {
                 className={style.textarea}
                 onChange={onCorpusChanged}
                 value={corpus}
-                placeholder={lang.tr('module.unsupervisedQA.placeholder')}
+                placeholder={lang.tr('module.unsupervised-qa.placeholder')}
                 maxLength={50}
               />
               <Button
                 onClick={updateCorpus}
                 disabled={updating}
-                text={updating ? lang.tr('module.unsupervisedQA.updating') : lang.tr('module.unsupervisedQA.update')}
+                text={updating ? lang.tr('module.unsupervised-qa.updating') : lang.tr('module.unsupervised-qa.update')}
                 rightIcon={updating && <Spinner size={16} />}
               />
             </div>
