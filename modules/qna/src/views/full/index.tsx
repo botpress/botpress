@@ -242,7 +242,7 @@ const QnAList: FC<Props> = props => {
         tabChange={setCurrentTab}
         tabs={tabs}
         buttons={buttons}
-        rightContent={toolBarRightContent}
+        rightContent={items.length > 1 ? toolBarRightContent : null}
       />
       <div className={cx(style.content, { [style.empty]: !items.length && !highlighted })}>
         {highlighted && (
