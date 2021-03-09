@@ -56,12 +56,11 @@ export interface LogsConfig {
   }
   /**
    * @title File Output
-   * @description This will logs everything displayed in the console in a file
+   * @description This will logs everything displayed in the console in a file. A new file is created each day
    */
   fileOutput: {
     /**
      * @title Enabled
-     * @description Enable or disable the output of logs to the file system. A new file is created each day
      * @default false
      */
     enabled: boolean
@@ -86,17 +85,6 @@ export interface LogsConfig {
  */
 
 export interface BotpressConfig {
-  /**
-   * @title Current version
-   * @description This is the current version of Botpress. Do not change this manually
-   * @readonly
-   */
-  version: string
-  /**
-   * @title Application Secret
-   * @description This secret is used to encrypt various
-   */
-  appSecret: string
   /**
    * @title HTTP Server Configuration
    */
@@ -159,21 +147,28 @@ export interface BotpressConfig {
      * @example https://botpress.com
      * @default
      */
-    externalUrl: string
+    externalUrl?: string
+    /**
+     * @title HTTP Session
+     * @description The session is required for some authentication mechanism
+     */
     session: {
       /**
+       * @title Enabled
        * @default false
        */
       enabled: boolean
       /**
-       * Time from Date.now() for expiry
+       * @title Max Age
+       * @description Time from Date.now() for expiry
        * Defaults to one hour
        * @default 1h
        */
       maxAge: string
     }
     /**
-     * Configure the priority for establishing socket connections for webchat and studio users.
+     * @title Socket Transports
+     * @description sConfigure the priority for establishing socket connections for webchat and studio users.
      * If the first method is not supported, it will fallback on the second.
      * If the first is supported but it fails with an error, it will not fallback.
      * @default ["websocket","polling"]
@@ -185,27 +180,34 @@ export interface BotpressConfig {
      */
     rateLimit: {
       /**
-       * * Security option to rate limit potential attacker trying to brute force something
+       * @title Enabled
+       * @description Security option to rate limit potential attacker trying to brute force something
        * @default false
        */
       enabled: boolean
       /**
-       * Time window to compute rate limiting
+       * @title Limit Window
+       * @description Time window to compute rate limiting
        * @default 30s
        */
       limitWindow: string
       /**
-       * * Maximum number of request in limit window to ban an IP. Keep in mind that this includes admin, studio and chat request so don't put it too low
+       * @title Maximum Number of Requests
+       * @description Maximum number of request in limit window to ban an IP. Keep in mind that this includes admin, studio and chat request so don't put it too low
        * @default 600
        */
       limit: number
     }
     /**
-     * Adds default headers to the server's responses
+     * @title Custom Headers
+     * @description Adds default headers to the server's responses
      * @default {"X-Powered-By":"Botpress"}
      */
     headers: { [name: string]: string }
   }
+  /**
+   * @title Converse Configuration
+   */
   converse: ConverseConfig
   /**
    * @title Dialog Engine Configuration
@@ -225,13 +227,14 @@ export interface BotpressConfig {
   pro: {
     /**
      * @title Collaborators Authentication Strategies
-     * These strategies are allowed to log on the Admin UI.
+     * @description These strategies are allowed to log on the Admin UI.
      * Once a user is logged on, he still needs individual access to respective workspaces
      * @default  ["default"]
      */
     collaboratorsAuthStrategies: string[]
     /**
-     * When pro features are enabled, the license key must be provided
+     * @title Enabled
+     * @description When pro features are enabled, the license key must be provided
      * @default false
      */
     enabled: boolean
@@ -388,7 +391,13 @@ export interface BotpressConfig {
    * @default false
    */
   autoRevision: boolean
+  /**
+   * @title Event Collector
+   */
   eventCollector: EventCollectorConfig
+  /**
+   * @title Bot Monitoring
+   */
   botMonitoring: BotMonitoringConfig
   /**
    * @default { "default": { "type": "basic", "allowSelfSignup": false, "options": { "maxLoginAttempt": 0} }}
@@ -435,15 +444,28 @@ export interface BotpressConfig {
      */
     entriesLimit: number
   }
+  /**
+   * @title Current Version
+   * @description This is the current version of Botpress. Do not change this manually
+   * @readonly
+   */
+  version: string
+  /**
+   * @title Application Secret
+   * @description This secret is used to encrypt various
+   */
+  appSecret: string
 }
 
 export interface ExternalAuthConfig {
-  /** Set to true to enable external authentication
+  /**
+   * @title Enabled
    * @default false
    */
   enabled: boolean
   /**
-   * If provided, the audience of the token will be checked against the provided value(s).
+   * @title Audience
+   * @description If provided, the audience of the token will be checked against the provided value(s).
    * [Click here](https://www.npmjs.com/package/jsonwebtoken#jwtverifytoken-secretorpublickey-options-callback) to learn more.
    */
   audience?: string | string[]
@@ -464,8 +486,10 @@ export interface ExternalAuthConfig {
    */
   publicKey?: string
   /**
-   * Alternatively, you can configure a client to fetch a JWKS file for the public key.
+   * @title JWKS Client
+   * @description Alternatively, you can configure a client to fetch a JWKS file for the public key.
    * The audience, issuer and algorithms must also be provided.
+   * @default undefined
    */
   jwksClient?: {
     /**
@@ -670,23 +694,27 @@ export interface FieldMapping {
 
 export interface MonitoringConfig {
   /**
-   * To enable server monitoring, you need to enable the Pro version and configure your Redis server.
+   * @title Enabled
+   * @description To enable server monitoring, you need to enable the Pro version and configure your Redis server.
    * @default false
    */
   enabled: boolean
   /**
-   * The interval between data collection of metrics and usage. The lower the value brings more details,
+   * @title Collection Interval
+   * @description The interval between data collection of metrics and usage. The lower the value brings more details,
    * but comes at the cost of more storage required & processing time when viewing data.
    * @default 10s
    */
   collectionInterval: string
   /**
-   * Data older than this will be cleared periodically.
+   * @title Retention Period
+   * @description Data older than this will be cleared periodically.
    * @default 10d
    */
   retentionPeriod: string
   /**
-   * The delay between execution of the janitor which removes statistics outside of the previously defined period
+   * @title Janitor Interval
+   * @description The delay between execution of the janitor which removes statistics outside of the previously defined period
    * @default 15m
    */
   janitorInterval: string
@@ -694,28 +722,34 @@ export interface MonitoringConfig {
 
 export interface AlertingConfig {
   /**
-   * To enable the alerting service, you need to enable the monitoring first.
+   * @title Enabled
+   * @description To enable the alerting service, you need to enable the monitoring first.
    * @default false
    */
   enabled: boolean
   /**
-   * Interval between each executions of the rule checker
+   * @title Watcher Interval
+   * @description Interval between each executions of the rule checker
    * @default 10s
    */
   watcherInterval: string
   /**
-   * The duration for which resolved incidents will be kept
+   * @title Retention Period
+   * @description The duration for which resolved incidents will be kept
    * @default 10d
    */
   retentionPeriod: string
   /**
-   * Delay between the execution of the janitor which removes resolved incidents.
+   * @title Janitor Interval
+   * @description Delay between the execution of the janitor which removes resolved incidents.
    * @default 15m
    */
   janitorInterval: string
   /**
-   * The list of rules which triggers an incident. When triggered, the OnIncidentChangedStatus hook
+   * @title Rules
+   * @description The list of rules which triggers an incident. When triggered, the OnIncidentChangedStatus hook
    * is called with the incident.
+   * @default []
    */
   rules: IncidentRule[]
 }
@@ -736,7 +770,8 @@ export interface BotMonitoringConfig {
 
 export interface EventCollectorConfig {
   /**
-   * When enabled, incoming and outgoing events will be saved on the database.
+   * @title Enabled
+   * @description When enabled, incoming and outgoing events will be saved on the database.
    * It is required for some modules to work properly (eg: history, testing, developer tools on channel web)
    * @default true
    */
@@ -747,18 +782,21 @@ export interface EventCollectorConfig {
    */
   collectionInterval: string
   /**
-   * The duration for which events will be kept in the database
+   * @title Retention Period
+   * @description The duration for which events will be kept in the database
    * @default 30d
    */
   retentionPeriod: string
   /**
-   * Specify an array of event types that won't be persisted to the database. For example, typing events and visits
+   * @title Ignored Event Types
+   * @description Specify an array of event types that won't be persisted to the database. For example, typing events and visits
    * may not provide you with useful information
    * @default ["visit","typing"]
    */
   ignoredEventTypes: string[]
   /**
-   * Specify an array of properties that will be stripped from the event before being saved. For example, the "state" property of the event
+   * @title Ignored Event Properties
+   * @description Specify an array of properties that will be stripped from the event before being saved. For example, the "state" property of the event
    * contains a lot of details about the user session (context, attributes, etc) and may not be useful in some cases.
    * @default []
    */

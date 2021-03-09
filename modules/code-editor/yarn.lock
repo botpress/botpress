@@ -2,13 +2,30 @@
 # yarn lockfile v1
 
 
-"@babel/runtime-corejs2@^7.4.5":
+"@babel/runtime-corejs2@^7.8.7":
   version "7.13.10"
   resolved "https://registry.npmjs.org/@babel/runtime-corejs2/-/runtime-corejs2-7.13.10.tgz#31ba66b951cbd44569d7e70cb58a7b3da866951a"
   integrity sha512-rZw5P1ZewO6XZTDxtXuAuAFUqfNXyM8HO/9WiaDd34Anka0uFTpo0RvBLeV775AEE/zKw3LQB+poZw/O9lrZBg==
   dependencies:
     core-js "^2.6.5"
     regenerator-runtime "^0.13.4"
+
+"@rjsf/core@^2.5.0":
+  version "2.5.0"
+  resolved "https://registry.npmjs.org/@rjsf/core/-/core-2.5.0.tgz#b0f319790bea308312f96a901d385405cf5603b9"
+  integrity sha512-ug+Oon21LrhRQD6GiT0M3rheRF1c01NohyCeR7ePh+UaxgsFO43LOPOOBbnHq+MUGtuaBisFd2rRuHn7TNk7pA==
+  dependencies:
+    "@babel/runtime-corejs2" "^7.8.7"
+    "@types/json-schema" "^7.0.4"
+    ajv "^6.7.0"
+    core-js "^2.5.7"
+    json-schema-merge-allof "^0.6.0"
+    jsonpointer "^4.0.1"
+    lodash "^4.17.15"
+    prop-types "^15.7.2"
+    react-app-polyfill "^1.0.4"
+    react-is "^16.9.0"
+    shortid "^2.2.14"
 
 "@types/body-parser@*":
   version "1.19.0"
@@ -42,6 +59,11 @@
     "@types/express-serve-static-core" "*"
     "@types/qs" "*"
     "@types/serve-static" "*"
+
+"@types/json-schema@^7.0.4":
+  version "7.0.7"
+  resolved "https://registry.npmjs.org/@types/json-schema/-/json-schema-7.0.7.tgz#98a993516c859eb0d5c4c8f098317a9ea68db9ad"
+  integrity sha512-cxWFQVseBm6O9Gbw1IWb8r6OS4OhSt3hPZLkFApLjM8TEXROBuQGLAH2i2gZpcXdLBIrpXuTDhH7Vbm1iXmNGA==
 
 "@types/mime@*":
   version "2.0.1"
@@ -318,6 +340,11 @@ array-unique@^0.3.2:
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/array-unique/-/array-unique-0.3.2.tgz#a894b75d4bc4f6cd679ef3244a9fd8f46ae2d428"
   integrity sha1-qJS3XUvE9s1nnvMkSp/Y9Gri1Cg=
+
+asap@~2.0.6:
+  version "2.0.6"
+  resolved "https://registry.npmjs.org/asap/-/asap-2.0.6.tgz#e50347611d7e690943208bbdafebcbc2fb866d46"
+  integrity sha1-5QNHYR1+aQlDIIu9r+vLwvuGbUY=
 
 asn1.js@^4.0.0:
   version "4.10.1"
@@ -655,6 +682,25 @@ component-emitter@^1.2.1:
   resolved "https://registry.yarnpkg.com/component-emitter/-/component-emitter-1.3.0.tgz#16e4070fba8ae29b679f2215853ee181ab2eabc0"
   integrity sha512-Rd3se6QB+sO1TwqZjscQrurpEPIfO0/yYnSin6Q/rD3mOutHvUrCAhJub3r90uNb+SESBuE0QYoB90YdfatsRg==
 
+compute-gcd@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.npmjs.org/compute-gcd/-/compute-gcd-1.2.1.tgz#34d639f3825625e1357ce81f0e456a6249d8c77f"
+  integrity sha512-TwMbxBNz0l71+8Sc4czv13h4kEqnchV9igQZBi6QUaz09dnz13juGnnaWWJTRsP3brxOoxeB4SA2WELLw1hCtg==
+  dependencies:
+    validate.io-array "^1.0.3"
+    validate.io-function "^1.0.2"
+    validate.io-integer-array "^1.0.0"
+
+compute-lcm@^1.1.0:
+  version "1.1.2"
+  resolved "https://registry.npmjs.org/compute-lcm/-/compute-lcm-1.1.2.tgz#9107c66b9dca28cefb22b4ab4545caac4034af23"
+  integrity sha512-OFNPdQAXnQhDSKioX8/XYT6sdUlXwpeMjfd6ApxMJfyZ4GxmLR1xvMERctlYhlHwIiz6CSpBc2+qYKjHGZw4TQ==
+  dependencies:
+    compute-gcd "^1.2.1"
+    validate.io-array "^1.0.3"
+    validate.io-function "^1.0.2"
+    validate.io-integer-array "^1.0.0"
+
 concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
@@ -701,6 +747,11 @@ core-js@^2.5.7, core-js@^2.6.5:
   version "2.6.12"
   resolved "https://registry.npmjs.org/core-js/-/core-js-2.6.12.tgz#d9333dfa7b065e347cc5682219d6f690859cc2ec"
   integrity sha512-Kb2wC0fvsWfQrgk8HU5lW6U/Lcs8+9aaYcy4ZFc6DDlo4nZ7n70dEgE5rtR0oG6ufKDUnrwfWL1mXR5ljDatrQ==
+
+core-js@^3.5.0:
+  version "3.9.1"
+  resolved "https://registry.npmjs.org/core-js/-/core-js-3.9.1.tgz#cec8de593db8eb2a85ffb0dbdeb312cb6e5460ae"
+  integrity sha512-gSjRvzkxQc1zjM/5paAmL4idJBFzuJoo+jDjF1tStYFMV2ERfD02HhahhCGXUyHxQRG4yFKVSdO6g62eoRMcDg==
 
 core-util-is@~1.0.0:
   version "1.0.2"
@@ -1373,6 +1424,22 @@ json-parse-better-errors@^1.0.2:
   resolved "https://registry.yarnpkg.com/json-parse-better-errors/-/json-parse-better-errors-1.0.2.tgz#bb867cfb3450e69107c131d1c514bab3dc8bcaa9"
   integrity sha512-mrqyZKfX5EhL7hvqcV6WG1yYjnjeuYDzDhhcAAUrq8Po85NBQBJP+ZDUT75qZQ98IkUoBqdkExkukOU7Ts2wrw==
 
+json-schema-compare@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.npmjs.org/json-schema-compare/-/json-schema-compare-0.2.2.tgz#dd601508335a90c7f4cfadb6b2e397225c908e56"
+  integrity sha512-c4WYmDKyJXhs7WWvAWm3uIYnfyWFoIp+JEoX34rctVvEkMYCPGhXtvmFFXiffBbxfZsvQ0RNnV5H7GvDF5HCqQ==
+  dependencies:
+    lodash "^4.17.4"
+
+json-schema-merge-allof@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.npmjs.org/json-schema-merge-allof/-/json-schema-merge-allof-0.6.0.tgz#64d48820fec26b228db837475ce3338936bf59a5"
+  integrity sha512-LEw4VMQVRceOPLuGRWcxW5orTTiR9ZAtqTAe4rQUjNADTeR81bezBVFa0MqIwp0YmHIM1KkhSjZM7o+IQhaPbQ==
+  dependencies:
+    compute-lcm "^1.1.0"
+    json-schema-compare "^0.2.2"
+    lodash "^4.17.4"
+
 json-schema-traverse@^0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/json-schema-traverse/-/json-schema-traverse-0.4.1.tgz#69f6a87d9513ab8bb8fe63bdb0979c448e684660"
@@ -1400,6 +1467,11 @@ jsonlint-mod@^1.7.5:
     JSV "^4.0.2"
     chalk "^2.4.2"
     underscore "^1.9.1"
+
+jsonpointer@^4.0.1:
+  version "4.1.0"
+  resolved "https://registry.npmjs.org/jsonpointer/-/jsonpointer-4.1.0.tgz#501fb89986a2389765ba09e6053299ceb4f2c2cc"
+  integrity sha512-CXcRvMyTlnR53xMcKnuMzfCA5i/nfblTnnr74CZb6C4vG39eu6w51t7nKmU5MfLfbTgGItliNyjO/ciNPDqClg==
 
 kind-of@^3.0.2, kind-of@^3.0.3, kind-of@^3.2.0:
   version "3.2.2"
@@ -1456,7 +1528,7 @@ locate-path@^3.0.0:
     p-locate "^3.0.0"
     path-exists "^3.0.0"
 
-lodash@>=4.17.19, lodash@^4.17.15:
+lodash@>=4.17.19, lodash@^4.17.15, lodash@^4.17.4:
   version "4.17.19"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.19.tgz#e48ddedbe30b3321783c5b4301fbd353bc1e4a4b"
   integrity sha512-JNvd8XER9GQX0v2qJgsaN/mzFCNA5BRe/j8JN9d+tWyGLSodKQHKFicdwNYzWwI3wjRnaKPsGj1XkBjx/F96DQ==
@@ -1893,6 +1965,11 @@ pbkdf2@^3.0.3:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
+performance-now@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.npmjs.org/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
+  integrity sha1-Ywn04OX6kT7BxpMHrjZLSzd8nns=
+
 pify@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/pify/-/pify-4.0.1.tgz#4b2cd25c50d598735c50292224fd8c6df41e3231"
@@ -1930,7 +2007,14 @@ promise-inflight@^1.0.1:
   resolved "https://registry.yarnpkg.com/promise-inflight/-/promise-inflight-1.0.1.tgz#98472870bf228132fcbdd868129bad12c3c029e3"
   integrity sha1-mEcocL8igTL8vdhoEputEsPAKeM=
 
-prop-types@^15.5.8:
+promise@^8.0.3:
+  version "8.1.0"
+  resolved "https://registry.npmjs.org/promise/-/promise-8.1.0.tgz#697c25c3dfe7435dd79fcd58c38a135888eaf05e"
+  integrity sha512-W04AqnILOL/sPRXziNicCjSNRruLAuIHEOVBazepu0545DDNGYHz7ar9ZgZ1fMU8/MA4mVxp5rkBWRi6OXIy3Q==
+  dependencies:
+    asap "~2.0.6"
+
+prop-types@^15.7.2:
   version "15.7.2"
   resolved "https://registry.npmjs.org/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
@@ -2006,6 +2090,13 @@ querystring@0.2.0:
   resolved "https://registry.yarnpkg.com/querystring/-/querystring-0.2.0.tgz#b209849203bb25df820da756e747005878521620"
   integrity sha1-sgmEkgO7Jd+CDadW50cAWHhSFiA=
 
+raf@^3.4.1:
+  version "3.4.1"
+  resolved "https://registry.npmjs.org/raf/-/raf-3.4.1.tgz#0742e99a4a6552f445d73e3ee0328af0ff1ede39"
+  integrity sha512-Sq4CW4QhwOHE8ucn6J34MqtZCeWFP2aQSmrlroYgqAV1PjStIhJXxYuTgUIfkEk7zTLjmIjLmU5q+fbD1NnOJA==
+  dependencies:
+    performance-now "^2.1.0"
+
 randombytes@^2.0.0, randombytes@^2.0.1, randombytes@^2.0.5:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/randombytes/-/randombytes-2.1.0.tgz#df6f84372f0270dc65cdf6291349ab7a473d4f2a"
@@ -2021,6 +2112,18 @@ randomfill@^1.0.3:
     randombytes "^2.0.5"
     safe-buffer "^5.1.0"
 
+react-app-polyfill@^1.0.4:
+  version "1.0.6"
+  resolved "https://registry.npmjs.org/react-app-polyfill/-/react-app-polyfill-1.0.6.tgz#890f8d7f2842ce6073f030b117de9130a5f385f0"
+  integrity sha512-OfBnObtnGgLGfweORmdZbyEz+3dgVePQBb3zipiaDsMHV1NpWm0rDFYIVXFV/AK+x4VIIfWHhrdMIeoTLyRr2g==
+  dependencies:
+    core-js "^3.5.0"
+    object-assign "^4.1.1"
+    promise "^8.0.3"
+    raf "^3.4.1"
+    regenerator-runtime "^0.13.3"
+    whatwg-fetch "^3.0.0"
+
 react-icons@^3.8.0:
   version "3.8.0"
   resolved "https://registry.yarnpkg.com/react-icons/-/react-icons-3.8.0.tgz#229de5904809696c9f46932bd9b6126b2522866e"
@@ -2028,29 +2131,10 @@ react-icons@^3.8.0:
   dependencies:
     camelcase "^5.0.0"
 
-react-is@^16.8.1, react-is@^16.8.4:
+react-is@^16.8.1, react-is@^16.9.0:
   version "16.13.1"
   resolved "https://registry.npmjs.org/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
-
-react-jsonschema-form@^1.8.1:
-  version "1.8.1"
-  resolved "https://registry.npmjs.org/react-jsonschema-form/-/react-jsonschema-form-1.8.1.tgz#9c962f29a55b3fe071d8edf2fc3430f05f1b7ed9"
-  integrity sha512-aaDloxNAcGXOOOcdKOxxqEEn5oDlPUZgWcs8unXXB9vjBRgCF8rCm/wVSv1u2G5ih0j/BX6Ewd/WjI2g00lPdg==
-  dependencies:
-    "@babel/runtime-corejs2" "^7.4.5"
-    ajv "^6.7.0"
-    core-js "^2.5.7"
-    lodash "^4.17.15"
-    prop-types "^15.5.8"
-    react-is "^16.8.4"
-    react-lifecycles-compat "^3.0.4"
-    shortid "^2.2.14"
-
-react-lifecycles-compat@^3.0.4:
-  version "3.0.4"
-  resolved "https://registry.npmjs.org/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
-  integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
 
 "readable-stream@1 || 2", readable-stream@^2.0.0, readable-stream@^2.0.1, readable-stream@^2.0.2, readable-stream@^2.1.5, readable-stream@^2.2.2, readable-stream@^2.3.3, readable-stream@^2.3.6, readable-stream@~2.3.6:
   version "2.3.7"
@@ -2084,7 +2168,7 @@ readdirp@^2.2.1:
     micromatch "^3.1.10"
     readable-stream "^2.0.2"
 
-regenerator-runtime@^0.13.4:
+regenerator-runtime@^0.13.3, regenerator-runtime@^0.13.4:
   version "0.13.7"
   resolved "https://registry.npmjs.org/regenerator-runtime/-/regenerator-runtime-0.13.7.tgz#cac2dacc8a1ea675feaabaeb8ae833898ae46f55"
   integrity sha512-a54FxoJDIr27pgf7IgeQGxmqUNYrcV338lf/6gH456HZ/PhX+5BcwHXG9ajESmwe6WRO0tAzRUrRmNONWgkrew==
@@ -2554,6 +2638,36 @@ util@^0.11.0:
   dependencies:
     inherits "2.0.3"
 
+validate.io-array@^1.0.3:
+  version "1.0.6"
+  resolved "https://registry.npmjs.org/validate.io-array/-/validate.io-array-1.0.6.tgz#5b5a2cafd8f8b85abb2f886ba153f2d93a27774d"
+  integrity sha1-W1osr9j4uFq7L4hroVPy2Tond00=
+
+validate.io-function@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.npmjs.org/validate.io-function/-/validate.io-function-1.0.2.tgz#343a19802ed3b1968269c780e558e93411c0bad7"
+  integrity sha1-NDoZgC7TsZaCaceA5VjpNBHAutc=
+
+validate.io-integer-array@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npmjs.org/validate.io-integer-array/-/validate.io-integer-array-1.0.0.tgz#2cabde033293a6bcbe063feafe91eaf46b13a089"
+  integrity sha1-LKveAzKTpry+Bj/q/pHq9GsToIk=
+  dependencies:
+    validate.io-array "^1.0.3"
+    validate.io-integer "^1.0.4"
+
+validate.io-integer@^1.0.4:
+  version "1.0.5"
+  resolved "https://registry.npmjs.org/validate.io-integer/-/validate.io-integer-1.0.5.tgz#168496480b95be2247ec443f2233de4f89878068"
+  integrity sha1-FoSWSAuVviJH7EQ/IjPeT4mHgGg=
+  dependencies:
+    validate.io-number "^1.0.3"
+
+validate.io-number@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.npmjs.org/validate.io-number/-/validate.io-number-1.0.3.tgz#f63ffeda248bf28a67a8d48e0e3b461a1665baf8"
+  integrity sha1-9j/+2iSL8opnqNSODjtGGhZluvg=
+
 vm-browserify@^1.0.1:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.2.tgz#78641c488b8e6ca91a75f511e7a3b32a86e5dda0"
@@ -2604,6 +2718,11 @@ webpack@^4.20.2:
     terser-webpack-plugin "^1.4.3"
     watchpack "^1.6.0"
     webpack-sources "^1.4.1"
+
+whatwg-fetch@^3.0.0:
+  version "3.6.2"
+  resolved "https://registry.npmjs.org/whatwg-fetch/-/whatwg-fetch-3.6.2.tgz#dced24f37f2624ed0281725d51d0e2e3fe677f8c"
+  integrity sha512-bJlen0FcuU/0EMLrdbJ7zOnW6ITZLrZMIarMUVmdKtsGvZna8vxKYaexICWPfZ8qwf9fzNq+UEIZrnSaApt6RA==
 
 worker-farm@^1.7.0:
   version "1.7.0"
