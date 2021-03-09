@@ -1,3 +1,4 @@
+import axios from 'axios'
 import sdk from 'botpress/sdk'
 import { ContentSection, lang } from 'botpress/shared'
 import React, { Fragment } from 'react'
@@ -28,7 +29,9 @@ export default class Summary extends React.Component<Props> {
     return { hasError: true }
   }
 
-  addAsTest() {}
+  addAsTest() {
+    axios.post('/mod/nlu/addToTest', { test: { id: 'plop' } })
+  }
 
   render() {
     if (this.state.hasError) {
