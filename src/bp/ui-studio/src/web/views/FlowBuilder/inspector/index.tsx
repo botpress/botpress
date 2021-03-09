@@ -130,7 +130,6 @@ class Inspector extends Component<Props> {
           subflows={subflows}
           node={currentFlowNode}
           updateNode={updateNodeAndRefresh}
-          updateFlow={updateFlow}
         />
       )
     }

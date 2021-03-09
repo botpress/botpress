@@ -1,8 +1,7 @@
-import { Text } from '@blueprintjs/core'
 import { ContentElement } from 'botpress/sdk'
 import classnames from 'classnames'
 import _ from 'lodash'
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment } from 'react'
 import { connect } from 'react-redux'
 
 import withLanguage from '../../../components/Util/withLanguage'
@@ -16,27 +15,15 @@ interface CommentItemProps {
   className: string
 }
 
-export const textToItemId = (text: string) => text?.match(/^say #!(.*)$/)?.[1]
-
 const CommentItem: React.FunctionComponent<CommentItemProps> = props => {
-  const [itemId, setItemId] = useState<string>('')
-
   const { text, items, contentLang } = props
-
-  useEffect(() => {
-    setItemId(textToItemId(props.text))
-  }, [])
-
-  useEffect(() => {
-    setItemId(textToItemId(props.text))
-  }, [text])
 
   if (typeof text !== 'string') {
     // only display content elements of type text
-    return
+    return <div></div>
   }
 
-  const item = items[itemId]
+  const item = items[text]
 
   const preview = item?.previews?.[contentLang] as string
   const className = classnames(style.name, {

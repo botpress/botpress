@@ -1,13 +1,90 @@
-import { lang } from 'botpress/shared'
+import { ContentElement } from 'botpress/sdk'
+import { Dialog, lang } from 'botpress/shared'
 import { FlowView, NodeView } from 'common/typings'
-import React from 'react'
+import _ from 'lodash'
+import React, { useEffect, useState } from 'react'
 
 import { Panel, Button } from 'react-bootstrap'
-
-import { AccessControl } from '~/components/Shared/Utils'
+import ContentPickerWidget from '~/components/Content/Select/Widget'
 import EditableInput from '../common/EditableInput'
-import ActionSection from './ActionSection'
 import style from './style.scss'
+
+interface CommentModelFormProps {
+  itemId?: string
+  onChange: (itemId: string) => void
+}
+
+const CommentModelForm: React.FunctionComponent<CommentModelFormProps> = props => {
+  const handleChange = (item: ContentElement) => {
+    props.onChange(item.id)
+  }
+
+  return (
+    <div>
+      <h5>{lang.tr('studio.flow.node.comment')}:</h5>
+      <div className={style.section}>
+        <ContentPickerWidget
+          itemId={props.itemId}
+          onChange={handleChange}
+          contentType={'builtin_text'}
+          placeholder={lang.tr('studio.flow.node.commentToDisplay')}
+        />
+      </div>
+    </div>
+  )
+}
+
+interface CommentModalProps {
+  itemId?: string
+  updateNode: (...args: any[]) => void
+  onClose: () => void
+  show: boolean
+}
+
+const CommentModal: React.FunctionComponent<CommentModalProps> = props => {
+  const [itemId, setItemId] = useState<string | undefined>(undefined)
+
+  useEffect(() => {
+    setItemId(props.itemId)
+  }, [])
+
+  useEffect(() => {
+    setItemId(props.itemId)
+  }, [props.itemId])
+
+  const onSubmit = () => {
+    props.updateNode({ onEnter: [itemId] })
+    props.onClose()
+  }
+
+  const onChange = (itemId: string) => {
+    setItemId(itemId)
+  }
+
+  return (
+    <Dialog.Wrapper
+      title={itemId ? lang.tr('studio.flow.node.editComment') : lang.tr('studio.flow.node.addComment')}
+      isOpen={props.show}
+      onClose={props.onClose}
+      onSubmit={onSubmit}
+    >
+      <Dialog.Body>
+        <div>
+          <CommentModelForm itemId={itemId} onChange={onChange} />
+        </div>
+      </Dialog.Body>
+      <Dialog.Footer>
+        <Button id="btn-cancel-action" onClick={props.onClose}>
+          {lang.tr('cancel')}
+        </Button>
+        <Button id="btn-submit-action" type="submit" bsStyle="primary">
+          {lang.tr('save')}
+          (Alt+Enter)
+        </Button>
+      </Dialog.Footer>
+    </Dialog.Wrapper>
+  )
+}
 
 interface CommentNodePropertiesPanelProps {
   readOnly: boolean
@@ -15,10 +92,11 @@ interface CommentNodePropertiesPanelProps {
   subflows: any[]
   node: NodeView
   updateNode: (...args: any[]) => void
-  updateFlow: (flow: Partial<FlowView>) => void
 }
 
 const CommentNodePropertiesPanel: React.FunctionComponent<CommentNodePropertiesPanelProps> = props => {
+  const [show, setShow] = useState<boolean>(false)
+
   const { node, readOnly } = props
 
   const renameNode = (text: string) => {
@@ -31,12 +109,18 @@ const CommentNodePropertiesPanel: React.FunctionComponent<CommentNodePropertiesP
   }
 
   const editComment = () => {
-    return
+    setShow(true)
   }
 
   const transformText = (text: string) => {
     return text.replace(/[^a-z0-9-_\.]/gi, '_')
   }
+
+  const onClose = () => {
+    setShow(false)
+  }
+
+  const itemId = node.onEnter[0] as string
 
   return (
     <div className={style.node}>
@@ -48,15 +132,11 @@ const CommentNodePropertiesPanel: React.FunctionComponent<CommentNodePropertiesP
           onChanged={renameNode}
           transform={transformText}
         />
-        <div style={{ padding: '5px' }}>
-          <ActionSection
-            readOnly={readOnly}
-            items={node.onEnter}
-            header={lang.tr('studio.flow.node.editComment')}
-            onItemsUpdated={items => props.updateNode({ onEnter: items })}
-          />
-        </div>
+        <Button onClick={editComment}>
+          {itemId ? lang.tr('studio.flow.node.editComment') : lang.tr('studio.flow.node.addComment')}
+        </Button>
       </Panel>
+      <CommentModal show={show} itemId={itemId} onClose={onClose} updateNode={props.updateNode} />
     </div>
   )
 }
