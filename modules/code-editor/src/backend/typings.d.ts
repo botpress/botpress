@@ -15,6 +15,7 @@ export type FileType =
   | 'action_example'
   | 'raw'
   | 'shared_libs'
+  | 'schema'
 
 export interface EditableFile {
   /** The name of the file, extracted from its location */

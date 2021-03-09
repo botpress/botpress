@@ -73,6 +73,15 @@ export default class CodeEditorApi {
     }
   }
 
+  async getSchema(file: EditableFile): Promise<string> {
+    try {
+      const { data } = await this.axios.post('/mod/code-editor/getSchema', file)
+      return data
+    } catch (err) {
+      this.handleApiError(err, 'Could not check if file already exists')
+    }
+  }
+
   async downloadFile(file: EditableFile) {
     try {
       const { data } = await this.axios.post('/mod/code-editor/download', file, { responseType: 'blob' })

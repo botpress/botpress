@@ -2,6 +2,7 @@ import SMTPConnection from 'nodemailer/lib/smtp-connection'
 
 export interface Config {
   /**
+   * @description Default content renderer when displaying choices
    * @default builtin_single-choice
    */
   defaultContentElement: string
@@ -18,6 +19,11 @@ export interface Config {
    */
   disableIntegrityCheck: boolean
   /**
+   * @name Match Numbers
+   * @title fuck bitch
+   * @description When true, it will try to extract numbers from questions
+   * @ui:title fuck bitch
+   * @ui:description: When true, it will try to extract numbers from questions
    * @default true
    */
   matchNumbers: boolean

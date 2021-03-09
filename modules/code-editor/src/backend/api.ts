@@ -48,6 +48,23 @@ export default async (bp: typeof sdk, editor: Editor) => {
   )
 
   router.post(
+    '/getSchema',
+    asyncMiddleware(async (req: BPRequest & RequestWithPerms, res) => {
+      try {
+        const fi = await editor.forBot(req.params.botId).readFileContent({
+          name: req.body.name,
+          type: 'raw',
+          location: `assets/modules/${req.body.name}/config.schema.json`
+        })
+
+        res.send(fi)
+      } catch (err) {
+        throw new UnexpectedError('Error fetching files', err)
+      }
+    })
+  )
+
+  router.post(
     '/save',
     loadPermsMw,
     validateFilePayloadMw('write'),

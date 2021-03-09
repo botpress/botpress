@@ -115,5 +115,12 @@ export const FileTypes: { [type: string]: FileDefinition } = {
     ghost: {
       baseDir: '/'
     }
+  },
+  schema: {
+    allowRoot: true,
+    permission: 'module_config',
+    ghost: {
+      baseDir: '/'
+    }
   }
 }

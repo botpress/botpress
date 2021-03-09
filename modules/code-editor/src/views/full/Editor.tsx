@@ -11,6 +11,7 @@ import React from 'react'
 import { EditableFile } from '../../backend/typings'
 
 import SplashScreen from './components/SplashScreen'
+import ConfigForm from './ConfigForm'
 import { RootStore, StoreDef } from './store'
 import CodeEditorApi from './store/api'
 import { EditorStore } from './store/editor'
@@ -219,6 +220,22 @@ class Editor extends React.Component<Props> {
               )
             })}{' '}
           </div>
+          {this.props.editor.openedFiles.map(({ uri, hasChanges, location, name }) => {
+            const isActive = uri === this.props.editor.currentFile?.uri
+            const isFriendlyConfig = this.props.editor.currentFile?.uri?.path?.endsWith('.json')
+
+            if (!isActive || !isFriendlyConfig) {
+              return null
+            }
+
+            return (
+              <ConfigForm
+                api={this.props.store.api}
+                currentFile={this.props.editor.currentFile}
+                visible={isFriendlyConfig}
+              ></ConfigForm>
+            )
+          })}
           <div id="monaco-editor" ref={ref => (this.editorContainer = ref)} className={style.editor}>
             <div className={style.floatingButtons}>
               <Tooltip content={lang.tr('save')} position={Position.TOP}>
