@@ -27,30 +27,31 @@ export class SpeechService {
 
 class LangSpeechService {
   private model: VoskModel
-  private recognizer: VoskRecognizer
 
   constructor(private lang: string, private dir: string) {
     vosk.setLogLevel(-1)
     this.model = new vosk.Model(`./speech/${dir}`) as VoskModel
-    this.recognizer = new vosk.Recognizer(this.model, 16000.0) as VoskRecognizer
   }
 
   public parse(file: string): Promise<string> {
     return new Promise((resolve, reject) => {
+      const recognizer = new vosk.Recognizer(this.model, 16000.0) as VoskRecognizer
       const fileStream = fs.createReadStream(`./speech/${file}.wav`, { highWaterMark: 4096 })
       const wavReader = new wav.Reader()
 
       wavReader.on('format', async ({ audioFormat, sampleRate, channels }) => {
         if (audioFormat !== 1 || channels !== 1) {
+          recognizer.free()
           reject('Audio file must be WAV format mono PCM.')
           return
         }
 
         for await (const data of new Readable().wrap(wavReader)) {
-          this.recognizer.acceptWaveform(data)
+          recognizer.acceptWaveform(data)
         }
 
-        const result = JSON.parse(this.recognizer.finalResult(this.recognizer))
+        const result = JSON.parse(recognizer.finalResult(recognizer))
+        recognizer.free()
         resolve(result.text)
       })
 
@@ -59,7 +60,6 @@ class LangSpeechService {
   }
 
   public free() {
-    this.recognizer.free()
     this.model.free()
   }
 }

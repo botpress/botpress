@@ -32,7 +32,7 @@ import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
 import { LogsRepository } from './repositories/logs'
 import { TelemetryRepository } from './repositories/telemetry'
-import { AdminRouter, AuthRouter, BotsRouter, MediaRouter, ModulesRouter } from './routers'
+import { AdminRouter, AuthRouter, BotsRouter, MediaRouter, ModulesRouter, SpeechRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
 import { HintsRouter } from './routers/bots/hints'
@@ -62,6 +62,7 @@ import { MediaServiceProvider } from './services/media'
 import { MonitoringService } from './services/monitoring'
 import { NLUService } from './services/nlu/nlu-service'
 import { NotificationsService } from './services/notification/service'
+import { SpeechService } from './services/speech/speech'
 import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
 
@@ -99,6 +100,7 @@ export default class HTTPServer {
   private telemetryRouter!: TelemetryRouter
   private mediaRouter: MediaRouter
   private readonly sdkApiRouter!: SdkApiRouter
+  private speechRouter!: SpeechRouter
   private _needPermissions: (
     operation: string,
     resource: string
@@ -141,7 +143,8 @@ export default class HTTPServer {
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.LogsRepository) private logsRepo: LogsRepository,
     @inject(TYPES.NLUService) private nluService: NLUService,
-    @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository
+    @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository,
+    @inject(TYPES.SpeechService) private speechService: SpeechService
   ) {
     this.app = express()
 
@@ -214,6 +217,8 @@ export default class HTTPServer {
       mediaServiceProvider,
       this.configProvider
     )
+
+    this.speechRouter = new SpeechRouter(this.logger, this.speechService)
 
     this._needPermissions = needPermissions(this.workspaceService)
     this._hasPermissions = hasPermissions(this.workspaceService)
@@ -381,6 +386,7 @@ export default class HTTPServer {
     this.app.use(`${BASE_API_PATH}/sdk`, this.sdkApiRouter.router)
     this.app.use(`${BASE_API_PATH}/telemetry`, this.telemetryRouter.router)
     this.app.use(`${BASE_API_PATH}/media`, this.mediaRouter.router)
+    this.app.use(`${BASE_API_PATH}/speech`, this.speechRouter.router)
     this.app.use('/s', this.shortLinksRouter.router)
 
     this.app.use((err, _req, _res, next) => {
