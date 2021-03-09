@@ -21,7 +21,7 @@ const makeMw = async (storagePerBot: { [botId: string]: Storage }) => {
   const qaClient = await inititalizeQAClient()
 
   const mw: sdk.IO.MiddlewareDefinition = {
-    name: 'run_unsupervised_qna',
+    name: 'run-unsupervised-qa',
     description: "Runs question answering predict on event's text",
     direction: 'incoming',
     order: 125,

@@ -10,19 +10,23 @@ export default async (logger: sdk.Logger): Promise<boolean> => {
   const os = await getos() // TODO: checkout the correct subdirectory
 
   if (os.os === 'win32') {
-    logger.warn(`unsupervised_qna does not work on operating system ${os.os}. Will be disabled.`)
+    logger.warn(`unsupervised-qa does not work on operating system ${os.os}. Will be disabled.`)
     return false
   }
 
-  // copy binary to correct location
   try {
     const from = path.join(MODULE_ROOT, 'native_extensions', os.os, 'all', 'tfjs_binding.node')
     const to = nodePreGyp.find(path.join(MODULE_ROOT, 'node_modules', '@tensorflow', 'tfjs-node', 'package.json'))
-    fs.copyFileSync(from, to)
+    
+    if (fs.existsSync(to)) {
+      logger.info('TFJS dependencies seems to be already installed.')
+      return true
+    }
 
+    fs.copyFileSync(from, to)
     return true
   } catch (err) {
-    logger.attachError(err).warn('An error occured, unsupervised_qna will be disabled')
+    logger.attachError(err).warn('An error occured, unsupervised-qa will be disabled')
     return false
   }
 }
