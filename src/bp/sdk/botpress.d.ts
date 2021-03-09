@@ -736,6 +736,7 @@ declare module 'botpress/sdk' {
       credentials?: any
       nlu?: Partial<EventUnderstanding>
       incomingEventId?: string
+      debugger?: boolean
     }
 
     /**
@@ -1732,6 +1733,55 @@ declare module 'botpress/sdk' {
     asChatUser?: boolean
   }
 
+  export type uuid = string
+
+  export interface ListOptions {
+    limit?: number
+    offset?: number
+  }
+
+  export interface Conversation {
+    id: uuid
+    userId: string
+    botId: string
+    createdOn: Date
+  }
+
+  export interface RecentConversation extends Conversation {
+    lastMessage?: Message
+  }
+
+  export interface ConversationDeleteFilters {
+    id?: uuid
+    userId?: string
+  }
+
+  export interface ConversationListFilters extends ListOptions {
+    userId: string
+  }
+
+  export interface Message {
+    id: uuid
+    conversationId: uuid
+    eventId?: string
+    incomingEventId?: string
+    from: string
+    sentOn: Date
+    payload: any
+  }
+
+  export interface MessageArgs
+    extends Partial<Omit<IO.EventCtorArgs, 'type' | 'direction' | 'payload' | 'target' | 'botId' | 'threadId'>> {}
+
+  export interface MessageDeleteFilters {
+    id?: uuid
+    conversationId?: uuid
+  }
+
+  export interface MessageListFilters extends ListOptions {
+    conversationId: uuid
+  }
+
   ////////////////
   //////// API
   ////////////////
@@ -2360,5 +2410,143 @@ declare module 'botpress/sdk' {
   export namespace experimental {
     export function disableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
     export function enableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean>
+
+    export namespace conversations {
+      export function forBot(botId: string): BotConversations
+
+      export interface BotConversations {
+        /**
+         * Create a conversation to store in the db
+         * @param userId Id of the user to create a conversation with
+         * @returns The created conversation
+         * @example
+         * const conversation = await bp.conversations.forBot('myBot').create('eEFoneif394')
+         */
+        create(userId: uuid): Promise<Conversation>
+
+        /**
+         * Deletes conversations from the db
+         * @param filters Filters which conversations to delete
+         * @returns The number of deleted rows
+         * @example
+         * // Delete a conversation by id
+         * await bp.conversations.forBot('myBot').delete({ id: '9aa7da7a-9ab1-4a60-bedd-8bdca22beb03' })
+         * // Delete all conversations of a bot user
+         * await bp.conversations.forBot('myBot').delete({ userId: 'eEFoneif394' })
+         */
+        delete(filters: ConversationDeleteFilters): Promise<number>
+
+        /**
+         * Gets one conversation from the db
+         * @param id Id of the conversation to get
+         * @returns The matching conversation or `undefined` if none were found
+         * @example
+         * // Get conversation by id
+         * const converation = await bp.conversations.forBot('myBot').get('9aa7da7a-9ab1-4a60-bedd-8bdca22beb03'})
+         */
+        get(id: uuid): Promise<Conversation | undefined>
+
+        /**
+         * Gets many conversations from the db.
+         * The results are ordered from most recent to least recent
+         * @param filters Filters which conversations to get
+         * @example
+         * // Get the 20 most recent conversations of a bot user
+         * const conversations = await bp.conversations.forBot('myBot').list({ userId: 'eEFoneif394', limit: 20 })
+         */
+        list(filters: ConversationListFilters): Promise<RecentConversation[]>
+
+        /**
+         * Gets the most recent conversation of a user.
+         * If the user has no matching conversation, creates one
+         * @param userId Id of the user
+         * @example
+         * const conversation = await bp.conversations.forBot('myBot').recent('eEFoneif394')
+         */
+        recent(userId: uuid): Promise<Conversation>
+      }
+    }
+
+    export namespace messages {
+      export function forBot(botId: string): BotMessages
+
+      export interface BotMessages {
+        /**
+         * Sends a outgoing message (bot message) through the event loop. The message is stored in the database
+         * @param conversationId Id of the conversation to which this message belongs to
+         * @param payload Payload of the message
+         * @param args Additional arguments to pass to the event constructor. Optional
+         * @example
+         * // Inside an action
+         * await bp.messages
+         *   .forBot(event.botId)
+         *   .send(event.threadId, { type: 'text', text: 'hello user!' })
+         */
+        send(conversationId: uuid, payload: any, args?: MessageArgs): Promise<Message>
+
+        /**
+         * Sends a incoming message (user message) through the event loop. The message is stored in the database
+         * @param conversationId Id of the conversation to which this message belongs to
+         * @param payload Payload of the message
+         * @param args Additional arguments to pass to the event constructor. Optional
+         * @example
+         * // Inside an action
+         * await bp.messages
+         *   .forBot(event.botId)
+         *   .receive(event.threadId, { type: 'text', text: 'this is a message from the user!' })
+         */
+        receive(conversationId: uuid, payload: any, args?: MessageArgs): Promise<Message>
+
+        /**
+         * Creates a message to store in the db
+         * @param args Properties of the message
+         * @returns The created message
+         * @example
+         * const message = await bp.messages
+         *   .forBot('myBot')
+         *   .create('9aa7da7a-9ab1-4a60-bedd-8bdca22beb03', { type: 'text', text: 'hello' }, 'user', '32242', '242224')
+         */
+        create(
+          conversationId: uuid,
+          payload: any,
+          from: string,
+          eventId?: string,
+          incomingEventId?: string
+        ): Promise<Message>
+
+        /**
+         * Deletes messages from the db
+         * @param filters Filters which messages to delete
+         * @returns The number of deleted rows
+         * @example
+         * // Delete message by id
+         * await bp.messages.forBot('myBot').delete({ id: '00001337-ca79-4235-8475-3785e41eb2be' })
+         * @example
+         * // Delete all messages of a conversation
+         * await bp.messages.forBot('myBot').delete({ conversationId: '9aa7da7a-9ab1-4a60-bedd-8bdca22beb03' })
+         */
+        delete(filters: MessageDeleteFilters): Promise<number>
+
+        /**
+         * Gets one message from the db
+         * @param id Id of the message to get
+         * @returns The matching message or `undefined` if none were found
+         * @example
+         * // Get message by id
+         * const message = await bp.message.forBot('myBot').get('00001337-ca79-4235-8475-3785e41eb2be')
+         */
+        get(id: uuid): Promise<Message | undefined>
+
+        /**
+         * Gets many messages from the db.
+         * The results are ordered from most recent to least recent
+         * @param filters Filters which messages to get
+         * @example
+         * // Get 20 most recent messages of a conversation
+         * const messages = await bp.messages.forBot('myBot').list({ conversationId: '9aa7da7a-9ab1-4a60-bedd-8bdca22beb03', limit: 20 })
+         */
+        list(filters: MessageListFilters): Promise<Message[]>
+      }
+    }
   }
 }
