@@ -120,8 +120,6 @@ export default async (bp: typeof sdk, db: Db) => {
       const { botId } = req.params
       const { status } = req.body
 
-      console.log('Yes sir ', status)
-
       try {
         await db.deleteAll(botId, status)
         res.sendStatus(200)
