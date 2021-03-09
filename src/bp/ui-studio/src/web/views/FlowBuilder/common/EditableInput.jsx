@@ -1,5 +1,5 @@
-import React, { Component } from 'react'
 import classnames from 'classnames'
+import React, { Component } from 'react'
 
 const style = require('./style.scss')
 const KEY_A = 65
@@ -14,6 +14,9 @@ export default class EditableInput extends Component {
 
   componentDidMount() {
     this.props.onMount && this.props.onMount(this.input)
+    if (this.props.shouldFocus) {
+      this.input.focus()
+    }
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {

@@ -122,8 +122,13 @@ class Inspector extends Component<Props> {
     }
 
     if (nodeTypes.includes(nodeType)) {
+      const isLastNode = currentFlow.nodes.length
+        ? currentFlow.nodes[currentFlow.nodes.length - 1].id === currentFlowNode.id
+        : false
+
       return (
         <StandardNode
+          isLastNode={isLastNode}
           readOnly={readOnly}
           flow={currentFlow}
           subflows={subflows}
