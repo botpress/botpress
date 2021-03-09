@@ -157,7 +157,7 @@ const buildConfigSchema = async (modulePath: string) => {
     required: true,
     ignoreErrors: true,
     noExtraProps: true,
-    validationKeywords: ['see', 'example', 'pattern']
+    validationKeywords: ['see', 'example', 'pattern', 'title', 'description']
   }
 
   const program = getProgramFromFiles([config])

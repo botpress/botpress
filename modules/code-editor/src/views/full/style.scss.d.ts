@@ -6,8 +6,12 @@ interface CssExports {
   'editor': string;
   'editorContainer': string;
   'floatingButtons': string;
+  'form': string;
+  'formButton': string;
+  'formSchema': string;
   'hidden': string;
   'padding': string;
+  'root': string;
   'sidePanel': string;
   'status': string;
   'tab': string;

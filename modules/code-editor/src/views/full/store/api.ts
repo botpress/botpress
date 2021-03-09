@@ -73,7 +73,7 @@ export default class CodeEditorApi {
     }
   }
 
-  async getSchema(file: EditableFile): Promise<string> {
+  async getSchema(file: Partial<EditableFile>): Promise<any> {
     try {
       const { data } = await this.axios.post('/mod/code-editor/getSchema', file)
       return data

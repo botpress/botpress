@@ -31,6 +31,10 @@ class Editor extends React.Component<Props> {
   private editor: monaco.editor.IStandaloneCodeEditor
   private editorContainer: HTMLDivElement
 
+  state = {
+    showForm: true
+  }
+
   async componentDidMount() {
     this.setupEditor()
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -106,6 +110,8 @@ class Editor extends React.Component<Props> {
 
     this.editor.updateOptions({ readOnly })
     this.editor.focus()
+
+    this.setState({ showForm: true })
   }
 
   saveChanges = async (uri?: monaco.Uri) => {
@@ -192,6 +198,10 @@ class Editor extends React.Component<Props> {
     const { isAdvanced, setAdvanced } = this.props.editor
     const isFileOpened = !!this.props.editor.openedFiles.length
     const hasChanges = !!this.props.editor.currentFile?.hasChanges
+    const currentFile = this.props.editor.currentFile || ({} as FileWithMetadata)
+
+    const isSchema =
+      currentFile.type === 'module_config' || currentFile.type === 'bot_config' || currentFile.type === 'main_config'
 
     return (
       <React.Fragment>
@@ -202,10 +212,17 @@ class Editor extends React.Component<Props> {
           <div className={style.tabsContainer}>
             {this.props.editor.openedFiles.map(({ uri, hasChanges, location, name }) => {
               const isActive = uri === this.props.editor.currentFile?.uri
+              const hasForm = uri.path?.endsWith('.json')
               return (
                 <div className={cx(style.tab, { [style.active]: isActive })} key={name} id={name}>
                   <span onClick={() => this.props.editor.switchTab(uri)}>{location}</span>
 
+                  {hasForm && (
+                    <div className={style.formButton}>
+                      <Icon icon="form" onClick={() => this.setState({ showForm: true })} iconSize={10}></Icon>
+                      <Icon icon="code" onClick={() => this.setState({ showForm: false })} iconSize={10}></Icon>
+                    </div>
+                  )}
                   <div>
                     <Tooltip content={lang.tr('close')} position={Position.RIGHT}>
                       <Icon
@@ -220,23 +237,14 @@ class Editor extends React.Component<Props> {
               )
             })}{' '}
           </div>
-          {this.props.editor.openedFiles.map(({ uri, hasChanges, location, name }) => {
-            const isActive = uri === this.props.editor.currentFile?.uri
-            const isFriendlyConfig = this.props.editor.currentFile?.uri?.path?.endsWith('.json')
-
-            if (!isActive || !isFriendlyConfig) {
-              return null
-            }
-
-            return (
-              <ConfigForm
-                api={this.props.store.api}
-                currentFile={this.props.editor.currentFile}
-                visible={isFriendlyConfig}
-              ></ConfigForm>
-            )
-          })}
-          <div id="monaco-editor" ref={ref => (this.editorContainer = ref)} className={style.editor}>
+          {isSchema && this.state.showForm && (
+            <ConfigForm api={this.props.store.api} currentFile={this.props.editor.currentFile} visible={true} />
+          )}
+          <div
+            id="monaco-editor"
+            ref={ref => (this.editorContainer = ref)}
+            className={cx(style.editor, { [style.hidden]: isSchema && this.state.showForm })}
+          >
             <div className={style.floatingButtons}>
               <Tooltip content={lang.tr('save')} position={Position.TOP}>
                 <AnchorButton onClick={() => this.saveChanges()} disabled={!hasChanges} icon="floppy-disk" />

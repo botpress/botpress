@@ -8,6 +8,28 @@
   height: calc(100% - 35px);
 }
 
+.form {
+  background: #fff;
+}
+
+.formButton {
+  position: relative;
+  top: -5px;
+}
+
+.formSchema {
+  fieldset:not(#root) {
+    // margin-left:  10px;
+    legend {
+      height: 25px;
+    }
+
+    div {
+      margin-left: 10px;
+    }
+  }
+}
+
 .hidden {
   display: none;
 }

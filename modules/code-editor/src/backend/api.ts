@@ -51,13 +51,24 @@ export default async (bp: typeof sdk, editor: Editor) => {
     '/getSchema',
     asyncMiddleware(async (req: BPRequest & RequestWithPerms, res) => {
       try {
-        const fi = await editor.forBot(req.params.botId).readFileContent({
-          name: req.body.name,
-          type: 'raw',
-          location: `assets/modules/${req.body.name}/config.schema.json`
-        })
+        const { type, name } = req.body
+        let location
 
-        res.send(fi)
+        if (type === 'module_config') {
+          location = `assets/modules/${name}/config.schema.json`
+        } else if (type === 'main_config') {
+          location = 'botpress.config.schema.json'
+        } else if (type === 'bot_config') {
+          location = 'bot.config.schema.json'
+        }
+
+        res.send(
+          await editor.forBot(req.params.botId).readFileContent({
+            name: location,
+            type: 'raw',
+            location
+          })
+        )
       } catch (err) {
         throw new UnexpectedError('Error fetching files', err)
       }

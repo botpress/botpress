@@ -14,19 +14,22 @@ export interface ModuleConfigEntry {
 
 export interface DialogConfig {
   /**
-   * Interval between executions of the janitor that checks for stale contexts and sessions.
+   * @title Janitor Execution Interval
+   * @description Interval between executions of the janitor that checks for stale contexts and sessions.
    * @default 10s
    */
   janitorInterval: string
   /**
-   * Interval before a session's context expires.
+   * @title User Context Timeout Interval
+   * @description Interval before a session's context expires.
    * e.g. when the conversation is stale and has not reached the END of the flow.
    * This will reset the position of the user in the flow.
    * @default 2m
    */
   timeoutInterval: string
   /**
-   * Interval before a session expires. e.g. when the user has not spoken for a while.
+   * @title Session Timeout Interval
+   * @description Interval before a session expires. e.g. when the user has not spoken for a while.
    * The session including its variable will be deleted.
    * @default 30m
    */
@@ -35,35 +38,42 @@ export interface DialogConfig {
 
 export interface LogsConfig {
   /**
-   * The database output will not record Debug logs.
+   * @title Database Output
+   * @description Store logs on the database (except debug logs)
    */
   dbOutput: {
     /**
-     * Logs will be kept for this amount of time in the database
+     * @title Expiration
+     * @description Logs will be kept for this amount of time in the database
      * @default 2 weeks
      */
     expiration: string
     /**
+     * @title Janitor Execution Interval
      * @default 30s
      */
     janitorInterval: string
   }
   /**
-   * The file output records everything that is displayed in the console logs.
+   * @title File Output
+   * @description This will logs everything displayed in the console in a file
    */
   fileOutput: {
     /**
-     * Enable or disable the output of logs to the file system. A new file is created each day
+     * @title Enabled
+     * @description Enable or disable the output of logs to the file system. A new file is created each day
      * @default false
      */
     enabled: boolean
     /**
-     * The path (relative or absolute) to the logs folder.
+     * @title Log File Location
+     * @description The path (relative or absolute) to the logs folder.
      * @default ./
      */
     folder: string
     /**
-     * The maximum file size that the log can reach before a new one is started (size in kb)
+     * @title Maximum File Size
+     * @description The maximum file size that the log can reach before a new one is started (size in kb)
      * @default 10000
      */
     maxFileSize: number
@@ -76,14 +86,29 @@ export interface LogsConfig {
  */
 
 export interface BotpressConfig {
+  /**
+   * @title Current version
+   * @description This is the current version of Botpress. Do not change this manually
+   * @readonly
+   */
   version: string
+  /**
+   * @title Application Secret
+   * @description This secret is used to encrypt various
+   */
   appSecret: string
+  /**
+   * @title HTTP Server Configuration
+   */
   httpServer: {
     /**
+     * @title Hostname
+     * @description This is the host where the HTTP server will listen. Most of the time, it will be "localhost"
      * @default localhost
      */
     host: string
     /**
+     * @title Port
      * @default 3000
      */
     port: number
@@ -100,23 +125,35 @@ export interface BotpressConfig {
      */
     backlog: number
     /**
+     * @title Request Body Max Limit
      * @default 10mb
      */
     bodyLimit: string | number
     /**
-     * CORS policy for the server. You can provide other configuration parameters
+     * @title Cross-Origin Resource Sharing Configuration
+     * @description CORS policy for the server. You can provide other configuration parameters
      * listed on this page: https://expressjs.com/en/resources/middleware/cors.html
      */
     cors: {
       /**
+       * @title Enabled
        * @default true
        */
       enabled?: boolean
+      /**
+       * @title Allowed Origin
+       * @description Configure the allowed hosts for the CORS policy
+       */
       origin?: string
+      /**
+       * @title Send Credentials
+       * @description This is required when using "useCookieStorage"
+       */
       credentials?: boolean
     }
     /**
-     * Represents the complete base URL exposed externally by your bot. This is useful if you configure the bot
+     * @title External URL
+     * @description Represents the complete base URL exposed externally by your bot. This is useful if you configure the bot
      * locally and use NGINX as a reverse proxy to handle HTTPS. It should include the protocol and no trailing slash.
      * If unset, it will be constructed from the real host/port
      * @example https://botpress.com
@@ -142,6 +179,10 @@ export interface BotpressConfig {
      * @default ["websocket","polling"]
      */
     socketTransports: string[]
+    /**
+     * @title Rate Limiter
+     * @description Limit the number of requests a single host may send to your backend
+     */
     rateLimit: {
       /**
        * * Security option to rate limit potential attacker trying to brute force something
@@ -166,11 +207,24 @@ export interface BotpressConfig {
     headers: { [name: string]: string }
   }
   converse: ConverseConfig
+  /**
+   * @title Dialog Engine Configuration
+   */
   dialog: DialogConfig
+  /**
+   * @title Logs Configuration
+   */
   logs: LogsConfig
+  /**
+   * @title Modules Configuration
+   */
   modules: Array<ModuleConfigEntry>
+  /**
+   * @title Botpress Enterprise Configuration
+   */
   pro: {
     /**
+     * @title Collaborators Authentication Strategies
      * These strategies are allowed to log on the Admin UI.
      * Once a user is logged on, he still needs individual access to respective workspaces
      * @default  ["default"]
@@ -182,20 +236,26 @@ export interface BotpressConfig {
      */
     enabled: boolean
     /**
-     * The license key for the server.  Optionally you can use the BP_LICENSE_KEY env variable.
+     * @title License Key
+     * @description The license key for the server.  Optionally you can use the BP_LICENSE_KEY env variable.
      * You can purchase a license on https://botpress.com
      * For usage with Botpress Pro/Enterprise.
      * @default paste your license key here
      */
     licenseKey: string
+    /**
+     * @title Monitoring Configuration
+     */
     monitoring: MonitoringConfig
     /**
-     * The alert service is an extension of the monitoring service. The monitoring collects data, while the alert service
+     * @title Alerting Configuration
+     * @description The alert service is an extension of the monitoring service. The monitoring collects data, while the alert service
      * analyzes them and opens an incident when configured threshold are met.
      */
     alerting: AlertingConfig
     /**
-     * External Authentication makes it possible to authenticate end-users (chat users) from another system
+     * @title External Authentication
+     * @description External Authentication makes it possible to authenticate end-users (chat users) from another system
      * by using JWT tokens.
      *
      * In addition to authenticate the users, the JWT token can also contain arbitrary additional
@@ -206,7 +266,8 @@ export interface BotpressConfig {
      */
     externalAuth?: ExternalAuthConfig
     /**
-     * Configure the branding of the admin panel and the studio. A valid license is required
+     * @title White Labeling
+     * @description Configure the branding of the admin panel and the studio. A valid license is required
      */
     branding: {
       admin: {
@@ -246,17 +307,20 @@ export interface BotpressConfig {
     }
   }
   /**
-   * An array of e-mails of users which will have root access to Botpress (manage users, server settings)
+   * @title Super Administrators
+   * @description An array of e-mails of users which will have root access to Botpress (manage users, server settings)
    * @example: [admin@botpress.com]
    */
   superAdmins: UniqueUser[]
   /**
-   * When enabled, Botpress collects anonymous data about the bot's usage
+   * @title Telemetry
+   * @description When enabled, Botpress collects anonymous data about the bot's usage
    * @default true
    */
   sendUsageStats: boolean
   /**
-   * When this feature is enabled, fields saved as user attributes will be automatically erased when they expires. The timer is reset each time the value is modified
+   * @title Data Retention Configuration
+   * @description When this feature is enabled, fields saved as user attributes will be automatically erased when they expires. The timer is reset each time the value is modified
    * Setting a policy called "email": "30d" means that once an email is set, it will be removed in 30 days, unless it is changed in that timespan
    */
   dataRetention?: DataRetentionConfig
@@ -267,37 +331,49 @@ export interface BotpressConfig {
    */
   botCategories: string[]
   /**
-   * When this option is enabled, Super Admins are able to reboot the Botpress Server via the Admin UI
+   * @title Allow Server Reboot
+   * @description When this option is enabled, Super Admins are able to reboot the Botpress Server via the Admin UI
    * We recommend disabling this in a production environment, and if you use a process management tool like PM2
    *
    * @default true
    */
   allowServerReboot: boolean
+  /**
+   * @title Media File Upload
+   */
   fileUpload: {
     /**
-     * Maximum file size for media files upload (in mb)
+     * @title Maximum File Size
+     * @description Maximum file size for media files upload (in mb)
      * @default 10mb
      */
     maxFileSize: string
     /**
-     * The list of allowed extensions for media file uploads
+     * @title Allowed Mime Types
+     * @description The list of allowed extensions for media file uploads
      * @default ["image/jpeg","image/png","image/gif"]
      */
     allowedMimeTypes: string[]
   }
+  /**
+   * @title JWT Token Configuration
+   */
   jwtToken: {
     /**
-     * The duration for which the token granting access to manage Botpress will be active.
+     * @title Duration
+     * @description The duration for which the token granting access to manage Botpress will be active.
      * @default 1h
      */
     duration: string
     /**
-     * When enabled, the token is refreshed every 5 minutes while the user is connected
+     * @title Allow Refresh
+     * @description When enabled, the token is refreshed every 5 minutes while the user is connected
      * @default true
      */
     allowRefresh: boolean
     /**
-     * Use an HTTP-Only secure cookie instead of the local storage for the JWT Token
+     * @title Use Cookie Storage
+     * @description Use an HTTP-Only secure cookie instead of the local storage for the JWT Token
      * @default false
      */
     useCookieStorage: boolean

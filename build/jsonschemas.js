@@ -10,7 +10,8 @@ const mkdirp = require('mkdirp')
 module.exports = () => {
   const settings = {
     required: true,
-    ignoreErrors: true
+    ignoreErrors: true,
+    validationKeywords: ['see', 'example', 'pattern', 'title', 'description']
   }
 
   const files = glob.sync('./src/bp/core/config/*.ts')
