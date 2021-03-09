@@ -1,6 +1,6 @@
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
-import { FlowPoint, FlowView, NodeProblem } from 'common/typings'
+import { FlowPoint, FlowView, NodeProblem, NodeSize } from 'common/typings'
 import _ from 'lodash'
 import { createAction } from 'redux-actions'
 
@@ -169,7 +169,9 @@ export const duplicateFlow: (flow: { flowNameToDuplicate: string; name: string }
   }
 )
 
-type AllPartialNode = (Partial<sdk.FlowNode> | Partial<sdk.TriggerNode> | Partial<sdk.ListenNode>) & Partial<FlowPoint>
+type AllPartialNode = (Partial<sdk.FlowNode> | Partial<sdk.TriggerNode> | Partial<sdk.ListenNode>) &
+  Partial<FlowPoint> &
+  Partial<NodeSize>
 
 export const updateFlowNode: (props: AllPartialNode) => void = wrapAction(requestUpdateFlowNode, updateCurrentFlow)
 

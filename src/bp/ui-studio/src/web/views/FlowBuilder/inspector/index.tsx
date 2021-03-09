@@ -16,6 +16,7 @@ import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import SaySomethingForm from '../../FlowBuilder/sidePanelTopics/form/SaySomethingForm'
 import { nodeTypes } from '../diagram/manager'
+import CommentNode from '../nodeProps/CommentNode'
 import FlowInformation from '../nodeProps/FlowInformation'
 import SkillCallNode from '../nodeProps/SkillCallNode'
 import StandardNode from '../nodeProps/StandardNode'
@@ -117,6 +118,19 @@ class Inspector extends Component<Props> {
           updateNode={updateNodeAndRefresh}
           readOnly={readOnly}
           subflows={subflows}
+        />
+      )
+    }
+
+    if (nodeType === 'comment') {
+      return (
+        <CommentNode
+          readOnly={readOnly}
+          flow={currentFlow}
+          subflows={subflows}
+          node={currentFlowNode}
+          updateNode={updateNodeAndRefresh}
+          updateFlow={updateFlow}
         />
       )
     }

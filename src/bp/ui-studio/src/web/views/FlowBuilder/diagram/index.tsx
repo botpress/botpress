@@ -315,6 +315,8 @@ class Diagram extends Component<Props> {
 
   add = {
     flowNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'standard', next: [defaultTransition] }),
+    commentNode: (point: Point) =>
+      this.props.createFlowNode({ ...point, type: 'comment', next: [], isResizable: true, width: 200, height: 40 }),
     skillNode: (point: Point, skillId: string) => this.props.buildSkill({ location: point, id: skillId }),
     triggerNode: (point: Point) => {
       this.props.createFlowNode({ ...point, type: 'trigger', conditions: [], next: [defaultTransition] })
@@ -369,6 +371,11 @@ class Diagram extends Component<Props> {
           text={lang.tr('studio.flow.nodeType.standard')}
           onClick={wrap(this.add.flowNode, point)}
           icon="chat"
+        />
+        <MenuItem
+          text={lang.tr('studio.flow.nodeType.comment')}
+          onClick={wrap(this.add.commentNode, point)}
+          icon="comment"
         />
         {(window.USE_ONEFLOW || window.EXPERIMENTAL) && (
           <Fragment>
@@ -497,7 +504,13 @@ class Diagram extends Component<Props> {
     }
 
     const nodeType = target.model?.nodeType
-    return nodeType === 'router' || nodeType === 'say_something' || nodeType === 'standard' || nodeType === 'skill-call'
+    return (
+      nodeType === 'router' ||
+      nodeType === 'say_something' ||
+      nodeType === 'standard' ||
+      nodeType === 'skill-call' ||
+      nodeType === 'comment'
+    )
   }
 
   onDiagramClick = (event: MouseEvent) => {

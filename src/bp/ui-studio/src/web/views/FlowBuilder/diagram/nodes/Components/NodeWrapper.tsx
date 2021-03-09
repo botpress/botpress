@@ -13,7 +13,7 @@ export default ({ children, isHighlighed, isLarge, onClick, height, width = DEFA
 
   return (
     <div
-      style={{ width: width + 'px', height: height + 'px' }}
+      style={{ width: `${width}px`, height: `${height}px` }}
       className={cx(style.nodeWrapper, { [style.highlighted]: isHighlighed })}
       onContextMenu={e => {
         e.stopPropagation()

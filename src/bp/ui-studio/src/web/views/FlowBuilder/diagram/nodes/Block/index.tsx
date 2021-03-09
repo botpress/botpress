@@ -10,6 +10,7 @@ import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
 import { NodeDebugInfo } from '../../debugger'
 import { defaultTransition } from '../../manager'
 import ActionContents from '../ActionContents'
+import CommentContents from '../CommentContents'
 import NodeHeader from '../Components/NodeHeader'
 import NodeWrapper from '../Components/NodeWrapper'
 import style from '../Components/style.scss'
@@ -137,9 +138,11 @@ const BlockWidget: FC<BlockProps> = ({
     )
   }
 
-  const inputPortInHeader = !['trigger'].includes(nodeType)
+  const inputPortInHeader = !['trigger', 'comment'].includes(nodeType)
   const outPortInHeader = !['failure', 'router', 'success', 'standard', 'skill-call'].includes(nodeType)
-  const canCollapse = !['failure', 'router', 'success', 'listen', 'standard', 'skill-call'].includes(nodeType)
+  const canCollapse = !['failure', 'router', 'success', 'listen', 'standard', 'skill-call', 'comment'].includes(
+    nodeType
+  )
   const hasContextMenu = !['failure', 'success'].includes(nodeType)
 
   const debugInfo = getDebugInfo(node.name)
@@ -182,6 +185,8 @@ const BlockWidget: FC<BlockProps> = ({
         )
       case 'skill-call':
         return <SkillCallContents node={node} />
+      case 'comment':
+        return <CommentContents node={node} />
       default:
         return <StandardContents node={node} />
     }
@@ -194,7 +199,7 @@ const BlockWidget: FC<BlockProps> = ({
   const expanded = getExpandedNodes().includes(node.id)
 
   // Larger node size because they have a lot of content and it looks too cramped
-  const isOldNode = ['standard', 'skill-call'].includes(nodeType)
+  const isOldNode = ['standard', 'skill-call', 'comment'].includes(nodeType)
 
   let label = lang.tr(defaultLabels[nodeType])
   if (isOldNode) {

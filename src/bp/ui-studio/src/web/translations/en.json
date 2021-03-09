@@ -156,6 +156,7 @@
         "couldNotRetrieveActionServer": "Could not retrieve action servers",
         "editAction": "Edit Action",
         "editSkill": "Edit skill",
+        "editComment": "Edit comment",
         "end": "End",
         "chatbotExecutes": "Chatbot Executes",
         "chatbotSays": "Chatbot Says",
@@ -224,6 +225,7 @@
         "sendMessage": "Send Message",
         "split": "Split",
         "standard": "Standard Node",
+        "comment": "Comment Node",
         "trigger": "Trigger"
       },
       "notifications": {

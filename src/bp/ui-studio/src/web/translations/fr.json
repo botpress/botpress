@@ -159,6 +159,7 @@
         "couldNotRetrieveActionServer": "Impossible de récupérer les serveurs d'actions",
         "editAction": "Modifier l'action",
         "editSkill": "Modifier compétence",
+        "editComment": "Modifier commentaire",
         "end": "Fin",
         "errorInServer": "Il semble y avoir une erreur sur votre serveur Botpress. Veuillez contacter votre administrateur.",
         "errorListingActions": "Erreur dans le listage des actions du serveur d'actions",
@@ -222,6 +223,7 @@
         "sendMessage": "Envoyer Message",
         "split": "Diviser",
         "standard": "Noeud standard",
+        "comment": "Noeud de commentaire",
         "trigger": "Déclencheur"
       },
       "notifications": {

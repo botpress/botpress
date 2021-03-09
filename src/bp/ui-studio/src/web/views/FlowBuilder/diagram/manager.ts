@@ -35,7 +35,17 @@ const passThroughNodeProps: string[] = [
 export const DIAGRAM_PADDING: number = 100
 
 // Must be identified by the deleteSelectedElement logic to know it needs to delete something
-export const nodeTypes = ['standard', 'trigger', 'skill-call', 'say_something', 'execute', 'listen', 'router', 'action']
+export const nodeTypes = [
+  'standard',
+  'trigger',
+  'skill-call',
+  'say_something',
+  'execute',
+  'listen',
+  'router',
+  'action',
+  'comment'
+]
 
 // Default transition applied for new nodes 1.5
 export const defaultTransition = { condition: 'true', node: '' }

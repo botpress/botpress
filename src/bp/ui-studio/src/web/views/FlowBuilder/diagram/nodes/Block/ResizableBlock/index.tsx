@@ -10,6 +10,8 @@ interface ResizableBlockProps {
   node: BlockModel
 }
 
+const MIN_DIMENSION = 100
+
 export const ResizableBlock: React.FunctionComponent<ResizableBlockProps> = props => {
   const [selected, setSelected] = useState(false)
 
@@ -33,9 +35,9 @@ export const ResizableBlock: React.FunctionComponent<ResizableBlockProps> = prop
   return (
     <ResizableBox
       className={cx({ [style.selected]: selected })}
-      width={node.width}
-      height={node.height}
-      minConstraints={[100, 100]}
+      width={node.width || MIN_DIMENSION}
+      height={node.height || MIN_DIMENSION}
+      minConstraints={[MIN_DIMENSION, MIN_DIMENSION]}
       onResizeStart={onResizeStart}
       onResizeStop={onResizeStop}
       draggableOpts={{ grid: [10, 10] }}

@@ -151,6 +151,7 @@
         "couldNotRetrieveActionServer": "No se pudieron recuperar servidores de acción",
         "editAction": "Editar acción",
         "editSkill": "Editar Habilidad",
+        "editComment": "Editar comentario",
         "end": "Final",
         "errorInServer": "Parece haber un error en el servidor de Botpress. Póngase en contacto con su administrador.",
         "errorListingActions": "Error al enumerar las acciones del servidor de acciones",
@@ -214,6 +215,7 @@
         "sendMessage": "Enviar mensaje",
         "split": "Dividir",
         "standard": "Nodo estándar",
+        "comment": "Nodo de comentario",
         "trigger": "detonante"
       },
       "notifications": {

@@ -6,7 +6,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom'
 import { DefaultPortModel, PortWidget } from 'storm-react-diagrams'
-import { getFlowNames, getFlowNamesList } from '~/reducers'
+import { getFlowNames } from '~/reducers'
 
 import style from './style.scss'
 
@@ -44,6 +44,7 @@ type Props = {
   node: any
   next?: sdk.NodeTransition[]
   flowsName: any
+  hidden?: boolean
 } & RouteComponentProps
 
 export class StandardPortWidgetDisconnected extends React.PureComponent<Props> {
@@ -53,7 +54,7 @@ export class StandardPortWidgetDisconnected extends React.PureComponent<Props> {
     const isInvalid = !this.props.flowsName.find(x => x === this.props.node.next[index].node)
 
     return (
-      <div className={cx(style.label, 'label', { [style.invalidFlow]: isInvalid })}>
+      <div className={cx(style.label, 'label', { [style.invalidFlow]: isInvalid, [style.hidden]: this.props.hidden })}>
         {isInvalid ? (
           <Tooltip content="The destination for this transition is invalid">{subflow}</Tooltip>
         ) : (
@@ -64,11 +65,11 @@ export class StandardPortWidgetDisconnected extends React.PureComponent<Props> {
   }
 
   renderEndNode() {
-    return <div className={cx(style.label, 'label')}>End of flow</div>
+    return <div className={cx(style.label, 'label', { [style.hidden]: this.props.hidden })}>End of flow</div>
   }
 
   renderStartNode() {
-    return <div className={cx(style.label, 'label')}>Start</div>
+    return <div className={cx(style.label, 'label', { [style.hidden]: this.props.hidden })}>Start</div>
   }
 
   renderReturnNode() {
@@ -80,7 +81,7 @@ export class StandardPortWidgetDisconnected extends React.PureComponent<Props> {
       returnTo = '@calling'
     }
 
-    return <div className={cx(style.label, 'label')}>Return ({returnTo})</div>
+    return <div className={cx(style.label, 'label', { [style.hidden]: this.props.hidden })}>Return ({returnTo})</div>
   }
 
   render() {
@@ -117,7 +118,7 @@ export class StandardPortWidgetDisconnected extends React.PureComponent<Props> {
 
     return (
       <div className={className}>
-        <PortWidget {...this.props} />
+        <PortWidget className={cx({ [style.hidden]: this.props.hidden })} {...this.props} />
         {type === 'subflow' && this.renderSubflowNode()}
         {type === 'end' && this.renderEndNode()}
         {type === 'start' && this.renderStartNode()}

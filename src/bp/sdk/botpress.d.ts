@@ -1445,6 +1445,7 @@ declare module 'botpress/sdk' {
     | 'execute'
     | 'router'
     | 'action'
+    | 'comment'
 
   export type FlowNode = {
     id?: string
