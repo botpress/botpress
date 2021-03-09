@@ -5,7 +5,8 @@ import yn from 'yn'
 import { ChoiceData } from './choice'
 
 const generateFlowLegacy = async (data: ChoiceData): Promise<sdk.FlowGenerationResult> => {
-  const { randomId } = data
+  const { variableName } = data.config
+  const randomId = variableName && variableName.length ? variableName : data.randomId
   const hardRetryLimit = 10
   const nbMaxRetries = Math.min(Number(data.config.nbMaxRetries), hardRetryLimit)
   const repeatQuestion = yn(data.config.repeatChoicesOnInvalid)
