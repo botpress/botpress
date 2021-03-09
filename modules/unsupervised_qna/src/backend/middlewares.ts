@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import { QAClient } from 'question-answering'
 import { Storage } from './storage'
 
 const makeMw = (storagePerBot: { [botId: string]: Storage }) => {
@@ -14,6 +13,8 @@ const makeMw = (storagePerBot: { [botId: string]: Storage }) => {
         next()
         return
       }
+
+      const { QAClient } = require('question-answering')
 
       const corpus = await storagePerBot[botId].getCorpus()
 
