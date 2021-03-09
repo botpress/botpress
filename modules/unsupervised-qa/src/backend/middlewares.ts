@@ -6,7 +6,9 @@ import { Storage } from './storage'
 const MAX_PAD = 100
 
 const inititalizeQAClient = async (): Promise<QAClient> => {
-  // Download and load model from
+  const { QAClient } = require('question-answering')
+
+  // This will download the model to every server node in the cluster
   const model = await initModel({
     name: 'distilbert-base-cased-distilled-squad',
     path: path.join(process.APP_DATA_PATH, 'qa-models'),
@@ -20,7 +22,7 @@ const makeMw = async (storagePerBot: { [botId: string]: Storage }) => {
 
   const mw: sdk.IO.MiddlewareDefinition = {
     name: 'run_unsupervised_qna',
-    description: "runs question answering predict on event's text",
+    description: "Runs question answering predict on event's text",
     direction: 'incoming',
     order: 125,
     handler: async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
@@ -29,8 +31,6 @@ const makeMw = async (storagePerBot: { [botId: string]: Storage }) => {
         next()
         return
       }
-
-      const { QAClient } = require('question-answering')
 
       const corpus = await storagePerBot[botId].getCorpus()
 
@@ -41,7 +41,7 @@ const makeMw = async (storagePerBot: { [botId: string]: Storage }) => {
         let sentenceStart = answerStart
         let prevFound = false
         while (sentenceStart > 0 && (answerStart - sentenceStart > MAX_PAD || !prevFound)) {
-          if (corpus[sentenceStart] === '.' || corpus[sentenceStart] !== corpus[sentenceStart].toLowerCase()) {
+          if (corpus[sentenceStart] === '.') {
             prevFound = true
           }
           sentenceStart--

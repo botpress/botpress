@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
-import child_process from 'child_process'
 import en from '../translations/en.json'
+import fr from '../translations/fr.json'
 import { makeAPI } from './api'
 import buildNativeExtension from './build-native-extension'
 import makeMw from './middlewares'
@@ -10,9 +10,8 @@ import { Storage } from './storage'
 const storagePerBot: { [botId: string]: Storage } = {}
 
 const onServerStarted = async (bp: typeof sdk) => {
-  child_process.exec('npx question-answering download')
   bp.logger.warn(
-    'You are using botpress module unsupervised_qna. Keep in mind this module is experimental and is subject to breaking changes.'
+    'You are using botpress module unsupervised-qa. Keep in mind this module is experimental and is subject to breaking changes.'
   )
 
   const moduleEnabled = await buildNativeExtension(bp.logger)
@@ -37,7 +36,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotMount,
   botTemplates: [],
   definition: {
-    name: 'unsupervised_qna',
+    name: 'unsupervised-qa',
     menuIcon: 'help',
     noInterface: false,
     menuText: 'Unsupervised Q&A',
@@ -46,7 +45,8 @@ const entryPoint: sdk.ModuleEntryPoint = {
     experimental: true
   },
   translations: {
-    en
+    en,
+    fr
   }
 }
 export default entryPoint
