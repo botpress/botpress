@@ -152,6 +152,7 @@ class Diagram extends Component<Props> {
     this.diagramEngine.flowBuilder = this
     this.manager = new DiagramManager(this.diagramEngine, {
       switchFlowNode: this.props.switchFlowNode,
+      openFlowNodeProps: this.props.openFlowNodeProps,
       zoomToLevel: this.props.zoomToLevel
     })
 
