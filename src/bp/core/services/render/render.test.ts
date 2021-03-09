@@ -116,6 +116,13 @@ describe('Content Renders', () => {
     expect(translated.text).toEqual('salut {{user.name}}')
   })
 
+  test('Translate text with wrong language', () => {
+    const content = render.renderText({ en: 'hello {{user.name}}', fr: 'salut {{user.name}}' })
+
+    const translated = render.renderTranslated(content, 'es')
+    expect(translated.text).toEqual({ en: 'hello {{user.name}}', fr: 'salut {{user.name}}' })
+  })
+
   test('Template text content', () => {
     const content = render.renderText('hello {{user.name}}')
 
@@ -131,6 +138,16 @@ describe('Content Renders', () => {
 
     const templated = render.renderTemplate(translated, { user: { name: 'bob' } })
     expect(templated.text).toEqual('salut bob')
+  })
+
+  test('Template text content with wrong template', () => {
+    const content = render.renderText({ en: 'hello {{user.name}}', fr: 'salut {{user.name}}' })
+
+    const translated = render.renderTranslated(content, 'fr')
+    expect(translated.text).toEqual('salut {{user.name}}')
+
+    const templated = render.renderTemplate(translated, { user: { thename: 'bob' } })
+    expect(templated.text).toEqual('salut {{user.name}}')
   })
 
   test('Render multiple text contents using a pipeline', () => {
