@@ -147,7 +147,7 @@ describe('Content Renders', () => {
     expect(translated.text).toEqual('salut {{user.name}}')
 
     const templated = render.renderTemplate(translated, { user: { thename: 'bob' } })
-    expect(templated.text).toEqual('salut {{user.name}}')
+    expect(templated.text).toEqual('salut ')
   })
 
   test('Render multiple text contents using a pipeline', () => {
