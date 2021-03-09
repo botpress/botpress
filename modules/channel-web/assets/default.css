@@ -853,8 +853,11 @@ body {
 }
 
 .bpw-botinfo-cover-picture-wrapper {
-  height: 50%;
   overflow: hidden;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 50%;
+}
 }
 
 .bpw-botinfo-cover-picture {
