@@ -26,7 +26,7 @@ const CommentModelForm: React.FunctionComponent<CommentModelFormProps> = props =
         <ContentPickerWidget
           itemId={props.itemId}
           onChange={handleChange}
-          contentType={'builtin_text'}
+          contentType={'builtin_comment'}
           placeholder={lang.tr('studio.flow.node.commentToDisplay')}
         />
       </div>

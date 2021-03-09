@@ -38,6 +38,10 @@
       "alternatives": "Alternates",
       "description": "A regular text message with optional typing indicators and alternates",
       "message": "Message"
+    },
+    "comment": {
+      "description": "A comment",
+      "text": "Comment"
     }
   },
   "typingIndicator": "Show typing indicators",

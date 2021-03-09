@@ -38,6 +38,10 @@
       "alternatives": "Alternatives",
       "description": "Un texte régulier",
       "message": "Message"
+    },
+    "comment": {
+      "description": "Un commentaire",
+      "text": "Commentaire"
     }
   },
   "typingIndicator": "Afficher l'indicateur de frappe",
