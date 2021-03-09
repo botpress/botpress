@@ -52,9 +52,12 @@ You will notice on the left menu there are a couple of sections available. Some 
 Indeed, Botpress is a highly modular platform, and the modules themselves provide the majority of the features you will use. You may use experimental ones or even develop your modules.
 
 ### Test your chatbot
-There is a chat emulator built in the studio with which you can test your chatbot. You can open it from the <kbd>Emulator</kbd>button in the top right corner or press 'E' while in the studio.
+There is a chat emulator built in the studio with which you can test your chatbot. You can open it from the <kbd>Emulator</kbd>button in the top right corner or press 'ctrl + E' while in the studio.
 
-The chat emulator represents what your visitors will face when they speak with your chatbot. You can reset the conversation by clicking the reset button. Or you can also start a new conversation with your chatbot with the conversations button.
+The chat emulator represents what your visitors will face when they speak with your chatbot. You can reset the conversation by clicking the reset button or you can start a new conversation with the conversations button. 
+
+- Reset Conversation: Brings you back at the beginning of the conversation flow, but keeps the variables previously stored.
+- Create New Conversation: Brings you back at the beginning of the conversation flow and clean the variables stored.
 
 ![Toolbar Chat](assets/studio-toolbar.png)
 
