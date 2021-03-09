@@ -2,9 +2,8 @@ import { Button, Spinner, Tooltip, Position } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
 import { MainLayout, Textarea, lang } from 'botpress/shared'
 import React, { FC, useState, useEffect } from 'react'
-import style from './style.scss'
-
 import { ModuleStatus } from '../../typings'
+import style from './style.scss'
 
 interface Props {
   bp: { axios: AxiosInstance; events: any }
@@ -38,19 +37,35 @@ const CorpusQA: FC<Props> = props => {
   }
 
   const renderModuleDisabled = () => {
-    return <Tooltip
-      content={lang.tr('module.unsupervised-qa.moduleDisabledReason')}
-      position={Position.RIGHT}
-    >
-      <div className={style.red}>{lang.tr('module.unsupervised-qa.moduleDisabled')}</div>
-    </Tooltip>
+    return (
+      <div>
+        <Tooltip content={lang.tr('module.unsupervised-qa.moduleDisabledReason')} position={Position.RIGHT}>
+          <div className={style.red}>{lang.tr('module.unsupervised-qa.moduleDisabled')}</div>
+        </Tooltip>
+      </div>
+    )
+  }
+
+  const renderModuleEnabled = () => {
+    return (
+      <React.Fragment>
+        <div className={style.green}>{lang.tr('module.unsupervised-qa.moduleEnabled')}</div>
+        {status.modelLoaded ? (
+          <div className={style.green}>{lang.tr('module.unsupervised-qa.modelLoaded')}</div>
+        ) : (
+          renderModelLoading()
+        )}
+      </React.Fragment>
+    )
   }
 
   const renderModelLoading = () => {
-    return <div className={style.modelLoading}>
-      <div className={style.red}>{lang.tr('module.unsupervised-qa.modelLoading')}</div>
-      <Spinner size={20}></Spinner>
-    </div>
+    return (
+      <div className={style.modelLoading}>
+        <div className={style.red}>{lang.tr('module.unsupervised-qa.modelLoading')}</div>
+        <Spinner size={20}></Spinner>
+      </div>
+    )
   }
 
   return (
@@ -59,15 +74,7 @@ const CorpusQA: FC<Props> = props => {
 
       <div className={style.status}>
         <span className={style.title}>Status:</span>
-
-        {status.enabled ?
-          <div className={style.green}>{lang.tr('module.unsupervised-qa.moduleEnabled')}</div>
-          : renderModuleDisabled()
-        }
-        {status.modelLoaded ?
-          <div className={style.green}>{lang.tr('module.unsupervised-qa.modelLoaded')}</div>
-          : renderModelLoading()
-        }
+        {status.enabled ? renderModuleEnabled() : renderModuleDisabled()}
       </div>
 
       <div className={style.content}>
