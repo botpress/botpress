@@ -1,5 +1,4 @@
 import { SPACE } from '../tools/token-utils'
-import { Intent } from '../typings'
 import Utterance, { UtteranceEntity, UtteranceToken } from '../utterance/utterance'
 
 import * as featurizer from './slot-featurizer'
@@ -136,25 +135,14 @@ describe('CRF Featurizer 2', () => {
       Object.defineProperty(tok, 'toString', { value: () => tok.value, enumerable: true })
     )
 
-    const anIntent: Partial<Intent<Utterance>> = {
-      name: 'find flight',
-      vocab: {
-        fly: true
-      }
-    }
+    const vocab = ['fly']
 
-    expect(
-      featurizer.getInVocabFeat({ ...tokens[0], slots: ['lol.A.W'] }, anIntent as Intent<Utterance>).value
-    ).toBeTruthy()
-    expect(featurizer.getInVocabFeat(tokens[0], anIntent as Intent<Utterance>).value).toBeTruthy()
-    expect(
-      featurizer.getInVocabFeat({ ...tokens[1], slots: ['lol.A.W'] }, anIntent as Intent<Utterance>).value
-    ).toBeFalsy()
-    expect(featurizer.getInVocabFeat(tokens[1], anIntent as Intent<Utterance>).value).toBeFalsy()
-    expect(
-      featurizer.getInVocabFeat({ ...tokens[2], slots: ['lol.A.W'] }, anIntent as Intent<Utterance>).value
-    ).toBeFalsy()
-    expect(featurizer.getInVocabFeat(tokens[2], anIntent as Intent<Utterance>).value).toBeFalsy()
+    expect(featurizer.getInVocabFeat({ ...tokens[0], slots: ['lol.A.W'] }, vocab).value).toBeTruthy()
+    expect(featurizer.getInVocabFeat(tokens[0], vocab).value).toBeTruthy()
+    expect(featurizer.getInVocabFeat({ ...tokens[1], slots: ['lol.A.W'] }, vocab).value).toBeFalsy()
+    expect(featurizer.getInVocabFeat(tokens[1], vocab).value).toBeFalsy()
+    expect(featurizer.getInVocabFeat({ ...tokens[2], slots: ['lol.A.W'] }, vocab).value).toBeFalsy()
+    expect(featurizer.getInVocabFeat(tokens[2], vocab).value).toBeFalsy()
   })
 
   test('getEntitiesFeats', () => {
@@ -199,10 +187,10 @@ describe('CRF Featurizer 2', () => {
   })
 
   test('getIntentFeature', () => {
-    const anIntent: Partial<Intent<Utterance>> = {
+    const anIntent = {
       name: 'give-me-money'
     }
-    const feat = featurizer.getIntentFeature(anIntent as Intent<Utterance>)
+    const feat = featurizer.getIntentFeature(anIntent.name)
 
     expect(feat.value).toEqual(anIntent.name)
     expect(feat.boost).toEqual(100)

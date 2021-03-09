@@ -3,8 +3,8 @@ import { lang } from 'botpress/shared'
 import { SidePanelSection } from 'botpress/ui'
 import { inject, observer } from 'mobx-react'
 import React, { useState } from 'react'
-import style from './style.scss'
 import { RootStore } from '../store'
+import style from './style.scss'
 
 const FileStatus = props => {
   const [tab, setTab] = useState<any>('problems')

@@ -259,7 +259,13 @@ class Web extends React.Component<MainProps> {
   }
 
   async playSound() {
-    if (this.state.played) {
+    // Preference for config object
+    const disableNotificationSound =
+      this.config.disableNotificationSound === undefined
+        ? this.props.config.disableNotificationSound
+        : this.config.disableNotificationSound
+
+    if (this.state.played || disableNotificationSound) {
       return
     }
 

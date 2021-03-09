@@ -38,7 +38,7 @@ const renderSlotItem = (name: string, slot: any) => {
       </td>
       <td>
         {slot.turns
-          ? lang.tr('bottomPanel.debugger.slots.turnsAgo', { x: slot.value })
+          ? lang.tr('bottomPanel.debugger.slots.turnsAgo', { x: slot.turns })
           : lang.tr('bottomPanel.debugger.slots.thisTurn')}
       </td>
     </tr>

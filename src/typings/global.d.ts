@@ -47,6 +47,9 @@ declare namespace NodeJS {
     distro: OSDistribution
     BOTPRESS_EVENTS: EventEmitter
     AUTO_MIGRATE: boolean
+    MIGRATE_CMD?: 'up' | 'down'
+    MIGRATE_TARGET?: string
+    MIGRATE_DRYRUN?: boolean
     IS_FAILSAFE: boolean
     /** A random ID generated on server start to identify each server in a cluster */
     SERVER_ID: string
@@ -56,6 +59,7 @@ declare namespace NodeJS {
     DISABLE_CONTENT_SANDBOX: boolean
     WEB_WORKER: number
     TRAINING_WORKERS: number[]
+    USE_JWT_COOKIES: boolean
   }
 }
 

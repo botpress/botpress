@@ -75,6 +75,17 @@ export const FileTypes: { [type: string]: FileDefinition } = {
     },
     canDelete: () => false
   },
+  shared_libs: {
+    allowGlobal: true,
+    allowScoped: false,
+    permission: 'shared_libs',
+    ghost: {
+      baseDir: '/libraries'
+    },
+    canDelete: file => {
+      return !file.name.endsWith('.json')
+    }
+  },
   main_config: {
     allowGlobal: true,
     allowScoped: false,

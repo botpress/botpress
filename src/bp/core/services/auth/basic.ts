@@ -1,8 +1,8 @@
 import { Logger, StrategyUser } from 'botpress/sdk'
-import { RequestWithUser } from 'common/typings'
+import { RequestWithUser, TokenResponse } from 'common/typings'
 import { AuthStrategyBasic } from 'core/config/botpress.config'
 import { BadRequestError, ConflictError } from 'core/routers/errors'
-import { Request, Router } from 'express'
+import { Request, Router, Response } from 'express'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
@@ -28,7 +28,7 @@ export default class StrategyBasic {
     const router = this.router
     router.post(
       '/login/basic/:strategy',
-      this.asyncMiddleware(async (req: Request, res) => {
+      this.asyncMiddleware(async (req: Request, res: Response) => {
         const { email, password, newPassword, channel, target } = req.body
         const { strategy } = req.params
 
@@ -36,7 +36,7 @@ export default class StrategyBasic {
         await Promise.delay(_.random(15, 80))
 
         await this._login(email, password, strategy, newPassword, req.ip)
-        let token
+        let token: TokenResponse
 
         // If the channel & target is set, we consider that it's a chat user logging in (even if it's with admin credentials)
         if (channel && target) {
@@ -45,7 +45,11 @@ export default class StrategyBasic {
           token = await this.authService.generateSecureToken(email, strategy)
         }
 
-        return sendSuccess(res, 'Login successful', { token })
+        if (await this.authService.setJwtCookieResponse(token, res)) {
+          return sendSuccess(res, 'Login successful', _.omit(token, 'jwt'))
+        }
+
+        return sendSuccess(res, 'Login successful', token)
       })
     )
 
@@ -64,7 +68,7 @@ export default class StrategyBasic {
         }
 
         const token = await this._register(email, strategyId, password, req.ip)
-        return sendSuccess(res, 'Registration successful', { token })
+        return sendSuccess(res, 'Registration successful', token)
       })
     )
   }
@@ -115,7 +119,12 @@ export default class StrategyBasic {
     })
   }
 
-  private async _register(email: string, strategy: string, password: string, ipAddress: string = ''): Promise<string> {
+  private async _register(
+    email: string,
+    strategy: string,
+    password: string,
+    ipAddress: string = ''
+  ): Promise<TokenResponse> {
     const pw = saltHashPassword(password)
 
     if (await this.authService.findUser(email, strategy)) {

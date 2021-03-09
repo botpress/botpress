@@ -64,4 +64,7 @@ describe('Module - Channel Web', () => {
     await clickOn('#btn-convo-add')
     await expect(await getMessageCount(page)).toBe(0)
   })
+
+  // puppetter doesn`t have a way of testing sound playback from javascript objects
+  // it('Test disable sound notification', async () => {})
 })

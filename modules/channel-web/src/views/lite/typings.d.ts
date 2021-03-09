@@ -181,6 +181,8 @@ export interface Config {
   reference: string
   /** If true, Websocket is created when the Webchat is opened. Bot cannot be proactive. */
   lazySocket?: boolean
+  /** If true, chat will no longer play the notification sound for new messages. */
+  disableNotificationSound?: boolean
   /** Refers to a specific webchat reference in parent window. Useful when using multiple chat window */
   chatId?: string
   /** CSS class to be applied to iframe */

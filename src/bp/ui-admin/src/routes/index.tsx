@@ -1,10 +1,10 @@
 import { Button } from '@blueprintjs/core'
+import { auth as authentication } from 'botpress/shared'
 import React from 'react'
 import { Provider } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import { ConnectedRouter } from 'react-router-redux'
 import ChatAuthResult from '~/Pages/Account/ChatAuthResult'
-import Details from '~/Pages/Bot/Details'
 import { LoginContainer } from '~/Pages/Layouts/LoginContainer'
 import Logs from '~/Pages/Logs'
 import Alerting from '~/Pages/Server/Alerting'
@@ -20,7 +20,7 @@ import Collaborators from '~/Pages/Workspace/Users/Collaborators'
 import Workspaces from '~/Pages/Workspaces'
 
 import App from '../App/Layout'
-import Auth, { getActiveWorkspace, setToken } from '../Auth'
+import Auth, { getActiveWorkspace } from '../Auth'
 import ChangePassword from '../Pages/Account/ChangePassword'
 import LoginPage from '../Pages/Account/Login'
 import RegisterPage from '../Pages/Account/Register'
@@ -55,7 +55,7 @@ export const makeMainRoutes = () => {
   const ExtractToken = () => {
     const token = extractCookie('userToken')
     if (token) {
-      setToken(token)
+      authentication.setToken({ jwt: token })
     }
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -93,7 +93,6 @@ export const makeMainRoutes = () => {
               <Route path="/server/debug" component={Debug} />
               <Route path="/server/license" component={LicenseStatus} />
               <Route path="/server/alerting" component={Alerting} />
-              <Route path="/workspace/:workspaceId?/bots/:botId" component={Details} />
               <Route path="/workspace/:workspaceId?/bots" component={Bots} />
               <Route path="/workspace/:workspaceId?/users" component={Collaborators} />
               <Route path="/workspace/:workspaceId?/roles" component={Roles} />

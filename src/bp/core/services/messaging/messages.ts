@@ -71,44 +71,50 @@ export class ScopedMessageService implements sdk.experimental.messages.BotMessag
     this.lastChannelCache = new LRU<string, string>({ max: 10000, maxAge: ms('5min') })
   }
 
-  public async list(filters: sdk.experimental.messages.ListFilters): Promise<sdk.experimental.Message[]> {
+  public async list(filters: sdk.MessageListFilters): Promise<sdk.Message[]> {
     return this.messageRepo.list(filters)
   }
 
-  public async delete(filters: sdk.experimental.messages.DeleteFilters): Promise<number> {
+  public async delete(filters: sdk.MessageDeleteFilters): Promise<number> {
     if (filters.id) {
       const message = await this.messageRepo.get(filters.id)
 
       if (message) {
-        const conversation = (await this.conversationService.get({ id: message.conversationId }))!
+        const conversation = (await this.conversationService.get(message.conversationId))!
         this.conversationService.invalidateMostRecent(conversation.userId)
       }
 
       return (await this.messageRepo.delete(filters.id)) ? 1 : 0
     } else {
-      const conversation = (await this.conversationService.get({ id: filters.conversationId! }))!
+      const conversation = (await this.conversationService.get(filters.conversationId!))!
       this.conversationService.invalidateMostRecent(conversation.userId)
 
       return this.messageRepo.deleteAll(filters.conversationId!)
     }
   }
 
-  public async create(args: sdk.experimental.messages.CreateArgs): Promise<sdk.experimental.Message> {
-    const message = await this.messageRepo.create(args)
-    const conversation = (await this.conversationService.get({ id: args.conversationId }))!
-    await this.conversationService.flagAsMostRecent(conversation)
+  public async create(
+    conversationId: sdk.uuid,
+    payload: any,
+    from: string,
+    eventId?: string,
+    incomingEventId?: string
+  ): Promise<sdk.Message> {
+    const message = await this.messageRepo.create(conversationId, payload, from, eventId, incomingEventId)
+    const conversation = (await this.conversationService.get(conversationId))!
+    await this.conversationService.setAsMostRecent(conversation)
     return message
   }
 
-  public async get(filters: sdk.experimental.messages.GetFilters): Promise<sdk.experimental.Message | undefined> {
-    return this.messageRepo.get(filters.id)
+  public async get(id: sdk.uuid): Promise<sdk.Message | undefined> {
+    return this.messageRepo.get(id)
   }
 
-  public async receive(conversationId: sdk.uuid, payload: any, args?: sdk.experimental.messages.MessageArgs) {
+  public async receive(conversationId: sdk.uuid, payload: any, args?: sdk.MessageArgs) {
     return this.sendMessage(conversationId, payload, 'incoming', args)
   }
 
-  public async send(conversationId: sdk.uuid, payload: any, args?: sdk.experimental.messages.MessageArgs) {
+  public async send(conversationId: sdk.uuid, payload: any, args?: sdk.MessageArgs) {
     return this.sendMessage(conversationId, payload, 'outgoing', args)
   }
 
@@ -116,9 +122,9 @@ export class ScopedMessageService implements sdk.experimental.messages.BotMessag
     conversationId: sdk.uuid,
     payload: any,
     direction: sdk.EventDirection,
-    args?: sdk.experimental.messages.MessageArgs
+    args?: sdk.MessageArgs
   ) {
-    const conversation = await this.conversationService.get({ id: conversationId })
+    const conversation = await this.conversationService.get(conversationId)
     if (!conversation) {
       throw new Error(
         'conversationId: conversation not found. conversationId must be the id of an existing conversation'
@@ -148,14 +154,10 @@ export class ScopedMessageService implements sdk.experimental.messages.BotMessag
     const event = new IOEvent(<sdk.IO.EventCtorArgs>ctorArgs)
     await this.eventEngine.sendEvent(event)
 
-    const message = await this.messageRepo.create({
-      conversationId,
-      eventId: event.id,
-      incomingEventId: event.id,
-      from: event.direction === 'incoming' ? 'user' : 'bot',
-      payload
-    })
-    await this.conversationService.flagAsMostRecent(conversation)
+    const from = event.direction === 'incoming' ? 'user' : 'bot'
+    const message = await this.messageRepo.create(conversationId, payload, from, event.id, event.id)
+    await this.conversationService.setAsMostRecent(conversation)
+
     return message
   }
 
