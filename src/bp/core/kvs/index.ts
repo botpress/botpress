@@ -1,12 +1,11 @@
 import * as sdk from 'botpress/sdk'
+import Database from 'core/database'
+import { safeStringify } from 'core/misc/utils'
+import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
-
-import Database from '../database'
-import { safeStringify } from '../misc/utils'
-import { TYPES } from '../types'
 
 const GLOBAL = '__global__'
 const TABLE_NAME = 'srv_kvs'
