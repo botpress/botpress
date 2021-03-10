@@ -16,7 +16,8 @@ import os from 'os'
 import stripAnsi from 'strip-ansi'
 import util from 'util'
 
-import { LoggerDbPersister, LoggerFilePersister } from '.'
+import { LoggerDbPersister } from './db-persister'
+import { LoggerFilePersister } from './file-persister'
 
 export type LoggerProvider = (module: string) => Promise<Logger>
 
