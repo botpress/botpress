@@ -10,7 +10,7 @@ import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import ms from 'ms'
 
-import { LogsService } from './service'
+import { LogsService } from './logs-service'
 
 @injectable()
 export class LogsJanitor extends Janitor {

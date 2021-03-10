@@ -1,6 +1,6 @@
 import 'bluebird-global'
 import LicensingService from 'common/licensing-service'
-import { LoggerProvider } from 'core/logger/utils/logger'
+import { LoggerProvider } from 'core/logger'
 import { LocalActionServer as LocalActionServerImpl } from 'core/services/action/local-action-server'
 import { FatalError } from 'errors'
 import 'reflect-metadata'
