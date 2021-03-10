@@ -1,7 +1,7 @@
 import { WorkspaceInviteCodesTable, WorkspaceUsersTable } from 'core/collaborators'
 import { EventsTable } from 'core/events/event-table'
-import { KeyValueStoreTable } from 'core/kvs'
-import { LogsTable } from 'core/logger'
+import { KeyValueStoreTable } from 'core/kvs/kvs-table'
+import { LogsTable } from 'core/logger/logs-table'
 import Knex from 'knex'
 
 import { Table } from '../interfaces'
