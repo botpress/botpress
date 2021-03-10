@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
+import { EventEngine } from 'core/events/event-engine'
 import { WellKnownFlags } from 'core/sdk/enums'
-import { NextFunction, Request, Response } from 'express'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
@@ -13,6 +13,7 @@ import modelIdService from 'nlu-core/model-id-service'
 import { container } from './app.inversify'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
+import { KeyValueStore } from './kvs'
 import { LoggerProvider } from './logger'
 import { getMessageSignature } from './misc/security'
 import { renderRecursive } from './misc/templating'
@@ -27,9 +28,9 @@ import { DialogEngine } from './services/dialog/dialog-engine'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { HookService } from './services/hook/hook-service'
 import { JobService } from './services/job-service'
-import { KeyValueStore } from './services/kvs'
 import { MediaServiceProvider } from './services/media'
-import { EventEngine } from './services/middleware/event-engine'
+import { ConversationService } from './services/messaging/conversations'
+import { MessageService } from './services/messaging/messages'
 import { StateManager } from './services/middleware/state-manager'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
@@ -209,10 +210,28 @@ const distributed = (jobService: JobService): typeof sdk.distributed => {
   }
 }
 
-const experimental = (hookService: HookService): typeof sdk.experimental => {
+const experimental = (
+  hookService: HookService,
+  conversationService: ConversationService,
+  messageService: MessageService
+): typeof sdk.experimental => {
   return {
     disableHook: hookService.disableHook.bind(hookService),
-    enableHook: hookService.enableHook.bind(hookService)
+    enableHook: hookService.enableHook.bind(hookService),
+    conversations: conversations(conversationService),
+    messages: messages(messageService)
+  }
+}
+
+const conversations = (conversationService: ConversationService): typeof sdk.experimental.conversations => {
+  return {
+    forBot: conversationService.forBot.bind(conversationService)
+  }
+}
+
+const messages = (messageService: MessageService): typeof sdk.experimental.messages => {
+  return {
+    forBot: messageService.forBot.bind(messageService)
   }
 }
 
@@ -267,7 +286,9 @@ export class BotpressAPIProvider {
     @inject(TYPES.EventRepository) eventRepo: EventRepository,
     @inject(TYPES.WorkspaceService) workspaceService: WorkspaceService,
     @inject(TYPES.JobService) jobService: JobService,
-    @inject(TYPES.StateManager) stateManager: StateManager
+    @inject(TYPES.StateManager) stateManager: StateManager,
+    @inject(TYPES.ConversationService) conversationService: ConversationService,
+    @inject(TYPES.MessageService) messageService: MessageService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
@@ -282,7 +303,7 @@ export class BotpressAPIProvider {
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService, mediaServiceProvider)
     this.mlToolkit = MLToolkit
-    this.experimental = experimental(hookService)
+    this.experimental = experimental(hookService, conversationService, messageService)
     this.security = security()
     this.workspaces = workspaces(workspaceService)
     this.distributed = distributed(jobService)
