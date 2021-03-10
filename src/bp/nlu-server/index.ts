@@ -6,7 +6,7 @@ import bytes from 'bytes'
 import chalk from 'chalk'
 import cluster from 'cluster'
 
-import center from 'core/logger/utils/center'
+import { centerText } from 'core/logger'
 import { copyDir } from 'core/misc/pkg-fs'
 import _ from 'lodash'
 import Engine from 'nlu-core/engine'
@@ -96,9 +96,9 @@ export default async function(options: ArgV) {
   const { nluVersion } = engine.getSpecifications()
 
   logger.info(chalk`========================================
-{bold ${center('Botpress Standalone NLU', 40, 9)}}
-{dim ${center(`Version ${nluVersion}`, 40, 9)}}
-{dim ${center(`OS ${process.distro}`, 40, 9)}}
+{bold ${centerText('Botpress Standalone NLU', 40, 9)}}
+{dim ${centerText(`Version ${nluVersion}`, 40, 9)}}
+{dim ${centerText(`OS ${process.distro}`, 40, 9)}}
 ${_.repeat(' ', 9)}========================================`)
 
   if (options.authToken?.length) {

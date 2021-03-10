@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import center from 'core/logger/utils/center'
+import { centerText } from 'core/logger'
 import _ from 'lodash'
 import path from 'path'
 
@@ -61,9 +61,9 @@ export default async function(options: ArgV) {
   }
 
   logger.info(chalk`========================================
-{bold ${center('Botpress Language Server', 40, 9)}}
-{dim ${center(`Version ${version}`, 40, 9)}}
-{dim ${center(`OS ${process.distro}`, 40, 9)}}
+{bold ${centerText('Botpress Language Server', 40, 9)}}
+{dim ${centerText(`Version ${version}`, 40, 9)}}
+{dim ${centerText(`OS ${process.distro}`, 40, 9)}}
 ${_.repeat(' ', 9)}========================================`)
 
   if (options.authToken?.length) {

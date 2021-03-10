@@ -1,8 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import chalk from 'chalk'
 import { ConfigProvider } from 'core/config/config-loader'
-import { PersistedConsoleLogger } from 'core/logger'
-import center from 'core/logger/utils/center'
+import { PersistedConsoleLogger, centerText } from 'core/logger'
 import _ from 'lodash'
 import path from 'path'
 import stripAnsi from 'strip-ansi'
@@ -82,9 +81,9 @@ export class BotMigrationService {
 
     logger.warn(chalk`
 ${_.repeat(' ', 9)}========================================
-{bold ${center(`Migration${migrations.length === 1 ? '' : 's'} Required`, 40, 9)}}
-{dim ${center(`Version ${configVersion} => ${this.migService.targetVersion} `, 40, 9)}}
-{dim ${center(`${migrations.length} change${migrations.length === 1 ? '' : 's'}`, 40, 9)}}
+{bold ${centerText(`Migration${migrations.length === 1 ? '' : 's'} Required`, 40, 9)}}
+{dim ${centerText(`Version ${configVersion} => ${this.migService.targetVersion} `, 40, 9)}}
+{dim ${centerText(`${migrations.length} change${migrations.length === 1 ? '' : 's'}`, 40, 9)}}
 ${_.repeat(' ', 9)}========================================`)
 
     Object.keys(types).map(type => {
@@ -102,7 +101,11 @@ ${_.repeat(' ', 9)}========================================`)
   private async executeBotMigrations(botId: string, missingMigrations: MigrationFile[]) {
     this.logger.info(chalk`
 ${_.repeat(' ', 9)}========================================
-{bold ${center(`Executing ${missingMigrations.length} migration${missingMigrations.length === 1 ? '' : 's'}`, 40, 9)}}
+{bold ${centerText(
+      `Executing ${missingMigrations.length} migration${missingMigrations.length === 1 ? '' : 's'}`,
+      40,
+      9
+    )}}
 ${_.repeat(' ', 9)}========================================`)
 
     const opts = await this.migService.getMigrationOpts({ botId })
