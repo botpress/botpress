@@ -1,6 +1,6 @@
-import axios from 'axios'
 import Bluebird from 'bluebird'
 import * as sdk from 'botpress/sdk'
+import _ from 'lodash'
 import memoize from 'lodash/memoize'
 import uniq from 'lodash/uniq'
 
@@ -75,6 +75,11 @@ const applyChanges = (bp: typeof sdk, botId: string, tableName: string) => {
         'id',
         events.map(({ id }) => id)
       )
+
+    return _(events)
+      .map(e => e.language)
+      .uniq()
+      .value()
   })
 }
 
