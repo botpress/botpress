@@ -1,7 +1,7 @@
 import { Button } from '@blueprintjs/core'
 import { lang, toast } from 'botpress/shared'
-import React, { FC, useRef, useState } from 'react'
 import { sanitizeName } from 'common/utils'
+import React, { FC, useRef, useState } from 'react'
 
 interface Props {
   name: string

@@ -1,7 +1,11 @@
 import { IO } from 'botpress/sdk'
 import LicensingService from 'common/licensing-service'
-import { LogsJanitor } from 'core/logger/janitor'
-import { LogsService } from 'core/logger/service'
+import { EventEngine } from 'core/events/event-engine'
+import { Queue } from 'core/events/queue'
+import MemoryQueue from 'core/events/queue/memory-queue'
+import { KeyValueStore } from 'core/kvs'
+import { LogsJanitor } from 'core/logger/logs-janitor'
+import { LogsService } from 'core/logger/logs-service'
 import { DialogContainerModule } from 'core/services/dialog/dialog.inversify'
 import { CEJobService, JobService } from 'core/services/job-service'
 import { ContainerModule, interfaces } from 'inversify'
@@ -21,19 +25,25 @@ import { SkillService } from './dialog/skill/service'
 import { GhostContainerModule } from './ghost/ghost.inversify'
 import { HintsService } from './hints'
 import { HookService } from './hook/hook-service'
-import { KeyValueStore } from './kvs'
 import CELicensingService from './licensing'
 import { MediaServiceProvider } from './media'
-import { EventEngine } from './middleware/event-engine'
+import { ConversationService } from './messaging/conversations'
+import { MessageService } from './messaging/messages'
 import { CEMonitoringService, MonitoringService } from './monitoring'
 import { NLUService } from './nlu/nlu-service'
 import { NotificationsService } from './notification/service'
-import { Queue } from './queue'
-import MemoryQueue from './queue/memory-queue'
 import RealtimeService from './realtime'
 import { StatsService } from './stats-service'
 
 const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
+  bind<ConversationService>(TYPES.ConversationService)
+    .to(ConversationService)
+    .inSingletonScope()
+
+  bind<MessageService>(TYPES.MessageService)
+    .to(MessageService)
+    .inSingletonScope()
+
   bind<CMSService>(TYPES.CMSService)
     .to(CMSService)
     .inSingletonScope()

@@ -1,7 +1,7 @@
 import { Button, Classes, IconName, MenuItem } from '@blueprintjs/core'
 import { Suggest } from '@blueprintjs/select'
-import React, { FC, useState } from 'react'
 import { lang } from 'botpress/shared'
+import React, { FC, useState } from 'react'
 
 export interface Option {
   name: string
