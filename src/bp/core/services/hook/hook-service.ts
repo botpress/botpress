@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { ActionScope } from 'common/typings'
+import { addErrorToEvent, addStepToEvent, StepScopes, StepStatus } from 'core/events/event-collector'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
 import { inject, injectable, tagged } from 'inversify'
@@ -14,7 +15,6 @@ import { clearRequireCache, requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
 import { filterDisabled, getBaseLookupPaths, runOutsideVm } from '../action/utils'
 import { VmRunner } from '../action/vm'
-import { addErrorToEvent, addStepToEvent, StepScopes, StepStatus } from '../middleware/event-collector'
 
 const debug = DEBUG('hooks')
 const DEBOUNCE_DELAY = ms('2s')
