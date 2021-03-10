@@ -1,7 +1,7 @@
 import { StrategyUsersRepository } from 'core/collaborators/repositories/strategy_users'
 import { WorkspaceUsersRepository } from 'core/collaborators/repositories/workspace_users'
 import { EventRepository, KnexEventRepository } from 'core/events/event-repository'
-import { KnexLogsRepository, LogsRepository } from 'core/logger/logs-repository'
+import { KnexLogsRepository, LogsRepository } from 'core/logger'
 import { ContainerModule, interfaces } from 'inversify'
 
 import { TYPES } from '../types'
