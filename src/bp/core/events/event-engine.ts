@@ -13,7 +13,7 @@ import { Event } from '../sdk/impl'
 import { TYPES } from '../types'
 
 import { addStepToEvent, EventCollector, StepScopes } from './event-collector'
-import { MiddlewareChain } from './middleware'
+import MiddlewareChain from './middleware-chain'
 
 const directionRegex = /^(incoming|outgoing)$/
 

@@ -11,7 +11,7 @@ const defaultOptions = {
   timeoutInMs: ms('2s')
 }
 
-export class MiddlewareChain {
+class MiddlewareChain {
   private stack: { mw: sdk.IO.MiddlewareHandler; name: string }[] = []
 
   constructor(private options: MiddlewareChainOptions = defaultOptions) {
@@ -49,3 +49,5 @@ export class MiddlewareChain {
     }
   }
 }
+
+export default MiddlewareChain
