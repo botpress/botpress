@@ -3,7 +3,7 @@ import LicensingService from 'common/licensing-service'
 import { KeyValueStore } from 'core/kvs'
 import { DialogContainerModule } from 'core/services/dialog/dialog.inversify'
 import { CEJobService, JobService } from 'core/services/job-service'
-import { SpeechService } from 'core/services/speech/speech'
+import { SpeechService } from 'core/services/speech'
 import { ContainerModule, interfaces } from 'inversify'
 
 import { TYPES } from '../types'

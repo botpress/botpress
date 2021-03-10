@@ -1,5 +1,5 @@
 import { Logger } from 'botpress/sdk'
-import { SpeechService } from 'core/services/speech/speech'
+import { SpeechService } from 'core/services/speech'
 import { Router } from 'express'
 import { CustomRouter } from './customRouter'
 

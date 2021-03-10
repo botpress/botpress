@@ -62,7 +62,7 @@ import { MediaServiceProvider } from './services/media'
 import { MonitoringService } from './services/monitoring'
 import { NLUService } from './services/nlu/nlu-service'
 import { NotificationsService } from './services/notification/service'
-import { SpeechService } from './services/speech/speech'
+import { SpeechService } from './services/speech'
 import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
 
