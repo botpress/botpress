@@ -1,37 +1,39 @@
 ---
 id: introduction
-title: Introduction
+title: About Botpress
 ---
-
-Building bots is something new and sounds like a fun challenge for most developers. To be able to create software that converses in a natural way with humans is an exciting new reality. The problem is that you don’t want to spend hundreds of hours learning and putting together all the infrastructure and boilerplate code required to get a basic conversational backend up and running.
 
 ## What is Botpress
 
-> Botpress is a **lightweight**, **fast** and **flexible** on-premise bot building platform.
+> Botpress is an open-source platform for developers to build high-quality digital assistants.
 
-It is a complete platform that ships with all the tools you need to build, deploy and manage production-grade bots in record time. Here are some of the components that are installed by default:
+We make building chatbots much easier for developers. We have put together the boilerplate code and infrastructure you need to get a chatbot up and running. We propose you a complete dev-friendly platform that ships with all the tools you need to build, deploy and manage production-grade chatbots in record time. The platform includes:
+- Built-in **Natural Language Processing** tasks such as intent recognition, spell checking, entity extraction, and slot tagging (and many others)
+- A **visual conversation studio** to design multi-turn conversations and workflows.
+- An **emulator & a debugger** to simulate conversations and debug your chatbot
+- Support for **popular messaging channels** like Slack, Telegram, MS Teams, Facebook Messenger, and an embeddable web chat.
+- An **SDK and code editor** to extend the capabilities
+- **Post-deployment tools** like analytics dashboards, human handoff
+And more… (Complete Features Overview)[botpress.com/features/overview]
 
-- An NLU Engine
-- An administration dashboard
-- A visual flow editor
-- A chat emulator / debugger
-- Support for multiple messaging channels
-
-### Why Botpress
-
+## Why Botpress
 Botpress has many advantages over other platforms and frameworks:
+- It is **cloud-agnostic**, therefore you can run it on the cloud platform or the on-premise infrastructure of your choice, giving you **full control over your data privacy.**
+- The core of the Botpress platform is **open-source** with thousands of GitHub contributors and stargazers, and a thriving community forum.
+- The platform offers a **great developer experience** by being remarkably flexible, easy to use, and fast.
+Support for **multiple languages**, including French, Arabic, Spanish, and 100 more
+- **No vendor lock-in**
 
-- It runs **fully on-prem**, so you have full control over the data that comes in and out
-- The core of the Botpress platform is **open-source**
-- Extremely **flexible** and developer-friendly
-- **Zero** external dependencies
+Most importantly, our platform has proven to deliver a better conversational experience to end-users. 
 
-## How to build a bot
+## With Botpress You Can
+**Automate Workflows**: This is a real customer story; you can automate the workflow of applying for a Mortgage by gathering the information you need from potential customers through a chat on your website.
 
-There are three main steps involved in creating bots.
+**Support your customer 24/7**: If someone is not behind your Facebook Messenger, your customer is most likely not gonna get the answer they need and he might go to a different business. A chatbot can answer your customer’s questions even when you are asleep.
 
-Developers start by **Building** the bot, which consists of adding the necessary messaging channels, coding the necessary backend integrations your bot will need to interact with and creating the main dialog flows.
+**Allow employees to self-serve**: The classic example is resetting a password. Some people are required to ask a system administrator or an IT person to reset their password when they get logged out of their email. The truth is they could just ask in Slack for a password reset and it could take care of itself.
 
-Once done, you'll need to **Deploy** the bot somewhere, which could be on the cloud or your own infrastructure.
+**Create a conversational interface for an application**: Some applications are better delivered with a GUI, but in other cases, a conversational interface is simply a better option. It’s just really natural for someone to ask in plain English rather than browsing an interface. ‘’Hey, I am looking for a training plan for my next marathon’’
 
-Finally, you'll give access to the bot to more people so they can **Manage** the bot post-deployment. Managing a bot entails analyzing the conversations, refining the conversational experience by building new flows and to make it smarter by continuously improving the NLU.
+## Who else uses Botpress?
+Botpress has been deployed in production thousands of times across 4 continents. A wide range of companies, including digital agencies, Fortune 500 organizations, governments, and startups are building digital assistants with Botpress Platform.

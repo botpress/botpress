@@ -1,5 +1,6 @@
 import { IO, Logger, NDU } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
+import { EventEngine } from 'core/events/event-engine'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
@@ -8,7 +9,6 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 
-import { EventEngine } from '../middleware/event-engine'
 import { StateManager } from '../middleware/state-manager'
 
 import { DialogEngine } from './dialog-engine'
