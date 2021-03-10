@@ -1,5 +1,6 @@
 import { IO } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
+import { EventEngine } from 'core/events/event-engine'
 import { UserRepository } from 'core/repositories'
 import { TYPES } from 'core/types'
 import { InvalidParameterError } from 'errors'
@@ -11,7 +12,6 @@ import ms from 'ms'
 
 import { ConversationService } from './messaging/conversations'
 import { MessageService } from './messaging/messages'
-import { EventEngine } from './middleware/event-engine'
 
 export const converseApiEvents = new EventEmitter2()
 

@@ -3,9 +3,9 @@ import { lang, toast } from 'botpress/shared'
 import { isOperationAllowed } from 'botpress/utils'
 import React, { useState } from 'react'
 
-import style from './style.scss'
 import Dropdown from './LibDropdown'
 import PackageLib from './PackageLib'
+import style from './style.scss'
 import UploadLibrary from './UploadLibrary'
 
 interface LibEntry {

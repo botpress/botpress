@@ -1,8 +1,8 @@
 import { LoggerEntry, LoggerLevel } from 'botpress/sdk'
-import { inject, injectable } from 'inversify'
 
-import Database from '../database'
-import { TYPES } from '../types'
+import Database from 'core/database'
+import { TYPES } from 'core/types'
+import { inject, injectable } from 'inversify'
 
 export interface LogsRepository {
   deleteBeforeDate(botId: string, date: Date)
