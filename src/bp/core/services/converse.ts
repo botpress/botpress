@@ -10,7 +10,8 @@ import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import ms from 'ms'
 
-import { Event } from '../sdk/impl'
+import { ConversationService } from './messaging/conversations'
+import { MessageService } from './messaging/messages'
 
 export const converseApiEvents = new EventEmitter2()
 
@@ -31,7 +32,9 @@ export class ConverseService {
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.UserRepository) private userRepository: UserRepository
+    @inject(TYPES.UserRepository) private userRepository: UserRepository,
+    @inject(TYPES.ConversationService) private conversationService: ConversationService,
+    @inject(TYPES.MessageService) private messageService: MessageService
   ) {}
 
   @postConstruct()
@@ -43,12 +46,12 @@ export class ConverseService {
       description: 'Captures the response payload for the Converse API',
       order: 10000,
       direction: 'outgoing',
-      handler: (event: IO.Event, next) => {
+      handler: async (event: IO.Event, next) => {
         if (event.channel !== 'api') {
           return next(undefined, false, true)
         }
 
-        this._handleCapturePayload(event)
+        await this._handleCapturePayload(event)
         next()
       }
     })
@@ -95,24 +98,17 @@ export class ConverseService {
 
     await this.userRepository.getOrCreate('api', userId, botId)
 
-    const incomingEvent = Event({
-      type: payload.type,
-      channel: 'api',
-      direction: 'incoming',
-      payload,
-      target: userId,
-      botId,
-      credentials,
-      nlu: {
-        includedContexts
-      }
-    })
+    const conversation = await this.conversationService.forBot(botId).recent(userId)
 
     const userKey = buildUserKey(botId, userId)
     const timeoutPromise = this._createTimeoutPromise(botId, userKey)
     const donePromise = this._createDonePromise(userKey)
 
-    await this.eventEngine.sendEvent(incomingEvent)
+    await this.messageService.forBot(botId).receive(conversation.id, payload, {
+      channel: 'api',
+      credentials,
+      nlu: { includedContexts }
+    })
 
     return Promise.race([timeoutPromise, donePromise]).finally(() => {
       converseApiEvents.removeAllListeners(`done.${userKey}`)
@@ -169,13 +165,19 @@ export class ConverseService {
     })
   }
 
-  private _handleCapturePayload(event: IO.Event) {
+  private async _handleCapturePayload(event: IO.OutgoingEvent) {
     const userKey = buildUserKey(event.botId, event.target)
     if (!this._responseMap[userKey]) {
       this._responseMap[userKey] = { responses: [] }
     }
 
     this._responseMap[userKey].responses!.push(event.payload)
+
+    if (event.type !== 'typing' && event.type !== 'data') {
+      await this.messageService
+        .forBot(event.botId)
+        .create(event.threadId!, event.payload, 'bot', event.id, event.incomingEventId)
+    }
   }
 
   private _handleCaptureContext(event: IO.IncomingEvent) {

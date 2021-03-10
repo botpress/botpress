@@ -27,6 +27,8 @@ import CELicensingService from './licensing'
 import { LogsJanitor } from './logs/janitor'
 import { LogsService } from './logs/service'
 import { MediaServiceProvider } from './media'
+import { ConversationService } from './messaging/conversations'
+import { MessageService } from './messaging/messages'
 import { CEMonitoringService, MonitoringService } from './monitoring'
 import { NLUService } from './nlu/nlu-service'
 import { NotificationsService } from './notification/service'
@@ -34,6 +36,14 @@ import RealtimeService from './realtime'
 import { StatsService } from './stats-service'
 
 const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
+  bind<ConversationService>(TYPES.ConversationService)
+    .to(ConversationService)
+    .inSingletonScope()
+
+  bind<MessageService>(TYPES.MessageService)
+    .to(MessageService)
+    .inSingletonScope()
+
   bind<CMSService>(TYPES.CMSService)
     .to(CMSService)
     .inSingletonScope()
