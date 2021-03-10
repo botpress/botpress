@@ -4,7 +4,7 @@ import { createSpyObject, MockObject } from 'core/misc/utils'
 import 'jest-extended'
 import 'reflect-metadata'
 
-import { MiddlewareChain } from './middleware'
+import MiddlewareChain from './middleware-chain'
 
 const base = { description: 'test', order: 1, direction: <EventDirection>'incoming' }
 describe('Middleware', () => {

@@ -1,14 +1,15 @@
 import * as sdk from 'botpress/sdk'
+import { EventEngine } from 'core/events/event-engine'
 import { MessageRepository } from 'core/repositories/messages'
 import { IOEvent } from 'core/sdk/impl'
 import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import LRU from 'lru-cache'
 import ms from 'ms'
+
 import { KeyValueStore } from '../../kvs'
 import { TYPES } from '../../types'
 import { JobService } from '../job-service'
-import { EventEngine } from '../middleware/event-engine'
 import { ConversationService, ScopedConversationService } from './conversations'
 
 @injectable()
