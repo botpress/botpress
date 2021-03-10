@@ -10,7 +10,7 @@ const { apiAuthService } = require('@rdcdev/dbank-client');
  */
 const auth = async (login, password) => {
   try {
-    temp.authData = await apiAuthService.auth(login, password)
+    temp.authData = await apiAuthService.auth(login, password, event.channel, event.target)
     user.login = login;
     temp.successAuth = true;
   } catch (e) {
