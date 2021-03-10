@@ -230,7 +230,7 @@ async function runTest(test: Test, axiosConfig: AxiosRequestConfig): Promise<Tes
   const {
     data: { nlu }
   } = await Axios.post(
-    'mod/nlu/predict',
+    '/mod/nlu/predict',
     { text: test.utterance, contexts: test.context ? [test.context] : [] },
     axiosConfig
   )

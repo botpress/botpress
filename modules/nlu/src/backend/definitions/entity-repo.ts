@@ -1,18 +1,34 @@
 import * as sdk from 'botpress/sdk'
-import { sanitizeFileName } from 'core/misc/utils'
-import { DUCKLING_ENTITIES } from 'nlu-core/entities/duckling-extractor/enums'
-import { GhostService } from '..'
+
 import * as CacheManager from './cache-manager'
-import { NLUService } from './nlu-service'
+import { sanitizeFileName } from './utils'
 
 const ENTITIES_DIR = './entities'
+
+const DUCKLING_ENTITIES: string[] = [
+  'amountOfMoney',
+  'distance',
+  'duration',
+  'email',
+  'number',
+  'ordinal',
+  'phoneNumber',
+  'quantity',
+  'temperature',
+  'time',
+  'url',
+  'volume'
+]
 
 const getSystemEntities = (): sdk.NLU.EntityDefinition[] => {
   return [...DUCKLING_ENTITIES, 'any'].map(name => ({ name, type: 'system' })) as sdk.NLU.EntityDefinition[]
 }
 
-export class EntityService {
-  constructor(private ghostService: GhostService, private nluService: NLUService) {}
+export class EntityRepository {
+  constructor(
+    private ghostService: typeof sdk.ghost,
+    private renameCb: (botId: string, oldName: string, newName: string) => Promise<void>
+  ) {}
 
   private entityExists(botId: string, entityName: string): Promise<boolean> {
     return this.ghostService.forBot(botId).fileExists(ENTITIES_DIR, `${entityName}.json`)
@@ -62,7 +78,7 @@ export class EntityService {
       CacheManager.copyCache(targetEntityName, entity.name, botId)
       await Promise.all([
         this.deleteEntity(botId, targetSanitized),
-        this.nluService.intents.updateIntentsSlotsEntities(botId, targetSanitized, nameSanitized)
+        this.renameCb(botId, targetSanitized, nameSanitized)
       ])
     } else {
       // entity changed

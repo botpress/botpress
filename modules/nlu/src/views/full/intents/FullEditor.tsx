@@ -1,11 +1,10 @@
-import { AxiosInstance } from 'axios'
 import { NLU } from 'botpress/sdk'
 import { utils } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect, useRef, useState } from 'react'
 
-import { NLUApi } from '../../../api'
+import { NLUApi } from '../../../api-client'
 
 import { ContextSelector } from './ContextSelector'
 import IntentHint from './IntentHint'

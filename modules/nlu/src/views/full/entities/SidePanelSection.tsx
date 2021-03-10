@@ -5,7 +5,7 @@ import { Item, ItemList, SearchBar } from 'botpress/ui'
 import React, { FC, useState } from 'react'
 
 import { NluItem } from '..'
-import { NLUApi } from '../../../api'
+import { NLUApi } from '../../../api-client'
 
 import { EntityNameModal } from './EntityNameModal'
 

@@ -4,7 +4,7 @@ import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
-import { makeApi } from '../../../api'
+import { makeApiClient } from '../../../api-client'
 import style from '../style.scss'
 
 import { IntentEditor } from './FullEditor'
@@ -44,7 +44,7 @@ export const LiteEditor: FC<Props> = props => {
     }
   }, [props.forceSave])
 
-  const api = makeApi(props.bp)
+  const api = makeApiClient(props.bp)
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises

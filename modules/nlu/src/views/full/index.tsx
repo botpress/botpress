@@ -5,7 +5,7 @@ import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
-import { makeApi } from '../../api'
+import { makeApiClient } from '../../api-client'
 
 import { EntityEditor } from './entities/EntityEditor'
 import { EntitySidePanelSection } from './entities/SidePanelSection'
@@ -28,7 +28,7 @@ const ITEM_TYPE_PARAM = 'type'
 const ITEM_NAME_PARAM = 'id'
 
 const NLU: FC<Props> = props => {
-  const api = makeApi(props.bp)
+  const api = makeApiClient(props.bp)
   const [currentItem, setCurrentItem] = useState<NluItem | undefined>()
   const [intents, setIntents] = useState([])
   const [entities, setEntities] = useState([])

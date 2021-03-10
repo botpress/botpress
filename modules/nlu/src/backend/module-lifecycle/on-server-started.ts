@@ -3,6 +3,8 @@ import bytes from 'bytes'
 import _ from 'lodash'
 
 import { Config } from '../../config'
+import { EntityRepository } from '../definitions/entity-repo'
+import { IntentRepository } from '../definitions/intent-repo'
 import legacyElectionPipeline from '../election/legacy-election'
 import { PredictionHandler } from '../prediction-handler'
 import { setTrainingSession } from '../train-session-service'
@@ -128,6 +130,10 @@ export function getOnSeverStarted(state: NLUState) {
       modelCacheSize: bytes(modelCacheSize)
     }
     state.engine = await bp.NLU.makeEngine(parsedConfig, logger)
+    state.entitiesRepo = new EntityRepository(bp.ghost, (botId: string, oldName: string, newName: string) => {
+      return state.intentsRepo.updateIntentsSlotsEntities(botId, oldName, newName)
+    })
+    state.intentsRepo = new IntentRepository(bp.ghost, state.entitiesRepo)
 
     await registerMiddleware(bp, state)
   }

@@ -1,9 +1,13 @@
 import { ListenHandle, NLU } from 'botpress/sdk'
+import { EntityRepository } from './definitions/entity-repo'
+import { IntentRepository } from './definitions/intent-repo'
 
 import ModelService from './model-service'
 
 export interface NLUState {
   engine: NLU.Engine
+  intentsRepo: IntentRepository
+  entitiesRepo: EntityRepository
   nluByBot: _.Dictionary<BotState>
   broadcastLoadModel?: (botId: string, modelId: NLU.ModelId) => Promise<void>
   broadcastCancelTraining?: (botId: string, language: string) => Promise<void>

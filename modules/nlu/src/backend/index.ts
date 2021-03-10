@@ -2,7 +2,6 @@ import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { createApi } from '../api'
 import en from '../translations/en.json'
 import es from '../translations/es.json'
 import fr from '../translations/fr.json'
@@ -16,6 +15,8 @@ import { NLUState } from './typings'
 
 const state: NLUState = {
   engine: undefined,
+  entitiesRepo: undefined,
+  intentsRepo: undefined,
   nluByBot: {},
   sendNLUStatusEvent: async () => {}
 }
@@ -39,8 +40,7 @@ const onTopicChanged = async (bp: typeof sdk, botId: string, oldName?: string, n
     return
   }
 
-  const api = await createApi(bp, botId)
-  const intentDefs = await api.fetchIntentsWithQNAs()
+  const intentDefs = await state.intentsRepo.getIntents(botId)
 
   for (const intentDef of intentDefs) {
     const ctxIdx = intentDef.contexts.indexOf(oldName as string)
@@ -51,7 +51,7 @@ const onTopicChanged = async (bp: typeof sdk, botId: string, oldName?: string, n
         intentDef.contexts.push(newName!)
       }
 
-      await api.updateIntent(intentDef.name, intentDef)
+      await state.intentsRepo.updateIntent(botId, intentDef.name, intentDef)
     }
   }
 }

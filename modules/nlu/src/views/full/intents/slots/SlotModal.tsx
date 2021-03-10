@@ -6,7 +6,7 @@ import random from 'lodash/random'
 import nanoid from 'nanoid'
 import React from 'react'
 
-import { NLUApi } from '../../../../api'
+import { NLUApi } from '../../../../api-client'
 
 import { EntitySelector } from './EntitySelector'
 import { SlotOperation } from './typings'

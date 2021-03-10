@@ -29,7 +29,6 @@ import { MediaServiceProvider } from './media'
 import { ConversationService } from './messaging/conversations'
 import { MessageService } from './messaging/messages'
 import { CEMonitoringService, MonitoringService } from './monitoring'
-import { NLUService } from './nlu/nlu-service'
 import { NotificationsService } from './notification/service'
 import RealtimeService from './realtime'
 import { StatsService } from './stats-service'
@@ -45,10 +44,6 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<CMSService>(TYPES.CMSService)
     .to(CMSService)
-    .inSingletonScope()
-
-  bind<NLUService>(TYPES.NLUService)
-    .to(NLUService)
     .inSingletonScope()
 
   bind<MediaServiceProvider>(TYPES.MediaServiceProvider)

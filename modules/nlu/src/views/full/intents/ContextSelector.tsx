@@ -3,7 +3,7 @@ import { ItemRenderer, MultiSelect } from '@blueprintjs/select'
 import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 
-import { NLUApi } from '../../../api'
+import { NLUApi } from '../../../api-client'
 
 import style from './style.scss'
 

@@ -23,7 +23,7 @@ const ContextSelector: FC<Props> = props => {
   }, [])
 
   const fetchContexts = () => {
-    props.bp.axios.get('/nlu/contexts').then(({ data }) => {
+    props.bp.axios.get('/mod/nlu/contexts').then(({ data }) => {
       updateContexts(data)
     })
   }
@@ -94,7 +94,10 @@ const ContextSelector: FC<Props> = props => {
         tagInputProps={{
           tagProps: { minimal: true },
           onRemove: removeCtx,
-          inputProps: { id: `select-context${props.customIdSuffix ? props.customIdSuffix : ''}`, onFocus: fetchContexts }
+          inputProps: {
+            id: `select-context${props.customIdSuffix ? props.customIdSuffix : ''}`,
+            onFocus: fetchContexts
+          }
         }}
         popoverProps={{ minimal: true, fill: true, usePortal: false }}
         selectedItems={contexts}

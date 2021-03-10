@@ -2,7 +2,6 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import ms from 'ms'
 
-import { createApi } from '../../api'
 import ModelService from '../model-service'
 import { getSeed } from '../seed-service'
 import {
@@ -22,9 +21,8 @@ async function annouceNeedsTraining(bp: typeof sdk, botId: string, state: NLUSta
   const { engine } = state
   const { modelIdService } = bp.NLU
 
-  const api = await createApi(bp, botId)
-  const intentDefs = await api.fetchIntentsWithQNAs()
-  const entityDefs = await api.fetchEntities()
+  const intentDefs = await state.intentsRepo.getIntents(botId)
+  const entityDefs = await state.entitiesRepo.getEntities(botId)
 
   const bot = await bp.bots.getBotById(botId)
   const { languages: botLanguages } = bot
@@ -78,9 +76,8 @@ export function getOnBotMount(state: NLUState) {
         return
       }
 
-      const api = await createApi(bp, botId)
-      const intentDefs = await api.fetchIntentsWithQNAs()
-      const entityDefs = await api.fetchEntities()
+      const intentDefs = await state.intentsRepo.getIntents(botId)
+      const entityDefs = await state.entitiesRepo.getEntities(botId)
 
       const kvs = bp.kvs.forBot(botId)
       await kvs.set(KVS_TRAINING_STATUS_KEY, 'training')

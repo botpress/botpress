@@ -1,16 +1,14 @@
 import * as sdk from 'botpress/sdk'
 import { FlowView } from 'common/typings'
-import { sanitizeFileName } from 'core/misc/utils'
+
 import _ from 'lodash'
-
-import { GhostService } from '..'
-
-import { NLUService } from './nlu-service'
+import { EntityRepository } from './entity-repo'
+import { sanitizeFileName } from './utils'
 
 const INTENTS_DIR = './intents'
 
-export class IntentService {
-  constructor(private ghostService: GhostService, private nluService: NLUService) {}
+export class IntentRepository {
+  constructor(private ghostService: typeof sdk.ghost, private entitiesRepo: EntityRepository) {}
 
   private async intentExists(botId: string, intentName: string): Promise<boolean> {
     return this.ghostService.forBot(botId).fileExists(INTENTS_DIR, `${intentName}.json`)
@@ -39,7 +37,7 @@ export class IntentService {
       throw new Error('Invalid intent name, expected at least one character')
     }
 
-    const availableEntities = await this.nluService.entities.getEntities(botId)
+    const availableEntities = await this.entitiesRepo.getEntities(botId)
 
     _.chain(intent.slots)
       .flatMap('entities')

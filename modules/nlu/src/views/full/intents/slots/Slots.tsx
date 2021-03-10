@@ -5,7 +5,7 @@ import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React from 'react'
 
-import { NLUApi } from '../../../../api'
+import { NLUApi } from '../../../../api-client'
 import style from '../style.scss'
 
 import SlotItem from './SlotItem'

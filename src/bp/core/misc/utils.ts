@@ -125,10 +125,3 @@ export const sanitize = (input: string, type?: 'file' | 'folder') => {
     .replace(regex.reserved, '')
     .replace(type === 'folder' ? regex.illegalFolder : regex.illegalFile, '')
 }
-
-export const sanitizeFileName = (name: string): string => {
-  return name
-    .toLowerCase()
-    .replace(/\.json$/i, '')
-    .replace(/[\t\s]/gi, '-')
-}
