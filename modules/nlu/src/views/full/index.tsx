@@ -1,6 +1,6 @@
 import { Icon, Tab, Tabs, Tag } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
-import { lang } from 'botpress/shared'
+import { EmptyState, HeaderButtonProps, lang, MainLayout } from 'botpress/shared'
 import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
@@ -32,6 +32,7 @@ const NLU: FC<Props> = props => {
   const [currentItem, setCurrentItem] = useState<NluItem | undefined>()
   const [intents, setIntents] = useState([])
   const [entities, setEntities] = useState([])
+  const [currentTab, setCurrentTab] = useState('intents')
 
   const loadIntents = () =>
     api
@@ -119,44 +120,64 @@ const NLU: FC<Props> = props => {
     />
   )
 
+  const tabs = [
+    {
+      id: 'intents',
+      title: lang.tr('module.nlu.intents.title')
+    },
+    {
+      id: 'entities',
+      title: lang.tr('module.nlu.entities.title')
+    }
+  ]
+
   return (
-    <Container>
-      <SidePanel>
-        <Tabs id="nlu-tabs" className={style.headerTabs} defaultSelectedTabId="intents" large={false}>
-          <Tab id="intents" panel={intentsPanel}>
-            <span>{lang.tr('module.nlu.intents.title')}&nbsp;</span>
-            <Tag large={false} round={true} minimal={true}>
-              {intents.length}
-            </Tag>
-          </Tab>
-          <Tab id="entities" panel={entitiesPanel}>
-            <span>{lang.tr('module.nlu.entities.title')}</span>{' '}
-            <Tag large={false} round={true} minimal={true}>
-              {customEntities.length}
-            </Tag>
-          </Tab>
-        </Tabs>
-      </SidePanel>
-      <div className={style.container}>
-        {!currentItemExists() && (
-          <SplashScreen
-            icon={<Icon iconSize={80} icon="translate" style={{ marginBottom: '3em' }} />}
-            title={lang.tr('module.nlu.title')}
-            description={lang.tr('module.nlu.description')}
-          />
-        )}
-        {!!intents.length && currentItem && currentItem.type === 'intent' && (
-          <IntentEditor intent={currentItem.name} api={api} contentLang={props.contentLang} showSlotPanel />
-        )}
-        {currentItem && currentItem.type === 'entity' && (
-          <EntityEditor
-            entities={entities}
-            entity={entities.find(ent => ent.name === currentItem.name)}
-            updateEntity={_.debounce(updateEntity, 2500)}
-          />
-        )}
-      </div>
-    </Container>
+    <MainLayout.Wrapper>
+      <Container>
+        <SidePanel>
+          <MainLayout.Toolbar tabChange={setCurrentTab} tabs={tabs} currentTab={currentTab} />
+          {currentTab === 'intents' && (
+            <IntentSidePanelSection
+              api={api}
+              contentLang={props.contentLang}
+              intents={intents}
+              currentItem={currentItem}
+              setCurrentItem={handleSelectItem}
+              reloadIntents={loadIntents}
+            />
+          )}
+          {currentTab === 'entities' && (
+            <EntitySidePanelSection
+              api={api}
+              entities={customEntities}
+              currentItem={currentItem}
+              setCurrentItem={handleSelectItem}
+              reloadEntities={loadEntities}
+              reloadIntents={loadIntents}
+            />
+          )}
+        </SidePanel>
+        <div className={style.container}>
+          {!currentItemExists() && (
+            <SplashScreen
+              icon={<Icon iconSize={80} icon="translate" style={{ marginBottom: '3em' }} />}
+              title={lang.tr('module.nlu.title')}
+              description={lang.tr('module.nlu.description')}
+            />
+          )}
+          {!!intents.length && currentItem && currentItem.type === 'intent' && (
+            <IntentEditor intent={currentItem.name} api={api} contentLang={props.contentLang} showSlotPanel />
+          )}
+          {currentItem && currentItem.type === 'entity' && (
+            <EntityEditor
+              entities={entities}
+              entity={entities.find(ent => ent.name === currentItem.name)}
+              updateEntity={_.debounce(updateEntity, 2500)}
+            />
+          )}
+        </div>
+      </Container>
+    </MainLayout.Wrapper>
   )
 }
 
