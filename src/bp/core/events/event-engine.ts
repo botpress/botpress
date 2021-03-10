@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import { Queue } from 'core/events/queue'
 import { TimedPerfCounter } from 'core/misc/timed-perf'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { incrementMetric } from 'core/services/monitoring'
@@ -13,7 +12,8 @@ import { Event } from '../sdk/impl'
 import { TYPES } from '../types'
 
 import { addStepToEvent, EventCollector, StepScopes } from './event-collector'
-import MiddlewareChain from './middleware-chain'
+import { MiddlewareChain } from './middleware-chain'
+import { Queue } from './queue'
 
 const directionRegex = /^(incoming|outgoing)$/
 

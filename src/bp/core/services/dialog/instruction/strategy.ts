@@ -1,7 +1,7 @@
 import { IO, Logger } from 'botpress/sdk'
 import { parseActionInstruction } from 'common/action'
 import { ActionServer } from 'common/typings'
-import { EventEngine } from 'core/events/event-engine'
+import { EventEngine } from 'core/events'
 import ActionServersService from 'core/services/action/action-servers-service'
 import ActionService from 'core/services/action/action-service'
 import { CMSService } from 'core/services/cms'

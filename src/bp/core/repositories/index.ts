@@ -1,5 +1,3 @@
 export * from './notifications'
 export * from './sessions'
 export * from './users'
-export * from 'core/events/event-repository'
-export * from './workspace_invite_codes'

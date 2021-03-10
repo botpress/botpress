@@ -1,5 +1,5 @@
 import { Logger } from 'botpress/sdk'
-import { EventCollector } from 'core/events/event-collector'
+import { EventCollector } from 'core/events'
 import { Container } from 'inversify'
 
 import { BotpressAPIProvider } from './api'

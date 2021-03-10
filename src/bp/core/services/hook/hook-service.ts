@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { ActionScope } from 'common/typings'
-import { addErrorToEvent, addStepToEvent, StepScopes, StepStatus } from 'core/events/event-collector'
+import { addErrorToEvent, addStepToEvent, StepScopes, StepStatus } from 'core/events'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
 import { inject, injectable, tagged } from 'inversify'
