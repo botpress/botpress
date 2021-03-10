@@ -102,5 +102,7 @@ Botpress Partners is a list of agencies who can help you build your next convers
 | [DevSamurai](https://www.devsamurai.com/)     | Tokyo, Japan                        |
 | [Teplar Solutions](https://www.teplar.com)    | Coimbatore, Tamil Nadu, India       |
 | [SabanaTech](https://www.sabanatech.com)      | San José, Costa Rica, Latin America |
+| [Readcast](https://readcast.net)              | Chișinău (Kishinev), Moldova, Europe|
+
 
 _If you are an agency and would like to be on this list, please clone the repository & add your agency to the list in the README.md. Then, you can create a pull request on the repository and we'll make sure to review and merge your PR swiftly._
