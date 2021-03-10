@@ -43,12 +43,34 @@ const list_entities: ListEntityModel[] = [
   {
     entityName: 'airport',
     fuzzyTolerance: FuzzyTolerance.Medium,
-    id: 'custom.list.city',
+    id: 'custom.list.airport',
     languageCode: 'en',
     mappingsTokens: {
       JFK: ['JFK', 'New-York', 'NYC'].map(T),
       SFO: ['SFO', 'SF', 'San-Francisco'].map(T),
       YQB: ['YQB', 'Quebec', 'Quebec city', 'QUEB'].map(T)
+    },
+    sensitive: false,
+    type: 'custom.list'
+  },
+  {
+    entityName: 'state',
+    fuzzyTolerance: FuzzyTolerance.Medium,
+    id: 'custom.list.state',
+    languageCode: 'en',
+    mappingsTokens: {
+      NewYork: ['New York'].map(T)
+    },
+    sensitive: false,
+    type: 'custom.list'
+  },
+  {
+    entityName: 'city',
+    fuzzyTolerance: FuzzyTolerance.Medium,
+    id: 'custom.list.city',
+    languageCode: 'en',
+    mappingsTokens: {
+      NewYork: ['New York'].map(T)
     },
     sensitive: false,
     type: 'custom.list'
@@ -95,6 +117,21 @@ describe('list entity extractor', () => {
     assertEntity(
       '[SF](qty:1 type:airport) is where I was born, I now live in [Quebec](qty:1 type:airport) [the city](qty:0)'
     )
+  })
+
+  describe('same occurence in multiple entities', () => {
+    const expectedIds = ['custom.list.state', 'custom.list.city', 'custom.list.airport']
+    const utterance = makeTestUtterance('I want to go to New York')
+    const results = extractListEntities(utterance, list_entities)
+
+    expect(results.length).toEqual(3)
+
+    for (let result of results) {
+      const id = result.metadata.entityId
+      test(`Expect ${result.value} to be one of ${expectedIds.join(' ')}`, () => {
+        expectedIds.includes(id)
+      })
+    }
   })
 
   describe('fuzzy match', () => {

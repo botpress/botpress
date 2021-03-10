@@ -78,9 +78,6 @@ export const ListEntityEditor: React.FC<Props> = props => {
     if (isNewOccurrenceEmpty()) {
       return
     }
-    if (!isUnique(newOccurrence)) {
-      return toastFailure('Occurrences duplication is not allowed')
-    }
 
     dispatch({
       type: 'setOccurrences',
