@@ -4,6 +4,7 @@ import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 import { NLUApi } from '../../../../api'
 import style from '../style.scss'
+import { entityNameInput } from './style.scss'
 
 const SYSTEM_ENTITIES = [
   'amountOfMoney',
@@ -55,11 +56,20 @@ export const EntitySelector: FC<Props> = props => {
     }
   }
 
+  const getEntityName = (entity: EntityOption): string => {
+    let entityName = `${entity.type}.${entity.name}`
+    const translatedName = lang.tr('module.nlu.slots.names.' + entity.name)
+
+    if (SYSTEM_ENTITIES.includes(entity.name) && translatedName !== entity.name) {
+      entityName += ` (${translatedName})`
+    }
+
+    return entityName
+  }
+
   const entityItemRenderer: ItemRenderer<EntityOption> = (entity: EntityOption, { handleClick, modifiers }) => (
     <MenuItem
-      text={`${entity.type}.${
-        SYSTEM_ENTITIES.includes(entity.name) ? lang.tr('module.nlu.slots.names.' + entity.name) : entity.name
-      }`}
+      text={getEntityName(entity)}
       key={`${entity.name}${entity.type}`}
       onClick={handleClick}
       active={modifiers.active}
