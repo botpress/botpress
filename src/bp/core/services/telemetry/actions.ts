@@ -65,7 +65,7 @@ export class ActionsStats extends TelemetryStats {
     const botIds = await this.botService.getBotsIds()
     const flows = _.flatten(
       await Promise.map(botIds, async botID => {
-        const flowView = await this.flowService.loadAll(botID)
+        const flowView = await this.flowService.forBot(botID).loadAll()
         return flowView.map(flow => {
           const { name } = flow
           const actions = flow.nodes
