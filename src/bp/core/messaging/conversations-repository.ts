@@ -1,25 +1,17 @@
 import sdk from 'botpress/sdk'
+import Database from 'core/database'
 import { JobService } from 'core/services/job-service'
+import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
 
 import LRU from 'lru-cache'
 import ms from 'ms'
 import uuid from 'uuid'
-import Database from '../database'
-import { TYPES } from '../types'
-import { MessageRepository } from './messages'
 
-export interface ConversationRepository {
-  list(botId: string, filters: sdk.ConversationListFilters): Promise<sdk.RecentConversation[]>
-  deleteAll(botId: string, userId: string): Promise<number>
-  create(botId: string, userId: sdk.uuid): Promise<sdk.Conversation>
-  recent(botId: string, userId: sdk.uuid): Promise<sdk.Conversation | undefined>
-  get(conversationId: sdk.uuid): Promise<sdk.Conversation | undefined>
-  delete(conversationId: sdk.uuid): Promise<boolean>
-}
+import { MessageRepository } from './messages-repository'
 
 @injectable()
-export class KnexConversationRepository implements ConversationRepository {
+export class ConversationRepository {
   private readonly TABLE_NAME = 'conversations'
   private cache = new LRU<sdk.uuid, sdk.Conversation>({ max: 10000, maxAge: ms('5min') })
   private invalidateConvCache: (ids: sdk.uuid[]) => void = this._localInvalidateConvCache

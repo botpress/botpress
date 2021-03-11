@@ -1,7 +1,9 @@
 import { SessionRepository } from 'core/dialog/sessions'
 import { EventRepository } from 'core/events'
 import { LogsRepository } from 'core/logger'
+import { ConversationRepository, MessageRepository } from 'core/messaging'
 import { TelemetryRepository } from 'core/telemetry'
+import { TYPES } from 'core/types'
 import {
   ChannelUserRepository,
   StrategyUsersRepository,
@@ -10,10 +12,7 @@ import {
 } from 'core/users'
 import { ContainerModule, interfaces } from 'inversify'
 
-import { TYPES } from '../types'
 import { KnexNotificationsRepository, NotificationsRepository } from '.'
-import { ConversationRepository, KnexConversationRepository } from './conversations'
-import { KnexMessageRepository, MessageRepository } from './messages'
 import { TasksRepository } from './tasks'
 
 const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
@@ -58,11 +57,11 @@ const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) 
     .inSingletonScope()
 
   bind<MessageRepository>(TYPES.MessageRepository)
-    .to(KnexMessageRepository)
+    .to(MessageRepository)
     .inSingletonScope()
 
   bind<ConversationRepository>(TYPES.ConversationRepository)
-    .to(KnexConversationRepository)
+    .to(ConversationRepository)
     .inSingletonScope()
 })
 
