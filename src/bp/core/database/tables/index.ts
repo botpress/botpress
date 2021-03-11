@@ -1,15 +1,20 @@
-import { WorkspaceInviteCodesTable, WorkspaceUsersTable } from 'core/collaborators/tables'
 import { DialogSessionTable } from 'core/dialog/sessions/dialog_sessions-table'
 import { EventsTable } from 'core/events/event-table'
 import { KeyValueStoreTable } from 'core/kvs/kvs-table'
 import { LogsTable } from 'core/logger/logs-table'
 import { TelemetryTable } from 'core/telemetry/telemetry-table'
+import {
+  WorkspaceInviteCodesTable,
+  WorkspaceUsersTable,
+  BotUsersTable,
+  ChannelUsersTable,
+  DataRetentionTable
+} from 'core/users/tables'
 import Knex from 'knex'
 
 import { Table } from '../interfaces'
 
 import {
-  BotUsersTable,
   ConversationsTable,
   MessagesTable,
   GhostFilesTable,
@@ -17,7 +22,7 @@ import {
   NotificationsTable,
   TasksTable
 } from './bot-specific'
-import { ChannelUsersTable, DataRetentionTable, MigrationsTable, ServerMetadataTable } from './server-wide'
+import { MigrationsTable, ServerMetadataTable } from './server-wide'
 
 const tables: typeof Table[] = [
   ServerMetadataTable,
@@ -41,6 +46,5 @@ const tables: typeof Table[] = [
   BotUsersTable,
   MigrationsTable
 ]
-console.log(tables)
 
 export default <(new (knex: Knex) => Table)[]>tables

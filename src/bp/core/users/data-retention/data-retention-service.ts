@@ -10,7 +10,7 @@ import ms from 'ms'
 
 import { getPaths } from './util'
 
-export interface ExpiredData {
+interface ExpiredData {
   channel: string
   user_id: string
   field_path: string

@@ -10,6 +10,7 @@ import { LoggerProvider } from 'core/logger'
 import { ModuleLoader } from 'core/modules'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { TYPES } from 'core/types'
+import { ChannelUserRepository } from 'core/users'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
@@ -22,7 +23,6 @@ import modelIdService from 'nlu-core/model-id-service'
 import { container } from './app.inversify'
 
 import { getMessageSignature } from './misc/security'
-import { UserRepository } from './repositories'
 import { Event, RealTimePayload } from './sdk/impl'
 import HTTPServer from './server'
 import { GhostService } from './services'
@@ -112,7 +112,7 @@ const bots = (botService: BotService): typeof sdk.bots => {
   }
 }
 
-const users = (userRepo: UserRepository): typeof sdk.users => {
+const users = (userRepo: ChannelUserRepository): typeof sdk.users => {
   return {
     getOrCreateUser: userRepo.getOrCreate.bind(userRepo),
     updateAttributes: userRepo.updateAttributes.bind(userRepo),
@@ -273,7 +273,7 @@ export class BotpressAPIProvider {
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.HTTPServer) httpServer: HTTPServer,
-    @inject(TYPES.UserRepository) userRepo: UserRepository,
+    @inject(TYPES.UserRepository) userRepo: ChannelUserRepository,
     @inject(TYPES.RealtimeService) realtimeService: RealtimeService,
     @inject(TYPES.KeyValueStore) keyValueStore: KeyValueStore,
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
