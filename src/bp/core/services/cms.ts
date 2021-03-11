@@ -1,4 +1,5 @@
 import { ContentElement, ContentType, IO, KnexExtended, Logger, SearchParams } from 'botpress/sdk'
+import { EventEngine } from 'core/events/event-engine'
 import { LoggerProvider } from 'core/logger'
 import { renderRecursive, renderTemplate } from 'core/misc/templating'
 import { ModuleLoader } from 'core/module-loader'
@@ -17,7 +18,6 @@ import { TYPES } from '../types'
 import { GhostService } from '.'
 import { JobService } from './job-service'
 import { MediaServiceProvider } from './media'
-import { EventEngine } from './middleware/event-engine'
 
 const UNLIMITED_ELEMENTS = -1
 export const DefaultSearchParams: SearchParams = {
