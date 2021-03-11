@@ -69,13 +69,18 @@ export const ListEntityEditor: React.FC<Props> = props => {
 
   const isNewOccurrenceEmpty = () => newOccurrence.trim().length === 0
 
-  const isUnique = newElement =>
+  const isUniqueInEntity = newElement =>
     !props.entities
       .filter(entity => entity.type === 'list')
+      .filter(entity => entity.id === props.entity.id)
       .some(({ occurrences }) => occurrences.some(({ name, synonyms }) => [name, ...synonyms].includes(newElement)))
 
   const addOccurrence = () => {
     if (isNewOccurrenceEmpty()) {
+      return
+    }
+    if (!isUniqueInEntity(newOccurrence)) {
+      toastFailure('Occurence duplication within the same entity not allowed')
       return
     }
 
@@ -90,6 +95,12 @@ export const ListEntityEditor: React.FC<Props> = props => {
     const synonymAdded = () => {
       const oldOccurence = state.occurrences[idx]
       return oldOccurence.synonyms.length < occurrence.synonyms.length
+    }
+    if (synonymAdded()) {
+      const newSynonym = _.last(occurrence.synonyms)
+      if (!isUniqueInEntity(newSynonym)) {
+        return toastFailure('Synonym duplication within the same entity not allowed')
+      }
     }
 
     const occurrences = [...state.occurrences.slice(0, idx), occurrence, ...state.occurrences.slice(idx + 1)]
