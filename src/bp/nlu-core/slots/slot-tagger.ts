@@ -1,7 +1,8 @@
 import * as sdk from 'botpress/sdk'
-import Joi, { validate } from 'joi'
 import fse from 'fs-extra'
+import Joi, { validate } from 'joi'
 import _ from 'lodash'
+import { ModelLoadingError } from 'nlu-core/errors'
 import { getEntitiesAndVocabOfIntent } from 'nlu-core/intents/intent-vocab'
 import { SlotDefinition } from 'nlu-server/typings_v1'
 import tmp from 'tmp'
@@ -9,10 +10,9 @@ import tmp from 'tmp'
 import { BIO, Intent, ListEntityModel, SlotExtractionResult, Tools } from '../typings'
 import Utterance, { UtteranceToken } from '../utterance/utterance'
 
+import { SlotDefinitionSchema } from './schemas'
 import * as featurizer from './slot-featurizer'
 import { TagResult, IntentSlotFeatures } from './typings'
-import { SlotDefinitionSchema } from './schemas'
-import { ModelLoadingError } from 'nlu-core/errors'
 
 const CRF_TRAINER_PARAMS = {
   c1: '0.0001',

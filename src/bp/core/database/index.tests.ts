@@ -1,8 +1,8 @@
 import 'bluebird-global'
 import 'reflect-metadata'
+import { PersistedConsoleLogger } from 'core/logger'
 import tmp from 'tmp'
 
-import { PersistedConsoleLogger } from '../logger'
 import { createSpyObject, MockObject } from '../misc/utils'
 
 import Database from '.'

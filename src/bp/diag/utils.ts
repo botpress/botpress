@@ -1,6 +1,6 @@
 import axios from 'axios'
 import chalk from 'chalk'
-import center from 'core/logger/center'
+import { centerText } from 'core/logger'
 import { OBFUSCATED, print, SECRET_KEYS } from 'diag'
 import dns from 'dns'
 import fs from 'fs'
@@ -28,7 +28,7 @@ export const obfuscateSecrets = item => {
 }
 
 export const printHeader = (text: string) =>
-  print(`${os.EOL}${'='.repeat(100)}${os.EOL}||${center(text, 95, 1)}||${os.EOL}${'='.repeat(100)}`)
+  print(`${os.EOL}${'='.repeat(100)}${os.EOL}||${centerText(text, 95, 1)}||${os.EOL}${'='.repeat(100)}`)
 
 export const printSub = (text: string) => print(`${os.EOL}${text}${os.EOL}${'~'.repeat(100)}`)
 
