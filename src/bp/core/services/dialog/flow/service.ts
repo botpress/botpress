@@ -132,12 +132,11 @@ export class FlowService {
     if (!scope) {
       scope = new ScopedFlowService(
         botId,
-        this.logger,
         this.ghost.forBot(botId),
-        this.moduleLoader,
-        this.cache,
-        this.realtime,
         this.kvs.forBot(botId),
+        this.logger,
+        this.moduleLoader,
+        this.realtime,
         this.botService
       )
       this.scopes[botId] = scope
@@ -151,12 +150,11 @@ export class ScopedFlowService {
 
   constructor(
     private botId: string,
-    private logger: Logger,
     private ghost: ScopedGhostService,
-    private moduleLoader: ModuleLoader,
-    private cache: ObjectCache,
-    private realtime: RealtimeService,
     private kvs: KvsService,
+    private logger: Logger,
+    private moduleLoader: ModuleLoader,
+    private realtime: RealtimeService,
     private botService: BotService
   ) {}
 
