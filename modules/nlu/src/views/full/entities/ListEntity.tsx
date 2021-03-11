@@ -3,7 +3,7 @@ import { NLU } from 'botpress/sdk'
 import { lang, utils } from 'botpress/shared'
 import { toastFailure } from 'botpress/utils'
 import _ from 'lodash'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useReducer } from 'react'
 
 import { Occurrence } from './ListEntityOccurrence'
 import style from './style.scss'
@@ -43,7 +43,7 @@ function EntityContentReducer(state: EntityState, action): EntityState {
 }
 
 export const ListEntityEditor: React.FC<Props> = props => {
-  const [state, dispatch] = React.useReducer(EntityContentReducer, {
+  const [state, dispatch] = useReducer(EntityContentReducer, {
     fuzzy: props.entity.fuzzy,
     occurrences: props.entity.occurrences
   })
@@ -90,13 +90,6 @@ export const ListEntityEditor: React.FC<Props> = props => {
     const synonymAdded = () => {
       const oldOccurence = state.occurrences[idx]
       return oldOccurence.synonyms.length < occurrence.synonyms.length
-    }
-
-    if (synonymAdded()) {
-      const newSynonym = _.last(occurrence.synonyms)
-      if (!isUnique(newSynonym)) {
-        return toastFailure('Synonyms duplication is not allowed')
-      }
     }
 
     const occurrences = [...state.occurrences.slice(0, idx), occurrence, ...state.occurrences.slice(idx + 1)]
