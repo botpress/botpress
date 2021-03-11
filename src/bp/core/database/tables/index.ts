@@ -3,6 +3,7 @@ import { DialogSessionTable } from 'core/dialog/sessions/dialog_sessions-table'
 import { EventsTable } from 'core/events/event-table'
 import { KeyValueStoreTable } from 'core/kvs/kvs-table'
 import { LogsTable } from 'core/logger/logs-table'
+import { TelemetryTable } from 'core/telemetry/telemetry-table'
 import Knex from 'knex'
 
 import { Table } from '../interfaces'
@@ -16,13 +17,7 @@ import {
   NotificationsTable,
   TasksTable
 } from './bot-specific'
-import {
-  ChannelUsersTable,
-  DataRetentionTable,
-  MigrationsTable,
-  ServerMetadataTable,
-  TelemetryTable
-} from './server-wide'
+import { ChannelUsersTable, DataRetentionTable, MigrationsTable, ServerMetadataTable } from './server-wide'
 
 const tables: typeof Table[] = [
   ServerMetadataTable,

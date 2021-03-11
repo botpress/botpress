@@ -7,9 +7,9 @@ import { KeyValueStore } from 'core/kvs'
 import { LogsJanitor, LogsService } from 'core/logger'
 import { DialogContainerModule } from 'core/services/dialog/dialog.inversify'
 import { CEJobService, JobService } from 'core/services/job-service'
+import { StatsService } from 'core/telemetry'
+import { TYPES } from 'core/types'
 import { ContainerModule, interfaces } from 'inversify'
-
-import { TYPES } from '../types'
 
 import ActionServersService from './action/action-servers-service'
 import ActionService from './action/action-service'
@@ -30,7 +30,6 @@ import { CEMonitoringService, MonitoringService } from './monitoring'
 import { NLUService } from './nlu/nlu-service'
 import { NotificationsService } from './notification/service'
 import RealtimeService from './realtime'
-import { StatsService } from './stats-service'
 
 const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<ConversationService>(TYPES.ConversationService)

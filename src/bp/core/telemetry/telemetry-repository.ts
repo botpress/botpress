@@ -1,11 +1,10 @@
 import { TelemetryEntry } from 'common/telemetry'
-import { ConfigProvider } from 'core/config/config-loader'
+import { ConfigProvider } from 'core/config'
+import Database from 'core/database'
+import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import moment from 'moment'
-
-import Database from '../database'
-import { TYPES } from '../types'
 
 const DEFAULT_ENTRIES_LIMIT = 1000
 

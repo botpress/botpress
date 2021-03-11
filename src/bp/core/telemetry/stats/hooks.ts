@@ -3,16 +3,15 @@ import LicensingService from 'common/licensing-service'
 import { buildSchema } from 'common/telemetry'
 import Database from 'core/database'
 import { calculateHash } from 'core/misc/utils'
-import { TelemetryRepository } from 'core/repositories/telemetry'
+import { GhostService } from 'core/services'
+import { BotService } from 'core/services/bot-service'
+import { JobService } from 'core/services/job-service'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import ms from 'ms'
 
-import { GhostService } from '..'
-import { BotService } from '../bot-service'
-import { JobService } from '../job-service'
-
+import { TelemetryRepository } from '../telemetry-repository'
 import { TelemetryStats } from './telemetry-stats'
 
 export interface BotHooks {
