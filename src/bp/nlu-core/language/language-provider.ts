@@ -422,7 +422,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
 
     const vectors: Float32Array[] = Array(tokens.length)
     const idxToFetch: number[] = [] // the tokens we need to fetch remotely
-    const getCacheKey = (t: string) => `${lang}_${encodeURI(t)}`
+    const getCacheKey = (t: string) => `${lang}_${this._hash(t)}`
 
     tokens.forEach((token, i) => {
       if (isSpace(token)) {
@@ -465,12 +465,19 @@ export class RemoteLanguageProvider implements LanguageProvider {
     return vectors
   }
 
+  _hash(str: string): string {
+    return crypto
+      .createHash('md5')
+      .update(str)
+      .digest('hex')
+  }
+
   async tokenize(utterances: string[], lang: string, vocab: string[] = []): Promise<string[][]> {
     if (!utterances.length) {
       return []
     }
 
-    const getCacheKey = (t: string) => `${lang}_${encodeURI(t)}`
+    const getCacheKey = (t: string) => `${lang}_${this._hash(t)}`
     const tokenUtterances: string[][] = Array(utterances.length)
     const idxToFetch: number[] = [] // the utterances we need to fetch remotely
 

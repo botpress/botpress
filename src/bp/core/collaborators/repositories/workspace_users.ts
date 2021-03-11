@@ -1,9 +1,8 @@
 import { WorkspaceUser } from 'botpress/sdk'
+import Database from 'core/database'
+import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
-
-import Database from '../database'
-import { TYPES } from '../types'
 
 @injectable()
 export class WorkspaceUsersRepository {
