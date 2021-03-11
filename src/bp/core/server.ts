@@ -252,6 +252,14 @@ export default class HTTPServer {
     this.hintsRouter = new HintsRouter(this.logger, this.hintsService, this.authService, this.workspaceService)
     this.botsRouter.router.use('/content', this.contentRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
+    this.botsRouter.router.use('/nlu/*', async (req, res) => {
+      this.logger.warn('All /nlu routes are deprecated. They where moved to /mod/nlu/*.')
+      const { botId } = req.params
+      const ressource = req.params[0]
+      const basePath = process.EXTERNAL_URL || process.LOCAL_URL
+      const newLocation = `${basePath}/${BASE_API_PATH}/bots/${botId}/mod/nlu/${ressource}`
+      res.redirect(301, newLocation)
+    })
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     AppLifecycle.waitFor(AppLifecycleEvents.BOTPRESS_READY).then(() => {
