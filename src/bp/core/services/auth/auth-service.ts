@@ -4,7 +4,7 @@ import { StrategyUsersRepository } from 'core/collaborators/repositories/strateg
 import { StrategyUserTable } from 'core/collaborators/tables/strategy_users'
 import { AuthStrategy, ConfigProvider } from 'core/config'
 import Database from 'core/database'
-import { SessionIdFactory } from 'core/dialog'
+import { SessionIdFactory } from 'core/dialog/sessions'
 import { EventEngine } from 'core/events'
 import { KeyValueStore } from 'core/kvs'
 import { getMessageSignature } from 'core/misc/security'

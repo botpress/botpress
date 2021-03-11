@@ -1,6 +1,6 @@
 import { BotConfig, IO, Logger } from 'botpress/sdk'
 import { BotpressConfig, ConfigProvider } from 'core/config'
-import { SessionRepository, createExpiry, SessionIdFactory } from 'core/dialog'
+import { SessionRepository, createExpiry, SessionIdFactory } from 'core/dialog/sessions'
 import { UserRepository } from 'core/repositories'
 import { Event } from 'core/sdk/impl'
 import { TYPES } from 'core/types'

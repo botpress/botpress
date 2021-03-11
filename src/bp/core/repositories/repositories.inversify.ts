@@ -1,5 +1,5 @@
 import { StrategyUsersRepository, WorkspaceInviteCodesRepository, WorkspaceUsersRepository } from 'core/collaborators'
-import { SessionRepository } from 'core/dialog'
+import { SessionRepository } from 'core/dialog/sessions'
 import { EventRepository } from 'core/events'
 import { LogsRepository } from 'core/logger'
 import { ContainerModule, interfaces } from 'inversify'

@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
-import { SessionIdFactory } from 'core/dialog'
+import { SessionIdFactory } from 'core/dialog/sessions'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
 import Knex from 'knex'
