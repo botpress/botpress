@@ -1,18 +1,12 @@
 import { StrategyUsersRepository, WorkspaceInviteCodesRepository, WorkspaceUsersRepository } from 'core/collaborators'
+import { SessionRepository } from 'core/dialog'
 import { EventRepository } from 'core/events'
 import { LogsRepository } from 'core/logger'
 import { ContainerModule, interfaces } from 'inversify'
 
 import { TYPES } from '../types'
 
-import {
-  KnexNotificationsRepository,
-  KnexSessionRepository,
-  KnexUserRepository,
-  NotificationsRepository,
-  SessionRepository,
-  UserRepository
-} from '.'
+import { KnexNotificationsRepository, KnexUserRepository, NotificationsRepository, UserRepository } from '.'
 
 import { ConversationRepository, KnexConversationRepository } from './conversations'
 
@@ -22,7 +16,7 @@ import { TelemetryRepository } from './telemetry'
 
 const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<SessionRepository>(TYPES.SessionRepository)
-    .to(KnexSessionRepository)
+    .to(SessionRepository)
     .inSingletonScope()
 
   bind<UserRepository>(TYPES.UserRepository)

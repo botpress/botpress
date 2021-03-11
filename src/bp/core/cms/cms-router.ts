@@ -1,14 +1,14 @@
 import { ContentElement, Logger } from 'botpress/sdk'
 import { LibraryElement } from 'common/typings'
+import { CMSService, DefaultSearchParams } from 'core/cms'
 import { GhostService } from 'core/services'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
-import { CMSService, DefaultSearchParams } from 'core/services/cms'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 
-import { CustomRouter } from '../customRouter'
-import { checkTokenHeader, needPermissions } from '../util'
+import { CustomRouter } from '../routers/customRouter'
+import { checkTokenHeader, needPermissions } from '../routers/util'
 
 const CONTENT_FOLDER = 'content-elements'
 const LIBRARY_FILE = 'library.json'

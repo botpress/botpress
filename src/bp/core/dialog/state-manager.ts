@@ -1,9 +1,9 @@
 import * as sdk from 'botpress/sdk'
-import { BotpressConfig } from 'core/config/botpress.config'
-import { ConfigProvider } from 'core/config/config-loader'
+import { BotpressConfig, ConfigProvider } from 'core/config'
 import Database from 'core/database'
 import { KeyValueStore } from 'core/kvs'
-import { createExpiry } from 'core/misc/expiry'
+import { UserRepository } from 'core/repositories'
+import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
 import { Redis } from 'ioredis'
 import Knex from 'knex'
@@ -12,10 +12,10 @@ import { Memoize } from 'lodash-decorators'
 import ms from 'ms'
 import yn from 'yn'
 
-import { SessionRepository, UserRepository } from '../../repositories'
-import { TYPES } from '../../types'
-import { SessionIdFactory } from '../dialog/session/id-factory'
-import { JobService } from '../job-service'
+import { JobService } from '../services/job-service'
+import { createExpiry } from './sessions/expiry'
+import { SessionIdFactory } from './sessions/id-factory'
+import { SessionRepository } from './sessions/sessions-repository'
 
 const getRedisSessionKey = (sessionId: string) => `sessionstate_${sessionId}`
 const BATCH_SIZE = 100

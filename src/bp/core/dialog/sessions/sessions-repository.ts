@@ -1,11 +1,10 @@
 import * as sdk from 'botpress/sdk'
-import { SessionIdFactory } from 'core/services/dialog/session/id-factory'
+import Database from 'core/database'
+import { SessionIdFactory } from 'core/dialog/sessions/id-factory'
+import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
-
-import Database from '../database'
-import { TYPES } from '../types'
 
 export class DialogSession {
   constructor(
@@ -22,18 +21,8 @@ export class DialogSession {
   session_expiry?: Date
 }
 
-export interface SessionRepository {
-  insert(session: DialogSession): Promise<DialogSession>
-  getOrCreateSession(sessionId: string, trx?: Knex.Transaction): Promise<DialogSession>
-  get(id: string): Promise<DialogSession>
-  getExpiredContextSessionIds(): Promise<string[]>
-  deleteExpiredSessions(): Promise<void>
-  delete(id: string): Promise<void>
-  update(session: DialogSession, trx?: Knex.Transaction): Promise<void>
-}
-
 @injectable()
-export class KnexSessionRepository implements SessionRepository {
+export class SessionRepository {
   private readonly tableName = 'dialog_sessions'
 
   constructor(@inject(TYPES.Database) private database: Database) {}

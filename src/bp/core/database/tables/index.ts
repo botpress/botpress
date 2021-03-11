@@ -1,4 +1,5 @@
 import { WorkspaceInviteCodesTable, WorkspaceUsersTable } from 'core/collaborators'
+import { DialogSessionTable } from 'core/dialog/sessions/dialog_sessions-table'
 import { EventsTable } from 'core/events/event-table'
 import { KeyValueStoreTable } from 'core/kvs/kvs-table'
 import { LogsTable } from 'core/logger/logs-table'
@@ -8,7 +9,6 @@ import { Table } from '../interfaces'
 
 import {
   BotUsersTable,
-  DialogSessionTable,
   ConversationsTable,
   MessagesTable,
   GhostFilesTable,

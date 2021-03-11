@@ -1,15 +1,14 @@
 import { IO, Logger } from 'botpress/sdk'
 import { parseActionInstruction } from 'common/action'
 import { ActionServer } from 'common/typings'
+import { CMSService, renderTemplate } from 'core/cms'
 import { EventEngine } from 'core/events'
 import ActionServersService from 'core/services/action/action-servers-service'
 import ActionService from 'core/services/action/action-service'
-import { CMSService } from 'core/services/cms'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { NodeVM } from 'vm2'
 
-import { renderTemplate } from '../../../misc/templating'
 import { TYPES } from '../../../types'
 import { VmRunner } from '../../action/vm'
 
