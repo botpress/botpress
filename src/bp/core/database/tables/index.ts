@@ -1,4 +1,4 @@
-import { WorkspaceInviteCodesTable, WorkspaceUsersTable } from 'core/collaborators'
+import { WorkspaceInviteCodesTable, WorkspaceUsersTable } from 'core/collaborators/tables'
 import { DialogSessionTable } from 'core/dialog/sessions/dialog_sessions-table'
 import { EventsTable } from 'core/events/event-table'
 import { KeyValueStoreTable } from 'core/kvs/kvs-table'
@@ -41,5 +41,6 @@ const tables: typeof Table[] = [
   BotUsersTable,
   MigrationsTable
 ]
+console.log(tables)
 
 export default <(new (knex: Knex) => Table)[]>tables

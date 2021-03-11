@@ -11,9 +11,10 @@ import yn from 'yn'
 import { Event } from '../sdk/impl'
 import { TYPES } from '../types'
 
-import { addStepToEvent, EventCollector, StepScopes } from './event-collector'
+import { EventCollector } from './event-collector'
 import { MiddlewareChain } from './middleware-chain'
 import { Queue } from './queue'
+import { addStepToEvent, StepScopes } from './utils'
 
 const directionRegex = /^(incoming|outgoing)$/
 
