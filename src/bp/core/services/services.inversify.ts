@@ -32,6 +32,7 @@ import { CEMonitoringService, MonitoringService } from './monitoring'
 import { NLUService } from './nlu/nlu-service'
 import { NotificationsService } from './notification/service'
 import RealtimeService from './realtime'
+import { RenderService } from './render/render'
 import { StatsService } from './stats-service'
 
 const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
@@ -150,6 +151,10 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<StatsService>(TYPES.StatsService)
     .to(StatsService)
+    .inSingletonScope()
+
+  bind<RenderService>(TYPES.RenderService)
+    .to(RenderService)
     .inSingletonScope()
 })
 

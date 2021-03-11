@@ -395,6 +395,9 @@ export class Botpress {
       await this.hookService.executeHook(new Hooks.BeforeOutgoingMiddleware(this.api, event))
     }
 
+    // Todo : remove this when channel renderers for builtin types are no longer needed
+    this.eventEngine.renderForChannel = this.cmsService.renderForChannel.bind(this.cmsService)
+
     this.decisionEngine.onBeforeSuggestionsElection = async (
       sessionId: string,
       event: sdk.IO.IncomingEvent,
