@@ -66,8 +66,5 @@
       "name": "BP Core DB"
     }
   ],
-  "sqltools.useNodeRuntime": true,
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  "sqltools.useNodeRuntime": true
 }
