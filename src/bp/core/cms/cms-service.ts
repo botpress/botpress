@@ -1,7 +1,7 @@
 import { ContentElement, ContentType, IO, KnexExtended, Logger, SearchParams } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config'
 import { LoggerProvider } from 'core/logger'
-import { ModuleLoader } from 'core/module-loader'
+import { ModuleLoader } from 'core/modules'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
 import Joi from 'joi'

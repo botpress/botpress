@@ -5,11 +5,10 @@ import { buildSchema, TelemetryEvent } from 'common/telemetry'
 import { BotConfig, BotpressConfig, ConfigProvider } from 'core/config'
 import Database from 'core/database'
 import { calculateHash } from 'core/misc/utils'
-import { ModuleLoader } from 'core/module-loader'
+import { ModuleLoader, ModuleConfig } from 'core/modules'
 import { GhostService } from 'core/services'
 import { BotService } from 'core/services/bot-service'
 import { JobService } from 'core/services/job-service'
-import { Config } from 'core/services/module/config-reader'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import defaultJsonBuilder from 'json-schema-defaults'
@@ -47,7 +46,7 @@ interface BotConfigEvent {
 interface ModuleConfigEvent {
   botId: string
   module: string
-  config: Config
+  config: ModuleConfig
 }
 
 @injectable()

@@ -7,12 +7,12 @@ import path from 'path'
 import { VError } from 'verror'
 import yn from 'yn'
 
-import { GhostService } from '../'
-import { getPropertiesRecursive, getValueFromEnvKey } from '../../config/config-utils'
+import { getPropertiesRecursive, getValueFromEnvKey } from '../config/config-utils'
+import { GhostService } from '../services'
 
 const debug = DEBUG('configuration').sub('modules')
 
-export type Config = Dic<any>
+export type ModuleConfig = Dic<any>
 
 /**
  * Load configuration for a specific module in the following precedence order:
@@ -21,7 +21,7 @@ export type Config = Dic<any>
  * 3) Environment Variable Override
  * 4) Per-bot Override (Most precedence)
  */
-export default class ConfigReader {
+export class ConfigReader {
   private modules = new Map<string, ModuleEntryPoint>()
 
   constructor(private logger: Logger, modules: ModuleEntryPoint[], private ghost: GhostService) {
@@ -157,7 +157,7 @@ export default class ConfigReader {
     }
   }
 
-  private async getMerged(moduleId: string, botId?: string, ignoreGlobal?: boolean): Promise<Config> {
+  private async getMerged(moduleId: string, botId?: string, ignoreGlobal?: boolean): Promise<ModuleConfig> {
     let config = await this.loadFromDefaultValues(moduleId)
 
     if (!ignoreGlobal) {
@@ -173,19 +173,19 @@ export default class ConfigReader {
   }
 
   @Memoize()
-  public async getGlobal(moduleId: string): Promise<Config> {
+  public async getGlobal(moduleId: string): Promise<ModuleConfig> {
     return this.getMerged(moduleId)
   }
 
   // Don't @Memoize() this fn. It only memoizes on the first argument
   // https://github.com/steelsojka/lodash-decorators/blob/master/src/memoize.ts#L15
-  public getForBot(moduleId: string, botId: string, ignoreGlobal?: boolean): Promise<Config> {
+  public getForBot(moduleId: string, botId: string, ignoreGlobal?: boolean): Promise<ModuleConfig> {
     const cacheKey = `${moduleId}//${botId}//${!!ignoreGlobal}`
     return this.getForBotMemoized(cacheKey)
   }
 
   @Memoize()
-  public getForBotMemoized(cacheKey: string): Promise<Config> {
+  public getForBotMemoized(cacheKey: string): Promise<ModuleConfig> {
     const [moduleId, botId, ignoreGlobal] = cacheKey.split('//')
     return this.getMerged(moduleId, botId, yn(ignoreGlobal))
   }
