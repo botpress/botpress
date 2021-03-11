@@ -6,6 +6,8 @@
   "category": "Category",
   "deleted": "Deleted",
   "done": "Done",
+  "deleteAllDone": "Delete all done misunderstood",
+  "deleteAllIgnored": "Delete all ignored misunderstood",
   "flaggedByAction": "Flagged by action",
   "flaggedByHook": "Flagged by hook",
   "flaggedByThumbsDown": "Flagged by thumbs down",
