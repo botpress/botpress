@@ -114,6 +114,21 @@ export default async (bp: typeof sdk, db: Db) => {
     })
   )
 
+  router.post(
+    '/delete-all',
+    asyncMiddleware(async (req: Request, res: Response) => {
+      const { botId } = req.params
+      const { status } = req.body
+
+      try {
+        await db.deleteAll(botId, status)
+        res.sendStatus(200)
+      } catch (err) {
+        throw new StandardError('Could not apply changes', err)
+      }
+    })
+  )
+
   const unixToDate = unix => {
     const momentDate = moment.unix(unix)
     if (!momentDate.isValid()) {

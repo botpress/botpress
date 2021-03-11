@@ -15,11 +15,14 @@ const SideList = ({
   selectedEventIndex,
   onSelectedStatusChange,
   onSelectedEventChange,
-  applyAllPending
+  applyAllPending,
+  deleteAllStatus
 }) => {
   if (!eventCounts || selectedStatus == null) {
     return null
   }
+
+  const areEvents = events && events.length > 0
 
   return (
     <div className={style.sideList}>
@@ -34,7 +37,7 @@ const SideList = ({
         ))}
       </Tabs>
 
-      {selectedStatus === FLAGGED_MESSAGE_STATUS.pending && events && events.length > 0 && (
+      {selectedStatus === FLAGGED_MESSAGE_STATUS.pending && areEvents && (
         <div className={style.applyAllButton}>
           <Button onClick={applyAllPending} intent={Intent.WARNING} icon="export" fill>
             {lang.tr('module.misunderstood.applyAllPending')}
@@ -42,7 +45,23 @@ const SideList = ({
         </div>
       )}
 
-      {selectedStatus === FLAGGED_MESSAGE_STATUS.new && events && (
+      {selectedStatus === FLAGGED_MESSAGE_STATUS.applied && areEvents && (
+        <div className={style.applyAllButton}>
+          <Button onClick={deleteAllStatus(FLAGGED_MESSAGE_STATUS.applied)} intent={Intent.WARNING} icon="delete" fill>
+            {lang.tr('module.misunderstood.deleteAllDone')}
+          </Button>
+        </div>
+      )}
+
+      {selectedStatus === FLAGGED_MESSAGE_STATUS.deleted && areEvents && (
+        <div className={style.applyAllButton}>
+          <Button onClick={deleteAllStatus(FLAGGED_MESSAGE_STATUS.deleted)} intent={Intent.WARNING} icon="delete" fill>
+            {lang.tr('module.misunderstood.deleteAllIgnored')}
+          </Button>
+        </div>
+      )}
+
+      {selectedStatus === FLAGGED_MESSAGE_STATUS.new && areEvents && (
         <ul className={classnames(style.contentStretch, style.sideListList)}>
           {events.map((event, i) => (
             <li
