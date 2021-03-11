@@ -52,28 +52,6 @@ const list_entities: ListEntityModel[] = [
     },
     sensitive: false,
     type: 'custom.list'
-  },
-  {
-    entityName: 'state',
-    fuzzyTolerance: FuzzyTolerance.Medium,
-    id: 'custom.list.state',
-    languageCode: 'en',
-    mappingsTokens: {
-      NewYork: ['New York'].map(T)
-    },
-    sensitive: false,
-    type: 'custom.list'
-  },
-  {
-    entityName: 'city',
-    fuzzyTolerance: FuzzyTolerance.Medium,
-    id: 'custom.list.city',
-    languageCode: 'en',
-    mappingsTokens: {
-      NewYork: ['New York'].map(T)
-    },
-    sensitive: false,
-    type: 'custom.list'
   }
 ]
 describe('list entity extractor', () => {
@@ -119,17 +97,47 @@ describe('list entity extractor', () => {
     )
   })
 
-  describe('same occurence in multiple entities', () => {
+  describe('same occurence in multiple entities extracts multiple entities', () => {
+    // arrange
+    const test_entities: ListEntityModel[] = [
+      ...list_entities,
+      {
+        entityName: 'state',
+        fuzzyTolerance: FuzzyTolerance.Medium,
+        id: 'custom.list.state',
+        languageCode: 'en',
+        mappingsTokens: {
+          NewYork: ['New York'].map(T)
+        },
+        sensitive: false,
+        type: 'custom.list'
+      },
+      {
+        entityName: 'city',
+        fuzzyTolerance: FuzzyTolerance.Medium,
+        id: 'custom.list.city',
+        languageCode: 'en',
+        mappingsTokens: {
+          NewYork: ['New York'].map(T)
+        },
+        sensitive: false,
+        type: 'custom.list'
+      }
+    ]
+
     const expectedIds = ['custom.list.state', 'custom.list.city', 'custom.list.airport']
     const utterance = makeTestUtterance('I want to go to New York')
-    const results = extractListEntities(utterance, list_entities)
 
+    // act
+    const results = extractListEntities(utterance, test_entities)
+
+    // assert
     expect(results.length).toEqual(3)
 
     for (let result of results) {
-      const id = result.metadata.entityId
+      const { entityId } = result.metadata
       test(`Expect ${result.value} to be one of ${expectedIds.join(' ')}`, () => {
-        expectedIds.includes(id)
+        expectedIds.includes(entityId)
       })
     }
   })
