@@ -1,10 +1,9 @@
 import { Paging, StrategyUser, UserInfo } from 'botpress/sdk'
+import Database from 'core/database'
+import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
-
-import Database from '../database'
-import { TYPES } from '../types'
 
 @injectable()
 export class StrategyUsersRepository {

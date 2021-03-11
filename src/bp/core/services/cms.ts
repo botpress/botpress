@@ -1,4 +1,5 @@
 import { ContentElement, ContentType, IO, KnexExtended, Logger, SearchParams } from 'botpress/sdk'
+import { LoggerProvider } from 'core/logger'
 import { renderRecursive, renderTemplate } from 'core/misc/templating'
 import { ModuleLoader } from 'core/module-loader'
 import { inject, injectable, tagged } from 'inversify'
@@ -10,7 +11,6 @@ import { VError } from 'verror'
 
 import { IDisposeOnExit } from '../../common/typings'
 import { ConfigProvider } from '../config/config-loader'
-import { LoggerProvider } from '../logger/logger'
 import { CodeFile, SafeCodeSandbox } from '../misc/code-sandbox'
 import { TYPES } from '../types'
 

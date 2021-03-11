@@ -47,3 +47,4 @@ Here is a video tutorial to help you set up Botpress on your computer. You can s
 
 - [Setting up on Windows](https://youtu.be/xf246NQyMj4)
 - [Setting up on Mac](https://youtu.be/SBv0QOXyHL4)
+- [Setting up on Linux](https://youtu.be/89RJx0kQyKM)
