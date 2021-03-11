@@ -24,9 +24,7 @@ export const makeApi = (bp: { axios: AxiosInstance }) => ({
   createEntity: (entity: sdk.NLU.EntityDefinition): Promise<void> => bp.axios.post('/nlu/entities/', entity),
   updateEntity: (targetEntityId: string, entity: sdk.NLU.EntityDefinition): Promise<void> =>
     bp.axios.post(`/nlu/entities/${targetEntityId}`, entity),
-  deleteEntity: (entityId: string): Promise<void> => bp.axios.post(`/nlu/entities/${entityId}/delete`),
-  train: (): Promise<void> => bp.axios.post('/mod/nlu/train'),
-  cancelTraining: (): Promise<void> => bp.axios.post('/mod/nlu/train/delete')
+  deleteEntity: (entityId: string): Promise<void> => bp.axios.post(`/nlu/entities/${entityId}/delete`)
 })
 
 export const createApi = async (bp: typeof sdk, botId: string) => {

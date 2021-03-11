@@ -101,11 +101,11 @@ export default async (bp: typeof sdk, db: Db) => {
       const { botId } = req.params
 
       try {
-        await db.applyChanges(botId)
+        const modifiedLanguages = await db.applyChanges(botId)
         const axiosConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
         setTimeout(() => {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          axios.post('/mod/nlu/train', {}, axiosConfig)
+          Promise.map(modifiedLanguages, lang => axios.post(`/mod/nlu/train/${lang}`, {}, axiosConfig))
         }, 1000)
         res.sendStatus(200)
       } catch (err) {

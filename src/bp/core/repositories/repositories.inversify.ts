@@ -1,12 +1,12 @@
 import { StrategyUsersRepository } from 'core/collaborators/repositories/strategy_users'
 import { WorkspaceUsersRepository } from 'core/collaborators/repositories/workspace_users'
+import { EventRepository, KnexEventRepository } from 'core/events/event-repository'
+import { KnexLogsRepository, LogsRepository } from 'core/logger'
 import { ContainerModule, interfaces } from 'inversify'
 
 import { TYPES } from '../types'
 
 import {
-  EventRepository,
-  KnexEventRepository,
   KnexNotificationsRepository,
   KnexSessionRepository,
   KnexUserRepository,
@@ -15,8 +15,9 @@ import {
   UserRepository,
   WorkspaceInviteCodesRepository
 } from '.'
+
 import { ConversationRepository, KnexConversationRepository } from './conversations'
-import { KnexLogsRepository, LogsRepository } from './logs'
+
 import { KnexMessageRepository, MessageRepository } from './messages'
 import { TasksRepository } from './tasks'
 import { TelemetryRepository } from './telemetry'
