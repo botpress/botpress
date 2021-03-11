@@ -1,6 +1,6 @@
 import { StrategyUsersRepository, WorkspaceInviteCodesRepository, WorkspaceUsersRepository } from 'core/collaborators'
-import { EventRepository, KnexEventRepository } from 'core/events'
-import { KnexLogsRepository, LogsRepository } from 'core/logger'
+import { EventRepository } from 'core/events'
+import { LogsRepository } from 'core/logger'
 import { ContainerModule, interfaces } from 'inversify'
 
 import { TYPES } from '../types'
@@ -30,7 +30,7 @@ const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) 
     .inSingletonScope()
 
   bind<LogsRepository>(TYPES.LogsRepository)
-    .to(KnexLogsRepository)
+    .to(LogsRepository)
     .inSingletonScope()
 
   bind<NotificationsRepository>(TYPES.NotificationsRepository)
@@ -38,7 +38,7 @@ const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) 
     .inSingletonScope()
 
   bind<EventRepository>(TYPES.EventRepository)
-    .to(KnexEventRepository)
+    .to(EventRepository)
     .inSingletonScope()
 
   bind<StrategyUsersRepository>(TYPES.StrategyUsersRepository)
