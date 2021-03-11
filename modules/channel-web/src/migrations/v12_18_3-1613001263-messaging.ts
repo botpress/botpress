@@ -56,6 +56,18 @@ const migration: sdk.ModuleMigration = {
     FROM "web_messages"
     INNER JOIN "temp_new_convo_ids" ON "web_messages"."conversationId" = "temp_new_convo_ids"."oldId"`)
 
+    await bp
+      .database('messages')
+      .update({ from: 'user' })
+      .whereNotNull('from')
+
+    await bp
+      .database('messages')
+      .update({ from: 'bot' })
+      .whereNull('from')
+
+    bp.database.schema.dropTable('temp_new_convo_ids')
+
     return { success: true, message: 'Tables migrated successfully' }
   }
 }
