@@ -121,7 +121,7 @@ export class FlowService {
       const matches = key.match(/object::[\s\S]+\/bots\/([A-Z0-9-_]+)\/flows\/([\s\S]+(flow|ui)\.json)/i)
 
       if (matches && matches.length >= 2) {
-        const [botId, flowName] = matches
+        const [key, botId, flowName] = matches
         await this.forBot(botId).handleInvalidatedCache(flowName)
       }
     })
