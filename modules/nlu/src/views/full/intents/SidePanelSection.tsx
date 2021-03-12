@@ -66,7 +66,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
   const createIntent = async (sanitizedName: string, rawName: string) => {
     const intentDef = {
       name: sanitizedName,
-      utterances: { [props.contentLang]: [rawName] } // note usage of raw name as first utterance
+      utterances: { [props.contentLang]: [] } // note usage of raw name as first utterance
     }
 
     try {
