@@ -6,9 +6,11 @@ import { KeyValueStore, KvsService } from 'core/kvs'
 import { ModuleLoader } from 'core/module-loader'
 import { RealTimePayload } from 'core/sdk/impl'
 import { BotService } from 'core/services/bot-service'
+import { JobService } from 'core/services/job-service'
 import RealtimeService from 'core/services/realtime'
-import { inject, injectable, tagged } from 'inversify'
+import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Joi from 'joi'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
@@ -49,58 +51,56 @@ export class MutexError extends Error {
   type = MutexError.name
 }
 
-class FlowCache {
-  private _flows: Map<string, Map<string, FlowView>> = new Map()
+class ArrayCache<K, V> {
+  private array: V[] = []
 
-  public set(botId: string, flowViews: FlowView[]): void {
-    const flows = new Map(flowViews.map(f => [f.name, f]))
-    this._flows.set(botId, flows)
+  constructor(private getKey: (value: V) => K, private renameVal: (value: V, prevKey: K, newKey: K) => V) {}
+
+  values() {
+    return this.array
   }
 
-  public get(botId: string): FlowView[] {
-    if (this._flows.has(botId)) {
-      return Array.from(this._flows.get(botId)!.values())
+  initialize(values: V[]) {
+    this.array = values
+  }
+
+  reset() {
+    this.array = []
+  }
+
+  get(key: K) {
+    return this.array.find(x => this.getKey(x) === key)
+  }
+
+  update(key: K, value: V) {
+    const index = this.indexOf(key)
+    if (index >= 0) {
+      this.array[index] = value
     } else {
-      return []
+      this.array.push(value)
     }
   }
 
-  public has(botId: string): boolean {
-    return this._flows.has(botId)
+  rename(prevKey: K, newKey: K) {
+    const index = this.indexOf(prevKey)
+    this.array[index] = this.renameVal(this.array[index], prevKey, newKey)
   }
 
-  public isEmpty(): boolean {
-    return this._flows.size === 0
+  remove(key: K) {
+    const index = this.indexOf(key)
+    this.array.splice(index, 1)
   }
 
-  public upsertFlow(botId: string, flow: FlowView): void {
-    if (this._flows.has(botId)) {
-      this._flows.get(botId)!.set(flow.name, flow)
-    } else {
-      this.set(botId, [flow])
-    }
-  }
-
-  public deleteFlow(botId: string, flowName: string): void {
-    if (this._flows.has(botId)) {
-      this._flows.get(botId)!.delete(flowName)
-    }
-  }
-
-  public renameFlow(botId: string, oldName: string, newName: string): void {
-    if (this._flows.has(botId) && this._flows.get(botId)!.has(oldName)) {
-      const flow = this._flows.get(botId)!.get(oldName)!
-      flow.name = newName
-
-      this.upsertFlow(botId, flow)
-      this.deleteFlow(botId, oldName)
-    }
+  private indexOf(key: K) {
+    return this.array.findIndex(x => this.getKey(x) === key)
   }
 }
 
 @injectable()
 export class FlowService {
   private scopes: { [botId: string]: ScopedFlowService } = {}
+  private invalidateFlow: (botId: string, key: string, flow?: FlowView, newKey?: string) => void = this
+    ._localInvalidateFlow
 
   constructor(
     @inject(TYPES.Logger)
@@ -111,9 +111,21 @@ export class FlowService {
     @inject(TYPES.ObjectCache) private cache: ObjectCache,
     @inject(TYPES.RealtimeService) private realtime: RealtimeService,
     @inject(TYPES.KeyValueStore) private kvs: KeyValueStore,
-    @inject(TYPES.BotService) private botService: BotService
+    @inject(TYPES.BotService) private botService: BotService,
+    @inject(TYPES.JobService) private jobService: JobService
   ) {
     this._listenForCacheInvalidation()
+  }
+
+  @postConstruct()
+  async init() {
+    await AppLifecycle.waitFor(AppLifecycleEvents.CONFIGURATION_LOADED)
+
+    this.invalidateFlow = <any>await this.jobService.broadcast<void>(this._localInvalidateFlow.bind(this))
+  }
+
+  private _localInvalidateFlow(botId: string, key: string, flow?: FlowView, newKey?: string) {
+    this.forBot(botId).localInvalidateFlow(key, flow, newKey)
   }
 
   private _listenForCacheInvalidation() {
@@ -137,7 +149,8 @@ export class FlowService {
         this.logger,
         this.moduleLoader,
         this.realtime,
-        this.botService
+        this.botService,
+        (key, flow, newKey) => this.invalidateFlow(botId, key, flow, newKey)
       )
       this.scopes[botId] = scope
     }
@@ -146,7 +159,7 @@ export class FlowService {
 }
 
 export class ScopedFlowService {
-  private _flowCache: FlowCache = new FlowCache()
+  private cache: ArrayCache<string, FlowView>
 
   constructor(
     private botId: string,
@@ -155,10 +168,32 @@ export class ScopedFlowService {
     private logger: Logger,
     private moduleLoader: ModuleLoader,
     private realtime: RealtimeService,
-    private botService: BotService
-  ) {}
+    private botService: BotService,
+    private invalidateFlow: (key: string, flow?: FlowView, newKey?: string) => void
+  ) {
+    this.cache = new ArrayCache<string, FlowView>(
+      x => x.name,
+      (x, pkey, nkey) => x
+    )
+  }
 
-  async handleInvalidatedCache(flowName: string) {
+  public localInvalidateFlow(key: string, flow?: FlowView, newKey?: string) {
+    if (!this.cache.values().length) {
+      return
+    }
+
+    if (flow) {
+      this.cache.update(key, flow)
+    } else if (newKey) {
+      this.cache.rename(key, newKey)
+    } else {
+      this.cache.remove(key)
+    }
+  }
+
+  public async handleInvalidatedCache(flowName: string) {
+    // TODO make this work
+    /*
     if (this._flowCache.isEmpty()) {
       return
     }
@@ -180,11 +215,12 @@ export class ScopedFlowService {
 
       this._flowCache.set(this.botId, flowsWithParents)
     }
+    */
   }
 
   async loadAll(): Promise<FlowView[]> {
-    if (this._flowCache.has(this.botId)) {
-      return this._flowCache.get(this.botId)!
+    if (this.cache.values().length) {
+      return this.cache.values()
     }
 
     const flowsPath = this.ghost.directoryListing(FLOW_DIR, '*.flow.json', undefined, undefined, {
@@ -199,11 +235,11 @@ export class ScopedFlowService {
       // parent flows are only used by the NDU
       if (this._isOneFlow()) {
         const flowsWithParents = this.addParentsToFlows(flows)
-        this._flowCache.set(this.botId, flowsWithParents)
+        this.cache.initialize(flowsWithParents)
 
         return flowsWithParents
       } else {
-        this._flowCache.set(this.botId, flows)
+        this.cache.initialize(flows)
 
         return flows
       }
@@ -334,7 +370,7 @@ export class ScopedFlowService {
       this.ghost.upsertFile(FLOW_DIR, uiPath, JSON.stringify(uiContent, undefined, 2))
     ])
 
-    this._flowCache.upsertFlow(this.botId, flow)
+    this.invalidateFlow(flow.name, flow)
   }
 
   async deleteFlow(flowName: string, userEmail: string) {
@@ -349,7 +385,7 @@ export class ScopedFlowService {
     const uiPath = this.toUiPath(fileToDelete)
     await Promise.all([this.ghost.deleteFile(FLOW_DIR, fileToDelete!), this.ghost.deleteFile(FLOW_DIR, uiPath)])
 
-    this._flowCache.deleteFlow(this.botId, flowName)
+    this.invalidateFlow(flowName)
 
     this.notifyChanges({
       name: flowName,
@@ -375,7 +411,8 @@ export class ScopedFlowService {
       this.ghost.renameFile(FLOW_DIR, previousUiName, newUiName)
     ])
 
-    this._flowCache.renameFlow(this.botId, previousName, newName)
+    // TODO renaming doesn't really work at the moment
+    this.invalidateFlow(previousName, undefined, newName)
 
     await this.moduleLoader.onFlowRenamed(this.botId, previousName, newName)
 
