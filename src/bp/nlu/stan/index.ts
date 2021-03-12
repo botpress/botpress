@@ -8,7 +8,7 @@ import cluster from 'cluster'
 
 import { copyDir } from 'core/misc/pkg-fs'
 import _ from 'lodash'
-import nluCore from 'nlu/engine'
+import nluEngine from 'nlu/engine'
 import path from 'path'
 
 import { setupMasterNode, WORKER_TYPES } from '../../cluster'
@@ -38,7 +38,7 @@ const makeEngine = async (options: ArgV, logger: Logger) => {
     throw new Error(`Specified model cache-size "${options.modelCacheSize}" has an invalid format.`)
   }
 
-  const loggerWrapper: nluCore.Logger = {
+  const loggerWrapper: nluEngine.Logger = {
     debug: (msg: string) => logger.debug(msg),
     info: (msg: string) => logger.info(msg),
     warning: (msg: string, err?: Error) => (err ? logger.attachError(err).warn(msg) : logger.warn(msg)),
@@ -46,7 +46,7 @@ const makeEngine = async (options: ArgV, logger: Logger) => {
   }
 
   try {
-    const config: nluCore.Config = {
+    const config: nluEngine.Config = {
       languageSources: [
         {
           endpoint: options.languageURL,
@@ -58,7 +58,7 @@ const makeEngine = async (options: ArgV, logger: Logger) => {
       modelCacheSize: maxCacheSize
     }
 
-    const engine = await nluCore.makeEngine(config, loggerWrapper)
+    const engine = await nluEngine.makeEngine(config, loggerWrapper)
     return engine
   } catch (err) {
     // TODO: Make lang provider throw if it can't connect.

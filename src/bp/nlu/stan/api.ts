@@ -5,7 +5,7 @@ import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
 import _ from 'lodash'
 import ms from 'ms'
-import nluCore from 'nlu/engine'
+import nluEngine from 'nlu/engine'
 
 import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../../http-utils'
 import Logger from '../../simple-logger'
@@ -71,7 +71,7 @@ const createExpressApp = (options: APIOptions): Application => {
   return app
 }
 
-export default async function(options: APIOptions, engine: nluCore.Engine) {
+export default async function(options: APIOptions, engine: nluEngine.Engine) {
   const app = createExpressApp(options)
   const logger = new Logger('API')
 
@@ -92,7 +92,7 @@ export default async function(options: APIOptions, engine: nluCore.Engine) {
       const { intents, entities, seed, language, password } = mapTrainInput(input)
 
       const pickedSeed = seed ?? Math.round(Math.random() * 10000)
-      const modelId = nluCore.modelIdService.makeId({
+      const modelId = nluEngine.modelIdService.makeId({
         specifications: engine.getSpecifications(),
         intentDefs: intents,
         entityDefs: entities,
@@ -104,7 +104,7 @@ export default async function(options: APIOptions, engine: nluCore.Engine) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       trainService.train(modelId, password, intents, entities, language, pickedSeed)
 
-      return res.send({ success: true, modelId: nluCore.modelIdService.toString(modelId) })
+      return res.send({ success: true, modelId: nluEngine.modelIdService.toString(modelId) })
     } catch (err) {
       res.status(500).send({ success: false, error: err.message })
     }
@@ -113,13 +113,13 @@ export default async function(options: APIOptions, engine: nluCore.Engine) {
   router.get('/train/:modelId', async (req, res) => {
     try {
       const { modelId: stringId } = req.params
-      if (!_.isString(stringId) || !nluCore.modelIdService.isId(stringId)) {
+      if (!_.isString(stringId) || !nluEngine.modelIdService.isId(stringId)) {
         return res.status(400).send({ success: false, error: `model id "${stringId}" has invalid format` })
       }
 
       const { password } = req.query
 
-      const modelId = nluCore.modelIdService.fromString(stringId)
+      const modelId = nluEngine.modelIdService.fromString(stringId)
       let session = trainSessionService.getTrainingSession(modelId, password)
       if (!session) {
         const model = await modelRepo.getModel(modelId, password ?? '')
@@ -150,7 +150,7 @@ export default async function(options: APIOptions, engine: nluCore.Engine) {
       const { modelId: stringId } = req.params
       const { password } = await validateCancelRequestInput(req.body)
 
-      const modelId = nluCore.modelIdService.fromString(stringId)
+      const modelId = nluEngine.modelIdService.fromString(stringId)
       const session = trainSessionService.getTrainingSession(modelId, password)
 
       if (session?.status === 'training') {
@@ -175,7 +175,7 @@ export default async function(options: APIOptions, engine: nluCore.Engine) {
         )
       }
 
-      const modelId = nluCore.modelIdService.fromString(stringId)
+      const modelId = nluEngine.modelIdService.fromString(stringId)
       // once the model is loaded, there's no more password check
       if (!engine.hasModel(modelId)) {
         const model = await modelRepo.getModel(modelId, password)

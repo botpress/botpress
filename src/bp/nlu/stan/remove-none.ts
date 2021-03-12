@@ -1,9 +1,9 @@
 import _ from 'lodash'
-import nluCore from 'nlu/engine'
+import { ContextPrediction } from 'nlu/engine'
 
 import { BpPredictOutput } from './api-mapper'
 
-const _adjustTotalConfidenceTo100 = (context: nluCore.ContextPrediction): nluCore.ContextPrediction => {
+const _adjustTotalConfidenceTo100 = (context: ContextPrediction): ContextPrediction => {
   const totalConfidence = context.oos + _.sum(context.intents.map(i => i.confidence))
   context.oos = context.oos / totalConfidence
   context.intents = context.intents.map(i => ({ ...i, confidence: i.confidence / totalConfidence }))
