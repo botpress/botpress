@@ -2,7 +2,6 @@ import * as sdk from 'botpress/sdk'
 import fse from 'fs-extra'
 import Joi, { validate } from 'joi'
 import _ from 'lodash'
-
 import tmp from 'tmp'
 import { ModelLoadingError } from '../../errors'
 import { getEntitiesAndVocabOfIntent } from '../intents/intent-vocab'

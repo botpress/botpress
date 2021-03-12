@@ -15,9 +15,7 @@ if (!process.BOTPRESS_EVENTS) {
   process.BOTPRESS_EVENTS = new EventEmitter()
 }
 
-if (!process.APP_DATA_PATH) {
-  process.APP_DATA_PATH = ''
-}
+process.APP_DATA_PATH = ''
 
 const distribution =
   os !== 'linux'

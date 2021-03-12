@@ -1,19 +1,19 @@
 import * as sdk from 'botpress/sdk'
+import { Queue } from 'core/events/queue'
 import { TimedPerfCounter } from 'core/misc/timed-perf'
 import { WellKnownFlags } from 'core/sdk/enums'
+import { incrementMetric } from 'core/services/monitoring'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 import _ from 'lodash'
 import { VError } from 'verror'
 import yn from 'yn'
 
-import { Event } from '../../sdk/impl'
-import { TYPES } from '../../types'
-import { incrementMetric } from '../monitoring'
-import { Queue } from '../queue'
+import { Event } from '../sdk/impl'
+import { TYPES } from '../types'
 
 import { addStepToEvent, EventCollector, StepScopes } from './event-collector'
-import { MiddlewareChain } from './middleware'
+import MiddlewareChain from './middleware-chain'
 
 const directionRegex = /^(incoming|outgoing)$/
 
@@ -85,10 +85,14 @@ const debugOutgoing = debug.sub('outgoing')
 
 @injectable()
 export class EventEngine {
+  public onSendIncoming?: (event: sdk.IO.IncomingEvent) => Promise<void>
+
   public onBeforeIncomingMiddleware?: (event: sdk.IO.IncomingEvent) => Promise<void>
   public onAfterIncomingMiddleware?: (event: sdk.IO.IncomingEvent) => Promise<void>
 
   public onBeforeOutgoingMiddleware?: (event: sdk.IO.OutgoingEvent) => Promise<void>
+
+  public renderForChannel?: (content: any, channel: string) => any[]
 
   private readonly _incomingPerf = new TimedPerfCounter('mw_incoming')
   private readonly _outgoingPerf = new TimedPerfCounter('mw_outgoing')
@@ -180,6 +184,14 @@ export class EventEngine {
   async sendEvent(event: sdk.IO.Event): Promise<void> {
     this.validateEvent(event)
 
+    // Todo : remove this when per channel rendering is no longer needed for builtin content types
+    if (event.payload.__unrendered) {
+      const payloads = this.renderForChannel!(event.payload, event.channel)
+      const mevent = <any>event
+      mevent.payload = payloads[payloads.length - 1]
+      mevent.type = mevent.payload.type
+    }
+
     if (event.debugger) {
       addStepToEvent(event, StepScopes.Received)
       this.eventCollector.storeEvent(event)
@@ -189,6 +201,7 @@ export class EventEngine {
     if (isIncoming(event)) {
       debugIncoming.forBot(event.botId, 'send ', event)
       incrementMetric('eventsIn.count')
+      this.onSendIncoming && (await this.onSendIncoming(event))
       await this.incomingQueue.enqueue(event, 1, false)
     } else {
       debugOutgoing.forBot(event.botId, 'send ', event)

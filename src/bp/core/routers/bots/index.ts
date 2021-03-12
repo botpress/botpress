@@ -5,6 +5,7 @@ import { gaId, machineUUID } from 'common/stats'
 import { FlowView } from 'common/typings'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
+import { LogsService } from 'core/logger'
 import { ModuleLoader } from 'core/module-loader'
 import ActionServersService from 'core/services/action/action-servers-service'
 import ActionService from 'core/services/action/action-service'
@@ -12,7 +13,6 @@ import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { BotService } from 'core/services/bot-service'
 import { CMSService } from 'core/services/cms'
 import { FlowService, MutexError, TopicSchema } from 'core/services/dialog/flow/service'
-import { LogsService } from 'core/services/logs/service'
 import { MediaServiceProvider } from 'core/services/media'
 import { NotificationsService } from 'core/services/notification/service'
 import { getSocketTransports } from 'core/services/realtime'
@@ -233,6 +233,7 @@ export class BotsRouter extends CustomRouter {
               // Common
               window.TELEMETRY_URL = "${process.TELEMETRY_URL}";
               window.SEND_USAGE_STATS = ${data.sendUsageStats};
+              window.USE_JWT_COOKIES = ${process.USE_JWT_COOKIES};
               window.UUID = "${data.uuid}"
               window.ANALYTICS_ID = "${data.gaId}";
               window.API_PATH = "${process.ROOT_PATH}/api/v1";
