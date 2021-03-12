@@ -2,10 +2,11 @@ import { AxiosError } from 'axios'
 import { IO, Logger, LoggerEntry, LoggerLevel, LoggerListener, LogLevel } from 'botpress/sdk'
 import chalk from 'chalk'
 import { Metric } from 'common/monitoring'
+import { addLogToEvent } from 'core/events/event-collector'
 import { IDisposable } from 'core/misc/disposable'
 import { BotService } from 'core/services/bot-service'
-import { addLogToEvent } from 'core/services/middleware/event-collector'
 import { incrementMetric } from 'core/services/monitoring'
+import { TYPES } from 'core/types'
 import { InvalidParameterError } from 'errors'
 import { EventEmitter2 } from 'eventemitter2'
 import { inject, injectable } from 'inversify'
@@ -15,9 +16,8 @@ import os from 'os'
 import stripAnsi from 'strip-ansi'
 import util from 'util'
 
-import { TYPES } from '../types'
-
-import { LoggerDbPersister, LoggerFilePersister } from '.'
+import { LoggerDbPersister } from './db-persister'
+import { LoggerFilePersister } from './file-persister'
 
 export type LoggerProvider = (module: string) => Promise<Logger>
 
