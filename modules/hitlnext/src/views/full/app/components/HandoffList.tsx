@@ -10,6 +10,7 @@ import { Context } from '../Store'
 import HandoffItem from './HandoffItem'
 import HandoffListHeader, { FilterType, SortType } from './HandoffListHeader'
 
+import style from '../../style.scss'
 interface Props {
   handoffs: object
   loading: boolean
@@ -63,6 +64,16 @@ const HandoffList: FC<Props> = ({ handoffs, loading }) => {
     setItems(filtered)
   }, [filterOptions, sortOption, handoffs, loading])
 
+  const displayHandoffList = () => {
+    return (
+      <div className={style.handoffList}>
+        {items.map(handoff => (
+          <HandoffItem key={handoff.id} {...handoff}></HandoffItem>
+        ))}
+      </div>
+    )
+  }
+
   return (
     <Fragment>
       <HandoffListHeader
@@ -79,7 +90,7 @@ const HandoffList: FC<Props> = ({ handoffs, loading }) => {
         <EmptyState icon={<CasesIcon />} text={lang.tr('module.hitlnext.handoffs.empty')}></EmptyState>
       )}
 
-      {!loading && !_.isEmpty(items) && items.map(handoff => <HandoffItem key={handoff.id} {...handoff}></HandoffItem>)}
+      {!loading && !_.isEmpty(items) && displayHandoffList()}
     </Fragment>
   )
 }

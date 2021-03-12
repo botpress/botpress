@@ -1,6 +1,10 @@
 import { IO } from 'botpress/sdk'
 import LicensingService from 'common/licensing-service'
+import { EventEngine } from 'core/events/event-engine'
+import { Queue } from 'core/events/queue'
+import MemoryQueue from 'core/events/queue/memory-queue'
 import { KeyValueStore } from 'core/kvs'
+import { LogsJanitor, LogsService } from 'core/logger'
 import { DialogContainerModule } from 'core/services/dialog/dialog.inversify'
 import { CEJobService, JobService } from 'core/services/job-service'
 import { ContainerModule, interfaces } from 'inversify'
@@ -21,19 +25,25 @@ import { GhostContainerModule } from './ghost/ghost.inversify'
 import { HintsService } from './hints'
 import { HookService } from './hook/hook-service'
 import CELicensingService from './licensing'
-import { LogsJanitor } from './logs/janitor'
-import { LogsService } from './logs/service'
 import { MediaServiceProvider } from './media'
-import { EventEngine } from './middleware/event-engine'
+import { ConversationService } from './messaging/conversations'
+import { MessageService } from './messaging/messages'
 import { CEMonitoringService, MonitoringService } from './monitoring'
 import { NLUService } from './nlu/nlu-service'
 import { NotificationsService } from './notification/service'
-import { Queue } from './queue'
-import MemoryQueue from './queue/memory-queue'
 import RealtimeService from './realtime'
+import { RenderService } from './render/render'
 import { StatsService } from './stats-service'
 
 const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
+  bind<ConversationService>(TYPES.ConversationService)
+    .to(ConversationService)
+    .inSingletonScope()
+
+  bind<MessageService>(TYPES.MessageService)
+    .to(MessageService)
+    .inSingletonScope()
+
   bind<CMSService>(TYPES.CMSService)
     .to(CMSService)
     .inSingletonScope()
@@ -141,6 +151,10 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<StatsService>(TYPES.StatsService)
     .to(StatsService)
+    .inSingletonScope()
+
+  bind<RenderService>(TYPES.RenderService)
+    .to(RenderService)
     .inSingletonScope()
 })
 
