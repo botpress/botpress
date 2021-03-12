@@ -2,7 +2,7 @@ import { AxiosInstance } from 'axios'
 import sdk from 'botpress/sdk'
 import LRUCache from 'lru-cache'
 
-import * as NLU from '..'
+import { LanguageSource, Health, Specifications } from '../typings'
 
 export const BIO = {
   INSIDE: 'I',
@@ -23,7 +23,7 @@ export interface LangServerInfo {
 }
 
 export interface Gateway {
-  source: NLU.LanguageSource
+  source: LanguageSource
   client: AxiosInstance
   errors: number
   disabledUntil?: Date
@@ -39,7 +39,7 @@ export interface LanguageProvider {
   vectorize(tokens: string[], lang: string): Promise<Float32Array[]>
   tokenize(utterances: string[], lang: string, vocab?: string[]): Promise<string[][]>
   generateSimilarJunkWords(subsetVocab: string[], lang: string): Promise<string[]>
-  getHealth(): Partial<NLU.Health>
+  getHealth(): Partial<Health>
 }
 
 export type TFIDF = _.Dictionary<number>
@@ -131,9 +131,9 @@ export interface Tools {
   getStopWordsForLang(lang: string): Promise<string[]>
 
   // system info
-  getHealth(): NLU.Health
+  getHealth(): Health
   getLanguages(): string[]
-  getSpecifications(): NLU.Specifications
+  getSpecifications(): Specifications
 
   seededLodashProvider: SeededLodashProvider
   mlToolkit: typeof sdk.MLToolkit

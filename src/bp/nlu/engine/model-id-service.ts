@@ -1,6 +1,14 @@
 import crypto from 'crypto'
 import _ from 'lodash'
-import * as NLU from './typings'
+import {
+  Model,
+  ModelId,
+  EntityDefinition,
+  IntentDefinition,
+  Specifications,
+  ModelIdArgs,
+  ModelIdService
+} from './typings'
 
 export const HALF_MD5_REG = /^[a-fA-F0-9]{16}$/
 
@@ -15,7 +23,7 @@ export const halfmd5 = (text: string) => {
     .slice(MD5_NIBBLES_SIZE / 2)
 }
 
-const toString = (modelId: NLU.ModelId) => {
+const toString = (modelId: ModelId) => {
   const { contentHash, specificationHash, languageCode: lang, seed } = modelId
   return `${contentHash}.${specificationHash}.${seed}.${lang}`
 }
@@ -60,25 +68,21 @@ const isId = (stringId: string) => {
   return !!/^[a-z]{2}$/.exec(languageCode)
 }
 
-const toId = (model: NLU.Model) => {
+const toId = (model: Model) => {
   const { contentHash, specificationHash, seed, languageCode } = model
   return { contentHash, specificationHash, seed, languageCode }
 }
 
-const _computeContentHash = (
-  entityDefs: NLU.EntityDefinition[],
-  intentDefs: NLU.IntentDefinition[],
-  languageCode: string
-) => {
+const _computeContentHash = (entityDefs: EntityDefinition[], intentDefs: IntentDefinition[], languageCode: string) => {
   const singleLangIntents = intentDefs.map(i => ({ ...i, utterances: i.utterances[languageCode] }))
   return halfmd5(JSON.stringify({ singleLangIntents, entityDefs }))
 }
 
-const _computeSpecificationsHash = (specifications: NLU.Specifications) => {
+const _computeSpecificationsHash = (specifications: Specifications) => {
   return halfmd5(JSON.stringify({ specifications }))
 }
 
-const makeId = (factors: NLU.ModelIdArgs): NLU.ModelId => {
+const makeId = (factors: ModelIdArgs): ModelId => {
   const { entityDefs, intentDefs, languageCode, seed, specifications } = factors
 
   const contentHash = _computeContentHash(entityDefs, intentDefs, languageCode)
@@ -92,10 +96,10 @@ const makeId = (factors: NLU.ModelIdArgs): NLU.ModelId => {
   }
 }
 
-const briefId = (factors: Partial<NLU.ModelIdArgs>): Partial<NLU.ModelId> => {
+const briefId = (factors: Partial<ModelIdArgs>): Partial<ModelId> => {
   const { entityDefs, intentDefs, languageCode, seed, specifications } = factors
 
-  let briefedId: Partial<NLU.ModelId> = {}
+  let briefedId: Partial<ModelId> = {}
   if (entityDefs && intentDefs && languageCode) {
     const contentHash = _computeContentHash(entityDefs, intentDefs, languageCode)
     briefedId = { ...briefedId, contentHash }
@@ -114,7 +118,7 @@ const briefId = (factors: Partial<NLU.ModelIdArgs>): Partial<NLU.ModelId> => {
   return briefedId
 }
 
-const modelIdService: NLU.ModelIdService = {
+const modelIdService: ModelIdService = {
   toString,
   fromString,
   isId,

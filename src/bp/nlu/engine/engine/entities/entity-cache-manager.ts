@@ -3,7 +3,7 @@ import _ from 'lodash'
 import LRUCache from 'lru-cache'
 import ms from 'ms'
 import sizeof from 'object-sizeof'
-import * as NLU from '../..'
+import { Logger } from '../../typings'
 import { ColdListEntityModel, EntityCache, EntityCacheDump, EntityExtractionResult, KeyedItem } from '../typings'
 
 interface CacheByName {
@@ -41,9 +41,9 @@ export class SystemEntityCacheManager {
   private _path: string
   private _cache: LRUCache<string, EntityExtractionResult[]>
   private _dumpEnabled: boolean
-  private readonly _logger: NLU.Logger | undefined
+  private readonly _logger: Logger | undefined
 
-  constructor(path: string, dumpEnabled: boolean, logger?: NLU.Logger) {
+  constructor(path: string, dumpEnabled: boolean, logger?: Logger) {
     this._logger = logger
     this._path = path
     this._dumpEnabled = dumpEnabled

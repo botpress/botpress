@@ -1,8 +1,8 @@
 import { MLToolkit } from 'botpress/sdk'
 import Joi, { validate } from 'joi'
 import _ from 'lodash'
-import * as NLU from 'nlu/engine/typings'
 import { ModelLoadingError } from '../../errors'
+import { Logger } from '../../typings'
 import { ListEntityModel, PatternEntity, Tools } from '../typings'
 import Utterance from '../utterance/utterance'
 
@@ -43,7 +43,7 @@ export class SvmIntentClassifier implements IntentClassifier {
   private model: Model | undefined
   private predictors: Predictors | undefined
 
-  constructor(private tools: Tools, private featurizer: Featurizer, private logger?: NLU.Logger) {}
+  constructor(private tools: Tools, private featurizer: Featurizer, private logger?: Logger) {}
 
   get name() {
     return SvmIntentClassifier._name

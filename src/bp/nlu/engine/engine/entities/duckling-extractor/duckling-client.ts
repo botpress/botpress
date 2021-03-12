@@ -2,7 +2,7 @@ import Axios, { AxiosInstance } from 'axios'
 import retry from 'bluebird-retry'
 import httpsProxyAgent from 'https-proxy-agent'
 import _ from 'lodash'
-import * as NLU from '../../..'
+import { Logger } from '../../../typings'
 
 import { Duckling } from './typings'
 
@@ -22,9 +22,9 @@ const RETRY_POLICY = { backoff: 2, max_tries: 3, timeout: 500 }
 export class DucklingClient {
   public static client: AxiosInstance
 
-  constructor(private logger?: NLU.Logger) {}
+  constructor(private logger?: Logger) {}
 
-  public static async init(url: string, logger?: NLU.Logger): Promise<boolean> {
+  public static async init(url: string, logger?: Logger): Promise<boolean> {
     const proxyConfig = process.PROXY ? { httpsAgent: new httpsProxyAgent(process.PROXY) } : {}
     this.client = Axios.create({
       baseURL: url,

@@ -5,7 +5,7 @@ import path from 'path'
 import { MicrosoftEntityExtractor } from '.'
 import { SystemEntityCacheManager } from '../entity-cache-manager'
 import { createSpyObject, MockObject } from 'core/misc/utils'
-import * as NLU from '../../..'
+import { Logger } from '../../../typings'
 import { KeyedItem } from '../../typings'
 
 describe('Microsoft Extract Multiple', () => {
@@ -303,7 +303,7 @@ describe('Microsft Entity extractor cache usage', () => {
     cache = createSpyObject<SystemEntityCacheManager>()
     cache.splitCacheHitFromCacheMiss.mockImplementation(fakeSplitCache)
 
-    const stubLogger = createSpyObject<NLU.Logger>()
+    const stubLogger = createSpyObject<Logger>()
 
     const extractorModule = require('.')
     extractor = new extractorModule.MicrosoftEntityExtractor(cache.T, stubLogger.T) as MicrosoftEntityExtractor

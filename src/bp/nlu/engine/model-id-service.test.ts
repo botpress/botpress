@@ -1,7 +1,7 @@
 import modelIdService, { HALF_MD5_REG } from './model-id-service'
-import * as NLU from './typings'
+import { IntentDefinition, EntityDefinition, Specifications } from './typings'
 
-const intentDefs: NLU.IntentDefinition[] = [
+const intentDefs: IntentDefinition[] = [
   {
     contexts: ['global'],
     name: 'Frodo',
@@ -13,7 +13,7 @@ const intentDefs: NLU.IntentDefinition[] = [
   }
 ]
 
-const entityDefs: NLU.EntityDefinition[] = [
+const entityDefs: EntityDefinition[] = [
   {
     id: 'lotr-places',
     name: 'lotr places',
@@ -23,7 +23,7 @@ const entityDefs: NLU.EntityDefinition[] = [
   }
 ]
 
-const specifications: NLU.Specifications = {
+const specifications: Specifications = {
   nluVersion: '2.0.0',
   languageServer: {
     dimensions: 300,

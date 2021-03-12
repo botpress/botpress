@@ -1,10 +1,10 @@
 import { ErrorMessage } from 'nlu/ml/error-utils'
-import * as NLU from '../..'
+import { LanguageConfig } from '../../typings'
 
 import { TrainInput, TrainOutput } from '../training-pipeline'
 
 export type OutgoingPayload<T extends OutgoingMessageType> = T extends 'make_new_worker'
-  ? { config: NLU.LanguageConfig; requestId: string }
+  ? { config: LanguageConfig; requestId: string }
   : T extends 'start_training'
   ? { input: TrainInput }
   : {}

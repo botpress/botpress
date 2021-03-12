@@ -1,19 +1,19 @@
 import _ from 'lodash'
-import * as NLU from '..'
+import { Model } from '../typings'
 
 import { TrainInput, TrainOutput } from './training-pipeline'
 
-export type PredictableModel = Omit<NLU.Model, 'data'> & {
+export type PredictableModel = Omit<Model, 'data'> & {
   data: {
     input: TrainInput
     output: TrainOutput
   }
 }
 
-export function serializeModel(model: PredictableModel): NLU.Model {
+export function serializeModel(model: PredictableModel): Model {
   const { specificationHash, contentHash, languageCode: lang, startedAt, finishedAt, data, seed } = model
 
-  const serialized: NLU.Model = {
+  const serialized: Model = {
     specificationHash,
     contentHash,
     languageCode: lang,
@@ -32,7 +32,7 @@ export function serializeModel(model: PredictableModel): NLU.Model {
   return serialized
 }
 
-export function deserializeModel(serialized: NLU.Model): PredictableModel {
+export function deserializeModel(serialized: Model): PredictableModel {
   const { specificationHash, contentHash, languageCode, startedAt, finishedAt, data, seed } = serialized
 
   const model: PredictableModel = {

@@ -1,10 +1,10 @@
 import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
 import { deserializeError, serializeError } from 'nlu/ml/error-utils'
-import * as NLU from '../..'
 
 import { registerMsgHandler, spawnNewTrainingWorker, WORKER_TYPES } from '../../../../cluster'
 import { TrainingAlreadyStarted, TrainingCanceled, TrainingExitedUnexpectedly } from '../../errors'
+import { LanguageConfig, Logger } from '../../typings'
 import { initializeTools } from '../initialize-tools'
 import { Trainer, TrainInput, TrainOutput } from '../training-pipeline'
 import { Tools } from '../typings'
@@ -32,7 +32,7 @@ export class TrainingWorkerQueue {
   private readyWorkers: number[] = []
   private activeWorkers: { [trainSessionId: string]: number } = {}
 
-  constructor(private config: NLU.LanguageConfig, private logger: NLU.Logger) {}
+  constructor(private config: LanguageConfig, private logger: Logger) {}
 
   public async cancelTraining(trainSessionId: string): Promise<void> {
     const workerId = this.activeWorkers[trainSessionId]
@@ -263,7 +263,7 @@ if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.TRAINING) {
   const processId = process.pid
   const srcWorkerId = cluster.worker.id
 
-  const logger: NLU.Logger = {
+  const logger: Logger = {
     debug: (msg: string) => {
       const response: IncomingMessage<'log'> = { type: 'log', payload: { log: { debug: msg }, requestId }, srcWorkerId }
       process.send!(response)

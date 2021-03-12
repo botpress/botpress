@@ -1,7 +1,7 @@
 import MLToolkit from 'nlu/ml/toolkit'
 import path from 'path'
 import yn from 'yn'
-import * as NLU from '..'
+import { Health, Specifications, LanguageConfig, Logger } from '../typings'
 import { DucklingEntityExtractor } from './entities/duckling-extractor'
 import { SystemEntityCacheManager } from './entities/entity-cache-manager'
 import { MicrosoftEntityExtractor } from './entities/microsoft-extractor'
@@ -13,7 +13,7 @@ import { LanguageProvider, SystemEntityExtractor, Tools } from './typings'
 
 const NLU_VERSION = '2.1.0' // TODO: compute specification hash from components instead of version
 
-const healthGetter = (languageProvider: LanguageProvider) => (): NLU.Health => {
+const healthGetter = (languageProvider: LanguageProvider) => (): Health => {
   const { validProvidersCount, validLanguages } = languageProvider.getHealth()
   return {
     isEnabled: validProvidersCount! > 0 && validLanguages!.length > 0,
@@ -22,7 +22,7 @@ const healthGetter = (languageProvider: LanguageProvider) => (): NLU.Health => {
   }
 }
 
-const versionGetter = (languageProvider: LanguageProvider) => (): NLU.Specifications => {
+const versionGetter = (languageProvider: LanguageProvider) => (): Specifications => {
   const { langServerInfo } = languageProvider
   const { dim, domain, version } = langServerInfo
 
@@ -37,8 +37,8 @@ const versionGetter = (languageProvider: LanguageProvider) => (): NLU.Specificat
 }
 
 const initializeLanguageProvider = async (
-  config: NLU.LanguageConfig,
-  logger: NLU.Logger,
+  config: LanguageConfig,
+  logger: Logger,
   seededLodashProvider: SeededLodashProvider
 ) => {
   try {
@@ -61,10 +61,7 @@ const initializeLanguageProvider = async (
   }
 }
 
-const makeSystemEntityExtractor = async (
-  config: NLU.LanguageConfig,
-  logger: NLU.Logger
-): Promise<SystemEntityExtractor> => {
+const makeSystemEntityExtractor = async (config: LanguageConfig, logger: Logger): Promise<SystemEntityExtractor> => {
   const makeCacheManager = (cacheFileName: string) =>
     new SystemEntityCacheManager(path.join(process.APP_DATA_PATH, 'cache', cacheFileName), true, logger)
 
@@ -84,7 +81,7 @@ const makeSystemEntityExtractor = async (
   return extractor
 }
 
-export async function initializeTools(config: NLU.LanguageConfig, logger: NLU.Logger): Promise<Tools> {
+export async function initializeTools(config: LanguageConfig, logger: Logger): Promise<Tools> {
   const seededLodashProvider = new SeededLodashProvider()
   const { languageProvider } = await initializeLanguageProvider(config, logger, seededLodashProvider)
 

@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import * as NLU from '..'
+import { Logger } from '../typings'
 
 import { serializeKmeans } from './clustering'
 import { extractListEntitiesWithCache, extractPatternEntities } from './entities/custom-entity-extractor'
@@ -68,7 +68,7 @@ export interface TrainOutput {
 }
 
 interface Tools extends LanguageTools {
-  logger?: NLU.Logger
+  logger?: Logger
 }
 
 type progressCB = (p?: number) => void
@@ -319,7 +319,7 @@ async function TrainSlotTaggers(input: TrainStep, tools: Tools, progress: progre
 
 const NB_STEPS = 5 // change this if the training pipeline changes
 
-const makeLogger = (trainId: string, logger?: NLU.Logger) => {
+const makeLogger = (trainId: string, logger?: Logger) => {
   return <T extends (...args: any[]) => any>(fn: T) => (...args: Parameters<T>): ReturnType<T> => {
     logger?.debug(`[${trainId}] Started ${fn.name}`)
     const ret = fn(...args)

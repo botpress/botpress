@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import * as NLU from '../../..'
+import { Logger } from '../../../typings'
 
 import { EntityExtractionResult, SystemEntityExtractor, KeyedItem } from '../../typings'
 import { SystemEntityCacheManager } from '../entity-cache-manager'
@@ -26,7 +26,7 @@ interface MicrosoftParams {
 }
 
 export class MicrosoftEntityExtractor implements SystemEntityExtractor {
-  constructor(private _cache: SystemEntityCacheManager, private readonly logger?: NLU.Logger) {
+  constructor(private _cache: SystemEntityCacheManager, private readonly logger?: Logger) {
     this.logger = logger
   }
 

@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import * as NLU from '../../..'
+import { Logger } from '../../../typings'
 import { extractPattern } from '../../tools/patterns-utils'
 import { JOIN_CHAR } from '../../tools/token-utils'
 import { EntityExtractionResult, KeyedItem, SystemEntityExtractor } from '../../typings'
@@ -24,7 +24,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
     this._enabled = false
   }
 
-  constructor(private _cache: SystemEntityCacheManager, private readonly logger?: NLU.Logger) {
+  constructor(private _cache: SystemEntityCacheManager, private readonly logger?: Logger) {
     this._enabled = false
     this.logger = logger
     this._provider = new DucklingClient(logger)

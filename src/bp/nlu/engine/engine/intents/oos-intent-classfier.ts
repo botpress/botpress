@@ -1,8 +1,8 @@
 import { MLToolkit } from 'botpress/sdk'
 import Joi, { validate } from 'joi'
 import _ from 'lodash'
-import * as NLU from 'nlu/engine'
 import { ModelLoadingError } from '../../errors'
+import { Logger } from '../../typings'
 import { isPOSAvailable } from '../language/pos-tagger'
 import { SMALL_TFIDF } from '../tools/tfidf'
 import { isSpace, SPACE } from '../tools/token-utils'
@@ -72,7 +72,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
   private model: Model | undefined
   private predictors: Predictors | undefined
 
-  constructor(private tools: Tools, private logger?: NLU.Logger) {}
+  constructor(private tools: Tools, private logger?: Logger) {}
 
   get name() {
     return OOSIntentClassifier._name

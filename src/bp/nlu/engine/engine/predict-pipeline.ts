@@ -1,6 +1,6 @@
 import { MLToolkit } from 'botpress/sdk'
 import _ from 'lodash'
-import * as NLU from '..'
+import { PredictOutput, Entity, SlotCollection, Predictions } from '../typings'
 
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
 import { IntentPredictions, NoneableIntentPredictions } from './intents/intent-classifier'
@@ -148,8 +148,8 @@ async function extractSlots(input: IntentStep, predictors: Predictors): Promise<
   return { ...input, slot_predictions_per_intent: slots_per_intent }
 }
 
-function MapStepToOutput(step: SlotStep): NLU.PredictOutput {
-  const entitiesMapper = (e?: EntityExtractionResult | UtteranceEntity): NLU.Entity => {
+function MapStepToOutput(step: SlotStep): PredictOutput {
+  const entitiesMapper = (e?: EntityExtractionResult | UtteranceEntity): Entity => {
     if (!e) {
       return eval('null')
     }
@@ -173,7 +173,7 @@ function MapStepToOutput(step: SlotStep): NLU.PredictOutput {
 
   const entities = step.utterance.entities.map(entitiesMapper)
 
-  const slotsCollectionReducer = (slots: NLU.SlotCollection, s: SlotExtractionResult): NLU.SlotCollection => {
+  const slotsCollectionReducer = (slots: SlotCollection, s: SlotExtractionResult): SlotCollection => {
     if (slots[s.slot.name] && slots[s.slot.name].confidence > s.slot.confidence) {
       // we keep only the most confident slots
       return slots
@@ -193,7 +193,7 @@ function MapStepToOutput(step: SlotStep): NLU.PredictOutput {
     }
   }
 
-  const predictions: NLU.Predictions = step.ctx_predictions.intents.reduce((preds, current) => {
+  const predictions: Predictions = step.ctx_predictions.intents.reduce((preds, current) => {
     const { name: label, confidence } = current
 
     const intentPred = step.intent_predictions[label]
@@ -216,7 +216,7 @@ function MapStepToOutput(step: SlotStep): NLU.PredictOutput {
     }
   }, {})
 
-  return <NLU.PredictOutput>{
+  return <PredictOutput>{
     entities,
     predictions: _.chain(predictions) // orders all predictions by confidence
       .entries()
@@ -226,11 +226,7 @@ function MapStepToOutput(step: SlotStep): NLU.PredictOutput {
   }
 }
 
-export const Predict = async (
-  input: PredictInput,
-  tools: Tools,
-  predictors: Predictors
-): Promise<NLU.PredictOutput> => {
+export const Predict = async (input: PredictInput, tools: Tools, predictors: Predictors): Promise<PredictOutput> => {
   const { step } = await preprocessInput(input, tools, predictors)
   const initialStep = await makePredictionUtterance(step, predictors, tools)
   const entitesStep = await extractEntities(initialStep, predictors, tools)

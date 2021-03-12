@@ -9,7 +9,7 @@ import moment from 'moment'
 import ms from 'ms'
 import path from 'path'
 import semver from 'semver'
-import * as NLU from '../..'
+import { LanguageSource, Logger, Health } from '../../typings'
 
 import { setSimilarity, vocabNGram } from '../tools/strings'
 import { isSpace, processUtteranceTokens, restoreOriginalUtteranceCasing } from '../tools/token-utils'
@@ -58,14 +58,14 @@ export class RemoteLanguageProvider implements LanguageProvider {
     return Object.keys(this.langs)
   }
 
-  private addProvider(lang: string, source: NLU.LanguageSource, client: AxiosInstance) {
+  private addProvider(lang: string, source: LanguageSource, client: AxiosInstance) {
     this.langs[lang] = [...(this.langs[lang] || []), { source, client, errors: 0, disabledUntil: undefined }]
     debug(`[${lang.toUpperCase()}] Language Provider added %o`, source)
   }
 
   async initialize(
-    sources: NLU.LanguageSource[],
-    logger: NLU.Logger,
+    sources: LanguageSource[],
+    logger: Logger,
     nluVersion: string,
     seededLodashProvider: SeededLodashProvider
   ): Promise<LanguageProvider> {
@@ -216,7 +216,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     }
   }
 
-  private handleLanguageServerError = (err, endpoint: string, logger: NLU.Logger) => {
+  private handleLanguageServerError = (err, endpoint: string, logger: Logger) => {
     const status = _.get(err, 'failure.response.status')
     const details = _.get(err, 'failure.response.message')
 
@@ -318,7 +318,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     }
   }
 
-  getHealth(): Partial<NLU.Health> {
+  getHealth(): Partial<Health> {
     return { validProvidersCount: this._validProvidersCount, validLanguages: Object.keys(this.langs) }
   }
 
