@@ -82,12 +82,14 @@ export class NLUApplication {
       return cb({ botId, language })
     }
 
-    const loadOrSetTrainingNeeded = makeDirtyModelHandler(this._trainingQueue.needsTraining)
+    const loadOrSetTrainingNeeded = makeDirtyModelHandler((trainId: TrainingId) =>
+      this._trainingQueue.needsTraining(trainId)
+    )
     defService.listenForDirtyModels(loadOrSetTrainingNeeded)
 
     const trainingHandler = this._queueTrainingOnBotMount
-      ? this._trainingQueue.queueTraining
-      : this._trainingQueue.needsTraining
+      ? (trainId: TrainingId) => this._trainingQueue.queueTraining(trainId)
+      : (trainId: TrainingId) => this._trainingQueue.needsTraining(trainId)
 
     const loadModelOrQueue = makeDirtyModelHandler(trainingHandler)
     for (const language of languages) {
