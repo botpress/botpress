@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 import moment from 'moment'
 import ms from 'ms'
 import { ITrainingRepository } from './training-repo'
-import { TrainingId, TrainingSession, I, LockedTrainingSession } from './typings'
+import { TrainingId, TrainingSession, I } from './typings'
 
 export type TrainingTransaction<T> = (repo: ITrainingRepository) => Promise<T>
 
@@ -68,7 +68,7 @@ export class TrainingService {
     return this._trainingRepo.clear()
   }
 
-  public isAlive(training: LockedTrainingSession, ms: number) {
+  public isAlive(training: TrainingSession, ms: number) {
     const now = moment()
     const timeOfDeath = moment(now.clone()).subtract(ms, 'ms')
 

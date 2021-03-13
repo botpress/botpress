@@ -37,6 +37,8 @@ export type EventUnderstanding = Omit<IO.EventUnderstanding, 'includedContexts' 
 export interface TrainingState {
   status: NLU.TrainingStatus
   progress: number
+  owner: string
+  modifiedOn: Date
 }
 
 export interface TrainingId {
@@ -45,10 +47,6 @@ export interface TrainingId {
 }
 
 export interface TrainingSession extends TrainingId, TrainingState {}
-
-export interface LockedTrainingSession extends TrainingSession {
-  modifiedOn: Date
-}
 
 export interface TrainerService {
   hasBot(botId: string): boolean

@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { TrainingId, TrainingState, TrainingSession, I, LockedTrainingSession } from './typings'
+import { TrainingId, TrainingState, TrainingSession, I } from './typings'
 
 const TABLE_NAME = 'nlu_training_queue'
 
@@ -13,6 +13,7 @@ export class TrainingRepository implements TrainingRepository {
       table.string('botId').notNullable()
       table.string('language').notNullable()
       table.string('status').notNullable()
+      table.string('owner').notNullable()
       table.float('progress').notNullable()
       table.timestamp('modifiedOn').notNullable()
       table.primary(['botId', 'language'])
@@ -25,7 +26,7 @@ export class TrainingRepository implements TrainingRepository {
 
   public set = async (trainId: TrainingId, trainState: TrainingState): Promise<void> => {
     const { botId, language } = trainId
-    const { progress, status } = trainState
+    const { progress, status, owner } = trainState
 
     const modifiedOn = this._database.date.now()
     if (await this.has({ botId, language })) {
@@ -33,7 +34,7 @@ export class TrainingRepository implements TrainingRepository {
         .where({ botId, language })
         .update({ progress, status, modifiedOn })
     }
-    return this._database(TABLE_NAME).insert({ botId, language, progress, status, modifiedOn })
+    return this._database(TABLE_NAME).insert({ botId, language, progress, status, modifiedOn, owner })
   }
 
   public has = async (trainId: TrainingId): Promise<boolean> => {
@@ -42,7 +43,7 @@ export class TrainingRepository implements TrainingRepository {
     return result
   }
 
-  public get = async (trainId: TrainingId): Promise<LockedTrainingSession | undefined> => {
+  public get = async (trainId: TrainingId): Promise<TrainingSession | undefined> => {
     const { botId, language } = trainId
 
     return this._database
@@ -52,7 +53,7 @@ export class TrainingRepository implements TrainingRepository {
       .first()
   }
 
-  public query = async (query: Partial<TrainingSession>): Promise<LockedTrainingSession[]> => {
+  public query = async (query: Partial<TrainingSession>): Promise<TrainingSession[]> => {
     return this._database
       .from(TABLE_NAME)
       .where(query)
