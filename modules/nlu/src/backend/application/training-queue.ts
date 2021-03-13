@@ -52,7 +52,7 @@ class LocalTrainingContainer {
   }
 }
 
-export class TrainingQueue implements TrainingQueue {
+export class TrainingQueue {
   private _options: TrainingQueueOptions
   private _paused: boolean = true
   private _broadcastCancelTraining: (id: TrainingId) => Promise<void>

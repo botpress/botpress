@@ -42,14 +42,6 @@ export class ScopedDefinitionsService {
     this._dirtyModelsListeners.push(listener)
   }
 
-  private _needsTraining = async (language: string): Promise<boolean> => {
-    const modelId = await this.getLatestModelId(language)
-    if (this._engine.hasModel(modelId)) {
-      return false
-    }
-    return true
-  }
-
   public async getLatestModelId(languageCode: string): Promise<sdk.NLU.ModelId> {
     const { _engine } = this
 
@@ -78,7 +70,11 @@ export class ScopedDefinitionsService {
       if (!hasPotentialNLUChange) {
         return
       }
-      await Promise.filter(this._languages, this._needsTraining).mapSeries(this._notifyListeners)
+
+      await Promise.filter(this._languages, async l => {
+        const modelId = await this.getLatestModelId(l)
+        return !this._engine.hasModel(modelId)
+      }).mapSeries(this._notifyListeners)
     })
   }
 
