@@ -77,18 +77,12 @@ export class TrainingService {
     return !lastlyUpdated.isBefore(timeOfDeath)
   }
 
-  public queueAndWaitTransaction = <T>(run: TrainingTransaction<T>) => {
+  public transaction = <T>(run: TrainingTransaction<T>) => {
     return new Promise<T>(resolve => {
       this._queueTransaction({
         run,
         cb: resolve
       })
-    })
-  }
-
-  public queueTransaction = <T>(run: TrainingTransaction<T>) => {
-    this._queueTransaction({
-      run
     })
   }
 

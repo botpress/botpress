@@ -70,7 +70,7 @@ export class TrainingQueue {
   }
 
   public needsTraining = async (trainId: TrainingId): Promise<void> => {
-    return this._trainingService.queueAndWaitTransaction(async repo => {
+    return this._trainingService.transaction(async repo => {
       const update = this._makeUpdater(repo)
 
       const currentTraining = await repo.get(trainId)
@@ -84,7 +84,7 @@ export class TrainingQueue {
   }
 
   public queueTraining = async (trainId: TrainingId): Promise<void> => {
-    await this._trainingService.queueAndWaitTransaction(async repo => {
+    await this._trainingService.transaction(async repo => {
       const update = this._makeUpdater(repo)
 
       const currentTraining = await this._trainingService.get(trainId)
@@ -121,13 +121,14 @@ export class TrainingQueue {
     this._paused = false
     await this._broadcastRunTask()
   }
+
   public cancelTraining = async (trainId: TrainingId): Promise<void> => {
     return this._broadcastCancelTraining(trainId)
   }
 
   // Do not use arrow notation as _localCancelTraining.name needs to be defined
   private async _localCancelTraining(trainId: TrainingId): Promise<void> {
-    return this._trainingService.queueAndWaitTransaction(async repo => {
+    return this._trainingService.transaction(async repo => {
       const { botId, language } = trainId
 
       const update = this._makeUpdater(repo)
@@ -190,7 +191,8 @@ export class TrainingQueue {
 
   private _lockAndUpdate = async (id: TrainingId, newState: TrainingState) => {
     await this._notify(id, newState)
-    this._trainingService.queueTransaction(async repo => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this._trainingService.transaction(async repo => {
       return repo.set(id, newState)
     })
   }
@@ -200,7 +202,8 @@ export class TrainingQueue {
   }
 
   private async _localRunTask(): Promise<void> {
-    this._trainingService.queueTransaction(async repo => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this._trainingService.transaction(async repo => {
       const localTrainings = await repo.query({ owner: this._workerId, status: 'training' })
       if (localTrainings.length >= this._options.maxTraining) {
         return
@@ -274,7 +277,9 @@ export class TrainingQueue {
       .error(`Training ${this._toString(trainId)} could not finish because of an unexpected error.`)
 
     await this._notify(trainId, this._fillSate({ status: 'errored' }))
-    this._trainingService.queueTransaction(repo => repo.set(trainId, this._fillSate({ status: 'needs-training' })))
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this._trainingService.transaction(repo => repo.set(trainId, this._fillSate({ status: 'needs-training' })))
   }
 
   private _toString(id: TrainingId) {
