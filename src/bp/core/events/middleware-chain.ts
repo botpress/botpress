@@ -1,8 +1,7 @@
 import * as sdk from 'botpress/sdk'
+import { addStepToEvent, StepScopes, StepStatus } from 'core/events/event-collector'
 import _ from 'lodash'
 import ms from 'ms'
-
-import { addStepToEvent, StepScopes, StepStatus } from './event-collector'
 
 interface MiddlewareChainOptions {
   timeoutInMs: number
@@ -12,7 +11,7 @@ const defaultOptions = {
   timeoutInMs: ms('2s')
 }
 
-export class MiddlewareChain {
+class MiddlewareChain {
   private stack: { mw: sdk.IO.MiddlewareHandler; name: string }[] = []
 
   constructor(private options: MiddlewareChainOptions = defaultOptions) {
@@ -50,3 +49,5 @@ export class MiddlewareChain {
     }
   }
 }
+
+export default MiddlewareChain
