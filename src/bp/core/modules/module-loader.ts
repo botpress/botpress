@@ -25,7 +25,7 @@ import { extractArchive } from '../misc/archive'
 import { GhostService } from '../services'
 import { BotService } from '../services/bot-service'
 import { ConfigReader } from './config-reader'
-import { ModuleResourceLoader } from './resources-loader'
+import { ModuleResourceLoader } from './module-resources-loader'
 import { clearModuleScriptCache } from './utils/require'
 import { ModuleResolver } from './utils/resolver'
 

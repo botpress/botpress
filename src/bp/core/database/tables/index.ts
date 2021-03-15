@@ -41,6 +41,5 @@ const tables: typeof Table[] = [
   BotUsersTable,
   MigrationsTable
 ]
-console.log(tables)
 
 export default <(new (knex: Knex) => Table)[]>tables
