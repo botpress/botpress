@@ -42,7 +42,7 @@ export const RESOLUTION = {
 }
 
 export const groupEventsByUtterance = events => {
-  const itemsByUtterance = new Map()
+  const itemsByUtterance = new Map() // Using a Map here since it remembers the insertion order for keys
   events.forEach(function(event, eventIndex) {
     const { preview: utterance } = event
     if (!itemsByUtterance.has(utterance)) {
