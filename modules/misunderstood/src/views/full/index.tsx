@@ -209,6 +209,14 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     return this.setEventsStatus(FLAGGED_MESSAGE_STATUS.applied)
   }
 
+  deleteAllStatus = (status: FLAGGED_MESSAGE_STATUS) => {
+    return async () => {
+      await this.apiClient.deleteAll(status)
+      await this.updateEventsCounts()
+      return this.setEventsStatus(FLAGGED_MESSAGE_STATUS.applied)
+    }
+  }
+
   async componentDidUpdate(prevProps: Props) {
     if (prevProps.contentLang !== this.props.contentLang) {
       await this.setLanguage(this.props.contentLang)
@@ -313,6 +321,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
             onSelectedStatusChange={this.setEventsStatus}
             onSelectedEventChange={this.setEventIndex}
             applyAllPending={this.applyAllPending}
+            deleteAllStatus={this.deleteAllStatus}
           />
         </SidePanel>
 

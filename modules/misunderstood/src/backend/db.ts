@@ -47,6 +47,12 @@ export default class Db {
     await this.knex(TABLE_NAME).insert(event)
   }
 
+  async deleteAll(botId: string, status: FLAGGED_MESSAGE_STATUS) {
+    await this.knex(TABLE_NAME)
+      .where({ botId, status })
+      .del()
+  }
+
   async updateStatuses(botId: string, ids: string[], status: FLAGGED_MESSAGE_STATUS, resolutionData?: ResolutionData) {
     if (status !== FLAGGED_MESSAGE_STATUS.pending) {
       resolutionData = { resolutionType: null, resolution: null, resolutionParams: null }

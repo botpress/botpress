@@ -71,6 +71,10 @@ class ApiClient {
     return this.postForModule('/apply-all-pending')
   }
 
+  deleteAll(status: FLAGGED_MESSAGE_STATUS) {
+    return this.postForModule('/delete-all', { status })
+  }
+
   getRangeUnix(dateRange?: DateRange) {
     let start, end
     if (dateRange) {
