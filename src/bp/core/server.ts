@@ -6,7 +6,7 @@ import { RequestWithUser } from 'common/typings'
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import session from 'cookie-session'
-import { CMSService, ContentRouter } from 'core/cms'
+import { CMSService, CMSRouter } from 'core/cms'
 import { ExternalAuthConfig, ConfigProvider } from 'core/config'
 import { ConverseRouter, ConverseService } from 'core/converse'
 import { LogsService, LogsRepository } from 'core/logger'
@@ -87,7 +87,7 @@ export default class HTTPServer {
   private readonly authRouter: AuthRouter
   private readonly adminRouter: AdminRouter
   private readonly botsRouter: BotsRouter
-  private contentRouter!: ContentRouter
+  private cmsRouter!: CMSRouter
   private nluRouter!: NLURouter
   private readonly modulesRouter: ModulesRouter
   private readonly shortLinksRouter: ShortLinksRouter
@@ -242,7 +242,7 @@ export default class HTTPServer {
 
     await this.mediaRouter.initialize()
     await this.botsRouter.initialize()
-    this.contentRouter = new ContentRouter(
+    this.cmsRouter = new CMSRouter(
       this.logger,
       this.authService,
       this.cmsService,
@@ -252,7 +252,7 @@ export default class HTTPServer {
     this.nluRouter = new NLURouter(this.logger, this.authService, this.workspaceService, this.nluService)
     this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this)
     this.hintsRouter = new HintsRouter(this.logger, this.hintsService, this.authService, this.workspaceService)
-    this.botsRouter.router.use('/content', this.contentRouter.router)
+    this.botsRouter.router.use('/content', this.cmsRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
     this.botsRouter.router.use('/nlu', this.nluRouter.router)
 

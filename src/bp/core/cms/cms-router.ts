@@ -13,7 +13,7 @@ import { checkTokenHeader, needPermissions } from '../routers/util'
 const CONTENT_FOLDER = 'content-elements'
 const LIBRARY_FILE = 'library.json'
 
-export class ContentRouter extends CustomRouter {
+export class CMSRouter extends CustomRouter {
   private _checkTokenHeader: RequestHandler
   private _needPermissions: (operation: string, resource: string) => RequestHandler
 

@@ -14,8 +14,8 @@ import yn from 'yn'
 
 import { JobService } from '../services/job-service'
 import { createExpiry } from './sessions/expiry'
-import { SessionIdFactory } from './sessions/id-factory'
-import { SessionRepository } from './sessions/sessions-repository'
+import { SessionIdFactory } from './sessions/session-id-factory'
+import { SessionRepository } from './sessions/session-repository'
 
 const getRedisSessionKey = (sessionId: string) => `sessionstate_${sessionId}`
 const BATCH_SIZE = 100

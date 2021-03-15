@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import Database from 'core/database'
-import { SessionIdFactory } from 'core/dialog/sessions/id-factory'
+import { SessionIdFactory } from 'core/dialog/sessions'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
