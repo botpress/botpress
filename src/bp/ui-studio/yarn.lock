@@ -8549,11 +8549,8 @@ uglifyjs-webpack-plugin@^1.2.4:
     worker-farm "^1.5.2"
 
 "ui-shared@link:../ui-shared":
-  version "0.0.1"
-  dependencies:
-    js-cookie "^2.2.1"
-    react-command-palette "^0.12.0-0"
-    react-router "4.3.1"
+  version "0.0.0"
+  uid ""
 
 uncontrollable@^7.0.2:
   version "7.1.1"

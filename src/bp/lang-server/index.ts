@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import { centerText } from 'core/logger'
+import { centerText } from 'core/logger/utils'
 import _ from 'lodash'
 import path from 'path'
 
