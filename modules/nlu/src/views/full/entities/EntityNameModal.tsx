@@ -4,7 +4,7 @@ import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
-import { NLUApi } from '../../../api'
+import { NLUApiClient } from '../../../api-client'
 
 const AVAILABLE_TYPES = [
   {
@@ -18,7 +18,7 @@ const AVAILABLE_TYPES = [
 ]
 
 interface Props {
-  api: NLUApi
+  api: NLUApiClient
   // Used for actions rename and duplicate
   originalEntity?: NLU.EntityDefinition
   action: 'create' | 'rename' | 'duplicate'

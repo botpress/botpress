@@ -1,15 +1,15 @@
 import * as sdk from 'botpress/sdk'
 import { FlowView } from 'common/typings'
 
-import { GhostService } from 'core/services'
 import _ from 'lodash'
+import { IntentRepository as IIntentRepository, FileSystem } from '../typings'
 import { EntityRepository } from './entity-repo'
 import { sanitizeFileName } from './utils'
 
 const INTENTS_DIR = './intents'
 
-export class IntentRepository {
-  constructor(private ghostService: GhostService, private entitiesRepo: EntityRepository) {
+export class IntentRepository implements IIntentRepository {
+  constructor(private ghostService: FileSystem, private entitiesRepo: EntityRepository) {
     entitiesRepo.listenForEntityRename((botId: string, oldName: string, newName: string) =>
       this.updateIntentsSlotsEntities(botId, oldName, newName)
     )

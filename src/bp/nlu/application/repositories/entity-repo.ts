@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
-import { SYSTEM_ENTITIES } from 'common/nlu/engine'
-import { GhostService } from 'core/services'
+import { SYSTEM_ENTITIES } from 'nlu/engine'
+import { RenameListener, EntityRepository as IEntityRepository, FileSystem } from '../typings'
 import * as CacheManager from './cache-manager'
 import { sanitizeFileName } from './utils'
 
@@ -11,12 +11,10 @@ const getSystemEntities = (): sdk.NLU.EntityDefinition[] => {
   return [...SYSTEM_ENTITIES, 'any'].map(name => ({ name, type: 'system' })) as sdk.NLU.EntityDefinition[]
 }
 
-type RenameListener = (botId: string, oldName: string, newName: string) => Promise<void>
-
-export class EntityRepository {
+export class EntityRepository implements IEntityRepository {
   private _renameListeners: RenameListener[] = []
 
-  constructor(private ghostService: GhostService) {}
+  constructor(private ghostService: FileSystem) {}
 
   public listenForEntityRename(l: RenameListener) {
     this._renameListeners.push(l)

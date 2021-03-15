@@ -1,9 +1,9 @@
 import axios, { AxiosInstance } from 'axios'
 import * as sdk from 'botpress/sdk'
 
-export type NLUApi = ReturnType<typeof makeApi>
+export type NLUApiClient = ReturnType<typeof makeApiClient>
 
-export const makeApi = (bp: { axios: AxiosInstance }) => ({
+export const makeApiClient = (bp: { axios: AxiosInstance }) => ({
   fetchContexts: (): Promise<string[]> => bp.axios.get('/nlu/contexts').then(res => res.data),
   fetchIntentsWithQNAs: (): Promise<sdk.NLU.IntentDefinition[]> => bp.axios.get('/nlu/intents').then(res => res.data),
   fetchIntents: async (): Promise<sdk.NLU.IntentDefinition[]> => {
@@ -26,9 +26,3 @@ export const makeApi = (bp: { axios: AxiosInstance }) => ({
     bp.axios.post(`/nlu/entities/${targetEntityId}`, entity),
   deleteEntity: (entityId: string): Promise<void> => bp.axios.post(`/nlu/entities/${entityId}/delete`)
 })
-
-export const createApi = async (bp: typeof sdk, botId: string) => {
-  const axiosForBot = axios.create(await bp.http.getAxiosConfigForBot(botId, { localUrl: true }))
-  const api = makeApi({ axios: axiosForBot })
-  return api
-}

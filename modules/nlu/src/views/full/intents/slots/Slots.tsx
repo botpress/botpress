@@ -5,7 +5,7 @@ import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React from 'react'
 
-import { NLUApi } from '../../../../api'
+import { NLUApiClient } from '../../../../api-client'
 import style from '../style.scss'
 
 import SlotItem from './SlotItem'
@@ -15,7 +15,7 @@ import { SlotModification } from './typings'
 interface State {}
 
 interface Props {
-  api: NLUApi
+  api: NLUApiClient
   slots: NLU.SlotDefinition[]
   onSlotsChanged: (slot: NLU.SlotDefinition[], mod: SlotModification) => void
 }

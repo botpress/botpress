@@ -3,13 +3,13 @@ import { ItemRenderer, MultiSelect } from '@blueprintjs/select'
 import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 
-import { NLUApi } from '../../../api'
+import { NLUApiClient } from '../../../api-client'
 
 import style from './style.scss'
 
 interface Props {
   contexts: string[]
-  api: NLUApi
+  api: NLUApiClient
   saveContexts: (ctx: string[]) => void
 }
 

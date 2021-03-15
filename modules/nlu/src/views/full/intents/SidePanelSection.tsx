@@ -7,12 +7,12 @@ import _ from 'lodash'
 import React, { FC, useState } from 'react'
 
 import { NluItem } from '..'
-import { NLUApi } from '../../../api'
+import { NLUApiClient } from '../../../api-client'
 
 import NameModal from './NameModal'
 
 interface Props {
-  api: NLUApi
+  api: NLUApiClient
   intents: NLU.IntentDefinition[]
   currentItem: NluItem
   contentLang: string

@@ -6,7 +6,7 @@ import random from 'lodash/random'
 import nanoid from 'nanoid'
 import React from 'react'
 
-import { NLUApi } from '../../../../api'
+import { NLUApiClient } from '../../../../api-client'
 
 import { EntitySelector } from './EntitySelector'
 import { SlotOperation } from './typings'
@@ -29,7 +29,7 @@ interface State extends NLU.SlotDefinition {
 }
 
 interface Props {
-  api: NLUApi
+  api: NLUApiClient
   slot: NLU.SlotDefinition
   slots: NLU.SlotDefinition[]
   show: boolean

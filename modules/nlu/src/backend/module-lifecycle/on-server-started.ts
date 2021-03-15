@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import bytes from 'bytes'
+import { makeDefinitionsRepositories } from 'common/nlu/application'
 import nluEngine from 'common/nlu/engine'
 import _ from 'lodash'
 
@@ -129,6 +130,10 @@ export function getOnSeverStarted(state: NLUState) {
       modelCacheSize: bytes(modelCacheSize)
     }
     state.engine = await nluEngine.makeEngine(parsedConfig, logger)
+
+    const { intentRepo, entityRepo } = makeDefinitionsRepositories(bp.ghost)
+    state.intentRepo = intentRepo
+    state.entityRepo = entityRepo
 
     await registerMiddleware(bp, state)
   }

@@ -23,12 +23,12 @@ import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import ms from 'ms'
-import { makeNLURouter } from 'nlu/application'
+import { makeDefinitionsRepositories } from 'nlu/application'
+import { NLURouter } from 'nlu/application/api/router'
 import path from 'path'
 import portFinder from 'portfinder'
 import { URL } from 'url'
 import yn from 'yn'
-import { NLURouter } from '../nlu/application/api/router'
 
 import { ExternalAuthConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
@@ -251,7 +251,10 @@ export default class HTTPServer {
       this.workspaceService,
       this.ghostService
     )
-    this.nluRouter = makeNLURouter(this.logger, this.authService, this.workspaceService, this.ghostService)
+
+    const { entityRepo, intentRepo } = makeDefinitionsRepositories(this.ghostService)
+    this.nluRouter = new NLURouter(this.logger, this.authService, this.workspaceService, intentRepo, entityRepo)
+
     this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this)
     this.hintsRouter = new HintsRouter(this.logger, this.hintsService, this.authService, this.workspaceService)
     this.botsRouter.router.use('/content', this.contentRouter.router)

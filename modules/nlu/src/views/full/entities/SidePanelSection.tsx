@@ -5,12 +5,12 @@ import { Item, ItemList, SearchBar } from 'botpress/ui'
 import React, { FC, useState } from 'react'
 
 import { NluItem } from '..'
-import { NLUApi } from '../../../api'
+import { NLUApiClient } from '../../../api-client'
 
 import { EntityNameModal } from './EntityNameModal'
 
 interface Props {
-  api: NLUApi
+  api: NLUApiClient
   entities: NLU.EntityDefinition[]
   currentItem: NluItem
   setCurrentItem: (x: NluItem) => void

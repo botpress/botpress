@@ -5,7 +5,7 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect, useRef, useState } from 'react'
 
-import { NLUApi } from '../../../api'
+import { NLUApiClient } from '../../../api-client'
 
 import { ContextSelector } from './ContextSelector'
 import IntentHint from './IntentHint'
@@ -16,7 +16,7 @@ import { UtterancesEditor } from './UtterancesEditor'
 
 interface Props {
   intent: string
-  api: NLUApi
+  api: NLUApiClient
   contentLang: string
   showSlotPanel?: boolean
   liteEditor?: boolean

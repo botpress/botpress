@@ -1,15 +1,17 @@
 import * as sdk from 'botpress/sdk'
-import { EntityDefCreateSchema, IntentDefCreateSchema } from 'common/validation'
+
+// TODO: get rid of references to core and replace by internal typings / injection of dependencies
 import { CustomRouter } from 'core/routers/customRouter'
 import { checkTokenHeader, needPermissions } from 'core/routers/util'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { WorkspaceService } from 'core/services/workspace-service'
+
 import { RequestHandler, Router as ExpressRouter } from 'express'
 import { validate } from 'joi'
 import _ from 'lodash'
 import yn from 'yn'
-import { EntityRepository } from '../repositories/entity-repo'
-import { IntentRepository } from '../repositories/intent-repo'
+import { EntityRepository, IntentRepository } from '../typings'
+import { EntityDefCreateSchema, IntentDefCreateSchema } from './validate'
 
 const removeSlotsFromUtterances = (utterances: { [key: string]: any }, slotNames: string[]) =>
   _.fromPairs(
