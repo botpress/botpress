@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { BotDoesntSpeakLanguageError } from '../errors'
-import { Predictor, ProgressCallback, Trainer, I } from '../typings'
+import { Predictor, ProgressCallback, Trainable, I } from '../typings'
 
 import { IDefinitionsService } from './definitions-service'
 import { IModelRepository } from './infrastructure/model-repository'
@@ -16,7 +16,7 @@ interface BotDefinition {
 
 export type IBot = I<Bot>
 
-export class Bot implements Trainer, Predictor {
+export class Bot implements Trainable, Predictor {
   private _botId: string
   private _defaultLanguage: string
   private _languages: string[]
