@@ -1,9 +1,9 @@
 import * as sdk from 'botpress/sdk'
-import { sanitizeFileName } from 'core/misc/utils'
-import { SYSTEM_ENTITIES } from 'nlu/engine'
-import { GhostService } from '..'
+
+import { SYSTEM_ENTITIES } from 'common/nlu/engine'
+import { GhostService } from 'core/services'
 import * as CacheManager from './cache-manager'
-import { NLUService } from './nlu-service'
+import { sanitizeFileName } from './utils'
 
 const ENTITIES_DIR = './entities'
 
@@ -11,8 +11,16 @@ const getSystemEntities = (): sdk.NLU.EntityDefinition[] => {
   return [...SYSTEM_ENTITIES, 'any'].map(name => ({ name, type: 'system' })) as sdk.NLU.EntityDefinition[]
 }
 
-export class EntityService {
-  constructor(private ghostService: GhostService, private nluService: NLUService) {}
+type RenameListener = (botId: string, oldName: string, newName: string) => Promise<void>
+
+export class EntityRepository {
+  private _renameListeners: RenameListener[] = []
+
+  constructor(private ghostService: GhostService) {}
+
+  public listenForEntityRename(l: RenameListener) {
+    this._renameListeners.push(l)
+  }
 
   private entityExists(botId: string, entityName: string): Promise<boolean> {
     return this.ghostService.forBot(botId).fileExists(ENTITIES_DIR, `${entityName}.json`)
@@ -62,7 +70,7 @@ export class EntityService {
       CacheManager.copyCache(targetEntityName, entity.name, botId)
       await Promise.all([
         this.deleteEntity(botId, targetSanitized),
-        this.nluService.intents.updateIntentsSlotsEntities(botId, targetSanitized, nameSanitized)
+        this._renameListeners.forEach(l => l(botId, targetSanitized, nameSanitized))
       ])
     } else {
       // entity changed
