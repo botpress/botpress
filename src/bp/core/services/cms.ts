@@ -1,4 +1,6 @@
 import { ContentElement, ContentType, IO, KnexExtended, Logger, SearchParams } from 'botpress/sdk'
+import { EventEngine } from 'core/events/event-engine'
+import { LoggerProvider } from 'core/logger'
 import { renderRecursive, renderTemplate } from 'core/misc/templating'
 import { ModuleLoader } from 'core/module-loader'
 import { inject, injectable, tagged } from 'inversify'
@@ -10,7 +12,6 @@ import { VError } from 'verror'
 
 import { IDisposeOnExit } from '../../common/typings'
 import { ConfigProvider } from '../config/config-loader'
-import { LoggerProvider } from '../logger/logger'
 import { CodeFile, SafeCodeSandbox } from '../misc/code-sandbox'
 import { TYPES } from '../types'
 
@@ -58,7 +59,8 @@ export class CMSService implements IDisposeOnExit {
     @inject(TYPES.InMemoryDatabase) private memDb: KnexExtended,
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.MediaServiceProvider) private mediaServiceProvider: MediaServiceProvider,
-    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
+    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
+    @inject(TYPES.EventEngine) private eventEngine: EventEngine
   ) {}
 
   disposeOnExit() {
@@ -670,6 +672,11 @@ export class CMSService implements IDisposeOnExit {
     }
 
     return payloads
+  }
+
+  public renderForChannel(content: any, channel: string): any[] {
+    const type = this.contentTypes.find(x => x.id.includes(content.type))!
+    return type.renderElement({ ...content, ...this._getAdditionalData() }, channel)
   }
 
   /**
