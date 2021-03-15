@@ -8,7 +8,7 @@ import LRU from 'lru-cache'
 import ms from 'ms'
 import uuid from 'uuid'
 
-import { MessageRepository } from './messages-repository'
+import { MessageRepository } from './message-repository'
 
 @injectable()
 export class ConversationRepository {

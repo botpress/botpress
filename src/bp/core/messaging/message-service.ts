@@ -10,7 +10,7 @@ import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import LRU from 'lru-cache'
 import ms from 'ms'
 
-import { ConversationService, ScopedConversationService } from './conversations-service'
+import { ConversationService, ScopedConversationService } from './conversation-service'
 
 @injectable()
 export class MessageService {
