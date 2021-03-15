@@ -67,10 +67,6 @@ export class Bot implements Trainable, Predictor {
       const stringId = this._modelIdService.toString(modelId)
       throw new Error(`Model ${stringId} not found on file system.`)
     }
-    return this._load(model)
-  }
-
-  private _load = async (model: sdk.NLU.Model) => {
     this._modelsByLang[model.languageCode] = model
     await this._engine.loadModel(model)
   }
