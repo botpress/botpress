@@ -5,7 +5,7 @@ title: Deploying with Docker
 
 Docker is a set of platform-as-a-service products that use OS-level virtualization to deliver software in packages called containers.
 
-> For an optimised Docker experience, download [Docker Desktop.](https://www.docker.com/products/docker-desktop)
+> For an optimized Docker experience, download [Docker Desktop.](https://www.docker.com/products/docker-desktop)
 
 ## Using Remote Duckling & Language Server
 This command will run Botpress within a single container and use the remote Duckling and Language Server hosted by us. You can get the latest `stable` or `nightly` versions on [DockerHub](https://hub.docker.com/r/botpress/server/tags).
@@ -57,7 +57,7 @@ Digest: sha256:798b0fe332c5bb1b707eb62b30c8ed0a4e0609b3c712ee7201c5a7da7be50b7f
 Status: Downloaded newer image for botpress/server:v12_18_2
 bf038c6f84aaeec11773b93a9748bc6732d573a1c115523f1a3d28d20dc06cbe
 ```
-You will be able to access your instance of Botpress on the specified mapped port `-p 3000:3000` by visiting  http://localhost:3000/ and your container name will be myBotpress as specified at `--name myBotpress`. Your Docker Desktop will reflect the new container as below:
+You will be able to access your instance of Botpress on the specified mapped port `-p 3000:3000` by visiting  http://localhost:3000/, and your container name will be myBotpress as set at `--name myBotpress`. Your Docker Desktop will reflect the new container as below:
 
 ![Botpress Container on Docker](../assets/docker-new-instance.png)
 
