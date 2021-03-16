@@ -13,7 +13,7 @@ import _ from 'lodash'
 import ms from 'ms'
 
 import { TelemetryRepository } from '../telemetry-repository'
-import { BotHooks, getHooksLifecycle, Hook } from './hooks'
+import { BotHooks, getHooksLifecycle, Hook } from './hooks-stats'
 import { TelemetryStats } from './telemetry-stats'
 
 const PARSE_CONFIG = { allowReturnOutsideFunction: true }

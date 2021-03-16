@@ -70,7 +70,7 @@ const parseHookName = (hookName: string, isBuiltIn: boolean) => {
 }
 
 @injectable()
-export class HooksLifecycleStats extends TelemetryStats {
+export class HooksStats extends TelemetryStats {
   protected interval: number
   protected url: string
   protected lock: string
