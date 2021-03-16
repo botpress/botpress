@@ -1,5 +1,6 @@
 import { IO, Logger, NDU } from 'botpress/sdk'
-import { ConfigProvider } from 'core/config/config-loader'
+import { ConfigProvider } from 'core/config'
+import { StateManager } from 'core/dialog'
 import { EventEngine } from 'core/events'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { TYPES } from 'core/types'
@@ -9,7 +10,6 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 
-import { StateManager } from '../middleware/state-manager'
 import { DialogEngine } from './dialog-engine'
 
 interface SendSuggestionResult {

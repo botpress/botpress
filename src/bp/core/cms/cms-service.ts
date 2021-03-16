@@ -1,7 +1,8 @@
 import { ContentElement, ContentType, IO, KnexExtended, Logger, SearchParams } from 'botpress/sdk'
+import { ConfigProvider } from 'core/config'
 import { LoggerProvider } from 'core/logger'
-import { renderRecursive, renderTemplate } from 'core/misc/templating'
 import { ModuleLoader } from 'core/module-loader'
+import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
 import Joi from 'joi'
 import _ from 'lodash'
@@ -10,13 +11,12 @@ import path from 'path'
 import { VError } from 'verror'
 
 import { IDisposeOnExit } from '../../common/typings'
-import { ConfigProvider } from '../config/config-loader'
-import { CodeFile, SafeCodeSandbox } from '../misc/code-sandbox'
-import { TYPES } from '../types'
 
-import { GhostService } from '.'
-import { JobService } from './job-service'
-import { MediaServiceProvider } from './media'
+import { GhostService } from '../services'
+import { JobService } from '../services/job-service'
+import { MediaServiceProvider } from '../services/media'
+import { CodeFile, SafeCodeSandbox } from './code-sandbox'
+import { renderRecursive, renderTemplate } from './templating'
 
 const UNLIMITED_ELEMENTS = -1
 export const DefaultSearchParams: SearchParams = {

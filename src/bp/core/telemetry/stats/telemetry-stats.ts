@@ -3,14 +3,14 @@ import LicensingService from 'common/licensing-service'
 import { machineUUID } from 'common/stats'
 import { ServerStats } from 'common/telemetry'
 import Database from 'core/database'
-import { TelemetryRepository } from 'core/repositories/telemetry'
+import { GhostService } from 'core/services'
+import { JobService } from 'core/services/job-service'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import ms from 'ms'
 import yn from 'yn'
 
-import { GhostService } from '..'
-import { JobService } from '../job-service'
+import { TelemetryRepository } from '../telemetry-repository'
 
 const debug = DEBUG('telemetry')
 

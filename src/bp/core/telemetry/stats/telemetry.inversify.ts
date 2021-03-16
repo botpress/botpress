@@ -1,12 +1,12 @@
 import { TYPES } from 'core/types'
 import { ContainerModule, interfaces } from 'inversify'
 
-import { ActionsStats } from './actions'
-import { ConfigsStats } from './configs'
-import { HooksLifecycleStats } from './hooks'
+import { ActionsStats } from './actions-stats'
+import { ConfigsStats } from './configs-stats'
+import { HooksStats } from './hooks-stats'
 import { LegacyStats } from './legacy-stats'
 import { RolesStats } from './roles-stats'
-import { SDKStats } from './sdk-methods'
+import { SDKStats } from './sdk-stats'
 
 const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<ActionsStats>(TYPES.ActionStats)
@@ -25,8 +25,8 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
     .to(SDKStats)
     .inSingletonScope()
 
-  bind<HooksLifecycleStats>(TYPES.HooksStats)
-    .to(HooksLifecycleStats)
+  bind<HooksStats>(TYPES.HooksStats)
+    .to(HooksStats)
     .inSingletonScope()
 
   bind<ConfigsStats>(TYPES.ConfigsStats)

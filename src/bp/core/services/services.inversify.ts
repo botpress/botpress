@@ -1,14 +1,15 @@
 import { IO } from 'botpress/sdk'
 import LicensingService from 'common/licensing-service'
+import { CMSService } from 'core/cms'
 import { ConverseService } from 'core/converse'
 import { EventEngine, Queue, MemoryQueue } from 'core/events'
 import { KeyValueStore } from 'core/kvs'
 import { LogsJanitor, LogsService } from 'core/logger'
 import { DialogContainerModule } from 'core/services/dialog/dialog.inversify'
 import { CEJobService, JobService } from 'core/services/job-service'
+import { StatsService } from 'core/telemetry'
+import { TYPES } from 'core/types'
 import { ContainerModule, interfaces } from 'inversify'
-
-import { TYPES } from '../types'
 
 import ActionServersService from './action/action-servers-service'
 import ActionService from './action/action-service'
@@ -17,7 +18,6 @@ import { AuthStrategies, CEAuthStrategies } from './auth-strategies'
 import AuthService from './auth/auth-service'
 import { BotMonitoringService } from './bot-monitoring-service'
 import { BotService } from './bot-service'
-import { CMSService } from './cms'
 import { SkillService } from './dialog/skill/service'
 import { GhostContainerModule } from './ghost/ghost.inversify'
 import { HintsService } from './hints'
@@ -30,7 +30,6 @@ import { CEMonitoringService, MonitoringService } from './monitoring'
 import { NLUService } from './nlu/nlu-service'
 import { NotificationsService } from './notification/service'
 import RealtimeService from './realtime'
-import { StatsService } from './stats-service'
 
 const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<ConversationService>(TYPES.ConversationService)

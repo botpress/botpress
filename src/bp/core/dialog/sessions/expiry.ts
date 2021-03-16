@@ -1,5 +1,5 @@
 import { BotConfig } from 'botpress/sdk'
-import { BotpressConfig } from 'core/config/botpress.config'
+import { BotpressConfig } from 'core/config'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
