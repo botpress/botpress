@@ -4,8 +4,8 @@ import { authEvents, getUniqueVisitorId, setVisitorId } from '~/util/Auth'
 import { getToken } from '../../../../ui-shared-lite/auth'
 
 class EventBus extends EventEmitter2 {
-  private adminSocket
-  private guestSocket
+  private adminSocket: SocketIOClient.Socket
+  private guestSocket: SocketIOClient.Socket
   static default
 
   constructor() {
@@ -37,6 +37,10 @@ class EventBus extends EventEmitter2 {
     setVisitorId(newId, userIdScope)
   }
 
+  private updateVisitorSocketId() {
+    window.__BP_VISITOR_SOCKET_ID = this.guestSocket.id
+  }
+
   setup = (userIdScope?: string) => {
     const query = {
       visitorId: getUniqueVisitorId(userIdScope)
@@ -54,6 +58,7 @@ class EventBus extends EventEmitter2 {
 
     if (this.guestSocket) {
       this.guestSocket.off('event', this.dispatchSocketEvent)
+      this.guestSocket.off('connect', this.updateVisitorSocketId)
       this.guestSocket.disconnect()
     }
 
@@ -64,6 +69,8 @@ class EventBus extends EventEmitter2 {
     this.adminSocket.on('event', this.dispatchSocketEvent)
 
     this.guestSocket = io(`${socketUrl}/guest`, { query, transports, path: `${window['ROOT_PATH']}/socket.io` })
+
+    this.guestSocket.on('connect', this.updateVisitorSocketId.bind(this))
     this.guestSocket.on('event', this.dispatchSocketEvent)
   }
 }

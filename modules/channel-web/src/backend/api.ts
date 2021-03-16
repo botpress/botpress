@@ -161,12 +161,19 @@ export default async (bp: typeof sdk, db: Database) => {
   )
 
   router.post(
-    '/messages',
+    '/messages/:socketId',
     bp.http.extractExternalToken,
     assertUserInfo(),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { botId, userId } = req
       let { conversationId } = req
+
+      const socketId = req.params.socketId
+      const visitorId = bp.realtime.getVisitorIdFromSocketId(socketId)
+
+      if (!visitorId || userId !== visitorId) {
+        return res.sendStatus(403)
+      }
 
       const user = await bp.users.getOrCreateUser('web', userId, botId)
       const payload = req.body.payload || {}
@@ -205,9 +212,13 @@ export default async (bp: typeof sdk, db: Database) => {
         user.result
       )
 
-      return res.sendStatus(200)
+      res.sendStatus(200)
     })
   )
+
+  router.post('/messages', (req, res) => {
+    return res.sendStatus(301)
+  })
 
   router.post(
     '/messages/files',
@@ -411,6 +422,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const { botId, userId } = req
 
       const convoId = await db.createConversation(botId, userId)
+
       res.send({ convoId })
     })
   )

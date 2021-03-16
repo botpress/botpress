@@ -1867,6 +1867,7 @@ declare module 'botpress/sdk' {
      * @param payload The payload to send
      */
     export function sendPayload(payload: RealTimePayload)
+    export function getVisitorIdFromSocketId(roomId: string): undefined | string
   }
 
   // prettier-ignore

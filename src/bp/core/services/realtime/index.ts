@@ -1,4 +1,4 @@
-import { Logger, RealTimePayload } from 'botpress/sdk'
+import { IO, Logger, RealTimePayload } from 'botpress/sdk'
 import cookie from 'cookie'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
@@ -29,6 +29,7 @@ interface RedisAdapter extends Adapter {
 export default class RealtimeService {
   private readonly ee: EventEmitter2
   private useRedis: boolean
+  private guest?: socketio.Namespace
 
   constructor(
     @inject(TYPES.Logger)
@@ -54,9 +55,27 @@ export default class RealtimeService {
     return (eventName as string).startsWith('guest.')
   }
 
+  private makeVisitorRoomId(visitorId: string): string {
+    return `visitor:${visitorId}`
+  }
+
+  private unmakeVisitorId(roomId: string): string {
+    return roomId.split(':')[1]
+  }
+
   sendToSocket(payload: RealTimePayload) {
     debug('Send %o', payload)
     this.ee.emit(payload.eventName, payload.payload, 'server')
+  }
+
+  getVisitorIdFromSocketId(socketId: string): undefined | string {
+    const socket = this.guest?.sockets[socketId]
+    if (!socket) {
+      return
+    }
+    // might have to use .allRooms or something like that for the redis adapter
+    const roomId = Object.keys(socket.adapter.sids[socketId] || {}).filter(x => x !== socketId)[0]
+    return roomId ? this.unmakeVisitorId(roomId) : undefined
   }
 
   async installOnHttpServer(server: Server) {
@@ -149,13 +168,15 @@ export default class RealtimeService {
   }
 
   setupGuestSocket(guest: socketio.Namespace): void {
+    this.guest = guest
     guest.on('connection', socket => {
       const visitorId = _.get(socket, 'handshake.query.visitorId')
 
       if (visitorId && visitorId.length > 0) {
+        const roomId = this.makeVisitorRoomId(visitorId)
         if (this.useRedis) {
           const adapter = guest.adapter as RedisAdapter
-          adapter.remoteJoin(socket.id, 'visitor:' + visitorId, err => {
+          adapter.remoteJoin(socket.id, roomId, err => {
             if (err) {
               return this.logger
                 .attachError(err)
@@ -163,7 +184,9 @@ export default class RealtimeService {
             }
           })
         } else {
-          socket.join('visitor:' + visitorId)
+          // if we don't like the SIDs getter we can use CORE_EVENT to emit and implement caching in channel-web
+          // this would be duplicated code as caching is handled by socket IO and it's redis adapter counterpart
+          socket.join(roomId)
         }
       }
 

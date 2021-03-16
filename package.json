@@ -139,6 +139,7 @@
     "@types/redlock": "^4.0.0",
     "@types/seedrandom": "^2.4.28",
     "@types/socket.io": "^2.1.2",
+    "@types/socket.io-client": "^1.4.36",
     "@types/tmp": "^0.0.33",
     "@types/universal-analytics": "^0.4.2",
     "@types/verror": "^1.10.3",

@@ -135,7 +135,11 @@ export default class WebchatApi {
 
   async sendMessage(payload: any, conversationId: number): Promise<void> {
     try {
-      return this.axios.post('/messages', { userId: this.userId, conversationId, payload }, this.axiosConfig)
+      return this.axios.post(
+        `/messages/${encodeURIComponent(window.__BP_VISITOR_SOCKET_ID)}`,
+        { userId: this.userId, conversationId, payload },
+        this.axiosConfig
+      )
     } catch (err) {
       await this.handleApiError(err)
     }

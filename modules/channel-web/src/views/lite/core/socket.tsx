@@ -50,7 +50,12 @@ export default class BpSocket {
   public waitForUserId(): Promise<void> {
     return new Promise((resolve, reject) => {
       const interval = setInterval(() => {
-        if (typeof window.__BP_VISITOR_ID === 'string' && window.__BP_VISITOR_ID !== 'undefined') {
+        if (
+          typeof window.__BP_VISITOR_ID === 'string' &&
+          window.__BP_VISITOR_ID !== 'undefined' &&
+          typeof window.__BP_VISITOR_SOCKET_ID === 'string' &&
+          window.__BP_VISITOR_SOCKET_ID !== 'undefined'
+        ) {
           clearInterval(interval)
 
           this.userId = window.__BP_VISITOR_ID

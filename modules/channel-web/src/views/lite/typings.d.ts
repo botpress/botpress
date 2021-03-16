@@ -2,6 +2,7 @@ import { RootStore } from './store'
 
 declare global {
   interface Window {
+    __BP_VISITOR_SOCKET_ID: string
     __BP_VISITOR_ID: string
     botpressWebChat: any
     store: RootStore
