@@ -1,31 +1,14 @@
 import sdk from 'botpress/sdk'
+import Database from 'core/database'
 import { JobService } from 'core/services/job-service'
+import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
-
 import LRU from 'lru-cache'
 import ms from 'ms'
 import uuid from 'uuid'
-import Database from '../database'
-import { TYPES } from '../types'
-
-export interface MessageRepository {
-  list(filters: sdk.MessageListFilters): Promise<sdk.Message[]>
-  deleteAll(conversationId: sdk.uuid): Promise<number>
-  create(
-    conversationId: sdk.uuid,
-    payload: any,
-    from: string,
-    eventId?: string,
-    incomingEventId?: string
-  ): Promise<sdk.Message>
-  get(messageId: sdk.uuid): Promise<sdk.Message | undefined>
-  delete(messageId: sdk.uuid): Promise<boolean>
-  serialize(message: Partial<sdk.Message>)
-  deserialize(message: any): sdk.Message | undefined
-}
 
 @injectable()
-export class KnexMessageRepository implements MessageRepository {
+export class MessageRepository {
   private readonly TABLE_NAME = 'messages'
   private cache = new LRU<sdk.uuid, sdk.Message>({ max: 10000, maxAge: ms('5min') })
   private invalidateMsgCache: (ids: sdk.uuid[]) => void = this._localInvalidateMsgCache
