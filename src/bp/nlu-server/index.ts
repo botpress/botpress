@@ -6,7 +6,7 @@ import bytes from 'bytes'
 import chalk from 'chalk'
 import cluster from 'cluster'
 
-import { centerText } from 'core/logger'
+import { centerText } from 'core/logger/utils'
 import { copyDir } from 'core/misc/pkg-fs'
 import _ from 'lodash'
 import Engine from 'nlu-core/engine'
