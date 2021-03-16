@@ -406,9 +406,9 @@
     "workspaceName": "Workspace: {name}"
   },
   "langCodes": {
-    "en": "English",
-    "es": "Español",
-    "fr": "Français",
+    "en": "Inglês",
+    "es": "Espanhol",
+    "fr": "Francês",
     "pt": "Português"
   }
 }
