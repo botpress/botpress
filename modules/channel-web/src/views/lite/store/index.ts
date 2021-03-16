@@ -275,7 +275,6 @@ class RootStore {
       trackMessage('sent')
 
       this.composer.addMessageToHistory(userMessage)
-      this.composer.updateMessage('')
     } catch (e) {
       this.composer.updateMessage(userMessage)
       throw e
