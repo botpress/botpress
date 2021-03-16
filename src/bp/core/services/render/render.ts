@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { renderRecursive } from 'core/cms'
+import { renderRecursive } from 'core/cms/templating'
 import { injectable } from 'inversify'
 
 const __unrendered = <T>(payload: T): T => {
