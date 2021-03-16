@@ -73,7 +73,7 @@ export default class RealtimeService {
   async getVisitorIdFromSocketId(socketId: string): Promise<undefined | string> {
     const socket = this.guest?.sockets[socketId]
     if (!socket) {
-      return Promise.resolve(undefined)
+      return
     }
 
     let rooms: string[]

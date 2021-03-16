@@ -216,12 +216,8 @@ export default async (bp: typeof sdk, db: Database) => {
     })
   )
 
-  router.post('/messages', (req, res) => {
-    return res.sendStatus(301)
-  })
-
   router.post(
-    '/messages/files',
+    '/messages/:socketId/files',
     upload.single('file'),
     bp.http.extractExternalToken,
     assertUserInfo({ convoIdRequired: true }),
