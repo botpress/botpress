@@ -73,6 +73,11 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
 
     db.incrementMetric(event.botId, event.channel, 'msg_received_count')
 
+    // quick replies aren't counted as misunderstood
+    if (event.type === 'quick_reply') {
+      return next()
+    }
+
     // misunderstood messages
     const intentName = event?.nlu?.intent?.name
     if (intentName === 'none' || event?.nlu?.ambiguous) {
