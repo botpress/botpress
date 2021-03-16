@@ -194,8 +194,6 @@ export default class RealtimeService {
             }
           })
         } else {
-          // if we don't like the SIDs getter we can use CORE_EVENT to emit and implement caching in channel-web
-          // this would be duplicated code as caching is handled by socket IO and it's redis adapter counterpart
           socket.join(roomId)
         }
       }
