@@ -25,7 +25,7 @@ While in the directory where you want to host your instance of Botpress, run the
 After following the instructions above, your command line should look as follows:
 
 
-```js
+```bash
 $ yarn start
 yarn run v1.22.10
 $ cd ./out/bp && cross-env NODE_PATH=./ cross-env BP_MODULES_PATH=./data/modules/:../../modules:../../internal-modules node index.js
