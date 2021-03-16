@@ -169,7 +169,7 @@ export default async (bp: typeof sdk, db: Database) => {
       let { conversationId } = req
 
       const socketId = req.params.socketId
-      const visitorId = bp.realtime.getVisitorIdFromSocketId(socketId)
+      const visitorId = await bp.realtime.getVisitorIdFromSocketId(socketId)
 
       if (!visitorId || userId !== visitorId) {
         return res.sendStatus(403)

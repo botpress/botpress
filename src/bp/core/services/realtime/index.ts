@@ -23,6 +23,8 @@ export const getSocketTransports = (config: BotpressConfig): string[] => {
 
 interface RedisAdapter extends Adapter {
   remoteJoin: (socketId: string, roomId: string, callback: (err: any) => void) => void
+  allRooms: (callback: (err: Error, rooms: string[]) => void) => void
+  clientRooms: (socketId: string, callback: (err: Error, rooms: string[]) => void) => void
 }
 
 @injectable()
@@ -68,13 +70,21 @@ export default class RealtimeService {
     this.ee.emit(payload.eventName, payload.payload, 'server')
   }
 
-  getVisitorIdFromSocketId(socketId: string): undefined | string {
+  async getVisitorIdFromSocketId(socketId: string): Promise<undefined | string> {
     const socket = this.guest?.sockets[socketId]
     if (!socket) {
-      return
+      return Promise.resolve(undefined)
     }
-    // might have to use .allRooms or something like that for the redis adapter
-    const roomId = Object.keys(socket.adapter.sids[socketId] || {}).filter(x => x !== socketId)[0]
+
+    let rooms: string[]
+    if (this.useRedis) {
+      const adapter = socket.adapter as RedisAdapter
+      rooms = await Promise.fromCallback(cb => adapter.clientRooms(socketId, cb))
+    } else {
+      rooms = Object.keys(socket.adapter.sids[socketId] ?? {})
+    }
+
+    const roomId = rooms.filter(x => x !== socketId)[0]
     return roomId ? this.unmakeVisitorId(roomId) : undefined
   }
 
