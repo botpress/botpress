@@ -71,7 +71,22 @@
     "noSlotsToTag": "La sélection ne peut pas être marquée. Veuillez créer un paramètre d'abord.",
     "save": "Enregistrer",
     "tagSelectionLabel": "Marquer la sélection",
-    "tagSelectionMessage": "Sélectionnez un paramètre ou utilisez les chiffres pour choisir un élément"
+    "tagSelectionMessage": "Sélectionnez un paramètre ou utilisez les chiffres pour choisir un élément",
+    "names": {
+      "amountOfMoney": "Quantité de monnaie",
+      "distance": "distance",
+      "duration": "durée",
+      "email": "email",
+      "number": "nombre",
+      "ordinal": "ordinal",
+      "phoneNumber": "numéro de téléphone",
+      "quantity": "quantité",
+      "temperature": "température",
+      "time": "temps",
+      "url": "url",
+      "volume": "volume",
+      "any": "autre"
+    }
   },
   "title": "Compréhension du langage",
   "trainNow": "Entraîner maintenant"

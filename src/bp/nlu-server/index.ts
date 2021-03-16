@@ -5,13 +5,13 @@ import { NLU } from 'botpress/sdk'
 import bytes from 'bytes'
 import chalk from 'chalk'
 import cluster from 'cluster'
+
+import { centerText } from 'core/logger/utils'
 import { copyDir } from 'core/misc/pkg-fs'
 import _ from 'lodash'
 import Engine from 'nlu-core/engine'
 import path from 'path'
-
 import { setupMasterNode, WORKER_TYPES } from '../cluster'
-import center from '../core/logger/center'
 import { LogLevel } from '../core/sdk/enums'
 
 global.rewire = rewire as any
@@ -96,9 +96,9 @@ export default async function(options: ArgV) {
   const { nluVersion } = engine.getSpecifications()
 
   logger.info(chalk`========================================
-{bold ${center('Botpress Standalone NLU', 40, 9)}}
-{dim ${center(`Version ${nluVersion}`, 40, 9)}}
-{dim ${center(`OS ${process.distro}`, 40, 9)}}
+{bold ${centerText('Botpress Standalone NLU', 40, 9)}}
+{dim ${centerText(`Version ${nluVersion}`, 40, 9)}}
+{dim ${centerText(`OS ${process.distro}`, 40, 9)}}
 ${_.repeat(' ', 9)}========================================`)
 
   if (options.authToken?.length) {

@@ -1,5 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import lang from 'common/lang'
+import { addStepToEvent, EventCollector, StepScopes, StepStatus } from 'core/events/event-collector'
+import { EventEngine } from 'core/events/event-engine'
+import { LoggerDbPersister, LoggerFilePersister, LoggerProvider, LogsJanitor } from 'core/logger'
 import { copyDir } from 'core/misc/pkg-fs'
 import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
@@ -20,7 +23,6 @@ import { createForGlobalHooks } from './api'
 import { BotpressConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import Database from './database'
-import { LoggerDbPersister, LoggerFilePersister, LoggerProvider } from './logger'
 import { ModuleLoader } from './module-loader'
 import { WellKnownFlags } from './sdk/enums'
 import { Event } from './sdk/impl'
@@ -39,9 +41,6 @@ import { DialogJanitor } from './services/dialog/janitor'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { HintsService } from './services/hints'
 import { Hooks, HookService } from './services/hook/hook-service'
-import { LogsJanitor } from './services/logs/janitor'
-import { addStepToEvent, EventCollector, StepScopes, StepStatus } from './services/middleware/event-collector'
-import { EventEngine } from './services/middleware/event-engine'
 import { StateManager } from './services/middleware/state-manager'
 import { MigrationService } from './services/migration'
 import { MonitoringService } from './services/monitoring'
@@ -395,6 +394,9 @@ export class Botpress {
       this.eventCollector.storeEvent(event)
       await this.hookService.executeHook(new Hooks.BeforeOutgoingMiddleware(this.api, event))
     }
+
+    // Todo : remove this when channel renderers for builtin types are no longer needed
+    this.eventEngine.renderForChannel = this.cmsService.renderForChannel.bind(this.cmsService)
 
     this.decisionEngine.onBeforeSuggestionsElection = async (
       sessionId: string,
