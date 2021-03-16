@@ -17,7 +17,7 @@ Install (Yarn package manager)[https://yarnpkg.com/]
 While in the directory where you want to host your instance of Botpress, run the following commands in this sequence:
 
 - git clone git@github.com:botpress/botpress.git && cd ./botpress/ or git clone https://github.com/botpress/botpress.git && cd ./botpress/
-- yarn clean cache (proceed to the next step if this command fails)
+- yarn cache clean (proceed to the next step if this command fails)
 - yarn
 - yarn build
 - yarn start
