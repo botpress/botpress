@@ -49,7 +49,7 @@
     "training": "Entrenamiento",
     "ready": "Listo",
     "cancelTraining": "Cancelar entrenamiento",
-    "trainingPending": "Entrenamiento pendiente",    
+    "trainingPending": "Entrenamiento pendiente",
     "canceling": "Cancelando",
     "trainingError": "No se pudo entrenar el Chatbot"
   },
@@ -108,7 +108,7 @@
       "prevWorkflow": "Ir al flujo de trabajo anterior",
       "nextWorkflow": "Ir al siguiente flujo de trabajo",
       "endOfWorkflow": "Fin del flujo de trabajo",
-      "errorOccurred": "Ocurrió un error aquí",      
+      "errorOccurred": "Ocurrió un error aquí",
       "condition": {
         "addCondition": "Agregar condición",
         "backToList": "Volver a la lista",
@@ -341,7 +341,7 @@
     "showEmulator": "Mostrar Emulador",
     "toggleLogsPanel": "Mostrar Logs",
     "toggleEmulator": "Activar Emulador",
-    "toggleSidePanel": "Activar panel lateral",
+    "toggleSidePanel": "Activar panel lateral"
   },
   "bottomPanel": {
     "inspector": {
