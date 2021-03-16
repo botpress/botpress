@@ -1,5 +1,4 @@
 export * from './channel_users'
 export * from './metadata'
 export * from './data_retention'
-export * from './telemetry'
 export * from './migrations'

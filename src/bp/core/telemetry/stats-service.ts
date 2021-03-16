@@ -1,15 +1,15 @@
-import { TelemetryRepository } from 'core/repositories/telemetry'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import ms from 'ms'
 
-import { JobService } from './job-service'
-import { ActionsStats } from './telemetry/actions'
-import { ConfigsStats } from './telemetry/configs'
-import { HooksLifecycleStats } from './telemetry/hooks'
-import { LegacyStats } from './telemetry/legacy-stats'
-import { RolesStats } from './telemetry/roles-stats'
-import { SDKStats } from './telemetry/sdk-methods'
+import { JobService } from '../services/job-service'
+import { ActionsStats } from './stats/actions-stats'
+import { ConfigsStats } from './stats/configs-stats'
+import { HooksStats } from './stats/hooks-stats'
+import { LegacyStats } from './stats/legacy-stats'
+import { RolesStats } from './stats/roles-stats'
+import { SDKStats } from './stats/sdk-stats'
+import { TelemetryRepository } from './telemetry-repository'
 
 const DB_REFRESH_LOCK = 'botpress:telemetryDB'
 const DB_REFRESH_INTERVAL = ms('15 minute')
@@ -23,7 +23,7 @@ export class StatsService {
     @inject(TYPES.LegacyStats) private legacyStats: LegacyStats,
     @inject(TYPES.RolesStats) private rolesStats: RolesStats,
     @inject(TYPES.SDKStats) private sdkStats: SDKStats,
-    @inject(TYPES.HooksStats) private hooksStats: HooksLifecycleStats,
+    @inject(TYPES.HooksStats) private hooksStats: HooksStats,
     @inject(TYPES.ConfigsStats) private configStats: ConfigsStats
   ) {}
 

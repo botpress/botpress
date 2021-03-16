@@ -1,11 +1,11 @@
 import * as sdk from 'botpress/sdk'
-import { TelemetryRepository } from 'core/repositories/telemetry'
+import { CustomRouter } from 'core/routers/customRouter'
+import { checkTokenHeader } from 'core/routers/util'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { RequestHandler, Router } from 'express'
 import Joi from 'joi'
 
-import { CustomRouter } from './customRouter'
-import { checkTokenHeader } from './util'
+import { TelemetryRepository } from './telemetry-repository'
 
 export class TelemetryRouter extends CustomRouter {
   private checkTokenHeader: RequestHandler
