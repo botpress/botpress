@@ -9,7 +9,7 @@ import cluster from 'cluster'
 import { centerText } from 'core/logger/utils'
 import { copyDir } from 'core/misc/pkg-fs'
 import _ from 'lodash'
-import nluEngine from 'nlu/engine'
+import * as nluEngine from 'nlu/engine'
 import path from 'path'
 
 import { setupMasterNode, WORKER_TYPES } from '../../cluster'

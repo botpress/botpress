@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import bytes from 'bytes'
-import nluEngine from 'common/nlu/engine'
+import * as nluEngine from 'common/nlu/engine'
 import _ from 'lodash'
 
 import { Config } from '../../config'

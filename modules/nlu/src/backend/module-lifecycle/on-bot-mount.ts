@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import nluEngine from 'common/nlu/engine'
+import * as nluEngine from 'common/nlu/engine'
 import _ from 'lodash'
 import ms from 'ms'
 

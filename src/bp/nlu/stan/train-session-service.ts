@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 import LRUCache from 'lru-cache'
-import nluEngine from 'nlu/engine'
+import * as nluEngine from 'nlu/engine'
 
 import { TrainingSession } from './typings_v1'
 

@@ -1,5 +1,5 @@
 import { validate } from 'joi'
-import nluEngine from 'nlu/engine'
+import * as nluEngine from 'nlu/engine'
 import { isListEntity, isPatternEntity } from '../api-mapper'
 
 import {

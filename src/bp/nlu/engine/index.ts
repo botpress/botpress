@@ -2,7 +2,9 @@ import Engine from './engine'
 import { DUCKLING_ENTITIES } from './engine/entities/duckling-extractor/enums'
 import { isTrainingAlreadyStarted, isTrainingCanceled } from './errors'
 import _modelIdService from './model-id-service'
-import * as sdk from './typings'
+import { Config, Logger } from './typings'
+
+export * from './typings'
 
 export const SYSTEM_ENTITIES = DUCKLING_ENTITIES
 
@@ -11,7 +13,7 @@ export const errors = {
   isTrainingCanceled
 }
 
-export const makeEngine = async (config: sdk.Config, logger: sdk.Logger) => {
+export const makeEngine = async (config: Config, logger: Logger) => {
   const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = config
   const langConfig = { ducklingEnabled, ducklingURL, languageSources }
   const engine = new Engine({ maxCacheSize: modelCacheSize })
@@ -20,11 +22,3 @@ export const makeEngine = async (config: sdk.Config, logger: sdk.Logger) => {
 }
 
 export const modelIdService = _modelIdService
-
-const nluEngine: typeof sdk = {
-  SYSTEM_ENTITIES,
-  errors,
-  makeEngine,
-  modelIdService
-}
-export default nluEngine

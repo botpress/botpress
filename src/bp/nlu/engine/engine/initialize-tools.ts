@@ -1,6 +1,6 @@
-import MLToolkit from 'nlu/ml/toolkit'
 import path from 'path'
 import yn from 'yn'
+import MLToolkit from '../../ml/toolkit'
 import { Health, Specifications, LanguageConfig, Logger } from '../typings'
 import { DucklingEntityExtractor } from './entities/duckling-extractor'
 import { SystemEntityCacheManager } from './entities/entity-cache-manager'

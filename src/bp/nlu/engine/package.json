@@ -1,8 +1,0 @@
-{
-  "name": "engine",
-  "description": "Core implementation of NLU algorithms.",
-  "version": "2.1.0",
-  "main": "index.ts",
-  "license": "AGPL-3.0",
-  "types": "typings.d.ts"
-}

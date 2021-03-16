@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import nluEngine from 'nlu/engine'
+import * as nluEngine from 'nlu/engine'
 
 import {
   ContextPrediction,

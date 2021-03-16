@@ -1,8 +1,8 @@
 import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
-import { deserializeError, serializeError } from 'nlu/ml/error-utils'
-
 import { registerMsgHandler, spawnNewTrainingWorker, WORKER_TYPES } from '../../../../cluster'
+import { deserializeError, serializeError } from '../../../ml/error-utils'
+
 import { TrainingAlreadyStarted, TrainingCanceled, TrainingExitedUnexpectedly } from '../../errors'
 import { LanguageConfig, Logger } from '../../typings'
 import { initializeTools } from '../initialize-tools'

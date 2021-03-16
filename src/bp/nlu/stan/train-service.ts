@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 
-import nluEngine from 'nlu/engine'
+import * as nluEngine from 'nlu/engine'
 
 import ModelRepository from './model-repo'
 import TrainSessionService from './train-session-service'
