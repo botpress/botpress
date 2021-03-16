@@ -30,6 +30,5 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
           repository: botpress/botpress/botpress
-          always_pull: true
           path: out/binaries
           tag_with_sha: true
