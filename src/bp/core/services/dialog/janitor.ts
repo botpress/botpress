@@ -1,9 +1,9 @@
 import { BotConfig, IO, Logger } from 'botpress/sdk'
 import { BotpressConfig, ConfigProvider } from 'core/config'
 import { SessionRepository, createExpiry, SessionIdFactory } from 'core/dialog/sessions'
-import { UserRepository } from 'core/repositories'
 import { Event } from 'core/sdk/impl'
 import { TYPES } from 'core/types'
+import { ChannelUserRepository } from 'core/users'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
@@ -27,7 +27,7 @@ export class DialogJanitor extends Janitor {
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository,
-    @inject(TYPES.UserRepository) private userRepo: UserRepository
+    @inject(TYPES.UserRepository) private userRepo: ChannelUserRepository
   ) {
     super(logger)
   }

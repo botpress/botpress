@@ -1,15 +1,13 @@
 import { Logger } from 'botpress/sdk'
-import { UserRepository } from 'core/repositories'
+import { BotpressConfig, ConfigProvider } from 'core/config'
+import { Janitor } from 'core/services/janitor'
+import { TYPES } from 'core/types'
+import { ChannelUserRepository } from 'core/users'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 
-import { BotpressConfig } from '../../config/botpress.config'
-import { ConfigProvider } from '../../config/config-loader'
-import { TYPES } from '../../types'
-import { Janitor } from '../janitor'
-
-import { DataRetentionService } from './service'
+import { DataRetentionService } from './data-retention-service'
 
 @injectable()
 export class DataRetentionJanitor extends Janitor {
@@ -21,7 +19,7 @@ export class DataRetentionJanitor extends Janitor {
     protected logger: Logger,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService,
-    @inject(TYPES.UserRepository) private userRepo: UserRepository
+    @inject(TYPES.UserRepository) private userRepo: ChannelUserRepository
   ) {
     super(logger)
   }

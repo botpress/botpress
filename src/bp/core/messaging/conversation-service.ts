@@ -1,11 +1,11 @@
 import * as sdk from 'botpress/sdk'
-import { ConversationRepository } from 'core/repositories/conversations'
+import { ConversationRepository } from 'core/messaging'
+import { JobService } from 'core/services/job-service'
+import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import LRU from 'lru-cache'
 import ms from 'ms'
-import { TYPES } from '../../types'
-import { JobService } from '../job-service'
 
 @injectable()
 export class ConversationService {

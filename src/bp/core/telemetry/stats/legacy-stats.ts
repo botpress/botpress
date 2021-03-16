@@ -3,13 +3,13 @@ import { machineUUID } from 'common/stats'
 import { CMSService } from 'core/cms'
 import { ConfigProvider } from 'core/config'
 import Database from 'core/database'
-import { UserRepository } from 'core/repositories'
 import { GhostService } from 'core/services'
 import AuthService from 'core/services/auth/auth-service'
 import { BotService } from 'core/services/bot-service'
 import { JobService } from 'core/services/job-service'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { TYPES } from 'core/types'
+import { ChannelUserRepository } from 'core/users'
 import { inject, injectable } from 'inversify'
 import ms from 'ms'
 import os from 'os'
@@ -34,7 +34,7 @@ export class LegacyStats extends TelemetryStats {
     @inject(TYPES.ConfigProvider) private config: ConfigProvider,
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.AuthService) private authService: AuthService,
-    @inject(TYPES.UserRepository) private userRepository: UserRepository,
+    @inject(TYPES.UserRepository) private userRepository: ChannelUserRepository,
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService
   ) {
