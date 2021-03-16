@@ -394,8 +394,9 @@
     "workspaceName": "Espacio de trabajo: {name}"
   },
   "langCodes": {
-    "fr": "Francés",
-    "en": "Inglés",
-    "es": "Español"
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "pt": "Português"
   }
 }

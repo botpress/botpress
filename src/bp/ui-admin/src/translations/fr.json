@@ -404,5 +404,11 @@
       }
     },
     "workspaceName": "Espace de travail: {name}"
+  },
+  "langCodes": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "pt": "Português"
   }
 }
