@@ -174,6 +174,7 @@ export class ScopedFlowService {
   ) {
     this.cache = new ArrayCache<string, FlowView>(
       x => x.name,
+      // TODO not sure about this
       (x, pkey, nkey) => x
     )
   }
