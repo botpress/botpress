@@ -19,32 +19,34 @@ import pt from './pt.json'
 import ru from './ru.json'
 import uk from './uk.json'
 
-const DEFAULT_LOCALE = 'en'
-const translations = { en, fr, pt, es, ar, ru, uk, de, it }
-
 type Locale = 'browser' | string
 
-const getCleanLanguageCode = str => str.split('-')[0]
+const DEFAULT_LOCALE = 'en'
+const STORAGE_KEY = 'bp/channel-web/user-lang'
+const translations = { en, fr, pt, es, ar, ru, uk, de, it }
+
+const cleanLanguageCode = str => str.split('-')[0]
+const getNavigatorLanguage = () => cleanLanguageCode(navigator.language || navigator['userLanguage'] || '')
+const getStorageLanguage = () => cleanLanguageCode(window.BP_STORAGE?.get(STORAGE_KEY) || '')
 
 // Desired precedence
-// 1 - manual locale = 'browser' : browser
-// 2- manual locale = supported lang : manual locale
-// 3- storage lang = supported lang : storage lang
-// 3- browser lang = supported lang : browser lang
-// 4 - default lang
+// 1- manual locale = 'browser' : browser lang
+// 2- manual locale is supported : manual lang
+// 3- storage lang is supported : storage lang
+// 4- browser lang is supported : browser lang
+// 5- default lang
 const getUserLocale = (manualLocale: Locale = 'browser') => {
-  const browserLocale = getCleanLanguageCode(navigator.language || navigator['userLanguage'] || '')
-  const storageLocale = getCleanLanguageCode(window.BP_STORAGE?.get('bp/channel-web/user-lang') || '')
-
+  const browserLocale = getNavigatorLanguage()
   if (manualLocale === 'browser' && translations[browserLocale]) {
     return browserLocale
   }
 
-  manualLocale = getCleanLanguageCode(manualLocale)
+  manualLocale = cleanLanguageCode(manualLocale)
   if (translations[manualLocale]) {
     return manualLocale
   }
 
+  const storageLocale = getStorageLanguage()
   if (translations[storageLocale]) {
     return storageLocale
   }
