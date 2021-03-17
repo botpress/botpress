@@ -73,7 +73,6 @@ export namespace CacheInvalidators {
       }
 
       const relativePath = forceForwardSlashes(path.relative(process.PROJECT_LOCATION, path.dirname(file)))
-      this.cache.events.emit('invalidation', relativePath)
       await this.cache.invalidateStartingWith(relativePath)
     }
   }

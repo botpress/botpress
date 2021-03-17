@@ -12,30 +12,35 @@ import Database from './database'
 import { GhostService } from './services'
 import { TYPES } from './types'
 
-let botpress
-let logger: LoggerProvider | undefined
-let config: ConfigProvider | undefined
-let ghost: GhostService | undefined
-let database: Database | undefined
-let localActionServer: LocalActionServerImpl | undefined
-
-try {
-  botpress = container.get<Core>(TYPES.Botpress)
-  logger = container.get<LoggerProvider>(TYPES.LoggerProvider)
-  config = container.get<ConfigProvider>(TYPES.ConfigProvider)
-  ghost = container.get<GhostService>(TYPES.GhostService)
-  database = container.get<Database>(TYPES.Database)
-  localActionServer = container.get<LocalActionServerImpl>(TYPES.LocalActionServer)
-
-  const licensing = container.get<LicensingService>(TYPES.LicensingService)
-  licensing.installProtection()
-} catch (err) {
-  throw new FatalError(err, 'Error during initialization')
+export interface BotpressApp {
+  botpress: Core
+  logger: LoggerProvider
+  config: ConfigProvider
+  ghost: GhostService
+  database: Database
+  localActionServer: LocalActionServerImpl
 }
 
-export const Botpress = botpress
-export const Logger = logger!
-export const Config = config
-export const Ghost = ghost
-export const Db = database
-export const LocalActionServer = localActionServer
+export function createApp(): BotpressApp {
+  try {
+    const app = {
+      botpress: container.get<Core>(TYPES.Botpress),
+      logger: container.get<LoggerProvider>(TYPES.LoggerProvider),
+      config: container.get<ConfigProvider>(TYPES.ConfigProvider),
+      ghost: container.get<GhostService>(TYPES.GhostService),
+      database: container.get<Database>(TYPES.Database),
+      localActionServer: container.get<LocalActionServerImpl>(TYPES.LocalActionServer),
+      licensing: container.get<LicensingService>(TYPES.LicensingService)
+    }
+
+    app.licensing.installProtection()
+
+    return app
+  } catch (err) {
+    throw new FatalError(err, 'Error during initialization')
+  }
+}
+
+export function createLoggerProvider(): LoggerProvider {
+  return container.get<LoggerProvider>(TYPES.LoggerProvider)
+}
