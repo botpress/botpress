@@ -1,3 +1,7 @@
+// eslint-disable-next-line import/order
+import rewire from '../../sdk/rewire'
+// eslint-disable-next-line import/order
+
 import chalk from 'chalk'
 import { centerText } from 'core/logger/utils'
 import _ from 'lodash'
@@ -5,16 +9,12 @@ import path from 'path'
 
 import { LogLevel } from '../../core/sdk/enums'
 
-// eslint-disable-next-line import/order
-import rewire from '../../sdk/rewire'
-// eslint-disable-next-line import/order
-
-global.rewire = rewire as any
 import Logger from '../../simple-logger'
 import API, { APIOptions } from './api'
 import LanguageService from './service'
 import DownloadManager from './service/download-manager'
 
+global.rewire = rewire as any
 const debug = DEBUG('api')
 
 export interface ArgV {
