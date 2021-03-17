@@ -18,6 +18,7 @@ const ERR_MSG_TYPE = '`type` is required and must be valid'
 const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
 const ERR_BAD_LANGUAGE = '`language` is required and must be valid'
 const ERR_BAD_CONV_ID = "The conversation ID doesn't belong to that user"
+const ERR_BAD_USSER_ROOM_PAIR = '"userId and "socketId" pair does not match'
 
 const USER_ID_MAX_LENGTH = 40
 const SUPPORTED_MESSAGES = [
@@ -107,12 +108,21 @@ export default async (bp: typeof sdk, db: Database) => {
     statusCodes: { include: [200] }
   }).middleware
 
+  const userIdsocketIdPairMatches = async (userId: string, socketId: string) => {
+    const visitorId = await bp.realtime.getVisitorIdFromSocketId(socketId)
+    return visitorId && userId === visitorId
+  }
+
   const assertUserInfo = (options: { convoIdRequired?: boolean } = {}) => async (req: ChatRequest, _res, next) => {
     const { botId } = req.params
-    const { userId, conversationId } = req.body || {}
+    const { userId, conversationId, userSignature } = req.body || {}
 
     if (!validateUserId(userId)) {
       return next(ERR_USER_ID_REQ)
+    }
+
+    if (!(await userIdsocketIdPairMatches(userId, userSignature))) {
+      return next(ERR_BAD_USSER_ROOM_PAIR)
     }
 
     if (conversationId && conversationId !== 'null') {
@@ -161,19 +171,12 @@ export default async (bp: typeof sdk, db: Database) => {
   )
 
   router.post(
-    '/messages/:socketId',
+    '/messages',
     bp.http.extractExternalToken,
     assertUserInfo(),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { botId, userId } = req
       let { conversationId } = req
-
-      const socketId = req.params.socketId
-      const visitorId = await bp.realtime.getVisitorIdFromSocketId(socketId)
-
-      if (!visitorId || userId !== visitorId) {
-        return res.sendStatus(403)
-      }
 
       const user = await bp.users.getOrCreateUser('web', userId, botId)
       const payload = req.body.payload || {}
@@ -217,7 +220,7 @@ export default async (bp: typeof sdk, db: Database) => {
   )
 
   router.post(
-    '/messages/:socketId/files',
+    '/messages/files',
     upload.single('file'),
     bp.http.extractExternalToken,
     assertUserInfo({ convoIdRequired: true }),
@@ -399,7 +402,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
       await sendNewMessage(botId, userId, conversationId, payload, req.credentials)
 
-      const sessionId = await bp.dialog.createId({
+      const sessionId = bp.dialog.createId({
         botId,
         target: userId,
         threadId: conversationId.toString(),
