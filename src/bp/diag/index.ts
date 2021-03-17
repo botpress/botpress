@@ -6,7 +6,7 @@ import '../sdk/rewire'
 import { BotConfig } from 'botpress/sdk'
 
 import { Workspace } from 'common/typings'
-import { Db, Ghost } from 'core/app'
+import { BotpressApp, createApp } from 'core/app'
 import { getOrCreate as redisFactory } from 'core/services/redis'
 import fse from 'fs-extra'
 import IORedis from 'ioredis'
@@ -82,6 +82,7 @@ const PASSWORD_REGEX = new RegExp(/(.*):(.*)@(.*)/)
 const REDIS_TEST_KEY = 'botpress_redis_test_key'
 const REDIS_TEST_VALUE = nanoid()
 
+let app: BotpressApp
 let redisClient: IORedis.Redis
 let includePasswords = false
 let botpressConfig = undefined
@@ -96,7 +97,7 @@ export const print = (text: string) => {
 }
 
 const printModulesConfig = async (botId?: string) => {
-  const ghost = botId ? Ghost.forBot(botId) : Ghost.global()
+  const ghost = botId ? app.ghost.forBot(botId) : app.ghost.global()
   const configs = await ghost.directoryListing('config/', '*.json')
 
   await Promise.mapSeries(configs, async file => {
@@ -126,15 +127,15 @@ const testConnectivity = async () => {
   printHeader('Connectivity ')
 
   await wrapMethodCall('Connecting to Database', async () => {
-    await Db.initialize()
-    printRow('Database Type', Db.knex.isLite ? 'SQLite' : 'Postgres')
+    await app.database.initialize()
+    printRow('Database Type', app.database.knex.isLite ? 'SQLite' : 'Postgres')
 
-    if ((await Db.knex.raw('select 1+1 as result')) === undefined) {
+    if ((await app.database.knex.raw('select 1+1 as result')) === undefined) {
       throw new Error('Database error')
     }
 
     const useDbDriver = process.BPFS_STORAGE === 'database'
-    await Ghost.initialize(useDbDriver)
+    await app.ghost.initialize(useDbDriver)
   })
 
   if (process.env.CLUSTER_ENABLED && redisFactory) {
@@ -179,7 +180,7 @@ const testNetworkConnections = async () => {
   ]
 
   try {
-    const nluConfig = await Ghost.global().readFileAsObject<any>('config/', 'nlu.json')
+    const nluConfig = await app.ghost.global().readFileAsObject<any>('config/', 'nlu.json')
     const duckling = process.env.BP_MODULE_NLU_DUCKLINGURL || nluConfig?.ducklingURL
     const langServer =
       (process.env.BP_MODULE_NLU_LANGUAGESOURCES &&
@@ -200,10 +201,13 @@ const testNetworkConnections = async () => {
 
 const printDatabaseTables = async () => {
   let tables
-  if (Db.knex.isLite) {
-    tables = await Db.knex.raw("SELECT name FROM sqlite_master WHERE type='table'").then(res => res.map(x => x.name))
+  if (app.database.knex.isLite) {
+    tables = await app.database.knex
+      .raw("SELECT name FROM sqlite_master WHERE type='table'")
+      .then(res => res.map(x => x.name))
   } else {
-    tables = await Db.knex('pg_catalog.pg_tables')
+    tables = await app.database
+      .knex('pg_catalog.pg_tables')
       .select('tablename')
       .where({ schemaname: 'public' })
       .then(res => res.map(x => x.tablename))
@@ -245,13 +249,13 @@ const printConfig = async () => {
 }
 
 const printBotsList = async () => {
-  const workspaces = await Ghost.global().readFileAsObject<Workspace[]>('/', 'workspaces.json')
-  const botIds = (await Ghost.bots().directoryListing('/', 'bot.config.json')).map(path.dirname)
+  const workspaces = await app.ghost.global().readFileAsObject<Workspace[]>('/', 'workspaces.json')
+  const botIds = (await app.ghost.bots().directoryListing('/', 'bot.config.json')).map(path.dirname)
 
   await Promise.mapSeries(botIds, async botId => {
     printHeader(`Bot "${botId}" (workspace: ${workspaces.find(x => x.bots.includes(botId))?.id})`)
 
-    const botConfig = await Ghost.forBot(botId).readFileAsObject<BotConfig>('/', 'bot.config.json')
+    const botConfig = await app.ghost.forBot(botId).readFileAsObject<BotConfig>('/', 'bot.config.json')
     printObject(botConfig, includePasswords)
 
     await printModulesConfig(botId)
@@ -259,7 +263,8 @@ const printBotsList = async () => {
 }
 
 const printMigrationHistory = async () => {
-  const history = await Db.knex('srv_migrations')
+  const history = await app.database
+    .knex('srv_migrations')
     .select('*')
     .orderBy('created_at', 'desc')
 
@@ -272,6 +277,7 @@ const printMigrationHistory = async () => {
 }
 
 export default async function(options: Options) {
+  app = createApp()
   includePasswords = options.includePasswords || yn(process.env.BP_DIAG_INCLUDE_PASSWORDS)
   outputFile = options.outputFile || yn(process.env.BP_DIAG_OUTPUT)
 
@@ -281,7 +287,7 @@ export default async function(options: Options) {
   await testConnectivity()
   try {
     // Must be after the connectivity test, but before network connections so we have duckling/lang server urls
-    botpressConfig = await Ghost.global().readFileAsObject<any>('/', 'botpress.config.json')
+    botpressConfig = await app.ghost.global().readFileAsObject<any>('/', 'botpress.config.json')
   } catch (err) {}
 
   await testNetworkConnections()
