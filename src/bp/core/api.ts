@@ -34,6 +34,7 @@ import { MessageService } from './services/messaging/messages'
 import { StateManager } from './services/middleware/state-manager'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
+import { RenderService } from './services/render/render'
 import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
 
@@ -213,13 +214,15 @@ const distributed = (jobService: JobService): typeof sdk.distributed => {
 const experimental = (
   hookService: HookService,
   conversationService: ConversationService,
-  messageService: MessageService
+  messageService: MessageService,
+  renderService: RenderService
 ): typeof sdk.experimental => {
   return {
     disableHook: hookService.disableHook.bind(hookService),
     enableHook: hookService.enableHook.bind(hookService),
     conversations: conversations(conversationService),
-    messages: messages(messageService)
+    messages: messages(messageService),
+    render: render(renderService)
   }
 }
 
@@ -232,6 +235,23 @@ const conversations = (conversationService: ConversationService): typeof sdk.exp
 const messages = (messageService: MessageService): typeof sdk.experimental.messages => {
   return {
     forBot: messageService.forBot.bind(messageService)
+  }
+}
+
+const render = (renderService: RenderService): typeof sdk.experimental.render => {
+  return {
+    text: renderService.renderText.bind(renderService),
+    image: renderService.renderImage.bind(renderService),
+    card: renderService.renderCard.bind(renderService),
+    carousel: renderService.renderCarousel.bind(renderService),
+    choice: renderService.renderChoice.bind(renderService),
+    buttonSay: renderService.renderButtonSay.bind(renderService),
+    buttonUrl: renderService.renderButtonUrl.bind(renderService),
+    buttonPostback: renderService.renderButtonPostback.bind(renderService),
+    option: renderService.renderOption.bind(renderService),
+    translate: renderService.renderTranslated.bind(renderService),
+    template: renderService.renderTemplate.bind(renderService),
+    pipeline: renderService.getPipeline.bind(renderService)
   }
 }
 
@@ -288,7 +308,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.JobService) jobService: JobService,
     @inject(TYPES.StateManager) stateManager: StateManager,
     @inject(TYPES.ConversationService) conversationService: ConversationService,
-    @inject(TYPES.MessageService) messageService: MessageService
+    @inject(TYPES.MessageService) messageService: MessageService,
+    @inject(TYPES.RenderService) renderService: RenderService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
@@ -303,7 +324,7 @@ export class BotpressAPIProvider {
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService, mediaServiceProvider)
     this.mlToolkit = MLToolkit
-    this.experimental = experimental(hookService, conversationService, messageService)
+    this.experimental = experimental(hookService, conversationService, messageService, renderService)
     this.security = security()
     this.workspaces = workspaces(workspaceService)
     this.distributed = distributed(jobService)
