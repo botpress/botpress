@@ -1,4 +1,4 @@
-import { Flow, Logger, ScopedGhostService } from 'botpress/sdk'
+import { Flow, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { TreeSearch, PATH_SEPARATOR } from 'common/treeSearch'
 import { FlowMutex, FlowView, NodeView } from 'common/typings'
@@ -18,6 +18,7 @@ import nanoid from 'nanoid/generate'
 
 import { GhostService } from '../..'
 import { TYPES } from '../../../types'
+import { ScopedGhostService } from '../../ghost/service'
 import { validateFlowSchema } from '../validator'
 
 const PLACING_STEP = 250
