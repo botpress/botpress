@@ -72,8 +72,10 @@ export namespace CacheInvalidators {
         return
       }
 
-      const relativePath = forceForwardSlashes(path.relative(process.PROJECT_LOCATION, path.dirname(file)))
-      await this.cache.invalidateStartingWith(relativePath)
+      const relativePath = forceForwardSlashes(path.relative(process.PROJECT_LOCATION, file))
+      // TODO : why invalidate the whole folder?
+      await this.cache.invalidateStartingWith(path.dirname(relativePath))
+      this.cache.events.emit('userFileUpdate', relativePath)
     }
   }
 }

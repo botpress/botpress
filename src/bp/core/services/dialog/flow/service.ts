@@ -13,7 +13,9 @@ import Joi from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
+import LRUCache from 'lru-cache'
 import moment from 'moment'
+import ms from 'ms'
 import nanoid from 'nanoid/generate'
 
 import { GhostService } from '../..'
@@ -130,8 +132,8 @@ export class FlowService {
   }
 
   private _listenForCacheInvalidation() {
-    this.cache.events.on('invalidation', async (key: string) => {
-      const matches = key.match(/object::[\s\S]+\/bots\/([A-Z0-9-_]+)\/flows\/([\s\S]+(flow|ui)\.json)/i)
+    this.cache.events.on('userFileUpdate', async (key: string) => {
+      const matches = key.match(/^data\/bots\/([A-Z0-9-_]+)\/flows\/([\s\S]+(flow|ui)\.json)/i)
 
       if (matches && matches.length >= 2) {
         const [key, botId, flowName] = matches
@@ -161,6 +163,7 @@ export class FlowService {
 
 export class ScopedFlowService {
   private cache: ArrayCache<string, FlowView>
+  private expectedSavesCache: LRUCache<string, number>
 
   constructor(
     private botId: string,
@@ -177,6 +180,7 @@ export class ScopedFlowService {
       // TODO not sure about this
       (x, pkey, nkey) => x
     )
+    this.expectedSavesCache = new LRUCache({ max: 100, maxAge: ms('20s') })
   }
 
   public localInvalidateFlow(key: string, flow?: FlowView, newKey?: string) {
@@ -194,21 +198,21 @@ export class ScopedFlowService {
   }
 
   public async handleInvalidatedCache(flowName: string) {
-    // TODO make this work
-    /*
-    if (this._flowCache.isEmpty()) {
-      return
-    }
-
     const flowPath = this.toFlowPath(flowName)
+    const expectedSaves = this.expectedSavesCache.get(flowPath)
 
-    if (await this.ghost.fileExists(FLOW_DIR, flowPath)) {
-      const flow = await this.parseFlow(flowPath)
-
-      this._flowCache.upsertFlow(this.botId, flow)
+    if (!expectedSaves) {
+      if (await this.ghost.fileExists(FLOW_DIR, flowPath)) {
+        const flow = await this.parseFlow(flowPath)
+        this.invalidateFlow(flowPath, flow)
+      } else {
+        this.invalidateFlow(flowPath, undefined)
+      }
     } else {
-      this._flowCache.deleteFlow(this.botId, flowPath)
+      this.expectedSavesCache.set(flowPath, expectedSaves - 1)
     }
+
+    /* TODO : is this still necessary?
 
     // parent flows are only used by the NDU
     if (this._isOneFlow()) {
@@ -217,7 +221,14 @@ export class ScopedFlowService {
 
       this._flowCache.set(this.botId, flowsWithParents)
     }
+
     */
+  }
+
+  private incrementExpectedSaves(flowName: string) {
+    const current = this.expectedSavesCache.get(flowName)
+    // we increment by 2 because we always write the .flow and .ui at the same time
+    this.expectedSavesCache.set(flowName, current === undefined ? 2 : current + 2)
   }
 
   async loadAll(): Promise<FlowView[]> {
@@ -367,12 +378,13 @@ export class ScopedFlowService {
     const isNew = !flowFiles.find(x => flow.location === x)
     const { flowPath, uiPath, flowContent, uiContent } = await this.prepareSaveFlow(flow, isNew)
 
+    this.invalidateFlow(flow.name, flow)
+    this.incrementExpectedSaves(flow.name)
+
     await Promise.all([
       this.ghost.upsertFile(FLOW_DIR, flowPath!, JSON.stringify(flowContent, undefined, 2)),
       this.ghost.upsertFile(FLOW_DIR, uiPath, JSON.stringify(uiContent, undefined, 2))
     ])
-
-    this.invalidateFlow(flow.name, flow)
   }
 
   async deleteFlow(flowName: string, userEmail: string) {
@@ -385,9 +397,10 @@ export class ScopedFlowService {
     }
 
     const uiPath = this.toUiPath(fileToDelete)
-    await Promise.all([this.ghost.deleteFile(FLOW_DIR, fileToDelete!), this.ghost.deleteFile(FLOW_DIR, uiPath)])
 
     this.invalidateFlow(flowName)
+    this.incrementExpectedSaves(flowName)
+    await Promise.all([this.ghost.deleteFile(FLOW_DIR, fileToDelete!), this.ghost.deleteFile(FLOW_DIR, uiPath)])
 
     this.notifyChanges({
       name: flowName,
@@ -406,15 +419,16 @@ export class ScopedFlowService {
       throw new Error(`Can not rename a flow that does not exist: ${previousName}`)
     }
 
+    // TODO renaming doesn't really work at the moment
+    this.invalidateFlow(previousName, undefined, newName)
+    this.incrementExpectedSaves(newName)
+
     const previousUiName = this.toUiPath(fileToRename)
     const newUiName = this.toUiPath(newName)
     await Promise.all([
       this.ghost.renameFile(FLOW_DIR, fileToRename!, newName),
       this.ghost.renameFile(FLOW_DIR, previousUiName, newUiName)
     ])
-
-    // TODO renaming doesn't really work at the moment
-    this.invalidateFlow(previousName, undefined, newName)
 
     await this.moduleLoader.onFlowRenamed(this.botId, previousName, newName)
 
