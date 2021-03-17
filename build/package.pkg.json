@@ -11,7 +11,7 @@
       "./*.js",
       "./pro/**/*.js",
       "./common/**/*.js",
-      "./ml/**/*.js",
+      "./nlu/ml/**/*.js",
       "./nlu/engine/**/*.js",
       "./migrations/**/*.js"
     ],
