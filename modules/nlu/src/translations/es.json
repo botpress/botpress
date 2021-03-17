@@ -71,7 +71,22 @@
     "noSlotsToTag": "Selection can't be tagged. Define a slot first.",
     "save": "Guardar slot",
     "tagSelectionLabel": "Selección de etiquetas",
-    "tagSelectionMessage": "Haga clic en un slot o use números como métodos abreviados de teclado"
+    "tagSelectionMessage": "Haga clic en un slot o use números como métodos abreviados de teclado",
+    "names": {
+      "amountOfMoney": "Cantidad de dinero",
+      "distance": "distancia",
+      "duration": "duración",
+      "email": "email",
+      "number": "número",
+      "ordinal": "ordinal",
+      "phoneNumber": "teléfono",
+      "quantity": "cantidad",
+      "temperature": "temperatura",
+      "time": "tiempo",
+      "url": "url",
+      "volume": "volumen",
+      "any": "cualquier"
+    }
   },
   "title": "Reconocimiento del Lenguaje",
   "trainNow": "Entrenar ahora"
