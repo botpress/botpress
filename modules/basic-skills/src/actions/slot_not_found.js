@@ -11,8 +11,12 @@ const slotNotFound = async retryAttempts => {
     session.slots.notFound = 1
   }
 
-  if (session.slots.notFound < Math.min(Number(retryAttempts), hardLimit)) {
-    session.slots.notFound++
+  if (!temp.tryFillSlotCount) {
+    temp.tryFillSlotCount = 1
+  }
+
+  if (temp.tryFillSlotCount < Math.min(Number(retryAttempts), hardLimit)) {
+    temp.tryFillSlotCount++
   } else {
     temp.notExtracted = 'true'
   }
