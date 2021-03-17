@@ -419,7 +419,6 @@ export class ScopedFlowService {
       throw new Error(`Can not rename a flow that does not exist: ${previousName}`)
     }
 
-    // TODO renaming doesn't really work at the moment
     this.invalidateFlow(previousName, undefined, newName)
     this.incrementExpectedSaves(newName)
 
