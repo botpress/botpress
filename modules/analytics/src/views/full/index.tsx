@@ -500,6 +500,7 @@ const Analytics: FC<any> = ({ bp }) => {
           <div>
             {languages.map(i => (
               <FlatProgressChart
+                key={i.language}
                 value={i.value}
                 color="#F2B824"
                 name={`${lang.tr(`isoLangs.${i.language}.name`)}: ${i.value}`}

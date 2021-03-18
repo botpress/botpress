@@ -1179,8 +1179,8 @@ declare module 'botpress/sdk' {
       contentTypes: string[]
     }
     converse?: ConverseConfig
-    dialog?: DialogConfig
-    logs?: LogsConfig
+    dialog?: BotDialogConfig
+    logs?: BotLogsConfig
     defaultLanguage: string
     languages: string[]
     locked: boolean
@@ -1236,14 +1236,14 @@ declare module 'botpress/sdk' {
     coverPictureUrl?: string
   }
 
-  export interface LogsConfig {
+  export interface BotLogsConfig {
     expiration: string
   }
 
   /**
    * Configuration definition of Dialog Sessions
    */
-  export interface DialogConfig {
+  export interface BotDialogConfig {
     /** The interval until a session context expires */
     timeoutInterval: string
     /** The interval until a session expires */

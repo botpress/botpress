@@ -8,7 +8,7 @@ import 'reflect-metadata'
 import { Event } from '../../../core/sdk/impl'
 import { createMockLogger } from '../../misc/utils'
 
-import MemoryQueue from './memory-queue'
+import { MemoryQueue } from './memory-queue'
 
 describe('Lite Queues', () => {
   const options = { retries: 1 }
