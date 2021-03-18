@@ -184,7 +184,7 @@ export class ConfigProvider {
 
     // here it's ok to use the module resolver because we are discovering the built-in modules only
     const resolver = new ModuleResolver(this.logger)
-    return resolver.getModulesList().map(module => {
+    return (await resolver.getModulesList()).map(module => {
       return { location: `MODULES_ROOT/${module}`, enabled: enabledModules.includes(module) }
     })
   }

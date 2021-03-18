@@ -80,10 +80,9 @@ export class SDKStats extends TelemetryStats {
 
   private async getActionUsages(bots: string[]): Promise<SDKUsage> {
     const rootFolder = 'actions'
-    const globalActionsNames = await this.ghostService
-      .global()
-      .directoryListing('/', `${rootFolder}/*.js`)
-      .map(path => path.split('/').pop() || '')
+    const globalActionsNames = (await this.ghostService.global().directoryListing('/', `${rootFolder}/*.js`)).map(
+      path => path.split('/').pop() || ''
+    )
 
     const reducer = async (parsedFilesAcc, botId) => {
       try {
