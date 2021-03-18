@@ -360,7 +360,7 @@ try {
 
         getos.default().then(distro => {
           process.distro = distro
-          require('./lang-server').default(argv)
+          require('./nlu/lang-server').default(argv)
         })
       }
     )
@@ -430,7 +430,7 @@ try {
 
         getos.default().then(distro => {
           process.distro = distro
-          require('./nlu-server').default(argv)
+          require('./nlu/stan').default(argv)
         })
       }
     )

@@ -10,11 +10,14 @@ import {
 } from 'botpress/sdk'
 import { CHAT_USER_ROLE, defaultPipelines, defaultWorkspace } from 'common/defaults'
 import { AuthRole, CreateWorkspace, Pipeline, Workspace } from 'common/typings'
-import { StrategyUsersRepository } from 'core/collaborators/repositories/strategy_users'
-import { WorkspaceUsersRepository } from 'core/collaborators/repositories/workspace_users'
-import { ConfigProvider } from 'core/config/config-loader'
-import { WorkspaceInviteCode, WorkspaceInviteCodesRepository } from 'core/repositories'
+import { ConfigProvider } from 'core/config'
 import { ConflictError, NotFoundError } from 'core/routers/errors'
+import {
+  StrategyUsersRepository,
+  WorkspaceUsersRepository,
+  WorkspaceInviteCode,
+  WorkspaceInviteCodesRepository
+} from 'core/users'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
