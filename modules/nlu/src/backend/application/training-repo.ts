@@ -1,11 +1,11 @@
 import * as sdk from 'botpress/sdk'
 import { Transaction } from 'knex'
-import moment from 'moment'
 import { TrainingId, TrainingState, TrainingSession, I } from './typings'
 
 const TABLE_NAME = 'nlu_training_queue'
+const debug = DEBUG('nlu').sub('lifecycle')
 
-class TransactionContext {
+export class TransactionContext {
   constructor(protected _database: typeof sdk.database, public transaction: Transaction | null = null) {}
 
   private get table() {
@@ -35,8 +35,7 @@ class TransactionContext {
   public get = async (trainId: TrainingId): Promise<TrainingSession | undefined> => {
     const { botId, language } = trainId
 
-    return this._database
-      .from(TABLE_NAME)
+    return this.table
       .where({ botId, language })
       .select('*')
       .first()
@@ -47,10 +46,7 @@ class TransactionContext {
   }
 
   public query = async (query: Partial<TrainingSession>): Promise<TrainingSession[]> => {
-    return this._database
-      .from(TABLE_NAME)
-      .where(query)
-      .select('*')
+    return this.table.where(query).select('*')
   }
 
   public delete = async (trainId: TrainingId): Promise<void> => {
@@ -81,24 +77,27 @@ export class TrainingRepository extends TransactionContext implements TrainingRe
     })
   }
 
-  public inTransaction = async (action: (trx: TransactionContext) => Promise<void>) => {
-    this._database.transaction(async trx => {
+  public inTransaction = async (
+    action: (trx: TransactionContext) => Promise<any>,
+    name: string | null = null
+  ): Promise<any> => {
+    return this._database.transaction(async trx => {
       try {
+        debug(`Starting transaction ${name}`)
         const ctx = new TransactionContext(this._database, trx)
-        await action(ctx)
-        trx.commit()
+        const res = await action(ctx)
+        await trx.commit(res)
+        return res
       } catch (err) {
-        trx.rollback()
+        await trx.rollback(err)
+        debug(`Error in transaction: ${err}`)
+      } finally {
+        debug(`Finishing transaction ${name}`)
       }
     })
   }
-}
 
-export const isTrainingAlive = (training: TrainingSession, ms: number) => {
-  const now = moment()
-  const timeOfDeath = moment(now.clone()).subtract(ms, 'ms')
-
-  const { modifiedOn } = training
-  const lastlyUpdated = moment(modifiedOn)
-  return !lastlyUpdated.isBefore(timeOfDeath)
+  public teardown = async (): Promise<void[]> => {
+    return this.clear()
+  }
 }

@@ -2,9 +2,10 @@ import * as sdk from 'botpress/sdk'
 
 import _ from 'lodash'
 
+import moment from 'moment'
 import ms from 'ms'
 import nanoid from 'nanoid'
-import { ITrainingRepository, isTrainingAlive } from './training-repo'
+import { ITrainingRepository, TransactionContext } from './training-repo'
 import { TrainingId, TrainerService, TrainingListener, TrainingState, TrainingSession, I } from './typings'
 
 export interface TrainingQueueOptions {
@@ -20,7 +21,6 @@ const DEFAULT_STATE = { status: <sdk.NLU.TrainingStatus>'idle', progress: 0 }
 export type ITrainingQueue = I<TrainingQueue>
 
 const debug = DEBUG('nlu').sub('lifecycle')
-
 const TRAINING_LIFE_TIME = ms('5m')
 
 export class TrainingQueue {
@@ -49,14 +49,15 @@ export class TrainingQueue {
   }
 
   public async needsTraining(trainId: TrainingId): Promise<void> {
-    const currentTraining = await this._trainingRepo.get(trainId)
-    if (currentTraining?.status === 'training') {
-      return // do not notify socket if currently training
-    }
-
-    const newState = this._fillSate({ status: 'needs-training' })
-    await this._trainingRepo.set(trainId, newState)
-    return this._notify(trainId, newState)
+    await this._trainingRepo.inTransaction(async ctx => {
+      const currentTraining = await ctx.get(trainId)
+      if (currentTraining?.status === 'training') {
+        return // do not notify socket if currently training
+      }
+      const newState = this._fillSate({ status: 'needs-training' })
+      await ctx.set(trainId, newState)
+      return this._notify(trainId, newState)
+    }, 'needsTraining')
   }
 
   public queueTraining = async (trainId: TrainingId): Promise<void> => {
@@ -65,22 +66,29 @@ export class TrainingQueue {
       if (!currentTraining) {
         return
       }
+
       const isAlive = isTrainingAlive(currentTraining, TRAINING_LIFE_TIME)
-      if (currentTraining?.status === 'training-pending') {
+
+      if (currentTraining.status === 'training-pending') {
         debug(`Training ${this._toString(trainId)} already queued`)
         return
-      } else if (currentTraining?.status === 'training' && isAlive) {
+      } else if (currentTraining.status === 'training' && isAlive) {
         debug(`Training ${this._toString(trainId)} already started`)
         return
-      } else if (currentTraining?.status === 'training' && !isAlive) {
+      } else if (currentTraining.status === 'training' && !isAlive) {
         // occurs when app killed during training and rebooted
         this._logger.warn(`Training ${this._toString(trainId)} seems to be a zombie`)
       }
 
       const newState = this._fillSate({ status: 'training-pending' })
-      await this._trainingRepo.set(trainId, newState)
-      return this._notify(trainId, newState)
-    })
+      await ctx.set(trainId, newState)
+      await this._notify(trainId, newState)
+    }, 'queueTraining')
+    if (this._paused) {
+      return
+    }
+
+    return this.runTask()
   }
 
   public pause() {
@@ -93,36 +101,38 @@ export class TrainingQueue {
   }
 
   public async cancelTraining(trainId: TrainingId): Promise<void> {
-    const { botId, language } = trainId
+    await this._trainingRepo.inTransaction(async ctx => {
+      const { botId, language } = trainId
 
-    const currentTraining = await this._trainingRepo.get(trainId)
-    if (!currentTraining) {
-      return
-    }
-
-    if (currentTraining.status === 'training-pending') {
-      const newState = this._fillSate({ status: 'needs-training' })
-      await this._notify(trainId, newState)
-      return this._trainingRepo.set(trainId, newState)
-    }
-
-    if (currentTraining.status === 'training') {
-      await this._notify(trainId, this._fillSate({ status: 'canceled' }))
-
-      const trainer = this._trainerService.getBot(botId)
-      if (trainer) {
-        await trainer.cancelTraining(language)
-      } else {
-        // This case should never happend
-        this._logger.warn(`About to cancel training for ${botId}, but no bot found.`)
+      const currentTraining = await ctx.get(trainId)
+      if (!currentTraining) {
+        return
       }
 
-      const newState = this._fillSate({ status: 'needs-training' })
-      await this._trainingRepo.set(trainId, newState)
-      return this._notify(trainId, newState)
-    }
+      if (currentTraining.status === 'training-pending') {
+        const newState = this._fillSate({ status: 'needs-training' })
+        await this._notify(trainId, newState)
+        return ctx.set(trainId, newState)
+      }
 
-    debug(`No training canceled as ${botId} is not currently training language ${language}.`)
+      if (currentTraining.status === 'training') {
+        await this._notify(trainId, this._fillSate({ status: 'canceled' }))
+
+        const trainer = this._trainerService.getBot(botId)
+        if (trainer) {
+          await trainer.cancelTraining(language)
+        } else {
+          // This case should never happend
+          this._logger.warn(`About to cancel training for ${botId}, but no bot found.`)
+        }
+
+        const newState = this._fillSate({ status: 'needs-training' })
+        await ctx.set(trainId, newState)
+        return this._notify(trainId, newState)
+      }
+
+      debug(`No training canceled as ${botId} is not currently training language ${language}.`)
+    }, 'cancelTraining')
   }
 
   protected async loadModel(botId: string, modelId: sdk.NLU.ModelId): Promise<void> {
@@ -147,9 +157,9 @@ export class TrainingQueue {
     return this._trainingRepo.getAll()
   }
 
-  private _update = async (id: TrainingId, newState: TrainingState) => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    await this._trainingRepo.set(id, newState)
+  private _update = async (id: TrainingId, newState: TrainingState, context: TransactionContext | null = null) => {
+    const trx = context ? context : this._trainingRepo
+    await trx.set(id, newState)
     return this._notify(id, newState)
   }
 
@@ -158,29 +168,30 @@ export class TrainingQueue {
   }
 
   protected async runTask(): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    const localTrainings = await this._trainingRepo.query({ owner: this._workerId, status: 'training' })
-    if (localTrainings.length >= this._options.maxTraining) {
-      return
-    }
+    await this._trainingRepo.inTransaction(async ctx => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      const localTrainings = await ctx.query({ owner: this._workerId, status: 'training' })
+      if (localTrainings.length >= this._options.maxTraining) {
+        return
+      }
 
-    const pendings = await this._trainingRepo.query({ status: 'training-pending' })
-    const mountedPendings = pendings.filter(t => this._trainerService.hasBot(t.botId))
-    if (mountedPendings.length <= 0) {
-      return
-    }
+      const pendings = await ctx.query({ status: 'training-pending' })
+      const mountedPendings = pendings.filter(t => this._trainerService.hasBot(t.botId))
+      if (mountedPendings.length <= 0) {
+        return
+      }
 
-    const { botId, language } = pendings[0]
-    const next = { botId, language }
+      const { botId, language } = pendings[0]
+      const trainId = { botId, language }
 
-    const newState = this._fillSate({ status: 'training' })
-    await this._trainingRepo.set(next, newState) // wait for the first progress update to notify socket
+      const newState = this._fillSate({ status: 'training' })
+      await ctx.set(trainId, newState) // wait for the first progress update to notify socket
 
-    debug(`training ${this._toString(next)} is about to start.`)
-
-    // floating promise to return fast from task
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this._train(next)
+      debug(`training ${this._toString(trainId)} is about to start.`)
+      // floating promise to return fast from task
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this._train(trainId)
+    }, 'runTask')
   }
 
   private _train = async (trainId: TrainingId) => {
@@ -247,4 +258,17 @@ export class TrainingQueue {
     const modifiedOn = new Date()
     return { status, owner, modifiedOn, progress: progress ?? 0 }
   }
+
+  public teardown = async (): Promise<void[]> => {
+    return this._trainingRepo.teardown()
+  }
+}
+
+const isTrainingAlive = (training: TrainingSession, ms: number) => {
+  const now = moment()
+  const timeOfDeath = moment(now.clone()).subtract(ms, 'ms')
+
+  const { modifiedOn } = training
+  const lastlyUpdated = moment(modifiedOn)
+  return !lastlyUpdated.isBefore(timeOfDeath)
 }
