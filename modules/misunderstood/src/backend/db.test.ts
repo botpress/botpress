@@ -14,8 +14,9 @@ import Database from '../../../../src/bp/core/database'
 
 import { createDatabaseSuite } from '../../../../src/bp/core/database/index.tests'
 
-createDatabaseSuite('Misunderstood', (database: Database) => {
+createDatabaseSuite('Misunderstood - DB', (database: Database) => {
   const db = new Db({ database: database.knex })
+
   beforeAll(async () => {
     db.knex = database.knex
     await db.initialize()
@@ -27,7 +28,15 @@ createDatabaseSuite('Misunderstood', (database: Database) => {
     }
   })
 
-  describe('Get', () => {
+  describe('listEvents', () => {
+    it('Returns no events when none in table', async () => {
+      const botId = 'mybot'
+      const eventId = '1234'
+      const language = 'en'
+
+      const events = await db.listEvents(botId, language, FLAGGED_MESSAGE_STATUS.new)
+      expect(events).toHaveLength(0)
+    })
     it("Returns undefined if key doesn't exist", async () => {
       const botId = 'mybot'
       const eventId = '1234'
