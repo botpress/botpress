@@ -12,7 +12,6 @@ import { DistributedTrainingQueue } from './application/distributed-training-que
 import { ScopedDefinitionsRepository } from './application/scoped/infrastructure/definitions-repository'
 import { ScopedModelRepository } from './application/scoped/infrastructure/model-repository'
 import { TrainingRepository } from './application/training-repo'
-import { TrainingService } from './application/training-service'
 import { BotDefinition } from './application/typings'
 
 export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
@@ -54,9 +53,8 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
   const botFactory = new BotFactory(engine, bp.logger, bp.NLU.modelIdService, makeDefRepo, makeModelRepo)
 
   const trainRepo = new TrainingRepository(bp.database)
-  const concurentTrainingRepository = new TrainingService(trainRepo, bp.distributed, bp.logger)
   const memoryTrainingQueue = new DistributedTrainingQueue(
-    concurentTrainingRepository,
+    trainRepo,
     bp.NLU.errors,
     bp.logger,
     botService,

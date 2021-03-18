@@ -1,10 +1,69 @@
 import * as sdk from 'botpress/sdk'
+import { Transaction } from 'knex'
+import moment from 'moment'
 import { TrainingId, TrainingState, TrainingSession, I } from './typings'
 
 const TABLE_NAME = 'nlu_training_queue'
 
-export type ITrainingRepository = I<TrainingRepository>
+class TransactionContext {
+  constructor(protected _database: typeof sdk.database, public transaction: Transaction | null = null) {}
 
+  private get table() {
+    if (this.transaction) {
+      return this._database.table(TABLE_NAME).transacting(this.transaction)
+    }
+    return this._database.table(TABLE_NAME)
+  }
+
+  public set = async (trainId: TrainingId, trainState: TrainingState): Promise<void> => {
+    const { botId, language } = trainId
+    const { progress, status, owner } = trainState
+
+    const modifiedOn = this._database.date.now()
+    if (await this.has({ botId, language })) {
+      return this.table.where({ botId, language }).update({ progress, status, modifiedOn })
+    }
+    return this.table.insert({ botId, language, progress, status, modifiedOn, owner })
+  }
+
+  public has = async (trainId: TrainingId): Promise<boolean> => {
+    const { botId, language } = trainId
+    const result = !!(await this.get({ botId, language }))
+    return result
+  }
+
+  public get = async (trainId: TrainingId): Promise<TrainingSession | undefined> => {
+    const { botId, language } = trainId
+
+    return this._database
+      .from(TABLE_NAME)
+      .where({ botId, language })
+      .select('*')
+      .first()
+  }
+
+  public getAll = async (): Promise<TrainingSession[]> => {
+    return this.table.select('*')
+  }
+
+  public query = async (query: Partial<TrainingSession>): Promise<TrainingSession[]> => {
+    return this._database
+      .from(TABLE_NAME)
+      .where(query)
+      .select('*')
+  }
+
+  public delete = async (trainId: TrainingId): Promise<void> => {
+    const { botId, language } = trainId
+    return this.table.where({ botId, language }).delete()
+  }
+
+  public clear = async (): Promise<void[]> => {
+    return this.table.delete('*')
+  }
+}
+
+export type ITrainingRepository = I<TrainingRepository>
 export class TrainingRepository implements TrainingRepository {
   constructor(private _database: typeof sdk.database) {}
 
@@ -17,6 +76,30 @@ export class TrainingRepository implements TrainingRepository {
       table.float('progress').notNullable()
       table.timestamp('modifiedOn').notNullable()
       table.primary(['botId', 'language'])
+    })
+  }
+
+  public atomically<T>(action: () => Promise<T>) {
+    return this._database.transaction(async trx => {
+      try {
+        this._database.table(TABLE_NAME).transacting(trx)
+        const data = await action()
+        return trx.commit(data)
+      } catch (err) {
+        return trx.rollback(err)
+      }
+    })
+  }
+
+  public inTransaction = async (action: (trx: TransactionContext) => Promise<void>) => {
+    this._database.transaction(async trx => {
+      try {
+        const ctx = new TransactionContext(this._database, trx)
+        await action(ctx)
+        trx.commit()
+      } catch (err) {
+        trx.rollback()
+      }
     })
   }
 
@@ -71,4 +154,13 @@ export class TrainingRepository implements TrainingRepository {
   public clear = async (): Promise<void[]> => {
     return this._database.from(TABLE_NAME).delete('*')
   }
+}
+
+export const isTrainingAlive = (training: TrainingSession, ms: number) => {
+  const now = moment()
+  const timeOfDeath = moment(now.clone()).subtract(ms, 'ms')
+
+  const { modifiedOn } = training
+  const lastlyUpdated = moment(modifiedOn)
+  return !lastlyUpdated.isBefore(timeOfDeath)
 }
