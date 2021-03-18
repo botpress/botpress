@@ -1,6 +1,6 @@
 import { BUILTIN_MODULES } from 'common/defaults'
 import { ActionScope } from 'common/typings'
-import { requireAtPaths } from 'core/modules/require'
+import { requireAtPaths } from 'core/modules/utils/require'
 import path from 'path'
 
 export const getBaseLookupPaths = (fullPath: string, lastPathPart: string) => {

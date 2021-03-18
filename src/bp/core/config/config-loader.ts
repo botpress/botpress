@@ -1,7 +1,7 @@
 import { BotConfig, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { calculateHash, stringify } from 'core/misc/utils'
-import ModuleResolver from 'core/modules/resolver'
+import { ModuleResolver } from 'core/modules'
 import { GhostService } from 'core/services'
 import { TYPES } from 'core/types'
 import { FatalError } from 'errors'
