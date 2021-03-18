@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import ms from 'ms'
 
-import { addStepToEvent, StepScopes, StepStatus } from './event-collector'
+import { addStepToEvent, StepScopes, StepStatus } from './utils'
 
 interface MiddlewareChainOptions {
   timeoutInMs: number

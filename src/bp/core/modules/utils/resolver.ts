@@ -30,7 +30,7 @@ if (process.env.BP_PATH) {
 /** Makes path with forward slashes work on all OS */
 const fixPathForOS = p => p.replace(/\/\//g, '/').replace(/\//g, path.sep)
 
-export default class ModuleResolver {
+export class ModuleResolver {
   unpacker: Unpacker
 
   constructor(@inject(TYPES.Logger) private logger: Logger) {

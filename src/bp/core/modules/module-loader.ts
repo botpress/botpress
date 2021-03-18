@@ -10,6 +10,8 @@ import {
   Skill
 } from 'botpress/sdk'
 import { ModuleInfo } from 'common/typings'
+import { ConfigProvider } from 'core/config'
+import { TYPES } from 'core/types'
 import { ValidationError } from 'errors'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
@@ -18,16 +20,14 @@ import _ from 'lodash'
 import path from 'path'
 import tmp from 'tmp'
 
-import { createForModule } from './api' // TODO
-import { ConfigProvider } from './config/config-loader'
-import { extractArchive } from './misc/archive'
-import { clearModuleScriptCache } from './modules/require'
-import ModuleResolver from './modules/resolver'
-import { GhostService } from './services'
-import { BotService } from './services/bot-service'
-import ConfigReader from './services/module/config-reader'
-import { ModuleResourceLoader } from './services/module/resources-loader'
-import { TYPES } from './types'
+import { createForModule } from '../api' // TODO
+import { extractArchive } from '../misc/archive'
+import { GhostService } from '../services'
+import { BotService } from '../services/bot-service'
+import { ConfigReader } from './config-reader'
+import { ModuleResourceLoader } from './module-resources-loader'
+import { clearModuleScriptCache } from './utils/require'
+import { ModuleResolver } from './utils/resolver'
 
 const MODULE_SCHEMA = joi.object().keys({
   onServerStarted: joi.func().optional(),

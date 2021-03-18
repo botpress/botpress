@@ -1,22 +1,14 @@
 import { Paging, User } from 'botpress/sdk'
+import Database from 'core/database'
 import { JobService } from 'core/services/job-service'
-import { DataRetentionService } from 'core/services/retention/service'
+import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
 import LRU from 'lru-cache'
 import ms from 'ms'
 
-import Database from '../database'
-import { TYPES } from '../types'
-export interface UserRepository {
-  getOrCreate(channel: string, id: string, botId?: string): Knex.GetOrCreateResult<User>
-  updateAttributes(channel: string, id: string, attributes: any): Promise<void>
-  setAttributes(channel: string, id: string, attributes: any, trx?: Knex.Transaction): Promise<void>
-  getAttributes(channel: string, id: string): Promise<any>
-  getAllUsers(paging?: Paging): Promise<any>
-  getUserCount(): Promise<any>
-}
+import { DataRetentionService } from '../data-retention/data-retention-service'
 
 interface Row {
   channel: string
@@ -25,7 +17,7 @@ interface Row {
 }
 
 @injectable()
-export class KnexUserRepository implements UserRepository {
+export class ChannelUserRepository {
   private readonly tableName = 'srv_channel_users'
   private readonly botUsersTableName = 'bot_chat_users'
 

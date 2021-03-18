@@ -1,17 +1,15 @@
 import { IO } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
 import { EventEngine } from 'core/events'
-import { UserRepository } from 'core/repositories'
+import { MessageService, ConversationService } from 'core/messaging'
 import { TYPES } from 'core/types'
+import { ChannelUserRepository } from 'core/users'
 import { InvalidParameterError } from 'errors'
 import { EventEmitter2 } from 'eventemitter2'
 import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import ms from 'ms'
-
-import { ConversationService } from '../services/messaging/conversations'
-import { MessageService } from '../services/messaging/messages'
 
 export const converseApiEvents = new EventEmitter2()
 
@@ -32,7 +30,7 @@ export class ConverseService {
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.UserRepository) private userRepository: UserRepository,
+    @inject(TYPES.UserRepository) private userRepository: ChannelUserRepository,
     @inject(TYPES.ConversationService) private conversationService: ConversationService,
     @inject(TYPES.MessageService) private messageService: MessageService
   ) {}

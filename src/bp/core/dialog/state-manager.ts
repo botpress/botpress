@@ -2,8 +2,8 @@ import * as sdk from 'botpress/sdk'
 import { BotpressConfig, ConfigProvider } from 'core/config'
 import Database from 'core/database'
 import { KeyValueStore } from 'core/kvs'
-import { UserRepository } from 'core/repositories'
 import { TYPES } from 'core/types'
+import { ChannelUserRepository } from 'core/users'
 import { inject, injectable, tagged } from 'inversify'
 import { Redis } from 'ioredis'
 import Knex from 'knex'
@@ -35,7 +35,7 @@ export class StateManager {
     @tagged('name', 'StateManager')
     private logger: sdk.Logger,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
-    @inject(TYPES.UserRepository) private userRepo: UserRepository,
+    @inject(TYPES.UserRepository) private userRepo: ChannelUserRepository,
     @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository,
     @inject(TYPES.KeyValueStore) private kvs: KeyValueStore,
     @inject(TYPES.Database) private database: Database,

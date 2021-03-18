@@ -1,19 +1,17 @@
 import { FlowGeneratorMetadata, Logger } from 'botpress/sdk'
 import { UnexpectedError } from 'common/http'
 import { ModuleInfo } from 'common/typings'
-import { ConfigProvider } from 'core/config/config-loader'
-import ModuleResolver from 'core/modules/resolver'
+import { ConfigProvider } from 'core/config'
+import { ModuleResolver, ModuleLoader } from 'core/modules'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 import yn from 'yn'
 
-import { ModuleLoader } from '../module-loader'
+import { CustomRouter } from '../routers/customRouter'
+import { NotFoundError } from '../routers/errors'
+import { assertSuperAdmin, checkTokenHeader } from '../routers/util'
 import { SkillService } from '../services/dialog/skill/service'
-
-import { CustomRouter } from './customRouter'
-import { NotFoundError } from './errors'
-import { assertSuperAdmin, checkTokenHeader } from './util'
 
 export class ModulesRouter extends CustomRouter {
   private checkTokenHeader!: RequestHandler

@@ -1,12 +1,11 @@
 import { Logger } from 'botpress/sdk'
+import { GhostService } from 'core/services'
 import crypto from 'crypto'
 import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
 import glob from 'glob'
 import os from 'os'
 import path from 'path'
-
-import { GhostService } from '../ghost/service'
 
 const debug = DEBUG('initialization')
   .sub('modules')
