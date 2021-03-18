@@ -1,10 +1,21 @@
+import { parseUtterance } from 'common/utterance-parser'
 import _ from 'lodash'
 import { MarkJSON, NodeJSON, TextJSON, Value, ValueJSON } from 'slate'
 
-// this mess i temporary...
-import { ParsedSlot, parseUtterance } from '../../../../../../src/bp/nlu-core/utterance/utterance-parser'
-
 export const SLOT_MARK = 'slotName'
+
+interface ParsedSlot {
+  name: string
+  value: string
+  rawPosition: {
+    start: number
+    end: number
+  }
+  cleanPosition: {
+    start: number
+    end: number
+  }
+}
 
 const textNode = (text: string, from: number, to: number | undefined = undefined): TextJSON => ({
   object: 'text',

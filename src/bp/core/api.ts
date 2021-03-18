@@ -18,10 +18,7 @@ import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
-import MLToolkit from 'ml/toolkit'
-import Engine from 'nlu-core/engine'
-import { isTrainingAlreadyStarted, isTrainingCanceled } from 'nlu-core/errors'
-import modelIdService from 'nlu-core/model-id-service'
+import MLToolkit from 'nlu/ml/toolkit'
 
 import { container } from './app.inversify'
 
@@ -358,21 +355,7 @@ export class BotpressAPIProvider {
       security: this.security,
       experimental: this.experimental,
       workspaces: this.workspaces,
-      distributed: this.distributed,
-      NLU: {
-        makeEngine: async (config: sdk.NLU.Config, logger: sdk.NLU.Logger) => {
-          const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = config
-          const langConfig = { ducklingEnabled, ducklingURL, languageSources }
-          const engine = new Engine({ maxCacheSize: modelCacheSize })
-          await engine.initialize(langConfig, logger)
-          return engine
-        },
-        errors: {
-          isTrainingAlreadyStarted,
-          isTrainingCanceled
-        },
-        modelIdService
-      }
+      distributed: this.distributed
     }
   }
 }
