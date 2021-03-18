@@ -1,16 +1,17 @@
-import { AdminServices } from 'admin'
+import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
+
 import _ from 'lodash'
 
-class MonitoringRouter extends CustomAdminRouter {
+class AlertingRouter extends CustomAdminRouter {
   constructor(services: AdminServices) {
-    super('Monitoring', services)
+    super('Alerting', services)
     this.setupRoutes()
   }
 
   setupRoutes() {
     this.router.post(
-      '/',
+      '/incidents',
       this.asyncMiddleware(async (req, res) => {
         const { fromTime, toTime } = req.body
         if (!_.isNumber(fromTime) || !_.isNumber(toTime)) {
@@ -18,14 +19,14 @@ class MonitoringRouter extends CustomAdminRouter {
         }
 
         const config = await this.configProvider.getBotpressConfig()
-        if (!_.get(config, 'pro.monitoring.enabled', false)) {
+        if (!_.get(config, 'pro.alerting.enabled', false)) {
           return res.send(undefined)
         }
 
-        res.send(await this.monitoringService.getStats(fromTime, toTime))
+        res.send(await this.alertingService.getIncidents(fromTime, toTime))
       })
     )
   }
 }
 
-export default MonitoringRouter
+export default AlertingRouter

@@ -1,4 +1,4 @@
-import { AdminServices } from 'admin'
+import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import { LicenseInfo, LicenseStatus } from 'common/licensing-service'
 import { RequestWithUser } from 'common/typings'

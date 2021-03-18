@@ -1,4 +1,4 @@
-import { AdminServices } from 'admin'
+import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import diag from 'diag'
 import fse from 'fs-extra'

@@ -1,13 +1,13 @@
-import { AdminServices } from 'admin'
+import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import { assertSuperAdmin } from 'core/routers/util'
 import _ from 'lodash'
 import os from 'os'
 
-import ChecklistRouter from './checklist/router'
-import LanguagesRouter from './languages/router'
-import LicensingRouter from './licensing/router'
-import ModulesRouter from './modules/router'
+import ChecklistRouter from './checklist/checklist-router'
+import LanguagesRouter from './languages/languages-router'
+import LicensingRouter from './licensing/licensing-router'
+import ModulesRouter from './modules/modules-router'
 import VersioningRouter from './versioning/router'
 
 class ManagementRouter extends CustomAdminRouter {

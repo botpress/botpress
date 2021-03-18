@@ -1,10 +1,10 @@
-import { AdminServices } from 'admin'
+import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import _ from 'lodash'
 
-import AlertingRouter from './alerting/router'
-import DebugRouter from './debug/router'
-import MonitoringRouter from './monitoring/router'
+import AlertingRouter from './alerting/alerting-router'
+import DebugRouter from './debug/debug-router'
+import MonitoringRouter from './monitoring/monitoring-router'
 
 class HealthRouter extends CustomAdminRouter {
   private debugRouter: DebugRouter

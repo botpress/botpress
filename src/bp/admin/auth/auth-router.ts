@@ -1,4 +1,4 @@
-import { AdminServices } from 'admin'
+import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import { JWT_COOKIE_NAME } from 'common/auth'
 import { ChatUserAuth, RequestWithUser } from 'common/typings'

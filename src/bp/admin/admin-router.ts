@@ -20,12 +20,12 @@ import express, { RequestHandler, Router } from 'express'
 import httpsProxyAgent from 'https-proxy-agent'
 import _ from 'lodash'
 
-import AuthRouter from './auth/router'
-import HealthRouter from './health/router'
-import ManagementRouter from './management/router'
-import UserRouter from './user/router'
+import AuthRouter from './auth/auth-router'
+import HealthRouter from './health/health-router'
+import ManagementRouter from './management/management-router'
+import UserRouter from './user/user-router'
 import { fixMappingMw } from './utils/apiMapper'
-import WorkspaceRouter from './workspace/router'
+import WorkspaceRouter from './workspace/workspace-router'
 
 export interface AdminServices {
   logger: Logger

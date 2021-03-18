@@ -1,4 +1,4 @@
-import { AdminServices } from 'admin'
+import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import { defaultPipelines } from 'common/defaults'
 import { CreateWorkspace } from 'common/typings'

@@ -1,13 +1,13 @@
-import { AdminServices } from 'admin'
+import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import { assertSuperAdmin } from 'core/routers/util'
 import _ from 'lodash'
 
-import BotsRouter from './bots/router'
-import CollaboratorsRouter from './collaborators/router'
-import LogsRouter from './logs/router'
-import RolesRouter from './roles/router'
-import WorkspacesRouter from './workspaces/router'
+import BotsRouter from './bots/bots-router'
+import CollaboratorsRouter from './collaborators/collaborators-router'
+import LogsRouter from './logs/logs-router'
+import RolesRouter from './roles/roles-router'
+import WorkspacesRouter from './workspaces/workspaces-router'
 
 class WorkspaceRouter extends CustomAdminRouter {
   private botsRouter: BotsRouter

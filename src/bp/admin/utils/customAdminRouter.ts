@@ -1,4 +1,4 @@
-import { AdminServices } from 'admin'
+import { AdminServices } from 'admin/admin-router'
 import { Logger } from 'botpress/sdk'
 import { AsyncMiddleware, asyncMiddleware } from 'common/http'
 import LicensingService from 'common/licensing-service'

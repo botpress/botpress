@@ -10949,12 +10949,9 @@ uglify-js@^3.1.4:
   resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.10.4.tgz#dd680f5687bc0d7a93b14a3482d16db6eba2bfbb"
   integrity sha512-kBFT3U4Dcj4/pJ52vfjCSfyLyvG9VYYuGYPmrPvAxRw/i7xHiT4VvCev+uiEMcEEiu6UNB6KgWmGtSUYIWScbw==
 
-"ui-shared@link:../ui-shared":
-  version "0.0.1"
-  dependencies:
-    js-cookie "^2.2.1"
-    react-command-palette "^0.12.0-0"
-    react-router "4.3.1"
+"ui-shared@link:../../ui-shared":
+  version "0.0.0"
+  uid ""
 
 unicode-canonical-property-names-ecmascript@^1.0.4:
   version "1.0.4"
