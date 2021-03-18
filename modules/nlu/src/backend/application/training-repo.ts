@@ -64,8 +64,10 @@ class TransactionContext {
 }
 
 export type ITrainingRepository = I<TrainingRepository>
-export class TrainingRepository implements TrainingRepository {
-  constructor(private _database: typeof sdk.database) {}
+export class TrainingRepository extends TransactionContext implements TrainingRepository {
+  constructor(_database: typeof sdk.database) {
+    super(_database)
+  }
 
   public initialize = async (): Promise<void | void[]> => {
     return void this._database.createTableIfNotExists(TABLE_NAME, table => {
@@ -79,18 +81,6 @@ export class TrainingRepository implements TrainingRepository {
     })
   }
 
-  public atomically<T>(action: () => Promise<T>) {
-    return this._database.transaction(async trx => {
-      try {
-        this._database.table(TABLE_NAME).transacting(trx)
-        const data = await action()
-        return trx.commit(data)
-      } catch (err) {
-        return trx.rollback(err)
-      }
-    })
-  }
-
   public inTransaction = async (action: (trx: TransactionContext) => Promise<void>) => {
     this._database.transaction(async trx => {
       try {
@@ -101,58 +91,6 @@ export class TrainingRepository implements TrainingRepository {
         trx.rollback()
       }
     })
-  }
-
-  public getAll = async (): Promise<TrainingSession[]> => {
-    return this._database(TABLE_NAME).select('*')
-  }
-
-  public set = async (trainId: TrainingId, trainState: TrainingState): Promise<void> => {
-    const { botId, language } = trainId
-    const { progress, status, owner } = trainState
-
-    const modifiedOn = this._database.date.now()
-    if (await this.has({ botId, language })) {
-      return this._database(TABLE_NAME)
-        .where({ botId, language })
-        .update({ progress, status, modifiedOn })
-    }
-    return this._database(TABLE_NAME).insert({ botId, language, progress, status, modifiedOn, owner })
-  }
-
-  public has = async (trainId: TrainingId): Promise<boolean> => {
-    const { botId, language } = trainId
-    const result = !!(await this.get({ botId, language }))
-    return result
-  }
-
-  public get = async (trainId: TrainingId): Promise<TrainingSession | undefined> => {
-    const { botId, language } = trainId
-
-    return this._database
-      .from(TABLE_NAME)
-      .where({ botId, language })
-      .select('*')
-      .first()
-  }
-
-  public query = async (query: Partial<TrainingSession>): Promise<TrainingSession[]> => {
-    return this._database
-      .from(TABLE_NAME)
-      .where(query)
-      .select('*')
-  }
-
-  public delete = async (trainId: TrainingId): Promise<void> => {
-    const { botId, language } = trainId
-    return this._database
-      .from(TABLE_NAME)
-      .where({ botId, language })
-      .delete()
-  }
-
-  public clear = async (): Promise<void[]> => {
-    return this._database.from(TABLE_NAME).delete('*')
   }
 }
 
