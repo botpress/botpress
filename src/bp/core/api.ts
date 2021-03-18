@@ -260,13 +260,10 @@ const render = (renderService: RenderService): typeof sdk.experimental.render =>
 /**
  * Socket.IO API to emit payloads to front-end clients
  */
-export class RealTimeAPI implements RealTimeAPI {
-  constructor(private realtimeService: RealtimeService) {}
-
-  sendPayload(payload: RealTimePayload) {
-    this.realtimeService.sendToSocket(payload)
-  }
-}
+const realtime = (realtimeService: RealtimeService): typeof sdk.realtime => ({
+  sendPayload: realtimeService.sendToSocket.bind(realtimeService),
+  getVisitorIdFromGuestSocketId: realtimeService.getVisitorIdFromSocketId.bind(realtimeService)
+})
 
 @injectable()
 export class BotpressAPIProvider {
@@ -274,7 +271,7 @@ export class BotpressAPIProvider {
   events: typeof sdk.events
   dialog: typeof sdk.dialog
   config: typeof sdk.config
-  realtime: RealTimeAPI
+  realtime: typeof sdk.realtime
   database: Knex & sdk.KnexExtension
   users: typeof sdk.users
   kvs: typeof sdk.kvs
@@ -317,7 +314,7 @@ export class BotpressAPIProvider {
     this.events = event(eventEngine, eventRepo)
     this.dialog = dialog(dialogEngine, stateManager, moduleLoader)
     this.config = config(moduleLoader, configProvider)
-    this.realtime = new RealTimeAPI(realtimeService)
+    this.realtime = realtime(realtimeService)
     this.database = db.knex
     this.users = users(userRepo)
     this.kvs = kvs(keyValueStore)
