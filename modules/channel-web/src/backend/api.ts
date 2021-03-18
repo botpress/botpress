@@ -13,12 +13,12 @@ import { Config } from '../config'
 
 import Database from './db'
 
-const ERR_USER_ID_REQ = '`userId` is required and must be valid'
+const ERR_USER_ID_INVALID = 'user id associated with this session must be valid'
 const ERR_MSG_TYPE = '`type` is required and must be valid'
 const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
 const ERR_BAD_LANGUAGE = '`language` is required and must be valid'
 const ERR_BAD_CONV_ID = "The conversation ID doesn't belong to that user"
-const ERR_BAD_USSER_ROOM_PAIR = '"userId and "socketId" pair does not match'
+const ERR_BAD_USER_SESSION_ID = 'session id is invalid'
 
 const USER_ID_MAX_LENGTH = 40
 const SUPPORTED_MESSAGES = [
@@ -33,12 +33,10 @@ const SUPPORTED_MESSAGES = [
 
 type ChatRequest = BPRequest & { userId: string; botId: string; conversationId: number }
 
-const validateUserId = (userId: string) => {
-  if (!userId || userId.length > USER_ID_MAX_LENGTH || userId.toLowerCase() === 'undefined') {
-    return false
-  }
+const userIdIsValid = (userId: string): boolean => {
+  const hasBreakingConstraints = userId.length > USER_ID_MAX_LENGTH || userId.toLowerCase() === 'undefined'
 
-  return /[a-z0-9-_]+/i.test(userId)
+  return !hasBreakingConstraints && /[a-z0-9-_]+/i.test(userId)
 }
 
 export default async (bp: typeof sdk, db: Database) => {
@@ -108,21 +106,17 @@ export default async (bp: typeof sdk, db: Database) => {
     statusCodes: { include: [200] }
   }).middleware
 
-  const userIdsocketIdPairMatches = async (userId: string, socketId: string) => {
-    const visitorId = await bp.realtime.getVisitorIdFromSocketId(socketId)
-    return visitorId && userId === visitorId
-  }
-
   const assertUserInfo = (options: { convoIdRequired?: boolean } = {}) => async (req: ChatRequest, _res, next) => {
     const { botId } = req.params
-    const { userId, conversationId, userSignature } = req.body || {}
+    const { conversationId, webSessionId } = req.body || {}
 
-    if (!validateUserId(userId)) {
-      return next(ERR_USER_ID_REQ)
+    const userId = await bp.realtime.getVisitorIdFromSocketId(webSessionId)
+    if (!userId) {
+      return next(ERR_BAD_USER_SESSION_ID)
     }
 
-    if (!(await userIdsocketIdPairMatches(userId, userSignature))) {
-      return next(ERR_BAD_USSER_ROOM_PAIR)
+    if (!userIdIsValid(userId)) {
+      return next(ERR_USER_ID_INVALID)
     }
 
     if (conversationId && conversationId !== 'null') {

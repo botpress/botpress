@@ -1,11 +1,6 @@
 import { EventFeedback } from 'lite/typings'
 import get from 'lodash/get'
 
-interface BaseUserPayload {
-  userId: string
-  userSignature: string
-}
-
 export default class WebchatApi {
   private axios
   private axiosConfig
@@ -31,10 +26,9 @@ export default class WebchatApi {
     this.axiosConfig = this.updateAxiosConfig()
   }
 
-  private get baseUserPayload(): BaseUserPayload {
+  private get baseUserPayload() {
     return {
-      userId: this.userId,
-      userSignature: window.__BP_VISITOR_SOCKET_ID
+      webSessionId: window.__BP_VISITOR_SOCKET_ID
     }
   }
 
