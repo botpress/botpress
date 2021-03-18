@@ -15,11 +15,10 @@ import path from 'path'
 import { setupMasterNode, WORKER_TYPES } from '../../cluster'
 import { LogLevel } from '../../core/sdk/enums'
 
-global.rewire = rewire as any
-
 import Logger from '../../simple-logger'
 import API, { APIOptions } from './api'
 
+global.rewire = rewire as any
 const debug = DEBUG('api')
 
 const GH_TYPINGS_FILE = 'https://github.com/botpress/botpress/blob/master/src/bp/nlu-server/typings_v1.d.ts'
