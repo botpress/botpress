@@ -7,6 +7,12 @@ import { RequestWithUser } from 'common/typings'
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import session from 'cookie-session'
+import { CMSRouter, CMSService } from 'core/cms'
+import { ExternalAuthConfig, ConfigProvider } from 'core/config'
+import { ConverseRouter, ConverseService } from 'core/converse'
+import { LogsService, LogsRepository } from 'core/logger'
+import { ModuleLoader, ModulesRouter } from 'core/modules'
+import { TelemetryRouter, TelemetryRepository } from 'core/telemetry'
 import cors from 'cors'
 import errorHandler from 'errorhandler'
 import { UnlicensedError } from 'errors'
@@ -28,21 +34,13 @@ import portFinder from 'portfinder'
 import { URL } from 'url'
 import yn from 'yn'
 
-import { ExternalAuthConfig } from './config/botpress.config'
-import { ConfigProvider } from './config/config-loader'
-import { ModuleLoader } from './module-loader'
-import { LogsRepository } from './repositories/logs'
-import { TelemetryRepository } from './repositories/telemetry'
-import { BotsRouter, MediaRouter, ModulesRouter } from './routers'
-import { ContentRouter } from './routers/bots/content'
-import { ConverseRouter } from './routers/bots/converse'
+import { BotsRouter, MediaRouter } from './routers'
 import { HintsRouter } from './routers/bots/hints'
 import { NLURouter } from './routers/bots/nlu'
 import { isDisabled } from './routers/conditionalMiddleware'
 import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
 import { SdkApiRouter } from './routers/sdk/router'
 import { ShortLinksRouter } from './routers/shortlinks'
-import { TelemetryRouter } from './routers/telemetry'
 import { hasPermissions, monitoringMiddleware, needPermissions } from './routers/util'
 import { GhostService } from './services'
 import ActionServersService from './services/action/action-servers-service'
@@ -52,13 +50,11 @@ import { AuthStrategies } from './services/auth-strategies'
 import AuthService, { EXTERNAL_AUTH_HEADER, SERVER_USER, TOKEN_AUDIENCE } from './services/auth/auth-service'
 import { generateUserToken } from './services/auth/util'
 import { BotService } from './services/bot-service'
-import { CMSService } from './services/cms'
-import { ConverseService } from './services/converse'
+
 import { FlowService } from './services/dialog/flow/service'
 import { SkillService } from './services/dialog/skill/service'
 import { HintsService } from './services/hints'
 import { JobService } from './services/job-service'
-import { LogsService } from './services/logs/service'
 import { MediaServiceProvider } from './services/media'
 import { MonitoringService } from './services/monitoring'
 import { NLUService } from './services/nlu/nlu-service'
@@ -90,7 +86,7 @@ export default class HTTPServer {
 
   private readonly adminRouter: AdminRouter
   private readonly botsRouter: BotsRouter
-  private contentRouter!: ContentRouter
+  private cmsRouter!: CMSRouter
   private nluRouter!: NLURouter
   private readonly modulesRouter: ModulesRouter
   private readonly shortLinksRouter: ShortLinksRouter
@@ -239,7 +235,7 @@ export default class HTTPServer {
 
     await this.mediaRouter.initialize()
     await this.botsRouter.initialize()
-    this.contentRouter = new ContentRouter(
+    this.cmsRouter = new CMSRouter(
       this.logger,
       this.authService,
       this.cmsService,
@@ -249,7 +245,7 @@ export default class HTTPServer {
     this.nluRouter = new NLURouter(this.logger, this.authService, this.workspaceService, this.nluService)
     this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this)
     this.hintsRouter = new HintsRouter(this.logger, this.hintsService, this.authService, this.workspaceService)
-    this.botsRouter.router.use('/content', this.contentRouter.router)
+    this.botsRouter.router.use('/content', this.cmsRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
     this.botsRouter.router.use('/nlu', this.nluRouter.router)
 

@@ -145,6 +145,12 @@ export default class Database {
       .andWhere(this.knex.date.isBetween('createdOn', startDate, endDate))
       .groupBy(['createdOn', 'channel'])
 
+    let queryReturningUsers = this.knex('bot_chat_users')
+      .where({ botId })
+      .andWhere(this.knex.date.isBetween('lastSeenOn', startDate, endDate))
+      .groupBy(['lastSeenOn', 'channel'])
+      .andWhereRaw('"lastSeenOn" <> "createdOn"')
+
     let queryActiveUsers = this.knex('bot_chat_users')
       .where({ botId })
       .andWhere(this.knex.date.isBetween('lastSeenOn', startDate, endDate))
@@ -154,6 +160,7 @@ export default class Database {
       queryMetrics = queryMetrics.andWhere({ channel: options.channel })
       queryNewUsers = queryNewUsers.andWhere({ channel: options.channel })
       queryActiveUsers = queryActiveUsers.andWhere({ channel: options.channel })
+      queryReturningUsers = queryReturningUsers.andWhere({ channel: options.channel })
     }
 
     try {
@@ -168,11 +175,17 @@ export default class Database {
         'channel',
         this.knex.raw('count(*) as value')
       )
+      const returningUsersCount = await queryReturningUsers.select(
+        'lastSeenOn as date',
+        'channel',
+        this.knex.raw('count(*) as value')
+      )
 
       return [
         ...metrics,
         ...newUsersCount.map(x => ({ ...x, value: Number(x.value), metric: 'new_users_count' })),
-        ...activeUsersCount.map(x => ({ ...x, value: Number(x.value), metric: 'active_users_count' }))
+        ...activeUsersCount.map(x => ({ ...x, value: Number(x.value), metric: 'active_users_count' })),
+        ...returningUsersCount.map(x => ({ ...x, value: Number(x.value), metric: 'returning_users_count' }))
       ].map(x => ({ ...x, created_on: x.date, date: moment(x.date).format('YYYY-MM-DD') }))
     } catch (err) {
       this.bp.logger.attachError(err).warn('Could not retrieve analytics')

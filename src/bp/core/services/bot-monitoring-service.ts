@@ -1,7 +1,7 @@
 import 'bluebird-global'
 import { Logger, LoggerEntry } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
-import { LogsRepository } from 'core/repositories/logs'
+import { LogsRepository } from 'core/logger'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
 import { Redis } from 'ioredis'

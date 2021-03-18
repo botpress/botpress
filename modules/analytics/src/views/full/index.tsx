@@ -310,9 +310,9 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const getReturningUsers = () => {
-    const activeUsersCount = getMetricCount('active_users_count')
+    const returningUsersCount = getMetricCount('returning_users_count')
     const newUsersCount = getMetricCount('new_users_count')
-    const percent = Math.round((activeUsersCount / (newUsersCount + activeUsersCount)) * 100)
+    const percent = Math.round((returningUsersCount / (newUsersCount + returningUsersCount)) * 100)
 
     return getNotNaN(percent, '%')
   }
@@ -362,7 +362,7 @@ const Analytics: FC<any> = ({ bp }) => {
 
   const renderEngagement = () => {
     const newUserCountDiff = getMetricCount('new_users_count') - getPreviousRangeMetricCount('new_users_count')
-    const activeUserCountDiff = getMetricCount('active_users_count') - getPreviousRangeMetricCount('active_users_count')
+    const returningUserCountDiff = getMetricCount('returning_users_count') - getPreviousRangeMetricCount('returning_users_count')
     const activeUsers = fillMissingValues(getMetric('active_users_count'), state.dateRange[0], state.dateRange[1])
 
     return (
@@ -376,9 +376,9 @@ const Analytics: FC<any> = ({ bp }) => {
         />
         <NumberMetric
           className={style.half}
-          diffFromPreviousRange={activeUserCountDiff}
+          diffFromPreviousRange={returningUserCountDiff}
           previousDateRange={state.previousDateRange}
-          name={lang.tr('module.analytics.returningUsers', { nb: getMetricCount('active_users_count') })}
+          name={lang.tr('module.analytics.returningUsers', { nb: getMetricCount('returning_users_count') })}
           value={getReturningUsers()}
         />
         <TimeSeriesChart
@@ -420,7 +420,7 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const renderInteractions = () => {
-    return(
+    return (
       <div className={cx(style.metricsContainer, style.fullWidth)}>
         <ItemsList
           name={lang.tr('module.analytics.mostUsedWorkflows')}
@@ -445,7 +445,16 @@ const Analytics: FC<any> = ({ bp }) => {
     `[${lang.tr('module.analytics.deletedQna')}, ID: ${id.replace('__qna__', '')}]`
 
   const getLanguagesData = () => {
-    const metrics = state.metrics.filter(m => m.metric === 'msg_nlu_language')
+    const metricsByDay = state.metrics.filter(m => m.metric === 'msg_nlu_language')
+
+    const metrics = _(metricsByDay)
+      .groupBy('subMetric')
+      .map((objs, key) => ({
+        language: key,
+        value: _.sumBy(objs, 'value')
+      }))
+      .value()
+
     if (metrics.length === 0) {
       return []
     }
@@ -454,7 +463,7 @@ const Analytics: FC<any> = ({ bp }) => {
 
     return _.sortBy(metrics, m => m.value)
       .reverse()
-      .map(m => ({ value: getNotNaN((m.value / total) * 100, '%'), language: m.subMetric }))
+      .map(m => ({ value: getNotNaN((m.value / total) * 100, '%'), language: m.language }))
   }
 
   const renderHandlingUnderstanding = () => {
@@ -491,6 +500,7 @@ const Analytics: FC<any> = ({ bp }) => {
           <div>
             {languages.map(i => (
               <FlatProgressChart
+                key={i.language}
                 value={i.value}
                 color="#F2B824"
                 name={`${lang.tr(`isoLangs.${i.language}.name`)}: ${i.value}`}
