@@ -1,5 +1,4 @@
-import Db from './db'
-// import * as sdk from 'botpress/sdk'
+import Db, { TABLE_NAME } from './db'
 import {
   DbFlaggedEvent,
   FilteringOptions,
@@ -13,18 +12,30 @@ import {
 import 'reflect-metadata'
 import Database from '../../../../src/bp/core/database'
 
-import { PersistedConsoleLogger } from '../../../../src/bp/core/logger'
-import { createSpyObject, MockObject } from '../../../../src/bp/core/misc/utils'
 import { createDatabaseSuite } from '../../../../src/bp/core/database/index.tests'
 
 createDatabaseSuite('Misunderstood', (database: Database) => {
-  const logger: MockObject<PersistedConsoleLogger> = createSpyObject<PersistedConsoleLogger>()
+  const db = new Db({ database: database.knex })
+  beforeAll(async () => {
+    db.knex = database.knex
+    await db.initialize()
+  })
+
+  afterEach(async () => {
+    if (!db.knex.isLite) {
+      await db.knex.raw(`TRUNCATE TABLE "${TABLE_NAME}";`)
+    }
+  })
 
   describe('Get', () => {
     it("Returns undefined if key doesn't exist", async () => {
-      const db = new Db({ database: database.knex })
-      await db.initialize()
-      await db.listEvents('', '', FLAGGED_MESSAGE_STATUS.new)
+      const botId = 'mybot'
+      const eventId = '1234'
+      const language = 'en'
+      await db.addEvent({ botId, eventId, language, preview: 'some message', reason: FLAG_REASON.action })
+
+      const events = await db.listEvents(botId, language, FLAGGED_MESSAGE_STATUS.new)
+      expect(events).toHaveLength(1)
     })
   })
 })
