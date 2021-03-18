@@ -37,7 +37,7 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
       const events = await db.listEvents(botId, language, FLAGGED_MESSAGE_STATUS.new)
       expect(events).toHaveLength(0)
     })
-    it("Returns undefined if key doesn't exist", async () => {
+    it('Returns one event if one exists', async () => {
       const botId = 'mybot'
       const eventId = '1234'
       const language = 'en'
