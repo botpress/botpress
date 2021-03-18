@@ -18,6 +18,10 @@ export default class BpSocket {
     this.chatId = config.chatId
   }
 
+  private isString(str: string | any): str is string {
+    return typeof str === 'string' && str !== 'undefined'
+  }
+
   public setup() {
     if (!this.events) {
       return
@@ -46,16 +50,11 @@ export default class BpSocket {
     }
   }
 
-  /** Waits until the VISITOR ID is set  */
+  /** Waits until the VISITOR ID and VISITOR SOCKET ID is set  */
   public waitForUserId(): Promise<void> {
     return new Promise((resolve, reject) => {
       const interval = setInterval(() => {
-        if (
-          typeof window.__BP_VISITOR_ID === 'string' &&
-          window.__BP_VISITOR_ID !== 'undefined' &&
-          typeof window.__BP_VISITOR_SOCKET_ID === 'string' &&
-          window.__BP_VISITOR_SOCKET_ID !== 'undefined'
-        ) {
+        if (this.isString(window.__BP_VISITOR_ID) && this.isString(window.__BP_VISITOR_SOCKET_ID)) {
           clearInterval(interval)
 
           this.userId = window.__BP_VISITOR_ID

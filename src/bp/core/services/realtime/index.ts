@@ -71,17 +71,16 @@ export default class RealtimeService {
   }
 
   async getVisitorIdFromSocketId(socketId: string): Promise<undefined | string> {
-    const socket = this.guest?.sockets[socketId]
-    if (!socket) {
-      return
-    }
-
     let rooms: string[]
-    if (this.useRedis) {
-      const adapter = socket.adapter as RedisAdapter
-      rooms = await Promise.fromCallback(cb => adapter.clientRooms(socketId, cb))
-    } else {
-      rooms = Object.keys(socket.adapter.sids[socketId] ?? {})
+    try {
+      if (this.useRedis) {
+        const adapter = this.guest?.adapter as RedisAdapter
+        rooms = await Promise.fromCallback(cb => adapter.clientRooms(socketId, cb))
+      } else {
+        rooms = Object.keys(this.guest?.adapter.sids[socketId] ?? {})
+      }
+    } catch (err) {
+      rooms = []
     }
 
     // rooms here contains one being socketId and all rooms in which user is connected

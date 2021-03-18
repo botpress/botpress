@@ -260,7 +260,7 @@ const render = (renderService: RenderService): typeof sdk.experimental.render =>
  */
 const realtime = (realtimeService: RealtimeService): typeof sdk.realtime => ({
   sendPayload: realtimeService.sendToSocket.bind(realtimeService),
-  getVisitorIdFromSocketId: realtimeService.getVisitorIdFromSocketId.bind(realtimeService)
+  getVisitorIdFromGuestSocketId: realtimeService.getVisitorIdFromSocketId.bind(realtimeService)
 })
 
 @injectable()

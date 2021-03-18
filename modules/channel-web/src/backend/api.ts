@@ -110,7 +110,7 @@ export default async (bp: typeof sdk, db: Database) => {
     const { botId } = req.params
     const { conversationId, webSessionId } = req.body || {}
 
-    const userId = await bp.realtime.getVisitorIdFromSocketId(webSessionId)
+    const userId = await bp.realtime.getVisitorIdFromGuestSocketId(webSessionId)
     if (!userId) {
       return next(ERR_BAD_USER_SESSION_ID)
     }
