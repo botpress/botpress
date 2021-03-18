@@ -23,9 +23,8 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
   })
 
   afterEach(async () => {
-    if (!db.knex.isLite) {
-      await db.knex.raw(`TRUNCATE TABLE "${TABLE_NAME}";`)
-    }
+    const statement = db.knex.isLite ? 'DELETE FROM' : 'TRUNCATE TABLE'
+    await db.knex.raw(`${statement} "${TABLE_NAME}";`)
   })
 
   describe('listEvents', () => {
@@ -45,6 +44,17 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
 
       const events = await db.listEvents(botId, language, FLAGGED_MESSAGE_STATUS.new)
       expect(events).toHaveLength(1)
+    })
+    it('Returns many events if many exist', async () => {
+      const botId = 'mybot'
+      const eventId = '1234'
+      const language = 'en'
+      await db.addEvent({ botId, eventId, language, preview: 'some message', reason: FLAG_REASON.action })
+      await db.addEvent({ botId, eventId, language, preview: 'some message', reason: FLAG_REASON.action })
+      await db.addEvent({ botId, eventId, language, preview: 'some message', reason: FLAG_REASON.action })
+
+      const events = await db.listEvents(botId, language, FLAGGED_MESSAGE_STATUS.new)
+      expect(events).toHaveLength(3)
     })
   })
 })
