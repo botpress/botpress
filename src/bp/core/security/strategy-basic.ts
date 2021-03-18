@@ -9,15 +9,20 @@ import ms from 'ms'
 import nanoid from 'nanoid'
 import { charsets, PasswordPolicy } from 'password-sheriff'
 
-import { asyncMiddleware, success as sendSuccess } from '../../routers/util'
+import { asyncMiddleware, success as sendSuccess } from '../routers/util'
 
-import AuthService, { SERVER_USER } from './auth-service'
-import { InvalidCredentialsError, LockedOutError, PasswordExpiredError, WeakPasswordError } from './errors'
-import { saltHashPassword, validateHash } from './util'
+import AuthService, { SERVER_USER } from '../services/auth/auth-service'
+import {
+  InvalidCredentialsError,
+  LockedOutError,
+  PasswordExpiredError,
+  WeakPasswordError
+} from '../services/auth/errors'
+import { saltHashPassword, validateHash } from './utils'
 
 const debug = DEBUG('audit:users:basic')
 
-export default class StrategyBasic {
+export class StrategyBasic {
   private asyncMiddleware: Function
 
   constructor(private logger: Logger, private router: Router, private authService: AuthService) {

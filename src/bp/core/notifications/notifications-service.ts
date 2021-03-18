@@ -1,6 +1,6 @@
-import { Notification, NotificationsRepository } from 'core/repositories'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
+import { Notification, NotificationsRepository } from './notifications-repository'
 
 @injectable()
 export class NotificationsService {

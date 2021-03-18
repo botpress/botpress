@@ -1,6 +1,7 @@
 import 'bluebird-global'
 import { Logger, LoggerEntry } from 'botpress/sdk'
-import { ConfigProvider } from 'core/config/config-loader'
+import { ConfigProvider } from 'core/config'
+import { JobService } from 'core/distributed'
 import { LogsRepository } from 'core/logger'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
@@ -9,8 +10,6 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 import Redlock from 'redlock'
-
-import { JobService } from './job-service'
 
 @injectable()
 export class BotMonitoringService {

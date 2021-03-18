@@ -1,7 +1,10 @@
 import { ContentElement, ContentType, IO, KnexExtended, Logger, SearchParams } from 'botpress/sdk'
+import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config'
+import { JobService } from 'core/distributed'
 import { EventEngine } from 'core/events'
 import { LoggerProvider } from 'core/logger'
+import { MediaServiceProvider } from 'core/media'
 import { ModuleLoader } from 'core/modules'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
@@ -13,9 +16,6 @@ import { VError } from 'verror'
 
 import { IDisposeOnExit } from '../../common/typings'
 
-import { GhostService } from '../services'
-import { JobService } from '../services/job-service'
-import { MediaServiceProvider } from '../services/media'
 import { CodeFile, SafeCodeSandbox } from './code-sandbox'
 import { renderRecursive, renderTemplate } from './templating'
 

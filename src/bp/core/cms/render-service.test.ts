@@ -2,7 +2,7 @@ import 'bluebird-global'
 import 'jest-extended'
 import 'reflect-metadata'
 
-import { RenderService } from './render'
+import { RenderService } from './render-service'
 
 describe('Content Renders', () => {
   const render = new RenderService()

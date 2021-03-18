@@ -1,7 +1,6 @@
+import Database from 'core/database'
+import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
-
-import Database from '../database'
-import { TYPES } from '../types'
 
 export class Notification {
   constructor(
@@ -25,16 +24,8 @@ interface DefaultGetOptions {
   read?: boolean
 }
 
-export interface NotificationsRepository {
-  get(botId: string, id: string): Promise<Notification>
-  getAll(botId: string, options?: DefaultGetOptions): Promise<Notification[]>
-  insert(botId: string, notification: Notification): Promise<Notification>
-  update(notification: Notification): Promise<void>
-  deleteById(id: string): Promise<void>
-}
-
 @injectable()
-export class KnexNotificationsRepository implements NotificationsRepository {
+export class NotificationsRepository {
   private readonly TABLE_NAME = 'srv_notifications'
 
   constructor(@inject(TYPES.Database) private database: Database) {}
