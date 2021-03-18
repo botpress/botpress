@@ -3,6 +3,7 @@ import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
 import yn from 'yn'
+import { LanguageConfig } from './nlu/engine'
 
 export enum WORKER_TYPES {
   WEB = 'WEB_WORKER',
@@ -104,7 +105,7 @@ function spawnWebWorker() {
   debug('Spawned Web Worker')
 }
 
-export async function spawnNewTrainingWorker(config: any, requestId: string): Promise<number> {
+export async function spawnNewTrainingWorker(config: LanguageConfig, requestId: string): Promise<number> {
   if (!process.TRAINING_WORKERS) {
     process.TRAINING_WORKERS = []
   }

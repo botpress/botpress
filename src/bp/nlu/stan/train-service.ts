@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 
-import * as nluEngine from 'nlu/engine'
+import * as NLUEngine from 'nlu/engine'
 
 import ModelRepository from './model-repo'
 import TrainSessionService from './train-session-service'
@@ -8,20 +8,20 @@ import TrainSessionService from './train-session-service'
 export default class TrainService {
   constructor(
     private logger: sdk.Logger,
-    private engine: nluEngine.Engine,
+    private engine: NLUEngine.Engine,
     private modelRepo: ModelRepository,
     private trainSessionService: TrainSessionService
   ) {}
 
   train = async (
-    modelId: nluEngine.ModelId,
+    modelId: NLUEngine.ModelId,
     password: string,
     intents: sdk.NLU.IntentDefinition[],
     entities: sdk.NLU.EntityDefinition[],
     language: string,
     nluSeed: number
   ) => {
-    const stringId = nluEngine.modelIdService.toString(modelId)
+    const stringId = NLUEngine.modelIdService.toString(modelId)
     this.logger.info(`[${stringId}] Training Started.`)
 
     const ts = this.trainSessionService.makeTrainingSession(modelId, password, language)
@@ -36,7 +36,7 @@ export default class TrainService {
     }
 
     try {
-      const trainSet: nluEngine.TrainingSet = {
+      const trainSet: NLUEngine.TrainingSet = {
         intentDefs: intents,
         entityDefs: entities,
         languageCode: language,
@@ -50,7 +50,7 @@ export default class TrainService {
       this.trainSessionService.setTrainingSession(modelId, password, ts)
       this.trainSessionService.releaseTrainingSession(modelId, password)
     } catch (err) {
-      if (nluEngine.errors.isTrainingCanceled(err)) {
+      if (NLUEngine.errors.isTrainingCanceled(err)) {
         this.logger.info(`[${stringId}] Training Canceled.`)
 
         ts.status = 'canceled'
@@ -59,7 +59,7 @@ export default class TrainService {
         return
       }
 
-      if (nluEngine.errors.isTrainingAlreadyStarted(err)) {
+      if (NLUEngine.errors.isTrainingAlreadyStarted(err)) {
         this.logger.error('training already started')
         return
       }

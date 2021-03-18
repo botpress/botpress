@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import * as nluEngine from 'common/nlu/engine'
+import * as NLUEngine from 'common/nlu/engine'
 import _ from 'lodash'
 import ms from 'ms'
 
@@ -21,7 +21,7 @@ const KVS_TRAINING_STATUS_KEY = 'nlu:trainingStatus'
 
 async function annouceNeedsTraining(bp: typeof sdk, botId: string, state: NLUState) {
   const { engine } = state
-  const { modelIdService } = nluEngine
+  const { modelIdService } = NLUEngine
 
   const api = await createApi(bp, botId)
   const intentDefs = await api.fetchIntentsWithQNAs()
@@ -50,7 +50,7 @@ async function annouceNeedsTraining(bp: typeof sdk, botId: string, state: NLUSta
   })
 }
 
-function registerNeedTrainingWatcher(bp: typeof sdk, botId: string, engine: nluEngine.Engine, state: NLUState) {
+function registerNeedTrainingWatcher(bp: typeof sdk, botId: string, engine: NLUEngine.Engine, state: NLUState) {
   function hasPotentialNLUChange(filePath: string): boolean {
     return filePath.includes('/intents/') || filePath.includes('/entities/')
   }
@@ -67,7 +67,7 @@ export function getOnBotMount(state: NLUState) {
     const bot = await bp.bots.getBotById(botId)
     const ghost = bp.ghost.forBot(botId)
 
-    const { modelIdService } = nluEngine
+    const { modelIdService } = NLUEngine
     const modelService = new ModelService(modelIdService, ghost, botId)
     await modelService.initialize()
 
@@ -93,7 +93,7 @@ export function getOnBotMount(state: NLUState) {
           return
         }
 
-        const trainSet: nluEngine.TrainingSet = {
+        const trainSet: NLUEngine.TrainingSet = {
           intentDefs,
           entityDefs,
           languageCode,
@@ -124,7 +124,7 @@ export function getOnBotMount(state: NLUState) {
           }
 
           const previousModel = botState.modelsByLang[languageCode]
-          const options: nluEngine.TrainingOptions = { previousModel, progressCallback }
+          const options: NLUEngine.TrainingOptions = { previousModel, progressCallback }
           try {
             model = await engine.train(trainSession.key, trainSet, options)
 
@@ -134,11 +134,11 @@ export function getOnBotMount(state: NLUState) {
             await engine.loadModel(model)
             await modelService.saveModel(model)
           } catch (err) {
-            if (nluEngine.errors.isTrainingCanceled(err)) {
+            if (NLUEngine.errors.isTrainingCanceled(err)) {
               bp.logger.forBot(botId).info('Training cancelled')
               trainSession.status = 'needs-training'
               await state.sendNLUStatusEvent(botId, trainSession)
-            } else if (nluEngine.errors.isTrainingAlreadyStarted(err)) {
+            } else if (NLUEngine.errors.isTrainingAlreadyStarted(err)) {
               bp.logger.forBot(botId).info('Training already started')
             } else {
               bp.logger

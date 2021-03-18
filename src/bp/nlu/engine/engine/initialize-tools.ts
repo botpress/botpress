@@ -11,7 +11,7 @@ import { getStopWordsForLang } from './language/stopWords'
 import SeededLodashProvider from './tools/seeded-lodash'
 import { LanguageProvider, SystemEntityExtractor, Tools } from './typings'
 
-const NLU_VERSION = '2.1.0' // TODO: compute specification hash from components instead of version
+const NLU_VERSION = '2.1.0'
 
 const healthGetter = (languageProvider: LanguageProvider) => (): Health => {
   const { validProvidersCount, validLanguages } = languageProvider.getHealth()

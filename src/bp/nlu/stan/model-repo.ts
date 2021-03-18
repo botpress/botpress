@@ -2,7 +2,7 @@ import crypto from 'crypto'
 import fse, { WriteStream } from 'fs-extra'
 import _ from 'lodash'
 import mkdirp from 'mkdirp'
-import * as nluEngine from 'nlu/engine'
+import * as NLUEngine from 'nlu/engine'
 import path from 'path'
 import { Stream } from 'stream'
 import tar from 'tar'
@@ -15,7 +15,7 @@ export default class ModelRepository {
     mkdirp.sync(this.modelDir)
   }
 
-  public async getModel(modelId: nluEngine.ModelId, password: string): Promise<nluEngine.Model | undefined> {
+  public async getModel(modelId: NLUEngine.ModelId, password: string): Promise<NLUEngine.Model | undefined> {
     const modelFileName = this._makeFileName(modelId, password)
 
     const { modelDir } = this
@@ -44,7 +44,7 @@ export default class ModelRepository {
     }
   }
 
-  public async saveModel(model: nluEngine.Model, password: string): Promise<void> {
+  public async saveModel(model: NLUEngine.Model, password: string): Promise<void> {
     const { modelDir } = this
     const modelFileName = this._makeFileName(model, password)
 
@@ -70,8 +70,8 @@ export default class ModelRepository {
     tmpDir.removeCallback()
   }
 
-  private _makeFileName(modelId: nluEngine.ModelId, password: string): string {
-    const stringId = nluEngine.modelIdService.toString(modelId)
+  private _makeFileName(modelId: NLUEngine.ModelId, password: string): string {
+    const stringId = NLUEngine.modelIdService.toString(modelId)
     const fname = crypto
       .createHash('md5')
       .update(`${stringId}${password}`)

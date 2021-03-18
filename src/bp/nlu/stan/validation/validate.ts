@@ -1,5 +1,5 @@
 import { validate } from 'joi'
-import * as nluEngine from 'nlu/engine'
+import * as NLUEngine from 'nlu/engine'
 import { isListEntity, isPatternEntity } from '../api-mapper'
 
 import {
@@ -23,7 +23,7 @@ const makeSlotChecker = (listEntities: ListEntityDefinition[], patternEntities: 
   const supportedTypes = [
     ...listEntities.map(e => e.name),
     ...patternEntities.map(p => p.name),
-    ...nluEngine.SYSTEM_ENTITIES,
+    ...NLUEngine.SYSTEM_ENTITIES,
     SLOT_ANY
   ]
   for (const entity of entities) {
