@@ -61,7 +61,7 @@ export class TrainingQueue {
   }
 
   public queueTraining = async (trainId: TrainingId): Promise<void> => {
-    return this._trainingRepo.inTransaction(async ctx => {
+    await this._trainingRepo.inTransaction(async ctx => {
       const currentTraining = await ctx.get(trainId)
       if (!currentTraining) {
         return
@@ -84,6 +84,11 @@ export class TrainingQueue {
       await ctx.set(trainId, newState)
       await this._notify(trainId, newState)
     }, 'queueTraining')
+
+    if (this._paused) {
+      return
+    }
+    return this.runTask()
   }
 
   public pause() {
