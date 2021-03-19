@@ -7,11 +7,13 @@ import { CMSService, renderRecursive, RenderService } from 'core/cms'
 import { ConfigProvider } from 'core/config'
 import Database from 'core/database'
 import { StateManager, DialogEngine, WellKnownFlags } from 'core/dialog'
+import * as dialogEnums from 'core/dialog/enums'
 import { SessionIdFactory } from 'core/dialog/sessions'
 import { JobService } from 'core/distributed'
 import { EventEngine, EventRepository, Event } from 'core/events'
 import { KeyValueStore } from 'core/kvs'
 import { LoggerProvider } from 'core/logger'
+import * as logEnums from 'core/logger/enums'
 import { MediaServiceProvider } from 'core/media'
 import { ConversationService, MessageService } from 'core/messaging'
 import { ModuleLoader } from 'core/modules'
@@ -322,9 +324,9 @@ export class BotpressAPIProvider {
     return {
       version: '',
       RealTimePayload,
-      LoggerLevel: require('./sdk/enums').LoggerLevel,
-      LogLevel: require('./sdk/enums').LogLevel,
-      NodeActionType: require('./sdk/enums').NodeActionType,
+      LoggerLevel: logEnums.LoggerLevel,
+      LogLevel: logEnums.LogLevel,
+      NodeActionType: dialogEnums.NodeActionType,
       IO: {
         Event,
         WellKnownFlags
