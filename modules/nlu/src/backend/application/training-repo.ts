@@ -1,9 +1,19 @@
 import * as sdk from 'botpress/sdk'
 import { Transaction } from 'knex'
+import ms from 'ms'
 import { TrainingId, TrainingState, TrainingSession, I } from './typings'
 
 const TABLE_NAME = 'nlu_training_queue'
+const TRANSACTION_TIMEOUT_MS = ms('5s')
 const debug = DEBUG('nlu').sub('lifecycle')
+
+export const TRANSACTION_TIMEOUT_ERROR = new Error("Transaction exceeded it's time limit")
+
+const timeout = (ms: number) => {
+  return new Promise((_, reject) => {
+    setTimeout(() => reject(TRANSACTION_TIMEOUT_ERROR), ms)
+  })
+}
 
 export type ITransactionContext = I<TransactionContext>
 class TransactionContext {
@@ -84,18 +94,21 @@ export class TrainingRepository implements TrainingRepository {
     name: string | null = null
   ): Promise<any> => {
     return this._database.transaction(async trx => {
-      try {
-        debug(`Starting transaction ${name}`)
-        const ctx = new TransactionContext(this._database, trx)
-        const res = await action(ctx)
-        await trx.commit(res)
-        return res
-      } catch (err) {
-        await trx.rollback(err)
-        debug(`Error in transaction: ${err}`)
-      } finally {
-        debug(`Finishing transaction ${name}`)
+      const operation = async () => {
+        try {
+          debug(`Starting transaction ${name}`)
+          const ctx = new TransactionContext(this._database, trx)
+          const res = await action(ctx)
+          await trx.commit(res)
+          return res
+        } catch (err) {
+          await trx.rollback(err)
+          debug(`Error in transaction: ${err}`)
+        } finally {
+          debug(`Finishing transaction ${name}`)
+        }
       }
+      return Promise.race([operation(), timeout(TRANSACTION_TIMEOUT_MS)])
     })
   }
 
