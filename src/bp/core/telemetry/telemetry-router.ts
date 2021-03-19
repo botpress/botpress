@@ -1,7 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { CustomRouter } from 'core/routers/customRouter'
-import { checkTokenHeader } from 'core/routers/util'
-import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
+import { AuthService, TOKEN_AUDIENCE, checkTokenHeader } from 'core/security'
 import { RequestHandler, Router } from 'express'
 import Joi from 'joi'
 

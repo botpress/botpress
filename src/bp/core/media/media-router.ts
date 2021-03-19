@@ -1,15 +1,14 @@
 import * as sdk from 'botpress/sdk'
-import { ConfigProvider } from 'core/config/config-loader'
-import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
-import { MediaServiceProvider } from 'core/services/media'
-import { WorkspaceService } from 'core/services/workspace-service'
+import { ConfigProvider } from 'core/config'
+import { AuthService, TOKEN_AUDIENCE, checkTokenHeader, fileUploadMulter, needPermissions } from 'core/security'
+import { WorkspaceService } from 'core/users'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 import ms from 'ms'
 import path from 'path'
 
-import { CustomRouter } from './customRouter'
-import { checkTokenHeader, fileUploadMulter, needPermissions } from './util'
+import { CustomRouter } from '../routers/customRouter'
+import { MediaServiceProvider } from './media-service-provider'
 
 const DEFAULT_MAX_SIZE = '10mb'
 const DEFAULT_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif'] // use ['*'] once implemented
