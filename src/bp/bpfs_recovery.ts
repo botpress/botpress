@@ -5,7 +5,7 @@ import './sdk/rewire'
 import './common/polyfills'
 
 import chalk from 'chalk'
-import { container } from 'core/app/app.inversify'
+import { container } from 'core/app/inversify/app.inversify'
 import { GhostService } from 'core/bpfs'
 import Database from 'core/database'
 import { TYPES } from 'core/types'

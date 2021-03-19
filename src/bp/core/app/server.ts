@@ -30,8 +30,7 @@ import {
   TOKEN_AUDIENCE
 } from 'core/security'
 import { TelemetryRouter, TelemetryRepository } from 'core/telemetry'
-import { TYPES } from 'core/types'
-import { ActionService, ActionServersService } from 'core/user-code'
+import { ActionService, ActionServersService, HintsService, HintsRouter } from 'core/user-code'
 import { WorkspaceService } from 'core/users'
 import cors from 'cors'
 import errorHandler from 'errorhandler'
@@ -54,15 +53,14 @@ import portFinder from 'portfinder'
 import { URL } from 'url'
 import yn from 'yn'
 
-import { AdminRouter, AuthRouter, BotsRouter } from './routers'
-import { HintsRouter } from './routers/bots/hints'
-import { NLURouter } from './routers/bots/nlu'
-import { isDisabled } from './routers/conditionalMiddleware'
-import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
-import { SdkApiRouter } from './routers/sdk/router'
-import { ShortLinksRouter } from './routers/shortlinks'
-import { HintsService } from './services/hints'
-import { NLUService } from './services/nlu/nlu-service'
+import { AdminRouter, AuthRouter, BotsRouter } from '../routers'
+import { NLURouter } from '../routers/bots/nlu'
+import { isDisabled } from '../routers/conditionalMiddleware'
+import { InvalidExternalToken, PaymentRequiredError } from '../routers/errors'
+import { SdkApiRouter } from '../routers/sdk/router'
+import { ShortLinksRouter } from '../routers/shortlinks'
+import { NLUService } from '../services/nlu/nlu-service'
+import { TYPES } from './types'
 
 const BASE_API_PATH = '/api/v1'
 const SERVER_USER_STRATEGY = 'default' // The strategy isn't validated for the userver user, it could be anything.
@@ -81,7 +79,7 @@ const debugRequestMw = (req: Request, _res, next) => {
 }
 
 @injectable()
-export default class HTTPServer {
+export class HTTPServer {
   public httpServer!: Server
   public readonly app: express.Express
   private isBotpressReady = false

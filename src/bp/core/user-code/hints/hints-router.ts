@@ -1,11 +1,11 @@
 import { Logger } from 'botpress/sdk'
-import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
-import { HintsService } from 'core/services/hints'
-import { WorkspaceService } from 'core/services/workspace-service'
+import { AuthService, TOKEN_AUDIENCE } from 'core/security'
+import { HintsService } from 'core/user-code'
+import { WorkspaceService } from 'core/users'
 import { RequestHandler, Router } from 'express'
 
-import { CustomRouter } from '../customRouter'
-import { checkTokenHeader, needPermissions } from '../util'
+import { CustomRouter } from '../../routers/customRouter'
+import { checkTokenHeader, needPermissions } from '../../routers/util'
 
 export class HintsRouter extends CustomRouter {
   private _checkTokenHeader: RequestHandler

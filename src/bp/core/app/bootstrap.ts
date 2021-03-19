@@ -1,13 +1,13 @@
 import 'bluebird-global'
 // eslint-disable-next-line import/order
-import './sdk/rewire'
+import '../../sdk/rewire'
 // eslint-disable-next-line import/order
-import './common/polyfills'
+import '../../common/polyfills'
 
 import sdk from 'botpress/sdk'
 import chalk from 'chalk'
 import cluster from 'cluster'
-import { Botpress, Config, Db, Ghost, LocalActionServer, Logger } from 'core/app'
+import { Botpress, Config, Db, Ghost, LocalActionServer, Logger } from 'core/app/core-loader'
 import { ModuleConfigEntry } from 'core/config'
 import { centerText } from 'core/logger'
 import { ModuleLoader, ModuleResolver } from 'core/modules'
@@ -16,7 +16,7 @@ import fs from 'fs'
 import _ from 'lodash'
 import os from 'os'
 
-import { setupMasterNode, WORKER_TYPES } from './cluster'
+import { setupMasterNode, WORKER_TYPES } from '../../cluster'
 
 async function setupEnv() {
   await Db.initialize()
