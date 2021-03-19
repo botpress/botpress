@@ -196,7 +196,7 @@ export class TrainingQueue {
         this._logger.warn(`About to train ${botId}, but no bot found.`)
         const newState = this._fillSate({ status: 'needs-training' })
         return this._update(trainId, newState, trx)
-      })
+      }, '_train')
       // This case should never happend
     }
 
@@ -205,14 +205,14 @@ export class TrainingQueue {
         return this._trainingRepo.inTransaction(trx => {
           const newState = this._fillSate({ status: 'training', progress })
           return this._update(trainId, newState, trx)
-        })
+        }, 'train: update progress')
       })
       await this._trainingRepo.inTransaction(async trx => {
         await this.loadModel(botId, modelId)
 
         const newState = this._fillSate({ status: 'done', progress: 1 })
         await this._update(trainId, newState, trx)
-      })
+      }, 'train: set to done')
     } catch (err) {
       await this._handleTrainError(trainId, err)
     } finally {
@@ -228,7 +228,7 @@ export class TrainingQueue {
         this._logger.forBot(botId).info(`Training ${this._toString(trainId)} canceled`)
         const newState = this._fillSate({ status: 'needs-training' })
         return this._update(trainId, newState, trx)
-      })
+      }, '_handleTrainError: canceled')
     }
 
     if (this._errors.isTrainingAlreadyStarted(err)) {
@@ -247,7 +247,7 @@ export class TrainingQueue {
 
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       return trx.set(trainId, this._fillSate({ status: 'needs-training' }))
-    })
+    }, '_handleTrainError: unexpected error')
   }
 
   private _toString(id: TrainingId) {
