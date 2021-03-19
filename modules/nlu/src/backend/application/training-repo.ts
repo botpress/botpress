@@ -60,9 +60,10 @@ export class TransactionContext {
 }
 
 export type ITrainingRepository = I<TrainingRepository>
-export class TrainingRepository extends TransactionContext implements TrainingRepository {
-  constructor(_database: typeof sdk.database) {
-    super(_database)
+export class TrainingRepository implements TrainingRepository {
+  private _context: TransactionContext
+  constructor(private _database: typeof sdk.database) {
+    this._context = new TransactionContext(this._database, null)
   }
 
   public initialize = async (): Promise<void | void[]> => {
@@ -95,6 +96,34 @@ export class TrainingRepository extends TransactionContext implements TrainingRe
         debug(`Finishing transaction ${name}`)
       }
     })
+  }
+
+  public get = async (trainId: TrainingId): Promise<TrainingSession | undefined> => {
+    return this._context.get(trainId)
+  }
+
+  public getAll = async (): Promise<TrainingSession[]> => {
+    return this._context.getAll()
+  }
+
+  public set = async (trainId: TrainingId, trainState: TrainingState): Promise<void> => {
+    return this._context.set(trainId, trainState)
+  }
+
+  public has = async (trainId: TrainingId): Promise<boolean> => {
+    return this._context.has(trainId)
+  }
+
+  public query = async (query: Partial<TrainingSession>): Promise<TrainingSession[]> => {
+    return this._context.query(query)
+  }
+
+  public delete = async (trainId: TrainingId): Promise<void> => {
+    return this._context.delete(trainId)
+  }
+
+  public clear = async (): Promise<void[]> => {
+    return this._context.clear()
   }
 
   public teardown = async (): Promise<void[]> => {
