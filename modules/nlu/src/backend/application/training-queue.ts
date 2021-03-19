@@ -101,7 +101,7 @@ export class TrainingQueue {
   }
 
   public async cancelTraining(trainId: TrainingId): Promise<void> {
-    await this._trainingRepo.inTransaction(async ctx => {
+    return this._trainingRepo.inTransaction(async ctx => {
       const { botId, language } = trainId
 
       const currentTraining = await ctx.get(trainId)
@@ -168,7 +168,7 @@ export class TrainingQueue {
   }
 
   protected async runTask(): Promise<void> {
-    await this._trainingRepo.inTransaction(async ctx => {
+    return this._trainingRepo.inTransaction(async ctx => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       const localTrainings = await ctx.query({ owner: this._workerId, status: 'training' })
       if (localTrainings.length >= this._options.maxTraining) {
