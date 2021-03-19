@@ -187,7 +187,7 @@ const Analytics: FC<any> = ({ bp }) => {
       const newChannels = _.uniq(_.map(metrics, 'channel')).map(x => {
         return { value: x, label: capitalize(x) }
       })
-      setChannels(_.uniq([...channels, ...newChannels]))
+      setChannels(_.uniqBy([...channels, ...newChannels], 'value'))
     })
 
     /* Get the previous range data so we can compare them and see what changed */
@@ -310,17 +310,17 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const getReturningUsers = () => {
-    const activeUsersCount = getMetricCount('active_users_count')
+    const returningUsersCount = getMetricCount('returning_users_count')
     const newUsersCount = getMetricCount('new_users_count')
-    const percent = Math.round((activeUsersCount / (newUsersCount + activeUsersCount)) * 100)
+    const percent = Math.round((returningUsersCount / (newUsersCount + returningUsersCount)) * 100)
 
     return getNotNaN(percent, '%')
   }
 
   const getNewUsersPercent = () => {
-    const existingUsersCount = getMetricCount('active_users_count')
+    const returningUsersCount = getMetricCount('returning_users_count')
     const newUsersCount = getMetricCount('new_users_count')
-    const percent = Math.round((newUsersCount / (existingUsersCount + newUsersCount)) * 100)
+    const percent = Math.round((newUsersCount / (newUsersCount + returningUsersCount)) * 100)
 
     return getNotNaN(percent, '%')
   }
@@ -362,7 +362,7 @@ const Analytics: FC<any> = ({ bp }) => {
 
   const renderEngagement = () => {
     const newUserCountDiff = getMetricCount('new_users_count') - getPreviousRangeMetricCount('new_users_count')
-    const activeUserCountDiff = getMetricCount('active_users_count') - getPreviousRangeMetricCount('active_users_count')
+    const returningUserCountDiff = getMetricCount('returning_users_count') - getPreviousRangeMetricCount('returning_users_count')
     const activeUsers = fillMissingValues(getMetric('active_users_count'), state.dateRange[0], state.dateRange[1])
 
     return (
@@ -376,9 +376,9 @@ const Analytics: FC<any> = ({ bp }) => {
         />
         <NumberMetric
           className={style.half}
-          diffFromPreviousRange={activeUserCountDiff}
+          diffFromPreviousRange={returningUserCountDiff}
           previousDateRange={state.previousDateRange}
-          name={lang.tr('module.analytics.returningUsers', { nb: getMetricCount('active_users_count') })}
+          name={lang.tr('module.analytics.returningUsers', { nb: getMetricCount('returning_users_count') })}
           value={getReturningUsers()}
         />
         <TimeSeriesChart
@@ -415,11 +415,18 @@ const Analytics: FC<any> = ({ bp }) => {
           value={getMetricCount('msg_sent_qna_count')}
           className={style.half}
         />
+      </div>
+    )
+  }
+
+  const renderInteractions = () => {
+    return (
+      <div className={cx(style.metricsContainer, style.fullWidth)}>
         <ItemsList
           name={lang.tr('module.analytics.mostUsedWorkflows')}
           items={getTopItems('enter_flow_count', 'workflow')}
           itemLimit={10}
-          className={cx(style.genericMetric, style.half, style.list)}
+          className={cx(style.genericMetric, style.quarter, style.list)}
         />
         <ItemsList
           name={lang.tr('module.analytics.mostAskedQuestions')}
@@ -428,7 +435,7 @@ const Analytics: FC<any> = ({ bp }) => {
             label: q.question || renderDeletedQna(q.id),
             onClick: q.question ? navigateToElement(q.id, 'qna') : undefined
           }))}
-          className={cx(style.genericMetric, style.half, style.list)}
+          className={cx(style.genericMetric, style.threeQuarter, style.list)}
         />
       </div>
     )
@@ -438,7 +445,16 @@ const Analytics: FC<any> = ({ bp }) => {
     `[${lang.tr('module.analytics.deletedQna')}, ID: ${id.replace('__qna__', '')}]`
 
   const getLanguagesData = () => {
-    const metrics = state.metrics.filter(m => m.metric === 'msg_nlu_language')
+    const metricsByDay = state.metrics.filter(m => m.metric === 'msg_nlu_language')
+
+    const metrics = _(metricsByDay)
+      .groupBy('subMetric')
+      .map((objs, key) => ({
+        language: key,
+        value: _.sumBy(objs, 'value')
+      }))
+      .value()
+
     if (metrics.length === 0) {
       return []
     }
@@ -447,7 +463,7 @@ const Analytics: FC<any> = ({ bp }) => {
 
     return _.sortBy(metrics, m => m.value)
       .reverse()
-      .map(m => ({ value: getNotNaN((m.value / total) * 100, '%'), language: m.subMetric }))
+      .map(m => ({ value: getNotNaN((m.value / total) * 100, '%'), language: m.language }))
   }
 
   const renderHandlingUnderstanding = () => {
@@ -484,6 +500,7 @@ const Analytics: FC<any> = ({ bp }) => {
           <div>
             {languages.map(i => (
               <FlatProgressChart
+                key={i.language}
                 value={i.value}
                 color="#F2B824"
                 name={`${lang.tr(`isoLangs.${i.language}.name`)}: ${i.value}`}
@@ -682,6 +699,10 @@ const Analytics: FC<any> = ({ bp }) => {
           <div className={cx(style.section, style.half)}>
             <h2>{lang.tr('module.analytics.conversations')}</h2>
             {renderConversations()}
+          </div>
+          <div className={style.section}>
+            <h2>{lang.tr('module.analytics.interactions')}</h2>
+            {renderInteractions()}
           </div>
           <div className={style.section}>
             <h2>{lang.tr('module.analytics.handlingAndUnderstanding')}</h2>

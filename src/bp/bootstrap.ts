@@ -8,10 +8,10 @@ import sdk from 'botpress/sdk'
 import chalk from 'chalk'
 import cluster from 'cluster'
 import { Botpress, Config, Db, Ghost, LocalActionServer, Logger } from 'core/app'
-import { ModuleConfigEntry } from 'core/config/botpress.config'
-import center from 'core/logger/center'
-import { ModuleLoader } from 'core/module-loader'
-import ModuleResolver from 'core/modules/resolver'
+import { ModuleConfigEntry } from 'core/config'
+import { centerText } from 'core/logger'
+import { ModuleLoader, ModuleResolver } from 'core/modules'
+
 import fs from 'fs'
 import _ from 'lodash'
 import os from 'os'
@@ -146,9 +146,9 @@ async function start() {
   }
 
   logger.info(chalk`========================================
-{bold ${center('Botpress Server', 40, 9)}}
-{dim ${center(`Version ${sdk.version}`, 40, 9)}}
-{dim ${center(`OS ${process.distro}`, 40, 9)}}
+{bold ${centerText('Botpress Server', 40, 9)}}
+{dim ${centerText(`Version ${sdk.version}`, 40, 9)}}
+{dim ${centerText(`OS ${process.distro}`, 40, 9)}}
 ${_.repeat(' ', 9)}========================================`)
 
   if (!fs.existsSync(process.APP_DATA_PATH)) {

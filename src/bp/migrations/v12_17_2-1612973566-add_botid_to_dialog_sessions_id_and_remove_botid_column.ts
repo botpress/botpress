@@ -21,12 +21,15 @@ const migration: Migration = {
     const { client } = db.client.config
 
     try {
+      const hasBotIdColumn = await db.schema.hasColumn(TABLE_NAME, 'botId')
+      if (!hasBotIdColumn) {
+        return { success: true, message: 'Column botId already merged, skipping...' }
+      }
+
       if (client === 'sqlite3') {
         await db.transaction(async trx => {
-          await trx.raw(`UPDATE ${TABLE_NAME} SET id = botId || '::' || id;`)
-
           await db.schema.transacting(trx).createTable(TEMP_TABLE_NAME, table => {
-            table.string('id').notNullable()
+            table.text('id').notNullable()
             table.json('context').notNullable()
             table.json('temp_data').notNullable()
             table.json('session_data').notNullable()
@@ -38,7 +41,7 @@ const migration: Migration = {
           })
 
           await trx.raw(
-            `INSERT INTO ${TEMP_TABLE_NAME} SELECT id, context, temp_data, session_data, context_expiry, session_expiry, created_on, modified_on FROM ${TABLE_NAME};`
+            `INSERT INTO ${TEMP_TABLE_NAME} SELECT botId || '::' || id AS id, context, temp_data, session_data, context_expiry, session_expiry, created_on, modified_on FROM ${TABLE_NAME};`
           )
 
           await database.knex.schema.transacting(trx).dropTable(TABLE_NAME)
@@ -46,6 +49,7 @@ const migration: Migration = {
         })
       } else {
         await db.transaction(async trx => {
+          await trx.raw(`ALTER TABLE ${TABLE_NAME} ALTER COLUMN id TYPE TEXT;`)
           await trx.raw(`UPDATE ${TABLE_NAME} SET id = "botId" || '::' || "id";`)
           await trx.raw(`ALTER TABLE ${TABLE_NAME} DROP CONSTRAINT ${TABLE_NAME}_pkey;`)
           await trx.raw(`ALTER TABLE ${TABLE_NAME} ADD PRIMARY KEY (id);`)

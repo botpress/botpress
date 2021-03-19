@@ -1,14 +1,13 @@
 import { FlowNode, IO, Logger } from 'botpress/sdk'
 import { FlowView } from 'common/typings'
 import { createForGlobalHooks } from 'core/api'
+import { buildUserKey, converseApiEvents } from 'core/converse'
+import { addErrorToEvent } from 'core/events'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
-import { buildUserKey, converseApiEvents } from '../converse'
 import { Hooks, HookService } from '../hook/hook-service'
-import { addErrorToEvent } from '../middleware/event-collector'
-
 import { FlowError, TimeoutNodeNotFound } from './errors'
 import { FlowService } from './flow/service'
 import { Instruction } from './instruction'

@@ -1,13 +1,22 @@
 import bodyParser from 'body-parser'
 import { AxiosBotConfig, AxiosOptions, http, Logger, RouterOptions } from 'botpress/sdk'
+import { CSRF_TOKEN_HEADER_LC, CSRF_TOKEN_HEADER, JWT_COOKIE_NAME } from 'common/auth'
 import LicensingService from 'common/licensing-service'
 import { RequestWithUser } from 'common/typings'
 import compression from 'compression'
+import cookieParser from 'cookie-parser'
 import session from 'cookie-session'
+import { CMSRouter, CMSService } from 'core/cms'
+import { ExternalAuthConfig, ConfigProvider } from 'core/config'
+import { ConverseRouter, ConverseService } from 'core/converse'
+import { LogsService, LogsRepository } from 'core/logger'
+import { ModuleLoader, ModulesRouter } from 'core/modules'
+import { TelemetryRouter, TelemetryRepository } from 'core/telemetry'
 import cors from 'cors'
 import errorHandler from 'errorhandler'
 import { UnlicensedError } from 'errors'
 import express, { NextFunction, Response } from 'express'
+import rateLimit from 'express-rate-limit'
 import { Request } from 'express-serve-static-core'
 import rewrite from 'express-urlrewrite'
 import fs from 'fs'
@@ -24,21 +33,13 @@ import portFinder from 'portfinder'
 import { URL } from 'url'
 import yn from 'yn'
 
-import { ExternalAuthConfig } from './config/botpress.config'
-import { ConfigProvider } from './config/config-loader'
-import { ModuleLoader } from './module-loader'
-import { LogsRepository } from './repositories/logs'
-import { TelemetryRepository } from './repositories/telemetry'
-import { AdminRouter, AuthRouter, BotsRouter, MediaRouter, ModulesRouter } from './routers'
-import { ContentRouter } from './routers/bots/content'
-import { ConverseRouter } from './routers/bots/converse'
+import { AdminRouter, AuthRouter, BotsRouter, MediaRouter } from './routers'
 import { HintsRouter } from './routers/bots/hints'
 import { NLURouter } from './routers/bots/nlu'
 import { isDisabled } from './routers/conditionalMiddleware'
 import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
 import { SdkApiRouter } from './routers/sdk/router'
 import { ShortLinksRouter } from './routers/shortlinks'
-import { TelemetryRouter } from './routers/telemetry'
 import { hasPermissions, monitoringMiddleware, needPermissions } from './routers/util'
 import { GhostService } from './services'
 import ActionServersService from './services/action/action-servers-service'
@@ -48,13 +49,11 @@ import { AuthStrategies } from './services/auth-strategies'
 import AuthService, { EXTERNAL_AUTH_HEADER, SERVER_USER, TOKEN_AUDIENCE } from './services/auth/auth-service'
 import { generateUserToken } from './services/auth/util'
 import { BotService } from './services/bot-service'
-import { CMSService } from './services/cms'
-import { ConverseService } from './services/converse'
+
 import { FlowService } from './services/dialog/flow/service'
 import { SkillService } from './services/dialog/skill/service'
 import { HintsService } from './services/hints'
 import { JobService } from './services/job-service'
-import { LogsService } from './services/logs/service'
 import { MediaServiceProvider } from './services/media'
 import { MonitoringService } from './services/monitoring'
 import { NLUService } from './services/nlu/nlu-service'
@@ -87,7 +86,7 @@ export default class HTTPServer {
   private readonly authRouter: AuthRouter
   private readonly adminRouter: AdminRouter
   private readonly botsRouter: BotsRouter
-  private contentRouter!: ContentRouter
+  private cmsRouter!: CMSRouter
   private nluRouter!: NLURouter
   private readonly modulesRouter: ModulesRouter
   private readonly shortLinksRouter: ShortLinksRouter
@@ -214,6 +213,9 @@ export default class HTTPServer {
 
     this._needPermissions = needPermissions(this.workspaceService)
     this._hasPermissions = hasPermissions(this.workspaceService)
+
+    // Necessary to prevent circular dependency
+    this.authService.jobService = this.jobService
   }
 
   async setupRootPath() {
@@ -239,7 +241,7 @@ export default class HTTPServer {
 
     await this.mediaRouter.initialize()
     await this.botsRouter.initialize()
-    this.contentRouter = new ContentRouter(
+    this.cmsRouter = new CMSRouter(
       this.logger,
       this.authService,
       this.cmsService,
@@ -249,7 +251,7 @@ export default class HTTPServer {
     this.nluRouter = new NLURouter(this.logger, this.authService, this.workspaceService, this.nluService)
     this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this)
     this.hintsRouter = new HintsRouter(this.logger, this.hintsService, this.authService, this.workspaceService)
-    this.botsRouter.router.use('/content', this.contentRouter.router)
+    this.botsRouter.router.use('/content', this.cmsRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
     this.botsRouter.router.use('/nlu', this.nluRouter.router)
 
@@ -268,6 +270,8 @@ export default class HTTPServer {
     const config = botpressConfig.httpServer
     await this.sdkApiRouter.initialize()
 
+    process.USE_JWT_COOKIES = yn(botpressConfig.jwtToken.useCookieStorage)
+
     /**
      * The loading of language models can take some time, access to Botpress is disabled until it is completed
      * During this time, internal calls between modules can be made
@@ -276,7 +280,10 @@ export default class HTTPServer {
       res.removeHeader('X-Powered-By') // Removes the default X-Powered-By: Express
       res.set(config.headers)
       if (!this.isBotpressReady) {
-        if (!(req.headers['user-agent'] || '').includes('axios') || !req.headers.authorization) {
+        if (
+          !(req.headers['user-agent'] || '').includes('axios') ||
+          (!req.headers.authorization && !req.headers[CSRF_TOKEN_HEADER_LC])
+        ) {
           return res
             .status(503)
             .send(
@@ -301,6 +308,10 @@ export default class HTTPServer {
       )
     }
 
+    if (process.USE_JWT_COOKIES) {
+      this.app.use(cookieParser())
+    }
+
     this.app.use((req, res, next) => {
       if (!isDisabled('bodyParserJson', req)) {
         bodyParser.json({ limit: config.bodyLimit })(req, res, next)
@@ -317,8 +328,18 @@ export default class HTTPServer {
       }
     })
 
-    if (config.cors && config.cors.enabled) {
-      this.app.use(cors(config.cors.origin ? { origin: config.cors.origin } : {}))
+    if (config.cors?.enabled) {
+      this.app.use(cors(config.cors))
+    }
+
+    if (config.rateLimit?.enabled) {
+      this.app.use(
+        rateLimit({
+          windowMs: ms(config.rateLimit.limitWindow),
+          max: config.rateLimit.limit,
+          message: 'Too many requests, please slow down.'
+        })
+      )
     }
 
     this.app.get('/status', async (req, res, next) => {
@@ -335,6 +356,7 @@ export default class HTTPServer {
       res.contentType('text/javascript')
       res.send(`
       (function(window) {
+          window.USE_JWT_COOKIES = ${process.USE_JWT_COOKIES};
           window.APP_VERSION = "${process.BOTPRESS_VERSION}";
           window.APP_NAME = "${branding.title}";
           window.APP_FAVICON = "${branding.favicon}";
@@ -490,11 +512,21 @@ export default class HTTPServer {
 
   async getAxiosConfigForBot(botId: string, options?: AxiosOptions): Promise<AxiosBotConfig> {
     const basePath = options && options.localUrl ? process.LOCAL_URL : process.EXTERNAL_URL
-    const serverToken = generateUserToken(SERVER_USER, SERVER_USER_STRATEGY, false, '5m', TOKEN_AUDIENCE)
+    const serverToken = generateUserToken({
+      email: SERVER_USER,
+      strategy: SERVER_USER_STRATEGY,
+      tokenVersion: 1,
+      isSuperAdmin: false,
+      expiresIn: '5m',
+      audience: TOKEN_AUDIENCE
+    })
+
     return {
       baseURL: `${basePath}/api/v1/bots/${botId}`,
       headers: {
-        Authorization: `Bearer ${serverToken}`
+        ...(process.USE_JWT_COOKIES
+          ? { Cookie: `${JWT_COOKIE_NAME}=${serverToken.jwt};`, [CSRF_TOKEN_HEADER]: serverToken.csrf }
+          : { Authorization: `Bearer ${serverToken.jwt}` })
       }
     }
   }

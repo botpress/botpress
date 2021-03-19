@@ -1,6 +1,17 @@
 import * as sdk from 'botpress/sdk'
 import lang from 'common/lang'
+import { CMSService } from 'core/cms'
+import { BotpressConfig, ConfigProvider } from 'core/config'
+import { buildUserKey, converseApiEvents } from 'core/converse'
+import Database from 'core/database'
+import { StateManager } from 'core/dialog'
+import { SessionIdFactory } from 'core/dialog/sessions'
+import { addStepToEvent, EventCollector, StepScopes, StepStatus, EventEngine } from 'core/events'
+import { LoggerDbPersister, LoggerFilePersister, LoggerProvider, LogsJanitor } from 'core/logger'
 import { copyDir } from 'core/misc/pkg-fs'
+import { ModuleLoader } from 'core/modules'
+import { StatsService } from 'core/telemetry'
+import { DataRetentionJanitor, DataRetentionService } from 'core/users'
 import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
@@ -15,13 +26,7 @@ import plur from 'plur'
 
 import { startLocalActionServer } from '../cluster'
 import { setDebugScopes } from '../debug'
-
 import { createForGlobalHooks } from './api'
-import { BotpressConfig } from './config/botpress.config'
-import { ConfigProvider } from './config/config-loader'
-import Database from './database'
-import { LoggerDbPersister, LoggerFilePersister, LoggerProvider } from './logger'
-import { ModuleLoader } from './module-loader'
 import { WellKnownFlags } from './sdk/enums'
 import { Event } from './sdk/impl'
 import HTTPServer from './server'
@@ -31,25 +36,15 @@ import { AlertingService } from './services/alerting-service'
 import AuthService from './services/auth/auth-service'
 import { BotMonitoringService } from './services/bot-monitoring-service'
 import { BotService } from './services/bot-service'
-import { CMSService } from './services/cms'
-import { buildUserKey, converseApiEvents } from './services/converse'
 import { DecisionEngine } from './services/dialog/decision-engine'
 import { DialogEngine } from './services/dialog/dialog-engine'
 import { DialogJanitor } from './services/dialog/janitor'
-import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { HintsService } from './services/hints'
 import { Hooks, HookService } from './services/hook/hook-service'
-import { LogsJanitor } from './services/logs/janitor'
-import { addStepToEvent, EventCollector, StepScopes, StepStatus } from './services/middleware/event-collector'
-import { EventEngine } from './services/middleware/event-engine'
-import { StateManager } from './services/middleware/state-manager'
 import { MigrationService } from './services/migration'
 import { MonitoringService } from './services/monitoring'
 import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
-import { DataRetentionJanitor } from './services/retention/janitor'
-import { DataRetentionService } from './services/retention/service'
-import { StatsService } from './services/stats-service'
 import { WorkspaceService } from './services/workspace-service'
 import { Statistics } from './stats'
 import { TYPES } from './types'
@@ -269,7 +264,7 @@ export class Botpress {
   async deployAssets() {
     try {
       for (const dir of ['./pre-trained', './stop-words']) {
-        await copyDir(path.resolve(__dirname, '../nlu-core/language', dir), path.resolve(process.APP_DATA_PATH, dir))
+        await copyDir(path.resolve(__dirname, '../nlu/engine/assets', dir), path.resolve(process.APP_DATA_PATH, dir))
       }
 
       const assets = path.resolve(process.PROJECT_LOCATION, 'data/assets')
@@ -395,6 +390,9 @@ export class Botpress {
       this.eventCollector.storeEvent(event)
       await this.hookService.executeHook(new Hooks.BeforeOutgoingMiddleware(this.api, event))
     }
+
+    // Todo : remove this when channel renderers for builtin types are no longer needed
+    this.eventEngine.renderForChannel = this.cmsService.renderForChannel.bind(this.cmsService)
 
     this.decisionEngine.onBeforeSuggestionsElection = async (
       sessionId: string,

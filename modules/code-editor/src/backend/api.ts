@@ -80,21 +80,31 @@ export default async (bp: typeof sdk, editor: Editor) => {
     })
   )
 
-  router.post('/download', loadPermsMw, validateFilePayloadMw('read'), async (req: RequestWithPerms, res, next) => {
-    const buffer = await editor.forBot(req.params.botId).readFileBuffer(req.body)
+  router.post(
+    '/download',
+    loadPermsMw,
+    validateFilePayloadMw('read'),
+    asyncMiddleware(async (req: BPRequest & RequestWithPerms, res, next) => {
+      const buffer = await editor.forBot(req.params.botId).readFileBuffer(req.body)
 
-    res.setHeader('Content-Disposition', `attachment; filename=${req.body.name}`)
-    res.setHeader('Content-Type', 'application/octet-stream')
-    res.send(buffer)
-  })
+      res.setHeader('Content-Disposition', `attachment; filename=${req.body.name}`)
+      res.setHeader('Content-Type', 'application/octet-stream')
+      res.send(buffer)
+    })
+  )
 
-  router.post('/exists', loadPermsMw, validateFilePayloadMw('write'), async (req: RequestWithPerms, res, next) => {
-    try {
-      res.send(await editor.forBot(req.params.botId).fileExists(req.body))
-    } catch (err) {
-      next(err)
-    }
-  })
+  router.post(
+    '/exists',
+    loadPermsMw,
+    validateFilePayloadMw('write'),
+    asyncMiddleware(async (req: BPRequest & RequestWithPerms, res, next) => {
+      try {
+        res.send(await editor.forBot(req.params.botId).fileExists(req.body))
+      } catch (err) {
+        next(err)
+      }
+    })
+  )
 
   router.post(
     '/rename',

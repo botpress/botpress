@@ -1,12 +1,12 @@
 import * as sdk from 'botpress/sdk'
+
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
-import { StrategyUserTable } from 'core/database/tables/server-wide/strategy_users'
-import { StrategyUsersRepository } from 'core/repositories/strategy_users'
-import { WorkspaceUsersRepository } from 'core/repositories/workspace_users'
 import { GhostService } from 'core/services'
 import { Migration, MigrationOpts } from 'core/services/migration'
 import { TYPES } from 'core/types'
+import { StrategyUsersRepository, WorkspaceUsersRepository } from 'core/users'
+import { StrategyUserTable } from 'core/users/tables'
 import { Container } from 'inversify'
 import _ from 'lodash'
 
@@ -34,6 +34,7 @@ const migration: Migration = {
         await userRepo.createUser({
           email: user.email,
           strategy: 'default',
+          tokenVersion: 1,
           password: user.password,
           salt: user.salt,
           attributes: _.pick(user, [

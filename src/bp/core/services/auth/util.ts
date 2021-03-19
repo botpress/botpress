@@ -1,5 +1,17 @@
+import { TokenResponse } from 'common/typings'
 import crypto from 'crypto'
 import jsonwebtoken from 'jsonwebtoken'
+import ms from 'ms'
+import uuid from 'uuid'
+
+interface Token {
+  email: string
+  strategy: string
+  tokenVersion: number
+  isSuperAdmin: boolean
+  expiresIn: string
+  audience?: string
+}
 
 const generateRandomString = (length: number) => {
   return crypto
@@ -28,12 +40,20 @@ export const validateHash = (password: string, hash: string, salt: string) => {
   }
 }
 
-export const generateUserToken = (
-  email: string,
-  strategy: string,
-  isSuperAdmin: boolean,
-  expiresIn: string = '6h',
-  audience?: string
-): string => {
-  return jsonwebtoken.sign({ email, strategy, isSuperAdmin }, process.APP_SECRET, { expiresIn, audience })
+export const generateUserToken = ({
+  email,
+  strategy,
+  tokenVersion,
+  isSuperAdmin,
+  expiresIn,
+  audience
+}: Token): TokenResponse => {
+  const exp = expiresIn || '2h'
+  const csrf = process.USE_JWT_COOKIES ? uuid.v4() : undefined
+  const jwt = jsonwebtoken.sign({ email, strategy, tokenVersion, csrfToken: csrf, isSuperAdmin }, process.APP_SECRET, {
+    expiresIn: exp,
+    audience
+  })
+
+  return { jwt, csrf, exp: ms(exp) }
 }

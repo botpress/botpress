@@ -1,11 +1,10 @@
 import { Logger } from 'botpress/sdk'
-import { ConfigProvider } from 'core/config/config-loader'
-import { ModuleLoader } from 'core/module-loader'
+import { ConfigProvider } from 'core/config'
+import { ModuleLoader } from 'core/modules'
 import { GhostService } from 'core/services'
 import { AlertingService } from 'core/services/alerting-service'
 import { JobService } from 'core/services/job-service'
 import { MonitoringService } from 'core/services/monitoring'
-import { WorkspaceService } from 'core/services/workspace-service'
 import diag from 'diag'
 import { Router } from 'express'
 import fse from 'fs-extra'
@@ -190,19 +189,23 @@ export class ServerRouter extends CustomRouter {
       })
     )
 
-    router.post('/modules/upload', multer().single('file'), async (req, res) => {
-      const file = req['file'].buffer
+    router.post(
+      '/modules/upload',
+      multer().single('file'),
+      this.asyncMiddleware(async (req, res) => {
+        const file = req['file'].buffer
 
-      const moduleInfo = await this.moduleLoader.getArchiveModuleInfo(file)
+        const moduleInfo = await this.moduleLoader.getArchiveModuleInfo(file)
 
-      if (moduleInfo) {
-        this.logger.info(`Uploaded module ${moduleInfo.name}`)
-        await this.ghostService.root().upsertFile('modules', `${moduleInfo.name}.tgz`, file)
-        return res.send(moduleInfo)
-      }
+        if (moduleInfo) {
+          this.logger.info(`Uploaded module ${moduleInfo.name}`)
+          await this.ghostService.root().upsertFile('modules', `${moduleInfo.name}.tgz`, file)
+          return res.send(moduleInfo)
+        }
 
-      res.sendStatus(400)
-    })
+        res.sendStatus(400)
+      })
+    )
 
     this._rebootServer = await this.jobService.broadcast<void>(this.__local_rebootServer.bind(this))
   }

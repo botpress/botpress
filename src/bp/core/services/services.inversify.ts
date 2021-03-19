@@ -1,10 +1,16 @@
 import { IO } from 'botpress/sdk'
 import LicensingService from 'common/licensing-service'
+import { CMSService } from 'core/cms'
+import { ConverseService } from 'core/converse'
+import { EventEngine, Queue, MemoryQueue } from 'core/events'
+import { KeyValueStore } from 'core/kvs'
+import { LogsJanitor, LogsService } from 'core/logger'
+import { MessageService, ConversationService } from 'core/messaging'
 import { DialogContainerModule } from 'core/services/dialog/dialog.inversify'
 import { CEJobService, JobService } from 'core/services/job-service'
+import { StatsService } from 'core/telemetry'
+import { TYPES } from 'core/types'
 import { ContainerModule, interfaces } from 'inversify'
-
-import { TYPES } from '../types'
 
 import ActionServersService from './action/action-servers-service'
 import ActionService from './action/action-service'
@@ -13,27 +19,27 @@ import { AuthStrategies, CEAuthStrategies } from './auth-strategies'
 import AuthService from './auth/auth-service'
 import { BotMonitoringService } from './bot-monitoring-service'
 import { BotService } from './bot-service'
-import { CMSService } from './cms'
-import { ConverseService } from './converse'
 import { SkillService } from './dialog/skill/service'
 import { GhostContainerModule } from './ghost/ghost.inversify'
 import { HintsService } from './hints'
 import { HookService } from './hook/hook-service'
-import { KeyValueStore } from './kvs'
 import CELicensingService from './licensing'
-import { LogsJanitor } from './logs/janitor'
-import { LogsService } from './logs/service'
 import { MediaServiceProvider } from './media'
-import { EventEngine } from './middleware/event-engine'
 import { CEMonitoringService, MonitoringService } from './monitoring'
 import { NLUService } from './nlu/nlu-service'
 import { NotificationsService } from './notification/service'
-import { Queue } from './queue'
-import MemoryQueue from './queue/memory-queue'
 import RealtimeService from './realtime'
-import { StatsService } from './stats-service'
+import { RenderService } from './render/render'
 
 const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
+  bind<ConversationService>(TYPES.ConversationService)
+    .to(ConversationService)
+    .inSingletonScope()
+
+  bind<MessageService>(TYPES.MessageService)
+    .to(MessageService)
+    .inSingletonScope()
+
   bind<CMSService>(TYPES.CMSService)
     .to(CMSService)
     .inSingletonScope()
@@ -141,6 +147,10 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<StatsService>(TYPES.StatsService)
     .to(StatsService)
+    .inSingletonScope()
+
+  bind<RenderService>(TYPES.RenderService)
+    .to(RenderService)
     .inSingletonScope()
 })
 

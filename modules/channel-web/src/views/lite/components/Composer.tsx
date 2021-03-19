@@ -65,6 +65,10 @@ class Composer extends React.Component<ComposerProps> {
   }
 
   render() {
+    if(this.props.composerHidden) {
+      return null
+    }
+
     const placeholder =
       this.props.composerPlaceholder ||
       this.props.intl.formatMessage({
@@ -114,6 +118,7 @@ class Composer extends React.Component<ComposerProps> {
 export default inject(({ store }: { store: RootStore }) => ({
   message: store.composer.message,
   composerLocked: store.composer.locked,
+  composerHidden: store.composer.hidden,
   composerPlaceholder: store.composer.composerPlaceholder,
   updateMessage: store.composer.updateMessage,
   recallHistory: store.composer.recallHistory,
@@ -135,6 +140,7 @@ type ComposerProps = {
   focused: boolean
   composerPlaceholder: string
   composerLocked: boolean
+  composerHidden: boolean
 } & InjectedIntlProps &
   Pick<
     StoreDef,
