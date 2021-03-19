@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import chalk from 'chalk'
-import { BotpressAPIProvider } from 'core/api'
+import { BotpressAPIProvider } from 'core/app/api'
 import { container } from 'core/app/inversify/app.inversify'
 import { TYPES } from 'core/app/types'
 import { GhostService } from 'core/bpfs'

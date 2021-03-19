@@ -1,6 +1,6 @@
 import { FlowNode, IO, Logger } from 'botpress/sdk'
 import { FlowView } from 'common/typings'
-import { createForGlobalHooks } from 'core/api'
+import { createForGlobalHooks } from 'core/app/api'
 import { buildUserKey, converseApiEvents } from 'core/converse'
 import { FlowService } from 'core/dialog'
 import { addErrorToEvent } from 'core/events'

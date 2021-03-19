@@ -2,7 +2,7 @@ import { BotConfig, BotTemplate, Logger, Stage, WorkspaceUserWithAttributes } fr
 import cluster from 'cluster'
 import { BotHealth, ServerHealth } from 'common/typings'
 import { BotCreationSchema, BotEditSchema, isValidBotId } from 'common/validation'
-import { createForGlobalHooks } from 'core/api'
+import { createForGlobalHooks } from 'core/app/api'
 import { TYPES } from 'core/app/types'
 import { FileContent, GhostService, ReplaceContent } from 'core/bpfs'
 import { CMSService } from 'core/cms'
