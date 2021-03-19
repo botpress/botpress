@@ -1,13 +1,10 @@
-import { inject, injectable, tagged } from 'inversify'
-import nanoid from 'nanoid/generate'
+import { GhostService } from 'core/bpfs'
+import { TYPES } from 'core/types'
+import { inject, injectable } from 'inversify'
 
-import { GhostService } from '..'
-import { TYPES } from '../../types'
+import { MediaService } from './media-service-interface'
+import { GhostMediaService } from './providers/ghost-media-service'
 
-import { GhostMediaService } from './ghost-media-service'
-import { MediaService } from './typings'
-
-const safeId = (length = 10) => nanoid('1234567890abcdefghijklmnopqrsuvwxyz', length)
 @injectable()
 export class MediaServiceProvider {
   private _scopeServices: Dic<MediaService> = {}

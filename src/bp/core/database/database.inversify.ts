@@ -1,7 +1,6 @@
+import { TYPES } from 'core/types'
 import { ContainerModule, interfaces } from 'inversify'
 import Knex from 'knex'
-
-import { TYPES } from '../types'
 
 import Database from '.'
 import { patchKnex } from './helpers'

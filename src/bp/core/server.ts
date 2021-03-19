@@ -6,12 +6,31 @@ import { RequestWithUser } from 'common/typings'
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import session from 'cookie-session'
+import { BotService } from 'core/bots'
+import { GhostService } from 'core/bpfs'
 import { CMSRouter, CMSService } from 'core/cms'
 import { ExternalAuthConfig, ConfigProvider } from 'core/config'
 import { ConverseRouter, ConverseService } from 'core/converse'
+import { FlowService, SkillService } from 'core/dialog'
+import { JobService } from 'core/distributed'
 import { LogsService, LogsRepository } from 'core/logger'
+import { MediaServiceProvider, MediaRouter } from 'core/media'
 import { ModuleLoader, ModulesRouter } from 'core/modules'
+import { NotificationsService } from 'core/notifications'
+import {
+  generateUserToken,
+  hasPermissions,
+  monitoringMiddleware,
+  needPermissions,
+  AuthStrategies,
+  AuthService,
+  EXTERNAL_AUTH_HEADER,
+  SERVER_USER,
+  TOKEN_AUDIENCE
+} from 'core/security'
 import { TelemetryRouter, TelemetryRepository } from 'core/telemetry'
+import { TYPES } from 'core/types'
+import { WorkspaceService } from 'core/users'
 import cors from 'cors'
 import errorHandler from 'errorhandler'
 import { UnlicensedError } from 'errors'
@@ -33,33 +52,19 @@ import portFinder from 'portfinder'
 import { URL } from 'url'
 import yn from 'yn'
 
-import { AdminRouter, AuthRouter, BotsRouter, MediaRouter } from './routers'
+import { AdminRouter, AuthRouter, BotsRouter } from './routers'
 import { HintsRouter } from './routers/bots/hints'
 import { NLURouter } from './routers/bots/nlu'
 import { isDisabled } from './routers/conditionalMiddleware'
 import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
 import { SdkApiRouter } from './routers/sdk/router'
 import { ShortLinksRouter } from './routers/shortlinks'
-import { hasPermissions, monitoringMiddleware, needPermissions } from './routers/util'
-import { GhostService } from './services'
 import ActionServersService from './services/action/action-servers-service'
 import ActionService from './services/action/action-service'
 import { AlertingService } from './services/alerting-service'
-import { AuthStrategies } from './services/auth-strategies'
-import AuthService, { EXTERNAL_AUTH_HEADER, SERVER_USER, TOKEN_AUDIENCE } from './services/auth/auth-service'
-import { generateUserToken } from './services/auth/util'
-import { BotService } from './services/bot-service'
-
-import { FlowService } from './services/dialog/flow/service'
-import { SkillService } from './services/dialog/skill/service'
 import { HintsService } from './services/hints'
-import { JobService } from './services/job-service'
-import { MediaServiceProvider } from './services/media'
 import { MonitoringService } from './services/monitoring'
 import { NLUService } from './services/nlu/nlu-service'
-import { NotificationsService } from './services/notification/service'
-import { WorkspaceService } from './services/workspace-service'
-import { TYPES } from './types'
 
 const BASE_API_PATH = '/api/v1'
 const SERVER_USER_STRATEGY = 'default' // The strategy isn't validated for the userver user, it could be anything.
