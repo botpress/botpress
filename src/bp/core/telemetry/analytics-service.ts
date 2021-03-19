@@ -1,13 +1,12 @@
 import { gaId, machineUUID } from 'common/stats'
+import { TYPES } from 'core/app/types'
+import { ConfigProvider } from 'core/config'
 import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import ua, { Visitor } from 'universal-analytics'
 
-import { ConfigProvider } from './config/config-loader'
-import { TYPES } from './types'
-
 @injectable()
-export class Statistics {
+export class AnalyticsService {
   private _visitor: Visitor | undefined
   private _queued: Function[] = []
   private _sendUsageStats!: boolean

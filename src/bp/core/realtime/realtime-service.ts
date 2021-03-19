@@ -1,7 +1,9 @@
 import { IO, Logger, RealTimePayload } from 'botpress/sdk'
 import cookie from 'cookie'
-import { BotpressConfig } from 'core/config/botpress.config'
-import { ConfigProvider } from 'core/config/config-loader'
+import { TYPES } from 'core/app/types'
+import { BotpressConfig, ConfigProvider } from 'core/config'
+import { MonitoringService } from 'core/health'
+import { AuthService } from 'core/security'
 import { EventEmitter2 } from 'eventemitter2'
 import { Server } from 'http'
 import { inject, injectable, tagged } from 'inversify'
@@ -9,9 +11,6 @@ import _ from 'lodash'
 import socketio, { Adapter } from 'socket.io'
 import redisAdapter from 'socket.io-redis'
 import socketioJwt from 'socketio-jwt'
-import { TYPES } from '../../types'
-import AuthService from '../auth/auth-service'
-import { MonitoringService } from '../monitoring'
 
 const debug = DEBUG('realtime')
 
@@ -28,7 +27,7 @@ interface RedisAdapter extends Adapter {
 }
 
 @injectable()
-export default class RealtimeService {
+export class RealtimeService {
   private readonly ee: EventEmitter2
   private useRedis: boolean
   private guest?: socketio.Namespace

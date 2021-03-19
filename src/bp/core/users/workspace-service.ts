@@ -10,8 +10,10 @@ import {
 } from 'botpress/sdk'
 import { CHAT_USER_ROLE, defaultPipelines, defaultWorkspace } from 'common/defaults'
 import { AuthRole, CreateWorkspace, Pipeline, Workspace } from 'common/typings'
+import { TYPES } from 'core/app/types'
+import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config'
-import { ConflictError, NotFoundError } from 'core/routers/errors'
+import { InvalidOperationError, ConflictError, NotFoundError } from 'core/routers'
 import {
   StrategyUsersRepository,
   WorkspaceUsersRepository,
@@ -21,11 +23,6 @@ import {
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
-
-import { TYPES } from '../types'
-
-import { InvalidOperationError } from './auth/errors'
-import { GhostService } from './ghost/service'
 
 export const ROLLOUT_STRATEGIES: RolloutStrategy[] = [
   'anonymous',

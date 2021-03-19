@@ -1,6 +1,6 @@
 import { StrategyUser } from 'botpress/sdk'
 import { TokenResponse } from 'common/typings'
-import { AuthStrategyType } from 'core/config/botpress.config'
+import { AuthStrategyType } from 'core/config'
 import { Router } from 'express'
 import { injectable } from 'inversify'
 

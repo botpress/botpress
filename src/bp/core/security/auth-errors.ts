@@ -1,13 +1,5 @@
 import { ResponseError } from 'common/http'
 
-export class InvalidOperationError extends ResponseError {
-  constructor(message: string) {
-    super('Invalid operation: ' + message, 400, 'BP_0006')
-  }
-
-  type = 'InvalidOperationError'
-}
-
 export class InvalidCredentialsError extends ResponseError {
   constructor(message?: string) {
     super('Invalid credentials' + (message ? ' ' + message : ''), 400, 'BP_0009')

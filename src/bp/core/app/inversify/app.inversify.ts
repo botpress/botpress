@@ -7,12 +7,11 @@ import { EventCollector } from 'core/events'
 import { LoggerDbPersister, LoggerFilePersister, LoggerProvider, PersistedConsoleLogger } from 'core/logger'
 import { MigrationService } from 'core/migration'
 import { ModuleLoader } from 'core/modules'
-import { TelemetryContainerModules } from 'core/telemetry'
+import { TelemetryContainerModules, AnalyticsService } from 'core/telemetry'
 import { LocalActionServer } from 'core/user-code'
 import { DataRetentionJanitor, DataRetentionService, WorkspaceService } from 'core/users'
 import { Container } from 'inversify'
 
-import { Statistics } from '../../stats'
 import { TYPES } from '../types'
 import { DatabaseContainerModules } from './database.inversify'
 import { RepositoriesContainerModules } from './repositories.inversify'
@@ -85,8 +84,8 @@ container
   .inSingletonScope()
 
 container
-  .bind<Statistics>(TYPES.Statistics)
-  .to(Statistics)
+  .bind<AnalyticsService>(TYPES.Statistics)
+  .to(AnalyticsService)
   .inSingletonScope()
 
 container

@@ -1,7 +1,7 @@
-import { BotService } from 'core/services/bot-service'
-import { Migration, MigrationOpts } from 'core/services/migration'
-import { WorkspaceService } from 'core/services/workspace-service'
+import { BotService } from 'core/bots'
+import { Migration, MigrationOpts } from 'core/migration'
 import { TYPES } from 'core/types'
+import { WorkspaceService } from 'core/users'
 
 const migration: Migration = {
   info: {

@@ -1,9 +1,9 @@
 import { ConverseConfig } from 'botpress/sdk'
+import { IncidentRule } from 'core/health'
 import { CookieOptions } from 'express'
 import { Algorithm } from 'jsonwebtoken'
 
 import { ActionServer, UniqueUser } from '../../common/typings'
-import { IncidentRule } from '../services/alerting-service'
 
 export type BotpressCondition = '$isProduction' | '$isDevelopment'
 
