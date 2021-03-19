@@ -255,11 +255,11 @@ export class Botpress {
   async deployAssets() {
     try {
       for (const dir of ['./pre-trained', './stop-words']) {
-        await copyDir(path.resolve(__dirname, '../nlu/engine/assets', dir), path.resolve(process.APP_DATA_PATH, dir))
+        await copyDir(path.resolve(__dirname, '../../nlu/engine/assets', dir), path.resolve(process.APP_DATA_PATH, dir))
       }
 
       const assets = path.resolve(process.PROJECT_LOCATION, 'data/assets')
-      await copyDir(path.join(__dirname, '../ui-admin'), `${assets}/ui-admin`)
+      await copyDir(path.join(__dirname, '../../ui-admin'), `${assets}/ui-admin`)
 
       // Avoids overwriting the folder when developing locally on the studio
       if (fse.pathExistsSync(`${assets}/ui-studio/public`)) {
@@ -269,7 +269,7 @@ export class Botpress {
         }
       }
 
-      await copyDir(path.join(__dirname, '../ui-studio'), `${assets}/ui-studio`)
+      await copyDir(path.join(__dirname, '../../ui-studio'), `${assets}/ui-studio`)
     } catch (err) {
       this.logger.attachError(err).error('Error deploying assets')
     }
