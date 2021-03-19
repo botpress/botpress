@@ -326,7 +326,7 @@ export class BotsRouter extends CustomRouter {
       this.needPermissions('read', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
-        const flows = await this.flowService.loadAll(botId)
+        const flows = await this.flowService.forBot(botId).loadAll()
         res.send(flows)
       })
     )
@@ -340,7 +340,7 @@ export class BotsRouter extends CustomRouter {
         const flow = <FlowView>req.body.flow
         const userEmail = req.tokenUser!.email
 
-        await this.flowService.insertFlow(botId, flow, userEmail)
+        await this.flowService.forBot(botId).insertFlow(flow, userEmail)
 
         res.sendStatus(200)
       })
@@ -357,12 +357,12 @@ export class BotsRouter extends CustomRouter {
         const userEmail = req.tokenUser!.email
 
         if (_.has(flow, 'name') && flowName !== flow.name) {
-          await this.flowService.renameFlow(botId, flowName, flow.name, userEmail)
+          await this.flowService.forBot(botId).renameFlow(flowName, flow.name, userEmail)
           return res.sendStatus(200)
         }
 
         try {
-          await this.flowService.updateFlow(botId, flow, userEmail)
+          await this.flowService.forBot(botId).updateFlow(flow, userEmail)
           res.sendStatus(200)
         } catch (err) {
           if (err.type && err.type === MutexError.name) {
@@ -384,14 +384,14 @@ export class BotsRouter extends CustomRouter {
 
         const userEmail = req.tokenUser!.email
 
-        await this.flowService.deleteFlow(botId, flowName as string, userEmail)
+        await this.flowService.forBot(botId).deleteFlow(flowName as string, userEmail)
 
         res.sendStatus(200)
       })
     )
 
     this.router.get('/topics', this.checkTokenHeader, async (req, res) => {
-      res.send(await this.flowService.getTopics(req.params.botId))
+      res.send(await this.flowService.forBot(req.params.botId).getTopics())
     })
 
     this.router.post(
@@ -404,9 +404,9 @@ export class BotsRouter extends CustomRouter {
         const topic = await validate(req.body, TopicSchema)
 
         if (!topicName) {
-          await this.flowService.createTopic(botId, topic)
+          await this.flowService.forBot(botId).createTopic(topic)
         } else {
-          await this.flowService.updateTopic(botId, topic, topicName)
+          await this.flowService.forBot(botId).updateTopic(topic, topicName)
         }
 
         res.sendStatus(200)
@@ -419,7 +419,7 @@ export class BotsRouter extends CustomRouter {
       this.needPermissions('write', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {
         const { topicName, botId } = req.params
-        await this.flowService.deleteTopic(botId, topicName)
+        await this.flowService.forBot(botId).deleteTopic(topicName)
 
         res.sendStatus(200)
       })

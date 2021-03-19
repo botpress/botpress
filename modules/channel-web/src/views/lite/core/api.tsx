@@ -112,7 +112,7 @@ export default class WebchatApi {
   async createConversation(): Promise<number> {
     try {
       const { data } = await this.axios.post('/conversations/new', this.baseUserPayload, this.axiosConfig)
-      return data.conversationId
+      return data.convoId
     } catch (err) {
       console.error('Error in create conversation', err)
     }
