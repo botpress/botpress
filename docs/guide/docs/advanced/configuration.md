@@ -191,4 +191,4 @@ These variables can be used to disable some sensitive features destined to Super
 ## More Information
 
 - Check out the [database](../tutorials/database) page for details about `DATABASE_URL`
-- Check out the [cluster](cluster) page for details about `CLUSTER_ENABLED` and `REDIS_URL`
+- Check out the [cluster](../infrastructure/cluster) page for details about `CLUSTER_ENABLED` and `REDIS_URL`
