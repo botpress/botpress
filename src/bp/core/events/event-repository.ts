@@ -1,16 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import Database from 'core/database'
+import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
-
-import { TYPES } from '../types'
-
-export interface EventRepository {
-  findEvents(fields: Partial<sdk.IO.StoredEvent>, searchParams?: sdk.EventSearchParams): Promise<sdk.IO.StoredEvent[]>
-  pruneUntil(date: Date): Promise<void>
-  updateEvent(id: string, fields: Partial<sdk.IO.StoredEvent>): Promise<void>
-  saveUserFeedback(incomingEventId: string, target: string, feedback: number, type?: string): Promise<boolean>
-}
 
 export const DefaultSearchParams: sdk.EventSearchParams = {
   sortOrder: [{ column: 'createdOn' }],
@@ -21,7 +13,7 @@ export const DefaultSearchParams: sdk.EventSearchParams = {
 const UNLIMITED_ELEMENTS = -1
 
 @injectable()
-export class KnexEventRepository implements EventRepository {
+export class EventRepository {
   private readonly TABLE_NAME = 'events'
 
   constructor(@inject(TYPES.Database) private database: Database) {}

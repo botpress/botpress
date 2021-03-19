@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "12.19.0",
+  "version": "12.19.1",
   "description": "The world's most powerful conversational engine",
   "main": "index.js",
   "bin": "index.js",
@@ -11,8 +11,8 @@
       "./*.js",
       "./pro/**/*.js",
       "./common/**/*.js",
-      "./ml/**/*.js",
-      "./nlu-core/**/*.js",
+      "./nlu/ml/**/*.js",
+      "./nlu/engine/**/*.js",
       "./migrations/**/*.js"
     ],
     "assets": [
@@ -22,8 +22,8 @@
       "./ui-studio/**",
       "./core/config/schemas/**",
       "./ml/bin/**",
-      "./nlu-core/language/pre-trained/**",
-      "./nlu-core/language/stop-words/**"
+      "./nlu/engine/assets/pre-trained/**",
+      "./nlu/engine/assets/stop-words/**"
     ]
   }
 }
