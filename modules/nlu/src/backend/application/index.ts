@@ -33,6 +33,7 @@ export class NLUApplication {
     for (const botId of this._botService.getIds()) {
       await this.unmountBot(botId)
     }
+    return this._trainingQueue.teardown()
   }
 
   public getHealth() {
