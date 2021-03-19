@@ -168,7 +168,6 @@ export class TrainingQueue {
 
   protected async runTask(): Promise<void> {
     return this._trainingRepo.inTransaction(async ctx => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       const localTrainings = await ctx.query({ owner: this._workerId, status: 'training' })
       if (localTrainings.length >= this._options.maxTraining) {
         return
@@ -197,12 +196,12 @@ export class TrainingQueue {
     const { botId, language } = trainId
     const trainer = this._trainerService.getBot(botId)
     if (!trainer) {
+      // This case should never happend
       return this._trainingRepo.inTransaction(trx => {
         this._logger.warn(`About to train ${botId}, but no bot found.`)
         const newState = this._fillSate({ status: 'needs-training' })
         return this._update(trainId, newState, trx)
       }, '_train')
-      // This case should never happend
     }
 
     try {
@@ -250,7 +249,6 @@ export class TrainingQueue {
 
       await this._notify(trainId, this._fillSate({ status: 'errored' }))
 
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       return trx.set(trainId, this._fillSate({ status: 'needs-training' }))
     }, '_handleTrainError: unexpected error')
   }
