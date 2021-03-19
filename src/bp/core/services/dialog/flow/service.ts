@@ -76,8 +76,6 @@ class FlowCache {
   public upsertFlow(botId: string, flow: FlowView): void {
     if (this._flows.has(botId)) {
       this._flows.get(botId)!.set(flow.name, flow)
-    } else {
-      this.set(botId, [flow])
     }
   }
 
