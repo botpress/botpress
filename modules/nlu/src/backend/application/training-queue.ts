@@ -5,7 +5,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 import nanoid from 'nanoid'
-import { ITrainingRepository, TransactionContext } from './training-repo'
+import { ITrainingRepository, ITransactionContext } from './training-repo'
 import { TrainingId, TrainerService, TrainingListener, TrainingState, TrainingSession, I } from './typings'
 
 export interface TrainingQueueOptions {
@@ -152,9 +152,8 @@ export class TrainingQueue {
     return this._trainingRepo.getAll()
   }
 
-  private _update = async (id: TrainingId, newState: TrainingState, context: TransactionContext | null = null) => {
-    const trx = context ? context : this._trainingRepo
-    await trx.set(id, newState)
+  private _update = async (id: TrainingId, newState: TrainingState, context: ITransactionContext) => {
+    await context.set(id, newState)
     return this._notify(id, newState)
   }
 
@@ -193,22 +192,27 @@ export class TrainingQueue {
     const { botId, language } = trainId
     const trainer = this._trainerService.getBot(botId)
     if (!trainer) {
+      return this._trainingRepo.inTransaction(trx => {
+        this._logger.warn(`About to train ${botId}, but no bot found.`)
+        const newState = this._fillSate({ status: 'needs-training' })
+        return this._update(trainId, newState, trx)
+      })
       // This case should never happend
-      this._logger.warn(`About to train ${botId}, but no bot found.`)
-      const newState = this._fillSate({ status: 'needs-training' })
-      await this._update(trainId, newState)
-      return
     }
 
     try {
       const modelId = await trainer.train(language, async (progress: number) => {
-        const newState = this._fillSate({ status: 'training', progress })
-        return this._update(trainId, newState)
+        return this._trainingRepo.inTransaction(trx => {
+          const newState = this._fillSate({ status: 'training', progress })
+          return this._update(trainId, newState, trx)
+        })
       })
-      await this.loadModel(botId, modelId)
+      await this._trainingRepo.inTransaction(async trx => {
+        await this.loadModel(botId, modelId)
 
-      const newState = this._fillSate({ status: 'done', progress: 1 })
-      await this._update(trainId, newState)
+        const newState = this._fillSate({ status: 'done', progress: 1 })
+        await this._update(trainId, newState, trx)
+      })
     } catch (err) {
       await this._handleTrainError(trainId, err)
     } finally {
@@ -220,9 +224,11 @@ export class TrainingQueue {
     const { botId } = trainId
 
     if (this._errors.isTrainingCanceled(err)) {
-      this._logger.forBot(botId).info(`Training ${this._toString(trainId)} canceled`)
-      const newState = this._fillSate({ status: 'needs-training' })
-      return this._update(trainId, newState)
+      return this._trainingRepo.inTransaction(async trx => {
+        this._logger.forBot(botId).info(`Training ${this._toString(trainId)} canceled`)
+        const newState = this._fillSate({ status: 'needs-training' })
+        return this._update(trainId, newState, trx)
+      })
     }
 
     if (this._errors.isTrainingAlreadyStarted(err)) {
@@ -231,15 +237,17 @@ export class TrainingQueue {
       return
     }
 
-    this._logger
-      .forBot(botId)
-      .attachError(err)
-      .error(`Training ${this._toString(trainId)} could not finish because of an unexpected error.`)
+    return this._trainingRepo.inTransaction(async trx => {
+      this._logger
+        .forBot(botId)
+        .attachError(err)
+        .error(`Training ${this._toString(trainId)} could not finish because of an unexpected error.`)
 
-    await this._notify(trainId, this._fillSate({ status: 'errored' }))
+      await this._notify(trainId, this._fillSate({ status: 'errored' }))
 
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this._trainingRepo.set(trainId, this._fillSate({ status: 'needs-training' }))
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      return trx.set(trainId, this._fillSate({ status: 'needs-training' }))
+    })
   }
 
   private _toString(id: TrainingId) {

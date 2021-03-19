@@ -5,7 +5,8 @@ import { TrainingId, TrainingState, TrainingSession, I } from './typings'
 const TABLE_NAME = 'nlu_training_queue'
 const debug = DEBUG('nlu').sub('lifecycle')
 
-export class TransactionContext {
+export type ITransactionContext = I<TransactionContext>
+class TransactionContext {
   constructor(protected _database: typeof sdk.database, public transaction: Transaction | null = null) {}
 
   private get table() {
@@ -106,20 +107,12 @@ export class TrainingRepository implements TrainingRepository {
     return this._context.getAll()
   }
 
-  public set = async (trainId: TrainingId, trainState: TrainingState): Promise<void> => {
-    return this._context.set(trainId, trainState)
-  }
-
   public has = async (trainId: TrainingId): Promise<boolean> => {
     return this._context.has(trainId)
   }
 
   public query = async (query: Partial<TrainingSession>): Promise<TrainingSession[]> => {
     return this._context.query(query)
-  }
-
-  public delete = async (trainId: TrainingId): Promise<void> => {
-    return this._context.delete(trainId)
   }
 
   public clear = async (): Promise<void[]> => {
