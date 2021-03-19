@@ -7,11 +7,11 @@ const TABLE_NAME = 'nlu_training_queue'
 const TRANSACTION_TIMEOUT_MS = ms('5s')
 const debug = DEBUG('nlu').sub('lifecycle')
 
-export const TRANSACTION_TIMEOUT_ERROR = new Error("Transaction exceeded it's time limit")
+const TRANSACTION_TIMEOUT_ERROR = "Transaction exceeded it's time limit"
 
 const timeout = (ms: number) => {
   return new Promise((_, reject) => {
-    setTimeout(() => reject(TRANSACTION_TIMEOUT_ERROR), ms)
+    setTimeout(() => reject(new Error(TRANSACTION_TIMEOUT_ERROR)), ms)
   })
 }
 
@@ -90,7 +90,7 @@ export class TrainingRepository implements TrainingRepository {
   }
 
   public inTransaction = async (
-    action: (trx: TransactionContext) => Promise<any>,
+    action: (trx: ITransactionContext) => Promise<any>,
     name: string | null = null
   ): Promise<any> => {
     return this._database.transaction(async trx => {
