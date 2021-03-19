@@ -5,6 +5,7 @@ import { ConversationRepository, MessageRepository } from 'core/messaging'
 import { NotificationsRepository } from 'core/notifications'
 import { TelemetryRepository } from 'core/telemetry'
 import { TYPES } from 'core/types'
+import { TasksRepository } from 'core/user-code'
 import {
   ChannelUserRepository,
   StrategyUsersRepository,
@@ -12,8 +13,6 @@ import {
   WorkspaceUsersRepository
 } from 'core/users'
 import { ContainerModule, interfaces } from 'inversify'
-
-import { TasksRepository } from './tasks'
 
 const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<SessionRepository>(TYPES.SessionRepository)

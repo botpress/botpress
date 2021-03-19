@@ -1,13 +1,13 @@
 import axios from 'axios'
 import { Logger } from 'botpress/sdk'
 import { ActionDefinition, ActionServer, ActionServerWithActions } from 'common/typings'
-import { ConfigProvider } from 'core/config/config-loader'
+import { ConfigProvider } from 'core/config'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
-import joi, { boolean, number, validate } from 'joi'
+import joi, { validate } from 'joi'
 import _ from 'lodash'
 
-import { actionServerIdRegex } from './utils'
+import { actionServerIdRegex } from '../utils'
 
 const HttpActionSchema = joi.array().items(
   joi.object().keys({
@@ -35,7 +35,7 @@ export const ActionServersConfigSchema = joi.object().keys({
 })
 
 @injectable()
-export default class ActionServersService {
+export class ActionServersService {
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'ActionServersService')

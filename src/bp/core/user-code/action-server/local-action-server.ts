@@ -11,7 +11,7 @@ import Joi from 'joi'
 import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
 
-import ActionService, { ActionServerResponse, RunActionProps } from './action-service'
+import { ActionService, ActionServerResponse, RunActionProps } from '../action-service'
 
 const _validateRunRequest = async (req: Request, res: Response, next: NextFunction) => {
   try {

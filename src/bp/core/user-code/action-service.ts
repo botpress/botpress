@@ -3,14 +3,18 @@ import { IO, Logger } from 'botpress/sdk'
 import { extractEventCommonArgs } from 'common/action'
 import { ObjectCache } from 'common/object-cache'
 import { ActionScope, ActionServer, LocalActionDefinition } from 'common/typings'
+import { createForAction } from 'core/api'
+import { BotService } from 'core/bots'
+import { GhostService } from 'core/bpfs'
+import { ActionExecutionError } from 'core/dialog'
 import { addErrorToEvent, addStepToEvent, StepScopes, StepStatus } from 'core/events'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
 import { clearRequireCache, requireFromString } from 'core/modules'
-import { TasksRepository } from 'core/repositories/tasks'
 import { NotFoundError } from 'core/routers/errors'
 import { ACTION_SERVER_AUDIENCE } from 'core/routers/sdk/utils'
 import { TYPES } from 'core/types'
+import { WorkspaceService } from 'core/users'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 import jsonwebtoken from 'jsonwebtoken'
@@ -20,11 +24,7 @@ import path from 'path'
 import { NodeVM } from 'vm2'
 import yn from 'yn'
 
-import { GhostService } from '..'
-import { createForAction } from '../../api'
-import { BotService } from '../bot-service'
-import { ActionExecutionError } from '../dialog/errors'
-import { WorkspaceService } from '../workspace-service'
+import { TasksRepository } from './action-server/tasks-repository'
 import { extractMetadata } from './metadata'
 import {
   enabled,
@@ -54,7 +54,7 @@ const ACTION_SERVER_RESPONSE_SCHEMA = joi.object({
 })
 
 @injectable()
-export default class ActionService {
+export class ActionService {
   private _scopedActions: Map<string, Promise<ScopedActionService>> = new Map()
   private _invalidateDebounce
 

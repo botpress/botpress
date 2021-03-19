@@ -1,12 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import chalk from 'chalk'
-import { ConfigProvider } from 'core/config/config-loader'
+import { GhostService } from 'core/bpfs'
+import { ConfigProvider } from 'core/config'
 import { PersistedConsoleLogger, centerText } from 'core/logger'
 import _ from 'lodash'
 import path from 'path'
 import stripAnsi from 'strip-ansi'
 
-import { GhostService } from '../ghost/service'
 import { MigrationEntry, MigrationFile, MigrationService, types } from '.'
 
 const debug = DEBUG('migration')

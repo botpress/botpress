@@ -10,6 +10,9 @@ import {
   Skill
 } from 'botpress/sdk'
 import { ModuleInfo } from 'common/typings'
+import { createForModule } from 'core/api'
+import { BotService } from 'core/bots'
+import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config'
 import { TYPES } from 'core/types'
 import { ValidationError } from 'errors'
@@ -20,10 +23,7 @@ import _ from 'lodash'
 import path from 'path'
 import tmp from 'tmp'
 
-import { createForModule } from '../api' // TODO
 import { extractArchive } from '../misc/archive'
-import { GhostService } from '../services'
-import { BotService } from '../services/bot-service'
 import { ConfigReader } from './config-reader'
 import { ModuleResourceLoader } from './module-resources-loader'
 import { clearModuleScriptCache } from './utils/require'

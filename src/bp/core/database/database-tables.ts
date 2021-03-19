@@ -6,8 +6,11 @@ import { KeyValueStoreTable } from 'core/kvs/kvs-table'
 import { LogsTable } from 'core/logger/logs-table'
 import { ConversationsTable } from 'core/messaging/conversations-table'
 import { MessagesTable } from 'core/messaging/messages-table'
+import { ServerMetadataTable } from 'core/migration/metadata-table'
+import { MigrationsTable } from 'core/migration/migrations-table'
 import { NotificationsTable } from 'core/notifications/notifications-table'
 import { TelemetryTable } from 'core/telemetry/telemetry-table'
+import { TasksTable } from 'core/user-code/action-server/tasks-table'
 import {
   WorkspaceInviteCodesTable,
   WorkspaceUsersTable,
@@ -17,17 +20,13 @@ import {
 } from 'core/users/tables'
 import Knex from 'knex'
 
-import { Table } from '../interfaces'
-
-import { TasksTable } from './bot-specific'
-import { MigrationsTable, ServerMetadataTable } from './server-wide'
+import { Table } from './interfaces'
 
 const tables: typeof Table[] = [
   ServerMetadataTable,
   ChannelUsersTable,
   WorkspaceUsersTable,
   WorkspaceInviteCodesTable,
-
   LogsTable,
   ChannelUsersTable,
   DialogSessionTable,
