@@ -23,7 +23,7 @@ import { RootReducer } from '~/reducers'
 import SidePanelOneFlow from '../FlowBuilder/sidePanelTopics'
 
 import Diagram from './diagram'
-import SidePanel, { PanelPermissions } from './sidePanelFlows'
+import SidePanel, { PanelPermissions, SidePanelInspector } from './sidePanelFlows'
 import SkillsBuilder from './skills'
 import style from './style.scss'
 
@@ -179,6 +179,8 @@ const FlowBuilder = (props: Props) => {
           onCreateFlow={createFlow}
         />
       )}
+
+      <SidePanelInspector/>
 
       <div className={style.diagram}>
         <Diagram

@@ -373,6 +373,7 @@ export class DiagramManager {
       // Select newly inserted nodes
       model.setSelected(true)
       this.storeDispatch.switchFlowNode(node.id)
+      this.storeDispatch.openFlowNodeProps()
     }, 150)
 
     model.lastModified = node.lastModified
