@@ -26,14 +26,14 @@ export class NLUApplication {
   }
 
   public get trainRepository(): ITrainingRepository {
-    return this._trainingQueue.service.repository
+    return this._trainingQueue.repository
   }
 
   public teardown = async () => {
-    await this._trainingQueue.teardown()
     for (const botId of this._botService.getIds()) {
       await this.unmountBot(botId)
     }
+    return this._trainingQueue.teardown()
   }
 
   public getHealth() {

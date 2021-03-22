@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { TrainingQueue, TrainingQueueOptions } from './training-queue'
-import { ITrainingService } from './training-service'
+import { ITrainingRepository } from './training-repo'
 import { TrainingId, TrainerService, TrainingListener } from './typings'
 
 export class DistributedTrainingQueue extends TrainingQueue {
@@ -9,7 +9,7 @@ export class DistributedTrainingQueue extends TrainingQueue {
   private _broadcastRunTask: () => Promise<void>
 
   constructor(
-    _trainingService: ITrainingService,
+    _trainingRepo: ITrainingRepository,
     _errors: typeof sdk.NLU.errors,
     _logger: sdk.Logger,
     _trainerService: TrainerService,
@@ -17,7 +17,7 @@ export class DistributedTrainingQueue extends TrainingQueue {
     _onChange: TrainingListener,
     options: Partial<TrainingQueueOptions> = {}
   ) {
-    super(_trainingService, _errors, _logger, _trainerService, _onChange, options)
+    super(_trainingRepo, _errors, _logger, _trainerService, _onChange, options)
   }
 
   public async initialize() {

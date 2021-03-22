@@ -20,7 +20,7 @@ export interface BotDefinition {
 
 export type ProgressCallback = (p: number) => Promise<void>
 
-export interface Trainer {
+export interface Trainable {
   train(language: string, progressCallback: ProgressCallback): Promise<NLU.ModelId>
   load(modelId: NLU.ModelId): Promise<void>
   cancelTraining(language: string): Promise<void>
@@ -50,7 +50,7 @@ export interface TrainingSession extends TrainingId, TrainingState {}
 
 export interface TrainerService {
   hasBot(botId: string): boolean
-  getBot(botId: string): Trainer | undefined
+  getBot(botId: string): Trainable | undefined
 }
 
 export type TrainingListener = (ts: TrainingSession) => Promise<void>

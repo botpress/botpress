@@ -74,14 +74,17 @@ const createRepositoryRouter = (app: NLUApplication): Router => {
     if (error) {
       return res.status(400).json({ error: `Training status body is invalid: ${error.message}` })
     }
-
-    await repo.set({ botId, language: lang }, value)
+    await repo.inTransaction(trx => {
+      return trx.set({ botId, language: lang }, value)
+    })
     res.status(200).send()
   })
 
   router.post('/trainings/:lang/delete', async (req, res) => {
     const { botId, lang } = req.params
-    await repo.delete({ botId, language: lang })
+    await repo.inTransaction(trx => {
+      return trx.delete({ botId, language: lang })
+    })
     res.status(200).send()
   })
 
