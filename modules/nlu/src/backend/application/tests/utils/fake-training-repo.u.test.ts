@@ -1,33 +1,34 @@
-import { TrainingState, TrainingId, TrainingSession, LockedTrainingSession } from '../../typings'
-import { ITrainingRepository } from '../../training-repo'
-
-export class FakeTrainingRepository implements ITrainingRepository {
+import { TrainingState, TrainingId, TrainingSession } from '../../typings'
+import { ITrainingRepository, ITransactionContext } from '../../training-repo'
+import { Semaphore } from './utils.u.test'
+class FakeTransactionContext implements ITransactionContext {
+  public transaction = null
   private _trainings: { [key: string]: TrainingState & { modifiedOn: Date } } = {}
 
-  async initialize(): Promise<void> {}
-
-  public async has(id: TrainingId): Promise<boolean> {
-    return !!this.get(id)
+  public set(trainId: TrainingId, trainState: TrainingState): Promise<void> {
+    this._trainings[this._toKey(trainId)] = { ...trainState, modifiedOn: new Date() }
+    return
   }
 
-  public async get(id: TrainingId): Promise<LockedTrainingSession | undefined> {
-    const training = this._trainings[this._toKey(id)]
-    return { ...id, ...training }
+  public has(trainId: TrainingId): Promise<boolean> {
+    return new Promise(resolve => resolve(!!this.get(trainId)))
   }
 
-  public async set(id: TrainingId, state: TrainingState) {
-    this._trainings[this._toKey(id)] = { ...state, modifiedOn: new Date() }
+  public get(trainId: TrainingId): Promise<TrainingSession> {
+    const training = this._trainings[this._toKey(trainId)]
+    const value = { ...trainId, ...training }
+    return new Promise(resolve => resolve(value))
   }
 
-  public async clear() {
-    const keys = Object.keys(this._trainings)
-    return Promise.map(keys, async k => {
-      delete this._trainings[k]
-    })
+  public async getAll(): Promise<TrainingSession[]> {
+    return Object.entries(this._trainings).map(([k, v]) => ({
+      ...this._fromKey(k),
+      ...v
+    }))
   }
 
-  public async query(query: Partial<TrainingSession>): Promise<LockedTrainingSession[]> {
-    const toSession = ([key, state]: [string, TrainingState & { modifiedOn: Date }]): LockedTrainingSession => {
+  public async query(query: Partial<TrainingSession>): Promise<TrainingSession[]> {
+    const toSession = ([key, state]: [string, TrainingState & { modifiedOn: Date }]): TrainingSession => {
       const id = this._fromKey(key)
       return { ...id, ...state }
     }
@@ -41,11 +42,11 @@ export class FakeTrainingRepository implements ITrainingRepository {
     delete this._trainings[this._toKey(id)]
   }
 
-  public async getAll(): Promise<TrainingSession[]> {
-    return Object.entries(this._trainings).map(([k, v]) => ({
-      ...this._fromKey(k),
-      ...v
-    }))
+  public async clear() {
+    const keys = Object.keys(this._trainings)
+    return Promise.map(keys, async k => {
+      delete this._trainings[k]
+    })
   }
 
   private _toKey = (id: TrainingId) => {
@@ -60,5 +61,42 @@ export class FakeTrainingRepository implements ITrainingRepository {
 
   private _matchQuery = (query: Partial<TrainingSession>) => (ts: TrainingSession) => {
     return !Object.keys(query).some(k => query[k] !== ts[k])
+  }
+}
+
+export class FakeTrainingRepository implements ITrainingRepository {
+  private _context = new FakeTransactionContext()
+  static mutex = new Semaphore(1)
+
+  async initialize(): Promise<void> {}
+
+  public async inTransaction(action: (trx: ITransactionContext) => Promise<any>, name?: string): Promise<any> {
+    return FakeTrainingRepository.mutex.exclusively(() => {
+      return action(this._context)
+    })
+  }
+
+  public get = async (trainId: TrainingId): Promise<TrainingSession | undefined> => {
+    return this._context.get(trainId)
+  }
+
+  public getAll = async (): Promise<TrainingSession[]> => {
+    return this._context.getAll()
+  }
+
+  public has = async (trainId: TrainingId): Promise<boolean> => {
+    return this._context.has(trainId)
+  }
+
+  public query = async (query: Partial<TrainingSession>): Promise<TrainingSession[]> => {
+    return this._context.query(query)
+  }
+
+  public clear = async (): Promise<void[]> => {
+    return this._context.clear()
+  }
+
+  public teardown = async (): Promise<void[]> => {
+    return this.clear()
   }
 }

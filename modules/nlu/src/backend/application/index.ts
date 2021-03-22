@@ -26,14 +26,14 @@ export class NLUApplication {
   }
 
   public get trainRepository(): ITrainingRepository {
-    return this._trainingQueue.service.repository
+    return this._trainingQueue.repository
   }
 
   public teardown = async () => {
-    await this._trainingQueue.teardown()
     for (const botId of this._botService.getIds()) {
       await this.unmountBot(botId)
     }
+    return this._trainingQueue.teardown()
   }
 
   public getHealth() {
@@ -82,12 +82,14 @@ export class NLUApplication {
       return cb({ botId, language })
     }
 
-    const loadOrSetTrainingNeeded = makeDirtyModelHandler(this._trainingQueue.needsTraining)
+    const loadOrSetTrainingNeeded = makeDirtyModelHandler((trainId: TrainingId) =>
+      this._trainingQueue.needsTraining(trainId)
+    )
     defService.listenForDirtyModels(loadOrSetTrainingNeeded)
 
     const trainingHandler = this._queueTrainingOnBotMount
-      ? this._trainingQueue.queueTraining
-      : this._trainingQueue.needsTraining
+      ? (trainId: TrainingId) => this._trainingQueue.queueTraining(trainId)
+      : (trainId: TrainingId) => this._trainingQueue.needsTraining(trainId)
 
     const loadModelOrQueue = makeDirtyModelHandler(trainingHandler)
     for (const language of languages) {

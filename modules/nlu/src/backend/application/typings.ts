@@ -20,7 +20,7 @@ export interface BotDefinition {
 
 export type ProgressCallback = (p: number) => Promise<void>
 
-export interface Trainer {
+export interface Trainable {
   train(language: string, progressCallback: ProgressCallback): Promise<NLU.ModelId>
   load(modelId: NLU.ModelId): Promise<void>
   cancelTraining(language: string): Promise<void>
@@ -37,6 +37,8 @@ export type EventUnderstanding = Omit<IO.EventUnderstanding, 'includedContexts' 
 export interface TrainingState {
   status: NLU.TrainingStatus
   progress: number
+  owner: string
+  modifiedOn: Date
 }
 
 export interface TrainingId {
@@ -46,13 +48,9 @@ export interface TrainingId {
 
 export interface TrainingSession extends TrainingId, TrainingState {}
 
-export interface LockedTrainingSession extends TrainingSession {
-  modifiedOn: Date
-}
-
 export interface TrainerService {
   hasBot(botId: string): boolean
-  getBot(botId: string): Trainer | undefined
+  getBot(botId: string): Trainable | undefined
 }
 
 export type TrainingListener = (ts: TrainingSession) => Promise<void>

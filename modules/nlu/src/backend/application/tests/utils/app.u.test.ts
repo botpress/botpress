@@ -4,7 +4,8 @@ import _ from 'lodash'
 import { NLUApplication } from '../../'
 import { BotFactory, DefinitionRepositoryFactory, ModelRepositoryFactory } from '../../bot-factory'
 import { BotService } from '../../bot-service'
-import { TrainingQueue, TrainingQueueOptions } from '../../training-queue'
+import { DistributedTrainingQueue } from '../../distributed-training-queue'
+import { TrainingQueueOptions } from '../../training-queue'
 import { TrainDefinitions } from '../../scoped/infrastructure/definitions-repository'
 
 import { FakeTrainingRepository } from './fake-training-repo.u.test'
@@ -17,7 +18,6 @@ import { StubLogger } from './stub-logger.u.test'
 import { sleep } from './utils.u.test'
 
 import { TrainingSession } from '../../typings'
-import { TrainingService, TrainingServiceOptions } from '../../training-service'
 import { FakeDistributed } from './fake-distributed.u.test'
 
 interface AppDependencies {
@@ -74,7 +74,7 @@ export const makeDependencies = (
 
 export const makeApp = (
   dependencies: AppDependencies,
-  options: Partial<TrainingQueueOptions & TrainingServiceOptions & { queueTrainingOnBotMount?: boolean }> = {}
+  options: Partial<TrainingQueueOptions & { queueTrainingOnBotMount?: boolean }> = {}
 ) => {
   const { socket, engine, errors, logger, defRepoByBot, modelRepoByBot, trainingRepo, distributed } = dependencies
 
@@ -84,9 +84,8 @@ export const makeApp = (
   const botService = new BotService()
   const botFactory = new BotFactory(engine, logger, modelIdService, defRepoFactory, modelRepoFactory)
 
-  const concurentTrainingRepository = new TrainingService(trainingRepo, distributed, logger, options)
-  const trainingQueue = new TrainingQueue(
-    concurentTrainingRepository,
+  const trainingQueue = new DistributedTrainingQueue(
+    trainingRepo,
     errors,
     logger,
     botService,
