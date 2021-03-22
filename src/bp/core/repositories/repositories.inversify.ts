@@ -1,43 +1,39 @@
+import { SessionRepository } from 'core/dialog/sessions'
+import { EventRepository } from 'core/events'
+import { LogsRepository } from 'core/logger'
+import { ConversationRepository, MessageRepository } from 'core/messaging'
+import { NotificationsRepository } from 'core/notifications'
+import { TelemetryRepository } from 'core/telemetry'
+import { TYPES } from 'core/types'
+import {
+  ChannelUserRepository,
+  StrategyUsersRepository,
+  WorkspaceInviteCodesRepository,
+  WorkspaceUsersRepository
+} from 'core/users'
 import { ContainerModule, interfaces } from 'inversify'
 
-import { TYPES } from '../types'
-
-import {
-  EventRepository,
-  KnexEventRepository,
-  KnexNotificationsRepository,
-  KnexSessionRepository,
-  KnexUserRepository,
-  NotificationsRepository,
-  SessionRepository,
-  UserRepository,
-  WorkspaceInviteCodesRepository
-} from '.'
-import { KnexLogsRepository, LogsRepository } from './logs'
-import { StrategyUsersRepository } from './strategy_users'
 import { TasksRepository } from './tasks'
-import { TelemetryRepository } from './telemetry'
-import { WorkspaceUsersRepository } from './workspace_users'
 
 const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<SessionRepository>(TYPES.SessionRepository)
-    .to(KnexSessionRepository)
+    .to(SessionRepository)
     .inSingletonScope()
 
-  bind<UserRepository>(TYPES.UserRepository)
-    .to(KnexUserRepository)
+  bind<ChannelUserRepository>(TYPES.UserRepository)
+    .to(ChannelUserRepository)
     .inSingletonScope()
 
   bind<LogsRepository>(TYPES.LogsRepository)
-    .to(KnexLogsRepository)
+    .to(LogsRepository)
     .inSingletonScope()
 
   bind<NotificationsRepository>(TYPES.NotificationsRepository)
-    .to(KnexNotificationsRepository)
+    .to(NotificationsRepository)
     .inSingletonScope()
 
   bind<EventRepository>(TYPES.EventRepository)
-    .to(KnexEventRepository)
+    .to(EventRepository)
     .inSingletonScope()
 
   bind<StrategyUsersRepository>(TYPES.StrategyUsersRepository)
@@ -58,6 +54,14 @@ const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) 
 
   bind<TasksRepository>(TYPES.TasksRepository)
     .to(TasksRepository)
+    .inSingletonScope()
+
+  bind<MessageRepository>(TYPES.MessageRepository)
+    .to(MessageRepository)
+    .inSingletonScope()
+
+  bind<ConversationRepository>(TYPES.ConversationRepository)
+    .to(ConversationRepository)
     .inSingletonScope()
 })
 

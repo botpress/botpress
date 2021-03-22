@@ -1,8 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { ActionScope } from 'common/typings'
+import { addErrorToEvent, addStepToEvent, StepScopes, StepStatus } from 'core/events'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
+import { clearRequireCache, requireAtPaths } from 'core/modules'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import ms from 'ms'
@@ -10,11 +12,9 @@ import path from 'path'
 import { NodeVM } from 'vm2'
 
 import { GhostService } from '..'
-import { clearRequireCache, requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
 import { filterDisabled, getBaseLookupPaths, runOutsideVm } from '../action/utils'
 import { VmRunner } from '../action/vm'
-import { addErrorToEvent, addStepToEvent, StepScopes, StepStatus } from '../middleware/event-collector'
 
 const debug = DEBUG('hooks')
 const DEBOUNCE_DELAY = ms('2s')

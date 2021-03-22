@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import { ModelId, ModelIdService, Engine, Model } from 'common/nlu/engine'
 import _ from 'lodash'
 
 import mergeSpellChecked from '../../election/spellcheck-handler'
@@ -15,10 +16,10 @@ export class ScopedPredictionHandler {
 
   constructor(
     bot: BotDefinition,
-    private engine: sdk.NLU.Engine,
+    private engine: Engine,
     private modelRepo: IModelRepository,
-    private modelIdService: typeof sdk.NLU.modelIdService,
-    private modelsByLang: _.Dictionary<sdk.NLU.ModelId>,
+    private modelIdService: ModelIdService,
+    private modelsByLang: _.Dictionary<ModelId>,
     private logger: sdk.Logger
   ) {
     this.defaultLanguage = bot.defaultLanguage
@@ -118,10 +119,7 @@ export class ScopedPredictionHandler {
     }
   }
 
-  private fetchModel(
-    languageCode: string,
-    modelsByLang: _.Dictionary<sdk.NLU.ModelId>
-  ): Promise<sdk.NLU.Model | undefined> {
+  private fetchModel(languageCode: string, modelsByLang: _.Dictionary<ModelId>): Promise<Model | undefined> {
     const { modelRepo: modelService } = this
 
     const modelId = modelsByLang[languageCode]

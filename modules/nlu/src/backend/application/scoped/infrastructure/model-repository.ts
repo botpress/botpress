@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import { ModelIdService, ModelId, Model } from 'common/nlu/engine'
 import fse, { WriteStream } from 'fs-extra'
 import _ from 'lodash'
 import path from 'path'
@@ -38,11 +39,7 @@ export type IModelRepository = I<ScopedModelRepository>
 export class ScopedModelRepository {
   private _botId: string
 
-  constructor(
-    bot: BotDefinition,
-    private _modelIdService: typeof sdk.NLU.modelIdService,
-    private _ghost: sdk.ScopedGhostService
-  ) {
+  constructor(bot: BotDefinition, private _modelIdService: ModelIdService, private _ghost: sdk.ScopedGhostService) {
     this._botId = bot.botId
   }
 
@@ -74,7 +71,7 @@ export class ScopedModelRepository {
    * @param modelId The desired model id
    * @returns the corresponding model
    */
-  public async getModel(modelId: sdk.NLU.ModelId): Promise<sdk.NLU.Model | undefined> {
+  public async getModel(modelId: ModelId): Promise<Model | undefined> {
     const fname = this._makeFileName(this._modelIdService.toString(modelId))
     if (!(await this._ghost.fileExists(MODELS_DIR, fname))) {
       return
@@ -104,7 +101,7 @@ export class ScopedModelRepository {
    * @param query query filter
    * @returns the latest model that fits the query
    */
-  public async getLatestModel(query: Partial<sdk.NLU.ModelId>): Promise<sdk.NLU.Model | undefined> {
+  public async getLatestModel(query: Partial<ModelId>): Promise<Model | undefined> {
     debug.forBot(this._botId, `Searching for the latest model with characteristics ${JSON.stringify(query)}`)
 
     const availableModels = await this.listModels(query)
@@ -114,7 +111,7 @@ export class ScopedModelRepository {
     return this.getModel(availableModels[0])
   }
 
-  public async saveModel(model: sdk.NLU.Model): Promise<void | void[]> {
+  public async saveModel(model: Model): Promise<void | void[]> {
     const serialized = JSON.stringify(model)
     const modelName = this._makeFileName(this._modelIdService.toString(model))
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
@@ -136,15 +133,12 @@ export class ScopedModelRepository {
     tmpDir.removeCallback()
   }
 
-  public async listModels(
-    query: Partial<sdk.NLU.ModelId>,
-    opt: Partial<ListingOptions> = {}
-  ): Promise<sdk.NLU.ModelId[]> {
+  public async listModels(query: Partial<ModelId>, opt: Partial<ListingOptions> = {}): Promise<ModelId[]> {
     const options = { ...DEFAULT_LISTING_OPTIONS, ...opt }
 
     const allModelsFileName = await this._listModels()
 
-    const baseFilter = (m: sdk.NLU.ModelId) => _.isMatch(m, query)
+    const baseFilter = (m: ModelId) => _.isMatch(m, query)
     const filter = options.negateFilter ? _.negate(baseFilter) : baseFilter
     const validModels = allModelsFileName
       .filter(this._modelIdService.isId)
@@ -162,7 +156,7 @@ export class ScopedModelRepository {
     return fileNames.map(this._parseFileName)
   }
 
-  public async pruneModels(models: sdk.NLU.ModelId[], opt: Partial<PruningOptions> = {}): Promise<void | void[]> {
+  public async pruneModels(models: ModelId[], opt: Partial<PruningOptions> = {}): Promise<void | void[]> {
     const options = { ...DEFAULT_PRUNING_OPTIONS, ...opt }
 
     const modelsFileNames = models.map(this._modelIdService.toString).map(this._makeFileName)

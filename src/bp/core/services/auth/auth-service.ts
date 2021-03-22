@@ -1,14 +1,18 @@
-import { Logger, RolloutStrategy, StrategyUser } from 'botpress/sdk'
+import { Logger, StrategyUser } from 'botpress/sdk'
 import { JWT_COOKIE_NAME } from 'common/auth'
-import { AuthStrategy, AuthStrategyBasic } from 'core/config/botpress.config'
-import { ConfigProvider } from 'core/config/config-loader'
+import { AuthStrategy, ConfigProvider } from 'core/config'
 import Database from 'core/database'
-import { StrategyUserTable } from 'core/database/tables/server-wide/strategy_users'
-import { getMessageSignature } from 'core/misc/security'
-import { ModuleLoader } from 'core/module-loader'
-import { StrategyUsersRepository } from 'core/repositories/strategy_users'
+import { SessionIdFactory } from 'core/dialog/sessions'
+import { JobService } from 'core/distributed'
+import { EventEngine } from 'core/events'
+import { KeyValueStore } from 'core/kvs'
+import { ModuleLoader } from 'core/modules'
 import { BadRequestError } from 'core/routers/errors'
 import { Event } from 'core/sdk/impl'
+import { StrategyBasic, generateUserToken, getMessageSignature } from 'core/security'
+import { TYPES } from 'core/types'
+import { StrategyUsersRepository, WorkspaceService } from 'core/users'
+import { StrategyUserTable } from 'core/users/tables'
 import { Response } from 'express'
 import { inject, injectable, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
@@ -18,15 +22,6 @@ import ms from 'ms'
 
 import { AuthPayload, AuthStrategyConfig, ChatUserAuth, TokenUser, TokenResponse } from '../../../common/typings'
 import { Resource } from '../../misc/resources'
-import { TYPES } from '../../types'
-import { SessionIdFactory } from '../dialog/session/id-factory'
-import { JobService } from '../job-service'
-import { KeyValueStore } from '../kvs'
-import { EventEngine } from '../middleware/event-engine'
-import { WorkspaceService } from '../workspace-service'
-
-import StrategyBasic from './basic'
-import { generateUserToken } from './util'
 
 export const TOKEN_AUDIENCE = 'collaborators'
 export const CHAT_USERS_AUDIENCE = 'chat_users'
@@ -38,7 +33,7 @@ const DEFAULT_CHAT_USER_AUTH_DURATION = '24h'
 const getUserKey = (email, strategy) => `${email}_${strategy}`
 
 @injectable()
-export default class AuthService {
+export class AuthService {
   public strategyBasic!: StrategyBasic
   private tokenVersions: Dic<number> = {}
   private broadcastTokenChange: Function = this.local__tokenVersionChange
@@ -371,3 +366,5 @@ export default class AuthService {
     return true
   }
 }
+
+export default AuthService

@@ -52,7 +52,7 @@ const AmendForm = ({
           }}
           intent={mode === RESOLUTION_TYPE.intent ? Intent.SUCCESS : Intent.NONE}
         >
-          {lang.tr('module.misunderstood.goal')}
+          {lang.tr('module.misunderstood.intent')}
         </Button>
         <Button
           disabled={mode !== RESOLUTION_TYPE.qna && !!resolution}
@@ -64,7 +64,7 @@ const AmendForm = ({
           }}
           intent={mode === RESOLUTION_TYPE.qna ? Intent.SUCCESS : Intent.NONE}
         >
-          {lang.tr('module.misunderstood.query')}
+          {lang.tr('module.misunderstood.qna')}
         </Button>
         {mode != null && (
           <Button

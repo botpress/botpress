@@ -269,11 +269,16 @@ class RootStore {
       return
     }
 
-    await this.sendData({ type: 'text', text: userMessage })
-    trackMessage('sent')
-
-    this.composer.addMessageToHistory(userMessage)
     this.composer.updateMessage('')
+    try {
+      await this.sendData({ type: 'text', text: userMessage })
+      trackMessage('sent')
+
+      this.composer.addMessageToHistory(userMessage)
+    } catch (e) {
+      this.composer.updateMessage(userMessage)
+      throw e
+    }
   }
 
   /** Sends an event to start conversation & hide the bot info page */

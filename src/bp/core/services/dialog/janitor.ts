@@ -1,20 +1,18 @@
 import { BotConfig, IO, Logger } from 'botpress/sdk'
-import { createExpiry } from 'core/misc/expiry'
-import { SessionRepository, UserRepository } from 'core/repositories'
+import { BotpressConfig, ConfigProvider } from 'core/config'
+import { SessionRepository, createExpiry, SessionIdFactory } from 'core/dialog/sessions'
 import { Event } from 'core/sdk/impl'
+import { TYPES } from 'core/types'
+import { ChannelUserRepository } from 'core/users'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 
-import { BotpressConfig } from '../../config/botpress.config'
-import { ConfigProvider } from '../../config/config-loader'
-import { TYPES } from '../../types'
 import { BotService } from '../bot-service'
 import { Janitor } from '../janitor'
 
 import { DialogEngine } from './dialog-engine'
 import { TimeoutNodeNotFound } from './errors'
-import { SessionIdFactory } from './session/id-factory'
 
 const debug = DEBUG('janitor')
 const dialogDebug = debug.sub('dialog')
@@ -29,7 +27,7 @@ export class DialogJanitor extends Janitor {
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository,
-    @inject(TYPES.UserRepository) private userRepo: UserRepository
+    @inject(TYPES.UserRepository) private userRepo: ChannelUserRepository
   ) {
     super(logger)
   }

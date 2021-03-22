@@ -1,40 +1,34 @@
 import * as sdk from 'botpress/sdk'
+import { BotService } from 'core/bots'
+import { GhostService } from 'core/bpfs'
+import { CMSService, renderRecursive, RenderService } from 'core/cms'
+import { ConfigProvider } from 'core/config'
+import Database from 'core/database'
+import { StateManager, DialogEngine } from 'core/dialog'
+import { SessionIdFactory } from 'core/dialog/sessions'
+import { JobService } from 'core/distributed'
+import { EventEngine, EventRepository } from 'core/events'
+import { KeyValueStore } from 'core/kvs'
+import { LoggerProvider } from 'core/logger'
+import { MediaServiceProvider } from 'core/media'
+import { ConversationService, MessageService } from 'core/messaging'
+import { ModuleLoader } from 'core/modules'
+import { NotificationsService } from 'core/notifications'
 import { WellKnownFlags } from 'core/sdk/enums'
-import { NextFunction, Request, Response } from 'express'
+import { getMessageSignature } from 'core/security'
+import { TYPES } from 'core/types'
+import { ChannelUserRepository, WorkspaceService } from 'core/users'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
-import MLToolkit from 'ml/toolkit'
-import Engine from 'nlu-core/engine'
-import { isTrainingAlreadyStarted, isTrainingCanceled } from 'nlu-core/errors'
-import modelIdService from 'nlu-core/model-id-service'
+import MLToolkit from 'nlu/ml/toolkit'
 
 import { container } from './app.inversify'
-import { ConfigProvider } from './config/config-loader'
-import Database from './database'
-import { LoggerProvider } from './logger'
-import { getMessageSignature } from './misc/security'
-import { renderRecursive } from './misc/templating'
-import { ModuleLoader } from './module-loader'
-import { EventRepository, UserRepository } from './repositories'
 import { Event, RealTimePayload } from './sdk/impl'
 import HTTPServer from './server'
-import { GhostService } from './services'
-import { BotService } from './services/bot-service'
-import { CMSService } from './services/cms'
-import { DialogEngine } from './services/dialog/dialog-engine'
-import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { HookService } from './services/hook/hook-service'
-import { JobService } from './services/job-service'
-import { KeyValueStore } from './services/kvs'
-import { MediaServiceProvider } from './services/media'
-import { EventEngine } from './services/middleware/event-engine'
-import { StateManager } from './services/middleware/state-manager'
-import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
-import { WorkspaceService } from './services/workspace-service'
-import { TYPES } from './types'
 
 const http = (httpServer: HTTPServer) => (identity: string): typeof sdk.http => {
   return {
@@ -111,7 +105,7 @@ const bots = (botService: BotService): typeof sdk.bots => {
   }
 }
 
-const users = (userRepo: UserRepository): typeof sdk.users => {
+const users = (userRepo: ChannelUserRepository): typeof sdk.users => {
   return {
     getOrCreateUser: userRepo.getOrCreate.bind(userRepo),
     updateAttributes: userRepo.updateAttributes.bind(userRepo),
@@ -209,23 +203,57 @@ const distributed = (jobService: JobService): typeof sdk.distributed => {
   }
 }
 
-const experimental = (hookService: HookService): typeof sdk.experimental => {
+const experimental = (
+  hookService: HookService,
+  conversationService: ConversationService,
+  messageService: MessageService,
+  renderService: RenderService
+): typeof sdk.experimental => {
   return {
     disableHook: hookService.disableHook.bind(hookService),
-    enableHook: hookService.enableHook.bind(hookService)
+    enableHook: hookService.enableHook.bind(hookService),
+    conversations: conversations(conversationService),
+    messages: messages(messageService),
+    render: render(renderService)
+  }
+}
+
+const conversations = (conversationService: ConversationService): typeof sdk.experimental.conversations => {
+  return {
+    forBot: conversationService.forBot.bind(conversationService)
+  }
+}
+
+const messages = (messageService: MessageService): typeof sdk.experimental.messages => {
+  return {
+    forBot: messageService.forBot.bind(messageService)
+  }
+}
+
+const render = (renderService: RenderService): typeof sdk.experimental.render => {
+  return {
+    text: renderService.renderText.bind(renderService),
+    image: renderService.renderImage.bind(renderService),
+    card: renderService.renderCard.bind(renderService),
+    carousel: renderService.renderCarousel.bind(renderService),
+    choice: renderService.renderChoice.bind(renderService),
+    buttonSay: renderService.renderButtonSay.bind(renderService),
+    buttonUrl: renderService.renderButtonUrl.bind(renderService),
+    buttonPostback: renderService.renderButtonPostback.bind(renderService),
+    option: renderService.renderOption.bind(renderService),
+    translate: renderService.renderTranslated.bind(renderService),
+    template: renderService.renderTemplate.bind(renderService),
+    pipeline: renderService.getPipeline.bind(renderService)
   }
 }
 
 /**
  * Socket.IO API to emit payloads to front-end clients
  */
-export class RealTimeAPI implements RealTimeAPI {
-  constructor(private realtimeService: RealtimeService) {}
-
-  sendPayload(payload: RealTimePayload) {
-    this.realtimeService.sendToSocket(payload)
-  }
-}
+const realtime = (realtimeService: RealtimeService): typeof sdk.realtime => ({
+  sendPayload: realtimeService.sendToSocket.bind(realtimeService),
+  getVisitorIdFromGuestSocketId: realtimeService.getVisitorIdFromSocketId.bind(realtimeService)
+})
 
 @injectable()
 export class BotpressAPIProvider {
@@ -233,7 +261,7 @@ export class BotpressAPIProvider {
   events: typeof sdk.events
   dialog: typeof sdk.dialog
   config: typeof sdk.config
-  realtime: RealTimeAPI
+  realtime: typeof sdk.realtime
   database: Knex & sdk.KnexExtension
   users: typeof sdk.users
   kvs: typeof sdk.kvs
@@ -254,7 +282,7 @@ export class BotpressAPIProvider {
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.HTTPServer) httpServer: HTTPServer,
-    @inject(TYPES.UserRepository) userRepo: UserRepository,
+    @inject(TYPES.UserRepository) userRepo: ChannelUserRepository,
     @inject(TYPES.RealtimeService) realtimeService: RealtimeService,
     @inject(TYPES.KeyValueStore) keyValueStore: KeyValueStore,
     @inject(TYPES.NotificationsService) notificationService: NotificationsService,
@@ -267,13 +295,16 @@ export class BotpressAPIProvider {
     @inject(TYPES.EventRepository) eventRepo: EventRepository,
     @inject(TYPES.WorkspaceService) workspaceService: WorkspaceService,
     @inject(TYPES.JobService) jobService: JobService,
-    @inject(TYPES.StateManager) stateManager: StateManager
+    @inject(TYPES.StateManager) stateManager: StateManager,
+    @inject(TYPES.ConversationService) conversationService: ConversationService,
+    @inject(TYPES.MessageService) messageService: MessageService,
+    @inject(TYPES.RenderService) renderService: RenderService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
     this.dialog = dialog(dialogEngine, stateManager, moduleLoader)
     this.config = config(moduleLoader, configProvider)
-    this.realtime = new RealTimeAPI(realtimeService)
+    this.realtime = realtime(realtimeService)
     this.database = db.knex
     this.users = users(userRepo)
     this.kvs = kvs(keyValueStore)
@@ -282,7 +313,7 @@ export class BotpressAPIProvider {
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService, mediaServiceProvider)
     this.mlToolkit = MLToolkit
-    this.experimental = experimental(hookService)
+    this.experimental = experimental(hookService, conversationService, messageService, renderService)
     this.security = security()
     this.workspaces = workspaces(workspaceService)
     this.distributed = distributed(jobService)
@@ -317,21 +348,7 @@ export class BotpressAPIProvider {
       security: this.security,
       experimental: this.experimental,
       workspaces: this.workspaces,
-      distributed: this.distributed,
-      NLU: {
-        makeEngine: async (config: sdk.NLU.Config, logger: sdk.NLU.Logger) => {
-          const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = config
-          const langConfig = { ducklingEnabled, ducklingURL, languageSources }
-          const engine = new Engine({ maxCacheSize: modelCacheSize })
-          await engine.initialize(langConfig, logger)
-          return engine
-        },
-        errors: {
-          isTrainingAlreadyStarted,
-          isTrainingCanceled
-        },
-        modelIdService
-      }
+      distributed: this.distributed
     }
   }
 }

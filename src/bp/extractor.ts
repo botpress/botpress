@@ -2,7 +2,7 @@
 import './sdk/rewire'
 
 import { Config, Logger } from 'core/app'
-import ModuleResolver from 'core/modules/resolver'
+import { ModuleResolver } from 'core/modules'
 
 export default async argv => {
   process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : -1
