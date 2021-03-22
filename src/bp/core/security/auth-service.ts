@@ -1,5 +1,6 @@
 import { Logger, StrategyUser } from 'botpress/sdk'
 import { JWT_COOKIE_NAME } from 'common/auth'
+import { AuthPayload, AuthStrategyConfig, ChatUserAuth, TokenUser, TokenResponse } from 'common/typings'
 import { TYPES } from 'core/app/types'
 import { AuthStrategy, ConfigProvider } from 'core/config'
 import Database from 'core/database'
@@ -18,8 +19,6 @@ import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
-
-import { AuthPayload, AuthStrategyConfig, ChatUserAuth, TokenUser, TokenResponse } from '../../common/typings'
 
 export const TOKEN_AUDIENCE = 'collaborators'
 export const CHAT_USERS_AUDIENCE = 'chat_users'
