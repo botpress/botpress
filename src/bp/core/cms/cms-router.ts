@@ -1,13 +1,12 @@
 import { ContentElement, Logger } from 'botpress/sdk'
 import { LibraryElement } from 'common/typings'
+import { GhostService } from 'core/bpfs'
 import { CMSService, DefaultSearchParams } from 'core/cms'
+import { CustomRouter } from 'core/routers/customRouter'
 import { AuthService, TOKEN_AUDIENCE, checkTokenHeader, needPermissions } from 'core/security'
-import { GhostService } from 'core/services'
-import { WorkspaceService } from 'core/services/workspace-service'
+import { WorkspaceService } from 'core/users'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
-
-import { CustomRouter } from '../routers/customRouter'
 
 const CONTENT_FOLDER = 'content-elements'
 const LIBRARY_FILE = 'library.json'

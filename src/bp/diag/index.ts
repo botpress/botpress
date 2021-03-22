@@ -7,7 +7,7 @@ import { BotConfig } from 'botpress/sdk'
 
 import { Workspace } from 'common/typings'
 import { Db, Ghost } from 'core/app/core-loader'
-import { getOrCreate as redisFactory } from 'core/services/redis'
+import { getOrCreate as redisFactory } from 'core/distributed/redis'
 import fse from 'fs-extra'
 import IORedis from 'ioredis'
 import _ from 'lodash'

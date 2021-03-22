@@ -11,6 +11,7 @@ import { LogsService } from 'core/logger'
 import { MediaServiceProvider } from 'core/media'
 import { ModuleLoader } from 'core/modules'
 import { NotificationsService } from 'core/notifications'
+import { getSocketTransports } from 'core/realtime'
 import {
   AuthService,
   TOKEN_AUDIENCE,
@@ -19,7 +20,6 @@ import {
   fileUploadMulter,
   needPermissions
 } from 'core/security'
-import { getSocketTransports } from 'core/services/realtime'
 import { ActionService, ActionServersService } from 'core/user-code'
 import { WorkspaceService } from 'core/users'
 import { Express, RequestHandler, Router } from 'express'

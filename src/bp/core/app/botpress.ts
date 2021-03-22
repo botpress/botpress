@@ -18,7 +18,7 @@ import { ModuleLoader } from 'core/modules'
 import { NotificationsService } from 'core/notifications'
 import { RealtimeService } from 'core/realtime'
 import { AuthService } from 'core/security'
-import { StatsService } from 'core/telemetry'
+import { StatsService, AnalyticsService } from 'core/telemetry'
 import { ActionServersConfigSchema, Hooks, HookService, HintsService } from 'core/user-code'
 import { DataRetentionJanitor, DataRetentionService, WorkspaceService } from 'core/users'
 import { WrapErrorsWith } from 'errors'
@@ -35,8 +35,6 @@ import plur from 'plur'
 
 import { startLocalActionServer } from '../../cluster'
 import { setDebugScopes } from '../../debug'
-
-import { Statistics } from '../stats'
 import { HTTPServer } from './server'
 import { TYPES } from './types'
 
@@ -54,7 +52,7 @@ export class Botpress {
   _heartbeatTimer?: NodeJS.Timeout
 
   constructor(
-    @inject(TYPES.Statistics) private stats: Statistics,
+    @inject(TYPES.Statistics) private stats: AnalyticsService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.Logger)
