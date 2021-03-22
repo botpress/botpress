@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-
+import * as NLU from 'common/nlu/engine'
 import { I } from '../typings'
 import { IDefinitionsRepository } from './infrastructure/definitions-repository'
 
@@ -22,9 +22,9 @@ export class ScopedDefinitionsService {
 
   constructor(
     bot: BotDefinition,
-    private _engine: sdk.NLU.Engine,
+    private _engine: NLU.Engine,
     private _definitionRepository: IDefinitionsRepository,
-    private _modelIdService: typeof sdk.NLU.modelIdService
+    private _modelIdService: typeof NLU.modelIdService
   ) {
     this._languages = bot.languages
     this._seed = bot.seed
@@ -42,7 +42,7 @@ export class ScopedDefinitionsService {
     this._dirtyModelsListeners.push(listener)
   }
 
-  public async getLatestModelId(languageCode: string): Promise<sdk.NLU.ModelId> {
+  public async getLatestModelId(languageCode: string): Promise<NLU.ModelId> {
     const { _engine } = this
 
     const trainSet = await this.getTrainSet(languageCode)
@@ -54,7 +54,7 @@ export class ScopedDefinitionsService {
     })
   }
 
-  public async getTrainSet(languageCode: string): Promise<sdk.NLU.TrainingSet> {
+  public async getTrainSet(languageCode: string): Promise<NLU.TrainingSet> {
     const trainDefinitions = await this._definitionRepository.getTrainDefinitions()
 
     return {

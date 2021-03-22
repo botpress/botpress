@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
+import { Engine, ModelIdService } from 'common/nlu/engine'
 import _ from 'lodash'
-
 import pickSeed from './pick-seed'
 import { Bot, IBot } from './scoped/bot'
 import { ScopedDefinitionsService, IDefinitionsService } from './scoped/definitions-service'
@@ -26,9 +26,9 @@ export type IBotFactory = I<BotFactory>
 
 export class BotFactory {
   constructor(
-    private _engine: sdk.NLU.Engine,
+    private _engine: Engine,
     private _logger: sdk.Logger,
-    private _modelIdService: typeof sdk.NLU.modelIdService,
+    private _modelIdService: ModelIdService,
     private _makeDefRepo: DefinitionRepositoryFactory,
     private _makeModelRepo: ModelRepositoryFactory
   ) {}

@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
+import * as NLU from 'common/nlu/engine'
 import _ from 'lodash'
-
 import { BotDoesntSpeakLanguageError } from '../errors'
 import { Predictor, ProgressCallback, Trainable, I } from '../typings'
 
@@ -20,16 +20,16 @@ export class Bot implements Trainable, Predictor {
   private _botId: string
   private _defaultLanguage: string
   private _languages: string[]
-  private _modelsByLang: _.Dictionary<sdk.NLU.ModelId> = {}
+  private _modelsByLang: _.Dictionary<NLU.ModelId> = {}
 
   private _predictor: ScopedPredictionHandler
 
   constructor(
     bot: BotDefinition,
-    private _engine: sdk.NLU.Engine,
+    private _engine: NLU.Engine,
     private _modelRepo: IModelRepository,
     private _defService: IDefinitionsService,
-    private _modelIdService: typeof sdk.NLU.modelIdService,
+    private _modelIdService: typeof NLU.modelIdService,
     private _logger: sdk.Logger
   ) {
     this._botId = bot.botId
@@ -61,7 +61,7 @@ export class Bot implements Trainable, Predictor {
     }
   }
 
-  public load = async (modelId: sdk.NLU.ModelId) => {
+  public load = async (modelId: NLU.ModelId) => {
     const model = await this._modelRepo.getModel(modelId)
     if (!model) {
       const stringId = this._modelIdService.toString(modelId)
@@ -71,17 +71,17 @@ export class Bot implements Trainable, Predictor {
     await this._engine.loadModel(model)
   }
 
-  public train = async (language: string, progressCallback: ProgressCallback): Promise<sdk.NLU.ModelId> => {
+  public train = async (language: string, progressCallback: ProgressCallback): Promise<NLU.ModelId> => {
     const { _engine, _languages, _modelRepo, _defService, _botId } = this
 
     if (!_languages.includes(language)) {
       throw new BotDoesntSpeakLanguageError(_botId, language)
     }
 
-    const trainSet: sdk.NLU.TrainingSet = await _defService.getTrainSet(language)
+    const trainSet: NLU.TrainingSet = await _defService.getTrainSet(language)
 
     const previousModel = this._modelsByLang[language]
-    const options: sdk.NLU.TrainingOptions = { previousModel, progressCallback }
+    const options: NLU.TrainingOptions = { previousModel, progressCallback }
 
     const model = await _engine.train(this._makeTrainingId(language), trainSet, options)
     await _modelRepo.saveModel(model)

@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-
+import * as NLU from 'common/nlu/engine'
 import _ from 'lodash'
 
 import moment from 'moment'
@@ -31,7 +31,7 @@ export class TrainingQueue {
 
   constructor(
     private _trainingRepo: ITrainingRepository,
-    private _errors: typeof sdk.NLU.errors,
+    private _errors: typeof NLU.errors,
     private _logger: sdk.Logger,
     private _trainerService: TrainerService,
     private _onChange: TrainingListener,
@@ -135,7 +135,7 @@ export class TrainingQueue {
     }, 'cancelTraining')
   }
 
-  protected async loadModel(botId: string, modelId: sdk.NLU.ModelId): Promise<void> {
+  protected async loadModel(botId: string, modelId: NLU.ModelId): Promise<void> {
     const trainer = this._trainerService.getBot(botId)
     if (trainer) {
       return trainer.load(modelId)

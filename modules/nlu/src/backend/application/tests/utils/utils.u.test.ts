@@ -1,5 +1,4 @@
-import { NLU } from 'botpress/sdk'
-
+import * as NLU from 'common/nlu/engine'
 import './sdk.u.test'
 
 export type SemaphoreResolver = () => void

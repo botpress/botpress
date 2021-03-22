@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import * as NLU from 'common/nlu/engine'
 import _ from 'lodash'
 
 import { IBotFactory } from './bot-factory'

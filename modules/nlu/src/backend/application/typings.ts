@@ -1,4 +1,5 @@
-import { IO, NLU } from 'botpress/sdk'
+import { IO, NLU as SDKNLU } from 'botpress/sdk'
+import * as NLU from 'common/nlu/engine'
 
 export type I<C> = {
   [k in keyof C]: C[k]
@@ -35,7 +36,7 @@ export type EventUnderstanding = Omit<IO.EventUnderstanding, 'includedContexts' 
 }
 
 export interface TrainingState {
-  status: NLU.TrainingStatus
+  status: SDKNLU.TrainingStatus
   progress: number
   owner: string
   modifiedOn: Date
