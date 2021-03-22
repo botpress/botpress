@@ -3,11 +3,21 @@ import _ from 'lodash'
 import React from 'react'
 import { connect } from 'react-redux'
 import { flowEditorRedo, flowEditorUndo } from '~/actions'
+import { SearchBar } from '~/components/Shared/Interface'
 import { canFlowRedo, canFlowUndo } from '~/reducers'
 
 import style from './style.scss'
 
-const WorkflowToolbar = ({ canRedo, canUndo, currentTab, redo, tabChange, undo }) => {
+const WorkflowToolbar = ({
+  canRedo,
+  canUndo,
+  currentTab,
+  redo,
+  tabChange,
+  undo,
+  highlightFilter,
+  handleFilterChanged
+}) => {
   const tabs = [
     {
       id: 'workflow',
@@ -30,6 +40,16 @@ const WorkflowToolbar = ({ canRedo, canUndo, currentTab, redo, tabChange, undo }
     }
   ]
 
+  const searchBar = (
+    <SearchBar
+      id="input-highlight-name"
+      className={style.noPadding}
+      value={highlightFilter}
+      placeholder={lang.tr('studio.flow.filterNodes')}
+      onChange={handleFilterChanged}
+    />
+  )
+
   return (
     <MainLayout.Toolbar
       className={style.header}
@@ -37,6 +57,7 @@ const WorkflowToolbar = ({ canRedo, canUndo, currentTab, redo, tabChange, undo }
       buttons={flowButtons}
       currentTab={currentTab}
       tabChange={tabChange}
+      rightContent={searchBar}
     />
   )
 }

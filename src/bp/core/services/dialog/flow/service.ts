@@ -1,9 +1,9 @@
-import { Flow, Logger } from 'botpress/sdk'
+import { Flow, Logger, ScopedGhostService } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { TreeSearch, PATH_SEPARATOR } from 'common/treeSearch'
 import { FlowMutex, FlowView, NodeView } from 'common/typings'
-import { KeyValueStore } from 'core/kvs'
-import { ModuleLoader } from 'core/module-loader'
+import { KeyValueStore, KvsService } from 'core/kvs'
+import { ModuleLoader } from 'core/modules'
 import { RealTimePayload } from 'core/sdk/impl'
 import { BotService } from 'core/services/bot-service'
 import RealtimeService from 'core/services/realtime'
@@ -76,8 +76,6 @@ class FlowCache {
   public upsertFlow(botId: string, flow: FlowView): void {
     if (this._flows.has(botId)) {
       this._flows.get(botId)!.set(flow.name, flow)
-    } else {
-      this.set(botId, [flow])
     }
   }
 
@@ -100,7 +98,7 @@ class FlowCache {
 
 @injectable()
 export class FlowService {
-  private _flowCache: FlowCache = new FlowCache()
+  private scopes: { [botId: string]: ScopedFlowService } = {}
 
   constructor(
     @inject(TYPES.Logger)
@@ -118,62 +116,98 @@ export class FlowService {
 
   private _listenForCacheInvalidation() {
     this.cache.events.on('invalidation', async (key: string) => {
-      if (this._flowCache.isEmpty()) {
-        return
-      }
-
       const matches = key.match(/object::[\s\S]+\/bots\/([A-Z0-9-_]+)\/flows\/([\s\S]+(flow|ui)\.json)/i)
+
       if (matches && matches.length >= 2) {
-        const botId = matches[1]
-        const flowPath = this.toFlowPath(matches[2])
-
-        if (await this.ghost.forBot(botId).fileExists(FLOW_DIR, flowPath)) {
-          const flow = await this.parseFlow(botId, flowPath)
-
-          this._flowCache.upsertFlow(botId, flow)
-        } else {
-          this._flowCache.deleteFlow(botId, flowPath)
-        }
-
-        // parent flows are only used by the NDU
-        if (this._isOneFlow(botId)) {
-          const flows = this._flowCache.get(botId)
-          const flowsWithParents = this.addParentsToFlows(flows)
-
-          this._flowCache.set(botId, flowsWithParents)
-        }
+        const [key, botId, flowName] = matches
+        await this.forBot(botId).handleInvalidatedCache(flowName)
       }
     })
   }
 
-  async loadAll(botId: string): Promise<FlowView[]> {
-    if (this._flowCache.has(botId)) {
-      return this._flowCache.get(botId)!
+  public forBot(botId: string): ScopedFlowService {
+    let scope = this.scopes[botId]
+    if (!scope) {
+      scope = new ScopedFlowService(
+        botId,
+        this.ghost.forBot(botId),
+        this.kvs.forBot(botId),
+        this.logger,
+        this.moduleLoader,
+        this.realtime,
+        this.botService
+      )
+      this.scopes[botId] = scope
+    }
+    return scope
+  }
+}
+
+export class ScopedFlowService {
+  private _flowCache: FlowCache = new FlowCache()
+
+  constructor(
+    private botId: string,
+    private ghost: ScopedGhostService,
+    private kvs: KvsService,
+    private logger: Logger,
+    private moduleLoader: ModuleLoader,
+    private realtime: RealtimeService,
+    private botService: BotService
+  ) {}
+
+  async handleInvalidatedCache(flowName: string) {
+    if (this._flowCache.isEmpty()) {
+      return
     }
 
-    const flowsPath = this.ghost.forBot(botId).directoryListing(FLOW_DIR, '*.flow.json', undefined, undefined, {
+    const flowPath = this.toFlowPath(flowName)
+
+    if (await this.ghost.fileExists(FLOW_DIR, flowPath)) {
+      const flow = await this.parseFlow(flowPath)
+
+      this._flowCache.upsertFlow(this.botId, flow)
+    } else {
+      this._flowCache.deleteFlow(this.botId, flowPath)
+    }
+
+    // parent flows are only used by the NDU
+    if (this._isOneFlow()) {
+      const flows = this._flowCache.get(this.botId)
+      const flowsWithParents = this.addParentsToFlows(flows)
+
+      this._flowCache.set(this.botId, flowsWithParents)
+    }
+  }
+
+  async loadAll(): Promise<FlowView[]> {
+    if (this._flowCache.has(this.botId)) {
+      return this._flowCache.get(this.botId)!
+    }
+
+    const flowsPath = this.ghost.directoryListing(FLOW_DIR, '*.flow.json', undefined, undefined, {
       sortOrder: { column: 'filePath' }
     })
 
     try {
       const flows = await Promise.map(flowsPath, async (flowPath: string) => {
-        return this.parseFlow(botId, flowPath)
+        return this.parseFlow(flowPath)
       })
 
       // parent flows are only used by the NDU
-      if (this._isOneFlow(botId)) {
+      if (this._isOneFlow()) {
         const flowsWithParents = this.addParentsToFlows(flows)
-        this._flowCache.set(botId, flowsWithParents)
+        this._flowCache.set(this.botId, flowsWithParents)
 
         return flowsWithParents
       } else {
-        this._flowCache.set(botId, flows)
+        this._flowCache.set(this.botId, flows)
 
         return flows
       }
     } catch (err) {
       this.logger
-        .forBot(botId)
+        .forBot(this.botId)
         .attachError(err)
         .error('Could not load flows')
       return []
@@ -181,8 +215,8 @@ export class FlowService {
   }
 
   @Memoize()
-  private async _isOneFlow(botId: string): Promise<boolean> {
-    const botConfig = await this.botService.findBotById(botId)
+  private async _isOneFlow(): Promise<boolean> {
+    const botConfig = await this.botService.findBotById(this.botId)
     return !!botConfig?.oneflow
   }
 
@@ -205,15 +239,15 @@ export class FlowService {
     })
   }
 
-  private async parseFlow(botId: string, flowPath: string): Promise<FlowView> {
-    const flow = await this.ghost.forBot(botId).readFileAsObject<Flow>(FLOW_DIR, flowPath)
-    const schemaError = validateFlowSchema(flow, await this._isOneFlow(botId))
+  private async parseFlow(flowPath: string): Promise<FlowView> {
+    const flow = await this.ghost.readFileAsObject<Flow>(FLOW_DIR, flowPath)
+    const schemaError = validateFlowSchema(flow, await this._isOneFlow())
 
     if (!flow || schemaError) {
       throw new Error(`Invalid schema for "${flowPath}". ${schemaError} `)
     }
 
-    const uiEq = await this.ghost.forBot(botId).readFileAsObject<FlowView>(FLOW_DIR, this.toUiPath(flowPath))
+    const uiEq = await this.ghost.readFileAsObject<FlowView>(FLOW_DIR, this.toUiPath(flowPath))
     let unplacedIndex = -1
 
     const nodeViews: NodeView[] = flow.nodes.map(node => {
@@ -227,7 +261,7 @@ export class FlowService {
     })
 
     const key = this._buildFlowMutexKey(flowPath)
-    const currentMutex = (await this.kvs.forBot(botId).get(key)) as FlowMutex
+    const currentMutex = (await this.kvs.get(key)) as FlowMutex
     if (currentMutex) {
       currentMutex.remainingSeconds = this._getRemainingSeconds(currentMutex.lastModifiedAt)
     }
@@ -248,22 +282,20 @@ export class FlowService {
     return Math.ceil(Math.max(0, freeTime.diff(now, 'seconds')))
   }
 
-  async insertFlow(botId: string, flow: FlowView, userEmail: string) {
-    const ghost = this.ghost.forBot(botId)
-
-    const flowFiles = await ghost.directoryListing(FLOW_DIR, '*.json')
+  async insertFlow(flow: FlowView, userEmail: string) {
+    const flowFiles = await this.ghost.directoryListing(FLOW_DIR, '*.json')
     const fileToCreate = flowFiles.find(f => f === flow.name)
     if (fileToCreate) {
       throw new Error(`Can not create an already existent flow : ${flow.name}`)
     }
 
-    await this._upsertFlow(botId, flow)
+    await this._upsertFlow(flow)
 
-    const currentMutex = await this._testAndLockMutex(botId, userEmail, flow.location || flow.name)
+    const currentMutex = await this._testAndLockMutex(userEmail, flow.location || flow.name)
     const mutexFlow: FlowView = { ...flow, currentMutex }
 
     this.notifyChanges({
-      botId,
+      botId: this.botId,
       name: flow.name,
       modification: 'create',
       payload: mutexFlow,
@@ -271,70 +303,64 @@ export class FlowService {
     })
   }
 
-  async updateFlow(botId: string, flow: FlowView, userEmail: string) {
-    const currentMutex = await this._testAndLockMutex(botId, userEmail, flow.location || flow.name)
+  async updateFlow(flow: FlowView, userEmail: string) {
+    const currentMutex = await this._testAndLockMutex(userEmail, flow.location || flow.name)
 
-    await this._upsertFlow(botId, flow)
+    await this._upsertFlow(flow)
 
     const mutexFlow: FlowView = { ...flow, currentMutex }
 
     this.notifyChanges({
       name: flow.name,
-      botId,
+      botId: this.botId,
       modification: 'update',
       payload: mutexFlow,
       userEmail
     })
   }
 
-  private async _upsertFlow(botId: string, flow: FlowView) {
+  private async _upsertFlow(flow: FlowView) {
     process.ASSERT_LICENSED()
 
-    const ghost = this.ghost.forBot(botId)
-
-    const flowFiles = await ghost.directoryListing(FLOW_DIR, '**/*.json')
+    const flowFiles = await this.ghost.directoryListing(FLOW_DIR, '**/*.json')
 
     const isNew = !flowFiles.find(x => flow.location === x)
-    const { flowPath, uiPath, flowContent, uiContent } = await this.prepareSaveFlow(botId, flow, isNew)
+    const { flowPath, uiPath, flowContent, uiContent } = await this.prepareSaveFlow(flow, isNew)
 
     await Promise.all([
-      ghost.upsertFile(FLOW_DIR, flowPath!, JSON.stringify(flowContent, undefined, 2)),
-      ghost.upsertFile(FLOW_DIR, uiPath, JSON.stringify(uiContent, undefined, 2))
+      this.ghost.upsertFile(FLOW_DIR, flowPath!, JSON.stringify(flowContent, undefined, 2)),
+      this.ghost.upsertFile(FLOW_DIR, uiPath, JSON.stringify(uiContent, undefined, 2))
     ])
 
-    this._flowCache.upsertFlow(botId, flow)
+    this._flowCache.upsertFlow(this.botId, flow)
   }
 
-  async deleteFlow(botId: string, flowName: string, userEmail: string) {
+  async deleteFlow(flowName: string, userEmail: string) {
     process.ASSERT_LICENSED()
 
-    const ghost = this.ghost.forBot(botId)
-
-    const flowFiles = await ghost.directoryListing(FLOW_DIR, '*.json')
+    const flowFiles = await this.ghost.directoryListing(FLOW_DIR, '*.json')
     const fileToDelete = flowFiles.find(f => f === flowName)
     if (!fileToDelete) {
       throw new Error(`Can not delete a flow that does not exist: ${flowName}`)
     }
 
     const uiPath = this.toUiPath(fileToDelete)
-    await Promise.all([ghost.deleteFile(FLOW_DIR, fileToDelete!), ghost.deleteFile(FLOW_DIR, uiPath)])
+    await Promise.all([this.ghost.deleteFile(FLOW_DIR, fileToDelete!), this.ghost.deleteFile(FLOW_DIR, uiPath)])
 
-    this._flowCache.deleteFlow(botId, flowName)
+    this._flowCache.deleteFlow(this.botId, flowName)
 
     this.notifyChanges({
       name: flowName,
-      botId,
+      botId: this.botId,
       modification: 'delete',
       userEmail
     })
   }
 
-  async renameFlow(botId: string, previousName: string, newName: string, userEmail: string) {
+  async renameFlow(previousName: string, newName: string, userEmail: string) {
     process.ASSERT_LICENSED()
 
-    const ghost = this.ghost.forBot(botId)
-
-    const flowFiles = await ghost.directoryListing(FLOW_DIR, '*.json')
+    const flowFiles = await this.ghost.directoryListing(FLOW_DIR, '*.json')
     const fileToRename = flowFiles.find(f => f === previousName)
     if (!fileToRename) {
       throw new Error(`Can not rename a flow that does not exist: ${previousName}`)
@@ -343,17 +369,17 @@ export class FlowService {
     const previousUiName = this.toUiPath(fileToRename)
     const newUiName = this.toUiPath(newName)
     await Promise.all([
-      ghost.renameFile(FLOW_DIR, fileToRename!, newName),
-      ghost.renameFile(FLOW_DIR, previousUiName, newUiName)
+      this.ghost.renameFile(FLOW_DIR, fileToRename!, newName),
+      this.ghost.renameFile(FLOW_DIR, previousUiName, newUiName)
     ])
 
-    this._flowCache.renameFlow(botId, previousName, newName)
+    this._flowCache.renameFlow(this.botId, previousName, newName)
 
-    await this.moduleLoader.onFlowRenamed(botId, previousName, newName)
+    await this.moduleLoader.onFlowRenamed(this.botId, previousName, newName)
 
     this.notifyChanges({
       name: previousName,
-      botId,
+      botId: this.botId,
       modification: 'rename',
       newName,
       userEmail
@@ -369,10 +395,10 @@ export class FlowService {
     return `FLOWMUTEX: ${flowLocation}`
   }
 
-  private async _testAndLockMutex(botId: string, currentFlowEditor: string, flowLocation: string): Promise<FlowMutex> {
+  private async _testAndLockMutex(currentFlowEditor: string, flowLocation: string): Promise<FlowMutex> {
     const key = this._buildFlowMutexKey(flowLocation)
 
-    const currentMutex = ((await this.kvs.forBot(botId).get(key)) || {}) as FlowMutex
+    const currentMutex = ((await this.kvs.get(key)) || {}) as FlowMutex
     const { lastModifiedBy: flowOwner, lastModifiedAt } = currentMutex
 
     const now = new Date()
@@ -383,7 +409,7 @@ export class FlowService {
         lastModifiedBy: flowOwner,
         lastModifiedAt: now
       }
-      await this.kvs.forBot(botId).set(key, mutex)
+      await this.kvs.set(key, mutex)
 
       mutex.remainingSeconds = remainingSeconds
       return mutex
@@ -395,7 +421,7 @@ export class FlowService {
         lastModifiedBy: currentFlowEditor,
         lastModifiedAt: now
       }
-      await this.kvs.forBot(botId).set(key, mutex)
+      await this.kvs.set(key, mutex)
 
       mutex.remainingSeconds = remainingSeconds
       return mutex
@@ -404,7 +430,7 @@ export class FlowService {
     throw new MutexError('Flow is currently locked by someone else')
   }
 
-  async createMainFlow(botId: string) {
+  async createMainFlow() {
     const defaultNode: NodeView = {
       name: 'entry',
       id: nanoid('1234567890', 6),
@@ -425,17 +451,17 @@ export class FlowService {
       links: []
     }
 
-    return this._upsertFlow(botId, flow)
+    return this._upsertFlow(flow)
   }
 
-  private async prepareSaveFlow(botId: string, flow: FlowView, isNew: boolean) {
-    const schemaError = validateFlowSchema(flow, await this._isOneFlow(botId))
+  private async prepareSaveFlow(flow: FlowView, isNew: boolean) {
+    const schemaError = validateFlowSchema(flow, await this._isOneFlow())
     if (schemaError) {
       throw new Error(schemaError)
     }
 
     if (!isNew) {
-      await this.moduleLoader.onFlowChanged(botId, flow)
+      await this.moduleLoader.onFlowChanged(this.botId, flow)
     }
 
     const uiContent = {
@@ -461,44 +487,43 @@ export class FlowService {
     return uiPath.replace(/\.ui\.json$/i, '.flow.json')
   }
 
-  public async getTopics(botId: string): Promise<Topic[]> {
-    const ghost = this.ghost.forBot(botId)
-    if (await ghost.fileExists('ndu', 'topics.json')) {
-      const topics: any = ghost.readFileAsObject('ndu', 'topics.json')
+  public async getTopics(): Promise<Topic[]> {
+    if (await this.ghost.fileExists('ndu', 'topics.json')) {
+      const topics: any = this.ghost.readFileAsObject('ndu', 'topics.json')
       return topics
     }
     return []
   }
 
-  public async deleteTopic(botId: string, topicName: string) {
-    let topics = await this.getTopics(botId)
+  public async deleteTopic(topicName: string) {
+    let topics = await this.getTopics()
     topics = topics.filter(x => x.name !== topicName)
 
-    await this.ghost.forBot(botId).upsertFile('ndu', 'topics.json', JSON.stringify(topics, undefined, 2))
-    await this.moduleLoader.onTopicChanged(botId, topicName, undefined)
+    await this.ghost.upsertFile('ndu', 'topics.json', JSON.stringify(topics, undefined, 2))
+    await this.moduleLoader.onTopicChanged(this.botId, topicName, undefined)
   }
 
-  public async createTopic(botId: string, topic: Topic) {
-    let topics = await this.getTopics(botId)
+  public async createTopic(topic: Topic) {
+    let topics = await this.getTopics()
     topics = _.uniqBy([...topics, topic], x => x.name)
 
-    await this.ghost.forBot(botId).upsertFile('ndu', 'topics.json', JSON.stringify(topics, undefined, 2))
-    await this.moduleLoader.onTopicChanged(botId, undefined, topic.name)
+    await this.ghost.upsertFile('ndu', 'topics.json', JSON.stringify(topics, undefined, 2))
+    await this.moduleLoader.onTopicChanged(this.botId, undefined, topic.name)
   }
 
-  public async updateTopic(botId: string, topic: Topic, topicName: string) {
-    let topics = await this.getTopics(botId)
+  public async updateTopic(topic: Topic, topicName: string) {
+    let topics = await this.getTopics()
     topics = _.uniqBy([...topics.filter(x => x.name !== topicName), topic], x => x.name)
 
-    await this.ghost.forBot(botId).upsertFile('ndu', 'topics.json', JSON.stringify(topics, undefined, 2))
+    await this.ghost.upsertFile('ndu', 'topics.json', JSON.stringify(topics, undefined, 2))
 
     if (topicName !== topic.name) {
-      await this.moduleLoader.onTopicChanged(botId, topicName, topic.name)
+      await this.moduleLoader.onTopicChanged(this.botId, topicName, topic.name)
 
-      const flows = await this.loadAll(botId)
+      const flows = await this.loadAll()
 
       for (const flow of flows.filter(f => f.name.startsWith(`${topicName}/`))) {
-        await this.renameFlow(botId, flow.name, flow.name.replace(`${topicName}/`, `${topic.name}/`), 'server')
+        await this.renameFlow(flow.name, flow.name.replace(`${topicName}/`, `${topic.name}/`), 'server')
       }
     }
   }
