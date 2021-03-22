@@ -3,11 +3,10 @@ import rewire from '../../sdk/rewire'
 // eslint-disable-next-line import/order
 
 import chalk from 'chalk'
+import { LogLevel } from 'core/logger/enums'
 import { centerText } from 'core/logger/utils'
 import _ from 'lodash'
 import path from 'path'
-
-import { LogLevel } from '../../core/sdk/enums'
 
 import Logger from '../../simple-logger'
 import API, { APIOptions } from './api'

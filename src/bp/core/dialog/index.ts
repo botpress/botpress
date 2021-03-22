@@ -1,4 +1,5 @@
 export * from './state-manager'
+export * from './enums'
 
 // TODO: Move files here when references are updated everywhere
 export * from '../services/dialog/dialog-engine'

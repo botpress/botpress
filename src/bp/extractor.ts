@@ -1,7 +1,7 @@
 /* eslint-disable import/order */
 import './sdk/rewire'
 
-import { Config, Logger } from 'core/app'
+import { Config, Logger } from 'core/app/core-loader'
 import { ModuleResolver } from 'core/modules'
 
 export default async argv => {

@@ -1,13 +1,14 @@
 import * as sdk from 'botpress/sdk'
 import { ConfigProvider } from 'core/config'
-import { AuthService, TOKEN_AUDIENCE, checkTokenHeader, fileUploadMulter, needPermissions } from 'core/security'
+import { fileUploadMulter } from 'core/routers'
+import { CustomRouter } from 'core/routers/customRouter'
+import { AuthService, TOKEN_AUDIENCE, checkTokenHeader, needPermissions } from 'core/security'
 import { WorkspaceService } from 'core/users'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 import ms from 'ms'
 import path from 'path'
 
-import { CustomRouter } from '../routers/customRouter'
 import { MediaServiceProvider } from './media-service-provider'
 
 const DEFAULT_MAX_SIZE = '10mb'

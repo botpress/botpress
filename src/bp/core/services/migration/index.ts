@@ -1,12 +1,13 @@
 import * as sdk from 'botpress/sdk'
 import chalk from 'chalk'
-import { BotpressAPIProvider } from 'core/api'
+import { BotpressAPIProvider } from 'core/app/api'
+import { container } from 'core/app/inversify/app.inversify'
+import { TYPES } from 'core/app/types'
 import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config'
 import Database from 'core/database'
 import { PersistedConsoleLogger, centerText } from 'core/logger'
 import { BotMigrationService } from 'core/migration'
-import { TYPES } from 'core/types'
 import fse from 'fs-extra'
 import glob from 'glob'
 import { Container, inject, injectable, tagged } from 'inversify'
@@ -15,8 +16,6 @@ import path from 'path'
 import semver from 'semver'
 import stripAnsi from 'strip-ansi'
 import yn from 'yn'
-
-import { container } from '../../app/app.inversify'
 
 const debug = DEBUG('migration')
 

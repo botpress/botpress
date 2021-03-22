@@ -1,7 +1,8 @@
-import { ConfigProvider } from 'core/config/config-loader'
-import { TYPES } from 'core/types'
+import { ConfigProvider } from 'core/config'
 import { Container, interfaces } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
+
+import { TYPES } from '../types'
 
 const getBoundInstancesFn = (container: Container, functionName: string): (() => Function[]) => {
   const bound: Function[] = []

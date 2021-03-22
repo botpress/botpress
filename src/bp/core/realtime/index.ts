@@ -1,3 +1,2 @@
-// TODO: Move code here when references are updated
-
-export * from '../services/realtime'
+export * from './payload-sdk-impl'
+export * from './realtime-service'

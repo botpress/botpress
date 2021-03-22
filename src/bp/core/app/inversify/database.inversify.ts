@@ -1,8 +1,9 @@
 import Database from 'core/database'
 import { patchKnex } from 'core/database/helpers'
-import { TYPES } from 'core/types'
 import { ContainerModule, interfaces } from 'inversify'
 import Knex from 'knex'
+
+import { TYPES } from '../types'
 
 const DatabaseContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<Database>(TYPES.Database)

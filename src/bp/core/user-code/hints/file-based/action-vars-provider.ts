@@ -1,4 +1,4 @@
-import { FileBasedHintProvider, Hint } from '..'
+import { FileBasedHintProvider, Hint } from '../hints-service'
 
 const USER_VARIABLE_REGEX = [
   /event.state.(temp|session|user|bot).([A-Z0-9_]+?)\s?=/gi,

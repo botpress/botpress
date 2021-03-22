@@ -1,15 +1,15 @@
 import 'bluebird-global'
 import LicensingService from 'common/licensing-service'
+import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config'
+import Database from 'core/database'
 import { LoggerProvider } from 'core/logger'
 import { LocalActionServer as LocalActionServerImpl } from 'core/user-code'
 import { FatalError } from 'errors'
 import 'reflect-metadata'
 
-import { container } from './app/app.inversify'
 import { Botpress as Core } from './botpress'
-import Database from './database'
-import { GhostService } from './services'
+import { container } from './inversify/app.inversify'
 import { TYPES } from './types'
 
 let botpress

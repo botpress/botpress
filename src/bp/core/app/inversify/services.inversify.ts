@@ -13,16 +13,15 @@ import { LogsJanitor, LogsService } from 'core/logger'
 import { MediaServiceProvider } from 'core/media'
 import { MessageService, ConversationService } from 'core/messaging'
 import { NotificationsService } from 'core/notifications'
+import { RealtimeService } from 'core/realtime'
 import { AuthService, AuthStrategies, CEAuthStrategies } from 'core/security'
 import { StatsService } from 'core/telemetry'
-import { TYPES } from 'core/types'
-import { HookService, ActionService, ActionServersService } from 'core/user-code'
+import { HookService, ActionService, ActionServersService, HintsService } from 'core/user-code'
 import { ContainerModule, interfaces } from 'inversify'
 
-import { HintsService } from '../services/hints'
-import CELicensingService from '../services/licensing'
-import { NLUService } from '../services/nlu/nlu-service'
-import RealtimeService from '../services/realtime'
+import CELicensingService from '../../services/licensing'
+import { NLUService } from '../../services/nlu/nlu-service'
+import { TYPES } from '../types'
 
 const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<ConversationService>(TYPES.ConversationService)

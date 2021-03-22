@@ -1,23 +1,22 @@
 import { Logger } from 'botpress/sdk'
-import { BotpressAPIProvider } from 'core/api'
-import { Botpress } from 'core/botpress'
+import { BotpressAPIProvider } from 'core/app/api'
+import { Botpress } from 'core/app/botpress'
+import { HTTPServer } from 'core/app/server'
 import { ConfigProvider } from 'core/config'
 import { EventCollector } from 'core/events'
 import { LoggerDbPersister, LoggerFilePersister, LoggerProvider, PersistedConsoleLogger } from 'core/logger'
 import { MigrationService } from 'core/migration'
 import { ModuleLoader } from 'core/modules'
-import HTTPServer from 'core/server'
-import { TelemetryContainerModules } from 'core/telemetry'
-import { TYPES } from 'core/types'
+import { TelemetryContainerModules, AnalyticsService } from 'core/telemetry'
 import { LocalActionServer } from 'core/user-code'
 import { DataRetentionJanitor, DataRetentionService, WorkspaceService } from 'core/users'
 import { Container } from 'inversify'
 
-import { applyDisposeOnExit, applyInitializeFromConfig } from '../misc/inversify'
-import { Statistics } from '../stats'
+import { TYPES } from '../types'
 import { DatabaseContainerModules } from './database.inversify'
 import { RepositoriesContainerModules } from './repositories.inversify'
 import { ServicesContainerModules } from './services.inversify'
+import { applyDisposeOnExit, applyInitializeFromConfig } from './utils'
 
 const container = new Container({ autoBindInjectable: true })
 
@@ -85,8 +84,8 @@ container
   .inSingletonScope()
 
 container
-  .bind<Statistics>(TYPES.Statistics)
-  .to(Statistics)
+  .bind<AnalyticsService>(TYPES.Statistics)
+  .to(AnalyticsService)
   .inSingletonScope()
 
 container

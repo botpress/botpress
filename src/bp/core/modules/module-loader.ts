@@ -10,7 +10,7 @@ import {
   Skill
 } from 'botpress/sdk'
 import { ModuleInfo } from 'common/typings'
-import { createForModule } from 'core/api'
+import { createForModule } from 'core/app/api'
 import { BotService } from 'core/bots'
 import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config'

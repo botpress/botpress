@@ -1,23 +1,25 @@
 import * as sdk from 'botpress/sdk'
-import { container } from 'core/app/app.inversify'
+import { container } from 'core/app/inversify/app.inversify'
+import { TYPES } from 'core/app/types'
 import { BotService } from 'core/bots'
 import { GhostService } from 'core/bpfs'
 import { CMSService, renderRecursive, RenderService } from 'core/cms'
 import { ConfigProvider } from 'core/config'
 import Database from 'core/database'
-import { StateManager, DialogEngine } from 'core/dialog'
+import { StateManager, DialogEngine, WellKnownFlags } from 'core/dialog'
+import * as dialogEnums from 'core/dialog/enums'
 import { SessionIdFactory } from 'core/dialog/sessions'
 import { JobService } from 'core/distributed'
-import { EventEngine, EventRepository } from 'core/events'
+import { EventEngine, EventRepository, Event } from 'core/events'
 import { KeyValueStore } from 'core/kvs'
 import { LoggerProvider } from 'core/logger'
+import * as logEnums from 'core/logger/enums'
 import { MediaServiceProvider } from 'core/media'
 import { ConversationService, MessageService } from 'core/messaging'
 import { ModuleLoader } from 'core/modules'
 import { NotificationsService } from 'core/notifications'
-import { WellKnownFlags } from 'core/sdk/enums'
+import { RealtimeService, RealTimePayload } from 'core/realtime'
 import { getMessageSignature } from 'core/security'
-import { TYPES } from 'core/types'
 import { HookService } from 'core/user-code'
 import { ChannelUserRepository, WorkspaceService } from 'core/users'
 import { inject, injectable } from 'inversify'
@@ -26,9 +28,7 @@ import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import MLToolkit from 'nlu/ml/toolkit'
 
-import { Event, RealTimePayload } from './sdk/impl'
-import HTTPServer from './server'
-import RealtimeService from './services/realtime'
+import { HTTPServer } from './server'
 
 const http = (httpServer: HTTPServer) => (identity: string): typeof sdk.http => {
   return {
@@ -324,9 +324,9 @@ export class BotpressAPIProvider {
     return {
       version: '',
       RealTimePayload,
-      LoggerLevel: require('./sdk/enums').LoggerLevel,
-      LogLevel: require('./sdk/enums').LogLevel,
-      NodeActionType: require('./sdk/enums').NodeActionType,
+      LoggerLevel: logEnums.LoggerLevel,
+      LogLevel: logEnums.LogLevel,
+      NodeActionType: dialogEnums.NodeActionType,
       IO: {
         Event,
         WellKnownFlags

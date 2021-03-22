@@ -1,14 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
+import { TYPES } from 'core/app/types'
+import { GhostService } from 'core/bpfs'
 import { startsWithI } from 'core/misc/utils'
-import { RealTimePayload } from 'core/sdk/impl'
+import { RealtimeService, RealTimePayload } from 'core/realtime'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import minimatch from 'minimatch'
-
-import { GhostService } from '..'
-import { TYPES } from '../../types'
-import RealtimeService from '../realtime'
 
 import BaseProvider from './base-provider'
 import FileBasedProviders from './file-based'

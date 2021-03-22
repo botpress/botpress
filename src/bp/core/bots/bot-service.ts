@@ -2,20 +2,22 @@ import { BotConfig, BotTemplate, Logger, Stage, WorkspaceUserWithAttributes } fr
 import cluster from 'cluster'
 import { BotHealth, ServerHealth } from 'common/typings'
 import { BotCreationSchema, BotEditSchema, isValidBotId } from 'common/validation'
-import { createForGlobalHooks } from 'core/api'
+import { createForGlobalHooks } from 'core/app/api'
+import { TYPES } from 'core/app/types'
 import { FileContent, GhostService, ReplaceContent } from 'core/bpfs'
 import { CMSService } from 'core/cms'
 import { ConfigProvider } from 'core/config'
 import { JobService } from 'core/distributed'
 import { PersistedConsoleLogger } from 'core/logger'
 import { MigrationService } from 'core/migration'
+import { extractArchive } from 'core/misc/archive'
 import { IDisposable } from 'core/misc/disposable'
 import { listDir } from 'core/misc/list-dir'
 import { stringify } from 'core/misc/utils'
 import { ModuleResourceLoader, ModuleLoader } from 'core/modules'
-import { RealTimePayload } from 'core/sdk/impl'
-import { Statistics } from 'core/stats'
-import { TYPES } from 'core/types'
+import { RealtimeService, RealTimePayload } from 'core/realtime'
+import { InvalidOperationError } from 'core/routers'
+import { AnalyticsService } from 'core/telemetry'
 import { Hooks, HookService } from 'core/user-code'
 import { WorkspaceService } from 'core/users'
 import { WrapErrorsWith } from 'errors'
@@ -31,12 +33,6 @@ import path from 'path'
 import replace from 'replace-in-file'
 import tmp from 'tmp'
 import { VError } from 'verror'
-
-import { extractArchive } from '../misc/archive'
-
-import { InvalidOperationError } from './auth/errors'
-
-import RealtimeService from './realtime'
 
 const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
 const BOT_CONFIG_FILENAME = 'bot.config.json'
@@ -79,7 +75,7 @@ export class BotService {
     @inject(TYPES.HookService) private hookService: HookService,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.JobService) private jobService: JobService,
-    @inject(TYPES.Statistics) private stats: Statistics,
+    @inject(TYPES.Statistics) private stats: AnalyticsService,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
     @inject(TYPES.RealtimeService) private realtimeService: RealtimeService,
     @inject(TYPES.MigrationService) private migrationService: MigrationService

@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-import { FileBasedHintProvider, Hint } from '..'
+import { FileBasedHintProvider, Hint } from '../hints-service'
 
 export default class NLUProvider implements FileBasedHintProvider {
   readonly filePattern = 'bots/*/intents/*.json'

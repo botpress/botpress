@@ -1,16 +1,16 @@
 import { Logger, StrategyUser } from 'botpress/sdk'
 import { JWT_COOKIE_NAME } from 'common/auth'
+import { AuthPayload, AuthStrategyConfig, ChatUserAuth, TokenUser, TokenResponse } from 'common/typings'
+import { TYPES } from 'core/app/types'
 import { AuthStrategy, ConfigProvider } from 'core/config'
 import Database from 'core/database'
 import { SessionIdFactory } from 'core/dialog/sessions'
 import { JobService } from 'core/distributed'
-import { EventEngine } from 'core/events'
+import { EventEngine, Event } from 'core/events'
 import { KeyValueStore } from 'core/kvs'
 import { ModuleLoader } from 'core/modules'
-import { BadRequestError } from 'core/routers/errors'
-import { Event } from 'core/sdk/impl'
+import { BadRequestError } from 'core/routers'
 import { StrategyBasic, generateUserToken, getMessageSignature } from 'core/security'
-import { TYPES } from 'core/types'
 import { StrategyUsersRepository, WorkspaceService } from 'core/users'
 import { StrategyUserTable } from 'core/users/tables'
 import { Response } from 'express'
@@ -19,9 +19,6 @@ import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
-
-import { AuthPayload, AuthStrategyConfig, ChatUserAuth, TokenUser, TokenResponse } from '../../../common/typings'
-import { Resource } from '../../misc/resources'
 
 export const TOKEN_AUDIENCE = 'collaborators'
 export const CHAT_USERS_AUDIENCE = 'chat_users'
@@ -254,14 +251,6 @@ export class AuthService {
     }
 
     return false
-  }
-
-  async getResources(): Promise<Resource[]> {
-    if (process.IS_PRO_ENABLED) {
-      const resources = require('pro/services/admin/pro-resources')
-      return resources.PRO_RESOURCES
-    }
-    return []
   }
 
   private async _createFirstUser(user: Partial<StrategyUser>, strategy: string): Promise<StrategyUser> {

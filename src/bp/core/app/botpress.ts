@@ -1,25 +1,25 @@
 import * as sdk from 'botpress/sdk'
 import lang from 'common/lang'
-import { createForGlobalHooks } from 'core/api'
+import { createForGlobalHooks } from 'core/app/api'
 import { BotService, BotMonitoringService } from 'core/bots'
 import { GhostService } from 'core/bpfs'
 import { CMSService } from 'core/cms'
 import { BotpressConfig, ConfigProvider } from 'core/config'
 import { buildUserKey, converseApiEvents } from 'core/converse'
 import Database from 'core/database'
-import { StateManager, DecisionEngine, DialogEngine, DialogJanitor } from 'core/dialog'
+import { StateManager, DecisionEngine, DialogEngine, DialogJanitor, WellKnownFlags } from 'core/dialog'
 import { SessionIdFactory } from 'core/dialog/sessions'
-import { addStepToEvent, EventCollector, StepScopes, StepStatus, EventEngine } from 'core/events'
+import { addStepToEvent, EventCollector, StepScopes, StepStatus, EventEngine, Event } from 'core/events'
 import { AlertingService, MonitoringService } from 'core/health'
 import { LoggerDbPersister, LoggerFilePersister, LoggerProvider, LogsJanitor } from 'core/logger'
 import { MigrationService } from 'core/migration'
 import { copyDir } from 'core/misc/pkg-fs'
 import { ModuleLoader } from 'core/modules'
 import { NotificationsService } from 'core/notifications'
+import { RealtimeService } from 'core/realtime'
 import { AuthService } from 'core/security'
-import { StatsService } from 'core/telemetry'
-import { TYPES } from 'core/types'
-import { ActionServersConfigSchema, Hooks, HookService } from 'core/user-code'
+import { StatsService, AnalyticsService } from 'core/telemetry'
+import { ActionServersConfigSchema, Hooks, HookService, HintsService } from 'core/user-code'
 import { DataRetentionJanitor, DataRetentionService, WorkspaceService } from 'core/users'
 import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
@@ -33,14 +33,10 @@ import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
 
-import { startLocalActionServer } from '../cluster'
-import { setDebugScopes } from '../debug'
-import { WellKnownFlags } from './sdk/enums'
-import { Event } from './sdk/impl'
-import HTTPServer from './server'
-import { HintsService } from './services/hints'
-import RealtimeService from './services/realtime'
-import { Statistics } from './stats'
+import { startLocalActionServer } from '../../cluster'
+import { setDebugScopes } from '../../debug'
+import { HTTPServer } from './server'
+import { TYPES } from './types'
 
 export interface StartOptions {
   modules: sdk.ModuleEntryPoint[]
@@ -56,7 +52,7 @@ export class Botpress {
   _heartbeatTimer?: NodeJS.Timeout
 
   constructor(
-    @inject(TYPES.Statistics) private stats: Statistics,
+    @inject(TYPES.Statistics) private stats: AnalyticsService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.Logger)
@@ -257,11 +253,11 @@ export class Botpress {
   async deployAssets() {
     try {
       for (const dir of ['./pre-trained', './stop-words']) {
-        await copyDir(path.resolve(__dirname, '../nlu/engine/assets', dir), path.resolve(process.APP_DATA_PATH, dir))
+        await copyDir(path.resolve(__dirname, '../../nlu/engine/assets', dir), path.resolve(process.APP_DATA_PATH, dir))
       }
 
       const assets = path.resolve(process.PROJECT_LOCATION, 'data/assets')
-      await copyDir(path.join(__dirname, '../ui-admin'), `${assets}/ui-admin`)
+      await copyDir(path.join(__dirname, '../../ui-admin'), `${assets}/ui-admin`)
 
       // Avoids overwriting the folder when developing locally on the studio
       if (fse.pathExistsSync(`${assets}/ui-studio/public`)) {
@@ -271,7 +267,7 @@ export class Botpress {
         }
       }
 
-      await copyDir(path.join(__dirname, '../ui-studio'), `${assets}/ui-studio`)
+      await copyDir(path.join(__dirname, '../../ui-studio'), `${assets}/ui-studio`)
     } catch (err) {
       this.logger.attachError(err).error('Error deploying assets')
     }
