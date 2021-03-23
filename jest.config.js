@@ -25,7 +25,7 @@ module.exports = {
   },
   resolver: '<rootDir>/src/bp/jest-resolver.js',
   moduleNameMapper: {
-    '^botpress/sdk$': '<rootDir>/src/bp/core/sdk_impl'
+    '^botpress/sdk$': '<rootDir>/src/bp/core/app/sdk_impl'
   },
   testMatch: ['**/(src|test)/**/*.test.(ts|js)'],
   testPathIgnorePatterns: ['out', 'build', 'node_modules', 'e2e'],

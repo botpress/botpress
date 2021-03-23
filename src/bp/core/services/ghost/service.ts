@@ -1,7 +1,9 @@
 import { DirectoryListingOptions, ListenHandle, Logger, UpsertOptions } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { isValidBotId } from 'common/validation'
-import { BotConfig } from 'core/config/bot.config'
+import { TYPES } from 'core/app/types'
+import { BotConfig } from 'core/config'
+import { createArchive } from 'core/misc/archive'
 import { asBytes, filterByGlobs, forceForwardSlashes, sanitize } from 'core/misc/utils'
 import { diffLines } from 'diff'
 import { EventEmitter2 } from 'eventemitter2'
@@ -16,12 +18,9 @@ import replace from 'replace-in-file'
 import tmp, { file } from 'tmp'
 import { VError } from 'verror'
 
-import { createArchive } from '../../misc/archive'
-import { TYPES } from '../../types'
-
 import { FileRevision, PendingRevisions, ReplaceContent, ServerWidePendingRevisions, StorageDriver } from '.'
-import DBStorageDriver from './db-driver'
-import DiskStorageDriver from './disk-driver'
+import { DBStorageDriver } from './db-driver'
+import { DiskStorageDriver } from './disk-driver'
 
 export interface BpfsScopedChange {
   // An undefined bot ID = global

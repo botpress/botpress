@@ -1,4 +1,4 @@
-import { MonitoringStats } from 'core/services/monitoring'
+import { MonitoringStats } from 'core/health'
 import _ from 'lodash'
 import ms from 'ms'
 

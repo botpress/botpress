@@ -1,13 +1,12 @@
 import { Logger } from 'botpress/sdk'
 import LicensingService, { LicenseInfo, LicenseStatus } from 'common/licensing-service'
 import { RequestWithUser } from 'common/typings'
-import { ConfigProvider } from 'core/config/config-loader'
+import { ConfigProvider } from 'core/config'
+import { BadRequestError, sendSuccess } from 'core/routers'
+import { CustomRouter } from 'core/routers/customRouter'
+import { assertSuperAdmin } from 'core/security'
 import { Router } from 'express'
 import _ from 'lodash'
-
-import { CustomRouter } from '../customRouter'
-import { BadRequestError } from '../errors'
-import { assertSuperAdmin, success as sendSuccess } from '../util'
 
 type LicensingStatus = {
   isPro: boolean
