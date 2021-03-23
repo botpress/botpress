@@ -17,7 +17,7 @@ The Username is a short name to be used in mentions and t.me links. Usernames ar
 ## Setup
 
 ### Generate an Authorisation Token
-When you create a Telegram bot, Botfather will automatically generate a token. The token is a string along the lines of 110201543:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw that is required to authorize the bot and send requests to the Bot API. Keep your token secure and store it safely; anyone can use it to control your bot.
+When you create a Telegram bot, Botfather will automatically generate a token. The token is a string that is required to authorize the bot and send requests to the Bot API. Keep your token secure and store it safely; anyone can use it to control your bot.
 
 If your existing token is compromised or you lost it for some reason, use the /token command to generate a new one.
 
@@ -34,4 +34,4 @@ Create or edit the file `data/bots/<your_bot>/config/channel-telegram.json` and 
 
 2. Restart Botpress and talk to your Telegram bot.
 
-> **Tip**: Don't forget to set `enabled: true` in your config. Otherwise, the module will be disabled for your bot.
+> **Tip**: Don't forget to set `enabled: true` in your config. Otherwise, the module will be disabled for your Botpress chatbot.
