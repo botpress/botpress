@@ -49,8 +49,8 @@ type Props = {
 export class StandardPortWidgetDisconnected extends React.PureComponent<Props> {
   renderSubflowNode() {
     const index = Number(this.props.name.replace('out', ''))
-    const subflow = this.props.node.next[index].node.replace(/\.flow\.json$/i, '')
-    const isInvalid = !this.props.flowsName.find(x => x === this.props.node.next[index].node)
+    const subflow = this.props.node.next[index].node.replace(/\.flow\.json($|#.*)/i, '')
+    const isInvalid = !this.props.flowsName.find(x => x === this.props.node.next[index].node.replace(/#.*/i, ''))
 
     return (
       <div className={cx(style.label, 'label', { [style.invalidFlow]: isInvalid })}>
@@ -97,7 +97,7 @@ export class StandardPortWidgetDisconnected extends React.PureComponent<Props> {
         missingConnection = true
       } else if (nextNode.node && nextNode.node.toLowerCase() === 'end') {
         type = 'end'
-      } else if (/\.flow\.json$/i.test(nextNode.node)) {
+      } else if (/\.flow\.json($|#.*)/i.test(nextNode.node)) {
         type = 'subflow'
       } else if (/^#/i.test(nextNode.node)) {
         type = 'return'

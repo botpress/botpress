@@ -19,6 +19,9 @@ class ComposerStore {
   public locked: boolean = false
 
   @observable
+  public hidden: boolean = false
+
+  @observable
   private _sentHistory: string[] = []
 
   @observable
@@ -78,6 +81,11 @@ class ComposerStore {
   @action.bound
   setLocked(locked: boolean) {
     this.locked = locked
+  }
+
+  @action.bound
+  setHidden(hidden: boolean) {
+    this.hidden = hidden
   }
 }
 

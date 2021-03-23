@@ -21,6 +21,7 @@ interface CssExports {
   'subflowBloc': string;
   'textFields': string;
   'tip': string;
+  'toSubflowSection': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

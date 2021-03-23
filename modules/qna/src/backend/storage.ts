@@ -75,6 +75,14 @@ export default class Storage {
   }
 
   private async createNLUIntentFromQnaItem(qnaItem: QnaItem, create: boolean): Promise<void> {
+    return this._makeIntent(qnaItem, getIntentId(qnaItem.id))
+  }
+
+  private async _convertQnaToNLUIntent(qnaItem: QnaItem): Promise<void> {
+    return this._makeIntent(qnaItem, qnaItem.id)
+  }
+
+  private async _makeIntent(qnaItem: QnaItem, intentName: string): Promise<void> {
     const axiosConfig = await this.getAxiosConfig()
     const utterances = {}
     for (const lang in qnaItem.data.questions) {
@@ -82,7 +90,7 @@ export default class Storage {
     }
 
     const intent = {
-      name: getIntentId(qnaItem.id),
+      name: intentName,
       entities: [],
       contexts: qnaItem.data.contexts,
       utterances
@@ -303,5 +311,11 @@ export default class Storage {
     }
 
     await Promise.all(ids.map(deletePromise))
+  }
+
+  async convert(qnaId: string) {
+    const item = await this.getQnaItem(qnaId)
+    await this._convertQnaToNLUIntent(item)
+    return this.delete(qnaId)
   }
 }

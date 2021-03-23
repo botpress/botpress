@@ -68,7 +68,7 @@ const migration: Migration = {
       const ghost = bp.ghost.forBot(botId)
       const contentMap = await getBotContentMap(ghost)
 
-      const flows = await flowService.loadAll(botId)
+      const flows = await flowService.forBot(botId).loadAll()
       return Promise.map(flows, async flow => {
         try {
           const updatedFlow = await migrateFlow(flow, contentMap)

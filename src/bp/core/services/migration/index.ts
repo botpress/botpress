@@ -1,12 +1,13 @@
 import * as sdk from 'botpress/sdk'
 import chalk from 'chalk'
-import { BotpressAPIProvider } from 'core/api'
-import { ConfigProvider } from 'core/config/config-loader'
+import { BotpressAPIProvider } from 'core/app/api'
+import { container } from 'core/app/inversify/app.inversify'
+import { TYPES } from 'core/app/types'
+import { GhostService } from 'core/bpfs'
+import { ConfigProvider } from 'core/config'
 import Database from 'core/database'
-import { PersistedConsoleLogger } from 'core/logger'
-import center from 'core/logger/center'
-import { stringify } from 'core/misc/utils'
-import { TYPES } from 'core/types'
+import { PersistedConsoleLogger, centerText } from 'core/logger'
+import { BotMigrationService } from 'core/migration'
 import fse from 'fs-extra'
 import glob from 'glob'
 import { Container, inject, injectable, tagged } from 'inversify'
@@ -15,10 +16,6 @@ import path from 'path'
 import semver from 'semver'
 import stripAnsi from 'strip-ansi'
 import yn from 'yn'
-
-import { container } from '../../app.inversify'
-import { GhostService } from '../ghost/service'
-import { BotMigrationService } from './bot'
 
 const debug = DEBUG('migration')
 
@@ -178,7 +175,11 @@ export class MigrationService {
 
     this.logger.info(chalk`
 ${_.repeat(' ', 9)}========================================
-{bold ${center(`Executing ${missingMigrations.length} migration${missingMigrations.length === 1 ? '' : 's'}`, 40, 9)}}
+{bold ${centerText(
+      `Executing ${missingMigrations.length} migration${missingMigrations.length === 1 ? '' : 's'}`,
+      40,
+      9
+    )}}
 ${_.repeat(' ', 9)}========================================`)
 
     let hasFailures = false
@@ -234,24 +235,24 @@ ${_.repeat(' ', 9)}========================================`)
     const isDown = process.MIGRATE_CMD === 'down'
     const migrations = missingMigrations.map(x => this.loadedMigrations[x.filename].info)
 
-    let headerLabel = chalk`{bold ${center(`Migration${migrations.length === 1 ? '' : 's'} Required`, 40, 9)}}`
+    let headerLabel = chalk`{bold ${centerText(`Migration${migrations.length === 1 ? '' : 's'} Required`, 40, 9)}}`
 
     if (process.MIGRATE_DRYRUN) {
-      headerLabel = chalk`{bold ${center('DRY RUN', 40, 9)}}`
+      headerLabel = chalk`{bold ${centerText('DRY RUN', 40, 9)}}`
     }
 
-    let versionLabel = chalk`{dim ${center(`Version ${this.configVersion} => ${this.targetVersion} `, 40, 9)}}`
+    let versionLabel = chalk`{dim ${centerText(`Version ${this.configVersion} => ${this.targetVersion} `, 40, 9)}}`
 
     if (this.configVersion !== this.dbVersion) {
-      versionLabel = chalk`{dim ${center(`Database Version ${this.dbVersion} => ${this.targetVersion} `, 40, 9)}}
-{dim ${center(`Config Version ${this.configVersion} => ${this.targetVersion} `, 40, 9)}}`
+      versionLabel = chalk`{dim ${centerText(`Database Version ${this.dbVersion} => ${this.targetVersion} `, 40, 9)}}
+{dim ${centerText(`Config Version ${this.configVersion} => ${this.targetVersion} `, 40, 9)}}`
     }
 
     logger.warn(chalk`
 ${_.repeat(' ', 9)}========================================
 ${headerLabel}
 ${versionLabel}
-{dim ${center(`${migrations.length} change${migrations.length === 1 ? '' : 's'}`, 40, 9)}}
+{dim ${centerText(`${migrations.length} change${migrations.length === 1 ? '' : 's'}`, 40, 9)}}
 ${_.repeat(' ', 9)}========================================`)
 
     Object.keys(types).map(type => {

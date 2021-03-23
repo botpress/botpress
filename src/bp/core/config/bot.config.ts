@@ -16,8 +16,8 @@ export interface BotConfig {
     contentTypes: string[]
   }
   converse?: ConverseConfig
-  dialog?: DialogConfig
-  logs?: LogsConfig
+  dialog?: BotDialogConfig
+  logs?: BotLogsConfig
   defaultLanguage: string
   languages: string[]
   locked: boolean
@@ -53,11 +53,11 @@ export interface BotDetails {
   emailAddress?: string
 }
 
-export interface LogsConfig {
+export interface BotLogsConfig {
   expiration: string
 }
 
-export interface DialogConfig {
+export interface BotDialogConfig {
   /**
    * The interval until the context of the session expires.
    * This clears the position of the user in the flow and triggers the before_session_timeout hook

@@ -1,19 +1,18 @@
 import { Logger, StrategyUser } from 'botpress/sdk'
 import { checkRule, CSRF_TOKEN_HEADER_LC, JWT_COOKIE_NAME } from 'common/auth'
+import { RequestWithUser, TokenUser } from 'common/typings'
+import { incrementMetric } from 'core/health'
 import { asBytes } from 'core/misc/utils'
-import { InvalidOperationError } from 'core/services/auth/errors'
-import { WorkspaceService } from 'core/services/workspace-service'
+import { AuthService, SERVER_USER, WORKSPACE_HEADER } from 'core/security'
+import { WorkspaceService } from 'core/users'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 import mime from 'mime-types'
 import multer from 'multer'
 import onHeaders from 'on-headers'
 
-import { RequestWithUser, TokenUser } from '../../common/typings'
-import AuthService, { SERVER_USER, WORKSPACE_HEADER } from '../services/auth/auth-service'
-import { incrementMetric } from '../services/monitoring'
-
 import {
+  InvalidOperationError,
   BadRequestError,
   ForbiddenError,
   InternalServerError,
@@ -83,14 +82,13 @@ export const validateRequestSchema = (property: string, req: Request, schema: Jo
 
 export const validateBodySchema = (req: Request, schema: Joi.AnySchema) => validateRequestSchema('body', req, schema)
 
-export const success = <T extends {}>(res: Response, message: string = 'Success', payload?: T) => {
+export const sendSuccess = <T extends {}>(res: Response, message: string = 'Success', payload?: T) => {
   res.json({
     status: 'success',
     message,
     payload: payload || {}
   })
 }
-export const sendSuccess = success
 
 export const checkTokenHeader = (authService: AuthService, audience?: string) => async (
   req: RequestWithUser,

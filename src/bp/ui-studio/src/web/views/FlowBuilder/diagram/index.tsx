@@ -103,7 +103,6 @@ class Diagram extends Component<Props> {
   private diagramEngine: ExtendedDiagramEngine
   private diagramWidget: DiagramWidget
   private diagramContainer: HTMLDivElement
-  private searchRef: React.RefObject<HTMLInputElement>
   public manager: DiagramManager
   /** Represents the source port clicked when the user is connecting a node */
   private dragPortSource: any
@@ -152,6 +151,7 @@ class Diagram extends Component<Props> {
     this.diagramEngine.flowBuilder = this
     this.manager = new DiagramManager(this.diagramEngine, {
       switchFlowNode: this.props.switchFlowNode,
+      openFlowNodeProps: this.props.openFlowNodeProps,
       zoomToLevel: this.props.zoomToLevel
     })
 
@@ -225,8 +225,6 @@ class Diagram extends Component<Props> {
         this.props.switchFlow(firstFlow)
       }
     }
-
-    this.searchRef = React.createRef()
   }
 
   componentDidMount() {
@@ -357,6 +355,9 @@ class Diagram extends Component<Props> {
     if (target?.model?.['nodeType'] === 'trigger') {
       this.editTriggers(target.model)
     }
+
+    this.props.switchFlowNode(null)
+    this.props.closeFlowNodeProps()
   }
 
   handleContextMenuNoElement = (event: React.MouseEvent) => {
@@ -532,12 +533,11 @@ class Diagram extends Component<Props> {
       this.handleContextMenu(event as any)
     }
 
-    this.canTargetOpenInspector(target) ? this.props.openFlowNodeProps() : this.props.closeFlowNodeProps()
+    if (this.canTargetOpenInspector(target)) {
+      this.props.openFlowNodeProps()
+    }
 
-    if (!selectedNode) {
-      this.props.closeFlowNodeProps()
-      this.props.switchFlowNode(null)
-    } else if (selectedNode && (!currentNode || selectedNode.id !== currentNode.id)) {
+    if (selectedNode && (!currentNode || selectedNode.id !== currentNode.id)) {
       // Different node selected
       this.props.switchFlowNode(selectedNode.id)
     }
@@ -675,19 +675,10 @@ class Diagram extends Component<Props> {
 
     return (
       <MainLayout.Wrapper>
-        <WorkflowToolbar />
-
-        <div className={style.searchWrapper}>
-          <SearchBar
-            id="input-highlight-name"
-            className={style.noPadding}
-            ref={this.searchRef}
-            onBlur={this.props.hideSearch}
-            value={this.props.highlightFilter}
-            placeholder={lang.tr('studio.flow.filterNodes')}
-            onChange={value => this.props.handleFilterChanged({ target: { value } })}
-          />
-        </div>
+        <WorkflowToolbar
+          highlightFilter={this.props.highlightFilter}
+          handleFilterChanged={value => this.props.handleFilterChanged({ target: { value } })}
+        />
         <div
           id="diagramContainer"
           ref={ref => (this.diagramContainer = ref)}

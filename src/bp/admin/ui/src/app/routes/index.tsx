@@ -53,9 +53,14 @@ export const makeMainRoutes = () => {
   setupBranding()
 
   const ExtractToken = () => {
-    const token = extractCookie('userToken')
-    if (token) {
-      authentication.setToken({ jwt: token })
+    const userToken = extractCookie('userToken')
+    const tokenExpiry = extractCookie('tokenExpiry')
+
+    if (userToken) {
+      authentication.setToken({
+        [window.USE_JWT_COOKIES ? 'csrf' : 'jwt']: userToken,
+        exp: Date.now() + Number(tokenExpiry)
+      })
     }
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
