@@ -4,13 +4,6 @@ import Database from 'core/database'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 
-export interface LogsRepository {
-  deleteBeforeDate(botId: string, date: Date)
-  getByBot(botId: string, limit?: number): Promise<LoggerEntry[]>
-  searchLogs(params: LogSearchParams): Promise<LoggerEntry[]>
-  getBotsErrorLogs(from: Date, to: Date): Promise<LoggerEntry[]>
-}
-
 interface LogSearchParams {
   fromDate?: Date
   toDate?: Date
@@ -21,7 +14,7 @@ interface LogSearchParams {
 }
 
 @injectable()
-export class KnexLogsRepository implements LogsRepository {
+export class LogsRepository {
   private readonly TABLE_NAME = 'srv_logs'
   private readonly DEFAULT_LIMIT = 25
   private readonly MAX_ROW_COUNT = 2000

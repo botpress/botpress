@@ -1,12 +1,12 @@
 import * as sdk from 'botpress/sdk'
-import { StrategyUsersRepository } from 'core/collaborators/repositories/strategy_users'
-import { WorkspaceUsersRepository } from 'core/collaborators/repositories/workspace_users'
-import { StrategyUserTable } from 'core/collaborators/tables/strategy_users'
+
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
 import { GhostService } from 'core/services'
 import { Migration, MigrationOpts } from 'core/services/migration'
 import { TYPES } from 'core/types'
+import { StrategyUsersRepository, WorkspaceUsersRepository } from 'core/users'
+import { StrategyUserTable } from 'core/users/tables'
 import { Container } from 'inversify'
 import _ from 'lodash'
 

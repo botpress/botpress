@@ -3,20 +3,26 @@ import { Serialize } from 'cerialize'
 import { decodeFolderPath, UnexpectedError } from 'common/http'
 import { gaId, machineUUID } from 'common/stats'
 import { FlowView } from 'common/typings'
-import { BotpressConfig } from 'core/config/botpress.config'
-import { ConfigProvider } from 'core/config/config-loader'
+import { BotService } from 'core/bots'
+import { CMSService } from 'core/cms'
+import { BotpressConfig, ConfigProvider } from 'core/config'
+import { FlowService, MutexError, TopicSchema } from 'core/dialog'
 import { LogsService } from 'core/logger'
-import { ModuleLoader } from 'core/module-loader'
+import { MediaServiceProvider } from 'core/media'
+import { ModuleLoader } from 'core/modules'
+import { NotificationsService } from 'core/notifications'
+import {
+  AuthService,
+  TOKEN_AUDIENCE,
+  checkMethodPermissions,
+  checkTokenHeader,
+  fileUploadMulter,
+  needPermissions
+} from 'core/security'
 import ActionServersService from 'core/services/action/action-servers-service'
 import ActionService from 'core/services/action/action-service'
-import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
-import { BotService } from 'core/services/bot-service'
-import { CMSService } from 'core/services/cms'
-import { FlowService, MutexError, TopicSchema } from 'core/services/dialog/flow/service'
-import { MediaServiceProvider } from 'core/services/media'
-import { NotificationsService } from 'core/services/notification/service'
 import { getSocketTransports } from 'core/services/realtime'
-import { WorkspaceService } from 'core/services/workspace-service'
+import { WorkspaceService } from 'core/users'
 import { Express, RequestHandler, Router } from 'express'
 import { validate } from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -29,7 +35,6 @@ import { URL } from 'url'
 import { disableForModule } from '../conditionalMiddleware'
 import { CustomRouter } from '../customRouter'
 import { NotFoundError } from '../errors'
-import { checkMethodPermissions, checkTokenHeader, fileUploadMulter, needPermissions } from '../util'
 
 const debugMedia = DEBUG('audit:action:media-upload')
 
