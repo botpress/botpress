@@ -214,9 +214,10 @@ export class TrainingQueue {
           return this._update(trainId, newState, trx)
         }, 'train: update progress')
       })
-      await this._trainingRepo.inTransaction(async trx => {
-        await this.loadModel(botId, modelId)
 
+      await this.loadModel(botId, modelId)
+
+      await this._trainingRepo.inTransaction(async trx => {
         const newState = this._fillSate({ status: 'done', progress: 1 })
         await this._update(trainId, newState, trx)
       }, 'train: set to done')
