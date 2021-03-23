@@ -23,6 +23,8 @@ export type ITrainingQueue = I<TrainingQueue>
 const debug = DEBUG('nlu').sub('lifecycle')
 const TRAINING_LIFE_TIME = ms('5m')
 
+const STATES_REQUIRING_NODE_AFFINITY: sdk.NLU.TrainingStatus[] = ['training', 'canceled', 'errored']
+
 export class TrainingQueue {
   private _options: TrainingQueueOptions
   private _paused: boolean = true
@@ -214,9 +216,10 @@ export class TrainingQueue {
           return this._update(trainId, newState, trx)
         }, 'train: update progress')
       })
-      await this._trainingRepo.inTransaction(async trx => {
-        await this.loadModel(botId, modelId)
 
+      await this.loadModel(botId, modelId)
+
+      await this._trainingRepo.inTransaction(async trx => {
         const newState = this._fillSate({ status: 'done', progress: 1 })
         await this._update(trainId, newState, trx)
       }, 'train: set to done')
@@ -263,7 +266,8 @@ export class TrainingQueue {
 
   private _fillSate(state: { status: sdk.NLU.TrainingStatus; progress?: number }): TrainingState {
     const { status, progress } = state
-    const owner = this._workerId
+    const requiresOwner = STATES_REQUIRING_NODE_AFFINITY.includes(status)
+    const owner = requiresOwner ? this._workerId : null
     const modifiedOn = new Date()
     return { status, owner, modifiedOn, progress: progress ?? 0 }
   }

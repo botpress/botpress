@@ -5,7 +5,7 @@ import { TrainingId, TrainingState, TrainingSession, I } from './typings'
 
 const TABLE_NAME = 'nlu_training_queue'
 const TRANSACTION_TIMEOUT_MS = ms('5s')
-const debug = DEBUG('nlu').sub('lifecycle')
+const debug = DEBUG('nlu').sub('database')
 
 const TRANSACTION_TIMEOUT_ERROR = "Transaction exceeded it's time limit"
 
@@ -32,7 +32,7 @@ class TransactionContext {
 
     const modifiedOn = this._database.date.now()
     if (await this.has({ botId, language })) {
-      return this.table.where({ botId, language }).update({ progress, status, modifiedOn })
+      return this.table.where({ botId, language }).update({ progress, status, modifiedOn, owner })
     }
     return this.table.insert({ botId, language, progress, status, modifiedOn, owner })
   }
@@ -82,7 +82,7 @@ export class TrainingRepository implements TrainingRepository {
       table.string('botId').notNullable()
       table.string('language').notNullable()
       table.string('status').notNullable()
-      table.string('owner').notNullable()
+      table.string('owner').nullable()
       table.float('progress').notNullable()
       table.timestamp('modifiedOn').notNullable()
       table.primary(['botId', 'language'])
