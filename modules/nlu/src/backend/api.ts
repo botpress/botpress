@@ -3,10 +3,12 @@ import { Response } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
 import yn from 'yn'
+import { Config } from '../config'
 
 import { NLUApplication } from './application'
 import { BotDoesntSpeakLanguageError, BotNotMountedError } from './application/errors'
 import { TrainingSession } from './application/typings'
+import { election } from './election'
 import legacyElectionPipeline from './election/legacy-election'
 import createRepositoryRouter from './train-repo-router'
 import { NLUProgressEvent } from './typings'
@@ -60,6 +62,8 @@ export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
   const mapError = makeErrorMapper(bp)
   const needsWriteMW = bp.http.needPermission('write', 'bot.training')
 
+  const globalConfig: Config = await bp.config.getModuleConfig('nlu')
+
   router.get('/health', async (req, res) => {
     // When the health is bad, we'll refresh the status in case it has changed (eg: user added languages)
     const health = app.getHealth()
@@ -89,7 +93,7 @@ export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
         includedContexts: value.contexts,
         detectedLanguage: nlu.detectedLanguage
       }
-      res.send({ nlu: legacyElectionPipeline(event) })
+      res.send({ nlu: election(event, globalConfig) })
     } catch (error) {
       return mapError({ botId, lang, error }, res)
     }

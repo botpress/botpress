@@ -23,14 +23,22 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
     languageSources,
     modelCacheSize,
     maxTrainingPerInstance,
-    queueTrainingOnBotMount
+    queueTrainingOnBotMount,
+    legacyElection
   } = globalConfig
 
   const parsedConfig: NLU.Config = {
     languageSources,
     ducklingEnabled,
     ducklingURL,
-    modelCacheSize
+    modelCacheSize,
+    legacyElection
+  }
+
+  if (legacyElection) {
+    bp.logger.warn(
+      'You are still using legacy election which is deprecated. Set { legacyElection: false } in your global nlu config to use the new election pipeline.'
+    )
   }
 
   const logger = <NLU.Logger>{
