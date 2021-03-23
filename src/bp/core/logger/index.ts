@@ -1,3 +1,4 @@
+export * from './enums'
 export * from './logs-janitor'
 export * from './logs-repository'
 export * from './logs-service'

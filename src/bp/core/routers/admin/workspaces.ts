@@ -2,16 +2,14 @@ import { Logger } from 'botpress/sdk'
 import { defaultPipelines } from 'common/defaults'
 import { CreateWorkspace } from 'common/typings'
 import { PipelineSchema, WorkspaceCreationSchema } from 'common/validation'
-import { ConfigProvider } from 'core/config/config-loader'
-import { InvalidOperationError } from 'core/services/auth/errors'
-import { BotService } from 'core/services/bot-service'
-import { ROLLOUT_STRATEGIES, WorkspaceService } from 'core/services/workspace-service'
+import { BotService } from 'core/bots'
+import { ConfigProvider } from 'core/config'
+import { InvalidOperationError } from 'core/routers'
+import { CustomRouter } from 'core/routers/customRouter'
+import { ROLLOUT_STRATEGIES, WorkspaceService } from 'core/users'
 import { Router } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
-
-import { CustomRouter } from '../customRouter'
-import { NotFoundError } from '../errors'
 
 export class WorkspacesRouter extends CustomRouter {
   constructor(

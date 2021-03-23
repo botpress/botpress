@@ -1,4 +1,5 @@
 import { Logger, ModuleEntryPoint } from 'botpress/sdk'
+import { GhostService } from 'core/bpfs'
 import fs from 'fs'
 import defaultJsonBuilder from 'json-schema-defaults'
 import _ from 'lodash'
@@ -8,7 +9,6 @@ import { VError } from 'verror'
 import yn from 'yn'
 
 import { getPropertiesRecursive, getValueFromEnvKey } from '../config/config-utils'
-import { GhostService } from '../services'
 
 const debug = DEBUG('configuration').sub('modules')
 
