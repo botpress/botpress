@@ -339,11 +339,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
       }
       return this._returnLegacy(svmPredictions, exactMatchPredictions, oosPrediction)
     }
-
-    return OOSIntentClassifier._removeNoneIntent({
-      intents: svmPredictions.intents,
-      oos: oosPrediction
-    })
+    return this._returnNatural(svmPredictions, exactPredictions, oosPrediction)
   }
 
   private _returnLegacy = (
@@ -360,6 +356,20 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
       intents: svmPredictions.intents,
       oos
     }
+  }
+
+  private _returnNatural = (
+    svmPredictions: IntentPredictions,
+    exactMatchPredictions: NoneableIntentPredictions,
+    oos: number
+  ) => {
+    if (exactMatchPredictions.oos === 0) {
+      return exactMatchPredictions
+    }
+    return OOSIntentClassifier._removeNoneIntent({
+      intents: svmPredictions.intents,
+      oos
+    })
   }
 
   static _removeNoneIntent(preds: NoneableIntentPredictions): NoneableIntentPredictions {

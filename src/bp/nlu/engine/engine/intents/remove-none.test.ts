@@ -17,16 +17,11 @@ test('remove none intent', () => {
   const withoutNone = OOSIntentClassifier._removeNoneIntent(preds)
 
   // assert
-  const expectedGlobalOOS = 0.666 / (0.666 + 0.58) // 0.53
-  expect(withoutNone.oos).toBe(expectedGlobalOOS)
+  const expectedOOS = 0.666 / (0.666 + 0.58) // 0.53
+  expect(withoutNone.oos).toBe(expectedOOS)
 
-  const totalGlobalConf = withoutNone.oos + _.sum(withoutNone.intents.map(i => i.confidence))
-  expect(totalGlobalConf).toBe(1)
-  expect(withoutNone.intents.some(i => i.name === 'none')).toBe(false)
-
-  expect(withoutNone.oos).toBe(0.99)
-  const totalSomeTopicConf = withoutNone.oos + _.sum(withoutNone.intents.map(i => i.confidence))
-  expect(totalSomeTopicConf).toBe(1)
+  const totalConf = withoutNone.oos + _.sum(withoutNone.intents.map(i => i.confidence))
+  expect(totalConf).toBe(1)
   expect(withoutNone.intents.some(i => i.name === 'none')).toBe(false)
 })
 
