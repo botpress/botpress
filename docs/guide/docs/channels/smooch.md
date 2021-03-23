@@ -5,7 +5,7 @@ title: Smooch (Sunshine Conversations)
 
 ## Requirements
 
-- An HTTPS Endpoint to your bot
+- An HTTPS Endpoint to your chatbot
 
   - Set the `externalUrl` field in botpress.config.json
   - Create an HTTPS tunnel to your machine using Ngrok. [**Tutorial**](https://api.slack.com/tutorials/tunneling-with-ngrok)
