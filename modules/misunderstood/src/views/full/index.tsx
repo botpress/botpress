@@ -265,7 +265,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
 
     return (
       <Container sidePanelWidth={320}>
-        <SidePanel>
+        <SidePanel style={{ overflowY: 'hidden' }}>
           <div className={style.filterContainer}>
             <Button
               className={(this.state.reason === FLAG_REASON.auto_hook && 'selected') || ''}

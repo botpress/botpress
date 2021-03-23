@@ -1,11 +1,17 @@
 import * as sdk from 'botpress/sdk'
 import { JWT_COOKIE_NAME } from 'common/auth'
 import { AuthRule, ChatUserAuth, RequestWithUser, TokenUser, UserProfile } from 'common/typings'
-import { ConfigProvider } from 'core/config/config-loader'
-import { AuthStrategies } from 'core/services/auth-strategies'
-import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
-import StrategyBasic from 'core/services/auth/basic'
-import { WorkspaceService } from 'core/services/workspace-service'
+import { ConfigProvider } from 'core/config'
+import {
+  assertWorkspace,
+  checkTokenHeader,
+  validateBodySchema,
+  AuthStrategies,
+  AuthService,
+  StrategyBasic,
+  TOKEN_AUDIENCE
+} from 'core/security'
+import { WorkspaceService } from 'core/users'
 import { RequestHandler, Router } from 'express'
 import Joi from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -13,7 +19,7 @@ import _ from 'lodash'
 
 import { CustomRouter } from './customRouter'
 import { BadRequestError, NotFoundError } from './errors'
-import { assertWorkspace, checkTokenHeader, success as sendSuccess, validateBodySchema } from './util'
+import { success as sendSuccess } from './util'
 
 export class AuthRouter extends CustomRouter {
   private checkTokenHeader!: RequestHandler

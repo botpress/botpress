@@ -8,6 +8,7 @@ export interface ToolbarProps {
   tabChange?: (tab: string) => void
   currentTab?: string
   buttons?: ToolbarButtonProps[]
+  rightContent?: Jsx
   className?: string
 }
 

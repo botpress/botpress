@@ -2,6 +2,7 @@ import { SessionRepository } from 'core/dialog/sessions'
 import { EventRepository } from 'core/events'
 import { LogsRepository } from 'core/logger'
 import { ConversationRepository, MessageRepository } from 'core/messaging'
+import { NotificationsRepository } from 'core/notifications'
 import { TelemetryRepository } from 'core/telemetry'
 import { TYPES } from 'core/types'
 import {
@@ -12,7 +13,6 @@ import {
 } from 'core/users'
 import { ContainerModule, interfaces } from 'inversify'
 
-import { KnexNotificationsRepository, NotificationsRepository } from '.'
 import { TasksRepository } from './tasks'
 
 const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
@@ -29,7 +29,7 @@ const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) 
     .inSingletonScope()
 
   bind<NotificationsRepository>(TYPES.NotificationsRepository)
-    .to(KnexNotificationsRepository)
+    .to(NotificationsRepository)
     .inSingletonScope()
 
   bind<EventRepository>(TYPES.EventRepository)
