@@ -8,7 +8,7 @@ interface LanguageState {
 }
 
 const initialState: LanguageState = {
-  languages: null
+  languages: undefined
 }
 
 export default (state = initialState, action): LanguageState => {

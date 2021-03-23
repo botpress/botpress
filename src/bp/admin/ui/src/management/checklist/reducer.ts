@@ -2,7 +2,7 @@ import { ServerConfig } from 'common/typings'
 import api from '~/app/api'
 import { AppThunk } from '~/app/rootReducer'
 
-const FETCH_SERVER_CONFIG_RECEIVED = 'server/FETCH_FEATURE_RECEIVED'
+const FETCH_SERVER_CONFIG_RECEIVED = 'server/FETCH_SERVER_CONFIG_RECEIVED'
 
 interface ChecklistState {
   serverConfig?: ServerConfig
