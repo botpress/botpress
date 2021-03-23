@@ -1,5 +1,6 @@
 import * as NLU from 'common/nlu/engine'
 import _ from 'lodash'
+import yn from 'yn'
 
 import { IBotFactory } from './bot-factory'
 import { IBotService } from './bot-service'
@@ -87,9 +88,11 @@ export class NLUApplication {
     )
     defService.listenForDirtyModels(loadOrSetTrainingNeeded)
 
-    const trainingHandler = this._queueTrainingOnBotMount
-      ? (trainId: TrainingId) => this._trainingQueue.queueTraining(trainId)
-      : (trainId: TrainingId) => this._trainingQueue.needsTraining(trainId)
+    const trainingEnabled = !yn(process.env.BP_NLU_DISABLE_TRAINING)
+    const trainingHandler =
+      this._queueTrainingOnBotMount && trainingEnabled
+        ? (trainId: TrainingId) => this._trainingQueue.queueTraining(trainId)
+        : (trainId: TrainingId) => this._trainingQueue.needsTraining(trainId)
 
     const loadModelOrQueue = makeDirtyModelHandler(trainingHandler)
     for (const language of languages) {
