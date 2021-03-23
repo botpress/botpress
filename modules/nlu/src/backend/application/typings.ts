@@ -38,7 +38,7 @@ export type EventUnderstanding = Omit<IO.EventUnderstanding, 'includedContexts' 
 export interface TrainingState {
   status: SDKNLU.TrainingStatus
   progress: number
-  owner: string
+  owner: string | null
   modifiedOn: Date
 }
 

@@ -32,7 +32,7 @@ class TransactionContext {
 
     const modifiedOn = this._database.date.now()
     if (await this.has({ botId, language })) {
-      return this.table.where({ botId, language }).update({ progress, status, modifiedOn })
+      return this.table.where({ botId, language }).update({ progress, status, modifiedOn, owner })
     }
     return this.table.insert({ botId, language, progress, status, modifiedOn, owner })
   }
@@ -82,7 +82,7 @@ export class TrainingRepository implements TrainingRepository {
       table.string('botId').notNullable()
       table.string('language').notNullable()
       table.string('status').notNullable()
-      table.string('owner').notNullable()
+      table.string('owner').nullable()
       table.float('progress').notNullable()
       table.timestamp('modifiedOn').notNullable()
       table.primary(['botId', 'language'])
