@@ -1,15 +1,14 @@
 import axios from 'axios'
 import { Logger } from 'botpress/sdk'
 import { StandardError, UnexpectedError } from 'common/http'
-import { ConfigProvider } from 'core/config/config-loader'
-import { ModuleLoader } from 'core/module-loader'
-import { WorkspaceService } from 'core/services/workspace-service'
+import { ConfigProvider } from 'core/config'
+import { ModuleLoader } from 'core/modules'
+import { CustomRouter } from 'core/routers/customRouter'
+import { needPermissions } from 'core/security'
+import { WorkspaceService } from 'core/users'
 import { RequestHandler, Router } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
-
-import { CustomRouter } from '../customRouter'
-import { needPermissions } from '../util'
 
 export class LanguagesRouter extends CustomRouter {
   private needPermissions: (operation: string, resource: string) => RequestHandler

@@ -1,15 +1,14 @@
 import { Logger } from 'botpress/sdk'
 import { UnexpectedError } from 'common/http'
+import { BotService } from 'core/bots'
+import { GhostService } from 'core/bpfs'
 import { extractArchive } from 'core/misc/archive'
-import { GhostService } from 'core/services'
-import { BotService } from 'core/services/bot-service'
+import { CustomRouter } from 'core/routers/customRouter'
 import { Router } from 'express'
 import _ from 'lodash'
 import mkdirp from 'mkdirp'
 import path from 'path'
 import tmp from 'tmp'
-
-import { CustomRouter } from '../customRouter'
 
 export class VersioningRouter extends CustomRouter {
   constructor(private logger: Logger, private ghost: GhostService, private botService: BotService) {

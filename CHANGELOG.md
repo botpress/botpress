@@ -1,3 +1,55 @@
+## [12.19.2](https://github.com/botpress/botpress/compare/v12.19.0...v12.19.2) (2021-03-22)
+
+
+### Bug Fixes
+
+* **core:** auth methods with cookies ([#4723](https://github.com/botpress/botpress/issues/4723)) ([39fc418](https://github.com/botpress/botpress/commit/39fc418))
+* **core:** flow service caching on update ([#4731](https://github.com/botpress/botpress/issues/4731)) ([09a1787](https://github.com/botpress/botpress/commit/09a1787))
+* **webchat:** typo in createConversation ([#4725](https://github.com/botpress/botpress/issues/4725)) ([fabe1fc](https://github.com/botpress/botpress/commit/fabe1fc))
+
+
+
+## [12.19.1](https://github.com/botpress/botpress/compare/v12.19.0...v12.19.1) (2021-03-19)
+
+
+### Bug Fixes
+
+* **analytics:** fix percentages values ([#4717](https://github.com/botpress/botpress/issues/4717)) ([0b4fa63](https://github.com/botpress/botpress/commit/0b4fa63))
+* **analytics:** fix react errors ([#4622](https://github.com/botpress/botpress/issues/4622)) ([73db97e](https://github.com/botpress/botpress/commit/73db97e))
+* **analytics:** support for postgres ([#4711](https://github.com/botpress/botpress/issues/4711)) ([6ff7b04](https://github.com/botpress/botpress/commit/6ff7b04))
+* **channel-web:** i18n initialization precedence ([#4713](https://github.com/botpress/botpress/issues/4713)) ([e54979e](https://github.com/botpress/botpress/commit/e54979e))
+* **channel-web:** message duplication on slow internet ([#4714](https://github.com/botpress/botpress/issues/4714)) ([764537c](https://github.com/botpress/botpress/commit/764537c))
+* **core:** change server target from ES6 to ES2019 ([#4703](https://github.com/botpress/botpress/issues/4703)) ([34505d4](https://github.com/botpress/botpress/commit/34505d4))
+* **core:** fix bp pull/push ([#4705](https://github.com/botpress/botpress/issues/4705)) ([b933c7c](https://github.com/botpress/botpress/commit/b933c7c))
+* **core:** nlu and lang server wrong import path ([#4704](https://github.com/botpress/botpress/issues/4704)) ([00c80d8](https://github.com/botpress/botpress/commit/00c80d8))
+* **docker:** fix vulnerability ([#4691](https://github.com/botpress/botpress/issues/4691)) ([b9d3dbe](https://github.com/botpress/botpress/commit/b9d3dbe))
+* **webchat:** browser error on IE11 ([#4702](https://github.com/botpress/botpress/issues/4702)) ([dcab2a5](https://github.com/botpress/botpress/commit/dcab2a5))
+
+
+
+# [12.19.0](https://github.com/botpress/botpress/compare/v12.18.2...v12.19.0) (2021-03-15)
+
+
+### Bug Fixes
+
+* **analytics:** Overlapped text in graph & active users ([#4623](https://github.com/botpress/botpress/issues/4623)) ([1ddbae0](https://github.com/botpress/botpress/commit/1ddbae0))
+* **core:** auth on ldap ([#4662](https://github.com/botpress/botpress/issues/4662)) ([cd2dfb6](https://github.com/botpress/botpress/commit/cd2dfb6))
+* **hitl2:** hidden reply box on livechat render ([#4627](https://github.com/botpress/botpress/issues/4627)) ([73470a8](https://github.com/botpress/botpress/commit/73470a8))
+* **hitl2:** scrollable HandoffList ([#4624](https://github.com/botpress/botpress/issues/4624)) ([31f4bc7](https://github.com/botpress/botpress/commit/31f4bc7))
+* **migrations:** proper migration for tokenVersion ([#4690](https://github.com/botpress/botpress/issues/4690)) ([adf7e75](https://github.com/botpress/botpress/commit/adf7e75))
+* **misunderstood:** train all modified languages ([#4671](https://github.com/botpress/botpress/issues/4671)) ([f0894a9](https://github.com/botpress/botpress/commit/f0894a9))
+* **nlu:** translate system entities ([#4617](https://github.com/botpress/botpress/issues/4617)) ([aaabd6a](https://github.com/botpress/botpress/commit/aaabd6a))
+
+
+### Features
+
+* **core:** messaging api ([#4340](https://github.com/botpress/botpress/issues/4340)) ([6790ea7](https://github.com/botpress/botpress/commit/6790ea7))
+* **core:** render service ([#4467](https://github.com/botpress/botpress/issues/4467)) ([1a6e953](https://github.com/botpress/botpress/commit/1a6e953))
+* **misunderstood:** delete done and ignored ([#4609](https://github.com/botpress/botpress/issues/4609)) ([7576926](https://github.com/botpress/botpress/commit/7576926))
+* **qna:** enter add new / Ctrl-entrer go to line ([#4621](https://github.com/botpress/botpress/issues/4621)) ([ff469e2](https://github.com/botpress/botpress/commit/ff469e2))
+
+
+
 ## [12.18.2](https://github.com/botpress/botpress/compare/v12.18.1...v12.18.2) (2021-03-05)
 
 

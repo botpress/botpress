@@ -111,6 +111,9 @@ export const patchKnex = (knex: Knex): KnexExtended => {
   }
 
   const date: Knex.Date = {
+    set: (date?: Date) => (date ? date.toISOString() : undefined),
+    get: date => new Date(date),
+
     format: dateFormat,
     now: () => (isLite ? knex.raw("strftime('%Y-%m-%dT%H:%M:%fZ', 'now')") : knex.raw('now()')),
     today: () => (isLite ? knex.raw('(date())') : knex.raw('(date(now()))')),

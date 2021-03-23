@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import { ModelId, ModelIdService, Engine, Model } from 'common/nlu/engine'
 import _ from 'lodash'
 
 import mergeSpellChecked from './election/spellcheck-handler'
@@ -9,10 +10,10 @@ type WithoutDetectedLanguage = Omit<WithoutIncludedContexts, 'detectedLanguage'>
 
 export class PredictionHandler {
   constructor(
-    private modelsByLang: _.Dictionary<sdk.NLU.ModelId>,
+    private modelsByLang: _.Dictionary<ModelId>,
     private modelService: ModelService,
-    private modelIdService: typeof sdk.NLU.modelIdService,
-    private engine: sdk.NLU.Engine,
+    private modelIdService: ModelIdService,
+    private engine: Engine,
     private anticipatedLanguage: string,
     private defaultLanguage: string,
     private logger: sdk.Logger
@@ -108,7 +109,7 @@ export class PredictionHandler {
     }
   }
 
-  private fetchModel(languageCode: string): Promise<sdk.NLU.Model> {
+  private fetchModel(languageCode: string): Promise<Model> {
     const modelId = this.modelsByLang[languageCode]
     if (modelId) {
       return this.modelService.getModel(modelId)

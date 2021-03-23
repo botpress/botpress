@@ -1,8 +1,8 @@
 /* eslint-disable import/order */
 import './sdk/rewire'
 
-import { Config, Logger } from 'core/app'
-import ModuleResolver from 'core/modules/resolver'
+import { Config, Logger } from 'core/app/core-loader'
+import { ModuleResolver } from 'core/modules'
 
 export default async argv => {
   process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : -1

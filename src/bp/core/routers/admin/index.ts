@@ -2,24 +2,23 @@ import axios from 'axios'
 import { Logger } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
 import LicensingService from 'common/licensing-service'
-import { ConfigProvider } from 'core/config/config-loader'
-import { ModuleLoader } from 'core/module-loader'
-import { LogsRepository } from 'core/repositories/logs'
-import { GhostService } from 'core/services'
-import { AlertingService } from 'core/services/alerting-service'
-import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
-import { BotService } from 'core/services/bot-service'
-import { JobService } from 'core/services/job-service'
-import { MonitoringService } from 'core/services/monitoring'
-import { WorkspaceService } from 'core/services/workspace-service'
+
+import { BotService } from 'core/bots'
+import { GhostService } from 'core/bpfs'
+import { ConfigProvider } from 'core/config'
+import { JobService } from 'core/distributed'
+import { MonitoringService, AlertingService } from 'core/health'
+import { LogsRepository } from 'core/logger'
+import { ModuleLoader } from 'core/modules'
+import { loadUser } from 'core/routers'
+import { CustomRouter } from 'core/routers/customRouter'
+import { AuthService, TOKEN_AUDIENCE, assertSuperAdmin, checkTokenHeader, needPermissions } from 'core/security'
+import { WorkspaceService } from 'core/users'
 import { RequestHandler, Router } from 'express'
 import httpsProxyAgent from 'https-proxy-agent'
 import _ from 'lodash'
 import moment from 'moment'
 import yn from 'yn'
-
-import { CustomRouter } from '../customRouter'
-import { assertSuperAdmin, checkTokenHeader, loadUser, needPermissions } from '../util'
 
 import { BotsRouter } from './bots'
 import { LanguagesRouter } from './languages'
@@ -90,13 +89,6 @@ export class AdminRouter extends CustomRouter {
         const { permissions, operation, resource } = req.body
         const valid = checkRule(permissions, operation, resource)
         res.send(valid)
-      })
-    )
-
-    router.get(
-      '/all-permissions',
-      this.asyncMiddleware(async (req, res) => {
-        res.json(await this.authService.getResources())
       })
     )
 

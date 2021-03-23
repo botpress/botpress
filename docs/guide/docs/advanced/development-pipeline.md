@@ -5,7 +5,7 @@ title: Development Pipelines
 
 ## Workflow
 
-A best practice is to keep the changes of your bots in your prefered Source Control Management tool (e.g Git) and always deploy the master branch in production. Once deployed, you can regularly [pull](versions#pull) changes and apply them to your SCM or revert them at any moment. With this tip you can harness the power of your SCM for branches, merge conflicted files, review changes and create revisions.
+A best practice is to keep the changes of your bots in your prefered Source Control Management tool (e.g Git) and always deploy the master branch in production. Once deployed, you can regularly [pull](../infrastructure/versions#pull) changes and apply them to your SCM or revert them at any moment. With this tip you can harness the power of your SCM for branches, merge conflicted files, review changes and create revisions.
 
 Fine, now what if you have a more complex deployment pipeline with a(or multiple) staging environment with pending changes on each environment? That's what we'll learn next.
 
@@ -41,7 +41,7 @@ Then merge the staging changes into the prod changes:
 
 This will create a merge conflict, use your prefered merge tool to review the changes and resolve the conflicts. Once its done, you will be able to publish your branch and create a pull request (if your hosted git allows it) and merge it to master.
 
-Once your master branch is up-to-date, you'll be able to [push](versions#push) the changes to production with:
+Once your master branch is up-to-date, you'll be able to [push](../infrastructure/versions#push) the changes to production with:
 
 `./bp push --url {PROD_SERVER_URL} --authToken {YOUR_AUTH_TOKEN} --targetDir {TARGET_DIRECTORY}`
 
