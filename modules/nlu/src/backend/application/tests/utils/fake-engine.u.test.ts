@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import * as NLUEngine from './sdk.u.test'
 import _ from 'lodash'
 
 import { modelIdService } from './fake-model-id-service.u.test'
@@ -15,11 +15,15 @@ const DEFAULT_OPTIONS: FakeEngineOptions = {
   nProgressCalls: 2
 }
 
-export class FakeEngine implements NLU.Engine {
-  private _models: NLU.Model[] = []
+export class FakeEngine implements NLUEngine.Engine {
+  private _models: NLUEngine.Model[] = []
   private _options: FakeEngineOptions
 
-  constructor(private languages: string[], private specs: NLU.Specifications, opt: Partial<FakeEngineOptions> = {}) {
+  constructor(
+    private languages: string[],
+    private specs: NLUEngine.Specifications,
+    opt: Partial<FakeEngineOptions> = {}
+  ) {
     this._options = { ...DEFAULT_OPTIONS, ...opt }
     const { nProgressCalls } = this._options
     if (nProgressCalls < 2 || nProgressCalls > 10) {
@@ -27,7 +31,7 @@ export class FakeEngine implements NLU.Engine {
     }
   }
 
-  getHealth = (): NLU.Health => {
+  getHealth = (): NLUEngine.Health => {
     return {
       isEnabled: true,
       validLanguages: [...this.languages],
@@ -39,32 +43,32 @@ export class FakeEngine implements NLU.Engine {
     return [...this.languages]
   }
 
-  getSpecifications = (): NLU.Specifications => {
+  getSpecifications = (): NLUEngine.Specifications => {
     return this.specs
   }
 
-  loadModel = async (model: NLU.Model): Promise<void> => {
+  loadModel = async (model: NLUEngine.Model): Promise<void> => {
     if (!this.hasModel(model)) {
       this._models.push(model)
     }
   }
 
-  unloadModel = (modelId: NLU.ModelId): void => {
+  unloadModel = (modelId: NLUEngine.ModelId): void => {
     const idx = this._models.findIndex(m => areEqual(m, modelId))
     if (idx >= 0) {
       this._models.splice(idx, 1)
     }
   }
 
-  hasModel = (modelId: NLU.ModelId): boolean => {
+  hasModel = (modelId: NLUEngine.ModelId): boolean => {
     return this._models.findIndex(m => areEqual(m, modelId)) >= 0
   }
 
   train = async (
     trainSessionId: string,
-    trainSet: NLU.TrainingSet,
-    options: Partial<NLU.TrainingOptions> = {}
-  ): Promise<NLU.Model> => {
+    trainSet: NLUEngine.TrainingSet,
+    options: Partial<NLUEngine.TrainingOptions> = {}
+  ): Promise<NLUEngine.Model> => {
     const { nProgressCalls, trainDelayBetweenProgress } = this._options
     const { languageCode, seed, intentDefs, entityDefs } = trainSet
 
@@ -98,11 +102,11 @@ export class FakeEngine implements NLU.Engine {
     return
   }
 
-  detectLanguage = async (text: string, modelByLang: _.Dictionary<NLU.ModelId>): Promise<string> => {
+  detectLanguage = async (text: string, modelByLang: _.Dictionary<NLUEngine.ModelId>): Promise<string> => {
     return 'en'
   }
 
-  predict = async (text: string, modelId: NLU.ModelId): Promise<NLU.PredictOutput> => {
+  predict = async (text: string, modelId: NLUEngine.ModelId): Promise<NLUEngine.PredictOutput> => {
     return {
       entities: [],
       predictions: {
@@ -115,7 +119,7 @@ export class FakeEngine implements NLU.Engine {
     }
   }
 
-  spellCheck = async (sentence: string, modelId: NLU.ModelId): Promise<string> => {
+  spellCheck = async (sentence: string, modelId: NLUEngine.ModelId): Promise<string> => {
     return sentence
   }
 }

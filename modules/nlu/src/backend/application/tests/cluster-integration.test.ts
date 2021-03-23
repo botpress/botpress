@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import * as NLUEngine from './utils/sdk.u.test'
 import _ from 'lodash'
 
 import { makeApp, makeDependencies, waitForTrainingsToBeDone } from './utils/app.u.test'
@@ -12,7 +12,7 @@ import { book_flight, cityEntity, fruitEntity, hello, i_love_hockey } from './ut
 import './utils/sdk.u.test'
 import { TrainingSession } from '../typings'
 
-const specs: NLU.Specifications = {
+const specs: NLUEngine.Specifications = {
   languageServer: {
     dimensions: 300,
     domain: 'lol',
@@ -115,5 +115,5 @@ describe('NLU API integration tests with cluster enabled', () => {
     expectEngineToHaveLoaded(engineLoadSpy, 'fr')
 
     await Promise.all([node1.teardown(), node2.teardown()])
-  })
+  }, 100000)
 })

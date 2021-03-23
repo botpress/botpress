@@ -14,8 +14,11 @@ class FakeTransactionContext implements ITransactionContext {
     return new Promise(resolve => resolve(!!this.get(trainId)))
   }
 
-  public get(trainId: TrainingId): Promise<TrainingSession> {
+  public get(trainId: TrainingId): Promise<TrainingSession | undefined> {
     const training = this._trainings[this._toKey(trainId)]
+    if (!training) {
+      return
+    }
     const value = { ...trainId, ...training }
     return new Promise(resolve => resolve(value))
   }

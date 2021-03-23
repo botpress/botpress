@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import * as NLUEngine from './utils/sdk.u.test'
 import _ from 'lodash'
 
 import { makeApp, makeDependencies, waitForTrainingsToBeDone } from './utils/app.u.test'
@@ -15,7 +15,7 @@ import './utils/sdk.u.test'
 import { areEqual, sleep } from './utils/utils.u.test'
 import { TrainingSession } from '../typings'
 
-const specs: NLU.Specifications = {
+const specs: NLUEngine.Specifications = {
   languageServer: {
     dimensions: 300,
     domain: 'lol',
@@ -517,7 +517,7 @@ describe('NLU API integration tests', () => {
     const dependencies = makeDependencies(core, fileSystem)
     const { engine } = dependencies
 
-    await engine.loadModel(modelId as NLU.Model)
+    await engine.loadModel(modelId as NLUEngine.Model)
     const enginePredictSpy = jest.spyOn(engine, 'predict')
 
     const app = makeApp(dependencies)
@@ -561,7 +561,7 @@ describe('NLU API integration tests', () => {
       throw new Error(cancelMessage)
     })
 
-    const errors: typeof NLU.errors = {
+    const errors: typeof NLUEngine.errors = {
       isTrainingAlreadyStarted: () => false,
       isTrainingCanceled: err => err.message === cancelMessage
     }
@@ -710,7 +710,7 @@ describe('NLU API integration tests', () => {
     const dependencies = makeDependencies(core, fileSystem)
     const { engine, socket, trainingRepo } = dependencies
 
-    await engine.loadModel(modelId as NLU.Model)
+    await engine.loadModel(modelId as NLUEngine.Model)
     const engineTrainSpy = jest.spyOn(engine, 'train')
 
     const app = makeApp(dependencies)

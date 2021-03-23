@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import * as NLUEngine from './utils/sdk.u.test'
 
 import { IBotFactory, ScopedServices } from '../bot-factory'
 import { IBotService } from '../bot-service'
@@ -12,7 +12,7 @@ import './utils/sdk.u.test'
 import { ITrainingQueue } from '../training-queue'
 
 const botId = 'myBot'
-const makeModelId = (languageCode: string): NLU.ModelId => ({
+const makeModelId = (languageCode: string): NLUEngine.ModelId => ({
   contentHash: '',
   specificationHash: '',
   languageCode,
@@ -39,7 +39,7 @@ const makeScopedServices = (): Mock<ScopedServices> => ({
 
 describe('NLU API unit tests', () => {
   let trainingQueue: Mock<ITrainingQueue>
-  let engine: Mock<NLU.Engine>
+  let engine: Mock<NLUEngine.Engine>
   let botFactory: Mock<IBotFactory>
   let botService: Mock<IBotService>
 
@@ -50,7 +50,7 @@ describe('NLU API unit tests', () => {
       queueTraining: jest.fn(),
       cancelTrainings: jest.fn()
     })
-    engine = mock<NLU.Engine>({})
+    engine = mock<NLUEngine.Engine>({})
     botFactory = mock<IBotFactory>({})
     botService = mock<IBotService>({
       setBot: jest.fn(),

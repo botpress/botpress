@@ -64,6 +64,9 @@ export class TrainingQueue {
     await this._trainingRepo.inTransaction(async ctx => {
       const currentTraining = await ctx.get(trainId)
       if (!currentTraining) {
+        const newState = this._fillSate({ status: 'training-pending' })
+        await ctx.set(trainId, newState)
+        await this._notify(trainId, newState)
         return
       }
 

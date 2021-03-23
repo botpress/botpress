@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import * as NLUEngine from './sdk.u.test'
 import _ from 'lodash'
 
 import { IModelRepository, ListingOptions, PruningOptions } from '../../scoped/infrastructure/model-repository'
@@ -6,7 +6,7 @@ import { IModelRepository, ListingOptions, PruningOptions } from '../../scoped/i
 import './sdk.u.test'
 import { areEqual } from './utils.u.test'
 
-const _satisfies = (id: NLU.ModelId, query: Partial<NLU.ModelId>): boolean => {
+const _satisfies = (id: NLUEngine.ModelId, query: Partial<NLUEngine.ModelId>): boolean => {
   return !Object.entries(query).some(([prop, value]) => id[prop] !== value)
 }
 
@@ -19,45 +19,48 @@ const DEFAULT_LISTING_OPTIONS: ListingOptions = {
 }
 
 export class FakeModelRepo implements IModelRepository {
-  private _models: NLU.Model[]
+  private _models: NLUEngine.Model[]
 
-  constructor(modelsOnFs: NLU.Model[] = []) {
+  constructor(modelsOnFs: NLUEngine.Model[] = []) {
     this._models = [...modelsOnFs]
   }
 
   async initialize(): Promise<void> {}
 
-  async hasModel(modelId: NLU.ModelId): Promise<boolean> {
+  async hasModel(modelId: NLUEngine.ModelId): Promise<boolean> {
     return !!this._models.find(mod => areEqual(mod, modelId))
   }
 
-  async getModel(modelId: NLU.ModelId): Promise<NLU.Model | undefined> {
+  async getModel(modelId: NLUEngine.ModelId): Promise<NLUEngine.Model | undefined> {
     return this._models.find(mod => areEqual(mod, modelId))
   }
 
-  private _getIdx(modelId: NLU.ModelId): number {
+  private _getIdx(modelId: NLUEngine.ModelId): number {
     return this._models.findIndex(mod => areEqual(mod, modelId))
   }
 
-  async getLatestModel(query: Partial<NLU.ModelId>): Promise<NLU.Model | undefined> {
+  async getLatestModel(query: Partial<NLUEngine.ModelId>): Promise<NLUEngine.Model | undefined> {
     const models = this._models.filter(mod => _satisfies(mod, query))
     const idx = models.map(model => ({ model, idx: this._getIdx(model) })).filter(x => x.idx >= 0)
     return _.minBy(idx, i => i.idx)?.model
   }
 
-  async saveModel(model: NLU.Model): Promise<void | void[]> {
+  async saveModel(model: NLUEngine.Model): Promise<void | void[]> {
     this._models.unshift(model) // newest => ... => oldest
   }
 
-  async listModels(query: Partial<NLU.ModelId>, opt?: Partial<ListingOptions> | undefined): Promise<NLU.ModelId[]> {
+  async listModels(
+    query: Partial<NLUEngine.ModelId>,
+    opt?: Partial<ListingOptions> | undefined
+  ): Promise<NLUEngine.ModelId[]> {
     const options = { ...DEFAULT_LISTING_OPTIONS, ...opt }
     const { negateFilter } = options
-    const baseFilter = (mod: NLU.ModelId) => _satisfies(mod, query)
+    const baseFilter = (mod: NLUEngine.ModelId) => _satisfies(mod, query)
     const filter = negateFilter ? _.negate(baseFilter) : baseFilter
     return this._models.filter(filter)
   }
 
-  async pruneModels(modelIds: NLU.ModelId[], opt?: Partial<PruningOptions> | undefined): Promise<void | void[]> {
+  async pruneModels(modelIds: NLUEngine.ModelId[], opt?: Partial<PruningOptions> | undefined): Promise<void | void[]> {
     const options = { ...DEFAULT_PRUNING_OPTIONS, ...opt }
     const { toKeep } = options
 
@@ -70,7 +73,7 @@ export class FakeModelRepo implements IModelRepository {
     trash.forEach(this._remove)
   }
 
-  private _remove = (modelId: NLU.ModelId) => {
+  private _remove = (modelId: NLUEngine.ModelId) => {
     const idx = this._getIdx(modelId)
     if (idx >= 0) {
       this._models.splice(idx, 1)

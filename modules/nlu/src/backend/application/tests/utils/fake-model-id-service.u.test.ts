@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import * as NLUEngine from './sdk.u.test'
 import crypto from 'crypto'
 import _ from 'lodash'
 
@@ -18,19 +18,19 @@ const halfmd5 = (text: string) => {
 }
 
 export const computeContentHash = (
-  entityDefs: NLU.EntityDefinition[],
-  intentDefs: NLU.IntentDefinition[],
+  entityDefs: NLUEngine.EntityDefinition[],
+  intentDefs: NLUEngine.IntentDefinition[],
   languageCode: string
 ) => {
   const singleLangIntents = intentDefs.map(i => ({ ...i, utterances: i.utterances[languageCode] }))
   return halfmd5(JSON.stringify({ singleLangIntents, entityDefs }))
 }
 
-export const computeSpecificationsHash = (specifications: NLU.Specifications) => {
+export const computeSpecificationsHash = (specifications: NLUEngine.Specifications) => {
   return halfmd5(JSON.stringify({ specifications }))
 }
 
-const toString = (modelId: NLU.ModelId) => {
+const toString = (modelId: NLUEngine.ModelId) => {
   const { contentHash, specificationHash, languageCode: lang, seed } = modelId
   return `${contentHash}.${specificationHash}.${seed}.${lang}`
 }
@@ -74,12 +74,12 @@ const isId = (stringId: string) => {
   return !!/^[a-z]{2}$/.exec(languageCode)
 }
 
-const toId = (model: NLU.Model) => {
+const toId = (model: NLUEngine.Model) => {
   const { contentHash, specificationHash, seed, languageCode } = model
   return { contentHash, specificationHash, seed, languageCode }
 }
 
-const makeId = (factors: NLU.ModelIdArgs): NLU.ModelId => {
+const makeId = (factors: NLUEngine.ModelIdArgs): NLUEngine.ModelId => {
   const { entityDefs, intentDefs, languageCode, seed, specifications } = factors
 
   const contentHash = computeContentHash(entityDefs, intentDefs, languageCode)
@@ -93,10 +93,10 @@ const makeId = (factors: NLU.ModelIdArgs): NLU.ModelId => {
   }
 }
 
-const briefId = (factors: Partial<NLU.ModelIdArgs>): Partial<NLU.ModelId> => {
+const briefId = (factors: Partial<NLUEngine.ModelIdArgs>): Partial<NLUEngine.ModelId> => {
   const { entityDefs, intentDefs, languageCode, seed, specifications } = factors
 
-  let briefedId: Partial<NLU.ModelId> = {}
+  let briefedId: Partial<NLUEngine.ModelId> = {}
   if (entityDefs && intentDefs && languageCode) {
     const contentHash = computeContentHash(entityDefs, intentDefs, languageCode)
     briefedId = { ...briefedId, contentHash }
@@ -115,7 +115,7 @@ const briefId = (factors: Partial<NLU.ModelIdArgs>): Partial<NLU.ModelId> => {
   return briefedId
 }
 
-export const modelIdService: typeof NLU.modelIdService = {
+export const modelIdService: typeof NLUEngine.modelIdService = {
   toString,
   fromString,
   isId,

@@ -1,5 +1,4 @@
-import * as NLU from 'common/nlu/engine'
-import './sdk.u.test'
+import * as NLU from './sdk.u.test'
 
 export type SemaphoreResolver = () => void
 

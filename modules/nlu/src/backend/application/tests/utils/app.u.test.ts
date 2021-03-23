@@ -1,4 +1,5 @@
 import { Logger, NLU } from 'botpress/sdk'
+import * as NLUEngine from './sdk.u.test'
 import _ from 'lodash'
 
 import { NLUApplication } from '../../'
@@ -13,7 +14,6 @@ import { FakeDefinitionRepo } from './fake-def-repo.u.test'
 import { FakeEngine, FakeEngineOptions } from './fake-engine.u.test'
 import { modelIdService } from './fake-model-id-service.u.test'
 import { FakeModelRepo } from './fake-model-repo.u.test'
-import './sdk.u.test'
 import { StubLogger } from './stub-logger.u.test'
 import { sleep } from './utils.u.test'
 
@@ -26,19 +26,19 @@ interface AppDependencies {
   defRepoByBot: _.Dictionary<FakeDefinitionRepo>
   trainingRepo: FakeTrainingRepository
   distributed: FakeDistributed
-  engine: NLU.Engine
-  errors: typeof NLU.errors
+  engine: NLUEngine.Engine
+  errors: typeof NLUEngine.errors
   logger: Logger
 }
 
 interface BotFileSystem {
   definitions: TrainDefinitions
-  modelsOnFs: NLU.ModelId[]
+  modelsOnFs: NLUEngine.ModelId[]
 }
 
 interface CoreSpecs {
   languages: string[]
-  specs: NLU.Specifications
+  specs: NLUEngine.Specifications
 }
 
 export const makeDependencies = (
@@ -47,7 +47,7 @@ export const makeDependencies = (
   engineOptions: Partial<FakeEngineOptions> = {}
 ): AppDependencies => {
   const { languages, specs } = core
-  const errors: typeof NLU.errors = {
+  const errors: typeof NLUEngine.errors = {
     isTrainingAlreadyStarted: () => false,
     isTrainingCanceled: () => false
   }
@@ -55,7 +55,7 @@ export const makeDependencies = (
   const socket = jest.fn()
   const engine = new FakeEngine(languages, specs, engineOptions)
   const defRepoByBot = _.mapValues(fsByBot, fs => new FakeDefinitionRepo(fs.definitions))
-  const modelRepoByBot = _.mapValues(fsByBot, fs => new FakeModelRepo(fs.modelsOnFs as NLU.Model[]))
+  const modelRepoByBot = _.mapValues(fsByBot, fs => new FakeModelRepo(fs.modelsOnFs as NLUEngine.Model[]))
 
   const trainingRepo = new FakeTrainingRepository()
   const distributed = new FakeDistributed()

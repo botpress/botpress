@@ -8,7 +8,7 @@ export * from './typings'
 
 export const SYSTEM_ENTITIES = DUCKLING_ENTITIES
 
-export const errors = {
+export const errors: Dic<(err: Error) => boolean> = {
   isTrainingAlreadyStarted,
   isTrainingCanceled
 }
