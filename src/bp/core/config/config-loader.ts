@@ -1,8 +1,8 @@
 import { BotConfig, Logger } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
+import { GhostService } from 'core/bpfs'
 import { calculateHash, stringify } from 'core/misc/utils'
 import { ModuleResolver } from 'core/modules'
-import { GhostService } from 'core/services'
 import { TYPES } from 'core/types'
 import { FatalError } from 'errors'
 import fs from 'fs'
@@ -184,7 +184,7 @@ export class ConfigProvider {
 
     // here it's ok to use the module resolver because we are discovering the built-in modules only
     const resolver = new ModuleResolver(this.logger)
-    return resolver.getModulesList().map(module => {
+    return (await resolver.getModulesList()).map(module => {
       return { location: `MODULES_ROOT/${module}`, enabled: enabledModules.includes(module) }
     })
   }

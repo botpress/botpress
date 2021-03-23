@@ -79,6 +79,7 @@ export interface InfoTooltipProps {
 
 export interface SidePanelProps {
   readonly children: React.ReactNode
+  style?: any
 }
 
 export interface ItemListProps {

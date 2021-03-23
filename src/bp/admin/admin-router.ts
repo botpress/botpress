@@ -2,20 +2,17 @@ import axios from 'axios'
 import { Logger } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
 import LicensingService from 'common/licensing-service'
+import { BotService } from 'core/bots'
+import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config/config-loader'
+import { JobService } from 'core/distributed'
+import { AlertingService, MonitoringService } from 'core/health'
 import { LogsRepository } from 'core/logger'
 import { ModuleLoader } from 'core/modules'
-
+import { sendSuccess } from 'core/routers'
 import { CustomRouter } from 'core/routers/customRouter'
-import { assertSuperAdmin, checkTokenHeader, sendSuccess } from 'core/routers/util'
-import { GhostService } from 'core/services'
-import { AlertingService } from 'core/services/alerting-service'
-import { AuthStrategies } from 'core/services/auth-strategies'
-import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
-import { BotService } from 'core/services/bot-service'
-import { JobService } from 'core/services/job-service'
-import { MonitoringService } from 'core/services/monitoring'
-import { WorkspaceService } from 'core/services/workspace-service'
+import { AuthStrategies, AuthService, TOKEN_AUDIENCE, assertSuperAdmin, checkTokenHeader } from 'core/security'
+import { WorkspaceService } from 'core/users'
 import express, { RequestHandler, Router } from 'express'
 import httpsProxyAgent from 'https-proxy-agent'
 import _ from 'lodash'
@@ -121,13 +118,6 @@ class AdminRouter extends CustomRouter {
         const { permissions, operation, resource } = req.body
         const valid = checkRule(permissions, operation, resource)
         res.send(valid)
-      })
-    )
-
-    this.router.get(
-      '/all-permissions',
-      this.asyncMiddleware(async (req, res) => {
-        res.json(await this.authService.getResources())
       })
     )
 

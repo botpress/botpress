@@ -2,11 +2,11 @@ import { parse } from '@babel/parser'
 import traverse from '@babel/traverse'
 import LicensingService from 'common/licensing-service'
 import { buildSchema } from 'common/telemetry'
+import { BotService } from 'core/bots'
+import { GhostService } from 'core/bpfs'
 import Database from 'core/database'
+import { JobService } from 'core/distributed'
 import { calculateHash } from 'core/misc/utils'
-import { GhostService } from 'core/services'
-import { BotService } from 'core/services/bot-service'
-import { JobService } from 'core/services/job-service'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
@@ -80,10 +80,9 @@ export class SDKStats extends TelemetryStats {
 
   private async getActionUsages(bots: string[]): Promise<SDKUsage> {
     const rootFolder = 'actions'
-    const globalActionsNames = await this.ghostService
-      .global()
-      .directoryListing('/', `${rootFolder}/*.js`)
-      .map(path => path.split('/').pop() || '')
+    const globalActionsNames = (await this.ghostService.global().directoryListing('/', `${rootFolder}/*.js`)).map(
+      path => path.split('/').pop() || ''
+    )
 
     const reducer = async (parsedFilesAcc, botId) => {
       try {

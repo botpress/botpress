@@ -53,6 +53,8 @@ export interface FlowReducer {
 const MAX_UNDO_STACK_SIZE = 25
 const MIN_HISTORY_RECORD_INTERVAL = 500
 
+const defaultTransition = { condition: 'true', node: '' }
+
 const defaultState = {
   flowsByName: {},
   fetchingFlows: false,
@@ -232,7 +234,7 @@ const doCreateNewFlow = name => {
       name: 'entry',
       onEnter: [],
       onReceive: null,
-      next: [],
+      next: [defaultTransition],
       type: 'standard',
       x: 100,
       y: 100

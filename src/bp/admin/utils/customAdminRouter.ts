@@ -3,18 +3,24 @@ import { Logger } from 'botpress/sdk'
 import { AsyncMiddleware, asyncMiddleware } from 'common/http'
 import LicensingService from 'common/licensing-service'
 import { RequestWithUser } from 'common/typings'
+import { BotService } from 'core/bots'
+import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config/config-loader'
+import { JobService } from 'core/distributed'
+import { AlertingService, MonitoringService } from 'core/health'
 import { LogsRepository } from 'core/logger'
 import { ModuleLoader } from 'core/modules'
-import { assertBotpressPro, checkTokenHeader, hasPermissions, loadUser, needPermissions } from 'core/routers/util'
-import { GhostService } from 'core/services'
-import { AlertingService } from 'core/services/alerting-service'
-import { AuthStrategies } from 'core/services/auth-strategies'
-import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
-import { BotService } from 'core/services/bot-service'
-import { JobService } from 'core/services/job-service'
-import { MonitoringService } from 'core/services/monitoring'
-import { WorkspaceService } from 'core/services/workspace-service'
+import { assertBotpressPro, loadUser } from 'core/routers/util'
+import {
+  AuthStrategies,
+  AuthService,
+  TOKEN_AUDIENCE,
+  needPermissions,
+  hasPermissions,
+  checkTokenHeader
+} from 'core/security'
+
+import { WorkspaceService } from 'core/users'
 import { RequestHandler, Router } from 'express'
 
 export abstract class CustomAdminRouter {

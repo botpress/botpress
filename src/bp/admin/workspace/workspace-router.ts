@@ -1,6 +1,6 @@
 import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
-import { assertSuperAdmin } from 'core/routers/util'
+import { assertSuperAdmin } from 'core/security'
 import _ from 'lodash'
 
 import BotsRouter from './bots/bots-router'

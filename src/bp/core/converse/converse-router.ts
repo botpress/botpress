@@ -1,14 +1,12 @@
 import { Logger } from 'botpress/sdk'
 import { StandardError } from 'common/http'
+import { HTTPServer } from 'core/app/server'
 import { ConverseService } from 'core/converse'
-import HTTPServer from 'core/server'
-import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
+import { CustomRouter } from 'core/routers/customRouter'
+import { AuthService, TOKEN_AUDIENCE, checkTokenHeader } from 'core/security'
 import { RequestHandler, Router } from 'express'
 import joi from 'joi'
 import _ from 'lodash'
-
-import { CustomRouter } from '../routers/customRouter'
-import { checkTokenHeader } from '../routers/util'
 
 // this schema ensures a non breaking api signature (> 11.5)
 // see https://botpress.com/docs/build/channels/#usage-public-api

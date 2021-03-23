@@ -1,7 +1,7 @@
 import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import _ from 'lodash'
-import { Debug, getDebugScopes, setDebugScopes } from '../../../debug'
+import { getDebugScopes, setDebugScopes } from '../../../debug'
 
 class DebugRouter extends CustomAdminRouter {
   constructor(services: AdminServices) {

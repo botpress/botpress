@@ -2,8 +2,8 @@ import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import { LicenseInfo, LicenseStatus } from 'common/licensing-service'
 import { RequestWithUser } from 'common/typings'
-import { BadRequestError } from 'core/routers/errors'
-import { assertSuperAdmin, success as sendSuccess } from 'core/routers/util'
+import { BadRequestError } from 'core/routers'
+import { assertSuperAdmin, sendSuccess } from 'core/security'
 import _ from 'lodash'
 
 type LicensingStatus = {

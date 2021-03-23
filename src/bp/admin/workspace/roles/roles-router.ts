@@ -1,6 +1,6 @@
 import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
-import { sendSuccess } from 'core/routers/util'
+import { sendSuccess } from 'core/routers'
 import _ from 'lodash'
 
 class RolesRouter extends CustomAdminRouter {
