@@ -1,9 +1,9 @@
 import { Logger } from 'botpress/sdk'
-import { WorkspaceService } from 'core/services/workspace-service'
+import { sendSuccess } from 'core/routers'
+import { CustomRouter } from 'core/routers/customRouter'
+import { needPermissions } from 'core/security'
+import { WorkspaceService } from 'core/users'
 import { RequestHandler, Router } from 'express'
-
-import { CustomRouter } from '../customRouter'
-import { needPermissions, success as sendSuccess } from '../util'
 
 export class RolesRouter extends CustomRouter {
   private needPermissions!: (operation: string, resource: string) => RequestHandler

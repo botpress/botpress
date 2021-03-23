@@ -1,14 +1,14 @@
 import { BotConfig, IO, Logger } from 'botpress/sdk'
+import { TYPES } from 'core/app/types'
+import { BotService } from 'core/bots'
 import { BotpressConfig, ConfigProvider } from 'core/config'
 import { SessionRepository, createExpiry, SessionIdFactory } from 'core/dialog/sessions'
-import { Event } from 'core/sdk/impl'
-import { TYPES } from 'core/types'
+import { Event } from 'core/events'
 import { ChannelUserRepository } from 'core/users'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 
-import { BotService } from '../bot-service'
 import { Janitor } from '../janitor'
 
 import { DialogEngine } from './dialog-engine'

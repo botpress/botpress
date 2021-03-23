@@ -1,7 +1,7 @@
 import { Logger, StrategyUser } from 'botpress/sdk'
 import { RequestWithUser, TokenResponse } from 'common/typings'
-import { AuthStrategyBasic } from 'core/config/botpress.config'
-import { BadRequestError, ConflictError } from 'core/routers/errors'
+import { AuthStrategyBasic } from 'core/config'
+import { asyncMiddleware, sendSuccess, BadRequestError, ConflictError } from 'core/routers'
 import { Request, Router, Response } from 'express'
 import _ from 'lodash'
 import moment from 'moment'
@@ -9,15 +9,8 @@ import ms from 'ms'
 import nanoid from 'nanoid'
 import { charsets, PasswordPolicy } from 'password-sheriff'
 
-import { asyncMiddleware, success as sendSuccess } from '../routers/util'
-
-import AuthService, { SERVER_USER } from '../services/auth/auth-service'
-import {
-  InvalidCredentialsError,
-  LockedOutError,
-  PasswordExpiredError,
-  WeakPasswordError
-} from '../services/auth/errors'
+import { InvalidCredentialsError, LockedOutError, PasswordExpiredError, WeakPasswordError } from './auth-errors'
+import { AuthService, SERVER_USER } from './auth-service'
 import { saltHashPassword, validateHash } from './utils'
 
 const debug = DEBUG('audit:users:basic')
