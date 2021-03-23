@@ -15,24 +15,17 @@ export default function naturalElectionPipeline(input: sdk.IO.EventUnderstanding
 }
 
 function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {
-  const topTwo: sdk.NLU.Intent[] = _(input.predictions)
+  const mostConfidentCtx = _(input.predictions)
     .pickBy((_p, ctx) => input.includedContexts.includes(ctx))
-    .mapValues((p, ctx) => {
-      const noneIntent = {
-        label: NONE_INTENT,
-        confidence: p.oos,
-        slots: <sdk.NLU.SlotCollection>{},
-        extractor: ''
-      }
-      return {
-        ...p,
-        ctx,
-        intents: [...p.intents, noneIntent]
-      }
-    })
-    .flatMap(p => p.intents.map(i => ({ ...i, ctxConf: p.confidence, ctx: p.ctx })))
-    .orderBy(i => i.confidence * i.ctxConf, 'desc')
-    .map(i => ({ name: i.label, confidence: i.confidence * i.ctxConf, context: i.ctx }))
+    .entries()
+    .map(([name, ctx]) => ({ ...ctx, name }))
+    .maxBy(ctx => ctx.confidence)
+
+  const noneIntent = { label: NONE_INTENT, confidence: mostConfidentCtx.oos, slots: {}, extractor: '' }
+  const topTwo: sdk.NLU.Intent[] = _([...mostConfidentCtx.intents, noneIntent])
+    .orderBy(i => i.confidence, 'desc')
+    .map(({ label, confidence }) => ({ name: label, context: mostConfidentCtx.name, confidence }))
+    .take(2)
     .value()
 
   return {
