@@ -48,8 +48,8 @@ The resulting json will appear as follows:
 {
   "$schema": "../../assets/modules/channel-smooch/config.schema.json",
   "enabled": true,
-  "keyId": "app_5f079386f6480a000c121f71",
-  "secret": "g9XWmyPlfKfv4Q9B7mclI9R2CIIosxHncRO1PQeMkCmLNczWSw0I9B_lCmOiMR2Uof37fxLcJXwaxcHOw63ryQ",
+  "keyId": "<YOUR_KEY_ID>",
+  "secret": "<YOUR_KEY_SECRET>",
   "chatUserAuthDuration": "24h"
 }
 ```
