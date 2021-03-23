@@ -3,15 +3,16 @@ import { inject, observer } from 'mobx-react'
 import React from 'react'
 import { FormattedMessage, InjectedIntlProps, injectIntl } from 'react-intl'
 
+import { RecordSpeechToText } from '../../../../../../src/bp/ui-shared-lite/SpeechToTextButton'
 import ToolTip from '../../../../../../src/bp/ui-shared-lite/ToolTip'
-import Send from '../icons/Send'
 import { RootStore, StoreDef } from '../store'
 
-class Composer extends React.Component<ComposerProps> {
+class Composer extends React.Component<ComposerProps, { isRecording: boolean }> {
   private textInput: React.RefObject<HTMLTextAreaElement>
   constructor(props) {
     super(props)
     this.textInput = React.createRef()
+    this.state = { isRecording: false }
   }
 
   componentDidMount() {
@@ -58,10 +59,27 @@ class Composer extends React.Component<ComposerProps> {
   handleMessageChanged = e => this.props.updateMessage(e.target.value)
 
   isLastMessageFromBot = (): boolean => {
-    return this.props.currentConversation &&
+    return (
+      this.props.currentConversation &&
       this.props.currentConversation.messages &&
       this.props.currentConversation.messages.length &&
       !this.props.currentConversation.messages.slice(-1).pop().userId
+    )
+  }
+
+  onVoiceStart() {
+    this.textInput.current.focus()
+    this.setState({ isRecording: true })
+  }
+
+  onVoiceEnd() {
+    this.setState({ isRecording: false })
+  }
+
+  onVoiceNotAvailable() {
+    console.log(
+      'Voice input is not available on this browser. Please check https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API for compatibility'
+    )
   }
 
   render() {
@@ -71,8 +89,12 @@ class Composer extends React.Component<ComposerProps> {
 
     const placeholder =
       this.props.composerPlaceholder ||
-      this.props.intl.formatMessage({
-        id: this.isLastMessageFromBot() ? 'composer.placeholder' : 'composer.placeholderInit' }, { name: this.props.botName })
+      this.props.intl.formatMessage(
+        {
+          id: this.isLastMessageFromBot() ? 'composer.placeholder' : 'composer.placeholderInit'
+        },
+        { name: this.props.botName }
+      )
 
     return (
       <div role="region" className={'bpw-composer'}>
@@ -95,20 +117,30 @@ class Composer extends React.Component<ComposerProps> {
           <label htmlFor="input-message" style={{ display: 'none' }}>
             {placeholder}
           </label>
-          <ToolTip childId="btn-send" content={this.props.isEmulator ? 'Interact with your chatbot' : 'Send Message'}>
-            <button
-              className={'bpw-send-button'}
-              disabled={!this.props.message.length || this.props.composerLocked}
-              onClick={this.props.sendMessage.bind(this, undefined)}
-              aria-label={this.props.intl.formatMessage({
-                id: 'composer.send',
-                defaultMessage: 'Send'
-              })}
-              id="btn-send"
-            >
-              <FormattedMessage id={'composer.send'} />
-            </button>
-          </ToolTip>
+          <div className={'bpw-send-buttons'}>
+            {this.props.enableVoiceComposer && (
+              <RecordSpeechToText
+                onStart={this.onVoiceStart}
+                onDone={this.onVoiceEnd}
+                onNotAvailable={this.onVoiceNotAvailable}
+                onText={text => this.props.updateMessage(text)}
+              />
+            )}
+            <ToolTip childId="btn-send" content={this.props.isEmulator ? 'Interact with your chatbot' : 'Send Message'}>
+              <button
+                className={'bpw-send-button'}
+                disabled={!this.props.message.length || this.props.composerLocked || this.state.isRecording}
+                onClick={this.props.sendMessage.bind(this, undefined)}
+                aria-label={this.props.intl.formatMessage({
+                  id: 'composer.send',
+                  defaultMessage: 'Send'
+                })}
+                id="btn-send"
+              >
+                <FormattedMessage id={'composer.send'} />
+              </button>
+            </ToolTip>
+          </div>
         </div>
       </div>
     )
@@ -116,6 +148,7 @@ class Composer extends React.Component<ComposerProps> {
 }
 
 export default inject(({ store }: { store: RootStore }) => ({
+  enableVoiceComposer: store.config.enableVoiceComposer,
   message: store.composer.message,
   composerLocked: store.composer.locked,
   composerHidden: store.composer.hidden,
@@ -159,5 +192,6 @@ type ComposerProps = {
     | 'resetSession'
     | 'isEmulator'
     | 'enableResetSessionShortcut'
+    | 'enableVoiceComposer'
     | 'currentConversation'
   >
