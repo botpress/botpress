@@ -129,7 +129,7 @@ container.load(...TelemetryContainerModules)
 
 if (process.IS_PRO_ENABLED) {
   // Otherwise this will fail on compile when the submodule is not available.
-  const ProContainerModule = require('pro/services/pro.inversify')
+  const ProContainerModule = require('pro/pro.inversify')
   container.load(ProContainerModule)
 }
 
