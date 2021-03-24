@@ -1,11 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import chalk from 'chalk'
+import { LoggerLevel, LogLevel } from 'core/logger/enums'
 import _ from 'lodash'
 import moment from 'moment'
 import os from 'os'
 import util from 'util'
-
-import { LoggerLevel, LogLevel } from './core/sdk/enums'
 
 function _serializeArgs(args: any): string {
   if (_.isArray(args)) {

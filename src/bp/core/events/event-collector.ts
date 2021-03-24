@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { ConfigProvider } from 'core/config/config-loader'
+import { ConfigProvider } from 'core/config'
 import Database from 'core/database'
 import { SessionIdFactory } from 'core/dialog/sessions'
 import { TYPES } from 'core/types'

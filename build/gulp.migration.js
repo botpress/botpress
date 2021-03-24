@@ -111,8 +111,8 @@ const createMigration = cb => {
 
   const template =
     target === 'core'
-      ? path.resolve(__dirname, '../src/bp/core/services/migration/template_core.ts')
-      : path.resolve(__dirname, '../src/bp/core/services/migration/template_module.ts')
+      ? path.resolve(__dirname, '../src/bp/core/migration/templates/template_core.ts')
+      : path.resolve(__dirname, '../src/bp/core/migration/templates/template_module.ts')
 
   const targetDir =
     target === 'core'

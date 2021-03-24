@@ -138,7 +138,7 @@ try {
           if (yn(process.env.BP_DIAG)) {
             require('./diag').default(argv)
           } else {
-            require('./bootstrap')
+            require('./core/app/bootstrap')
           }
         })
       }
@@ -153,7 +153,7 @@ try {
           process.MIGRATE_DRYRUN = isDryRun
           process.VERBOSITY_LEVEL = 2
 
-          require('./bootstrap')
+          require('./core/app/bootstrap')
         })
       }
 

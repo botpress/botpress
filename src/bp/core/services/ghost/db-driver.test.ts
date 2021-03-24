@@ -1,11 +1,10 @@
 import _ from 'lodash'
-import path from 'path'
 
-import Database from '../../database'
-import { createDatabaseSuite } from '../../database/index.tests'
-import { asBytes, expectAsync } from '../../misc/utils'
+import Database from 'core/database'
+import { createDatabaseSuite } from 'core/database/index.tests'
+import { asBytes, expectAsync } from 'core/misc/utils'
 
-import DBStorageDriver from './db-driver'
+import { DBStorageDriver } from './db-driver'
 
 createDatabaseSuite('GhostDB Driver', function(database: Database) {
   const driver = new DBStorageDriver(database)

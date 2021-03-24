@@ -1,6 +1,6 @@
 import sdk from 'botpress/sdk'
 import Database from 'core/database'
-import { JobService } from 'core/services/job-service'
+import { JobService } from 'core/distributed'
 import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
 import LRU from 'lru-cache'

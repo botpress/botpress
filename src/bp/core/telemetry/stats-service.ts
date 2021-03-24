@@ -1,8 +1,8 @@
-import { TYPES } from 'core/types'
+import { TYPES } from 'core/app/types'
+import { JobService } from 'core/distributed'
 import { inject, injectable } from 'inversify'
 import ms from 'ms'
 
-import { JobService } from '../services/job-service'
 import { ActionsStats } from './stats/actions-stats'
 import { ConfigsStats } from './stats/configs-stats'
 import { HooksStats } from './stats/hooks-stats'
