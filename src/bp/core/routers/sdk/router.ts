@@ -1,6 +1,6 @@
 import { CmsSearchContentElements, KvsGet, KvsSet, ReplyToEvent, SetAttributes } from 'botpress/apiSdk'
 import * as sdk from 'botpress/sdk'
-import { createForAction } from 'core/api'
+import { createForAction } from 'core/app/api'
 import { Router } from 'express'
 import _ from 'lodash'
 

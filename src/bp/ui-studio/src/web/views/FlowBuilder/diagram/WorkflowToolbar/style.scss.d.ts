@@ -2,6 +2,7 @@
 // Please do not change this file!
 interface CssExports {
   'header': string;
+  'noPadding': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

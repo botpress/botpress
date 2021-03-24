@@ -2,12 +2,12 @@ import { parseActionInstruction } from 'common/action'
 import { BUILTIN_MODULES } from 'common/defaults'
 import LicensingService from 'common/licensing-service'
 import { buildSchema, TelemetryEvent } from 'common/telemetry'
+import { BotService } from 'core/bots'
+import { GhostService } from 'core/bpfs'
 import Database from 'core/database'
+import { FlowService } from 'core/dialog'
+import { JobService } from 'core/distributed'
 import { calculateHash } from 'core/misc/utils'
-import { GhostService } from 'core/services'
-import { BotService } from 'core/services/bot-service'
-import { FlowService } from 'core/services/dialog/flow/service'
-import { JobService } from 'core/services/job-service'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
@@ -64,7 +64,7 @@ export class ActionsStats extends TelemetryStats {
     const botIds = await this.botService.getBotsIds()
     const flows = _.flatten(
       await Promise.map(botIds, async botID => {
-        const flowView = await this.flowService.loadAll(botID)
+        const flowView = await this.flowService.forBot(botID).loadAll()
         return flowView.map(flow => {
           const { name } = flow
           const actions = flow.nodes

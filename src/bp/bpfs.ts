@@ -188,7 +188,7 @@ class BPFS {
 
   private _getPushAxiosClient(archiveSize: number): AxiosInstance {
     return axios.create({
-      baseURL: `${this.serverUrl}/api/v1/admin/versioning`,
+      baseURL: `${this.serverUrl}/api/v1/admin/management/versioning`,
       headers: {
         ...this._getAuthHeaders(),
         'Content-Type': 'application/tar+gzip',
@@ -209,7 +209,7 @@ class BPFS {
 
   private _getPullAxiosClient(): AxiosInstance {
     return axios.create({
-      baseURL: `${this.serverUrl}/api/v1/admin/versioning`,
+      baseURL: `${this.serverUrl}/api/v1/admin/management/versioning`,
       headers: this._getAuthHeaders(),
       responseType: 'arraybuffer'
     })

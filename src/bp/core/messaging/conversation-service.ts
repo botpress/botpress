@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
+import { JobService } from 'core/distributed'
 import { ConversationRepository } from 'core/messaging'
-import { JobService } from 'core/services/job-service'
 import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
