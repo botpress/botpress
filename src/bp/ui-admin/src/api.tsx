@@ -1,10 +1,12 @@
 import axios from 'axios'
 import Promise from 'bluebird'
+import { auth } from 'botpress/shared'
+import { CSRF_TOKEN_HEADER } from 'common/auth'
 import _ from 'lodash'
 import React from 'react'
 
+import { getActiveWorkspace } from './Auth'
 import { toastFailure } from './utils/toaster'
-import { getActiveWorkspace, getToken, logout } from './Auth'
 
 interface SecuredApi {
   token?: string
@@ -36,16 +38,17 @@ export const toastError = error => {
 }
 
 const createClient = (clientOptions: any, options: { toastErrors?: boolean }) => {
-  const client = axios.create({ timeout: 6000, ...clientOptions })
+  const client = axios.create({ timeout: 6000, withCredentials: window.USE_JWT_COOKIES, ...clientOptions })
 
   client.interceptors.response.use(
     response => response,
     error => {
       const wrappedError = _.get(error, 'response.data')
       const errorCode = _.get(wrappedError, 'errorCode')
+      const url = _.get(error, 'response.config.url')
       if (errorCode) {
-        if (['BP_0041'].includes(errorCode)) {
-          return logout()
+        if (['BP_0041'].includes(errorCode) && url !== '/auth/logout') {
+          return auth.logout(() => client)
         }
         return Promise.reject(wrappedError)
       } else {
@@ -68,7 +71,7 @@ const createClient = (clientOptions: any, options: { toastErrors?: boolean }) =>
 }
 
 const overrideApiUrl = process.env.REACT_APP_API_URL
-  ? { baseURL: `${process.env.REACT_APP_API_URL}/api/v1` }
+  ? { baseURL: `${process.env.REACT_APP_API_URL}api/v1` }
   : { baseURL: `${window['ROOT_PATH']}/api/v1` }
 
 export default {
@@ -78,14 +81,14 @@ export default {
 
   getSecured({ token = undefined, toastErrors = true, timeout = 10000 }: SecuredApi = {}) {
     if (!token) {
-      token = getToken() as string
+      token = auth.getToken(true) as string
     }
 
     return createClient(
       {
         timeout,
         headers: {
-          Authorization: `Bearer ${token}`,
+          ...(window.USE_JWT_COOKIES ? { [CSRF_TOKEN_HEADER]: token } : { Authorization: `Bearer ${token}` }),
           'X-BP-Workspace': getActiveWorkspace()
         },
         ...overrideApiUrl

@@ -18,6 +18,8 @@
     "change": "Changement",
     "changeLanguage": "Changer la langue",
     "changePassword": "Changer le mot de passe",
+    "showToken": "Afficher le jeton",
+    "hideToken": "Cacher le jeton",
     "changeYourPassword": "Changez votre mot de passe",
     "confirmPassword": "Confirmez le mot de passe",
     "createAccount": "Créer un compte",
@@ -47,6 +49,7 @@
       "usingLangServerAt": "Utilisation du serveur lang sur"
     },
     "lastName": "Nom de famille",
+    "profilePicture": "Photo de profile",
     "license": {
       "enterLicenseKey": "Entrez la clé de licence",
       "enterYourLicense": "Entrez votre clé de licence",
@@ -225,15 +228,15 @@
       "conflictWarning": "Avertissement de conflit",
       "documentation": "documentation",
       "downloadArchive": "Télécharger l'archive",
-      "forMorInfo": "pour plus d'informations.",
-      "forcePush": "Forcer à pousser mes changements",
-      "pleaseWait": "Veuillez patienter...",
-      "pullToFileSystem": "Récupérer les changements distants",
       "preparingArchive": "Préparation de l'archive...",
       "downloadProgress": "Téléchargement... {progress}% complété",
       "uploadProgress": "Téléversement... {progress}% complété",
       "forcePushInfo": "Forcer les changements va ignorer la comparaison des changements locaux et distants, et va écraser les données distantes.",
       "processing": "Traitement de l'archive...",
+      "forMorInfo": "pour plus d'informations.",
+      "forcePush": "Forcer à pousser mes changements",
+      "pleaseWait": "Veuillez patienter...",
+      "pullToFileSystem": "Récupérer les changements distants",
       "pushChanges": "Pousser les changements",
       "pushLocal": "Pousser les changements locaux sur ce serveur",
       "pushLocalNeedsBFFS": "Pousser les modifications locales vers un serveur distant n'est possible que lorsque vous utilisez le stockage BPFS \"Base de données\".",
@@ -401,5 +404,10 @@
       }
     },
     "workspaceName": "Espace de travail: {name}"
+  },
+  "langCodes": {
+    "en": "Anglaise",
+    "fr": "Français",
+    "es": "Español"
   }
 }

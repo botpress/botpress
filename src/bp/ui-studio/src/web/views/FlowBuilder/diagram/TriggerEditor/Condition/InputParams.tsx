@@ -2,8 +2,8 @@ import { Condition } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC } from 'react'
 
-import style from '../style.scss'
 import SingleParam from '../SingleParam'
+import style from '../style.scss'
 
 interface Props {
   condition: Condition

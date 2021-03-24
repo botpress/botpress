@@ -70,8 +70,12 @@ export const patchKnex = (knex: Knex): KnexExtended => {
           knex
             .select(knex.raw('last_insert_rowid() as id'))
             .transacting(trx)
-            .then(([{ id: dbId }]) => {
-              const id = (data && data.id) || dbId
+            .then(([{ id: rowid }]) => {
+              let id = data && data.id
+              if (!id || idColumnName === 'rowid') {
+                id = rowid
+              }
+
               if (returnColumns === idColumnName) {
                 return id
               }
@@ -107,31 +111,34 @@ export const patchKnex = (knex: Knex): KnexExtended => {
   }
 
   const date: Knex.Date = {
+    set: (date?: Date) => (date ? date.toISOString() : undefined),
+    get: date => new Date(date),
+
     format: dateFormat,
     now: () => (isLite ? knex.raw("strftime('%Y-%m-%dT%H:%M:%fZ', 'now')") : knex.raw('now()')),
     today: () => (isLite ? knex.raw('(date())') : knex.raw('(date(now()))')),
     isBefore: (d1: Knex.ColumnOrDate, d2: Knex.ColumnOrDate): Knex.Raw => {
       const exp1 = columnOrDateFormat(d1)
       const exp2 = columnOrDateFormat(d2)
-      return knex.raw(exp1 + ' < ' + exp2)
+      return knex.raw(`${exp1} < ${exp2}`)
     },
 
     isBeforeOrOn: (d1: Knex.ColumnOrDate, d2: Knex.ColumnOrDate): Knex.Raw => {
       const exp1 = columnOrDateFormat(d1)
       const exp2 = columnOrDateFormat(d2)
-      return knex.raw(exp1 + ' <= ' + exp2)
+      return knex.raw(`${exp1} <= ${exp2}`)
     },
 
     isAfter: (d1: Knex.ColumnOrDate, d2: Knex.ColumnOrDate): Knex.Raw => {
       const exp1 = columnOrDateFormat(d1)
       const exp2 = columnOrDateFormat(d2)
-      return knex.raw(exp1 + ' > ' + exp2)
+      return knex.raw(`${exp1} > ${exp2}`)
     },
 
     isAfterOrOn: (d1: Knex.ColumnOrDate, d2: Knex.ColumnOrDate): Knex.Raw => {
       const exp1 = columnOrDateFormat(d1)
       const exp2 = columnOrDateFormat(d2)
-      return knex.raw(exp1 + ' >= ' + exp2)
+      return knex.raw(`${exp1} >= ${exp2}`)
     },
 
     isBetween: (date: Knex.ColumnOrDate, betweenA: Knex.ColumnOrDate, betweenB: Knex.ColumnOrDate): Knex.Raw => {

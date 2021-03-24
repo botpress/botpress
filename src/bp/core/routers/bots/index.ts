@@ -3,40 +3,39 @@ import { Serialize } from 'cerialize'
 import { decodeFolderPath, UnexpectedError } from 'common/http'
 import { gaId, machineUUID } from 'common/stats'
 import { FlowView } from 'common/typings'
-import { BotpressConfig } from 'core/config/botpress.config'
-import { ConfigProvider } from 'core/config/config-loader'
-import { asBytes } from 'core/misc/utils'
-import { ModuleLoader } from 'core/module-loader'
-import { GhostService } from 'core/services'
-import ActionServersService from 'core/services/action/action-servers-service'
-import ActionService from 'core/services/action/action-service'
-import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
-import { BotService } from 'core/services/bot-service'
-import { CMSService } from 'core/services/cms'
-import { FlowService, MutexError, TopicSchema } from 'core/services/dialog/flow/service'
-import { LogsService } from 'core/services/logs/service'
-import MediaService from 'core/services/media'
-import { NotificationsService } from 'core/services/notification/service'
-import { getSocketTransports } from 'core/services/realtime'
-import { WorkspaceService } from 'core/services/workspace-service'
+import { BotService } from 'core/bots'
+import { CMSService } from 'core/cms'
+import { BotpressConfig, ConfigProvider } from 'core/config'
+import { FlowService, MutexError, TopicSchema } from 'core/dialog'
+import { LogsService } from 'core/logger'
+import { MediaServiceProvider } from 'core/media'
+import { ModuleLoader } from 'core/modules'
+import { NotificationsService } from 'core/notifications'
+import { getSocketTransports } from 'core/realtime'
+import {
+  AuthService,
+  TOKEN_AUDIENCE,
+  checkMethodPermissions,
+  checkTokenHeader,
+  fileUploadMulter,
+  needPermissions
+} from 'core/security'
+import { ActionService, ActionServersService } from 'core/user-code'
+import { WorkspaceService } from 'core/users'
 import { Express, RequestHandler, Router } from 'express'
 import { validate } from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
-import mime from 'mime-types'
 import moment from 'moment'
 import ms from 'ms'
-import multer from 'multer'
 import path from 'path'
 import { URL } from 'url'
 
 import { disableForModule } from '../conditionalMiddleware'
 import { CustomRouter } from '../customRouter'
 import { NotFoundError } from '../errors'
-import { checkMethodPermissions, checkTokenHeader, needPermissions } from '../util'
 
 const debugMedia = DEBUG('audit:action:media-upload')
-const DEFAULT_MAX_SIZE = '10mb'
 
 const parseFlowNameMiddleware = (req, _, next) => {
   const { flowName } = req.params
@@ -53,11 +52,10 @@ export class BotsRouter extends CustomRouter {
   private cmsService: CMSService
   private configProvider: ConfigProvider
   private flowService: FlowService
-  private mediaService: MediaService
+  private mediaServiceProvider: MediaServiceProvider
   private logsService: LogsService
   private notificationService: NotificationsService
   private authService: AuthService
-  private ghostService: GhostService
   private moduleLoader: ModuleLoader
   private checkTokenHeader: RequestHandler
   private needPermissions: (operation: string, resource: string) => RequestHandler
@@ -74,11 +72,10 @@ export class BotsRouter extends CustomRouter {
     cmsService: CMSService
     configProvider: ConfigProvider
     flowService: FlowService
-    mediaService: MediaService
+    mediaServiceProvider: MediaServiceProvider
     logsService: LogsService
     notificationService: NotificationsService
     authService: AuthService
-    ghostService: GhostService
     workspaceService: WorkspaceService
     moduleLoader: ModuleLoader
     logger: Logger
@@ -90,11 +87,10 @@ export class BotsRouter extends CustomRouter {
     this.cmsService = args.cmsService
     this.configProvider = args.configProvider
     this.flowService = args.flowService
-    this.mediaService = args.mediaService
+    this.mediaServiceProvider = args.mediaServiceProvider
     this.logsService = args.logsService
     this.notificationService = args.notificationService
     this.authService = args.authService
-    this.ghostService = args.ghostService
     this.workspaceService = args.workspaceService
     this.moduleLoader = args.moduleLoader
     this.needPermissions = needPermissions(this.workspaceService)
@@ -241,6 +237,7 @@ export class BotsRouter extends CustomRouter {
               // Common
               window.TELEMETRY_URL = "${process.TELEMETRY_URL}";
               window.SEND_USAGE_STATS = ${data.sendUsageStats};
+              window.USE_JWT_COOKIES = ${process.USE_JWT_COOKIES};
               window.UUID = "${data.uuid}"
               window.ANALYTICS_ID = "${data.gaId}";
               window.API_PATH = "${process.ROOT_PATH}/api/v1";
@@ -274,9 +271,11 @@ export class BotsRouter extends CustomRouter {
       '/media/:filename',
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
-        const type = path.extname(req.params.filename)
+        const fileName = req.params.filename
+        const type = path.extname(fileName)
+        const mediaService = this.mediaServiceProvider.forBot(botId)
 
-        const contents = await this.mediaService.readFile(botId, req.params.filename).catch(() => undefined)
+        const contents = await mediaService.readFile(fileName).catch(() => undefined)
         if (!contents) {
           return res.sendStatus(404)
         }
@@ -327,7 +326,7 @@ export class BotsRouter extends CustomRouter {
       this.needPermissions('read', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
-        const flows = await this.flowService.loadAll(botId)
+        const flows = await this.flowService.forBot(botId).loadAll()
         res.send(flows)
       })
     )
@@ -341,7 +340,7 @@ export class BotsRouter extends CustomRouter {
         const flow = <FlowView>req.body.flow
         const userEmail = req.tokenUser!.email
 
-        await this.flowService.insertFlow(botId, flow, userEmail)
+        await this.flowService.forBot(botId).insertFlow(flow, userEmail)
 
         res.sendStatus(200)
       })
@@ -358,12 +357,12 @@ export class BotsRouter extends CustomRouter {
         const userEmail = req.tokenUser!.email
 
         if (_.has(flow, 'name') && flowName !== flow.name) {
-          await this.flowService.renameFlow(botId, flowName, flow.name, userEmail)
+          await this.flowService.forBot(botId).renameFlow(flowName, flow.name, userEmail)
           return res.sendStatus(200)
         }
 
         try {
-          await this.flowService.updateFlow(botId, flow, userEmail)
+          await this.flowService.forBot(botId).updateFlow(flow, userEmail)
           res.sendStatus(200)
         } catch (err) {
           if (err.type && err.type === MutexError.name) {
@@ -385,14 +384,14 @@ export class BotsRouter extends CustomRouter {
 
         const userEmail = req.tokenUser!.email
 
-        await this.flowService.deleteFlow(botId, flowName as string, userEmail)
+        await this.flowService.forBot(botId).deleteFlow(flowName as string, userEmail)
 
         res.sendStatus(200)
       })
     )
 
     this.router.get('/topics', this.checkTokenHeader, async (req, res) => {
-      res.send(await this.flowService.getTopics(req.params.botId))
+      res.send(await this.flowService.forBot(req.params.botId).getTopics())
     })
 
     this.router.post(
@@ -405,9 +404,9 @@ export class BotsRouter extends CustomRouter {
         const topic = await validate(req.body, TopicSchema)
 
         if (!topicName) {
-          await this.flowService.createTopic(botId, topic)
+          await this.flowService.forBot(botId).createTopic(topic)
         } else {
-          await this.flowService.updateTopic(botId, topic, topicName)
+          await this.flowService.forBot(botId).updateTopic(topic, topicName)
         }
 
         res.sendStatus(200)
@@ -420,7 +419,7 @@ export class BotsRouter extends CustomRouter {
       this.needPermissions('write', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {
         const { topicName, botId } = req.params
-        await this.flowService.deleteTopic(botId, topicName)
+        await this.flowService.forBot(botId).deleteTopic(topicName)
 
         res.sendStatus(200)
       })
@@ -452,26 +451,10 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
-    const mediaUploadMulter = multer({
-      fileFilter: (_req, file, cb) => {
-        let allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif']
-        const extMimeType = mime.lookup(file.originalname)
-
-        const uploadConfig = this.botpressConfig!.fileUpload
-        if (uploadConfig?.allowedMimeTypes) {
-          allowedMimeTypes = uploadConfig.allowedMimeTypes
-        }
-
-        if (allowedMimeTypes.includes(file.mimetype) && allowedMimeTypes.includes(extMimeType)) {
-          return cb(undefined, true)
-        }
-
-        cb(new Error(`This type of file is not allowed (${file.mimetype})`), false)
-      },
-      limits: {
-        fileSize: asBytes(_.get(this.botpressConfig, 'fileUpload.maxFileSize', DEFAULT_MAX_SIZE))
-      }
-    }).single('file')
+    const mediaUploadMulter = fileUploadMulter(
+      ['image/jpeg', 'image/png', 'image/gif'],
+      this.botpressConfig?.fileUpload?.maxFileSize ?? '10mb'
+    )
 
     this.router.post(
       '/media',
@@ -485,16 +468,16 @@ export class BotsRouter extends CustomRouter {
             return res.sendStatus(400)
           }
 
-          const file = req['file']
           const botId = req.params.botId
-          const fileName = await this.mediaService.saveFile(botId, file.originalname, file.buffer)
+          const mediaService = this.mediaServiceProvider.forBot(botId)
+          const file = req['file']
+          const { url, fileName } = await mediaService.saveFile(file.originalname, file.buffer)
 
           debugMedia(
             `success (${email} from ${req.ip}). file: ${fileName} %o`,
             _.pick(file, 'originalname', 'mimetype', 'size')
           )
 
-          const url = `/api/v1/bots/${botId}/media/${fileName}`
           res.json({ url })
         })
       })
@@ -508,8 +491,10 @@ export class BotsRouter extends CustomRouter {
         const email = req.tokenUser!.email
         const botId = req.params.botId
         const files = this.cmsService.getMediaFiles(req.body)
-        files.forEach(async f => {
-          await this.mediaService.deleteFile(botId, f)
+        const mediaService = this.mediaServiceProvider.forBot(botId)
+
+        await Promise.map(files, async f => {
+          await mediaService.deleteFile(f)
           debugMedia(`successful deletion (${email} from ${req.ip}). file: ${f}`)
         })
 

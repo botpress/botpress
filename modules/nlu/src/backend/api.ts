@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import Joi from 'joi'
 import _ from 'lodash'
+import { PredictOutput } from 'common/nlu/engine'
 import yn from 'yn'
 
 import legacyElectionPipeline from './election/legacy-election'
@@ -17,6 +18,7 @@ export const PredictSchema = Joi.object().keys({
 
 export default async (bp: typeof sdk, state: NLUState) => {
   const router = bp.http.createRouterForBot('nlu')
+  const needsWriteMW = bp.http.needPermission('write', 'bot.training')
 
   router.get('/health', async (req, res) => {
     // When the health is bad, we'll refresh the status in case it changed (eg: user added languages)
@@ -54,7 +56,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
     const modelId = botNLU.modelsByLang[predictLang]
 
     try {
-      let nlu: sdk.NLU.PredictOutput
+      let nlu: PredictOutput
 
       const spellChecked = await state.engine.spellCheck(value.text, modelId)
 
@@ -83,7 +85,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
   })
 
-  router.post('/train/:lang', async (req, res) => {
+  router.post('/train/:lang', needsWriteMW, async (req, res) => {
     try {
       const { botId, lang } = req.params
 
@@ -99,7 +101,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
       const disableTraining = yn(process.env.BP_NLU_DISABLE_TRAINING)
 
       // to return as fast as possible
-      // tslint:disable-next-line: no-floating-promises
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       state.nluByBot[botId].trainOrLoad(lang, disableTraining)
       res.sendStatus(200)
     } catch {
@@ -107,7 +109,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
   })
 
-  router.post('/train/:lang/delete', async (req, res) => {
+  router.post('/train/:lang/delete', needsWriteMW, async (req, res) => {
     try {
       const { botId, lang } = req.params
 

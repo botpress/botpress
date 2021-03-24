@@ -1,24 +1,16 @@
 import { BotConfig, Logger } from 'botpress/sdk'
 import { UnexpectedError } from 'common/http'
 import { RequestWithUser } from 'common/typings'
-import { ConfigProvider } from 'core/config/config-loader'
-import { BotService } from 'core/services/bot-service'
-import { WorkspaceService } from 'core/services/workspace-service'
+import { BotService } from 'core/bots'
+import { ConfigProvider } from 'core/config'
+import { ConflictError, ForbiddenError, sendSuccess } from 'core/routers'
+import { CustomRouter } from 'core/routers/customRouter'
+import { assertBotpressPro, assertSuperAdmin, assertWorkspace, hasPermissions, needPermissions } from 'core/security'
+import { WorkspaceService } from 'core/users'
 import { RequestHandler, Router } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
 import yn from 'yn'
-
-import { CustomRouter } from '../customRouter'
-import { ConflictError, ForbiddenError } from '../errors'
-import {
-  assertBotpressPro,
-  assertSuperAdmin,
-  assertWorkspace,
-  hasPermissions,
-  needPermissions,
-  success as sendSuccess
-} from '../util'
 
 const chatUserBotFields = [
   'id',
@@ -218,7 +210,7 @@ export class BotsRouter extends CustomRouter {
 
     router.get(
       '/:botId/export',
-      this.needPermissions('read', this.resource),
+      this.needPermissions('read', `${this.resource}.archive`),
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
         const tarball = await this.botService.exportBot(botId)
@@ -234,7 +226,7 @@ export class BotsRouter extends CustomRouter {
 
     router.post(
       '/:botId/import',
-      this.needPermissions('write', this.resource),
+      this.needPermissions('write', `${this.resource}.archive`),
       this.asyncMiddleware(async (req, res) => {
         if (!req.is('application/tar+gzip')) {
           return res.status(400).send('Bot should be imported from archive')
@@ -285,7 +277,7 @@ export class BotsRouter extends CustomRouter {
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
-        Joi.validate(req.body, { revision: Joi.string() })
+        await Joi.validate(req.body, { revision: Joi.string() })
 
         await this.botService.rollback(botId, req.body.revision)
 

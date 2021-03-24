@@ -7,12 +7,12 @@ import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import classnames from 'classnames'
 import React from 'react'
 
-import { FlaggedEvent, FLAGGED_MESSAGE_STATUS, FLAG_REASON, ResolutionData } from '../../types'
+import { DbFlaggedEvent, FLAGGED_MESSAGE_STATUS, FLAG_REASON, ResolutionData } from '../../types'
 
-import style from './style.scss'
 import ApiClient from './ApiClient'
 import MainScreen from './MainScreen'
 import SidePanelContent from './SidePanel'
+import style from './style.scss'
 
 interface Props {
   contentLang: string
@@ -26,9 +26,9 @@ interface State {
   language: string | null
   eventCounts: { [status: string]: number } | null
   selectedStatus: FLAGGED_MESSAGE_STATUS
-  events: FlaggedEvent[] | null
+  events: DbFlaggedEvent[] | null
   selectedEventIndex: number | null
-  selectedEvent: FlaggedEvent | null
+  selectedEvent: DbFlaggedEvent | null
   eventNotFound: boolean
   dateRange?: DateRange
   reason?: FLAG_REASON
@@ -37,7 +37,7 @@ interface State {
 const shortcuts = date.createDateRangeShortcuts()
 
 export default class MisunderstoodMainView extends React.Component<Props, State> {
-  state = {
+  state: State = {
     languages: null,
     language: null,
     eventCounts: null,
@@ -65,7 +65,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     return this.apiClient.getEvents(language, status, dataRange || this.state.dateRange, reason)
   }
 
-  async fetchEvent(id: string) {
+  async fetchEvent(id: number) {
     try {
       return await this.apiClient.getEvent(id)
     } catch (e) {
@@ -163,12 +163,12 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     return this.alterEventsList(FLAGGED_MESSAGE_STATUS.new, FLAGGED_MESSAGE_STATUS.deleted)
   }
 
-  undeleteEvent = async (id: string) => {
+  undeleteEvent = async (id: number) => {
     await this.apiClient.updateStatus(id, FLAGGED_MESSAGE_STATUS.new)
     return this.alterEventsList(FLAGGED_MESSAGE_STATUS.deleted, FLAGGED_MESSAGE_STATUS.new)
   }
 
-  resetPendingEvent = async (id: string) => {
+  resetPendingEvent = async (id: number) => {
     await this.apiClient.updateStatus(id, FLAGGED_MESSAGE_STATUS.new)
     return this.alterEventsList(FLAGGED_MESSAGE_STATUS.pending, FLAGGED_MESSAGE_STATUS.new)
   }
@@ -186,6 +186,14 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     await this.apiClient.applyAllPending()
     await this.updateEventsCounts()
     return this.setEventsStatus(FLAGGED_MESSAGE_STATUS.applied)
+  }
+
+  deleteAllStatus = (status: FLAGGED_MESSAGE_STATUS) => {
+    return async () => {
+      await this.apiClient.deleteAll(status)
+      await this.updateEventsCounts()
+      return this.setEventsStatus(FLAGGED_MESSAGE_STATUS.applied)
+    }
   }
 
   async componentDidUpdate(prevProps: Props) {
@@ -207,23 +215,23 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
       reason !== undefined ? reason : this.state.reason
     )
 
-    const event = null
+    let firstEvent = null
     if (events && events.length) {
-      const event = await this.fetchEvent(events[0].id)
+      firstEvent = await this.fetchEvent(events[0].id)
     }
 
-    return { eventCounts, events, event }
+    return { eventCounts, events, firstEvent }
   }
 
   handleDateChange = async (dateRange: DateRange) => {
-    const { eventCounts, events, event } = await this.fetchEventsAndCounts(this.state.language, dateRange)
+    const { eventCounts, events, firstEvent } = await this.fetchEventsAndCounts(this.state.language, dateRange)
 
     await this.setStateP({
       dateRange,
       events,
       selectedEventIndex: 0,
-      selectedEvent: event,
-      eventNotFound: !event,
+      selectedEvent: firstEvent,
+      eventNotFound: !firstEvent,
       eventCounts
     })
   }
@@ -231,7 +239,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
   handleReasonChange = async (reason: FLAG_REASON) => {
     reason = this.state.reason !== reason ? reason : null
 
-    const { eventCounts, events, event } = await this.fetchEventsAndCounts(
+    const { eventCounts, events, firstEvent } = await this.fetchEventsAndCounts(
       this.state.language,
       this.state.dateRange,
       reason
@@ -240,8 +248,8 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     await this.setStateP({
       events,
       selectedEventIndex: 0,
-      selectedEvent: event,
-      eventNotFound: !event,
+      selectedEvent: firstEvent,
+      eventNotFound: !firstEvent,
       eventCounts,
       reason
     })
@@ -257,7 +265,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
 
     return (
       <Container sidePanelWidth={320}>
-        <SidePanel>
+        <SidePanel style={{ overflowY: 'hidden' }}>
           <div className={style.filterContainer}>
             <Button
               className={(this.state.reason === FLAG_REASON.auto_hook && 'selected') || ''}
@@ -292,6 +300,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
             onSelectedStatusChange={this.setEventsStatus}
             onSelectedEventChange={this.setEventIndex}
             applyAllPending={this.applyAllPending}
+            deleteAllStatus={this.deleteAllStatus}
           />
         </SidePanel>
 

@@ -12,7 +12,7 @@ describe('Studio - UI', () => {
     await page.focus('#mainLayout')
     await page.type('#mainLayout', 'e')
     await page.keyboard.type('Much automated!')
-    await Promise.all([expectBotApiCallSuccess('mod/channel-web/messages/'), page.keyboard.press('Enter')])
+    await Promise.all([expectBotApiCallSuccess('mod/channel-web/messages'), page.keyboard.press('Enter')])
     await page.keyboard.press('Escape')
   })
 

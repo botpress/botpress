@@ -1,10 +1,17 @@
 import * as sdk from 'botpress/sdk'
+import { JWT_COOKIE_NAME } from 'common/auth'
 import { AuthRule, ChatUserAuth, RequestWithUser, TokenUser, UserProfile } from 'common/typings'
-import { ConfigProvider } from 'core/config/config-loader'
-import { AuthStrategies } from 'core/services/auth-strategies'
-import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
-import StrategyBasic from 'core/services/auth/basic'
-import { WorkspaceService } from 'core/services/workspace-service'
+import { ConfigProvider } from 'core/config'
+import {
+  assertWorkspace,
+  checkTokenHeader,
+  validateBodySchema,
+  AuthStrategies,
+  AuthService,
+  StrategyBasic,
+  TOKEN_AUDIENCE
+} from 'core/security'
+import { WorkspaceService } from 'core/users'
 import { RequestHandler, Router } from 'express'
 import Joi from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -12,7 +19,7 @@ import _ from 'lodash'
 
 import { CustomRouter } from './customRouter'
 import { BadRequestError, NotFoundError } from './errors'
-import { assertWorkspace, checkTokenHeader, success as sendSuccess, validateBodySchema } from './util'
+import { success as sendSuccess } from './util'
 
 export class AuthRouter extends CustomRouter {
   private checkTokenHeader!: RequestHandler
@@ -27,9 +34,9 @@ export class AuthRouter extends CustomRouter {
     super('Auth', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
 
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.setupRoutes()
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.setupStrategies()
   }
 
@@ -118,13 +125,17 @@ export class AuthRouter extends CustomRouter {
               .min(0)
               .max(35)
               .trim()
+              .allow(''),
+            picture_url: Joi.string()
+              .uri()
               .allow('')
           })
         )
 
         await this.authService.updateAttributes(email, strategy, {
           firstname: req.body.firstname,
-          lastname: req.body.lastname
+          lastname: req.body.lastname,
+          picture_url: req.body.picture_url
         })
 
         return sendSuccess(res, 'Updated profile successfully')
@@ -157,7 +168,10 @@ export class AuthRouter extends CustomRouter {
 
         if (config.jwtToken && config.jwtToken.allowRefresh) {
           const newToken = await this.authService.refreshToken(req.tokenUser!)
-          sendSuccess(res, 'Token refreshed successfully', { newToken })
+
+          sendSuccess(res, 'Token refreshed successfully', {
+            newToken: process.USE_JWT_COOKIES ? _.omit(newToken, 'jwt') : newToken
+          })
         } else {
           const [, token] = req.headers.authorization!.split(' ')
           sendSuccess(res, 'Token not refreshed, sending back original', { newToken: token })
@@ -177,6 +191,28 @@ export class AuthRouter extends CustomRouter {
 
         await this.authService.authChatUser(req.body, req.tokenUser!)
         res.send(await this.workspaceService.getBotWorkspaceId(botId))
+      })
+    )
+
+    router.post(
+      '/logout',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req: RequestWithUser, res) => {
+        await this.authService.invalidateToken(req.tokenUser!)
+        res.sendStatus(200)
+      })
+    )
+
+    // Temporary route to obtain a token when using cookie authentication, for the bp pull/push command
+    router.get(
+      '/getToken',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req: RequestWithUser, res) => {
+        if (!process.USE_JWT_COOKIES) {
+          return res.sendStatus(201)
+        }
+
+        res.send(req.cookies[JWT_COOKIE_NAME])
       })
     )
   }

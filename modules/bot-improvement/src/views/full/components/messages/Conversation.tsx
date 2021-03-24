@@ -21,7 +21,7 @@ const Conversation: FC<{ api: BotImprovementApi; feedbackItem: FeedbackItem }> =
       })
       setMessageGroups(flaggedMessageGroups)
     }
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     fetchMessages()
   }, [props.feedbackItem])
 

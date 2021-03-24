@@ -24,6 +24,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     menuIcon: 'thumbs_up_down',
     menuText: 'Bot Improvement',
     noInterface: false,
+    experimental: true,
     fullName: 'Bot Improvement',
     homepage: 'https://botpress.io'
   }

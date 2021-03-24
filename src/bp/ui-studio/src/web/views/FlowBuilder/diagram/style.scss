@@ -6,10 +6,6 @@
   }
 }
 
-:global(.emulator-open) {
-  padding-right: calc(var(--spacing-x-large) + var(--emulator-width)) !important;
-}
-
 .floatingInfo {
   position: absolute;
   left: 10px;
@@ -19,20 +15,6 @@
   .insertMode button {
     margin-top: 10px;
   }
-}
-
-.noPadding {
-  padding: 0 !important;
-}
-
-.searchWrapper {
-  position: relative;
-  z-index: 9;
-  align-items: flex-start;
-  display: flex;
-  justify-content: flex-end;
-  margin-top: var(--spacing-large);
-  margin-bottom: -38px;
 }
 
 :global {

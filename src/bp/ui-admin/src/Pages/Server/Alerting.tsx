@@ -6,12 +6,12 @@ import { IoIosArchive } from 'react-icons/io'
 import { connect } from 'react-redux'
 import Select from 'react-select'
 import { Col, Jumbotron, Label, Row } from 'reactstrap'
-import { fetchIncidents } from '~/reducers/monitoring'
 import PageContainer from '~/App/PageContainer'
 import SplitPage from '~/App/SplitPage'
 import CheckRequirements from '~/Pages/Components/CheckRequirements'
 import LoadingSection from '~/Pages/Components/LoadingSection'
 import IncidentsTable from '~/Pages/Components/Monitoring/IncidentsTable'
+import { fetchIncidents } from '~/reducers/monitoring'
 
 interface Props {
   incidents: any

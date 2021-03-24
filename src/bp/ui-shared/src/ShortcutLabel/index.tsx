@@ -12,13 +12,13 @@ const iconKeys = ['backspace', 'command', 'delete', 'enter', 'escape', 'option',
 
 const ShortcutLabel: FC<ShortcutLabelProps> = props => {
   const { shortcut } = props
-  let shortcutKeys, keys
+  let shortcutKeys
 
   if (shortcut) {
     shortcutKeys = Array.isArray(keyMap[shortcut]) ? keyMap[shortcut].join(` ${lang('or')} `) : keyMap[shortcut]
   }
 
-  keys = props.keys || shortcutKeys?.split(/(\/|\s|\+)/).filter(item => !!item.trim() && item !== '+')
+  const keys = props.keys || shortcutKeys?.split(/(\/|\s|\+)/).filter(item => !!item.trim() && item !== '+')
 
   return (
     <span className={cx(style.shortcut, { [style.light]: props.light })}>

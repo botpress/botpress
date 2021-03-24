@@ -38,7 +38,7 @@ const LiveChat: React.FC<Props> = ({ handoff, currentAgent }) => {
 
   useEffect(() => {
     const webchatConfig = {
-      host: window.location.origin,
+      host: window.ROOT_PATH,
       botId: window.BOT_ID,
       userId: currentAgent.agentId,
       conversationId: handoff.agentThreadId, // parseint ?
@@ -61,7 +61,7 @@ const LiveChat: React.FC<Props> = ({ handoff, currentAgent }) => {
         composer: [
           {
             module: MODULE_NAME,
-            component: 'ShortcutComposer'
+            component: 'HITLComposer'
           }
         ]
       }

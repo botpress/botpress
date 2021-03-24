@@ -55,6 +55,11 @@ export const defaultRoles: AuthRole[] = [
       {
         res: 'module.code-editor.*',
         op: '-r-w'
+      },
+      { res: 'admin.logs.*', op: '-r' },
+      {
+        res: 'admin.bots.archive',
+        op: '-r'
       }
     ]
   }

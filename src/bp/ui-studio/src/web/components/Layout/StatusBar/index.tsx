@@ -2,9 +2,9 @@ import _ from 'lodash'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
 
-import style from './style.scss'
 import ConfigStatus from './ConfigStatus'
 import LangSwitcher from './LangSwitcher'
+import style from './style.scss'
 import TrainingStatusComponent from './TrainingStatus'
 
 interface Props {

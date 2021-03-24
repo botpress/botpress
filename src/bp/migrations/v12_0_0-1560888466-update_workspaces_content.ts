@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
-import { GhostService } from 'core/services'
-import { Migration, MigrationOpts } from 'core/services/migration'
+import { GhostService } from 'core/bpfs'
+import { Migration, MigrationOpts } from 'core/migration'
 import { TYPES } from 'core/types'
 import _ from 'lodash'
 

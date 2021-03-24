@@ -3,10 +3,12 @@ import chalk from 'chalk'
 import followRedirects from 'follow-redirects'
 import fse from 'fs-extra'
 import glob from 'glob'
+import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
 import path from 'path'
 import rimraf from 'rimraf'
-
+import { CSRF_TOKEN_HEADER, JWT_COOKIE_NAME } from './common/auth'
+import { TokenUser } from './common/typings'
 import { bytesToString } from './common/utils'
 import { createArchiveFromFolder, extractArchive } from './core/misc/archive'
 import { asBytes } from './core/misc/utils'
@@ -188,7 +190,7 @@ class BPFS {
     return axios.create({
       baseURL: `${this.serverUrl}/api/v1/admin/versioning`,
       headers: {
-        Authorization: `Bearer ${this.authToken}`,
+        ...this._getAuthHeaders(),
         'Content-Type': 'application/tar+gzip',
         'Content-Disposition': `attachment; filename=archive_${Date.now()}.tgz`,
         'Content-Length': archiveSize
@@ -196,12 +198,19 @@ class BPFS {
     })
   }
 
+  private _getAuthHeaders() {
+    const decoded = jsonwebtoken.decode(this.authToken) as TokenUser
+    if (decoded.csrfToken) {
+      return { Cookie: `${JWT_COOKIE_NAME}=${this.authToken};`, [CSRF_TOKEN_HEADER]: decoded.csrfToken }
+    }
+
+    return { Authorization: `Bearer ${this.authToken}` }
+  }
+
   private _getPullAxiosClient(): AxiosInstance {
     return axios.create({
       baseURL: `${this.serverUrl}/api/v1/admin/versioning`,
-      headers: {
-        Authorization: `Bearer ${this.authToken}`
-      },
+      headers: this._getAuthHeaders(),
       responseType: 'arraybuffer'
     })
   }

@@ -1,20 +1,18 @@
 import { BotConfig, IO, Logger } from 'botpress/sdk'
-import { createExpiry } from 'core/misc/expiry'
-import { SessionRepository, UserRepository } from 'core/repositories'
-import { Event } from 'core/sdk/impl'
+import { TYPES } from 'core/app/types'
+import { BotService } from 'core/bots'
+import { BotpressConfig, ConfigProvider } from 'core/config'
+import { SessionRepository, createExpiry, SessionIdFactory } from 'core/dialog/sessions'
+import { Event } from 'core/events'
+import { ChannelUserRepository } from 'core/users'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 
-import { BotpressConfig } from '../../config/botpress.config'
-import { ConfigProvider } from '../../config/config-loader'
-import { TYPES } from '../../types'
-import { BotService } from '../bot-service'
 import { Janitor } from '../janitor'
 
 import { DialogEngine } from './dialog-engine'
 import { TimeoutNodeNotFound } from './errors'
-import { SessionIdFactory } from './session/id-factory'
 
 const debug = DEBUG('janitor')
 const dialogDebug = debug.sub('dialog')
@@ -29,7 +27,7 @@ export class DialogJanitor extends Janitor {
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository,
-    @inject(TYPES.UserRepository) private userRepo: UserRepository
+    @inject(TYPES.UserRepository) private userRepo: ChannelUserRepository
   ) {
     super(logger)
   }
@@ -53,17 +51,16 @@ export class DialogJanitor extends Janitor {
     dialogDebug('Running task')
 
     const botsConfigs = await this.botService.getBots()
-    const botsIds = Array.from(botsConfigs.keys())
 
-    for (const botId of botsIds) {
-      await this.sessionRepo.deleteExpiredSessions(botId)
-      const sessionsIds = await this.sessionRepo.getExpiredContextSessionIds(botId)
+    await this.sessionRepo.deleteExpiredSessions()
 
-      if (sessionsIds.length > 0) {
-        dialogDebug.forBot(botId, 'Found stale sessions', sessionsIds)
-        for (const sessionId of sessionsIds) {
-          await this._processSessionTimeout(sessionId, botId, botsConfigs.get(botId)!)
-        }
+    const sessionsIds = await this.sessionRepo.getExpiredContextSessionIds()
+
+    if (sessionsIds.length > 0) {
+      dialogDebug('Found stale sessions', sessionsIds)
+      for (const sessionId of sessionsIds) {
+        const { botId } = SessionIdFactory.extractDestinationFromId(sessionId)
+        await this._processSessionTimeout(sessionId, botId, botsConfigs.get(botId)!)
       }
     }
   }
@@ -74,7 +71,7 @@ export class DialogJanitor extends Janitor {
 
     try {
       const { channel, target, threadId } = SessionIdFactory.extractDestinationFromId(sessionId)
-      const session = await this.sessionRepo.get(sessionId, botId)
+      const session = await this.sessionRepo.get(sessionId)
 
       // This event only exists so that processTimeout can call processEvent
       const fakeEvent = Event({
@@ -106,7 +103,7 @@ export class DialogJanitor extends Janitor {
     }
   }
 
-  private _handleError(error, botId) {
+  private _handleError(error: Error, botId: string) {
     if (error instanceof TimeoutNodeNotFound) {
       dialogDebug.forBot(botId, 'No timeout node found. Clearing context now.')
     } else {
@@ -114,10 +111,10 @@ export class DialogJanitor extends Janitor {
     }
   }
 
-  private async _resetContext(botId, botConfig, sessionId, resetContext: boolean) {
+  private async _resetContext(botId: string, botConfig: BotConfig, sessionId: string, resetContext: boolean) {
     const botpressConfig = await this.getBotpressConfig()
     const expiry = createExpiry(botConfig!, botpressConfig)
-    const session = await this.sessionRepo.get(sessionId, botId)
+    const session = await this.sessionRepo.get(sessionId)
 
     if (resetContext) {
       session.context = {}

@@ -169,7 +169,7 @@ Botpress Native NLU offers a handful of system entity extraction thanks to [Face
 
 At the moment, Duckling is hosted on our remote servers. If you don't want your data to be sent to our servers, you can either disable this feature by setting `ducklingEnabled` to `false` or host your own duckling server and change the `ducklingURL` to the `data/global/config/nlu.json` config file.
 
-For instructions on how to host your own Duckling server, please check the [Deployment](../advanced/hosting) section.
+For instructions on how to host your own Duckling server, please check the [Deployment](../infrastructure/hosting) section.
 
 ##### Example
 
@@ -345,7 +345,7 @@ Slot filling is the process of gathering information required by an intent. This
 
 ## Language Server
 
-The language server provides additional information about words, which allows your bot to understand words with a similar meaning even if you didn't specifically taught it about it. By default, your Botpress server will query one of our language server for that purpose. You can also choose to host your own server if you would like to keep everything on your premise. Head over to the [Hosting](../advanced/hosting#running-your-own-language-server) page for more details.
+The language server provides additional information about words, which allows your bot to understand words with a similar meaning even if you didn't specifically taught it about it. By default, your Botpress server will query one of our language server for that purpose. You can also choose to host your own server if you would like to keep everything on your premise. Head over to the [Hosting](../infrastructure/hosting#running-your-own-language-server) page for more details.
 
 ## External NLU Providers
 

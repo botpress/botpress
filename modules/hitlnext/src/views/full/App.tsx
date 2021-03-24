@@ -9,7 +9,7 @@ import { castHandoff, makeClient } from '../client'
 
 import { WEBSOCKET_TOPIC } from './../../constants'
 import AgentList from './app/components/AgentList'
-import AgentProfile from './app/components/AgentProfile'
+import AgentStatus from './app/components/AgentStatus'
 import ConversationContainer from './app/components/ConversationContainer'
 import EmptyConversation from './app/components/EmptyConversation'
 import HandoffList from './app/components/HandoffList'
@@ -123,7 +123,7 @@ const App: FC<Props> = ({ bp }) => {
   }
 
   useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     Promise.all([getCurrentAgent(), getAgents(), getHandoffs(), getConfig()]).then(() => {
       setLoading(false)
     })
@@ -146,7 +146,7 @@ const App: FC<Props> = ({ bp }) => {
     <div className={style.app}>
       <div className={style.mainNav}>
         <AgentList loading={loading} agents={state.agents} />
-        <AgentProfile setOnline={setOnline} loading={loading} {...state.currentAgent} />
+        <AgentStatus setOnline={setOnline} loading={loading} {...state.currentAgent} />
       </div>
 
       <div className={style.mainContent}>

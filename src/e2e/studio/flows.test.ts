@@ -1,8 +1,9 @@
-import { clickOn, fillField } from '../expectPuppeteer'
-import { clickOnTreeNode, CONFIRM_DIALOG, expectBotApiCallSuccess, gotoStudio } from '../utils'
+import { clickOn, fillField, expectMatchElement } from '../expectPuppeteer'
+import { clickOnTreeNode, CONFIRM_DIALOG, expectBotApiCallSuccess, gotoStudio, loginIfNeeded } from '../utils'
 
 describe('Studio - Flows', () => {
   beforeAll(async () => {
+    await loginIfNeeded()
     if (!page.url().includes('studio')) {
       await gotoStudio()
     }
@@ -16,6 +17,29 @@ describe('Studio - Flows', () => {
     await clickOn('#btn-add-flow')
     await fillField('#input-flow-name', 'test_flow')
     await Promise.all([expectBotApiCallSuccess('flow'), clickOn('#btn-submit')])
+  })
+
+  it('Create new Node', async () => {
+    await page.mouse.click(500, 150)
+    await page.mouse.click(500, 150, { button: 'right' })
+    await page.waitForSelector('li > .bp3-menu-item > .bp3-text-overflow-ellipsis')
+    await page.click('li > .bp3-menu-item > .bp3-text-overflow-ellipsis', { button: 'left' })
+  })
+
+  it('Open node properties', async () => {
+    const element = await expectMatchElement('.srd-node--selected', { text: /node-[0-9]*/ })
+    await clickOn('div', {}, element)
+    await page.waitForSelector('#btn-add-element')
+    await clickOn('#btn-add-element')
+    await clickOn('.bp3-dialog-close-button')
+  })
+
+  it('Check default transition', async () => {
+    await page.waitForSelector('#node-props-modal-standard-node-tabs-tab-transitions')
+    await clickOn('#node-props-modal-standard-node-tabs-tab-transitions')
+    await page.hover('#node-props-modal-standard-node-tabs-pane-transitions > div')
+    await clickOn('#node-props-modal-standard-node-tabs-pane-transitions a', { clickCount: 1, text: 'Edit' })
+    await clickOn('.bp3-dialog-close-button')
   })
 
   it('Rename flow', async () => {
@@ -44,25 +68,4 @@ describe('Studio - Flows', () => {
     await Promise.all([expectBotApiCallSuccess('flow', 'POST'), clickOn('#btn-submit')])
     await page.waitFor(3000)
   })
-
-  // it('Open node properties', async () => {
-  //   const element = await expectMatchElement('.srd-node', { text: 'entry' })
-  //   // console.log(element)
-  //   await clickOn('div', { clickCount: 2 }, element)
-  //   await clickOn('#btn-add-element')
-  // })
-
-  // // Not working at the moment (puppetteer issue) - Not generating drag events
-  // it('Create new node', async () => {
-  //   await page.waitFor(500)
-  //   const flowTool = await page.$('#btn-tool-standard')
-  //   const { x, y } = await getElementCenter(flowTool)
-
-  //   await page.mouse.move(x, y)
-  //   await page.mouse.down()
-  //   await page.mouse.move(500, 239)
-  //   await page.mouse.up()
-
-  //   await page.waitFor(9000)
-  // })
 })

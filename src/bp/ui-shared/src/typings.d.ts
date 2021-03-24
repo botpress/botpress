@@ -1,8 +1,9 @@
-import { FormField, MultiLangText } from 'botpress/sdk'
 import { IDateRangeShortcut } from '@blueprintjs/datetime'
+import { FormField, MultiLangText } from 'botpress/sdk'
 import { IDates } from 'common/dates'
 import React from 'react'
 
+import { UserAuth } from '../../ui-shared-lite/auth/typings'
 import { CheckboxProps } from '../../ui-shared-lite/Checkbox/typings'
 import { CollapsibleProps } from '../../ui-shared-lite/Collapsible/typings'
 import { ContentSectionProps } from '../../ui-shared-lite/ContentSection/typings'
@@ -17,13 +18,22 @@ import {
   PermissionOperation,
   RequiredPermission
 } from './AccessControl/typings'
+
 import { CommanderProps, QuickShortcut } from './Commander/typings'
 import { ConfirmDialogOptions } from './ConfirmDialog/typings'
 import { DialogProps } from './Dialog/typings'
 import { DropdownProps, Option } from './Dropdown/typings'
 import { EmptyStateProps } from './EmptyState/typings'
+import {
+  AddButtonProps,
+  FieldWrapperProps,
+  SelectProps,
+  TextFieldsArrayProps,
+  TextProps,
+  UploadFieldProps
+} from './Form/FormFields/typings'
 import { FormProps } from './Form/typings'
-import { AddButtonProps, FieldWrapperProps, SelectProps, TextFieldsArrayProps } from './Form/FormFields/typings'
+
 import { MainContainerProps } from './MainContainer/typings'
 import { HeaderButton, HeaderProps } from './MainLayout/Header/typings'
 import { MenuItem, MenuProps } from './MainLayout/Menu/typings'
@@ -35,7 +45,9 @@ import { MultiLevelDropdownProps } from './MultiLevelDropdown/typings'
 import { ShortcutLabelProps } from './ShortcutLabel/typings'
 import { TextareaProps } from './Textarea/typings'
 import { ToastOptions } from './Toaster'
+import { TokenRefresherProps } from './TokenRefresher/typings'
 import { TreeViewProps } from './TreeView/typings'
+import { BPStorage } from './utils/storage'
 
 declare module 'botpress/shared' {
   export function isOperationAllowed(props: PermissionAllowedProps): boolean
@@ -53,6 +65,10 @@ declare module 'botpress/shared' {
     Wrapper(props: WrapperProps): JSX.Element
     Menu(props: MenuProps): JSX.Element
     RightSidebar(props: RightSidebarProps): JSX.Element
+    BottomPanel: {
+      Container(props: any): any
+      Register(props: any): any
+    }
   }
   export const Form: {
     Form(props: FormProps): JSX.Element
@@ -64,6 +80,8 @@ declare module 'botpress/shared' {
     Select(props: SelectProps): JSX.Element
     TextFieldsArray(props: TextFieldsArrayProps): JSX.Element
     VariablePicker(props: VariablePickerProps): JSX.Element
+    Text(props: TextProps): JSX.Element
+    Upload(props: UploadFieldProps): JSX.Element
   }
   export function Dropdown(props: DropdownProps): JSX.Element
   export function EmptyState(props: EmptyStateProps): JSX.Element
@@ -78,6 +96,7 @@ declare module 'botpress/shared' {
   export function Textarea<T>(props: TextareaProps<T>): JSX.Element
   export function ToolTip<T>(props: ToolTipProps<T>): JSX.Element
   export function TreeView<T>(props: TreeViewProps<T>): JSX.Element
+  export function TokenRefresher(props: TokenRefresherProps): JSX.Element
 
   export function contextMenu(event: SyntheticEvent, content: JSX.Element, onClose?: () => void): void
   export function confirmDialog(message: string | JSX.Element, options: ConfirmDialogOptions): Promise<boolean>
@@ -93,6 +112,8 @@ declare module 'botpress/shared' {
     createDateRangeShortcuts: () => IDateRangeShortcut[]
     relativeDates: IDates
   }
+
+  export const auth: UserAuth
 
   export const telemetry: {
     startFallback(api: AxiosInstance): Promise<void>
@@ -120,6 +141,7 @@ declare module 'botpress/shared' {
     isInputFocused(): boolean
     /** Loads the specified data to the inspector on the bottom panel */
     inspect: (data: any) => void
+    storage: BPStorage
   }
 
   export const sharedStyle: CssExports
@@ -133,5 +155,7 @@ declare global {
     BOT_API_PATH: string
     API_PATH: string
     TELEMETRY_URL: string
+    USE_SESSION_STORAGE: boolean
+    BP_STORAGE: BPStorage
   }
 }

@@ -3,6 +3,7 @@ import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
 import yn from 'yn'
+import { LanguageConfig } from './nlu/engine'
 
 export enum WORKER_TYPES {
   WEB = 'WEB_WORKER',
@@ -52,13 +53,15 @@ export const setupMasterNode = (logger: sdk.Logger) => {
     cluster.fork({ WORKER_TYPE: WORKER_TYPES.LOCAL_ACTION_SERVER, APP_SECRET: appSecret, PORT: port })
   })
 
-  cluster.on('exit', async (worker: Worker, code, signal) => {
-    if (process.TRAINING_WORKERS?.includes(worker.id)) {
-      process.TRAINING_WORKERS = process.TRAINING_WORKERS.filter(w => w !== worker.id)
+  cluster.on('exit', async (worker: Worker, code: number, signal: string) => {
+    const { exitedAfterDisconnect, id } = worker
+
+    if (process.TRAINING_WORKERS?.includes(id)) {
+      process.TRAINING_WORKERS = process.TRAINING_WORKERS.filter(w => w !== id)
       return
     }
 
-    const { exitedAfterDisconnect, id } = worker
+    // TODO: the debug instance has no access to the debug config. It is in the web process.
     debug('Process exiting %o', { workerId: id, code, signal, exitedAfterDisconnect })
     // Reset the counter when the reboot was intended
     if (exitedAfterDisconnect) {
@@ -102,18 +105,19 @@ function spawnWebWorker() {
   debug('Spawned Web Worker')
 }
 
-export async function spawnNewTrainingWorker(config: sdk.NLU.LanguageConfig, requestId: string): Promise<number> {
+export async function spawnNewTrainingWorker(config: LanguageConfig, requestId: string): Promise<number> {
   if (!process.TRAINING_WORKERS) {
     process.TRAINING_WORKERS = []
   }
   const worker = cluster.fork({
     WORKER_TYPE: WORKER_TYPES.TRAINING,
     NLU_CONFIG: JSON.stringify(config),
-    REQUEST_ID: requestId
+    REQUEST_ID: requestId,
+    BP_FAILSAFE: false // training workers are allowed to fail and exit
   })
   const workerId = worker.id
   process.TRAINING_WORKERS.push(workerId)
-  return Promise.fromCallback(cb => worker.on('online', () => cb(undefined, workerId)))
+  return new Promise(resolve => worker.on('online', () => resolve(workerId)))
 }
 
 export const startLocalActionServer = (message: StartLocalActionServerMessage) => {

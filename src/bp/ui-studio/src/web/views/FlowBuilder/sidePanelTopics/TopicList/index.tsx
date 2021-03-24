@@ -12,8 +12,8 @@ import { sanitizeName } from '~/util'
 
 import { buildFlowName } from '..//WorkflowEditor/utils'
 
-import style from './style.scss'
 import EmptyStateIcon from './EmptyStateIcon'
+import style from './style.scss'
 import TreeItem from './TreeItem'
 
 const lockedFlows = ['misunderstood.flow.json', 'error.flow.json', 'workflow_ended.flow.json']

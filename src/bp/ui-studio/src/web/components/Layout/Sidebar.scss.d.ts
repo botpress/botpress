@@ -6,6 +6,7 @@ interface CssExports {
   'link': string;
   'logo': string;
   'sidebar': string;
+  'small_tag': string;
   'tag': string;
   'tooltipContent': string;
 }

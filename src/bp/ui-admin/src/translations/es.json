@@ -18,6 +18,8 @@
     "change": "Cambiar",
     "changeLanguage": "Cambiar idioma",
     "changePassword": "Cambia la contraseña",
+    "showToken": "Mostrar token",
+    "hideToken": "Ocultar token",
     "changeYourPassword": "Cambiar contraseña",
     "confirmPassword": "Confirmar contraseña",
     "createAccount": "Crear una cuenta",
@@ -47,6 +49,7 @@
       "usingLangServerAt": "Usando el servidor de idiomas en"
     },
     "lastName": "Apellido",
+    "profilePicture": "Foto",
     "license": {
       "enterLicenseKey": "Introduzca la clave de la licencia",
       "enterYourLicense": "Introduce tu clave de licencia",
@@ -225,6 +228,11 @@
       "conflictWarning": "Advertencia de conflicto",
       "documentation": "documentación",
       "downloadArchive": "Descargar archivo",
+      "preparingArchive": "Preparando archivo ...",
+      "downloadProgress": "Descargando ... {progress}% completado",
+      "uploadProgress": "Subiendo ... {progress}% completado",
+      "forcePushInfo": "Forzar la presión omitirá la comparación entre los cambios locales y los cambios remotos, y sobrescribirá los datos remotos.",
+      "processing": "Procesando archivo ...",
       "forMorInfo": "para más información.",
       "forcePush": "Forzar “Push” de mis cambios",
       "pleaseWait": "Por favor espera...",
@@ -277,7 +285,8 @@
           "archive": "Archivo de bot",
           "fromArchive": "Importar bot desde archivo",
           "import": "Importar bot",
-          "overwrite": "Sobrescribir bot existente"
+          "overwrite": "Sobrescribir bot existente",
+          "successful": "Importación de bot {details} exitosa!"
         },
         "importExisting": "Importar existente",
         "item": {
@@ -334,6 +343,10 @@
           "developer": {
             "description": "Los desarrolladores tienen acceso completo de lectura / escritura a los bots, incluidos flujos, contenido, NLU y acciones",
             "name": "Desarrollador"
+          },
+          "agent": {
+            "description": "Los agentes manejan HITL",
+            "name": "Agente"
           }
         },
         "helpText": "Para cambiar roles, consulte “roles” en el archivo workspaces.json.",

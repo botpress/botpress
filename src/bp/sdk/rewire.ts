@@ -62,7 +62,7 @@ function addToNodePath(path) {
 }
 
 function reloadPaths() {
-  ;(Module as any)._initPaths() // tslint:disable-line
+  ;(Module as any)._initPaths() // eslint-disable-line
 }
 
 function getPaths(): string[] {
@@ -88,7 +88,7 @@ addToNodePath(syspath.resolve(__dirname, '../')) // 'bp/' directory
 
 const rewire = function(this: NodeRequireFunction, mod: string) {
   if (mod === 'botpress/sdk') {
-    return originalRequire.apply(this, ['core/sdk_impl'])
+    return originalRequire.apply(this, ['core/app/sdk_impl'])
   }
 
   if (mod.endsWith('.node')) {

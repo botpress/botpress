@@ -1,20 +1,18 @@
 import 'bluebird-global'
 import { ObjectCache } from 'common/object-cache'
-import path from 'path'
 import 'reflect-metadata'
-
-import { PersistedConsoleLogger } from '../../logger'
-import { createSpyObject, MockObject } from '../../misc/utils'
+import { PersistedConsoleLogger } from 'core/logger'
+import { createSpyObject, MockObject } from 'core/misc/utils'
 
 import { FileRevision } from '.'
-import DBStorageDriver from './db-driver'
-import DiskStorageDriver from './disk-driver'
+import { DBStorageDriver } from './db-driver'
+import { DiskStorageDriver } from './disk-driver'
 import { GhostService } from './service'
 
 const BOT_ID = 'bot123'
 
 describe('Ghost Service', () => {
-  let ghost: GhostService // tslint:disable-line
+  let ghost: GhostService // eslint-disable-line
   let diskDriver: MockObject<DiskStorageDriver>,
     dbDriver: MockObject<DBStorageDriver>,
     cache: MockObject<ObjectCache>,

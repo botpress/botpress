@@ -1,16 +1,18 @@
 import { Logger, StrategyUser } from 'botpress/sdk'
-import { checkRule } from 'common/auth'
-import { InvalidOperationError } from 'core/services/auth/errors'
-import { WorkspaceService } from 'core/services/workspace-service'
+import { checkRule, CSRF_TOKEN_HEADER_LC, JWT_COOKIE_NAME } from 'common/auth'
+import { RequestWithUser, TokenUser } from 'common/typings'
+import { incrementMetric } from 'core/health'
+import { asBytes } from 'core/misc/utils'
+import { AuthService, SERVER_USER, WORKSPACE_HEADER } from 'core/security'
+import { WorkspaceService } from 'core/users'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
+import mime from 'mime-types'
+import multer from 'multer'
 import onHeaders from 'on-headers'
 
-import { RequestWithUser, TokenUser } from '../../common/typings'
-import AuthService, { SERVER_USER, WORKSPACE_HEADER } from '../services/auth/auth-service'
-import { incrementMetric } from '../services/monitoring'
-
 import {
+  InvalidOperationError,
   BadRequestError,
   ForbiddenError,
   InternalServerError,
@@ -88,18 +90,32 @@ export const success = <T extends {}>(res: Response, message: string = 'Success'
   })
 }
 
+export const sendSuccess = success
+
 export const checkTokenHeader = (authService: AuthService, audience?: string) => async (
   req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) => {
-  if (!req.headers.authorization) {
-    return next(new UnauthorizedError('Authorization header is missing'))
-  }
+  let token
 
-  const [scheme, token] = req.headers.authorization.split(' ')
-  if (scheme.toLowerCase() !== 'bearer') {
-    return next(new UnauthorizedError(`Unknown scheme "${scheme}"`))
+  if (process.USE_JWT_COOKIES) {
+    if (!req.cookies[JWT_COOKIE_NAME]) {
+      return next(new UnauthorizedError(`${JWT_COOKIE_NAME} cookie is missing`))
+    }
+
+    token = req.cookies[JWT_COOKIE_NAME]
+  } else {
+    if (!req.headers.authorization) {
+      return next(new UnauthorizedError('Authorization header is missing'))
+    }
+
+    const [scheme, bearerToken] = req.headers.authorization.split(' ')
+    if (scheme.toLowerCase() !== 'bearer') {
+      return next(new UnauthorizedError(`Unknown scheme "${scheme}"`))
+    }
+
+    token = bearerToken
   }
 
   if (!token) {
@@ -107,7 +123,8 @@ export const checkTokenHeader = (authService: AuthService, audience?: string) =>
   }
 
   try {
-    const tokenUser = await authService.checkToken(token, audience)
+    const csrfToken = req.headers[CSRF_TOKEN_HEADER_LC] as string
+    const tokenUser = await authService.checkToken(token, csrfToken, audience)
 
     if (!tokenUser) {
       return next(new UnauthorizedError('Invalid authentication token'))
@@ -201,6 +218,24 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
   const err = await checkPermissions(workspaceService)(operation, resource)(req)
   return next(err)
 }
+
+/**
+ * This method checks that uploaded file respects constraints
+ * TODO add * in allowedMimeTypes ==> accepts all
+ */
+export const fileUploadMulter = (allowedMimeTypes: string[] = [], maxFileSize?: string) =>
+  multer({
+    fileFilter: (_req, file, cb) => {
+      const extMimeType = mime.lookup(file.originalname)
+      if (allowedMimeTypes.includes(file.mimetype) && allowedMimeTypes.includes(extMimeType)) {
+        return cb(null, true)
+      }
+      cb(new Error(`This type of file is not allowed (${file.mimetype})`))
+    },
+    limits: {
+      fileSize: (maxFileSize && asBytes(maxFileSize)) || undefined
+    }
+  }).single('file')
 
 /**
  * This method checks if the user has read access if method is get, and write access otherwise

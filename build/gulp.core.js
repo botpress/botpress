@@ -62,36 +62,6 @@ const createOutputDirs = () => {
     .pipe(gulp.dest('./out/bp/data/storage'))
 }
 
-const createMigration = cb => {
-  const args = require('yargs')(process.argv).argv
-  if (!args.ver) {
-    console.error('Version is required (set with --ver parameter')
-    console.error('Example: yarn cmd migration:create --target core --ver 13.0.0 --title "some config update"')
-    return cb()
-  }
-
-  const target = args.target || 'core'
-  const version = args.ver.replace(/[ .]/g, '_').replace('v', '')
-  const title = (args.title || '').replace(/[ .]/g, '_').toLowerCase()
-
-  const template =
-    target === 'core'
-      ? path.resolve(__dirname, '../src/bp/core/services/migration/template_core.ts')
-      : path.resolve(__dirname, '../src/bp/core/services/migration/template_module.ts')
-
-  const targetDir =
-    target === 'core'
-      ? path.resolve(__dirname, '../src/bp/migrations')
-      : path.resolve(__dirname, `../modules/${target}/src/migrations`)
-
-  const destination = path.resolve(targetDir, `v${version}-${Math.round(Date.now() / 1000)}-${title}.ts`)
-  mkdirp.sync(targetDir)
-  fs.copyFileSync(template, destination)
-
-  console.log('Migration file created at ' + destination)
-  cb()
-}
-
 const buildSchemas = cb => {
   buildJsonSchemas()
   cb()
@@ -102,11 +72,11 @@ const copyBinaries = () => {
 }
 
 const copyPreTrained = () => {
-  return gulp.src('src/bp/nlu-core/language/pre-trained/*').pipe(gulp.dest('./out/bp/nlu-core/language/pre-trained'))
+  return gulp.src('src/bp/nlu/engine/assets/pre-trained/*').pipe(gulp.dest('./out/bp/nlu/engine/assets/pre-trained'))
 }
 
 const copyStopWords = () => {
-  return gulp.src('src/bp/nlu-core/language/stop-words/*').pipe(gulp.dest('./out/bp/nlu-core/language/stop-words'))
+  return gulp.src('src/bp/nlu/engine/assets/stop-words/*').pipe(gulp.dest('./out/bp/nlu/engine/assets/stop-words'))
 }
 
 const checkTranslations = cb => {
@@ -134,6 +104,5 @@ const build = () => {
 module.exports = {
   build,
   watch,
-  createMigration,
   checkTranslations
 }

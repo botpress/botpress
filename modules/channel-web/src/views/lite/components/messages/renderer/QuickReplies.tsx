@@ -15,13 +15,16 @@ import { Button } from './Button'
  * @return onSendData is called with the reply
  */
 export class QuickReplies extends Component<Renderer.QuickReply> {
-
   componentDidMount() {
     this.props.store.composer.setLocked(this.props.disableFreeText)
   }
 
+  componentWillUnmount() {
+    this.props.store.composer.setLocked(false)
+  }
+
   handleButtonClicked = (title, payload) => {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.props.onSendData?.({
       type: 'quick_reply',
       text: title,

@@ -9,5 +9,6 @@ declare global {
     APP_CUSTOM_CSS: string
     ROOT_PATH: string
     TELEMETRY_URL: string
+    USE_JWT_COOKIES: boolean
   }
 }

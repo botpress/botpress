@@ -1,14 +1,15 @@
-// tslint:disable:ordered-imports
+/* eslint-disable import/order */
 import './sdk/rewire'
 
-import { Config, Logger } from 'core/app'
-import ModuleResolver from 'core/modules/resolver'
+import { createApp } from 'core/app/core-loader'
+import { ModuleResolver } from 'core/modules'
 
 export default async argv => {
   process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : -1
 
-  const logger = await Logger('Extractor')
-  const modules = await Config.getModulesListConfig()
+  const app = createApp()
+  const logger = await app.logger('Extractor')
+  const modules = await app.config.getModulesListConfig()
   const resolver = new ModuleResolver(logger)
 
   for (const entry of modules) {

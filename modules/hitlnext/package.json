@@ -1,9 +1,9 @@
 {
   "name": "hitlnext",
-  "fullName": "HITL Next",
+  "fullName": "HITL-next",
   "version": "1.0.0",
   "status": "stable",
-  "description": "Human-in-the-loop",
+  "description": "Simple system to handoff tricky user conversations to your team of agents",
   "private": true,
   "main": "dist/backend/index.js",
   "scripts": {
@@ -15,8 +15,8 @@
   "license": "AGPL-3.0-only",
   "dependencies": {
     "@blueprintjs/core": "^3.36.0",
-    "axios": "^0.21.0",
     "@webscopeio/react-textarea-autocomplete": "^4.7.2",
+    "axios": "^0.21.0",
     "bluebird": "^3.5",
     "classnames": "^2.2.6",
     "haikunator": "^2.1.2",

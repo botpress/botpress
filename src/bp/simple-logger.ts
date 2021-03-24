@@ -1,11 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import chalk from 'chalk'
+import { LoggerLevel, LogLevel } from 'core/logger/enums'
 import _ from 'lodash'
 import moment from 'moment'
 import os from 'os'
 import util from 'util'
-
-import { LoggerLevel, LogLevel } from './core/sdk/enums'
 
 function _serializeArgs(args: any): string {
   if (_.isArray(args)) {
@@ -76,7 +75,7 @@ export default class Logger implements sdk.Logger {
     const time = moment().format(timeFormat)
 
     const displayName = process.env.INDENT_LOGS ? this.name.substr(0, 15).padEnd(15, ' ') : this.name
-    // tslint:disable-next-line:prefer-template
+    // eslint-disable-next-line prefer-template
     const newLineIndent = chalk.dim(' '.repeat(`${timeFormat} ${displayName}`.length)) + ' '
     let indentedMessage = level === LoggerLevel.Error ? message : message.replace(/\r\n|\n/g, os.EOL + newLineIndent)
 
@@ -86,14 +85,14 @@ export default class Logger implements sdk.Logger {
       this.attachedError.stack &&
       this.attachedError['__hideStackTrace'] !== true
     ) {
-      // tslint:disable-next-line:prefer-template
+      // eslint-disable-next-line prefer-template
       indentedMessage += chalk.grey(os.EOL + 'STACK TRACE')
       indentedMessage += chalk.grey(os.EOL + this.attachedError.stack)
     }
 
     if (this.displayLevel >= this.currentMessageLevel!) {
       !this.silent &&
-        // tslint:disable-next-line: no-console
+        // eslint-disable-next-line no-console
         console.log(
           chalk`{grey ${time}} {${this.colors[level]}.bold ${displayName}} ${indentedMessage}${serializedMetadata}`
         )

@@ -1,0 +1,23 @@
+{
+  "fullName": "Librairies Partagées",
+  "addLibrary": "Ajouter cette librairie",
+  "searchNpm": "Chercher une librairie sur NPM (recommandé)",
+  "searchGithub": "Ajouter un répertoire GitHub (peut être lent)",
+  "uploadArchive": "Téléverser une archive",
+  "libraries": "Librairies",
+  "splash": {
+    "text1": "Ces librairies peuvent être utilisées par tous les bots, actions et hooks.",
+    "text2": "Vous pouvez également modifier directement le fichier package.json pour installer des librairies via l'éditeur de code"
+  },
+  "viewGithub": "Voir sur Github",
+  "customCommand": "Taper une commande personnalisée",
+  "openConsole": "Ouvrez la console pour voir le résultat de la commande",
+  "bundleDeps": "Empaqueter avec ses dépendances",
+  "addSuccess": "Librairie ajoutée avec succès!",
+  "libraryName": "Nom de la librairie",
+  "confirmRemove": "Êtes-vous sûr de vouloir retirer cette librairie?",
+  "deleteSuccess": "Librairie retirée avec succès",
+  "removeFailure": "Il y a eu une erreur lors du retrait de la librairie. Veuillez regarder les journaux du serveur pour plus de détails",
+  "bundleError": "Il y a eu une erreur lors de l'empaquetage de la librairie.",
+  "betaWarning": "C'est un module expérmental. L'implémentation peut changer drastiquement à court terme"
+}

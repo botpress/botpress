@@ -3,10 +3,10 @@ import { NLU } from 'botpress/sdk'
 import { lang, utils } from 'botpress/shared'
 import { toastFailure } from 'botpress/utils'
 import _ from 'lodash'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useReducer } from 'react'
 
-import style from './style.scss'
 import { Occurrence } from './ListEntityOccurrence'
+import style from './style.scss'
 
 interface Props {
   entities: NLU.EntityDefinition[]
@@ -43,7 +43,7 @@ function EntityContentReducer(state: EntityState, action): EntityState {
 }
 
 export const ListEntityEditor: React.FC<Props> = props => {
-  const [state, dispatch] = React.useReducer(EntityContentReducer, {
+  const [state, dispatch] = useReducer(EntityContentReducer, {
     fuzzy: props.entity.fuzzy,
     occurrences: props.entity.occurrences
   })
@@ -69,17 +69,19 @@ export const ListEntityEditor: React.FC<Props> = props => {
 
   const isNewOccurrenceEmpty = () => newOccurrence.trim().length === 0
 
-  const isUnique = newElement =>
+  const isUniqueInEntity = newElement =>
     !props.entities
       .filter(entity => entity.type === 'list')
+      .filter(entity => entity.id === props.entity.id)
       .some(({ occurrences }) => occurrences.some(({ name, synonyms }) => [name, ...synonyms].includes(newElement)))
 
   const addOccurrence = () => {
     if (isNewOccurrenceEmpty()) {
       return
     }
-    if (!isUnique(newOccurrence)) {
-      return toastFailure('Occurrences duplication is not allowed')
+    if (!isUniqueInEntity(newOccurrence)) {
+      toastFailure('Occurence duplication within the same entity not allowed')
+      return
     }
 
     dispatch({
@@ -94,11 +96,10 @@ export const ListEntityEditor: React.FC<Props> = props => {
       const oldOccurence = state.occurrences[idx]
       return oldOccurence.synonyms.length < occurrence.synonyms.length
     }
-
     if (synonymAdded()) {
       const newSynonym = _.last(occurrence.synonyms)
-      if (!isUnique(newSynonym)) {
-        return toastFailure('Synonyms duplication is not allowed')
+      if (!isUniqueInEntity(newSynonym)) {
+        return toastFailure('Synonym duplication within the same entity not allowed')
       }
     }
 

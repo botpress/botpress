@@ -2,7 +2,13 @@ import path from 'path'
 
 import { bpConfig } from '../../../jest-puppeteer.config'
 import { clickOn, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
-import { closeToaster, CONFIRM_DIALOG, expectAdminApiCallSuccess, gotoAndExpect } from '../utils'
+import {
+  closeToaster,
+  CONFIRM_DIALOG,
+  expectAdminApiCallSuccess,
+  expectModuleApiCallSuccess,
+  gotoAndExpect
+} from '../utils'
 
 describe('Admin - Bot Management', () => {
   const tempBotId = 'lol-bot'
@@ -49,6 +55,10 @@ describe('Admin - Bot Management', () => {
     await page.keyboard.press('Enter')
 
     await Promise.all([expectAdminApiCallSuccess('bots', 'POST'), clickOn('#btn-modal-create-bot')])
+  })
+
+  it('Train Warning', async () => {
+    await expectModuleApiCallSuccess('nlu', tempBotId, 'training/en', 'GET')
   })
 
   it('Export bot', async () => {

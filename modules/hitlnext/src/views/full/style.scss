@@ -181,6 +181,12 @@
     margin: 0;
     list-style-type: 'none';
 
+    .agentItem {
+      height: 30px;
+      width: 30px;
+      border-radius: 50%;
+    }
+
     .agentListItem {
       display: inline;
       margin-right: 8px;
@@ -274,6 +280,8 @@
     flex-grow: 1;
     .webchatWrapper {
       height: 100%;
+      display: flex;
+      flex-direction: column;
       > div {
         height: 100%;
       }
@@ -294,7 +302,7 @@
 
   .handoffList {
     background-color: var(--bg);
-    display: flex;
+    overflow-y: scroll;
     flex-direction: column;
     flex-grow: 1;
     height: 100%;

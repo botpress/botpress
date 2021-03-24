@@ -23,6 +23,7 @@
         "${workspaceFolder}/private-modules/**/dist/**/*.js",
         "!${workspaceFolder}/**/node_modules/**/*.js"
       ],
+      "skipFiles": ["**/node_modules/**", "<node_internals>/**"],
       "console": "integratedTerminal",
       "sourceMaps": true,
       "autoAttachChildProcesses": true
@@ -38,7 +39,8 @@
         "nlu",
         "--languageURL=http://localhost:3100",
         "--ducklingURL=http://localhost:8000",
-        "--modelCacheSize=1gb"
+        "--modelCacheSize=1gb",
+        "--silent"
       ],
       "protocol": "auto",
       "env": {
@@ -86,6 +88,19 @@
       "internalConsoleOptions": "neverOpen",
       "sourceMaps": true,
       "autoAttachChildProcesses": true
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Jest Current File",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["${fileBasenameNoExtension}", "--config", "jest.config.js"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "disableOptimisticBPs": true,
+      "windows": {
+        "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+      }
     },
     {
       "type": "node",

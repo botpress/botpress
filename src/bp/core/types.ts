@@ -26,6 +26,7 @@ const TYPES = {
   HookService: Symbol.for('HookService'),
   HintsService: Symbol.for('HintsService'),
   EventEngine: Symbol.for('EventEngine'),
+  MessagingAPI: Symbol.for('MessagingAPI'),
   DialogEngine: Symbol.for('DialogEngine'),
   DecisionEngine: Symbol.for('DecisionEngine'),
   SessionRepository: Symbol.for('SessionRepository'),
@@ -41,6 +42,7 @@ const TYPES = {
   TransitionStrategy: Symbol.for('TransitionStrategy'),
   StrategyProvider: Symbol.for('StrategyProvider'),
   MediaService: Symbol.for('MediaService'),
+  MediaServiceProvider: Symbol.for('MediaServiceProvider'),
   JanitorRunner: Symbol.for('JanitorRunner'),
   DialogJanitorRunner: Symbol.for('DialogJanitorRunner'),
   LoggerDbPersister: Symbol.for('LoggerDbPersister'),
@@ -87,7 +89,12 @@ const TYPES = {
   RolesStats: Symbol.for('RolesStats'),
   SDKStats: Symbol.for('SDKStats'),
   HooksStats: Symbol.for('HooksStats'),
-  ConfigsStats: Symbol.for('ConfigsStats')
+  ConfigsStats: Symbol.for('ConfigsStats'),
+  MessageRepository: Symbol.for('MessageRepository'),
+  ConversationRepository: Symbol.for('ConversationRepository'),
+  MessageService: Symbol.for('MessageService'),
+  ConversationService: Symbol.for('ConversationService'),
+  RenderService: Symbol.for('RenderService')
 }
 
 export { TYPES }

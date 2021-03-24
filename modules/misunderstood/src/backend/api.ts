@@ -101,12 +101,27 @@ export default async (bp: typeof sdk, db: Db) => {
       const { botId } = req.params
 
       try {
-        await db.applyChanges(botId)
+        const modifiedLanguages = await db.applyChanges(botId)
         const axiosConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
         setTimeout(() => {
-          // tslint:disable-next-line: no-floating-promises
-          axios.post('/mod/nlu/train', {}, axiosConfig)
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          Promise.map(modifiedLanguages, lang => axios.post(`/mod/nlu/train/${lang}`, {}, axiosConfig))
         }, 1000)
+        res.sendStatus(200)
+      } catch (err) {
+        throw new StandardError('Could not apply changes', err)
+      }
+    })
+  )
+
+  router.post(
+    '/delete-all',
+    asyncMiddleware(async (req: Request, res: Response) => {
+      const { botId } = req.params
+      const { status } = req.body
+
+      try {
+        await db.deleteAll(botId, status)
         res.sendStatus(200)
       } catch (err) {
         throw new StandardError('Could not apply changes', err)

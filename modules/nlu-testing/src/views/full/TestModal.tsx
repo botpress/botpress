@@ -27,7 +27,7 @@ export const TestModal: FC<Props> = props => {
   const [state, dispatch] = React.useReducer(TestModalReducer, DEFAULT_TEST_STATE)
 
   useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     props.api.fetchIntents().then(intents => {
       setIntents([...intents, NONE_INTENT, NOTHING_EXPECTED_INTENT])
       const ctxs = _.chain(intents)

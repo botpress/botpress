@@ -21,7 +21,7 @@ const RollbackBotModal: FC<Props> = props => {
 
   useEffect(() => {
     if (props.botId) {
-      // tslint:disable-next-line: no-floating-promises
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       fetchRevisions()
     }
   }, [props.botId])

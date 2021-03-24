@@ -124,7 +124,11 @@ const webConfig = {
       },
       {
         test: /\.jsx?$/i,
-        include: path.resolve(__dirname, 'src/web'),
+        include: [
+          path.resolve(__dirname, 'src/web'),
+          // Common files must be transpiled to avoid issues with IE11
+          path.resolve(__dirname, '../../../out/bp/common')
+        ],
         use: [
           {
             loader: 'thread-loader'
@@ -133,18 +137,21 @@ const webConfig = {
             loader: 'babel-loader',
             options: {
               presets: [
-                'stage-3',
+                require.resolve('babel-preset-stage-3'),
                 [
-                  'env',
+                  require.resolve('babel-preset-env'),
                   {
                     targets: {
                       browsers: ['last 2 versions']
                     }
                   }
                 ],
-                'react'
+                require.resolve('babel-preset-react')
               ],
-              plugins: ['transform-class-properties'],
+              plugins: [
+                require.resolve('babel-plugin-transform-class-properties'),
+                require.resolve('babel-plugin-transform-es2015-arrow-functions')
+              ],
               compact: true,
               babelrc: false,
               cacheDirectory: true

@@ -1,8 +1,8 @@
 import classnames from 'classnames'
 import React from 'react'
 
-import style from './style.scss'
 import SideList from './SideList'
+import style from './style.scss'
 
 const SidePanel = ({
   eventCounts,
@@ -11,7 +11,8 @@ const SidePanel = ({
   selectedEventIndex,
   onSelectedStatusChange,
   onSelectedEventChange,
-  applyAllPending
+  applyAllPending,
+  deleteAllStatus
 }) => (
   <div className={style.sidePanel}>
     <div className={classnames(style.contentStretch, style.sidePanelContentStretch)}>
@@ -23,6 +24,7 @@ const SidePanel = ({
         onSelectedStatusChange={onSelectedStatusChange}
         onSelectedEventChange={onSelectedEventChange}
         applyAllPending={applyAllPending}
+        deleteAllStatus={deleteAllStatus}
       />
     </div>
   </div>
