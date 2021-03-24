@@ -99,7 +99,7 @@ class AdminRouter extends CustomRouter {
     app.use('/api/v2/admin', this.router)
 
     this.router.use('/auth', this.authRouter.router)
-    this.router.use('/management', this.checkTokenHeader, assertSuperAdmin, this.managementRouter.router)
+    this.router.use('/management', this.checkTokenHeader, this.managementRouter.router)
     this.router.use('/health', this.checkTokenHeader, assertSuperAdmin, this.healthRouter.router)
     this.router.use('/workspace', this.checkTokenHeader, this.workspaceRouter.router)
     this.router.use('/user', this.checkTokenHeader, this.userRouter.router)
