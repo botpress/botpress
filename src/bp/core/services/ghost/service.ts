@@ -201,11 +201,8 @@ export class GhostService {
     // Adds the correct prefix to files so they are displayed correctly when reviewing changes
     const getDirectoryFullPaths = async (botId: string | undefined, ghost: ScopedGhostService) => {
       const getPath = (file: string) => (botId ? path.join('data/bots', botId, file) : path.join('data/global', file))
-
-      return ghost
-        .directoryListing('/', '*.*', [...bpfsIgnoredFiles, '**/revisions.json'])
-        .then()
-        .map(f => forceForwardSlashes(getPath(f)))
+      const files = await ghost.directoryListing('/', '*.*', [...bpfsIgnoredFiles, '**/revisions.json'])
+      return files.map(f => forceForwardSlashes(getPath(f)))
     }
 
     const filterRevisions = (revisions: FileRevision[]) => filterByGlobs(revisions, r => r.path, bpfsIgnoredFiles)
