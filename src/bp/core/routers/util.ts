@@ -82,15 +82,13 @@ export const validateRequestSchema = (property: string, req: Request, schema: Jo
 
 export const validateBodySchema = (req: Request, schema: Joi.AnySchema) => validateRequestSchema('body', req, schema)
 
-export const success = <T extends {}>(res: Response, message: string = 'Success', payload?: T) => {
+export const sendSuccess = <T extends {}>(res: Response, message: string = 'Success', payload?: T) => {
   res.json({
     status: 'success',
     message,
     payload: payload || {}
   })
 }
-
-export const sendSuccess = success
 
 export const checkTokenHeader = (authService: AuthService, audience?: string) => async (
   req: RequestWithUser,
