@@ -357,12 +357,12 @@ export const Trainer = async (input: TrainInput, tools: Tools, progress: (x: num
   reportTrainingProgress(0) // 0%
 
   let step = await logger(PreprocessInput)(input, tools)
-  reportProgress() // 10%
+  reportProgress() // 20%
 
   step = await logger(TfidfTokens)(step)
   step = await logger(ClusterTokens)(step, tools)
   step = await logger(ExtractEntities)(step, tools)
-  reportProgress() // 20%
+  reportProgress() // 40%
 
   const models = await Promise.all([
     logger(TrainContextClassifier)(step, tools, reportProgress),
