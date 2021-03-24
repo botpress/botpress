@@ -1,5 +1,5 @@
 import { Logger } from 'botpress/sdk'
-import { GhostService } from 'core/services'
+import { GhostService } from 'core/bpfs'
 import crypto from 'crypto'
 import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'

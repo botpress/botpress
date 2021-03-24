@@ -1,8 +1,8 @@
 import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import { WorkspaceUser } from 'botpress/sdk'
-import { ConflictError, InvalidOperationError, sendSuccess } from 'core/routers'
-import { assertSuperAdmin, validateBodySchema } from 'core/security'
+import { ConflictError, InvalidOperationError, sendSuccess, validateBodySchema } from 'core/routers'
+import { assertSuperAdmin } from 'core/security'
 
 import Joi from 'joi'
 import _ from 'lodash'
