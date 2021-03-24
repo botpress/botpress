@@ -1,15 +1,14 @@
 import { ObjectCache } from 'common/object-cache'
+import { TYPES } from 'core/app/types'
 import { asBytes } from 'core/misc/utils'
 import { EventEmitter } from 'events'
 import { inject, injectable } from 'inversify'
 import LRU from 'lru-cache'
 
-import { TYPES } from '../../types'
-
 import { CacheInvalidators } from './cache-invalidators'
 
 @injectable()
-export default class MemoryObjectCache implements ObjectCache {
+export class MemoryObjectCache implements ObjectCache {
   private cache: LRU<string, any>
 
   public readonly events: EventEmitter = new EventEmitter()

@@ -5,7 +5,7 @@ import { IO } from 'botpress/sdk'
 import _ from 'lodash'
 import 'reflect-metadata'
 
-import { Event } from '../../../core/sdk/impl'
+import { Event } from '../event-sdk-impl'
 import { createMockLogger } from '../../misc/utils'
 
 import { MemoryQueue } from './memory-queue'

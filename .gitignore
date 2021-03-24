@@ -57,7 +57,6 @@ build/tests/e2e/screenshots/*
 .python-version
 /internal-modules
 /private-modules
-/src/bp/ml/node-svm
 
 # tests output
 cache

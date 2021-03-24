@@ -3,14 +3,11 @@ import { parseActionInstruction } from 'common/action'
 import { ActionServer } from 'common/typings'
 import { CMSService, renderTemplate } from 'core/cms'
 import { EventEngine } from 'core/events'
-import ActionServersService from 'core/services/action/action-servers-service'
-import ActionService from 'core/services/action/action-service'
+import { TYPES } from 'core/types'
+import { ActionService, ActionServersService, VmRunner } from 'core/user-code'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { NodeVM } from 'vm2'
-
-import { TYPES } from '../../../types'
-import { VmRunner } from '../../action/vm'
 
 import { Instruction, ProcessingResult } from '.'
 
