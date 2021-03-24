@@ -33,6 +33,7 @@ interface Props {
   childRef?: (ref: HTMLDivElement | null) => void
   updateQnA: (qnaItem: QnaItem) => void
   deleteQnA: () => void
+  convertToIntent: () => void
   toggleEnabledQnA: () => void
 }
 
@@ -74,6 +75,16 @@ const QnA: FC<Props> = props => {
     }
   }
 
+  const onConvertToIntent = async () => {
+    if (
+      await confirmDialog(lang.tr('module.qna.form.confirmConvertToIntent'), {
+        acceptLabel: lang.tr('convert')
+      })
+    ) {
+      props.convertToIntent()
+    }
+  }
+
   const moreOptionsItems: MoreOptionsItems[] = [
     {
       label: lang.tr(data.enabled ? 'module.qna.form.disableQuestion' : 'module.qna.form.enableQuestion'),
@@ -100,6 +111,12 @@ const QnA: FC<Props> = props => {
     label: lang.tr('module.qna.form.deleteQuestion'),
     type: 'delete',
     action: onDelete
+  })
+
+  moreOptionsItems.push({
+    label: lang.tr('module.qna.form.convertToIntent'),
+    type: 'convert',
+    action: onConvertToIntent
   })
 
   const getPlaceholder = (type: 'answer' | 'question', index: number): string => {

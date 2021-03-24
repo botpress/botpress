@@ -1,8 +1,9 @@
 import { ConverseConfig } from 'botpress/sdk'
+import { CookieOptions } from 'express'
 import { Algorithm } from 'jsonwebtoken'
 
 import { ActionServer, UniqueUser } from '../../common/typings'
-import { IncidentRule } from '../services/alerting-service'
+import { IncidentRule } from '../health/alerting-service'
 
 export type BotpressCondition = '$isProduction' | '$isDevelopment'
 
@@ -102,12 +103,17 @@ export interface BotpressConfig {
      * @default 10mb
      */
     bodyLimit: string | number
+    /**
+     * CORS policy for the server. You can provide other configuration parameters
+     * listed on this page: https://expressjs.com/en/resources/middleware/cors.html
+     */
     cors: {
       /**
        * @default true
        */
       enabled?: boolean
       origin?: string
+      credentials?: boolean
     }
     /**
      * Represents the complete base URL exposed externally by your bot. This is useful if you configure the bot
@@ -136,6 +142,23 @@ export interface BotpressConfig {
      * @default ["websocket","polling"]
      */
     socketTransports: string[]
+    rateLimit: {
+      /**
+       * * Security option to rate limit potential attacker trying to brute force something
+       * @default false
+       */
+      enabled: boolean
+      /**
+       * Time window to compute rate limiting
+       * @default 30s
+       */
+      limitWindow: string
+      /**
+       * * Maximum number of request in limit window to ban an IP. Keep in mind that this includes admin, studio and chat request so don't put it too low
+       * @default 600
+       */
+      limit: number
+    }
     /**
      * Adds default headers to the server's responses
      * @default {"X-Powered-By":"Botpress"}
@@ -265,7 +288,7 @@ export interface BotpressConfig {
   jwtToken: {
     /**
      * The duration for which the token granting access to manage Botpress will be active.
-     * @default 6h
+     * @default 1h
      */
     duration: string
     /**
@@ -273,6 +296,16 @@ export interface BotpressConfig {
      * @default true
      */
     allowRefresh: boolean
+    /**
+     * Use an HTTP-Only secure cookie instead of the local storage for the JWT Token
+     * @default false
+     */
+    useCookieStorage: boolean
+    /**
+     * Configure the options of the cookie sent to the user, for example the domain
+     * @default {}
+     */
+    cookieOptions?: CookieOptions
   }
   /**
    * When enabled, a bot revision will be stored in the revisions directory when it change or its about to change stage
@@ -425,7 +458,7 @@ export interface AuthStrategyBasic {
   /**
    * The maximum number of wrong passwords the user can enter before his account is locked out.
    * Set it to 0 for unlimited tries
-   * @default 0
+   * @default 3
    */
   maxLoginAttempt: number
   /**

@@ -6,9 +6,9 @@ import Knex from 'knex'
 import _ from 'lodash'
 import path from 'path'
 
+import AllTables from './database-tables'
 import { patchKnex } from './helpers'
 import { Table } from './interfaces'
-import AllTables from './tables'
 
 export type DatabaseType = 'postgres' | 'sqlite'
 

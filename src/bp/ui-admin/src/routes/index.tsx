@@ -1,4 +1,5 @@
 import { Button } from '@blueprintjs/core'
+import { auth as authentication } from 'botpress/shared'
 import React from 'react'
 import { Provider } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
@@ -19,7 +20,7 @@ import Collaborators from '~/Pages/Workspace/Users/Collaborators'
 import Workspaces from '~/Pages/Workspaces'
 
 import App from '../App/Layout'
-import Auth, { getActiveWorkspace, setToken } from '../Auth'
+import Auth, { getActiveWorkspace } from '../Auth'
 import ChangePassword from '../Pages/Account/ChangePassword'
 import LoginPage from '../Pages/Account/Login'
 import RegisterPage from '../Pages/Account/Register'
@@ -52,9 +53,14 @@ export const makeMainRoutes = () => {
   setupBranding()
 
   const ExtractToken = () => {
-    const token = extractCookie('userToken')
-    if (token) {
-      setToken(token)
+    const userToken = extractCookie('userToken')
+    const tokenExpiry = extractCookie('tokenExpiry')
+
+    if (userToken) {
+      authentication.setToken({
+        [window.USE_JWT_COOKIES ? 'csrf' : 'jwt']: userToken,
+        exp: Date.now() + Number(tokenExpiry)
+      })
     }
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises

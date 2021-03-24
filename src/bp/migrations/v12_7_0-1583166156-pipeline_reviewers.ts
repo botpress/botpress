@@ -1,6 +1,6 @@
-import { Migration, MigrationOpts } from 'core/services/migration'
-import { WorkspaceService } from 'core/services/workspace-service'
-import { TYPES } from 'core/types'
+import { TYPES } from 'core/app/types'
+import { Migration, MigrationOpts } from 'core/migration'
+import { WorkspaceService } from 'core/users'
 
 const migration: Migration = {
   info: {

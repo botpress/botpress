@@ -6,6 +6,7 @@ export interface test {}
 declare global {
   interface Window {
     __BP_VISITOR_ID: string
+    __BP_VISITOR_SOCKET_ID: string
     __REDUX_DEVTOOLS_EXTENSION_COMPOSE__: any
     botpressWebChat: any
     APP_NAME: string

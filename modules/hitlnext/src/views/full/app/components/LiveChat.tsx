@@ -61,7 +61,7 @@ const LiveChat: React.FC<Props> = ({ handoff, currentAgent }) => {
         composer: [
           {
             module: MODULE_NAME,
-            component: 'ShortcutComposer'
+            component: 'HITLComposer'
           }
         ]
       }
