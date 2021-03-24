@@ -146,7 +146,7 @@ class ConfigView extends Component<Props, State> {
   }
 
   async fetchLanguages(): Promise<SelectItem[]> {
-    const { data } = await axios.get('admin/languages/available', axiosConfig)
+    const { data } = await axios.get('admin/management/languages/available', axiosConfig)
     const languages = _.sortBy(data.languages, 'name').map(language => ({
       label: lang.tr(`language.${language.name.toLowerCase()}`),
       value: language.code
@@ -155,7 +155,7 @@ class ConfigView extends Component<Props, State> {
   }
 
   async fetchLicensing(): Promise<Licensing> {
-    const { data } = await axios.get('admin/license/status', axiosConfig)
+    const { data } = await axios.get('admin/management/licensing/status', axiosConfig)
     return data.payload
   }
 
@@ -202,7 +202,7 @@ class ConfigView extends Component<Props, State> {
       }
 
       if (allow) {
-        await axios.post(`admin/bots/${this.props.bot.id}`, bot, axiosConfig)
+        await axios.post(`admin/workspace/bots/${this.props.bot.id}`, bot, axiosConfig)
         toastSuccess(lang.tr('config.configUpdated'))
         this.setState({ error: undefined, isSaving: false })
 
