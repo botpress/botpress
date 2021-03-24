@@ -122,11 +122,13 @@ export function getOnSeverStarted(state: NLUState) {
     }
 
     const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = globalConfig
+    const parsedCachedSize = bytes(modelCacheSize)
+
     const parsedConfig: NLUEngine.Config = {
       languageSources,
       ducklingEnabled,
       ducklingURL,
-      modelCacheSize: bytes(modelCacheSize)
+      modelCacheSize: modelCacheSize && parsedCachedSize ? parsedCachedSize : Infinity
     }
     state.engine = await NLUEngine.makeEngine(parsedConfig, logger)
 

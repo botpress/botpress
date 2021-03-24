@@ -40,7 +40,7 @@ const DEFAULT_TRAINING_OPTIONS: TrainingOptions = {
 }
 
 const DEFAULT_ENGINE_OPTIONS: EngineOptions = {
-  maxCacheSize: 262144000 // 250mb of model cache
+  maxCacheSize: Infinity
 }
 
 interface EngineOptions {
@@ -55,11 +55,17 @@ export default class Engine implements Engine {
 
   constructor(opt?: Partial<EngineOptions>) {
     const options: EngineOptions = { ...DEFAULT_ENGINE_OPTIONS, ...opt }
+
     this.modelsById = new LRUCache({
-      max: options.maxCacheSize,
+      max: options.maxCacheSize < 0 ? undefined : options.maxCacheSize,
       length: sizeof // ignores size of functions, but let's assume it's small
     })
-    trainDebug(`model cache size is: ${bytes(options.maxCacheSize)}`)
+
+    const debugMsg =
+      Math.abs(this.modelsById.max) === Infinity
+        ? 'model cache size is infinite'
+        : `model cache size is: ${bytes(this.modelsById.max)}`
+    trainDebug(debugMsg)
   }
 
   public getHealth() {

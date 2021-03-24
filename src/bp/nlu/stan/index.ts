@@ -30,7 +30,7 @@ type ArgV = APIOptions & {
 }
 
 const makeEngine = async (options: ArgV, logger: Logger) => {
-  const maxCacheSize = bytes(options.modelCacheSize)
+  const maxCacheSize = options.modelCacheSize ? bytes(options.modelCacheSize) : Infinity
   if (!maxCacheSize) {
     throw new Error(`Specified model cache-size "${options.modelCacheSize}" has an invalid format.`)
   }

@@ -29,7 +29,6 @@ export interface Config {
 
   /**
    * Maximum allowed model cache size
-   * @default 850mb
    */
-  modelCacheSize: string
+  modelCacheSize?: string
 }
