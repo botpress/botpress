@@ -5,7 +5,7 @@ import { TrainingId, TrainingState, TrainingSession, I } from './typings'
 
 const TABLE_NAME = 'nlu_training_queue'
 const TRANSACTION_TIMEOUT_MS = ms('5s')
-const debug = DEBUG('nlu').sub('lifecycle')
+const debug = DEBUG('nlu').sub('database')
 
 const TRANSACTION_TIMEOUT_ERROR = "Transaction exceeded it's time limit"
 

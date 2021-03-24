@@ -1,20 +1,11 @@
 import { Logger, WorkspaceUser } from 'botpress/sdk'
-import AuthService from 'core/services/auth/auth-service'
-import { InvalidOperationError } from 'core/services/auth/errors'
-import { WorkspaceService } from 'core/services/workspace-service'
+import { ConflictError, InvalidOperationError, sendSuccess, validateBodySchema } from 'core/routers'
+import { CustomRouter } from 'core/routers/customRouter'
+import { AuthService, assertBotpressPro, assertSuperAdmin, needPermissions } from 'core/security'
+import { WorkspaceService } from 'core/users'
 import { RequestHandler, Router } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
-
-import { CustomRouter } from '../customRouter'
-import { ConflictError } from '../errors'
-import {
-  assertBotpressPro,
-  assertSuperAdmin,
-  needPermissions,
-  success as sendSuccess,
-  validateBodySchema
-} from '../util'
 
 export class UsersRouter extends CustomRouter {
   private readonly resource = 'admin.collaborators'

@@ -4,13 +4,12 @@ import { ModuleInfo } from 'common/typings'
 import { ConfigProvider } from 'core/config'
 import { SkillService } from 'core/dialog'
 import { ModuleResolver, ModuleLoader } from 'core/modules'
+import { NotFoundError } from 'core/routers'
+import { CustomRouter } from 'core/routers/customRouter'
 import { AuthService, TOKEN_AUDIENCE, assertSuperAdmin, checkTokenHeader } from 'core/security'
 import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 import yn from 'yn'
-
-import { CustomRouter } from '../routers/customRouter'
-import { NotFoundError } from '../routers/errors'
 
 export class ModulesRouter extends CustomRouter {
   private checkTokenHeader!: RequestHandler

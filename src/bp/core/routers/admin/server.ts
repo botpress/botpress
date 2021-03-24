@@ -1,10 +1,10 @@
 import { Logger } from 'botpress/sdk'
+import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config'
+import { JobService } from 'core/distributed'
+import { AlertingService, MonitoringService } from 'core/health'
 import { ModuleLoader } from 'core/modules'
-import { GhostService } from 'core/services'
-import { AlertingService } from 'core/services/alerting-service'
-import { JobService } from 'core/services/job-service'
-import { MonitoringService } from 'core/services/monitoring'
+import { CustomRouter } from 'core/routers/customRouter'
 import diag from 'diag'
 import { Router } from 'express'
 import fse from 'fs-extra'
@@ -15,7 +15,6 @@ import { tmpNameSync } from 'tmp'
 import yn from 'yn'
 
 import { getDebugScopes, setDebugScopes } from '../../../debug'
-import { CustomRouter } from '../customRouter'
 export class ServerRouter extends CustomRouter {
   private _rebootServer!: Function
 
