@@ -327,9 +327,9 @@ const payload = {
 
 [security sdk]: https://botpress.com/reference/modules/_botpress_sdk_.security.html#getmessagesignature
 
-# Customizing Web Chat Style
+## Customizing Web Chat Style
 
-## Step 1: Styling (CSS)
+### Step 1: Styling (CSS)
 
 Paste the following CSS file in the `<botpress_dir>/data/assets/modules/channel-web` folder. Feel free to change the style here—original Botpress theme [can be found here](https://github.com/botpress/botpress/blob/master/modules/channel-web/assets/default.css).
 
@@ -412,7 +412,7 @@ Paste the following CSS file in the `<botpress_dir>/data/assets/modules/channel-
 }
 ```
 
-## Step 2: Loading CSS File
+### Step 2: Loading CSS File
 
 Now, we need to instruct Botpress to use this custom CSS file for theming the webchat. For this, place the following code snippet in the `<botpress_dir>/data/global/hooks/after_bot_mount` folder. In our case, we used `01_create_shortlink.js` as the file name.
 
@@ -444,7 +444,7 @@ setTimeout(() => {
 
 Feel free to change the webchat config there; the critical line to keep is the `extraStylesheet` property.
 
-## Result
+### Result
 
 Restart Botpress Server, and now your chatbot's default webchat will use your custom CSS theme! Here's our example:
 ![WebChat Customization](assets/webchat-customization.png)
