@@ -1,19 +1,10 @@
 import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import { LicenseInfo, LicenseStatus } from 'common/licensing-service'
-import { RequestWithUser } from 'common/typings'
+import { LicensingStatus, RequestWithUser } from 'common/typings'
 import { BadRequestError } from 'core/routers'
 import { assertSuperAdmin, sendSuccess } from 'core/security'
 import _ from 'lodash'
-
-type LicensingStatus = {
-  isPro: boolean
-  isBuiltWithPro: boolean
-  fingerprints: {
-    cluster_url: string
-  }
-  license?: LicenseInfo
-} & LicenseStatus
 
 const defaultResponse: LicensingStatus = {
   breachReasons: [],
