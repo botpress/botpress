@@ -27,8 +27,8 @@ describe('Admin - Users', () => {
     await page.keyboard.press('Enter')
 
     await Promise.all([
-      expectAdminApiCallSuccess('users', 'POST'),
-      expectAdminApiCallSuccess('users', 'GET'),
+      expectAdminApiCallSuccess('workspace/collaborators', 'POST'),
+      expectAdminApiCallSuccess('workspace/collaborators', 'GET'),
       clickOn('#btn-submit')
     ])
 
@@ -42,7 +42,7 @@ describe('Admin - Users', () => {
     await page.waitFor(500) // Delay for the collapse animation
 
     await Promise.all([
-      expectAdminApiCallSuccess(`users/reset/default/${testUserEmail}`, 'GET'),
+      expectAdminApiCallSuccess(`workspace/collaborators/reset/default/${testUserEmail}`, 'GET'),
       clickButtonForUser('#btn-resetPassword', testUserEmail),
       clickOn(CONFIRM_DIALOG.ACCEPT)
     ])
@@ -56,7 +56,10 @@ describe('Admin - Users', () => {
   it('Change role to administrator', async () => {
     await page.waitFor(500)
     await clickButtonForUser('#btn-changeRole', testUserEmail)
-    await Promise.all([expectAdminApiCallSuccess('users/workspace/update_role', 'POST'), clickOn('#btn-role-admin')])
+    await Promise.all([
+      expectAdminApiCallSuccess('workspace/collaborators/workspace/update_role', 'POST'),
+      clickOn('#btn-role-admin')
+    ])
   })
 
   it('Delete created user', async () => {
@@ -64,7 +67,7 @@ describe('Admin - Users', () => {
     await page.waitFor(500)
 
     await Promise.all([
-      expectAdminApiCallSuccess(`users/default/${testUserEmail}/delete`, 'POST'),
+      expectAdminApiCallSuccess(`workspace/collaborators/default/${testUserEmail}/delete`, 'POST'),
       clickButtonForUser('#btn-deleteUser', testUserEmail),
       clickOn(CONFIRM_DIALOG.ACCEPT)
     ])

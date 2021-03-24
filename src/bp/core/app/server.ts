@@ -1,3 +1,4 @@
+import AdminRouter from 'admin/admin-router'
 import bodyParser from 'body-parser'
 import { AxiosBotConfig, AxiosOptions, http, Logger, RouterOptions } from 'botpress/sdk'
 import { CSRF_TOKEN_HEADER_LC, CSRF_TOKEN_HEADER, JWT_COOKIE_NAME } from 'common/auth'
@@ -53,7 +54,7 @@ import portFinder from 'portfinder'
 import { URL } from 'url'
 import yn from 'yn'
 
-import { AdminRouter, AuthRouter, BotsRouter } from '../routers'
+import { BotsRouter } from '../routers'
 import { NLURouter } from '../routers/bots/nlu'
 import { isDisabled } from '../routers/conditionalMiddleware'
 import { InvalidExternalToken, PaymentRequiredError } from '../routers/errors'
@@ -84,7 +85,6 @@ export class HTTPServer {
   public readonly app: express.Express
   private isBotpressReady = false
 
-  private readonly authRouter: AuthRouter
   private readonly adminRouter: AdminRouter
   private readonly botsRouter: BotsRouter
   private cmsRouter!: CMSRouter
@@ -165,13 +165,6 @@ export class HTTPServer {
       this.configProvider
     )
 
-    this.authRouter = new AuthRouter(
-      this.logger,
-      this.authService,
-      this.configProvider,
-      this.workspaceService,
-      this.authStrategies
-    )
     this.adminRouter = new AdminRouter(
       this.logger,
       this.authService,
@@ -184,7 +177,8 @@ export class HTTPServer {
       this.alertingService,
       moduleLoader,
       this.jobService,
-      this.logsRepo
+      this.logsRepo,
+      authStrategies
     )
     this.shortLinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
@@ -371,8 +365,8 @@ export class HTTPServer {
     this.app.use('/assets', this.guardWhiteLabel(), express.static(this.resolveAsset('')))
     this.app.use(rewrite('/:app/:botId/*env.js', '/api/v1/bots/:botId/:app/js/env.js'))
 
-    this.app.use(`${BASE_API_PATH}/auth`, this.authRouter.router)
-    this.app.use(`${BASE_API_PATH}/admin`, this.adminRouter.router)
+    this.adminRouter.setupRoutes(this.app)
+
     this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
     this.app.use(`${BASE_API_PATH}/sdk`, this.sdkApiRouter.router)
@@ -481,8 +475,8 @@ export class HTTPServer {
 
     app.get(['/:app(studio)/:botId/*'], resolveIndexPaths('ui-studio/public/index.html'))
 
-    app.use('/admin', express.static(this.resolveAsset('ui-admin/public'), { index: false }))
-    app.get(['/admin', '/admin/*'], resolveIndexPaths('ui-admin/public/index.html'))
+    app.use('/admin', express.static(this.resolveAsset('admin/ui/public'), { index: false }))
+    app.get(['/admin', '/admin/*'], resolveIndexPaths('admin/ui/public/index.html'))
 
     app.get('/', (req, res) => res.redirect(`${process.ROOT_PATH}/admin`))
   }
