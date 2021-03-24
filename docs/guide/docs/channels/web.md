@@ -73,6 +73,51 @@ You can then add a `click` event listener to any element on your web page. Below
 
 ## Events Available
 
+You can trigger events by calling the `window.botpressWebChat.sendEvent()` function. Below are some of them:
+
+| name            | Description                                                       |
+| --------------- | ----------------------------------------------------------------- |
+| `show`          | This event opens the webchat                                       |
+| `hide`          | This event closes the webchat                                      |
+| `toggle`        | This event open or close the webchat depends on its current state |
+| `message`       | This event sends a message (see example above)                     |
+| `toggleBotInfo` | This event switches between bot infos and conversation page       |
+
+### Show
+The following function shows the chat window when you click the `show-bp` element.
+
+```js   
+      document.getElementById('show-bp').addEventListener('click', function() {
+        window.botpressWebChat.sendEvent({ type: 'show' })
+      })
+```
+
+### Hide
+The following function hides the chat window when you click the `hide-bp` element.
+
+```js
+      document.getElementById('hide-bp').addEventListener('click', function() {
+        window.botpressWebChat.sendEvent({ type: 'hide' })
+      })
+```
+### Toggle
+The following function includes a ternary operator that toggles the chat to either be hidden or shown when you click the `toggle-bp` element. 
+
+```js
+      document.getElementById('toggle-bp').addEventListener('click', function() {
+        window.botpressWebChat.sendEvent({ type: webchatOpen ? 'hide' : 'show' })
+      })
+```
+
+### Message
+The following function lets you programmatically send a message to the user when you click the `send-message-bp` element.
+
+```js
+      document.getElementById('send-message-bp').addEventListener('click', function() {
+        window.botpressWebChat.sendEvent({ type: 'message', text: 'Hello!' })
+      })
+```
+
 ### Obtaining visitor's User ID
 
 The most widely used object property under events is `userId`. It fetches the current visitor ID to either save it in your database or update some Botpress DB attributes.
@@ -86,52 +131,6 @@ window.addEventListener('message', message => {
     //Add code to use the user ID here
   }
 })
-```
-### Other Events
-There are more events you can trigger by calling the `window.botpressWebChat.sendEvent()` function. Below are some of them:
-
-
-| name            | Description                                                       |
-| --------------- | ----------------------------------------------------------------- |
-| `show`          | This event opens the webchat                                       |
-| `hide`          | This event closes the webchat                                      |
-| `toggle`        | This event open or close the webchat depends on its current state |
-| `message`       | This event sends a message (see example above)                     |
-| `toggleBotInfo` | This event switches between bot infos and conversation page       |
-
-#### Show
-The following function shows the chat window when you click the `show-bp` element.
-
-```js   
-      document.getElementById('show-bp').addEventListener('click', function() {
-        window.botpressWebChat.sendEvent({ type: 'show' })
-      })
-```
-
-#### Hide
-The following function hides the chat window when you click the `hide-bp` element.
-
-```js
-      document.getElementById('hide-bp').addEventListener('click', function() {
-        window.botpressWebChat.sendEvent({ type: 'hide' })
-      })
-```
-#### Toggle
-The following function includes a ternary operator that toggles the chat to either be hidden or shown when you click the `toggle-bp` element. 
-
-```js
-      document.getElementById('toggle-bp').addEventListener('click', function() {
-        window.botpressWebChat.sendEvent({ type: webchatOpen ? 'hide' : 'show' })
-      })
-```
-
-#### Message
-The following function lets you programmatically send a message to the user when you click the `send-message-bp` element.
-
-```js
-      document.getElementById('send-message-bp').addEventListener('click', function() {
-        window.botpressWebChat.sendEvent({ type: 'message', text: 'Hello!' })
-      })
 ```
 
 ## Runtime configurations
