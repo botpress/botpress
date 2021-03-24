@@ -224,6 +224,7 @@ class LicenseStatus extends React.Component<Props> {
       return this.renderProDisabled()
     }
 
+    // @TODO: Fix those typings once we are sure what they represent
     // @ts-ignore
     const nodes = Number(this.license.limits.nodes)
 
