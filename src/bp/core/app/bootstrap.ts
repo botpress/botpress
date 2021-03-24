@@ -7,9 +7,9 @@ import '../../common/polyfills'
 import sdk from 'botpress/sdk'
 import chalk from 'chalk'
 import cluster from 'cluster'
-import { Botpress, Config, Db, Ghost, LocalActionServer, Logger } from 'core/app/core-loader'
+import { BotpressApp, createApp, createLoggerProvider } from 'core/app/core-loader'
 import { ModuleConfigEntry } from 'core/config'
-import { centerText } from 'core/logger'
+import { centerText, LoggerProvider } from 'core/logger'
 import { ModuleLoader, ModuleResolver } from 'core/modules'
 
 import fs from 'fs'
@@ -18,15 +18,15 @@ import os from 'os'
 
 import { setupMasterNode, WORKER_TYPES } from '../../cluster'
 
-async function setupEnv() {
-  await Db.initialize()
+async function setupEnv(app: BotpressApp) {
+  await app.database.initialize()
 
   const useDbDriver = process.BPFS_STORAGE === 'database'
-  await Ghost.initialize(useDbDriver)
+  await app.ghost.initialize(useDbDriver)
 }
 
-async function getLogger(loggerName: string) {
-  const logger = await Logger(loggerName)
+async function getLogger(provider: LoggerProvider, loggerName: string) {
+  const logger = await provider(loggerName)
 
   global.printErrorDefault = err => {
     logger.attachError(err).error('Unhandled Rejection')
@@ -35,8 +35,8 @@ async function getLogger(loggerName: string) {
   return logger
 }
 
-async function setupDebugLogger() {
-  const logger = await Logger('')
+async function setupDebugLogger(provider: LoggerProvider) {
+  const logger = await provider('')
 
   global.printBotLog = (botId, args) => {
     const message = args[0]
@@ -91,31 +91,34 @@ async function resolveModules(moduleConfigs: ModuleConfigEntry[], resolver: Modu
   return { loadedModules, erroredModules }
 }
 
-async function prepareLocalModules(logger: sdk.Logger) {
-  if (!Ghost.useDbDriver) {
+async function prepareLocalModules(app: BotpressApp, logger: sdk.Logger) {
+  if (!app.ghost.useDbDriver) {
     return
   }
 
   try {
     // We remove the local copy in case something is deleted from the database
-    await Ghost.root(false).deleteFolder('modules')
+    await app.ghost.root(false).deleteFolder('modules')
   } catch (err) {
     logger.attachError(err).warn('Could not clear local modules cache')
   }
 
-  await Ghost.root().syncDatabaseFilesToDisk('modules')
+  await app.ghost.root().syncDatabaseFilesToDisk('modules')
 }
 
 async function start() {
-  await setupDebugLogger()
-
   if (cluster.isMaster) {
+    const loggerProvider = createLoggerProvider()
+    await setupDebugLogger(loggerProvider)
     // The master process only needs getos and rewire
-    return setupMasterNode(await getLogger('Cluster'))
+    return setupMasterNode(await getLogger(loggerProvider, 'Cluster'))
   }
 
+  const app = createApp()
+  await setupDebugLogger(app.logger)
+
   if (process.env.WORKER_TYPE === WORKER_TYPES.LOCAL_ACTION_SERVER) {
-    LocalActionServer.listen()
+    app.localActionServer.listen()
     return
   }
 
@@ -126,13 +129,13 @@ async function start() {
   // Server ID is provided by the master node
   process.SERVER_ID = process.env.SERVER_ID!
 
-  await setupEnv()
+  await setupEnv(app)
 
-  const logger = await getLogger('Launcher')
+  const logger = await getLogger(app.logger, 'Launcher')
 
-  await prepareLocalModules(logger)
+  await prepareLocalModules(app, logger)
 
-  const globalConfig = await Config.getBotpressConfig()
+  const globalConfig = await app.config.getBotpressConfig()
   const modules = _.uniqBy(globalConfig.modules, x => x.location)
   const enabledModules = modules.filter(m => m.enabled)
   const disabledModules = modules.filter(m => !m.enabled)
@@ -195,7 +198,7 @@ This is a fatal error, process will exit.`
     logger.attachError(err).error('Error while loading some modules, they will be disabled')
   }
 
-  await Botpress.start({ modules: loadedModules.map(m => m.entryPoint) }).catch(err => {
+  await app.botpress.start({ modules: loadedModules.map(m => m.entryPoint) }).catch(err => {
     logger.attachError(err).error('Error starting Botpress')
 
     if (!process.IS_FAILSAFE) {
