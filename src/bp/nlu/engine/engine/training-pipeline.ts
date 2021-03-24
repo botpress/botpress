@@ -145,7 +145,7 @@ function computeKmeans(intents: Intent<Utterance>[], tools: Tools): sdk.MLToolki
   return tools.mlToolkit.KMeans.kmeans(data, k, KMEANS_OPTIONS)
 }
 
-function ClusterTokens(input: TrainStep, tools: Tools): TrainStep {
+async function ClusterTokens(input: TrainStep, tools: Tools): Promise<TrainStep> {
   const kmeans = computeKmeans(input.intents, tools)
   const copy = { ...input, kmeans }
   copy.intents.forEach(x => x.utterances.forEach(u => u.setKmeans(kmeans)))
@@ -319,11 +319,16 @@ async function TrainSlotTaggers(input: TrainStep, tools: Tools, progress: progre
 
 const NB_STEPS = 5 // change this if the training pipeline changes
 
+type AsyncFunction<A extends any[], R extends Promise<any>> = (...args: A) => R
 const makeLogger = (trainId: string, logger?: Logger) => {
-  return <T extends (...args: any[]) => any>(fn: T) => (...args: Parameters<T>): ReturnType<T> => {
+  return <A extends any[], R extends Promise<any>>(fn: AsyncFunction<A, R>) => (...args: A): R => {
     logger?.debug(`[${trainId}] Started ${fn.name}`)
     const ret = fn(...args)
-    logger?.debug(`[${trainId}] Done ${fn.name}`)
+
+    // awaiting if not responsibility of this logger decorator
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    ret.then(() => logger?.debug(`[${trainId}] Done ${fn.name}`))
+
     return ret
   }
 }
@@ -355,7 +360,7 @@ export const Trainer = async (input: TrainInput, tools: Tools, progress: (x: num
   reportProgress() // 10%
 
   step = await logger(TfidfTokens)(step)
-  step = logger(ClusterTokens)(step, tools)
+  step = await logger(ClusterTokens)(step, tools)
   step = await logger(ExtractEntities)(step, tools)
   reportProgress() // 20%
 
