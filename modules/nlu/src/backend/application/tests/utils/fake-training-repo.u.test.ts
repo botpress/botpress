@@ -69,12 +69,12 @@ class FakeTransactionContext implements ITransactionContext {
 
 export class FakeTrainingRepository implements ITrainingRepository {
   private _context = new FakeTransactionContext()
-  static mutex = new Semaphore(1)
+  static semaphore = new Semaphore(1)
 
   async initialize(): Promise<void> {}
 
   public async inTransaction(action: (trx: ITransactionContext) => Promise<any>, name?: string): Promise<any> {
-    return FakeTrainingRepository.mutex.exclusively(() => {
+    return FakeTrainingRepository.semaphore.exclusively(() => {
       return action(this._context)
     })
   }
