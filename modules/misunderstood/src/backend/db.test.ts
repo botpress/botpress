@@ -39,6 +39,7 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
       await db.addEvent({ botId, eventId, language, preview: 'some message', reason: FLAG_REASON.action })
 
       const events = await db.listEvents(botId, language, FLAGGED_MESSAGE_STATUS.new)
+
       expect(events).toHaveLength(1)
     })
 
@@ -46,9 +47,9 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
       const botId = 'mybot'
       const eventId = '1234'
       const language = 'en'
-      await db.addEvent({ botId, eventId, language, preview: 'some message', reason: FLAG_REASON.action })
-      await db.addEvent({ botId, eventId, language, preview: 'some message', reason: FLAG_REASON.action })
-      await db.addEvent({ botId, eventId, language, preview: 'some message', reason: FLAG_REASON.action })
+      for (let i = 0; i < 3; i++) {
+        await db.addEvent({ botId, eventId, language, preview: 'some message', reason: FLAG_REASON.action })
+      }
 
       const events = await db.listEvents(botId, language, FLAGGED_MESSAGE_STATUS.new)
 
@@ -91,18 +92,12 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
         reason: FLAG_REASON.action
       }
 
-      await db.addEvent({
-        ...props,
-        language: 'en'
-      })
-      await db.addEvent({
-        ...props,
-        language: 'fr'
-      })
-      await db.addEvent({
-        ...props,
-        language: 'fr'
-      })
+      for (const language of ['en', 'fr', 'fr']) {
+        await db.addEvent({
+          ...props,
+          language
+        })
+      }
 
       // Filter by botId
       expect(await db.listEvents(props.botId, 'en', FLAGGED_MESSAGE_STATUS.new)).toHaveLength(1)
