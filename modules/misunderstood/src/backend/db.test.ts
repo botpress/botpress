@@ -1,14 +1,5 @@
 import Db, { TABLE_NAME } from './db'
-import {
-  DbFlaggedEvent,
-  FilteringOptions,
-  FlaggedEvent,
-  FLAGGED_MESSAGE_STATUS,
-  FLAGGED_MESSAGE_STATUSES,
-  FLAG_REASON,
-  ResolutionData,
-  RESOLUTION_TYPE
-} from '../types'
+import { FLAGGED_MESSAGE_STATUS, FLAG_REASON } from '../types'
 import 'reflect-metadata'
 import Database from '../../../../src/bp/core/database'
 
