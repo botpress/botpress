@@ -1,7 +1,7 @@
 import * as NLUEngine from './utils/sdk.u.test'
 import _ from 'lodash'
 
-import { makeApp, makeDependencies, waitForTrainingsToBeDone } from './utils/app.u.test'
+import { await makeApp, makeDependencies, waitForTrainingsToBeDone } from './utils/app.u.test'
 import {
   expectEngineToHaveLoaded,
   expectEngineToHaveTrained,
@@ -56,10 +56,9 @@ describe('NLU API integration tests', () => {
     const engineTrainSpy = jest.spyOn(engine, 'train')
     const engineLoadSpy = jest.spyOn(engine, 'loadModel')
 
-    const app = makeApp(dependencies)
+    const app = await makeApp(dependencies)
 
     // act
-    await app.initialize()
     await app.resumeTrainings()
     await app.mountBot({
       id: botId,
@@ -107,10 +106,9 @@ describe('NLU API integration tests', () => {
 
     const maxTraining = 2
     const trainingQueueOptions = { maxTraining }
-    const app = makeApp(dependencies, trainingQueueOptions)
+    const app = await makeApp(dependencies, trainingQueueOptions)
 
     // act
-    await app.initialize()
     await app.resumeTrainings()
     await app.mountBot({
       id: botId,
@@ -162,10 +160,9 @@ describe('NLU API integration tests', () => {
 
     const maxTraining = 1
     const trainingQueueOptions = { maxTraining }
-    const app = makeApp(dependencies, trainingQueueOptions)
+    const app = await makeApp(dependencies, trainingQueueOptions)
 
     // act
-    await app.initialize()
     await app.resumeTrainings()
     await app.mountBot({
       id: botId,
@@ -253,10 +250,9 @@ describe('NLU API integration tests', () => {
 
     const maxTraining = 2
     const trainingQueueOptions = { maxTraining }
-    const app = makeApp(dependencies, trainingQueueOptions)
+    const app = await makeApp(dependencies, trainingQueueOptions)
 
     // act
-    await app.initialize()
     await app.resumeTrainings()
     await app.mountBot(bot1)
     await app.mountBot(bot2)
@@ -318,10 +314,9 @@ describe('NLU API integration tests', () => {
     const fsHasModelMock = jest.spyOn(modelRepoByBot[botId], 'hasModel')
     const fsGetModelMock = jest.spyOn(modelRepoByBot[botId], 'getModel')
 
-    const app = makeApp(dependencies)
+    const app = await makeApp(dependencies)
 
     // act
-    await app.initialize()
     await app.resumeTrainings()
     await app.mountBot({
       id: botId,
@@ -372,10 +367,9 @@ describe('NLU API integration tests', () => {
     const fsHasModelMock = jest.spyOn(modelRepoByBot[botId], 'hasModel')
     const fsGetModelMock = jest.spyOn(modelRepoByBot[botId], 'getModel')
 
-    const app = makeApp(dependencies)
+    const app = await makeApp(dependencies)
 
     // act
-    await app.initialize()
     await app.resumeTrainings()
     await app.mountBot({
       id: botId,
@@ -429,10 +423,9 @@ describe('NLU API integration tests', () => {
 
     const { socket, defRepoByBot } = dependencies
 
-    const app = makeApp(dependencies)
+    const app = await makeApp(dependencies)
 
     // act
-    await app.initialize()
     await app.resumeTrainings()
 
     await app.mountBot({
@@ -471,10 +464,9 @@ describe('NLU API integration tests', () => {
       throw new Error('Unexpected weird looking error with no stack trace')
     })
 
-    const app = makeApp(dependencies)
+    const app = await makeApp(dependencies)
 
     // act
-    await app.initialize()
     await app.resumeTrainings()
     await app.mountBot({
       id: botId,
@@ -520,10 +512,9 @@ describe('NLU API integration tests', () => {
     await engine.loadModel(modelId as NLUEngine.Model)
     const enginePredictSpy = jest.spyOn(engine, 'predict')
 
-    const app = makeApp(dependencies)
+    const app = await makeApp(dependencies)
 
     // act
-    await app.initialize()
     await app.resumeTrainings()
     await app.mountBot({
       id: botId,
@@ -566,10 +557,9 @@ describe('NLU API integration tests', () => {
       isTrainingCanceled: err => err.message === cancelMessage
     }
 
-    const app = makeApp({ ...dependencies, errors })
+    const app = await makeApp({ ...dependencies, errors })
 
     // act
-    await app.initialize()
     await app.resumeTrainings()
     await app.mountBot({
       id: botId,
@@ -610,10 +600,9 @@ describe('NLU API integration tests', () => {
         cancelCalled = true
       }
     })
-    const app = makeApp({ ...dependencies, socket })
+    const app = await makeApp({ ...dependencies, socket })
 
     // act
-    await app.initialize()
     await app.resumeTrainings()
     await app.mountBot({
       id: botId,
@@ -655,10 +644,9 @@ describe('NLU API integration tests', () => {
         await defRepoByBot[botId].upsertIntent(_.cloneDeep(toUpdate))
       }
     })
-    const app = makeApp({ ...dependencies, socket })
+    const app = await makeApp({ ...dependencies, socket })
 
     // act
-    await app.initialize()
     await app.resumeTrainings()
     await app.mountBot({
       id: botId,
@@ -713,10 +701,9 @@ describe('NLU API integration tests', () => {
     await engine.loadModel(modelId as NLUEngine.Model)
     const engineTrainSpy = jest.spyOn(engine, 'train')
 
-    const app = makeApp(dependencies)
+    const app = await makeApp(dependencies)
 
     // act
-    await app.initialize()
     await app.resumeTrainings()
     await app.mountBot({
       id: botId,
@@ -758,11 +745,10 @@ describe('NLU API integration tests', () => {
     const core = { languages: [lang], specs }
     const dependencies = makeDependencies(core, fileSystem)
 
-    const app = makeApp(dependencies, { queueTrainingOnBotMount: false })
+    const app = await makeApp(dependencies, { queueTrainingOnBotMount: false })
     const engineTrainSpy = jest.spyOn(dependencies.engine, 'train')
 
     // act
-    await app.initialize()
     await app.resumeTrainings()
     await app.mountBot({
       id: botId,
@@ -801,11 +787,10 @@ describe('NLU API integration tests', () => {
     const core = { languages: [lang], specs }
     const dependencies = makeDependencies(core, fileSystem)
 
-    const app = makeApp(dependencies)
+    const app = await makeApp(dependencies)
     const engineTrainSpy = jest.spyOn(dependencies.engine, 'train')
 
     // act
-    await app.initialize()
 
     await app.mountBot({
       id: botId,

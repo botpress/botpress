@@ -22,10 +22,6 @@ export class NLUApplication {
     this._queueTrainingOnBotMount = queueTrainingOnBotMount
   }
 
-  public async initialize() {
-    await this._trainingQueue.initialize()
-  }
-
   public get trainRepository(): ITrainingRepository {
     return this._trainingQueue.repository
   }

@@ -80,13 +80,12 @@ describe('NLU API integration tests with cluster enabled', () => {
 
     const maxTraining = 2
     const trainingQueueOptions = { maxTraining, jobInterval: 1 }
-    const node1 = makeApp(dependencies, trainingQueueOptions)
-    const node2 = makeApp(dependencies, trainingQueueOptions)
+    const node1 = await makeApp(dependencies, trainingQueueOptions)
+    const node2 = await makeApp(dependencies, trainingQueueOptions)
 
     const nNodes = 2
 
     // act
-    await Promise.all([node1.initialize(), node2.initialize()])
     await Promise.all([node1.resumeTrainings(), node2.resumeTrainings()])
     await Promise.all([node1.mountBot(bot1), node2.mountBot(bot1)])
     await Promise.all([node1.mountBot(bot2), node2.mountBot(bot2)])

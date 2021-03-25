@@ -72,7 +72,7 @@ export const makeDependencies = (
   }
 }
 
-export const makeApp = (
+export const makeApp = async (
   dependencies: AppDependencies,
   options: Partial<TrainingQueueOptions & { queueTrainingOnBotMount?: boolean }> = {}
 ) => {
@@ -93,6 +93,8 @@ export const makeApp = (
     socket,
     options
   )
+
+  await trainingQueue.initialize()
 
   return new NLUApplication(trainingQueue, engine, botFactory, botService, options.queueTrainingOnBotMount)
 }

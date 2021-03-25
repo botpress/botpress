@@ -56,17 +56,7 @@ describe('NLU API unit tests', () => {
       setBot: jest.fn(),
       removeBot: jest.fn()
     })
-  })
-
-  test('initializing app, initializes training queue', async () => {
-    // arrange
-    const app = new NLUApplication(trainingQueue, engine, botFactory, botService)
-
-    // act
-    await app.initialize()
-
-    // assert
-    expect(trainingQueue.initialize).toHaveBeenCalled()
+    trainingQueue.initialize()
   })
 
   test('mounting a bot when model is on fs mounts the bot and loads the model', async () => {
@@ -81,7 +71,6 @@ describe('NLU API unit tests', () => {
     const app = new NLUApplication(trainingQueue, engine, botFactory, botService)
 
     // act
-    await app.initialize()
     await app.mountBot({
       id: botId,
       defaultLanguage: 'en',
@@ -106,7 +95,6 @@ describe('NLU API unit tests', () => {
     const app = new NLUApplication(trainingQueue, engine, botFactory, botService)
 
     // act
-    await app.initialize()
     await app.mountBot({
       id: botId,
       defaultLanguage: 'en',
@@ -132,7 +120,6 @@ describe('NLU API unit tests', () => {
     const app = new NLUApplication(trainingQueue, engine, botFactory, botService)
 
     // act
-    await app.initialize()
     await app.mountBot({
       id: botId,
       defaultLanguage: 'en',

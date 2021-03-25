@@ -63,9 +63,8 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
     socket,
     { maxTraining: maxTrainingPerInstance }
   )
-
+  await trainingQueue.initialize()
   const application = new NLUApplication(trainingQueue, engine, botFactory, botService, queueTrainingOnBotMount)
 
-  await application.initialize()
   return application
 }
