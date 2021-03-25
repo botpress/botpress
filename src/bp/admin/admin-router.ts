@@ -2,6 +2,7 @@ import axios from 'axios'
 import { Logger } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
 import LicensingService from 'common/licensing-service'
+import { HTTPServer } from 'core/app/server'
 import { resolveAsset, resolveIndexPaths } from 'core/app/server_utils'
 import { BotService } from 'core/bots'
 import { GhostService } from 'core/bpfs'
@@ -56,13 +57,14 @@ class AdminRouter extends CustomRouter {
     botService: BotService,
     private licensingService: LicensingService,
     ghostService: GhostService,
-    configProvider: ConfigProvider,
+    private configProvider: ConfigProvider,
     monitoringService: MonitoringService,
     alertingService: AlertingService,
     moduleLoader: ModuleLoader,
     jobService: JobService,
     logsRepository: LogsRepository,
-    authStrategies: AuthStrategies
+    authStrategies: AuthStrategies,
+    private httpServer: HTTPServer
   ) {
     super('Admin', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
@@ -98,6 +100,22 @@ class AdminRouter extends CustomRouter {
     app.use('/api/v1/admin', fixMappingMw, this.router)
 
     app.use('/api/v2/admin', this.router)
+
+    app.get('/admin/env.js', async (req, res) => {
+      const branding = await this.configProvider.getBrandingConfig('admin')
+      const commonEnv = await this.httpServer.getCommonEnv()
+
+      res.contentType('text/javascript')
+      res.send(`
+      (function(window) {
+          ${commonEnv}
+          window.APP_VERSION = "${process.BOTPRESS_VERSION}";
+          window.APP_NAME = "${branding.title}";
+          window.APP_FAVICON = "${branding.favicon}";
+          window.APP_CUSTOM_CSS = "${branding.customCss}";
+        })(typeof window != 'undefined' ? window : {})
+      `)
+    })
 
     this.router.use('/auth', this.authRouter.router)
     this.router.use('/management', this.checkTokenHeader, this.managementRouter.router)

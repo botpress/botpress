@@ -18,8 +18,7 @@ const webConfig = {
   bail: true,
   devtool: process.argv.find(x => x.toLowerCase() === '--nomap') ? false : 'source-map',
   entry: {
-    web: './src/web/index.jsx',
-    lite: './src/web/lite.jsx'
+    web: './src/web/index.jsx'
   },
   node: {
     net: 'empty',
@@ -74,13 +73,6 @@ const webConfig = {
       filename: '../index.html',
       chunks: ['commons', 'web']
     }),
-    new HtmlWebpackPlugin({
-      inject: true,
-      hash: true,
-      template: './src/web/lite.html',
-      filename: '../lite/index.html',
-      chunks: ['commons', 'lite']
-    }),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: isProduction ? JSON.stringify('production') : JSON.stringify('development')
@@ -119,43 +111,6 @@ const webConfig = {
         use: [
           {
             loader: 'raw-loader'
-          }
-        ]
-      },
-      {
-        test: /\.jsx?$/i,
-        include: [
-          path.resolve(__dirname, 'src/web'),
-          // Common files must be transpiled to avoid issues with IE11
-          path.resolve(__dirname, '../../../out/bp/common')
-        ],
-        use: [
-          {
-            loader: 'thread-loader'
-          },
-          {
-            loader: 'babel-loader',
-            options: {
-              presets: [
-                require.resolve('babel-preset-stage-3'),
-                [
-                  require.resolve('babel-preset-env'),
-                  {
-                    targets: {
-                      browsers: ['last 2 versions']
-                    }
-                  }
-                ],
-                require.resolve('babel-preset-react')
-              ],
-              plugins: [
-                require.resolve('babel-plugin-transform-class-properties'),
-                require.resolve('babel-plugin-transform-es2015-arrow-functions')
-              ],
-              compact: true,
-              babelrc: false,
-              cacheDirectory: true
-            }
           }
         ]
       },

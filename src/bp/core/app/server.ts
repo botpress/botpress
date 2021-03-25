@@ -3,6 +3,7 @@ import bodyParser from 'body-parser'
 import { AxiosBotConfig, AxiosOptions, http, Logger, RouterOptions } from 'botpress/sdk'
 import { CSRF_TOKEN_HEADER_LC, CSRF_TOKEN_HEADER, JWT_COOKIE_NAME } from 'common/auth'
 import LicensingService from 'common/licensing-service'
+import { machineUUID } from 'common/stats'
 import { RequestWithUser } from 'common/typings'
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
@@ -20,6 +21,7 @@ import { LogsService, LogsRepository } from 'core/logger'
 import { MediaServiceProvider, MediaRouter } from 'core/media'
 import { ModuleLoader, ModulesRouter } from 'core/modules'
 import { NotificationsService } from 'core/notifications'
+import { getSocketTransports } from 'core/realtime'
 import { InvalidExternalToken, PaymentRequiredError, monitoringMiddleware } from 'core/routers'
 import {
   generateUserToken,
@@ -57,7 +59,7 @@ import { isDisabled } from '../routers/conditionalMiddleware'
 import { SdkApiRouter } from '../routers/sdk/router'
 import { ShortLinksRouter } from '../routers/shortlinks'
 import { NLUService } from '../services/nlu/nlu-service'
-import { debugRequestMw, resolveAsset } from './server_utils'
+import { debugRequestMw, resolveAsset, resolveIndexPaths } from './server_utils'
 
 const BASE_API_PATH = '/api/v1'
 const SERVER_USER_STRATEGY = 'default' // The strategy isn't validated for the userver user, it could be anything.
@@ -67,6 +69,7 @@ export class HTTPServer {
   public httpServer!: Server
   public readonly app: express.Express
   private isBotpressReady = false
+  private machineId!: string
 
   private readonly adminRouter: AdminRouter
   private readonly botsRouter: BotsRouter
@@ -145,19 +148,20 @@ export class HTTPServer {
     )
 
     this.adminRouter = new AdminRouter(
-      this.logger,
-      this.authService,
-      this.workspaceService,
-      this.botService,
+      logger,
+      authService,
+      workspaceService,
+      botService,
       licenseService,
-      this.ghostService,
-      this.configProvider,
-      this.monitoringService,
-      this.alertingService,
+      ghostService,
+      configProvider,
+      monitoringService,
+      alertingService,
       moduleLoader,
-      this.jobService,
-      this.logsRepo,
-      authStrategies
+      jobService,
+      logsRepo,
+      authStrategies,
+      this
     )
 
     this.studioRouter = new StudioRouter(
@@ -173,7 +177,8 @@ export class HTTPServer {
       logsService,
       ghostService,
       mediaServiceProvider,
-      actionServersService
+      actionServersService,
+      this
     )
 
     this.shortLinksRouter = new ShortLinksRouter(this.logger)
@@ -219,6 +224,7 @@ export class HTTPServer {
 
   @postConstruct()
   async initialize() {
+    this.machineId = await machineUUID()
     await AppLifecycle.waitFor(AppLifecycleEvents.CONFIGURATION_LOADED)
     await this.setupRootPath()
 
@@ -232,6 +238,19 @@ export class HTTPServer {
     AppLifecycle.waitFor(AppLifecycleEvents.BOTPRESS_READY).then(() => {
       this.isBotpressReady = true
     })
+  }
+
+  async getCommonEnv() {
+    const config = await this.configProvider.getBotpressConfig()
+
+    return `
+    window.TELEMETRY_URL = "${process.TELEMETRY_URL}";
+    window.SEND_USAGE_STATS = ${config!.sendUsageStats};
+    window.USE_JWT_COOKIES = ${process.USE_JWT_COOKIES};
+    window.EXPERIMENTAL = ${config.experimental};
+    window.SOCKET_TRANSPORTS = ["${getSocketTransports(config).join('","')}"];
+    window.SHOW_POWERED_BY = ${!!config.showPoweredBy};
+    window.UUID = "${this.machineId}"`
   }
 
   async start() {
@@ -319,23 +338,7 @@ export class HTTPServer {
       res.send(process.BOTPRESS_VERSION)
     })
 
-    this.app.get('/env.js', async (req, res) => {
-      const branding = await this.configProvider.getBrandingConfig('admin')
-
-      res.contentType('text/javascript')
-      res.send(`
-      (function(window) {
-          window.USE_JWT_COOKIES = ${process.USE_JWT_COOKIES};
-          window.APP_VERSION = "${process.BOTPRESS_VERSION}";
-          window.APP_NAME = "${branding.title}";
-          window.APP_FAVICON = "${branding.favicon}";
-          window.APP_CUSTOM_CSS = "${branding.customCss}";
-          window.TELEMETRY_URL = "${process.TELEMETRY_URL}";
-          window.SEND_USAGE_STATS = "${botpressConfig!.sendUsageStats}";
-        })(typeof window != 'undefined' ? window : {})
-      `)
-    })
-
+    this.setupUILite(this.app)
     this.adminRouter.setupRoutes(this.app)
     await this.botsRouter.setupRoutes(this.app)
     await this.studioRouter.setupRoutes(this.app)
@@ -400,6 +403,32 @@ export class HTTPServer {
     })
 
     return this.app
+  }
+
+  private setupUILite(app) {
+    app.get('/lite/:botId/env.js', async (req, res) => {
+      const { botId } = req.params
+
+      const bot = await this.botService.findBotById(botId)
+      if (!bot) {
+        return res.sendStatus(404)
+      }
+
+      const commonEnv = await this.getCommonEnv()
+      const totalEnv = `
+          (function(window) {
+              ${commonEnv}
+              window.API_PATH = "${process.ROOT_PATH}/api/v1";
+              window.BOT_API_PATH = "${process.ROOT_PATH}/api/v1/bots/${botId}";
+            })(typeof window != 'undefined' ? window : {})
+          `
+
+      res.contentType('text/javascript')
+      res.send(totalEnv)
+    })
+
+    app.use('/:app(lite)/:botId?', express.static(resolveAsset('ui-lite/public'), { index: false }))
+    app.use('/:app(lite)/:botId?', resolveIndexPaths('ui-lite/public/index.html'))
   }
 
   private guardWhiteLabel() {
