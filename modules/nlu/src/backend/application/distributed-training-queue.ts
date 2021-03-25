@@ -25,16 +25,16 @@ export class DistributedTrainingQueue extends TrainingQueue {
     await super.initialize()
 
     const localCancelTraining = (trainId: TrainingId) => super.cancelTraining(trainId)
-    this._broadcastCancelTraining = await this._broadCastFrom(localCancelTraining)
+    this._broadcastCancelTraining = await this._broadcastFrom(localCancelTraining)
 
     const localLoadModel = (botId: string, modelId: NLU.ModelId) => super.loadModel(botId, modelId)
-    this._broadcastLoadModel = await this._broadCastFrom(localLoadModel)
+    this._broadcastLoadModel = await this._broadcastFrom(localLoadModel)
 
     const localRunTask = () => super.runTask()
-    this._broadcastRunTask = await this._broadCastFrom(localRunTask)
+    this._broadcastRunTask = await this._broadcastFrom(localRunTask)
   }
 
-  private _broadCastFrom = async <T extends (...args: any[]) => any>(fn: T) => {
+  private _broadcastFrom = async <T extends (...args: any[]) => any>(fn: T) => {
     const broadcasted = (await this._distributed.broadcast(fn)) as typeof fn
     return broadcasted
   }
