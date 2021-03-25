@@ -809,4 +809,44 @@ describe('NLU API integration tests', () => {
 
     await app.teardown()
   })
+
+  test('Models are unloaded on bot unmount', async () => {
+    // arrange
+    const lang = 'en'
+    const definitions = makeBaseDefinitions([lang])
+
+    const modelId = modelIdService.makeId({
+      ...definitions,
+      languageCode: lang,
+      seed: nluSeed,
+      specifications: specs
+    })
+
+    const fileSystem = {
+      [botId]: {
+        definitions,
+        modelsOnFs: [modelId]
+      }
+    }
+
+    const core = { languages: [lang], specs }
+    const dependencies = makeDependencies(core, fileSystem)
+
+    const app = await makeApp(dependencies)
+    const engineUnloadSpy = jest.spyOn(dependencies.engine, 'unloadModel')
+
+    // act
+    await app.mountBot({
+      id: botId,
+      defaultLanguage: lang,
+      languages: [lang]
+    })
+
+    await app.resumeTrainings()
+    await waitForTrainingsToBeDone(app)
+    await app.unmountBot(botId)
+
+    // assert
+    expect(engineUnloadSpy).toHaveBeenCalled()
+  })
 })
