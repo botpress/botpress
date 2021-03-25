@@ -87,9 +87,7 @@ export class NLUApplication {
         : (trainId: TrainingId) => this._trainingQueue.needsTraining(trainId)
 
     const loadModelOrQueue = makeDirtyModelHandler(trainingHandler)
-    for (const language of languages) {
-      await loadModelOrQueue(language)
-    }
+    await Promise.map(languages, lang => loadModelOrQueue(lang))
     await bot.mount()
   }
 
