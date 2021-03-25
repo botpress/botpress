@@ -78,9 +78,13 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
         ...props,
         botId: 'bot2'
       })
+      await db.addEvent({
+        ...props,
+        botId: 'bot2'
+      })
 
       expect(await db.listEvents('bot1', 'en', FLAGGED_MESSAGE_STATUS.new)).toHaveLength(1)
-      expect(await db.listEvents('bot2', 'en', FLAGGED_MESSAGE_STATUS.new)).toHaveLength(1)
+      expect(await db.listEvents('bot2', 'en', FLAGGED_MESSAGE_STATUS.new)).toHaveLength(2)
       expect(await db.listEvents('bot3', 'en', FLAGGED_MESSAGE_STATUS.new)).toHaveLength(0)
     })
 
