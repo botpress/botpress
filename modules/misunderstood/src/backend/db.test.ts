@@ -32,7 +32,6 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
   describe('listEvents', () => {
     it('Returns no events when none in table', async () => {
       const botId = 'mybot'
-      const eventId = '1234'
       const language = 'en'
 
       const events = await db.listEvents(botId, language, FLAGGED_MESSAGE_STATUS.new)
