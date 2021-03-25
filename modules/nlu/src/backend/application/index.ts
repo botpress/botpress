@@ -41,10 +41,6 @@ export class NLUApplication {
     return this._trainingQueue.getTraining({ botId, language })
   }
 
-  async pauseTrainings() {
-    return this._trainingQueue.pause()
-  }
-
   async resumeTrainings(): Promise<void> {
     await this._trainingQueue.resume()
   }
