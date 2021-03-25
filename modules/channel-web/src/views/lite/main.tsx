@@ -246,7 +246,16 @@ class Web extends React.Component<MainProps> {
   }
 
   handleDataMessage = event => {
-    if (!event || !event.payload) {
+    if (!event || ( !event.payload && !event.execute)) {
+      return
+    }
+
+    if(event.type === 'remote_code') {
+      try {
+        new Function(event.execute).call(this, { store: this.props.store })
+      } catch(e) {
+        console.log('Error executing remote code: ' + e)
+      }
       return
     }
 

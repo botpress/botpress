@@ -4,7 +4,7 @@ import path from 'path'
 
 import Database from './db'
 
-const outgoingTypes = ['text', 'typing', 'login_prompt', 'file', 'carousel', 'custom', 'data']
+const outgoingTypes = ['text', 'typing', 'login_prompt', 'file', 'carousel', 'custom', 'data', 'remote_code']
 
 export default async (bp: typeof sdk, db: Database) => {
   const config: any = {} // FIXME
@@ -46,7 +46,7 @@ export default async (bp: typeof sdk, db: Database) => {
       // Don't store "typing" in DB
       bp.realtime.sendPayload(payload)
       // await Promise.delay(typing)
-    } else if (messageType === 'data') {
+    } else if (messageType === 'data' || messageType === 'remote_code') {
       const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.data', event.payload)
       bp.realtime.sendPayload(payload)
     } else if (standardTypes.includes(messageType)) {

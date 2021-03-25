@@ -1948,6 +1948,13 @@ declare module 'botpress/sdk' {
     export function sendEvent(event: IO.Event): Promise<void>
 
     /**
+     * Send a remote function to the frontend to be executed
+     * @param event - A event from the channel being used
+     * @param callback - Function to be executed in the frontend
+     */
+     export function sendRemoteCallback(event: IO.Event, callback: ({ store: any }) => void): Promise<void>
+
+    /**
      * Reply easily to any received event. It accepts an array of payloads
      * and will send a complete event with each payloads. It is often paired with
      * {@link cms.renderElement} to generate payload for a specific content type

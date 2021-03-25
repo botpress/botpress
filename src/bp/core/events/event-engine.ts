@@ -216,6 +216,20 @@ export class EventEngine {
     }
   }
 
+  async sendRemoteCallback (event: sdk.IO.Event, callback: ({ store: any }) => void) {
+    return this.sendEvent(Event({
+      botId: event.botId,
+      channel: event.channel,
+      target: event.target,
+      threadId: event.threadId,
+      payload: {
+        execute: '(' + callback.toString() + ')(arguments[0])'
+      },
+      direction: 'outgoing',
+      type: 'remote_code'
+    }))
+  }
+
   async replyToEvent(eventDestination: sdk.IO.EventDestination, payloads: any[], incomingEventId?: string) {
     // prettier-ignore
     const keys: (keyof sdk.IO.EventDestination)[] = ['botId', 'channel', 'target', 'threadId']
