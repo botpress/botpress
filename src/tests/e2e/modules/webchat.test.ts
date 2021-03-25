@@ -1,6 +1,6 @@
 import { Page } from 'puppeteer'
 
-import { bpConfig } from '../../../jest-puppeteer.config'
+import { bpConfig } from '../config'
 import { clickOn, expectMatch, fillField } from '../expectPuppeteer'
 import { getPage, gotoAndExpect } from '../utils'
 

@@ -1,0 +1,1 @@
+import '../typings/global'

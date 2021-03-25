@@ -1,8 +1,14 @@
-import { bpConfig } from '../../../jest-puppeteer.config'
-import { clickOn, expectMatch } from '../expectPuppeteer'
-import { expectBotApiCallSuccess, gotoAndExpect, triggerKeyboardShortcut } from '../utils'
+import { bpConfig } from '../config'
+import { expectBotApiCallSuccess, gotoAndExpect, gotoStudio, loginIfNeeded, triggerKeyboardShortcut } from '../utils'
 
 describe('Studio - UI', () => {
+  beforeAll(async () => {
+    await loginIfNeeded()
+    if (!page.url().includes('studio')) {
+      await gotoStudio()
+    }
+  })
+
   it('Open Studio', async () => {
     await gotoAndExpect(`${bpConfig.host}/studio/${bpConfig.botId}`)
   })

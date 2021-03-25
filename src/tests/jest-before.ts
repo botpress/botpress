@@ -1,9 +1,9 @@
 import { EventEmitter } from 'events'
 
-import { Distro } from './common/getos'
+import { Distro } from '../bp/common/getos'
 
 const os = require('os').platform()
-const { Debug: _Debug } = require('./debug.ts')
+const { Debug: _Debug } = require('../bp/debug.ts')
 
 global.DEBUG = _Debug
 

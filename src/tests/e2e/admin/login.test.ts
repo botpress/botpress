@@ -1,4 +1,4 @@
-import { bpConfig } from '../../../jest-puppeteer.config'
+import { bpConfig } from '../config'
 import { clickOn, fillField } from '../expectPuppeteer'
 import { expectAdminApiCallSuccess } from '../utils'
 

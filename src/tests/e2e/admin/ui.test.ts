@@ -1,8 +1,8 @@
 import path from 'path'
 
-import { bpConfig } from '../../../jest-puppeteer.config'
+import { bpConfig } from '../config'
 import { clickOn, expectMatch, fillField, uploadFile } from '../expectPuppeteer'
-import { closeToaster, expectAdminApiCallSuccess, expectCallSuccess, loginIfNeeded } from '../utils'
+import { closeToaster, expectAdminApiCallSuccess, expectCallSuccess } from '../utils'
 
 describe('Admin - UI', () => {
   it('Load server license page', async () => {

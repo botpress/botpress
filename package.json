@@ -16,8 +16,8 @@
     "build": "yarn cmd build",
     "watch": "yarn cmd watch",
     "package": "yarn cmd package",
-    "test": "cross-env NATIVE_EXTENSIONS_DIR=./build/native-extensions node_modules/.bin/jest -i --detectOpenHandles -c jest.config.js",
-    "itest": "cross-env NATIVE_EXTENSIONS_DIR=./build/native-extensions node_modules/.bin/jest -i --detectOpenHandles -c jest.e2e.config.js all",
+    "test": "cross-env NATIVE_EXTENSIONS_DIR=./build/native-extensions node_modules/.bin/jest -i --detectOpenHandles -c ./config/jest.config.js",
+    "itest": "cross-env NATIVE_EXTENSIONS_DIR=./build/native-extensions cross-env JEST_PUPPETEER_CONFIG=./config/jest-puppeteer.config.js node_modules/.bin/jest -i --detectOpenHandles -c ./config/jest.e2e.config.js all",
     "eslint": "node_modules/.bin/eslint src/bp modules --ext .ts,.tsx",
     "commitmsg": "commitlint -e $GIT_PARAMS"
   },

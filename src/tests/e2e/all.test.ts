@@ -1,7 +1,5 @@
 import { Page } from 'puppeteer'
-
-import { bpConfig } from '../../jest-puppeteer.config'
-
+import { bpConfig } from './config'
 import { getPage } from './utils'
 
 const test = {

@@ -1,6 +1,6 @@
 import path from 'path'
 
-import { bpConfig } from '../../../jest-puppeteer.config'
+import { bpConfig } from '../config'
 import { clickOn, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
 import {
   closeToaster,

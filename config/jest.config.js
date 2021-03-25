@@ -7,12 +7,12 @@ module.exports = {
   preset: 'ts-jest',
   globals: {
     'ts-jest': {
-      tsConfig: '<rootDir>/src/tsconfig.test.json',
+      tsConfig: '<rootDir>/src/tests/tsconfig.test.json',
       diagnostics: false
     }
   },
-  setupFiles: ['<rootDir>/src/bp/jest-before.ts'],
-  globalSetup: '<rootDir>/src/bp/jest-rewire.ts',
+  setupFiles: ['<rootDir>/src/tests/jest-before.ts'],
+  globalSetup: '<rootDir>/src/tests/jest-rewire.ts',
   setupFilesAfterEnv: [],
   collectCoverage: false,
   resetModules: true,
@@ -23,14 +23,14 @@ module.exports = {
   transform: {
     '^.+\\.(ts|tsx|js)$': 'ts-jest'
   },
-  resolver: '<rootDir>/src/bp/jest-resolver.js',
+  resolver: '<rootDir>/src/tests/jest-resolver.js',
   moduleNameMapper: {
     '^botpress/sdk$': '<rootDir>/src/bp/core/app/sdk_impl'
   },
   testMatch: ['**/(src|test)/**/*.test.(ts|js)'],
   testPathIgnorePatterns: ['out', 'build', 'node_modules', 'e2e'],
   testEnvironment: 'node',
-  rootDir: '.',
+  rootDir: '../',
 
   testResultsProcessor: './node_modules/jest-html-reporter'
 }

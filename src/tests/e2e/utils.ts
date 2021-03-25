@@ -1,8 +1,7 @@
 import moment = require('moment')
 import { Dialog, ElementHandle, HttpMethod, MouseButtons, Page } from 'puppeteer'
 
-import { bpConfig } from '../../jest-puppeteer.config'
-
+import { bpConfig } from './config'
 import { clickOn, expectMatchElement, fillField } from './expectPuppeteer'
 
 export const getPage = async (): Promise<Page> => {
@@ -27,7 +26,7 @@ export const loginIfNeeded = async () => {
   }
 }
 
-export const gotoStudio = async (section?: string) => {
+export const gotoStudio = async (section?: string, noValidate?: boolean) => {
   const resource = section ? `/${section}` : ''
   await gotoAndExpect(`${bpConfig.host}/studio/${bpConfig.botId}${resource}`)
   return page.waitFor(200)
