@@ -98,14 +98,14 @@ export const makeApp = (
 }
 
 export const waitForTrainingsToBeDone = async (app: NLUApplication) => {
-  const allTrainings = await app.getAllTrainings()
+  const allTrainings = await app.trainRepository.getAll()
   if (!allTrainings.length) {
     return true
   }
 
   let pendingOrRunning = true
   while (pendingOrRunning) {
-    const allTrainings = await app.getAllTrainings()
+    const allTrainings = await app.trainRepository.getAll()
     pendingOrRunning = allTrainings.some(ts =>
       (<NLU.TrainingStatus[]>['training', 'training-pending']).includes(ts.status)
     )

@@ -45,10 +45,6 @@ export class NLUApplication {
     return this._trainingQueue.getTraining({ botId, language })
   }
 
-  async getAllTrainings(): Promise<TrainingSession[]> {
-    return this._trainingQueue.getAllTrainings()
-  }
-
   async pauseTrainings() {
     return this._trainingQueue.pause()
   }

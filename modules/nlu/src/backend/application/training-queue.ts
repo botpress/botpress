@@ -158,10 +158,6 @@ export class TrainingQueue {
     return Promise.mapSeries(currentTrainings, t => this.cancelTraining(t))
   }
 
-  public async getAllTrainings(): Promise<TrainingSession[]> {
-    return this._trainingRepo.getAll()
-  }
-
   private _update = async (id: TrainingId, newState: TrainingState, context: ITrainingTransactionContext) => {
     await context.set(id, newState)
     return this._notify(id, newState)
