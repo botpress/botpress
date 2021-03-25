@@ -7,11 +7,9 @@ const TABLE_NAME = 'nlu_training_queue'
 const TRANSACTION_TIMEOUT_MS = ms('5s')
 const debug = DEBUG('nlu').sub('database')
 
-const TRANSACTION_TIMEOUT_ERROR = "Transaction exceeded it's time limit"
-
 const timeout = (ms: number) => {
   return new Promise((_, reject) => {
-    setTimeout(() => reject(new Error(TRANSACTION_TIMEOUT_ERROR)), ms)
+    setTimeout(() => reject(new Error("Transaction exceeded it's time limit")), ms)
   })
 }
 
