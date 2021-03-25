@@ -24,9 +24,12 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
     await db.knex.raw(`${statement} "${TABLE_NAME}";`)
   })
 
+  beforeEach(async () => {
+    await db.knex.raw(db.knex.isLite ? 'BEGIN TRANSACTION' : 'START TRANSACTION')
+  })
+
   afterEach(async () => {
-    const statement = db.knex.isLite ? 'DELETE FROM' : 'TRUNCATE TABLE'
-    await db.knex.raw(`${statement} "${TABLE_NAME}";`)
+    await db.knex.raw(db.knex.isLite ? 'ROLLBACK TRANSACTION' : 'ROLLBACK')
   })
 
   describe('listEvents', () => {
