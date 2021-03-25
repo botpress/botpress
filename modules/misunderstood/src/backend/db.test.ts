@@ -57,6 +57,7 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
       await db.addEvent({ botId, eventId, language, preview: 'some message', reason: FLAG_REASON.action })
 
       const events = await db.listEvents(botId, language, FLAGGED_MESSAGE_STATUS.new)
+
       expect(events).toHaveLength(3)
     })
 
@@ -78,7 +79,6 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
         botId: 'bot2'
       })
 
-      // Filter by botId
       expect(await db.listEvents('bot1', 'en', FLAGGED_MESSAGE_STATUS.new)).toHaveLength(1)
       expect(await db.listEvents('bot2', 'en', FLAGGED_MESSAGE_STATUS.new)).toHaveLength(1)
       expect(await db.listEvents('bot3', 'en', FLAGGED_MESSAGE_STATUS.new)).toHaveLength(0)
