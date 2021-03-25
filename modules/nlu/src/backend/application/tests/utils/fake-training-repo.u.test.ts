@@ -1,7 +1,7 @@
 import { TrainingState, TrainingId, TrainingSession } from '../../typings'
-import { ITrainingRepository, ITransactionContext } from '../../training-repo'
+import { ITrainingRepository, ITrainingTransactionContext } from '../../training-repo'
 import { Semaphore } from './utils.u.test'
-class FakeTransactionContext implements ITransactionContext {
+class FakeTransactionContext implements ITrainingTransactionContext {
   public transaction = null
   private _trainings: { [key: string]: TrainingState & { modifiedOn: Date } } = {}
 
@@ -73,7 +73,7 @@ export class FakeTrainingRepository implements ITrainingRepository {
 
   async initialize(): Promise<void> {}
 
-  public async inTransaction(action: (trx: ITransactionContext) => Promise<any>, name?: string): Promise<any> {
+  public async inTransaction(action: (trx: ITrainingTransactionContext) => Promise<any>, name?: string): Promise<any> {
     return FakeTrainingRepository.semaphore.exclusively(() => {
       return action(this._context)
     })

@@ -5,7 +5,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 import nanoid from 'nanoid'
-import { ITrainingRepository, ITransactionContext } from './training-repo'
+import { ITrainingRepository, ITrainingTransactionContext } from './training-repo'
 import { TrainingId, TrainerService, TrainingListener, TrainingState, TrainingSession, I } from './typings'
 
 export interface TrainingQueueOptions {
@@ -162,7 +162,7 @@ export class TrainingQueue {
     return this._trainingRepo.getAll()
   }
 
-  private _update = async (id: TrainingId, newState: TrainingState, context: ITransactionContext) => {
+  private _update = async (id: TrainingId, newState: TrainingState, context: ITrainingTransactionContext) => {
     await context.set(id, newState)
     return this._notify(id, newState)
   }

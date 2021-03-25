@@ -13,8 +13,8 @@ const timeout = (ms: number) => {
   })
 }
 
-export type ITransactionContext = I<TransactionContext>
-class TransactionContext {
+export type ITrainingTransactionContext = I<TrainingTransactionContext>
+class TrainingTransactionContext {
   constructor(protected _database: typeof sdk.database, public transaction: Transaction | null = null) {}
 
   private get table() {
@@ -70,9 +70,9 @@ class TransactionContext {
 
 export type ITrainingRepository = I<TrainingRepository>
 export class TrainingRepository implements TrainingRepository {
-  private _context: TransactionContext
+  private _context: TrainingTransactionContext
   constructor(private _database: typeof sdk.database) {
-    this._context = new TransactionContext(this._database, null)
+    this._context = new TrainingTransactionContext(this._database, null)
   }
 
   public initialize = async (): Promise<void | void[]> => {
@@ -88,14 +88,14 @@ export class TrainingRepository implements TrainingRepository {
   }
 
   public inTransaction = async (
-    action: (trx: ITransactionContext) => Promise<any>,
+    action: (trx: ITrainingTransactionContext) => Promise<any>,
     name: string | null = null
   ): Promise<any> => {
     return this._database.transaction(async trx => {
       const operation = async () => {
         try {
           debug(`Starting transaction ${name}`)
-          const ctx = new TransactionContext(this._database, trx)
+          const ctx = new TrainingTransactionContext(this._database, trx)
           const res = await action(ctx)
           await trx.commit(res)
           return res
