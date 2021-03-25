@@ -1,7 +1,7 @@
 import * as NLUEngine from './utils/sdk.u.test'
 import _ from 'lodash'
 
-import { await makeApp, makeDependencies, waitForTrainingsToBeDone } from './utils/app.u.test'
+import { makeApp, makeDependencies, waitForTrainingsToBeDone } from './utils/app.u.test'
 import {
   expectEngineToHaveLoaded,
   expectEngineToHaveTrained,
