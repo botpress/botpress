@@ -13,12 +13,12 @@ export class TopicsRouter extends CustomStudioRouter {
   setupRoutes() {
     const router = this.router
 
-    router.get('/topics', this.checkTokenHeader, async (req, res) => {
+    router.get('/', this.checkTokenHeader, async (req, res) => {
       res.send(await this.flowService.forBot(req.params.botId).getTopics())
     })
 
     router.post(
-      '/topic/:topicName?',
+      '/:topicName?',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {

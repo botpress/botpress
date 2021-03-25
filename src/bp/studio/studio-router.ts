@@ -121,7 +121,7 @@ export class StudioRouter extends CustomRouter {
     this.router.use('/logs', this.checkTokenHeader, this.logsRouter.router)
     this.router.use('/media', this.checkTokenHeader, this.mediaRouter.router)
     this.router.use('/notifications', this.checkTokenHeader, this.notificationsRouter.router)
-    this.router.use('/topic', this.checkTokenHeader, this.topicsRouter.router)
+    this.router.use('/topics', this.checkTokenHeader, this.topicsRouter.router)
 
     this.setupUnauthenticatedRoutes()
     this.setupStaticRoutes(app)
