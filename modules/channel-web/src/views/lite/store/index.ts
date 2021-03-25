@@ -189,6 +189,7 @@ class RootStore {
     try {
       await this.fetchConversations()
       await this.fetchConversation(this.config.conversationId)
+      await this.sendData({ type: 'api_hook', payload: { name: 'on_conversation_init' } })
       runInAction('-> setInitialized', () => {
         this.isInitialized = true
         this.postMessage('webchatReady')

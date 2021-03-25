@@ -135,6 +135,12 @@ export namespace Hooks {
       super('after_stage_changed', { bp, previousBotConfig, bot, users, pipeline })
     }
   }
+
+  export class APIHookMiddleware extends BaseHook {
+    constructor(bp: typeof sdk, event: sdk.IO.Event) {
+      super('api_hook_middleware', { bp, event })
+    }
+  }
 }
 
 class HookScript {

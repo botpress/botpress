@@ -298,6 +298,7 @@ class PanelContent extends React.Component<Props> {
             'before_incoming_middleware',
             'after_incoming_middleware',
             'before_outgoing_middleware',
+            'api_hook_middleware',
             'after_event_processed',
             'before_suggestions_election',
             'before_session_timeout'

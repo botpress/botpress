@@ -89,6 +89,7 @@ export class EventEngine {
 
   public onBeforeIncomingMiddleware?: (event: sdk.IO.IncomingEvent) => Promise<void>
   public onAfterIncomingMiddleware?: (event: sdk.IO.IncomingEvent) => Promise<void>
+  public onAPIHookMiddleware?: (event: sdk.IO.IncomingEvent) => Promise<void>
 
   public onBeforeOutgoingMiddleware?: (event: sdk.IO.OutgoingEvent) => Promise<void>
 
@@ -109,6 +110,11 @@ export class EventEngine {
     @inject(TYPES.EventCollector) private eventCollector: EventCollector
   ) {
     this.incomingQueue.subscribe(async (event: sdk.IO.IncomingEvent) => {
+      if(event.type === 'api_hook') {
+        this.onAPIHookMiddleware && (await this.onAPIHookMiddleware(event))
+        return
+      }
+
       await this._infoMiddleware(event)
       this.onBeforeIncomingMiddleware && (await this.onBeforeIncomingMiddleware(event))
       const { incoming } = await this.getBotMiddlewareChains(event.botId)
