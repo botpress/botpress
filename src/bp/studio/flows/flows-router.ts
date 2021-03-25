@@ -34,7 +34,7 @@ export class FlowsRouter extends CustomStudioRouter {
     )
 
     router.post(
-      '/flow',
+      '/',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {
@@ -49,7 +49,7 @@ export class FlowsRouter extends CustomStudioRouter {
     )
 
     this.router.post(
-      '/flow/:flowName',
+      '/:flowName',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
       parseFlowNameMiddleware,
@@ -77,7 +77,7 @@ export class FlowsRouter extends CustomStudioRouter {
     )
 
     this.router.post(
-      '/flow/:flowName/delete',
+      '/:flowName/delete',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
       parseFlowNameMiddleware,
