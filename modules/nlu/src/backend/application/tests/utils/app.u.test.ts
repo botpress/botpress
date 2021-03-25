@@ -3,7 +3,7 @@ import * as NLUEngine from './sdk.u.test'
 import _ from 'lodash'
 
 import { NLUApplication } from '../../'
-import { BotFactory, DefinitionRepositoryFactory, ModelRepositoryFactory } from '../../bot-factory'
+import { ScopedServicesFactory, DefinitionRepositoryFactory, ModelRepositoryFactory } from '../../bot-factory'
 import { BotService } from '../../bot-service'
 import { DistributedTrainingQueue } from '../../distributed-training-queue'
 import { TrainingQueueOptions } from '../../training-queue'
@@ -82,7 +82,7 @@ export const makeApp = async (
   const defRepoFactory: DefinitionRepositoryFactory = ({ botId }) => defRepoByBot[botId]
 
   const botService = new BotService()
-  const botFactory = new BotFactory(engine, logger, modelIdService, defRepoFactory, modelRepoFactory)
+  const servicesFactory = new ScopedServicesFactory(engine, logger, modelIdService, defRepoFactory, modelRepoFactory)
 
   const trainingQueue = new DistributedTrainingQueue(
     trainingRepo,
@@ -96,7 +96,7 @@ export const makeApp = async (
 
   await trainingQueue.initialize()
 
-  return new NLUApplication(trainingQueue, engine, botFactory, botService, options.queueTrainingOnBotMount)
+  return new NLUApplication(trainingQueue, engine, servicesFactory, botService, options.queueTrainingOnBotMount)
 }
 
 export const waitForTrainingsToBeDone = async (app: NLUApplication) => {

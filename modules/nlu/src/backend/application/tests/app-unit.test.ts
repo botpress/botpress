@@ -1,6 +1,6 @@
 import * as NLUEngine from './utils/sdk.u.test'
 
-import { IBotFactory, ScopedServices } from '../bot-factory'
+import { IScopedServicesFactory, ScopedServices } from '../bot-factory'
 import { IBotService } from '../bot-service'
 import { NLUApplication } from '../index'
 import { IBot } from '../scoped/bot'
@@ -40,7 +40,7 @@ const makeScopedServices = (): Mock<ScopedServices> => ({
 describe('NLU API unit tests', () => {
   let trainingQueue: Mock<ITrainingQueue>
   let engine: Mock<NLUEngine.Engine>
-  let botFactory: Mock<IBotFactory>
+  let servicesFactory: Mock<IScopedServicesFactory>
   let botService: Mock<IBotService>
 
   beforeEach(() => {
@@ -51,7 +51,7 @@ describe('NLU API unit tests', () => {
       cancelTrainings: jest.fn()
     })
     engine = mock<NLUEngine.Engine>({})
-    botFactory = mock<IBotFactory>({})
+    servicesFactory = mock<IScopedServicesFactory>({})
     botService = mock<IBotService>({
       setBot: jest.fn(),
       removeBot: jest.fn()
@@ -66,9 +66,9 @@ describe('NLU API unit tests', () => {
     const scopedServices = makeScopedServices()
     scopedServices.defService.getLatestModelId = jest.fn(async l => (l === 'en' ? modelId : makeModelId(l)))
     scopedServices.modelRepo.hasModel = jest.fn(async m => m === modelId)
-    botFactory.makeBot = jest.fn(async bot => scopedServices)
+    servicesFactory.makeBot = jest.fn(async bot => scopedServices)
 
-    const app = new NLUApplication(trainingQueue, engine, botFactory, botService)
+    const app = new NLUApplication(trainingQueue, engine, servicesFactory, botService)
 
     // act
     await app.mountBot({
@@ -90,9 +90,9 @@ describe('NLU API unit tests', () => {
     // arrange
     const scopedServices = makeScopedServices()
     scopedServices.modelRepo.hasModel = jest.fn(async m => false)
-    botFactory.makeBot = jest.fn(async bot => scopedServices)
+    servicesFactory.makeBot = jest.fn(async bot => scopedServices)
 
-    const app = new NLUApplication(trainingQueue, engine, botFactory, botService)
+    const app = new NLUApplication(trainingQueue, engine, servicesFactory, botService)
 
     // act
     await app.mountBot({
@@ -114,10 +114,10 @@ describe('NLU API unit tests', () => {
     // arrange
     const scopedServices = makeScopedServices()
     scopedServices.modelRepo.hasModel = jest.fn(async m => true)
-    botFactory.makeBot = jest.fn(async bot => scopedServices)
+    servicesFactory.makeBot = jest.fn(async bot => scopedServices)
     botService.getBot = jest.fn(bot => scopedServices.bot)
 
-    const app = new NLUApplication(trainingQueue, engine, botFactory, botService)
+    const app = new NLUApplication(trainingQueue, engine, servicesFactory, botService)
 
     // act
     await app.mountBot({
@@ -149,7 +149,7 @@ describe('NLU API unit tests', () => {
       }
     })
 
-    const app = new NLUApplication(trainingQueue, engine, botFactory, botService)
+    const app = new NLUApplication(trainingQueue, engine, servicesFactory, botService)
 
     // act
     await app.unmountBot(botId1)
@@ -180,7 +180,7 @@ describe('NLU API unit tests', () => {
       }
     })
 
-    const app = new NLUApplication(trainingQueue, engine, botFactory, botService)
+    const app = new NLUApplication(trainingQueue, engine, servicesFactory, botService)
 
     // act
     await app.teardown()
