@@ -115,6 +115,39 @@ const webConfig = {
         ]
       },
       {
+        test: /\.jsx?$/i,
+        include: [path.resolve(__dirname, 'src/web')],
+        use: [
+          {
+            loader: 'thread-loader'
+          },
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                require.resolve('babel-preset-stage-3'),
+                [
+                  require.resolve('babel-preset-env'),
+                  {
+                    targets: {
+                      browsers: ['last 2 versions']
+                    }
+                  }
+                ],
+                require.resolve('babel-preset-react')
+              ],
+              plugins: [
+                require.resolve('babel-plugin-transform-class-properties'),
+                require.resolve('babel-plugin-transform-es2015-arrow-functions')
+              ],
+              compact: true,
+              babelrc: false,
+              cacheDirectory: true
+            }
+          }
+        ]
+      },
+      {
         test: /\.styl$/,
         use: [
           {
