@@ -1,9 +1,9 @@
 import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
-import { LicenseInfo, LicenseStatus } from 'common/licensing-service'
+import { LicenseInfo } from 'common/licensing-service'
 import { LicensingStatus, RequestWithUser } from 'common/typings'
-import { BadRequestError } from 'core/routers'
-import { assertSuperAdmin, sendSuccess } from 'core/security'
+import { BadRequestError, sendSuccess } from 'core/routers'
+import { assertSuperAdmin } from 'core/security'
 import _ from 'lodash'
 
 const defaultResponse: LicensingStatus = {

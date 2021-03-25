@@ -82,15 +82,22 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
     const { languageCode, allUtterances } = trainInput
     const noneIntent = await this._makeNoneIntent(allUtterances, languageCode)
 
-    let combinedProgress = 0
-    const scaledProgress = (p: number) => {
-      combinedProgress += p / 2
-      progress(combinedProgress)
+    let ooScopeProgress = 0
+    let inScopeProgress = 0
+    const reportCombinedProgres = () => {
+      const combinedProgres = (ooScopeProgress + inScopeProgress) / 2
+      progress(combinedProgres)
     }
 
     const [ooScopeModel, inScopeModel] = await Promise.all([
-      this._trainOOScopeSvm(trainInput, noneIntent, scaledProgress),
-      this._trainInScopeSvm(trainInput, noneIntent, scaledProgress)
+      this._trainOOScopeSvm(trainInput, noneIntent, (p: number) => {
+        ooScopeProgress = p
+        reportCombinedProgres()
+      }),
+      this._trainInScopeSvm(trainInput, noneIntent, (p: number) => {
+        inScopeProgress = p
+        reportCombinedProgres()
+      })
     ])
 
     const exactIntenClassifier = new ExactIntenClassifier()

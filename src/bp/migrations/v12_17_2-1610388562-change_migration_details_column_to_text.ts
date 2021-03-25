@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { Migration } from 'core/services/migration'
+import { Migration } from 'core/migration'
 
 const TABLE_NAME = 'srv_migrations'
 

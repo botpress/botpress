@@ -86,8 +86,6 @@ export class SvmIntentClassifier implements IntentClassifier {
       intentNames: intents.map(i => i.name),
       entitiesName
     }
-
-    progress(1)
   }
 
   serialize(): string {
