@@ -21,7 +21,7 @@ const DEFAULT_STATE = { status: <sdk.NLU.TrainingStatus>'idle', progress: 0 }
 export type ITrainingQueue = I<TrainingQueue>
 
 const debug = DEBUG('nlu').sub('lifecycle')
-const TRAINING_LIFE_TIME = ms('5m')
+const MAX_TRAINING_UPDATE_TIMEOUT = ms('5m')
 
 const STATES_REQUIRING_NODE_AFFINITY: sdk.NLU.TrainingStatus[] = ['training', 'canceled', 'errored']
 
@@ -72,7 +72,7 @@ export class TrainingQueue {
         return
       }
 
-      const isAlive = isTrainingAlive(currentTraining, TRAINING_LIFE_TIME)
+      const isAlive = isTrainingAlive(currentTraining, MAX_TRAINING_UPDATE_TIMEOUT)
 
       if (currentTraining.status === 'training-pending') {
         debug(`Training ${this._toString(trainId)} already queued`)
