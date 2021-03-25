@@ -54,7 +54,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
   const botFactory = new BotFactory(engine, bp.logger, NLU.modelIdService, makeDefRepo, makeModelRepo)
 
   const trainRepo = new TrainingRepository(bp.database)
-  const memoryTrainingQueue = new DistributedTrainingQueue(
+  const trainingQueue = new DistributedTrainingQueue(
     trainRepo,
     NLU.errors,
     bp.logger,
@@ -64,7 +64,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
     { maxTraining: maxTrainingPerInstance }
   )
 
-  const application = new NLUApplication(memoryTrainingQueue, engine, botFactory, botService, queueTrainingOnBotMount)
+  const application = new NLUApplication(trainingQueue, engine, botFactory, botService, queueTrainingOnBotMount)
 
   await application.initialize()
   return application
