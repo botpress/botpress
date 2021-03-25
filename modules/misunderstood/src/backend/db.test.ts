@@ -178,5 +178,52 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
         ).toHaveLength(expectedCount)
       }
     })
+
+    it('Filters - by date', async () => {
+      const props = {
+        botId: 'bot1',
+        eventId: '1234',
+        language: 'en',
+        preview: 'some message',
+        reason: FLAG_REASON.action
+      }
+
+      for (const updatedAt of ['2020-09-29T04:00:00Z', '2020-09-29T06:00:00Z', '2020-09-29T08:00:00Z']) {
+        await db.knex(TABLE_NAME).insert({
+          ...props,
+          updatedAt
+        })
+      }
+
+      for (const { startDate, endDate, expectedCount } of [
+        {
+          startDate: new Date(Date.UTC(2020, 8, 29, 4, 0, 0)),
+          endDate: new Date(Date.UTC(2020, 8, 29, 8, 0, 0)),
+          expectedCount: 3
+        },
+        {
+          startDate: new Date(Date.UTC(2020, 8, 29, 8, 0, 1)),
+          endDate: new Date(Date.UTC(2020, 8, 29, 8, 0, 2)),
+          expectedCount: 0
+        },
+        {
+          startDate: new Date(Date.UTC(2020, 8, 29, 3, 0, 1)),
+          endDate: new Date(Date.UTC(2020, 8, 29, 3, 0, 59)),
+          expectedCount: 0
+        },
+        {
+          startDate: new Date(Date.UTC(2020, 8, 29, 4, 0, 0)),
+          endDate: new Date(Date.UTC(2020, 8, 29, 6, 0, 0)),
+          expectedCount: 2
+        }
+      ]) {
+        expect(
+          await db.listEvents(props.botId, props.language, FLAGGED_MESSAGE_STATUS.new, {
+            startDate,
+            endDate
+          })
+        ).toHaveLength(expectedCount)
+      }
+    })
   })
 })
