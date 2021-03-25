@@ -19,10 +19,10 @@ import { LogsService, LogsRepository } from 'core/logger'
 import { MediaServiceProvider, MediaRouter } from 'core/media'
 import { ModuleLoader, ModulesRouter } from 'core/modules'
 import { NotificationsService } from 'core/notifications'
+import { InvalidExternalToken, PaymentRequiredError, monitoringMiddleware } from 'core/routers'
 import {
   generateUserToken,
   hasPermissions,
-  monitoringMiddleware,
   needPermissions,
   AuthStrategies,
   AuthService,
@@ -57,7 +57,6 @@ import yn from 'yn'
 import { BotsRouter } from '../routers'
 import { NLURouter } from '../routers/bots/nlu'
 import { isDisabled } from '../routers/conditionalMiddleware'
-import { InvalidExternalToken, PaymentRequiredError } from '../routers/errors'
 import { SdkApiRouter } from '../routers/sdk/router'
 import { ShortLinksRouter } from '../routers/shortlinks'
 import { NLUService } from '../services/nlu/nlu-service'
