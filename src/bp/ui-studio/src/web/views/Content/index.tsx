@@ -109,11 +109,12 @@ class ContentView extends Component<Props, State> {
             node.onReceive?.forEach(addUsage)
           }
 
-          if (node.flow && node.type === 'skill-call' ) {
+          if (node.flow && node.type === 'skill-call') {
             const nodeSubFlow = this.props.flows.flowsByName[node.flow]
-            nodeSubFlow.nodes.forEach((node: NodeView) => {
-              addNodeUsage(node)
-            })
+            nodeSubFlow &&
+              nodeSubFlow.nodes.forEach((node: NodeView) => {
+                addNodeUsage(node)
+              })
           } else {
             addNodeUsage(node)
           }
