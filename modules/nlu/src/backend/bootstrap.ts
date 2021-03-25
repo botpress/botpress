@@ -7,7 +7,7 @@ import { Config } from '../config'
 
 import { getWebsocket } from './api'
 import { NLUApplication } from './application'
-import { BotFactory } from './application/bot-factory'
+import { ScopedServicesFactory } from './application/bot-factory'
 import { BotService } from './application/bot-service'
 import { DistributedTrainingQueue } from './application/distributed-training-queue'
 import { ScopedDefinitionsRepository } from './application/scoped/infrastructure/definitions-repository'
@@ -51,7 +51,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
 
   const makeDefRepo = (bot: BotDefinition) => new ScopedDefinitionsRepository(bot, bp)
 
-  const botFactory = new BotFactory(engine, bp.logger, NLU.modelIdService, makeDefRepo, makeModelRepo)
+  const servicesFactory = new ScopedServicesFactory(engine, bp.logger, NLU.modelIdService, makeDefRepo, makeModelRepo)
 
   const trainRepo = new TrainingRepository(bp.database)
   const trainingQueue = new DistributedTrainingQueue(
@@ -64,7 +64,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
     { maxTraining: maxTrainingPerInstance }
   )
   await trainingQueue.initialize()
-  const application = new NLUApplication(trainingQueue, engine, botFactory, botService, queueTrainingOnBotMount)
+  const application = new NLUApplication(trainingQueue, engine, servicesFactory, botService, queueTrainingOnBotMount)
 
   return application
 }

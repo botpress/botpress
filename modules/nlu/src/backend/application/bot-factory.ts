@@ -22,9 +22,9 @@ export interface ConfigResolver {
   getBotById(botId: string): Promise<BotConfig | undefined>
 }
 
-export type IBotFactory = I<BotFactory>
+export type IScopedServicesFactory = I<ScopedServicesFactory>
 
-export class BotFactory {
+export class ScopedServicesFactory {
   constructor(
     private _engine: Engine,
     private _logger: sdk.Logger,

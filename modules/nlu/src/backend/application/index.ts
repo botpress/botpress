@@ -2,7 +2,7 @@ import * as NLU from 'common/nlu/engine'
 import _ from 'lodash'
 import yn from 'yn'
 
-import { IBotFactory } from './bot-factory'
+import { IScopedServicesFactory } from './bot-factory'
 import { IBotService } from './bot-service'
 import { BotNotMountedError } from './errors'
 import { ITrainingQueue } from './training-queue'
@@ -15,7 +15,7 @@ export class NLUApplication {
   constructor(
     private _trainingQueue: ITrainingQueue,
     private _engine: NLU.Engine,
-    private _botFactory: IBotFactory,
+    private _servicesFactory: IScopedServicesFactory,
     private _botService: IBotService,
     queueTrainingOnBotMount: boolean = true
   ) {
@@ -59,7 +59,7 @@ export class NLUApplication {
 
   public mountBot = async (botConfig: BotConfig) => {
     const { id: botId, languages } = botConfig
-    const { bot, defService, modelRepo } = await this._botFactory.makeBot(botConfig)
+    const { bot, defService, modelRepo } = await this._servicesFactory.makeBot(botConfig)
     this._botService.setBot(botId, bot)
 
     const makeDirtyModelHandler = (cb: (trainId: TrainingId) => Promise<void>) => async (language: string) => {
