@@ -97,7 +97,8 @@ export class StateManager {
       Object.defineProperty(state, 'workflow', {
         get() {
           return state.session.workflows[state.session.currentWorkflow!]
-        }
+        },
+        configurable: true
       })
     }
   }
