@@ -84,12 +84,20 @@ class ArrayCache<K, V> {
 
   rename(prevKey: K, newKey: K) {
     const index = this.indexOf(prevKey)
-    this.array[index] = this.renameVal(this.array[index], prevKey, newKey)
+    if (index >= 0) {
+      this.array[index] = this.renameVal(this.array[index], prevKey, newKey)
+    } else {
+      throw new Error('Cannot rename a key that does not exist')
+    }
   }
 
   remove(key: K) {
     const index = this.indexOf(key)
-    this.array.splice(index, 1)
+    if (index >= 0) {
+      this.array.splice(index, 1)
+    } else {
+      throw new Error('Cannot remove a key that does not exist')
+    }
   }
 
   private indexOf(key: K) {
