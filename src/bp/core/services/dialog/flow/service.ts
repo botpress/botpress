@@ -161,16 +161,19 @@ export class ScopedFlowService {
       } else {
         this.invalidateFlow(flowPath, undefined)
       }
+
+      // TODO : this is kind of weird?
+      /*
+      // parent flows are only used by the NDU
+      if (this._isOneFlow()) {
+        const flows = this.cache.values()
+        const flowsWithParents = this.addParentsToFlows(flows)
+
+        this.cache.initialize(flowsWithParents)
+      }
+      */
     } else {
       this.expectedSavesCache.set(flowPath, expectedSaves - 1)
-    }
-
-    // parent flows are only used by the NDU
-    if (this._isOneFlow()) {
-      const flows = this.cache.values()
-      const flowsWithParents = this.addParentsToFlows(flows)
-
-      this.cache.initialize(flowsWithParents)
     }
   }
 
