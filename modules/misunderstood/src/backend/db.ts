@@ -46,11 +46,11 @@ export default class Db {
   async addEvent(event: FlaggedEvent) {
     const lookup = { botId: event.botId, language: event.language, preview: event.preview }
     const treatedEvents = await this.knex(TABLE_NAME)
-      .count('id')
+      .count({ count: 'id' })
       .where(lookup)
       .andWhereNot({ status: FLAGGED_MESSAGE_STATUS.new })
 
-    if (treatedEvents[0].count > 0) {
+    if (treatedEvents.length > 0 && treatedEvents[0].count > 0) {
       this.bp.logger.info(
         `Not inserting event with properies ${JSON.stringify(lookup)} as it has already been treated before`
       )
