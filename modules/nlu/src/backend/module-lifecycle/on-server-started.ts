@@ -1,10 +1,10 @@
 import * as sdk from 'botpress/sdk'
-import bytes from 'bytes'
 import * as NLUEngine from 'common/nlu/engine'
 import _ from 'lodash'
 
 import { Config } from '../../config'
 import legacyElectionPipeline from '../election/legacy-election'
+import { parseCacheSize } from '../parse-cache-size'
 import { PredictionHandler } from '../prediction-handler'
 import { setTrainingSession } from '../train-session-service'
 import { NLUProgressEvent, NLUState } from '../typings'
@@ -122,13 +122,12 @@ export function getOnSeverStarted(state: NLUState) {
     }
 
     const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = globalConfig
-    const parsedCachedSize = bytes(modelCacheSize)
 
     const parsedConfig: NLUEngine.Config = {
       languageSources,
       ducklingEnabled,
       ducklingURL,
-      modelCacheSize: modelCacheSize && parsedCachedSize ? parsedCachedSize : Infinity
+      modelCacheSize: parseCacheSize(modelCacheSize)
     }
     state.engine = await NLUEngine.makeEngine(parsedConfig, logger)
 

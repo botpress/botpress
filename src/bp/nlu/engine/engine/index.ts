@@ -57,7 +57,7 @@ export default class Engine implements Engine {
     const options: EngineOptions = { ...DEFAULT_ENGINE_OPTIONS, ...opt }
 
     this.modelsById = new LRUCache({
-      max: options.maxCacheSize < 0 ? undefined : options.maxCacheSize,
+      max: Math.abs(options.maxCacheSize),
       length: sizeof // ignores size of functions, but let's assume it's small
     })
 
