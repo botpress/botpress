@@ -16,7 +16,7 @@ import {
 
 import applyChanges from './applyChanges'
 
-const TABLE_NAME = 'misunderstood'
+export const TABLE_NAME = 'misunderstood'
 const EVENTS_TABLE_NAME = 'events'
 
 export default class Db {
