@@ -18,6 +18,7 @@ const Toolbar: FC<ToolbarProps> = props => {
       )}
       {!!props.buttons?.length && (
         <NavbarGroup className={cx(style.buttons, 'toolbar-buttons')} align={Alignment.RIGHT}>
+          {props.rightContent}
           {props.buttons.map((button, index) => (
             <div key={index} className={style.btnWrapper}>
               <Fragment>

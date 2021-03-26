@@ -1,7 +1,9 @@
 import { DirectoryListingOptions, ListenHandle, Logger, UpsertOptions } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { isValidBotId } from 'common/validation'
-import { BotConfig } from 'core/config/bot.config'
+import { TYPES } from 'core/app/types'
+import { BotConfig } from 'core/config'
+import { createArchive } from 'core/misc/archive'
 import { asBytes, filterByGlobs, forceForwardSlashes, sanitize } from 'core/misc/utils'
 import { diffLines } from 'diff'
 import { EventEmitter2 } from 'eventemitter2'
@@ -16,12 +18,9 @@ import replace from 'replace-in-file'
 import tmp, { file } from 'tmp'
 import { VError } from 'verror'
 
-import { createArchive } from '../../misc/archive'
-import { TYPES } from '../../types'
-
 import { FileRevision, PendingRevisions, ReplaceContent, ServerWidePendingRevisions, StorageDriver } from '.'
-import DBStorageDriver from './db-driver'
-import DiskStorageDriver from './disk-driver'
+import { DBStorageDriver } from './db-driver'
+import { DiskStorageDriver } from './disk-driver'
 
 export interface BpfsScopedChange {
   // An undefined bot ID = global
@@ -201,11 +200,8 @@ export class GhostService {
     // Adds the correct prefix to files so they are displayed correctly when reviewing changes
     const getDirectoryFullPaths = async (botId: string | undefined, ghost: ScopedGhostService) => {
       const getPath = (file: string) => (botId ? path.join('data/bots', botId, file) : path.join('data/global', file))
-
-      return ghost
-        .directoryListing('/', '*.*', [...bpfsIgnoredFiles, '**/revisions.json'])
-        .then()
-        .map(f => forceForwardSlashes(getPath(f)))
+      const files = await ghost.directoryListing('/', '*.*', [...bpfsIgnoredFiles, '**/revisions.json'])
+      return files.map(f => forceForwardSlashes(getPath(f)))
     }
 
     const filterRevisions = (revisions: FileRevision[]) => filterByGlobs(revisions, r => r.path, bpfsIgnoredFiles)

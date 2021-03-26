@@ -1,8 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import { AuthRule, Workspace } from 'common/typings'
-import { MigrationOpts } from 'core/services/migration'
-import { WorkspaceService } from 'core/services/workspace-service'
-import { TYPES } from 'core/types'
+import { TYPES } from 'core/app/types'
+import { MigrationOpts } from 'core/migration'
+import { WorkspaceService } from 'core/users'
 import _ from 'lodash'
 
 const AGENT_ROLE_ID = 'agent'

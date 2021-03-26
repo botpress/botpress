@@ -1,8 +1,9 @@
 import { clickOn, fillField, expectMatchElement } from '../expectPuppeteer'
-import { clickOnTreeNode, CONFIRM_DIALOG, expectBotApiCallSuccess, gotoStudio } from '../utils'
+import { clickOnTreeNode, CONFIRM_DIALOG, expectBotApiCallSuccess, gotoStudio, loginIfNeeded } from '../utils'
 
 describe('Studio - Flows', () => {
   beforeAll(async () => {
+    await loginIfNeeded()
     if (!page.url().includes('studio')) {
       await gotoStudio()
     }
@@ -27,20 +28,21 @@ describe('Studio - Flows', () => {
 
   it('Open node properties', async () => {
     const element = await expectMatchElement('.srd-node--selected', { text: /node-[0-9]*/ })
-    await clickOn('div', { clickCount: 2 }, element)
+    await clickOn('div', {}, element)
+    await page.waitForSelector('#btn-add-element')
     await clickOn('#btn-add-element')
     await clickOn('.bp3-dialog-close-button')
   })
 
   it('Check default transition', async () => {
+    await page.waitForSelector('#node-props-modal-standard-node-tabs-tab-transitions')
     await clickOn('#node-props-modal-standard-node-tabs-tab-transitions')
-    await page.hover('#node-props-modal-standard-node-tabs-pane-transitions > div > div')
+    await page.hover('#node-props-modal-standard-node-tabs-pane-transitions > div')
     await clickOn('#node-props-modal-standard-node-tabs-pane-transitions a', { clickCount: 1, text: 'Edit' })
     await clickOn('.bp3-dialog-close-button')
   })
 
   it('Rename flow', async () => {
-    await clickOn('#btn-back-element')
     await clickOnTreeNode('test_flow', 'right')
     await clickOn('#btn-rename')
     await fillField('#input-flow-name', 'test_flow_renamed')

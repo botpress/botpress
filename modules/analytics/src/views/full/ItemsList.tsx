@@ -28,7 +28,7 @@ const ItemsList: FC<Props> = props => {
       <ol>
         {items.map((item, index) => (
           <li key={index}>
-            <a onClick={item.onClick} className={!item.onClick && style.disabled}>
+            <a onClick={item.onClick} className={cx({ [style.disabled]: !item.onClick })}>
               <span>{item.label}</span>
               <span>({item.count})</span>
             </a>

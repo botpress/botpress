@@ -318,9 +318,9 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const getNewUsersPercent = () => {
-    const existingUsersCount = getMetricCount('active_users_count')
+    const returningUsersCount = getMetricCount('returning_users_count')
     const newUsersCount = getMetricCount('new_users_count')
-    const percent = Math.round((newUsersCount / (existingUsersCount + newUsersCount)) * 100)
+    const percent = Math.round((newUsersCount / (newUsersCount + returningUsersCount)) * 100)
 
     return getNotNaN(percent, '%')
   }
@@ -500,6 +500,7 @@ const Analytics: FC<any> = ({ bp }) => {
           <div>
             {languages.map(i => (
               <FlatProgressChart
+                key={i.language}
                 value={i.value}
                 color="#F2B824"
                 name={`${lang.tr(`isoLangs.${i.language}.name`)}: ${i.value}`}

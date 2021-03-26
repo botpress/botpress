@@ -6,8 +6,7 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "target": "es6",
-    "lib": ["es7"],
+    "target": "es2019",
     "noImplicitAny": false,
     "moduleResolution": "node",
     "experimentalDecorators": true,
@@ -24,7 +23,7 @@
     "**/node_modules/**/*.(ts|js)",
     "**/static/**/*.(js|ts)",
     "**/ui-shared/**/*",
-    "**/ui-admin/**/*",
+    "bp/admin/ui/**/*",
     "bp/ui-studio/**"
   ]
 }

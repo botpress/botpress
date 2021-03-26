@@ -39,9 +39,8 @@ class Inspector extends Component<Props> {
   render() {
     const { currentFlowNode } = this.props
 
-    const goBackToMain = () => {
+    const close = () => {
       this.props.closeFlowNodeProps()
-      this.props.refreshFlowsLinks()
     }
 
     const node = currentFlowNode
@@ -51,9 +50,13 @@ class Inspector extends Component<Props> {
         {nodeType !== 'say_something' && (
           <Fragment>
             {node && (
-              <Button id="btn-back-element" className={style.noLineHeight} onClick={goBackToMain} small={true}>
-                <i className="material-icons">keyboard_backspace</i>
-              </Button>
+              <i className="material-icons" style={{
+                zIndex: 10,
+                top: 80,
+                right: 10,
+                position: 'absolute',
+                cursor: 'pointer'
+              }} onClick={close}>close</i>
             )}
             <H4>{node ? 'Node Properties' : 'Flow Properties'}</H4>
           </Fragment>
@@ -122,8 +125,13 @@ class Inspector extends Component<Props> {
     }
 
     if (nodeTypes.includes(nodeType)) {
+      const isLastNode = currentFlow.nodes.length
+        ? currentFlow.nodes[currentFlow.nodes.length - 1].id === currentFlowNode.id
+        : false
+
       return (
         <StandardNode
+          isLastNode={isLastNode}
           readOnly={readOnly}
           flow={currentFlow}
           subflows={subflows}
