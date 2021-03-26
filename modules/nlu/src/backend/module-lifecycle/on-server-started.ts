@@ -110,14 +110,6 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
   })
 }
 
-const parseCacheSize = (cacheSize: string | undefined): number => {
-  const parsedCacheSize = bytes(cacheSize)
-  if (!parsedCacheSize) {
-    return Infinity
-  }
-  return Math.abs(parsedCacheSize)
-}
-
 export function getOnSeverStarted(state: NLUState) {
   return async (bp: typeof sdk) => {
     await initializeReportingTool(bp, state)
@@ -129,15 +121,7 @@ export function getOnSeverStarted(state: NLUState) {
       error: (msg: string, err?: Error) => (err ? bp.logger.attachError(err).error(msg) : bp.logger.error(msg))
     }
 
-    const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = globalConfig
-
-    const parsedConfig: NLUEngine.Config = {
-      languageSources,
-      ducklingEnabled,
-      ducklingURL,
-      modelCacheSize: parseCacheSize(modelCacheSize)
-    }
-    state.engine = await NLUEngine.makeEngine(parsedConfig, logger)
+    state.engine = await NLUEngine.makeEngine(globalConfig, logger)
 
     await registerMiddleware(bp, state)
   }
