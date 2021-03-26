@@ -34,17 +34,15 @@ interface LoadedModel {
   entityCache: EntityCacheManager
 }
 
+const DEFAULT_CACHE_SIZE = Infinity
+
 const DEFAULT_TRAINING_OPTIONS: TrainingOptions = {
   progressCallback: () => {},
   previousModel: undefined
 }
 
-const DEFAULT_ENGINE_OPTIONS: EngineOptions = {
-  maxCacheSize: 262144000 // 250mb of model cache
-}
-
 interface EngineOptions {
-  maxCacheSize: number
+  cacheSize: string
 }
 
 export default class Engine implements Engine {
@@ -53,13 +51,30 @@ export default class Engine implements Engine {
 
   private modelsById: LRUCache<string, LoadedModel>
 
-  constructor(opt?: Partial<EngineOptions>) {
-    const options: EngineOptions = { ...DEFAULT_ENGINE_OPTIONS, ...opt }
+  constructor(options: Partial<EngineOptions> = {}) {
     this.modelsById = new LRUCache({
-      max: options.maxCacheSize,
+      max: this._parseCacheSize(options.cacheSize),
       length: sizeof // ignores size of functions, but let's assume it's small
     })
-    trainDebug(`model cache size is: ${bytes(options.maxCacheSize)}`)
+
+    const debugMsg =
+      this.modelsById.max === Infinity
+        ? 'model cache size is infinite'
+        : `model cache size is: ${bytes(this.modelsById.max)}`
+    trainDebug(debugMsg)
+  }
+
+  private _parseCacheSize = (cacheSize: string | undefined): number => {
+    if (!cacheSize) {
+      return DEFAULT_CACHE_SIZE
+    }
+
+    const parsedCacheSize = bytes(cacheSize)
+    if (!parsedCacheSize) {
+      return DEFAULT_CACHE_SIZE
+    }
+
+    return Math.abs(parsedCacheSize)
   }
 
   public getHealth() {
