@@ -99,9 +99,9 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
         props.language,
         FLAGGED_MESSAGE_STATUS.new
       )
-      await db.updateStatus(props.botId, id1.toString(), FLAGGED_MESSAGE_STATUS.pending)
-      await db.updateStatus(props.botId, id2.toString(), FLAGGED_MESSAGE_STATUS.pending)
-      await db.updateStatus(props.botId, id3.toString(), FLAGGED_MESSAGE_STATUS.deleted)
+      await db.updateStatuses(props.botId, [id1.toString()], FLAGGED_MESSAGE_STATUS.pending)
+      await db.updateStatuses(props.botId, [id2.toString()], FLAGGED_MESSAGE_STATUS.pending)
+      await db.updateStatuses(props.botId, [id3.toString()], FLAGGED_MESSAGE_STATUS.deleted)
 
       expect(await db.listEvents(props.botId, props.language, FLAGGED_MESSAGE_STATUS.pending)).toHaveLength(2)
       expect(await db.listEvents(props.botId, props.language, FLAGGED_MESSAGE_STATUS.deleted)).toHaveLength(1)
