@@ -50,7 +50,7 @@ const ConfigStatus = () => {
 
   const restartServer = async () => {
     try {
-      await axios.post(`${adminUrl}/rebootServer`)
+      await axios.post(`${adminUrl}/management/rebootServer`)
       setRestart(true)
     } catch (err) {
       toastFailure(err.message)
