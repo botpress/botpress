@@ -1,8 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { allInRange, GetZPercent, std } from '../tools/math'
-
+import { allInRange, GetZPercent, std } from './math'
 import { NONE_INTENT } from './typings'
 
 const OOS_AS_NONE_TRESH = 0.4
@@ -10,9 +9,6 @@ const LOW_INTENT_CONFIDENCE_TRESH = 0.4
 
 // @deprecated > 13
 export default function legacyElectionPipeline(input: sdk.IO.EventUnderstanding) {
-  if (!input.predictions) {
-    return input
-  }
   let step = electIntent(input)
   step = detectAmbiguity(step)
   step = extractElectedIntentSlot(step)
@@ -20,10 +16,15 @@ export default function legacyElectionPipeline(input: sdk.IO.EventUnderstanding)
 }
 
 function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {
-  const allCtx = Object.keys(input.predictions)
+  const inputPredictions = input.predictions
+  if (!inputPredictions) {
+    return input
+  }
+
+  const allCtx = Object.keys(inputPredictions)
 
   const ctx_predictions = allCtx.map(label => {
-    const { confidence } = input.predictions[label]
+    const { confidence } = inputPredictions[label]
     return { label, confidence }
   })
 
@@ -138,6 +139,11 @@ function detectAmbiguity(input: sdk.IO.EventUnderstanding): sdk.IO.EventUndersta
 }
 
 function extractElectedIntentSlot(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {
+  const inputPredictions = input.predictions
+  if (!inputPredictions) {
+    return input
+  }
+
   const intentWasElectedWithoutAmbiguity = input?.intent?.name && !_.isEmpty(input.predictions) && !input.ambiguous
   const intentIsNone = input?.intent?.name === NONE_INTENT
   if (!intentWasElectedWithoutAmbiguity || intentIsNone) {
@@ -145,7 +151,7 @@ function extractElectedIntentSlot(input: sdk.IO.EventUnderstanding): sdk.IO.Even
   }
 
   const elected = input.intent!
-  const electedIntent = input.predictions[elected.context].intents.find(i => i.label === elected.name)
+  const electedIntent = inputPredictions[elected.context].intents.find(i => i.label === elected.name)
   return { ...input, slots: electedIntent!.slots }
 }
 
