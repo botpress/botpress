@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import bytes from 'bytes'
 import * as NLU from 'common/nlu/engine'
 import _ from 'lodash'
 
@@ -31,7 +30,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
     languageSources,
     ducklingEnabled,
     ducklingURL,
-    modelCacheSize: bytes(modelCacheSize)
+    modelCacheSize
   }
 
   const logger = <NLU.Logger>{

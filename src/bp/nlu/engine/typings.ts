@@ -1,5 +1,5 @@
 export interface Config extends LanguageConfig {
-  modelCacheSize: number
+  modelCacheSize?: string
 }
 
 export interface LanguageConfig {
