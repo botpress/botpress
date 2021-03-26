@@ -1,10 +1,10 @@
 import * as sdk from 'botpress/sdk'
+import bytes from 'bytes'
 import * as NLUEngine from 'common/nlu/engine'
 import _ from 'lodash'
 
 import { Config } from '../../config'
 import legacyElectionPipeline from '../election/legacy-election'
-import { parseCacheSize } from '../parse-cache-size'
 import { PredictionHandler } from '../prediction-handler'
 import { setTrainingSession } from '../train-session-service'
 import { NLUProgressEvent, NLUState } from '../typings'
@@ -108,6 +108,14 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
       }
     }
   })
+}
+
+const parseCacheSize = (cacheSize: string | undefined): number => {
+  const parsedCacheSize = bytes(cacheSize)
+  if (!parsedCacheSize) {
+    return Infinity
+  }
+  return Math.abs(parsedCacheSize)
 }
 
 export function getOnSeverStarted(state: NLUState) {
