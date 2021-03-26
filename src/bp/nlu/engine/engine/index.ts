@@ -58,7 +58,7 @@ export default class Engine implements Engine {
     })
 
     const debugMsg =
-      Math.abs(this.modelsById.max) === Infinity
+      this.modelsById.max === Infinity
         ? 'model cache size is infinite'
         : `model cache size is: ${bytes(this.modelsById.max)}`
     trainDebug(debugMsg)
