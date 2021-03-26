@@ -121,14 +121,7 @@ export function getOnSeverStarted(state: NLUState) {
       error: (msg: string, err?: Error) => (err ? bp.logger.attachError(err).error(msg) : bp.logger.error(msg))
     }
 
-    const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = globalConfig
-    const parsedConfig: NLUEngine.Config = {
-      languageSources,
-      ducklingEnabled,
-      ducklingURL,
-      modelCacheSize: bytes(modelCacheSize)
-    }
-    state.engine = await NLUEngine.makeEngine(parsedConfig, logger)
+    state.engine = await NLUEngine.makeEngine(globalConfig, logger)
 
     await registerMiddleware(bp, state)
   }

@@ -28,7 +28,7 @@ export interface APIOptions {
   bodySize: string
   batchSize: number
   silent: boolean
-  modelCacheSize: string
+  modelCacheSize?: string
 }
 
 const debug = DEBUG('api')

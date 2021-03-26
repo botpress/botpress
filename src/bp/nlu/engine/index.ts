@@ -16,7 +16,7 @@ export const errors = {
 export const makeEngine = async (config: Config, logger: Logger) => {
   const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = config
   const langConfig = { ducklingEnabled, ducklingURL, languageSources }
-  const engine = new Engine({ maxCacheSize: modelCacheSize })
+  const engine = new Engine({ cacheSize: modelCacheSize })
   await engine.initialize(langConfig, logger)
   return engine
 }
