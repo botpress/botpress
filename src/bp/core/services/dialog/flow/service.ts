@@ -131,8 +131,7 @@ export class ScopedFlowService {
   ) {
     this.cache = new ArrayCache<string, FlowView>(
       x => x.name,
-      // TODO not sure about this
-      (x, pkey, nkey) => ({ ...x, name: nkey, location: nkey })
+      (x, prevKey, newKey) => ({ ...x, name: newKey, location: newKey })
     )
     this.expectedSavesCache = new LRUCache({ max: 100, maxAge: ms('20s') })
   }
