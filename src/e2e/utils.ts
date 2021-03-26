@@ -54,7 +54,7 @@ export const expectCallSuccess = async (url: string, method?: HttpMethod): Promi
 }
 
 export const expectAdminApiCallSuccess = async (endOfUrl: string, method?: HttpMethod): Promise<void> => {
-  const response = await getResponse(`${bpConfig.apiHost}/api/v1/admin/${endOfUrl}`, method)
+  const response = await getResponse(`${bpConfig.apiHost}/api/v2/admin/${endOfUrl}`, method)
   expect(response.status()).toBe(200)
 }
 
@@ -117,7 +117,7 @@ export const clickOnTreeNode = async (searchText: string, button: MouseButtons =
 }
 
 export const closeToaster = async () => {
-  await clickOn(".recipe-toaster svg[data-icon='cross']")
+  await clickOn("svg[data-icon='cross']")
   await page.waitForFunction(() => {
     return document.querySelector('.bp3-overlay').childElementCount === 0
   })

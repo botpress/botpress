@@ -48,13 +48,13 @@ const buildStudio = cb => {
 const buildAdmin = cb => {
   const prod = process.argv.includes('--prod') ? '--nomap --prod' : ''
 
-  const admin = exec(`yarn && yarn build ${prod}`, { cwd: 'src/bp/ui-admin' }, err => cb(err))
+  const admin = exec(`yarn && yarn build ${prod}`, { cwd: 'src/bp/admin/ui' }, err => cb(err))
   verbose && admin.stdout.pipe(process.stdout)
   admin.stderr.pipe(process.stderr)
 }
 
 const copyAdmin = () => {
-  return gulp.src('./src/bp/ui-admin/build/**/*').pipe(gulp.dest('./out/bp/ui-admin/public'))
+  return gulp.src('./src/bp/admin/ui/build/**/*').pipe(gulp.dest('./out/bp/admin/ui/public'))
 }
 
 const cleanStudio = () => {
@@ -62,7 +62,7 @@ const cleanStudio = () => {
 }
 
 const cleanAdmin = () => {
-  return gulp.src('./out/bp/ui-admin/public', { allowEmpty: true }).pipe(rimraf())
+  return gulp.src('./out/bp/admin/ui/public', { allowEmpty: true }).pipe(rimraf())
 }
 
 const cleanStudioAssets = () => {
@@ -78,7 +78,7 @@ const createStudioSymlink = () => {
 }
 
 const watchAdmin = cb => {
-  const admin = exec('yarn && yarn start:dev', { cwd: 'src/bp/ui-admin' }, err => cb(err))
+  const admin = exec('yarn && yarn start:dev', { cwd: 'src/bp/admin/ui' }, err => cb(err))
   admin.stdout.pipe(process.stdout)
   admin.stderr.pipe(process.stderr)
 }
