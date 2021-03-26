@@ -166,17 +166,13 @@ export class ScopedFlowService {
       this.expectedSavesCache.set(flowPath, expectedSaves - 1)
     }
 
-    /* TODO : is this still necessary?
-
     // parent flows are only used by the NDU
     if (this._isOneFlow()) {
-      const flows = this._flowCache.get(this.botId)
+      const flows = this.cache.values()
       const flowsWithParents = this.addParentsToFlows(flows)
 
-      this._flowCache.set(this.botId, flowsWithParents)
+      this.cache.initialize(flowsWithParents)
     }
-
-    */
   }
 
   private incrementExpectedSaves(flowName: string) {
