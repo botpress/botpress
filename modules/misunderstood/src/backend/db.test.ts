@@ -24,18 +24,21 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
   })
 
   describe('listEvents', () => {
-    it('Returns no events when none in table', async () => {
-      const botId = 'mybot'
-      const language = 'en'
+    const props = {
+      botId: 'bot1',
+      eventId: '1234',
+      language: 'en',
+      preview: 'some message',
+      reason: FLAG_REASON.action
+    }
 
-      const events = await db.listEvents(botId, language, FLAGGED_MESSAGE_STATUS.new)
+    it('Returns no events when none in table', async () => {
+      const events = await db.listEvents(props.botId, props.language, FLAGGED_MESSAGE_STATUS.new)
       expect(events).toHaveLength(0)
     })
 
     it('Returns one event if one exists', async () => {
-      const botId = 'mybot'
-      const eventId = '1234'
-      const language = 'en'
+      const { botId, eventId, language } = props
       await db.addEvent({ botId, eventId, language, preview: 'some message', reason: FLAG_REASON.action })
 
       const events = await db.listEvents(botId, language, FLAGGED_MESSAGE_STATUS.new)
@@ -44,9 +47,7 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
     })
 
     it('Returns many events if many exist', async () => {
-      const botId = 'mybot'
-      const eventId = '1234'
-      const language = 'en'
+      const { botId, eventId, language } = props
       for (let i = 0; i < 3; i++) {
         await db.addEvent({ botId, eventId, language, preview: 'some message', reason: FLAG_REASON.action })
       }
@@ -57,14 +58,6 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
     })
 
     it('Filters - by botId', async () => {
-      const props = {
-        botId: 'bot1',
-        eventId: '1234',
-        language: 'en',
-        preview: 'some message',
-        reason: FLAG_REASON.action
-      }
-
       await db.addEvent({
         ...props,
         botId: 'bot1'
@@ -78,20 +71,12 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
         botId: 'bot2'
       })
 
-      expect(await db.listEvents('bot1', 'en', FLAGGED_MESSAGE_STATUS.new)).toHaveLength(1)
-      expect(await db.listEvents('bot2', 'en', FLAGGED_MESSAGE_STATUS.new)).toHaveLength(2)
-      expect(await db.listEvents('bot3', 'en', FLAGGED_MESSAGE_STATUS.new)).toHaveLength(0)
+      expect(await db.listEvents('bot1', props.language, FLAGGED_MESSAGE_STATUS.new)).toHaveLength(1)
+      expect(await db.listEvents('bot2', props.language, FLAGGED_MESSAGE_STATUS.new)).toHaveLength(2)
+      expect(await db.listEvents('bot3', props.language, FLAGGED_MESSAGE_STATUS.new)).toHaveLength(0)
     })
 
     it('Filters - by language', async () => {
-      const props = {
-        botId: 'bot1',
-        eventId: '1234',
-        language: 'en',
-        preview: 'some message',
-        reason: FLAG_REASON.action
-      }
-
       for (const language of ['en', 'fr', 'fr']) {
         await db.addEvent({
           ...props,
@@ -106,14 +91,6 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
     })
 
     it('Filters - by status', async () => {
-      const props = {
-        botId: 'bot1',
-        eventId: '1234',
-        language: 'en',
-        preview: 'some message',
-        reason: FLAG_REASON.action
-      }
-
       await db.addEvent(props)
       await db.addEvent(props)
       await db.addEvent(props)
@@ -133,14 +110,6 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
     })
 
     it('Filters - by reason', async () => {
-      const props = {
-        botId: 'bot1',
-        eventId: '1234',
-        language: 'en',
-        preview: 'some message',
-        reason: FLAG_REASON.action
-      }
-
       for (const reason of [
         FLAG_REASON.thumbs_down,
         FLAG_REASON.thumbs_down,
@@ -169,14 +138,6 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
     })
 
     it('Filters - by date', async () => {
-      const props = {
-        botId: 'bot1',
-        eventId: '1234',
-        language: 'en',
-        preview: 'some message',
-        reason: FLAG_REASON.action
-      }
-
       for (const updatedAt of ['2020-09-29T04:00:00Z', '2020-09-29T06:00:00Z', '2020-09-29T08:00:00Z']) {
         await db.knex(TABLE_NAME).insert({
           ...props,
