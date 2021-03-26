@@ -34,25 +34,24 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
 
     it('Returns no events when none in table', async () => {
       const events = await db.listEvents(props.botId, props.language, FLAGGED_MESSAGE_STATUS.new)
+
       expect(events).toHaveLength(0)
     })
 
     it('Returns one event if one exists', async () => {
-      const { botId, eventId, language } = props
-      await db.addEvent({ botId, eventId, language, preview: 'some message', reason: FLAG_REASON.action })
+      await db.addEvent(props)
 
-      const events = await db.listEvents(botId, language, FLAGGED_MESSAGE_STATUS.new)
+      const events = await db.listEvents(props.botId, props.language, FLAGGED_MESSAGE_STATUS.new)
 
       expect(events).toHaveLength(1)
     })
 
     it('Returns many events if many exist', async () => {
-      const { botId, eventId, language } = props
       for (let i = 0; i < 3; i++) {
-        await db.addEvent({ botId, eventId, language, preview: 'some message', reason: FLAG_REASON.action })
+        await db.addEvent(props)
       }
 
-      const events = await db.listEvents(botId, language, FLAGGED_MESSAGE_STATUS.new)
+      const events = await db.listEvents(props.botId, props.language, FLAGGED_MESSAGE_STATUS.new)
 
       expect(events).toHaveLength(3)
     })
