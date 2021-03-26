@@ -40,16 +40,3 @@ export const RESOLUTION = {
   [RESOLUTION_TYPE.qna]: lang.tr('module.misunderstood.qna'),
   [RESOLUTION_TYPE.intent]: lang.tr('module.misunderstood.intent')
 }
-
-export const groupEventsByUtterance = events => {
-  const itemsByUtterance = new Map() // Using a Map here since it remembers the insertion order for keys
-  events.forEach(function(event, eventIndex) {
-    const { preview: utterance } = event
-    if (!itemsByUtterance.has(utterance)) {
-      itemsByUtterance.set(utterance, [{ event, eventIndex }])
-    } else {
-      itemsByUtterance.get(utterance).push({ event, eventIndex })
-    }
-  })
-  return itemsByUtterance
-}

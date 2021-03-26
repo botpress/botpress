@@ -13,7 +13,7 @@ import ApiClient from './ApiClient'
 import MainScreen from './MainScreen'
 import SidePanelContent from './SidePanel'
 import style from './style.scss'
-import { groupEventsByUtterance } from './util'
+import { groupEventsByUtterance } from './eventUtils'
 import { kebabCase } from 'lodash'
 
 interface Props {
