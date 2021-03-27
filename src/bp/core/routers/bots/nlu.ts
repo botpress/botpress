@@ -1,15 +1,13 @@
 import * as sdk from 'botpress/sdk'
 import { EntityDefCreateSchema, IntentDefCreateSchema } from 'common/validation'
-import { AuthService, TOKEN_AUDIENCE } from 'core/security'
+import { CustomRouter } from 'core/routers/customRouter'
+import { AuthService, TOKEN_AUDIENCE, checkTokenHeader, needPermissions } from 'core/security'
 import { NLUService } from 'core/services/nlu/nlu-service'
 import { WorkspaceService } from 'core/users'
 import { RequestHandler, Router } from 'express'
 import { validate } from 'joi'
 import _ from 'lodash'
 import yn from 'yn'
-
-import { CustomRouter } from '../customRouter'
-import { checkTokenHeader, needPermissions } from '../util'
 
 const removeSlotsFromUtterances = (utterances: { [key: string]: any }, slotNames: string[]) =>
   _.fromPairs(

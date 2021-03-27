@@ -10,9 +10,9 @@ import rimraf from 'rimraf'
 import { CSRF_TOKEN_HEADER, JWT_COOKIE_NAME } from './common/auth'
 import { TokenUser } from './common/typings'
 import { bytesToString } from './common/utils'
+import { BpfsScopedChange, FileChange } from './core/bpfs'
 import { createArchiveFromFolder, extractArchive } from './core/misc/archive'
 import { asBytes } from './core/misc/utils'
-import { BpfsScopedChange, FileChange } from './core/services'
 
 // This is a dependency of axios, and sets the default body limit to 10mb. Need it to be higher
 followRedirects.maxBodyLength = asBytes('500mb')

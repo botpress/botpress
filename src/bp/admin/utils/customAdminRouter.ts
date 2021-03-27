@@ -10,13 +10,14 @@ import { JobService } from 'core/distributed'
 import { AlertingService, MonitoringService } from 'core/health'
 import { LogsRepository } from 'core/logger'
 import { ModuleLoader } from 'core/modules'
-import { assertBotpressPro, loadUser } from 'core/routers/util'
+import { loadUser } from 'core/routers'
 import {
   AuthStrategies,
   AuthService,
   TOKEN_AUDIENCE,
   needPermissions,
   hasPermissions,
+  assertBotpressPro,
   checkTokenHeader
 } from 'core/security'
 

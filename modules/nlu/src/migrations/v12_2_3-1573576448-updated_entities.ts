@@ -1,6 +1,11 @@
 import * as sdk from 'botpress/sdk'
+import path from 'path'
 
-import { FuzzyTolerance } from '../backend/entities/validation'
+const FuzzyTolerance = {
+  Loose: 0.65,
+  Medium: 0.8,
+  Strict: 1
+}
 
 const migration: sdk.ModuleMigration = {
   info: {
@@ -42,6 +47,14 @@ const migration: sdk.ModuleMigration = {
     }
 
     return { success: true, message: "Entities' fields updated successfully" }
+  },
+
+  down: async ({ bp }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
+    bp.logger.warn(`No down migration written for ${path.basename(__filename)}`)
+    return {
+      success: true,
+      message: 'No down migration written.'
+    }
   }
 }
 
