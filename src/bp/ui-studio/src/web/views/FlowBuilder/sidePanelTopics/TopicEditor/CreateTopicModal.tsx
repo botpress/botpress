@@ -25,7 +25,7 @@ const CreateTopicModal: FC<Props> = props => {
   const [description, setDescription] = useState<string>('')
 
   const submit = async () => {
-    await axios.post(`${window.BOT_API_PATH}/topic`, { name, description })
+    await axios.post(`${window.BOT_API_PATH}/topics`, { name, description })
     props.fetchTopics()
 
     closeModal()
