@@ -146,7 +146,7 @@ The example below shows how you can change the chatbot's language to French when
       })
 ```
 
-## Advanced Customization
+### Sending Custom Payloads
 All messages sent to a user consist of a `payload`. That payload has a `type` property that tells the webchat how the payload should render on the screen.
 
 There are different ways to send that payload to the user:
@@ -154,7 +154,7 @@ There are different ways to send that payload to the user:
 - Sending a Content Element via the Flow Editor [example here](https://github.com/botpress/botpress/blob/master/modules/builtin/src/content-types/image.js)
 - Sending an event via Hooks or Actions (https://github.com/botpress/botpress/blob/master/examples/custom-component/src/hooks/after_incoming_middleware/sendoptions.js)
 
-There are multiple types already built-in Botpress (these are listed at the bottom of this page), but you can create them easily if you require more advanced components.
+There are multiple types already built-in in Botpress (these are listed at the bottom of this page), but you can create them easily if you require more advanced components.
 
 ### Prevent storing sensitive information
 
