@@ -178,8 +178,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
     noneIntent: Omit<Intent<Utterance>, 'contexts'>,
     progress: (p: number) => void
   ): Promise<string | undefined> {
-    const { allUtterances, nluSeed, intents } = trainInput
-    const { languageCode } = allUtterances[0]
+    const { allUtterances, nluSeed, intents, languageCode } = trainInput
 
     const trainingOptions: MLToolkit.SVM.SVMOptions = {
       c: [10], // so there's no grid search
