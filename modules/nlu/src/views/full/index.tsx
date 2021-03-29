@@ -1,22 +1,23 @@
-import { Icon, Tab, Tabs, Tag } from '@blueprintjs/core'
+import { Icon } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
-import { EmptyState, HeaderButtonProps, lang, MainLayout } from 'botpress/shared'
-import { Container, SidePanel, SplashScreen } from 'botpress/ui'
+import { NLU } from 'botpress/sdk'
+import { EmptyState, lang } from 'botpress/shared'
+import { Container } from 'botpress/ui'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import { makeApi } from '../../api'
 
 import { EntityEditor } from './entities/EntityEditor'
-import { EntitySidePanelSection } from './entities/SidePanelSection'
 import { IntentEditor } from './intents/FullEditor'
 import { LiteEditor } from './intents/LiteEditor'
-import { IntentSidePanelSection } from './intents/SidePanelSection'
+import { NLUSidePanel } from './SidePanel'
 import style from './style.scss'
 
+type NLUItemType = 'intent' | 'entity'
 export interface NluItem {
   name: string
-  type: 'intent' | 'entity'
+  type: NLUItemType
 }
 
 interface Props {
@@ -32,7 +33,6 @@ const NLU: FC<Props> = props => {
   const [currentItem, setCurrentItem] = useState<NluItem | undefined>()
   const [intents, setIntents] = useState([])
   const [entities, setEntities] = useState([])
-  const [currentTab, setCurrentTab] = useState('intents')
 
   const loadIntents = () =>
     api
@@ -97,87 +97,39 @@ const NLU: FC<Props> = props => {
     )
   }
 
-  const intentsPanel = (
-    <IntentSidePanelSection
-      api={api}
-      contentLang={props.contentLang}
-      intents={intents}
-      currentItem={currentItem}
-      setCurrentItem={handleSelectItem}
-      reloadIntents={loadIntents}
-    />
-  )
-
   const customEntities = entities.filter(e => e.type !== 'system')
-  const entitiesPanel = (
-    <EntitySidePanelSection
-      api={api}
-      entities={customEntities}
-      currentItem={currentItem}
-      setCurrentItem={handleSelectItem}
-      reloadEntities={loadEntities}
-      reloadIntents={loadIntents}
-    />
-  )
-
-  const tabs = [
-    {
-      id: 'intents',
-      title: lang.tr('module.nlu.intents.title')
-    },
-    {
-      id: 'entities',
-      title: lang.tr('module.nlu.entities.title')
-    }
-  ]
 
   return (
-    <MainLayout.Wrapper>
-      <Container>
-        <SidePanel>
-          <MainLayout.Toolbar tabChange={setCurrentTab} tabs={tabs} currentTab={currentTab} />
-          {currentTab === 'intents' && (
-            <IntentSidePanelSection
-              api={api}
-              contentLang={props.contentLang}
-              intents={intents}
-              currentItem={currentItem}
-              setCurrentItem={handleSelectItem}
-              reloadIntents={loadIntents}
-            />
-          )}
-          {currentTab === 'entities' && (
-            <EntitySidePanelSection
-              api={api}
-              entities={customEntities}
-              currentItem={currentItem}
-              setCurrentItem={handleSelectItem}
-              reloadEntities={loadEntities}
-              reloadIntents={loadIntents}
-            />
-          )}
-        </SidePanel>
-        <div className={style.container}>
-          {!currentItemExists() && (
-            <SplashScreen
-              icon={<Icon iconSize={80} icon="translate" style={{ marginBottom: '3em' }} />}
-              title={lang.tr('module.nlu.title')}
-              description={lang.tr('module.nlu.description')}
-            />
-          )}
-          {!!intents.length && currentItem && currentItem.type === 'intent' && (
-            <IntentEditor intent={currentItem.name} api={api} contentLang={props.contentLang} showSlotPanel />
-          )}
-          {currentItem && currentItem.type === 'entity' && (
-            <EntityEditor
-              entities={entities}
-              entity={entities.find(ent => ent.name === currentItem.name)}
-              updateEntity={_.debounce(updateEntity, 2500)}
-            />
-          )}
-        </div>
-      </Container>
-    </MainLayout.Wrapper>
+    <Container>
+      <NLUSidePanel
+        api={api}
+        contentLang={props.contentLang}
+        currentItem={currentItem}
+        entities={customEntities}
+        intents={intents}
+        reloadEntities={loadEntities}
+        reloadIntents={loadIntents}
+        setCurrentItem={setCurrentItem}
+      />
+      <div className={style.container}>
+        {!currentItemExists() && (
+          <EmptyState
+            icon={<Icon icon="translate" iconSize={70} className={style.emtpyStateIcon} />}
+            text={lang.tr('module.nlu.description')}
+          />
+        )}
+        {!!intents.length && currentItem && currentItem.type === 'intent' && (
+          <IntentEditor intent={currentItem.name} api={api} contentLang={props.contentLang} showSlotPanel />
+        )}
+        {currentItem && currentItem.type === 'entity' && (
+          <EntityEditor
+            entities={entities}
+            entity={entities.find(ent => ent.name === currentItem.name)}
+            updateEntity={_.debounce(updateEntity, 2500)}
+          />
+        )}
+      </div>
+    </Container>
   )
 }
 

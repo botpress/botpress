@@ -139,20 +139,15 @@ export const IntentSidePanelSection: FC<Props> = props => {
 
   return (
     <div>
-      <Button
-        id="btn-add-intent"
-        className={Classes.MINIMAL}
-        icon="new-object"
-        text={lang.tr('module.nlu.intents.new')}
-        onClick={() => showIntentNameModal('', 'create')}
-      />
-      <SearchBar
-        id="intents-filter"
-        icon="filter"
-        placeholder={lang.tr('module.nlu.intents.filterPlaceholder')}
-        onChange={setIntentsFilter}
-        showButton={false}
-      />
+      {props.intents.length > 1 && (
+        <SearchBar
+          id="intents-filter"
+          icon="filter"
+          placeholder={lang.tr('module.nlu.intents.filterPlaceholder')}
+          onChange={setIntentsFilter}
+          showButton={false}
+        />
+      )}
       <ItemList
         items={intentItems}
         onElementClicked={({ value: name }) => props.setCurrentItem({ type: 'intent', name })}
