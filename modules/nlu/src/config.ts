@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import { LanguageSource } from 'common/nlu/engine'
 
 export interface Config {
   /**
@@ -25,11 +25,24 @@ export interface Config {
    * The list of sources to load languages from
    * @default [{ "endpoint": "https://lang-01.botpress.io" }]
    */
-  languageSources: NLU.LanguageSource[]
+  languageSources: LanguageSource[]
 
   /**
    * Maximum allowed model cache size
-   * @default 850mb
    */
-  modelCacheSize: string
+  modelCacheSize?: string
+
+  /**
+   * Maximum number of concurrent trainings per Botpress instance
+   * @default 2
+   * @optional
+   */
+  maxTrainingPerInstance?: number
+
+  /**
+   * Whether or not to train bots that require training on mount
+   * @default true
+   * @optional
+   */
+  queueTrainingOnBotMount?: boolean
 }

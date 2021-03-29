@@ -16,7 +16,7 @@ import {
 
 import applyChanges from './applyChanges'
 
-const TABLE_NAME = 'misunderstood'
+export const TABLE_NAME = 'misunderstood'
 const EVENTS_TABLE_NAME = 'events'
 
 export default class Db {
@@ -45,6 +45,12 @@ export default class Db {
 
   async addEvent(event: FlaggedEvent) {
     await this.knex(TABLE_NAME).insert(event)
+  }
+
+  async deleteAll(botId: string, status: FLAGGED_MESSAGE_STATUS) {
+    await this.knex(TABLE_NAME)
+      .where({ botId, status })
+      .del()
   }
 
   async updateStatus(botId: string, id: string, status: FLAGGED_MESSAGE_STATUS, resolutionData?: ResolutionData) {

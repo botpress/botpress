@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 ADD . /botpress
 WORKDIR /botpress
@@ -12,7 +12,7 @@ RUN apt update && \
 	chgrp -R 0 /botpress && \
 	chmod -R g=u /botpress && \
 	apt install -y tzdata && \
-	ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime && \
+	ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
 	dpkg-reconfigure --frontend noninteractive tzdata && \
 	./bp extract
 

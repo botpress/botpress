@@ -433,105 +433,6 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NLU {
-    export namespace errors {
-      export const isTrainingCanceled: (err: Error) => boolean
-      export const isTrainingAlreadyStarted: (err: Error) => boolean
-    }
-
-    export const makeEngine: (config: Config, logger: Logger) => Promise<Engine>
-
-    export interface Config extends LanguageConfig {
-      modelCacheSize: number
-    }
-
-    export interface LanguageConfig {
-      ducklingURL: string
-      ducklingEnabled: boolean
-      languageSources: LanguageSource[]
-    }
-
-    export interface LanguageSource {
-      endpoint: string
-      authToken?: string
-    }
-
-    export interface Logger {
-      debug: (msg: string) => void
-      info: (msg: string) => void
-      warning: (msg: string, err?: Error) => void
-      error: (msg: string, err?: Error) => void
-    }
-
-    export interface TrainingSet {
-      intentDefs: NLU.IntentDefinition[]
-      entityDefs: NLU.EntityDefinition[]
-      languageCode: string
-      seed: number // seeds random number generator in nlu training
-    }
-
-    export interface ModelIdArgs extends TrainingSet {
-      specifications: Specifications
-    }
-
-    export interface TrainingOptions {
-      progressCallback: (x: number) => void
-      previousModel: ModelId | undefined
-    }
-
-    export interface Engine {
-      getHealth: () => Health
-      getLanguages: () => string[]
-      getSpecifications: () => Specifications
-      loadModel: (model: Model) => Promise<void>
-      unloadModel: (modelId: ModelId) => void
-      hasModel: (modelId: ModelId) => boolean
-      train: (trainSessionId: string, trainSet: TrainingSet, options?: Partial<TrainingOptions>) => Promise<Model>
-      cancelTraining: (trainSessionId: string) => Promise<void>
-      detectLanguage: (text: string, modelByLang: Dic<ModelId>) => Promise<string>
-      predict: (text: string, modelId: ModelId) => Promise<PredictOutput>
-      spellCheck: (sentence: string, modelId: ModelId) => Promise<string>
-    }
-
-    export const modelIdService: {
-      toString: (modelId: ModelId) => string // to use ModelId as a key
-      fromString: (stringId: string) => ModelId // to parse information from a key
-      toId: (m: Model) => ModelId // keeps only minimal information to make an id
-      isId: (m: string) => boolean
-      makeId: (factors: ModelIdArgs) => ModelId
-      briefId: (factors: Partial<ModelIdArgs>) => Partial<ModelId> // makes incomplete Id from incomplete information
-    }
-
-    export interface ModelId {
-      specificationHash: string // represents the nlu engine that was used to train the model
-      contentHash: string // represents the intent and entity definitions the model was trained with
-      seed: number // number to seed the random number generators used during nlu training
-      languageCode: string // language of the model
-    }
-
-    export interface Specifications {
-      nluVersion: string // semver string
-      languageServer: {
-        dimensions: number
-        domain: string
-        version: string // semver string
-      }
-    }
-
-    export type Model = ModelId & {
-      startedAt: Date
-      finishedAt: Date
-      data: {
-        input: string
-        output: string
-      }
-    }
-
-    export interface Health {
-      isEnabled: boolean
-      validProvidersCount: number
-      validLanguages: string[]
-    }
-
     /**
      * idle : occures when there are no training sessions for a bot
      * done : when a training is complete
@@ -556,7 +457,6 @@ declare module 'botpress/sdk' {
       status: TrainingStatus
       language: string
       progress: number
-      lock?: RedisLock
     }
 
     export type EntityType = 'system' | 'pattern' | 'list'
@@ -634,26 +534,6 @@ declare module 'botpress/sdk' {
     }
 
     export type SlotCollection = Dic<Slot>
-
-    export interface Predictions {
-      [context: string]: ContextPrediction
-    }
-
-    export interface ContextPrediction {
-      confidence: number
-      oos: number
-      intents: {
-        label: string
-        confidence: number
-        slots: SlotCollection
-        extractor: string
-      }[]
-    }
-
-    export interface PredictOutput {
-      readonly entities: Entity[]
-      readonly predictions: Predictions
-    }
   }
 
   export namespace NDU {
@@ -801,10 +681,24 @@ declare module 'botpress/sdk' {
       readonly threadId?: string
     }
 
-    export type EventUnderstanding = {
+    export interface EventUnderstanding {
       readonly errored: boolean
 
+      readonly predictions?: {
+        [context: string]: {
+          confidence: number
+          oos: number
+          intents: {
+            label: string
+            confidence: number
+            slots: NLU.SlotCollection
+            extractor: string
+          }[]
+        }
+      }
+
       // election
+      readonly entities?: NLU.Entity[]
       readonly intent?: NLU.Intent
       readonly intents?: NLU.Intent[]
       readonly ambiguous?: boolean /** Predicted intents needs disambiguation */
@@ -821,7 +715,7 @@ declare module 'botpress/sdk' {
       readonly language: string /** The language used for prediction */
       readonly includedContexts: string[]
       readonly ms: number
-    } & Partial<NLU.PredictOutput>
+    }
 
     export interface IncomingEvent extends Event {
       /** Array of possible suggestions that the Decision Engine can take  */
@@ -1179,8 +1073,8 @@ declare module 'botpress/sdk' {
       contentTypes: string[]
     }
     converse?: ConverseConfig
-    dialog?: DialogConfig
-    logs?: LogsConfig
+    dialog?: BotDialogConfig
+    logs?: BotLogsConfig
     defaultLanguage: string
     languages: string[]
     locked: boolean
@@ -1236,14 +1130,14 @@ declare module 'botpress/sdk' {
     coverPictureUrl?: string
   }
 
-  export interface LogsConfig {
+  export interface BotLogsConfig {
     expiration: string
   }
 
   /**
    * Configuration definition of Dialog Sessions
    */
-  export interface DialogConfig {
+  export interface BotDialogConfig {
     /** The interval until a session context expires */
     timeoutInterval: string
     /** The interval until a session expires */
@@ -1782,6 +1676,78 @@ declare module 'botpress/sdk' {
     conversationId: uuid
   }
 
+  export interface RenderPipeline {
+    text: typeof experimental.render.text
+    image: typeof experimental.render.image
+    card: typeof experimental.render.card
+    carousel: typeof experimental.render.carousel
+    choice: typeof experimental.render.choice
+    buttonSay: typeof experimental.render.buttonSay
+    buttonUrl: typeof experimental.render.buttonUrl
+    buttonPostback: typeof experimental.render.buttonPostback
+    option: typeof experimental.render.option
+  }
+
+  export interface Content {
+    type: string
+  }
+
+  export interface TextContent extends Content {
+    type: 'text'
+    text: string | MultiLangText
+    markdown?: boolean
+  }
+
+  export interface ImageContent extends Content {
+    type: 'image'
+    image: string
+    title?: string | MultiLangText
+  }
+
+  export interface CarouselContent extends Content {
+    type: 'carousel'
+    items: CardContent[]
+  }
+
+  export interface CardContent extends Content {
+    type: 'card'
+    title: string | MultiLangText
+    subtitle?: string | MultiLangText
+    image?: string
+    actions: ActionButton[]
+  }
+
+  export interface ActionButton {
+    title: string
+    action: string
+  }
+
+  export interface ActionSaySomething extends ActionButton {
+    action: 'Say something'
+    text: string | MultiLangText
+  }
+
+  export interface ActionOpenURL extends ActionButton {
+    action: 'Open URL'
+    url: string
+  }
+
+  export interface ActionPostback extends ActionButton {
+    action: 'Postback'
+    payload: string
+  }
+
+  export interface ChoiceContent extends Content {
+    type: 'single-choice'
+    message: string | MultiLangText
+    choices: ChoiceOption[]
+  }
+
+  export interface ChoiceOption {
+    message: string | MultiLangText
+    value: string
+  }
+
   ////////////////
   //////// API
   ////////////////
@@ -1795,6 +1761,11 @@ declare module 'botpress/sdk' {
      * @param payload The payload to send
      */
     export function sendPayload(payload: RealTimePayload)
+    /**
+     * Returns the corresponding the roomId in the /guest socket io namespace
+     * @param socketId id generated by socket.io
+     */
+    export function getVisitorIdFromGuestSocketId(socketId: string): Promise<undefined | string>
   }
 
   // prettier-ignore
@@ -2547,6 +2518,134 @@ declare module 'botpress/sdk' {
          */
         list(filters: MessageListFilters): Promise<Message[]>
       }
+    }
+
+    /**
+     * WARNING : these payloads do not produce typing indicators yet!
+     */
+    export namespace render {
+      /**
+       * Renders a text element
+       * @param text Text to show
+       * @param markdown Indicates whether to use markdown
+       */
+      export function text(text: string | MultiLangText, markdown?: boolean): TextContent
+
+      /**
+       * Renders an image element
+       * @param url Url of the image to send
+       * @param caption Caption to appear alongside your image
+       */
+      export function image(url: string, caption?: string | MultiLangText): ImageContent
+
+      /**
+       * Renders a carousel element
+       * @param cards The cards of the carousel
+       * @example
+       * bp.render.carousel(bp.render.card('my card'), bp.render.card('my card 2'))
+       */
+      export function carousel(...cards: CardContent[]): CarouselContent
+
+      /**
+       * Renders a card element
+       * @param title The title of your card
+       * @param image The url of a pictured shown in your card
+       * @param subtitle A subtitle below your image
+       * @param buttons Action buttons for your card
+       * @example
+       * bp.render.card('my card', 'https://mysite.com/mypicture.png', 'an interesting subtitle', bp.render.buttonSay('hello'))
+       */
+      export function card(
+        title: string | MultiLangText,
+        image?: string,
+        subtitle?: string | MultiLangText,
+        ...buttons: ActionButton[]
+      ): CardContent
+
+      /**
+       * Renders an action button used to send a message to the conversation
+       * @param title Title shown on the button
+       * @param text Message to send
+       */
+      export function buttonSay(title: string, text: string | MultiLangText): ActionSaySomething
+
+      /**
+       * Renders an action button for opening urls
+       * @param title Title shown on the button
+       * @param text Url to open
+       */
+      export function buttonUrl(title: string, url: string): ActionOpenURL
+
+      /**
+       * Renders an action button for posting content
+       * @param title Title shown on the button
+       * @param payload Payload to post
+       */
+      export function buttonPostback(title: string, payload: string): ActionPostback
+
+      /**
+       * Render a choice element
+       * @param message Message to ask to the user
+       * @param choices Choices that the user can select
+       * @example
+       * bp.render.choice("Yes or no?", bp.render.option('yes'), bp.render.option('no'))
+       */
+      export function choice(message: string | MultiLangText, ...choices: ChoiceOption[]): ChoiceContent
+
+      /**
+       * Renders an option for a choice element
+       * @param value Value associated with the option
+       * @param message Text to shown to the user (has no impact on the processing).
+       * If not provided the value will be shown by default
+       */
+      export function option(value: string, message?: string): ChoiceOption
+
+      /**
+       * Translates a content element to a specific language
+       * @param content Content element to be translated
+       * @param lang Language code in which to translate (en, fr, es, etc.)
+       * @example
+       * const content = bp.render.text({ en: 'hello!', fr: 'salut!' })
+       * // content.text : { en: 'hello!', fr: 'salut!' }
+       * const translated = bp.render.translate(content, 'fr')
+       * // content.text : 'salut!'
+       */
+      export function translate<T extends Content>(content: T, lang: string): T
+
+      /**
+       * Renders a content element's {{mustaches}} using the provided context
+       * @param content The content element to be rendered
+       * @param context The context used to filled the {{mustaches}}
+       * @example
+       * const content = bp.render.text('{{user.name}} is awesome!')
+       * // content.text : '{{user.name}} is awesome!'
+       * const payload = bp.render.template(content, { user: { name: 'bob' } })
+       * // payload.text : 'bob is awesome!'
+       */
+      export function template<T extends Content>(content: T, context: any): T
+
+      /**
+       * Creates a pipeline for rendering, translating and templating content
+       * @param lang Language to use for translation
+       * @param context Context to use for templating
+       * @example
+       * // Doing all this
+       * const content = bp.render.text({ en: 'hello {{user.name}}', fr: 'salut {{user.name}}' })
+       * const translated = bp.render.translate(content, 'fr')
+       * const templated = bp.render.template(translated, { user: { name: 'bob' } })
+       *
+       * // Can be replaced by this
+       * const content = bp.render
+       *   .pipeline('fr', { user: { name: 'bob' } })
+       *   .text({ en: 'hello {{user.name}}', fr: 'salut {{user.name}}' })
+       *
+       * // You can reuse the same pipeline for multiple contents
+       * const render = bp.render.pipeline('fr', { user: { name: 'bob', age: 43, pin: 3030 } })
+       * const text1 = render.text({ en: 'hello {{user.name}}', fr: 'salut {{user.name}}' })
+       * const text2 = render.text({ en: 'age : {{user.age}}', fr: 'âge : {{user.age}}' })
+       * const text3 = render.text('PIN : {{user.pin}}')
+       */
+      export function pipeline(lang: string, context: any): RenderPipeline
     }
   }
 }
