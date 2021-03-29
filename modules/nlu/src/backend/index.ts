@@ -23,7 +23,7 @@ let app: NLUApplication | undefined
 
 const onServerStarted = async (bp: typeof sdk) => {
   app = await bootStrap(bp)
-  registerMiddlewares(bp, app)
+  await registerMiddlewares(bp, app)
 }
 
 const onServerReady = async (bp: typeof sdk) => {
