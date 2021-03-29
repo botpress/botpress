@@ -310,7 +310,7 @@ render(){
 }
 ```
 
-##### Using a Button Keyboard
+#### Using a Button Keyboard
 
 There is a built-in hook that makes it easy to add buttons to any element. You can pass down an array of buttons or an array of array of buttons.
 
