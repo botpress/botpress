@@ -9,6 +9,7 @@
     "scripts": [
       "./core/**/*.js",
       "./admin/**/*.js",
+      "./studio/**/*.js",
       "./*.js",
       "./pro/**/*.js",
       "./common/**/*.js",
