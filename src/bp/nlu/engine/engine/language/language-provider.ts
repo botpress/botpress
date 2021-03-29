@@ -26,17 +26,167 @@ const VECTOR_FILE_PREFIX = 'lang_vectors'
 const TOKEN_FILE_PREFIX = 'utterance_tokens'
 const JUNK_FILE_PREFIX = 'junk_words'
 
+class ManagedLRU<K, V> {
+  private _name: string
+  public cache: lru<K, V>
+  private _dumpDisabled: boolean = false
+  private _cacheDir: string
+  private _filePrefix: string
+  private _versionHash: string
+
+  constructor(
+    cacheDir: string,
+    filePrefix: string,
+    versionHash: string,
+    opts: lru.Options<K, V>,
+    name: string = 'lru'
+  ) {
+    this._filePrefix = filePrefix
+    this._versionHash = versionHash
+    this.cache = new lru<K, V>(opts)
+    this._cacheDir = cacheDir
+    this._name = name
+  }
+
+  public get path() {
+    return path.join(this._cacheDir, `${this._filePrefix}_${this._versionHash}.json`)
+  }
+
+  public async restore(process: (dump: any) => Promise<any> = d => d) {
+    try {
+      if (await fse.pathExists(this.path)) {
+        const dump = await fse.readJSON(this.path)
+        if (!dump) {
+          return
+        }
+        this.cache.load(await process(dump))
+      }
+    } catch (err) {
+      debug(`could not restore ${this._name} cache, error: %s`, err.message)
+    }
+  }
+
+  public async dump() {
+    try {
+      await fse.ensureFile(this.path)
+      await fse.writeJson(this.path, this.cache.dump())
+      debug(`${this._name} cache updated at: %s`, this.path)
+    } catch (err) {
+      debug(`could not persist ${this._name} cache, error: %s`, err.message)
+      this._dumpDisabled = true
+    }
+  }
+
+  public async clearOldFiles() {
+    const cacheExists = await fse.pathExists(this._cacheDir)
+    if (!cacheExists) {
+      return
+    }
+
+    const allCacheFiles = await fse.readdir(this._cacheDir)
+
+    const fileStartWithPrefix = (fileName: string) => {
+      return fileName.startsWith(this._filePrefix)
+    }
+
+    const fileEndsWithIncorrectHash = (fileName: string) => !fileName.includes(this._versionHash)
+
+    const filesToDelete = allCacheFiles
+      .filter(fileStartWithPrefix)
+      .filter(fileEndsWithIncorrectHash)
+      .map(f => path.join(this._cacheDir, f))
+
+    for (const f of filesToDelete) {
+      await fse.unlink(f)
+    }
+  }
+
+  public persist = debounce(async () => {
+    if (!this._dumpDisabled) {
+      await this.dump()
+    }
+  }, ms('5s'))
+
+  public get(key: K): V | undefined {
+    return this.cache.get(key)
+  }
+
+  public set(key: K, value: V, maxAge?: number | undefined): boolean {
+    return this.cache.set(key, value, maxAge)
+  }
+}
+
+const createCaches = async (cacheDir: string, versionHash: string) => {
+  const vectors = new ManagedLRU<string, Float32Array>(
+    cacheDir,
+    VECTOR_FILE_PREFIX,
+    versionHash,
+    {
+      length: (arr: Float32Array) => {
+        if (arr && arr.BYTES_PER_ELEMENT) {
+          return arr.length * arr.BYTES_PER_ELEMENT
+        } else {
+          return 300 /* dim */ * Float32Array.BYTES_PER_ELEMENT
+        }
+      },
+      max: 300 /* dim */ * Float32Array.BYTES_PER_ELEMENT /* bytes */ * 500000 /* tokens */
+    },
+    'vector'
+  )
+
+  await vectors.clearOldFiles()
+  await vectors.restore()
+
+  const tokens = new ManagedLRU<string, string[]>(
+    cacheDir,
+    TOKEN_FILE_PREFIX,
+    versionHash,
+    {
+      length: (val: string[], key: string) => key.length * 4 + sumBy(val, x => x.length * 4),
+      max:
+        4 * // bytes in strings
+        5 * // average size of token
+        10 * // nb of tokens per utterance
+        10 * // nb of utterances per intent
+        200 * // nb of intents per model
+        10 * // nb of models per bot
+        50 // nb of bots
+      // total is ~ 200 mb
+    },
+    'tokens'
+  )
+
+  await tokens.clearOldFiles()
+  await tokens.restore()
+
+  const junkwords = new ManagedLRU<string[], string[]>(
+    cacheDir,
+    JUNK_FILE_PREFIX,
+    versionHash,
+    {
+      length: (val: string[], key: string[]) => sumBy(key, x => x.length * 4) + sumBy(val, x => x.length * 4),
+      max:
+        4 * // bytes in strings
+        10 * // token size
+        500 * // vocab size
+        1000 * // junk words
+        10 // models
+      // total is ~ 200 mb
+    },
+    'junkwords'
+  )
+
+  await junkwords.clearOldFiles()
+  await junkwords.restore()
+
+  return { vectors, tokens, junkwords }
+}
+
 export class RemoteLanguageProvider implements LanguageProvider {
-  private _cacheDir = path.join(process.APP_DATA_PATH, 'cache')
-  private _vectorsCachePath!: string
-  private _junkwordsCachePath!: string
-  private _tokensCachePath!: string
+  private _vectorsCache!: ManagedLRU<string, Float32Array>
+  private _tokensCache!: ManagedLRU<string, string[]>
+  private _junkwordsCache!: ManagedLRU<string[], string[]>
 
-  private _vectorsCache!: lru<string, Float32Array>
-  private _tokensCache!: lru<string, string[]>
-  private _junkwordsCache!: lru<string[], string[]>
-
-  private _cacheDumpDisabled: boolean = false
   private _validProvidersCount!: number
   private _languageDims!: number
 
@@ -73,41 +223,6 @@ export class RemoteLanguageProvider implements LanguageProvider {
     this._validProvidersCount = 0
 
     this._seededLodashProvider = seededLodashProvider
-
-    this._vectorsCache = new lru<string, Float32Array>({
-      length: (arr: Float32Array) => {
-        if (arr && arr.BYTES_PER_ELEMENT) {
-          return arr.length * arr.BYTES_PER_ELEMENT
-        } else {
-          return 300 /* dim */ * Float32Array.BYTES_PER_ELEMENT
-        }
-      },
-      max: 300 /* dim */ * Float32Array.BYTES_PER_ELEMENT /* bytes */ * 500000 /* tokens */
-    })
-
-    this._tokensCache = new lru<string, string[]>({
-      length: (val: string[], key: string) => key.length * 4 + sumBy(val, x => x.length * 4),
-      max:
-        4 * // bytes in strings
-        5 * // average size of token
-        10 * // nb of tokens per utterance
-        10 * // nb of utterances per intent
-        200 * // nb of intents per model
-        10 * // nb of models per bot
-        50 // nb of bots
-      // total is ~ 200 mb
-    })
-
-    this._junkwordsCache = new lru<string[], string[]>({
-      length: (val: string[], key: string[]) => sumBy(key, x => x.length * 4) + sumBy(val, x => x.length * 4),
-      max:
-        4 * // bytes in strings
-        10 * // token size
-        500 * // vocab size
-        1000 * // junk words
-        10 // models
-      // total is ~ 200 mb
-    })
 
     await Promise.mapSeries(sources, async source => {
       const headers: _.Dictionary<string> = {}
@@ -149,14 +264,14 @@ export class RemoteLanguageProvider implements LanguageProvider {
       }
     })
 
-    this.computeCacheFilesPaths()
-    await this.clearOldCacheFiles()
+    const versionHash = this.computeVersionHash()
+    const caches = await createCaches(path.join(process.APP_DATA_PATH, 'cache'), versionHash)
+
+    this._vectorsCache = caches.vectors
+    this._tokensCache = caches.tokens
+    this._junkwordsCache = caches.junkwords
 
     debug(`loaded ${Object.keys(this.langs).length} languages from ${sources.length} sources`)
-
-    await this.restoreVectorsCache()
-    await this.restoreJunkWordsCache()
-    await this.restoreTokensCache()
 
     return this as LanguageProvider
   }
@@ -179,43 +294,6 @@ export class RemoteLanguageProvider implements LanguageProvider {
     this._langServerInfo = langServerInfo
   }
 
-  private computeCacheFilesPaths = () => {
-    const versionHash = this.computeVersionHash()
-    this._vectorsCachePath = path.join(this._cacheDir, `${VECTOR_FILE_PREFIX}_${versionHash}.json`)
-    this._junkwordsCachePath = path.join(this._cacheDir, `${JUNK_FILE_PREFIX}_${versionHash}.json`)
-    this._tokensCachePath = path.join(this._cacheDir, `${TOKEN_FILE_PREFIX}_${versionHash}.json`)
-  }
-
-  private clearOldCacheFiles = async () => {
-    const cacheExists = await fse.pathExists(this._cacheDir)
-    if (!cacheExists) {
-      return
-    }
-
-    const allCacheFiles = await fse.readdir(this._cacheDir)
-
-    const currentHash = this.computeVersionHash()
-
-    const fileStartWithPrefix = (fileName: string) => {
-      return (
-        fileName.startsWith(VECTOR_FILE_PREFIX) ||
-        fileName.startsWith(TOKEN_FILE_PREFIX) ||
-        fileName.startsWith(JUNK_FILE_PREFIX)
-      )
-    }
-
-    const fileEndsWithIncorrectHash = (fileName: string) => !fileName.includes(currentHash)
-
-    const filesToDelete = allCacheFiles
-      .filter(fileStartWithPrefix)
-      .filter(fileEndsWithIncorrectHash)
-      .map(f => path.join(this._cacheDir, f))
-
-    for (const f of filesToDelete) {
-      await fse.unlink(f)
-    }
-  }
-
   private handleLanguageServerError = (err, endpoint: string, logger: Logger) => {
     const status = _.get(err, 'failure.response.status')
     const details = _.get(err, 'failure.response.message')
@@ -228,93 +306,6 @@ export class RemoteLanguageProvider implements LanguageProvider {
       logger.error(`You must provide a valid authentication token for the endpoint ${endpoint}`)
     } else {
       logger.error(`Could not load Language Provider at ${endpoint}: ${err.code}`, err)
-    }
-  }
-
-  private onTokensCacheChanged = debounce(async () => {
-    if (!this._cacheDumpDisabled) {
-      await this.dumpTokensCache()
-    }
-  }, ms('5s'))
-
-  private onVectorsCacheChanged = debounce(async () => {
-    if (!this._cacheDumpDisabled) {
-      await this.dumpVectorsCache()
-    }
-  }, ms('5s'))
-
-  private onJunkWordsCacheChanged = debounce(async () => {
-    if (!this._cacheDumpDisabled) {
-      await this.dumpJunkWordsCache()
-    }
-  }, ms('5s'))
-
-  private async dumpTokensCache() {
-    try {
-      await fse.ensureFile(this._tokensCachePath)
-      await fse.writeJson(this._tokensCachePath, this._tokensCache.dump())
-      debug('tokens cache updated at: %s', this._tokensCachePath)
-    } catch (err) {
-      debug('could not persist tokens cache, error: %s', err.message)
-      this._cacheDumpDisabled = true
-    }
-  }
-
-  private async restoreTokensCache() {
-    try {
-      if (await fse.pathExists(this._tokensCachePath)) {
-        const dump = await fse.readJSON(this._tokensCachePath)
-        this._tokensCache.load(dump)
-      }
-    } catch (err) {
-      debug('could not restore tokens cache, error: %s', err.message)
-    }
-  }
-
-  private async dumpVectorsCache() {
-    try {
-      await fse.ensureFile(this._vectorsCachePath)
-      await fse.writeJSON(this._vectorsCachePath, this._vectorsCache.dump())
-      debug('vectors cache updated at: %s', this._vectorsCachePath)
-    } catch (err) {
-      debug('could not persist vectors cache, error: %s', err.message)
-      this._cacheDumpDisabled = true
-    }
-  }
-
-  private async restoreVectorsCache() {
-    try {
-      if (await fse.pathExists(this._vectorsCachePath)) {
-        const dump = await fse.readJSON(this._vectorsCachePath)
-        if (dump) {
-          const kve = dump.map(x => ({ e: x.e, k: x.k, v: Float32Array.from(Object.values(x.v)) }))
-          this._vectorsCache.load(kve)
-        }
-      }
-    } catch (err) {
-      debug('could not restore vectors cache, error: %s', err.message)
-    }
-  }
-
-  private async dumpJunkWordsCache() {
-    try {
-      await fse.ensureFile(this._junkwordsCachePath)
-      await fse.writeJSON(this._junkwordsCachePath, this._junkwordsCache.dump())
-      debug('junk words cache updated at: %s', this._junkwordsCache)
-    } catch (err) {
-      debug('could not persist junk cache, error: %s', err.message)
-      this._cacheDumpDisabled = true
-    }
-  }
-
-  private async restoreJunkWordsCache() {
-    try {
-      if (await fse.pathExists(this._junkwordsCachePath)) {
-        const dump = await fse.readJSON(this._junkwordsCachePath)
-        this._vectorsCache.load(dump)
-      }
-    } catch (err) {
-      debug('could not restore junk cache, error: %s', err.message)
     }
   }
 
@@ -375,7 +366,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     const gramset = vocabNGram(subsetVocab)
     let result: string[] | undefined
 
-    this._junkwordsCache.forEach((junk, vocab) => {
+    this._junkwordsCache.cache.forEach((junk, vocab) => {
       if (!result) {
         const sim = setSimilarity(vocab, gramset)
         if (sim >= 0.75) {
@@ -389,7 +380,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
       result = this.generateJunkWords(subsetVocab, gramset) // randomly generated words
       await this.vectorize(result, lang) // vectorize them all in one request to cache the tokens // TODO: remove this
       this._junkwordsCache.set(gramset, result)
-      await this.onJunkWordsCacheChanged()
+      await this._junkwordsCache.persist()
     }
 
     return result
@@ -427,7 +418,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     tokens.forEach((token, i) => {
       if (isSpace(token)) {
         vectors[i] = new Float32Array(this._languageDims) // float 32 Arrays are initialized with 0s
-      } else if (this._vectorsCache.has(getCacheKey(token))) {
+      } else if (this._vectorsCache.cache.has(getCacheKey(token))) {
         vectors[i] = this._vectorsCache.get(getCacheKey(token))!
       } else {
         idxToFetch.push(i)
@@ -459,7 +450,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
         this._vectorsCache.set(getCacheKey(tokens[tokenIdx]), vectors[tokenIdx])
       })
 
-      await this.onVectorsCacheChanged()
+      await this._vectorsCache.persist()
     }
 
     return vectors
@@ -482,7 +473,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     const idxToFetch: number[] = [] // the utterances we need to fetch remotely
 
     utterances.forEach((utterance, idx) => {
-      if (this._tokensCache.has(getCacheKey(utterance))) {
+      if (this._tokensCache.cache.has(getCacheKey(utterance))) {
         tokenUtterances[idx] = this._tokensCache.get(getCacheKey(utterance))!
       } else {
         idxToFetch.push(idx)
@@ -525,7 +516,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
         this._tokensCache.set(getCacheKey(utterances[utteranceIdx]), tokenUtterances[utteranceIdx])
       })
 
-      await this.onTokensCacheChanged()
+      await this._tokensCache.persist()
     }
 
     // we restore original chars and casing
