@@ -49,6 +49,7 @@ export const NLUSidePanel: FC<Props> = ({
 
   const buttons: ToolbarButtonProps[] = [
     {
+      id: 'btn-create',
       icon: 'plus',
       onClick: () => setModalOpen(true),
       tooltip: currentTab === 'intent' ? lang.tr('module.nlu.intents.new') : lang.tr('module.nlu.entities.new')
@@ -61,10 +62,7 @@ export const NLUSidePanel: FC<Props> = ({
   }
 
   const onIntentModalSubmit = async (name: string) => {
-    const intentDef = {
-      name,
-      utterances: { [contentLang]: [] }
-    }
+    const intentDef = { name, utterances: { [contentLang]: [] } }
 
     try {
       await api.createIntent(intentDef)
@@ -74,26 +72,6 @@ export const NLUSidePanel: FC<Props> = ({
       toastFailure(lang.tr('module.nlu.intents.actionErrorMessage', { action: 'create' }))
     }
   }
-
-  const modal =
-    currentTab === 'intent' ? (
-      <IntentNameModal
-        isOpen={modalOpen}
-        toggle={() => setModalOpen(!modalOpen)}
-        onSubmit={onIntentModalSubmit}
-        title={lang.tr('module.nlu.intents.new')}
-        intents={intents}
-      />
-    ) : (
-      <EntityNameModal
-        action={'create'}
-        onEntityModified={onEntityCreated}
-        entityIDs={entities.map(e => e.id)}
-        api={api}
-        isOpen={modalOpen}
-        closeModal={() => setModalOpen(false)}
-      />
-    )
 
   return (
     <SidePanel>
@@ -105,26 +83,44 @@ export const NLUSidePanel: FC<Props> = ({
         className={style.headerToolbar}
       />
       {currentTab === 'intent' && (
-        <IntentSidePanelSection
-          api={api}
-          contentLang={contentLang}
-          intents={intents}
-          currentItem={currentItem}
-          setCurrentItem={setCurrentItem}
-          reloadIntents={reloadIntents}
-        />
+        <React.Fragment>
+          <IntentSidePanelSection
+            api={api}
+            contentLang={contentLang}
+            intents={intents}
+            currentItem={currentItem}
+            setCurrentItem={setCurrentItem}
+            reloadIntents={reloadIntents}
+          />
+          <IntentNameModal
+            isOpen={modalOpen}
+            toggle={() => setModalOpen(!modalOpen)}
+            onSubmit={onIntentModalSubmit}
+            title={lang.tr('module.nlu.intents.new')}
+            intents={intents}
+          />
+        </React.Fragment>
       )}
       {currentTab === 'entity' && (
-        <EntitySidePanelSection
-          api={api}
-          entities={entities}
-          currentItem={currentItem}
-          setCurrentItem={setCurrentItem}
-          reloadEntities={reloadEntities}
-          reloadIntents={reloadIntents}
-        />
+        <React.Fragment>
+          <EntitySidePanelSection
+            api={api}
+            entities={entities}
+            currentItem={currentItem}
+            setCurrentItem={setCurrentItem}
+            reloadEntities={reloadEntities}
+            reloadIntents={reloadIntents}
+          />
+          <EntityNameModal
+            action={'create'}
+            onEntityModified={onEntityCreated}
+            entityIDs={entities.map(e => e.id)}
+            api={api}
+            isOpen={modalOpen}
+            closeModal={() => setModalOpen(false)}
+          />
+        </React.Fragment>
       )}
-      {modal}
     </SidePanel>
   )
 }
