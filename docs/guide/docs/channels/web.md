@@ -48,29 +48,6 @@ You will see the page when starting a new conversation. The page is always acces
 
 > **\*\*** We edited the `global` configuration file for the sake of simplicity. To enable the bot information page on a single bot, visit that bot's studio UI and select **config** (the last icon on the left-side menu with a cog).
 
-## Show and hide automatically
-If the default Botpress button doesn't work for you, pass the `hideWidget` key to your `init` function. By so doing, the default chat button will not show up on your website.
-
-```html
-<script>
-  window.botpressWebChat.init({ host: '<your-url-here>', botId: '<your-bot-id>', hideWidget: true })
-</script>
-```
-
-You can then add a `click` event listener to any element on your web page. Below is a code sample showing how to add event listeners to your custom elements.
-
-```html
-<script>
-  document.getElementById('show-bp').addEventListener('click', () => {
-    window.botpressWebChat.sendEvent({ type: 'show' })
-    window.botpressWebChat.sendEvent({ type: 'message', text: 'Hello!' })
-  })
-  document.getElementById('hide-bp').addEventListener('click', () => {
-    window.botpressWebChat.sendEvent({ type: 'hide' })
-  })
-</script>
-```
-
 ## Events Available
 
 You can trigger events by calling the `window.botpressWebChat.sendEvent()` function. Below are some of them:
@@ -100,6 +77,30 @@ The following function hides the chat window when you click the `hide-bp` elemen
         window.botpressWebChat.sendEvent({ type: 'hide' })
       })
 ```
+
+## Changing Website Button
+Most developers change the default webchat button which comes pre-packed in Botpress. This is the button that appears on your website (in the bottom right corner) when you embed your chatbot onto your website. This common styling change is usually applied to adopt a button which fits into the website theme. If you would like to change the default Botpress button, pass the `hideWidget` key to your `init` function. By so doing, the default chat button will not show up on your website.
+
+```html
+<script>
+  window.botpressWebChat.init({ host: '<your-url-here>', botId: '<your-bot-id>', hideWidget: true })
+</script>
+```
+
+You can then add a `click` event listener to any element on your web page. Below is a code sample showing how to add event listeners to your custom elements.
+
+```html
+<script>
+  document.getElementById('show-bp').addEventListener('click', () => {
+    window.botpressWebChat.sendEvent({ type: 'show' })
+    window.botpressWebChat.sendEvent({ type: 'message', text: 'Hello!' })
+  })
+  document.getElementById('hide-bp').addEventListener('click', () => {
+    window.botpressWebChat.sendEvent({ type: 'hide' })
+  })
+</script>
+```
+
 ### Toggle
 The following function includes a ternary operator that toggles the chat to either be hidden or shown when you click the `toggle-bp` element. 
 
