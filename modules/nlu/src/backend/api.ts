@@ -9,7 +9,6 @@ import { NLUApplication } from './application'
 import { BotDoesntSpeakLanguageError, BotNotMountedError } from './application/errors'
 import { TrainingSession } from './application/typings'
 import { election } from './election'
-import legacyElectionPipeline from './election/legacy-election'
 import createRepositoryRouter from './train-repo-router'
 import { NLUProgressEvent } from './typings'
 
