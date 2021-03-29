@@ -1,9 +1,13 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import { allInRange } from '../tools/math'
+import { allInRange } from './math'
 import { NONE_INTENT } from './typings'
 
 export function detectAmbiguity(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {
+  if (!input.intents) {
+    return input
+  }
+
   // +- 10% away from perfect median leads to ambiguity
   const totalConfInTopN = _.sumBy(input.intents, i => i.confidence)
   const preds = input.intents.map(i => ({ ...i, confidence: i.confidence / totalConfInTopN }))
