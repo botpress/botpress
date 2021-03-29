@@ -34,6 +34,10 @@ interface LoadedModel {
   entityCache: EntityCacheManager
 }
 
+const DEFAULT_ENGINE_OPTIONS: EngineOptions = {
+  cacheSize: undefined,
+  legacyElection: false
+}
 const DEFAULT_CACHE_SIZE = Infinity
 
 const DEFAULT_TRAINING_OPTIONS: TrainingOptions = {
@@ -42,18 +46,23 @@ const DEFAULT_TRAINING_OPTIONS: TrainingOptions = {
 }
 
 interface EngineOptions {
-  cacheSize: string
+  cacheSize: string | undefined
+  legacyElection: boolean
 }
 
 export default class Engine implements Engine {
   private _tools!: Tools
   private _trainingWorkerQueue!: TrainingWorkerQueue
 
+  private _options: EngineOptions
+
   private modelsById: LRUCache<string, LoadedModel>
 
-  constructor(options: Partial<EngineOptions> = {}) {
+  constructor(opt: Partial<EngineOptions> = {}) {
+    this._options = { ...DEFAULT_ENGINE_OPTIONS, ...opt }
+
     this.modelsById = new LRUCache({
-      max: this._parseCacheSize(options.cacheSize),
+      max: this._parseCacheSize(this._options.cacheSize),
       length: sizeof // ignores size of functions, but let's assume it's small
     })
 
@@ -268,7 +277,8 @@ export default class Engine implements Engine {
 
     const intent_classifier_per_ctx: Dic<OOSIntentClassifier> = await Promise.props(
       _.mapValues(intent_model_by_ctx, async model => {
-        const intentClf = new OOSIntentClassifier(tools)
+        const { legacyElection } = this._options
+        const intentClf = new OOSIntentClassifier(tools, undefined, { legacyElection })
         await intentClf.load(model)
         return intentClf
       })
