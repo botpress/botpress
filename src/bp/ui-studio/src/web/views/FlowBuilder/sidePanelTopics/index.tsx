@@ -118,7 +118,7 @@ const SidePanelContent: FC<Props> = props => {
     setEditing(name)
     setIsEditingNew(true)
 
-    await axios.post(`${window.BOT_API_PATH}/topic`, { name, description: undefined })
+    await axios.post(`${window.BOT_API_PATH}/topics`, { name, description: undefined })
     props.fetchTopics()
   }
 
