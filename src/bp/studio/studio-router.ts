@@ -1,6 +1,6 @@
 import { Logger } from 'botpress/sdk'
 import { gaId, machineUUID } from 'common/stats'
-import { resolveAsset, resolveIndexPaths } from 'core/app/server_utils'
+import { resolveAsset, resolveIndexPaths } from 'core/app/server-utils'
 import { BotService } from 'core/bots'
 import { GhostService } from 'core/bpfs'
 import { CMSService } from 'core/cms'
