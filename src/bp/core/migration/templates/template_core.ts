@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { Migration } from 'core/services/migration'
+import { Migration } from '../migration-service'
 
 const migration: Migration = {
   info: {

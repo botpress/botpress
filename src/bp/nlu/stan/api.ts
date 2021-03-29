@@ -12,7 +12,6 @@ import Logger from '../../simple-logger'
 
 import { BpPredictOutput, mapPredictOutput, mapTrainInput } from './api-mapper'
 import ModelRepository from './model-repo'
-import removeNoneIntent from './remove-none'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
 import { PredictOutput } from './typings_v1'
@@ -28,7 +27,7 @@ export interface APIOptions {
   bodySize: string
   batchSize: number
   silent: boolean
-  modelCacheSize: string
+  modelCacheSize?: string
 }
 
 const debug = DEBUG('api')
@@ -193,7 +192,7 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
         return { entities, contexts: predictions, spellChecked, detectedLanguage, utterance }
       })
 
-      const withoutNone: PredictOutput[] = rawPredictions.map(removeNoneIntent).map(mapPredictOutput)
+      const withoutNone: PredictOutput[] = rawPredictions.map(mapPredictOutput)
 
       return res.send({ success: true, predictions: withoutNone })
     } catch (err) {

@@ -8,15 +8,15 @@ export * from './typings'
 
 export const SYSTEM_ENTITIES = DUCKLING_ENTITIES
 
-export const errors = {
+export const errors: Dic<(err: Error) => boolean> = {
   isTrainingAlreadyStarted,
   isTrainingCanceled
 }
 
 export const makeEngine = async (config: Config, logger: Logger) => {
-  const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = config
+  const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize, legacyElection } = config
   const langConfig = { ducklingEnabled, ducklingURL, languageSources }
-  const engine = new Engine({ maxCacheSize: modelCacheSize })
+  const engine = new Engine({ cacheSize: modelCacheSize, legacyElection })
   await engine.initialize(langConfig, logger)
   return engine
 }

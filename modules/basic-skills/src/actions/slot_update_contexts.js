@@ -17,6 +17,10 @@ const updateContexts = async intentName => {
     }
   })
   event.state.session.nluContexts = nluContexts
+  temp.tryFillSlotCount = 1
+  temp.extracted = false
+  temp.notExtracted = false
+  temp.alreadyExtracted = false
 }
 
 return updateContexts(args.intentName)

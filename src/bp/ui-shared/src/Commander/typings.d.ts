@@ -24,7 +24,7 @@ export interface CommanderProps {
   location?: 'studio' | 'admin'
   shortcuts: QuickShortcut[]
   history: any
-  user: Pick<UserProfile, 'isSuperAdmin' | 'permissions'>
+  user?: Pick<UserProfile, 'isSuperAdmin' | 'permissions'>
 }
 
 export interface Command {

@@ -12,14 +12,8 @@ import { MediaServiceProvider } from 'core/media'
 import { ModuleLoader } from 'core/modules'
 import { NotificationsService } from 'core/notifications'
 import { getSocketTransports } from 'core/realtime'
-import {
-  AuthService,
-  TOKEN_AUDIENCE,
-  checkMethodPermissions,
-  checkTokenHeader,
-  fileUploadMulter,
-  needPermissions
-} from 'core/security'
+import { fileUploadMulter, NotFoundError, disableForModule } from 'core/routers'
+import { AuthService, TOKEN_AUDIENCE, checkMethodPermissions, checkTokenHeader, needPermissions } from 'core/security'
 import { ActionService, ActionServersService } from 'core/user-code'
 import { WorkspaceService } from 'core/users'
 import { Express, RequestHandler, Router } from 'express'
@@ -31,9 +25,7 @@ import ms from 'ms'
 import path from 'path'
 import { URL } from 'url'
 
-import { disableForModule } from '../conditionalMiddleware'
 import { CustomRouter } from '../customRouter'
-import { NotFoundError } from '../errors'
 
 const debugMedia = DEBUG('audit:action:media-upload')
 
