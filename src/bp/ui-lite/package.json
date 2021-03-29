@@ -3,10 +3,6 @@
   "version": "0.0.1",
   "private": true,
   "publisher": "botpress",
-  "main": "dist/index.js",
-  "engines": {
-    "node": ">=10"
-  },
   "scripts": {
     "watch": "node ./webpack.config.js --watch",
     "build": "cross-env NODE_ENV=production node ./webpack.config.js --compile"
@@ -37,9 +33,6 @@
     "webpack-bundle-analyzer": "^3.5.2",
     "webpack-node-externals": "^1.7.2"
   },
-  "files": [
-    "dist"
-  ],
   "dependencies": {
     "axios": "^0.21.1",
     "expose-loader": "^1.0.0",
