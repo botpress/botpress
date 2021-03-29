@@ -78,7 +78,7 @@ The following function hides the chat window when you click the `hide-bp` elemen
       })
 ```
 
-## Changing Website Button
+### Changing Website Button
 Most developers change the default webchat button which comes pre-packed in Botpress. This is the button that appears on your website (in the bottom right corner) when you embed your chatbot onto your website. This common styling change is usually applied to adopt a button which fits into the website theme. If you would like to change the default Botpress button, pass the `hideWidget` key to your `init` function. By so doing, the default chat button will not show up on your website.
 
 ```html
@@ -87,7 +87,7 @@ Most developers change the default webchat button which comes pre-packed in Botp
 </script>
 ```
 
-You can then add a `click` event listener to any element on your web page. Below is a code sample showing how to add event listeners to your custom elements.
+You can then add a `click` event listener to any element on your web page (in most cases this entails creating a new button). Below is a code sample showing how to add event listeners to your custom elements.
 
 ```html
 <script>
