@@ -14,9 +14,9 @@ export const errors: Dic<(err: Error) => boolean> = {
 }
 
 export const makeEngine = async (config: Config, logger: Logger) => {
-  const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = config
+  const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize, legacyElection } = config
   const langConfig = { ducklingEnabled, ducklingURL, languageSources }
-  const engine = new Engine({ cacheSize: modelCacheSize })
+  const engine = new Engine({ cacheSize: modelCacheSize, legacyElection })
   await engine.initialize(langConfig, logger)
   return engine
 }

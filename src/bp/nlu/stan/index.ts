@@ -48,7 +48,8 @@ const makeEngine = async (options: ArgV, logger: Logger) => {
       ],
       ducklingEnabled,
       ducklingURL,
-      modelCacheSize
+      modelCacheSize,
+      legacyElection: false
     }
 
     const engine = await NLUEngine.makeEngine(config, loggerWrapper)

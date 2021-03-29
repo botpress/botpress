@@ -10,13 +10,26 @@ import { Intent, Tools } from '../typings'
 import Utterance, { buildUtteranceBatch } from '../utterance/utterance'
 
 import { ExactIntenClassifier } from './exact-intent-classifier'
-import { IntentTrainInput, NoneableIntentClassifier, NoneableIntentPredictions } from './intent-classifier'
+import {
+  IntentTrainInput,
+  NoneableIntentClassifier,
+  NoneableIntentPredictions,
+  IntentPredictions
+} from './intent-classifier'
 import { getIntentFeatures } from './intent-featurizer'
 import { featurizeInScopeUtterances, featurizeOOSUtterances, getUtteranceFeatures } from './out-of-scope-featurizer'
 import { SvmIntentClassifier } from './svm-intent-classifier'
 
 interface TrainInput extends IntentTrainInput {
   allUtterances: Utterance[]
+}
+
+interface Options {
+  legacyElection: boolean
+}
+
+const DEFAULT_OPTIONS: Options = {
+  legacyElection: false
 }
 
 export interface Model {
@@ -72,7 +85,11 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
   private model: Model | undefined
   private predictors: Predictors | undefined
 
-  constructor(private tools: Tools, private logger?: Logger) {}
+  private _options: Options
+
+  constructor(private tools: Tools, private logger?: Logger, opt: Partial<Options> = {}) {
+    this._options = { ...DEFAULT_OPTIONS, ...opt }
+  }
 
   get name() {
     return OOSIntentClassifier._name
@@ -298,10 +315,6 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
 
     const exactPredictions = await exactIntenClassifier.predict(utterance)
 
-    const intentPredictions = exactPredictions.oos
-      ? svmPredictions.intents // no exact match
-      : [...exactPredictions.intents, { name: NONE_INTENT, confidence: 0, extractor: exactIntenClassifier.name }]
-
     let oosPrediction = 0
     if (oosSvm) {
       const feats = getUtteranceFeatures(utterance, trainingVocab)
@@ -315,11 +328,64 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
       } catch (err) {}
     }
 
-    // TODO: proceed to election between none intent and oos, remove none intent and make sure confidences sum to 1.
+    if (this._options.legacyElection) {
+      const exactMatchPredictions = {
+        oos: exactPredictions.oos,
+        intents: [
+          ...exactPredictions.intents,
+          { name: NONE_INTENT, confidence: 0, extractor: exactIntenClassifier.name }
+        ]
+      }
+      return this._returnLegacy(svmPredictions, exactMatchPredictions, oosPrediction)
+    }
+    return this._returnNatural(svmPredictions, exactPredictions, oosPrediction)
+  }
+
+  private _returnLegacy = (
+    svmPredictions: IntentPredictions,
+    exactMatchPredictions: NoneableIntentPredictions,
+    oos: number
+  ) => {
+    // No election between none intent and oos
+    if (exactMatchPredictions.oos === 0) {
+      return exactMatchPredictions
+    }
 
     return {
-      intents: intentPredictions,
-      oos: oosPrediction
+      intents: svmPredictions.intents,
+      oos
     }
+  }
+
+  private _returnNatural = (
+    svmPredictions: IntentPredictions,
+    exactMatchPredictions: NoneableIntentPredictions,
+    oos: number
+  ) => {
+    if (exactMatchPredictions.oos === 0) {
+      return exactMatchPredictions
+    }
+    return OOSIntentClassifier._removeNoneIntent({
+      intents: svmPredictions.intents,
+      oos
+    })
+  }
+
+  static _removeNoneIntent(preds: NoneableIntentPredictions): NoneableIntentPredictions {
+    const noneIdx = preds.intents.findIndex(i => i.name === NONE_INTENT)
+    if (noneIdx < 0) {
+      return preds
+    }
+    const none = preds.intents[noneIdx]
+    preds.intents.splice(noneIdx, 1)
+    preds.oos = Math.max(none.confidence, preds.oos)
+    return this._adjustTotalConfidenceTo100(preds)
+  }
+
+  private static _adjustTotalConfidenceTo100 = (preds: NoneableIntentPredictions): NoneableIntentPredictions => {
+    const totalConfidence = preds.oos + _.sum(preds.intents.map(i => i.confidence))
+    preds.oos = preds.oos / totalConfidence
+    preds.intents = preds.intents.map(i => ({ ...i, confidence: i.confidence / totalConfidence }))
+    return preds
   }
 }

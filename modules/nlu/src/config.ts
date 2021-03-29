@@ -45,4 +45,10 @@ export interface Config {
    * @optional
    */
   queueTrainingOnBotMount?: boolean
+
+  /**
+   * Whether or not you want to use the deprecated legacy election
+   * @default false
+   */
+  legacyElection: boolean
 }
