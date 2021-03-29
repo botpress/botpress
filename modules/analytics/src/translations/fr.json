@@ -30,7 +30,6 @@
   "mostUsedWorkflows": "Workflows les plus utilisés",
   "newUsers": "{nb} Nouveaux utilisateurs",
   "noDataAvailable": "Aucunes données disponibles",
-  "positiveQnaFeedback": "{nb} rétroaction QNA positive",
   "qnaSent": "QNA Envoyé",
   "questionsAsked": "Questions demandées",
   "returningUsers": "{nb} Utilisateurs retournant",
@@ -48,5 +47,8 @@
   "understoodMessages": "Messages compris",
   "understoodTopLevelMessages": "Messages compris de niveau supérieur",
   "userActivities": "Utilisateurs actifs quotidien",
-  "workflowsInitiated": "Workflows lancés"
+  "workflowsInitiated": "Workflows lancés",
+  "totalQnaFeedback": "Rétroactions QNA",
+  "positiveQnaFeedback": "{nb} rétroactions positives",
+  "negativeQnaFeedback": "{nb} rétroactions négatives"
 }

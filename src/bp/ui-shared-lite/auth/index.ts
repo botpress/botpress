@@ -51,7 +51,7 @@ export const tokenNeedsRefresh = () => {
 
 export const logout = async (getAxiosClient: () => AxiosInstance) => {
   await getAxiosClient()
-    .post('/auth/logout')
+    .post('/admin/auth/logout')
     .catch(() => {})
 
   // Clear access token and ID token from local storage

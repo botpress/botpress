@@ -1,1 +1,0 @@
-export * from './ghost/service'

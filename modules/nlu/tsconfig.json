@@ -1,6 +1,7 @@
 {
   "extends": "../tsconfig.shared.json",
   "compilerOptions": {
-    "baseUrl": "./"
+    "baseUrl": "./",
+    "strictNullChecks": true
   }
 }

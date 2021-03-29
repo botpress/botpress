@@ -1,9 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import { FlowView } from 'common/typings'
+import { GhostService } from 'core/bpfs'
 import { sanitizeFileName } from 'core/misc/utils'
 import _ from 'lodash'
-
-import { GhostService } from '..'
 
 import { NLUService } from './nlu-service'
 
