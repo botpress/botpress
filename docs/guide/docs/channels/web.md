@@ -147,7 +147,7 @@ The example below shows how you can change the chatbot's language to French when
 ```
 
 ## Advanced Customization
-All messages which the bot sends to a user consist of a `payload`. That payload has a `type` property that tells the webchat how the other information included on that payload should be rendered on screen.
+All messages sent to a user consist of a `payload`. That payload has a `type` property that tells the webchat how the payload should render on the screen.
 
 There are different ways to send that payload to the user:
 
