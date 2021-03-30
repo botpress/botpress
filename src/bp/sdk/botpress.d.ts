@@ -703,15 +703,12 @@ declare module 'botpress/sdk' {
       readonly intents?: NLU.Intent[]
       readonly ambiguous?: boolean /** Predicted intents needs disambiguation */
       readonly slots?: NLU.SlotCollection
+      readonly spellChecked?: string
 
       // pre-prediction
       readonly detectedLanguage:
         | string
         | undefined /** Language detected from users input. If undefined, detection failed. */
-      readonly spellChecked:
-        | string
-        | undefined /** Result of spell checking on users input. If undefined, spell check failed. */
-
       readonly language: string /** The language used for prediction */
       readonly includedContexts: string[]
       readonly ms: number
