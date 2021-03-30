@@ -5,7 +5,16 @@ import LRUCache from 'lru-cache'
 import sizeof from 'object-sizeof'
 import modelIdService from '../model-id-service'
 
-import { TrainingOptions, LanguageConfig, Logger, ModelId, TrainingSet, Model, PredictOutput } from '../typings'
+import {
+  TrainingOptions,
+  LanguageConfig,
+  Logger,
+  ModelId,
+  TrainingSet,
+  Model,
+  PredictOutput,
+  Engine as IEngine
+} from '../typings'
 import { deserializeKmeans } from './clustering'
 import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
@@ -50,7 +59,7 @@ interface EngineOptions {
   legacyElection: boolean
 }
 
-export default class Engine implements Engine {
+export default class Engine implements IEngine {
   private _tools!: Tools
   private _trainingWorkerQueue!: TrainingWorkerQueue
 
@@ -328,18 +337,6 @@ export default class Engine implements Engine {
       this._tools,
       loaded.predictors
     )
-  }
-
-  async spellCheck(sentence: string, modelId: ModelId) {
-    const stringId = modelIdService.toString(modelId)
-    const loaded = this.modelsById.get(stringId)
-    if (!loaded) {
-      throw new Error(`model ${stringId} not loaded`)
-    }
-
-    const preprocessed = preprocessRawUtterance(sentence)
-    const spellChecker = makeSpellChecker(loaded.predictors.vocab, loaded.model.languageCode, this._tools)
-    return spellChecker(preprocessed)
   }
 
   async detectLanguage(text: string, modelsByLang: _.Dictionary<ModelId>): Promise<string> {

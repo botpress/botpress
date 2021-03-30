@@ -41,14 +41,16 @@ export interface Engine {
   getHealth: () => Health
   getLanguages: () => string[]
   getSpecifications: () => Specifications
+
   loadModel: (model: Model) => Promise<void>
   unloadModel: (modelId: ModelId) => void
   hasModel: (modelId: ModelId) => boolean
+
   train: (trainSessionId: string, trainSet: TrainingSet, options?: Partial<TrainingOptions>) => Promise<Model>
   cancelTraining: (trainSessionId: string) => Promise<void>
+
   detectLanguage: (text: string, modelByLang: { [key: string]: ModelId }) => Promise<string>
   predict: (text: string, modelId: ModelId) => Promise<PredictOutput>
-  spellCheck: (sentence: string, modelId: ModelId) => Promise<string>
 }
 
 export interface ModelIdService {
@@ -187,4 +189,5 @@ export interface ContextPrediction {
 export interface PredictOutput {
   readonly entities: Entity[]
   readonly predictions: Predictions
+  readonly spellChecked: string
 }

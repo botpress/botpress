@@ -89,20 +89,12 @@ export class ScopedPredictionHandler {
       await this.engine.loadModel(model)
     }
 
-    let spellChecked: string | undefined
-    try {
-      spellChecked = await this.engine.spellCheck(textInput, modelsByLang[language])
-    } catch (err) {
-      let msg = `An error occured when spell checking input "${textInput}"\n`
-      msg += 'Falling back on original input.'
-      this.logger.attachError(err).error(msg)
-    }
-
     const t0 = Date.now()
     try {
       const originalOutput = await this.engine.predict(textInput, modelsByLang[language])
       const ms = Date.now() - t0
 
+      const { spellChecked } = originalOutput
       if (spellChecked && spellChecked !== textInput) {
         const spellCheckedOutput = await this.engine.predict(spellChecked, modelsByLang[language])
         const merged = mergeSpellChecked(originalOutput, spellCheckedOutput)
@@ -115,7 +107,7 @@ export class ScopedPredictionHandler {
       this.logger.attachError(err).error(msg)
 
       const ms = Date.now() - t0
-      return { errored: true, spellChecked, language, ms }
+      return { errored: true, language, ms }
     }
   }
 
