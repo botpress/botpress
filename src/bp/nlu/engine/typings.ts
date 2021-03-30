@@ -42,15 +42,22 @@ export interface Engine {
   getLanguages: () => string[]
   getSpecifications: () => Specifications
 
-  loadModel: (model: Model) => Promise<void>
+  loadModel: (model: Model) => Promise<void> // model can take up to 1Gb
   unloadModel: (modelId: ModelId) => void
   hasModel: (modelId: ModelId) => boolean
 
-  train: (trainSessionId: string, trainSet: TrainingSet, options?: Partial<TrainingOptions>) => Promise<Model>
-  cancelTraining: (trainSessionId: string) => Promise<void>
+  train: (trainSessionId: string, trainSet: TrainingSet, options?: Partial<TrainingOptions>) => Promise<Model> // model can take up to 1Gb
+  cancelTraining: (trainSessionId: string) => Promise<void> // trainSessionId is botId+lang not toString(modelId)
 
   detectLanguage: (text: string, modelByLang: { [key: string]: ModelId }) => Promise<string>
   predict: (text: string, modelId: ModelId) => Promise<PredictOutput>
+}
+
+export interface Stan {
+  info: () => Health & Specifications & { languages: string[] }
+  train: (trainSet: TrainingSet) => Promise<ModelId>
+  cancelTraining: (modelId: ModelId) => Promise<void>
+  predict: (text: string, modelId: ModelId) => Promise<PredictOutput & { detectedLanguage: string }>
 }
 
 export interface ModelIdService {
