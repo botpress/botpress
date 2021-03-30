@@ -1,8 +1,9 @@
 import bytes from 'bytes'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
-
 import sizeof from 'object-sizeof'
+import v8 from 'v8'
+
 import modelIdService from '../model-id-service'
 
 import {
@@ -22,7 +23,6 @@ import { getCtxFeatures } from './intents/context-featurizer'
 import { OOSIntentClassifier } from './intents/oos-intent-classfier'
 import { SvmIntentClassifier } from './intents/svm-intent-classifier'
 import DetectLanguage from './language/language-identifier'
-import makeSpellChecker from './language/spell-checker'
 import { deserializeModel, PredictableModel, serializeModel } from './model-serializer'
 import { Predict, Predictors } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
@@ -30,7 +30,6 @@ import { isPatternValid } from './tools/patterns-utils'
 import { TrainInput, TrainOutput } from './training-pipeline'
 import { TrainingWorkerQueue } from './training-worker-queue'
 import { EntityCacheDump, ListEntity, PatternEntity, Tools } from './typings'
-import { preprocessRawUtterance } from './utterance/utterance'
 import { getModifiedContexts, mergeModelOutputs } from './warm-training-handler'
 
 const trainDebug = DEBUG('nlu').sub('training')
@@ -47,7 +46,7 @@ const DEFAULT_ENGINE_OPTIONS: EngineOptions = {
   cacheSize: undefined,
   legacyElection: false
 }
-const DEFAULT_CACHE_SIZE = Infinity
+const MEMORY_SECURITY_FACTOR = 0.4
 
 const DEFAULT_TRAINING_OPTIONS: TrainingOptions = {
   progressCallback: () => {},
@@ -79,17 +78,20 @@ export default class Engine implements IEngine {
       this.modelsById.max === Infinity
         ? 'model cache size is infinite'
         : `model cache size is: ${bytes(this.modelsById.max)}`
-    trainDebug(debugMsg)
+    lifecycleDebug(debugMsg)
   }
 
   private _parseCacheSize = (cacheSize: string | undefined): number => {
+    const heapStats = v8.getHeapStatistics()
+    const defaultCacheSize = heapStats.heap_size_limit * MEMORY_SECURITY_FACTOR
+
     if (!cacheSize) {
-      return DEFAULT_CACHE_SIZE
+      return defaultCacheSize
     }
 
     const parsedCacheSize = bytes(cacheSize)
     if (!parsedCacheSize) {
-      return DEFAULT_CACHE_SIZE
+      return defaultCacheSize
     }
 
     return Math.abs(parsedCacheSize)
@@ -243,17 +245,23 @@ export default class Engine implements IEngine {
     }
 
     const modelSize = sizeof(modelCacheItem)
-    lifecycleDebug(`Size of model ${stringId} is ${bytes(modelSize)}`)
+    const bytesModelSize = bytes(modelSize)
+    lifecycleDebug(`Size of model ${stringId} is ${bytesModelSize}`)
 
     if (modelSize >= this.modelsById.max) {
       const msg = `Can't load model ${stringId} as it is bigger than the maximum allowed size`
       const details = `model size: ${bytes(modelSize)}, max allowed: ${bytes(this.modelsById.max)}`
-      throw new Error(`${msg} (${details}).`)
+      const solution = 'You can increase cache size in the nlu config.'
+      throw new Error(`${msg} (${details}). ${solution}`)
     }
 
     this.modelsById.set(stringId, modelCacheItem)
-    lifecycleDebug('Model loaded with success')
+
     lifecycleDebug(`Model cache entries are: [${this.modelsById.keys().join(', ')}]`)
+    const heapStats = v8.getHeapStatistics()
+    const availbaleHeap = bytes(heapStats.total_available_size)
+    const usedHeap = bytes(heapStats.used_heap_size)
+    lifecycleDebug(`Available heap: ${availbaleHeap}, Used Heap: ${usedHeap}`)
   }
 
   unloadModel(modelId: ModelId) {
