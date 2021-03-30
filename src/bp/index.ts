@@ -420,7 +420,9 @@ try {
           type: 'boolean'
         },
         modelCacheSize: {
-          description: 'Max allocated memory for model cache. Too few memory will result in more access to file system.'
+          description:
+            'Max allocated memory for model cache. Too few memory will result in more access to file system.',
+          default: '250mb'
         }
       },
       argv => {

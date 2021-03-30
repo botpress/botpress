@@ -1,5 +1,5 @@
 export interface Config extends LanguageConfig {
-  modelCacheSize?: string
+  modelCacheSize: string
   legacyElection: boolean
 }
 

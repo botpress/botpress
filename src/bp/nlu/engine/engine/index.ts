@@ -2,7 +2,6 @@ import bytes from 'bytes'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
 import sizeof from 'object-sizeof'
-import v8 from 'v8'
 
 import modelIdService from '../model-id-service'
 
@@ -42,11 +41,11 @@ interface LoadedModel {
   entityCache: EntityCacheManager
 }
 
+const DEFAULT_CACHE_SIZE = '850mb'
 const DEFAULT_ENGINE_OPTIONS: EngineOptions = {
-  cacheSize: undefined,
+  cacheSize: DEFAULT_CACHE_SIZE,
   legacyElection: false
 }
-const MEMORY_SECURITY_FACTOR = 0.4
 
 const DEFAULT_TRAINING_OPTIONS: TrainingOptions = {
   progressCallback: () => {},
@@ -54,7 +53,7 @@ const DEFAULT_TRAINING_OPTIONS: TrainingOptions = {
 }
 
 interface EngineOptions {
-  cacheSize: string | undefined
+  cacheSize: string
   legacyElection: boolean
 }
 
@@ -81,17 +80,15 @@ export default class Engine implements IEngine {
     lifecycleDebug(debugMsg)
   }
 
-  private _parseCacheSize = (cacheSize: string | undefined): number => {
-    const heapStats = v8.getHeapStatistics()
-    const defaultCacheSize = heapStats.heap_size_limit * MEMORY_SECURITY_FACTOR
-
+  private _parseCacheSize = (cacheSize: string): number => {
+    const defaultBytes = bytes(DEFAULT_CACHE_SIZE)
     if (!cacheSize) {
-      return defaultCacheSize
+      return defaultBytes
     }
 
     const parsedCacheSize = bytes(cacheSize)
     if (!parsedCacheSize) {
-      return defaultCacheSize
+      return defaultBytes
     }
 
     return Math.abs(parsedCacheSize)
@@ -258,10 +255,6 @@ export default class Engine implements IEngine {
     this.modelsById.set(stringId, modelCacheItem)
 
     lifecycleDebug(`Model cache entries are: [${this.modelsById.keys().join(', ')}]`)
-    const heapStats = v8.getHeapStatistics()
-    const availbaleHeap = bytes(heapStats.total_available_size)
-    const usedHeap = bytes(heapStats.used_heap_size)
-    lifecycleDebug(`Available heap: ${availbaleHeap}, Used Heap: ${usedHeap}`)
   }
 
   unloadModel(modelId: ModelId) {
