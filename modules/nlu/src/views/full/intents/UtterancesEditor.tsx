@@ -14,12 +14,8 @@ import { makeSlotMark, utterancesToValue, valueToUtterances } from './utterances
 
 const plugins = [
   PlaceholderPlugin({
-    placeholder: lang.tr('module.nlu.intents.summaryPlaceholder'),
-    when: (_, node) => node.text.trim() === '' && node.type === 'title'
-  }),
-  PlaceholderPlugin({
     placeholder: lang.tr('module.nlu.intents.utterancePlaceholder'),
-    when: (_, node) => node.text.trim() === '' && node.type === 'paragraph'
+    when: (_, node) => node.text.trim() === ''
   })
 ]
 
@@ -258,7 +254,6 @@ export class UtterancesEditor extends React.Component<Props, State> {
     const isWrong = utteranceIdx < this.utteranceKeys.length - 1 && isEmpty
 
     const elementCx = classnames(style.utterance, {
-      [style.title]: node.type === 'title' && utteranceIdx === 0,
       [style.active]: props.isFocused,
       [style.wrong]: isWrong
     })
