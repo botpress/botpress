@@ -1,16 +1,15 @@
 import { FlowNode, IO, Logger } from 'botpress/sdk'
 import { FlowView } from 'common/typings'
-import { createForGlobalHooks } from 'core/api'
+import { createForGlobalHooks } from 'core/app/api'
+import { buildUserKey, converseApiEvents } from 'core/converse'
+import { FlowService } from 'core/dialog'
+import { addErrorToEvent } from 'core/events'
 import { TYPES } from 'core/types'
+import { Hooks, HookService } from 'core/user-code'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
-import { buildUserKey, converseApiEvents } from '../converse'
-import { Hooks, HookService } from '../hook/hook-service'
-import { addErrorToEvent } from '../middleware/event-collector'
-
 import { FlowError, TimeoutNodeNotFound } from './errors'
-import { FlowService } from './flow/service'
 import { Instruction } from './instruction'
 import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
@@ -306,8 +305,15 @@ export class DialogEngine {
     if (transitionTo.includes('.flow.json')) {
       BOTPRESS_CORE_EVENT('bp_core_enter_flow', { botId: event.botId, channel: event.channel, flowName: transitionTo })
       // Transition to other flow
-      const flow = this._findFlow(event.botId, transitionTo)
-      const startNode = this._findNode(event.botId, flow, flow.startNode)
+      const nodeIndex = transitionTo.indexOf('#')
+
+      const flow = this._findFlow(event.botId, nodeIndex === -1 ? transitionTo : transitionTo.substring(0, nodeIndex))
+
+      const startNode = this._findNode(
+        event.botId,
+        flow,
+        nodeIndex === -1 ? flow.startNode : transitionTo.substring(nodeIndex + 1)
+      )
       event.state.__stacktrace.push({ flow: flow.name, node: startNode.name })
 
       context = {
@@ -430,7 +436,7 @@ export class DialogEngine {
   }
 
   protected async _loadFlows(botId: string) {
-    const flows = await this.flowService.loadAll(botId)
+    const flows = await this.flowService.forBot(botId).loadAll()
     this._flowsByBot.set(botId, flows)
   }
 

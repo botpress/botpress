@@ -1,12 +1,12 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { withRouter } from 'react-router-dom'
-import qs from 'query-string'
-
 import axios from 'axios'
+import { auth } from 'botpress/shared'
 import _ from 'lodash'
+import PropTypes from 'prop-types'
+import qs from 'query-string'
+import React from 'react'
+import { withRouter } from 'react-router-dom'
 
-import { authEvents, setToken, isTokenValid } from '~/util/Auth'
+import { authEvents, setToken } from '~/util/Auth'
 
 const CHECK_AUTH_INTERVAL = 60 * 1000
 
@@ -62,7 +62,7 @@ const ensureAuthenticated = WrappedComponent => {
         )
       }
 
-      const tokenStillValid = isTokenValid()
+      const tokenStillValid = auth.isTokenValid()
       this.setState({ authorized: tokenStillValid })
 
       if (tokenStillValid) {
@@ -74,7 +74,7 @@ const ensureAuthenticated = WrappedComponent => {
     }
 
     checkAuth = () => {
-      axios.get(`${window.API_PATH}/auth/ping`).catch(err => {
+      axios.get(`${window.API_PATH}/admin/ping`).catch(err => {
         if (err.response.status === 401) {
           this.promptLogin()
         }

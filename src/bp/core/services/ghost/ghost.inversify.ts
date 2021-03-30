@@ -1,13 +1,12 @@
 import { ObjectCache } from 'common/object-cache'
-import { TYPES } from 'core/types'
+import { TYPES } from 'core/app/types'
 import { ContainerModule, interfaces } from 'inversify'
 
-import { GhostService } from '..'
-
 import { CacheInvalidators } from '.'
-import DBStorageDriver from './db-driver'
-import DiskStorageDriver from './disk-driver'
-import MemoryObjectCache from './memory-cache'
+import { DBStorageDriver } from './db-driver'
+import { DiskStorageDriver } from './disk-driver'
+import { MemoryObjectCache } from './memory-cache'
+import { GhostService } from './service'
 
 export const GhostContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<CacheInvalidators.FileChangedInvalidator>(TYPES.FileCacheInvalidator)

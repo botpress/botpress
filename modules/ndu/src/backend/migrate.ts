@@ -137,7 +137,7 @@ const createTopicsFromContexts = async (bp: typeof sdk, ghost: sdk.ScopedGhostSe
 
     for (const topic of contexts) {
       if (!existingTopics?.find(x => x.name === topic)) {
-        await axios.post('/topic', { name: topic, description: '' }, axiosConfig)
+        await axios.post('/topics', { name: topic, description: '' }, axiosConfig)
         debug(`Created a new topic for existing NLU context ${topic}`)
       }
     }

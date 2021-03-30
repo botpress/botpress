@@ -24,7 +24,7 @@ There are several ways you can pause the conversation:
 
 - from the HITL module, toggling the pause button
 
-![Pause button](hitl_pause.png)
+![Pause button](assets/hitl_pause.png)
 
 - by performing an API-request:
 

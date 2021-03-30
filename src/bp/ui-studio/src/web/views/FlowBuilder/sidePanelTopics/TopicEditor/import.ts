@@ -56,7 +56,7 @@ export const executeTopicActions = async (actions: ImportAction[]) => {
   try {
     await Promise.each(getActionType('topic'), ({ data, name, existing }) => {
       const topicPath = (existing && `/${name}`) || ''
-      return axios.post(`${window.BOT_API_PATH}/topic${topicPath}`, data)
+      return axios.post(`${window.BOT_API_PATH}/topics${topicPath}`, data)
     })
   } catch (err) {
     console.error(`Can't import topic: ${err}`)

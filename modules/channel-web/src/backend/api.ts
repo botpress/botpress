@@ -13,11 +13,12 @@ import { Config } from '../config'
 
 import Database from './db'
 
-const ERR_USER_ID_REQ = '`userId` is required and must be valid'
+const ERR_USER_ID_INVALID = 'user id associated with this session must be valid'
 const ERR_MSG_TYPE = '`type` is required and must be valid'
 const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
 const ERR_BAD_LANGUAGE = '`language` is required and must be valid'
 const ERR_BAD_CONV_ID = "The conversation ID doesn't belong to that user"
+const ERR_BAD_USER_SESSION_ID = 'session id is invalid'
 
 const USER_ID_MAX_LENGTH = 40
 const SUPPORTED_MESSAGES = [
@@ -32,12 +33,10 @@ const SUPPORTED_MESSAGES = [
 
 type ChatRequest = BPRequest & { userId: string; botId: string; conversationId: number }
 
-const validateUserId = (userId: string) => {
-  if (!userId || userId.length > USER_ID_MAX_LENGTH || userId.toLowerCase() === 'undefined') {
-    return false
-  }
+const userIdIsValid = (userId: string): boolean => {
+  const hasBreakingConstraints = userId.length > USER_ID_MAX_LENGTH || userId.toLowerCase() === 'undefined'
 
-  return /[a-z0-9-_]+/i.test(userId)
+  return !hasBreakingConstraints && /[a-z0-9-_]+/i.test(userId)
 }
 
 export default async (bp: typeof sdk, db: Database) => {
@@ -108,11 +107,16 @@ export default async (bp: typeof sdk, db: Database) => {
   }).middleware
 
   const assertUserInfo = (options: { convoIdRequired?: boolean } = {}) => async (req: ChatRequest, _res, next) => {
-    const { botId, userId } = req.params
-    const conversationId = req.params.conversationId || req.query.conversationId
+    const { botId } = req.params
+    const { conversationId, webSessionId } = req.body || {}
 
-    if (!validateUserId(userId)) {
-      return next(ERR_USER_ID_REQ)
+    const userId = await bp.realtime.getVisitorIdFromGuestSocketId(webSessionId)
+    if (!userId) {
+      return next(ERR_BAD_USER_SESSION_ID)
+    }
+
+    if (!userIdIsValid(userId)) {
+      return next(ERR_USER_ID_INVALID)
     }
 
     if (conversationId && conversationId !== 'null') {
@@ -153,15 +157,15 @@ export default async (bp: typeof sdk, db: Database) => {
         details: botInfo.details,
         languages: botInfo.languages,
         extraStylesheet: config.extraStylesheet,
+        disableNotificationSound: config.disableNotificationSound,
         security,
         lazySocket: config.lazySocket
       })
     })
   )
 
-  // ?conversationId=xxx (optional)
   router.post(
-    '/messages/:userId',
+    '/messages',
     bp.http.extractExternalToken,
     assertUserInfo(),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
@@ -169,7 +173,7 @@ export default async (bp: typeof sdk, db: Database) => {
       let { conversationId } = req
 
       const user = await bp.users.getOrCreateUser('web', userId, botId)
-      const payload = req.body || {}
+      const payload = req.body.payload || {}
 
       if (!SUPPORTED_MESSAGES.includes(payload.type)) {
         // TODO: Support files
@@ -205,13 +209,12 @@ export default async (bp: typeof sdk, db: Database) => {
         user.result
       )
 
-      return res.sendStatus(200)
+      res.sendStatus(200)
     })
   )
 
-  // ?conversationId=xxx (required)
   router.post(
-    '/messages/:userId/files',
+    '/messages/files',
     upload.single('file'),
     bp.http.extractExternalToken,
     assertUserInfo({ convoIdRequired: true }),
@@ -237,8 +240,8 @@ export default async (bp: typeof sdk, db: Database) => {
     })
   )
 
-  router.get(
-    '/conversations/:userId/:conversationId',
+  router.post(
+    '/conversations/get',
     assertUserInfo({ convoIdRequired: true }),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { userId, conversationId, botId } = req
@@ -249,8 +252,8 @@ export default async (bp: typeof sdk, db: Database) => {
     })
   )
 
-  router.get(
-    '/conversations/:userId',
+  router.post(
+    '/conversations/list',
     assertUserInfo(),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { userId, botId } = req
@@ -314,14 +317,14 @@ export default async (bp: typeof sdk, db: Database) => {
   }
 
   router.post(
-    '/events/:userId',
+    '/events',
     bp.http.extractExternalToken,
     assertUserInfo(),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { userId, botId } = req
       let { conversationId } = req
 
-      const payload = req.body || {}
+      const payload = req.body.payload || {}
 
       await bp.users.getOrCreateUser('web', userId, botId)
 
@@ -379,7 +382,7 @@ export default async (bp: typeof sdk, db: Database) => {
   )
 
   router.post(
-    '/conversations/:userId/:conversationId/reset',
+    '/conversations/reset',
     bp.http.extractExternalToken,
     assertUserInfo({ convoIdRequired: true }),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
@@ -393,7 +396,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
       await sendNewMessage(botId, userId, conversationId, payload, req.credentials)
 
-      const sessionId = await bp.dialog.createId({
+      const sessionId = bp.dialog.createId({
         botId,
         target: userId,
         threadId: conversationId.toString(),
@@ -406,23 +409,24 @@ export default async (bp: typeof sdk, db: Database) => {
   )
 
   router.post(
-    '/conversations/:userId/new',
+    '/conversations/new',
     assertUserInfo(),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { botId, userId } = req
 
       const convoId = await db.createConversation(botId, userId)
+
       res.send({ convoId })
     })
   )
 
   router.post(
-    '/conversations/:userId/:conversationId/reference/:reference',
+    '/conversations/reference',
     assertUserInfo(),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       try {
         const { botId, userId } = req
-        const { reference } = req.params
+        const { reference } = req.body
         let { conversationId } = req
 
         await bp.users.getOrCreateUser('web', userId, botId)
@@ -468,8 +472,8 @@ export default async (bp: typeof sdk, db: Database) => {
     })
   )
 
-  router.get(
-    '/preferences/:userId',
+  router.post(
+    '/preferences/get',
     assertUserInfo(),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { userId, botId } = req
@@ -480,7 +484,7 @@ export default async (bp: typeof sdk, db: Database) => {
   )
 
   router.post(
-    '/preferences/:userId',
+    '/preferences',
     assertUserInfo(),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { userId, botId } = req
@@ -533,8 +537,8 @@ export default async (bp: typeof sdk, db: Database) => {
     return [metadata, ...messagesAsTxt].join('')
   }
 
-  router.get(
-    '/conversations/:userId/:conversationId/download/txt',
+  router.post(
+    '/conversations/download/txt',
     assertUserInfo({ convoIdRequired: true }),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { userId, conversationId, botId } = req
@@ -547,7 +551,7 @@ export default async (bp: typeof sdk, db: Database) => {
   )
 
   router.post(
-    '/conversations/:userId/:conversationId/messages/delete',
+    '/conversations/messages/delete',
     assertUserInfo({ convoIdRequired: true }),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { userId, conversationId } = req

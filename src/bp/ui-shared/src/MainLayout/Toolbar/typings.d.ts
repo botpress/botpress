@@ -8,10 +8,12 @@ export interface ToolbarProps {
   tabChange?: (tab: string) => void
   currentTab?: string
   buttons?: ToolbarButtonProps[]
+  rightContent?: Jsx
   className?: string
 }
 
 export interface ToolbarButtonProps {
+  id?: string
   onClick?: () => void
   icon?: IconName
   optionsWrapperClassName?: string

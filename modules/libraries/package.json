@@ -1,0 +1,23 @@
+{
+  "name": "libraries",
+  "fullName": "Libraries",
+  "version": "1.1.0",
+  "status": "experimental",
+  "description": "Provides the tooling necessary to easily install libraries that can be used by other scripts",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "build": "node ../../build/module-builder/bin/entry build",
+    "watch": "node ../../build/module-builder/bin/entry watch",
+    "package": "node ../../build/module-builder/bin/entry package"
+  },
+  "dependencies": {
+    "axios": "^0.21.0",
+    "fs-extra": "^9.0.1",
+    "mkdirp": "^1.0.4",
+    "npm": "^6.14.8",
+    "tmp": "^0.2.1"
+  }
+}

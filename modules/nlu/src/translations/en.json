@@ -1,7 +1,7 @@
 {
   "autoTrain": "Auto Training",
   "cancelTraining": "Cancel Training",
-  "description": "Use Botpress native Natural Language Understanding engine to make your bot smarter.",
+  "description": "Tap + in the sidebar to define your first intent.",
   "entities": {
     "deleteMessage": "Are you sure you want to delete the entity \"{entityName}\" ?",
     "duplicate": "Duplicate Entity",
@@ -71,7 +71,22 @@
     "noSlotsToTag": "Selection can't be tagged. Define a slot first.",
     "save": "Save slot",
     "tagSelectionLabel": "Tag selection",
-    "tagSelectionMessage": "Click on a slot or use numbers as keyboard shortcuts"
+    "tagSelectionMessage": "Click on a slot or use numbers as keyboard shortcuts",
+    "names": {
+      "amountOfMoney": "amountOfMoney",
+      "distance": "distance",
+      "duration": "duration",
+      "email": "email",
+      "number": "number",
+      "ordinal": "ordinal",
+      "phoneNumber": "phoneNumber",
+      "quantity": "quantity",
+      "temperature": "temperature",
+      "time": "time",
+      "url": "url",
+      "volume": "volume",
+      "any": "any"
+    }
   },
   "title": "Language Understanding",
   "trainNow": "Train now"

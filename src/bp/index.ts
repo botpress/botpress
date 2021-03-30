@@ -138,11 +138,41 @@ try {
           if (yn(process.env.BP_DIAG)) {
             require('./diag').default(argv)
           } else {
-            require('./bootstrap')
+            require('./core/app/bootstrap')
           }
         })
       }
     )
+    .command('migrate', 'Migrate your data and database tables to a specific version', yargs => {
+      const start = (cmd, { targetVersion, isDryRun }) => {
+        getos.default().then(distro => {
+          process.distro = distro
+          process.AUTO_MIGRATE = true
+          process.MIGRATE_CMD = cmd
+          process.MIGRATE_TARGET = targetVersion
+          process.MIGRATE_DRYRUN = isDryRun
+          process.VERBOSITY_LEVEL = 2
+
+          require('./core/app/bootstrap')
+        })
+      }
+
+      return yargs
+        .command('up', 'Migrate to the latest version (unless --target is specified)', {}, argv => {
+          start('up', { targetVersion: argv.target, isDryRun: argv.dry })
+        })
+        .command('down', 'Downgrade to a previous version (--target must be specified)', {}, argv => {
+          start('down', { targetVersion: argv.target, isDryRun: argv.dry })
+        })
+        .option('target', {
+          alias: 't',
+          describe: 'Target a specific version'
+        })
+        .option('dryrun', {
+          alias: 'dry',
+          describe: 'Displays the list of migrations that will be executed, without running them'
+        }).argv
+    })
     .command(
       'pull',
       'Pull data from a remote server to your local file system',
@@ -330,7 +360,7 @@ try {
 
         getos.default().then(distro => {
           process.distro = distro
-          require('./lang-server').default(argv)
+          require('./nlu/lang-server').default(argv)
         })
       }
     )
@@ -390,9 +420,7 @@ try {
           type: 'boolean'
         },
         modelCacheSize: {
-          description:
-            'Max allocated memory for model cache. Too few memory will result in more access to file system.',
-          default: '250mb'
+          description: 'Max allocated memory for model cache. Too few memory will result in more access to file system.'
         }
       },
       argv => {
@@ -400,7 +428,7 @@ try {
 
         getos.default().then(distro => {
           process.distro = distro
-          require('./nlu-server').default(argv)
+          require('./nlu/stan').default(argv)
         })
       }
     )

@@ -10,6 +10,7 @@ module.exports = {
     project: [
       './src/tsconfig.json',
       './src/bp/ui-*/tsconfig.json',
+      './src/bp/admin/ui/tsconfig.json',
       './modules/tsconfig*.eslint.json',
       './build/module-builder/tsconfig.json'
     ],

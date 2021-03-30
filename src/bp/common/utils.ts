@@ -6,3 +6,9 @@ export const bytesToString = (bytes: number): string => {
 
   return `${significand.toFixed(0)} ${units[unitNumber]}`
 }
+
+export const sanitizeName = (text: string) =>
+  text
+    .replace(/\s|\t|\n/g, '-')
+    .toLowerCase()
+    .replace(/[^a-z0-9-_.]/g, '')
