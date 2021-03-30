@@ -6,6 +6,7 @@ const path = require('path')
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 const TerserPlugin = require('terser-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CleanWebpackPlugin = require('clean-webpack-plugin')
 const isProduction = process.env.NODE_ENV === 'production'
 const moment = require('moment')
 
@@ -18,10 +19,10 @@ const config = {
   output: {
     path: path.resolve(__dirname, './public/js'),
     publicPath: 'assets/ui-lite/public/js/',
-    filename: '[name].js'
+    filename: '[name].[chunkhash].js'
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js', '.css'],
+    extensions: ['.tsx', '.ts', '.js'],
     alias: {
       common: path.resolve(__dirname, '../../../out/bp/common')
     }
@@ -29,7 +30,8 @@ const config = {
   optimization: {
     minimizer: [
       new TerserPlugin({
-        sourceMap: true
+        sourceMap: true,
+        extractComments: false
       })
     ],
     splitChunks: {
@@ -59,7 +61,8 @@ const config = {
       template: './src/index.html',
       filename: '../index.html'
     }),
-    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
+    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+    new CleanWebpackPlugin(['public'])
   ],
   module: {
     rules: [
