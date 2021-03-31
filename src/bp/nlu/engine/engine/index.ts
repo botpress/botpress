@@ -257,19 +257,18 @@ export default class Engine implements IEngine {
     this.modelsById.set(stringId, modelCacheItem)
 
     lifecycleDebug(`Model cache entries are: [${this.modelsById.keys().join(', ')}]`)
-    const debug = this._getMemoryUsage(modelSize)
+    const debug = this._getMemoryUsage()
     lifecycleDebug(`Current memory usage: ${JSON.stringify(debug)}`)
   }
 
-  private _getMemoryUsage = (modelSize: number) => {
+  private _getMemoryUsage = () => {
     const { heap_size_limit, total_available_size, used_heap_size } = v8.getHeapStatistics()
     return _.mapValues(
       {
         currentCacheSize: this.modelsById.length,
         heap_size_limit,
         total_available_size,
-        used_heap_size,
-        modelSize
+        used_heap_size
       },
       bytes
     )
