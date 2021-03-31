@@ -329,6 +329,9 @@ const payload = {
 [security sdk]: https://botpress.com/reference/modules/_botpress_sdk_.security.html#getmessagesignature
 
 ## Customizing Web Chat Style
+The Botpress webchat interface which is displayed on your website is fully customisable. You can change any of the styling using CSS. This can be done in two steps. Firstly create your own cascading style sheet and name it anything you want. Thereafter paste your stylesheet in the `<botpress_dir>/data/assets/modules/channel-web` folder.
+
+Secondly, you need to reference your new style sheet to your embedded cextrashatbot. You can easily do this by referencing your new stylesheet using the `extraStylesheet` property. Let us go through these steps in more detail.
 
 ### Step 1: Styling (CSS)
 
