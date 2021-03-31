@@ -14,9 +14,10 @@ import { LanguageProvider, SystemEntityExtractor, Tools } from './typings'
 const NLU_VERSION = '2.1.0'
 
 const healthGetter = (languageProvider: LanguageProvider) => (): Health => {
-  const { validProvidersCount, validLanguages } = languageProvider.getHealth()
+  const { validProvidersCount, validLanguages, isReady } = languageProvider.getHealth()
   return {
     isEnabled: validProvidersCount! > 0 && validLanguages!.length > 0,
+    isReady: isReady!,
     validProvidersCount: validProvidersCount!,
     validLanguages: validLanguages!
   }
@@ -49,6 +50,7 @@ const initializeLanguageProvider = async (
       seededLodashProvider
     )
     const getHealth = healthGetter(languageProvider)
+    await languageProvider.waitUntilReady()
     return { languageProvider, health: getHealth() }
   } catch (e) {
     if (e.failure && e.failure.code === 'ECONNREFUSED') {

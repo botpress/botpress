@@ -39,6 +39,7 @@ export interface LanguageProvider {
   vectorize(tokens: string[], lang: string): Promise<Float32Array[]>
   tokenize(utterances: string[], lang: string, vocab?: string[]): Promise<string[][]>
   generateSimilarJunkWords(subsetVocab: string[], lang: string): Promise<string[]>
+  waitUntilReady(): Promise<void>
   getHealth(): Partial<Health>
 }
 

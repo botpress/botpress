@@ -86,6 +86,7 @@ export type Model = ModelId & {
 
 export interface Health {
   isEnabled: boolean
+  isReady: boolean
   validProvidersCount: number
   validLanguages: string[]
 }

@@ -1,6 +1,6 @@
-import axios, { AxiosInstance } from 'axios'
-import retry from 'bluebird-retry'
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import crypto from 'crypto'
+import { EventEmitter2 } from 'eventemitter2'
 import fse from 'fs-extra'
 import httpsProxyAgent from 'https-proxy-agent'
 import _, { debounce, sumBy } from 'lodash'
@@ -27,25 +27,17 @@ const TOKEN_FILE_PREFIX = 'utterance_tokens'
 const JUNK_FILE_PREFIX = 'junk_words'
 
 class ManagedLRU<K, V> {
-  private _name: string
   public cache: lru<K, V>
   private _dumpDisabled: boolean = false
-  private _cacheDir: string
-  private _filePrefix: string
-  private _versionHash: string
 
   constructor(
-    cacheDir: string,
-    filePrefix: string,
-    versionHash: string,
+    private _cacheDir: string,
+    private _filePrefix: string,
+    private _versionHash: string,
     opts: lru.Options<K, V>,
-    name: string = 'lru'
+    private _name: string = 'lru'
   ) {
-    this._filePrefix = filePrefix
-    this._versionHash = versionHash
     this.cache = new lru<K, V>(opts)
-    this._cacheDir = cacheDir
-    this._name = name
   }
 
   public get path() {
@@ -182,25 +174,119 @@ const createCaches = async (cacheDir: string, versionHash: string) => {
   return { vectors, tokens, junkwords }
 }
 
+class ServerConnection extends EventEmitter2 {
+  private _ready: boolean = false
+  public info?: LangServerInfo
+  public client: AxiosInstance
+  private _retryCount: number = 0
+  private _intervalHandle?: NodeJS.Timeout
+
+  constructor(private _source: LanguageSource) {
+    super()
+    this.client = axios.create(this._axiosConfig)
+    this.on('error', this._stopRetry)
+  }
+
+  public get endpoint() {
+    return this._source.endpoint
+  }
+
+  public get source() {
+    return this._source
+  }
+
+  private get _axiosConfig(): AxiosRequestConfig {
+    const headers: _.Dictionary<string> = {}
+
+    if (this._source.authToken) {
+      headers['authorization'] = `bearer ${this._source.authToken}`
+    }
+
+    const proxyConfig = process.PROXY ? { httpsAgent: new httpsProxyAgent(process.PROXY) } : {}
+
+    return {
+      baseURL: this._source.endpoint,
+      headers,
+      ...proxyConfig
+    }
+  }
+
+  public async retry(): Promise<boolean> {
+    const { data } = await this.client.get('/info')
+
+    if (!data.ready) {
+      this.info = undefined
+      this._ready = false
+      this.emit('retried', this._retryCount)
+      return false
+    }
+
+    const version = semver.valid(semver.coerce(data.version))
+
+    if (!version) {
+      throw new Error('Lang server has an invalid version')
+    }
+
+    const info = {
+      version: semver.clean(version),
+      dim: data.dimentions,
+      domain: data.domain
+    }
+
+    this.info = info
+    this._ready = true
+    this.emit('ready', info, data)
+
+    return true
+  }
+
+  private _stopRetry() {
+    if (this._intervalHandle) {
+      clearInterval(this._intervalHandle)
+    }
+  }
+
+  public connect(retryDelay: number = 5000, maxRetryCount = 15) {
+    this._stopRetry()
+    this._intervalHandle = setInterval(async () => {
+      try {
+        if (await this.retry()) {
+          this._stopRetry()
+        }
+      } catch (err) {
+        this.emit('error', err)
+      } finally {
+        this._retryCount++
+        if (this._retryCount >= maxRetryCount) {
+          this._stopRetry()
+        }
+      }
+    }, retryDelay)
+  }
+
+  public isCompatibleWith(server: ServerConnection): boolean | undefined {
+    if (!this.info || !server.info) {
+      return undefined
+    }
+    return this.info.dim === server.info.dim
+  }
+
+  public get ready() {
+    return this._ready
+  }
+}
+
 export class RemoteLanguageProvider implements LanguageProvider {
   private _vectorsCache!: ManagedLRU<string, Float32Array>
   private _tokensCache!: ManagedLRU<string, string[]>
   private _junkwordsCache!: ManagedLRU<string[], string[]>
-
   private _validProvidersCount!: number
   private _languageDims!: number
-
+  private _connections: { [endpoint: string]: ServerConnection } = {}
   private _nluVersion!: string
   private _langServerInfo!: LangServerInfo
 
   private _seededLodashProvider!: SeededLodashProvider
-
-  private discoveryRetryPolicy = {
-    interval: 1000,
-    max_interval: 5000,
-    timeout: 2000,
-    max_tries: 5
-  }
 
   private langs: LangsGateway = {}
 
@@ -223,94 +309,93 @@ export class RemoteLanguageProvider implements LanguageProvider {
     this._validProvidersCount = 0
 
     this._seededLodashProvider = seededLodashProvider
+    this._connections = sources
+      .map(s => new ServerConnection(s))
+      .reduce((conns, conn: ServerConnection) => ({ ...conns, [conn.endpoint]: conn }), {})
 
-    await Promise.mapSeries(sources, async source => {
-      const headers: _.Dictionary<string> = {}
+    let cacheInitialized = false
 
-      if (source.authToken) {
-        headers['authorization'] = `bearer ${source.authToken}`
-      }
+    await Promise.mapSeries(Object.entries(this._connections), async ([endpoint, conn]) => {
+      conn.on('error', async err => {
+        const status = _.get(err, 'failure.response.status')
+        const details = _.get(err, 'failure.response.message')
 
-      const proxyConfig = process.PROXY ? { httpsAgent: new httpsProxyAgent(process.PROXY) } : {}
+        if (status === 429) {
+          logger.error(
+            `Could not load Language Server: ${details}. You may be over the limit for the number of requests allowed for the endpoint ${endpoint}`
+          )
+        } else if (status === 401) {
+          logger.error(`You must provide a valid authentication token for the endpoint ${endpoint}`)
+        } else {
+          logger.error(`Could not load Language Provider at ${endpoint}: ${err.code}`, err)
+        }
 
-      const client = axios.create({
-        baseURL: source.endpoint,
-        headers,
-        ...proxyConfig
+        this._connections[endpoint].connect()
       })
-      try {
-        await retry(async () => {
-          const { data } = await client.get('/info')
+      conn.once('ready', async () => {
+        if (!cacheInitialized) {
+          const versionHash = this.computeVersionHash()
+          const caches = await createCaches(path.join(process.APP_DATA_PATH, 'cache'), versionHash)
 
-          if (!data.ready) {
-            throw new Error('Language source is not ready')
-          }
+          this._vectorsCache = caches.vectors
+          this._tokensCache = caches.tokens
+          this._junkwordsCache = caches.junkwords
+          cacheInitialized = true
+        }
+      })
+      conn.once('ready', (info: LangServerInfo, data: any) => {
+        const numIncompatible = Object.values(this._connections)
+          .map(c => c.isCompatibleWith(conn))
+          .filter(compatible => typeof compatible !== 'undefined' && !compatible).length
 
-          if (!this._languageDims) {
-            this._languageDims = data.dimentions // note typo in language server
-          }
+        if (numIncompatible > 0) {
+          conn.emit('error', new Error('Language sources have different dimensions'))
+          return
+        }
 
-          // TODO: also check that the domain and version is consistent across all sources
-          if (this._languageDims !== data.dimentions) {
-            throw new Error('Language sources have different dimensions')
-          }
-          this._validProvidersCount++
-          data.languages.forEach(x => this.addProvider(x.lang, source, client))
+        data.languages.forEach(x => this.addProvider(x.lang, conn.source, conn.client))
 
-          this.extractLangServerInfo(data)
-        }, this.discoveryRetryPolicy)
-      } catch (err) {
-        this.handleLanguageServerError(err, source.endpoint, logger)
-      }
+        const readyCount = Object.values(this._connections).filter(s => s.ready).length
+        if (readyCount < 1) {
+          this._langServerInfo = info
+        }
+      })
+
+      conn.connect()
     })
 
-    const versionHash = this.computeVersionHash()
-    const caches = await createCaches(path.join(process.APP_DATA_PATH, 'cache'), versionHash)
-
-    this._vectorsCache = caches.vectors
-    this._tokensCache = caches.tokens
-    this._junkwordsCache = caches.junkwords
-
-    debug(`loaded ${Object.keys(this.langs).length} languages from ${sources.length} sources`)
-
     return this as LanguageProvider
+  }
+
+  public waitUntilReady(): Promise<void> {
+    return new Promise(resolve => {
+      if (this.ready) {
+        resolve()
+      }
+      Object.values(this._connections).map(c =>
+        c.once('ready', () => {
+          if (this.ready) {
+            resolve()
+          }
+        })
+      )
+    })
+  }
+
+  public get ready() {
+    return Object.values(this._connections).every(c => c.ready)
   }
 
   public get langServerInfo(): LangServerInfo {
     return this._langServerInfo
   }
 
-  private extractLangServerInfo(data) {
-    const version = semver.valid(semver.coerce(data.version))
-
-    if (!version) {
-      throw new Error('Lang server has an invalid version')
-    }
-    const langServerInfo = {
-      version: semver.clean(version),
-      dim: data.dimentions,
-      domain: data.domain
-    }
-    this._langServerInfo = langServerInfo
-  }
-
-  private handleLanguageServerError = (err, endpoint: string, logger: Logger) => {
-    const status = _.get(err, 'failure.response.status')
-    const details = _.get(err, 'failure.response.message')
-
-    if (status === 429) {
-      logger.error(
-        `Could not load Language Server: ${details}. You may be over the limit for the number of requests allowed for the endpoint ${endpoint}`
-      )
-    } else if (status === 401) {
-      logger.error(`You must provide a valid authentication token for the endpoint ${endpoint}`)
-    } else {
-      logger.error(`Could not load Language Provider at ${endpoint}: ${err.code}`, err)
-    }
-  }
-
   getHealth(): Partial<Health> {
-    return { validProvidersCount: this._validProvidersCount, validLanguages: Object.keys(this.langs) }
+    return {
+      isReady: this.ready,
+      validProvidersCount: this._validProvidersCount,
+      validLanguages: Object.keys(this.langs)
+    }
   }
 
   private getAvailableProviders(lang: string): Gateway[] {

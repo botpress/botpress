@@ -56,6 +56,7 @@ export const makeFakeTools = (dim: number, languages: string[]): Tools => {
   const getHealth = () => {
     return {
       isEnabled: true,
+      isReady: true,
       validProvidersCount: 1,
       validLanguages: [...languages]
     }
