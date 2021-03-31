@@ -70,6 +70,11 @@ export class Bot implements Trainable, Predictor {
       throw new Error(`Model ${stringId} not found on file system.`)
     }
 
+    const previousId = this._modelsByLang[modelId.languageCode]
+    if (previousId) {
+      this._engine.unloadModel(previousId)
+    }
+
     this._modelsByLang[modelId.languageCode] = model.id
     await this._engine.loadModel(model)
   }
