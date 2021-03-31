@@ -2371,6 +2371,18 @@ declare module 'botpress/sdk' {
     export function getMessageSignature(message: string): Promise<string>
   }
 
+  export namespace mapping {
+    export function forScope(scope: string): ScopedMapping
+
+    export interface ScopedMapping {
+      getLocal(foreign: string): Promise<string | undefined>
+
+      getForeign(local: string): Promise<string | undefined>
+
+      make(foreign: string, local: string): Promise<void>
+    }
+  }
+
   /**
    * These features are subject to change and should not be relied upon.
    * They will eventually be either removed or moved in another namespace
