@@ -13,6 +13,8 @@ import ApiClient from './ApiClient'
 import MainScreen from './MainScreen'
 import SidePanelContent from './SidePanel'
 import style from './style.scss'
+import { groupEventsByUtterance } from './eventUtils'
+import { kebabCase } from 'lodash'
 
 interface Props {
   contentLang: string
@@ -27,6 +29,8 @@ interface State {
   eventCounts: { [status: string]: number } | null
   selectedStatus: FLAGGED_MESSAGE_STATUS
   events: DbFlaggedEvent[] | null
+  checkedEventIds: number[]
+  selectAllChecked: boolean
   selectedEventIndex: number | null
   selectedEvent: DbFlaggedEvent | null
   eventNotFound: boolean
@@ -45,6 +49,8 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     events: null,
     selectedEventIndex: null,
     selectedEvent: null,
+    checkedEventIds: [],
+    selectAllChecked: false,
     eventNotFound: false,
     dateRange: undefined,
     reason: undefined
@@ -129,22 +135,24 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
       eventCounts &&
       selectedEventIndex < eventCounts[selectedStatus]
     ) {
-      return this.setEventIndex(selectedEventIndex + 1)
+      const currentEvent = this.state.events[selectedEventIndex]
+      const events = groupEventsByUtterance(this.state.events).get(currentEvent.preview)
+      return this.setEventIndex(selectedEventIndex + events.length)
     }
   }
 
-  async alterEventsList(oldStatus: FLAGGED_MESSAGE_STATUS, newStatus: FLAGGED_MESSAGE_STATUS) {
+  async alterEventsList(oldStatus: FLAGGED_MESSAGE_STATUS, newStatus: FLAGGED_MESSAGE_STATUS, eventIds: number[]) {
     // do some local state patching to prevent unneeded content flash
     const { eventCounts, selectedEventIndex, events } = this.state
     const newEventCounts = {
       ...eventCounts,
-      [oldStatus]: eventCounts[oldStatus] - 1,
-      [newStatus]: (eventCounts[newStatus] || 0) + 1
+      [oldStatus]: eventCounts[oldStatus] - eventIds.length,
+      [newStatus]: (eventCounts[newStatus] || 0) + eventIds.length
     }
     await this.setStateP({
       eventCounts: newEventCounts,
       selectedEvent: null,
-      events: events.filter(event => event.id !== events[selectedEventIndex].id)
+      events: events.filter(event => !eventIds.includes(event.id))
     })
 
     // advance to the next event
@@ -154,32 +162,49 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     await this.updateEventsCounts()
   }
 
-  deleteCurrentEvent = async () => {
-    await this.apiClient.updateStatus(
-      this.state.events[this.state.selectedEventIndex].id,
-      FLAGGED_MESSAGE_STATUS.deleted
-    )
+  deleteCurrentEvents = async () => {
+    let eventIds
+    if (this.state.checkedEventIds.length > 0) {
+      eventIds = [...this.state.checkedEventIds]
+      await this.setStateP({ checkedEventIds: [], selectAllChecked: false })
+    } else {
+      const event = this.state.events[this.state.selectedEventIndex]
+      const eventsByUtterance = groupEventsByUtterance(this.state.events)
+      const eventsWithIndices = eventsByUtterance.get(event.preview)
+      eventIds = eventsWithIndices.map(({ event, eventIndex }) => event.id)
+    }
 
-    return this.alterEventsList(FLAGGED_MESSAGE_STATUS.new, FLAGGED_MESSAGE_STATUS.deleted)
+    await this.apiClient.updateStatuses(eventIds, FLAGGED_MESSAGE_STATUS.deleted)
+
+    return this.alterEventsList(FLAGGED_MESSAGE_STATUS.new, FLAGGED_MESSAGE_STATUS.deleted, eventIds)
   }
 
   undeleteEvent = async (id: number) => {
-    await this.apiClient.updateStatus(id, FLAGGED_MESSAGE_STATUS.new)
-    return this.alterEventsList(FLAGGED_MESSAGE_STATUS.deleted, FLAGGED_MESSAGE_STATUS.new)
+    await this.apiClient.updateStatuses([id], FLAGGED_MESSAGE_STATUS.new)
+    return this.alterEventsList(FLAGGED_MESSAGE_STATUS.deleted, FLAGGED_MESSAGE_STATUS.new, [id])
   }
 
   resetPendingEvent = async (id: number) => {
-    await this.apiClient.updateStatus(id, FLAGGED_MESSAGE_STATUS.new)
-    return this.alterEventsList(FLAGGED_MESSAGE_STATUS.pending, FLAGGED_MESSAGE_STATUS.new)
+    await this.apiClient.updateStatuses([id], FLAGGED_MESSAGE_STATUS.new)
+    return this.alterEventsList(FLAGGED_MESSAGE_STATUS.pending, FLAGGED_MESSAGE_STATUS.new, [id])
   }
 
-  amendCurrentEvent = async (resolutionData: ResolutionData) => {
-    await this.apiClient.updateStatus(
-      this.state.events[this.state.selectedEventIndex].id,
+  amendCurrentEvents = async (resolutionData: ResolutionData) => {
+    const event = this.state.events[this.state.selectedEventIndex]
+
+    const eventsByUtterance = groupEventsByUtterance(this.state.events)
+    const eventsWithIndices = eventsByUtterance.get(event.preview)
+
+    await this.apiClient.updateStatuses(
+      eventsWithIndices.map(({ event, eventIndex }) => event.id),
       FLAGGED_MESSAGE_STATUS.pending,
       resolutionData
     )
-    return this.alterEventsList(FLAGGED_MESSAGE_STATUS.new, FLAGGED_MESSAGE_STATUS.pending)
+    return this.alterEventsList(
+      FLAGGED_MESSAGE_STATUS.new,
+      FLAGGED_MESSAGE_STATUS.pending,
+      eventsWithIndices.map(({ event: { id } }) => id)
+    )
   }
 
   applyAllPending = async () => {
@@ -232,7 +257,9 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
       selectedEventIndex: 0,
       selectedEvent: firstEvent,
       eventNotFound: !firstEvent,
-      eventCounts
+      eventCounts,
+      checkedEventIds: [],
+      selectAllChecked: false
     })
   }
 
@@ -255,13 +282,61 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     })
   }
 
+  onEventCheckedOrUnchecked = async eventIds => {
+    let checkedEventIds = [...this.state.checkedEventIds]
+    const remove = checkedEventIds.filter(id => eventIds.includes(id)).length > 0
+    if (remove) {
+      checkedEventIds = checkedEventIds.filter(id => !eventIds.includes(id))
+    } else {
+      checkedEventIds = [...checkedEventIds, ...eventIds]
+    }
+    const newState = {
+      checkedEventIds
+    }
+    if (remove) {
+      newState['selectAllChecked'] = false
+    }
+    await this.setStateP(newState)
+  }
+
+  onSelectAllChanged = async () => {
+    const selectAllChecked = !this.state.selectAllChecked
+
+    await this.setStateP({
+      selectAllChecked,
+      checkedEventIds: selectAllChecked ? this.state.events.map(e => e.id) : []
+    })
+  }
+
   render() {
-    const { eventCounts, selectedStatus, events, selectedEventIndex, selectedEvent, eventNotFound } = this.state
+    const {
+      eventCounts,
+      selectedStatus,
+      events,
+      checkedEventIds,
+      selectedEventIndex,
+      selectedEvent,
+      eventNotFound,
+      selectAllChecked
+    } = this.state
 
     const { contentLang } = this.props
 
     const dataLoaded =
       selectedStatus === FLAGGED_MESSAGE_STATUS.new ? selectedEvent || (events && events.length === 0) : events
+
+    const groups = groupEventsByUtterance(events || [])
+    const selectedUtterances = new Set()
+    groups.forEach(function(eventWithIndex, utterance) {
+      for (const {
+        event: { id }
+      } of eventWithIndex) {
+        if (checkedEventIds.includes(id)) {
+          selectedUtterances.add(utterance)
+        }
+      }
+    })
+    const manyEventsSelected = selectedUtterances.size >= 2
 
     return (
       <Container sidePanelWidth={320}>
@@ -296,11 +371,15 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
             eventCounts={eventCounts}
             selectedStatus={selectedStatus}
             events={events}
+            checkedEventIds={checkedEventIds}
             selectedEventIndex={selectedEventIndex}
             onSelectedStatusChange={this.setEventsStatus}
             onSelectedEventChange={this.setEventIndex}
+            onEventCheckedOrUnchecked={this.onEventCheckedOrUnchecked}
             applyAllPending={this.applyAllPending}
             deleteAllStatus={this.deleteAllStatus}
+            selectAllChecked={selectAllChecked}
+            onSelectAllChanged={this.onSelectAllChanged}
           />
         </SidePanel>
 
@@ -316,11 +395,12 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
               selectedStatus={selectedStatus}
               events={events}
               skipEvent={this.skipCurrentEvent}
-              deleteEvent={this.deleteCurrentEvent}
+              deleteEvent={this.deleteCurrentEvents}
               undeleteEvent={this.undeleteEvent}
               resetPendingEvent={this.resetPendingEvent}
-              amendEvent={this.amendCurrentEvent}
+              amendEvent={this.amendCurrentEvents}
               applyAllPending={this.applyAllPending}
+              manyEventsSelected={manyEventsSelected}
             />
           </div>
         ) : (

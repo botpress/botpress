@@ -226,7 +226,7 @@ class LicenseStatus extends React.Component<Props> {
 
     // @TODO: Fix those typings once we are sure what they represent
     // @ts-ignore
-    const nodes = Number(this.license.limits.nodes)
+    const nodes = Number((this.license.limits && this.license.limits.nodes) || 0)
 
     return (
       <PageContainer title={lang.tr('admin.sideMenu.serverLicense')} superAdmin={true}>

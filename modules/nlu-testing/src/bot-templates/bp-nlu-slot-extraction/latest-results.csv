@@ -1,5 +1,5 @@
-utterance,context,conditions,status,date: 1/29/2021,summary: 60.7,nlu seed: 1234
-A MP34 I WHAT I WISH FOR LOL,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,MP34",fail
+utterance,context,conditions,status,date: 3/23/2021,summary: 61.8,nlu seed: undefined
+A MP34 I WHAT I WISH FOR LOL,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,MP34",pass
 I wanto by a AKP447,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,AKP447",fail
 I wish to get my hands on a Ak-47,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,Ak-47",pass
 I really want an m16 right now,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,m16",pass
@@ -8,7 +8,7 @@ How can I get an cd-42?,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,cd-42",
 buy G36,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,G36",pass
 Can I get my hands on a gun?,patterns,"-intent,is,buy-guns",pass
 buy pinaple,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,pinaple",pass
-I'm looking for some tesguino to buy,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,tesguino",fail
+I'm looking for some tesguino to buy,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,tesguino",pass
 Can I buy some goji beries from your shop ? ,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,goji beries",pass
 a bell peper is what I need please,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,bell peper",pass
 purchase some of red nectarines from online shop,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,nectarines",pass
@@ -41,7 +41,7 @@ I'm going banana about eating this orange in the big apple tonight,no-slot,"-int
 I'm going banana about eating this chile pepper in the big apple tonight,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,chile pepper",pass
 about to eat my lemon at the big apple right now,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,lemon",pass
 I want a flight which leaves Prague and land in Tataouine,1-entity,"-intent,is,book-flight-slot:to_city,is,Tataouine-slot:from_city,is,Prague",pass
-Sofia to Tokyo,1-entity,"-intent,is,book-flight-slot:to_city,is,Tokyo-slot:from_city,is,Sofia",fail
+Sofia to Tokyo,1-entity,"-intent,is,book-flight-slot:to_city,is,Tokyo-slot:from_city,is,Sofia",pass
 flight to Tokyo,1-entity,"-intent,is,book-flight-slot:to_city,is,Tokyo",pass
 flight from Vaduz,1-entity,"-intent,is,book-flight-slot:from_city,is,Vaduz",pass
 register a flight to Stockholm leaving Tripolis,1-entity,"-intent,is,book-flight-slot:to_city,is,Stockholm-slot:from_city,is,Tripolis",pass
@@ -70,9 +70,9 @@ Let shoot on London!,multi-slot-multi-entity,"-intent,is,fire-something-slot:tim
 how can I fire someone?,multi-entity,"-intent,is,fire-employe",pass
 buy an aple,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,aple",fail
 I wana buy ornage,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,ornage",pass
-Please give em abanana,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,banana",pass
+Please give em abanana,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,banana",fail
 eating na aple at banana republic,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,aple",fail
-On my trip to lemon cove I ate anorange,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,orange",pass
+On my trip to lemon cove I ate anorange,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,orange",fail
 eat an Orange Vale's lemon,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,lemon",fail
 I want to reach Teheran by leaving Tallinn,1-entity,"-intent,is,book-flight-slot:from_city,is,Tallinn-slot:to_city,is,Teheran",fail
 fly from montrael to quebec,1-entity,"-intent,is,book-flight-slot:from_city,is,montrael-slot:to_city,is,quebc",fail

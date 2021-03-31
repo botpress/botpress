@@ -1,11 +1,20 @@
 import bytes from 'bytes'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
-
 import sizeof from 'object-sizeof'
+
 import modelIdService from '../model-id-service'
 
-import { TrainingOptions, LanguageConfig, Logger, ModelId, TrainingSet, Model, PredictOutput } from '../typings'
+import {
+  TrainingOptions,
+  LanguageConfig,
+  Logger,
+  ModelId,
+  TrainingSet,
+  Model,
+  PredictOutput,
+  Engine as IEngine
+} from '../typings'
 import { deserializeKmeans } from './clustering'
 import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
@@ -13,7 +22,6 @@ import { getCtxFeatures } from './intents/context-featurizer'
 import { OOSIntentClassifier } from './intents/oos-intent-classfier'
 import { SvmIntentClassifier } from './intents/svm-intent-classifier'
 import DetectLanguage from './language/language-identifier'
-import makeSpellChecker from './language/spell-checker'
 import { deserializeModel, PredictableModel, serializeModel } from './model-serializer'
 import { Predict, Predictors } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
@@ -21,7 +29,6 @@ import { isPatternValid } from './tools/patterns-utils'
 import { TrainInput, TrainOutput } from './training-pipeline'
 import { TrainingWorkerQueue } from './training-worker-queue'
 import { EntityCacheDump, ListEntity, PatternEntity, Tools } from './typings'
-import { preprocessRawUtterance } from './utterance/utterance'
 import { getModifiedContexts, mergeModelOutputs } from './warm-training-handler'
 
 const trainDebug = DEBUG('nlu').sub('training')
@@ -34,32 +41,57 @@ interface LoadedModel {
   entityCache: EntityCacheManager
 }
 
+const DEFAULT_CACHE_SIZE = '850mb'
+const DEFAULT_ENGINE_OPTIONS: EngineOptions = {
+  cacheSize: DEFAULT_CACHE_SIZE,
+  legacyElection: false
+}
+
 const DEFAULT_TRAINING_OPTIONS: TrainingOptions = {
   progressCallback: () => {},
   previousModel: undefined
 }
 
-const DEFAULT_ENGINE_OPTIONS: EngineOptions = {
-  maxCacheSize: 262144000 // 250mb of model cache
-}
-
 interface EngineOptions {
-  maxCacheSize: number
+  cacheSize: string
+  legacyElection: boolean
 }
 
-export default class Engine implements Engine {
+export default class Engine implements IEngine {
   private _tools!: Tools
   private _trainingWorkerQueue!: TrainingWorkerQueue
 
+  private _options: EngineOptions
+
   private modelsById: LRUCache<string, LoadedModel>
 
-  constructor(opt?: Partial<EngineOptions>) {
-    const options: EngineOptions = { ...DEFAULT_ENGINE_OPTIONS, ...opt }
+  constructor(opt: Partial<EngineOptions> = {}) {
+    this._options = { ...DEFAULT_ENGINE_OPTIONS, ...opt }
+
     this.modelsById = new LRUCache({
-      max: options.maxCacheSize,
+      max: this._parseCacheSize(this._options.cacheSize),
       length: sizeof // ignores size of functions, but let's assume it's small
     })
-    trainDebug(`model cache size is: ${bytes(options.maxCacheSize)}`)
+
+    const debugMsg =
+      this.modelsById.max === Infinity
+        ? 'model cache size is infinite'
+        : `model cache size is: ${bytes(this.modelsById.max)}`
+    lifecycleDebug(debugMsg)
+  }
+
+  private _parseCacheSize = (cacheSize: string): number => {
+    const defaultBytes = bytes(DEFAULT_CACHE_SIZE)
+    if (!cacheSize) {
+      return defaultBytes
+    }
+
+    const parsedCacheSize = bytes(cacheSize)
+    if (!parsedCacheSize) {
+      return defaultBytes
+    }
+
+    return Math.abs(parsedCacheSize)
   }
 
   public getHealth() {
@@ -210,16 +242,18 @@ export default class Engine implements Engine {
     }
 
     const modelSize = sizeof(modelCacheItem)
-    lifecycleDebug(`Size of model ${stringId} is ${bytes(modelSize)}`)
+    const bytesModelSize = bytes(modelSize)
+    lifecycleDebug(`Size of model ${stringId} is ${bytesModelSize}`)
 
     if (modelSize >= this.modelsById.max) {
       const msg = `Can't load model ${stringId} as it is bigger than the maximum allowed size`
       const details = `model size: ${bytes(modelSize)}, max allowed: ${bytes(this.modelsById.max)}`
-      throw new Error(`${msg} (${details}).`)
+      const solution = 'You can increase cache size in the nlu config.'
+      throw new Error(`${msg} (${details}). ${solution}`)
     }
 
     this.modelsById.set(stringId, modelCacheItem)
-    lifecycleDebug('Model loaded with success')
+
     lifecycleDebug(`Model cache entries are: [${this.modelsById.keys().join(', ')}]`)
   }
 
@@ -253,7 +287,8 @@ export default class Engine implements Engine {
 
     const intent_classifier_per_ctx: Dic<OOSIntentClassifier> = await Promise.props(
       _.mapValues(intent_model_by_ctx, async model => {
-        const intentClf = new OOSIntentClassifier(tools)
+        const { legacyElection } = this._options
+        const intentClf = new OOSIntentClassifier(tools, undefined, { legacyElection })
         await intentClf.load(model)
         return intentClf
       })
@@ -303,18 +338,6 @@ export default class Engine implements Engine {
       this._tools,
       loaded.predictors
     )
-  }
-
-  async spellCheck(sentence: string, modelId: ModelId) {
-    const stringId = modelIdService.toString(modelId)
-    const loaded = this.modelsById.get(stringId)
-    if (!loaded) {
-      throw new Error(`model ${stringId} not loaded`)
-    }
-
-    const preprocessed = preprocessRawUtterance(sentence)
-    const spellChecker = makeSpellChecker(loaded.predictors.vocab, loaded.model.languageCode, this._tools)
-    return spellChecker(preprocessed)
   }
 
   async detectLanguage(text: string, modelsByLang: _.Dictionary<ModelId>): Promise<string> {

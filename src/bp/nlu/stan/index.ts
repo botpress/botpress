@@ -30,11 +30,6 @@ type ArgV = APIOptions & {
 }
 
 const makeEngine = async (options: ArgV, logger: Logger) => {
-  const maxCacheSize = bytes(options.modelCacheSize)
-  if (!maxCacheSize) {
-    throw new Error(`Specified model cache-size "${options.modelCacheSize}" has an invalid format.`)
-  }
-
   const loggerWrapper: NLUEngine.Logger = {
     debug: (msg: string) => logger.debug(msg),
     info: (msg: string) => logger.info(msg),
@@ -43,16 +38,18 @@ const makeEngine = async (options: ArgV, logger: Logger) => {
   }
 
   try {
+    const { ducklingEnabled, ducklingURL, modelCacheSize, languageURL, languageAuthToken } = options
     const config: NLUEngine.Config = {
       languageSources: [
         {
-          endpoint: options.languageURL,
-          authToken: options.languageAuthToken
+          endpoint: languageURL,
+          authToken: languageAuthToken
         }
       ],
-      ducklingEnabled: options.ducklingEnabled,
-      ducklingURL: options.ducklingURL,
-      modelCacheSize: maxCacheSize
+      ducklingEnabled,
+      ducklingURL,
+      modelCacheSize,
+      legacyElection: false
     }
 
     const engine = await NLUEngine.makeEngine(config, loggerWrapper)

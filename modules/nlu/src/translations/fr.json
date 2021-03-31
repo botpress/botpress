@@ -1,7 +1,7 @@
 {
   "autoTrain": "Entraînement automatique",
   "cancelTraining": "Arrêter l'entraînement",
-  "description": "Utilisez la compréhension du langage de Botpress pour rendre votre agent plus intelligent.",
+  "description": "Appuyer sur + dans le panneau de gauche pour créer une intention.",
   "entities": {
     "deleteMessage": "Êtes-vous sûr de vouloir supprimer l'entité \"{entityName}\" ?",
     "duplicate": "Dupliquer l'entité",

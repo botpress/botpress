@@ -1,7 +1,7 @@
 {
   "autoTrain": "Auto Training",
   "cancelTraining": "Cancel Training",
-  "description": "Use Botpress native Natural Language Understanding engine to make your bot smarter.",
+  "description": "Tap + in the sidebar to define your first intent.",
   "entities": {
     "deleteMessage": "Are you sure you want to delete the entity \"{entityName}\" ?",
     "duplicate": "Duplicate Entity",

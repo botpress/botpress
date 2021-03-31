@@ -66,7 +66,7 @@ test('predict with exact match returns confidence 1 for exact-match', async () =
   const { intents } = await oosIntentClassifier.predict(u1)
 
   // assert
-  expect(intents.map(i => i.name).sort()).toEqual(['A', 'B', 'none'])
+  expect(intents.map(i => i.name).sort()).toEqual(['A', 'B'])
   expect(intents[0]).toEqual({ name: 'A', confidence: 1, extractor: 'exact-matcher' })
 })
 
@@ -98,8 +98,8 @@ test('predict with no exact match returns confidence that sums up to 1', async (
   const { intents } = await oosIntentClassifier.predict(uBetterCheckYoSelf)
 
   // assert
-  expect(intents.map(i => i.name).sort()).toEqual(['A', 'B', 'none'])
-  expect(intents.map(i => i.extractor)).toEqual(['svm-classifier', 'svm-classifier', 'svm-classifier'])
+  expect(intents.map(i => i.name).sort()).toEqual(['A', 'B'])
+  expect(intents.map(i => i.extractor)).toEqual(['svm-classifier', 'svm-classifier'])
   expect(intents.map(i => i.confidence).some(c => c === 1)).toEqual(false)
 })
 
@@ -128,12 +128,13 @@ test('predict with less than min utterances for ml should not match', async () =
   await oosIntentClassifier.load(model)
 
   // act
-  const { intents } = await oosIntentClassifier.predict(uBetterCheckYoSelf)
+  const { intents, oos } = await oosIntentClassifier.predict(uBetterCheckYoSelf)
 
   // assert
-  expect(intents.map(i => i.name).sort()).toEqual(['none'])
-  expect(intents.map(i => i.extractor)).toEqual(['svm-classifier'])
-  expect(intents.map(i => i.confidence)).toEqual([1])
+  expect(oos).toBe(1)
+  expect(intents.map(i => i.name).sort()).toEqual([])
+  expect(intents.map(i => i.extractor)).toEqual([])
+  expect(intents.map(i => i.confidence)).toEqual([])
 })
 
 test('predict with available oos should give oos prediction', async () => {
@@ -165,43 +166,6 @@ test('predict with available oos should give oos prediction', async () => {
 
   // assert
   expect(oos).toBeGreaterThan(0)
-})
-
-test('predict with unavailable oos should return oos 0', async () => {
-  // arrange
-  let oosIntentClassifier = new OOSIntentClassifier(fakeTools)
-
-  const intentsDefs = [
-    {
-      name: 'A',
-      contexts: [],
-      slot_definitions: [],
-      utterances: [u1]
-    },
-    {
-      name: 'B',
-      contexts: [],
-      slot_definitions: [],
-      utterances: [u2]
-    }
-  ]
-  const trainSet = makeTrainset(intentsDefs)
-  trainSet.languageCode = 'xyz'
-  trainSet.allUtterances = trainSet.allUtterances.map(u => u.clone(true, true))
-  trainSet.allUtterances.forEach(u => (u.languageCode = 'xyz'))
-  await oosIntentClassifier.train(trainSet, dummyProgress)
-
-  const model = oosIntentClassifier.serialize()
-  oosIntentClassifier = new OOSIntentClassifier(fakeTools)
-  await oosIntentClassifier.load(model)
-
-  // act
-  const predictUtt = uBetterCheckYoSelf.clone(true, true)
-  predictUtt.languageCode = 'xyz'
-  const { oos } = await oosIntentClassifier.predict(predictUtt)
-
-  // assert
-  expect(oos).toBe(0)
 })
 
 test('When model is corrupted, loading a model throws', async () => {
@@ -257,7 +221,7 @@ test('Classifier always pick between exact match or svm', async () => {
   const pred = await oosIntentClassifier.predict(makeTestUtterance('k'))
 
   // assert
-  const [k, none] = _.orderBy(pred.intents, i => i.name)
+  const [k, ...others] = _.orderBy(pred.intents, i => i.name)
   expect(k.confidence).toBe(1)
-  expect(none.confidence).toBeLessThan(1)
+  expect(others.length).toBe(0)
 })

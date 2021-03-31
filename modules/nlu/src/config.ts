@@ -32,4 +32,24 @@ export interface Config {
    * @default 850mb
    */
   modelCacheSize: string
+
+  /**
+   * Maximum number of concurrent trainings per Botpress instance
+   * @default 1
+   * @optional
+   */
+  maxTrainingPerInstance?: number
+
+  /**
+   * Whether or not to train bots that require training on mount
+   * @default false
+   * @optional
+   */
+  queueTrainingOnBotMount?: boolean
+
+  /**
+   * Whether or not you want to use the deprecated legacy election
+   * @default false
+   */
+  legacyElection: boolean
 }
