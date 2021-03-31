@@ -1,6 +1,8 @@
 import * as sdk from 'botpress/sdk'
+import bytes from 'bytes'
 import * as NLU from 'common/nlu/engine'
 import _ from 'lodash'
+import sizeof from 'object-sizeof'
 import { BotDoesntSpeakLanguageError } from '../errors'
 import { Predictor, ProgressCallback, Trainable, I } from '../typings'
 
@@ -55,9 +57,9 @@ export class Bot implements Trainable, Predictor {
 
   public async unmount() {
     await this._defService.teardown()
-    for (const [botId, model] of Object.entries(this._modelsByLang)) {
-      this._engine.unloadModel(model)
-      delete this._modelsByLang[botId]
+    for (const [_botId, modelId] of Object.entries(this._modelsByLang)) {
+      this._engine.unloadModel(modelId)
+      delete this._modelsByLang[modelId.languageCode]
     }
   }
 
@@ -67,6 +69,7 @@ export class Bot implements Trainable, Predictor {
       const stringId = this._modelIdService.toString(modelId)
       throw new Error(`Model ${stringId} not found on file system.`)
     }
+
     this._modelsByLang[model.languageCode] = model
     await this._engine.loadModel(model)
   }

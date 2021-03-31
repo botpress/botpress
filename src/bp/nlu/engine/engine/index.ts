@@ -3,6 +3,8 @@ import _ from 'lodash'
 import LRUCache from 'lru-cache'
 import sizeof from 'object-sizeof'
 
+import v8 from 'v8'
+
 import modelIdService from '../model-id-service'
 
 import {
@@ -255,6 +257,22 @@ export default class Engine implements IEngine {
     this.modelsById.set(stringId, modelCacheItem)
 
     lifecycleDebug(`Model cache entries are: [${this.modelsById.keys().join(', ')}]`)
+    const debug = this._getMemoryUsage(modelSize)
+    lifecycleDebug(`Current memory usage: ${JSON.stringify(debug)}`)
+  }
+
+  private _getMemoryUsage = (modelSize: number) => {
+    const { heap_size_limit, total_available_size, used_heap_size } = v8.getHeapStatistics()
+    return _.mapValues(
+      {
+        currentCacheSize: this.modelsById.length,
+        heap_size_limit,
+        total_available_size,
+        used_heap_size,
+        modelSize
+      },
+      bytes
+    )
   }
 
   unloadModel(modelId: ModelId) {
