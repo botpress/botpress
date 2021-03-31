@@ -70,7 +70,7 @@ export class Bot implements Trainable, Predictor {
       throw new Error(`Model ${stringId} not found on file system.`)
     }
 
-    this._modelsByLang[model.languageCode] = model
+    this._modelsByLang[modelId.languageCode] = model.id
     await this._engine.loadModel(model)
   }
 
@@ -92,7 +92,7 @@ export class Bot implements Trainable, Predictor {
     const modelsOfLang = await _modelRepo.listModels({ languageCode: language })
     await _modelRepo.pruneModels(modelsOfLang, { toKeep: 2 })
 
-    return this._modelIdService.toId(model)
+    return model.id
   }
 
   public cancelTraining = async (language: string) => {

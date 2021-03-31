@@ -203,7 +203,7 @@ export default class Engine implements IEngine {
     })
 
     const model: PredictableModel = {
-      ...modelId,
+      id: modelId,
       startedAt,
       finishedAt: new Date(),
       data: {
@@ -226,10 +226,10 @@ export default class Engine implements IEngine {
   }
 
   async loadModel(serialized: Model) {
-    const stringId = modelIdService.toString(serialized)
+    const stringId = modelIdService.toString(serialized.id)
     lifecycleDebug(`Load model ${stringId}`)
 
-    if (this.hasModel(serialized)) {
+    if (this.hasModel(serialized.id)) {
       lifecycleDebug(`Model ${stringId} already loaded.`)
       return
     }
@@ -347,7 +347,7 @@ export default class Engine implements IEngine {
       throw new Error(`model ${stringId} not loaded`)
     }
 
-    const language = loaded.model.languageCode
+    const language = loaded.model.id.languageCode
     return Predict(
       {
         language,

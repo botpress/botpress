@@ -85,7 +85,7 @@ export class ScopedPredictionHandler {
       if (!model) {
         return
       }
-      modelsByLang[language] = this.modelIdService.toId(model)
+      modelsByLang[language] = model.id
       await this.engine.loadModel(model)
     }
 
