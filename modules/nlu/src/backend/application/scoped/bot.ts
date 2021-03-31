@@ -1,6 +1,8 @@
 import * as sdk from 'botpress/sdk'
+import bytes from 'bytes'
 import * as NLU from 'common/nlu/engine'
 import _ from 'lodash'
+import sizeof from 'object-sizeof'
 import { BotDoesntSpeakLanguageError } from '../errors'
 import { Predictor, ProgressCallback, Trainable, I } from '../typings'
 
@@ -55,9 +57,9 @@ export class Bot implements Trainable, Predictor {
 
   public async unmount() {
     await this._defService.teardown()
-    for (const [botId, model] of Object.entries(this._modelsByLang)) {
-      this._engine.unloadModel(model)
-      delete this._modelsByLang[botId]
+    for (const [_botId, modelId] of Object.entries(this._modelsByLang)) {
+      this._engine.unloadModel(modelId)
+      delete this._modelsByLang[modelId.languageCode]
     }
   }
 
@@ -67,7 +69,13 @@ export class Bot implements Trainable, Predictor {
       const stringId = this._modelIdService.toString(modelId)
       throw new Error(`Model ${stringId} not found on file system.`)
     }
-    this._modelsByLang[model.languageCode] = model
+
+    const previousId = this._modelsByLang[modelId.languageCode]
+    if (previousId) {
+      this._engine.unloadModel(previousId)
+    }
+
+    this._modelsByLang[modelId.languageCode] = model.id
     await this._engine.loadModel(model)
   }
 
@@ -89,7 +97,7 @@ export class Bot implements Trainable, Predictor {
     const modelsOfLang = await _modelRepo.listModels({ languageCode: language })
     await _modelRepo.pruneModels(modelsOfLang, { toKeep: 2 })
 
-    return this._modelIdService.toId(model)
+    return model.id
   }
 
   public cancelTraining = async (language: string) => {
