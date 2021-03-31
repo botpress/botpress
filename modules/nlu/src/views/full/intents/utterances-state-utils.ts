@@ -48,7 +48,7 @@ export const textNodesFromUtterance = (rawUtterance: string, idx: number = 0): T
 
 export const utterancesToValue = (utterances: string[], selection = undefined): Value => {
   const summary = utterances[0] || ''
-  const rest = utterances.length > 1 ? utterances.slice(1) : ['']
+  const rest = utterances.length > 1 ? utterances.slice(1) : []
 
   const value: ValueJSON = {
     object: 'value',
