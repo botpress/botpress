@@ -1,3 +1,47 @@
+# [12.20.0](https://github.com/botpress/botpress/compare/v12.19.0...v12.20.0) (2021-03-31)
+
+
+### Bug Fixes
+
+* **admin:** add missing en, es and fr translations in UI admin ([e4a03a4](https://github.com/botpress/botpress/commit/e4a03a4))
+* **admin:** check license limits exist before counting nodes ([#4770](https://github.com/botpress/botpress/issues/4770)) ([83d2203](https://github.com/botpress/botpress/commit/83d2203))
+* **admin:** fix Promisse issue ([#4749](https://github.com/botpress/botpress/issues/4749)) ([bff4bb7](https://github.com/botpress/botpress/commit/bff4bb7))
+* **basic-skills:** slot skill distinct slot/intent issue ([#4718](https://github.com/botpress/botpress/issues/4718)) ([b657aa7](https://github.com/botpress/botpress/commit/b657aa7))
+* **core:** allow to redefine the state.workflow accessor ([#4758](https://github.com/botpress/botpress/issues/4758)) ([64c0cf7](https://github.com/botpress/botpress/commit/64c0cf7))
+* **core:** bad path with pro enabled ([#4739](https://github.com/botpress/botpress/issues/4739)) ([b8b72d4](https://github.com/botpress/botpress/commit/b8b72d4))
+* **core:** display url when error while mounting ([#4751](https://github.com/botpress/botpress/issues/4751)) ([d792d33](https://github.com/botpress/botpress/commit/d792d33))
+* **core:** update pro ([#4734](https://github.com/botpress/botpress/issues/4734)) ([87f5d1c](https://github.com/botpress/botpress/commit/87f5d1c))
+* **git:** fix workflow rule ([#4761](https://github.com/botpress/botpress/issues/4761)) ([8f689d3](https://github.com/botpress/botpress/commit/8f689d3))
+* **misunderstood:** fix side list scroll ([#4652](https://github.com/botpress/botpress/issues/4652)) ([1d81b62](https://github.com/botpress/botpress/commit/1d81b62))
+* **nlu:** default limit model cache size by max memory space ([#4775](https://github.com/botpress/botpress/issues/4775)) ([dda2f62](https://github.com/botpress/botpress/commit/dda2f62))
+* **nlu:** fix debug and progress logging during training ([#4748](https://github.com/botpress/botpress/issues/4748)) ([71afb45](https://github.com/botpress/botpress/commit/71afb45))
+* **nlu:** model cache size defaults to infinity ([#4753](https://github.com/botpress/botpress/issues/4753)) ([6adcb48](https://github.com/botpress/botpress/commit/6adcb48))
+* **nlu:** revert default engine cache size to 850mb ([#4782](https://github.com/botpress/botpress/issues/4782)) ([57e173c](https://github.com/botpress/botpress/commit/57e173c))
+* **nlu:** rm git submodules again ([#4773](https://github.com/botpress/botpress/issues/4773)) ([f4016b2](https://github.com/botpress/botpress/commit/f4016b2))
+* **studio:** check subflow exists before adding its nodes usage ([#4759](https://github.com/botpress/botpress/issues/4759)) ([b24da29](https://github.com/botpress/botpress/commit/b24da29))
+* **studio:** fix build in translations files ([df7bbc9](https://github.com/botpress/botpress/commit/df7bbc9))
+* **studio:** fix reboot and ping routes ([#4750](https://github.com/botpress/botpress/issues/4750)) ([595b8b0](https://github.com/botpress/botpress/commit/595b8b0))
+* **studio:** fixed e2e tests ([a091510](https://github.com/botpress/botpress/commit/a091510))
+* **studio:** translations ([#4658](https://github.com/botpress/botpress/issues/4658)) ([0198ef5](https://github.com/botpress/botpress/commit/0198ef5))
+* make cover chat window picture responsive ([#4641](https://github.com/botpress/botpress/issues/4641)) ([9b82d46](https://github.com/botpress/botpress/commit/9b82d46))
+
+
+### Features
+
+* **basic-skills:** allow choosing the name the variable of choice skill ([#4638](https://github.com/botpress/botpress/issues/4638)) ([0170275](https://github.com/botpress/botpress/commit/0170275))
+* **channel-web:** support native web speech api ([#4615](https://github.com/botpress/botpress/issues/4615)) ([c5542b0](https://github.com/botpress/botpress/commit/c5542b0))
+* **hitl2:** voice composer for agent ([#4626](https://github.com/botpress/botpress/issues/4626)) ([1ea4629](https://github.com/botpress/botpress/commit/1ea4629))
+* **misunderstood:** group duplicates ([#4616](https://github.com/botpress/botpress/issues/4616)) ([c507042](https://github.com/botpress/botpress/commit/c507042)), closes [#4629](https://github.com/botpress/botpress/issues/4629) [#4650](https://github.com/botpress/botpress/issues/4650)
+* **nlu:** deprecate legacy election ([#4745](https://github.com/botpress/botpress/issues/4745)) ([f3bb6e6](https://github.com/botpress/botpress/commit/f3bb6e6))
+* **nlu:** Queue trainings on bot mount ([#4736](https://github.com/botpress/botpress/issues/4736)) ([2d95e70](https://github.com/botpress/botpress/commit/2d95e70)), closes [#4579](https://github.com/botpress/botpress/issues/4579) [#4586](https://github.com/botpress/botpress/issues/4586) [#4583](https://github.com/botpress/botpress/issues/4583) [#4735](https://github.com/botpress/botpress/issues/4735) [#4698](https://github.com/botpress/botpress/issues/4698) [#4740](https://github.com/botpress/botpress/issues/4740) [#4741](https://github.com/botpress/botpress/issues/4741) [#4757](https://github.com/botpress/botpress/issues/4757)
+* **qna:** directly convert qna to intent from ui ([#4625](https://github.com/botpress/botpress/issues/4625)) ([92129d9](https://github.com/botpress/botpress/commit/92129d9))
+* **studio:** allow specifying a node in subflow transition ([#4612](https://github.com/botpress/botpress/issues/4612)) ([7ad934f](https://github.com/botpress/botpress/commit/7ad934f))
+* **studio:** default empty transition on entry nodes ([#4619](https://github.com/botpress/botpress/issues/4619)) ([a978ac0](https://github.com/botpress/botpress/commit/a978ac0))
+* **studio:** open properties and focus names of new nodes ([#4633](https://github.com/botpress/botpress/issues/4633)) ([4f91289](https://github.com/botpress/botpress/commit/4f91289))
+* **unsupervised:** unsupervised qna module ([#4637](https://github.com/botpress/botpress/issues/4637)) ([f13736b](https://github.com/botpress/botpress/commit/f13736b))
+
+
+
 ## [12.19.2](https://github.com/botpress/botpress/compare/v12.19.0...v12.19.2) (2021-03-22)
 
 
