@@ -3,7 +3,7 @@ import { CookieOptions } from 'express'
 import { Algorithm } from 'jsonwebtoken'
 
 import { ActionServer, UniqueUser } from '../../common/typings'
-import { IncidentRule } from '../services/alerting-service'
+import { IncidentRule } from '../health/alerting-service'
 
 export type BotpressCondition = '$isProduction' | '$isDevelopment'
 

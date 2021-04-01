@@ -27,7 +27,7 @@ const TokenRefresher: FC<TokenRefresherProps> = props => {
 
       const tokenData = getToken(false) as StoredToken
 
-      const { data } = await props.getAxiosClient().get('/auth/refresh')
+      const { data } = await props.getAxiosClient().get('/admin/auth/refresh')
       const { newToken } = data.payload
 
       if (newToken !== tokenData.token) {

@@ -16,7 +16,7 @@ import {
 
 import applyChanges from './applyChanges'
 
-const TABLE_NAME = 'misunderstood'
+export const TABLE_NAME = 'misunderstood'
 const EVENTS_TABLE_NAME = 'events'
 
 export default class Db {
@@ -44,10 +44,28 @@ export default class Db {
   }
 
   async addEvent(event: FlaggedEvent) {
-    await this.knex(TABLE_NAME).insert(event)
+    const lookup = { botId: event.botId, language: event.language, preview: event.preview }
+    const treatedEvents = await this.knex(TABLE_NAME)
+      .count({ count: 'id' })
+      .where(lookup)
+      .andWhereNot({ status: FLAGGED_MESSAGE_STATUS.new })
+
+    if (treatedEvents.length > 0 && treatedEvents[0].count > 0) {
+      this.bp.logger.info(
+        `Not inserting event with properies ${JSON.stringify(lookup)} as it has already been treated before`
+      )
+    } else {
+      await this.knex(TABLE_NAME).insert(event)
+    }
   }
 
-  async updateStatus(botId: string, id: string, status: FLAGGED_MESSAGE_STATUS, resolutionData?: ResolutionData) {
+  async deleteAll(botId: string, status: FLAGGED_MESSAGE_STATUS) {
+    await this.knex(TABLE_NAME)
+      .where({ botId, status })
+      .del()
+  }
+
+  async updateStatuses(botId: string, ids: string[], status: FLAGGED_MESSAGE_STATUS, resolutionData?: ResolutionData) {
     if (status !== FLAGGED_MESSAGE_STATUS.pending) {
       resolutionData = { resolutionType: null, resolution: null, resolutionParams: null }
     } else {
@@ -55,7 +73,10 @@ export default class Db {
     }
 
     await this.knex(TABLE_NAME)
-      .where({ botId, id })
+      .where({ botId })
+      .andWhere(function() {
+        this.whereIn('id', ids)
+      })
       .update({ status, ...resolutionData, updatedAt: this.knex.fn.now() })
   }
 

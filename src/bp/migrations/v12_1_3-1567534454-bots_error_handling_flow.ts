@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { Migration, MigrationOpts } from 'core/services/migration'
+import { Migration, MigrationOpts } from 'core/migration'
 
 const FLOW_DIR = 'flows'
 const ERROR_FLOW = 'error.flow.json'

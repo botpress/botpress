@@ -1,7 +1,6 @@
+import { StateManager } from 'core/dialog'
 import { TYPES } from 'core/types'
 import { ContainerModule, interfaces } from 'inversify'
-
-import { StateManager } from '../middleware/state-manager'
 
 import { DecisionEngine } from './decision-engine'
 import { DialogEngine } from './dialog-engine'

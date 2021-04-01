@@ -1,13 +1,13 @@
+import { lang, Dialog } from 'botpress/shared'
+import _ from 'lodash'
 import React, { Component } from 'react'
 import { Button, Radio, FormControl, Alert, Form } from 'react-bootstrap'
-import Select from 'react-select'
-import _ from 'lodash'
-import style from './style.scss'
 import { connect } from 'react-redux'
-import SmartInput from '~/components/SmartInput'
+import Select from 'react-select'
 import { getFlowLabel, reorderFlows } from '~/components/Shared/Utils'
-import { lang, Dialog } from 'botpress/shared'
+import SmartInput from '~/components/SmartInput'
 import { ROUTER_CONDITON_REGEX } from '../utils/general.util'
+import style from './style.scss'
 
 const availableProps = [
   { label: 'User Data', value: 'user' },
@@ -19,6 +19,7 @@ class ConditionModalForm extends Component {
   state = {
     typeOfTransition: 'end',
     flowToSubflow: null,
+    flowToSubflowNode: null,
     flowToNode: null,
     transitionError: null,
     conditionError: null,
@@ -54,12 +55,20 @@ class ConditionModalForm extends Component {
       typeOfTransition = /^#/.test(item.node) ? 'return' : typeOfTransition
       const options = this.nodeOptions()
 
+      const hashIndex = item.node.indexOf('#')
+
       this.setState({
         typeOfTransition,
         conditionType,
         condition,
         flowToSubflow:
-          typeOfTransition === 'subflow' ? this.state.subflowOptions.find(x => x.value === item.node) : null,
+          typeOfTransition === 'subflow'
+            ? this.state.subflowOptions.find(
+                x => x.value === (hashIndex !== -1 ? item.node.substring(0, hashIndex) : item.node)
+              )
+            : null,
+        flowToSubflowNode:
+          typeOfTransition === 'subflow' && item.node && hashIndex !== -1 ? item.node.substring(hashIndex + 1) : null,
         flowToNode: typeOfTransition === 'node' ? options.find(x => x.value === item.node) : _.first(options),
         returnToNode: typeOfTransition === 'return' ? item.node.substr(1) : ''
       })
@@ -176,7 +185,10 @@ class ConditionModalForm extends Component {
     const payload = { caption: this.props.item && this.props.item.caption, condition }
 
     if (this.state.typeOfTransition === 'subflow') {
-      payload.node = _.get(this.state, 'flowToSubflow.value') || _.get(this.state, 'flowToSubflow')
+      const node = this.state.flowToSubflowNode
+      const subflow = _.get(this.state, 'flowToSubflow.value') || _.get(this.state, 'flowToSubflow')
+
+      payload.node = subflow + (node && node.length ? '#' + node.replace(/\s/g, '') : '')
     } else if (this.state.typeOfTransition === 'end') {
       payload.node = 'END'
     } else if (this.state.typeOfTransition === 'node') {
@@ -201,13 +213,24 @@ class ConditionModalForm extends Component {
   }
 
   renderSubflowChoice() {
+    const { flowToSubflow, flowToSubflowNode, subflowOptions } = this.state
+
+    const updateSubflowNode = value =>
+      this.setState({
+        flowToSubflowNode: value
+      })
+
     return (
-      <Select
-        name="flowToSubflow"
-        value={this.state.flowToSubflow}
-        options={this.state.subflowOptions}
-        onChange={flowToSubflow => this.setState({ flowToSubflow })}
-      />
+      <div className={style.toSubflowSection}>
+        <Select
+          name="flowToSubflow"
+          value={flowToSubflow}
+          options={subflowOptions}
+          onChange={flowToSubflow => this.setState({ flowToSubflow })}
+        />
+        <label>{lang.tr('studio.flow.node.transition.specificNodeCalled')}:</label>
+        <input type="text" value={flowToSubflowNode} onChange={e => updateSubflowNode(e.target.value)} />
+      </div>
     )
   }
 
@@ -263,7 +286,7 @@ class ConditionModalForm extends Component {
     if (conditionType === 'always') {
       this.setState({ conditionType, condition: 'true' })
     } else if (conditionType === 'intent') {
-      this.setState({ conditionType, condition: `event.nlu.intent.name === ''` })
+      this.setState({ conditionType, condition: "event.nlu.intent.name === ''" })
     } else {
       this.setState({ conditionType })
     }

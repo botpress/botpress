@@ -16,7 +16,7 @@ const Tabs: FC<TabsProps> = ({ className, currentTab, shouldFloat, tabChange, ta
   return (
     <ul className={cx(style.tabs, className, { [style.float]: shouldFloat })}>
       {tabs.map(tab => (
-        <li key={tab.id}>
+        <li key={tab.id} id={`tab-${tab.id}`}>
           <button
             disabled={tab.disabled}
             className={cx(tab.className, { [style.active]: selectedTab === tab.id })}
