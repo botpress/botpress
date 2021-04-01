@@ -2380,6 +2380,8 @@ declare module 'botpress/sdk' {
       getForeign(local: string): Promise<string | undefined>
 
       make(foreign: string, local: string): Promise<void>
+
+      unmake(foreign: string, local: string): Promise<boolean>
     }
   }
 

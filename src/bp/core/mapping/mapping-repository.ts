@@ -1,6 +1,7 @@
 import { TYPES } from 'core/app/types'
 import Database from 'core/database'
-import { inject, injectable } from 'inversify'
+import { JobService } from 'core/distributed'
+import { inject, injectable, postConstruct } from 'inversify'
 
 import LRU from 'lru-cache'
 import ms from 'ms'
@@ -8,16 +9,34 @@ import ms from 'ms'
 @injectable()
 export class MappingRepository {
   private repos: { [botId: string]: ScopedMappingRepository } = {}
+  private invalidateMappingCache: (scope: string, foreign: string, local: string) => void = this
+    ._localInvalidateMappingCache
 
-  constructor(@inject(TYPES.Database) private database: Database) {}
+  constructor(
+    @inject(TYPES.Database) private database: Database,
+    @inject(TYPES.JobService) private jobService: JobService
+  ) {}
+
+  @postConstruct()
+  async init() {
+    this.invalidateMappingCache = <any>(
+      await this.jobService.broadcast<void>(this._localInvalidateMappingCache.bind(this))
+    )
+  }
 
   forScope(scope: string) {
     let repo = this.repos[scope]
     if (!repo) {
-      repo = new ScopedMappingRepository(scope, this.database)
+      repo = new ScopedMappingRepository(scope, this.database, (foreign, local) =>
+        this.invalidateMappingCache(scope, foreign, local)
+      )
       this.repos[scope] = repo
     }
     return repo
+  }
+
+  private _localInvalidateMappingCache(scope: string, foreign: string, local: string) {
+    this.forScope(scope).localInvalidateCache(foreign, local)
   }
 }
 
@@ -27,9 +46,18 @@ class ScopedMappingRepository {
   private localCache: LRU<string, string>
   private foreignCache: LRU<string, string>
 
-  constructor(private scope: string, private database: Database) {
+  constructor(
+    private scope: string,
+    private database: Database,
+    private invalidateCache: (foreign: string, local: string) => void
+  ) {
     this.localCache = new LRU({ max: 20000, maxAge: ms('5m') })
     this.foreignCache = new LRU({ max: 20000, maxAge: ms('5m') })
+  }
+
+  public localInvalidateCache(foreign: string, local: string) {
+    this.localCache.del(foreign)
+    this.foreignCache.del(local)
   }
 
   async make(foreign: string, local: string) {
@@ -44,8 +72,7 @@ class ScopedMappingRepository {
       .where({ scope: this.scope, foreign, local })
       .del()
 
-    this.localCache.del(foreign)
-    this.foreignCache.del(local)
+    this.invalidateCache(foreign, local)
 
     return deletedRows > 0
   }
