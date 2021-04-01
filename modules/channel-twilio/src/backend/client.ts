@@ -54,29 +54,29 @@ export class TwilioClient {
   async handleWebhookRequest(body: TwilioRequestBody) {
     debugIncoming('Received message', body)
 
-    const threadId = body.To
-    const target = body.From
+    const botPhoneNumber = body.To
+    const userId = body.From
     const text = body.Body
+
+    const conversation = await this.bp.experimental.conversations.forBot(this.botId).recent(userId)
+    await this.kvs.set(`twilio_bot_number_${conversation.id}`, botPhoneNumber)
 
     const index = Number(text)
     let payload: any = { type: 'text', text }
     if (index) {
-      payload = (await this.handleIndexReponse(index - 1, target, threadId)) ?? payload
+      payload = (await this.handleIndexReponse(index - 1, userId, conversation.id)) ?? payload
       if (payload.type === 'url') {
         return
       }
     }
 
-    await this.kvs.delete(this.getKvsKey(target, threadId))
-
-    const conversation = await this.bp.experimental.conversations.forBot(this.botId).recent(target)
-    await this.kvs.set(`twilio_from_${conversation.id}`, threadId)
+    await this.kvs.delete(this.getKvsKey(userId, conversation.id))
 
     await this.bp.experimental.messages.forBot(this.botId).receive(conversation.id, payload, { channel: 'twilio' })
   }
 
-  async handleIndexReponse(index: number, target: string, threadId: string): Promise<any> {
-    const key = this.getKvsKey(target, threadId)
+  async handleIndexReponse(index: number, userId: string, conversationId: string): Promise<any> {
+    const key = this.getKvsKey(userId, conversationId)
     if (!(await this.kvs.exists(key))) {
       return
     }
@@ -101,6 +101,13 @@ export class TwilioClient {
 
     if (payload.quick_replies) {
       await this.sendChoices(event, payload.quick_replies)
+    } else if (payload.options) {
+      await this.sendOptions(
+        event,
+        event.payload.message,
+        {},
+        event.payload.options.map(x => ({ ...x, type: 'quick_reply' }))
+      )
     } else if (payload.type === 'text') {
       await this.sendMessage(event, {
         body: payload.text
@@ -164,12 +171,12 @@ export class TwilioClient {
   }
 
   async sendMessage(event: sdk.IO.Event, args: any) {
-    const from = await this.kvs.get(`twilio_from_${event.threadId}`)
+    const botPhoneNumber = await this.kvs.get(`twilio_bot_number_${event.threadId}`)
 
     const message: MessageInstance = {
       ...args,
       provideFeedback: false,
-      from,
+      from: botPhoneNumber,
       to: event.target
     }
 
