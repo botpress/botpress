@@ -17,6 +17,7 @@ export class TwilioClient {
   private twilio: Twilio
   private webhookUrl: string
   private kvs: sdk.KvsService
+  private conversationMap: sdk.experimental.mapping.ScopedMapping
 
   constructor(
     private bp: typeof sdk,
@@ -26,6 +27,7 @@ export class TwilioClient {
     private route: string
   ) {
     this.logger = bp.logger.forBot(botId)
+    this.conversationMap = this.bp.experimental.mapping.forScope('twilio-conversations')
   }
 
   async initialize() {
@@ -69,17 +71,13 @@ export class TwilioClient {
 
     await this.kvs.delete(this.getKvsKey(target, threadId))
 
-    await this.bp.events.sendEvent(
-      this.bp.IO.Event({
-        botId: this.botId,
-        channel: 'twilio',
-        direction: 'incoming',
-        type: payload.type,
-        payload,
-        threadId,
-        target
-      })
-    )
+    const conversation = await this.bp.experimental.conversations.forBot(this.botId).recent(target)
+    // TODO : maybe we should have and .exists function
+    if (!this.conversationMap.getForeignId(conversation.id)) {
+      this.conversationMap.create(threadId, conversation.id)
+    }
+
+    await this.bp.experimental.messages.forBot(this.botId).receive(conversation.id, payload, { channel: 'twilio' })
   }
 
   async handleIndexReponse(index: number, target: string, threadId: string): Promise<any> {
@@ -103,7 +101,7 @@ export class TwilioClient {
     }
   }
 
-  async handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
+  async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     const payload = event.payload
 
     if (payload.quick_replies) {
@@ -120,6 +118,11 @@ export class TwilioClient {
     } else if (payload.type === 'carousel') {
       await this.sendCarousel(event, payload)
     }
+
+    await this.bp.experimental.messages
+      .forBot(this.botId)
+      .create(event.threadId, payload, 'bot', event.id, event.incomingEventId)
+
     next(undefined, false)
   }
 
@@ -166,10 +169,12 @@ export class TwilioClient {
   }
 
   async sendMessage(event: sdk.IO.Event, args: any) {
+    const from = await this.conversationMap.getForeignId(event.threadId)
+
     const message: MessageInstance = {
       ...args,
       provideFeedback: false,
-      from: event.threadId,
+      from,
       to: event.target
     }
 
