@@ -4,6 +4,7 @@ import { DialogSessionTable } from 'core/dialog/sessions/dialog_sessions-table'
 import { EventsTable } from 'core/events/event-table'
 import { KeyValueStoreTable } from 'core/kvs/kvs-table'
 import { LogsTable } from 'core/logger/logs-table'
+import { MappingTable } from 'core/mapping/mapping-table'
 import { ConversationsTable } from 'core/messaging/conversations-table'
 import { MessagesTable } from 'core/messaging/messages-table'
 import { ServerMetadataTable } from 'core/migration/metadata-table'
@@ -39,6 +40,7 @@ const tables: typeof Table[] = [
   EventsTable,
   ConversationsTable,
   MessagesTable,
+  MappingTable,
   TasksTable,
   BotUsersTable,
   MigrationsTable
