@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import { Associator } from 'common/associator'
 import _ from 'lodash'
 import path from 'path'
 import Telegraf, { Button, CallbackButton, ContextMessageUpdate, Markup } from 'telegraf'
@@ -8,7 +7,7 @@ import Extra from 'telegraf/extra'
 import { Clients } from './typings'
 
 const outgoingTypes = ['text', 'typing', 'image', 'login_prompt', 'carousel']
-let convoAssociator: Associator
+const mappingScope = 'telegram-conversations'
 
 export const sendEvent = async (bp: typeof sdk, botId: string, ctx: ContextMessageUpdate, args: { type: string }) => {
   // NOTE: getUpdate and setWebhook dot not return the same context mapping
@@ -20,13 +19,13 @@ export const sendEvent = async (bp: typeof sdk, botId: string, ctx: ContextMessa
 
   let convoId: sdk.uuid
   if (chatId) {
-    convoId = await convoAssociator.getLocal(chatId)
+    convoId = await bp.mapping.forScope(mappingScope).getLocal(chatId)
 
     if (!convoId) {
       const conversation = await bp.experimental.conversations.forBot(botId).create(userId)
       convoId = conversation.id
 
-      await convoAssociator.link(chatId, conversation.id)
+      await bp.mapping.forScope(mappingScope).make(chatId, conversation.id)
     }
   } else {
     const conversation = await bp.experimental.conversations.forBot(botId).recent(userId)
@@ -61,9 +60,6 @@ export async function setupBot(bp: typeof sdk, botId: string, clients: Clients) 
 }
 
 export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
-  convoAssociator = new Associator(bp, 'telegram_conversations')
-  await convoAssociator.initialize()
-
   registerMiddleware(bp, outgoingHandler)
 
   async function outgoingHandler(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
@@ -77,7 +73,7 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
     }
 
     const messageType = event.type === 'default' ? 'text' : event.type
-    const chatId = (await convoAssociator.getForeign(event.threadId)) || event.target
+    const chatId = (await bp.mapping.forScope(mappingScope).getForeign(event.threadId)) || event.target
 
     if (!_.includes(outgoingTypes, messageType)) {
       return next(new Error(`Unsupported event type: ${event.type}`))
