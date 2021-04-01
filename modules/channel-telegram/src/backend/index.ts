@@ -3,6 +3,7 @@ import * as sdk from 'botpress/sdk'
 import Telegraf from 'telegraf'
 
 import { Config } from '../config'
+import { TelegramTextRenderer } from '../renderers/text'
 
 import { setupBot, setupMiddleware } from './client'
 import { Clients } from './typings'
@@ -89,6 +90,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotMount,
   onBotUnmount,
   onModuleUnmount,
+  renderers: [TelegramTextRenderer],
   definition: {
     name: 'channel-telegram',
     menuIcon: 'none', // no interface = true

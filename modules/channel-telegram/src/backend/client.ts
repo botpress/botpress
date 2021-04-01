@@ -72,10 +72,24 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
       return next(new Error(`Unsupported event type: ${event.type}`))
     }
 
-    if (messageType === 'typing') {
+    const renderers = bp.experimental.render.getChannelRenderers('telegram')
+    const context = { bp, event, client, args: { keyboardButtons } }
+    let handled = false
+    for (const renderer of renderers) {
+      if (!(await renderer.handles(context))) {
+        continue
+      }
+
+      handled = await renderer.render(context)
+
+      if (handled) {
+        break
+      }
+    }
+
+    if (handled) {
+    } else if (messageType === 'typing') {
       await sendTyping(event, client, chatId)
-    } else if (messageType === 'text') {
-      await sendTextMessage(event, client, chatId)
     } else if (messageType === 'image') {
       await sendImage(event, client, chatId)
     } else if (messageType === 'carousel') {
@@ -102,28 +116,6 @@ async function sendCarousel(event: sdk.IO.Event, client: Telegraf<ContextMessage
       chatId,
       `*${title}*\n${subtitle}`,
       Extra.markdown(true).markup(Markup.inlineKeyboard(keyboard))
-    )
-  }
-}
-
-async function sendTextMessage(event: sdk.IO.Event, client: Telegraf<ContextMessageUpdate>, chatId: string) {
-  const keyboard = Markup.keyboard(keyboardButtons<Button>(event.payload.quick_replies))
-  if (event.payload.markdown !== false) {
-    // Attempt at sending with markdown first, fallback to regular text on failure
-    await client.telegram
-      .sendMessage(chatId, event.preview, Extra.markdown(true).markup({ ...keyboard, one_time_keyboard: true }))
-      .catch(() =>
-        client.telegram.sendMessage(
-          chatId,
-          event.preview,
-          Extra.markdown(false).markup({ ...keyboard, one_time_keyboard: true })
-        )
-      )
-  } else {
-    await client.telegram.sendMessage(
-      chatId,
-      event.preview,
-      Extra.markdown(false).markup({ ...keyboard, one_time_keyboard: true })
     )
   }
 }
