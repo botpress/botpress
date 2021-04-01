@@ -61,10 +61,6 @@ class ScopedMappingRepository {
   }
 
   async create(foreign: string, local: string): Promise<void> {
-    if (!foreign?.length || !local?.length) {
-      throw new Error('A mapping must be between two non null non empty strings')
-    }
-
     await this.query().insert({ scope: this.scope, foreign, local })
 
     this.localCache.set(foreign, local)
