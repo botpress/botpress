@@ -19,13 +19,13 @@ export const sendEvent = async (bp: typeof sdk, botId: string, ctx: ContextMessa
 
   let convoId: sdk.uuid
   if (chatId) {
-    convoId = await bp.mapping.forScope(mappingScope).getLocal(chatId)
+    convoId = await bp.experimental.mapping.forScope(mappingScope).getLocalId(chatId)
 
     if (!convoId) {
       const conversation = await bp.experimental.conversations.forBot(botId).create(userId)
       convoId = conversation.id
 
-      await bp.mapping.forScope(mappingScope).make(chatId, conversation.id)
+      await bp.experimental.mapping.forScope(mappingScope).create(chatId, conversation.id)
     }
   } else {
     const conversation = await bp.experimental.conversations.forBot(botId).recent(userId)
@@ -73,7 +73,7 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
     }
 
     const messageType = event.type === 'default' ? 'text' : event.type
-    const chatId = (await bp.mapping.forScope(mappingScope).getForeign(event.threadId)) || event.target
+    const chatId = (await bp.experimental.mapping.forScope(mappingScope).getForeignId(event.threadId)) || event.target
 
     if (!_.includes(outgoingTypes, messageType)) {
       return next(new Error(`Unsupported event type: ${event.type}`))
