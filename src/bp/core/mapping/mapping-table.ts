@@ -9,10 +9,10 @@ export class MappingTable extends Table {
     await this.knex.createTableIfNotExists(this.name, table => {
       table.string('scope')
       table.string('foreign')
-      table.string('local').unique()
+      table.string('local')
       table.primary(['scope', 'foreign', 'local'])
-      table.index(['scope', 'foreign'])
-      table.index(['scope', 'local'])
+      table.unique(['scope', 'foreign'])
+      table.unique(['scope', 'local'])
       created = true
     })
     return created
