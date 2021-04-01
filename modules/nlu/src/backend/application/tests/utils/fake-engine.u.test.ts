@@ -1,7 +1,6 @@
 import * as NLUEngine from './sdk.u.test'
 import _ from 'lodash'
 
-import { modelIdService } from './fake-model-id-service.u.test'
 import './sdk.u.test'
 import { areEqual, sleep } from './utils.u.test'
 
@@ -48,20 +47,20 @@ export class FakeEngine implements NLUEngine.Engine {
   }
 
   loadModel = async (model: NLUEngine.Model): Promise<void> => {
-    if (!this.hasModel(model)) {
+    if (!this.hasModel(model.id)) {
       this._models.push(model)
     }
   }
 
   unloadModel = (modelId: NLUEngine.ModelId): void => {
-    const idx = this._models.findIndex(m => areEqual(m, modelId))
+    const idx = this._models.findIndex(m => areEqual(m.id, modelId))
     if (idx >= 0) {
       this._models.splice(idx, 1)
     }
   }
 
   hasModel = (modelId: NLUEngine.ModelId): boolean => {
-    return this._models.findIndex(m => areEqual(m, modelId)) >= 0
+    return this._models.findIndex(m => areEqual(m.id, modelId)) >= 0
   }
 
   train = async (
@@ -79,7 +78,8 @@ export class FakeEngine implements NLUEngine.Engine {
       await sleep(trainDelayBetweenProgress)
     }
 
-    const modelId = modelIdService.makeId({
+    const actualModelIdService = NLUEngine.modelIdService
+    const modelId = actualModelIdService.makeId({
       entityDefs,
       intentDefs,
       languageCode,
@@ -88,7 +88,7 @@ export class FakeEngine implements NLUEngine.Engine {
     })
 
     return {
-      ...modelId,
+      id: modelId,
       startedAt: new Date(),
       finishedAt: new Date(),
       data: {
@@ -108,6 +108,7 @@ export class FakeEngine implements NLUEngine.Engine {
 
   predict = async (text: string, modelId: NLUEngine.ModelId): Promise<NLUEngine.PredictOutput> => {
     return {
+      spellChecked: '',
       entities: [],
       predictions: {
         global: {

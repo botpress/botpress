@@ -68,11 +68,6 @@ const isId = (stringId: string) => {
   return !!/^[a-z]{2}$/.exec(languageCode)
 }
 
-const toId = (model: Model) => {
-  const { contentHash, specificationHash, seed, languageCode } = model
-  return { contentHash, specificationHash, seed, languageCode }
-}
-
 const _computeContentHash = (entityDefs: EntityDefinition[], intentDefs: IntentDefinition[], languageCode: string) => {
   const singleLangIntents = intentDefs.map(i => ({ ...i, utterances: i.utterances[languageCode] }))
   return halfmd5(JSON.stringify({ singleLangIntents, entityDefs }))
@@ -122,7 +117,6 @@ const modelIdService: ModelIdService = {
   toString,
   fromString,
   isId,
-  toId,
   makeId,
   briefId
 }

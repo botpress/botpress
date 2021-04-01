@@ -27,7 +27,7 @@ export interface APIOptions {
   bodySize: string
   batchSize: number
   silent: boolean
-  modelCacheSize?: string
+  modelCacheSize: string
 }
 
 const debug = DEBUG('api')
@@ -134,7 +134,7 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
           key: stringId,
           status: 'done',
           progress: 1,
-          language: model!.languageCode
+          language: model!.id.languageCode
         }
       }
 

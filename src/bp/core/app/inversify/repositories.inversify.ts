@@ -1,6 +1,7 @@
 import { SessionRepository } from 'core/dialog/sessions'
 import { EventRepository } from 'core/events'
 import { LogsRepository } from 'core/logger'
+import { MappingRepository } from 'core/mapping/mapping-repository'
 import { ConversationRepository, MessageRepository } from 'core/messaging'
 import { NotificationsRepository } from 'core/notifications'
 import { TelemetryRepository } from 'core/telemetry'
@@ -61,6 +62,10 @@ const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) 
 
   bind<ConversationRepository>(TYPES.ConversationRepository)
     .to(ConversationRepository)
+    .inSingletonScope()
+
+  bind<MappingRepository>(TYPES.MappingRepository)
+    .to(MappingRepository)
     .inSingletonScope()
 })
 
