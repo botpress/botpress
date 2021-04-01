@@ -2,6 +2,7 @@ import {
   BotTemplate,
   Condition,
   ContentElement,
+  ContentRenderer,
   ElementChangedAction,
   Flow,
   Logger,
@@ -41,6 +42,7 @@ const MODULE_SCHEMA = joi.object().keys({
   onElementChanged: joi.func().optional(),
   skills: joi.array().optional(),
   translations: joi.object().optional(),
+  renderers: joi.array().optional(),
   botTemplates: joi.array().optional(),
   dialogConditions: joi.array().optional(),
   definition: joi.object().keys({
@@ -346,6 +348,16 @@ export class ModuleLoader {
     ) as Condition[]
 
     return _.orderBy(conditions, x => x?.displayOrder)
+  }
+
+  public getContentRenderers(): ContentRenderer[] {
+    const modules = Array.from(this.entryPoints.values())
+    const renderers = _.flatMap(
+      modules.filter(module => module.renderers),
+      x => x.renderers
+    ) as ContentRenderer[]
+
+    return _.orderBy(renderers, x => x.priority)
   }
 
   public getLoadedModules(): ModuleDefinition[] {
