@@ -17,7 +17,6 @@ export class TwilioClient {
   private twilio: Twilio
   private webhookUrl: string
   private kvs: sdk.KvsService
-  private conversationMap: sdk.experimental.mapping.ScopedMapping
 
   constructor(
     private bp: typeof sdk,
@@ -27,7 +26,6 @@ export class TwilioClient {
     private route: string
   ) {
     this.logger = bp.logger.forBot(botId)
-    this.conversationMap = this.bp.experimental.mapping.forScope('twilio-conversations')
   }
 
   async initialize() {
@@ -72,10 +70,7 @@ export class TwilioClient {
     await this.kvs.delete(this.getKvsKey(target, threadId))
 
     const conversation = await this.bp.experimental.conversations.forBot(this.botId).recent(target)
-    // TODO : maybe we should have and .exists function
-    if (!this.conversationMap.getForeignId(conversation.id)) {
-      this.conversationMap.create(threadId, conversation.id)
-    }
+    await this.kvs.set(`twilio_from_${conversation.id}`, threadId)
 
     await this.bp.experimental.messages.forBot(this.botId).receive(conversation.id, payload, { channel: 'twilio' })
   }
@@ -169,7 +164,7 @@ export class TwilioClient {
   }
 
   async sendMessage(event: sdk.IO.Event, args: any) {
-    const from = await this.conversationMap.getForeignId(event.threadId)
+    const from = await this.kvs.get(`twilio_from_${event.threadId}`)
 
     const message: MessageInstance = {
       ...args,
