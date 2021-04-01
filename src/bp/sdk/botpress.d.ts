@@ -2211,6 +2211,23 @@ declare module 'botpress/sdk' {
     ): Promise<void>
 
     export function getBotTemplate(moduleName: string, templateName: string): Promise<FileContent[]>
+
+    /**
+     * Allows hook developers to list revisions of a bot
+     * @param botId the ID of the target bot
+     */
+    export function listBotRevisions(botId: string): Promise<string[]>
+    /**
+     * Allows hook developers to create a new revision of a bot
+     * @param botId the ID of the target bot
+     */
+    export function createBotRevision(botId: string): Promise<void>
+    /**
+     * Allows hook developers to rollback
+     * @param botId the ID of the target bot
+     * @param revisionId the target revision ID to which you want to revert the chatbot
+     */
+    export function rollbackBotToRevision(botId: string, revisionId: string): Promise<void>
   }
 
   export namespace workspaces {
