@@ -40,7 +40,6 @@ export interface MigrationEntry {
   details: string | string[]
   created_at: any
 }
-
 @injectable()
 export class MigrationService {
   /** This is the version we want to migrate to (either up or down) */
@@ -305,6 +304,10 @@ ${_.repeat(' ', 9)}========================================`)
   }
 
   private _getMigrations(rootPath: string): MigrationFile[] {
+    if (!fse.existsSync(rootPath)) {
+      throw new Error(`The migration directory '${rootPath}' does not exist`)
+    }
+
     return _.orderBy(
       glob.sync('**/*.js', { cwd: rootPath }).map(filepath => {
         const [rawVersion, timestamp, title] = path.basename(filepath).split('-')
@@ -322,7 +325,7 @@ ${_.repeat(' ', 9)}========================================`)
 
   public filterMigrations = (
     files: MigrationFile[],
-    currentVersion,
+    currentVersion: string,
     { isDown, type, target }: { isDown?: boolean; type?: MigrationType; target?: MigrationTarget } = {
       isDown: false,
       type: undefined,
