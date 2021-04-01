@@ -60,14 +60,14 @@ class ScopedMappingRepository {
     this.foreignCache.del(local)
   }
 
-  async create(foreign: string, local: string) {
+  async create(foreign: string, local: string): Promise<void> {
     await this.query().insert({ scope: this.scope, foreign, local })
 
     this.localCache.set(foreign, local)
     this.foreignCache.set(local, foreign)
   }
 
-  async delete(foreign: string, local: string) {
+  async delete(foreign: string, local: string): Promise<boolean> {
     const deletedRows = await this.query()
       .where({ scope: this.scope, foreign, local })
       .del()
