@@ -60,14 +60,18 @@ class ScopedMappingRepository {
     this.foreignCache.del(local)
   }
 
-  async create(foreign: string, local: string) {
+  async create(foreign: string, local: string): Promise<void> {
+    if (!foreign?.length || !local?.length) {
+      throw new Error('A mapping must be between two non null non empty strings')
+    }
+
     await this.query().insert({ scope: this.scope, foreign, local })
 
     this.localCache.set(foreign, local)
     this.foreignCache.set(local, foreign)
   }
 
-  async delete(foreign: string, local: string) {
+  async delete(foreign: string, local: string): Promise<boolean> {
     const deletedRows = await this.query()
       .where({ scope: this.scope, foreign, local })
       .del()

@@ -8,8 +8,8 @@ export class MappingTable extends Table {
 
     await this.knex.createTableIfNotExists(this.name, table => {
       table.string('scope')
-      table.string('foreign')
-      table.string('local')
+      table.string('foreign').notNullable()
+      table.string('local').notNullable()
       table.primary(['scope', 'foreign', 'local'])
       table.unique(['scope', 'foreign'])
       table.unique(['scope', 'local'])

@@ -2650,7 +2650,7 @@ declare module 'botpress/sdk' {
      */
     export namespace mapping {
       /**
-       * Perpares mapping for a certain scope. The foreign and local ids must be unique within that scope
+       * Prepares mapping for a certain scope. The foreign and local ids must be unique within that scope
        * @example
        * const conversationMap = await bp.mapping.forScope('twilio-conversations')
        */
@@ -2665,7 +2665,7 @@ declare module 'botpress/sdk' {
          * // This would return 'myLocalId'
          * const local = bp.mapping.for('myScope').getLocalId('myForeignId')
          */
-        getLocalId(foreign: string): Promise<string | undefined>
+        getLocalId(foreignId: string): Promise<string | undefined>
 
         /**
          * Gets the foreign id associated with the provided local id
@@ -2675,7 +2675,7 @@ declare module 'botpress/sdk' {
          * // This would return 'myForeignId'
          * const foreign = bp.mapping.for('myScope').getForeignId('myLocalId')
          */
-        getForeignId(local: string): Promise<string | undefined>
+        getForeignId(localId: string): Promise<string | undefined>
 
         /**
          * Creates an association between a foreign and local id in the map
@@ -2687,13 +2687,13 @@ declare module 'botpress/sdk' {
          * // This would return 'myLocalId'
          * const local = await bp.mapping.for('myScope').getLocalId('myForeignId')
          */
-        create(foreign: string, local: string): Promise<void>
+        create(foreignId: string, localId: string): Promise<void>
 
         /**
          * Removes the association between the foreign and local id in the map
          * @returns true if a row was deleted
          */
-        delete(foreign: string, local: string): Promise<boolean>
+        delete(foreignId: string, localId: string): Promise<boolean>
       }
     }
   }
