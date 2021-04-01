@@ -10,7 +10,6 @@ import {
   expectTs
 } from './utils/custom-expects.u.test'
 import { book_flight, cityEntity, fruitEntity, hello, i_love_hockey } from './utils/data.u.test'
-import { modelIdService } from './utils/fake-model-id-service.u.test'
 import './utils/sdk.u.test'
 import { areEqual, sleep } from './utils/utils.u.test'
 import { TrainingSession } from '../typings'
@@ -31,6 +30,8 @@ const makeBaseDefinitions = (langs: string[]) => ({
   intentDefs: [hello(langs)],
   entityDefs: [fruitEntity]
 })
+
+const { modelIdService } = NLUEngine
 
 /**
  * TODO:
@@ -332,7 +333,7 @@ describe('NLU API integration tests', () => {
 
     expect(engineTrainSpy).toHaveBeenCalledTimes(0)
     expect(engineLoadSpy).toHaveBeenCalledTimes(1)
-    expect(engineLoadSpy).toHaveBeenCalledWith(modelId)
+    expect(engineLoadSpy).toHaveBeenCalledWith({ id: modelId })
 
     await app.teardown()
   })
@@ -509,7 +510,7 @@ describe('NLU API integration tests', () => {
     const dependencies = makeDependencies(core, fileSystem)
     const { engine } = dependencies
 
-    await engine.loadModel(modelId as NLUEngine.Model)
+    await engine.loadModel({ id: modelId } as NLUEngine.Model)
     const enginePredictSpy = jest.spyOn(engine, 'predict')
 
     const app = await makeApp(dependencies)
@@ -669,7 +670,7 @@ describe('NLU API integration tests', () => {
       seed: nluSeed,
       specifications: specs
     })
-    expect(areEqual(latestModelId, savedModel)).toBe(false) // current model is not synced with file system, but at least training finished and loaded
+    expect(areEqual(latestModelId, savedModel.id)).toBe(false) // current model is not synced with file system, but at least training finished and loaded
 
     await app.teardown()
   })
@@ -698,7 +699,7 @@ describe('NLU API integration tests', () => {
     const dependencies = makeDependencies(core, fileSystem)
     const { engine, socket, trainingRepo } = dependencies
 
-    await engine.loadModel(modelId as NLUEngine.Model)
+    await engine.loadModel({ id: modelId } as NLUEngine.Model)
     const engineTrainSpy = jest.spyOn(engine, 'train')
 
     const app = await makeApp(dependencies)

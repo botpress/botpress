@@ -55,7 +55,7 @@ async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang: strin
 
 async function saveModel(ghost: sdk.ScopedGhostService, model: Model, hash: string): Promise<void | void[]> {
   const serialized = JSON.stringify(model)
-  const modelName = makeFileName(hash, model.languageCode)
+  const modelName = makeFileName(hash, model.id.languageCode)
   const tmpDir = tmp.dirSync({ unsafeCleanup: true })
   const tmpFileName = path.join(tmpDir.name, 'model')
   await fse.writeFile(tmpFileName, serialized)
@@ -73,7 +73,7 @@ async function saveModel(ghost: sdk.ScopedGhostService, model: Model, hash: stri
   const buffer = await fse.readFile(archiveName)
   await ghost.upsertFile(MODELS_DIR, modelName, buffer)
   tmpDir.removeCallback()
-  return pruneModels(ghost, model.languageCode)
+  return pruneModels(ghost, model.id.languageCode)
 }
 
 const migration: sdk.ModuleMigration = {

@@ -61,5 +61,5 @@ export const expectEngineToHaveTrained = (trainMock: jest.SpyInstance, languageC
 }
 
 export const expectEngineToHaveLoaded = (loadMock: jest.SpyInstance, languageCode: string) => {
-  expect(loadMock).toHaveBeenCalledWith(expect.objectContaining({ languageCode }))
+  expect(loadMock).toHaveBeenCalledWith(expect.objectContaining({ id: expect.objectContaining({ languageCode }) }))
 }

@@ -1,5 +1,5 @@
 export interface Config extends LanguageConfig {
-  modelCacheSize?: string
+  modelCacheSize: string
   legacyElection: boolean
 }
 
@@ -56,7 +56,6 @@ export interface Engine {
 export interface ModelIdService {
   toString: (modelId: ModelId) => string // to use ModelId as a key
   fromString: (stringId: string) => ModelId // to parse information from a key
-  toId: (m: Model) => ModelId // keeps only minimal information to make an id
   isId: (m: string) => boolean
   makeId: (factors: ModelIdArgs) => ModelId
   briefId: (factors: Partial<ModelIdArgs>) => Partial<ModelId> // makes incomplete Id from incomplete information
@@ -78,7 +77,8 @@ export interface Specifications {
   }
 }
 
-export type Model = ModelId & {
+export interface Model {
+  id: ModelId
   startedAt: Date
   finishedAt: Date
   data: {
