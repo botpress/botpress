@@ -12,7 +12,6 @@ import { TrainDefinitions } from '../../scoped/infrastructure/definitions-reposi
 import { FakeTrainingRepository } from './fake-training-repo.u.test'
 import { FakeDefinitionRepo } from './fake-def-repo.u.test'
 import { FakeEngine, FakeEngineOptions } from './fake-engine.u.test'
-import { modelIdService } from './fake-model-id-service.u.test'
 import { FakeModelRepo } from './fake-model-repo.u.test'
 import { StubLogger } from './stub-logger.u.test'
 import { sleep } from './utils.u.test'
@@ -55,7 +54,10 @@ export const makeDependencies = (
   const socket = jest.fn()
   const engine = new FakeEngine(languages, specs, engineOptions)
   const defRepoByBot = _.mapValues(fsByBot, fs => new FakeDefinitionRepo(fs.definitions))
-  const modelRepoByBot = _.mapValues(fsByBot, fs => new FakeModelRepo(fs.modelsOnFs as NLUEngine.Model[]))
+  const modelRepoByBot = _.mapValues(
+    fsByBot,
+    fs => new FakeModelRepo(fs.modelsOnFs.map(id => ({ id })) as NLUEngine.Model[])
+  )
 
   const trainingRepo = new FakeTrainingRepository()
   const distributed = new FakeDistributed()
@@ -82,7 +84,15 @@ export const makeApp = async (
   const defRepoFactory: DefinitionRepositoryFactory = ({ botId }) => defRepoByBot[botId]
 
   const botService = new BotService()
-  const servicesFactory = new ScopedServicesFactory(engine, logger, modelIdService, defRepoFactory, modelRepoFactory)
+
+  const actualModelIdService = NLUEngine.modelIdService
+  const servicesFactory = new ScopedServicesFactory(
+    engine,
+    logger,
+    actualModelIdService,
+    defRepoFactory,
+    modelRepoFactory
+  )
 
   const trainingQueue = new DistributedTrainingQueue(
     trainingRepo,
