@@ -117,15 +117,15 @@ class MessageList extends React.Component<MessageListProps, State> {
 
   renderMessageGroups() {
     const messages = (this.props.currentMessages || []).filter(m => this.shouldDisplayMessage(m))
-    const groups = []
+    const groups: Message[][] = []
 
-    let lastSpeaker = undefined
-    let lastDate = undefined
-    let currentGroup = undefined
+    let lastSpeaker: string = undefined
+    let lastDate: Date = undefined
+    let currentGroup: Message[] = undefined
 
     messages.forEach(m => {
-      const speaker = m.payload.from || m.full_name
-      const date = m.sent_on
+      const speaker = m.payload.web?.userName || m.from
+      const date = m.sentOn
 
       // Create a new group if messages are separated by more than X minutes or if different speaker
       if (
@@ -152,35 +152,35 @@ class MessageList extends React.Component<MessageListProps, State> {
       }
 
       currentGroup.push({
-        sent_on: new Date(),
-        userId: undefined,
-        message_type: 'typing'
-      })
+        sentOn: new Date(),
+        payload: { type: 'typing' }
+      } as any)
     }
     return (
       <div>
         {groups.map((group, i) => {
           const lastGroup = groups[i - 1]
-          const lastDate = lastGroup?.[lastGroup.length - 1]?.sent_on
-          const groupDate = group?.[0].sent_on
+          const lastDate = lastGroup?.[lastGroup.length - 1]?.sentOn
+          const groupDate = group?.[0].sentOn
 
           const isDateNeeded =
             !groups[i - 1] ||
             differenceInMinutes(new Date(groupDate), new Date(lastDate)) > constants.TIME_BETWEEN_DATES
 
-          const [{ userId, full_name: userName, avatar_url: avatarUrl }] = group
+          const [{ from, payload }] = group
 
-          const avatar = userId
-            ? this.props.showUserAvatar && this.renderAvatar(userName, avatarUrl)
-            : this.renderAvatar(this.props.botName, avatarUrl || this.props.botAvatarUrl)
+          const avatar =
+            from === 'user'
+              ? this.props.showUserAvatar && this.renderAvatar(payload.web?.userName, payload.web?.avatarUrl)
+              : this.renderAvatar(this.props.botName, payload.web?.avatarUrl || this.props.botAvatarUrl)
 
           return (
             <div key={i}>
-              {isDateNeeded && this.renderDate(group[0].sent_on)}
+              {isDateNeeded && this.renderDate(group[0].sentOn)}
               <MessageGroup
-                isBot={!userId}
+                isBot={from !== 'user'}
                 avatar={avatar}
-                userName={userName}
+                userName={payload.web?.userName}
                 key={`msg-group-${i}`}
                 isLastGroup={i >= groups.length - 1}
                 messages={group}
@@ -193,7 +193,7 @@ class MessageList extends React.Component<MessageListProps, State> {
   }
 
   shouldDisplayMessage = (m: Message): boolean => {
-    return m.message_type !== 'postback'
+    return m.payload.type !== 'postback'
   }
 
   handleScroll = debounce(e => {

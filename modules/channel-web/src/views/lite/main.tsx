@@ -214,7 +214,7 @@ class Web extends React.Component<MainProps> {
   }
 
   handleNewMessage = async (event: Message) => {
-    if (event.payload?.type === 'visit' || event.message_type === 'visit') {
+    if (event.payload?.type === 'visit') {
       // don't do anything, it's the system message
       return
     }

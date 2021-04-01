@@ -1,15 +1,9 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import path from 'path'
-
-import Database from './db'
 
 const outgoingTypes = ['text', 'typing', 'login_prompt', 'file', 'carousel', 'custom', 'data']
 
-export default async (bp: typeof sdk, db: Database) => {
-  const config: any = {} // FIXME
-  const { botName = 'Bot', botAvatarUrl = undefined } = config || {} // FIXME
-
+export default async (bp: typeof sdk) => {
   bp.events.registerMiddleware({
     description:
       'Sends out messages that targets platform = webchat.' +
@@ -27,7 +21,8 @@ export default async (bp: typeof sdk, db: Database) => {
 
     const messageType = event.type === 'default' ? 'text' : event.type
     const userId = event.target
-    const conversationId = event.threadId || (await db.getOrCreateRecentConversation(event.botId, userId))
+    const botId = event.botId
+    const conversationId = event.threadId || (await bp.experimental.conversations.forBot(botId).recent(userId)).id
 
     if (!_.includes(outgoingTypes, messageType)) {
       bp.logger.warn(`Unsupported event type: ${event.type}`)
@@ -50,14 +45,9 @@ export default async (bp: typeof sdk, db: Database) => {
       const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.data', event.payload)
       bp.realtime.sendPayload(payload)
     } else if (standardTypes.includes(messageType)) {
-      const message = await db.appendBotMessage(
-        (event.payload || {}).botName || botName,
-        (event.payload || {}).botAvatarUrl || botAvatarUrl,
-        conversationId,
-        event.payload,
-        event.incomingEventId,
-        event.id
-      )
+      const message = await bp.experimental.messages
+        .forBot(botId)
+        .create(conversationId, event.payload, 'bot', event.id, event.incomingEventId)
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     } else {
       bp.logger.warn(`Message type "${messageType}" not implemented yet`)

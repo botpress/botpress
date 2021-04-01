@@ -59,12 +59,7 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
   handleMessageChanged = e => this.props.updateMessage(e.target.value)
 
   isLastMessageFromBot = (): boolean => {
-    return (
-      this.props.currentConversation &&
-      this.props.currentConversation.messages &&
-      this.props.currentConversation.messages.length &&
-      !this.props.currentConversation.messages.slice(-1).pop().userId
-    )
+    return this.props.currentConversation?.messages?.slice(-1)?.pop()?.from !== 'user'
   }
 
   onVoiceStart() {
@@ -83,7 +78,7 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
   }
 
   render() {
-    if(this.props.composerHidden) {
+    if (this.props.composerHidden) {
       return null
     }
 

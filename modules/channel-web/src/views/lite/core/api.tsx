@@ -1,3 +1,4 @@
+import * as sdk from 'botpress/sdk'
 import { EventFeedback } from 'lite/typings'
 import get from 'lodash/get'
 
@@ -88,7 +89,7 @@ export default class WebchatApi {
     }
   }
 
-  async fetchConversation(conversationId: number) {
+  async fetchConversation(conversationId: sdk.uuid) {
     try {
       const { data } = await this.axios.post(
         '/conversations/get',
@@ -101,7 +102,7 @@ export default class WebchatApi {
     }
   }
 
-  async resetSession(conversationId: number) {
+  async resetSession(conversationId: sdk.uuid) {
     try {
       this.axios.post('/conversations/reset', { ...this.baseUserPayload, conversationId }, this.axiosConfig)
     } catch (err) {
@@ -109,7 +110,7 @@ export default class WebchatApi {
     }
   }
 
-  async createConversation(): Promise<number> {
+  async createConversation(): Promise<sdk.uuid> {
     try {
       const { data } = await this.axios.post('/conversations/new', this.baseUserPayload, this.axiosConfig)
       return data.convoId
@@ -118,7 +119,7 @@ export default class WebchatApi {
     }
   }
 
-  async downloadConversation(conversationId: number): Promise<any> {
+  async downloadConversation(conversationId: sdk.uuid): Promise<any> {
     try {
       const { data } = await this.axios.post(
         '/conversations/download/txt',
@@ -131,7 +132,7 @@ export default class WebchatApi {
     }
   }
 
-  async sendEvent(payload: any, conversationId: number): Promise<void> {
+  async sendEvent(payload: any, conversationId: sdk.uuid): Promise<void> {
     try {
       return this.axios.post('/events', { ...this.baseUserPayload, conversationId, payload }, this.axiosConfig)
     } catch (err) {
@@ -139,7 +140,7 @@ export default class WebchatApi {
     }
   }
 
-  async sendMessage(payload: any, conversationId: number): Promise<void> {
+  async sendMessage(payload: any, conversationId: sdk.uuid): Promise<void> {
     try {
       return this.axios.post('/messages', { ...this.baseUserPayload, conversationId, payload }, this.axiosConfig)
     } catch (err) {
@@ -147,7 +148,7 @@ export default class WebchatApi {
     }
   }
 
-  async deleteMessages(conversationId: number) {
+  async deleteMessages(conversationId: sdk.uuid) {
     try {
       await this.axios.post(
         '/conversations/messages/delete',
@@ -176,7 +177,7 @@ export default class WebchatApi {
     }
   }
 
-  async uploadFile(data: any, conversationId: number): Promise<void> {
+  async uploadFile(data: any, conversationId: sdk.uuid): Promise<void> {
     try {
       return this.axios.post('/messages/files', { ...this.baseUserPayload, conversationId, ...data }, this.axiosConfig)
     } catch (err) {
@@ -184,7 +185,7 @@ export default class WebchatApi {
     }
   }
 
-  async setReference(reference: string, conversationId: number): Promise<void> {
+  async setReference(reference: string, conversationId: sdk.uuid): Promise<void> {
     try {
       return this.axios.post(
         '/conversations/reference',
