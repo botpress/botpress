@@ -79,30 +79,35 @@ export class ScopedPredictionHandler {
   }
 
   private async tryPredictInLanguage(textInput: string, language: string): Promise<EventUnderstanding | undefined> {
-    const { modelsByLang } = this
-    if (!this.modelsByLang[language] || !this.engine.hasModel(modelsByLang[language])) {
-      const model = await this.fetchModel(language, modelsByLang)
+    if (!this.modelsByLang[language] || !this.engine.hasModel(this.modelsByLang[language])) {
+      const model = await this.fetchModel(language)
       if (!model) {
         return
       }
-      modelsByLang[language] = this.modelIdService.toId(model)
+
+      const previousId = this.modelsByLang[language]
+      if (previousId) {
+        this.engine.unloadModel(previousId)
+      }
+
+      this.modelsByLang[language] = model.id
       await this.engine.loadModel(model)
     }
 
     const t0 = Date.now()
     try {
-      const originalOutput = await this.engine.predict(textInput, modelsByLang[language])
+      const originalOutput = await this.engine.predict(textInput, this.modelsByLang[language])
       const ms = Date.now() - t0
 
       const { spellChecked } = originalOutput
       if (spellChecked && spellChecked !== textInput) {
-        const spellCheckedOutput = await this.engine.predict(spellChecked, modelsByLang[language])
+        const spellCheckedOutput = await this.engine.predict(spellChecked, this.modelsByLang[language])
         const merged = mergeSpellChecked(originalOutput, spellCheckedOutput)
         return { ...merged, spellChecked, errored: false, language, ms }
       }
       return { ...originalOutput, spellChecked, errored: false, language, ms }
     } catch (err) {
-      const stringId = this.modelIdService.toString(modelsByLang[language])
+      const stringId = this.modelIdService.toString(this.modelsByLang[language])
       const msg = `An error occured when predicting for input "${textInput}" with model ${stringId}`
       this.logger.attachError(err).error(msg)
 
@@ -111,10 +116,10 @@ export class ScopedPredictionHandler {
     }
   }
 
-  private fetchModel(languageCode: string, modelsByLang: _.Dictionary<ModelId>): Promise<Model | undefined> {
+  private fetchModel(languageCode: string): Promise<Model | undefined> {
     const { modelRepo: modelService } = this
 
-    const modelId = modelsByLang[languageCode]
+    const modelId = this.modelsByLang[languageCode]
     if (modelId) {
       return modelService.getModel(modelId)
     }

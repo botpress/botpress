@@ -28,20 +28,20 @@ export class FakeModelRepo implements IModelRepository {
   async initialize(): Promise<void> {}
 
   async hasModel(modelId: NLUEngine.ModelId): Promise<boolean> {
-    return !!this._models.find(mod => areEqual(mod, modelId))
+    return !!this._models.find(mod => areEqual(mod.id, modelId))
   }
 
   async getModel(modelId: NLUEngine.ModelId): Promise<NLUEngine.Model | undefined> {
-    return this._models.find(mod => areEqual(mod, modelId))
+    return this._models.find(mod => areEqual(mod.id, modelId))
   }
 
   private _getIdx(modelId: NLUEngine.ModelId): number {
-    return this._models.findIndex(mod => areEqual(mod, modelId))
+    return this._models.findIndex(mod => areEqual(mod.id, modelId))
   }
 
   async getLatestModel(query: Partial<NLUEngine.ModelId>): Promise<NLUEngine.Model | undefined> {
-    const models = this._models.filter(mod => _satisfies(mod, query))
-    const idx = models.map(model => ({ model, idx: this._getIdx(model) })).filter(x => x.idx >= 0)
+    const models = this._models.filter(mod => _satisfies(mod.id, query))
+    const idx = models.map(model => ({ model, idx: this._getIdx(model.id) })).filter(x => x.idx >= 0)
     return _.minBy(idx, i => i.idx)?.model
   }
 
@@ -57,7 +57,7 @@ export class FakeModelRepo implements IModelRepository {
     const { negateFilter } = options
     const baseFilter = (mod: NLUEngine.ModelId) => _satisfies(mod, query)
     const filter = negateFilter ? _.negate(baseFilter) : baseFilter
-    return this._models.filter(filter)
+    return this._models.map(({ id }) => id).filter(filter)
   }
 
   async pruneModels(modelIds: NLUEngine.ModelId[], opt?: Partial<PruningOptions> | undefined): Promise<void | void[]> {
@@ -70,7 +70,7 @@ export class FakeModelRepo implements IModelRepository {
       .sort()
 
     const trash = modelsIdx.slice(toKeep).map(idx => this._models[idx])
-    trash.forEach(this._remove)
+    trash.map(({ id }) => id).forEach(this._remove)
   }
 
   private _remove = (modelId: NLUEngine.ModelId) => {
