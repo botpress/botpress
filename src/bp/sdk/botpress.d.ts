@@ -138,7 +138,7 @@ declare module 'botpress/sdk' {
     /** An array of available bot templates when creating a new bot */
     botTemplates?: BotTemplate[]
     translations?: { [lang: string]: object }
-    renderers?: ContentRenderer[]
+    renderers?: ChannelRenderer[]
     /** List of new conditions that the module can register */
     dialogConditions?: Condition[]
     /** Called once the core is initialized. Usually for middlewares / database init */
@@ -199,12 +199,20 @@ declare module 'botpress/sdk' {
     readonly moduleName?: string
   }
 
-  export interface ContentRenderer {
+  export interface ChannelRenderer {
     id: string
     priority: number
     channel: string
 
-    render(bp: typeof import('botpress/sdk'), event: IO.OutgoingEvent, client: any, args: any): Promise<boolean>
+    handles(context: ChannelContext<any, any>): Promise<boolean>
+    render(context: ChannelContext<any, any>): Promise<boolean>
+  }
+
+  export interface ChannelContext<C, A> {
+    bp: typeof import('botpress/sdk')
+    event: IO.OutgoingEvent
+    client: C
+    args: A
   }
 
   export interface ModuleDefinition {
@@ -2670,7 +2678,7 @@ declare module 'botpress/sdk' {
        */
       export function pipeline(lang: string, context: any): RenderPipeline
 
-      export function getChannelRenderers(channel: string): ContentRenderer[]
+      export function getChannelRenderers(channel: string): ChannelRenderer[]
     }
   }
 }
