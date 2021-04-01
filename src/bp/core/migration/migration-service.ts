@@ -277,7 +277,7 @@ ${_.repeat(' ', 9)}========================================`)
   }
 
   public getAllMigrations(): MigrationFile[] {
-    const coreMigrations = this._getMigrations(path.join(__dirname, '../../migrations'))
+    const coreMigrations = this._getMigrations(path.join(__dirname, '../../migrations'), true)
     const moduleMigrations = _.flatMap(Object.keys(process.LOADED_MODULES), module =>
       this._getMigrations(path.join(process.LOADED_MODULES[module], 'dist/migrations'))
     )
@@ -303,9 +303,9 @@ ${_.repeat(' ', 9)}========================================`)
     return query?.server_version || this.configVersion
   }
 
-  private _getMigrations(rootPath: string): MigrationFile[] {
-    if (!fse.existsSync(rootPath)) {
-      throw new Error(`The migration directory '${rootPath}' does not exist`)
+  private _getMigrations(rootPath: string, assertExists = false): MigrationFile[] {
+    if (assertExists && !fse.existsSync(rootPath)) {
+      throw new Error(`The migration directory '${rootPath}' does not exists`)
     }
 
     return _.orderBy(
