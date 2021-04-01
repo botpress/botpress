@@ -60,14 +60,14 @@ class ScopedMappingRepository {
     this.foreignCache.del(local)
   }
 
-  async make(foreign: string, local: string) {
+  async create(foreign: string, local: string) {
     await this.query().insert({ scope: this.scope, foreign, local })
 
     this.localCache.set(foreign, local)
     this.foreignCache.set(local, foreign)
   }
 
-  async unmake(foreign: string, local: string) {
+  async delete(foreign: string, local: string) {
     const deletedRows = await this.query()
       .where({ scope: this.scope, foreign, local })
       .del()
@@ -77,7 +77,7 @@ class ScopedMappingRepository {
     return deletedRows > 0
   }
 
-  async getLocal(foreign: string): Promise<string | undefined> {
+  async getLocalId(foreign: string): Promise<string | undefined> {
     const cached = this.localCache.get(foreign)
     if (cached) {
       return cached
@@ -85,12 +85,15 @@ class ScopedMappingRepository {
 
     const rows = await this.query().where({ scope: this.scope, foreign })
     const local = rows[0]?.local
-    this.localCache.set(foreign, local)
+
+    if (local) {
+      this.localCache.set(foreign, local)
+    }
 
     return local
   }
 
-  async getForeign(local: string): Promise<string | undefined> {
+  async getForeignId(local: string): Promise<string | undefined> {
     const cached = this.foreignCache.get(local)
     if (cached) {
       return cached
@@ -98,7 +101,10 @@ class ScopedMappingRepository {
 
     const rows = await this.query().where({ scope: this.scope, local })
     const foreign = rows[0]?.foreign
-    this.foreignCache.set(local, foreign)
+
+    if (foreign) {
+      this.foreignCache.set(local, foreign)
+    }
 
     return foreign
   }

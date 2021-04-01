@@ -208,14 +208,16 @@ const experimental = (
   hookService: HookService,
   conversationService: ConversationService,
   messageService: MessageService,
-  renderService: RenderService
+  renderService: RenderService,
+  mappingRepo: MappingRepository
 ): typeof sdk.experimental => {
   return {
     disableHook: hookService.disableHook.bind(hookService),
     enableHook: hookService.enableHook.bind(hookService),
     conversations: conversations(conversationService),
     messages: messages(messageService),
-    render: render(renderService)
+    render: render(renderService),
+    mapping: mapping(mappingRepo)
   }
 }
 
@@ -248,6 +250,12 @@ const render = (renderService: RenderService): typeof sdk.experimental.render =>
   }
 }
 
+const mapping = (mappingRepo: MappingRepository): typeof sdk.experimental.mapping => {
+  return {
+    forScope: mappingRepo.forScope.bind(mappingRepo)
+  }
+}
+
 /**
  * Socket.IO API to emit payloads to front-end clients
  */
@@ -255,12 +263,6 @@ const realtime = (realtimeService: RealtimeService): typeof sdk.realtime => ({
   sendPayload: realtimeService.sendToSocket.bind(realtimeService),
   getVisitorIdFromGuestSocketId: realtimeService.getVisitorIdFromSocketId.bind(realtimeService)
 })
-
-const mapping = (mappingRepo: MappingRepository): typeof sdk.mapping => {
-  return {
-    forScope: mappingRepo.forScope.bind(mappingRepo)
-  }
-}
 
 @injectable()
 export class BotpressAPIProvider {
@@ -281,7 +283,6 @@ export class BotpressAPIProvider {
   security: typeof sdk.security
   workspaces: typeof sdk.workspaces
   distributed: typeof sdk.distributed
-  mapping: typeof sdk.mapping
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
@@ -322,11 +323,10 @@ export class BotpressAPIProvider {
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService, mediaServiceProvider)
     this.mlToolkit = MLToolkit
-    this.experimental = experimental(hookService, conversationService, messageService, renderService)
+    this.experimental = experimental(hookService, conversationService, messageService, renderService, mappingRepo)
     this.security = security()
     this.workspaces = workspaces(workspaceService)
     this.distributed = distributed(jobService)
-    this.mapping = mapping(mappingRepo)
   }
 
   @Memoize()
@@ -358,8 +358,7 @@ export class BotpressAPIProvider {
       security: this.security,
       experimental: this.experimental,
       workspaces: this.workspaces,
-      distributed: this.distributed,
-      mapping: this.mapping
+      distributed: this.distributed
     }
   }
 }

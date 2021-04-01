@@ -2371,20 +2371,6 @@ declare module 'botpress/sdk' {
     export function getMessageSignature(message: string): Promise<string>
   }
 
-  export namespace mapping {
-    export function forScope(scope: string): ScopedMapping
-
-    export interface ScopedMapping {
-      getLocal(foreign: string): Promise<string | undefined>
-
-      getForeign(local: string): Promise<string | undefined>
-
-      make(foreign: string, local: string): Promise<void>
-
-      unmake(foreign: string, local: string): Promise<boolean>
-    }
-  }
-
   /**
    * These features are subject to change and should not be relied upon.
    * They will eventually be either removed or moved in another namespace
@@ -2657,6 +2643,20 @@ declare module 'botpress/sdk' {
        * const text3 = render.text('PIN : {{user.pin}}')
        */
       export function pipeline(lang: string, context: any): RenderPipeline
+    }
+
+    export namespace mapping {
+      export function forScope(scope: string): ScopedMapping
+
+      export interface ScopedMapping {
+        getLocalId(foreign: string): Promise<string | undefined>
+
+        getForeignId(local: string): Promise<string | undefined>
+
+        create(foreign: string, local: string): Promise<void>
+
+        delete(foreign: string, local: string): Promise<boolean>
+      }
     }
   }
 }
