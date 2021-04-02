@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import { container } from 'core/app/inversify/app.inversify'
 import { TYPES } from 'core/app/types'
+import { AttributesRepository } from 'core/attributes/attributes-repository'
 import { BotService } from 'core/bots'
 import { GhostService } from 'core/bpfs'
 import { CMSService, renderRecursive, RenderService } from 'core/cms'
@@ -206,7 +207,8 @@ const experimental = (
   conversationService: ConversationService,
   messageService: MessageService,
   renderService: RenderService,
-  mappingRepo: MappingRepository
+  mappingRepo: MappingRepository,
+  attributesRepo: AttributesRepository
 ): typeof sdk.experimental => {
   return {
     disableHook: hookService.disableHook.bind(hookService),
@@ -214,7 +216,8 @@ const experimental = (
     conversations: conversations(conversationService),
     messages: messages(messageService),
     render: render(renderService),
-    mapping: mapping(mappingRepo)
+    mapping: mapping(mappingRepo),
+    attributes: attributes(attributesRepo)
   }
 }
 
@@ -250,6 +253,14 @@ const render = (renderService: RenderService): typeof sdk.experimental.render =>
 const mapping = (mappingRepo: MappingRepository): typeof sdk.experimental.mapping => {
   return {
     forScope: mappingRepo.forScope.bind(mappingRepo)
+  }
+}
+
+const attributes = (attributesRepo: AttributesRepository): typeof sdk.experimental.attributes => {
+  return {
+    set: attributesRepo.set.bind(attributesRepo),
+    get: attributesRepo.get.bind(attributesRepo),
+    remove: attributesRepo.remove.bind(attributesRepo)
   }
 }
 
@@ -305,7 +316,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.ConversationService) conversationService: ConversationService,
     @inject(TYPES.MessageService) messageService: MessageService,
     @inject(TYPES.RenderService) renderService: RenderService,
-    @inject(TYPES.MappingRepository) mappingRepo: MappingRepository
+    @inject(TYPES.MappingRepository) mappingRepo: MappingRepository,
+    @inject(TYPES.AttributesRepository) attributesRepo: AttributesRepository
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
@@ -320,7 +332,14 @@ export class BotpressAPIProvider {
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService, mediaServiceProvider)
     this.mlToolkit = MLToolkit
-    this.experimental = experimental(hookService, conversationService, messageService, renderService, mappingRepo)
+    this.experimental = experimental(
+      hookService,
+      conversationService,
+      messageService,
+      renderService,
+      mappingRepo,
+      attributesRepo
+    )
     this.security = security()
     this.workspaces = workspaces(workspaceService)
     this.distributed = distributed(jobService)
