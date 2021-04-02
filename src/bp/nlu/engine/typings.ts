@@ -1,3 +1,5 @@
+import { TrainingSession } from 'nlu/stan/typings_v1'
+
 export interface Config extends LanguageConfig {
   modelCacheSize: string
   legacyElection: boolean
@@ -33,11 +35,17 @@ export interface ModelIdArgs extends TrainingSet {
 }
 
 export interface TrainingOptions {
-  progressCallback: (x: number) => void
+  callbackUrl: string // to prevent from storing train sessions in engine
   previousModel: ModelId | undefined
 }
 
-export interface Engine {
+interface EngineInfo {
+  specs: Specifications
+  languages: string[]
+  health: Health
+}
+
+export interface CurrentEngine {
   getHealth: () => Health
   getLanguages: () => string[]
   getSpecifications: () => Specifications
@@ -53,11 +61,58 @@ export interface Engine {
   predict: (text: string, modelId: ModelId) => Promise<PredictOutput>
 }
 
-export interface ModelIdService {
-  toString: (modelId: ModelId) => string // to use ModelId as a key
-  fromString: (stringId: string) => ModelId // to parse information from a key
+export interface CurrentStan {
+  getInfo: () => { version: string }
+
+  train: (trainSet: TrainingSet, password: string) => Promise<ModelId> // password is to prevent from needing authentification
+  getTrainingStatus: (modelId: ModelId, password: string) => TrainingSession // we replace this by callback url
+  cancelTraining: (modelId: ModelId, password: string) => Promise<void>
+
+  predict: (text: string, modelId: ModelId, password: string) => Promise<PredictOutput>
+}
+
+// Still an http API
+export interface NewStan {
+  info: () => EngineInfo // the full deal
+
+  // Owner is the botId. We need this because multiple bots can use the same exact model. We need to prevent from deleting other bot's models.
+  removeModels: (owner: string, modelId: Partial<ModelId>, password: string) => number // used when unmounting a bot, returns the amount deleted
+  listModels: (owner: string, modelId: Partial<ModelId>, password: string) => ModelId[] // usefull to know if model is dirty and needs a training
+
+  train: (
+    owner: string,
+    trainSet: TrainingSet,
+    password: string,
+    options?: Partial<TrainingOptions> // contains a callback url to prevent from storing train sessions in engine (for HA)
+  ) => Promise<ModelId> // no model returned here as models are stored by engine
+  cancelTraining: (owner: string, modelId: ModelId, password: string) => Promise<void>
+
+  detectLanguage: (text: string, models: ModelId[], password: string) => Promise<string> // this method is not already in Stan, but need to be added
+  predict: (text: string, modelId: ModelId, password: string) => Promise<PredictOutput>
+}
+
+/**
+ * Open questions:
+ * - what password to use ?
+ * -
+ */
+
+// Ideally, this would be a yarn package to reuse both in Stan and
+export interface ModelIdUtils {
+  toString: (modelId: ModelId) => string
+  fromString: (stringId: string) => ModelId
   isId: (m: string) => boolean
+
+  /**
+   * used by engine.train(), but also by the module to know if model is dirty.
+   * We don't want to make a training just to know if an up-to-date model exist.
+   */
   makeId: (factors: ModelIdArgs) => ModelId
+
+  /**
+   * used at predict time, when we can't find the actual model we're looking for, so we pick the latest with correct specs and language
+   * this behavior is shitty and should be removed
+   */
   briefId: (factors: Partial<ModelIdArgs>) => Partial<ModelId> // makes incomplete Id from incomplete information
 }
 
