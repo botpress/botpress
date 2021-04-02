@@ -71,6 +71,15 @@ export interface CurrentStan {
   predict: (text: string, modelId: ModelId, password: string) => Promise<PredictOutput>
 }
 
+/**
+ * Roadmap:
+ *
+ * 1 - implement an S3 model repo in stan (for HA)
+ * 2 - refactor the codebase to the new API (still in memory)
+ * 3 - move to an HTTP API
+ * 4 - separate binaries ?
+ */
+
 // Still an http API
 export interface NewStan {
   info: () => EngineInfo // the full deal
