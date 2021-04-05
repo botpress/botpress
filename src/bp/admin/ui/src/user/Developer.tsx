@@ -15,11 +15,10 @@ interface ApiKey {
   apiKey: string
 }
 
-const DEFAULT_PAYLOAD = { email: '', strategy: '', apiKey: '' }
+const BASE_URL_PATH = '/admin/auth/apiKey'
 
 const Developer: FC<Props> = props => {
   const [apiKey, setApiKey] = useState<string>()
-  const [payload, setPayload] = useState(JSON.stringify(DEFAULT_PAYLOAD, undefined, 2))
   const [tab, setTab] = useState<string | number>('apiKey')
 
   useEffect(() => {
@@ -27,39 +26,29 @@ const Developer: FC<Props> = props => {
     getKey()
   }, [props.isOpen])
 
-  useEffect(() => {
-    if (props.profile && apiKey) {
-      const { email, strategy } = props.profile
-      const example = { email, strategy, apiKey }
-      setPayload(JSON.stringify(example, undefined, 2))
-    } else {
-      setPayload(JSON.stringify(DEFAULT_PAYLOAD, undefined, 2))
-    }
-  }, [apiKey])
-
   const getKey = async () => {
     try {
-      const { data } = await api.getSecured().get<any, AxiosResponse<ApiKey>>('/admin/auth/apiKey')
+      const { data } = await api.getSecured().get<any, AxiosResponse<ApiKey>>(BASE_URL_PATH)
       setApiKey(data.apiKey)
     } catch (err) {
-      toast.failure(lang.tr('admin.errorUpdatingProfile', { msg: err.message }))
+      toast.failure(lang.tr('admin.developer.errorFetchingApiKey', { msg: err.message }))
     }
   }
 
   const generateKey = async (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
     event.preventDefault()
 
-    if (!(await confirmDialog('This feature is in beta access and is subject to breaking changes!', {}))) {
+    if (!(await confirmDialog(lang.tr('admin.developer.apiKeyGenerationWarning'), {}))) {
       return
     }
 
     try {
-      const { data } = await api.getSecured().post<any, AxiosResponse<ApiKey>>('/admin/auth/apiKey')
+      const { data } = await api.getSecured().post<any, AxiosResponse<ApiKey>>(BASE_URL_PATH)
       setApiKey(data.apiKey)
 
-      toast.success(lang.tr('API Key generated successfully'))
+      toast.success(lang.tr('admin.developer.apiKeySuccessfullyGenerated'))
     } catch (err) {
-      toast.failure(lang.tr('admin.errorUpdatingProfile', { msg: err.message }))
+      toast.failure(lang.tr('admin.developer.errorGeneratingApiKey', { msg: err.message }))
     }
   }
 
@@ -67,26 +56,31 @@ const Developer: FC<Props> = props => {
     event.preventDefault()
 
     try {
-      await api.getSecured().post('/admin/auth/apiKey/revoke')
+      await api.getSecured().post(`${BASE_URL_PATH}/revoke`)
       setApiKey(undefined)
 
-      toast.success(lang.tr('API Key successfully revoked'))
+      toast.success(lang.tr('admin.developer.apiKeySuccessfullyRevoked'))
     } catch (err) {
-      toast.failure(lang.tr('admin.errorUpdatingProfile', { msg: err.message }))
+      toast.failure(lang.tr('admin.developer.errorRevokingApiKey', { msg: err.message }))
     }
   }
 
   return (
-    <Dialog.Wrapper title="Developer (beta) - API Key" icon="key" isOpen={props.isOpen} onClose={props.close}>
+    <Dialog.Wrapper
+      title={`${lang.tr('admin.developerMenu')} - ${lang.tr('admin.developer.apiKey')}`}
+      icon="key"
+      isOpen={props.isOpen}
+      onClose={props.close}
+    >
       <Dialog.Body>
         <div>
           <Tabs onChange={tab => setTab(tab)} selectedTabId={tab}>
             <Tab
               id="apiKey"
-              title="Your API Key"
+              title={lang.tr('admin.developer.apiKeyGenerationTitle')}
               panel={
                 <div>
-                  API Key :
+                  {lang.tr('admin.developer.apiKey')}
                   <code>
                     {(apiKey && (
                       <div>
@@ -95,30 +89,44 @@ const Developer: FC<Props> = props => {
                         <br /> <br />
                       </div>
                     )) ||
-                      ' No API key yet'}
+                      lang.tr('admin.developer.noApiKey')}
                   </code>
-                  {apiKey && <Button id="btn-revoke" text="Revoke" onClick={revokeKey} intent={Intent.DANGER} />}
+                  {apiKey && (
+                    <Button
+                      id="btn-revoke"
+                      text={lang.tr('admin.developer.revoke')}
+                      onClick={revokeKey}
+                      intent={Intent.DANGER}
+                    />
+                  )}
                   <br /> <br />
-                  <b>You can currently only call the Converse API with an API key.</b>
+                  <b>{lang.tr('admin.developer.apiKeyGenerationBetaWarning')}</b>
                   <br /> <br />
-                  Please note that generating a new API Key will render the previous one unusable.
+                  {lang.tr('admin.developer.apiKeyGenerationOverrideWarning')}
                   <br /> <br />
-                  <Button id="btn-submit" text="Generate a new API Key" onClick={generateKey} intent={Intent.PRIMARY} />
+                  <Button
+                    id="btn-submit"
+                    text={lang.tr('admin.developer.generateApiKey')}
+                    onClick={generateKey}
+                    intent={Intent.PRIMARY}
+                  />
                 </div>
               }
             ></Tab>
             <Tab
               id="usage"
-              title="Using the API Key"
+              title={lang.tr('admin.developer.apiKeyUsageTitle')}
               panel={
                 <div>
                   <div>
-                    Here is an example with the Converse API:
+                    {lang.tr('admin.developer.apiKeyUsageExample')}
                     <br />
                     <br />
                     <div>
                       <code style={{ whiteSpace: 'pre' }}>
-                        POST {window.location.origin}/api/v1/bots/[BOT_ID]/converse/[CONVERSATION_ID]/secured
+                        POST {window.location.origin}/api/v1/bots/[BOT_ID]/
+                        <br />
+                        &nbsp;&nbsp;converse/[CONVERSATION_ID]/secured
                         <br />
                         Content-Type: application/json
                         <br />

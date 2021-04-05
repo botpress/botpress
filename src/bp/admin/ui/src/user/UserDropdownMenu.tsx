@@ -75,7 +75,7 @@ const UserDropdownMenu: FC<Props> = props => {
             onClick={toggleLanguage}
           />
 
-          <MenuItem id="btn-developer" icon="code" text="Developer (beta)" onClick={toggleDev} />
+          <MenuItem id="btn-developer" icon="code" text={lang.tr('admin.developerMenu')} onClick={toggleDev} />
 
           <MenuDivider />
           <MenuItem id="btn-logout" icon="log-out" text={lang.tr('admin.logout')} onClick={logout} />
