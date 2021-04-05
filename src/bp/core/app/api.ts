@@ -14,6 +14,7 @@ import { EventEngine, EventRepository, Event } from 'core/events'
 import { KeyValueStore } from 'core/kvs'
 import { LoggerProvider } from 'core/logger'
 import * as logEnums from 'core/logger/enums'
+import { MappingRepository } from 'core/mapping/mapping-repository'
 import { MediaServiceProvider } from 'core/media'
 import { ConversationService, MessageService } from 'core/messaging'
 import { ModuleLoader } from 'core/modules'
@@ -91,17 +92,14 @@ const config = (moduleLoader: ModuleLoader, configProvider: ConfigProvider): typ
 
 const bots = (botService: BotService): typeof sdk.bots => {
   return {
-    getAllBots(): Promise<Map<string, sdk.BotConfig>> {
-      return botService.getBots()
-    },
-    getBotById(botId: string): Promise<sdk.BotConfig | undefined> {
-      return botService.findBotById(botId)
-    },
-    exportBot(botId: string): Promise<Buffer> {
-      return botService.exportBot(botId)
-    },
+    getAllBots: botService.getBots.bind(botService),
+    getBotById: botService.findBotById.bind(botService),
+    exportBot: botService.exportBot.bind(botService),
     importBot: botService.importBot.bind(botService),
-    getBotTemplate: botService.getBotTemplate.bind(botService)
+    getBotTemplate: botService.getBotTemplate.bind(botService),
+    listBotRevisions: botService.listRevisions.bind(botService),
+    createBotRevision: botService.createRevision.bind(botService),
+    rollbackBotToRevision: botService.rollback.bind(botService)
   }
 }
 
@@ -207,14 +205,16 @@ const experimental = (
   hookService: HookService,
   conversationService: ConversationService,
   messageService: MessageService,
-  renderService: RenderService
+  renderService: RenderService,
+  mappingRepo: MappingRepository
 ): typeof sdk.experimental => {
   return {
     disableHook: hookService.disableHook.bind(hookService),
     enableHook: hookService.enableHook.bind(hookService),
     conversations: conversations(conversationService),
     messages: messages(messageService),
-    render: render(renderService)
+    render: render(renderService),
+    mapping: mapping(mappingRepo)
   }
 }
 
@@ -244,6 +244,12 @@ const render = (renderService: RenderService): typeof sdk.experimental.render =>
     translate: renderService.renderTranslated.bind(renderService),
     template: renderService.renderTemplate.bind(renderService),
     pipeline: renderService.getPipeline.bind(renderService)
+  }
+}
+
+const mapping = (mappingRepo: MappingRepository): typeof sdk.experimental.mapping => {
+  return {
+    forScope: mappingRepo.forScope.bind(mappingRepo)
   }
 }
 
@@ -298,7 +304,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.StateManager) stateManager: StateManager,
     @inject(TYPES.ConversationService) conversationService: ConversationService,
     @inject(TYPES.MessageService) messageService: MessageService,
-    @inject(TYPES.RenderService) renderService: RenderService
+    @inject(TYPES.RenderService) renderService: RenderService,
+    @inject(TYPES.MappingRepository) mappingRepo: MappingRepository
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
@@ -313,7 +320,7 @@ export class BotpressAPIProvider {
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService, mediaServiceProvider)
     this.mlToolkit = MLToolkit
-    this.experimental = experimental(hookService, conversationService, messageService, renderService)
+    this.experimental = experimental(hookService, conversationService, messageService, renderService, mappingRepo)
     this.security = security()
     this.workspaces = workspaces(workspaceService)
     this.distributed = distributed(jobService)

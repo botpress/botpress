@@ -3,6 +3,8 @@ import _ from 'lodash'
 import LRUCache from 'lru-cache'
 import sizeof from 'object-sizeof'
 
+import v8 from 'v8'
+
 import modelIdService from '../model-id-service'
 
 import {
@@ -201,7 +203,7 @@ export default class Engine implements IEngine {
     })
 
     const model: PredictableModel = {
-      ...modelId,
+      id: modelId,
       startedAt,
       finishedAt: new Date(),
       data: {
@@ -224,10 +226,10 @@ export default class Engine implements IEngine {
   }
 
   async loadModel(serialized: Model) {
-    const stringId = modelIdService.toString(serialized)
+    const stringId = modelIdService.toString(serialized.id)
     lifecycleDebug(`Load model ${stringId}`)
 
-    if (this.hasModel(serialized)) {
+    if (this.hasModel(serialized.id)) {
       lifecycleDebug(`Model ${stringId} already loaded.`)
       return
     }
@@ -255,6 +257,21 @@ export default class Engine implements IEngine {
     this.modelsById.set(stringId, modelCacheItem)
 
     lifecycleDebug(`Model cache entries are: [${this.modelsById.keys().join(', ')}]`)
+    const debug = this._getMemoryUsage()
+    lifecycleDebug(`Current memory usage: ${JSON.stringify(debug)}`)
+  }
+
+  private _getMemoryUsage = () => {
+    const { heap_size_limit, total_available_size, used_heap_size } = v8.getHeapStatistics()
+    return _.mapValues(
+      {
+        currentCacheSize: this.modelsById.length,
+        heap_size_limit,
+        total_available_size,
+        used_heap_size
+      },
+      bytes
+    )
   }
 
   unloadModel(modelId: ModelId) {
@@ -329,7 +346,7 @@ export default class Engine implements IEngine {
       throw new Error(`model ${stringId} not loaded`)
     }
 
-    const language = loaded.model.languageCode
+    const language = loaded.model.id.languageCode
     return Predict(
       {
         language,
