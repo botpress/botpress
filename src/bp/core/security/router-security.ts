@@ -3,7 +3,6 @@ import { RequestWithUser } from 'common/typings'
 import { ConfigProvider } from 'core/config'
 import {
   InvalidOperationError,
-  BadRequestError,
   ForbiddenError,
   InternalServerError,
   NotFoundError,
@@ -12,7 +11,7 @@ import {
 } from 'core/routers'
 import { WorkspaceService } from 'core/users'
 import { NextFunction, Request, RequestHandler, Response } from 'express'
-import { AuthService, WORKSPACE_HEADER, SERVER_USER } from './auth-service'
+import { AuthService, WORKSPACE_HEADER, SERVER_USER, API_KEY_HEADER } from './auth-service'
 
 const debugFailure = DEBUG('audit:collab:fail')
 const debugSuccess = DEBUG('audit:collab:success')
@@ -24,9 +23,9 @@ export const checkApiKey = (authService: AuthService) => async (
   res: Response,
   next: NextFunction
 ) => {
-  if (req.query.apiKey) {
-    const key = req.query.apiKey as string
+  const key = req.headers[API_KEY_HEADER] as string
 
+  if (key) {
     try {
       const apiKey = await authService.checkApiKey(key)
 
@@ -48,7 +47,12 @@ export const checkTokenHeader = (authService: AuthService, audience?: string) =>
   res: Response,
   next: NextFunction
 ) => {
-  let token
+  // hack to allow bypassing this middleware when an API key was used instead
+  if (res.locals.authorized === true) {
+    return next()
+  }
+
+  let token: string
 
   if (process.USE_JWT_COOKIES) {
     if (!req.cookies[JWT_COOKIE_NAME]) {

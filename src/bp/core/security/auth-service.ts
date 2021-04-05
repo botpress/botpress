@@ -24,10 +24,11 @@ export const TOKEN_AUDIENCE = 'collaborators'
 export const CHAT_USERS_AUDIENCE = 'chat_users'
 export const WORKSPACE_HEADER = 'x-bp-workspace'
 export const EXTERNAL_AUTH_HEADER = 'x-bp-externalauth'
+export const API_KEY_HEADER = 'x-bp-api-key'
 export const SERVER_USER = 'server::modules'
 const DEFAULT_CHAT_USER_AUTH_DURATION = '24h'
 
-const getUserKey = (email, strategy) => `${email}_${strategy}`
+const getUserKey = (email: string, strategy: string) => `${email}_${strategy}`
 
 @injectable()
 export class AuthService {

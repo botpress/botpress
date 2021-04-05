@@ -1,6 +1,6 @@
 import { Button, Intent, Tab, Tabs } from '@blueprintjs/core'
 import { AxiosResponse } from 'axios'
-import { lang, Dialog, toast } from 'botpress/shared'
+import { lang, Dialog, toast, confirmDialog } from 'botpress/shared'
 import { UserProfile } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import api from '~/app/api'
@@ -49,6 +49,10 @@ const Developer: FC<Props> = props => {
   const generateKey = async (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
     event.preventDefault()
 
+    if (!(await confirmDialog('This feature is in beta access and is subject to breaking changes!', {}))) {
+      return
+    }
+
     try {
       const { data } = await api.getSecured().post<any, AxiosResponse<ApiKey>>('/admin/auth/apiKey')
       setApiKey(data.apiKey)
@@ -73,7 +77,7 @@ const Developer: FC<Props> = props => {
   }
 
   return (
-    <Dialog.Wrapper title="Developer - API Key" icon="key" isOpen={props.isOpen} onClose={props.close}>
+    <Dialog.Wrapper title="Developer (beta) - API Key" icon="key" isOpen={props.isOpen} onClose={props.close}>
       <Dialog.Body>
         <div>
           <Tabs onChange={tab => setTab(tab)} selectedTabId={tab}>
@@ -82,11 +86,20 @@ const Developer: FC<Props> = props => {
               title="Your API Key"
               panel={
                 <div>
-                  API Key: <code>{apiKey || 'No API key yet'}</code>
-                  <br />
+                  API Key :
+                  <code>
+                    {(apiKey && (
+                      <div>
+                        <br />
+                        {apiKey}
+                        <br /> <br />
+                      </div>
+                    )) ||
+                      ' No API key yet'}
+                  </code>
                   {apiKey && <Button id="btn-revoke" text="Revoke" onClick={revokeKey} intent={Intent.DANGER} />}
                   <br /> <br />
-                  With an API Key, you will be able to cal the Converse API.
+                  <b>You can currently only call the Converse API with an API key.</b>
                   <br /> <br />
                   Please note that generating a new API Key will render the previous one unusable.
                   <br /> <br />
@@ -101,13 +114,15 @@ const Developer: FC<Props> = props => {
                 <div>
                   <div>
                     Here is an example with the Converse API:
-                    <br></br>
-                    <br></br>
+                    <br />
+                    <br />
                     <div>
                       <code style={{ whiteSpace: 'pre' }}>
-                        POST {window.location.origin}/api/v1/bots/[BOT_ID]/converse/benchmark[USER_ID]?apiKey=XXXXX
+                        POST {window.location.origin}/api/v1/bots/[BOT_ID]/converse/[CONVERSATION_ID]/secured
                         <br />
                         Content-Type: application/json
+                        <br />
+                        x-bp-api-key: [YOUR_API_KEY]
                         <br />
                         <br />
                         {`{

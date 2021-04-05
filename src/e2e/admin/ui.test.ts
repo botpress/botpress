@@ -1,8 +1,9 @@
+import axios, { AxiosRequestConfig } from 'axios'
 import path from 'path'
 
 import { bpConfig } from '../../../jest-puppeteer.config'
 import { clickOn, expectMatch, fillField, uploadFile } from '../expectPuppeteer'
-import { closeToaster, expectAdminApiCallSuccess, expectCallSuccess, loginIfNeeded } from '../utils'
+import { closeToaster, CONFIRM_DIALOG, expectAdminApiCallSuccess, expectCallSuccess } from '../utils'
 
 describe('Admin - UI', () => {
   it('Load server license page', async () => {
@@ -58,5 +59,26 @@ describe('Admin - UI', () => {
       expectCallSuccess(`${bpConfig.host}/api/v2/admin/auth/login/basic/default`, 'POST'),
       clickOn('#btn-submit')
     ])
+  })
+
+  it('Generate API key', async () => {
+    await clickOn('#btn-menu')
+    await clickOn('#btn-developer')
+    await clickOn('#btn-submit')
+    await clickOn(CONFIRM_DIALOG.ACCEPT)
+    const key = await expectCallSuccess(`${bpConfig.host}/api/v2/admin/auth/apiKey`, 'POST')
+    await closeToaster()
+
+    const payload = {
+      type: 'text',
+      text: 'test'
+    }
+    const axiosConfig: AxiosRequestConfig = {
+      headers: {
+        'x-bp-api-key': key.apiKey
+      }
+    }
+    await axios.post(`${bpConfig.host}/api/v1/bots/${bpConfig.botId}/converse/123/secured`, payload, axiosConfig)
+    expectCallSuccess(`${bpConfig.host}/api/v1/bots/${bpConfig.botId}/converse/123/secured`, 'POST')
   })
 })

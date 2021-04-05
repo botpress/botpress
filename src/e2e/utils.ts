@@ -116,8 +116,9 @@ export const clickOnTreeNode = async (searchText: string, button: MouseButtons =
   await clickOn('.bp3-tree-node-label', { button }, element)
 }
 
-export const closeToaster = async () => {
-  await clickOn("svg[data-icon='cross']")
+export const closeToaster = async (smallCross = false) => {
+  const icon = smallCross ? 'small-cross' : 'cross'
+  await clickOn(`svg[data-icon='${icon}']`)
   await page.waitForFunction(() => {
     return document.querySelector('.bp3-overlay').childElementCount === 0
   })
