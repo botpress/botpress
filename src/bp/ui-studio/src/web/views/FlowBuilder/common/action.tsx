@@ -27,10 +27,8 @@ export const textToItemId = text => text?.match(/^say #!(.*)$/)?.[1]
 
 class ActionItem extends Component<Props> {
   state = {
-    itemId: null,
-    showActionPopover: false
+    itemId: null
   }
-  target = null
 
   componentDidMount() {
     this.loadElement()
@@ -55,7 +53,7 @@ class ActionItem extends Component<Props> {
     const isAction = typeof action !== 'string' || !action.startsWith('say ')
 
     if (isAction) {
-      return <ActionPopover text={this.props.text} className={this.props.className} children={this.props.children} />
+      return <ActionPopover text={this.props.text} className={this.props.className} />
     }
 
     const item = this.props.items[this.state.itemId]
