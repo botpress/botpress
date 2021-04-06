@@ -2,6 +2,8 @@ import {Config} from "../config";
 import {App, ExpressReceiver} from "@slack/bolt";
 import InstallationRepository from "./repository";
 import {Installation} from '@slack/oauth'
+// @ts-ignore
+import _ from 'lodash'
 
 
 export abstract class SlackApp {
@@ -85,14 +87,14 @@ class MultiWorkspaceApp extends SlackApp {
                     success: config.successRedirectUrl ?
                         (installation, installOptions, req, res) => {
                             res.writeHead(302, {
-                                'Location': config.successRedirectUrl
+                                'Location': this.substituteParams(config.successRedirectUrl, installation)
                             });
                             res.end();
                         } : undefined,
                     failure: config.failureRedirectUrl ?
                         (installation, installOptions, req, res) => {
                             res.writeHead(302, {
-                                'Location': config.failureRedirectUrl
+                                'Location': this.substituteParams(config.failureRedirectUrl, installation)
                             });
                             res.end();
                         } : undefined
@@ -106,6 +108,18 @@ class MultiWorkspaceApp extends SlackApp {
             botId: config.botId,
             receiver: this.receiver
         })
+    }
+
+    private substituteParams(url: string, installation): string {
+        if (!url || !installation) {
+            return url;
+        }
+        const i = JSON.parse(JSON.stringify(installation)); //deep clone
+        delete i.bot;
+        return url
+            .replace('{team.id}', _.get(i, 'team.id', ''))
+            .replace('{appId}', _.get(i, 'appId', ''))
+            .replace('{installation}', Buffer.from(JSON.stringify(i)).toString('base64'))
     }
 
     private setUpInstallUrlEndpoint(config: Config, expressReceiver: ExpressReceiver) {
@@ -125,7 +139,7 @@ class MultiWorkspaceApp extends SlackApp {
             team: installation.team.id,
             installation: JSON.stringify(installation)
         })
-        this.logger.info(`Bot instalado para el equipo ${installation.team.id}`)
+        this.logger.info(`Bot installed for the team ${installation.team.id}`)
     }
 
     private fetchInstallation = async (InstallQuery): Promise<Installation> => {

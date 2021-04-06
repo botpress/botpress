@@ -105,7 +105,9 @@ export interface Config {
      * installation of the app. If no value is provided, a default
      * success page will be loaded. Only used for the multiple
      * workspace installation.
-     * @example http://my-awesome-app.com/successfull-installation
+     * Use the following params in URL: {appId}, {team.id} or {installation}
+     * @example http://my-awesome-app.com/successfull-installation?base64_encoded_installation={installation}
+     * @example https://app.slack.com/client/{team.id}
      * @default null
      */
     successRedirectUrl?: string
@@ -115,6 +117,7 @@ export interface Config {
      * failure of the app. If no value is provided, a default failure
      * page will be loaded. Only used for the multiple workspace
      * installation.
+     * Use the following params in URL: {appId}, {team.id} or {installation}
      * @example http://my-awesome-app.com/failure-installation
      * @default null
      */
