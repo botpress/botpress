@@ -72,6 +72,7 @@ export class SlackClient {
 
                 const actionId = action.action_id
                 const label = action.text.text
+                const value = action.value
 
                 if (!actionId.startsWith('discard_action')) { // Some actions (ex: open url) should be discarded
                     // Either we leave buttons displayed, we replace with the selection, or we remove it
@@ -82,14 +83,15 @@ export class SlackClient {
                         await respond({delete_original: true})
                     }
 
+                    const payload = {type: 'quick_reply', text: label, payload: value};
                     await this.sendEvent({
                         body,
                         context,
-                        payload: action.value,
+                        payload: payload,
                         teamId: body.team.id,
                         channelId: body.channel.id,
                         preview: label,
-                        type: 'quick_reply',
+                        type: payload.type,
                         userId: body.user.id,
                     })
                 }
@@ -122,8 +124,8 @@ export class SlackClient {
                 channel: 'slack',
                 direction: 'incoming',
                 payload: {
-                    payload,
-                    body,
+                    ...payload,
+                    ...body,
                     context: {
                         ...context,
                         client: this.app.getApp().client
@@ -146,6 +148,7 @@ export class SlackClient {
         if (!_.includes(outgoingTypes, messageType)) {
             return next(new Error('Unsupported event type: ' + event.type))
         }
+        debugOutgoing(`Handle Outgoing Event %o`, event)
 
         const blocks = []
         if (messageType === 'image' || messageType === 'actions') {
