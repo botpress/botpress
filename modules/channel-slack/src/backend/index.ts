@@ -1,14 +1,18 @@
+// @ts-ignore
 import * as sdk from 'botpress/sdk'
 
 import { Config } from '../config'
 
 import { setupMiddleware, SlackClient } from './client'
 import { Clients } from './typings'
+import InstallationRepository from "./repository";
 
-let router
+let router, repository
 const clients: Clients = {}
 
 const onServerStarted = async (bp: typeof sdk) => {
+  repository = new InstallationRepository(bp)
+  repository.initialize()
   await setupMiddleware(bp, clients)
 }
 
@@ -24,7 +28,7 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
   const config = (await bp.config.getModuleConfigForBot('channel-slack', botId, true)) as Config
 
   if (config.enabled) {
-    const bot = new SlackClient(bp, botId, config, router)
+    const bot = new SlackClient(bp, botId, config, router, repository)
     await bot.initialize()
 
     clients[botId] = bot

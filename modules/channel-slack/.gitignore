@@ -6,3 +6,4 @@
 /assets/config.schema.json
 botpress.d.ts
 global.d.ts
+yarn-error.log
