@@ -5,7 +5,7 @@ const migration: Migration = {
   info: {
     description: 'Replace from column with authorId',
     target: 'core',
-    type: 'config'
+    type: 'database'
   },
   up: async ({ bp }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
     if ((await bp.database.schema.hasTable('messages')) && (await bp.database.schema.hasColumn('messages', 'from'))) {
