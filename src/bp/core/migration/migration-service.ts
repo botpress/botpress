@@ -278,7 +278,7 @@ ${_.repeat(' ', 9)}========================================`)
   }
 
   public getAllMigrations(): MigrationFile[] {
-    const coreMigrations = this._getMigrations(path.join(__dirname, '../../../migrations'))
+    const coreMigrations = this._getMigrations(path.join(__dirname, '../../migrations'))
     const moduleMigrations = _.flatMap(Object.keys(process.LOADED_MODULES), module =>
       this._getMigrations(path.join(process.LOADED_MODULES[module], 'dist/migrations'))
     )
