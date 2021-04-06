@@ -1654,9 +1654,9 @@ declare module 'botpress/sdk' {
   export interface Message {
     id: uuid
     conversationId: uuid
+    authorId: string | undefined
     eventId?: string
     incomingEventId?: string
-    from: string
     sentOn: Date
     payload: any
   }
@@ -2494,7 +2494,7 @@ declare module 'botpress/sdk' {
         create(
           conversationId: uuid,
           payload: any,
-          from: string,
+          authorId?: string,
           eventId?: string,
           incomingEventId?: string
         ): Promise<Message>

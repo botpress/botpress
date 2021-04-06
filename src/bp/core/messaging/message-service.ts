@@ -96,11 +96,11 @@ export class ScopedMessageService implements sdk.experimental.messages.BotMessag
   public async create(
     conversationId: sdk.uuid,
     payload: any,
-    from: string,
+    authorId?: string,
     eventId?: string,
     incomingEventId?: string
   ): Promise<sdk.Message> {
-    const message = await this.messageRepo.create(conversationId, payload, from, eventId, incomingEventId)
+    const message = await this.messageRepo.create(conversationId, payload, authorId, eventId, incomingEventId)
     const conversation = (await this.conversationService.get(conversationId))!
     await this.conversationService.setAsMostRecent(conversation)
     return message
@@ -154,8 +154,8 @@ export class ScopedMessageService implements sdk.experimental.messages.BotMessag
     const event = new IOEvent(<sdk.IO.EventCtorArgs>ctorArgs)
     await this.eventEngine.sendEvent(event)
 
-    const from = event.direction === 'incoming' ? 'user' : 'bot'
-    const message = await this.messageRepo.create(conversationId, payload, from, event.id, event.id)
+    const authorId = event.direction === 'incoming' ? conversation.userId : undefined
+    const message = await this.messageRepo.create(conversationId, payload, authorId, event.id, event.id)
     await this.conversationService.setAsMostRecent(conversation)
 
     return message
