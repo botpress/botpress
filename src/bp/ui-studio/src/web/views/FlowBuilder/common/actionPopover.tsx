@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import classnames from 'classnames'
 import { parseActionInstruction } from 'common/action'
 import React, { FC, useState } from 'react'
@@ -24,7 +25,8 @@ export const ActionPopover: FC<Props> = props => {
       const parameters = JSON.parse(actionInstruction.argsStr)
       callPreview = JSON.stringify(parameters, null, 2)
     } catch (err) {
-      console.error(err)
+      console.error('[ActionPopover] Error parsing instructions:', err)
+      callPreview = lang.tr('studio.flow.node.actionInstructionParsingError', { msg: err.message })
     }
   }
 
@@ -50,7 +52,7 @@ export const ActionPopover: FC<Props> = props => {
 
       <Overlay target={() => ReactDOM.findDOMNode(target)} placement="top" show={show}>
         <Popover id="popover-action" title={`⚡ ${actionName}`}>
-          Called with these arguments:
+          {lang.tr('studio.flow.node.actionArguments')}
           <pre>{callPreview}</pre>
         </Popover>
       </Overlay>
