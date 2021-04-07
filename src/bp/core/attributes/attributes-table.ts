@@ -7,10 +7,10 @@ export class AttributesTable extends Table {
     let created = false
 
     await this.knex.createTableIfNotExists(this.name, table => {
-      table.uuid('entityId')
+      table.uuid('entity')
       table.string('attribute')
       table.string('value')
-      table.primary(['entityId', 'attribute'])
+      table.primary(['entity', 'attribute'])
       created = true
     })
     return created
