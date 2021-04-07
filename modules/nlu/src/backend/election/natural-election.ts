@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { detectAmbiguity } from './ambiguous'
-import { NONE_INTENT } from './typings'
+import { NONE_INTENT, GLOBAL_CONTEXT } from './typings'
 
 export default function naturalElectionPipeline(input: sdk.IO.EventUnderstanding) {
   if (!input.predictions) {
@@ -24,7 +24,7 @@ function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstandin
     .entries()
     .map(([name, ctx]) => ({ ...ctx, name }))
     .maxBy(ctx => ctx.confidence) || {
-    name: 'global',
+    name: GLOBAL_CONTEXT,
     confidence: 1.0,
     oos: 0.0,
     intents: []
