@@ -7,7 +7,6 @@ import Extra from 'telegraf/extra'
 import { Clients } from './typings'
 
 const outgoingTypes = ['text', 'typing', 'image', 'login_prompt', 'carousel']
-const mappingScope = 'telegram-conversations'
 
 export const sendEvent = async (bp: typeof sdk, botId: string, ctx: ContextMessageUpdate, args: { type: string }) => {
   // NOTE: getUpdate and setWebhook dot not return the same context mapping
@@ -19,13 +18,13 @@ export const sendEvent = async (bp: typeof sdk, botId: string, ctx: ContextMessa
 
   let convoId: sdk.uuid
   if (chatId) {
-    convoId = await bp.experimental.mapping.forScope(mappingScope).getLocalId(chatId)
+    convoId = await bp.experimental.conversations.forBot(botId).getLocalId('telegram', chatId)
 
     if (!convoId) {
       const conversation = await bp.experimental.conversations.forBot(botId).create(userId)
       convoId = conversation.id
 
-      await bp.experimental.mapping.forScope(mappingScope).create(chatId, conversation.id)
+      await bp.experimental.conversations.forBot(botId).createMapping('telegram', conversation.id, chatId)
     }
   } else {
     const conversation = await bp.experimental.conversations.forBot(botId).recent(userId)
@@ -73,7 +72,8 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
     }
 
     const messageType = event.type === 'default' ? 'text' : event.type
-    const chatId = (await bp.experimental.mapping.forScope(mappingScope).getForeignId(event.threadId)) || event.target
+    const chatId =
+      (await bp.experimental.conversations.forBot(event.botId).getForeignId('telegram', event.threadId)) || event.target
 
     if (!_.includes(outgoingTypes, messageType)) {
       return next(new Error(`Unsupported event type: ${event.type}`))
