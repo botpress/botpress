@@ -49,20 +49,23 @@ const UploadWidget: FC<IUploadWidgetProps> = props => {
     setError(null)
   }
 
-  const { $subtype: subtype, type } = props.schema
-  if (type !== 'string' || subtype !== 'media') {
-    return null
-  }
+  const { $subtype: subtype, $filter: filter } = props.schema
 
   return (
     <AccessControl
       operation="write"
       resource="bot.media"
-      fallback={<em>{lang.tr('module.builtin.types.image.permissionDenied')}</em>}
+      fallback={<em>{lang.tr('module.builtin.types.permissionDenied')}</em>}
     >
       <Fragment>
         {((enterUrlManually && value) || !enterUrlManually) && (
-          <FormFields.Upload axios={axios.create({ baseURL: window.BOT_API_PATH })} onChange={onChange} value={value} />
+          <FormFields.Upload
+            axios={axios.create({ baseURL: window.BOT_API_PATH })}
+            onChange={onChange}
+            value={value}
+            type={subtype}
+            filter={filter}
+          />
         )}
 
         {enterUrlManually && !value && (
@@ -73,8 +76,8 @@ const UploadWidget: FC<IUploadWidgetProps> = props => {
           <div className={localStyle.fieldContainer}>
             <a className={localStyle.toggleLink} onClick={handleToggleManually}>
               {!enterUrlManually
-                ? lang.tr('module.builtin.types.image.enterUrlChoice')
-                : lang.tr('module.builtin.types.image.uploadFileChoice')}
+                ? lang.tr('module.builtin.types.enterUrlChoice')
+                : lang.tr('module.builtin.types.uploadFileChoice')}
             </a>
 
             {error && <p className={cn(style.fieldError, localStyle.fieldError)}>{error}</p>}

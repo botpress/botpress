@@ -97,7 +97,7 @@ export class StudioRouter extends CustomRouter {
     this.actionsRouter = new ActionsRouter(studioServices)
     this.flowsRouter = new FlowsRouter(studioServices)
     this.logsRouter = new LogsRouter(studioServices)
-    this.mediaRouter = new MediaRouter(studioServices, this.botpressConfig)
+    this.mediaRouter = new MediaRouter(studioServices)
     this.notificationsRouter = new NotificationsRouter(studioServices)
     this.topicsRouter = new TopicsRouter(studioServices)
   }

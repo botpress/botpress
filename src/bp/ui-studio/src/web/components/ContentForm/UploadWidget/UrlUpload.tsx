@@ -1,6 +1,6 @@
 import { Button, Intent, Position, Tooltip } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
-import React, { FC, Fragment, useReducer, useState } from 'react'
+import React, { FC, Fragment, useEffect, useReducer, useState } from 'react'
 import SmartInput from '~/components/SmartInput'
 import style from '~/views/FlowBuilder/sidePanelTopics/form/style.scss'
 
@@ -19,7 +19,7 @@ const UrlUpload: FC<IUrlUploadProps> = props => {
 
   const [url, setUrl] = useState(props.value)
 
-  React.useEffect(() => {
+  useEffect(() => {
     setUrl(value)
   }, [value])
 
@@ -44,14 +44,11 @@ const UrlUpload: FC<IUrlUploadProps> = props => {
 
   return (
     <div className={style.fieldWrapper}>
-      {value && isUrlOrRelativePath(value) && (
-        <DeletableImage value={value} onDelete={onDelete} />
-      )}
+      {value && isUrlOrRelativePath(value) && <DeletableImage value={value} onDelete={onDelete} />}
 
       {value && !isUrlOrRelativePath(value) && (
         <div className={localStyle.expressionWrapper}>
-          {lang.tr('module.builtin.types.image.infoInterpreted')} <span className={localStyle.italic}>{value}</span>
-
+          {lang.tr('module.builtin.types.infoInterpreted')} <span className={localStyle.italic}>{value}</span>
           <div className={localStyle.expressionWrapperActions}>
             <Tooltip content={lang.tr('delete')} position={Position.TOP}>
               <Button minimal small intent={Intent.DANGER} icon="trash" onClick={onDelete}></Button>
@@ -63,14 +60,9 @@ const UrlUpload: FC<IUrlUploadProps> = props => {
       {!value && (
         <Fragment>
           <div className={localStyle.flexContainer}>
-            <SmartInput
-              singleLine
-              className={style.textarea}
-              value={url}
-              onChange={handleUrlChange}
-            />
+            <SmartInput singleLine className={style.textarea} value={url} onChange={handleUrlChange} />
 
-            <Button intent={Intent.NONE} onClick={saveUrl} >
+            <Button intent={Intent.NONE} onClick={saveUrl}>
               {lang.tr('ok')}
             </Button>
           </div>

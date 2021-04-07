@@ -26,14 +26,15 @@ interface Props {
 }
 
 const CustomBaseInput = props => {
-  const { type, $subtype } = props.schema
+  const SUPPORTED_MEDIA_SUBTYPES = ['audio', 'image']
+  const { type, $subtype: subtype } = props.schema
 
   if (type === 'string') {
-    if ($subtype === 'ref') {
+    if (subtype === 'ref') {
       return <RefWidget key={props?.formContext?.customKey} {...props} />
-    } else if ($subtype === 'media') {
+    } else if (SUPPORTED_MEDIA_SUBTYPES.includes(subtype)) {
       return <UploadWidget key={props?.formContext?.customKey} {...props} />
-    } else if ($subtype === 'flow') {
+    } else if (subtype === 'flow') {
       return <FlowPickWidget key={props?.formContext?.customKey} {...props} />
     }
   }

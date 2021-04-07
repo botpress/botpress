@@ -76,16 +76,16 @@ const Upload: FC<UploadFieldProps> = props => {
       })
   }
 
-  const { value } = props
+  const { value, type, filter } = props
 
   return (
     <div className={sharedStyle.fieldWrapper}>
       {value && (
-        <div style={{ backgroundImage: `url('${value}')` }} className={sharedStyle.imgWrapper}>
+        <div style={{ backgroundImage: type === 'image' ? `url('${value}')` : '' }} className={sharedStyle.imgWrapper}>
           <div className={sharedStyle.imgWrapperActions}>
-            <ToolTip content={lang('deleteImage')}>
+            <ToolTip content={lang('deleteFile')}>
               <Button
-                className={style.deleteImg}
+                className={style.deleteFile}
                 minimal
                 small
                 intent={Intent.DANGER}
@@ -104,7 +104,7 @@ const Upload: FC<UploadFieldProps> = props => {
             inputProps={{
               id: 'node-image',
               name: 'nodeImage',
-              accept: 'image/*',
+              accept: filter || `${type || 'image'}/*`,
               onChange: startUpload
             }}
           />

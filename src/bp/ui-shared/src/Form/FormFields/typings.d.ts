@@ -63,4 +63,6 @@ export interface UploadFieldProps extends FieldProps {
   axios: any
   customPath?: string
   onChange?: (url: string | undefined) => void
+  type: 'image' | 'audio' | string
+  filter?: string
 }
