@@ -1,3 +1,4 @@
+import * as sdk from 'botpress/sdk'
 import { TYPES } from 'core/app/types'
 import Database from 'core/database'
 import { JobService } from 'core/distributed'
@@ -9,7 +10,7 @@ import ms from 'ms'
 @injectable()
 export class MappingRepository {
   private repos: { [botId: string]: ScopedMappingRepository } = {}
-  private invalidateMappingCache: (scope: string, foreign: string, local: string) => void = this
+  private invalidateMappingCache: (scope: string, local: sdk.uuid, foreign: string) => void = this
     ._localInvalidateMappingCache
 
   constructor(
@@ -27,57 +28,57 @@ export class MappingRepository {
   forScope(scope: string) {
     let repo = this.repos[scope]
     if (!repo) {
-      repo = new ScopedMappingRepository(scope, this.database, (foreign, local) =>
-        this.invalidateMappingCache(scope, foreign, local)
+      repo = new ScopedMappingRepository(scope, this.database, (local, foreign) =>
+        this.invalidateMappingCache(scope, local, foreign)
       )
       this.repos[scope] = repo
     }
     return repo
   }
 
-  private _localInvalidateMappingCache(scope: string, foreign: string, local: string) {
-    this.forScope(scope).localInvalidateCache(foreign, local)
+  private _localInvalidateMappingCache(scope: string, local: sdk.uuid, foreign: string) {
+    this.forScope(scope).localInvalidateCache(local, foreign)
   }
 }
 
 export class ScopedMappingRepository {
   private readonly TABLE_NAME = 'mapping'
 
-  private localCache: LRU<string, string>
-  private foreignCache: LRU<string, string>
+  private localCache: LRU<string, sdk.uuid>
+  private foreignCache: LRU<sdk.uuid, string>
 
   constructor(
     private scope: string,
     private database: Database,
-    private invalidateCache: (foreign: string, local: string) => void
+    private invalidateCache: (local: sdk.uuid, foreign: string) => void
   ) {
     this.localCache = new LRU({ max: 20000, maxAge: ms('5m') })
     this.foreignCache = new LRU({ max: 20000, maxAge: ms('5m') })
   }
 
-  public localInvalidateCache(foreign: string, local: string) {
+  public localInvalidateCache(local: sdk.uuid, foreign: string) {
     this.localCache.del(foreign)
     this.foreignCache.del(local)
   }
 
-  async create(foreign: string, local: string): Promise<void> {
-    await this.query().insert({ scope: this.scope, foreign, local })
+  async create(local: sdk.uuid, foreign: string): Promise<void> {
+    await this.query().insert({ scope: this.scope, local, foreign })
 
     this.localCache.set(foreign, local)
     this.foreignCache.set(local, foreign)
   }
 
-  async delete(foreign: string, local: string): Promise<boolean> {
+  async delete(local: sdk.uuid, foreign: string): Promise<boolean> {
     const deletedRows = await this.query()
-      .where({ scope: this.scope, foreign, local })
+      .where({ scope: this.scope, local, foreign })
       .del()
 
-    this.invalidateCache(foreign, local)
+    this.invalidateCache(local, foreign)
 
     return deletedRows > 0
   }
 
-  async getLocalId(foreign: string): Promise<string | undefined> {
+  async getLocalId(foreign: string): Promise<sdk.uuid | undefined> {
     const cached = this.localCache.get(foreign)
     if (cached) {
       return cached
@@ -93,7 +94,7 @@ export class ScopedMappingRepository {
     return local
   }
 
-  async getForeignId(local: string): Promise<string | undefined> {
+  async getForeignId(local: sdk.uuid): Promise<string | undefined> {
     const cached = this.foreignCache.get(local)
     if (cached) {
       return cached
