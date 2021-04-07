@@ -42,25 +42,24 @@ const initializeLanguageProvider = async (
   logger: Logger,
   seededLodashProvider: SeededLodashProvider
 ) => {
-  try {
-    const languageProvider = await LangProvider.initialize(
-      config.languageSources,
-      logger,
-      NLU_VERSION,
-      seededLodashProvider
-    )
-    const getHealth = healthGetter(languageProvider)
-    await languageProvider.waitUntilReady()
-    return { languageProvider, health: getHealth() }
-  } catch (e) {
-    if (e.failure && e.failure.code === 'ECONNREFUSED') {
-      logger.error(`Language server can't be reached at address ${e.failure.address}:${e.failure.port}`)
-      if (!process.IS_FAILSAFE) {
-        process.exit()
-      }
-    }
-    throw e
-  }
+  // try {
+  const languageProvider = await LangProvider.initialize(
+    config.languageSources,
+    logger,
+    NLU_VERSION,
+    seededLodashProvider
+  )
+  const getHealth = healthGetter(languageProvider)
+  return { languageProvider, health: getHealth() }
+  // } catch (e) {
+  //   // if (e.failure && e.failure.code === 'ECONNREFUSED') {
+  //   //   logger.error(`Language server can't be reached at address ${e.failure.address}:${e.failure.port}`)
+  //   //   if (!process.IS_FAILSAFE) {
+  //   //     process.exit()
+  //   //   }
+  //   // }
+  //   throw e
+  // }
 }
 
 const makeSystemEntityExtractor = async (config: LanguageConfig, logger: Logger): Promise<SystemEntityExtractor> => {

@@ -25,6 +25,7 @@ const ignoreEvent = (bp: typeof sdk, state: NLUState, event: sdk.IO.IncomingEven
   return (
     !state.nluByBot[event.botId] ||
     !health.isEnabled ||
+    !health.isReady ||
     !event.preview ||
     EVENTS_TO_IGNORE.includes(event.type) ||
     event.hasFlag(bp.IO.WellKnownFlags.SKIP_NATIVE_NLU)
@@ -129,7 +130,6 @@ export function getOnSeverStarted(state: NLUState) {
       modelCacheSize: bytes(modelCacheSize)
     }
     state.engine = await NLUEngine.makeEngine(parsedConfig, logger)
-
     await registerMiddleware(bp, state)
   }
 }

@@ -285,6 +285,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
   private _connections: { [endpoint: string]: ServerConnection } = {}
   private _nluVersion!: string
   private _langServerInfo!: LangServerInfo
+  private _cacheInitialized: boolean = false
 
   private _seededLodashProvider!: SeededLodashProvider
 
@@ -313,8 +314,6 @@ export class RemoteLanguageProvider implements LanguageProvider {
       .map(s => new ServerConnection(s))
       .reduce((conns, conn: ServerConnection) => ({ ...conns, [conn.endpoint]: conn }), {})
 
-    let cacheInitialized = false
-
     await Promise.mapSeries(Object.entries(this._connections), async ([endpoint, conn]) => {
       conn.on('error', async err => {
         const status = _.get(err, 'failure.response.status')
@@ -332,18 +331,8 @@ export class RemoteLanguageProvider implements LanguageProvider {
 
         this._connections[endpoint].connect()
       })
-      conn.once('ready', async () => {
-        if (!cacheInitialized) {
-          const versionHash = this.computeVersionHash()
-          const caches = await createCaches(path.join(process.APP_DATA_PATH, 'cache'), versionHash)
 
-          this._vectorsCache = caches.vectors
-          this._tokensCache = caches.tokens
-          this._junkwordsCache = caches.junkwords
-          cacheInitialized = true
-        }
-      })
-      conn.once('ready', (info: LangServerInfo, data: any) => {
+      conn.once('ready', async (info: LangServerInfo, data: any) => {
         const numIncompatible = Object.values(this._connections)
           .map(c => c.isCompatibleWith(conn))
           .filter(compatible => typeof compatible !== 'undefined' && !compatible).length
@@ -356,17 +345,17 @@ export class RemoteLanguageProvider implements LanguageProvider {
         data.languages.forEach(x => this.addProvider(x.lang, conn.source, conn.client))
 
         const readyCount = Object.values(this._connections).filter(s => s.ready).length
-        if (readyCount < 1) {
+
+        if (readyCount <= 1) {
           this._langServerInfo = info
+          await this._initCache()
         }
       })
-
       conn.connect()
     })
 
     return this as LanguageProvider
   }
-
   public waitUntilReady(): Promise<void> {
     return new Promise(resolve => {
       if (this.ready) {
@@ -380,6 +369,17 @@ export class RemoteLanguageProvider implements LanguageProvider {
         })
       )
     })
+  }
+
+  private async _initCache(): Promise<void> {
+    if (!this._cacheInitialized) {
+      const caches = await createCaches(path.join(process.APP_DATA_PATH, 'cache'), this.computeVersionHash())
+
+      this._vectorsCache = caches.vectors
+      this._tokensCache = caches.tokens
+      this._junkwordsCache = caches.junkwords
+      this._cacheInitialized = true
+    }
   }
 
   public get ready() {
