@@ -40,7 +40,6 @@ export interface MigrationEntry {
   details: string | string[]
   created_at: any
 }
-
 @injectable()
 export class MigrationService {
   /** This is the version we want to migrate to (either up or down) */
@@ -278,7 +277,7 @@ ${_.repeat(' ', 9)}========================================`)
   }
 
   public getAllMigrations(): MigrationFile[] {
-    const coreMigrations = this._getMigrations(path.join(__dirname, '../../../migrations'))
+    const coreMigrations = this._getMigrations(path.join(__dirname, '../../migrations'), true)
     const moduleMigrations = _.flatMap(Object.keys(process.LOADED_MODULES), module =>
       this._getMigrations(path.join(process.LOADED_MODULES[module], 'dist/migrations'))
     )
@@ -304,7 +303,11 @@ ${_.repeat(' ', 9)}========================================`)
     return query?.server_version || this.configVersion
   }
 
-  private _getMigrations(rootPath: string): MigrationFile[] {
+  private _getMigrations(rootPath: string, assertExists = false): MigrationFile[] {
+    if (assertExists && !fse.existsSync(rootPath)) {
+      throw new Error(`The migration directory '${rootPath}' does not exists`)
+    }
+
     return _.orderBy(
       glob.sync('**/*.js', { cwd: rootPath }).map(filepath => {
         const [rawVersion, timestamp, title] = path.basename(filepath).split('-')
@@ -322,7 +325,7 @@ ${_.repeat(' ', 9)}========================================`)
 
   public filterMigrations = (
     files: MigrationFile[],
-    currentVersion,
+    currentVersion: string,
     { isDown, type, target }: { isDown?: boolean; type?: MigrationType; target?: MigrationTarget } = {
       isDown: false,
       type: undefined,

@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import { AttributesRepository } from 'core/attributes/attributes-repository'
 import { JobService } from 'core/distributed'
 import { ConversationRepository } from 'core/messaging'
 import { TYPES } from 'core/types'
@@ -15,7 +16,8 @@ export class ConversationService {
 
   constructor(
     @inject(TYPES.JobService) private jobService: JobService,
-    @inject(TYPES.ConversationRepository) private conversationRepo: ConversationRepository
+    @inject(TYPES.ConversationRepository) private conversationRepo: ConversationRepository,
+    @inject(TYPES.AttributesRepository) private attributesRepo: AttributesRepository
   ) {}
 
   @postConstruct()
@@ -32,8 +34,11 @@ export class ConversationService {
   public forBot(botId: string): ScopedConversationService {
     let scope = this.scopes[botId]
     if (!scope) {
-      scope = new ScopedConversationService(botId, this.conversationRepo, (userId, mostRecentConvoId) =>
-        this.invalidateMostRecent(botId, userId, mostRecentConvoId)
+      scope = new ScopedConversationService(
+        botId,
+        this.conversationRepo,
+        this.attributesRepo,
+        (userId, mostRecentConvoId) => this.invalidateMostRecent(botId, userId, mostRecentConvoId)
       )
       this.scopes[botId] = scope
     }
@@ -47,6 +52,7 @@ export class ScopedConversationService implements sdk.experimental.conversations
   constructor(
     private botId: string,
     private conversationRepo: ConversationRepository,
+    private attributesRepo: AttributesRepository,
     public invalidateMostRecent: (userId: string, mostRecentConvoId?: sdk.uuid) => void
   ) {
     this.mostRecentCache = new LRU<string, sdk.Conversation>({ max: 10000, maxAge: ms('5min') })
@@ -109,5 +115,17 @@ export class ScopedConversationService implements sdk.experimental.conversations
         this.mostRecentCache.del(userId)
       }
     }
+  }
+
+  public async setAttribute(id: sdk.uuid, name: string, value: string) {
+    await this.attributesRepo.forAttribute(name).set(id, value)
+  }
+
+  public async deleteAttribute(id: sdk.uuid, name: string): Promise<boolean> {
+    return this.attributesRepo.forAttribute(name).delete(id)
+  }
+
+  public async getAttribute(id: sdk.uuid, name: string): Promise<string | undefined> {
+    return this.attributesRepo.forAttribute(name).get(id)
   }
 }
