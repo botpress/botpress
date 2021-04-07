@@ -333,74 +333,74 @@
       "roles": {
         "default": {
           "administrator": {
-            "description": "Administrators have full access to the workspace including adding members, creating bots and synchronizing changes.",
-            "name": "Administrator"
+            "description": "Os administradores têm acesso total ao espaço de trabalho, incluindo a adição de membros, a criação de robôs e a sincronização de alterações.",
+            "name": "Administrador"
           },
           "contentEditor": {
-            "description": "Content Editors have read/write access to content and NLU, and read-only access to flows and actions.",
-            "name": "Content Editor"
+            "description": "Editores de conteúdo têm acesso de leitura/gravação ao conteúdo e NLU e acesso somente leitura a fluxos e ações.",
+            "name": "Editor de conteúdo"
           },
           "developer": {
-            "description": "Developers have full read/write access to bots, including flows, content, NLU and actions",
-            "name": "Developer"
+            "description": "Os desenvolvedores têm acesso total de leitura/gravação aos robôs, incluindo fluxos, conteúdo, NLU e ações",
+            "name": "Desenvolvedor"
           },
           "agent": {
-            "description": "Agents handle HITL",
-            "name": "Agent"
+            "description": "Agentes lidam com HITL",
+            "name": "Agente"
           }
         },
-        "helpText": "To change roles, please see “roles” in the workspaces.json file.",
-        "title": "Roles"
+        "helpText": "Para alterar as funções, consulte “funções” no arquivo workspaces.json.",
+        "title": "Funções"
       },
       "users": {
-        "addChatUser": "Add chat user",
-        "chatUsers": "Chat Users",
-        "chatUsersHelp": "Chat users are only allowed to talk with bots. They can see a list of all the bots in the workspace",
+        "addChatUser": "Adicionar usuário de bate-papo",
+        "chatUsers": "Usuários de bate-papo",
+        "chatUsersHelp": "Usuários de chat só podem falar com robôs. Eles podem ver uma lista de todos os bots no espaço de trabalho",
         "collaborators": {
-          "accountCreated": "Account Created",
-          "accountReady": "Your botpress account is ready!",
-          "action": "Action",
-          "add": "Add collaborator",
-          "addToWorkspace": "Add to workspace",
-          "authStrategy": "Authentication Strategy",
-          "changeRole": "Change Role",
-          "chooseRole": "Choose a role for that user",
-          "collaborators": "Collaborators",
-          "copiedToClipboard": "Copied to clipboard",
-          "copyMessageToClipboard": "Copy message to clipboard",
-          "copyPasswordToClipboard": "Copy password to clipboard",
-          "createAccount": "Create account",
-          "created": "Created",
-          "deleteAccountConfirm": "Are you sure you want to delete {user}'s account?",
-          "deleteAccountFail": "Could not delete user: {msg}",
-          "deleteAccountSuccess": "User {user} was deleted successfully",
-          "filterUsers": "Filter users",
-          "help": "Create, delete users or update their role.",
-          "inviteExistingUser": "Invite an existing user, or type his e-mail address and press Enter",
-          "lastLogin": "Last Login",
-          "noCollaboratorsYet": "This workspace has no collaborators, yet",
-          "noMatch": "No user matches your query",
-          "passwordBeenReset": "Your password has been reset.",
-          "passwordReset": "Password Reset",
-          "passwordResetConfirm": "Are you sure you want to reset {user}'s password?",
-          "passwordResetFail": "Could not reset password: {msg}",
-          "passwordResetSuccess": "Password reset successful",
-          "removeConfirm": "Are you sure you want to remove {user} from this workspace?",
-          "removeFail": "Could not remove user from workspace: {msg}",
-          "removeFromWorkspace": "Remove from workspace",
-          "removeSucess": "User {user} was removed from workspace successfully",
-          "resetPassword": "Reset Password",
-          "roleUpdateFail": "Could not update role: {msg}",
-          "roleUpdateSuccess": "Role updated successfully",
+          "accountCreated": "Conta Criada",
+          "accountReady": "Sua conta do botpress está pronta!",
+          "action": "Ação",
+          "add": "Adicionar colaborador",
+          "addToWorkspace": "Adicionar ao espaço de trabalho",
+          "authStrategy": "Estratégia de autenticação",
+          "changeRole": "Alterar função",
+          "chooseRole": "Escolha uma função para esse usuário",
+          "collaborators": "Colaboradores",
+          "copiedToClipboard": "Copiado para a área de transferência",
+          "copyMessageToClipboard": "Copiar mensagem para a área de transferência",
+          "copyPasswordToClipboard": "Copiar senha para a área de transferência",
+          "createAccount": "Criar conta",
+          "created": "Criado",
+          "deleteAccountConfirm": "Tem certeza de que deseja excluir a conta {user}?",
+          "deleteAccountFail": "Não foi possível excluir o usuário: {msg}",
+          "deleteAccountSuccess": "O usuário {user} foi excluído com sucesso",
+          "filterUsers": "Filtrar usuários",
+          "help": "Cria, apaga usuários ou atualiza sua função.",
+          "inviteExistingUser": "Convide um usuário existente, ou digite seu endereço de e-mail e pressione Enter",
+          "lastLogin": "Último login",
+          "noCollaboratorsYet": "Este espaço de trabalho ainda não tem colaboradores",
+          "noMatch": "Nenhum usuário corresponde à sua consulta",
+          "passwordBeenReset": "Sua senha foi redefinida.",
+          "passwordReset": "Redefinição de senha",
+          "passwordResetConfirm": "Tem certeza de que deseja redefinir a senha de {user}?",
+          "passwordResetFail": "Não foi possível redefinir a senha: {msg}",
+          "passwordResetSuccess": "Redefinição de senha bem-sucedida",
+          "removeConfirm": "Tem certeza de que deseja remover {user} deste espaço de trabalho?",
+          "removeFail": "Não foi possível remover o usuário do espaço de trabalho: {msg}",
+          "removeFromWorkspace": "Remover da área de trabalho",
+          "removeSucess": "O usuário {user} foi removido do espaço de trabalho com sucesso",
+          "resetPassword": "Redefinir senha",
+          "roleUpdateFail": "Não foi possível atualizar a função: {msg}",
+          "roleUpdateSuccess": "Função atualizada com sucesso",
           "showEmail": "Email: {email}",
-          "showPassword": "Password: {password}",
-          "signInHere": "Sign-in here: {link}"
+          "showPassword": "Senha: {password}",
+          "signInHere": "Faça o login aqui: {link}"
         },
-        "configureRollout": "Configure Rollout",
-        "currentStrategy": "Current Strategy",
-        "inviteCode": "Invite Code",
-        "unlimitedUsage": "unlimited usage",
-        "usageLeft": "{allowedUsages} usage left"
+        "configureRollout": "Configurar o lançamento",
+        "currentStrategy": "Estratégia Atual",
+        "inviteCode": "Código de convite",
+        "unlimitedUsage": "uso ilimitado",
+        "usageLeft": "{allowedUsages} uso restante"
       }
     },
     "workspaceName": "Área de trabalho: {name}"
