@@ -94,7 +94,8 @@ const TYPES = {
   ConversationRepository: Symbol.for('ConversationRepository'),
   MessageService: Symbol.for('MessageService'),
   ConversationService: Symbol.for('ConversationService'),
-  RenderService: Symbol.for('RenderService')
+  RenderService: Symbol.for('RenderService'),
+  MappingRepository: Symbol.for('MappingRepository')
 }
 
 export { TYPES }

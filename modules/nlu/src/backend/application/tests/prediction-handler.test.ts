@@ -47,7 +47,7 @@ function makeEngineMock(loadedLanguages: string[]): NLUEngine.Engine {
     },
 
     loadModel: async (m: NLUEngine.Model) => {
-      loadedModels.push(m)
+      loadedModels.push(m.id)
     },
 
     detectLanguage: async (textInput: string) => {
@@ -81,13 +81,10 @@ function makeModelRepoMock(langsOnFs: string[]): IModelRepository {
     const { languageCode } = modelId
     if (langsOnFs.includes(languageCode)) {
       return <NLUEngine.Model>{
+        id: { languageCode, seed: 42, contentHash: '', specificationHash: '' },
         startedAt: new Date(),
         finishedAt: new Date(),
         hash: languageCode,
-        languageCode,
-        contentHash: '',
-        specificationHash: '',
-        seed: 42,
         data: {
           input: '',
           output: ''

@@ -1,6 +1,7 @@
 import { BotpressConfig } from 'core/config'
 import { fileUploadMulter } from 'core/routers'
 import _ from 'lodash'
+import path from 'path'
 import { StudioServices } from 'studio/studio-router'
 import { CustomStudioRouter } from 'studio/utils/custom-studio-router'
 
@@ -14,6 +15,27 @@ class MediaRouter extends CustomStudioRouter {
 
   setupRoutes() {
     const router = this.router
+
+    router.get(
+      '/:filename',
+      this.asyncMiddleware(async (req, res) => {
+        const botId = req.params.botId
+        const type = path.extname(req.params.filename)
+
+        const mediaService = this.mediaServiceProvider.forBot(botId)
+        const contents = await mediaService.readFile(req.params.filename).catch(() => undefined)
+        if (!contents) {
+          return res.sendStatus(404)
+        }
+
+        // files are never overwritten because of the unique ID
+        // so we can set the header to cache the asset for 1 year
+        return res
+          .set({ 'Cache-Control': 'max-age=31556926' })
+          .type(type)
+          .send(contents)
+      })
+    )
 
     const mediaUploadMulter = fileUploadMulter(
       ['image/jpeg', 'image/png', 'image/gif'],
@@ -50,6 +72,7 @@ class MediaRouter extends CustomStudioRouter {
     router.post(
       '/delete',
       this.checkTokenHeader,
+
       this.needPermissions('write', 'bot.media'),
       this.asyncMiddleware(async (req, res) => {
         const email = req.tokenUser!.email

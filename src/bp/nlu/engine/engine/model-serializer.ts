@@ -11,15 +11,12 @@ export type PredictableModel = Omit<Model, 'data'> & {
 }
 
 export function serializeModel(model: PredictableModel): Model {
-  const { specificationHash, contentHash, languageCode: lang, startedAt, finishedAt, data, seed } = model
+  const { id, startedAt, finishedAt, data } = model
 
   const serialized: Model = {
-    specificationHash,
-    contentHash,
-    languageCode: lang,
+    id,
     startedAt,
     finishedAt,
-    seed,
     data: {
       input: '',
       output: ''
@@ -33,15 +30,12 @@ export function serializeModel(model: PredictableModel): Model {
 }
 
 export function deserializeModel(serialized: Model): PredictableModel {
-  const { specificationHash, contentHash, languageCode, startedAt, finishedAt, data, seed } = serialized
+  const { id, startedAt, finishedAt, data } = serialized
 
   const model: PredictableModel = {
-    specificationHash,
-    contentHash,
-    languageCode,
+    id,
     startedAt,
     finishedAt,
-    seed,
     data: {
       input: JSON.parse(data.input),
       output: JSON.parse(data.output)

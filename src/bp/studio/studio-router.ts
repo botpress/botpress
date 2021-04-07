@@ -119,7 +119,7 @@ export class StudioRouter extends CustomRouter {
     this.router.use('/cms', this.checkTokenHeader, this.cmsRouter.router)
     this.router.use('/flows', this.checkTokenHeader, this.flowsRouter.router)
     this.router.use('/logs', this.checkTokenHeader, this.logsRouter.router)
-    this.router.use('/media', this.checkTokenHeader, this.mediaRouter.router)
+    this.router.use('/media', this.mediaRouter.router)
     this.router.use('/notifications', this.checkTokenHeader, this.notificationsRouter.router)
     this.router.use('/topics', this.checkTokenHeader, this.topicsRouter.router)
 

@@ -113,7 +113,7 @@ export class ScopedModelRepository {
 
   public async saveModel(model: NLU.Model): Promise<void | void[]> {
     const serialized = JSON.stringify(model)
-    const modelName = this._makeFileName(this._modelIdService.toString(model))
+    const modelName = this._makeFileName(this._modelIdService.toString(model.id))
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
     const tmpFileName = path.join(tmpDir.name, 'model')
     await fse.writeFile(tmpFileName, serialized)
