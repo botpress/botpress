@@ -1,7 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { container } from 'core/app/inversify/app.inversify'
 import { TYPES } from 'core/app/types'
-import { AttributesRepository } from 'core/attributes/attributes-repository'
 import { BotService } from 'core/bots'
 import { GhostService } from 'core/bpfs'
 import { CMSService, renderRecursive, RenderService } from 'core/cms'
@@ -306,8 +305,7 @@ export class BotpressAPIProvider {
     @inject(TYPES.ConversationService) conversationService: ConversationService,
     @inject(TYPES.MessageService) messageService: MessageService,
     @inject(TYPES.RenderService) renderService: RenderService,
-    @inject(TYPES.MappingRepository) mappingRepo: MappingRepository,
-    @inject(TYPES.AttributesRepository) attributesRepo: AttributesRepository
+    @inject(TYPES.MappingRepository) mappingRepo: MappingRepository
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
