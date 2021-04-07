@@ -2449,6 +2449,10 @@ declare module 'botpress/sdk' {
          * const conversation = await bp.conversations.forBot('myBot').recent('eEFoneif394')
          */
         recent(userId: uuid): Promise<Conversation>
+
+        setAttribute(id: uuid, name: string, value: string | undefined): Promise<void>
+
+        getAttribute(id: uuid, name: string): Promise<string | undefined>
       }
     }
 
@@ -2712,17 +2716,6 @@ declare module 'botpress/sdk' {
          */
         delete(foreignId: string, localId: string): Promise<boolean>
       }
-    }
-
-    export namespace attributes {
-      export function set(entity: uuid, attribute: string, value: string): Promise<void>
-
-      export function get(entity: uuid, attribute: string): Promise<string>
-
-      export function remove(entity: uuid, attribute: string): Promise<boolean>
-
-      // todo
-      // export function list(entity: uuid, attribute: string): Promise<{ [attribute: string]: string }>
     }
   }
 }

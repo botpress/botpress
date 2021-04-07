@@ -110,4 +110,10 @@ export class ScopedConversationService implements sdk.experimental.conversations
       }
     }
   }
+
+  public async setAttribute(id: sdk.uuid, name: string, value: string | undefined) {}
+
+  public async getAttribute(id: sdk.uuid, name: string): Promise<string | undefined> {
+    return 'yoyo'
+  }
 }
