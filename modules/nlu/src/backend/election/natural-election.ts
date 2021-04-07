@@ -23,14 +23,14 @@ function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstandin
     .pickBy((_p, ctx) => input.includedContexts.includes(ctx))
     .entries()
     .map(([name, ctx]) => ({ ...ctx, name }))
-    .maxBy(ctx => ctx.confidence)! || {
+    .maxBy(ctx => ctx.confidence) || {
     name: 'global',
     confidence: 1.0,
     oos: 0.0,
     intents: []
   }
 
-  const noneIntent = { label: NONE_INTENT, confidence: mostConfidentCtx?.oos || 1.0, slots: {}, extractor: '' }
+  const noneIntent = { label: NONE_INTENT, confidence: mostConfidentCtx.oos, slots: {}, extractor: '' }
 
   const topTwo: sdk.NLU.Intent[] = _([...mostConfidentCtx.intents, noneIntent])
     .orderBy(i => i.confidence, 'desc')
