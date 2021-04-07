@@ -148,6 +148,8 @@
         "actionToExecute": "Action to execute",
         "actionToRun": "Action to run {help}",
         "actionsRegisteredOnServer": "Actions are registered on the server-side. Read about how to register new actions by searching for `bp.registerActions()`.",
+        "actionInstructionParsingError": "Error while parsing instructions: {msg}",
+        "actionArguments": "Called with these arguments:",
         "add": "add",
         "addAction": "Add new action",
         "cantSeeActions": "Can't see your action?",
