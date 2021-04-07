@@ -1155,6 +1155,11 @@ declare module 'botpress/sdk' {
      * @default 360
      */
     maxMessageLength: number
+    /**
+     * Number of milliseconds that the converse API will wait to buffer responses
+     * @default 250
+     */
+    bufferDelayMs: number
   }
 
   /**
