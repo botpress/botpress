@@ -1,7 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import { TYPES } from 'core/app/types'
 import Database from 'core/database'
-import { inject, injectable } from 'inversify'
+import { JobService } from 'core/distributed'
+import { inject, injectable, postConstruct } from 'inversify'
 import LRUCache from 'lru-cache'
 import ms from 'ms'
 
@@ -9,9 +10,27 @@ import ms from 'ms'
 export class AttributesRepository {
   private readonly TABLE_NAME = 'attributes'
   private cache: LRUCache<sdk.uuid, string>
+  private invalidateAttributeCache: (entityId: sdk.uuid, attribute: string, value: string | undefined) => void = this
+    ._localInvalidateAttributeCache
 
-  constructor(@inject(TYPES.Database) private database: Database) {
+  constructor(
+    @inject(TYPES.Database) private database: Database,
+    @inject(TYPES.JobService) private jobService: JobService
+  ) {
     this.cache = new LRUCache({ max: 50000, maxAge: ms('20m') })
+  }
+
+  @postConstruct()
+  async init() {
+    this.invalidateAttributeCache = <any>(
+      await this.jobService.broadcast<void>(this._localInvalidateAttributeCache.bind(this))
+    )
+  }
+
+  private _localInvalidateAttributeCache(entityId: sdk.uuid, attribute: string, value: string | undefined) {
+    const cached = this.cache.get(entityId)
+    if (cached) {
+    }
   }
 
   async set(entityId: sdk.uuid, attribute: string, value: string): Promise<void> {
@@ -24,7 +43,7 @@ export class AttributesRepository {
         .where({ entityId, attribute })
         .update({ value })
 
-      // TODO invalidate cache
+      this.invalidateAttributeCache(entityId, attribute, value)
     }
   }
 
@@ -33,7 +52,7 @@ export class AttributesRepository {
       .where({ entityId, attribute })
       .del()
 
-    // TODO invalidate cache
+    this.invalidateAttributeCache(entityId, attribute, undefined)
 
     return deletedRows > 0
   }
