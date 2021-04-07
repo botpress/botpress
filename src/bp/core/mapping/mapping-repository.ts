@@ -40,7 +40,7 @@ export class MappingRepository {
   }
 }
 
-class ScopedMappingRepository {
+export class ScopedMappingRepository {
   private readonly TABLE_NAME = 'mapping'
 
   private localCache: LRU<string, string>
