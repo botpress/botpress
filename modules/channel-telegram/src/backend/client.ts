@@ -90,50 +90,12 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
     if (handled) {
     } else if (messageType === 'typing') {
       await sendTyping(event, client, chatId)
-    } else if (messageType === 'image') {
-      await sendImage(event, client, chatId)
-    } else if (messageType === 'carousel') {
-      await sendCarousel(event, client, chatId)
     } else {
       // TODO We don't support sending files, location requests (and probably more) yet
       throw new Error(`Message type "${messageType}" not implemented yet`)
     }
 
     next(undefined, false)
-  }
-}
-
-async function sendCarousel(event: sdk.IO.Event, client: Telegraf<ContextMessageUpdate>, chatId: string) {
-  if (event.payload.elements && event.payload.elements.length) {
-    const { title, picture, subtitle } = event.payload.elements[0]
-    const buttons = event.payload.elements.map(x => x.buttons)
-    if (picture) {
-      await client.telegram.sendChatAction(chatId, 'upload_photo')
-      await client.telegram.sendPhoto(chatId, { url: picture, filename: path.basename(picture) })
-    }
-    const keyboard = keyboardButtons<CallbackButton>(buttons)
-    await client.telegram.sendMessage(
-      chatId,
-      `*${title}*\n${subtitle}`,
-      Extra.markdown(true).markup(Markup.inlineKeyboard(keyboard))
-    )
-  }
-}
-
-async function sendImage(event: sdk.IO.Event, client: Telegraf<ContextMessageUpdate>, chatId: string) {
-  const keyboard = Markup.keyboard(keyboardButtons<Button>(event.payload.quick_replies))
-  if (event.payload.url.toLowerCase().endsWith('.gif')) {
-    await client.telegram.sendAnimation(
-      chatId,
-      event.payload.url,
-      Extra.markdown(false).markup({ ...keyboard, one_time_keyboard: true })
-    )
-  } else {
-    await client.telegram.sendPhoto(
-      chatId,
-      event.payload.url,
-      Extra.markdown(false).markup({ ...keyboard, one_time_keyboard: true })
-    )
   }
 }
 

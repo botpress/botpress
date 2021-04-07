@@ -1,8 +1,9 @@
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import Telegraf from 'telegraf'
-
 import { Config } from '../config'
+import { TelegramCarouselRenderer } from '../renderers/carousel'
+import { TelegramImageRenderer } from '../renderers/image'
 import { TelegramTextRenderer } from '../renderers/text'
 
 import { setupBot, setupMiddleware } from './client'
@@ -90,7 +91,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotMount,
   onBotUnmount,
   onModuleUnmount,
-  renderers: [TelegramTextRenderer],
+  renderers: [TelegramTextRenderer, TelegramImageRenderer, TelegramCarouselRenderer],
   definition: {
     name: 'channel-telegram',
     menuIcon: 'none', // no interface = true
