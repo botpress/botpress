@@ -77,7 +77,7 @@ export class ScopedAttributesRepository {
     }
   }
 
-  async remove(entity: sdk.uuid): Promise<boolean> {
+  async delete(entity: sdk.uuid): Promise<boolean> {
     const deletedRows = await this.query()
       .where({ entity, attribute: this.attribute })
       .del()

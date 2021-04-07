@@ -117,12 +117,12 @@ export class ScopedConversationService implements sdk.experimental.conversations
     }
   }
 
-  public async setAttribute(id: sdk.uuid, name: string, value: string | undefined) {
-    if (value) {
-      await this.attributesRepo.forAttribute(name).set(id, value)
-    } else {
-      await this.attributesRepo.forAttribute(name).remove(id)
-    }
+  public async setAttribute(id: sdk.uuid, name: string, value: string) {
+    await this.attributesRepo.forAttribute(name).set(id, value)
+  }
+
+  public async deleteAttribute(id: sdk.uuid, name: string): Promise<boolean> {
+    return this.attributesRepo.forAttribute(name).delete(id)
   }
 
   public async getAttribute(id: sdk.uuid, name: string): Promise<string | undefined> {

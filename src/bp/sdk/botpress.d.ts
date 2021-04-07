@@ -2450,7 +2450,9 @@ declare module 'botpress/sdk' {
          */
         recent(userId: uuid): Promise<Conversation>
 
-        setAttribute(id: uuid, name: string, value: string | undefined): Promise<void>
+        setAttribute(id: uuid, name: string, value: string): Promise<void>
+
+        deleteAttribute(id: uuid, name: string): Promise<boolean>
 
         getAttribute(id: uuid, name: string): Promise<string | undefined>
       }
