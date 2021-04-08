@@ -125,7 +125,7 @@ export class TwilioClient {
 
     await this.bp.experimental.messages
       .forBot(this.botId)
-      .create(event.threadId, payload, 'bot', event.id, event.incomingEventId)
+      .create(event.threadId, payload, undefined, event.id, event.incomingEventId)
 
     next(undefined, false)
   }
