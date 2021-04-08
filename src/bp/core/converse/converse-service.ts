@@ -178,9 +178,9 @@ export class ConverseService {
     this._responseMap[userKey].responses!.push(event.payload)
 
     if (event.type !== 'typing' && event.type !== 'data') {
-      await this.messageService
+      void this.messageService
         .forBot(event.botId)
-        .create(event.threadId!, event.payload, 'bot', event.id, event.incomingEventId)
+        .create(event.threadId!, event.payload, undefined, event.id, event.incomingEventId)
     }
   }
 
