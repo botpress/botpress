@@ -74,12 +74,16 @@ export default class Engine implements Engine {
     return this._tools.getSpecifications()
   }
 
+  public async waitUntilReady(): Promise<void> {
+    return this._tools.waitUntilReady()
+  }
+
   public async initialize(config: LanguageConfig, logger: Logger): Promise<void> {
     this._tools = await initializeTools(config, logger)
-    const { nluVersion, languageServer } = this._tools.getSpecifications()
-    if (!_.isString(nluVersion) || !this._dictionnaryIsFilled(languageServer)) {
-      logger.warning('Either the nlu version or the lang server version is not set correctly.')
-    }
+    // const { nluVersion, languageServer } = this._tools.getSpecifications()
+    // if (!_.isString(nluVersion) || !this._dictionnaryIsFilled(languageServer)) {
+    //   logger.warning('Either the nlu version or the lang server version is not set correctly.')
+    // }
 
     this._trainingWorkerQueue = new TrainingWorkerQueue(config, logger)
   }

@@ -103,6 +103,7 @@ export async function initializeTools(config: LanguageConfig, logger: Logger): P
     getHealth: healthGetter(languageProvider),
     getLanguages: () => languageProvider.languages,
     getSpecifications: versionGetter(languageProvider),
+    waitUntilReady: languageProvider.waitUntilReady,
     seededLodashProvider,
     mlToolkit: MLToolkit,
     systemEntityExtractor: await makeSystemEntityExtractor(config, logger)

@@ -94,6 +94,10 @@ export const makeFakeTools = (dim: number, languages: string[]): Tools => {
     KMeans: fakeKmeans
   }
 
+  const waitUntilReady = async (): Promise<void> => {
+    return
+  }
+
   return {
     tokenize_utterances,
     vectorize_tokens,
@@ -101,6 +105,7 @@ export const makeFakeTools = (dim: number, languages: string[]): Tools => {
     generateSimilarJunkWords,
     getStopWordsForLang,
     getHealth,
+    waitUntilReady,
     getLanguages,
     getSpecifications,
     seededLodashProvider: fakeSeededLodash,

@@ -5,7 +5,7 @@ import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
-import { makeApi } from '../../api'
+import { makeApi, NLUApi } from '../../api'
 
 import { EntityEditor } from './entities/EntityEditor'
 import { EntitySidePanelSection } from './entities/SidePanelSection'
@@ -27,11 +27,29 @@ interface Props {
 const ITEM_TYPE_PARAM = 'type'
 const ITEM_NAME_PARAM = 'id'
 
+const useModuleReadiness = (api: NLUApi, interval: number = 1000) => {
+  const [isReady, setReady] = useState(false)
+  useEffect(() => {
+    const handle = setInterval(async () => {
+      const health = await api.fetchHealth()
+      if (health.isReady) {
+        clearInterval(handle)
+        setReady(true)
+      }
+    }, interval)
+
+    return () => clearInterval(handle)
+  }, [setReady])
+
+  return isReady
+}
+
 const NLU: FC<Props> = props => {
   const api = makeApi(props.bp)
   const [currentItem, setCurrentItem] = useState<NluItem | undefined>()
   const [intents, setIntents] = useState([])
   const [entities, setEntities] = useState([])
+  const moduleReady = useModuleReadiness(api)
 
   const loadIntents = () =>
     api
@@ -118,7 +136,13 @@ const NLU: FC<Props> = props => {
       reloadIntents={loadIntents}
     />
   )
-
+  if (!moduleReady) {
+    return (
+      <Container>
+        <h1>MODULE NOT READY YET</h1>
+      </Container>
+    )
+  }
   return (
     <Container>
       <SidePanel>

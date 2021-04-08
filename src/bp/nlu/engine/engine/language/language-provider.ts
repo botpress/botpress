@@ -257,6 +257,7 @@ class ServerConnection extends EventEmitter2 {
         this.emit('error', err)
       } finally {
         this._retryCount++
+        debug(`Retry for ${this.endpoint}: ${this._retryCount}/${maxRetryCount}`)
         if (this._retryCount >= maxRetryCount) {
           this._stopRetry()
         }
@@ -356,7 +357,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
 
     return this as LanguageProvider
   }
-  public waitUntilReady(): Promise<void> {
+  public waitUntilReady = (): Promise<void> => {
     return new Promise(resolve => {
       if (this.ready) {
         resolve()

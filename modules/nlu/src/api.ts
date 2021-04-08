@@ -1,9 +1,11 @@
 import axios, { AxiosInstance } from 'axios'
 import * as sdk from 'botpress/sdk'
+// import { Health } from 'common/nlu/engine'
 
 export type NLUApi = ReturnType<typeof makeApi>
 
 export const makeApi = (bp: { axios: AxiosInstance }) => ({
+  fetchHealth: (): Promise<any> => bp.axios.get('/nlu/health').then(res => res.data),
   fetchContexts: (): Promise<string[]> => bp.axios.get('/nlu/contexts').then(res => res.data),
   fetchIntentsWithQNAs: (): Promise<sdk.NLU.IntentDefinition[]> => bp.axios.get('/nlu/intents').then(res => res.data),
   fetchIntents: async (): Promise<sdk.NLU.IntentDefinition[]> => {

@@ -38,6 +38,7 @@ export interface TrainingOptions {
 
 export interface Engine {
   getHealth: () => Health
+  waitUntilReady: () => Promise<void>
   getLanguages: () => string[]
   getSpecifications: () => Specifications
   loadModel: (model: Model) => Promise<void>

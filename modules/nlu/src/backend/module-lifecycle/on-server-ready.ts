@@ -13,7 +13,6 @@ export function getOnServerReady(state: NLUState) {
         return
       }
 
-      const ghost = bp.ghost.forBot(botId)
       const model = await state.nluByBot[botId].modelService.getModel(modelId)
       if (model) {
         const botState = state.nluByBot[botId]

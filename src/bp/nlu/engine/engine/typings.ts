@@ -132,6 +132,7 @@ export interface Tools {
   getStopWordsForLang(lang: string): Promise<string[]>
 
   // system info
+  waitUntilReady(): Promise<void>
   getHealth(): Health
   getLanguages(): string[]
   getSpecifications(): Specifications

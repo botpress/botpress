@@ -130,6 +130,8 @@ export function getOnSeverStarted(state: NLUState) {
       modelCacheSize: bytes(modelCacheSize)
     }
     state.engine = await NLUEngine.makeEngine(parsedConfig, logger)
-    await registerMiddleware(bp, state)
+    state.engine.waitUntilReady().then(async () => {
+      await registerMiddleware(bp, state)
+    })
   }
 }
