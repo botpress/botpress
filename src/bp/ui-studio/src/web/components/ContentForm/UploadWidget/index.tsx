@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { FormFields, lang } from 'botpress/shared'
+import { FormFields, lang, FileDisplay } from 'botpress/shared'
 import cn from 'classnames'
 import React, { FC, Fragment, useState } from 'react'
 import { AccessControl } from '~/components/Shared/Utils'
@@ -58,7 +58,7 @@ const UploadWidget: FC<IUploadWidgetProps> = props => {
       fallback={<em>{lang.tr('module.builtin.types.permissionDenied')}</em>}
     >
       <Fragment>
-        {((enterUrlManually && value) || !enterUrlManually) && (
+        {!enterUrlManually && (
           <FormFields.Upload
             axios={axios.create({ baseURL: window.BOT_API_PATH })}
             onChange={onChange}
@@ -68,8 +68,8 @@ const UploadWidget: FC<IUploadWidgetProps> = props => {
           />
         )}
 
-        {enterUrlManually && !value && (
-          <UrlUpload value={value} onChange={onChange} onError={onError} onDelete={onDelete} />
+        {enterUrlManually && (
+          <UrlUpload value={value} type={subtype} onChange={onChange} onError={onError} onDelete={onDelete} />
         )}
 
         {!value && (

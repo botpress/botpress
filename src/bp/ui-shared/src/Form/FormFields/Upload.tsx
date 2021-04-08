@@ -1,11 +1,8 @@
-import { Button, FileInput, Icon, Intent } from '@blueprintjs/core'
+import { FileInput, Icon } from '@blueprintjs/core'
 import React, { FC, Fragment, useReducer } from 'react'
+import FileDisplay from '~/FileDisplay'
 
 import sharedStyle from '../../../../ui-shared-lite/style.scss'
-import ToolTip from '../../../../ui-shared-lite/ToolTip'
-import { lang } from '../../translations'
-
-import style from './style.scss'
 import { UploadFieldProps } from './typings'
 
 const Upload: FC<UploadFieldProps> = props => {
@@ -80,22 +77,7 @@ const Upload: FC<UploadFieldProps> = props => {
 
   return (
     <div className={sharedStyle.fieldWrapper}>
-      {value && (
-        <div style={{ backgroundImage: type === 'image' ? `url('${value}')` : '' }} className={sharedStyle.imgWrapper}>
-          <div className={sharedStyle.imgWrapperActions}>
-            <ToolTip content={lang('deleteFile')}>
-              <Button
-                className={style.deleteFile}
-                minimal
-                small
-                intent={Intent.DANGER}
-                icon="trash"
-                onClick={deleteFile}
-              ></Button>
-            </ToolTip>
-          </div>
-        </div>
-      )}
+      {value && <FileDisplay url={value} type={type} onDelete={deleteFile} deletable />}
       {!value && (
         <Fragment>
           <FileInput

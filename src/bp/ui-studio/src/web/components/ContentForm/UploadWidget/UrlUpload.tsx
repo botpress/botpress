@@ -1,21 +1,21 @@
 import { Button, Intent, Position, Tooltip } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
-import React, { FC, Fragment, useEffect, useReducer, useState } from 'react'
+import { lang, FileDisplay } from 'botpress/shared'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 import SmartInput from '~/components/SmartInput'
 import style from '~/views/FlowBuilder/sidePanelTopics/form/style.scss'
 
-import DeletableImage from './DeletableImage'
 import localStyle from './style.scss'
 
 interface IUrlUploadProps {
   value: string | null
+  type: 'image' | 'audio' | string
   onChange(value: string | null): void
   onDelete(): void
   onError(value: string | Error): void
 }
 
 const UrlUpload: FC<IUrlUploadProps> = props => {
-  const { value } = props
+  const { value, type } = props
 
   const [url, setUrl] = useState(props.value)
 
@@ -37,6 +37,7 @@ const UrlUpload: FC<IUrlUploadProps> = props => {
   }
 
   const isUrlOrRelativePath = (str: string) => {
+    console.log('str', str)
     const re = /^(?:[a-z]+:)?\/\/|^\//i
 
     return re.test(str)
@@ -44,7 +45,7 @@ const UrlUpload: FC<IUrlUploadProps> = props => {
 
   return (
     <div className={style.fieldWrapper}>
-      {value && isUrlOrRelativePath(value) && <DeletableImage value={value} onDelete={onDelete} />}
+      {value && isUrlOrRelativePath(value) && <FileDisplay url={value} type={type} onDelete={onDelete} deletable />}
 
       {value && !isUrlOrRelativePath(value) && (
         <div className={localStyle.expressionWrapper}>
