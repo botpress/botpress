@@ -62,16 +62,16 @@ export class MessageRepository {
   public async create(
     conversationId: sdk.uuid,
     payload: any,
-    from: string,
+    authorId: string | undefined,
     eventId?: string,
     incomingEventId?: string
   ): Promise<sdk.Message> {
     const message = {
       id: uuid.v4(),
       conversationId,
+      authorId,
       eventId,
       incomingEventId,
-      from,
       sentOn: new Date(),
       payload
     }
@@ -115,13 +115,13 @@ export class MessageRepository {
   }
 
   public serialize(message: Partial<sdk.Message>) {
-    const { id, conversationId, eventId, incomingEventId, from, sentOn, payload } = message
+    const { id, conversationId, authorId, eventId, incomingEventId, sentOn, payload } = message
     return {
       id,
       conversationId,
+      authorId,
       eventId,
       incomingEventId,
-      from,
       sentOn: this.database.knex.date.set(sentOn),
       payload: this.database.knex.json.set(payload)
     }
@@ -132,13 +132,13 @@ export class MessageRepository {
       return undefined
     }
 
-    const { id, conversationId, eventId, incomingEventId, from, sentOn, payload } = message
+    const { id, conversationId, authorId, eventId, incomingEventId, sentOn, payload } = message
     return {
       id,
       conversationId,
+      authorId,
       eventId,
       incomingEventId,
-      from,
       sentOn: this.database.knex.date.get(sentOn),
       payload: this.database.knex.json.get(payload)
     }
