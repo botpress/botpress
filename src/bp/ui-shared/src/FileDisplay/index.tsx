@@ -33,6 +33,16 @@ const FileDisplay: FC<FileDisplayProps> = props => {
           </audio>
         </div>
       )
+    case 'video':
+      return (
+        <div className={style.videoWrapper}>
+          <div className={style.videoWrapperActions}>{deletable && deletableFile()}</div>
+          <video controls width={200} height={200} className={style.videoWrapperSource}>
+            <source src={url} type={mimeType} />
+            Your browser does not support the video element.
+          </video>
+        </div>
+      )
     default:
       return null
   }

@@ -1,5 +1,5 @@
 import { Colors, Icon } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { lang, UploadFieldProps } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC } from 'react'
 import Form from 'react-jsonschema-form'
@@ -27,7 +27,7 @@ interface Props {
 }
 
 const CustomBaseInput = props => {
-  const SUPPORTED_MEDIA_SUBTYPES = ['audio', 'image']
+  const SUPPORTED_MEDIA_SUBTYPES: UploadFieldProps['type'][] = ['audio', 'image', 'video']
   const { type, $subtype: subtype } = props.schema
 
   if (type === 'string') {
@@ -47,15 +47,19 @@ const widgets = {
   BaseInput: CustomBaseInput
 }
 
-// TODO: Remove this once audio content-type is support on multiple channels
+// TODO: Remove this once audio and video content-types are support on multiple channels
 const CustomDescriptionField = ({ description, id, formContext }) => {
-  if (id === 'root__description' && formContext.subtype === 'audio') {
+  if (id === 'root__description' && ['audio', 'video'].includes(formContext.subtype)) {
+    const capitalize = (str: string) => {
+      return str.charAt(0).toUpperCase() + str.slice(1)
+    }
+
     return (
       <div id={id} style={{ lineHeight: 'normal' }}>
         <div>
           <span style={{ color: Colors.ORANGE3 }}>
             <Icon icon="warning-sign" color={Colors.ORANGE3} />
-            &nbsp;Audio content-type is currently only supported by channel-vonage
+            &nbsp;{capitalize(formContext.subtype)} content-type is currently only supported by channel-vonage
           </span>
         </div>
         <br />
