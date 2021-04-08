@@ -94,7 +94,7 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
 
     await bp.experimental.messages
       .forBot(event.botId)
-      .create(event.threadId, event.payload, 'bot', event.id, event.incomingEventId)
+      .create(event.threadId, event.payload, undefined, event.id, event.incomingEventId)
 
     next(undefined, false)
   }
