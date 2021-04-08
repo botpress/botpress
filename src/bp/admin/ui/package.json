@@ -55,6 +55,9 @@
     "snarkdown": "^1.2.2",
     "ui-shared": "link:../../ui-shared"
   },
+  "resolutions": {
+    "**/is-svg": ">=4.2.2"
+  },
   "devDependencies": {
     "@types/react": "^16.9.19",
     "@types/react-dom": "^16.9.5",
