@@ -180,7 +180,7 @@ export class ConverseService {
     if (event.type !== 'typing' && event.type !== 'data') {
       void this.messageService
         .forBot(event.botId)
-        .create(event.threadId!, event.payload, 'bot', event.id, event.incomingEventId)
+        .create(event.threadId!, event.payload, undefined, event.id, event.incomingEventId)
     }
   }
 
