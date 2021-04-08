@@ -1,3 +1,4 @@
+import { Colors, Icon } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC } from 'react'
@@ -46,9 +47,29 @@ const widgets = {
   BaseInput: CustomBaseInput
 }
 
+// TODO: Remove this once audio content-type is support on multiple channels
+const CustomDescriptionField = ({ description, id, formContext }) => {
+  if (id === 'root__description' && formContext.subtype === 'audio') {
+    return (
+      <div id={id} style={{ lineHeight: 'normal' }}>
+        <div>
+          <span style={{ color: Colors.ORANGE3 }}>
+            <Icon icon="warning-sign" color={Colors.ORANGE3} />
+            &nbsp;Audio content-type is currently only supported by channel-vonage
+          </span>
+        </div>
+        <div>{description}</div>
+      </div>
+    )
+  } else {
+    return <div id={id}>{description}</div>
+  }
+}
+
 const fields = {
   i18n_field: renderWrapped(Text),
-  i18n_array: ArrayMl
+  i18n_array: ArrayMl,
+  DescriptionField: CustomDescriptionField
 }
 
 const translatePropsRecursive = obj => {
@@ -93,7 +114,8 @@ const ContentForm: FC<Props> = props => {
     ...formData,
     customKey: props.customKey,
     activeLang: contentLang,
-    defaultLang: defaultLanguage
+    defaultLang: defaultLanguage,
+    subtype: schema.$subtype
   }
 
   return (

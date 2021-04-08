@@ -39,6 +39,7 @@ module.exports = {
   jsonSchema: {
     description: 'module.builtin.types.audio.description',
     type: 'object',
+    $subtype: 'audio',
     required: ['audio'],
     properties: {
       audio: {
