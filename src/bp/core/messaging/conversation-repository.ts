@@ -124,9 +124,9 @@ export class ConversationRepository {
         'conversations.botId',
         'conversations.createdOn',
         'messages.id as messageId',
+        'messages.authorId',
         'messages.eventId',
         'messages.incomingEventId',
-        'messages.from',
         'messages.payload',
         'messages.sentOn'
       )
