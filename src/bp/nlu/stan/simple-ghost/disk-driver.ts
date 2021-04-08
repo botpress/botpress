@@ -1,16 +1,11 @@
-import { DirectoryListingOptions } from 'botpress/sdk'
-import { forceForwardSlashes } from 'core/misc/utils'
-import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
 import glob from 'glob'
-import { injectable } from 'inversify'
 import _ from 'lodash'
 import path from 'path'
 import { VError } from 'verror'
 
-import { BPError } from '../dialog/errors'
-
-import { FileRevision, StorageDriver } from '.'
+import { DirectoryListingOptions, FileRevision, StorageDriver } from '.'
+import { forceForwardSlashes } from './misc'
 
 export class DiskStorageDriver implements StorageDriver {
   resolvePath = (p: string) => path.resolve(process.PROJECT_LOCATION, p)
@@ -35,7 +30,7 @@ export class DiskStorageDriver implements StorageDriver {
       return fse.readFile(this.resolvePath(filePath))
     } catch (e) {
       if (e.code === 'ENOENT') {
-        throw new BPError(`[Disk Storage] File "${filePath}" not found`, 'ENOENT')
+        throw new VError(`[Disk Storage] File "${filePath}" not found`)
       }
 
       throw new VError(e, `[Disk Storage] Error reading file "${filePath}"`)
@@ -67,7 +62,6 @@ export class DiskStorageDriver implements StorageDriver {
     }
   }
 
-  @WrapErrorsWith(args => `[Disk Storage Error while moving file from "${args[0]}" to  "${args[1]}".`)
   async moveFile(fromPath: string, toPath: string): Promise<void> {
     return fse.move(this.resolvePath(fromPath), this.resolvePath(toPath))
   }
@@ -152,15 +146,6 @@ export class DiskStorageDriver implements StorageDriver {
     } catch (e) {
       return []
     }
-  }
-
-  private _getBaseDirectories(files: string[]): string[] {
-    return _.chain(files)
-      .map(f => path.relative(process.PROJECT_LOCATION, f))
-      .map(f => path.dirname(f))
-      .map(f => f.split('/')[0])
-      .uniq()
-      .value()
   }
 
   private async _getGhostIgnorePatterns(ghostIgnorePath: string): Promise<string[]> {

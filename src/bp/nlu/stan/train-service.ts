@@ -2,14 +2,14 @@ import * as sdk from 'botpress/sdk'
 
 import * as NLUEngine from 'nlu/engine'
 
-import ModelRepository from './model-repo'
+import ModelRepository, { ScopedModelRepository } from './model-repo'
 import TrainSessionService from './train-session-service'
 
 export default class TrainService {
   constructor(
     private logger: sdk.Logger,
     private engine: NLUEngine.Engine,
-    private modelRepo: ModelRepository,
+    private modelRepo: ScopedModelRepository,
     private trainSessionService: TrainSessionService
   ) {}
 
@@ -45,7 +45,8 @@ export default class TrainService {
       const model = await this.engine.train(ts.key, trainSet, { progressCallback })
       this.logger.info(`[${stringId}] Training Done.`)
 
-      await this.modelRepo.saveModel(model, password)
+      // await this.modelRepo.saveModel(model, password)
+      await this.modelRepo.saveModel(model)
       ts.status = 'done'
       this.trainSessionService.setTrainingSession(modelId, password, ts)
       this.trainSessionService.releaseTrainingSession(modelId, password)

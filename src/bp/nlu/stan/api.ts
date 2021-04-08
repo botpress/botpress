@@ -11,7 +11,12 @@ import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../..
 import Logger from '../../simple-logger'
 
 import { BpPredictOutput, mapPredictOutput, mapTrainInput } from './api-mapper'
-import ModelRepository from './model-repo'
+import ModelRepository, { ScopedModelRepository } from './model-repo'
+import Database from './simple-ghost/database/db'
+import { DBStorageDriver } from './simple-ghost/db-driver'
+import { DiskStorageDriver } from './simple-ghost/disk-driver'
+import { GhostService } from './simple-ghost/ghost'
+import { MemoryObjectCache } from './simple-ghost/memory-cache'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
 import { PredictOutput } from './typings_v1'
@@ -70,12 +75,29 @@ const createExpressApp = (options: APIOptions): Application => {
   return app
 }
 
+// TODO replace this by DI ?
+function provideGhost(logger) {
+  const db = new Database(logger)
+  const diskDriver = new DiskStorageDriver()
+  const dbdriver = new DBStorageDriver(db)
+  const cache = new MemoryObjectCache()
+  return new GhostService(diskDriver, dbdriver, cache, logger)
+}
+
 export default async function(options: APIOptions, engine: NLUEngine.Engine) {
   const app = createExpressApp(options)
   const logger = new Logger('API')
 
-  const modelRepo = new ModelRepository(options.modelDir)
-  await modelRepo.init()
+  const ghost = provideGhost(logger)
+
+  await ghost.initialize(false) // boolean here is weather or not to use dbdriver (should be passed as APIOption)
+
+  // const modelRepo = new ModelRepository(options.modelDir)
+  // TODO ModelRepo should not be scoped, the scoping will be handled by passing a "prefix" or something like that,
+  // corresponding to bot Id in the case of botpress but this could be "appId" in a broader sens
+
+  const modelRepo = new ScopedModelRepository(ghost.global())
+  await modelRepo.initialize()
   const trainSessionService = new TrainSessionService()
   const trainService = new TrainService(logger, engine, modelRepo, trainSessionService)
 
@@ -121,7 +143,8 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
       const modelId = NLUEngine.modelIdService.fromString(stringId)
       let session = trainSessionService.getTrainingSession(modelId, password)
       if (!session) {
-        const model = await modelRepo.getModel(modelId, password ?? '')
+        // const model = await modelRepo.getModel(modelId, password ?? '')
+        const model = await modelRepo.getModel(modelId)
 
         if (!model) {
           return res.status(404).send({
@@ -177,7 +200,8 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
       const modelId = NLUEngine.modelIdService.fromString(stringId)
       // once the model is loaded, there's no more password check
       if (!engine.hasModel(modelId)) {
-        const model = await modelRepo.getModel(modelId, password)
+        // const model = await modelRepo.getModel(modelId, password)
+        const model = await modelRepo.getModel(modelId)
         if (!model) {
           return res.status(404).send({ success: false, error: `modelId ${stringId} can't be found` })
         }
