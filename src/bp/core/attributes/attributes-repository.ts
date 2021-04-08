@@ -67,7 +67,7 @@ export class ScopedAttributesRepository {
     const current = await this.get(entity)
 
     if (!current) {
-      await this.query().insert({ entity, attribute: this.attribute, value })
+      await this.query().insert({ entity, attribute: this.attribute, value } as AttributeRow)
     } else if (value !== current) {
       await this.query()
         .where({ entity, attribute: this.attribute })
@@ -93,7 +93,7 @@ export class ScopedAttributesRepository {
       return cached
     }
 
-    const entry = await this.query().where({ entity, attribute: this.attribute })
+    const entry = (await this.query().where({ entity, attribute: this.attribute })) as AttributeRow[]
     const value = entry[0]?.value
 
     if (value) {
@@ -106,4 +106,10 @@ export class ScopedAttributesRepository {
   private query() {
     return this.database.knex(this.TABLE_NAME)
   }
+}
+
+interface AttributeRow {
+  entity: sdk.uuid
+  attribute: string
+  value: string
 }

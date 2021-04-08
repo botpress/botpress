@@ -2456,7 +2456,7 @@ declare module 'botpress/sdk' {
         recent(userId: uuid): Promise<Conversation>
 
         /**
-         * Sets an attribute to a conversation. If the attribute was already set, overrides it
+         * Sets an attribute to a conversation. If the attribute already exists, its value gets overriden
          * @param id Id of a conversation
          * @param name Name of the attribute
          * @param value Value to set
