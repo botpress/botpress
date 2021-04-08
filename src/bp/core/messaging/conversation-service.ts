@@ -118,11 +118,11 @@ export class ScopedConversationService implements sdk.experimental.conversations
   }
 
   public async createMapping(channel: string, localId: sdk.uuid, foreignId: string): Promise<void> {
-    await this.getMapScope(channel).create(foreignId, localId)
+    await this.getMapScope(channel).create(localId, foreignId)
   }
 
   public async deleteMapping(channel: string, localId: sdk.uuid, foreignId: string): Promise<boolean> {
-    return this.getMapScope(channel).delete(foreignId, localId)
+    return this.getMapScope(channel).delete(localId, foreignId)
   }
 
   public async getForeignId(channel: string, localId: sdk.uuid): Promise<string | undefined> {
