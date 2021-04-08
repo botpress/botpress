@@ -2477,7 +2477,7 @@ declare module 'botpress/sdk' {
 
         /**
          * Deletes a conversation mapping
-         * @returns true is a conversation was deleted
+         * @returns true if a conversation was deleted
          */
         deleteMapping(channel: string, localId: uuid, foreignId: string): Promise<boolean>
 
