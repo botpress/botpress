@@ -58,6 +58,7 @@ const CustomDescriptionField = ({ description, id, formContext }) => {
             &nbsp;Audio content-type is currently only supported by channel-vonage
           </span>
         </div>
+        <br />
         <div>{description}</div>
       </div>
     )
