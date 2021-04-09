@@ -108,7 +108,8 @@
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.19"
+    "lodash": ">=4.17.19",
+    "**/y18n": "^4.0.1 || ^5.0.5"
   },
   "devDependencies": {
     "@commitlint/cli": "^7.2.1",
