@@ -106,7 +106,10 @@ export interface SlotPrediction {
  * If the training does not exist, API returns a 404
  */
 export type TrainingStatus = 'done' | 'training-pending' | 'training' | 'canceled' | 'errored'
+
+export type TrainingErrorType = 'already-started' | 'unknown'
 export interface TrainingError {
+  type: TrainingErrorType
   message: string
   stackTrace?: string
 }

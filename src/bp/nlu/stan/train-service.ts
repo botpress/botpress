@@ -5,7 +5,7 @@ import * as NLUEngine from 'nlu/engine'
 import { serializeError } from 'nlu/utils/error-utils'
 import ModelRepository from './model-repo'
 import TrainSessionService from './train-session-service'
-import { TrainingProgress } from './typings_v1'
+import { TrainingProgress, TrainingErrorType } from './typings_v1'
 
 export default class TrainService {
   constructor(
@@ -64,13 +64,16 @@ export default class TrainService {
         return
       }
 
+      let type: TrainingErrorType = 'unknown'
       if (NLUEngine.errors.isTrainingAlreadyStarted(err)) {
         this.logger.error('training already started')
+        type = 'already-started'
         return
       }
 
       ts.status = 'errored'
-      ts.error = serializeError(err)
+      ts.error = { ...serializeError(err), type }
+
       this.trainSessionService.setTrainingSession(modelId, password, ts)
       this.trainSessionService.releaseTrainingSession(modelId, password)
       this.logger.attachError(err).error('an error occured during training')
