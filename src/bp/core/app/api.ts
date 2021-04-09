@@ -205,16 +205,14 @@ const experimental = (
   hookService: HookService,
   conversationService: ConversationService,
   messageService: MessageService,
-  renderService: RenderService,
-  mappingRepo: MappingRepository
+  renderService: RenderService
 ): typeof sdk.experimental => {
   return {
     disableHook: hookService.disableHook.bind(hookService),
     enableHook: hookService.enableHook.bind(hookService),
     conversations: conversations(conversationService),
     messages: messages(messageService),
-    render: render(renderService),
-    mapping: mapping(mappingRepo)
+    render: render(renderService)
   }
 }
 
@@ -244,12 +242,6 @@ const render = (renderService: RenderService): typeof sdk.experimental.render =>
     translate: renderService.renderTranslated.bind(renderService),
     template: renderService.renderTemplate.bind(renderService),
     pipeline: renderService.getPipeline.bind(renderService)
-  }
-}
-
-const mapping = (mappingRepo: MappingRepository): typeof sdk.experimental.mapping => {
-  return {
-    forScope: mappingRepo.forScope.bind(mappingRepo)
   }
 }
 
@@ -320,7 +312,7 @@ export class BotpressAPIProvider {
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService, mediaServiceProvider)
     this.mlToolkit = MLToolkit
-    this.experimental = experimental(hookService, conversationService, messageService, renderService, mappingRepo)
+    this.experimental = experimental(hookService, conversationService, messageService, renderService)
     this.security = security()
     this.workspaces = workspaces(workspaceService)
     this.distributed = distributed(jobService)
