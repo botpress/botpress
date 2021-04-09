@@ -4,6 +4,7 @@ import * as NLUEngine from 'nlu/engine'
 
 import ModelRepository from './model-repo'
 import TrainSessionService from './train-session-service'
+import { TrainingProgress } from './typings_v1'
 
 export default class TrainService {
   constructor(
@@ -24,7 +25,10 @@ export default class TrainService {
     const stringId = NLUEngine.modelIdService.toString(modelId)
     this.logger.info(`[${stringId}] Training Started.`)
 
-    const ts = this.trainSessionService.makeTrainingSession(modelId, password, language)
+    const ts: TrainingProgress = {
+      status: 'training-pending',
+      progress: 0
+    }
     this.trainSessionService.setTrainingSession(modelId, password, ts)
 
     const progressCallback = (progress: number) => {
@@ -42,7 +46,7 @@ export default class TrainService {
         languageCode: language,
         seed: nluSeed
       }
-      const model = await this.engine.train(ts.key, trainSet, { progressCallback })
+      const model = await this.engine.train(stringId, trainSet, { progressCallback })
       this.logger.info(`[${stringId}] Training Done.`)
 
       await this.modelRepo.saveModel(model, password)
@@ -65,6 +69,7 @@ export default class TrainService {
       }
 
       ts.status = 'errored'
+      ts.error = { message: err.message }
       this.trainSessionService.setTrainingSession(modelId, password, ts)
       this.trainSessionService.releaseTrainingSession(modelId, password)
       this.logger.attachError(err).error('an error occured during training')

@@ -7,8 +7,8 @@ import '../../sdk/rewire'
 import * as sdk from 'botpress/sdk'
 import { parentPort } from 'worker_threads'
 
+import { serializeError } from '../utils/error-utils'
 import { Trainer as CrfTrainer } from './crf'
-import { serializeError } from './error-utils'
 import { Message } from './ml-thread-pool'
 import { Trainer as SvmTrainer } from './svm'
 

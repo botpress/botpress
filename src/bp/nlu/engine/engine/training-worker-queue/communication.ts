@@ -1,4 +1,4 @@
-import { ErrorMessage } from '../../../ml/error-utils'
+import { ErrorMessage } from '../../../utils/error-utils'
 import { LanguageConfig } from '../../typings'
 
 import { TrainInput, TrainOutput } from '../training-pipeline'
