@@ -27,7 +27,8 @@
   "resolutions": {
     "socket.io/**/debug": "^3.2.6",
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.19"
+    "lodash": ">=4.17.19",
+    "**/ssri": "^8.0.1"
   },
   "dependencies": {
     "@blueprintjs/core": "^3.23.1",

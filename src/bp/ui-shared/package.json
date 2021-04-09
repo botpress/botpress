@@ -43,6 +43,9 @@
     "webpack-bundle-analyzer": "^3.5.2",
     "webpack-node-externals": "^1.7.2"
   },
+  "resolutions": {
+    "**/ssri": "^8.0.1"
+  },
   "files": [
     "dist"
   ],
