@@ -2476,7 +2476,7 @@ declare module 'botpress/sdk' {
          * @param name Name of the attribute
          */
         getAttribute(id: uuid, name: string): Promise<string | undefined>
-          
+
         /**
          * Creates a mapping of ids for a conversation in a given channel
          * @param channel The channel for which to create the mapping

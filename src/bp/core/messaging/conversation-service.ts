@@ -132,7 +132,7 @@ export class ScopedConversationService implements sdk.experimental.conversations
   public async getAttribute(id: sdk.uuid, name: string): Promise<string | undefined> {
     return this.attributesRepo.forAttribute(name).get(id)
   }
-    
+
   public async createMapping(channel: string, localId: sdk.uuid, foreignId: string): Promise<void> {
     await this.getMapScope(channel).create(localId, foreignId)
   }
