@@ -46,3 +46,9 @@ export interface ServerWidePendingRevisions {
 export type ReplaceContent = Pick<ReplaceInFileConfig, 'from' | 'to'>
 
 // export * from './cache-invalidators'
+
+export { Database } from './database/db'
+export { DBStorageDriver } from './db-driver'
+export { DiskStorageDriver } from './disk-driver'
+export { GhostService, ScopedGhostService } from './ghost'
+export { MemoryObjectCache } from './memory-cache'

@@ -4,7 +4,7 @@ import path from 'path'
 import { VError } from 'verror'
 
 import { StorageDriver, DirectoryListingOptions, FileRevision } from '.'
-import Database from './database/db'
+import { Database } from './database/db'
 import { filterByGlobs, forceForwardSlashes } from './misc'
 
 export class DBStorageDriver implements StorageDriver {

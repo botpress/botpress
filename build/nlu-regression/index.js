@@ -1,50 +1,68 @@
-const axios = require('axios')
+const bitfan = require('@botpress/bitfan').default
+const chalk = require('chalk')
 
-// export interface IntentDefinition {
-//   name: string
-//   contexts: string[]
-//   utterances: string[]
-//   slots: SlotDefinition[]
-// }
+const bpdsIntents = require('./tests/bpds-intents')
+const bpdsSlots = require('./tests/bpds-slots')
+const clincIntents = require('./tests/clinc-intents')
+const bpdsSpell = require('./tests/bpds-spell')
 
-const ds = {
-  language: 'en',
-  contexts: ['global'],
-  intents: [
-    {
-      name: 'bill-inquiry',
-      contexts: ['global'],
-      utterances: [
-        "I don't understand something on my bill",
-        'I have questions regarding my invoice',
-        'My statement does not make sense'
-      ]
-    },
-    {
-      name: 'cancellation',
-      contexts: ['global'],
-      utterances: [
-        'How can I cancel my contract?',
-        'I want to stop my contract',
-        'I need to terminate my agreement with you'
-      ]
-    },
-    {
-      name: 'contact-details',
-      contexts: ['global'],
-      utterances: ['What is the contact number?', 'How to reach your help line?', 'What are your contact informations']
-    },
-    {
-      name: 'problem',
-      contexts: ['global'],
-      utterances: ['I have a problem', 'Something is not working right on my computer', "I've got a technical issue"]
+const { updateResults, readResults } = require('./score-service')
+
+async function runTest(test, { update, keepGoing }) {
+  const { name, computePerformance, evaluatePerformance } = test(bitfan)
+  const performance = await computePerformance()
+
+  if (update) {
+    await updateResults(name, performance)
+    return true
+  }
+
+  const previousPerformance = await readResults(name)
+  const comparison = evaluatePerformance(performance, previousPerformance)
+
+  bitfan.visualisation.showComparisonReport(name, comparison)
+  console.log('')
+
+  if (comparison.status === 'regression') {
+    if (!keepGoing) {
+      throw new Error('Regression')
     }
-  ]
+    console.log(chalk.gray('Skipping to next test...\n'))
+    return false
+  }
+
+  if (comparison.status !== 'success') {
+    return true
+  }
+
+  return true
 }
 
-axios
-  .post('http://localhost:3200/v1/train', ds)
-  .then(res => {
-    console.log('resulltss :: ', res.data)
+async function main(args) {
+  const update = args.includes('--update') || args.includes('-u')
+  const keepGoing = args.includes('--keep-going') || args.includes('-k')
+
+  const tests = [bpdsIntents, bpdsSlots, bpdsSpell, clincIntents]
+
+  let testsPass = true
+  for (const test of tests) {
+    const currentTestPass = await runTest(test, { update, keepGoing })
+    testsPass = testsPass && currentTestPass
+  }
+
+  if (update) {
+    console.log(chalk.green('Test results where update with success.'))
+    return
+  }
+
+  if (!testsPass) {
+    throw new Error('There was a regression in at least one test.')
+  }
+}
+
+main(process.argv.slice(2))
+  .then(() => {})
+  .catch(err => {
+    console.error(chalk.red('The following error occured:\n'), err)
+    process.exit(1)
   })
-  .catch(err => console.error('errroor', err.response.data.error))

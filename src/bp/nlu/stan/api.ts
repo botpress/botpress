@@ -11,12 +11,7 @@ import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../..
 import Logger from '../../simple-logger'
 
 import { BpPredictOutput, mapPredictOutput, mapTrainInput } from './api-mapper'
-import ModelRepository, { ScopedModelRepository } from './model-repo'
-import Database from './simple-ghost/database/db'
-import { DBStorageDriver } from './simple-ghost/db-driver'
-import { DiskStorageDriver } from './simple-ghost/disk-driver'
-import { GhostService } from './simple-ghost/ghost'
-import { MemoryObjectCache } from './simple-ghost/memory-cache'
+import { ModelRepoOptions, ModelRepository } from './model-repo'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
 import { PredictOutput } from './typings_v1'
@@ -25,7 +20,6 @@ import { validateCancelRequestInput, validatePredictInput, validateTrainInput } 
 export interface APIOptions {
   host: string
   port: number
-  modelDir: string
   authToken?: string
   limitWindow: string
   limit: number
@@ -33,7 +27,21 @@ export interface APIOptions {
   batchSize: number
   silent: boolean
   modelCacheSize: string
+  modelDir: string
 }
+// TODO add ModelRepoOptions in api config
+
+// TODOS
+// [X] 1- configure ghost with modelDir`
+// [X] 2- configuration option for ghost backend (fs | db) if db connectionString
+// [X] 3- hide ghost initialization function in the model repo initialize func
+// 4- make sure model repo isn't scoped and uses ghost service and not scoped ghost service
+//    [X] 4.1 change save and load model to take appID and appSecret as params (options)
+//    [X] 4.2 use appID to scope the ghost properly
+//    [X] 4.3 use appSecret to encrypt the modelID
+//    [X] 4.4 change what needs to be changed in training service and api to fit with those new signatures
+// 5- appId and appSecret should be request params or body
+// 6- configure model repo with APIOptions ==> add driver and connection string
 
 const debug = DEBUG('api')
 const debugRequest = debug.sub('request')
@@ -75,28 +83,12 @@ const createExpressApp = (options: APIOptions): Application => {
   return app
 }
 
-// TODO replace this by DI ?
-function provideGhost(logger) {
-  const db = new Database(logger)
-  const diskDriver = new DiskStorageDriver()
-  const dbdriver = new DBStorageDriver(db)
-  const cache = new MemoryObjectCache()
-  return new GhostService(diskDriver, dbdriver, cache, logger)
-}
-
 export default async function(options: APIOptions, engine: NLUEngine.Engine) {
   const app = createExpressApp(options)
   const logger = new Logger('API')
 
-  const ghost = provideGhost(logger)
-
-  await ghost.initialize(false) // boolean here is weather or not to use dbdriver (should be passed as APIOption)
-
-  // const modelRepo = new ModelRepository(options.modelDir)
-  // TODO ModelRepo should not be scoped, the scoping will be handled by passing a "prefix" or something like that,
-  // corresponding to bot Id in the case of botpress but this could be "appId" in a broader sens
-
-  const modelRepo = new ScopedModelRepository(ghost.global())
+  // TODO add driver and connection string in api Options
+  const modelRepo = new ModelRepository({ modelDir: options.modelDir })
   await modelRepo.initialize()
   const trainSessionService = new TrainSessionService()
   const trainService = new TrainService(logger, engine, modelRepo, trainSessionService)
@@ -143,8 +135,8 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
       const modelId = NLUEngine.modelIdService.fromString(stringId)
       let session = trainSessionService.getTrainingSession(modelId, password)
       if (!session) {
-        // const model = await modelRepo.getModel(modelId, password ?? '')
-        const model = await modelRepo.getModel(modelId)
+        // TODO get app id and app ID from body
+        const model = await modelRepo.getModel(modelId, { appSecret: password })
 
         if (!model) {
           return res.status(404).send({
@@ -200,8 +192,7 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
       const modelId = NLUEngine.modelIdService.fromString(stringId)
       // once the model is loaded, there's no more password check
       if (!engine.hasModel(modelId)) {
-        // const model = await modelRepo.getModel(modelId, password)
-        const model = await modelRepo.getModel(modelId)
+        const model = await modelRepo.getModel(modelId, { appSecret: password })
         if (!model) {
           return res.status(404).send({ success: false, error: `modelId ${stringId} can't be found` })
         }
@@ -217,7 +208,7 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
 
       const withoutNone: PredictOutput[] = rawPredictions.map(mapPredictOutput)
 
-      return res.send({ success: true, predictions: withoutNone })
+      res.json({ success: true, predictions: withoutNone })
     } catch (err) {
       res.status(500).send({ success: false, error: err.message })
     }

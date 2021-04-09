@@ -9,7 +9,7 @@ import AllTables, { Table } from './tables'
 
 export type DatabaseType = 'postgres' | 'sqlite'
 
-export default class Database {
+export class Database {
   knex!: KnexExtended
 
   private tables: Table[] = []
