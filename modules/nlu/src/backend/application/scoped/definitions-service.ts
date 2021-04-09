@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import * as NLU from 'common/nlu/engine'
+import * as NLUEngine from 'common/nlu/engine'
 import { I } from '../typings'
 import { IDefinitionsRepository } from './infrastructure/definitions-repository'
 
@@ -12,6 +12,13 @@ interface BotDefinition {
 
 export type IDefinitionsService = I<ScopedDefinitionsService>
 
+interface TrainingSet {
+  intentDefs: sdk.NLU.IntentDefinition[]
+  entityDefs: sdk.NLU.EntityDefinition[]
+  languageCode: string
+  seed: number // seeds random number generator in nlu training
+}
+
 export class ScopedDefinitionsService {
   private _languages: string[]
   private _seed: number
@@ -22,9 +29,9 @@ export class ScopedDefinitionsService {
 
   constructor(
     bot: BotDefinition,
-    private _engine: NLU.Engine,
+    private _engine: NLUEngine.Engine,
     private _definitionRepository: IDefinitionsRepository,
-    private _modelIdService: typeof NLU.modelIdService
+    private _modelIdService: typeof NLUEngine.modelIdService
   ) {
     this._languages = bot.languages
     this._seed = bot.seed
@@ -42,7 +49,7 @@ export class ScopedDefinitionsService {
     this._dirtyModelsListeners.push(listener)
   }
 
-  public async getLatestModelId(languageCode: string): Promise<NLU.ModelId> {
+  public async getLatestModelId(languageCode: string): Promise<NLUEngine.ModelId> {
     const { _engine } = this
 
     const trainSet = await this.getTrainSet(languageCode)
@@ -54,7 +61,7 @@ export class ScopedDefinitionsService {
     })
   }
 
-  public async getTrainSet(languageCode: string): Promise<NLU.TrainingSet> {
+  public async getTrainSet(languageCode: string): Promise<TrainingSet> {
     const trainDefinitions = await this._definitionRepository.getTrainDefinitions()
 
     return {
