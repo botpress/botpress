@@ -12,6 +12,9 @@
     "build": "cross-env NODE_ENV=production node ./webpack.config.js --compile --nomap && yarn scss",
     "scss": "node-sass src/theme/main.scss dist/theme.css --importer=node_modules/node-sass-tilde-importer"
   },
+  "resolutions": {
+    "**/is-svg": "^4.2.2"
+  },
   "devDependencies": {
     "@blueprintjs/core": "^3.23.1",
     "@blueprintjs/datetime": "3.15.2",
