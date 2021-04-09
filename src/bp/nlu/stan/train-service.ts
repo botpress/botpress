@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 
 import * as NLUEngine from 'nlu/engine'
 
+import { serializeError } from 'nlu/utils/error-utils'
 import ModelRepository from './model-repo'
 import TrainSessionService from './train-session-service'
 import { TrainingProgress } from './typings_v1'
@@ -69,7 +70,7 @@ export default class TrainService {
       }
 
       ts.status = 'errored'
-      ts.error = { message: err.message }
+      ts.error = serializeError(err)
       this.trainSessionService.setTrainingSession(modelId, password, ts)
       this.trainSessionService.releaseTrainingSession(modelId, password)
       this.logger.attachError(err).error('an error occured during training')
