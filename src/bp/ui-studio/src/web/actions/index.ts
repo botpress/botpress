@@ -439,7 +439,7 @@ export const trainSessionReceived = createAction('TRAIN_SESSION/RECEIVED')
 export const conditionsReceived = createAction('CONDITIONS/RECEIVED')
 export const refreshConditions = () => dispatch => {
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  axios.get(`${window.BOT_API_PATH}/dialogConditions`).then(({ data }) => {
+  axios.get(`${window.API_PATH}/modules/dialogConditions`).then(({ data }) => {
     dispatch(conditionsReceived(data))
   })
 }

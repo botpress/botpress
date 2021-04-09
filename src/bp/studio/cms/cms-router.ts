@@ -1,44 +1,30 @@
-import { ContentElement, Logger } from 'botpress/sdk'
+import { ContentElement } from 'botpress/sdk'
 import { LibraryElement } from 'common/typings'
-import { GhostService } from 'core/bpfs'
-import { CMSService, DefaultSearchParams } from 'core/cms'
-import { CustomRouter } from 'core/routers/customRouter'
-import { AuthService, TOKEN_AUDIENCE, checkTokenHeader, needPermissions } from 'core/security'
-import { WorkspaceService } from 'core/users'
-import { RequestHandler, Router } from 'express'
+import { DefaultSearchParams } from 'core/cms'
 import _ from 'lodash'
+import { StudioServices } from 'studio/studio-router'
+import { CustomStudioRouter } from 'studio/utils/custom-studio-router'
 
 const CONTENT_FOLDER = 'content-elements'
 const LIBRARY_FILE = 'library.json'
 
-export class CMSRouter extends CustomRouter {
-  private _checkTokenHeader: RequestHandler
-  private _needPermissions: (operation: string, resource: string) => RequestHandler
-
-  constructor(
-    private logger: Logger,
-    private authService: AuthService,
-    private cms: CMSService,
-    private workspaceService: WorkspaceService,
-    private ghost: GhostService
-  ) {
-    super('Content', logger, Router({ mergeParams: true }))
-    this._needPermissions = needPermissions(this.workspaceService)
-    this._checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
+export class CMSRouter extends CustomStudioRouter {
+  constructor(services: StudioServices) {
+    super('CMS', services)
     this.setupRoutes()
   }
 
   setupRoutes() {
     this.router.get(
       '/types',
-      this._checkTokenHeader,
-      this._needPermissions('read', 'bot.content'),
+      this.checkTokenHeader,
+      this.needPermissions('read', 'bot.content'),
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
-        const types = await this.cms.getAllContentTypes(botId)
+        const types = await this.cmsService.getAllContentTypes(botId)
 
         const response = await Promise.map(types, async type => {
-          const count = await this.cms.countContentElementsForContentType(botId, type.id)
+          const count = await this.cmsService.countContentElementsForContentType(botId, type.id)
           return {
             id: type.id,
             count,
@@ -59,24 +45,24 @@ export class CMSRouter extends CustomRouter {
 
     this.router.get(
       '/elements/count',
-      this._checkTokenHeader,
-      this._needPermissions('read', 'bot.content'),
+      this.checkTokenHeader,
+      this.needPermissions('read', 'bot.content'),
       this.asyncMiddleware(async (req, res) => {
         const botId = req.params.botId
-        const count = await this.cms.countContentElements(botId)
+        const count = await this.cmsService.countContentElements(botId)
         res.send({ count })
       })
     )
 
     this.router.post(
       '/:contentType?/elements',
-      this._checkTokenHeader,
-      this._needPermissions('read', 'bot.content'),
+      this.checkTokenHeader,
+      this.needPermissions('read', 'bot.content'),
       this.asyncMiddleware(async (req, res) => {
         const { botId, contentType } = req.params
         const { count, from, searchTerm, filters, sortOrder, ids } = req.body
 
-        const elements = await this.cms.listContentElements(botId, contentType, {
+        const elements = await this.cmsService.listContentElements(botId, contentType, {
           ...DefaultSearchParams,
           count: Number(count) || DefaultSearchParams.count,
           from: Number(from) || DefaultSearchParams.from,
@@ -93,22 +79,22 @@ export class CMSRouter extends CustomRouter {
 
     this.router.get(
       '/:contentType?/elements/count',
-      this._checkTokenHeader,
-      this._needPermissions('read', 'bot.content'),
+      this.checkTokenHeader,
+      this.needPermissions('read', 'bot.content'),
       this.asyncMiddleware(async (req, res) => {
         const { botId, contentType } = req.params
-        const count = await this.cms.countContentElementsForContentType(botId, contentType)
+        const count = await this.cmsService.countContentElementsForContentType(botId, contentType)
         res.send({ count })
       })
     )
 
     this.router.get(
       '/element/:elementId',
-      this._checkTokenHeader,
-      this._needPermissions('read', 'bot.content'),
+      this.checkTokenHeader,
+      this.needPermissions('read', 'bot.content'),
       this.asyncMiddleware(async (req, res) => {
         const { botId, elementId } = req.params
-        const element = await this.cms.getContentElement(botId, elementId)
+        const element = await this.cmsService.getContentElement(botId, elementId)
 
         if (!element) {
           this.logger.forBot(botId).warn(`The requested element doesn't exist: "${elementId}"`)
@@ -121,41 +107,46 @@ export class CMSRouter extends CustomRouter {
 
     this.router.post(
       '/:contentType/element/:elementId?',
-      this._checkTokenHeader,
-      this._needPermissions('write', 'bot.content'),
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.content'),
       this.asyncMiddleware(async (req, res) => {
         const { botId, contentType, elementId } = req.params
-        const element = await this.cms.createOrUpdateContentElement(botId, contentType, req.body.formData, elementId)
+        const element = await this.cmsService.createOrUpdateContentElement(
+          botId,
+          contentType,
+          req.body.formData,
+          elementId
+        )
         res.send(element)
       })
     )
 
     this.router.post(
       '/elements/bulk_delete',
-      this._checkTokenHeader,
-      this._needPermissions('write', 'bot.content'),
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.content'),
       this.asyncMiddleware(async (req, res) => {
-        await this.cms.deleteContentElements(req.params.botId, req.body)
+        await this.cmsService.deleteContentElements(req.params.botId, req.body)
         res.sendStatus(200)
       })
     )
 
     this.router.get(
       '/library/:lang?',
-      this._checkTokenHeader,
-      this._needPermissions('read', 'bot.content'),
+      this.checkTokenHeader,
+      this.needPermissions('read', 'bot.content'),
       this.asyncMiddleware(async (req, res) => {
         const { botId, lang } = req.params
 
-        const ghost = this.ghost.forBot(botId)
+        const ghost = this.bpfs.forBot(botId)
         if (!(await ghost.fileExists(CONTENT_FOLDER, LIBRARY_FILE))) {
           return res.send([])
         }
 
         const ids = await ghost.readFileAsObject<string[]>(CONTENT_FOLDER, LIBRARY_FILE)
 
-        const elements = await this.cms.listContentElements(botId, undefined, { ids, from: 0, count: -1 }, lang)
-        const contentTypes = (await this.cms.getAllContentTypes(botId)).reduce((acc, curr) => {
+        const elements = await this.cmsService.listContentElements(botId, undefined, { ids, from: 0, count: -1 }, lang)
+        const contentTypes = (await this.cmsService.getAllContentTypes(botId)).reduce((acc, curr) => {
           return { ...acc, [curr.id]: curr.title }
         }, {})
 
@@ -175,12 +166,12 @@ export class CMSRouter extends CustomRouter {
 
     this.router.post(
       '/library/:contentId/delete',
-      this._checkTokenHeader,
-      this._needPermissions('write', 'bot.content'),
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.content'),
       this.asyncMiddleware(async (req, res) => {
         const { botId, contentId } = req.params
 
-        const ghost = this.ghost.forBot(botId)
+        const ghost = this.bpfs.forBot(botId)
         if (!(await ghost.fileExists(CONTENT_FOLDER, LIBRARY_FILE))) {
           return res.sendStatus(404)
         }
@@ -203,12 +194,12 @@ export class CMSRouter extends CustomRouter {
 
     this.router.post(
       '/library/:contentId',
-      this._checkTokenHeader,
-      this._needPermissions('write', 'bot.content'),
+      this.checkTokenHeader,
+      this.needPermissions('write', 'bot.content'),
       this.asyncMiddleware(async (req, res) => {
         const { botId, contentId } = req.params
 
-        const ghost = this.ghost.forBot(botId)
+        const ghost = this.bpfs.forBot(botId)
 
         let contentIds: string[] = []
         if (await ghost.fileExists(CONTENT_FOLDER, LIBRARY_FILE)) {
@@ -289,7 +280,7 @@ export class CMSRouter extends CustomRouter {
   }
 
   private _augmentElement = async (element: ContentElement) => {
-    const contentType = await this.cms.getContentType(element.contentType)
+    const contentType = await this.cmsService.getContentType(element.contentType)
     return {
       ...element,
       schema: {

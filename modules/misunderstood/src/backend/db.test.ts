@@ -4,9 +4,13 @@ import 'reflect-metadata'
 import Database from '../../../../src/bp/core/database'
 
 import { createDatabaseSuite } from '../../../../src/bp/core/database/index.tests'
+import { PersistedConsoleLogger } from '../../../../src/bp/core/logger'
+import { createSpyObject, MockObject } from '../../../../src/bp/core/misc/utils'
+
+const logger: MockObject<PersistedConsoleLogger> = createSpyObject<PersistedConsoleLogger>()
 
 createDatabaseSuite('Misunderstood - DB', (database: Database) => {
-  const db = new Db({ database: database.knex })
+  const db = new Db({ database: database.knex, logger })
 
   beforeAll(async () => {
     db.knex = database.knex
@@ -99,9 +103,9 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
         props.language,
         FLAGGED_MESSAGE_STATUS.new
       )
-      await db.updateStatus(props.botId, id1.toString(), FLAGGED_MESSAGE_STATUS.pending)
-      await db.updateStatus(props.botId, id2.toString(), FLAGGED_MESSAGE_STATUS.pending)
-      await db.updateStatus(props.botId, id3.toString(), FLAGGED_MESSAGE_STATUS.deleted)
+      await db.updateStatuses(props.botId, [id1.toString()], FLAGGED_MESSAGE_STATUS.pending)
+      await db.updateStatuses(props.botId, [id2.toString()], FLAGGED_MESSAGE_STATUS.pending)
+      await db.updateStatuses(props.botId, [id3.toString()], FLAGGED_MESSAGE_STATUS.deleted)
 
       expect(await db.listEvents(props.botId, props.language, FLAGGED_MESSAGE_STATUS.pending)).toHaveLength(2)
       expect(await db.listEvents(props.botId, props.language, FLAGGED_MESSAGE_STATUS.deleted)).toHaveLength(1)
@@ -173,6 +177,40 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
           })
         ).toHaveLength(expectedCount)
       }
+    })
+  })
+
+  describe('addEvent', () => {
+    const props = {
+      botId: 'bot1',
+      eventId: '1234',
+      language: 'en',
+      preview: 'some message',
+      reason: FLAG_REASON.action
+    }
+
+    it('adds unseen events', async () => {
+      await db.addEvent(props)
+      await db.addEvent(props)
+      await db.addEvent(props)
+
+      expect(await db.listEvents(props.botId, props.language, FLAGGED_MESSAGE_STATUS.new)).toHaveLength(3)
+    })
+
+    it('does not add seen events', async () => {
+      await db.addEvent(props)
+      await db.addEvent(props)
+      await db.addEvent(props)
+
+      const events = await db.listEvents(props.botId, props.language, FLAGGED_MESSAGE_STATUS.new)
+      const lastEvent = events.pop()
+      await db.updateStatuses(props.botId, [lastEvent.id.toString()], FLAGGED_MESSAGE_STATUS.deleted)
+
+      // This event should not be added
+      await db.addEvent(props)
+
+      expect(await db.listEvents(props.botId, props.language, FLAGGED_MESSAGE_STATUS.new)).toHaveLength(2)
+      expect(await db.listEvents(props.botId, props.language, FLAGGED_MESSAGE_STATUS.deleted)).toHaveLength(1)
     })
   })
 })

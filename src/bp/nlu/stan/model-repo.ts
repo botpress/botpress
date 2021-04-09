@@ -46,7 +46,7 @@ export default class ModelRepository {
 
   public async saveModel(model: NLUEngine.Model, password: string): Promise<void> {
     const { modelDir } = this
-    const modelFileName = this._makeFileName(model, password)
+    const modelFileName = this._makeFileName(model.id, password)
 
     const serialized = JSON.stringify(model)
 

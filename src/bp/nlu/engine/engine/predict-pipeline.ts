@@ -6,6 +6,7 @@ import { extractListEntities, extractPatternEntities } from './entities/custom-e
 import { IntentPredictions, NoneableIntentPredictions } from './intents/intent-classifier'
 import { OOSIntentClassifier } from './intents/oos-intent-classfier'
 import { SvmIntentClassifier } from './intents/svm-intent-classifier'
+import makeSpellChecker from './language/spell-checker'
 import SlotTagger from './slots/slot-tagger'
 import {
   EntityExtractionResult,
@@ -46,6 +47,7 @@ type PredictStep = InitialStep & { utterance: Utterance }
 type ContextStep = PredictStep & { ctx_predictions: IntentPredictions }
 type IntentStep = ContextStep & { intent_predictions: _.Dictionary<NoneableIntentPredictions> }
 type SlotStep = IntentStep & { slot_predictions_per_intent: _.Dictionary<SlotExtractionResult[]> }
+type SpellStep = SlotStep & { spellChecked: string }
 
 const NONE_INTENT = 'none'
 
@@ -148,7 +150,16 @@ async function extractSlots(input: IntentStep, predictors: Predictors): Promise<
   return { ...input, slot_predictions_per_intent: slots_per_intent }
 }
 
-function MapStepToOutput(step: SlotStep): PredictOutput {
+async function spellCheck(input: SlotStep, predictors: Predictors, tools: Tools): Promise<SpellStep> {
+  const spellChecker = makeSpellChecker(predictors.vocab, input.languageCode, tools)
+  const spellChecked = await spellChecker(input.utterance.toString({ entities: 'keep-value', slots: 'keep-value' }))
+  return {
+    ...input,
+    spellChecked
+  }
+}
+
+function MapStepToOutput(step: SpellStep): PredictOutput {
   const entitiesMapper = (e?: EntityExtractionResult | UtteranceEntity): Entity => {
     if (!e) {
       return eval('null')
@@ -216,13 +227,14 @@ function MapStepToOutput(step: SlotStep): PredictOutput {
     }
   }, {})
 
-  return <PredictOutput>{
+  return {
     entities,
     predictions: _.chain(predictions) // orders all predictions by confidence
       .entries()
       .orderBy(x => x[1].confidence, 'desc')
       .fromPairs()
-      .value()
+      .value(),
+    spellChecked: step.spellChecked
   }
 }
 
@@ -233,6 +245,7 @@ export const Predict = async (input: PredictInput, tools: Tools, predictors: Pre
   const ctxStep = await predictContext(entitesStep, predictors)
   const intentStep = await predictIntent(ctxStep, predictors)
   const slotStep = await extractSlots(intentStep, predictors)
-  const output = MapStepToOutput(slotStep)
+  const spellStep = await spellCheck(slotStep, predictors, tools)
+  const output = MapStepToOutput(spellStep)
   return output
 }

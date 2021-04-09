@@ -2,6 +2,7 @@ import axios from 'axios'
 import { Logger } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
 import LicensingService from 'common/licensing-service'
+import { resolveAsset, resolveIndexPaths } from 'core/app/server-utils'
 import { BotService } from 'core/bots'
 import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config/config-loader'
@@ -150,6 +151,15 @@ class AdminRouter extends CustomRouter {
         }
       })
     )
+
+    this.setupStaticRoutes(app)
+  }
+
+  setupStaticRoutes(app) {
+    app.use('/admin', express.static(resolveAsset('admin/ui/public'), { index: false }))
+    app.get(['/admin', '/admin/*'], resolveIndexPaths('admin/ui/public/index.html'))
+
+    app.get('/', (req, res) => res.redirect(`${process.ROOT_PATH}/admin`))
   }
 }
 

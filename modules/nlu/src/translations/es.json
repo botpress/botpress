@@ -1,7 +1,7 @@
 {
   "autoTrain": "Auto Entrenamietno",
   "cancelTraining": "Cancelar Entrenamietno",
-  "description": "Utilice el motor nativo de Smartbots Natural language understanding para hacer que su bot sea más inteligente.",
+  "description": "Presione + en el panel izquierdo para crear una intención.",
   "entities": {
     "deleteMessage": "¿Está seguro de que desea eliminar el entity \"{entityName}\" ?",
     "duplicate": "Duplicar Entity",

@@ -1,7 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { allInRange, GetZPercent, std } from './math'
+import { detectAmbiguity } from './ambiguous'
+import { GetZPercent, std } from './math'
 import { NONE_INTENT } from './typings'
 
 const OOS_AS_NONE_TRESH = 0.4
@@ -120,22 +121,6 @@ function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstandin
     intent: elected,
     intents: predictions
   }
-}
-
-function detectAmbiguity(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {
-  // +- 10% away from perfect median leads to ambiguity
-  const preds = input.intents!
-  const perfectConfusion = 1 / preds.length
-  const low = perfectConfusion - 0.1
-  const up = perfectConfusion + 0.1
-  const confidenceVec = preds.map(p => p.confidence)
-
-  const ambiguous =
-    preds.length > 1 &&
-    (allInRange(confidenceVec, low, up) ||
-      (preds[0].name === NONE_INTENT && allInRange(confidenceVec.slice(1), low, up)))
-
-  return { ...input, ambiguous }
 }
 
 function extractElectedIntentSlot(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {

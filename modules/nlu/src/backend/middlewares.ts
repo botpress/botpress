@@ -1,8 +1,9 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { Config } from '../config'
 import { NLUApplication } from './application'
-import legacyElectionPipeline from './election/legacy-election'
+import { election } from './election'
 
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
 
@@ -36,7 +37,9 @@ const removeSensitiveText = (bp: typeof sdk, event: sdk.IO.IncomingEvent) => {
   }
 }
 
-export const registerMiddlewares = (bp: typeof sdk, app: NLUApplication) => {
+export const registerMiddlewares = async (bp: typeof sdk, app: NLUApplication) => {
+  const globalConfig: Config = await bp.config.getModuleConfig('nlu')
+
   bp.events.registerMiddleware({
     name: PREDICT_MW,
     direction: 'incoming',
@@ -76,8 +79,7 @@ export const registerMiddlewares = (bp: typeof sdk, app: NLUApplication) => {
       }
 
       try {
-        // TODO: use the 'intent-is' condition logic when bot uses NDU
-        const nlu = legacyElectionPipeline(event.nlu)
+        const nlu = election(event.nlu, globalConfig)
         _.merge(event, { nlu })
       } catch (err) {
         bp.logger.warn(`Error making nlu election for incoming text: ${err.message}`)
