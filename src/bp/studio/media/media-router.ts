@@ -39,8 +39,8 @@ class MediaRouter extends CustomStudioRouter {
 
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const mediaUploadMulter = fileUploadMulter(
-      botpressConfig.fileUpload.allowedMimeTypes ?? ['image/jpeg', 'image/png', 'image/gif'],
-      botpressConfig.fileUpload.maxFileSize ?? '10mb'
+      botpressConfig.fileUpload.allowedMimeTypes ?? ['image/jpeg', 'image/png', 'image/gif', 'audio/mpeg', 'video/mp4'],
+      botpressConfig.fileUpload.maxFileSize ?? '25mb'
     )
 
     router.post(
