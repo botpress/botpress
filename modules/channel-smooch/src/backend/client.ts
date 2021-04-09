@@ -69,7 +69,8 @@ export class SmoochClient {
     }
 
     for (const message of payload.messages) {
-      if (message.type !== 'text') {
+      if (!this.config.messageTypes.includes(message.type)) {
+        this.logger.warn(`[${this.botId}] messageType: "${message.type}" is not configured. Event is being dropped.`)
         continue
       }
 
@@ -78,11 +79,8 @@ export class SmoochClient {
           botId: this.botId,
           channel: 'smooch',
           direction: 'incoming',
-          type: 'text',
-          payload: {
-            type: 'text',
-            text: message.text
-          },
+          type: message.type,
+          payload: message,
           preview: message.text,
           threadId: payload.conversation._id,
           target: payload.appUser._id

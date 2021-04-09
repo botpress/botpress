@@ -22,4 +22,10 @@ export interface Config {
    * @default 24h
    */
   chatUserAuthDuration: string
+
+  /**
+   * The types of messages received from the channel that will fire off as events in the Dialog Engine
+   * @default ['text']
+   */
+  messageTypes: string[]
 }
