@@ -12,6 +12,7 @@ import { BPError } from '../dialog/errors'
 
 import { FileRevision, StorageDriver } from '.'
 
+@injectable
 export class DiskStorageDriver implements StorageDriver {
   resolvePath = (p: string) => path.resolve(process.PROJECT_LOCATION, p)
 
