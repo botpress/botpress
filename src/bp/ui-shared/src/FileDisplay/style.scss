@@ -52,3 +52,21 @@
     left: 0;
   }
 }
+
+.videoWrapper {
+  border-radius: 3px;
+  height: 200px;
+  position: relative;
+  width: 200px;
+
+  &Actions {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    z-index: 100;
+  }
+
+  &Source {
+    background-color: rgba(30, 30, 30, 0.5);
+  }
+}

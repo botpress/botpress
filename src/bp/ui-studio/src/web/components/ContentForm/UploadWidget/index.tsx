@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { FormFields, lang, FileDisplay } from 'botpress/shared'
+import { FormFields, lang, UploadFieldProps } from 'botpress/shared'
 import cn from 'classnames'
 import React, { FC, Fragment, useState } from 'react'
 import { AccessControl } from '~/components/Shared/Utils'
@@ -14,7 +14,7 @@ interface IUploadWidgetProps {
   onChange(value: string | null): void
   schema: {
     type: string
-    $subtype: string
+    $subtype: UploadFieldProps['type']
     $filter: string
     title: string
   }

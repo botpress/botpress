@@ -1,5 +1,5 @@
 import { Button, Intent, Position, Tooltip } from '@blueprintjs/core'
-import { lang, FileDisplay } from 'botpress/shared'
+import { lang, FileDisplay, UploadFieldProps } from 'botpress/shared'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import SmartInput from '~/components/SmartInput'
 import style from '~/views/FlowBuilder/sidePanelTopics/form/style.scss'
@@ -8,7 +8,7 @@ import localStyle from './style.scss'
 
 interface IUrlUploadProps {
   value: string | null
-  type: 'image' | 'audio' | string
+  type: UploadFieldProps['type']
   onChange(value: string | null): void
   onDelete(): void
   onError(value: string | Error): void
@@ -37,7 +37,6 @@ const UrlUpload: FC<IUrlUploadProps> = props => {
   }
 
   const isUrlOrRelativePath = (str: string) => {
-    console.log('str', str)
     const re = /^(?:[a-z]+:)?\/\/|^\//i
 
     return re.test(str)

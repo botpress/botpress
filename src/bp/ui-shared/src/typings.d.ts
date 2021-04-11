@@ -149,7 +149,7 @@ declare module 'botpress/shared' {
   export const sharedStyle: CssExports
 
   export { Option, MoreOptionsItems, HeaderButtonProps, ToolbarButtonProps, QuickShortcut, MenuItem, HeaderButton }
-  export { RequiredPermission, PermissionAllowedProps, AccessControlProps, PermissionOperation }
+  export { RequiredPermission, PermissionAllowedProps, AccessControlProps, PermissionOperation, UploadFieldProps }
 }
 
 declare global {
