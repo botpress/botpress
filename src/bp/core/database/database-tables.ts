@@ -1,3 +1,4 @@
+import { AttributesTable } from 'core/attributes/attributes-table'
 import { GhostFilesTable } from 'core/bpfs/ghost_files-table'
 import { GhostRevisionsTable } from 'core/bpfs/ghost_revisions-table'
 import { DialogSessionTable } from 'core/dialog/sessions/dialog_sessions-table'
@@ -41,6 +42,7 @@ const tables: typeof Table[] = [
   ConversationsTable,
   MessagesTable,
   MappingTable,
+  AttributesTable,
   TasksTable,
   BotUsersTable,
   MigrationsTable
