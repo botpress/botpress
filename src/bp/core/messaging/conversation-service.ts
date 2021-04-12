@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import { AttributesRepository } from 'core/attributes/attributes-repository'
 import { JobService } from 'core/distributed'
 import { MappingRepository, ScopedMappingRepository } from 'core/mapping/mapping-repository'
 import { ConversationRepository } from 'core/messaging'
@@ -18,7 +17,6 @@ export class ConversationService {
   constructor(
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.ConversationRepository) private conversationRepo: ConversationRepository,
-    @inject(TYPES.AttributesRepository) private attributesRepo: AttributesRepository,
     @inject(TYPES.MappingRepository) private mappingRepo: MappingRepository
   ) {}
 
@@ -39,7 +37,6 @@ export class ConversationService {
       scope = new ScopedConversationService(
         botId,
         this.conversationRepo,
-        this.attributesRepo,
         this.mappingRepo,
         (userId, mostRecentConvoId) => this.invalidateMostRecent(botId, userId, mostRecentConvoId)
       )
@@ -55,7 +52,6 @@ export class ScopedConversationService implements sdk.experimental.conversations
   constructor(
     private botId: string,
     private conversationRepo: ConversationRepository,
-    private attributesRepo: AttributesRepository,
     private mappingRepo: MappingRepository,
     public invalidateMostRecent: (userId: string, mostRecentConvoId?: sdk.uuid) => void
   ) {
@@ -119,18 +115,6 @@ export class ScopedConversationService implements sdk.experimental.conversations
         this.mostRecentCache.del(userId)
       }
     }
-  }
-
-  public async setAttribute(id: sdk.uuid, name: string, value: string) {
-    await this.attributesRepo.forAttribute(name).set(id, value)
-  }
-
-  public async deleteAttribute(id: sdk.uuid, name: string): Promise<boolean> {
-    return this.attributesRepo.forAttribute(name).delete(id)
-  }
-
-  public async getAttribute(id: sdk.uuid, name: string): Promise<string | undefined> {
-    return this.attributesRepo.forAttribute(name).get(id)
   }
 
   public async createMapping(channel: string, localId: sdk.uuid, foreignId: string): Promise<void> {
