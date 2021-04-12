@@ -87,7 +87,7 @@ export const makeClient = (bp: { axios: AxiosInstance }): HitlClient => {
         .then(data => data.map(castHandoff)),
     assignHandoff: async id =>
       bp.axios
-        .post(`/handoffs/${id}/assign`, null, config)
+        .post(`/handoffs/${id}/assign`, { webSessionId: (window as any).__BP_VISITOR_SOCKET_ID }, config)
         .then(res => res.data)
         .then(data => castHandoff(data)),
     resolveHandoff: async id =>
