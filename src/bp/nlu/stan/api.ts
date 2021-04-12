@@ -27,21 +27,8 @@ export interface APIOptions {
   batchSize: number
   silent: boolean
   modelCacheSize: string
-  modelDir: string
+  dbURL?: string
 }
-// TODO add ModelRepoOptions in api config
-
-// TODOS
-// [X] 1- configure ghost with modelDir`
-// [X] 2- configuration option for ghost backend (fs | db) if db connectionString
-// [X] 3- hide ghost initialization function in the model repo initialize func
-// 4- make sure model repo isn't scoped and uses ghost service and not scoped ghost service
-//    [X] 4.1 change save and load model to take appID and appSecret as params (options)
-//    [X] 4.2 use appID to scope the ghost properly
-//    [X] 4.3 use appSecret to encrypt the modelID
-//    [X] 4.4 change what needs to be changed in training service and api to fit with those new signatures
-// 5- appId and appSecret should be request params or body
-// 6- configure model repo with APIOptions ==> add driver and connection string
 
 const debug = DEBUG('api')
 const debugRequest = debug.sub('request')
@@ -87,8 +74,17 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
   const app = createExpressApp(options)
   const logger = new Logger('API')
 
-  // TODO add driver and connection string in api Options
-  const modelRepo = new ModelRepository({ modelDir: options.modelDir })
+  const { dbURL: databaseURL } = options
+  const modelRepoOptions: ModelRepoOptions = databaseURL
+    ? {
+        driver: 'db',
+        dbURL: databaseURL
+      }
+    : {
+        driver: 'fs'
+      }
+
+  const modelRepo = new ModelRepository(logger, modelRepoOptions)
   await modelRepo.initialize()
   const trainSessionService = new TrainSessionService()
   const trainService = new TrainService(logger, engine, modelRepo, trainSessionService)
