@@ -187,8 +187,14 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
 
       const rawPredictions: BpPredictOutput[] = await Promise.map(utterances as string[], async utterance => {
         const detectedLanguage = await engine.detectLanguage(utterance, { [modelId.languageCode]: modelId })
-        const { entities, predictions, spellChecked } = await engine.predict(utterance, modelId)
-        return { entities, contexts: predictions, spellChecked, detectedLanguage, utterance }
+        const { entities, contexts, spellChecked } = await engine.predict(utterance, modelId)
+        const contextDict = contexts.reduce((dict, context) => {
+          return {
+            ...dict,
+            [context.name]: context
+          }
+        }, {})
+        return { entities, contexts: contextDict, spellChecked, detectedLanguage, utterance }
       })
 
       const withoutNone: PredictOutput[] = rawPredictions.map(mapPredictOutput)

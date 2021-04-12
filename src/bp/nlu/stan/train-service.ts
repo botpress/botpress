@@ -16,8 +16,8 @@ export default class TrainService {
   train = async (
     modelId: NLUEngine.ModelId,
     password: string,
-    intents: sdk.NLU.IntentDefinition[],
-    entities: sdk.NLU.EntityDefinition[],
+    intents: NLUEngine.IntentDefinition[],
+    entities: NLUEngine.EntityDefinition[],
     language: string,
     nluSeed: number
   ) => {

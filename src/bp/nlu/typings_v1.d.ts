@@ -26,11 +26,13 @@ export interface SlotDefinition {
   entities: string[]
 }
 
+export type EntityDefinition = ListEntityDefinition | PatternEntityDefinition
 export interface ListEntityDefinition {
   name: string
   type: 'list'
   values: { name: string; synonyms: string[] }[]
   fuzzy: number
+  sensitive?: boolean
 }
 
 export interface PatternEntityDefinition {
@@ -39,6 +41,7 @@ export interface PatternEntityDefinition {
   regex: string
   case_sensitive: boolean
   examples: string[]
+  sensitive?: boolean
 }
 
 export interface PredictInput {
@@ -54,9 +57,7 @@ export interface PredictInput {
 export interface PredictOutput {
   entities: EntityPrediction[]
   contexts: ContextPrediction[]
-  utterance: string
   spellChecked: string
-  detectedLanguage: string
 }
 
 export type EntityType = 'pattern' | 'list' | 'system'
@@ -70,6 +71,7 @@ export interface EntityPrediction {
   start: number
   end: number
   unit?: string
+  sensitive?: boolean
 }
 
 export interface ContextPrediction {
@@ -110,81 +112,4 @@ export interface TrainingSession {
   status: TrainingStatus
   language: string
   progress: number
-}
-
-/**
- * ################################
- * ############ INPUTS ############
- * ################################
- */
-
-export interface EntityDefOccurrence {
-  name: string
-  synonyms: string[]
-}
-
-export interface EntityDefinition {
-  id: string
-  name: string
-  type: EntityType
-  sensitive?: boolean
-  matchCase?: boolean
-  examples?: string[]
-  fuzzy?: number
-  occurrences?: EntityDefOccurrence[]
-  pattern?: string
-}
-
-export interface SlotDefinition {
-  id: string
-  name: string
-  entities: string[]
-  color: number
-}
-
-export interface Intent {
-  name: string
-  confidence: number
-  context: string
-}
-
-export interface Entity {
-  name: string
-  type: string
-  meta: EntityMeta
-  data: EntityBody
-}
-
-export interface EntityBody {
-  extras?: any
-  value: any
-  unit: string
-}
-
-export interface EntityMeta {
-  sensitive: boolean
-  confidence: number
-  provider?: string
-  source: string
-  start: number
-  end: number
-  raw?: any
-}
-
-export interface Slot {
-  name: string
-  value: any
-  source: any
-  entity: Entity
-  confidence: number
-  start: number
-  end: number
-}
-
-export interface SlotCollection {
-  [key: string]: Slot
-}
-
-export interface Predictions {
-  [context: string]: ContextPrediction
 }

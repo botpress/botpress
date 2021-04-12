@@ -15,6 +15,8 @@ import {
   TrainingSet,
   Model,
   PredictOutput,
+  PatternEntityDefinition,
+  ListEntityDefinition,
   Engine as IEngine
 } from '../typings'
 import { deserializeKmeans } from './clustering'
@@ -133,13 +135,13 @@ export default class Engine implements IEngine {
     const previousModel = previousModelId && this.modelsById.get(modelIdService.toString(previousModelId))
 
     const list_entities = entityDefs
-      .filter(ent => ent.type === 'list')
+      .filter(<(ent) => ent is ListEntityDefinition>(ent => ent.type === 'list'))
       .map(e => {
         return <ListEntity & { cache: EntityCacheDump }>{
           name: e.name,
           fuzzyTolerance: e.fuzzy,
           sensitive: e.sensitive,
-          synonyms: _.chain(e.occurrences)
+          synonyms: _.chain(e.values)
             .keyBy('name')
             .mapValues('synonyms')
             .value(),
@@ -148,12 +150,12 @@ export default class Engine implements IEngine {
       })
 
     const pattern_entities: PatternEntity[] = entityDefs
-      .filter(ent => ent.type === 'pattern' && isPatternValid(ent.pattern))
+      .filter(<(ent) => ent is PatternEntityDefinition>(ent => ent.type === 'pattern' && isPatternValid(ent.regex)))
       .map(ent => ({
         name: ent.name,
-        pattern: ent.pattern!,
-        examples: [], // TODO add this to entityDef
-        matchCase: !!ent.matchCase,
+        pattern: ent.regex!,
+        examples: ent.examples,
+        matchCase: !!ent.case_sensitive,
         sensitive: !!ent.sensitive
       }))
 

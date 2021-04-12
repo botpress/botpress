@@ -1,6 +1,13 @@
 import { MLToolkit } from 'botpress/sdk'
-import _ from 'lodash'
-import { PredictOutput, Entity, SlotCollection, Predictions } from '../typings'
+import _, { split } from 'lodash'
+import {
+  EntityPrediction,
+  PredictOutput,
+  EntityDefinition,
+  SlotPrediction,
+  IntentPrediction,
+  ContextPrediction
+} from 'nlu/typings_v1'
 
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
 import { IntentPredictions, NoneableIntentPredictions } from './intents/intent-classifier'
@@ -160,7 +167,7 @@ async function spellCheck(input: SlotStep, predictors: Predictors, tools: Tools)
 }
 
 function MapStepToOutput(step: SpellStep): PredictOutput {
-  const entitiesMapper = (e?: EntityExtractionResult | UtteranceEntity): Entity => {
+  const entitiesMapper = (e?: EntityExtractionResult | UtteranceEntity): EntityPrediction => {
     if (!e) {
       return eval('null')
     }
@@ -168,31 +175,27 @@ function MapStepToOutput(step: SpellStep): PredictOutput {
     return {
       name: e.type,
       type: e.metadata.entityId,
-      data: {
-        unit: e.metadata.unit ?? '',
-        value: e.value
-      },
-      meta: {
-        sensitive: !!e.sensitive,
-        confidence: e.confidence,
-        end: (e as EntityExtractionResult).end ?? (e as UtteranceEntity).endPos,
-        source: e.metadata.source,
-        start: (e as EntityExtractionResult).start ?? (e as UtteranceEntity).startPos
-      }
+      value: e.value,
+      unit: e.metadata.unit ?? '',
+      sensitive: !!e.sensitive,
+      confidence: e.confidence,
+      end: (e as EntityExtractionResult).end ?? (e as UtteranceEntity).endPos,
+      source: e.metadata.source,
+      start: (e as EntityExtractionResult).start ?? (e as UtteranceEntity).startPos
     }
   }
 
   const entities = step.utterance.entities.map(entitiesMapper)
 
-  const slotsCollectionReducer = (slots: SlotCollection, s: SlotExtractionResult): SlotCollection => {
+  const slotsCollectionReducer = (slots: SlotPrediction[], s: SlotExtractionResult): SlotPrediction[] => {
     if (slots[s.slot.name] && slots[s.slot.name].confidence > s.slot.confidence) {
       // we keep only the most confident slots
       return slots
     }
 
-    return {
+    return [
       ...slots,
-      [s.slot.name]: {
+      {
         start: s.start,
         end: s.end,
         confidence: s.slot.confidence,
@@ -201,39 +204,40 @@ function MapStepToOutput(step: SpellStep): PredictOutput {
         value: s.slot.value,
         entity: entitiesMapper(s.slot.entity)
       }
-    }
+    ]
   }
 
-  const predictions: Predictions = step.ctx_predictions.intents.reduce((preds, current) => {
-    const { name: label, confidence } = current
+  const intentMapper = (intents: IntentPredictions): IntentPrediction[] => {
+    return intents.intents.map(intent => {
+      const slots: SlotPrediction[] = step.slot_predictions_per_intent[intent.name].reduce(slotsCollectionReducer, [])
 
-    const intentPred = step.intent_predictions[label]
-    const intents = !intentPred
-      ? []
-      : intentPred.intents.map(({ name, confidence, extractor }) => ({
-          extractor,
-          label: name,
-          confidence,
-          slots: (step.slot_predictions_per_intent?.[name] || []).reduce(slotsCollectionReducer, {})
-        }))
-
-    return {
-      ...preds,
-      [label]: {
-        confidence,
-        oos: intentPred?.oos || 0,
-        intents
+      return {
+        name: intent.name,
+        confidence: intent.confidence,
+        extractor: intent.extractor,
+        slots: _.orderBy(slots, s => s.confidence, 'desc')
       }
-    }
-  }, {})
+    })
+  }
+
+  const contextMapper = (predictions: _.Dictionary<NoneableIntentPredictions>): ContextPrediction[] => {
+    return Object.values(predictions).reduce<ContextPrediction[]>((arr, pred) => {
+      const newContexts: ContextPrediction[] = pred.intents.map(intent => {
+        const intents = intentMapper(pred)
+        return {
+          name: intent.name,
+          confidence: intent.confidence,
+          oos: pred.oos,
+          intents: _.orderBy(intents, i => i.confidence, 'desc')
+        }
+      })
+      return [...newContexts, ...arr]
+    }, [])
+  }
 
   return {
-    entities,
-    predictions: _.chain(predictions) // orders all predictions by confidence
-      .entries()
-      .orderBy(x => x[1].confidence, 'desc')
-      .fromPairs()
-      .value(),
+    contexts: contextMapper(step.intent_predictions),
+    entities, // orders all predictions by confidence
     spellChecked: step.spellChecked
   }
 }

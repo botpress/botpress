@@ -1,4 +1,12 @@
-import { IntentDefinition, EntityDefinition, PredictOutput } from '../typings_v1'
+import {
+  IntentDefinition,
+  EntityDefinition,
+  PatternEntityDefinition,
+  ListEntityDefinition,
+  PredictOutput
+} from '../typings_v1'
+
+export { IntentDefinition, EntityDefinition, PatternEntityDefinition, ListEntityDefinition, PredictOutput }
 export interface Config extends LanguageConfig {
   modelCacheSize: string
   legacyElection: boolean

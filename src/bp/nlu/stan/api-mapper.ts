@@ -23,7 +23,7 @@ export interface BpTrainInput {
 }
 
 export interface BpPredictOutput {
-  entities: NLUEngine.Entity[]
+  entities: NLUEngine.EntityPrediction[]
   contexts: _.Dictionary<NLUEngine.ContextPrediction>
   spellChecked: string
   detectedLanguage: string
@@ -31,9 +31,10 @@ export interface BpPredictOutput {
 }
 
 interface BpIntentPred {
-  label: string
+  name: string
   confidence: number
-  slots: _.Dictionary<NLUEngine.Slot>
+  // slots: _.Dictionary<NLUEngine.SlotPrediction>
+  slots: SlotPrediction[]
   extractor: string
 }
 
@@ -46,102 +47,34 @@ export const isPatternEntity = (e: ListEntityDefinition | PatternEntityDefinitio
 }
 
 const mapInputSlot = (slot: SlotDefinition): NLUEngine.SlotDefinition => {
-  const { name, entities } = slot
-  return {
-    id: name,
-    entities,
-    name,
-    color: 0
-  }
+  return slot
 }
 
 const makeIntentMapper = (ctx: string, lang: string) => (intent: IntentDefinition): NLUEngine.IntentDefinition => {
-  const { name, utterances, slots } = intent
-
-  return {
-    contexts: [ctx],
-    name,
-    utterances: {
-      [lang]: utterances
-    },
-    slots: slots.map(mapInputSlot)
-  }
+  return intent
 }
 
 const mapList = (listDef: ListEntityDefinition): NLUEngine.EntityDefinition => {
-  const { name, fuzzy, values } = listDef
-
-  return {
-    id: name,
-    name,
-    type: 'list',
-    fuzzy,
-    occurrences: values
-  }
+  return listDef
 }
 
 const mapPattern = (patternDef: PatternEntityDefinition): NLUEngine.EntityDefinition => {
-  const { name, regex, case_sensitive } = patternDef
-
-  return {
-    id: name,
-    name,
-    type: 'pattern',
-    pattern: regex,
-    matchCase: case_sensitive
-  }
+  return patternDef
 }
 
 export function mapTrainInput(trainInput: TrainInput): BpTrainInput {
-  const { language, contexts, entities, seed, password, intents } = trainInput
-
-  const listEntities = entities.filter(isListEntity).map(mapList)
-  const patternEntities = entities.filter(isPatternEntity).map(mapPattern)
-
-  const _intents: NLUEngine.IntentDefinition[] = _.flatMap(contexts, ctx => {
-    const intentMapper = makeIntentMapper(ctx, language)
-    return intents.filter(i => i.contexts.includes(ctx)).map(intentMapper)
-  })
-
-  return {
-    language,
-    entities: [...listEntities, ...patternEntities],
-    contexts,
-    intents: _intents,
-    seed,
-    password
-  }
+  return trainInput
 }
 
-function mapEntity(entity: NLUEngine.Entity): EntityPrediction {
-  const { data, type, meta, name } = entity
-  const { unit, value } = data
-  const { confidence, start, end, source } = meta
-
-  return {
-    name,
-    type,
-    start,
-    end,
-    confidence,
-    source,
-    value,
-    unit
-  }
+function mapEntity(entity: NLUEngine.EntityPrediction): EntityPrediction {
+  return entity
 }
 
 function mapIntent(intent: BpIntentPred): IntentPrediction {
-  const { confidence, slots, extractor, label } = intent
-
-  return {
-    name: label,
-    confidence,
-    extractor,
-    slots: Object.values(slots).map(mapOutputSlot)
-  }
+  return intent
 }
 
-function mapOutputSlot(slot: NLUEngine.Slot): SlotPrediction {
+function mapOutputSlot(slot: NLUEngine.SlotPrediction): SlotPrediction {
   const { confidence, start, end, value, source, name, entity } = slot
 
   return {
