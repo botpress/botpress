@@ -61,10 +61,7 @@ const Upload: FC<UploadFieldProps> = props => {
     await props.axios
       .post(props.customPath ? props.customPath : 'media', data, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then(response => {
-        let url: string = response.data.url
-        if (url.startsWith('/')) {
-          url = `${window.location.protocol}//${window.location.host}${url}`
-        }
+        const url: string = response.data.url
 
         dispatch({ type: 'uploadSuccess', data: { url } })
       })
