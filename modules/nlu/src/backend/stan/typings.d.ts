@@ -1,4 +1,4 @@
-// Typings for Stan's API v1
+// Typings for Stan's API v1 copied from core
 
 /**
  * ################################

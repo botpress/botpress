@@ -142,10 +142,8 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
         }
 
         session = {
-          key: stringId,
           status: 'done',
-          progress: 1,
-          language: model!.id.languageCode
+          progress: 1
         }
       }
 
@@ -164,7 +162,7 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
       const session = trainSessionService.getTrainingSession(modelId, password)
 
       if (session?.status === 'training') {
-        await engine.cancelTraining(session.key)
+        await engine.cancelTraining(stringId)
         return res.send({ success: true })
       }
 

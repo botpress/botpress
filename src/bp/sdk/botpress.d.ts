@@ -534,6 +534,17 @@ declare module 'botpress/sdk' {
     }
 
     export type SlotCollection = Dic<Slot>
+
+    export interface ContextPrediction {
+      confidence: number
+      oos: number
+      intents: {
+        label: string
+        confidence: number
+        slots: NLU.SlotCollection
+        extractor: string
+      }[]
+    }
   }
 
   export namespace NDU {

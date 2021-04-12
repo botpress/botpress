@@ -2,8 +2,10 @@ import * as sdk from 'botpress/sdk'
 
 import * as NLUEngine from 'nlu/engine'
 
+import { serializeError } from 'nlu/utils/error-utils'
 import { ModelRepository } from './model-repo'
 import TrainSessionService from './train-session-service'
+import { TrainingProgress, TrainingErrorType } from './typings_v1'
 
 export default class TrainService {
   constructor(
@@ -24,7 +26,10 @@ export default class TrainService {
     const stringId = NLUEngine.modelIdService.toString(modelId)
     this.logger.info(`[${stringId}] Training Started.`)
 
-    const ts = this.trainSessionService.makeTrainingSession(modelId, password, language)
+    const ts: TrainingProgress = {
+      status: 'training-pending',
+      progress: 0
+    }
     this.trainSessionService.setTrainingSession(modelId, password, ts)
 
     const progressCallback = (progress: number) => {
@@ -42,7 +47,7 @@ export default class TrainService {
         languageCode: language,
         seed: nluSeed
       }
-      const model = await this.engine.train(ts.key, trainSet, { progressCallback })
+      const model = await this.engine.train(stringId, trainSet, { progressCallback })
       this.logger.info(`[${stringId}] Training Done.`)
 
       // TODO add appID
@@ -60,12 +65,16 @@ export default class TrainService {
         return
       }
 
+      let type: TrainingErrorType = 'unknown'
       if (NLUEngine.errors.isTrainingAlreadyStarted(err)) {
         this.logger.error('training already started')
+        type = 'already-started'
         return
       }
 
       ts.status = 'errored'
+      ts.error = { ...serializeError(err), type }
+
       this.trainSessionService.setTrainingSession(modelId, password, ts)
       this.trainSessionService.releaseTrainingSession(modelId, password)
       this.logger.attachError(err).error('an error occured during training')
