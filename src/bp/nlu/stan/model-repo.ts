@@ -15,6 +15,7 @@ import {
   ScopedGhostService,
   MemoryObjectCache
 } from './simple-ghost'
+
 interface FSDriver {
   driver: 'fs'
 }
@@ -27,8 +28,8 @@ interface DBDriver {
 export type ModelRepoOptions = FSDriver | DBDriver
 
 interface ModelOwnershipOptions {
-  appId?: string
-  appSecret?: string
+  appId: string
+  appSecret: string
 }
 
 const MODELS_DIR = './models'
@@ -76,7 +77,7 @@ export class ModelRepository {
    */
   public async getModel(
     modelId: NLUEngine.ModelId,
-    options: ModelOwnershipOptions = {}
+    options: ModelOwnershipOptions
   ): Promise<NLUEngine.Model | undefined> {
     const scopedGhost = this._getScopedGhostForAppID(options.appId)
 
@@ -107,7 +108,7 @@ export class ModelRepository {
     }
   }
 
-  public async saveModel(model: NLUEngine.Model, options: ModelOwnershipOptions = {}): Promise<void | void[]> {
+  public async saveModel(model: NLUEngine.Model, options: ModelOwnershipOptions): Promise<void | void[]> {
     const serialized = JSON.stringify(model)
 
     const stringId = modelIdService.toString(model.id)
@@ -155,7 +156,7 @@ export class ModelRepository {
     return Promise.each(models, m => this.deleteModel(m, options))
   }
 
-  public async deleteModel(modelId: NLUEngine.ModelId, options: ModelOwnershipOptions = {}): Promise<void> {
+  public async deleteModel(modelId: NLUEngine.ModelId, options: ModelOwnershipOptions): Promise<void> {
     const scopedGhost = this._getScopedGhostForAppID(options.appId)
 
     const stringId = modelIdService.toString(modelId)
@@ -165,16 +166,16 @@ export class ModelRepository {
     return scopedGhost.deleteFile(MODELS_DIR, fname)
   }
 
-  private _getScopedGhostForAppID(appId: string = ''): ScopedGhostService {
+  private _getScopedGhostForAppID(appId: string): ScopedGhostService {
     return appId ? this._ghost.forBot(appId) : this._ghost.root()
   }
 
-  private _getFileExtension(appSecret: string | undefined) {
+  private _getFileExtension(appSecret: string) {
     const secretHash = this._computeSecretHash(appSecret)
     return `${secretHash}.${MODELS_EXT}`
   }
 
-  private _computeSecretHash(appSecret: string = ''): string {
+  private _computeSecretHash(appSecret: string): string {
     return halfmd5(appSecret) // makes shorter file name than full regular md5
   }
 }

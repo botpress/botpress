@@ -141,7 +141,7 @@ ${_.repeat(' ', 9)}========================================`)
 
 {green /**
  * Gets the current version of botpress core NLU. Usefull to test if your installation is working.
- * @returns {bold version}: botpress core NLU version number.
+ * @returns {bold info}: version, health and supported languages.
 */}
 {bold GET ${baseUrl}/info}
 
@@ -151,7 +151,8 @@ ${_.repeat(' ', 9)}========================================`)
   * @body_parameter {bold intents} Intents definitions.
   * @body_parameter {bold contexts} All available contexts.
   * @body_parameter {bold entities} Entities definitions.
-  * @body_parameter {bold password} Password to protect your model. {yellow ** Optionnal **}
+  * @body_parameter {bold appSecret} Password to protect your model. {yellow ** Optionnal **}
+  * @body_parameter {bold appId} To make sure there's no collision between models of different applications. {yellow ** Optionnal **}
   * @body_parameter {bold seed} Number to seed random number generators used during training (beta feature). {yellow ** Optionnal **}
   * @returns {bold modelId} A model id for futur API calls
  */}
@@ -160,7 +161,8 @@ ${_.repeat(' ', 9)}========================================`)
 {green /**
   * Gets a training progress status.
   * @path_parameter {bold modelId} The model id for which you seek the training progress.
-  * @query_parameter {bold password} The password protecting your model.
+  * @query_parameter {bold appSecret} The password protecting your model.
+  * @query_parameter {bold appId} The application id your model belongs to.
   * @returns {bold session} A training session data structure with information on desired model.
  */}
 {bold GET ${baseUrl}/train/:modelId?password=XXXXXX}
@@ -168,14 +170,16 @@ ${_.repeat(' ', 9)}========================================`)
 {green /**
   * Cancels a training.
   * @path_parameter {bold modelId} The model id for which you want to cancel the training.
-  * @body_parameter {bold password} The password protecting your model.
+  * @body_parameter {bold appSecret} The password protecting your model.
+  * @body_parameter {bold appId} The application id your model belongs to.
  */}
 {bold POST ${baseUrl}/train/:modelId/cancel}
 
 {green /**
   * Perform prediction for a text input.
   * @path_parameter {bold modelId} The model id you want to use for prediction.
-  * @body_parameter {bold password} The password protecting your model.
+  * @body_parameter {bold appSecret} The password protecting your model.
+  * @body_parameter {bold appId} The application id your model belongs to.
   * @body_parameter {bold utterances} Array of text for which you want a prediction.
   * @returns {bold predictions} Array of predictions; Each prediction is a data structure reprensenting our understanding of the text.
  */}

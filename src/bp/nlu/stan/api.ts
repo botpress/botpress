@@ -95,7 +95,9 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
       const health = engine.getHealth()
       const specs = engine.getSpecifications()
       const languages = engine.getLanguages()
-      res.send({ health, specs, languages })
+
+      const info = { health, specs, languages }
+      res.send({ success: true, info })
     } catch (err) {
       res.status(500).send({ success: false, error: err.message })
     }
@@ -104,7 +106,7 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
   router.post('/train', async (req, res) => {
     try {
       const input = await validateTrainInput(req.body)
-      const { intents, entities, seed, language, password } = mapTrainInput(input)
+      const { intents, entities, seed, language, appSecret, appId } = mapTrainInput(input)
 
       const pickedSeed = seed ?? Math.round(Math.random() * 10000)
       const modelId = NLUEngine.modelIdService.makeId({
@@ -117,7 +119,7 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
 
       // return the modelId as fast as possible
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      trainService.train(modelId, password, intents, entities, language, pickedSeed)
+      trainService.train(modelId, { appSecret, appId }, intents, entities, language, pickedSeed)
 
       return res.send({ success: true, modelId: NLUEngine.modelIdService.toString(modelId) })
     } catch (err) {
@@ -132,13 +134,13 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
         return res.status(400).send({ success: false, error: `model id "${stringId}" has invalid format` })
       }
 
-      const { password } = req.query
+      const { appSecret, appId } = req.query
 
       const modelId = NLUEngine.modelIdService.fromString(stringId)
-      let session = trainSessionService.getTrainingSession(modelId, password)
+      let session = trainSessionService.getTrainingSession(modelId, { appSecret, appId })
       if (!session) {
         // TODO get app id and app ID from body
-        const model = await modelRepo.getModel(modelId, { appSecret: password })
+        const model = await modelRepo.getModel(modelId, { appSecret, appId })
 
         if (!model) {
           return res.status(404).send({
@@ -162,10 +164,10 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
   router.post('/train/:modelId/cancel', async (req, res) => {
     try {
       const { modelId: stringId } = req.params
-      const { password } = await validateCancelRequestInput(req.body)
+      const { appSecret, appId } = await validateCancelRequestInput(req.body)
 
       const modelId = NLUEngine.modelIdService.fromString(stringId)
-      const session = trainSessionService.getTrainingSession(modelId, password)
+      const session = trainSessionService.getTrainingSession(modelId, { appSecret, appId })
 
       if (session?.status === 'training') {
         await engine.cancelTraining(stringId)
@@ -181,7 +183,7 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
   router.post('/predict/:modelId', async (req, res) => {
     try {
       const { modelId: stringId } = req.params
-      const { utterances, password } = await validatePredictInput(req.body)
+      const { utterances, appId, appSecret } = await validatePredictInput(req.body)
 
       if (!_.isArray(utterances) || (options.batchSize > 0 && utterances.length > options.batchSize)) {
         throw new Error(
@@ -190,9 +192,9 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
       }
 
       const modelId = NLUEngine.modelIdService.fromString(stringId)
-      // once the model is loaded, there's no more password check
+      // TODO: once the model is loaded, there's no more check to appSecret and appId
       if (!engine.hasModel(modelId)) {
-        const model = await modelRepo.getModel(modelId, { appSecret: password })
+        const model = await modelRepo.getModel(modelId, { appId, appSecret })
         if (!model) {
           return res.status(404).send({ success: false, error: `modelId ${stringId} can't be found` })
         }
