@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import os from 'os'
 
-import { deserializeError, ErrorMessage } from './error-utils'
+import { deserializeError, ErrorMessage } from '../utils/error-utils'
 import { MLThreadScheduler } from './ml-thread-scheduler'
 
 type MsgType =

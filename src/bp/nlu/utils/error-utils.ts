@@ -2,13 +2,13 @@ import _ from 'lodash'
 
 export interface ErrorMessage {
   message: string
-  stack?: string
+  stackTrace?: string
 }
 
 export function serializeError(err: any): ErrorMessage {
   if (err instanceof Error) {
     const { message, stack } = err
-    return { message, stack }
+    return { message, stackTrace: stack }
   }
 
   if (_.isString(err)) {
@@ -24,6 +24,6 @@ export function serializeError(err: any): ErrorMessage {
 
 export function deserializeError(err: ErrorMessage): Error {
   const newErr = new Error(err.message)
-  newErr.stack = err.stack
+  newErr.stack = err.stackTrace
   return newErr
 }
