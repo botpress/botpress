@@ -11,7 +11,7 @@ import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../..
 import Logger from '../../simple-logger'
 
 import { BpPredictOutput, mapPredictOutput, mapTrainInput } from './api-mapper'
-import ModelRepository from './model-repo'
+import { ModelRepoOptions, ModelRepository } from './model-repo'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
 import { PredictOutput } from './typings_v1'
@@ -20,7 +20,6 @@ import { validateCancelRequestInput, validatePredictInput, validateTrainInput } 
 export interface APIOptions {
   host: string
   port: number
-  modelDir: string
   authToken?: string
   limitWindow: string
   limit: number
@@ -28,6 +27,7 @@ export interface APIOptions {
   batchSize: number
   silent: boolean
   modelCacheSize: string
+  dbURL?: string
 }
 
 const debug = DEBUG('api')
@@ -74,8 +74,18 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
   const app = createExpressApp(options)
   const logger = new Logger('API')
 
-  const modelRepo = new ModelRepository(options.modelDir)
-  await modelRepo.init()
+  const { dbURL: databaseURL } = options
+  const modelRepoOptions: ModelRepoOptions = databaseURL
+    ? {
+        driver: 'db',
+        dbURL: databaseURL
+      }
+    : {
+        driver: 'fs'
+      }
+
+  const modelRepo = new ModelRepository(logger, modelRepoOptions)
+  await modelRepo.initialize()
   const trainSessionService = new TrainSessionService()
   const trainService = new TrainService(logger, engine, modelRepo, trainSessionService)
 
@@ -121,7 +131,8 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
       const modelId = NLUEngine.modelIdService.fromString(stringId)
       let session = trainSessionService.getTrainingSession(modelId, password)
       if (!session) {
-        const model = await modelRepo.getModel(modelId, password ?? '')
+        // TODO get app id and app ID from body
+        const model = await modelRepo.getModel(modelId, { appSecret: password })
 
         if (!model) {
           return res.status(404).send({
@@ -175,7 +186,7 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
       const modelId = NLUEngine.modelIdService.fromString(stringId)
       // once the model is loaded, there's no more password check
       if (!engine.hasModel(modelId)) {
-        const model = await modelRepo.getModel(modelId, password)
+        const model = await modelRepo.getModel(modelId, { appSecret: password })
         if (!model) {
           return res.status(404).send({ success: false, error: `modelId ${stringId} can't be found` })
         }
@@ -191,7 +202,7 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
 
       const withoutNone: PredictOutput[] = rawPredictions.map(mapPredictOutput)
 
-      return res.send({ success: true, predictions: withoutNone })
+      res.json({ success: true, predictions: withoutNone })
     } catch (err) {
       res.status(500).send({ success: false, error: err.message })
     }

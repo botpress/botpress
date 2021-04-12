@@ -376,8 +376,8 @@ try {
           description: 'Binds the nlu server to a specific hostname',
           default: 'localhost'
         },
-        modelDir: {
-          description: 'Directory where models will be saved'
+        dbURL: {
+          description: 'URL of database where to persist models. If undefined, models are stored on FS.'
         },
         authToken: {
           description: 'When enabled, this token is required for clients to query your nlu server'

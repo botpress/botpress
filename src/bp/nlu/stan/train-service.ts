@@ -3,7 +3,7 @@ import * as sdk from 'botpress/sdk'
 import * as NLUEngine from 'nlu/engine'
 
 import { serializeError } from 'nlu/utils/error-utils'
-import ModelRepository from './model-repo'
+import { ModelRepository } from './model-repo'
 import TrainSessionService from './train-session-service'
 import { TrainingProgress, TrainingErrorType } from './typings_v1'
 
@@ -50,7 +50,8 @@ export default class TrainService {
       const model = await this.engine.train(stringId, trainSet, { progressCallback })
       this.logger.info(`[${stringId}] Training Done.`)
 
-      await this.modelRepo.saveModel(model, password)
+      // TODO add appID
+      await this.modelRepo.saveModel(model, { appSecret: password })
       ts.status = 'done'
       this.trainSessionService.setTrainingSession(modelId, password, ts)
       this.trainSessionService.releaseTrainingSession(modelId, password)
