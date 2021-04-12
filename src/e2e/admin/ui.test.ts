@@ -79,6 +79,6 @@ describe('Admin - UI', () => {
       }
     }
     await axios.post(`${bpConfig.host}/api/v1/bots/${bpConfig.botId}/converse/123/secured`, payload, axiosConfig)
-    expectCallSuccess(`${bpConfig.host}/api/v1/bots/${bpConfig.botId}/converse/123/secured`, 'POST')
+    await expectCallSuccess(`${bpConfig.host}/api/v1/bots/${bpConfig.botId}/converse/123/secured`, 'POST')
   })
 })
