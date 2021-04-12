@@ -82,8 +82,6 @@ export default async function(options: ArgV) {
     throw new Error(`Specified body-size "${options.bodySize}" has an invalid format.`)
   }
 
-  options.modelDir = options.modelDir || path.join(process.APP_DATA_PATH, 'models')
-
   global.printLog = args => {
     const message = args[0]
     const rest = args.slice(1)
@@ -126,7 +124,7 @@ ${_.repeat(' ', 9)}========================================`)
   logger.info(`lang server: url=${options.languageURL}`)
 
   logger.info(`body size: allowing HTTP resquests body of size ${options.bodySize}`)
-  logger.info(`models stored at "${options.modelDir}"`)
+  // logger.info(`models stored at "${options.modelDir}"`)
 
   if (options.batchSize > 0) {
     logger.info(`batch size: allowing up to ${options.batchSize} predictions in one call to POST /predict`)

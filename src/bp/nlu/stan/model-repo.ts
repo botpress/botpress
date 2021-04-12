@@ -1,7 +1,7 @@
-import crypto from 'crypto'
 import fse, { WriteStream } from 'fs-extra'
 import _ from 'lodash'
 import * as NLUEngine from 'nlu/engine'
+import modelIdService, { halfmd5 } from 'nlu/engine/model-id-service'
 import path from 'path'
 import Logger from 'simple-logger'
 import { Stream } from 'stream'
@@ -24,9 +24,7 @@ interface DBDriver {
   dbURL: string
 }
 
-export type ModelRepoOptions = (FSDriver | DBDriver) & {
-  modelDir: string
-}
+export type ModelRepoOptions = FSDriver | DBDriver
 
 interface ModelOwnershipOptions {
   appId?: string
@@ -34,9 +32,12 @@ interface ModelOwnershipOptions {
 }
 
 const MODELS_DIR = './models'
+const MODELS_EXT = 'model'
+
 const debug = DEBUG('nlu').sub('model-repo')
+
+// TODO: add a customizable modelDir
 const defaultOtpions: ModelRepoOptions = {
-  modelDir: path.join(process.cwd(), 'botpress-nlu'),
   driver: 'fs'
 }
 
@@ -45,9 +46,9 @@ export class ModelRepository {
   private _db: Database
   private options: ModelRepoOptions
 
-  constructor(options: Partial<ModelRepoOptions>) {
+  constructor(private logger: Logger, options: Partial<ModelRepoOptions> = {}) {
     this.options = { ...defaultOtpions, ...options } as ModelRepoOptions
-    const logger = new Logger('ModelRepo')
+
     this._db = new Database(logger)
     const diskDriver = new DiskStorageDriver()
     const dbdriver = new DBStorageDriver(this._db)
@@ -78,7 +79,10 @@ export class ModelRepository {
     options: ModelOwnershipOptions = {}
   ): Promise<NLUEngine.Model | undefined> {
     const scopedGhost = this._getScopedGhostForAppID(options.appId)
-    const fname = this._makeFileName(modelId, options.appSecret)
+
+    const stringId = modelIdService.toString(modelId)
+    const fExtension = this._getFileExtension(options.appSecret)
+    const fname = `${stringId}.${fExtension}`
 
     if (!(await scopedGhost.fileExists(MODELS_DIR, fname))) {
       return
@@ -105,14 +109,18 @@ export class ModelRepository {
 
   public async saveModel(model: NLUEngine.Model, options: ModelOwnershipOptions = {}): Promise<void | void[]> {
     const serialized = JSON.stringify(model)
-    const modelName = this._makeFileName(model.id, options.appSecret)
+
+    const stringId = modelIdService.toString(model.id)
+    const fExtension = this._getFileExtension(options.appSecret)
+    const fname = `${stringId}.${fExtension}`
+
     const scopedGhost = this._getScopedGhostForAppID(options.appId)
 
     // TODO replace that logic with in-memory streams
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
     const tmpFileName = path.join(tmpDir.name, 'model')
     await fse.writeFile(tmpFileName, serialized)
-    const archiveName = path.join(tmpDir.name, modelName)
+    const archiveName = path.join(tmpDir.name, fname)
     await tar.create(
       {
         file: archiveName,
@@ -123,54 +131,50 @@ export class ModelRepository {
       ['model']
     )
     const buffer = await fse.readFile(archiveName)
-    await scopedGhost.upsertFile(MODELS_DIR, modelName, buffer)
+    await scopedGhost.upsertFile(MODELS_DIR, fname, buffer)
     tmpDir.removeCallback()
   }
 
-  // // implement this properly
-  // is this going top be publicly acessible over http ?
+  public async listModels(options: ModelOwnershipOptions): Promise<NLUEngine.ModelId[]> {
+    const scopedGhost = this._getScopedGhostForAppID(options.appId)
 
-  // currently hard to achieve a secure list model,
-  // we can't assure that the models are properly salted with the appSecret
-  // in other words, anyone could list models corresponding to an appId without having the secret
+    const fextension = this._getFileExtension(options.appSecret)
+    const files = await scopedGhost.directoryListing(MODELS_DIR, `*.${fextension}`)
 
-  // potential solution
-  // we could come up with a signature that is created by a combination of appID+appSecret that is appended at the end of the model id
-  // this way we could validate the combination straight from the ghost using the file ending pattern
-  public async listModels(options: ModelOwnershipOptions) {
-    if (!options.appId) {
-      throw Error('cannot list models without owner')
-    }
-    throw Error('not implemented')
+    const modelIds = files
+      .map(f => f.substring(0, f.lastIndexOf(`.${fextension}`)))
+      .filter(stringId => modelIdService.isId(stringId))
+      .map(stringId => modelIdService.fromString(stringId))
+
+    return modelIds
   }
 
-  // probably same here, prune models for a given appId appSecret can't be tested now
-  // we could if we had a appID+appSecret signature appended
+  // TODO: make this one more optimal
   public async pruneModels(options: ModelOwnershipOptions) {
-    if (!options.appId) {
-      throw Error('cannot prune models without owner')
-    }
-    throw Error('not implemented')
+    const models = await this.listModels(options)
+    return Promise.each(models, m => this.deleteModel(m, options))
   }
 
   public async deleteModel(modelId: NLUEngine.ModelId, options: ModelOwnershipOptions = {}): Promise<void> {
     const scopedGhost = this._getScopedGhostForAppID(options.appId)
-    const modelFileName = this._makeFileName(modelId, options.appSecret)
 
-    return scopedGhost.deleteFile(MODELS_DIR, modelFileName)
+    const stringId = modelIdService.toString(modelId)
+    const fExtension = this._getFileExtension(options.appSecret)
+    const fname = `${stringId}.${fExtension}`
+
+    return scopedGhost.deleteFile(MODELS_DIR, fname)
   }
 
   private _getScopedGhostForAppID(appId: string = ''): ScopedGhostService {
     return appId ? this._ghost.forBot(appId) : this._ghost.root()
   }
 
-  private _makeFileName(modelId: NLUEngine.ModelId, appSecret: string = ''): string {
-    const stringId = NLUEngine.modelIdService.toString(modelId)
-    const fname = crypto
-      .createHash('md5')
-      .update(`${stringId}${appSecret}`)
-      .digest('hex')
+  private _getFileExtension(appSecret: string | undefined) {
+    const secretHash = this._computeSecretHash(appSecret)
+    return `${secretHash}.${MODELS_EXT}`
+  }
 
-    return `${fname}.model`
+  private _computeSecretHash(appSecret: string = ''): string {
+    return halfmd5(appSecret) // makes shorter file name than full regular md5
   }
 }
