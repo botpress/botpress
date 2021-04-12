@@ -19,7 +19,7 @@ DATABASE_URL=postgres://login:password@host:port/database \
 
 ## Offline NLU Servers
 
-Botpress communicates with the NLU module's two services to work properly, namely Duckling and a Language Server. If your Botpress installation has **no internet** access, you'll have to host these services yourself. Let us look at how you can achieve this.
+Botpress needs to communicate with the NLU module's two services in order to work properly, namely Duckling and a Language Server. If your Botpress installation has **no internet** access, you'll have to host these services yourself. Let us look at how you can achieve this.
 
 > Self-hosting these servers is optional. Your Botpress installation will use our hosted services by default. However, these need an internet connection and, in the absence of one, should be self-hosted.
 
