@@ -24,6 +24,7 @@ function render(data) {
 }
 
 function renderElement(data, channel) {
+  // rendering is handled by channel-vonage
   if (channel === 'vonage') {
     return data
   } else {
@@ -45,7 +46,7 @@ module.exports = {
       video: {
         type: 'string',
         $subtype: 'video',
-        $filter: '.mp4, .ogg, .webm|video/*',
+        $filter: 'video/mp4',
         title: 'module.builtin.types.video.title'
       },
       title: {

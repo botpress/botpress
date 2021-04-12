@@ -10,23 +10,20 @@ const Upload: FC<UploadFieldProps> = props => {
     if (action.type === 'uploadStart') {
       return {
         ...state,
-        error: null,
-        uploading: true
+        error: null
       }
     } else if (action.type === 'deleteFile') {
       props.onChange?.(undefined)
       return {
         ...state,
-        error: null,
-        uploading: false
+        error: null
       }
     } else if (action.type === 'uploadError') {
       const { error } = action.data
 
       return {
         ...state,
-        error,
-        uploading: false
+        error
       }
     } else if (action.type === 'uploadSuccess') {
       const { url } = action.data
@@ -34,8 +31,7 @@ const Upload: FC<UploadFieldProps> = props => {
       props.onChange?.(url)
       return {
         ...state,
-        error: null,
-        uploading: false
+        error: null
       }
     } else {
       throw new Error("That action type isn't supported.")
@@ -43,11 +39,10 @@ const Upload: FC<UploadFieldProps> = props => {
   }
 
   const [state, dispatch] = useReducer(uploadReducer, {
-    error: null,
-    uploading: false
+    error: null
   })
 
-  const { error, uploading } = state
+  const { error } = state
 
   const deleteFile = () => {
     dispatch({ type: 'deleteFile' })
@@ -72,6 +67,17 @@ const Upload: FC<UploadFieldProps> = props => {
 
   const { value, type, filter } = props
 
+  const allowedMimeTypes = () => {
+    if (filter) {
+      return filter
+    } else if (type) {
+      // e.g. video/*, audio/*, ...
+      return `${type}/*`
+    } else {
+      '*'
+    }
+  }
+
   return (
     <div className={sharedStyle.fieldWrapper}>
       {value && <FileDisplay url={value} type={type} onDelete={deleteFile} deletable />}
@@ -81,9 +87,7 @@ const Upload: FC<UploadFieldProps> = props => {
             text={<Icon icon="upload" />}
             large
             inputProps={{
-              id: 'node-image',
-              name: 'nodeImage',
-              accept: filter || `${type || 'image'}/*`,
+              accept: allowedMimeTypes(),
               onChange: startUpload
             }}
           />

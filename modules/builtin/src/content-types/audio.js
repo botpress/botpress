@@ -24,6 +24,7 @@ function render(data) {
 }
 
 function renderElement(data, channel) {
+  // rendering is handled by channel-vonage
   if (channel === 'vonage') {
     return data
   } else {
@@ -45,7 +46,7 @@ module.exports = {
       audio: {
         type: 'string',
         $subtype: 'audio',
-        $filter: '.aac, .mp4, .mp3, .amr, .mpeg, .ogg|audio/*',
+        $filter: 'audio/mpeg',
         title: 'module.builtin.types.audio.title'
       },
       title: {
