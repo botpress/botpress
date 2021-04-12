@@ -12,7 +12,7 @@ import {
   SlotDefinition,
   SlotPrediction,
   TrainInput
-} from './typings_v1'
+} from '../typings_v1'
 
 export interface BpTrainInput {
   intents: NLUEngine.IntentDefinition[]

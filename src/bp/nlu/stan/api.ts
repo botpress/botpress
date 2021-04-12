@@ -10,11 +10,11 @@ import * as NLUEngine from 'nlu/engine'
 import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../../http-utils'
 import Logger from '../../simple-logger'
 
+import { PredictOutput } from '../typings_v1'
 import { BpPredictOutput, mapPredictOutput, mapTrainInput } from './api-mapper'
 import ModelRepository from './model-repo'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
-import { PredictOutput } from './typings_v1'
 import { validateCancelRequestInput, validatePredictInput, validateTrainInput } from './validation/validate'
 
 export interface APIOptions {
