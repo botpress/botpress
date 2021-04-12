@@ -220,23 +220,24 @@ function MapStepToOutput(step: SpellStep): PredictOutput {
     })
   }
 
-  const contextMapper = (predictions: _.Dictionary<NoneableIntentPredictions>): ContextPrediction[] => {
-    return Object.values(predictions).reduce<ContextPrediction[]>((arr, pred) => {
-      const newContexts: ContextPrediction[] = pred.intents.map(intent => {
-        const intents = intentMapper(pred)
-        return {
-          name: intent.name,
-          confidence: intent.confidence,
-          oos: pred.oos,
-          intents: _.orderBy(intents, i => i.confidence, 'desc')
-        }
-      })
-      return [...newContexts, ...arr]
-    }, [])
+  const contextMapper = (
+    ctxPredictions: IntentPredictions,
+    intentPredictions: _.Dictionary<NoneableIntentPredictions>
+  ): ContextPrediction[] => {
+    return ctxPredictions.intents.map(ctxPred => {
+      const { confidence, name } = ctxPred
+      const { intents, oos } = intentPredictions[name]
+      return {
+        name,
+        confidence,
+        intents: intentMapper({ intents }),
+        oos
+      }
+    })
   }
 
   return {
-    contexts: contextMapper(step.intent_predictions),
+    contexts: contextMapper(step.ctx_predictions, step.intent_predictions),
     entities, // orders all predictions by confidence
     spellChecked: step.spellChecked
   }

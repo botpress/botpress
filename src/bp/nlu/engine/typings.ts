@@ -3,10 +3,11 @@ import {
   EntityDefinition,
   PatternEntityDefinition,
   ListEntityDefinition,
-  PredictOutput
+  PredictOutput,
+  TrainInput
 } from '../typings_v1'
 
-export { IntentDefinition, EntityDefinition, PatternEntityDefinition, ListEntityDefinition, PredictOutput }
+export { IntentDefinition, EntityDefinition, PatternEntityDefinition, ListEntityDefinition, PredictOutput, TrainInput }
 export interface Config extends LanguageConfig {
   modelCacheSize: string
   legacyElection: boolean
