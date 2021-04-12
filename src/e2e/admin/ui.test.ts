@@ -27,7 +27,7 @@ describe('Admin - UI', () => {
     await Promise.all([expectCallSuccess(`${bpConfig.host}/api/v2/admin/user/profile`, 'POST'), clickOn('#btn-submit')])
     await closeToaster()
     const src = await page.$eval('img.dropdown-picture', img => img.getAttribute('src'))
-    expect(src.includes(url)).toBeTrue
+    expect(src.includes(url)).toBe(true)
     await clickOn('#btn-menu')
     await expectMatch('Signed in as Bob Lalancette')
     await clickOn('#btn-menu')
@@ -67,18 +67,26 @@ describe('Admin - UI', () => {
     await clickOn('#btn-submit')
     await clickOn(CONFIRM_DIALOG.ACCEPT)
     const key = await expectCallSuccess(`${bpConfig.host}/api/v2/admin/auth/apiKey`, 'POST')
-    await closeToaster()
 
-    const payload = {
-      type: 'text',
-      text: 'test'
+    try {
+      const { status } = await axios.post(
+        `${bpConfig.host}/api/v1/bots/${bpConfig.botId}/converse/123/secured`,
+        {
+          type: 'text',
+          text: 'test'
+        },
+        {
+          headers: {
+            'x-bp-api-key': key.apiKey
+          }
+        }
+      )
+
+      expect(status).toBe(200)
+    } catch (err) {
+      fail(err)
     }
-    const axiosConfig: AxiosRequestConfig = {
-      headers: {
-        'x-bp-api-key': key.apiKey
-      }
-    }
-    await axios.post(`${bpConfig.host}/api/v1/bots/${bpConfig.botId}/converse/123/secured`, payload, axiosConfig)
-    await expectCallSuccess(`${bpConfig.host}/api/v1/bots/${bpConfig.botId}/converse/123/secured`, 'POST')
+
+    await closeToaster()
   })
 })
