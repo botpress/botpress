@@ -10,8 +10,36 @@ module.exports = function override(config, env) {
   config.resolve.plugins = config.resolve.plugins.filter(p => !p instanceof ModuleScopePlugin)
   config.devtool = process.argv.find(x => x.toLowerCase() === '--nomap') ? false : 'source-map'
 
+  const oneOfConfigIdx = config.module.rules.findIndex(x => x.oneOf)
+
+  // Override the CSS generation so we have .d.ts files for scss
+  config.module.rules[oneOfConfigIdx].oneOf = [
+    {
+      test: /\.scss$/,
+      use: [
+        {
+          loader: 'style-loader'
+        },
+        {
+          loader: 'css-modules-typescript-loader'
+        },
+        {
+          loader: 'css-loader',
+          options: {
+            modules: true,
+            url: false,
+            importLoaders: 2
+          }
+        },
+        {
+          loader: 'sass-loader'
+        }
+      ]
+    },
+    ...config.module.rules[oneOfConfigIdx].oneOf
+  ]
+
   config.module.rules = [
-    ...config.module.rules,
     {
       test: require.resolve('react'),
       loader: 'expose-loader',
@@ -26,20 +54,7 @@ module.exports = function override(config, env) {
         exposes: ['ReactDOM']
       }
     },
-    {
-      test: require.resolve('@blueprintjs/core'),
-      loader: 'expose-loader',
-      options: {
-        exposes: ['BlueprintJsCore']
-      }
-    },
-    {
-      test: require.resolve('@blueprintjs/select'),
-      loader: 'expose-loader',
-      options: {
-        exposes: ['BlueprintJsSelect']
-      }
-    }
+    ...config.module.rules
   ]
 
   /**

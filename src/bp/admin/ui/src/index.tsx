@@ -1,13 +1,18 @@
-import 'babel-polyfill'
-import 'element-closest-polyfill'
-import 'ui-shared/dist/theme.css'
-
+// @ts-ignore
+import * as BlueprintJsCore from 'expose-loader?exposes=BlueprintJsCore!@blueprintjs/core'
+// @ts-ignore
+import * as BlueprintJsSelect from 'expose-loader?exposes=BlueprintJsSelect!@blueprintjs/select'
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+window['BlueprintJsCore'] = BlueprintJsCore
+window['BlueprintJsSelect'] = BlueprintJsSelect
+
+import 'ui-shared/dist/theme.css'
+import '~/app/style/index.css'
+
 import { makeMainRoutes } from '~/app/routes'
 import { initializeTranslations } from '~/app/translations'
-import '~/app/style/index.css'
 
 const routes = makeMainRoutes()
 
