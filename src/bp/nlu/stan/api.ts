@@ -91,8 +91,14 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
 
   const router = express.Router({ mergeParams: true })
   router.get('/info', async (req, res) => {
-    const { nluVersion } = engine.getSpecifications()
-    res.send({ version: nluVersion })
+    try {
+      const health = engine.getHealth()
+      const specs = engine.getSpecifications()
+      const languages = engine.getLanguages()
+      res.send({ health, specs, languages })
+    } catch (err) {
+      res.status(500).send({ success: false, error: err.message })
+    }
   })
 
   router.post('/train', async (req, res) => {
