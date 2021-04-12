@@ -39,6 +39,7 @@ module.exports = function override(config, env) {
     ...config.module.rules[oneOfConfigIdx].oneOf
   ]
 
+  // Configuration works for react and react-dom, but @blueprintjs still needs a special handling to make it work
   config.module.rules = [
     {
       test: require.resolve('react'),
