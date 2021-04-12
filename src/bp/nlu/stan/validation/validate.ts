@@ -1,7 +1,5 @@
 import { validate } from 'joi'
 import * as NLUEngine from 'nlu/engine'
-import { isListEntity, isPatternEntity } from '../api-mapper'
-
 import {
   IntentDefinition,
   ListEntityDefinition,
@@ -9,7 +7,8 @@ import {
   PredictInput,
   SlotDefinition,
   TrainInput
-} from '../typings_v1'
+} from '../../typings_v1'
+import { isListEntity, isPatternEntity } from '../api-mapper'
 
 import { CancelInputSchema, PredictInputSchema, TrainInputSchema } from './schemas'
 

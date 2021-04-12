@@ -5,6 +5,7 @@ import _modelIdService from './model-id-service'
 import { Config, Logger } from './typings'
 
 export * from './typings'
+export * from '../typings_v1'
 
 export const SYSTEM_ENTITIES = DUCKLING_ENTITIES
 

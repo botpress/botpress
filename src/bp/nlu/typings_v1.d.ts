@@ -105,9 +105,85 @@ export interface SlotPrediction {
  */
 export type TrainingStatus = 'done' | 'training-pending' | 'training' | 'canceled' | 'errored'
 
+/**
+ * #################################
+ * ############ ENGINE #############
+ * #################################
+ */
 export interface TrainingSession {
   key: string
   status: TrainingStatus
   language: string
   progress: number
+}
+
+export interface EntityDefOccurrence {
+  name: string
+  synonyms: string[]
+}
+
+export interface EntityDefinition {
+  id: string
+  name: string
+  type: EntityType
+  sensitive?: boolean
+  matchCase?: boolean
+  examples?: string[]
+  fuzzy?: number
+  occurrences?: EntityDefOccurrence[]
+  pattern?: string
+}
+
+export interface SlotDefinition {
+  id: string
+  name: string
+  entities: string[]
+  color: number
+}
+
+export interface Intent {
+  name: string
+  confidence: number
+  context: string
+}
+
+export interface Entity {
+  name: string
+  type: string
+  meta: EntityMeta
+  data: EntityBody
+}
+
+export interface EntityBody {
+  extras?: any
+  value: any
+  unit: string
+}
+
+export interface EntityMeta {
+  sensitive: boolean
+  confidence: number
+  provider?: string
+  source: string
+  start: number
+  end: number
+  raw?: any
+}
+
+export interface Slot {
+  name: string
+  value: any
+  source: any
+  entity: Entity
+  confidence: number
+  start: number
+  end: number
+}
+
+export interface SlotCollection {
+  [key: string]: Slot
+}
+
+export interface Predictions {
+  [context: string]: ContextPrediction
 }
