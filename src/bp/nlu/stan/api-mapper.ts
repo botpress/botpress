@@ -1,7 +1,6 @@
 import _ from 'lodash'
-import * as NLUEngine from 'nlu/engine'
 
-import {
+import NLUEngine, {
   ContextPrediction,
   EntityPrediction,
   IntentDefinition,
