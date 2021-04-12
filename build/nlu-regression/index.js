@@ -42,12 +42,7 @@ async function main(args) {
   const update = args.includes('--update') || args.includes('-u')
   const keepGoing = args.includes('--keep-going') || args.includes('-k')
 
-  const tests = [
-    bpdsIntents,
-    bpdsSlots,
-    bpdsSpell,
-    clincIntents
-  ]
+  const tests = [bpdsIntents, bpdsSlots, bpdsSpell, clincIntents]
 
   let testsPass = true
   for (const test of tests) {

@@ -1,31 +1,94 @@
-import crypto from 'crypto'
 import fse, { WriteStream } from 'fs-extra'
 import _ from 'lodash'
-import mkdirp from 'mkdirp'
 import * as NLUEngine from 'nlu/engine'
+import modelIdService, { halfmd5 } from 'nlu/engine/model-id-service'
 import path from 'path'
+import Logger from 'simple-logger'
 import { Stream } from 'stream'
 import tar from 'tar'
 import tmp from 'tmp'
+import {
+  Database,
+  DBStorageDriver,
+  DiskStorageDriver,
+  GhostService,
+  ScopedGhostService,
+  MemoryObjectCache
+} from './simple-ghost'
+interface FSDriver {
+  driver: 'fs'
+}
 
-export default class ModelRepository {
-  constructor(private modelDir: string) {}
+interface DBDriver {
+  driver: 'db'
+  dbURL: string
+}
 
-  public async init() {
-    mkdirp.sync(this.modelDir)
+export type ModelRepoOptions = FSDriver | DBDriver
+
+interface ModelOwnershipOptions {
+  appId?: string
+  appSecret?: string
+}
+
+const MODELS_DIR = './models'
+const MODELS_EXT = 'model'
+
+const debug = DEBUG('nlu').sub('model-repo')
+
+// TODO: add a customizable modelDir
+const defaultOtpions: ModelRepoOptions = {
+  driver: 'fs'
+}
+
+export class ModelRepository {
+  private _ghost: GhostService
+  private _db: Database
+  private options: ModelRepoOptions
+
+  constructor(private logger: Logger, options: Partial<ModelRepoOptions> = {}) {
+    this.options = { ...defaultOtpions, ...options } as ModelRepoOptions
+
+    this._db = new Database(logger)
+    const diskDriver = new DiskStorageDriver()
+    const dbdriver = new DBStorageDriver(this._db)
+    const cache = new MemoryObjectCache()
+
+    this._ghost = new GhostService(diskDriver, dbdriver, cache, logger)
   }
 
-  public async getModel(modelId: NLUEngine.ModelId, password: string): Promise<NLUEngine.Model | undefined> {
-    const modelFileName = this._makeFileName(modelId, password)
+  async initialize() {
+    debug('Model service initializing...')
+    if (this.options.driver === 'db') {
+      await this._db.initialize('postgres', this.options.dbURL)
+    }
+    await this._ghost.initialize(this.options.driver === 'db')
+  }
 
-    const { modelDir } = this
+  public async hasModel(modelId: NLUEngine.ModelId, options: ModelOwnershipOptions): Promise<boolean> {
+    return !!(await this.getModel(modelId, options))
+  }
 
-    const fpath = path.join(modelDir, modelFileName)
-    if (!fse.existsSync(fpath)) {
+  /**
+   *
+   * @param modelId The desired model id
+   * @returns the corresponding model
+   */
+  public async getModel(
+    modelId: NLUEngine.ModelId,
+    options: ModelOwnershipOptions = {}
+  ): Promise<NLUEngine.Model | undefined> {
+    const scopedGhost = this._getScopedGhostForAppID(options.appId)
+
+    const stringId = modelIdService.toString(modelId)
+    const fExtension = this._getFileExtension(options.appSecret)
+    const fname = `${stringId}.${fExtension}`
+
+    if (!(await scopedGhost.fileExists(MODELS_DIR, fname))) {
       return
     }
     const buffStream = new Stream.PassThrough()
-    buffStream.end(await fse.readFile(fpath))
+    buffStream.end(await scopedGhost.readFileAsBuffer(MODELS_DIR, fname))
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
 
     const tarStream = tar.x({ cwd: tmpDir.name, strict: true }, ['model']) as WriteStream
@@ -37,24 +100,27 @@ export default class ModelRepository {
     try {
       mod = JSON.parse(modelBuff.toString())
     } catch (err) {
-      await fse.remove(fpath)
+      await scopedGhost.deleteFile(MODELS_DIR, fname)
     } finally {
       tmpDir.removeCallback()
       return mod
     }
   }
 
-  public async saveModel(model: NLUEngine.Model, password: string): Promise<void> {
-    const { modelDir } = this
-    const modelFileName = this._makeFileName(model.id, password)
-
+  public async saveModel(model: NLUEngine.Model, options: ModelOwnershipOptions = {}): Promise<void | void[]> {
     const serialized = JSON.stringify(model)
 
+    const stringId = modelIdService.toString(model.id)
+    const fExtension = this._getFileExtension(options.appSecret)
+    const fname = `${stringId}.${fExtension}`
+
+    const scopedGhost = this._getScopedGhostForAppID(options.appId)
+
+    // TODO replace that logic with in-memory streams
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
     const tmpFileName = path.join(tmpDir.name, 'model')
     await fse.writeFile(tmpFileName, serialized)
-
-    const archiveName = path.join(tmpDir.name, modelFileName)
+    const archiveName = path.join(tmpDir.name, fname)
     await tar.create(
       {
         file: archiveName,
@@ -65,18 +131,50 @@ export default class ModelRepository {
       ['model']
     )
     const buffer = await fse.readFile(archiveName)
-    const fpath = path.join(modelDir, modelFileName)
-    await fse.writeFile(fpath, buffer)
+    await scopedGhost.upsertFile(MODELS_DIR, fname, buffer)
     tmpDir.removeCallback()
   }
 
-  private _makeFileName(modelId: NLUEngine.ModelId, password: string): string {
-    const stringId = NLUEngine.modelIdService.toString(modelId)
-    const fname = crypto
-      .createHash('md5')
-      .update(`${stringId}${password}`)
-      .digest('hex')
+  public async listModels(options: ModelOwnershipOptions): Promise<NLUEngine.ModelId[]> {
+    const scopedGhost = this._getScopedGhostForAppID(options.appId)
 
-    return `${fname}.model`
+    const fextension = this._getFileExtension(options.appSecret)
+    const files = await scopedGhost.directoryListing(MODELS_DIR, `*.${fextension}`)
+
+    const modelIds = files
+      .map(f => f.substring(0, f.lastIndexOf(`.${fextension}`)))
+      .filter(stringId => modelIdService.isId(stringId))
+      .map(stringId => modelIdService.fromString(stringId))
+
+    return modelIds
+  }
+
+  // TODO: make this one more optimal
+  public async pruneModels(options: ModelOwnershipOptions) {
+    const models = await this.listModels(options)
+    return Promise.each(models, m => this.deleteModel(m, options))
+  }
+
+  public async deleteModel(modelId: NLUEngine.ModelId, options: ModelOwnershipOptions = {}): Promise<void> {
+    const scopedGhost = this._getScopedGhostForAppID(options.appId)
+
+    const stringId = modelIdService.toString(modelId)
+    const fExtension = this._getFileExtension(options.appSecret)
+    const fname = `${stringId}.${fExtension}`
+
+    return scopedGhost.deleteFile(MODELS_DIR, fname)
+  }
+
+  private _getScopedGhostForAppID(appId: string = ''): ScopedGhostService {
+    return appId ? this._ghost.forBot(appId) : this._ghost.root()
+  }
+
+  private _getFileExtension(appSecret: string | undefined) {
+    const secretHash = this._computeSecretHash(appSecret)
+    return `${secretHash}.${MODELS_EXT}`
+  }
+
+  private _computeSecretHash(appSecret: string = ''): string {
+    return halfmd5(appSecret) // makes shorter file name than full regular md5
   }
 }
