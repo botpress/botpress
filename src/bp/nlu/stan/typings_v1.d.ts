@@ -101,13 +101,20 @@ export interface SlotPrediction {
  * training-pending : when a training was launched, but the training process is not started yet
  * training: when a chatbot is currently training
  * canceled: when a training was canceled
- * errored: when a chatbot failed to train
+ * errored: when an unhandled error occured during training
+ *
+ * If the training does not exist, API returns a 404
  */
 export type TrainingStatus = 'done' | 'training-pending' | 'training' | 'canceled' | 'errored'
 
-export interface TrainingSession {
-  key: string
+export type TrainingErrorType = 'already-started' | 'unknown'
+export interface TrainingError {
+  type: TrainingErrorType
+  message: string
+  stackTrace?: string
+}
+export interface TrainingProgress {
   status: TrainingStatus
-  language: string
   progress: number
+  error?: TrainingError
 }

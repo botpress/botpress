@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from 'axios'
 import * as sdk from 'botpress/sdk'
 import * as NLUEngine from 'common/nlu/engine'
-import { TrainInput, PredictOutput, TrainingSession } from './typings'
+import { TrainInput, PredictOutput, TrainingProgress } from './typings'
 
 const TRAIN_PROGRESS_POLLING_INTERVAL = 500
 
@@ -61,7 +61,7 @@ export class StanClient {
     })
   }
 
-  private async _getTrainingStatus(modelId: NLUEngine.ModelId, password: string): Promise<TrainingSession> {
+  private async _getTrainingStatus(modelId: NLUEngine.ModelId, password: string): Promise<TrainingProgress> {
     const stringId = NLUEngine.modelIdService.toString(modelId)
     const endpoint = `train/${stringId}`
     const { session } = await this._get(endpoint, { password })
