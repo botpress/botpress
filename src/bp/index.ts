@@ -422,7 +422,7 @@ try {
         modelCacheSize: {
           description:
             'Max allocated memory for model cache. Too few memory will result in more access to file system.',
-          default: '250mb'
+          default: '850mb'
         }
       },
       argv => {

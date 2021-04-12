@@ -19,8 +19,8 @@ import API, { APIOptions } from './api'
 global.rewire = rewire as any
 const debug = DEBUG('api')
 
-const GH_TYPINGS_FILE = 'https://github.com/botpress/botpress/blob/master/src/bp/nlu-server/typings_v1.d.ts'
-const GH_TRAIN_INPUT_EXAMPLE = 'https://github.com/botpress/botpress/blob/master/src/bp/nlu-server/train-example.json'
+const GH_TYPINGS_FILE = 'https://github.com/botpress/botpress/blob/master/src/bp/nlu/stan/typings_v1.d.ts'
+const GH_TRAIN_INPUT_EXAMPLE = 'https://github.com/botpress/botpress/blob/master/src/bp/nlu/stan/train-example.json'
 
 type ArgV = APIOptions & {
   languageURL: string
@@ -30,11 +30,6 @@ type ArgV = APIOptions & {
 }
 
 const makeEngine = async (options: ArgV, logger: Logger) => {
-  const maxCacheSize = bytes(options.modelCacheSize)
-  if (!maxCacheSize) {
-    throw new Error(`Specified model cache-size "${options.modelCacheSize}" has an invalid format.`)
-  }
-
   const loggerWrapper: NLUEngine.Logger = {
     debug: (msg: string) => logger.debug(msg),
     info: (msg: string) => logger.info(msg),
@@ -43,16 +38,18 @@ const makeEngine = async (options: ArgV, logger: Logger) => {
   }
 
   try {
+    const { ducklingEnabled, ducklingURL, modelCacheSize, languageURL, languageAuthToken } = options
     const config: NLUEngine.Config = {
       languageSources: [
         {
-          endpoint: options.languageURL,
-          authToken: options.languageAuthToken
+          endpoint: languageURL,
+          authToken: languageAuthToken
         }
       ],
-      ducklingEnabled: options.ducklingEnabled,
-      ducklingURL: options.ducklingURL,
-      modelCacheSize: maxCacheSize
+      ducklingEnabled,
+      ducklingURL,
+      modelCacheSize,
+      legacyElection: false
     }
 
     const engine = await NLUEngine.makeEngine(config, loggerWrapper)
@@ -78,7 +75,7 @@ export default async function(options: ArgV) {
   }
 
   for (const dir of ['./pre-trained', './stop-words']) {
-    await copyDir(path.resolve(__dirname, '../nlu/engine/assets', dir), path.resolve(process.APP_DATA_PATH, dir))
+    await copyDir(path.resolve(__dirname, '../engine/assets', dir), path.resolve(process.APP_DATA_PATH, dir))
   }
 
   if (!bytes(options.bodySize)) {

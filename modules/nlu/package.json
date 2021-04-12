@@ -15,8 +15,8 @@
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0-only",
   "devDependencies": {
-    "@types/bytes": "^3.1.0",
     "@types/bluebird-retry": "^0.11.4",
+    "@types/bytes": "^3.1.0",
     "@types/jest": "^23.3.9",
     "@types/lru-cache": "^5.1.0",
     "@types/semver": "^7.2.0",
@@ -26,14 +26,14 @@
     "rimraf": "^3.0.2"
   },
   "dependencies": {
-    "fs-extra": "^7.0.1",
-    "tmp": "^0.0.33",
     "axios": "^0.21.1",
     "bluebird": "^3.5.3",
-    "bytes": "^3.1.0",
     "bluebird-global": "^1.0.1",
     "bluebird-retry": "^0.11.0",
+    "bytes": "^3.1.0",
     "classnames": "^2.2.6",
+    "express": "^4.17.1",
+    "fs-extra": "^7.0.1",
     "immutable": "^4.0.0-rc.12",
     "joi": "^13.6.0",
     "lodash": "^4.17.19",
@@ -46,6 +46,7 @@
     "slate-react": "^0.22.4",
     "slate-react-placeholder": "^0.2.4",
     "tar": "^4.4.6",
+    "tmp": "^0.0.33",
     "yn": "^3.1.1"
   },
   "resolutions": {

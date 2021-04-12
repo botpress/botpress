@@ -20,7 +20,7 @@ const Toolbar: FC<ToolbarProps> = props => {
         <NavbarGroup className={cx(style.buttons, 'toolbar-buttons')} align={Alignment.RIGHT}>
           {props.rightContent}
           {props.buttons.map((button, index) => (
-            <div key={index} className={style.btnWrapper}>
+            <div key={index} className={style.btnWrapper} id={button.id}>
               <Fragment>
                 {!button.optionsItems?.length && (
                   <ToolTip position="bottom" content={button.tooltip}>

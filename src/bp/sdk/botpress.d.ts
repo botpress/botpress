@@ -457,7 +457,6 @@ declare module 'botpress/sdk' {
       status: TrainingStatus
       language: string
       progress: number
-      lock?: RedisLock
     }
 
     export type EntityType = 'system' | 'pattern' | 'list'
@@ -704,15 +703,12 @@ declare module 'botpress/sdk' {
       readonly intents?: NLU.Intent[]
       readonly ambiguous?: boolean /** Predicted intents needs disambiguation */
       readonly slots?: NLU.SlotCollection
+      readonly spellChecked?: string
 
       // pre-prediction
       readonly detectedLanguage:
         | string
         | undefined /** Language detected from users input. If undefined, detection failed. */
-      readonly spellChecked:
-        | string
-        | undefined /** Result of spell checking on users input. If undefined, spell check failed. */
-
       readonly language: string /** The language used for prediction */
       readonly includedContexts: string[]
       readonly ms: number
@@ -1159,6 +1155,11 @@ declare module 'botpress/sdk' {
      * @default 360
      */
     maxMessageLength: number
+    /**
+     * Number of milliseconds that the converse API will wait to buffer responses
+     * @default 250
+     */
+    bufferDelayMs: number
   }
 
   /**
@@ -1658,9 +1659,9 @@ declare module 'botpress/sdk' {
   export interface Message {
     id: uuid
     conversationId: uuid
+    authorId: string | undefined
     eventId?: string
     incomingEventId?: string
-    from: string
     sentOn: Date
     payload: any
   }
@@ -2215,6 +2216,23 @@ declare module 'botpress/sdk' {
     ): Promise<void>
 
     export function getBotTemplate(moduleName: string, templateName: string): Promise<FileContent[]>
+
+    /**
+     * Allows hook developers to list revisions of a bot
+     * @param botId the ID of the target bot
+     */
+    export function listBotRevisions(botId: string): Promise<string[]>
+    /**
+     * Allows hook developers to create a new revision of a bot
+     * @param botId the ID of the target bot
+     */
+    export function createBotRevision(botId: string): Promise<void>
+    /**
+     * Allows hook developers to rollback
+     * @param botId the ID of the target bot
+     * @param revisionId the target revision ID to which you want to revert the chatbot
+     */
+    export function rollbackBotToRevision(botId: string, revisionId: string): Promise<void>
   }
 
   export namespace workspaces {
@@ -2436,6 +2454,64 @@ declare module 'botpress/sdk' {
          * const conversation = await bp.conversations.forBot('myBot').recent('eEFoneif394')
          */
         recent(userId: uuid): Promise<Conversation>
+
+        /**
+         * Sets an attribute to a conversation. If the attribute already exists, its value gets overriden
+         * @param id Id of a conversation
+         * @param name Name of the attribute
+         * @param value Value to set
+         */
+        setAttribute(id: uuid, name: string, value: string): Promise<void>
+
+        /**
+         * Removes an attribute from a conversation
+         * @param id Id of a conversation
+         * @param name Name of the attribute
+         */
+        deleteAttribute(id: uuid, name: string): Promise<boolean>
+
+        /**
+         * Gets the value of an attribute for the given conversation. Return undefined if the attribute is not set
+         * @param id Id of a conversation
+         * @param name Name of the attribute
+         */
+        getAttribute(id: uuid, name: string): Promise<string | undefined>
+
+        /**
+         * Creates a mapping of ids for a conversation in a given channel
+         * @param channel The channel for which to create the mapping
+         * @param localId The id of the conversation in botpress
+         * @param foreignId The id of the conversation in that channel
+         * @example
+         * // I have been given an conversation id by facebook messenger
+         * const messengerConversationId = 134314
+         * // Let's say I have an already existing botpress conversation somewhere that I want to attach to this conversation
+         * const conversationId = '00001337-ca79-4235-8475-3785e41eb2be'
+         *
+         * // Create the mapping
+         * await bp.conversations.forBot(myBot).createMapping('facebook', conversationId, messengerConversationId)
+         * // Returns 134314
+         * await bp.conversations.forBot(myBot).getForeignId(conversationId)
+         * // Returns '00001337-ca79-4235-8475-3785e41eb2be'
+         * await bp.conversations.forBot(myBot).getLocalId(messengerConversationId)
+         */
+        createMapping(channel: string, localId: uuid, foreignId: string): Promise<void>
+
+        /**
+         * Deletes a conversation mapping
+         * @returns true if a conversation was deleted
+         */
+        deleteMapping(channel: string, localId: uuid, foreignId: string): Promise<boolean>
+
+        /**
+         * Gets a conversations id specific to the given channel from a botpress conversation id
+         */
+        getForeignId(channel: string, localId: uuid): Promise<string | undefined>
+
+        /**
+         * Gets a botpress conversation id from the foreign id of a conversation in a the given channel
+         */
+        getLocalId(channel: string, foreignId: string): Promise<string | undefined>
       }
     }
 
@@ -2481,7 +2557,7 @@ declare module 'botpress/sdk' {
         create(
           conversationId: uuid,
           payload: any,
-          from: string,
+          authorId?: string,
           eventId?: string,
           incomingEventId?: string
         ): Promise<Message>
