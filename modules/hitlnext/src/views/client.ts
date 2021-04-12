@@ -101,9 +101,13 @@ export const makeClient = (bp: { axios: AxiosInstance }): HitlClient => {
         .then(res => res.data)
         .then(data => castHandoff(data)),
     deleteMessagesInChannelWeb: async (id, userId) =>
-      bp.axios.post(`/conversations/${userId}/${id}/messages/delete`, null, {
-        baseURL: bp.axios.defaults.baseURL.concat('/mod/channel-web')
-      }),
+      bp.axios.post(
+        '/conversations/messages/delete',
+        { conversationId: id, userId, webSessionId: (window as any).__BP_VISITOR_SOCKET_ID },
+        {
+          baseURL: bp.axios.defaults.baseURL.concat('/mod/channel-web')
+        }
+      ),
     getMessages: async (id, column?, desc?, limit?) =>
       bp.axios
         .get(`/conversations/${id}/messages`, { ...config, params: { desc, column, limit } })
