@@ -22,6 +22,7 @@
       "../../node_modules/xml-encryption/lib/templates/*.tpl.xml",
       "./admin/ui/**",
       "./ui-studio/**",
+      "./ui-lite/**",
       "./core/config/schemas/**",
       "./ml/bin/**",
       "./nlu/engine/assets/pre-trained/**",
