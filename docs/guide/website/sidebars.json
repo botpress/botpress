@@ -24,7 +24,7 @@
 			"channels/faq"
 		],
 		"Deployment And Infrastructure": [
-			"infrastructure/amazon",
+			"infrastructure/aws",
 			"infrastructure/hosting",
 			"infrastructure/performances",
 			"infrastructure/pipeline",
