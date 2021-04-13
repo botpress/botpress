@@ -1,41 +1,41 @@
 {
-  "generatedOn": "2021-03-29T15:22:43.839Z",
+  "generatedOn": "2021-04-13T17:41:41.793Z",
   "scores": [
     {
       "metric": "accuracy",
       "problem": "bpsd A-en",
       "seed": 42,
-      "score": 0.6909090909090909
+      "score": 0.6772727272727272
     },
     {
       "metric": "oosAccuracy",
       "problem": "bpsd A-en",
       "seed": 42,
-      "score": 0.7863636363636364
+      "score": 0.7727272727272727
     },
     {
       "metric": "oosPrecision",
       "problem": "bpsd A-en",
       "seed": 42,
-      "score": 0.8117647058823529
+      "score": 0.7906976744186046
     },
     {
       "metric": "oosRecall",
       "problem": "bpsd A-en",
       "seed": 42,
-      "score": 0.69
+      "score": 0.68
     },
     {
       "metric": "oosF1",
       "problem": "bpsd A-en",
       "seed": 42,
-      "score": 0.7459459459459459
+      "score": 0.7311827956989247
     },
     {
       "metric": "accuracy",
       "problem": "bpsd A-en",
       "seed": 69,
-      "score": 0.6818181818181818
+      "score": 0.6863636363636364
     },
     {
       "metric": "oosAccuracy",
@@ -47,19 +47,19 @@
       "metric": "oosPrecision",
       "problem": "bpsd A-en",
       "seed": 69,
-      "score": 0.8395061728395061
+      "score": 0.8481012658227848
     },
     {
       "metric": "oosRecall",
       "problem": "bpsd A-en",
       "seed": 69,
-      "score": 0.68
+      "score": 0.67
     },
     {
       "metric": "oosF1",
       "problem": "bpsd A-en",
       "seed": 69,
-      "score": 0.7513812154696133
+      "score": 0.7486033519553073
     },
     {
       "metric": "accuracy",
@@ -77,19 +77,19 @@
       "metric": "oosPrecision",
       "problem": "bpsd A-en",
       "seed": 666,
-      "score": 0.7954545454545454
+      "score": 0.8023255813953488
     },
     {
       "metric": "oosRecall",
       "problem": "bpsd A-en",
       "seed": 666,
-      "score": 0.7
+      "score": 0.69
     },
     {
       "metric": "oosF1",
       "problem": "bpsd A-en",
       "seed": 666,
-      "score": 0.7446808510638298
+      "score": 0.7419354838709676
     },
     {
       "metric": "accuracy",
@@ -161,13 +161,13 @@
       "metric": "oosAccuracy",
       "problem": "bpds A imbalanced-en",
       "seed": 666,
-      "score": 0.6909090909090909
+      "score": 0.6863636363636364
     },
     {
       "metric": "oosPrecision",
       "problem": "bpds A imbalanced-en",
       "seed": 666,
-      "score": 0.75
+      "score": 0.7384615384615385
     },
     {
       "metric": "oosRecall",
@@ -179,7 +179,7 @@
       "metric": "oosF1",
       "problem": "bpds A imbalanced-en",
       "seed": 666,
-      "score": 0.5853658536585366
+      "score": 0.5818181818181819
     },
     {
       "metric": "accuracy",
@@ -191,13 +191,13 @@
       "metric": "oosAccuracy",
       "problem": "bpds A fewshot-en",
       "seed": 42,
-      "score": 0.7
+      "score": 0.6954545454545454
     },
     {
       "metric": "oosPrecision",
       "problem": "bpds A fewshot-en",
       "seed": 42,
-      "score": 0.6634615384615384
+      "score": 0.6571428571428571
     },
     {
       "metric": "oosRecall",
@@ -209,7 +209,7 @@
       "metric": "oosF1",
       "problem": "bpds A fewshot-en",
       "seed": 42,
-      "score": 0.6764705882352942
+      "score": 0.6731707317073171
     },
     {
       "metric": "accuracy",
@@ -275,91 +275,91 @@
       "metric": "accuracy",
       "problem": "bpds B",
       "seed": 42,
-      "score": 0.7
+      "score": 0.6909090909090909
     },
     {
       "metric": "oosAccuracy",
       "problem": "bpds B",
       "seed": 42,
-      "score": 0.7909090909090909
+      "score": 0.7818181818181819
     },
     {
       "metric": "oosPrecision",
       "problem": "bpds B",
       "seed": 42,
-      "score": 0.8552631578947368
+      "score": 0.8611111111111112
     },
     {
       "metric": "oosRecall",
       "problem": "bpds B",
       "seed": 42,
-      "score": 0.65
-    },
-    {
-      "metric": "oosF1",
-      "problem": "bpds B",
-      "seed": 42,
-      "score": 0.7386363636363636
-    },
-    {
-      "metric": "accuracy",
-      "problem": "bpds B",
-      "seed": 69,
-      "score": 0.6772727272727272
-    },
-    {
-      "metric": "oosAccuracy",
-      "problem": "bpds B",
-      "seed": 69,
-      "score": 0.7909090909090909
-    },
-    {
-      "metric": "oosPrecision",
-      "problem": "bpds B",
-      "seed": 69,
-      "score": 0.8857142857142857
-    },
-    {
-      "metric": "oosRecall",
-      "problem": "bpds B",
-      "seed": 69,
       "score": 0.62
     },
     {
       "metric": "oosF1",
       "problem": "bpds B",
+      "seed": 42,
+      "score": 0.7209302325581396
+    },
+    {
+      "metric": "accuracy",
+      "problem": "bpds B",
       "seed": 69,
-      "score": 0.7294117647058823
+      "score": 0.7
+    },
+    {
+      "metric": "oosAccuracy",
+      "problem": "bpds B",
+      "seed": 69,
+      "score": 0.8
+    },
+    {
+      "metric": "oosPrecision",
+      "problem": "bpds B",
+      "seed": 69,
+      "score": 0.9
+    },
+    {
+      "metric": "oosRecall",
+      "problem": "bpds B",
+      "seed": 69,
+      "score": 0.63
+    },
+    {
+      "metric": "oosF1",
+      "problem": "bpds B",
+      "seed": 69,
+      "score": 0.7411764705882353
     },
     {
       "metric": "accuracy",
       "problem": "bpds B",
       "seed": 666,
-      "score": 0.6409090909090909
+      "score": 0.65
     },
     {
       "metric": "oosAccuracy",
       "problem": "bpds B",
       "seed": 666,
-      "score": 0.759090909090909
+      "score": 0.7681818181818182
     },
     {
       "metric": "oosPrecision",
       "problem": "bpds B",
       "seed": 666,
-      "score": 0.8615384615384616
+      "score": 0.8656716417910447
     },
     {
       "metric": "oosRecall",
       "problem": "bpds B",
       "seed": 666,
-      "score": 0.56
+      "score": 0.58
     },
     {
       "metric": "oosF1",
       "problem": "bpds B",
       "seed": 666,
-      "score": 0.6787878787878788
+      "score": 0.6946107784431137
     },
     {
       "metric": "accuracy",
