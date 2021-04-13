@@ -86,12 +86,14 @@ export class FlowService {
   }
 
   private _listenForCacheInvalidation() {
-    this.cache.events.on('userFileUpdate', async (key: string) => {
-      const matches = key.match(/^data\/bots\/([A-Z0-9-_]+)\/flows\/([\s\S]+(flow|ui)\.json)/i)
+    this.cache.events.on('invalidation', async key => {
+      const matches = key.match(/^([A-Z0-9-_]+)::data\/bots\/([A-Z0-9-_]+)\/flows\/([\s\S]+(flow|ui)\.json)/i)
 
       if (matches && matches.length >= 2) {
-        const [key, botId, flowName] = matches
-        await this.forBot(botId).handleInvalidatedCache(flowName)
+        const [key, type, botId, flowName] = matches
+        if (type === 'file' || type === 'object') {
+          await this.forBot(botId).handleInvalidatedCache(flowName, type === 'file')
+        }
       }
     })
   }
@@ -158,7 +160,7 @@ export class ScopedFlowService {
     }
   }
 
-  public async handleInvalidatedCache(flowName: string) {
+  public async handleInvalidatedCache(flowName: string, isFromFile: boolean) {
     const flowPath = this.toFlowPath(flowName)
     const expectedSaves = this.expectedSavesCache.get(flowPath)
 
@@ -169,7 +171,7 @@ export class ScopedFlowService {
       } else {
         this.invalidateFlow(flowPath, undefined)
       }
-    } else {
+    } else if (!isFromFile) {
       this.expectedSavesCache.set(flowPath, expectedSaves - 1)
     }
   }
