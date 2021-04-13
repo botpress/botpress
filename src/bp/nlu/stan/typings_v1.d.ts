@@ -10,7 +10,6 @@ export interface TrainInput extends Credentials {
   contexts: string[]
   intents: IntentDefinition[]
   entities: (ListEntityDefinition | PatternEntityDefinition)[]
-
   seed?: number
 }
 
