@@ -138,7 +138,7 @@ try {
           if (yn(process.env.BP_DIAG)) {
             require('./diag').default(argv)
           } else {
-            require('./bootstrap')
+            require('./core/app/bootstrap')
           }
         })
       }
@@ -153,7 +153,7 @@ try {
           process.MIGRATE_DRYRUN = isDryRun
           process.VERBOSITY_LEVEL = 2
 
-          require('./bootstrap')
+          require('./core/app/bootstrap')
         })
       }
 
@@ -360,7 +360,7 @@ try {
 
         getos.default().then(distro => {
           process.distro = distro
-          require('./lang-server').default(argv)
+          require('./nlu/lang-server').default(argv)
         })
       }
     )
@@ -422,7 +422,7 @@ try {
         modelCacheSize: {
           description:
             'Max allocated memory for model cache. Too few memory will result in more access to file system.',
-          default: '250mb'
+          default: '850mb'
         }
       },
       argv => {
@@ -430,7 +430,7 @@ try {
 
         getos.default().then(distro => {
           process.distro = distro
-          require('./nlu-server').default(argv)
+          require('./nlu/stan').default(argv)
         })
       }
     )

@@ -43,6 +43,17 @@ h5 {
   }
 }
 
+.toSubflowSection {
+  label {
+    margin: 5px 0px;
+    display: block;
+    font-weight: 400;
+  }
+  input {
+    padding: 5px;
+  }
+}
+
 .node {
   position: relative;
 
@@ -67,9 +78,11 @@ h5 {
 
 .item {
   padding: 5px 0;
+  padding-left: 5px;
 
   .actions {
-    display: none;
+    padding: 10px 0;
+    display: block;
 
     a {
       cursor: pointer;
@@ -80,12 +93,6 @@ h5 {
   &:hover {
     background: #fefefe;
     border-left: 2px solid #999;
-    padding-left: 10px;
-
-    .actions {
-      padding: 10px 0;
-      display: block;
-    }
   }
 }
 
@@ -112,8 +119,16 @@ h5 {
 }
 
 .actions {
-  margin-top: 10px;
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 30px;
+  background-color: #ffffff;
+
+  a {
+    padding: 0px 5px;
+  }
 
   button {
     border-radius: 3px;

@@ -1,19 +1,19 @@
 import * as sdk from 'botpress/sdk'
-import { Queue } from 'core/events/queue'
+import { TYPES } from 'core/app/types'
+import { WellKnownFlags } from 'core/dialog'
+import { incrementMetric } from 'core/health'
 import { TimedPerfCounter } from 'core/misc/timed-perf'
-import { WellKnownFlags } from 'core/sdk/enums'
-import { incrementMetric } from 'core/services/monitoring'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 import _ from 'lodash'
 import { VError } from 'verror'
 import yn from 'yn'
 
-import { Event } from '../sdk/impl'
-import { TYPES } from '../types'
-
-import { addStepToEvent, EventCollector, StepScopes } from './event-collector'
-import MiddlewareChain from './middleware-chain'
+import { EventCollector } from './event-collector'
+import { Event } from './event-sdk-impl'
+import { MiddlewareChain } from './middleware-chain'
+import { Queue } from './queue'
+import { addStepToEvent, StepScopes } from './utils'
 
 const directionRegex = /^(incoming|outgoing)$/
 
@@ -91,6 +91,8 @@ export class EventEngine {
   public onAfterIncomingMiddleware?: (event: sdk.IO.IncomingEvent) => Promise<void>
 
   public onBeforeOutgoingMiddleware?: (event: sdk.IO.OutgoingEvent) => Promise<void>
+
+  public renderForChannel?: (content: any, channel: string) => any[]
 
   private readonly _incomingPerf = new TimedPerfCounter('mw_incoming')
   private readonly _outgoingPerf = new TimedPerfCounter('mw_outgoing')
@@ -181,6 +183,14 @@ export class EventEngine {
 
   async sendEvent(event: sdk.IO.Event): Promise<void> {
     this.validateEvent(event)
+
+    // Todo : remove this when per channel rendering is no longer needed for builtin content types
+    if (event.payload.__unrendered) {
+      const payloads = this.renderForChannel!(event.payload, event.channel)
+      const mevent = <any>event
+      mevent.payload = payloads[payloads.length - 1]
+      mevent.type = mevent.payload.type
+    }
 
     if (event.debugger) {
       addStepToEvent(event, StepScopes.Received)

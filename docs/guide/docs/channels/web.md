@@ -5,15 +5,15 @@ title: Website Embedding
 
 ## Embedding
 
-Embedding a bot to your existing site is quite straightforward. You will need to deploy your bot to a server or hosting provider and make it accessible via a URL. You will then be able to add the following script tag to the end of your `index.html` page.
+Embedding a chatbot to a website is relatively straightforward. As long as your chatbot is hosted on a physical or virtual server and is accessible via a URL, you can connect and embed it to a website. Add the following script tag to the end of your `index.html` (or the default webpage, whichever it's named).
 
-NB: Remember to replace <your-url-here> with the URL of your bot!
+> Remember to replace `<your-url-here>` with the URL of your bot!
 
 ```html
 <script src="<your-url-here>/assets/modules/channel-web/inject.js"></script>
 ```
 
-After the import script above you need to initialize the bot to the `window` object with the script below.
+After the import script above, you need to locate and use the chatbot by initializing it to the `window` object:
 
 ```html
 <script>
@@ -21,9 +21,9 @@ After the import script above you need to initialize the bot to the `window` obj
 </script>
 ```
 
-And that's it! Once you deploy the changes to your website, the bot will become available, and its button will appear.
+That's it! Once you add these changes and save them to your website, the bot will become available, and its button will appear on your site the next time you browse it.
 
-There is an example included in the default botpress installation at `http://localhost:3000/assets/modules/channel-web/examples/embedded-webchat.html`
+There is an example in the default botpress installation at `http://localhost:3000/assets/modules/channel-web/examples/embedded-webchat.html`
 
 ### Additional Options
 
@@ -33,7 +33,7 @@ There is an example included in the default botpress installation at `http://loc
 
 ## Bot Information page
 
-The information page displays information like the website url, a phone number, an e-mail contact address, and links to terms of services and privacy policies. You can also include a cover picture and an avatar for your bot.
+The information page displays information like the website URL, a phone number, an e-mail contact address, and links to terms of services and privacy policies. You can also include a cover picture and an avatar for your bot.
 
 ![Bot Info Page](assets/webchat-bot-info.png)
 
@@ -46,11 +46,40 @@ How to set up the information page:
 
 You will see the page when starting a new conversation. The page is always accessible by clicking on the information icon in the top right corner of the chat window.
 
-> **\*\*** We edited the `global` configuration file for the sake of simplicity. To enable the bot information page on a single bot, you will need to copy the file `data/global/config/channel-web.json` to your bot folder `data/bots/BOT_NAME/config/channel-web.json` and edit that file.
+> **\*\*** We edited the `global` configuration file for the sake of simplicity. To enable the bot information page on a single bot, visit that bot's studio UI and select **config** (the last icon on the left-side menu with a cog).
 
-## Show and hide automatically
+## Events Available
 
-If the default Botpress button doesn't work for you, it can be changed by adding a `click` event listener to any element on the page. You will also need to pass the `hideWidget` key to your `init` function like this:
+You can trigger events by calling the `window.botpressWebChat.sendEvent()` function. Below are some of them:
+
+| name            | Description                                                       |
+| --------------- | ----------------------------------------------------------------- |
+| `show`          | This event opens the webchat                                       |
+| `hide`          | This event closes the webchat                                      |
+| `toggle`        | This event open or close the webchat depends on its current state |
+| `message`       | This event sends a message (see example above)                     |
+| `toggleBotInfo` | This event switches between bot infos and conversation page       |
+
+### Show
+The following function shows the chat window when you click the `show-bp` element.
+
+```js   
+      document.getElementById('show-bp').addEventListener('click', function() {
+        window.botpressWebChat.sendEvent({ type: 'show' })
+      })
+```
+
+### Hide
+The following function hides the chat window when you click the `hide-bp` element.
+
+```js
+      document.getElementById('hide-bp').addEventListener('click', function() {
+        window.botpressWebChat.sendEvent({ type: 'hide' })
+      })
+```
+
+### Changing Website Button
+Most developers change the default webchat button which comes pre-packed in Botpress. This is the button that appears on your website (in the bottom right corner) when you embed your chatbot onto your website. This common styling change is usually applied to adopt a button which fits into the website theme. If you would like to change the default Botpress button, pass the `hideWidget` key to your `init` function. By so doing, the default chat button will not show up on your website.
 
 ```html
 <script>
@@ -58,7 +87,7 @@ If the default Botpress button doesn't work for you, it can be changed by adding
 </script>
 ```
 
-Here is some sample code for adding the event listeners to your custom elements:
+You can then add a `click` event listener to any element on your web page (in most cases this entails creating a new button). Below is a code sample showing how to add event listeners to your custom elements.
 
 ```html
 <script>
@@ -72,51 +101,64 @@ Here is some sample code for adding the event listeners to your custom elements:
 </script>
 ```
 
-## Others events
+### Toggle
+The following function includes a ternary operator that toggles the chat to either be hidden or shown when you click the `toggle-bp` element. 
 
-There are more events you can trigger by calling the `window.botpressWebChat.sendEvent()` function.
+```js
+      document.getElementById('toggle-bp').addEventListener('click', function() {
+        window.botpressWebChat.sendEvent({ type: webchatOpen ? 'hide' : 'show' })
+      })
+```
 
-| name            | Description                                                       |
-| --------------- | ----------------------------------------------------------------- |
-| `show`          | This event open the webchat                                       |
-| `hide`          | This event close the webchat                                      |
-| `toggle`        | This event open or close the webchat depends on its current state |
-| `message`       | This event send a message (see example above)                     |
-| `toggleBotInfo` | This event switches between bot infos and conversation page       |
+### Message
+The following function lets you programmatically send a message to the user when you click the `send-message-bp` element.
 
-## Obtaining the User ID of your visitor
+```js
+      document.getElementById('send-message-bp').addEventListener('click', function() {
+        window.botpressWebChat.sendEvent({ type: 'message', text: 'Hello!' })
+      })
+```
 
-It may be useful to fetch the current visitor ID to either save it in your database or to update some attributes in the Botpress DB.
+### Obtaining visitor's User ID
 
-Since the webchat is running in an iframe, communication between frames is done by posting messages.
-The chat will dispatch an event when the user id is set, which you can listen for on your own page.
+The most widely used object property under events is `userId`. It fetches the current visitor ID to either save it in your database or update some Botpress DB attributes.
+
+Since the webchat is running in an iframe, posting messages can achieve communication between frames. The chat will dispatch an event when a user id is set. You can listen for this event on your page.
 
 ```js
 window.addEventListener('message', message => {
   if (message.data.userId) {
     console.log(`The User ID is ` + message.data.userId)
+    //Add code to use the user ID here
   }
 })
 ```
 
-## Configure at runtime
+## Runtime configurations
+The method `window.botpressWebChat.configure` allows you to change the chat's configuration during a conversation without having to reload the page. 
 
-The method `window.botpressWebChat.configure` allows you to change the configuration of the chat during a conversation without having to reload the page.
+The example below shows how you can change the chatbot's language to French when you click `change-lang-bp` on your website. 
 
-## Advanced Customization
+```js
+      document.getElementById('change-lang-bp').addEventListener('click', function() {
+        lastConfig.locale = 'fr'
+        window.botpressWebChat.configure(lastConfig)
+      })
+```
 
-Every message sent by the bot to a user consist of a `payload`. That payload has a `type` property, that tells the webchat how the other information included on that payload should be rendered on screen.
+### Sending Custom Payloads
+All messages sent to a user consist of a `payload`. That payload has a `type` property that tells the webchat how the payload should render on the screen.
 
 There are different ways to send that payload to the user:
 
 - Sending a Content Element via the Flow Editor [example here](https://github.com/botpress/botpress/blob/master/modules/builtin/src/content-types/image.js)
-- Sending an event via Hooks or Actions [example here](https://github.com/botpress/botpress/blob/master/examples/custom-component/src/hooks/after_incoming_middleware/sendoptions.js)
+- Sending an event via Hooks or Actions (https://github.com/botpress/botpress/blob/master/examples/custom-component/src/hooks/after_incoming_middleware/sendoptions.js)
 
-There are multiple types already built in Botpress (they are listed at the bottom of this page), but if you require more advanced components, you can create them easily.
+There are multiple types already built-in in Botpress (these are listed at the bottom of this page), but you can create them easily if you require more advanced components.
 
 ### Prevent storing sensitive information
 
-By default, the complete payload is stored in the database, so the information is not lost when the user refreshes the page. On some occasion, however, we may want to hide some properties deemed "sensitive" (ex: password, credit card, etc..).
+By default, the complete payload is stored in the database, so the information is not lost when the user refreshes the page. However, we may want to hide some properties deemed "sensitive" (ex: password, credit card, etc..).
 
 To remove this information, there is a special property that you need to set: `sensitive`. Here's an example:
 
@@ -133,9 +175,9 @@ const payload = {
 
 ### Changing avatar for messages
 
-If you need to display different bot's avatar for some of the messages (like imitating changing author) you can achieve that by setting `botAvatarUrl` like this:
+If you need to display a different bot's avatar for some of the messages (like imitating changing author), you can achieve that by setting `botAvatarUrl` like this:
 
-```js
+"`js
 const payload = {
   type: 'text',
   botAvatarUrl: 'http://some.url'
@@ -145,34 +187,34 @@ const payload = {
 
 ## Creating a Custom Component
 
-We already have an [example module](https://github.com/botpress/botpress/tree/master/examples/custom-component) showing how to create them, so we will just make a quick recap here. The Debugger is also implemented entirely as a custom component in the [extensions module](https://github.com/botpress/botpress/tree/master/modules/extensions/src/views/lite/components/debugger), so don't hesitate to take a look on how it was implemented.
+We already have an [example module](https://github.com/botpress/botpress/tree/master/examples/custom-component) showing how to create them. We will make a quick recap here. The Debugger is implemented entirely as a custom component in the [extensions module](https://github.com/botpress/botpress/tree/master/modules/extensions/src/views/lite/components/debugger), so don't hesitate to take a look at how it was implemented there.
 
-Custom components leverages the `custom` payload type, which allows you to inject any valid React component exported from a custom module.
+Custom components leverage the `custom` payload type, which allows you to inject any valid React component exported from a custom module.
 
 1. Create a module (we have [example templates here](https://github.com/botpress/botpress/tree/master/examples/module-templates))
 2. Develop your component
 3. Export your component in the `lite.jsx` file ([here's a couple of different ways to do it](https://github.com/botpress/botpress/blob/master/examples/custom-component/src/views/lite/index.jsx))
 4. Send a custom payload to the user:
 
-```js
+"`js
 payload: {
   type: 'custom' // Important, this is how the magic operates
-  module: 'myModule' // The name of your module, must match the one in package.json
-  component: 'YourComponent' // This is the name of the component, exported from lite.jsx
+  module: 'myModule'// The name of your module, must match the one in package.json
+  component: 'YourComponent'// This is the name of the component, exported from lite.jsx
   // Feel free to add any other properties here, they will all be passed down to your component
   myCustomProp1: 'somemorestuff'
   someOtherProperty: 'anything'
 }
 ```
 
-### What can I do in my component ?
+### Component Properties
 
-There are a couple of properties that are passed down to your custom component. These can be used to customize the displayed information, and/or to pursue interactions.
+A couple of properties are passed down to your custom component. These can be used to customize the displayed information and/or to pursue interactions.
 
 | Property        | Description                                                                    |
 | --------------- | ------------------------------------------------------------------------------ |
 | ...props        | The payload properties are available on the root object (this.props.)          |
-| onSendData      | This method can be used to send a payload to the bot on the behalf of the user |
+| onSendData      | This method can be used to send a payload to the bot on behalf of the user |
 | onFileUpload    | Instead of sending an event, this will upload the specified file               |
 | sentOn          | This is the timestamp of the message.                                          |
 | isLastGroup     | Indicates if your component is part of the group of messages sent by the bot   |
@@ -182,11 +224,11 @@ There are a couple of properties that are passed down to your custom component. 
 | incomingEventId | The ID of the incoming event which was processed                               |
 | store           | Grants access to the MOBX store of Channel Web (more on that below)            |
 
-> isLastGroup and isLastOfGroup can be combined to let your component know if the current message is the last one the user is seeing. This can be used, for example, to display feedback buttons, a login form or anything else, that will disappear when the user continues the discussion.
+> isLastGroup and isLastOfGroup can be combined to let your component know if the current message is the last one the user is seeing. This can be used, for example, to display feedback buttons, a login form, or anything else, that will disappear when the user continues the discussion.
 
-#### The Store
+### The Store
 
-The store orchestrate everything happening on the webchat: whether those buttons are displayed, which page is currently displayed, how to handle configuration changes, etc. This means that your component has a lot of flexibility. Here's a sample of the methods that you can use [click here to see all of them](https://github.com/botpress/botpress/tree/master/modules/channel-web/src/views/lite/store):
+The store orchestrates everything happening on the webchat: whether those buttons are displayed, which page is currently displayed, how to handle configuration changes, etc. This means that your component has a lot of flexibility. Here's a sample of the methods that you can use [click here to see all of them](https://github.com/botpress/botpress/tree/master/modules/channel-web/src/views/lite/store):
 
 - Hide or Show the chat
 - Add or Remove header buttons
@@ -194,13 +236,13 @@ The store orchestrate everything happening on the webchat: whether those buttons
 - Send messages or payloads
 - Create a new conversation
 - Update any configuration option
-- Set a wrapper which will wrap every single message (more on that below)
+- Set a wrapper that will wrap every single message (more on that below)
 
-Basically, anything you can do while clicking on the UI can be done by your component.
+Anything you can do while clicking on the UI can be done by your component.
 
-#### Injecting your components
+### Injecting your components
 
-Some components can be replaced by your own. There are also some placeholders which doesn't have any components, but you can inject yours. When you inject a component, it will receive the original component, so you can just wrap it or change it completely. If there's a problem with your component, it will be replaced by the original one.
+Some components can be replaced by your own. There are also some placeholders that don't have any components, but you can inject yours. When you inject a component, it will receive the original component, so you can wrap it or change it completely. If there's a problem with your component, it will be replaced by the original one.
 
 | Location           | Description                                                        |
 | ------------------ | ------------------------------------------------------------------ |
@@ -224,9 +266,9 @@ window.botpressWebChat.init({
 })
 ```
 
-#### Wrappers
+### Wrappers
 
-Wrappers allows you to transform the content of a payload before passing it down to the renderer, or to another component. We have some [example components here](https://github.com/botpress/botpress/tree/master/examples/custom-component/src/views/lite/components/Advanced.jsx)
+Wrappers allow you to transform a payload's content before passing it down to the renderer or another component. We have some [example components here](https://github.com/botpress/botpress/tree/master/examples/custom-component/src/views/lite/components/Advanced.jsx)
 
 Here's an example of a wrapped text message:
 
@@ -242,13 +284,13 @@ payload: {
 }
 ```
 
-It is also possible to chain multiple custom components using the `wrapped` property
+It is also possible to chain multiple custom components using the `wrapped` property.
 
-#### Keyboards
+### Keyboards
 
-Keyboard allows you to add elements before or after the composer. Keyboard items can be buttons, or any other type of valid component. Use `Keyboard.Prepend` to display it before the composer, and `Keyboard.Append` to display it after.
+The keyboard allows you to add elements before or after the composer. Keyboard items can be buttons or any other type of valid component. Use `Keyboard.Prepend` to display it before the composer, and `Keyboard.Append` to display it after.
 
-```js
+"`js
 ...
 render(){
   // First of all, import the keyboard object
@@ -268,9 +310,9 @@ render(){
 }
 ```
 
-##### Using a Button Keyboard
+#### Using a Button Keyboard
 
-There is a built hook that makes it easy to add buttons to any kind of element. You can pass down an array of buttons, or an array of array of buttons.
+There is a built-in hook that makes it easy to add buttons to any element. You can pass down an array of buttons or an array of array of buttons.
 
 ```js
 const payload = {
@@ -286,11 +328,14 @@ const payload = {
 
 [security sdk]: https://botpress.com/reference/modules/_botpress_sdk_.security.html#getmessagesignature
 
-# Customizing Web Chat Style
+## Customizing Web Chat Style
+The Botpress webchat interface which is displayed on your website is fully customisable. You can change any of the styling using CSS. This can be done in two steps. Firstly create your own cascading style sheet and name it anything you want. Thereafter paste your stylesheet in the `<botpress_dir>/data/assets/modules/channel-web` folder.
 
-## Step 1: Styling (CSS)
+Secondly, you need to reference your new style sheet to your embedded cextrashatbot. You can easily do this by referencing your new stylesheet using the `extraStylesheet` property. Let us go through these steps in more detail.
 
-Paste the following CSS file in the `<botpress_dir>/data/assets/modules/channel-web` folder. Feel free to change the style here. Original Botpress theme [can be found here](https://github.com/botpress/botpress/blob/master/modules/channel-web/assets/default.css).
+### Step 1: Styling (CSS)
+
+Paste the following CSS file in the `<botpress_dir>/data/assets/modules/channel-web` folder. Feel free to change the style here—original Botpress theme [can be found here](https://github.com/botpress/botpress/blob/master/modules/channel-web/assets/default.css).
 
 ```css
 .bpw-from-bot .bpw-chat-bubble {
@@ -371,7 +416,7 @@ Paste the following CSS file in the `<botpress_dir>/data/assets/modules/channel-
 }
 ```
 
-## Step 2: Loading CSS File
+### Step 2: Loading CSS File
 
 Now, we need to instruct Botpress to use this custom CSS file for theming the webchat. For this, place the following code snippet in the `<botpress_dir>/data/global/hooks/after_bot_mount` folder. In our case, we used `01_create_shortlink.js` as the file name.
 
@@ -396,14 +441,14 @@ setTimeout(() => {
     bp.http.deleteShortLink(botId)
   } catch (e) {}
 
-  // Bot will be available at $EXTERNAL_URL/s/$BOT_NAME
+  // Chatbot will be available at $EXTERNAL_URL/s/$BOT_NAME
   bp.http.createShortLink(botId, `${process.EXTERNAL_URL}/lite/${botId}/`, params)
 }, 500)
 ```
 
-Feel free to change the webchat config there, the important line to keep is the `extraStylesheet` property.
+Feel free to change the webchat config there; the critical line to keep is the `extraStylesheet` property.
 
-## Result
+### Result
 
-Restart Botpress Server, and now your bot's default webchat will use your custom CSS theme! Here's our example:
+Restart Botpress Server, and now your chatbot's default webchat will use your custom CSS theme! Here's our example:
 ![WebChat Customization](assets/webchat-customization.png)

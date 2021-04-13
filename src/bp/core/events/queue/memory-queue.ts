@@ -8,7 +8,7 @@ import { TYPES } from '../../types'
 import { defaultOptions, JobWrapper, Queue, QueueConsumer, QueueOptions } from '.'
 
 @injectable()
-export default class MemoryQueue<E extends IO.Event> implements Queue<E> {
+export class MemoryQueue<E extends IO.Event> implements Queue<E> {
   private _options: QueueOptions
   private _queue: Array<JobWrapper<E>> = []
   private _subscribers: Array<Function> = []

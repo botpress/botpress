@@ -1,6 +1,7 @@
 {
   "composer.dropdownPlaceholder": "Seleziona una scelta",
   "composer.placeholder": "Rispondi a {name}",
+  "composer.placeholderInit": "Scrivi qualcosa a {name}",
   "composer.message": "Messaggio da inviare",
   "composer.send": "Invia",
   "footer.poweredBy": "We're {icon} by {link}",

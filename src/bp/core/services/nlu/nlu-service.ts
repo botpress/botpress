@@ -1,9 +1,8 @@
 import { Logger } from 'botpress/sdk'
+import { GhostService } from 'core/bpfs'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-
-import { GhostService } from '..'
 
 import { EntityService } from './entities-service'
 import { IntentService } from './intent-service'

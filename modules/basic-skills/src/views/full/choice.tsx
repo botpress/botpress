@@ -34,6 +34,7 @@ interface ChoiceConfig {
   nbMaxRetries: number
   repeatChoicesOnInvalid: boolean
   contentElement: string
+  variableName: string
 }
 
 interface State {
@@ -58,7 +59,8 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
     config: {
       nbMaxRetries: 3,
       repeatChoicesOnInvalid: false,
-      contentElement: undefined
+      contentElement: undefined,
+      variableName: ''
     },
     defaultConfig: undefined
   }
@@ -225,6 +227,20 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
       : this.state.defaultConfig && this.state.defaultConfig.defaultContentElement
   }
 
+  getVariableName() {
+    const { variableName } = this.state.config
+    return variableName ? variableName : ''
+  }
+
+  handleBlurVariableName() {
+    const { variableName } = this.state.config
+    const config = {
+      ...this.state.config,
+      variableName: variableName && variableName.length ? variableName : this.state.randomId
+    }
+    this.setState({ config })
+  }
+
   getNbRetries() {
     if (this.state.config.nbMaxRetries !== undefined || this.state.config.nbMaxRetries !== null) {
       return this.state.config.nbMaxRetries
@@ -252,6 +268,15 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
             max={10}
             onValueChange={this.onMaxRetriesChanged}
             value={this.getNbRetries()}
+          />
+        </FormGroup>
+
+        <FormGroup label="Variable Name">
+          <InputGroup
+            id="variableName"
+            value={this.getVariableName()}
+            onChange={this.handleConfigTextChanged('variableName')}
+            onBlur={this.handleBlurVariableName.bind(this)}
           />
         </FormGroup>
 
