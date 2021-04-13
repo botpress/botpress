@@ -1,13 +1,6 @@
 import { MLToolkit } from 'botpress/sdk'
-import _, { split } from 'lodash'
-import {
-  EntityPrediction,
-  PredictOutput,
-  EntityDefinition,
-  SlotPrediction,
-  IntentPrediction,
-  ContextPrediction
-} from 'nlu/typings_v1'
+import _ from 'lodash'
+import { EntityPrediction, PredictOutput, SlotPrediction, IntentPrediction, ContextPrediction } from 'nlu/typings_v1'
 
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
 import { IntentPredictions, NoneableIntentPredictions } from './intents/intent-classifier'
@@ -167,9 +160,9 @@ async function spellCheck(input: SlotStep, predictors: Predictors, tools: Tools)
 }
 
 function MapStepToOutput(step: SpellStep): PredictOutput {
-  const entitiesMapper = (e?: EntityExtractionResult | UtteranceEntity): EntityPrediction => {
+  const entitiesMapper = (e?: EntityExtractionResult | UtteranceEntity): EntityPrediction | null => {
     if (!e) {
-      return eval('null')
+      return null
     }
 
     return {
@@ -185,7 +178,9 @@ function MapStepToOutput(step: SpellStep): PredictOutput {
     }
   }
 
-  const entities = step.utterance.entities.map(entitiesMapper)
+  const entities = step.utterance.entities
+    .map(entitiesMapper)
+    .filter(<(ent) => ent is EntityPrediction>(e => e !== null))
 
   const slotsCollectionReducer = (slots: SlotPrediction[], s: SlotExtractionResult): SlotPrediction[] => {
     if (slots[s.slot.name] && slots[s.slot.name].confidence > s.slot.confidence) {
