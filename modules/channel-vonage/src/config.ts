@@ -26,7 +26,6 @@ export interface Config {
    * @default "your application ID here"
    */
   applicationId: string
-
   /**
    * The content of the private.key file that was generated when you created your Vonage Application. (https://dashboard.nexmo.com/).
    * _Note: You must replace all line breaks with the character `\n`_.

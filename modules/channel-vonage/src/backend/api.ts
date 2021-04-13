@@ -1,13 +1,14 @@
 import * as sdk from 'botpress/sdk'
 
-import { Clients } from './typings'
+import { ChannelUnsupportedError, Clients } from './typings'
 
 export async function setupRouter(
   bp: typeof sdk,
   clients: Clients,
-  baseRoute: string
+  baseRoute: string,
+  channelName: string
 ): Promise<sdk.http.RouterExtension> {
-  const router = bp.http.createRouterForBot('channel-vonage', {
+  const router = bp.http.createRouterForBot(channelName, {
     checkAuthentication: false
   })
 
@@ -25,7 +26,12 @@ export async function setupRouter(
       await client.handleWebhookRequest(req.body)
       res.sendStatus(200)
     } catch (err) {
-      res.status(400).send(err.message)
+      if (err instanceof ChannelUnsupportedError) {
+        res.status(400).send(err.message)
+      } else {
+        console.error(`[${channelName}] Server error: `, err)
+        res.sendStatus(500)
+      }
     }
   })
 
