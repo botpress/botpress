@@ -139,7 +139,6 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
       const modelId = NLUEngine.modelIdService.fromString(stringId)
       let session = trainSessionService.getTrainingSession(modelId, { appSecret, appId })
       if (!session) {
-        // TODO get app id and app ID from body
         const model = await modelRepo.getModel(modelId, { appSecret, appId })
 
         if (!model) {

@@ -50,7 +50,6 @@ export default class TrainService {
       const model = await this.engine.train(stringId, trainSet, { progressCallback })
       this.logger.info(`[${stringId}] Training Done.`)
 
-      // TODO add appID
       await this.modelRepo.saveModel(model, credentials)
       ts.status = 'done'
       this.trainSessionService.setTrainingSession(modelId, credentials, ts)
