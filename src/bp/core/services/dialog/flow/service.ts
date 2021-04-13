@@ -172,7 +172,7 @@ export class ScopedFlowService {
         this.invalidateFlow(flowPath, undefined)
       }
     } else if (!isFromFile) {
-      this.expectedSavesCache.set(flowPath, expectedSaves - 1)
+      this.expectedSavesCache.set(flowPath, Math.max(expectedSaves - 1, 0))
     }
   }
 
