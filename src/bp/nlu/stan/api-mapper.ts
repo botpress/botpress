@@ -19,7 +19,8 @@ export interface BpTrainInput {
   entities: NLUEngine.EntityDefinition[]
   contexts: string[]
   language: string
-  password: string
+  appSecret: string
+  appId: string
   seed?: number
 }
 
@@ -94,7 +95,7 @@ const mapPattern = (patternDef: PatternEntityDefinition): NLUEngine.EntityDefini
 }
 
 export function mapTrainInput(trainInput: TrainInput): BpTrainInput {
-  const { language, contexts, entities, seed, password, intents } = trainInput
+  const { language, contexts, entities, seed, appSecret, appId, intents } = trainInput
 
   const listEntities = entities.filter(isListEntity).map(mapList)
   const patternEntities = entities.filter(isPatternEntity).map(mapPattern)
@@ -110,7 +111,8 @@ export function mapTrainInput(trainInput: TrainInput): BpTrainInput {
     contexts,
     intents: _intents,
     seed,
-    password
+    appSecret,
+    appId
   }
 }
 

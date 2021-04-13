@@ -97,8 +97,9 @@ Content-Type: application/json
       ]
     }
   ],
-  "password": "123456",
-  "seed": 42
+  "seed": 42,
+  "appSecret": "123456",
+  "appId": "some-application-id"
 }
 ###
 @modelId = {{train.response.body.modelId}}
@@ -107,7 +108,7 @@ Content-Type: application/json
 
 ### get training-status
 # @name train-status
-GET {{api}}/train/{{modelId}}?password=123456
+GET {{api}}/train/{{modelId}}?appSecret=123456
 
 
 ### cancel training
@@ -116,7 +117,8 @@ POST {{api}}/train/{{modelId}}/cancel
 Content-Type: application/json
 
 {
-  "password": "123456"
+  "appSecret": "123456",
+  "appId": "some-application-id"
 }
 
 ### predict for sentence
@@ -130,5 +132,6 @@ Content-Type: application/json
     "Can I talk with the person in charge?",
     "My flight is at 9 pm"
   ],
-  "password": "123456"
+  "appSecret": "123456",
+  "appId": "some-application-id"
 }

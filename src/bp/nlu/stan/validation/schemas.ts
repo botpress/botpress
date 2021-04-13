@@ -70,7 +70,11 @@ export const TrainInputSchema = Joi.object().keys({
     .items(EntitySchema)
     .optional()
     .default([]),
-  password: Joi.string()
+  appSecret: Joi.string()
+    .allow('')
+    .optional()
+    .default(''),
+  appId: Joi.string()
     .allow('')
     .optional()
     .default(''),
@@ -78,14 +82,22 @@ export const TrainInputSchema = Joi.object().keys({
 })
 
 export const CancelInputSchema = Joi.object().keys({
-  password: Joi.string()
+  appSecret: Joi.string()
+    .allow('')
+    .optional()
+    .default(''),
+  appId: Joi.string()
     .allow('')
     .optional()
     .default('')
 })
 
 export const PredictInputSchema = Joi.object().keys({
-  password: Joi.string()
+  appSecret: Joi.string()
+    .allow('')
+    .optional()
+    .default(''),
+  appId: Joi.string()
     .allow('')
     .optional()
     .default(''),

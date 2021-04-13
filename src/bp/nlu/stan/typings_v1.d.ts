@@ -5,13 +5,17 @@
  * ############ INPUTS ############
  * ################################
  */
-export interface TrainInput {
+export interface TrainInput extends Credentials {
   language: string
   contexts: string[]
   intents: IntentDefinition[]
   entities: (ListEntityDefinition | PatternEntityDefinition)[]
-  password: string
   seed?: number
+}
+
+export interface Credentials {
+  appId: string
+  appSecret: string
 }
 
 export interface IntentDefinition {
@@ -41,9 +45,8 @@ export interface PatternEntityDefinition {
   examples: string[]
 }
 
-export interface PredictInput {
+export interface PredictInput extends Credentials {
   utterances: string[]
-  password: string
 }
 
 /**

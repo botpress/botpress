@@ -65,6 +65,7 @@ const BOUILLON_INTENT: IntentDefinition = {
 
 const LANG = 'en'
 const PW = 'Caput Draconis'
+const APP_ID = 'Spero_patronum'
 
 test('validate with correct format should pass', async () => {
   // arrange
@@ -73,7 +74,8 @@ test('validate with correct format should pass', async () => {
     entities: [CITY_ENUM],
     contexts: ['fly'],
     language: LANG,
-    password: PW,
+    appSecret: PW,
+    appId: APP_ID,
     seed: 42
   }
 
@@ -98,7 +100,7 @@ test('validate without pw should set pw as empty string', async () => {
   const validated = await validateTrainInput(trainInput)
 
   // assert
-  expect(validated.password).toBe('')
+  expect(validated.appSecret).toBe('')
 })
 
 test('validate with empty string pw should be allowed', async () => {
@@ -109,14 +111,15 @@ test('validate with empty string pw should be allowed', async () => {
     entities: [CITY_ENUM],
     language: LANG,
     seed: 42,
-    password: ''
+    appSecret: '',
+    appId: ''
   }
 
   // act
   const validated = await validateTrainInput(trainInput)
 
   // assert
-  expect(validated.password).toBe('')
+  expect(validated.appSecret).toBe('')
 })
 
 test('validate input without enums and patterns should pass', async () => {
@@ -125,7 +128,8 @@ test('validate input without enums and patterns should pass', async () => {
     intents: [EMPTY_INTENT],
     contexts: ['empty'],
     language: LANG,
-    password: PW,
+    appSecret: PW,
+    appId: APP_ID,
     seed: 42
   }
 
@@ -141,14 +145,16 @@ test('validate input without topics or language should throw', async () => {
   // arrange
   const withoutContexts: Omit<TrainInput, 'entities' | 'contexts' | 'intents'> = {
     language: LANG,
-    password: PW,
+    appSecret: PW,
+    appId: APP_ID,
     seed: 42
   }
 
   const withoutLang: Omit<TrainInput, 'entities' | 'language'> = {
     intents: [FLY_INTENT],
     contexts: ['fly'],
-    password: PW,
+    appSecret: PW,
+    appId: APP_ID,
     seed: 42
   }
 
@@ -166,7 +172,8 @@ test('validate without intent should fail', async () => {
     contexts: ['A'],
     entities: [CITY_ENUM],
     language: LANG,
-    password: PW,
+    appSecret: PW,
+    appId: APP_ID,
     seed: 42
   }
 
@@ -181,7 +188,8 @@ test('validate intent with unexisting context should fail', async () => {
     contexts: ['A'],
     entities: [CITY_ENUM],
     language: LANG,
-    password: PW,
+    appSecret: PW,
+    appId: APP_ID,
     seed: 42
   }
 
@@ -200,7 +208,8 @@ test('validate enum without values or patterns without regexes should fail', asy
     contexts: ['fly'],
     entities: [incompleteEnum],
     language: LANG,
-    password: PW,
+    appSecret: PW,
+    appId: APP_ID,
     seed: 42
   }
 
@@ -209,7 +218,8 @@ test('validate enum without values or patterns without regexes should fail', asy
     contexts: ['problem'],
     entities: [incompletePattern],
     language: LANG,
-    password: PW,
+    appSecret: PW,
+    appId: APP_ID,
     seed: 42
   }
 
@@ -225,7 +235,8 @@ test('validate with an unexisting referenced enum should throw', async () => {
     contexts: ['fly'],
     entities: [TICKET_PATTERN],
     language: LANG,
-    password: PW,
+    appSecret: PW,
+    appId: APP_ID,
     seed: 42
   }
 
@@ -240,7 +251,8 @@ test('validate with an unexisting referenced pattern should throw', async () => 
     contexts: ['problem'],
     entities: [CITY_ENUM],
     language: LANG,
-    password: PW,
+    appSecret: PW,
+    appId: APP_ID,
     seed: 42
   }
 
@@ -255,7 +267,8 @@ test('validate with an unexisting referenced complex should throw', async () => 
     contexts: ['bouillon'],
     entities: [CITY_ENUM],
     language: LANG,
-    password: PW,
+    appSecret: PW,
+    appId: APP_ID,
     seed: 42
   }
 
@@ -270,7 +283,8 @@ test('validate with correct format but unexpected property should fail', async (
     contexts: ['fly'],
     entities: [CITY_ENUM],
     language: LANG,
-    password: PW,
+    appSecret: PW,
+    appId: APP_ID,
     enums: [],
     seed: 42
   }
