@@ -117,7 +117,7 @@ git push dokku master
 ```
 
 ### Adding a POSTGRES database
-Now your bot is running on the host, but it is still using the SQLite database. Fortunately, Dokku has an open-source plugin that makes it very easy to set up the required database.
+Now your chatbot is running on the host, but it is still using the SQLite database. Fortunately, Dokku has an open-source plugin that makes it very easy to set up the required database.
 
 ```bash
 # This will download and install the Postgres plugin
