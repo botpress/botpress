@@ -49,6 +49,7 @@ enum ApiBaseUrl {
   TEST = 'https://messages-sandbox.nexmo.com',
   PROD = 'https://api.nexmo.com'
 }
+const formatKVSKey = (id: string) => `vonage-number::${id}`
 
 export class VonageClient {
   private logger: sdk.Logger
@@ -56,6 +57,7 @@ export class VonageClient {
   private webhookUrl: string
   private conversations: sdk.experimental.conversations.BotConversations
   private messages: sdk.experimental.messages.BotMessages
+  private kvs: sdk.KvsService
 
   constructor(
     private bp: typeof sdk,
@@ -67,6 +69,7 @@ export class VonageClient {
     this.logger = bp.logger.forBot(botId)
     this.conversations = this.bp.experimental.conversations.forBot(this.botId)
     this.messages = this.bp.experimental.messages.forBot(this.botId)
+    this.kvs = this.bp.kvs.forBot(this.botId)
   }
 
   async initialize() {
@@ -107,7 +110,7 @@ export class VonageClient {
     const payload: sdk.IO.IncomingEvent['payload'] = { type: 'text', text }
 
     const conversation = await this.conversations.recent(userId)
-    await this.conversations.setAttribute(conversation.id, 'vonage-number', botPhoneNumber)
+    await this.kvs.set(formatKVSKey(conversation.id), { botPhoneNumber })
 
     await this.messages.receive(conversation.id, payload, {
       channel: 'vonage'
@@ -359,7 +362,7 @@ export class VonageClient {
 
     const userId = event.target
     const conversation = await this.conversations.recent(userId)
-    const botPhoneNumber = await this.conversations.getAttribute(conversation.id, 'vonage-number')
+    const { botPhoneNumber } = await this.kvs.get(formatKVSKey(conversation.id))
 
     await new Promise(resolve => {
       this.vonage.channel.send(
