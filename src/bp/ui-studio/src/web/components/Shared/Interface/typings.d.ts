@@ -29,7 +29,6 @@ declare global {
     BOT_ID: string
     BP_BASE_PATH: string
     SEND_USAGE_STATS: boolean
-    BOTPRESS_FLOW_EDITOR_DISABLED: boolean
     botpress: {
       [moduleName: string]: any
     }
@@ -79,6 +78,7 @@ export interface InfoTooltipProps {
 
 export interface SidePanelProps {
   readonly children: React.ReactNode
+  style?: any
 }
 
 export interface ItemListProps {

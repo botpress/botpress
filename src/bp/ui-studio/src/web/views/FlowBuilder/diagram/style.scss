@@ -17,20 +17,6 @@
   }
 }
 
-.noPadding {
-  padding: 0 !important;
-}
-
-.searchWrapper {
-  position: relative;
-  z-index: 9;
-  align-items: flex-start;
-  display: flex;
-  justify-content: flex-end;
-  margin-top: var(--spacing-large);
-  margin-bottom: -38px;
-}
-
 :global {
   .bp3-tab {
     text-transform: uppercase;

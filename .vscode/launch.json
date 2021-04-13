@@ -23,6 +23,7 @@
         "${workspaceFolder}/private-modules/**/dist/**/*.js",
         "!${workspaceFolder}/**/node_modules/**/*.js"
       ],
+      "skipFiles": ["**/node_modules/**", "<node_internals>/**"],
       "console": "integratedTerminal",
       "sourceMaps": true,
       "autoAttachChildProcesses": true

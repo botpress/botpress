@@ -1,11 +1,11 @@
 {
-  "generatedOn": "2021-03-03T15:44:39.518Z",
+  "generatedOn": "2021-03-29T15:30:14.745Z",
   "scores": [
     {
       "metric": "accuracy",
       "problem": "clinc150, 20 utt/intent, seed 42",
       "seed": 42,
-      "score": 0.7245348837209302
+      "score": 0.7246511627906976
     },
     {
       "metric": "oosAccuracy",

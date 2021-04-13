@@ -1,13 +1,13 @@
-import React, { Component, Fragment } from 'react'
-import _ from 'lodash'
+import { lang } from 'botpress/shared'
 import classnames from 'classnames'
+import _ from 'lodash'
+import React, { Component, Fragment } from 'react'
 
 import { Button, Label } from 'react-bootstrap'
 
 import ConditionItem from '../common/condition'
 
 import ConditionModalForm from './ConditionModalForm'
-import { lang } from 'botpress/shared'
 
 const style = require('./style.scss')
 
@@ -86,8 +86,10 @@ export default class TransitionSection extends Component {
       <Fragment>
         <div>
           {items.map((item, i) => (
-            <ConditionItem className={style.item} condition={item} position={i} key={`${i}.${item.node || '-'}`}>
-              {renderType(item)}
+            <Fragment>
+              <ConditionItem className={style.item} condition={item} position={i} key={`${i}.${item.node || '-'}`}>
+                {renderType(item)}
+              </ConditionItem>
               {!readOnly && (
                 <div className={style.actions}>
                   <a onClick={() => this.onEdit(i)}>{lang.tr('edit')}</a>
@@ -97,7 +99,7 @@ export default class TransitionSection extends Component {
                   {renderMoveDown(i)}
                 </div>
               )}
-            </ConditionItem>
+            </Fragment>
           ))}
           {!readOnly && (
             <div className={style.actions}>

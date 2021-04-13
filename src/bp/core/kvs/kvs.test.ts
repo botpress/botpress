@@ -1,9 +1,9 @@
-import Database from '../database'
-import { createDatabaseSuite } from '../database/index.tests'
-import { PersistedConsoleLogger } from '../logger'
-import { createSpyObject, MockObject } from '../misc/utils'
+import Database from 'core/database'
+import { createDatabaseSuite } from 'core/database/index.tests'
+import { PersistedConsoleLogger } from 'core/logger'
 
-import { KeyValueStore } from '.'
+import { createSpyObject, MockObject } from '../misc/utils'
+import { KeyValueStore } from './kvs-service'
 
 createDatabaseSuite('KVS', (database: Database) => {
   const logger: MockObject<PersistedConsoleLogger> = createSpyObject<PersistedConsoleLogger>()

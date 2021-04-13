@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import React, { Component, Fragment } from 'react'
 
 import { Tabs, Tab, Badge, Panel } from 'react-bootstrap'
@@ -6,7 +7,6 @@ import EditableInput from '../common/EditableInput'
 
 import ActionSection from './ActionSection'
 import TransitionSection from './TransitionSection'
-import { lang } from 'botpress/shared'
 
 const style = require('./style.scss')
 
@@ -25,12 +25,16 @@ export default class StandardNodePropertiesPanel extends Component {
   }
 
   render() {
-    const { node, readOnly } = this.props
+    const { node, readOnly, isLastNode } = this.props
 
     return (
       <div className={style.node}>
         <Panel>
           <EditableInput
+            /* We should always sugest that the name should be changed
+             if the node has the default name and it is the last created */
+            key={node.id}
+            shouldFocus={isLastNode && node.name.match(/node-(\w|\n){4}$/g)}
             readOnly={readOnly}
             value={node.name}
             className={style.name}
