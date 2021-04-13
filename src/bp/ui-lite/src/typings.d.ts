@@ -1,4 +1,4 @@
-import { BPStorage } from '~/util/storage'
+// import { BPStorage } from '~/util/storage'
 
 // TODO: remove when at least one typing is exported from this file
 export interface test {}
@@ -7,15 +7,10 @@ declare global {
   interface Window {
     __BP_VISITOR_ID: string
     __BP_VISITOR_SOCKET_ID: string
-    __REDUX_DEVTOOLS_EXTENSION_COMPOSE__: any
-    botpressWebChat: any
-    APP_NAME: string
-    APP_VERSION: string
-    APP_FAVICON: string
-    APP_CUSTOM_CSS: string
+
     BOT_API_PATH: string
     API_PATH: string
-
+    USE_JWT_COOKIES: boolean
     ROOT_PATH: string
     BOT_NAME: string
     BOT_ID: string
@@ -27,7 +22,7 @@ declare global {
     SOCKET_TRANSPORTS: string[]
     ANALYTICS_ID: string
     UUID: string
-    BP_STORAGE: BPStorage
+    BP_STORAGE: any
     EXPERIMENTAL: boolean
     USE_SESSION_STORAGE: boolean
     USE_ONEFLOW: boolean
