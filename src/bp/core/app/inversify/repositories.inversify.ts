@@ -1,3 +1,4 @@
+import { AttributesRepository } from 'core/attributes/attributes-repository'
 import { SessionRepository } from 'core/dialog/sessions'
 import { EventRepository } from 'core/events'
 import { LogsRepository } from 'core/logger'
@@ -66,6 +67,10 @@ const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) 
 
   bind<MappingRepository>(TYPES.MappingRepository)
     .to(MappingRepository)
+    .inSingletonScope()
+
+  bind<AttributesRepository>(TYPES.AttributesRepository)
+    .to(AttributesRepository)
     .inSingletonScope()
 })
 
