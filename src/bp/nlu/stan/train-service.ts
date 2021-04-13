@@ -5,7 +5,7 @@ import * as NLUEngine from 'nlu/engine'
 import { serializeError } from 'nlu/utils/error-utils'
 import { ModelRepository } from './model-repo'
 import TrainSessionService from './train-session-service'
-import { TrainingProgress, TrainingErrorType } from './typings_v1'
+import { TrainingProgress, TrainingErrorType, Credentials } from './typings_v1'
 
 export default class TrainService {
   constructor(
@@ -17,7 +17,7 @@ export default class TrainService {
 
   train = async (
     modelId: NLUEngine.ModelId,
-    password: string,
+    credentials: Credentials,
     intents: sdk.NLU.IntentDefinition[],
     entities: sdk.NLU.EntityDefinition[],
     language: string,
@@ -30,14 +30,14 @@ export default class TrainService {
       status: 'training-pending',
       progress: 0
     }
-    this.trainSessionService.setTrainingSession(modelId, password, ts)
+    this.trainSessionService.setTrainingSession(modelId, credentials, ts)
 
     const progressCallback = (progress: number) => {
       if (ts.status === 'training-pending') {
         ts.status = 'training'
       }
       ts.progress = progress
-      this.trainSessionService.setTrainingSession(modelId, password, ts)
+      this.trainSessionService.setTrainingSession(modelId, credentials, ts)
     }
 
     try {
@@ -50,18 +50,17 @@ export default class TrainService {
       const model = await this.engine.train(stringId, trainSet, { progressCallback })
       this.logger.info(`[${stringId}] Training Done.`)
 
-      // TODO add appID
-      await this.modelRepo.saveModel(model, { appSecret: password })
+      await this.modelRepo.saveModel(model, credentials)
       ts.status = 'done'
-      this.trainSessionService.setTrainingSession(modelId, password, ts)
-      this.trainSessionService.releaseTrainingSession(modelId, password)
+      this.trainSessionService.setTrainingSession(modelId, credentials, ts)
+      this.trainSessionService.releaseTrainingSession(modelId, credentials)
     } catch (err) {
       if (NLUEngine.errors.isTrainingCanceled(err)) {
         this.logger.info(`[${stringId}] Training Canceled.`)
 
         ts.status = 'canceled'
-        this.trainSessionService.setTrainingSession(modelId, password, ts)
-        this.trainSessionService.releaseTrainingSession(modelId, password)
+        this.trainSessionService.setTrainingSession(modelId, credentials, ts)
+        this.trainSessionService.releaseTrainingSession(modelId, credentials)
         return
       }
 
@@ -75,8 +74,8 @@ export default class TrainService {
       ts.status = 'errored'
       ts.error = { ...serializeError(err), type }
 
-      this.trainSessionService.setTrainingSession(modelId, password, ts)
-      this.trainSessionService.releaseTrainingSession(modelId, password)
+      this.trainSessionService.setTrainingSession(modelId, credentials, ts)
+      this.trainSessionService.releaseTrainingSession(modelId, credentials)
       this.logger.attachError(err).error('an error occured during training')
       return
     }

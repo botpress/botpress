@@ -11,7 +11,8 @@ import {
   IntentPrediction as StanIntentPrediction,
   SlotPrediction as StanSlotPrediction,
   ContextPrediction as StanContextPrediction,
-  EntityPrediction as StanEntityPrediction
+  EntityPrediction as StanEntityPrediction,
+  Credentials
 } from './typings'
 
 type BpSlotDefinition = NLU.SlotDefinition
@@ -93,8 +94,9 @@ const mapPattern = (patternDef: BpEntityDefinition): PatternEntityDefinition => 
   }
 }
 
-export const mapTrainInput = (bpTrainSet: BpTrainSet, password: string): TrainInput => {
+export const mapTrainInput = (bpTrainSet: BpTrainSet, credentials: Credentials): TrainInput => {
   const { intentDefs, entityDefs, languageCode, seed } = bpTrainSet
+  const { appSecret, appId } = credentials
 
   const entities = entityDefs.filter(isCustomEntity).map(e => (isPatternEntity(e) ? mapPattern(e) : mapList(e)))
 
@@ -110,7 +112,8 @@ export const mapTrainInput = (bpTrainSet: BpTrainSet, password: string): TrainIn
     entities,
     intents,
     contexts,
-    password,
+    appSecret,
+    appId,
     language: languageCode,
     seed
   }

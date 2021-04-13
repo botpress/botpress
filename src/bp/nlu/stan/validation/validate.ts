@@ -8,7 +8,8 @@ import {
   PatternEntityDefinition,
   PredictInput,
   SlotDefinition,
-  TrainInput
+  TrainInput,
+  Credentials
 } from '../typings_v1'
 
 import { CancelInputSchema, PredictInputSchema, TrainInputSchema } from './schemas'
@@ -64,8 +65,8 @@ export async function validateTrainInput(rawInput: any): Promise<TrainInput> {
   return validatedInput
 }
 
-export async function validateCancelRequestInput(rawInput: any): Promise<{ password: string }> {
-  const validated: { password: string } = await validate(rawInput, CancelInputSchema, {})
+export async function validateCancelRequestInput(rawInput: any): Promise<Credentials> {
+  const validated: Credentials = await validate(rawInput, CancelInputSchema, {})
   return validated
 }
 
