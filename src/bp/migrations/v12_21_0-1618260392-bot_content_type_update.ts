@@ -15,7 +15,7 @@ const migration: Migration = {
     for (const [botId, botConfig] of bots) {
       if (_.difference(newTypes, botConfig.imports.contentTypes).length > 0) {
         configProvider.mergeBotConfig(botId, {
-          imports: { contentTypes: [...botConfig.imports.contentTypes, ...newTypes] }
+          imports: { contentTypes: [_.merge(botConfig.imports.contentTypes, newTypes)] }
         })
       }
     }
