@@ -69,23 +69,34 @@ export class SmoochClient {
     }
 
     for (const message of payload.messages) {
-      if (!this.config.messageTypes.includes(message.type)) {
-        this.logger.warn(`[${this.botId}] messageType: "${message.type}" is not configured. Event is being dropped.`)
-        continue
-      }
+      if (this.config.smoochMessageTypes.includes(message.type)) {
+        await this.bp.events.sendEvent(
+          this.bp.IO.Event({
+            botId: this.botId,
+            channel: 'smooch',
+            direction: 'incoming',
+            type: `smooch-${message.type}`,
+            payload: { channel: { smooch: { message } } },
+            threadId: payload.conversation._id,
+            target: payload.appUser._id
+          })
+        )
+      } else if (message.type === 'text') {
+        const basePayload = this.config.forwardPayloads ? { channel: { smooch: { message } } } : {}
 
-      await this.bp.events.sendEvent(
-        this.bp.IO.Event({
-          botId: this.botId,
-          channel: 'smooch',
-          direction: 'incoming',
-          type: message.type,
-          payload: message,
-          preview: message.text,
-          threadId: payload.conversation._id,
-          target: payload.appUser._id
-        })
-      )
+        await this.bp.events.sendEvent(
+          this.bp.IO.Event({
+            botId: this.botId,
+            channel: 'smooch',
+            direction: 'incoming',
+            type: 'text',
+            payload: { ...basePayload, type: 'text', text: message.text },
+            preview: message.text,
+            threadId: payload.conversation._id,
+            target: payload.appUser._id
+          })
+        )
+      }
     }
   }
 

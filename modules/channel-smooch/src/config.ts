@@ -24,8 +24,15 @@ export interface Config {
   chatUserAuthDuration: string
 
   /**
-   * The types of messages received from the channel that will fire off as events in the Dialog Engine
-   * @default ['text']
+   * Configures whether or not payloads that are officially supported by the channel
+   * carry over the original smooch payload in payload.channel.smooch
+   * @default false
    */
-  messageTypes: string[]
+  forwardPayloads: boolean
+
+  /**
+   * List of smooch message types to foward. Will be forwarded as an event of with the type prefix "smooch-"
+   * @default []
+   */
+  smoochMessageTypes: string[]
 }
