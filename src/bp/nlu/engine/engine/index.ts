@@ -164,14 +164,12 @@ export default class Engine implements IEngine {
       .uniq()
       .value()
 
-    const intents = intentDefs
-      .filter(x => !!x.utterances[languageCode])
-      .map(x => ({
-        name: x.name,
-        contexts: x.contexts,
-        utterances: x.utterances[languageCode],
-        slot_definitions: x.slots
-      }))
+    const intents = intentDefs.map(x => ({
+      name: x.name,
+      contexts: x.contexts,
+      utterances: x.utterances,
+      slot_definitions: x.slots
+    }))
 
     let ctxToTrain = contexts
     if (previousModel) {

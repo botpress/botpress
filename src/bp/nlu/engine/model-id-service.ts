@@ -69,7 +69,7 @@ const isId = (stringId: string) => {
 }
 
 const _computeContentHash = (entityDefs: EntityDefinition[], intentDefs: IntentDefinition[], languageCode: string) => {
-  const singleLangIntents = intentDefs.map(i => ({ ...i, utterances: i.utterances[languageCode] }))
+  const singleLangIntents = intentDefs
   return halfmd5(JSON.stringify({ singleLangIntents, entityDefs }))
 }
 
