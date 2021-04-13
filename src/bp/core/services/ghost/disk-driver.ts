@@ -18,6 +18,8 @@ export class DiskStorageDriver implements StorageDriver {
 
   async upsertFile(filePath: string, content: string | Buffer): Promise<void>
   async upsertFile(filePath: string, content: string | Buffer, recordRevision: boolean = false): Promise<void> {
+    console.log('Upsert file', filePath)
+
     try {
       const folder = path.dirname(this.resolvePath(filePath))
       await fse.mkdirp(folder)

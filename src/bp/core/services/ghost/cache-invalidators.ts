@@ -71,6 +71,8 @@ export namespace CacheInvalidators {
         return
       }
 
+      console.log('Chokidar handle file change')
+
       const relativePath = forceForwardSlashes(path.relative(process.PROJECT_LOCATION, file))
       await this.cache.invalidateStartingWith(path.dirname(relativePath))
       this.cache.events.emit('invalidation', `file::${relativePath}`)

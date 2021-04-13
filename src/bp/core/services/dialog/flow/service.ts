@@ -59,6 +59,8 @@ export class FlowService {
   private invalidateFlow: (botId: string, key: string, flow?: FlowView, newKey?: string) => void = this
     ._localInvalidateFlow
 
+  private n: number = 0
+
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'FlowService')
@@ -87,6 +89,7 @@ export class FlowService {
 
   private _listenForCacheInvalidation() {
     this.cache.events.on('invalidation', async key => {
+      console.log(this.n++, 'Cache invalidation event', key)
       const matches = key.match(/^([A-Z0-9-_]+)::data\/bots\/([A-Z0-9-_]+)\/flows\/([\s\S]+(flow|ui)\.json)/i)
 
       if (matches && matches.length >= 2) {
@@ -144,6 +147,7 @@ export class ScopedFlowService {
     }
 
     if (flow) {
+      console.log('Flow cache updated')
       this.cache.update(key, flow)
     } else if (newKey) {
       this.cache.rename(key, newKey)
@@ -164,15 +168,21 @@ export class ScopedFlowService {
     const flowPath = this.toFlowPath(flowName)
     const expectedSaves = this.expectedSavesCache.get(flowPath)
 
+    console.log('Flow handle invalidated cache', flowName)
+
     if (!expectedSaves) {
+      console.log(' Invalidated')
       if (await this.ghost.fileExists(FLOW_DIR, flowPath)) {
         const flow = await this.parseFlow(flowPath)
         this.invalidateFlow(flowPath, flow)
       } else {
         this.invalidateFlow(flowPath, undefined)
       }
-    } else if (!isFromFile) {
-      this.expectedSavesCache.set(flowPath, expectedSaves - 1)
+    } else {
+      console.log(' Invalidation skipped')
+      if (!isFromFile) {
+        this.expectedSavesCache.set(flowPath, expectedSaves - 1)
+      }
     }
   }
 
@@ -306,6 +316,8 @@ export class ScopedFlowService {
   }
 
   async updateFlow(flow: FlowView, userEmail: string) {
+    console.log('Update flow')
+
     const currentMutex = await this._testAndLockMutex(userEmail, flow.location || flow.name)
 
     await this._upsertFlow(flow)
