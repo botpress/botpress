@@ -23,7 +23,8 @@ function render(data) {
         options: data.choices.map(c => ({ label: c.title, value: c.value.toUpperCase() })),
         width: 300,
         placeholderText: data.dropdownPlaceholder
-      }];
+      }
+    ]
   }
 
   return [
@@ -99,6 +100,8 @@ function renderElement(data, channel) {
     return renderMessenger(data)
   } else if (channel === 'slack') {
     return renderSlack(data)
+  } else if (channel === 'vonage') {
+    return [{ ...data, type: 'quick_reply' }]
   } else {
     return render(data)
   }

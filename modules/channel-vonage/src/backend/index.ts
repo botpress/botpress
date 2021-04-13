@@ -6,7 +6,8 @@ import { MIDDLEWARE_NAME, setupMiddleware, VonageClient } from './client'
 import { Clients } from './typings'
 
 let router: sdk.http.RouterExtension
-const baseRoute = '/webhooks'
+const BASE_ROUTE = '/webhooks'
+const CHANNEL_NAME = 'channel-vonage'
 const clients: Clients = {}
 
 const onServerStarted = async (bp: typeof sdk) => {
@@ -14,14 +15,14 @@ const onServerStarted = async (bp: typeof sdk) => {
 }
 
 const onServerReady = async (bp: typeof sdk) => {
-  router = await setupRouter(bp, clients, baseRoute)
+  router = await setupRouter(bp, clients, BASE_ROUTE, CHANNEL_NAME)
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
-  const config = (await bp.config.getModuleConfigForBot('channel-vonage', botId, true)) as Config
+  const config = (await bp.config.getModuleConfigForBot(CHANNEL_NAME, botId, true)) as Config
 
   if (config.enabled) {
-    const client = new VonageClient(bp, botId, config, router, baseRoute)
+    const client = new VonageClient(bp, botId, config, router, BASE_ROUTE)
     await client.initialize()
 
     clients[botId] = client
@@ -41,6 +42,7 @@ const onModuleUnmount = async (bp: typeof sdk) => {
   bp.events.removeMiddleware(MIDDLEWARE_NAME)
 }
 
+// Doc: https://developer.nexmo.com/messages/concepts/messages-api-sandbox
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
@@ -48,7 +50,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotUnmount,
   onModuleUnmount,
   definition: {
-    name: 'channel-vonage',
+    name: CHANNEL_NAME,
     menuIcon: 'none',
     fullName: 'Vonage',
     homepage: 'https://botpress.com',

@@ -1,5 +1,12 @@
 import { ChannelContent, ChannelMessage, ChannelToFrom, ChannelWhatsApp, MessageSendResponse } from '@vonage/server-sdk'
 import { VonageClient } from './client'
+import { Components } from './template'
+
+export class ChannelUnsupportedError extends Error {
+  constructor() {
+    super('Unable to process message: only Whatsapp channel is supported')
+  }
+}
 
 export interface Clients {
   [botId: string]: VonageClient
@@ -23,6 +30,12 @@ export interface VonageMessageStatusBody extends MessageSendResponse {
   timestamp: string
 }
 
+type Policy = ChannelWhatsApp['policy']
+export interface TemplateLanguage {
+  policy: Policy
+  code: string
+}
+
 export interface ChannelContentLocation {
   longitude: number
   latitude: number
@@ -30,16 +43,11 @@ export interface ChannelContentLocation {
   address: string
 }
 
-export interface ChannelContentCustomTemplateStructure {
-  type: 'header' | 'body' | 'footer'
-  parameters?: VonageChannelContent[]
-}
-
 export interface ChannelContentTemplate {
   namespace: string
   name: string
-  language: ChannelWhatsApp
-  components: ChannelContentCustomTemplateStructure[]
+  language: TemplateLanguage
+  components: Components
 }
 
 export interface ChannelContentCustomTemplate {

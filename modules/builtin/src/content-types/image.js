@@ -125,7 +125,7 @@ function renderElement(data, channel) {
     return renderTeams(data)
   } else if (channel === 'vonage') {
     // channel-vonage handles rendering on its own
-    return data
+    return [{ ...data, type: 'image' }]
   } else {
     return render(data)
   }

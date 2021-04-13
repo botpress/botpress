@@ -8,11 +8,13 @@ import Vonage, {
 import * as sdk from 'botpress/sdk'
 
 import { Config } from '../config'
+import { Buttons, Components, TemplateComponents } from './template'
 
 import {
   ChannelContentCustomTemplate,
-  ChannelContentLocation,
+  ChannelUnsupportedError,
   Clients,
+  TemplateLanguage,
   VonageChannelContent,
   VonageMessageStatusBody,
   VonageRequestBody
@@ -25,7 +27,10 @@ const debugOutgoing = debug.sub('outgoing')
 export const MIDDLEWARE_NAME = 'vonage.sendMessage'
 
 // TODO: Remove this.
-const TESTING_MTM_NAME = 'whatsapp:hsm:technology:nexmo:verify'
+const TESTING_TEMPLATE_NAMESPACE = '9b6b4fcb_da19_4a26_8fe8_78074a91b584'
+const TESTING_QUICK_REPLY_TEMPLATE_NAME = 'sandbox_doctors_appointment'
+const TESTING_LINK_BUTTON_TEMPLATE_NAME = 'sandbox_travel_boardingpass'
+const TESTING_MTM_NAME = `${TESTING_TEMPLATE_NAMESPACE}:verify`
 const TESTING_MTM_PARAMETERS = [
   {
     default: 'Vonage Verification'
@@ -82,49 +87,99 @@ export class VonageClient {
         privateKey: Buffer.from(this.config.privateKey) as any
       },
       {
+        debug: this.config.useTestingApi ? true : false,
         apiHost: this.config.useTestingApi ? ApiBaseUrl.TEST : ApiBaseUrl.PROD
       }
     )
 
-    this.logger.info(`Vonage webhook listening at ${this.webhookUrl}`)
+    this.logger.info(`Vonage webhooks listening at ${this.webhookUrl}`)
   }
 
   async handleWebhookRequest(body: VonageRequestBody) {
     debugIncoming('Received message', body)
 
-    // TODO: Validate from/to type === SUPPORTED_CHANNEL_TYPE ?
+    // TODO: Handle other types of payload
+    // https://developer.nexmo.com/api/messages-olympus?theme=dark
     const text = body.message.content.text
     const userId = body.from.number
-    const _ = body.to.number
+    const botPhoneNumber = body.to.number
 
-    const payload: any = { type: 'text', text }
+    const payload: sdk.IO.IncomingEvent['payload'] = { type: 'text', text }
 
     const conversation = await this.conversations.recent(userId)
+    await this.conversations.setAttribute(conversation.id, 'vonage-number', botPhoneNumber)
 
     await this.messages.receive(conversation.id, payload, {
       channel: 'vonage'
     })
   }
 
+  /**
+   * Validates Vonage message request body
+   * @throws {ChannelUnsupportedError} if the message channel is not 'whatsapp'
+   */
   validate(body: VonageRequestBody): void {
     if (body.from.type !== SUPPORTED_CHANNEL_TYPE || body.to.type !== SUPPORTED_CHANNEL_TYPE) {
-      throw new Error('Unable to process message: only Whatsapp channel is supported')
+      throw new ChannelUnsupportedError()
     }
   }
 
-  // TODO: Remove this
+  // TODO: Remove this. For testing purpose only
   async handleIncomingMessageStatus(body: VonageMessageStatusBody) {
     debugIncoming('Received message status', body)
   }
 
-  renderOutgoingEvent(event: sdk.IO.Event): sdk.IO.Event {
+  renderOutgoingEvent(event: sdk.IO.OutgoingEvent): sdk.IO.Event {
     // TODO: Render event payload to its proper content type.
+    debugOutgoing('Rendering event', event)
+
+    event.payload.type = 'link_button'
     return event
+    /*
+    if (event.type === 'image') {
+      return {
+        ...event,
+        payload: {
+          type: event.type,
+          url: event.payload.image,
+          caption: event.payload.title
+        }
+      }
+    } else if (event.type === 'audio') {
+      return {
+        ...event,
+        payload: {
+          type: event.type,
+          url: event.payload.audio
+        }
+      }
+    } else if (event.type === 'video') {
+      return {
+        ...event,
+        payload: {
+          type: event.type,
+          url: event.payload.video
+        }
+      }
+    } else if (event.type === 'quick_reply') {
+      return {
+        ...event,
+        payload: {
+          type: event.type,
+          text: event.payload.text,
+          subtitle: event.payload.dropdownPlaceholder,
+          choices: event.payload.choices
+        }
+      }
+    }
+
+    return event */
   }
 
-  async handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
+  async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     const payload = event.payload
 
+    // Note: Vonage Messages API does not support typing indicators for privacy reasons
     if (payload.type === 'text') {
       await this.sendMessage(event, {
         type: payload.type,
@@ -136,7 +191,7 @@ export class VonageClient {
         text: undefined,
         image: {
           url: payload.url,
-          caption: payload.title
+          caption: payload.caption
         }
       })
     } else if (payload.type === 'audio') {
@@ -155,32 +210,6 @@ export class VonageClient {
           url: payload.url
         }
       })
-    } else if (payload.type === 'file') {
-      await this.sendMessage(event, {
-        type: payload.type,
-        text: undefined,
-        file: {
-          url: payload.url,
-          caption: payload.title
-        }
-      })
-    } else if (payload.type === 'location') {
-      // FIXME:
-      const location: ChannelContentLocation = {
-        longitude: -122.425332,
-        latitude: 37.758056,
-        name: 'Facebook HQ',
-        address: '1 Hacker Way, Menlo Park, CA 94025'
-      }
-
-      await this.sendMessage(event, {
-        type: 'custom',
-        text: undefined,
-        custom: {
-          type: 'location',
-          location
-        }
-      })
     } else if (payload.type === 'template') {
       const template: ChannelContentTemplate = {
         name: this.config.useTestingApi ? TESTING_MTM_NAME : payload.name,
@@ -188,7 +217,7 @@ export class VonageClient {
       }
       const whatsapp: ChannelWhatsApp = {
         policy: 'deterministic',
-        locale: 'en' // TODO: Fetch user language?
+        locale: 'en-US'
       }
 
       await this.sendMessage(
@@ -200,25 +229,119 @@ export class VonageClient {
         },
         whatsapp
       )
-    } else if (payload.type === 'custom') {
-      const language: ChannelWhatsApp = {
-        policy: 'deterministic',
-        locale: 'en' // TODO: Fetch user language?
+    } else if (payload.type === 'quick_reply') {
+      const language: TemplateLanguage = {
+        code: 'en_US',
+        policy: 'deterministic'
       }
 
-      // FIXME:
+      let components: Components
+      if (this.config.useTestingApi) {
+        components = new TemplateComponents()
+          .withBody(
+            { type: 'text', text: 'Joe Bob' },
+            { type: 'text', text: 'something' },
+            { type: 'text', text: '*Shlack Valley Ski Resort*' },
+            { type: 'text', text: '12 PM' }
+          )
+          .build()
+      } else {
+        const buttons: Buttons = payload.choices.map(choice => ({
+          subType: 'quick_reply',
+          parameters: [{ type: 'payload', payload: choice.text }]
+        }))
+
+        components = new TemplateComponents()
+          .withHeader({ type: 'text', text: payload.text })
+          .withBody({
+            type: 'text',
+            text: payload.subtitle
+          })
+          .withButtons(...buttons)
+          .build()
+      }
+
       const custom: ChannelContentCustomTemplate = {
         type: 'template',
         template: {
-          namespace: '',
-          name: '',
+          namespace: this.config.useTestingApi ? TESTING_TEMPLATE_NAMESPACE : payload.namespace,
+          name: this.config.useTestingApi ? TESTING_QUICK_REPLY_TEMPLATE_NAME : payload.name,
           language,
-          components: []
+          components
         }
       }
 
       await this.sendMessage(event, {
-        type: payload.type,
+        type: 'custom',
+        text: undefined,
+        custom
+      })
+    } else if (payload.type === 'link_button') {
+      const language: TemplateLanguage = {
+        code: 'en_US',
+        policy: 'deterministic'
+      }
+
+      let components: Components
+      if (this.config.useTestingApi) {
+        components = new TemplateComponents()
+          .withHeader({
+            type: 'image',
+            image: {
+              link: 'https://publicdomainvectors.org/photos/Placeholder.png'
+            }
+          })
+          .withBody(
+            { type: 'text', text: 'Joe Bob' },
+            { type: 'text', text: 'somewhere' },
+            { type: 'text', text: '123-4' },
+            { type: 'text', text: '12 PM' }
+          )
+          .build()
+      } else {
+        const buttons: Buttons = (payload.actions || []).map(a => {
+          if (a.action === 'Open URL') {
+            return {
+              subtype: 'url',
+              parameters: [{ type: 'text', text: a.url }]
+            }
+          } else if (a.action === 'Postback') {
+            return {
+              subtype: 'quick_reply',
+              parameters: [{ type: 'payload', text: a.text }]
+            }
+          } else {
+            // TODO: Throw an error?
+          }
+        })
+
+        components = new TemplateComponents()
+          .withHeader({
+            type: 'image',
+            image: {
+              link: payload.image
+            }
+          })
+          .withBody({
+            type: 'text',
+            text: payload.text
+          })
+          .withButtons(...buttons)
+          .build()
+      }
+
+      const custom: ChannelContentCustomTemplate = {
+        type: 'template',
+        template: {
+          namespace: this.config.useTestingApi ? TESTING_TEMPLATE_NAMESPACE : payload.namespace,
+          name: this.config.useTestingApi ? TESTING_LINK_BUTTON_TEMPLATE_NAME : payload.name,
+          language,
+          components
+        }
+      }
+
+      await this.sendMessage(event, {
+        type: 'custom',
         text: undefined,
         custom
       })
@@ -232,20 +355,27 @@ export class VonageClient {
       whatsapp
     }
 
-    debugOutgoing('Sending message', event)
+    debugOutgoing('Sending message', JSON.stringify(message, null, 2))
+
+    const userId = event.target
+    const conversation = await this.conversations.recent(userId)
+    const botPhoneNumber = await this.conversations.getAttribute(conversation.id, 'vonage-number')
 
     await new Promise(resolve => {
       this.vonage.channel.send(
         { type: SUPPORTED_CHANNEL_TYPE, number: event.target },
-        { type: SUPPORTED_CHANNEL_TYPE, number: this.config.useTestingApi ? TESTING_PHONE_NUMBER : '' }, // FIXME:
+        {
+          type: SUPPORTED_CHANNEL_TYPE,
+          number: this.config.useTestingApi ? TESTING_PHONE_NUMBER : botPhoneNumber
+        },
         message,
-        (err, _data) => {
+        (err, data) => {
           if (err) {
-            // fix typings
+            // fixes typings
             err = (err as any).body as MessageSendError
             console.error(err)
           } else {
-            resolve()
+            resolve(data)
           }
         }
       )
