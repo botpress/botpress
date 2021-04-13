@@ -8,7 +8,7 @@ import {
   SlotDefinition,
   TrainInput
 } from '../../typings_v1'
-import { isListEntity, isPatternEntity } from '../api-mapper'
+import { isListEntity, isPatternEntity } from '../../utils/guard'
 
 import { CancelInputSchema, PredictInputSchema, TrainInputSchema } from './schemas'
 

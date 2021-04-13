@@ -11,7 +11,6 @@ import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../..
 import Logger from '../../simple-logger'
 
 import { PredictOutput } from '../typings_v1'
-import { BpPredictOutput, mapPredictOutput, mapTrainInput } from './api-mapper'
 import ModelRepository from './model-repo'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
@@ -88,7 +87,7 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
   router.post('/train', async (req, res) => {
     try {
       const input = await validateTrainInput(req.body)
-      const { intents, entities, seed, language, password } = mapTrainInput(input)
+      const { intents, entities, seed, language, password } = input
 
       const pickedSeed = seed ?? Math.round(Math.random() * 10000)
       const modelId = NLUEngine.modelIdService.makeId({
@@ -185,21 +184,13 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
         await engine.loadModel(model)
       }
 
-      const rawPredictions: BpPredictOutput[] = await Promise.map(utterances as string[], async utterance => {
+      const predictions: PredictOutput[] = await Promise.map(utterances as string[], async utterance => {
         const detectedLanguage = await engine.detectLanguage(utterance, { [modelId.languageCode]: modelId })
         const { entities, contexts, spellChecked } = await engine.predict(utterance, modelId)
-        const contextDict = contexts.reduce((dict, context) => {
-          return {
-            ...dict,
-            [context.name]: context
-          }
-        }, {})
-        return { entities, contexts: contextDict, spellChecked, detectedLanguage, utterance }
+        return { entities, contexts, spellChecked, detectedLanguage, utterance }
       })
 
-      const withoutNone: PredictOutput[] = rawPredictions.map(mapPredictOutput)
-
-      return res.send({ success: true, predictions: withoutNone })
+      return res.send({ success: true, predictions })
     } catch (err) {
       res.status(500).send({ success: false, error: err.message })
     }

@@ -208,16 +208,18 @@ function MapStepToOutput(step: SpellStep): PredictOutput {
   }
 
   const intentMapper = (intents: IntentPredictions): IntentPrediction[] => {
-    return intents.intents.map(intent => {
-      const slots: SlotPrediction[] = step.slot_predictions_per_intent[intent.name].reduce(slotsCollectionReducer, [])
+    return intents.intents
+      .filter(i => step.slot_predictions_per_intent[i.name])
+      .map(intent => {
+        const slots: SlotPrediction[] = step.slot_predictions_per_intent[intent.name].reduce(slotsCollectionReducer, [])
 
-      return {
-        name: intent.name,
-        confidence: intent.confidence,
-        extractor: intent.extractor,
-        slots: _.orderBy(slots, s => s.confidence, 'desc')
-      }
-    })
+        return {
+          name: intent.name,
+          confidence: intent.confidence,
+          extractor: intent.extractor,
+          slots: _.orderBy(slots, s => s.confidence, 'desc')
+        }
+      })
   }
 
   const contextMapper = (
