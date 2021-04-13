@@ -1,4 +1,3 @@
-import { Button, Classes } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
 import { confirmDialog, lang } from 'botpress/shared'
 import { Item, ItemList, SearchBar } from 'botpress/ui'
@@ -54,27 +53,10 @@ export const IntentSidePanelSection: FC<Props> = props => {
   }
 
   const onSubmit = async (sanitizedName: string, rawName: string) => {
-    if (modalAction === 'create') {
-      await createIntent(sanitizedName, rawName)
-    } else if (modalAction === 'rename') {
+    if (modalAction === 'rename') {
       await renameIntent(intentName, sanitizedName)
     } else if (modalAction === 'duplicate') {
       await duplicateIntent(intentName, sanitizedName)
-    }
-  }
-
-  const createIntent = async (sanitizedName: string, rawName: string) => {
-    const intentDef = {
-      name: sanitizedName,
-      utterances: { [props.contentLang]: [rawName] } // note usage of raw name as first utterance
-    }
-
-    try {
-      await props.api.createIntent(intentDef)
-      await props.reloadIntents()
-      props.setCurrentItem({ name: sanitizedName, type: 'intent' })
-    } catch (err) {
-      toastFailure(lang.tr('module.nlu.intents.actionErrorMessage', { action: 'create' }))
     }
   }
 
@@ -139,20 +121,15 @@ export const IntentSidePanelSection: FC<Props> = props => {
 
   return (
     <div>
-      <Button
-        id="btn-add-intent"
-        className={Classes.MINIMAL}
-        icon="new-object"
-        text={lang.tr('module.nlu.intents.new')}
-        onClick={() => showIntentNameModal('', 'create')}
-      />
-      <SearchBar
-        id="intents-filter"
-        icon="filter"
-        placeholder={lang.tr('module.nlu.intents.filterPlaceholder')}
-        onChange={setIntentsFilter}
-        showButton={false}
-      />
+      {props.intents.length > 1 && (
+        <SearchBar
+          id="intents-filter"
+          icon="filter"
+          placeholder={lang.tr('module.nlu.intents.filterPlaceholder')}
+          onChange={setIntentsFilter}
+          showButton={false}
+        />
+      )}
       <ItemList
         items={intentItems}
         onElementClicked={({ value: name }) => props.setCurrentItem({ type: 'intent', name })}

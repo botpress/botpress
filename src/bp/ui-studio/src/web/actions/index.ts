@@ -301,7 +301,7 @@ export const setEmulatorOpen = createAction('EMULATOR_OPENED')
 export const userReceived = createAction('USER/RECEIVED')
 export const fetchUser = () => dispatch => {
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  axios.get(`${window.API_PATH}/auth/me/profile`).then(res => {
+  axios.get(`${window.API_PATH}/admin/user/profile`).then(res => {
     dispatch(userReceived(res.data?.payload))
   })
 }
@@ -439,7 +439,7 @@ export const trainSessionReceived = createAction('TRAIN_SESSION/RECEIVED')
 export const conditionsReceived = createAction('CONDITIONS/RECEIVED')
 export const refreshConditions = () => dispatch => {
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  axios.get(`${window.BOT_API_PATH}/dialogConditions`).then(({ data }) => {
+  axios.get(`${window.API_PATH}/modules/dialogConditions`).then(({ data }) => {
     dispatch(conditionsReceived(data))
   })
 }

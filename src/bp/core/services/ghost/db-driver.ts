@@ -1,4 +1,6 @@
 import { DirectoryListingOptions } from 'botpress/sdk'
+import { TYPES } from 'core/app/types'
+import Database from 'core/database'
 import { filterByGlobs, forceForwardSlashes } from 'core/misc/utils'
 import { WrapErrorsWith } from 'errors'
 import { inject, injectable } from 'inversify'
@@ -7,15 +9,13 @@ import nanoid from 'nanoid'
 import path from 'path'
 import { VError } from 'verror'
 
-import Database from '../../database'
-import { TYPES } from '../../types'
 import { BPError } from '../dialog/errors'
 
 import { FileRevision, StorageDriver } from '.'
 
 // TODO: Create a janitor that clears deleted files
 @injectable()
-export default class DBStorageDriver implements StorageDriver {
+export class DBStorageDriver implements StorageDriver {
   constructor(@inject(TYPES.Database) private database: Database) {}
 
   async upsertFile(filePath: string, content: string | Buffer, recordRevision: boolean): Promise<void>

@@ -1,5 +1,13 @@
 import { ResponseError } from 'common/http'
 
+export class InvalidOperationError extends ResponseError {
+  constructor(message: string) {
+    super('Invalid operation: ' + message, 400, 'BP_0006')
+  }
+
+  type = 'InvalidOperationError'
+}
+
 export class BadRequestError extends ResponseError {
   type = 'BadRequestError'
 

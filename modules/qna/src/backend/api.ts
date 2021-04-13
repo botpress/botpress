@@ -85,6 +85,22 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
     }
   })
 
+  router.post('/questions/:id/convert', async (req: Request, res: Response) => {
+    const {
+      query: { limit, offset, question, filteredContexts }
+    } = req
+
+    try {
+      const { storage } = bots[req.params.botId]
+      await storage.convert(req.params.id)
+      const questionsData = await storage.getQuestions({ question, filteredContexts }, { limit, offset })
+      res.send(questionsData)
+    } catch (e) {
+      bp.logger.attachError(e).error(`Could not convert QnA #${req.params.id}`)
+      res.status(500).send(e.message || 'Error')
+    }
+  })
+
   router.get(
     '/export',
     asyncMiddleware(async (req: Request, res: Response) => {

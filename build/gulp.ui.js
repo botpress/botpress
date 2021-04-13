@@ -10,12 +10,13 @@ const build = () => {
   gulp.task('build:shared', gulp.series([cleanShared, sharedBuild]))
   gulp.task('build:studio', gulp.series([buildStudio, cleanStudio, cleanStudioAssets, copyStudio]))
   gulp.task('build:admin', gulp.series([buildAdmin, cleanAdmin, copyAdmin]))
+  gulp.task('build:lite', gulp.series([buildLite, cleanLite, copyLite]))
 
   if (yn(process.env.GULP_PARALLEL)) {
-    return gulp.series(['build:shared', gulp.parallel(['build:studio', 'build:admin'])])
+    return gulp.series(['build:shared', gulp.parallel(['build:studio', 'build:admin', 'build:lite'])])
   }
 
-  return gulp.series(['build:shared', 'build:studio', 'build:admin'])
+  return gulp.series(['build:shared', 'build:studio', 'build:admin', 'build:lite'])
 }
 
 // Required since modules are using some dependencies from the studio
@@ -48,13 +49,29 @@ const buildStudio = cb => {
 const buildAdmin = cb => {
   const prod = process.argv.includes('--prod') ? '--nomap --prod' : ''
 
-  const admin = exec(`yarn && yarn build ${prod}`, { cwd: 'src/bp/ui-admin' }, err => cb(err))
+  const admin = exec(`yarn && yarn build ${prod}`, { cwd: 'src/bp/admin/ui' }, err => cb(err))
   verbose && admin.stdout.pipe(process.stdout)
   admin.stderr.pipe(process.stderr)
 }
 
 const copyAdmin = () => {
-  return gulp.src('./src/bp/ui-admin/build/**/*').pipe(gulp.dest('./out/bp/ui-admin/public'))
+  return gulp.src('./src/bp/admin/ui/build/**/*').pipe(gulp.dest('./out/bp/admin/ui/public'))
+}
+
+const buildLite = cb => {
+  const prod = process.argv.includes('--prod') ? '--nomap --prod' : ''
+
+  const admin = exec(`yarn && yarn build ${prod}`, { cwd: 'src/bp/ui-lite' }, err => cb(err))
+  verbose && admin.stdout.pipe(process.stdout)
+  admin.stderr.pipe(process.stderr)
+}
+
+const cleanLite = () => {
+  return gulp.src('./out/bp/ui-lite/public', { allowEmpty: true }).pipe(rimraf())
+}
+
+const copyLite = () => {
+  return gulp.src('./src/bp/ui-lite/public/**/*').pipe(gulp.dest('./out/bp/ui-lite/public'))
 }
 
 const cleanStudio = () => {
@@ -62,7 +79,7 @@ const cleanStudio = () => {
 }
 
 const cleanAdmin = () => {
-  return gulp.src('./out/bp/ui-admin/public', { allowEmpty: true }).pipe(rimraf())
+  return gulp.src('./out/bp/admin/ui/public', { allowEmpty: true }).pipe(rimraf())
 }
 
 const cleanStudioAssets = () => {
@@ -78,7 +95,7 @@ const createStudioSymlink = () => {
 }
 
 const watchAdmin = cb => {
-  const admin = exec('yarn && yarn start:dev', { cwd: 'src/bp/ui-admin' }, err => cb(err))
+  const admin = exec('yarn && yarn start:dev', { cwd: 'src/bp/admin/ui' }, err => cb(err))
   admin.stdout.pipe(process.stdout)
   admin.stderr.pipe(process.stderr)
 }

@@ -1,8 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import { FlowView } from 'common/typings'
-import { FlowService } from 'core/services/dialog/flow/service'
-import { Migration, MigrationOpts } from 'core/services/migration'
-import { TYPES } from 'core/types'
+import { TYPES } from 'core/app/types'
+import { FlowService } from 'core/dialog'
+import { Migration, MigrationOpts } from 'core/migration'
 import _ from 'lodash'
 
 const CONTENT_DIR = 'content-elements'
@@ -68,7 +68,7 @@ const migration: Migration = {
       const ghost = bp.ghost.forBot(botId)
       const contentMap = await getBotContentMap(ghost)
 
-      const flows = await flowService.loadAll(botId)
+      const flows = await flowService.forBot(botId).loadAll()
       return Promise.map(flows, async flow => {
         try {
           const updatedFlow = await migrateFlow(flow, contentMap)

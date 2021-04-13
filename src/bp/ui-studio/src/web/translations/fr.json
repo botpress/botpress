@@ -147,6 +147,8 @@
         "actionToExecute": "Action à exécuter",
         "actionToRun": "Action à exécuter {help}",
         "actionsRegisteredOnServer": "Les actions sont enregistrées côté serveur. Découvrez comment enregistrer de nouvelles actions en recherchant `bp.registerActions ()`.",
+        "actionInstructionParsingError": "Erreur lors du formattage des instructions: {msg}",
+        "actionArguments": "Appelé avec ces arguments:",
         "add": "ajouter",
         "addAction": "Ajouter une nouvelle action",
         "cantSeeActions": "Vous ne voyez pas votre action?",
@@ -202,6 +204,7 @@
           "returnToCallingNode": "Continuer l'exécution du noeud appelant",
           "returnToCallingNodeExecute": "Exécuter le noeud appelant à nouveau",
           "returnToNodeCalled": "Retour au noeud appelé",
+          "specificNodeCalled": "Noeud spécifique",
           "showCondition": "Condition",
           "specifyCondition": "Spécifiez une condition",
           "whenMetDo": "Lorsque la condition est remplie, faire"

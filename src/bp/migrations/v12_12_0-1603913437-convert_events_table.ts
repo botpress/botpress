@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { Migration } from 'core/services/migration'
+import { Migration } from 'core/migration'
 import _ from 'lodash'
 
 const TABLE_NAME = 'events'
