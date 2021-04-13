@@ -81,7 +81,7 @@ export const TrainInputSchema = Joi.object().keys({
   seed: Joi.number().optional()
 })
 
-export const CancelInputSchema = Joi.object().keys({
+export const CredentialsSchema = Joi.object().keys({
   appSecret: Joi.string()
     .allow('')
     .optional()
@@ -105,4 +105,23 @@ export const PredictInputSchema = Joi.object().keys({
     .items(Joi.string())
     .required()
     .min(1)
+})
+
+export const DetectLangInputSchema = Joi.object().keys({
+  appSecret: Joi.string()
+    .allow('')
+    .optional()
+    .default(''),
+  appId: Joi.string()
+    .allow('')
+    .optional()
+    .default(''),
+  utterances: Joi.array()
+    .items(Joi.string())
+    .required()
+    .min(1),
+  models: Joi.array()
+    .items(Joi.string())
+    .optional()
+    .default([])
 })

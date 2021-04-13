@@ -38,6 +38,16 @@ export default class TrainSessionService {
     this.releasedTrainSessions.set(key, ts)
   }
 
+  deleteTrainingSession(modelId: NLUEngine.ModelId, credentials: Credentials): void {
+    const key = this._makeTrainSessionKey(modelId, credentials)
+    if (this.releasedTrainSessions.get(key)) {
+      this.releasedTrainSessions.del(key)
+    }
+    if (this.trainSessions[key]) {
+      delete this.trainSessions[key]
+    }
+  }
+
   private _makeTrainSessionKey(modelId: NLUEngine.ModelId, credentials: Credentials) {
     const stringId = NLUEngine.modelIdService.toString(modelId)
 
