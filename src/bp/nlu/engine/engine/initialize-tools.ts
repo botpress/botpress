@@ -1,7 +1,7 @@
-import { Health, Specifications } from 'nlu/typings_v1'
 import path from 'path'
 import yn from 'yn'
 import MLToolkit from '../../ml/toolkit'
+import { Health, Specifications } from '../../typings_v1'
 import { LanguageConfig, Logger } from '../typings'
 import { DucklingEntityExtractor } from './entities/duckling-extractor'
 import { SystemEntityCacheManager } from './entities/entity-cache-manager'

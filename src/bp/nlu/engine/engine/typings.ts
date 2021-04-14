@@ -2,7 +2,7 @@ import { AxiosInstance } from 'axios'
 import sdk from 'botpress/sdk'
 import LRUCache from 'lru-cache'
 
-import { Health, Specifications } from 'nlu/typings_v1'
+import { Health, Specifications } from '../../typings_v1'
 import { LanguageSource } from '../typings'
 
 export const BIO = {

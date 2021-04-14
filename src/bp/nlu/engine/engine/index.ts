@@ -1,10 +1,10 @@
 import bytes from 'bytes'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
-import { PredictOutput, TrainInput } from 'nlu/typings_v1'
 import sizeof from 'object-sizeof'
 
 import v8 from 'v8'
+import { PredictOutput, TrainInput } from '../../typings_v1'
 import { isListEntity, isPatternEntity } from '../../utils/guards'
 
 import modelIdService from '../model-id-service'

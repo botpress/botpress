@@ -12,8 +12,7 @@ import {
   IntentPrediction as StanIntentPrediction,
   SlotPrediction as StanSlotPrediction,
   ContextPrediction as StanContextPrediction,
-  EntityPrediction as StanEntityPrediction,
-  Credentials
+  EntityPrediction as StanEntityPrediction
 } from './typings'
 
 type BpSlotDefinition = NLU.SlotDefinition
@@ -32,13 +31,6 @@ type BpContextPrediction = NLU.ContextPrediction
 interface BpTrainSet {
   intentDefs: BpIntentDefinition[]
   entityDefs: BpEntityDefinition[]
-  languageCode: string
-  seed: number
-}
-
-interface StanTrainSet {
-  intentDefs: StanIntentDefinition[]
-  entityDefs: StanEntityDefinition[]
   languageCode: string
   seed: number
 }
@@ -106,7 +98,7 @@ const mapEntityDefinition = (e: BpEntityDefinition): StanEntityDefinition => {
   return isPatternEntity(e) ? mapPattern(e) : mapList(e)
 }
 
-export const mapTrainSet = (bpTrainSet: BpTrainSet): StanTrainSet => {
+export const mapTrainSet = (bpTrainSet: BpTrainSet): TrainInput => {
   const { intentDefs, entityDefs, languageCode, seed } = bpTrainSet
 
   const entities = entityDefs.filter(isCustomEntity).map(mapEntityDefinition)
@@ -115,33 +107,8 @@ export const mapTrainSet = (bpTrainSet: BpTrainSet): StanTrainSet => {
   const intents = intentDefs.map(intentMapper)
 
   return {
-    intentDefs: intents,
-    entityDefs: entities,
-    languageCode,
-    seed
-  }
-}
-
-export const mapTrainInput = (bpTrainSet: BpTrainSet, credentials: Credentials): TrainInput => {
-  const { intentDefs, entityDefs, languageCode, seed } = bpTrainSet
-  const { appSecret, appId } = credentials
-
-  const entities = entityDefs.filter(isCustomEntity).map(mapEntityDefinition)
-
-  const intentMapper = makeIntentMapper(languageCode)
-  const intents = intentDefs.map(intentMapper)
-
-  const contexts = _(intents)
-    .flatMap(i => i.contexts)
-    .uniq()
-    .value()
-
-  return {
-    entities,
     intents,
-    contexts,
-    appSecret,
-    appId,
+    entities,
     language: languageCode,
     seed
   }

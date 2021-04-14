@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from 'axios'
 import * as sdk from 'botpress/sdk'
 import * as NLUEngine from 'common/nlu/engine'
-import { TrainInput, PredictOutput, TrainingProgress } from './typings'
+import { TrainInput, PredictOutput, TrainingProgress, Health, Specifications } from './typings'
 
 const TRAIN_PROGRESS_POLLING_INTERVAL = 500
 
@@ -16,8 +16,8 @@ export class StanClient {
   }
 
   public async getInfo(): Promise<{
-    health: NLUEngine.Health
-    specs: NLUEngine.Specifications
+    health: Health
+    specs: Specifications
     languages: string[]
   }> {
     const { info } = await this._get('info', undefined)

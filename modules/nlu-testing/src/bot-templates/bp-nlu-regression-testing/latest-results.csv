@@ -1,4 +1,4 @@
-utterance,context,conditions,status,date: 3/23/2021,summary: 74.2,nlu seed: undefined
+utterance,context,conditions,status,date: 4/14/2021,summary: 74,nlu seed: undefined
 What is the contact number?,A,"-intent,is,a-contact-details",pass
 WHAT IS THE CONTACT NUMBER?,A,"-intent,is,a-contact-details",pass
 WHAT is THE contact NUMBER,A,"-intent,is,a-contact-details",pass
@@ -180,7 +180,7 @@ screenlocked,C,"-intent,is,c-none",pass
 screenlocked,D,"-intent,is,d-none",pass
 screenlocked,E,"-intent,is,e-none",pass
 screenlocked,F,"-intent,is,f-none",pass
-Whats the contactnumer,A,"-intent,is,a-contact-details",pass
+Whats the contactnumer,A,"-intent,is,a-contact-details",fail
 Whats the contactnumer,C,"-intent,is,c-contact-details",pass
 Whats the contactnumer,D,"-intent,is,d-contact-details",pass
 Whats the contactnumer,E,"-intent,is,e-contact-details",pass
@@ -219,7 +219,7 @@ I want to amend my statements,A,"-intent,is,a-bill-inquiry",pass
 I want to amend my statements,C,"-intent,is,c-bill-inquiry",pass
 I want to amend my statements,D,"-intent,is,d-bill-inquiry",fail
 I want to amend my statements,E,"-intent,is,e-bill-inquiry",pass
-how do I go about cancellings,A,"-intent,is,a-cancellation",pass
+how do I go about cancellings,A,"-intent,is,a-cancellation",fail
 how do I go about cancellings,C,"-intent,is,c-cancellation",pass
 how do I go about cancellings,D,"-intent,is,d-cancellation",pass
 how do I go about cancellings,E,"-intent,is,e-cancellation",pass
