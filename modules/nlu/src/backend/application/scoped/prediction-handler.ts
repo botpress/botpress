@@ -3,6 +3,7 @@ import { ModelId, ModelIdService, Engine, Model } from 'common/nlu/engine'
 import _ from 'lodash'
 
 import mergeSpellChecked from '../../election/spellcheck-handler'
+import { mapPredictOutput } from '../../stan/api-mapper'
 import { EventUnderstanding } from '../typings'
 import { IModelRepository } from './infrastructure/model-repository'
 
@@ -96,12 +97,14 @@ export class ScopedPredictionHandler {
 
     const t0 = Date.now()
     try {
-      const originalOutput = await this.engine.predict(textInput, this.modelsByLang[language])
+      const rawOriginalOutput = await this.engine.predict(textInput, this.modelsByLang[language])
+      const originalOutput = mapPredictOutput(rawOriginalOutput)
       const ms = Date.now() - t0
 
       const { spellChecked } = originalOutput
       if (spellChecked && spellChecked !== textInput) {
-        const spellCheckedOutput = await this.engine.predict(spellChecked, this.modelsByLang[language])
+        const rawSpellCheckedOutput = await this.engine.predict(spellChecked, this.modelsByLang[language])
+        const spellCheckedOutput = mapPredictOutput(rawSpellCheckedOutput)
         const merged = mergeSpellChecked(originalOutput, spellCheckedOutput)
         return { ...merged, spellChecked, errored: false, language, ms }
       }

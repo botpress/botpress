@@ -1,3 +1,5 @@
+import { IntentDefinition, EntityDefinition, EntityPrediction, ContextPrediction } from '../typings_v1'
+
 export interface Config extends LanguageConfig {
   modelCacheSize: string
   legacyElection: boolean
@@ -35,6 +37,12 @@ export interface ModelIdArgs extends TrainingSet {
 export interface TrainingOptions {
   progressCallback: (x: number) => void
   previousModel: ModelId | undefined
+}
+
+export interface PredictOutput {
+  entities: EntityPrediction[]
+  contexts: ContextPrediction[]
+  spellChecked: string
 }
 
 export interface Engine {
@@ -91,103 +99,4 @@ export interface Health {
   isEnabled: boolean
   validProvidersCount: number
   validLanguages: string[]
-}
-
-export type EntityType = 'system' | 'pattern' | 'list'
-
-export interface EntityDefOccurrence {
-  name: string
-  synonyms: string[]
-}
-
-export interface EntityDefinition {
-  id: string
-  name: string
-  type: EntityType
-  sensitive?: boolean
-  matchCase?: boolean
-  examples?: string[]
-  fuzzy?: number
-  occurrences?: EntityDefOccurrence[]
-  pattern?: string
-}
-
-export interface SlotDefinition {
-  id: string
-  name: string
-  entities: string[]
-  color: number
-}
-
-export interface IntentDefinition {
-  name: string
-  utterances: {
-    [lang: string]: string[]
-  }
-  slots: SlotDefinition[]
-  contexts: string[]
-}
-
-export interface Intent {
-  name: string
-  confidence: number
-  context: string
-}
-
-export interface Entity {
-  name: string
-  type: string
-  meta: EntityMeta
-  data: EntityBody
-}
-
-export interface EntityBody {
-  extras?: any
-  value: any
-  unit: string
-}
-
-export interface EntityMeta {
-  sensitive: boolean
-  confidence: number
-  provider?: string
-  source: string
-  start: number
-  end: number
-  raw?: any
-}
-
-export interface Slot {
-  name: string
-  value: any
-  source: any
-  entity: Entity
-  confidence: number
-  start: number
-  end: number
-}
-
-export interface SlotCollection {
-  [key: string]: Slot
-}
-
-export interface Predictions {
-  [context: string]: ContextPrediction
-}
-
-export interface ContextPrediction {
-  confidence: number
-  oos: number
-  intents: {
-    label: string
-    confidence: number
-    slots: SlotCollection
-    extractor: string
-  }[]
-}
-
-export interface PredictOutput {
-  readonly entities: Entity[]
-  readonly predictions: Predictions
-  readonly spellChecked: string
 }

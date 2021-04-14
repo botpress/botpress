@@ -1,6 +1,5 @@
 import { validate } from 'joi'
 import * as NLUEngine from 'nlu/engine'
-import { isListEntity, isPatternEntity } from '../api-mapper'
 
 import {
   IntentDefinition,
@@ -11,9 +10,10 @@ import {
   TrainInput,
   Credentials,
   DetectLanguageInput
-} from '../typings_v1'
+} from 'nlu/typings_v1'
 
-import { CredentialsSchema, PredictInputSchema, TrainInputSchema, DetectLangInputSchema } from './schemas'
+import { isListEntity, isPatternEntity } from 'nlu/utils/guards'
+import { PredictInputSchema, TrainInputSchema, CredentialsSchema, DetectLangInputSchema } from './schemas'
 
 const SLOT_ANY = 'any'
 

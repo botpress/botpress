@@ -1,9 +1,15 @@
 import { MLToolkit } from 'botpress/sdk'
 import _ from 'lodash'
-import { PredictOutput, Entity, SlotCollection, Predictions } from '../typings'
+import {
+  EntityPrediction,
+  SlotPrediction,
+  ContextPrediction,
+  IntentPrediction as StanIntentPrediction
+} from '../../typings_v1'
+import { PredictOutput } from '../typings'
 
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
-import { IntentPredictions, NoneableIntentPredictions } from './intents/intent-classifier'
+import { IntentPrediction, IntentPredictions, NoneableIntentPredictions } from './intents/intent-classifier'
 import { OOSIntentClassifier } from './intents/oos-intent-classfier'
 import { SvmIntentClassifier } from './intents/svm-intent-classifier'
 import makeSpellChecker from './language/spell-checker'
@@ -160,31 +166,29 @@ async function spellCheck(input: SlotStep, predictors: Predictors, tools: Tools)
 }
 
 function MapStepToOutput(step: SpellStep): PredictOutput {
-  const entitiesMapper = (e?: EntityExtractionResult | UtteranceEntity): Entity => {
+  const entitiesMapper = (e?: EntityExtractionResult | UtteranceEntity): EntityPrediction | null => {
     if (!e) {
-      return eval('null')
+      return null
     }
 
     return {
       name: e.type,
       type: e.metadata.entityId,
-      data: {
-        unit: e.metadata.unit ?? '',
-        value: e.value
-      },
-      meta: {
-        sensitive: !!e.sensitive,
-        confidence: e.confidence,
-        end: (e as EntityExtractionResult).end ?? (e as UtteranceEntity).endPos,
-        source: e.metadata.source,
-        start: (e as EntityExtractionResult).start ?? (e as UtteranceEntity).startPos
-      }
+      unit: e.metadata.unit ?? '',
+      value: e.value,
+      sensitive: !!e.sensitive,
+      confidence: e.confidence,
+      end: (e as EntityExtractionResult).end ?? (e as UtteranceEntity).endPos,
+      source: e.metadata.source,
+      start: (e as EntityExtractionResult).start ?? (e as UtteranceEntity).startPos
     }
   }
 
-  const entities = step.utterance.entities.map(entitiesMapper)
+  const entities = step.utterance.entities
+    .map(entitiesMapper)
+    .filter(<(e: EntityPrediction | null) => e is EntityPrediction>(e => !!e))
 
-  const slotsCollectionReducer = (slots: SlotCollection, s: SlotExtractionResult): SlotCollection => {
+  const slotsCollectionReducer = (slots: Dic<SlotPrediction>, s: SlotExtractionResult): Dic<SlotPrediction> => {
     if (slots[s.slot.name] && slots[s.slot.name].confidence > s.slot.confidence) {
       // we keep only the most confident slots
       return slots
@@ -204,36 +208,39 @@ function MapStepToOutput(step: SpellStep): PredictOutput {
     }
   }
 
-  const predictions: Predictions = step.ctx_predictions.intents.reduce((preds, current) => {
-    const { name: label, confidence } = current
+  const intentMapper = (intentPred: IntentPrediction): StanIntentPrediction => {
+    const { name, confidence, extractor } = intentPred
 
-    const intentPred = step.intent_predictions[label]
-    const intents = !intentPred
-      ? []
-      : intentPred.intents.map(({ name, confidence, extractor }) => ({
-          extractor,
-          label: name,
-          confidence,
-          slots: (step.slot_predictions_per_intent?.[name] || []).reduce(slotsCollectionReducer, {})
-        }))
+    const slotCollection = (step.slot_predictions_per_intent?.[name] || []).reduce(slotsCollectionReducer, {})
 
-    return {
-      ...preds,
-      [label]: {
-        confidence,
-        oos: intentPred?.oos || 0,
-        intents
-      }
+    const stanIntentPred: StanIntentPrediction = {
+      extractor,
+      name,
+      confidence,
+      slots: Object.values(slotCollection)
     }
-  }, {})
+    return stanIntentPred
+  }
+
+  const contexts: ContextPrediction[] = step.ctx_predictions.intents.reduce((preds, current) => {
+    const { name: ctxName, confidence } = current
+
+    const intentPred = step.intent_predictions[ctxName]
+    const intents = !intentPred ? [] : intentPred.intents.map(intentMapper)
+
+    const ctxPred: ContextPrediction = {
+      name: ctxName,
+      confidence,
+      oos: intentPred?.oos || 0,
+      intents
+    }
+
+    return [...preds, ctxPred]
+  }, <ContextPrediction[]>[])
 
   return {
     entities,
-    predictions: _.chain(predictions) // orders all predictions by confidence
-      .entries()
-      .orderBy(x => x[1].confidence, 'desc')
-      .fromPairs()
-      .value(),
+    contexts: _.orderBy(contexts, x => x.confidence, 'desc'),
     spellChecked: step.spellChecked
   }
 }
