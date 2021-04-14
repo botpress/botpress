@@ -59,9 +59,7 @@ export class TwilioClient {
     const text = body.Body
 
     const conversation = await this.bp.experimental.conversations.forBot(this.botId).recent(userId)
-    await this.bp.experimental.conversations
-      .forBot(this.botId)
-      .setAttribute(conversation.id, 'twilio-number', botPhoneNumber)
+    await this.bp.kvs.forBot(this.botId).set(`twilio-number-${conversation.id}`, botPhoneNumber)
 
     const index = Number(text)
     let payload: any = { type: 'text', text }
@@ -173,9 +171,7 @@ export class TwilioClient {
   }
 
   async sendMessage(event: sdk.IO.Event, args: any) {
-    const botPhoneNumber = await this.bp.experimental.conversations
-      .forBot(this.botId)
-      .getAttribute(event.threadId, 'twilio-number')
+    const botPhoneNumber = await this.bp.kvs.forBot(this.botId).get(`twilio-number-${event.threadId}`)
 
     const message: MessageInstance = {
       ...args,
