@@ -336,3 +336,62 @@ $ cd ./out/bp && cross-env NODE_PATH=./ cross-env BP_MODULES_PATH=./data/modules
 03/16/2021 11:25:54.704 Server Started in 10505ms
 03/16/2021 11:25:54.706 Launcher Botpress is listening at: http://localhost:3000
 03/16/2021 11:25:54.706 Launcher Botpress is exposed at: http://localhost:3000```
+```
+
+## Ubuntu Systems 
+You might run into issues while trying to build and start botpress via yarn on Rasberry Pi OS x64 or other Ubuntu Systems. Its ARM Architecture means none of the pre-built binaries will work. On trying to run the command `yarn start`, you might run into an error like the one below:
+
+```bash
+yarn start
+yarn run v1.22.10
+$ cd ./out/bp && cross-env NODE_PATH=./ cross-env BP_MODULES_PATH=./data/modules/:../../modules:../../internal-modules node index.js
+Error starting botpress
+Error: Could not require NativeExtension "crfsuite.node" for OS "linux debian_10".
+	...
+Could not require NativeExtension "crfsuite.node" for OS "linux debian_10".
+	...
+---STACK---
+Error: Could not require NativeExtension "crfsuite.node" for OS "linux debian_10".
+	...
+error Command failed with exit code 1.
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
+``` 
+
+To avoid this error, you can build native extensions for Ubuntu using the docker file below:
+
+```dockerfile
+FROM ubuntu:18.04
+RUN apt update && apt install -y gnupg curl git build-essential cmake pkg-config
+RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+   apt install -y nodejs && \
+   npm install -g yarn node-pre-gyp
+RUN mkdir /build
+
+WORKDIR /build/node-fasttext
+RUN git clone https://github.com/botpress/node-fasttext.git .
+RUN git submodule update --init && sh linux-build.sh && npm install && npm run-script build
+
+WORKDIR /build/node-crfsuite
+RUN git clone https://github.com/botpress/node-crfsuite.git .
+RUN git submodule update --init && npm install && npm run-script build
+
+WORKDIR /build/node-svm
+RUN git clone https://github.com/botpress/node-svm.git .
+RUN git submodule update --init && npm install && npm run-script build
+
+WORKDIR /build/node-sentencepiece
+RUN git clone https://github.com/botpress/node-sentencepiece.git .
+RUN git submodule update --init && npm install && npm run-script build
+
+CMD ["bash"]
+```
+
+Replicate this docker file using your distribution (e.g., Raspbian) and use it. After that, find the file with extension `*.node` for all libraries. 
+
+To acess this file (with extension *.node), start a docker container with the image you just built.Thereafter, enter this container using the command
+`docker run -it --rm --name <YOUR_IMG_NAME> bp-bindings`
+Inside each of `/build/node-fasttext/*`,` /build/node-crfsuite/*`,` /build/node-svm/*` and `/build/node-sentencepiece/*` there should be a build/ or release/ directory where you’ll find a file with extension `*.node`.
+
+If you’re running botpress from sources, the correct location would either be : `build/native-extensions/linux/default or create` the directory `build/native-extensions/linux/<your-distribution>`. You can look at the file rewire.ts 2 if you want to see how the important processes occur.
+
+If you’re using the Botpress official binary, place the files in a directory named `bindings`.

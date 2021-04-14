@@ -1,6 +1,6 @@
 import { Button } from '@blueprintjs/core'
 import { toast } from 'botpress/shared'
-import { useState } from 'react'
+import React, { useState } from 'react'
 
 import api from '~/app/api'
 
