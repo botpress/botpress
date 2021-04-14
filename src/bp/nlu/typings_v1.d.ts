@@ -35,6 +35,8 @@ export interface ListEntityDefinition {
   type: 'list'
   values: { name: string; synonyms: string[] }[]
   fuzzy: number
+
+  sensitive?: boolean
 }
 
 export interface PatternEntityDefinition {
@@ -43,7 +45,11 @@ export interface PatternEntityDefinition {
   regex: string
   case_sensitive: boolean
   examples: string[]
+
+  sensitive?: boolean
 }
+
+export type EntityDefinition = ListEntityDefinition | PatternEntityDefinition
 
 export interface PredictInput extends Credentials {
   utterances: string[]
@@ -57,7 +63,6 @@ export interface PredictInput extends Credentials {
 export interface PredictOutput {
   entities: EntityPrediction[]
   contexts: ContextPrediction[]
-  utterance: string
   spellChecked: string
   detectedLanguage: string
 }
@@ -73,6 +78,8 @@ export interface EntityPrediction {
   start: number
   end: number
   unit?: string
+
+  sensitive?: boolean
 }
 
 export interface ContextPrediction {

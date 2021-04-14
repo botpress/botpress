@@ -1,6 +1,7 @@
 import bytes from 'bytes'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
+import { isListEntity, isPatternEntity } from 'nlu/utils/guards'
 import sizeof from 'object-sizeof'
 
 import v8 from 'v8'
@@ -132,28 +133,27 @@ export default class Engine implements IEngine {
     const { previousModel: previousModelId, progressCallback } = options
     const previousModel = previousModelId && this.modelsById.get(modelIdService.toString(previousModelId))
 
-    const list_entities = entityDefs
-      .filter(ent => ent.type === 'list')
-      .map(e => {
-        return <ListEntity & { cache: EntityCacheDump }>{
-          name: e.name,
-          fuzzyTolerance: e.fuzzy,
-          sensitive: e.sensitive,
-          synonyms: _.chain(e.occurrences)
-            .keyBy('name')
-            .mapValues('synonyms')
-            .value(),
-          cache: previousModel?.entityCache.getCache(e.name) || []
-        }
-      })
+    const list_entities = entityDefs.filter(isListEntity).map(e => {
+      return <ListEntity & { cache: EntityCacheDump }>{
+        name: e.name,
+        fuzzyTolerance: e.fuzzy,
+        sensitive: e.sensitive,
+        synonyms: _.chain(e.values)
+          .keyBy(e => e.name)
+          .mapValues(e => e.synonyms)
+          .value(),
+        cache: previousModel?.entityCache.getCache(e.name) || []
+      }
+    })
 
     const pattern_entities: PatternEntity[] = entityDefs
-      .filter(ent => ent.type === 'pattern' && isPatternValid(ent.pattern))
+      .filter(isPatternEntity)
+      .filter(ent => isPatternValid(ent.regex))
       .map(ent => ({
         name: ent.name,
-        pattern: ent.pattern!,
-        examples: [], // TODO add this to entityDef
-        matchCase: !!ent.matchCase,
+        pattern: ent.regex,
+        examples: ent.examples,
+        matchCase: ent.case_sensitive,
         sensitive: !!ent.sensitive
       }))
 
@@ -163,11 +163,11 @@ export default class Engine implements IEngine {
       .value()
 
     const intents = intentDefs
-      .filter(x => !!x.utterances[languageCode])
+      .filter(x => !!x.utterances)
       .map(x => ({
         name: x.name,
         contexts: x.contexts,
-        utterances: x.utterances[languageCode],
+        utterances: x.utterances,
         slot_definitions: x.slots
       }))
 
