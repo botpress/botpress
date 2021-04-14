@@ -186,10 +186,8 @@ export class ScopedFlowService {
     }
   }
 
-  private incrementExpectedSaves(flowName: string) {
-    const current = this.expectedSavesCache.get(flowName)
-    // we increment by 2 because we always write the .flow and .ui at the same time
-    this.expectedSavesCache.set(flowName, current === undefined ? 2 : current + 2)
+  private setExpectedSaves(flowName: string, amount: number) {
+    this.expectedSavesCache.set(flowName, amount)
   }
 
   async loadAll(): Promise<FlowView[]> {
@@ -339,10 +337,14 @@ export class ScopedFlowService {
     const flowFiles = await this.ghost.directoryListing(FLOW_DIR, '**/*.json')
 
     const isNew = !flowFiles.find(x => flow.location === x)
+
+    // the onFlowChange function called inside prepareSaveFlow can cause
+    // cache events to be fired. We aren't interested in catching any of those
+    this.setExpectedSaves(flow.name, 999999)
     const { flowPath, uiPath, flowContent, uiContent } = await this.prepareSaveFlow(flow, isNew)
 
+    this.setExpectedSaves(flow.name, 2)
     this.invalidateFlow(flow.name, flow)
-    this.incrementExpectedSaves(flow.name)
 
     await Promise.all([
       this.ghost.upsertFile(FLOW_DIR, flowPath!, JSON.stringify(flowContent, undefined, 2)),
@@ -362,7 +364,7 @@ export class ScopedFlowService {
     const uiPath = this.toUiPath(fileToDelete)
 
     this.invalidateFlow(flowName)
-    this.incrementExpectedSaves(flowName)
+    this.setExpectedSaves(flowName, 2)
     await Promise.all([this.ghost.deleteFile(FLOW_DIR, fileToDelete!), this.ghost.deleteFile(FLOW_DIR, uiPath)])
 
     this.notifyChanges({
@@ -383,7 +385,7 @@ export class ScopedFlowService {
     }
 
     this.invalidateFlow(previousName, undefined, newName)
-    this.incrementExpectedSaves(newName)
+    this.setExpectedSaves(newName, 2)
 
     const previousUiName = this.toUiPath(fileToRename)
     const newUiName = this.toUiPath(newName)
