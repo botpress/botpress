@@ -1,8 +1,8 @@
 import modelIdService, { HALF_MD5_REG } from './model-id-service'
-import { Specifications } from './typings'
-import { IntentDefinition, EntityDefinition } from 'nlu/typings_v1'
+import { IntentDefinition, EntityDefinition, Specifications } from 'nlu/typings_v1'
+import { ModelIdArgs } from './typings'
 
-const intentDefs: IntentDefinition[] = [
+const intents: IntentDefinition[] = [
   {
     contexts: ['global'],
     name: 'Frodo',
@@ -11,7 +11,7 @@ const intentDefs: IntentDefinition[] = [
   }
 ]
 
-const entityDefs: EntityDefinition[] = [
+const entities: EntityDefinition[] = [
   {
     name: 'lotr places',
     type: 'list',
@@ -32,10 +32,10 @@ const specifications: Specifications = {
 describe('mode id service', () => {
   test('makeId', () => {
     // arrange
-    const input = {
-      entityDefs,
-      intentDefs,
-      languageCode: 'fr',
+    const input: ModelIdArgs = {
+      entities,
+      intents,
+      language: 'fr',
       seed: 42,
       specifications
     }
@@ -53,9 +53,9 @@ describe('mode id service', () => {
   test('toString', () => {
     // arrange
     const input = {
-      entityDefs,
-      intentDefs,
-      languageCode: 'fr',
+      entities,
+      intents,
+      language: 'fr',
       seed: 42,
       specifications
     }
@@ -76,9 +76,9 @@ describe('mode id service', () => {
   test('fromString', () => {
     // arrange
     const input = {
-      entityDefs,
-      intentDefs,
-      languageCode: 'fr',
+      entities,
+      intents,
+      language: 'fr',
       seed: 42,
       specifications
     }
@@ -96,9 +96,9 @@ describe('mode id service', () => {
   test('isId', () => {
     // arrange
     const input = {
-      entityDefs,
-      intentDefs,
-      languageCode: 'fr',
+      entities,
+      intents,
+      language: 'fr',
       seed: 42,
       specifications
     }

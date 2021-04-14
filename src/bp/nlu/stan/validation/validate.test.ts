@@ -1,10 +1,4 @@
-import {
-  IntentDefinition,
-  ListEntityDefinition,
-  PatternEntityDefinition,
-  SlotDefinition,
-  TrainInput
-} from '../../typings_v1'
+import { IntentDefinition, ListEntityDefinition, PatternEntityDefinition, SlotDefinition, http } from '../../typings_v1'
 
 import { validateTrainInput } from './validate'
 
@@ -69,7 +63,7 @@ const APP_ID = 'Spero_patronum'
 
 test('validate with correct format should pass', async () => {
   // arrange
-  const trainInput: TrainInput = {
+  const trainInput: http.TrainRequestBody = {
     intents: [FLY_INTENT],
     entities: [CITY_ENUM],
     contexts: ['fly'],
@@ -88,7 +82,7 @@ test('validate with correct format should pass', async () => {
 
 test('validate without pw should set pw as empty string', async () => {
   // arrange
-  const trainInput: Partial<TrainInput> = {
+  const trainInput: Partial<http.TrainRequestBody> = {
     intents: [FLY_INTENT],
     contexts: ['fly'],
     entities: [CITY_ENUM],
@@ -105,7 +99,7 @@ test('validate without pw should set pw as empty string', async () => {
 
 test('validate with empty string pw should be allowed', async () => {
   // arrange
-  const trainInput: TrainInput = {
+  const trainInput: http.TrainRequestBody = {
     intents: [FLY_INTENT],
     contexts: ['fly'],
     entities: [CITY_ENUM],
@@ -124,7 +118,7 @@ test('validate with empty string pw should be allowed', async () => {
 
 test('validate input without enums and patterns should pass', async () => {
   // arrange
-  const trainInput: Omit<TrainInput, 'entities'> = {
+  const trainInput: Omit<http.TrainRequestBody, 'entities'> = {
     intents: [EMPTY_INTENT],
     contexts: ['empty'],
     language: LANG,
@@ -137,20 +131,20 @@ test('validate input without enums and patterns should pass', async () => {
   const validated = await validateTrainInput(trainInput)
 
   // assert
-  const expected: TrainInput = { ...trainInput, entities: [] }
+  const expected: http.TrainRequestBody = { ...trainInput, entities: [] }
   expect(validated).toStrictEqual(expected)
 })
 
 test('validate input without topics or language should throw', async () => {
   // arrange
-  const withoutContexts: Omit<TrainInput, 'entities' | 'contexts' | 'intents'> = {
+  const withoutContexts: Omit<http.TrainRequestBody, 'entities' | 'contexts' | 'intents'> = {
     language: LANG,
     appSecret: PW,
     appId: APP_ID,
     seed: 42
   }
 
-  const withoutLang: Omit<TrainInput, 'entities' | 'language'> = {
+  const withoutLang: Omit<http.TrainRequestBody, 'entities' | 'language'> = {
     intents: [FLY_INTENT],
     contexts: ['fly'],
     appSecret: PW,
@@ -167,7 +161,7 @@ test('validate without intent should fail', async () => {
   // arrange
   const withoutUtterances: IntentDefinition = { name: 'will break', contexts: ['A'] } as IntentDefinition
 
-  const trainInput: TrainInput = {
+  const trainInput: http.TrainRequestBody = {
     intents: [withoutUtterances],
     contexts: ['A'],
     entities: [CITY_ENUM],
@@ -183,7 +177,7 @@ test('validate without intent should fail', async () => {
 
 test('validate intent with unexisting context should fail', async () => {
   // arrange
-  const trainInput: TrainInput = {
+  const trainInput: http.TrainRequestBody = {
     intents: [FLY_INTENT],
     contexts: ['A'],
     entities: [CITY_ENUM],
@@ -203,7 +197,7 @@ test('validate enum without values or patterns without regexes should fail', asy
 
   const incompletePattern: PatternEntityDefinition = { name: 'password' } as PatternEntityDefinition
 
-  const withoutValues: TrainInput = {
+  const withoutValues: http.TrainRequestBody = {
     intents: [FLY_INTENT],
     contexts: ['fly'],
     entities: [incompleteEnum],
@@ -213,7 +207,7 @@ test('validate enum without values or patterns without regexes should fail', asy
     seed: 42
   }
 
-  const withoutRegexes: TrainInput = {
+  const withoutRegexes: http.TrainRequestBody = {
     intents: [PROBLEM_INTENT],
     contexts: ['problem'],
     entities: [incompletePattern],
@@ -230,7 +224,7 @@ test('validate enum without values or patterns without regexes should fail', asy
 
 test('validate with an unexisting referenced enum should throw', async () => {
   // arrange
-  const trainInput: TrainInput = {
+  const trainInput: http.TrainRequestBody = {
     intents: [FLY_INTENT],
     contexts: ['fly'],
     entities: [TICKET_PATTERN],
@@ -246,7 +240,7 @@ test('validate with an unexisting referenced enum should throw', async () => {
 
 test('validate with an unexisting referenced pattern should throw', async () => {
   // arrange
-  const trainInput: TrainInput = {
+  const trainInput: http.TrainRequestBody = {
     intents: [PROBLEM_INTENT],
     contexts: ['problem'],
     entities: [CITY_ENUM],
@@ -262,7 +256,7 @@ test('validate with an unexisting referenced pattern should throw', async () => 
 
 test('validate with an unexisting referenced complex should throw', async () => {
   // arrange
-  const trainInput: TrainInput = {
+  const trainInput: http.TrainRequestBody = {
     intents: [BOUILLON_INTENT],
     contexts: ['bouillon'],
     entities: [CITY_ENUM],
@@ -278,7 +272,7 @@ test('validate with an unexisting referenced complex should throw', async () => 
 
 test('validate with correct format but unexpected property should fail', async () => {
   // arrange
-  const trainInput: TrainInput & { enums: any[] } = {
+  const trainInput: http.TrainRequestBody & { enums: any[] } = {
     intents: [FLY_INTENT],
     contexts: ['fly'],
     entities: [CITY_ENUM],

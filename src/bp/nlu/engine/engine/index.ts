@@ -1,6 +1,7 @@
 import bytes from 'bytes'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
+import { PredictOutput, TrainInput } from 'nlu/typings_v1'
 import sizeof from 'object-sizeof'
 
 import v8 from 'v8'
@@ -8,16 +9,7 @@ import { isListEntity, isPatternEntity } from '../../utils/guards'
 
 import modelIdService from '../model-id-service'
 
-import {
-  TrainingOptions,
-  LanguageConfig,
-  Logger,
-  ModelId,
-  TrainingSet,
-  Model,
-  PredictOutput,
-  Engine as IEngine
-} from '../typings'
+import { TrainingOptions, LanguageConfig, Logger, ModelId, Model, Engine as IEngine } from '../typings'
 import { deserializeKmeans } from './clustering'
 import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
@@ -29,7 +21,7 @@ import { deserializeModel, PredictableModel, serializeModel } from './model-seri
 import { Predict, Predictors } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
-import { TrainInput, TrainOutput } from './training-pipeline'
+import { TrainInput as TrainingPipelineInput, TrainOutput as TrainingPipelineOutput } from './training-pipeline'
 import { TrainingWorkerQueue } from './training-worker-queue'
 import { EntityCacheDump, ListEntity, PatternEntity, Tools } from './typings'
 import { getModifiedContexts, mergeModelOutputs } from './warm-training-handler'
@@ -124,16 +116,16 @@ export default class Engine implements IEngine {
     return !!this.modelsById.get(stringId)
   }
 
-  async train(trainId: string, trainSet: TrainingSet, opt: Partial<TrainingOptions> = {}): Promise<Model> {
-    const { languageCode, seed, entityDefs, intentDefs } = trainSet
-    trainDebug(`[${trainId}] Started ${languageCode} training`)
+  async train(trainId: string, trainSet: TrainInput, opt: Partial<TrainingOptions> = {}): Promise<Model> {
+    const { language, seed, entities, intents } = trainSet
+    trainDebug(`[${trainId}] Started ${language} training`)
 
     const options = { ...DEFAULT_TRAINING_OPTIONS, ...opt }
 
     const { previousModel: previousModelId, progressCallback } = options
     const previousModel = previousModelId && this.modelsById.get(modelIdService.toString(previousModelId))
 
-    const list_entities = entityDefs.filter(isListEntity).map(e => {
+    const list_entities = entities.filter(isListEntity).map(e => {
       return <ListEntity & { cache: EntityCacheDump }>{
         name: e.name,
         fuzzyTolerance: e.fuzzy,
@@ -146,7 +138,7 @@ export default class Engine implements IEngine {
       }
     })
 
-    const pattern_entities: PatternEntity[] = entityDefs
+    const pattern_entities: PatternEntity[] = entities
       .filter(isPatternEntity)
       .filter(ent => isPatternValid(ent.regex))
       .map(ent => ({
@@ -157,12 +149,12 @@ export default class Engine implements IEngine {
         sensitive: !!ent.sensitive
       }))
 
-    const contexts = _.chain(intentDefs)
+    const contexts = _.chain(intents)
       .flatMap(i => i.contexts)
       .uniq()
       .value()
 
-    const intents = intentDefs
+    const pipelineIntents = intents
       .filter(x => !!x.utterances)
       .map(x => ({
         name: x.name,
@@ -174,23 +166,23 @@ export default class Engine implements IEngine {
     let ctxToTrain = contexts
     if (previousModel) {
       const previousIntents = previousModel.model.data.input.intents
-      const contextChangeLog = getModifiedContexts(intents, previousIntents)
+      const contextChangeLog = getModifiedContexts(pipelineIntents, previousIntents)
       ctxToTrain = [...contextChangeLog.createdContexts, ...contextChangeLog.modifiedContexts]
     }
 
     const debugMsg = previousModel
-      ? `Retraining only contexts: [${ctxToTrain}] for language: ${languageCode}`
-      : `Training all contexts for language: ${languageCode}`
+      ? `Retraining only contexts: [${ctxToTrain}] for language: ${language}`
+      : `Training all contexts for language: ${language}`
     trainDebug(`[${trainId}] ${debugMsg}`)
 
-    const input: TrainInput = {
+    const input: TrainingPipelineInput = {
       trainId,
       nluSeed: seed,
-      languageCode,
+      languageCode: language,
       list_entities,
       pattern_entities,
       contexts,
-      intents,
+      intents: pipelineIntents,
       ctxToTrain
     }
 
@@ -216,7 +208,7 @@ export default class Engine implements IEngine {
       model.data.output = mergeModelOutputs(model.data.output, previousModel.model.data.output, contexts)
     }
 
-    trainDebug(`[${trainId}] Successfully finished ${languageCode} training`)
+    trainDebug(`[${trainId}] Successfully finished ${language} training`)
 
     return serializeModel(model)
   }
@@ -287,14 +279,14 @@ export default class Engine implements IEngine {
     lifecycleDebug('Model unloaded with success')
   }
 
-  private _makeCacheManager(output: TrainOutput) {
+  private _makeCacheManager(output: TrainingPipelineOutput) {
     const cacheManager = new EntityCacheManager()
     const { list_entities } = output
     cacheManager.loadFromData(list_entities)
     return cacheManager
   }
 
-  private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {
+  private async _makePredictors(input: TrainingPipelineInput, output: TrainingPipelineOutput): Promise<Predictors> {
     const tools = this._tools
 
     const { intents, languageCode, pattern_entities, contexts } = input

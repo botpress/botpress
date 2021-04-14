@@ -1,16 +1,7 @@
 import { validate } from 'joi'
 import * as NLUEngine from 'nlu/engine'
 
-import {
-  IntentDefinition,
-  ListEntityDefinition,
-  PatternEntityDefinition,
-  PredictInput,
-  SlotDefinition,
-  TrainInput,
-  Credentials,
-  DetectLanguageInput
-} from 'nlu/typings_v1'
+import { IntentDefinition, ListEntityDefinition, PatternEntityDefinition, SlotDefinition, http } from 'nlu/typings_v1'
 
 import { isListEntity, isPatternEntity } from 'nlu/utils/guards'
 import { PredictInputSchema, TrainInputSchema, CredentialsSchema, DetectLangInputSchema } from './schemas'
@@ -49,8 +40,8 @@ const makeIntentChecker = (contexts: string[]) => (
   intent.slots.forEach(variableChecker)
 }
 
-export async function validateTrainInput(rawInput: any): Promise<TrainInput> {
-  const validatedInput: TrainInput = await validate(rawInput, TrainInputSchema, {})
+export async function validateTrainInput(rawInput: any): Promise<http.TrainRequestBody> {
+  const validatedInput: http.TrainRequestBody = await validate(rawInput, TrainInputSchema, {})
 
   const { entities, contexts } = validatedInput
 
@@ -66,17 +57,17 @@ export async function validateTrainInput(rawInput: any): Promise<TrainInput> {
   return validatedInput
 }
 
-export async function validateCredentialsFormat(rawInput: any): Promise<Credentials> {
-  const validated: Credentials = await validate(rawInput, CredentialsSchema, {})
+export async function validateCredentialsFormat(rawInput: any): Promise<http.Credentials> {
+  const validated: http.Credentials = await validate(rawInput, CredentialsSchema, {})
   return validated
 }
 
-export async function validatePredictInput(rawInput: any): Promise<PredictInput> {
-  const validated: PredictInput = await validate(rawInput, PredictInputSchema, {})
+export async function validatePredictInput(rawInput: any): Promise<http.PredictRequestBody> {
+  const validated: http.PredictRequestBody = await validate(rawInput, PredictInputSchema, {})
   return validated
 }
 
-export async function validateDetectLangInput(rawInput: any): Promise<DetectLanguageInput> {
-  const validated: DetectLanguageInput = await validate(rawInput, DetectLangInputSchema, {})
+export async function validateDetectLangInput(rawInput: any): Promise<http.DetectLangRequestBody> {
+  const validated: http.DetectLangRequestBody = await validate(rawInput, DetectLangInputSchema, {})
   return validated
 }
