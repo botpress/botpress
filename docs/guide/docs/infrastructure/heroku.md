@@ -13,7 +13,7 @@ Heroku is a platform as a service (PaaS) that enables developers to build, run, 
 
 ## Preparing the Docker image
 
-To create a new bot from scratch, create a file named `Dockerfile` in any directory (Make sure your Dockerfile is really called Dockerfile, not “Dockerfile.txt”). Write this snippet in the file (and replace \$VERSION with the latest one in [hub.docker.com](https://hub.docker.com/r/botpress/server/tags/))
+To create a new chatbot from scratch, create a file named `Dockerfile` in any directory (Make sure your Dockerfile is really called Dockerfile, not “Dockerfile.txt”). Write this snippet in the file (and replace \$VERSION with the latest one in [hub.docker.com](https://hub.docker.com/r/botpress/server/tags/))
 
 ```docker
 FROM botpress/server:$VERSION
