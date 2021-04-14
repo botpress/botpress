@@ -1,10 +1,10 @@
 import bytes from 'bytes'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
-import { isListEntity, isPatternEntity } from 'nlu/utils/guards'
 import sizeof from 'object-sizeof'
 
 import v8 from 'v8'
+import { isListEntity, isPatternEntity } from '../../utils/guards'
 
 import modelIdService from '../model-id-service'
 

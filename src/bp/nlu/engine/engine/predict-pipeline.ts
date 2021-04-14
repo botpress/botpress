@@ -5,7 +5,7 @@ import {
   SlotPrediction,
   ContextPrediction,
   IntentPrediction as StanIntentPrediction
-} from 'nlu/typings_v1'
+} from '../../typings_v1'
 import { PredictOutput } from '../typings'
 
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'

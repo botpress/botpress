@@ -64,7 +64,6 @@ export interface PredictOutput {
   entities: EntityPrediction[]
   contexts: ContextPrediction[]
   spellChecked: string
-  detectedLanguage: string
 }
 
 export type EntityType = 'pattern' | 'list' | 'system'

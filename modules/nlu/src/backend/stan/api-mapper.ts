@@ -6,6 +6,7 @@ import {
   PredictOutput as StanPredictOutput,
   ListEntityDefinition,
   PatternEntityDefinition,
+  EntityDefinition as StanEntityDefinition,
   SlotDefinition as StanSlotDefinition,
   IntentDefinition as StanIntentDefinition,
   IntentPrediction as StanIntentPrediction,
@@ -21,7 +22,7 @@ type BpEntityDefinition = NLU.EntityDefinition
 
 type BpSlotPrediction = NLU.Slot
 type BpEntityPrediction = NLU.Entity
-interface BpPredictOutput {
+export interface BpPredictOutput {
   entities: BpEntityPrediction[]
   predictions: Dic<NLU.ContextPrediction>
   spellChecked: string
@@ -31,6 +32,13 @@ type BpContextPrediction = NLU.ContextPrediction
 interface BpTrainSet {
   intentDefs: BpIntentDefinition[]
   entityDefs: BpEntityDefinition[]
+  languageCode: string
+  seed: number
+}
+
+interface StanTrainSet {
+  intentDefs: StanIntentDefinition[]
+  entityDefs: StanEntityDefinition[]
   languageCode: string
   seed: number
 }
@@ -94,11 +102,31 @@ const mapPattern = (patternDef: BpEntityDefinition): PatternEntityDefinition => 
   }
 }
 
+const mapEntityDefinition = (e: BpEntityDefinition): StanEntityDefinition => {
+  return isPatternEntity(e) ? mapPattern(e) : mapList(e)
+}
+
+export const mapTrainset = (bpTrainSet: BpTrainSet): StanTrainSet => {
+  const { intentDefs, entityDefs, languageCode, seed } = bpTrainSet
+
+  const entities = entityDefs.filter(isCustomEntity).map(mapEntityDefinition)
+
+  const intentMapper = makeIntentMapper(languageCode)
+  const intents = intentDefs.map(intentMapper)
+
+  return {
+    intentDefs: intents,
+    entityDefs: entities,
+    languageCode,
+    seed
+  }
+}
+
 export const mapTrainInput = (bpTrainSet: BpTrainSet, credentials: Credentials): TrainInput => {
   const { intentDefs, entityDefs, languageCode, seed } = bpTrainSet
   const { appSecret, appId } = credentials
 
-  const entities = entityDefs.filter(isCustomEntity).map(e => (isPatternEntity(e) ? mapPattern(e) : mapList(e)))
+  const entities = entityDefs.filter(isCustomEntity).map(mapEntityDefinition)
 
   const intentMapper = makeIntentMapper(languageCode)
   const intents = intentDefs.map(intentMapper)
@@ -165,7 +193,7 @@ function mapOutputSlot(slot: StanSlotPrediction): BpSlotPrediction {
     confidence,
     start,
     end,
-    entity: mapEntity(entity!),
+    entity: entity && mapEntity(entity),
     name,
     source,
     value

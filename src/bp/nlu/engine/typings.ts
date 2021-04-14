@@ -1,4 +1,4 @@
-import { IntentDefinition, EntityDefinition, EntityPrediction, ContextPrediction } from 'nlu/typings_v1'
+import { IntentDefinition, EntityDefinition, EntityPrediction, ContextPrediction } from '../typings_v1'
 
 export interface Config extends LanguageConfig {
   modelCacheSize: string

@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 import _ from 'lodash'
-import { EntityDefinition, IntentDefinition } from 'nlu/typings_v1'
+import { EntityDefinition, IntentDefinition } from '../typings_v1'
 import { ModelId, Specifications, ModelIdArgs, ModelIdService } from './typings'
 
 export const HALF_MD5_REG = /^[a-fA-F0-9]{16}$/
