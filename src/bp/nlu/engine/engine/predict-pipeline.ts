@@ -220,16 +220,19 @@ function MapStepToOutput(step: SpellStep): PredictOutput {
     ctxPredictions: IntentPredictions,
     intentPredictions: _.Dictionary<NoneableIntentPredictions>
   ): ContextPrediction[] => {
-    return ctxPredictions.intents.map(ctxPred => {
-      const { confidence, name } = ctxPred
-      const { intents, oos } = intentPredictions[name]
-      return {
-        name,
-        confidence,
-        intents: intentMapper({ intents }),
-        oos
-      }
-    })
+    const ctxs = ctxPredictions.intents
+      .filter(ctx => intentPredictions[ctx.name])
+      .map(ctxPred => {
+        const { confidence, name } = ctxPred
+        const { intents, oos } = intentPredictions[name]
+        return {
+          name,
+          confidence,
+          intents: intentMapper({ intents }),
+          oos
+        }
+      })
+    return _.orderBy(ctxs, ctx => ctx.confidence, 'desc')
   }
 
   return {
