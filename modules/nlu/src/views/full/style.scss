@@ -1,5 +1,14 @@
 $status-bar-height: 24px;
 
+.emtpyStateIcon {
+  color: var(--ocean);
+}
+
+.headerToolbar {
+  margin-bottom: var(--spacing-x-large);
+  padding: 0 var(--spacing-medium) !important;
+}
+
 .container {
   background-color: white;
   display: flex;
@@ -9,174 +18,10 @@ $status-bar-height: 24px;
   padding: 10px 15px;
 }
 
-.headerTabs {
-  :global(.bp3-tab-list) {
-    background: #fefefe;
-    border-bottom: 1px solid #eee;
-  }
-
-  :global(.bp3-tab-indicator-wrapper) {
-    background: rgba(0, 0, 0, 0.05);
-  }
-
-  :global(.bp3-tab-panel) {
-    margin-top: 5px;
-  }
-
-  :global(.bp3-tab) {
-    padding: 2px 8px;
-    border-right: 1px solid #eee;
-  }
-
-  :global(.bp3-tab-list > *:not(:last-child)) {
-    margin-right: 0;
-  }
-}
-
-.workspace {
-  width: 100%;
-  height: calc(100vh - #{$status-bar-height});
-  position: relative;
-}
-
-.workspace > div {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-}
-
-.main {
-  flex: 1 1 auto;
-  display: flex;
-  height: 100%;
-}
-
-.navigationBar {
-  position: relative;
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-  width: 240px;
-  height: 100%;
-  background-color: #fcfcfc;
-  border-right: 1px solid #e5e5e5;
-
-  .filter {
-    width: 100%;
-    padding: 7px;
-
-    input {
-      width: 100%;
-      padding: 5px;
-      font-size: 14px;
-    }
-
-    .checkboxContainer {
-      display: flex;
-    }
-  }
-
-  .list {
-    flex-grow: 2;
-    position: relative;
-    overflow-y: auto;
-    padding: 7px;
-    height: 100%;
-
-    ul {
-      list-style: none;
-      padding: 0;
-
-      li {
-        padding: 3px 7px;
-        cursor: pointer;
-
-        &:hover {
-          background: #e9e9e9;
-
-          .deleteIntent {
-            display: inherit;
-          }
-        }
-
-        &.active {
-          font-weight: bold;
-        }
-      }
-    }
-  }
-
-  .create {
-    padding: 10px 15px;
-  }
-
-  .sync {
-    padding: 10px 15px;
-    text-align: center;
-
-    div {
-      font-weight: bold;
-      line-height: 20px;
-
-      &.out {
-        color: #ff3653;
-        -webkit-animation: flash linear 1s infinite;
-        animation: flash linear 1s infinite;
-        @-webkit-keyframes flash {
-          0% {
-            opacity: 1;
-          }
-          50% {
-            opacity: 0.1;
-          }
-          100% {
-            opacity: 1;
-          }
-        }
-        @keyframes flash {
-          0% {
-            opacity: 1;
-          }
-          50% {
-            opacity: 0.1;
-          }
-          100% {
-            opacity: 1;
-          }
-        }
-      }
-      &.in {
-        color: #00d129;
-      }
-    }
-  }
-}
-
 .deleteEntity {
   float: right;
   display: none;
   margin-top: 3px;
-}
-
-.entityText {
-  width: calc(100% - 14px);
-}
-
-.entity {
-  display: flex;
-}
-
-.entity:hover {
-  background-color: #ececec;
-
-  .deleteEntity {
-    display: inherit;
-  }
-
-  .synonym {
-    display: inline-block;
-  }
 }
 
 .synonym {
@@ -186,15 +31,4 @@ $status-bar-height: 24px;
 
 .chooseContainer {
   padding: 10px 0;
-}
-
-.chooseLabel {
-  display: block;
-  width: 100%;
-  font-size: 14px;
-  margin: 0 0 var(--spacing-small);
-}
-
-.createBtn {
-  display: block;
 }

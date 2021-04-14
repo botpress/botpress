@@ -18,8 +18,7 @@ const webConfig = {
   bail: true,
   devtool: process.argv.find(x => x.toLowerCase() === '--nomap') ? false : 'source-map',
   entry: {
-    web: './src/web/index.jsx',
-    lite: './src/web/lite.jsx'
+    web: './src/web/index.jsx'
   },
   node: {
     net: 'empty',
@@ -74,13 +73,6 @@ const webConfig = {
       filename: '../index.html',
       chunks: ['commons', 'web']
     }),
-    new HtmlWebpackPlugin({
-      inject: true,
-      hash: true,
-      template: './src/web/lite.html',
-      filename: '../lite/index.html',
-      chunks: ['commons', 'lite']
-    }),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: isProduction ? JSON.stringify('production') : JSON.stringify('development')
@@ -124,7 +116,7 @@ const webConfig = {
       },
       {
         test: /\.jsx?$/i,
-        include: path.resolve(__dirname, 'src/web'),
+        include: [path.resolve(__dirname, 'src/web')],
         use: [
           {
             loader: 'thread-loader'
@@ -133,18 +125,21 @@ const webConfig = {
             loader: 'babel-loader',
             options: {
               presets: [
-                'stage-3',
+                require.resolve('babel-preset-stage-3'),
                 [
-                  'env',
+                  require.resolve('babel-preset-env'),
                   {
                     targets: {
                       browsers: ['last 2 versions']
                     }
                   }
                 ],
-                'react'
+                require.resolve('babel-preset-react')
               ],
-              plugins: ['transform-class-properties'],
+              plugins: [
+                require.resolve('babel-plugin-transform-class-properties'),
+                require.resolve('babel-plugin-transform-es2015-arrow-functions')
+              ],
               compact: true,
               babelrc: false,
               cacheDirectory: true

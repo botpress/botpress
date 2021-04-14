@@ -318,9 +318,9 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const getNewUsersPercent = () => {
-    const existingUsersCount = getMetricCount('active_users_count')
+    const returningUsersCount = getMetricCount('returning_users_count')
     const newUsersCount = getMetricCount('new_users_count')
-    const percent = Math.round((newUsersCount / (existingUsersCount + newUsersCount)) * 100)
+    const percent = Math.round((newUsersCount / (newUsersCount + returningUsersCount)) * 100)
 
     return getNotNaN(percent, '%')
   }
@@ -466,12 +466,22 @@ const Analytics: FC<any> = ({ bp }) => {
       .map(m => ({ value: getNotNaN((m.value / total) * 100, '%'), language: m.language }))
   }
 
+  const getQNAFeedbackData = () => {
+    const positiveFeedback = getMetricCount('feedback_positive_qna')
+    const negativeFeedback = getMetricCount('feedback_negative_qna')
+    const totalFeedback = positiveFeedback + negativeFeedback
+
+    return {
+      totalFeedback,
+      positivePercent: getNotNaN((positiveFeedback / totalFeedback) * 100, '%'),
+      negativeFeedback: getNotNaN((negativeFeedback / totalFeedback) * 100, '%')
+    }
+  }
+
   const renderHandlingUnderstanding = () => {
     const misunderstood = getMisunderStoodData()
     const languages = getLanguagesData()
-    const positiveFeedback = getMetricCount('feedback_positive_qna')
-    const negativeFeedback = getMetricCount('feedback_negative_qna')
-    const positivePct = Math.round((positiveFeedback / (positiveFeedback + negativeFeedback)) * 100)
+    const feedback = getQNAFeedbackData()
 
     return (
       <div className={cx(style.metricsContainer, style.fullWidth)}>
@@ -500,11 +510,30 @@ const Analytics: FC<any> = ({ bp }) => {
           <div>
             {languages.map(i => (
               <FlatProgressChart
+                key={i.language}
                 value={i.value}
                 color="#F2B824"
                 name={`${lang.tr(`isoLangs.${i.language}.name`)}: ${i.value}`}
               />
             ))}
+          </div>
+        </div>
+        <div className={cx(style.genericMetric, style.quarter)}>
+          <div>
+            <p className={style.numberMetricValue}>{feedback.totalFeedback}</p>
+            <h3 className={style.metricName}>{lang.tr('module.analytics.totalQnaFeedback')}</h3>
+          </div>
+          <div>
+            <FlatProgressChart
+              value={feedback.positivePercent}
+              color="#68A750"
+              name={lang.tr('module.analytics.positiveQnaFeedback', { nb: feedback.positivePercent })}
+            />
+            <FlatProgressChart
+              value={feedback.negativeFeedback}
+              color="#FF4F7D"
+              name={lang.tr('module.analytics.negativeQnaFeedback', { nb: feedback.negativeFeedback })}
+            />
           </div>
         </div>
         {isNDU && (
@@ -531,11 +560,6 @@ const Analytics: FC<any> = ({ bp }) => {
               value={Math.round(
                 (getMetricCount('workflow_completed_count') / getMetricCount('workflow_started_count')) * 100
               )}
-              className={style.quarter}
-            />
-            <RadialMetric
-              name={lang.tr('module.analytics.positiveQnaFeedback', { nb: positiveFeedback })}
-              value={isNaN(positivePct) ? 0 : positivePct}
               className={style.quarter}
             />
           </Fragment>

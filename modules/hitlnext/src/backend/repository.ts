@@ -293,7 +293,7 @@ export default class Repository {
   // - permissions
   // - strategyType
   getCurrentAgent = async (req: BPRequest, botId: string, agentId: string): Promise<IAgent> => {
-    const { data } = await axios.get('/auth/me/profile', {
+    const { data } = await axios.get('/admin/user/profile', {
       baseURL: `${process.LOCAL_URL}/api/v1`,
       headers: {
         Authorization: req.headers.authorization,

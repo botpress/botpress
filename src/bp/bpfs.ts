@@ -1,7 +1,5 @@
 import axios, { AxiosInstance } from 'axios'
 import chalk from 'chalk'
-import { CSRF_TOKEN_HEADER, JWT_COOKIE_NAME } from 'common/auth'
-import { TokenUser } from 'common/typings'
 import followRedirects from 'follow-redirects'
 import fse from 'fs-extra'
 import glob from 'glob'
@@ -9,10 +7,12 @@ import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
 import path from 'path'
 import rimraf from 'rimraf'
+import { CSRF_TOKEN_HEADER, JWT_COOKIE_NAME } from './common/auth'
+import { TokenUser } from './common/typings'
 import { bytesToString } from './common/utils'
+import { BpfsScopedChange, FileChange } from './core/bpfs'
 import { createArchiveFromFolder, extractArchive } from './core/misc/archive'
 import { asBytes } from './core/misc/utils'
-import { BpfsScopedChange, FileChange } from './core/services'
 
 // This is a dependency of axios, and sets the default body limit to 10mb. Need it to be higher
 followRedirects.maxBodyLength = asBytes('500mb')
@@ -188,7 +188,7 @@ class BPFS {
 
   private _getPushAxiosClient(archiveSize: number): AxiosInstance {
     return axios.create({
-      baseURL: `${this.serverUrl}/api/v1/admin/versioning`,
+      baseURL: `${this.serverUrl}/api/v1/admin/management/versioning`,
       headers: {
         ...this._getAuthHeaders(),
         'Content-Type': 'application/tar+gzip',
@@ -209,7 +209,7 @@ class BPFS {
 
   private _getPullAxiosClient(): AxiosInstance {
     return axios.create({
-      baseURL: `${this.serverUrl}/api/v1/admin/versioning`,
+      baseURL: `${this.serverUrl}/api/v1/admin/management/versioning`,
       headers: this._getAuthHeaders(),
       responseType: 'arraybuffer'
     })

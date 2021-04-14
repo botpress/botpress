@@ -11,6 +11,12 @@
   padding: 6px;
 }
 
+.voiceButton {
+  position: relative !important;
+  transform: none !important;
+  right: auto !important;
+}
+
 .messageList {
   flex-grow: 1;
   overflow-y: auto;
@@ -87,7 +93,7 @@
 
 .composerContainer {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   .composer {
     width: calc(100% - 50px);
     padding: var(--spacing-large) var(--spacing-medium);
@@ -96,6 +102,9 @@
     textarea {
       min-height: 40px;
       padding: var(--spacing-large);
+      &.active {
+        border-color: var(--ocean);
+      }
     }
 
     .shortcutDropdown {

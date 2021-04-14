@@ -433,105 +433,6 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NLU {
-    export namespace errors {
-      export const isTrainingCanceled: (err: Error) => boolean
-      export const isTrainingAlreadyStarted: (err: Error) => boolean
-    }
-
-    export const makeEngine: (config: Config, logger: Logger) => Promise<Engine>
-
-    export interface Config extends LanguageConfig {
-      modelCacheSize: number
-    }
-
-    export interface LanguageConfig {
-      ducklingURL: string
-      ducklingEnabled: boolean
-      languageSources: LanguageSource[]
-    }
-
-    export interface LanguageSource {
-      endpoint: string
-      authToken?: string
-    }
-
-    export interface Logger {
-      debug: (msg: string) => void
-      info: (msg: string) => void
-      warning: (msg: string, err?: Error) => void
-      error: (msg: string, err?: Error) => void
-    }
-
-    export interface TrainingSet {
-      intentDefs: NLU.IntentDefinition[]
-      entityDefs: NLU.EntityDefinition[]
-      languageCode: string
-      seed: number // seeds random number generator in nlu training
-    }
-
-    export interface ModelIdArgs extends TrainingSet {
-      specifications: Specifications
-    }
-
-    export interface TrainingOptions {
-      progressCallback: (x: number) => void
-      previousModel: ModelId | undefined
-    }
-
-    export interface Engine {
-      getHealth: () => Health
-      getLanguages: () => string[]
-      getSpecifications: () => Specifications
-      loadModel: (model: Model) => Promise<void>
-      unloadModel: (modelId: ModelId) => void
-      hasModel: (modelId: ModelId) => boolean
-      train: (trainSessionId: string, trainSet: TrainingSet, options?: Partial<TrainingOptions>) => Promise<Model>
-      cancelTraining: (trainSessionId: string) => Promise<void>
-      detectLanguage: (text: string, modelByLang: Dic<ModelId>) => Promise<string>
-      predict: (text: string, modelId: ModelId) => Promise<PredictOutput>
-      spellCheck: (sentence: string, modelId: ModelId) => Promise<string>
-    }
-
-    export const modelIdService: {
-      toString: (modelId: ModelId) => string // to use ModelId as a key
-      fromString: (stringId: string) => ModelId // to parse information from a key
-      toId: (m: Model) => ModelId // keeps only minimal information to make an id
-      isId: (m: string) => boolean
-      makeId: (factors: ModelIdArgs) => ModelId
-      briefId: (factors: Partial<ModelIdArgs>) => Partial<ModelId> // makes incomplete Id from incomplete information
-    }
-
-    export interface ModelId {
-      specificationHash: string // represents the nlu engine that was used to train the model
-      contentHash: string // represents the intent and entity definitions the model was trained with
-      seed: number // number to seed the random number generators used during nlu training
-      languageCode: string // language of the model
-    }
-
-    export interface Specifications {
-      nluVersion: string // semver string
-      languageServer: {
-        dimensions: number
-        domain: string
-        version: string // semver string
-      }
-    }
-
-    export type Model = ModelId & {
-      startedAt: Date
-      finishedAt: Date
-      data: {
-        input: string
-        output: string
-      }
-    }
-
-    export interface Health {
-      isEnabled: boolean
-      validProvidersCount: number
-      validLanguages: string[]
-    }
-
     /**
      * idle : occures when there are no training sessions for a bot
      * done : when a training is complete
@@ -556,7 +457,6 @@ declare module 'botpress/sdk' {
       status: TrainingStatus
       language: string
       progress: number
-      lock?: RedisLock
     }
 
     export type EntityType = 'system' | 'pattern' | 'list'
@@ -634,26 +534,6 @@ declare module 'botpress/sdk' {
     }
 
     export type SlotCollection = Dic<Slot>
-
-    export interface Predictions {
-      [context: string]: ContextPrediction
-    }
-
-    export interface ContextPrediction {
-      confidence: number
-      oos: number
-      intents: {
-        label: string
-        confidence: number
-        slots: SlotCollection
-        extractor: string
-      }[]
-    }
-
-    export interface PredictOutput {
-      readonly entities: Entity[]
-      readonly predictions: Predictions
-    }
   }
 
   export namespace NDU {
@@ -801,27 +681,38 @@ declare module 'botpress/sdk' {
       readonly threadId?: string
     }
 
-    export type EventUnderstanding = {
+    export interface EventUnderstanding {
       readonly errored: boolean
 
+      readonly predictions?: {
+        [context: string]: {
+          confidence: number
+          oos: number
+          intents: {
+            label: string
+            confidence: number
+            slots: NLU.SlotCollection
+            extractor: string
+          }[]
+        }
+      }
+
       // election
+      readonly entities?: NLU.Entity[]
       readonly intent?: NLU.Intent
       readonly intents?: NLU.Intent[]
       readonly ambiguous?: boolean /** Predicted intents needs disambiguation */
       readonly slots?: NLU.SlotCollection
+      readonly spellChecked?: string
 
       // pre-prediction
       readonly detectedLanguage:
         | string
         | undefined /** Language detected from users input. If undefined, detection failed. */
-      readonly spellChecked:
-        | string
-        | undefined /** Result of spell checking on users input. If undefined, spell check failed. */
-
       readonly language: string /** The language used for prediction */
       readonly includedContexts: string[]
       readonly ms: number
-    } & Partial<NLU.PredictOutput>
+    }
 
     export interface IncomingEvent extends Event {
       /** Array of possible suggestions that the Decision Engine can take  */
@@ -1179,8 +1070,8 @@ declare module 'botpress/sdk' {
       contentTypes: string[]
     }
     converse?: ConverseConfig
-    dialog?: DialogConfig
-    logs?: LogsConfig
+    dialog?: BotDialogConfig
+    logs?: BotLogsConfig
     defaultLanguage: string
     languages: string[]
     locked: boolean
@@ -1236,14 +1127,14 @@ declare module 'botpress/sdk' {
     coverPictureUrl?: string
   }
 
-  export interface LogsConfig {
+  export interface BotLogsConfig {
     expiration: string
   }
 
   /**
    * Configuration definition of Dialog Sessions
    */
-  export interface DialogConfig {
+  export interface BotDialogConfig {
     /** The interval until a session context expires */
     timeoutInterval: string
     /** The interval until a session expires */
@@ -1264,6 +1155,11 @@ declare module 'botpress/sdk' {
      * @default 360
      */
     maxMessageLength: number
+    /**
+     * Number of milliseconds that the converse API will wait to buffer responses
+     * @default 250
+     */
+    bufferDelayMs: number
   }
 
   /**
@@ -1763,9 +1659,9 @@ declare module 'botpress/sdk' {
   export interface Message {
     id: uuid
     conversationId: uuid
+    authorId: string | undefined
     eventId?: string
     incomingEventId?: string
-    from: string
     sentOn: Date
     payload: any
   }
@@ -1867,6 +1763,11 @@ declare module 'botpress/sdk' {
      * @param payload The payload to send
      */
     export function sendPayload(payload: RealTimePayload)
+    /**
+     * Returns the corresponding the roomId in the /guest socket io namespace
+     * @param socketId id generated by socket.io
+     */
+    export function getVisitorIdFromGuestSocketId(socketId: string): Promise<undefined | string>
   }
 
   // prettier-ignore
@@ -2315,6 +2216,23 @@ declare module 'botpress/sdk' {
     ): Promise<void>
 
     export function getBotTemplate(moduleName: string, templateName: string): Promise<FileContent[]>
+
+    /**
+     * Allows hook developers to list revisions of a bot
+     * @param botId the ID of the target bot
+     */
+    export function listBotRevisions(botId: string): Promise<string[]>
+    /**
+     * Allows hook developers to create a new revision of a bot
+     * @param botId the ID of the target bot
+     */
+    export function createBotRevision(botId: string): Promise<void>
+    /**
+     * Allows hook developers to rollback
+     * @param botId the ID of the target bot
+     * @param revisionId the target revision ID to which you want to revert the chatbot
+     */
+    export function rollbackBotToRevision(botId: string, revisionId: string): Promise<void>
   }
 
   export namespace workspaces {
@@ -2536,6 +2454,42 @@ declare module 'botpress/sdk' {
          * const conversation = await bp.conversations.forBot('myBot').recent('eEFoneif394')
          */
         recent(userId: uuid): Promise<Conversation>
+
+        /**
+         * Creates a mapping of ids for a conversation in a given channel
+         * @param channel The channel for which to create the mapping
+         * @param localId The id of the conversation in botpress
+         * @param foreignId The id of the conversation in that channel
+         * @example
+         * // I have been given an conversation id by facebook messenger
+         * const messengerConversationId = 134314
+         * // Let's say I have an already existing botpress conversation somewhere that I want to attach to this conversation
+         * const conversationId = '00001337-ca79-4235-8475-3785e41eb2be'
+         *
+         * // Create the mapping
+         * await bp.conversations.forBot(myBot).createMapping('facebook', conversationId, messengerConversationId)
+         * // Returns 134314
+         * await bp.conversations.forBot(myBot).getForeignId(conversationId)
+         * // Returns '00001337-ca79-4235-8475-3785e41eb2be'
+         * await bp.conversations.forBot(myBot).getLocalId(messengerConversationId)
+         */
+        createMapping(channel: string, localId: uuid, foreignId: string): Promise<void>
+
+        /**
+         * Deletes a conversation mapping
+         * @returns true if a conversation was deleted
+         */
+        deleteMapping(channel: string, localId: uuid, foreignId: string): Promise<boolean>
+
+        /**
+         * Gets a conversations id specific to the given channel from a botpress conversation id
+         */
+        getForeignId(channel: string, localId: uuid): Promise<string | undefined>
+
+        /**
+         * Gets a botpress conversation id from the foreign id of a conversation in a the given channel
+         */
+        getLocalId(channel: string, foreignId: string): Promise<string | undefined>
       }
     }
 
@@ -2581,7 +2535,7 @@ declare module 'botpress/sdk' {
         create(
           conversationId: uuid,
           payload: any,
-          from: string,
+          authorId?: string,
           eventId?: string,
           incomingEventId?: string
         ): Promise<Message>

@@ -6,6 +6,7 @@ export interface test {}
 declare global {
   interface Window {
     __BP_VISITOR_ID: string
+    __BP_VISITOR_SOCKET_ID: string
     __REDUX_DEVTOOLS_EXTENSION_COMPOSE__: any
     botpressWebChat: any
     APP_NAME: string
@@ -23,7 +24,6 @@ declare global {
     IS_BOT_MOUNTED: boolean
     BOT_LOCKED: boolean
     WORKSPACE_ID: string
-    BOTPRESS_FLOW_EDITOR_DISABLED: boolean
     SOCKET_TRANSPORTS: string[]
     ANALYTICS_ID: string
     UUID: string

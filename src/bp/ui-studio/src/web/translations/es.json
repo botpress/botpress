@@ -49,6 +49,7 @@
     "training": "Entrenamiento",
     "ready": "Listo",
     "cancelTraining": "Cancelar entrenamiento",
+    "trainingPending": "Entrenamiento pendiente",
     "canceling": "Cancelando",
     "trainingError": "No se pudo entrenar el Chatbot"
   },
@@ -104,6 +105,10 @@
       "cantDeleteStart": "No se puede eliminar el nodo inicial.",
       "cantDeleteSuccess": "No puede eliminar el nodo de éxito.",
       "chips": "Chips",
+      "prevWorkflow": "Ir al flujo de trabajo anterior",
+      "nextWorkflow": "Ir al siguiente flujo de trabajo",
+      "endOfWorkflow": "Fin del flujo de trabajo",
+      "errorOccurred": "Ocurrió un error aquí",
       "condition": {
         "addCondition": "Agregar condición",
         "backToList": "Volver a la lista",
@@ -143,6 +148,8 @@
         "actionToExecute": "Acción para ejecutar",
         "actionToRun": "Acción para ejecutar {help}",
         "actionsRegisteredOnServer": "Las acciones se registran en el lado del servidor. Lea acerca de cómo registrar nuevas acciones buscando`bp.registerActions()`.",
+        "actionInstructionParsingError": "Error al analizar las instrucciones: {msg}",
+        "actionArguments": "Llamado con estos argumentos:",
         "add": "Añadir",
         "addAction": "Añadir nueva acción",
         "cantSeeActions": "No puedes ver tu acción?",
@@ -152,6 +159,11 @@
         "editAction": "Editar acción",
         "editSkill": "Editar Habilidad",
         "end": "Final",
+        "chatbotExecutes": "Ejecuta Chatbot",
+        "chatbotSays": "Chatbot dice",
+        "triggeredBy": "Se activa el flujo de trabajo",
+        "workflowFails": "El flujo de trabajo falla",
+        "workflowSucceeds": "El flujo de trabajo tiene éxito",
         "errorInServer": "Parece haber un error en el servidor de Botpress. Póngase en contacto con su administrador.",
         "errorListingActions": "Error al enumerar las acciones del servidor de acciones",
         "errorListingActionsMore": "Se ha producido un error al intentar obtener la lista de acciones en el servidor seleccionado",
@@ -194,6 +206,7 @@
           "returnToCallingNode": "Continuar al nodo de llamada",
           "returnToCallingNodeExecute": "Ejecutar el nodo de llamada otra vez.",
           "returnToNodeCalled": "Volver al nodo llamado",
+          "specificNodeCalled": "Nodo específico",
           "showCondition": "Condición",
           "specifyCondition": "Especifique condición",
           "whenMetDo": "Cuando se cumpla la condición"
@@ -330,13 +343,144 @@
     "showEmulator": "Mostrar Emulador",
     "toggleLogsPanel": "Mostrar Logs",
     "toggleEmulator": "Activar Emulador",
-    "toggleSidePanel": "Activar panel lateral",
-    "bottomPanel": {
-      "scrollToFollow": "Seguir logs",
-      "downloadLogs": "Descargar Logs",
-      "clearHistory": "Limpiar historial",
-      "closePanel": "Cerrar Panel",
-      "endOfLogs": "Final de logs"
+    "toggleSidePanel": "Activar panel lateral"
+  },
+  "bottomPanel": {
+    "inspector": {
+      "autoExpand": "Expandir automáticamente todos los nodos"
+    },
+    "closePanel": "Cerrar panel",
+    "logs": {
+      "scrollToFollow": "Desplácese para seguir los registros",
+      "downloadLogs": "Descargar registros",
+      "clearHistory": "Borrar historial de registro",
+      "endOfLogs": "Fin de registros",
+      "debug": {
+        "confUpdated": "¡Configuración de depuración actualizada correctamente!"
+      }
+    },
+    "depurador": {
+      "fetchingEvent": "Obteniendo evento ...",
+      "topIntents": "Intenciones principales",
+      "topPredictions": "Predicciones principales",
+      "displayDebugging": "Mostrar depuración en flujos de trabajo",
+      "autoFocus": "Enfoque automático en mensajes nuevos",
+      "newSession": "Crea una nueva sesión",
+      "splashMessage": "Inicie una conversación con su chatbot y haga clic en cualquier mensaje para inspeccionar su comportamiento.",
+      "unauthorized": "No autorizado",
+      "unauthorizedMessage": "No tiene permisos suficientes para inspeccionar eventos.",
+      "unauthorizedMessage2": "Se requiere permiso: acceso de escritura en \" module.extensions \"",
+      "settings": {
+        "confUpdated": "¡Configuración actualizada correctamente!",
+        "confUpdatedError": "Hubo un error al analizar su configuración. Valide la sintaxis",
+        "payloadSent": "¡Carga útil enviada correctamente!",
+        "payloadSentError": "Hubo un error al analizar su carga útil. Valide la sintaxis",
+        "editConf": "Editar configuración",
+        "editConfHelper": "Prueba los cambios de configuración temporales. Actualiza la página para restablecer.",
+        "editConfPlaceholder": "Cambiar la configuración del chat web (debe ser un json válido)",
+        "saveConf": "Guardar configuración",
+        "sendRawPayloads": "Enviar cargas útiles sin procesar",
+        "sendRawPayloadsHelper": "Envíe cualquier mensaje JSON válido, para probar eventos personalizados, por ejemplo",
+        "sendRawPayloadsPlaceholder": "Carga útil JSON válida",
+        "saveRawPayloads": "Enviar carga útil",
+        "alwaysShowDebugger": "Mostrar siempre el depurador",
+        "updateDebuggerOnNew": "Actualizar depurador en mensaje nuevo",
+        "userId": "ID de usuario",
+        "userIdHelper": "Cambia el ID de usuario almacenado en su navegador",
+        "userIdPlaceholder": "Su ID de usuario",
+        "authToken": "Token de autenticación externo",
+        "authTokenHelper": "Debe ser un token JWT válido",
+        "authTokenPlaceholder": "Token generado desde su sistema",
+        "save": "Salvar",
+        "settings": "Ajustes",
+        "basic": "Basica",
+        "advanced": "Avanzada"
+      },
+      "processing": {
+        "afterMW": "Después de Middleware",
+        "beforeMW": "Antes de Middleware",
+        "received": "Evento recibido",
+        "stateLoaded": "Estado de usuario cargado",
+        "hook": "Gancho",
+        "mw": "Middleware",
+        "dialog": "Diálogo de procesamiento",
+        "action": "Acción",
+        "completed": "Procesamiento de eventos completado",
+        "executedIn": "Ejecutado en {n} ms",
+        "type": "Escribe",
+        "stacktrace": "Stacktrace"
+      },
+      "actions": {
+        "say": "Decir {x}",
+        "startWorkflow": "Iniciar flujo de trabajo {x}",
+        "goToNode": "Ir al nodo {x}",
+        "redirectTo": "Redirigir a {x}",
+        "continue": "Continuar",
+        "cancelPrompt": "Cancelar solicitud",
+        "informPrompt": "Informar de solicitud"
+      },
+      "dialog": {
+        "decision": "Decisión",
+        "suggestions": "Sugerencias",
+        "flowNodes": "Nodos de flujo",
+        "dialogManager": "Administrador de diálogos"
+      },
+      "entities": {
+        "type": "Escribe",
+        "source": "Fuente",
+        "normalizedValue": "Valor normalizado"
+      },
+      "inspector": {
+        "copyEventPath": "Copiar ruta de evento",
+        "expandAll": "Expandir todo"
+      },
+      "notAvailable": "No disponible",
+      "ndu": {
+        "topTriggers": "Principales activadores",
+        "DecisionsTaken": "Decisiones tomadas",
+        "sendKnowledge": "Envía conocimientos {x}",
+        "startWorkflow": "Iniciar flujo de trabajo {x}",
+        "goToNode": "Ir al nodo {x}",
+        "redirectTo": "Redirigir a {x}",
+        "continueFlowExecution": "Continuar con la ejecución del flujo",
+        "informCurrentPrompt": "Informar al mensaje actual",
+        "cancelCurrentPrompt": "Cancelar el mensaje actual",
+        "noResults": "Sin resultados",
+        "dialogUnderstanding": "Comprensión del diálogo"
+      },
+      "nlu": {
+        "intentsVeryClose": "Los intentos previstos están muy cerca",
+        "youCanAccountForIt": "Puede contabilizarlo marcando la variable:",
+        "ambiguous": "Ambiguous",
+        "languageUnderstanding": "Comprensión del lenguaje"
+      },
+      "slots": {
+        "slot": "Slot",
+        "source": "Fuente",
+        "extracted": "Extraído",
+        "value": "Valor: {x}",
+        "turnsAgo": "{x} turnos atrás",
+        "thisTurn": "Este turno"
+      },
+      "summary": {
+        "cannotDisplay": "Cannot display event summary",
+        "state": "Expresar",
+        "errors": "Errores"
+      },
+      "triggers": {
+        "insideTopic": "Tema interno",
+        "outsideTopic": "Tema externo",
+        "insideWorkflow": "InsideWork",
+        "qna": "QnA",
+        "wf": "WF",
+        "node": "Node"
+      },
+      "eventNotFound": {
+        "title": "Evento no encontrado",
+        "message": "No se encontró el evento solicitado. Posibles motivos:",
+        "message2": "El recopilador de eventos no está habilitado en Botpress Config",
+        "message3": "El evento se eliminó de la base de datos"
+      }
     }
   }
 }
