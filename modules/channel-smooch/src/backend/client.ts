@@ -63,24 +63,24 @@ export class SmoochClient {
     return req.headers['x-api-key'] === this.secret
   }
 
-  async handleWebhookRequest(payload: MessagePayload) {
-    if (!payload.messages) {
+  async handleWebhookRequest(messagePayload: MessagePayload) {
+    if (!messagePayload.messages) {
       return
     }
 
-    for (const message of payload.messages) {
+    for (const message of messagePayload.messages) {
       if (this.config.forwardRawPayloads.includes(`smooch-${message.type}`)) {
-        await this.receiveMessage(`smooch-${message.type}`, {}, message)
+        await this.receiveMessage(messagePayload, message, { type: `smooch-${message.type}` })
       }
 
       if (message.type === 'text') {
-        await this.receiveMessage('text', { type: 'text', text: message.text }, message)
+        await this.receiveMessage(messagePayload, message, <sdk.TextContent>{ type: 'text', text: message.text })
       }
     }
   }
 
-  async receiveMessage(type: string, payload: any, rawMessage: Message) {
-    const rawPayload = this.config.forwardRawPayloads.includes(type)
+  async receiveMessage(messagePayload: MessagePayload, rawMessage: Message, payload: sdk.Content) {
+    const rawPayload = this.config.forwardRawPayloads.includes(payload.type)
       ? { channel: { smooch: { message: rawMessage } } }
       : {}
 
@@ -89,10 +89,10 @@ export class SmoochClient {
         botId: this.botId,
         channel: 'smooch',
         direction: 'incoming',
-        type,
+        type: payload.type,
         payload: { ...rawPayload, payload },
-        threadId: payload.conversation._id,
-        target: payload.appUser._id
+        threadId: messagePayload.conversation._id,
+        target: messagePayload.appUser._id
       })
     )
   }
