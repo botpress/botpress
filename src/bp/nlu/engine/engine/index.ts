@@ -16,8 +16,6 @@ import {
   TrainingSet,
   Model,
   PredictOutput,
-  PatternEntityDefinition,
-  ListEntityDefinition,
   Engine as IEngine
 } from '../typings'
 import { deserializeKmeans } from './clustering'
