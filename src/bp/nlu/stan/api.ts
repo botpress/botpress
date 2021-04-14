@@ -249,7 +249,6 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
 
   router.post('/detect-lang', async (req, res) => {
     try {
-      const { modelId: stringId } = req.params
       const { utterances, appId, appSecret, models } = await validateDetectLangInput(req.body)
 
       const invalidIds = models.filter(_.negate(modelIdService.isId))
@@ -271,7 +270,7 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
         if (!engine.hasModel(modelId)) {
           const model = await modelRepo.getModel(modelId, { appId, appSecret })
           if (!model) {
-            return res.status(404).send({ success: false, error: `modelId ${stringId} can't be found` })
+            return res.status(404).send({ success: false, error: `modelId ${modelId} can't be found` })
           }
           await engine.loadModel(model)
         }
