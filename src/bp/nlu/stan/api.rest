@@ -108,7 +108,7 @@ Content-Type: application/json
 
 ### get training-status
 # @name train-status
-GET {{api}}/train/{{modelId}}?appSecret=123456
+GET {{api}}/train/{{modelId}}?appSecret=123456&appId=some-application-id
 
 
 ### cancel training
@@ -132,6 +132,35 @@ Content-Type: application/json
     "Can I talk with the person in charge?",
     "My flight is at 9 pm"
   ],
+  "appSecret": "123456",
+  "appId": "some-application-id"
+}
+
+### detect language for sentences
+# @name detectlang
+POST {{api}}/detect-lang
+Content-Type: application/json
+
+{
+  "utterances" : [
+    "These grapes look moldy",
+    "Est-ce que je peux parler à votre patron?",
+    "mi vuelo es a las 9pm"
+  ],
+  "appSecret": "123456",
+  "appId": "some-application-id"
+}
+
+### list models
+# @name list-models
+GET {{api}}/models?appSecret=123456&appId=some-application-id
+
+### list models
+# @name prune-models
+POST {{api}}/models/prune
+Content-Type: application/json
+
+{
   "appSecret": "123456",
   "appId": "some-application-id"
 }
