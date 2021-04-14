@@ -1,18 +1,19 @@
-import * as sdk from 'botpress/sdk'
 import { TelegramContext } from 'src/backend/typings'
 import { Button, Markup } from 'telegraf'
 import Extra from 'telegraf/extra'
+import { TelegramBaseRenderer } from './base'
 
-export const TelegramTextRenderer: sdk.ChannelRenderer = {
-  channel: 'telegram',
-  id: 'telegram-text-renderer',
-  priority: 0,
+export class TelegramTextRenderer extends TelegramBaseRenderer {
+  getId() {
+    return TelegramTextRenderer.name
+  }
 
-  async handles({ event }: TelegramContext): Promise<boolean> {
-    return event.type === 'text'
-  },
+  getPayloadType(): string {
+    return 'text'
+  }
 
-  async render({ event, client, args }: TelegramContext): Promise<boolean> {
+  async render(context: TelegramContext): Promise<boolean> {
+    const { event, client, args } = context
     const chatId = event.threadId || event.target
 
     const keyboard = Markup.keyboard(args.keyboardButtons<Button>(event.payload.quick_replies))

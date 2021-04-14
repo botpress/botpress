@@ -1,19 +1,20 @@
-import * as sdk from 'botpress/sdk'
 import path from 'path'
 import { TelegramContext } from 'src/backend/typings'
 import { CallbackButton, Markup } from 'telegraf'
 import Extra from 'telegraf/extra'
+import { TelegramBaseRenderer } from './base'
 
-export const TelegramCarouselRenderer: sdk.ChannelRenderer = {
-  channel: 'telegram',
-  id: 'telegram-carousel-renderer',
-  priority: 0,
+export class TelegramCarouselRenderer extends TelegramBaseRenderer {
+  getId() {
+    return TelegramCarouselRenderer.name
+  }
 
-  async handles({ event }: TelegramContext): Promise<boolean> {
-    return event.type === 'carousel'
-  },
+  getPayloadType() {
+    return 'carousel'
+  }
 
-  async render({ event, client, args }: TelegramContext): Promise<boolean> {
+  async render(context: TelegramContext): Promise<boolean> {
+    const { event, client, args } = context
     const chatId = event.threadId || event.target
 
     if (event.payload.elements && event.payload.elements.length) {

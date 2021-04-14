@@ -91,7 +91,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotMount,
   onBotUnmount,
   onModuleUnmount,
-  renderers: [TelegramTextRenderer, TelegramImageRenderer, TelegramCarouselRenderer],
+  renderers: [new TelegramTextRenderer(), new TelegramImageRenderer(), new TelegramCarouselRenderer()],
   definition: {
     name: 'channel-telegram',
     menuIcon: 'none', // no interface = true

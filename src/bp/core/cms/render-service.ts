@@ -15,7 +15,7 @@ export class RenderService {
   constructor(@inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader) {}
 
   getChannelRenderers(channel: string) {
-    return this.moduleLoader.getChannelRenderers().filter(x => x.channel === channel)
+    return this.moduleLoader.getChannelRenderers().filter(x => x.getChannel() === channel)
   }
 
   renderText(text: string | sdk.MultiLangText, markdown?: boolean): sdk.TextContent {
