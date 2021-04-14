@@ -87,7 +87,7 @@ export const makeClient = (bp: { axios: AxiosInstance }): HitlClient => {
         .then(data => data.map(castHandoff)),
     assignHandoff: async id =>
       bp.axios
-        .post(`/handoffs/${id}/assign`, { webSessionId: (window as any).__BP_VISITOR_SOCKET_ID }, config)
+        .post(`/handoffs/${id}/assign`, { webSessionId: (<any>window).__BP_VISITOR_SOCKET_ID }, config)
         .then(res => res.data)
         .then(data => castHandoff(data)),
     resolveHandoff: async id =>
@@ -102,10 +102,10 @@ export const makeClient = (bp: { axios: AxiosInstance }): HitlClient => {
         .then(data => castHandoff(data)),
     deleteMessagesInChannelWeb: async (id, userId) =>
       bp.axios.post(
-        '/conversations/messages/delete',
-        { conversationId: id, userId, webSessionId: (window as any).__BP_VISITOR_SOCKET_ID },
+        `/conversations/${id}/messages/delete`,
+        { userId },
         {
-          baseURL: bp.axios.defaults.baseURL.concat('/mod/channel-web')
+          baseURL: bp.axios.defaults.baseURL.concat('/mod/channel-web-private')
         }
       ),
     getMessages: async (id, column?, desc?, limit?) =>
