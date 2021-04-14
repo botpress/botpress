@@ -10,11 +10,10 @@ import * as NLUEngine from 'nlu/engine'
 import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../../http-utils'
 import Logger from '../../simple-logger'
 
-import { BpPredictOutput, mapPredictOutput, mapTrainInput } from './api-mapper'
+import { PredictOutput } from '../typings_v1'
 import { ModelRepoOptions, ModelRepository } from './model-repo'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
-import { PredictOutput } from './typings_v1'
 import { validateCancelRequestInput, validatePredictInput, validateTrainInput } from './validation/validate'
 
 export interface APIOptions {
@@ -106,7 +105,7 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
   router.post('/train', async (req, res) => {
     try {
       const input = await validateTrainInput(req.body)
-      const { intents, entities, seed, language, appSecret, appId } = mapTrainInput(input)
+      const { intents, entities, seed, language, appSecret, appId } = input
 
       const pickedSeed = seed ?? Math.round(Math.random() * 10000)
       const modelId = NLUEngine.modelIdService.makeId({
@@ -201,15 +200,13 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
         await engine.loadModel(model)
       }
 
-      const rawPredictions: BpPredictOutput[] = await Promise.map(utterances as string[], async utterance => {
+      const predictions = await Promise.map(utterances as string[], async utterance => {
         const detectedLanguage = await engine.detectLanguage(utterance, { [modelId.languageCode]: modelId })
-        const { entities, predictions, spellChecked } = await engine.predict(utterance, modelId)
-        return { entities, contexts: predictions, spellChecked, detectedLanguage, utterance }
+        const { entities, contexts, spellChecked } = await engine.predict(utterance, modelId)
+        return { entities, contexts, spellChecked, detectedLanguage }
       })
 
-      const withoutNone: PredictOutput[] = rawPredictions.map(mapPredictOutput)
-
-      res.json({ success: true, predictions: withoutNone })
+      res.json({ success: true, predictions: predictions.map(_roundConfidencesTo3Digits) })
     } catch (err) {
       res.status(500).send({ success: false, error: err.message })
     }
@@ -227,4 +224,18 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
 
   logger.info(`NLU Server is ready at http://${options.host}:${options.port}/`)
   options.silent && logger.silence()
+}
+
+const N_DIGITS = 3
+const _roundConfidencesTo3Digits = (output: PredictOutput): PredictOutput => {
+  const contexts = output.contexts.map(context => {
+    context.confidence = _.round(context.confidence, N_DIGITS)
+    context.oos = _.round(context.oos, N_DIGITS)
+    context.intents = context.intents.map(i => {
+      const slots = i.slots.map(s => ({ ...s, confidence: _.round(s.confidence, N_DIGITS) }))
+      return { ...i, confidence: _.round(i.confidence, N_DIGITS), slots }
+    })
+    return context
+  })
+  return { ...output, contexts }
 }

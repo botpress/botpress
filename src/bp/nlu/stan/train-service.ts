@@ -3,9 +3,9 @@ import * as sdk from 'botpress/sdk'
 import * as NLUEngine from 'nlu/engine'
 
 import { serializeError } from 'nlu/utils/error-utils'
+import { TrainingProgress, TrainingErrorType, Credentials, IntentDefinition, EntityDefinition } from '../typings_v1'
 import { ModelRepository } from './model-repo'
 import TrainSessionService from './train-session-service'
-import { TrainingProgress, TrainingErrorType, Credentials } from './typings_v1'
 
 export default class TrainService {
   constructor(
@@ -18,8 +18,8 @@ export default class TrainService {
   train = async (
     modelId: NLUEngine.ModelId,
     credentials: Credentials,
-    intents: sdk.NLU.IntentDefinition[],
-    entities: sdk.NLU.EntityDefinition[],
+    intents: IntentDefinition[],
+    entities: EntityDefinition[],
     language: string,
     nluSeed: number
   ) => {

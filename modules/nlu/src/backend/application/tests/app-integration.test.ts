@@ -13,6 +13,7 @@ import { book_flight, cityEntity, fruitEntity, hello, i_love_hockey } from './ut
 import './utils/sdk.u.test'
 import { areEqual, sleep } from './utils/utils.u.test'
 import { TrainingSession } from '../typings'
+import { mapTrainSet } from '../../stan/api-mapper'
 
 const specs: NLUEngine.Specifications = {
   languageServer: {
@@ -290,10 +291,13 @@ describe('NLU API integration tests', () => {
 
     const definitions = makeBaseDefinitions([lang])
 
-    const modelId = modelIdService.makeId({
+    const stanTrainSet = mapTrainSet({
       ...definitions,
       languageCode: lang,
-      seed: nluSeed,
+      seed: nluSeed
+    })
+    const modelId = modelIdService.makeId({
+      ...stanTrainSet,
       specifications: specs
     })
 
@@ -343,10 +347,13 @@ describe('NLU API integration tests', () => {
     const languages = ['en', 'fr']
     const definitions = makeBaseDefinitions(languages)
 
-    const modelEn = modelIdService.makeId({
+    const stanTrainSet = mapTrainSet({
       ...definitions,
       languageCode: 'en',
-      seed: nluSeed,
+      seed: nluSeed
+    })
+    const modelEn = modelIdService.makeId({
+      ...stanTrainSet,
       specifications: specs
     })
 
@@ -403,14 +410,17 @@ describe('NLU API integration tests', () => {
 
     const definitions = makeBaseDefinitions(languages)
 
-    const [modelEn, modelFr] = languages.map(lang =>
-      modelIdService.makeId({
+    const [modelEn, modelFr] = languages.map(lang => {
+      const stanTrainSet = mapTrainSet({
         ...definitions,
         languageCode: lang,
-        seed: nluSeed,
+        seed: nluSeed
+      })
+      return modelIdService.makeId({
+        ...stanTrainSet,
         specifications: specs
       })
-    )
+    })
 
     const fileSystem = {
       [botId]: {
@@ -439,6 +449,8 @@ describe('NLU API integration tests', () => {
     const toUpdate = definitions.intentDefs[0]
     toUpdate.utterances['fr'].push('nouvelle utterance')
     await defRepoByBot[botId].upsertIntent(_.cloneDeep(toUpdate))
+
+    await waitForTrainingsToBeDone(app)
 
     // assert
     expect(socket).toHaveBeenCalledWith(expectTs({ botId, language: 'fr', status: 'needs-training' }))
