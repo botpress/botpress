@@ -24,15 +24,10 @@ export interface Config {
   chatUserAuthDuration: string
 
   /**
-   * Configures whether or not payloads that are officially supported by the channel
-   * carry over the original smooch payload in payload.channel.smooch
-   * @default false
-   */
-  forwardPayloads: boolean
-
-  /**
-   * List of smooch message types to foward. Will be forwarded as an event of with the type prefix "smooch-"
+   * Enables forwarding of raw smooch payloads for the provided payload types.
+   * Add the "smooch-" prefix to forward events specific to the smooch channel
+   * The raw payload is accessible in event.payload.channel.smooch
    * @default []
    */
-  smoochMessageTypes: string[]
+  forwardRawPayloads: string[]
 }

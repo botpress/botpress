@@ -3,7 +3,7 @@ import Smooch from 'smooch-core'
 
 import { Config } from '../config'
 
-import { Card, Clients, MessagePayload, Webhook } from './typings'
+import { Card, Clients, Message, MessagePayload, Webhook } from './typings'
 
 const MIDDLEWARE_NAME = 'smooch.sendMessage'
 
@@ -69,35 +69,32 @@ export class SmoochClient {
     }
 
     for (const message of payload.messages) {
-      if (this.config.smoochMessageTypes.includes(message.type)) {
-        await this.bp.events.sendEvent(
-          this.bp.IO.Event({
-            botId: this.botId,
-            channel: 'smooch',
-            direction: 'incoming',
-            type: `smooch-${message.type}`,
-            payload: { channel: { smooch: { message } } },
-            threadId: payload.conversation._id,
-            target: payload.appUser._id
-          })
-        )
-      } else if (message.type === 'text') {
-        const basePayload = this.config.forwardPayloads ? { channel: { smooch: { message } } } : {}
+      if (this.config.forwardRawPayloads.includes(`smooch-${message.type}`)) {
+        await this.receiveMessage(`smooch-${message.type}`, {}, message)
+      }
 
-        await this.bp.events.sendEvent(
-          this.bp.IO.Event({
-            botId: this.botId,
-            channel: 'smooch',
-            direction: 'incoming',
-            type: 'text',
-            payload: { ...basePayload, type: 'text', text: message.text },
-            preview: message.text,
-            threadId: payload.conversation._id,
-            target: payload.appUser._id
-          })
-        )
+      if (message.type === 'text') {
+        await this.receiveMessage('text', { type: 'text', text: message.text }, message)
       }
     }
+  }
+
+  async receiveMessage(type: string, payload: any, rawMessage: Message) {
+    const rawPayload = this.config.forwardRawPayloads.includes('text')
+      ? { channel: { smooch: { message: rawMessage } } }
+      : {}
+
+    await this.bp.events.sendEvent(
+      this.bp.IO.Event({
+        botId: this.botId,
+        channel: 'smooch',
+        direction: 'incoming',
+        type,
+        payload: { ...rawPayload, payload },
+        threadId: payload.conversation._id,
+        target: payload.appUser._id
+      })
+    )
   }
 
   async handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
