@@ -122,6 +122,11 @@ async function start() {
     return
   }
 
+  if (process.env.WORKER_TYPE === WORKER_TYPES.LOCAL_STAN_SERVER) {
+    app.localSTANServer.listen()
+    return
+  }
+
   if (cluster.isWorker && process.env.WORKER_TYPE !== WORKER_TYPES.WEB) {
     return
   }

@@ -33,7 +33,7 @@ import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
 
-import { startLocalActionServer } from '../../cluster'
+import { startLocalActionServer, startLocalSTANServer } from '../../cluster'
 import { setDebugScopes } from '../../debug'
 import { HTTPServer } from './server'
 import { TYPES } from './types'
@@ -129,6 +129,7 @@ export class Botpress {
     await this.startServer()
     await this.discoverBots()
     await this.maybeStartLocalActionServer()
+    await this.maybeStartLocalSTAN()
 
     if (this.config.sendUsageStats) {
       await this.statsService.start()
@@ -149,6 +150,15 @@ export class Botpress {
         this.logger.attachError(err).error("Couldn't load debug scopes. Check the syntax of debug.json")
       }
     }
+  }
+
+  private async maybeStartLocalSTAN() {
+    const config = await this.moduleLoader.configReader.getGlobal('nlu')
+
+    if (config.NLUEngineURL) {
+      return
+    }
+    startLocalSTANServer(config)
   }
 
   private async maybeStartLocalActionServer() {

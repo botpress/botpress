@@ -4,19 +4,23 @@ import _ from 'lodash'
 import nanoid from 'nanoid/generate'
 import yn from 'yn'
 import { LanguageConfig } from './nlu/engine'
+import { ArgV as STANConfig } from './nlu/stan'
 
 export enum WORKER_TYPES {
   WEB = 'WEB_WORKER',
+  LOCAL_STAN_SERVER = 'LOCAL_STAN_SERVER',
   LOCAL_ACTION_SERVER = 'LOCAL_ACTION_SERVER',
   TRAINING = 'TRAINING'
 }
 
 const MESSAGE_TYPE_START_LOCAL_ACTION_SERVER = 'start_local_action_server'
-
+const MESSAGE_TYPE_START_LOCAL_STAN_SERVER = 'start_local_stan_server'
 export interface StartLocalActionServerMessage {
   appSecret: string
   port: number
 }
+
+export type StartLocalSTANServerMessage = any
 
 const debug = DEBUG('cluster')
 
@@ -82,6 +86,9 @@ export const setupMasterNode = (logger: sdk.Logger) => {
       webServerRebootCount++
     }
   })
+  registerMsgHandler(MESSAGE_TYPE_START_LOCAL_STAN_SERVER, (message: StartLocalSTANServerMessage) => {
+    cluster.fork({ WORKER_TYPE: WORKER_TYPES.LOCAL_STAN_SERVER, ...message })
+  })
 
   cluster.on('message', (worker: cluster.Worker, message: any) => {
     const handler = msgHandlers[message.type]
@@ -122,4 +129,8 @@ export async function spawnNewTrainingWorker(config: LanguageConfig, requestId: 
 
 export const startLocalActionServer = (message: StartLocalActionServerMessage) => {
   process.send!({ type: MESSAGE_TYPE_START_LOCAL_ACTION_SERVER, ...message })
+}
+
+export const startLocalSTANServer = (message: StartLocalSTANServerMessage) => {
+  process.send!({ type: MESSAGE_TYPE_START_LOCAL_STAN_SERVER, ...message })
 }

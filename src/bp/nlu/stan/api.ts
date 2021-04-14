@@ -32,7 +32,7 @@ export interface APIOptions {
 const debug = DEBUG('api')
 const debugRequest = debug.sub('request')
 
-const createExpressApp = (options: APIOptions): Application => {
+export const createExpressApp = (options: APIOptions): Application => {
   const app = express()
 
   // This must be first, otherwise the /info endpoint can't be called when token is used
@@ -69,9 +69,11 @@ const createExpressApp = (options: APIOptions): Application => {
   return app
 }
 
-export default async function(options: APIOptions, engine: NLUEngine.Engine) {
+export default async function(options: APIOptions, engine: NLUEngine.Engine, logger?: Logger) {
   const app = createExpressApp(options)
-  const logger = new Logger('API')
+  if (!logger) {
+    logger = new Logger('API')
+  }
 
   const modelRepo = new ModelRepository(options.modelDir)
   await modelRepo.init()
