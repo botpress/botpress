@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import * as NLUEngine from 'common/nlu/engine'
-import { mapTrainset } from '../../stan/api-mapper'
+import { mapTrainSet } from '../../stan/api-mapper'
 import { I } from '../typings'
 import { IDefinitionsRepository } from './infrastructure/definitions-repository'
 
@@ -54,7 +54,7 @@ export class ScopedDefinitionsService {
     const { _engine } = this
 
     const bpTrainSet = await this.getTrainSet(languageCode)
-    const stanTrainSet = mapTrainset(bpTrainSet)
+    const stanTrainSet = mapTrainSet(bpTrainSet)
 
     const specifications = _engine.getSpecifications()
     return this._modelIdService.makeId({

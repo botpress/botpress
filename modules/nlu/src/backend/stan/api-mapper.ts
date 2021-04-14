@@ -106,7 +106,7 @@ const mapEntityDefinition = (e: BpEntityDefinition): StanEntityDefinition => {
   return isPatternEntity(e) ? mapPattern(e) : mapList(e)
 }
 
-export const mapTrainset = (bpTrainSet: BpTrainSet): StanTrainSet => {
+export const mapTrainSet = (bpTrainSet: BpTrainSet): StanTrainSet => {
   const { intentDefs, entityDefs, languageCode, seed } = bpTrainSet
 
   const entities = entityDefs.filter(isCustomEntity).map(mapEntityDefinition)

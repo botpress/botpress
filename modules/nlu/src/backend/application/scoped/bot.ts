@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import * as NLUEngine from 'common/nlu/engine'
 import _ from 'lodash'
-import { mapTrainset } from '../../stan/api-mapper'
+import { mapTrainSet } from '../../stan/api-mapper'
 import { BotDoesntSpeakLanguageError } from '../errors'
 import { Predictor, ProgressCallback, Trainable, I } from '../typings'
 
@@ -86,7 +86,7 @@ export class Bot implements Trainable, Predictor {
     }
 
     const bpTrainSet = await _defService.getTrainSet(language)
-    const stanTrainSet = mapTrainset(bpTrainSet)
+    const stanTrainSet = mapTrainSet(bpTrainSet)
 
     const previousModel = this._modelsByLang[language]
     const options: NLUEngine.TrainingOptions = { previousModel, progressCallback }
