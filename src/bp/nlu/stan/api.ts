@@ -69,9 +69,11 @@ const createExpressApp = (options: APIOptions): Application => {
   return app
 }
 
-export default async function(options: APIOptions, engine: NLUEngine.Engine) {
+export default async function(options: APIOptions, engine: NLUEngine.Engine, logger?: Logger) {
   const app = createExpressApp(options)
-  const logger = new Logger('API')
+  if (!logger) {
+    logger = new Logger('API')
+  }
 
   const { dbURL: databaseURL } = options
   const modelRepoOptions: ModelRepoOptions = databaseURL

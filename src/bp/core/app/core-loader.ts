@@ -6,6 +6,7 @@ import Database from 'core/database'
 import { LoggerProvider } from 'core/logger'
 import { LocalActionServer as LocalActionServerImpl } from 'core/user-code'
 import { FatalError } from 'errors'
+import { LocalSTANServer } from 'nlu/stan/local-server'
 import 'reflect-metadata'
 
 import { Botpress as Core } from './botpress'
@@ -19,6 +20,7 @@ export interface BotpressApp {
   ghost: GhostService
   database: Database
   localActionServer: LocalActionServerImpl
+  localSTANServer: LocalSTANServer
 }
 
 export function createApp(): BotpressApp {
@@ -30,7 +32,8 @@ export function createApp(): BotpressApp {
       ghost: container.get<GhostService>(TYPES.GhostService),
       database: container.get<Database>(TYPES.Database),
       localActionServer: container.get<LocalActionServerImpl>(TYPES.LocalActionServer),
-      licensing: container.get<LicensingService>(TYPES.LicensingService)
+      licensing: container.get<LicensingService>(TYPES.LicensingService),
+      localSTANServer: container.get<LocalSTANServer>(TYPES.LocalSTANServer)
     }
 
     app.licensing.installProtection()

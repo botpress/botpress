@@ -11,6 +11,7 @@ import { TelemetryContainerModules, AnalyticsService } from 'core/telemetry'
 import { LocalActionServer } from 'core/user-code'
 import { DataRetentionJanitor, DataRetentionService, WorkspaceService } from 'core/users'
 import { Container } from 'inversify'
+import { LocalSTANServer } from 'nlu/stan/local-server'
 
 import { TYPES } from '../types'
 import { DatabaseContainerModules } from './database.inversify'
@@ -116,6 +117,11 @@ container
 container
   .bind<LocalActionServer>(TYPES.LocalActionServer)
   .to(LocalActionServer)
+  .inSingletonScope()
+
+container
+  .bind<LocalSTANServer>(TYPES.LocalSTANServer)
+  .to(LocalSTANServer)
   .inSingletonScope()
 
 const isPackaged = !!eval('process.pkg')
