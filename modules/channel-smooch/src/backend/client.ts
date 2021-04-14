@@ -3,7 +3,7 @@ import Smooch from 'smooch-core'
 
 import { Config } from '../config'
 
-import { Card, Clients, MessagePayload, Webhook } from './typings'
+import { Card, Clients, Message, MessagePayload, Webhook } from './typings'
 
 const MIDDLEWARE_NAME = 'smooch.sendMessage'
 
@@ -63,32 +63,38 @@ export class SmoochClient {
     return req.headers['x-api-key'] === this.secret
   }
 
-  async handleWebhookRequest(payload: MessagePayload) {
-    if (!payload.messages) {
+  async handleWebhookRequest(messagePayload: MessagePayload) {
+    if (!messagePayload.messages) {
       return
     }
 
-    for (const message of payload.messages) {
-      if (message.type !== 'text') {
-        continue
+    for (const message of messagePayload.messages) {
+      if (this.config.forwardRawPayloads.includes(`smooch-${message.type}`)) {
+        await this.receiveMessage(messagePayload, message, { type: `smooch-${message.type}` })
       }
 
-      await this.bp.events.sendEvent(
-        this.bp.IO.Event({
-          botId: this.botId,
-          channel: 'smooch',
-          direction: 'incoming',
-          type: 'text',
-          payload: {
-            type: 'text',
-            text: message.text
-          },
-          preview: message.text,
-          threadId: payload.conversation._id,
-          target: payload.appUser._id
-        })
-      )
+      if (message.type === 'text') {
+        await this.receiveMessage(messagePayload, message, <sdk.TextContent>{ type: 'text', text: message.text })
+      }
     }
+  }
+
+  async receiveMessage(messagePayload: MessagePayload, rawMessage: Message, payload: sdk.Content) {
+    const rawPayload = this.config.forwardRawPayloads.includes(payload.type)
+      ? { channel: { smooch: { message: rawMessage } } }
+      : {}
+
+    await this.bp.events.sendEvent(
+      this.bp.IO.Event({
+        botId: this.botId,
+        channel: 'smooch',
+        direction: 'incoming',
+        type: payload.type,
+        payload: { ...rawPayload, payload },
+        threadId: messagePayload.conversation._id,
+        target: messagePayload.appUser._id
+      })
+    )
   }
 
   async handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
