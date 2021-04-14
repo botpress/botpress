@@ -2456,28 +2456,6 @@ declare module 'botpress/sdk' {
         recent(userId: uuid): Promise<Conversation>
 
         /**
-         * Sets an attribute to a conversation. If the attribute already exists, its value gets overriden
-         * @param id Id of a conversation
-         * @param name Name of the attribute
-         * @param value Value to set
-         */
-        setAttribute(id: uuid, name: string, value: string): Promise<void>
-
-        /**
-         * Removes an attribute from a conversation
-         * @param id Id of a conversation
-         * @param name Name of the attribute
-         */
-        deleteAttribute(id: uuid, name: string): Promise<boolean>
-
-        /**
-         * Gets the value of an attribute for the given conversation. Return undefined if the attribute is not set
-         * @param id Id of a conversation
-         * @param name Name of the attribute
-         */
-        getAttribute(id: uuid, name: string): Promise<string | undefined>
-
-        /**
          * Creates a mapping of ids for a conversation in a given channel
          * @param channel The channel for which to create the mapping
          * @param localId The id of the conversation in botpress
