@@ -568,54 +568,25 @@ export class ScopedGhostService {
     return revisions.length === 0
   }
 
-  private async directReadFileAsBuffer(rootFolder: string, file: string) {
+  async readFileAsBuffer(rootFolder: string, file: string): Promise<Buffer> {
     if (this.isDirectoryGlob) {
       throw new Error("Ghost can't read or write under this scope")
     }
 
     const fileName = this._normalizeFileName(rootFolder, file)
-    return this.primaryDriver.readFile(fileName)
-  }
-
-  private async directReadFileAsString(rootFolder: string, file: string) {
-    return (await this.directReadFileAsBuffer(rootFolder, file)).toString()
-  }
-
-  private async directReadFileAsObject<T>(rootFolder: string, file: string) {
-    const value = await this.readFileAsString(rootFolder, file)
-    let obj
-    try {
-      obj = <T>JSON.parse(value)
-    } catch (e) {
-      try {
-        jsonlintMod.parse(value)
-      } catch (e) {
-        throw new Error(`SyntaxError in your JSON: ${file}: \n ${e}`)
-      }
-    }
-    return obj
-  }
-
-  async readFileAsBuffer(rootFolder: string, file: string): Promise<Buffer> {
-    const fileName = this._normalizeFileName(rootFolder, file)
-    const cacheKey = this.objectCacheKey(fileName)
+    const cacheKey = this.bufferCacheKey(fileName)
 
     if (!(await this.cache.has(cacheKey))) {
-      return this.directReadFileAsBuffer(rootFolder, file)
+      const value = await this.primaryDriver.readFile(fileName)
+      await this.cache.set(cacheKey, value)
+      return value
     }
 
     return this.cache.get<Buffer>(cacheKey)
   }
 
   async readFileAsString(rootFolder: string, file: string): Promise<string> {
-    const fileName = this._normalizeFileName(rootFolder, file)
-    const cacheKey = this.objectCacheKey(fileName)
-
-    if (!(await this.cache.has(cacheKey))) {
-      return this.directReadFileAsString(rootFolder, file)
-    }
-
-    return this.cache.get(cacheKey)
+    return (await this.readFileAsBuffer(rootFolder, file)).toString()
   }
 
   async readFileAsObject<T>(rootFolder: string, file: string): Promise<T> {
@@ -623,7 +594,19 @@ export class ScopedGhostService {
     const cacheKey = this.objectCacheKey(fileName)
 
     if (!(await this.cache.has(cacheKey))) {
-      return this.directReadFileAsObject<T>(rootFolder, file)
+      const value = await this.readFileAsString(rootFolder, file)
+      let obj
+      try {
+        obj = <T>JSON.parse(value)
+      } catch (e) {
+        try {
+          jsonlintMod.parse(value)
+        } catch (e) {
+          throw new Error(`SyntaxError in your JSON: ${file}: \n ${e}`)
+        }
+      }
+      await this.cache.set(cacheKey, obj)
+      return obj
     }
 
     return this.cache.get<T>(cacheKey)
