@@ -3,7 +3,8 @@ import * as sdk from 'botpress/sdk'
 import * as NLUEngine from 'nlu/engine'
 
 import { serializeError } from 'nlu/utils/error-utils'
-import { TrainingProgress, TrainingErrorType, http, TrainInput } from '../typings_v1'
+import { TrainingProgress, TrainingErrorType, TrainInput } from '../typings_v1'
+import * as http from './http-typings'
 import { ModelRepository } from './model-repo'
 import TrainSessionService from './train-session-service'
 

@@ -1,9 +1,10 @@
 import { validate } from 'joi'
 import * as NLUEngine from 'nlu/engine'
 
-import { IntentDefinition, ListEntityDefinition, PatternEntityDefinition, SlotDefinition, http } from 'nlu/typings_v1'
+import { IntentDefinition, ListEntityDefinition, PatternEntityDefinition, SlotDefinition } from 'nlu/typings_v1'
 
 import { isListEntity, isPatternEntity } from 'nlu/utils/guards'
+import * as http from '../http-typings'
 import { PredictInputSchema, TrainInputSchema, CredentialsSchema, DetectLangInputSchema } from './schemas'
 
 const SLOT_ANY = 'any'

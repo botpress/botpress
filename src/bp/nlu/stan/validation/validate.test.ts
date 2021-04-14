@@ -1,4 +1,5 @@
-import { IntentDefinition, ListEntityDefinition, PatternEntityDefinition, SlotDefinition, http } from '../../typings_v1'
+import { IntentDefinition, ListEntityDefinition, PatternEntityDefinition, SlotDefinition } from '../../typings_v1'
+import * as http from '../http-typings'
 
 import { validateTrainInput } from './validate'
 

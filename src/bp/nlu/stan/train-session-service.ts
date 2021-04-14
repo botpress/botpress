@@ -2,7 +2,8 @@ import crypto from 'crypto'
 import LRUCache from 'lru-cache'
 import * as NLUEngine from 'nlu/engine'
 
-import { TrainingProgress, http } from 'nlu/typings_v1'
+import { TrainingProgress } from 'nlu/typings_v1'
+import * as http from './http-typings'
 
 export default class TrainSessionService {
   private trainSessions: {
