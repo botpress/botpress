@@ -1,14 +1,7 @@
 import crypto from 'crypto'
 import _ from 'lodash'
-import {
-  Model,
-  ModelId,
-  EntityDefinition,
-  IntentDefinition,
-  Specifications,
-  ModelIdArgs,
-  ModelIdService
-} from './typings'
+import { EntityDefinition, IntentDefinition } from '../typings_v1'
+import { ModelId, Specifications, ModelIdArgs, ModelIdService } from './typings'
 
 export const HALF_MD5_REG = /^[a-fA-F0-9]{16}$/
 
@@ -66,8 +59,8 @@ const isId = (stringId: string) => {
   return !!/^[a-z]{2}$/.exec(languageCode)
 }
 
-const _computeContentHash = (entityDefs: EntityDefinition[], intentDefs: IntentDefinition[], languageCode: string) => {
-  const singleLangIntents = intentDefs.map(i => ({ ...i, utterances: i.utterances[languageCode] }))
+const _computeContentHash = (entityDefs: EntityDefinition[], intentDefs: IntentDefinition[]) => {
+  const singleLangIntents = intentDefs.map(i => ({ ...i, utterances: i.utterances }))
   return halfmd5(JSON.stringify({ singleLangIntents, entityDefs }))
 }
 
@@ -78,7 +71,7 @@ const _computeSpecificationsHash = (specifications: Specifications) => {
 const makeId = (factors: ModelIdArgs): ModelId => {
   const { entityDefs, intentDefs, languageCode, seed, specifications } = factors
 
-  const contentHash = _computeContentHash(entityDefs, intentDefs, languageCode)
+  const contentHash = _computeContentHash(entityDefs, intentDefs)
   const specificationHash = _computeSpecificationsHash(specifications)
 
   return {
@@ -93,8 +86,8 @@ const briefId = (factors: Partial<ModelIdArgs>): Partial<ModelId> => {
   const { entityDefs, intentDefs, languageCode, seed, specifications } = factors
 
   let briefedId: Partial<ModelId> = {}
-  if (entityDefs && intentDefs && languageCode) {
-    const contentHash = _computeContentHash(entityDefs, intentDefs, languageCode)
+  if (entityDefs && intentDefs) {
+    const contentHash = _computeContentHash(entityDefs, intentDefs)
     briefedId = { ...briefedId, contentHash }
   }
   if (languageCode) {

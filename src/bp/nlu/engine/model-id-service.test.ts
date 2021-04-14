@@ -1,24 +1,21 @@
 import modelIdService, { HALF_MD5_REG } from './model-id-service'
-import { IntentDefinition, EntityDefinition, Specifications } from './typings'
+import { Specifications } from './typings'
+import { IntentDefinition, EntityDefinition } from 'nlu/typings_v1'
 
 const intentDefs: IntentDefinition[] = [
   {
     contexts: ['global'],
     name: 'Frodo',
     slots: [],
-    utterances: {
-      en: ['I love Samwise Gamgee the brave'],
-      fr: ["J'aime Sam Gamgee le brave"]
-    }
+    utterances: ["J'aime Sam Gamgee le brave"]
   }
 ]
 
 const entityDefs: EntityDefinition[] = [
   {
-    id: 'lotr-places',
     name: 'lotr places',
     type: 'list',
-    examples: ['middle earth', 'mordor'],
+    values: [{ name: 'middle earth', synonyms: ['mordor'] }],
     fuzzy: 0.5
   }
 ]
