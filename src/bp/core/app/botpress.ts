@@ -258,6 +258,7 @@ export class Botpress {
 
       const assets = path.resolve(process.PROJECT_LOCATION, 'data/assets')
       await copyDir(path.join(__dirname, '../../admin/ui'), `${assets}/admin/ui`)
+      await copyDir(path.join(__dirname, '../../ui-lite'), `${assets}/ui-lite`)
 
       // Avoids overwriting the folder when developing locally on the studio
       if (fse.pathExistsSync(`${assets}/ui-studio/public`)) {
