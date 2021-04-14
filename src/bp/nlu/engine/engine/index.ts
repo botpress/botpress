@@ -1,6 +1,7 @@
 import bytes from 'bytes'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
+import { filterListEntities, filterPatternEntities } from 'nlu/utils/guard'
 import sizeof from 'object-sizeof'
 
 import v8 from 'v8'
@@ -134,23 +135,21 @@ export default class Engine implements IEngine {
     const { previousModel: previousModelId, progressCallback } = options
     const previousModel = previousModelId && this.modelsById.get(modelIdService.toString(previousModelId))
 
-    const list_entities = entityDefs
-      .filter(<(ent) => ent is ListEntityDefinition>(ent => ent.type === 'list'))
-      .map(e => {
-        return <ListEntity & { cache: EntityCacheDump }>{
-          name: e.name,
-          fuzzyTolerance: e.fuzzy,
-          sensitive: e.sensitive,
-          synonyms: _.chain(e.values)
-            .keyBy('name')
-            .mapValues('synonyms')
-            .value(),
-          cache: previousModel?.entityCache.getCache(e.name) || []
-        }
-      })
+    const list_entities = filterListEntities(entityDefs).map(e => {
+      return <ListEntity & { cache: EntityCacheDump }>{
+        name: e.name,
+        fuzzyTolerance: e.fuzzy,
+        sensitive: e.sensitive,
+        synonyms: _.chain(e.values)
+          .keyBy('name')
+          .mapValues('synonyms')
+          .value(),
+        cache: previousModel?.entityCache.getCache(e.name) || []
+      }
+    })
 
-    const pattern_entities: PatternEntity[] = entityDefs
-      .filter(<(ent) => ent is PatternEntityDefinition>(ent => ent.type === 'pattern' && isPatternValid(ent.regex)))
+    const pattern_entities: PatternEntity[] = filterPatternEntities(entityDefs)
+      .filter(ent => isPatternValid(ent.regex))
       .map(ent => ({
         name: ent.name,
         pattern: ent.regex,
