@@ -80,7 +80,7 @@ export class SmoochClient {
   }
 
   async receiveMessage(type: string, payload: any, rawMessage: Message) {
-    const rawPayload = this.config.forwardRawPayloads.includes('text')
+    const rawPayload = this.config.forwardRawPayloads.includes(type)
       ? { channel: { smooch: { message: rawMessage } } }
       : {}
 
