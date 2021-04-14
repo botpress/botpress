@@ -55,6 +55,10 @@ export interface PredictInput extends Credentials {
   utterances: string[]
 }
 
+export interface DetectLanguageInput extends PredictInput {
+  models: string[]
+}
+
 /**
  * #################################
  * ############ OUTPUTS ############

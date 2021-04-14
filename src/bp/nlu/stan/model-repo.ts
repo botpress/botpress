@@ -151,9 +151,10 @@ export class ModelRepository {
   }
 
   // TODO: make this one more optimal
-  public async pruneModels(options: ModelOwnershipOptions) {
+  public async pruneModels(options: ModelOwnershipOptions): Promise<NLUEngine.ModelId[]> {
     const models = await this.listModels(options)
-    return Promise.each(models, m => this.deleteModel(m, options))
+    await Promise.each(models, m => this.deleteModel(m, options))
+    return models
   }
 
   public async deleteModel(modelId: NLUEngine.ModelId, options: ModelOwnershipOptions): Promise<void> {

@@ -8,11 +8,12 @@ import {
   PredictInput,
   SlotDefinition,
   TrainInput,
-  Credentials
+  Credentials,
+  DetectLanguageInput
 } from 'nlu/typings_v1'
 
 import { isListEntity, isPatternEntity } from 'nlu/utils/guards'
-import { PredictInputSchema, TrainInputSchema, CancelInputSchema } from './schemas'
+import { PredictInputSchema, TrainInputSchema, CredentialsSchema, DetectLangInputSchema } from './schemas'
 
 const SLOT_ANY = 'any'
 
@@ -65,12 +66,17 @@ export async function validateTrainInput(rawInput: any): Promise<TrainInput> {
   return validatedInput
 }
 
-export async function validateCancelRequestInput(rawInput: any): Promise<Credentials> {
-  const validated: Credentials = await validate(rawInput, CancelInputSchema, {})
+export async function validateCredentialsFormat(rawInput: any): Promise<Credentials> {
+  const validated: Credentials = await validate(rawInput, CredentialsSchema, {})
   return validated
 }
 
 export async function validatePredictInput(rawInput: any): Promise<PredictInput> {
   const validated: PredictInput = await validate(rawInput, PredictInputSchema, {})
+  return validated
+}
+
+export async function validateDetectLangInput(rawInput: any): Promise<DetectLanguageInput> {
+  const validated: DetectLanguageInput = await validate(rawInput, DetectLangInputSchema, {})
   return validated
 }

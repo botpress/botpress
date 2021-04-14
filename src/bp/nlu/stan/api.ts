@@ -7,6 +7,7 @@ import _ from 'lodash'
 import ms from 'ms'
 import * as NLUEngine from 'nlu/engine'
 
+import modelIdService from 'nlu/engine/model-id-service'
 import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../../http-utils'
 import Logger from '../../simple-logger'
 
@@ -14,7 +15,12 @@ import { PredictOutput } from '../typings_v1'
 import { ModelRepoOptions, ModelRepository } from './model-repo'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
-import { validateCancelRequestInput, validatePredictInput, validateTrainInput } from './validation/validate'
+import {
+  validateCredentialsFormat,
+  validatePredictInput,
+  validateTrainInput,
+  validateDetectLangInput
+} from './validation/validate'
 
 export interface APIOptions {
   host: string
@@ -102,6 +108,36 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
     }
   })
 
+  router.get('/models', async (req, res) => {
+    try {
+      const { appSecret, appId } = await validateCredentialsFormat(req.query)
+      const modelIds = await modelRepo.listModels({ appSecret, appId })
+      const stringIds = modelIds.map(modelIdService.toString)
+      return res.send({ success: true, models: stringIds })
+    } catch (err) {
+      res.status(500).send({ success: false, error: err.message })
+    }
+  })
+
+  router.post('/models/prune', async (req, res) => {
+    try {
+      const { appSecret, appId } = await validateCredentialsFormat(req.body)
+      const modelIds = await modelRepo.pruneModels({ appSecret, appId })
+
+      for (const modelId of modelIds) {
+        if (engine.hasModel(modelId)) {
+          engine.unloadModel(modelId)
+        }
+        trainSessionService.deleteTrainingSession(modelId, { appSecret, appId })
+      }
+
+      const stringIds = modelIds.map(modelIdService.toString)
+      return res.send({ success: true, models: stringIds })
+    } catch (err) {
+      res.status(500).send({ success: false, error: err.message })
+    }
+  })
+
   router.post('/train', async (req, res) => {
     try {
       const input = await validateTrainInput(req.body)
@@ -133,7 +169,7 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
         return res.status(400).send({ success: false, error: `model id "${stringId}" has invalid format` })
       }
 
-      const { appSecret, appId } = req.query
+      const { appSecret, appId } = await validateCredentialsFormat(req.query)
 
       const modelId = NLUEngine.modelIdService.fromString(stringId)
       let session = trainSessionService.getTrainingSession(modelId, { appSecret, appId })
@@ -162,7 +198,7 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
   router.post('/train/:modelId/cancel', async (req, res) => {
     try {
       const { modelId: stringId } = req.params
-      const { appSecret, appId } = await validateCancelRequestInput(req.body)
+      const { appSecret, appId } = await validateCredentialsFormat(req.body)
 
       const modelId = NLUEngine.modelIdService.fromString(stringId)
       const session = trainSessionService.getTrainingSession(modelId, { appSecret, appId })
@@ -184,9 +220,8 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
       const { utterances, appId, appSecret } = await validatePredictInput(req.body)
 
       if (!_.isArray(utterances) || (options.batchSize > 0 && utterances.length > options.batchSize)) {
-        throw new Error(
-          `Batch size of ${utterances.length} is larger than the allowed maximum batch size (${options.batchSize}).`
-        )
+        const error = `Batch size of ${utterances.length} is larger than the allowed maximum batch size (${options.batchSize}).`
+        return res.status(400).send({ success: false, error })
       }
 
       const modelId = NLUEngine.modelIdService.fromString(stringId)
@@ -207,6 +242,61 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
       })
 
       res.json({ success: true, predictions: predictions.map(_roundConfidencesTo3Digits) })
+    } catch (err) {
+      res.status(500).send({ success: false, error: err.message })
+    }
+  })
+
+  router.post('/detect-lang', async (req, res) => {
+    try {
+      const { utterances, appId, appSecret, models } = await validateDetectLangInput(req.body)
+
+      const invalidIds = models.filter(_.negate(modelIdService.isId))
+      if (invalidIds.length) {
+        return res
+          .status(400)
+          .send({ success: false, error: `The following model ids are invalid: [${invalidIds.join(', ')}]` })
+      }
+
+      const modelIds = models.map(modelIdService.fromString)
+
+      if (!_.isArray(utterances) || (options.batchSize > 0 && utterances.length > options.batchSize)) {
+        const error = `Batch size of ${utterances.length} is larger than the allowed maximum batch size (${options.batchSize}).`
+        return res.status(400).send({ success: false, error })
+      }
+
+      for (const modelId of modelIds) {
+        // TODO: once the model is loaded, there's no more check to appSecret and appId
+        if (!engine.hasModel(modelId)) {
+          const model = await modelRepo.getModel(modelId, { appId, appSecret })
+          if (!model) {
+            return res.status(404).send({ success: false, error: `modelId ${modelId} can't be found` })
+          }
+          await engine.loadModel(model)
+        }
+      }
+
+      const missingModels = modelIds.filter(m => !engine.hasModel(m))
+
+      if (missingModels.length) {
+        const stringMissingModels = missingModels.map(modelIdService.toString)
+        logger.warn(
+          `About to detect language but your model cache seems to small to contains all models simultaneously. The following models are missing [${stringMissingModels.join(
+            ', '
+          )}. You can increase your cache size by setting the CLI parameter "modelCacheSize".]`
+        )
+      }
+
+      const loadedModels = modelIds.filter(m => engine.hasModel(m))
+      const detectedLanguages: string[] = await Promise.map(utterances, async utterance => {
+        const detectedLanguage = await engine.detectLanguage(
+          utterance,
+          _.keyBy(loadedModels, m => m.languageCode)
+        )
+        return detectedLanguage
+      })
+
+      res.json({ success: true, detectedLanguages })
     } catch (err) {
       res.status(500).send({ success: false, error: err.message })
     }
