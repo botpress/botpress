@@ -66,7 +66,7 @@ class UserRouter extends CustomAdminRouter {
               .trim()
               .allow(''),
             picture_url: Joi.string()
-              .uri()
+              .uri({ allowRelative: true })
               .allow('')
           })
         )

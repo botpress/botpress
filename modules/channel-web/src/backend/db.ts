@@ -319,7 +319,7 @@ export default class WebchatDb {
           .where({ userId, botId })
           .as('wc')
       })
-      .leftJoin(lastMessages.as('wm'), 'wm.conversationId', 'wc.id')
+      .innerJoin(lastMessages.as('wm'), 'wm.conversationId', 'wc.id')
       .orderBy('wm.sent_on', 'desc')
       .select(
         'wc.id',
