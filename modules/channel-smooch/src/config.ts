@@ -27,6 +27,9 @@ export interface Config {
    * Enables forwarding of raw smooch payloads for the provided payload types.
    * Add the "smooch-" prefix to forward events specific to the smooch channel
    * The raw payload is accessible in event.payload.channel.smooch
+   * @example
+   * // This would attach the raw payload to text events as well as forward smooch video events
+   * ["text", "smooch-video"]
    * @default []
    */
   forwardRawPayloads: string[]
