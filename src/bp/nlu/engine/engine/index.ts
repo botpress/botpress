@@ -153,9 +153,9 @@ export default class Engine implements IEngine {
       .filter(<(ent) => ent is PatternEntityDefinition>(ent => ent.type === 'pattern' && isPatternValid(ent.regex)))
       .map(ent => ({
         name: ent.name,
-        pattern: ent.regex!,
+        pattern: ent.regex,
         examples: ent.examples,
-        matchCase: !!ent.case_sensitive,
+        matchCase: ent.case_sensitive,
         sensitive: !!ent.sensitive
       }))
 
