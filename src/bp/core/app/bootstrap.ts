@@ -110,7 +110,7 @@ const runStan = (): Promise<{ code: number | null; signal: string | null }> => {
   const command = process.env.STAN_DEV_MODE ? 'yarn start nlu' : './stan'
   return new Promise((resolve, reject) => {
     try {
-      const stanProcess = spawn(command, { shell: true })
+      const stanProcess = spawn(command, ['--silent'], { shell: true })
       stanProcess.stdout.pipe(process.stdout)
       stanProcess.stderr.pipe(process.stderr)
       stanProcess.on('exit', (code, signal) => {

@@ -20,7 +20,12 @@ export interface StartLocalActionServerMessage {
   port: number
 }
 
-export interface StartLocalSTANServerMessage {}
+export interface StartLocalSTANServerMessage {
+  languageURL: string
+  languageAuthToken?: string
+  ducklingURL: string
+  ducklingEnabled: boolean
+}
 
 const debug = DEBUG('cluster')
 
@@ -58,7 +63,7 @@ export const setupMasterNode = (logger: sdk.Logger) => {
   })
 
   registerMsgHandler(MESSAGE_TYPE_START_LOCAL_STAN_SERVER, (message: StartLocalSTANServerMessage) => {
-    cluster.fork({ WORKER_TYPE: WORKER_TYPES.LOCAL_STAN_SERVER, ...message })
+    cluster.fork({ WORKER_TYPE: WORKER_TYPES.LOCAL_STAN_SERVER, STAN_JSON_CONFIG: JSON.stringify(message) })
   })
 
   cluster.on('exit', async (worker: Worker, code: number, signal: string) => {
@@ -133,5 +138,5 @@ export const startLocalActionServer = (message: StartLocalActionServerMessage) =
 }
 
 export const startLocalSTANServer = (message: StartLocalSTANServerMessage) => {
-  process.send!({ type: MESSAGE_TYPE_START_LOCAL_STAN_SERVER, ...message })
+  process.send!({ type: MESSAGE_TYPE_START_LOCAL_STAN_SERVER, message })
 }

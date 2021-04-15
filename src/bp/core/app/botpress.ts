@@ -187,7 +187,12 @@ export class Botpress {
     if (config.STANUrl) {
       return
     }
-    startLocalSTANServer({})
+    startLocalSTANServer({
+      languageURL: config.languageSources[0].endpoint,
+      languageAuthToken: config.languageSources[0].AuthToken,
+      ducklingURL: config.ducklingURL,
+      ducklingEnabled: config.ducklingEnabled
+    })
   }
 
   async checkJwtSecret() {
