@@ -29,6 +29,18 @@ type ArgV = APIOptions & {
   ducklingEnabled: boolean
 }
 
+const readEnvJSONConfig = (): ArgV | null => {
+  const data = process.env.STAN_JSON_CONFIG
+  if (!data) {
+    return null
+  }
+  try {
+    return JSON.parse(data)
+  } catch {
+    return null
+  }
+}
+
 const makeEngine = async (options: ArgV, logger: Logger) => {
   const loggerWrapper: NLUEngine.Logger = {
     debug: (msg: string) => logger.debug(msg),
@@ -73,6 +85,11 @@ export default async function(options: ArgV) {
   } else if (cluster.isWorker && process.env.WORKER_TYPE !== WORKER_TYPES.WEB) {
     return
   }
+  const envConfig = readEnvJSONConfig()
+  if (envConfig) {
+    logger.info('Loading config from environment variables')
+  }
+  options = { ...options, ...envConfig }
 
   for (const dir of ['./pre-trained', './stop-words']) {
     await copyDir(path.resolve(__dirname, '../engine/assets', dir), path.resolve(process.APP_DATA_PATH, dir))
