@@ -141,20 +141,28 @@ If you have a restricted app, you may need to specify the tenantId also.`
   }
 
   private _sendIncomingEvent = async (activity: Activity, threadId: string) => {
-    const { text, from, type } = activity
+    const {
+      text,
+      from: { id: userId },
+      type
+    } = activity
 
-    await this.bp.events.sendEvent(
-      this.bp.IO.Event({
-        botId: this.botId,
-        channel: 'teams',
-        direction: 'incoming',
-        payload: { text },
-        preview: text,
-        threadId,
-        target: from.id,
-        type
-      })
-    )
+    let convoId = await this.bp.experimental.conversations
+      .forBot(this.botId)
+      .getLocalId('teams', `${threadId}&${userId}`)
+
+    if (!convoId) {
+      const conversation = await this.bp.experimental.conversations.forBot(this.botId).create(userId)
+      convoId = conversation.id
+
+      await this.bp.experimental.conversations
+        .forBot(this.botId)
+        .createMapping('teams', conversation.id, `${threadId}&${userId}`)
+    }
+
+    await this.bp.experimental.messages
+      .forBot(this.botId)
+      .receive(convoId, { type: 'text', text }, { channel: 'teams' })
   }
 
   public async sendOutgoingEvent(event: sdk.IO.Event): Promise<void> {
@@ -164,10 +172,13 @@ If you have a restricted app, you may need to specify the tenantId also.`
       throw new Error(`Unsupported event type: ${event.type}`)
     }
 
-    const ref = await this._getConversationRef(event.threadId)
+    const foreignId = await this.bp.experimental.conversations.forBot(this.botId).getForeignId('teams', event.threadId)
+    const [threaId, userId] = foreignId.split('&')
+
+    const ref = await this._getConversationRef(threaId)
     if (!ref) {
       this.bp.logger.warn(
-        `No message could be sent to MS Botframework with threadId: ${event.threadId} as there is no conversation reference`
+        `No message could be sent to MS Botframework with threadId: ${threaId} as there is no conversation reference`
       )
       return
     }
