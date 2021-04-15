@@ -28,4 +28,4 @@ If you don't want to type those variables each time you start Botpress, we also 
 ## Accessing databases
 Two handy ways to access whichever database you choose to use are:
 1. The [key-value store](https://botpress.com/reference/modules/_botpress_sdk_.kvs.html)
-2. A [knex instance](http://knexjs.org/) - This allows you to work with the DB directly via `bp.db.get()`
+2. A [knex instance](http://knexjs.org/)
