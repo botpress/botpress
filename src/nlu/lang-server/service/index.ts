@@ -7,9 +7,9 @@ import ms from 'ms'
 import os from 'os'
 import path from 'path'
 import process from 'process'
+import Logger from 'simple-logger'
 import { VError } from 'verror'
 
-import Logger from '../../../simple-logger'
 import toolkit from '../../ml/toolkit'
 
 import { LoadedBPEModel, LoadedFastTextModel, ModelFileInfo, ModelSet } from './typing'

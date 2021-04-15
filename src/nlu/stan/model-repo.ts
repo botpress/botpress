@@ -1,12 +1,12 @@
 import fse, { WriteStream } from 'fs-extra'
 import _ from 'lodash'
-import * as NLUEngine from 'nlu/engine'
-import modelIdService, { halfmd5 } from 'nlu/engine/model-id-service'
 import path from 'path'
 import Logger from 'simple-logger'
 import { Stream } from 'stream'
 import tar from 'tar'
 import tmp from 'tmp'
+import * as NLUEngine from '../../nlu/engine'
+import modelIdService, { halfmd5 } from '../../nlu/engine/model-id-service'
 import {
   Database,
   DBStorageDriver,

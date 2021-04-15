@@ -6,10 +6,10 @@ import { createServer } from 'http'
 import { authMiddleware, handleErrorLogging, handleUnexpectedError, isAdminToken, RequestWithLang } from 'http-utils'
 import _ from 'lodash'
 import ms from 'ms'
+import Logger from 'simple-logger'
 import yn from 'yn'
 
-import { BadRequestError } from '../../core/routers/errors'
-import Logger from '../../simple-logger'
+import { BadRequestError } from '../../bp/core/routers/errors'
 
 import { getLanguageByCode } from './languages'
 import { monitoringMiddleware, startMonitoring } from './monitoring'

@@ -72,11 +72,11 @@ const copyBinaries = () => {
 }
 
 const copyPreTrained = () => {
-  return gulp.src('src/bp/nlu/engine/assets/pre-trained/*').pipe(gulp.dest('./out/bp/nlu/engine/assets/pre-trained'))
+  return gulp.src('src/nlu/engine/assets/pre-trained/*').pipe(gulp.dest('./out/bp/nlu/engine/assets/pre-trained'))
 }
 
 const copyStopWords = () => {
-  return gulp.src('src/bp/nlu/engine/assets/stop-words/*').pipe(gulp.dest('./out/bp/nlu/engine/assets/stop-words'))
+  return gulp.src('src/nlu/engine/assets/stop-words/*').pipe(gulp.dest('./out/bp/nlu/engine/assets/stop-words'))
 }
 
 const checkTranslations = cb => {

@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/order
-import rewire from '../../sdk/rewire'
+import rewire from 'sdk/rewire'
 // eslint-disable-next-line import/order
 
 import bytes from 'bytes'
@@ -9,18 +9,18 @@ import { LogLevel } from 'core/logger/enums'
 import { centerText } from 'core/logger/utils'
 import { copyDir } from 'core/misc/pkg-fs'
 import _ from 'lodash'
-import * as NLUEngine from 'nlu/engine'
 import path from 'path'
-import { setupMasterNode, WORKER_TYPES } from '../../cluster'
 
-import Logger from '../../simple-logger'
+import Logger from 'simple-logger'
+import { setupMasterNode, WORKER_TYPES } from '../../bp/cluster'
+import * as NLUEngine from '../../nlu/engine'
 import API, { APIOptions } from './api'
 
 global.rewire = rewire as any
 const debug = DEBUG('api')
 
-const GH_TYPINGS_FILE = 'https://github.com/botpress/botpress/blob/master/src/bp/nlu/stan/typings_v1.d.ts'
-const GH_TRAIN_INPUT_EXAMPLE = 'https://github.com/botpress/botpress/blob/master/src/bp/nlu/stan/train-example.json'
+const GH_TYPINGS_FILE = 'https://github.com/botpress/botpress/blob/master/src/nlu/stan/typings_v1.d.ts'
+const GH_TRAIN_INPUT_EXAMPLE = 'https://github.com/botpress/botpress/blob/master/src/nlu/stan/train-example.json'
 
 type ArgV = APIOptions & {
   languageURL: string

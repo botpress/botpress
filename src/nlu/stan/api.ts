@@ -3,13 +3,13 @@ import cors from 'cors'
 import express, { Application } from 'express'
 import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
+import { authMiddleware, handleErrorLogging, handleUnexpectedError } from 'http-utils'
 import _ from 'lodash'
 import ms from 'ms'
-import * as NLUEngine from 'nlu/engine'
-
-import modelIdService from 'nlu/engine/model-id-service'
-import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../../http-utils'
-import Logger from '../../simple-logger'
+import Logger from 'simple-logger'
+import * as NLUEngine from '../../nlu/engine'
+// eslint-disable-next-line no-duplicate-imports
+import { modelIdService } from '../../nlu/engine'
 
 import { PredictOutput, TrainInput } from '../typings_v1'
 import {

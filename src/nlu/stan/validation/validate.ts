@@ -1,9 +1,14 @@
 import { validate } from 'joi'
-import * as NLUEngine from 'nlu/engine'
 
-import { IntentDefinition, ListEntityDefinition, PatternEntityDefinition, SlotDefinition } from 'nlu/typings_v1'
+import {
+  IntentDefinition,
+  ListEntityDefinition,
+  PatternEntityDefinition,
+  SlotDefinition
+} from '../../../nlu/typings_v1'
 
-import { isListEntity, isPatternEntity } from 'nlu/utils/guards'
+import { isListEntity, isPatternEntity } from '../../../nlu/utils/guards'
+import * as NLUEngine from '../../engine'
 import * as http from '../http-typings'
 import { PredictInputSchema, TrainInputSchema, CredentialsSchema, DetectLangInputSchema } from './schemas'
 
