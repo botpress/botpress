@@ -5,11 +5,11 @@ import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
 import _ from 'lodash'
 import ms from 'ms'
-import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../../bp/http-utils'
-import Logger from '../../bp/simple-logger'
-import * as NLUEngine from '../../nlu/engine'
+import * as NLUEngine from 'nlu/engine'
 
-import modelIdService from '../../nlu/engine/model-id-service'
+import modelIdService from 'nlu/engine/model-id-service'
+import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../../http-utils'
+import Logger from '../../simple-logger'
 
 import { PredictOutput, TrainInput } from '../typings_v1'
 import {

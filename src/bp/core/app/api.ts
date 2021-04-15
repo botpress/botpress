@@ -27,7 +27,7 @@ import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
-import MLToolkit from '../../../nlu/ml/toolkit'
+import MLToolkit from 'nlu/ml/toolkit'
 
 import { HTTPServer } from './server'
 

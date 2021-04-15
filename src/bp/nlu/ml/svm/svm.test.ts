@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 
-import '../../../bp/import-rewire'
+import '../../../import-rewire'
 
 import { Predictor, Trainer } from '.'
 

@@ -5,7 +5,7 @@ import {
   EntityDefinition,
   Specifications,
   Health
-} from '../../nlu/typings_v1'
+} from 'nlu/typings_v1'
 
 export interface Credentials {
   appId: string

@@ -1,1 +1,1 @@
-export * from '../../../nlu/engine'
+export * from '../../nlu/engine'

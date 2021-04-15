@@ -4,7 +4,7 @@ import spawn from 'cross-spawn'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
 import yn from 'yn'
-import { LanguageConfig } from '../nlu/engine'
+import { LanguageConfig } from './nlu/engine'
 
 export enum WORKER_TYPES {
   WEB = 'WEB_WORKER',
