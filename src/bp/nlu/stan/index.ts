@@ -22,7 +22,7 @@ const debug = DEBUG('api')
 const GH_TYPINGS_FILE = 'https://github.com/botpress/botpress/blob/master/src/bp/nlu/stan/typings_v1.d.ts'
 const GH_TRAIN_INPUT_EXAMPLE = 'https://github.com/botpress/botpress/blob/master/src/bp/nlu/stan/train-example.json'
 
-export type ArgV = APIOptions & {
+type ArgV = APIOptions & {
   languageURL: string
   languageAuthToken?: string
   ducklingURL: string
