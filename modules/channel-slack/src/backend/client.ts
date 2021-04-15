@@ -187,9 +187,10 @@ export class SlackClient {
       blocks.push(event.payload.quick_replies)
     }
 
+    const channel = await this.bp.experimental.conversations.forBot(this.botId).getForeignId('slack', event.threadId)
     const message = {
       text: event.payload.text,
-      channel: event.threadId || event.target,
+      channel,
       blocks
     }
 
@@ -226,6 +227,10 @@ export class SlackClient {
     debugOutgoing('Sending message %o', message)
     await this.client.chat.postMessage(message)
 
+    await this.bp.experimental.messages
+      .forBot(this.botId)
+      .create(event.threadId, event.payload, undefined, event.id, event.incomingEventId)
+
     next(undefined, false)
   }
 
@@ -240,18 +245,15 @@ export class SlackClient {
       } catch (err) {}
     }
 
-    await this.bp.events.sendEvent(
-      this.bp.IO.Event({
-        botId: this.botId,
-        channel: 'slack',
-        direction: 'incoming',
-        payload: { ...ctx, ...payload, user_info: user },
-        type: payload.type,
-        preview: payload.text,
-        threadId: threadId && threadId.toString(),
-        target: target && target.toString()
-      })
-    )
+    let convoId = await this.bp.experimental.conversations.forBot(this.botId).getLocalId('slack', threadId)
+    if (!convoId) {
+      const conversation = await this.bp.experimental.conversations.forBot(this.botId).create(target)
+      convoId = conversation.id
+
+      await this.bp.experimental.conversations.forBot(this.botId).createMapping('slack', conversation.id, threadId)
+    }
+
+    await this.bp.experimental.messages.forBot(this.botId).receive(convoId, payload, { channel: 'slack' })
   }
 }
 
