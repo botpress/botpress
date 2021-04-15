@@ -121,6 +121,7 @@ export const fileUploadMulter = (allowedMimeTypes: string[] = [], maxFileSize?: 
       ) {
         return cb(null, true)
       }
+      cb(new Error(`This type of file is not allowed: ${file.mimetype}`))
     },
     limits: {
       fileSize: (maxFileSize && asBytes(maxFileSize)) || undefined

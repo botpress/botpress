@@ -7,6 +7,9 @@ interface CssExports {
   'deleteFile': string;
   'imageWrapper': string;
   'imageWrapperActions': string;
+  'videoWrapper': string;
+  'videoWrapperActions': string;
+  'videoWrapperSource': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;
