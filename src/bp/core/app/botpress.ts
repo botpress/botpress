@@ -33,7 +33,7 @@ import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
 
-import { startLocalActionServer, startLocalSTANServer } from '../../cluster'
+import { startLocalActionServer } from '../../cluster'
 import { setDebugScopes } from '../../debug'
 import { HTTPServer } from './server'
 import { TYPES } from './types'
@@ -129,7 +129,6 @@ export class Botpress {
     await this.startServer()
     await this.discoverBots()
     await this.maybeStartLocalActionServer()
-    await this.maybeStartLocalSTAN()
 
     if (this.config.sendUsageStats) {
       await this.statsService.start()
@@ -179,20 +178,6 @@ export class Botpress {
     }
 
     startLocalActionServer({ appSecret: process.APP_SECRET, port })
-  }
-
-  private async maybeStartLocalSTAN() {
-    const config = await this.moduleLoader.configReader.getGlobal('nlu')
-
-    if (config.STANUrl) {
-      return
-    }
-    startLocalSTANServer({
-      languageURL: config.languageSources[0].endpoint,
-      languageAuthToken: config.languageSources[0].AuthToken,
-      ducklingURL: config.ducklingURL,
-      ducklingEnabled: config.ducklingEnabled
-    })
   }
 
   async checkJwtSecret() {

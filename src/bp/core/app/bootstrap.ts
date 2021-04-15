@@ -3,6 +3,7 @@ import 'bluebird-global'
 import '../../sdk/rewire'
 // eslint-disable-next-line import/order
 import '../../common/polyfills'
+
 import sdk from 'botpress/sdk'
 import chalk from 'chalk'
 import cluster from 'cluster'

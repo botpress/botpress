@@ -2,12 +2,6 @@ import { LanguageSource } from 'common/nlu/engine'
 
 export interface Config {
   /**
-   * If you want to host the Standalone NLU Engine (STAN) on a different machine than the current one,
-   * you can run the nlu server on a different computer with `bp nlu` and set its URL here
-   */
-  STANUrl?: string
-
-  /**
    * If you want a fully on-prem installation, you can host
    * Facebook's Duckling on your own infrastructure and change this URL
    * Only relevant if @see ducklingEnabled is true
