@@ -187,10 +187,11 @@ export class SlackClient {
       blocks.push(event.payload.quick_replies)
     }
 
-    const channel = await this.bp.experimental.conversations.forBot(this.botId).getForeignId('slack', event.threadId)
+    const foreignId = await this.bp.experimental.conversations.forBot(this.botId).getForeignId('slack', event.threadId)
+    const [threadId, target] = foreignId.split('-')
     const message = {
       text: event.payload.text,
-      channel,
+      channel: threadId,
       blocks
     }
 
@@ -245,12 +246,17 @@ export class SlackClient {
       } catch (err) {}
     }
 
-    let convoId = await this.bp.experimental.conversations.forBot(this.botId).getLocalId('slack', threadId)
+    let convoId = await this.bp.experimental.conversations
+      .forBot(this.botId)
+      .getLocalId('slack', `${threadId}-${target}`)
+
     if (!convoId) {
       const conversation = await this.bp.experimental.conversations.forBot(this.botId).create(target)
       convoId = conversation.id
 
-      await this.bp.experimental.conversations.forBot(this.botId).createMapping('slack', conversation.id, threadId)
+      await this.bp.experimental.conversations
+        .forBot(this.botId)
+        .createMapping('slack', conversation.id, `${threadId}-${target}`)
     }
 
     await this.bp.experimental.messages.forBot(this.botId).receive(convoId, payload, { channel: 'slack' })
