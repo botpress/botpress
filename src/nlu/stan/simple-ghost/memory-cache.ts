@@ -4,9 +4,8 @@ import chokidar from 'chokidar'
 import { ObjectCache } from 'common/object-cache'
 import { EventEmitter } from 'events'
 import LRU from 'lru-cache'
-import { forceForwardSlashes } from 'nlu/stan/simple-ghost/misc'
-
 import path from 'path'
+import { forceForwardSlashes } from '../../../nlu/stan/simple-ghost/misc'
 
 // namespace CacheInvalidators {
 //   enum ChangeEventAction {

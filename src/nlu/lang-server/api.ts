@@ -8,8 +8,8 @@ import _ from 'lodash'
 import ms from 'ms'
 import yn from 'yn'
 
-import { BadRequestError } from '../../core/routers/errors'
-import Logger from '../../simple-logger'
+import { BadRequestError } from '../../bp/core/routers/errors'
+import Logger from '../../bp/simple-logger'
 
 import { getLanguageByCode } from './languages'
 import { monitoringMiddleware, startMonitoring } from './monitoring'

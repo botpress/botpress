@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-import { BadRequestError, NotReadyError } from '../../core/routers/errors'
+import { BadRequestError, NotReadyError } from '../../bp/core/routers/errors'
 
 import LanguageService from './service'
 

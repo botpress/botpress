@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/order
-import rewire from '../../sdk/rewire'
+import rewire from '../../bp/sdk/rewire'
 // eslint-disable-next-line import/order
 
 import bytes from 'bytes'
@@ -9,11 +9,11 @@ import { LogLevel } from 'core/logger/enums'
 import { centerText } from 'core/logger/utils'
 import { copyDir } from 'core/misc/pkg-fs'
 import _ from 'lodash'
-import * as NLUEngine from 'nlu/engine'
 import path from 'path'
-import { setupMasterNode, WORKER_TYPES } from '../../cluster'
+import { setupMasterNode, WORKER_TYPES } from '../../bp/cluster'
 
-import Logger from '../../simple-logger'
+import Logger from '../../bp/simple-logger'
+import * as NLUEngine from '../../nlu/engine'
 import API, { APIOptions } from './api'
 
 global.rewire = rewire as any

@@ -1,8 +1,8 @@
 import * as sdk from 'botpress/sdk'
 
-import * as NLUEngine from 'nlu/engine'
+import * as NLUEngine from '../../nlu/engine'
 
-import { serializeError } from 'nlu/utils/error-utils'
+import { serializeError } from '../../nlu/utils/error-utils'
 import { TrainingProgress, TrainingErrorType, TrainInput } from '../typings_v1'
 import { Credentials } from './http-typings'
 import { ModelRepository } from './model-repo'

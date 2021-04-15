@@ -1,7 +1,7 @@
 // eslint-disable-next-line import/order
-import '../../sdk/worker-before'
+import '../../bp/sdk/worker-before'
 // eslint-disable-next-line import/order
-import '../../sdk/rewire'
+import '../../bp/sdk/rewire'
 
 // eslint-disable-next-line import/order
 import * as sdk from 'botpress/sdk'

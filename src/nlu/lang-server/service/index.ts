@@ -9,7 +9,7 @@ import path from 'path'
 import process from 'process'
 import { VError } from 'verror'
 
-import Logger from '../../../simple-logger'
+import Logger from '../../../bp/simple-logger'
 import toolkit from '../../ml/toolkit'
 
 import { LoadedBPEModel, LoadedFastTextModel, ModelFileInfo, ModelSet } from './typing'

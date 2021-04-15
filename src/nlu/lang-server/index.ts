@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/order
-import rewire from '../../sdk/rewire'
+import rewire from '../../bp/sdk/rewire'
 // eslint-disable-next-line import/order
 
 import chalk from 'chalk'
@@ -8,7 +8,7 @@ import { centerText } from 'core/logger/utils'
 import _ from 'lodash'
 import path from 'path'
 
-import Logger from '../../simple-logger'
+import Logger from '../../bp/simple-logger'
 import API, { APIOptions } from './api'
 import LanguageService from './service'
 import DownloadManager from './service/download-manager'
