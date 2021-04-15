@@ -11,8 +11,9 @@ import {
 import { book_flight, cityEntity, fruitEntity, hello, i_love_hockey } from './utils/data.u.test'
 import './utils/sdk.u.test'
 import { TrainingSession } from '../typings'
+import { Specifications } from '../../stan/typings'
 
-const specs: NLUEngine.Specifications = {
+const specs: Specifications = {
   languageServer: {
     dimensions: 300,
     domain: 'lol',

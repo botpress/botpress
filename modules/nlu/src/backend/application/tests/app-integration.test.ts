@@ -14,8 +14,9 @@ import './utils/sdk.u.test'
 import { areEqual, sleep } from './utils/utils.u.test'
 import { TrainingSession } from '../typings'
 import { mapTrainSet } from '../../stan/api-mapper'
+import { Specifications } from '../../stan/typings'
 
-const specs: NLUEngine.Specifications = {
+const specs: Specifications = {
   languageServer: {
     dimensions: 300,
     domain: 'lol',
@@ -505,9 +506,11 @@ describe('NLU API integration tests', () => {
     const definitions = makeBaseDefinitions([lang])
 
     const modelId = modelIdService.makeId({
-      ...definitions,
-      languageCode: lang,
-      seed: nluSeed,
+      ...mapTrainSet({
+        ...definitions,
+        languageCode: lang,
+        seed: nluSeed
+      }),
       specifications: specs
     })
 
@@ -677,9 +680,11 @@ describe('NLU API integration tests', () => {
     expect(loadModel).toHaveBeenNthCalledWith(1, savedModel)
 
     const latestModelId = modelIdService.makeId({
-      ...definitions,
-      languageCode: lang,
-      seed: nluSeed,
+      ...mapTrainSet({
+        ...definitions,
+        languageCode: lang,
+        seed: nluSeed
+      }),
       specifications: specs
     })
     expect(areEqual(latestModelId, savedModel.id)).toBe(false) // current model is not synced with file system, but at least training finished and loaded
@@ -694,9 +699,11 @@ describe('NLU API integration tests', () => {
     const definitions = makeBaseDefinitions([lang])
 
     const modelId = modelIdService.makeId({
-      ...definitions,
-      languageCode: lang,
-      seed: nluSeed,
+      ...mapTrainSet({
+        ...definitions,
+        languageCode: lang,
+        seed: nluSeed
+      }),
       specifications: specs
     })
 
@@ -742,9 +749,11 @@ describe('NLU API integration tests', () => {
     const definitions = makeBaseDefinitions([lang])
 
     const modelId = modelIdService.makeId({
-      ...definitions,
-      languageCode: lang,
-      seed: nluSeed,
+      ...mapTrainSet({
+        ...definitions,
+        languageCode: lang,
+        seed: nluSeed
+      }),
       specifications: specs
     })
 
@@ -784,9 +793,11 @@ describe('NLU API integration tests', () => {
     const definitions = makeBaseDefinitions([lang])
 
     const modelId = modelIdService.makeId({
-      ...definitions,
-      languageCode: lang,
-      seed: nluSeed,
+      ...mapTrainSet({
+        ...definitions,
+        languageCode: lang,
+        seed: nluSeed
+      }),
       specifications: specs
     })
 
@@ -829,9 +840,11 @@ describe('NLU API integration tests', () => {
     const definitions = makeBaseDefinitions([lang])
 
     const modelId = modelIdService.makeId({
-      ...definitions,
-      languageCode: lang,
-      seed: nluSeed,
+      ...mapTrainSet({
+        ...definitions,
+        languageCode: lang,
+        seed: nluSeed
+      }),
       specifications: specs
     })
 
