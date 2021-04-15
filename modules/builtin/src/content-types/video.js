@@ -24,8 +24,8 @@ function render(data) {
 }
 
 function renderElement(data, channel) {
-  // rendering is handled by channel-vonage
   if (channel === 'vonage') {
+    // channel-vonage handles rendering on its own
     return data
   } else {
     return render(data)

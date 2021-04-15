@@ -101,6 +101,7 @@ function renderElement(data, channel) {
   } else if (channel === 'slack') {
     return renderSlack(data)
   } else if (channel === 'vonage') {
+    // channel-vonage handles rendering on its own
     return [{ ...data, type: 'quick_reply' }]
   } else {
     return render(data)
