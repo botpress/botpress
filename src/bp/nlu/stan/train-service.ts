@@ -4,7 +4,7 @@ import * as NLUEngine from 'nlu/engine'
 
 import { serializeError } from 'nlu/utils/error-utils'
 import { TrainingProgress, TrainingErrorType, TrainInput } from '../typings_v1'
-import * as http from './http-typings'
+import { Credentials } from './http-typings'
 import { ModelRepository } from './model-repo'
 import TrainSessionService from './train-session-service'
 
@@ -16,7 +16,7 @@ export default class TrainService {
     private trainSessionService: TrainSessionService
   ) {}
 
-  train = async (modelId: NLUEngine.ModelId, credentials: http.Credentials, trainInput: TrainInput) => {
+  train = async (modelId: NLUEngine.ModelId, credentials: Credentials, trainInput: TrainInput) => {
     const stringId = NLUEngine.modelIdService.toString(modelId)
     this.logger.info(`[${stringId}] Training Started.`)
 

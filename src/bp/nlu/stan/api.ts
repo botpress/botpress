@@ -12,7 +12,17 @@ import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../..
 import Logger from '../../simple-logger'
 
 import { PredictOutput, TrainInput } from '../typings_v1'
-import * as http from './http-typings'
+import {
+  InfoResponseBody,
+  ErrorResponse,
+  ListModelsResponseBody,
+  PruneModelsResponseBody,
+  TrainResponseBody,
+  TrainProgressResponseBody,
+  SuccessReponse,
+  PredictResponseBody,
+  DetectLangResponseBody
+} from './http-typings'
 import { ModelRepoOptions, ModelRepository } from './model-repo'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
@@ -104,10 +114,10 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
 
       const info = { health, specs, languages }
 
-      const resp: http.InfoResponseBody = { success: true, info }
+      const resp: InfoResponseBody = { success: true, info }
       res.send(resp)
     } catch (err) {
-      const resp: http.ErrorResponse = { success: false, error: err.message }
+      const resp: ErrorResponse = { success: false, error: err.message }
       res.status(500).send(resp)
     }
   })
@@ -118,10 +128,10 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
       const modelIds = await modelRepo.listModels({ appSecret, appId })
       const stringIds = modelIds.map(modelIdService.toString)
 
-      const resp: http.ListModelsResponseBody = { success: true, models: stringIds }
+      const resp: ListModelsResponseBody = { success: true, models: stringIds }
       return res.send(resp)
     } catch (err) {
-      const resp: http.ErrorResponse = { success: false, error: err.message }
+      const resp: ErrorResponse = { success: false, error: err.message }
       res.status(500).send(resp)
     }
   })
@@ -140,10 +150,10 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
 
       const stringIds = modelIds.map(modelIdService.toString)
 
-      const resp: http.PruneModelsResponseBody = { success: true, models: stringIds }
+      const resp: PruneModelsResponseBody = { success: true, models: stringIds }
       return res.send(resp)
     } catch (err) {
-      const resp: http.ErrorResponse = { success: false, error: err.message }
+      const resp: ErrorResponse = { success: false, error: err.message }
       res.status(500).send(resp)
     }
   })
@@ -171,10 +181,10 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       trainService.train(modelId, { appSecret, appId }, trainInput)
 
-      const resp: http.TrainResponseBody = { success: true, modelId: NLUEngine.modelIdService.toString(modelId) }
+      const resp: TrainResponseBody = { success: true, modelId: NLUEngine.modelIdService.toString(modelId) }
       return res.send(resp)
     } catch (err) {
-      const resp: http.ErrorResponse = { success: false, error: err.message }
+      const resp: ErrorResponse = { success: false, error: err.message }
       res.status(500).send(resp)
     }
   })
@@ -206,10 +216,10 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
         }
       }
 
-      const resp: http.TrainProgressResponseBody = { success: true, session }
+      const resp: TrainProgressResponseBody = { success: true, session }
       res.send(resp)
     } catch (err) {
-      const resp: http.ErrorResponse = { success: false, error: err.message }
+      const resp: ErrorResponse = { success: false, error: err.message }
       res.status(500).send(resp)
     }
   })
@@ -224,14 +234,14 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
 
       if (session?.status === 'training') {
         await engine.cancelTraining(stringId)
-        const resp: http.SuccessReponse = { success: true }
+        const resp: SuccessReponse = { success: true }
         return res.send(resp)
       }
 
-      const resp: http.ErrorResponse = { success: false, error: `no current training for model id: ${stringId}` }
+      const resp: ErrorResponse = { success: false, error: `no current training for model id: ${stringId}` }
       res.status(404).send(resp)
     } catch (err) {
-      const resp: http.ErrorResponse = { success: false, error: err.message }
+      const resp: ErrorResponse = { success: false, error: err.message }
       res.status(500).send(resp)
     }
   })
@@ -243,7 +253,7 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
 
       if (!_.isArray(utterances) || (options.batchSize > 0 && utterances.length > options.batchSize)) {
         const error = `Batch size of ${utterances.length} is larger than the allowed maximum batch size (${options.batchSize}).`
-        const resp: http.ErrorResponse = { success: false, error }
+        const resp: ErrorResponse = { success: false, error }
         return res.status(400).send(resp)
       }
 
@@ -253,7 +263,7 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
         const model = await modelRepo.getModel(modelId, { appId, appSecret })
         if (!model) {
           const error = `modelId ${stringId} can't be found`
-          const resp: http.ErrorResponse = { success: false, error }
+          const resp: ErrorResponse = { success: false, error }
           return res.status(404).send(resp)
         }
 
@@ -266,10 +276,10 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
         return { entities, contexts, spellChecked, detectedLanguage }
       })
 
-      const resp: http.PredictResponseBody = { success: true, predictions: predictions.map(_roundConfidencesTo3Digits) }
+      const resp: PredictResponseBody = { success: true, predictions: predictions.map(_roundConfidencesTo3Digits) }
       res.send(resp)
     } catch (err) {
-      const resp: http.ErrorResponse = { success: false, error: err.message }
+      const resp: ErrorResponse = { success: false, error: err.message }
       res.status(500).send(resp)
     }
   })
@@ -323,10 +333,10 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
         return detectedLanguage
       })
 
-      const resp: http.DetectLangResponseBody = { success: true, detectedLanguages }
+      const resp: DetectLangResponseBody = { success: true, detectedLanguages }
       res.send(resp)
     } catch (err) {
-      const resp: http.ErrorResponse = { success: false, error: err.message }
+      const resp: ErrorResponse = { success: false, error: err.message }
       res.status(500).send(resp)
     }
   })

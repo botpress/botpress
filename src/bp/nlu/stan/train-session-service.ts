@@ -3,7 +3,7 @@ import LRUCache from 'lru-cache'
 import * as NLUEngine from 'nlu/engine'
 
 import { TrainingProgress } from 'nlu/typings_v1'
-import * as http from './http-typings'
+import { Credentials } from './http-typings'
 
 export default class TrainSessionService {
   private trainSessions: {
@@ -15,7 +15,7 @@ export default class TrainSessionService {
 
   constructor() {}
 
-  getTrainingSession(modelId: NLUEngine.ModelId, credentials: http.Credentials): TrainingProgress | undefined {
+  getTrainingSession(modelId: NLUEngine.ModelId, credentials: Credentials): TrainingProgress | undefined {
     const key = this._makeTrainSessionKey(modelId, credentials)
     const ts = this.trainSessions[key]
     if (ts) {
@@ -24,7 +24,7 @@ export default class TrainSessionService {
     return this.releasedTrainSessions.get(key)
   }
 
-  setTrainingSession(modelId: NLUEngine.ModelId, credentials: http.Credentials, trainSession: TrainingProgress) {
+  setTrainingSession(modelId: NLUEngine.ModelId, credentials: Credentials, trainSession: TrainingProgress) {
     const key = this._makeTrainSessionKey(modelId, credentials)
     if (this.releasedTrainSessions.get(key)) {
       this.releasedTrainSessions.del(key)
@@ -32,14 +32,14 @@ export default class TrainSessionService {
     this.trainSessions[key] = trainSession
   }
 
-  releaseTrainingSession(modelId: NLUEngine.ModelId, credentials: http.Credentials): void {
+  releaseTrainingSession(modelId: NLUEngine.ModelId, credentials: Credentials): void {
     const key = this._makeTrainSessionKey(modelId, credentials)
     const ts = this.trainSessions[key]
     delete this.trainSessions[key]
     this.releasedTrainSessions.set(key, ts)
   }
 
-  deleteTrainingSession(modelId: NLUEngine.ModelId, credentials: http.Credentials): void {
+  deleteTrainingSession(modelId: NLUEngine.ModelId, credentials: Credentials): void {
     const key = this._makeTrainSessionKey(modelId, credentials)
     if (this.releasedTrainSessions.get(key)) {
       this.releasedTrainSessions.del(key)
@@ -49,7 +49,7 @@ export default class TrainSessionService {
     }
   }
 
-  private _makeTrainSessionKey(modelId: NLUEngine.ModelId, credentials: http.Credentials) {
+  private _makeTrainSessionKey(modelId: NLUEngine.ModelId, credentials: Credentials) {
     const stringId = NLUEngine.modelIdService.toString(modelId)
 
     const { appSecret, appId } = credentials

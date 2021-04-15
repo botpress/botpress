@@ -67,8 +67,6 @@ export type EntityDefinition = ListEntityDefinition | PatternEntityDefinition
  * training: when a chatbot is currently training
  * canceled: when a training was canceled
  * errored: when an unhandled error occured during training
- *
- * If the training does not exist, API returns a 404
  */
 export type TrainingStatus = 'done' | 'training-pending' | 'training' | 'canceled' | 'errored'
 
