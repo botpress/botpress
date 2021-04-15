@@ -18,6 +18,7 @@ import { sleep } from './utils.u.test'
 
 import { TrainingSession } from '../../typings'
 import { FakeDistributed } from './fake-distributed.u.test'
+import { Specifications } from '../../../stan/typings'
 
 interface AppDependencies {
   socket: jest.Mock<Promise<void>, [TrainingSession]>
@@ -37,7 +38,7 @@ interface BotFileSystem {
 
 interface CoreSpecs {
   languages: string[]
-  specs: NLUEngine.Specifications
+  specs: Specifications
 }
 
 export const makeDependencies = (

@@ -7,6 +7,7 @@ import '../tests/utils/sdk.u.test'
 import { StubLogger } from '../tests/utils/stub-logger.u.test'
 
 import { mock } from './utils/mock-extra.u.test'
+import { PredictOutput } from '../../stan/typings'
 
 // TODO: use the new testing infrastructure
 
@@ -66,9 +67,10 @@ function makeEngineMock(loadedLanguages: string[]): NLUEngine.Engine {
 
     predict: jest.fn(async (textInput: string, modelId: NLUEngine.ModelId) => {
       if (loadedModels.map(m => m.languageCode).includes(modelId.languageCode)) {
-        return <NLUEngine.PredictOutput>{
+        return <PredictOutput>{
           entities: [],
-          predictions: {}
+          contexts: [],
+          spellChecked: textInput
         }
       }
       throw new Error('model not loaded')
@@ -100,8 +102,8 @@ function makeModelRepoMock(langsOnFs: string[]): IModelRepository {
 
 const modelIdService = (<Partial<typeof NLUEngine.modelIdService>>{
   toId: (m: NLUEngine.ModelId) => m,
-  briefId: (q: { specifications: any; languageCode: string }) => ({
-    languageCode: q.languageCode
+  briefId: (q: { specifications: any; language: string }) => ({
+    languageCode: q.language
   })
 }) as typeof NLUEngine.modelIdService
 
