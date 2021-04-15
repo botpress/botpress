@@ -82,7 +82,6 @@ const TYPES = {
   WorkspaceUsersRepository: Symbol.for('WorkspaceUsersRepository'),
   WorkspaceInviteCodesRepository: Symbol.for('WorkspaceInviteCodesRepository'),
   LocalActionServer: Symbol.for('LocalActionServer'),
-  LocalSTANServer: Symbol.for('LocalSTANServer'),
   NLUService: Symbol.for('NLUService'),
   TelemetryRepository: Symbol.for('TelemetryRepository'),
   ActionStats: Symbol.for('ActionStats'),

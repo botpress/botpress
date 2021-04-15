@@ -184,7 +184,7 @@ export class Botpress {
   private async maybeStartLocalSTAN() {
     const config = await this.moduleLoader.configReader.getGlobal('nlu')
 
-    if (config.NLUEngineURL) {
+    if (config.STANUrl) {
       return
     }
     startLocalSTANServer({})

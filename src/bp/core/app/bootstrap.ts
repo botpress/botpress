@@ -3,14 +3,14 @@ import 'bluebird-global'
 import '../../sdk/rewire'
 // eslint-disable-next-line import/order
 import '../../common/polyfills'
-
-import sdk from 'botpress/sdk'
+import sdk, { logger } from 'botpress/sdk'
 import chalk from 'chalk'
 import cluster from 'cluster'
 import { BotpressApp, createApp, createLoggerProvider } from 'core/app/core-loader'
 import { ModuleConfigEntry } from 'core/config'
 import { centerText, LoggerProvider } from 'core/logger'
 import { ModuleLoader, ModuleResolver } from 'core/modules'
+import spawn from 'cross-spawn'
 
 import fs from 'fs'
 import _ from 'lodash'
@@ -106,6 +106,22 @@ async function prepareLocalModules(app: BotpressApp, logger: sdk.Logger) {
   await app.ghost.root().syncDatabaseFilesToDisk('modules')
 }
 
+const runStan = (): Promise<{ code: number | null; signal: string | null }> => {
+  const command = process.env.STAN_DEV_MODE ? 'yarn start nlu' : './stan'
+  return new Promise((resolve, reject) => {
+    try {
+      const stanProcess = spawn(command, { shell: true })
+      stanProcess.stdout.pipe(process.stdout)
+      stanProcess.stderr.pipe(process.stderr)
+      stanProcess.on('exit', (code, signal) => {
+        resolve({ code, signal })
+      })
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+
 async function start() {
   if (cluster.isMaster) {
     const loggerProvider = createLoggerProvider()
@@ -123,7 +139,7 @@ async function start() {
   }
 
   if (process.env.WORKER_TYPE === WORKER_TYPES.LOCAL_STAN_SERVER) {
-    await app.localSTANServer.listen()
+    await runStan()
     return
   }
 
