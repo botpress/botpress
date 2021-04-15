@@ -4,9 +4,9 @@ import {
   EntityPrediction,
   SlotPrediction,
   ContextPrediction,
-  IntentPrediction as StanIntentPrediction
+  IntentPrediction as StanIntentPrediction,
+  PredictOutput
 } from '../../typings_v1'
-import { PredictOutput } from '../typings'
 
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
 import { IntentPrediction, IntentPredictions, NoneableIntentPredictions } from './intents/intent-classifier'

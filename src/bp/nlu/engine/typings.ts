@@ -1,4 +1,4 @@
-import { IntentDefinition, EntityDefinition, EntityPrediction, ContextPrediction } from '../typings_v1'
+import { TrainInput, Specifications, Health, PredictOutput } from '../typings_v1'
 
 export interface Config extends LanguageConfig {
   modelCacheSize: string
@@ -23,26 +23,13 @@ export interface Logger {
   error: (msg: string, err?: Error) => void
 }
 
-export interface TrainingSet {
-  intentDefs: IntentDefinition[]
-  entityDefs: EntityDefinition[]
-  languageCode: string
-  seed: number // seeds random number generator in nlu training
-}
-
-export interface ModelIdArgs extends TrainingSet {
+export interface ModelIdArgs extends TrainInput {
   specifications: Specifications
 }
 
 export interface TrainingOptions {
   progressCallback: (x: number) => void
   previousModel: ModelId | undefined
-}
-
-export interface PredictOutput {
-  entities: EntityPrediction[]
-  contexts: ContextPrediction[]
-  spellChecked: string
 }
 
 export interface Engine {
@@ -54,7 +41,7 @@ export interface Engine {
   unloadModel: (modelId: ModelId) => void
   hasModel: (modelId: ModelId) => boolean
 
-  train: (trainSessionId: string, trainSet: TrainingSet, options?: Partial<TrainingOptions>) => Promise<Model>
+  train: (trainSessionId: string, trainSet: TrainInput, options?: Partial<TrainingOptions>) => Promise<Model>
   cancelTraining: (trainSessionId: string) => Promise<void>
 
   detectLanguage: (text: string, modelByLang: { [key: string]: ModelId }) => Promise<string>
@@ -76,15 +63,6 @@ export interface ModelId {
   languageCode: string // language of the model
 }
 
-export interface Specifications {
-  nluVersion: string // semver string
-  languageServer: {
-    dimensions: number
-    domain: string
-    version: string // semver string
-  }
-}
-
 export interface Model {
   id: ModelId
   startedAt: Date
@@ -93,10 +71,4 @@ export interface Model {
     input: string
     output: string
   }
-}
-
-export interface Health {
-  isEnabled: boolean
-  validProvidersCount: number
-  validLanguages: string[]
 }

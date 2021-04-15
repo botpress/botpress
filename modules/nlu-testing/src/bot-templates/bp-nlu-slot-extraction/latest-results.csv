@@ -1,5 +1,5 @@
-utterance,context,conditions,status,date: 3/23/2021,summary: 61.8,nlu seed: undefined
-A MP34 I WHAT I WISH FOR LOL,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,MP34",pass
+utterance,context,conditions,status,date: 4/14/2021,summary: 61.8,nlu seed: undefined
+A MP34 I WHAT I WISH FOR LOL,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,MP34",fail
 I wanto by a AKP447,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,AKP447",fail
 I wish to get my hands on a Ak-47,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,Ak-47",pass
 I really want an m16 right now,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,m16",pass
@@ -63,16 +63,16 @@ Can I take a week on the 8 of may ? ,built-in,"-intent,is,ask_holidays-slot:holi
 Can I take vacations the 3 of june for five weeks ?,built-in,"-intent,is,ask_holidays-slot:holiday_start,is,3 of june-slot:holiday_duration,is,five weeks",pass
 Can I take vacations the 3rd of june for five weeks ?,built-in,"-intent,is,ask_holidays-slot:holiday_start,is,3rd of june-slot:holiday_duration,is,five weeks",pass
 I would like to take 4 days after new year eve,built-in,"-intent,is,ask_holidays-slot:holiday_duration,is,4 days-slot:holiday_start,is,new year eve",pass
-I would like to leave for 4 days after new year eve,built-in,"-intent,is,ask_holidays-slot:holiday_duration,is,4 days-slot:holiday_start,is,new year eve",pass
+I would like to leave for 4 days after new year eve,built-in,"-intent,is,ask_holidays-slot:holiday_duration,is,4 days-slot:holiday_start,is,new year eve",fail
 I'm going to fire cherries on buildings,multi-slot-multi-entity,"-intent,is,fire-something-slot:thing_to_fire,is,cherries",pass
 I'm going to fire things at 8am!,multi-slot-multi-entity,"-intent,is,fire-something-slot:time_or_place,is,8am",pass
 Let shoot on London!,multi-slot-multi-entity,"-intent,is,fire-something-slot:time_or_place,is,London",fail
 how can I fire someone?,multi-entity,"-intent,is,fire-employe",pass
 buy an aple,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,aple",fail
 I wana buy ornage,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,ornage",pass
-Please give em abanana,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,banana",fail
+Please give em abanana,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,banana",pass
 eating na aple at banana republic,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,aple",fail
-On my trip to lemon cove I ate anorange,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,orange",fail
+On my trip to lemon cove I ate anorange,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,orange",pass
 eat an Orange Vale's lemon,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,lemon",fail
 I want to reach Teheran by leaving Tallinn,1-entity,"-intent,is,book-flight-slot:from_city,is,Tallinn-slot:to_city,is,Teheran",fail
 fly from montrael to quebec,1-entity,"-intent,is,book-flight-slot:from_city,is,montrael-slot:to_city,is,quebc",fail

@@ -1,21 +1,31 @@
 // Typings for Stan's API v1
 
-/**
- * ################################
- * ############ INPUTS ############
- * ################################
- */
-export interface TrainInput extends Credentials {
-  language: string
-  contexts: string[]
-  intents: IntentDefinition[]
-  entities: (ListEntityDefinition | PatternEntityDefinition)[]
-  seed?: number
+export interface Specifications {
+  nluVersion: string // semver string
+  languageServer: {
+    dimensions: number
+    domain: string
+    version: string // semver string
+  }
 }
 
-export interface Credentials {
-  appId: string
-  appSecret: string
+export interface Health {
+  isEnabled: boolean
+  validProvidersCount: number
+  validLanguages: string[]
+}
+
+/**
+ * ##################################
+ * ############ TRAINING ############
+ * ##################################
+ */
+
+export interface TrainInput {
+  language: string
+  intents: IntentDefinition[]
+  entities: EntityDefinition[]
+  seed: number
 }
 
 export interface IntentDefinition {
@@ -51,14 +61,31 @@ export interface PatternEntityDefinition {
 
 export type EntityDefinition = ListEntityDefinition | PatternEntityDefinition
 
-export interface PredictInput extends Credentials {
-  utterances: string[]
+/**
+ * done : when a training is complete
+ * training-pending : when a training was launched, but the training process is not started yet
+ * training: when a chatbot is currently training
+ * canceled: when a training was canceled
+ * errored: when an unhandled error occured during training
+ */
+export type TrainingStatus = 'done' | 'training-pending' | 'training' | 'canceled' | 'errored'
+
+export type TrainingErrorType = 'already-started' | 'unknown'
+export interface TrainingError {
+  type: TrainingErrorType
+  message: string
+  stackTrace?: string
+}
+export interface TrainingProgress {
+  status: TrainingStatus
+  progress: number
+  error?: TrainingError
 }
 
 /**
- * #################################
- * ############ OUTPUTS ############
- * #################################
+ * ####################################
+ * ############ PREDICTION ############
+ * ####################################
  */
 export interface PredictOutput {
   entities: EntityPrediction[]
@@ -103,27 +130,4 @@ export interface SlotPrediction {
   start: number
   end: number
   entity: EntityPrediction | null
-}
-
-/**
- * done : when a training is complete
- * training-pending : when a training was launched, but the training process is not started yet
- * training: when a chatbot is currently training
- * canceled: when a training was canceled
- * errored: when an unhandled error occured during training
- *
- * If the training does not exist, API returns a 404
- */
-export type TrainingStatus = 'done' | 'training-pending' | 'training' | 'canceled' | 'errored'
-
-export type TrainingErrorType = 'already-started' | 'unknown'
-export interface TrainingError {
-  type: TrainingErrorType
-  message: string
-  stackTrace?: string
-}
-export interface TrainingProgress {
-  status: TrainingStatus
-  progress: number
-  error?: TrainingError
 }

@@ -55,7 +55,7 @@ export const expectTrainingToStartAndComplete = async (
 export const expectEngineToHaveTrained = (trainMock: jest.SpyInstance, languageCode: string) => {
   expect(trainMock).toHaveBeenCalledWith(
     expect.stringContaining(languageCode),
-    expect.objectContaining({ languageCode }),
+    expect.objectContaining({ language: languageCode }),
     expect.anything()
   )
 }

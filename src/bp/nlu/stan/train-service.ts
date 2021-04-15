@@ -3,7 +3,8 @@ import * as sdk from 'botpress/sdk'
 import * as NLUEngine from 'nlu/engine'
 
 import { serializeError } from 'nlu/utils/error-utils'
-import { TrainingProgress, TrainingErrorType, Credentials, IntentDefinition, EntityDefinition } from '../typings_v1'
+import { TrainingProgress, TrainingErrorType, TrainInput } from '../typings_v1'
+import { Credentials } from './http-typings'
 import { ModelRepository } from './model-repo'
 import TrainSessionService from './train-session-service'
 
@@ -15,14 +16,7 @@ export default class TrainService {
     private trainSessionService: TrainSessionService
   ) {}
 
-  train = async (
-    modelId: NLUEngine.ModelId,
-    credentials: Credentials,
-    intents: IntentDefinition[],
-    entities: EntityDefinition[],
-    language: string,
-    nluSeed: number
-  ) => {
+  train = async (modelId: NLUEngine.ModelId, credentials: Credentials, trainInput: TrainInput) => {
     const stringId = NLUEngine.modelIdService.toString(modelId)
     this.logger.info(`[${stringId}] Training Started.`)
 
@@ -41,13 +35,7 @@ export default class TrainService {
     }
 
     try {
-      const trainSet: NLUEngine.TrainingSet = {
-        intentDefs: intents,
-        entityDefs: entities,
-        languageCode: language,
-        seed: nluSeed
-      }
-      const model = await this.engine.train(stringId, trainSet, { progressCallback })
+      const model = await this.engine.train(stringId, trainInput, { progressCallback })
       this.logger.info(`[${stringId}] Training Done.`)
 
       await this.modelRepo.saveModel(model, credentials)

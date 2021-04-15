@@ -128,7 +128,7 @@ export class ScopedPredictionHandler {
     }
 
     const specifications = this.engine.getSpecifications()
-    const query = this.modelIdService.briefId({ specifications, languageCode })
+    const query = this.modelIdService.briefId({ specifications, language: languageCode })
     return modelService.getLatestModel(query)
   }
 
