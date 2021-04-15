@@ -1,10 +1,10 @@
 import * as sdk from 'botpress/sdk'
-import * as NLU from 'common/nlu/engine'
 import _ from 'lodash'
 
 import moment from 'moment'
 import ms from 'ms'
 import nanoid from 'nanoid'
+import { ModelId } from '../stan/model-id-service'
 import { ITrainingRepository, ITrainingTransactionContext } from './training-repo'
 import { TrainingId, TrainerService, TrainingListener, TrainingState, TrainingSession, I } from './typings'
 
@@ -33,7 +33,6 @@ export class TrainingQueue {
 
   constructor(
     private _trainingRepo: ITrainingRepository,
-    private _errors: typeof NLU.errors,
     private _logger: sdk.Logger,
     private _trainerService: TrainerService,
     private _onChange: TrainingListener,
@@ -140,7 +139,7 @@ export class TrainingQueue {
     }, 'cancelTraining')
   }
 
-  protected async loadModel(botId: string, modelId: NLU.ModelId): Promise<void> {
+  protected async loadModel(botId: string, modelId: ModelId): Promise<void> {
     const trainer = this._trainerService.getBot(botId)
     if (trainer) {
       return trainer.load(modelId)
@@ -229,7 +228,8 @@ export class TrainingQueue {
   private _handleTrainError = async (trainId: TrainingId, err: Error) => {
     const { botId } = trainId
 
-    if (this._errors.isTrainingCanceled(err)) {
+    const isTrainingCanceled = x => true // TODO: replace by actual implementation
+    if (isTrainingCanceled(err)) {
       return this._trainingRepo.inTransaction(async trx => {
         this._logger.forBot(botId).info(`Training ${this._toString(trainId)} canceled`)
         const newState = this._fillSate({ status: 'needs-training' })
@@ -237,7 +237,8 @@ export class TrainingQueue {
       }, '_handleTrainError: canceled')
     }
 
-    if (this._errors.isTrainingAlreadyStarted(err)) {
+    const isTrainingAlreadyStarted = x => true // TODO: replace by actual implementation
+    if (isTrainingAlreadyStarted(err)) {
       // This should not happend
       this._logger.forBot(botId).warn(`Training ${this._toString(trainId)} already started`)
       return

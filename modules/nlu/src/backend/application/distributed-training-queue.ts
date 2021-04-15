@@ -1,24 +1,24 @@
 import * as sdk from 'botpress/sdk'
-import * as NLU from 'common/nlu/engine'
+
+import { ModelId } from '../stan/model-id-service'
 import { TrainingQueue, TrainingQueueOptions } from './training-queue'
 import { ITrainingRepository } from './training-repo'
 import { TrainingId, TrainerService, TrainingListener } from './typings'
 
 export class DistributedTrainingQueue extends TrainingQueue {
   private _broadcastCancelTraining: (id: TrainingId) => Promise<void>
-  private _broadcastLoadModel: (botId: string, modelId: NLU.ModelId) => Promise<void>
+  private _broadcastLoadModel: (botId: string, modelId: ModelId) => Promise<void>
   private _broadcastRunTask: () => Promise<void>
 
   constructor(
     _trainingRepo: ITrainingRepository,
-    _errors: typeof NLU.errors,
     _logger: sdk.Logger,
     _trainerService: TrainerService,
     private _distributed: typeof sdk.distributed,
     _onChange: TrainingListener,
     options: Partial<TrainingQueueOptions> = {}
   ) {
-    super(_trainingRepo, _errors, _logger, _trainerService, _onChange, options)
+    super(_trainingRepo, _logger, _trainerService, _onChange, options)
   }
 
   public async initialize() {
@@ -42,7 +42,7 @@ export class DistributedTrainingQueue extends TrainingQueue {
     return this._broadcastRunTask()
   }
 
-  protected loadModel(botId: string, modelId: NLU.ModelId) {
+  protected loadModel(botId: string, modelId: ModelId) {
     return this._broadcastLoadModel(botId, modelId)
   }
 }

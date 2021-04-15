@@ -1,20 +1,20 @@
-import * as NLU from 'common/nlu/engine'
 import _ from 'lodash'
 import yn from 'yn'
 
+import { StanEngine } from '../stan'
 import { IScopedServicesFactory } from './bot-factory'
 import { IBotService } from './bot-service'
 import { BotNotMountedError } from './errors'
 import { ITrainingQueue } from './training-queue'
 import { ITrainingRepository } from './training-repo'
-import { Predictor, BotConfig, TrainingSession, TrainingState, TrainingId } from './typings'
+import { Predictor, BotConfig, TrainingState, TrainingId } from './typings'
 
 export class NLUApplication {
   private _queueTrainingOnBotMount: boolean
 
   constructor(
     private _trainingQueue: ITrainingQueue,
-    private _engine: NLU.Engine,
+    private _engine: StanEngine,
     private _servicesFactory: IScopedServicesFactory,
     private _botService: IBotService,
     queueTrainingOnBotMount: boolean = true
@@ -33,8 +33,9 @@ export class NLUApplication {
     return this._trainingQueue.teardown()
   }
 
-  public getHealth() {
-    return this._engine.getHealth()
+  public async getHealth() {
+    const { health } = await this._engine.getInfo()
+    return health
   }
 
   public async getTraining(botId: string, language: string): Promise<TrainingState> {
@@ -59,12 +60,12 @@ export class NLUApplication {
 
   public mountBot = async (botConfig: BotConfig) => {
     const { id: botId, languages } = botConfig
-    const { bot, defService, modelRepo } = await this._servicesFactory.makeBot(botConfig)
+    const { bot, defService } = await this._servicesFactory.makeBot(botConfig)
     this._botService.setBot(botId, bot)
 
     const makeDirtyModelHandler = (cb: (trainId: TrainingId) => Promise<void>) => async (language: string) => {
       const latestModelId = await defService.getLatestModelId(language)
-      if (await modelRepo.hasModel(latestModelId)) {
+      if (await this._engine.hasModel(botId, latestModelId)) {
         await bot.load(latestModelId)
         return
       }

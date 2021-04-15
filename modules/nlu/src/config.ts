@@ -1,4 +1,7 @@
-import { LanguageSource } from 'common/nlu/engine'
+interface LanguageSource {
+  endpoint: string
+  authToken?: string
+}
 
 export interface Config {
   /**

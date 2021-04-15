@@ -1,22 +1,20 @@
 import * as sdk from 'botpress/sdk'
 
-import { Engine, ModelIdService } from 'common/nlu/engine'
 import _ from 'lodash'
+import { StanEngine } from '../stan'
+import modelIdService from '../stan/model-id-service'
 import pickSeed from './pick-seed'
 import { Bot, IBot } from './scoped/bot'
 import { ScopedDefinitionsService, IDefinitionsService } from './scoped/definitions-service'
 import { IDefinitionsRepository } from './scoped/infrastructure/definitions-repository'
-import { IModelRepository } from './scoped/infrastructure/model-repository'
 import { BotDefinition, BotConfig, I } from './typings'
 
 export interface ScopedServices {
   bot: IBot
   defService: IDefinitionsService
-  modelRepo: IModelRepository
 }
 
 export type DefinitionRepositoryFactory = (botDef: BotDefinition) => IDefinitionsRepository
-export type ModelRepositoryFactory = (botDef: BotDefinition) => IModelRepository
 
 export interface ConfigResolver {
   getBotById(botId: string): Promise<BotConfig | undefined>
@@ -26,18 +24,18 @@ export type IScopedServicesFactory = I<ScopedServicesFactory>
 
 export class ScopedServicesFactory {
   constructor(
-    private _engine: Engine,
+    private _engine: StanEngine,
     private _logger: sdk.Logger,
-    private _modelIdService: ModelIdService,
-    private _makeDefRepo: DefinitionRepositoryFactory,
-    private _makeModelRepo: ModelRepositoryFactory
+    private _modelIdService: typeof modelIdService,
+    private _makeDefRepo: DefinitionRepositoryFactory
   ) {}
 
   public makeBot = async (botConfig: BotConfig): Promise<ScopedServices> => {
     const { id: botId } = botConfig
 
     const { defaultLanguage } = botConfig
-    const languages = _.intersection(botConfig.languages, this._engine.getLanguages())
+    const { languages: engineLanguages } = await this._engine.getInfo()
+    const languages = _.intersection(botConfig.languages, engineLanguages)
     if (botConfig.languages.length !== languages.length) {
       const missingLangMsg = `Bot ${botId} has configured languages that are not supported by language sources. Configure a before incoming hook to call an external NLU provider for those languages.`
       this._logger.forBot(botId).warn(missingLangMsg, { notSupported: _.difference(botConfig.languages, languages) })
@@ -50,15 +48,13 @@ export class ScopedServicesFactory {
       seed: pickSeed(botConfig)
     }
 
-    const modelRepo = this._makeModelRepo(botDefinition)
     const defRepo = this._makeDefRepo(botDefinition)
 
     const defService = new ScopedDefinitionsService(botDefinition, this._engine, defRepo, this._modelIdService)
 
-    const bot = new Bot(botDefinition, this._engine, modelRepo, defService, this._modelIdService, this._logger)
+    const bot = new Bot(botDefinition, this._engine, defService, this._modelIdService, this._logger)
 
     return {
-      modelRepo,
       defService,
       bot
     }
