@@ -10,7 +10,6 @@ import { BotpressApp, createApp, createLoggerProvider } from 'core/app/core-load
 import { ModuleConfigEntry } from 'core/config'
 import { centerText, LoggerProvider } from 'core/logger'
 import { ModuleLoader, ModuleResolver } from 'core/modules'
-import spawn from 'cross-spawn'
 
 import fs from 'fs'
 import _ from 'lodash'
@@ -106,20 +105,6 @@ async function prepareLocalModules(app: BotpressApp, logger: sdk.Logger) {
   await app.ghost.root().syncDatabaseFilesToDisk('modules')
 }
 
-const runStan = (): Promise<{ code: number | null; signal: string | null }> => {
-  const command = process.env.STAN_DEV_MODE ? 'yarn start nlu' : './stan'
-  return new Promise((resolve, reject) => {
-    try {
-      const stanProcess = spawn(command, ['--silent'], { shell: true, stdio: 'inherit' })
-      stanProcess.on('exit', (code, signal) => {
-        resolve({ code, signal })
-      })
-    } catch (err) {
-      reject(err)
-    }
-  })
-}
-
 async function start() {
   if (cluster.isMaster) {
     const loggerProvider = createLoggerProvider()
@@ -133,11 +118,6 @@ async function start() {
 
   if (process.env.WORKER_TYPE === WORKER_TYPES.LOCAL_ACTION_SERVER) {
     app.localActionServer.listen()
-    return
-  }
-
-  if (process.env.WORKER_TYPE === WORKER_TYPES.LOCAL_STAN_SERVER) {
-    await runStan()
     return
   }
 

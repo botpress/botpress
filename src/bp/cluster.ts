@@ -1,5 +1,6 @@
 import sdk from 'botpress/sdk'
 import cluster, { Worker } from 'cluster'
+import spawn from 'cross-spawn'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
 import yn from 'yn'
@@ -45,6 +46,25 @@ export const registerMsgHandler = (messageType: string, handler: (message: any, 
   msgHandlers[messageType] = handler
 }
 
+const runStan = (opts: StartLocalSTANServerMessage): Promise<{ code: number | null; signal: string | null }> => {
+  const command = process.env.STAN_DEV_MODE ? 'yarn start nlu' : './stan'
+  return new Promise((resolve, reject) => {
+    try {
+      const STAN_JSON_CONFIG = JSON.stringify(opts)
+      const stanProcess = spawn(command, ['--silent'], {
+        shell: true,
+        stdio: 'inherit',
+        env: { ...process.env, STAN_JSON_CONFIG }
+      })
+      stanProcess.on('exit', (code, signal) => {
+        resolve({ code, signal })
+      })
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+
 export const setupMasterNode = (logger: sdk.Logger) => {
   process.SERVER_ID = process.env.SERVER_ID || nanoid('1234567890abcdefghijklmnopqrstuvwxyz', 10)
 
@@ -62,8 +82,9 @@ export const setupMasterNode = (logger: sdk.Logger) => {
     cluster.fork({ WORKER_TYPE: WORKER_TYPES.LOCAL_ACTION_SERVER, APP_SECRET: appSecret, PORT: port })
   })
 
-  registerMsgHandler(MESSAGE_TYPE_START_LOCAL_STAN_SERVER, (message: StartLocalSTANServerMessage) => {
-    cluster.fork({ WORKER_TYPE: WORKER_TYPES.LOCAL_STAN_SERVER, STAN_JSON_CONFIG: JSON.stringify(message) })
+  registerMsgHandler(MESSAGE_TYPE_START_LOCAL_STAN_SERVER, async (message: StartLocalSTANServerMessage) => {
+    await runStan(message)
+    return
   })
 
   cluster.on('exit', async (worker: Worker, code: number, signal: string) => {
