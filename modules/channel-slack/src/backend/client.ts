@@ -188,10 +188,10 @@ export class SlackClient {
     }
 
     const foreignId = await this.bp.experimental.conversations.forBot(this.botId).getForeignId('slack', event.threadId)
-    const [threadId, target] = foreignId.split('-')
+    const [channelId, userId] = foreignId.split('-')
     const message = {
       text: event.payload.text,
-      channel: threadId,
+      channel: channelId,
       blocks
     }
 
@@ -236,27 +236,27 @@ export class SlackClient {
   }
 
   private async sendEvent(ctx: any, payload: any) {
-    const threadId = _.get(ctx, 'channel.id') || _.get(ctx, 'channel')
-    const target = _.get(ctx, 'user.id') || _.get(ctx, 'user')
+    const channelId = _.get(ctx, 'channel.id') || _.get(ctx, 'channel')
+    const userId = _.get(ctx, 'user.id') || _.get(ctx, 'user')
     let user = {}
 
-    if (target && this.config.fetchUserInfo) {
+    if (userId && this.config.fetchUserInfo) {
       try {
-        user = await this._getUserInfo(target.toString())
+        user = await this._getUserInfo(userId.toString())
       } catch (err) {}
     }
 
     let convoId = await this.bp.experimental.conversations
       .forBot(this.botId)
-      .getLocalId('slack', `${threadId}-${target}`)
+      .getLocalId('slack', `${channelId}-${userId}`)
 
     if (!convoId) {
-      const conversation = await this.bp.experimental.conversations.forBot(this.botId).create(target)
+      const conversation = await this.bp.experimental.conversations.forBot(this.botId).create(userId)
       convoId = conversation.id
 
       await this.bp.experimental.conversations
         .forBot(this.botId)
-        .createMapping('slack', conversation.id, `${threadId}-${target}`)
+        .createMapping('slack', conversation.id, `${channelId}-${userId}`)
     }
 
     await this.bp.experimental.messages.forBot(this.botId).receive(convoId, payload, { channel: 'slack' })
