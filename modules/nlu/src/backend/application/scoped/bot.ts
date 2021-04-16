@@ -21,7 +21,9 @@ export class Bot implements Trainable, Predictor {
   private _botId: string
   private _defaultLanguage: string
   private _languages: string[]
+
   private _modelsByLang: _.Dictionary<ModelId> = {}
+  private _trainingsByLang: _.Dictionary<ModelId> = {}
 
   private _predictor: ScopedPredictionHandler
 
@@ -78,7 +80,7 @@ export class Bot implements Trainable, Predictor {
 
     const modelId = await _engine.startTraining(this._botId, stanTrainSet)
 
-    // TODO: keep current trainings in mem
+    this._trainingsByLang[language] = modelId
 
     await _engine.waitForTraining(this._botId, modelId, progressCallback)
 
@@ -90,16 +92,13 @@ export class Bot implements Trainable, Predictor {
       throw new BotDoesntSpeakLanguageError(this._botId, language)
     }
 
-    // TODO: pass current training
-    return this._engine.cancelTraining(this._botId, {} as ModelId)
+    if (this._trainingsByLang[language]) {
+      return this._engine.cancelTraining(this._botId, this._trainingsByLang[language])
+    }
   }
 
   public predict = async (textInput: string, anticipatedLanguage?: string) => {
     const { _predictor, _defaultLanguage } = this
     return _predictor.predict(textInput, anticipatedLanguage ?? _defaultLanguage)
-  }
-
-  private _makeTrainingId = (language: string) => {
-    return `${this._botId}:${language}`
   }
 }

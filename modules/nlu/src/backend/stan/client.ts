@@ -40,8 +40,8 @@ export class StanClient {
     credentials: Credentials
   ): Promise<TrainProgressResponseBody | ErrorResponse> {
     const endpoint = `train/${modelId}`
-    const { session } = await this._client.get(endpoint, { params: credentials })
-    return session
+    const { data } = await this._client.get(endpoint, { params: credentials })
+    return data
   }
 
   public async cancelTraining(modelId: string, credentials: Credentials): Promise<SuccessReponse | ErrorResponse> {

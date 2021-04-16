@@ -1,7 +1,8 @@
 import _ from 'lodash'
 import { StanClient } from '../stan/client'
 import modelIdService, { ModelId } from '../stan/model-id-service'
-import { TrainInput, PredictOutput, Health, Specifications } from '../stan/typings_v1'
+import { TrainInput, PredictOutput, Health, Specifications, TrainingError } from '../stan/typings_v1'
+import { TrainingCanceledError, TrainingAlreadyStartedError } from './errors'
 
 const TRAIN_PROGRESS_POLLING_INTERVAL = 500
 
@@ -70,23 +71,32 @@ export class StanEngine {
 
         if (status === 'canceled') {
           clearInterval(interval)
-          reject(new Error('Training Canceled')) // TODO: make a special error type
+          reject(new TrainingCanceledError())
           return
         }
 
         if (status === 'errored') {
           clearInterval(interval)
-          const defaultMessage = 'An error occured during training'
-          const { message, stackTrace } = serializedError ?? {}
-          const error = new Error(message ?? defaultMessage)
-          if (stackTrace) {
-            error.stack = stackTrace
-          }
+          const error = this._mapTrainError(serializedError)
           reject(error) // TODO: find out when this happends and try sending the actual message
           return
         }
       }, TRAIN_PROGRESS_POLLING_INTERVAL)
     })
+  }
+
+  private _mapTrainError = (serializedError: TrainingError | undefined): Error => {
+    if (serializedError?.type === 'already-started') {
+      return new TrainingAlreadyStartedError()
+    }
+
+    const defaultMessage = 'An error occured during training'
+    const { message, stackTrace } = serializedError ?? {}
+    const unknownError = new Error(message ?? defaultMessage)
+    if (stackTrace) {
+      unknownError.stack = stackTrace
+    }
+    return unknownError
   }
 
   public async cancelTraining(appId: string, modelId: ModelId): Promise<void> {
