@@ -1,0 +1,23 @@
+{
+  "name": "google-speech",
+  "fullName": "Google - Speech",
+  "version": "1.0.0",
+  "status": "stable",
+  "description": "A Botpress module for Google speech-to-text and text-to-speech",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "scripts": {
+    "build": "node ../../build/module-builder/bin/entry build",
+    "watch": "node ../../build/module-builder/bin/entry watch",
+    "package": "node ../../build/module-builder/bin/entry package"
+  },
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
+  "devDependencies": {
+    "@types/node": "^10.10.3"
+  },
+  "dependencies": {
+    "@google-cloud/speech": "^4.4.0",
+    "@google-cloud/text-to-speech": "^3.1.3"
+  }
+}

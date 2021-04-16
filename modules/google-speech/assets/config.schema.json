@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "properties": {
+    "clientEmail": {
+      "description": "The email of the service account used to authenticate with Google APIs",
+      "default": "your client email here",
+      "type": "string"
+    },
+    "privateKey": {
+      "description": "The private key linked with the service account used to authenticate with Google APIs",
+      "default": "your private key here",
+      "type": "string"
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "clientEmail",
+    "privateKey"
+  ],
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
+
