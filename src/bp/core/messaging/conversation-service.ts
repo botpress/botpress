@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { JobService } from 'core/distributed'
+import { MappingRepository, ScopedMappingRepository } from 'core/mapping/mapping-repository'
 import { ConversationRepository } from 'core/messaging'
 import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
@@ -15,7 +16,8 @@ export class ConversationService {
 
   constructor(
     @inject(TYPES.JobService) private jobService: JobService,
-    @inject(TYPES.ConversationRepository) private conversationRepo: ConversationRepository
+    @inject(TYPES.ConversationRepository) private conversationRepo: ConversationRepository,
+    @inject(TYPES.MappingRepository) private mappingRepo: MappingRepository
   ) {}
 
   @postConstruct()
@@ -32,8 +34,11 @@ export class ConversationService {
   public forBot(botId: string): ScopedConversationService {
     let scope = this.scopes[botId]
     if (!scope) {
-      scope = new ScopedConversationService(botId, this.conversationRepo, (userId, mostRecentConvoId) =>
-        this.invalidateMostRecent(botId, userId, mostRecentConvoId)
+      scope = new ScopedConversationService(
+        botId,
+        this.conversationRepo,
+        this.mappingRepo,
+        (userId, mostRecentConvoId) => this.invalidateMostRecent(botId, userId, mostRecentConvoId)
       )
       this.scopes[botId] = scope
     }
@@ -47,6 +52,7 @@ export class ScopedConversationService implements sdk.experimental.conversations
   constructor(
     private botId: string,
     private conversationRepo: ConversationRepository,
+    private mappingRepo: MappingRepository,
     public invalidateMostRecent: (userId: string, mostRecentConvoId?: sdk.uuid) => void
   ) {
     this.mostRecentCache = new LRU<string, sdk.Conversation>({ max: 10000, maxAge: ms('5min') })
@@ -109,5 +115,25 @@ export class ScopedConversationService implements sdk.experimental.conversations
         this.mostRecentCache.del(userId)
       }
     }
+  }
+
+  public async createMapping(channel: string, localId: sdk.uuid, foreignId: string): Promise<void> {
+    await this.getMapScope(channel).create(localId, foreignId)
+  }
+
+  public async deleteMapping(channel: string, localId: sdk.uuid, foreignId: string): Promise<boolean> {
+    return this.getMapScope(channel).delete(localId, foreignId)
+  }
+
+  public async getForeignId(channel: string, localId: sdk.uuid): Promise<string | undefined> {
+    return this.getMapScope(channel).getForeignId(localId)
+  }
+
+  public async getLocalId(channel: string, foreignId: string): Promise<string | undefined> {
+    return this.getMapScope(channel).getLocalId(foreignId)
+  }
+
+  private getMapScope(channel: string): ScopedMappingRepository {
+    return this.mappingRepo.forScope(`${this.botId}-${channel}-conversations`)
   }
 }

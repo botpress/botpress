@@ -1164,6 +1164,11 @@ declare module 'botpress/sdk' {
      * @default 360
      */
     maxMessageLength: number
+    /**
+     * Number of milliseconds that the converse API will wait to buffer responses
+     * @default 250
+     */
+    bufferDelayMs: number
   }
 
   /**
@@ -1663,9 +1668,9 @@ declare module 'botpress/sdk' {
   export interface Message {
     id: uuid
     conversationId: uuid
+    authorId: string | undefined
     eventId?: string
     incomingEventId?: string
-    from: string
     sentOn: Date
     payload: any
   }
@@ -2458,6 +2463,42 @@ declare module 'botpress/sdk' {
          * const conversation = await bp.conversations.forBot('myBot').recent('eEFoneif394')
          */
         recent(userId: uuid): Promise<Conversation>
+
+        /**
+         * Creates a mapping of ids for a conversation in a given channel
+         * @param channel The channel for which to create the mapping
+         * @param localId The id of the conversation in botpress
+         * @param foreignId The id of the conversation in that channel
+         * @example
+         * // I have been given an conversation id by facebook messenger
+         * const messengerConversationId = 134314
+         * // Let's say I have an already existing botpress conversation somewhere that I want to attach to this conversation
+         * const conversationId = '00001337-ca79-4235-8475-3785e41eb2be'
+         *
+         * // Create the mapping
+         * await bp.conversations.forBot(myBot).createMapping('facebook', conversationId, messengerConversationId)
+         * // Returns 134314
+         * await bp.conversations.forBot(myBot).getForeignId(conversationId)
+         * // Returns '00001337-ca79-4235-8475-3785e41eb2be'
+         * await bp.conversations.forBot(myBot).getLocalId(messengerConversationId)
+         */
+        createMapping(channel: string, localId: uuid, foreignId: string): Promise<void>
+
+        /**
+         * Deletes a conversation mapping
+         * @returns true if a conversation was deleted
+         */
+        deleteMapping(channel: string, localId: uuid, foreignId: string): Promise<boolean>
+
+        /**
+         * Gets a conversations id specific to the given channel from a botpress conversation id
+         */
+        getForeignId(channel: string, localId: uuid): Promise<string | undefined>
+
+        /**
+         * Gets a botpress conversation id from the foreign id of a conversation in a the given channel
+         */
+        getLocalId(channel: string, foreignId: string): Promise<string | undefined>
       }
     }
 
@@ -2503,7 +2544,7 @@ declare module 'botpress/sdk' {
         create(
           conversationId: uuid,
           payload: any,
-          from: string,
+          authorId?: string,
           eventId?: string,
           incomingEventId?: string
         ): Promise<Message>

@@ -19,8 +19,8 @@ import API, { APIOptions } from './api'
 global.rewire = rewire as any
 const debug = DEBUG('api')
 
-const GH_TYPINGS_FILE = 'https://github.com/botpress/botpress/blob/master/src/bp/nlu-server/typings_v1.d.ts'
-const GH_TRAIN_INPUT_EXAMPLE = 'https://github.com/botpress/botpress/blob/master/src/bp/nlu-server/train-example.json'
+const GH_TYPINGS_FILE = 'https://github.com/botpress/botpress/blob/master/src/bp/nlu/stan/typings_v1.d.ts'
+const GH_TRAIN_INPUT_EXAMPLE = 'https://github.com/botpress/botpress/blob/master/src/bp/nlu/stan/train-example.json'
 
 type ArgV = APIOptions & {
   languageURL: string
@@ -75,7 +75,7 @@ export default async function(options: ArgV) {
   }
 
   for (const dir of ['./pre-trained', './stop-words']) {
-    await copyDir(path.resolve(__dirname, '../nlu/engine/assets', dir), path.resolve(process.APP_DATA_PATH, dir))
+    await copyDir(path.resolve(__dirname, '../engine/assets', dir), path.resolve(process.APP_DATA_PATH, dir))
   }
 
   if (!bytes(options.bodySize)) {
