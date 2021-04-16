@@ -46,7 +46,7 @@ module.exports = {
       audio: {
         type: 'string',
         $subtype: 'audio',
-        $filter: 'audio/mpeg',
+        $filter: '.mp3',
         title: 'module.builtin.types.audio.title'
       },
       title: {
