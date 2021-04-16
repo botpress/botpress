@@ -88,13 +88,23 @@ export class VonageClient {
   async handleWebhookRequest(body: VonageRequestBody) {
     debugIncoming('Received message', body)
 
-    // TODO: Handle other types of payload
     // https://developer.nexmo.com/api/messages-olympus?theme=dark
-    const text = body.message.content.text
+    let payload: sdk.IO.IncomingEvent['payload'] = null
+    switch (body.message.content.type) {
+      case 'text':
+        const text = body.message.content.text
+        payload = { type: 'text', text }
+        break
+      case 'audio':
+        const audio = body.message.content.audio
+        payload = { type: 'audio', audio }
+        break
+      default:
+        break
+    }
+
     const userId = body.from.number
     const botPhoneNumber = body.to.number
-
-    const payload: sdk.IO.IncomingEvent['payload'] = { type: 'text', text }
 
     const conversation = await this.conversations.recent(userId)
     await this.kvs.set(formatKVSKey(conversation.id), { botPhoneNumber })
