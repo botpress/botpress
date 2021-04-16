@@ -46,7 +46,7 @@ module.exports = {
       video: {
         type: 'string',
         $subtype: 'video',
-        $filter: 'video/mp4',
+        $filter: '.mp4',
         title: 'module.builtin.types.video.title'
       },
       title: {
