@@ -17,7 +17,7 @@ function render(data) {
     {
       type: 'audio',
       title: data.title,
-      url: utils.formatURL(data.BOT_URL, data.image),
+      url: utils.formatURL(data.BOT_URL, data.audio),
       collectFeedback: data.collectFeedback
     }
   ]
