@@ -63,3 +63,9 @@ export interface ChannelContentCustomLocation {
 export type VonageChannelContent = ChannelContent & {
   custom?: ChannelContentCustomTemplate | ChannelContentCustomLocation
 }
+
+export interface MessageOption {
+  label: string
+  value: string
+  type: 'say_something' | 'postback' | 'quick_reply' | 'url'
+}

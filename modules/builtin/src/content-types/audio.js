@@ -26,7 +26,7 @@ function render(data) {
 function renderElement(data, channel) {
   if (channel === 'vonage') {
     // channel-vonage handles rendering on its own
-    return [{ ...data, type: 'audio' }]
+    return data
   } else {
     return render(data)
   }

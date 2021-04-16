@@ -173,7 +173,7 @@ function renderElement(data, channel) {
     return renderSlack(data)
   } else if (channel === 'vonage') {
     // channel-vonage handles rendering on its own
-    return [{ ...data, type: 'link_button' }]
+    return data
   } else {
     return render(data)
   }

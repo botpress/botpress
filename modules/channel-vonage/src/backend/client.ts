@@ -8,6 +8,7 @@ import {
   ChannelContentCustomTemplate,
   ChannelUnsupportedError,
   Clients,
+  MessageOption,
   TemplateLanguage,
   VonageChannelContent,
   VonageMessageStatusBody,
@@ -136,64 +137,89 @@ export class VonageClient {
   renderOutgoingEvent(event: sdk.IO.OutgoingEvent): sdk.IO.Event {
     debugOutgoing('Rendering event', event)
 
-    const botUrl = event.payload.BOT_URL
+    const payload = event.payload
+    const botUrl = payload.BOT_URL
 
-    if (event.type === 'text') {
+    if (payload.choices) {
       return {
         ...event,
         payload: {
-          type: event.type,
-          text: event.payload.text
-        }
-      }
-    } else if (event.type === 'image') {
-      return {
-        ...event,
-        payload: {
-          type: event.type,
-          url: this.formatUrl(botUrl, event.payload.image),
-          caption: event.payload.title
-        }
-      }
-    } else if (event.type === 'audio') {
-      return {
-        ...event,
-        payload: {
-          type: event.type,
-          url: this.formatUrl(botUrl, event.payload.audio)
-        }
-      }
-    } else if (event.type === 'video') {
-      return {
-        ...event,
-        payload: {
-          type: event.type,
-          url: this.formatUrl(botUrl, event.payload.video)
-        }
-      }
-    } else if (event.type === 'quick_reply') {
-      return {
-        ...event,
-        payload: {
-          type: event.type,
-          text: event.payload.text,
-          choices: event.payload.choices.map(btn => ({
-            ...btn,
-            url: btn.url && this.formatUrl(botUrl, btn.url)
+          type: 'quick_reply',
+          text: payload.text,
+          quick_replies: payload.choices.map(c => ({
+            title: c.title,
+            payload: c.value.toUpperCase()
           }))
         }
       }
-    } else if (event.type === 'link_button') {
-      const card = event.payload.items[0]
-
+    } else if (payload.items) {
+      return {
+        ...event,
+        payload: {
+          type: 'carousel',
+          elements: payload.items.map(card => ({
+            title: card.title,
+            picture: card.image ? this.formatUrl(botUrl, card.image) : null,
+            subtitle: card.subtitle,
+            buttons: (card.actions || []).map(a => {
+              if (a.action === 'Say something') {
+                return {
+                  type: 'say_something',
+                  title: a.title,
+                  text: a.text
+                }
+              } else if (a.action === 'Open URL') {
+                return {
+                  type: 'open_url',
+                  title: a.title,
+                  url: a.url && a.url.replace('BOT_URL', botUrl)
+                }
+              } else if (a.action === 'Postback') {
+                return {
+                  type: 'postback',
+                  title: a.title,
+                  payload: a.payload
+                }
+              } else {
+                throw new Error(
+                  `Vonage (WhatsApp) carousel does not support "${a.action}" action-buttons at the moment`
+                )
+              }
+            })
+          }))
+        }
+      }
+    } else if (payload.image) {
+      return {
+        ...event,
+        payload: {
+          type: 'image',
+          url: this.formatUrl(botUrl, payload.image),
+          caption: payload.title
+        }
+      }
+    } else if (payload.audio) {
+      return {
+        ...event,
+        payload: {
+          type: 'audio',
+          url: this.formatUrl(botUrl, payload.audio)
+        }
+      }
+    } else if (payload.video) {
+      return {
+        ...event,
+        payload: {
+          type: 'video',
+          url: this.formatUrl(botUrl, payload.video)
+        }
+      }
+    } else if (event.type === 'text' && payload.text) {
       return {
         ...event,
         payload: {
           type: event.type,
-          text: card.title,
-          subtitle: card.subtitle,
-          image: this.formatUrl(botUrl, card.image),
-          actions: card.actions.map(btn => ({ ...btn, url: this.formatUrl(botUrl, btn.url) }))
+          text: payload.text
         }
       }
     }
@@ -205,53 +231,65 @@ export class VonageClient {
     const payload = event.payload
 
     // Note: Vonage Messages API does not support typing indicators for privacy reasons
-    if (payload.type === 'text') {
+    if (payload.type === 'quick_reply') {
+      await this.sendQuickReply(event, payload.quick_replies)
+    } else if (payload.type === 'carousel') {
+      await this.sendCarousel(event, payload)
+    } else if (payload.type === 'image') {
+      await this.sendImage(event, payload)
+    } else if (payload.type === 'audio') {
+      await this.sendAudio(event, payload)
+    } else if (payload.type === 'video') {
+      await this.sendVideo(event, payload)
+    } else if (payload.type === 'text') {
       await this.sendMessage(event, {
         type: payload.type,
         text: payload.text
       })
-    } else if (payload.type === 'image') {
-      await this.sendMessage(event, {
-        type: payload.type,
-        text: undefined,
-        image: {
-          url: payload.url,
-          caption: payload.caption
-        }
-      })
-    } else if (payload.type === 'audio') {
-      await this.sendMessage(event, {
-        type: payload.type,
-        text: undefined,
-        audio: {
-          url: payload.url
-        }
-      })
-    } else if (payload.type === 'video') {
-      await this.sendMessage(event, {
-        type: payload.type,
-        text: undefined,
-        video: {
-          url: payload.url
-        }
-      })
-    } else if (payload.type === 'quick_reply') {
-      await this.sendQuickReply(event, payload)
-    } else if (payload.type === 'link_button') {
-      await this.sendLinkButton(event, payload)
     }
+
     next(undefined, false)
   }
 
-  async sendQuickReply(event: sdk.IO.OutgoingEvent, payload: any) {
-    const language: TemplateLanguage = {
-      code: 'en_US',
-      policy: 'deterministic'
-    }
+  async sendImage(event: sdk.IO.OutgoingEvent, payload: any) {
+    await this.sendMessage(event, {
+      type: payload.type,
+      text: undefined,
+      image: {
+        url: payload.url,
+        caption: payload.caption
+      }
+    })
+  }
 
-    let components: Components
+  async sendAudio(event: sdk.IO.OutgoingEvent, payload: any) {
+    await this.sendMessage(event, {
+      type: payload.type,
+      text: undefined,
+      audio: {
+        url: payload.url
+      }
+    })
+  }
+
+  async sendVideo(event: sdk.IO.OutgoingEvent, payload: any) {
+    await this.sendMessage(event, {
+      type: payload.type,
+      text: undefined,
+      video: {
+        url: payload.url
+      }
+    })
+  }
+
+  async sendQuickReply(event: sdk.IO.OutgoingEvent, choices: any) {
     if (this.config.useTestingApi) {
-      components = new TemplateComponents()
+      const language: TemplateLanguage = {
+        code: 'en_US',
+        policy: 'deterministic'
+      }
+
+      const components = new TemplateComponents()
         .withBody(
           { type: 'text', text: 'Joe Bob' },
           { type: 'text', text: 'something' },
@@ -259,59 +297,41 @@ export class VonageClient {
           { type: 'text', text: '12 PM' }
         )
         .build()
-    } else {
-      const buttons: Buttons = payload.choices.map(btn => {
-        if (btn.action === 'Say something' || btn.action === 'Postback') {
-          return {
-            subType: 'quick_reply',
-            parameters: [{ type: 'payload', payload: btn.payload }]
-          }
-        } else if (btn.action === 'Open URL') {
-          return {
-            subType: 'quick_reply',
-            parameters: [{ type: 'url', payload: btn.url }]
-          }
-        } else {
-          throw new Error(`Vonage (WhatsApp) carousel does not support "${btn.action}" action-buttons at the moment`)
+
+      const custom: ChannelContentCustomTemplate = {
+        type: 'template',
+        template: {
+          namespace: TESTING_TEMPLATE_NAMESPACE,
+          name: TESTING_QUICK_REPLY_TEMPLATE_NAME,
+          language,
+          components
         }
-      })
-
-      components = new TemplateComponents()
-        .withHeader({ type: 'text', text: payload.text })
-        .withBody({
-          type: 'text',
-          text: payload.subtitle
-        })
-        .withButtons(...buttons)
-        .build()
-    }
-
-    const custom: ChannelContentCustomTemplate = {
-      type: 'template',
-      template: {
-        namespace: this.config.useTestingApi ? TESTING_TEMPLATE_NAMESPACE : payload.namespace,
-        name: this.config.useTestingApi ? TESTING_QUICK_REPLY_TEMPLATE_NAME : payload.name,
-        language,
-        components
       }
-    }
 
-    await this.sendMessage(event, {
-      type: 'custom',
-      text: undefined,
-      custom
-    })
+      await this.sendMessage(event, {
+        type: 'custom',
+        text: undefined,
+        custom
+      })
+    } else {
+      const options: MessageOption[] = choices.map(x => ({
+        label: x.title,
+        value: x.payload,
+        type: 'quick_reply'
+      }))
+
+      await this.sendOptions(event, event.payload.text, options)
+    }
   }
 
-  async sendLinkButton(event: sdk.IO.OutgoingEvent, payload: any) {
-    const language: TemplateLanguage = {
-      code: 'en_US',
-      policy: 'deterministic'
-    }
-
-    let components: Components
+  async sendCarousel(event: sdk.IO.Event, payload: any) {
     if (this.config.useTestingApi) {
-      components = new TemplateComponents()
+      const language: TemplateLanguage = {
+        code: 'en_US',
+        policy: 'deterministic'
+      }
+
+      const components = new TemplateComponents()
         .withHeader({
           type: 'image',
           image: {
@@ -325,53 +345,55 @@ export class VonageClient {
           { type: 'text', text: '12 PM' }
         )
         .build()
-    } else {
-      const buttons: Buttons = (payload.actions || []).map(btn => {
-        if (btn.action === 'Open URL') {
-          return {
-            subtype: 'url',
-            parameters: [{ type: 'text', text: btn.url }]
-          }
-        } else if (btn.action === 'Postback') {
-          return {
-            subtype: 'quick_reply',
-            parameters: [{ type: 'payload', text: btn.text }]
-          }
-        } else {
-          throw new Error(`Vonage (WhatsApp) carousel does not support "${btn.action}" action-buttons at the moment`)
+
+      const custom: ChannelContentCustomTemplate = {
+        type: 'template',
+        template: {
+          namespace: TESTING_TEMPLATE_NAMESPACE,
+          name: TESTING_LINK_BUTTON_TEMPLATE_NAME,
+          language,
+          components
         }
+      }
+
+      await this.sendMessage(event, {
+        type: 'custom',
+        text: undefined,
+        custom
       })
+    } else {
+      // For now, we send carousel as text
+      for (const { subtitle, title, picture, buttons } of payload.elements) {
+        const body = `${title}\n\n${subtitle ? subtitle : ''}`
 
-      components = new TemplateComponents()
-        .withHeader({
-          type: 'image',
-          image: {
-            link: payload.image
+        const options: MessageOption[] = []
+        for (const button of buttons || []) {
+          const title = button.title as string
+
+          if (button.type === 'open_url') {
+            options.push({ label: `${title} : ${button.url}`, value: undefined, type: 'url' })
+          } else if (button.type === 'postback') {
+            options.push({ label: title, value: button.payload, type: 'postback' })
+          } else if (button.type === 'say_something') {
+            options.push({ label: title, value: button.text as string, type: 'say_something' })
           }
-        })
-        .withBody({
-          type: 'text',
-          text: payload.text
-        })
-        .withButtons(...buttons)
-        .build()
-    }
+        }
 
-    const custom: ChannelContentCustomTemplate = {
-      type: 'template',
-      template: {
-        namespace: this.config.useTestingApi ? TESTING_TEMPLATE_NAMESPACE : payload.namespace,
-        name: this.config.useTestingApi ? TESTING_LINK_BUTTON_TEMPLATE_NAME : payload.name,
-        language,
-        components
+        if (picture) {
+          await this.sendImage(event, { url: picture, type: 'image' })
+        }
+
+        await this.sendOptions(event, body, options)
       }
     }
+  }
 
-    await this.sendMessage(event, {
-      type: 'custom',
-      text: undefined,
-      custom
-    })
+  async sendOptions(event: sdk.IO.Event, text: string, options: MessageOption[]) {
+    if (options.length) {
+      text = `${text}\n\n${options.map(({ label }, idx) => `${idx + 1}. ${label}`).join('\n')}`
+    }
+
+    await this.sendMessage(event, { type: 'text', text })
   }
 
   async sendMessage(event: sdk.IO.Event, content: VonageChannelContent, whatsapp?: ChannelWhatsApp) {
