@@ -63,6 +63,9 @@ function renderElement(data, channel) {
     return renderMessenger(data)
   } else if (channel === 'teams') {
     return renderTeams(data)
+  } else if (channel === 'vonage') {
+    // channel-vonage handles rendering on its own
+    return [{ ...data, type: 'text' }]
   } else {
     return render(data)
   }

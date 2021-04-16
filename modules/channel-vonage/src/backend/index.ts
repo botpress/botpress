@@ -42,7 +42,6 @@ const onModuleUnmount = async (bp: typeof sdk) => {
   bp.events.removeMiddleware(MIDDLEWARE_NAME)
 }
 
-// Doc: https://developer.nexmo.com/messages/concepts/messages-api-sandbox
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
