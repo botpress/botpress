@@ -5,7 +5,6 @@ import moment from 'moment'
 import ms from 'ms'
 import nanoid from 'nanoid'
 import { TrainingCanceledError, TrainingAlreadyStartedError } from '../stan/errors'
-import { ModelId } from '../stan/model-id-service'
 import { ITrainingRepository, ITrainingTransactionContext } from './training-repo'
 import { TrainingId, TrainerService, TrainingListener, TrainingState, TrainingSession, I } from './typings'
 
@@ -140,10 +139,11 @@ export class TrainingQueue {
     }, 'cancelTraining')
   }
 
-  protected async loadModel(botId: string, modelId: ModelId): Promise<void> {
+  protected async loadModel(trainId: TrainingId, modelId: string): Promise<void> {
+    const { language, botId } = trainId
     const trainer = this._trainerService.getBot(botId)
     if (trainer) {
-      return trainer.load(modelId)
+      return trainer.setModel(language, modelId)
     }
   }
 
@@ -213,7 +213,7 @@ export class TrainingQueue {
         }, 'train: update progress')
       })
 
-      await this.loadModel(botId, modelId)
+      await this.loadModel(trainId, modelId)
 
       await this._trainingRepo.inTransaction(async trx => {
         const newState = this._fillSate({ status: 'done', progress: 1 })

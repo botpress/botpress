@@ -1,13 +1,12 @@
 import * as sdk from 'botpress/sdk'
 
-import { ModelId } from '../stan/model-id-service'
 import { TrainingQueue, TrainingQueueOptions } from './training-queue'
 import { ITrainingRepository } from './training-repo'
 import { TrainingId, TrainerService, TrainingListener } from './typings'
 
 export class DistributedTrainingQueue extends TrainingQueue {
   private _broadcastCancelTraining: (id: TrainingId) => Promise<void>
-  private _broadcastLoadModel: (botId: string, modelId: ModelId) => Promise<void>
+  private _broadcastLoadModel: (trainId: TrainingId, modelId: string) => Promise<void>
   private _broadcastRunTask: () => Promise<void>
 
   constructor(
@@ -42,7 +41,7 @@ export class DistributedTrainingQueue extends TrainingQueue {
     return this._broadcastRunTask()
   }
 
-  protected loadModel(botId: string, modelId: ModelId) {
-    return this._broadcastLoadModel(botId, modelId)
+  protected loadModel(trainId: TrainingId, modelId: string) {
+    return this._broadcastLoadModel(trainId, modelId)
   }
 }

@@ -1,7 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import { StanEngine } from 'src/backend/stan'
-import modelIdService, { ModelId } from 'src/backend/stan/model-id-service'
 import { mapTrainSet } from '../../stan/api-mapper'
 import { BotDoesntSpeakLanguageError } from '../errors'
 import { Predictor, ProgressCallback, Trainable, I } from '../typings'
@@ -22,8 +21,8 @@ export class Bot implements Trainable, Predictor {
   private _defaultLanguage: string
   private _languages: string[]
 
-  private _modelsByLang: _.Dictionary<ModelId> = {}
-  private _trainingsByLang: _.Dictionary<ModelId> = {}
+  private _modelsByLang: _.Dictionary<string> = {}
+  private _trainingsByLang: _.Dictionary<string> = {}
 
   private _predictor: ScopedPredictionHandler
 
@@ -31,7 +30,6 @@ export class Bot implements Trainable, Predictor {
     bot: BotDefinition,
     private _engine: StanEngine,
     private _defService: IDefinitionsService,
-    private _modelIdService: typeof modelIdService,
     private _logger: sdk.Logger
   ) {
     this._botId = bot.botId
@@ -44,7 +42,6 @@ export class Bot implements Trainable, Predictor {
         botId: this._botId
       },
       _engine,
-      this._modelIdService,
       this._modelsByLang,
       this._logger
     )
@@ -56,19 +53,18 @@ export class Bot implements Trainable, Predictor {
 
   public async unmount() {
     await this._defService.teardown()
-    for (const [_botId, modelId] of Object.entries(this._modelsByLang)) {
+    for (const [lang] of Object.entries(this._modelsByLang)) {
       // TODO: add a route to unload a single model without pruning
       // this._engine.unloadModel(modelId)
-      delete this._modelsByLang[modelId.languageCode]
+      delete this._modelsByLang[lang]
     }
   }
 
-  // TODO: rename for setModel
-  public load = async (modelId: ModelId) => {
-    this._modelsByLang[modelId.languageCode] = modelId
+  public setModel = async (lang: string, modelId: string) => {
+    this._modelsByLang[lang] = modelId
   }
 
-  public train = async (language: string, progressCallback: ProgressCallback): Promise<ModelId> => {
+  public train = async (language: string, progressCallback: ProgressCallback): Promise<string> => {
     const { _engine, _languages, _defService, _botId } = this
 
     if (!_languages.includes(language)) {

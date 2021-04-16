@@ -66,7 +66,7 @@ export class NLUApplication {
     const makeDirtyModelHandler = (cb: (trainId: TrainingId) => Promise<void>) => async (language: string) => {
       const latestModelId = await defService.getLatestModelId(language)
       if (await this._engine.hasModel(botId, latestModelId)) {
-        await bot.load(latestModelId)
+        await bot.setModel(language, latestModelId)
         return
       }
       return cb({ botId, language })

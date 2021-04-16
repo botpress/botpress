@@ -1,13 +1,12 @@
 import _ from 'lodash'
 import { StanClient } from '../stan/client'
-import modelIdService, { ModelId } from '../stan/model-id-service'
 import { TrainInput, PredictOutput, Health, Specifications, TrainingError } from '../stan/typings_v1'
 import { TrainingCanceledError, TrainingAlreadyStartedError } from './errors'
+import modelIdService from './model-id-service'
 
 const TRAIN_PROGRESS_POLLING_INTERVAL = 500
 
 export class StanEngine {
-  // TODO: pass this as a config
   constructor(private _stanClient: StanClient, private _appSecret: string) {}
 
   public async getInfo(): Promise<{
@@ -22,7 +21,17 @@ export class StanEngine {
     return response.info
   }
 
-  public async startTraining(appId: string, trainInput: TrainInput): Promise<ModelId> {
+  // TODO: combine this method with hasModel so there's no need to copy modelIdService.
+  public async getModelIdFromTrainset(trainInput: TrainInput) {
+    const { specs } = await this.getInfo()
+    const modelIdStructure = modelIdService.makeId({
+      ...trainInput,
+      specifications: specs
+    })
+    return modelIdService.toString(modelIdStructure)
+  }
+
+  public async startTraining(appId: string, trainInput: TrainInput): Promise<string> {
     const { entities, intents, seed, language } = trainInput
 
     const contexts = _(intents)
@@ -45,14 +54,13 @@ export class StanEngine {
       return this._throwError(response.error)
     }
 
-    return modelIdService.fromString(response.modelId)
+    return response.modelId
   }
 
-  public async waitForTraining(appId: string, modelId: ModelId, progressCb: (p: number) => void): Promise<void> {
+  public async waitForTraining(appId: string, modelId: string, progressCb: (p: number) => void): Promise<void> {
     return new Promise((resolve, reject) => {
       const interval = setInterval(async () => {
-        const stringId = modelIdService.toString(modelId)
-        const response = await this._stanClient.getTrainingStatus(stringId, { appSecret: this._appSecret, appId })
+        const response = await this._stanClient.getTrainingStatus(modelId, { appSecret: this._appSecret, appId })
         if (!response.success) {
           clearInterval(interval)
           reject(new Error(response.error))
@@ -78,7 +86,7 @@ export class StanEngine {
         if (status === 'errored') {
           clearInterval(interval)
           const error = this._mapTrainError(serializedError)
-          reject(error) // TODO: find out when this happends and try sending the actual message
+          reject(error)
           return
         }
       }, TRAIN_PROGRESS_POLLING_INTERVAL)
@@ -99,26 +107,24 @@ export class StanEngine {
     return unknownError
   }
 
-  public async cancelTraining(appId: string, modelId: ModelId): Promise<void> {
-    const stringId = modelIdService.toString(modelId)
-    const response = await this._stanClient.cancelTraining(stringId, { appSecret: this._appSecret, appId })
+  public async cancelTraining(appId: string, modelId: string): Promise<void> {
+    const response = await this._stanClient.cancelTraining(modelId, { appSecret: this._appSecret, appId })
     if (!response.success) {
       return this._throwError(response.error)
     }
   }
 
-  public async hasModel(appId: string, modelId: ModelId): Promise<boolean> {
-    const stringId = modelIdService.toString(modelId)
+  public async hasModel(appId: string, modelId: string): Promise<boolean> {
     const response = await this._stanClient.listModels({ appSecret: this._appSecret, appId })
     if (!response.success) {
       return this._throwError(response.error)
     }
-    return response.models.includes(stringId)
+    return response.models.includes(modelId)
   }
 
-  public async detectLanguage(appId: string, utterance: string, models: ModelId[]): Promise<string> {
+  public async detectLanguage(appId: string, utterance: string, models: string[]): Promise<string> {
     const response = await this._stanClient.detectLanguage({
-      models: models.map(modelIdService.toString),
+      models,
       utterances: [utterance],
       appSecret: this._appSecret,
       appId
@@ -131,9 +137,8 @@ export class StanEngine {
     return response.detectedLanguages[0]
   }
 
-  public async predict(appId: string, utterance: string, modelId: ModelId): Promise<PredictOutput> {
-    const stringId = modelIdService.toString(modelId)
-    const response = await this._stanClient.predict(stringId, {
+  public async predict(appId: string, utterance: string, modelId: string): Promise<PredictOutput> {
+    const response = await this._stanClient.predict(modelId, {
       utterances: [utterance],
       appSecret: this._appSecret,
       appId

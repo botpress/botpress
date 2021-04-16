@@ -14,7 +14,6 @@ import { TrainingRepository } from './application/training-repo'
 import { BotDefinition } from './application/typings'
 import { StanEngine } from './stan'
 import { StanClient } from './stan/client'
-import modelIdService from './stan/model-id-service'
 
 export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
   const globalConfig: Config = await bp.config.getModuleConfig('nlu')
@@ -36,7 +35,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
 
   const makeDefRepo = (bot: BotDefinition) => new ScopedDefinitionsRepository(bot, bp)
 
-  const servicesFactory = new ScopedServicesFactory(engine, bp.logger, modelIdService, makeDefRepo)
+  const servicesFactory = new ScopedServicesFactory(engine, bp.logger, makeDefRepo)
 
   const trainRepo = new TrainingRepository(bp.database)
   const trainingQueue = new DistributedTrainingQueue(trainRepo, bp.logger, botService, bp.distributed, socket, {

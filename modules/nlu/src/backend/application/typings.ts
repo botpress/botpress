@@ -1,5 +1,4 @@
 import { IO, NLU as SDKNLU } from 'botpress/sdk'
-import { ModelId } from '../stan/model-id-service'
 
 export type I<C> = {
   [k in keyof C]: C[k]
@@ -22,8 +21,8 @@ export interface BotDefinition {
 export type ProgressCallback = (p: number) => Promise<void>
 
 export interface Trainable {
-  train(language: string, progressCallback: ProgressCallback): Promise<ModelId>
-  load(modelId: ModelId): Promise<void>
+  train(language: string, progressCallback: ProgressCallback): Promise<string>
+  setModel(language: string, modelId: string): void
   cancelTraining(language: string): Promise<void>
 }
 
