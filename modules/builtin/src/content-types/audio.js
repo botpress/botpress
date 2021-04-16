@@ -17,7 +17,7 @@ function render(data) {
     {
       type: 'audio',
       title: data.title,
-      url: utils.formatURL(data.BOT_URL, data.image),
+      url: utils.formatURL(data.BOT_URL, data.audio),
       collectFeedback: data.collectFeedback
     }
   ]
@@ -46,7 +46,7 @@ module.exports = {
       audio: {
         type: 'string',
         $subtype: 'audio',
-        $filter: 'audio/mpeg',
+        $filter: '.mp3',
         title: 'module.builtin.types.audio.title'
       },
       title: {
