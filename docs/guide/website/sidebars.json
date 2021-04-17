@@ -24,12 +24,14 @@
 			"channels/faq"
 		],
 		"Deployment And Infrastructure": [
-			"infrastructure/aws",
+			"infrastructure/deploying",
 			"infrastructure/hosting",
+      "infrastructure/database",
+      "infrastructure/aws",
+      "infrastructure/docker",
 			"infrastructure/performances",
 			"infrastructure/pipeline",
 			"infrastructure/versions",
-			"infrastructure/database",
 			"infrastructure/cluster"
 		],
 		"Improving Your Chatbot": [
