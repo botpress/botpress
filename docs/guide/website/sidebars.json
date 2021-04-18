@@ -27,6 +27,7 @@
 			"infrastructure/deploying",
 			"infrastructure/hosting",
       "infrastructure/database",
+      "infrastructure/configuration",
       "infrastructure/aws",
       "infrastructure/docker",
       "infrastructure/digital-ocean"
@@ -66,7 +67,6 @@
 		],
 		"Advanced Guides": [
 			"advanced/debug",
-			"advanced/configuration",
 			"advanced/authentication",
 			"advanced/custom-module",
 			"advanced/development-pipeline"
