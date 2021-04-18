@@ -1,0 +1,96 @@
+---
+id: development-pipeline
+title: Development Pipelines
+---
+
+## Source Control Management
+
+A best practice is to keep track of changes to your chatbot using your preferred [Source Control Management Tool(SCM)](https://www.softwaretestinghelp.com/version-control-software/) and always deploy the master branch in production. Once deployed, you can regularly [pull](versions#pull) changes and update them to your SCM or revert to them when the need arises. Doing so helps you harness your SCM power for branches, merging conflicting files, reviewing changes, and creating revisions.
+
+Suppose you have a more complex deployment pipeline with one or multiple staging environments with pending changes on each environment. In that case, you can easily track and work on them using development pipelines.
+
+### Development Pipelines
+
+We will use Git to sync changes between 2 environments and promote an environment (i.e., promote staging to production).
+
+Lets' assume that given a pipeline with three environments, **development**, **staging**, and **production**, there are some changes both on production and staging, and you want to promote staging to production. What we want to do is the following:
+
+1. Create a merge conflict so we can choose what we want in a merge conflict tool.
+2. Resolve conflicts (i.e., merge staging into production)
+3. Push the results to master so they are deployed to your production environment.
+
+First, create a branch and sync it with the production environment:
+
+```
+git checkout master && git checkout -b prod-sync
+./bp pull --url {PROD_SERVER_URL} --authToken {YOUR_AUTH_TOKEN} --targetDir {TARGET_DIRECTORY}
+git commit -am 'sync prod'
+```
+
+Repeat the process with staging environment:
+
+```
+git checkout master && git checkout -b staging-sync
+./bp pull --url {STAGING_SERVER_URL} --authToken {YOUR_AUTH_TOKEN} --targetDir {TARGET_DIRECTORY}
+git commit -am 'sync staging'
+```
+
+Then merge the staging changes into the prod changes:
+
+`git checkout prod-sync && git merge staging-sync`
+
+This will create a merge conflict; use your preferred merge tool to review the changes and resolve the conflicts. Once done, you can publish your branch and create a pull request (if your hosted git allows it), and merge it to master.
+
+Once your master branch is up-to-date, you'll be able to [push](versions#push) the changes to production with:
+
+`./bp push --url {PROD_SERVER_URL} --authToken {YOUR_AUTH_TOKEN} --targetDir {TARGET_DIRECTORY}`
+
+With these quick tips, you can now promote any environment changes to any stage in your deployment pipeline.
+
+## Version Control
+
+Once your bot is deployed, you (and non-technical team members) **can still make changes to your bots from Botpress Studio**, which is one significant advantage of using Botpress. This is made possible by our built-in versioning system.
+
+For your convenience, Botpress provides the GUI tools to edit these files while in development. We also offer the same tools in production, but there's a caveat. Writing changes to the server's file system is not always possible. They could easily be lost due to ephemeral filesystems, or they could be ignored when running in a cluster setup.
+
+To address this issue, we added commands to the cli. In production, your changes are saved to the database, which is persisted between deployments. Botpress cli gives you two commands: `bp pull` to pull pending changes on your server for all your bots and server-wide files and `bp push` to push your local changes to your server.
+
+You can also head to the versioning tab of your Botpress admin panel at https://your.bp.ai/admin/server/version, and Botpress will accurately format the command for you (including your token) for any changes that have been made. Just paste it to your shell, and Botpress will extract the changes in the provided target directory. A successful output should look like the following:
+
+![versioning pull](assets/versioning-pull.png)
+
+Notice that without any changes, you will see a **You're all set!** message.
+
+### CLI Commands
+
+> **Note:** The `BPFS_STORAGE` environment variable must be set to `database` to enable **pushing** to this node.
+
+Please note that `targetDir` and `sourceDir` uses relative paths:
+
+#### Pull
+
+**Binary:**
+
+```bash
+./bp pull --url <url> --token <auth_token> --targetDir <remote_data_path>
+```
+
+**Docker:**
+
+```bash
+docker exec -it <container> bash -c "./bp pull --url <url> --token <auth_token> --targetDir <remote_data_path>"
+```
+
+#### Push
+
+**Binary:**
+
+```bash
+./bp push --url <url> --token <auth_token> --sourceDir <local_data_path>
+```
+
+**Docker:**
+
+```bash
+docker exec -it <container> bash -c "./bp push --url <url> --token <auth_token> --sourceDir <local_data_path>"
+```
