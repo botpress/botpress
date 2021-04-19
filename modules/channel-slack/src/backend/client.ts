@@ -200,10 +200,8 @@ export class SlackClient {
 
     if (!handled) {
       const blocks = []
-      if (messageType === 'image' || messageType === 'actions') {
+      if (messageType === 'actions') {
         blocks.push(event.payload)
-      } else if (messageType === 'carousel') {
-        event.payload.cards.forEach(card => blocks.push(...card))
       }
 
       if (event.payload.quick_replies) {
