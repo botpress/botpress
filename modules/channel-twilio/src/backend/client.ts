@@ -4,7 +4,7 @@ import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message'
 
 import { Config } from '../config'
 
-import { ChoiceOption, Clients, MessageOption, TwilioRequestBody } from './typings'
+import { ChoiceOption, Clients, MessageOption, TwilioContext, TwilioRequestBody } from './typings'
 
 const debug = DEBUG('channel-twilio')
 const debugIncoming = debug.sub('incoming')
@@ -99,7 +99,28 @@ export class TwilioClient {
   async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     const payload = event.payload
 
-    if (payload.quick_replies) {
+    const renderers = this.bp.experimental.render.getChannelRenderers('twilio')
+    const context: TwilioContext = {
+      bp: this.bp,
+      event,
+      client: this.twilio,
+      args: { sendMessage: this.sendMessage.bind(this) }
+    }
+    let handled = false
+    for (const renderer of renderers) {
+      if (!(await renderer.handles(context))) {
+        continue
+      }
+
+      handled = await renderer.render(context)
+
+      if (handled) {
+        break
+      }
+    }
+
+    if (handled) {
+    } else if (payload.quick_replies) {
       await this.sendChoices(event, payload.quick_replies)
     } else if (payload.options) {
       await this.sendOptions(
@@ -108,10 +129,6 @@ export class TwilioClient {
         {},
         event.payload.options.map(x => ({ ...x, type: 'quick_reply' }))
       )
-    } else if (payload.type === 'text') {
-      await this.sendMessage(event, {
-        body: payload.text
-      })
     } else if (payload.type === 'file') {
       await this.sendMessage(event, {
         body: payload.title,

@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { Config } from 'src/config'
+import { TwilioTextRenderer } from '../renderers/text'
 
 import { setupRouter } from './api'
 import { MIDDLEWARE_NAME, setupMiddleware, TwilioClient } from './client'
@@ -47,6 +48,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotMount,
   onBotUnmount,
   onModuleUnmount,
+  renderers: [new TwilioTextRenderer()],
   definition: {
     name: 'channel-twilio',
     menuIcon: 'none',

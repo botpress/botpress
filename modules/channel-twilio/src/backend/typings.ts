@@ -1,3 +1,5 @@
+import * as sdk from 'botpress/sdk'
+import { Twilio } from 'twilio'
 import { TwilioClient } from './client'
 
 export interface Clients {
@@ -19,3 +21,9 @@ export interface ChoiceOption {
   title: string
   payload: string
 }
+
+export interface TwilioContextArgs {
+  sendMessage(event: sdk.IO.Event, args: any): Promise<void>
+}
+
+export type TwilioContext = sdk.ChannelContext<Twilio, TwilioContextArgs>
