@@ -66,30 +66,6 @@ function renderTelegram(data) {
   ]
 }
 
-function renderSlack(data) {
-  const events = []
-
-  if (data.typing) {
-    events.push({
-      type: 'typing',
-      value: data.typing
-    })
-  }
-
-  return [
-    ...events,
-    {
-      type: 'image',
-      title: data.title && {
-        type: 'plain_text',
-        text: data.title
-      },
-      image_url: utils.formatURL(data.BOT_URL, data.image),
-      alt_text: 'image'
-    }
-  ]
-}
-
 function renderTeams(data) {
   const events = []
 
@@ -116,7 +92,7 @@ function renderTeams(data) {
 
 function renderElement(data, channel) {
   // These channels now use channel renderers
-  if ([].includes(channel)) {
+  if (['slack'].includes(channel)) {
     // TODO : automate this from the schema
     return { type: 'image', image: utils.formatURL(data.BOT_URL, data.image), title: data.title }
   }

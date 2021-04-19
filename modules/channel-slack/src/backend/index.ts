@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { Config } from '../config'
+import { SlackImageRenderer } from '../renderers/image'
 import { SlackTextRenderer } from '../renderers/text'
 
 import { setupMiddleware, SlackClient } from './client'
@@ -46,7 +47,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onServerReady,
   onBotMount,
   onBotUnmount,
-  renderers: [new SlackTextRenderer()],
+  renderers: [new SlackTextRenderer(), new SlackImageRenderer()],
   definition: {
     name: 'channel-slack',
     menuIcon: 'none',
