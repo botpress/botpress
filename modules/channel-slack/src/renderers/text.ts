@@ -1,3 +1,4 @@
+import { ChatPostMessageArguments } from '@slack/web-api'
 import * as sdk from 'botpress/sdk'
 import { SlackContext } from 'src/backend/typings'
 import { SlackBaseRenderer } from './base'
@@ -14,7 +15,7 @@ export class SlackTextRenderer extends SlackBaseRenderer {
   async render(context: SlackContext): Promise<boolean> {
     const payload = context.event.payload as sdk.TextContent
 
-    const message = {
+    const message: ChatPostMessageArguments = {
       text: payload.text as string,
       channel: context.args.channelId,
       blocks: []

@@ -1,3 +1,4 @@
+import { ChatPostMessageArguments } from '@slack/web-api'
 import * as sdk from 'botpress/sdk'
 import { SlackContext } from 'src/backend/typings'
 import { SlackBaseRenderer } from './base'
@@ -14,7 +15,7 @@ export class SlackImageRenderer extends SlackBaseRenderer {
   async render(context: SlackContext): Promise<boolean> {
     const payload = context.event.payload as sdk.ImageContent
 
-    const message = {
+    const message: ChatPostMessageArguments = {
       channel: context.args.channelId,
       text: undefined,
       blocks: [
@@ -22,7 +23,7 @@ export class SlackImageRenderer extends SlackBaseRenderer {
           type: 'image',
           title: payload.title && {
             type: 'plain_text',
-            text: payload.title
+            text: payload.title as string
           },
           image_url: payload.image,
           alt_text: 'image'
