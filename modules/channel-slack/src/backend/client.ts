@@ -187,9 +187,11 @@ export class SlackClient {
       blocks.push(event.payload.quick_replies)
     }
 
+    const foreignId = await this.bp.experimental.conversations.forBot(this.botId).getForeignId('slack', event.threadId)
+    const [channelId, userId] = foreignId.split('-')
     const message = {
       text: event.payload.text,
-      channel: event.threadId || event.target,
+      channel: channelId,
       blocks
     }
 
@@ -226,32 +228,38 @@ export class SlackClient {
     debugOutgoing('Sending message %o', message)
     await this.client.chat.postMessage(message)
 
+    await this.bp.experimental.messages
+      .forBot(this.botId)
+      .create(event.threadId, event.payload, undefined, event.id, event.incomingEventId)
+
     next(undefined, false)
   }
 
   private async sendEvent(ctx: any, payload: any) {
-    const threadId = _.get(ctx, 'channel.id') || _.get(ctx, 'channel')
-    const target = _.get(ctx, 'user.id') || _.get(ctx, 'user')
+    const channelId = _.get(ctx, 'channel.id') || _.get(ctx, 'channel')
+    const userId = _.get(ctx, 'user.id') || _.get(ctx, 'user')
     let user = {}
 
-    if (target && this.config.fetchUserInfo) {
+    if (userId && this.config.fetchUserInfo) {
       try {
-        user = await this._getUserInfo(target.toString())
+        user = await this._getUserInfo(userId.toString())
       } catch (err) {}
     }
 
-    await this.bp.events.sendEvent(
-      this.bp.IO.Event({
-        botId: this.botId,
-        channel: 'slack',
-        direction: 'incoming',
-        payload: { ...ctx, ...payload, user_info: user },
-        type: payload.type,
-        preview: payload.text,
-        threadId: threadId && threadId.toString(),
-        target: target && target.toString()
-      })
-    )
+    let convoId = await this.bp.experimental.conversations
+      .forBot(this.botId)
+      .getLocalId('slack', `${channelId}-${userId}`)
+
+    if (!convoId) {
+      const conversation = await this.bp.experimental.conversations.forBot(this.botId).create(userId)
+      convoId = conversation.id
+
+      await this.bp.experimental.conversations
+        .forBot(this.botId)
+        .createMapping('slack', conversation.id, `${channelId}-${userId}`)
+    }
+
+    await this.bp.experimental.messages.forBot(this.botId).receive(convoId, payload, { channel: 'slack' })
   }
 }
 
