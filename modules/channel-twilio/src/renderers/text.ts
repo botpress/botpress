@@ -3,7 +3,7 @@ import { TwilioBaseRenderer } from './base'
 
 export class TwilioTextRenderer extends TwilioBaseRenderer {
   getId() {
-    return TwilioBaseRenderer.name
+    return TwilioTextRenderer.name
   }
 
   getPayloadType(): string {
