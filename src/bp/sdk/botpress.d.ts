@@ -139,6 +139,7 @@ declare module 'botpress/sdk' {
     botTemplates?: BotTemplate[]
     translations?: { [lang: string]: object }
     renderers?: ChannelRenderer<any>[]
+    senders?: ChannelSender<any>[]
     /** List of new conditions that the module can register */
     dialogConditions?: Condition[]
     /** Called once the core is initialized. Usually for middlewares / database init */
@@ -205,7 +206,16 @@ declare module 'botpress/sdk' {
     getChannel(): string
 
     handles(context: Context): Promise<boolean>
-    render(context: Context): Promise<boolean>
+    render(context: Context): Promise<void>
+  }
+
+  export interface ChannelSender<Context extends ChannelContext<any, any>> {
+    getId(): string
+    getPriority(): number
+    getChannel(): string
+
+    handles(context: Context): Promise<boolean>
+    send(context: Context): Promise<void>
   }
 
   export interface ChannelContext<C, A> {
@@ -2720,6 +2730,7 @@ declare module 'botpress/sdk' {
       export function pipeline(lang: string, context: any): RenderPipeline
 
       export function getChannelRenderers(channel: string): ChannelRenderer<any>[]
+      export function getChannelSenders(channel: string): ChannelSender<any>[]
     }
   }
 }
