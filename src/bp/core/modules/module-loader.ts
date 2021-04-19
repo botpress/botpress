@@ -2,7 +2,7 @@ import {
   BotTemplate,
   Condition,
   ContentElement,
-  ContentRenderer,
+  ChannelRenderer,
   ElementChangedAction,
   Flow,
   Logger,
@@ -350,14 +350,14 @@ export class ModuleLoader {
     return _.orderBy(conditions, x => x?.displayOrder)
   }
 
-  public getContentRenderers(): ContentRenderer[] {
+  public getChannelRenderers(): ChannelRenderer<any>[] {
     const modules = Array.from(this.entryPoints.values())
     const renderers = _.flatMap(
       modules.filter(module => module.renderers),
       x => x.renderers
-    ) as ContentRenderer[]
+    ) as ChannelRenderer<any>[]
 
-    return _.orderBy(renderers, x => x.priority)
+    return _.orderBy(renderers, x => x.getPriority())
   }
 
   public getLoadedModules(): ModuleDefinition[] {
