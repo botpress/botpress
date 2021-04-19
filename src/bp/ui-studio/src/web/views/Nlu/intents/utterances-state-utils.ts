@@ -31,6 +31,7 @@ const slotNode = (slot: ParsedSlot, uttIdx: number): TextJSON => ({
 
 export const textNodesFromUtterance = (rawUtterance: string, idx: number = 0): TextJSON[] => {
   const { utterance, parsedSlots } = parseUtterance(rawUtterance)
+  // @ts-ignore
   return _.chain(parsedSlots)
     .flatMap((pslot, i, all) => {
       const from = _.get(all, `${i - 1}.cleanPosition.end`, 0)
@@ -43,7 +44,7 @@ export const textNodesFromUtterance = (rawUtterance: string, idx: number = 0): T
       return [...nodes, textNode(utterance, start)]
     })
     .filter(n => n.text)
-    .value() as TextJSON[]
+    .value()
 }
 
 export const utterancesToValue = (utterances: string[], selection = undefined): Value => {

@@ -4,7 +4,7 @@ import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
-import { makeApi } from '../../../api'
+import { makeNLUClient } from '../client'
 import style from '../style.scss'
 
 import { IntentEditor } from './FullEditor'
@@ -44,7 +44,7 @@ export const LiteEditor: FC<Props> = props => {
     }
   }, [props.forceSave])
 
-  const api = makeApi(props.bp)
+  const api = makeNLUClient()
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -90,14 +90,14 @@ export const LiteEditor: FC<Props> = props => {
         toggle={toggleModal}
         intents={intents}
         onSubmit={createIntent}
-        title={lang.tr('module.nlu.intents.createLabel')}
+        title={lang.tr('nlu.intents.createLabel')}
       />
       {currentIntent && <IntentEditor liteEditor intent={currentIntent} api={api} contentLang={props.contentLang} />}
 
       <div className={style.chooseContainer}>
         <ControlGroup>
-          <FormGroup label={lang.tr('module.nlu.intents.chooseContainerLabel')}>
-            <Button text={lang.tr('module.nlu.intents.createLabel')} onClick={toggleModal} />
+          <FormGroup label={lang.tr('nlu.intents.chooseContainerLabel')}>
+            <Button text={lang.tr('nlu.intents.createLabel')} onClick={toggleModal} />
             <IntentDropdown intents={intents} currentIntent={currentIntent} onChange={onIntentChanged} />
           </FormGroup>
         </ControlGroup>

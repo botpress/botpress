@@ -27,6 +27,12 @@ const BASIC_MENU_ITEMS = [
     path: '/flows',
     rule: { res: 'bot.flows', op: 'read' },
     icon: 'page-layout'
+  },
+  {
+    name: lang.tr('studio.sideBar.nlu'),
+    path: '/nlu',
+    rule: { res: 'bot.nlu', op: 'read' },
+    icon: 'translate'
   }
 ]
 

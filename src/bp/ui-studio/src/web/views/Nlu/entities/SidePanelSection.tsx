@@ -1,15 +1,16 @@
 import { NLU } from 'botpress/sdk'
 import { confirmDialog, lang } from 'botpress/shared'
-import { Item, ItemList, SearchBar } from 'botpress/ui'
 import React, { FC, useState } from 'react'
+import { ItemList, SearchBar } from '~/components/Shared/Interface'
+import { Item } from '~/components/Shared/Interface/typings'
 
 import { NluItem } from '..'
-import { NLUApi } from '../../../api'
+import { NluClient } from '../client'
 
 import { EntityNameModal } from './EntityNameModal'
 
 interface Props {
-  api: NLUApi
+  api: NluClient
   entities: NLU.EntityDefinition[]
   currentItem: NluItem
   setCurrentItem: (x: NluItem) => void
@@ -37,7 +38,7 @@ export const EntitySidePanelSection: FC<Props> = props => {
 
   const deleteEntity = async (entity: NLU.EntityDefinition) => {
     if (
-      await confirmDialog(lang.tr('module.nlu.entities.deleteMessage', { entityName: entity.name }), {
+      await confirmDialog(lang.tr('nlu.entities.deleteMessage', { entityName: entity.name }), {
         acceptLabel: lang.tr('delete')
       })
     ) {
@@ -51,26 +52,23 @@ export const EntitySidePanelSection: FC<Props> = props => {
     }
   }
 
-  const entityItems = props.entities
+  const entityItems: Item[] = props.entities
     .filter(entity => !entitiesFilter || entity.name.includes(entitiesFilter))
-    .map(
-      entity =>
-        ({
-          key: entity.name,
-          label: entity.name,
-          value: entity.name,
-          selected: props.currentItem && props.currentItem.name === entity.name,
-          contextMenu: [
-            { label: lang.tr('rename'), icon: 'edit', onClick: () => renameEntity(entity) },
-            {
-              label: lang.tr('duplicate'),
-              icon: 'duplicate',
-              onClick: () => duplicateEntity(entity)
-            },
-            { label: lang.tr('delete'), icon: 'delete', onClick: () => deleteEntity(entity) }
-          ]
-        } as Item)
-    )
+    .map(entity => ({
+      key: entity.name,
+      label: entity.name,
+      value: entity.name,
+      selected: props.currentItem && props.currentItem.name === entity.name,
+      contextMenu: [
+        { label: lang.tr('rename'), icon: 'edit', onClick: () => renameEntity(entity) },
+        {
+          label: lang.tr('duplicate'),
+          icon: 'duplicate',
+          onClick: () => duplicateEntity(entity)
+        },
+        { label: lang.tr('delete'), icon: 'delete', onClick: () => deleteEntity(entity) }
+      ]
+    }))
 
   const onEntityModified = (entity: NLU.EntityDefinition) => {
     props.setCurrentItem({ type: 'entity', name: entity.name })
@@ -83,7 +81,7 @@ export const EntitySidePanelSection: FC<Props> = props => {
         <SearchBar
           id="entities-filter"
           icon="filter"
-          placeholder={lang.tr('module.nlu.entities.filterPlaceholder')}
+          placeholder={lang.tr('nlu.entities.filterPlaceholder')}
           onChange={setEntitiesFilter}
           showButton={false}
         />

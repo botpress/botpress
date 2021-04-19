@@ -1,10 +1,10 @@
 import { NLU } from 'botpress/sdk'
 import { lang, MainLayout, ToolbarButtonProps } from 'botpress/shared'
-import { SidePanel } from 'botpress/ui'
-import { toastFailure } from 'botpress/utils'
-import { NluItem } from 'full'
 import React, { FC, useState } from 'react'
-import { NLUApi } from '../../api'
+import { SidePanel } from '~/components/Shared/Interface'
+import { toastFailure } from '~/components/Shared/Utils'
+import { NluItem } from '.'
+import { NluClient } from './client'
 import { EntityNameModal } from './entities/EntityNameModal'
 import { EntitySidePanelSection } from './entities/SidePanelSection'
 import IntentNameModal from './intents/NameModal'
@@ -16,7 +16,7 @@ interface Props {
   contentLang: string
   intents: NLU.IntentDefinition[]
   entities: NLU.EntityDefinition[]
-  api: NLUApi
+  api: NluClient
   currentItem: NluItem
   setCurrentItem: (x: NluItem) => void
   reloadEntities: () => Promise<void>
@@ -39,11 +39,11 @@ export const NLUSidePanel: FC<Props> = ({
   const tabs = [
     {
       id: 'intent',
-      title: lang.tr('module.nlu.intents.title')
+      title: lang.tr('nlu.intents.title')
     },
     {
       id: 'entity',
-      title: lang.tr('module.nlu.entities.title')
+      title: lang.tr('nlu.entities.title')
     }
   ]
 
@@ -52,7 +52,7 @@ export const NLUSidePanel: FC<Props> = ({
       id: 'btn-create',
       icon: 'plus',
       onClick: () => setModalOpen(true),
-      tooltip: currentTab === 'intent' ? lang.tr('module.nlu.intents.new') : lang.tr('module.nlu.entities.new')
+      tooltip: currentTab === 'intent' ? lang.tr('nlu.intents.new') : lang.tr('nlu.entities.new')
     }
   ]
 
@@ -69,7 +69,7 @@ export const NLUSidePanel: FC<Props> = ({
       await reloadIntents()
       setCurrentItem({ name, type: 'intent' })
     } catch (err) {
-      toastFailure(lang.tr('module.nlu.intents.actionErrorMessage', { action: 'create' }))
+      toastFailure(lang.tr('nlu.intents.actionErrorMessage', { action: 'create' }))
     }
   }
 
@@ -96,7 +96,7 @@ export const NLUSidePanel: FC<Props> = ({
             isOpen={modalOpen}
             toggle={() => setModalOpen(!modalOpen)}
             onSubmit={onIntentModalSubmit}
-            title={lang.tr('module.nlu.intents.new')}
+            title={lang.tr('nlu.intents.new')}
             intents={intents}
           />
         </React.Fragment>
