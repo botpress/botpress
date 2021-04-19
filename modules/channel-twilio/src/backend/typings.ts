@@ -24,6 +24,7 @@ export interface ChoiceOption {
 
 export interface TwilioContextArgs {
   sendMessage(event: sdk.IO.Event, args: any): Promise<void>
+  sendOptions(event: sdk.IO.Event, text: string, args: any, options: MessageOption[]): Promise<void>
 }
 
 export type TwilioContext = sdk.ChannelContext<Twilio, TwilioContextArgs>

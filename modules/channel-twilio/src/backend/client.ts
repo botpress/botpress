@@ -104,7 +104,7 @@ export class TwilioClient {
       bp: this.bp,
       event,
       client: this.twilio,
-      args: { sendMessage: this.sendMessage.bind(this) }
+      args: { sendMessage: this.sendMessage.bind(this), sendOptions: this.sendOptions.bind(this) }
     }
     let handled = false
     for (const renderer of renderers) {
@@ -129,8 +129,6 @@ export class TwilioClient {
         {},
         event.payload.options.map(x => ({ ...x, type: 'quick_reply' }))
       )
-    } else if (payload.type === 'carousel') {
-      await this.sendCarousel(event, payload)
     }
 
     await this.bp.experimental.messages
@@ -147,28 +145,6 @@ export class TwilioClient {
       type: 'quick_reply'
     }))
     await this.sendOptions(event, event.payload.text, {}, options)
-  }
-
-  async sendCarousel(event: sdk.IO.Event, payload: any) {
-    for (const { subtitle, title, picture, buttons } of payload.elements) {
-      const body = `${title}\n\n${subtitle ? subtitle : ''}`
-
-      const options: MessageOption[] = []
-      for (const button of buttons || []) {
-        const title = button.title as string
-
-        if (button.type === 'open_url') {
-          options.push({ label: `${title} : ${button.url}`, value: undefined, type: 'url' })
-        } else if (button.type === 'postback') {
-          options.push({ label: title, value: button.payload, type: 'postback' })
-        } else if (button.type === 'say_something') {
-          options.push({ label: title, value: button.text as string, type: 'say_something' })
-        }
-      }
-
-      const args = { mediaUrl: picture ? picture : undefined }
-      await this.sendOptions(event, body, args, options)
-    }
   }
 
   async sendOptions(event: sdk.IO.Event, text: string, args: any, options: MessageOption[]) {
