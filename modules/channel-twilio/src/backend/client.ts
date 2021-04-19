@@ -129,11 +129,6 @@ export class TwilioClient {
         {},
         event.payload.options.map(x => ({ ...x, type: 'quick_reply' }))
       )
-    } else if (payload.type === 'file') {
-      await this.sendMessage(event, {
-        body: payload.title,
-        mediaUrl: payload.url
-      })
     } else if (payload.type === 'carousel') {
       await this.sendCarousel(event, payload)
     }
