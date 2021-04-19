@@ -1,3 +1,4 @@
+import * as sdk from 'botpress/sdk'
 import { TwilioContext } from 'src/backend/typings'
 import { TwilioBaseRenderer } from './base'
 
@@ -11,8 +12,10 @@ export class TwilioTextRenderer extends TwilioBaseRenderer {
   }
 
   async render(context: TwilioContext): Promise<boolean> {
+    const payload = context.event.payload as sdk.TextContent
+
     await context.args.sendMessage(context.event, {
-      body: context.event.payload.text
+      body: payload.text
     })
 
     return true
