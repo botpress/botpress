@@ -15,7 +15,7 @@ import Content from '~/views/Content'
 import FlowBuilder from '~/views/FlowBuilder'
 import Logs from '~/views/Logs'
 import Module from '~/views/Module'
-import NLU from '~/views/nlu'
+import NLU from '~/views/Nlu'
 
 import BottomPanel from './BottomPanel'
 import BotUmountedWarning from './BotUnmountedWarning'
