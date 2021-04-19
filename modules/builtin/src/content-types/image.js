@@ -101,8 +101,6 @@ function renderElement(data, channel) {
     return renderMessenger(data)
   } else if (channel === 'telegram') {
     return renderTelegram(data)
-  } else if (channel === 'slack') {
-    return renderSlack(data)
   } else if (channel === 'teams') {
     return renderTeams(data)
   } else {

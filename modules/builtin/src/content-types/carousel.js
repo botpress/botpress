@@ -130,8 +130,6 @@ function renderElement(data, channel) {
 
   if (channel === 'messenger') {
     return renderMessenger(data)
-  } else if (channel === 'slack') {
-    return renderSlack(data)
   } else {
     return render(data)
   }
