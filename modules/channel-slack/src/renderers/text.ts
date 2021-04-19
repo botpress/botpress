@@ -1,28 +1,26 @@
-import { ChatPostMessageArguments } from '@slack/web-api'
 import * as sdk from 'botpress/sdk'
 import { SlackContext } from 'src/backend/typings'
-import { SlackBaseRenderer } from './base'
 
-export class SlackTextRenderer extends SlackBaseRenderer {
+export class SlackTextRenderer implements sdk.ChannelRenderer<SlackContext> {
+  getChannel(): string {
+    return 'slack'
+  }
+
+  getPriority(): number {
+    return 0
+  }
+
   getId() {
     return SlackTextRenderer.name
   }
 
-  getPayloadType(): string {
-    return 'text'
+  async handles(context: SlackContext): Promise<boolean> {
+    return context.event.payload.text
   }
 
-  async render(context: SlackContext): Promise<boolean> {
+  async render(context: SlackContext): Promise<void> {
     const payload = context.event.payload as sdk.TextContent
 
-    const message: ChatPostMessageArguments = {
-      text: payload.text as string,
-      channel: context.args.channelId,
-      blocks: []
-    }
-
-    await context.client.web.chat.postMessage(message)
-
-    return true
+    context.message.text = payload.text as string
   }
 }

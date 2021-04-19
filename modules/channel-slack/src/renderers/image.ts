@@ -1,38 +1,34 @@
-import { ChatPostMessageArguments } from '@slack/web-api'
 import * as sdk from 'botpress/sdk'
 import { SlackContext } from 'src/backend/typings'
-import { SlackBaseRenderer } from './base'
 
-export class SlackImageRenderer extends SlackBaseRenderer {
+export class SlackImageRenderer implements sdk.ChannelRenderer<SlackContext> {
+  getChannel(): string {
+    return 'slack'
+  }
+
+  getPriority(): number {
+    return 0
+  }
+
   getId() {
     return SlackImageRenderer.name
   }
 
-  getPayloadType(): string {
-    return 'image'
+  async handles(context: SlackContext): Promise<boolean> {
+    return context.event.payload.type === 'image'
   }
 
-  async render(context: SlackContext): Promise<boolean> {
+  async render(context: SlackContext): Promise<void> {
     const payload = context.event.payload as sdk.ImageContent
 
-    const message: ChatPostMessageArguments = {
-      channel: context.args.channelId,
-      text: undefined,
-      blocks: [
-        {
-          type: 'image',
-          title: payload.title && {
-            type: 'plain_text',
-            text: payload.title as string
-          },
-          image_url: payload.image,
-          alt_text: 'image'
-        }
-      ]
-    }
-
-    await context.client.web.chat.postMessage(message)
-
-    return true
+    context.message.blocks.push({
+      type: 'image',
+      title: payload.title && {
+        type: 'plain_text',
+        text: payload.title as string
+      },
+      image_url: payload.image,
+      alt_text: 'image'
+    })
   }
 }

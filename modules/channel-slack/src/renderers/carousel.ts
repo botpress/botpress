@@ -1,25 +1,29 @@
-import { ChatPostMessageArguments } from '@slack/web-api'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import { SlackContext } from 'src/backend/typings'
-import { SlackBaseRenderer } from './base'
 
-export class SlackCarouselRenderer extends SlackBaseRenderer {
+export class SlackCarouselRenderer implements sdk.ChannelRenderer<SlackContext> {
+  getChannel(): string {
+    return 'slack'
+  }
+
+  getPriority(): number {
+    return 0
+  }
+
   getId() {
     return SlackCarouselRenderer.name
   }
 
-  getPayloadType(): string {
-    return 'carousel'
+  async handles(context: SlackContext): Promise<boolean> {
+    return context.event.payload.type === 'carousel'
   }
 
-  async render(context: SlackContext): Promise<boolean> {
+  async render(context: SlackContext): Promise<void> {
     const payload = context.event.payload as sdk.CarouselContent
 
-    const message: ChatPostMessageArguments = {
-      channel: context.args.channelId,
-      text: undefined,
-      blocks: _.flatMap(payload.items, (card, cardIdx) => [
+    context.message.blocks.push(
+      ..._.flatMap(payload.items, (card, cardIdx) => [
         {
           type: 'section',
           text: {
@@ -61,10 +65,6 @@ export class SlackCarouselRenderer extends SlackBaseRenderer {
           })
         }
       ])
-    }
-
-    await context.client.web.chat.postMessage(message)
-
-    return true
+    )
   }
 }

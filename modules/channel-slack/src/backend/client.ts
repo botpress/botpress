@@ -179,22 +179,31 @@ export class SlackClient {
     const [channelId, userId] = foreignId.split('-')
 
     const renderers = this.bp.experimental.render.getChannelRenderers('slack')
+    const senders = this.bp.experimental.render.getChannelSenders('slack')
+
     const context: SlackContext = {
       bp: this.bp,
       event,
       client: { web: this.client, rtm: this.rtm, events: this.events, interactive: this.interactive },
-      args: { channelId }
+      args: { channelId },
+      message: { channel: channelId, text: undefined, blocks: [] },
+      handlers: []
     }
-    let handled = false
+
+    let handled = true
     for (const renderer of renderers) {
-      if (!(await renderer.handles(context))) {
-        continue
+      if (await renderer.handles(context)) {
+        await renderer.render(context)
+        context.handlers.push(renderer.getId())
+        handled = true
       }
+    }
 
-      handled = await renderer.render(context)
-
-      if (handled) {
-        break
+    for (const sender of senders) {
+      if (await sender.handles(context)) {
+        await sender.send(context)
+        // context.handlers.push(sender.getId())
+        // handled = true
       }
     }
 
@@ -204,45 +213,10 @@ export class SlackClient {
         blocks.push(event.payload)
       }
 
-      if (event.payload.quick_replies) {
-        blocks.push({ type: 'section', text: { type: 'mrkdwn', text: event.payload.text } })
-        blocks.push(event.payload.quick_replies)
-      }
-
       const message = {
         text: event.payload.text,
         channel: channelId,
         blocks
-      }
-
-      if (event.payload.collectFeedback && messageType === 'text') {
-        message.blocks = [
-          {
-            type: 'section',
-            block_id: `feedback-${event.incomingEventId}`,
-            text: { type: 'mrkdwn', text: event.payload.text },
-            accessory: {
-              type: 'overflow',
-              options: [
-                {
-                  text: {
-                    type: 'plain_text',
-                    text: '👍'
-                  },
-                  value: '1'
-                },
-                {
-                  text: {
-                    type: 'plain_text',
-                    text: '👎'
-                  },
-                  value: '-1'
-                }
-              ],
-              action_id: 'feedback-overflow'
-            }
-          }
-        ]
       }
 
       debugOutgoing('Sending message %o', message)
