@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { StanEngine } from 'src/backend/stan'
+import { IStanEngine } from 'src/backend/stan'
 import { mapTrainSet } from '../../stan/api-mapper'
 import { I } from '../typings'
 import { IDefinitionsRepository } from './infrastructure/definitions-repository'
@@ -30,7 +30,7 @@ export class ScopedDefinitionsService {
 
   private _dirtyModelsListeners: DirtyModelCallback[] = []
 
-  constructor(bot: BotDefinition, private _engine: StanEngine, private _definitionRepository: IDefinitionsRepository) {
+  constructor(bot: BotDefinition, private _engine: IStanEngine, private _definitionRepository: IDefinitionsRepository) {
     this._languages = bot.languages
     this._seed = bot.seed
     this._botId = bot.botId
@@ -73,12 +73,15 @@ export class ScopedDefinitionsService {
 
       await Promise.filter(this._languages, async l => {
         const modelId = await this.getLatestModelId(l)
-        return !this._engine.hasModel(this._botId, modelId)
+        const hasModel = await this._engine.hasModel(this._botId, modelId)
+        return !hasModel
       }).mapSeries(this._notifyListeners)
     })
   }
 
   private _notifyListeners = (language: string) => {
-    return Promise.mapSeries(this._dirtyModelsListeners, l => l(language))
+    return Promise.mapSeries(this._dirtyModelsListeners, l => {
+      return l(language)
+    })
   }
 }

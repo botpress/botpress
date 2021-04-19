@@ -1,28 +1,21 @@
-import * as NLUEngine from './utils/sdk.u.test'
-
 import { IScopedServicesFactory, ScopedServices } from '../bot-factory'
 import { IBotService } from '../bot-service'
 import { NLUApplication } from '../index'
 import { IBot } from '../scoped/bot'
 import { IDefinitionsService } from '../scoped/definitions-service'
-import { IModelRepository } from '../scoped/infrastructure/model-repository'
 
 import { mock, Mock } from './utils/mock-extra.u.test'
 import './utils/sdk.u.test'
 import { ITrainingQueue } from '../training-queue'
+import { IStanEngine } from '../../stan'
 
 const botId = 'myBot'
-const makeModelId = (languageCode: string): NLUEngine.ModelId => ({
-  contentHash: '',
-  specificationHash: '',
-  languageCode,
-  seed: 69
-})
+const makeModelId = (languageCode: string): string => `hehe.abab.69.${languageCode}`
 
 const makeBot = (): Mock<IBot> =>
   mock<IBot>({
     mount: jest.fn(),
-    load: jest.fn(),
+    setModel: jest.fn(),
     unmount: jest.fn()
   })
 
@@ -31,15 +24,12 @@ const makeScopedServices = (): Mock<ScopedServices> => ({
   defService: mock<IDefinitionsService>({
     listenForDirtyModels: jest.fn(l => {}),
     getLatestModelId: jest.fn(async l => makeModelId(l))
-  }),
-  modelRepo: mock<IModelRepository>({
-    hasModel: jest.fn(async m => false)
   })
 })
 
 describe('NLU API unit tests', () => {
   let trainingQueue: Mock<ITrainingQueue>
-  let engine: Mock<NLUEngine.Engine>
+  let engine: Mock<IStanEngine>
   let servicesFactory: Mock<IScopedServicesFactory>
   let botService: Mock<IBotService>
 
@@ -50,7 +40,9 @@ describe('NLU API unit tests', () => {
       queueTraining: jest.fn(),
       cancelTrainings: jest.fn()
     })
-    engine = mock<NLUEngine.Engine>({})
+    engine = mock<IStanEngine>({
+      hasModel: jest.fn(async (app, m) => false)
+    })
     servicesFactory = mock<IScopedServicesFactory>({})
     botService = mock<IBotService>({
       setBot: jest.fn(),
@@ -65,7 +57,7 @@ describe('NLU API unit tests', () => {
 
     const scopedServices = makeScopedServices()
     scopedServices.defService.getLatestModelId = jest.fn(async l => (l === 'en' ? modelId : makeModelId(l)))
-    scopedServices.modelRepo.hasModel = jest.fn(async m => m === modelId)
+    engine.hasModel = jest.fn(async (app, m) => m === modelId)
     servicesFactory.makeBot = jest.fn(async bot => scopedServices)
 
     const app = new NLUApplication(trainingQueue, engine, servicesFactory, botService)
@@ -82,14 +74,14 @@ describe('NLU API unit tests', () => {
     expect(scopedServices.bot.mount).toHaveBeenCalled()
     expect(scopedServices.defService.listenForDirtyModels).toHaveBeenCalled()
 
-    expect(scopedServices.bot.load).toHaveBeenCalledWith(modelId)
+    expect(scopedServices.bot.setModel).toHaveBeenCalledWith('en', modelId)
     expect(trainingQueue.queueTraining).not.toHaveBeenCalled()
   })
 
   test('mounting a bot when no model is on fs mounts the bot queue training', async () => {
     // arrange
     const scopedServices = makeScopedServices()
-    scopedServices.modelRepo.hasModel = jest.fn(async m => false)
+    engine.hasModel = jest.fn(async (app, m) => false)
     servicesFactory.makeBot = jest.fn(async bot => scopedServices)
 
     const app = new NLUApplication(trainingQueue, engine, servicesFactory, botService)
@@ -106,14 +98,15 @@ describe('NLU API unit tests', () => {
     expect(scopedServices.bot.mount).toHaveBeenCalled()
     expect(scopedServices.defService.listenForDirtyModels).toHaveBeenCalled()
 
-    expect(scopedServices.bot.load).not.toHaveBeenCalled()
+    expect(scopedServices.bot.setModel).not.toHaveBeenCalled()
     expect(trainingQueue.queueTraining).toHaveBeenCalledWith(expect.objectContaining({ botId, language: 'en' }))
   })
 
   test('queuing a training, queues the training', async () => {
     // arrange
     const scopedServices = makeScopedServices()
-    scopedServices.modelRepo.hasModel = jest.fn(async m => true)
+    engine.hasModel = jest.fn(async (app, m) => true)
+
     servicesFactory.makeBot = jest.fn(async bot => scopedServices)
     botService.getBot = jest.fn(bot => scopedServices.bot)
 

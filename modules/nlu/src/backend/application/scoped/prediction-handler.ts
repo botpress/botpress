@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { StanEngine } from 'src/backend/stan'
+import { IStanEngine } from 'src/backend/stan'
 import mergeSpellChecked from '../../election/spellcheck-handler'
 import { mapPredictOutput } from '../../stan/api-mapper'
 import { EventUnderstanding } from '../typings'
@@ -18,7 +18,7 @@ export class ScopedPredictionHandler {
 
   constructor(
     bot: BotDefinition,
-    private _engine: StanEngine,
+    private _engine: IStanEngine,
     private _modelsByLang: _.Dictionary<string>,
     private _logger: sdk.Logger
   ) {

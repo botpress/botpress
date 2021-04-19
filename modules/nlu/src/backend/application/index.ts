@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import yn from 'yn'
 
-import { StanEngine } from '../stan'
+import { IStanEngine } from '../stan'
 import { IScopedServicesFactory } from './bot-factory'
 import { IBotService } from './bot-service'
 import { BotNotMountedError } from './errors'
@@ -14,7 +14,7 @@ export class NLUApplication {
 
   constructor(
     private _trainingQueue: ITrainingQueue,
-    private _engine: StanEngine,
+    private _engine: IStanEngine,
     private _servicesFactory: IScopedServicesFactory,
     private _botService: IBotService,
     queueTrainingOnBotMount: boolean = true

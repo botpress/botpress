@@ -1,10 +1,13 @@
 import _ from 'lodash'
+import { I } from '../application/typings'
 import { StanClient } from '../stan/client'
 import { TrainInput, PredictOutput, Health, Specifications, TrainingError } from '../stan/typings_v1'
 import { TrainingCanceledError, TrainingAlreadyStartedError } from './errors'
 import modelIdService from './model-id-service'
 
 const TRAIN_PROGRESS_POLLING_INTERVAL = 500
+
+export type IStanEngine = I<StanEngine>
 
 export class StanEngine {
   constructor(private _stanClient: StanClient, private _appSecret: string) {}

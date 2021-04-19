@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
 import _ from 'lodash'
-import { StanEngine } from '../stan'
+import { IStanEngine } from '../stan'
 import pickSeed from './pick-seed'
 import { Bot, IBot } from './scoped/bot'
 import { ScopedDefinitionsService, IDefinitionsService } from './scoped/definitions-service'
@@ -23,7 +23,7 @@ export type IScopedServicesFactory = I<ScopedServicesFactory>
 
 export class ScopedServicesFactory {
   constructor(
-    private _engine: StanEngine,
+    private _engine: IStanEngine,
     private _logger: sdk.Logger,
     private _makeDefRepo: DefinitionRepositoryFactory
   ) {}

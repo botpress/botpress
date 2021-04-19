@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import { StanEngine } from 'src/backend/stan'
+import { IStanEngine } from 'src/backend/stan'
 import { mapTrainSet } from '../../stan/api-mapper'
 import { BotDoesntSpeakLanguageError } from '../errors'
 import { Predictor, ProgressCallback, Trainable, I } from '../typings'
@@ -28,7 +28,7 @@ export class Bot implements Trainable, Predictor {
 
   constructor(
     bot: BotDefinition,
-    private _engine: StanEngine,
+    private _engine: IStanEngine,
     private _defService: IDefinitionsService,
     private _logger: sdk.Logger
   ) {
