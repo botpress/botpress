@@ -7,6 +7,7 @@ export interface Clients {
 
 export interface TelegramContextArgs {
   keyboardButtons<T>(arr: any[] | undefined): T[] | undefined
+  chatId: string
 }
 
 export type TelegramContext = sdk.ChannelContext<Telegraf<ContextMessageUpdate>, TelegramContextArgs>

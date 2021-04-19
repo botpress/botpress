@@ -80,7 +80,7 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
     }
 
     const renderers = bp.experimental.render.getChannelRenderers('telegram')
-    const context = { bp, event, client, args: { keyboardButtons } }
+    const context = { bp, event, client, args: { keyboardButtons, chatId } }
     let handled = false
     for (const renderer of renderers) {
       if (!(await renderer.handles(context))) {

@@ -167,6 +167,28 @@ function renderSlack(data) {
 }
 
 function renderElement(data, channel) {
+  // These channels now use channel renderers
+  if (['telegram'].includes(channel)) {
+    // TODO : automate this from the schema
+    return {
+      type: 'carousel',
+      items: data.items.map(item => ({
+        ...item,
+        image: item.image ? utils.formatURL(data.BOT_URL, item.image) : null,
+        actions: item.actions.map(action => {
+          if (action.action === 'Open URL') {
+            return {
+              ...action,
+              url: action.url && action.url.replace('BOT_URL', data.BOT_URL)
+            }
+          } else {
+            return action
+          }
+        })
+      }))
+    }
+  }
+
   if (channel === 'messenger') {
     return renderMessenger(data)
   } else if (channel === 'slack') {

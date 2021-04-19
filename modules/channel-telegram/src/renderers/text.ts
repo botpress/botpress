@@ -1,3 +1,4 @@
+import * as sdk from 'botpress/sdk'
 import { TelegramContext } from 'src/backend/typings'
 import { Button, Markup } from 'telegraf'
 import Extra from 'telegraf/extra'
@@ -14,24 +15,29 @@ export class TelegramTextRenderer extends TelegramBaseRenderer {
 
   async render(context: TelegramContext): Promise<boolean> {
     const { event, client, args } = context
-    const chatId = event.threadId || event.target
+    const { chatId } = args
+    const payload = event.payload as sdk.TextContent
 
     const keyboard = Markup.keyboard(args.keyboardButtons<Button>(event.payload.quick_replies))
-    if (event.payload.markdown !== false) {
+    if (payload.markdown !== false) {
       // Attempt at sending with markdown first, fallback to regular text on failure
       await client.telegram
-        .sendMessage(chatId, event.preview, Extra.markdown(true).markup({ ...keyboard, one_time_keyboard: true }))
+        .sendMessage(
+          chatId,
+          payload.text as string,
+          Extra.markdown(true).markup({ ...keyboard, one_time_keyboard: true })
+        )
         .catch(() =>
           client.telegram.sendMessage(
             chatId,
-            event.preview,
+            payload.text as string,
             Extra.markdown(false).markup({ ...keyboard, one_time_keyboard: true })
           )
         )
     } else {
       await client.telegram.sendMessage(
         chatId,
-        event.preview,
+        payload.text as string,
         Extra.markdown(false).markup({ ...keyboard, one_time_keyboard: true })
       )
     }

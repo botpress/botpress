@@ -47,25 +47,6 @@ function renderMessenger(data) {
   ]
 }
 
-function renderTelegram(data) {
-  const events = []
-
-  if (data.typing) {
-    events.push({
-      type: 'typing',
-      value: data.typing
-    })
-  }
-
-  return [
-    ...events,
-    {
-      type: 'image',
-      url: utils.formatURL(data.BOT_URL, data.image)
-    }
-  ]
-}
-
 function renderSlack(data) {
   const events = []
 
@@ -115,10 +96,14 @@ function renderTeams(data) {
 }
 
 function renderElement(data, channel) {
+  // These channels now use channel renderers
+  if (['telegram'].includes(channel)) {
+    // TODO : automate this from the schema
+    return { type: 'image', image: utils.formatURL(data.BOT_URL, data.image), title: data.title }
+  }
+
   if (channel === 'messenger') {
     return renderMessenger(data)
-  } else if (channel === 'telegram') {
-    return renderTelegram(data)
   } else if (channel === 'slack') {
     return renderSlack(data)
   } else if (channel === 'teams') {

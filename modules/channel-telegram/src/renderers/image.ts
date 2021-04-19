@@ -1,3 +1,4 @@
+import * as sdk from 'botpress/sdk'
 import { TelegramContext } from 'src/backend/typings'
 import { Button, Markup } from 'telegraf'
 import Extra from 'telegraf/extra'
@@ -14,19 +15,20 @@ export class TelegramImageRenderer extends TelegramBaseRenderer {
 
   async render(context: TelegramContext): Promise<boolean> {
     const { event, client, args } = context
-    const chatId = event.threadId || event.target
+    const { chatId } = args
+    const payload = event.payload as sdk.ImageContent
 
     const keyboard = Markup.keyboard(args.keyboardButtons<Button>(event.payload.quick_replies))
-    if (event.payload.url.toLowerCase().endsWith('.gif')) {
+    if (payload.image.toLowerCase().endsWith('.gif')) {
       await client.telegram.sendAnimation(
         chatId,
-        event.payload.url,
+        payload.image,
         Extra.markdown(false).markup({ ...keyboard, one_time_keyboard: true })
       )
     } else {
       await client.telegram.sendPhoto(
         chatId,
-        event.payload.url,
+        payload.image,
         Extra.markdown(false).markup({ ...keyboard, one_time_keyboard: true })
       )
     }
