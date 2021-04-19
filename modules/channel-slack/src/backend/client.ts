@@ -12,7 +12,7 @@ import ms from 'ms'
 
 import { Config } from '../config'
 
-import { Clients } from './typings'
+import { Clients, SlackContext } from './typings'
 
 const debug = DEBUG('channel-slack')
 const debugIncoming = debug.sub('incoming')
@@ -175,58 +175,81 @@ export class SlackClient {
       return next(new Error('Unsupported event type: ' + event.type))
     }
 
-    const blocks = []
-    if (messageType === 'image' || messageType === 'actions') {
-      blocks.push(event.payload)
-    } else if (messageType === 'carousel') {
-      event.payload.cards.forEach(card => blocks.push(...card))
-    }
-
-    if (event.payload.quick_replies) {
-      blocks.push({ type: 'section', text: { type: 'mrkdwn', text: event.payload.text } })
-      blocks.push(event.payload.quick_replies)
-    }
-
     const foreignId = await this.bp.experimental.conversations.forBot(this.botId).getForeignId('slack', event.threadId)
     const [channelId, userId] = foreignId.split('-')
-    const message = {
-      text: event.payload.text,
-      channel: channelId,
-      blocks
+
+    const renderers = this.bp.experimental.render.getChannelRenderers('slack')
+    const context: SlackContext = {
+      bp: this.bp,
+      event,
+      client: { web: this.client, rtm: this.rtm, events: this.events, interactive: this.interactive },
+      args: { channelId }
+    }
+    let handled = false
+    for (const renderer of renderers) {
+      if (!(await renderer.handles(context))) {
+        continue
+      }
+
+      handled = await renderer.render(context)
+
+      if (handled) {
+        break
+      }
     }
 
-    if (event.payload.collectFeedback && messageType === 'text') {
-      message.blocks = [
-        {
-          type: 'section',
-          block_id: `feedback-${event.incomingEventId}`,
-          text: { type: 'mrkdwn', text: event.payload.text },
-          accessory: {
-            type: 'overflow',
-            options: [
-              {
-                text: {
-                  type: 'plain_text',
-                  text: '👍'
+    if (!handled) {
+      const blocks = []
+      if (messageType === 'image' || messageType === 'actions') {
+        blocks.push(event.payload)
+      } else if (messageType === 'carousel') {
+        event.payload.cards.forEach(card => blocks.push(...card))
+      }
+
+      if (event.payload.quick_replies) {
+        blocks.push({ type: 'section', text: { type: 'mrkdwn', text: event.payload.text } })
+        blocks.push(event.payload.quick_replies)
+      }
+
+      const message = {
+        text: event.payload.text,
+        channel: channelId,
+        blocks
+      }
+
+      if (event.payload.collectFeedback && messageType === 'text') {
+        message.blocks = [
+          {
+            type: 'section',
+            block_id: `feedback-${event.incomingEventId}`,
+            text: { type: 'mrkdwn', text: event.payload.text },
+            accessory: {
+              type: 'overflow',
+              options: [
+                {
+                  text: {
+                    type: 'plain_text',
+                    text: '👍'
+                  },
+                  value: '1'
                 },
-                value: '1'
-              },
-              {
-                text: {
-                  type: 'plain_text',
-                  text: '👎'
-                },
-                value: '-1'
-              }
-            ],
-            action_id: 'feedback-overflow'
+                {
+                  text: {
+                    type: 'plain_text',
+                    text: '👎'
+                  },
+                  value: '-1'
+                }
+              ],
+              action_id: 'feedback-overflow'
+            }
           }
-        }
-      ]
-    }
+        ]
+      }
 
-    debugOutgoing('Sending message %o', message)
-    await this.client.chat.postMessage(message)
+      debugOutgoing('Sending message %o', message)
+      await this.client.chat.postMessage(message)
+    }
 
     await this.bp.experimental.messages
       .forBot(this.botId)

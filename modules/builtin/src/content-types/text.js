@@ -60,7 +60,7 @@ function renderTeams(data) {
 
 function renderElement(data, channel) {
   // These channels now use channel renderers
-  if ([].includes(channel)) {
+  if (['slack'].includes(channel)) {
     // TODO : automate this from the schema
     return { type: 'text', text: data.text, markdown: data.markdown }
   }
