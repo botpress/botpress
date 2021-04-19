@@ -11,7 +11,6 @@ export interface Clients {
 
 export interface SlackEndpoints {
   web: WebClient
-  rtm: RTMClient
   events: SlackEventAdapter
   interactive: SlackMessageAdapter
 }

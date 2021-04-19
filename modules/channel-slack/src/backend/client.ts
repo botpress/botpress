@@ -161,20 +161,6 @@ export class SlackClient {
   }
 
   async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
-    if (event.type === 'typing') {
-      if (this.rtm) {
-        await this.rtm.sendTyping(event.threadId || event.target)
-        await new Promise(resolve => setTimeout(() => resolve(), 1000))
-      }
-
-      return next(undefined, false)
-    }
-
-    const messageType = event.type === 'default' ? 'text' : event.type
-    if (!_.includes(outgoingTypes, messageType)) {
-      return next(new Error('Unsupported event type: ' + event.type))
-    }
-
     const foreignId = await this.bp.experimental.conversations.forBot(this.botId).getForeignId('slack', event.threadId)
     const [channelId, userId] = foreignId.split('-')
 
@@ -184,18 +170,16 @@ export class SlackClient {
     const context: SlackContext = {
       bp: this.bp,
       event,
-      client: { web: this.client, rtm: this.rtm, events: this.events, interactive: this.interactive },
+      client: { web: this.client, events: this.events, interactive: this.interactive },
       args: { channelId },
       message: { channel: channelId, text: undefined, blocks: [] },
       handlers: []
     }
 
-    let handled = true
     for (const renderer of renderers) {
       if (await renderer.handles(context)) {
         await renderer.render(context)
         context.handlers.push(renderer.getId())
-        handled = true
       }
     }
 
@@ -205,22 +189,6 @@ export class SlackClient {
         // context.handlers.push(sender.getId())
         // handled = true
       }
-    }
-
-    if (!handled) {
-      const blocks = []
-      if (messageType === 'actions') {
-        blocks.push(event.payload)
-      }
-
-      const message = {
-        text: event.payload.text,
-        channel: channelId,
-        blocks
-      }
-
-      debugOutgoing('Sending message %o', message)
-      await this.client.chat.postMessage(message)
     }
 
     await this.bp.experimental.messages

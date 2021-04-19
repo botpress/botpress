@@ -6,6 +6,7 @@ import { SlackImageRenderer } from '../renderers/image'
 import { SlackTextRenderer } from '../renderers/text'
 
 import { SlackCommonSender } from '../senders/common'
+import { SlackTypingSender } from '../senders/typing'
 import { setupMiddleware, SlackClient } from './client'
 import { Clients } from './typings'
 
@@ -56,7 +57,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     new SlackCarouselRenderer(),
     new SlackChoicesRenderer()
   ],
-  senders: [new SlackCommonSender()],
+  senders: [new SlackTypingSender(), new SlackCommonSender()],
   definition: {
     name: 'channel-slack',
     menuIcon: 'none',
