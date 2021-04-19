@@ -1,6 +1,6 @@
 import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
-import { registerMsgHandler, spawnNewTrainingWorker, WORKER_TYPES } from '../../../../bp/cluster'
+import { registerMsgHandler, spawnNewTrainingWorker, WORKER_TYPES } from '../../../utils/cluster'
 import { deserializeError, serializeError } from '../../../utils/error-utils'
 
 import { TrainingAlreadyStarted, TrainingCanceled, TrainingExitedUnexpectedly } from '../../errors'

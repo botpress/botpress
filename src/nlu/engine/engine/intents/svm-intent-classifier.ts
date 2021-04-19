@@ -1,4 +1,4 @@
-import { MLToolkit } from 'botpress/sdk'
+import { MLToolkit } from 'botpress-sdk'
 import Joi, { validate } from 'joi'
 import _ from 'lodash'
 import { ModelLoadingError } from '../../errors'

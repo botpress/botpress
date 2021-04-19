@@ -1,6 +1,6 @@
-import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import os from 'os'
+import * as sdk from 'botpress-sdk'
 
 import { deserializeError, ErrorMessage } from '../utils/error-utils'
 import { MLThreadScheduler } from './ml-thread-scheduler'

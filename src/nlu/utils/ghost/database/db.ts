@@ -1,4 +1,4 @@
-import { KnexExtended, Logger } from 'botpress/sdk'
+import { KnexExtended, Logger } from 'botpress-sdk'
 import { mkdirpSync } from 'fs-extra'
 import Knex from 'knex'
 import _ from 'lodash'

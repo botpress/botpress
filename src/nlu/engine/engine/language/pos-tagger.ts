@@ -1,4 +1,4 @@
-import * as sdk from 'botpress/sdk'
+import * as sdk from 'botpress-sdk'
 import path from 'path'
 
 import { isSpace, SPACE } from '../tools/token-utils'

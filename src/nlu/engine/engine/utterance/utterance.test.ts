@@ -1,4 +1,4 @@
-import { MLToolkit } from 'botpress/sdk'
+import { MLToolkit } from 'botpress-sdk'
 import _ from 'lodash'
 import { tokenizeLatinTextForTests } from '../test-utils/fake-tools'
 

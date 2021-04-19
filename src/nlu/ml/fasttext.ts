@@ -1,4 +1,4 @@
-import * as sdk from 'botpress/sdk'
+import * as sdk from 'botpress-sdk'
 import { VError } from 'verror'
 
 const customFastTextPath = process.env.FAST_TEXT_PATH ? '!' + process.env.FAST_TEXT_PATH : undefined

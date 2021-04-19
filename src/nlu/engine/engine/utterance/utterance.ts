@@ -1,6 +1,6 @@
-import * as sdk from 'botpress/sdk'
-import { parseUtterance } from 'common/utterance-parser'
+import * as sdk from 'botpress-sdk'
 import _ from 'lodash'
+import { parseUtterance } from '../../../utils/utterance-parser'
 
 import { POSClass } from '../language/pos-tagger'
 import { computeNorm, scalarDivide, scalarMultiply, vectorAdd, zeroes } from '../tools/math'

@@ -1,4 +1,4 @@
-import * as sdk from 'botpress/sdk'
+import * as sdk from 'botpress-sdk'
 import fse from 'fs-extra'
 import Joi, { validate } from 'joi'
 import _ from 'lodash'

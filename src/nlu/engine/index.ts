@@ -1,3 +1,5 @@
+import _ from 'lodash'
+import '../bootstrap'
 import Engine from './engine'
 import { DUCKLING_ENTITIES } from './engine/entities/duckling-extractor/enums'
 import { isTrainingAlreadyStarted, isTrainingCanceled } from './errors'
@@ -8,7 +10,7 @@ export * from './typings'
 
 export const SYSTEM_ENTITIES = DUCKLING_ENTITIES
 
-export const errors: Dic<(err: Error) => boolean> = {
+export const errors: _.Dictionary<(err: Error) => boolean> = {
   isTrainingAlreadyStarted,
   isTrainingCanceled
 }

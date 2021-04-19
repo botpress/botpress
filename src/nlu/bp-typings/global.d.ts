@@ -285,7 +285,7 @@ interface IDebugInstance {
   sub(namespace: string): IDebugInstance
 }
 
-declare var DEBUG: IDebug
+declare let DEBUG: IDebug
 
 declare interface OSDistribution {
   os: NodeJS.Platform
@@ -319,4 +319,4 @@ interface IEmitCoreEvent {
   ): void
 }
 
-declare var BOTPRESS_CORE_EVENT: IEmitCoreEvent
+declare let BOTPRESS_CORE_EVENT: IEmitCoreEvent

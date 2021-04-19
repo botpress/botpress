@@ -1,23 +1,18 @@
 // eslint-disable-next-line import/order
-import rewire from 'sdk/rewire'
-// eslint-disable-next-line import/order
-
+import Logger from '../utils/simple-logger'
 import bytes from 'bytes'
 import chalk from 'chalk'
-import cluster from 'cluster'
-import { LogLevel } from 'core/logger/enums'
-import { centerText } from 'core/logger/utils'
-import { copyDir } from 'core/misc/pkg-fs'
 import _ from 'lodash'
 import path from 'path'
-
-import Logger from 'simple-logger'
-import { setupMasterNode, WORKER_TYPES } from '../../bp/cluster'
 import * as NLUEngine from '../../nlu/engine'
+import { copyDir } from '../utils/pkg-fs'
+import { LogLevel } from '../utils/simple-logger/enums'
 import API, { APIOptions } from './api'
 
-global.rewire = rewire as any
-const debug = DEBUG('api')
+process.core_env = process.env as BotpressEnvironmentVariables
+global['NativePromise'] = global.Promise
+// global.DEBUG = Debug
+const debug = (new Logger('api')).level(LogLevel.DEBUG).info
 
 const GH_TYPINGS_FILE = 'https://github.com/botpress/botpress/blob/master/src/nlu/stan/typings_v1.d.ts'
 const GH_TRAIN_INPUT_EXAMPLE = 'https://github.com/botpress/botpress/blob/master/src/nlu/stan/train-example.json'
@@ -79,12 +74,6 @@ const makeEngine = async (options: ArgV, logger: Logger) => {
 
 export default async function(options: ArgV) {
   const logger = new Logger('Launcher')
-  if (cluster.isMaster) {
-    setupMasterNode(logger)
-    return
-  } else if (cluster.isWorker && process.env.WORKER_TYPE !== WORKER_TYPES.WEB) {
-    return
-  }
   const envConfig = readEnvJSONConfig()
   if (envConfig) {
     logger.info('Loading config from environment variables')
@@ -103,7 +92,7 @@ export default async function(options: ArgV) {
     const message = args[0]
     const rest = args.slice(1)
 
-    logger.level(LogLevel.DEV).debug(message.trim(), rest)
+    logger.debug(message.trim(), rest)
   }
 
   debug('NLU Server Options %o', options)
@@ -112,9 +101,9 @@ export default async function(options: ArgV) {
   const { nluVersion } = engine.getSpecifications()
 
   logger.info(chalk`========================================
-{bold ${centerText('Botpress Standalone NLU', 40, 9)}}
-{dim ${centerText(`Version ${nluVersion}`, 40, 9)}}
-{dim ${centerText(`OS ${process.distro}`, 40, 9)}}
+{bold ${'Botpress Standalone NLU'}}
+{dim ${`Version ${nluVersion}`}}
+{dim ${`OS ${process.distro}`}}
 ${_.repeat(' ', 9)}========================================`)
 
   if (options.authToken?.length) {

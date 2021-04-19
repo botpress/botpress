@@ -3,13 +3,13 @@ import cors from 'cors'
 import express, { Application } from 'express'
 import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
-import { authMiddleware, handleErrorLogging, handleUnexpectedError, isAdminToken, RequestWithLang } from 'http-utils'
 import _ from 'lodash'
 import ms from 'ms'
-import Logger from 'simple-logger'
 import yn from 'yn'
 
-import { BadRequestError } from '../../bp/core/routers/errors'
+import { authMiddleware, handleErrorLogging, handleUnexpectedError, isAdminToken, RequestWithLang } from '../utils/http'
+import { BadRequestError } from '../utils/http/errors'
+import Logger from '../utils/simple-logger'
 
 import { getLanguageByCode } from './languages'
 import { monitoringMiddleware, startMonitoring } from './monitoring'
@@ -211,7 +211,9 @@ export default async function(
 
   await Promise.fromCallback(callback => {
     const hostname = options.host === 'localhost' ? undefined : options.host
-    httpServer.listen(options.port, hostname, undefined, callback)
+    httpServer.listen(options.port, hostname, undefined, () => {
+      callback(null)
+    })
   })
 
   logger.info(`Language Server is ready at http://${options.host}:${options.port}/`)

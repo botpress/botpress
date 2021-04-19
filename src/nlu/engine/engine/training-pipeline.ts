@@ -1,4 +1,4 @@
-import * as sdk from 'botpress/sdk'
+import * as sdk from 'botpress-sdk'
 import _ from 'lodash'
 import { Logger } from '../typings'
 

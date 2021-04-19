@@ -1,4 +1,4 @@
-import * as sdk from 'botpress/sdk'
+import * as sdk from 'botpress-sdk'
 import { tokenizeLatinTextForTests } from '../test-utils/fake-tools'
 
 import { isSpace } from '../tools/token-utils'

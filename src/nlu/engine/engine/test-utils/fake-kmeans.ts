@@ -1,4 +1,4 @@
-import { MLToolkit } from 'botpress/sdk'
+import { MLToolkit } from 'botpress-sdk'
 
 export const fakeKmeans: typeof MLToolkit.KMeans = {
   kmeans: (data: MLToolkit.KMeans.DataPoint[], k: number, options: MLToolkit.KMeans.KMeansOptions) => {

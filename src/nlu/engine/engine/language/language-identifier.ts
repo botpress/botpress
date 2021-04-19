@@ -1,4 +1,4 @@
-import * as sdk from 'botpress/sdk'
+import * as sdk from 'botpress-sdk'
 import { readFileSync, writeFileSync } from 'fs'
 import _ from 'lodash'
 import path from 'path'

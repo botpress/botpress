@@ -1,10 +1,19 @@
 import bytes from 'bytes'
 import chokidar from 'chokidar'
-import { ObjectCache } from 'common/object-cache'
 import { EventEmitter } from 'events'
 import LRU from 'lru-cache'
 import path from 'path'
-import { forceForwardSlashes } from '../../../nlu/stan/simple-ghost/misc'
+import { forceForwardSlashes } from './misc'
+
+export interface ObjectCache {
+  readonly events: EventEmitter
+  get<T>(key: string): Promise<T>
+  set<T>(key: string, obj: T): Promise<void>
+  has(key: string): Promise<boolean>
+  invalidate(key: string): Promise<void>
+  invalidateStartingWith(prefix: string): Promise<void>
+  sync(message: string): Promise<void>
+}
 
 // namespace CacheInvalidators {
 //   enum ChangeEventAction {

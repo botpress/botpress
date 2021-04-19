@@ -1,4 +1,4 @@
-import { MLToolkit } from 'botpress/sdk'
+import { MLToolkit } from 'botpress-sdk'
 import _ from 'lodash'
 import { POSClass, POS_CLASSES } from '../language/pos-tagger'
 import { SPACE, splitSpaceToken } from '../tools/token-utils'

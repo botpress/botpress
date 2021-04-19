@@ -1,5 +1,5 @@
 import { AxiosInstance } from 'axios'
-import sdk from 'botpress/sdk'
+import sdk from 'botpress-sdk'
 import LRUCache from 'lru-cache'
 
 import { Health, Specifications } from '../../typings_v1'

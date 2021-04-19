@@ -1,7 +1,5 @@
-import { DirectoryListingOptions, ListenHandle, Logger, UpsertOptions } from 'botpress/sdk'
+import { DirectoryListingOptions, ListenHandle, Logger, UpsertOptions } from 'botpress-sdk'
 import bytes from 'bytes'
-import { ObjectCache } from 'common/object-cache'
-import { isValidBotId } from 'common/validation'
 import { diffLines } from 'diff'
 import { EventEmitter2 } from 'eventemitter2'
 import fse from 'fs-extra'
@@ -17,7 +15,12 @@ import { VError } from 'verror'
 import { FileRevision, PendingRevisions, ReplaceContent, ServerWidePendingRevisions, StorageDriver } from '.'
 import { DBStorageDriver } from './db-driver'
 import { DiskStorageDriver } from './disk-driver'
+import { ObjectCache } from './memory-cache'
 import { createArchive, filterByGlobs, forceForwardSlashes, sanitize } from './misc'
+
+export const BOTID_REGEX = /^[A-Z0-9]+[A-Z0-9_-]{1,}[A-Z0-9]+$/i
+
+export const isValidBotId = (botId: string): boolean => BOTID_REGEX.test(botId)
 
 export interface BpfsScopedChange {
   // An undefined bot ID = global

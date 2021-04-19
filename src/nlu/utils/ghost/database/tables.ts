@@ -1,4 +1,4 @@
-import { KnexExtended } from 'botpress/sdk'
+import { KnexExtended } from 'botpress-sdk'
 import Knex from 'knex'
 
 export abstract class Table {

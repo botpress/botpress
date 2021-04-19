@@ -1,4 +1,4 @@
-import { KnexExtended, KnexExtension } from 'botpress/sdk'
+import { KnexExtended, KnexExtension } from 'botpress-sdk'
 import Knex from 'knex'
 import moment from 'moment'
 import { VError } from 'verror'

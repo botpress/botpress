@@ -3,15 +3,15 @@ import cors from 'cors'
 import express, { Application } from 'express'
 import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
-import { authMiddleware, handleErrorLogging, handleUnexpectedError } from 'http-utils'
 import _ from 'lodash'
 import ms from 'ms'
-import Logger from 'simple-logger'
 import * as NLUEngine from '../../nlu/engine'
 // eslint-disable-next-line no-duplicate-imports
 import { modelIdService } from '../../nlu/engine'
 
 import { PredictOutput, TrainInput } from '../typings_v1'
+import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../utils/http'
+import Logger from '../utils/simple-logger'
 import {
   InfoResponseBody,
   ErrorResponse,
@@ -348,7 +348,9 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
 
   await Promise.fromCallback(callback => {
     const hostname = options.host === 'localhost' ? undefined : options.host
-    httpServer.listen(options.port, hostname, undefined, callback)
+    httpServer.listen(options.port, hostname, undefined, () => {
+      callback(null)
+    })
   })
 
   logger.info(`NLU Server is ready at http://${options.host}:${options.port}/`)

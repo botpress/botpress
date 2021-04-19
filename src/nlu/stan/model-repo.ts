@@ -1,7 +1,6 @@
 import fse, { WriteStream } from 'fs-extra'
 import _ from 'lodash'
 import path from 'path'
-import Logger from 'simple-logger'
 import { Stream } from 'stream'
 import tar from 'tar'
 import tmp from 'tmp'
@@ -14,7 +13,8 @@ import {
   GhostService,
   ScopedGhostService,
   MemoryObjectCache
-} from './simple-ghost'
+} from '../utils/ghost'
+import Logger from '../utils/simple-logger'
 
 interface FSDriver {
   driver: 'fs'

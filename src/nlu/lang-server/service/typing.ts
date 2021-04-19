@@ -1,4 +1,4 @@
-import { MLToolkit } from 'botpress/sdk'
+import { MLToolkit } from 'botpress-sdk'
 
 export interface ModelSet {
   bpeModel: AvailableModel | LoadedBPEModel

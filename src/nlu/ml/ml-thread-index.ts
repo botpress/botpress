@@ -1,10 +1,5 @@
 // eslint-disable-next-line import/order
-import '../../sdk/worker-before'
-// eslint-disable-next-line import/order
-import '../../sdk/rewire'
-
-// eslint-disable-next-line import/order
-import * as sdk from 'botpress/sdk'
+import * as sdk from 'botpress-sdk'
 import { parentPort } from 'worker_threads'
 
 import { serializeError } from '../utils/error-utils'

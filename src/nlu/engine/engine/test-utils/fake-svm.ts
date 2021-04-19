@@ -1,4 +1,4 @@
-import { MLToolkit } from 'botpress/sdk'
+import { MLToolkit } from 'botpress-sdk'
 import _ from 'lodash'
 
 export class FakeSvmTrainer implements MLToolkit.SVM.Trainer {

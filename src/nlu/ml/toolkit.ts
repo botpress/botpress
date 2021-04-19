@@ -1,8 +1,8 @@
-import * as sdk from 'botpress/sdk'
+import * as sdk from 'botpress-sdk'
 import cluster from 'cluster'
 import _ from 'lodash'
 import kmeans from 'ml-kmeans'
-import nanoid from 'nanoid'
+import { nanoid } from 'nanoid'
 
 import { Tagger, Trainer as CRFTrainer } from './crf'
 import { FastTextModel } from './fasttext'

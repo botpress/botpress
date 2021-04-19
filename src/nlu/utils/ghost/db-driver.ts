@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import nanoid from 'nanoid'
+import { nanoid } from 'nanoid'
 import path from 'path'
 import { VError } from 'verror'
 

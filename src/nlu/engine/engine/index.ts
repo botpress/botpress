@@ -368,7 +368,7 @@ export default class Engine implements IEngine {
   }
 
   // TODO: this should go someplace else, but I find it very handy
-  private _dictionnaryIsFilled = <T>(dictionnary: { [key: string]: T | undefined }): dictionnary is Dic<T> => {
+  private _dictionnaryIsFilled = <T>(dictionnary: { [key: string]: T | undefined }): dictionnary is _.Dictionary<T> => {
     return !Object.values(dictionnary).some(_.isUndefined)
   }
 }
