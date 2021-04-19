@@ -8,7 +8,8 @@ import {
   Logger,
   ModuleDefinition,
   ModuleEntryPoint,
-  Skill
+  Skill,
+  ChannelSender
 } from 'botpress/sdk'
 import { ModuleInfo } from 'common/typings'
 import { createForModule } from 'core/app/api'
@@ -43,6 +44,7 @@ const MODULE_SCHEMA = joi.object().keys({
   skills: joi.array().optional(),
   translations: joi.object().optional(),
   renderers: joi.array().optional(),
+  senders: joi.array().optional(),
   botTemplates: joi.array().optional(),
   dialogConditions: joi.array().optional(),
   definition: joi.object().keys({
@@ -356,6 +358,16 @@ export class ModuleLoader {
       modules.filter(module => module.renderers),
       x => x.renderers
     ) as ChannelRenderer<any>[]
+
+    return _.orderBy(renderers, x => x.getPriority())
+  }
+
+  public getChannelSenders(): ChannelSender<any>[] {
+    const modules = Array.from(this.entryPoints.values())
+    const renderers = _.flatMap(
+      modules.filter(module => module.senders),
+      x => x.senders
+    ) as ChannelSender<any>[]
 
     return _.orderBy(renderers, x => x.getPriority())
   }
