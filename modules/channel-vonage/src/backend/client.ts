@@ -2,29 +2,14 @@ import Vonage, { ChannelMessage, ChannelType, ChannelWhatsApp, MessageSendError 
 import * as sdk from 'botpress/sdk'
 
 import { Config } from '../config'
-import { TemplateComponents } from './template'
 
-import {
-  ChannelContentCustomTemplate,
-  ChannelUnsupportedError,
-  Clients,
-  MessageOption,
-  TemplateLanguage,
-  VonageChannelContent,
-  VonageMessageStatusBody,
-  VonageRequestBody
-} from './typings'
+import { ChannelUnsupportedError, Clients, MessageOption, VonageChannelContent, VonageRequestBody } from './typings'
 
 const debug = DEBUG('channel-vonage')
 const debugIncoming = debug.sub('incoming')
 const debugOutgoing = debug.sub('outgoing')
 
 export const MIDDLEWARE_NAME = 'vonage.sendMessage'
-
-// TODO: Remove this. For testing purpose only
-const TESTING_TEMPLATE_NAMESPACE = '9b6b4fcb_da19_4a26_8fe8_78074a91b584'
-const TESTING_QUICK_REPLY_TEMPLATE_NAME = 'sandbox_doctors_appointment'
-const TESTING_LINK_BUTTON_TEMPLATE_NAME = 'sandbox_travel_boardingpass'
 
 const SUPPORTED_CHANNEL_TYPE: ChannelType = 'whatsapp'
 enum ApiBaseUrl {
@@ -125,11 +110,6 @@ export class VonageClient {
     if (body.from.type !== SUPPORTED_CHANNEL_TYPE || body.to.type !== SUPPORTED_CHANNEL_TYPE) {
       throw new ChannelUnsupportedError()
     }
-  }
-
-  // TODO: Remove this. For testing purpose only
-  async handleIncomingMessageStatus(body: VonageMessageStatusBody) {
-    debugIncoming('Received message status', body)
   }
 
   // Duplicate of modules/builtin/src/content-types/_utils.js
@@ -296,108 +276,37 @@ export class VonageClient {
   }
 
   async sendQuickReply(event: sdk.IO.OutgoingEvent, choices: any) {
-    if (this.config.useTestingApi && this.config.useTemplates) {
-      const language: TemplateLanguage = {
-        code: 'en_US',
-        policy: 'deterministic'
-      }
+    const options: MessageOption[] = choices.map(x => ({
+      label: x.title,
+      value: x.payload,
+      type: 'quick_reply'
+    }))
 
-      const components = new TemplateComponents()
-        .withBody(
-          { type: 'text', text: 'Joe Bob' },
-          { type: 'text', text: 'something' },
-          { type: 'text', text: '*Shlack Valley Ski Resort*' },
-          { type: 'text', text: '12 PM' }
-        )
-        .build()
-
-      const custom: ChannelContentCustomTemplate = {
-        type: 'template',
-        template: {
-          namespace: TESTING_TEMPLATE_NAMESPACE,
-          name: TESTING_QUICK_REPLY_TEMPLATE_NAME,
-          language,
-          components
-        }
-      }
-
-      await this.sendMessage(event, {
-        type: 'custom',
-        text: undefined,
-        custom
-      })
-    } else {
-      const options: MessageOption[] = choices.map(x => ({
-        label: x.title,
-        value: x.payload,
-        type: 'quick_reply'
-      }))
-
-      await this.sendOptions(event, event.payload.text, options)
-    }
+    await this.sendOptions(event, event.payload.text, options)
   }
 
   async sendCarousel(event: sdk.IO.Event, payload: any) {
-    if (this.config.useTestingApi && this.config.useTemplates) {
-      const language: TemplateLanguage = {
-        code: 'en_US',
-        policy: 'deterministic'
-      }
+    for (const { subtitle, title, picture, buttons } of payload.elements) {
+      const body = `${title}\n\n${subtitle ? subtitle : ''}`
 
-      const components = new TemplateComponents()
-        .withHeader({
-          type: 'image',
-          image: {
-            link: 'https://publicdomainvectors.org/photos/Placeholder.png'
-          }
-        })
-        .withBody(
-          { type: 'text', text: 'Joe Bob' },
-          { type: 'text', text: 'somewhere' },
-          { type: 'text', text: '123-4' },
-          { type: 'text', text: '12 PM' }
-        )
-        .build()
+      const options: MessageOption[] = []
+      for (const button of buttons || []) {
+        const title = button.title as string
 
-      const custom: ChannelContentCustomTemplate = {
-        type: 'template',
-        template: {
-          namespace: TESTING_TEMPLATE_NAMESPACE,
-          name: TESTING_LINK_BUTTON_TEMPLATE_NAME,
-          language,
-          components
+        if (button.type === 'open_url') {
+          options.push({ label: `${title} : ${button.url}`, value: undefined, type: 'url' })
+        } else if (button.type === 'postback') {
+          options.push({ label: title, value: button.payload, type: 'postback' })
+        } else if (button.type === 'say_something') {
+          options.push({ label: title, value: button.text as string, type: 'say_something' })
         }
       }
 
-      await this.sendMessage(event, {
-        type: 'custom',
-        text: undefined,
-        custom
-      })
-    } else {
-      // For now, we send carousel as text
-      for (const { subtitle, title, picture, buttons } of payload.elements) {
-        const body = `${title}\n\n${subtitle ? subtitle : ''}`
-
-        const options: MessageOption[] = []
-        for (const button of buttons || []) {
-          const title = button.title as string
-
-          if (button.type === 'open_url') {
-            options.push({ label: `${title} : ${button.url}`, value: undefined, type: 'url' })
-          } else if (button.type === 'postback') {
-            options.push({ label: title, value: button.payload, type: 'postback' })
-          } else if (button.type === 'say_something') {
-            options.push({ label: title, value: button.text as string, type: 'say_something' })
-          }
-        }
-
-        if (picture) {
-          await this.sendImage(event, { url: picture, type: 'image' })
-        }
-
-        await this.sendOptions(event, body, options)
+      if (picture) {
+        await this.sendImage(event, { url: picture, type: 'image' })
       }
+
+      await this.sendOptions(event, body, options)
     }
   }
 

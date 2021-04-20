@@ -12,28 +12,22 @@ export interface Config {
    */
   useTestingApi: boolean
   /**
-   * Use Vonage templates when sending single choice and carousel.
-   * Currently only work with the sandbox (useTestingApi = true)
-   * @default false
-   */
-  useTemplates: boolean
-  /**
-   * The Vonage API key which you can obtain from your Dashboard. (https://dashboard.nexmo.com/).
+   * The Vonage API key which you can obtain from your Dashboard. (https://dashboard.nexmo.com/settings).
    * @default "your api key here"
    */
   apiKey: string
   /**
-   * The Vonage API secret which you can obtain from your Dashboard. (https://dashboard.nexmo.com/).
+   * The Vonage API secret which you can obtain from your Dashboard. (https://dashboard.nexmo.com/settings).
    * @default "your app secret here"
    */
   apiSecret: string
   /**
-   * The Vonage Application ID for your Vonage Application which can be obtained from your Dashboard. (https://dashboard.nexmo.com/).
+   * The Vonage Application ID for your Vonage Application which can be obtained from your Dashboard. (https://dashboard.nexmo.com/applications).
    * @default "your application ID here"
    */
   applicationId: string
   /**
-   * The content of the private.key file that was generated when you created your Vonage Application. (https://dashboard.nexmo.com/).
+   * The content of the private.key file that was generated when you created your Vonage Application. (https://dashboard.nexmo.com/applications).
    * _Note: You must replace all line breaks with the character `\n`_.
    * @default "your private key here"
    */
