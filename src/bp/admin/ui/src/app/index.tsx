@@ -10,6 +10,7 @@ import { fetchProfile } from '~/user/reducer'
 import UserDropdownMenu from '~/user/UserDropdownMenu'
 
 import CommandPalette from './CommandPalette'
+import EventBus from './EventBus'
 import logo from './media/logo_white.png'
 import Menu from './Menu'
 import { AppState } from './rootReducer'
@@ -21,6 +22,7 @@ const App: FC<Props> = props => {
   useEffect(() => {
     props.fetchLicensing()
     props.fetchProfile()
+    EventBus.default.setup()
   }, [])
 
   if (!props.profile) {

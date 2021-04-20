@@ -79,15 +79,6 @@
   }
 }
 
-@include media-breakpoint-up(sm) {
-  .actions-table-row__buttons .btn {
-    visibility: hidden;
-    .actions-table-row:hover & {
-      visibility: visible;
-    }
-  }
-}
-
 abbr {
   cursor: help;
   position: relative;

@@ -7,8 +7,8 @@
     "node": ">=10"
   },
   "scripts": {
-    "build-css": "node-sass-chokidar src/ -o src/",
-    "watch-css": "npm run build-css && node-sass-chokidar src/ -o src/ --watch --recursive",
+    "build-css": "node-sass-chokidar src/app/style/ -o src/app/style/ ",
+    "watch-css": "npm run build-css && node-sass-chokidar src/app/style/ -o src/app/style/ --watch --recursive",
     "start-js": "cross-env BROWSER=none react-app-rewired start",
     "start": "cross-env PUBLIC_URL=admin npm-run-all -p watch-css start-js",
     "start:dev": "cross-env PUBLIC_URL=admin cross-env REACT_APP_API_URL=http://localhost:3000/ cross-env PORT=3001 npm-run-all -p watch-css start-js",

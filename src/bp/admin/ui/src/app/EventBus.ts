@@ -1,22 +1,17 @@
 import { auth } from 'botpress/shared'
 import { EventEmitter2 } from 'eventemitter2'
 import io from 'socket.io-client'
-import { authEvents } from '~/util/Auth'
 
+// Copied mostly as-is from ui-studio
 class EventBus extends EventEmitter2 {
-  private adminSocket: SocketIOClient.Socket
-  private guestSocket: SocketIOClient.Socket
-  static default
+  private adminSocket!: SocketIOClient.Socket
+  private guestSocket!: SocketIOClient.Socket
+  static default: EventBus
 
   constructor() {
-    super({
-      wildcard: true,
-      maxListeners: 100
-    })
+    super({ wildcard: true, maxListeners: 100 })
 
     this.onAny(this.dispatchClientEvent)
-
-    authEvents.on('new_token', this.setup)
   }
 
   dispatchSocketEvent = event => {
@@ -33,17 +28,13 @@ class EventBus extends EventEmitter2 {
     socket && socket.emit('event', { name, data })
   }
 
-  updateVisitorId = (newId: string, userIdScope?: string) => {
-    auth.setVisitorId(newId, userIdScope)
-  }
-
   private updateVisitorSocketId() {
     window.__BP_VISITOR_SOCKET_ID = this.guestSocket.id
   }
 
-  setup = (userIdScope?: string) => {
+  setup = (customVisitorId?: string) => {
     const query = {
-      visitorId: auth.getUniqueVisitorId(userIdScope)
+      visitorId: customVisitorId || auth.getUniqueVisitorId('admin')
     }
 
     const token = auth.getToken()
@@ -62,7 +53,9 @@ class EventBus extends EventEmitter2 {
       this.guestSocket.disconnect()
     }
 
-    const socketUrl = window['BP_SOCKET_URL'] || window.location.origin
+    let socketUrl = window['BP_SOCKET_URL'] || process.env.REACT_APP_API_URL || window.location.origin
+    socketUrl = socketUrl.endsWith('/') ? socketUrl.substring(0, socketUrl.length - 1) : socketUrl
+
     const transports = window.SOCKET_TRANSPORTS
 
     this.adminSocket = io(`${socketUrl}/admin`, {

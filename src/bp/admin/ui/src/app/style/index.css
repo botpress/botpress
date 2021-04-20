@@ -59,7 +59,13 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: Roboto !important; }
+  font-family: Roboto !important;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  text-align: left;
+  background-color: #fff; }
 
 .container > .navbar {
   padding: 0; }
@@ -7462,12 +7468,6 @@ a.text-dark:hover, a.text-dark:focus {
   display: none; }
   .modal-dialog .actions-table-row__buttons {
     display: block; }
-
-@media (min-width: 576px) {
-  .actions-table-row__buttons .btn {
-    visibility: hidden; }
-    .actions-table-row:hover .actions-table-row__buttons .btn {
-      visibility: visible; } }
 
 abbr {
   cursor: help;
