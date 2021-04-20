@@ -9,7 +9,7 @@ import {
 } from './utils/custom-expects.u.test'
 import { book_flight, cityEntity, fruitEntity, hello, i_love_hockey } from './utils/data.u.test'
 import './utils/sdk.u.test'
-import { areEqual, sleep } from './utils/utils.u.test'
+import { sleep } from './utils/utils.u.test'
 import { TrainingSession } from '../typings'
 import { mapTrainSet } from '../../stan/api-mapper'
 import { Specifications } from '../../stan/typings_v1'

@@ -14,7 +14,7 @@ const _ignoreEvent = async (bp: typeof sdk, app: NLUApplication, event: sdk.IO.I
   const health = await app.getHealth()
   return (
     !app.hasBot(event.botId) ||
-    !health.isEnabled ||
+    !health?.isEnabled ||
     !event.preview ||
     EVENTS_TO_IGNORE.includes(event.type) ||
     event.hasFlag(bp.IO.WellKnownFlags.SKIP_NATIVE_NLU)

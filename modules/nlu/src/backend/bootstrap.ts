@@ -5,17 +5,17 @@ import _ from 'lodash'
 import { Config } from '../config'
 
 import { getWebsocket } from './api'
-import { NLUApplication } from './application'
 import { ScopedServicesFactory } from './application/bot-factory'
 import { BotService } from './application/bot-service'
 import { DistributedTrainingQueue } from './application/distributed-training-queue'
+import { NonBlockingNluApplication } from './application/non-blocking-app'
 import { ScopedDefinitionsRepository } from './application/scoped/infrastructure/definitions-repository'
 import { TrainingRepository } from './application/training-repo'
 import { BotDefinition } from './application/typings'
 import { StanEngine } from './stan'
 import { StanClient } from './stan/client'
 
-export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
+export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplication> {
   const globalConfig: Config = await bp.config.getModuleConfig('nlu')
   const { maxTrainingPerInstance, queueTrainingOnBotMount, legacyElection } = globalConfig
 
@@ -42,7 +42,17 @@ export async function bootStrap(bp: typeof sdk): Promise<NLUApplication> {
     maxTraining: maxTrainingPerInstance
   })
   await trainingQueue.initialize()
-  const application = new NLUApplication(trainingQueue, engine, servicesFactory, botService, queueTrainingOnBotMount)
+  const application = new NonBlockingNluApplication(
+    trainingQueue,
+    engine,
+    servicesFactory,
+    botService,
+    queueTrainingOnBotMount
+  )
+
+  // don't block entire server startup
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  application.initialize()
 
   return application
 }

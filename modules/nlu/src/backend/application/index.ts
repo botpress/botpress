@@ -26,7 +26,7 @@ export class NLUApplication {
     return this._trainingQueue.repository
   }
 
-  public teardown = async () => {
+  public async teardown() {
     for (const botId of this._botService.getIds()) {
       await this.unmountBot(botId)
     }
@@ -34,8 +34,12 @@ export class NLUApplication {
   }
 
   public async getHealth() {
-    const { health } = await this._engine.getInfo()
-    return health
+    try {
+      const { health } = await this._engine.getInfo()
+      return health
+    } catch (err) {
+      return
+    }
   }
 
   public async getTraining(botId: string, language: string): Promise<TrainingState> {
@@ -46,7 +50,7 @@ export class NLUApplication {
     await this._trainingQueue.resume()
   }
 
-  public hasBot = (botId: string) => {
+  public hasBot(botId: string) {
     return !!this._botService.getBot(botId)
   }
 
@@ -58,7 +62,7 @@ export class NLUApplication {
     return bot
   }
 
-  public mountBot = async (botConfig: BotConfig) => {
+  public async mountBot(botConfig: BotConfig) {
     const { id: botId, languages } = botConfig
     const { bot, defService } = await this._servicesFactory.makeBot(botConfig)
     this._botService.setBot(botId, bot)
@@ -88,7 +92,7 @@ export class NLUApplication {
     await bot.mount()
   }
 
-  public unmountBot = async (botId: string) => {
+  public async unmountBot(botId: string) {
     const bot = this._botService.getBot(botId)
     if (!bot) {
       throw new BotNotMountedError(botId)
