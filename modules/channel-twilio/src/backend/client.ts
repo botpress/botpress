@@ -54,36 +54,29 @@ export class TwilioClient {
   async handleWebhookRequest(body: TwilioRequestBody) {
     debugIncoming('Received message', body)
 
-    const threadId = body.To
-    const target = body.From
+    const botPhoneNumber = body.To
+    const userId = body.From
     const text = body.Body
+
+    const conversation = await this.bp.experimental.conversations.forBot(this.botId).recent(userId)
+    await this.bp.kvs.forBot(this.botId).set(`twilio-number-${conversation.id}`, botPhoneNumber)
 
     const index = Number(text)
     let payload: any = { type: 'text', text }
     if (index) {
-      payload = (await this.handleIndexReponse(index - 1, target, threadId)) ?? payload
+      payload = (await this.handleIndexReponse(index - 1, userId, conversation.id)) ?? payload
       if (payload.type === 'url') {
         return
       }
     }
 
-    await this.kvs.delete(this.getKvsKey(target, threadId))
+    await this.kvs.delete(this.getKvsKey(userId, conversation.id))
 
-    await this.bp.events.sendEvent(
-      this.bp.IO.Event({
-        botId: this.botId,
-        channel: 'twilio',
-        direction: 'incoming',
-        type: payload.type,
-        payload,
-        threadId,
-        target
-      })
-    )
+    await this.bp.experimental.messages.forBot(this.botId).receive(conversation.id, payload, { channel: 'twilio' })
   }
 
-  async handleIndexReponse(index: number, target: string, threadId: string): Promise<any> {
-    const key = this.getKvsKey(target, threadId)
+  async handleIndexReponse(index: number, userId: string, conversationId: string): Promise<any> {
+    const key = this.getKvsKey(userId, conversationId)
     if (!(await this.kvs.exists(key))) {
       return
     }
@@ -103,11 +96,18 @@ export class TwilioClient {
     }
   }
 
-  async handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
+  async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     const payload = event.payload
 
     if (payload.quick_replies) {
       await this.sendChoices(event, payload.quick_replies)
+    } else if (payload.options) {
+      await this.sendOptions(
+        event,
+        event.payload.message,
+        {},
+        event.payload.options.map(x => ({ ...x, type: 'quick_reply' }))
+      )
     } else if (payload.type === 'text') {
       await this.sendMessage(event, {
         body: payload.text
@@ -120,6 +120,11 @@ export class TwilioClient {
     } else if (payload.type === 'carousel') {
       await this.sendCarousel(event, payload)
     }
+
+    await this.bp.experimental.messages
+      .forBot(this.botId)
+      .create(event.threadId, payload, undefined, event.id, event.incomingEventId)
+
     next(undefined, false)
   }
 
@@ -166,10 +171,12 @@ export class TwilioClient {
   }
 
   async sendMessage(event: sdk.IO.Event, args: any) {
+    const botPhoneNumber = await this.bp.kvs.forBot(this.botId).get(`twilio-number-${event.threadId}`)
+
     const message: MessageInstance = {
       ...args,
       provideFeedback: false,
-      from: event.threadId,
+      from: botPhoneNumber,
       to: event.target
     }
 
