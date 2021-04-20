@@ -2,7 +2,7 @@ import Vonage, { ChannelMessage, ChannelType, ChannelWhatsApp, MessageSendError 
 import * as sdk from 'botpress/sdk'
 
 import { Config } from '../config'
-import { Buttons, Components, TemplateComponents } from './template'
+import { TemplateComponents } from './template'
 
 import {
   ChannelContentCustomTemplate,
@@ -96,22 +96,25 @@ export class VonageClient {
         payload = { type: 'text', text }
         break
       case 'audio':
-        const audio = body.message.content.audio
-        payload = { type: 'audio', audio }
+        const audio = body.message.content.audio.url
+        payload = { type: 'audio', audio, speechToText: true }
         break
       default:
+        payload = {}
         break
     }
 
-    const userId = body.from.number
-    const botPhoneNumber = body.to.number
+    if (payload) {
+      const userId = body.from.number
+      const botPhoneNumber = body.to.number
 
-    const conversation = await this.conversations.recent(userId)
-    await this.kvs.set(formatKVSKey(conversation.id), { botPhoneNumber })
+      const conversation = await this.conversations.recent(userId)
+      await this.kvs.set(formatKVSKey(conversation.id), { botPhoneNumber })
 
-    await this.messages.receive(conversation.id, payload, {
-      channel: 'vonage'
-    })
+      await this.messages.receive(conversation.id, payload, {
+        channel: 'vonage'
+      })
+    }
   }
 
   /**
@@ -293,7 +296,7 @@ export class VonageClient {
   }
 
   async sendQuickReply(event: sdk.IO.OutgoingEvent, choices: any) {
-    if (this.config.useTestingApi) {
+    if (this.config.useTestingApi && this.config.useTemplates) {
       const language: TemplateLanguage = {
         code: 'en_US',
         policy: 'deterministic'
@@ -335,7 +338,7 @@ export class VonageClient {
   }
 
   async sendCarousel(event: sdk.IO.Event, payload: any) {
-    if (this.config.useTestingApi) {
+    if (this.config.useTestingApi && this.config.useTemplates) {
       const language: TemplateLanguage = {
         code: 'en_US',
         policy: 'deterministic'
