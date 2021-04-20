@@ -18,6 +18,10 @@ export class RenderService {
     return this.moduleLoader.getChannelRenderers().filter(x => x.getChannel() === channel)
   }
 
+  getChannelSenders(channel: string) {
+    return this.moduleLoader.getChannelSenders().filter(x => x.getChannel() === channel)
+  }
+
   renderText(text: string | sdk.MultiLangText, markdown?: boolean): sdk.TextContent {
     return __unrendered({
       type: 'text',
