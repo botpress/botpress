@@ -5,10 +5,10 @@
   "license": "MIT",
   "dependencies": {
     "bluebird-global": "^1.0.1",
-    "body-parser": "^1.19.0",
+    "body-parser": "^1.18.3",
     "chalk": "^4.1.0",
     "cors": "^2.8.5",
-    "express-rate-limit": "^5.2.6",
+    "express-rate-limit": "^3.5.1",
     "lodash": "^4.17.21",
     "lru-cache": "^6.0.0",
     "nanoid": "^3.1.22",
@@ -24,7 +24,8 @@
     "cross-env": "^7.0.3",
     "ts-node": "^9.1.1",
     "ts-node-dev": "^1.1.6",
-    "typescript": "^4.2.4"
+    "typescript": "^4.2.4",
+    "@types/node": "^10.10.3"
   },
   "scripts": {
     "dev": "ts-node-dev ./stan/index.ts",

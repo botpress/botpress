@@ -1,18 +1,15 @@
 // eslint-disable-next-line import/order
-import Logger from '../utils/simple-logger'
+import Logger, { centerText } from '../utils/simple-logger'
+import '../bootstrap'
 import bytes from 'bytes'
 import chalk from 'chalk'
 import _ from 'lodash'
 import path from 'path'
 import * as NLUEngine from '../../nlu/engine'
 import { copyDir } from '../utils/pkg-fs'
-import { LogLevel } from '../utils/simple-logger/enums'
 import API, { APIOptions } from './api'
 
-process.core_env = process.env as BotpressEnvironmentVariables
-global['NativePromise'] = global.Promise
-// global.DEBUG = Debug
-const debug = (new Logger('api')).level(LogLevel.DEBUG).info
+const debug = new Logger('api').debug
 
 const GH_TYPINGS_FILE = 'https://github.com/botpress/botpress/blob/master/src/nlu/stan/typings_v1.d.ts'
 const GH_TRAIN_INPUT_EXAMPLE = 'https://github.com/botpress/botpress/blob/master/src/nlu/stan/train-example.json'
@@ -101,9 +98,9 @@ export default async function(options: ArgV) {
   const { nluVersion } = engine.getSpecifications()
 
   logger.info(chalk`========================================
-{bold ${'Botpress Standalone NLU'}}
-{dim ${`Version ${nluVersion}`}}
-{dim ${`OS ${process.distro}`}}
+      {bold ${centerText('Botpress Standalone NLU', 40, 9)}}
+      {dim ${centerText(`Version ${nluVersion}`, 40, 9)}}
+      {dim ${centerText(`OS ${process.distro}`, 40, 9)}}
 ${_.repeat(' ', 9)}========================================`)
 
   if (options.authToken?.length) {

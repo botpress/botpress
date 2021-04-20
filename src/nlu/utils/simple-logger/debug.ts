@@ -9,9 +9,6 @@ class DebugLogger extends Function {
   constructor(private _name: string) {
     super()
     this._logger = new Logger(_name)
-    this._bound = this.bind(this)
-
-    return this._bound
   }
 
   _call(msg: string, extra?: any) {
