@@ -1,9 +1,8 @@
 import { Button, Colors, FormGroup, Icon, InputGroup, Position, Radio, RadioGroup, Tooltip } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
-import { lang, utils } from 'botpress/shared'
+import { lang, toast, utils } from 'botpress/shared'
 import _ from 'lodash'
 import React, { useEffect, useState, useReducer } from 'react'
-import { toastFailure } from '~/components/Shared/Utils'
 
 import { Occurrence } from './ListEntityOccurrence'
 import style from './style.scss'
@@ -80,7 +79,7 @@ export const ListEntityEditor: React.FC<Props> = props => {
       return
     }
     if (!isUniqueInEntity(newOccurrence)) {
-      toastFailure('Occurence duplication within the same entity not allowed')
+      toast.failure('Occurence duplication within the same entity not allowed')
       return
     }
 
@@ -99,7 +98,7 @@ export const ListEntityEditor: React.FC<Props> = props => {
     if (synonymAdded()) {
       const newSynonym = _.last(occurrence.synonyms)
       if (!isUniqueInEntity(newSynonym)) {
-        return toastFailure('Synonym duplication within the same entity not allowed')
+        return toast.failure('Synonym duplication within the same entity not allowed')
       }
     }
 

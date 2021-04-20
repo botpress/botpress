@@ -1,8 +1,7 @@
 import { NLU } from 'botpress/sdk'
-import { lang, MainLayout, ToolbarButtonProps } from 'botpress/shared'
+import { lang, MainLayout, toast, ToolbarButtonProps } from 'botpress/shared'
 import React, { FC, useState } from 'react'
 import { SidePanel } from '~/components/Shared/Interface'
-import { toastFailure } from '~/components/Shared/Utils'
 import { NluItem } from '.'
 import { NluClient } from './client'
 import { EntityNameModal } from './entities/EntityNameModal'
@@ -69,7 +68,7 @@ export const NLUSidePanel: FC<Props> = ({
       await reloadIntents()
       setCurrentItem({ name, type: 'intent' })
     } catch (err) {
-      toastFailure(lang.tr('nlu.intents.actionErrorMessage', { action: 'create' }))
+      toast.failure(lang.tr('nlu.intents.actionErrorMessage', { action: 'create' }))
     }
   }
 

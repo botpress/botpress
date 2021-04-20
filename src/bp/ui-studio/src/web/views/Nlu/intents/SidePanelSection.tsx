@@ -1,11 +1,10 @@
 import { NLU } from 'botpress/sdk'
-import { confirmDialog, lang } from 'botpress/shared'
+import { confirmDialog, lang, toast } from 'botpress/shared'
 
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
 import { ItemList, SearchBar } from '~/components/Shared/Interface'
 import { Item } from '~/components/Shared/Interface/typings'
-import { toastFailure } from '~/components/Shared/Utils'
 
 import { NluItem } from '..'
 import { NluClient } from '../client'
@@ -49,7 +48,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
         await props.api.deleteIntent(intentName)
         await props.reloadIntents()
       } catch (err) {
-        toastFailure(lang.tr('nlu.intents.actionErrorMessage', { action: 'delete' }))
+        toast.failure(lang.tr('nlu.intents.actionErrorMessage', { action: 'delete' }))
       }
     }
   }
@@ -73,7 +72,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
       await props.reloadIntents()
       props.setCurrentItem({ name: sanitizedName, type: 'intent' })
     } catch (err) {
-      toastFailure(lang.tr('nlu.intents.actionErrorMessage', { action: 'rename' }))
+      toast.failure(lang.tr('nlu.intents.actionErrorMessage', { action: 'rename' }))
     }
   }
 
@@ -88,7 +87,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
       await props.reloadIntents()
       props.setCurrentItem({ name: sanitizedName, type: 'intent' })
     } catch (err) {
-      toastFailure(lang.tr('nlu.intents.actionErrorMessage', { action: 'duplicate' }))
+      toast.failure(lang.tr('nlu.intents.actionErrorMessage', { action: 'duplicate' }))
     }
   }
 
