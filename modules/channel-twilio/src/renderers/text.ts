@@ -15,12 +15,12 @@ export class TwilioTextRenderer implements sdk.ChannelRenderer<TwilioContext> {
   }
 
   async handles(context: TwilioContext): Promise<boolean> {
-    return context.event.payload.text
+    return context.payload.text
   }
 
   async render(context: TwilioContext): Promise<void> {
-    const payload = context.event.payload as sdk.TextContent
+    const payload = context.payload as sdk.TextContent
 
-    context.message.body = payload.text as string
+    context.messages.push({ body: payload.text as string })
   }
 }

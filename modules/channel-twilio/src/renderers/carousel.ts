@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { MessageOption, TwilioContext } from '../backend/typings'
+import { TwilioContext } from '../backend/typings'
 
 export class TwilioCarouselRenderer implements sdk.ChannelRenderer<TwilioContext> {
   getChannel(): string {
@@ -15,38 +15,34 @@ export class TwilioCarouselRenderer implements sdk.ChannelRenderer<TwilioContext
   }
 
   async handles(context: TwilioContext): Promise<boolean> {
-    return context.event.payload.type === 'carousel'
+    return context.payload.type === 'carousel'
   }
 
   async render(context: TwilioContext): Promise<void> {
-    const payload = context.event.payload as sdk.CarouselContent
+    const payload = context.payload as sdk.CarouselContent
 
-    context.message.body = 'CAROUSEL'
-
-    /*
     for (const { subtitle, title, image, actions } of payload.items) {
-      const body = `${title}\n\n${subtitle ? subtitle : ''}`
+      const body = `${title}\n\n${subtitle || ''}`
+      const options: sdk.ChoiceOption[] = []
 
-      const options: MessageOption[] = []
       for (const button of actions || []) {
         const title = button.title as string
 
         if (button.action === 'Open URL') {
-          options.push({ label: `${title} : ${(button as sdk.ActionOpenURL).url}`, value: undefined, type: 'url' })
+          options.push({ title: `${title} : ${(button as sdk.ActionOpenURL).url}`, value: undefined })
         } else if (button.action === 'Postback') {
-          options.push({ label: title, value: (button as sdk.ActionPostback).payload, type: 'postback' })
+          options.push({ title, value: (button as sdk.ActionPostback).payload })
         } else if (button.action === 'Say something') {
           options.push({
-            label: title,
-            value: (button as sdk.ActionSaySomething).text as string,
-            type: 'say_something'
+            title,
+            value: (button as sdk.ActionSaySomething).text as string
           })
         }
       }
 
-      const args = { mediaUrl: image ? image : undefined }
-      await context.args.sendOptions(context.event, body, args, options)
+      // TODO fix any not working with medial url
+      context.messages.push(<any>{ body, mediaUrl: image })
+      context.payload.choices = options
     }
-    */
   }
 }

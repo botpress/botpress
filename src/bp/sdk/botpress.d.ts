@@ -1747,8 +1747,8 @@ declare module 'botpress/sdk' {
   }
 
   export interface ActionButton {
-    title: string
     action: string
+    title: string
   }
 
   export interface ActionSaySomething extends ActionButton {
@@ -1768,12 +1768,12 @@ declare module 'botpress/sdk' {
 
   export interface ChoiceContent extends Content {
     type: 'single-choice'
-    message: string | MultiLangText
+    text: string | MultiLangText
     choices: ChoiceOption[]
   }
 
   export interface ChoiceOption {
-    message: string | MultiLangText
+    title: string | MultiLangText
     value: string
   }
 

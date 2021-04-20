@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import _ from 'lodash'
 import { Twilio, validateRequest } from 'twilio'
 
 import { Config } from '../config'
@@ -108,12 +109,10 @@ export class TwilioClient {
       bp: this.bp,
       event,
       client: this.twilio,
-      args: { prepareIndexResponse: this.prepareIndexResponse.bind(this) },
+      args: { prepareIndexResponse: this.prepareIndexResponse.bind(this), botPhoneNumber },
       handlers: [],
-      message: <any>{
-        from: botPhoneNumber,
-        to: event.target
-      }
+      messages: [],
+      payload: _.cloneDeep(event.payload)
     }
 
     for (const renderer of renderers) {

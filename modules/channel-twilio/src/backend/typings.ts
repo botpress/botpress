@@ -24,9 +24,11 @@ export interface ChoiceOption {
 
 export interface TwilioContextArgs {
   prepareIndexResponse(event: sdk.IO.OutgoingEvent, options: MessageOption[]): Promise<void>
+  botPhoneNumber: string
 }
 
 export type TwilioContext = sdk.ChannelContext<Twilio, TwilioContextArgs> & {
   handlers: string[]
-  message: MessageInstance
+  messages: Partial<MessageInstance>[]
+  payload: any
 }

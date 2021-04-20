@@ -19,12 +19,9 @@ export class TwilioImageRenderer implements sdk.ChannelRenderer<TwilioContext> {
   }
 
   async render(context: TwilioContext): Promise<void> {
-    const payload = context.event.payload as sdk.ImageContent
+    const payload = context.payload as sdk.ImageContent
 
-    context.message.body = payload.title as string
-
-    // TODO fix this
-    const msg = <any>context.message
-    msg.mediaUrl = payload.image
+    // TODO fix mediaUrl not being in typings
+    context.messages.push(<any>{ body: payload.title as string, mediaUrl: payload.image })
   }
 }

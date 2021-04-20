@@ -19,6 +19,12 @@ export class TwilioCommonSender implements sdk.ChannelSender<TwilioContext> {
   }
 
   async send(context: TwilioContext): Promise<void> {
-    await context.client.messages.create(context.message)
+    for (const message of context.messages) {
+      await context.client.messages.create({
+        ...message,
+        from: context.args.botPhoneNumber,
+        to: context.event.target
+      })
+    }
   }
 }

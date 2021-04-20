@@ -15,14 +15,16 @@ export class TwilioChoicesRenderer implements sdk.ChannelRenderer<TwilioContext>
   }
 
   async handles(context: TwilioContext): Promise<boolean> {
-    return context.event.payload.choices?.length
+    return context.payload.choices?.length && context.messages.length >= 1
   }
 
   async render(context: TwilioContext): Promise<void> {
-    context.message.body = `${context.message.body}\n\n${context.event.payload.choices
+    const message = context.messages[0]
+
+    message.body = `${message.body}\n\n${context.payload.choices
       .map(({ title }, idx) => `${idx + 1}. ${title}`)
       .join('\n')}`
 
-    context.args.prepareIndexResponse(context.event, context.event.payload.choices)
+    context.args.prepareIndexResponse(context.event, context.payload.choices)
   }
 }
