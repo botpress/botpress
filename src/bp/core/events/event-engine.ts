@@ -235,6 +235,10 @@ export class EventEngine {
     return this.outgoingQueue.isEmptyForJob(event)
   }
 
+  isOutgoingQueueLocked(event: sdk.IO.IncomingEvent): boolean {
+    return this.outgoingQueue.isQueueLockedForJob(event)
+  }
+
   private async getBotMiddlewareChains(botId: string) {
     const incoming = new MiddlewareChain()
     const outgoing = new MiddlewareChain()
