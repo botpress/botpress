@@ -1,7 +1,6 @@
 FROM node:12-alpine as builder
 WORKDIR /botpress
-RUN apk add --no-cache git
-RUN git clone https://github.com/botpress/botpress.git
+COPY . botpress
 
 FROM node:12-alpine
 # still need git, because of the gulp initStudio task!?
@@ -21,6 +20,8 @@ COPY --from=builder ./botpress/botpress/modules ./modules
 COPY --from=builder ./botpress/botpress/app.json ./app.json
 COPY --from=builder ./botpress/botpress/.eslintrc.js ./.eslintrc.js
 COPY --from=builder ./botpress/botpress/.tool-versions ./.tool-versions
+# add docs
+COPY --from=builder ./botpress/botpress/docs ./docs
 
 # TODO move into builder image if possible, expose build/module builder instead
 # fully build once, takes 10min+
