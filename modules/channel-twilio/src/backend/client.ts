@@ -1,10 +1,9 @@
 import * as sdk from 'botpress/sdk'
 import { Twilio, validateRequest } from 'twilio'
-import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message'
 
 import { Config } from '../config'
 
-import { ChoiceOption, Clients, MessageOption, TwilioContext, TwilioRequestBody } from './typings'
+import { Clients, MessageOption, TwilioContext, TwilioRequestBody } from './typings'
 
 const debug = DEBUG('channel-twilio')
 const debugIncoming = debug.sub('incoming')
@@ -65,7 +64,7 @@ export class TwilioClient {
     let payload: any = { type: 'text', text }
     if (index) {
       payload = (await this.handleIndexReponse(index - 1, userId, conversation.id)) ?? payload
-      if (payload.type === 'url') {
+      if (!payload.text) {
         return
       }
     }
@@ -88,89 +87,55 @@ export class TwilioClient {
 
     await this.kvs.delete(key)
 
-    const { type, label, value } = option
+    const { value } = option
     return {
-      type,
-      text: type === 'say_something' ? value : label,
-      payload: value
+      type: 'text',
+      text: value
     }
   }
 
+  async prepareIndexResponse(event: sdk.IO.OutgoingEvent, options: MessageOption[]) {
+    await this.kvs.set(this.getKvsKey(event.target, event.threadId), options, undefined, '10m')
+  }
+
   async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
-    const payload = event.payload
+    const botPhoneNumber = await this.bp.kvs.forBot(this.botId).get(`twilio-number-${event.threadId}`)
 
     const renderers = this.bp.experimental.render.getChannelRenderers('twilio')
+    const senders = this.bp.experimental.render.getChannelSenders('twilio')
+
     const context: TwilioContext = {
       bp: this.bp,
       event,
       client: this.twilio,
-      args: { sendMessage: this.sendMessage.bind(this), sendOptions: this.sendOptions.bind(this) }
+      args: { prepareIndexResponse: this.prepareIndexResponse.bind(this) },
+      handlers: [],
+      message: <any>{
+        from: botPhoneNumber,
+        to: event.target
+      }
     }
-    let handled = false
+
     for (const renderer of renderers) {
-      if (!(await renderer.handles(context))) {
-        continue
-      }
-
-      handled = await renderer.render(context)
-
-      if (handled) {
-        break
+      if (await renderer.handles(context)) {
+        await renderer.render(context)
+        context.handlers.push(renderer.getId())
       }
     }
 
-    if (handled) {
-    } else if (payload.quick_replies) {
-      await this.sendChoices(event, payload.quick_replies)
-    } else if (payload.options) {
-      await this.sendOptions(
-        event,
-        event.payload.message,
-        {},
-        event.payload.options.map(x => ({ ...x, type: 'quick_reply' }))
-      )
+    for (const sender of senders) {
+      if (await sender.handles(context)) {
+        await sender.send(context)
+        // context.handlers.push(sender.getId())
+        // handled = true
+      }
     }
 
     await this.bp.experimental.messages
       .forBot(this.botId)
-      .create(event.threadId, payload, undefined, event.id, event.incomingEventId)
+      .create(event.threadId, event.payload, undefined, event.id, event.incomingEventId)
 
     next(undefined, false)
-  }
-
-  async sendChoices(event: sdk.IO.Event, choices: ChoiceOption[]) {
-    const options: MessageOption[] = choices.map(x => ({
-      label: x.title,
-      value: x.payload,
-      type: 'quick_reply'
-    }))
-    await this.sendOptions(event, event.payload.text, {}, options)
-  }
-
-  async sendOptions(event: sdk.IO.Event, text: string, args: any, options: MessageOption[]) {
-    let body = text
-    if (options.length) {
-      body = `${text}\n\n${options.map(({ label }, idx) => `${idx + 1}. ${label}`).join('\n')}`
-    }
-
-    await this.kvs.set(this.getKvsKey(event.target, event.threadId), options, undefined, '10m')
-
-    await this.sendMessage(event, { ...args, body })
-  }
-
-  async sendMessage(event: sdk.IO.Event, args: any) {
-    const botPhoneNumber = await this.bp.kvs.forBot(this.botId).get(`twilio-number-${event.threadId}`)
-
-    const message: MessageInstance = {
-      ...args,
-      provideFeedback: false,
-      from: botPhoneNumber,
-      to: event.target
-    }
-
-    debugOutgoing('Sending message', message)
-
-    await this.twilio.messages.create(message)
   }
 }
 

@@ -1,8 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import { Config } from 'src/config'
 import { TwilioCarouselRenderer } from '../renderers/carousel'
+import { TwilioChoicesRenderer } from '../renderers/choices'
 import { TwilioImageRenderer } from '../renderers/image'
 import { TwilioTextRenderer } from '../renderers/text'
+import { TwilioCommonSender } from '../senders/common'
 
 import { setupRouter } from './api'
 import { MIDDLEWARE_NAME, setupMiddleware, TwilioClient } from './client'
@@ -50,7 +52,13 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotMount,
   onBotUnmount,
   onModuleUnmount,
-  renderers: [new TwilioTextRenderer(), new TwilioImageRenderer(), new TwilioCarouselRenderer()],
+  renderers: [
+    new TwilioTextRenderer(),
+    new TwilioImageRenderer(),
+    new TwilioCarouselRenderer(),
+    new TwilioChoicesRenderer()
+  ],
+  senders: [new TwilioCommonSender()],
   definition: {
     name: 'channel-twilio',
     menuIcon: 'none',

@@ -1,19 +1,29 @@
 import * as sdk from 'botpress/sdk'
-import { MessageOption, TwilioContext } from 'src/backend/typings'
-import { TwilioBaseRenderer } from './base'
+import { MessageOption, TwilioContext } from '../backend/typings'
 
-export class TwilioCarouselRenderer extends TwilioBaseRenderer {
-  getId() {
+export class TwilioCarouselRenderer implements sdk.ChannelRenderer<TwilioContext> {
+  getChannel(): string {
+    return 'twilio'
+  }
+
+  getPriority(): number {
+    return 0
+  }
+
+  getId(): string {
     return TwilioCarouselRenderer.name
   }
 
-  getPayloadType(): string {
-    return 'carousel'
+  async handles(context: TwilioContext): Promise<boolean> {
+    return context.event.payload.type === 'carousel'
   }
 
-  async render(context: TwilioContext): Promise<boolean> {
+  async render(context: TwilioContext): Promise<void> {
     const payload = context.event.payload as sdk.CarouselContent
 
+    context.message.body = 'CAROUSEL'
+
+    /*
     for (const { subtitle, title, image, actions } of payload.items) {
       const body = `${title}\n\n${subtitle ? subtitle : ''}`
 
@@ -37,7 +47,6 @@ export class TwilioCarouselRenderer extends TwilioBaseRenderer {
       const args = { mediaUrl: image ? image : undefined }
       await context.args.sendOptions(context.event, body, args, options)
     }
-
-    return true
+    */
   }
 }

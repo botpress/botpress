@@ -1,23 +1,26 @@
 import * as sdk from 'botpress/sdk'
 import { TwilioContext } from 'src/backend/typings'
-import { TwilioBaseRenderer } from './base'
 
-export class TwilioTextRenderer extends TwilioBaseRenderer {
+export class TwilioTextRenderer implements sdk.ChannelRenderer<TwilioContext> {
+  getChannel(): string {
+    return 'twilio'
+  }
+
+  getPriority(): number {
+    return 0
+  }
+
   getId() {
     return TwilioTextRenderer.name
   }
 
-  getPayloadType(): string {
-    return 'text'
+  async handles(context: TwilioContext): Promise<boolean> {
+    return context.event.payload.text
   }
 
-  async render(context: TwilioContext): Promise<boolean> {
+  async render(context: TwilioContext): Promise<void> {
     const payload = context.event.payload as sdk.TextContent
 
-    await context.args.sendMessage(context.event, {
-      body: payload.text
-    })
-
-    return true
+    context.message.body = payload.text as string
   }
 }

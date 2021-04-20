@@ -1,24 +1,30 @@
 import * as sdk from 'botpress/sdk'
 import { TwilioContext } from 'src/backend/typings'
-import { TwilioBaseRenderer } from './base'
 
-export class TwilioImageRenderer extends TwilioBaseRenderer {
+export class TwilioImageRenderer implements sdk.ChannelRenderer<TwilioContext> {
+  getChannel(): string {
+    return 'twilio'
+  }
+
+  getPriority(): number {
+    return 0
+  }
+
   getId() {
     return TwilioImageRenderer.name
   }
 
-  getPayloadType(): string {
-    return 'image'
+  async handles(context: TwilioContext): Promise<boolean> {
+    return context.event.type === 'image'
   }
 
-  async render(context: TwilioContext): Promise<boolean> {
+  async render(context: TwilioContext): Promise<void> {
     const payload = context.event.payload as sdk.ImageContent
 
-    await context.args.sendMessage(context.event, {
-      body: payload.title,
-      mediaUrl: payload.image
-    })
+    context.message.body = payload.title as string
 
-    return true
+    // TODO fix this
+    const msg = <any>context.message
+    msg.mediaUrl = payload.image
   }
 }
