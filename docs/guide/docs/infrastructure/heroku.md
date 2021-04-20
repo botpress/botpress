@@ -42,7 +42,7 @@ heroku container:release web --app $APP_NAME
 
 ## Deploying with existing data
 
-If you have already built a bot and want to host it on Heroku, add your `data` folder in the same folder as the `Dockerfile`. The structure should look like this:
+If you have already built a chatbot and want to host it on Heroku, add your `data` folder in the same folder as the `Dockerfile`. The structure should look like this:
 
 ```bash
 my-new-bot
