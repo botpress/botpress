@@ -1,12 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import path from 'path'
-import Telegraf, { Button, CallbackButton, ContextMessageUpdate, Markup } from 'telegraf'
-import Extra from 'telegraf/extra'
+import Telegraf, { ContextMessageUpdate, Markup } from 'telegraf'
 
-import { Clients } from './typings'
-
-const outgoingTypes = ['text', 'typing', 'image', 'login_prompt', 'carousel']
+import { Clients, TelegramContext } from './typings'
 
 export const sendEvent = async (bp: typeof sdk, botId: string, ctx: ContextMessageUpdate, args: { type: string }) => {
   // NOTE: getUpdate and setWebhook dot not return the same context mapping
@@ -14,7 +10,7 @@ export const sendEvent = async (bp: typeof sdk, botId: string, ctx: ContextMessa
   const userId = `${ctx.from?.id || ctx.message?.from.id}`
 
   const payload = ctx.message || ctx.callbackQuery
-  const preview = ctx.message.text || ctx.callbackQuery.data
+  const preview = ctx.message?.text || ctx.callbackQuery?.data
 
   let convoId: sdk.uuid
   if (chatId) {
@@ -71,35 +67,34 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
       return next()
     }
 
-    const messageType = event.type === 'default' ? 'text' : event.type
     const chatId =
       (await bp.experimental.conversations.forBot(event.botId).getForeignId('telegram', event.threadId)) || event.target
 
-    if (!_.includes(outgoingTypes, messageType)) {
-      return next(new Error(`Unsupported event type: ${event.type}`))
-    }
-
     const renderers = bp.experimental.render.getChannelRenderers('telegram')
-    const context = { bp, event, client, args: { keyboardButtons, chatId } }
-    let handled = false
+    const senders = bp.experimental.render.getChannelSenders('telegram')
+
+    const context: TelegramContext = {
+      bp,
+      event,
+      client,
+      args: { keyboardButtons, chatId },
+      handlers: [],
+      messages: []
+    }
+
     for (const renderer of renderers) {
-      if (!(await renderer.handles(context))) {
-        continue
-      }
-
-      handled = await renderer.render(context)
-
-      if (handled) {
-        break
+      if (await renderer.handles(context)) {
+        await renderer.render(context)
+        context.handlers.push(renderer.getId())
       }
     }
 
-    if (handled) {
-    } else if (messageType === 'typing') {
-      await sendTyping(event, client, chatId)
-    } else {
-      // TODO We don't support sending files, location requests (and probably more) yet
-      throw new Error(`Message type "${messageType}" not implemented yet`)
+    for (const sender of senders) {
+      if (await sender.handles(context)) {
+        await sender.send(context)
+        // context.handlers.push(sender.getId())
+        // handled = true
+      }
     }
 
     await bp.experimental.messages
@@ -108,20 +103,6 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
 
     next(undefined, false)
   }
-}
-
-async function sendTyping(event: sdk.IO.Event, client: Telegraf<ContextMessageUpdate>, chatId: string) {
-  const typing = parseTyping(event.payload.value)
-  await client.telegram.sendChatAction(chatId, 'typing')
-  await Promise.delay(typing)
-}
-
-function parseTyping(typing) {
-  if (isNaN(typing)) {
-    return 1000
-  }
-
-  return Math.max(typing, 500)
 }
 
 function keyboardButtons<T>(arr: any[] | undefined): T[] | undefined {

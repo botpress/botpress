@@ -3,8 +3,11 @@ import * as sdk from 'botpress/sdk'
 import Telegraf from 'telegraf'
 import { Config } from '../config'
 import { TelegramCarouselRenderer } from '../renderers/carousel'
+import { TelegramChoicesRenderer } from '../renderers/choices'
 import { TelegramImageRenderer } from '../renderers/image'
 import { TelegramTextRenderer } from '../renderers/text'
+import { TelegramCommonSender } from '../senders/common'
+import { TelegramTypingSender } from '../senders/typing'
 
 import { setupBot, setupMiddleware } from './client'
 import { Clients } from './typings'
@@ -91,7 +94,13 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotMount,
   onBotUnmount,
   onModuleUnmount,
-  renderers: [new TelegramTextRenderer(), new TelegramImageRenderer(), new TelegramCarouselRenderer()],
+  renderers: [
+    new TelegramTextRenderer(),
+    new TelegramImageRenderer(),
+    new TelegramCarouselRenderer(),
+    new TelegramChoicesRenderer()
+  ],
+  senders: [new TelegramTypingSender(), new TelegramCommonSender()],
   definition: {
     name: 'channel-telegram',
     menuIcon: 'none', // no interface = true

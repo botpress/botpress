@@ -1,38 +1,32 @@
 import * as sdk from 'botpress/sdk'
 import { TelegramContext } from 'src/backend/typings'
-import { Button, Markup } from 'telegraf'
-import Extra from 'telegraf/extra'
-import { TelegramBaseRenderer } from './base'
 
-export class TelegramImageRenderer extends TelegramBaseRenderer {
+export class TelegramImageRenderer implements sdk.ChannelRenderer<TelegramContext> {
+  getChannel(): string {
+    return 'telegram'
+  }
+
+  getPriority(): number {
+    return 0
+  }
+
   getId() {
     return TelegramImageRenderer.name
   }
 
-  getPayloadType(): string {
-    return 'image'
+  async handles(context: TelegramContext): Promise<boolean> {
+    return context.event.payload.type === 'image'
   }
 
-  async render(context: TelegramContext): Promise<boolean> {
-    const { event, client, args } = context
+  async render(context: TelegramContext): Promise<void> {
+    const { messages, args } = context
     const { chatId } = args
-    const payload = event.payload as sdk.ImageContent
+    const payload = context.event.payload as sdk.ImageContent
 
-    const keyboard = Markup.keyboard(args.keyboardButtons<Button>(event.payload.quick_replies))
     if (payload.image.toLowerCase().endsWith('.gif')) {
-      await client.telegram.sendAnimation(
-        chatId,
-        payload.image,
-        Extra.markdown(false).markup({ ...keyboard, one_time_keyboard: true })
-      )
+      messages.push({ chatId, animation: payload.image })
     } else {
-      await client.telegram.sendPhoto(
-        chatId,
-        payload.image,
-        Extra.markdown(false).markup({ ...keyboard, one_time_keyboard: true })
-      )
+      messages.push({ chatId, photo: payload.image })
     }
-
-    return true
   }
 }
