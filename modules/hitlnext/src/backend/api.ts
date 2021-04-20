@@ -221,6 +221,7 @@ export default async (bp: typeof sdk, state: StateType) => {
     errorMiddleware(async (req: RequestWithUser, res: Response) => {
       const { botId } = req.params
       const { email, strategy } = req.tokenUser!
+      const { webSessionId } = req.body
 
       const agentId = makeAgentId(strategy, email)
       const agent = await repository.getCurrentAgent(req as BPRequest, req.params.botId, agentId)
@@ -228,7 +229,11 @@ export default async (bp: typeof sdk, state: StateType) => {
       let handoff = await repository.findHandoff(req.params.botId, req.params.id)
 
       const axioxconfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
-      const { data } = await Axios.post('/mod/channel-web/conversations/new', { userId: agentId }, axioxconfig)
+      const { data } = await Axios.post(
+        '/mod/channel-web/conversations/new',
+        { userId: agentId, webSessionId },
+        axioxconfig
+      )
       const agentThreadId = data.convoId.toString()
       const payload: Pick<IHandoff, 'agentId' | 'agentThreadId' | 'assignedAt' | 'status'> = {
         agentId,

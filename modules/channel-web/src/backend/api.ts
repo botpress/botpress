@@ -563,4 +563,31 @@ export default async (bp: typeof sdk, db: Database) => {
       res.sendStatus(204)
     })
   )
+
+  // NOTE: this is a temporary route and allows an agent to delete a channel web user's coversation messages
+  // until today this was completed by calling channel web api directly but it's api has been secured with a temporary sessionId (see ln#554)
+  // soon enough, once channel-web's implementation moves to messaging api we'll be able to remove this and use messaging directly
+  // usage of a private router because authentication is handled for us
+  const privateRouter = bp.http.createRouterForBot('channel-web-private')
+
+  // NOTE : this uses duplicated code taken from public route (ln#559 - ln#563) so it's easy to remove once we can (see prev note)
+  privateRouter.post(
+    '/conversations/:id/messages/delete',
+    asyncMiddleware(async (req: ChatRequest, res: Response) => {
+      const botId = req.params.botId
+      let conversationId = req.params.id
+      const { userId } = req.body
+
+      conversationId = parseInt(conversationId)
+
+      if (!(await db.isValidConversationOwner(userId, conversationId, botId))) {
+        res.status(400).send(ERR_BAD_CONV_ID)
+      }
+
+      bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.clear', { conversationId }))
+
+      await db.deleteConversationMessages(conversationId)
+      res.sendStatus(204)
+    })
+  )
 }
