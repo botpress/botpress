@@ -27,10 +27,13 @@ const debugSpeechToText = debug.sub('speech-to-text')
 const debugTextToSpeech = debug.sub('text-to-speech')
 
 export class GoogleSpeechClient {
+  private logger: sdk.Logger
   private speechClient: SpeechClient
   private textToSpeechClient: TextToSpeechClient
 
-  constructor(private readonly config: Config) {}
+  constructor(private bp: typeof sdk, private botId: string, private readonly config: Config) {
+    this.logger = bp.logger.forBot(botId)
+  }
 
   async initialize() {
     if (!this.config.clientEmail || !this.config.privateKey) {
@@ -52,6 +55,8 @@ export class GoogleSpeechClient {
         private_key: this.config.privateKey
       }
     })
+
+    this.logger.info('GoogleSpeech configuration successful!')
   }
 
   public async speechToText(audioFile: string) {

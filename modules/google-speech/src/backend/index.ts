@@ -21,7 +21,7 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
   const config = (await bp.config.getModuleConfigForBot(MODULE_NAME, botId, true)) as Config
 
   if (config.enabled) {
-    const client = new GoogleSpeechClient(config)
+    const client = new GoogleSpeechClient(bp, botId, config)
     await client.initialize()
 
     clients[botId] = client
