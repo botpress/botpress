@@ -11,11 +11,10 @@ title: Hardware & Performance
 ## Benchmark Tool
 
 Run Botpress with the `bench` command from the command line. You can run this on the Pro binary downloaded from the website. Make sure to adjust the `--url` and `--botId` to match your botpress server url and your bot's ID. For more information on options, you can set for your test, run `./bp bench --help`
-
 ![Performances Benchmark Tool](assets/performances-benchmark.png)
 
 ### Example
-Below is an example of the output from a benchmark test run on a new install of Botpress o localhost.
+Below is an example of the output from a benchmark test run on a new install of Botpress on localhost.
 
 ```bash
 $ ./bp bench --url http://0.0.0.0:3000/ --botId test -u 1000
@@ -52,4 +51,4 @@ From the results:
     - ECONNRESET: 411
     - ECONNREFUSED: 1988
     
-You can also use [locust](https://locust.io/), a popular user simulation tool, to run a benchmark test and figure out how many simultaneous users you can accommodate.
+You can also use [k6](https://k6.io/), a popular open-source load testing tool and SaaS for engineering teams.
