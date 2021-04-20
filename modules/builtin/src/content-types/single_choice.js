@@ -23,7 +23,8 @@ function render(data) {
         options: data.choices.map(c => ({ label: c.title, value: c.value.toUpperCase() })),
         width: 300,
         placeholderText: data.dropdownPlaceholder
-      }];
+      }
+    ]
   }
 
   return [
@@ -95,6 +96,12 @@ function renderSlack(data) {
 }
 
 function renderElement(data, channel) {
+  // These channels now use channel renderers
+  if ([].includes(channel)) {
+    // TODO : automate this from the schema
+    return { text: data.text, choices: data.choices }
+  }
+
   if (channel === 'messenger') {
     return renderMessenger(data)
   } else if (channel === 'slack') {
