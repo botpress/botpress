@@ -1,7 +1,8 @@
 import { Request } from 'express'
 import _ from 'lodash'
+import DEBUG from '../simple-logger/debug'
 import { UnauthorizedError } from './errors'
-const debugAuth = DEBUG('api:auth')
+const debugAuth = DEBUG('api').sub('auth')
 
 // This method is only used for basic escaping of error messages, do not use for page display
 export const escapeHtmlSimple = (str: string) => {
@@ -12,7 +13,6 @@ export const escapeHtmlSimple = (str: string) => {
     .replace(/\\/g, '&#x5C;')
     .replace(/`/g, '&#96;')
 }
-
 
 export const isAdminToken = (req, adminToken: string) => {
   if (!adminToken || !adminToken.length) {

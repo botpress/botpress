@@ -15,6 +15,7 @@ import {
   MemoryObjectCache
 } from '../utils/ghost'
 import Logger from '../utils/simple-logger'
+import DEBUG from '../utils/simple-logger/debug'
 
 interface FSDriver {
   driver: 'fs'

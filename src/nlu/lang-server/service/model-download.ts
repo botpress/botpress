@@ -1,7 +1,7 @@
 import axios, { CancelTokenSource } from 'axios'
 import fse from 'fs-extra'
 import { Readable } from 'stream'
-
+import DEBUG from '../../utils/simple-logger/debug'
 type ModelType = 'bpe' | 'embeddings'
 
 export interface DownloadableModel {

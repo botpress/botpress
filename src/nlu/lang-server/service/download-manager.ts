@@ -3,7 +3,7 @@ import fse from 'fs-extra'
 import ms from 'ms'
 import path from 'path'
 import { URL } from 'url'
-
+import DEBUG from '../../utils/simple-logger/debug'
 import ModelDownload from './model-download'
 
 type ModelType = 'bpe' | 'embeddings'

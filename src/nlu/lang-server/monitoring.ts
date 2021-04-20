@@ -1,8 +1,9 @@
 import _ from 'lodash'
 import ms from 'ms'
 import onHeaders from 'on-headers'
+import DEBUG from '../utils/simple-logger/debug'
 
-const debugMonitor = DEBUG('api:monitoring')
+const debugMonitor = DEBUG('api').sub('monitoring')
 
 let collectionEnabled = false
 let metrics = {}

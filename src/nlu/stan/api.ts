@@ -12,6 +12,7 @@ import { modelIdService } from '../../nlu/engine'
 import { PredictOutput, TrainInput } from '../typings_v1'
 import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../utils/http'
 import Logger from '../utils/simple-logger'
+import DEBUG from '../utils/simple-logger/debug'
 import {
   InfoResponseBody,
   ErrorResponse,

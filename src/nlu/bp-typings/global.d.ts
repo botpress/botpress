@@ -285,8 +285,6 @@ interface IDebugInstance {
   sub(namespace: string): IDebugInstance
 }
 
-declare let DEBUG: IDebug
-
 declare interface OSDistribution {
   os: NodeJS.Platform
   /** The distribution, e.g. "centos", "ubuntu" */

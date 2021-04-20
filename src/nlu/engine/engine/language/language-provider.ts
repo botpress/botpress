@@ -10,13 +10,15 @@ import ms from 'ms'
 import path from 'path'
 import semver from 'semver'
 import { Health } from '../../../typings_v1'
+import SimpleLogger from '../../../utils/simple-logger'
 import { LanguageSource, Logger } from '../../typings'
 
 import { setSimilarity, vocabNGram } from '../tools/strings'
 import { isSpace, processUtteranceTokens, restoreOriginalUtteranceCasing } from '../tools/token-utils'
 import { Gateway, LangServerInfo, LangsGateway, LanguageProvider, SeededLodashProvider } from '../typings'
 
-const debug = DEBUG('nlu').sub('lang')
+const debugLogger = new SimpleLogger('nlu:lang')
+const debug = (msg: string, extra?: any) => debugLogger.debug(msg, extra)
 
 const MAX_PAYLOAD_SIZE = 150 * 1024 // 150kb
 const JUNK_VOCAB_SIZE = 500
