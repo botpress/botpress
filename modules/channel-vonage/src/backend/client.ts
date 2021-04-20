@@ -97,7 +97,7 @@ export class VonageClient {
         break
       case 'audio':
         const audio = body.message.content.audio.url
-        payload = { type: 'audio', audio, speechToText: true }
+        payload = { type: 'voice', audio }
         break
       default:
         payload = {}
