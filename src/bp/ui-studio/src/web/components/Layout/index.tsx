@@ -226,7 +226,6 @@ const Layout: FC<Props> = (props: Props) => {
                 <Route exact path="/logs" component={Logs} />
               </Switch>
             </main>
-            ``
             <BottomPanel />
           </SplitPane>
 
