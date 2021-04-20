@@ -10,24 +10,30 @@ const outgoingTypes = ['text', 'typing', 'image', 'login_prompt', 'carousel']
 
 export const sendEvent = async (bp: typeof sdk, botId: string, ctx: ContextMessageUpdate, args: { type: string }) => {
   // NOTE: getUpdate and setWebhook dot not return the same context mapping
-  const threadId = _.get(ctx, 'chat.id') || _.get(ctx, 'message.chat.id')
-  const target = _.get(ctx, 'from.id') || _.get(ctx, 'message.from.id')
+  const chatId = `${ctx.chat?.id || ctx.message?.chat.id}`
+  const userId = `${ctx.from?.id || ctx.message?.from.id}`
 
-  const payload = _.get(ctx, 'message') || _.get(ctx, 'callback_query')
-  const preview = _.get(ctx, 'message.text') || _.get(ctx, 'callback_query.data')
+  const payload = ctx.message || ctx.callbackQuery
+  const preview = ctx.message.text || ctx.callbackQuery.data
 
-  await bp.events.sendEvent(
-    bp.IO.Event({
-      botId,
-      payload,
-      preview,
-      channel: 'telegram',
-      direction: 'incoming',
-      threadId: threadId && threadId.toString(),
-      target: target && target.toString(),
-      ...args
-    })
-  )
+  let convoId: sdk.uuid
+  if (chatId) {
+    convoId = await bp.experimental.conversations.forBot(botId).getLocalId('telegram', chatId)
+
+    if (!convoId) {
+      const conversation = await bp.experimental.conversations.forBot(botId).create(userId)
+      convoId = conversation.id
+
+      await bp.experimental.conversations.forBot(botId).createMapping('telegram', conversation.id, chatId)
+    }
+  } else {
+    const conversation = await bp.experimental.conversations.forBot(botId).recent(userId)
+    convoId = conversation.id
+  }
+
+  await bp.experimental.messages
+    .forBot(botId)
+    .receive(convoId, { ...args, ...payload }, { channel: 'telegram', preview })
 }
 
 export const registerMiddleware = (bp: typeof sdk, outgoingHandler) => {
@@ -55,7 +61,7 @@ export async function setupBot(bp: typeof sdk, botId: string, clients: Clients) 
 export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
   registerMiddleware(bp, outgoingHandler)
 
-  async function outgoingHandler(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
+  async function outgoingHandler(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     if (event.channel !== 'telegram') {
       return next()
     }
@@ -66,7 +72,8 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
     }
 
     const messageType = event.type === 'default' ? 'text' : event.type
-    const chatId = event.threadId || event.target
+    const chatId =
+      (await bp.experimental.conversations.forBot(event.botId).getForeignId('telegram', event.threadId)) || event.target
 
     if (!_.includes(outgoingTypes, messageType)) {
       return next(new Error(`Unsupported event type: ${event.type}`))
@@ -84,6 +91,10 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
       // TODO We don't support sending files, location requests (and probably more) yet
       throw new Error(`Message type "${messageType}" not implemented yet`)
     }
+
+    await bp.experimental.messages
+      .forBot(event.botId)
+      .create(event.threadId, event.payload, undefined, event.id, event.incomingEventId)
 
     next(undefined, false)
   }
