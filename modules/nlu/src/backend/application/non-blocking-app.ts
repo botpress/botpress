@@ -10,6 +10,7 @@ export class NonBlockingNluApplication extends NLUApplication {
 
   public async initialize() {
     await this._waitForStan()
+    this._stanIsReady = true
     while (this._waitingBots.length) {
       const bot = this._waitingBots.pop()!
       await super.mountBot(bot)
