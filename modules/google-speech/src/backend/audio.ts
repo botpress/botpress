@@ -2,7 +2,7 @@ import ffmpeg from 'ffmpeg.js'
 import { EXTENSIONS, LIBS } from './constants'
 import { Codec, Container } from './typings'
 
-// TODO: Make this async using worker threads
+// TODO: Make this async using worker threads: https://github.com/Kagami/ffmpeg.js#via-web-worker
 export class Audio {
   private filenameIn: string
   private filenameOut: string

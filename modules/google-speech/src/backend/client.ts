@@ -15,7 +15,8 @@ import AudioEncoding, {
   IRecognitionConfig,
   ISynthesizeSpeechRequest,
   Container,
-  Codec
+  Codec,
+  Clients
 } from './typings'
 
 export const INCOMING_MIDDLEWARE_NAME = 'googleSpeech.speechToText'
@@ -125,7 +126,7 @@ export class GoogleSpeechClient {
   }
 }
 
-export async function setupMiddleware(bp: typeof sdk, client: GoogleSpeechClient) {
+export async function setupMiddlewares(bp: typeof sdk, clients: Clients) {
   bp.events.registerMiddleware({
     description: 'Converts audio content to text using google speech-to-text.',
     direction: 'incoming',
@@ -136,6 +137,11 @@ export async function setupMiddleware(bp: typeof sdk, client: GoogleSpeechClient
 
   async function incomingHandler(event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) {
     if (event.payload.type !== 'voice') {
+      return next()
+    }
+
+    const client: GoogleSpeechClient = clients[event.botId]
+    if (!client) {
       return next()
     }
 
@@ -177,6 +183,11 @@ export async function setupMiddleware(bp: typeof sdk, client: GoogleSpeechClient
   async function outgoingHandler(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     const incomingEvent: sdk.IO.IncomingEvent = event.payload.event
     if (!incomingEvent || incomingEvent.payload.textToSpeech !== true) {
+      return next()
+    }
+
+    const client: GoogleSpeechClient = clients[event.botId]
+    if (!client) {
       return next()
     }
 

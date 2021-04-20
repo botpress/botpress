@@ -1,5 +1,10 @@
 import { protos as speechProtos } from '@google-cloud/speech'
 import { protos as textToSpeechProtos } from '@google-cloud/text-to-speech'
+import { GoogleSpeechClient } from './client'
+
+export interface Clients {
+  [botId: string]: GoogleSpeechClient
+}
 
 export type EnumDictionary<T extends string | symbol | number, U> = {
   [K in T]: U

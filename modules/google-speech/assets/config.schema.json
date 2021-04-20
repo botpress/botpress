@@ -1,6 +1,11 @@
 {
   "type": "object",
   "properties": {
+    "enabled": {
+      "description": "Enable or disable this module for this bot",
+      "default": false,
+      "type": "boolean"
+    },
     "clientEmail": {
       "description": "The email of the service account used to authenticate with Google APIs",
       "default": "your client email here",
@@ -18,6 +23,7 @@
   "additionalProperties": false,
   "required": [
     "clientEmail",
+    "enabled",
     "privateKey"
   ],
   "$schema": "http://json-schema.org/draft-07/schema#"
