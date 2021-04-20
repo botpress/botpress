@@ -36,15 +36,6 @@ export async function setupRouter(
   })
 
   router.post(`${baseRoute}/status`, async (req, res) => {
-    const { botId } = req.params
-    const client = clients[botId]
-
-    if (!client) {
-      return res.status(404).send(`Bot ${botId} is not a vonage bot`)
-    }
-
-    await client.handleIncomingMessageStatus(req.body)
-
     res.sendStatus(200)
   })
 
