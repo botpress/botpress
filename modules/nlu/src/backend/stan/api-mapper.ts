@@ -13,7 +13,7 @@ import {
   SlotPrediction as StanSlotPrediction,
   ContextPrediction as StanContextPrediction,
   EntityPrediction as StanEntityPrediction
-} from './typings'
+} from './typings_v1'
 
 type BpSlotDefinition = NLU.SlotDefinition
 type BpIntentDefinition = NLU.IntentDefinition

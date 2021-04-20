@@ -65,7 +65,7 @@ export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
 
   router.get('/health', async (req, res) => {
     // When the health is bad, we'll refresh the status in case it has changed (eg: user added languages)
-    const health = app.getHealth()
+    const health = await app.getHealth()
     res.send(health)
   })
 

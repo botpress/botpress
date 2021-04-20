@@ -1,33 +1,56 @@
-import * as NLUEngine from './sdk.u.test'
 import _ from 'lodash'
 
 import './sdk.u.test'
-import { areEqual, sleep } from './utils.u.test'
-import { PredictOutput, TrainInput, Specifications, Health } from '../../../stan/typings'
+import { sleep } from './utils.u.test'
+import { PredictOutput, TrainInput, Specifications, Health } from '../../../stan/typings_v1'
+import { IStanEngine } from '../../../stan'
+import modelIdService from '../../../stan/model-id-service'
+import { TrainingCanceledError } from '../../../stan/errors'
 
 export interface FakeEngineOptions {
   trainDelayBetweenProgress: number
   nProgressCalls: number
+  models: string[]
 }
 
 const DEFAULT_OPTIONS: FakeEngineOptions = {
   trainDelayBetweenProgress: 0,
-  nProgressCalls: 2
+  nProgressCalls: 2,
+  models: []
 }
 
-export class FakeEngine implements NLUEngine.Engine {
-  private _models: NLUEngine.Model[] = []
+type Training = {
+  run: (progressCb: (p: number) => void) => Promise<void>
+  cancel: () => void
+}
+
+export class FakeEngine implements IStanEngine {
   private _options: FakeEngineOptions
+
+  private _models: string[]
+  private _trainings: {
+    [modelId: string]: Training
+  } = {}
 
   constructor(private languages: string[], private specs: Specifications, opt: Partial<FakeEngineOptions> = {}) {
     this._options = { ...DEFAULT_OPTIONS, ...opt }
+    this._models = opt.models ?? []
     const { nProgressCalls } = this._options
     if (nProgressCalls < 2 || nProgressCalls > 10) {
       throw new Error("There's a minimum of 2 progress calls and a maximum of 10 for a training...")
     }
   }
 
-  getHealth = (): Health => {
+  public async getModelIdFromTrainset(trainInput: TrainInput): Promise<string> {
+    const { specs } = await this.getInfo()
+    const modelIdStructure = modelIdService.makeId({
+      ...trainInput,
+      specifications: specs
+    })
+    return modelIdService.toString(modelIdStructure)
+  }
+
+  private _getHealth = (): Health => {
     return {
       isEnabled: true,
       validLanguages: [...this.languages],
@@ -35,75 +58,74 @@ export class FakeEngine implements NLUEngine.Engine {
     }
   }
 
-  getLanguages = (): string[] => {
-    return [...this.languages]
-  }
-
-  getSpecifications = (): Specifications => {
-    return this.specs
-  }
-
-  loadModel = async (model: NLUEngine.Model): Promise<void> => {
-    if (!this.hasModel(model.id)) {
-      this._models.push(model)
+  getInfo = async () => {
+    return {
+      specs: this.specs,
+      health: this._getHealth(),
+      languages: [...this.languages]
     }
   }
 
-  unloadModel = (modelId: NLUEngine.ModelId): void => {
-    const idx = this._models.findIndex(m => areEqual(m.id, modelId))
-    if (idx >= 0) {
-      this._models.splice(idx, 1)
-    }
+  hasModel = async (appId: string, modelId: string): Promise<boolean> => {
+    return this._models.includes(modelId)
   }
 
-  hasModel = (modelId: NLUEngine.ModelId): boolean => {
-    return this._models.findIndex(m => areEqual(m.id, modelId)) >= 0
-  }
-
-  train = async (
-    trainSessionId: string,
-    trainSet: TrainInput,
-    options: Partial<NLUEngine.TrainingOptions> = {}
-  ): Promise<NLUEngine.Model> => {
+  startTraining = async (appId: string, trainSet: TrainInput): Promise<string> => {
     const { nProgressCalls, trainDelayBetweenProgress } = this._options
     const { language, seed, intents, entities } = trainSet
 
-    const delta = 1 / (nProgressCalls - 1)
-    const updates = _.range(nProgressCalls).map(i => i * delta)
-    for (const u of updates) {
-      options.progressCallback?.(u)
-      await sleep(trainDelayBetweenProgress)
-    }
+    const modelId = modelIdService.toString(
+      modelIdService.makeId({
+        intents,
+        entities,
+        language,
+        seed,
+        specifications: this.specs
+      })
+    )
 
-    const actualModelIdService = NLUEngine.modelIdService
-    const modelId = actualModelIdService.makeId({
-      intents,
-      entities,
-      language,
-      seed,
-      specifications: this.getSpecifications()
-    })
-
-    return {
-      id: modelId,
-      startedAt: new Date(),
-      finishedAt: new Date(),
-      data: {
-        input: '',
-        output: ''
+    let canceled = false
+    const run = async (progressCallback: (n: number) => void) => {
+      const delta = 1 / (nProgressCalls - 1)
+      const updates = _.range(nProgressCalls).map(i => i * delta)
+      for (const u of updates) {
+        if (canceled) {
+          throw new TrainingCanceledError()
+        }
+        progressCallback(u)
+        await sleep(trainDelayBetweenProgress)
       }
     }
+
+    this._trainings[modelId] = {
+      run,
+      cancel: () => {
+        canceled = true
+      }
+    }
+
+    return modelId
   }
 
-  cancelTraining = async (trainSessionId: string): Promise<void> => {
-    return
+  waitForTraining = async (appId: string, modelId: string, progressCb: (p: number) => void): Promise<void> => {
+    try {
+      await this._trainings[modelId].run(progressCb)
+    } finally {
+      delete this._trainings[modelId]
+    }
   }
 
-  detectLanguage = async (text: string, modelByLang: _.Dictionary<NLUEngine.ModelId>): Promise<string> => {
+  cancelTraining = async (appId: string, modelId: string): Promise<void> => {
+    if (this._trainings[modelId]) {
+      this._trainings[modelId].cancel()
+    }
+  }
+
+  detectLanguage = async (appId: string, text: string, models: string[]): Promise<string> => {
     return 'en'
   }
 
-  predict = async (text: string, modelId: NLUEngine.ModelId): Promise<PredictOutput> => {
+  predict = async (appId: string, text: string, modelId: string): Promise<PredictOutput> => {
     return {
       spellChecked: '',
       entities: [],
@@ -116,9 +138,5 @@ export class FakeEngine implements NLUEngine.Engine {
         }
       ]
     }
-  }
-
-  spellCheck = async (sentence: string, modelId: NLUEngine.ModelId): Promise<string> => {
-    return sentence
   }
 }
