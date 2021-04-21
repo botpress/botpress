@@ -57,6 +57,9 @@ export async function setupBot(bp: typeof sdk, botId: string, clients: Clients) 
 export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
   registerMiddleware(bp, outgoingHandler)
 
+  const renderers = bp.experimental.render.getChannelRenderers('telegram')
+  const senders = bp.experimental.render.getChannelSenders('telegram')
+
   async function outgoingHandler(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     if (event.channel !== 'telegram') {
       return next()
@@ -69,9 +72,6 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
 
     const chatId =
       (await bp.experimental.conversations.forBot(event.botId).getForeignId('telegram', event.threadId)) || event.target
-
-    const renderers = bp.experimental.render.getChannelRenderers('telegram')
-    const senders = bp.experimental.render.getChannelSenders('telegram')
 
     const context: TelegramContext = {
       bp,
