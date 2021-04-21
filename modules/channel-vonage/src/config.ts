@@ -37,4 +37,10 @@ export interface Config {
    * @default "your private key here"
    */
   privateKey: string
+  /**
+   * The phone number linked with your Vonage Application. (https://dashboard.nexmo.com/applications).
+   * _Note: Make sure to omit the '+'. E.g. +1 456 123 4567 should be: 14561234567_
+   * @default "your phone number here"
+   */
+  botPhoneNumber: string
 }

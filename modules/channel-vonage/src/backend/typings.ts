@@ -1,18 +1,6 @@
 import { ChannelContent, ChannelMessage, ChannelToFrom, MessageSendResponse } from '@vonage/server-sdk'
 import { VonageClient } from './client'
 
-export class ChannelUnsupportedError extends Error {
-  constructor() {
-    super('Unable to process message: only Whatsapp channel is supported')
-  }
-}
-
-export class UnauthorizedError extends Error {
-  constructor(message: string) {
-    super(message)
-  }
-}
-
 export interface Clients {
   [botId: string]: VonageClient
 }
@@ -29,4 +17,13 @@ export interface MessageOption {
   label: string
   value: string
   type: 'say_something' | 'postback' | 'quick_reply' | 'url'
+}
+
+// https://developer.nexmo.com/messages/concepts/signed-webhooks#signed-jwt-payload
+export interface SignedJWTPayload {
+  iat: number
+  jti: string
+  iss: 'Vonage'
+  payload_hash: string
+  api_key: string
 }

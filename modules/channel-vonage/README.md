@@ -11,6 +11,7 @@ Vonage requires you to have an Application to setup your bot.
   - Click _Generate new application_
 - An HTTPS Endpoint to your bot
   - Create an HTTPS tunnel to your machine using Ngrok. [**Tutorial**](https://api.slack.com/tutorials/tunneling-with-ngrok)
+    - We recommend you authenticate using a **free account** to be able to handle more requests per minute.
   - Using Nginx and Let's Encrypt. [**Tutorial**](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-16-04)
 
 ## Setup
@@ -26,9 +27,10 @@ Vonage requires you to have an Application to setup your bot.
   - `apiKey`: You will find this value in your [Account Settings](https://dashboard.nexmo.com/settings).
   - `apiSecret`: You will find this value in your [Account Settings](https://dashboard.nexmo.com/settings).
   - `signatureSecret`: You will find this value in your [Account Settings](https://dashboard.nexmo.com/settings).
-  - `applicationId`: You will find this value when selecting your newly created application (https://dashboard.nexmo.com/applications/)
-  - `privateKey` The content of the `private.key` file that was generated when you created your Vonage Application. **_Note: You must replace all line breaks with the character `\n`_**.
-  - `useTestingApi (optional)`: Set to `true` if you want to use the sandbox instead of the live version of Vonage API (see [Setup a Messages Sandbox](#Setup%20a%20Messages%20Sandbox)).
+  - `applicationId`: You will find this value when selecting your newly created application (https://dashboard.nexmo.com/applications/).
+  - `privateKey`: The content of the `private.key` file that was generated when you created your Vonage Application. **_Note: You must replace all line breaks with the character `\n`_**.
+  - `botPhoneNumber`: The phone number linked with your Vonage Application. (https://dashboard.nexmo.com/applications).
+  - `useTestingApi (optional)`: Set to `true` if you want to use the _Sandbox_ instead of the _Live_ version of Vonage API (see [Setup a Messages Sandbox](#Setup%20a%20Messages%20Sandbox)).
 - Make sure you have an HTTPS url pointing to your Botpress Server and set the [`EXTERNAL_URL`](https://botpress.com/docs/manage/configuration#exposing-your-bot-on-the-internet) environment variable
 - Restart Botpress Server to reload the configuration
 - Setup your webhook (see below)

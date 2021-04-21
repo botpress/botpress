@@ -36,6 +36,11 @@
       "default": "your private key here",
       "type": "string"
     },
+    "botPhoneNumber": {
+      "description": "The phone number linked with your Vonage Application. (https://dashboard.nexmo.com/applications).",
+      "default": "your phone number here",
+      "type": "string"
+    },
     "$schema": {
       "type": "string"
     }
@@ -45,6 +50,7 @@
     "apiKey",
     "apiSecret",
     "applicationId",
+    "botPhoneNumber",
     "enabled",
     "privateKey",
     "signatureSecret",

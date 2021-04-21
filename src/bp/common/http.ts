@@ -103,4 +103,12 @@ export class UnexpectedError extends ResponseError {
   type = 'UnexpectedError'
 }
 
+export class UnauthorizedError extends ResponseError {
+  constructor(message: string) {
+    super(`Unauthorized: ${message}`, 401)
+  }
+
+  type = 'UnauthorizedError'
+}
+
 // TODO: Move other ResponseError from routers to this file
