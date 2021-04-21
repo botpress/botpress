@@ -13,10 +13,9 @@ const DEFAULT_MAX_FILE_SIZE = '25mb'
 class MediaRouter extends CustomStudioRouter {
   constructor(services: StudioServices) {
     super('User', services)
-    void this.setupRoutes()
   }
 
-  async setupRoutes() {
+  async setupRoutes(botpressConfig: BotpressConfig) {
     const router = this.router
 
     router.get(
@@ -40,7 +39,6 @@ class MediaRouter extends CustomStudioRouter {
       })
     )
 
-    const botpressConfig = await this.configProvider.getBotpressConfig()
     const mediaUploadMulter = fileUploadMulter(
       botpressConfig.fileUpload.allowedMimeTypes ?? DEFAULT_ALLOWED_MIME_TYPES,
       botpressConfig.fileUpload.maxFileSize ?? DEFAULT_MAX_FILE_SIZE

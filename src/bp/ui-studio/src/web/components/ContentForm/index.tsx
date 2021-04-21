@@ -57,7 +57,7 @@ const CustomDescriptionField = ({ description, id, formContext }) => {
     return (
       <div id={id} style={{ lineHeight: 'normal' }}>
         <div>
-          <span style={{ color: Colors.ORANGE3 }}>
+          <span style={{ color: 'var(--lighthouse)' }}>
             <Icon icon="warning-sign" color={Colors.ORANGE3} />
             &nbsp;{capitalize(formContext.subtype)} content-type is currently only supported by channel-vonage
           </span>
