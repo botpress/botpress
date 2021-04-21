@@ -32,6 +32,11 @@
       "audioLabel": "Titre",
       "title": "Audio"
     },
+    "video": {
+      "description": "Un message affichant un fichier vidéo avec un titre facultatif",
+      "videoLabel": "Titre",
+      "title": "Vidéo"
+    },
     "singleChoice": {
       "choice": "Choix",
       "description": "Suggérer un choix à l'utilisateur avec l'intention de n'en sélectionner qu'un (avec un message optionnel)",

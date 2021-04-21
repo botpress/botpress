@@ -59,10 +59,12 @@ export interface FieldWrapperProps {
 
 export type TextProps = FieldProps & { field: FormField }
 
+export type SupportedFileType = 'image' | 'audio' | 'video'
+
 export interface UploadFieldProps extends FieldProps {
   axios: any
   customPath?: string
   onChange?: (url: string | undefined) => void
-  type: 'image' | 'audio' | string
+  type: SupportedFileType
   filter?: string
 }

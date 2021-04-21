@@ -15,9 +15,9 @@ function render(data) {
   return [
     ...events,
     {
-      type: 'audio',
+      type: 'video',
       title: data.title,
-      url: utils.formatURL(data.BOT_URL, data.audio),
+      url: utils.formatURL(data.BOT_URL, data.video),
       collectFeedback: data.collectFeedback
     }
   ]
@@ -33,25 +33,25 @@ function renderElement(data, channel) {
 }
 
 module.exports = {
-  id: 'builtin_audio',
-  group: 'Built-in Audio',
-  title: 'Audio',
+  id: 'builtin_video',
+  group: 'Built-in Video',
+  title: 'Video',
 
   jsonSchema: {
-    description: 'module.builtin.types.audio.description',
+    description: 'module.builtin.types.video.description',
     type: 'object',
-    $subtype: 'audio',
-    required: ['audio'],
+    $subtype: 'video',
+    required: ['video'],
     properties: {
-      audio: {
+      video: {
         type: 'string',
-        $subtype: 'audio',
-        $filter: '.mp3',
-        title: 'module.builtin.types.audio.title'
+        $subtype: 'video',
+        $filter: '.mp4',
+        title: 'module.builtin.types.video.title'
       },
       title: {
         type: 'string',
-        title: 'module.builtin.types.audio.audioLabel'
+        title: 'module.builtin.types.video.videoLabel'
       },
       ...base.typingIndicators
     }
@@ -64,23 +64,23 @@ module.exports = {
   },
 
   computePreviewText: formData => {
-    if (!formData.audio) {
+    if (!formData.video) {
       return
     }
 
-    const link = utils.formatURL(formData.BOT_URL, formData.audio)
+    const link = utils.formatURL(formData.BOT_URL, formData.video)
     const title = formData.title ? ' | ' + formData.title : ''
     let fileName = ''
 
     if (utils.isUrl(link)) {
-      fileName = path.basename(formData.audio)
+      fileName = path.basename(formData.video)
       if (fileName.includes('-')) {
         fileName = fileName
           .split('-')
           .slice(1)
           .join('-')
       }
-      return `Audio: (${fileName}) ${title}`
+      return `Video: (${fileName}) ${title}`
     } else {
       return `Expression: ${link}${title}`
     }
