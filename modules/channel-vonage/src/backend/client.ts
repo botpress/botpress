@@ -1,9 +1,18 @@
 import Vonage, { ChannelMessage, ChannelType, ChannelWhatsApp, MessageSendError } from '@vonage/server-sdk'
 import * as sdk from 'botpress/sdk'
+import { Request } from 'express'
+import jwt from 'jsonwebtoken'
 
 import { Config } from '../config'
 
-import { ChannelUnsupportedError, Clients, MessageOption, VonageChannelContent, VonageRequestBody } from './typings'
+import {
+  ChannelUnsupportedError,
+  Clients,
+  MessageOption,
+  UnauthorizedError,
+  VonageChannelContent,
+  VonageRequestBody
+} from './typings'
 
 const debug = DEBUG('channel-vonage')
 const debugIncoming = debug.sub('incoming')
@@ -16,7 +25,6 @@ enum ApiBaseUrl {
   TEST = 'https://messages-sandbox.nexmo.com',
   PROD = 'https://api.nexmo.com'
 }
-const formatKVSKey = (id: string) => `vonage-number-${id}`
 
 export class VonageClient {
   private logger: sdk.Logger
@@ -55,7 +63,8 @@ export class VonageClient {
         apiKey: this.config.apiKey,
         apiSecret: this.config.apiSecret,
         applicationId: this.config.applicationId,
-        privateKey: Buffer.from(this.config.privateKey) as any
+        privateKey: Buffer.from(this.config.privateKey) as any,
+        signatureSecret: this.config.signatureSecret
       },
       {
         debug: this.config.useTestingApi ? true : false,
@@ -67,11 +76,18 @@ export class VonageClient {
       this.logger.info('Vonage configured to use the testing API!')
     }
 
-    this.logger.info(`Vonage webhooks listening at ${this.webhookUrl}`)
+    this.logger.info(`Vonage inbound webhooks listening at ${this.webhookUrl}/inbound`)
+    this.logger.info(`Vonage status webhooks listening at ${this.webhookUrl}/status`)
   }
 
   async handleWebhookRequest(body: VonageRequestBody) {
     debugIncoming('Received message', body)
+
+    const userId = body.from.number
+    const botPhoneNumber = body.to.number
+
+    const conversation = await this.conversations.recent(userId)
+    await this.kvs.set(`vonage-number-${conversation.id}`, { botPhoneNumber })
 
     // https://developer.nexmo.com/api/messages-olympus?theme=dark
     let payload: sdk.IO.IncomingEvent['payload'] = null
@@ -79,6 +95,17 @@ export class VonageClient {
       case 'text':
         const text = body.message.content.text
         payload = { type: 'text', text }
+
+        const index = Number(text)
+        if (index) {
+          payload = (await this.handleIndexResponse(index - 1, userId, conversation.id)) ?? payload
+
+          if (payload.type === 'url') {
+            return
+          }
+        }
+
+        await this.kvs.delete(this.getKvsKey(userId, conversation.id))
         break
       case 'audio':
         const audio = body.message.content.audio.url
@@ -90,25 +117,64 @@ export class VonageClient {
     }
 
     if (payload) {
-      const userId = body.from.number
-      const botPhoneNumber = body.to.number
-
-      const conversation = await this.conversations.recent(userId)
-      await this.kvs.set(formatKVSKey(conversation.id), { botPhoneNumber })
-
       await this.messages.receive(conversation.id, payload, {
         channel: 'vonage'
       })
     }
   }
 
+  getKvsKey(target: string, threadId: string) {
+    return `${target}_${threadId}`
+  }
+
+  async handleIndexResponse(index: number, userId: string, conversationId: string): Promise<any> {
+    const key = this.getKvsKey(userId, conversationId)
+    if (!(await this.kvs.exists(key))) {
+      return
+    }
+
+    const option = await this.kvs.get(key, `[${index}]`)
+    if (!option) {
+      return
+    }
+
+    await this.kvs.delete(key)
+
+    const { type, label, value } = option
+    return {
+      type,
+      text: type === 'say_something' ? value : label,
+      payload: value
+    }
+  }
+
   /**
    * Validates Vonage message request body
    * @throws {ChannelUnsupportedError} if the message channel is not 'whatsapp'
+   * @throws {UnauthorizedError} if schema isn't 'Bearer' or if the token is missing or invalid
    */
-  validate(body: VonageRequestBody): void {
+  validate(req: Request): void {
+    const body: VonageRequestBody = req.body
     if (body.from.type !== SUPPORTED_CHANNEL_TYPE || body.to.type !== SUPPORTED_CHANNEL_TYPE) {
       throw new ChannelUnsupportedError()
+    }
+
+    const [scheme, token] = req.headers.authorization.split(' ')
+    if (scheme.toLowerCase() !== 'bearer') {
+      throw new UnauthorizedError(`Unknown scheme "${scheme}"`)
+    }
+    if (!token) {
+      throw new UnauthorizedError('Authentication token is missing')
+    }
+
+    try {
+      const decoded = jwt.verify(token, Buffer.from(this.config.signatureSecret))
+
+      if (!(typeof decoded === 'object') || decoded['api_key'] !== this.config.apiKey) {
+        throw new Error()
+      }
+    } catch (err) {
+      throw new UnauthorizedError('Authentication token is invalid')
     }
   }
 
@@ -315,6 +381,8 @@ export class VonageClient {
       text = `${text}\n\n${options.map(({ label }, idx) => `${idx + 1}. ${label}`).join('\n')}`
     }
 
+    await this.kvs.set(this.getKvsKey(event.target, event.threadId), options, undefined, '10m')
+
     await this.sendMessage(event, { type: 'text', text })
   }
 
@@ -326,7 +394,7 @@ export class VonageClient {
 
     debugOutgoing('Sending message', JSON.stringify(message, null, 2))
 
-    const { botPhoneNumber } = await this.kvs.get(formatKVSKey(event.threadId))
+    const { botPhoneNumber } = await this.kvs.get(`vonage-number-${event.threadId}`)
 
     await new Promise(resolve => {
       this.vonage.channel.send(

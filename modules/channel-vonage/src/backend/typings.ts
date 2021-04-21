@@ -7,6 +7,12 @@ export class ChannelUnsupportedError extends Error {
   }
 }
 
+export class UnauthorizedError extends Error {
+  constructor(message: string) {
+    super(message)
+  }
+}
+
 export interface Clients {
   [botId: string]: VonageClient
 }

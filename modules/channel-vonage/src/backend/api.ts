@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 
-import { ChannelUnsupportedError, Clients } from './typings'
+import { ChannelUnsupportedError, Clients, UnauthorizedError } from './typings'
 
 export async function setupRouter(
   bp: typeof sdk,
@@ -21,13 +21,15 @@ export async function setupRouter(
     }
 
     try {
-      client.validate(req.body)
+      client.validate(req)
 
       await client.handleWebhookRequest(req.body)
       res.sendStatus(200)
     } catch (err) {
       if (err instanceof ChannelUnsupportedError) {
         res.status(400).send(err.message)
+      } else if (err instanceof UnauthorizedError) {
+        res.status(401).send(err.message)
       } else {
         console.error(`[${channelName}] Server error: `, err)
         res.sendStatus(500)
@@ -35,7 +37,7 @@ export async function setupRouter(
     }
   })
 
-  router.post(`${baseRoute}/status`, async (req, res) => {
+  router.post(`${baseRoute}/status`, async (_req, res) => {
     res.sendStatus(200)
   })
 

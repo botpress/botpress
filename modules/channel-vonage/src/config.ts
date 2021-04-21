@@ -22,6 +22,11 @@ export interface Config {
    */
   apiSecret: string
   /**
+   * The Vonage API signature secret which you can obtain from your Dashboard. (https://dashboard.nexmo.com/settings).
+   * @default "your signature secret here"
+   */
+  signatureSecret: string
+  /**
    * The Vonage Application ID for your Vonage Application which can be obtained from your Dashboard. (https://dashboard.nexmo.com/applications).
    * @default "your application ID here"
    */

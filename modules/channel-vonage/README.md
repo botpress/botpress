@@ -25,6 +25,7 @@ Vonage requires you to have an Application to setup your bot.
   - `enabled: true`
   - `apiKey`: You will find this value in your [Account Settings](https://dashboard.nexmo.com/settings).
   - `apiSecret`: You will find this value in your [Account Settings](https://dashboard.nexmo.com/settings).
+  - `signatureSecret`: You will find this value in your [Account Settings](https://dashboard.nexmo.com/settings).
   - `applicationId`: You will find this value when selecting your newly created application (https://dashboard.nexmo.com/applications/)
   - `privateKey` The content of the `private.key` file that was generated when you created your Vonage Application. **_Note: You must replace all line breaks with the character `\n`_**.
   - `useTestingApi (optional)`: Set to `true` if you want to use the sandbox instead of the live version of Vonage API (see [Setup a Messages Sandbox](#Setup%20a%20Messages%20Sandbox)).
@@ -34,7 +35,7 @@ Vonage requires you to have an Application to setup your bot.
 
 #### Setup your webhook
 
-Vonage will use a webhook that you'll need to register to communicate with your bot.
+Vonage will use a webhook that you need to register to communicate with your bot. **You can skip this step if you count on simply using the sandbox!**
 
 1. Select your application in the [`Your Application`](https://dashboard.nexmo.com/applications) menu.
 1. Click the `Edit` button.
