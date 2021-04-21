@@ -57,8 +57,8 @@ export async function setupBot(bp: typeof sdk, botId: string, clients: Clients) 
 export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
   registerMiddleware(bp, outgoingHandler)
 
-  const renderers = bp.experimental.render.getChannelRenderers('telegram')
-  const senders = bp.experimental.render.getChannelSenders('telegram')
+  let renderers: sdk.ChannelRenderer<TelegramContext>[]
+  let senders: sdk.ChannelSender<TelegramContext>[]
 
   async function outgoingHandler(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     if (event.channel !== 'telegram') {
@@ -72,6 +72,12 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
 
     const chatId =
       (await bp.experimental.conversations.forBot(event.botId).getForeignId('telegram', event.threadId)) || event.target
+
+    if (!renderers) {
+      // TODO we can't initialize this at setup because these aren't loaded yet
+      renderers = bp.experimental.render.getChannelRenderers('telegram')
+      senders = bp.experimental.render.getChannelSenders('telegram')
+    }
 
     const context: TelegramContext = {
       bp,
