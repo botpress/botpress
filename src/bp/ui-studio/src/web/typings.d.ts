@@ -24,7 +24,6 @@ declare global {
     IS_BOT_MOUNTED: boolean
     BOT_LOCKED: boolean
     WORKSPACE_ID: string
-    BOTPRESS_FLOW_EDITOR_DISABLED: boolean
     SOCKET_TRANSPORTS: string[]
     ANALYTICS_ID: string
     UUID: string
