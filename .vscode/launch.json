@@ -3,7 +3,7 @@
   "configurations": [
     {
       "type": "pwa-node",
-      "runtimeVersion": "12.18.3",
+      "runtimeVersion": "12.13.0",
       "request": "launch",
       "name": "Debug App",
       "program": "${workspaceFolder}/out/bp/index.js",
