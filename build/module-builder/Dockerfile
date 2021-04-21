@@ -1,31 +1,39 @@
 FROM node:12-alpine as builder
-WORKDIR /botpress
-COPY . botpress
-
-FROM node:12-alpine
-# still need git, because of the gulp initStudio task!?
+# git is required to resolve `git+` dependencies
 RUN apk add --no-cache git
 WORKDIR /botpress
+# this builder stage scope also includes additional files required for a full build, 
+# e.g.: docs, app.json, .eslintrc.js and .tool-versions
+COPY . botpress
+# alternatively RUN git clone https://github.com/botpress/botpress.git
+
+# fully build once
+RUN cd botpress && yarn install
+RUN cd botpress && yarn run gulp build
+
+FROM node:12-alpine
+WORKDIR /botpress
 # add botpress source dependencies from builder
-# install dependencies
 COPY --from=builder ./botpress/botpress/package.json ./botpress/botpress/yarn.lock ./
+# install dependencies
 RUN yarn install
 # add build config
 COPY --from=builder ./botpress/botpress/build ./build
 COPY --from=builder ./botpress/botpress/gulpfile.js ./
-# add botpress sdk
+RUN cd build/module-builder && yarn install
+RUN cd build/module-builder && yarn build
+
+# add botpress sdk source & typings
 COPY --from=builder ./botpress/botpress/src ./src
+# add docs
+#COPY --from=builder ./botpress/botpress/docs ./docs
 # add source
 COPY --from=builder ./botpress/botpress/modules ./modules
-COPY --from=builder ./botpress/botpress/app.json ./app.json
-COPY --from=builder ./botpress/botpress/.eslintrc.js ./.eslintrc.js
-COPY --from=builder ./botpress/botpress/.tool-versions ./.tool-versions
-# add docs
-COPY --from=builder ./botpress/botpress/docs ./docs
 
-# TODO move into builder image if possible, expose build/module builder instead
-# fully build once, takes 10min+
-RUN yarn run gulp build
+# copy built dependencies (up to 300mb)
+COPY --from=builder ./botpress/botpress/out ./out
+
+RUN yarn run gulp build:modules
 
 # build & package module
 # TODO extract into entry point, make it reusable to accept a list of modules
