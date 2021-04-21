@@ -1,28 +1,19 @@
-import chalk from 'chalk'
-import path from 'path'
+import 'bluebird-global'
+// eslint-disable-next-line import/order
+import './rewire'
+import _ from 'lodash'
+import STAN from './stan'
 
-process.core_env = process.env as BotpressEnvironmentVariables
-global['NativePromise'] = global.Promise
-
-if (process.env.APP_DATA_PATH) {
-  process.APP_DATA_PATH = process.env.APP_DATA_PATH
-} else {
-  process.APP_DATA_PATH = getAppDataPath()
-}
-
-export function getAppDataPath() {
-  const homeDir = process.env.HOME || process.env.APPDATA
-  if (homeDir) {
-    if (process.platform === 'darwin') {
-      return path.join(homeDir, 'Library', 'Application Support', 'botpress')
-    }
-
-    return path.join(homeDir, 'botpress')
-  }
-
-  console.error(
-    chalk.red(`Could not determine your HOME directory.
-Please set the environment variable "APP_DATA_PATH", then start Botpress`)
-  )
-  process.exit()
-}
+void STAN({
+  host: '0.0.0.0',
+  port: 3200,
+  limitWindow: '1s',
+  limit: 10000,
+  bodySize: '500mb',
+  batchSize: 16,
+  silent: false,
+  modelCacheSize: '1500mb',
+  languageURL: 'https://lang-01.botpress.io/',
+  ducklingURL: 'http://localhost:8000',
+  ducklingEnabled: false
+})

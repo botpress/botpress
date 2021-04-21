@@ -1,4 +1,5 @@
 import { AxiosInstance } from 'axios'
+import _ from 'lodash'
 import sdk from 'botpress-sdk'
 import LRUCache from 'lru-cache'
 

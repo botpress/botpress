@@ -1,15 +1,15 @@
 // eslint-disable-next-line import/order
-import Logger, { centerText } from '../utils/simple-logger'
-import '../bootstrap'
 import bytes from 'bytes'
 import chalk from 'chalk'
 import _ from 'lodash'
 import path from 'path'
 import * as NLUEngine from '../../nlu/engine'
 import { copyDir } from '../utils/pkg-fs'
+import Logger, { centerText } from '../utils/simple-logger'
 import API, { APIOptions } from './api'
 
-const debug = new Logger('api').debug
+const debugLogger = new Logger('nlu:api')
+const debug = (msg: string, extra?: any) => debugLogger.debug(msg, extra)
 
 const GH_TYPINGS_FILE = 'https://github.com/botpress/botpress/blob/master/src/nlu/stan/typings_v1.d.ts'
 const GH_TRAIN_INPUT_EXAMPLE = 'https://github.com/botpress/botpress/blob/master/src/nlu/stan/train-example.json'

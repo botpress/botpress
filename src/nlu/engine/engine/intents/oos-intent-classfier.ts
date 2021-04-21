@@ -142,7 +142,7 @@ export class OOSIntentClassifier implements NoneableIntentClassifier {
 
     const vocabWithDupes = lo(allTokens)
       .map(t => t.value)
-      .flattenDeep<string>()
+      .flattenDeep()
       .value()
 
     const junkWords = await this.tools.generateSimilarJunkWords(vocab, languageCode)

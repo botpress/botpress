@@ -1,5 +1,6 @@
 import { createReadStream } from 'fs'
 import fse from 'fs-extra'
+import _ from 'lodash'
 import path from 'path'
 import readline from 'readline'
 

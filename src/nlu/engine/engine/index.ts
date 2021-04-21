@@ -295,7 +295,7 @@ export default class Engine implements IEngine {
 
     const warmKmeans = kmeans && deserializeKmeans(kmeans)
 
-    const intent_classifier_per_ctx: Dic<OOSIntentClassifier> = await Promise.props(
+    const intent_classifier_per_ctx: _.Dictionary<OOSIntentClassifier> = await Promise.props(
       _.mapValues(intent_model_by_ctx, async model => {
         const { legacyElection } = this._options
         const intentClf = new OOSIntentClassifier(tools, undefined, { legacyElection })
@@ -307,7 +307,7 @@ export default class Engine implements IEngine {
     const ctx_classifier = new SvmIntentClassifier(tools, getCtxFeatures)
     await ctx_classifier.load(ctx_model)
 
-    const slot_tagger_per_intent: Dic<SlotTagger> = await Promise.props(
+    const slot_tagger_per_intent: _.Dictionary<SlotTagger> = await Promise.props(
       _.mapValues(slots_model_by_intent, async model => {
         const slotTagger = new SlotTagger(tools)
         await slotTagger.load(model)
