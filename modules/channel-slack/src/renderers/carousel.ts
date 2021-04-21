@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import { SlackContext } from 'src/backend/typings'
+import { SlackContext } from '../backend/typings'
 
 export class SlackCarouselRenderer implements sdk.ChannelRenderer<SlackContext> {
   getChannel(): string {
@@ -16,7 +16,7 @@ export class SlackCarouselRenderer implements sdk.ChannelRenderer<SlackContext> 
   }
 
   async handles(context: SlackContext): Promise<boolean> {
-    return context.event.payload.type === 'carousel'
+    return context.event.payload.items
   }
 
   async render(context: SlackContext): Promise<void> {

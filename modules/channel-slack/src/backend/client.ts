@@ -18,8 +18,6 @@ const debug = DEBUG('channel-slack')
 const debugIncoming = debug.sub('incoming')
 const debugOutgoing = debug.sub('outgoing')
 
-const outgoingTypes = ['text', 'image', 'actions', 'typing', 'carousel']
-
 const userCache = new LRU({ max: 1000, maxAge: ms('1h') })
 
 export class SlackClient {
@@ -28,6 +26,8 @@ export class SlackClient {
   private events: SlackEventAdapter
   private interactive: SlackMessageAdapter
   private logger: sdk.Logger
+  private renderers: sdk.ChannelRenderer<SlackContext>[]
+  private senders: sdk.ChannelSender<SlackContext>[]
 
   constructor(private bp: typeof sdk, private botId: string, private config: Config, private router) {
     this.logger = bp.logger.forBot(botId)
@@ -39,6 +39,9 @@ export class SlackClient {
         `[${this.botId}] The bot token and the signing secret must be configured to use this channel.`
       )
     }
+
+    this.renderers = this.bp.experimental.render.getChannelRenderers('slack')
+    this.senders = this.bp.experimental.render.getChannelSenders('slack')
 
     this.client = new WebClient(this.config.botToken)
     if (this.config.useRTM || this.config.useRTM === undefined) {
@@ -164,9 +167,6 @@ export class SlackClient {
     const foreignId = await this.bp.experimental.conversations.forBot(this.botId).getForeignId('slack', event.threadId)
     const [channelId, userId] = foreignId.split('-')
 
-    const renderers = this.bp.experimental.render.getChannelRenderers('slack')
-    const senders = this.bp.experimental.render.getChannelSenders('slack')
-
     const context: SlackContext = {
       bp: this.bp,
       event,
@@ -176,18 +176,16 @@ export class SlackClient {
       handlers: []
     }
 
-    for (const renderer of renderers) {
+    for (const renderer of this.renderers) {
       if (await renderer.handles(context)) {
         await renderer.render(context)
         context.handlers.push(renderer.getId())
       }
     }
 
-    for (const sender of senders) {
+    for (const sender of this.senders) {
       if (await sender.handles(context)) {
         await sender.send(context)
-        // context.handlers.push(sender.getId())
-        // handled = true
       }
     }
 

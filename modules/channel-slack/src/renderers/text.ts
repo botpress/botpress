@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { SlackContext } from 'src/backend/typings'
+import { SlackContext } from '../backend/typings'
 
 export class SlackTextRenderer implements sdk.ChannelRenderer<SlackContext> {
   getChannel(): string {

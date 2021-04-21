@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { SlackContext } from 'src/backend/typings'
+import { SlackContext } from '../backend/typings'
 
 export class SlackImageRenderer implements sdk.ChannelRenderer<SlackContext> {
   getChannel(): string {
@@ -15,7 +15,7 @@ export class SlackImageRenderer implements sdk.ChannelRenderer<SlackContext> {
   }
 
   async handles(context: SlackContext): Promise<boolean> {
-    return context.event.payload.type === 'image'
+    return context.event.payload.image
   }
 
   async render(context: SlackContext): Promise<void> {
