@@ -1,4 +1,4 @@
-import { Value, ValueJSON } from 'slate'
+import { Value } from 'slate'
 
 import {
   removeSlotFromUtterances,
@@ -51,7 +51,7 @@ const A_SLATE_VALUE = {
       }
     ]
   }
-} as ValueJSON
+}
 
 describe('Slate nodes from utterance', () => {
   test('No slots', () => {
