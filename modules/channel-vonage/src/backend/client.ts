@@ -1,7 +1,9 @@
 import Vonage, { ChannelMessage, ChannelType, ChannelWhatsApp, MessageSendError } from '@vonage/server-sdk'
 import * as sdk from 'botpress/sdk'
+import crypto from 'crypto'
 import { Request } from 'express'
 import jwt from 'jsonwebtoken'
+import { Cancelable, throttle } from 'lodash'
 
 import { Config } from '../config'
 
@@ -33,6 +35,8 @@ export class VonageClient {
   private conversations: sdk.experimental.conversations.BotConversations
   private messages: sdk.experimental.messages.BotMessages
   private kvs: sdk.KvsService
+  private throttledSend: ((userId: string, botPhoneNumber: string, message: ChannelMessage) => Promise<void>) &
+    Cancelable
 
   constructor(
     private bp: typeof sdk,
@@ -70,6 +74,33 @@ export class VonageClient {
         debug: this.config.useTestingApi ? true : false,
         apiHost: this.config.useTestingApi ? ApiBaseUrl.TEST : ApiBaseUrl.PROD
       }
+    )
+
+    this.throttledSend = throttle(
+      async (userId: string, botPhoneNumber: string, message: any) => {
+        await new Promise(resolve => {
+          this.vonage.channel.send(
+            { type: SUPPORTED_CHANNEL_TYPE, number: userId },
+            {
+              type: SUPPORTED_CHANNEL_TYPE,
+              number: botPhoneNumber
+            },
+            message,
+            (err, data) => {
+              if (err) {
+                // fixes typings
+                err = (err as any).body as MessageSendError
+                console.error(err)
+              } else {
+                resolve(data)
+              }
+            }
+          )
+        })
+      },
+      // Sandbox is limited to one call per second: https://developer.nexmo.com/messages/concepts/messages-api-sandbox#rate-limit
+      this.config.useTestingApi ? 1000 : 0,
+      { leading: true, trailing: false }
     )
 
     if (this.config.useTestingApi) {
@@ -168,9 +199,19 @@ export class VonageClient {
     }
 
     try {
-      const decoded = jwt.verify(token, Buffer.from(this.config.signatureSecret))
+      // Doc: https://developer.nexmo.com/messages/concepts/signed-webhooks
+      const decoded = jwt.verify(token, Buffer.from(this.config.signatureSecret), { algorithms: ['HS256'] })
+      const sha256 = (str: string) =>
+        crypto
+          .createHash('sha256')
+          .update(str)
+          .digest('hex')
 
-      if (!(typeof decoded === 'object') || decoded['api_key'] !== this.config.apiKey) {
+      if (
+        !(typeof decoded === 'object') ||
+        decoded['api_key'] !== this.config.apiKey ||
+        sha256(JSON.stringify(body)) !== decoded['payload_hash']
+      ) {
         throw new Error()
       }
     } catch (err) {
@@ -396,25 +437,7 @@ export class VonageClient {
 
     const { botPhoneNumber } = await this.kvs.get(`vonage-number-${event.threadId}`)
 
-    await new Promise(resolve => {
-      this.vonage.channel.send(
-        { type: SUPPORTED_CHANNEL_TYPE, number: event.target },
-        {
-          type: SUPPORTED_CHANNEL_TYPE,
-          number: botPhoneNumber
-        },
-        message,
-        (err, data) => {
-          if (err) {
-            // fixes typings
-            err = (err as any).body as MessageSendError
-            console.error(err)
-          } else {
-            resolve(data)
-          }
-        }
-      )
-    })
+    await this.throttledSend(event.target, botPhoneNumber, message)
   }
 }
 
