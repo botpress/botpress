@@ -125,8 +125,6 @@ export class TwilioClient {
     for (const sender of senders) {
       if (await sender.handles(context)) {
         await sender.send(context)
-        // context.handlers.push(sender.getId())
-        // handled = true
       }
     }
 

@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { TwilioContext } from 'src/backend/typings'
+import { TwilioContext } from '../backend/typings'
 
 export class TwilioImageRenderer implements sdk.ChannelRenderer<TwilioContext> {
   getChannel(): string {
@@ -15,7 +15,7 @@ export class TwilioImageRenderer implements sdk.ChannelRenderer<TwilioContext> {
   }
 
   async handles(context: TwilioContext): Promise<boolean> {
-    return context.event.type === 'image'
+    return context.payload.image
   }
 
   async render(context: TwilioContext): Promise<void> {

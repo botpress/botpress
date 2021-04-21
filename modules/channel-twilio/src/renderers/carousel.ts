@@ -15,7 +15,7 @@ export class TwilioCarouselRenderer implements sdk.ChannelRenderer<TwilioContext
   }
 
   async handles(context: TwilioContext): Promise<boolean> {
-    return context.payload.type === 'carousel'
+    return context.payload.items?.length
   }
 
   async render(context: TwilioContext): Promise<void> {
