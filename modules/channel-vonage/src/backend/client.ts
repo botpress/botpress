@@ -234,105 +234,14 @@ export class VonageClient {
     }
   }
 
-  renderOutgoingEvent(event: sdk.IO.OutgoingEvent): sdk.IO.Event {
-    debugOutgoing('Rendering event', event)
-
-    const payload = event.payload
-    const botUrl = payload.BOT_URL
-
-    if (payload.choices) {
-      return {
-        ...event,
-        payload: {
-          type: 'quick_reply',
-          text: payload.text,
-          quick_replies: payload.choices.map(c => ({
-            title: c.title,
-            payload: c.value.toUpperCase()
-          }))
-        }
-      }
-    } else if (payload.items) {
-      return {
-        ...event,
-        payload: {
-          type: 'carousel',
-          elements: payload.items.map(card => ({
-            title: card.title,
-            picture: card.image ? this.formatUrl(botUrl, card.image) : null,
-            subtitle: card.subtitle,
-            buttons: (card.actions || []).map(a => {
-              if (a.action === 'Say something') {
-                return {
-                  type: 'say_something',
-                  title: a.title,
-                  text: a.text
-                }
-              } else if (a.action === 'Open URL') {
-                return {
-                  type: 'open_url',
-                  title: a.title,
-                  url: a.url && a.url.replace('BOT_URL', botUrl)
-                }
-              } else if (a.action === 'Postback') {
-                return {
-                  type: 'postback',
-                  title: a.title,
-                  payload: a.payload
-                }
-              } else {
-                throw new Error(
-                  `Vonage (WhatsApp) carousel does not support "${a.action}" action-buttons at the moment`
-                )
-              }
-            })
-          }))
-        }
-      }
-    } else if (payload.image) {
-      return {
-        ...event,
-        payload: {
-          type: 'image',
-          url: this.formatUrl(botUrl, payload.image),
-          caption: payload.title
-        }
-      }
-    } else if (payload.audio) {
-      return {
-        ...event,
-        payload: {
-          type: 'audio',
-          url: this.formatUrl(botUrl, payload.audio)
-        }
-      }
-    } else if (payload.video) {
-      return {
-        ...event,
-        payload: {
-          type: 'video',
-          url: this.formatUrl(botUrl, payload.video)
-        }
-      }
-    } else if (event.type === 'text' && payload.text) {
-      return {
-        ...event,
-        payload: {
-          type: event.type,
-          text: payload.text
-        }
-      }
-    }
-
-    return event
-  }
-
   async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     const payload = event.payload
 
     // Note: Vonage Messages API does not support typing indicators for privacy reasons
-    if (payload.type === 'quick_reply') {
+    if (payload.quick_replies) {
       await this.sendQuickReply(event, payload.quick_replies)
+    } else if (payload.options) {
+      await this.sendDropdown(event, payload.options)
     } else if (payload.type === 'carousel') {
       await this.sendCarousel(event, payload)
     } else if (payload.type === 'image') {
@@ -390,6 +299,15 @@ export class VonageClient {
     }))
 
     await this.sendOptions(event, event.payload.text, options)
+  }
+
+  async sendDropdown(event: sdk.IO.OutgoingEvent, choices: any) {
+    const options: MessageOption[] = choices.map(x => ({
+      ...x,
+      type: 'quick_reply'
+    }))
+
+    await this.sendOptions(event, event.payload.message, options)
   }
 
   async sendCarousel(event: sdk.IO.Event, payload: any) {
@@ -462,7 +380,6 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
       return next()
     }
 
-    event = client.renderOutgoingEvent(event)
     return client.handleOutgoingEvent(event, next)
   }
 }
