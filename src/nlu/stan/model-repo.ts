@@ -4,8 +4,8 @@ import path from 'path'
 import { Stream } from 'stream'
 import tar from 'tar'
 import tmp from 'tmp'
-import * as NLUEngine from '../../nlu/engine'
-import modelIdService, { halfmd5 } from '../../nlu/engine/model-id-service'
+import * as NLUEngine from '../engine'
+import modelIdService, { halfmd5 } from '../engine/model-id-service'
 import {
   Database,
   DBStorageDriver,

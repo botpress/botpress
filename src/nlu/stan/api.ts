@@ -5,9 +5,9 @@ import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
 import _ from 'lodash'
 import ms from 'ms'
-import * as NLUEngine from '../../nlu/engine'
+import * as NLUEngine from '../engine'
 // eslint-disable-next-line no-duplicate-imports
-import { modelIdService } from '../../nlu/engine'
+import { modelIdService } from '../engine'
 
 import { PredictOutput, TrainInput } from '../typings_v1'
 import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../utils/http'

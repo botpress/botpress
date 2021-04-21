@@ -1,7 +1,5 @@
 import * as sdk from 'botpress-sdk'
 
-import '../../../import-rewire'
-
 import { Predictor, Trainer } from '.'
 
 const SEED = 42

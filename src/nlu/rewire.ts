@@ -12,7 +12,7 @@ const nativeExBaseFolder =
   (process.core_env.NATIVE_EXTENSIONS_DIR && syspath.resolve(process.env.NATIVE_EXTENSIONS_DIR!)) ||
   (process.pkg
     ? syspath.resolve(syspath.dirname(process.execPath), 'bindings')
-    : syspath.resolve(process.PROJECT_LOCATION, '../../build/native-extensions'))
+    : syspath.resolve(process.PROJECT_LOCATION, '../../../build/native-extensions'))
 
 if (process.distro.os === 'linux') {
   platformFolders.push('linux/default')

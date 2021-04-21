@@ -12,7 +12,7 @@ void STAN({
   bodySize: '500mb',
   batchSize: 16,
   silent: false,
-  modelCacheSize: '1500mb',
+  modelCacheSize: '1000mb',
   languageURL: 'https://lang-01.botpress.io/',
   ducklingURL: 'http://localhost:8000',
   ducklingEnabled: false
