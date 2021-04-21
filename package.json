@@ -94,6 +94,7 @@
     "replace-in-file": "^4.1.1",
     "seedrandom": "^3.0.5",
     "semver": "^5.6.0",
+    "slate": "0.47.4",
     "socket.io": "^2.2.0",
     "socket.io-redis": "^5.2.0",
     "socketio-jwt": "^4.5.0",
