@@ -209,7 +209,10 @@ export class VonageClient {
 
     if (payload.type === 'typing') {
       // Note: Vonage Messages API does not support typing indicators for privacy reasons
-      await Promise.delay(1000)
+      // Sandbox is limited to one call per second: https://developer.nexmo.com/messages/concepts/messages-api-sandbox#rate-limit
+      if (this.config.useTestingApi) {
+        await Promise.delay(1000)
+      }
     } else if (payload.quick_replies) {
       await this.sendQuickReply(event, payload.quick_replies)
     } else if (payload.options) {
