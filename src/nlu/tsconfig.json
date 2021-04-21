@@ -15,7 +15,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "baseUrl": ".",
-    "outDir": "./out/",
+    "outDir": "../../out/nlu",
     "typeRoots": ["./bp-typings", "./node-modules/@types"],
     "types": ["reflect-metadata", "jest"]
   },

@@ -4,7 +4,7 @@ import _ from 'lodash'
 import path from 'path'
 import { MicrosoftEntityExtractor } from '.'
 import { SystemEntityCacheManager } from '../entity-cache-manager'
-import { createSpyObject, MockObject } from '../../../../utils/misc'
+import { createSpyObject, MockObject } from '../../../../utils/mock-extra'
 import { Logger } from '../../../typings'
 import { KeyedItem } from '../../typings'
 
