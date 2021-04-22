@@ -147,7 +147,7 @@ export class ScopedFlowService {
       this.cache.update(key, flow)
     } else if (newKey) {
       this.cache.rename(key, newKey)
-    } else {
+    } else if (this.cache.get(key)) {
       this.cache.remove(key)
     }
 
