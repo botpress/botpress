@@ -13,11 +13,9 @@ RUN yarn run gulp build
 
 FROM node:12-alpine
 WORKDIR /botpress
-# add build config
+# add build config & dependencies
 COPY --from=builder ./botpress/build ./build
-COPY --from=builder ./botpress/gulpfile.js ./
-# add botpress source dependencies
-COPY --from=builder ./botpress/package.json ./botpress/yarn.lock ./
+COPY --from=builder ./botpress/gulpfile.js ./botpress/package.json ./botpress/yarn.lock ./
 # install dependencies
 RUN yarn install
 RUN cd build/module-builder && yarn install
@@ -30,13 +28,7 @@ COPY --from=builder ./botpress/out ./out
 # add source
 COPY --from=builder ./botpress/modules ./modules
 
-
+# prebuild other modules
 RUN yarn run gulp build:modules
 
-# build & package module
-# TODO extract into entry point, make it reusable to accept a list of modules
-#RUN yarn run gulp build:modules --m complete-module
-#RUN cd modules/complete-module && yarn && yarn build && yarn package
-
-ENTRYPOINT [ "sh", "-c" ]
-CMD [ "yarn run gulp build:modules" ]
+CMD [ "echo", "-e", "Which module would you like to build?\nUse sh -c 'yarn run gulp build:modules --m your-module && cd modules/your-module && yarn && yarn build && yarn package'" ]
