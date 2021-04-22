@@ -123,9 +123,6 @@ function renderElement(data, channel) {
     return renderSlack(data)
   } else if (channel === 'teams') {
     return renderTeams(data)
-  } else if (channel === 'vonage') {
-    // channel-vonage handles rendering on its own
-    return data
   } else {
     return render(data)
   }

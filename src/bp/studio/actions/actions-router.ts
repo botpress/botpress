@@ -6,7 +6,6 @@ import { CustomStudioRouter } from 'studio/utils/custom-studio-router'
 export class ActionsRouter extends CustomStudioRouter {
   constructor(services: StudioServices) {
     super('Actions', services)
-    this.setupRoutes()
   }
 
   setupRoutes() {

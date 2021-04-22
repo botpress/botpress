@@ -21,6 +21,7 @@
     "@types/node": "^10.10.3"
   },
   "dependencies": {
-    "@vonage/server-sdk": "2.10.7-beta-2"
+    "@vonage/server-sdk": "2.10.7-beta-2",
+    "jsonwebtoken": "^8.5.1"
   }
 }

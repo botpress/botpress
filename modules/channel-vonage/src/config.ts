@@ -22,6 +22,11 @@ export interface Config {
    */
   apiSecret: string
   /**
+   * The Vonage API signature secret which you can obtain from your Dashboard. (https://dashboard.nexmo.com/settings).
+   * @default "your signature secret here"
+   */
+  signatureSecret: string
+  /**
    * The Vonage Application ID for your Vonage Application which can be obtained from your Dashboard. (https://dashboard.nexmo.com/applications).
    * @default "your application ID here"
    */
@@ -32,4 +37,10 @@ export interface Config {
    * @default "your private key here"
    */
   privateKey: string
+  /**
+   * The phone number linked with your Vonage Application. (https://dashboard.nexmo.com/applications).
+   * _Note: Make sure to omit the '+'. E.g. +1 456 123 4567 should be: 14561234567_
+   * @default "your phone number here"
+   */
+  botPhoneNumber: string
 }

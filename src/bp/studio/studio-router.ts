@@ -12,7 +12,7 @@ import { LogsService } from 'core/logger'
 import { MediaServiceProvider } from 'core/media'
 import { NotificationsService } from 'core/notifications'
 import { CustomRouter } from 'core/routers/customRouter'
-import { AuthService, TOKEN_AUDIENCE, checkTokenHeader, needPermissions, checkBotVisibility } from 'core/security'
+import { AuthService, TOKEN_AUDIENCE, checkTokenHeader, checkBotVisibility } from 'core/security'
 import { ActionServersService, ActionService } from 'core/user-code'
 import { WorkspaceService } from 'core/users'
 import express, { RequestHandler, Router } from 'express'
@@ -103,6 +103,13 @@ export class StudioRouter extends CustomRouter {
 
   async setupRoutes(app: express.Express) {
     this.botpressConfig = await this.configProvider.getBotpressConfig()
+
+    this.actionsRouter.setupRoutes()
+    this.flowsRouter.setupRoutes()
+    this.logsRouter.setupRoutes()
+    await this.mediaRouter.setupRoutes(this.botpressConfig)
+    this.notificationsRouter.setupRoutes()
+    this.topicsRouter.setupRoutes()
 
     app.use(rewrite('/studio/:botId/*env.js', '/api/v1/studio/:botId/env.js'))
 
