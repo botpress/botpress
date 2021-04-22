@@ -4,7 +4,7 @@ import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
-import { NLUApi } from '../../../api'
+import { NluClient } from '../client'
 
 const AVAILABLE_TYPES = [
   {
@@ -18,7 +18,7 @@ const AVAILABLE_TYPES = [
 ]
 
 interface Props {
-  api: NLUApi
+  api: NluClient
   // Used for actions rename and duplicate
   originalEntity?: NLU.EntityDefinition
   action: 'create' | 'rename' | 'duplicate'
@@ -94,10 +94,10 @@ export const EntityNameModal: FC<Props> = props => {
   let dialog: { icon: any; title: string } = { icon: 'add', title: lang.tr('create') }
   let submitText = lang.tr('create')
   if (props.action === 'duplicate') {
-    dialog = { icon: 'duplicate', title: lang.tr('module.nlu.entities.duplicate') }
+    dialog = { icon: 'duplicate', title: lang.tr('nlu.entities.duplicate') }
     submitText = lang.tr('duplicate')
   } else if (props.action === 'rename') {
-    dialog = { icon: 'edit', title: lang.tr('module.nlu.entities.rename') }
+    dialog = { icon: 'edit', title: lang.tr('nlu.entities.rename') }
     submitText = lang.tr('rename')
   }
 
@@ -113,7 +113,7 @@ export const EntityNameModal: FC<Props> = props => {
               tabIndex={1}
               className={`${Classes.INPUT} ${Classes.FILL}`}
               dir="auto"
-              placeholder={lang.tr('module.nlu.entities.namePlaceholder')}
+              placeholder={lang.tr('nlu.entities.namePlaceholder')}
               value={name}
               onChange={e => setName(e.target.value)}
               autoFocus
@@ -132,8 +132,8 @@ export const EntityNameModal: FC<Props> = props => {
           )}
 
           {alreadyExists && (
-            <Callout title={lang.tr('module.nlu.entities.nameConflictTitle')} intent={Intent.DANGER}>
-              {lang.tr('module.nlu.entities.nameConflictMessage')}
+            <Callout title={lang.tr('nlu.entities.nameConflictTitle')} intent={Intent.DANGER}>
+              {lang.tr('nlu.entities.nameConflictMessage')}
             </Callout>
           )}
         </div>

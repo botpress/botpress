@@ -1,11 +1,10 @@
 import { Button, NonIdealState } from '@blueprintjs/core'
-import { AxiosInstance } from 'axios'
 import { NLU } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React from 'react'
 
-import { NLUApi } from '../../../../api'
+import { NluClient } from '../../client'
 import style from '../style.scss'
 
 import SlotItem from './SlotItem'
@@ -15,7 +14,7 @@ import { SlotModification } from './typings'
 interface State {}
 
 interface Props {
-  api: NLUApi
+  api: NluClient
   slots: NLU.SlotDefinition[]
   onSlotsChanged: (slot: NLU.SlotDefinition[], mod: SlotModification) => void
 }
@@ -73,7 +72,7 @@ export default class Slots extends React.Component<Props, State> {
         </ul>
 
         <Button icon="add" large onClick={this.showSlotModal.bind(this, null)}>
-          {lang.tr('module.nlu.slots.new')}
+          {lang.tr('nlu.slots.new')}
         </Button>
       </div>
     )
@@ -84,10 +83,10 @@ export default class Slots extends React.Component<Props, State> {
       <div className={style.centerContainer}>
         <NonIdealState
           icon="layers"
-          description={lang.tr('module.nlu.slots.emptyState')}
+          description={lang.tr('nlu.slots.emptyState')}
           action={
             <Button icon="add" large onClick={this.showSlotModal.bind(this, null)}>
-              {lang.tr('module.nlu.slots.new')}
+              {lang.tr('nlu.slots.new')}
             </Button>
           }
         />

@@ -6,7 +6,7 @@ import random from 'lodash/random'
 import nanoid from 'nanoid'
 import React from 'react'
 
-import { NLUApi } from '../../../../api'
+import { NluClient } from '../../client'
 
 import { EntitySelector } from './EntitySelector'
 import { SlotOperation } from './typings'
@@ -29,7 +29,7 @@ interface State extends NLU.SlotDefinition {
 }
 
 interface Props {
-  api: NLUApi
+  api: NluClient
   slot: NLU.SlotDefinition
   slots: NLU.SlotDefinition[]
   show: boolean
@@ -98,7 +98,7 @@ export default class SlotModal extends React.Component<Props, State> {
     return (
       <Dialog
         lazy
-        title={this.state.editing ? lang.tr('module.nlu.slots.editTitle') : lang.tr('module.nlu.slots.createTitle')}
+        title={this.state.editing ? lang.tr('nlu.slots.editTitle') : lang.tr('nlu.slots.createTitle')}
         icon="add"
         isOpen={this.props.show}
         onClose={this.props.onHide}
@@ -112,18 +112,18 @@ export default class SlotModal extends React.Component<Props, State> {
               ref={el => (this.nameInput = el)}
               className={`${Classes.INPUT} ${Classes.FILL}`}
               value={this.state.name}
-              placeholder={lang.tr('module.nlu.slots.namePlaceholder')}
+              placeholder={lang.tr('nlu.slots.namePlaceholder')}
               onChange={this.onNameChange}
             />
           </FormGroup>
-          <FormGroup label={lang.tr('module.nlu.slots.entitiesLabel')}>
+          <FormGroup label={lang.tr('nlu.slots.entitiesLabel')}>
             <EntitySelector entities={this.state.entities} api={this.props.api} onChange={this.onEntitiesChanged} />
           </FormGroup>
         </div>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button onClick={this.onSave} tabIndex={3} intent={Intent.PRIMARY} disabled={!this.isValid()}>
-              {this.state.editing ? lang.tr('module.nlu.slots.save') : lang.tr('module.nlu.slots.save')}
+              {this.state.editing ? lang.tr('nlu.slots.save') : lang.tr('nlu.slots.save')}
             </Button>
           </div>
         </div>

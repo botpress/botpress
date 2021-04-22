@@ -14,6 +14,7 @@ import FlowPickWidget from './FlowPickWidget'
 import ArrayMl from './i18n/Array'
 import renderWrapped from './i18n/I18nWrapper'
 import RefWidget from './RefWidget'
+import localStyle from './style.scss'
 import Text from './Text'
 import UploadWidget from './UploadWidget'
 
@@ -57,8 +58,8 @@ const CustomDescriptionField = ({ description, id, formContext }) => {
     return (
       <div id={id} style={{ lineHeight: 'normal' }}>
         <div>
-          <span style={{ color: 'var(--lighthouse)' }}>
-            <Icon icon="warning-sign" color={Colors.ORANGE3} />
+          <span className={localStyle.warning}>
+            <Icon icon="warning-sign" />
             &nbsp;{capitalize(formContext.subtype)} content-type is currently only supported by channel-vonage
           </span>
         </div>

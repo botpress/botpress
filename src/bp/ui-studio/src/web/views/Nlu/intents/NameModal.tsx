@@ -53,7 +53,7 @@ const NameModal: FC<Props> = props => {
             <InputGroup
               id="input-intent-name"
               tabIndex={1}
-              placeholder={lang.tr('module.nlu.intents.namePlaceholder')}
+              placeholder={lang.tr('nlu.intents.namePlaceholder')}
               required={true}
               value={name}
               onChange={e => setName(e.currentTarget.value)}
@@ -61,7 +61,7 @@ const NameModal: FC<Props> = props => {
             />
           </FormGroup>
 
-          {alreadyExists && <Callout intent={Intent.WARNING}>{lang.tr('module.nlu.intents.nameDupe')}</Callout>}
+          {alreadyExists && <Callout intent={Intent.WARNING}>{lang.tr('nlu.intents.nameDupe')}</Callout>}
         </div>
 
         <div className={Classes.DIALOG_FOOTER}>
