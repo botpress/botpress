@@ -165,7 +165,7 @@ If you have a restricted app, you may need to specify the tenantId also.`
       .receive(convoId, { type: 'text', text }, { channel: 'teams' })
   }
 
-  public async sendOutgoingEvent(event: sdk.IO.Event): Promise<void> {
+  public async sendOutgoingEvent(event: sdk.IO.OutgoingEvent): Promise<void> {
     const messageType = event.type === 'default' ? 'text' : event.type
 
     if (!_.includes(outgoingTypes, messageType)) {
@@ -202,6 +202,12 @@ If you have a restricted app, you may need to specify the tenantId also.`
       })
     } catch (err) {
       this.logger.attachError(err).error(`Error while sending payload of type "${msg.type}" `)
+    }
+
+    if (event.payload.type !== 'typing') {
+      await this.bp.experimental.messages
+        .forBot(this.botId)
+        .create(event.threadId, event.payload, undefined, event.id, event.incomingEventId)
     }
   }
 
