@@ -328,11 +328,13 @@ export class ScopedFlowService {
 
     const isNew = !flowFiles.find(x => flow.location === x)
 
+    // TODO: remove this when we improve the cache
     // the onFlowChange function called inside prepareSaveFlow can cause
     // cache events to be fired. We aren't interested in catching any of those
     this.setExpectedSaves(flow.name, 999999)
     const { flowPath, uiPath, flowContent, uiContent } = await this.prepareSaveFlow(flow, isNew)
 
+    // TODO: remove this when we improve the cache
     this.setExpectedSaves(flow.name, 2)
     this.invalidateFlow(flow.name, flow)
 
@@ -353,8 +355,10 @@ export class ScopedFlowService {
 
     const uiPath = this.toUiPath(fileToDelete)
 
+    // TODO: remove this when we improve the cache
     this.invalidateFlow(flowName)
     this.setExpectedSaves(flowName, 2)
+
     await Promise.all([this.ghost.deleteFile(FLOW_DIR, fileToDelete!), this.ghost.deleteFile(FLOW_DIR, uiPath)])
 
     this.notifyChanges({
@@ -374,6 +378,7 @@ export class ScopedFlowService {
       throw new Error(`Can not rename a flow that does not exist: ${previousName}`)
     }
 
+    // TODO: remove this when we improve the cache
     this.invalidateFlow(previousName, undefined, newName)
     this.setExpectedSaves(newName, 2)
 

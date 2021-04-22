@@ -80,3 +80,36 @@ for (const [content, file, save] of amendFiles(true)) {
   })
   save()
 }
+
+const bp = new Botpress('frigjntruogjnegu8n43985n', 'https:fef4rg', { nluUrl: refefe })
+
+bp.conversations
+bp.messages
+bp.render
+
+bp.bots
+bp.bots.create('efergrgrg')
+
+const bot = bp.forBot('efefefef')
+bot.conversations
+bot.messages
+
+bot.intents
+create
+list
+delete bot.entities
+
+bot.nlu
+bot.nlu.train()
+bot.nlu.predict('ceci e')
+
+bot.flows.create('main')
+
+const flow = bot.forFlow('main')
+flow.nodes.create('efef')
+
+bp.forContext('paptata').nlu.train()
+
+const stan = new BotpressNlU('fefefef')
+
+const big = { ...stan }
