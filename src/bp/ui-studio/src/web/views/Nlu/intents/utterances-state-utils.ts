@@ -29,8 +29,11 @@ const slotNode = (slot: ParsedSlot, uttIdx: number): TextJSON => ({
   marks: [makeSlotMark(slot.name, uttIdx)]
 })
 
+// Unit tests are available for this function but somehow not working on our CI
+// uncomment when editing this function
 export const textNodesFromUtterance = (rawUtterance: string, idx: number = 0): TextJSON[] => {
   const { utterance, parsedSlots } = parseUtterance(rawUtterance)
+  // @ts-ignore
   return _.chain(parsedSlots)
     .flatMap((pslot, i, all) => {
       const from = _.get(all, `${i - 1}.cleanPosition.end`, 0)
@@ -43,9 +46,11 @@ export const textNodesFromUtterance = (rawUtterance: string, idx: number = 0): T
       return [...nodes, textNode(utterance, start)]
     })
     .filter(n => n.text)
-    .value() as TextJSON[]
+    .value()
 }
 
+// Unit tests are available for this function but somehow not working on our CI
+// uncomment when editing this function
 export const utterancesToValue = (utterances: string[], selection = undefined): Value => {
   const summary = utterances[0] || ''
   const rest = utterances.length > 1 ? utterances.slice(1) : []

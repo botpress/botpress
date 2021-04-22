@@ -1,17 +1,18 @@
 import { NLU } from 'botpress/sdk'
-import { confirmDialog, lang } from 'botpress/shared'
-import { Item, ItemList, SearchBar } from 'botpress/ui'
-import { toastFailure } from 'botpress/utils'
+import { confirmDialog, lang, toast } from 'botpress/shared'
+
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
+import { ItemList, SearchBar } from '~/components/Shared/Interface'
+import { Item } from '~/components/Shared/Interface/typings'
 
 import { NluItem } from '..'
-import { NLUApi } from '../../../api'
+import { NluClient } from '../client'
 
 import NameModal from './NameModal'
 
 interface Props {
-  api: NLUApi
+  api: NluClient
   intents: NLU.IntentDefinition[]
   currentItem: NluItem
   contentLang: string
@@ -35,7 +36,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
 
   const deleteIntent = async (intentName: string) => {
     if (
-      await confirmDialog(lang.tr('module.nlu.intents.deleteConfirmMessage', { intentName }), {
+      await confirmDialog(lang.tr('nlu.intents.deleteConfirmMessage', { intentName }), {
         acceptLabel: lang.tr('delete')
       })
     ) {
@@ -47,7 +48,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
         await props.api.deleteIntent(intentName)
         await props.reloadIntents()
       } catch (err) {
-        toastFailure(lang.tr('module.nlu.intents.actionErrorMessage', { action: 'delete' }))
+        toast.failure(lang.tr('nlu.intents.actionErrorMessage', { action: 'delete' }))
       }
     }
   }
@@ -71,7 +72,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
       await props.reloadIntents()
       props.setCurrentItem({ name: sanitizedName, type: 'intent' })
     } catch (err) {
-      toastFailure(lang.tr('module.nlu.intents.actionErrorMessage', { action: 'rename' }))
+      toast.failure(lang.tr('nlu.intents.actionErrorMessage', { action: 'rename' }))
     }
   }
 
@@ -86,7 +87,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
       await props.reloadIntents()
       props.setCurrentItem({ name: sanitizedName, type: 'intent' })
     } catch (err) {
-      toastFailure(lang.tr('module.nlu.intents.actionErrorMessage', { action: 'duplicate' }))
+      toast.failure(lang.tr('nlu.intents.actionErrorMessage', { action: 'duplicate' }))
     }
   }
 
@@ -125,7 +126,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
         <SearchBar
           id="intents-filter"
           icon="filter"
-          placeholder={lang.tr('module.nlu.intents.filterPlaceholder')}
+          placeholder={lang.tr('nlu.intents.filterPlaceholder')}
           onChange={setIntentsFilter}
           showButton={false}
         />

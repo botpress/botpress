@@ -87,7 +87,7 @@ export interface ItemListProps {
   onElementClicked?: (item: Item) => void
 }
 
-interface Item {
+export interface Item {
   id?: string
   label: string
   /** This can be used when executing actions on the items */

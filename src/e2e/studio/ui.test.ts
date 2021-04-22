@@ -1,13 +1,13 @@
 import { bpConfig } from '../../../jest-puppeteer.config'
 import { clickOn, expectMatch } from '../expectPuppeteer'
-import { expectBotApiCallSuccess, gotoAndExpect, triggerKeyboardShortcut } from '../utils'
+import { expectBotApiCallSuccess, gotoAndExpect, loginIfNeeded, triggerKeyboardShortcut } from '../utils'
 
 describe('Studio - UI', () => {
   it('Open Studio', async () => {
     await gotoAndExpect(`${bpConfig.host}/studio/${bpConfig.botId}`)
   })
 
-  it('Emulator window toggle properly', async () => {
+  it('Emulator window toggle properly with shortcut', async () => {
     await page.waitFor(1000)
     await page.focus('#mainLayout')
     await page.type('#mainLayout', 'e')
@@ -19,9 +19,9 @@ describe('Studio - UI', () => {
   if (process.platform === 'darwin') {
     // TODO (1): Skip this test using native Jest features once https://github.com/facebook/jest/issues/8604 is resolved
     // TODO (2): Activate this test once Puppeteer supports native shortcuts (e.g. `⌘ J`) on OS X
-    it.skip('Toggle Bottom (SKIPPED ON MAC)', async () => {})
+    it.skip('Toggle Bottom using shortcut (SKIPPED ON MAC)', async () => {})
   } else {
-    it('Toggle Bottom Panel', async () => {
+    it('Toggle Bottom Panel using shortcut', async () => {
       await page.focus('#mainLayout')
       await triggerKeyboardShortcut('KeyJ', true)
       const bottomPanel = await page.$('div[data-tab-id="debugger"]')
@@ -29,6 +29,14 @@ describe('Studio - UI', () => {
       await triggerKeyboardShortcut('KeyJ', true)
     })
   }
+
+  it('Toggles bottom panel using click toolbar menu', async () => {
+    await page.focus('#mainLayout')
+    await clickOn('#toggle-bottom-panel')
+    const bottomPanel = await page.$('div[data-tab-id="debugger"]')
+    expect(await bottomPanel.isIntersectingViewport()).toBe(true)
+    await clickOn('#toggle-bottom-panel')
+  })
 
   // Uncomment once the analytics v2 is enabled by default
   /*it('Load Analytics', async () => {
