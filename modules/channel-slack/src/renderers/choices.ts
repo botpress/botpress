@@ -15,7 +15,7 @@ export class SlackChoicesRenderer implements sdk.ChannelRenderer<SlackContext> {
   }
 
   async handles(context: SlackContext): Promise<boolean> {
-    return context.event.payload.choices
+    return context.payload.choices
   }
 
   async render(context: SlackContext): Promise<void> {
@@ -25,7 +25,7 @@ export class SlackChoicesRenderer implements sdk.ChannelRenderer<SlackContext> {
 
     context.message.blocks.push({
       type: 'actions',
-      elements: context.event.payload.choices.map((q, idx) => ({
+      elements: context.payload.choices.map((q, idx) => ({
         type: 'button',
         action_id: 'replace_buttons' + idx,
         text: {

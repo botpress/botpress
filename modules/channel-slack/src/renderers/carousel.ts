@@ -16,11 +16,11 @@ export class SlackCarouselRenderer implements sdk.ChannelRenderer<SlackContext> 
   }
 
   async handles(context: SlackContext): Promise<boolean> {
-    return context.event.payload.items
+    return context.payload.items
   }
 
   async render(context: SlackContext): Promise<void> {
-    const payload = context.event.payload as sdk.CarouselContent
+    const payload = context.payload as sdk.CarouselContent
 
     context.message.blocks.push(
       ..._.flatMap(payload.items, (card, cardIdx) => [

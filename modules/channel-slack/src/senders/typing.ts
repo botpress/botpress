@@ -15,12 +15,12 @@ export class SlackTypingSender implements sdk.ChannelSender<SlackContext> {
   }
 
   async handles(context: SlackContext): Promise<boolean> {
-    const typing = context.event.payload.typing
+    const typing = context.payload.typing
     return context.handlers?.length > 0 && (typing === undefined || typing === true)
   }
 
   async send(context: SlackContext): Promise<void> {
-    const delay = context.event.payload.delay ?? 1000
+    const delay = context.payload.delay ?? 1000
     // it seems the only way to send typing indicators is with rtm which is deprecated...
     await Promise.delay(delay)
   }

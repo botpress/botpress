@@ -19,6 +19,6 @@ export class SlackCommonSender implements sdk.ChannelSender<SlackContext> {
   }
 
   async send(context: SlackContext): Promise<void> {
-    await context.client.web.chat.postMessage(context.message)
+    await context.client.web.chat.postMessage({ channel: context.channelId, text: undefined, ...context.message })
   }
 }

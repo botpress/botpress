@@ -171,9 +171,10 @@ export class SlackClient {
       bp: this.bp,
       event,
       client: { web: this.client, events: this.events, interactive: this.interactive },
-      args: { channelId },
-      message: { channel: channelId, text: undefined, blocks: [] },
-      handlers: []
+      handlers: [],
+      payload: _.cloneDeep(event.payload),
+      message: { blocks: [] },
+      channelId
     }
 
     for (const renderer of this.renderers) {

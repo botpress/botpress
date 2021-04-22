@@ -14,11 +14,7 @@ export interface SlackEndpoints {
   interactive: SlackMessageAdapter
 }
 
-export interface SlackContextArgs {
+export type SlackContext = sdk.ChannelContext<SlackEndpoints> & {
+  message: Partial<ChatPostMessageArguments>
   channelId: string
-}
-
-export type SlackContext = sdk.ChannelContext<SlackEndpoints, SlackContextArgs> & {
-  message: ChatPostMessageArguments
-  handlers: string[]
 }

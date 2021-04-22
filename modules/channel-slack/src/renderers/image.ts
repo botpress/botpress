@@ -15,11 +15,11 @@ export class SlackImageRenderer implements sdk.ChannelRenderer<SlackContext> {
   }
 
   async handles(context: SlackContext): Promise<boolean> {
-    return context.event.payload.image
+    return context.payload.image
   }
 
   async render(context: SlackContext): Promise<void> {
-    const payload = context.event.payload as sdk.ImageContent
+    const payload = context.payload as sdk.ImageContent
 
     context.message.blocks.push({
       type: 'image',

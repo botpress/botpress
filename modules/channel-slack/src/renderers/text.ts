@@ -15,11 +15,11 @@ export class SlackTextRenderer implements sdk.ChannelRenderer<SlackContext> {
   }
 
   async handles(context: SlackContext): Promise<boolean> {
-    return context.event.payload.text
+    return context.payload.text
   }
 
   async render(context: SlackContext): Promise<void> {
-    const payload = context.event.payload as sdk.TextContent
+    const payload = context.payload as sdk.TextContent
 
     context.message.text = payload.text as string
   }
