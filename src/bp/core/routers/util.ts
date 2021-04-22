@@ -1,25 +1,15 @@
 import { Logger, StrategyUser } from 'botpress/sdk'
-import { checkRule, CSRF_TOKEN_HEADER_LC, JWT_COOKIE_NAME } from 'common/auth'
 import { RequestWithUser, TokenUser } from 'common/typings'
 import { incrementMetric } from 'core/health'
 import { asBytes } from 'core/misc/utils'
-import { AuthService, SERVER_USER, WORKSPACE_HEADER } from 'core/security'
-import { WorkspaceService } from 'core/users'
+import { AuthService } from 'core/security'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 import mime from 'mime-types'
 import multer from 'multer'
 import onHeaders from 'on-headers'
 
-import {
-  InvalidOperationError,
-  BadRequestError,
-  ForbiddenError,
-  InternalServerError,
-  NotFoundError,
-  PaymentRequiredError,
-  UnauthorizedError
-} from './errors'
+import { BadRequestError, InternalServerError, UnauthorizedError } from './errors'
 
 const debugFailure = DEBUG('audit:collab:fail')
 const debugSuccess = DEBUG('audit:collab:success')
@@ -108,21 +98,36 @@ export const loadUser = (authService: AuthService) => async (req: Request, res: 
 
 /**
  * This method checks that uploaded file respects constraints
- * TODO add * in allowedMimeTypes ==> accepts all
+ * @example fileUploadMulter(['image/*', 'audio/mpeg'], '150mb)
+ * fileUploadMulter(['*'], '1gb)
  */
-export const fileUploadMulter = (allowedMimeTypes: string[] = [], maxFileSize?: string) =>
-  multer({
+export const fileUploadMulter = (allowedMimeTypes: string[] = [], maxFileSize?: string) => {
+  const allowedMimeTypesRegex = allowedMimeTypes.map(mimeType => {
+    // '*' is not a valid regular expression
+    if (mimeType === '*') {
+      mimeType = '.*'
+    }
+
+    return new RegExp(mimeType, 'i')
+  })
+
+  return multer({
     fileFilter: (_req, file, cb) => {
       const extMimeType = mime.lookup(file.originalname)
-      if (allowedMimeTypes.includes(file.mimetype) && allowedMimeTypes.includes(extMimeType)) {
+      if (
+        allowedMimeTypesRegex.some(regex => regex.test(file.mimetype)) &&
+        extMimeType &&
+        allowedMimeTypesRegex.some(regex => regex.test(extMimeType))
+      ) {
         return cb(null, true)
       }
-      cb(new Error(`This type of file is not allowed (${file.mimetype})`))
+      cb(new Error(`This type of file is not allowed: ${file.mimetype}`))
     },
     limits: {
       fileSize: (maxFileSize && asBytes(maxFileSize)) || undefined
     }
   }).single('file')
+}
 
 export interface TypedRequest<T> extends Request {
   body: T
