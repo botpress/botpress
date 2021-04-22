@@ -14,7 +14,7 @@ import { makeSlotMark, utterancesToValue, valueToUtterances } from './utterances
 
 const plugins = [
   PlaceholderPlugin({
-    placeholder: lang.tr('module.nlu.intents.utterancePlaceholder'),
+    placeholder: lang.tr('nlu.intents.utterancePlaceholder'),
     when: (_, node) => node.text.trim() === ''
   })
 ]
@@ -119,6 +119,7 @@ export class UtterancesEditor extends React.Component<Props, State> {
 
   render() {
     return (
+      // @ts-ignore
       <Editor
         value={this.state.value}
         plugins={plugins}
@@ -179,8 +180,8 @@ export class UtterancesEditor extends React.Component<Props, State> {
     const node: Node = editor.value.getIn(['document', 'nodes', utterance, 'nodes', block])
     const selectedTxt = node.text.substring(from, to)
     // // We're trimming white spaces in the tagging (forward and backward)
-    from += selectedTxt.length - selectedTxt.trimStart().length
-    to -= selectedTxt.length - selectedTxt.trimEnd().length
+    from += selectedTxt.length - selectedTxt.trimLeft().length
+    to -= selectedTxt.length - selectedTxt.trimRight().length
     if (from >= to) {
       // Trimming screwed up selection (nothing to tag)
       return
@@ -234,6 +235,7 @@ export class UtterancesEditor extends React.Component<Props, State> {
         const slotMark = props.mark.data.toJS()
         const color = this.props.slots.find(s => s.name === slotMark.slotName).color
         const cn = classnames(style.slotMark, style[`label-colors-${color}`])
+        // @ts-ignore
         const remove = () => editor.moveToRangeOfNode(props.node).removeMark(props.mark)
 
         return (
