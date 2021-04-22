@@ -16,7 +16,6 @@ const parseFlowNameMiddleware = (req, _, next) => {
 export class FlowsRouter extends CustomStudioRouter {
   constructor(services: StudioServices) {
     super('Flows', services)
-    this.setupRoutes()
   }
 
   setupRoutes() {
