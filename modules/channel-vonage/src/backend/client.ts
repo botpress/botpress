@@ -75,7 +75,6 @@ export class VonageClient {
         signatureSecret: this.config.signatureSecret
       },
       {
-        debug: this.config.useTestingApi ? true : false,
         apiHost: this.config.useTestingApi ? ApiBaseUrl.TEST : ApiBaseUrl.PROD
       }
     )
