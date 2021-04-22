@@ -53,7 +53,6 @@ const IntentSchema = Joi.object().keys({
   utterances: Joi.array()
     .items(Joi.string())
     .required()
-    .min(1)
 })
 
 export const TrainInputSchema = Joi.object().keys({

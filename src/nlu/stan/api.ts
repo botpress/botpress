@@ -277,7 +277,7 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
         return { entities, contexts, spellChecked, detectedLanguage }
       })
 
-      const resp: PredictResponseBody = { success: true, predictions: predictions.map(_roundConfidencesTo3Digits) }
+      const resp: PredictResponseBody = { success: true, predictions }
       res.send(resp)
     } catch (err) {
       const resp: ErrorResponse = { success: false, error: err.message }
@@ -356,18 +356,4 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
 
   logger.info(`NLU Server is ready at http://${options.host}:${options.port}/`)
   options.silent && logger.silence()
-}
-
-const N_DIGITS = 3
-const _roundConfidencesTo3Digits = (output: PredictOutput): PredictOutput => {
-  const contexts = output.contexts.map(context => {
-    context.confidence = _.round(context.confidence, N_DIGITS)
-    context.oos = _.round(context.oos, N_DIGITS)
-    context.intents = context.intents.map(i => {
-      const slots = i.slots.map(s => ({ ...s, confidence: _.round(s.confidence, N_DIGITS) }))
-      return { ...i, confidence: _.round(i.confidence, N_DIGITS), slots }
-    })
-    return context
-  })
-  return { ...output, contexts }
 }
