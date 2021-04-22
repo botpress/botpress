@@ -3,7 +3,7 @@
 interface CssExports {
   'addBtn': string;
   'borderTop': string;
-  'deleteImg': string;
+  'deleteFile': string;
   'errorIcon': string;
   'fieldWrapperHeader': string;
   'groupLabel': string;

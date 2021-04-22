@@ -35,7 +35,7 @@
       "chat": "chat",
       "documentation": "documentation"
     },
-    "openInPopup": "Open chat in a new tab",    
+    "openInPopup": "Open chat in a new tab",
     "searchCommand": "Search for a command",
     "switchBot": "Switch to bot: {name}",
     "switchWorkspace": "workspace: {name}",
@@ -45,7 +45,7 @@
     "toSelect": "to select",
     "typeCommand": "Type a command",
     "viewBot": "View bot: {name}",
-    "viewDocumentation": "Consult the documentation in a new tab"    
+    "viewDocumentation": "Consult the documentation in a new tab"
   },
   "confidence": "Confidence",
   "configuration": "Config",
@@ -59,7 +59,7 @@
   "delete": "Delete",
   "deleteCondition": "Delete Condition",
   "deleteContent": "Delete Content",
-  "deleteImage": "Delete Image",
+  "deleteFile": "Delete File",
   "deleteField": "Delete Field",
   "deleteNode": "Delete Node",
   "deletePrompt": "Delete Prompt",
@@ -182,7 +182,7 @@
   "applyPersist": "Apply & Persist",
   "inspector": "Inspector",
   "triggers": "Triggers",
-  "actions": "Actions",  
+  "actions": "Actions",
   "pattern": "Regular Expression",
   "pictures": "Pictures",
   "pleaseTranslateField": "Please translate this field",

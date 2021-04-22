@@ -4,10 +4,6 @@ title: Creating Modules
 original_id: create-module
 ---
 
-<br/>
-
-> ⚠️ Not yet finalized, subject to breaking changes
-
 ## Why should I create a module?
 
 Modules are very powerful and have a lot more features than before. They can register new actions, create multiple skills, provide new hooks, and soon they will be able to add new content types and content elements.
