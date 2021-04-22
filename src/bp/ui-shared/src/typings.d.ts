@@ -24,6 +24,7 @@ import { ConfirmDialogOptions } from './ConfirmDialog/typings'
 import { DialogProps } from './Dialog/typings'
 import { DropdownProps, Option } from './Dropdown/typings'
 import { EmptyStateProps } from './EmptyState/typings'
+import { FileDisplayProps } from './FileDisplay/typings'
 import {
   AddButtonProps,
   FieldWrapperProps,
@@ -70,6 +71,7 @@ declare module 'botpress/shared' {
       Register(props: any): any
     }
   }
+  export function FileDisplay(props: FileDisplayProps): JSX.Element
   export const Form: {
     Form(props: FormProps): JSX.Element
     createEmptyDataFromSchema: (fields: FormField[], lang?: string) => any
@@ -147,7 +149,7 @@ declare module 'botpress/shared' {
   export const sharedStyle: CssExports
 
   export { Option, MoreOptionsItems, HeaderButtonProps, ToolbarButtonProps, QuickShortcut, MenuItem, HeaderButton }
-  export { RequiredPermission, PermissionAllowedProps, AccessControlProps, PermissionOperation }
+  export { RequiredPermission, PermissionAllowedProps, AccessControlProps, PermissionOperation, UploadFieldProps }
 }
 
 declare global {
