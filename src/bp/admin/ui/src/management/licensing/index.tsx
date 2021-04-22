@@ -244,47 +244,6 @@ class LicenseStatus extends React.Component<Props> {
         </div>
       </PageContainer>
     )
-
-    // return (
-    //   <PageContainer title={lang.tr('admin.sideMenu.serverLicense')} superAdmin={true}>
-    //     <Row>
-    //       <Col sm="12" lg="7">
-    //         {this.renderLicenseStatus()}
-    //         {this.renderFingerprintStatus()}
-    //         <EditLicense refresh={this.props.fetchLicensing} />
-    //       </Col>
-    //       <Col sm="12" lg="5">
-    //         <div className={style.info}>
-    //           <strong className={style.label}>{lang.tr('admin.license.status.friendlyName')}:</strong>
-    //           {this.license.label || 'N/A'}
-    //         </div>
-    //         <div className={style.info}>
-    //           <strong className={style.label}>{lang.tr('admin.license.status.renewDate')}:</strong>
-    //           {this.renewDate}
-    //         </div>
-    //         <div className={style.info}>
-    //           <strong className={style.label}>{lang.tr('admin.license.status.support')}:</strong>
-    //           {this.license.support}
-
-    //           <Tooltip content={lang.tr('admin.license.status.thisIsSupport')}>
-    //             <Icon icon="help" />
-    //           </Tooltip>
-    //         </div>
-    //         <div className={style.info}>
-    //           <strong className={style.label}>{lang.tr('admin.license.status.allowedNodes')}:</strong>
-    //           {this.license.limits && nodes + 1}
-    //         </div>
-    //         <hr />
-    //         {this.props.licensing && (
-    //           <div>
-    //             <h5>{lang.tr('admin.license.status.policies')}</h5>
-    //             <LicensePolicies license={this.license} breachs={this.props.licensing.breachReasons} />
-    //           </div>
-    //         )}
-    //       </Col>
-    //     </Row>
-    //   </PageContainer>
-    // )
   }
 
   render() {

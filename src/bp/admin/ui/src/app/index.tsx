@@ -1,5 +1,6 @@
 import { Alignment, Icon, Navbar } from '@blueprintjs/core'
 import { lang, TokenRefresher } from 'botpress/shared'
+import cx from 'classnames'
 import React, { FC, Fragment, useEffect } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { Link } from 'react-router-dom'
@@ -38,9 +39,9 @@ const App: FC<Props> = props => {
       <CommandPalette />
       <TokenRefresher getAxiosClient={() => api.getSecured()} />
 
-      <div className={style.wrapper}>
+      <div className={cx('bp-sa-wrapper', style.wrapper)}>
         <Menu />
-        <div className={style.content_wrapper}>
+        <div className={cx('bp-sa-content-wrapper', style.content_wrapper)}>
           {!isLicensed && <Unlicensed />}
           {props.children}
         </div>
@@ -52,12 +53,12 @@ const App: FC<Props> = props => {
 }
 
 const Header = () => (
-  <header className={style.header}>
+  <header className={cx('bp-header', style.header)}>
     <Navbar>
       <Navbar.Group>
         <Navbar.Heading>
           <a href="admin/">
-            <img src={logo} alt="logo" className={style.logo} />
+            <img src={logo} alt="logo" className={cx('bp-header__logo', style.logo)} />
           </a>
         </Navbar.Heading>
       </Navbar.Group>
@@ -72,7 +73,7 @@ const Header = () => (
 )
 
 const Footer = props => (
-  <footer className={style.statusBar}>
+  <footer className={cx('statusBar', style.statusBar)}>
     <div>{props.version}</div>
   </footer>
 )

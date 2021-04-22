@@ -17,7 +17,7 @@ interface Props {
 const PageContainer: FC<Props> = props => {
   return (
     <Fragment>
-      <div className={style.title}>
+      <div className={cx('bp-sa-title', style.title)}>
         <span>{props.title || ''}</span>
         {props.helpText && (
           <Tooltip content={props.helpText}>
@@ -25,8 +25,10 @@ const PageContainer: FC<Props> = props => {
           </Tooltip>
         )}
       </div>
-      <div className={style.overflow}>
-        <div className={cx(style.content, { [style.fullWidth]: props.fullWidth }, props.contentClassName)}>
+      <div className={cx('bp-sa-overflow', style.overflow)}>
+        <div
+          className={cx('bp-sa-content', style.content, { [style.fullWidth]: props.fullWidth }, props.contentClassName)}
+        >
           <AccessControl
             superAdmin={props.superAdmin}
             fallback={<Callout intent={Intent.DANGER}>{lang.tr('admin.pageRestrictedToAdmins')}</Callout>}

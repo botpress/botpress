@@ -110,7 +110,7 @@ class Alerts extends Component<Props, State> {
   }
 
   renderChild() {
-    if (this.props.incidents) {
+    if (!this.props.incidents) {
       return this.renderNoData()
     }
 

@@ -51,7 +51,7 @@ const Menu: FC<Props> = props => {
       <AccessControl resource={resource} operation={operation} superAdmin={superAdmin} key={text}>
         <div
           id={id}
-          className={cx(style.item, { [style.active]: active })}
+          className={cx('bp-sa-menu-item', style.item, { [style.active]: active, ['bp-sa-menu-item-active']: active })}
           onClick={() => props.history.push(generatePath(url, { workspaceId: workspaceId || undefined }))}
         >
           <Icon icon={icon} />
@@ -75,8 +75,8 @@ const Menu: FC<Props> = props => {
   }
 
   return (
-    <div className={style.menu}>
-      <div className={style.header}>{lang.tr('admin.sideMenu.workspace')}</div>
+    <div className={cx('bp-sa-menu', style.menu)}>
+      <div className={cx('bp-sa-menu-header', style.header)}>{lang.tr('admin.sideMenu.workspace')}</div>
       <ControlGroup vertical={true} fill={true}>
         <MenuItem
           id="btn-menu-bots"
@@ -118,7 +118,7 @@ const Menu: FC<Props> = props => {
 
       <AccessControl superAdmin={true}>
         <Fragment>
-          <div className={style.header}>{lang.tr('admin.sideMenu.management')}</div>
+          <div className={cx('bp-sa-menu-header', style.header)}>{lang.tr('admin.sideMenu.management')}</div>
           <ControlGroup vertical={true} fill={true}>
             <MenuItem
               id="btn-menu-version"
@@ -147,7 +147,7 @@ const Menu: FC<Props> = props => {
             />
           </ControlGroup>
 
-          <div className={style.header}>{lang.tr('admin.sideMenu.health')}</div>
+          <div className={cx('bp-sa-menu-header', style.header)}>{lang.tr('admin.sideMenu.health')}</div>
           <ControlGroup vertical={true} fill={true}>
             <MenuItem
               id="btn-menu-monitoring"
@@ -166,7 +166,7 @@ const Menu: FC<Props> = props => {
         </Fragment>
       </AccessControl>
 
-      <div className={style.header}>{lang.tr('admin.sideMenu.announcements')}</div>
+      <div className={cx('bp-sa-menu-header', style.header)}>{lang.tr('admin.sideMenu.announcements')}</div>
       <ControlGroup vertical={true} fill={true}>
         <MenuItem
           text={lang.tr('admin.sideMenu.latestReleases')}
