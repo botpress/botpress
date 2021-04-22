@@ -188,7 +188,7 @@ export class SlackClient {
     }
 
     const foreignId = await this.bp.experimental.conversations.forBot(this.botId).getForeignId('slack', event.threadId)
-    const [channelId, userId] = foreignId.split('-')
+    const [channelId, userId] = this.splitConvoKey(foreignId)
     const message = {
       text: event.payload.text,
       channel: channelId,
@@ -248,7 +248,7 @@ export class SlackClient {
 
     let convoId = await this.bp.experimental.conversations
       .forBot(this.botId)
-      .getLocalId('slack', `${channelId}-${userId}`)
+      .getLocalId('slack', this.getConvoKey(channelId, userId))
 
     if (!convoId) {
       const conversation = await this.bp.experimental.conversations.forBot(this.botId).create(userId)
@@ -256,10 +256,18 @@ export class SlackClient {
 
       await this.bp.experimental.conversations
         .forBot(this.botId)
-        .createMapping('slack', conversation.id, `${channelId}-${userId}`)
+        .createMapping('slack', conversation.id, this.getConvoKey(channelId, userId))
     }
 
     await this.bp.experimental.messages.forBot(this.botId).receive(convoId, payload, { channel: 'slack' })
+  }
+
+  private getConvoKey(channelId: string, userId: string) {
+    return `${channelId}-${userId}`
+  }
+
+  private splitConvoKey(convoKey: string) {
+    return convoKey.split('-')
   }
 }
 
