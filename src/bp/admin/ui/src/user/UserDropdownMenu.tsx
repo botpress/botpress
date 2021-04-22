@@ -17,6 +17,7 @@ import { AppState } from '~/app/rootReducer'
 import BasicAuthentication from '~/auth/basicAuth'
 import ChangeLanguage from '~/user/ChangeLanguage'
 import { fetchProfile } from './reducer'
+import style from './style.scss'
 import UpdatePassword from './UpdatePassword'
 import UserProfile from './UpdateUserProfile'
 
@@ -48,7 +49,7 @@ const UserDropdownMenu: FC<Props> = props => {
   const canChangePassword = strategyType === 'basic'
 
   const icon = picture_url ? (
-    <img src={picture_url} className="dropdown-picture" />
+    <img src={picture_url} className={style.dropdown_picture} />
   ) : (
     <Icon icon="user" color={Colors.WHITE} />
   )

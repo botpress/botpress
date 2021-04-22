@@ -1,0 +1,12 @@
+.workspaceButton {
+  color: white !important;
+  font-weight: 500;
+
+  &.bp3-disabled {
+    cursor: auto !important;
+  }
+
+  svg {
+    fill: white !important;
+  }
+}

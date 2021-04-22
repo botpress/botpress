@@ -1,4 +1,4 @@
-import { Button, Checkbox, Classes, Dialog, FileInput, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
+import { Button, Checkbox, Classes, Dialog, FileInput, FormGroup, InputGroup, Intent, Callout } from '@blueprintjs/core'
 import { lang, toast } from 'botpress/shared'
 import _ from 'lodash'
 import ms from 'ms'
@@ -160,10 +160,10 @@ class ImportBotModal extends Component<Props, State> {
             <FormGroup
               label={
                 <span>
-                  {lang.tr('admin.workspace.bots.create.id')}{' '}
                   {this.state.isIdTaken && (
-                    <span className="text-danger">{lang.tr('admin.workspace.bots.import.alreadyInUse')}</span>
+                    <Callout intent={Intent.DANGER}>{lang.tr('admin.workspace.bots.import.alreadyInUse')}</Callout>
                   )}
+                  {lang.tr('admin.workspace.bots.create.id')}{' '}
                 </span>
               }
               labelFor="input-botId"
@@ -198,7 +198,7 @@ class ImportBotModal extends Component<Props, State> {
             )}
           </div>
           <div className={Classes.DIALOG_FOOTER}>
-            {!!this.state.error && <p className="text-danger">{this.state.error}</p>}
+            {!!this.state.error && <Callout intent={Intent.DANGER}>{this.state.error}</Callout>}
             <div className={Classes.DIALOG_FOOTER_ACTIONS}>
               <Button
                 id="btn-upload"

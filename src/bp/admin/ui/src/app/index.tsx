@@ -2,7 +2,7 @@ import { Alignment, Icon, Navbar } from '@blueprintjs/core'
 import { lang, TokenRefresher } from 'botpress/shared'
 import React, { FC, Fragment, useEffect } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
-import { NavLink } from 'reactstrap'
+import { Link } from 'react-router-dom'
 
 import api from '~/app/api'
 import { fetchLicensing } from '~/management/licensing/reducer'
@@ -14,6 +14,7 @@ import EventBus from './EventBus'
 import logo from './media/logo_white.png'
 import Menu from './Menu'
 import { AppState } from './rootReducer'
+import style from './style.scss'
 import WorkspaceSelect from './WorkspaceSelect'
 
 type Props = ConnectedProps<typeof connector>
@@ -37,9 +38,9 @@ const App: FC<Props> = props => {
       <CommandPalette />
       <TokenRefresher getAxiosClient={() => api.getSecured()} />
 
-      <div className="bp-sa-wrapper">
+      <div className={style.wrapper}>
         <Menu />
-        <div className="bp-sa-content-wrapper">
+        <div className={style.content_wrapper}>
           {!isLicensed && <Unlicensed />}
           {props.children}
         </div>
@@ -51,12 +52,12 @@ const App: FC<Props> = props => {
 }
 
 const Header = () => (
-  <header className="bp-header">
+  <header className={style.header}>
     <Navbar>
       <Navbar.Group>
         <Navbar.Heading>
           <a href="admin/">
-            <img src={logo} alt="logo" className="bp-header__logo" />
+            <img src={logo} alt="logo" className={style.logo} />
           </a>
         </Navbar.Heading>
       </Navbar.Group>
@@ -71,17 +72,17 @@ const Header = () => (
 )
 
 const Footer = props => (
-  <footer className="statusBar">
-    <div className="statusBar-item">{props.version}</div>
+  <footer className={style.statusBar}>
+    <div>{props.version}</div>
   </footer>
 )
 
 const Unlicensed = () => (
-  <div className="bp-header__warning">
-    <NavLink href="/admin/server/license">
+  <div className={style.unlicensed}>
+    <Link to="/server/license">
       <Icon icon="warning-sign" />
       {lang.tr('admin.botpressIsNotLicensed')}
-    </NavLink>
+    </Link>
   </div>
 )
 

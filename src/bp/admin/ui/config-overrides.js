@@ -26,9 +26,11 @@ module.exports = function override(config, env) {
         {
           loader: 'css-loader',
           options: {
-            modules: true,
+            modules: {
+              localIdentName: '[name]__[local]___[hash:base64:5]'
+            },
             url: false,
-            importLoaders: 2
+            importLoaders: 1
           }
         },
         {

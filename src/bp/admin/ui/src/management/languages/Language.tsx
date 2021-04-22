@@ -3,7 +3,7 @@ import { confirmDialog, lang } from 'botpress/shared'
 import React, { FC, SFC, useState } from 'react'
 
 import api from '~/app/api'
-
+import style from './style.scss'
 import { LanguageSource } from './typings'
 
 interface Props {
@@ -76,14 +76,14 @@ const Language: FC<Props> = props => {
   }
 
   return (
-    <div className="language">
+    <div className={style.language}>
       <div>
-        <div className="flag">
+        <div className={style.flag}>
           <img src={requireFlag(props.language.code)} alt={props.language.code} />
         </div>
         <span>{props.language.name}</span>
       </div>
-      <div className="action">
+      <div className={style.action}>
         {props.downloadProgress && (
           <DownloadProgress current={props.downloadProgress.progress.size} total={props.language.size!} />
         )}
