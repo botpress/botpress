@@ -114,7 +114,7 @@ bash -c "./duckling & ./bp"
 
 **Offline Server**: Follow the Offline Server [instructions](#offline-servers) if you're running a server without Internet access.
 
-### Restarting Botpess
+### Restarting Botpress
 
 You can restart the server from Botpress UI. To achieve this, edit the `botpress.config.json` file from within The Code Editor module (located in the left sidebar). Botpress listens for changes to this config file.
 
