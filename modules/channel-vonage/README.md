@@ -29,7 +29,7 @@ Vonage requires you to have an Application to setup your bot.
   - `signatureSecret`: You will find this value in your [Account Settings](https://dashboard.nexmo.com/settings).
   - `applicationId`: You will find this value when selecting your newly created application (https://dashboard.nexmo.com/applications/).
   - `privateKey`: The content of the `private.key` file that was generated when you created your Vonage Application. **_Note: You must replace all line breaks with the character `\n`_**.
-  - `botPhoneNumber`: The phone number linked with your Vonage Application. (https://dashboard.nexmo.com/applications).
+  - `botPhoneNumber`: The phone number linked with your Vonage Application. (https://dashboard.nexmo.com/applications). **_Note: Make sure to omit the '+'. E.g. +1 456 123 4567 should be: 14561234567_**
   - `useTestingApi (optional)`: Set to `true` if you want to use the _Sandbox_ instead of the _Live_ version of Vonage API (see [Setup a Messages Sandbox](#Setup%20a%20Messages%20Sandbox)).
 - Make sure you have an HTTPS url pointing to your Botpress Server and set the [`EXTERNAL_URL`](https://botpress.com/docs/manage/configuration#exposing-your-bot-on-the-internet) environment variable
 - Restart Botpress Server to reload the configuration
