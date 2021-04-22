@@ -83,9 +83,11 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
       bp,
       event,
       client,
-      args: { keyboardButtons, chatId },
       handlers: [],
-      messages: []
+      payload: _.cloneDeep(event.payload),
+      messages: [],
+      chatId,
+      keyboardButtons
     }
 
     for (const renderer of renderers) {
@@ -98,8 +100,6 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
     for (const sender of senders) {
       if (await sender.handles(context)) {
         await sender.send(context)
-        // context.handlers.push(sender.getId())
-        // handled = true
       }
     }
 

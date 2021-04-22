@@ -17,14 +17,12 @@ export class TelegramChoicesRenderer implements sdk.ChannelRenderer<TelegramCont
   }
 
   async handles(context: TelegramContext): Promise<boolean> {
-    return context.event.payload.choices && context.messages.length >= 1
+    return context.payload.choices && context.messages.length >= 1
   }
 
   async render(context: TelegramContext): Promise<void> {
-    const { event, args } = context
     const message = context.messages[0]
-
-    const keyboard = Markup.keyboard(args.keyboardButtons<Button>(event.payload.choices))
+    const keyboard = Markup.keyboard(context.keyboardButtons<Button>(context.payload.choices))
     message.extra = Extra.markdown(false).markup({ ...keyboard, one_time_keyboard: true })
   }
 }

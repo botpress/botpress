@@ -15,18 +15,17 @@ export class TelegramImageRenderer implements sdk.ChannelRenderer<TelegramContex
   }
 
   async handles(context: TelegramContext): Promise<boolean> {
-    return context.event.payload.type === 'image'
+    return context.payload.type === 'image'
   }
 
   async render(context: TelegramContext): Promise<void> {
-    const { messages, args } = context
-    const { chatId } = args
-    const payload = context.event.payload as sdk.ImageContent
+    const { messages } = context
+    const payload = context.payload as sdk.ImageContent
 
     if (payload.image.toLowerCase().endsWith('.gif')) {
-      messages.push({ chatId, animation: payload.image })
+      messages.push({ animation: payload.image })
     } else {
-      messages.push({ chatId, photo: payload.image })
+      messages.push({ photo: payload.image })
     }
   }
 }

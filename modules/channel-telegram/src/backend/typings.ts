@@ -6,18 +6,13 @@ export interface Clients {
   [key: string]: Telegraf<ContextMessageUpdate>
 }
 
-export interface TelegramContextArgs {
+export type TelegramContext = sdk.ChannelContext<Telegraf<ContextMessageUpdate>> & {
   keyboardButtons<T>(arr: any[] | undefined): T[] | undefined
   chatId: string
-}
-
-export type TelegramContext = sdk.ChannelContext<Telegraf<ContextMessageUpdate>, TelegramContextArgs> & {
-  handlers: string[]
   messages: TelegramMessage[]
 }
 
 export interface TelegramMessage {
-  chatId: string
   text?: string
   animation?: string
   photo?: InputFile

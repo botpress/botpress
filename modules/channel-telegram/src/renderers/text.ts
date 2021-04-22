@@ -15,14 +15,12 @@ export class TelegramTextRenderer implements sdk.ChannelRenderer<TelegramContext
   }
 
   async handles(context: TelegramContext): Promise<boolean> {
-    return context.event.payload.text
+    return context.payload.text
   }
 
   async render(context: TelegramContext): Promise<void> {
-    const { event, args, messages } = context
-    const { chatId } = args
-    const payload = event.payload as sdk.TextContent
+    const payload = context.payload as sdk.TextContent
 
-    messages.push({ chatId, text: payload.text as string, markdown: payload.markdown })
+    context.messages.push({ text: payload.text as string, markdown: payload.markdown })
   }
 }
