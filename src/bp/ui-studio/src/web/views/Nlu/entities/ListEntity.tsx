@@ -1,7 +1,6 @@
 import { Button, Colors, FormGroup, Icon, InputGroup, Position, Radio, RadioGroup, Tooltip } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
-import { lang, utils } from 'botpress/shared'
-import { toastFailure } from 'botpress/utils'
+import { lang, toast, utils } from 'botpress/shared'
 import _ from 'lodash'
 import React, { useEffect, useState, useReducer } from 'react'
 
@@ -80,7 +79,7 @@ export const ListEntityEditor: React.FC<Props> = props => {
       return
     }
     if (!isUniqueInEntity(newOccurrence)) {
-      toastFailure('Occurence duplication within the same entity not allowed')
+      toast.failure('Occurence duplication within the same entity not allowed')
       return
     }
 
@@ -99,7 +98,7 @@ export const ListEntityEditor: React.FC<Props> = props => {
     if (synonymAdded()) {
       const newSynonym = _.last(occurrence.synonyms)
       if (!isUniqueInEntity(newSynonym)) {
-        return toastFailure('Synonym duplication within the same entity not allowed')
+        return toast.failure('Synonym duplication within the same entity not allowed')
       }
     }
 
@@ -132,12 +131,12 @@ export const ListEntityEditor: React.FC<Props> = props => {
           label={
             <span>
               <Tooltip
-                content={lang.tr('module.nlu.entities.occurrenceTooltip')}
+                content={lang.tr('nlu.entities.occurrenceTooltip')}
                 position={Position.LEFT}
                 popoverClassName={style.configPopover}
               >
                 <span>
-                  {lang.tr('module.nlu.entities.newOccurrence')}&nbsp;
+                  {lang.tr('nlu.entities.newOccurrence')}&nbsp;
                   <Icon icon="help" color={Colors.GRAY3} />
                 </span>
               </Tooltip>
@@ -149,14 +148,14 @@ export const ListEntityEditor: React.FC<Props> = props => {
             rightElement={<Button icon="add" minimal onClick={addOccurrence} disabled={isNewOccurrenceEmpty()} />}
             type="text"
             id="occurrence"
-            placeholder={lang.tr('module.nlu.entities.occurrencePlaceholder')}
+            placeholder={lang.tr('nlu.entities.occurrencePlaceholder')}
             value={newOccurrence}
             onKeyDown={e => e.keyCode === 13 && addOccurrence()}
             onChange={e => setNewOccurrence(e.target.value)}
           />
         </FormGroup>
         {state.occurrences.length > 0 && (
-          <FormGroup label={lang.tr('module.nlu.entities.occurrenceLabel')}>
+          <FormGroup label={lang.tr('nlu.entities.occurrenceLabel')}>
             <div className={style.occurrencesList}>
               {state.occurrences.map((o, i) => (
                 <Occurrence
@@ -174,21 +173,21 @@ export const ListEntityEditor: React.FC<Props> = props => {
         <FormGroup
           label={
             <Tooltip
-              content={lang.tr('module.nlu.entities.fuzzyTooltip')}
+              content={lang.tr('nlu.entities.fuzzyTooltip')}
               position={Position.LEFT}
               popoverClassName={style.configPopover}
             >
               <span>
-                {lang.tr('module.nlu.entities.fuzzyLabel')}&nbsp;
+                {lang.tr('nlu.entities.fuzzyLabel')}&nbsp;
                 <Icon icon="help" color={Colors.GRAY3} />
               </span>
             </Tooltip>
           }
         />
         <RadioGroup onChange={handleFuzzyChange} selectedValue={state.fuzzy} inline>
-          <Radio label={lang.tr('module.nlu.entities.strict')} value={FuzzyTolerance.Strict} />
-          <Radio label={lang.tr('module.nlu.entities.medium')} value={FuzzyTolerance.Medium} />
-          <Radio label={lang.tr('module.nlu.entities.loose')} value={FuzzyTolerance.Loose} />
+          <Radio label={lang.tr('nlu.entities.strict')} value={FuzzyTolerance.Strict} />
+          <Radio label={lang.tr('nlu.entities.medium')} value={FuzzyTolerance.Medium} />
+          <Radio label={lang.tr('nlu.entities.loose')} value={FuzzyTolerance.Loose} />
         </RadioGroup>
       </div>
     </div>

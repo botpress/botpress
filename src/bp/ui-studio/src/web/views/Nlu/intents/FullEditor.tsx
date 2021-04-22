@@ -1,11 +1,10 @@
-import { AxiosInstance } from 'axios'
 import { NLU } from 'botpress/sdk'
 import { utils } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect, useRef, useState } from 'react'
 
-import { NLUApi } from '../../../api'
+import { NluClient } from '../client'
 
 import { ContextSelector } from './ContextSelector'
 import IntentHint from './IntentHint'
@@ -16,7 +15,7 @@ import { UtterancesEditor } from './UtterancesEditor'
 
 interface Props {
   intent: string
-  api: NLUApi
+  api: NluClient
   contentLang: string
   showSlotPanel?: boolean
   liteEditor?: boolean

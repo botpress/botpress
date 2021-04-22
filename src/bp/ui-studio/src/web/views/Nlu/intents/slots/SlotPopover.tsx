@@ -33,14 +33,14 @@ export const TagSlotPopover = (props: Props) => {
     <div id="slot-menu" className={style['slotMenu']} style={{ top, left, width: MENU_WIDTH }}>
       {props.slots.length === 0 && (
         <React.Fragment>
-          <p>{lang.tr('module.nlu.slots.noSlotsToTag')}</p>
+          <p>{lang.tr('nlu.slots.noSlotsToTag')}</p>
         </React.Fragment>
       )}
 
       {props.slots.length > 0 && (
         <React.Fragment>
-          <p>{lang.tr('module.nlu.slots.tagSelectionLabel')}</p>
-          <p>{lang.tr('module.nlu.slots.tagSelectionMessage')}</p>
+          <p>{lang.tr('nlu.slots.tagSelectionLabel')}</p>
+          <p>{lang.tr('nlu.slots.tagSelectionMessage')}</p>
           <div>
             {props.slots.map((s, idx) => (
               <Tag

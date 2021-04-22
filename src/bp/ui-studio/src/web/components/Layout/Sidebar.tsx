@@ -17,20 +17,30 @@ type Props = StateProps & RouteComponentProps
 
 const BASIC_MENU_ITEMS = [
   {
+    id: 'content',
     name: lang.tr('content'),
     path: '/content',
     rule: { res: 'bot.content', op: 'read' },
     icon: 'description'
   },
   {
+    id: 'flows',
     name: lang.tr('flows'),
     path: '/flows',
     rule: { res: 'bot.flows', op: 'read' },
     icon: 'page-layout'
+  },
+  {
+    id: 'nlu',
+    name: lang.tr('studio.sideBar.nlu'),
+    path: '/nlu',
+    rule: { res: 'bot.nlu', op: 'read' },
+    icon: 'translate'
   }
 ]
 
 const configItem = {
+  id: 'configuration',
   name: lang.tr('configuration'),
   path: '/config',
   rule: { res: 'admin.bots.*', op: 'write' },
@@ -74,9 +84,9 @@ const Sidebar: FC<Props> = props => {
     )
   }
 
-  const renderBasicItem = ({ name, path, rule, icon }) => (
-    <AccessControl resource={rule.res} operation={rule.op} key={name}>
-      <li id={`bp-menu_${name}`} key={path}>
+  const renderBasicItem = ({ id, name, path, rule, icon }) => (
+    <AccessControl resource={rule.res} operation={rule.op} key={id}>
+      <li id={`bp-menu_${id}`} key={path}>
         <Tooltip boundary="window" position={Position.RIGHT} content={name}>
           <NavLink to={path} title={name} activeClassName={style.active}>
             {IconSvgPaths16[icon] ? <Icon icon={icon} iconSize={16} /> : <i className="icon material-icons">{icon}</i>}

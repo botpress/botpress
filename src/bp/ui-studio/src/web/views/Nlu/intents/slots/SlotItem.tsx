@@ -18,7 +18,7 @@ export default class SlotItem extends React.Component<Props, State> {
     e.preventDefault()
 
     if (
-      await confirmDialog(lang.tr('module.nlu.slots.deleteMessage'), {
+      await confirmDialog(lang.tr('nlu.slots.deleteMessage'), {
         acceptLabel: lang.tr('delete')
       })
     ) {
