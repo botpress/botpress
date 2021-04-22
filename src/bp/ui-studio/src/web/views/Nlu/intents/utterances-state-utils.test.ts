@@ -54,6 +54,7 @@
 // }
 
 describe.skip('Slate nodes from utterance', () => {
+  test('Nothing', () => {})
   // test('No slots', () => {
   //   const nodes = textNodesFromUtterance('My name is')
   //   expect(nodes.length).toEqual(1)
