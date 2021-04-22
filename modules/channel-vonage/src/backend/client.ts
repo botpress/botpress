@@ -7,7 +7,14 @@ import jwt from 'jsonwebtoken'
 
 import { Config } from '../config'
 
-import { Clients, MessageOption, SignedJWTPayload, VonageChannelContent, VonageRequestBody } from './typings'
+import {
+  Clients,
+  MessageApiError,
+  MessageOption,
+  SignedJWTPayload,
+  VonageChannelContent,
+  VonageRequestBody
+} from './typings'
 
 const debug = DEBUG('channel-vonage')
 const debugIncoming = debug.sub('incoming')
@@ -108,7 +115,7 @@ export class VonageClient {
         break
       case 'audio':
         const audio = body.message.content.audio.url
-        payload = { type: 'voice', audio }
+        payload = { type: 'audio', audio }
         break
       default:
         payload = {}
@@ -326,8 +333,14 @@ export class VonageClient {
         (err, data) => {
           if (err) {
             // fixes typings
-            err = (err as any).body as MessageSendError
-            this.logger.error(`${err.title}: ${err.detail} ${err.type}`)
+            const errBody: MessageApiError = (err as any).body
+            let reasons: string = ''
+            if (errBody.invalid_parameters) {
+              for (const param of errBody.invalid_parameters) {
+                reasons += `${param.reason}: ${param.name}; `
+              }
+            }
+            this.logger.error(`${errBody.title}: ${errBody.detail} ${reasons}${errBody.type}`)
           } else {
             resolve(data)
           }
