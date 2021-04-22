@@ -1,4 +1,4 @@
-utterance,context,conditions,status,date: 3/23/2021,summary: 61.8,nlu seed: undefined
+utterance,context,conditions,status,date: 4/14/2021,summary: 57.3,nlu seed: undefined
 A MP34 I WHAT I WISH FOR LOL,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,MP34",pass
 I wanto by a AKP447,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,AKP447",fail
 I wish to get my hands on a Ak-47,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,Ak-47",pass
@@ -41,7 +41,7 @@ I'm going banana about eating this orange in the big apple tonight,no-slot,"-int
 I'm going banana about eating this chile pepper in the big apple tonight,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,chile pepper",pass
 about to eat my lemon at the big apple right now,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,lemon",pass
 I want a flight which leaves Prague and land in Tataouine,1-entity,"-intent,is,book-flight-slot:to_city,is,Tataouine-slot:from_city,is,Prague",pass
-Sofia to Tokyo,1-entity,"-intent,is,book-flight-slot:to_city,is,Tokyo-slot:from_city,is,Sofia",pass
+Sofia to Tokyo,1-entity,"-intent,is,book-flight-slot:to_city,is,Tokyo-slot:from_city,is,Sofia",fail
 flight to Tokyo,1-entity,"-intent,is,book-flight-slot:to_city,is,Tokyo",pass
 flight from Vaduz,1-entity,"-intent,is,book-flight-slot:from_city,is,Vaduz",pass
 register a flight to Stockholm leaving Tripolis,1-entity,"-intent,is,book-flight-slot:to_city,is,Stockholm-slot:from_city,is,Tripolis",pass
@@ -53,13 +53,13 @@ fire melons in new-york,multi-slot-multi-entity,"-intent,is,fire-something-slot:
 let's go fire melons in montreal,multi-slot-multi-entity,"-intent,is,fire-something-slot:thing_to_fire,is,melons-slot:time_or_place,is,montreal",fail
 fire employe #426661,multi-entity,"-intent,is,fire-employe-slot:employe_to_fire,is,426661",pass
 "Jean-Bernard, you're fired!",multi-entity,"-intent,is,fire-employe-slot:employe_to_fire,is,Jean-Bernard",fail
-fire employe from email: jean-bernard@botpress.com,multi-entity,"-intent,is,fire-employe-slot:employe_to_fire,is,jean-bernard@botpress.com",pass
+fire employe from email: jean-bernard@botpress.com,multi-entity,"-intent,is,fire-employe-slot:employe_to_fire,is,jean-bernard@botpress.com",fail
 get rid of JB right now,multi-entity,"-intent,is,fire-employe-slot:employe_to_fire,is,JB",fail
 fire employe Sylvain next monday,multi-entity,"-intent,is,fire-employe-slot:employe_to_fire,is,Sylvain",fail
 Can I take vacations the 3rd of june for approximately five weeks ?,built-in,"-intent,is,ask_holidays-slot:holiday_start,is,3rd of june-slot:holiday_duration,is,approximately five weeks",fail
 Can I take vacations the 3 of june for about five weeks ?,built-in,"-intent,is,ask_holidays-slot:holiday_start,is,3rd of june-slot:holiday_duration,is,five weeks",fail
 I want to take my weekend next week,built-in,"-intent,is,ask_holidays-slot:holiday_start,is,next week-slot:holiday_duration,is,weekend",fail
-Can I take a week on the 8 of may ? ,built-in,"-intent,is,ask_holidays-slot:holiday_start,is,8 of may-slot:holiday_duration,is,a week",pass
+Can I take a week on the 8 of may ? ,built-in,"-intent,is,ask_holidays-slot:holiday_start,is,8 of may-slot:holiday_duration,is,a week",fail
 Can I take vacations the 3 of june for five weeks ?,built-in,"-intent,is,ask_holidays-slot:holiday_start,is,3 of june-slot:holiday_duration,is,five weeks",pass
 Can I take vacations the 3rd of june for five weeks ?,built-in,"-intent,is,ask_holidays-slot:holiday_start,is,3rd of june-slot:holiday_duration,is,five weeks",pass
 I would like to take 4 days after new year eve,built-in,"-intent,is,ask_holidays-slot:holiday_duration,is,4 days-slot:holiday_start,is,new year eve",pass
@@ -80,7 +80,7 @@ fly from montreal to quebc,1-entity,"-intent,is,book-flight-slot:from_city,is,mo
 I want informations about the TK-89 flight to montrael,2-entities,"-intent,is,flight-info-slot:arrival-city,is,montrael-slot:flight-number,is,TK-89",fail
 I want informations about the TK-69 flight tomontreal,2-entities,"-intent,is,flight-info-slot:arrival-city,is,montreal-slot:flight-number,is,TK-69",fail
 PLEASE GIVE ME AN AK-47,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,AK-47",pass
-I WANT A g36 RIGHT NOW,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,g36",pass
+I WANT A g36 RIGHT NOW,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,g36",fail
 Bring a WD-40 on my trip to tokyo HG-45,2-entities-close,"-intent,is,flight-gun-slot:flight,is,HG-45-slot:gun,is,WD-40",fail
 I want to carry my PP-90 on my air canada RE-9856 flight ,2-entities-close,"-intent,is,flight-gun-slot:flight,is,RE-9856-slot:gun,is,PP-90",fail
 I want to carry my PP-90 on my air canada PP-90 flight ,2-entities-close,"-intent,is,flight-gun-slot:gun,is,PP-90-slot:flight,is, PP-90",fail
