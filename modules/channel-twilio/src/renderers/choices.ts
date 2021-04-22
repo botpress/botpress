@@ -25,6 +25,6 @@ export class TwilioChoicesRenderer implements sdk.ChannelRenderer<TwilioContext>
       .map(({ title }, idx) => `${idx + 1}. ${title}`)
       .join('\n')}`
 
-    context.args.prepareIndexResponse(context.event, context.payload.choices)
+    context.prepareIndexResponse(context.event, context.payload.choices)
   }
 }

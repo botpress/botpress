@@ -22,7 +22,7 @@ export class TwilioCommonSender implements sdk.ChannelSender<TwilioContext> {
     for (const message of context.messages) {
       await context.client.messages.create({
         ...message,
-        from: context.args.botPhoneNumber,
+        from: context.botPhoneNumber,
         to: context.event.target
       })
     }

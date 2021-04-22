@@ -4,7 +4,7 @@
  * this SDK (Yes, all those beautiful features!) to kick start your development. Missing something important?
  * Please let us know in our official Github Repo!
  */
- declare module 'botpress/sdk' {
+declare module 'botpress/sdk' {
   import { NextFunction, Request, Response, Router } from 'express'
   import Knex from 'knex'
   export interface KnexExtension {
@@ -2673,15 +2673,15 @@
        * @example
        * bp.render.choice("Yes or no?", bp.render.option('yes'), bp.render.option('no'))
        */
-      export function choice(message: string | MultiLangText, ...choices: ChoiceOption[]): ChoiceContent
+      export function choice(text: string | MultiLangText, ...choices: ChoiceOption[]): ChoiceContent
 
       /**
        * Renders an option for a choice element
        * @param value Value associated with the option
-       * @param message Text to shown to the user (has no impact on the processing).
+       * @param title Text to shown to the user (has no impact on the processing).
        * If not provided the value will be shown by default
        */
-      export function option(value: string, message?: string): ChoiceOption
+      export function option(value: string, title?: string): ChoiceOption
 
       /**
        * Translates a content element to a specific language
