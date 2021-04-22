@@ -109,10 +109,11 @@ export class TwilioClient {
       bp: this.bp,
       event,
       client: this.twilio,
-      args: { prepareIndexResponse: this.prepareIndexResponse.bind(this), botPhoneNumber },
       handlers: [],
+      payload: _.cloneDeep(event.payload),
       messages: [],
-      payload: _.cloneDeep(event.payload)
+      botPhoneNumber,
+      prepareIndexResponse: this.prepareIndexResponse.bind(this)
     }
 
     for (const renderer of renderers) {
