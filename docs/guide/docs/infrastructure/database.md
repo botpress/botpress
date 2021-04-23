@@ -27,7 +27,7 @@ You can also set the PostgreSQL Schema Search Path for every database connection
 
 - `DATABASE_PG_SEARCH_PATH=mySchema`
 
-This will be the equivalent of using the following SQL statement `SET search_path to mySchema`. This feature requires you to create the schema prior to setting it. More oever, although it's not recommended, you can set multiple search path using a comma sperated value syntax as you would do using the sql statement. Use multiple search path only if you know what you're doing. The default search path
+This will be the equivalent of using the following SQL statement `SET search_path to mySchema`. This feature requires you to create the schema prior to setting it. Moreover, although it's not recommended, you can set multiple schemas in your search path using a comma separated value syntax as you would do using the SQL statement. Use multiple schemas only if you know what you're doing. The default search path
 
 If you don't want to type these variables each time you start Botpress, we also support `.env` files. Check out our [configuration section](../advanced/configuration) for more information.
 
