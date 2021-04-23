@@ -1,5 +1,5 @@
 ---
-id: Docker
+id: docker
 title: Deploying with Docker
 ---
 
@@ -8,6 +8,7 @@ Docker is a set of platform-as-a-service products that use OS-level virtualizati
 > For an optimized Docker experience, download [Docker Desktop.](https://www.docker.com/products/docker-desktop)
 
 ## Using Remote Duckling & Language Server
+
 This command will run Botpress within a single container and use the remote Duckling and Language Server hosted by us. You can get the latest `stable` or `nightly` versions on [DockerHub](https://hub.docker.com/r/botpress/server/tags).
 
 > You should **never** use `nightly` versions in production because they are unstable.
@@ -19,6 +20,7 @@ docker run -d \
 -v botpress_data:/botpress/data \
 botpress/server:$TAG
 ```
+
 For instance, you can run an installation as follows:
 
 ```bash
@@ -57,7 +59,8 @@ Digest: sha256:798b0fe332c5bb1b707eb62b30c8ed0a4e0609b3c712ee7201c5a7da7be50b7f
 Status: Downloaded newer image for botpress/server:v12_18_2
 bf038c6f84aaeec11773b93a9748bc6732d573a1c115523f1a3d28d20dc06cbe
 ```
-You will be able to access your instance of Botpress on the specified mapped port `-p 3000:3000` by visiting  http://localhost:3000/, and your container name will be myBotpress as set at `--name myBotpress`. Your Docker Desktop will reflect the new container as below:
+
+You will be able to access your instance of Botpress on the specified mapped port `-p 3000:3000` by visiting http://localhost:3000/, and your container name will be myBotpress as set at `--name myBotpress`. Your Docker Desktop will reflect the new container as below:
 
 ![Botpress Container on Docker](../assets/docker-new-instance.png)
 
@@ -76,7 +79,7 @@ docker run -d \
 --name bp \
 -p 3000:3000 -p 3100:3100 \
 -v botpress_data:/botpress/data \
--e BP_MODULE_NLU_DUCKLINGURL='[{"endpoint": "http://localhost:8000" }]' \
+-e BP_MODULE_NLU_DUCKLINGURL=http://localhost:8000 \
 -e BP_MODULE_NLU_LANGUAGESOURCES='[{ "endpoint": "http://localhost:3100" }]' \
 botpress/server:$TAG \
 bash -c "./duckling & ./bp lang --langDir /botpress/data/embeddings & ./bp"
@@ -85,6 +88,7 @@ bash -c "./duckling & ./bp lang --langDir /botpress/data/embeddings & ./bp"
 **Offline Server**: Follow the Offline Server [instructions](#offline-servers) if you're running a server without Internet access.
 
 ### Running Multiple Containers
+
 1. Run the Language Server.
 
 ```bash
@@ -110,7 +114,8 @@ bash -c "./duckling & ./bp"
 
 **Offline Server**: Follow the Offline Server [instructions](#offline-servers) if you're running a server without Internet access.
 
-### Restarting Botpess 
+### Restarting Botpress
+
 You can restart the server from Botpress UI. To achieve this, edit the `botpress.config.json` file from within The Code Editor module (located in the left sidebar). Botpress listens for changes to this config file.
 
 ![Restarting Botpress on Docker](../assets/docker-restart.png)
