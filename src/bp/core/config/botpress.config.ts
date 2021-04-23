@@ -276,12 +276,12 @@ export interface BotpressConfig {
   fileUpload: {
     /**
      * Maximum file size for media files upload (in mb)
-     * @default 10mb
+     * @default 25mb
      */
     maxFileSize: string
     /**
      * The list of allowed extensions for media file uploads
-     * @default ["image/jpeg","image/png","image/gif"]
+     * @default ["image/jpeg","image/png","image/gif","audio/mpeg","video/mp4"]
      */
     allowedMimeTypes: string[]
   }
