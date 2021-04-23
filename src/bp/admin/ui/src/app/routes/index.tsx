@@ -28,6 +28,7 @@ import Logs from '~/workspace/logs'
 import Roles from '~/workspace/roles'
 import Workspaces from '~/workspace/workspaces'
 
+import { AppLoader } from '../InjectedModuleView/AppLoader'
 import { extractCookie } from './cookies'
 import PrivateRoute from './PrivateRoute'
 
@@ -103,6 +104,7 @@ export const makeMainRoutes = () => {
               <Route path="/workspace/:workspaceId?/roles" component={Roles} />
               <Route path="/workspace/:workspaceId?/logs" component={Logs} />
               <Route path="/workspaces" component={Workspaces} />
+              <Route path="/apps/:appName/:botId" component={AppLoader} />
               <Route path="/debug" component={Debug} />
               <Route path="/modules" component={Modules} />
               <Route path="/" render={() => <Redirect from="/" to={`/workspace/${getActiveWorkspace()}/bots`} />} />

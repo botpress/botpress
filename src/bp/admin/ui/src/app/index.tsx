@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom'
 
 import api from '~/app/api'
 import { fetchLicensing } from '~/management/licensing/reducer'
+import { fetchLoadedModules, loadModulesTranslations } from '~/management/modules/reducer'
 import { fetchProfile } from '~/user/reducer'
 import UserDropdownMenu from '~/user/UserDropdownMenu'
 
@@ -24,6 +25,8 @@ const App: FC<Props> = props => {
   useEffect(() => {
     props.fetchLicensing()
     props.fetchProfile()
+    props.fetchLoadedModules()
+    props.loadModulesTranslations()
     EventBus.default.setup()
   }, [])
 
@@ -92,5 +95,10 @@ const mapStateToProps = (state: AppState) => ({
   licensing: state.licensing.license
 })
 
-const connector = connect(mapStateToProps, { fetchLicensing, fetchProfile })
+const connector = connect(mapStateToProps, {
+  fetchLicensing,
+  fetchProfile,
+  fetchLoadedModules,
+  loadModulesTranslations
+})
 export default connector(App)

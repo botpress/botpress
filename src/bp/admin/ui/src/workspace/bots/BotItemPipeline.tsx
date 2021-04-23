@@ -11,7 +11,7 @@ import {
   Tag,
   Tooltip
 } from '@blueprintjs/core'
-import { BotConfig } from 'botpress/sdk'
+import { BotConfig, ModuleDefinition } from 'botpress/sdk'
 import { lang, toast } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment } from 'react'
@@ -37,7 +37,7 @@ interface Props {
   allowStageChange?: boolean
   reloadBot?: () => void
   viewLogs?: () => void
-  nluModuleEnabled: boolean | undefined
+  loadedModules: ModuleDefinition[]
 }
 
 const BotItemPipeline: FC<Props> = ({
@@ -55,10 +55,11 @@ const BotItemPipeline: FC<Props> = ({
   rollback,
   reloadBot,
   viewLogs,
-  nluModuleEnabled
+  loadedModules
 }) => {
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
+  const nluModuleEnabled = !!loadedModules.find(m => m.name === 'nlu')
   const requiresApproval =
     isApprover &&
     bot.pipeline_status.stage_request &&
@@ -82,6 +83,18 @@ const BotItemPipeline: FC<Props> = ({
                   />
                 </Fragment>
               )}
+
+              {loadedModules
+                .filter(x => x.workspaceApp)
+                .map(m => (
+                  <MenuItem
+                    id={`btn-menu-${m.name}`}
+                    text={m.menuText}
+                    icon={m.menuIcon as any}
+                    onClick={() => history.push(`/apps/${m.name}/${bot.id}`)}
+                    resource={`module.${m.name}`}
+                  />
+                ))}
 
               <CopyToClipboard
                 text={botShortLink}

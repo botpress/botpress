@@ -1,4 +1,5 @@
 import { ModuleDefinition } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import { ModuleInfo } from 'common/typings'
 
 import api from '~/app/api'
@@ -44,7 +45,16 @@ export const fetchModules = (): AppThunk => {
 
 export const fetchLoadedModules = (): AppThunk => {
   return async dispatch => {
-    const { data } = await api.getSecured().get('/modules')
+    const { data } = await api.getSecured({ useV1: true }).get('/modules')
     dispatch({ type: FETCH_LOADED_MODULES_RECEIVED, modules: data })
+  }
+}
+
+export const loadModulesTranslations = (): AppThunk => {
+  return async () => {
+    const { data } = await api.getSecured({ useV1: true }).get('/modules/translations')
+
+    lang.extend(data)
+    lang.init()
   }
 }

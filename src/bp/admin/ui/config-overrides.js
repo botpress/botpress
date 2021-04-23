@@ -57,6 +57,13 @@ module.exports = function override(config, env) {
         exposes: ['ReactDOM']
       }
     },
+    {
+      test: require.resolve('ui-shared'),
+      loader: 'expose-loader',
+      options: {
+        exposes: ['BotpressShared']
+      }
+    },
     ...config.module.rules
   ]
 
