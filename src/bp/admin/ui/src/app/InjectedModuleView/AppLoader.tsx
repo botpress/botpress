@@ -17,7 +17,9 @@ export const AppLoader = props => {
         <span>{botId}</span>
       </div>
 
-      <InjectedModuleView moduleName={appName} extraProps={{ botId, contentLang: 'en' }} />
+      <div className={style.componentWrapper}>
+        <InjectedModuleView moduleName={appName} extraProps={{ botId, contentLang: 'en' }} />
+      </div>
     </div>
   )
 }
