@@ -13,9 +13,9 @@ import {
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
+import cx from 'classnames'
 import React, { FC } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-
 import AccessControl, { isChatUser } from '~/auth/AccessControl'
 
 import { NeedsTrainingWarning } from './NeedsTrainingWarning'
@@ -48,8 +48,8 @@ const BotItemCompact: FC<Props> = ({
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
 
   return (
-    <div className={style.tableRow} key={bot.id}>
-      <div className={style.actions}>
+    <div className={cx('bp_table-row', style.tableRow)} key={bot.id}>
+      <div className={cx('actions', style.actions)}>
         {hasError && (
           <AnchorButton text={lang.tr('admin.workspace.bots.item.reload')} icon="refresh" onClick={reloadBot} minimal />
         )}
