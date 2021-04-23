@@ -16,16 +16,35 @@
       "default": "your private key here",
       "type": "string"
     },
+    "languageMapping": {
+      "default": {
+        "ar": "ar-AE",
+        "nl": "nl-NL",
+        "en": "en-US",
+        "fr": "fr-FR",
+        "de": "de-DE",
+        "he": "iw-IL",
+        "it": "it-IT",
+        "ja": "ja-JP",
+        "pl": "pl-PL",
+        "pt": "pt-PT",
+        "ru": "ru-RU",
+        "es": "es-ES"
+      },
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "voiceSelection": {
+      "default": "NEUTRAL",
+      "enum": [0, 1, 2, 3, "FEMALE", "MALE", "NEUTRAL", "SSML_VOICE_GENDER_UNSPECIFIED"]
+    },
     "$schema": {
       "type": "string"
     }
   },
   "additionalProperties": false,
-  "required": [
-    "clientEmail",
-    "enabled",
-    "privateKey"
-  ],
+  "required": ["clientEmail", "enabled", "languageMapping", "privateKey", "voiceSelection"],
   "$schema": "http://json-schema.org/draft-07/schema#"
 }
-

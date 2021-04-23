@@ -21,4 +21,16 @@ Google Speech requires you to have a Google Cloud project to setup your bot.
   - `enabled: true`
   - `clientEmail`: You will find this value in the JSON file containing the service account keys.
   - `privateKey`: You will find this value in the JSON file containing the service account keys.
+  - `languageMapping`: The mapping between Botpress languages and languages in BCP-47 format recognized by Google.
+  - `voiceSelection`: The type of voice the text-to-speech audio file should have. One of: "MALE", "FEMALE", "NEUTRAL".
 - Restart Botpress Server to reload the configuration
+
+## Module Limitations
+
+### Speech-to-text
+
+Currently, **this feature only supports** `ogg/obus` and `mp3` audio files. When the module receives a file in a format that is not supported, a _warning_ will be displayed in the logs.
+
+### Text-to-speech
+
+Only sends `.mp3` files for the moment.

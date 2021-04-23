@@ -2,15 +2,19 @@ import * as sdk from 'botpress/sdk'
 import { Config } from 'src/config'
 
 import { setupRouter } from './api'
-import { GoogleSpeechClient, setupMiddlewares, INCOMING_MIDDLEWARE_NAME, OUTGOING_MIDDLEWARE_NAME } from './client'
+import { GoogleSpeechClient } from './client'
+import { Middleware } from './middleware'
 import { Clients } from './typings'
 
 let router: sdk.http.RouterExtension
+let middleware: Middleware
 const MODULE_NAME = 'google-speech'
 const clients: Clients = {}
 
 const onServerStarted = async (bp: typeof sdk) => {
-  await setupMiddlewares(bp, clients)
+  middleware = new Middleware(bp, clients)
+
+  middleware.setup()
 }
 
 const onServerReady = async (bp: typeof sdk) => {
@@ -37,9 +41,8 @@ const onBotUnmount = async (_bp: typeof sdk, botId: string) => {
   delete clients[botId]
 }
 
-const onModuleUnmount = async (bp: typeof sdk) => {
-  bp.events.removeMiddleware(INCOMING_MIDDLEWARE_NAME)
-  bp.events.removeMiddleware(OUTGOING_MIDDLEWARE_NAME)
+const onModuleUnmount = async (_bp: typeof sdk) => {
+  middleware.remove()
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {

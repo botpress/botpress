@@ -12,16 +12,14 @@ export type EnumDictionary<T extends string | symbol | number, U> = {
 
 export type IRecognitionConfig = speechProtos.google.cloud.speech.v1.IRecognitionConfig
 export type IRecognitionAudio = speechProtos.google.cloud.speech.v1.IRecognitionAudio
+export const AudioEncoding = speechProtos.google.cloud.speech.v1.RecognitionConfig.AudioEncoding
+
 export type ISynthesizeSpeechRequest = textToSpeechProtos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest
 
 export enum Codec {
-  opus,
-  mp3
+  opus
 }
 
 export enum Container {
-  ogg,
-  mpeg
+  ogg
 }
-
-export default speechProtos.google.cloud.speech.v1.RecognitionConfig.AudioEncoding

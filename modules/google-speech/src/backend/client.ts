@@ -1,26 +1,20 @@
-import { SpeechClient } from '@google-cloud/speech'
+import { SpeechClient, protos } from '@google-cloud/speech'
 import { TextToSpeechClient } from '@google-cloud/text-to-speech'
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
-import ffmpeg from 'ffmpeg.js'
-import FormData from 'form-data'
 import * as mm from 'music-metadata'
-import { v4 as uuidv4 } from 'uuid'
 
 import { Config } from '../config'
 import { Audio } from './audio'
-import { SAMPLE_RATE } from './constants'
-import AudioEncoding, {
+import { SAMPLE_RATES } from './constants'
+import {
   IRecognitionAudio,
   IRecognitionConfig,
   ISynthesizeSpeechRequest,
   Container,
   Codec,
-  Clients
+  AudioEncoding
 } from './typings'
-
-export const INCOMING_MIDDLEWARE_NAME = 'googleSpeech.speechToText'
-export const OUTGOING_MIDDLEWARE_NAME = 'googleSpeech.textToSpeech'
 
 const debug = DEBUG('google-speech')
 const debugSpeechToText = debug.sub('speech-to-text')
@@ -32,12 +26,12 @@ export class GoogleSpeechClient {
   private textToSpeechClient: TextToSpeechClient
 
   constructor(private bp: typeof sdk, private botId: string, private readonly config: Config) {
-    this.logger = bp.logger.forBot(botId)
+    this.logger = this.bp.logger.forBot(this.botId)
   }
 
-  async initialize() {
+  public async initialize() {
     if (!this.config.clientEmail || !this.config.privateKey) {
-      return console.error(
+      return this.logger.error(
         '[GoogleSpeech] The clientEmail and privateKey must be configured in order to use this module.'
       )
     }
@@ -59,7 +53,7 @@ export class GoogleSpeechClient {
     this.logger.info('GoogleSpeech configuration successful!')
   }
 
-  public async speechToText(audioFile: string) {
+  public async speechToText(audioFile: string, language: string) {
     debugSpeechToText('Received audio to convert:', audioFile)
 
     const resp = await axios.get<Buffer>(audioFile, {
@@ -68,34 +62,39 @@ export class GoogleSpeechClient {
 
     let buffer: Buffer = resp.data
     let meta = await mm.parseBuffer(buffer)
-    let encoding: AudioEncoding
+    let encoding: protos.google.cloud.speech.v1.RecognitionConfig.AudioEncoding
 
     const container = meta.format.container?.toLowerCase()
     const codec = meta.format.codec?.toLowerCase()
     if (container === 'ogg' && codec === 'opus') {
       encoding = AudioEncoding.OGG_OPUS
 
-      const sampleRates = SAMPLE_RATE[Container[container]][Codec[codec]]
+      const sampleRates = SAMPLE_RATES[Container[container]][Codec[codec]]
       if (!sampleRates.includes(meta.format.sampleRate)) {
         const audio = new Audio(Container.ogg, Codec.opus)
+        // TODO: Use the closest sample rate?
         const newSampleRate = sampleRates.pop()
 
-        debugSpeechToText(`Resampling audio file to ${newSampleRate}Hz`)
+        debugSpeechToText(`Re-sampling audio file to ${newSampleRate}Hz`)
 
         buffer = audio.resample(buffer, newSampleRate)
 
-        debugSpeechToText('Audio file successfully resampled')
+        debugSpeechToText('Audio file successfully re-sampled')
 
         meta = await mm.parseBuffer(buffer)
       }
+    } else if (container === 'mpeg' && codec === 'mpeg 1 layer 3') {
+      // We don't need to specify the encoding nor re-sample the file when its format is MPEG-3
+    } else {
+      this.logger.warn('Audio file format not supported. Skipping...', { ...meta.format })
+
+      return
     }
 
-    debugSpeechToText('Audio file metadate', meta)
+    debugSpeechToText('Audio file metadata', meta)
 
-    /**
-     * Note that transcription is limited to 60 seconds audio.
-     * Use a GCS file for audio longer than 1 minute.
-     */
+    // Note that transcription is limited to 60 seconds audio.
+    // Use a GCS file for audio longer than 1 minute.
     const audio: IRecognitionAudio = {
       content: buffer
     }
@@ -103,8 +102,10 @@ export class GoogleSpeechClient {
     const config: IRecognitionConfig = {
       encoding,
       sampleRateHertz: meta.format.sampleRate,
-      languageCode: 'en-US'
+      languageCode: this.languageCode(language)
     }
+
+    debugSpeechToText('Recognizing text from audio file...')
 
     const [response] = await this.speechClient.recognize({
       audio,
@@ -113,122 +114,35 @@ export class GoogleSpeechClient {
 
     const transcription = response.results.map(result => result.alternatives[0].transcript).join('\n')
 
+    debugSpeechToText('Text recognized:', `'${transcription}'`)
+
     return transcription
   }
 
-  public async textToSpeech(text: string) {
+  public async textToSpeech(text: string, language: string) {
     debugTextToSpeech('Received text to convert into audio:', text)
 
     const request: ISynthesizeSpeechRequest = {
       input: { text },
-      voice: { languageCode: 'en-US', ssmlGender: 'NEUTRAL' },
-      audioConfig: { audioEncoding: 'MP3' }
+      voice: { languageCode: this.languageCode(language), ssmlGender: this.config.voiceSelection },
+      audioConfig: { audioEncoding: 'MP3' } // Always return .mp3 files since it's one of the most recognized audio file type
     }
 
     const [response] = await this.textToSpeechClient.synthesizeSpeech(request)
 
     return response.audioContent
   }
-}
 
-export async function setupMiddlewares(bp: typeof sdk, clients: Clients) {
-  bp.events.registerMiddleware({
-    description: 'Converts audio content to text using google speech-to-text.',
-    direction: 'incoming',
-    handler: incomingHandler,
-    name: INCOMING_MIDDLEWARE_NAME,
-    order: 1
-  })
-
-  async function incomingHandler(event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) {
-    if (event.payload.type !== 'voice') {
-      return next()
-    }
-
-    const client: GoogleSpeechClient = clients[event.botId]
-    if (!client) {
-      return next()
-    }
-
-    const audioFile = event.payload.audio
-
-    if (audioFile) {
-      try {
-        const text: string = await client.speechToText(audioFile)
-
-        const newEvent: sdk.IO.Event = bp.IO.Event({
-          type: event.type,
-          direction: event.direction,
-          channel: event.channel,
-          target: event.target,
-          threadId: event.threadId,
-          botId: event.botId,
-          preview: text,
-          payload: { type: 'text', text, textToSpeech: true }
-        })
-
-        await bp.events.sendEvent(newEvent)
-
-        next(null, true)
-      } catch (err) {
-        console.error(err)
-        next(err)
-      }
-    }
-  }
-
-  bp.events.registerMiddleware({
-    description: 'Converts text to audio using google text-to-speech.',
-    direction: 'outgoing',
-    handler: outgoingHandler,
-    name: OUTGOING_MIDDLEWARE_NAME,
-    order: 1
-  })
-
-  async function outgoingHandler(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
-    const incomingEvent: sdk.IO.IncomingEvent = event.payload.event
-    if (!incomingEvent || incomingEvent.payload.textToSpeech !== true) {
-      return next()
-    }
-
-    const client: GoogleSpeechClient = clients[event.botId]
-    if (!client) {
-      return next()
-    }
-
-    const text = event.payload.text
-
-    if (text) {
-      try {
-        const audio = await client.textToSpeech(text)
-
-        const data = new FormData()
-        data.append('file', audio, `${uuidv4()}.mp3`)
-
-        const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
-        axiosConfig.headers['Content-Type'] = `multipart/form-data; boundary=${data.getBoundary()}`
-
-        const res = await axios.post<{ url: string }>('/media', data, {
-          ...axiosConfig
-        })
-
-        const newEvent: sdk.IO.Event = bp.IO.Event({
-          type: event.type,
-          direction: event.direction,
-          channel: event.channel,
-          target: event.target,
-          threadId: event.threadId,
-          botId: event.botId,
-          payload: { type: 'audio', audio: res.data.url }
-        })
-
-        await bp.events.sendEvent(newEvent)
-
-        next(null, true)
-      } catch (err) {
-        console.error(err)
-        next(err)
-      }
+  /**
+   * Returns the closest BCP 47 language code based on a user language
+   */
+  private languageCode(language: string) {
+    // Instead of doing a complete BCP 47 validation, we only make sure the language
+    // contains an hyphen that separates the language code to the country code.
+    if (language && language.includes('-')) {
+      return language
+    } else {
+      return this.config.languageMapping[language] || 'en-US'
     }
   }
 }

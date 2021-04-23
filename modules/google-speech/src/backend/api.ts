@@ -18,14 +18,14 @@ export async function setupRouter(
       return res.status(404).send(`Bot ${botId} is not configured to use google-speech`)
     }
 
-    const { mediaUrl } = req.body
+    const { mediaUrl, language } = req.body
 
-    if (!mediaUrl) {
-      res.status(400).send("Missing required field 'mediaUrl'")
+    if (!mediaUrl || !language) {
+      res.status(400).send("Missing required fields: 'mediaUrl', 'language'")
     }
 
     try {
-      const text = await client.speechToText(mediaUrl)
+      const text = await client.speechToText(mediaUrl, language)
 
       res.status(200).send({ text })
     } catch (err) {
@@ -42,14 +42,14 @@ export async function setupRouter(
       return res.status(404).send(`Bot ${botId} is not configured to use google-speech`)
     }
 
-    const { text } = req.body
+    const { text, language } = req.body
 
-    if (!text) {
-      res.status(400).send("Missing required field 'text'")
+    if (!text || !language) {
+      res.status(400).send("Missing required fields: 'text', , 'language'")
     }
 
     try {
-      const audioFile = await client.textToSpeech(text)
+      const audioFile = await client.textToSpeech(text, language)
 
       res.status(200).send({ audioFile })
     } catch (err) {
