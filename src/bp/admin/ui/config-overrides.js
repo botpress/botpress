@@ -93,6 +93,8 @@ module.exports = {
       const target = 'http://localhost:3000'
 
       config.before = app => {
+        app.use('/studio/:botId', (req, res) => res.redirect(`${target}/studio/${req.params.botId}`))
+
         const proxyPaths = ['/assets', '/lite', '/api', '/admin/env.js']
         proxyPaths.forEach(path => app.use(path, createProxyMiddleware({ target })))
 

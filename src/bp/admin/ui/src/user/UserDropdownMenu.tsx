@@ -10,10 +10,11 @@ import {
   Position
 } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
+import cx from 'classnames'
 import React, { FC, useEffect, useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
-import { AppState } from '~/app/rootReducer'
 
+import { AppState } from '~/app/rootReducer'
 import BasicAuthentication from '~/auth/basicAuth'
 import ChangeLanguage from '~/user/ChangeLanguage'
 import { fetchProfile } from './reducer'
@@ -49,7 +50,7 @@ const UserDropdownMenu: FC<Props> = props => {
   const canChangePassword = strategyType === 'basic'
 
   const icon = picture_url ? (
-    <img src={picture_url} className={style.dropdown_picture} />
+    <img src={picture_url} className={cx('dropdown-picture', style.dropdown_picture)} />
   ) : (
     <Icon icon="user" color={Colors.WHITE} />
   )
