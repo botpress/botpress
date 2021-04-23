@@ -13,6 +13,7 @@ import {
 } from '@blueprintjs/core'
 import { BotConfig, ModuleDefinition } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
+import cx from 'classnames'
 import React, { FC } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
@@ -49,8 +50,8 @@ const BotItemCompact: FC<Props> = ({
   const nluModuleEnabled = !!loadedModules.find(m => m.name === 'nlu')
 
   return (
-    <div className={style.tableRow} key={bot.id}>
-      <div className={style.actions}>
+    <div className={cx('bp_table-row', style.tableRow)} key={bot.id}>
+      <div className={cx('actions', style.actions)}>
         {hasError && (
           <AnchorButton text={lang.tr('admin.workspace.bots.item.reload')} icon="refresh" onClick={reloadBot} minimal />
         )}

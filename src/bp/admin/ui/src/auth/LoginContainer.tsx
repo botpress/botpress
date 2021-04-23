@@ -16,18 +16,18 @@ interface Props {
 
 const LoginContainer: FC<Props> = props => {
   return (
-    <div className={style.centered_container}>
-      <div className={style.middle}>
-        <div className={style.inner}>
-          <img className={style.logo} src={logo} alt="loading" />
-          <div className={cx(style.card, style.card_body)}>
-            <div className={cx(style.card_body, style.login_box)}>
+    <div className={cx('centered-container', style.centered_container)}>
+      <div className={cx('middle', style.middle)}>
+        <div className={cx('inner', style.inner)}>
+          <img className={cx('logo', style.logo)} src={logo} alt="loading" />
+          <div className={cx('card', 'card_body', style.card, style.card_body)}>
+            <div className={cx('card_body', 'login_box', style.card_body, style.login_box)}>
               <div>
-                <div className={style.card_title}>
+                <div className={cx('card_title', style.card_title)}>
                   <strong>{props.title || 'Botpress'}</strong>
                 </div>
 
-                <div className={style.card_text}>{props.subtitle || ''}</div>
+                <div className={cx('card_text', style.card_text)}>{props.subtitle || ''}</div>
 
                 {props.error && <Callout intent={Intent.DANGER}>{props.error}</Callout>}
                 {props.children}

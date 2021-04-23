@@ -73,9 +73,7 @@ const createClient = (clientOptions: any, options: { toastErrors?: boolean }) =>
 
 const getApiUrl = (useV1?: boolean, appendPath?: string) => {
   const version = useV1 ? 'v1' : 'v2'
-  return process.env.REACT_APP_API_URL
-    ? { baseURL: `${process.env.REACT_APP_API_URL}api/${version}${appendPath || ''}` }
-    : { baseURL: `${window['ROOT_PATH']}/api/${version}${appendPath || ''}` }
+  return { baseURL: `${window['ROOT_PATH']}/api/${version}${appendPath || ''}` }
 }
 
 export default {
