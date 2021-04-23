@@ -90,18 +90,17 @@ module.exports = {
   devServer: configFunction => {
     return function(proxy, allowedHost) {
       const config = configFunction(proxy, allowedHost)
+      const target = 'http://localhost:3000'
 
       config.before = app => {
-        const proxyPaths = ['/assets', '/lite', '/api']
-        proxyPaths.forEach(path => app.use(path, createProxyMiddleware({ target: 'http://localhost:3000' })))
+        const proxyPaths = ['/assets', '/lite', '/api', '/admin/env.js']
+        proxyPaths.forEach(path => app.use(path, createProxyMiddleware({ target })))
 
-        app.use(
-          createProxyMiddleware('/socket.io', {
-            target: 'http://localhost:3000',
-            ws: true,
-            changeOrigin: true
-          })
-        )
+        app.use(createProxyMiddleware('/socket.io', { target, ws: true, changeOrigin: true }))
+      }
+
+      config.after = app => {
+        app.use('*', createProxyMiddleware({ target }))
       }
 
       return config

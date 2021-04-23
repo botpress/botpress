@@ -7,8 +7,8 @@
     "node": ">=10"
   },
   "scripts": {
-    "start": "cross-env REACT_APP_API_URL=http://localhost:3000/ cross-env PORT=3001 cross-env PUBLIC_URL=admin cross-env BROWSER=none react-app-rewired start",
-    "build": "cross-env PUBLIC_URL=admin cross-env REACT_APP_API_URL= react-app-rewired --max_old_space_size=4096 build",
+    "start": "cross-env PORT=3001 cross-env PUBLIC_URL=admin cross-env BROWSER=none react-app-rewired start",
+    "build": "cross-env PUBLIC_URL=admin react-app-rewired --max_old_space_size=4096 build",
     "test": "react-app-rewired test --env=jsdom",
     "clear-cache": "rimraf node_modules/.cache"
   },
