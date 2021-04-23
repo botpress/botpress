@@ -1,8 +1,9 @@
 import sdk from 'botpress/sdk'
+import child_process from 'child_process'
 import cluster, { Worker } from 'cluster'
-import spawn from 'cross-spawn'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
+import path from 'path'
 import yn from 'yn'
 import { LanguageConfig } from './nlu/engine'
 
@@ -47,15 +48,15 @@ export const registerMsgHandler = (messageType: string, handler: (message: any, 
 }
 
 const runStan = (opts: StartLocalSTANServerMessage): Promise<{ code: number | null; signal: string | null }> => {
-  const command = process.env.STAN_DEV_MODE ? 'yarn start nlu' : './stan'
   return new Promise((resolve, reject) => {
     try {
       const STAN_JSON_CONFIG = JSON.stringify(opts)
-      const stanProcess = spawn(command, ['--silent'], {
-        shell: true,
-        stdio: 'inherit',
-        env: { ...process.env, STAN_JSON_CONFIG }
+      const command = path.join(__dirname, 'index.js') // TODO change this when we have a bin
+      const stanProcess = child_process.fork(command, ['nlu', '--silent'], {
+        env: { ...process.env, STAN_JSON_CONFIG },
+        stdio: 'inherit'
       })
+
       stanProcess.on('exit', (code, signal) => {
         resolve({ code, signal })
       })
