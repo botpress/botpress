@@ -19,6 +19,7 @@ import { JobService } from 'core/distributed'
 import { AlertingService, MonitoringService } from 'core/health'
 import { LogsService, LogsRepository } from 'core/logger'
 import { MediaServiceProvider, MediaRouter } from 'core/media'
+import { ConversationService, MessageService } from 'core/messaging'
 import { ModuleLoader, ModulesRouter } from 'core/modules'
 import { NotificationsService } from 'core/notifications'
 import { getSocketTransports } from 'core/realtime'
@@ -120,7 +121,9 @@ export class HTTPServer {
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.LogsRepository) private logsRepo: LogsRepository,
     @inject(TYPES.NLUService) nluService: NLUService,
-    @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository
+    @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository,
+    @inject(TYPES.ConversationService) private conversationService: ConversationService,
+    @inject(TYPES.MessageService) private messageService: MessageService
   ) {
     this.app = express()
 
@@ -190,6 +193,8 @@ export class HTTPServer {
       nluService,
       converseService,
       hintsService,
+      conversationService,
+      messageService,
       this.logger,
       this
     )

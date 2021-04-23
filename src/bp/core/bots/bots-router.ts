@@ -3,6 +3,8 @@ import { HTTPServer } from 'core/app/server'
 import { BotService } from 'core/bots'
 import { ConfigProvider } from 'core/config'
 import { ConverseRouter, ConverseService } from 'core/converse'
+import { ConversationService, MessageService } from 'core/messaging'
+import { MessagingRouter } from 'core/messaging/messaging-router'
 import { disableForModule } from 'core/routers'
 import {
   AuthService,
@@ -30,6 +32,7 @@ export class BotsRouter extends CustomRouter {
   private nluRouter: NLURouter
   private hintsRouter: HintsRouter
   private converseRouter: ConverseRouter
+  private messagingRouter: MessagingRouter
 
   constructor(
     private botService: BotService,
@@ -39,6 +42,8 @@ export class BotsRouter extends CustomRouter {
     private nluService: NLUService,
     private converseService: ConverseService,
     private hintsService: HintsService,
+    private conversationService: ConversationService,
+    private messageService: MessageService,
     private logger: Logger,
     private httpServer: HTTPServer
   ) {
@@ -51,6 +56,12 @@ export class BotsRouter extends CustomRouter {
     this.nluRouter = new NLURouter(this.logger, this.authService, this.workspaceService, this.nluService)
     this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this.httpServer)
     this.hintsRouter = new HintsRouter(this.logger, this.hintsService, this.authService, this.workspaceService)
+    this.messagingRouter = new MessagingRouter(
+      this.logger,
+      this.authService,
+      this.conversationService,
+      this.messageService
+    )
   }
 
   async setupRoutes(app: express.Express) {
@@ -60,6 +71,7 @@ export class BotsRouter extends CustomRouter {
     this.router.use('/converse', this.converseRouter.router)
     this.router.use('/nlu', this.nluRouter.router)
     this.router.use('/hints', this.hintsRouter.router)
+    this.router.use('/messaging', this.messagingRouter.router)
 
     this.router.get(
       '/',
