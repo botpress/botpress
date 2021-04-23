@@ -32,7 +32,8 @@
 			"infrastructure/performances",
 			"infrastructure/pipeline",
 			"infrastructure/versions",
-			"infrastructure/cluster"
+			"infrastructure/cluster",
+      "infrastructure/digital-ocean"
 		],
 		"Improving Your Chatbot": [
 			"tutorials/intent-matching",
