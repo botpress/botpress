@@ -53,9 +53,7 @@ class EventBus extends EventEmitter2 {
       this.guestSocket.disconnect()
     }
 
-    let socketUrl = window['BP_SOCKET_URL'] || process.env.REACT_APP_API_URL || window.location.origin
-    socketUrl = socketUrl.endsWith('/') ? socketUrl.substring(0, socketUrl.length - 1) : socketUrl
-
+    const socketUrl = window['BP_SOCKET_URL'] || window.location.origin
     const transports = window.SOCKET_TRANSPORTS
 
     this.adminSocket = io(`${socketUrl}/admin`, {
