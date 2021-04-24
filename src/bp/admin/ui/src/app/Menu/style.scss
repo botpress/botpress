@@ -1,37 +1,115 @@
-.menu {
-  min-width: 225px;
-  background-color: #fcfcfc;
+.tag {
+  background: var(--ocean);
+  border-radius: 3px;
+  color: #fff;
+  font-size: 10px;
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 3px 0;
+}
 
-  .header {
-    font-weight: bold;
-    background-color: #f2f2f2;
-    padding: 5px 0 5px 15px;
+.tooltipContent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.small_tag {
+  position: absolute;
+  top: 23px;
+  background: var(--ocean);
+  border-radius: 3px;
+  color: #fff;
+  font-size: 8px;
+  display: inline-block;
+  margin-left: 2px;
+  padding: 1px 3px 0;
+}
+
+.sidebar {
+  background-color: var(--shark);
+  color: var(--seashell);
+  position: relative;
+  width: 40px;
+
+  .logo {
+    display: block;
+    overflow-x: hidden;
+    padding: 15px 10px;
+    width: 40px;
+
+    img {
+      margin-left: 1px;
+    }
   }
 
-  .item {
-    padding: 7px 10px 7px 20px;
+  svg {
+    color: var(--seashell);
+  }
 
-    font-size: 0.9rem;
-    cursor: pointer;
+  ul {
+    padding-left: 0;
+    margin-bottom: 0;
+    margin-top: 0;
+    list-style: none;
 
-    svg {
-      color: #5c7080;
-    }
+    box-sizing: content-box !important;
+    width: 100%;
+    height: calc(100% - 52px);
+    overflow: hidden;
+    overflow-y: auto;
+    padding-right: 25px;
+    list-style: none;
 
-    .label {
-      margin-left: 6px;
-    }
+    li {
+      position: relative;
+      display: block;
+      margin-top: 10px;
+      overflow: visible;
+      width: 40px;
 
-    &:hover {
-      background-color: #e1e8ed;
-    }
+      a {
+        align-items: center;
+        border-left: solid 2px transparent;
+        box-sizing: unset !important;
+        color: var(--seashell);
+        display: flex;
+        height: 30px;
+        justify-content: center;
+        padding: 0 5px;
+        position: relative;
+        transition: border 0.3s;
+        text-decoration: none;
+        width: 30px;
 
-    &:active {
-      background-color: #d8e1e8;
-    }
+        :global(.icon) {
+          display: inline;
+          vertical-align: middle;
+          padding: 0;
+          font-size: 18px;
+        }
 
-    .active {
-      background-color: #e1e8ed;
+        &:hover,
+        &:focus,
+        &:active {
+          outline: none !important;
+          background: none !important;
+
+          &:not(.active) {
+            border-color: var(--gray);
+          }
+        }
+
+        &.active {
+          border-color: var(--ocean);
+        }
+      }
     }
   }
+}
+
+.customIcon {
+  width: 28px;
+  height: 18px;
+  padding-right: 10px;
 }

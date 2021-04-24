@@ -2,10 +2,12 @@
 // Please do not change this file!
 interface CssExports {
   'active': string;
-  'header': string;
-  'item': string;
-  'label': string;
-  'menu': string;
+  'customIcon': string;
+  'logo': string;
+  'sidebar': string;
+  'small_tag': string;
+  'tag': string;
+  'tooltipContent': string;
 }
 export const cssExports: CssExports;
 export default cssExports;

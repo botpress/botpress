@@ -1,5 +1,5 @@
 .workspaceButton {
-  color: white !important;
+  color: var(--black) !important;
   font-weight: 500;
 
   &.bp3-disabled {
@@ -7,6 +7,6 @@
   }
 
   svg {
-    fill: white !important;
+    fill: var(--black) !important;
   }
 }
