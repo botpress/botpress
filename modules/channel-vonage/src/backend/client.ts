@@ -81,6 +81,7 @@ export class VonageClient {
 
     if (this.config.useTestingApi) {
       this.logger.info('Vonage configured to use the testing API!')
+      this.logger.warn('Please keep in mind that the sandbox is limited to one call per second.')
     }
 
     this.logger.info(`Vonage inbound webhooks listening at ${webhookUrl}/inbound`)
@@ -278,6 +279,7 @@ export class VonageClient {
   }
 
   private async sendCarousel(event: sdk.IO.Event, payload: any) {
+    let counter = 0
     for (const { subtitle, title, picture, buttons } of payload.elements) {
       const body = `${title}\n\n${subtitle ? subtitle : ''}`
 
@@ -296,9 +298,21 @@ export class VonageClient {
 
       if (picture) {
         await this.sendImage(event, { url: picture, type: 'image' })
+
+        // Sandbox API is limited to one call per second
+        if (this.config.useTestingApi === true) {
+          await Promise.delay(1000)
+        }
       }
 
       await this.sendOptions(event, body, options)
+
+      // Sandbox API is limited to one call per second. Wait one second between calls
+      if (this.config.useTestingApi === true && counter < payload.elements.length - 1) {
+        await Promise.delay(1000)
+      }
+
+      counter++
     }
   }
 
@@ -334,12 +348,19 @@ export class VonageClient {
             // fixes typings
             const errBody: MessageApiError = (err as any).body
             let reasons: string = ''
-            if (errBody.invalid_parameters) {
-              for (const param of errBody.invalid_parameters) {
-                reasons += `${param.reason}: ${param.name}; `
+            if (errBody) {
+              if (errBody.invalid_parameters) {
+                for (const param of errBody.invalid_parameters) {
+                  reasons += `${param.reason}: ${param.name}; `
+                }
               }
+
+              this.logger.error(`${errBody.title}: ${errBody.detail} ${reasons}${errBody.type}`)
+            } else if ((<any>err).statusCode === '429') {
+              this.logger.error('HTTPError (429): Too Many Requests')
+            } else {
+              this.logger.error('UnknownError', err)
             }
-            this.logger.error(`${errBody.title}: ${errBody.detail} ${reasons}${errBody.type}`)
           } else {
             resolve(data)
           }
