@@ -1,5 +1,5 @@
 name: Module Builder Docker Image
-on: [push]
+on: [pull_request]
 jobs:
   build_and_push:
     name: Test Module Builder Image
