@@ -52,13 +52,13 @@ const UserDropdownMenu: FC<Props> = props => {
   const icon = picture_url ? (
     <img src={picture_url} className={cx('dropdown-picture', style.dropdown_picture)} />
   ) : (
-    <Icon icon="user" />
+    <Icon icon="user" color={Colors.BLACK} />
   )
 
   return (
     <div>
       <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.CLICK}>
-        <Button id="btn-menu" icon={icon} rightIcon={<Icon icon="caret-down" />} />
+        <Button id="btn-menu" icon={icon} minimal rightIcon={<Icon icon="caret-down" />} />
         <Menu>
           <MenuDivider title={lang.tr('admin.signedInAs', { name: fullName || email })} />
           <MenuItem id="btn-profile" icon="user" text={lang.tr('admin.updateProfile')} onClick={toggleProfile} />

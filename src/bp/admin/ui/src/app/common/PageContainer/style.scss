@@ -38,6 +38,8 @@
     color: var(--standard);
     background-color: var(--white);
     font-size: 14px;
+    border-bottom: 1px solid var(--seashell);
+    box-shadow: none;
   }
 
   :global(.bp3-navbar-divider) {
