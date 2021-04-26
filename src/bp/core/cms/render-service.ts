@@ -47,10 +47,10 @@ export class RenderService {
     })
   }
 
-  renderChoice(message: string | sdk.MultiLangText, ...choices: sdk.ChoiceOption[]): sdk.ChoiceContent {
+  renderChoice(text: string | sdk.MultiLangText, ...choices: sdk.ChoiceOption[]): sdk.ChoiceContent {
     return __unrendered({
       type: 'single-choice',
-      message,
+      text,
       choices
     })
   }
@@ -79,10 +79,10 @@ export class RenderService {
     }
   }
 
-  renderOption(value: string, message?: string): sdk.ChoiceOption {
+  renderOption(value: string, title?: string): sdk.ChoiceOption {
     return {
       value,
-      message: message ?? value
+      title: title ?? value
     }
   }
 
