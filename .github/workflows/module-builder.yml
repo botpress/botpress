@@ -1,0 +1,12 @@
+name: Module Builder Docker Image
+on: [push]
+jobs:
+  build_and_push:
+    name: Test Module Builder Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2.1.0
+      - name: Build
+        run: |
+          docker build -t module-builder-test -f build/module-builder/Dockerfile .
