@@ -1,9 +1,11 @@
 import { WorkspaceUserWithAttributes } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
 import React, { FC } from 'react'
 
+import style from '../style.scss'
 import UserActions from './UserActions'
 
 interface Props {
@@ -16,34 +18,34 @@ interface Props {
 
 const User: FC<Props> = ({ user, showPicture, currentUserEmail, onUserUpdated, onPasswordReset }) => {
   return (
-    <div className="bp_table-row bp_users-list" key={`user-${user.email}`}>
+    <div className={cx(style.tableRow, style.list)} key={`user-${user.email}`}>
       <div style={{ display: 'flex' }}>
         {showPicture && (
-          <div className="bp_users-picture">
+          <div className={style.picture}>
             <img src={user.attributes.picture_url} />
           </div>
         )}
 
-        <div className="pullLeft details">
-          <div className="nameZone">
+        <div className={cx(style.details, style.pullLeft)}>
+          <div className={style.nameZone}>
             {_.get(user, 'attributes.firstname', '')}
             &nbsp;
             {_.get(user, 'attributes.lastname', '')}
           </div>
 
           <p>
-            <span className="emailField">
+            <span className={style.emailField}>
               <b>{lang.tr('email')}: </b>
               {user.email} ({user.strategy})
             </span>
           </p>
         </div>
-        <div className="dates">
-          <span className="field">
+        <div className={style.dates}>
+          <span className={style.field}>
             <b>{lang.tr('admin.workspace.users.collaborators.created')}: </b>
             {moment(user.attributes.created_at).fromNow()}
           </span>
-          <span className="field">
+          <span className={style.field}>
             <b>{lang.tr('admin.workspace.users.collaborators.lastLogin')}: </b>
             {user.attributes.last_logon ? moment(user.attributes.last_logon).fromNow() : 'never'}
           </span>
