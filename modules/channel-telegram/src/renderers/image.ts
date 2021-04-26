@@ -15,7 +15,7 @@ export class TelegramImageRenderer implements sdk.ChannelRenderer<TelegramContex
   }
 
   async handles(context: TelegramContext): Promise<boolean> {
-    return context.payload.type === 'image'
+    return context.payload.image
   }
 
   async render(context: TelegramContext): Promise<void> {
