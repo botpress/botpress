@@ -414,6 +414,7 @@
     "label": "Bottom Panel",
     "closePanel": "Close Panel",
     "logs": {
+      "allBots": "All Bots",
       "scrollToFollow": "Scroll to follow logs",
       "downloadLogs": "Download Logs",
       "clearHistory": "Clear log history",

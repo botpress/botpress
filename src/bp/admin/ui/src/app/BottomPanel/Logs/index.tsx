@@ -1,6 +1,5 @@
 import { Button, ButtonGroup, Divider, Tab, Tabs } from '@blueprintjs/core'
 import anser from 'anser'
-
 import { lang, ToolTip } from 'botpress/shared'
 import cn from 'classnames'
 import _ from 'lodash'
@@ -8,12 +7,12 @@ import moment from 'moment'
 import nanoid from 'nanoid'
 import React, { Fragment } from 'react'
 import { connect } from 'react-redux'
+
 import api from '~/app/api'
 import EventBus from '~/app/EventBus'
 import { toggleBottomPanel } from '../../uiReducer'
-
 import style from '../style.scss'
-
+import BotDropdown from './BotDropdown'
 import Debug from './Debug'
 import logStyle from './style.scss'
 import { downloadBlob } from './util'
@@ -30,6 +29,7 @@ interface State {
   followLogs: boolean
   selectedPanel: string
   initialLogs: LogEntry[]
+  botFilter: string
 }
 
 interface LogEntry {
@@ -38,6 +38,7 @@ interface LogEntry {
   message: string
   args: any
   ts: Date
+  botId: string
 }
 
 class BottomPanel extends React.Component<Props, State> {
@@ -69,7 +70,8 @@ class BottomPanel extends React.Component<Props, State> {
         id: nanoid(10),
         level,
         message: anser.ansiToHtml(message),
-        args: anser.ansiToHtml(args)
+        args: anser.ansiToHtml(args),
+        botId: name.replace('logs::', '')
       })
 
       if (this.logs.length > MAX_LOGS_LIMIT) {
@@ -82,7 +84,8 @@ class BottomPanel extends React.Component<Props, State> {
   state = {
     followLogs: true,
     selectedPanel: 'logs',
-    initialLogs: []
+    initialLogs: [],
+    botFilter: '*'
   }
 
   queryLogs = async () => {
@@ -175,13 +178,15 @@ class BottomPanel extends React.Component<Props, State> {
 
   render() {
     const allLogs = [...this.state.initialLogs, ...this.logs]
+    const filtered = this.state.botFilter === '*' ? allLogs : allLogs.filter(x => x.botId === this.state.botFilter)
+
     const LogsPanel = (
       <ul
         className={cn(logStyle.logs, style.tabContainer)}
         ref={this.messageListRef}
         onScroll={this.handleLogsScrolled}
       >
-        {allLogs.map(e => this.renderEntry(e))}
+        {filtered.map(e => this.renderEntry(e))}
         <li className={logStyle.end}>{lang.tr('bottomPanel.logs.endOfLogs')}</li>
       </ul>
     )
@@ -195,6 +200,8 @@ class BottomPanel extends React.Component<Props, State> {
           <Fragment>
             <Tabs.Expander />
             <ButtonGroup minimal={true}>
+              <BotDropdown onChange={botFilter => this.setState({ botFilter })} />
+              <Divider />
               <ToolTip content={lang.tr('bottomPanel.logs.scrollToFollow')}>
                 <Button
                   id="btn-logs-follow"

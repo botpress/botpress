@@ -414,6 +414,7 @@
     "label": "Panneau inférieur",
     "closePanel": "Fermer le panneau",
     "logs": {
+      "allBots": "Tous les bots",
       "scrollToFollow": "Suivre les journaux",
       "downloadLogs": "Télécharger",
       "clearHistory": "Effacer l'historique",
