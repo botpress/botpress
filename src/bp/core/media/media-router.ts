@@ -44,7 +44,7 @@ export class MediaRouter extends CustomRouter {
   }
 
   private setupPublicRoutes() {
-    // if the need apprears, add useStream param to which we can stream file straight from media service
+    // if the need appears, add useStream param to which we can stream file straight from media service
     this.router.get(
       '/:filename',
       this.asyncMiddleware(async (req, res) => {
