@@ -206,7 +206,7 @@ export class NLURouter extends CustomRouter {
             .forBot(botId)
             .attachError(err)
             .error(`Could not get entity ${entityName}`)
-          res.send(400)
+          res.sendStatus(400)
         }
       })
     )
