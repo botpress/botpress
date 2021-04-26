@@ -76,7 +76,7 @@ If you have a restricted app, you may need to specify the tenantId also.`
         // Locale format: {lang}-{subtag1}-{subtag2}-... https://en.wikipedia.org/wiki/IETF_language_tag
         // TODO: Use Intl.Locale().language once its types are part of TS. See: https://github.com/microsoft/TypeScript/issues/37326
         const lang = activity.locale?.split('-')[0]
-        await this._sendProactiveMessage(conversationReference, lang)
+        await this._sendProactiveMessage(activity, conversationReference, lang)
       } else if (activity.text) {
         await this._sendIncomingEvent(activity, threadId)
       }
@@ -127,7 +127,11 @@ If you have a restricted app, you may need to specify the tenantId also.`
     return this.bp.kvs.forBot(this.botId).set(threadId, convRef)
   }
 
-  async _sendProactiveMessage(conversationReference: Partial<ConversationReference>, lang?: string): Promise<void> {
+  async _sendProactiveMessage(
+    activity: Activity,
+    conversationReference: Partial<ConversationReference>,
+    lang?: string
+  ): Promise<void> {
     const defaultLanguage = (await this.bp.bots.getBotById(this.botId)).defaultLanguage
     const proactiveMessages = this.config.proactiveMessages || {}
     const message = (lang && proactiveMessages[lang]) || proactiveMessages[defaultLanguage]
@@ -137,37 +141,57 @@ If you have a restricted app, you may need to specify the tenantId also.`
       await this.adapter.continueConversation(conversationReference, async turnContext => {
         await turnContext.sendActivity(message)
       })
+
+      const convoId = await this.getLocalConvo(conversationReference.conversation.id, activity.from.id)
+      await this.bp.experimental.messages.forBot(this.botId).create(convoId, { type: 'text', text: message })
     }
   }
 
   private _sendIncomingEvent = async (activity: Activity, threadId: string) => {
-    const { text, from, type } = activity
+    const {
+      text,
+      from: { id: userId },
+      type
+    } = activity
 
-    await this.bp.events.sendEvent(
-      this.bp.IO.Event({
-        botId: this.botId,
-        channel: 'teams',
-        direction: 'incoming',
-        payload: { text },
-        preview: text,
-        threadId,
-        target: from.id,
-        type
-      })
-    )
+    const convoId = await this.getLocalConvo(threadId, userId)
+
+    await this.bp.experimental.messages
+      .forBot(this.botId)
+      .receive(convoId, { type: 'text', text }, { channel: 'teams' })
   }
 
-  public async sendOutgoingEvent(event: sdk.IO.Event): Promise<void> {
+  private async getLocalConvo(threadId: string, userId: string): Promise<string> {
+    let convoId = await this.bp.experimental.conversations
+      .forBot(this.botId)
+      .getLocalId('teams', `${threadId}&${userId}`)
+
+    if (!convoId) {
+      const conversation = await this.bp.experimental.conversations.forBot(this.botId).create(userId)
+      convoId = conversation.id
+
+      await this.bp.experimental.conversations
+        .forBot(this.botId)
+        .createMapping('teams', conversation.id, `${threadId}&${userId}`)
+    }
+
+    return convoId
+  }
+
+  public async sendOutgoingEvent(event: sdk.IO.OutgoingEvent): Promise<void> {
     const messageType = event.type === 'default' ? 'text' : event.type
 
     if (!_.includes(outgoingTypes, messageType)) {
       throw new Error(`Unsupported event type: ${event.type}`)
     }
 
-    const ref = await this._getConversationRef(event.threadId)
+    const foreignId = await this.bp.experimental.conversations.forBot(this.botId).getForeignId('teams', event.threadId)
+    const [threaId, userId] = foreignId.split('&')
+
+    const ref = await this._getConversationRef(threaId)
     if (!ref) {
       this.bp.logger.warn(
-        `No message could be sent to MS Botframework with threadId: ${event.threadId} as there is no conversation reference`
+        `No message could be sent to MS Botframework with threadId: ${threaId} as there is no conversation reference`
       )
       return
     }
@@ -191,6 +215,12 @@ If you have a restricted app, you may need to specify the tenantId also.`
       })
     } catch (err) {
       this.logger.attachError(err).error(`Error while sending payload of type "${msg.type}" `)
+    }
+
+    if (event.payload.type !== 'typing') {
+      await this.bp.experimental.messages
+        .forBot(this.botId)
+        .create(event.threadId, event.payload, undefined, event.id, event.incomingEventId)
     }
   }
 
