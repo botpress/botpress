@@ -26,10 +26,11 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
   }
 
   const { standaloneNLU } = globalConfig
-  const defaultStanConfig = { endpoint: 'http://localhost:3200', authToken: process.APP_SECRET }
-  const { endpoint: stanURL, authToken: stanToken } = standaloneNLU ?? defaultStanConfig
+  const { endpoint, authToken } = standaloneNLU.autoStart
+    ? { endpoint: 'http://localhost:3200', authToken: process.APP_SECRET }
+    : standaloneNLU
 
-  const stanClient = new StanClient(stanURL, stanToken)
+  const stanClient = new StanClient(endpoint, authToken)
 
   const modelPassword = '' // No need for password as Stan is protected by an auth token
   const engine = new StanEngine(stanClient, modelPassword)

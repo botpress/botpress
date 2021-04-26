@@ -10,6 +10,7 @@ export interface StanOptions {
   host: string
   port: number
   authToken?: string
+  silent: boolean
 
   limitWindow?: string
   limit: number
@@ -38,7 +39,8 @@ const DEFAULT_STAN_OPTIONS: StanOptions = {
   ],
   ducklingURL: 'https://duckling.botpress.io',
   ducklingEnabled: true,
-  modelCacheSize: '850mb'
+  modelCacheSize: '850mb',
+  silent: true
 }
 
 export const runStan = (opts: Partial<StanOptions>): Promise<{ code: number | null; signal: string | null }> => {
@@ -48,7 +50,7 @@ export const runStan = (opts: Partial<StanOptions>): Promise<{ code: number | nu
     try {
       const STAN_JSON_CONFIG = JSON.stringify(options)
       const command = path.join(__dirname, 'index.js') // TODO change this when we have a bin
-      const stanProcess = child_process.fork(command, ['nlu', '--silent'], {
+      const stanProcess = child_process.fork(command, ['nlu'], {
         env: { ...process.env, STAN_JSON_CONFIG },
         stdio: 'inherit'
       })

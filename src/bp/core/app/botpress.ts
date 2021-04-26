@@ -184,9 +184,9 @@ export class Botpress {
   private async maybeStartLocalSTAN() {
     const config = await this.moduleLoader.configReader.getGlobal('nlu')
 
-    if (config.standaloneNLU) {
+    if (!config.standaloneNLU.autoStart) {
       const { endpoint } = config.standaloneNLU
-      this.logger.info(`Standalone NLU handled by user at endpoint: ${endpoint}`)
+      this.logger.info(`Standalone NLU manually handled at: ${endpoint}`)
       return
     }
     startLocalSTANServer({
