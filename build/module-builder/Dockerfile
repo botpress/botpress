@@ -31,4 +31,4 @@ COPY --from=builder ./botpress/modules ./modules
 # prebuild other modules
 RUN yarn run gulp build:modules
 
-CMD [ "echo", "-e", "Which module would you like to build?\nUse sh -c 'yarn run gulp build:modules --m your-module && cd modules/your-module && yarn && yarn build && yarn package'" ]
+CMD [ "echo", "-e", "Which module would you like to build?\nUse sh -c 'cd modules/your-module && yarn && yarn build && yarn package'" ]
