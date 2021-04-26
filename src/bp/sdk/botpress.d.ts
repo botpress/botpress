@@ -1720,8 +1720,8 @@ declare module 'botpress/sdk' {
   }
 
   export interface ActionButton {
-    title: string
     action: string
+    title: string
   }
 
   export interface ActionSaySomething extends ActionButton {
@@ -1741,12 +1741,12 @@ declare module 'botpress/sdk' {
 
   export interface ChoiceContent extends Content {
     type: 'single-choice'
-    message: string | MultiLangText
+    text: string | MultiLangText
     choices: ChoiceOption[]
   }
 
   export interface ChoiceOption {
-    message: string | MultiLangText
+    title: string | MultiLangText
     value: string
   }
 
@@ -2640,20 +2640,20 @@ declare module 'botpress/sdk' {
 
       /**
        * Render a choice element
-       * @param message Message to ask to the user
+       * @param text Message to ask to the user
        * @param choices Choices that the user can select
        * @example
        * bp.render.choice("Yes or no?", bp.render.option('yes'), bp.render.option('no'))
        */
-      export function choice(message: string | MultiLangText, ...choices: ChoiceOption[]): ChoiceContent
+      export function choice(text: string | MultiLangText, ...choices: ChoiceOption[]): ChoiceContent
 
       /**
        * Renders an option for a choice element
        * @param value Value associated with the option
-       * @param message Text to shown to the user (has no impact on the processing).
+       * @param title Text to shown to the user (has no impact on the processing).
        * If not provided the value will be shown by default
        */
-      export function option(value: string, message?: string): ChoiceOption
+      export function option(value: string, title?: string): ChoiceOption
 
       /**
        * Translates a content element to a specific language
