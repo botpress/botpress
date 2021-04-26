@@ -22,7 +22,8 @@ export class StanClient {
 
   constructor(private _stanEndpoint: string, private _authToken?: string) {
     this._client = axios.create({
-      baseURL: this._stanEndpoint
+      baseURL: this._stanEndpoint,
+      headers: { Authorization: `Bearer ${this._authToken}` }
     })
   }
 

@@ -10,11 +10,12 @@ import { centerText } from 'core/logger/utils'
 import { copyDir } from 'core/misc/pkg-fs'
 import _ from 'lodash'
 import * as NLUEngine from 'nlu/engine'
+
 import path from 'path'
 import { setupMasterNode, WORKER_TYPES } from '../../cluster'
-
 import Logger from '../../simple-logger'
-import API, { APIOptions } from './api'
+import API from './api'
+import { CommandLineOptions, StanOptions, mapCli } from './config'
 
 global.rewire = rewire as any
 const debug = DEBUG('api')
@@ -22,14 +23,7 @@ const debug = DEBUG('api')
 const GH_TYPINGS_FILE = 'https://github.com/botpress/botpress/blob/master/src/bp/nlu/stan/typings_v1.d.ts'
 const GH_TRAIN_INPUT_EXAMPLE = 'https://github.com/botpress/botpress/blob/master/src/bp/nlu/stan/train-example.json'
 
-type ArgV = APIOptions & {
-  languageURL: string
-  languageAuthToken?: string
-  ducklingURL: string
-  ducklingEnabled: boolean
-}
-
-const readEnvJSONConfig = (): ArgV | null => {
+const readEnvJSONConfig = (): StanOptions | null => {
   const data = process.env.STAN_JSON_CONFIG
   if (!data) {
     return null
@@ -41,7 +35,7 @@ const readEnvJSONConfig = (): ArgV | null => {
   }
 }
 
-const makeEngine = async (options: ArgV, logger: Logger) => {
+const makeEngine = async (options: StanOptions, logger: Logger) => {
   const loggerWrapper: NLUEngine.Logger = {
     debug: (msg: string) => logger.debug(msg),
     info: (msg: string) => logger.info(msg),
@@ -50,14 +44,9 @@ const makeEngine = async (options: ArgV, logger: Logger) => {
   }
 
   try {
-    const { ducklingEnabled, ducklingURL, modelCacheSize, languageURL, languageAuthToken } = options
+    const { ducklingEnabled, ducklingURL, modelCacheSize, languageSources } = options
     const config: NLUEngine.Config = {
-      languageSources: [
-        {
-          endpoint: languageURL,
-          authToken: languageAuthToken
-        }
-      ],
+      languageSources,
       ducklingEnabled,
       ducklingURL,
       modelCacheSize,
@@ -77,7 +66,7 @@ const makeEngine = async (options: ArgV, logger: Logger) => {
   }
 }
 
-export default async function(options: ArgV) {
+export default async function(cliOptions: CommandLineOptions) {
   const logger = new Logger('Launcher')
   if (cluster.isMaster) {
     setupMasterNode(logger)
@@ -89,7 +78,7 @@ export default async function(options: ArgV) {
   if (envConfig) {
     logger.info('Loading config from environment variables')
   }
-  options = { ...options, ...envConfig }
+  const options: StanOptions = envConfig ?? mapCli(cliOptions)
 
   for (const dir of ['./pre-trained', './stop-words']) {
     await copyDir(path.resolve(__dirname, '../engine/assets', dir), path.resolve(process.APP_DATA_PATH, dir))
@@ -138,7 +127,10 @@ ${_.repeat(' ', 9)}========================================`)
   } else {
     logger.info(`duckling: ${chalk.redBright('disabled')}`)
   }
-  logger.info(`lang server: url=${options.languageURL}`)
+
+  for (const langSource of options.languageSources) {
+    logger.info(`lang server: url=${langSource.endpoint}`)
+  }
 
   logger.info(`body size: allowing HTTP resquests body of size ${options.bodySize}`)
   // logger.info(`models stored at "${options.modelDir}"`)
