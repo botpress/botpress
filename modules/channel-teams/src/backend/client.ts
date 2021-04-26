@@ -76,7 +76,7 @@ If you have a restricted app, you may need to specify the tenantId also.`
         // Locale format: {lang}-{subtag1}-{subtag2}-... https://en.wikipedia.org/wiki/IETF_language_tag
         // TODO: Use Intl.Locale().language once its types are part of TS. See: https://github.com/microsoft/TypeScript/issues/37326
         const lang = activity.locale?.split('-')[0]
-        await this._sendProactiveMessage(conversationReference, lang)
+        await this._sendProactiveMessage(activity, conversationReference, lang)
       } else if (activity.text) {
         await this._sendIncomingEvent(activity, threadId)
       }
@@ -127,7 +127,11 @@ If you have a restricted app, you may need to specify the tenantId also.`
     return this.bp.kvs.forBot(this.botId).set(threadId, convRef)
   }
 
-  async _sendProactiveMessage(conversationReference: Partial<ConversationReference>, lang?: string): Promise<void> {
+  async _sendProactiveMessage(
+    activity: Activity,
+    conversationReference: Partial<ConversationReference>,
+    lang?: string
+  ): Promise<void> {
     const defaultLanguage = (await this.bp.bots.getBotById(this.botId)).defaultLanguage
     const proactiveMessages = this.config.proactiveMessages || {}
     const message = (lang && proactiveMessages[lang]) || proactiveMessages[defaultLanguage]
@@ -137,6 +141,9 @@ If you have a restricted app, you may need to specify the tenantId also.`
       await this.adapter.continueConversation(conversationReference, async turnContext => {
         await turnContext.sendActivity(message)
       })
+
+      const convoId = await this.getLocalConvo(conversationReference.conversation.id, activity.from.id)
+      await this.bp.experimental.messages.forBot(this.botId).create(convoId, { type: 'text', text: message })
     }
   }
 
@@ -147,6 +154,14 @@ If you have a restricted app, you may need to specify the tenantId also.`
       type
     } = activity
 
+    const convoId = await this.getLocalConvo(threadId, userId)
+
+    await this.bp.experimental.messages
+      .forBot(this.botId)
+      .receive(convoId, { type: 'text', text }, { channel: 'teams' })
+  }
+
+  private async getLocalConvo(threadId: string, userId: string): Promise<string> {
     let convoId = await this.bp.experimental.conversations
       .forBot(this.botId)
       .getLocalId('teams', `${threadId}&${userId}`)
@@ -160,9 +175,7 @@ If you have a restricted app, you may need to specify the tenantId also.`
         .createMapping('teams', conversation.id, `${threadId}&${userId}`)
     }
 
-    await this.bp.experimental.messages
-      .forBot(this.botId)
-      .receive(convoId, { type: 'text', text }, { channel: 'teams' })
+    return convoId
   }
 
   public async sendOutgoingEvent(event: sdk.IO.OutgoingEvent): Promise<void> {
