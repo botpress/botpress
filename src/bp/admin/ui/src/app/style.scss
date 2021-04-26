@@ -39,32 +39,6 @@
   margin: 30px auto;
 }
 
-.header {
-  background-color: var(--c-background--dark-2);
-  border-bottom: 1px solid #999;
-  height: var(--header-height);
-
-  .logo {
-    width: 140px;
-  }
-
-  :global(.bp3-navbar),
-  :global(.nav-link) {
-    color: var(--c-neutral--light-3);
-    background-color: #212121;
-    font-size: 14px;
-  }
-
-  :global(.bp3-navbar-divider) {
-    border-left: 1px solid #efefef;
-  }
-
-  :global(.dropdown-toggle.nav-link) {
-    display: flex;
-    align-items: center;
-  }
-}
-
 .unlicensed {
   background-color: red;
   color: var(--c-neutral--light-3);

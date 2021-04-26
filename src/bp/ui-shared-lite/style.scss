@@ -149,33 +149,6 @@
   margin: var(--spacing-xx-large) 0 var(--spacing-small);
 }
 
-.imgWrapper {
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  border-radius: 3px;
-  height: 100px;
-  overflow: hidden;
-  position: relative;
-  width: 100px;
-
-  &Actions {
-    position: absolute;
-    right: 5px;
-    top: 5px;
-  }
-
-  &:before {
-    background-color: rgba(30, 30, 30, 0.5);
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-  }
-}
-
 select:global(.form-control) {
   box-shadow: none;
   height: 38px;

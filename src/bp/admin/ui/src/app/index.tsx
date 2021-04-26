@@ -9,15 +9,12 @@ import api from '~/app/api'
 import { fetchLicensing } from '~/management/licensing/reducer'
 import { fetchLoadedModules, loadModulesTranslations } from '~/management/modules/reducer'
 import { fetchProfile } from '~/user/reducer'
-import UserDropdownMenu from '~/user/UserDropdownMenu'
 
 import CommandPalette from './CommandPalette'
 import EventBus from './EventBus'
-import logo from './media/logo_white.png'
 import Menu from './Menu'
 import { AppState } from './rootReducer'
 import style from './style.scss'
-import WorkspaceSelect from './WorkspaceSelect'
 
 type Props = ConnectedProps<typeof connector>
 
@@ -38,7 +35,6 @@ const App: FC<Props> = props => {
 
   return (
     <Fragment>
-      <Header />
       <CommandPalette />
       <TokenRefresher getAxiosClient={() => api.getSecured()} />
 
@@ -54,26 +50,6 @@ const App: FC<Props> = props => {
     </Fragment>
   )
 }
-
-const Header = () => (
-  <header className={cx('bp-header', style.header)}>
-    <Navbar>
-      <Navbar.Group>
-        <Navbar.Heading>
-          <a href="admin/">
-            <img src={logo} alt="logo" className={cx('bp-header__logo', style.logo)} />
-          </a>
-        </Navbar.Heading>
-      </Navbar.Group>
-
-      <Navbar.Group align={Alignment.RIGHT}>
-        <WorkspaceSelect />
-        <Navbar.Divider />
-        <UserDropdownMenu />
-      </Navbar.Group>
-    </Navbar>
-  </header>
-)
 
 const Footer = props => (
   <footer className={cx('statusBar', style.statusBar)}>

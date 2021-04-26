@@ -11,6 +11,10 @@
     &:hover {
       background: #fbfbfb;
     }
+
+    &:last-child {
+      border-bottom: 0px;
+    }
   }
 
   .title {

@@ -43,7 +43,7 @@
     "toSelect": "para seleccionar",
     "typeCommand": "Escribe un comando",
     "viewBot": "Ver bot: {name}",
-    "viewDocumentation": "Consultar la documentación en una nueva pestaña"    
+    "viewDocumentation": "Consultar la documentación en una nueva pestaña"
   },
   "confidence": "Confidencia",
   "configuration": "Configuración",
@@ -59,7 +59,7 @@
   "delete": "Eliminar",
   "deleteCondition": "Eliminar condición",
   "deleteContent": "Eliminar contenido",
-  "deleteImage": "Eliminar Imagen",
+  "deleteFile": "Eliminar Archivo",
   "deleteField": "Eliminar campo",
   "deleteNode": "Eliminar nodo",
   "deletePrompt": "Delete Prompt",
@@ -67,7 +67,7 @@
   "deleteWorkflow": "Eliminar flujo de trabajo",
   "description": "Descripción",
   "details": "Detalles",
-  "discard": "Discarte",  
+  "discard": "Discarte",
   "disabled": "deshabilitado",
   "duplicate": "Duplicar",
   "edit": "Editar",

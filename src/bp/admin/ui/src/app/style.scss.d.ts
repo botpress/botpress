@@ -4,8 +4,6 @@ interface CssExports {
   'content': string;
   'content_wrapper': string;
   'fullwidth': string;
-  'header': string;
-  'logo': string;
   'overflow': string;
   'statusBar': string;
   'title': string;

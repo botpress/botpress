@@ -69,7 +69,8 @@ const Language: FC<Props> = props => {
 
   const requireFlag = (code: string) => {
     try {
-      return require(`./flags/${code}.svg`)
+      const flag = require(`./flags/${code}.svg`)
+      return flag.default || flag
     } catch {
       return requireFlag('missing')
     }
