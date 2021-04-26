@@ -169,7 +169,7 @@ Botpress supports `.env` files, so you don't have to set them every time you sta
 | Environment Variable      | Description                                                                                 | Default |
 | ------------------------- | ------------------------------------------------------------------------------------------- | ------- |
 | VERBOSITY_LEVEL           | Botpress will be more chatty when processing requests. This has the same effects as `-v`    |         |
-| BP_DECISION_MIN_CONFIENCE | Sets the minimum threshold required for the Decision Engine to elect a suggestion           | 0.3     |
+| BP_DECISION_MIN_CONFIENCE | Sets the minimum threshold required for the Decision Engine to elect a suggestion           | 0.5     |
 | FAST_TEXT_VERBOSITY       | Define the level of verbosity that FastText will use when training models                   | 0       |
 | FAST_TEXT_CLEANUP_MS      | The model will be kept in memory until it receives no messages to process for that duration | 60000   |
 | REVERSE_PROXY             | When enabled, it uses "x-forwarded-for" to fetch the user IP instead of remoteAddress       | false   |
