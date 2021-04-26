@@ -15,11 +15,11 @@ export class RenderService {
   constructor(@inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader) {}
 
   getChannelRenderers(channel: string) {
-    return this.moduleLoader.getChannelRenderers().filter(x => x.getChannel() === channel)
+    return this.moduleLoader.getChannelRenderers().filter(x => x.channel === channel)
   }
 
   getChannelSenders(channel: string) {
-    return this.moduleLoader.getChannelSenders().filter(x => x.getChannel() === channel)
+    return this.moduleLoader.getChannelSenders().filter(x => x.channel === channel)
   }
 
   renderText(text: string | sdk.MultiLangText, markdown?: boolean): sdk.TextContent {
