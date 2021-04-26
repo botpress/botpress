@@ -5,7 +5,6 @@ import { CustomStudioRouter } from 'studio/utils/custom-studio-router'
 export class NotificationsRouter extends CustomStudioRouter {
   constructor(services: StudioServices) {
     super('Notifications', services)
-    this.setupRoutes()
   }
 
   setupRoutes() {
