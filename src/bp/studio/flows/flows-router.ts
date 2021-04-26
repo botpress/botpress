@@ -67,7 +67,7 @@ export class FlowsRouter extends CustomStudioRouter {
           res.sendStatus(200)
         } catch (err) {
           if (err.type && err.type === MutexError.name) {
-            return res.send(423) // Mutex locked
+            return res.sendStatus(423) // Mutex locked
           }
 
           throw new UnexpectedError('Error saving flow', err)
