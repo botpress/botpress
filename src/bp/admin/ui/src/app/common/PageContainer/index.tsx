@@ -1,44 +1,50 @@
-import { Callout, Colors, Icon, Intent, Tooltip } from '@blueprintjs/core'
+import { Callout, Intent } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
-import React, { FC, Fragment } from 'react'
+import React, { FC, Fragment, useEffect } from 'react'
+import { connect, ConnectedProps } from 'react-redux'
 
 import AccessControl from '~/auth/AccessControl'
+import { updatePageHeader } from '../../uiReducer'
 import style from './style.scss'
 
-interface Props {
+type Props = ConnectedProps<typeof connector> & {
   title?: JSX.Element | string
   helpText?: JSX.Element | string
   contentClassName?: string
   fullWidth?: boolean
   superAdmin?: boolean
+  children: any
+  noWrapper?: boolean
 }
 
 const PageContainer: FC<Props> = props => {
-  return (
+  useEffect(() => {
+    props.updatePageHeader(props.title, props.helpText)
+  }, [props.title])
+
+  const Child = (
+    <AccessControl
+      superAdmin={props.superAdmin}
+      fallback={<Callout intent={Intent.DANGER}>{lang.tr('admin.pageRestrictedToAdmins')}</Callout>}
+    >
+      {props.children}
+    </AccessControl>
+  )
+  return props.noWrapper ? (
+    Child
+  ) : (
     <Fragment>
-      <div className={cx('bp-sa-title', style.title)}>
-        <span>{props.title || ''}</span>
-        {props.helpText && (
-          <Tooltip content={props.helpText}>
-            <Icon icon={'info-sign'} color={Colors.LIGHT_GRAY1} />
-          </Tooltip>
-        )}
-      </div>
-      <div className={cx('bp-sa-overflow', style.overflow)}>
-        <div
-          className={cx('bp-sa-content', style.content, { [style.fullWidth]: props.fullWidth }, props.contentClassName)}
-        >
-          <AccessControl
-            superAdmin={props.superAdmin}
-            fallback={<Callout intent={Intent.DANGER}>{lang.tr('admin.pageRestrictedToAdmins')}</Callout>}
-          >
-            {props.children}
-          </AccessControl>
-        </div>
+      <div
+        className={cx('bp-sa-content', style.content, { [style.fullWidth]: props.fullWidth }, props.contentClassName)}
+      >
+        {Child}
       </div>
     </Fragment>
   )
 }
 
-export default PageContainer
+const mapDispatchToProps = { updatePageHeader }
+const connector = connect(undefined, mapDispatchToProps)
+
+export default connector(PageContainer)

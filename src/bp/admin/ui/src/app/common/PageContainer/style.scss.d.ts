@@ -3,8 +3,6 @@
 interface CssExports {
   'content': string;
   'fullWidth': string;
-  'overflow': string;
-  'title': string;
 }
 export const cssExports: CssExports;
 export default cssExports;
