@@ -1,0 +1,41 @@
+.table {
+  border: 1px solid #e1e4e8;
+  border-radius: 3px 3px 3px 3px;
+  padding: 0 1px;
+
+  &Row {
+    border-bottom: 1px solid #e1e4e8;
+    padding: 5px 5px 5px 8px;
+    min-height: 60px;
+
+    &:hover {
+      background: #fbfbfb;
+    }
+
+    &:last-child {
+      border-bottom: 0px;
+    }
+  }
+
+  .title {
+    font-weight: bold;
+    display: block;
+  }
+
+  .spaced {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .actions {
+    float: right;
+    color: #dfdfdf !important;
+  }
+
+  p {
+    font-size: 12px;
+    color: #586069;
+    margin-bottom: 0px;
+  }
+}

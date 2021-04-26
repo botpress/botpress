@@ -1,5 +1,6 @@
 import { Button, Tooltip } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
+import cx from 'classnames'
 import { Metric } from 'common/monitoring'
 import moment from 'moment'
 import React, { useState } from 'react'
@@ -7,6 +8,7 @@ import ReactTable from 'react-table'
 import 'react-table/react-table.css'
 
 import ServerControl from './ServerControl'
+import style from './style.scss'
 
 const SummaryTable = ({ data }) => {
   const [isModalOpen, setModalOpen] = useState(false)
@@ -100,7 +102,7 @@ const SummaryTable = ({ data }) => {
         data={data}
         defaultPageSize={5}
         defaultSorted={[{ id: 'host', desc: false }]}
-        className="-striped -highlight monitoringOverview"
+        className={cx(style.monitoringOverview, '-striped -highlight')}
       />
       <ServerControl hostname={host} isOpen={isModalOpen} toggle={() => setModalOpen(!isModalOpen)} />
     </React.Fragment>
