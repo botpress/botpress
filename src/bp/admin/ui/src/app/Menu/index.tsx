@@ -1,8 +1,8 @@
-import { Colors, ControlGroup, Icon, Intent, Tag } from '@blueprintjs/core'
+import { Icon, Position, Tooltip } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect } from 'react'
+import React, { FC, useEffect } from 'react'
 import { MdAndroid, MdCopyright } from 'react-icons/md'
 import { connect, ConnectedProps } from 'react-redux'
 import { generatePath, RouteComponentProps, withRouter } from 'react-router'
@@ -49,15 +49,26 @@ const Menu: FC<Props> = props => {
 
     return (
       <AccessControl resource={resource} operation={operation} superAdmin={superAdmin} key={text}>
-        <div
-          id={id}
-          className={cx('bp-sa-menu-item', style.item, { [style.active]: active, ['bp-sa-menu-item-active']: active })}
-          onClick={() => props.history.push(generatePath(url, { workspaceId: workspaceId || undefined }))}
-        >
-          <Icon icon={icon} />
-          <span className={style.label}>{text}</span>
-          {tag && <span style={{ float: 'right' }}>{tag}</span>}
-        </div>
+        <li id={id} key={id}>
+          <Tooltip
+            boundary="window"
+            position={Position.RIGHT}
+            content={
+              <div className={style.tooltipContent}>
+                <span>{text}</span>
+                {tag && <span className={style.tag}>{tag}</span>}
+              </div>
+            }
+          >
+            <a
+              className={cx({ [style.active]: active })}
+              onClick={() => props.history.push(generatePath(url, { workspaceId: workspaceId || undefined }))}
+            >
+              <Icon icon={icon} />
+              {tag && <span className={style.small_tag}>{tag}</span>}{' '}
+            </a>
+          </Tooltip>
+        </li>
       </AccessControl>
     )
   }
@@ -66,22 +77,20 @@ const Menu: FC<Props> = props => {
     const current = props.version.currentVersion
     const latest = _.get(props, 'version.latestReleases.0.version', current)
     if (latest > current) {
-      return (
-        <Tag minimal intent={Intent.SUCCESS}>
-          new
-        </Tag>
-      )
+      return <span>new</span>
     }
   }
 
   return (
-    <div className={cx('bp-sa-menu', style.menu)}>
-      <div className={cx('bp-sa-menu-header', style.header)}>{lang.tr('admin.sideMenu.workspace')}</div>
-      <ControlGroup vertical={true} fill={true}>
+    <aside className={cx(style.sidebar, 'bp-sidebar')}>
+      <a href="admin/" className={cx(style.logo, 'bp-logo')}>
+        <img width="19" src="assets/ui-studio/public/img/logo-icon.svg" alt="Botpress Logo" />
+      </a>
+      <ul>
         <MenuItem
           id="btn-menu-bots"
           text={lang.tr('admin.sideMenu.bots')}
-          icon={<MdAndroid color={Colors.GRAY1} />}
+          icon={<MdAndroid />}
           url="/workspace/:workspaceId?/bots"
           resource="user.bots.*"
           operation="read"
@@ -114,60 +123,45 @@ const Menu: FC<Props> = props => {
           resource="admin.logs"
           operation="read"
         />
-      </ControlGroup>
 
-      <AccessControl superAdmin={true}>
-        <Fragment>
-          <div className={cx('bp-sa-menu-header', style.header)}>{lang.tr('admin.sideMenu.management')}</div>
-          <ControlGroup vertical={true} fill={true}>
-            <MenuItem
-              id="btn-menu-version"
-              text={lang.tr('admin.sideMenu.sourceControl')}
-              icon="changes"
-              url="/server/version"
-            />
-            <MenuItem
-              id="btn-menu-license"
-              text={lang.tr('admin.sideMenu.serverLicense')}
-              icon={<MdCopyright color={Colors.GRAY1} />}
-              url="/server/license"
-            />
-            <MenuItem
-              text={lang.tr('admin.sideMenu.languages')}
-              id="btn-menu-language"
-              icon="globe-network"
-              url="/server/languages"
-            />
-            <MenuItem text={lang.tr('sideMenu.modules')} id="btn-menu-modules" icon="control" url="/modules" />
-            <MenuItem
-              text={lang.tr('admin.sideMenu.productionChecklist')}
-              id="btn-menu-checklist"
-              icon="endorsed"
-              url="/checklist"
-            />
-          </ControlGroup>
-
-          <div className={cx('bp-sa-menu-header', style.header)}>{lang.tr('admin.sideMenu.health')}</div>
-          <ControlGroup vertical={true} fill={true}>
-            <MenuItem
-              id="btn-menu-monitoring"
-              text={lang.tr('admin.sideMenu.monitoring')}
-              icon="timeline-line-chart"
-              url="/server/monitoring"
-            />
-            <MenuItem
-              id="btn-menu-alerting"
-              text={lang.tr('admin.sideMenu.alerting')}
-              icon="notifications"
-              url="/server/alerting"
-            />
-            <MenuItem text={lang.tr('admin.sideMenu.debug')} id="btn-menu-debug" icon="console" url="/server/debug" />
-          </ControlGroup>
-        </Fragment>
-      </AccessControl>
-
-      <div className={cx('bp-sa-menu-header', style.header)}>{lang.tr('admin.sideMenu.announcements')}</div>
-      <ControlGroup vertical={true} fill={true}>
+        <MenuItem
+          id="btn-menu-version"
+          text={lang.tr('admin.sideMenu.sourceControl')}
+          icon="changes"
+          url="/server/version"
+        />
+        <MenuItem
+          id="btn-menu-license"
+          text={lang.tr('admin.sideMenu.serverLicense')}
+          icon={<MdCopyright />}
+          url="/server/license"
+        />
+        <MenuItem
+          text={lang.tr('admin.sideMenu.languages')}
+          id="btn-menu-language"
+          icon="globe-network"
+          url="/server/languages"
+        />
+        <MenuItem text={lang.tr('sideMenu.modules')} id="btn-menu-modules" icon="control" url="/modules" />
+        <MenuItem
+          text={lang.tr('admin.sideMenu.productionChecklist')}
+          id="btn-menu-checklist"
+          icon="endorsed"
+          url="/checklist"
+        />
+        <MenuItem
+          id="btn-menu-monitoring"
+          text={lang.tr('admin.sideMenu.monitoring')}
+          icon="timeline-line-chart"
+          url="/server/monitoring"
+        />
+        <MenuItem
+          id="btn-menu-alerting"
+          text={lang.tr('admin.sideMenu.alerting')}
+          icon="notifications"
+          url="/server/alerting"
+        />
+        <MenuItem text={lang.tr('admin.sideMenu.debug')} id="btn-menu-debug" icon="console" url="/server/debug" />
         <MenuItem
           text={lang.tr('admin.sideMenu.latestReleases')}
           id="btn-menu-releases"
@@ -175,8 +169,8 @@ const Menu: FC<Props> = props => {
           url="/latestReleases"
           tag={renderLatestReleaseTag()}
         />
-      </ControlGroup>
-    </div>
+      </ul>
+    </aside>
   )
 }
 
