@@ -1,0 +1,42 @@
+.logInfo {
+  color: #0d8050;
+}
+
+.logWarn {
+  color: #bf8c0a;
+}
+
+.logError {
+  color: #db3737;
+}
+
+.logCritical {
+  color: #ac3e31;
+  font-weight: bold;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+
+  .left {
+    margin-right: auto;
+  }
+
+  .right {
+    margin-right: 0px;
+    display: flex;
+  }
+}
+
+.monitoringOverview {
+  font-size: 70%;
+  margin-bottom: 25px;
+  .right {
+    text-align: right;
+  }
+
+  .center {
+    text-align: center;
+  }
+}

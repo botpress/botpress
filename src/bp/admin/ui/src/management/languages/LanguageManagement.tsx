@@ -6,6 +6,7 @@ import React, { FC, useEffect, useState } from 'react'
 import api from '~/app/api'
 
 import Language from './Language'
+import style from './style.scss'
 import { LanguageSource } from './typings'
 
 // TODO better typings
@@ -54,7 +55,7 @@ const LanguageManagement: FC<Props> = props => {
   return (
     <React.Fragment>
       {languages && languages.available.length > 0 && !props.readOnly && !!downloadables.length && (
-        <div className="languages-list">
+        <div className={style.languages_list}>
           {/* TODO add a select when we have too many languages */}
           <h4>{lang.tr('admin.languages.addLanguages')}</h4>
           {downloadables.map(lang => (
@@ -68,7 +69,7 @@ const LanguageManagement: FC<Props> = props => {
           ))}
         </div>
       )}
-      <div className="languages-list">
+      <div className={style.languages_list}>
         <h4>{lang.tr('admin.languages.installedLanguages')}</h4>
         {installed.length === 0 && <p>{lang.tr('admin.languages.noLanguagesYet')}</p>}
         {installed.map(lang => (

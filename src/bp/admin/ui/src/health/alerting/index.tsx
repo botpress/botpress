@@ -1,11 +1,11 @@
+import { Callout, Checkbox } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import moment from 'moment'
 import ms from 'ms'
 import React, { Component } from 'react'
-import { IoIosArchive } from 'react-icons/io'
 import { connect, ConnectedProps } from 'react-redux'
 import Select from 'react-select'
-import { Col, Jumbotron, Label, Row } from 'reactstrap'
+
 import CheckRequirements from '~/app/common/CheckRequirements'
 import LoadingSection from '~/app/common/LoadingSection'
 import PageContainer from '~/app/common/PageContainer'
@@ -73,8 +73,7 @@ class Alerts extends Component<Props, State> {
   }
 
   handleTimeFrameChanged = timeFrame => this.setState({ timeFrame }, this.queryData)
-  handleAutoRefreshChanged = event => {
-    const autoRefresh = event.target.checked
+  handleAutoRefreshChanged = autoRefresh => {
     let intervalId
 
     if (autoRefresh && !this.state.intervalId) {
@@ -103,19 +102,10 @@ class Alerts extends Component<Props, State> {
 
   renderNoData() {
     return (
-      <PageContainer title={lang.tr('admin.alerting.alertingAndIncidents')}>
-        <Jumbotron>
-          <Row>
-            <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
-              <h1>
-                <IoIosArchive />
-                &nbsp; {lang.tr('admin.alerting.notEnabled')}
-              </h1>
-              <p>{lang.tr('admin.alerting.makeSureEnabled')}</p>
-            </Col>
-          </Row>
-        </Jumbotron>
-      </PageContainer>
+      <Callout title="No incidents to display">
+        <p>{lang.tr('admin.alerting.notEnabled')}</p>
+        <p>{lang.tr('admin.alerting.makeSureEnabled')}</p>
+      </Callout>
     )
   }
 
@@ -152,16 +142,13 @@ class Alerts extends Component<Props, State> {
         />
         <strong>{lang.tr('admin.alerting.autoRefresh')}</strong>
         <br />
-        <Label>
-          <input
-            style={{ marginTop: 8 }}
-            name="autoRefresh"
-            type="checkbox"
-            checked={this.state.autoRefresh}
-            onChange={this.handleAutoRefreshChanged}
-          />{' '}
-          <strong>{lang.tr('enabled')}</strong>
-        </Label>
+        <Checkbox
+          label={lang.tr('enabled')}
+          style={{ marginTop: 8 }}
+          name="autoRefresh"
+          checked={this.state.autoRefresh}
+          onChange={e => this.handleAutoRefreshChanged(e.currentTarget.checked)}
+        ></Checkbox>
       </div>
     )
   }
