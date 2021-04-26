@@ -93,7 +93,7 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
     for (const renderer of renderers) {
       if (await renderer.handles(context)) {
         await renderer.render(context)
-        context.handlers.push(renderer.getId())
+        context.handlers.push(renderer.id)
       }
     }
 

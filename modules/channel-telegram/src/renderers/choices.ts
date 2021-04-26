@@ -4,15 +4,15 @@ import { Button, Markup } from 'telegraf'
 import Extra from 'telegraf/extra'
 
 export class TelegramChoicesRenderer implements sdk.ChannelRenderer<TelegramContext> {
-  getChannel(): string {
+  get channel(): string {
     return 'telegram'
   }
 
-  getPriority(): number {
+  get priority(): number {
     return 1
   }
 
-  getId() {
+  get id() {
     return TelegramChoicesRenderer.name
   }
 

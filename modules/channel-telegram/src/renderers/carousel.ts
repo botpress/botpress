@@ -5,15 +5,15 @@ import { CallbackButton, Markup } from 'telegraf'
 import Extra from 'telegraf/extra'
 
 export class TelegramCarouselRenderer implements sdk.ChannelRenderer<TelegramContext> {
-  getChannel(): string {
+  get channel(): string {
     return 'telegram'
   }
 
-  getPriority(): number {
+  get priority(): number {
     return 0
   }
 
-  getId() {
+  get id() {
     return TelegramCarouselRenderer.name
   }
 
