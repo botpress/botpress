@@ -1,4 +1,4 @@
-import { Button, Classes, Dialog, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
+import { Button, Classes, Dialog, FormGroup, InputGroup, Intent, Callout } from '@blueprintjs/core'
 import { BotConfig, BotTemplate } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
@@ -213,7 +213,7 @@ class CreateBotModal extends Component<Props, State> {
             )}
           </div>
           <div className={Classes.DIALOG_FOOTER}>
-            {!!this.state.error && <p className="text-danger">{this.state.error}</p>}
+            {!!this.state.error && <Callout intent={Intent.DANGER}>{this.state.error}</Callout>}
             <div className={Classes.DIALOG_FOOTER_ACTIONS}>
               <Button
                 id="btn-modal-create-bot"

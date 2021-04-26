@@ -1,5 +1,6 @@
 import { Button, Tooltip } from '@blueprintjs/core'
 import { confirmDialog, toast } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
@@ -13,6 +14,7 @@ import { getActiveWorkspace } from '~/auth/basicAuth'
 import { switchWorkspace } from '~/user/reducer'
 import { fetchBotHealth, fetchBotsByWorkspace } from '~/workspace/bots/reducer'
 import { filterText } from '~/workspace/logs/utils'
+import style from './style.scss'
 
 type Props = ConnectedProps<typeof connector> & RouteComponentProps
 
@@ -87,9 +89,9 @@ const BotHealth: FC<Props> = props => {
                 default:
                   return 'N/A'
                 case 'unhealthy':
-                  return <span className="logCritical">Unhealthy</span>
+                  return <span className={style.logCritical}>Unhealthy</span>
                 case 'healthy':
-                  return <span className="logInfo">Healthy</span>
+                  return <span className={style.logInfo}>Healthy</span>
                 case 'disabled':
                   return 'Disabled'
               }
@@ -129,7 +131,7 @@ const BotHealth: FC<Props> = props => {
           return (
             <span>
               <Tooltip hoverOpenDelay={1000} content="View logs for this bot">
-                <a onClick={() => goToBotLogs(x.original.botId)} className="link">
+                <a onClick={() => goToBotLogs(x.original.botId)} className={style.link}>
                   {x.original.botId}
                 </a>
               </Tooltip>
@@ -177,7 +179,7 @@ const BotHealth: FC<Props> = props => {
       data={data}
       defaultPageSize={10}
       defaultSorted={[{ id: 'botId', desc: false }]}
-      className="-striped -highlight monitoringOverview"
+      className={cx('-striped -highlight', style.monitoringOverview)}
     />
   )
 }
