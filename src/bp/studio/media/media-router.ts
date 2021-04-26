@@ -7,13 +7,15 @@ import { CustomStudioRouter } from 'studio/utils/custom-studio-router'
 
 const debugMedia = DEBUG('audit:action:media-upload')
 
+const DEFAULT_ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'audio/mpeg', 'video/mp4']
+const DEFAULT_MAX_FILE_SIZE = '25mb'
+
 class MediaRouter extends CustomStudioRouter {
-  constructor(services: StudioServices, private botpressConfig?: BotpressConfig) {
+  constructor(services: StudioServices) {
     super('User', services)
-    this.setupRoutes()
   }
 
-  setupRoutes() {
+  async setupRoutes(botpressConfig: BotpressConfig) {
     const router = this.router
 
     router.get(
@@ -38,8 +40,8 @@ class MediaRouter extends CustomStudioRouter {
     )
 
     const mediaUploadMulter = fileUploadMulter(
-      ['image/jpeg', 'image/png', 'image/gif'],
-      this.botpressConfig?.fileUpload?.maxFileSize ?? '10mb'
+      botpressConfig.fileUpload.allowedMimeTypes ?? DEFAULT_ALLOWED_MIME_TYPES,
+      botpressConfig.fileUpload.maxFileSize ?? DEFAULT_MAX_FILE_SIZE
     )
 
     router.post(
@@ -51,7 +53,7 @@ class MediaRouter extends CustomStudioRouter {
           const email = req.tokenUser!.email
           if (err) {
             debugMedia(`failed (${email} from ${req.ip})`, err.message)
-            return res.sendStatus(400)
+            return res.status(400).send(err.message)
           }
 
           const botId = req.params.botId
