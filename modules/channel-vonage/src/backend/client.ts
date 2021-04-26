@@ -279,7 +279,6 @@ export class VonageClient {
   }
 
   private async sendCarousel(event: sdk.IO.Event, payload: any) {
-    let counter = 0
     for (const { subtitle, title, picture, buttons } of payload.elements) {
       const body = `${title}\n\n${subtitle ? subtitle : ''}`
 
@@ -307,12 +306,10 @@ export class VonageClient {
 
       await this.sendOptions(event, body, options)
 
-      // Sandbox API is limited to one call per second. Wait one second between calls
-      if (this.config.useTestingApi === true && counter < payload.elements.length - 1) {
+      // Sandbox API is limited to one call per second. Wait one second between calls.
+      if (this.config.useTestingApi === true) {
         await Promise.delay(1000)
       }
-
-      counter++
     }
   }
 
