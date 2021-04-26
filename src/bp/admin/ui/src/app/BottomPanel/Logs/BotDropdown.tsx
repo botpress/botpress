@@ -8,9 +8,9 @@ import { fetchBots } from '~/workspace/bots/reducer'
 
 type Props = ConnectedProps<typeof connector> & { onChange: any }
 
-const defaultItem = { value: '*', label: lang.tr('bottomPanel.logs.allBots') }
-
 const BotDropdown: FC<Props> = props => {
+  const defaultItem = { value: '*', label: lang.tr('bottomPanel.logs.allBots') }
+
   const [items, setItems] = useState<Option[]>([])
   const [current, setCurrent] = useState(defaultItem)
 
