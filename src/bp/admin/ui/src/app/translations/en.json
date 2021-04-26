@@ -409,5 +409,18 @@
     "en": "English",
     "fr": "Français",
     "es": "Español"
+  },
+  "bottomPanel": {
+    "label": "Bottom Panel",
+    "closePanel": "Close Panel",
+    "logs": {
+      "scrollToFollow": "Scroll to follow logs",
+      "downloadLogs": "Download Logs",
+      "clearHistory": "Clear log history",
+      "endOfLogs": "End of logs",
+      "debug": {
+        "confUpdated": "Debug configuration updated successfully!"
+      }
+    }
   }
 }

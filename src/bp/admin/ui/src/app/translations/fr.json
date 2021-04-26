@@ -409,5 +409,18 @@
     "en": "Anglaise",
     "fr": "Français",
     "es": "Español"
+  },
+  "bottomPanel": {
+    "label": "Panneau inférieur",
+    "closePanel": "Fermer le panneau",
+    "logs": {
+      "scrollToFollow": "Suivre les journaux",
+      "downloadLogs": "Télécharger",
+      "clearHistory": "Effacer l'historique",
+      "endOfLogs": "Fin des journaux",
+      "debug": {
+        "confUpdated": "La configuration de débogage a été mise à jour avec succès!"
+      }
+    }
   }
 }

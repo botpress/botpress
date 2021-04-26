@@ -1,65 +1,44 @@
-import { Alignment, Callout, Colors, Icon, Intent, Navbar, Tooltip } from '@blueprintjs/core'
+import { Callout, Intent } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
-import React, { FC, Fragment } from 'react'
-import WorkspaceSelect from '~/app/WorkspaceSelect'
+import React, { FC, Fragment, useEffect } from 'react'
+import { connect, ConnectedProps } from 'react-redux'
 
 import AccessControl from '~/auth/AccessControl'
-import UserDropdownMenu from '~/user/UserDropdownMenu'
+import { updatePageHeader } from '../../uiReducer'
 import style from './style.scss'
 
-interface Props {
+type Props = ConnectedProps<typeof connector> & {
   title?: JSX.Element | string
   helpText?: JSX.Element | string
   contentClassName?: string
   fullWidth?: boolean
   superAdmin?: boolean
+  children: any
 }
 
-const PageContainer: FC<Props> = props => (
-  <Fragment>
-    <header className={cx('bp-header', style.header)}>
-      <Navbar>
-        <Navbar.Group>
-          <Navbar.Heading>
-            <div className={cx('bp-sa-title', style.title)}>
-              <span>{props.title || ''}</span>
-              {props.helpText && (
-                <Tooltip content={props.helpText}>
-                  <Icon icon={'info-sign'} color={Colors.LIGHT_GRAY1} />
-                </Tooltip>
-              )}
-            </div>
-          </Navbar.Heading>
-        </Navbar.Group>
-        <Navbar.Group align={Alignment.RIGHT}>
-          <WorkspaceSelect />
-          <Navbar.Divider />
-          <UserDropdownMenu />
-        </Navbar.Group>
-      </Navbar>
-    </header>
-    <PageContent {...props} />
-  </Fragment>
-)
+const PageContainer: FC<Props> = props => {
+  useEffect(() => {
+    props.updatePageHeader(props.title, props.helpText)
+  }, [props.title])
 
-const PageContent: FC<Props> = props => {
   return (
     <Fragment>
-      <div className={cx('bp-sa-overflow', style.overflow)}>
-        <div
-          className={cx('bp-sa-content', style.content, { [style.fullWidth]: props.fullWidth }, props.contentClassName)}
+      <div
+        className={cx('bp-sa-content', style.content, { [style.fullWidth]: props.fullWidth }, props.contentClassName)}
+      >
+        <AccessControl
+          superAdmin={props.superAdmin}
+          fallback={<Callout intent={Intent.DANGER}>{lang.tr('admin.pageRestrictedToAdmins')}</Callout>}
         >
-          <AccessControl
-            superAdmin={props.superAdmin}
-            fallback={<Callout intent={Intent.DANGER}>{lang.tr('admin.pageRestrictedToAdmins')}</Callout>}
-          >
-            {props.children}
-          </AccessControl>
-        </div>
+          {props.children}
+        </AccessControl>
       </div>
     </Fragment>
   )
 }
 
-export default PageContainer
+const mapDispatchToProps = { updatePageHeader }
+const connector = connect(undefined, mapDispatchToProps)
+
+export default connector(PageContainer)
