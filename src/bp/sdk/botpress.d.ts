@@ -4,7 +4,7 @@
  * this SDK (Yes, all those beautiful features!) to kick start your development. Missing something important?
  * Please let us know in our official Github Repo!
  */
- declare module 'botpress/sdk' {
+declare module 'botpress/sdk' {
   import { NextFunction, Request, Response, Router } from 'express'
   import Knex from 'knex'
   export interface KnexExtension {
@@ -201,18 +201,18 @@
   }
 
   export interface ChannelRenderer<Context extends ChannelContext<any>> {
-    getId(): string
-    getPriority(): number
-    getChannel(): string
+    id: string
+    priority: number
+    channel: string
 
     handles(context: Context): Promise<boolean>
     render(context: Context): Promise<void>
   }
 
   export interface ChannelSender<Context extends ChannelContext<any>> {
-    getId(): string
-    getPriority(): number
-    getChannel(): string
+    id: string
+    priority: number
+    channel: string
 
     handles(context: Context): Promise<boolean>
     send(context: Context): Promise<void>
