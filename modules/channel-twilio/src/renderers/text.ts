@@ -1,7 +1,8 @@
 import * as sdk from 'botpress/sdk'
+import { ChannelRenderer } from 'common/channel'
 import { TwilioContext } from '../backend/typings'
 
-export class TwilioTextRenderer implements sdk.ChannelRenderer<TwilioContext> {
+export class TwilioTextRenderer implements ChannelRenderer<TwilioContext> {
   get channel(): string {
     return 'twilio'
   }

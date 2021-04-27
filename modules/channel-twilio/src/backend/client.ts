@@ -1,9 +1,13 @@
 import * as sdk from 'botpress/sdk'
+import { ChannelRenderer, ChannelSender } from 'common/channel'
 import _ from 'lodash'
 import { Twilio, validateRequest } from 'twilio'
-
 import { Config } from '../config'
-
+import { TwilioCarouselRenderer } from '../renderers/carousel'
+import { TwilioChoicesRenderer } from '../renderers/choices'
+import { TwilioImageRenderer } from '../renderers/image'
+import { TwilioTextRenderer } from '../renderers/text'
+import { TwilioCommonSender } from '../senders/common'
 import { Clients, MessageOption, TwilioContext, TwilioRequestBody } from './typings'
 
 const debug = DEBUG('channel-twilio')
@@ -17,8 +21,8 @@ export class TwilioClient {
   private twilio: Twilio
   private webhookUrl: string
   private kvs: sdk.KvsService
-  private renderers: sdk.ChannelRenderer<TwilioContext>[]
-  private senders: sdk.ChannelSender<TwilioContext>[]
+  private renderers: ChannelRenderer<TwilioContext>[]
+  private senders: ChannelSender<TwilioContext>[]
 
   constructor(
     private bp: typeof sdk,
@@ -43,8 +47,14 @@ export class TwilioClient {
 
     this.logger.info(`Twilio webhook listening at ${this.webhookUrl}`)
 
-    this.renderers = this.bp.experimental.render.getChannelRenderers('twilio')
-    this.senders = this.bp.experimental.render.getChannelSenders('twilio')
+    this.renderers = [
+      new TwilioTextRenderer(),
+      new TwilioImageRenderer(),
+      new TwilioCarouselRenderer(),
+      new TwilioChoicesRenderer()
+    ]
+
+    this.senders = [new TwilioCommonSender()]
   }
 
   auth(req): boolean {
