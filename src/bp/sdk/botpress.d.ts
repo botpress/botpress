@@ -201,20 +201,20 @@ declare module 'botpress/sdk' {
   }
 
   export interface ChannelRenderer<Context extends ChannelContext<any>> {
-    getId(): string
-    getPriority(): number
-    getChannel(): string
+    id: string
+    priority: number
+    channel: string
 
-    handles(context: Context): Promise<boolean>
-    render(context: Context): Promise<void>
+    handles(context: Context): boolean
+    render(context: Context): void
   }
 
   export interface ChannelSender<Context extends ChannelContext<any>> {
-    getId(): string
-    getPriority(): number
-    getChannel(): string
+    id: string
+    priority: number
+    channel: string
 
-    handles(context: Context): Promise<boolean>
+    handles(context: Context): boolean
     send(context: Context): Promise<void>
   }
 
@@ -2668,7 +2668,7 @@ declare module 'botpress/sdk' {
 
       /**
        * Render a choice element
-       * @param message Message to ask to the user
+       * @param text Message to ask to the user
        * @param choices Choices that the user can select
        * @example
        * bp.render.choice("Yes or no?", bp.render.option('yes'), bp.render.option('no'))

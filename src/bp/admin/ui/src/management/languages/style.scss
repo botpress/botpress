@@ -1,0 +1,35 @@
+.languages_grid {
+  display: flex;
+  > div:first-child {
+    width: 80%;
+    margin-right: 20px;
+  }
+}
+
+.languages_list {
+  margin-bottom: 25px;
+  margin-top: 10px;
+
+  .language {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 95%;
+    height: 50px;
+    border-bottom: solid 1px #eaeaea;
+    .flag {
+      display: inline-block;
+      width: 25px;
+      margin-right: 10px;
+      img {
+        border: solid 1px #e1e1e1;
+        width: 100%;
+        height: auto;
+      }
+    }
+    .action {
+      width: 250px;
+      text-align: right;
+    }
+  }
+}

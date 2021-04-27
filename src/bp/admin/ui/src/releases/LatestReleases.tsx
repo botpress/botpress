@@ -10,6 +10,7 @@ import linux from './media/linux.png'
 import mac from './media/mac.png'
 import window from './media/windows.png'
 import { fetchLatestVersions } from './reducer'
+import style from './style.scss'
 
 type Props = ConnectedProps<typeof connector>
 
@@ -17,7 +18,7 @@ const DownloadLinks: FC<{ version: string; dockerUrl: string }> = props => {
   const version = `v${props.version.replace(/\./g, '_')}`
 
   return (
-    <div className="downloads">
+    <div className={style.downloads}>
       Download binary
       <hr />
       <a href={`https://s3.amazonaws.com/botpress-binaries/botpress-${version}-darwin-x64.zip`} target="_blank">
@@ -49,17 +50,17 @@ const LastRelease: FC<Props> = props => {
 
   return (
     <PageContainer title={lang.tr('admin.sideMenu.latestReleases')}>
-      <div className="releases">
+      <div className={style.releases}>
         {props.latestReleases.map(release => {
           return (
             <div key={release.version}>
-              <div className="version">
+              <div className={style.version}>
                 {release.version}
                 <span>published {release.daysAgo}</span>
               </div>
 
-              <div className="container">
-                <div className="content" dangerouslySetInnerHTML={{ __html: snarkdown(release.details) }} />
+              <div className={style.container}>
+                <div className={style.content} dangerouslySetInnerHTML={{ __html: snarkdown(release.details) }} />
                 <DownloadLinks version={release.version} dockerUrl={release.dockerUrl} />
               </div>
             </div>
