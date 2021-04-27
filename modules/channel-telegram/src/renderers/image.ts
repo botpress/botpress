@@ -1,7 +1,8 @@
 import * as sdk from 'botpress/sdk'
+import { ChannelRenderer } from 'common/channel'
 import { TelegramContext } from 'src/backend/typings'
 
-export class TelegramImageRenderer implements sdk.ChannelRenderer<TelegramContext> {
+export class TelegramImageRenderer implements ChannelRenderer<TelegramContext> {
   get channel(): string {
     return 'telegram'
   }

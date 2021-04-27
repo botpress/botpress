@@ -1,9 +1,10 @@
 import * as sdk from 'botpress/sdk'
+import { ChannelRenderer } from 'common/channel'
 import { TelegramContext } from 'src/backend/typings'
 import { Markup } from 'telegraf'
 import Extra from 'telegraf/extra'
 
-export class TelegramChoicesRenderer implements sdk.ChannelRenderer<TelegramContext> {
+export class TelegramChoicesRenderer implements ChannelRenderer<TelegramContext> {
   get channel(): string {
     return 'telegram'
   }

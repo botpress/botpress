@@ -1,7 +1,7 @@
-import * as sdk from 'botpress/sdk'
+import { ChannelSender } from 'common/channel'
 import { TelegramContext } from 'src/backend/typings'
 
-export class TelegramTypingSender implements sdk.ChannelSender<TelegramContext> {
+export class TelegramTypingSender implements ChannelSender<TelegramContext> {
   get channel(): string {
     return 'telegram'
   }

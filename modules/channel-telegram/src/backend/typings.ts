@@ -1,4 +1,4 @@
-import * as sdk from 'botpress/sdk'
+import { ChannelContext } from 'common/channel'
 import Telegraf, { ContextMessageUpdate } from 'telegraf'
 import { ChatAction, ExtraEditMessage, InputFile } from 'telegraf/typings/telegram-types'
 
@@ -6,7 +6,7 @@ export interface Clients {
   [key: string]: Telegraf<ContextMessageUpdate>
 }
 
-export type TelegramContext = sdk.ChannelContext<Telegraf<ContextMessageUpdate>> & {
+export type TelegramContext = ChannelContext<Telegraf<ContextMessageUpdate>> & {
   chatId: string
   messages: TelegramMessage[]
 }

@@ -1,11 +1,22 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import Telegraf, { ContextMessageUpdate } from 'telegraf'
+import { TelegramCarouselRenderer } from '../renderers/carousel'
+import { TelegramChoicesRenderer } from '../renderers/choices'
+import { TelegramImageRenderer } from '../renderers/image'
+import { TelegramTextRenderer } from '../renderers/text'
+import { TelegramCommonSender } from '../senders/common'
+import { TelegramTypingSender } from '../senders/typing'
 
 import { Clients, TelegramContext } from './typings'
 
-let renderers: sdk.ChannelRenderer<TelegramContext>[] = []
-let senders: sdk.ChannelSender<TelegramContext>[] = []
+const renderers = [
+  new TelegramTextRenderer(),
+  new TelegramImageRenderer(),
+  new TelegramCarouselRenderer(),
+  new TelegramChoicesRenderer()
+]
+const senders = [new TelegramTypingSender(), new TelegramCommonSender()]
 
 export const sendEvent = async (bp: typeof sdk, botId: string, ctx: ContextMessageUpdate, args: { type: string }) => {
   // NOTE: getUpdate and setWebhook dot not return the same context mapping
@@ -101,9 +112,4 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
 
     next(undefined, false)
   }
-}
-
-export function setupRenderers(bp: typeof sdk) {
-  renderers = bp.experimental.render.getChannelRenderers('telegram')
-  senders = bp.experimental.render.getChannelSenders('telegram')
 }
