@@ -2,23 +2,23 @@ import * as sdk from 'botpress/sdk'
 import { SlackContext } from '../backend/typings'
 
 export class SlackChoicesRenderer implements sdk.ChannelRenderer<SlackContext> {
-  getChannel(): string {
+  get channel(): string {
     return 'slack'
   }
 
-  getPriority(): number {
+  get priority(): number {
     return 1
   }
 
-  getId() {
+  get id() {
     return SlackChoicesRenderer.name
   }
 
-  async handles(context: SlackContext): Promise<boolean> {
+  handles(context: SlackContext): boolean {
     return context.payload.choices
   }
 
-  async render(context: SlackContext): Promise<void> {
+  render(context: SlackContext) {
     if (context.message.text) {
       context.message.blocks.push({ type: 'section', text: { type: 'mrkdwn', text: context.message.text } })
     }

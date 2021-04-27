@@ -2,23 +2,23 @@ import * as sdk from 'botpress/sdk'
 import { SlackContext } from '../backend/typings'
 
 export class SlackImageRenderer implements sdk.ChannelRenderer<SlackContext> {
-  getChannel(): string {
+  get channel(): string {
     return 'slack'
   }
 
-  getPriority(): number {
+  get priority(): number {
     return 0
   }
 
-  getId() {
+  get id() {
     return SlackImageRenderer.name
   }
 
-  async handles(context: SlackContext): Promise<boolean> {
+  handles(context: SlackContext): boolean {
     return context.payload.image
   }
 
-  async render(context: SlackContext): Promise<void> {
+  render(context: SlackContext) {
     const payload = context.payload as sdk.ImageContent
 
     context.message.blocks.push({

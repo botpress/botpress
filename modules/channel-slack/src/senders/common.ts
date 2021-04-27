@@ -2,23 +2,23 @@ import * as sdk from 'botpress/sdk'
 import { SlackContext } from 'src/backend/typings'
 
 export class SlackCommonSender implements sdk.ChannelSender<SlackContext> {
-  getChannel(): string {
+  get channel(): string {
     return 'slack'
   }
 
-  getPriority(): number {
+  get priority(): number {
     return 0
   }
 
-  getId() {
+  get id() {
     return SlackCommonSender.name
   }
 
-  async handles(context: SlackContext): Promise<boolean> {
+  handles(context: SlackContext): boolean {
     return context.handlers?.length > 0
   }
 
-  async send(context: SlackContext): Promise<void> {
+  async send(context: SlackContext) {
     await context.client.web.chat.postMessage({ channel: context.channelId, text: undefined, ...context.message })
   }
 }

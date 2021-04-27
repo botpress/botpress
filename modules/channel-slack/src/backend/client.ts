@@ -178,14 +178,14 @@ export class SlackClient {
     }
 
     for (const renderer of this.renderers) {
-      if (await renderer.handles(context)) {
-        await renderer.render(context)
-        context.handlers.push(renderer.getId())
+      if (renderer.handles(context)) {
+        renderer.render(context)
+        context.handlers.push(renderer.id)
       }
     }
 
     for (const sender of this.senders) {
-      if (await sender.handles(context)) {
+      if (sender.handles(context)) {
         await sender.send(context)
       }
     }

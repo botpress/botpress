@@ -2,23 +2,23 @@ import * as sdk from 'botpress/sdk'
 import { SlackContext } from '../backend/typings'
 
 export class SlackFeedbackRenderer implements sdk.ChannelRenderer<SlackContext> {
-  getChannel(): string {
+  get channel(): string {
     return 'slack'
   }
 
-  getPriority(): number {
+  get priority(): number {
     return 1
   }
 
-  getId() {
+  get id() {
     return SlackFeedbackRenderer.name
   }
 
-  async handles(context: SlackContext): Promise<boolean> {
+  handles(context: SlackContext): boolean {
     return context.payload.collectFeedback
   }
 
-  async render(context: SlackContext): Promise<void> {
+  render(context: SlackContext) {
     context.message.blocks.push({
       type: 'section',
       block_id: `feedback-${context.event.incomingEventId}`,

@@ -2,19 +2,19 @@ import * as sdk from 'botpress/sdk'
 import { SlackContext } from 'src/backend/typings'
 
 export class SlackTypingSender implements sdk.ChannelSender<SlackContext> {
-  getChannel(): string {
+  get channel(): string {
     return 'slack'
   }
 
-  getPriority(): number {
+  get priority(): number {
     return -1
   }
 
-  getId() {
+  get id() {
     return SlackTypingSender.name
   }
 
-  async handles(context: SlackContext): Promise<boolean> {
+  handles(context: SlackContext): boolean {
     const typing = context.payload.typing
     return context.handlers?.length > 0 && (typing === undefined || typing === true)
   }
