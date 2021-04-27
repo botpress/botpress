@@ -31,6 +31,7 @@ export class Middleware {
   }
 
   private async incomingHandler(event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) {
+    // TODO: Add more validation than the payload type being audio
     if (event.payload.type !== 'audio') {
       return next()
     }
@@ -44,7 +45,7 @@ export class Middleware {
     if (audioFile) {
       try {
         // TODO: Fetch bot current language too?
-        const language = event.state.user.language
+        const language: string = event.state.user.language?.replace(/'/g, '')
         const text: string = await client.speechToText(audioFile, language)
 
         if (text) {
@@ -77,11 +78,11 @@ export class Middleware {
       return next()
     }
 
-    const incomingEvent: sdk.IO.StoredEvent[] = await this.bp.events.findEvents({
+    const incomingEvents: sdk.IO.StoredEvent[] = await this.bp.events.findEvents({
       incomingEventId: event.incomingEventId,
       direction: 'incoming'
     })
-    if (!incomingEvent.length || incomingEvent[0].event.payload.textToSpeech !== true) {
+    if (!incomingEvents.length || incomingEvents[0].event.payload.textToSpeech !== true) {
       return next()
     }
 
@@ -93,14 +94,15 @@ export class Middleware {
     const text = event.payload.text
     if (text) {
       try {
-        // TODO: Fetch user language somewhere! Fetch bot current language too?
-        const language: string = 'en-US'
+        // TODO: Fetch bot current language too?
+        const userAttributes = await this.bp.users.getAttributes(event.channel, event.target)
+        const language: string = userAttributes['language']?.replace(/'/g, '')
         const audio = await client.textToSpeech(text, language)
 
         const data = new FormData()
         data.append('file', audio, `${uuidv4()}.mp3`)
 
-        // TODO: Delete file once it is received? Upload with expiry? Channel-web - no expiry ??
+        // TODO: Add cache (preview -> buffer)
         const axiosConfig = await this.bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
         axiosConfig.headers['Content-Type'] = `multipart/form-data; boundary=${data.getBoundary()}`
 

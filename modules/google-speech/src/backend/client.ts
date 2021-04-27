@@ -139,7 +139,7 @@ export class GoogleSpeechClient {
   private languageCode(language: string) {
     // Instead of doing a complete BCP 47 validation, we only make sure the language
     // contains an hyphen that separates the language code to the country code.
-    if (language && language.includes('-')) {
+    if (language.includes('-')) {
       return language
     } else {
       return this.config.languageMapping[language] || 'en-US'
