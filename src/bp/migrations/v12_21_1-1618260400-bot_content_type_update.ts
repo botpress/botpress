@@ -4,7 +4,7 @@ import _ from 'lodash'
 
 const migration: Migration = {
   info: {
-    description: 'Adds video and audio content types to bot configs - fix',
+    description: 'Adds video and audio content types to bot configs',
     target: 'core',
     type: 'config'
   },
@@ -16,6 +16,7 @@ const migration: Migration = {
     for (const [botId, botConfig] of bots) {
       const { contentTypes } = botConfig.imports
 
+      // Fix for the previous migration which was removed
       const hasInvalidEntry = !!contentTypes.find(x => typeof x !== 'string')
       const hasMissingTypes = !newTypes.every(type => contentTypes.find(x => x === type))
 
