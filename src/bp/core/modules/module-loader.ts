@@ -2,14 +2,12 @@ import {
   BotTemplate,
   Condition,
   ContentElement,
-  ChannelRenderer,
   ElementChangedAction,
   Flow,
   Logger,
   ModuleDefinition,
   ModuleEntryPoint,
-  Skill,
-  ChannelSender
+  Skill
 } from 'botpress/sdk'
 import { ModuleInfo } from 'common/typings'
 import { createForModule } from 'core/app/api'
@@ -43,8 +41,6 @@ const MODULE_SCHEMA = joi.object().keys({
   onElementChanged: joi.func().optional(),
   skills: joi.array().optional(),
   translations: joi.object().optional(),
-  renderers: joi.array().optional(),
-  senders: joi.array().optional(),
   botTemplates: joi.array().optional(),
   dialogConditions: joi.array().optional(),
   definition: joi.object().keys({
@@ -350,26 +346,6 @@ export class ModuleLoader {
     ) as Condition[]
 
     return _.orderBy(conditions, x => x?.displayOrder)
-  }
-
-  public getChannelRenderers(): ChannelRenderer<any>[] {
-    const modules = Array.from(this.entryPoints.values())
-    const renderers = _.flatMap(
-      modules.filter(module => module.renderers),
-      x => x.renderers
-    ) as ChannelRenderer<any>[]
-
-    return _.orderBy(renderers, x => x.priority)
-  }
-
-  public getChannelSenders(): ChannelSender<any>[] {
-    const modules = Array.from(this.entryPoints.values())
-    const renderers = _.flatMap(
-      modules.filter(module => module.senders),
-      x => x.senders
-    ) as ChannelSender<any>[]
-
-    return _.orderBy(renderers, x => x.priority)
   }
 
   public getLoadedModules(): ModuleDefinition[] {
