@@ -9,7 +9,7 @@ import { TelegramTextRenderer } from '../renderers/text'
 import { TelegramCommonSender } from '../senders/common'
 import { TelegramTypingSender } from '../senders/typing'
 
-import { setupBot, setupMiddleware } from './client'
+import { setupBot, setupMiddleware, setupRenderers } from './client'
 import { Clients } from './typings'
 
 const clients: Clients = {}
@@ -18,6 +18,8 @@ let useWebhooks: boolean = true
 let whPath = ''
 
 const onServerReady = async (bp: typeof sdk) => {
+  setupRenderers(bp)
+
   if (useWebhooks) {
     const router = bp.http.createRouterForBot('channel-telegram', {
       checkAuthentication: false,
