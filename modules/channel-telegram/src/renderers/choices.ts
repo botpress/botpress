@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { TelegramContext } from 'src/backend/typings'
-import { Button, Markup } from 'telegraf'
+import { Markup } from 'telegraf'
 import Extra from 'telegraf/extra'
 
 export class TelegramChoicesRenderer implements sdk.ChannelRenderer<TelegramContext> {
@@ -22,7 +22,11 @@ export class TelegramChoicesRenderer implements sdk.ChannelRenderer<TelegramCont
 
   async render(context: TelegramContext): Promise<void> {
     const message = context.messages[0]
-    const keyboard = Markup.keyboard(context.keyboardButtons<Button>(context.payload.choices))
+    const payload = context.payload as sdk.ChoiceContent
+
+    const buttons = payload.choices.map(x => Markup.callbackButton(x.title as string, x.value))
+    const keyboard = Markup.keyboard(buttons)
+
     message.extra = Extra.markdown(false).markup({ ...keyboard, one_time_keyboard: true })
   }
 }

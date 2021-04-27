@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import Telegraf, { ContextMessageUpdate, Markup } from 'telegraf'
+import Telegraf, { ContextMessageUpdate } from 'telegraf'
 
 import { Clients, TelegramContext } from './typings'
 
@@ -51,7 +51,6 @@ export async function setupBot(bp: typeof sdk, botId: string, clients: Clients) 
   client.help(async ctx => sendEvent(bp, botId, ctx, { type: 'help' }))
   client.on('message', async ctx => sendEvent(bp, botId, ctx, { type: 'message' }))
   client.on('callback_query', async ctx => sendEvent(bp, botId, ctx, { type: 'callback' }))
-  // TODO We don't support understanding and accepting more complex stuff from users such as files, audio etc
 }
 
 export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
@@ -86,8 +85,7 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
       handlers: [],
       payload: _.cloneDeep(event.payload),
       messages: [],
-      chatId,
-      keyboardButtons
+      chatId
     }
 
     for (const renderer of renderers) {
@@ -109,23 +107,4 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
 
     next(undefined, false)
   }
-}
-
-function keyboardButtons<T>(arr: any[] | undefined): T[] | undefined {
-  if (!arr || !arr.length) {
-    return undefined
-  }
-
-  const rows = arr[0].length ? arr : [arr]
-
-  return rows.map(
-    row =>
-      row.map(x => {
-        if (x.url) {
-          return Markup.urlButton(x.title, x.url)
-        }
-
-        return Markup.callbackButton(x.title, x.payload || '')
-      }) as any
-  )
 }

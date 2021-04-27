@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import path from 'path'
 import { TelegramContext } from 'src/backend/typings'
-import { CallbackButton, Markup } from 'telegraf'
+import { Markup } from 'telegraf'
 import Extra from 'telegraf/extra'
 
 export class TelegramCarouselRenderer implements sdk.ChannelRenderer<TelegramContext> {
@@ -25,20 +25,26 @@ export class TelegramCarouselRenderer implements sdk.ChannelRenderer<TelegramCon
     const { messages } = context
     const payload = context.payload as sdk.CarouselContent
 
-    if (payload.items?.length) {
-      const { title, image, subtitle } = payload.items[0]
-      const buttons = payload.items.map(x => x.actions || [])
-
-      if (image) {
+    for (const card of payload.items) {
+      if (card.image) {
         messages.push({ action: 'upload_photo' })
-        messages.push({ photo: { url: image, filename: path.basename(image) } })
+        messages.push({ photo: { url: card.image, filename: path.basename(card.image) } })
       }
 
-      const keyboard = context.keyboardButtons<CallbackButton>(buttons)
+      const buttons = []
+      for (const action of card.actions) {
+        if (action.action === 'Open URL') {
+          buttons.push(Markup.urlButton(action.title, (action as sdk.ActionOpenURL).url))
+        } else if (action.action === 'Postback') {
+          buttons.push(Markup.callbackButton(action.title, (action as sdk.ActionPostback).payload))
+        } else if (action.action === 'Say something') {
+          buttons.push(Markup.callbackButton(action.title, (action as sdk.ActionSaySomething).text as string))
+        }
+      }
 
       messages.push({
-        text: `*${title}*\n${subtitle}`,
-        extra: Extra.markdown(true).markup(Markup.inlineKeyboard(keyboard))
+        text: `*${card.title}*\n${card.subtitle}`,
+        extra: Extra.markdown(true).markup(Markup.inlineKeyboard(buttons))
       })
     }
   }
