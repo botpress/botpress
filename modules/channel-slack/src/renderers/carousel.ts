@@ -1,8 +1,9 @@
 import * as sdk from 'botpress/sdk'
+import { ChannelRenderer } from 'common/channel'
 import _ from 'lodash'
 import { SlackContext } from '../backend/typings'
 
-export class SlackCarouselRenderer implements sdk.ChannelRenderer<SlackContext> {
+export class SlackCarouselRenderer implements ChannelRenderer<SlackContext> {
   get channel(): string {
     return 'slack'
   }

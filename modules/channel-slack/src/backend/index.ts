@@ -1,12 +1,5 @@
 import * as sdk from 'botpress/sdk'
 import { Config } from '../config'
-import { SlackCarouselRenderer } from '../renderers/carousel'
-import { SlackChoicesRenderer } from '../renderers/choices'
-import { SlackImageRenderer } from '../renderers/image'
-import { SlackTextRenderer } from '../renderers/text'
-
-import { SlackCommonSender } from '../senders/common'
-import { SlackTypingSender } from '../senders/typing'
 import { setupMiddleware, SlackClient } from './client'
 import { Clients } from './typings'
 
@@ -51,13 +44,6 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onServerReady,
   onBotMount,
   onBotUnmount,
-  renderers: [
-    new SlackTextRenderer(),
-    new SlackImageRenderer(),
-    new SlackCarouselRenderer(),
-    new SlackChoicesRenderer()
-  ],
-  senders: [new SlackTypingSender(), new SlackCommonSender()],
   definition: {
     name: 'channel-slack',
     menuIcon: 'none',

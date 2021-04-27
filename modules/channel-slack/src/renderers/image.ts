@@ -1,7 +1,8 @@
 import * as sdk from 'botpress/sdk'
+import { ChannelRenderer } from 'common/channel'
 import { SlackContext } from '../backend/typings'
 
-export class SlackImageRenderer implements sdk.ChannelRenderer<SlackContext> {
+export class SlackImageRenderer implements ChannelRenderer<SlackContext> {
   get channel(): string {
     return 'slack'
   }

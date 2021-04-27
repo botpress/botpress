@@ -6,11 +6,17 @@ import { RTMClient } from '@slack/rtm-api'
 import { WebClient } from '@slack/web-api'
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
+import { ChannelRenderer, ChannelSender } from 'common/channel'
 import _ from 'lodash'
 import LRU from 'lru-cache'
 import ms from 'ms'
-
 import { Config } from '../config'
+import { SlackCarouselRenderer } from '../renderers/carousel'
+import { SlackChoicesRenderer } from '../renderers/choices'
+import { SlackImageRenderer } from '../renderers/image'
+import { SlackTextRenderer } from '../renderers/text'
+import { SlackCommonSender } from '../senders/common'
+import { SlackTypingSender } from '../senders/typing'
 
 import { Clients, SlackContext } from './typings'
 
@@ -26,8 +32,8 @@ export class SlackClient {
   private events: SlackEventAdapter
   private interactive: SlackMessageAdapter
   private logger: sdk.Logger
-  private renderers: sdk.ChannelRenderer<SlackContext>[]
-  private senders: sdk.ChannelSender<SlackContext>[]
+  private renderers: ChannelRenderer<SlackContext>[]
+  private senders: ChannelSender<SlackContext>[]
 
   constructor(private bp: typeof sdk, private botId: string, private config: Config, private router) {
     this.logger = bp.logger.forBot(botId)
@@ -40,8 +46,13 @@ export class SlackClient {
       )
     }
 
-    this.renderers = this.bp.experimental.render.getChannelRenderers('slack')
-    this.senders = this.bp.experimental.render.getChannelSenders('slack')
+    this.renderers = [
+      new SlackTextRenderer(),
+      new SlackImageRenderer(),
+      new SlackCarouselRenderer(),
+      new SlackChoicesRenderer()
+    ]
+    this.senders = [new SlackTypingSender(), new SlackCommonSender()]
 
     this.client = new WebClient(this.config.botToken)
     if (this.config.useRTM || this.config.useRTM === undefined) {
