@@ -1,9 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { renderRecursive } from 'core/cms/templating'
-import { ModuleLoader } from 'core/modules'
-import { TYPES } from 'core/types'
-import { inject, injectable, postConstruct } from 'inversify'
-import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
+import { injectable } from 'inversify'
 
 const __unrendered = <T>(payload: T): T => {
   ;(<any>payload).__unrendered = true
@@ -12,16 +9,6 @@ const __unrendered = <T>(payload: T): T => {
 
 @injectable()
 export class RenderService {
-  constructor(@inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader) {}
-
-  getChannelRenderers(channel: string) {
-    return this.moduleLoader.getChannelRenderers().filter(x => x.channel === channel)
-  }
-
-  getChannelSenders(channel: string) {
-    return this.moduleLoader.getChannelSenders().filter(x => x.channel === channel)
-  }
-
   renderText(text: string | sdk.MultiLangText, markdown?: boolean): sdk.TextContent {
     return __unrendered({
       type: 'text',

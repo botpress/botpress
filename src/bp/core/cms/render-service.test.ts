@@ -5,7 +5,7 @@ import 'reflect-metadata'
 import { RenderService } from './render-service'
 
 describe('Content Renders', () => {
-  const render = new RenderService(<any>undefined)
+  const render = new RenderService()
 
   test('Render text content', () => {
     const content = render.renderText('yoyo')

@@ -241,9 +241,7 @@ const render = (renderService: RenderService): typeof sdk.experimental.render =>
     option: renderService.renderOption.bind(renderService),
     translate: renderService.renderTranslated.bind(renderService),
     template: renderService.renderTemplate.bind(renderService),
-    pipeline: renderService.getPipeline.bind(renderService),
-    getChannelRenderers: renderService.getChannelRenderers.bind(renderService),
-    getChannelSenders: renderService.getChannelSenders.bind(renderService)
+    pipeline: renderService.getPipeline.bind(renderService)
   }
 }
 
