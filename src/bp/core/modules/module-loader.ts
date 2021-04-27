@@ -359,7 +359,7 @@ export class ModuleLoader {
       x => x.renderers
     ) as ChannelRenderer<any>[]
 
-    return _.orderBy(renderers, x => x.getPriority())
+    return _.orderBy(renderers, x => x.priority)
   }
 
   public getChannelSenders(): ChannelSender<any>[] {
@@ -369,7 +369,7 @@ export class ModuleLoader {
       x => x.senders
     ) as ChannelSender<any>[]
 
-    return _.orderBy(renderers, x => x.getPriority())
+    return _.orderBy(renderers, x => x.priority)
   }
 
   public getLoadedModules(): ModuleDefinition[] {

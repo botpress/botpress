@@ -3,6 +3,7 @@ import { DateRange, DateRangePicker } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import * as sdk from 'botpress/sdk'
 import { Dropdown, lang, Option, toast } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
 import queryString from 'query-string'
@@ -15,6 +16,7 @@ import PageContainer from '~/app/common/PageContainer'
 import { AppState } from '~/app/rootReducer'
 import { fetchBots } from '~/workspace/bots/reducer'
 
+import style from './style.scss'
 import { filterText, getDateShortcuts, getRangeLabel, lowercaseFilter } from './utils'
 
 type Props = ConnectedProps<typeof connector>
@@ -183,13 +185,13 @@ const Logs: FC<Props> = props => {
         Cell: ({ original: { level } }) => {
           switch (level) {
             case 'info':
-              return <span className="logInfo">{lang.tr('admin.logs.level.info')}</span>
+              return <span className={style.logInfo}>{lang.tr('admin.logs.level.info')}</span>
             case 'warn':
-              return <span className="logWarn">{lang.tr('admin.logs.level.warning')}</span>
+              return <span className={style.logWarn}>{lang.tr('admin.logs.level.warning')}</span>
             case 'error':
-              return <span className="logError">{lang.tr('admin.logs.level.error')}</span>
+              return <span className={style.logError}>{lang.tr('admin.logs.level.error')}</span>
             case 'critical':
-              return <span className="logCritical">{lang.tr('admin.logs.level.critical')}</span>
+              return <span className={style.logCritical}>{lang.tr('admin.logs.level.critical')}</span>
           }
         },
         Filter: filterLevel,
@@ -221,16 +223,16 @@ const Logs: FC<Props> = props => {
     return (
       <small>
         {rows} rows ({getRangeLabel(dateRange)}){' '}
-        {rows === 2000 && <span className="logError">{lang.tr('admin.logs.rowLimitReached')}</span>}
+        {rows === 2000 && <span className={style.logError}>{lang.tr('admin.logs.rowLimitReached')}</span>}
       </small>
     )
   }
 
   return (
     <PageContainer title={<span>Logs </span>} fullWidth={true}>
-      <div className="logToolbar-container">
-        <div className="logToolbar-left">{renderRowHeader()}</div>
-        <div className="logToolbar-right">
+      <div className={style.toolbar}>
+        <div className={style.left}>{renderRowHeader()}</div>
+        <div className={style.right}>
           <Popover>
             <Button text={lang.tr('admin.logs.dateTimeRange')} icon="calendar" small />
 
@@ -262,7 +264,7 @@ const Logs: FC<Props> = props => {
         onFilteredChange={filtered => setFilters(filtered)}
         filterable
         defaultSorted={[{ id: 'level', desc: false }]}
-        className="-striped -highlight monitoringOverview"
+        className={cx(style.monitoringOverview, '-striped -highlight ')}
         previousText={lang.tr('previous')}
         nextText={lang.tr('next')}
         noDataText={lang.tr('noRowsFound')}

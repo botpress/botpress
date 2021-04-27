@@ -5,6 +5,7 @@ import { AuthRole } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
 
+import style from '../style.scss'
 import User from './User'
 
 interface Props {
@@ -23,15 +24,15 @@ const RoleSection: FC<Props> = props => {
 
   return (
     <div key={`role-${role.id}`}>
-      <div onClick={() => setOpen(!isOpen)} id={`div-role-${role.id}`} className="bp_users-role_header">
-        <div className="role float-left">
+      <div onClick={() => setOpen(!isOpen)} id={`div-role-${role.id}`} className={style.role_header}>
+        <div className={style.role}>
           <Tag minimal={true}>{users.length}</Tag>
-          <span className="title">{lang.tr(role.name)}</span>
+          <span className={style.title}>{lang.tr(role.name)}</span>
         </div>
         {isOpen ? <Icon icon="caret-up" /> : <Icon icon="caret-down" />}
       </div>
       <Collapse isOpen={isOpen}>
-        <div className="bp_table">
+        <div className={style.table}>
           {users.map(user => (
             <User
               key={user.email}

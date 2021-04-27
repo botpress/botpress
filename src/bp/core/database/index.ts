@@ -86,10 +86,12 @@ export default class Database {
     }
 
     if (databaseType === 'postgres') {
+      const searchPath = (process.env.DATABASE_PG_SEARCH_PATH || 'public').split(',')
       Object.assign(config, {
         client: 'pg',
         connection: databaseUrl,
-        pool: poolOptions
+        pool: poolOptions,
+        searchPath
       })
     } else {
       const dbLocation = databaseUrl ? databaseUrl : `${process.PROJECT_LOCATION}/data/storage/core.sqlite`

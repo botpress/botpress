@@ -1,13 +1,11 @@
-import { Button, Intent, Position, Tooltip as BpTooltip } from '@blueprintjs/core'
+import { Button, Intent, Position, Tooltip as BpTooltip, Callout } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import { calculateOverviewForHost, groupEntriesByTime, mergeEntriesByTime, Metric } from 'common/monitoring'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 import React, { Component, Fragment } from 'react'
-import { IoIosArchive } from 'react-icons/io'
 import { connect, ConnectedProps } from 'react-redux'
-import { Col, Jumbotron, Row } from 'reactstrap'
 import {
   Bar,
   CartesianGrid,
@@ -30,6 +28,7 @@ import { fetchBotHealth } from '~/workspace/bots/reducer'
 import BotHealth from './BotHealth'
 import ChartTooltip from './ChartTooltip'
 import { fetchStats, refreshStats } from './reducer'
+import style from './style.scss'
 import SummaryTable from './SummaryTable'
 
 const timeFrameOptions = [
@@ -272,38 +271,36 @@ class Monitoring extends Component<Props, State> {
     }
 
     return (
-      <div className="monitoring">
-        <Row>
-          <Col md={6}>
+      <div>
+        <div className={style.row}>
+          <div className={style.col}>
             <h5>CPU & Memory Usage (average)</h5>
             {this.renderCpu()}
-          </Col>
-          <Col md={6}>
+          </div>
+          <div className={style.col}>
             <h5>Metrics (total)</h5>
             {this.renderMeasures()}
-          </Col>
-        </Row>
-        <Row>
-          <Col md={12}>
-            <h5>Overview</h5>
-            {this.renderOverview()}
-          </Col>
-        </Row>
-        <Row>
-          <Col md={12}>
-            <h5>Bot Health</h5>
-            <BotHealth />
-          </Col>
-        </Row>
+          </div>
+        </div>
+
+        <div>
+          <h5>Overview</h5>
+          {this.renderOverview()}
+        </div>
+
+        <div>
+          <h5>Bot Health</h5>
+          <BotHealth />
+        </div>
       </div>
     )
   }
 
   renderHeader() {
     return (
-      <div className="logToolbar-container">
-        <div className="logToolbar-left"></div>
-        <div className="logToolbar-right">
+      <div className={style.toolbar}>
+        <div className={style.left}></div>
+        <div className={style.right}>
           <BpTooltip content="Time Frame" position={Position.BOTTOM}>
             <Dropdown
               items={timeFrameOptions}
@@ -342,20 +339,13 @@ class Monitoring extends Component<Props, State> {
 
   renderNoStats() {
     return (
-      <Jumbotron>
-        <Row>
-          <Col style={{ textAlign: 'center' }} sm="12" md={{ size: 8, offset: 2 }}>
-            <h1>
-              <IoIosArchive />
-              &nbsp; Monitoring is enabled, however there is no statistics to display.
-            </h1>
-            <p>
-              Make sure your Redis configuration is correct (and that you have restarted the server if you just made the
-              change).
-            </p>
-          </Col>
-        </Row>
-      </Jumbotron>
+      <Callout title="No statistics to display">
+        <p>Monitoring is enabled, however there is no statistics to display.</p>
+        <p>
+          Make sure your Redis configuration is correct (and that you have restarted the server if you just made the
+          change).
+        </p>
+      </Callout>
     )
   }
 

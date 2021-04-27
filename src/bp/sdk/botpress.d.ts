@@ -4,7 +4,7 @@
  * this SDK (Yes, all those beautiful features!) to kick start your development. Missing something important?
  * Please let us know in our official Github Repo!
  */
- declare module 'botpress/sdk' {
+declare module 'botpress/sdk' {
   import { NextFunction, Request, Response, Router } from 'express'
   import Knex from 'knex'
   export interface KnexExtension {
@@ -201,20 +201,20 @@
   }
 
   export interface ChannelRenderer<Context extends ChannelContext<any>> {
-    getId(): string
-    getPriority(): number
-    getChannel(): string
+    id: string
+    priority: number
+    channel: string
 
-    handles(context: Context): Promise<boolean>
-    render(context: Context): Promise<void>
+    handles(context: Context): boolean
+    render(context: Context): void
   }
 
   export interface ChannelSender<Context extends ChannelContext<any>> {
-    getId(): string
-    getPriority(): number
-    getChannel(): string
+    id: string
+    priority: number
+    channel: string
 
-    handles(context: Context): Promise<boolean>
+    handles(context: Context): boolean
     send(context: Context): Promise<void>
   }
 
@@ -1748,8 +1748,8 @@
   }
 
   export interface ActionButton {
-    title: string
     action: string
+    title: string
   }
 
   export interface ActionSaySomething extends ActionButton {
@@ -1769,12 +1769,12 @@
 
   export interface ChoiceContent extends Content {
     type: 'single-choice'
-    message: string | MultiLangText
+    text: string | MultiLangText
     choices: ChoiceOption[]
   }
 
   export interface ChoiceOption {
-    message: string | MultiLangText
+    title: string | MultiLangText
     value: string
   }
 
@@ -2668,20 +2668,20 @@
 
       /**
        * Render a choice element
-       * @param message Message to ask to the user
+       * @param text Message to ask to the user
        * @param choices Choices that the user can select
        * @example
        * bp.render.choice("Yes or no?", bp.render.option('yes'), bp.render.option('no'))
        */
-      export function choice(message: string | MultiLangText, ...choices: ChoiceOption[]): ChoiceContent
+      export function choice(text: string | MultiLangText, ...choices: ChoiceOption[]): ChoiceContent
 
       /**
        * Renders an option for a choice element
        * @param value Value associated with the option
-       * @param message Text to shown to the user (has no impact on the processing).
+       * @param title Text to shown to the user (has no impact on the processing).
        * If not provided the value will be shown by default
        */
-      export function option(value: string, message?: string): ChoiceOption
+      export function option(value: string, title?: string): ChoiceOption
 
       /**
        * Translates a content element to a specific language

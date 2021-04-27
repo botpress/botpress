@@ -1,0 +1,37 @@
+.checklist {
+  border: 1px solid #efefef;
+  margin: 20px;
+
+  .header {
+    height: 35px;
+    border-bottom: 1px solid #efefef;
+    background: #fefefe;
+    padding: 5px;
+    cursor: pointer;
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+
+    .title {
+      margin-left: 10px;
+    }
+  }
+
+  .docs {
+    float: right;
+    padding: 5px;
+  }
+
+  .item {
+    border-bottom: 1px solid #e1e4e8;
+    padding: 20px;
+  }
+
+  .sources {
+    margin-top: 15px;
+  }
+
+  .source {
+    margin-bottom: 5px;
+  }
+}

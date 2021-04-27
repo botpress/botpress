@@ -15,11 +15,11 @@ export class RenderService {
   constructor(@inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader) {}
 
   getChannelRenderers(channel: string) {
-    return this.moduleLoader.getChannelRenderers().filter(x => x.getChannel() === channel)
+    return this.moduleLoader.getChannelRenderers().filter(x => x.channel === channel)
   }
 
   getChannelSenders(channel: string) {
-    return this.moduleLoader.getChannelSenders().filter(x => x.getChannel() === channel)
+    return this.moduleLoader.getChannelSenders().filter(x => x.channel === channel)
   }
 
   renderText(text: string | sdk.MultiLangText, markdown?: boolean): sdk.TextContent {
@@ -60,10 +60,10 @@ export class RenderService {
     })
   }
 
-  renderChoice(message: string | sdk.MultiLangText, ...choices: sdk.ChoiceOption[]): sdk.ChoiceContent {
+  renderChoice(text: string | sdk.MultiLangText, ...choices: sdk.ChoiceOption[]): sdk.ChoiceContent {
     return __unrendered({
       type: 'single-choice',
-      message,
+      text,
       choices
     })
   }
@@ -92,10 +92,10 @@ export class RenderService {
     }
   }
 
-  renderOption(value: string, message?: string): sdk.ChoiceOption {
+  renderOption(value: string, title?: string): sdk.ChoiceOption {
     return {
       value,
-      message: message ?? value
+      title: title ?? value
     }
   }
 

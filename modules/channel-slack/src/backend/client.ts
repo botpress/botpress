@@ -165,7 +165,7 @@ export class SlackClient {
 
   async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     const foreignId = await this.bp.experimental.conversations.forBot(this.botId).getForeignId('slack', event.threadId)
-    const [channelId, userId] = foreignId.split('-')
+    const [channelId, userId] = this.splitConvoKey(foreignId)
 
     const context: SlackContext = {
       bp: this.bp,
@@ -177,18 +177,15 @@ export class SlackClient {
       channelId
     }
 
-    for (const renderer of this.renderers) {
-      if (await renderer.handles(context)) {
-        await renderer.render(context)
-        context.handlers.push(renderer.getId())
-      }
-    }
-
     for (const sender of this.senders) {
       if (await sender.handles(context)) {
         await sender.send(context)
       }
     }
+
+    await this.bp.experimental.messages
+      .forBot(this.botId)
+      .create(event.threadId, event.payload, undefined, event.id, event.incomingEventId)
 
     await this.bp.experimental.messages
       .forBot(this.botId)
@@ -210,7 +207,7 @@ export class SlackClient {
 
     let convoId = await this.bp.experimental.conversations
       .forBot(this.botId)
-      .getLocalId('slack', `${channelId}-${userId}`)
+      .getLocalId('slack', this.getConvoKey(channelId, userId))
 
     if (!convoId) {
       const conversation = await this.bp.experimental.conversations.forBot(this.botId).create(userId)
@@ -218,10 +215,18 @@ export class SlackClient {
 
       await this.bp.experimental.conversations
         .forBot(this.botId)
-        .createMapping('slack', conversation.id, `${channelId}-${userId}`)
+        .createMapping('slack', conversation.id, this.getConvoKey(channelId, userId))
     }
 
     await this.bp.experimental.messages.forBot(this.botId).receive(convoId, payload, { channel: 'slack' })
+  }
+
+  private getConvoKey(channelId: string, userId: string) {
+    return `${channelId}-${userId}`
+  }
+
+  private splitConvoKey(convoKey: string) {
+    return convoKey.split('-')
   }
 }
 
