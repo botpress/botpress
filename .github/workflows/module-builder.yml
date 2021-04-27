@@ -11,8 +11,10 @@ jobs:
         run: |
           pwd
           ls
+          test -f package.json && echo "package.json exists" && exit 1
           test ! -f modules/channel-web/channel-web.tgz && echo "File does not exit" && exit 1
           docker build -t module-builder-test -f build/module-builder/Dockerfile .
           docker run -v `pwd`/modules/channel-web:/botpress/modules/channel-web module-builder-test sh -c 'cd modules/channel-web && yarn && yarn build && yarn package'
           ls
+          ls modules/channel-web
           test ! -f modules/channel-web/channel-web.tgz && echo "File does not exit" && exit 1
