@@ -7,8 +7,8 @@ const UPDATE_PAGE_HEADER = 'ui/UPDATE_PAGE_HEADER'
 interface UiState {
   bottomPanel: boolean
   bottomPanelExpanded: boolean
-  pageTitle?: any
-  pageHelpText?: any
+  pageTitle?: JSX.Element | string
+  pageHelpText?: JSX.Element | string
 }
 
 const bottomPanelStorageKey = 'bp:bottom-panel-open'
@@ -60,7 +60,7 @@ export const toggleBottomPanelExpand = (): AppThunk => {
   }
 }
 
-export const updatePageHeader = (pageTitle?: any, pageHelpText?: any): AppThunk => {
+export const updatePageHeader = (pageTitle?: JSX.Element | string, pageHelpText?: JSX.Element | string): AppThunk => {
   return async dispatch => {
     dispatch({ type: UPDATE_PAGE_HEADER, payload: { pageTitle, pageHelpText } })
   }

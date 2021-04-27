@@ -23,7 +23,7 @@ const Header: FC<Props> = props => {
               <span>{props.pageTitle || ''}</span>
               {props.pageHelpText && (
                 <Tooltip content={props.pageHelpText}>
-                  <Icon icon={'info-sign'} color={Colors.LIGHT_GRAY1} />
+                  <Icon icon="info-sign" color={Colors.LIGHT_GRAY1} />
                 </Tooltip>
               )}
             </div>
@@ -35,7 +35,7 @@ const Header: FC<Props> = props => {
           <AccessControl resource="admin.logs" operation="read">
             <Tooltip content={<div className={style.tooltip}>{lang.tr('bottomPanel.label')}</div>}>
               <Button onClick={props.toggleBottomPanel} minimal>
-                <Icon color="#1a1e22" icon="console" iconSize={16} />
+                <Icon color={Colors.BLACK} icon="console" iconSize={16} />
               </Button>
             </Tooltip>
           </AccessControl>

@@ -6,13 +6,13 @@ import { connect, ConnectedProps } from 'react-redux'
 import { AppState } from '~/app/rootReducer'
 import { fetchBots } from '~/workspace/bots/reducer'
 
-type Props = ConnectedProps<typeof connector> & { onChange: any }
+type Props = ConnectedProps<typeof connector> & { onChange: (value: Option['value']) => void }
 
 const BotDropdown: FC<Props> = props => {
-  const defaultItem = { value: '*', label: lang.tr('bottomPanel.logs.allBots') }
+  const defaultItem: Option = { value: '*', label: lang.tr('bottomPanel.logs.allBots') }
 
   const [items, setItems] = useState<Option[]>([])
-  const [current, setCurrent] = useState(defaultItem)
+  const [current, setCurrent] = useState<Option>(defaultItem)
 
   useEffect(() => {
     if (props.bots) {
