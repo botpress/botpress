@@ -15,13 +15,13 @@ const test = {
   studio: {
     ui: './studio/ui.test',
     flows: './studio/flows.test',
-    cms: './studio/cms.test'
+    cms: './studio/cms.test',
+    nlu: './studio/nlu.test'
   },
   mod: {
     editor: './modules/code-editor.test',
     // qna: './modules/qna.test',
     testing: './modules/testing.test',
-    nlu: './modules/nlu.test',
     webchat: './modules/webchat.test'
   }
 }
@@ -31,8 +31,8 @@ if (process.env.PRO_ENABLED) {
   admin.push(test.admin.users)
 }
 
-const studio = [test.studio.ui, test.studio.flows, test.studio.cms]
-const modules = [test.mod.nlu, test.mod.qna, test.mod.editor, test.mod.testing, test.mod.webchat]
+const studio = [test.studio.ui, test.studio.flows, test.studio.cms, test.studio.nlu]
+const modules = [/*test.mod.qna*,*/ test.mod.editor, test.mod.testing, test.mod.webchat]
 
 /** Define test pipelines below */
 const allTests = [test.login, ...admin, ...studio, ...modules, test.logout]

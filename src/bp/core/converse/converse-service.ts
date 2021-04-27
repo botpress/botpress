@@ -119,6 +119,16 @@ export class ConverseService {
   private async _createDonePromise(botId, userKey: string) {
     return new Promise((resolve, reject) => {
       converseApiEvents.once(`done.${userKey}`, async event => {
+        // We need to wait for an empty and not locked outgoing queue in order to have all responses
+        await new Promise((resolve, reject) => {
+          const resolveOnEmptyQueue = () => {
+            this.eventEngine.isOutgoingQueueEmpty(event) && !this.eventEngine.isOutgoingQueueLocked(event)
+              ? resolve()
+              : setTimeout(resolveOnEmptyQueue, 50)
+          }
+          resolveOnEmptyQueue()
+        })
+
         let bufferDelay = _.get(await this.configProvider.getBotConfig(botId), 'converse.bufferDelayMs')
 
         if (!bufferDelay) {

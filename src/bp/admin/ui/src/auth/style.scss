@@ -1,0 +1,90 @@
+.centered_container {
+  display: table;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-color: black;
+
+  .middle {
+    display: table-cell;
+    vertical-align: middle;
+  }
+
+  .inner {
+    margin-left: auto;
+    margin-right: auto;
+    width: 350px;
+    text-align: center;
+  }
+
+  .logo {
+    display: block;
+    width: 90%;
+    margin: auto;
+    margin-bottom: 40px;
+  }
+
+  .login_btn {
+    background: white;
+    color: black;
+    padding: 10px 20px;
+    font-size: 24px;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: none;
+      background-color: #eee;
+    }
+  }
+}
+
+.login_box {
+  label {
+    display: block;
+    text-align: left;
+  }
+
+  button {
+    width: 100%;
+    margin-top: 10px;
+  }
+}
+
+.card {
+  position: relative;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 0.25rem;
+}
+
+.card_body {
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+  padding: 1.25rem;
+}
+
+.card_title {
+  margin-bottom: 0.75rem;
+}
+
+.card_text {
+  p {
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+}
+
+.homepage p {
+  &,
+  a {
+    color: #999;
+  }
+  margin-top: 1rem;
+}

@@ -7,6 +7,7 @@ import api from '~/app/api'
 import PageContainer from '~/app/common/PageContainer'
 import LangServer from './LangServer'
 import LanguageManagement from './LanguageManagement'
+import style from './style.scss'
 import { LangServerInfo, LanguageSource } from './typings'
 
 const fetchLangSource = async (setLangSource: Function) => {
@@ -44,7 +45,7 @@ export default () => {
   return (
     <PageContainer title={lang.tr('admin.languages.languageManagement')} superAdmin>
       {langSource && langServerInfo ? (
-        <div className="languages-grid">
+        <div className={style.languages_grid}>
           <div>
             {langServerInfo.readOnly && <Callout intent="warning">{lang.tr('admin.languages.cannotBeEdited')}</Callout>}
             <LanguageManagement languageSource={langSource} readOnly={langServerInfo.readOnly} />
