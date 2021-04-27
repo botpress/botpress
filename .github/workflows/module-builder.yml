@@ -15,6 +15,11 @@ jobs:
           docker run -v `pwd`/modules/channel-web:/botpress/modules/channel-web module-builder-test sh -c 'cd modules/channel-web && yarn && yarn build && yarn package'
           ls modules/channel-web
           echo "before"
+          echo "testing package.json exists"
+          test modules/channel-web/package.json
+          echo "testing package.json does not exist"
+          test -f modules/channel-web/package.json
+          echo "testing channel-web.tgz does not exist"
           test ! -f modules/channel-web/channel-web.tgz
           echo "after"
           echo $?
