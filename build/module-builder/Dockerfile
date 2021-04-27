@@ -15,7 +15,7 @@ FROM node:12-alpine
 WORKDIR /botpress
 # add build config & dependencies
 COPY --from=builder ./botpress/build ./build
-COPY --from=builder ./botpress/gulpfile.js ./botpress/package.json ./botpress/yarn.lock ./
+COPY --from=builder ./botpress/gulpfile.js ./botpress/metadata.json ./botpress/package.json ./botpress/yarn.lock ./
 # install dependencies
 RUN yarn install
 RUN cd build/module-builder && yarn install
