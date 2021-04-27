@@ -25,6 +25,8 @@ export interface StanOptions {
   modelCacheSize: string
 }
 
+const SIG_KILL = 'SIGKILL'
+
 const DEFAULT_STAN_OPTIONS: StanOptions = {
   host: 'localhost',
   port: 3200,
@@ -43,6 +45,8 @@ const DEFAULT_STAN_OPTIONS: StanOptions = {
   silent: true
 }
 
+let stanProcess: child_process.ChildProcess | undefined
+
 export const runStan = (opts: Partial<StanOptions>): Promise<{ code: number | null; signal: string | null }> => {
   const options = { ...DEFAULT_STAN_OPTIONS, ...opts }
 
@@ -50,16 +54,24 @@ export const runStan = (opts: Partial<StanOptions>): Promise<{ code: number | nu
     try {
       const STAN_JSON_CONFIG = JSON.stringify(options)
       const command = path.join(__dirname, 'index.js') // TODO change this when we have a bin
-      const stanProcess = child_process.fork(command, ['nlu'], {
+      stanProcess = child_process.fork(command, ['nlu'], {
         env: { ...process.env, STAN_JSON_CONFIG },
         stdio: 'inherit'
       })
 
       stanProcess.on('exit', (code, signal) => {
+        stanProcess = undefined
         resolve({ code, signal })
       })
     } catch (err) {
+      stanProcess = undefined
       reject(err)
     }
   })
+}
+
+export const killStan = () => {
+  if (stanProcess) {
+    stanProcess.kill(SIG_KILL)
+  }
 }

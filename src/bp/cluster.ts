@@ -2,7 +2,7 @@ import sdk from 'botpress/sdk'
 import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
-import { runStan, StanOptions } from 'stan-launcher'
+import { killStan, runStan, StanOptions } from 'stan-launcher'
 import yn from 'yn'
 import { LanguageConfig } from './nlu/engine'
 
@@ -57,8 +57,7 @@ export const setupMasterNode = (logger: sdk.Logger) => {
   })
 
   registerMsgHandler(MESSAGE_TYPE_START_LOCAL_STAN_SERVER, async (message: Partial<StanOptions>) => {
-    await runStan(message)
-    return
+    return runStan(message)
   })
 
   cluster.on('exit', async (worker: Worker, code: number, signal: string) => {
@@ -71,6 +70,9 @@ export const setupMasterNode = (logger: sdk.Logger) => {
 
     // TODO: the debug instance has no access to the debug config. It is in the web process.
     debug('Process exiting %o', { workerId: id, code, signal, exitedAfterDisconnect })
+
+    killStan()
+
     // Reset the counter when the reboot was intended
     if (exitedAfterDisconnect) {
       webServerRebootCount = 0
