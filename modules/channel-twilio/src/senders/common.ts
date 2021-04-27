@@ -2,23 +2,23 @@ import * as sdk from 'botpress/sdk'
 import { TwilioContext } from '../backend/typings'
 
 export class TwilioCommonSender implements sdk.ChannelSender<TwilioContext> {
-  getChannel(): string {
+  get channel(): string {
     return 'twilio'
   }
 
-  getPriority(): number {
+  get priority(): number {
     return 0
   }
 
-  getId() {
+  get id() {
     return TwilioCommonSender.name
   }
 
-  async handles(context: TwilioContext): Promise<boolean> {
+  handles(context: TwilioContext): boolean {
     return context.handlers?.length > 0
   }
 
-  async send(context: TwilioContext): Promise<void> {
+  async send(context: TwilioContext) {
     for (const message of context.messages) {
       await context.client.messages.create({
         ...message,

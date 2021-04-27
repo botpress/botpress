@@ -2,23 +2,23 @@ import * as sdk from 'botpress/sdk'
 import { TwilioContext } from '../backend/typings'
 
 export class TwilioImageRenderer implements sdk.ChannelRenderer<TwilioContext> {
-  getChannel(): string {
+  get channel(): string {
     return 'twilio'
   }
 
-  getPriority(): number {
+  get priority(): number {
     return 0
   }
 
-  getId() {
+  get id() {
     return TwilioImageRenderer.name
   }
 
-  async handles(context: TwilioContext): Promise<boolean> {
+  handles(context: TwilioContext): boolean {
     return context.payload.image
   }
 
-  async render(context: TwilioContext): Promise<void> {
+  render(context: TwilioContext) {
     const payload = context.payload as sdk.ImageContent
 
     // TODO fix mediaUrl not being in typings

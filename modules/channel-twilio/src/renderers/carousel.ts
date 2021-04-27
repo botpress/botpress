@@ -2,23 +2,23 @@ import * as sdk from 'botpress/sdk'
 import { TwilioContext } from '../backend/typings'
 
 export class TwilioCarouselRenderer implements sdk.ChannelRenderer<TwilioContext> {
-  getChannel(): string {
+  get channel(): string {
     return 'twilio'
   }
 
-  getPriority(): number {
+  get priority(): number {
     return 0
   }
 
-  getId(): string {
+  get id(): string {
     return TwilioCarouselRenderer.name
   }
 
-  async handles(context: TwilioContext): Promise<boolean> {
+  handles(context: TwilioContext): boolean {
     return context.payload.items?.length
   }
 
-  async render(context: TwilioContext): Promise<void> {
+  render(context: TwilioContext) {
     const payload = context.payload as sdk.CarouselContent
 
     for (const { subtitle, title, image, actions } of payload.items) {

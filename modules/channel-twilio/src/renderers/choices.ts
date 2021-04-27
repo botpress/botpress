@@ -2,23 +2,23 @@ import * as sdk from 'botpress/sdk'
 import { TwilioContext } from '../backend/typings'
 
 export class TwilioChoicesRenderer implements sdk.ChannelRenderer<TwilioContext> {
-  getChannel(): string {
+  get channel(): string {
     return 'twilio'
   }
 
-  getPriority(): number {
+  get priority(): number {
     return 1
   }
 
-  getId() {
+  get id() {
     return TwilioChoicesRenderer.name
   }
 
-  async handles(context: TwilioContext): Promise<boolean> {
+  handles(context: TwilioContext): boolean {
     return context.payload.choices?.length && context.messages.length >= 1
   }
 
-  async render(context: TwilioContext): Promise<void> {
+  render(context: TwilioContext) {
     const message = context.messages[0]
 
     message.body = `${message.body}\n\n${context.payload.choices
