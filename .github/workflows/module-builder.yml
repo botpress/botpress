@@ -19,7 +19,6 @@ jobs:
           test modules/channel-web/package.json
           echo "testing package.json does not exist"
           test -f modules/channel-web/package.json
-          echo "testing channel-web.tgz does not exist"
-          test ! -f modules/channel-web/channel-web.tgz
+
           echo "after"
           echo $?
