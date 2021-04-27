@@ -16,11 +16,11 @@ export class TelegramChoicesRenderer implements sdk.ChannelRenderer<TelegramCont
     return TelegramChoicesRenderer.name
   }
 
-  async handles(context: TelegramContext): Promise<boolean> {
+  handles(context: TelegramContext): boolean {
     return context.payload.choices && context.messages.length >= 1
   }
 
-  async render(context: TelegramContext): Promise<void> {
+  render(context: TelegramContext) {
     const message = context.messages[0]
     const payload = context.payload as sdk.ChoiceContent
 

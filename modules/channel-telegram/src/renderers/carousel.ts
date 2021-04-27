@@ -17,11 +17,11 @@ export class TelegramCarouselRenderer implements sdk.ChannelRenderer<TelegramCon
     return TelegramCarouselRenderer.name
   }
 
-  async handles(context: TelegramContext): Promise<boolean> {
+  handles(context: TelegramContext): boolean {
     return context.payload.items?.length
   }
 
-  async render(context: TelegramContext): Promise<void> {
+  render(context: TelegramContext) {
     const { messages } = context
     const payload = context.payload as sdk.CarouselContent
 

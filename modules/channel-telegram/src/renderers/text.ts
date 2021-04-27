@@ -14,11 +14,11 @@ export class TelegramTextRenderer implements sdk.ChannelRenderer<TelegramContext
     return TelegramTextRenderer.name
   }
 
-  async handles(context: TelegramContext): Promise<boolean> {
+  handles(context: TelegramContext): boolean {
     return context.payload.text
   }
 
-  async render(context: TelegramContext): Promise<void> {
+  render(context: TelegramContext) {
     const payload = context.payload as sdk.TextContent
 
     context.messages.push({ text: payload.text as string, markdown: payload.markdown })

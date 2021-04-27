@@ -14,12 +14,12 @@ export class TelegramTypingSender implements sdk.ChannelSender<TelegramContext> 
     return TelegramTypingSender.name
   }
 
-  async handles(context: TelegramContext): Promise<boolean> {
+  handles(context: TelegramContext): boolean {
     const typing = context.event.payload.typing
     return context.handlers?.length > 0 && (typing === undefined || typing === true)
   }
 
-  async send(context: TelegramContext): Promise<void> {
+  async send(context: TelegramContext) {
     const delay = context.event.payload.delay ?? 1000
     await context.client.telegram.sendChatAction(context.chatId, 'typing')
     await Promise.delay(delay)

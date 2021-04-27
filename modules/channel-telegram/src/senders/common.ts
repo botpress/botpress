@@ -14,11 +14,11 @@ export class TelegramCommonSender implements sdk.ChannelSender<TelegramContext> 
     return TelegramCommonSender.name
   }
 
-  async handles(context: TelegramContext): Promise<boolean> {
+  handles(context: TelegramContext): boolean {
     return context.handlers?.length > 0
   }
 
-  async send(context: TelegramContext): Promise<void> {
+  async send(context: TelegramContext) {
     const { client, chatId } = context
 
     for (const message of context.messages) {

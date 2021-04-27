@@ -14,11 +14,11 @@ export class TelegramImageRenderer implements sdk.ChannelRenderer<TelegramContex
     return TelegramImageRenderer.name
   }
 
-  async handles(context: TelegramContext): Promise<boolean> {
+  handles(context: TelegramContext): boolean {
     return context.payload.image
   }
 
-  async render(context: TelegramContext): Promise<void> {
+  render(context: TelegramContext) {
     const { messages } = context
     const payload = context.payload as sdk.ImageContent
 
