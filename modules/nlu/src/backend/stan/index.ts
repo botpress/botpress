@@ -72,7 +72,10 @@ export class StanEngine {
 
         const { progress, status, error: serializedError } = response.session
 
-        progressCb(progress)
+        if (status === 'training') {
+          progressCb(progress)
+          return
+        }
 
         if (status === 'done') {
           clearInterval(interval)
