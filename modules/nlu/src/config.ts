@@ -3,12 +3,14 @@ interface LanguageSource {
   authToken?: string
 }
 
+type StanConfig = { autoStart: true } | ({ autoStart: false } & LanguageSource)
+
 export interface Config {
   /**
-   * If you want to host the Standalone NLU Engine (STAN) on a different machine than the current one,
-   * you can run the nlu server on a different computer with `bp nlu` and set its URL here
+   * If you want to manually start standalone NLU, set autoStart to false and specify endpoint and auth token.
+   * @default { "autoStart": true }
    */
-  STANUrl?: string
+  standaloneNLU: StanConfig
 
   /**
    * If you want a fully on-prem installation, you can host

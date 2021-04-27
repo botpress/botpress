@@ -1,9 +1,8 @@
 import sdk from 'botpress/sdk'
-import child_process from 'child_process'
 import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
-import path from 'path'
+import { runStan, StanOptions } from 'stan-launcher'
 import yn from 'yn'
 import { LanguageConfig } from './nlu/engine'
 
@@ -20,13 +19,6 @@ const MESSAGE_TYPE_START_LOCAL_STAN_SERVER = 'start_local_stan_server'
 export interface StartLocalActionServerMessage {
   appSecret: string
   port: number
-}
-
-export interface StartLocalSTANServerMessage {
-  languageURL: string
-  languageAuthToken?: string
-  ducklingURL: string
-  ducklingEnabled: boolean
 }
 
 const debug = DEBUG('cluster')
@@ -47,25 +39,6 @@ export const registerMsgHandler = (messageType: string, handler: (message: any, 
   msgHandlers[messageType] = handler
 }
 
-const runStan = (opts: StartLocalSTANServerMessage): Promise<{ code: number | null; signal: string | null }> => {
-  return new Promise((resolve, reject) => {
-    try {
-      const STAN_JSON_CONFIG = JSON.stringify(opts)
-      const command = path.join(__dirname, 'index.js') // TODO change this when we have a bin
-      const stanProcess = child_process.fork(command, ['nlu', '--silent'], {
-        env: { ...process.env, STAN_JSON_CONFIG },
-        stdio: 'inherit'
-      })
-
-      stanProcess.on('exit', (code, signal) => {
-        resolve({ code, signal })
-      })
-    } catch (err) {
-      reject(err)
-    }
-  })
-}
-
 export const setupMasterNode = (logger: sdk.Logger) => {
   process.SERVER_ID = process.env.SERVER_ID || nanoid('1234567890abcdefghijklmnopqrstuvwxyz', 10)
 
@@ -83,7 +56,7 @@ export const setupMasterNode = (logger: sdk.Logger) => {
     cluster.fork({ WORKER_TYPE: WORKER_TYPES.LOCAL_ACTION_SERVER, APP_SECRET: appSecret, PORT: port })
   })
 
-  registerMsgHandler(MESSAGE_TYPE_START_LOCAL_STAN_SERVER, async (message: StartLocalSTANServerMessage) => {
+  registerMsgHandler(MESSAGE_TYPE_START_LOCAL_STAN_SERVER, async (message: Partial<StanOptions>) => {
     await runStan(message)
     return
   })
@@ -159,6 +132,6 @@ export const startLocalActionServer = (message: StartLocalActionServerMessage) =
   process.send!({ type: MESSAGE_TYPE_START_LOCAL_ACTION_SERVER, ...message })
 }
 
-export const startLocalSTANServer = (message: StartLocalSTANServerMessage) => {
+export const startLocalSTANServer = (message: Partial<StanOptions>) => {
   process.send!({ type: MESSAGE_TYPE_START_LOCAL_STAN_SERVER, message })
 }

@@ -36,13 +36,17 @@ import {
 export interface APIOptions {
   host: string
   port: number
+
   authToken?: string
+
   limitWindow: string
   limit: number
+
   bodySize: string
   batchSize: number
+
   silent: boolean
-  modelCacheSize: string
+
   dbURL?: string
 }
 

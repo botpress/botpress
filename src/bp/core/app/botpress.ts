@@ -184,14 +184,16 @@ export class Botpress {
   private async maybeStartLocalSTAN() {
     const config = await this.moduleLoader.configReader.getGlobal('nlu')
 
-    if (config.STANUrl) {
+    if (!config.standaloneNLU.autoStart) {
+      const { endpoint } = config.standaloneNLU
+      this.logger.info(`Standalone NLU manually handled at: ${endpoint}`)
       return
     }
     startLocalSTANServer({
-      languageURL: config.languageSources[0].endpoint,
-      languageAuthToken: config.languageSources[0].AuthToken,
+      languageSources: config.languageSources,
       ducklingURL: config.ducklingURL,
-      ducklingEnabled: config.ducklingEnabled
+      ducklingEnabled: config.ducklingEnabled,
+      dbURL: process.core_env.BPFS_STORAGE === 'database' ? process.core_env.DATABASE_URL : undefined
     })
   }
 
