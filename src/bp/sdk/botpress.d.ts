@@ -205,7 +205,7 @@ declare module 'botpress/sdk' {
     priority: number
     channel: string
 
-    handles(context: Context): void
+    handles(context: Context): boolean
     render(context: Context): void
   }
 
@@ -214,7 +214,7 @@ declare module 'botpress/sdk' {
     priority: number
     channel: string
 
-    handles(context: Context): void
+    handles(context: Context): boolean
     send(context: Context): Promise<void>
   }
 
