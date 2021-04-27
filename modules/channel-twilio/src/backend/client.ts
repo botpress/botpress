@@ -17,6 +17,8 @@ export class TwilioClient {
   private twilio: Twilio
   private webhookUrl: string
   private kvs: sdk.KvsService
+  private renderers: sdk.ChannelRenderer<TwilioContext>[]
+  private senders: sdk.ChannelSender<TwilioContext>[]
 
   constructor(
     private bp: typeof sdk,
@@ -40,6 +42,9 @@ export class TwilioClient {
     this.kvs = this.bp.kvs.forBot(this.botId)
 
     this.logger.info(`Twilio webhook listening at ${this.webhookUrl}`)
+
+    this.renderers = this.bp.experimental.render.getChannelRenderers('twilio')
+    this.senders = this.bp.experimental.render.getChannelSenders('twilio')
   }
 
   auth(req): boolean {
@@ -102,9 +107,6 @@ export class TwilioClient {
   async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     const botPhoneNumber = await this.bp.kvs.forBot(this.botId).get(`twilio-number-${event.threadId}`)
 
-    const renderers = this.bp.experimental.render.getChannelRenderers('twilio')
-    const senders = this.bp.experimental.render.getChannelSenders('twilio')
-
     const context: TwilioContext = {
       bp: this.bp,
       event,
@@ -116,14 +118,14 @@ export class TwilioClient {
       prepareIndexResponse: this.prepareIndexResponse.bind(this)
     }
 
-    for (const renderer of renderers) {
+    for (const renderer of this.renderers) {
       if (renderer.handles(context)) {
         renderer.render(context)
         context.handlers.push(renderer.id)
       }
     }
 
-    for (const sender of senders) {
+    for (const sender of this.senders) {
       if (sender.handles(context)) {
         await sender.send(context)
       }
