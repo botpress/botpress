@@ -2,6 +2,7 @@ import { lang } from 'botpress/shared'
 import React, { Component } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import PageContainer from '~/app/common/PageContainer'
+import style from '~/app/common/table.scss'
 import { AppState } from '~/app/rootReducer'
 import { fetchRoles } from './reducer'
 
@@ -14,11 +15,11 @@ class Roles extends Component<Props> {
 
   renderRoles() {
     return (
-      <div className="bp_table">
+      <div className={style.table}>
         {this.props.roles.map(role => {
           return (
-            <div className="bp_table-row" key={role.id}>
-              <div className="title">{lang.tr(role.name)}</div>
+            <div className={style.tableRow} key={role.id}>
+              <div className={style.title}>{lang.tr(role.name)}</div>
               <p>{lang.tr(role.description)}</p>
             </div>
           )

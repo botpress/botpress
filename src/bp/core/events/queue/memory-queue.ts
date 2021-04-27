@@ -53,6 +53,10 @@ export class MemoryQueue<E extends IO.Event> implements Queue<E> {
     return !subqueueLength
   }
 
+  isQueueLockedForJob(job: E) {
+    return this._lock[this.getQueueId(job)]
+  }
+
   getQueueId(job: E): string {
     const event = job
     return `${event.botId}::${event.channel}::${event.target}`

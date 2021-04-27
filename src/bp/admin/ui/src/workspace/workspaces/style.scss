@@ -1,0 +1,10 @@
+@import '../../app/common/table.scss';
+
+.link {
+  color: var(--blue) !important;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
