@@ -31,6 +31,7 @@ COPY --from=builder ./botpress/modules ./modules
 # prebuild other modules
 RUN yarn run gulp build:modules
 
-#Test1
+# workaround unreleased getos fix (make botpress recognise alpine an select the correct native extensions)
+RUN wget -qO- https://raw.githubusercontent.com/retrohacker/getos/master/os.json > ./node_modules/getos/os.json
 
 CMD [ "echo", "-e", "Which module would you like to build?\nUse sh -c 'cd modules/your-module && yarn && yarn build && yarn package'" ]
