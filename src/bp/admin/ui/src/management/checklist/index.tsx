@@ -6,10 +6,10 @@ import { connect, ConnectedProps } from 'react-redux'
 import api from '~/app/api'
 import PageContainer from '~/app/common/PageContainer'
 import { AppState } from '~/app/rootReducer'
-
 import { DiagReport } from './DiagReport'
 import Item from './Item'
 import { fetchServerConfig } from './reducer'
+import style from './style.scss'
 
 const NOT_SET = 'Not set'
 const NB_PING_FOR_STICKY_SESSIONS = 3
@@ -112,7 +112,7 @@ export const Checklist: FC<Props> = props => {
 
   return (
     <Container>
-      <div className="checklist">
+      <div className={style.checklist}>
         <Item
           title="Enable Botpress Professional"
           docs="https://botpress.com/docs/pro/about-pro/"

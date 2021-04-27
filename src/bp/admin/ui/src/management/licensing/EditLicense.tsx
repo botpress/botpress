@@ -1,6 +1,7 @@
-import { lang } from 'botpress/shared'
+import { Intent, FormGroup, TextArea, Button } from '@blueprintjs/core'
+import { lang, Dialog, toast } from 'botpress/shared'
 import React, { Component } from 'react'
-import { Button, Modal, Input, Label, ModalHeader, ModalBody, ModalFooter, FormGroup, Alert } from 'reactstrap'
+
 import api from '~/app/api'
 
 interface Props {
@@ -27,9 +28,8 @@ export default class EditLicense extends Component<Props> {
   }
 
   async changeKey() {
-    await api
-      .getSecured()
-      .post(
+    try {
+      await api.getSecured().post(
         'admin/management/licensing/update',
         {
           licenseKey: this.state.licenseKey
@@ -38,24 +38,26 @@ export default class EditLicense extends Component<Props> {
           timeout: 10 * 1000 // 10s
         }
       )
-      .then(() => {
-        this.props.refresh && this.props.refresh()
-        this.toggleModal()
-      })
-      .catch(err => this.setState({ error: err.message }))
+
+      this.props.refresh && this.props.refresh()
+      this.toggleModal()
+    } catch (err) {
+      toast.failure(err.message)
+    }
   }
 
   renderModal() {
     return (
-      <Modal isOpen={this.state.isModalOpen} toggle={this.toggleModal}>
-        <ModalHeader toggle={this.toggleModal}>{lang.tr('admin.license.enterYourLicense')}</ModalHeader>
-        <ModalBody>
-          {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
-          <FormGroup>
-            <Label for="firstName">{lang.tr('admin.license.newLicenseKey')}</Label>
-            <Input
+      <Dialog.Wrapper
+        title={lang.tr('admin.license.enterYourLicense')}
+        isOpen={this.state.isModalOpen}
+        onClose={this.toggleModal}
+      >
+        <Dialog.Body>
+          <FormGroup label={lang.tr('admin.license.newLicenseKey')}>
+            <TextArea
               name="licenseKey"
-              type="textarea"
+              fill
               style={{ height: 180 }}
               onChange={this.onInputChange}
               onKeyPress={this.onInputKeyPress}
@@ -63,22 +65,26 @@ export default class EditLicense extends Component<Props> {
               autoFocus
             />
           </FormGroup>
-        </ModalBody>
-        <ModalFooter>
-          <Button color="primary" onClick={() => this.changeKey()}>
-            {lang.tr('admin.license.validateChange')}
-          </Button>
-        </ModalFooter>
-      </Modal>
+        </Dialog.Body>
+        <Dialog.Footer>
+          <Button
+            text={lang.tr('admin.license.validateChange')}
+            intent={Intent.PRIMARY}
+            onClick={() => this.changeKey()}
+          />
+        </Dialog.Footer>
+      </Dialog.Wrapper>
     )
   }
 
   render() {
     return (
       <div>
-        <Button size="sm" color="primary" outline onClick={this.toggleModal}>
-          {lang.tr('admin.license.enterLicenseKey')}
-        </Button>
+        <Button
+          text={lang.tr('admin.license.enterLicenseKey')}
+          intent={Intent.PRIMARY}
+          onClick={this.toggleModal}
+        ></Button>
         {this.renderModal()}
       </div>
     )

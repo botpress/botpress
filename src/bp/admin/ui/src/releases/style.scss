@@ -1,0 +1,52 @@
+.releases {
+  h1 {
+    font-size: 1.5em;
+  }
+
+  h2 {
+    font-size: 1em;
+  }
+
+  h1,
+  h2 {
+    border-bottom: 1px solid #eaecef;
+    padding: 0.7em 0px;
+  }
+
+  ul {
+    margin: 0px;
+    li {
+      padding: 0px;
+    }
+  }
+
+  .version {
+    font-weight: bold;
+    font-size: 2em;
+    margin-top: 15px;
+    text-align: center;
+
+    span {
+      font-weight: normal;
+      font-size: 0.8rem;
+      display: block;
+    }
+  }
+
+  .container {
+    display: flex;
+    justify-content: space-between;
+
+    .content {
+      width: 700px;
+    }
+
+    .downloads {
+      width: 200px;
+
+      img {
+        width: 30px;
+      }
+    }
+  }
+}

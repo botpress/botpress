@@ -5,10 +5,11 @@ import { CHAT_USER_ROLE } from 'common/defaults'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
+
 import LoadingSection from '~/app/common/LoadingSection'
 import { AppState } from '~/app/rootReducer'
 import { filterList } from '~/workspace/util'
-
+import style from '../style.scss'
 import RoleSection from '../UserList/RoleSection'
 
 const userFilterFields = ['email', 'attributes.firstname', 'attributes.lastname']
@@ -40,18 +41,19 @@ const UserList: FC<Props> = props => {
 
   return (
     <div>
-      <InputGroup
-        id="input-filter"
-        placeholder={lang.tr('admin.workspace.users.collaborators.filterUsers')}
-        value={filter}
-        onChange={e => setFilter(e.target.value.toLowerCase())}
-        autoComplete="off"
-        className="filterField"
-      />
+      <div className={style.filterWrapper}>
+        <InputGroup
+          id="input-filter"
+          placeholder={lang.tr('admin.workspace.users.collaborators.filterUsers')}
+          value={filter}
+          onChange={e => setFilter(e.target.value.toLowerCase())}
+          autoComplete="off"
+        />
+      </div>
 
-      <div className="bp_users-container">
+      <div className={style.container}>
         {filter && !filteredUsers.length && (
-          <Callout title={lang.tr('admin.workspace.users.collaborators.noMatch')} className="filterCallout" />
+          <Callout title={lang.tr('admin.workspace.users.collaborators.noMatch')} className={style.filterCallout} />
         )}
 
         {roles.map(role => {

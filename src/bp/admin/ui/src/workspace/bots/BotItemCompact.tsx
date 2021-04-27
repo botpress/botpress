@@ -13,12 +13,13 @@ import {
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
+import cx from 'classnames'
 import React, { FC } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-
 import AccessControl, { isChatUser } from '~/auth/AccessControl'
 
 import { NeedsTrainingWarning } from './NeedsTrainingWarning'
+import style from './style.scss'
 
 interface Props {
   bot: BotConfig
@@ -47,8 +48,8 @@ const BotItemCompact: FC<Props> = ({
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
 
   return (
-    <div className="bp_table-row" key={bot.id}>
-      <div className="actions">
+    <div className={cx('bp_table-row', style.tableRow)} key={bot.id}>
+      <div className={cx('actions', style.actions)}>
         {hasError && (
           <AnchorButton text={lang.tr('admin.workspace.bots.item.reload')} icon="refresh" onClick={reloadBot} minimal />
         )}
@@ -58,7 +59,6 @@ const BotItemCompact: FC<Props> = ({
             text={lang.tr('admin.workspace.bots.item.config')}
             icon="cog"
             minimal
-            className="configBtn"
             onClick={() => (location.href = `${botStudioLink}/config`)}
           />
         </AccessControl>
@@ -134,7 +134,7 @@ const BotItemCompact: FC<Props> = ({
         </AccessControl>
       </div>
 
-      <div className="title">
+      <div className={style.title}>
         {bot.locked && (
           <span>
             <Icon icon="lock" intent={Intent.PRIMARY} iconSize={13} />
@@ -156,17 +156,17 @@ const BotItemCompact: FC<Props> = ({
         )}
 
         {bot.disabled && (
-          <Tag intent={Intent.WARNING} className="botbadge">
+          <Tag intent={Intent.WARNING} className={style.botbadge}>
             disabled
           </Tag>
         )}
         {bot.private && (
-          <Tag intent={Intent.PRIMARY} className="botbadge">
+          <Tag intent={Intent.PRIMARY} className={style.botbadge}>
             private
           </Tag>
         )}
         {hasError && (
-          <Tag intent={Intent.DANGER} className="botbadge">
+          <Tag intent={Intent.DANGER} className={style.botbadge}>
             error
           </Tag>
         )}

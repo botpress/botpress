@@ -10,13 +10,15 @@ import {
   Position
 } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
+import cx from 'classnames'
 import React, { FC, useEffect, useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
-import { AppState } from '~/app/rootReducer'
 
+import { AppState } from '~/app/rootReducer'
 import BasicAuthentication from '~/auth/basicAuth'
 import ChangeLanguage from '~/user/ChangeLanguage'
 import { fetchProfile } from './reducer'
+import style from './style.scss'
 import UpdatePassword from './UpdatePassword'
 import UserProfile from './UpdateUserProfile'
 
@@ -48,15 +50,15 @@ const UserDropdownMenu: FC<Props> = props => {
   const canChangePassword = strategyType === 'basic'
 
   const icon = picture_url ? (
-    <img src={picture_url} className="dropdown-picture" />
+    <img src={picture_url} className={cx('dropdown-picture', style.dropdown_picture)} />
   ) : (
-    <Icon icon="user" color={Colors.WHITE} />
+    <Icon icon="user" color={Colors.BLACK} />
   )
 
   return (
     <div>
       <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.CLICK}>
-        <Button id="btn-menu" icon={icon} rightIcon={<Icon icon="caret-down" color={Colors.WHITE} />} minimal={true} />
+        <Button id="btn-menu" icon={icon} minimal rightIcon={<Icon icon="caret-down" />} />
         <Menu>
           <MenuDivider title={lang.tr('admin.signedInAs', { name: fullName || email })} />
           <MenuItem id="btn-profile" icon="user" text={lang.tr('admin.updateProfile')} onClick={toggleProfile} />
