@@ -11,6 +11,7 @@ jobs:
         run: |
           pwd
           ls
+          [ ! -f docs/guide/buildspec.ym ] && echo "docs/guide/buildspec.ym does not exist"
           docker build -t module-builder-test -f build/module-builder/Dockerfile .
           docker run -v `pwd`/modules/channel-web:/botpress/modules/channel-web module-builder-test sh -c 'cd modules/channel-web && yarn && yarn build && yarn package'
           ls modules/channel-web
