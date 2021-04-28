@@ -143,7 +143,7 @@ export default async function(options: APIOptions, engine: NLUEngine.Engine) {
   router.post('/models/prune', async (req, res) => {
     try {
       const { appSecret, appId } = await validateCredentialsFormat(req.body)
-      const modelIds = await modelRepo.pruneModels({ appSecret, appId })
+      const modelIds = await modelRepo.pruneModels({ appSecret, appId, keep: 0 })
 
       for (const modelId of modelIds) {
         if (engine.hasModel(modelId)) {

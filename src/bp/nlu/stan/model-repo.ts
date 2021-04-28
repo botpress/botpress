@@ -32,6 +32,10 @@ interface ModelOwnershipOptions {
   appSecret: string
 }
 
+interface PruneOptions extends ModelOwnershipOptions {
+  keep: number
+}
+
 const MODELS_DIR = './models'
 const MODELS_EXT = 'model'
 
@@ -140,7 +144,12 @@ export class ModelRepository {
     const scopedGhost = this._getScopedGhostForAppID(options.appId)
 
     const fextension = this._getFileExtension(options.appSecret)
-    const files = await scopedGhost.directoryListing(MODELS_DIR, `*.${fextension}`)
+    const files = await scopedGhost.directoryListing(MODELS_DIR, `*.${fextension}`, undefined, undefined, {
+      sortOrder: {
+        column: 'modifiedOn',
+        desc: true
+      }
+    })
 
     const modelIds = files
       .map(f => f.substring(0, f.lastIndexOf(`.${fextension}`)))
@@ -151,10 +160,14 @@ export class ModelRepository {
   }
 
   // TODO: make this one more optimal
-  public async pruneModels(options: ModelOwnershipOptions): Promise<NLUEngine.ModelId[]> {
+  public async pruneModels(options: PruneOptions): Promise<NLUEngine.ModelId[]> {
     const models = await this.listModels(options)
-    await Promise.each(models, m => this.deleteModel(m, options))
-    return models
+
+    const { keep } = options
+    const toPrune = models.slice(keep)
+    await Promise.each(toPrune, m => this.deleteModel(m, options))
+
+    return toPrune
   }
 
   public async deleteModel(modelId: NLUEngine.ModelId, options: ModelOwnershipOptions): Promise<void> {
