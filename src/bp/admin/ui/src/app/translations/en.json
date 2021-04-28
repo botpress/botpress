@@ -409,5 +409,20 @@
     "en": "English",
     "fr": "Français",
     "es": "Español"
+  },
+  "bottomPanel": {
+    "debug": "Debug",
+    "label": "Bottom Panel",
+    "closePanel": "Close Panel",
+    "logs": {
+      "allBots": "All Bots",
+      "scrollToFollow": "Scroll to follow logs",
+      "downloadLogs": "Download Logs",
+      "clearHistory": "Clear log history",
+      "endOfLogs": "End of logs",
+      "debug": {
+        "confUpdated": "Debug configuration updated successfully!"
+      }
+    }
   }
 }

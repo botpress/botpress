@@ -1,19 +1,25 @@
-import { Alignment, Icon, Navbar } from '@blueprintjs/core'
+import { Icon } from '@blueprintjs/core'
 import { lang, TokenRefresher } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { Link } from 'react-router-dom'
+import SplitPane from 'react-split-pane'
 
 import api from '~/app/api'
 import { fetchLicensing } from '~/management/licensing/reducer'
 import { fetchProfile } from '~/user/reducer'
+import BottomPanel from './BottomPanel'
 
 import CommandPalette from './CommandPalette'
 import EventBus from './EventBus'
+import Header from './Header'
 import Menu from './Menu'
 import { AppState } from './rootReducer'
 import style from './style.scss'
+import { toggleBottomPanel } from './uiReducer'
+
+const EXPANDED_PANEL_HEIGHT = 200
 
 type Props = ConnectedProps<typeof connector>
 
@@ -30,16 +36,34 @@ const App: FC<Props> = props => {
 
   const isLicensed = !props.licensing || !props.licensing.isPro || props.licensing.status === 'licensed'
 
+  const splitPanelLastSizeKey = 'bp::bottom-panel-size'
+  const lastSize = parseInt(localStorage.getItem(splitPanelLastSizeKey) || '175', 10)
+  const bottomPanelHeight = props.bottomPanelExpanded ? EXPANDED_PANEL_HEIGHT : lastSize
+  const bottomBarSize = props.bottomPanel ? bottomPanelHeight : '100%'
+
   return (
     <Fragment>
       <CommandPalette />
       <TokenRefresher getAxiosClient={() => api.getSecured()} />
 
-      <div className={cx('bp-sa-wrapper', style.wrapper)}>
+      <div className={cx('bp-sa-wrapper', style.mainLayout)}>
         <Menu />
-        <div className={cx('bp-sa-content-wrapper', style.content_wrapper)}>
-          {!isLicensed && <Unlicensed />}
-          {props.children}
+        <div className={style.container}>
+          <Header />
+          <SplitPane
+            split="horizontal"
+            defaultSize={lastSize}
+            onChange={size => size > 100 && localStorage.setItem(splitPanelLastSizeKey, size.toString())}
+            size={bottomBarSize}
+            maxSize={-100}
+            className={cx(style.mainSplitPaneWToolbar)}
+          >
+            <div className={cx('bp-sa-content-wrapper', style.main)}>
+              {!isLicensed && <Unlicensed />}
+              {props.children}
+            </div>
+            <BottomPanel />
+          </SplitPane>
         </div>
       </div>
 
@@ -65,8 +89,10 @@ const Unlicensed = () => (
 
 const mapStateToProps = (state: AppState) => ({
   profile: state.user.profile,
-  licensing: state.licensing.license
+  licensing: state.licensing.license,
+  bottomPanel: state.ui.bottomPanel,
+  bottomPanelExpanded: state.ui.bottomPanelExpanded
 })
 
-const connector = connect(mapStateToProps, { fetchLicensing, fetchProfile })
+const connector = connect(mapStateToProps, { fetchLicensing, fetchProfile, toggleBottomPanel })
 export default connector(App)
