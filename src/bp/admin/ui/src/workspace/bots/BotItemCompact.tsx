@@ -21,6 +21,7 @@ import { history } from '~/app/store'
 import AccessControl, { isChatUser } from '~/auth/AccessControl'
 import { NeedsTrainingWarning } from './NeedsTrainingWarning'
 import style from './style.scss'
+import { WorkspaceAppItems } from './WorkspaceAppItems'
 
 interface Props {
   bot: BotConfig
@@ -78,7 +79,12 @@ const BotItemCompact: FC<Props> = ({
         <AccessControl resource="admin.bots.*" operation="read">
           <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
             <Button id="btn-menu" icon={<Icon icon="menu" />} minimal />
+
             <Menu>
+              <MenuItem icon="application" text="Apps">
+                <WorkspaceAppItems loadedModules={loadedModules} botId={bot.id}></WorkspaceAppItems>
+              </MenuItem>
+
               {!bot.disabled && !hasError && (
                 <MenuItem
                   disabled={bot.locked}
@@ -87,18 +93,6 @@ const BotItemCompact: FC<Props> = ({
                   href={botStudioLink}
                 />
               )}
-
-              {loadedModules
-                .filter(x => x.workspaceApp)
-                .map(m => (
-                  <MenuItem
-                    id={`btn-menu-${m.name}`}
-                    text={m.menuText}
-                    icon={m.menuIcon as any}
-                    onClick={() => history.push(`/apps/${m.name}/${bot.id}`)}
-                    resource={`module.${m.name}`}
-                  />
-                ))}
 
               <CopyToClipboard text={botShortLink} onCopy={() => lang.tr('admin.workspace.bots.item.copyToClipboard')}>
                 <MenuItem icon="link" text={lang.tr('admin.workspace.bots.item.copyLinkToClipboard')} />

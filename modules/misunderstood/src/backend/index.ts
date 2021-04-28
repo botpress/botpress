@@ -52,7 +52,8 @@ const entryPoint: sdk.ModuleEntryPoint = {
     menuIcon: 'gesture',
     menuText: 'Misunderstood',
     fullName: 'Misunderstood Phrases',
-    homepage: 'https://botpress.com'
+    homepage: 'https://botpress.com',
+    workspaceApp: true
   }
 }
 

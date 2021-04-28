@@ -21,6 +21,7 @@ import AccessControl, { isChatUser } from '~/auth/AccessControl'
 
 import { NeedsTrainingWarning } from './NeedsTrainingWarning'
 import style from './style.scss'
+import { WorkspaceAppItems } from './WorkspaceAppItems'
 
 interface Props {
   bot: BotConfig
@@ -72,6 +73,10 @@ const BotItemPipeline: FC<Props> = ({
           <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
             <Button id="btn-menu" icon={<Icon icon="menu" />} minimal />
             <Menu>
+              <MenuItem icon="application" text="Apps">
+                <WorkspaceAppItems loadedModules={loadedModules} botId={bot.id}></WorkspaceAppItems>
+              </MenuItem>
+
               {!bot.disabled && !hasError && (
                 <Fragment>
                   <MenuItem icon="chat" text={lang.tr('admin.workspace.bots.item.openChat')} href={botShortLink} />
@@ -83,18 +88,6 @@ const BotItemPipeline: FC<Props> = ({
                   />
                 </Fragment>
               )}
-
-              {loadedModules
-                .filter(x => x.workspaceApp)
-                .map(m => (
-                  <MenuItem
-                    id={`btn-menu-${m.name}`}
-                    text={m.menuText}
-                    icon={m.menuIcon as any}
-                    onClick={() => history.push(`/apps/${m.name}/${bot.id}`)}
-                    resource={`module.${m.name}`}
-                  />
-                ))}
 
               <CopyToClipboard
                 text={botShortLink}

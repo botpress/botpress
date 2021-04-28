@@ -54,7 +54,7 @@ export default class InjectedModuleView extends React.Component<Props, State> {
         })
       }
 
-      script.src = `http://localhost:3000/assets/modules/${moduleName}/web/admin.bundle.js`
+      script.src = `assets/modules/${moduleName}/web/full.bundle.js`
       document.getElementsByTagName('head')[0].appendChild(script)
     } else {
       this.setState({ moduleComponent: null })
@@ -68,7 +68,7 @@ export default class InjectedModuleView extends React.Component<Props, State> {
     if (!window.botpress || !window.botpress[moduleName]) {
       const script = document.createElement('script')
       script.type = 'text/javascript'
-      script.src = `http://localhost:3000/assets/modules/${moduleName}/web/admin.bundle.js`
+      script.src = `assets/modules/${moduleName}/web/full.bundle.js`
 
       document.getElementsByTagName('head')[0].appendChild(script)
     }

@@ -131,33 +131,13 @@ export function config(projectPath) {
     lite.plugins.push(new BundleAnalyzerPlugin())
   }
 
-  const admin: webpack.Configuration = Object.assign({}, full, {
-    entry: [getEntryPoint('admin')],
-    output: {
-      path: path.resolve(projectPath, './assets/web'),
-      publicPath: '/js/lite-modules/',
-      filename: 'admin.bundle.js',
-      libraryTarget: 'assign',
-      library: libraryTarget(packageJson.name)
-    },
-    externals: {
-      react: 'React',
-      'react-dom': 'ReactDOM',
-      '@blueprintjs/core': 'BlueprintJsCore',
-      '@blueprintjs/select': 'BlueprintJsSelect',
-      'botpress/shared': 'BotpressShared'
-    },
-    plugins: []
-  })
-
   const webpackFile = path.join(projectPath, 'webpack.frontend.js')
   if (fs.existsSync(webpackFile)) {
     debug('Webpack override found for frontend', path.basename(projectPath))
     return require(webpackFile)({ full, lite })
   }
 
-  const hasAdminView = fs.existsSync(path.join(projectPath, './src/views/admin/index.tsx'))
-  return hasAdminView ? [full, lite, admin] : [full, lite]
+  return [full, lite]
 }
 
 function writeStats(err, stats, exitOnError = true, callback?, moduleName?: string) {
