@@ -5,6 +5,7 @@ import fse from 'fs-extra'
 import glob from 'glob'
 import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
+import ms from 'ms'
 import path from 'path'
 import rimraf from 'rimraf'
 import { CSRF_TOKEN_HEADER, JWT_COOKIE_NAME } from './common/auth'
@@ -113,7 +114,7 @@ class BPFS {
       if (useForce) {
         console.info(chalk.blue(`Force pushing local changes to ${this.serverUrl}...`))
 
-        await axiosClient.post('update', archive)
+        await axiosClient.post('update', archive, { timeout: ms('20m') })
 
         if (!keepRevisions) {
           await this._clearRevisions(this.sourceDir)
