@@ -56,9 +56,15 @@ export class VonageClient {
   }
 
   async initialize() {
-    if (!this.config.apiKey || !this.config.apiSecret || !this.config.applicationId || !this.config.privateKey) {
+    if (
+      !this.config.apiKey ||
+      !this.config.apiSecret ||
+      !this.config.applicationId ||
+      !this.config.privateKey ||
+      !this.config.signatureSecret
+    ) {
       return this.logger.error(
-        `[${this.botId}] The apiKey, apiSecret, applicationId and privateKey must be configured in order to use this channel.`
+        `[${this.botId}] The apiKey, apiSecret, applicationId, privateKey and signatureSecret must be configured in order to use this channel.`
       )
     }
 
@@ -114,6 +120,7 @@ export class VonageClient {
         payload = (await this.handleOptionResponse(text, userId, conversation.id)) ?? payload
         break
       case 'audio':
+        // TODO: Link received from Nexmo/Vonage API are only valid for 10min
         const audio = body.message.content.audio.url
         payload = { type: 'audio', audio }
         break
@@ -212,7 +219,10 @@ export class VonageClient {
       await this.sendDropdown(event, payload.options)
     } else if (payload.type === 'carousel') {
       await this.sendCarousel(event, payload)
-    } else if (payload.type === 'image') {
+    } else if (payload.type === 'file') {
+      // We receive payloads of type file but want to send images
+      // FIXME: When we decide to switch to channel renderers
+      payload.type = 'image'
       await this.sendImage(event, payload)
     } else if (payload.type === 'audio') {
       await this.sendAudio(event, payload)
@@ -316,7 +326,7 @@ export class VonageClient {
   // TODO: add support for WhatsApp Templates instead of using down rendering
   private async sendOptions(event: sdk.IO.Event, text: string, options: MessageOption[]) {
     if (options.length) {
-      text = `${text}\n\n${options.map(({ label }, idx) => `${idx + 1}. ${label}`).join('\n')}`
+      text = `${text}\n\n${options.map(({ label }, idx) => `*(${idx + 1})* ${label}`).join('\n')}`
     }
 
     await this.kvs.set(this.getKvsKey(event.target, event.threadId), options, undefined, '10m')
