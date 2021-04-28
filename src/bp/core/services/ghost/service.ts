@@ -48,7 +48,7 @@ interface ScopedGhostOptions {
 }
 
 const MAX_GHOST_FILE_SIZE = process.core_env.BP_BPFS_MAX_FILE_SIZE || '100mb'
-const BP_BPFS_UPLOAD_CONCURRENCY = +(process.core_env.BP_BPFS_UPLOAD_CONCURRENCY || 50)
+const BP_BPFS_UPLOAD_CONCURRENCY = +(process.core_env.BP_BPFS_UPLOAD_CONCURRENCY as number) || 50
 const bpfsIgnoredFiles = ['models/**', 'data/bots/*/models/**', '**/*.js.map']
 const GLOBAL_GHOST_KEY = '__global__'
 const BOTS_GHOST_KEY = '__bots__'
