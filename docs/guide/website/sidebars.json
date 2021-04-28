@@ -27,13 +27,17 @@
 			"infrastructure/deploying",
 			"infrastructure/hosting",
       "infrastructure/database",
+      "infrastructure/configuration",
       "infrastructure/aws",
       "infrastructure/docker",
+      "infrastructure/digital-ocean",
+      "infrastructure/devtools",
 			"infrastructure/performances",
 			"infrastructure/pipeline",
+			"infrastructure/development-pipeline",
 			"infrastructure/versions",
-			"infrastructure/cluster",
-      "infrastructure/digital-ocean"
+			"infrastructure/cluster"
+		],
 		],
 		"Improving Your Chatbot": [
 			"tutorials/intent-matching",
