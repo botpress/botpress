@@ -4,6 +4,7 @@ interface CssExports {
   'actionsWrapper': string;
   'flexContainer': string;
   'missingIcon': string;
+  'warning': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

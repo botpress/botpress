@@ -1,11 +1,8 @@
-import { Button, FileInput, Icon, Intent } from '@blueprintjs/core'
+import { FileInput, Icon } from '@blueprintjs/core'
 import React, { FC, Fragment, useReducer } from 'react'
+import FileDisplay from '~/FileDisplay'
 
 import sharedStyle from '../../../../ui-shared-lite/style.scss'
-import ToolTip from '../../../../ui-shared-lite/ToolTip'
-import { lang } from '../../translations'
-
-import style from './style.scss'
 import { UploadFieldProps } from './typings'
 
 const Upload: FC<UploadFieldProps> = props => {
@@ -13,23 +10,20 @@ const Upload: FC<UploadFieldProps> = props => {
     if (action.type === 'uploadStart') {
       return {
         ...state,
-        error: null,
-        uploading: true
+        error: null
       }
     } else if (action.type === 'deleteFile') {
       props.onChange?.(undefined)
       return {
         ...state,
-        error: null,
-        uploading: false
+        error: null
       }
     } else if (action.type === 'uploadError') {
       const { error } = action.data
 
       return {
         ...state,
-        error,
-        uploading: false
+        error
       }
     } else if (action.type === 'uploadSuccess') {
       const { url } = action.data
@@ -37,8 +31,7 @@ const Upload: FC<UploadFieldProps> = props => {
       props.onChange?.(url)
       return {
         ...state,
-        error: null,
-        uploading: false
+        error: null
       }
     } else {
       throw new Error("That action type isn't supported.")
@@ -46,11 +39,10 @@ const Upload: FC<UploadFieldProps> = props => {
   }
 
   const [state, dispatch] = useReducer(uploadReducer, {
-    error: null,
-    uploading: false
+    error: null
   })
 
-  const { error, uploading } = state
+  const { error } = state
 
   const deleteFile = () => {
     dispatch({ type: 'deleteFile' })
@@ -64,10 +56,7 @@ const Upload: FC<UploadFieldProps> = props => {
     await props.axios
       .post(props.customPath ? props.customPath : 'media', data, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then(response => {
-        let url: string = response.data.url
-        if (url.startsWith('/')) {
-          url = `${window.location.protocol}//${window.location.host}${url}`
-        }
+        const url: string = response.data.url
 
         dispatch({ type: 'uploadSuccess', data: { url } })
       })
@@ -76,35 +65,29 @@ const Upload: FC<UploadFieldProps> = props => {
       })
   }
 
-  const { value } = props
+  const { value, type, filter } = props
+
+  const allowedMimeTypes = () => {
+    if (filter) {
+      return filter
+    } else if (type) {
+      // e.g. video/*, audio/*, ...
+      return `${type}/*`
+    } else {
+      '*'
+    }
+  }
 
   return (
     <div className={sharedStyle.fieldWrapper}>
-      {value && (
-        <div style={{ backgroundImage: `url('${value}')` }} className={sharedStyle.imgWrapper}>
-          <div className={sharedStyle.imgWrapperActions}>
-            <ToolTip content={lang('deleteImage')}>
-              <Button
-                className={style.deleteImg}
-                minimal
-                small
-                intent={Intent.DANGER}
-                icon="trash"
-                onClick={deleteFile}
-              ></Button>
-            </ToolTip>
-          </div>
-        </div>
-      )}
+      {value && <FileDisplay url={value} type={type} onDelete={deleteFile} deletable />}
       {!value && (
         <Fragment>
           <FileInput
             text={<Icon icon="upload" />}
             large
             inputProps={{
-              id: 'node-image',
-              name: 'nodeImage',
-              accept: 'image/*',
+              accept: allowedMimeTypes(),
               onChange: startUpload
             }}
           />

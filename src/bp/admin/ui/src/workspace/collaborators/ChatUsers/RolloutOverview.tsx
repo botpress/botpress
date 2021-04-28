@@ -7,6 +7,7 @@ import { AppState } from '~/app/rootReducer'
 
 import { fetchWorkspaceRollout } from '~/workspace/workspaces/reducer'
 import { rolloutInfo } from '~/workspace/workspaces/RolloutStrategyModal'
+import style from '../style.scss'
 
 type Props = ConnectedProps<typeof connector>
 
@@ -28,7 +29,7 @@ const RolloutOverview: FC<Props> = props => {
 
   return (
     <div style={{ marginBottom: 10, display: 'flex' }}>
-      <div className="infosquare">
+      <div className={style.infoSquare}>
         {lang.tr('admin.workspace.users.currentStrategy')}
         <br />
         <strong>
@@ -37,7 +38,7 @@ const RolloutOverview: FC<Props> = props => {
       </div>
 
       {strategyInfo.inviteRequired && (
-        <div className="infosquare">
+        <div className={style.infoSquare}>
           {lang.tr('admin.workspace.users.inviteCode')}
           <br />
           <strong>{inviteCode}</strong> (

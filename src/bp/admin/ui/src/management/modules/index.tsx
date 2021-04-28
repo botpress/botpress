@@ -8,6 +8,7 @@ import { AppState } from '~/app/rootReducer'
 
 import { ImportModal } from './ModuleUpload'
 import { fetchModules } from './reducer'
+import style from './style.scss'
 
 type Props = ConnectedProps<typeof connector>
 
@@ -77,13 +78,13 @@ const Modules: FC<Props> = props => {
 
   const showModule = module => {
     return (
-      <div className="moduleItem" key={module.name}>
-        <div className="moduleItemSwitch">
+      <div className={style.moduleItem} key={module.name}>
+        <div className={style.moduleItemSwitch}>
           {!module.archived && (
             <Switch
               checked={module.enabled}
               onChange={e => updateModuleStatus(module.name, e.currentTarget.checked)}
-              className="moduleItemSwitch"
+              className={style.moduleItemSwitch}
             />
           )}
         </div>

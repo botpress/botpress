@@ -7,16 +7,15 @@ title: Clustering
 
 ![High-Level Diagram](assets/bp-cluster.png)
 
-## Interfaces Overview
-
-![HTTP Interfaces](assets/http-interfaces.png)
-
 ## Requirements
 
 - Redis Server v5+
 - PostgreSQL 10+
 - Load Balancer with a public address
 - Botpress license registered with a public address
+
+## Interfaces Overview
+![HTTP Interfaces](assets/http-interfaces.png)
 
 ## Enable Redis
 
@@ -52,13 +51,13 @@ docker run -d \
 botpress/server:$TAG
 ```
 
-Once the first node is started, use the same command to start Botpress on the other nodes.
+Once the first node starts, use the same command to start Botpress on the other nodes.
 
 ## Enable Redis Replication
 
-Botpress can connect to multiple Redis server for better redundancy if one of the Redis server goes down. To enable this, you must set the `REDIS_URL` variable to a list of host/port combinations.
+Botpress can connect to multiple Redis servers for better redundancy if one of the Redis servers goes down. To enable this, you must set the `REDIS_URL` variable to a host/port combinations list.
 
-The list must be provided as a JSON object, see the example below for the correct format. 
+Provide the list as a JSON object; see the example below for the correct format. 
 
 ```bash
 PRO_ENABLED=true

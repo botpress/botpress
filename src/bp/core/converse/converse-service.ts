@@ -100,7 +100,7 @@ export class ConverseService {
 
     const userKey = buildUserKey(botId, userId)
     const timeoutPromise = this._createTimeoutPromise(botId, userKey)
-    const donePromise = this._createDonePromise(userKey)
+    const donePromise = this._createDonePromise(botId, userKey)
 
     await this.messageService.forBot(botId).receive(conversation.id, payload, {
       channel: 'api',
@@ -116,10 +116,26 @@ export class ConverseService {
     })
   }
 
-  private async _createDonePromise(userKey: string) {
+  private async _createDonePromise(botId, userKey: string) {
     return new Promise((resolve, reject) => {
       converseApiEvents.once(`done.${userKey}`, async event => {
-        await Promise.delay(250)
+        // We need to wait for an empty and not locked outgoing queue in order to have all responses
+        await new Promise((resolve, reject) => {
+          const resolveOnEmptyQueue = () => {
+            this.eventEngine.isOutgoingQueueEmpty(event) && !this.eventEngine.isOutgoingQueueLocked(event)
+              ? resolve()
+              : setTimeout(resolveOnEmptyQueue, 50)
+          }
+          resolveOnEmptyQueue()
+        })
+
+        let bufferDelay = _.get(await this.configProvider.getBotConfig(botId), 'converse.bufferDelayMs')
+
+        if (!bufferDelay) {
+          bufferDelay = _.get(await this.configProvider.getBotpressConfig(), 'converse.bufferDelayMs', 250)
+        }
+
+        await Promise.delay(bufferDelay)
         if (this._responseMap[userKey]) {
           Object.assign(this._responseMap[userKey], <ResponseMap>{
             state: event.state,
@@ -172,9 +188,9 @@ export class ConverseService {
     this._responseMap[userKey].responses!.push(event.payload)
 
     if (event.type !== 'typing' && event.type !== 'data') {
-      await this.messageService
+      void this.messageService
         .forBot(event.botId)
-        .create(event.threadId!, event.payload, 'bot', event.id, event.incomingEventId)
+        .create(event.threadId!, event.payload, undefined, event.id, event.incomingEventId)
     }
   }
 

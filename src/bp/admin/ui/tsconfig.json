@@ -6,25 +6,28 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "allowJs": true,
-    "target": "es5",
-    "lib": [
-      "es7",
-      "dom"
-    ],
-    "jsx": "preserve",
-    "typeRoots": [
-      "./node_modules/@types"
-    ],
+    "target": "es2019",
+    "jsx": "react",
+    "types": [],
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "noFallthroughCasesInSwitch": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ]
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx"
+  ],
+  "exclude": [
+    "**/node_modules/**/*.(ts|js)"
   ],
   "extends": "./tsconfig_bp.json"
 }

@@ -29,7 +29,6 @@ declare global {
     BOT_ID: string
     BP_BASE_PATH: string
     SEND_USAGE_STATS: boolean
-    BOTPRESS_FLOW_EDITOR_DISABLED: boolean
     botpress: {
       [moduleName: string]: any
     }
@@ -88,7 +87,7 @@ export interface ItemListProps {
   onElementClicked?: (item: Item) => void
 }
 
-interface Item {
+export interface Item {
   id?: string
   label: string
   /** This can be used when executing actions on the items */
