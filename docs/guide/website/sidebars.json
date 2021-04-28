@@ -38,7 +38,6 @@
 			"infrastructure/versions",
 			"infrastructure/cluster"
 		],
-		],
 		"Improving Your Chatbot": [
 			"tutorials/intent-matching",
 			"tutorials/proactive",
