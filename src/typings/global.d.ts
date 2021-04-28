@@ -249,7 +249,7 @@ declare interface BotpressEnvironmentVariables {
   readonly BP_BPFS_MAX_FILE_SIZE?: string
 
   /**
-   * Overrides the maximum concurrecy for BPFS upload
+   * Overrides the maximum concurrency for BPFS upload
    * @default 50
    */
   readonly BP_BPFS_UPLOAD_CONCURRENCY?: number
