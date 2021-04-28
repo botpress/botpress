@@ -17,6 +17,10 @@ export interface Config {
    */
   privateKey: string
   /**
+   * The project ID on which the Google APIs are enabled
+   */
+  projectId?: string
+  /**
    * The language mapping between the bot or user language and the format recognized by Google Speech (must be in BCP-47 format).
    * @default { "ar": "ar-AE", "nl": "nl-NL", "en": "en-US", "fr": "fr-FR", "de": "de-DE", "he": "iw-IL", "it": "it-IT", "ja": "ja-JP", "pl": "pl-PL", "pt": "pt-PT", "ru": "ru-RU", "es": "es-ES"  }
    */

@@ -27,7 +27,7 @@ export class Audio {
     })
     const out = result.MEMFS[0]
 
-    if (out && out.data) {
+    if (out?.data) {
       return Buffer.from(out.data)
     } else {
       throw new Error('Output buffer is empty')

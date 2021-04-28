@@ -21,13 +21,13 @@ export async function setupRouter(
     const { mediaUrl, language } = req.body
 
     if (!mediaUrl || !language) {
-      res.status(400).send("Missing required fields: 'mediaUrl', 'language'")
+      return res.status(400).send("Missing required fields: 'mediaUrl', 'language'")
     }
 
     try {
       const text = await client.speechToText(mediaUrl, language)
 
-      res.status(200).send({ text })
+      res.send({ text })
     } catch (err) {
       console.error(`Mod[${moduleName}] Server error: `, err)
       res.status(500).send(err)
@@ -45,13 +45,13 @@ export async function setupRouter(
     const { text, language } = req.body
 
     if (!text || !language) {
-      res.status(400).send("Missing required fields: 'text', , 'language'")
+      return res.status(400).send("Missing required fields: 'text', 'language'")
     }
 
     try {
       const audioFile = await client.textToSpeech(text, language)
 
-      res.status(200).send({ audioFile })
+      res.send({ audioFile })
     } catch (err) {
       console.error(`Mod[${moduleName}] Server error: `, err)
       res.status(500).send(err)

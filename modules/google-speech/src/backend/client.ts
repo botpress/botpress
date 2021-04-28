@@ -36,31 +36,47 @@ export class GoogleSpeechClient {
       )
     }
 
-    this.speechClient = new SpeechClient({
-      credentials: {
-        client_email: this.config.clientEmail,
-        private_key: this.config.privateKey
-      }
-    })
+    try {
+      this.speechClient = new SpeechClient({
+        credentials: {
+          client_email: this.config.clientEmail,
+          private_key: this.config.privateKey
+        },
+        projectId: this.config.projectId
+      })
+      // Test the credentials by authenticating to the Google API
+      await this.speechClient.auth.getAccessToken()
 
-    this.textToSpeechClient = new TextToSpeechClient({
-      credentials: {
-        client_email: this.config.clientEmail,
-        private_key: this.config.privateKey
-      }
-    })
+      this.textToSpeechClient = new TextToSpeechClient({
+        credentials: {
+          client_email: this.config.clientEmail,
+          private_key: this.config.privateKey
+        },
+        projectId: this.config.projectId
+      })
+      // Test the credentials by authenticating to the Google API
+      await this.textToSpeechClient.auth.getAccessToken()
 
-    this.logger.info('GoogleSpeech configuration successful!')
+      this.logger.info('GoogleSpeech configuration successful!')
+    } catch (err) {
+      this.logger.error('Error ocurred while initializing GoogleSpeech module:', err.message)
+    }
   }
 
-  public async speechToText(audioFile: string, language: string) {
-    debugSpeechToText('Received audio to convert:', audioFile)
+  public async close() {
+    try {
+      await this.speechClient.close()
+      await this.textToSpeechClient.close()
+    } catch (err) {
+      this.logger.error('Error ocurred while closing connection to Google APIs:', err.message)
+    }
+  }
 
-    const resp = await axios.get<Buffer>(audioFile, {
-      responseType: 'arraybuffer'
-    })
+  public async speechToText(audioFileUrl: string, language: string) {
+    debugSpeechToText('Received audio to convert:', audioFileUrl)
 
-    let buffer: Buffer = resp.data
+    let { data: buffer } = await axios.get<Buffer>(audioFileUrl, { responseType: 'arraybuffer' })
+
     let meta = await mm.parseBuffer(buffer)
     let encoding: protos.google.cloud.speech.v1.RecognitionConfig.AudioEncoding
 

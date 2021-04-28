@@ -21,6 +21,7 @@ Google Speech requires you to have a Google Cloud project to setup your bot.
   - `enabled: true`
   - `clientEmail`: You will find this value in the JSON file containing the service account keys.
   - `privateKey`: You will find this value in the JSON file containing the service account keys.
+  - `projectId (Optional)`: The project ID on which the Google APIs are enabled.
   - `languageMapping`: The mapping between Botpress languages and languages in BCP-47 format recognized by Google.
   - `voiceSelection`: The type of voice the text-to-speech audio file should have. One of: "MALE", "FEMALE", "NEUTRAL".
 - Restart Botpress Server to reload the configuration

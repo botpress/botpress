@@ -1,6 +1,7 @@
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import FormData from 'form-data'
+import { pick } from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 
 import { GoogleSpeechClient } from './client'
@@ -61,7 +62,7 @@ export class Middleware {
 
           await this.bp.events.sendEvent(newEvent)
 
-          return next(null, true)
+          return next(undefined, true)
         }
       } catch (err) {
         this.bp.logger.forBot(event.botId).error('[speech-to-text]:', err)
@@ -91,45 +92,41 @@ export class Middleware {
       return next()
     }
 
-    const text = event.payload.text
-    if (text) {
-      try {
-        // TODO: Fetch bot current language too?
-        const userAttributes = await this.bp.users.getAttributes(event.channel, event.target)
-        const language: string = userAttributes['language']?.replace(/'/g, '')
-        const audio = await client.textToSpeech(text, language)
-
-        const data = new FormData()
-        data.append('file', audio, `${uuidv4()}.mp3`)
-
-        // TODO: Add cache (preview -> buffer)
-        const axiosConfig = await this.bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
-        axiosConfig.headers['Content-Type'] = `multipart/form-data; boundary=${data.getBoundary()}`
-
-        const res = await axios.post<{ url: string }>('/media', data, {
-          ...axiosConfig
-        })
-
-        const newEvent: sdk.IO.Event = this.bp.IO.Event({
-          type: 'audio',
-          direction: event.direction,
-          channel: event.channel,
-          target: event.target,
-          threadId: event.threadId,
-          botId: event.botId,
-          payload: { type: 'audio', url: `${process.EXTERNAL_URL}${res.data.url}` }
-        })
-
-        await this.bp.events.sendEvent(newEvent)
-
-        return next(null, true)
-      } catch (err) {
-        this.bp.logger.forBot(event.botId).error('[text-to-speech]:', err)
-        return next(err)
-      }
+    const text: string = event.payload.text
+    if (!text) {
+      return next()
     }
 
-    return next()
+    try {
+      // TODO: Fetch bot current language too?
+      const userAttributes = await this.bp.users.getAttributes(event.channel, event.target)
+      const language: string = userAttributes['language']?.replace(/'/g, '')
+      const audio = await client.textToSpeech(text, language)
+
+      const data = new FormData()
+      data.append('file', audio, `${uuidv4()}.mp3`)
+
+      // TODO: Add cache (preview -> buffer)
+      const axiosConfig = await this.bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
+      axiosConfig.headers['Content-Type'] = `multipart/form-data; boundary=${data.getBoundary()}`
+
+      const res = await axios.post<{ url: string }>('/media', data, {
+        ...axiosConfig
+      })
+
+      const newEvent: sdk.IO.Event = this.bp.IO.Event({
+        type: 'audio',
+        ...pick(event, ['direction', 'channel', 'target', 'threadId', 'botId']),
+        payload: { type: 'audio', url: `${process.EXTERNAL_URL}${res.data.url}` }
+      })
+
+      await this.bp.events.sendEvent(newEvent)
+
+      return next(undefined, true)
+    } catch (err) {
+      this.bp.logger.forBot(event.botId).error('[text-to-speech]:', err)
+      return next(err)
+    }
   }
 
   public remove() {
