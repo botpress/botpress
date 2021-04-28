@@ -1,4 +1,7 @@
 import child_process from 'child_process'
+import fs from 'fs'
+import _ from 'lodash'
+import os from 'os'
 import path from 'path'
 
 export interface LanguageSource {
@@ -17,6 +20,7 @@ export interface StanOptions {
   bodySize: string
   batchSize: number
   dbURL?: string
+  modelDir?: string
 
   // engine options
   languageSources: LanguageSource[]
@@ -74,4 +78,38 @@ export const killStan = () => {
   if (stanProcess) {
     stanProcess.kill(SIG_KILL)
   }
+}
+
+const getNLUBinariesPath = () => {
+  return (
+    (process.core_env.NLU_BIN_DIR && path.resolve(process.env.NLU_BIN_DIR!)) ||
+    (process.pkg ? path.resolve(path.dirname(process.execPath), 'nlu') : path.resolve(process.APP_DATA_PATH, 'nlu'))
+  )
+}
+
+const baseDownloadUrl = 'https://github.com/botpress/nlu/releases/download/v0.0.1-rc.1'
+const fileNames = {
+  win32: 'nlu-v0_0_1-win-x64.exe',
+  darwin: 'nlu-v0_0_1-darwin-x64',
+  linux: 'nlu-v0_0_1-linux-x64'
+}
+const nluDownloadUrl = _.mapValues(fileNames, f => `${baseDownloadUrl}/${f}`)
+
+export const startNLUFromBinary = (argv: string[]) => {
+  const binPath = getNLUBinariesPath()
+  const operatingSys = os.platform()
+  const expectedFileName = fileNames[operatingSys]
+  if (!expectedFileName) {
+    throw new Error(`Operating system ${operatingSys} is not supported by Botpress.`)
+  }
+  const expectedFilePath = path.join(binPath, expectedFileName)
+
+  // TODO: make this code atempt to download the file instead
+  if (!fs.existsSync(expectedFilePath)) {
+    throw new Error(
+      `Could not find NLU executable binary file. You can dowload it using the following link: ${nluDownloadUrl[operatingSys]}. Use the env variable NLU_BIN_DIR to set where you NLU binary is located.`
+    )
+  }
+
+  child_process.spawn(expectedFilePath, argv, { env: { ...process.env }, stdio: 'inherit' })
 }

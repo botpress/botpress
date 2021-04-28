@@ -156,6 +156,6 @@ export class StanEngine {
   }
 
   private _throwError(err: string): never {
-    throw new Error(`${err}`)
+    throw new Error(`An error occured in NLU server: ${err}`)
   }
 }
