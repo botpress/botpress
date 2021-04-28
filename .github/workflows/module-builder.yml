@@ -9,18 +9,6 @@ jobs:
         uses: actions/checkout@v2.1.0
       - name: Build
         run: |
-          pwd
-          ls
-          [ ! -f docs/guide/buildspec.ym ] && echo "docs/guide/buildspec.ym does not exist" && exit 1
           docker build -t module-builder-test -f build/module-builder/Dockerfile .
           docker run -v `pwd`/modules/channel-web:/botpress/modules/channel-web module-builder-test sh -c 'cd modules/channel-web && yarn && yarn build && yarn package'
-          ls modules/channel-web
-          echo "before"
-          echo "testing package.json exists"
-          test -f modules/channel-web/package.json
-          echo "testing package.json does not exist"
-          test ! -f modules/channel-web/package.json
-          echo "testing channel-web.tgz does not exist"
-          test ! -f modules/channel-web/channel-web.tgz
-          echo "after"
-          echo $?
+          [ ! -f modules/channel-web/channel-web.tgz ] && echo "modules/channel-web/channel-web.tgz does not exist" && exit 1
