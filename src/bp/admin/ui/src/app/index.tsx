@@ -17,6 +17,7 @@ import EventBus from './EventBus'
 import Header from './Header'
 import Menu from './Menu'
 import { AppState } from './rootReducer'
+import StatusBar from './StatusBar'
 import style from './style.scss'
 import { toggleBottomPanel } from './uiReducer'
 
@@ -70,7 +71,7 @@ const App: FC<Props> = props => {
         </div>
       </div>
 
-      <Footer version={window.APP_VERSION} />
+      <StatusBar />
     </Fragment>
   )
 }
