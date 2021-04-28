@@ -409,5 +409,17 @@
     "fr": "Francés",
     "en": "Inglés",
     "es": "Español"
+  },
+  "bottomPanel": {
+    "closePanel": "Cerrar panel",
+    "logs": {
+      "scrollToFollow": "Desplácese para seguir los registros",
+      "downloadLogs": "Descargar registros",
+      "clearHistory": "Borrar historial de registro",
+      "endOfLogs": "Fin de registros",
+      "debug": {
+        "confUpdated": "¡Configuración de depuración actualizada correctamente!"
+      }
+    }
   }
 }

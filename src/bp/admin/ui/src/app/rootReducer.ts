@@ -15,6 +15,7 @@ import modules from '../management/modules/reducer'
 import bots from '../workspace/bots/reducer'
 import roles from '../workspace/roles/reducer'
 import history from './history'
+import ui from './uiReducer'
 
 const rootReducer = combineReducers({
   router: connectRouter(history),
@@ -29,7 +30,8 @@ const rootReducer = combineReducers({
   alerting,
   modules,
   workspaces,
-  version
+  version,
+  ui
 })
 
 export type AppState = ReturnType<typeof rootReducer>
