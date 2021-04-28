@@ -30,7 +30,7 @@
       "infrastructure/configuration",
       "infrastructure/aws",
       "infrastructure/docker",
-      "infrastructure/digital-ocean"
+      "infrastructure/digital-ocean",
 			"infrastructure/performances",
 			"infrastructure/pipeline",
 			"infrastructure/development-pipeline",
