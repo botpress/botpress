@@ -32,15 +32,6 @@ describe('Admin - UI', () => {
     await clickOn('#btn-menu')
   })
 
-  it('Load debugging page', async () => {
-    await clickOn('#btn-menu-debug')
-    await expectMatch('Configure Debug')
-
-    await Promise.all([expectAdminApiCallSuccess('health/debug', 'GET'), clickOn('#btn-refresh')])
-
-    await Promise.all([expectAdminApiCallSuccess('health/debug', 'POST'), clickOn('#btn-save')])
-  })
-
   it('Load languages page', async () => {
     await clickOn('#btn-menu-language')
     await expectMatch('Using lang server at')
