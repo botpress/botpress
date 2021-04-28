@@ -10,7 +10,7 @@ export interface Config {
    * If you want to manually start standalone NLU, set autoStart to false and specify endpoint and auth token.
    * @default { "autoStart": true }
    */
-  standaloneNLU: StanConfig
+  nluServer: StanConfig
 
   /**
    * If you want a fully on-prem installation, you can host

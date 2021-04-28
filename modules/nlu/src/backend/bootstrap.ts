@@ -25,10 +25,10 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
     )
   }
 
-  const { standaloneNLU } = globalConfig
-  const { endpoint, authToken } = standaloneNLU.autoStart
+  const { nluServer } = globalConfig
+  const { endpoint, authToken } = nluServer.autoStart
     ? { endpoint: 'http://localhost:3200', authToken: process.APP_SECRET }
-    : standaloneNLU
+    : nluServer
 
   const stanClient = new StanClient(endpoint, authToken)
 
