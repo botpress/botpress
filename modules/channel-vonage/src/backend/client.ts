@@ -307,19 +307,9 @@ export class VonageClient {
 
       if (picture) {
         await this.sendImage(event, { url: picture, type: 'image' })
-
-        // Sandbox API is limited to one call per second
-        if (this.config.useTestingApi === true) {
-          await Promise.delay(1000)
-        }
       }
 
       await this.sendOptions(event, body, options)
-
-      // Sandbox API is limited to one call per second. Wait one second between calls.
-      if (this.config.useTestingApi === true) {
-        await Promise.delay(1000)
-      }
     }
   }
 
@@ -374,6 +364,11 @@ export class VonageClient {
         }
       )
     })
+
+    // Sandbox API is limited to one call per second. Wait one second between calls.
+    if (this.config.useTestingApi) {
+      await Promise.delay(1000)
+    }
   }
 }
 
