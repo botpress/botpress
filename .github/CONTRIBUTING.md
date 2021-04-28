@@ -63,6 +63,10 @@ If you do decide to work on an issue, comment saying you intend to pick it up an
 
 Contributions to Botpress will be dual-licensed under AGPLv3 and the Botpress Proprietary License. This means that all contributors need to agree to the dual-license before their contributions can be accepted. This is an automatic process when creating the pull-request.
 
+For starters, there are some open issues with the [first good issue][starter-label] tag which are ideal for starting to contribute. They are all relatively easy to get started with.
+
+Please follow the [Conventional Commits](https://conventionalcommits.org/) specs when doing commits. You should also read our [code of conduct](/.github/CODE_OF_CONDUCT.md).
+
 ### Your Responsibilities
 
 - Ensure contributions are unit tested and that all tests pass before submitting any pull-request.

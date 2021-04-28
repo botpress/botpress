@@ -1,0 +1,86 @@
+.logs {
+  list-style-type: none;
+  padding-left: 3px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  background: #000;
+
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  /* Track */
+  &::-webkit-scrollbar-track {
+    background: #222;
+  }
+
+  /* Handle normal */
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    &:hover {
+      background: #555;
+    }
+  }
+
+  .end {
+    font-size: 10px;
+    margin-top: 5px;
+    width: 100%;
+    text-align: center;
+    color: #888;
+    padding-top: 3px;
+    border-top: 1px solid #222;
+  }
+
+  .entry {
+    .time {
+      color: #999;
+    }
+
+    .level {
+      padding-left: 10px;
+      font-weight: bold;
+    }
+
+    .message {
+      white-space: pre-wrap;
+      padding-left: 10px;
+      opacity: 0.8;
+      color: #888;
+      word-spacing: 3px;
+    }
+
+    &:hover .message {
+      opacity: 1;
+    }
+
+    &.time .level {
+      color: #808080;
+    }
+    &.level-silly .level {
+      color: #6c6c6c;
+    }
+    &.level-debug .level {
+      color: #b59fff;
+    }
+    &.level-verbose .level {
+      color: #a4fffc;
+    }
+    &.level-info .level {
+      color: #6cbdff;
+    }
+    &.level-warn .level {
+      color: #fce465;
+    }
+    &.level-error .level {
+      color: #fe5151;
+    }
+  }
+}
+
+.debug {
+  height: 100vh;
+}
