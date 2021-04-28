@@ -20,15 +20,18 @@ const AppLoader: FC<Props> = props => {
     }
   }, [botId])
 
+  const module = props.modules.find(x => x.name === appName)
+
   return (
-    <PageContainer title={appName} noWrapper>
+    <PageContainer title={module?.fullName || appName} noWrapper>
       <InjectedModuleView moduleName={appName} extraProps={{ botId, contentLang: props.contentLang }} />
     </PageContainer>
   )
 }
 
 const mapStateToProps = (state: AppState) => ({
-  contentLang: state.ui.contentLang
+  contentLang: state.ui.contentLang,
+  modules: state.modules.loadedModules
 })
 
 const connector = connect(mapStateToProps, { setWorkspaceAppBotId })

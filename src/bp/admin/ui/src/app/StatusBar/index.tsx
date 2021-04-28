@@ -20,7 +20,7 @@ const StatusBar: FC<Props> = props => {
     setLanguages(bot?.languages || [])
 
     window.BOT_ID = botId || ''
-  }, [props.workspaceAppBotId])
+  }, [props.workspaceAppBotId, props.bots])
 
   return (
     <footer className={style.statusBar}>

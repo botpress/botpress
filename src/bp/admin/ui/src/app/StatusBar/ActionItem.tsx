@@ -11,7 +11,6 @@ export default props => (
   <Tooltip
     content={
       <div>
-        {' '}
         <div>
           <strong>{props.title}</strong>
         </div>

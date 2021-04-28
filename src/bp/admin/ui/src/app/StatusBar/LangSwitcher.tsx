@@ -55,13 +55,14 @@ const LangSwitcher: FC<Props> = props => {
         style={{ color: Colors.GRAY1 }}
         minimal
       />
-      <Menu>
-        {props.languages.map((l, idx) => (
+      <Menu className={style.menu}>
+        {props.languages.map((lang, idx) => (
           <Menu.Item
-            onClick={() => switchLang(l)}
-            icon={<img src={requireFlag(l)} alt={l} className={style.flag} />}
-            text={<span>{l.toUpperCase()}</span>}
-          ></Menu.Item>
+            key={lang}
+            onClick={() => switchLang(lang)}
+            icon={<img src={requireFlag(lang)} alt={lang} className={style.flag} />}
+            text={<span>{lang.toUpperCase()}</span>}
+          />
         ))}
       </Menu>
     </Popover>

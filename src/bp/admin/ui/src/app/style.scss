@@ -37,23 +37,6 @@
   }
 }
 
-.statusBar {
-  align-items: center;
-  background-color: var(--c-background--dark-2);
-  bottom: 0;
-  color: var(--c-text--light-gray);
-  display: flex;
-  font-family: Roboto;
-  font-size: 12px;
-  height: var(--statusbar-height);
-  line-height: 1.25;
-  padding: 0 12px;
-  position: fixed;
-  right: 0;
-  width: 100%;
-  z-index: 1000;
-}
-
 .mainSplitPaneWToolbar {
   height: auto !important;
   min-height: 0 !important;

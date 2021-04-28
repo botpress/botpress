@@ -7,6 +7,7 @@ interface CssExports {
   'item': string;
   'langItem': string;
   'langSwitherMenu': string;
+  'menu': string;
   'statusBar': string;
 }
 export const cssExports: CssExports;

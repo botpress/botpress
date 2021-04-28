@@ -76,12 +76,6 @@ const App: FC<Props> = props => {
   )
 }
 
-const Footer = props => (
-  <footer className={cx('statusBar', style.statusBar)}>
-    <div>{props.version}</div>
-  </footer>
-)
-
 const Unlicensed = () => (
   <div className={style.unlicensed}>
     <Link to="/server/license">
