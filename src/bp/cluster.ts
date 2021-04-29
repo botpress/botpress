@@ -56,7 +56,7 @@ export const setupMasterNode = (logger: sdk.Logger) => {
   })
 
   registerMsgHandler(MESSAGE_TYPE_START_LOCAL_STAN_SERVER, async (message: Partial<StanOptions>) => {
-    const { signal, code } = await runNluServerWithEnv(message)
+    const { signal, code } = await runNluServerWithEnv(message, logger)
     logger.error(`NLU server exited with code ${code} and signal ${signal}`)
   })
 
