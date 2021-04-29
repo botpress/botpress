@@ -96,8 +96,8 @@ const Menu: FC<Props> = props => {
               text={module.menuText!}
               icon={module.menuIcon}
               url={`/apps/${module.name}`}
-              resource="admin.roles.*"
-              operation="read"
+              resource={`module.${module.name}`}
+              operation="write"
             />
           ))}
       </Fragment>
@@ -149,43 +149,45 @@ const Menu: FC<Props> = props => {
 
         {renderWorkspaceApps()}
 
-        <MenuItem
-          id="btn-menu-version"
-          text={lang.tr('admin.sideMenu.sourceControl')}
-          icon="changes"
-          url="/server/version"
-        />
-        <MenuItem
-          id="btn-menu-license"
-          text={lang.tr('admin.sideMenu.serverLicense')}
-          icon={<MdCopyright />}
-          url="/server/license"
-        />
-        <MenuItem
-          text={lang.tr('admin.sideMenu.languages')}
-          id="btn-menu-language"
-          icon="globe-network"
-          url="/server/languages"
-        />
-        <MenuItem text={lang.tr('sideMenu.modules')} id="btn-menu-modules" icon="control" url="/modules" />
-        <MenuItem
-          text={lang.tr('admin.sideMenu.productionChecklist')}
-          id="btn-menu-checklist"
-          icon="endorsed"
-          url="/checklist"
-        />
-        <MenuItem
-          id="btn-menu-monitoring"
-          text={lang.tr('admin.sideMenu.monitoring')}
-          icon="timeline-line-chart"
-          url="/server/monitoring"
-        />
-        <MenuItem
-          id="btn-menu-alerting"
-          text={lang.tr('admin.sideMenu.alerting')}
-          icon="notifications"
-          url="/server/alerting"
-        />
+        <AccessControl superAdmin={true}>
+          <MenuItem
+            id="btn-menu-version"
+            text={lang.tr('admin.sideMenu.sourceControl')}
+            icon="changes"
+            url="/server/version"
+          />
+          <MenuItem
+            id="btn-menu-license"
+            text={lang.tr('admin.sideMenu.serverLicense')}
+            icon={<MdCopyright />}
+            url="/server/license"
+          />
+          <MenuItem
+            text={lang.tr('admin.sideMenu.languages')}
+            id="btn-menu-language"
+            icon="globe-network"
+            url="/server/languages"
+          />
+          <MenuItem text={lang.tr('sideMenu.modules')} id="btn-menu-modules" icon="control" url="/modules" />
+          <MenuItem
+            text={lang.tr('admin.sideMenu.productionChecklist')}
+            id="btn-menu-checklist"
+            icon="endorsed"
+            url="/checklist"
+          />
+          <MenuItem
+            id="btn-menu-monitoring"
+            text={lang.tr('admin.sideMenu.monitoring')}
+            icon="timeline-line-chart"
+            url="/server/monitoring"
+          />
+          <MenuItem
+            id="btn-menu-alerting"
+            text={lang.tr('admin.sideMenu.alerting')}
+            icon="notifications"
+            url="/server/alerting"
+          />
+        </AccessControl>
         <MenuItem
           text={lang.tr('admin.sideMenu.latestReleases')}
           id="btn-menu-releases"
