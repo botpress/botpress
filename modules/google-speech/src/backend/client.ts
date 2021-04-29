@@ -1,4 +1,4 @@
-import { SpeechClient, protos } from '@google-cloud/speech'
+import { protos, v1p1beta1 } from '@google-cloud/speech'
 import { TextToSpeechClient } from '@google-cloud/text-to-speech'
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
@@ -22,7 +22,7 @@ const debugTextToSpeech = debug.sub('text-to-speech')
 
 export class GoogleSpeechClient {
   private logger: sdk.Logger
-  private speechClient: SpeechClient
+  private speechClient: v1p1beta1.SpeechClient
   private textToSpeechClient: TextToSpeechClient
 
   constructor(private bp: typeof sdk, private botId: string, private readonly config: Config) {
@@ -37,7 +37,7 @@ export class GoogleSpeechClient {
     }
 
     try {
-      this.speechClient = new SpeechClient({
+      this.speechClient = new v1p1beta1.SpeechClient({
         credentials: {
           client_email: this.config.clientEmail,
           private_key: this.config.privateKey
@@ -68,17 +68,25 @@ export class GoogleSpeechClient {
       await this.speechClient.close()
       await this.textToSpeechClient.close()
     } catch (err) {
-      this.logger.error('Error ocurred while closing connection to Google APIs:', err.message)
+      this.logger.error('Error ocurred while closing connections to Google APIs:', err.message)
     }
   }
 
-  public async speechToText(audioFileUrl: string, language: string) {
+  public async speechToText(audioFileUrl: string, language: string): Promise<string | undefined> {
     debugSpeechToText('Received audio to convert:', audioFileUrl)
 
     let { data: buffer } = await axios.get<Buffer>(audioFileUrl, { responseType: 'arraybuffer' })
 
     let meta = await mm.parseBuffer(buffer)
-    let encoding: protos.google.cloud.speech.v1.RecognitionConfig.AudioEncoding
+    const maxAudioDuration = Math.min(this.config.maxAudioDuration, 60)
+    if (meta.format.duration > maxAudioDuration) {
+      this.logger.warn(
+        `Audio file duration (${meta.format.duration}s) exceed maximum duration allowed of: ${maxAudioDuration}s`
+      )
+      return
+    }
+
+    let encoding: protos.google.cloud.speech.v1p1beta1.RecognitionConfig.AudioEncoding
 
     const container = meta.format.container?.toLowerCase()
     const codec = meta.format.codec?.toLowerCase()
@@ -99,8 +107,8 @@ export class GoogleSpeechClient {
 
         meta = await mm.parseBuffer(buffer)
       }
-    } else if (container === 'mpeg' && codec === 'mpeg 1 layer 3') {
-      // We don't need to specify the encoding nor re-sample the file when its format is MPEG-3
+    } else if (container === 'mpeg' && (codec === 'mpeg 1 layer 3' || codec === 'mpeg 2 layer 3')) {
+      encoding = AudioEncoding.MP3
     } else {
       this.logger.warn('Audio file format not supported. Skipping...', { ...meta.format })
 
@@ -128,14 +136,25 @@ export class GoogleSpeechClient {
       config
     })
 
-    const transcription = response.results.map(result => result.alternatives[0].transcript).join('\n')
+    const transcription = response.results
+      ?.map(result => {
+        const alternative = result.alternatives[0]
+        if (alternative.confidence >= this.config.confidenceThreshold) {
+          return alternative.transcript
+        }
+      })
+      .join('\n')
 
-    debugSpeechToText('Text recognized:', `'${transcription}'`)
+    if (!transcription) {
+      debugSpeechToText('No text could be recognized')
+    } else {
+      debugSpeechToText('Text recognized:', `'${transcription}'`)
+    }
 
     return transcription
   }
 
-  public async textToSpeech(text: string, language: string) {
+  public async textToSpeech(text: string, language: string): Promise<Uint8Array | string | undefined> {
     debugTextToSpeech('Received text to convert into audio:', text)
 
     const request: ISynthesizeSpeechRequest = {
@@ -144,7 +163,15 @@ export class GoogleSpeechClient {
       audioConfig: { audioEncoding: 'MP3' } // Always return .mp3 files since it's one of the most recognized audio file type
     }
 
+    debugTextToSpeech('Producing audio content from text...')
+
     const [response] = await this.textToSpeechClient.synthesizeSpeech(request)
+
+    if (!response.audioContent) {
+      debugTextToSpeech('No audio content could be produced from the text received')
+    } else {
+      debugTextToSpeech('Audio content produced successfully')
+    }
 
     return response.audioContent
   }

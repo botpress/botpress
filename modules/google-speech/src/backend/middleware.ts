@@ -50,7 +50,11 @@ export class Middleware {
     try {
       // TODO: Fetch bot current language too?
       const language: string = event.state.user.language?.replace(/'/g, '')
-      const text: string = await client.speechToText(audioFile, language)
+      const text = await client.speechToText(audioFile, language)
+
+      if (!text) {
+        return next(undefined, false, true)
+      }
 
       const newEvent: sdk.IO.Event = this.bp.IO.Event({
         ...pick(event, ['type', 'direction', 'channel', 'target', 'threadId', 'botId']),
@@ -94,6 +98,10 @@ export class Middleware {
       // TODO: Test empty buffer
       const audio = await client.textToSpeech(text, language)
 
+      if (!audio) {
+        return next(undefined, false, true)
+      }
+
       const formData = new FormData()
       formData.append('file', audio, `${uuidv4()}.mp3`)
 
@@ -101,7 +109,9 @@ export class Middleware {
       const axiosConfig = await this.bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
       axiosConfig.headers['Content-Type'] = `multipart/form-data; boundary=${formData.getBoundary()}`
 
-      const { data: url } = await axios.post<{ url: string }>('/media', formData, {
+      const {
+        data: { url }
+      } = await axios.post<{ url: string }>('/media', formData, {
         ...axiosConfig
       })
 
