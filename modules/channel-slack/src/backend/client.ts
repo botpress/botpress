@@ -184,6 +184,7 @@ export class SlackClient {
       client: { web: this.client, events: this.events, interactive: this.interactive },
       handlers: [],
       payload: _.cloneDeep(event.payload),
+      botUrl: process.EXTERNAL_URL,
       message: { blocks: [] },
       channelId
     }

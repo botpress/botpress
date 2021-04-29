@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { ChannelRenderer } from 'common/channel'
+import { formatUrl } from 'common/url'
 import { SlackContext } from '../backend/typings'
 
 export class SlackImageRenderer implements ChannelRenderer<SlackContext> {
@@ -28,7 +29,7 @@ export class SlackImageRenderer implements ChannelRenderer<SlackContext> {
         type: 'plain_text',
         text: payload.title as string
       },
-      image_url: payload.image,
+      image_url: formatUrl(context.botUrl, payload.image),
       alt_text: 'image'
     })
   }

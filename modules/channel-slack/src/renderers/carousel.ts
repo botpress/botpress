@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { ChannelRenderer } from 'common/channel'
+import { formatUrl } from 'common/url'
 import _ from 'lodash'
 import { SlackContext } from '../backend/typings'
 
@@ -33,7 +34,7 @@ export class SlackCarouselRenderer implements ChannelRenderer<SlackContext> {
           },
           accessory: card.image && {
             type: 'image',
-            image_url: card.image,
+            image_url: formatUrl(context.botUrl, card.image),
             alt_text: 'image'
           }
         },
@@ -58,7 +59,7 @@ export class SlackCarouselRenderer implements ChannelRenderer<SlackContext> {
                   type: 'plain_text',
                   text: btn.title
                 },
-                url: (btn as sdk.ActionOpenURL).url
+                url: (btn as sdk.ActionOpenURL).url.replace('BOT_URL', context.botUrl)
               }
             } else {
               throw new Error(`Slack carousel does not support "${btn.action}" action-buttons at the moment`)
