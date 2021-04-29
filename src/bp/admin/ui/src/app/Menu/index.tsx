@@ -12,6 +12,7 @@ import AccessControl from '~/auth/AccessControl'
 import { getActiveWorkspace } from '~/auth/basicAuth'
 import { fetchCurrentVersion, fetchLatestVersions } from '~/releases/reducer'
 import { AppState } from '../rootReducer'
+import logo from './logo-icon.svg'
 import style from './style.scss'
 
 type Props = ConnectedProps<typeof connector> & RouteComponentProps
@@ -84,7 +85,7 @@ const Menu: FC<Props> = props => {
   return (
     <aside className={cx(style.sidebar, 'bp-sidebar')}>
       <a href="admin/" className={cx(style.logo, 'bp-logo')}>
-        <img width="19" src="assets/admin/ui/public/logo-icon.svg" />
+        <img width="19" src={logo} />
       </a>
       <ul>
         <MenuItem
