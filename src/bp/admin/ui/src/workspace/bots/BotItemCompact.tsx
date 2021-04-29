@@ -81,9 +81,7 @@ const BotItemCompact: FC<Props> = ({
             <Button id="btn-menu" icon={<Icon icon="menu" />} minimal />
 
             <Menu>
-              <MenuItem icon="application" text="Apps">
-                <WorkspaceAppItems loadedModules={loadedModules} botId={bot.id}></WorkspaceAppItems>
-              </MenuItem>
+              <WorkspaceAppItems loadedModules={loadedModules} botId={bot.id}></WorkspaceAppItems>
 
               {!bot.disabled && !hasError && (
                 <MenuItem
@@ -155,7 +153,9 @@ const BotItemCompact: FC<Props> = ({
           TODO: remove this NeedsTrainingWarning component.
           This is a temp fix but won't be usefull after we bring back training on bot mount.
           */}
-        {nluModuleEnabled && <NeedsTrainingWarning bot={bot.id} languages={bot.languages} />}
+        <AccessControl resource="module.nlu" operation="write">
+          {nluModuleEnabled && <NeedsTrainingWarning bot={bot.id} languages={bot.languages} />}
+        </AccessControl>
 
         {!bot.defaultLanguage && (
           <Tooltip position="right" content={lang.tr('admin.workspace.bots.item.languageIsMissing')}>

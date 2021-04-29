@@ -73,9 +73,7 @@ const BotItemPipeline: FC<Props> = ({
           <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
             <Button id="btn-menu" icon={<Icon icon="menu" />} minimal />
             <Menu>
-              <MenuItem icon="application" text="Apps">
-                <WorkspaceAppItems loadedModules={loadedModules} botId={bot.id}></WorkspaceAppItems>
-              </MenuItem>
+              <WorkspaceAppItems loadedModules={loadedModules} botId={bot.id}></WorkspaceAppItems>
 
               {!bot.disabled && !hasError && (
                 <Fragment>
@@ -184,7 +182,9 @@ const BotItemPipeline: FC<Props> = ({
           </Tag>
         )}
 
-        {nluModuleEnabled && <NeedsTrainingWarning bot={bot.id} languages={bot.languages} />}
+        <AccessControl resource="module.nlu" operation="write">
+          {nluModuleEnabled && <NeedsTrainingWarning bot={bot.id} languages={bot.languages} />}
+        </AccessControl>
 
         {!bot.defaultLanguage && (
           <Tooltip position="right" content={lang.tr('admin.workspace.bots.item.languageIsMissing')}>

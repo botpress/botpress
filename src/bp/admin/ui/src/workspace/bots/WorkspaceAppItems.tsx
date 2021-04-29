@@ -1,9 +1,10 @@
 import { MenuItem, Icon } from '@blueprintjs/core'
 import { IconSvgPaths16 } from '@blueprintjs/icons'
 import { ModuleDefinition } from 'botpress/sdk'
-import React, { FC, Fragment } from 'react'
+import React, { FC } from 'react'
 
 import { history } from '~/app/store'
+import { isOperationAllowed } from '~/auth/AccessControl'
 
 interface Props {
   botId: string
@@ -23,21 +24,25 @@ export const addModuleIcon = module => {
 }
 
 export const WorkspaceAppItems: FC<Props> = ({ botId, loadedModules }) => {
+  const modules = loadedModules
+    .filter(x => x.workspaceApp?.bots)
+    .filter(module => isOperationAllowed({ resource: `module.${module.name}`, operation: 'write' }))
+
+  if (!modules.length) {
+    return null
+  }
+
   return (
-    <Fragment>
-      {loadedModules
-        .filter(x => x.workspaceApp?.bots)
-        .map(addModuleIcon)
-        .map(module => (
-          <MenuItem
-            id={`btn-menu-${module.name}`}
-            key={module.name}
-            text={module.menuText}
-            icon={module.menuIcon as any}
-            onClick={() => history.push(`/apps/${module.name}/${botId}`)}
-            resource={`module.${module.name}`}
-          />
-        ))}
-    </Fragment>
+    <MenuItem icon="application" text="Apps">
+      {modules.map(addModuleIcon).map(module => (
+        <MenuItem
+          id={`btn-menu-${module.name}`}
+          text={module.menuText}
+          icon={module.menuIcon as any}
+          onClick={() => history.push(`/apps/${module.name}/${botId}`)}
+          resource={`module.${module.name}`}
+        />
+      ))}
+    </MenuItem>
   )
 }
