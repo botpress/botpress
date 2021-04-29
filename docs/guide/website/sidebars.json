@@ -27,15 +27,13 @@
 			"infrastructure/deploying",
 			"infrastructure/hosting",
       "infrastructure/database",
-      "infrastructure/configuration",
       "infrastructure/aws",
       "infrastructure/docker",
-      "infrastructure/digital-ocean",
 			"infrastructure/performances",
 			"infrastructure/pipeline",
-			"infrastructure/development-pipeline",
 			"infrastructure/versions",
-			"infrastructure/cluster"
+			"infrastructure/cluster",
+      "infrastructure/digital-ocean"
 		],
 		"Improving Your Chatbot": [
 			"tutorials/intent-matching",
@@ -71,6 +69,7 @@
 			"advanced/configuration",
 			"advanced/authentication",
 			"advanced/custom-module",
+			"advanced/development-pipeline"
 		]
 	}
 }
