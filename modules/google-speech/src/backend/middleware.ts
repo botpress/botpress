@@ -34,49 +34,47 @@ export class Middleware {
   private async incomingHandler(event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) {
     // TODO: Add more validation than the payload type being audio
     if (event.payload.type !== 'audio') {
-      return next()
+      return next(undefined, false, true)
     }
 
     const client: GoogleSpeechClient = this.clients[event.botId]
     if (!client) {
-      return next()
+      return next(undefined, false, true)
     }
 
     const audioFile = event.payload.audio
-    if (audioFile) {
-      try {
-        // TODO: Fetch bot current language too?
-        const language: string = event.state.user.language?.replace(/'/g, '')
-        const text: string = await client.speechToText(audioFile, language)
-
-        if (text) {
-          const newEvent: sdk.IO.Event = this.bp.IO.Event({
-            type: event.type,
-            direction: event.direction,
-            channel: event.channel,
-            target: event.target,
-            threadId: event.threadId,
-            botId: event.botId,
-            payload: { type: 'text', text, textToSpeech: true }
-          })
-
-          await this.bp.events.sendEvent(newEvent)
-
-          return next(undefined, true)
-        }
-      } catch (err) {
-        this.bp.logger.forBot(event.botId).error('[speech-to-text]:', err)
-        return next(err)
-      }
+    if (!audioFile) {
+      return next(undefined, false, true)
     }
 
-    return next()
+    try {
+      // TODO: Fetch bot current language too?
+      const language: string = event.state.user.language?.replace(/'/g, '')
+      const text: string = await client.speechToText(audioFile, language)
+
+      const newEvent: sdk.IO.Event = this.bp.IO.Event({
+        ...pick(event, ['type', 'direction', 'channel', 'target', 'threadId', 'botId']),
+        payload: { type: 'text', text, textToSpeech: true }
+      })
+
+      await this.bp.events.sendEvent(newEvent)
+
+      return next(undefined, true)
+    } catch (err) {
+      this.bp.logger.forBot(event.botId).error('[speech-to-text]:', err)
+      return next(err)
+    }
   }
 
   private async outgoingHandler(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
+    const client: GoogleSpeechClient = this.clients[event.botId]
+    if (!client) {
+      return next(undefined, false, true)
+    }
+
     const incomingEventId: string = event.incomingEventId
-    if (!incomingEventId || event.type !== 'text') {
-      return next()
+    if (!incomingEventId || event.type !== 'text' || !event.payload.text) {
+      return next(undefined, false, true)
     }
 
     const incomingEvents: sdk.IO.StoredEvent[] = await this.bp.events.findEvents({
@@ -84,40 +82,33 @@ export class Middleware {
       direction: 'incoming'
     })
     if (!incomingEvents.length || incomingEvents[0].event.payload.textToSpeech !== true) {
-      return next()
-    }
-
-    const client: GoogleSpeechClient = this.clients[event.botId]
-    if (!client) {
-      return next()
-    }
-
-    const text: string = event.payload.text
-    if (!text) {
-      return next()
+      return next(undefined, false, true)
     }
 
     try {
+      const text: string = event.payload.text
       // TODO: Fetch bot current language too?
       const userAttributes = await this.bp.users.getAttributes(event.channel, event.target)
       const language: string = userAttributes['language']?.replace(/'/g, '')
+
+      // TODO: Test empty buffer
       const audio = await client.textToSpeech(text, language)
 
-      const data = new FormData()
-      data.append('file', audio, `${uuidv4()}.mp3`)
+      const formData = new FormData()
+      formData.append('file', audio, `${uuidv4()}.mp3`)
 
       // TODO: Add cache (preview -> buffer)
       const axiosConfig = await this.bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
-      axiosConfig.headers['Content-Type'] = `multipart/form-data; boundary=${data.getBoundary()}`
+      axiosConfig.headers['Content-Type'] = `multipart/form-data; boundary=${formData.getBoundary()}`
 
-      const res = await axios.post<{ url: string }>('/media', data, {
+      const { data: url } = await axios.post<{ url: string }>('/media', formData, {
         ...axiosConfig
       })
 
       const newEvent: sdk.IO.Event = this.bp.IO.Event({
         type: 'audio',
         ...pick(event, ['direction', 'channel', 'target', 'threadId', 'botId']),
-        payload: { type: 'audio', url: `${process.EXTERNAL_URL}${res.data.url}` }
+        payload: { type: 'audio', url: `${process.EXTERNAL_URL}${url}` }
       })
 
       await this.bp.events.sendEvent(newEvent)
