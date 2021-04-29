@@ -303,3 +303,17 @@
     }
   }
 }
+.rightPanel{
+  position: absolute;
+  right: 0;
+  width: 0;
+  z-Index: 1;
+  padding-top: 70,
+}
+.rightPanelActive{
+  position: absolute;
+  right: 0;
+  width: 300;
+  z-Index: 1;
+  padding-top: 70,
+}
