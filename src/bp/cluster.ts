@@ -2,7 +2,7 @@ import sdk from 'botpress/sdk'
 import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
-import { killStan, runStan, StanOptions } from 'stan-launcher'
+import { killStan, runNluServerWithEnv, StanOptions } from 'nlu'
 import yn from 'yn'
 
 export enum WORKER_TYPES {
@@ -56,7 +56,8 @@ export const setupMasterNode = (logger: sdk.Logger) => {
   })
 
   registerMsgHandler(MESSAGE_TYPE_START_LOCAL_STAN_SERVER, async (message: Partial<StanOptions>) => {
-    return runStan(message)
+    const { signal, code } = await runNluServerWithEnv(message)
+    logger.error(`NLU server exited with code ${code} and signal ${signal}`)
   })
 
   cluster.on('exit', async (worker: Worker, code: number, signal: string) => {

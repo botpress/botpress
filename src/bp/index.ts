@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events'
-import { startNLUFromBinary } from 'stan-launcher'
+import { runNluServerWithArgv } from 'nlu'
 
 global['NativePromise'] = global.Promise
 
@@ -310,10 +310,18 @@ try {
       }
     )
     .command('lang', 'Launch a local language server', {}, () => {
-      startNLUFromBinary(['lang', ...process.argv])
+      runNluServerWithArgv(['lang', ...process.argv])
+        .then(() => {})
+        .catch(err => {
+          throw err
+        })
     })
     .command('nlu', 'Launch a local stand-alone nlu server', {}, () => {
-      startNLUFromBinary(['nlu', ...process.argv])
+      runNluServerWithArgv(['nlu', ...process.argv])
+        .then(() => {})
+        .catch(err => {
+          throw err
+        })
     })
     .boolean('config')
     .boolean('includePasswords')
