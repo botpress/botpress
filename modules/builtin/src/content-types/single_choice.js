@@ -1,4 +1,5 @@
 const base = require('./_base')
+const utils = require('./_utils')
 
 function render(data) {
   const events = []
@@ -68,7 +69,7 @@ function renderMessenger(data) {
 function renderElement(data, channel) {
   // These channels now use channel renderers
   if (['slack'].includes(channel)) {
-    return { type: 'choice', ...data.payload }
+    return utils.extractPayload('choice', data)
   }
 
   if (channel === 'messenger') {
