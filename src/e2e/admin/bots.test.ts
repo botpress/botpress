@@ -36,6 +36,17 @@ describe('Admin - Bot Management', () => {
     await expectAdminApiCallSuccess(`workspace/bots/${importBotId}/import`, 'POST')
   })
 
+  it('Open Bot Analytics', async () => {
+    await clickButtonForBot('#btn-apps', importBotId)
+
+    await Promise.all([
+      expectModuleApiCallSuccess('analytics', importBotId, 'channel/all', 'GET'),
+      clickOn('#btn-menu-analytics')
+    ])
+
+    await gotoAndExpect(`${bpConfig.host}/admin/workspace/${workspaceId}/bots`)
+  })
+
   it('Delete imported bot', async () => {
     await clickButtonForBot('#btn-delete', importBotId)
 

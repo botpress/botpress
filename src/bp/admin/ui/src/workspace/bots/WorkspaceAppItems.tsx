@@ -1,6 +1,7 @@
 import { MenuItem, Icon } from '@blueprintjs/core'
 import { IconSvgPaths16 } from '@blueprintjs/icons'
 import { ModuleDefinition } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import React, { FC } from 'react'
 
 import { history } from '~/app/store'
@@ -33,7 +34,7 @@ export const WorkspaceAppItems: FC<Props> = ({ botId, loadedModules }) => {
   }
 
   return (
-    <MenuItem icon="application" text="Apps">
+    <MenuItem icon="application" id="btn-apps" text={lang.tr('admin.apps')}>
       {modules.map(addModuleIcon).map(module => (
         <MenuItem
           id={`btn-menu-${module.name}`}

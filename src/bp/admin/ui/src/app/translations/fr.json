@@ -1,5 +1,6 @@
 {
   "admin": {
+    "apps": "Application",
     "needsTraining": "Ce bot a besoin d'être entraîné.",
     "howToTrain": "Dans le studio, cliquez sur le bouton \"Entraîner maintenant\" (situé dans le coin en bas, à droite).",
     "alerting": {
