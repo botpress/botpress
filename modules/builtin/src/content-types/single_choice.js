@@ -98,7 +98,7 @@ function renderSlack(data) {
 function renderElement(data, channel) {
   // These channels now use channel renderers
   if ([].includes(channel)) {
-    return { type: 'choice', ...data.payload }
+    return utils.extractPayload('choice', data)
   }
 
   if (channel === 'messenger') {

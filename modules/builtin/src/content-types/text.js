@@ -61,7 +61,7 @@ function renderTeams(data) {
 function renderElement(data, channel) {
   // These channels now use channel renderers
   if ([].includes(channel)) {
-    return { type: 'text', ...data.payload }
+    return utils.extractPayload('text', data)
   }
 
   if (channel === 'messenger') {
