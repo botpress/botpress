@@ -1,5 +1,5 @@
 ---
-id: pipelines
+id: pipeline
 title: Bot Pipelines
 ---
 
