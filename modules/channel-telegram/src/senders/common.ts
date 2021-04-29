@@ -1,5 +1,5 @@
 import { ChannelSender } from 'common/channel'
-import { TelegramContext } from 'src/backend/typings'
+import { TelegramContext } from '../backend/typings'
 
 export class TelegramCommonSender implements ChannelSender<TelegramContext> {
   get channel(): string {
