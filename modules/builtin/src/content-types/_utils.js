@@ -1,4 +1,4 @@
-const URL = require("url").URL;
+const URL = require('url').URL
 
 function isBpUrl(str) {
   const re = /^\/api\/.*\/bots\/.*\/media\/.*/
@@ -23,7 +23,12 @@ function formatURL(baseUrl, url) {
   }
 }
 
-module.exports = { 
+function extractPayload(type, data) {
+  return { type, ..._.omit(data, 'event', 'temp', 'user') }
+}
+
+module.exports = {
   formatURL: formatURL,
-  isUrl: isUrl
+  isUrl: isUrl,
+  extractPayload: extractPayload
 }

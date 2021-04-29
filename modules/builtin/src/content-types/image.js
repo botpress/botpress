@@ -98,7 +98,7 @@ function renderTeams(data) {
 function renderElement(data, channel) {
   // These channels now use channel renderers
   if (['telegram'].includes(channel)) {
-    return { type: 'image', ...data.payload }
+    return utils.extractPayload('image', data)
   }
 
   if (channel === 'messenger') {

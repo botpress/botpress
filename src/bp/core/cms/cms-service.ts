@@ -647,23 +647,16 @@ export class CMSService implements IDisposeOnExit {
 
       args = {
         ...args,
-        ...content.formData,
-        // for channel renderers
-        payload: content.formData
+        ...content.formData
       }
     } else if (contentId.startsWith('@')) {
       contentTypeRenderer = this.getContentType(contentId.substr(1))
-      const payload = await translateFormData(args)
       args = {
         ...args,
-        ...payload,
-        // for channel renderers
-        payload
+        ...(await translateFormData(args))
       }
     } else {
       contentTypeRenderer = this.getContentType(contentId)
-      // for channel renderers
-      args.payload = { ...args }
     }
 
     if (args.text) {
@@ -671,14 +664,6 @@ export class CMSService implements IDisposeOnExit {
         ...args,
         text: renderTemplate(args.text, args)
       }
-      // for channel renderers
-      args.payload.text = args.text
-    }
-
-    // cleanup useless properties
-    args.payload = _.pickBy(args.payload, v => v !== undefined)
-    if (args.payload.typing) {
-      delete args.payload.typing
     }
 
     let payloads = contentTypeRenderer.renderElement({ ...this._getAdditionalData(), ...args }, channel)
@@ -691,7 +676,7 @@ export class CMSService implements IDisposeOnExit {
 
   public renderForChannel(content: any, channel: string): any[] {
     const type = this.contentTypes.find(x => x.id.includes(content.type))!
-    return type.renderElement({ ...content, ...this._getAdditionalData(), payload: content }, channel)
+    return type.renderElement({ ...content, ...this._getAdditionalData() }, channel)
   }
 
   /**
