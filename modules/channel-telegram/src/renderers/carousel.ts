@@ -1,9 +1,9 @@
 import * as sdk from 'botpress/sdk'
 import { ChannelRenderer } from 'common/channel'
 import path from 'path'
-import { TelegramContext } from 'src/backend/typings'
 import { Markup } from 'telegraf'
 import Extra from 'telegraf/extra'
+import { TelegramContext } from '../backend/typings'
 
 export class TelegramCarouselRenderer implements ChannelRenderer<TelegramContext> {
   get channel(): string {
