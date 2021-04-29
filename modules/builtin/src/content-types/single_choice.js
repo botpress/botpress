@@ -98,8 +98,7 @@ function renderSlack(data) {
 function renderElement(data, channel) {
   // These channels now use channel renderers
   if (['telegram'].includes(channel)) {
-    // TODO : automate this from the schema
-    return { text: data.text, choices: data.choices }
+    return { type: 'choice', ...data.payload }
   }
 
   if (channel === 'messenger') {

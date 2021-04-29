@@ -61,8 +61,7 @@ function renderTeams(data) {
 function renderElement(data, channel) {
   // These channels now use channel renderers
   if (['telegram'].includes(channel)) {
-    // TODO : automate this from the schema
-    return { type: 'text', text: data.text, markdown: data.markdown }
+    return { type: 'text', ...data.payload }
   }
 
   if (channel === 'messenger') {
