@@ -14,7 +14,7 @@ type Props = ConnectedProps<typeof connector> & {
   contentClassName?: string
   fullWidth?: boolean
   superAdmin?: boolean
-  children: any
+  children: React.ReactNode
   noWrapper?: boolean
 }
 

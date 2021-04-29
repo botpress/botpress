@@ -411,6 +411,7 @@
     "es": "Español"
   },
   "bottomPanel": {
+    "debug": "Debug",
     "label": "Bottom Panel",
     "closePanel": "Close Panel",
     "logs": {

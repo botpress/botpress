@@ -194,7 +194,12 @@ class BottomPanel extends React.Component<Props, State> {
     return (
       <Tabs className={style.tabs} onChange={this.handleTabChange} selectedTabId={this.state.selectedPanel}>
         <Tab id="logs" className={style.tab} title={lang.tr('logs')} panel={LogsPanel} />
-        <Tab id="debug" className={style.tab} title={lang.tr('debug')} panel={<Debug ref={this.debugRef} />} />
+        <Tab
+          id="debug"
+          className={style.tab}
+          title={lang.tr('bottomPanel.debug')}
+          panel={<Debug ref={this.debugRef} />}
+        />
 
         {this.state.selectedPanel === 'logs' && (
           <Fragment>
