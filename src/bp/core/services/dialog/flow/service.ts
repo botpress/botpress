@@ -87,13 +87,17 @@ export class FlowService {
 
   private _listenForCacheInvalidation() {
     this.cache.events.on('invalidation', async key => {
-      const matches = key.match(/^([A-Z0-9-_]+)::data\/bots\/([A-Z0-9-_]+)\/flows\/([\s\S]+(flow|ui)\.json)/i)
+      try {
+        const matches = key.match(/^([A-Z0-9-_]+)::data\/bots\/([A-Z0-9-_]+)\/flows\/([\s\S]+(flow|ui)\.json)/i)
 
-      if (matches && matches.length >= 2) {
-        const [key, type, botId, flowName] = matches
-        if (type === 'file' || type === 'object') {
-          await this.forBot(botId).handleInvalidatedCache(flowName, type === 'file')
+        if (matches && matches.length >= 2) {
+          const [key, type, botId, flowName] = matches
+          if (type === 'file' || type === 'object') {
+            await this.forBot(botId).handleInvalidatedCache(flowName, type === 'file')
+          }
         }
+      } catch (err) {
+        this.logger.error('Error Invalidating flow cache: ' + err.message)
       }
     })
   }

@@ -48,6 +48,7 @@ interface ScopedGhostOptions {
 }
 
 const MAX_GHOST_FILE_SIZE = process.core_env.BP_BPFS_MAX_FILE_SIZE || '100mb'
+const BP_BPFS_UPLOAD_CONCURRENCY = parseInt((process.core_env.BP_BPFS_UPLOAD_CONCURRENCY as unknown) as string) || 50
 const bpfsIgnoredFiles = ['models/**', 'data/bots/*/models/**', '**/*.js.map']
 const GLOBAL_GHOST_KEY = '__global__'
 const BOTS_GHOST_KEY = '__bots__'
@@ -127,16 +128,23 @@ export class GhostService {
         async file => {
           await this.dbDriver.deleteFile(file.path)
           await invalidateFile(file.path)
-        }
+        },
+        { concurrency: BP_BPFS_UPLOAD_CONCURRENCY }
       )
 
       // Upload all local files for that scope
       if (localFiles.length) {
-        await Promise.map(localFiles, async filePath => {
-          const content = await this.diskDriver.readFile(path.join(tmpFolder, filePath))
-          await this.dbDriver.upsertFile(filePath, content, false)
-          await invalidateFile(filePath)
-        })
+        await Promise.map(
+          localFiles,
+          async filePath => {
+            const content = await this.diskDriver.readFile(path.join(tmpFolder, filePath))
+            await this.dbDriver.upsertFile(filePath, content, false)
+            await invalidateFile(filePath)
+          },
+          {
+            concurrency: BP_BPFS_UPLOAD_CONCURRENCY
+          }
+        )
       }
     }
 
