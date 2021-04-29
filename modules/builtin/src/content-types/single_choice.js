@@ -23,7 +23,8 @@ function render(data) {
         options: data.choices.map(c => ({ label: c.title, value: c.value.toUpperCase() })),
         width: 300,
         placeholderText: data.dropdownPlaceholder
-      }];
+      }
+    ]
   }
 
   return [

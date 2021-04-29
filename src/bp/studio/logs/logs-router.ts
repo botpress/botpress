@@ -6,7 +6,6 @@ import { CustomStudioRouter } from 'studio/utils/custom-studio-router'
 export class LogsRouter extends CustomStudioRouter {
   constructor(services: StudioServices) {
     super('Logs', services)
-    this.setupRoutes()
   }
 
   setupRoutes() {

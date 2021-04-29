@@ -8,9 +8,7 @@
     "allowJs": true,
     "target": "es2019",
     "jsx": "react",
-    "typeRoots": [
-      "./node_modules/@types"
-    ],
+    "types": [],
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,

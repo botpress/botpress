@@ -17,6 +17,7 @@ import contextMenu from './ContextMenu'
 import { Body, Footer, Wrapper } from './Dialog'
 import Dropdown from './Dropdown'
 import EmptyState from './EmptyState'
+import FileDisplay from './FileDisplay'
 import Form from './Form'
 import FormFields from './Form/FormFields'
 import MainContainer from './MainContainer'
@@ -44,6 +45,7 @@ exports.Dialog = { Wrapper, Footer, Body }
 exports.Dropdown = Dropdown
 exports.EmptyState = EmptyState
 exports.MainContainer = MainContainer
+exports.FileDisplay = FileDisplay
 exports.Form = Form
 exports.FormFields = FormFields
 exports.MainLayout = MainLayout

@@ -1,7 +1,8 @@
+import { Icon } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import moment from 'moment'
 import React from 'react'
-
+import style from './style.scss'
 interface Props {
   license: any
   breachs: any
@@ -69,18 +70,16 @@ export default class LicenseLimits extends React.Component<Props, State> {
 
   render() {
     return (
-      <table className="table bp-licensing">
+      <table className={style.table}>
         <tbody>
           {this.state.policies.map((policy, idx) => {
             return (
               <tr key={idx} title={policy.breachError}>
                 <td>
                   {policy.breachError ? (
-                    <span role="img" aria-label="Breached">
-                      ❌
-                    </span>
+                    <Icon icon="cross" color="red"></Icon>
                   ) : (
-                    <span className="bp-licensing__check">✓</span>
+                    <Icon icon="small-tick" color="green"></Icon>
                   )}
                 </td>
                 <td>{policy.name}</td>

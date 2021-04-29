@@ -180,7 +180,7 @@ const FlowBuilder = (props: Props) => {
         />
       )}
 
-      <SidePanelInspector/>
+      {!window.USE_ONEFLOW && <SidePanelInspector />}
 
       <div className={style.diagram}>
         <Diagram

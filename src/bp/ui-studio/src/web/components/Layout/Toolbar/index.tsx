@@ -57,7 +57,7 @@ const Toolbar: FC<Props> = props => {
               </div>
             }
           >
-            <button className={style.item} onClick={toggleBottomPanel}>
+            <button className={style.item} id="toggle-bottom-panel" onClick={toggleBottomPanel}>
               <Icon color="#1a1e22" icon="console" iconSize={16} />
             </button>
           </Tooltip>
