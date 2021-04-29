@@ -43,8 +43,14 @@ const Menu: FC<Props> = props => {
   }, [])
 
   const MenuItem = ({ text, icon, url, id, isPro, operation, resource, superAdmin, tag }: MenuItemProps) => {
-    const active = matchPath(props.location.pathname, { path: url })
     const workspaceId = getActiveWorkspace()
+
+    let active = matchPath(props.location.pathname, { path: url })
+
+    // Small hack so the 'Bots' menu is active when using a bot-scoped workspace app
+    if (id === 'btn-menu-bots' && matchPath(props.location.pathname, { path: '/apps/:appName/:botId' })) {
+      active = true
+    }
 
     if (!props.licensing || (isPro && !props.licensing.isPro)) {
       return null
