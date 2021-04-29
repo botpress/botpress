@@ -8,18 +8,22 @@ COPY . .
 # alternatively RUN git clone https://github.com/botpress/botpress.git .
 
 # fully build once
-RUN yarn install
-RUN yarn run gulp build
+RUN yarn && yarn build
+#RUN yarn run gulp build
+
+#COPY build ./build
+#RUN cd build/module-builder && yarn install && yarn build
 
 FROM node:12-alpine
 WORKDIR /botpress
 # add build config & dependencies
 COPY --from=builder ./botpress/build ./build
+COPY --from=builder ./botpress/node_modules ./node_modules
 COPY --from=builder ./botpress/gulpfile.js ./botpress/metadata.json ./botpress/package.json ./botpress/yarn.lock ./
 # install dependencies
-RUN yarn install
-RUN cd build/module-builder && yarn install
-RUN cd build/module-builder && yarn build
+#RUN yarn install
+# RUN cd build/module-builder && yarn install
+# RUN cd build/module-builder && yarn build
 
 # add botpress sdk source & typings
 COPY --from=builder ./botpress/src ./src
@@ -29,9 +33,9 @@ COPY --from=builder ./botpress/out ./out
 COPY --from=builder ./botpress/modules ./modules
 
 # prebuild other modules
-RUN yarn run gulp build:modules
+#RUN yarn run gulp build:modules
 
 # workaround unreleased getos fix (make botpress recognise alpine an select the correct native extensions)
-RUN wget -qO- https://raw.githubusercontent.com/retrohacker/getos/master/os.json > ./node_modules/getos/os.json
+#RUN wget -qO- https://raw.githubusercontent.com/retrohacker/getos/master/os.json > ./node_modules/getos/os.json
 
 CMD [ "echo", "-e", "Which module would you like to build?\nUse sh -c 'cd modules/your-module && yarn && yarn build && yarn package'" ]
