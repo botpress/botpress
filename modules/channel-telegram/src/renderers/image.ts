@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { ChannelRenderer } from 'common/channel'
+import { formatUrl } from 'common/url'
 import { TelegramContext } from '../backend/typings'
 
 export class TelegramImageRenderer implements ChannelRenderer<TelegramContext> {
@@ -24,9 +25,9 @@ export class TelegramImageRenderer implements ChannelRenderer<TelegramContext> {
     const payload = context.payload as sdk.ImageContent
 
     if (payload.image.toLowerCase().endsWith('.gif')) {
-      messages.push({ animation: payload.image })
+      messages.push({ animation: formatUrl(context.botUrl, payload.image) })
     } else {
-      messages.push({ photo: payload.image })
+      messages.push({ photo: formatUrl(context.botUrl, payload.image) })
     }
   }
 }

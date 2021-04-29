@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { ChannelRenderer } from 'common/channel'
+import { formatUrl } from 'common/url'
 import path from 'path'
 import { Markup } from 'telegraf'
 import Extra from 'telegraf/extra'
@@ -29,13 +30,15 @@ export class TelegramCarouselRenderer implements ChannelRenderer<TelegramContext
     for (const card of payload.items) {
       if (card.image) {
         messages.push({ action: 'upload_photo' })
-        messages.push({ photo: { url: card.image, filename: path.basename(card.image) } })
+        messages.push({ photo: { url: formatUrl(context.botUrl, card.image), filename: path.basename(card.image) } })
       }
 
       const buttons = []
       for (const action of card.actions) {
         if (action.action === 'Open URL') {
-          buttons.push(Markup.urlButton(action.title, (action as sdk.ActionOpenURL).url))
+          buttons.push(
+            Markup.urlButton(action.title, (action as sdk.ActionOpenURL).url.replace('BOT_URL', context.botUrl))
+          )
         } else if (action.action === 'Postback') {
           buttons.push(Markup.callbackButton(action.title, (action as sdk.ActionPostback).payload))
         } else if (action.action === 'Say something') {

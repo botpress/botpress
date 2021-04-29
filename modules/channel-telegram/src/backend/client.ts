@@ -89,6 +89,7 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
       client,
       handlers: [],
       payload: _.cloneDeep(event.payload),
+      botUrl: process.EXTERNAL_URL,
       messages: [],
       chatId
     }
