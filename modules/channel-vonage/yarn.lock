@@ -23,7 +23,7 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.17.26.tgz#a8a119960bff16b823be4c617da028570779bcfd"
   integrity sha512-myMwkO2Cr82kirHY8uknNRHEVtn0wV3DTQfkrjx17jmkstDRZ24gNUdl8AHXVyVclTYI/bNjgTPTAWvWLqXqkw==
 
-"@vonage/server-sdk@2.10.7-beta-2":
+"@vonage/server-sdk@^2.10.7-beta-2":
   version "2.10.7-beta-2"
   resolved "https://registry.yarnpkg.com/@vonage/server-sdk/-/server-sdk-2.10.7-beta-2.tgz#c8aa3d619e0a5d9cabcd20fbacdd9e0923617f86"
   integrity sha512-9Lz4v+8kpWQ6oX2o270iyAYh35h6LyA9u79C1CDt8P7XQuOD1smgUY5qaPekFXaWi5vvEY/qY4JgTKk3Gyof6Q==

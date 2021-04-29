@@ -3,7 +3,8 @@ import {
   ChannelMessage,
   ChannelToFrom,
   MessageSendResponse,
-  MessageSendError
+  MessageSendError,
+  ChannelMessageType
 } from '@vonage/server-sdk'
 import { VonageClient } from './client'
 
@@ -41,4 +42,14 @@ export interface SignedJWTPayload {
   iss: 'Vonage'
   payload_hash: string
   api_key: string
+}
+
+export type ExtendedChannelMessageType = ChannelMessageType | 'location'
+export interface ExtendedChannelContent extends Omit<ChannelContent, 'type'> {
+  type: ExtendedChannelMessageType
+  // **Note: content received does not fit with Vonage API documentation. This is the proper typing**
+  location?: {
+    long: number
+    lat: number
+  }
 }

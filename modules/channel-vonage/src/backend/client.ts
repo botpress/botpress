@@ -1,14 +1,16 @@
-import Vonage, { ChannelMessage, ChannelType, ChannelWhatsApp, MessageSendError } from '@vonage/server-sdk'
+import Vonage, { ChannelMessage, ChannelType, ChannelWhatsApp } from '@vonage/server-sdk'
 import * as sdk from 'botpress/sdk'
 import { StandardError, UnauthorizedError } from 'common/http'
 import crypto from 'crypto'
 import { Request } from 'express'
 import jwt from 'jsonwebtoken'
+import path from 'path'
 
 import { Config } from '../config'
 
 import {
   Clients,
+  ExtendedChannelContent,
   MessageApiError,
   MessageOption,
   SignedJWTPayload,
@@ -109,23 +111,59 @@ export class VonageClient {
 
     const conversation = await this.conversations.recent(userId)
 
+    const messageContent = <ExtendedChannelContent>body.message.content
+
+    // TODO: Link received from Nexmo/Vonage API are only valid for 10min. Add warning in documentation
     // https://developer.nexmo.com/api/messages-olympus?theme=dark
     let payload: sdk.IO.IncomingEvent['payload'] = null
-    switch (body.message.content.type) {
+    switch (messageContent.type) {
       case 'text':
-        const text = body.message.content.text
+        const text = messageContent.text
         payload = { type: 'text', text }
 
         // Since single choice and carousel are down rendered, we have to handle option selection differently
         payload = (await this.handleOptionResponse(text, userId, conversation.id)) ?? payload
         break
       case 'audio':
-        // TODO: Link received from Nexmo/Vonage API are only valid for 10min
-        const audio = body.message.content.audio.url
-        payload = { type: 'audio', audio }
+        payload = {
+          type: 'voice',
+          url: messageContent.audio.url
+        }
+        break
+      case 'image':
+        payload = {
+          type: 'file', // TODO: Change image content-type type to 'image' instead of 'file'
+          title: messageContent.image.caption,
+          url: messageContent.image.url,
+          collectFeedback: false
+        }
+        break
+      case 'video':
+        payload = {
+          type: messageContent.type,
+          title: `${path.basename(messageContent.video.url)}.mp4`, // TODO: Take for granted that video file will be .mp4 files?
+          url: messageContent.video.url,
+          collectFeedback: false
+        }
+        break
+      case 'file':
+        payload = {
+          type: 'document',
+          title: messageContent.file.caption,
+          url: messageContent.file.url,
+          collectFeedback: false
+        }
+        break
+      case 'location':
+        payload = {
+          type: messageContent.type,
+          latitude: messageContent.location.lat,
+          longitude: messageContent.location.long,
+          collectFeedback: false
+        }
         break
       default:
-        payload = {}
+        payload = undefined
         break
     }
 
