@@ -93,7 +93,7 @@ const Menu: FC<Props> = props => {
           .map(module => (
             <MenuItem
               id={`btn-menu-${module.name}`}
-              text={module.menuText!}
+              text={lang.tr(`module.${module.name}.fullName`) || module.menuText}
               icon={module.menuIcon}
               url={`/apps/${module.name}`}
               resource={`module.${module.name}`}

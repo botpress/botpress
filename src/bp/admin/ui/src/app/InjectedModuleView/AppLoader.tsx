@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import { ALL_BOTS } from 'common/utils'
 import React, { useEffect, FC } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
@@ -27,7 +28,7 @@ const AppLoader: FC<Props> = props => {
   const module = props.modules.find(x => x.name === appName)
 
   return (
-    <PageContainer title={module?.fullName || appName} noWrapper>
+    <PageContainer title={lang.tr(`module.${module?.name}.fullName`) || module?.fullName || appName} noWrapper>
       <InjectedModuleView moduleName={appName} extraProps={{ botId, contentLang: props.contentLang }} />
     </PageContainer>
   )

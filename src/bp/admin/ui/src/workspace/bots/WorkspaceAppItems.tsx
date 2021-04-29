@@ -38,7 +38,7 @@ export const WorkspaceAppItems: FC<Props> = ({ botId, loadedModules }) => {
       {modules.map(addModuleIcon).map(module => (
         <MenuItem
           id={`btn-menu-${module.name}`}
-          text={module.menuText}
+          text={lang.tr(`module.${module.name}.fullName`) || module.menuText}
           icon={module.menuIcon as any}
           onClick={() => history.push(`/apps/${module.name}/${botId}`)}
           resource={`module.${module.name}`}
