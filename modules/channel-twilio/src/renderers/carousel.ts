@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { ChannelRenderer } from 'common/channel'
+import { formatUrl } from 'common/url'
 import { TwilioContext } from '../backend/typings'
 
 export class TwilioCarouselRenderer implements ChannelRenderer<TwilioContext> {
@@ -30,7 +31,10 @@ export class TwilioCarouselRenderer implements ChannelRenderer<TwilioContext> {
         const title = button.title as string
 
         if (button.action === 'Open URL') {
-          options.push({ title: `${title} : ${(button as sdk.ActionOpenURL).url}`, value: undefined })
+          options.push({
+            title: `${title} : ${(button as sdk.ActionOpenURL).url.replace('BOT_URL', context.botUrl)}`,
+            value: undefined
+          })
         } else if (button.action === 'Postback') {
           options.push({ title, value: (button as sdk.ActionPostback).payload })
         } else if (button.action === 'Say something') {
@@ -42,7 +46,7 @@ export class TwilioCarouselRenderer implements ChannelRenderer<TwilioContext> {
       }
 
       // TODO fix any not working with medial url
-      context.messages.push(<any>{ body, mediaUrl: image })
+      context.messages.push(<any>{ body, mediaUrl: formatUrl(context.botUrl, image) })
       context.payload.choices = options
     }
   }

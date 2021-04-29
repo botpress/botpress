@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { ChannelRenderer } from 'common/channel'
+import { formatUrl } from 'common/url'
 import { TwilioContext } from '../backend/typings'
 
 export class TwilioImageRenderer implements ChannelRenderer<TwilioContext> {
@@ -23,6 +24,6 @@ export class TwilioImageRenderer implements ChannelRenderer<TwilioContext> {
     const payload = context.payload as sdk.ImageContent
 
     // TODO fix mediaUrl not being in typings
-    context.messages.push(<any>{ body: payload.title as string, mediaUrl: payload.image })
+    context.messages.push(<any>{ body: payload.title as string, mediaUrl: formatUrl(context.botUrl, payload.image) })
   }
 }

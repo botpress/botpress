@@ -123,6 +123,7 @@ export class TwilioClient {
       client: this.twilio,
       handlers: [],
       payload: _.cloneDeep(event.payload),
+      botUrl: process.EXTERNAL_URL,
       messages: [],
       botPhoneNumber,
       prepareIndexResponse: this.prepareIndexResponse.bind(this)

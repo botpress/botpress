@@ -1,4 +1,3 @@
-import * as sdk from 'botpress/sdk'
 import { ChannelSender } from 'common/channel'
 import { TwilioContext } from '../backend/typings'
 
