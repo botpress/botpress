@@ -100,7 +100,6 @@ class BPFS {
     const useForce = process.argv.includes('--force')
     const dryRun = process.argv.includes('--dry')
     const keepRevisions = process.argv.includes('--keep-revisions')
-    const requestConfig: AxiosRequestConfig = { timeout: ms('20m') }
 
     if (!(await fse.pathExists(this.sourceDir))) {
       this._endWithError(`Specified folder "${this.sourceDir}" doesn't exist.`)
@@ -115,7 +114,7 @@ class BPFS {
       if (useForce) {
         console.info(chalk.blue(`Force pushing local changes to ${this.serverUrl}...`))
 
-        await axiosClient.post('update', archive, requestConfig)
+        await axiosClient.post('update', archive)
 
         if (!keepRevisions) {
           await this._clearRevisions(this.sourceDir)
@@ -128,7 +127,7 @@ class BPFS {
       console.info(
         chalk.blue(`Sending archive to server for comparison... (archive size: ${bytesToString(archive.length)})`)
       )
-      const { data } = await axiosClient.post('changes', archive, requestConfig)
+      const { data } = await axiosClient.post('changes', archive)
       const { changeList, blockingChanges, localFiles } = this._processChanges(data)
 
       if (_.isEmpty(blockingChanges)) {
@@ -141,7 +140,7 @@ class BPFS {
 
         console.info(chalk.blue(`Pushing local changes to ${this.serverUrl}... ${useForce ? '(using --force)' : ''}`))
 
-        await axiosClient.post('update', archive, requestConfig)
+        await axiosClient.post('update', archive)
 
         if (!keepRevisions) {
           await this._clearRevisions(this.sourceDir)
@@ -196,7 +195,8 @@ class BPFS {
         'Content-Type': 'application/tar+gzip',
         'Content-Disposition': `attachment; filename=archive_${Date.now()}.tgz`,
         'Content-Length': archiveSize
-      }
+      },
+      timeout: ms('20m')
     })
   }
 
