@@ -2,6 +2,7 @@ import { protos, v1p1beta1 } from '@google-cloud/speech'
 import { TextToSpeechClient } from '@google-cloud/text-to-speech'
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
+import { closest } from 'common/number'
 import * as mm from 'music-metadata'
 
 import { Config } from '../config'
@@ -96,8 +97,7 @@ export class GoogleSpeechClient {
       const sampleRates = SAMPLE_RATES[Container[container]][Codec[codec]]
       if (!sampleRates.includes(meta.format.sampleRate)) {
         const audio = new Audio(Container.ogg, Codec.opus)
-        // TODO: Use the closest sample rate?
-        const newSampleRate = sampleRates.pop()
+        const newSampleRate = closest(sampleRates, meta.format.sampleRate)
 
         debugSpeechToText(`Re-sampling audio file to ${newSampleRate}Hz`)
 
@@ -167,7 +167,7 @@ export class GoogleSpeechClient {
 
     const [response] = await this.textToSpeechClient.synthesizeSpeech(request)
 
-    if (!response.audioContent) {
+    if (!response.audioContent.length) {
       debugTextToSpeech('No audio content could be produced from the text received')
     } else {
       debugTextToSpeech('Audio content produced successfully')

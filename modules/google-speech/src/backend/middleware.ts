@@ -32,7 +32,6 @@ export class Middleware {
   }
 
   private async incomingHandler(event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) {
-    // TODO: Add more validation than the payload type being audio
     if (event.payload.type !== 'audio') {
       return next(undefined, false, true)
     }
@@ -48,8 +47,8 @@ export class Middleware {
     }
 
     try {
-      // TODO: Fetch bot current language too?
-      const language: string = event.state.user.language?.replace(/'/g, '')
+      const language: string =
+        event.state.user.language?.replace(/'/g, '') || (await this.bp.bots.getBotById(event.botId)).defaultLanguage
       const text = await client.speechToText(audioFile, language)
 
       if (!text) {
@@ -91,14 +90,14 @@ export class Middleware {
 
     try {
       const text: string = event.payload.text
-      // TODO: Fetch bot current language too?
-      const userAttributes = await this.bp.users.getAttributes(event.channel, event.target)
+      const userAttributes =
+        (await this.bp.users.getAttributes(event.channel, event.target)) ||
+        (await this.bp.bots.getBotById(event.botId)).defaultLanguage
       const language: string = userAttributes['language']?.replace(/'/g, '')
 
-      // TODO: Test empty buffer
       const audio = await client.textToSpeech(text, language)
 
-      if (!audio) {
+      if (!audio.length) {
         return next(undefined, false, true)
       }
 
