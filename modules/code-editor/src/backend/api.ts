@@ -44,6 +44,7 @@ export default async (bp: typeof sdk, editor: Editor) => {
 
         let permissions = req.permissions
 
+        // Removing bot-specific permissions so we retrieve only global files (for all bots)
         if (req.params.botId === ALL_BOTS && !rawFiles) {
           permissions = Object.entries(req.permissions).reduce((perms, [key, val]) => {
             if (val.isGlobal) {
