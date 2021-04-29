@@ -1,4 +1,5 @@
 const base = require('./_base')
+const utils = require('./_utils')
 
 function render(data) {
   const events = []
@@ -61,8 +62,7 @@ function renderTeams(data) {
 function renderElement(data, channel) {
   // These channels now use channel renderers
   if (['twilio'].includes(channel)) {
-    // TODO : automate this from the schema
-    return { type: 'text', text: data.text, markdown: data.markdown }
+    return utils.extractPayload('text', data)
   }
 
   if (channel === 'messenger') {

@@ -117,8 +117,7 @@ function renderTeams(data) {
 function renderElement(data, channel) {
   // These channels now use channel renderers
   if (['twilio'].includes(channel)) {
-    // TODO : automate this from the schema
-    return { type: 'image', image: utils.formatURL(data.BOT_URL, data.image), title: data.title }
+    return utils.extractPayload('image', data)
   }
 
   if (channel === 'messenger') {
