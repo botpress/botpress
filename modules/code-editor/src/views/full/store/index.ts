@@ -49,11 +49,6 @@ class RootStore {
   @action.bound
   async initialize(): Promise<void> {
     try {
-      if (window.BOT_ID === ALL_BOTS) {
-        this.editor.isAdvanced = true
-        this.editor.showToggleButton = false
-      }
-
       await this.fetchPermissions()
       await this.fetchFiles()
       await this.fetchTypings()

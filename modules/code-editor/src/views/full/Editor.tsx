@@ -188,19 +188,14 @@ class Editor extends React.Component<Props> {
 
   render() {
     const hasRawPermissions = this.props.permissions?.['root.raw']?.read
-    const { isAdvanced, setAdvanced, showToggleButton } = this.props.editor
+    const { isAdvanced, setAdvanced } = this.props.editor
     const isFileOpened = !!this.props.editor.openedFiles.length
     const hasChanges = !!this.props.editor.currentFile?.hasChanges
 
     return (
       <React.Fragment>
         {!isFileOpened && (
-          <SplashScreen
-            hasRawPermissions={hasRawPermissions}
-            isAdvanced={isAdvanced}
-            setAdvanced={setAdvanced}
-            showToggleButton={showToggleButton}
-          />
+          <SplashScreen hasRawPermissions={hasRawPermissions} isAdvanced={isAdvanced} setAdvanced={setAdvanced} />
         )}
         <div className={cx(style.editorContainer, { [style.hidden]: !isFileOpened })}>
           <div className={style.tabsContainer}>

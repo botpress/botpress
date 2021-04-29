@@ -37,9 +37,6 @@ class EditorStore {
   @observable
   public isAdvanced: boolean = false
 
-  @observable
-  public showToggleButton: boolean = true
-
   constructor(rootStore: RootStore) {
     this.rootStore = rootStore
   }
