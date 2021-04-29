@@ -84,7 +84,7 @@ const Menu: FC<Props> = props => {
   return (
     <aside className={cx(style.sidebar, 'bp-sidebar')}>
       <a href="admin/" className={cx(style.logo, 'bp-logo')}>
-        <img width="19" src="assets/ui-studio/public/img/logo-icon.svg" alt="Botpress Logo" />
+        <img width="19" src="assets/admin/ui/public/logo-icon.svg" />
       </a>
       <ul>
         <MenuItem
