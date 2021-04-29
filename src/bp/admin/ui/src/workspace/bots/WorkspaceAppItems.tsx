@@ -10,31 +10,34 @@ interface Props {
   loadedModules: ModuleDefinition[]
 }
 
+export const addModuleIcon = module => {
+  const iconPath = `assets/modules/${module.name}/admin_${module.menuIcon}`
+
+  const moduleIcon =
+    module.menuIcon && IconSvgPaths16[module.menuIcon] ? (
+      <Icon icon={module.menuIcon as any} iconSize={16} />
+    ) : (
+      <img src={iconPath} />
+    )
+  return { ...module, menuIcon: moduleIcon }
+}
+
 export const WorkspaceAppItems: FC<Props> = ({ botId, loadedModules }) => {
   return (
     <Fragment>
       {loadedModules
-        .filter(x => x.workspaceApp)
-        .map(module => {
-          const iconPath = `assets/modules/${module.name}/admin_${module.menuIcon}`
-
-          const moduleIcon =
-            module.menuIcon && IconSvgPaths16[module.menuIcon] ? (
-              <Icon icon={module.menuIcon as any} iconSize={16} />
-            ) : (
-              <img src={iconPath} />
-            )
-
-          return (
-            <MenuItem
-              id={`btn-menu-${module.name}`}
-              text={module.menuText}
-              icon={moduleIcon as any}
-              onClick={() => history.push(`/apps/${module.name}/${botId}`)}
-              resource={`module.${module.name}`}
-            />
-          )
-        })}
+        .filter(x => x.workspaceApp?.bots)
+        .map(addModuleIcon)
+        .map(module => (
+          <MenuItem
+            id={`btn-menu-${module.name}`}
+            key={module.name}
+            text={module.menuText}
+            icon={module.menuIcon as any}
+            onClick={() => history.push(`/apps/${module.name}/${botId}`)}
+            resource={`module.${module.name}`}
+          />
+        ))}
     </Fragment>
   )
 }

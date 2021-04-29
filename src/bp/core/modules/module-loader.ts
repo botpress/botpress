@@ -64,7 +64,7 @@ const MODULE_SCHEMA = joi.object().keys({
     menuText: joi.string().optional(),
     homepage: joi.string().optional(),
     experimental: joi.boolean().optional(),
-    workspaceApp: joi.boolean().optional()
+    workspaceApp: joi.object().optional()
   })
 })
 

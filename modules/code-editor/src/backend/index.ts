@@ -28,7 +28,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     noInterface: false,
     fullName: 'Code Editor',
     homepage: 'https://botpress.com',
-    workspaceApp: true
+    workspaceApp: { global: true }
   }
 }
 

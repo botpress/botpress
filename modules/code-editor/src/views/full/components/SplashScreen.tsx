@@ -6,7 +6,7 @@ import style from '../style.scss'
 
 const { KeyboardShortcut, SplashScreen } = ModuleUI
 
-export default ({ hasRawPermissions, isAdvanced, setAdvanced }) => (
+export default ({ hasRawPermissions, isAdvanced, setAdvanced, showToggleButton }) => (
   <SplashScreen
     icon={<Icon icon="code" iconSize={140} />}
     title={lang.tr('module.code-editor.splash.codeEditor')}
@@ -26,7 +26,7 @@ export default ({ hasRawPermissions, isAdvanced, setAdvanced }) => (
     <KeyboardShortcut label={lang.tr('module.code-editor.splash.newFile')} keys={['ACTION', 'alt', 'n']} />
     <KeyboardShortcut label={lang.tr('module.code-editor.splash.commandPalette')} keys={['ACTION', 'shift', 'p']} />
     <br />
-    {hasRawPermissions && (
+    {hasRawPermissions && showToggleButton && (
       <div>
         <Button
           text={

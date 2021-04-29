@@ -1,3 +1,5 @@
+export const ALL_BOTS = '___'
+
 export const bytesToString = (bytes: number): string => {
   const units = ['bytes', 'kb', 'mb', 'gb', 'tb']
   const power = Math.log2(bytes)

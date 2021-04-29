@@ -222,8 +222,13 @@ declare module 'botpress/sdk' {
     homepage?: string
     /** Whether or not the module is likely to change */
     experimental?: boolean
-    /** Adds a link on the Bots page to access this app */
-    workspaceApp?: boolean
+    /** Workspace Apps are accessible on the admin panel */
+    workspaceApp?: {
+      /** Adds a link on the Bots page to access this app for a specific bot */
+      bots?: boolean
+      /** Adds an icon on the menu to access this app without a bot ID */
+      global?: boolean
+    }
   }
 
   /**

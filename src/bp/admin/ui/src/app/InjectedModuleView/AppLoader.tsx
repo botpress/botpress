@@ -1,3 +1,4 @@
+import { ALL_BOTS } from 'common/utils'
 import React, { useEffect, FC } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { RouteComponentProps } from 'react-router'
@@ -10,10 +11,13 @@ import InjectedModuleView from '.'
 type Props = ConnectedProps<typeof connector> & RouteComponentProps<{ botId?: string; appName: string }>
 
 const AppLoader: FC<Props> = props => {
-  const { botId, appName } = props.match.params
+  const { appName } = props.match.params
+  let { botId } = props.match.params
+  botId = botId || ALL_BOTS
 
   useEffect(() => {
     props.setWorkspaceAppBotId(botId)
+    window.BOT_ID = botId || ''
 
     return () => {
       props.setWorkspaceAppBotId(undefined)

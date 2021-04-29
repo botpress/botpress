@@ -53,7 +53,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     menuText: 'Misunderstood',
     fullName: 'Misunderstood Phrases',
     homepage: 'https://botpress.com',
-    workspaceApp: true
+    workspaceApp: { bots: true }
   }
 }
 

@@ -1,4 +1,5 @@
 import { confirmDialog, lang, toast } from 'botpress/shared'
+import { ALL_BOTS } from 'common/utils'
 import { action, observable, runInAction } from 'mobx'
 import path from 'path'
 
@@ -48,6 +49,11 @@ class RootStore {
   @action.bound
   async initialize(): Promise<void> {
     try {
+      if (window.BOT_ID === ALL_BOTS) {
+        this.editor.isAdvanced = true
+        this.editor.showToggleButton = false
+      }
+
       await this.fetchPermissions()
       await this.fetchFiles()
       await this.fetchTypings()

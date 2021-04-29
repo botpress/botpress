@@ -46,7 +46,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     homepage: 'https://botpress.com',
     noInterface: false,
     experimental: true,
-    workspaceApp: true
+    workspaceApp: { bots: true }
   }
 }
 

@@ -1,8 +1,9 @@
-import { Icon, Position, Tooltip } from '@blueprintjs/core'
+import { Icon, Position, Tooltip, MenuItem as BpMenuItem, MenuDivider } from '@blueprintjs/core'
+import { IconSvgPaths16 } from '@blueprintjs/icons'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
-import React, { FC, useEffect } from 'react'
+import React, { FC, useEffect, Fragment } from 'react'
 import { MdAndroid, MdCopyright } from 'react-icons/md'
 import { connect, ConnectedProps } from 'react-redux'
 import { generatePath, RouteComponentProps, withRouter } from 'react-router'
@@ -11,6 +12,7 @@ import { matchPath } from 'react-router-dom'
 import AccessControl from '~/auth/AccessControl'
 import { getActiveWorkspace } from '~/auth/basicAuth'
 import { fetchCurrentVersion, fetchLatestVersions } from '~/releases/reducer'
+import { addModuleIcon } from '~/workspace/bots/WorkspaceAppItems'
 import { AppState } from '../rootReducer'
 import logo from './logo-icon.svg'
 import style from './style.scss'
@@ -82,6 +84,26 @@ const Menu: FC<Props> = props => {
     }
   }
 
+  const renderWorkspaceApps = () => {
+    return (
+      <Fragment>
+        {props.loadedModules
+          .filter(x => x.workspaceApp?.global)
+          .map(addModuleIcon)
+          .map(module => (
+            <MenuItem
+              id={`btn-menu-${module.name}`}
+              text={module.menuText!}
+              icon={module.menuIcon}
+              url={`/apps/${module.name}`}
+              resource="admin.roles.*"
+              operation="read"
+            />
+          ))}
+      </Fragment>
+    )
+  }
+
   return (
     <aside className={cx(style.sidebar, 'bp-sidebar')}>
       <a href="admin/" className={cx(style.logo, 'bp-logo')}>
@@ -124,6 +146,8 @@ const Menu: FC<Props> = props => {
           resource="admin.logs"
           operation="read"
         />
+
+        {renderWorkspaceApps()}
 
         <MenuItem
           id="btn-menu-version"
@@ -176,7 +200,8 @@ const Menu: FC<Props> = props => {
 
 const mapStateToProps = (state: AppState) => ({
   licensing: state.licensing.license,
-  version: state.version
+  version: state.version,
+  loadedModules: state.modules.loadedModules
 })
 
 const connector = connect(mapStateToProps, { fetchCurrentVersion, fetchLatestVersions })
