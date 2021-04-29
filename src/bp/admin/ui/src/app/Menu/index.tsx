@@ -92,6 +92,7 @@ const Menu: FC<Props> = props => {
           .map(addModuleIcon)
           .map(module => (
             <MenuItem
+              key={module.name}
               id={`btn-menu-${module.name}`}
               text={lang.tr(`module.${module.name}.fullName`) || module.menuText}
               icon={module.menuIcon}

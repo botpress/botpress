@@ -244,6 +244,7 @@ export class HTTPServer {
     const config = await this.configProvider.getBotpressConfig()
 
     return `
+    window.API_PATH = "${process.ROOT_PATH}/api/v1";
     window.TELEMETRY_URL = "${process.TELEMETRY_URL}";
     window.SEND_USAGE_STATS = ${config!.sendUsageStats};
     window.USE_JWT_COOKIES = ${process.USE_JWT_COOKIES};
@@ -418,7 +419,6 @@ export class HTTPServer {
       const totalEnv = `
           (function(window) {
               ${commonEnv}
-              window.API_PATH = "${process.ROOT_PATH}/api/v1";
               window.BOT_API_PATH = "${process.ROOT_PATH}/api/v1/bots/${botId}";
             })(typeof window != 'undefined' ? window : {})
           `
