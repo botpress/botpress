@@ -16,7 +16,7 @@ export class TelegramTextRenderer implements ChannelRenderer<TelegramContext> {
   }
 
   handles(context: TelegramContext): boolean {
-    return context.payload.text
+    return !!context.payload.text
   }
 
   render(context: TelegramContext) {

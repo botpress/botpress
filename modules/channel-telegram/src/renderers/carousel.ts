@@ -20,7 +20,7 @@ export class TelegramCarouselRenderer implements ChannelRenderer<TelegramContext
   }
 
   handles(context: TelegramContext): boolean {
-    return context.payload.items?.length
+    return !!context.payload.items?.length
   }
 
   render(context: TelegramContext) {

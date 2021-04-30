@@ -18,7 +18,7 @@ export class TelegramChoicesRenderer implements ChannelRenderer<TelegramContext>
   }
 
   handles(context: TelegramContext): boolean {
-    return context.payload.choices && context.messages.length >= 1
+    return !!(context.payload.choices && context.messages.length > 0)
   }
 
   render(context: TelegramContext) {

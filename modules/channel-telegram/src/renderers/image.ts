@@ -17,7 +17,7 @@ export class TelegramImageRenderer implements ChannelRenderer<TelegramContext> {
   }
 
   handles(context: TelegramContext): boolean {
-    return context.payload.image
+    return !!context.payload.image
   }
 
   render(context: TelegramContext) {
