@@ -11,12 +11,15 @@ import _ from 'lodash'
 import LRU from 'lru-cache'
 import ms from 'ms'
 import { Config } from '../config'
-import { SlackCarouselRenderer } from '../renderers/carousel'
-import { SlackChoicesRenderer } from '../renderers/choices'
-import { SlackImageRenderer } from '../renderers/image'
-import { SlackTextRenderer } from '../renderers/text'
-import { SlackCommonSender } from '../senders/common'
-import { SlackTypingSender } from '../senders/typing'
+import {
+  SlackCarouselRenderer,
+  SlackChoicesRenderer,
+  SlackImageRenderer,
+  SlackTextRenderer,
+  SlackCardRenderer,
+  SlackFeedbackRenderer
+} from '../renderers'
+import { SlackCommonSender, SlackTypingSender } from '../senders'
 import { CHANNEL_NAME } from './constants'
 
 import { Clients, SlackContext } from './typings'
@@ -48,10 +51,12 @@ export class SlackClient {
     }
 
     this.renderers = [
+      new SlackCardRenderer(),
       new SlackTextRenderer(),
       new SlackImageRenderer(),
       new SlackCarouselRenderer(),
-      new SlackChoicesRenderer()
+      new SlackChoicesRenderer(),
+      new SlackFeedbackRenderer()
     ]
     this.senders = [new SlackTypingSender(), new SlackCommonSender()]
 
