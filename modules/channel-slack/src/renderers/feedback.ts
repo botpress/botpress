@@ -16,7 +16,7 @@ export class SlackFeedbackRenderer implements ChannelRenderer<SlackContext> {
   }
 
   handles(context: SlackContext): boolean {
-    return context.payload.collectFeedback
+    return !!context.payload.collectFeedback
   }
 
   render(context: SlackContext) {

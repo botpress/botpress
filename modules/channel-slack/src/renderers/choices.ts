@@ -16,7 +16,7 @@ export class SlackChoicesRenderer implements ChannelRenderer<SlackContext> {
   }
 
   handles(context: SlackContext): boolean {
-    return context.payload.choices
+    return !!context.payload.choices?.length
   }
 
   render(context: SlackContext) {

@@ -18,7 +18,7 @@ export class SlackImageRenderer implements ChannelRenderer<SlackContext> {
   }
 
   handles(context: SlackContext): boolean {
-    return context.payload.image
+    return !!context.payload.image
   }
 
   render(context: SlackContext) {

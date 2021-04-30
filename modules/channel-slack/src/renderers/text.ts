@@ -17,7 +17,7 @@ export class SlackTextRenderer implements ChannelRenderer<SlackContext> {
   }
 
   handles(context: SlackContext): boolean {
-    return context.payload.text
+    return !!context.payload.text
   }
 
   render(context: SlackContext) {

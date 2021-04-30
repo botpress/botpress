@@ -19,7 +19,7 @@ export class SlackCarouselRenderer implements ChannelRenderer<SlackContext> {
   }
 
   handles(context: SlackContext): boolean {
-    return context.payload.items
+    return !!context.payload.items?.length
   }
 
   render(context: SlackContext) {

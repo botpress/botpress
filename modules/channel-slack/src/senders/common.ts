@@ -16,7 +16,7 @@ export class SlackCommonSender implements ChannelSender<SlackContext> {
   }
 
   handles(context: SlackContext): boolean {
-    return context.handlers?.length > 0
+    return context.handlers.length > 0
   }
 
   async send(context: SlackContext) {
