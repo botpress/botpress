@@ -1,9 +1,13 @@
 import * as sdk from 'botpress/sdk'
+import { ChannelRenderer, ChannelSender } from 'common/channel'
+import _ from 'lodash'
 import Smooch from 'smooch-core'
-
 import { Config } from '../config'
+import { SmoochTextRenderer } from '../renderers/text'
+import { SmoochCommonSender } from '../senders/common'
+import { SmoochTypingSender } from '../senders/typing'
 
-import { Card, Clients, Message, MessagePayload, Webhook } from './typings'
+import { Card, Clients, Message, MessagePayload, SmoochContext, Webhook } from './typings'
 
 const MIDDLEWARE_NAME = 'smooch.sendMessage'
 
@@ -12,6 +16,8 @@ export class SmoochClient {
   private webhookUrl: string
   private logger: sdk.Logger
   private secret: string
+  private renderers: ChannelRenderer<SmoochContext>[]
+  private senders: ChannelSender<SmoochContext>[]
 
   constructor(
     private bp: typeof sdk,
@@ -21,6 +27,9 @@ export class SmoochClient {
     private route: string
   ) {
     this.logger = bp.logger.forBot(botId)
+
+    this.renderers = [new SmoochTextRenderer()]
+    this.senders = [new SmoochTypingSender(), new SmoochCommonSender()]
   }
 
   async initialize() {
@@ -92,18 +101,27 @@ export class SmoochClient {
   }
 
   async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
-    if (event.type === 'typing') {
-      await this.sendTyping(event)
-    } else if (event.type === 'text') {
-      await this.sendText(event)
-    } else if (event.type === 'file') {
-      await this.sendFile(event)
-    } else if (event.type === 'carousel') {
-      await this.sendCarousel(event)
-    } else if (event.payload.quick_replies) {
-      await this.sendChoices(event)
-    } else if (event.payload.options) {
-      await this.sendDropdown(event)
+    const context: SmoochContext = {
+      bp: this.bp,
+      event,
+      client: this.smooch,
+      handlers: [],
+      payload: _.cloneDeep(event.payload),
+      botUrl: process.EXTERNAL_URL,
+      messages: []
+    }
+
+    for (const renderer of this.renderers) {
+      if (renderer.handles(context)) {
+        renderer.render(context)
+        context.handlers.push(renderer.id)
+      }
+    }
+
+    for (const sender of this.senders) {
+      if (sender.handles(context)) {
+        await sender.send(context)
+      }
     }
 
     await this.bp.experimental.messages
@@ -111,29 +129,6 @@ export class SmoochClient {
       .create(event.threadId, event.payload, undefined, event.id, event.incomingEventId)
 
     next(undefined, false)
-  }
-
-  async sendTyping(event: sdk.IO.Event) {
-    await this.smooch.appUsers.conversationActivity({
-      appId: this.smooch.keyId,
-      userId: event.target,
-      activityProps: {
-        role: 'appMaker',
-        type: 'typing:start'
-      }
-    })
-    return new Promise(resolve => setTimeout(() => resolve(), 1000))
-  }
-
-  async sendText(event: sdk.IO.Event) {
-    return this.sendMessage(
-      {
-        text: event.payload.text,
-        role: 'appMaker',
-        type: 'text'
-      },
-      event.target
-    )
   }
 
   async sendFile(event: sdk.IO.Event) {
