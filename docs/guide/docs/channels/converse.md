@@ -19,7 +19,7 @@ Make a post request to the converse API. below is an example of the request form
 POST <your-bot-url.com>/api/v1/bots/{botId}/converse/{userId}
 ```
  -Replace **userId** with any unique string to represent a user chatting with your chatbot (**botId**).
- -For **botId**, go to `\data\bots\BOTNAME`, then open the `bot.config.json` file where the last two lines will specify bot id.
+ -For **botId**, go to `/data/bots/BOTNAME`, then open the `bot.config.json` file where the last two lines will specify bot id.
 
 ### Request Body
 In the request body, place the message you are sending to your chatbot as a JSON object.
