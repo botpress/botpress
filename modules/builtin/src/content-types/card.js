@@ -33,9 +33,15 @@ module.exports = {
     }
   },
 
-  uiSchema: {
-  },
+  uiSchema: {},
 
   computePreviewText: formData => formData.title && `Card: ${formData.title}`,
-  renderElement: (data, channel) => Carousel.renderElement({ items: [data], ...data }, channel)
+  renderElement: (data, channel) => {
+    // These channels now use channel renderers
+    if ([].includes(channel)) {
+      return utils.extractPayload('card', data)
+    }
+
+    return Carousel.renderElement({ items: [data], ...data }, channel)
+  }
 }
