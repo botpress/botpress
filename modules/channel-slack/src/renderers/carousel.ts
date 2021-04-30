@@ -14,7 +14,7 @@ export class SlackCarouselRenderer implements ChannelRenderer<SlackContext> {
     return 0
   }
 
-  get id() {
+  get id(): string {
     return SlackCarouselRenderer.name
   }
 

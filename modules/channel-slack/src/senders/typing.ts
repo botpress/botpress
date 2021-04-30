@@ -11,7 +11,7 @@ export class SlackTypingSender implements ChannelSender<SlackContext> {
     return -1
   }
 
-  get id() {
+  get id(): string {
     return SlackTypingSender.name
   }
 

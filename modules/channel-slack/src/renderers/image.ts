@@ -13,7 +13,7 @@ export class SlackImageRenderer implements ChannelRenderer<SlackContext> {
     return 0
   }
 
-  get id() {
+  get id(): string {
     return SlackImageRenderer.name
   }
 

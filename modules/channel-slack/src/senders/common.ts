@@ -11,7 +11,7 @@ export class SlackCommonSender implements ChannelSender<SlackContext> {
     return 0
   }
 
-  get id() {
+  get id(): string {
     return SlackCommonSender.name
   }
 

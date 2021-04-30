@@ -11,7 +11,7 @@ export class SlackFeedbackRenderer implements ChannelRenderer<SlackContext> {
     return 1
   }
 
-  get id() {
+  get id(): string {
     return SlackFeedbackRenderer.name
   }
 
