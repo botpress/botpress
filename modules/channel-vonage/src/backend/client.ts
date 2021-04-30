@@ -113,7 +113,6 @@ export class VonageClient {
 
     const messageContent = <ExtendedChannelContent>body.message.content
 
-    // TODO: Link received from Nexmo/Vonage API are only valid for 10min. Add warning in documentation
     // https://developer.nexmo.com/api/messages-olympus?theme=dark
     let payload: sdk.IO.IncomingEvent['payload'] = null
     switch (messageContent.type) {

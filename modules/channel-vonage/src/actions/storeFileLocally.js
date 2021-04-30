@@ -5,7 +5,7 @@ const uuidv4 = require('uuid').v4
 /**
  * Store File Locally
  * @title Store File Locally
- * @category Channel clearVonage
+ * @category Channel Vonage
  * @author Botpress, Inc.
  * @param {string} file - The URL of the file to store locally
  */
