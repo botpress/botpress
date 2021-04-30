@@ -10,7 +10,7 @@ export class TwilioChoicesRenderer implements ChannelRenderer<TwilioContext> {
     return 1
   }
 
-  get id() {
+  get id(): string {
     return TwilioChoicesRenderer.name
   }
 

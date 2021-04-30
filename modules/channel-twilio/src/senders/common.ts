@@ -10,7 +10,7 @@ export class TwilioCommonSender implements ChannelSender<TwilioContext> {
     return 0
   }
 
-  get id() {
+  get id(): string {
     return TwilioCommonSender.name
   }
 

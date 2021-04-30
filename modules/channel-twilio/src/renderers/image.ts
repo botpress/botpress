@@ -12,7 +12,7 @@ export class TwilioImageRenderer implements ChannelRenderer<TwilioContext> {
     return 0
   }
 
-  get id() {
+  get id(): string {
     return TwilioImageRenderer.name
   }
 

@@ -11,7 +11,7 @@ export class TwilioTextRenderer implements ChannelRenderer<TwilioContext> {
     return 0
   }
 
-  get id() {
+  get id(): string {
     return TwilioTextRenderer.name
   }
 
