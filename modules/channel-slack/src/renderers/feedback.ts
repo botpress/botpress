@@ -1,9 +1,10 @@
 import { ChannelRenderer } from 'common/channel'
+import { CHANNEL_NAME } from '../backend/constants'
 import { SlackContext } from '../backend/typings'
 
 export class SlackFeedbackRenderer implements ChannelRenderer<SlackContext> {
   get channel(): string {
-    return 'slack'
+    return CHANNEL_NAME
   }
 
   get priority(): number {

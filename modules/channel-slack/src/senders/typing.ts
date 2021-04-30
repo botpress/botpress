@@ -1,9 +1,10 @@
 import { ChannelSender } from 'common/channel'
 import { SlackContext } from 'src/backend/typings'
+import { CHANNEL_NAME } from '../backend/constants'
 
 export class SlackTypingSender implements ChannelSender<SlackContext> {
   get channel(): string {
-    return 'slack'
+    return CHANNEL_NAME
   }
 
   get priority(): number {

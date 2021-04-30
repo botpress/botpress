@@ -3,26 +3,27 @@ import { ChannelRenderer } from 'common/channel'
 import { CHANNEL_NAME } from '../backend/constants'
 import { SlackContext } from '../backend/typings'
 
-export class SlackTextRenderer implements ChannelRenderer<SlackContext> {
+export class SlackCardRenderer implements ChannelRenderer<SlackContext> {
   get channel(): string {
     return CHANNEL_NAME
   }
 
   get priority(): number {
-    return 0
+    return -1
   }
 
-  get id() {
-    return SlackTextRenderer.name
+  get id(): string {
+    return SlackCardRenderer.name
   }
 
   handles(context: SlackContext): boolean {
-    return context.payload.text
+    return context.payload.type === 'card'
   }
 
   render(context: SlackContext) {
-    const payload = context.payload as sdk.TextContent
+    const payload = context.payload as sdk.CardContent
 
-    context.message.text = payload.text as string
+    // we convert our card to a carousel
+    context.payload = context.bp.experimental.render.carousel(payload)
   }
 }

@@ -1,11 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import { ChannelRenderer } from 'common/channel'
 import { formatUrl } from 'common/url'
+import { CHANNEL_NAME } from '../backend/constants'
 import { SlackContext } from '../backend/typings'
 
 export class SlackImageRenderer implements ChannelRenderer<SlackContext> {
   get channel(): string {
-    return 'slack'
+    return CHANNEL_NAME
   }
 
   get priority(): number {

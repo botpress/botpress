@@ -17,6 +17,7 @@ import { SlackImageRenderer } from '../renderers/image'
 import { SlackTextRenderer } from '../renderers/text'
 import { SlackCommonSender } from '../senders/common'
 import { SlackTypingSender } from '../senders/typing'
+import { CHANNEL_NAME } from './constants'
 
 import { Clients, SlackContext } from './typings'
 
@@ -175,7 +176,9 @@ export class SlackClient {
   }
 
   async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
-    const foreignId = await this.bp.experimental.conversations.forBot(this.botId).getForeignId('slack', event.threadId)
+    const foreignId = await this.bp.experimental.conversations
+      .forBot(this.botId)
+      .getForeignId(CHANNEL_NAME, event.threadId)
     const [channelId, userId] = this.splitConvoKey(foreignId)
 
     const context: SlackContext = {
@@ -206,10 +209,6 @@ export class SlackClient {
       .forBot(this.botId)
       .create(event.threadId, event.payload, undefined, event.id, event.incomingEventId)
 
-    await this.bp.experimental.messages
-      .forBot(this.botId)
-      .create(event.threadId, event.payload, undefined, event.id, event.incomingEventId)
-
     next(undefined, false)
   }
 
@@ -226,7 +225,7 @@ export class SlackClient {
 
     let convoId = await this.bp.experimental.conversations
       .forBot(this.botId)
-      .getLocalId('slack', this.getConvoKey(channelId, userId))
+      .getLocalId(CHANNEL_NAME, this.getConvoKey(channelId, userId))
 
     if (!convoId) {
       const conversation = await this.bp.experimental.conversations.forBot(this.botId).create(userId)
@@ -234,10 +233,10 @@ export class SlackClient {
 
       await this.bp.experimental.conversations
         .forBot(this.botId)
-        .createMapping('slack', conversation.id, this.getConvoKey(channelId, userId))
+        .createMapping(CHANNEL_NAME, conversation.id, this.getConvoKey(channelId, userId))
     }
 
-    await this.bp.experimental.messages.forBot(this.botId).receive(convoId, payload, { channel: 'slack' })
+    await this.bp.experimental.messages.forBot(this.botId).receive(convoId, payload, { channel: CHANNEL_NAME })
   }
 
   private getConvoKey(channelId: string, userId: string) {
@@ -261,7 +260,7 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
   })
 
   async function outgoingHandler(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
-    if (event.channel !== 'slack') {
+    if (event.channel !== CHANNEL_NAME) {
       return next()
     }
 

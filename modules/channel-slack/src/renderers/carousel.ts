@@ -2,11 +2,12 @@ import * as sdk from 'botpress/sdk'
 import { ChannelRenderer } from 'common/channel'
 import { formatUrl } from 'common/url'
 import _ from 'lodash'
+import { CHANNEL_NAME } from '../backend/constants'
 import { SlackContext } from '../backend/typings'
 
 export class SlackCarouselRenderer implements ChannelRenderer<SlackContext> {
   get channel(): string {
-    return 'slack'
+    return CHANNEL_NAME
   }
 
   get priority(): number {
