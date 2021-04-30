@@ -1,9 +1,10 @@
 import { ChannelRenderer } from 'common/channel'
+import { CHANNEL_NAME } from '../backend/constants'
 import { TwilioContext } from '../backend/typings'
 
 export class TwilioChoicesRenderer implements ChannelRenderer<TwilioContext> {
   get channel(): string {
-    return 'twilio'
+    return CHANNEL_NAME
   }
 
   get priority(): number {

@@ -8,6 +8,7 @@ import { TwilioChoicesRenderer } from '../renderers/choices'
 import { TwilioImageRenderer } from '../renderers/image'
 import { TwilioTextRenderer } from '../renderers/text'
 import { TwilioCommonSender } from '../senders/common'
+import { CHANNEL_NAME } from './constants'
 import { Clients, MessageOption, TwilioContext, TwilioRequestBody } from './typings'
 
 const debug = DEBUG('channel-twilio')
@@ -87,7 +88,7 @@ export class TwilioClient {
 
     await this.kvs.delete(this.getKvsKey(userId, conversation.id))
 
-    await this.bp.experimental.messages.forBot(this.botId).receive(conversation.id, payload, { channel: 'twilio' })
+    await this.bp.experimental.messages.forBot(this.botId).receive(conversation.id, payload, { channel: CHANNEL_NAME })
   }
 
   async handleIndexReponse(index: number, userId: string, conversationId: string): Promise<any> {
@@ -162,7 +163,7 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
   })
 
   async function outgoingHandler(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
-    if (event.channel !== 'twilio') {
+    if (event.channel !== CHANNEL_NAME) {
       return next()
     }
 
