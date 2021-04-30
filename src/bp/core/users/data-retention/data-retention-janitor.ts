@@ -34,7 +34,7 @@ export class DataRetentionJanitor extends Janitor {
     return (config.dataRetention && config.dataRetention.janitorInterval) || '15m'
   }
 
-  protected async runTask(): Promise<void> {
+  async runTask(): Promise<void> {
     let expired = await this.dataRetentionService.getExpired(this.BATCH_SIZE)
 
     while (expired.length > 0) {

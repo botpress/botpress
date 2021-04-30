@@ -326,7 +326,7 @@ export class ScopedFlowService {
   }
 
   private async _upsertFlow(flow: FlowView) {
-    process.ASSERT_LICENSED()
+    process.ASSERT_LICENSED?.()
 
     const flowFiles = await this.ghost.directoryListing(FLOW_DIR, '**/*.json')
 
@@ -349,7 +349,7 @@ export class ScopedFlowService {
   }
 
   async deleteFlow(flowName: string, userEmail: string) {
-    process.ASSERT_LICENSED()
+    process.ASSERT_LICENSED?.()
 
     const flowFiles = await this.ghost.directoryListing(FLOW_DIR, '*.json')
     const fileToDelete = flowFiles.find(f => f === flowName)
@@ -374,7 +374,7 @@ export class ScopedFlowService {
   }
 
   async renameFlow(previousName: string, newName: string, userEmail: string) {
-    process.ASSERT_LICENSED()
+    process.ASSERT_LICENSED?.()
 
     const flowFiles = await this.ghost.directoryListing(FLOW_DIR, '*.json')
     const fileToRename = flowFiles.find(f => f === previousName)

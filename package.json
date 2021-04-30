@@ -182,7 +182,7 @@
     "stylus": "^0.54.5",
     "ts-jest": "^24.3.0",
     "typedoc": "^0.13.0",
-    "typescript": "^3.9.7",
+    "typescript": "^4.2.4",
     "typescript-json-schema": "^0.32.0"
   },
   "optionalDependencies": {
