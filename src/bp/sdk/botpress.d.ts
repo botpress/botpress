@@ -767,7 +767,7 @@ declare module 'botpress/sdk' {
        */
       bot: any
       /** Used internally by Botpress to keep the user's current location and upcoming instructions */
-      context: DialogContext
+      context?: DialogContext
       /** This variable points to the currently active workflow */
       workflow: WorkflowHistory
       /**
