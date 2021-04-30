@@ -3,6 +3,7 @@
 
 ### Bug Fixes
 
+* **channel-smooch:** wrong incoming payload ([#4915])(https://github.com/botpress/botpress/pull/4915)
 * **channel-vonage:** fix sending image content-elements ([#4901](https://github.com/botpress/botpress/issues/4901)) ([1afc0fa](https://github.com/botpress/botpress/commit/1afc0fa))
 * **channel-vonage:** make sure carousel does not fire more than 1 req/s ([#4893](https://github.com/botpress/botpress/issues/4893)) ([a721eff](https://github.com/botpress/botpress/commit/a721eff))
 * **channel-web:** fix conversationId validation bypass ([#4902](https://github.com/botpress/botpress/issues/4902)) ([a27f22c](https://github.com/botpress/botpress/commit/a27f22c))
@@ -16,7 +17,6 @@
 ### Features
 
 * **admin:** move realtime logs to admin ([#4903](https://github.com/botpress/botpress/issues/4903)) ([e51c38d](https://github.com/botpress/botpress/commit/e51c38d))
-* **channel-vonage:** add channel-vonage ([#4789](https://github.com/botpress/botpress/issues/4789)) ([f17695f](https://github.com/botpress/botpress/commit/f17695f)), closes [#4820](https://github.com/botpress/botpress/issues/4820) [#4819](https://github.com/botpress/botpress/issues/4819) [#4818](https://github.com/botpress/botpress/issues/4818) [#4812](https://github.com/botpress/botpress/issues/4812) [#4815](https://github.com/botpress/botpress/issues/4815) [#4830](https://github.com/botpress/botpress/issues/4830) [#4760](https://github.com/botpress/botpress/issues/4760) [#4686](https://github.com/botpress/botpress/issues/4686) [#4687](https://github.com/botpress/botpress/issues/4687) [#4764](https://github.com/botpress/botpress/issues/4764) [#4684](https://github.com/botpress/botpress/issues/4684) [#4841](https://github.com/botpress/botpress/issues/4841) [#4840](https://github.com/botpress/botpress/issues/4840) [#4839](https://github.com/botpress/botpress/issues/4839) [#4836](https://github.com/botpress/botpress/issues/4836) [#4827](https://github.com/botpress/botpress/issues/4827) [#4781](https://github.com/botpress/botpress/issues/4781) [#4798](https://github.com/botpress/botpress/issues/4798) [#4852](https://github.com/botpress/botpress/issues/4852) [#4856](https://github.com/botpress/botpress/issues/4856)
 * **core:** add env variable to support pg schema ([#4888](https://github.com/botpress/botpress/issues/4888)) ([40ab4d0](https://github.com/botpress/botpress/commit/40ab4d0))
 
 
