@@ -1,12 +1,13 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import Telegraf, { ContextMessageUpdate } from 'telegraf'
-import { TelegramCarouselRenderer } from '../renderers/carousel'
-import { TelegramChoicesRenderer } from '../renderers/choices'
-import { TelegramImageRenderer } from '../renderers/image'
-import { TelegramTextRenderer } from '../renderers/text'
-import { TelegramCommonSender } from '../senders/common'
-import { TelegramTypingSender } from '../senders/typing'
+import {
+  TelegramCarouselRenderer,
+  TelegramImageRenderer,
+  TelegramChoicesRenderer,
+  TelegramTextRenderer
+} from '../renderers'
+import { TelegramCommonSender, TelegramTypingSender } from '../senders'
 
 import { Clients, TelegramContext } from './typings'
 
