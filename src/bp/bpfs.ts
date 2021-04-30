@@ -1,10 +1,11 @@
-import axios, { AxiosInstance } from 'axios'
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import chalk from 'chalk'
 import followRedirects from 'follow-redirects'
 import fse from 'fs-extra'
 import glob from 'glob'
 import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
+import ms from 'ms'
 import path from 'path'
 import rimraf from 'rimraf'
 import { CSRF_TOKEN_HEADER, JWT_COOKIE_NAME } from './common/auth'
@@ -194,7 +195,8 @@ class BPFS {
         'Content-Type': 'application/tar+gzip',
         'Content-Disposition': `attachment; filename=archive_${Date.now()}.tgz`,
         'Content-Length': archiveSize
-      }
+      },
+      timeout: ms('20m')
     })
   }
 

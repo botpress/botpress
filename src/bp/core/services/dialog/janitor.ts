@@ -47,7 +47,7 @@ export class DialogJanitor extends Janitor {
    * reset the contexts of the sessions that are stale.
    * These actions are executed based on two expiries: session_expiry and context_expiry.
    */
-  protected async runTask(): Promise<void> {
+  async runTask(): Promise<void> {
     dialogDebug('Running task')
 
     const botsConfigs = await this.botService.getBots()
