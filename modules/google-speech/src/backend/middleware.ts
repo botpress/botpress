@@ -90,10 +90,9 @@ export class Middleware {
 
     try {
       const text: string = event.payload.text
-      const userAttributes =
-        (await this.bp.users.getAttributes(event.channel, event.target)) ||
-        (await this.bp.bots.getBotById(event.botId)).defaultLanguage
-      const language: string = userAttributes['language']?.replace(/'/g, '')
+      const userAttributes = await this.bp.users.getAttributes(event.channel, event.target)
+      const language: string =
+        userAttributes['language']?.replace(/'/g, '') || (await this.bp.bots.getBotById(event.botId)).defaultLanguage
 
       const audio = await client.textToSpeech(text, language)
 
@@ -117,6 +116,7 @@ export class Middleware {
       const newEvent: sdk.IO.Event = this.bp.IO.Event({
         type: 'audio',
         ...pick(event, ['direction', 'channel', 'target', 'threadId', 'botId']),
+        // TODO: Once we convert to channel renderers we'll be able to send a relative url instead.
         payload: { type: 'audio', url: `${process.EXTERNAL_URL}${url}` }
       })
 
