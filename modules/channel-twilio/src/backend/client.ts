@@ -3,12 +3,14 @@ import { ChannelRenderer, ChannelSender } from 'common/channel'
 import _ from 'lodash'
 import { Twilio, validateRequest } from 'twilio'
 import { Config } from '../config'
-import { TwilioCardRenderer } from '../renderers/card'
-import { TwilioCarouselRenderer } from '../renderers/carousel'
-import { TwilioChoicesRenderer } from '../renderers/choices'
-import { TwilioImageRenderer } from '../renderers/image'
-import { TwilioTextRenderer } from '../renderers/text'
-import { TwilioCommonSender } from '../senders/common'
+import {
+  TwilioCardRenderer,
+  TwilioCarouselRenderer,
+  TwilioChoicesRenderer,
+  TwilioImageRenderer,
+  TwilioTextRenderer
+} from '../renderers'
+import { TwilioCommonSender } from '../senders'
 import { CHANNEL_NAME } from './constants'
 import { Clients, MessageOption, TwilioContext, TwilioRequestBody } from './typings'
 
