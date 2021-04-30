@@ -15,7 +15,7 @@ export class TelegramCommonSender implements ChannelSender<TelegramContext> {
   }
 
   handles(context: TelegramContext): boolean {
-    return context.handlers?.length > 0
+    return context.handlers.length > 0
   }
 
   async send(context: TelegramContext) {
