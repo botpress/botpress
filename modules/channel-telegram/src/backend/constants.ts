@@ -1,1 +1,1 @@
-export const CHANNEL_NAME = 'vonage'
+export const CHANNEL_NAME = 'telegram'

@@ -35,7 +35,7 @@ export class TelegramCarouselRenderer implements ChannelRenderer<TelegramContext
       }
 
       const buttons = []
-      for (const action of card.actions) {
+      for (const action of card.actions || []) {
         if (action.action === 'Open URL') {
           buttons.push(
             Markup.urlButton(action.title, (action as sdk.ActionOpenURL).url.replace('BOT_URL', context.botUrl))
