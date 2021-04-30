@@ -1,5 +1,6 @@
 const ActionButton = require('./action_button')
 const Carousel = require('./carousel')
+const utils = require('./_utils')
 
 module.exports = {
   id: 'builtin_card',
