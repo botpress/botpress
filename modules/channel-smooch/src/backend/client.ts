@@ -132,17 +132,6 @@ export class SmoochClient {
     next(undefined, false)
   }
 
-  async sendFile(event: sdk.IO.Event) {
-    return this.sendMessage(
-      {
-        role: 'appMaker',
-        type: 'image',
-        mediaUrl: event.payload.url
-      },
-      event.target
-    )
-  }
-
   async sendCarousel(event: sdk.IO.Event) {
     const cards = []
     for (const bpCard of event.payload.elements) {
