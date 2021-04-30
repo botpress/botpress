@@ -90,7 +90,7 @@ export class SmoochClient {
         channel: 'smooch',
         direction: 'incoming',
         type: payload.type,
-        payload: { ...rawPayload, payload },
+        payload: { ...rawPayload, ...payload },
         threadId: messagePayload.conversation._id,
         target: messagePayload.appUser._id
       })
