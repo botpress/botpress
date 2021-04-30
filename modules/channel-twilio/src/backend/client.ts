@@ -3,6 +3,7 @@ import { ChannelRenderer, ChannelSender } from 'common/channel'
 import _ from 'lodash'
 import { Twilio, validateRequest } from 'twilio'
 import { Config } from '../config'
+import { TwilioCardRenderer } from '../renderers/card'
 import { TwilioCarouselRenderer } from '../renderers/carousel'
 import { TwilioChoicesRenderer } from '../renderers/choices'
 import { TwilioImageRenderer } from '../renderers/image'
@@ -49,6 +50,7 @@ export class TwilioClient {
     this.logger.info(`Twilio webhook listening at ${this.webhookUrl}`)
 
     this.renderers = [
+      new TwilioCardRenderer(),
       new TwilioTextRenderer(),
       new TwilioImageRenderer(),
       new TwilioCarouselRenderer(),
