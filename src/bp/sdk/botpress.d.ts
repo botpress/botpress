@@ -767,7 +767,7 @@ declare module 'botpress/sdk' {
        */
       bot: any
       /** Used internally by Botpress to keep the user's current location and upcoming instructions */
-      context: DialogContext
+      context?: DialogContext
       /** This variable points to the currently active workflow */
       workflow: WorkflowHistory
       /**
@@ -1720,22 +1720,19 @@ declare module 'botpress/sdk' {
   }
 
   export interface ActionButton {
-    action: string
+    action: 'Say something' | 'Open URL' | 'Postback'
     title: string
   }
 
   export interface ActionSaySomething extends ActionButton {
-    action: 'Say something'
     text: string | MultiLangText
   }
 
   export interface ActionOpenURL extends ActionButton {
-    action: 'Open URL'
     url: string
   }
 
   export interface ActionPostback extends ActionButton {
-    action: 'Postback'
     payload: string
   }
 

@@ -19,7 +19,7 @@ export interface ChannelSender<Context extends ChannelContext<any>> {
 }
 
 export interface ChannelContext<Client> {
-  bp: typeof import('botpress/sdk')
+  bp: typeof sdk
   event: sdk.IO.OutgoingEvent
   client: Client
   handlers: string[]
