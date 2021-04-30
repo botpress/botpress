@@ -1,10 +1,11 @@
 import * as sdk from 'botpress/sdk'
 import { ChannelRenderer } from 'common/channel'
+import { CHANNEL_NAME } from '../backend/constants'
 import { TelegramContext } from '../backend/typings'
 
 export class TelegramTextRenderer implements ChannelRenderer<TelegramContext> {
   get channel(): string {
-    return 'telegram'
+    return CHANNEL_NAME
   }
 
   get priority(): number {

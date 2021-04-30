@@ -8,6 +8,7 @@ import {
   TelegramTextRenderer
 } from '../renderers'
 import { TelegramCommonSender, TelegramTypingSender } from '../senders'
+import { CHANNEL_NAME } from './constants'
 
 import { Clients, TelegramContext } from './typings'
 
@@ -29,13 +30,13 @@ export const sendEvent = async (bp: typeof sdk, botId: string, ctx: ContextMessa
 
   let convoId: sdk.uuid
   if (chatId) {
-    convoId = await bp.experimental.conversations.forBot(botId).getLocalId('telegram', chatId)
+    convoId = await bp.experimental.conversations.forBot(botId).getLocalId(CHANNEL_NAME, chatId)
 
     if (!convoId) {
       const conversation = await bp.experimental.conversations.forBot(botId).create(userId)
       convoId = conversation.id
 
-      await bp.experimental.conversations.forBot(botId).createMapping('telegram', conversation.id, chatId)
+      await bp.experimental.conversations.forBot(botId).createMapping(CHANNEL_NAME, conversation.id, chatId)
     }
   } else {
     const conversation = await bp.experimental.conversations.forBot(botId).recent(userId)
@@ -44,7 +45,7 @@ export const sendEvent = async (bp: typeof sdk, botId: string, ctx: ContextMessa
 
   await bp.experimental.messages
     .forBot(botId)
-    .receive(convoId, { ...args, ...payload }, { channel: 'telegram', preview })
+    .receive(convoId, { ...args, ...payload }, { channel: CHANNEL_NAME, preview })
 }
 
 export const registerMiddleware = (bp: typeof sdk, outgoingHandler) => {
@@ -72,7 +73,7 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
   registerMiddleware(bp, outgoingHandler)
 
   async function outgoingHandler(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
-    if (event.channel !== 'telegram') {
+    if (event.channel !== CHANNEL_NAME) {
       return next()
     }
 
@@ -82,7 +83,8 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
     }
 
     const chatId =
-      (await bp.experimental.conversations.forBot(event.botId).getForeignId('telegram', event.threadId)) || event.target
+      (await bp.experimental.conversations.forBot(event.botId).getForeignId(CHANNEL_NAME, event.threadId)) ||
+      event.target
 
     const context: TelegramContext = {
       bp,

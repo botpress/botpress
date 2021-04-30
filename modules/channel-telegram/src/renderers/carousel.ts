@@ -4,11 +4,12 @@ import { formatUrl } from 'common/url'
 import path from 'path'
 import { Markup } from 'telegraf'
 import Extra from 'telegraf/extra'
+import { CHANNEL_NAME } from '../backend/constants'
 import { TelegramContext } from '../backend/typings'
 
 export class TelegramCarouselRenderer implements ChannelRenderer<TelegramContext> {
   get channel(): string {
-    return 'telegram'
+    return CHANNEL_NAME
   }
 
   get priority(): number {

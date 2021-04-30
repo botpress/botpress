@@ -2,11 +2,12 @@ import * as sdk from 'botpress/sdk'
 import { ChannelRenderer } from 'common/channel'
 import { Markup } from 'telegraf'
 import Extra from 'telegraf/extra'
+import { CHANNEL_NAME } from '../backend/constants'
 import { TelegramContext } from '../backend/typings'
 
 export class TelegramChoicesRenderer implements ChannelRenderer<TelegramContext> {
   get channel(): string {
-    return 'telegram'
+    return CHANNEL_NAME
   }
 
   get priority(): number {

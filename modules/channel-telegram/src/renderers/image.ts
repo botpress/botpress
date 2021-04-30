@@ -1,11 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import { ChannelRenderer } from 'common/channel'
 import { formatUrl } from 'common/url'
+import { CHANNEL_NAME } from '../backend/constants'
 import { TelegramContext } from '../backend/typings'
 
 export class TelegramImageRenderer implements ChannelRenderer<TelegramContext> {
   get channel(): string {
-    return 'telegram'
+    return CHANNEL_NAME
   }
 
   get priority(): number {
