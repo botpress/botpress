@@ -7,7 +7,10 @@ export interface NLUServerOptions {
   host: string
   port: number
   authToken?: string
-  silent: boolean
+
+  verbose: number
+  doc: boolean
+  logFilter: string
 
   limitWindow?: string
   limit: number

@@ -10,7 +10,7 @@ import { downloadBin } from './download'
 import { NLUServerOptions } from './typings'
 export { NLUServerOptions as StanOptions } from './typings'
 
-const BASE_DOWNLOAD_URL = 'https://github.com/botpress/nlu/releases/download/v0.0.1-rc.1'
+const BASE_DOWNLOAD_URL = 'https://github.com/botpress/nlu/releases/download/v0.0.1-rc.2'
 
 // Equivalent of strictly tagging NLU versions
 const FILE_NAMES = {
@@ -37,7 +37,9 @@ const DEFAULT_STAN_OPTIONS: NLUServerOptions = {
   ducklingURL: 'https://duckling.botpress.io',
   ducklingEnabled: true,
   modelCacheSize: '850mb',
-  silent: true
+  verbose: 3, // info
+  doc: false,
+  logFilter: '' // TODO: user debug config to generate correct filters
 }
 
 const _sleep = (ms: number) => {
