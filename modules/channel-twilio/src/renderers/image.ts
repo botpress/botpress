@@ -17,7 +17,7 @@ export class TwilioImageRenderer implements ChannelRenderer<TwilioContext> {
   }
 
   handles(context: TwilioContext): boolean {
-    return context.payload.image
+    return !!context.payload.image
   }
 
   render(context: TwilioContext) {

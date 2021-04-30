@@ -16,7 +16,7 @@ export class TwilioTextRenderer implements ChannelRenderer<TwilioContext> {
   }
 
   handles(context: TwilioContext): boolean {
-    return context.payload.text
+    return !!context.payload.text
   }
 
   async render(context: TwilioContext) {

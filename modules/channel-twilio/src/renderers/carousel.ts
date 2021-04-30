@@ -17,7 +17,7 @@ export class TwilioCarouselRenderer implements ChannelRenderer<TwilioContext> {
   }
 
   handles(context: TwilioContext): boolean {
-    return context.payload.items?.length
+    return !!context.payload.items?.length
   }
 
   render(context: TwilioContext) {

@@ -15,7 +15,7 @@ export class TwilioChoicesRenderer implements ChannelRenderer<TwilioContext> {
   }
 
   handles(context: TwilioContext): boolean {
-    return context.payload.choices?.length && context.messages.length >= 1
+    return !!(context.payload.choices?.length && context.messages.length > 0)
   }
 
   render(context: TwilioContext) {
