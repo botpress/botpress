@@ -160,7 +160,7 @@ export class ScopedActionService {
 
   async runAction(props: RunActionProps & { actionServer?: ActionServer }): Promise<void> {
     const { actionName, actionArgs, actionServer, incomingEvent } = props
-    process.ASSERT_LICENSED()
+    process.ASSERT_LICENSED?.()
 
     debug.forBot(incomingEvent.botId, 'run action', { actionName, incomingEvent, actionArgs })
 
