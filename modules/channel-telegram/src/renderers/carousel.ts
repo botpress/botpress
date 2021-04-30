@@ -15,7 +15,7 @@ export class TelegramCarouselRenderer implements ChannelRenderer<TelegramContext
     return 0
   }
 
-  get id() {
+  get id(): string {
     return TelegramCarouselRenderer.name
   }
 

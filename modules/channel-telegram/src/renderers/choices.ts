@@ -13,7 +13,7 @@ export class TelegramChoicesRenderer implements ChannelRenderer<TelegramContext>
     return 1
   }
 
-  get id() {
+  get id(): string {
     return TelegramChoicesRenderer.name
   }
 

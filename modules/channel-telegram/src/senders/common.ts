@@ -10,7 +10,7 @@ export class TelegramCommonSender implements ChannelSender<TelegramContext> {
     return 0
   }
 
-  get id() {
+  get id(): string {
     return TelegramCommonSender.name
   }
 

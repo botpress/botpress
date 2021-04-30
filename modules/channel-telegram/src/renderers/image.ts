@@ -12,7 +12,7 @@ export class TelegramImageRenderer implements ChannelRenderer<TelegramContext> {
     return 0
   }
 
-  get id() {
+  get id(): string {
     return TelegramImageRenderer.name
   }
 

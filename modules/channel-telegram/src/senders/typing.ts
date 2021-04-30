@@ -10,7 +10,7 @@ export class TelegramTypingSender implements ChannelSender<TelegramContext> {
     return -1
   }
 
-  get id() {
+  get id(): string {
     return TelegramTypingSender.name
   }
 

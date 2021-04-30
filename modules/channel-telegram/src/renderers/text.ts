@@ -11,7 +11,7 @@ export class TelegramTextRenderer implements ChannelRenderer<TelegramContext> {
     return 0
   }
 
-  get id() {
+  get id(): string {
     return TelegramTextRenderer.name
   }
 
