@@ -3,6 +3,7 @@ import { ChannelRenderer, ChannelSender } from 'common/channel'
 import _ from 'lodash'
 import Smooch from 'smooch-core'
 import { Config } from '../config'
+import { SmoochImageRenderer } from '../renderers/image'
 import { SmoochTextRenderer } from '../renderers/text'
 import { SmoochCommonSender } from '../senders/common'
 import { SmoochTypingSender } from '../senders/typing'
@@ -28,7 +29,7 @@ export class SmoochClient {
   ) {
     this.logger = bp.logger.forBot(botId)
 
-    this.renderers = [new SmoochTextRenderer()]
+    this.renderers = [new SmoochTextRenderer(), new SmoochImageRenderer()]
     this.senders = [new SmoochTypingSender(), new SmoochCommonSender()]
   }
 
