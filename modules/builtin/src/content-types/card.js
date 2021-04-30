@@ -1,5 +1,6 @@
 const ActionButton = require('./action_button')
 const Carousel = require('./carousel')
+const utils = require('./_utils')
 
 module.exports = {
   id: 'builtin_card',
@@ -33,9 +34,15 @@ module.exports = {
     }
   },
 
-  uiSchema: {
-  },
+  uiSchema: {},
 
   computePreviewText: formData => formData.title && `Card: ${formData.title}`,
-  renderElement: (data, channel) => Carousel.renderElement({ items: [data], ...data }, channel)
+  renderElement: (data, channel) => {
+    // These channels now use channel renderers
+    if ([].includes(channel)) {
+      return utils.extractPayload('card', data)
+    }
+
+    return Carousel.renderElement({ items: [data], ...data }, channel)
+  }
 }
