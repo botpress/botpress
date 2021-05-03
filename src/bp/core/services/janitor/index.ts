@@ -13,7 +13,7 @@ export abstract class Janitor {
 
   protected abstract getInterval(): Promise<string>
 
-  protected abstract async runTask(): Promise<void>
+  abstract runTask(): Promise<void>
 
   private runTaskWhenReady = () => {
     if (this.currentPromise) {
