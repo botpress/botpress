@@ -42,7 +42,7 @@ export class SlackCarouselRenderer implements ChannelRenderer<SlackContext> {
         {
           type: 'actions',
           elements: (card.actions || []).map((btn, btnIdx) => {
-            if (btn.action === 'Say something' || btn.action === 'Postback') {
+            if (btn.action === sdk.ButtonAction.SaySomething || btn.action === sdk.ButtonAction.Postback) {
               return {
                 type: 'button',
                 action_id: 'button_clicked' + cardIdx + btnIdx,
@@ -52,7 +52,7 @@ export class SlackCarouselRenderer implements ChannelRenderer<SlackContext> {
                 },
                 value: (btn as sdk.ActionSaySomething).text || (btn as sdk.ActionPostback).payload
               }
-            } else if (btn.action === 'Open URL') {
+            } else if (btn.action === sdk.ButtonAction.OpenUrl) {
               return {
                 type: 'button',
                 action_id: 'discard_action' + cardIdx + btnIdx,
