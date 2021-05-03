@@ -24,6 +24,7 @@ export class TwilioCarouselRenderer implements ChannelRenderer<TwilioContext> {
   render(context: TwilioContext) {
     const payload = context.payload as sdk.CarouselContent
 
+    // We down render carousel to text so it works with sms
     for (const { subtitle, title, image, actions } of payload.items) {
       const body = `${title}\n\n${subtitle || ''}`
       const options: sdk.ChoiceOption[] = []
