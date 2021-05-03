@@ -1,19 +1,37 @@
 ---
-id: development-pipeline
-title: Development Pipelines
+id: development-lifecycle
+title: Development Lifecycle
 ---
 
-## Source Control Management
+## Git Syncing – Source Control Management
 
 A best practice is to keep track of changes to your chatbot using your preferred [Source Control Management Tool(SCM)](https://www.softwaretestinghelp.com/version-control-software/) and always deploy the master branch in production. Once deployed, you can regularly [pull](versions#pull) changes and update them to your SCM or revert to them when the need arises. Doing so helps you harness your SCM power for branches, merging conflicting files, reviewing changes, and creating revisions.
 
 Suppose you have a more complex deployment pipeline with one or multiple staging environments with pending changes on each environment. In that case, you can easily track and work on them using development pipelines.
 
-### Development Pipelines
+### Setting up Botpress Git Syncing (with GitHub)
+
+1. [Download Botpress](https://botpress.com/download)
+2. Open your terminal and ```cd [PATH]/botpress-v12_20_2-darwin-x64```
+3. Set up GitHub remote tracking
+```
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin git@github.com:[GH_USERNAME]/bp-project.git
+git push -u origin main
+```
+4. You can add a develop and staging branch to fit your workflow
+5. Everytime you make a change in the Conversation Studio or in your preferred code editor, you can commit that change to track changes.
+6. When you are ready to send you chatbot to production, you can ```git merge``` your develop branch in master.
+7. Then, you ```checkout master``` and you export your chatbot to upload it on your production environment (usually cloud deployment)
+
+### Syncing Changes Between Environments
 
 We will use Git to sync changes between 2 environments and promote an environment (i.e., promote staging to production).
 
-Lets' assume that given a pipeline with three environments, **development**, **staging**, and **production**, there are some changes both on production and staging, and you want to promote staging to production. What we want to do is the following:
+Let's assume that given a pipeline with three environments, **development**, **staging**, and **production**, there are some changes both on production and staging, and you want to promote staging to production. What we want to do is the following:
 
 1. Create a merge conflict so we can choose what we want in a merge conflict tool.
 2. Resolve conflicts (i.e., merge staging into production)
@@ -47,11 +65,13 @@ Once your master branch is up-to-date, you'll be able to [push](versions#push) t
 
 With these quick tips, you can now promote any environment changes to any stage in your deployment pipeline.
 
-## Version Control
+## Editing on the Production Server
 
 Once your bot is deployed, you (and non-technical team members) **can still make changes to your bots from Botpress Studio**, which is one significant advantage of using Botpress. This is made possible by our built-in versioning system.
 
 For your convenience, Botpress provides the GUI tools to edit these files while in development. We also offer the same tools in production, but there's a caveat. Writing changes to the server's file system is not always possible. They could easily be lost due to ephemeral filesystems, or they could be ignored when running in a cluster setup.
+
+### CLI Commands
 
 To address this issue, we added commands to the cli. In production, your changes are saved to the database, which is persisted between deployments. Botpress cli gives you two commands: `bp pull` to pull pending changes on your server for all your bots and server-wide files and `bp push` to push your local changes to your server.
 
@@ -60,8 +80,6 @@ You can also head to the versioning tab of your Botpress admin panel at https://
 ![versioning pull](assets/versioning-pull.png)
 
 Notice that without any changes, you will see a **You're all set!** message.
-
-### CLI Commands
 
 > **Note:** The `BPFS_STORAGE` environment variable must be set to `database` to enable **pushing** to this node.
 
