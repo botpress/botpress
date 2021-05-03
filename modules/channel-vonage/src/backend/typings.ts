@@ -3,9 +3,11 @@ import {
   ChannelMessage,
   ChannelToFrom,
   MessageSendResponse,
-  MessageSendError
+  MessageSendError,
+  ChannelWhatsApp
 } from '@vonage/server-sdk'
 import { VonageClient } from './client'
+import { Components } from './templates'
 
 export interface Clients {
   [botId: string]: VonageClient
@@ -18,7 +20,27 @@ export interface VonageRequestBody extends MessageSendResponse {
   timestamp: string
 }
 
-export type VonageChannelContent = ChannelContent
+type Policy = ChannelWhatsApp['policy']
+export interface TemplateLanguage {
+  policy: Policy
+  code: string
+}
+
+export interface ChannelContentTemplate {
+  namespace: string
+  name: string
+  language: TemplateLanguage
+  components: Components
+}
+
+export interface ChannelContentCustomTemplate {
+  type: 'template'
+  template: ChannelContentTemplate
+}
+
+export type VonageChannelContent = ChannelContent & {
+  custom?: ChannelContentCustomTemplate
+}
 export interface MessageOption {
   label: string
   value: string

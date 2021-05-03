@@ -1,4 +1,4 @@
-import Vonage, { ChannelMessage, ChannelType, ChannelWhatsApp, MessageSendError } from '@vonage/server-sdk'
+import Vonage, { ChannelMessage, ChannelType, ChannelWhatsApp } from '@vonage/server-sdk'
 import * as sdk from 'botpress/sdk'
 import { StandardError, UnauthorizedError } from 'common/http'
 import crypto from 'crypto'
@@ -6,12 +6,15 @@ import { Request } from 'express'
 import jwt from 'jsonwebtoken'
 
 import { Config } from '../config'
+import { Buttons, Parameters, TemplateComponents } from './templates'
 
 import {
+  ChannelContentCustomTemplate,
   Clients,
   MessageApiError,
   MessageOption,
   SignedJWTPayload,
+  TemplateLanguage,
   VonageChannelContent,
   VonageRequestBody
 } from './typings'
@@ -233,6 +236,8 @@ export class VonageClient {
         type: payload.type,
         text: payload.text
       })
+    } else if (payload.type === 'templates') {
+      await this.sendTemplate(event, payload)
     }
 
     next(undefined, false)
@@ -322,6 +327,39 @@ export class VonageClient {
     await this.kvs.set(this.getKvsKey(event.target, event.threadId), options, undefined, '10m')
 
     await this.sendMessage(event, { type: 'text', text })
+  }
+
+  // TODO: Do the distinction between 'single choice' and 'carousel'
+  private async sendTemplate(event: sdk.IO.Event, payload: any) {
+    const headerParameters = (payload.header.variables || []) as Parameters
+    const bodyParameters = (payload.body.variables || []) as Parameters
+    const buttonParameters = (payload.button.variables || []) as Buttons
+
+    const components = new TemplateComponents()
+      .withHeader(...headerParameters)
+      .withBody(...bodyParameters)
+      .withButtons(...buttonParameters)
+      .build()
+
+    const language: TemplateLanguage = {
+      code: 'en_US', // TODO: Fetch the user language
+      policy: 'deterministic'
+    }
+    const custom: ChannelContentCustomTemplate = {
+      type: 'template',
+      template: {
+        namespace: payload.namespace,
+        name: payload.name,
+        language,
+        components
+      }
+    }
+
+    await this.sendMessage(event, {
+      type: 'custom',
+      text: undefined,
+      custom
+    })
   }
 
   private async sendMessage(event: sdk.IO.Event, content: VonageChannelContent, whatsapp?: ChannelWhatsApp) {
