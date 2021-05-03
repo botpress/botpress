@@ -9,33 +9,32 @@ COPY . .
 
 # fully build once
 RUN yarn && yarn build
-#RUN yarn run gulp build
 
-#COPY build ./build
-#RUN cd build/module-builder && yarn install && yarn build
 
 FROM node:12-alpine
+
 WORKDIR /botpress
-# add build config & dependencies
+
+# add necessary dependencies
 COPY --from=builder ./botpress/build ./build
-COPY --from=builder ./botpress/node_modules ./node_modules
-COPY --from=builder ./botpress/gulpfile.js ./botpress/metadata.json ./botpress/package.json ./botpress/yarn.lock ./
-# install dependencies
-#RUN yarn install
-# RUN cd build/module-builder && yarn install
-# RUN cd build/module-builder && yarn build
+COPY --from=builder ./botpress/src/typings ./src/typings
+COPY --from=builder ./botpress/src/bp/sdk/botpress.d.ts ./src/bp/sdk/botpress.d.ts
+COPY --from=builder ./botpress/src/bp/ui-shared/src/typings.d.ts ./src/bp/ui-shared/src/typings.d.ts
 
-# add botpress sdk source & typings
-COPY --from=builder ./botpress/src ./src
-# copy built dependencies (up to 300mb)
-COPY --from=builder ./botpress/out ./out
-# add source
-COPY --from=builder ./botpress/modules ./modules
+COPY --from=builder ./botpress/src/bp/ui-studio/node_modules/@blueprintjs ./src/bp/ui-studio/node_modules/@blueprintjs
+COPY --from=builder ./botpress/src/bp/ui-studio/node_modules/react ./src/bp/ui-studio/node_modules/react
+COPY --from=builder ./botpress/src/bp/ui-studio/node_modules/@types/react ./src/bp/ui-studio/node_modules/@types/react
+COPY --from=builder ./botpress/src/bp/ui-studio/src/web/components/Shared/Interface/typings.d.ts ./src/bp/ui-studio/src/web/components/Shared/Interface/typings.d.ts
 
-# prebuild other modules
-#RUN yarn run gulp build:modules
+COPY --from=builder ./botpress/modules/tsconfig_view.shared.json ./modules/tsconfig_view.shared.json
+COPY --from=builder ./botpress/modules/tsconfig.shared.json ./modules/tsconfig.shared.json
 
-# workaround unreleased getos fix (make botpress recognise alpine an select the correct native extensions)
-#RUN wget -qO- https://raw.githubusercontent.com/retrohacker/getos/master/os.json > ./node_modules/getos/os.json
+COPY --from=builder ./botpress/node_modules/knex ./node_modules/knex
+COPY --from=builder ./botpress/node_modules/@types/bluebird-global ./node_modules/@types/bluebird-global
+COPY --from=builder ./botpress/node_modules/@types/node ./node_modules/@types/node
+COPY --from=builder ./botpress/node_modules/@types/jest ./node_modules/@types/jest
+COPY --from=builder ./botpress/node_modules/reflect-metadata ./node_modules/reflect-metadata
+COPY --from=builder ./botpress/node_modules/bluebird ./node_modules/bluebird
+COPY --from=builder ./botpress/node_modules/express ./node_modules/express
 
 CMD [ "echo", "-e", "Which module would you like to build?\nUse sh -c 'cd modules/your-module && yarn && yarn build && yarn package'" ]
