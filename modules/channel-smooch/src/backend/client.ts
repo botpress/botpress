@@ -7,6 +7,7 @@ import { SmoochImageRenderer } from '../renderers/image'
 import { SmoochTextRenderer } from '../renderers/text'
 import { SmoochCommonSender } from '../senders/common'
 import { SmoochTypingSender } from '../senders/typing'
+import { CHANNEL_NAME } from './constants'
 
 import { Card, Clients, Message, MessagePayload, SmoochContext, Webhook } from './typings'
 
@@ -98,7 +99,7 @@ export class SmoochClient {
 
     await this.bp.experimental.messages
       .forBot(this.botId)
-      .receive(conversation.id, { ...rawPayload, ...payload }, { channel: 'smooch' })
+      .receive(conversation.id, { ...rawPayload, ...payload }, { channel: CHANNEL_NAME })
   }
 
   async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
@@ -239,7 +240,7 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
   })
 
   async function outgoingHandler(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
-    if (event.channel !== 'smooch') {
+    if (event.channel !== CHANNEL_NAME) {
       return next()
     }
 

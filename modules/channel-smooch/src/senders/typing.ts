@@ -1,22 +1,23 @@
 import { ChannelSender } from 'common/channel'
+import { CHANNEL_NAME } from '../backend/constants'
 import { SmoochContext } from '../backend/typings'
 
 export class SmoochTypingSender implements ChannelSender<SmoochContext> {
   get channel(): string {
-    return 'smooch'
+    return CHANNEL_NAME
   }
 
   get priority(): number {
     return -1
   }
 
-  get id() {
+  get id(): string {
     return SmoochTypingSender.name
   }
 
   handles(context: SmoochContext): boolean {
     const typing = context.event.payload.typing
-    return context.handlers?.length > 0 && (typing === undefined || typing === true)
+    return context.handlers.length > 0 && (typing === undefined || typing === true)
   }
 
   async send(context: SmoochContext) {

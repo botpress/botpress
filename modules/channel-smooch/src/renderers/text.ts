@@ -1,17 +1,18 @@
 import * as sdk from 'botpress/sdk'
 import { ChannelRenderer } from 'common/channel'
+import { CHANNEL_NAME } from '../backend/constants'
 import { SmoochContext } from '../backend/typings'
 
 export class SmoochTextRenderer implements ChannelRenderer<SmoochContext> {
   get channel(): string {
-    return 'smooch'
+    return CHANNEL_NAME
   }
 
   get priority(): number {
     return 0
   }
 
-  get id() {
+  get id(): string {
     return SmoochTextRenderer.name
   }
 
