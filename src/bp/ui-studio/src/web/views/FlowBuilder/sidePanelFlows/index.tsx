@@ -113,9 +113,7 @@ const SidePanelInspectorContent: FC<Props> = props => {
         {props.showFlowNodeProps ? ( <Inspector /> ) : null}
       </SidePanel>
     </div>
-      
   )
-  
 }
 
 const mapStateToProps = state => ({
