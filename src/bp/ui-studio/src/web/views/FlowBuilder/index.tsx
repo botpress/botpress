@@ -180,7 +180,7 @@ const FlowBuilder = (props: Props) => {
         />
       )}
 
-        <SidePanelInspector/>
+      <SidePanelInspector/>
 
       <div className={style.diagram}>
         <Diagram
