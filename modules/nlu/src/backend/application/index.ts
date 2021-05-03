@@ -2,7 +2,8 @@ import _ from 'lodash'
 import yn from 'yn'
 
 import { IStanEngine } from '../stan'
-import { IScopedServicesFactory } from './bot-factory'
+import { mapTrainSet } from '../stan/api-mapper'
+import { IScopedServicesFactory, ScopedServices } from './bot-factory'
 import { IBotService } from './bot-service'
 import { BotNotMountedError } from './errors'
 import { ITrainingQueue } from './training-queue'
@@ -67,29 +68,35 @@ export class NLUApplication {
     const { bot, defService } = await this._servicesFactory.makeBot(botConfig)
     this._botService.setBot(botId, bot)
 
-    const makeDirtyModelHandler = (cb: (trainId: TrainingId) => Promise<void>) => async (language: string) => {
-      const latestModelId = await defService.getLatestModelId(language)
-      if (await this._engine.hasModel(botId, latestModelId)) {
-        await bot.setModel(language, latestModelId)
-        return
-      }
-      return cb({ botId, language })
-    }
+    const needsTrainingCb = (t: TrainingId) => this._trainingQueue.needsTraining(t)
+    const queueTrainingCb = (t: TrainingId) => this._trainingQueue.queueTraining(t)
 
-    const loadOrSetTrainingNeeded = makeDirtyModelHandler((trainId: TrainingId) =>
-      this._trainingQueue.needsTraining(trainId)
-    )
-    defService.listenForDirtyModels(loadOrSetTrainingNeeded)
+    const needsTrainingHandler = this._makeDirtyModelHandler({ bot, defService }, needsTrainingCb)
+    const queueTrainingHandler = this._makeDirtyModelHandler({ bot, defService }, queueTrainingCb)
+
+    defService.listenForDirtyModels(needsTrainingHandler)
 
     const trainingEnabled = !yn(process.env.BP_NLU_DISABLE_TRAINING)
-    const trainingHandler =
-      this._queueTrainingOnBotMount && trainingEnabled
-        ? (trainId: TrainingId) => this._trainingQueue.queueTraining(trainId)
-        : (trainId: TrainingId) => this._trainingQueue.needsTraining(trainId)
+    const handler = this._queueTrainingOnBotMount && trainingEnabled ? queueTrainingHandler : needsTrainingHandler
 
-    const loadModelOrQueue = makeDirtyModelHandler(trainingHandler)
-    await Promise.each(languages, lang => loadModelOrQueue(lang))
+    await Promise.each(languages, handler)
     await bot.mount()
+  }
+
+  private _makeDirtyModelHandler = (scoped: ScopedServices, cb: (t: TrainingId) => Promise<void>) => {
+    const { bot, defService } = scoped
+    const { id: botId } = bot
+
+    return async (lang: string) => {
+      const trainSet = await defService.getTrainSet(lang)
+      const trainInput = mapTrainSet(trainSet)
+      const { exists, modelId } = await this._engine.hasModelFor(bot.id, trainInput)
+      if (exists) {
+        bot.setModel(lang, modelId)
+        return
+      }
+      return cb({ botId, language: lang })
+    }
   }
 
   public async unmountBot(botId: string) {

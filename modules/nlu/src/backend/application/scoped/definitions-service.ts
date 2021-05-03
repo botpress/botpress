@@ -1,6 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import { IStanEngine } from 'src/backend/stan'
-import { mapTrainSet } from '../../stan/api-mapper'
 import { I } from '../typings'
 import { IDefinitionsRepository } from './infrastructure/definitions-repository'
 
@@ -24,16 +22,14 @@ interface TrainingSet {
 export class ScopedDefinitionsService {
   private _languages: string[]
   private _seed: number
-  private _botId: string
 
   private _needTrainingWatcher: sdk.ListenHandle
 
   private _dirtyModelsListeners: DirtyModelCallback[] = []
 
-  constructor(bot: BotDefinition, private _engine: IStanEngine, private _definitionRepository: IDefinitionsRepository) {
+  constructor(bot: BotDefinition, private _definitionRepository: IDefinitionsRepository) {
     this._languages = bot.languages
     this._seed = bot.seed
-    this._botId = bot.botId
   }
 
   public async initialize() {
@@ -46,12 +42,6 @@ export class ScopedDefinitionsService {
 
   public listenForDirtyModels = (listener: DirtyModelCallback) => {
     this._dirtyModelsListeners.push(listener)
-  }
-
-  public async getLatestModelId(languageCode: string): Promise<string> {
-    const bpTrainSet = await this.getTrainSet(languageCode)
-    const stanTrainSet = mapTrainSet(bpTrainSet)
-    return this._engine.getModelIdFromTrainset(stanTrainSet)
   }
 
   public async getTrainSet(languageCode: string): Promise<TrainingSet> {
@@ -70,12 +60,7 @@ export class ScopedDefinitionsService {
       if (!hasPotentialNLUChange) {
         return
       }
-
-      await Promise.filter(this._languages, async l => {
-        const modelId = await this.getLatestModelId(l)
-        const hasModel = await this._engine.hasModel(this._botId, modelId)
-        return !hasModel
-      }).mapSeries(this._notifyListeners)
+      await Promise.map(this._languages, this._notifyListeners)
     })
   }
 

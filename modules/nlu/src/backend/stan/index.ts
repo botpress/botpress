@@ -24,14 +24,26 @@ export class StanEngine {
     return response.info
   }
 
-  // TODO: combine this method with hasModel so there's no need to copy modelIdService.
-  public async getModelIdFromTrainset(trainInput: TrainInput) {
+  public async hasModelFor(appId: string, trainInput: TrainInput): Promise<{ exists: boolean; modelId: string }> {
     const { specs } = await this.getInfo()
     const modelIdStructure = modelIdService.makeId({
       ...trainInput,
       specifications: specs
     })
-    return modelIdService.toString(modelIdStructure)
+    const modelId = modelIdService.toString(modelIdStructure)
+    const exists = await this._hasModel(appId, modelId)
+    return {
+      exists,
+      modelId
+    }
+  }
+
+  private async _hasModel(appId: string, modelId: string): Promise<boolean> {
+    const response = await this._stanClient.listModels({ appSecret: this._appSecret, appId })
+    if (!response.success) {
+      return this._throwError(response.error)
+    }
+    return response.models.includes(modelId)
   }
 
   public async startTraining(appId: string, trainInput: TrainInput): Promise<string> {
@@ -118,14 +130,6 @@ export class StanEngine {
     if (!response.success) {
       return this._throwError(response.error)
     }
-  }
-
-  public async hasModel(appId: string, modelId: string): Promise<boolean> {
-    const response = await this._stanClient.listModels({ appSecret: this._appSecret, appId })
-    if (!response.success) {
-      return this._throwError(response.error)
-    }
-    return response.models.includes(modelId)
   }
 
   public async detectLanguage(appId: string, utterance: string, models: string[]): Promise<string> {

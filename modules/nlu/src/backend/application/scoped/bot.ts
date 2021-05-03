@@ -47,6 +47,10 @@ export class Bot implements Trainable, Predictor {
     )
   }
 
+  get id() {
+    return this._botId
+  }
+
   public async mount() {
     await this._defService.initialize()
   }
@@ -60,7 +64,7 @@ export class Bot implements Trainable, Predictor {
     }
   }
 
-  public setModel = async (lang: string, modelId: string) => {
+  public setModel = (lang: string, modelId: string) => {
     this._modelsByLang[lang] = modelId
   }
 

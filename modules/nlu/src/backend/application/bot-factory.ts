@@ -48,7 +48,7 @@ export class ScopedServicesFactory {
 
     const defRepo = this._makeDefRepo(botDefinition)
 
-    const defService = new ScopedDefinitionsService(botDefinition, this._engine, defRepo)
+    const defService = new ScopedDefinitionsService(botDefinition, defRepo)
 
     const bot = new Bot(botDefinition, this._engine, defService, this._logger)
 
