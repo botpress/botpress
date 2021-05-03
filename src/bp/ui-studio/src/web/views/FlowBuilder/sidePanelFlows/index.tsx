@@ -75,6 +75,7 @@ const SidePanelContent: FC<Props> = props => {
         actions={props.permissions.includes('create') && [createFlowAction]}
       >
         <SearchBar icon="filter" placeholder={lang.tr('studio.flow.sidePanel.filterFlows')} onChange={setFilter} />
+        
         <FlowsList
           readOnly={props.readOnly}
           canDelete={props.permissions.includes('delete')}
@@ -110,10 +111,8 @@ const SidePanelInspectorContent: FC<Props> = props => {
     <div className={props.showFlowNodeProps ? style.rightPanelActive : style.rightPanel}>
       <SidePanel>
         <SidePanelSection label="Inspector">
-
+          
         </SidePanelSection>
-      
-
         {props.showFlowNodeProps ? ( <Inspector /> ) : null}
       </SidePanel>
     </div>

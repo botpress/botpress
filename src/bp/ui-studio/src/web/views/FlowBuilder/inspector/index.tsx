@@ -52,7 +52,7 @@ class Inspector extends Component<Props> {
             {node && (
               <i className="material-icons" style={{
                 zIndex: 10,
-                top: 80,
+                top: 40,
                 right: 10,
                 position: 'absolute',
                 cursor: 'pointer'
