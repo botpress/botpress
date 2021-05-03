@@ -16,7 +16,7 @@ export class SmoochCommonSender implements ChannelSender<SmoochContext> {
   }
 
   handles(context: SmoochContext): boolean {
-    return context.handlers?.length > 0
+    return context.handlers.length > 0
   }
 
   async send(context: SmoochContext) {

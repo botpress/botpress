@@ -18,7 +18,7 @@ export class SmoochImageRenderer implements ChannelRenderer<SmoochContext> {
   }
 
   handles(context: SmoochContext): boolean {
-    return context.payload.image
+    return !!context.payload.image
   }
 
   async render(context: SmoochContext) {

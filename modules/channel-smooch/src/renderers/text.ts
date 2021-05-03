@@ -17,7 +17,7 @@ export class SmoochTextRenderer implements ChannelRenderer<SmoochContext> {
   }
 
   handles(context: SmoochContext): boolean {
-    return context.payload.text
+    return !!context.payload.text
   }
 
   async render(context: SmoochContext) {
