@@ -36,13 +36,13 @@ export class TelegramCarouselRenderer implements ChannelRenderer<TelegramContext
 
       const buttons = []
       for (const action of card.actions || []) {
-        if (action.action === 'Open URL') {
+        if (action.action === sdk.ButtonAction.OpenUrl) {
           buttons.push(
             Markup.urlButton(action.title, (action as sdk.ActionOpenURL).url.replace('BOT_URL', context.botUrl))
           )
-        } else if (action.action === 'Postback') {
+        } else if (action.action === sdk.ButtonAction.Postback) {
           buttons.push(Markup.callbackButton(action.title, (action as sdk.ActionPostback).payload))
-        } else if (action.action === 'Say something') {
+        } else if (action.action === sdk.ButtonAction.SaySomething) {
           buttons.push(Markup.callbackButton(action.title, (action as sdk.ActionSaySomething).text as string))
         }
       }
