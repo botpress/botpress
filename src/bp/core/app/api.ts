@@ -3,7 +3,7 @@ import { container } from 'core/app/inversify/app.inversify'
 import { TYPES } from 'core/app/types'
 import { BotService } from 'core/bots'
 import { GhostService } from 'core/bpfs'
-import { CMSService, renderRecursive, RenderService } from 'core/cms'
+import { CMSService, renderRecursive, RenderService, ButtonAction } from 'core/cms'
 import { ConfigProvider } from 'core/config'
 import Database from 'core/database'
 import { StateManager, DialogEngine, WellKnownFlags } from 'core/dialog'
@@ -347,7 +347,8 @@ export class BotpressAPIProvider {
       security: this.security,
       experimental: this.experimental,
       workspaces: this.workspaces,
-      distributed: this.distributed
+      distributed: this.distributed,
+      ButtonAction
     }
   }
 }
