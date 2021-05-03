@@ -31,14 +31,14 @@ export class TwilioCarouselRenderer implements ChannelRenderer<TwilioContext> {
       for (const button of actions || []) {
         const title = button.title as string
 
-        if (button.action === 'Open URL') {
+        if (button.action === sdk.ButtonAction.OpenUrl) {
           options.push({
             title: `${title} : ${(button as sdk.ActionOpenURL).url.replace('BOT_URL', context.botUrl)}`,
             value: undefined
           })
-        } else if (button.action === 'Postback') {
+        } else if (button.action === sdk.ButtonAction.Postback) {
           options.push({ title, value: (button as sdk.ActionPostback).payload })
-        } else if (button.action === 'Say something') {
+        } else if (button.action === sdk.ButtonAction.SaySomething) {
           options.push({
             title,
             value: (button as sdk.ActionSaySomething).text as string
