@@ -1,4 +1,4 @@
-import { protos, v1p1beta1 } from '@google-cloud/speech'
+import { protos, SpeechClient } from '@google-cloud/speech'
 import { TextToSpeechClient } from '@google-cloud/text-to-speech'
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
@@ -14,8 +14,10 @@ import {
   ISynthesizeSpeechRequest,
   Container,
   Codec,
-  AudioEncoding
+  AudioEncoding,
+  IRecognizeRequest
 } from './typings'
+import { TimeoutError, timeoutFn } from './utils'
 
 const debug = DEBUG('google-speech')
 const debugSpeechToText = debug.sub('speech-to-text')
@@ -23,8 +25,11 @@ const debugTextToSpeech = debug.sub('text-to-speech')
 
 export class GoogleSpeechClient {
   private logger: sdk.Logger
-  private speechClient: v1p1beta1.SpeechClient
+  private speechClient: SpeechClient
   private textToSpeechClient: TextToSpeechClient
+
+  //Transcription is limited to 60 seconds audio.
+  private readonly defaultMaxAudioDuration = 60
 
   constructor(private bp: typeof sdk, private botId: string, private readonly config: Config) {
     this.logger = this.bp.logger.forBot(this.botId)
@@ -38,13 +43,14 @@ export class GoogleSpeechClient {
     }
 
     try {
-      this.speechClient = new v1p1beta1.SpeechClient({
+      this.speechClient = new SpeechClient({
         credentials: {
           client_email: this.config.clientEmail,
           private_key: this.config.privateKey
         },
         projectId: this.config.projectId
       })
+      await this.speechClient.initialize()
       // Test the credentials by authenticating to the Google API
       await this.speechClient.auth.getAccessToken()
 
@@ -55,6 +61,7 @@ export class GoogleSpeechClient {
         },
         projectId: this.config.projectId
       })
+      await this.textToSpeechClient.initialize()
       // Test the credentials by authenticating to the Google API
       await this.textToSpeechClient.auth.getAccessToken()
 
@@ -73,13 +80,13 @@ export class GoogleSpeechClient {
     }
   }
 
-  public async speechToText(audioFileUrl: string, language: string): Promise<string | undefined> {
-    debugSpeechToText('Received audio to convert:', audioFileUrl)
+  public async speechToText(audioFileUrl: string, language: string, timeout?: string): Promise<string | undefined> {
+    debugSpeechToText('Received audio to recognize:', audioFileUrl)
 
     let { data: buffer } = await axios.get<Buffer>(audioFileUrl, { responseType: 'arraybuffer' })
 
     let meta = await mm.parseBuffer(buffer)
-    const maxAudioDuration = Math.min(this.config.maxAudioDuration, 60)
+    const maxAudioDuration = Math.min(this.config.maxAudioDuration, this.defaultMaxAudioDuration)
     if (meta.format.duration > maxAudioDuration) {
       this.logger.warn(
         `Audio file duration (${meta.format.duration}s) exceed maximum duration allowed of: ${maxAudioDuration}s`
@@ -87,7 +94,7 @@ export class GoogleSpeechClient {
       return
     }
 
-    let encoding: protos.google.cloud.speech.v1p1beta1.RecognitionConfig.AudioEncoding
+    let encoding: protos.google.cloud.speech.v1.RecognitionConfig.AudioEncoding
 
     const container = meta.format.container?.toLowerCase()
     const codec = meta.format.codec?.toLowerCase()
@@ -107,8 +114,8 @@ export class GoogleSpeechClient {
 
         meta = await mm.parseBuffer(buffer)
       }
-    } else if (container === 'mpeg' && (codec === 'mpeg 1 layer 3' || codec === 'mpeg 2 layer 3')) {
-      encoding = AudioEncoding.MP3
+    } else if (container === 'mpeg' && codec === 'mpeg 1 layer 3') {
+      // No need to specify the encoding nor re-sample the file
     } else {
       this.logger.warn('Audio file format not supported. Skipping...', { ...meta.format })
 
@@ -129,32 +136,47 @@ export class GoogleSpeechClient {
       languageCode: this.languageCode(language)
     }
 
-    debugSpeechToText('Recognizing text from audio file...')
-
-    const [response] = await this.speechClient.recognize({
-      audio,
-      config
-    })
-
-    const transcription = response.results
-      ?.map(result => {
-        const alternative = result.alternatives[0]
-        if (alternative.confidence >= this.config.confidenceThreshold) {
-          return alternative.transcript
-        }
-      })
-      .join('\n')
-
-    if (!transcription) {
-      debugSpeechToText('No text could be recognized')
-    } else {
-      debugSpeechToText('Text recognized:', `'${transcription}'`)
+    const request: IRecognizeRequest = {
+      config,
+      audio
     }
 
-    return transcription
+    debugSpeechToText('Recognizing text from audio file...')
+
+    try {
+      const clientPromise = this.speechClient.recognize(request)
+      const [response] = await timeoutFn(clientPromise, timeout)
+
+      const transcription = response.results
+        ?.map(result => {
+          const alternative = result.alternatives[0]
+          if (alternative.confidence >= this.config.confidenceThreshold) {
+            return alternative.transcript
+          }
+        })
+        .join('\n')
+
+      if (!transcription) {
+        debugSpeechToText('No text could be recognized')
+      } else {
+        debugSpeechToText('Text recognized:', `'${transcription}'`)
+      }
+
+      return transcription
+    } catch (err) {
+      if (err instanceof TimeoutError) {
+        debugSpeechToText(`Recognition cancelled: ${err.message}`)
+      } else {
+        throw err
+      }
+    }
   }
 
-  public async textToSpeech(text: string, language: string): Promise<Uint8Array | string | undefined> {
+  public async textToSpeech(
+    text: string,
+    language: string,
+    timeout?: string
+  ): Promise<Uint8Array | string | undefined> {
     debugTextToSpeech('Received text to convert into audio:', text)
 
     const request: ISynthesizeSpeechRequest = {
@@ -165,15 +187,24 @@ export class GoogleSpeechClient {
 
     debugTextToSpeech('Producing audio content from text...')
 
-    const [response] = await this.textToSpeechClient.synthesizeSpeech(request)
+    try {
+      const clientPromise = this.textToSpeechClient.synthesizeSpeech(request)
+      const [response] = await timeoutFn(clientPromise, timeout)
 
-    if (!response.audioContent.length) {
-      debugTextToSpeech('No audio content could be produced from the text received')
-    } else {
-      debugTextToSpeech('Audio content produced successfully')
+      if (!response.audioContent.length) {
+        debugTextToSpeech('No audio content could be produced from the text received')
+      } else {
+        debugTextToSpeech('Audio content produced successfully')
+      }
+
+      return response.audioContent
+    } catch (err) {
+      if (err instanceof TimeoutError) {
+        debugSpeechToText(`Audio production cancelled: ${err.message}`)
+      } else {
+        throw err
+      }
     }
-
-    return response.audioContent
   }
 
   /**
