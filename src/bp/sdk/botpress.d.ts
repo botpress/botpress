@@ -917,6 +917,8 @@ declare module 'botpress/sdk' {
       handler: MiddlewareHandler
       /** Indicates if this middleware should act on incoming or outgoing events */
       direction: EventDirection
+      /** Allows to override the middleware chain timeout limit */
+      timeout?: string
     }
 
     export interface EventConstructor {
