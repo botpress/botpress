@@ -1719,8 +1719,14 @@ declare module 'botpress/sdk' {
     actions: ActionButton[]
   }
 
+  export enum ButtonAction {
+    SaySomething = 'Say something',
+    OpenUrl = 'Open URL',
+    Postback = 'Postback'
+  }
+
   export interface ActionButton {
-    action: 'Say something' | 'Open URL' | 'Postback'
+    action: ButtonAction
     title: string
   }
 
