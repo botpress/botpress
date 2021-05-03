@@ -13,20 +13,21 @@ const defaultOptions = {
 }
 
 export class MiddlewareChain {
-  private stack: { mw: sdk.IO.MiddlewareHandler; name: string }[] = []
+  private stack: { mw: sdk.IO.MiddlewareHandler; name: string; timeout: number }[] = []
 
   constructor(private options: MiddlewareChainOptions = defaultOptions) {
     this.options = { ...defaultOptions, ...options }
   }
 
-  use({ handler, name }: sdk.IO.MiddlewareDefinition) {
-    this.stack.push({ mw: handler, name })
+  use({ handler, name, timeout }: sdk.IO.MiddlewareDefinition) {
+    const timeoutInMs = timeout ? ms(timeout) : 0
+    this.stack.push({ mw: handler, name, timeout: timeoutInMs })
   }
 
   async run(event: sdk.IO.Event) {
-    for (const { mw, name } of this.stack) {
+    for (const { mw, name, timeout } of this.stack) {
       let timedOut = false
-      const timePromise = new Promise(() => {}).timeout(this.options.timeoutInMs).catch(() => {
+      const timePromise = new Promise(() => {}).timeout(timeout || this.options.timeoutInMs).catch(() => {
         timedOut = true
       })
       const mwPromise = Promise.fromCallback<boolean>(cb => mw(event, cb), { multiArgs: true })
