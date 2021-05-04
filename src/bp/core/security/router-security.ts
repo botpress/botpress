@@ -227,9 +227,6 @@ export const checkBotVisibility = (configProvider: ConfigProvider, checkTokenHea
   res,
   next
 ) => {
-  // '___' is a non-valid botId, but here acts as for "all bots"
-  // This is used in modules when they setup routes that work on a global level (they are not tied to a specific bot)
-  // Check the 'sso-login' module for an example
   if (req.params.botId === ALL_BOTS || req.originalUrl.endsWith('env.js')) {
     return next()
   }

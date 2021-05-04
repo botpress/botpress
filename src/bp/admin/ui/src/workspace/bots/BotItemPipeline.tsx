@@ -73,7 +73,7 @@ const BotItemPipeline: FC<Props> = ({
           <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
             <Button id="btn-menu" icon={<Icon icon="menu" />} minimal />
             <Menu>
-              <WorkspaceAppItems loadedModules={loadedModules} botId={bot.id}></WorkspaceAppItems>
+              <WorkspaceAppItems loadedModules={loadedModules} botId={bot.id} />
 
               {!bot.disabled && !hasError && (
                 <Fragment>
