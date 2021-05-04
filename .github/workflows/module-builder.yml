@@ -1,0 +1,20 @@
+name: Module Builder Docker Image
+on: [push]
+jobs:
+  build_and_push:
+    name: Test Module Builder Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2.1.0
+      - name: Build
+        run: |
+          docker build -t module-builder-test -f build/module-builder/Dockerfile .
+          docker run -v `pwd`/modules/channel-web:/botpress/modules/channel-web module-builder-test sh -c 'cd modules/channel-web && yarn && yarn build && yarn package'
+          ls modules/channel-web/channel-web.tgz || exit 1
+      - name: Build has failed
+        if: ${{ failure() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_GH_ACTIONS }}
+          SLACK_COLOR: ${{ job.status }}

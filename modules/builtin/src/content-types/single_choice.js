@@ -1,4 +1,5 @@
 const base = require('./_base')
+const utils = require('./_utils')
 
 function render(data) {
   const events = []
@@ -65,41 +66,14 @@ function renderMessenger(data) {
   ]
 }
 
-function renderSlack(data) {
-  const events = []
-
-  if (data.typing) {
-    events.push({
-      type: 'typing',
-      value: data.typing
-    })
+function renderElement(data, channel) {
+  // These channels now use channel renderers
+  if (['telegram', 'twilio', 'slack'].includes(channel)) {
+    return utils.extractPayload('single-choice', data)
   }
 
-  return [
-    ...events,
-    {
-      text: data.text,
-      quick_replies: {
-        type: 'actions',
-        elements: data.choices.map((q, idx) => ({
-          type: 'button',
-          action_id: 'replace_buttons' + idx,
-          text: {
-            type: 'plain_text',
-            text: q.title
-          },
-          value: q.value.toUpperCase()
-        }))
-      }
-    }
-  ]
-}
-
-function renderElement(data, channel) {
   if (channel === 'messenger') {
     return renderMessenger(data)
-  } else if (channel === 'slack') {
-    return renderSlack(data)
   } else {
     return render(data)
   }
