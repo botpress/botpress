@@ -18,9 +18,3 @@ jobs:
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_GH_ACTIONS }}
           SLACK_COLOR: ${{ job.status }}
-      - name: Build has succeeded
-        if: ${{ success() }}
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_GH_ACTIONS }}
-          SLACK_COLOR: ${{ job.status }}
