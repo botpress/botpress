@@ -137,7 +137,7 @@ describe('Middleware', () => {
     expect(mock).toHaveBeenCalled()
     expect(event.processing![processingKey]).not.toBeUndefined()
 
-    // make sure the promise has time to finis
+    // make sure the promise has time to finish
     await Promise.delay(extraTime)
   })
 
@@ -166,7 +166,7 @@ describe('Middleware', () => {
     expect(event.processing![timedOutProcessingKey]).toBeUndefined()
     expect(event.processing![swallowedProcessingKey]).not.toBeUndefined()
 
-    // make sure the promise has time to finis
+    // make sure the promise has time to finish
     await Promise.delay(extraTime)
   })
 })
