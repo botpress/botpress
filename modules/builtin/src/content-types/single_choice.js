@@ -98,7 +98,7 @@ function renderSlack(data) {
 
 function renderElement(data, channel) {
   // These channels now use channel renderers
-  if (['twilio'].includes(channel)) {
+    if (['telegram', 'twilio'].includes(channel)) {
     return utils.extractPayload('single-choice', data)
   }
 
