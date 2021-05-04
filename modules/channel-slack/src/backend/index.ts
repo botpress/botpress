@@ -1,7 +1,5 @@
 import * as sdk from 'botpress/sdk'
-
 import { Config } from '../config'
-
 import { setupMiddleware, SlackClient } from './client'
 import { Clients } from './typings'
 
