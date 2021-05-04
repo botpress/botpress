@@ -2,27 +2,42 @@ const axios = require('axios')
 const FormData = require('form-data')
 const uuidv4 = require('uuid').v4
 
+// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition#syntax
+// Content-disposition header looks like this: Content-Disposition: attachment; filename="filename.ext"
+// so we try extracting the filename from it
+const parseFilenameFromHeader = headers => {
+  if (!headers['content-disposition']) {
+    return
+  }
+
+  const filename = headers['content-disposition'].split('filename=')
+
+  // The header does not contain any filename
+  if (filename[0] === headers['content-disposition'] || filename.length !== 2) {
+    return
+  }
+
+  // Removes double quotes from the filename
+  return filename[1].replace(/"/g, '')
+}
+
 /**
  * Store File Locally
+ *
+ * _Note that the payload URL gets overridden with the Botpress one_
  * @title Store File Locally
  * @category Channel Vonage
  * @author Botpress, Inc.
- * @param {string} file - The URL of the file to store locally
  */
-const storeFileLocally = async file => {
-  if (!event.payload.url || !file) {
+const storeFileLocally = async () => {
+  if (!event.payload.url) {
     return
   }
 
   try {
-    const resp = await axios.get(file, { responseType: 'arraybuffer' })
+    const resp = await axios.get(event.payload.url, { responseType: 'arraybuffer' })
 
-    const filename =
-      (resp.headers['content-disposition'] &&
-        resp.headers['content-disposition'].split('filename=')[1].replace(/"/g, '')) ||
-      event.payload.title ||
-      event.payload.caption ||
-      uuidv4()
+    const filename = parseFilenameFromHeader(resp.headers) || event.payload.title || event.payload.caption || uuidv4()
 
     const formData = new FormData()
     formData.append('file', Buffer.from(resp.data.buffer), filename)
@@ -46,4 +61,4 @@ const storeFileLocally = async file => {
   }
 }
 
-return storeFileLocally(args.file)
+return storeFileLocally()
