@@ -7,8 +7,14 @@ import { Request } from 'express'
 import jwt from 'jsonwebtoken'
 import _ from 'lodash'
 import { Config } from '../config'
-import { VonageTextRenderer, VonageImageRenderer, VonageCarouselRenderer, VonageCardRenderer } from '../renderers'
-import { VonageCommonSender } from '../senders'
+import {
+  VonageTextRenderer,
+  VonageImageRenderer,
+  VonageCarouselRenderer,
+  VonageCardRenderer,
+  VonageChoicesRenderer
+} from '../renderers'
+import { VonageCommonSender, VonageTypingSender } from '../senders'
 
 import { Clients, SignedJWTPayload, VonageContext, VonageRequestBody } from './typings'
 
@@ -93,10 +99,11 @@ export class VonageClient {
       new VonageCardRenderer(),
       new VonageTextRenderer(),
       new VonageImageRenderer(),
-      new VonageCarouselRenderer()
+      new VonageCarouselRenderer(),
+      new VonageChoicesRenderer()
     ]
 
-    this.senders = [new VonageCommonSender()]
+    this.senders = [new VonageTypingSender(), new VonageCommonSender()]
   }
 
   async handleWebhookRequest(body: VonageRequestBody) {
@@ -210,8 +217,8 @@ export class VonageClient {
       payload: _.cloneDeep(event.payload),
       botUrl: process.EXTERNAL_URL,
       messages: [],
-      botPhoneNumber: this.config.botPhoneNumber
-      // prepareIndexResponse: this.prepareIndexResponse.bind(this)
+      botPhoneNumber: this.config.botPhoneNumber,
+      prepareIndexResponse: this.prepareIndexResponse.bind(this)
     }
 
     for (const renderer of this.renderers) {

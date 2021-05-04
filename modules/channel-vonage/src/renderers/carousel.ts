@@ -23,6 +23,7 @@ export class VonageCarouselRenderer implements ChannelRenderer<VonageContext> {
 
   render(context: VonageContext) {
     const payload = context.payload as sdk.CarouselContent
+    let lastOptions: sdk.ChoiceOption[]
 
     // We down render carousel to text so it works with whatsapp
     for (const { subtitle, title, image, actions } of payload.items) {
@@ -64,6 +65,12 @@ export class VonageCarouselRenderer implements ChannelRenderer<VonageContext> {
           text: body
         })
       }
+
+      lastOptions = options
+    }
+
+    if (lastOptions) {
+      context.prepareIndexResponse(context.event, lastOptions)
     }
   }
 }
