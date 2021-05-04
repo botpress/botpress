@@ -108,7 +108,6 @@ const SidePanelInspectorContent: FC<Props> = props => {
     <div className={props.showFlowNodeProps ? style.rightPanelActive : style.rightPanel}>
       <SidePanel>
         <SidePanelSection label="Inspector">
-          
         </SidePanelSection>
         {props.showFlowNodeProps ? ( <Inspector /> ) : null}
       </SidePanel>
