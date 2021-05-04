@@ -1,5 +1,5 @@
 name: Module Builder Docker Image
-on: [pull_request]
+on: [push]
 jobs:
   build_and_push:
     name: Test Module Builder Image
@@ -17,10 +17,10 @@ jobs:
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_GH_ACTIONS }}
-          SLACK_COLOR: ${{ job.status }} # or a specific color like 'green' or '#ff00ff'
+          SLACK_COLOR: ${{ job.status }}
       - name: Build has succeeded
         if: ${{ success() }}
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_GH_ACTIONS }}
-          SLACK_COLOR: ${{ job.status }} # or a specific color like 'green' or '#ff00ff'
+          SLACK_COLOR: ${{ job.status }}
