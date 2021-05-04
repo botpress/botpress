@@ -133,16 +133,14 @@ export class VonageClient {
         payload = {
           type: 'file', // TODO: Change image content-type type to 'image' instead of 'file'
           title: messageContent.image.caption,
-          url: messageContent.image.url,
-          collectFeedback: true
+          url: messageContent.image.url
         }
         break
       case 'video':
         payload = {
           type: messageContent.type,
           title: `${path.basename(messageContent.video.url)}.mp4`, // TODO: Take for granted that video file will all be .mp4 files?
-          url: messageContent.video.url,
-          collectFeedback: true
+          url: messageContent.video.url
         }
         break
       // TODO: Add file and location to bp.render
@@ -150,16 +148,14 @@ export class VonageClient {
         payload = {
           type: 'document', // TODO: Change to 'file' once image's type switch from 'file' to 'image
           title: messageContent.file.caption,
-          url: messageContent.file.url,
-          collectFeedback: true
+          url: messageContent.file.url
         }
         break
       case 'location':
         payload = {
           type: messageContent.type,
           latitude: messageContent.location.lat,
-          longitude: messageContent.location.long,
-          collectFeedback: true
+          longitude: messageContent.location.long
         }
         break
       default:
