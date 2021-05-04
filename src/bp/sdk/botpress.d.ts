@@ -1721,23 +1721,26 @@ declare module 'botpress/sdk' {
     actions: ActionButton[]
   }
 
+  export enum ButtonAction {
+    SaySomething = 'Say something',
+    OpenUrl = 'Open URL',
+    Postback = 'Postback'
+  }
+
   export interface ActionButton {
-    action: string
+    action: ButtonAction
     title: string
   }
 
   export interface ActionSaySomething extends ActionButton {
-    action: 'Say something'
     text: string | MultiLangText
   }
 
   export interface ActionOpenURL extends ActionButton {
-    action: 'Open URL'
     url: string
   }
 
   export interface ActionPostback extends ActionButton {
-    action: 'Postback'
     payload: string
   }
 
