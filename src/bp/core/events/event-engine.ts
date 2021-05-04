@@ -76,7 +76,8 @@ const mwSchema = {
     .regex(directionRegex)
     .required(),
   order: joi.number().default(0),
-  enabled: joi.boolean().default(true)
+  enabled: joi.boolean().default(true),
+  timeout: joi.string().optional()
 }
 
 const debug = DEBUG('middleware')
