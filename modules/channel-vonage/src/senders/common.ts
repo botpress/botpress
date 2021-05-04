@@ -39,6 +39,8 @@ export class VonageCommonSender implements ChannelSender<VonageContext> {
           }
         )
       })
+
+      // TODO : put delay here because of garbage limitations with sandbox
     }
   }
 }

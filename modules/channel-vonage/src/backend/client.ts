@@ -7,7 +7,7 @@ import { Request } from 'express'
 import jwt from 'jsonwebtoken'
 import _ from 'lodash'
 import { Config } from '../config'
-import { VonageTextRenderer, VonageImageRenderer } from '../renderers'
+import { VonageTextRenderer, VonageImageRenderer, VonageCarouselRenderer, VonageCardRenderer } from '../renderers'
 import { VonageCommonSender } from '../senders'
 
 import { Clients, SignedJWTPayload, VonageContext, VonageRequestBody } from './typings'
@@ -24,8 +24,6 @@ enum ApiBaseUrl {
   TEST = 'https://messages-sandbox.nexmo.com',
   PROD = 'https://api.nexmo.com'
 }
-
-const isInt = (str: string) => !isNaN(parseInt(str, 10))
 const sha256 = (str: string) =>
   crypto
     .createHash('sha256')
@@ -91,7 +89,12 @@ export class VonageClient {
     this.logger.info(`Vonage inbound webhooks listening at ${webhookUrl}/inbound`)
     this.logger.info(`Vonage status webhooks listening at ${webhookUrl}/status`)
 
-    this.renderers = [new VonageTextRenderer(), new VonageImageRenderer()]
+    this.renderers = [
+      new VonageCardRenderer(),
+      new VonageTextRenderer(),
+      new VonageImageRenderer(),
+      new VonageCarouselRenderer()
+    ]
 
     this.senders = [new VonageCommonSender()]
   }
@@ -117,9 +120,6 @@ export class VonageClient {
       case 'text':
         const text = body.message.content.text
         payload = { type: 'text', text }
-
-        // Since single choice and carousel are down rendered, we have to handle option selection differently
-        payload = (await this.handleOptionResponse(text, userId, conversation.id)) ?? payload
         break
       case 'audio':
         // TODO: Link received from Nexmo/Vonage API are only valid for 10min
@@ -129,6 +129,14 @@ export class VonageClient {
       default:
         payload = {}
         break
+    }
+
+    const index = Number(body.message.content.text)
+    if (index) {
+      payload = (await this.handleIndexReponse(index - 1, userId, conversation.id)) ?? payload
+      if (!payload.text) {
+        return
+      }
     }
 
     if (payload) {
@@ -142,36 +150,28 @@ export class VonageClient {
     return `${target}_${threadId}`
   }
 
-  /**
-   * This function allows to handle index responses when using down rendering with single choice and carousel
-   */
-  private async handleOptionResponse(text: string, userId: string, conversationId: string): Promise<any> {
+  async handleIndexReponse(index: number, userId: string, conversationId: string): Promise<any> {
     const key = this.getKvsKey(userId, conversationId)
+    if (!(await this.kvs.exists(key))) {
+      return
+    }
 
-    if (isInt(text)) {
-      if (!(await this.kvs.exists(key))) {
-        return
-      }
-
-      const index = parseInt(text, 10) - 1
-      const option = await this.kvs.get(key, `[${index}]`)
-      if (!option) {
-        return
-      }
-
-      const { type, label, value } = option
-      if (type === 'url') {
-        return
-      } else {
-        return {
-          type,
-          text: type === 'say_something' ? value : label,
-          payload: value
-        }
-      }
+    const option = await this.kvs.get(key, `[${index}]`)
+    if (!option) {
+      return
     }
 
     await this.kvs.delete(key)
+
+    const { value } = option
+    return {
+      type: 'text',
+      text: value
+    }
+  }
+
+  async prepareIndexResponse(event: sdk.IO.OutgoingEvent, options: sdk.ChoiceOption[]) {
+    await this.kvs.set(this.getKvsKey(event.target, event.threadId), options, undefined, '10m')
   }
 
   /**
