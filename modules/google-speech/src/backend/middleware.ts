@@ -79,7 +79,7 @@ export class Middleware {
     }
 
     const incomingEventId: string = event.incomingEventId
-    if (!incomingEventId || event.type !== 'text' || !event.payload.text || event.payload.quick_replies) {
+    if (!incomingEventId || event.payload.type !== 'text' || !event.payload.text) {
       return next(undefined, false, true)
     }
 
@@ -119,9 +119,17 @@ export class Middleware {
       // TODO: Once we convert to channel renderers we'll be able to send a relative url instead.
       const payload = { type: 'audio', url: `${process.EXTERNAL_URL}${url}` }
 
-      await this.bp.experimental.messages.forBot(event.botId).send(event.threadId, payload, { channel: event.channel })
+        // Simply override the payload so we don't send a new event at the bottom of the event queue
+        // inverting the order of the events being sent back to the users
+      ;(<any>event.payload) = payload
 
-      return next(undefined, true, false)
+      await this.bp.experimental.messages
+        .forBot(event.botId)
+        .create(event.threadId, payload, event.target, event.id, event.incomingEventId)
+
+      // Do not swallow the event nor mention that the processing was
+      // skipped since we simply override the event payload
+      return next(undefined, false, false)
     } catch (err) {
       this.bp.logger.forBot(event.botId).error('[text-to-speech]:', err)
       return next(err)
