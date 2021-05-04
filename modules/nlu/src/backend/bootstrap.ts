@@ -1,8 +1,9 @@
 import * as sdk from 'botpress/sdk'
 
+import crypto from 'crypto'
 import _ from 'lodash'
 
-import { Config } from '../config'
+import { Config, LanguageSource } from '../config'
 
 import { getWebsocket } from './api'
 import { ScopedServicesFactory } from './application/bot-factory'
@@ -15,6 +16,31 @@ import { BotDefinition } from './application/typings'
 import { StanEngine } from './stan'
 import { StanClient } from './stan/client'
 
+const makeNLUPassword = () => {
+  const random = Math.random() * 10 ** 10
+  const text = `${random}`
+  return crypto
+    .createHash('md5')
+    .update(text)
+    .digest('hex')
+}
+
+const getNLUServerConfig = (config: Config['nluServer']): LanguageSource => {
+  if (config.autoStart) {
+    process.NLU_PASSWORD = makeNLUPassword() // will be used by core
+    return {
+      endpoint: 'http://localhost:3200',
+      authToken: process.NLU_PASSWORD
+    }
+  }
+
+  const { endpoint, authToken } = config
+  return {
+    endpoint,
+    authToken
+  }
+}
+
 export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplication> {
   const globalConfig: Config = await bp.config.getModuleConfig('nlu')
   const { maxTrainingPerInstance, queueTrainingOnBotMount, legacyElection } = globalConfig
@@ -25,11 +51,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
     )
   }
 
-  const { nluServer } = globalConfig
-  const { endpoint, authToken } = nluServer.autoStart
-    ? { endpoint: 'http://localhost:3200', authToken: process.APP_SECRET }
-    : nluServer
-
+  const { endpoint, authToken } = getNLUServerConfig(globalConfig.nluServer)
   const stanClient = new StanClient(endpoint, authToken)
 
   const modelPassword = '' // No need for password as Stan is protected by an auth token

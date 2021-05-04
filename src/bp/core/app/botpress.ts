@@ -195,7 +195,8 @@ export class Botpress {
       ducklingEnabled: config.ducklingEnabled,
       dbURL: process.core_env.BPFS_STORAGE === 'database' ? process.core_env.DATABASE_URL : undefined,
       modelDir: process.cwd(),
-      modelCacheSize: config.modelCacheSize
+      modelCacheSize: config.modelCacheSize,
+      authToken: process.NLU_PASSWORD // defined by nlu module
     })
   }
 

@@ -1,4 +1,4 @@
-interface LanguageSource {
+export interface LanguageSource {
   endpoint: string
   authToken?: string
 }
