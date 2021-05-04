@@ -1,10 +1,11 @@
-import {
+import Vonage, {
   ChannelContent,
   ChannelMessage,
   ChannelToFrom,
   MessageSendResponse,
   MessageSendError
 } from '@vonage/server-sdk'
+import { ChannelContext } from 'common/channel'
 import { VonageClient } from './client'
 
 export interface Clients {
@@ -41,4 +42,9 @@ export interface SignedJWTPayload {
   iss: 'Vonage'
   payload_hash: string
   api_key: string
+}
+
+export type VonageContext = ChannelContext<Vonage> & {
+  messages: VonageChannelContent[]
+  botPhoneNumber: string
 }

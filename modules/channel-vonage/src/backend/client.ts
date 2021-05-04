@@ -1,20 +1,16 @@
-import Vonage, { ChannelMessage, ChannelType, ChannelWhatsApp, MessageSendError } from '@vonage/server-sdk'
+import Vonage, { ChannelType } from '@vonage/server-sdk'
 import * as sdk from 'botpress/sdk'
+import { ChannelRenderer, ChannelSender } from 'common/channel'
 import { StandardError, UnauthorizedError } from 'common/http'
 import crypto from 'crypto'
 import { Request } from 'express'
 import jwt from 'jsonwebtoken'
-
+import _ from 'lodash'
 import { Config } from '../config'
+import { VonageTextRenderer, VonageImageRenderer } from '../renderers'
+import { VonageCommonSender } from '../senders'
 
-import {
-  Clients,
-  MessageApiError,
-  MessageOption,
-  SignedJWTPayload,
-  VonageChannelContent,
-  VonageRequestBody
-} from './typings'
+import { Clients, SignedJWTPayload, VonageContext, VonageRequestBody } from './typings'
 
 const debug = DEBUG('channel-vonage')
 const debugIncoming = debug.sub('incoming')
@@ -22,7 +18,7 @@ const debugOutgoing = debug.sub('outgoing')
 
 export const MIDDLEWARE_NAME = 'vonage.sendMessage'
 
-const CHANNEL_NAME = 'vonage'
+export const CHANNEL_NAME = 'vonage'
 const SUPPORTED_CHANNEL_TYPE: ChannelType = 'whatsapp'
 enum ApiBaseUrl {
   TEST = 'https://messages-sandbox.nexmo.com',
@@ -41,6 +37,8 @@ export class VonageClient {
   private conversations: sdk.experimental.conversations.BotConversations
   private messages: sdk.experimental.messages.BotMessages
   private kvs: sdk.KvsService
+  private renderers: ChannelRenderer<VonageContext>[]
+  private senders: ChannelSender<VonageContext>[]
 
   constructor(
     private bp: typeof sdk,
@@ -92,6 +90,10 @@ export class VonageClient {
 
     this.logger.info(`Vonage inbound webhooks listening at ${webhookUrl}/inbound`)
     this.logger.info(`Vonage status webhooks listening at ${webhookUrl}/status`)
+
+    this.renderers = [new VonageTextRenderer(), new VonageImageRenderer()]
+
+    this.senders = [new VonageCommonSender()]
   }
 
   async handleWebhookRequest(body: VonageRequestBody) {
@@ -208,167 +210,36 @@ export class VonageClient {
   }
 
   async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
-    const payload = event.payload
-
-    if (payload.type === 'typing') {
-      // Note: Vonage Messages API does not support typing indicators for privacy reasons
-      await Promise.delay(1000)
-    } else if (payload.quick_replies) {
-      await this.sendQuickReply(event, payload.quick_replies)
-    } else if (payload.options) {
-      await this.sendDropdown(event, payload.options)
-    } else if (payload.type === 'carousel') {
-      await this.sendCarousel(event, payload)
-    } else if (payload.type === 'file') {
-      // We receive payloads of type file but want to send images
-      // FIXME: When we decide to switch to channel renderers
-      payload.type = 'image'
-      await this.sendImage(event, payload)
-    } else if (payload.type === 'audio') {
-      await this.sendAudio(event, payload)
-    } else if (payload.type === 'video') {
-      await this.sendVideo(event, payload)
-    } else if (payload.type === 'text') {
-      await this.sendMessage(event, {
-        type: payload.type,
-        text: payload.text
-      })
+    const context: VonageContext = {
+      bp: this.bp,
+      event,
+      client: this.vonage,
+      handlers: [],
+      payload: _.cloneDeep(event.payload),
+      botUrl: process.EXTERNAL_URL,
+      messages: [],
+      botPhoneNumber: this.config.botPhoneNumber
+      // prepareIndexResponse: this.prepareIndexResponse.bind(this)
     }
+
+    for (const renderer of this.renderers) {
+      if (renderer.handles(context)) {
+        renderer.render(context)
+        context.handlers.push(renderer.id)
+      }
+    }
+
+    for (const sender of this.senders) {
+      if (sender.handles(context)) {
+        await sender.send(context)
+      }
+    }
+
+    await this.bp.experimental.messages
+      .forBot(this.botId)
+      .create(event.threadId, event.payload, undefined, event.id, event.incomingEventId)
 
     next(undefined, false)
-  }
-
-  private async sendImage(event: sdk.IO.OutgoingEvent, payload: any) {
-    await this.sendMessage(event, {
-      type: payload.type,
-      text: undefined,
-      image: {
-        url: payload.url,
-        caption: payload.caption
-      }
-    })
-  }
-
-  private async sendAudio(event: sdk.IO.OutgoingEvent, payload: any) {
-    await this.sendMessage(event, {
-      type: payload.type,
-      text: undefined,
-      audio: {
-        url: payload.url
-      }
-    })
-  }
-
-  private async sendVideo(event: sdk.IO.OutgoingEvent, payload: any) {
-    await this.sendMessage(event, {
-      type: payload.type,
-      text: undefined,
-      video: {
-        url: payload.url
-      }
-    })
-  }
-
-  private async sendQuickReply(event: sdk.IO.OutgoingEvent, choices: any) {
-    const options: MessageOption[] = choices.map(x => ({
-      label: x.title,
-      value: x.payload,
-      type: 'quick_reply'
-    }))
-
-    await this.sendOptions(event, event.payload.text, options)
-  }
-
-  private async sendDropdown(event: sdk.IO.OutgoingEvent, choices: any) {
-    const options: MessageOption[] = choices.map(x => ({
-      ...x,
-      type: 'quick_reply'
-    }))
-
-    await this.sendOptions(event, event.payload.message, options)
-  }
-
-  private async sendCarousel(event: sdk.IO.Event, payload: any) {
-    for (const { subtitle, title, picture, buttons } of payload.elements) {
-      const body = `${title}\n\n${subtitle ? subtitle : ''}`
-
-      const options: MessageOption[] = []
-      for (const button of buttons || []) {
-        const title = button.title as string
-
-        if (button.type === 'open_url') {
-          options.push({ label: `${title} : ${button.url}`, value: undefined, type: 'url' })
-        } else if (button.type === 'postback') {
-          options.push({ label: title, value: button.payload, type: 'postback' })
-        } else if (button.type === 'say_something') {
-          options.push({ label: title, value: button.text as string, type: 'say_something' })
-        }
-      }
-
-      if (picture) {
-        await this.sendImage(event, { url: picture, type: 'image' })
-      }
-
-      await this.sendOptions(event, body, options)
-    }
-  }
-
-  // TODO: add support for WhatsApp Templates instead of using down rendering
-  private async sendOptions(event: sdk.IO.Event, text: string, options: MessageOption[]) {
-    if (options.length) {
-      text = `${text}\n\n${options.map(({ label }, idx) => `*(${idx + 1})* ${label}`).join('\n')}`
-    }
-
-    await this.kvs.set(this.getKvsKey(event.target, event.threadId), options, undefined, '10m')
-
-    await this.sendMessage(event, { type: 'text', text })
-  }
-
-  private async sendMessage(event: sdk.IO.Event, content: VonageChannelContent, whatsapp?: ChannelWhatsApp) {
-    const message: ChannelMessage = {
-      content,
-      whatsapp
-    }
-
-    debugOutgoing('Sending message', JSON.stringify(message, null, 2))
-
-    await new Promise(resolve => {
-      this.vonage.channel.send(
-        { type: SUPPORTED_CHANNEL_TYPE, number: event.target },
-        {
-          type: SUPPORTED_CHANNEL_TYPE,
-          number: this.config.botPhoneNumber
-        },
-        message,
-        (err, data) => {
-          if (err) {
-            // fixes typings
-            const errBody: MessageApiError = (err as any).body
-            let reasons: string = ''
-            if (errBody) {
-              if (errBody.invalid_parameters) {
-                for (const param of errBody.invalid_parameters) {
-                  reasons += `${param.reason}: ${param.name}; `
-                }
-              }
-
-              this.logger.error(`${errBody.title}: ${errBody.detail} ${reasons}${errBody.type}`)
-            } else if ((<any>err).statusCode === '429') {
-              this.logger.error('HTTPError (429): Too Many Requests')
-            } else {
-              this.logger.error('UnknownError', err)
-            }
-          } else {
-            resolve(data)
-          }
-        }
-      )
-    })
-
-    // Sandbox API is limited to one call per second. Wait one second between calls.
-    if (this.config.useTestingApi) {
-      await Promise.delay(1000)
-    }
   }
 }
 
