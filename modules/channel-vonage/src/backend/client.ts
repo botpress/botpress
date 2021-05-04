@@ -131,14 +131,6 @@ export class VonageClient {
         break
     }
 
-    const index = Number(body.message.content.text)
-    if (index) {
-      payload = (await this.handleIndexReponse(index - 1, userId, conversation.id)) ?? payload
-      if (!payload.text) {
-        return
-      }
-    }
-
     if (payload) {
       await this.messages.receive(conversation.id, payload, {
         channel: CHANNEL_NAME
@@ -241,6 +233,20 @@ export class VonageClient {
 
     next(undefined, false)
   }
+
+  async handleIncomingEvent(event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) {
+    const index = Number(event.payload.text)
+    if (!index) {
+      return
+    }
+
+    const mappedPayload = (await this.handleIndexReponse(index - 1, event.target, event.threadId)) ?? event.payload
+    if (!mappedPayload.text) {
+      next(undefined, true, false)
+    }
+
+    ;(<any>event).payload = mappedPayload
+  }
 }
 
 export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
@@ -254,7 +260,15 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
     order: 100
   })
 
-  async function outgoingHandler(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
+  bp.events.registerMiddleware({
+    description: 'Translate index responses to their corresponding payloads',
+    direction: 'incoming',
+    handler: incomingHandler,
+    name: 'vonage.indexResponse',
+    order: 0
+  })
+
+  async function outgoingHandler(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     if (event.channel !== CHANNEL_NAME) {
       return next()
     }
@@ -265,5 +279,18 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
     }
 
     return client.handleOutgoingEvent(event, next)
+  }
+
+  async function incomingHandler(event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) {
+    if (event.channel !== CHANNEL_NAME) {
+      return next()
+    }
+
+    const client: VonageClient = clients[event.botId]
+    if (!client) {
+      return next()
+    }
+
+    return client.handleIncomingEvent(event, next)
   }
 }
