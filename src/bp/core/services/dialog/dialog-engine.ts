@@ -193,10 +193,12 @@ export class DialogEngine {
         : this._findNode(botId, targetFlow, targetFlow.startNode)
 
       event.state.__stacktrace.push({ flow: targetFlow.name, node: targetNode.name })
-      event.state.context.currentFlow = targetFlow.name
-      event.state.context.currentNode = targetNode.name
-      event.state.context.queue = undefined
-      event.state.context.hasJumped = true
+      if (event.state?.context) {
+        event.state.context.currentFlow = targetFlow.name
+        event.state.context.currentNode = targetNode.name
+        event.state.context.queue = undefined
+        event.state.context.hasJumped = true
+      }
     } catch (err) {
       addErrorToEvent(
         {
@@ -235,8 +237,8 @@ export class DialogEngine {
       return undefined
     }
 
-    const currentFlow = this._findFlow(botId, event.state.context.currentFlow!)
-    const currentNode = findNodeWithoutError(currentFlow, event.state.context.currentNode)
+    const currentFlow = this._findFlow(botId, event.state.context?.currentFlow!)
+    const currentNode = findNodeWithoutError(currentFlow, event.state.context?.currentNode)
 
     // Check for a timeout property in the current node
     let timeoutNode = _.get(currentNode, 'timeout')
@@ -268,10 +270,12 @@ export class DialogEngine {
       throw new TimeoutNodeNotFound(`Could not find any timeout node or flow for session "${sessionId}"`)
     }
 
-    event.state.context.currentNode = timeoutNode.name
-    event.state.context.currentFlow = timeoutFlow.name
-    event.state.context.queue = undefined
-    event.state.context.hasJumped = true
+    if (event.state.context) {
+      event.state.context.currentNode = timeoutNode.name
+      event.state.context.currentFlow = timeoutFlow.name
+      event.state.context.queue = undefined
+      event.state.context.hasJumped = true
+    }
 
     return this.processEvent(sessionId, event)
   }
@@ -295,7 +299,7 @@ export class DialogEngine {
   }
 
   protected async _transition(sessionId: string, event: IO.IncomingEvent, transitionTo: string) {
-    let context: IO.DialogContext = event.state.context
+    let context: IO.DialogContext = event.state.context || {}
     if (!event.activeProcessing?.errors?.length) {
       this._detectInfiniteLoop(event.state.__stacktrace, event.botId)
     }
@@ -320,8 +324,8 @@ export class DialogEngine {
         currentFlow: flow.name,
         currentNode: startNode.name,
         // Those two are not used in the backend logic, but keeping them since users rely on them
-        previousFlow: event.state.context.currentFlow,
-        previousNode: event.state.context.currentNode,
+        previousFlow: event.state.context?.currentFlow,
+        previousNode: event.state.context?.currentNode,
         jumpPoints: [
           ...(context.jumpPoints || []),
           {
@@ -336,8 +340,8 @@ export class DialogEngine {
         event.target,
         context.currentFlow,
         context.currentNode,
-        event.state.context.currentFlow,
-        event.state.context.currentNode
+        event.state.context?.currentFlow,
+        event.state.context?.currentNode
       )
     } else if (transitionTo.indexOf('#') === 0) {
       // Return to the parent node (coming from a flow)
@@ -424,7 +428,7 @@ export class DialogEngine {
       previousFlow: parentFlow.name,
       previousNode: parentNode.name,
       jumpPoints: [
-        ...(event.state.context.jumpPoints || []),
+        ...(event.state.context?.jumpPoints || []),
         {
           flow: parentFlow.name,
           node: parentNode.name
@@ -514,7 +518,7 @@ export class DialogEngine {
   }
 
   private _exitingSubflow(event: IO.IncomingEvent) {
-    const { currentFlow, currentNode, jumpPoints } = event.state.context
+    const { currentFlow, currentNode, jumpPoints } = event.state.context || {}
     const lastJump = jumpPoints?.find(j => j.used)
     const isExiting = lastJump?.flow === currentFlow && lastJump?.node === currentNode
 

@@ -348,7 +348,7 @@ export class CMSService implements IDisposeOnExit {
     contentElementId?: string,
     language?: string
   ): Promise<string> {
-    process.ASSERT_LICENSED()
+    process.ASSERT_LICENSED?.()
     contentTypeId = contentTypeId.toLowerCase()
     const contentType = _.find(this.contentTypes, { id: contentTypeId })
 
@@ -431,7 +431,7 @@ export class CMSService implements IDisposeOnExit {
   }
 
   private async _writeElementsToFile(botId: string, contentTypeId: string) {
-    process.ASSERT_LICENSED()
+    process.ASSERT_LICENSED?.()
     const params = { ...DefaultSearchParams, count: UNLIMITED_ELEMENTS }
     const elements = (await this.listContentElements(botId, contentTypeId, params)).map(element =>
       _.pick(element, 'id', 'formData', 'createdBy', 'createdOn', 'modifiedOn')

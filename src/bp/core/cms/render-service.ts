@@ -57,7 +57,7 @@ export class RenderService {
 
   renderButtonSay(title: string, text: string | sdk.MultiLangText): sdk.ActionSaySomething {
     return {
-      action: 'Say something',
+      action: sdk.ButtonAction.SaySomething,
       title,
       text
     }
@@ -65,7 +65,7 @@ export class RenderService {
 
   renderButtonUrl(title: string, url: string): sdk.ActionOpenURL {
     return {
-      action: 'Open URL',
+      action: sdk.ButtonAction.OpenUrl,
       title,
       url
     }
@@ -73,7 +73,7 @@ export class RenderService {
 
   renderButtonPostback(title: string, payload: string): sdk.ActionPostback {
     return {
-      action: 'Postback',
+      action: sdk.ButtonAction.Postback,
       title,
       payload
     }
