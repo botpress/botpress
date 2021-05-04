@@ -3,11 +3,17 @@ import { ChannelRenderer, ChannelSender } from 'common/channel'
 import _ from 'lodash'
 import Smooch from 'smooch-core'
 import { Config } from '../config'
-import { SmoochImageRenderer, SmoochTextRenderer, SmoochCardRenderer, SmoochCarouselRenderer } from '../renderers'
+import {
+  SmoochImageRenderer,
+  SmoochTextRenderer,
+  SmoochCardRenderer,
+  SmoochCarouselRenderer,
+  SmoochChoicesRenderer
+} from '../renderers'
 import { SmoochCommonSender, SmoochTypingSender } from '../senders'
 import { CHANNEL_NAME } from './constants'
 
-import { Card, Clients, Message, MessagePayload, SmoochContext, Webhook } from './typings'
+import { Clients, Message, MessagePayload, SmoochContext, Webhook } from './typings'
 
 const MIDDLEWARE_NAME = 'smooch.sendMessage'
 
@@ -32,7 +38,8 @@ export class SmoochClient {
       new SmoochCardRenderer(),
       new SmoochCarouselRenderer(),
       new SmoochTextRenderer(),
-      new SmoochImageRenderer()
+      new SmoochImageRenderer(),
+      new SmoochChoicesRenderer()
     ]
     this.senders = [new SmoochTypingSender(), new SmoochCommonSender()]
   }
@@ -134,100 +141,6 @@ export class SmoochClient {
       .create(event.threadId, event.payload, undefined, event.id, event.incomingEventId)
 
     next(undefined, false)
-  }
-
-  async sendCarousel(event: sdk.IO.Event) {
-    const cards = []
-    for (const bpCard of event.payload.elements) {
-      const card: Card = {
-        title: bpCard.title,
-        description: bpCard.subtitle,
-        actions: []
-      }
-
-      // Smooch crashes if mediaUrl is defined but has no value
-      if (bpCard.picture) {
-        card.mediaUrl = bpCard.picture
-      }
-
-      for (const { type, title, url, payload } of bpCard.buttons) {
-        if (type === 'open_url') {
-          card.actions.push({
-            text: title,
-            type: 'link',
-            uri: url
-          })
-        } else if (type === 'postback') {
-          // This works but postback doesn't do anything
-          card.actions.push({
-            text: title,
-            type: 'postback',
-            payload
-          })
-        } /* else if (bpAction.type === 'say_something') {
-          card.actions.push({
-            text: bpAction.title,
-            type: 'reply',
-            payload: bpAction.text
-          })
-        }*/
-      }
-
-      if (card.actions.length === 0) {
-        // Smooch crashes if this list is empty or undefined. However putting this dummy
-        // card in seems to produce the expected result (that is seeing 0 actions)
-        card.actions.push({
-          text: '',
-          type: 'postback',
-          payload: ''
-        })
-      }
-
-      cards.push(card)
-    }
-
-    return this.sendMessage(
-      {
-        role: 'appMaker',
-        type: 'carousel',
-        items: cards
-      },
-      event.target
-    )
-  }
-
-  async sendChoices(event: sdk.IO.Event) {
-    const actions = event.payload.quick_replies.map(r => ({ type: 'reply', text: r.title, payload: r.payload }))
-    return this.sendMessage(
-      {
-        text: event.payload.text,
-        role: 'appMaker',
-        type: 'text',
-        actions
-      },
-      event.target
-    )
-  }
-
-  async sendDropdown(event: sdk.IO.Event) {
-    const actions = event.payload.options.map(r => ({ type: 'reply', text: r.label, payload: r.value }))
-    return this.sendMessage(
-      {
-        text: event.payload.message,
-        role: 'appMaker',
-        type: 'text',
-        actions
-      },
-      event.target
-    )
-  }
-
-  sendMessage = async (message, userId) => {
-    return this.smooch.appUsers.sendMessage({
-      appId: this.smooch.keyId,
-      userId,
-      message
-    })
   }
 }
 
