@@ -12,3 +12,15 @@ jobs:
           docker build -t module-builder-test -f build/module-builder/Dockerfile .
           docker run -v `pwd`/modules/channel-web:/botpress/modules/channel-web module-builder-test sh -c 'cd modules/channel-web && yarn && yarn build && yarn package'
           ls modules/channel-web/channel-web.tgz || exit 1
+      - name: Build has failed
+        if: ${{ failure() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_GH_ACTIONS }}
+          SLACK_COLOR: ${{ job.status }} # or a specific color like 'green' or '#ff00ff'
+      - name: Build has succeeded
+        if: ${{ success() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_GH_ACTIONS }}
+          SLACK_COLOR: ${{ job.status }} # or a specific color like 'green' or '#ff00ff'
