@@ -28,7 +28,7 @@ export class SlackChoicesRenderer implements ChannelRenderer<SlackContext> {
       type: 'actions',
       elements: context.payload.choices.map((q, idx) => ({
         type: 'button',
-        action_id: 'replace_buttons' + idx,
+        action_id: `replace_buttons${idx}`,
         text: {
           type: 'plain_text',
           text: q.title
