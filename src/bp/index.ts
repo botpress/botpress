@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events'
-import { runNluServerWithArgv } from 'nlu'
+import { runNluServerWithArgv } from './nlu'
 
 global['NativePromise'] = global.Promise
 
