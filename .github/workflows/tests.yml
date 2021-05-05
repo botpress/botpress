@@ -34,6 +34,7 @@ jobs:
           wget https://github.com/botpress/nlu/releases/download/v0.0.1-rc.3/nlu-v0_0_1-linux-x64
           chmod +x ./nlu-v0_0_1-linux-x64
           echo "hello world #1"
+          echo $(pwd)
           ls -la
           ./nlu-v0_0_1-linux-x64 --help
           echo "hello world #2"
@@ -42,7 +43,7 @@ jobs:
           NODE_OPTIONS="--max-old-space-size=6000" yarn build
       - name: Run Tests
         run: |
-          NLU_BIN_DIR="." yarn start & sleep 5s &&
+          NLU_BIN_DIR="$(pwd)" yarn start & sleep 5s &&
           HEADLESS=true JEST_TIMEOUT=30000 yarn itest
       - name: Upload Screenshots
         uses: actions/upload-artifact@master
