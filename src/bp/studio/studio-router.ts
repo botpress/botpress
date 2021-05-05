@@ -24,6 +24,7 @@ import { FlowsRouter } from './flows/flows-router'
 import { HintsRouter } from './hints/hints-router'
 import MediaRouter from './media/media-router'
 import { TopicsRouter } from './topics/topics-router'
+import { fixStudioMappingMw } from './utils/api-mapper'
 
 export interface StudioServices {
   logger: Logger
@@ -105,6 +106,10 @@ export class StudioRouter extends CustomRouter {
     this.configRouter.setupRoutes()
 
     app.use(rewrite('/studio/:botId/*env.js', '/api/v1/studio/:botId/env.js'))
+
+    // TODO: Temporary in case we forgot to change it somewhere
+    app.use('/api/v1/bots/:botId', fixStudioMappingMw, this.router)
+
     app.use('/api/v1/studio/:botId', this.router)
 
     this.router.use(checkBotVisibility(this.configProvider, this.checkTokenHeader))

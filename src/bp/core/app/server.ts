@@ -461,7 +461,7 @@ export class HTTPServer {
   }
 
   async getAxiosConfigForBot(botId: string, options?: AxiosOptions): Promise<AxiosBotConfig> {
-    const basePath = options && options.localUrl ? process.LOCAL_URL : process.EXTERNAL_URL
+    const basePath = options?.localUrl ? process.LOCAL_URL : process.EXTERNAL_URL
     const serverToken = generateUserToken({
       email: SERVER_USER,
       strategy: SERVER_USER_STRATEGY,
@@ -472,7 +472,7 @@ export class HTTPServer {
     })
 
     return {
-      baseURL: `${basePath}/api/v1/bots/${botId}`,
+      baseURL: options?.studioUrl ? `${basePath}/api/v1/studio/${botId}` : `${basePath}/api/v1/bots/${botId}`,
       headers: {
         ...(process.USE_JWT_COOKIES
           ? { Cookie: `${JWT_COOKIE_NAME}=${serverToken.jwt};`, [CSRF_TOKEN_HEADER]: serverToken.csrf }

@@ -1841,7 +1841,9 @@ declare module 'botpress/sdk' {
 
   export interface AxiosOptions {
     /** When true, it will return the local url instead of the external url  */
-    localUrl: boolean
+    localUrl?: boolean
+    /** Temporary property so modules can query studio routes */
+    studioUrl?: boolean
   }
 
   export interface RedisLock {
