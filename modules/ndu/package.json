@@ -20,7 +20,8 @@
     "lodash": "^4.17.19",
     "moment": "^2.24.0",
     "ms": "^2.1.2",
-    "nanoid": "^2.1.11"
+    "nanoid": "^2.1.11",
+    "@botpress/node-svm": "0.0.3"
   },
   "resolutions": {
     "fstream": ">=1.0.12",
