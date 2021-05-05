@@ -51,7 +51,7 @@ const _sleep = (ms: number) => {
 
 const _getNLUBinaryPath = () => {
   const baseLocation =
-    (process.core_env.NLU_BIN_DIR && path.resolve(process.env.NLU_BIN_DIR!)) ||
+    (process.core_env.NLU_BIN_DIR && path.resolve(process.core_env.NLU_BIN_DIR!)) ||
     (process.pkg ? path.resolve(path.dirname(process.execPath), 'nlu') : path.resolve(process.APP_DATA_PATH, 'nlu'))
 
   const operatingSys = os.platform()
