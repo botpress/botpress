@@ -1,11 +1,11 @@
+import { TYPES } from 'core/app/types'
 import { StateManager } from 'core/dialog'
-import { TYPES } from 'core/types'
 import { ContainerModule, interfaces } from 'inversify'
 
 import { DecisionEngine } from './decision-engine'
 import { DialogEngine } from './dialog-engine'
+import { FlowService } from './flow/flow-service'
 import { FlowNavigator } from './flow/navigator'
-import { FlowService } from './flow/service'
 import { InstructionFactory } from './instruction/factory'
 import { InstructionProcessor } from './instruction/processor'
 import { ActionStrategy, TransitionStrategy } from './instruction/strategy'
