@@ -39,7 +39,8 @@ const DEFAULT_STAN_OPTIONS: NLUServerOptions = {
   modelCacheSize: '850mb',
   verbose: 3, // info
   doc: false,
-  logFilter: '' // TODO: user debug config to generate correct filters
+  logFilter: '', // TODO: user debug config to generate correct filters
+  legacyElection: false
 }
 
 const _sleep = (ms: number) => {

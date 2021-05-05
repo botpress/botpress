@@ -24,4 +24,6 @@ export interface NLUServerOptions {
   ducklingURL: string
   ducklingEnabled: boolean
   modelCacheSize: string
+
+  legacyElection: boolean
 }

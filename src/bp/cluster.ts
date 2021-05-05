@@ -134,6 +134,6 @@ export const startLocalActionServer = (message: StartLocalActionServerMessage) =
   process.send!({ type: MESSAGE_TYPE_START_LOCAL_ACTION_SERVER, ...message })
 }
 
-export const startLocalSTANServer = (message: Partial<StanOptions>) => {
+export const startLocalNLUServer = (message: Partial<StanOptions>) => {
   process.send!({ type: MESSAGE_TYPE_START_LOCAL_STAN_SERVER, ...message })
 }

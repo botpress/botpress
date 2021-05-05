@@ -33,7 +33,7 @@ import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
 
-import { startLocalActionServer, startLocalSTANServer } from '../../cluster'
+import { startLocalActionServer, startLocalNLUServer } from '../../cluster'
 import { setDebugScopes } from '../../debug'
 import { HTTPServer } from './server'
 import { TYPES } from './types'
@@ -189,10 +189,11 @@ export class Botpress {
       this.logger.info(`NLU server manually handled at: ${endpoint}`)
       return
     }
-    startLocalSTANServer({
+    startLocalNLUServer({
       languageSources: config.languageSources,
       ducklingURL: config.ducklingURL,
       ducklingEnabled: config.ducklingEnabled,
+      legacyElection: config.legacyElection,
       dbURL: process.core_env.BPFS_STORAGE === 'database' ? process.core_env.DATABASE_URL : undefined,
       modelDir: process.cwd(),
       modelCacheSize: config.modelCacheSize,
