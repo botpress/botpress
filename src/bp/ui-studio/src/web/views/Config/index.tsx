@@ -202,7 +202,7 @@ class ConfigView extends Component<Props, State> {
       }
 
       if (allow) {
-        await axios.post(`admin/workspace/bots/${this.props.bot.id}`, bot, axiosConfig)
+        await axios.post(`studio/${this.props.bot.id}/config`, bot, axiosConfig)
         toastSuccess(lang.tr('config.configUpdated'))
         this.setState({ error: undefined, isSaving: false })
 

@@ -310,7 +310,7 @@ export const fetchUser = () => dispatch => {
 export const botInfoReceived = createAction('BOT/INFO_RECEIVED')
 export const fetchBotInformation = () => dispatch => {
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  axios.get(`${window.BOT_API_PATH}`).then(information => {
+  axios.get(`${window.STUDIO_API_PATH}/config`).then(information => {
     dispatch(botInfoReceived(information.data))
   })
 }

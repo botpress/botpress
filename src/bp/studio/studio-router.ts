@@ -19,6 +19,7 @@ import _ from 'lodash'
 
 import { ActionsRouter } from './actions/actions-router'
 import { CMSRouter } from './cms/cms-router'
+import { ConfigRouter } from './config/config-router'
 import { FlowsRouter } from './flows/flows-router'
 import { HintsRouter } from './hints/hints-router'
 import MediaRouter from './media/media-router'
@@ -49,6 +50,7 @@ export class StudioRouter extends CustomRouter {
   private flowsRouter: FlowsRouter
   private topicsRouter: TopicsRouter
   private hintsRouter: HintsRouter
+  private configRouter: ConfigRouter
 
   constructor(
     logger: Logger,
@@ -65,7 +67,7 @@ export class StudioRouter extends CustomRouter {
     hintsService: HintsService,
     private httpServer: HTTPServer
   ) {
-    super('Admin', logger, Router({ mergeParams: true }))
+    super('Studio', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
 
     const studioServices: StudioServices = {
@@ -84,12 +86,12 @@ export class StudioRouter extends CustomRouter {
     }
 
     this.cmsRouter = new CMSRouter(studioServices)
-
     this.actionsRouter = new ActionsRouter(studioServices)
     this.flowsRouter = new FlowsRouter(studioServices)
     this.mediaRouter = new MediaRouter(studioServices)
     this.topicsRouter = new TopicsRouter(studioServices)
     this.hintsRouter = new HintsRouter(studioServices)
+    this.configRouter = new ConfigRouter(studioServices)
   }
 
   async setupRoutes(app: express.Express) {
@@ -100,6 +102,7 @@ export class StudioRouter extends CustomRouter {
     await this.mediaRouter.setupRoutes(this.botpressConfig)
     this.topicsRouter.setupRoutes()
     this.hintsRouter.setupRoutes()
+    this.configRouter.setupRoutes()
 
     app.use(rewrite('/studio/:botId/*env.js', '/api/v1/studio/:botId/env.js'))
     app.use('/api/v1/studio/:botId', this.router)
@@ -112,6 +115,7 @@ export class StudioRouter extends CustomRouter {
     this.router.use('/media', this.mediaRouter.router)
     this.router.use('/topics', this.checkTokenHeader, this.topicsRouter.router)
     this.router.use('/hints', this.checkTokenHeader, this.hintsRouter.router)
+    this.router.use('/config', this.checkTokenHeader, this.configRouter.router)
 
     this.setupUnauthenticatedRoutes(app)
     this.setupStaticRoutes(app)
