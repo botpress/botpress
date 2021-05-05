@@ -9,7 +9,7 @@ class ClassificationEvaluator implements Evaluator {
     if (!results.length) {
       throw new Error('best result election needs at least one result')
     }
-    return <GridSearchResult>_.minBy(results, (r) => (r.report as ClassificationReport).fscore)
+    return <GridSearchResult>_.minBy(results, r => (r.report as ClassificationReport).fscore)
   }
 
   public compute = (predictions: number[][]): ClassificationReport => {
@@ -70,23 +70,23 @@ class RegressionEvaluator implements Evaluator {
     if (!results.length) {
       throw new Error('best result election needs at least one result')
     }
-    return <GridSearchResult>_.minBy(results, (r) => (r.report as RegressionReport).mse)
+    return <GridSearchResult>_.minBy(results, r => (r.report as RegressionReport).mse)
   }
 
   public compute(predictions: number[][]): RegressionReport {
-    const errors = _.map(predictions, (p) => {
+    const errors = _.map(predictions, p => {
         return p[0] - p[1]
       }),
       avgError = _.mean(errors),
       constiance = _.mean(
-        errors.map((e) => {
+        errors.map(e => {
           return Math.pow(e - avgError, 2)
         })
       )
 
     return {
       mse: _.mean(
-        errors.map((e) => {
+        errors.map(e => {
           return Math.pow(e, 2)
         })
       ),

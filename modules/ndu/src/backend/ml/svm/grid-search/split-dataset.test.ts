@@ -99,7 +99,7 @@ describe('split-dataset', () => {
     for (const ss of res) {
       const { train } = ss
       const nClass = _(train)
-        .map((t) => t[1])
+        .map(t => t[1])
         .uniq()
         .value().length
 

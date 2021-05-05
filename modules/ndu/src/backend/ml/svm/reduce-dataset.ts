@@ -4,12 +4,12 @@ import numeric from 'numeric'
 
 import { Data } from './typings'
 
-export default function (dataset: Data[], retainedVariance: number) {
+export default function(dataset: Data[], retainedVariance: number) {
   retainedVariance = retainedVariance || 0.99
   const dims = numeric.dim(dataset)
 
   assert(dims[0] > 0 && dims[1] === 2 && dims[2] > 0, 'dataset must be an list of [X,y] tuples')
-  const inputs = dataset.map(function (ex) {
+  const inputs = dataset.map(function(ex) {
     return ex[0]
   })
   let covMatrix: number[][] = numeric.dot(numeric.transpose(inputs), inputs) as number[][]
@@ -50,7 +50,7 @@ export default function (dataset: Data[], retainedVariance: number) {
     U: reducedU,
     oldDimension: n,
     newDimension: k,
-    dataset: dataset.map((ex) => [numeric.dot(ex[0], reducedU), ex[1]]) as Data[],
+    dataset: dataset.map(ex => [numeric.dot(ex[0], reducedU), ex[1]]) as Data[],
     retainedVariance: retain
   }
 }

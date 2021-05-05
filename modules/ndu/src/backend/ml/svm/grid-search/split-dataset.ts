@@ -4,7 +4,7 @@ import seedrandom from 'seedrandom'
 
 import { Data } from '../typings'
 
-export default function (dataset: Data[], seed: number, k: number): SplittedDataSet[] {
+export default function(dataset: Data[], seed: number, k: number): SplittedDataSet[] {
   const kFold = Math.min(dataset.length, k)
   const n = dataset.length
   assert(n >= kFold, 'kFold parameter must be <= n')
@@ -25,9 +25,12 @@ export default function (dataset: Data[], seed: number, k: number): SplittedData
   lo = _.runInContext()
 
   for (let i = 0; i < kFold; i++) {
-    const test_set = lo(available_test_samples).shuffle().take(nTestSample).value()
+    const test_set = lo(available_test_samples)
+      .shuffle()
+      .take(nTestSample)
+      .value()
 
-    available_test_samples = lo.remove(available_test_samples, (el) => test_set.includes(el))
+    available_test_samples = lo.remove(available_test_samples, el => test_set.includes(el))
     const train_set = lo.difference(dataset, test_set)
     res.push({
       test: test_set,
@@ -51,7 +54,7 @@ export function getMinKFold(dataset: Data[]) {
 
 function getMostRepresentedClass(dataset: Data[]) {
   const uniqLabels = _(dataset)
-    .map((s) => s[1])
+    .map(s => s[1])
     .uniq()
     .value()
 
@@ -62,7 +65,7 @@ function getMostRepresentedClass(dataset: Data[]) {
 
   const mostRepresentedClass = _(nSamplesPerLabel)
     .toPairs()
-    .maxBy((p) => p[1])
+    .maxBy(p => p[1])
 
   const [label, occurence] = mostRepresentedClass as [string, number]
 

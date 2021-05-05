@@ -80,7 +80,7 @@ export class SVM {
 
     let gridSearchResult: GridSearchResult
     try {
-      gridSearchResult = await gridSearch(dataset, this._config, seed, (progress) => {
+      gridSearchResult = await gridSearch(dataset, this._config, seed, progress => {
         if (this._isCanceled) {
           throw new TrainingCanceledError('Training was canceled')
         }
@@ -95,7 +95,7 @@ export class SVM {
 
     const { params, report } = gridSearchResult
     self._baseSvm = new BaseSVM()
-    return self._baseSvm.train(dataset, seed, params).then(function (model) {
+    return self._baseSvm.train(dataset, seed, params).then(function(model) {
       progressCb(1)
       const fullModel: SvmModel = { ...model, param: { ...self._config, ...model.param } }
 

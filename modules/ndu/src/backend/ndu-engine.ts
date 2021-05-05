@@ -126,6 +126,7 @@ export class UnderstandingEngine {
       const duplicatedArray = _.shuffle(_.flatten(_.times(10, () => data)))
       const model = await this.trainer.train(duplicatedArray)
       this.predictor = new MLToolkit.SVM.Predictor(model)
+      await this.predictor.initialize()
     }
   }
 

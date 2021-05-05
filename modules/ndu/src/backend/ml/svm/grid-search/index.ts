@@ -11,7 +11,7 @@ import evaluators from './evaluators'
 import splitDataset from './split-dataset'
 import { GridSearchProgress, GridSearchResult } from './typings'
 
-export default async function (
+export default async function(
   dataset: Data[],
   config: SvmConfig,
   seed: number,
@@ -53,7 +53,7 @@ export default async function (
   const total = combs.length * subsets.length
   let done = 0
 
-  const promises = combs.map((comb) => {
+  const promises = combs.map(comb => {
     const params = defaultParameters({
       ...config,
       C: comb[0],
@@ -64,20 +64,20 @@ export default async function (
       coef0: comb[5]
     })
 
-    const cPromises = subsets.map(function (ss) {
+    const cPromises = subsets.map(function(ss) {
       const clf = new BaseSVM()
 
       return clf.train(ss.train, seed, params).then(() => {
         done += 1
         progressCb({ done, total })
-        return _.map(ss.test, function (test) {
+        return _.map(ss.test, function(test) {
           return [clf.predictSync(test[0]), test[1]]
         })
       })
     })
 
     return Promise.all(cPromises).then(
-      (p) => {
+      p => {
         const predictions = _.flatten(p)
         const report = evaluator.compute(predictions)
 
@@ -86,7 +86,7 @@ export default async function (
           report
         } as GridSearchResult
       },
-      (err) => {
+      err => {
         throw err
       }
     )

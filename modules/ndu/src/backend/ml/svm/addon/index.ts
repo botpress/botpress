@@ -24,12 +24,12 @@ export default class BaseSVM {
 
     this._clf = await makeSvm({ random_seed })
 
-    const X = dataset.map((d) => d[0])
-    const y = dataset.map((d) => d[1])
+    const X = dataset.map(d => d[0])
+    const y = dataset.map(d => d[1])
 
     const svm = this._clf as NSVM
     return new Promise((resolve, reject) => {
-      svm.train_async({ ...params, mute: 1 }, X, y, (msg) => {
+      svm.train_async({ ...params, mute: 1 }, X, y, msg => {
         if (msg) {
           reject(new Error(msg))
         } else {
@@ -79,7 +79,7 @@ export default class BaseSVM {
     const svm = this._clf as NSVM
     return new Promise((resolve, reject) => {
       try {
-        svm.predict_probability_async(inputs, (p) => resolve(p.probabilities))
+        svm.predict_probability_async(inputs, p => resolve(p.probabilities))
       } catch (err) {
         reject(err)
       }

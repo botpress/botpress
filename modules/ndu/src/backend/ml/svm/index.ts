@@ -25,7 +25,7 @@ export class Trainer implements MLToolkit.SVM.Trainer {
     callback?: MLToolkit.SVM.TrainProgressCallback | undefined
   ): Promise<string> {
     const vectorsLengths = _(points)
-      .map((p) => p.coordinates.length)
+      .map(p => p.coordinates.length)
       .uniq()
       .value()
     if (vectorsLengths.length > 1) {
@@ -33,10 +33,10 @@ export class Trainer implements MLToolkit.SVM.Trainer {
     }
 
     const labels = _(points)
-      .map((p) => p.label)
+      .map(p => p.label)
       .uniq()
       .value()
-    const dataset: Data[] = points.map((p) => [p.coordinates, labels.indexOf(p.label)])
+    const dataset: Data[] = points.map(p => [p.coordinates, labels.indexOf(p.label)])
 
     if (labels.length < 2) {
       throw new Error("SVM can't train on a dataset of only one class")
@@ -57,7 +57,7 @@ export class Trainer implements MLToolkit.SVM.Trainer {
     })
 
     const seed = this._extractSeed(options)
-    const trainResult = await this.svm.train(dataset, seed, (progress) => {
+    const trainResult = await this.svm.train(dataset, seed, progress => {
       if (callback && typeof callback === 'function') {
         callback(progress)
       }
@@ -144,7 +144,7 @@ export class Predictor implements MLToolkit.SVM.Predictor {
     )
 
     return _.orderBy(
-      Object.keys(reducedResults).map((idx) => ({ label: idx, confidence: reducedResults[idx] })),
+      Object.keys(reducedResults).map(idx => ({ label: idx, confidence: reducedResults[idx] })),
       'confidence',
       'desc'
     )

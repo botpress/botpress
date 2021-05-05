@@ -1,13 +1,13 @@
 import assert from 'assert'
 import numeric from 'numeric'
 
-export default function (params: number[][]): (number | undefined)[][] {
+export default function(params: number[][]): (number | undefined)[][] {
   const n = numeric.dim(params)[0] || 0,
     m = numeric.dim(params)[1] || 0
   assert(n > 0 && m >= 0, 'params must be a 2d array')
 
   let nbCombs = 1
-  params.forEach(function (values) {
+  params.forEach(function(values) {
     nbCombs *= values.length > 0 ? values.length : 1
   })
   const result: (number | undefined)[][] = numeric.rep([nbCombs, params.length], 0) as number[][]
