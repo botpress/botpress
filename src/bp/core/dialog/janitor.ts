@@ -4,12 +4,11 @@ import { BotService } from 'core/bots'
 import { BotpressConfig, ConfigProvider } from 'core/config'
 import { SessionRepository, createExpiry, SessionIdFactory } from 'core/dialog/sessions'
 import { Event } from 'core/events'
+import { Janitor } from 'core/services/janitor'
 import { ChannelUserRepository } from 'core/users'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
-
-import { Janitor } from '../janitor'
 
 import { DialogEngine } from './dialog-engine'
 import { TimeoutNodeNotFound } from './errors'
