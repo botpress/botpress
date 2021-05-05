@@ -32,7 +32,7 @@ const LangSwitcher: FC<Props> = props => {
 
   const restoreLastLanguage = () => {
     const lastLang = localStorage.getItem(STORAGE_KEY)
-    if (!props.languages || !props.languages.length || !lastLang) {
+    if (!props.languages?.length || !lastLang) {
       return
     }
 

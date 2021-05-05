@@ -26,9 +26,17 @@ export default class InjectedComponent extends Component<Props, State> {
       return <Component {...props} />
     }
 
+    if (this.state.error.message === "Cannot read property 'getCurrentStack' of undefined") {
+      console.error(
+        'This error happens because the admin panel runs react in production mode, while modules uses react in development mode. It is not visible in production.'
+      )
+    }
+
     return (
       <div className={style.errorContainer}>
-        <Callout title="Could not display component">An error occurred while loading the component</Callout>
+        <Callout title="Could not display component">
+          An error occurred while loading the component. Additional details are available on the browser's console.
+        </Callout>
       </div>
     )
   }
