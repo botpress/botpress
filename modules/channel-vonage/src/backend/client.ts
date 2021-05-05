@@ -134,8 +134,7 @@ export class VonageClient {
         break
       case 'audio':
         // TODO: Link received from Nexmo/Vonage API are only valid for 10min
-        const audio = body.message.content.audio.url
-        payload = { type: 'audio', audio }
+        payload = { type: 'voice', url: body.message.content.audio.url }
         break
       default:
         payload = {}
