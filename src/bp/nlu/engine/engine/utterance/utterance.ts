@@ -11,8 +11,8 @@ import { ExtractedEntity, ExtractedSlot, TFIDF, Tools } from '../typings'
 export interface UtteranceToStringOptions {
   lowerCase?: boolean
   onlyWords?: boolean
-  slots?: 'keep-value' | 'keep-name' | 'ignore'
-  entities?: 'keep-default' | 'keep-value' | 'keep-name' | 'ignore'
+  strategy: 'keep-value' | 'keep-name' | 'remove'
+  type: 'slots' | 'entities'
 }
 
 export interface TokenToStringOptions {
@@ -170,7 +170,11 @@ export default class Utterance {
 
   // TODO memoize this for better perf
   toString(opt?: UtteranceToStringOptions): string {
-    const options: UtteranceToStringOptions = _.defaultsDeep({}, opt, { lowerCase: false, slots: 'keep-value' })
+    const options: UtteranceToStringOptions = _.defaultsDeep({}, opt, {
+      lowerCase: false,
+      strategy: 'keep-value',
+      type: 'entities'
+    })
 
     let final = ''
     let ret = [...this.tokens]
@@ -180,21 +184,24 @@ export default class Utterance {
 
     for (const tok of ret) {
       let toAdd = ''
-      if (!tok.slots.length && !tok.entities.length) {
-        toAdd = tok.value
-      }
-
-      // case ignore is handled implicitly
-      if (tok.slots.length && options.slots === 'keep-name') {
-        toAdd = tok.slots[0].name
-      } else if (tok.slots.length && options.slots === 'keep-value') {
-        toAdd = tok.value
-      } else if (tok.entities.length && options.entities === 'keep-name') {
-        toAdd = tok.entities[0].type
-      } else if (tok.entities.length && options.entities === 'keep-value') {
-        toAdd = tok.entities[0].value.toString()
-      } else if (tok.entities.length && options.entities === 'keep-default') {
-        toAdd = tok.value
+      toAdd = !tok.entities.length && !tok.slots.length ? tok.value : ''
+      switch (options.strategy) {
+        case 'keep-name':
+          if (options.type === 'entities' && tok.entities.length) {
+            toAdd = tok.entities[0].type
+          } else if (options.type === 'slots' && tok.slots.length) {
+            toAdd = tok.slots[0].name
+          }
+          break
+        case 'keep-value':
+          if (options.type === 'entities' && tok.entities.length) {
+            toAdd = tok.entities[0].value
+          } else if (options.type === 'slots' && tok.slots.length) {
+            toAdd = tok.slots[0].value
+          }
+          break
+        default:
+          break
       }
 
       final += toAdd

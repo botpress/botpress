@@ -16,8 +16,8 @@ type ExactMatchIndex = _.Dictionary<{ intent: string }>
 const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
   lowerCase: true,
   onlyWords: true,
-  slots: 'keep-value', // slot extraction is done in || with intent prediction
-  entities: 'keep-name'
+  type: 'entities',
+  strategy: 'keep-name'
 }
 
 const schemaKeys: Record<keyof Model, Joi.AnySchema> = {
