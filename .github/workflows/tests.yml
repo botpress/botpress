@@ -35,10 +35,10 @@ jobs:
           chmod +x nlu-v0_0_1-linux-x64
       - name: Build core, UI and modules
         run: |
-          NODE_OPTIONS="--max-old-space-size=6000" NLU_BIN_DIR="." yarn build
+          NODE_OPTIONS="--max-old-space-size=6000" yarn build
       - name: Run Tests
         run: |
-          yarn start & sleep 5s &&
+          NLU_BIN_DIR="." yarn start & sleep 5s &&
           HEADLESS=true JEST_TIMEOUT=30000 yarn itest
       - name: Upload Screenshots
         uses: actions/upload-artifact@master
