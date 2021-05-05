@@ -49,7 +49,6 @@ const TYPES = {
   LoggerFilePersister: Symbol.for('LoggerFilePersister'),
   LogsRepository: Symbol.for('LogsRepository'),
   LogJanitorRunner: Symbol.for('LogJanitorRunner'),
-  NotificationsRepository: Symbol.for('NotificationsRepository'),
   FileCacheInvalidator: Symbol.for('FileCacheInvalidator'),
   BotConfigFactory: Symbol.for('BotConfigFactory'),
   BotConfigWriter: Symbol.for('BotConfigWriter'),

@@ -86,12 +86,6 @@ export default async (botId: string, bp: typeof sdk, db: Database) => {
   const handleFailedSending = async (err: Error, scheduleId: number) => {
     bp.logger.error(`Broadcast #${scheduleId}' failed. Broadcast aborted. Reason: ${err.message}`)
 
-    await bp.notifications.create(botId, {
-      botId,
-      level: 'error',
-      message: 'Broadcast #' + scheduleId + ' failed.' + ' Please check logs for the reason why.'
-    })
-
     await db.updateErrorField(scheduleId)
     await db.deleteBroadcastOutboxById(scheduleId)
   }
