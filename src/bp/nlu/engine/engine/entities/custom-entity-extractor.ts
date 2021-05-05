@@ -190,7 +190,7 @@ export const extractListEntitiesWithCache = (
   list_entities: WarmedListEntityModel[]
 ): EntityExtractionResult[] => {
   // no need to "keep-value" of entities as this function's purpose is precisly to extract entities before tagging them in the utterance.
-  const cacheKey = utterance.toString({ lowerCase: true })
+  const cacheKey = utterance.toString({ lowerCase: true, strategy: 'keep-value', type: 'entities' })
   const { withCacheHit, withCacheMiss } = splitModelsByCacheHitOrMiss(list_entities, cacheKey)
 
   const cachedMatches: EntityExtractionResult[] = _.flatMap(withCacheHit, listModel => listModel.cache.get(cacheKey)!)

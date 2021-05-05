@@ -92,7 +92,7 @@ export function makeExtractedSlots(
 
       if (shouldConcatWithPrev && last) {
         const newEnd = token.offset + token.value.length
-        const newSource = utterance.toString({ entities: 'keep-default' }).slice(last.start, newEnd) // we use slice in case tokens are space split
+        const newSource = utterance.toString({ strategy: 'keep-value', type: 'entities' }).slice(last.start, newEnd) // we use slice in case tokens are space split
         last.slot.source = newSource
         last.slot.value = newSource
         last.end = newEnd

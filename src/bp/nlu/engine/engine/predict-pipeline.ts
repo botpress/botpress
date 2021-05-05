@@ -152,7 +152,7 @@ async function extractSlots(input: IntentStep, predictors: Predictors): Promise<
 
 async function spellCheck(input: SlotStep, predictors: Predictors, tools: Tools): Promise<SpellStep> {
   const spellChecker = makeSpellChecker(predictors.vocab, input.languageCode, tools)
-  const spellChecked = await spellChecker(input.utterance.toString({ entities: 'keep-value', slots: 'keep-value' }))
+  const spellChecked = await spellChecker(input.utterance.toString({ strategy: 'keep-value', type: 'entities' }))
   return {
     ...input,
     spellChecked
