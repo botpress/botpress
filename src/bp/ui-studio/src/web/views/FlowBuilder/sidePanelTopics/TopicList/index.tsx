@@ -122,7 +122,7 @@ const TopicList: FC<Props> = props => {
         { acceptLabel: lang.tr('delete') }
       ))
     ) {
-      await axios.post(`${window.STUDIO_API_PATH}/deleteTopic/${name}`)
+      await axios.post(`${window.STUDIO_API_PATH}/topics/deleteTopic/${name}`)
       flowsToDelete.forEach(flow => props.deleteFlow(flow.name))
       props.fetchTopics()
     }
