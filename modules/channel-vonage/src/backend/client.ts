@@ -87,6 +87,7 @@ export class VonageClient {
 
     if (this.config.useTestingApi) {
       this.logger.info('Vonage configured to use the testing API!')
+      this.logger.warn('Please keep in mind that the sandbox is limited to one call per second.')
     }
 
     this.logger.info(`Vonage inbound webhooks listening at ${webhookUrl}/inbound`)
@@ -344,18 +345,30 @@ export class VonageClient {
             // fixes typings
             const errBody: MessageApiError = (err as any).body
             let reasons: string = ''
-            if (errBody.invalid_parameters) {
-              for (const param of errBody.invalid_parameters) {
-                reasons += `${param.reason}: ${param.name}; `
+            if (errBody) {
+              if (errBody.invalid_parameters) {
+                for (const param of errBody.invalid_parameters) {
+                  reasons += `${param.reason}: ${param.name}; `
+                }
               }
+
+              this.logger.error(`${errBody.title}: ${errBody.detail} ${reasons}${errBody.type}`)
+            } else if ((<any>err).statusCode === '429') {
+              this.logger.error('HTTPError (429): Too Many Requests')
+            } else {
+              this.logger.error('UnknownError', err)
             }
-            this.logger.error(`${errBody.title}: ${errBody.detail} ${reasons}${errBody.type}`)
           } else {
             resolve(data)
           }
         }
       )
     })
+
+    // Sandbox API is limited to one call per second. Wait one second between calls.
+    if (this.config.useTestingApi) {
+      await Promise.delay(1000)
+    }
   }
 }
 

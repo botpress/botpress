@@ -1,7 +1,6 @@
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import Telegraf from 'telegraf'
-
 import { Config } from '../config'
 
 import { setupBot, setupMiddleware } from './client'

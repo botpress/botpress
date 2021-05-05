@@ -84,20 +84,14 @@ export class SmoochClient {
       ? { channel: { smooch: { message: rawMessage } } }
       : {}
 
-    await this.bp.events.sendEvent(
-      this.bp.IO.Event({
-        botId: this.botId,
-        channel: 'smooch',
-        direction: 'incoming',
-        type: payload.type,
-        payload: { ...rawPayload, payload },
-        threadId: messagePayload.conversation._id,
-        target: messagePayload.appUser._id
-      })
-    )
+    const conversation = await this.bp.experimental.conversations.forBot(this.botId).recent(messagePayload.appUser._id)
+
+    await this.bp.experimental.messages
+      .forBot(this.botId)
+      .receive(conversation.id, { ...rawPayload, ...payload }, { channel: 'smooch' })
   }
 
-  async handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
+  async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     if (event.type === 'typing') {
       await this.sendTyping(event)
     } else if (event.type === 'text') {
@@ -111,6 +105,10 @@ export class SmoochClient {
     } else if (event.payload.options) {
       await this.sendDropdown(event)
     }
+
+    await this.bp.experimental.messages
+      .forBot(this.botId)
+      .create(event.threadId, event.payload, undefined, event.id, event.incomingEventId)
 
     next(undefined, false)
   }

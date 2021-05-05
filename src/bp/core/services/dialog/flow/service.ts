@@ -87,13 +87,17 @@ export class FlowService {
 
   private _listenForCacheInvalidation() {
     this.cache.events.on('invalidation', async key => {
-      const matches = key.match(/^([A-Z0-9-_]+)::data\/bots\/([A-Z0-9-_]+)\/flows\/([\s\S]+(flow|ui)\.json)/i)
+      try {
+        const matches = key.match(/^([A-Z0-9-_]+)::data\/bots\/([A-Z0-9-_]+)\/flows\/([\s\S]+(flow|ui)\.json)/i)
 
-      if (matches && matches.length >= 2) {
-        const [key, type, botId, flowName] = matches
-        if (type === 'file' || type === 'object') {
-          await this.forBot(botId).handleInvalidatedCache(flowName, type === 'file')
+        if (matches && matches.length >= 2) {
+          const [key, type, botId, flowName] = matches
+          if (type === 'file' || type === 'object') {
+            await this.forBot(botId).handleInvalidatedCache(flowName, type === 'file')
+          }
         }
+      } catch (err) {
+        this.logger.error('Error Invalidating flow cache: ' + err.message)
       }
     })
   }
@@ -322,7 +326,7 @@ export class ScopedFlowService {
   }
 
   private async _upsertFlow(flow: FlowView) {
-    process.ASSERT_LICENSED()
+    process.ASSERT_LICENSED?.()
 
     const flowFiles = await this.ghost.directoryListing(FLOW_DIR, '**/*.json')
 
@@ -345,7 +349,7 @@ export class ScopedFlowService {
   }
 
   async deleteFlow(flowName: string, userEmail: string) {
-    process.ASSERT_LICENSED()
+    process.ASSERT_LICENSED?.()
 
     const flowFiles = await this.ghost.directoryListing(FLOW_DIR, '*.json')
     const fileToDelete = flowFiles.find(f => f === flowName)
@@ -370,7 +374,7 @@ export class ScopedFlowService {
   }
 
   async renameFlow(previousName: string, newName: string, userEmail: string) {
-    process.ASSERT_LICENSED()
+    process.ASSERT_LICENSED?.()
 
     const flowFiles = await this.ghost.directoryListing(FLOW_DIR, '*.json')
     const fileToRename = flowFiles.find(f => f === previousName)
