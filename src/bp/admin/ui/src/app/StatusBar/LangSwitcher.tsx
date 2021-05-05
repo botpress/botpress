@@ -11,11 +11,11 @@ const requireFlag = code => {
     const flag = require(`../../management/languages/flags/${code}.svg`)
     return flag.default || flag
   } catch (err) {
-    try {
-      return requireFlag('missing')
-    } catch (err) {
+    if (code === 'missing') {
       return null
     }
+
+    return requireFlag('missing')
   }
 }
 

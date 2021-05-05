@@ -22,6 +22,7 @@ const LiveChat: React.FC<Props> = ({ handoff, currentAgent }) => {
   const [webchatReady, setWebchatReady] = useState(false)
 
   const loadWebchat = () => {
+    // Ensure the webchat is only added once to the page
     if (document.getElementById(INJECTION_ID)) {
       setWebchatLoaded(true)
       return
@@ -33,6 +34,7 @@ const LiveChat: React.FC<Props> = ({ handoff, currentAgent }) => {
     window.document.body.appendChild(script)
 
     intervalId = setInterval(() => {
+      // Once added, the webchat takes some time before being ready to initialize
       if (window.botpressWebChat) {
         setWebchatLoaded(true)
         clearInterval(intervalId)
