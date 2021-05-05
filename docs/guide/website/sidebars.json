@@ -32,12 +32,18 @@
 			"infrastructure/performances",
 			"infrastructure/pipeline",
 			"infrastructure/versions",
-			"infrastructure/cluster",
+			"infrastructure/cluster","advanced/authentication",
       "infrastructure/digital-ocean"
 		],
+    "Managing Bots & Users": [
+      "managing/rbac",
+      "managing/authentication",
+      "managing/monitoring",
+      "managing/proactive",
+      "tutorials/hitl"
+    ],
 		"Improving Your Chatbot": [
 			"tutorials/intent-matching",
-			"tutorials/proactive",
 			"tutorials/carousel-postback",
 			"tutorials/skill-slot",
 			"tutorials/skill-call-api",
@@ -46,7 +52,6 @@
 			"tutorials/shortlinks",
 			"tutorials/existing-backend",
 			"tutorials/timeouts",
-			"tutorials/hitl",
 			"tutorials/jump-to",
 			"tutorials/interbot",
 			"tutorials/contextual-faq",
@@ -61,14 +66,11 @@
 		"Pro Edition": [
 			"pro/about-pro",
 			"pro/licensing",
-			"pro/rbac",
-			"pro/monitoring",
 			"pro/i18n"
 		],
 		"Advanced Guides": [
 			"advanced/debug",
 			"advanced/configuration",
-			"advanced/authentication",
 			"advanced/custom-module",
 			"advanced/development-pipeline"
 		]
