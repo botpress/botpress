@@ -41,6 +41,16 @@ export class FakeEngine implements IStanEngine {
     }
   }
 
+  public async hasModelFor(appId: string, trainInput: TrainInput): Promise<{ exists: boolean; modelId: string }> {
+    const structModelId = modelIdService.makeId({ ...trainInput, specifications: this.specs })
+    const modelId = modelIdService.toString(structModelId)
+    const exists = await this.hasModel(appId, modelId)
+    return {
+      exists,
+      modelId
+    }
+  }
+
   public async getModelIdFromTrainset(trainInput: TrainInput): Promise<string> {
     const { specs } = await this.getInfo()
     const modelIdStructure = modelIdService.makeId({
