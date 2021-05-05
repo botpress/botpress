@@ -1,5 +1,6 @@
 import { Icon } from '@blueprintjs/core'
 import { MainLayout, lang, ModuleUI } from 'botpress/shared'
+import { ALL_BOTS } from 'common/utils'
 import _ from 'lodash'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
@@ -110,6 +111,13 @@ class PanelContent extends React.Component<Props> {
     this.setState({ fileType: type, hookType, isCreateModalOpen: true })
   }
 
+  showAddButtons(type: string): boolean {
+    const isGlobalApp = window.BOT_ID === ALL_BOTS
+    const canWriteGlobal = this.hasPermission(`global.${type}`, true)
+
+    return !isGlobalApp || (isGlobalApp && canWriteGlobal)
+  }
+
   renderSectionModuleConfig() {
     if (!this.hasPermission('global.module_config') && !this.hasPermission('bot.module_config')) {
       return null
@@ -171,6 +179,10 @@ class PanelContent extends React.Component<Props> {
           ]
         }
       ]
+    }
+
+    if (!this.showAddButtons('actions')) {
+      actions = []
     }
 
     return (
@@ -282,6 +294,10 @@ class PanelContent extends React.Component<Props> {
   }
 
   _buildHooksActions(showGlobalHooks: boolean) {
+    if (!this.showAddButtons('hooks')) {
+      return []
+    }
+
     const hooks = Object.keys(HOOK_SIGNATURES).map(hookType => ({
       id: hookType,
       label: hookType

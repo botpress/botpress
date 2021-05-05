@@ -65,7 +65,7 @@ class EditorStore {
     const file = this.openedFiles.find(x => x.uri === uri)
     const model = monaco.editor.getModel(uri)
 
-    await this.rootStore.api.saveFile({
+    const result = await this.rootStore.api.saveFile({
       ...file,
       content: wrapper.remove(model.getValue(), file.type)
     })
@@ -82,6 +82,8 @@ class EditorStore {
         uri
       )
     }, 200)
+
+    return result
   }
 
   @action.bound

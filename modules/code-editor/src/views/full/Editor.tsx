@@ -113,9 +113,9 @@ class Editor extends React.Component<Props> {
       await this.editor.getAction('editor.action.formatDocument').run()
     }
 
-    await this.props.editor.saveFile(uri)
-
-    toast.success(lang.tr('module.code-editor.store.fileSaved'))
+    if (await this.props.editor.saveFile(uri)) {
+      toast.success(lang.tr('module.code-editor.store.fileSaved'))
+    }
   }
 
   closeFile = async (uri?: monaco.Uri) => {
