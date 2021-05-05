@@ -10,7 +10,7 @@ import { downloadBin } from './download'
 import { NLUServerOptions } from './typings'
 export { NLUServerOptions as StanOptions } from './typings'
 
-const BASE_DOWNLOAD_URL = 'https://github.com/botpress/nlu/releases/download/v0.0.1-rc.2'
+const BASE_DOWNLOAD_URL = 'https://github.com/botpress/nlu/releases/download/v0.0.1-rc.3'
 
 // Equivalent of strictly tagging NLU versions
 const FILE_NAMES = {

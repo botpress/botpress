@@ -12,6 +12,7 @@ export const downloadBin = async (url: string, destinationFile: string, progress
   const fileSize = parseInt(headers['content-length'])
   let downloadedSize = 0
 
+  await fse.createFile(tmpPath)
   stream.pipe(fse.createWriteStream(tmpPath))
 
   return new Promise((resolve, reject) => {
