@@ -33,11 +33,6 @@ jobs:
         run: |
           wget https://github.com/botpress/nlu/releases/download/v0.0.1-rc.3/nlu-v0_0_1-linux-x64
           chmod +x ./nlu-v0_0_1-linux-x64
-          echo "hello world #1"
-          echo $(pwd)
-          ls -la
-          ./nlu-v0_0_1-linux-x64 --help
-          echo "hello world #2"
       - name: Build core, UI and modules
         run: |
           NODE_OPTIONS="--max-old-space-size=6000" yarn build
