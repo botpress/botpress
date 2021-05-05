@@ -5,13 +5,13 @@ title: Building From Source
 Botpress has added flexibility for developers who want access to the core codebase. You can clone Botpress from the source repository on Github, allowing you to test code, modules, and components more dynamically. 
 
 ## Compiling From Source
-You can build Botpress from the (source repository)[https://github.com/botpress/botpress] in a few simple steps. Doing this is useful when you need to create custom modules and components.
+You can build Botpress from the [source repository](https://github.com/botpress/botpress) in a few simple steps. Doing this is useful when you need to create custom modules and components.
 
 ### Prerequisites
 
-Install node version 12.18.1 for (your operating system)[https://nodejs.org/download/release/v12.18.1/]. **Tip:** on windows, download and use the .msi installer 
+Install node version 12.18.1 for [your operating system](https://nodejs.org/download/release/v12.18.1/). **Tip:** on windows, download and use the .msi installer 
 
-Install (Yarn package manager)[https://yarnpkg.com/]
+Install [Yarn package manager](https://yarnpkg.com/)
 
 ### Installation
 While in the directory where you want to host your instance of Botpress, run the following commands in this sequence:

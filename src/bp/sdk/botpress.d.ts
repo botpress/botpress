@@ -917,6 +917,12 @@ declare module 'botpress/sdk' {
       handler: MiddlewareHandler
       /** Indicates if this middleware should act on incoming or outgoing events */
       direction: EventDirection
+      /**
+       * Allows to specify a timeout for the middleware instead of using the middleware chain timeout value
+       * @example '500ms', '2s', '5m'
+       * @default '2s'
+       * */
+      timeout?: string
     }
 
     export interface EventConstructor {
@@ -1719,23 +1725,26 @@ declare module 'botpress/sdk' {
     actions: ActionButton[]
   }
 
+  export enum ButtonAction {
+    SaySomething = 'Say something',
+    OpenUrl = 'Open URL',
+    Postback = 'Postback'
+  }
+
   export interface ActionButton {
-    action: string
+    action: ButtonAction
     title: string
   }
 
   export interface ActionSaySomething extends ActionButton {
-    action: 'Say something'
     text: string | MultiLangText
   }
 
   export interface ActionOpenURL extends ActionButton {
-    action: 'Open URL'
     url: string
   }
 
   export interface ActionPostback extends ActionButton {
-    action: 'Postback'
     payload: string
   }
 
