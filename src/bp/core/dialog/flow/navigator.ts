@@ -1,8 +1,7 @@
 import { Logger } from 'botpress/sdk'
+import { TYPES } from 'core/app/types'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-
-import { TYPES } from '../../../types'
 
 export interface NavigationArgs {
   previousNodeName: string

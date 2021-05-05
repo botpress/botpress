@@ -5,9 +5,9 @@ import { PersistedConsoleLogger } from 'core/logger'
 import { createSpyObject, MockObject } from 'core/misc/utils'
 
 import { FileRevision } from '.'
-import { DBStorageDriver } from './db-driver'
-import { DiskStorageDriver } from './disk-driver'
-import { GhostService } from './service'
+import { DBStorageDriver } from './drivers/db-driver'
+import { DiskStorageDriver } from './drivers/disk-driver'
+import { GhostService } from './ghost-service'
 
 const BOT_ID = 'bot123'
 
