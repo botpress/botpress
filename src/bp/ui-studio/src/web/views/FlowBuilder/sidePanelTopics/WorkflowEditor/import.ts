@@ -8,7 +8,7 @@ import { ExportedFlow, ImportAction } from '../typings'
 
 export const analyzeWorkflowFile = async (file: ExportedFlow, flows: FlowView[]) => {
   const ids = file.content.map(x => x.id)
-  const { data: elements } = await axios.post(`${window.BOT_API_PATH}/content/elements`, { ids })
+  const { data: elements } = await axios.post(`${window.STUDIO_API_PATH}/cms/elements`, { ids })
 
   const importActions: ImportAction[] = []
 

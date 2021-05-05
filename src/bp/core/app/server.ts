@@ -186,6 +186,7 @@ export class HTTPServer {
       nluService,
       converseService,
       this.logger,
+      mediaServiceProvider,
       this
     )
     this.sdkApiRouter = new SdkApiRouter(this.logger)

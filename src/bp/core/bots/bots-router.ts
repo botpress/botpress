@@ -3,6 +3,7 @@ import { HTTPServer } from 'core/app/server'
 import { BotService } from 'core/bots'
 import { ConfigProvider } from 'core/config'
 import { ConverseRouter, ConverseService } from 'core/converse'
+import { MediaServiceProvider } from 'core/media'
 import { disableForModule } from 'core/routers'
 import {
   AuthService,
@@ -17,6 +18,7 @@ import { WorkspaceService } from 'core/users'
 import express, { Express, RequestHandler, Router } from 'express'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
+import path from 'path'
 import { URL } from 'url'
 
 import { NLURouter } from '../routers/bots/nlu'
@@ -37,6 +39,7 @@ export class BotsRouter extends CustomRouter {
     private nluService: NLUService,
     private converseService: ConverseService,
     private logger: Logger,
+    private mediaServiceProvider: MediaServiceProvider,
     private httpServer: HTTPServer
   ) {
     super('Bots', logger, Router({ mergeParams: true }))
@@ -55,6 +58,27 @@ export class BotsRouter extends CustomRouter {
 
     this.router.use('/converse', this.converseRouter.router)
     this.router.use('/nlu', this.nluRouter.router)
+
+    this.router.get(
+      '/media/:filename',
+      this.asyncMiddleware(async (req, res) => {
+        const botId = req.params.botId
+        const type = path.extname(req.params.filename)
+
+        const mediaService = this.mediaServiceProvider.forBot(botId)
+        const contents = await mediaService.readFile(req.params.filename).catch(() => undefined)
+        if (!contents) {
+          return res.sendStatus(404)
+        }
+
+        // files are never overwritten because of the unique ID
+        // so we can set the header to cache the asset for 1 year
+        return res
+          .set({ 'Cache-Control': 'max-age=31556926' })
+          .type(type)
+          .send(contents)
+      })
+    )
 
     this.router.get(
       '/',
