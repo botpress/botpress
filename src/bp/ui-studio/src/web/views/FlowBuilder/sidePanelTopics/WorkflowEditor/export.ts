@@ -45,7 +45,7 @@ const getContentElements = async (
   ids: string[]
 ): Promise<Pick<sdk.ContentElement, 'id' | 'contentType' | 'formData' | 'previews'>[]> => {
   try {
-    const { data } = await axios.post(`${window.BOT_API_PATH}/content/elements`, { ids })
+    const { data } = await axios.post(`${window.STUDIO_API_PATH}/cms/elements`, { ids })
     return data.map(x => _.pick(x, ['id', 'contentType', 'formData', 'previews']))
   } catch (err) {
     console.error(`Can't export content elements: ${err}`)
@@ -54,7 +54,7 @@ const getContentElements = async (
 }
 
 export const exportCompleteWorkflow = async (workflowName: string) => {
-  const { data } = await axios.get(`${window.BOT_API_PATH}/flows`)
+  const { data } = await axios.get(`${window.STUDIO_API_PATH}/flows`)
 
   const exportFlowData = async (flows, flowName) => {
     const flow = data.find(x => x.name === flowName)

@@ -8,12 +8,10 @@ import { CMSService } from 'core/cms'
 import { BotpressConfig } from 'core/config'
 import { ConfigProvider } from 'core/config/config-loader'
 import { FlowService } from 'core/dialog'
-import { LogsService } from 'core/logger'
 import { MediaServiceProvider } from 'core/media'
-import { NotificationsService } from 'core/notifications'
 import { CustomRouter } from 'core/routers/customRouter'
 import { AuthService, TOKEN_AUDIENCE, checkTokenHeader, checkBotVisibility } from 'core/security'
-import { ActionServersService, ActionService } from 'core/user-code'
+import { ActionServersService, ActionService, HintsService } from 'core/user-code'
 import { WorkspaceService } from 'core/users'
 import express, { RequestHandler, Router } from 'express'
 import rewrite from 'express-urlrewrite'
@@ -22,11 +20,9 @@ import _ from 'lodash'
 import { ActionsRouter } from './actions/actions-router'
 import { CMSRouter } from './cms/cms-router'
 import { FlowsRouter } from './flows/flows-router'
-import { LogsRouter } from './logs/logs-router'
+import { HintsRouter } from './hints/hints-router'
 import MediaRouter from './media/media-router'
-import { NotificationsRouter } from './notifications/notifications-router'
 import { TopicsRouter } from './topics/topics-router'
-import { fixStudioMappingMw } from './utils/api-mapper'
 
 export interface StudioServices {
   logger: Logger
@@ -39,8 +35,7 @@ export interface StudioServices {
   flowService: FlowService
   actionService: ActionService
   actionServersService: ActionServersService
-  notificationService: NotificationsService
-  logsService: LogsService
+  hintsService: HintsService
   bpfs: GhostService
 }
 
@@ -52,9 +47,8 @@ export class StudioRouter extends CustomRouter {
   private mediaRouter: MediaRouter
   private actionsRouter: ActionsRouter
   private flowsRouter: FlowsRouter
-  private logsRouter: LogsRouter
-  private notificationsRouter: NotificationsRouter
   private topicsRouter: TopicsRouter
+  private hintsRouter: HintsRouter
 
   constructor(
     logger: Logger,
@@ -65,11 +59,10 @@ export class StudioRouter extends CustomRouter {
     actionService: ActionService,
     cmsService: CMSService,
     flowService: FlowService,
-    notificationService: NotificationsService,
-    logsService: LogsService,
     bpfs: GhostService,
     mediaServiceProvider: MediaServiceProvider,
     actionServersService: ActionServersService,
+    hintsService: HintsService,
     private httpServer: HTTPServer
   ) {
     super('Admin', logger, Router({ mergeParams: true }))
@@ -80,25 +73,23 @@ export class StudioRouter extends CustomRouter {
       authService: this.authService,
       mediaServiceProvider,
       workspaceService,
-      notificationService,
       actionService,
       flowService,
       botService,
       configProvider,
-      logsService,
       bpfs,
       cmsService,
-      actionServersService
+      actionServersService,
+      hintsService
     }
 
     this.cmsRouter = new CMSRouter(studioServices)
 
     this.actionsRouter = new ActionsRouter(studioServices)
     this.flowsRouter = new FlowsRouter(studioServices)
-    this.logsRouter = new LogsRouter(studioServices)
     this.mediaRouter = new MediaRouter(studioServices)
-    this.notificationsRouter = new NotificationsRouter(studioServices)
     this.topicsRouter = new TopicsRouter(studioServices)
+    this.hintsRouter = new HintsRouter(studioServices)
   }
 
   async setupRoutes(app: express.Express) {
@@ -106,16 +97,11 @@ export class StudioRouter extends CustomRouter {
 
     this.actionsRouter.setupRoutes()
     this.flowsRouter.setupRoutes()
-    this.logsRouter.setupRoutes()
     await this.mediaRouter.setupRoutes(this.botpressConfig)
-    this.notificationsRouter.setupRoutes()
     this.topicsRouter.setupRoutes()
+    this.hintsRouter.setupRoutes()
 
     app.use(rewrite('/studio/:botId/*env.js', '/api/v1/studio/:botId/env.js'))
-
-    // TODO: Temporary until studio routes are changed
-    app.use('/api/v1/bots/:botId', fixStudioMappingMw, this.router)
-
     app.use('/api/v1/studio/:botId', this.router)
 
     this.router.use(checkBotVisibility(this.configProvider, this.checkTokenHeader))
@@ -123,10 +109,9 @@ export class StudioRouter extends CustomRouter {
     this.router.use('/actions', this.checkTokenHeader, this.actionsRouter.router)
     this.router.use('/cms', this.checkTokenHeader, this.cmsRouter.router)
     this.router.use('/flows', this.checkTokenHeader, this.flowsRouter.router)
-    this.router.use('/logs', this.checkTokenHeader, this.logsRouter.router)
     this.router.use('/media', this.mediaRouter.router)
-    this.router.use('/notifications', this.checkTokenHeader, this.notificationsRouter.router)
     this.router.use('/topics', this.checkTokenHeader, this.topicsRouter.router)
+    this.router.use('/hints', this.checkTokenHeader, this.hintsRouter.router)
 
     this.setupUnauthenticatedRoutes(app)
     this.setupStaticRoutes(app)
@@ -159,6 +144,7 @@ export class StudioRouter extends CustomRouter {
               window.ANALYTICS_ID = "${gaId}";
               window.API_PATH = "${process.ROOT_PATH}/api/v1";
               window.BOT_API_PATH = "${process.ROOT_PATH}/api/v1/bots/${botId}";
+              window.STUDIO_API_PATH = "${process.ROOT_PATH}/api/v1/studio/${botId}";
               window.BOT_ID = "${botId}";
               window.BOT_NAME = "${bot.name}";
               window.BP_BASE_PATH = "${process.ROOT_PATH}/studio/${botId}";

@@ -22,14 +22,14 @@ describe('Studio - CMS', () => {
 
   it('Load CMS', async () => {
     await clickOn('#bp-menu_content')
-    await expectBotApiCallSuccess('content/elements', 'POST')
+    await expectBotApiCallSuccess('cms/elements', 'POST')
   })
 
   it('Filter text elements', async () => {
     const before = await getElementCount()
 
     await clickOn('#btn-filter-builtin_text')
-    await expectBotApiCallSuccess('content/builtin_text/elements', 'POST')
+    await expectBotApiCallSuccess('cms/builtin_text/elements', 'POST')
     const after = await getElementCount()
     expect(after).toBeLessThan(before)
   })
@@ -44,7 +44,7 @@ describe('Studio - CMS', () => {
     await clickOn('.style__textarea___2P8hT')
     await page.keyboard.type('I am a martian')
     await clickOn('button[type="submit"]')
-    await expectBotApiCallSuccess('content/builtin_image/elements', 'POST')
+    await expectBotApiCallSuccess('cms/builtin_image/elements', 'POST')
     const after = await getElementCount(true)
     expect(after).toBeGreaterThan(before)
   })

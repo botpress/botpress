@@ -13,7 +13,6 @@ import {
   checkBotVisibility
 } from 'core/security'
 import { NLUService } from 'core/services/nlu/nlu-service'
-import { HintsRouter, HintsService } from 'core/user-code'
 import { WorkspaceService } from 'core/users'
 import express, { Express, RequestHandler, Router } from 'express'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -28,7 +27,6 @@ export class BotsRouter extends CustomRouter {
   private needPermissions: (operation: string, resource: string) => RequestHandler
   private checkMethodPermissions: (resource: string) => RequestHandler
   private nluRouter: NLURouter
-  private hintsRouter: HintsRouter
   private converseRouter: ConverseRouter
 
   constructor(
@@ -38,7 +36,6 @@ export class BotsRouter extends CustomRouter {
     private workspaceService: WorkspaceService,
     private nluService: NLUService,
     private converseService: ConverseService,
-    private hintsService: HintsService,
     private logger: Logger,
     private httpServer: HTTPServer
   ) {
@@ -50,7 +47,6 @@ export class BotsRouter extends CustomRouter {
 
     this.nluRouter = new NLURouter(this.logger, this.authService, this.workspaceService, this.nluService)
     this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this.httpServer)
-    this.hintsRouter = new HintsRouter(this.logger, this.hintsService, this.authService, this.workspaceService)
   }
 
   async setupRoutes(app: express.Express) {
@@ -59,7 +55,6 @@ export class BotsRouter extends CustomRouter {
 
     this.router.use('/converse', this.converseRouter.router)
     this.router.use('/nlu', this.nluRouter.router)
-    this.router.use('/hints', this.hintsRouter.router)
 
     this.router.get(
       '/',
