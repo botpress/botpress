@@ -1,4 +1,5 @@
 import { DirectoryListingOptions } from 'botpress/sdk'
+import { BPError } from 'core/dialog/errors'
 import { forceForwardSlashes } from 'core/misc/utils'
 import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
@@ -8,9 +9,7 @@ import _ from 'lodash'
 import path from 'path'
 import { VError } from 'verror'
 
-import { BPError } from '../dialog/errors'
-
-import { FileRevision, StorageDriver } from '.'
+import { FileRevision, StorageDriver } from '../'
 
 @injectable()
 export class DiskStorageDriver implements StorageDriver {

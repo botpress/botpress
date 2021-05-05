@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
+import { TYPES } from 'core/app/types'
 import Database from 'core/database'
-import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
