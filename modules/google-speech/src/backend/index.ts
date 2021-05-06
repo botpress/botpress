@@ -1,12 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import { Config } from 'src/config'
 
-import { setupRouter } from './api'
 import { GoogleSpeechClient } from './client'
 import { Middleware } from './middleware'
 import { Clients } from './typings'
 
-let router: sdk.http.RouterExtension
 let middleware: Middleware
 const MODULE_NAME = 'google-speech'
 const clients: Clients = {}
@@ -15,10 +13,6 @@ const onServerStarted = async (bp: typeof sdk) => {
   middleware = new Middleware(bp, clients)
 
   middleware.setup()
-}
-
-const onServerReady = async (bp: typeof sdk) => {
-  router = await setupRouter(bp, clients, MODULE_NAME)
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
@@ -48,7 +42,6 @@ const onModuleUnmount = async (_bp: typeof sdk) => {
 
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
-  onServerReady,
   onBotMount,
   onBotUnmount,
   onModuleUnmount,
