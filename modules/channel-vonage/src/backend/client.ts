@@ -259,7 +259,7 @@ export class VonageClient {
       next(undefined, true, false)
     }
 
-    ;(<any>event).payload = mappedPayload
+    ;(<any>event).payload = { ...event.payload, ...mappedPayload }
   }
 }
 
