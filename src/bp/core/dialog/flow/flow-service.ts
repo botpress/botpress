@@ -20,7 +20,7 @@ import moment from 'moment'
 import ms from 'ms'
 import nanoid from 'nanoid/generate'
 
-import { validateFlowSchema } from '../validator'
+import { validateFlowSchema } from '../utils/validator'
 
 const PLACING_STEP = 250
 const MIN_POS_X = 50
