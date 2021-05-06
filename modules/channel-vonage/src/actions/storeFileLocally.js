@@ -5,7 +5,7 @@ const uuidv4 = require('uuid').v4
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition#syntax
 // Content-disposition header looks like this: Content-Disposition: attachment; filename="filename.ext"
 // so we try extracting the filename from it
-const parseFilenameFromHeader = headers => {
+const extractFilenameFromHeader = headers => {
   if (!headers['content-disposition']) {
     return
   }
@@ -50,7 +50,7 @@ const storeFileLocally = async () => {
   try {
     const resp = await axios.get(fileUrl, { responseType: 'arraybuffer' })
 
-    const filename = parseFilenameFromHeader(resp.headers) || event.payload.title || event.payload.caption || uuidv4()
+    const filename = extractFilenameFromHeader(resp.headers) || event.payload.title || event.payload.caption || uuidv4()
 
     const formData = new FormData()
     formData.append('file', Buffer.from(resp.data.buffer), filename)
