@@ -4,7 +4,8 @@ import Vonage, {
   ChannelToFrom,
   MessageSendResponse,
   MessageSendError,
-  ChannelMessageType
+  ChannelMessageType,
+  ChannelContentVideo
 } from '@vonage/server-sdk'
 import * as sdk from 'botpress/sdk'
 import { ChannelContext } from 'common/channel'
@@ -41,6 +42,10 @@ export interface SignedJWTPayload {
   api_key: string
 }
 
+interface ExtendedChannelContentVideo extends ChannelContentVideo {
+  caption?: string
+}
+
 export type ExtendedChannelMessageType = ChannelMessageType | 'location'
 export interface ExtendedChannelContent extends Omit<ChannelContent, 'type'> {
   type: ExtendedChannelMessageType
@@ -49,6 +54,7 @@ export interface ExtendedChannelContent extends Omit<ChannelContent, 'type'> {
     long: number
     lat: number
   }
+  video?: ExtendedChannelContentVideo
 }
 
 export type VonageContext = ChannelContext<Vonage> & {

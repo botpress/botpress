@@ -6,7 +6,6 @@ import crypto from 'crypto'
 import { Request } from 'express'
 import jwt from 'jsonwebtoken'
 import _ from 'lodash'
-import path from 'path'
 
 import { Config } from '../config'
 import {
@@ -143,7 +142,7 @@ export class VonageClient {
         // since Vonage does not differentiate the two.
         payload = {
           type: 'voice',
-          url: messageContent.audio.url
+          audio: messageContent.audio.url
         }
         // TODO: payload = this.bp.experimental.render.voice() ?
         break
@@ -151,10 +150,7 @@ export class VonageClient {
         payload = this.bp.experimental.render.image(messageContent.image.url, messageContent.image.caption)
         break
       case 'video':
-        payload = this.bp.experimental.render.video(
-          messageContent.video.url,
-          `${path.basename(messageContent.video.url)}.mp4` // TODO: Detect file extension
-        )
+        payload = this.bp.experimental.render.video(messageContent.video.url, messageContent.video.caption)
         break
       case 'file':
         payload = {
