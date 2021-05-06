@@ -8,6 +8,7 @@ import SplitPane from 'react-split-pane'
 
 import api from '~/app/api'
 import { fetchLicensing } from '~/management/licensing/reducer'
+import { fetchLoadedModules, loadModulesTranslations } from '~/management/modules/reducer'
 import { fetchProfile } from '~/user/reducer'
 import BottomPanel from './BottomPanel'
 
@@ -16,6 +17,7 @@ import EventBus from './EventBus'
 import Header from './Header'
 import Menu from './Menu'
 import { AppState } from './rootReducer'
+import StatusBar from './StatusBar'
 import style from './style.scss'
 import { toggleBottomPanel } from './uiReducer'
 
@@ -27,6 +29,8 @@ const App: FC<Props> = props => {
   useEffect(() => {
     props.fetchLicensing()
     props.fetchProfile()
+    props.fetchLoadedModules()
+    props.loadModulesTranslations()
     EventBus.default.setup()
   }, [])
 
@@ -67,16 +71,10 @@ const App: FC<Props> = props => {
         </div>
       </div>
 
-      <Footer version={window.APP_VERSION} />
+      <StatusBar />
     </Fragment>
   )
 }
-
-const Footer = props => (
-  <footer className={cx('statusBar', style.statusBar)}>
-    <div>{props.version}</div>
-  </footer>
-)
 
 const Unlicensed = () => (
   <div className={style.unlicensed}>
@@ -94,5 +92,11 @@ const mapStateToProps = (state: AppState) => ({
   bottomPanelExpanded: state.ui.bottomPanelExpanded
 })
 
-const connector = connect(mapStateToProps, { fetchLicensing, fetchProfile, toggleBottomPanel })
+const connector = connect(mapStateToProps, {
+  fetchLicensing,
+  fetchProfile,
+  toggleBottomPanel,
+  fetchLoadedModules,
+  loadModulesTranslations
+})
 export default connector(App)

@@ -15,6 +15,7 @@ type Props = ConnectedProps<typeof connector> & {
   fullWidth?: boolean
   superAdmin?: boolean
   children: React.ReactNode
+  noWrapper?: boolean
 }
 
 const PageContainer: FC<Props> = props => {
@@ -22,17 +23,22 @@ const PageContainer: FC<Props> = props => {
     props.updatePageHeader(props.title, props.helpText)
   }, [props.title])
 
-  return (
+  const Child = (
+    <AccessControl
+      superAdmin={props.superAdmin}
+      fallback={<Callout intent={Intent.DANGER}>{lang.tr('admin.pageRestrictedToAdmins')}</Callout>}
+    >
+      {props.children}
+    </AccessControl>
+  )
+  return props.noWrapper ? (
+    Child
+  ) : (
     <Fragment>
       <div
         className={cx('bp-sa-content', style.content, { [style.fullWidth]: props.fullWidth }, props.contentClassName)}
       >
-        <AccessControl
-          superAdmin={props.superAdmin}
-          fallback={<Callout intent={Intent.DANGER}>{lang.tr('admin.pageRestrictedToAdmins')}</Callout>}
-        >
-          {props.children}
-        </AccessControl>
+        {Child}
       </div>
     </Fragment>
   )

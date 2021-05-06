@@ -24,6 +24,11 @@ function render(data) {
 }
 
 function renderElement(data, channel) {
+  // These channels now use channel renderers
+  if (['telegram', 'twilio', 'slack', 'vonage'].includes(channel)) {
+    return utils.extractPayload('video', data)
+  }
+
   return render(data)
 }
 
