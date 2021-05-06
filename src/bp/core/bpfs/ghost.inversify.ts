@@ -3,10 +3,10 @@ import { TYPES } from 'core/app/types'
 import { ContainerModule, interfaces } from 'inversify'
 
 import { CacheInvalidators } from '.'
-import { DBStorageDriver } from './db-driver'
-import { DiskStorageDriver } from './disk-driver'
+import { DBStorageDriver } from './drivers/db-driver'
+import { DiskStorageDriver } from './drivers/disk-driver'
+import { GhostService } from './ghost-service'
 import { MemoryObjectCache } from './memory-cache'
-import { GhostService } from './service'
 
 export const GhostContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<CacheInvalidators.FileChangedInvalidator>(TYPES.FileCacheInvalidator)
