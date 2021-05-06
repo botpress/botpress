@@ -1712,6 +1712,18 @@ declare module 'botpress/sdk' {
     title?: string | MultiLangText
   }
 
+  export interface AudioContent extends Content {
+    type: 'audio'
+    audio: string
+    title?: string | MultiLangText
+  }
+
+  export interface VideoContent extends Content {
+    type: 'video'
+    video: string
+    title?: string | MultiLangText
+  }
+
   export interface CarouselContent extends Content {
     type: 'carousel'
     items: CardContent[]
@@ -2601,6 +2613,20 @@ declare module 'botpress/sdk' {
        * @param caption Caption to appear alongside your image
        */
       export function image(url: string, caption?: string | MultiLangText): ImageContent
+
+      /**
+       * Renders an audio element
+       * @param url Url of the audio file to send
+       * @param caption Caption to appear alongside your audio
+       */
+      export function audio(url: string, caption?: string | MultiLangText): AudioContent
+
+      /**
+       * Renders a video element
+       * @param url Url of the video file to send
+       * @param caption Caption to appear alongside your video
+       */
+      export function video(url: string, caption?: string | MultiLangText): VideoContent
 
       /**
        * Renders a carousel element

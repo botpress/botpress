@@ -25,6 +25,22 @@ export class RenderService {
     })
   }
 
+  renderAudio(url: string, caption?: string | sdk.MultiLangText): sdk.AudioContent {
+    return __unrendered({
+      type: 'audio',
+      audio: url,
+      title: caption
+    })
+  }
+
+  renderVideo(url: string, caption?: string | sdk.MultiLangText): sdk.VideoContent {
+    return __unrendered({
+      type: 'video',
+      video: url,
+      title: caption
+    })
+  }
+
   renderCard(
     title: string | sdk.MultiLangText,
     image?: string,

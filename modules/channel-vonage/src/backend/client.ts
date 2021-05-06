@@ -133,35 +133,26 @@ export class VonageClient {
     let payload: sdk.IO.IncomingEvent['payload'] = null
     switch (messageContent.type) {
       case 'text':
-        const text = messageContent.text
-        payload = { type: 'text', text }
-        break
-      case 'audio':
-        payload = {
-          type: 'voice',
-          url: messageContent.audio.url
-        }
+        payload = this.bp.experimental.render.text(messageContent.text)
         break
       case 'image':
-        payload = {
-          type: 'file', // TODO: Change image content-type type to 'image' instead of 'file'
-          title: messageContent.image.caption,
-          url: messageContent.image.url
-        }
+        payload = this.bp.experimental.render.image(messageContent.image.url, messageContent.image.caption)
+        break
+      case 'audio':
+        payload = this.bp.experimental.render.audio(messageContent.audio.url)
         break
       case 'video':
-        payload = {
-          type: messageContent.type,
-          title: `${path.basename(messageContent.video.url)}.mp4`, // TODO: Take for granted that video file will all be .mp4 files?
-          url: messageContent.video.url
-        }
+        payload = this.bp.experimental.render.video(
+          messageContent.video.url,
+          `${path.basename(messageContent.video.url)}.mp4`
+        )
         break
       // TODO: Add file and location to bp.render
       case 'file':
         payload = {
-          type: 'document', // TODO: Change to 'file' once image's type switch from 'file' to 'image
+          type: messageContent.type,
           title: messageContent.file.caption,
-          url: messageContent.file.url
+          file: messageContent.file.url
         }
         break
       case 'location':

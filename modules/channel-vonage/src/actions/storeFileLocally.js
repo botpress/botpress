@@ -30,12 +30,25 @@ const parseFilenameFromHeader = headers => {
  * @author Botpress, Inc.
  */
 const storeFileLocally = async () => {
-  if (!event.payload.url) {
+  let prop
+  if (event.payload.file) {
+    prop = 'file'
+  } else if (event.payload.image) {
+    prop = 'image'
+  } else if (event.payload.audio) {
+    prop = 'audio'
+  } else if (event.payload.video) {
+    prop = 'video'
+  }
+
+  if (!prop) {
     return
   }
 
+  const fileUrl = event.payload[prop]
+
   try {
-    const resp = await axios.get(event.payload.url, { responseType: 'arraybuffer' })
+    const resp = await axios.get(fileUrl, { responseType: 'arraybuffer' })
 
     const filename = parseFilenameFromHeader(resp.headers) || event.payload.title || event.payload.caption || uuidv4()
 
@@ -50,7 +63,7 @@ const storeFileLocally = async () => {
     } = await axios.post('/media', formData, { ...axiosConfig })
 
     bp.logger.info('[StoreFileLocally] - File stored successfully:', url)
-    event.payload.url = url
+    event.payload[prop] = url
   } catch (err) {
     let message = err.message
     if (err.response) {
