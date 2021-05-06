@@ -22,7 +22,6 @@ export class VonageTypingSender implements ChannelSender<VonageContext> {
 
   async send(context: VonageContext) {
     const delay = context.event.payload.delay ?? 1000
-    // TODO: vonage doesn't support typing indicators?
     await Promise.delay(delay)
   }
 }
