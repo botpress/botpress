@@ -225,7 +225,8 @@ export class VonageClient {
       botUrl: process.EXTERNAL_URL,
       messages: [],
       botPhoneNumber: this.config.botPhoneNumber,
-      prepareIndexResponse: this.prepareIndexResponse.bind(this)
+      prepareIndexResponse: this.prepareIndexResponse.bind(this),
+      isSandbox: this.config.useTestingApi
     }
 
     for (const renderer of this.renderers) {

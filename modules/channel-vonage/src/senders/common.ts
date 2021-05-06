@@ -40,8 +40,10 @@ export class VonageCommonSender implements ChannelSender<VonageContext> {
         )
       })
 
-      // TODO : delay for sandbox. don't delay when not in sandbox (should have a isSandbox property in context)
-      await Promise.delay(1000)
+      if (context.isSandbox) {
+        // sanbox is limited to 1 msg / sec
+        await Promise.delay(1000)
+      }
     }
   }
 }
