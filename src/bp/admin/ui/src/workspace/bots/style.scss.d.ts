@@ -9,6 +9,7 @@ interface CssExports {
   'compact_view': string;
   'create': string;
   'createbot_btn': string;
+  'customIcon': string;
   'extraFilters': string;
   'filterCallout': string;
   'filterField': string;

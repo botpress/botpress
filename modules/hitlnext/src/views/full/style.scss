@@ -63,6 +63,7 @@
       width: 25%;
       padding-left: var(--spacing-x-large);
       border-left: 1px solid var(--seashell);
+      overflow-y: auto;
 
       .createdDate {
         font-size: 10px;

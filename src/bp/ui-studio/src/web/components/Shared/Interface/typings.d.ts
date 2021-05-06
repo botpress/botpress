@@ -1,6 +1,7 @@
 import { IconName, MaybeElement, Position, IDialogProps } from '@blueprintjs/core'
 import React from 'react'
 
+/* @deprecated Please use import { ModuleUI } from 'botpress/shared' */
 declare module 'botpress/ui' {
   export function Container(props: ContainerProps): JSX.Element
   export function SidePanelSection(props: SidePanelSectionProps): JSX.Element
