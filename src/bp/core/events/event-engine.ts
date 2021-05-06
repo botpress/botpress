@@ -76,7 +76,8 @@ const mwSchema = {
     .regex(directionRegex)
     .required(),
   order: joi.number().default(0),
-  enabled: joi.boolean().default(true)
+  enabled: joi.boolean().default(true),
+  timeout: joi.string().optional()
 }
 
 const debug = DEBUG('middleware')
@@ -188,7 +189,7 @@ export class EventEngine {
     if (event.payload.__unrendered) {
       const payloads = this.renderForChannel!(event.payload, event.channel)
       const mevent = <any>event
-      mevent.payload = payloads[payloads.length - 1]
+      mevent.payload = _.isArray(payloads) ? _.last(payloads) : payloads
       mevent.type = mevent.payload.type
     }
 
@@ -229,6 +230,14 @@ export class EventEngine {
 
   isIncomingQueueEmpty(event: sdk.IO.IncomingEvent): boolean {
     return this.incomingQueue.isEmptyForJob(event)
+  }
+
+  isOutgoingQueueEmpty(event: sdk.IO.IncomingEvent): boolean {
+    return this.outgoingQueue.isEmptyForJob(event)
+  }
+
+  isOutgoingQueueLocked(event: sdk.IO.IncomingEvent): boolean {
+    return this.outgoingQueue.isQueueLockedForJob(event)
   }
 
   private async getBotMiddlewareChains(botId: string) {

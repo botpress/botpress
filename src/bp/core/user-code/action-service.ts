@@ -6,7 +6,7 @@ import { ActionScope, ActionServer, LocalActionDefinition } from 'common/typings
 import { createForAction } from 'core/app/api'
 import { BotService } from 'core/bots'
 import { GhostService } from 'core/bpfs'
-import { ActionExecutionError } from 'core/dialog'
+import { ActionExecutionError } from 'core/dialog/errors'
 import { addErrorToEvent, addStepToEvent, StepScopes, StepStatus } from 'core/events'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
@@ -160,7 +160,7 @@ export class ScopedActionService {
 
   async runAction(props: RunActionProps & { actionServer?: ActionServer }): Promise<void> {
     const { actionName, actionArgs, actionServer, incomingEvent } = props
-    process.ASSERT_LICENSED()
+    process.ASSERT_LICENSED?.()
 
     debug.forBot(incomingEvent.botId, 'run action', { actionName, incomingEvent, actionArgs })
 

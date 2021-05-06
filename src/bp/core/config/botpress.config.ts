@@ -648,6 +648,7 @@ export interface AlertingConfig {
   /**
    * The list of rules which triggers an incident. When triggered, the OnIncidentChangedStatus hook
    * is called with the incident.
+   * @default []
    */
   rules: IncidentRule[]
 }

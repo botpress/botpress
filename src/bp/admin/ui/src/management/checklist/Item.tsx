@@ -1,6 +1,7 @@
 import { Collapse, Icon, IconName, Intent, Position, Tag, Tooltip } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { FC, Fragment, useState } from 'react'
+import style from './style.scss'
 
 interface SourceInfo {
   type?: 'env' | 'config'
@@ -26,17 +27,17 @@ const Item: FC<Props> = props => {
 
   return (
     <div className="bp3-ui-text">
-      <div onClick={() => setOpen(!isOpen)} className="checklist-header">
+      <div onClick={() => setOpen(!isOpen)} className={style.header}>
         <div>
           <Icon icon={icon} intent={props.status} />
-          <span className="title">{props.title}</span>
+          <span className={style.title}>{props.title}</span>
         </div>
         <Icon icon={isOpen ? 'caret-up' : 'caret-down'} />
       </div>
 
       <Collapse isOpen={isOpen}>
         {props.docs && (
-          <span className="checklist-docs">
+          <span className={style.docs}>
             <Tooltip content="Click here to read more about this item in the documentation" position={Position.BOTTOM}>
               <a href={props.docs} target="_blank">
                 <Icon icon="info-sign" />
@@ -45,13 +46,13 @@ const Item: FC<Props> = props => {
           </span>
         )}
 
-        <div className="checklist-item">
+        <div className={style.item}>
           {props.children}
           {props.source && (
-            <div className="checklist-sources">
+            <div className={style.sources}>
               <blockquote className="bp3-blockquote">
                 {props.source.map(source => (
-                  <div className="checklist-source" key={source.key}>
+                  <div className={style.source} key={source.key}>
                     {source.type ? (
                       <Fragment>
                         <Tag intent={source.type === 'env' ? Intent.NONE : Intent.PRIMARY}>{source.key}</Tag>{' '}

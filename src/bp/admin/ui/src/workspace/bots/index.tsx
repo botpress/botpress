@@ -13,12 +13,11 @@ import {
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
 import { confirmDialog, lang, telemetry, toast } from 'botpress/shared'
-import { ModuleInfo, ServerHealth, UserProfile } from 'common/typings'
+import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { generatePath, RouteComponentProps } from 'react-router'
-import { Alert, Col, Row } from 'reactstrap'
 
 import api from '~/app/api'
 import { Downloader } from '~/app/common/Downloader'
@@ -39,6 +38,7 @@ import CreateBotModal from './CreateBotModal'
 import EditStageModal from './EditStageModal'
 import ImportBotModal from './ImportBotModal'
 import RollbackBotModal from './RollbackBotModal'
+import style from './style.scss'
 
 const botFilterFields = ['name', 'id', 'description']
 
@@ -63,7 +63,7 @@ class Bots extends Component<Props> {
     this.props.fetchBots()
     this.props.fetchBotHealth()
 
-    if (!this.props.modules.length && this.props.profile && this.props.profile.isSuperAdmin) {
+    if (!this.props.loadedModules.length && this.props.profile && this.props.profile.isSuperAdmin) {
       this.props.fetchModules()
     }
 
@@ -219,15 +219,13 @@ class Bots extends Component<Props> {
       return null
     }
 
-    const nluModule = this.props.modules.find(m => m.name === 'nlu')
-
     return (
-      <div className="bp_table bot_views compact_view">
+      <div className={cx(style.bot_views, style.compact_view, style.table)}>
         {bots.map(bot => (
           <Fragment key={bot.id}>
             <BotItemCompact
               bot={bot}
-              nluModuleEnabled={nluModule && nluModule.enabled}
+              loadedModules={this.props.loadedModules}
               hasError={this.findBotError(bot.id)}
               deleteBot={this.deleteBot.bind(this, bot.id)}
               exportBot={this.exportBot.bind(this, bot.id)}
@@ -249,30 +247,30 @@ class Bots extends Component<Props> {
     const botsByStage = _.groupBy(bots, 'pipeline_status.current_stage.id')
     const colSize = Math.floor(12 / pipeline.length)
 
-    const nluModule = this.props.modules.find(m => m.name === 'nlu')
-
     return (
       <Fragment>
-        <Row className="pipeline_view bot_views">
+        <div className={cx(style.row, style.pipeline_view, style.bot_views)}>
           {pipeline.map((stage, idx) => {
             const allowStageChange = this.isLicensed() && idx !== pipeline.length - 1
             return (
-              <Col key={stage.id} md={colSize}>
+              <div key={stage.id} style={{ flex: colSize, marginRight: 20 }}>
                 {pipeline.length > 1 && (
-                  <div className="pipeline_title">
+                  <div className={style.pipeline_title}>
                     <h3>{stage.label}</h3>
                     <AccessControl resource="admin.bots.*" operation="write" superAdmin>
-                      <Button className="pipeline_edit-button" onClick={() => this.toggleEditStage(stage)}>
+                      <Button className={style.pipeline_edit_button} onClick={() => this.toggleEditStage(stage)}>
                         <Icon icon="edit" />
                       </Button>
                     </AccessControl>
                   </div>
                 )}
-                {idx === 0 && <div className="pipeline_bot create">{this.renderCreateNewBotButton()}</div>}
+                {idx === 0 && (
+                  <div className={cx(style.pipeline_bot, style.create)}>{this.renderCreateNewBotButton()}</div>
+                )}
                 {(botsByStage[stage.id] || []).map(bot => (
                   <Fragment key={bot.id}>
                     <BotItemPipeline
-                      nluModuleEnabled={nluModule && nluModule.enabled}
+                      loadedModules={this.props.loadedModules}
                       bot={bot}
                       isApprover={stage.reviewers.find(r => r.email === email && r.strategy === strategy) !== undefined}
                       userEmail={email!}
@@ -290,10 +288,10 @@ class Bots extends Component<Props> {
                     />
                   </Fragment>
                 ))}
-              </Col>
+              </div>
             )
           })}
-        </Row>
+        </div>
       </Fragment>
     )
   }
@@ -325,19 +323,19 @@ class Bots extends Component<Props> {
       <div>
         {hasBots && (
           <Fragment>
-            <div className="filterWrapper">
+            <div className={style.filterWrapper}>
               <InputGroup
                 id="input-filter"
                 placeholder={lang.tr('admin.workspace.bots.filter')}
                 value={this.state.filter}
                 onChange={e => this.setState({ filter: e.target.value.toLowerCase() })}
                 autoComplete="off"
-                className="filterField"
+                className={style.filterField}
               />
               {this.isPipelineView && <Button icon="filter" onClick={this.toggleFilters}></Button>}
             </div>
             {this.state.showFilters && (
-              <div className="extraFilters">
+              <div className={style.extraFilters}>
                 <h2>{lang.tr('admin.workspace.bots.extraFilters')}</h2>
                 <Checkbox
                   label={lang.tr('admin.workspace.bots.needYourApproval')}
@@ -348,13 +346,13 @@ class Bots extends Component<Props> {
             )}
 
             {this.state.filter && !filteredBots.length && (
-              <Callout title={lang.tr('admin.workspace.bots.noBotMatches')} className="filterCallout" />
+              <Callout title={lang.tr('admin.workspace.bots.noBotMatches')} className={style.filterCallout} />
             )}
           </Fragment>
         )}
 
         {!hasBots && (
-          <Callout title={lang.tr('admin.workspace.bots.noBotYet')} className="filterCallout">
+          <Callout title={lang.tr('admin.workspace.bots.noBotYet')} className={style.filterCallout}>
             <p>
               <br />
               {lang.tr('admin.workspace.bots.alwaysAssignedToWorkspace')}
@@ -364,7 +362,9 @@ class Bots extends Component<Props> {
           </Callout>
         )}
 
-        {this.hasUnlangedBots() && <Alert color="warning">{lang.tr('admin.workspace.bots.noSpecifiedLanguage')}</Alert>}
+        {this.hasUnlangedBots() && (
+          <Callout intent={Intent.WARNING}>{lang.tr('admin.workspace.bots.noSpecifiedLanguage')}</Callout>
+        )}
         {botsView}
       </div>
     )
@@ -420,7 +420,7 @@ class Bots extends Component<Props> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  modules: state.modules.modules,
+  loadedModules: state.modules.loadedModules,
   bots: state.bots.bots,
   health: state.bots.health,
   workspace: state.bots.workspace,

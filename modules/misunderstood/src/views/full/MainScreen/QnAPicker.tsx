@@ -202,13 +202,13 @@ class QnAPicker extends React.Component<Props, State> {
       >
         <h5>
           Q:&nbsp;{title}&nbsp;
-          <VariationsOverlay elements={questions} />
+          <VariationsOverlay elements={questions} axios={this.props.axios} language={this.props.language} />
         </h5>
 
         {answers[0] && (
           <p>
             A:&nbsp;{answers[0]}
-            <VariationsOverlay elements={answers} />
+            <VariationsOverlay elements={answers} axios={this.props.axios} language={this.props.language} />
           </p>
         )}
 

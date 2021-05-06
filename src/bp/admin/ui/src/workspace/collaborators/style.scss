@@ -1,0 +1,94 @@
+@import '../../app/common/table.scss';
+
+.container {
+  border: 1px solid #efefef;
+}
+
+.picture {
+  img {
+    width: 65px;
+    height: 65px;
+  }
+
+  border: 2px solid #efefef;
+}
+
+.user {
+  display: flex;
+  justify-content: space-between;
+}
+
+.role_header {
+  height: 35px;
+  border-bottom: 1px solid #efefef;
+  background: #fefefe;
+  padding: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .role {
+    display: flex;
+    align-items: center;
+    .title {
+      margin-left: 10px;
+    }
+  }
+
+  svg {
+    margin-right: 5px;
+  }
+}
+
+.list {
+  display: flex;
+  justify-content: space-between;
+
+  .btn-group {
+    float: right;
+  }
+
+  .details {
+    margin-left: 8px;
+  }
+
+  .nameZone {
+    height: 35px;
+    font-weight: bold;
+  }
+
+  .dates {
+    margin-top: 35px;
+    font-weight: normal;
+    font-size: 0.7em;
+    width: 150px;
+  }
+
+  .field {
+    display: inline-block;
+  }
+
+  .emailField {
+    min-width: 400px;
+    display: inline-block;
+  }
+}
+
+.infoSquare {
+  width: 200px;
+  text-align: center;
+}
+
+.filterWrapper {
+  margin-bottom: 10px;
+}
+
+.filterCallout {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.pullLeft {
+  float: left;
+}

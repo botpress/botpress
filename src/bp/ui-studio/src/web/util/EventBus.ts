@@ -1,7 +1,7 @@
+import { auth } from 'botpress/shared'
 import { EventEmitter2 } from 'eventemitter2'
 import io from 'socket.io-client'
-import { authEvents, getUniqueVisitorId, setVisitorId } from '~/util/Auth'
-import { getToken } from '../../../../ui-shared-lite/auth'
+import { authEvents } from '~/util/Auth'
 
 class EventBus extends EventEmitter2 {
   private adminSocket: SocketIOClient.Socket
@@ -34,7 +34,7 @@ class EventBus extends EventEmitter2 {
   }
 
   updateVisitorId = (newId: string, userIdScope?: string) => {
-    setVisitorId(newId, userIdScope)
+    auth.setVisitorId(newId, userIdScope)
   }
 
   private updateVisitorSocketId() {
@@ -43,10 +43,10 @@ class EventBus extends EventEmitter2 {
 
   setup = (userIdScope?: string) => {
     const query = {
-      visitorId: getUniqueVisitorId(userIdScope)
+      visitorId: auth.getUniqueVisitorId(userIdScope)
     }
 
-    const token = getToken()
+    const token = auth.getToken()
     if (token) {
       Object.assign(query, { token })
     }

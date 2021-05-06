@@ -12,6 +12,7 @@ interface SecuredApi {
   toastErrors?: boolean
   timeout?: number
   useV1?: boolean
+  appendPath?: string
 }
 
 export const toastError = error => {
@@ -70,11 +71,9 @@ const createClient = (clientOptions: any, options: { toastErrors?: boolean }) =>
   return client
 }
 
-const getApiUrl = (useV1?: boolean) => {
+const getApiUrl = (useV1?: boolean, appendPath?: string) => {
   const version = useV1 ? 'v1' : 'v2'
-  return process.env.REACT_APP_API_URL
-    ? { baseURL: `${process.env.REACT_APP_API_URL}api/${version}` }
-    : { baseURL: `${window['ROOT_PATH']}/api/${version}` }
+  return { baseURL: `${window['ROOT_PATH']}/api/${version}${appendPath || ''}` }
 }
 
 export default {
@@ -82,7 +81,13 @@ export default {
     return getApiUrl().baseURL
   },
 
-  getSecured({ token = undefined, toastErrors = true, timeout = 10000, useV1 = false }: SecuredApi = {}) {
+  getSecured({
+    token = undefined,
+    toastErrors = true,
+    timeout = 10000,
+    useV1 = false,
+    appendPath = ''
+  }: SecuredApi = {}) {
     if (!token) {
       token = auth.getToken(true) as string
     }
@@ -94,7 +99,7 @@ export default {
           ...(window.USE_JWT_COOKIES ? { [CSRF_TOKEN_HEADER]: token } : { Authorization: `Bearer ${token}` }),
           'X-BP-Workspace': getActiveWorkspace()
         },
-        ...getApiUrl(useV1)
+        ...getApiUrl(useV1, appendPath)
       },
       { toastErrors }
     )

@@ -15,6 +15,7 @@ import DeleteWorkspaceModal from './DeleteWorkspaceModal'
 import EditWorkspaceModal from './EditWorkspaceModal'
 import { fetchWorkspaces } from './reducer'
 import RolloutStrategyModal from './RolloutStrategyModal'
+import style from './style.scss'
 
 type Props = ConnectedProps<typeof connector>
 
@@ -63,10 +64,10 @@ const Workspaces: FC<Props> = props => {
   return (
     <PageContainer title="Manage Workspaces">
       <SplitPage sideMenu={<CreateWorkspaceModal refreshWorkspaces={refreshWorkspaces} />}>
-        <div className="bp_table">
+        <div className={style.table}>
           {props.workspaces.map(workspace => (
-            <div className="bp_table-row" key={workspace.id}>
-              <div className="actions">
+            <div className={style.tableRow} key={workspace.id}>
+              <div className={style.actions}>
                 <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
                   <Button id="btn-menu" icon={<Icon icon="menu" />} minimal={true} />
                   <Menu>
@@ -98,9 +99,9 @@ const Workspaces: FC<Props> = props => {
                   </Menu>
                 </Popover>
               </div>
-              <div className="spaced">
+              <div className={style.spaced}>
                 <div>
-                  <a className="link" onClick={() => openWorkspace(workspace.id)}>
+                  <a className={style.link} onClick={() => openWorkspace(workspace.id)}>
                     <strong>{workspace.name}</strong>
                   </a>{' '}
                   <span>({workspace.id})</span>
