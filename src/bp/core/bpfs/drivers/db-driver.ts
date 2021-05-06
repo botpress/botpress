@@ -1,6 +1,7 @@
 import { DirectoryListingOptions } from 'botpress/sdk'
 import { TYPES } from 'core/app/types'
 import Database from 'core/database'
+import { BPError } from 'core/dialog/errors'
 import { filterByGlobs, forceForwardSlashes } from 'core/misc/utils'
 import { WrapErrorsWith } from 'errors'
 import { inject, injectable } from 'inversify'
@@ -9,9 +10,7 @@ import nanoid from 'nanoid'
 import path from 'path'
 import { VError } from 'verror'
 
-import { BPError } from '../dialog/errors'
-
-import { FileRevision, StorageDriver } from '.'
+import { FileRevision, StorageDriver } from '../'
 
 // TODO: Create a janitor that clears deleted files
 @injectable()

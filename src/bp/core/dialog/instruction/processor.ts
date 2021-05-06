@@ -1,4 +1,4 @@
-import { TYPES } from 'core/types'
+import { TYPES } from 'core/app/types'
 import { inject, injectable } from 'inversify'
 
 import { ProcessingResult } from '.'
