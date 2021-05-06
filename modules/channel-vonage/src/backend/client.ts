@@ -300,7 +300,7 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
 
   async function incomingHandler(event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) {
     if (event.channel !== CHANNEL_NAME) {
-      return next()
+      return next(undefined, false, true)
     }
 
     const client: VonageClient = clients[event.botId]
