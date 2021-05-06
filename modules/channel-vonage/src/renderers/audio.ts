@@ -1,3 +1,4 @@
+import * as sdk from 'botpress/sdk'
 import { ChannelRenderer } from 'common/channel'
 import { formatUrl } from 'common/url'
 import { CHANNEL_NAME } from '../backend/client'
@@ -21,8 +22,7 @@ export class VonageAudioRenderer implements ChannelRenderer<VonageContext> {
   }
 
   async render(context: VonageContext) {
-    // TODO : const payload = context.payload as sdk.AudioContent
-    const payload = context.payload
+    const payload = context.payload as sdk.AudioContent
 
     context.messages.push({
       type: 'audio',
