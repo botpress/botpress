@@ -6,6 +6,8 @@ const glob = require('glob')
 const mkdirp = require('mkdirp')
 const fs = require('fs')
 
+const nlu = require('./gulp.nlu')
+
 const promisify = require('util').promisify
 const execAsync = promisify(exec)
 
@@ -71,7 +73,17 @@ const copyNativeExtensions = async () => {
   }
 }
 
-const packageCore = () => gulp.series([copyNativeExtensions, packageApp])
+const packageCore = () => {
+  const osName = getTargetOSName()
+  const platform = osName === 'windows' ? 'win32' : osName
+  const pwd = process.cwd()
+
+  return gulp.series([
+    copyNativeExtensions,
+    nlu.installNLU([`-c=${pwd}/package.json`, `-o=${pwd}/out/binaries`, `-p=${platform}`]),
+    packageApp
+  ])
+}
 
 const package = modules => {
   return gulp.series([

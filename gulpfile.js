@@ -1,6 +1,7 @@
 const core = require('./build/gulp.core')
 const migration = require('./build/gulp.migration')
 const modules = require('./build/gulp.modules')
+const nlu = require('./build/gulp.nlu')
 const package = require('./build/gulp.package')
 const gulp = require('gulp')
 const ui = require('./build/gulp.ui')
@@ -64,6 +65,9 @@ gulp.task('build:sharedLite', ui.buildSharedLite())
 gulp.task('build:shared', ui.buildShared())
 gulp.task('init:studio', ui.initStudio)
 gulp.task('build:modules', gulp.series([modules.build()]))
+
+const pwd = process.cwd()
+gulp.task('install:nlu', nlu.installNLU([`-c=${pwd}/package.json`, `-o=${pwd}/out/bp`]))
 
 gulp.task('start:guide', docs.startDevServer)
 gulp.task('build:guide', docs.buildGuide())
