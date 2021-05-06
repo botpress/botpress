@@ -58,4 +58,4 @@ When wanting to test the integration with Vonage and WhatsApp, you need to enabl
 
 ## File Reception
 
-Channel-vonage currently supports receiving `image` , `audio`, `video`, `document` , and `location`. **Please, keep in mind that the links coming from the Vonage API are only valid for 10 minutes**. An action (Channel Vonage - Store File Locally) is available in order to store the file locally.
+Channel-vonage currently supports receiving `image` , `audio`, `video`, `file` , and `location`. **Please, keep in mind that the links coming from the Vonage API are only valid for 10 minutes**. An action (Channel Vonage - Store File Locally) is available in order to store the file locally.
