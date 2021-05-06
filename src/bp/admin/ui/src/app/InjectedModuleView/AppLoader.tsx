@@ -23,7 +23,7 @@ const AppLoader: FC<Props> = props => {
     return () => {
       props.setWorkspaceAppBotId(undefined)
     }
-  }, [botId])
+  }, [botId, props.translationsLoaded])
 
   const module = props.modules.find(x => x.name === appName)
 
@@ -36,7 +36,8 @@ const AppLoader: FC<Props> = props => {
 
 const mapStateToProps = (state: AppState) => ({
   contentLang: state.ui.contentLang,
-  modules: state.modules.loadedModules
+  modules: state.modules.loadedModules,
+  translationsLoaded: state.modules.translationsLoaded
 })
 
 const connector = connect(mapStateToProps, { setWorkspaceAppBotId })

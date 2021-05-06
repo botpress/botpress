@@ -7,14 +7,17 @@ import { AppThunk } from '~/app/rootReducer'
 
 const FETCH_MODULES_RECEIVED = 'bots/FETCH_MODULES_RECEIVED'
 const FETCH_LOADED_MODULES_RECEIVED = 'bots/FETCH_LOADED_MODULES_RECEIVED'
+const MODULE_TRANSLATIONS_LOADED = 'bots/MODULE_TRANSLATIONS_LOADED'
 
 interface ModulesState {
   loadedModules: ModuleDefinition[]
   modules: ModuleInfo[]
+  translationsLoaded: boolean
 }
 const initialState: ModulesState = {
   loadedModules: [],
-  modules: []
+  modules: [],
+  translationsLoaded: false
 }
 
 export default (state = initialState, action): ModulesState => {
@@ -29,6 +32,12 @@ export default (state = initialState, action): ModulesState => {
       return {
         ...state,
         loadedModules: action.modules
+      }
+
+    case MODULE_TRANSLATIONS_LOADED:
+      return {
+        ...state,
+        translationsLoaded: true
       }
 
     default:
@@ -51,10 +60,12 @@ export const fetchLoadedModules = (): AppThunk => {
 }
 
 export const loadModulesTranslations = (): AppThunk => {
-  return async () => {
+  return async dispatch => {
     const { data } = await api.getSecured({ useV1: true }).get('/modules/translations')
 
     lang.extend(data)
     lang.init()
+
+    dispatch({ type: MODULE_TRANSLATIONS_LOADED })
   }
 }

@@ -4,7 +4,8 @@ import { action, computed, observable, runInAction } from 'mobx'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import path from 'path'
 
-import { EditableFile } from '../../../backend/typings'
+import { FileDefinition, FileTypes } from '../../../backend/definitions'
+import { EditableFile, FilePermissions } from '../../../backend/typings'
 
 import { wrapper } from '../utils/wrapper'
 
@@ -18,6 +19,24 @@ const getFileUri = (file: EditableFile): monaco.Uri => {
   const filepath = fileType === 'json' ? location : location.replace(/\.js$/i, '.ts')
 
   return monaco.Uri.parse(`bp://files/${filepath}`)
+}
+
+// Copied from backend/utils
+export const arePermissionsValid = (
+  def: FileDefinition,
+  editableFile: EditableFile,
+  permissions: FilePermissions,
+  actionType: 'read' | 'write'
+): boolean => {
+  const hasGlobalPerm = def.allowGlobal && permissions[`global.${def.permission}`][actionType]
+  const hasScopedPerm = def.allowScoped && permissions[`bot.${def.permission}`][actionType]
+
+  const isGlobalValid = def.allowGlobal && !editableFile.botId
+  const isScopedValid = def.allowScoped && !!editableFile.botId
+
+  const hasRootPerm = def.allowRoot && permissions[`root.${def.permission}`][actionType]
+
+  return (hasGlobalPerm && isGlobalValid) || (hasScopedPerm && isScopedValid) || hasRootPerm
 }
 
 class EditorStore {
@@ -42,6 +61,12 @@ class EditorStore {
   }
 
   @computed
+  get canSaveFile() {
+    const fileDef = FileTypes[this.currentFile?.type]
+    return fileDef && arePermissionsValid(fileDef, this.currentFile, this.rootStore.permissions, 'write')
+  }
+
+  @computed
   get currentFile() {
     return this.openedFiles.find(x => x.uri === this.currentTab?.uri)
   }
@@ -62,6 +87,10 @@ class EditorStore {
 
   @action.bound
   async saveFile(uri: monaco.Uri) {
+    if (!this.canSaveFile) {
+      return
+    }
+
     const file = this.openedFiles.find(x => x.uri === uri)
     const model = monaco.editor.getModel(uri)
 
