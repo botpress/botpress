@@ -207,7 +207,11 @@ declare module 'botpress/sdk' {
     moduleView?: ModuleViewOptions
     /** If set to true, no menu item will be displayed */
     noInterface?: boolean
-    /** An icon to display next to the name, if none is specified, it will receive a default one */
+    /**
+     * An icon to display next to the name, if none is specified, it will receive a default one
+     * There is a separate icon for the admin and the studio, if you set menuIcon to 'icon.svg',
+     * please provide an icon named 'studio_icon.svg' and 'admin_icon.svg'
+     */
     menuIcon?: string
     /**
      * The name displayed on the menu
@@ -218,6 +222,13 @@ declare module 'botpress/sdk' {
     homepage?: string
     /** Whether or not the module is likely to change */
     experimental?: boolean
+    /** Workspace Apps are accessible on the admin panel */
+    workspaceApp?: {
+      /** Adds a link on the Bots page to access this app for a specific bot */
+      bots?: boolean
+      /** Adds an icon on the menu to access this app without a bot ID */
+      global?: boolean
+    }
   }
 
   /**
@@ -1712,6 +1723,18 @@ declare module 'botpress/sdk' {
     title?: string | MultiLangText
   }
 
+  export interface AudioContent extends Content {
+    type: 'audio'
+    audio: string
+    title?: string | MultiLangText
+  }
+
+  export interface VideoContent extends Content {
+    type: 'video'
+    video: string
+    title?: string | MultiLangText
+  }
+
   export interface CarouselContent extends Content {
     type: 'carousel'
     items: CardContent[]
@@ -2601,6 +2624,20 @@ declare module 'botpress/sdk' {
        * @param caption Caption to appear alongside your image
        */
       export function image(url: string, caption?: string | MultiLangText): ImageContent
+
+      /**
+       * Renders an audio element
+       * @param url Url of the audio file to send
+       * @param caption Caption to appear alongside your audio
+       */
+      export function audio(url: string, caption?: string | MultiLangText): AudioContent
+
+      /**
+       * Renders a video element
+       * @param url Url of the video file to send
+       * @param caption Caption to appear alongside your video
+       */
+      export function video(url: string, caption?: string | MultiLangText): VideoContent
 
       /**
        * Renders a carousel element

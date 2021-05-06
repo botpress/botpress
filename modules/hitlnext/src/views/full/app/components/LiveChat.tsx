@@ -11,32 +11,61 @@ interface Props {
   currentAgent: IAgent
 }
 
+const INJECTION_ID = 'bp-channel-web-injection'
+const INJECTION_URL = 'assets/modules/channel-web/inject.js'
 const WEBCHAT_ID = 'hitl-webchat'
 const WRAPPER_ID = `${WEBCHAT_ID}-wrapper`
+let intervalId
 
 const LiveChat: React.FC<Props> = ({ handoff, currentAgent }) => {
+  const [webchatLoaded, setWebchatLoaded] = useState(false)
   const [webchatReady, setWebchatReady] = useState(false)
 
-  function getWebchatStore() {
-    return window[WEBCHAT_ID].webchat_store
+  const loadWebchat = () => {
+    // Ensure the webchat is only added once to the page
+    if (document.getElementById(INJECTION_ID)) {
+      setWebchatLoaded(true)
+      return
+    }
+
+    const script = window.document.createElement('script')
+    script.src = INJECTION_URL
+    script.id = INJECTION_ID
+    window.document.body.appendChild(script)
+
+    intervalId = setInterval(() => {
+      // Once added, the webchat takes some time before being ready to initialize
+      if (window.botpressWebChat) {
+        setWebchatLoaded(true)
+        clearInterval(intervalId)
+      }
+    }, 500)
   }
 
-  function webchatEventListener(message: MessageEvent) {
+  const webchatEventListener = (message: MessageEvent) => {
     if (message.data.chatId !== WEBCHAT_ID) {
       return
     }
-    const store = getWebchatStore()
 
     if (message.data.name === 'webchatLoaded') {
-      store.view.setContainerWidth('100%')
-      store.view.setLayoutWidth('100%')
-      store.view.showChat()
+      window.botpressWebChat.sendEvent({ type: 'show' }, WEBCHAT_ID)
     } else if (message.data.name === 'webchatReady') {
       setWebchatReady(true)
     }
   }
 
   useEffect(() => {
+    loadWebchat()
+
+    window.addEventListener('message', webchatEventListener)
+    return () => window.removeEventListener('message', webchatEventListener)
+  }, [])
+
+  useEffect(() => {
+    if (!webchatLoaded) {
+      return
+    }
+
     const webchatConfig = {
       host: window.ROOT_PATH,
       botId: window.BOT_ID,
@@ -47,7 +76,6 @@ const LiveChat: React.FC<Props> = ({ handoff, currentAgent }) => {
       chatId: WEBCHAT_ID,
       hideWidget: true,
       disableAnimations: true,
-      exposeStore: true,
       className: style.webchatIframe,
       showPoweredBy: false,
       showUserAvatar: false,
@@ -55,6 +83,8 @@ const LiveChat: React.FC<Props> = ({ handoff, currentAgent }) => {
       enableTranscriptDownload: false,
       enableConversationDeletion: false,
       closeOnEscape: false,
+      containerWidth: '100%',
+      layoutWidth: '100%',
       composerPlaceholder: lang.tr('module.hitlnext.conversation.composerPlaceholder'),
       stylesheet: 'assets/modules/hitlnext/webchat-theme.css',
       overrides: {
@@ -66,17 +96,16 @@ const LiveChat: React.FC<Props> = ({ handoff, currentAgent }) => {
         ]
       }
     }
+
     window.botpressWebChat.init(webchatConfig, `#${WRAPPER_ID}`)
-    window.addEventListener('message', webchatEventListener)
-    return () => window.removeEventListener('message', webchatEventListener)
-  }, [])
+  }, [webchatLoaded])
 
   useEffect(() => {
     if (!webchatReady) {
       return
     }
-    const store = getWebchatStore()
-    store.fetchConversation(handoff.agentThreadId)
+
+    window.botpressWebChat.sendEvent({ type: 'loadConversation', conversationId: handoff.agentThreadId })
   }, [handoff])
 
   return (

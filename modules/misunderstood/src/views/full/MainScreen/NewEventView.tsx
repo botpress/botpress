@@ -1,7 +1,6 @@
 import { Button, ButtonGroup, Intent } from '@blueprintjs/core'
 import { AxiosStatic } from 'axios'
-import { lang } from 'botpress/shared'
-import { SplashScreen } from 'botpress/ui'
+import { lang, ModuleUI } from 'botpress/shared'
 import pick from 'lodash/pick'
 import React from 'react'
 
@@ -31,6 +30,8 @@ interface State {
   resolution: string | null
   resolutionParams: string | object | null
 }
+
+const { SplashScreen } = ModuleUI
 
 class NewEventView extends React.Component<Props, State> {
   state = {

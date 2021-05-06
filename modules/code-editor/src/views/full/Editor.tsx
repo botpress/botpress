@@ -103,7 +103,7 @@ class Editor extends React.Component<Props> {
       this.editor.restoreViewState(file.state)
     }
 
-    this.editor.updateOptions({ readOnly })
+    this.editor.updateOptions({ readOnly: readOnly || !this.props.editor.canSaveFile })
     this.editor.focus()
   }
 
@@ -113,9 +113,9 @@ class Editor extends React.Component<Props> {
       await this.editor.getAction('editor.action.formatDocument').run()
     }
 
-    await this.props.editor.saveFile(uri)
-
-    toast.success(lang.tr('module.code-editor.store.fileSaved'))
+    if (await this.props.editor.saveFile(uri)) {
+      toast.success(lang.tr('module.code-editor.store.fileSaved'))
+    }
   }
 
   closeFile = async (uri?: monaco.Uri) => {
@@ -221,9 +221,11 @@ class Editor extends React.Component<Props> {
           </div>
           <div id="monaco-editor" ref={ref => (this.editorContainer = ref)} className={style.editor}>
             <div className={style.floatingButtons}>
-              <Tooltip content={lang.tr('save')} position={Position.TOP}>
-                <AnchorButton onClick={() => this.saveChanges()} disabled={!hasChanges} icon="floppy-disk" />
-              </Tooltip>
+              {this.props.editor.canSaveFile && (
+                <Tooltip content={lang.tr('save')} position={Position.TOP}>
+                  <AnchorButton onClick={() => this.saveChanges()} disabled={!hasChanges} icon="floppy-disk" />
+                </Tooltip>
+              )}
               &nbsp;
               <Tooltip content={lang.tr(hasChanges ? 'discard' : 'close')} position={Position.TOP}>
                 <AnchorButton onClick={() => this.closeFile()} icon={hasChanges ? 'disable' : 'cross'} />

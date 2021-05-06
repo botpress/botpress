@@ -1,14 +1,14 @@
-import { Button } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
-import { KeyboardShortcut, SplashScreen } from 'botpress/ui'
+import { Button, Icon } from '@blueprintjs/core'
+import { lang, ModuleUI } from 'botpress/shared'
 import React from 'react'
-import { MdCode } from 'react-icons/md'
 
 import style from '../style.scss'
 
+const { KeyboardShortcut, SplashScreen } = ModuleUI
+
 export default ({ hasRawPermissions, isAdvanced, setAdvanced }) => (
   <SplashScreen
-    icon={<MdCode />}
+    icon={<Icon icon="code" iconSize={140} />}
     title={lang.tr('module.code-editor.splash.codeEditor')}
     description={
       isAdvanced ? (

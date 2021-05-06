@@ -63,7 +63,7 @@ class Bots extends Component<Props> {
     this.props.fetchBots()
     this.props.fetchBotHealth()
 
-    if (!this.props.modules.length && this.props.profile && this.props.profile.isSuperAdmin) {
+    if (!this.props.loadedModules.length && this.props.profile && this.props.profile.isSuperAdmin) {
       this.props.fetchModules()
     }
 
@@ -219,15 +219,13 @@ class Bots extends Component<Props> {
       return null
     }
 
-    const nluModule = this.props.modules.find(m => m.name === 'nlu')
-
     return (
       <div className={cx(style.bot_views, style.compact_view, style.table)}>
         {bots.map(bot => (
           <Fragment key={bot.id}>
             <BotItemCompact
               bot={bot}
-              nluModuleEnabled={nluModule && nluModule.enabled}
+              loadedModules={this.props.loadedModules}
               hasError={this.findBotError(bot.id)}
               deleteBot={this.deleteBot.bind(this, bot.id)}
               exportBot={this.exportBot.bind(this, bot.id)}
@@ -248,8 +246,6 @@ class Bots extends Component<Props> {
 
     const botsByStage = _.groupBy(bots, 'pipeline_status.current_stage.id')
     const colSize = Math.floor(12 / pipeline.length)
-
-    const nluModule = this.props.modules.find(m => m.name === 'nlu')
 
     return (
       <Fragment>
@@ -274,7 +270,7 @@ class Bots extends Component<Props> {
                 {(botsByStage[stage.id] || []).map(bot => (
                   <Fragment key={bot.id}>
                     <BotItemPipeline
-                      nluModuleEnabled={nluModule && nluModule.enabled}
+                      loadedModules={this.props.loadedModules}
                       bot={bot}
                       isApprover={stage.reviewers.find(r => r.email === email && r.strategy === strategy) !== undefined}
                       userEmail={email!}
@@ -424,7 +420,7 @@ class Bots extends Component<Props> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  modules: state.modules.modules,
+  loadedModules: state.modules.loadedModules,
   bots: state.bots.bots,
   health: state.bots.health,
   workspace: state.bots.workspace,

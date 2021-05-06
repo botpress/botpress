@@ -21,7 +21,7 @@
 
   --header-height: 50px;
   --statusbar-height: 28px;
-  --container-height: calc(100vh - var(--statusbar-height));
+  --container-height: calc(100vh - var(--header-height) - var(--statusbar-height));
   --sa-page-header-height: 35px;
   --page-header-height: 108px;
 }
