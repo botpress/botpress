@@ -19,8 +19,8 @@ import tmp, { file } from 'tmp'
 import { VError } from 'verror'
 
 import { FileRevision, PendingRevisions, ReplaceContent, ServerWidePendingRevisions, StorageDriver } from '.'
-import { DBStorageDriver } from './db-driver'
-import { DiskStorageDriver } from './disk-driver'
+import { DBStorageDriver } from './drivers/db-driver'
+import { DiskStorageDriver } from './drivers/disk-driver'
 
 export interface BpfsScopedChange {
   // An undefined bot ID = global

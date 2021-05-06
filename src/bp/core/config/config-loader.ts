@@ -113,6 +113,10 @@ export class ConfigProvider {
     const content = await this.ghostService.global().readFileAsString('/', 'botpress.config.json')
     const config = _.merge(JSON.parse(content), partialConfig)
 
+    await this.setBotpressConfig(config, clearHash)
+  }
+
+  async setBotpressConfig(config: BotpressConfig, clearHash?: boolean): Promise<void> {
     await this.ghostService.global().upsertFile('/', 'botpress.config.json', stringify(config))
 
     if (clearHash) {
