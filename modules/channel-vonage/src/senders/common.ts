@@ -1,7 +1,7 @@
 import { ChannelMessage } from '@vonage/server-sdk'
 import { ChannelSender } from 'common/channel'
 import { CHANNEL_NAME } from '../backend/client'
-import { VonageContext } from '../backend/typings'
+import { MessageApiError, VonageContext } from '../backend/typings'
 
 export class VonageCommonSender implements ChannelSender<VonageContext> {
   get channel(): string {
@@ -37,7 +37,26 @@ export class VonageCommonSender implements ChannelSender<VonageContext> {
           },
           message,
           (err, data) => {
-            resolve(data)
+            if (err) {
+              // fixes typings
+              const errBody: MessageApiError = (err as any).body
+              let reasons: string = ''
+              if (errBody) {
+                if (errBody.invalid_parameters) {
+                  for (const param of errBody.invalid_parameters) {
+                    reasons += `${param.reason}: ${param.name}; `
+                  }
+                }
+
+                context.logger.error(`${errBody.title}: ${errBody.detail} ${reasons}${errBody.type}`)
+              } else if ((<any>err).statusCode === '429') {
+                context.logger.error('HTTPError (429): Too Many Requests')
+              } else {
+                context.logger.error('UnknownError', err)
+              }
+            } else {
+              resolve(data)
+            }
           }
         )
       })

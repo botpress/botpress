@@ -46,4 +46,5 @@ export type VonageContext = ChannelContext<Vonage> & {
   prepareIndexResponse(event: sdk.IO.OutgoingEvent, options: sdk.ChoiceOption[]): Promise<void>
   isSandbox: boolean
   debug: IDebugInstance
+  logger: sdk.Logger
 }
