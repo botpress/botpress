@@ -305,7 +305,7 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
 
     const client: VonageClient = clients[event.botId]
     if (!client) {
-      return next()
+      return next(undefined, false, true)
     }
 
     return client.handleIncomingEvent(event, next)
