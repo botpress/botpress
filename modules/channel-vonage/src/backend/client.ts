@@ -6,6 +6,7 @@ import crypto from 'crypto'
 import { Request } from 'express'
 import jwt from 'jsonwebtoken'
 import _ from 'lodash'
+
 import { Config } from '../config'
 import {
   VonageTextRenderer,
@@ -18,7 +19,7 @@ import {
 } from '../renderers'
 import { VonageCommonSender, VonageTypingSender } from '../senders'
 
-import { Clients, SignedJWTPayload, VonageContext, VonageRequestBody } from './typings'
+import { Clients, ExtendedChannelContent, SignedJWTPayload, VonageContext, VonageRequestBody } from './typings'
 
 const debug = DEBUG('channel-vonage')
 const debugIncoming = debug.sub('incoming')
@@ -125,22 +126,49 @@ export class VonageClient {
 
     const conversation = await this.conversations.recent(userId)
 
+    const messageContent = <ExtendedChannelContent>body.message.content
+
     // https://developer.nexmo.com/api/messages-olympus?theme=dark
-    let payload: sdk.IO.IncomingEvent['payload'] = null
-    switch (body.message.content.type) {
+    let payload: unknown = null
+    switch (messageContent.type) {
       case 'text':
-        const text = body.message.content.text
-        payload = { type: 'text', text }
+        payload = this.bp.experimental.render.text(messageContent.text)
+        break
+      case 'image':
+        payload = this.bp.experimental.render.image(messageContent.image.url, messageContent.image.caption)
         break
       case 'audio':
-        // TODO: Link received from Nexmo/Vonage API are only valid for 10min
+        // We have to take for granted that all messages of type audio are voice messages
+        // since Vonage does not differentiate the two.
         payload = {
           type: 'voice',
-          url: body.message.content.audio.url
+          audio: messageContent.audio.url
         }
+        // TODO: payload = this.bp.experimental.render.voice() ?
+        break
+      case 'image':
+        payload = this.bp.experimental.render.image(messageContent.image.url, messageContent.image.caption)
+        break
+      case 'video':
+        payload = this.bp.experimental.render.video(messageContent.video.url, messageContent.video.caption)
+        break
+      case 'file':
+        payload = {
+          type: messageContent.type,
+          title: messageContent.file.caption,
+          file: messageContent.file.url
+        }
+        // TODO: payload = this.bp.experimental.render.file()
+        break
+      case 'location':
+        payload = {
+          type: messageContent.type,
+          latitude: messageContent.location.lat,
+          longitude: messageContent.location.long
+        }
+        // TODO: payload = this.bp.experimental.render.location() ?
         break
       default:
-        payload = {}
         break
     }
 
@@ -173,10 +201,7 @@ export class VonageClient {
     await this.kvs.delete(key)
 
     const { value } = option
-    return {
-      type: 'text',
-      text: value
-    }
+    return this.bp.experimental.render.text(value)
   }
 
   async prepareIndexResponse(event: sdk.IO.OutgoingEvent, options: sdk.ChoiceOption[]) {
@@ -290,12 +315,12 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
 
   async function outgoingHandler(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     if (event.channel !== CHANNEL_NAME) {
-      return next()
+      return next(undefined, false, true)
     }
 
     const client: VonageClient = clients[event.botId]
     if (!client) {
-      return next()
+      return next(undefined, false, true)
     }
 
     return client.handleOutgoingEvent(event, next)

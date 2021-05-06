@@ -233,6 +233,8 @@ const render = (renderService: RenderService): typeof sdk.experimental.render =>
   return {
     text: renderService.renderText.bind(renderService),
     image: renderService.renderImage.bind(renderService),
+    audio: renderService.renderAudio.bind(renderService),
+    video: renderService.renderVideo.bind(renderService),
     card: renderService.renderCard.bind(renderService),
     carousel: renderService.renderCarousel.bind(renderService),
     choice: renderService.renderChoice.bind(renderService),

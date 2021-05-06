@@ -1,3 +1,4 @@
+import * as sdk from 'botpress/sdk'
 import { ChannelRenderer } from 'common/channel'
 import { formatUrl } from 'common/url'
 import { CHANNEL_NAME } from '../backend/client'
@@ -21,8 +22,7 @@ export class VonageVideoRenderer implements ChannelRenderer<VonageContext> {
   }
 
   async render(context: VonageContext) {
-    // TODO : const payload = context.payload as sdk.VideoContent
-    const payload = context.payload
+    const payload = context.payload as sdk.VideoContent
 
     context.messages.push({
       type: 'video',
