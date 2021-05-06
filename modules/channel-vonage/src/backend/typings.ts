@@ -45,4 +45,5 @@ export type VonageContext = ChannelContext<Vonage> & {
   botPhoneNumber: string
   prepareIndexResponse(event: sdk.IO.OutgoingEvent, options: sdk.ChoiceOption[]): Promise<void>
   isSandbox: boolean
+  debug: IDebugInstance
 }

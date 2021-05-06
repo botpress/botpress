@@ -26,6 +26,8 @@ export class VonageCommonSender implements ChannelSender<VonageContext> {
         content
       }
 
+      context.debug('Sending message', JSON.stringify(message, null, 2))
+
       await new Promise(resolve => {
         context.client.channel.send(
           { type: 'whatsapp', number: context.event.target },
