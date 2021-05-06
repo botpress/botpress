@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "12.21.0",
+  "version": "12.21.1",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": "^12"
@@ -186,8 +186,8 @@
     "stylus": "^0.54.5",
     "ts-jest": "^24.3.0",
     "typedoc": "^0.13.0",
-    "typescript": "^3.9.7",
-    "typescript-json-schema": "^0.32.0"
+    "typescript": "^4.2.4",
+    "typescript-json-schema": "^0.50.0"
   },
   "optionalDependencies": {
     "ioredis": "^4.14.1",

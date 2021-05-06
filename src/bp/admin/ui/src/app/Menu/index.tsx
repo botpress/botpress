@@ -161,7 +161,6 @@ const Menu: FC<Props> = props => {
           icon="notifications"
           url="/server/alerting"
         />
-        <MenuItem text={lang.tr('admin.sideMenu.debug')} id="btn-menu-debug" icon="console" url="/server/debug" />
         <MenuItem
           text={lang.tr('admin.sideMenu.latestReleases')}
           id="btn-menu-releases"
