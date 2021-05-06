@@ -21,8 +21,7 @@ export class VonageCommonSender implements ChannelSender<VonageContext> {
   }
 
   async send(context: VonageContext) {
-    for (let i = 0; i < context.messages.length; i++) {
-      const content = context.messages[i]
+    for (const content of context.messages) {
       const message: ChannelMessage = {
         content
       }
@@ -41,7 +40,7 @@ export class VonageCommonSender implements ChannelSender<VonageContext> {
         )
       })
 
-      if (i !== 0 && context.isSandbox) {
+      if (context.isSandbox) {
         // sanbox is limited to 1 msg / sec
         await Promise.delay(1000)
       }
