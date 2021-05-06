@@ -21,7 +21,7 @@ const makeFileNamePerOS = (version: string): Partial<PerOS<string>> => {
   return {
     win32: `nlu-v${versionUnderscore}-win-x64.exe`,
     darwin: `nlu-v${versionUnderscore}-darwin-x64`,
-    linux: `nlu-vd${versionUnderscore}-linux-x64`
+    linux: `nlu-v${versionUnderscore}-linux-x64`
   }
 }
 
