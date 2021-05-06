@@ -1,0 +1,24 @@
+.title {
+  height: var(--sa-page-header-height);
+  padding: 5px 10px;
+
+  background-color: #fff;
+  border-bottom: 1px solid #efefef;
+  font-weight: bold;
+
+  span {
+    margin-right: 10px;
+  }
+}
+
+.container {
+  height: 100%;
+}
+
+.errorContainer {
+  padding: 50px;
+}
+
+.componentWrapper {
+  height: calc(100%);
+}

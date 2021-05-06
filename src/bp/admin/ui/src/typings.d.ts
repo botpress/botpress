@@ -14,5 +14,9 @@ declare global {
     __BP_VISITOR_SOCKET_ID: string
     __BP_VISITOR_ID: string
     SOCKET_TRANSPORTS: any
+    BOT_ID: string
+    botpress: {
+      [moduleName: string]: any
+    }
   }
 }
