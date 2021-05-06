@@ -1,29 +1,40 @@
 const gulp = require('gulp')
-const exec = require('child_process').exec
+const { spawn } = require('child_process')
 
-const buildNLUInstaller = cb => {
-  const buildProcess = exec(`yarn && yarn build`, { cwd: 'build/nlu-installer' }, err => {
-    if (err) {
-      return cb(err)
+const wrapWithPromise = spawnCmd => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const spawnedPocess = spawnCmd()
+      spawnedPocess.on('exit', (code, signal) => {
+        if (code !== 0) {
+          console.error(`Process exited with exit-code ${code} and signal ${signal}`)
+          reject()
+        }
+        resolve()
+      })
+    } catch (err) {
+      reject(err)
     }
-    cb()
   })
-  buildProcess.stdout.pipe(process.stdout)
-  buildProcess.stderr.pipe(process.stderr)
 }
 
-const makeDownloadTask = args => {
-  const downloadNLU = cb => {
-    const downloadProcess = exec(`yarn start ${args.join(' ')}`, { cwd: 'build/nlu-installer' }, err => {
-      if (err) {
-        return cb(err)
-      }
-      cb()
-    })
-    downloadProcess.stdout.pipe(process.stdout)
-    downloadProcess.stderr.pipe(process.stderr)
+const buildNLUInstaller = async cb => {
+  try {
+    await wrapWithPromise(() => spawn('yarn', [], { cwd: './build/nlu-installer', stdio: 'inherit' }))
+    await wrapWithPromise(() => spawn('yarn', ['build'], { cwd: './build/nlu-installer', stdio: 'inherit' }))
+    cb()
+  } catch (err) {
+    cb(err)
   }
-  return downloadNLU
+}
+
+const makeDownloadTask = args => async cb => {
+  try {
+    await wrapWithPromise(() => spawn('yarn', ['start', ...args], { cwd: './build/nlu-installer', stdio: 'inherit' }))
+    cb()
+  } catch (err) {
+    cb(err)
+  }
 }
 
 const installNLU = args => {

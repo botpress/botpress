@@ -67,7 +67,7 @@ gulp.task('init:studio', ui.initStudio)
 gulp.task('build:modules', gulp.series([modules.build()]))
 
 const pwd = process.cwd()
-gulp.task('install:nlu', nlu.installNLU([`-c=${pwd}/package.json`, `-o=${pwd}/out/bp`]))
+gulp.task('install:nlu', nlu.installNLU([`-c=${pwd}/package.json`, `-o=${pwd}/out/bp`, process.argv.slice(3)]))
 
 gulp.task('start:guide', docs.startDevServer)
 gulp.task('build:guide', docs.buildGuide())
