@@ -40,6 +40,7 @@ export class Middleware {
   }
 
   private async incomingHandler(event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) {
+    // TODO: why not just use the audio content type?
     if (event.payload.type !== 'voice') {
       return next(undefined, false, true)
     }
@@ -121,8 +122,8 @@ export class Middleware {
         ...axiosConfig
       })
 
-      // TODO: Once we convert to channel renderers we'll be able to send a relative url instead.
-      const payload = { type: 'audio', url: `${process.EXTERNAL_URL}${url}` }
+      // TODO: this.bp.render.audio(url)
+      const payload = { type: 'audio', audio: url }
 
         // Simply override the payload so we don't send a new event at the bottom of the event queue
         // inverting the order of the events being sent back to the users
