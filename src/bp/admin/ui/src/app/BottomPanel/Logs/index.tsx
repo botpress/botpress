@@ -10,6 +10,7 @@ import { connect } from 'react-redux'
 
 import api from '~/app/api'
 import EventBus from '~/app/EventBus'
+import { isOperationAllowed } from '~/auth/AccessControl'
 import { toggleBottomPanel } from '../../uiReducer'
 import style from '../style.scss'
 import BotDropdown from './BotDropdown'
@@ -89,6 +90,10 @@ class BottomPanel extends React.Component<Props, State> {
   }
 
   queryLogs = async () => {
+    if (!isOperationAllowed({ resource: 'admin.logs', operation: 'read' })) {
+      return
+    }
+
     const { data } = await api.getSecured().get('/admin/workspace/logs', {
       params: {
         limit: INITIAL_LOGS_LIMIT,
@@ -194,12 +199,15 @@ class BottomPanel extends React.Component<Props, State> {
     return (
       <Tabs className={style.tabs} onChange={this.handleTabChange} selectedTabId={this.state.selectedPanel}>
         <Tab id="logs" className={style.tab} title={lang.tr('logs')} panel={LogsPanel} />
-        <Tab
-          id="debug"
-          className={style.tab}
-          title={lang.tr('bottomPanel.debug')}
-          panel={<Debug ref={this.debugRef} />}
-        />
+
+        {isOperationAllowed({ superAdmin: true }) && (
+          <Tab
+            id="debug"
+            className={style.tab}
+            title={lang.tr('bottomPanel.debug')}
+            panel={<Debug ref={this.debugRef} />}
+          />
+        )}
 
         {this.state.selectedPanel === 'logs' && (
           <Fragment>

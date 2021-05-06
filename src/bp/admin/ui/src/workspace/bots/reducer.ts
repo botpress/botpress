@@ -10,6 +10,7 @@ const FETCH_BOT_HEALTH_RECEIVED = 'bots/FETCH_BOT_STATUS_RECEIVED'
 const FETCH_BOTS_BY_WORKSPACE = 'bots/FETCH_BOTS_BY_WORKSPACE'
 const RECEIVED_BOT_CATEGORIES = 'bots/RECEIVED_BOT_CATEGORIES'
 const RECEIVED_BOT_TEMPLATES = 'bots/RECEIVED_BOT_TEMPLATES'
+const SET_WORKSPACE_APPS_BOT_ID = 'bots/SET_WORKSPACE_APPS_BOT_ID'
 
 interface BotState {
   bots: BotConfig[]
@@ -21,6 +22,8 @@ interface BotState {
   botCategories: string[]
   botCategoriesFetched: boolean
   workspace?: { name: string; pipeline: any }
+  // Sets the current bot used by workspace apps
+  workspaceAppsBotId?: string
 }
 
 const initialState: BotState = {
@@ -72,6 +75,12 @@ export default (state = initialState, action): BotState => {
       return {
         ...state,
         botsByWorkspace: action.bots
+      }
+
+    case SET_WORKSPACE_APPS_BOT_ID:
+      return {
+        ...state,
+        workspaceAppsBotId: action.botId
       }
 
     default:
@@ -136,5 +145,11 @@ export const fetchBotHealth = (): AppThunk => {
     }
 
     dispatch({ type: FETCH_BOT_HEALTH_RECEIVED, health: data.payload })
+  }
+}
+
+export const setWorkspaceAppBotId = (botId?: string): AppThunk => {
+  return async dispatch => {
+    dispatch({ type: SET_WORKSPACE_APPS_BOT_ID, botId })
   }
 }

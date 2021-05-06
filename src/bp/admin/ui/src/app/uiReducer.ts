@@ -3,12 +3,14 @@ import { AppThunk } from '~/app/rootReducer'
 const TOGGLE_BOTTOM_PANEL = 'ui/TOGGLE_BOTTOM_PANEL'
 const TOGGLE_BOTTOM_PANEL_EXPAND = 'ui/TOGGLE_BOTTOM_PANEL_EXPAND'
 const UPDATE_PAGE_HEADER = 'ui/UPDATE_PAGE_HEADER'
+const SET_CONTENT_LANG = 'ui/SET_CONTENT_LANG'
 
 interface UiState {
   bottomPanel: boolean
   bottomPanelExpanded: boolean
   pageTitle?: JSX.Element | string
   pageHelpText?: JSX.Element | string
+  contentLang?: string
 }
 
 const bottomPanelStorageKey = 'bp:bottom-panel-open'
@@ -18,7 +20,8 @@ const initialState: UiState = {
   bottomPanel: defaultBottomPanelOpen,
   bottomPanelExpanded: false,
   pageTitle: undefined,
-  pageHelpText: undefined
+  pageHelpText: undefined,
+  contentLang: 'en'
 }
 
 export default (state = initialState, action): UiState => {
@@ -43,6 +46,12 @@ export default (state = initialState, action): UiState => {
         bottomPanelExpanded: !state.bottomPanelExpanded
       }
 
+    case SET_CONTENT_LANG:
+      return {
+        ...state,
+        contentLang: action.contentLang
+      }
+
     default:
       return state
   }
@@ -63,5 +72,11 @@ export const toggleBottomPanelExpand = (): AppThunk => {
 export const updatePageHeader = (pageTitle?: JSX.Element | string, pageHelpText?: JSX.Element | string): AppThunk => {
   return async dispatch => {
     dispatch({ type: UPDATE_PAGE_HEADER, payload: { pageTitle, pageHelpText } })
+  }
+}
+
+export const setContentLang = (contentLang: string): AppThunk => {
+  return async dispatch => {
+    dispatch({ type: SET_CONTENT_LANG, contentLang })
   }
 }
