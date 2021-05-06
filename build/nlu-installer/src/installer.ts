@@ -1,6 +1,7 @@
 import Bluebird from 'bluebird'
 import cliProgress from 'cli-progress'
 import fse from 'fs-extra'
+import mkdirp from 'mkdirp'
 import path from 'path'
 import { downloadBin } from './download'
 import { UnsuportedOSError } from './errors'
@@ -80,6 +81,7 @@ export default async (argv: ArgV) => {
     throw new UnsuportedOSError(argv.platform)
   }
 
+  mkdirp.sync(argv.output)
   await scanAndRemoveInvalidVersion(argv.platform, argv.output, version)
 
   const fileDownloadURL = `${downloadURL}/${fileName}`
