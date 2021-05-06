@@ -67,7 +67,8 @@ const _getNLUBinaryPath = async () => {
     throw new Error(message)
   }
 
-  return allValidFiles[0]
+  const fileName = allValidFiles[0]
+  return path.join(baseLocation, fileName)
 }
 
 let nluServerProcess: child_process.ChildProcess | undefined

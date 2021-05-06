@@ -73,4 +73,6 @@ export default async (argv: ArgV) => {
   })
   downloadProgressBar.update(100)
   downloadProgressBar.stop()
+
+  await fse.chmod(destination, '766') // user: rwx, group: rw, others: rw
 }
