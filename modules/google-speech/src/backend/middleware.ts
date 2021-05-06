@@ -1,6 +1,8 @@
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import FormData from 'form-data'
+import LRUCache from 'lru-cache'
+import ms from 'ms'
 import { v4 as uuidv4 } from 'uuid'
 
 import { GoogleSpeechClient } from './client'
@@ -11,8 +13,11 @@ const OUTGOING_MIDDLEWARE_NAME = 'googleSpeech.textToSpeech'
 
 export class Middleware {
   private readonly timeout = '15s'
+  private isTextToSpeechCache: LRUCache<string, boolean>
 
-  constructor(private bp: typeof sdk, private clients: Clients) {}
+  constructor(private bp: typeof sdk, private clients: Clients) {
+    this.isTextToSpeechCache = new LRUCache({ maxAge: ms('1m') })
+  }
 
   public setup() {
     this.bp.events.registerMiddleware({
@@ -58,12 +63,15 @@ export class Middleware {
         return next(undefined, false, true)
       }
 
-      const payload = { type: 'text', text, textToSpeech: true }
+      const payload = { type: 'text', text }
 
       event.setFlag(this.bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
-      await this.bp.experimental.messages
+      const message = await this.bp.experimental.messages
         .forBot(event.botId)
         .receive(event.threadId, payload, { channel: event.channel })
+
+      // TODO: kind of a hack that a message has an eventId on it. Should be the opposite
+      this.isTextToSpeechCache.set(message.eventId, true)
 
       return next(undefined, true, false)
     } catch (err) {
@@ -79,15 +87,12 @@ export class Middleware {
     }
 
     const incomingEventId: string = event.incomingEventId
-    if (!incomingEventId || event.payload.type !== 'text' || !event.payload.text) {
-      return next(undefined, false, true)
-    }
-
-    const incomingEvents: sdk.IO.StoredEvent[] = await this.bp.events.findEvents({
-      incomingEventId: event.incomingEventId,
-      direction: 'incoming'
-    })
-    if (!incomingEvents.length || incomingEvents[0].event.payload.textToSpeech !== true) {
+    if (
+      !incomingEventId ||
+      event.payload.type !== 'text' ||
+      !event.payload.text ||
+      !this.isTextToSpeechCache.get(incomingEventId)
+    ) {
       return next(undefined, false, true)
     }
 
