@@ -130,7 +130,7 @@ export class VonageClient {
     const messageContent = <ExtendedChannelContent>body.message.content
 
     // https://developer.nexmo.com/api/messages-olympus?theme=dark
-    let payload: sdk.IO.IncomingEvent['payload'] = null
+    let payload: unknown = null
     switch (messageContent.type) {
       case 'text':
         payload = this.bp.experimental.render.text(messageContent.text)
@@ -139,21 +139,30 @@ export class VonageClient {
         payload = this.bp.experimental.render.image(messageContent.image.url, messageContent.image.caption)
         break
       case 'audio':
-        payload = this.bp.experimental.render.audio(messageContent.audio.url)
+        // We have to take for granted that all messages of type audio are voice messages
+        // since Vonage does not differentiate the two.
+        payload = {
+          type: 'voice',
+          url: messageContent.audio.url
+        }
+        // TODO: payload = this.bp.experimental.render.voice() ?
+        break
+      case 'image':
+        payload = this.bp.experimental.render.image(messageContent.image.url, messageContent.image.caption)
         break
       case 'video':
         payload = this.bp.experimental.render.video(
           messageContent.video.url,
-          `${path.basename(messageContent.video.url)}.mp4`
+          `${path.basename(messageContent.video.url)}.mp4` // TODO: Detect file extension
         )
         break
-      // TODO: Add file and location to bp.render
       case 'file':
         payload = {
           type: messageContent.type,
           title: messageContent.file.caption,
           file: messageContent.file.url
         }
+        // TODO: payload = this.bp.experimental.render.file()
         break
       case 'location':
         payload = {
@@ -161,9 +170,9 @@ export class VonageClient {
           latitude: messageContent.location.lat,
           longitude: messageContent.location.long
         }
+        // TODO: payload = this.bp.experimental.render.location() ?
         break
       default:
-        payload = undefined
         break
     }
 
@@ -196,10 +205,7 @@ export class VonageClient {
     await this.kvs.delete(key)
 
     const { value } = option
-    return {
-      type: 'text',
-      text: value
-    }
+    return this.bp.experimental.render.text(value)
   }
 
   async prepareIndexResponse(event: sdk.IO.OutgoingEvent, options: sdk.ChoiceOption[]) {
