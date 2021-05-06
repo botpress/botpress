@@ -68,7 +68,7 @@ function renderMessenger(data) {
 
 function renderElement(data, channel) {
   // These channels now use channel renderers
-  if (['telegram', 'twilio', 'slack', 'vonage'].includes(channel)) {
+  if (['telegram', 'twilio', 'slack', 'smooch', 'vonage'].includes(channel)) {
     return utils.extractPayload('single-choice', data)
   }
 
