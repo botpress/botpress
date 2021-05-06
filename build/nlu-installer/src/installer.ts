@@ -1,14 +1,22 @@
+import Bluebird from 'bluebird'
 import cliProgress from 'cli-progress'
 import fse from 'fs-extra'
 import path from 'path'
 import { downloadBin } from './download'
+import { UnsuportedOSError } from './errors'
 import logger from './logger'
+import { dotsToUnderscores, underscoresToDots } from './semver'
 
 type PerOS<T> = Record<NodeJS.Platform, T>
 
+const FILE_PATTERNS: Partial<PerOS<RegExp>> = {
+  win32: /nlu-v(\d+_\d+_\d+)-win-x64\.exe/,
+  darwin: /nlu-v(\d+_\d+_\d+)-darwin-x64/,
+  linux: /nlu-v(\d+_\d+_\d+)-linux-x64/
+}
+
 const makeFileNamePerOS = (version: string): Partial<PerOS<string>> => {
-  const [major, minor, patch] = version.split('.')
-  const versionUnderscore = `${major}_${minor}_${patch}`
+  const versionUnderscore = dotsToUnderscores(version)
   return {
     win32: `nlu-v${versionUnderscore}-win-x64.exe`,
     darwin: `nlu-v${versionUnderscore}-darwin-x64`,
@@ -21,6 +29,29 @@ interface ArgV {
   output: string
   platform: NodeJS.Platform
   force: boolean
+}
+
+const scanAndRemoveInvalidVersion = async (platform: NodeJS.Platform, outputDir: string, version: string) => {
+  const binRegex = FILE_PATTERNS[platform]
+  if (!binRegex) {
+    throw new UnsuportedOSError(platform)
+  }
+
+  const wrongVersionBinaries = (await fse.readdir(outputDir)).filter(f => {
+    const wholeMatch = binRegex.exec(f)
+    return wholeMatch && wholeMatch[1] && underscoresToDots(wholeMatch[1]) !== version
+  })
+
+  if (!wrongVersionBinaries.length) {
+    return
+  }
+  logger.info(
+    `About to prune the following binaries as the target version is ${version}: [${wrongVersionBinaries.join(', ')}]`
+  )
+  return Bluebird.map(
+    wrongVersionBinaries.map(f => path.join(outputDir, f)),
+    f => fse.unlink(f)
+  )
 }
 
 export default async (argv: ArgV) => {
@@ -46,8 +77,10 @@ export default async (argv: ArgV) => {
   const fileName = makeFileNamePerOS(version)[argv.platform]
 
   if (!fileName) {
-    throw new Error(`Operating System ${argv.platform} no supported.`)
+    throw new UnsuportedOSError(argv.platform)
   }
+
+  await scanAndRemoveInvalidVersion(argv.platform, argv.output, version)
 
   const fileDownloadURL = `${downloadURL}/${fileName}`
   const destination = path.join(argv.output, fileName)

@@ -9,9 +9,9 @@ import { NLUServerOptions } from './typings'
 export { NLUServerOptions as StanOptions } from './typings'
 
 const FILE_PATTERNS: Dic<RegExp> = {
-  win32: /nlu-v\d+_\d+_\d+-win-x64\.exe/,
-  darwin: /nlu-v\d+_\d+_\d+-darwin-x64/,
-  linux: /nlu-v\d+_\d+_\d+-linux-x64/
+  win32: /nlu-v(\d+_\d+_\d+)-win-x64\.exe/,
+  darwin: /nlu-v(\d+_\d+_\d+)-darwin-x64/,
+  linux: /nlu-v(\d+_\d+_\d+)-linux-x64/
 }
 
 const SIG_KILL = 'SIGKILL'
