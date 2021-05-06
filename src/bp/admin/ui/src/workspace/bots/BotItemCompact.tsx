@@ -17,8 +17,7 @@ import cx from 'classnames'
 import React, { FC } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
-import { history } from '~/app/store'
-import AccessControl, { isChatUser } from '~/auth/AccessControl'
+import AccessControl, { isChatUser, isOperationAllowed } from '~/auth/AccessControl'
 import { NeedsTrainingWarning } from './NeedsTrainingWarning'
 import style from './style.scss'
 import { WorkspaceAppItems } from './WorkspaceAppItems'
@@ -49,6 +48,7 @@ const BotItemCompact: FC<Props> = ({
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
   const nluModuleEnabled = !!loadedModules.find(m => m.name === 'nlu')
+  const hasStudioAccess = isOperationAllowed({ resource: 'studio', operation: 'read' })
 
   return (
     <div className={cx('bp_table-row', style.tableRow)} key={bot.id}>
@@ -83,7 +83,7 @@ const BotItemCompact: FC<Props> = ({
             <Menu>
               <WorkspaceAppItems loadedModules={loadedModules} botId={bot.id} />
 
-              {!bot.disabled && !hasError && (
+              {!bot.disabled && !hasError && hasStudioAccess && (
                 <MenuItem
                   disabled={bot.locked}
                   icon="edit"
@@ -147,7 +147,8 @@ const BotItemCompact: FC<Props> = ({
             &nbsp;
           </span>
         )}
-        <a href={botStudioLink}>{bot.name || bot.id}</a>
+
+        {hasStudioAccess ? <a href={botStudioLink}>{bot.name || bot.id}</a> : <span>{bot.name || bot.id}</span>}
 
         {/*
           TODO: remove this NeedsTrainingWarning component.

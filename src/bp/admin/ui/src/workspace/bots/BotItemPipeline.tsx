@@ -17,7 +17,7 @@ import cx from 'classnames'
 import React, { FC, Fragment } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import history from '~/app/history'
-import AccessControl, { isChatUser } from '~/auth/AccessControl'
+import AccessControl, { isChatUser, isOperationAllowed } from '~/auth/AccessControl'
 
 import { NeedsTrainingWarning } from './NeedsTrainingWarning'
 import style from './style.scss'
@@ -61,6 +61,7 @@ const BotItemPipeline: FC<Props> = ({
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
   const nluModuleEnabled = !!loadedModules.find(m => m.name === 'nlu')
+  const hasStudioAccess = isOperationAllowed({ resource: 'studio', operation: 'read' })
   const requiresApproval =
     isApprover &&
     bot.pipeline_status.stage_request &&
@@ -78,12 +79,14 @@ const BotItemPipeline: FC<Props> = ({
               {!bot.disabled && !hasError && (
                 <Fragment>
                   <MenuItem icon="chat" text={lang.tr('admin.workspace.bots.item.openChat')} href={botShortLink} />
-                  <MenuItem
-                    disabled={bot.locked}
-                    icon="edit"
-                    text={lang.tr('admin.workspace.bots.item.editInStudio')}
-                    href={botStudioLink}
-                  />
+                  {hasStudioAccess && (
+                    <MenuItem
+                      disabled={bot.locked}
+                      icon="edit"
+                      text={lang.tr('admin.workspace.bots.item.editInStudio')}
+                      href={botStudioLink}
+                    />
+                  )}
                 </Fragment>
               )}
 
@@ -164,7 +167,7 @@ const BotItemPipeline: FC<Props> = ({
             &nbsp;
           </span>
         )}
-        {bot.disabled ? (
+        {bot.disabled || !hasStudioAccess ? (
           <span className={style.bot_name}>{bot.name}</span>
         ) : (
           <a className={style.bot_name} href={botStudioLink}>
