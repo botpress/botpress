@@ -1,8 +1,6 @@
 import 'bluebird-global'
 // eslint-disable-next-line import/order
 import './sdk/rewire'
-// eslint-disable-next-line import/order
-import './common/polyfills'
 
 import chalk from 'chalk'
 import { container } from 'core/app/inversify/app.inversify'
