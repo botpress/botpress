@@ -153,7 +153,11 @@ export class VonageClient {
     return `${target}_${threadId}`
   }
 
-  async handleIndexReponse(index: number, userId: string, conversationId: string): Promise<any> {
+  public async handleIndexReponse(
+    index: number,
+    userId: string,
+    conversationId: string
+  ): Promise<undefined | sdk.TextContent> {
     const key = this.getKvsKey(userId, conversationId)
     if (!(await this.kvs.exists(key))) {
       return
