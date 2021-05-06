@@ -14,7 +14,6 @@ import LoginPage from '~/auth/Login'
 import LoginContainer from '~/auth/LoginContainer'
 import RegisterPage from '~/auth/Register'
 import Alerting from '~/health/alerting'
-import Debug from '~/health/debug'
 import Monitoring from '~/health/monitoring'
 import Checklist from '~/management/checklist'
 import Languages from '~/management/languages'
@@ -28,6 +27,7 @@ import Logs from '~/workspace/logs'
 import Roles from '~/workspace/roles'
 import Workspaces from '~/workspace/workspaces'
 
+import AppLoader from '../InjectedModuleView/AppLoader'
 import { extractCookie } from './cookies'
 import PrivateRoute from './PrivateRoute'
 
@@ -95,7 +95,6 @@ export const makeMainRoutes = () => {
               <Route path="/server/monitoring" component={Monitoring} />
               <Route path="/server/version" component={Versioning} />
               <Route path="/server/languages" component={Languages} />
-              <Route path="/server/debug" component={Debug} />
               <Route path="/server/license" component={LicenseStatus} />
               <Route path="/server/alerting" component={Alerting} />
               <Route path="/workspace/:workspaceId?/bots" component={Bots} />
@@ -103,7 +102,7 @@ export const makeMainRoutes = () => {
               <Route path="/workspace/:workspaceId?/roles" component={Roles} />
               <Route path="/workspace/:workspaceId?/logs" component={Logs} />
               <Route path="/workspaces" component={Workspaces} />
-              <Route path="/debug" component={Debug} />
+              <Route path="/apps/:appName/:botId?" component={AppLoader} />
               <Route path="/modules" component={Modules} />
               <Route path="/" render={() => <Redirect from="/" to={`/workspace/${getActiveWorkspace()}/bots`} />} />
             </Switch>

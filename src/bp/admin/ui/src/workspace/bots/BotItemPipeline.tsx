@@ -11,14 +11,17 @@ import {
   Tag,
   Tooltip
 } from '@blueprintjs/core'
-import { BotConfig } from 'botpress/sdk'
+import { BotConfig, ModuleDefinition } from 'botpress/sdk'
 import { lang, toast } from 'botpress/shared'
+import cx from 'classnames'
 import React, { FC, Fragment } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import history from '~/app/history'
-import AccessControl, { isChatUser } from '~/auth/AccessControl'
+import AccessControl, { isChatUser, isOperationAllowed } from '~/auth/AccessControl'
 
 import { NeedsTrainingWarning } from './NeedsTrainingWarning'
+import style from './style.scss'
+import { WorkspaceAppItems } from './WorkspaceAppItems'
 
 interface Props {
   bot: BotConfig
@@ -35,7 +38,7 @@ interface Props {
   allowStageChange?: boolean
   reloadBot?: () => void
   viewLogs?: () => void
-  nluModuleEnabled: boolean | undefined
+  loadedModules: ModuleDefinition[]
 }
 
 const BotItemPipeline: FC<Props> = ({
@@ -53,31 +56,37 @@ const BotItemPipeline: FC<Props> = ({
   rollback,
   reloadBot,
   viewLogs,
-  nluModuleEnabled
+  loadedModules
 }) => {
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
+  const nluModuleEnabled = !!loadedModules.find(m => m.name === 'nlu')
+  const hasStudioAccess = isOperationAllowed({ resource: 'studio', operation: 'read' })
   const requiresApproval =
     isApprover &&
     bot.pipeline_status.stage_request &&
     !(bot.pipeline_status.stage_request.approvals || []).find(x => x.email === userEmail && x.strategy === userStrategy)
 
   return (
-    <div className="pipeline_bot" key={bot.id}>
-      <div className="actions">
+    <div className={style.pipeline_bot} key={bot.id}>
+      <div className={style.actions}>
         <AccessControl resource="admin.bots.*" operation="read">
           <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
             <Button id="btn-menu" icon={<Icon icon="menu" />} minimal />
             <Menu>
+              <WorkspaceAppItems loadedModules={loadedModules} botId={bot.id} />
+
               {!bot.disabled && !hasError && (
                 <Fragment>
                   <MenuItem icon="chat" text={lang.tr('admin.workspace.bots.item.openChat')} href={botShortLink} />
-                  <MenuItem
-                    disabled={bot.locked}
-                    icon="edit"
-                    text={lang.tr('admin.workspace.bots.item.editInStudio')}
-                    href={botStudioLink}
-                  />
+                  {hasStudioAccess && (
+                    <MenuItem
+                      disabled={bot.locked}
+                      icon="edit"
+                      text={lang.tr('admin.workspace.bots.item.editInStudio')}
+                      href={botStudioLink}
+                    />
+                  )}
                 </Fragment>
               )}
 
@@ -151,32 +160,34 @@ const BotItemPipeline: FC<Props> = ({
           </Popover>
         </AccessControl>
       </div>
-      <div className="title">
+      <div className={style.title}>
         {bot.locked && (
           <span>
             <Icon icon="lock" intent={Intent.PRIMARY} iconSize={13} />
             &nbsp;
           </span>
         )}
-        {bot.disabled ? (
-          <span className="bot-name">{bot.name}</span>
+        {bot.disabled || !hasStudioAccess ? (
+          <span className={style.bot_name}>{bot.name}</span>
         ) : (
-          <a className="bot-name" href={botStudioLink}>
+          <a className={style.bot_name} href={botStudioLink}>
             {bot.name}
           </a>
         )}
         {requiresApproval && (
-          <Tag intent={Intent.DANGER} className="botbadge reviewNeeded">
+          <Tag intent={Intent.DANGER} className={cx(style.botbadge, style.reviewNeeded)}>
             {lang.tr('admin.workspace.bots.item.needsYourReview')}
           </Tag>
         )}
         {bot.pipeline_status.stage_request && isApprover && !requiresApproval && (
-          <Tag intent={Intent.SUCCESS} className="botbadge reviewNeeded">
+          <Tag intent={Intent.SUCCESS} className={cx(style.botbadge, style.reviewNeeded)}>
             {lang.tr('admin.workspace.bots.item.approved')}
           </Tag>
         )}
 
-        {nluModuleEnabled && <NeedsTrainingWarning bot={bot.id} languages={bot.languages} />}
+        <AccessControl resource="module.nlu" operation="write">
+          {nluModuleEnabled && <NeedsTrainingWarning bot={bot.id} languages={bot.languages} />}
+        </AccessControl>
 
         {!bot.defaultLanguage && (
           <Tooltip position="right" content={lang.tr('admin.workspace.bots.item.languageIsMissing')}>
@@ -185,19 +196,19 @@ const BotItemPipeline: FC<Props> = ({
         )}
       </div>
       <p>{bot.description}</p>
-      <div className="bottomRow">
+      <div className={style.bottomRow}>
         {bot.disabled && (
-          <Tag intent={Intent.WARNING} className="botbadge">
+          <Tag intent={Intent.WARNING} className={style.botbadge}>
             {lang.tr('admin.workspace.bots.item.disabled')}
           </Tag>
         )}
         {bot.private && (
-          <Tag intent={Intent.PRIMARY} className="botbadge">
+          <Tag intent={Intent.PRIMARY} className={style.botbadge}>
             {lang.tr('admin.workspace.bots.item.private')}
           </Tag>
         )}
         {hasError && (
-          <Tag intent={Intent.DANGER} className="botbadge">
+          <Tag intent={Intent.DANGER} className={style.botbadge}>
             {lang.tr('admin.workspace.bots.item.error')}
           </Tag>
         )}
@@ -218,13 +229,13 @@ const BotItemPipeline: FC<Props> = ({
               </div>
             }
           >
-            <Tag className="botbadge" id="status-badge">
+            <Tag className={style.botbadge} id="status-badge">
               {bot.pipeline_status.stage_request.status}
             </Tag>
           </Tooltip>
         )}
         {requiresApproval && (
-          <div className="stage-approval-btns">
+          <div className={style.stage_approval_btns}>
             <Button onClick={approveStageChange} small intent="success">
               {lang.tr('admin.workspace.bots.item.approve')}
             </Button>

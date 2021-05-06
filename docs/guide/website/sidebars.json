@@ -24,13 +24,16 @@
 			"channels/faq"
 		],
 		"Deployment And Infrastructure": [
-			"infrastructure/aws",
+			"infrastructure/deploying",
 			"infrastructure/hosting",
+      "infrastructure/database",
+      "infrastructure/aws",
+      "infrastructure/docker",
 			"infrastructure/performances",
 			"infrastructure/pipeline",
 			"infrastructure/versions",
-			"infrastructure/database",
-			"infrastructure/cluster"
+			"infrastructure/cluster",
+      "infrastructure/digital-ocean"
 		],
 		"Improving Your Chatbot": [
 			"tutorials/intent-matching",
@@ -38,6 +41,7 @@
 			"tutorials/carousel-postback",
 			"tutorials/skill-slot",
 			"tutorials/skill-call-api",
+			"tutorials/skill-email",      
 			"tutorials/external-api",
 			"tutorials/shortlinks",
 			"tutorials/existing-backend",

@@ -1,6 +1,5 @@
-import { Collapse, Icon, Tab, Tabs } from '@blueprintjs/core'
+import { Tab, Tabs } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
-import { SidePanelSection } from 'botpress/ui'
 import { inject, observer } from 'mobx-react'
 import React, { useState } from 'react'
 import { RootStore } from '../store'

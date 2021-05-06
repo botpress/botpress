@@ -1,3 +1,4 @@
+import { ChannelContext } from 'common/channel'
 import { SmoochClient } from './client'
 
 export interface Clients {
@@ -63,4 +64,8 @@ export interface Card {
     payload?: string
   }[]
   mediaUrl?: string
+}
+
+export type SmoochContext = ChannelContext<any> & {
+  messages: any[]
 }

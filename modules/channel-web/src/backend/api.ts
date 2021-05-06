@@ -33,6 +33,8 @@ const SUPPORTED_MESSAGES = [
 
 type ChatRequest = BPRequest & { userId: string; botId: string; conversationId: number }
 
+const isInt = (str: string) => !isNaN(parseInt(str))
+
 const userIdIsValid = (userId: string): boolean => {
   const hasBreakingConstraints = userId.length > USER_ID_MAX_LENGTH || userId.toLowerCase() === 'undefined'
 
@@ -119,12 +121,14 @@ export default async (bp: typeof sdk, db: Database) => {
       return next(ERR_USER_ID_INVALID)
     }
 
-    if (conversationId && conversationId !== 'null') {
-      req.conversationId = parseInt(conversationId)
+    if (isInt(conversationId)) {
+      const parsedConversationId = parseInt(conversationId)
 
-      if (!(await db.isValidConversationOwner(userId, req.conversationId, botId))) {
+      if (!(await db.isValidConversationOwner(userId, parsedConversationId, botId))) {
         next(ERR_BAD_CONV_ID)
       }
+
+      req.conversationId = parsedConversationId
     }
 
     if (options.convoIdRequired && req.conversationId === undefined) {

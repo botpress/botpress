@@ -1,8 +1,10 @@
 import { lang } from 'botpress/shared'
+import cx from 'classnames'
 import moment from 'moment'
 import React from 'react'
 import ReactTable from 'react-table'
 import 'react-table/react-table.css'
+import style from './style.scss'
 
 const IncidentsTable = ({ data }) => {
   const columns = [
@@ -40,7 +42,7 @@ const IncidentsTable = ({ data }) => {
       data={data}
       defaultPageSize={5}
       defaultSorted={[{ id: 'host', desc: false }]}
-      className="-striped -highlight monitoringOverview"
+      className={cx(style.monitoringOverview, '-striped -highlight')}
     />
   )
 }

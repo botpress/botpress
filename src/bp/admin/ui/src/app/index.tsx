@@ -1,19 +1,27 @@
-import { Alignment, Icon, Navbar } from '@blueprintjs/core'
+import { Icon } from '@blueprintjs/core'
 import { lang, TokenRefresher } from 'botpress/shared'
+import cx from 'classnames'
 import React, { FC, Fragment, useEffect } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
-import { NavLink } from 'reactstrap'
+import { Link } from 'react-router-dom'
+import SplitPane from 'react-split-pane'
 
 import api from '~/app/api'
 import { fetchLicensing } from '~/management/licensing/reducer'
+import { fetchLoadedModules, loadModulesTranslations } from '~/management/modules/reducer'
 import { fetchProfile } from '~/user/reducer'
-import UserDropdownMenu from '~/user/UserDropdownMenu'
+import BottomPanel from './BottomPanel'
 
 import CommandPalette from './CommandPalette'
-import logo from './media/logo_white.png'
+import EventBus from './EventBus'
+import Header from './Header'
 import Menu from './Menu'
 import { AppState } from './rootReducer'
-import WorkspaceSelect from './WorkspaceSelect'
+import StatusBar from './StatusBar'
+import style from './style.scss'
+import { toggleBottomPanel } from './uiReducer'
+
+const EXPANDED_PANEL_HEIGHT = 200
 
 type Props = ConnectedProps<typeof connector>
 
@@ -21,6 +29,9 @@ const App: FC<Props> = props => {
   useEffect(() => {
     props.fetchLicensing()
     props.fetchProfile()
+    props.fetchLoadedModules()
+    props.loadModulesTranslations()
+    EventBus.default.setup()
   }, [])
 
   if (!props.profile) {
@@ -29,64 +40,63 @@ const App: FC<Props> = props => {
 
   const isLicensed = !props.licensing || !props.licensing.isPro || props.licensing.status === 'licensed'
 
+  const splitPanelLastSizeKey = 'bp::bottom-panel-size'
+  const lastSize = parseInt(localStorage.getItem(splitPanelLastSizeKey) || '175', 10)
+  const bottomPanelHeight = props.bottomPanelExpanded ? EXPANDED_PANEL_HEIGHT : lastSize
+  const bottomBarSize = props.bottomPanel ? bottomPanelHeight : '100%'
+
   return (
     <Fragment>
-      <Header />
       <CommandPalette />
       <TokenRefresher getAxiosClient={() => api.getSecured()} />
 
-      <div className="bp-sa-wrapper">
+      <div className={cx('bp-sa-wrapper', style.mainLayout)}>
         <Menu />
-        <div className="bp-sa-content-wrapper">
-          {!isLicensed && <Unlicensed />}
-          {props.children}
+        <div className={style.container}>
+          <Header />
+          <SplitPane
+            split="horizontal"
+            defaultSize={lastSize}
+            onChange={size => size > 100 && localStorage.setItem(splitPanelLastSizeKey, size.toString())}
+            size={bottomBarSize}
+            maxSize={-100}
+            className={cx(style.mainSplitPaneWToolbar)}
+          >
+            <div className={cx('bp-sa-content-wrapper', style.main)}>
+              {!isLicensed && <Unlicensed />}
+              {props.children}
+            </div>
+            <BottomPanel />
+          </SplitPane>
         </div>
       </div>
 
-      <Footer version={window.APP_VERSION} />
+      <StatusBar />
     </Fragment>
   )
 }
 
-const Header = () => (
-  <header className="bp-header">
-    <Navbar>
-      <Navbar.Group>
-        <Navbar.Heading>
-          <a href="admin/">
-            <img src={logo} alt="logo" className="bp-header__logo" />
-          </a>
-        </Navbar.Heading>
-      </Navbar.Group>
-
-      <Navbar.Group align={Alignment.RIGHT}>
-        <WorkspaceSelect />
-        <Navbar.Divider />
-        <UserDropdownMenu />
-      </Navbar.Group>
-    </Navbar>
-  </header>
-)
-
-const Footer = props => (
-  <footer className="statusBar">
-    <div className="statusBar-item">{props.version}</div>
-  </footer>
-)
-
 const Unlicensed = () => (
-  <div className="bp-header__warning">
-    <NavLink href="/admin/server/license">
+  <div className={style.unlicensed}>
+    <Link to="/server/license">
       <Icon icon="warning-sign" />
       {lang.tr('admin.botpressIsNotLicensed')}
-    </NavLink>
+    </Link>
   </div>
 )
 
 const mapStateToProps = (state: AppState) => ({
   profile: state.user.profile,
-  licensing: state.licensing.license
+  licensing: state.licensing.license,
+  bottomPanel: state.ui.bottomPanel,
+  bottomPanelExpanded: state.ui.bottomPanelExpanded
 })
 
-const connector = connect(mapStateToProps, { fetchLicensing, fetchProfile })
+const connector = connect(mapStateToProps, {
+  fetchLicensing,
+  fetchProfile,
+  toggleBottomPanel,
+  fetchLoadedModules,
+  loadModulesTranslations
+})
 export default connector(App)

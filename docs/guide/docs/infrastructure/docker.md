@@ -1,5 +1,5 @@
 ---
-id: Docker
+id: docker
 title: Deploying with Docker
 ---
 
