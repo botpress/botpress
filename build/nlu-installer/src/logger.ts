@@ -1,6 +1,6 @@
 import chalk from 'chalk'
 
-const PREFIX = 'NLU Installer'
+const PREFIX = '[NLU Installer]'
 
 export default {
   info: (log: string) => {

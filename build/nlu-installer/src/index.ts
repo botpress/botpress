@@ -23,6 +23,11 @@ yargs
         alias: 'p',
         choices: ['darwin', 'linux', 'win32'],
         default: os.platform()
+      },
+      force: {
+        alias: 'f',
+        type: 'boolean',
+        default: false
       }
     },
     argv => {

@@ -16,16 +16,11 @@ const makeFileNamePerOS = (version: string): Partial<PerOS<string>> => {
   }
 }
 
-const _sleep = (ms: number) => {
-  return new Promise(resolve => {
-    setTimeout(resolve, ms)
-  })
-}
-
 interface ArgV {
   config: string
   output: string
   platform: NodeJS.Platform
+  force: boolean
 }
 
 export default async (argv: ArgV) => {
@@ -56,6 +51,12 @@ export default async (argv: ArgV) => {
 
   const fileDownloadURL = `${downloadURL}/${fileName}`
   const destination = path.join(argv.output, fileName)
+
+  const destinationFileExists = fse.existsSync(destination)
+  if (destinationFileExists && !argv.force) {
+    logger.info('binary executable file up to date. Nothing to download.')
+    return
+  }
 
   logger.info(`About to download from ${fileDownloadURL}`)
   logger.info(`Output file is ${destination}`)
