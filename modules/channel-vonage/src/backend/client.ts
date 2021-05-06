@@ -241,7 +241,7 @@ export class VonageClient {
       .forBot(this.botId)
       .create(event.threadId, event.payload, undefined, event.id, event.incomingEventId)
 
-    next(undefined, false)
+    next(undefined, false, false)
   }
 
   async handleIncomingEvent(event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) {
