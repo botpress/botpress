@@ -23,9 +23,9 @@ export class VonageMediaTemplateRenderer implements ChannelRenderer<VonageContex
   async render(context: VonageContext) {
     const payload = context.payload
 
-    const headerParameters = (payload.header?.variables || []) as Parameters
-    const bodyParameters = (payload.body?.variables || []) as Parameters
-    const buttonParameters = (payload.button?.variables || []) as Buttons
+    const headerParameters = (payload.header?.parameters || []) as Parameters
+    const bodyParameters = (payload.body?.parameters || []) as Parameters
+    const buttonParameters = (payload.button?.parameters || []) as Buttons
 
     const components = new TemplateComponents()
       .withHeader(...headerParameters)
