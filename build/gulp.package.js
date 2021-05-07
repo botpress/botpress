@@ -73,7 +73,7 @@ const copyNativeExtensions = async () => {
   }
 }
 
-const installNLU = () => {
+const packageNLU = () => {
   const osName = getTargetOSName()
   const platform = osName === 'windows' ? 'win32' : osName
   const pwd = process.cwd()
@@ -81,7 +81,7 @@ const installNLU = () => {
 }
 
 const packageCore = () => {
-  return gulp.series([copyNativeExtensions, installNLU(), packageApp])
+  return gulp.series([copyNativeExtensions, packageNLU(), packageApp])
 }
 
 const package = modules => {
@@ -89,12 +89,13 @@ const package = modules => {
     package.packageApp,
     ...(process.argv.includes('--skip-modules') ? [] : modules),
     package.copyNativeExtensions,
-    installNLU()
+    packageNLU()
   ])
 }
 
 module.exports = {
   packageCore,
   packageApp,
-  copyNativeExtensions
+  copyNativeExtensions,
+  packageNLU
 }

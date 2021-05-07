@@ -20,8 +20,10 @@ const wrapWithPromise = spawnCmd => {
 
 const buildNLUInstaller = async cb => {
   try {
-    await wrapWithPromise(() => spawn('yarn', [], { cwd: './build/nlu-installer', stdio: 'inherit' }))
-    await wrapWithPromise(() => spawn('yarn', ['build'], { cwd: './build/nlu-installer', stdio: 'inherit' }))
+    await wrapWithPromise(() => spawn('yarn', [], { cwd: './build/nlu-installer', stdio: 'inherit', shell: true }))
+    await wrapWithPromise(() =>
+      spawn('yarn', ['build'], { cwd: './build/nlu-installer', stdio: 'inherit', shell: true })
+    )
     cb()
   } catch (err) {
     cb(err)
@@ -30,7 +32,9 @@ const buildNLUInstaller = async cb => {
 
 const makeDownloadTask = args => async cb => {
   try {
-    await wrapWithPromise(() => spawn('yarn', ['start', ...args], { cwd: './build/nlu-installer', stdio: 'inherit' }))
+    await wrapWithPromise(() =>
+      spawn('yarn', ['start', ...args], { cwd: './build/nlu-installer', stdio: 'inherit', shell: true })
+    )
     cb()
   } catch (err) {
     cb(err)
