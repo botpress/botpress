@@ -12,7 +12,7 @@
   "private": true,
   "nlu": {
     "version": "0.0.1",
-    "downloadURL": "https://github.com/botpress/nlu/releases/download/v0.0.1-rc.3"
+    "downloadURL": "https://github.com/botpress/nlu/releases/download/v0.0.1"
   },
   "scripts": {
     "postinstall": "yarn cmd install:nlu",
