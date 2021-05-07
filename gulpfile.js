@@ -77,7 +77,7 @@ gulp.task('package:core', package.packageCore())
 gulp.task('package:modules', modules.packageModules())
 gulp.task(
   'package',
-  gulp.series([package.packageApp, modules.packageModules(), package.copyNativeExtensions, package.packageNLU])
+  gulp.series([package.packageApp, modules.packageModules(), package.copyNativeExtensions, package.packageNLU()])
 )
 
 gulp.task('watch', gulp.parallel([core.watch, ui.watchAll]))
