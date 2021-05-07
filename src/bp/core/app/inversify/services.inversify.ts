@@ -11,7 +11,7 @@ import { CEMonitoringService, MonitoringService, AlertingService, CEAlertingServ
 import { KeyValueStore } from 'core/kvs'
 import { LogsJanitor, LogsService } from 'core/logger'
 import { MediaServiceProvider } from 'core/media'
-import { MessageService, ConversationService } from 'core/messaging'
+import { MessageService, ConversationService, MessagingWebhooks } from 'core/messaging'
 import { NotificationsService } from 'core/notifications'
 import { RealtimeService } from 'core/realtime'
 import { AuthService, AuthStrategies, CEAuthStrategies } from 'core/security'
@@ -143,6 +143,10 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<RenderService>(TYPES.RenderService)
     .to(RenderService)
+    .inSingletonScope()
+
+  bind<MessagingWebhooks>(TYPES.MessagingWebhooks)
+    .to(MessagingWebhooks)
     .inSingletonScope()
 })
 
