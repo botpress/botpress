@@ -45,7 +45,7 @@ export class TemplateComponents {
   constructor() {}
 
   public withHeader(...parameters: Parameters) {
-    if (parameters) {
+    if (parameters?.length) {
       this.header = {
         type: 'header',
         parameters
@@ -56,7 +56,7 @@ export class TemplateComponents {
   }
 
   public withBody(...parameters: Parameters) {
-    if (parameters) {
+    if (parameters?.length) {
       this.body = {
         type: 'body',
         parameters
@@ -67,7 +67,7 @@ export class TemplateComponents {
   }
 
   public withButtons(...buttons: Buttons) {
-    if (buttons) {
+    if (buttons?.length) {
       buttons.forEach((button, index) => {
         this.buttons.push({
           type: 'button',
