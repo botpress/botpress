@@ -27,7 +27,8 @@ export class MessagingRouter extends CustomRouter {
       this.checkTokenHeader,
       this.asyncMiddleware(async (req, res) => {
         const { botId } = req.params
-        const conversation = await this.conversations.forBot(botId).create(req.body)
+        const { userId } = req.body
+        const conversation = await this.conversations.forBot(botId).create(userId)
         res.send(conversation)
       })
     )
