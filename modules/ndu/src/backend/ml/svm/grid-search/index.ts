@@ -3,7 +3,7 @@ import _ from 'lodash'
 import numeric from 'numeric'
 
 import BaseSVM from '../addon'
-import { defaultParameters } from '../config'
+import { defaultParameters } from '../configuration'
 import { Data, SvmConfig } from '../typings'
 
 import crossCombinations from './cross-combinations'

@@ -3,7 +3,7 @@ import _ from 'lodash'
 import numeric from 'numeric'
 
 import BaseSVM from './addon'
-import { checkConfig, defaultConfig } from './config'
+import { checkConfig, defaultConfig } from './configuration'
 import gridSearch from './grid-search'
 import { GridSearchResult } from './grid-search/typings'
 import { normalizeDataset, normalizeInput } from './normalize'
