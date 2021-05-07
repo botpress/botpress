@@ -32,7 +32,7 @@
 			"infrastructure/performances",
 			"infrastructure/pipeline",
 			"infrastructure/versions",
-			"infrastructure/cluster","advanced/authentication",
+			"infrastructure/cluster"
       "infrastructure/digital-ocean"
 		],
     "Managing Bots & Users": [
