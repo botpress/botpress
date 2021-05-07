@@ -64,8 +64,10 @@ export class ScopedConversationService implements sdk.experimental.conversations
 
   public async delete(filters: sdk.ConversationDeleteFilters): Promise<number> {
     if (filters.id) {
-      const conversation = (await this.conversationRepo.get(filters.id))!
-      this.invalidateMostRecent(conversation.userId)
+      const conversation = await this.conversationRepo.get(filters.id)
+      if (conversation) {
+        this.invalidateMostRecent(conversation.userId)
+      }
 
       return (await this.conversationRepo.delete(filters.id)) ? 1 : 0
     } else {
