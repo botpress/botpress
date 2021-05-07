@@ -1,7 +1,6 @@
 import { ChannelRenderer } from 'common/channel'
 import { CHANNEL_NAME } from '../backend/client'
-import { TemplateComponents, Parameters, Buttons } from '../backend/templates'
-import { ChannelContentCustomTemplate, TemplateLanguage, VonageContext } from '../backend/typings'
+import { VonageContext } from '../backend/typings'
 
 export class VonageTemplateRenderer implements ChannelRenderer<VonageContext> {
   get channel(): string {
@@ -17,36 +16,19 @@ export class VonageTemplateRenderer implements ChannelRenderer<VonageContext> {
   }
 
   handles(context: VonageContext): boolean {
-    return context.payload.type === 'template'
+    return context.payload.type === 'vonage-template'
   }
 
   async render(context: VonageContext) {
     const payload = context.payload
 
-    const headerParameters = (payload.header.variables || []) as Parameters
-    const bodyParameters = (payload.body.variables || []) as Parameters
-    const buttonParameters = (payload.button.variables || []) as Buttons
-
-    const components = new TemplateComponents()
-      .withHeader(...headerParameters)
-      .withBody(...bodyParameters)
-      .withButtons(...buttonParameters)
-      .build()
-
-    const language: TemplateLanguage = {
-      code: 'en_US', // TODO: Fetch the user language
-      policy: 'deterministic'
-    }
-    const custom: ChannelContentCustomTemplate = {
+    context.messages.push({
       type: 'template',
+      text: undefined,
       template: {
-        namespace: payload.namespace,
-        name: payload.name,
-        language,
-        components
+        name: `${payload.namespace}:${payload.name}`,
+        parameters: payload.parameters
       }
-    }
-
-    context.messages.push({ type: 'custom', text: undefined, custom })
+    })
   }
 }

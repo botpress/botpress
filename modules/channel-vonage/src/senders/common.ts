@@ -23,7 +23,9 @@ export class VonageCommonSender implements ChannelSender<VonageContext> {
   async send(context: VonageContext) {
     for (const content of context.messages) {
       const message: ChannelMessage = {
-        content
+        content,
+        // TODO: Needed for templates. Maybe hardcoding the locale isn't a good idea
+        whatsapp: { policy: 'deterministic', locale: 'en' }
       }
 
       context.debug('Sending message', JSON.stringify(message, null, 2))

@@ -17,6 +17,7 @@ import {
   VonageChoicesRenderer,
   VonageVideoRenderer,
   VonageAudioRenderer,
+  VonageMediaTemplateRenderer,
   VonageTemplateRenderer
 } from '../renderers'
 import { VonageCommonSender, VonageTypingSender } from '../senders'
@@ -109,6 +110,7 @@ export class VonageClient {
       new VonageAudioRenderer(),
       new VonageVideoRenderer(),
       new VonageTemplateRenderer(),
+      new VonageMediaTemplateRenderer(),
       new VonageChoicesRenderer()
     ]
 
