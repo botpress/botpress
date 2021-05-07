@@ -1,6 +1,7 @@
 import os from 'os'
 import yargs from 'yargs'
 import installer from './installer'
+import logger from './logger'
 
 yargs
   .command(
@@ -33,6 +34,10 @@ yargs
     argv => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       installer(argv)
+        .then(() => {})
+        .catch(err => {
+          logger.error(`The following error occured: [${err.message}]`)
+        })
     }
   )
   .help().argv

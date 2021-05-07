@@ -16,9 +16,10 @@ export const downloadBin = async (url: string, destinationFile: string, progress
   stream.pipe(fse.createWriteStream(tmpPath))
 
   return new Promise((resolve, reject) => {
-    stream.on('error', async err => {
-      await fse.unlink(tmpPath)
-      reject(new Error(`model download failed: ${url}`))
+    stream.on('error', err => {
+      fse.unlink(tmpPath, () => {
+        reject(new Error(`model download failed with error: ${err.message}`))
+      })
     })
 
     stream.on('data', chunk => {
@@ -26,9 +27,13 @@ export const downloadBin = async (url: string, destinationFile: string, progress
       progress(downloadedSize / fileSize)
     })
 
-    stream.on('end', async () => {
-      await fse.rename(tmpPath, destinationFile)
-      resolve()
+    stream.on('end', () => {
+      fse.rename(tmpPath, destinationFile, err => {
+        if (err) {
+          reject(err)
+        }
+        resolve()
+      })
     })
   })
 }

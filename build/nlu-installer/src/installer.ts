@@ -91,6 +91,9 @@ export default async (argv: ArgV) => {
   if (destinationFileExists && !argv.force) {
     logger.info('binary executable file up to date. Nothing to download.')
     return
+  } else if (destinationFileExists && argv.force) {
+    logger.info('Overwriting currently installed binary.')
+    await fse.unlink(destination)
   }
 
   logger.info(`About to download from ${fileDownloadURL}`)
@@ -103,11 +106,13 @@ export default async (argv: ArgV) => {
   })
   downloadProgressBar.start(100, 0)
 
-  await downloadBin(fileDownloadURL, destination, (p: number) => {
-    downloadProgressBar.update(p * 100)
-  })
-  downloadProgressBar.update(100)
-  downloadProgressBar.stop()
-
-  await fse.chmod(destination, '766') // user: rwx, group: rw, others: rw
+  try {
+    await downloadBin(fileDownloadURL, destination, (p: number) => {
+      downloadProgressBar.update(p * 100)
+    })
+    downloadProgressBar.update(100)
+    await fse.chmod(destination, '766') // user: rwx, group: rw, others: rw
+  } finally {
+    downloadProgressBar.stop()
+  }
 }
