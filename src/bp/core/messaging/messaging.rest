@@ -53,7 +53,7 @@ GET {{messagingUrl}}/messages/{{messageId}}
 X-BP-API-KEY: {{apiKey}}
 
 ### List messages
-GET {{messagingUrl}}/messages?conversationId={{convoId}}
+GET {{messagingUrl}}/messages?conversationId={{convoId}}&limit=100
 X-BP-API-KEY: {{apiKey}}
 
 ### Send message
