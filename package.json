@@ -10,7 +10,12 @@
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0",
   "private": true,
+  "nlu": {
+    "version": "0.0.1",
+    "downloadURL": "https://github.com/botpress/nlu/releases/download/v0.0.1-rc.3"
+  },
   "scripts": {
+    "postinstall": "yarn cmd install:nlu",
     "start": "cd ./out/bp && cross-env NODE_PATH=./ cross-env BP_MODULES_PATH=./data/modules/:../../modules:../../internal-modules STAN_DEV_MODE=true node index.js",
     "cmd": "yarn run gulp",
     "build": "yarn cmd build",
@@ -35,7 +40,6 @@
     "bytes": "^3.1.0",
     "cerialize": "^0.1.18",
     "chalk": "^2.4.2",
-    "cli-progress": "^3.8.2",
     "chokidar": "^2.1.5",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.5",
@@ -118,7 +122,6 @@
     "@types/bluebird-global": "^3.5.9",
     "@types/bluebird-retry": "^0.11.4",
     "@types/bytes": "^3.1.0",
-    "@types/cli-progress": "^3.8.0",
     "@types/compression": "^1.7.0",
     "@types/cookie-session": "^2.0.42",
     "@types/cross-spawn": "^6.0.2",

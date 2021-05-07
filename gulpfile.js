@@ -1,6 +1,7 @@
 const core = require('./build/gulp.core')
 const migration = require('./build/gulp.migration')
 const modules = require('./build/gulp.modules')
+const nlu = require('./build/gulp.nlu')
 const package = require('./build/gulp.package')
 const gulp = require('gulp')
 const ui = require('./build/gulp.ui')
@@ -65,13 +66,19 @@ gulp.task('build:shared', ui.buildShared())
 gulp.task('init:studio', ui.initStudio)
 gulp.task('build:modules', gulp.series([modules.build()]))
 
+const pwd = process.cwd()
+gulp.task('install:nlu', nlu.installNLU([`-c=${pwd}/package.json`, `-o=${pwd}/out/bp`, process.argv.slice(3)]))
+
 gulp.task('start:guide', docs.startDevServer)
 gulp.task('build:guide', docs.buildGuide())
 gulp.task('build:reference', docs.buildReference())
 
 gulp.task('package:core', package.packageCore())
 gulp.task('package:modules', modules.packageModules())
-gulp.task('package', gulp.series([package.packageApp, modules.packageModules(), package.copyNativeExtensions]))
+gulp.task(
+  'package',
+  gulp.series([package.packageApp, modules.packageModules(), package.copyNativeExtensions, package.packageNLU()])
+)
 
 gulp.task('watch', gulp.parallel([core.watch, ui.watchAll]))
 gulp.task('watch:core', core.watch)
