@@ -45,11 +45,6 @@ export interface ChannelContentCustomTemplate {
 export type VonageChannelContent = ChannelContent & {
   custom?: ChannelContentCustomTemplate
 }
-export interface MessageOption {
-  label: string
-  value: string
-  type: 'say_something' | 'postback' | 'quick_reply' | 'url'
-}
 
 interface InvalidParameter {
   name: string

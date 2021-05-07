@@ -1,4 +1,4 @@
-import Vonage, { ChannelMessage, ChannelType, ChannelWhatsApp } from '@vonage/server-sdk'
+import Vonage, { ChannelType } from '@vonage/server-sdk'
 import * as sdk from 'botpress/sdk'
 import { ChannelRenderer, ChannelSender } from 'common/channel'
 import { StandardError, UnauthorizedError } from 'common/http'
@@ -16,23 +16,12 @@ import {
   VonageCardRenderer,
   VonageChoicesRenderer,
   VonageVideoRenderer,
-  VonageAudioRenderer
+  VonageAudioRenderer,
+  VonageTemplateRenderer
 } from '../renderers'
 import { VonageCommonSender, VonageTypingSender } from '../senders'
-import { Buttons, Parameters, TemplateComponents } from './templates'
 
-import {
-  Clients,
-  ExtendedChannelContent,
-  SignedJWTPayload,
-  VonageContext,
-  VonageRequestBody,
-  ChannelContentCustomTemplate,
-  MessageApiError,
-  MessageOption,
-  TemplateLanguage,
-  VonageChannelContent
-} from './typings'
+import { Clients, ExtendedChannelContent, SignedJWTPayload, VonageContext, VonageRequestBody } from './typings'
 
 const debug = DEBUG('channel-vonage')
 const debugIncoming = debug.sub('incoming')
@@ -51,6 +40,7 @@ const sha256 = (str: string) =>
     .createHash('sha256')
     .update(str)
     .digest('hex')
+
 export class VonageClient {
   private logger: sdk.Logger
   private vonage: Vonage
@@ -118,6 +108,7 @@ export class VonageClient {
       new VonageCarouselRenderer(),
       new VonageAudioRenderer(),
       new VonageVideoRenderer(),
+      new VonageTemplateRenderer(),
       new VonageChoicesRenderer()
     ]
 
@@ -158,9 +149,6 @@ export class VonageClient {
           audio: messageContent.audio.url
         }
         // TODO: payload = this.bp.experimental.render.voice() ?
-        break
-      case 'image':
-        payload = this.bp.experimental.render.image(messageContent.image.url, messageContent.image.caption)
         break
       case 'video':
         payload = this.bp.experimental.render.video(messageContent.video.url, messageContent.video.caption)
@@ -290,40 +278,6 @@ export class VonageClient {
       .create(event.threadId, event.payload, undefined, event.id, event.incomingEventId)
 
     next(undefined, false, false)
-  }
-
-  private async sendTemplate(event: sdk.IO.Event, payload: any) {
-    const headerParameters = (payload.header.variables || []) as Parameters
-    const bodyParameters = (payload.body.variables || []) as Parameters
-    const buttonParameters = (payload.button.variables || []) as Buttons
-
-    const components = new TemplateComponents()
-      .withHeader(...headerParameters)
-      .withBody(...bodyParameters)
-      .withButtons(...buttonParameters)
-      .build()
-
-    const language: TemplateLanguage = {
-      code: 'en_US', // TODO: Fetch the user language
-      policy: 'deterministic'
-    }
-    const custom: ChannelContentCustomTemplate = {
-      type: 'template',
-      template: {
-        namespace: payload.namespace,
-        name: payload.name,
-        language,
-        components
-      }
-    }
-
-    /*
-    await this.sendMessage(event, {
-      type: 'custom',
-      text: undefined,
-      custom
-    })
-    */
   }
 
   async handleIncomingEvent(event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) {
