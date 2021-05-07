@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "sourceMap": true,
+    "strict": true,
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "target": "es2019",
+    "noImplicitAny": false,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "baseUrl": "./src",
+    "outDir": "./out",
+    "typeRoots": ["./src/typings", "../../node_modules/@types", "../../src/bp/common"],
+    "paths": {
+      "botpress/sdk": ["../../../src/bp/sdk/botpress.d.ts"],
+      "common/*": ["../../../out/bp/common/*"]
+    },
+    "types": []
+  },
+  "include": ["src/**/*.ts", "src/*.ts"],
+  "exclude": ["e2e/**", "../out", "**/node_modules/**/*.(ts|js)", "**/static/**/*.(js|ts)"]
+}
