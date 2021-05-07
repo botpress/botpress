@@ -1,0 +1,87 @@
+@messagingUrl = {{baseUrl}}/api/v1/bots/{{botId}}/messaging
+@botId = YOUR_BOT_ID
+@convoId = YOUR_CONVO_ID
+@messageId = YOUR_MESSAGE_ID
+@userId = YOUR_USER_ID
+@apiKey = YOUR_API_KEY
+
+### Create conversation
+POST {{messagingUrl}}/conversations
+Content-Type: application/json
+X-BP-API-KEY: {{apiKey}}
+
+{
+  "userId": "{{userId}}"
+}
+
+### Delete conversation
+DELETE {{messagingUrl}}/conversations?id={{convoId}}
+X-BP-API-KEY: {{apiKey}}
+
+### Get conversation
+GET {{messagingUrl}}/conversations/{{convoId}}
+X-BP-API-KEY: {{apiKey}}
+
+### List conversations
+GET {{messagingUrl}}/conversations?userId={{userId}}&limit=100
+X-BP-API-KEY: {{apiKey}}
+
+### Get or create recent conversation
+GET {{messagingUrl}}/conversations/{{userId}}/recent
+X-BP-API-KEY: {{apiKey}}
+
+### Create message
+POST {{messagingUrl}}/messages
+Content-Type: application/json
+X-BP-API-KEY: {{apiKey}}
+
+{
+  "conversationId": "{{convoId}}",
+  "authorId": "{{userId}}",
+  "payload": {
+    "type": "text",
+    "text": "hello"
+  }
+}
+
+### Delete message
+DELETE {{messagingUrl}}/messages?id={{messageId}}
+X-BP-API-KEY: {{apiKey}}
+
+### Get message
+GET {{messagingUrl}}/messages/{{messageId}}
+X-BP-API-KEY: {{apiKey}}
+
+### List messages
+GET {{messagingUrl}}/messages?conversationId={{convoId}}
+X-BP-API-KEY: {{apiKey}}
+
+### Send message
+POST {{messagingUrl}}/messages/{{convoId}}/send
+Content-Type: application/json
+X-BP-API-KEY: {{apiKey}}
+
+{
+  "payload": {
+    "type": "text",
+    "text": "hello"
+  },
+  "args": {
+    "channel": "http"
+  }
+}
+
+### Receive message
+POST {{messagingUrl}}/messages/{{convoId}}/receive
+Content-Type: application/json
+X-BP-API-KEY: {{apiKey}}
+
+{
+  "payload": {
+    "type": "text",
+    "text": "hello"
+  },
+  "args": {
+    "channel": "http"
+  }
+}
