@@ -1,4 +1,7 @@
-import {
+import { ModuleUI } from 'botpress/shared'
+import React from 'react'
+
+const {
   Container,
   InfoTooltip,
   Item,
@@ -9,8 +12,7 @@ import {
   SidePanel,
   SidePanelSection,
   SplashScreen
-} from 'botpress/ui'
-import React from 'react'
+} = ModuleUI
 
 // This view is a sample including all the features of Botpress UI
 export default class MyMainView extends React.Component {

@@ -189,7 +189,7 @@ export class EventEngine {
     if (event.payload.__unrendered) {
       const payloads = this.renderForChannel!(event.payload, event.channel)
       const mevent = <any>event
-      mevent.payload = payloads[payloads.length - 1]
+      mevent.payload = _.isArray(payloads) ? _.last(payloads) : payloads
       mevent.type = mevent.payload.type
     }
 

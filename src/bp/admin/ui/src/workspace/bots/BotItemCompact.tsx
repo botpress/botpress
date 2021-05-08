@@ -11,20 +11,21 @@ import {
   Tag,
   Tooltip
 } from '@blueprintjs/core'
-import { BotConfig } from 'botpress/sdk'
+import { BotConfig, ModuleDefinition } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import AccessControl, { isChatUser } from '~/auth/AccessControl'
 
+import AccessControl, { isChatUser, isOperationAllowed } from '~/auth/AccessControl'
 import { NeedsTrainingWarning } from './NeedsTrainingWarning'
 import style from './style.scss'
+import { WorkspaceAppItems } from './WorkspaceAppItems'
 
 interface Props {
   bot: BotConfig
   hasError: boolean
-  nluModuleEnabled: boolean | undefined
+  loadedModules: ModuleDefinition[]
   deleteBot?: () => void
   exportBot?: () => void
   createRevision?: () => void
@@ -36,7 +37,7 @@ interface Props {
 const BotItemCompact: FC<Props> = ({
   bot,
   hasError,
-  nluModuleEnabled,
+  loadedModules,
   deleteBot,
   exportBot,
   createRevision,
@@ -46,6 +47,8 @@ const BotItemCompact: FC<Props> = ({
 }) => {
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
+  const nluModuleEnabled = !!loadedModules.find(m => m.name === 'nlu')
+  const hasStudioAccess = isOperationAllowed({ resource: 'studio', operation: 'read' })
 
   return (
     <div className={cx('bp_table-row', style.tableRow)} key={bot.id}>
@@ -76,8 +79,11 @@ const BotItemCompact: FC<Props> = ({
         <AccessControl resource="admin.bots.*" operation="read">
           <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
             <Button id="btn-menu" icon={<Icon icon="menu" />} minimal />
+
             <Menu>
-              {!bot.disabled && !hasError && (
+              <WorkspaceAppItems loadedModules={loadedModules} botId={bot.id} />
+
+              {!bot.disabled && !hasError && hasStudioAccess && (
                 <MenuItem
                   disabled={bot.locked}
                   icon="edit"
@@ -141,13 +147,16 @@ const BotItemCompact: FC<Props> = ({
             &nbsp;
           </span>
         )}
-        <a href={botStudioLink}>{bot.name || bot.id}</a>
+
+        {hasStudioAccess ? <a href={botStudioLink}>{bot.name || bot.id}</a> : <span>{bot.name || bot.id}</span>}
 
         {/*
           TODO: remove this NeedsTrainingWarning component.
           This is a temp fix but won't be usefull after we bring back training on bot mount.
           */}
-        {nluModuleEnabled && <NeedsTrainingWarning bot={bot.id} languages={bot.languages} />}
+        <AccessControl resource="module.nlu" operation="write">
+          {nluModuleEnabled && <NeedsTrainingWarning bot={bot.id} languages={bot.languages} />}
+        </AccessControl>
 
         {!bot.defaultLanguage && (
           <Tooltip position="right" content={lang.tr('admin.workspace.bots.item.languageIsMissing')}>
