@@ -1,187 +1,180 @@
 ---
-id: proactive
-title: Acting Proactively
+id: monitoring
+title: Monitoring & Alerting
 ---
 
-## Overview
+![This feature is available to Botpress Enterprise license holders.](assets/botpress-enterprise-feature.png)
+## Server Monitoring
 
-You may wish to make your bot act proactively on your website in response to some action. E.g., make the bot speak first, suggest they buy the product they are viewing after a set time or ask them for feedback on services they were using.
+Monitoring is an essential part of any software deployment. Botpress has a built-in simple but intuitive dashboard
+designed to help you monitor your servers. Botpress collects key metrics including CPU and Memory usage in addition to useful Botpress-related metrics.
 
-## Requirements
+Metric data is collected and stored using a Redis server.
 
-### Send an event from the webpage
+## Prerequisites
 
-First you need to open the webchat (either manually or programmatically) and then send an event from the webpage.
+- Botpress Enterprise must be enabled with a valid license key
+- Redis Server must be running (minimum: version 2.8)
 
-> 📖 How do I open the webchat? Please refer to the [channel-web](../channels/web#embedding) section.
+## Quick Start
+
+1. Open your `botpress.config.json` file and set `pro.monitoring.enabled` to `true`
+2. Set an environment variable named `CLUSTER_ENABLED` to `true`
+3. Set another environment variable named `REDIS_URL` which points to your server (example provided below)
+4. Start your Botpress Server
+
+### Configuration
+
+The default values should work in most situations. They are described in detail in the [Botpress Config Definition](https://github.com/botpress/botpress/blob/master/src/bp/core/config/botpress.config.ts) specification.
+
+### Redis Configuration
+
+The environment variable `REDIS_URL` must be constructed like this: `redis://user:pass@hostname:port`
+If you start Redis locally, you can construct it as follows: `REDIS_URL=redis://localhost:6379`
+
+## Metrics
+
+These metrics are collected for every node of your Botpress Cluster.
+
+- Average % of CPU usage
+- Average % of Memory usage
+- Number of HTTP requests processed
+- Number of incoming events (when users sends messages to the bot)
+- Number of outgoing events (anything the bot sends back to users)
+- Number of warnings
+- Number of errors
+- Latency of HTTP requests
+
+## Alerting Service
+
+The alerting service triggers an alarm when your configured thresholds are exceeded.
+
+### Prerequisite
+
+- Botpress Pro must be enabled with a valid license key
+- Redis Server must be running (minimum: version 2.8)
+- Monitoring must be enabled
+
+### Quick Start
+
+1. Edit `botpress.config.json` and set `pro.alerting.enabled` to `true`
+2. Add at least one Incident Rule (more on that below) in `pro.alerting.rules`
+3. Restart Botpress
+
+### Incident Rules
+
+Incident rules define thresholds that trigger an alarm. Let's look at an example of a rule, then we will break it apart
 
 ```js
-window.botpressWebChat.sendEvent({
-  type: 'proactive-trigger',
-  channel: 'web',
-  payload: {
-    text: 'fake message'
-  }
-})
-```
-
-The property `type: 'proactive-trigger'` is used to identify the event so we can catch it and act on it later on.
-
-### Catch the event in a hook
-
-This event will be dispatched to the bot so you need to add a handler for it. If this event is not handled, it will be interpreted as a user message.
-
-This snippet should be added to the [before_incoming_middleware hook](../main/code#before-incoming-middleware):
-
-```js
-// Catch the event sent from the webpage
-if (event.type === 'proactive-trigger') {
-  // You custom code
+{
+  "name": " High CPU Usage ",
+  "field": "cpu.usage",
+  "aggregation": "avg",
+  "operand": "equalOrMoreThan",
+  "value": 60,
+  "timeframe": "2m",
+  "cooldown": "1m"
 }
 ```
 
-> **Tip**: Use `event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)` to tell the dialog engine to skip the event processing. This is useful when your event is not a user message.
+This rule can be read like this:
 
-## Webchat events
+> Raise an alarm if the `average` value of `cpu.usage` is `equal or more than` `60` for `2 minutes`.
+> When the incident is resolved, `wait at least one minute` before triggering another alert for the same reason
 
-There's currently 4 events that can be caught in your page :
+Botpress employs a "rolling window" method to calculate results. If your timeframe is 2 minutes and you collect data after every 10 seconds, then there will be 12 different "ticks" that will be evaluated each 10 seconds with your chosen aggregation. The value is then compared with your configured threshold.
 
-| name            | Description                                                                   |
-| --------------- | ----------------------------------------------------------------------------- |
-| `webchatLoaded` | Triggered when the webchat is loaded and ready to be opened                   |
-| `webchatOpened` | Triggered when the webchat button bubble is clicked                           |
-| `webchatClosed` | Triggered when the webchat close button is clicked                            |
-| `webchatReady`  | Triggered when the webchat is ready to accept events, like proactive triggers |
+#### Fields
 
-## Common use cases
+| Field                | Description                                                      |
+| -------------------- | ---------------------------------------------------------------- |
+| cpu.usage            | Average % of CPU usage                                           |
+| mem.usage            | Average % of Memory usage                                        |
+| mem.free             | Amount of free memory (in KB)                                    |
+| requests.count       | Number of HTTP requests processed                                |
+| requests.latency_avg | Average latency of HTTP requests                                 |
+| requests.latency_sum | The sum of the latency of all HTTP requests                      |
+| eventsIn.count       | Number of incoming events (when users sends messages to the bot) |
+| eventsOut.count      | Number of outgoing events (anything the bot sends back to users) |
+| warnings.count       | Number of warnings                                               |
+| errors.count         | Number of errors                                                 |
 
-Here are some examples of how can you use webchat events in your page.
+#### Aggregation
 
-### Send message when the webchat is loaded
+- avg: Average
+- sum: Sum
+- min: Minimum
+- max: Maximum
+- last: The last value received from the monitoring service
+- count: The number of "ticks" in the timeframe
 
-This will send an event when the webchat is loaded and ready to be opened.
+#### Operands
 
-Use this code in your `index.html`:
+- equalOrLessThan: Equal or less than =<
+- equalOrMoreThan: Equal or more than =>
 
-```html
-<html>
-  <head>
-    <title>Embedded Webchat</title>
-    <script src="/assets/modules/channel-web/inject.js"></script>
-  </head>
+#### Cooldown
 
-  <body>
-    This is an example of embedded webchat
-  </body>
+When an incident is resolved, no other incident of the same nature (same name / same host) will be opened until this time frame expires.
 
-  <script>
-    // Initialize the chat widget
-    // Change the `botId` with the Id of the bot that should respond to the chat
-    window.botpressWebChat.init({
-      host: 'http://localhost:3000',
-      botId: 'welcome-bot'
-    })
+## Incident & Hook
 
-    window.addEventListener('message', function(event) {
-      if (event.data.name === 'webchatReady') {
-        window.botpressWebChat.sendEvent({
-          type: 'proactive-trigger',
-          channel: 'web',
-          payload: { text: 'fake message' }
-        })
-      }
-    })
-  </script>
-</html>
-```
+Now that you have defined incident rules, how do you get alerted when something happens? This is where hooks comes in handy. Every time an incident is opened or resolved, Botpress will call the hook `on_incident_status_changed` with the incident as an object. When the property `endTime` is not defined, it means that the incident was opened. When it is set, the incident is resolved.
 
-### Send message when opening webchat
-
-This will send an event when the webchat button bubble is clicked
-
-Use this code in your `index.html`:
-
-```html
-<html>
-  <head>
-    <title>Embedded Webchat</title>
-    <script src="/assets/modules/channel-web/inject.js"></script>
-  </head>
-
-  <body>
-    This is an example of embedded webchat
-  </body>
-
-  <script>
-    // Initialize the chat widget
-    // Change the `botId` with the Id of the bot that should respond to the chat
-    window.botpressWebChat.init({
-      host: 'http://localhost:3000',
-      botId: 'welcome-bot'
-    })
-
-    window.addEventListener('message', function(event) {
-      if (event.data.name === 'webchatOpened') {
-        window.botpressWebChat.sendEvent({
-          type: 'proactive-trigger',
-          channel: 'web',
-          payload: { text: 'fake message' }
-        })
-      }
-    })
-  </script>
-</html>
-```
-
-### Send custom content on proactive event
-
-You can intercept a proactive trigger to send custom content. This could be used to send reminders, display a welcome message or ask for feedback.
-
-- Make sure that you've sent an event from your webpage. See the examples above.
-- Use this in your `before_incoming_middleware` hook:
+Here's an example of `data/global/hooks/on_incident_status_changed/alert.js`
 
 ```js
-// Catch the event
-if (event.type === 'proactive-trigger') {
-  const eventDestination = {
-    channel: event.channel,
-    target: event.target,
-    botId: event.botId,
-    threadId: event.threadId
+async function alertChanged() {
+  if (!incident.endTime) {
+    console.log('HOOK: Incident Opened:', incident)
+  } else {
+    console.log('HOOK: Incident Closed:', incident)
   }
 
-  // Skip event processing
-  event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
+  // Here you could send a SMS, an E-mail, etc...
+  // await axios.post....
+}
 
-  // Make the bot respond with custom content instead
-  bp.cms.renderElement('builtin_text', { text: "I'm so proactive!", typing: true }, eventDestination).then(payloads => {
-    bp.events.replyToEvent(event, payloads)
-  })
+return alertChanged()
+```
+
+The incident object has these properties:
+
+```bash
+{
+  id: 'A unique ID randomly generated',
+  ruleName: 'The name of your incident rule',
+  hostName: 'The host name which hosts the Botpress instance',
+  startTime: 'Date when the incident was opened',
+  endTime: 'When the incident was resolved',
+  triggerValue: 'The value that triggered the incident'
 }
 ```
 
-Here we're using the [replyToEvent](https://botpress.com/reference/modules/_botpress_sdk_.events.html#replytoevent) function from the SDK to reply to the current event and [renderElement](https://botpress.com/reference/modules/_botpress_sdk_.cms.html#renderelement) to render our custom content.
+## Other Rules Examples
 
-### Send proactive only to new users
+Raise an incident when there is more than 10 errors in the last minute
 
-When you want to respond only to new users, you have to check if their session is new. We can do that by looking at the session's last messages.
-
-- Make sure that you've sent an event from your webpage. See the examples above.
-- Use this code in your `before_incoming_middleware` hook:
-
-```js
-if (event.type === 'proactive-trigger') {
-  // We only want to trigger a proactive message when the session is new,
-  // otherwise the conversation will progress every time the page is refreshed.
-  if (event.state.session.lastMessages.length) {
-    // This will tell the dialog engine to skip the processing of this event.
-    event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
-  }
+```json
+{
+  "name": "High number of errors",
+  "field": "errors.count",
+  "aggregation": "sum",
+  "operand": "equalOrMoreThan",
+  "value": 10,
+  "timeframe": "1m"
 }
 ```
 
-## Live Examples
+No incoming events for the past 10 minutes
 
-If you'd like to play around with proactives, we provide a bot and some examples that you can interact with. These examples are probably the best way to learn everything you can do with proactives.
-
-See how to install the Proactive Module [here](https://github.com/botpress/botpress/tree/master/examples/proactive).
+```json
+{
+  "name": "No more incoming events",
+  "field": "eventsIn.count",
+  "aggregation": "sum",
+  "operand": "equalOrLessThan",
+  "value": 0,
+  "timeframe": "10m"
+},
+```
