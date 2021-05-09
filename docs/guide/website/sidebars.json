@@ -40,7 +40,8 @@
       "managing/authentication",
       "managing/monitoring",
       "managing/proactive",
-      "managing/hitl"
+      "managing/hitl",
+      "managing/hitlnext"
     ],
 		"Improving Your Chatbot": [
 			"tutorials/intent-matching",
