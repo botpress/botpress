@@ -38,6 +38,7 @@
     "Managing Bots & Users": [
       "managing/rbac",
       "managing/authentication",
+      "managing/user-auth", 
       "managing/monitoring",
       "managing/proactive",
       "managing/hitl"
