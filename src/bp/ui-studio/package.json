@@ -47,7 +47,7 @@
     "howler": "^2.1.2",
     "js-cookie": "^2.2.0",
     "jsonlint-mod": "^1.7.6",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.21",
     "moment": "^2.24.0",
     "ms": "^2.1.1",
     "mustache": "^2.3.0",
