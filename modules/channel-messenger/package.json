@@ -17,7 +17,7 @@
     "bluebird-global": "^1.0.1",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
-    "lodash": "^4.17.19"
+    "lodash": "^4.17.21"
   },
   "resolutions": {
     "fstream": ">=1.0.12",
