@@ -5,7 +5,6 @@ title: Single Sign-On Methods
 
 
 ![This feature is available to Botpress Enterprise license holders.](assets/botpress-enterprise-feature.png)
-
 ## SSO with Google OAuth2
 
 ### Step 1: Create OAuth2 credentials
