@@ -14,6 +14,7 @@ module.exports = {
   jsonSchema: {
     description: 'module.builtin.types.location.description',
     type: 'object',
+    $subtype: 'location',
     required: ['latitude', 'longitude'],
     properties: {
       latitude: {
@@ -30,7 +31,7 @@ module.exports = {
       },
       title: {
         type: 'string',
-        title: 'module.builtin.types.location.title'
+        title: 'module.builtin.types.location.label'
       },
       ...base.typingIndicators
     }

@@ -48,6 +48,14 @@
       "alternatives": "Alternatives",
       "description": "Un texte régulier",
       "message": "Message"
+    },
+    "location": {
+      "title": "Localisation",
+      "description": "Un message affichant une localisation avec une adresse et un titre optionels",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "address": "Adresse",
+      "label": "Titre"
     }
   },
   "typingIndicator": "Afficher l'indicateur de frappe",
