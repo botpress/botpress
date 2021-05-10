@@ -121,7 +121,7 @@ export interface ExtendedChannelContent extends Omit<ChannelContent, 'type'> {
 }
 
 export type VonageContext = ChannelContext<Vonage> & {
-  messages: VonageChannelContent[]
+  messages: ChannelMessage[]
   botPhoneNumber: string
   prepareIndexResponse(event: sdk.IO.OutgoingEvent, options: sdk.ChoiceOption[]): Promise<void>
   isSandbox: boolean

@@ -23,12 +23,15 @@ export class VonageTemplateRenderer implements ChannelRenderer<VonageContext> {
     const payload = context.payload
 
     context.messages.push({
-      type: 'template',
-      text: undefined,
-      template: {
-        name: `${payload.namespace}:${payload.name}`,
-        parameters: payload.parameters
-      }
+      content: {
+        type: 'template',
+        text: undefined,
+        template: {
+          name: `${payload.namespace}:${payload.name}`,
+          parameters: payload.parameters
+        }
+      },
+      whatsapp: { policy: 'deterministic', locale: payload.languageCode || 'en_US' }
     })
   }
 }
