@@ -76,10 +76,9 @@ export class VonageMediaTemplateRenderer implements ChannelRenderer<VonageContex
       }
     }
 
-    // typings don't work for custom
+    // TODO: Typings don't work for Media Message Templates
     context.messages.push({
-      content: <any>{ type: 'custom', text: undefined, custom },
-      whatsapp: { policy: 'deterministic', locale: languageCode }
+      content: <any>{ type: 'custom', text: undefined, custom }
     })
   }
 }
