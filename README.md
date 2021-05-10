@@ -1,8 +1,8 @@
 # [Botpress](https://botpress.com/?utm_source=github&utm_medium=organic&utm_campaign=botpress_repo&utm_term=readme) — The building blocks for building chatbots
 
 ## What is Botpress ?
-Botpress is the standard developer stack to build, run and improve Conversational-AI applications. Powered by natural language understanding, a messaging APIs and a fully featured studio, Botpress allows developers around the globe to build high quality chatbots without compromise.
-
+Botpress is the standard developer stack to build, run and improve Conversational-AI applications. Powered by natural language understanding, a messaging API and a fully featured studio, Botpress allows developers around the globe to build remarkable chatbots without compromise.
+a
 <a href='https://botpress.com/?utm_source=github&utm_medium=organic&utm_campaign=botpress_repo&utm_term=readme'><img src='.github/assets/studio.png'></a>
 
 **Out of the box, Botpress includes:**
