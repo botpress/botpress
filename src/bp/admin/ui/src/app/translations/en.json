@@ -1,5 +1,6 @@
 {
   "admin": {
+    "apps": "Apps",
     "needsTraining": "This bot needs training.",
     "howToTrain": "On the studio, click on the \"Train Now\" button (located on the bottom right corner).",
     "alerting": {

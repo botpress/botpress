@@ -1,3 +1,7 @@
+import * as sdk from 'botpress/sdk'
+import { ChannelContext } from 'common/channel'
+import { Twilio } from 'twilio'
+import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message'
 import { TwilioClient } from './client'
 
 export interface Clients {
@@ -7,7 +11,6 @@ export interface Clients {
 export interface MessageOption {
   label: string
   value: string
-  type: 'say_something' | 'postback' | 'quick_reply' | 'url'
 }
 
 export interface TwilioRequestBody {
@@ -18,4 +21,10 @@ export interface TwilioRequestBody {
 export interface ChoiceOption {
   title: string
   payload: string
+}
+
+export type TwilioContext = ChannelContext<Twilio> & {
+  messages: Partial<MessageInstance>[]
+  botPhoneNumber: string
+  prepareIndexResponse(event: sdk.IO.OutgoingEvent, options: MessageOption[]): Promise<void>
 }
