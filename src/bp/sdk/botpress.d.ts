@@ -1748,6 +1748,14 @@ declare module 'botpress/sdk' {
     actions: ActionButton[]
   }
 
+  export interface LocationContent extends Content {
+    type: 'location'
+    latitude: number
+    longitude: number
+    address?: string | MultiLangText
+    title?: string | MultiLangText
+  }
+
   export enum ButtonAction {
     SaySomething = 'Say something',
     OpenUrl = 'Open URL',
@@ -2638,6 +2646,20 @@ declare module 'botpress/sdk' {
        * @param caption Caption to appear alongside your video
        */
       export function video(url: string, caption?: string | MultiLangText): VideoContent
+
+      /**
+       * Renders a location element
+       * @param latitude Latitude of location in decimal degrees
+       * @param longitude Longitude of location in decimal degrees
+       * @param address Street adress associated with location
+       * @param title Explanatory title for this location
+       */
+      export function location(
+        latitude: number,
+        longitude: number,
+        address?: string | MultiLangText,
+        title?: string | MultiLangText
+      ): LocationContent
 
       /**
        * Renders a carousel element
