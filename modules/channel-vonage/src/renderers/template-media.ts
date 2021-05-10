@@ -1,7 +1,13 @@
 import { ChannelRenderer } from 'common/channel'
 import { CHANNEL_NAME } from '../backend/client'
-import { TemplateComponents, Parameters, Buttons } from '../backend/templates'
-import { ChannelContentCustomTemplate, TemplateLanguage, VonageContext } from '../backend/typings'
+import {
+  ChannelContentCustomTemplate,
+  TemplateLanguage,
+  VonageContext,
+  Parameters,
+  Buttons,
+  Components
+} from '../backend/typings'
 
 export class VonageMediaTemplateRenderer implements ChannelRenderer<VonageContext> {
   get channel(): string {
@@ -23,18 +29,41 @@ export class VonageMediaTemplateRenderer implements ChannelRenderer<VonageContex
   async render(context: VonageContext) {
     const payload = context.payload
 
+    // TODO: Add support for footers
     const headerParameters = (payload.header?.parameters || []) as Parameters
     const bodyParameters = (payload.body?.parameters || []) as Parameters
-    const buttonParameters = (payload.button?.parameters || []) as Buttons
+    const buttonParameters = (payload.buttons || []) as Buttons
+    const languageCode = (payload.languageCode || 'en_US') as string
 
-    const components = new TemplateComponents()
-      .withHeader(...headerParameters)
-      .withBody(...bodyParameters)
-      .withButtons(...buttonParameters)
-      .build()
+    const components: Components = []
+
+    if (headerParameters.length) {
+      components.push({
+        type: 'header',
+        parameters: headerParameters
+      })
+    }
+
+    if (bodyParameters.length) {
+      components.push({
+        type: 'body',
+        parameters: bodyParameters
+      })
+    }
+
+    if (buttonParameters.length) {
+      buttonParameters.forEach((button, index) => {
+        components.push({
+          type: 'button',
+          sub_type: button.subType,
+          index,
+          parameters: button.parameters
+        })
+      })
+    }
 
     const language: TemplateLanguage = {
-      code: 'en_US', // TODO: Fetch the user language
+      code: languageCode,
       policy: 'deterministic'
     }
     const custom: ChannelContentCustomTemplate = {

@@ -136,6 +136,7 @@ export class VonageClient {
 
     // https://developer.nexmo.com/api/messages-olympus?theme=dark
     let payload: unknown = null
+    // TODO: Add support for 'button' reception
     switch (messageContent.type) {
       case 'text':
         payload = this.bp.experimental.render.text(messageContent.text)

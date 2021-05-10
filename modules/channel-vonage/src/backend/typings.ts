@@ -11,7 +11,6 @@ import Vonage, {
 import * as sdk from 'botpress/sdk'
 import { ChannelContext } from 'common/channel'
 import { VonageClient } from './client'
-import { Components } from './templates'
 
 export interface Clients {
   [botId: string]: VonageClient
@@ -29,6 +28,45 @@ export interface TemplateLanguage {
   policy: Policy
   code: string
 }
+
+type Parameter =
+  | {
+      type: 'text'
+      text: string
+    }
+  | {
+      type: 'payload'
+      payload: string
+    }
+  | {
+      type: 'image'
+      image: {
+        link: string
+      }
+    }
+export type Parameters = Parameter[]
+
+interface Header {
+  type: 'header'
+  parameters: Parameters
+}
+
+interface Body {
+  type: 'body'
+  parameters: Parameters
+}
+
+type ButtonSubType = 'quick_reply' | 'url'
+export type Buttons = { subType: ButtonSubType; parameters: Parameters }[]
+
+interface Button {
+  type: 'button'
+  sub_type: ButtonSubType
+  index: number
+  parameters: Parameters
+}
+
+export type Components = (Header | Body | Button)[]
 
 export interface ChannelContentTemplate {
   namespace: string
