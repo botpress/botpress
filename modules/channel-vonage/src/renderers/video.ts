@@ -25,10 +25,12 @@ export class VonageVideoRenderer implements ChannelRenderer<VonageContext> {
     const payload = context.payload as sdk.VideoContent
 
     context.messages.push({
-      type: 'video',
-      text: undefined,
-      video: {
-        url: formatUrl(context.botUrl, payload.video)
+      content: {
+        type: 'video',
+        text: undefined,
+        video: {
+          url: formatUrl(context.botUrl, payload.video)
+        }
       }
     })
   }
