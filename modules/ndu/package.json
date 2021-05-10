@@ -21,7 +21,9 @@
     "moment": "^2.24.0",
     "ms": "^2.1.2",
     "nanoid": "^2.1.11",
-    "@botpress/node-svm": "0.0.3"
+    "@botpress/node-svm": "0.0.3",
+    "seedrandom": "^3.0.5",
+    "numeric": "^1.2.6"
   },
   "resolutions": {
     "fstream": ">=1.0.12",
