@@ -151,7 +151,6 @@ export class VonageClient {
           type: 'voice',
           audio: messageContent.audio.url
         }
-        // TODO: payload = this.bp.experimental.render.voice() ?
         break
       case 'video':
         payload = this.bp.experimental.render.video(messageContent.video.url, messageContent.video.caption)
@@ -162,7 +161,6 @@ export class VonageClient {
           title: messageContent.file.caption,
           file: messageContent.file.url
         }
-        // TODO: payload = this.bp.experimental.render.file()
         break
       case 'location':
         payload = {
@@ -170,7 +168,6 @@ export class VonageClient {
           latitude: messageContent.location.lat,
           longitude: messageContent.location.long
         }
-        // TODO: payload = this.bp.experimental.render.location() ?
         break
       default:
         break
