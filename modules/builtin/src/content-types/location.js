@@ -9,7 +9,7 @@ function renderElement(data, channel) {
 module.exports = {
   id: 'builtin_location',
   group: 'Built-in Messages',
-  title: 'location',
+  title: 'module.builtin.types.location.title',
 
   jsonSchema: {
     description: 'module.builtin.types.location.description',
