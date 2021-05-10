@@ -1,5 +1,6 @@
 {
   "admin": {
+    "apps": "Applications",
     "needsTraining": "Ce bot a besoin d'être entraîné.",
     "howToTrain": "Dans le studio, cliquez sur le bouton \"Entraîner maintenant\" (situé dans le coin en bas, à droite).",
     "alerting": {
@@ -409,5 +410,20 @@
     "en": "Anglaise",
     "fr": "Français",
     "es": "Español"
+  },
+  "bottomPanel": {
+    "debug": "Débogage",
+    "label": "Panneau inférieur",
+    "closePanel": "Fermer le panneau",
+    "logs": {
+      "allBots": "Tous les bots",
+      "scrollToFollow": "Suivre les journaux",
+      "downloadLogs": "Télécharger",
+      "clearHistory": "Effacer l'historique",
+      "endOfLogs": "Fin des journaux",
+      "debug": {
+        "confUpdated": "La configuration de débogage a été mise à jour avec succès!"
+      }
+    }
   }
 }
