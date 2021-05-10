@@ -18,6 +18,7 @@ import {
   VonageVideoRenderer,
   VonageAudioRenderer,
   VonageMediaTemplateRenderer,
+  VonageLocationRenderer,
   VonageTemplateRenderer
 } from '../renderers'
 import { VonageCommonSender, VonageTypingSender } from '../senders'
@@ -106,6 +107,7 @@ export class VonageClient {
       new VonageCardRenderer(),
       new VonageTextRenderer(),
       new VonageImageRenderer(),
+      new VonageLocationRenderer(),
       new VonageCarouselRenderer(),
       new VonageAudioRenderer(),
       new VonageVideoRenderer(),
@@ -166,11 +168,7 @@ export class VonageClient {
         }
         break
       case 'location':
-        payload = {
-          type: messageContent.type,
-          latitude: messageContent.location.lat,
-          longitude: messageContent.location.long
-        }
+        payload = this.bp.experimental.render.location(messageContent.location.lat, messageContent.location.long)
         break
       default:
         break
