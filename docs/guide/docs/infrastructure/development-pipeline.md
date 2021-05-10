@@ -25,7 +25,8 @@ git push -u origin main
 4. You can add a develop and staging branch to fit your workflow
 5. Everytime you make a change in the Conversation Studio or in your preferred code editor, you can commit that change to track changes.
 6. When you are ready to send you chatbot to production, you can ```git merge``` your develop branch in master.
-7. Then, you ```checkout master``` and you export your chatbot to upload it on your production environment (usually cloud deployment)
+7. Then, you ```checkout master``` in your terminal and you go to your Botpress Admin to export your chatbot.
+8. You upload it on your production environment (usually cloud deployment)
 
 ### Syncing Changes Between Environments
 
