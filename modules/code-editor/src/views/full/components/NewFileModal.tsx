@@ -1,5 +1,6 @@
 import { Button, Checkbox, Classes, Dialog, FormGroup, InputGroup, Intent, Radio, RadioGroup } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
+import { ALL_BOTS } from 'common/utils'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
@@ -63,9 +64,11 @@ const NewFileModal: FC<Props> = props => {
     closeModal()
   }
 
+  const isGlobalApp = window.BOT_ID === ALL_BOTS
   const canBeBotScoped = () =>
-    props.selectedType !== 'hook' ||
-    (props.selectedType === 'hook' && BOT_SCOPED_HOOKS.includes(props.selectedHookType))
+    !isGlobalApp &&
+    (props.selectedType !== 'hook' ||
+      (props.selectedType === 'hook' && BOT_SCOPED_HOOKS.includes(props.selectedHookType)))
 
   const closeModal = () => {
     setName('')

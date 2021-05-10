@@ -290,6 +290,7 @@ const Form: FC<FormProps> = ({
               axios={axios}
               customPath={mediaPath}
               placeholder={lang(field.placeholder)}
+              type="image"
               onChange={value =>
                 dispatch({
                   type: 'updateField',

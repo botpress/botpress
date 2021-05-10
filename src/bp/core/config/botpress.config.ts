@@ -276,12 +276,12 @@ export interface BotpressConfig {
   fileUpload: {
     /**
      * Maximum file size for media files upload (in mb)
-     * @default 10mb
+     * @default 25mb
      */
     maxFileSize: string
     /**
      * The list of allowed extensions for media file uploads
-     * @default ["image/jpeg","image/png","image/gif"]
+     * @default ["image/jpeg","image/png","image/gif","audio/mpeg","video/mp4"]
      */
     allowedMimeTypes: string[]
   }
@@ -640,6 +640,7 @@ export interface AlertingConfig {
   /**
    * The list of rules which triggers an incident. When triggered, the OnIncidentChangedStatus hook
    * is called with the incident.
+   * @default []
    */
   rules: IncidentRule[]
 }

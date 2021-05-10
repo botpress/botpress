@@ -17,11 +17,13 @@ import contextMenu from './ContextMenu'
 import { Body, Footer, Wrapper } from './Dialog'
 import Dropdown from './Dropdown'
 import EmptyState from './EmptyState'
+import FileDisplay from './FileDisplay'
 import Form from './Form'
 import FormFields from './Form/FormFields'
 import MainContainer from './MainContainer'
 import MainLayout from './MainLayout'
 import MarkdownContent from './MarkdownContent'
+import * as ModuleUI from './ModuleUI'
 import MultiLevelDropdown from './MultiLevelDropdown'
 import ShortcutLabel from './ShortcutLabel'
 import { sendTelemetry, startFallback } from './telemetry'
@@ -44,12 +46,14 @@ exports.Dialog = { Wrapper, Footer, Body }
 exports.Dropdown = Dropdown
 exports.EmptyState = EmptyState
 exports.MainContainer = MainContainer
+exports.FileDisplay = FileDisplay
 exports.Form = Form
 exports.FormFields = FormFields
 exports.MainLayout = MainLayout
 exports.MarkdownContent = MarkdownContent
 exports.MoreOptions = MoreOptions
 exports.MultiLevelDropdown = MultiLevelDropdown
+exports.ModuleUI = ModuleUI
 exports.Overlay = Overlay
 exports.ShortcutLabel = ShortcutLabel
 exports.Tabs = Tabs

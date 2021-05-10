@@ -207,7 +207,11 @@ declare module 'botpress/sdk' {
     moduleView?: ModuleViewOptions
     /** If set to true, no menu item will be displayed */
     noInterface?: boolean
-    /** An icon to display next to the name, if none is specified, it will receive a default one */
+    /**
+     * An icon to display next to the name, if none is specified, it will receive a default one
+     * There is a separate icon for the admin and the studio, if you set menuIcon to 'icon.svg',
+     * please provide an icon named 'studio_icon.svg' and 'admin_icon.svg'
+     */
     menuIcon?: string
     /**
      * The name displayed on the menu
@@ -218,6 +222,13 @@ declare module 'botpress/sdk' {
     homepage?: string
     /** Whether or not the module is likely to change */
     experimental?: boolean
+    /** Workspace Apps are accessible on the admin panel */
+    workspaceApp?: {
+      /** Adds a link on the Bots page to access this app for a specific bot */
+      bots?: boolean
+      /** Adds an icon on the menu to access this app without a bot ID */
+      global?: boolean
+    }
   }
 
   /**
@@ -767,7 +778,7 @@ declare module 'botpress/sdk' {
        */
       bot: any
       /** Used internally by Botpress to keep the user's current location and upcoming instructions */
-      context: DialogContext
+      context?: DialogContext
       /** This variable points to the currently active workflow */
       workflow: WorkflowHistory
       /**
@@ -917,6 +928,12 @@ declare module 'botpress/sdk' {
       handler: MiddlewareHandler
       /** Indicates if this middleware should act on incoming or outgoing events */
       direction: EventDirection
+      /**
+       * Allows to specify a timeout for the middleware instead of using the middleware chain timeout value
+       * @example '500ms', '2s', '5m'
+       * @default '2s'
+       * */
+      timeout?: string
     }
 
     export interface EventConstructor {
@@ -1706,6 +1723,18 @@ declare module 'botpress/sdk' {
     title?: string | MultiLangText
   }
 
+  export interface AudioContent extends Content {
+    type: 'audio'
+    audio: string
+    title?: string | MultiLangText
+  }
+
+  export interface VideoContent extends Content {
+    type: 'video'
+    video: string
+    title?: string | MultiLangText
+  }
+
   export interface CarouselContent extends Content {
     type: 'carousel'
     items: CardContent[]
@@ -1719,34 +1748,37 @@ declare module 'botpress/sdk' {
     actions: ActionButton[]
   }
 
+  export enum ButtonAction {
+    SaySomething = 'Say something',
+    OpenUrl = 'Open URL',
+    Postback = 'Postback'
+  }
+
   export interface ActionButton {
+    action: ButtonAction
     title: string
-    action: string
   }
 
   export interface ActionSaySomething extends ActionButton {
-    action: 'Say something'
     text: string | MultiLangText
   }
 
   export interface ActionOpenURL extends ActionButton {
-    action: 'Open URL'
     url: string
   }
 
   export interface ActionPostback extends ActionButton {
-    action: 'Postback'
     payload: string
   }
 
   export interface ChoiceContent extends Content {
     type: 'single-choice'
-    message: string | MultiLangText
+    text: string | MultiLangText
     choices: ChoiceOption[]
   }
 
   export interface ChoiceOption {
-    message: string | MultiLangText
+    title: string | MultiLangText
     value: string
   }
 
@@ -2594,6 +2626,20 @@ declare module 'botpress/sdk' {
       export function image(url: string, caption?: string | MultiLangText): ImageContent
 
       /**
+       * Renders an audio element
+       * @param url Url of the audio file to send
+       * @param caption Caption to appear alongside your audio
+       */
+      export function audio(url: string, caption?: string | MultiLangText): AudioContent
+
+      /**
+       * Renders a video element
+       * @param url Url of the video file to send
+       * @param caption Caption to appear alongside your video
+       */
+      export function video(url: string, caption?: string | MultiLangText): VideoContent
+
+      /**
        * Renders a carousel element
        * @param cards The cards of the carousel
        * @example
@@ -2640,20 +2686,20 @@ declare module 'botpress/sdk' {
 
       /**
        * Render a choice element
-       * @param message Message to ask to the user
+       * @param text Message to ask to the user
        * @param choices Choices that the user can select
        * @example
        * bp.render.choice("Yes or no?", bp.render.option('yes'), bp.render.option('no'))
        */
-      export function choice(message: string | MultiLangText, ...choices: ChoiceOption[]): ChoiceContent
+      export function choice(text: string | MultiLangText, ...choices: ChoiceOption[]): ChoiceContent
 
       /**
        * Renders an option for a choice element
        * @param value Value associated with the option
-       * @param message Text to shown to the user (has no impact on the processing).
+       * @param title Text to shown to the user (has no impact on the processing).
        * If not provided the value will be shown by default
        */
-      export function option(value: string, message?: string): ChoiceOption
+      export function option(value: string, title?: string): ChoiceOption
 
       /**
        * Translates a content element to a specific language

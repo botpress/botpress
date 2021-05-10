@@ -20,9 +20,9 @@
   margin-bottom: 0;
 }
 
-.fieldWrapper, :global(.form-group) {
+.fieldWrapper,
+:global(.form-group) {
   display: block;
-  line-height: 0;
   width: 100%;
 }
 
@@ -42,7 +42,8 @@
   }
 }
 
-input[type="checkbox"], input[type="radio"] {
+input[type='checkbox'],
+input[type='radio'] {
   &:focus {
     outline: 1px solid $border-active !important;
     outline-offset: 1px !important;
@@ -58,7 +59,8 @@ input[type="checkbox"], input[type="radio"] {
     width: 100%;
   }
 
-  &, > * {
+  &,
+  > * {
     cursor: pointer;
   }
 
@@ -76,7 +78,8 @@ input[type="checkbox"], input[type="radio"] {
     padding: 8px 10px !important;
     width: 100% !important;
 
-    &:focus, &:active {
+    &:focus,
+    &:active {
       outline: 0;
       border-color: $border-active !important;
     }
@@ -87,7 +90,8 @@ input[type="checkbox"], input[type="radio"] {
   line-height: 1;
 }
 
-.formLabel, :global(.control-label) {
+.formLabel,
+:global(.control-label) {
   color: $main-dark-color;
   display: block;
   font-size: 14px;
@@ -121,7 +125,6 @@ input[type="checkbox"], input[type="radio"] {
   }
 }
 
-
 .fieldWrapper :global(.bp3-file-input) {
   display: block;
   height: 40px;
@@ -132,47 +135,21 @@ input[type="checkbox"], input[type="radio"] {
   }
 }
 
-.imgWrapper {
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  border-radius: 3px;
-  height: 100px;
-  overflow: hidden;
-  position: relative;
-  width: 100px;
-
-  &Actions {
-    position: absolute;
-    right: 5px;
-    top: 5px;
-  }
-
-  &:before {
-    background-color: rgba(30, 30, 30, 0.5);
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-  }
-}
 .fieldWrapper :global(.bp3-file-input:focus-within .bp3-file-upload-input) {
-  background: #2A87C3;
+  background: #2a87c3;
 }
 
 .fieldWrapper :global(.bp3-file-upload-input) {
   color: #fff;
-  background: #137CBD;
+  background: #137cbd;
   text-align: center;
   padding: 0 !important;
   box-shadow: inset 0 0 0 1px rgba(16, 22, 26, 0.4), inset 0 -1px 1px 0 rgba(16, 22, 26, 0.2);
-  background-image: linear-gradient(to bottom, #2A87C3, #137CBD);
+  background-image: linear-gradient(to bottom, #2a87c3, #137cbd);
   transition: background 0.3s;
 
   &:hover {
-    background: #2A87C3;
+    background: #2a87c3;
   }
 
   &:after {
@@ -186,7 +163,9 @@ input[type="checkbox"], input[type="radio"] {
   margin-top: 8px;
 }
 
-.textInput, .textarea, :global(.form-control) {
+.textInput,
+.textarea,
+:global(.form-control) {
   background: #fff !important;
   border: 1px solid $border !important;
   border-radius: 3px !important;
@@ -198,7 +177,8 @@ input[type="checkbox"], input[type="radio"] {
   transition: border 0.3s !important;
   width: 100% !important;
 
-  &:focus, &:focus-within {
+  &:focus,
+  &:focus-within {
     border-color: $border-active !important;
     box-shadow: none !important;
   }
@@ -209,7 +189,8 @@ select:global(.form-control) {
   height: 38px;
 }
 
-.textarea, :global(.form-control) {
+.textarea,
+:global(.form-control) {
   resize: none;
 }
 

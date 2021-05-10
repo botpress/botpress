@@ -34,7 +34,7 @@ export class LogsJanitor extends Janitor {
     return _.get(config, 'logs.dbOutput.janitorInterval', '30s')
   }
 
-  protected async runTask(): Promise<void> {
+  async runTask(): Promise<void> {
     if (process.env.DEBUG_LOGGER) {
       this.logger.debug('Cleaning up logs')
     }

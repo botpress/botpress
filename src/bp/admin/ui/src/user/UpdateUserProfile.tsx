@@ -69,7 +69,7 @@ const UpdateUserProfile: FC<Props> = props => {
           </FormGroup>
 
           <FormGroup label={lang.tr('admin.profilePicture')}>
-            <FormFields.Upload axios={v1Client} onChange={uploadFieldChange} value={picture_url} />
+            <FormFields.Upload axios={v1Client} onChange={uploadFieldChange} value={picture_url} type="image" />
           </FormGroup>
         </div>
 

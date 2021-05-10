@@ -11,5 +11,12 @@ declare global {
     TELEMETRY_URL: string
     USE_JWT_COOKIES: boolean
     __REDUX_DEVTOOLS_EXTENSION__: any
+    __BP_VISITOR_SOCKET_ID: string
+    __BP_VISITOR_ID: string
+    SOCKET_TRANSPORTS: any
+    BOT_ID: string
+    botpress: {
+      [moduleName: string]: any
+    }
   }
 }

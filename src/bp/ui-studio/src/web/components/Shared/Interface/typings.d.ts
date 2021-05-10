@@ -1,6 +1,7 @@
 import { IconName, MaybeElement, Position, IDialogProps } from '@blueprintjs/core'
 import React from 'react'
 
+/* @deprecated Please use import { ModuleUI } from 'botpress/shared' */
 declare module 'botpress/ui' {
   export function Container(props: ContainerProps): JSX.Element
   export function SidePanelSection(props: SidePanelSectionProps): JSX.Element
@@ -87,7 +88,7 @@ export interface ItemListProps {
   onElementClicked?: (item: Item) => void
 }
 
-interface Item {
+export interface Item {
   id?: string
   label: string
   /** This can be used when executing actions on the items */

@@ -1,7 +1,7 @@
 import { Logger } from 'botpress/sdk'
 import { gaId } from 'common/stats'
 import { HTTPServer } from 'core/app/server'
-import { resolveAsset, resolveIndexPaths } from 'core/app/server_utils'
+import { resolveAsset, resolveIndexPaths } from 'core/app/server-utils'
 import { BotService } from 'core/bots'
 import { GhostService } from 'core/bpfs'
 import { CMSService } from 'core/cms'
@@ -12,7 +12,7 @@ import { LogsService } from 'core/logger'
 import { MediaServiceProvider } from 'core/media'
 import { NotificationsService } from 'core/notifications'
 import { CustomRouter } from 'core/routers/customRouter'
-import { AuthService, TOKEN_AUDIENCE, checkTokenHeader, needPermissions, checkBotVisibility } from 'core/security'
+import { AuthService, TOKEN_AUDIENCE, checkTokenHeader, checkBotVisibility } from 'core/security'
 import { ActionServersService, ActionService } from 'core/user-code'
 import { WorkspaceService } from 'core/users'
 import express, { RequestHandler, Router } from 'express'
@@ -96,13 +96,20 @@ export class StudioRouter extends CustomRouter {
     this.actionsRouter = new ActionsRouter(studioServices)
     this.flowsRouter = new FlowsRouter(studioServices)
     this.logsRouter = new LogsRouter(studioServices)
-    this.mediaRouter = new MediaRouter(studioServices, this.botpressConfig)
+    this.mediaRouter = new MediaRouter(studioServices)
     this.notificationsRouter = new NotificationsRouter(studioServices)
     this.topicsRouter = new TopicsRouter(studioServices)
   }
 
   async setupRoutes(app: express.Express) {
     this.botpressConfig = await this.configProvider.getBotpressConfig()
+
+    this.actionsRouter.setupRoutes()
+    this.flowsRouter.setupRoutes()
+    this.logsRouter.setupRoutes()
+    await this.mediaRouter.setupRoutes(this.botpressConfig)
+    this.notificationsRouter.setupRoutes()
+    this.topicsRouter.setupRoutes()
 
     app.use(rewrite('/studio/:botId/*env.js', '/api/v1/studio/:botId/env.js'))
 

@@ -9,7 +9,7 @@ window['BlueprintJsCore'] = BlueprintJsCore
 window['BlueprintJsSelect'] = BlueprintJsSelect
 
 import 'ui-shared/dist/theme.css'
-import '~/app/style/index.css'
+import './style.scss'
 
 import { makeMainRoutes } from '~/app/routes'
 import { initializeTranslations } from '~/app/translations'

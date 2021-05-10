@@ -247,7 +247,10 @@ compiler.hooks.done.tap('ExitCodePlugin', stats => {
   const errors = stats.compilation.errors
   if (errors && errors.length && process.argv.indexOf('--watch') === -1) {
     for (const e of errors) {
-      console.error(e.message)
+      console.error(e)
+      if (e.message) {
+        console.error(e.message)
+      }
     }
     console.error('Webpack build failed')
     process.exit(1)
