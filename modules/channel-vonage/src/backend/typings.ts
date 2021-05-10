@@ -16,12 +16,67 @@ export interface Clients {
   [botId: string]: VonageClient
 }
 
+///
+/// Inbound requests typings
+///
 export interface VonageRequestBody extends MessageSendResponse {
   to: ChannelToFrom
   from: ChannelToFrom
   message: ChannelMessage
   timestamp: string
 }
+
+///
+/// API Errors
+///
+interface InvalidParameter {
+  name: string
+  reason: string
+}
+
+export interface MessageApiError extends MessageSendError {
+  invalid_parameters?: InvalidParameter[]
+}
+
+///
+/// Used for inbound requests verification
+///
+
+// https://developer.nexmo.com/messages/concepts/signed-webhooks#signed-jwt-payload
+export interface SignedJWTPayload {
+  iat: number
+  jti: string
+  iss: 'Vonage'
+  payload_hash: string
+  api_key: string
+}
+
+///
+/// Extended typings used for inbound messages
+///
+interface ExtendedChannelContentVideo extends ChannelContentVideo {
+  caption?: string
+}
+
+type ExtendedChannelMessageType = ChannelMessageType | 'location' | 'button'
+export interface ExtendedChannelContent extends Omit<ChannelContent, 'type'> {
+  type: ExtendedChannelMessageType
+  // **Note: content received does not fit with Vonage API documentation. This is the proper typing**
+  location?: {
+    long: number
+    lat: number
+  }
+  button?: {
+    text: string
+  }
+  video?: ExtendedChannelContentVideo
+}
+
+///
+/// Used by channel renderers and senders
+///
+
+// Templates
 
 type Policy = ChannelWhatsApp['policy']
 export interface TemplateLanguage {
@@ -68,7 +123,7 @@ interface Button {
 
 export type Components = (Header | Body | Button)[]
 
-export interface ChannelContentTemplate {
+interface ChannelContentTemplate {
   namespace: string
   name: string
   language: TemplateLanguage
@@ -80,46 +135,7 @@ export interface ChannelContentCustomTemplate {
   template: ChannelContentTemplate
 }
 
-export type VonageChannelContent = ChannelContent & {
-  custom?: ChannelContentCustomTemplate
-}
-
-interface InvalidParameter {
-  name: string
-  reason: string
-}
-
-export interface MessageApiError extends MessageSendError {
-  invalid_parameters?: InvalidParameter[]
-}
-
-// https://developer.nexmo.com/messages/concepts/signed-webhooks#signed-jwt-payload
-export interface SignedJWTPayload {
-  iat: number
-  jti: string
-  iss: 'Vonage'
-  payload_hash: string
-  api_key: string
-}
-
-interface ExtendedChannelContentVideo extends ChannelContentVideo {
-  caption?: string
-}
-
-export type ExtendedChannelMessageType = ChannelMessageType | 'location' | 'button'
-export interface ExtendedChannelContent extends Omit<ChannelContent, 'type'> {
-  type: ExtendedChannelMessageType
-  // **Note: content received does not fit with Vonage API documentation. This is the proper typing**
-  location?: {
-    long: number
-    lat: number
-  }
-  button?: {
-    text: string
-  }
-  video?: ExtendedChannelContentVideo
-}
-
+// Renderers/senders context
 export type VonageContext = ChannelContext<Vonage> & {
   messages: ChannelMessage[]
   botPhoneNumber: string

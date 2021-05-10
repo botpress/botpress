@@ -1,4 +1,3 @@
-import { ChannelMessage } from '@vonage/server-sdk'
 import { ChannelSender } from 'common/channel'
 import { CHANNEL_NAME } from '../backend/client'
 import { MessageApiError, VonageContext } from '../backend/typings'

@@ -212,7 +212,7 @@ export class VonageClient {
 
   /**
    * Validates Vonage message request body
-   * @throws {StandardError} if the message channel is not 'whatsapp'
+   * @throws {StandardError} if the message channel is not 'WhatsApp'
    * @throws {UnauthorizedError} if scheme isn't 'Bearer' or if the token is missing or invalid
    */
   validate(req: Request): void {
