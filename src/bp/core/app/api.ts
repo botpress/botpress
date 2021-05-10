@@ -4,6 +4,7 @@ import { TYPES } from 'core/app/types'
 import { BotService } from 'core/bots'
 import { GhostService } from 'core/bpfs'
 import { CMSService, renderRecursive, RenderService } from 'core/cms'
+import * as renderEnums from 'core/cms/enums'
 import { ConfigProvider } from 'core/config'
 import Database from 'core/database'
 import { StateManager, DialogEngine, WellKnownFlags } from 'core/dialog'
@@ -232,6 +233,8 @@ const render = (renderService: RenderService): typeof sdk.experimental.render =>
   return {
     text: renderService.renderText.bind(renderService),
     image: renderService.renderImage.bind(renderService),
+    audio: renderService.renderAudio.bind(renderService),
+    video: renderService.renderVideo.bind(renderService),
     card: renderService.renderCard.bind(renderService),
     carousel: renderService.renderCarousel.bind(renderService),
     choice: renderService.renderChoice.bind(renderService),
@@ -347,7 +350,8 @@ export class BotpressAPIProvider {
       security: this.security,
       experimental: this.experimental,
       workspaces: this.workspaces,
-      distributed: this.distributed
+      distributed: this.distributed,
+      ButtonAction: renderEnums.ButtonAction
     }
   }
 }

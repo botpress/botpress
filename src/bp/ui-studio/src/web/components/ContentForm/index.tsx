@@ -30,6 +30,7 @@ interface Props {
 const CustomBaseInput = props => {
   const SUPPORTED_MEDIA_SUBTYPES: UploadFieldProps['type'][] = ['audio', 'image', 'video']
   const { type, $subtype: subtype } = props.schema
+  const { readonly } = props.options
 
   if (type === 'string') {
     if (subtype === 'ref') {
@@ -41,7 +42,15 @@ const CustomBaseInput = props => {
     }
   }
 
-  return <SmartInput key={props?.formContext?.customKey} {...props} singleLine={true} className={style.textarea} />
+  return (
+    <SmartInput
+      key={props?.formContext?.customKey}
+      {...props}
+      singleLine={true}
+      readOnly={readonly}
+      className={style.textarea}
+    />
+  )
 }
 
 const widgets = {

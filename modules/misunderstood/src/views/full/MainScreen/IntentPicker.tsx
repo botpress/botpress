@@ -193,7 +193,7 @@ class IntentPicker extends React.Component<Props, State> {
         {utterances[0] && (
           <p>
             U:&nbsp;{utterances[0]}&nbsp;
-            <VariationsOverlay elements={utterances} />
+            <VariationsOverlay elements={utterances} axios={this.props.axios} language={this.props.language} />
           </p>
         )}
 

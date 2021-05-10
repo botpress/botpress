@@ -72,7 +72,7 @@ const SidePanelContent: FC<Props> = props => {
     <SidePanel>
       <SidePanelSection
         label={lang.tr('flows')}
-        actions={props.permissions.includes('create') && [createFlowAction]}
+        actions={!props.readOnly && props.permissions.includes('create') && [createFlowAction]}
       >
         <SearchBar icon="filter" placeholder={lang.tr('studio.flow.sidePanel.filterFlows')} onChange={setFilter} />
         <FlowsList

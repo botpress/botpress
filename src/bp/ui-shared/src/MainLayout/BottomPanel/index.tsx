@@ -13,12 +13,12 @@ class Portal extends React.Component<BottomPanelProps> {
 
   componentDidMount() {
     Container.containerRef.current?.appendChild(this.container)
-    Container.addTab(this.props.tabName)
+    Container.addTab?.(this.props.tabName)
   }
 
   componentWillUnmount() {
     Container.containerRef.current?.removeChild(this.container)
-    Container.removeTab(this.props.tabName)
+    Container.removeTab?.(this.props.tabName)
   }
 
   render() {
@@ -43,12 +43,12 @@ export class Container extends React.Component<Partial<BottomPanelProps>> {
 
   static addTab = val => {
     Container.tabs.push(val)
-    Container.onTabsChanged(Container.tabs)
+    Container.onTabsChanged?.(Container.tabs)
   }
 
   static removeTab = val => {
     Container.tabs = Container.tabs.filter(x => x !== val)
-    Container.onTabsChanged(Container.tabs)
+    Container.onTabsChanged?.(Container.tabs)
   }
 
   render() {

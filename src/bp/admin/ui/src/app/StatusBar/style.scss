@@ -1,0 +1,87 @@
+.statusBar {
+  align-items: center;
+  background-color: var(--c-background--dark-2);
+  color: var(--c-text--light-gray);
+  display: flex;
+  font-size: 12px;
+  height: 28px;
+  justify-content: space-between;
+  line-height: 1.25;
+  padding: 0 12px;
+  width: 100%;
+  z-index: 1000;
+
+  .botName {
+    color: var(--c-text--light);
+  }
+
+  .item {
+    display: flex;
+    align-items: center;
+
+    > *:not(:first-child) {
+      margin-left: 20px;
+    }
+  }
+}
+
+.menu {
+  min-width: 90px;
+}
+
+.flag {
+  display: inline-block;
+  width: 20px;
+  margin-right: 10px;
+
+  img {
+    border: solid 1px #e1e1e1;
+    width: 100%;
+    height: auto;
+  }
+}
+
+.flagWrapper {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.langSwitherMenu {
+  background-color: var(--c-background--dark-1);
+  padding: 0;
+
+  min-width: 100px;
+
+  .langItem {
+    padding: 5px 0;
+    cursor: pointer;
+    color: var(--c-text--light);
+
+    &:hover,
+    &:focus {
+      font-weight: bold;
+      background-color: black;
+    }
+
+    img {
+      margin-left: 10px;
+    }
+
+    span {
+      float: right;
+      margin-right: 15px;
+    }
+
+    a {
+      color: white;
+      text-decoration: 'none';
+    }
+
+    a:hover {
+      color: white;
+      background-color: black;
+      text-decoration: none;
+    }
+  }
+}

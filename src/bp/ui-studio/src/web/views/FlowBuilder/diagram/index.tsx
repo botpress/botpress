@@ -511,7 +511,17 @@ class Diagram extends Component<Props> {
     }
 
     const nodeType = target.model?.nodeType
-    return nodeType === 'router' || nodeType === 'say_something' || nodeType === 'standard' || nodeType === 'skill-call'
+    return (
+      nodeType === 'router' ||
+      nodeType === 'say_something' ||
+      nodeType === 'standard' ||
+      nodeType === 'skill-call' ||
+      nodeType === 'execute' ||
+      nodeType === 'trigger' ||
+      nodeType === 'failure' ||
+      nodeType === 'listen' ||
+      nodeType === 'action'
+    )
   }
 
   onDiagramClick = (event: MouseEvent) => {
