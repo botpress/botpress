@@ -141,6 +141,9 @@ export class VonageClient {
       case 'text':
         payload = this.bp.experimental.render.text(messageContent.text)
         break
+      case 'button':
+        payload = this.bp.experimental.render.text(messageContent.button.text)
+        break
       case 'image':
         payload = this.bp.experimental.render.image(messageContent.image.url, messageContent.image.caption)
         break

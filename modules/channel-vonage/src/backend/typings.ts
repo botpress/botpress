@@ -106,13 +106,16 @@ interface ExtendedChannelContentVideo extends ChannelContentVideo {
   caption?: string
 }
 
-export type ExtendedChannelMessageType = ChannelMessageType | 'location'
+export type ExtendedChannelMessageType = ChannelMessageType | 'location' | 'button'
 export interface ExtendedChannelContent extends Omit<ChannelContent, 'type'> {
   type: ExtendedChannelMessageType
   // **Note: content received does not fit with Vonage API documentation. This is the proper typing**
   location?: {
     long: number
     lat: number
+  }
+  button?: {
+    text: string
   }
   video?: ExtendedChannelContentVideo
 }
