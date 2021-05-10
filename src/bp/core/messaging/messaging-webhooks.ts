@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { IO } from 'botpress/sdk'
 import { EventEngine } from 'core/events'
 import { TYPES } from 'core/types'
@@ -17,6 +18,22 @@ export class MessagingWebhooks {
   @postConstruct()
   async init() {
     await AppLifecycle.waitFor(AppLifecycleEvents.CONFIGURATION_LOADED)
+
+    // TODO: register webhooks by http
+    const incomingWebhooks = [
+      {
+        id: 'mfkt837834her',
+        url: 'http://localhost:3020/hook',
+        // TODO: This could be a regex (but regex is kind of garbadge to write)
+        // This scope could be even further scoped for a bot: 'app.myBotId.userMessage'
+        scopes: ['app.userMessage']
+      }
+    ]
+    const outgoingWebhooks = [{ id: 'ef98484ufeb93', url: 'http://localhost:3020/hook', scopes: ['app.botMessage'] }]
+
+    // TODO: we need to include the api key when calling the webhooks
+    // TODO: why is the api key defined per workspace user??
+    // const http = axios.create({ headers: { 'x-bp-api-key': key } })
 
     this.eventEngine.register({
       name: 'webhook.outgoing',
@@ -52,6 +69,12 @@ export class MessagingWebhooks {
         }
 
         console.log('outgoing webhook', payload)
+
+        for (const webhook of outgoingWebhooks) {
+          const data = await axios.post(webhook.url, { webhook, ...payload })
+          // TODO: use the returned 'data' to merge with current data and call subsequent hooks with this new data (like a web middleware chain)
+          // should we register all of these webhooks as individual middlewares?
+        }
 
         return next(undefined, false, false)
       }
@@ -95,6 +118,10 @@ export class MessagingWebhooks {
         }
 
         console.log('incoming webhook', payload)
+
+        for (const webhook of incomingWebhooks) {
+          const data = await axios.post(webhook.url, { webhook, ...payload })
+        }
 
         return next(undefined, false, false)
       }
