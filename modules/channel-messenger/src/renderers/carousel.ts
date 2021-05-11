@@ -32,7 +32,7 @@ export class MessengerCarouselRenderer implements ChannelRenderer<MessengerConte
         if (action.action === sdk.ButtonAction.OpenUrl) {
           buttons.push({
             type: 'web_url',
-            url: (action as sdk.ActionOpenURL).url,
+            url: (action as sdk.ActionOpenURL).url.replace('BOT_URL', context.botUrl),
             title: action.title
           })
         } else if (action.action === sdk.ButtonAction.Postback) {
