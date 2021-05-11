@@ -26,7 +26,5 @@ export class MessengerTypingSender implements ChannelSender<MessengerContext> {
     await context.client.sendAction(context.event.target, 'typing_on')
     await Promise.delay(delay)
     await context.client.sendAction(context.event.target, 'typing_off')
-
-    await Promise.delay(delay)
   }
 }

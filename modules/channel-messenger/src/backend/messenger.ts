@@ -5,7 +5,12 @@ import crypto from 'crypto'
 import { json as expressJson, Router } from 'express'
 import _ from 'lodash'
 import { Config, MessengerAction } from '../config'
-import { MessengerImageRenderer, MessengerTextRenderer } from '../renderers'
+import {
+  MessengerCardRenderer,
+  MessengerImageRenderer,
+  MessengerTextRenderer,
+  MessengerCarouselRenderer
+} from '../renderers'
 import { MessengerCommonSender, MessengerTypingSender } from '../senders'
 
 import { MessengerContext } from './typings'
@@ -75,7 +80,12 @@ export class MessengerService {
       order: 200
     })
 
-    this.renderers = [new MessengerTextRenderer(), new MessengerImageRenderer()]
+    this.renderers = [
+      new MessengerCardRenderer(),
+      new MessengerTextRenderer(),
+      new MessengerImageRenderer(),
+      new MessengerCarouselRenderer()
+    ]
     this.senders = [new MessengerTypingSender(), new MessengerCommonSender()]
   }
 
