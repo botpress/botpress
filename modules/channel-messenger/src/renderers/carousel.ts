@@ -1,3 +1,4 @@
+import * as sdk from 'botpress/sdk'
 import { ChannelRenderer } from 'common/channel'
 import { formatUrl } from 'common/url'
 import { CHANNEL_NAME } from '../backend/constants'
@@ -21,35 +22,36 @@ export class MessengerCarouselRenderer implements ChannelRenderer<MessengerConte
   }
 
   render(context: MessengerContext) {
-    const renderElements = data => {
-      if (data.items.find(({ actions }) => !actions || actions.length === 0)) {
-        throw new Error('Channel-Messenger carousel does not support cards without actions')
+    const payload = context.payload as sdk.CarouselContent
+    const cards = []
+
+    for (const card of payload.items) {
+      const buttons = []
+
+      for (const action of card.actions || []) {
+        if (action.action === sdk.ButtonAction.OpenUrl) {
+          buttons.push({
+            type: 'web_url',
+            url: (action as sdk.ActionOpenURL).url,
+            title: action.title
+          })
+        } else if (action.action === sdk.ButtonAction.Postback) {
+          buttons.push({
+            type: 'postback',
+            title: action.title,
+            payload: (action as sdk.ActionPostback).payload
+          })
+        } else if (action.action === sdk.ButtonAction.SaySomething) {
+          // TODO: not supported yet
+        }
       }
 
-      return data.items.map(card => ({
+      cards.push({
         title: card.title,
         image_url: card.image ? formatUrl(context.botUrl, card.image) : null,
         subtitle: card.subtitle,
-        buttons: (card.actions || []).map(a => {
-          if (a.action === 'Say something') {
-            throw new Error('Channel-Messenger carousel does not support "Say something" action-buttons at the moment')
-          } else if (a.action === 'Open URL') {
-            return {
-              type: 'web_url',
-              url: a.url,
-              title: a.title
-            }
-          } else if (a.action === 'Postback') {
-            return {
-              type: 'postback',
-              title: a.title,
-              payload: a.payload
-            }
-          } else {
-            throw new Error(`Channel-Messenger carousel does not support "${a.action}" action-buttons at the moment`)
-          }
-        })
-      }))
+        buttons
+      })
     }
 
     context.messages.push({
@@ -57,7 +59,7 @@ export class MessengerCarouselRenderer implements ChannelRenderer<MessengerConte
         type: 'template',
         payload: {
           template_type: 'generic',
-          elements: renderElements(context.payload)
+          elements: cards
         }
       }
     })
