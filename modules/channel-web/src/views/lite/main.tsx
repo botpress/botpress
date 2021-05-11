@@ -110,8 +110,15 @@ class Web extends React.Component<MainProps> {
   }
 
   extractConfig() {
+    const decodeIfRequired = (options: string) => {
+      try {
+        return decodeURIComponent(options)
+      } catch {
+        return options
+      }
+    }
     const { options, ref } = queryString.parse(location.search)
-    const { config } = JSON.parse(decodeURIComponent(options || '{}'))
+    const { config } = JSON.parse(decodeIfRequired(options || '{}'))
 
     const userConfig = Object.assign({}, constants.DEFAULT_CONFIG, config)
     userConfig.reference = config.ref || ref
@@ -198,6 +205,8 @@ class Web extends React.Component<MainProps> {
       } else if (type === 'message') {
         trackMessage('sent')
         await this.props.sendMessage(text)
+      } else if (type === 'loadConversation') {
+        this.props.store.fetchConversation(payload.conversationId)
       } else if (type === 'toggleBotInfo') {
         this.props.toggleBotInfo()
       } else {

@@ -42,6 +42,7 @@ import { RightSidebarProps } from './MainLayout/RightSidebar/typings'
 import { ToolbarButtonProps, ToolbarProps } from './MainLayout/Toolbar/typings'
 import { WrapperProps } from './MainLayout/Wrapper/typings'
 import { MarkdownContentProps } from './MarkdownContent/typings'
+import { ModuleUI } from './ModuleUI/typings'
 import { MultiLevelDropdownProps } from './MultiLevelDropdown/typings'
 import { ShortcutLabelProps } from './ShortcutLabel/typings'
 import { TextareaProps } from './Textarea/typings'
@@ -147,7 +148,7 @@ declare module 'botpress/shared' {
   }
 
   export const sharedStyle: CssExports
-
+  export { ModuleUI }
   export { Option, MoreOptionsItems, HeaderButtonProps, ToolbarButtonProps, QuickShortcut, MenuItem, HeaderButton }
   export { RequiredPermission, PermissionAllowedProps, AccessControlProps, PermissionOperation, UploadFieldProps }
 }
@@ -156,6 +157,7 @@ declare global {
   interface Window {
     BOT_API_PATH: string
     API_PATH: string
+    STUDIO_API_PATH: string
     TELEMETRY_URL: string
     USE_SESSION_STORAGE: boolean
     BP_STORAGE: BPStorage

@@ -156,7 +156,6 @@ const App: FC<Props> = ({ bp }) => {
         {!state.selectedHandoffId && <EmptyConversation />}
         {state.selectedHandoffId && <ConversationContainer bp={bp} api={api} />}
       </div>
-      <script src="assets/modules/channel-web/inject.js"></script>
     </div>
   )
 }

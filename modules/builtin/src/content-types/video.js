@@ -24,13 +24,18 @@ function render(data) {
 }
 
 function renderElement(data, channel) {
+  // These channels now use channel renderers
+  if (['telegram', 'twilio', 'slack', 'vonage'].includes(channel)) {
+    return utils.extractPayload('video', data)
+  }
+
   return render(data)
 }
 
 module.exports = {
   id: 'builtin_video',
-  group: 'Built-in Video',
-  title: 'Video',
+  group: 'Built-in Messages',
+  title: 'module.builtin.types.video.title',
 
   jsonSchema: {
     description: 'module.builtin.types.video.description',

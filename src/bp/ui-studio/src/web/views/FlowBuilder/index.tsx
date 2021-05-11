@@ -102,8 +102,10 @@ const FlowBuilder = (props: Props) => {
       f => f.currentMutex?.remainingSeconds && f.currentMutex.lastModifiedBy !== me
     )
 
-    setReadOnly(false)
-    setMutex(undefined)
+    if (isOperationAllowed({ operation: 'write', resource: 'bot.flows' })) {
+      setReadOnly(false)
+      setMutex(undefined)
+    }
 
     if (someoneElseIsEditingOtherFlow) {
       setActions(['create'])

@@ -1,8 +1,9 @@
-import { Icon, Position, Tooltip } from '@blueprintjs/core'
+import { Icon, Position, Tooltip, MenuItem as BpMenuItem, MenuDivider } from '@blueprintjs/core'
+import { IconSvgPaths16 } from '@blueprintjs/icons'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
-import React, { FC, useEffect } from 'react'
+import React, { FC, useEffect, Fragment } from 'react'
 import { MdAndroid, MdCopyright } from 'react-icons/md'
 import { connect, ConnectedProps } from 'react-redux'
 import { generatePath, RouteComponentProps, withRouter } from 'react-router'
@@ -11,7 +12,9 @@ import { matchPath } from 'react-router-dom'
 import AccessControl from '~/auth/AccessControl'
 import { getActiveWorkspace } from '~/auth/basicAuth'
 import { fetchCurrentVersion, fetchLatestVersions } from '~/releases/reducer'
+import { addModuleIcon } from '~/workspace/bots/WorkspaceAppItems'
 import { AppState } from '../rootReducer'
+import logo from './logo-icon.svg'
 import style from './style.scss'
 
 type Props = ConnectedProps<typeof connector> & RouteComponentProps
@@ -40,8 +43,14 @@ const Menu: FC<Props> = props => {
   }, [])
 
   const MenuItem = ({ text, icon, url, id, isPro, operation, resource, superAdmin, tag }: MenuItemProps) => {
-    const active = matchPath(props.location.pathname, { path: url })
     const workspaceId = getActiveWorkspace()
+
+    let active = matchPath(props.location.pathname, { path: url })
+
+    // Small hack so the 'Bots' menu is active when using a bot-scoped workspace app
+    if (id === 'btn-menu-bots' && matchPath(props.location.pathname, { path: '/apps/:appName/:botId' })) {
+      active = true
+    }
 
     if (!props.licensing || (isPro && !props.licensing.isPro)) {
       return null
@@ -81,10 +90,31 @@ const Menu: FC<Props> = props => {
     }
   }
 
+  const renderWorkspaceApps = () => {
+    return (
+      <Fragment>
+        {props.loadedModules
+          .filter(x => x.workspaceApp?.global)
+          .map(addModuleIcon)
+          .map(module => (
+            <MenuItem
+              key={module.name}
+              id={`btn-menu-${module.name}`}
+              text={lang.tr(`module.${module.name}.fullName`) || module.menuText}
+              icon={module.menuIcon}
+              url={`/apps/${module.name}`}
+              resource={`module.${module.name}`}
+              operation="write"
+            />
+          ))}
+      </Fragment>
+    )
+  }
+
   return (
     <aside className={cx(style.sidebar, 'bp-sidebar')}>
       <a href="admin/" className={cx(style.logo, 'bp-logo')}>
-        <img width="19" src="assets/ui-studio/public/img/logo-icon.svg" alt="Botpress Logo" />
+        <img width="19" src={logo} />
       </a>
       <ul>
         <MenuItem
@@ -124,43 +154,47 @@ const Menu: FC<Props> = props => {
           operation="read"
         />
 
-        <MenuItem
-          id="btn-menu-version"
-          text={lang.tr('admin.sideMenu.sourceControl')}
-          icon="changes"
-          url="/server/version"
-        />
-        <MenuItem
-          id="btn-menu-license"
-          text={lang.tr('admin.sideMenu.serverLicense')}
-          icon={<MdCopyright />}
-          url="/server/license"
-        />
-        <MenuItem
-          text={lang.tr('admin.sideMenu.languages')}
-          id="btn-menu-language"
-          icon="globe-network"
-          url="/server/languages"
-        />
-        <MenuItem text={lang.tr('sideMenu.modules')} id="btn-menu-modules" icon="control" url="/modules" />
-        <MenuItem
-          text={lang.tr('admin.sideMenu.productionChecklist')}
-          id="btn-menu-checklist"
-          icon="endorsed"
-          url="/checklist"
-        />
-        <MenuItem
-          id="btn-menu-monitoring"
-          text={lang.tr('admin.sideMenu.monitoring')}
-          icon="timeline-line-chart"
-          url="/server/monitoring"
-        />
-        <MenuItem
-          id="btn-menu-alerting"
-          text={lang.tr('admin.sideMenu.alerting')}
-          icon="notifications"
-          url="/server/alerting"
-        />
+        {renderWorkspaceApps()}
+
+        <AccessControl superAdmin={true}>
+          <MenuItem
+            id="btn-menu-version"
+            text={lang.tr('admin.sideMenu.sourceControl')}
+            icon="changes"
+            url="/server/version"
+          />
+          <MenuItem
+            id="btn-menu-license"
+            text={lang.tr('admin.sideMenu.serverLicense')}
+            icon={<MdCopyright />}
+            url="/server/license"
+          />
+          <MenuItem
+            text={lang.tr('admin.sideMenu.languages')}
+            id="btn-menu-language"
+            icon="globe-network"
+            url="/server/languages"
+          />
+          <MenuItem text={lang.tr('sideMenu.modules')} id="btn-menu-modules" icon="control" url="/modules" />
+          <MenuItem
+            text={lang.tr('admin.sideMenu.productionChecklist')}
+            id="btn-menu-checklist"
+            icon="endorsed"
+            url="/checklist"
+          />
+          <MenuItem
+            id="btn-menu-monitoring"
+            text={lang.tr('admin.sideMenu.monitoring')}
+            icon="timeline-line-chart"
+            url="/server/monitoring"
+          />
+          <MenuItem
+            id="btn-menu-alerting"
+            text={lang.tr('admin.sideMenu.alerting')}
+            icon="notifications"
+            url="/server/alerting"
+          />
+        </AccessControl>
         <MenuItem
           text={lang.tr('admin.sideMenu.latestReleases')}
           id="btn-menu-releases"
@@ -175,7 +209,8 @@ const Menu: FC<Props> = props => {
 
 const mapStateToProps = (state: AppState) => ({
   licensing: state.licensing.license,
-  version: state.version
+  version: state.version,
+  loadedModules: state.modules.loadedModules
 })
 
 const connector = connect(mapStateToProps, { fetchCurrentVersion, fetchLatestVersions })

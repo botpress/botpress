@@ -85,7 +85,7 @@ class BottomPanel extends React.Component<Props, State> {
   }
 
   queryLogs = async () => {
-    const { data } = await axios.get(`${window.BOT_API_PATH}/logs`, {
+    const { data } = await axios.get(`${window.API_PATH}/admin/logs/bots/${window.BOT_ID}`, {
       params: {
         limit: INITIAL_LOGS_LIMIT
       }
@@ -139,7 +139,9 @@ class BottomPanel extends React.Component<Props, State> {
   handleToggleFollowLogs = () => this.setState({ followLogs: !this.state.followLogs })
 
   handleDownloadLogs = async () => {
-    const { data } = await axios.get(`${window.BOT_API_PATH}/logs/archive`, { responseType: 'blob' })
+    const { data } = await axios.get(`${window.API_PATH}/admin/logs/bots/${window.BOT_ID}/archive`, {
+      responseType: 'blob'
+    })
     const time = moment().format('YYYY-MM-DD-HH-mm-ss')
     downloadBlob(`logs-${time}.txt`, data)
   }
