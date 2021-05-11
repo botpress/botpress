@@ -22,8 +22,6 @@ const debugHttp = debug.sub('http')
 const debugWebhook = debugHttp.sub('webhook')
 const debugHttpOut = debugHttp.sub('out')
 
-const outgoingTypes = ['text', 'typing', 'login_prompt', 'carousel']
-
 interface MountedBot {
   pageId: string
   botId: string
@@ -366,12 +364,4 @@ export class MessengerClient {
     debugHttpOut(endpoint, body)
     await this.http.post(endpoint, body, { params: { access_token: config.accessToken } })
   }
-}
-
-function parseTyping(typing) {
-  if (isNaN(typing)) {
-    return 1000
-  }
-
-  return Math.max(typing, 500)
 }
