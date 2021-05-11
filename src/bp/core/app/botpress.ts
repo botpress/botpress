@@ -15,7 +15,6 @@ import { LoggerDbPersister, LoggerFilePersister, LoggerProvider, LogsJanitor } f
 import { MigrationService } from 'core/migration'
 import { copyDir } from 'core/misc/pkg-fs'
 import { ModuleLoader } from 'core/modules'
-import { NotificationsService } from 'core/notifications'
 import { RealtimeService } from 'core/realtime'
 import { AuthService } from 'core/security'
 import { StatsService, AnalyticsService } from 'core/telemetry'
@@ -73,7 +72,6 @@ export class Botpress {
     @inject(TYPES.LogJanitorRunner) private logJanitor: LogsJanitor,
     @inject(TYPES.LoggerDbPersister) private loggerDbPersister: LoggerDbPersister,
     @inject(TYPES.LoggerFilePersister) private loggerFilePersister: LoggerFilePersister,
-    @inject(TYPES.NotificationsService) private notificationService: NotificationsService,
     @inject(TYPES.StateManager) private stateManager: StateManager,
     @inject(TYPES.DataRetentionJanitor) private dataRetentionJanitor: DataRetentionJanitor,
     @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService,
@@ -431,14 +429,6 @@ export class Botpress {
     }
 
     await this.dataRetentionService.initialize()
-
-    this.notificationService.onNotification = notification => {
-      const payload: sdk.RealTimePayload = {
-        eventName: 'notifications.new',
-        payload: notification
-      }
-      this.realtimeService.sendToSocket(payload)
-    }
 
     await this.stateManager.initialize()
     await this.logJanitor.start()

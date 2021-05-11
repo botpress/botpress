@@ -34,7 +34,7 @@ const EditTopicModal: FC<Props> = props => {
   }, [props.isOpen])
 
   const submit = async () => {
-    await axios.post(`${window.BOT_API_PATH}/topics/${props.selectedTopic}`, { name, description })
+    await axios.post(`${window.STUDIO_API_PATH}/topics/${props.selectedTopic}`, { name, description })
 
     if (name !== props.selectedTopic) {
       await props.fetchFlows()

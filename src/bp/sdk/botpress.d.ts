@@ -959,18 +959,6 @@ declare module 'botpress/sdk' {
    */
   export type EventDirection = 'incoming' | 'outgoing'
 
-  export interface Notification {
-    botId: string
-    message: string
-    /** Can be info, error, success */
-    level: string
-    moduleId?: string
-    moduleIcon?: string
-    moduleName?: string
-    /** An URL to redirect to when the notification is clicked */
-    redirectUrl?: string
-  }
-
   export interface UpsertOptions {
     /** Whether or not to record a revision @default true */
     recordRevision?: boolean
@@ -1884,7 +1872,9 @@ declare module 'botpress/sdk' {
 
   export interface AxiosOptions {
     /** When true, it will return the local url instead of the external url  */
-    localUrl: boolean
+    localUrl?: boolean
+    /** Temporary property so modules can query studio routes */
+    studioUrl?: boolean
   }
 
   export interface RedisLock {
@@ -2309,10 +2299,6 @@ declare module 'botpress/sdk' {
       workspaceId: string,
       options?: Partial<GetWorkspaceUsersOptions>
     ): Promise<WorkspaceUser[] | WorkspaceUserWithAttributes[]>
-  }
-
-  export namespace notifications {
-    export function create(botId: string, notification: Notification): Promise<any>
   }
 
   export namespace ghost {
