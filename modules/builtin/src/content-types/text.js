@@ -22,25 +22,6 @@ function render(data) {
   ]
 }
 
-function renderMessenger(data) {
-  const events = []
-
-  if (data.typing) {
-    events.push({
-      type: 'typing',
-      value: data.typing
-    })
-  }
-
-  return [
-    ...events,
-    {
-      type: 'text',
-      text: data.text
-    }
-  ]
-}
-
 function renderTeams(data) {
   const events = []
 
@@ -61,7 +42,7 @@ function renderTeams(data) {
 
 function renderElement(data, channel) {
   // These channels now use channel renderers
-  if (['telegram', 'twilio', 'slack', 'smooch', 'vonage'].includes(channel)) {
+  if (['telegram', 'twilio', 'slack', 'smooch', 'vonage', 'messenger'].includes(channel)) {
     return utils.extractPayload('text', data)
   }
 

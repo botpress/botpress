@@ -1,10 +1,14 @@
 import axios, { AxiosInstance } from 'axios'
 import * as sdk from 'botpress/sdk'
+import { ChannelRenderer, ChannelSender } from 'common/channel'
 import crypto from 'crypto'
 import { json as expressJson, Router } from 'express'
 import _ from 'lodash'
-
 import { Config, MessengerAction } from '../config'
+import { MessengerTextRenderer } from '../renderers'
+import { MessengerCommonSender, MessengerTypingSender } from '../senders'
+
+import { MessengerContext } from './typings'
 
 const debug = DEBUG('channel-messenger')
 const debugMessages = debug.sub('messages')
@@ -25,6 +29,8 @@ export class MessengerService {
   private mountedBots: MountedBot[] = []
   private router: Router & sdk.http.RouterExtension
   private appSecret: string
+  private renderers: ChannelRenderer<MessengerContext>[]
+  private senders: ChannelSender<MessengerContext>[]
 
   constructor(private bp: typeof sdk) {}
 
@@ -68,6 +74,9 @@ export class MessengerService {
       name: 'messenger.sendMessages',
       order: 200
     })
+
+    this.renderers = [new MessengerTextRenderer()]
+    this.senders = [new MessengerTypingSender(), new MessengerCommonSender()]
   }
 
   async mountBot(botId: string) {
@@ -209,23 +218,27 @@ export class MessengerService {
       return next()
     }
 
-    const messageType = event.type === 'default' ? 'text' : event.type
-    const messenger = this.getMessengerClientByBotId(event.botId)
-
-    if (!_.includes(outgoingTypes, messageType)) {
-      return next(new Error(`Unsupported event type: ${event.type}`))
+    const context: MessengerContext = {
+      bp: this.bp,
+      event,
+      client: this.getMessengerClientByBotId(event.botId),
+      handlers: [],
+      payload: _.cloneDeep(event.payload),
+      botUrl: process.EXTERNAL_URL,
+      messages: []
     }
 
-    if (messageType === 'typing') {
-      const typing = parseTyping(event.payload.value)
-      await messenger.sendAction(event.target, 'typing_on')
-      await Promise.delay(typing)
-      await messenger.sendAction(event.target, 'typing_off')
-    } else if (messageType === 'text' || messageType === 'carousel') {
-      await messenger.sendTextMessage(event.target, event.payload)
-    } else {
-      // TODO We don't support sending files, location requests (and probably more) yet
-      throw new Error(`Message type "${messageType}" not implemented yet`)
+    for (const renderer of this.renderers) {
+      if (renderer.handles(context)) {
+        renderer.render(context)
+        context.handlers.push(renderer.id)
+      }
+    }
+
+    for (const sender of this.senders) {
+      if (sender.handles(context)) {
+        await sender.send(context)
+      }
     }
 
     await this.bp.experimental.messages
@@ -311,7 +324,7 @@ export class MessengerClient {
     await this._callEndpoint('/messages', body)
   }
 
-  async sendTextMessage(senderId: string, message: { [key: string]: any }) {
+  async sendMessage(senderId: string, message: { [key: string]: any }) {
     const acceptableKeys = ['text', 'quick_replies', 'metadata', 'attachment']
 
     const body = {
