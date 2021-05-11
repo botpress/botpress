@@ -8,6 +8,7 @@ import {Config} from '../config'
 
 import {Clients} from './typings'
 import app, {SlackApp} from "./app";
+import InstallationRepository from "./repository";
 
 // @ts-ignore
 const debug = DEBUG('channel-slack')
@@ -25,7 +26,7 @@ export class SlackClient {
                 private botId: string,
                 private config: Config,
                 private router,
-                private installationRepository
+                private installationRepository: InstallationRepository
     ) {
         this.logger = bp.logger.forBot(botId)
     }
@@ -40,6 +41,7 @@ export class SlackClient {
         )
         this.listenToMessages()
         this.listenToActions()
+        this.listenToEvents()
         this.router.use(this.app.getReceiver().app)
     }
 
@@ -109,6 +111,34 @@ export class SlackClient {
                 const event = events[0]
                 await this.bp.events.updateEvent(event.id, {feedback})
             }
+        })
+    }
+
+    private listenToEvents() {
+        this.app.getApp().event('app_home_opened', async({body, payload, event, context}) => {
+            debugIncoming(`Received app_home_opened event %o`, event)
+
+            // check the message history if there was a prior interaction for this App DM
+            const history = await this.app.getApp().client.conversations.history({
+                token: context.botToken,
+                channel: event.channel,
+                count: 1 // we only need to check if >=1 messages exist
+            });
+            const messagesCount = (<any[]>history.messages).length;
+            debugIncoming(`messagesCount: ${messagesCount}, messages %o`, history.messages)
+            if (messagesCount > 0) {
+                return;
+            }
+            await this.sendEvent({
+                body,
+                context,
+                payload: {},
+                teamId: body.team_id,
+                channelId: event.channel,
+                preview: '',
+                type: 'message',
+                userId: event.user,
+            })
         })
     }
 
