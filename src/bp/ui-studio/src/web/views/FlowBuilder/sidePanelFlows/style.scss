@@ -305,14 +305,13 @@
 }
 .rightPanel{
   position: absolute;
-  right: 0;
   width: 0;
-  z-Index: 1;
 }
 .rightPanelActive{
   position: absolute;
   right: 0;
   min-width: 320px;
+  max-width: 50%;
   z-Index: 1;
   overflow-x: auto;
 }
