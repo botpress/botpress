@@ -23,6 +23,6 @@ export class VonageTextRenderer implements ChannelRenderer<VonageContext> {
   async render(context: VonageContext) {
     const payload = context.payload as sdk.TextContent
 
-    context.messages.push({ type: 'text', text: payload.text as string })
+    context.messages.push({ content: { type: 'text', text: payload.text as string } })
   }
 }

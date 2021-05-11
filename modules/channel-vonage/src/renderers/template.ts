@@ -1,10 +1,8 @@
-import * as sdk from 'botpress/sdk'
 import { ChannelRenderer } from 'common/channel'
-import { formatUrl } from 'common/url'
 import { CHANNEL_NAME } from '../backend/client'
 import { VonageContext } from '../backend/typings'
 
-export class VonageImageRenderer implements ChannelRenderer<VonageContext> {
+export class VonageTemplateRenderer implements ChannelRenderer<VonageContext> {
   get channel(): string {
     return CHANNEL_NAME
   }
@@ -14,25 +12,26 @@ export class VonageImageRenderer implements ChannelRenderer<VonageContext> {
   }
 
   get id(): string {
-    return VonageImageRenderer.name
+    return VonageTemplateRenderer.name
   }
 
   handles(context: VonageContext): boolean {
-    return !!context.payload.image
+    return context.payload.type === 'vonage-template'
   }
 
   async render(context: VonageContext) {
-    const payload = context.payload as sdk.ImageContent
+    const payload = context.payload
 
     context.messages.push({
       content: {
-        type: 'image',
+        type: 'template',
         text: undefined,
-        image: {
-          url: formatUrl(context.botUrl, payload.image),
-          caption: payload.title as string
+        template: {
+          name: `${payload.namespace}:${payload.name}`,
+          parameters: payload.parameters
         }
-      }
+      },
+      whatsapp: { policy: 'deterministic', locale: payload.languageCode || 'en_US' }
     })
   }
 }
