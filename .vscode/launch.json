@@ -7,7 +7,7 @@
       "request": "launch",
       "name": "Debug App",
       "program": "${workspaceFolder}/out/bp/index.js",
-      "cwd": "${workspaceFolder}",
+      "cwd": "${workspaceFolder}/out/bp",
       "args": ["start"],
       "env": {
         "BP_MODULES_PATH": "${workspaceFolder}/modules:${workspaceFolder}/internal-modules",
