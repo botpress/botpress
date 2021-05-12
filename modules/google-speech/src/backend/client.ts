@@ -1,4 +1,4 @@
-import { protos, SpeechClient } from '@google-cloud/speech'
+import { protos, v1p1beta1 } from '@google-cloud/speech'
 import { TextToSpeechClient } from '@google-cloud/text-to-speech'
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
@@ -25,7 +25,7 @@ const debugTextToSpeech = debug.sub('text-to-speech')
 
 export class GoogleSpeechClient {
   private logger: sdk.Logger
-  private speechClient: SpeechClient
+  private speechClient: v1p1beta1.SpeechClient
   private textToSpeechClient: TextToSpeechClient
 
   //Transcription is limited to 60 seconds audio.
@@ -43,7 +43,7 @@ export class GoogleSpeechClient {
     }
 
     try {
-      this.speechClient = new SpeechClient({
+      this.speechClient = new v1p1beta1.SpeechClient({
         credentials: {
           client_email: this.config.clientEmail,
           private_key: this.config.privateKey
@@ -81,7 +81,12 @@ export class GoogleSpeechClient {
   }
 
   public async speechToText(audioFileUrl: string, language: string, timeout?: string): Promise<string | undefined> {
-    debugSpeechToText('Received audio to recognize:', audioFileUrl)
+    debugSpeechToText('Received audio file to recognize:', audioFileUrl)
+
+    // Media Service URLs
+    if (!audioFileUrl.startsWith('http')) {
+      audioFileUrl = `${process.LOCAL_URL}${audioFileUrl}`
+    }
 
     let { data: buffer } = await axios.get<Buffer>(audioFileUrl, { responseType: 'arraybuffer' })
 
@@ -94,7 +99,7 @@ export class GoogleSpeechClient {
       return
     }
 
-    let encoding: protos.google.cloud.speech.v1.RecognitionConfig.AudioEncoding
+    let encoding: protos.google.cloud.speech.v1p1beta1.RecognitionConfig.AudioEncoding
 
     const container = meta.format.container?.toLowerCase()
     const codec = meta.format.codec?.toLowerCase()
@@ -114,6 +119,8 @@ export class GoogleSpeechClient {
 
         meta = await mm.parseBuffer(buffer)
       }
+    } else if (container === 'ebml/webm' && codec === 'opus') {
+      encoding = AudioEncoding.WEBM_OPUS
     } else if (container === 'mpeg' && codec === 'mpeg 1 layer 3') {
       // No need to specify the encoding nor re-sample the file
     } else {

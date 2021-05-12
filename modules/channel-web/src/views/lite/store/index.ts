@@ -362,11 +362,17 @@ class RootStore {
   }
 
   @action.bound
-  async uploadFile(title: string, payload: string, file: File): Promise<void> {
+  async uploadFile(_title: string, _payload: string, file: File): Promise<void> {
     const data = new FormData()
     data.append('file', file)
 
     await this.api.uploadFile(data, this.currentConversationId)
+  }
+
+  /** Sends a message of type voice */
+  @action.bound
+  async sendVoiceMessage(voice: Buffer, ext: string): Promise<void> {
+    return this.api.sendVoiceMessage(voice, ext, this.currentConversationId)
   }
 
   /** Use this method to replace a value or add a new config */

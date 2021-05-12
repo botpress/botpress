@@ -1,10 +1,14 @@
 {
-  "name": "studio-ui0lite",
+  "name": "ui-shared-lite",
   "version": "1.0.0",
   "author": "Botpress",
   "dependencies": {
-    "classnames": "^2.2.6",
-    "js-cookie": "^2.2.1"
+    "classnames": "^2.3.1",
+    "js-cookie": "^2.2.1",
+    "mime": "^2.5.2"
+  },
+  "devDependencies": {
+    "@types/mime": "^2.0.3"
   },
   "resolutions": {
     "fstream": ">=1.0.12",

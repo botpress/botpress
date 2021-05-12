@@ -85,6 +85,14 @@ export namespace Renderer {
     escapeTextHTML: boolean
   }
 
+  export interface VoiceMessage {
+    file: {
+      type: string
+      audio: string
+    }
+    escapeTextHTML: boolean
+  }
+
   export interface FileInput {
     onFileChanged: (event: HTMLInputEvent) => void
     name: string
