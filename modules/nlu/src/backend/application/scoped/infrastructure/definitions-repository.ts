@@ -22,7 +22,7 @@ export class ScopedDefinitionsRepository {
     this._botId = bot.botId
   }
 
-  // TODO: when we bring back NLU module in core, use the actual repo, not an HTTP call
+  // TODO: use the actual repo with the ghost, not an HTTP call
   public async getTrainDefinitions(): Promise<TrainDefinitions> {
     const nluRepository = await createApi(this._bp, this._botId)
     const intentDefs = await nluRepository.fetchIntentsWithQNAs()
