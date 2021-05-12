@@ -52,10 +52,10 @@ function render(data) {
 
 function renderElement(data, channel) {
   // These channels now use channel renderers
-  if (['telegram', 'twilio', 'slack', 'smooch', 'vonage', 'teams', 'messenger].includes(channel)) {
+  if (['telegram', 'twilio', 'slack', 'smooch', 'vonage', 'teams', 'messenger'].includes(channel)) {
     return utils.extractPayload('carousel', data)
   }
-  
+
   return render(data)
 }
 

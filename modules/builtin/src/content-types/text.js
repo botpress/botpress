@@ -27,7 +27,7 @@ function renderElement(data, channel) {
   if (['telegram', 'twilio', 'slack', 'smooch', 'vonage', 'teams', 'messenger'].includes(channel)) {
     return utils.extractPayload('text', data)
   }
-  
+
   return render(data)
 }
 
