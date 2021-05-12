@@ -53,7 +53,7 @@ export class ScopedPredictionHandler {
       }
     }
 
-    if (this.isEmpty(nluResults) || this.isError(nluResults)) {
+    if (this.isEmpty(nluResults)) {
       throw new Error(`No model found for the following languages: ${languagesToTry}`)
     }
 
