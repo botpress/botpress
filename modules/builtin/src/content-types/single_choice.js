@@ -45,15 +45,11 @@ function render(data) {
 
 function renderElement(data, channel) {
   // These channels now use channel renderers
-  if (['telegram', 'twilio', 'slack', 'smooch', 'vonage', 'messenger'].includes(channel)) {
+  if (['telegram', 'twilio', 'slack', 'smooch', 'vonage', 'teams', 'messenger'].includes(channel)) {
     return utils.extractPayload('single-choice', data)
   }
 
-  if (channel === 'messenger') {
-    return renderMessenger(data)
-  } else {
-    return render(data)
-  }
+  return render(data)
 }
 
 module.exports = {
