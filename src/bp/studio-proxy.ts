@@ -12,8 +12,8 @@ export enum StudioMessage {
   ON_MODULE_EVENT = 'ON_MODULE_EVENT',
   // The studio lacks realtime support, so we process them in the main process
   NOTIFY_FLOW_CHANGE = 'NOTIFY_FLOW_CHANGE',
-
-  SET_BOT_MOUNT_STATUS = 'SET_BOT_MOUNT_STATUS'
+  SET_BOT_MOUNT_STATUS = 'SET_BOT_MOUNT_STATUS',
+  INVALIDATE_CMS_FOR_BOT = 'INVALIDATE_CMS_FOR_BOT'
 }
 
 const debug = DEBUG('studio')

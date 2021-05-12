@@ -3,7 +3,8 @@ export enum StudioMessage {
   UPDATE_TOKEN_VERSION = 'UPDATE_TOKEN_VERSION',
   ON_MODULE_EVENT = 'ON_MODULE_EVENT',
   NOTIFY_FLOW_CHANGE = 'NOTIFY_FLOW_CHANGE',
-  SET_BOT_MOUNT_STATUS = 'SET_BOT_MOUNT_STATUS'
+  SET_BOT_MOUNT_STATUS = 'SET_BOT_MOUNT_STATUS',
+  INVALIDATE_CMS_FOR_BOT = 'INVALIDATE_CMS_FOR_BOT'
 }
 
 const msgHandlers: { [messageType: string]: (message: any) => void } = {}
@@ -24,6 +25,9 @@ export const coreActions = {
   },
   notifyFlowChanges: payload => {
     process.send?.({ type: StudioMessage.NOTIFY_FLOW_CHANGE, payload })
+  },
+  invalidateCmsForBot: (botId: string) => {
+    process.send?.({ type: StudioMessage.INVALIDATE_CMS_FOR_BOT, botId })
   }
 }
 

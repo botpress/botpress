@@ -12,6 +12,7 @@ import Joi from 'joi'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 import path from 'path'
+import { registerStudioHandler, StudioMessage } from 'studio-proxy'
 import { VError } from 'verror'
 
 import { IDisposeOnExit } from '../../common/typings'
@@ -77,6 +78,10 @@ export class CMSService implements IDisposeOnExit {
 
     await this.prepareDb()
     await this._loadContentTypesFromFiles()
+
+    registerStudioHandler(StudioMessage.INVALIDATE_CMS_FOR_BOT, payload => {
+      this.broadcastInvalidateForBot(payload.botId)
+    })
   }
 
   private async prepareDb() {
