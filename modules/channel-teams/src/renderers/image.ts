@@ -29,6 +29,7 @@ export class TeamsImageRenderer implements ChannelRenderer<TeamsContext> {
       type: ActivityTypes.Message,
       attachments: [
         {
+          // TODO: this isn't working (no image caption)
           name: payload.title as string,
           contentType: 'image/png',
           contentUrl: formatUrl(context.botUrl, payload.image)
