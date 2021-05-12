@@ -49,8 +49,6 @@ export class ConfigProvider {
       return this._botpressConfigCache
     }
 
-    await this.createDefaultConfigIfMissing()
-
     const config = await this.getConfig<BotpressConfig>('botpress.config.json')
     _.merge(config, await this._loadBotpressConfigFromEnv(config))
 
@@ -60,31 +58,7 @@ export class ConfigProvider {
     config.httpServer.host = process.env.BP_HOST || config.httpServer.host
     process.PROXY = process.core_env.BP_PROXY || config.httpServer.proxy
 
-    if (config.pro) {
-      config.pro.licenseKey = process.env.BP_LICENSE_KEY || config.pro.licenseKey
-    }
-
-    const deprecatedEnvKeys = [
-      ['BP_PORT', 'httpServer.port'],
-      ['BP_HOST', 'httpServer.host'],
-      ['BP_PROXY', 'httpServer.proxy'],
-      ['BP_LICENSE_KEY', 'pro.licenseKey'],
-      ['PRO_ENABLED', 'pro.enabled']
-    ]
-    deprecatedEnvKeys.forEach(([depr, preferred]) => {
-      const newKey = this._makeBPConfigEnvKey(preferred)
-      if (process.env[depr] !== undefined) {
-        this.logger.warn(
-          `(Deprecated) use standard syntax to set config from environment variable: ${depr} ==> ${newKey}`
-        )
-      }
-    })
-
     this._botpressConfigCache = config
-
-    if (!this.initialConfigHash) {
-      this.initialConfigHash = calculateHash(JSON.stringify(removeDynamicProps(config)))
-    }
 
     return config
   }
@@ -108,22 +82,6 @@ export class ConfigProvider {
     return configOverrides
   }
 
-  async mergeBotpressConfig(partialConfig: PartialDeep<BotpressConfig>, clearHash?: boolean): Promise<void> {
-    this._botpressConfigCache = undefined
-    const content = await this.ghostService.global().readFileAsString('/', 'botpress.config.json')
-    const config = _.merge(JSON.parse(content), partialConfig)
-
-    await this.setBotpressConfig(config, clearHash)
-  }
-
-  async setBotpressConfig(config: BotpressConfig, clearHash?: boolean): Promise<void> {
-    await this.ghostService.global().upsertFile('/', 'botpress.config.json', stringify(config))
-
-    if (clearHash) {
-      this.initialConfigHash = undefined
-    }
-  }
-
   async getBotConfig(botId: string): Promise<BotConfig> {
     return this.getConfig<BotConfig>('bot.config.json', botId)
   }
@@ -141,70 +99,6 @@ export class ConfigProvider {
 
   private async _getBotpressConfigSchema(): Promise<object> {
     return this.ghostService.root().readFileAsObject<any>('/', 'botpress.config.schema.json')
-  }
-
-  public async createDefaultConfigIfMissing() {
-    await this._copyConfigSchemas()
-
-    if (!(await this.ghostService.global().fileExists('/', 'botpress.config.json'))) {
-      const botpressConfigSchema = await this._getBotpressConfigSchema()
-      const defaultConfig: BotpressConfig = defaultJsonBuilder(botpressConfigSchema)
-
-      const config = {
-        $schema: '../botpress.config.schema.json',
-        ...defaultConfig,
-        modules: await this.getModulesListConfig(),
-        version: process.BOTPRESS_VERSION
-      }
-
-      await this.ghostService.global().upsertFile('/', 'botpress.config.json', stringify(config))
-    }
-  }
-
-  private async _copyConfigSchemas() {
-    const schemasToCopy = ['botpress.config.schema.json', 'bot.config.schema.json']
-
-    for (const schema of schemasToCopy) {
-      if (!(await this.ghostService.root().fileExists('/', schema))) {
-        const schemaContent = fs.readFileSync(path.join(__dirname, 'schemas', schema))
-        await this.ghostService.root().upsertFile('/', schema, schemaContent)
-      }
-    }
-  }
-
-  public async getModulesListConfig() {
-    const enabledModules = this.parseEnabledModules() ?? [
-      'analytics',
-      'basic-skills',
-      'builtin',
-      'channel-web',
-      'nlu',
-      'qna',
-      'extensions',
-      'code-editor',
-      'testing',
-      'examples'
-    ]
-
-    // here it's ok to use the module resolver because we are discovering the built-in modules only
-    const resolver = new ModuleResolver(this.logger)
-    return (await resolver.getModulesList()).map(module => {
-      return { location: `MODULES_ROOT/${module}`, enabled: enabledModules.includes(module) }
-    })
-  }
-
-  private parseEnabledModules = (): string[] | undefined => {
-    if (!process.env.BP_ENABLED_MODULES) {
-      return
-    }
-
-    try {
-      return JSON.parse(process.env.BP_ENABLED_MODULES)
-    } catch (err) {
-      this.logger
-        .attachError(err)
-        .warn('Error parsing BP_ENABLED_MODULES environment variable. Falling back to default modules')
-    }
   }
 
   private async getConfig<T>(fileName: string, botId?: string): Promise<T> {

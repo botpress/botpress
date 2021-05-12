@@ -1,20 +1,13 @@
 import { Logger, StrategyUser } from 'botpress/sdk'
-import { RequestWithUser, TokenUser } from 'common/typings'
-import { incrementMetric } from 'core/health'
+import { TokenUser } from 'common/typings'
 import { asBytes } from 'core/misc/utils'
-import { AuthService } from 'core/security'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 import mime from 'mime-types'
 import multer from 'multer'
 import onHeaders from 'on-headers'
 
-import { BadRequestError, InternalServerError, UnauthorizedError } from './errors'
-
-const debugFailure = DEBUG('audit:collab:fail')
-const debugSuccess = DEBUG('audit:collab:success')
-const debugSuperSuccess = DEBUG('audit:admin:success')
-const debugSuperFailure = DEBUG('audit:admin:fail')
+import { BadRequestError } from './errors'
 
 // TODO: Remove BPRequest, AsyncMiddleware and asyncMiddleware from this file
 
@@ -52,8 +45,7 @@ export const monitoringMiddleware = (req, res, next) => {
 
   onHeaders(res, () => {
     const timeInMs = Date.now() - startAt
-    incrementMetric('requests.count')
-    incrementMetric('requests.latency_sum', timeInMs)
+
     res.setHeader('X-Response-Time', `${timeInMs}ms`)
   })
 
@@ -78,22 +70,6 @@ export const sendSuccess = <T extends {}>(res: Response, message: string = 'Succ
     message,
     payload: payload || {}
   })
-}
-
-export const loadUser = (authService: AuthService) => async (req: Request, res: Response, next: Function) => {
-  const reqWithUser = <RequestWithUser>req
-  const { tokenUser } = reqWithUser
-  if (!tokenUser) {
-    return next(new InternalServerError('No tokenUser in request'))
-  }
-
-  const authUser = await authService.findUser(tokenUser.email, tokenUser.strategy)
-  if (!authUser) {
-    return next(new UnauthorizedError('Unknown user'))
-  }
-
-  reqWithUser.authUser = authUser
-  next()
 }
 
 /**

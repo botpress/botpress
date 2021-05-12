@@ -1,6 +1,13 @@
 import { DirectoryListingOptions } from 'botpress/sdk'
 import { ReplaceInFileConfig } from 'replace-in-file'
 
+export class BPError extends Error {
+  private hideStack = true
+  constructor(message: string, private code) {
+    super(message)
+  }
+}
+
 export interface StorageDriver {
   upsertFile(filePath: string, content: Buffer | string, recordRevision: boolean): Promise<void>
   readFile(filePath: string): Promise<Buffer>

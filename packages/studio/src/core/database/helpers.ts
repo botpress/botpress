@@ -47,57 +47,7 @@ export const patchKnex = (knex: Knex): KnexExtended => {
     idColumnName: string = 'id',
     trx?: Knex.Transaction
   ): Promise<T> => {
-    const handleResult = res => {
-      if (!res || res.length !== 1) {
-        throw new VError('Error doing insertAndRetrieve')
-      }
-      return res[0] as T
-    }
-
-    // postgres supports 'returning' natively
-    if (!isLite) {
-      return knex(tableName)
-        .insert(data)
-        .returning(returnColumns)
-        .then(handleResult)
-    }
-
-    const getQuery = trx =>
-      knex(tableName)
-        .insert(data)
-        .transacting(trx)
-        .then(() =>
-          knex
-            .select(knex.raw('last_insert_rowid() as id'))
-            .transacting(trx)
-            .then(([{ id: rowid }]) => {
-              let id = data && data.id
-              if (!id || idColumnName === 'rowid') {
-                id = rowid
-              }
-
-              if (returnColumns === idColumnName) {
-                return id
-              }
-              return knex(tableName)
-                .select('*')
-                .where(idColumnName, id)
-                .limit(1)
-                .transacting(trx)
-                .then(handleResult)
-            })
-        )
-
-    // transactions inside another transaction may lead to a deadlock
-    if (trx) {
-      return getQuery(trx)
-    }
-
-    return knex.transaction(trx =>
-      getQuery(trx)
-        .then(trx.commit)
-        .catch(trx.rollback)
-    )
+    throw new Error("The studio doesn't support this method")
   }
 
   const binary: Knex.Binary = {

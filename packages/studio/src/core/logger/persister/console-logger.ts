@@ -1,10 +1,7 @@
 import { AxiosError } from 'axios'
 import { IO, Logger, LoggerEntry, LoggerLevel, LoggerListener, LogLevel } from 'botpress/sdk'
 import chalk from 'chalk'
-import { Metric } from 'common/monitoring'
 import { BotService } from 'core/bots'
-import { addLogToEvent } from 'core/events'
-import { incrementMetric } from 'core/health'
 import { IDisposable } from 'core/misc/disposable'
 import { TYPES } from 'core/types'
 import { InvalidParameterError } from 'errors'
@@ -16,7 +13,6 @@ import os from 'os'
 import stripAnsi from 'strip-ansi'
 import util from 'util'
 
-import { LoggerDbPersister } from './db-persister'
 import { LoggerFilePersister } from './file-persister'
 
 export type LoggerProvider = (module: string) => Promise<Logger>
@@ -45,34 +41,20 @@ export class PersistedConsoleLogger implements Logger {
   public readonly displayLevel: number
   private currentMessageLevel: LogLevel | undefined
   private willPersistMessage: boolean = true
-  private emitLogStream = true
   private serverHostname: string = ''
-  private event?: IO.Event
-
-  private static LogStreamEmitter: EventEmitter2 = new EventEmitter2({
-    delimiter: '::',
-    maxListeners: 1000,
-    verboseMemoryLeak: true,
-    wildcard: true
-  })
-
-  public static listenForAllLogs(fn: LoggerListener, botId: string = '*'): IDisposable {
-    if (!_.isFunction(fn)) {
-      throw new InvalidParameterError('"fn" listener must be a callback function')
-    }
-
-    const namespace = `logs::${botId}`
-    this.LogStreamEmitter.on(namespace, fn)
-    return { dispose: () => this.LogStreamEmitter.off(namespace, fn) }
-  }
 
   constructor(
     @inject(TYPES.Logger_Name) private name: string,
-    @inject(TYPES.LoggerDbPersister) private loggerDbPersister: LoggerDbPersister,
     @inject(TYPES.LoggerFilePersister) private loggerFilePersister: LoggerFilePersister
   ) {
     this.displayLevel = process.VERBOSITY_LEVEL
     this.serverHostname = hostname
+  }
+  attachEvent(event: IO.Event): this {
+    throw new Error('Method not implemented.')
+  }
+  noEmit(): this {
+    throw new Error('Method not implemented.')
   }
 
   forBot(botId: string): this {
@@ -92,16 +74,6 @@ export class PersistedConsoleLogger implements Logger {
 
   level(level: LogLevel): this {
     this.currentMessageLevel = level
-    return this
-  }
-
-  attachEvent(event: IO.Event): this {
-    this.event = event
-    return this
-  }
-
-  noEmit(): this {
-    this.emitLogStream = false
     return this
   }
 
@@ -168,7 +140,7 @@ export class PersistedConsoleLogger implements Logger {
     const timeFormat = 'L HH:mm:ss.SSS'
     const time = moment().format(timeFormat)
 
-    const displayName = process.env.INDENT_LOGS ? this.name.substr(0, 15).padEnd(15, ' ') : this.name
+    const displayName = process.env.INDENT_LOGS ? this.name.substr(0, 15).padEnd(15, ' ') : `[Studio] ${this.name}`
     const newLineIndent = `${chalk.dim(' '.repeat(`${timeFormat} ${displayName}`.length))} `
     let indentedMessage =
       level === LoggerLevel.Error && !forceIndentMessage ? message : message.replace(/\r\n|\n/g, os.EOL + newLineIndent)
@@ -193,25 +165,8 @@ export class PersistedConsoleLogger implements Logger {
       timestamp: new Date()
     }
 
-    if (this.emitLogStream) {
-      PersistedConsoleLogger.LogStreamEmitter.emit(
-        `logs::${this.botId || '*'}`,
-        level,
-        indentedMessage,
-        serializedMetadata
-      ) // Args => level, message, args
-    }
-
-    if (this.willPersistMessage && level !== LoggerLevel.Debug) {
-      this.loggerDbPersister.appendLog(entry)
-    } else {
-      // We reset it right away to prevent race conditions (since the persister might log a new message asynchronously)
-      this.willPersistMessage = true
-    }
-
-    if (this.event) {
-      addLogToEvent(`[${level}] ${indentedMessage}`, this.event)
-    }
+    // We reset it right away to prevent race conditions (since the persister might log a new message asynchronously)
+    this.willPersistMessage = true
 
     if (this.displayLevel >= this.currentMessageLevel!) {
       // eslint-disable-next-line no-console
@@ -225,8 +180,6 @@ export class PersistedConsoleLogger implements Logger {
     this.currentMessageLevel = undefined
     this.botId = undefined
     this.attachedError = undefined
-    this.emitLogStream = true
-    this.event = undefined
   }
 
   debug(message: string, metadata?: any): void {
@@ -239,6 +192,7 @@ export class PersistedConsoleLogger implements Logger {
 
   info(message: string, metadata?: any): void {
     if (this.currentMessageLevel === undefined) {
+      // TODO: hide studio info logs ?
       this.currentMessageLevel = LogLevel.PRODUCTION
     }
 
@@ -250,11 +204,6 @@ export class PersistedConsoleLogger implements Logger {
       this.currentMessageLevel = LogLevel.PRODUCTION
     }
 
-    if (this.botId) {
-      BotService.incrementBotStats(this.botId, 'warning')
-    }
-
-    incrementMetric(Metric.Warnings)
     this.print(LoggerLevel.Warn, message, metadata)
   }
 
@@ -263,11 +212,6 @@ export class PersistedConsoleLogger implements Logger {
       this.currentMessageLevel = LogLevel.PRODUCTION
     }
 
-    if (this.botId) {
-      BotService.incrementBotStats(this.botId, 'error')
-    }
-
-    incrementMetric(Metric.Errors)
     this.print(LoggerLevel.Error, message, metadata)
   }
 
@@ -276,11 +220,6 @@ export class PersistedConsoleLogger implements Logger {
       this.currentMessageLevel = LogLevel.PRODUCTION
     }
 
-    if (this.botId) {
-      BotService.incrementBotStats(this.botId, 'critical')
-    }
-
-    incrementMetric(Metric.Criticals)
     this.print(LoggerLevel.Critical, message, metadata)
   }
 }

@@ -3,7 +3,6 @@ import { ObjectCache } from 'common/object-cache'
 import { TYPES } from 'core/app/types'
 import { GhostService } from 'core/bpfs'
 import { startsWithI } from 'core/misc/utils'
-import { RealtimeService, RealTimePayload } from 'core/realtime'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import minimatch from 'minimatch'
@@ -45,8 +44,7 @@ export class HintsService {
     @tagged('name', 'HintsService')
     private logger: sdk.Logger,
     @inject(TYPES.GhostService) private ghost: GhostService,
-    @inject(TYPES.ObjectCache) private cache: ObjectCache,
-    @inject(TYPES.RealtimeService) private realtimeService: RealtimeService
+    @inject(TYPES.ObjectCache) private cache: ObjectCache
   ) {
     this._listenForCacheInvalidation()
   }
@@ -62,7 +60,6 @@ export class HintsService {
       await Promise.delay(100)
       const filePath = key.substr(invalidationFilePrefix.length)
       this.hints[filePath] = await this.indexFile(filePath)
-      this.realtimeService.sendToSocket(RealTimePayload.forAdmins('hints.updated', {}))
     })
   }
 

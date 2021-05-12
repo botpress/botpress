@@ -1,4 +1,5 @@
 import { ObjectCache } from 'common/object-cache'
+import { registerMsgHandler, StudioMessage } from 'core/app/handler'
 import { TYPES } from 'core/app/types'
 import { asBytes } from 'core/misc/utils'
 import { EventEmitter } from 'events'
@@ -28,6 +29,13 @@ export class MemoryObjectCache implements ObjectCache {
     })
 
     this.cacheInvalidator.install(this)
+
+    registerMsgHandler(StudioMessage.INVALIDATE_FILE, async message => {
+      if (message.source !== 'studio') {
+        this.cache.del(message.key)
+        this.events.emit('invalidation', message.key)
+      }
+    })
   }
 
   async get<T>(key: string): Promise<T> {

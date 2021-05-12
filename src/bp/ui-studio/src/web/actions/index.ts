@@ -319,7 +319,7 @@ export const fetchBotInformation = () => dispatch => {
 export const modulesReceived = createAction('MODULES/RECEIVED')
 export const fetchModules = () => dispatch => {
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  axios.get(`${window.API_PATH}/modules`).then(res => {
+  axios.get(`${window.API_PATH}/studio/modules`).then(res => {
     dispatch(modulesReceived(res.data))
   })
 }
@@ -328,7 +328,7 @@ export const fetchModules = () => dispatch => {
 export const skillsReceived = createAction('SKILLS/RECEIVED')
 export const fetchSkills = () => dispatch => {
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  axios.get(`${window.API_PATH}/modules/skills`).then(res => {
+  axios.get(`${window.API_PATH}/studio/modules/skills`).then(res => {
     dispatch(skillsReceived(res.data))
   })
 }
@@ -421,7 +421,7 @@ export const trainSessionReceived = createAction('TRAIN_SESSION/RECEIVED')
 export const conditionsReceived = createAction('CONDITIONS/RECEIVED')
 export const refreshConditions = () => dispatch => {
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  axios.get(`${window.API_PATH}/modules/dialogConditions`).then(({ data }) => {
+  axios.get(`${window.API_PATH}/studio/modules/dialogConditions`).then(({ data }) => {
     dispatch(conditionsReceived(data))
   })
 }
@@ -476,7 +476,7 @@ export const getQnaCountByTopic = () => dispatch => {
 export const receiveModuleTranslations = createAction('LANG/TRANSLATIONS')
 export const getModuleTranslations = () => dispatch => {
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  axios.get(`${window.API_PATH}/modules/translations`).then(({ data }) => {
+  axios.get(`${window.API_PATH}/studio/modules/translations`).then(({ data }) => {
     dispatch(receiveModuleTranslations(data))
   })
 }

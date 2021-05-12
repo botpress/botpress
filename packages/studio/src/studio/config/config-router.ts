@@ -15,7 +15,6 @@ export class ConfigRouter extends CustomStudioRouter {
     const router = this.router
     router.get(
       '/',
-      this.checkTokenHeader,
       this.needPermissions('read', 'bot.information'),
       this.asyncMiddleware(async (req, res) => {
         const bot = await this.botService.findBotById(req.params.botId)

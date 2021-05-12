@@ -1,6 +1,5 @@
 import { checkRule, CSRF_TOKEN_HEADER_LC, JWT_COOKIE_NAME } from 'common/auth'
 import { RequestWithUser } from 'common/typings'
-import { ALL_BOTS } from 'common/utils'
 import { ConfigProvider } from 'core/config'
 import {
   InvalidOperationError,
@@ -101,21 +100,6 @@ export const assertWorkspace = async (req: RequestWithUser, _res: Response, next
     return next(new InvalidOperationError('Workspace is missing. Set header X-BP-Workspace'))
   }
   next()
-}
-
-export const assertBotpressPro = (workspaceService: WorkspaceService) => async (
-  _req: RequestWithUser,
-  _res: Response,
-  next: NextFunction
-) => {
-  if (!process.IS_PRO_ENABLED || !process.IS_LICENSED) {
-    // Allow to create the first user
-    if ((await workspaceService.getUniqueCollaborators()) > 0) {
-      return next(new PaymentRequiredError('Botpress Pro is required to perform this action'))
-    }
-  }
-
-  return next()
 }
 
 /**
@@ -227,7 +211,10 @@ export const checkBotVisibility = (configProvider: ConfigProvider, checkTokenHea
   res,
   next
 ) => {
-  if (req.params.botId === ALL_BOTS || req.originalUrl.endsWith('env.js')) {
+  // '___' is a non-valid botId, but here acts as for "all bots"
+  // This is used in modules when they setup routes that work on a global level (they are not tied to a specific bot)
+  // Check the 'sso-login' module for an example
+  if (req.params.botId === '___' || req.originalUrl.endsWith('env.js')) {
     return next()
   }
 

@@ -1,11 +1,11 @@
 import { ContentElement, ContentType, IO, KnexExtended, Logger, SearchParams } from 'botpress/sdk'
+import { IDisposeOnExit } from 'common/typings'
+import { coreActions } from 'core/app/handler'
 import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config'
-import { JobService } from 'core/distributed'
-import { EventEngine } from 'core/events'
+import { JobService } from 'core/distributed/job-service'
 import { LoggerProvider } from 'core/logger'
 import { MediaServiceProvider } from 'core/media'
-import { ModuleLoader } from 'core/modules'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
 import Joi from 'joi'
@@ -13,8 +13,6 @@ import _ from 'lodash'
 import nanoid from 'nanoid'
 import path from 'path'
 import { VError } from 'verror'
-
-import { IDisposeOnExit } from '../../common/typings'
 
 import { CodeFile, SafeCodeSandbox } from './code-sandbox'
 import { renderRecursive, renderTemplate } from './templating'
@@ -58,9 +56,7 @@ export class CMSService implements IDisposeOnExit {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.InMemoryDatabase) private memDb: KnexExtended,
     @inject(TYPES.JobService) private jobService: JobService,
-    @inject(TYPES.MediaServiceProvider) private mediaServiceProvider: MediaServiceProvider,
-    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
-    @inject(TYPES.EventEngine) private eventEngine: EventEngine
+    @inject(TYPES.MediaServiceProvider) private mediaServiceProvider: MediaServiceProvider
   ) {}
 
   disposeOnExit() {
@@ -133,12 +129,6 @@ export class CMSService implements IDisposeOnExit {
     } catch (err) {
       throw new Error(`while processing content elements: ${err}`)
     }
-  }
-
-  async deleteAllElements(botId: string): Promise<void> {
-    const files = await this.ghost.forBot(botId).directoryListing(this.elementsDir, '*.json')
-    await Promise.map(files, file => this.ghost.forBot(botId).deleteFile(this.elementsDir, file))
-    await this.clearElementsFromCache(botId)
   }
 
   async clearElementsFromCache(botId: string) {
@@ -270,7 +260,9 @@ export class CMSService implements IDisposeOnExit {
 
   async deleteContentElements(botId: string, ids: string[]): Promise<void> {
     const elements = await this.getContentElements(botId, ids)
-    await Promise.map(elements, el => this.moduleLoader.onElementChanged(botId, 'delete', el))
+    await Promise.map(elements, el =>
+      coreActions.onModuleEvent('onElementChanged', { botId, action: 'delete', element: el })
+    )
 
     await this.broadcastRemoveElements(botId, ids)
 
@@ -319,15 +311,6 @@ export class CMSService implements IDisposeOnExit {
     return type
   }
 
-  async getRandomContentElement(contentTypeId: string): Promise<ContentElement> {
-    return this.memDb(this.contentTable)
-      .where('contentType', contentTypeId)
-      .orderByRaw('random()')
-      .limit(1)
-      .first()
-      .then()
-  }
-
   private _generateElementId(contentTypeId: string): string {
     const prefix = contentTypeId.replace(/^#/, '')
     return `${prefix}-${nanoid(6)}`
@@ -348,7 +331,6 @@ export class CMSService implements IDisposeOnExit {
     contentElementId?: string,
     language?: string
   ): Promise<string> {
-    process.ASSERT_LICENSED?.()
     contentTypeId = contentTypeId.toLowerCase()
     const contentType = _.find(this.contentTypes, { id: contentTypeId })
 
@@ -385,12 +367,17 @@ export class CMSService implements IDisposeOnExit {
       await this.broadcastAddElement(botId, body, contentElementId, contentType.id)
       const created = await this.getContentElement(botId, contentElementId)
 
-      await this.moduleLoader.onElementChanged(botId, 'create', created)
+      coreActions.onModuleEvent('onElementChanged', { botId, action: 'create', element: created })
     } else {
       const originalElement = await this.getContentElement(botId, contentElementId)
       const updatedElement = await this.broadcastUpdateElement(botId, body, contentElementId)
 
-      await this.moduleLoader.onElementChanged(botId, 'update', updatedElement, originalElement)
+      coreActions.onModuleEvent('onElementChanged', {
+        botId,
+        action: 'update',
+        element: updatedElement,
+        oldElement: originalElement
+      })
     }
 
     await this._writeElementsToFile(botId, contentTypeId)
@@ -431,7 +418,6 @@ export class CMSService implements IDisposeOnExit {
   }
 
   private async _writeElementsToFile(botId: string, contentTypeId: string) {
-    process.ASSERT_LICENSED?.()
     const params = { ...DefaultSearchParams, count: UNLIMITED_ELEMENTS }
     const elements = (await this.listContentElements(botId, contentTypeId, params)).map(element =>
       _.pick(element, 'id', 'formData', 'createdBy', 'createdOn', 'modifiedOn')
@@ -672,11 +658,6 @@ export class CMSService implements IDisposeOnExit {
     }
 
     return payloads
-  }
-
-  public renderForChannel(content: any, channel: string): any[] {
-    const type = this.contentTypes.find(x => x.id.includes(content.type))!
-    return type.renderElement({ ...content, ...this._getAdditionalData() }, channel)
   }
 
   /**

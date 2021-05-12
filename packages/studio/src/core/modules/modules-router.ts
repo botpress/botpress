@@ -18,8 +18,7 @@ export class ModulesRouter extends CustomRouter {
     private logger: Logger,
     private authService: AuthService,
     private moduleLoader: ModuleLoader,
-    private skillService: SkillService,
-    private configProvider: ConfigProvider
+    private skillService: SkillService
   ) {
     super('Modules', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
@@ -30,15 +29,6 @@ export class ModulesRouter extends CustomRouter {
     this.router.get('/', (_req, res) => {
       res.json(this.moduleLoader.getLoadedModules())
     })
-
-    this.router.get(
-      '/all',
-      this.checkTokenHeader,
-      assertSuperAdmin,
-      this.asyncMiddleware(async (req, res) => {
-        res.send(await this.moduleLoader.getAllModules())
-      })
-    )
 
     this.router.get(
       '/skills',

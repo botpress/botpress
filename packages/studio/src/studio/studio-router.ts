@@ -112,6 +112,9 @@ export class StudioRouter extends CustomRouter {
 
     app.use('/api/v1/studio/:botId', this.router)
 
+    // This route must be accessible even when the bot is disabled
+    this.router.use('/config', this.checkTokenHeader, this.configRouter.router)
+
     this.router.use(checkBotVisibility(this.configProvider, this.checkTokenHeader))
 
     this.router.use('/actions', this.checkTokenHeader, this.actionsRouter.router)
@@ -120,7 +123,6 @@ export class StudioRouter extends CustomRouter {
     this.router.use('/media', this.mediaRouter.router)
     this.router.use('/topics', this.checkTokenHeader, this.topicsRouter.router)
     this.router.use('/hints', this.checkTokenHeader, this.hintsRouter.router)
-    this.router.use('/config', this.checkTokenHeader, this.configRouter.router)
 
     this.setupUnauthenticatedRoutes(app)
     this.setupStaticRoutes(app)

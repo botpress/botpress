@@ -1,17 +1,12 @@
 import { Logger } from 'botpress/sdk'
-import { BotpressAPIProvider } from 'core/app/api'
 import { Botpress } from 'core/app/botpress'
 import { HTTPServer } from 'core/app/server'
 import { ConfigProvider } from 'core/config'
-import { EventCollector } from 'core/events'
-import { LoggerDbPersister, LoggerFilePersister, LoggerProvider, PersistedConsoleLogger } from 'core/logger'
-import { MigrationService } from 'core/migration'
+import { LoggerFilePersister, LoggerProvider, PersistedConsoleLogger } from 'core/logger'
 import { ModuleLoader } from 'core/modules'
-import { TelemetryContainerModules, AnalyticsService } from 'core/telemetry'
-import { LocalActionServer } from 'core/user-code'
-import { DataRetentionJanitor, DataRetentionService, WorkspaceService } from 'core/users'
+import { WorkspaceService } from 'core/users'
 import { Container } from 'inversify'
-
+import path from 'path'
 import { TYPES } from '../types'
 import { DatabaseContainerModules } from './database.inversify'
 import { RepositoriesContainerModules } from './repositories.inversify'
@@ -49,18 +44,8 @@ container.bind<LoggerProvider>(TYPES.LoggerProvider).toProvider<Logger>(context 
 })
 
 container
-  .bind<LoggerDbPersister>(TYPES.LoggerDbPersister)
-  .to(LoggerDbPersister)
-  .inSingletonScope()
-
-container
   .bind<LoggerFilePersister>(TYPES.LoggerFilePersister)
   .to(LoggerFilePersister)
-  .inSingletonScope()
-
-container // TODO Implement this
-  .bind<BotpressAPIProvider>(TYPES.BotpressAPIProvider)
-  .to(BotpressAPIProvider)
   .inSingletonScope()
 
 container
@@ -84,38 +69,8 @@ container
   .inSingletonScope()
 
 container
-  .bind<AnalyticsService>(TYPES.Statistics)
-  .to(AnalyticsService)
-  .inSingletonScope()
-
-container
-  .bind<DataRetentionJanitor>(TYPES.DataRetentionJanitor)
-  .to(DataRetentionJanitor)
-  .inSingletonScope()
-
-container
-  .bind<DataRetentionService>(TYPES.DataRetentionService)
-  .to(DataRetentionService)
-  .inSingletonScope()
-
-container
   .bind<WorkspaceService>(TYPES.WorkspaceService)
   .to(WorkspaceService)
-  .inSingletonScope()
-
-container
-  .bind<EventCollector>(TYPES.EventCollector)
-  .to(EventCollector)
-  .inSingletonScope()
-
-container
-  .bind<MigrationService>(TYPES.MigrationService)
-  .to(MigrationService)
-  .inSingletonScope()
-
-container
-  .bind<LocalActionServer>(TYPES.LocalActionServer)
-  .to(LocalActionServer)
   .inSingletonScope()
 
 const isPackaged = !!eval('process.pkg')
@@ -125,11 +80,10 @@ container.bind<boolean>(TYPES.IsPackaged).toConstantValue(isPackaged)
 container.load(...DatabaseContainerModules)
 container.load(...RepositoriesContainerModules)
 container.load(...ServicesContainerModules)
-container.load(...TelemetryContainerModules)
 
 if (process.IS_PRO_ENABLED) {
   // Otherwise this will fail on compile when the submodule is not available.
-  const ProContainerModule = require('pro/pro.inversify')
+  const ProContainerModule = require(path.resolve(process.PROJECT_LOCATION, 'pro/studio/pro.inversify'))
   container.load(ProContainerModule)
 }
 

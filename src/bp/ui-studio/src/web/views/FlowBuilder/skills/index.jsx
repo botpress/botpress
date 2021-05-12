@@ -1,18 +1,18 @@
-import React from 'react'
-import { Button } from 'react-bootstrap'
 import axios from 'axios'
 import find from 'lodash/find'
 import includes from 'lodash/includes'
+import React from 'react'
+import { Button } from 'react-bootstrap'
 import Loader from 'react-loaders'
-import withLanguage from '../../../components/Util/withLanguage'
 import { connect } from 'react-redux'
-
 import { cancelNewSkill, insertNewSkill, updateSkill } from '~/actions'
+import InjectedModuleView from '~/components/PluginInjectionSite/module'
+import withLanguage from '../../../components/Util/withLanguage'
+
 const style = require('./style.scss')
 
 const VALID_WINDOW_SIZES = ['normal', 'large', 'small']
 
-import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { lang, Dialog } from 'botpress/shared'
 
 class WrappedInjectedModule extends React.Component {
@@ -139,7 +139,7 @@ class SkillsBuilder extends React.Component {
 
     return axios
       .post(
-        `${window.API_PATH}/modules/${skill.moduleName}/skill/${skill.id}/generateFlow?botId=${window.BOT_ID}&isOneFlow=${window.USE_ONEFLOW}`,
+        `${window.API_PATH}/studio/modules/${skill.moduleName}/skill/${skill.id}/generateFlow?botId=${window.BOT_ID}&isOneFlow=${window.USE_ONEFLOW}`,
         this.data
       )
       .then(({ data }) => data)

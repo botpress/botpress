@@ -3,13 +3,13 @@ import { ArrayCache } from 'common/array-cache'
 import { ObjectCache } from 'common/object-cache'
 import { TreeSearch, PATH_SEPARATOR } from 'common/treeSearch'
 import { FlowMutex, FlowView, NodeView } from 'common/typings'
+import { coreActions } from 'core/app/handler'
 import { TYPES } from 'core/app/types'
 import { BotService } from 'core/bots'
 import { GhostService, ScopedGhostService } from 'core/bpfs'
 import { JobService } from 'core/distributed/job-service'
 import { KeyValueStore, KvsService } from 'core/kvs'
 import { ModuleLoader } from 'core/modules'
-import { RealtimeService, RealTimePayload } from 'core/realtime'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Joi from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -64,9 +64,7 @@ export class FlowService {
     @tagged('name', 'FlowService')
     private logger: Logger,
     @inject(TYPES.GhostService) private ghost: GhostService,
-    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.ObjectCache) private cache: ObjectCache,
-    @inject(TYPES.RealtimeService) private realtime: RealtimeService,
     @inject(TYPES.KeyValueStore) private kvs: KeyValueStore,
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.JobService) private jobService: JobService
@@ -110,8 +108,6 @@ export class FlowService {
         this.ghost.forBot(botId),
         this.kvs.forBot(botId),
         this.logger,
-        this.moduleLoader,
-        this.realtime,
         this.botService,
         (key, flow, newKey) => this.invalidateFlow(botId, key, flow, newKey)
       )
@@ -130,8 +126,6 @@ export class ScopedFlowService {
     private ghost: ScopedGhostService,
     private kvs: KvsService,
     private logger: Logger,
-    private moduleLoader: ModuleLoader,
-    private realtime: RealtimeService,
     private botService: BotService,
     private invalidateFlow: (key: string, flow?: FlowView, newKey?: string) => void
   ) {
@@ -326,8 +320,6 @@ export class ScopedFlowService {
   }
 
   private async _upsertFlow(flow: FlowView) {
-    process.ASSERT_LICENSED?.()
-
     const flowFiles = await this.ghost.directoryListing(FLOW_DIR, '**/*.json')
 
     const isNew = !flowFiles.find(x => flow.location === x)
@@ -349,8 +341,6 @@ export class ScopedFlowService {
   }
 
   async deleteFlow(flowName: string, userEmail: string) {
-    process.ASSERT_LICENSED?.()
-
     const flowFiles = await this.ghost.directoryListing(FLOW_DIR, '*.json')
     const fileToDelete = flowFiles.find(f => f === flowName)
     if (!fileToDelete) {
@@ -374,8 +364,6 @@ export class ScopedFlowService {
   }
 
   async renameFlow(previousName: string, newName: string, userEmail: string) {
-    process.ASSERT_LICENSED?.()
-
     const flowFiles = await this.ghost.directoryListing(FLOW_DIR, '*.json')
     const fileToRename = flowFiles.find(f => f === previousName)
     if (!fileToRename) {
@@ -393,7 +381,11 @@ export class ScopedFlowService {
       this.ghost.renameFile(FLOW_DIR, previousUiName, newUiName)
     ])
 
-    await this.moduleLoader.onFlowRenamed(this.botId, previousName, newName)
+    coreActions.onModuleEvent('onFlowRenamed', {
+      botId: this.botId,
+      previousFlowName: previousName,
+      newFlowName: newName
+    })
 
     this.notifyChanges({
       name: previousName,
@@ -405,8 +397,7 @@ export class ScopedFlowService {
   }
 
   private notifyChanges = (modification: FlowModification) => {
-    const payload = RealTimePayload.forAdmins('flow.changes', modification)
-    this.realtime.sendToSocket(payload)
+    coreActions.notifyFlowChanges(modification)
   }
 
   private _buildFlowMutexKey(flowLocation: string): string {
@@ -479,7 +470,7 @@ export class ScopedFlowService {
     }
 
     if (!isNew) {
-      await this.moduleLoader.onFlowChanged(this.botId, flow)
+      coreActions.onModuleEvent('onFlowChanged', { botId: this.botId, flow })
     }
 
     const uiContent = {
@@ -518,7 +509,7 @@ export class ScopedFlowService {
     topics = topics.filter(x => x.name !== topicName)
 
     await this.ghost.upsertFile('ndu', 'topics.json', JSON.stringify(topics, undefined, 2))
-    await this.moduleLoader.onTopicChanged(this.botId, topicName, undefined)
+    coreActions.onModuleEvent('onTopicChanged', { botId: this.botId, oldName: topicName, newName: undefined })
   }
 
   public async createTopic(topic: Topic) {
@@ -526,7 +517,7 @@ export class ScopedFlowService {
     topics = _.uniqBy([...topics, topic], x => x.name)
 
     await this.ghost.upsertFile('ndu', 'topics.json', JSON.stringify(topics, undefined, 2))
-    await this.moduleLoader.onTopicChanged(this.botId, undefined, topic.name)
+    coreActions.onModuleEvent('onTopicChanged', { botId: this.botId, oldName: undefined, newName: topic.name })
   }
 
   public async updateTopic(topic: Topic, topicName: string) {
@@ -536,7 +527,7 @@ export class ScopedFlowService {
     await this.ghost.upsertFile('ndu', 'topics.json', JSON.stringify(topics, undefined, 2))
 
     if (topicName !== topic.name) {
-      await this.moduleLoader.onTopicChanged(this.botId, topicName, topic.name)
+      coreActions.onModuleEvent('onTopicChanged', { botId: this.botId, oldName: topicName, newName: topic.name })
 
       const flows = await this.loadAll()
 

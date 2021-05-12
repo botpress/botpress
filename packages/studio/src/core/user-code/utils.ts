@@ -1,6 +1,3 @@
-import { BUILTIN_MODULES } from 'common/defaults'
-import { ActionScope } from 'common/typings'
-import { requireAtPaths } from 'core/modules/utils/require'
 import path from 'path'
 
 export const getBaseLookupPaths = (fullPath: string, lastPathPart: string) => {
@@ -19,47 +16,6 @@ export const getBaseLookupPaths = (fullPath: string, lastPathPart: string) => {
   return lookups
 }
 
-export const prepareRequire = (fullPath: string, lookups: string[]) => {
-  return module => requireAtPaths(module, lookups, fullPath)
-}
-
-export const prepareRequireTester = (parentScript: string, lookups: string[]) => {
-  const _require = module => requireAtPaths(module, lookups, parentScript)
-
-  return (file: string) => {
-    try {
-      _require(file)
-      return true
-    } catch (err) {
-      return false
-    }
-  }
-}
-
-export const extractRequiredFiles = (code: string) => {
-  const commentRegex = /\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm
-  const requireRegex = /require\([\\'"]?(.*?)[\\'"]?\)/gm
-
-  const withoutComments = code.replace(commentRegex, '')
-  const files: string[] = []
-
-  let match
-  while ((match = requireRegex.exec(withoutComments))) {
-    files.push(match[1])
-  }
-
-  return files
-}
-
-export const filterDisabled = (filesPaths: string[]): string[] => filesPaths.filter(enabled)
-
 export const enabled = (filename: string) => !path.basename(filename).startsWith('.')
 
-export const isTrustedAction = (actionName: string) =>
-  !!BUILTIN_MODULES.find(module => actionName.startsWith(`${module}/`))
-
 export const actionServerIdRegex = /^[a-zA-Z0-9]*$/
-
-export const runOutsideVm = (scope: ActionScope): boolean => {
-  return (process.DISABLE_GLOBAL_SANDBOX && scope === 'global') || (process.DISABLE_BOT_SANDBOX && scope !== 'global')
-}

@@ -28,6 +28,7 @@ declare namespace NodeJS {
     APP_DATA_PATH: string
     HOST: string
     PORT: number
+    STUDIO_PORT: number
     PROXY?: string
     EXTERNAL_URL: string
     LOCAL_URL: string

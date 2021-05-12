@@ -6,9 +6,7 @@ import Knex from 'knex'
 import _ from 'lodash'
 import path from 'path'
 
-import AllTables from './database-tables'
 import { patchKnex } from './helpers'
-import { Table } from './interfaces'
 
 export type DatabaseType = 'postgres' | 'sqlite'
 
@@ -16,41 +14,11 @@ export type DatabaseType = 'postgres' | 'sqlite'
 export default class Database {
   knex!: KnexExtended
 
-  private tables: Table[] = []
-
   public constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'Database')
     private logger: Logger
   ) {}
-
-  async bootstrap() {
-    await Promise.mapSeries(AllTables, async Tbl => {
-      const table = new Tbl(this.knex!)
-      const created = await table.bootstrap()
-      if (created) {
-        this.logger.debug(`Created table '${table.name}'`)
-      }
-      this.tables.push(table)
-    })
-  }
-
-  async seedForTests() {
-    // Add seeding here
-  }
-
-  async teardownTables() {
-    await Promise.mapSeries(AllTables, async Tbl => {
-      const table = new Tbl(this.knex!)
-      if (this.knex.isLite) {
-        await this.knex.raw('PRAGMA foreign_keys = OFF;')
-        await this.knex.raw(`DROP TABLE IF EXISTS "${table.name}";`)
-        await this.knex.raw('PRAGMA foreign_keys = ON;')
-      } else {
-        await this.knex.raw(`DROP TABLE IF EXISTS "${table.name}" CASCADE;`)
-      }
-    })
-  }
 
   async initialize(databaseType?: DatabaseType, databaseUrl?: string) {
     const logger = this.logger
@@ -110,7 +78,5 @@ export default class Database {
     }
 
     this.knex = patchKnex(Knex(config))
-
-    await this.bootstrap()
   }
 }

@@ -1,10 +1,8 @@
 import 'bluebird-global'
-import LicensingService from 'common/licensing-service'
 import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config'
 import Database from 'core/database'
 import { LoggerProvider } from 'core/logger'
-import { LocalActionServer as LocalActionServerImpl } from 'core/user-code'
 import { FatalError } from 'errors'
 import 'reflect-metadata'
 
@@ -18,7 +16,6 @@ export interface BotpressApp {
   config: ConfigProvider
   ghost: GhostService
   database: Database
-  localActionServer: LocalActionServerImpl
 }
 
 export function createApp(): BotpressApp {
@@ -28,12 +25,8 @@ export function createApp(): BotpressApp {
       logger: container.get<LoggerProvider>(TYPES.LoggerProvider),
       config: container.get<ConfigProvider>(TYPES.ConfigProvider),
       ghost: container.get<GhostService>(TYPES.GhostService),
-      database: container.get<Database>(TYPES.Database),
-      localActionServer: container.get<LocalActionServerImpl>(TYPES.LocalActionServer),
-      licensing: container.get<LicensingService>(TYPES.LicensingService)
+      database: container.get<Database>(TYPES.Database)
     }
-
-    app.licensing.installProtection()
 
     return app
   } catch (err) {

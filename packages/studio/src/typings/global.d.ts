@@ -8,8 +8,6 @@ declare namespace NodeJS {
   export interface Global {
     printErrorDefault(err: Error): void
     DEBUG: IDebug
-    BOTPRESS_CORE_EVENT: IEmitCoreEvent
-    BOTPRESS_CORE_EVENT_TYPES: BotpressCoreEvents
     require: ExtraRequire
     rewire: (name: string) => string
     printBotLog(botId: string, args: any[]): void
@@ -40,25 +38,14 @@ declare namespace NodeJS {
     IS_PRO_AVAILABLE: boolean
     IS_PRO_ENABLED: boolean
     CLUSTER_ENABLED: boolean
-    ASSERT_LICENSED?: Function
     BOTPRESS_VERSION: string
+
     TELEMETRY_URL: string
     core_env: BotpressEnvironmentVariables
     distro: OSDistribution
     BOTPRESS_EVENTS: EventEmitter
-    AUTO_MIGRATE: boolean
-    MIGRATE_CMD?: 'up' | 'down'
-    MIGRATE_TARGET?: string
-    MIGRATE_DRYRUN?: boolean
     IS_FAILSAFE: boolean
-    /** A random ID generated on server start to identify each server in a cluster */
-    SERVER_ID: string
-    DISABLE_GLOBAL_SANDBOX: boolean
-    DISABLE_BOT_SANDBOX: boolean
-    DISABLE_TRANSITION_SANDBOX: boolean
     DISABLE_CONTENT_SANDBOX: boolean
-    WEB_WORKER: number
-    TRAINING_WORKERS: number[]
     USE_JWT_COOKIES: boolean
   }
 }
@@ -79,6 +66,9 @@ declare interface BotpressEnvironmentVariables {
 
   /** The URL exposed by Botpress to external users (eg: when displaying links) */
   readonly EXTERNAL_URL?: string
+
+  readonly STUDIO_PORT?: number
+  readonly RUNTIME_PORT?: number
 
   /** Use this to override the hostname that botpress will listen on (by default it's localhost) - replaces httpServer.host */
   readonly BP_HOST?: string
@@ -106,18 +96,6 @@ declare interface BotpressEnvironmentVariables {
 
   /** Enable cluster mode */
   readonly CLUSTER_ENABLED?: boolean
-
-  /** When you change the botpress executable, it will migrate data automatically if this is set */
-  readonly AUTO_MIGRATE?: boolean
-
-  /** Server license key */
-  readonly BP_LICENSE_KEY?: string
-
-  /**
-   * Change the host of the licensing server
-   * @default https://license.botpress.io
-   */
-  readonly BP_LICENSE_SERVER_HOST?: string
 
   /**
    * Set this to true if you're exposing Botpress through a reverse proxy such as Nginx
@@ -197,43 +175,8 @@ declare interface BotpressEnvironmentVariables {
   /** When true, Redis will be used to keep active sessions in memory for better performances */
   readonly USE_REDIS_STATE?: boolean
 
-  /**
-   * Experimental feature which will try to load actions locally, then from the ghost
-   */
-  readonly BP_EXPERIMENTAL_REQUIRE_BPFS?: boolean
-
-  /**
-   * When true, all hooks and GLOBAL actions are executed outside the sandbox.
-   * Can give a significant performance improvement but removes some protections.
-   */
-  readonly DISABLE_GLOBAL_SANDBOX?: boolean
-
-  /** When true, bot-scoped actions and hooks are executed outside of the sandbox  */
-  readonly DISABLE_BOT_SANDBOX?: boolean
-
-  /** When true, transitions are executed outside of the sandbox  */
-  readonly DISABLE_TRANSITION_SANDBOX?: boolean
-
   /** When true, content elements rendering will be executed outside of the sandbox */
   readonly DISABLE_CONTENT_SANDBOX?: boolean
-
-  /** Runs all migrations from v12.0.0 up to the latest migration found in modules and core */
-  readonly TESTMIG_ALL?: boolean
-
-  /** Runs future migrations, ignore completed migrations & sets the config version to the version in package.json */
-  readonly TESTMIG_NEW?: boolean
-
-  /** Migration Testing: Simulate a specific version for the server, ex: 12.5.0 */
-  readonly TESTMIG_BP_VERSION?: string
-
-  /** Migration Testing: Simulate a specific version for the configuration file, ex: 12.4.0 */
-  readonly TESTMIG_CONFIG_VERSION?: string
-
-  /** Migration Testing: Set this to true to run completed migrations everytime the server starts */
-  readonly TESTMIG_IGNORE_COMPLETED?: boolean
-
-  /** Prevent running migrations (to allow manual fix of an issue which prevents server startup) */
-  readonly SKIP_MIGRATIONS?: boolean
 
   /**
    * Indicates how many child process to spawn as Machibe Learning workers.
@@ -253,18 +196,6 @@ declare interface BotpressEnvironmentVariables {
    * @default 50
    */
   readonly BP_BPFS_UPLOAD_CONCURRENCY?: number
-
-  /**
-   * Disable the file upload feature on the Code Editor
-   * @default false
-   */
-  readonly BP_CODE_EDITOR_DISABLE_UPLOAD?: boolean
-
-  /**
-   * Disable the advanced editor feature on the Code Editor
-   * @default false
-   */
-  readonly BP_CODE_EDITOR_DISABLE_ADVANCED?: boolean
 
   /**
    * Overwrites the modules that are enabled by default.
@@ -306,23 +237,3 @@ declare interface OSDistribution {
 declare interface Dic<T> {
   [Key: string]: T
 }
-
-declare interface BotpressCoreEvents {
-  bp_core_session_created: { botId: string; channel: string }
-  bp_core_send_content: { botId: string; channel: string; source: string; details: string }
-  bp_core_workflow_started: { botId: string; channel: string; wfName: string }
-  bp_core_workflow_completed: { botId: string; channel: string; wfName: string }
-  bp_core_workflow_failed: { botId: string; channel: string; wfName: string }
-  bp_core_enter_flow: { botId: string; channel: string; flowName: string }
-  bp_core_feedback_positive: { botId: string; channel: string; type: string; eventId?: string }
-  bp_core_feedback_negative: { botId: string; channel: string; type: string; eventId?: string }
-}
-
-interface IEmitCoreEvent {
-  <T extends keyof BotpressCoreEvents>(
-    event: T,
-    args: { [key in keyof BotpressCoreEvents[T]]: BotpressCoreEvents[T][key] }
-  ): void
-}
-
-declare var BOTPRESS_CORE_EVENT: IEmitCoreEvent
