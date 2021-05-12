@@ -2,7 +2,8 @@ export enum StudioMessage {
   INVALIDATE_FILE = 'INVALIDATE_FILE',
   UPDATE_TOKEN_VERSION = 'UPDATE_TOKEN_VERSION',
   ON_MODULE_EVENT = 'ON_MODULE_EVENT',
-  NOTIFY_FLOW_CHANGE = 'NOTIFY_FLOW_CHANGE'
+  NOTIFY_FLOW_CHANGE = 'NOTIFY_FLOW_CHANGE',
+  SET_BOT_MOUNT_STATUS = 'SET_BOT_MOUNT_STATUS'
 }
 
 const msgHandlers: { [messageType: string]: (message: any) => void } = {}

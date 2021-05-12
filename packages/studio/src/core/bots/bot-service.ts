@@ -1,6 +1,7 @@
 import { BotConfig, Logger } from 'botpress/sdk'
 import { BotHealth } from 'common/typings'
 import { BotEditSchema } from 'common/validation'
+import { registerMsgHandler, StudioMessage } from 'core/app/handler'
 import { TYPES } from 'core/app/types'
 import { GhostService, ReplaceContent } from 'core/bpfs'
 import { CMSService } from 'core/cms'
@@ -38,6 +39,10 @@ export class BotService {
     @inject(TYPES.JobService) private jobService: JobService
   ) {
     this._botIds = undefined
+
+    registerMsgHandler(StudioMessage.SET_BOT_MOUNT_STATUS, async ({ botId, isMounted }) => {
+      isMounted ? await this._localMount(botId) : await this._localUnmount(botId)
+    })
   }
 
   @postConstruct()

@@ -11,7 +11,9 @@ export enum StudioMessage {
   // Bubbles up events from the studio process to the main process so they can reach module's APIs
   ON_MODULE_EVENT = 'ON_MODULE_EVENT',
   // The studio lacks realtime support, so we process them in the main process
-  NOTIFY_FLOW_CHANGE = 'NOTIFY_FLOW_CHANGE'
+  NOTIFY_FLOW_CHANGE = 'NOTIFY_FLOW_CHANGE',
+
+  SET_BOT_MOUNT_STATUS = 'SET_BOT_MOUNT_STATUS'
 }
 
 const debug = DEBUG('studio')
@@ -31,6 +33,9 @@ export const studioActions = {
   },
   invalidateFile: (key: string) => {
     studioHandle?.send({ type: StudioMessage.INVALIDATE_FILE, source: 'core', key })
+  },
+  setBotMountStatus: (botId: string, isMounted: boolean) => {
+    studioHandle.send({ type: StudioMessage.SET_BOT_MOUNT_STATUS, botId, isMounted })
   }
 }
 
@@ -46,7 +51,7 @@ export const startStudio = async (logger: sdk.Logger) => {
       APP_DATA_PATH: process.APP_DATA_PATH,
       EXTERNAL_URL: process.EXTERNAL_URL,
       APP_SECRET: process.APP_SECRET,
-      PRO_ENABLED: process.IS_PRO_ENABLED.toString(),
+      PRO_ENABLED: process.IS_PRO_ENABLED?.toString(),
       STUDIO_PORT: process.STUDIO_PORT.toString(),
       RUNTIME_PORT: process.PORT.toString()
     },

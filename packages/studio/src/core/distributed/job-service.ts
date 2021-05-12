@@ -29,7 +29,6 @@ export class CEJobService implements JobService {
   private locks: { [key: string]: Date } = {}
 
   async broadcast<T>(fn: Function): Promise<Function> {
-    console.log('CE')
     return fn
   }
 

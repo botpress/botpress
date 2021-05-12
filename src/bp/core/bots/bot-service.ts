@@ -31,6 +31,7 @@ import ms from 'ms'
 import os from 'os'
 import path from 'path'
 import replace from 'replace-in-file'
+import { studioActions } from 'studio-proxy'
 import tmp from 'tmp'
 import { VError } from 'verror'
 
@@ -612,6 +613,7 @@ export class BotService {
       const api = await createForGlobalHooks()
       await this.hookService.executeHook(new Hooks.AfterBotMount(api, botId))
       BotService._mountedBots.set(botId, true)
+      studioActions.setBotMountStatus(botId, true)
       this._invalidateBotIds()
 
       if (BotService._botListenerHandles.has(botId)) {
@@ -662,6 +664,7 @@ export class BotService {
     await this.hookService.executeHook(new Hooks.AfterBotUnmount(api, botId))
 
     BotService._mountedBots.set(botId, false)
+    studioActions.setBotMountStatus(botId, false)
     BotService.setBotStatus(botId, 'disabled')
 
     await this._updateBotHealthDebounce()

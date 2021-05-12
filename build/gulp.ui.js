@@ -8,7 +8,7 @@ const verbose = process.argv.includes('--verbose')
 
 const build = () => {
   gulp.task('build:shared', gulp.series([cleanShared, sharedBuild]))
-  gulp.task('build:studio', gulp.series([buildStudio, cleanStudio, cleanStudioAssets, copyStudio]))
+  gulp.task('build:studio', gulp.series([buildStudioBackend, buildStudio, cleanStudio, cleanStudioAssets, copyStudio]))
   gulp.task('build:admin', gulp.series([buildAdmin, cleanAdmin, copyAdmin]))
   gulp.task('build:lite', gulp.series([buildLite, cleanLite, copyLite]))
 
@@ -36,6 +36,12 @@ const buildShared = () => {
   gulp.task('build:shared', gulp.series([cleanShared, sharedBuild]))
 
   return gulp.series(['build:shared'])
+}
+
+const buildStudioBackend = cb => {
+  const studio = exec('yarn && yarn build', { cwd: 'packages/studio' }, err => cb(err))
+  verbose && studio.stdout.pipe(process.stdout)
+  studio.stderr.pipe(process.stderr)
 }
 
 const buildStudio = cb => {
