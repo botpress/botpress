@@ -47,40 +47,14 @@ function renderMessenger(data) {
   ]
 }
 
-function renderTeams(data) {
-  const events = []
-
-  if (data.typing) {
-    events.push({
-      type: 'typing'
-    })
-  }
-
-  return [
-    ...events,
-    {
-      type: 'message',
-      attachments: [
-        {
-          name: data.title,
-          contentType: 'image/png',
-          contentUrl: utils.formatURL(data.BOT_URL, data.image)
-        }
-      ]
-    }
-  ]
-}
-
 function renderElement(data, channel) {
   // These channels now use channel renderers
-  if (['telegram', 'twilio', 'slack', 'smooch', 'vonage'].includes(channel)) {
+  if (['telegram', 'twilio', 'slack', 'smooch', 'vonage', 'teams'].includes(channel)) {
     return utils.extractPayload('image', data)
   }
 
   if (channel === 'messenger') {
     return renderMessenger(data)
-  } else if (channel === 'teams') {
-    return renderTeams(data)
   } else {
     return render(data)
   }
