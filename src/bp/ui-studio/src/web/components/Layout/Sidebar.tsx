@@ -17,20 +17,30 @@ type Props = StateProps & RouteComponentProps
 
 const BASIC_MENU_ITEMS = [
   {
+    id: 'content',
     name: lang.tr('content'),
     path: '/content',
     rule: { res: 'bot.content', op: 'read' },
     icon: 'description'
   },
   {
+    id: 'flows',
     name: lang.tr('flows'),
     path: '/flows',
     rule: { res: 'bot.flows', op: 'read' },
     icon: 'page-layout'
+  },
+  {
+    id: 'nlu',
+    name: lang.tr('studio.sideBar.nlu'),
+    path: '/nlu',
+    rule: { res: 'bot.nlu', op: 'read' },
+    icon: 'translate'
   }
 ]
 
 const configItem = {
+  id: 'configuration',
   name: lang.tr('configuration'),
   path: '/config',
   rule: { res: 'admin.bots.*', op: 'write' },
@@ -41,15 +51,13 @@ const Sidebar: FC<Props> = props => {
   const renderModuleItem = module => {
     const rule = { res: `module.${module.name}`, op: 'write' }
     const path = `/modules/${module.name}`
-    const iconPath = `assets/modules/${module.name}/icon.png`
+    const iconPath = `assets/modules/${module.name}/studio_${module.menuIcon}`
 
     const moduleIcon =
-      module.menuIcon === 'custom' ? (
-        <img className={classnames(style.customIcon, 'bp-custom-icon')} src={iconPath} />
-      ) : IconSvgPaths16[module.menuIcon] ? (
-        <Icon icon={module.menuIcon} iconSize={16} />
+      module.menuIcon && IconSvgPaths16[module.menuIcon] ? (
+        <Icon icon={module.menuIcon as any} iconSize={16} />
       ) : (
-        <i className="icon material-icons">{module.menuIcon}</i>
+        <img src={iconPath} />
       )
 
     return (
@@ -74,9 +82,9 @@ const Sidebar: FC<Props> = props => {
     )
   }
 
-  const renderBasicItem = ({ name, path, rule, icon }) => (
-    <AccessControl resource={rule.res} operation={rule.op} key={name}>
-      <li id={`bp-menu_${name}`} key={path}>
+  const renderBasicItem = ({ id, name, path, rule, icon }) => (
+    <AccessControl resource={rule.res} operation={rule.op} key={id}>
+      <li id={`bp-menu_${id}`} key={path}>
         <Tooltip boundary="window" position={Position.RIGHT} content={name}>
           <NavLink to={path} title={name} activeClassName={style.active}>
             {IconSvgPaths16[icon] ? <Icon icon={icon} iconSize={16} /> : <i className="icon material-icons">{icon}</i>}

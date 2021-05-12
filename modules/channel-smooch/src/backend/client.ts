@@ -1,9 +1,19 @@
 import * as sdk from 'botpress/sdk'
+import { ChannelRenderer, ChannelSender } from 'common/channel'
+import _ from 'lodash'
 import Smooch from 'smooch-core'
-
 import { Config } from '../config'
+import {
+  SmoochImageRenderer,
+  SmoochTextRenderer,
+  SmoochCardRenderer,
+  SmoochCarouselRenderer,
+  SmoochChoicesRenderer
+} from '../renderers'
+import { SmoochCommonSender, SmoochTypingSender } from '../senders'
+import { CHANNEL_NAME } from './constants'
 
-import { Card, Clients, MessagePayload, Webhook } from './typings'
+import { Clients, Message, MessagePayload, SmoochContext, Webhook } from './typings'
 
 const MIDDLEWARE_NAME = 'smooch.sendMessage'
 
@@ -12,6 +22,8 @@ export class SmoochClient {
   private webhookUrl: string
   private logger: sdk.Logger
   private secret: string
+  private renderers: ChannelRenderer<SmoochContext>[]
+  private senders: ChannelSender<SmoochContext>[]
 
   constructor(
     private bp: typeof sdk,
@@ -21,6 +33,15 @@ export class SmoochClient {
     private route: string
   ) {
     this.logger = bp.logger.forBot(botId)
+
+    this.renderers = [
+      new SmoochCardRenderer(),
+      new SmoochCarouselRenderer(),
+      new SmoochTextRenderer(),
+      new SmoochImageRenderer(),
+      new SmoochChoicesRenderer()
+    ]
+    this.senders = [new SmoochTypingSender(), new SmoochCommonSender()]
   }
 
   async initialize() {
@@ -63,178 +84,63 @@ export class SmoochClient {
     return req.headers['x-api-key'] === this.secret
   }
 
-  async handleWebhookRequest(payload: MessagePayload) {
-    if (!payload.messages) {
+  async handleWebhookRequest(messagePayload: MessagePayload) {
+    if (!messagePayload.messages) {
       return
     }
 
-    for (const message of payload.messages) {
-      if (message.type !== 'text') {
-        continue
+    for (const message of messagePayload.messages) {
+      if (this.config.forwardRawPayloads.includes(`smooch-${message.type}`)) {
+        await this.receiveMessage(messagePayload, message, { type: `smooch-${message.type}` })
       }
 
-      await this.bp.events.sendEvent(
-        this.bp.IO.Event({
-          botId: this.botId,
-          channel: 'smooch',
-          direction: 'incoming',
-          type: 'text',
-          payload: {
-            type: 'text',
-            text: message.text
-          },
-          preview: message.text,
-          threadId: payload.conversation._id,
-          target: payload.appUser._id
-        })
-      )
+      if (message.type === 'text') {
+        await this.receiveMessage(messagePayload, message, <sdk.TextContent>{ type: 'text', text: message.text })
+      }
     }
   }
 
-  async handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
-    if (event.type === 'typing') {
-      await this.sendTyping(event)
-    } else if (event.type === 'text') {
-      await this.sendText(event)
-    } else if (event.type === 'file') {
-      await this.sendFile(event)
-    } else if (event.type === 'carousel') {
-      await this.sendCarousel(event)
-    } else if (event.payload.quick_replies) {
-      await this.sendChoices(event)
-    } else if (event.payload.options) {
-      await this.sendDropdown(event)
+  async receiveMessage(messagePayload: MessagePayload, rawMessage: Message, payload: sdk.Content) {
+    const rawPayload = this.config.forwardRawPayloads.includes(payload.type)
+      ? { channel: { smooch: { message: rawMessage } } }
+      : {}
+
+    const conversation = await this.bp.experimental.conversations.forBot(this.botId).recent(messagePayload.appUser._id)
+
+    await this.bp.experimental.messages
+      .forBot(this.botId)
+      .receive(conversation.id, { ...rawPayload, ...payload }, { channel: CHANNEL_NAME })
+  }
+
+  async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
+    const context: SmoochContext = {
+      bp: this.bp,
+      event,
+      client: this.smooch,
+      handlers: [],
+      payload: _.cloneDeep(event.payload),
+      botUrl: process.EXTERNAL_URL,
+      messages: []
     }
+
+    for (const renderer of this.renderers) {
+      if (renderer.handles(context)) {
+        renderer.render(context)
+        context.handlers.push(renderer.id)
+      }
+    }
+
+    for (const sender of this.senders) {
+      if (sender.handles(context)) {
+        await sender.send(context)
+      }
+    }
+
+    await this.bp.experimental.messages
+      .forBot(this.botId)
+      .create(event.threadId, event.payload, undefined, event.id, event.incomingEventId)
 
     next(undefined, false)
-  }
-
-  async sendTyping(event: sdk.IO.Event) {
-    await this.smooch.appUsers.conversationActivity({
-      appId: this.smooch.keyId,
-      userId: event.target,
-      activityProps: {
-        role: 'appMaker',
-        type: 'typing:start'
-      }
-    })
-    return new Promise(resolve => setTimeout(() => resolve(), 1000))
-  }
-
-  async sendText(event: sdk.IO.Event) {
-    return this.sendMessage(
-      {
-        text: event.payload.text,
-        role: 'appMaker',
-        type: 'text'
-      },
-      event.target
-    )
-  }
-
-  async sendFile(event: sdk.IO.Event) {
-    return this.sendMessage(
-      {
-        role: 'appMaker',
-        type: 'image',
-        mediaUrl: event.payload.url
-      },
-      event.target
-    )
-  }
-
-  async sendCarousel(event: sdk.IO.Event) {
-    const cards = []
-    for (const bpCard of event.payload.elements) {
-      const card: Card = {
-        title: bpCard.title,
-        description: bpCard.subtitle,
-        actions: []
-      }
-
-      // Smooch crashes if mediaUrl is defined but has no value
-      if (bpCard.picture) {
-        card.mediaUrl = bpCard.picture
-      }
-
-      for (const { type, title, url, payload } of bpCard.buttons) {
-        if (type === 'open_url') {
-          card.actions.push({
-            text: title,
-            type: 'link',
-            uri: url
-          })
-        } else if (type === 'postback') {
-          // This works but postback doesn't do anything
-          card.actions.push({
-            text: title,
-            type: 'postback',
-            payload
-          })
-        } /* else if (bpAction.type === 'say_something') {
-          card.actions.push({
-            text: bpAction.title,
-            type: 'reply',
-            payload: bpAction.text
-          })
-        }*/
-      }
-
-      if (card.actions.length === 0) {
-        // Smooch crashes if this list is empty or undefined. However putting this dummy
-        // card in seems to produce the expected result (that is seeing 0 actions)
-        card.actions.push({
-          text: '',
-          type: 'postback',
-          payload: ''
-        })
-      }
-
-      cards.push(card)
-    }
-
-    return this.sendMessage(
-      {
-        role: 'appMaker',
-        type: 'carousel',
-        items: cards
-      },
-      event.target
-    )
-  }
-
-  async sendChoices(event: sdk.IO.Event) {
-    const actions = event.payload.quick_replies.map(r => ({ type: 'reply', text: r.title, payload: r.payload }))
-    return this.sendMessage(
-      {
-        text: event.payload.text,
-        role: 'appMaker',
-        type: 'text',
-        actions
-      },
-      event.target
-    )
-  }
-
-  async sendDropdown(event: sdk.IO.Event) {
-    const actions = event.payload.options.map(r => ({ type: 'reply', text: r.label, payload: r.value }))
-    return this.sendMessage(
-      {
-        text: event.payload.message,
-        role: 'appMaker',
-        type: 'text',
-        actions
-      },
-      event.target
-    )
-  }
-
-  sendMessage = async (message, userId) => {
-    return this.smooch.appUsers.sendMessage({
-      appId: this.smooch.keyId,
-      userId,
-      message
-    })
   }
 }
 
@@ -250,7 +156,7 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
   })
 
   async function outgoingHandler(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
-    if (event.channel !== 'smooch') {
+    if (event.channel !== CHANNEL_NAME) {
       return next()
     }
 

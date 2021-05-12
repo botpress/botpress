@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { FormFields, lang } from 'botpress/shared'
+import { FormFields, lang, UploadFieldProps } from 'botpress/shared'
 import cn from 'classnames'
 import React, { FC, Fragment, useState } from 'react'
 import { AccessControl } from '~/components/Shared/Utils'
@@ -14,7 +14,7 @@ interface IUploadWidgetProps {
   onChange(value: string | null): void
   schema: {
     type: string
-    $subtype: string
+    $subtype: UploadFieldProps['type']
     $filter: string
     title: string
   }
@@ -49,32 +49,35 @@ const UploadWidget: FC<IUploadWidgetProps> = props => {
     setError(null)
   }
 
-  const { $subtype: subtype, type } = props.schema
-  if (type !== 'string' || subtype !== 'media') {
-    return null
-  }
+  const { $subtype: subtype, $filter: filter } = props.schema
 
   return (
     <AccessControl
       operation="write"
       resource="bot.media"
-      fallback={<em>{lang.tr('module.builtin.types.image.permissionDenied')}</em>}
+      fallback={<em>{lang.tr('module.builtin.types.permissionDenied')}</em>}
     >
       <Fragment>
-        {((enterUrlManually && value) || !enterUrlManually) && (
-          <FormFields.Upload axios={axios.create({ baseURL: window.BOT_API_PATH })} onChange={onChange} value={value} />
+        {!enterUrlManually && (
+          <FormFields.Upload
+            axios={axios.create({ baseURL: window.STUDIO_API_PATH })}
+            onChange={onChange}
+            value={value}
+            type={subtype}
+            filter={filter}
+          />
         )}
 
-        {enterUrlManually && !value && (
-          <UrlUpload value={value} onChange={onChange} onError={onError} onDelete={onDelete} />
+        {enterUrlManually && (
+          <UrlUpload value={value} type={subtype} onChange={onChange} onError={onError} onDelete={onDelete} />
         )}
 
         {!value && (
           <div className={localStyle.fieldContainer}>
             <a className={localStyle.toggleLink} onClick={handleToggleManually}>
               {!enterUrlManually
-                ? lang.tr('module.builtin.types.image.enterUrlChoice')
-                : lang.tr('module.builtin.types.image.uploadFileChoice')}
+                ? lang.tr('module.builtin.types.enterUrlChoice')
+                : lang.tr('module.builtin.types.uploadFileChoice')}
             </a>
 
             {error && <p className={cn(style.fieldError, localStyle.fieldError)}>{error}</p>}

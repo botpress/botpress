@@ -9,7 +9,7 @@ import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import ms from 'ms'
 
-import { LogsService } from './logs-service'
+import { LogsRepository } from './logs-repository'
 
 @injectable()
 export class LogsJanitor extends Janitor {
@@ -17,7 +17,7 @@ export class LogsJanitor extends Janitor {
     @inject(TYPES.Logger)
     @tagged('name', 'LogsJanitor')
     protected logger: Logger,
-    @inject(TYPES.LogsService) private logsService: LogsService,
+    @inject(TYPES.LogsRepository) private logsRepository: LogsRepository,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.BotService) private botService: BotService
   ) {
@@ -34,7 +34,7 @@ export class LogsJanitor extends Janitor {
     return _.get(config, 'logs.dbOutput.janitorInterval', '30s')
   }
 
-  protected async runTask(): Promise<void> {
+  async runTask(): Promise<void> {
     if (process.env.DEBUG_LOGGER) {
       this.logger.debug('Cleaning up logs')
     }
@@ -49,7 +49,7 @@ export class LogsJanitor extends Janitor {
       const expiration = moment()
         .subtract(ms(_.get(botConfig, 'logs.expiration') || globalLogsExpiryTime))
         .toDate()
-      return this.logsService.deleteExpiredLogs(botId, expiration)
+      return this.logsRepository.deleteBeforeDate(botId, expiration)
     })
   }
 }

@@ -1,10 +1,18 @@
 import * as sdk from 'botpress/sdk'
+import { ChannelRenderer, ChannelSender } from 'common/channel'
+import _ from 'lodash'
 import { Twilio, validateRequest } from 'twilio'
-import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message'
-
 import { Config } from '../config'
-
-import { ChoiceOption, Clients, MessageOption, TwilioRequestBody } from './typings'
+import {
+  TwilioCardRenderer,
+  TwilioCarouselRenderer,
+  TwilioChoicesRenderer,
+  TwilioImageRenderer,
+  TwilioTextRenderer
+} from '../renderers'
+import { TwilioCommonSender } from '../senders'
+import { CHANNEL_NAME } from './constants'
+import { Clients, MessageOption, TwilioContext, TwilioRequestBody } from './typings'
 
 const debug = DEBUG('channel-twilio')
 const debugIncoming = debug.sub('incoming')
@@ -17,6 +25,8 @@ export class TwilioClient {
   private twilio: Twilio
   private webhookUrl: string
   private kvs: sdk.KvsService
+  private renderers: ChannelRenderer<TwilioContext>[]
+  private senders: ChannelSender<TwilioContext>[]
 
   constructor(
     private bp: typeof sdk,
@@ -40,6 +50,16 @@ export class TwilioClient {
     this.kvs = this.bp.kvs.forBot(this.botId)
 
     this.logger.info(`Twilio webhook listening at ${this.webhookUrl}`)
+
+    this.renderers = [
+      new TwilioCardRenderer(),
+      new TwilioTextRenderer(),
+      new TwilioImageRenderer(),
+      new TwilioCarouselRenderer(),
+      new TwilioChoicesRenderer()
+    ]
+
+    this.senders = [new TwilioCommonSender()]
   }
 
   auth(req): boolean {
@@ -54,36 +74,29 @@ export class TwilioClient {
   async handleWebhookRequest(body: TwilioRequestBody) {
     debugIncoming('Received message', body)
 
-    const threadId = body.To
-    const target = body.From
+    const botPhoneNumber = body.To
+    const userId = body.From
     const text = body.Body
+
+    const conversation = await this.bp.experimental.conversations.forBot(this.botId).recent(userId)
+    await this.bp.kvs.forBot(this.botId).set(`twilio-number-${conversation.id}`, botPhoneNumber)
 
     const index = Number(text)
     let payload: any = { type: 'text', text }
     if (index) {
-      payload = (await this.handleIndexReponse(index - 1, target, threadId)) ?? payload
-      if (payload.type === 'url') {
+      payload = (await this.handleIndexReponse(index - 1, userId, conversation.id)) ?? payload
+      if (!payload.text) {
         return
       }
     }
 
-    await this.kvs.delete(this.getKvsKey(target, threadId))
+    await this.kvs.delete(this.getKvsKey(userId, conversation.id))
 
-    await this.bp.events.sendEvent(
-      this.bp.IO.Event({
-        botId: this.botId,
-        channel: 'twilio',
-        direction: 'incoming',
-        type: payload.type,
-        payload,
-        threadId,
-        target
-      })
-    )
+    await this.bp.experimental.messages.forBot(this.botId).receive(conversation.id, payload, { channel: CHANNEL_NAME })
   }
 
-  async handleIndexReponse(index: number, target: string, threadId: string): Promise<any> {
-    const key = this.getKvsKey(target, threadId)
+  async handleIndexReponse(index: number, userId: string, conversationId: string): Promise<any> {
+    const key = this.getKvsKey(userId, conversationId)
     if (!(await this.kvs.exists(key))) {
       return
     }
@@ -95,87 +108,50 @@ export class TwilioClient {
 
     await this.kvs.delete(key)
 
-    const { type, label, value } = option
+    const { value } = option
     return {
-      type,
-      text: type === 'say_something' ? value : label,
-      payload: value
+      type: 'text',
+      text: value
     }
   }
 
-  async handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
-    const payload = event.payload
-
-    if (payload.quick_replies) {
-      await this.sendChoices(event, payload.quick_replies)
-    } else if (payload.type === 'text') {
-      await this.sendMessage(event, {
-        body: payload.text
-      })
-    } else if (payload.type === 'file') {
-      await this.sendMessage(event, {
-        body: payload.title,
-        mediaUrl: payload.url
-      })
-    } else if (payload.type === 'carousel') {
-      await this.sendCarousel(event, payload)
-    }
-    next(undefined, false)
-  }
-
-  async sendChoices(event: sdk.IO.Event, choices: ChoiceOption[]) {
-    const options: MessageOption[] = choices.map(x => ({
-      label: x.title,
-      value: x.payload,
-      type: 'quick_reply'
-    }))
-    await this.sendOptions(event, event.payload.text, {}, options)
-  }
-
-  async sendCarousel(event: sdk.IO.Event, payload: any) {
-    for (const { subtitle, title, picture, buttons } of payload.elements) {
-      const body = `${title}\n\n${subtitle ? subtitle : ''}`
-
-      const options: MessageOption[] = []
-      for (const button of buttons || []) {
-        const title = button.title as string
-
-        if (button.type === 'open_url') {
-          options.push({ label: `${title} : ${button.url}`, value: undefined, type: 'url' })
-        } else if (button.type === 'postback') {
-          options.push({ label: title, value: button.payload, type: 'postback' })
-        } else if (button.type === 'say_something') {
-          options.push({ label: title, value: button.text as string, type: 'say_something' })
-        }
-      }
-
-      const args = { mediaUrl: picture ? picture : undefined }
-      await this.sendOptions(event, body, args, options)
-    }
-  }
-
-  async sendOptions(event: sdk.IO.Event, text: string, args: any, options: MessageOption[]) {
-    let body = text
-    if (options.length) {
-      body = `${text}\n\n${options.map(({ label }, idx) => `${idx + 1}. ${label}`).join('\n')}`
-    }
-
+  async prepareIndexResponse(event: sdk.IO.OutgoingEvent, options: MessageOption[]) {
     await this.kvs.set(this.getKvsKey(event.target, event.threadId), options, undefined, '10m')
-
-    await this.sendMessage(event, { ...args, body })
   }
 
-  async sendMessage(event: sdk.IO.Event, args: any) {
-    const message: MessageInstance = {
-      ...args,
-      provideFeedback: false,
-      from: event.threadId,
-      to: event.target
+  async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
+    const botPhoneNumber = await this.bp.kvs.forBot(this.botId).get(`twilio-number-${event.threadId}`)
+
+    const context: TwilioContext = {
+      bp: this.bp,
+      event,
+      client: this.twilio,
+      handlers: [],
+      payload: _.cloneDeep(event.payload),
+      botUrl: process.EXTERNAL_URL,
+      messages: [],
+      botPhoneNumber,
+      prepareIndexResponse: this.prepareIndexResponse.bind(this)
     }
 
-    debugOutgoing('Sending message', message)
+    for (const renderer of this.renderers) {
+      if (renderer.handles(context)) {
+        renderer.render(context)
+        context.handlers.push(renderer.id)
+      }
+    }
 
-    await this.twilio.messages.create(message)
+    for (const sender of this.senders) {
+      if (sender.handles(context)) {
+        await sender.send(context)
+      }
+    }
+
+    await this.bp.experimental.messages
+      .forBot(this.botId)
+      .create(event.threadId, event.payload, undefined, event.id, event.incomingEventId)
+
+    next(undefined, false)
   }
 }
 
@@ -191,7 +167,7 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
   })
 
   async function outgoingHandler(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
-    if (event.channel !== 'twilio') {
+    if (event.channel !== CHANNEL_NAME) {
       return next()
     }
 

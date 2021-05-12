@@ -1,3 +1,66 @@
+## [12.21.1](https://github.com/botpress/botpress/compare/v12.20.1...v12.21.1) (2021-04-30)
+
+
+### Bug Fixes
+
+* **channel-smooch:** wrong incoming payload ([#4915])(https://github.com/botpress/botpress/pull/4915)
+* **channel-vonage:** fix sending image content-elements ([#4901](https://github.com/botpress/botpress/issues/4901)) ([1afc0fa](https://github.com/botpress/botpress/commit/1afc0fa))
+* **channel-vonage:** make sure carousel does not fire more than 1 req/s ([#4893](https://github.com/botpress/botpress/issues/4893)) ([a721eff](https://github.com/botpress/botpress/commit/a721eff))
+* **channel-web:** fix conversationId validation bypass ([#4902](https://github.com/botpress/botpress/issues/4902)) ([a27f22c](https://github.com/botpress/botpress/commit/a27f22c))
+* **converse:** wait for outgoing events before sending response ([#4855](https://github.com/botpress/botpress/issues/4855)) ([7a3b732](https://github.com/botpress/botpress/commit/7a3b732))
+* **core:** fix botconfig migration ([#4904](https://github.com/botpress/botpress/issues/4904)) ([17962d0](https://github.com/botpress/botpress/commit/17962d0))
+* **core:** various fixes for bp-push ([#4908](https://github.com/botpress/botpress/issues/4908)) ([67f15d2](https://github.com/botpress/botpress/commit/67f15d2))
+* **docs:** wrong BP_MODULE_NLU_DUCKLINGURL example ([#4884](https://github.com/botpress/botpress/issues/4884)) ([cf11716](https://github.com/botpress/botpress/commit/cf11716))
+* **studio:** fix node properties display for NDU bots ([#4906](https://github.com/botpress/botpress/issues/4906)) ([1858925](https://github.com/botpress/botpress/commit/1858925))
+
+
+### Features
+
+* **admin:** move realtime logs to admin ([#4903](https://github.com/botpress/botpress/issues/4903)) ([e51c38d](https://github.com/botpress/botpress/commit/e51c38d))
+* **core:** add env variable to support pg schema ([#4888](https://github.com/botpress/botpress/issues/4888)) ([40ab4d0](https://github.com/botpress/botpress/commit/40ab4d0))
+
+
+
+# [12.21.0](https://github.com/botpress/botpress/compare/v12.20.1...v12.21.0) (2021-04-23)
+
+
+### Bug Fixes
+
+* **code:** fix for CVE-2020-7743 ([#4833](https://github.com/botpress/botpress/issues/4833)) ([543d830](https://github.com/botpress/botpress/commit/543d830))
+* **docs:** remove warning about Custom Modules ([#4882](https://github.com/botpress/botpress/issues/4882)) ([c4445c3](https://github.com/botpress/botpress/commit/c4445c3))
+
+
+### Features
+
+* **channel-vonage:** add channel-vonage ([#4789](https://github.com/botpress/botpress/issues/4789)) ([f17695f](https://github.com/botpress/botpress/commit/f17695f)) 
+* **core:** conversation attributes ([#4815](https://github.com/botpress/botpress/issues/4815)) ([256fcf4](https://github.com/botpress/botpress/commit/256fcf4))
+* **core:** remove redundant read/writes to flow files ([#4715](https://github.com/botpress/botpress/issues/4715)) ([36468bc](https://github.com/botpress/botpress/commit/36468bc))
+* **studio:** add support for audio and video content-types ([#4816](https://github.com/botpress/botpress/issues/4816)) ([95ba80d](https://github.com/botpress/botpress/commit/95ba80d)), closes [#4820](https://github.com/botpress/botpress/issues/4820)
+
+
+
+## [12.20.2](https://github.com/botpress/botpress/compare/v12.20.1...v12.20.2) (2021-04-15)
+
+
+### Bug Fixes
+
+* **admin:** incorrect route for module upload ([#4818](https://github.com/botpress/botpress/issues/4818)) ([823d965](https://github.com/botpress/botpress/commit/823d965))
+* **channel-web:** don't list convos with no events ([#4764](https://github.com/botpress/botpress/issues/4764)) ([18206fc](https://github.com/botpress/botpress/commit/18206fc))
+* **core:** database migration path ([#4794](https://github.com/botpress/botpress/issues/4794)) ([3201b9b](https://github.com/botpress/botpress/commit/3201b9b))
+* **core:** use relative file path for media files ([#4830](https://github.com/botpress/botpress/issues/4830)) ([3a74c2e](https://github.com/botpress/botpress/commit/3a74c2e))
+* **hitlnext:** send webSessionId when assigning handoff ([#4836](https://github.com/botpress/botpress/issues/4836)) ([7e9f4c9](https://github.com/botpress/botpress/commit/7e9f4c9))
+* **nlu:** Default to global context when no context matched ([#4814](https://github.com/botpress/botpress/issues/4814)) ([493a1a8](https://github.com/botpress/botpress/commit/493a1a8))
+* **nlu:** update pre-trained models path ([#4819](https://github.com/botpress/botpress/issues/4819)) ([4fef3bd](https://github.com/botpress/botpress/commit/4fef3bd))
+* **studio:** allow to scroll content of action overlay popover ([#4804](https://github.com/botpress/botpress/issues/4804)) ([8a6e4b0](https://github.com/botpress/botpress/commit/8a6e4b0))
+* **studio:** remove its lite dependency with modules ([#4760](https://github.com/botpress/botpress/issues/4760)) ([ef02169](https://github.com/botpress/botpress/commit/ef02169))
+
+
+### Features
+
+* **channel-smooch:** add content support ([#4827](https://github.com/botpress/botpress/issues/4827)) ([0118ec4](https://github.com/botpress/botpress/commit/0118ec4))
+
+
+
 ## [12.20.1](https://github.com/botpress/botpress/compare/v12.19.0...v12.20.1) (2021-04-01)
 
 

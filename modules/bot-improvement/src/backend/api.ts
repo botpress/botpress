@@ -34,7 +34,7 @@ export default async (bp: typeof sdk, db: Database) => {
   router.get(
     '/goals',
     asyncMiddleware(async (req, res) => {
-      const axiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
+      const axiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true, studioUrl: true })
       const flows: FlowView[] = (await axios.get('/flows', axiosConfig)).data
       const goals = flowsToGoals(flows)
       res.send(goals)

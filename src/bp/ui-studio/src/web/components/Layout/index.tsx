@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import * as sdk from 'botpress/sdk'
 import { lang, utils } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
@@ -13,8 +13,8 @@ import storage from '~/util/storage'
 import Config from '~/views/Config'
 import Content from '~/views/Content'
 import FlowBuilder from '~/views/FlowBuilder'
-import Logs from '~/views/Logs'
 import Module from '~/views/Module'
+import NLU from '~/views/Nlu'
 
 import BottomPanel from './BottomPanel'
 import BotUmountedWarning from './BotUnmountedWarning'
@@ -35,7 +35,7 @@ interface OwnProps {
   location: any
   history: any
   setEmulatorOpen: (state: boolean) => void
-  trainSessionReceived: (ts: NLU.TrainingSession) => void
+  trainSessionReceived: (ts: sdk.NLU.TrainingSession) => void
 }
 
 type StateProps = ReturnType<typeof mapStateToProps>
@@ -220,8 +220,8 @@ const Layout: FC<Props> = (props: Props) => {
                 <Route exact path="/content" component={Content} />
                 <Route exact path="/flows/:flow*" component={FlowBuilder} />
                 <Route exact path="/config" component={Config} />
+                <Route exact path="/nlu" component={NLU} />
                 <Route exact path="/modules/:moduleName/:componentName?" render={props => <Module {...props} />} />
-                <Route exact path="/logs" component={Logs} />
               </Switch>
             </main>
             <BottomPanel />

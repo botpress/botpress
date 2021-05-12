@@ -1,0 +1,27 @@
+{
+  "name": "channel-vonage",
+  "fullName": "Channel - Vonage",
+  "version": "1.0.0",
+  "status": "stable",
+  "description": "A Botpress connector for Vonage",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "scripts": {
+    "build": "node ../../build/module-builder/bin/entry build",
+    "watch": "node ../../build/module-builder/bin/entry watch",
+    "package": "node ../../build/module-builder/bin/entry package"
+  },
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
+  "resolutions": {
+    "fstream": ">=1.0.12",
+    "lodash": ">=4.17.21"
+  },
+  "devDependencies": {
+    "@types/node": "^10.10.3"
+  },
+  "dependencies": {
+    "@vonage/server-sdk": "2.10.7-beta-2",
+    "jsonwebtoken": "^8.5.1"
+  }
+}

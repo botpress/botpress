@@ -25,6 +25,37 @@ export class RenderService {
     })
   }
 
+  renderAudio(url: string, caption?: string | sdk.MultiLangText): sdk.AudioContent {
+    return __unrendered({
+      type: 'audio',
+      audio: url,
+      title: caption
+    })
+  }
+
+  renderVideo(url: string, caption?: string | sdk.MultiLangText): sdk.VideoContent {
+    return __unrendered({
+      type: 'video',
+      video: url,
+      title: caption
+    })
+  }
+
+  renderLocation(
+    latitude: number,
+    longitude: number,
+    address?: string | sdk.MultiLangText,
+    title?: string | sdk.MultiLangText
+  ): sdk.LocationContent {
+    return __unrendered({
+      type: 'location',
+      latitude,
+      longitude,
+      address,
+      title
+    })
+  }
+
   renderCard(
     title: string | sdk.MultiLangText,
     image?: string,
@@ -47,17 +78,17 @@ export class RenderService {
     })
   }
 
-  renderChoice(message: string | sdk.MultiLangText, ...choices: sdk.ChoiceOption[]): sdk.ChoiceContent {
+  renderChoice(text: string | sdk.MultiLangText, ...choices: sdk.ChoiceOption[]): sdk.ChoiceContent {
     return __unrendered({
       type: 'single-choice',
-      message,
+      text,
       choices
     })
   }
 
   renderButtonSay(title: string, text: string | sdk.MultiLangText): sdk.ActionSaySomething {
     return {
-      action: 'Say something',
+      action: sdk.ButtonAction.SaySomething,
       title,
       text
     }
@@ -65,7 +96,7 @@ export class RenderService {
 
   renderButtonUrl(title: string, url: string): sdk.ActionOpenURL {
     return {
-      action: 'Open URL',
+      action: sdk.ButtonAction.OpenUrl,
       title,
       url
     }
@@ -73,16 +104,16 @@ export class RenderService {
 
   renderButtonPostback(title: string, payload: string): sdk.ActionPostback {
     return {
-      action: 'Postback',
+      action: sdk.ButtonAction.Postback,
       title,
       payload
     }
   }
 
-  renderOption(value: string, message?: string): sdk.ChoiceOption {
+  renderOption(value: string, title?: string): sdk.ChoiceOption {
     return {
       value,
-      message: message ?? value
+      title: title ?? value
     }
   }
 

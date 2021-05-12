@@ -6,19 +6,27 @@ import { RTMClient } from '@slack/rtm-api'
 import { WebClient } from '@slack/web-api'
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
+import { ChannelRenderer, ChannelSender } from 'common/channel'
 import _ from 'lodash'
 import LRU from 'lru-cache'
 import ms from 'ms'
-
 import { Config } from '../config'
+import {
+  SlackCarouselRenderer,
+  SlackChoicesRenderer,
+  SlackImageRenderer,
+  SlackTextRenderer,
+  SlackCardRenderer,
+  SlackFeedbackRenderer
+} from '../renderers'
+import { SlackCommonSender, SlackTypingSender } from '../senders'
+import { CHANNEL_NAME } from './constants'
 
-import { Clients } from './typings'
+import { Clients, SlackContext } from './typings'
 
 const debug = DEBUG('channel-slack')
 const debugIncoming = debug.sub('incoming')
 const debugOutgoing = debug.sub('outgoing')
-
-const outgoingTypes = ['text', 'image', 'actions', 'typing', 'carousel']
 
 const userCache = new LRU({ max: 1000, maxAge: ms('1h') })
 
@@ -28,6 +36,8 @@ export class SlackClient {
   private events: SlackEventAdapter
   private interactive: SlackMessageAdapter
   private logger: sdk.Logger
+  private renderers: ChannelRenderer<SlackContext>[]
+  private senders: ChannelSender<SlackContext>[]
 
   constructor(private bp: typeof sdk, private botId: string, private config: Config, private router) {
     this.logger = bp.logger.forBot(botId)
@@ -39,6 +49,16 @@ export class SlackClient {
         `[${this.botId}] The bot token and the signing secret must be configured to use this channel.`
       )
     }
+
+    this.renderers = [
+      new SlackCardRenderer(),
+      new SlackTextRenderer(),
+      new SlackImageRenderer(),
+      new SlackCarouselRenderer(),
+      new SlackChoicesRenderer(),
+      new SlackFeedbackRenderer()
+    ]
+    this.senders = [new SlackTypingSender(), new SlackCommonSender()]
 
     this.client = new WebClient(this.config.botToken)
     if (this.config.useRTM || this.config.useRTM === undefined) {
@@ -161,97 +181,75 @@ export class SlackClient {
   }
 
   async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
-    if (event.type === 'typing') {
-      if (this.rtm) {
-        await this.rtm.sendTyping(event.threadId || event.target)
-        await new Promise(resolve => setTimeout(() => resolve(), 1000))
+    const foreignId = await this.bp.experimental.conversations
+      .forBot(this.botId)
+      .getForeignId(CHANNEL_NAME, event.threadId)
+    const [channelId, userId] = this.splitConvoKey(foreignId)
+
+    const context: SlackContext = {
+      bp: this.bp,
+      event,
+      client: { web: this.client, events: this.events, interactive: this.interactive },
+      handlers: [],
+      payload: _.cloneDeep(event.payload),
+      botUrl: process.EXTERNAL_URL,
+      message: { blocks: [] },
+      channelId
+    }
+
+    for (const renderer of this.renderers) {
+      if (renderer.handles(context)) {
+        renderer.render(context)
+        context.handlers.push(renderer.id)
       }
-
-      return next(undefined, false)
     }
 
-    const messageType = event.type === 'default' ? 'text' : event.type
-    if (!_.includes(outgoingTypes, messageType)) {
-      return next(new Error('Unsupported event type: ' + event.type))
+    for (const sender of this.senders) {
+      if (sender.handles(context)) {
+        await sender.send(context)
+      }
     }
 
-    const blocks = []
-    if (messageType === 'image' || messageType === 'actions') {
-      blocks.push(event.payload)
-    } else if (messageType === 'carousel') {
-      event.payload.cards.forEach(card => blocks.push(...card))
-    }
-
-    if (event.payload.quick_replies) {
-      blocks.push({ type: 'section', text: { type: 'mrkdwn', text: event.payload.text } })
-      blocks.push(event.payload.quick_replies)
-    }
-
-    const message = {
-      text: event.payload.text,
-      channel: event.threadId || event.target,
-      blocks
-    }
-
-    if (event.payload.collectFeedback && messageType === 'text') {
-      message.blocks = [
-        {
-          type: 'section',
-          block_id: `feedback-${event.incomingEventId}`,
-          text: { type: 'mrkdwn', text: event.payload.text },
-          accessory: {
-            type: 'overflow',
-            options: [
-              {
-                text: {
-                  type: 'plain_text',
-                  text: '👍'
-                },
-                value: '1'
-              },
-              {
-                text: {
-                  type: 'plain_text',
-                  text: '👎'
-                },
-                value: '-1'
-              }
-            ],
-            action_id: 'feedback-overflow'
-          }
-        }
-      ]
-    }
-
-    debugOutgoing('Sending message %o', message)
-    await this.client.chat.postMessage(message)
+    await this.bp.experimental.messages
+      .forBot(this.botId)
+      .create(event.threadId, event.payload, undefined, event.id, event.incomingEventId)
 
     next(undefined, false)
   }
 
   private async sendEvent(ctx: any, payload: any) {
-    const threadId = _.get(ctx, 'channel.id') || _.get(ctx, 'channel')
-    const target = _.get(ctx, 'user.id') || _.get(ctx, 'user')
+    const channelId = _.get(ctx, 'channel.id') || _.get(ctx, 'channel')
+    const userId = _.get(ctx, 'user.id') || _.get(ctx, 'user')
     let user = {}
 
-    if (target && this.config.fetchUserInfo) {
+    if (userId && this.config.fetchUserInfo) {
       try {
-        user = await this._getUserInfo(target.toString())
+        user = await this._getUserInfo(userId.toString())
       } catch (err) {}
     }
 
-    await this.bp.events.sendEvent(
-      this.bp.IO.Event({
-        botId: this.botId,
-        channel: 'slack',
-        direction: 'incoming',
-        payload: { ...ctx, ...payload, user_info: user },
-        type: payload.type,
-        preview: payload.text,
-        threadId: threadId && threadId.toString(),
-        target: target && target.toString()
-      })
-    )
+    let convoId = await this.bp.experimental.conversations
+      .forBot(this.botId)
+      .getLocalId(CHANNEL_NAME, this.getConvoKey(channelId, userId))
+
+    if (!convoId) {
+      const conversation = await this.bp.experimental.conversations.forBot(this.botId).create(userId)
+      convoId = conversation.id
+
+      await this.bp.experimental.conversations
+        .forBot(this.botId)
+        .createMapping(CHANNEL_NAME, conversation.id, this.getConvoKey(channelId, userId))
+    }
+
+    await this.bp.experimental.messages.forBot(this.botId).receive(convoId, payload, { channel: CHANNEL_NAME })
+  }
+
+  private getConvoKey(channelId: string, userId: string) {
+    return `${channelId}-${userId}`
+  }
+
+  private splitConvoKey(convoKey: string) {
+    return convoKey.split('-')
   }
 }
 
@@ -267,7 +265,7 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
   })
 
   async function outgoingHandler(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
-    if (event.channel !== 'slack') {
+    if (event.channel !== CHANNEL_NAME) {
       return next()
     }
 

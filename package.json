@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "12.20.1",
+  "version": "12.21.1",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": "^12"
@@ -67,7 +67,7 @@
     "lodash": "^4.17.19",
     "lodash-decorators": "^6.0.0",
     "lru-cache": "^5.1.1",
-    "mathjs": "^5.9.0",
+    "mathjs": "^7.5.1",
     "mime-types": "^2.1.27",
     "mkdirp": "^1.0.4",
     "ml-kmeans": "^5.0.0",
@@ -108,7 +108,7 @@
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.19"
+    "lodash": ">=4.17.21"
   },
   "devDependencies": {
     "@commitlint/cli": "^7.2.1",
@@ -128,6 +128,7 @@
     "@types/jsonwebtoken": "^8.3.7",
     "@types/lodash": "^4.14.116",
     "@types/lru-cache": "^5.1.0",
+    "@types/mime-types": "^2.1.0",
     "@types/mkdirp": "^1.0.1",
     "@types/ms": "^0.7.30",
     "@types/mustache": "^0.8.31",
@@ -181,8 +182,8 @@
     "stylus": "^0.54.5",
     "ts-jest": "^24.3.0",
     "typedoc": "^0.13.0",
-    "typescript": "^3.9.7",
-    "typescript-json-schema": "^0.32.0"
+    "typescript": "^4.2.4",
+    "typescript-json-schema": "^0.50.0"
   },
   "optionalDependencies": {
     "ioredis": "^4.14.1",

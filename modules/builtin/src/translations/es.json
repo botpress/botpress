@@ -2,6 +2,10 @@
   "actionButton": "Botón de Acción",
   "fullName": "Habilidades básicas",
   "types": {
+    "permissionDenied": "No tiene permiso para cargar archivos para este bot. Habla con el dueño de tu equipo.",
+    "uploadFileChoice": "O sube una imagen",
+    "enterUrlChoice": "O ingrese la URL de la imagen",
+    "infoInterpreted": "Esta información será interpretada:",
     "actionButton": {
       "buttonTitle": "Título del botón",
       "description": "Un botón que desencadena una acción, a menudo utilizada en tarjetas",
@@ -20,12 +24,18 @@
       "description": "Un mensaje que muestra una imagen con un título opcional.",
       "imageLabel": "Título (opcional)",
       "labelDesc": "Algunas plataformas requieren nombrar las imágenes.",
-      "permissionDenied": "You don't have permission to upload files for this bot. Talk to your team owner.",
-      "infoInterpreted": "Esta información será interpretada:",
       "title": "Imagen",
-      "uploadFileChoice": "O sube una imagen",
-      "enterUrlChoice": "O ingrese la URL de la imagen",
       "uploadImage": "Cargar imagen"
+    },
+    "audio": {
+      "description": "Un mensaje que muestra un archivo de audio con un título opcional.",
+      "audioLabel": "Título",
+      "title": "Audio"
+    },
+    "video": {
+      "description": "Un mensaje que muestra un archivo de video con un título opcional",
+      "videoLabel": "Título",
+      "title": "Video"
     },
     "singleChoice": {
       "choice": "Elección",
@@ -38,6 +48,14 @@
       "alternatives": "Alternativas (opcional)",
       "description": "Un mensaje de texto regular con indicadores de escritura opcionales y alternativas",
       "message": "Mensaje"
+    },
+    "location": {
+      "title": "Localización",
+      "description": "Un mensaje que muestra una ubicación con una dirección y un título opcionales",
+      "latitude": "Latitud",
+      "longitude": "Longitud",
+      "address": "Dirección",
+      "label": "Título"
     }
   },
   "typingIndicator": "Mostrar indicadores de escritura",

@@ -18,8 +18,7 @@ const webConfig = {
   bail: true,
   devtool: process.argv.find(x => x.toLowerCase() === '--nomap') ? false : 'source-map',
   entry: {
-    web: './src/web/index.jsx',
-    lite: './src/web/lite.jsx'
+    web: './src/web/index.jsx'
   },
   node: {
     net: 'empty',
@@ -74,13 +73,6 @@ const webConfig = {
       filename: '../index.html',
       chunks: ['commons', 'web']
     }),
-    new HtmlWebpackPlugin({
-      inject: true,
-      hash: true,
-      template: './src/web/lite.html',
-      filename: '../lite/index.html',
-      chunks: ['commons', 'lite']
-    }),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: isProduction ? JSON.stringify('production') : JSON.stringify('development')
@@ -124,11 +116,7 @@ const webConfig = {
       },
       {
         test: /\.jsx?$/i,
-        include: [
-          path.resolve(__dirname, 'src/web'),
-          // Common files must be transpiled to avoid issues with IE11
-          path.resolve(__dirname, '../../../out/bp/common')
-        ],
+        include: [path.resolve(__dirname, 'src/web')],
         use: [
           {
             loader: 'thread-loader'
@@ -259,7 +247,10 @@ compiler.hooks.done.tap('ExitCodePlugin', stats => {
   const errors = stats.compilation.errors
   if (errors && errors.length && process.argv.indexOf('--watch') === -1) {
     for (const e of errors) {
-      console.error(e.message)
+      console.error(e)
+      if (e.message) {
+        console.error(e.message)
+      }
     }
     console.error('Webpack build failed')
     process.exit(1)

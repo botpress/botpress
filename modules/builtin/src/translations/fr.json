@@ -2,6 +2,10 @@
   "fullName": "Intégré",
   "actionButton": "Bouton d'action",
   "types": {
+    "permissionDenied": "Vous n'avez pas les permissions pour télécharger un fichier pour ce bot. Contactez votre chef d'équipe.",
+    "uploadFileChoice": "Ou téléchargez un fichier",
+    "enterUrlChoice": "Ou entrez un URL",
+    "infoInterpreted": "Cette information sera interprétée:",
     "actionButton": {
       "buttonTitle": "Titre du bouton",
       "description": "Un bouton qui déclenche une action, souvent utilisé dans les cartes",
@@ -9,7 +13,7 @@
       "title": "Bouton d'action"
     },
     "card": {
-      "description": "Une carte est un message avec un titre, sous-titre optionel, une image et des boutons d'actions."
+      "description": "Une carte est un message avec un titre, sous-titre optionnel, une image et des boutons d'actions."
     },
     "carousel": {
       "cards": "Cartes de carrousel",
@@ -17,15 +21,21 @@
       "title": "Carrousel"
     },
     "image": {
-      "description": "Un message montrant une image avec un titre optionel",
+      "description": "Un message montrant une image avec un titre optionnel",
       "imageLabel": "Titre",
       "labelDesc": "Certaines plateformes exigent que les images soient nommé.",
-      "permissionDenied": "Vous n'avez pas les permissions pour télécharger un fichier pour ce bot. Contactez votre chef d'équipe.",
-      "infoInterpreted": "Cette information sera interprétée:",
       "title": "Image",
-      "uploadFileChoice": "Ou téléchargez une image",
-      "enterUrlChoice": "Ou entrez l'URL de l'image",
       "uploadImage": "Choisir une image"
+    },
+    "audio": {
+      "description": "Un message affichant un fichier audio avec un titre facultatif",
+      "audioLabel": "Titre",
+      "title": "Audio"
+    },
+    "video": {
+      "description": "Un message affichant un fichier vidéo avec un titre facultatif",
+      "videoLabel": "Titre",
+      "title": "Vidéo"
     },
     "singleChoice": {
       "choice": "Choix",
@@ -38,6 +48,14 @@
       "alternatives": "Alternatives",
       "description": "Un texte régulier",
       "message": "Message"
+    },
+    "location": {
+      "title": "Localisation",
+      "description": "Un message affichant une localisation avec une adresse et un titre facultatifs",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "address": "Adresse",
+      "label": "Titre"
     }
   },
   "typingIndicator": "Afficher l'indicateur de frappe",

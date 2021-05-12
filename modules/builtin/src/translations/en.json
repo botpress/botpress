@@ -2,6 +2,10 @@
   "actionButton": "Action Button",
   "fullName": "Basic Skills",
   "types": {
+    "permissionDenied": "You don't have permission to upload files for this bot. Talk to your team owner.",
+    "uploadFileChoice": "Or upload a file",
+    "enterUrlChoice": "Or enter the URL",
+    "infoInterpreted": "This information will be interpreted:",
     "actionButton": {
       "buttonTitle": "Title of the button",
       "description": "A button that triggers an action, often used in cards",
@@ -20,12 +24,18 @@
       "description": "A message showing an image with an optional title",
       "imageLabel": "Title",
       "labelDesc": "Some platforms require to name the images.",
-      "permissionDenied": "You don't have permission to upload files for this bot. Talk to your team owner.",
-      "infoInterpreted": "This information will be interpreted:",
       "title": "Image",
-      "uploadFileChoice": "Or upload an image",
-      "enterUrlChoice": "Or enter the image URL",
       "uploadImage": "Upload Image"
+    },
+    "audio": {
+      "description": "A message showing an audio file with an optional title",
+      "audioLabel": "Title",
+      "title": "Audio"
+    },
+    "video": {
+      "description": "A message showing a video file with an optional title",
+      "videoLabel": "Title",
+      "title": "Video"
     },
     "singleChoice": {
       "choice": "Choice",
@@ -38,6 +48,14 @@
       "alternatives": "Alternates",
       "description": "A regular text message with optional typing indicators and alternates",
       "message": "Message"
+    },
+    "location": {
+      "title": "Location",
+      "description": "A message showing a location with an optional address and title",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "address": "Address",
+      "label": "Title"
     }
   },
   "typingIndicator": "Show typing indicators",

@@ -207,7 +207,11 @@ declare module 'botpress/sdk' {
     moduleView?: ModuleViewOptions
     /** If set to true, no menu item will be displayed */
     noInterface?: boolean
-    /** An icon to display next to the name, if none is specified, it will receive a default one */
+    /**
+     * An icon to display next to the name, if none is specified, it will receive a default one
+     * There is a separate icon for the admin and the studio, if you set menuIcon to 'icon.svg',
+     * please provide an icon named 'studio_icon.svg' and 'admin_icon.svg'
+     */
     menuIcon?: string
     /**
      * The name displayed on the menu
@@ -218,6 +222,13 @@ declare module 'botpress/sdk' {
     homepage?: string
     /** Whether or not the module is likely to change */
     experimental?: boolean
+    /** Workspace Apps are accessible on the admin panel */
+    workspaceApp?: {
+      /** Adds a link on the Bots page to access this app for a specific bot */
+      bots?: boolean
+      /** Adds an icon on the menu to access this app without a bot ID */
+      global?: boolean
+    }
   }
 
   /**
@@ -767,7 +778,7 @@ declare module 'botpress/sdk' {
        */
       bot: any
       /** Used internally by Botpress to keep the user's current location and upcoming instructions */
-      context: DialogContext
+      context?: DialogContext
       /** This variable points to the currently active workflow */
       workflow: WorkflowHistory
       /**
@@ -917,6 +928,12 @@ declare module 'botpress/sdk' {
       handler: MiddlewareHandler
       /** Indicates if this middleware should act on incoming or outgoing events */
       direction: EventDirection
+      /**
+       * Allows to specify a timeout for the middleware instead of using the middleware chain timeout value
+       * @example '500ms', '2s', '5m'
+       * @default '2s'
+       * */
+      timeout?: string
     }
 
     export interface EventConstructor {
@@ -941,18 +958,6 @@ declare module 'botpress/sdk' {
    * @see MiddlewareDefinition to learn more about middleware.
    */
   export type EventDirection = 'incoming' | 'outgoing'
-
-  export interface Notification {
-    botId: string
-    message: string
-    /** Can be info, error, success */
-    level: string
-    moduleId?: string
-    moduleIcon?: string
-    moduleName?: string
-    /** An URL to redirect to when the notification is clicked */
-    redirectUrl?: string
-  }
 
   export interface UpsertOptions {
     /** Whether or not to record a revision @default true */
@@ -1155,6 +1160,11 @@ declare module 'botpress/sdk' {
      * @default 360
      */
     maxMessageLength: number
+    /**
+     * Number of milliseconds that the converse API will wait to buffer responses
+     * @default 250
+     */
+    bufferDelayMs: number
   }
 
   /**
@@ -1654,9 +1664,9 @@ declare module 'botpress/sdk' {
   export interface Message {
     id: uuid
     conversationId: uuid
+    authorId: string | undefined
     eventId?: string
     incomingEventId?: string
-    from: string
     sentOn: Date
     payload: any
   }
@@ -1701,6 +1711,18 @@ declare module 'botpress/sdk' {
     title?: string | MultiLangText
   }
 
+  export interface AudioContent extends Content {
+    type: 'audio'
+    audio: string
+    title?: string | MultiLangText
+  }
+
+  export interface VideoContent extends Content {
+    type: 'video'
+    video: string
+    title?: string | MultiLangText
+  }
+
   export interface CarouselContent extends Content {
     type: 'carousel'
     items: CardContent[]
@@ -1714,34 +1736,45 @@ declare module 'botpress/sdk' {
     actions: ActionButton[]
   }
 
+  export interface LocationContent extends Content {
+    type: 'location'
+    latitude: number
+    longitude: number
+    address?: string | MultiLangText
+    title?: string | MultiLangText
+  }
+
+  export enum ButtonAction {
+    SaySomething = 'Say something',
+    OpenUrl = 'Open URL',
+    Postback = 'Postback'
+  }
+
   export interface ActionButton {
+    action: ButtonAction
     title: string
-    action: string
   }
 
   export interface ActionSaySomething extends ActionButton {
-    action: 'Say something'
     text: string | MultiLangText
   }
 
   export interface ActionOpenURL extends ActionButton {
-    action: 'Open URL'
     url: string
   }
 
   export interface ActionPostback extends ActionButton {
-    action: 'Postback'
     payload: string
   }
 
   export interface ChoiceContent extends Content {
     type: 'single-choice'
-    message: string | MultiLangText
+    text: string | MultiLangText
     choices: ChoiceOption[]
   }
 
   export interface ChoiceOption {
-    message: string | MultiLangText
+    title: string | MultiLangText
     value: string
   }
 
@@ -1839,7 +1872,9 @@ declare module 'botpress/sdk' {
 
   export interface AxiosOptions {
     /** When true, it will return the local url instead of the external url  */
-    localUrl: boolean
+    localUrl?: boolean
+    /** Temporary property so modules can query studio routes */
+    studioUrl?: boolean
   }
 
   export interface RedisLock {
@@ -2266,10 +2301,6 @@ declare module 'botpress/sdk' {
     ): Promise<WorkspaceUser[] | WorkspaceUserWithAttributes[]>
   }
 
-  export namespace notifications {
-    export function create(botId: string, notification: Notification): Promise<any>
-  }
-
   export namespace ghost {
     /**
      * Access the Ghost Service for a specific bot. Check the {@link ScopedGhostService} for the operations available on the scoped element.
@@ -2449,6 +2480,42 @@ declare module 'botpress/sdk' {
          * const conversation = await bp.conversations.forBot('myBot').recent('eEFoneif394')
          */
         recent(userId: uuid): Promise<Conversation>
+
+        /**
+         * Creates a mapping of ids for a conversation in a given channel
+         * @param channel The channel for which to create the mapping
+         * @param localId The id of the conversation in botpress
+         * @param foreignId The id of the conversation in that channel
+         * @example
+         * // I have been given an conversation id by facebook messenger
+         * const messengerConversationId = 134314
+         * // Let's say I have an already existing botpress conversation somewhere that I want to attach to this conversation
+         * const conversationId = '00001337-ca79-4235-8475-3785e41eb2be'
+         *
+         * // Create the mapping
+         * await bp.conversations.forBot(myBot).createMapping('facebook', conversationId, messengerConversationId)
+         * // Returns 134314
+         * await bp.conversations.forBot(myBot).getForeignId(conversationId)
+         * // Returns '00001337-ca79-4235-8475-3785e41eb2be'
+         * await bp.conversations.forBot(myBot).getLocalId(messengerConversationId)
+         */
+        createMapping(channel: string, localId: uuid, foreignId: string): Promise<void>
+
+        /**
+         * Deletes a conversation mapping
+         * @returns true if a conversation was deleted
+         */
+        deleteMapping(channel: string, localId: uuid, foreignId: string): Promise<boolean>
+
+        /**
+         * Gets a conversations id specific to the given channel from a botpress conversation id
+         */
+        getForeignId(channel: string, localId: uuid): Promise<string | undefined>
+
+        /**
+         * Gets a botpress conversation id from the foreign id of a conversation in a the given channel
+         */
+        getLocalId(channel: string, foreignId: string): Promise<string | undefined>
       }
     }
 
@@ -2494,7 +2561,7 @@ declare module 'botpress/sdk' {
         create(
           conversationId: uuid,
           payload: any,
-          from: string,
+          authorId?: string,
           eventId?: string,
           incomingEventId?: string
         ): Promise<Message>
@@ -2553,6 +2620,34 @@ declare module 'botpress/sdk' {
       export function image(url: string, caption?: string | MultiLangText): ImageContent
 
       /**
+       * Renders an audio element
+       * @param url Url of the audio file to send
+       * @param caption Caption to appear alongside your audio
+       */
+      export function audio(url: string, caption?: string | MultiLangText): AudioContent
+
+      /**
+       * Renders a video element
+       * @param url Url of the video file to send
+       * @param caption Caption to appear alongside your video
+       */
+      export function video(url: string, caption?: string | MultiLangText): VideoContent
+
+      /**
+       * Renders a location element
+       * @param latitude Latitude of location in decimal degrees
+       * @param longitude Longitude of location in decimal degrees
+       * @param address Street adress associated with location
+       * @param title Explanatory title for this location
+       */
+      export function location(
+        latitude: number,
+        longitude: number,
+        address?: string | MultiLangText,
+        title?: string | MultiLangText
+      ): LocationContent
+
+      /**
        * Renders a carousel element
        * @param cards The cards of the carousel
        * @example
@@ -2599,20 +2694,20 @@ declare module 'botpress/sdk' {
 
       /**
        * Render a choice element
-       * @param message Message to ask to the user
+       * @param text Message to ask to the user
        * @param choices Choices that the user can select
        * @example
        * bp.render.choice("Yes or no?", bp.render.option('yes'), bp.render.option('no'))
        */
-      export function choice(message: string | MultiLangText, ...choices: ChoiceOption[]): ChoiceContent
+      export function choice(text: string | MultiLangText, ...choices: ChoiceOption[]): ChoiceContent
 
       /**
        * Renders an option for a choice element
        * @param value Value associated with the option
-       * @param message Text to shown to the user (has no impact on the processing).
+       * @param title Text to shown to the user (has no impact on the processing).
        * If not provided the value will be shown by default
        */
-      export function option(value: string, message?: string): ChoiceOption
+      export function option(value: string, title?: string): ChoiceOption
 
       /**
        * Translates a content element to a specific language
@@ -2660,58 +2755,6 @@ declare module 'botpress/sdk' {
        * const text3 = render.text('PIN : {{user.pin}}')
        */
       export function pipeline(lang: string, context: any): RenderPipeline
-    }
-
-    /**
-     * Provides functions to map ids from foreign services (ex: twilio) to local ids generated by botpress
-     */
-    export namespace mapping {
-      /**
-       * Prepares mapping for a certain scope. The foreign and local ids must be unique within that scope
-       * @example
-       * const conversationMap = await bp.mapping.forScope('twilio-conversations')
-       */
-      export function forScope(scope: string): ScopedMapping
-
-      export interface ScopedMapping {
-        /**
-         * Gets the local id associated with the provided foreign id
-         * @example
-         * await bp.mapping.for('myScope').create('myForeignId', 'myLocalId')
-         *
-         * // This would return 'myLocalId'
-         * const local = bp.mapping.for('myScope').getLocalId('myForeignId')
-         */
-        getLocalId(foreignId: string): Promise<string | undefined>
-
-        /**
-         * Gets the foreign id associated with the provided local id
-         * @example
-         * await bp.mapping.for('myScope').create('myForeignId', 'myLocalId')
-         *
-         * // This would return 'myForeignId'
-         * const foreign = bp.mapping.for('myScope').getForeignId('myLocalId')
-         */
-        getForeignId(localId: string): Promise<string | undefined>
-
-        /**
-         * Creates an association between a foreign and local id in the map
-         * @example
-         * await bp.mapping.for('myScope').create('myForeignId', 'myLocalId')
-         *
-         * // This would return 'myForeignId'
-         * const foreign = await bp.mapping.for('myScope').getForeignId('myLocalId')
-         * // This would return 'myLocalId'
-         * const local = await bp.mapping.for('myScope').getLocalId('myForeignId')
-         */
-        create(foreignId: string, localId: string): Promise<void>
-
-        /**
-         * Removes the association between the foreign and local id in the map
-         * @returns true if a row was deleted
-         */
-        delete(foreignId: string, localId: string): Promise<boolean>
-      }
     }
   }
 }

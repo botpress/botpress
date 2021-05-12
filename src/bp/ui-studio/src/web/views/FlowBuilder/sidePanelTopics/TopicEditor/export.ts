@@ -28,7 +28,7 @@ const getWorkflows = async (wfs: string[]) => {
 }
 
 export const exportCompleteTopic = async (topicName: string, flows: any[]): Promise<ExportedTopic> => {
-  const { data: topics } = await axios.get(`${window.BOT_API_PATH}/topics`)
+  const { data: topics } = await axios.get(`${window.STUDIO_API_PATH}/topics`)
 
   return {
     name: topicName,

@@ -130,7 +130,7 @@ const getIntentContexts = async (ghost: sdk.ScopedGhostService) => {
 
 const createTopicsFromContexts = async (bp: typeof sdk, ghost: sdk.ScopedGhostService, botId: string) => {
   try {
-    const axiosConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
+    const axiosConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true, studioUrl: true })
 
     const contexts = await getIntentContexts(ghost)
     const { data: existingTopics } = await axios.get('/topics', axiosConfig)

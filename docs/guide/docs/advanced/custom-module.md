@@ -498,3 +498,17 @@ They are then accessible by the name `$MY_MODULE/$MY_ACTION` in any node or skil
 If your action requires external dependencies, you must add them on your module's `package.json` as dependencies. When the VM is initialized, we redirect `require` requests to the node_modules of its parent module.
 
 > Many dependencies are already included with Botpress and do not need to be added to your package (ex: lodash, axios, etc... )
+
+## module-builder Docker image
+
+We provide a Docker image that can be used to compile your custom module. This is useful in CI/CD situations, where your pipeline will checkout your Custom Module's source code, and the Docker container will spit out a compiled `.tgz` file.
+
+## Instructions
+
+In the instructions beloew, replace `vX_X_X` by the latest version of the Docker image available on Docker Hub:
+
+```
+docker run -v `pwd`/your-custom-module:/botpress/modules/your-custom-module botpress/module-builder:vX_X_X sh -c 'cd modules/your-custom-module && yarn && yarn build && yarn package'
+```
+
+The compiled module will be availble in the directory you mounted as a `your-custom-module.tgz` file.

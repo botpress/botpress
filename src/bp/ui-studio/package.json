@@ -27,7 +27,7 @@
   "resolutions": {
     "socket.io/**/debug": "^3.2.6",
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.19"
+    "lodash": ">=4.17.21"
   },
   "dependencies": {
     "@blueprintjs/core": "^3.23.1",
@@ -84,6 +84,9 @@
     "redux-actions": "^2.2.1",
     "redux-thunk": "^2.2.0",
     "reselect": "^4.0.0",
+    "slate": "0.47.4",
+    "slate-react": "0.22.4",
+    "slate-react-placeholder": "0.2.4",
     "snarkdown": "^1.2.2",
     "socket.io": "^2.2.0",
     "socket.io-client": "^2.2.0",
@@ -96,11 +99,14 @@
   "devDependencies": {
     "@types/axios": "^0.14.0",
     "@types/classnames": "^2.2.6",
+    "@types/jest": "^26.0.22",
     "@types/lodash": "^4.14.133",
     "@types/node": "^10.10.3",
     "@types/react": "^16.8.6",
     "@types/react-dom": "^16.8.6",
     "@types/react-router-dom": "^4.3.3",
+    "@types/slate": "0.47.1",
+    "@types/slate-react": "0.22.5",
     "autoprefixer": "^6.5.3",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
