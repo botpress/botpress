@@ -43,8 +43,8 @@ class QnAApiClient {
   }
 
   async getCategories() {
-    const { categories } = await this.get('/categories')
-    return categories
+    const { data } = await this.axios.get('/nlu/contexts')
+    return data
   }
 }
 

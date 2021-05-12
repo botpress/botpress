@@ -334,7 +334,7 @@ class ListView extends Component<Props, State> {
   }
 
   downloadJson = () => {
-    this.setState({ downloadUrl: `${window.BOT_API_PATH}/content/export?${Date.now()}` })
+    this.setState({ downloadUrl: `${window.STUDIO_API_PATH}/cms/export?${Date.now()}` })
   }
 
   render() {

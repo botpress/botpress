@@ -6,11 +6,9 @@ import { GhostService } from 'core/bpfs'
 import { CMSService } from 'core/cms'
 import { ConfigProvider } from 'core/config/config-loader'
 import { FlowService } from 'core/dialog'
-import { LogsService } from 'core/logger'
 import { MediaServiceProvider } from 'core/media'
-import { NotificationsService } from 'core/notifications'
 import { AuthService, TOKEN_AUDIENCE, needPermissions, hasPermissions, checkTokenHeader } from 'core/security'
-import { ActionServersService, ActionService } from 'core/user-code'
+import { ActionServersService, ActionService, HintsService } from 'core/user-code'
 import { WorkspaceService } from 'core/users'
 import { RequestHandler, Router } from 'express'
 import { StudioServices } from 'studio/studio-router'
@@ -23,11 +21,10 @@ export abstract class CustomStudioRouter {
   protected mediaServiceProvider: MediaServiceProvider
   protected cmsService: CMSService
   protected workspaceService: WorkspaceService
-  protected logsService: LogsService
   protected flowService: FlowService
   protected actionService: ActionService
   protected actionServersService: ActionServersService
-  protected notificationService: NotificationsService
+  protected hintsService: HintsService
   protected bpfs: GhostService
 
   protected readonly needPermissions: (operation: string, resource: string) => RequestHandler
@@ -55,8 +52,7 @@ export abstract class CustomStudioRouter {
     this.flowService = services.flowService
     this.actionService = services.actionService
     this.actionServersService = services.actionServersService
-    this.notificationService = services.notificationService
-    this.logsService = services.logsService
     this.bpfs = services.bpfs
+    this.hintsService = services.hintsService
   }
 }

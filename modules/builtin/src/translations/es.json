@@ -48,6 +48,14 @@
       "alternatives": "Alternativas (opcional)",
       "description": "Un mensaje de texto regular con indicadores de escritura opcionales y alternativas",
       "message": "Mensaje"
+    },
+    "location": {
+      "title": "Localización",
+      "description": "Un mensaje que muestra una ubicación con una dirección y un título opcionales",
+      "latitude": "Latitud",
+      "longitude": "Longitud",
+      "address": "Dirección",
+      "label": "Título"
     }
   },
   "typingIndicator": "Mostrar indicadores de escritura",

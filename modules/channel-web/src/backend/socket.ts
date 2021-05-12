@@ -4,7 +4,7 @@ import path from 'path'
 
 import Database from './db'
 
-const outgoingTypes = ['text', 'typing', 'login_prompt', 'file', 'carousel', 'custom', 'data']
+const outgoingTypes = ['text', 'typing', 'login_prompt', 'file', 'carousel', 'custom', 'data', 'video', 'audio']
 
 export default async (bp: typeof sdk, db: Database) => {
   const config: any = {} // FIXME
@@ -34,7 +34,7 @@ export default async (bp: typeof sdk, db: Database) => {
       return next(undefined, true)
     }
 
-    const standardTypes = ['text', 'carousel', 'custom', 'file', 'login_prompt']
+    const standardTypes = ['text', 'carousel', 'custom', 'file', 'login_prompt', 'video', 'audio']
 
     if (!event.payload.type) {
       event.payload.type = messageType

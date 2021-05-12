@@ -23,6 +23,7 @@ import FormFields from './Form/FormFields'
 import MainContainer from './MainContainer'
 import MainLayout from './MainLayout'
 import MarkdownContent from './MarkdownContent'
+import * as ModuleUI from './ModuleUI'
 import MultiLevelDropdown from './MultiLevelDropdown'
 import ShortcutLabel from './ShortcutLabel'
 import { sendTelemetry, startFallback } from './telemetry'
@@ -52,6 +53,7 @@ exports.MainLayout = MainLayout
 exports.MarkdownContent = MarkdownContent
 exports.MoreOptions = MoreOptions
 exports.MultiLevelDropdown = MultiLevelDropdown
+exports.ModuleUI = ModuleUI
 exports.Overlay = Overlay
 exports.ShortcutLabel = ShortcutLabel
 exports.Tabs = Tabs

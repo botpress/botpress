@@ -18,6 +18,7 @@ interface ExposedProps {
   placeholder?: string
   isSideForm?: boolean
   singleLine: boolean
+  readOnly?: boolean
   value: string
   onChange: (value: string) => void
 }
@@ -150,14 +151,19 @@ class SmartInput extends React.Component<ConnectedProps, State> {
           onChange={this.onChange}
           plugins={plugins}
           ref={el => (this.editor = el)}
+          readOnly={this.props.readOnly}
         />
-        <MentionSuggestions onSearchChange={this.onSearchChange} suggestions={this.state.suggestions} />
-        <div className={cx(style.insertBtn, { [style.insertBtnMoreSpacing]: this.props.isSideForm })}>
-          <Tooltip content={lang.tr('studio.content.insertVariable')} position={Position.TOP}>
-            <Button minimal small icon={<Icon icon="code" />} text={undefined} onClick={this.insertVariable} />
-          </Tooltip>
-          {this.props.children}
-        </div>
+        {!this.props.readOnly && (
+          <>
+            <MentionSuggestions onSearchChange={this.onSearchChange} suggestions={this.state.suggestions} />
+            <div className={cx(style.insertBtn, { [style.insertBtnMoreSpacing]: this.props.isSideForm })}>
+              <Tooltip content={lang.tr('studio.content.insertVariable')} position={Position.TOP}>
+                <Button minimal small icon={<Icon icon="code" />} text={undefined} onClick={this.insertVariable} />
+              </Tooltip>
+              {this.props.children}
+            </div>
+          </>
+        )}
       </div>
     )
   }

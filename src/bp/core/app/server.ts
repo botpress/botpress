@@ -17,10 +17,9 @@ import { ConverseService } from 'core/converse'
 import { FlowService, SkillService } from 'core/dialog'
 import { JobService } from 'core/distributed'
 import { AlertingService, MonitoringService } from 'core/health'
-import { LogsService, LogsRepository } from 'core/logger'
+import { LogsRepository } from 'core/logger'
 import { MediaServiceProvider, MediaRouter } from 'core/media'
 import { ModuleLoader, ModulesRouter } from 'core/modules'
-import { NotificationsService } from 'core/notifications'
 import { getSocketTransports } from 'core/realtime'
 import { InvalidExternalToken, PaymentRequiredError, monitoringMiddleware } from 'core/routers'
 import {
@@ -105,8 +104,6 @@ export class HTTPServer {
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.MediaServiceProvider) mediaServiceProvider: MediaServiceProvider,
-    @inject(TYPES.LogsService) logsService: LogsService,
-    @inject(TYPES.NotificationsService) notificationService: NotificationsService,
     @inject(TYPES.SkillService) skillService: SkillService,
     @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.HintsService) hintsService: HintsService,
@@ -173,11 +170,10 @@ export class HTTPServer {
       actionService,
       cmsService,
       flowService,
-      notificationService,
-      logsService,
       ghostService,
       mediaServiceProvider,
       actionServersService,
+      hintsService,
       this
     )
 
@@ -189,8 +185,8 @@ export class HTTPServer {
       workspaceService,
       nluService,
       converseService,
-      hintsService,
       this.logger,
+      mediaServiceProvider,
       this
     )
     this.sdkApiRouter = new SdkApiRouter(this.logger)
@@ -244,6 +240,7 @@ export class HTTPServer {
     const config = await this.configProvider.getBotpressConfig()
 
     return `
+    window.API_PATH = "${process.ROOT_PATH}/api/v1";
     window.TELEMETRY_URL = "${process.TELEMETRY_URL}";
     window.SEND_USAGE_STATS = ${config!.sendUsageStats};
     window.USE_JWT_COOKIES = ${process.USE_JWT_COOKIES};
@@ -418,7 +415,6 @@ export class HTTPServer {
       const totalEnv = `
           (function(window) {
               ${commonEnv}
-              window.API_PATH = "${process.ROOT_PATH}/api/v1";
               window.BOT_API_PATH = "${process.ROOT_PATH}/api/v1/bots/${botId}";
             })(typeof window != 'undefined' ? window : {})
           `
@@ -465,7 +461,7 @@ export class HTTPServer {
   }
 
   async getAxiosConfigForBot(botId: string, options?: AxiosOptions): Promise<AxiosBotConfig> {
-    const basePath = options && options.localUrl ? process.LOCAL_URL : process.EXTERNAL_URL
+    const basePath = options?.localUrl ? process.LOCAL_URL : process.EXTERNAL_URL
     const serverToken = generateUserToken({
       email: SERVER_USER,
       strategy: SERVER_USER_STRATEGY,
@@ -476,7 +472,7 @@ export class HTTPServer {
     })
 
     return {
-      baseURL: `${basePath}/api/v1/bots/${botId}`,
+      baseURL: options?.studioUrl ? `${basePath}/api/v1/studio/${botId}` : `${basePath}/api/v1/bots/${botId}`,
       headers: {
         ...(process.USE_JWT_COOKIES
           ? { Cookie: `${JWT_COOKIE_NAME}=${serverToken.jwt};`, [CSRF_TOKEN_HEADER]: serverToken.csrf }

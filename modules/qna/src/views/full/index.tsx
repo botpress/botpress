@@ -92,7 +92,7 @@ const QnAList: FC<Props> = props => {
   }, [fetchMore])
 
   const fetchFlows = () => {
-    bp.axios.get('/flows').then(({ data }) => {
+    bp.axios.get('/flows', { baseURL: window.STUDIO_API_PATH }).then(({ data }) => {
       setFlows(reorderFlows(data.filter(flow => !flow.name.startsWith('skills/'))))
     })
   }
