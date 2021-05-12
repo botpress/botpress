@@ -23,30 +23,6 @@ function render(data) {
   ]
 }
 
-function renderMessenger(data) {
-  const events = []
-
-  if (data.typing) {
-    events.push({
-      type: 'typing',
-      value: data.typing
-    })
-  }
-
-  return [
-    ...events,
-    {
-      attachment: {
-        type: 'image',
-        payload: {
-          is_reusable: true,
-          url: utils.formatURL(data.BOT_URL, data.image)
-        }
-      }
-    }
-  ]
-}
-
 function renderTeams(data) {
   const events = []
 
@@ -73,7 +49,7 @@ function renderTeams(data) {
 
 function renderElement(data, channel) {
   // These channels now use channel renderers
-  if (['telegram', 'twilio', 'slack', 'smooch', 'vonage'].includes(channel)) {
+  if (['telegram', 'twilio', 'slack', 'smooch', 'vonage', 'messenger'].includes(channel)) {
     return utils.extractPayload('image', data)
   }
 
