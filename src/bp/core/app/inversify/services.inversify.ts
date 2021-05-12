@@ -9,10 +9,9 @@ import { CEJobService, JobService } from 'core/distributed'
 import { EventEngine, Queue, MemoryQueue } from 'core/events'
 import { CEMonitoringService, MonitoringService, AlertingService, CEAlertingService } from 'core/health'
 import { KeyValueStore } from 'core/kvs'
-import { LogsJanitor, LogsService } from 'core/logger'
+import { LogsJanitor } from 'core/logger'
 import { MediaServiceProvider } from 'core/media'
 import { MessageService, ConversationService } from 'core/messaging'
-import { NotificationsService } from 'core/notifications'
 import { RealtimeService } from 'core/realtime'
 import { AuthService, AuthStrategies, CEAuthStrategies } from 'core/security'
 import { StatsService } from 'core/telemetry'
@@ -111,14 +110,6 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<LogsJanitor>(TYPES.LogJanitorRunner)
     .to(LogsJanitor)
-    .inSingletonScope()
-
-  bind<LogsService>(TYPES.LogsService)
-    .to(LogsService)
-    .inSingletonScope()
-
-  bind<NotificationsService>(TYPES.NotificationsService)
-    .to(NotificationsService)
     .inSingletonScope()
 
   bind<KeyValueStore>(TYPES.KeyValueStore)

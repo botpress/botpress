@@ -8,7 +8,7 @@ import { ExportedFlow, ImportAction } from '../typings'
 
 export const analyzeWorkflowFile = async (file: ExportedFlow, flows: FlowView[]) => {
   const ids = file.content.map(x => x.id)
-  const { data: elements } = await axios.post(`${window.BOT_API_PATH}/content/elements`, { ids })
+  const { data: elements } = await axios.post(`${window.STUDIO_API_PATH}/cms/elements`, { ids })
 
   const importActions: ImportAction[] = []
 
@@ -92,7 +92,7 @@ export const executeWorkflowActions = async (actions: ImportAction[]) => {
 
   try {
     await Promise.each(getActionsForType('content'), ({ data: { contentType, formData, id } }) =>
-      axios.post(`${window.BOT_API_PATH}/content/${contentType}/element/${id}`, { formData })
+      axios.post(`${window.STUDIO_API_PATH}/cms/${contentType}/element/${id}`, { formData })
     )
   } catch (err) {
     console.error(`Can't import content elements: ${err}`)
@@ -126,7 +126,7 @@ export const executeWorkflowActions = async (actions: ImportAction[]) => {
   try {
     await Promise.each([...getActionsForType('flow'), ...getActionsForType('workflow')], ({ data, existing }) => {
       const flowPath = (existing && `/${data.location.replace(/\//g, '%2F')}`) || ''
-      return axios.post(`${window.BOT_API_PATH}/flow${flowPath}`, {
+      return axios.post(`${window.STUDIO_API_PATH}/flows/flow${flowPath}`, {
         flow: cleanFlowProperties(data)
       })
     })
