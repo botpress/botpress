@@ -2,16 +2,18 @@ import sdk from 'botpress/sdk'
 import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
+import { killStan, runNluServerWithEnv, StanOptions } from 'nlu'
 import yn from 'yn'
-import { LanguageConfig } from './nlu/engine'
 
 export enum WORKER_TYPES {
   WEB = 'WEB_WORKER',
   LOCAL_ACTION_SERVER = 'LOCAL_ACTION_SERVER',
+  LOCAL_STAN_SERVER = 'LOCAL_STAN_SERVER',
   TRAINING = 'TRAINING'
 }
 
 const MESSAGE_TYPE_START_LOCAL_ACTION_SERVER = 'start_local_action_server'
+const MESSAGE_TYPE_START_LOCAL_STAN_SERVER = 'start_local_stan_server'
 
 export interface StartLocalActionServerMessage {
   appSecret: string
@@ -53,6 +55,11 @@ export const setupMasterNode = (logger: sdk.Logger) => {
     cluster.fork({ WORKER_TYPE: WORKER_TYPES.LOCAL_ACTION_SERVER, APP_SECRET: appSecret, PORT: port })
   })
 
+  registerMsgHandler(MESSAGE_TYPE_START_LOCAL_STAN_SERVER, async (message: Partial<StanOptions>) => {
+    const { signal, code } = await runNluServerWithEnv(message, logger)
+    logger.error(`NLU server exited with code ${code} and signal ${signal}`)
+  })
+
   cluster.on('exit', async (worker: Worker, code: number, signal: string) => {
     const { exitedAfterDisconnect, id } = worker
 
@@ -63,6 +70,9 @@ export const setupMasterNode = (logger: sdk.Logger) => {
 
     // TODO: the debug instance has no access to the debug config. It is in the web process.
     debug('Process exiting %o', { workerId: id, code, signal, exitedAfterDisconnect })
+
+    killStan()
+
     // Reset the counter when the reboot was intended
     if (exitedAfterDisconnect) {
       webServerRebootCount = 0
@@ -105,7 +115,7 @@ function spawnWebWorker() {
   debug('Spawned Web Worker')
 }
 
-export async function spawnNewTrainingWorker(config: LanguageConfig, requestId: string): Promise<number> {
+export async function spawnNewTrainingWorker(config: any, requestId: string): Promise<number> {
   if (!process.TRAINING_WORKERS) {
     process.TRAINING_WORKERS = []
   }
@@ -122,4 +132,8 @@ export async function spawnNewTrainingWorker(config: LanguageConfig, requestId: 
 
 export const startLocalActionServer = (message: StartLocalActionServerMessage) => {
   process.send!({ type: MESSAGE_TYPE_START_LOCAL_ACTION_SERVER, ...message })
+}
+
+export const startLocalNLUServer = (message: Partial<StanOptions>) => {
+  process.send!({ type: MESSAGE_TYPE_START_LOCAL_STAN_SERVER, ...message })
 }
