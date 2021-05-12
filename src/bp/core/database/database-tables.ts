@@ -9,7 +9,6 @@ import { ConversationsTable } from 'core/messaging/conversations-table'
 import { MessagesTable } from 'core/messaging/messages-table'
 import { ServerMetadataTable } from 'core/migration/metadata-table'
 import { MigrationsTable } from 'core/migration/migrations-table'
-import { NotificationsTable } from 'core/notifications/notifications-table'
 import { TelemetryTable } from 'core/telemetry/telemetry-table'
 import { TasksTable } from 'core/user-code/action-server/tasks-table'
 import {
@@ -33,7 +32,6 @@ const tables: typeof Table[] = [
   DialogSessionTable,
   GhostFilesTable,
   GhostRevisionsTable,
-  NotificationsTable,
   KeyValueStoreTable,
   DataRetentionTable,
   TelemetryTable,

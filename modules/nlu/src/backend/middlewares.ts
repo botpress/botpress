@@ -10,11 +10,11 @@ const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeo
 const PREDICT_MW = 'nlu-predict.incoming'
 const ELECT_MW = 'nlu-elect.incoming'
 
-const _ignoreEvent = (bp: typeof sdk, app: NLUApplication, event: sdk.IO.IncomingEvent) => {
-  const health = app.getHealth()
+const _ignoreEvent = async (bp: typeof sdk, app: NLUApplication, event: sdk.IO.IncomingEvent) => {
+  const health = await app.getHealth()
   return (
     !app.hasBot(event.botId) ||
-    !health.isEnabled ||
+    !health?.isEnabled ||
     !event.preview ||
     EVENTS_TO_IGNORE.includes(event.type) ||
     event.hasFlag(bp.IO.WellKnownFlags.SKIP_NATIVE_NLU)
@@ -47,7 +47,7 @@ export const registerMiddlewares = async (bp: typeof sdk, app: NLUApplication) =
     description:
       'Process natural language in the form of text. Structured data with an action and parameters for that action is injected in the incoming message event.',
     handler: async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
-      if (_ignoreEvent(bp, app, event)) {
+      if (await _ignoreEvent(bp, app, event)) {
         return next(undefined, false, true)
       }
 
@@ -74,7 +74,7 @@ export const registerMiddlewares = async (bp: typeof sdk, app: NLUApplication) =
     order: 120,
     description: 'Perform intent election for the outputed NLU.',
     handler: async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
-      if (_ignoreEvent(bp, app, event) || !event.nlu) {
+      if ((await _ignoreEvent(bp, app, event)) || !event.nlu) {
         return next()
       }
 

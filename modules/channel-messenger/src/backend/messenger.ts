@@ -173,33 +173,20 @@ export class MessengerService {
         await bot.client.sendAction(senderId, 'mark_seen')
 
         if (webhookEvent.message) {
-          await this._sendEvent(bot.botId, senderId, pageId, webhookEvent.message, { type: 'message' })
+          await this._sendEvent(bot.botId, senderId, webhookEvent.message.text)
         } else if (webhookEvent.postback) {
-          await this._sendEvent(
-            bot.botId,
-            senderId,
-            pageId,
-            { text: webhookEvent.postback.payload },
-            { type: 'callback' }
-          )
+          await this._sendEvent(bot.botId, senderId, webhookEvent.postback.payload.text)
         }
       }
     }
   }
 
-  private async _sendEvent(botId: string, senderId: string, pageId: string, message: any, args: { type: string }) {
-    await this.bp.events.sendEvent(
-      this.bp.IO.Event({
-        botId,
-        channel: 'messenger',
-        direction: 'incoming',
-        payload: message,
-        preview: message.text,
-        threadId: pageId,
-        target: senderId,
-        ...args
-      })
-    )
+  private async _sendEvent(botId: string, senderId: string, text: string) {
+    const conversation = await this.bp.experimental.conversations.forBot(botId).recent(senderId)
+
+    await this.bp.experimental.messages
+      .forBot(botId)
+      .receive(conversation.id, { type: 'text', text }, { channel: 'messenger' })
   }
 
   private async _setupWebhook(req, res) {
@@ -217,7 +204,7 @@ export class MessengerService {
     }
   }
 
-  private async _handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
+  private async _handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     if (event.channel !== 'messenger') {
       return next()
     }
@@ -240,6 +227,10 @@ export class MessengerService {
       // TODO We don't support sending files, location requests (and probably more) yet
       throw new Error(`Message type "${messageType}" not implemented yet`)
     }
+
+    await this.bp.experimental.messages
+      .forBot(event.botId)
+      .create(event.threadId, event.payload, undefined, event.id, event.incomingEventId)
 
     next(undefined, false)
   }

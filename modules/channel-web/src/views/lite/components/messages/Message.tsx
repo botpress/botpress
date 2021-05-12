@@ -63,6 +63,14 @@ class Message extends Component<MessageProps> {
     )
   }
 
+  render_audio() {
+    return <FileMessage file={this.props.payload} escapeTextHTML={this.props.store.escapeHTML} />
+  }
+
+  render_video() {
+    return <FileMessage file={this.props.payload} escapeTextHTML={this.props.store.escapeHTML} />
+  }
+
   render_file() {
     return <FileMessage file={this.props.payload} escapeTextHTML={this.props.store.escapeHTML} />
   }
