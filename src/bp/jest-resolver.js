@@ -1,13 +1,6 @@
 const { default: defaultResolver } = require('jest-resolve/build/defaultResolver')
 
-const nativeExtensions = [
-  'node_sqlite3.node',
-  'fse.node',
-  'crfsuite.node',
-  'fasttext.node',
-  'node-svm.node',
-  'sentencepiece.node'
-]
+const nativeExtensions = ['node_sqlite3.node', 'fse.node']
 
 module.exports = (name, options) => {
   // a popular convention among "isomorphic" libraries is to name their different implementation lib.browser.js and lib.node.js
