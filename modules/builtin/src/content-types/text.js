@@ -61,7 +61,7 @@ function renderTeams(data) {
 
 function renderElement(data, channel) {
   // These channels now use channel renderers
-  if (['telegram', 'twilio', 'slack', 'smooch', 'vonage'].includes(channel)) {
+  if (['telegram', 'twilio', 'slack', 'smooch', 'vonage', 'teams'].includes(channel)) {
     return utils.extractPayload('text', data)
   }
 
