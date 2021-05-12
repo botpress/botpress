@@ -158,7 +158,7 @@ class SelectContent extends Component<Props, State> {
     return new Promise(resolve =>
       this.setState(stateUpdate, async () => {
         if (id) {
-          const { data: item } = await axios.get(`${window.BOT_API_PATH}/content/element/${id}`)
+          const { data: item } = await axios.get(`${window.STUDIO_API_PATH}/cms/element/${id}`)
           this.handlePick(item)
         }
 

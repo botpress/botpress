@@ -157,6 +157,7 @@ declare global {
   interface Window {
     BOT_API_PATH: string
     API_PATH: string
+    STUDIO_API_PATH: string
     TELEMETRY_URL: string
     USE_SESSION_STORAGE: boolean
     BP_STORAGE: BPStorage

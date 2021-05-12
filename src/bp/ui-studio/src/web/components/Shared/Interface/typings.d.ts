@@ -24,6 +24,7 @@ declare global {
     __BP_VISITOR_ID: string
     botpressWebChat: any
     BOT_API_PATH: string
+    STUDIO_API_PATH: string
     API_PATH: string
     APP_VERSION: string
     BOT_NAME: string

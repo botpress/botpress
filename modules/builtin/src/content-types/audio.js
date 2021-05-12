@@ -34,8 +34,8 @@ function renderElement(data, channel) {
 
 module.exports = {
   id: 'builtin_audio',
-  group: 'Built-in Audio',
-  title: 'Audio',
+  group: 'Built-in Messages',
+  title: 'module.builtin.types.audio.title',
 
   jsonSchema: {
     description: 'module.builtin.types.audio.description',

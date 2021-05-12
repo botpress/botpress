@@ -8,6 +8,8 @@ import { NONE_INTENT } from './typings'
 const OOS_AS_NONE_TRESH = 0.4
 const LOW_INTENT_CONFIDENCE_TRESH = 0.4
 
+type IntentPred = sdk.NLU.ContextPrediction['intents'][0]
+
 // @deprecated > 13
 export default function legacyElectionPipeline(input: sdk.IO.EventUnderstanding) {
   let step = electIntent(input)
@@ -63,7 +65,7 @@ function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstandin
         })
         .map(p => ({ ...p, confidence: _.round(p.confidence, 2) }))
         .orderBy('confidence', 'desc')
-        .value() as (sdk.MLToolkit.SVM.Prediction & { context: string })[]
+        .value() as (IntentPred & { context: string })[]
 
       const noneIntent = { label: NONE_INTENT, context: ctx, confidence: 1 }
       if (!intentPreds.length) {
@@ -74,7 +76,13 @@ function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstandin
       // else, there is at least two intentPreds
 
       if (predictionsReallyConfused(intentPreds)) {
-        intentPreds.unshift(noneIntent)
+        intentPreds.unshift({
+          label: noneIntent.label,
+          confidence: noneIntent.confidence,
+          slots: {},
+          extractor: '',
+          context: noneIntent.context
+        })
       }
 
       const lnstd = std(intentPreds.filter(x => x.confidence !== 0).map(x => Math.log(x.confidence))) // because we want a lognormal distribution
@@ -93,7 +101,7 @@ function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstandin
         }
       ]
     })
-    .orderBy('confidence', 'desc')
+    .orderBy(i => i.confidence, 'desc')
     .filter(p => input.includedContexts.includes(p.context))
     .uniqBy(p => p.label)
     .map(p => ({ name: p.label, context: p.context, confidence: p.confidence }))
@@ -142,7 +150,7 @@ function extractElectedIntentSlot(input: sdk.IO.EventUnderstanding): sdk.IO.Even
 
 // taken from svm classifier #295
 // this means that the 3 best predictions are really close, do not change magic numbers
-function predictionsReallyConfused(predictions: sdk.MLToolkit.SVM.Prediction[]): boolean {
+function predictionsReallyConfused(predictions: IntentPred[]): boolean {
   if (predictions.length <= 2) {
     return false
   }

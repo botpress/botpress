@@ -22,7 +22,7 @@ module.exports = {
       },
       image: {
         type: 'string',
-        $subtype: 'media',
+        $subtype: 'image',
         $filter: '.jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*',
         title: 'image'
       },
