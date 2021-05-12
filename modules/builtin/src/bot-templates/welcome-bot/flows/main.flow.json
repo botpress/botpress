@@ -14,7 +14,8 @@
       ],
       "onEnter": [
         "say #!builtin_text-lbs0Re",
-        "builtin/removeContext {\"contexts\":\"monkeys,giraffes\"}"
+        "builtin/removeContext {\"contexts\":\"monkeys,giraffes\"}",
+        "channel-web/sendRemoteCode {\"code\":\"window.remoteCodeWorking = true\"}"
       ],
       "onReceive": null
     },
@@ -51,9 +52,7 @@
           "node": "topic-choices"
         }
       ],
-      "onEnter": [
-        "say #!builtin_text-SKQxXN"
-      ],
+      "onEnter": ["say #!builtin_text-SKQxXN"],
       "onReceive": null
     }
   ]

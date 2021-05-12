@@ -31,6 +31,11 @@ describe('Module - Channel Web', () => {
     await page.waitFor(3000) // Deliberate wait in case the model needs to be trained (or qna/nlu tests in progress)
   })
 
+  it('Check if remote code execution is working', async () => {
+    // @ts-ignore
+    expect(await page.evaluate(() => remoteCodeWorking)).toEqual(true)
+  })
+
   it('Testing Context discussion and Dropdown', async () => {
     await clickOn('button', { text: 'What is a Context?' })
     await expectMatch("Okay, let's use a simple example. Let's talk about animals. Pick one.")
