@@ -10,7 +10,8 @@ import {
   TeamsCarouselRenderer,
   TeamsChoicesRenderer,
   TeamsImageRenderer,
-  TeamsTextRenderer
+  TeamsTextRenderer,
+  TeamsDropdownRenderer
 } from '../renderers'
 import { TeamsCommonSender, TeamsTypingSender } from '../senders'
 
@@ -65,6 +66,7 @@ If you have a restricted app, you may need to specify the tenantId also.`
       new TeamsTextRenderer(),
       new TeamsImageRenderer(),
       new TeamsCarouselRenderer(),
+      new TeamsDropdownRenderer(),
       new TeamsChoicesRenderer()
     ]
     this.senders = [new TeamsTypingSender(), new TeamsCommonSender()]
