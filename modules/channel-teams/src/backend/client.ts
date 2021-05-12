@@ -5,7 +5,7 @@ import { ChannelRenderer, ChannelSender } from 'common/channel'
 import { Request, Response } from 'express'
 import _ from 'lodash'
 import { Config } from '../config'
-import { TeamsImageRenderer, TeamsTextRenderer } from '../renderers'
+import { TeamsCardRenderer, TeamsCarouselRenderer, TeamsImageRenderer, TeamsTextRenderer } from '../renderers'
 import { TeamsCommonSender, TeamsTypingSender } from '../senders'
 
 import { Clients, TeamsContext } from './typings'
@@ -54,7 +54,12 @@ If you have a restricted app, you may need to specify the tenantId also.`
       channelAuthTenant: this.config.tenantId
     })
 
-    this.renderers = [new TeamsTextRenderer(), new TeamsImageRenderer()]
+    this.renderers = [
+      new TeamsCardRenderer(),
+      new TeamsTextRenderer(),
+      new TeamsImageRenderer(),
+      new TeamsCarouselRenderer()
+    ]
     this.senders = [new TeamsTypingSender(), new TeamsCommonSender()]
   }
 
