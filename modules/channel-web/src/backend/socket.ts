@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 import { ChannelRenderer, ChannelSender } from 'common/channel'
 import _ from 'lodash'
 import { WebCommonRenderer } from '../renderers'
-import { WebCommonSender } from '../senders'
+import { WebCommonSender, WebTypingSender } from '../senders'
 
 import Database from './db'
 import { WebContext } from './typings'
@@ -13,7 +13,7 @@ export default async (bp: typeof sdk, db: Database) => {
   const config: any = {} // FIXME
   const { botName = 'Bot', botAvatarUrl = undefined } = config || {} // FIXME
   const renderers: ChannelRenderer<WebContext>[] = [new WebCommonRenderer()]
-  const senders: ChannelSender<WebContext>[] = [new WebCommonSender()]
+  const senders: ChannelSender<WebContext>[] = [new WebTypingSender(), new WebCommonSender()]
 
   bp.events.registerMiddleware({
     description:
