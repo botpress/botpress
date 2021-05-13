@@ -22,13 +22,12 @@ const renderers = [
 ]
 const senders = [new TelegramTypingSender(), new TelegramCommonSender()]
 
-export const sendEvent = async (bp: typeof sdk, botId: string, ctx: ContextMessageUpdate, args: { type: string }) => {
+export const sendEvent = async (bp: typeof sdk, botId: string, ctx: ContextMessageUpdate) => {
   // NOTE: getUpdate and setWebhook dot not return the same context mapping
   const chatId = `${ctx.chat?.id || ctx.message?.chat.id}`
   const userId = `${ctx.from?.id || ctx.message?.from.id}`
 
-  const payload = ctx.message || ctx.callbackQuery
-  const preview = ctx.message?.text || ctx.callbackQuery?.data
+  const text = ctx.message?.text || ctx.callbackQuery?.data
 
   let convoId: sdk.uuid
   if (chatId) {
@@ -45,9 +44,7 @@ export const sendEvent = async (bp: typeof sdk, botId: string, ctx: ContextMessa
     convoId = conversation.id
   }
 
-  await bp.experimental.messages
-    .forBot(botId)
-    .receive(convoId, { ...args, ...payload }, { channel: CHANNEL_NAME, preview })
+  await bp.experimental.messages.forBot(botId).receive(convoId, { type: 'text', text }, { channel: CHANNEL_NAME })
 }
 
 export const registerMiddleware = (bp: typeof sdk, outgoingHandler) => {
@@ -65,10 +62,10 @@ export const registerMiddleware = (bp: typeof sdk, outgoingHandler) => {
 export async function setupBot(bp: typeof sdk, botId: string, clients: Clients) {
   const client = clients[botId]
 
-  client.start(async ctx => sendEvent(bp, botId, ctx, { type: 'start' }))
-  client.help(async ctx => sendEvent(bp, botId, ctx, { type: 'help' }))
-  client.on('message', async ctx => sendEvent(bp, botId, ctx, { type: 'message' }))
-  client.on('callback_query', async ctx => sendEvent(bp, botId, ctx, { type: 'callback' }))
+  client.start(async ctx => sendEvent(bp, botId, ctx))
+  client.help(async ctx => sendEvent(bp, botId, ctx))
+  client.on('message', async ctx => sendEvent(bp, botId, ctx))
+  client.on('callback_query', async ctx => sendEvent(bp, botId, ctx))
 }
 
 export async function setupMiddleware(bp: typeof sdk, clients: Clients) {

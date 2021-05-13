@@ -27,6 +27,8 @@ export class ScopedPredictionHandler {
   }
 
   async predict(textInput: string, anticipatedLanguage: string): Promise<EventUnderstanding> {
+    const t0 = Date.now()
+
     const { defaultLanguage } = this
 
     let detectedLanguage: string | undefined
@@ -47,29 +49,33 @@ export class ScopedPredictionHandler {
       .value()
 
     for (const lang of languagesToTry) {
-      nluResults = await this.tryPredictInLanguage(textInput, lang)
+      const res = await this.tryPredictInLanguage(textInput, lang)
+      const ms = Date.now() - t0
+      nluResults = res && { ...res, ms }
+
       if (!this.isEmpty(nluResults) && !this.isError(nluResults)) {
         break
       }
     }
 
-    if (this.isEmpty(nluResults) || this.isError(nluResults)) {
+    if (this.isEmpty(nluResults)) {
       throw new Error(`No model found for the following languages: ${languagesToTry}`)
     }
 
     return { ...nluResults, detectedLanguage }
   }
 
-  private async tryPredictInLanguage(textInput: string, language: string): Promise<EventUnderstanding | undefined> {
+  private async tryPredictInLanguage(
+    textInput: string,
+    language: string
+  ): Promise<Omit<EventUnderstanding, 'ms'> | undefined> {
     if (!this._modelsByLang[language]) {
       return
     }
 
-    const t0 = Date.now()
     try {
       const rawOriginalOutput = await this._engine.predict(this._botId, textInput, this._modelsByLang[language])
       const originalOutput = mapPredictOutput(rawOriginalOutput)
-      const ms = Date.now() - t0
 
       const { spellChecked } = originalOutput
       if (spellChecked && spellChecked !== textInput) {
@@ -80,16 +86,15 @@ export class ScopedPredictionHandler {
         )
         const spellCheckedOutput = mapPredictOutput(rawSpellCheckedOutput)
         const merged = mergeSpellChecked(originalOutput, spellCheckedOutput)
-        return { ...merged, spellChecked, errored: false, language, ms }
+        return { ...merged, spellChecked, errored: false, language }
       }
-      return { ...originalOutput, spellChecked, errored: false, language, ms }
+      return { ...originalOutput, spellChecked, errored: false, language }
     } catch (err) {
       const modelId = this._modelsByLang[language]
       const msg = `An error occured when predicting for input "${textInput}" with model ${modelId}`
       this._logger.attachError(err).error(msg)
 
-      const ms = Date.now() - t0
-      return { errored: true, language, ms }
+      return { errored: true, language }
     }
   }
 
