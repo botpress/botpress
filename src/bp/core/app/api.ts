@@ -19,7 +19,6 @@ import { MappingRepository } from 'core/mapping/mapping-repository'
 import { MediaServiceProvider } from 'core/media'
 import { ConversationService, MessageService } from 'core/messaging'
 import { ModuleLoader } from 'core/modules'
-import { NotificationsService } from 'core/notifications'
 import { RealtimeService, RealTimePayload } from 'core/realtime'
 import { getMessageSignature } from 'core/security'
 import { HookService } from 'core/user-code'
@@ -28,7 +27,6 @@ import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
-import MLToolkit from 'nlu/ml/toolkit'
 
 import { HTTPServer } from './server'
 
@@ -130,14 +128,6 @@ const kvs = (kvs: KeyValueStore): typeof sdk.kvs => {
   }
 }
 
-const notifications = (notificationService: NotificationsService): typeof sdk.notifications => {
-  return {
-    async create(botId: string, notification: any): Promise<any> {
-      await notificationService.create(botId, notification)
-    }
-  }
-}
-
 const security = (): typeof sdk.security => {
   return {
     getMessageSignature
@@ -235,6 +225,7 @@ const render = (renderService: RenderService): typeof sdk.experimental.render =>
     image: renderService.renderImage.bind(renderService),
     audio: renderService.renderAudio.bind(renderService),
     video: renderService.renderVideo.bind(renderService),
+    location: renderService.renderLocation.bind(renderService),
     card: renderService.renderCard.bind(renderService),
     carousel: renderService.renderCarousel.bind(renderService),
     choice: renderService.renderChoice.bind(renderService),
@@ -266,11 +257,9 @@ export class BotpressAPIProvider {
   database: Knex & sdk.KnexExtension
   users: typeof sdk.users
   kvs: typeof sdk.kvs
-  notifications: typeof sdk.notifications
   bots: typeof sdk.bots
   ghost: typeof sdk.ghost
   cms: typeof sdk.cms
-  mlToolkit: typeof sdk.MLToolkit
   experimental: typeof sdk.experimental
   security: typeof sdk.security
   workspaces: typeof sdk.workspaces
@@ -286,7 +275,6 @@ export class BotpressAPIProvider {
     @inject(TYPES.UserRepository) userRepo: ChannelUserRepository,
     @inject(TYPES.RealtimeService) realtimeService: RealtimeService,
     @inject(TYPES.KeyValueStore) keyValueStore: KeyValueStore,
-    @inject(TYPES.NotificationsService) notificationService: NotificationsService,
     @inject(TYPES.BotService) botService: BotService,
     @inject(TYPES.GhostService) ghostService: GhostService,
     @inject(TYPES.CMSService) cmsService: CMSService,
@@ -310,11 +298,9 @@ export class BotpressAPIProvider {
     this.database = db.knex
     this.users = users(userRepo)
     this.kvs = kvs(keyValueStore)
-    this.notifications = notifications(notificationService)
     this.bots = bots(botService)
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService, mediaServiceProvider)
-    this.mlToolkit = MLToolkit
     this.experimental = experimental(hookService, conversationService, messageService, renderService)
     this.security = security()
     this.workspaces = workspaces(workspaceService)
@@ -333,7 +319,6 @@ export class BotpressAPIProvider {
         Event,
         WellKnownFlags
       },
-      MLToolkit: this.mlToolkit,
       dialog: this.dialog,
       events: this.events,
       http: this.http(owner),
@@ -343,7 +328,6 @@ export class BotpressAPIProvider {
       users: this.users,
       realtime: this.realtime,
       kvs: this.kvs,
-      notifications: this.notifications,
       ghost: this.ghost,
       bots: this.bots,
       cms: this.cms,

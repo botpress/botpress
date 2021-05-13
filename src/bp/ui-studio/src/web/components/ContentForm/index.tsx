@@ -30,6 +30,7 @@ interface Props {
 const CustomBaseInput = props => {
   const SUPPORTED_MEDIA_SUBTYPES: UploadFieldProps['type'][] = ['audio', 'image', 'video']
   const { type, $subtype: subtype } = props.schema
+  const { readonly } = props.options
 
   if (type === 'string') {
     if (subtype === 'ref') {
@@ -41,7 +42,15 @@ const CustomBaseInput = props => {
     }
   }
 
-  return <SmartInput key={props?.formContext?.customKey} {...props} singleLine={true} className={style.textarea} />
+  return (
+    <SmartInput
+      key={props?.formContext?.customKey}
+      {...props}
+      singleLine={true}
+      readOnly={readonly}
+      className={style.textarea}
+    />
+  )
 }
 
 const widgets = {
@@ -50,7 +59,7 @@ const widgets = {
 
 // TODO: Remove this once audio and video content-types are support on multiple channels
 const CustomDescriptionField = ({ description, id, formContext }) => {
-  if (id === 'root__description' && ['audio', 'video'].includes(formContext.subtype)) {
+  if (id === 'root__description' && ['audio', 'video', 'location'].includes(formContext.subtype)) {
     const capitalize = (str: string) => {
       return str.charAt(0).toUpperCase() + str.slice(1)
     }

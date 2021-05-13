@@ -1,9 +1,7 @@
-import * as NLUEngine from './utils/sdk.u.test'
 import _ from 'lodash'
 
 import { makeApp, makeDependencies, waitForTrainingsToBeDone } from './utils/app.u.test'
 import {
-  expectEngineToHaveLoaded,
   expectEngineToHaveTrained,
   expectMaxSimultaneousTrainings,
   expectTrainingToStartAndComplete,
@@ -11,10 +9,14 @@ import {
 } from './utils/custom-expects.u.test'
 import { book_flight, cityEntity, fruitEntity, hello, i_love_hockey } from './utils/data.u.test'
 import './utils/sdk.u.test'
-import { areEqual, sleep } from './utils/utils.u.test'
+import { sleep } from './utils/utils.u.test'
 import { TrainingSession } from '../typings'
+import { mapTrainSet } from '../../stan/api-mapper'
+import { Specifications } from '../../stan/typings_v1'
+import modelIdService from '../../stan/model-id-service'
+import { TrainingCanceledError } from '../../stan/errors'
 
-const specs: NLUEngine.Specifications = {
+const specs: Specifications = {
   languageServer: {
     dimensions: 300,
     domain: 'lol',
@@ -31,21 +33,18 @@ const makeBaseDefinitions = (langs: string[]) => ({
   entityDefs: [fruitEntity]
 })
 
-const { modelIdService } = NLUEngine
-
 /**
  * TODO:
  * - When unmounting a bot, all its trainings get canceled
  */
 
 describe('NLU API integration tests', () => {
-  test('When no model is on fs training should start on bot mount', async () => {
+  test('When no model in stan training should start on bot mount', async () => {
     // arrange
     const lang = 'en'
     const fileSystem = {
       [botId]: {
-        definitions: makeBaseDefinitions([lang]),
-        modelsOnFs: []
+        definitions: makeBaseDefinitions([lang])
       }
     }
 
@@ -54,8 +53,7 @@ describe('NLU API integration tests', () => {
     const dependencies = makeDependencies(core, fileSystem, engineOptions)
 
     const { engine, socket, trainingRepo } = dependencies
-    const engineTrainSpy = jest.spyOn(engine, 'train')
-    const engineLoadSpy = jest.spyOn(engine, 'loadModel')
+    const engineTrainSpy = jest.spyOn(engine, 'startTraining')
 
     const app = await makeApp(dependencies)
 
@@ -80,18 +78,16 @@ describe('NLU API integration tests', () => {
     expect(botTrainings[0]).toMatchObject(expectTs({ botId, status: 'done' }))
 
     expect(engineTrainSpy).toHaveBeenCalledTimes(1)
-    expect(engineLoadSpy).toHaveBeenCalledTimes(1)
 
     await app.teardown()
   })
 
-  test('When no model is on fs and 2 languages training should start on bot mount', async () => {
+  test('When no model in stan and 2 languages training should start on bot mount', async () => {
     // arrange
     const languages = ['en', 'fr']
     const fileSystem = {
       [botId]: {
-        definitions: makeBaseDefinitions(languages),
-        modelsOnFs: []
+        definitions: makeBaseDefinitions(languages)
       }
     }
 
@@ -102,8 +98,7 @@ describe('NLU API integration tests', () => {
 
     const { engine, socket, trainingRepo } = dependencies
 
-    const engineTrainSpy = jest.spyOn(engine, 'train')
-    const engineLoadSpy = jest.spyOn(engine, 'loadModel')
+    const engineTrainSpy = jest.spyOn(engine, 'startTraining')
 
     const maxTraining = 2
     const trainingQueueOptions = { maxTraining }
@@ -129,23 +124,18 @@ describe('NLU API integration tests', () => {
     expectMaxSimultaneousTrainings(ts, maxTraining)
 
     expect(engineTrainSpy).toHaveBeenCalledTimes(nTrainings)
-    expectEngineToHaveTrained(engineTrainSpy, 'en')
-    expectEngineToHaveTrained(engineTrainSpy, 'fr')
-
-    expect(engineLoadSpy).toHaveBeenCalledTimes(nTrainings)
-    expectEngineToHaveLoaded(engineLoadSpy, 'en')
-    expectEngineToHaveLoaded(engineLoadSpy, 'fr')
+    expectEngineToHaveTrained(engineTrainSpy, botId, 'en')
+    expectEngineToHaveTrained(engineTrainSpy, botId, 'en')
 
     await app.teardown()
   })
 
-  test('When no model is on fs, 2 languages, max 1 training at a time, training should not occur simultaneously', async () => {
+  test('When no model in stan, 2 languages, max 1 training at a time, training should not occur simultaneously', async () => {
     // arrange
     const languages = ['en', 'fr']
     const fileSystem = {
       [botId]: {
-        definitions: makeBaseDefinitions(languages),
-        modelsOnFs: []
+        definitions: makeBaseDefinitions(languages)
       }
     }
 
@@ -156,8 +146,7 @@ describe('NLU API integration tests', () => {
 
     const { engine, socket, trainingRepo } = dependencies
 
-    const engineTrainSpy = jest.spyOn(engine, 'train')
-    const engineLoadSpy = jest.spyOn(engine, 'loadModel')
+    const engineTrainSpy = jest.spyOn(engine, 'startTraining')
 
     const maxTraining = 1
     const trainingQueueOptions = { maxTraining }
@@ -183,17 +172,13 @@ describe('NLU API integration tests', () => {
     expectMaxSimultaneousTrainings(ts, maxTraining)
 
     expect(engineTrainSpy).toHaveBeenCalledTimes(2)
-    expectEngineToHaveTrained(engineTrainSpy, 'en')
-    expectEngineToHaveTrained(engineTrainSpy, 'fr')
-
-    expect(engineLoadSpy).toHaveBeenCalledTimes(2)
-    expectEngineToHaveLoaded(engineLoadSpy, 'en')
-    expectEngineToHaveLoaded(engineLoadSpy, 'fr')
+    expectEngineToHaveTrained(engineTrainSpy, botId, 'en')
+    expectEngineToHaveTrained(engineTrainSpy, botId, 'fr')
 
     await app.teardown()
   })
 
-  test('When no model is on fs, 3 multi-lang bots, max 2 training at a time, training occur in batch of two', async () => {
+  test('When no model in stan, 3 multi-lang bots, max 2 training at a time, training occur in batch of two', async () => {
     // arrange
     const languages = ['en', 'fr']
 
@@ -208,8 +193,7 @@ describe('NLU API integration tests', () => {
       definitions: {
         entityDefs: [],
         intentDefs: [hello(languages)]
-      },
-      modelsOnFs: []
+      }
     }
 
     const bot2 = {
@@ -219,8 +203,7 @@ describe('NLU API integration tests', () => {
       definitions: {
         entityDefs: [cityEntity],
         intentDefs: [book_flight(languages)]
-      },
-      modelsOnFs: []
+      }
     }
 
     const bot3 = {
@@ -230,8 +213,7 @@ describe('NLU API integration tests', () => {
       definitions: {
         entityDefs: [fruitEntity],
         intentDefs: [i_love_hockey(['en'])]
-      },
-      modelsOnFs: []
+      }
     }
 
     const fileSystem = {
@@ -246,8 +228,7 @@ describe('NLU API integration tests', () => {
     const dependencies = makeDependencies(core, fileSystem, engineOptions)
     const { engine, socket, trainingRepo } = dependencies
 
-    const engineTrainSpy = jest.spyOn(engine, 'train')
-    const engineLoadSpy = jest.spyOn(engine, 'loadModel')
+    const engineTrainSpy = jest.spyOn(engine, 'startTraining')
 
     const maxTraining = 2
     const trainingQueueOptions = { maxTraining }
@@ -274,46 +255,46 @@ describe('NLU API integration tests', () => {
     expectMaxSimultaneousTrainings(ts, maxTraining)
 
     expect(engineTrainSpy).toHaveBeenCalledTimes(nTrainings)
-    expectEngineToHaveTrained(engineTrainSpy, 'en')
-    expectEngineToHaveTrained(engineTrainSpy, 'fr')
 
-    expect(engineLoadSpy).toHaveBeenCalledTimes(nTrainings)
-    expectEngineToHaveLoaded(engineLoadSpy, 'en')
-    expectEngineToHaveLoaded(engineLoadSpy, 'fr')
+    expectEngineToHaveTrained(engineTrainSpy, botId1, 'en')
+    expectEngineToHaveTrained(engineTrainSpy, botId1, 'fr')
+    expectEngineToHaveTrained(engineTrainSpy, botId2, 'en')
+    expectEngineToHaveTrained(engineTrainSpy, botId2, 'fr')
+    expectEngineToHaveTrained(engineTrainSpy, botId3, 'en')
 
     await app.teardown()
   })
 
-  test('When a model is on fs no training should start on bot mount', async () => {
+  test('When a model is in Stan no training should start on bot mount', async () => {
     // arrange
     const lang = 'en'
 
     const definitions = makeBaseDefinitions([lang])
 
-    const modelId = modelIdService.makeId({
+    const stanTrainSet = mapTrainSet({
       ...definitions,
       languageCode: lang,
-      seed: nluSeed,
-      specifications: specs
+      seed: nluSeed
     })
+    const modelId = modelIdService.toString(
+      modelIdService.makeId({
+        ...stanTrainSet,
+        specifications: specs
+      })
+    )
 
     const fileSystem = {
       [botId]: {
-        definitions,
-        modelsOnFs: [modelId]
+        definitions
       }
     }
 
     const core = { languages: [lang], specs }
-    const dependencies = makeDependencies(core, fileSystem)
+    const dependencies = makeDependencies(core, fileSystem, { models: [modelId] })
 
-    const { engine, modelRepoByBot, socket } = dependencies
+    const { engine, socket } = dependencies
 
-    const engineTrainSpy = jest.spyOn(engine, 'train')
-    const engineLoadSpy = jest.spyOn(engine, 'loadModel')
-
-    const fsHasModelMock = jest.spyOn(modelRepoByBot[botId], 'hasModel')
-    const fsGetModelMock = jest.spyOn(modelRepoByBot[botId], 'getModel')
+    const engineTrainSpy = jest.spyOn(engine, 'startTraining')
 
     const app = await makeApp(dependencies)
 
@@ -328,45 +309,41 @@ describe('NLU API integration tests', () => {
 
     // assert
     expect(socket).toHaveBeenCalledTimes(0)
-    expect(fsHasModelMock).toHaveBeenCalledTimes(1)
-    expect(fsGetModelMock.mock.calls.length).toBeGreaterThanOrEqual(1)
 
     expect(engineTrainSpy).toHaveBeenCalledTimes(0)
-    expect(engineLoadSpy).toHaveBeenCalledTimes(1)
-    expect(engineLoadSpy).toHaveBeenCalledWith({ id: modelId })
 
     await app.teardown()
   })
 
-  test('When 2 languages, but only one model on fs, only one training should start on bot mount', async () => {
+  test('When 2 languages, but only one model in Stan, only one training should start on bot mount', async () => {
     // arrange
     const languages = ['en', 'fr']
     const definitions = makeBaseDefinitions(languages)
 
-    const modelEn = modelIdService.makeId({
+    const stanTrainSet = mapTrainSet({
       ...definitions,
       languageCode: 'en',
-      seed: nluSeed,
-      specifications: specs
+      seed: nluSeed
     })
+    const modelEn = modelIdService.toString(
+      modelIdService.makeId({
+        ...stanTrainSet,
+        specifications: specs
+      })
+    )
 
     const fileSystem = {
       [botId]: {
-        definitions,
-        modelsOnFs: [modelEn]
+        definitions
       }
     }
 
     const core = { languages, specs }
-    const dependencies = makeDependencies(core, fileSystem)
+    const dependencies = makeDependencies(core, fileSystem, { models: [modelEn] })
 
-    const { engine, socket, modelRepoByBot, trainingRepo } = dependencies
+    const { engine, socket, trainingRepo } = dependencies
 
-    const engineTrainSpy = jest.spyOn(engine, 'train')
-    const engineLoadSpy = jest.spyOn(engine, 'loadModel')
-
-    const fsHasModelMock = jest.spyOn(modelRepoByBot[botId], 'hasModel')
-    const fsGetModelMock = jest.spyOn(modelRepoByBot[botId], 'getModel')
+    const engineTrainSpy = jest.spyOn(engine, 'startTraining')
 
     const app = await makeApp(dependencies)
 
@@ -384,15 +361,8 @@ describe('NLU API integration tests', () => {
     expect(socket).not.toHaveBeenCalledWith(expectTs({ botId, language: 'en' }))
     expectTrainingToStartAndComplete(socket, trainingRepo, { botId, language: 'fr' })
 
-    expect(fsHasModelMock).toHaveBeenCalledTimes(2)
-    expect(fsGetModelMock.mock.calls.length).toBeGreaterThanOrEqual(1)
-
     expect(engineTrainSpy).toHaveBeenCalledTimes(1)
-    expectEngineToHaveTrained(engineTrainSpy, 'fr')
-
-    expect(engineLoadSpy).toHaveBeenCalledTimes(2)
-    expectEngineToHaveLoaded(engineLoadSpy, 'en')
-    expectEngineToHaveLoaded(engineLoadSpy, 'fr')
+    expectEngineToHaveTrained(engineTrainSpy, botId, 'fr')
 
     await app.teardown()
   })
@@ -403,24 +373,28 @@ describe('NLU API integration tests', () => {
 
     const definitions = makeBaseDefinitions(languages)
 
-    const [modelEn, modelFr] = languages.map(lang =>
-      modelIdService.makeId({
-        ...definitions,
-        languageCode: lang,
-        seed: nluSeed,
-        specifications: specs
+    const [modelEn, modelFr] = languages
+      .map(lang => {
+        const stanTrainSet = mapTrainSet({
+          ...definitions,
+          languageCode: lang,
+          seed: nluSeed
+        })
+        return modelIdService.makeId({
+          ...stanTrainSet,
+          specifications: specs
+        })
       })
-    )
+      .map(modelIdService.toString)
 
     const fileSystem = {
       [botId]: {
-        definitions,
-        modelsOnFs: [modelEn, modelFr]
+        definitions
       }
     }
 
     const core = { languages, specs }
-    const dependencies = makeDependencies(core, fileSystem)
+    const dependencies = makeDependencies(core, fileSystem, { models: [modelEn, modelFr] })
 
     const { socket, defRepoByBot } = dependencies
 
@@ -440,6 +414,8 @@ describe('NLU API integration tests', () => {
     toUpdate.utterances['fr'].push('nouvelle utterance')
     await defRepoByBot[botId].upsertIntent(_.cloneDeep(toUpdate))
 
+    await waitForTrainingsToBeDone(app)
+
     // assert
     expect(socket).toHaveBeenCalledWith(expectTs({ botId, language: 'fr', status: 'needs-training' }))
     expect(socket).not.toHaveBeenCalledWith(expectTs({ botId, language: 'en' }))
@@ -452,8 +428,7 @@ describe('NLU API integration tests', () => {
     const lang = 'en'
     const fileSystem = {
       [botId]: {
-        definitions: makeBaseDefinitions([lang]),
-        modelsOnFs: []
+        definitions: makeBaseDefinitions([lang])
       }
     }
 
@@ -461,7 +436,7 @@ describe('NLU API integration tests', () => {
     const dependencies = makeDependencies(core, fileSystem)
     const { engine, socket } = dependencies
 
-    jest.spyOn(engine, 'train').mockImplementation(() => {
+    jest.spyOn(engine, 'waitForTraining').mockImplementation(() => {
       throw new Error('Unexpected weird looking error with no stack trace')
     })
 
@@ -492,25 +467,27 @@ describe('NLU API integration tests', () => {
 
     const definitions = makeBaseDefinitions([lang])
 
-    const modelId = modelIdService.makeId({
-      ...definitions,
-      languageCode: lang,
-      seed: nluSeed,
-      specifications: specs
-    })
+    const modelId = modelIdService.toString(
+      modelIdService.makeId({
+        ...mapTrainSet({
+          ...definitions,
+          languageCode: lang,
+          seed: nluSeed
+        }),
+        specifications: specs
+      })
+    )
 
     const fileSystem = {
       [botId]: {
-        definitions,
-        modelsOnFs: [modelId]
+        definitions
       }
     }
 
     const core = { languages: [lang], specs }
-    const dependencies = makeDependencies(core, fileSystem)
+    const dependencies = makeDependencies(core, fileSystem, { models: [modelId] })
     const { engine } = dependencies
 
-    await engine.loadModel({ id: modelId } as NLUEngine.Model)
     const enginePredictSpy = jest.spyOn(engine, 'predict')
 
     const app = await makeApp(dependencies)
@@ -529,7 +506,7 @@ describe('NLU API integration tests', () => {
     const prediction = await predictor.predict(userInput, lang)
 
     // assert
-    expect(enginePredictSpy).toHaveBeenNthCalledWith(1, userInput, modelId)
+    expect(enginePredictSpy).toHaveBeenNthCalledWith(1, botId, userInput, modelId)
 
     await app.teardown()
   })
@@ -539,8 +516,7 @@ describe('NLU API integration tests', () => {
     const lang = 'en'
     const fileSystem = {
       [botId]: {
-        definitions: makeBaseDefinitions([lang]),
-        modelsOnFs: []
+        definitions: makeBaseDefinitions([lang])
       }
     }
 
@@ -548,17 +524,11 @@ describe('NLU API integration tests', () => {
     const dependencies = makeDependencies(core, fileSystem)
     const { engine, socket } = dependencies
 
-    const cancelMessage = 'CANCEL'
-    jest.spyOn(engine, 'train').mockImplementation(() => {
-      throw new Error(cancelMessage)
+    jest.spyOn(engine, 'waitForTraining').mockImplementation(() => {
+      throw new TrainingCanceledError()
     })
 
-    const errors: typeof NLUEngine.errors = {
-      isTrainingAlreadyStarted: () => false,
-      isTrainingCanceled: err => err.message === cancelMessage
-    }
-
-    const app = await makeApp({ ...dependencies, errors })
+    const app = await makeApp({ ...dependencies })
 
     // act
     await app.resumeTrainings()
@@ -583,8 +553,7 @@ describe('NLU API integration tests', () => {
     const lang = 'en'
     const fileSystem = {
       [botId]: {
-        definitions: makeBaseDefinitions([lang]),
-        modelsOnFs: []
+        definitions: makeBaseDefinitions([lang])
       }
     }
 
@@ -615,7 +584,7 @@ describe('NLU API integration tests', () => {
 
     // assert
     expect(cancelMock).toHaveBeenCalledTimes(1)
-    expect(cancelMock).toHaveBeenCalledWith(expect.stringContaining('en'))
+    expect(cancelMock).toHaveBeenCalledWith(botId, expect.stringContaining('.en'))
 
     await app.teardown()
   })
@@ -626,17 +595,13 @@ describe('NLU API integration tests', () => {
     const definitions = makeBaseDefinitions([lang])
     const fileSystem = {
       [botId]: {
-        definitions,
-        modelsOnFs: []
+        definitions
       }
     }
 
     const core = { languages: [lang], specs }
     const dependencies = makeDependencies(core, fileSystem, { nProgressCalls: 3, trainDelayBetweenProgress: 10 })
-    const { engine, defRepoByBot, modelRepoByBot } = dependencies
-
-    const saveModel = jest.spyOn(modelRepoByBot[botId], 'saveModel')
-    const loadModel = jest.spyOn(engine, 'loadModel')
+    const { defRepoByBot } = dependencies
 
     const socket = jest.fn(async (ts: TrainingSession) => {
       if (ts.status === 'training') {
@@ -661,17 +626,6 @@ describe('NLU API integration tests', () => {
     // assert
     expect(socket).not.toHaveBeenCalledWith(expectTs({ botId, status: 'needs-training' }))
 
-    const [savedModel] = saveModel.mock.calls[0]
-    expect(loadModel).toHaveBeenNthCalledWith(1, savedModel)
-
-    const latestModelId = modelIdService.makeId({
-      ...definitions,
-      languageCode: lang,
-      seed: nluSeed,
-      specifications: specs
-    })
-    expect(areEqual(latestModelId, savedModel.id)).toBe(false) // current model is not synced with file system, but at least training finished and loaded
-
     await app.teardown()
   })
 
@@ -681,26 +635,28 @@ describe('NLU API integration tests', () => {
 
     const definitions = makeBaseDefinitions([lang])
 
-    const modelId = modelIdService.makeId({
-      ...definitions,
-      languageCode: lang,
-      seed: nluSeed,
-      specifications: specs
-    })
+    const modelId = modelIdService.toString(
+      modelIdService.makeId({
+        ...mapTrainSet({
+          ...definitions,
+          languageCode: lang,
+          seed: nluSeed
+        }),
+        specifications: specs
+      })
+    )
 
     const fileSystem = {
       [botId]: {
-        definitions,
-        modelsOnFs: [modelId]
+        definitions
       }
     }
 
     const core = { languages: [lang], specs }
-    const dependencies = makeDependencies(core, fileSystem)
+    const dependencies = makeDependencies(core, fileSystem, { models: [modelId] })
     const { engine, socket, trainingRepo } = dependencies
 
-    await engine.loadModel({ id: modelId } as NLUEngine.Model)
-    const engineTrainSpy = jest.spyOn(engine, 'train')
+    const engineTrainSpy = jest.spyOn(engine, 'startTraining')
 
     const app = await makeApp(dependencies)
 
@@ -718,7 +674,7 @@ describe('NLU API integration tests', () => {
     // assert
     expectTrainingToStartAndComplete(socket, trainingRepo, { botId, language: lang })
     expect(engineTrainSpy).toHaveBeenCalledTimes(1)
-    expectEngineToHaveTrained(engineTrainSpy, lang)
+    expectEngineToHaveTrained(engineTrainSpy, botId, lang)
 
     await app.teardown()
   })
@@ -729,25 +685,28 @@ describe('NLU API integration tests', () => {
 
     const definitions = makeBaseDefinitions([lang])
 
-    const modelId = modelIdService.makeId({
-      ...definitions,
-      languageCode: lang,
-      seed: nluSeed,
-      specifications: specs
-    })
+    const modelId = modelIdService.toString(
+      modelIdService.makeId({
+        ...mapTrainSet({
+          ...definitions,
+          languageCode: lang,
+          seed: nluSeed
+        }),
+        specifications: specs
+      })
+    )
 
     const fileSystem = {
       [botId]: {
-        definitions,
-        modelsOnFs: [modelId]
+        definitions
       }
     }
 
     const core = { languages: [lang], specs }
-    const dependencies = makeDependencies(core, fileSystem)
+    const dependencies = makeDependencies(core, fileSystem, { models: [modelId] })
 
     const app = await makeApp(dependencies, { queueTrainingOnBotMount: false })
-    const engineTrainSpy = jest.spyOn(dependencies.engine, 'train')
+    const engineTrainSpy = jest.spyOn(dependencies.engine, 'startTraining')
 
     // act
     await app.resumeTrainings()
@@ -771,25 +730,28 @@ describe('NLU API integration tests', () => {
 
     const definitions = makeBaseDefinitions([lang])
 
-    const modelId = modelIdService.makeId({
-      ...definitions,
-      languageCode: lang,
-      seed: nluSeed,
-      specifications: specs
-    })
+    const modelId = modelIdService.toString(
+      modelIdService.makeId({
+        ...mapTrainSet({
+          ...definitions,
+          languageCode: lang,
+          seed: nluSeed
+        }),
+        specifications: specs
+      })
+    )
 
     const fileSystem = {
       [botId]: {
-        definitions,
-        modelsOnFs: [modelId]
+        definitions
       }
     }
 
     const core = { languages: [lang], specs }
-    const dependencies = makeDependencies(core, fileSystem)
+    const dependencies = makeDependencies(core, fileSystem, { models: [modelId] })
 
     const app = await makeApp(dependencies)
-    const engineTrainSpy = jest.spyOn(dependencies.engine, 'train')
+    const engineTrainSpy = jest.spyOn(dependencies.engine, 'startTraining')
 
     // act
 
@@ -809,45 +771,5 @@ describe('NLU API integration tests', () => {
     expectTrainingToStartAndComplete(dependencies.socket, dependencies.trainingRepo, { botId, language: lang })
 
     await app.teardown()
-  })
-
-  test('Models are unloaded on bot unmount', async () => {
-    // arrange
-    const lang = 'en'
-    const definitions = makeBaseDefinitions([lang])
-
-    const modelId = modelIdService.makeId({
-      ...definitions,
-      languageCode: lang,
-      seed: nluSeed,
-      specifications: specs
-    })
-
-    const fileSystem = {
-      [botId]: {
-        definitions,
-        modelsOnFs: [modelId]
-      }
-    }
-
-    const core = { languages: [lang], specs }
-    const dependencies = makeDependencies(core, fileSystem)
-
-    const app = await makeApp(dependencies)
-    const engineUnloadSpy = jest.spyOn(dependencies.engine, 'unloadModel')
-
-    // act
-    await app.mountBot({
-      id: botId,
-      defaultLanguage: lang,
-      languages: [lang]
-    })
-
-    await app.resumeTrainings()
-    await waitForTrainingsToBeDone(app)
-    await app.unmountBot(botId)
-
-    // assert
-    expect(engineUnloadSpy).toHaveBeenCalled()
   })
 })

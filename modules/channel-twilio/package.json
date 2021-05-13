@@ -15,7 +15,7 @@
   "license": "AGPL-3.0-only",
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
+    "lodash": ">=4.17.21"
   },
   "devDependencies": {
     "@types/node": "^10.10.3",
