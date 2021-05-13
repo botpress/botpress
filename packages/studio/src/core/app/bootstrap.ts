@@ -86,16 +86,13 @@ async function resolveModules(moduleConfigs: ModuleConfigEntry[], resolver: Modu
 async function start() {
   const app = createApp()
   await setupDebugLogger(app.logger)
-
   await setupEnv(app)
-
-  const logger = await getLogger(app.logger, 'Launcher')
 
   const globalConfig = await app.config.getBotpressConfig()
   const modules = _.uniqBy(globalConfig.modules, x => x.location)
-
   const enabledModules = modules.filter(m => m.enabled)
 
+  const logger = await getLogger(app.logger, 'Launcher')
   const resolver = new ModuleResolver(logger)
 
   const { loadedModules } = await resolveModules(enabledModules, resolver)

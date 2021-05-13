@@ -2,12 +2,11 @@ import bodyParser from 'body-parser'
 import { Logger } from 'botpress/sdk'
 import { CSRF_TOKEN_HEADER_LC } from 'common/auth'
 import { machineUUID } from 'common/stats'
-import { RequestWithUser } from 'common/typings'
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import session from 'cookie-session'
 import { TYPES } from 'core/app/types'
-import { BotService, BotsRouter } from 'core/bots'
+import { BotService } from 'core/bots'
 import { GhostService, MemoryObjectCache } from 'core/bpfs'
 import { CMSService } from 'core/cms'
 import { ConfigProvider } from 'core/config'
@@ -25,7 +24,6 @@ import rateLimit from 'express-rate-limit'
 import { createServer, Server } from 'http'
 import { createProxyMiddleware } from 'http-proxy-middleware'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
-import jwksRsa from 'jwks-rsa'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import ms from 'ms'
@@ -46,7 +44,6 @@ export class HTTPServer {
   private isBotpressReady = false
   private machineId!: string
 
-  private readonly botsRouter: BotsRouter
   private readonly studioRouter!: StudioRouter
   private readonly modulesRouter: ModulesRouter
 
@@ -104,8 +101,6 @@ export class HTTPServer {
       objectCache,
       this
     )
-
-    this.botsRouter = new BotsRouter(botService, configProvider, authService, workspaceService, this.logger)
   }
 
   async setupRootPath() {
@@ -218,7 +213,6 @@ export class HTTPServer {
     this.app.use('/assets', this.guardWhiteLabel(), express.static(resolveAsset('')))
     this.app.use(`${BASE_API_PATH}/studio/modules`, this.modulesRouter.router)
 
-    await this.botsRouter.setupRoutes(this.app)
     await this.studioRouter.setupRoutes(this.app)
 
     this.app.use((err, _req, _res, next) => {

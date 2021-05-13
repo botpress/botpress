@@ -15,7 +15,6 @@ import path from 'path'
 import { VError } from 'verror'
 
 import { CodeFile, SafeCodeSandbox } from './code-sandbox'
-import { renderRecursive, renderTemplate } from './templating'
 
 const UNLIMITED_ELEMENTS = -1
 export const DefaultSearchParams: SearchParams = {
@@ -598,66 +597,6 @@ export class CMSService implements IDisposeOnExit {
 
   private _getAdditionalData() {
     return { BOT_URL: process.EXTERNAL_URL }
-  }
-
-  async renderElement(contentId: string, args, eventDestination: IO.EventDestination) {
-    const { botId, channel } = eventDestination
-    contentId = contentId.replace(/^#?/i, '')
-    let contentTypeRenderer: ContentType
-
-    const translateFormData = async (formData: object): Promise<object> => {
-      const defaultLang = (await this.configProvider.getBotConfig(eventDestination.botId)).defaultLanguage
-      const userLang = _.get(args, 'event.state.user.language')
-
-      return this.getOriginalProps(formData, contentTypeRenderer, userLang, defaultLang)
-    }
-
-    if (contentId.startsWith('!')) {
-      const content = await this.getContentElement(botId, contentId.substr(1)) // TODO handle errors
-      if (!content) {
-        throw new Error(`Content element "${contentId}" not found`)
-      }
-
-      contentTypeRenderer = this.getContentType(content.contentType)
-      content.formData = await translateFormData(content.formData)
-
-      _.set(content, 'formData', renderRecursive(content.formData, args))
-
-      const text = _.get(content.formData, 'text')
-      const variations = _.get(content.formData, 'variations')
-
-      const message = _.sample([text, ...(variations || [])])
-      if (message) {
-        _.set(content, 'formData.text', renderTemplate(message, args))
-      }
-
-      args = {
-        ...args,
-        ...content.formData
-      }
-    } else if (contentId.startsWith('@')) {
-      contentTypeRenderer = this.getContentType(contentId.substr(1))
-      args = {
-        ...args,
-        ...(await translateFormData(args))
-      }
-    } else {
-      contentTypeRenderer = this.getContentType(contentId)
-    }
-
-    if (args.text) {
-      args = {
-        ...args,
-        text: renderTemplate(args.text, args)
-      }
-    }
-
-    let payloads = contentTypeRenderer.renderElement({ ...this._getAdditionalData(), ...args }, channel)
-    if (!_.isArray(payloads)) {
-      payloads = [payloads]
-    }
-
-    return payloads
   }
 
   /**

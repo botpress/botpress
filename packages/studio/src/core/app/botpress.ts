@@ -3,21 +3,16 @@ import { BotService } from 'core/bots'
 import { GhostService } from 'core/bpfs'
 import { CMSService } from 'core/cms'
 import { BotpressConfig, ConfigProvider } from 'core/config'
-import Database from 'core/database'
 import { LoggerFilePersister, LoggerProvider } from 'core/logger'
 import { copyDir } from 'core/misc/pkg-fs'
 import { ModuleLoader } from 'core/modules'
-import { AuthService } from 'core/security'
 import { HintsService } from 'core/user-code'
-import { WorkspaceService } from 'core/users'
 import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
-import joi from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import moment from 'moment'
-import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
 
@@ -40,7 +35,6 @@ export class Botpress {
 
   constructor(
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
-    @inject(TYPES.Database) private database: Database,
     @inject(TYPES.Logger)
     @tagged('name', 'Server')
     private logger: sdk.Logger,
@@ -51,8 +45,6 @@ export class Botpress {
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.LoggerFilePersister) private loggerFilePersister: LoggerFilePersister,
-    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
-    @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.BotService) private botService: BotService
   ) {
     this.botpressPath = path.join(process.cwd(), 'dist')
@@ -139,7 +131,6 @@ export class Botpress {
 
   private async initializeServices() {
     await this.loggerFilePersister.initialize(this.config!, await this.loggerProvider('LogFilePersister'))
-
     await this.cmsService.initialize()
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises

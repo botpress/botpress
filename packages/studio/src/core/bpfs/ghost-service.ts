@@ -3,8 +3,7 @@ import { ObjectCache } from 'common/object-cache'
 import { isValidBotId } from 'common/validation'
 import { TYPES } from 'core/app/types'
 import { createArchive } from 'core/misc/archive'
-import { asBytes, filterByGlobs, forceForwardSlashes, sanitize } from 'core/misc/utils'
-import { diffLines } from 'diff'
+import { asBytes, forceForwardSlashes, sanitize } from 'core/misc/utils'
 import { EventEmitter2 } from 'eventemitter2'
 import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
@@ -14,31 +13,12 @@ import minimatch from 'minimatch'
 import mkdirp from 'mkdirp'
 import path from 'path'
 import replace from 'replace-in-file'
-import tmp, { file } from 'tmp'
+import tmp from 'tmp'
 import { VError } from 'verror'
 
-import { FileRevision, PendingRevisions, ReplaceContent, ServerWidePendingRevisions, StorageDriver } from '.'
+import { FileRevision, PendingRevisions, ReplaceContent, StorageDriver } from '.'
 import { DBStorageDriver } from './drivers/db-driver'
 import { DiskStorageDriver } from './drivers/disk-driver'
-
-export interface BpfsScopedChange {
-  // An undefined bot ID = global
-  botId: string | undefined
-  // The list of local files which will overwrite their remote counterpart
-  localFiles: string[]
-  // List of added/deleted files based on local and remote files, and differences between files from revisions
-  changes: FileChange[]
-}
-
-export interface FileChange {
-  path: string
-  action: FileChangeAction
-  add?: number
-  del?: number
-  sizeDiff?: number
-}
-
-export type FileChangeAction = 'add' | 'edit' | 'del'
 
 interface ScopedGhostOptions {
   botId?: string
@@ -47,11 +27,8 @@ interface ScopedGhostOptions {
 }
 
 const MAX_GHOST_FILE_SIZE = process.core_env.BP_BPFS_MAX_FILE_SIZE || '100mb'
-const BP_BPFS_UPLOAD_CONCURRENCY = parseInt((process.core_env.BP_BPFS_UPLOAD_CONCURRENCY as unknown) as string) || 50
-const bpfsIgnoredFiles = ['models/**', 'data/bots/*/models/**', '**/*.js.map']
 const GLOBAL_GHOST_KEY = '__global__'
 const BOTS_GHOST_KEY = '__bots__'
-const DIFFABLE_EXTS = ['.js', '.json', '.txt', '.csv', '.yaml']
 
 @injectable()
 export class GhostService {
@@ -72,16 +49,6 @@ export class GhostService {
   async initialize(useDbDriver: boolean, ignoreSync?: boolean) {
     this.useDbDriver = useDbDriver
     this._scopedGhosts.clear()
-
-    const global = await this.global().directoryListing('/')
-
-    if (useDbDriver && !ignoreSync && _.isEmpty(global)) {
-      this.logger.info('Syncing data/global/ to database')
-      await this.global().sync()
-
-      this.logger.info('Syncing data/bots/ to database')
-      await this.bots().sync()
-    }
   }
 
   // Not caching this scope since it's rarely used
@@ -286,41 +253,6 @@ export class ScopedGhostService {
     await Promise.all(content.map(c => this.upsertFile(rootFolder, c.name, c.content)))
   }
 
-  /**
-   * Sync the local filesystem to the database.
-   * All files are tracked by default, unless `.ghostignore` is used to exclude them.
-   */
-  async sync() {
-    if (!this.useDbDriver) {
-      // We don't have to sync anything as we're just using the files from disk
-      return
-    }
-
-    const localFiles = await this.diskDriver.directoryListing(this.baseDir, { includeDotFiles: true })
-    const diskRevs = await this.diskDriver.listRevisions(this.baseDir)
-    const dbRevs = await this.dbDriver.listRevisions(this.baseDir)
-    const syncedRevs = _.intersectionBy(diskRevs, dbRevs, x => `${x.path} | ${x.revision}`)
-
-    await Promise.each(syncedRevs, rev => this.dbDriver.deleteRevision(rev.path, rev.revision))
-    await this._updateProduction(localFiles)
-  }
-
-  private async _updateProduction(localFiles: string[]) {
-    // Delete the prod files that has been deleted from disk
-    const prodFiles = await this.dbDriver.directoryListing(this._normalizeFolderName('./'))
-    const filesToDelete = _.difference(prodFiles, localFiles)
-    await Promise.map(filesToDelete, filePath =>
-      this.dbDriver.deleteFile(this._normalizeFileName('./', filePath), false)
-    )
-
-    // Overwrite all of the prod files with the local files
-    await Promise.each(localFiles, async file => {
-      const filePath = this._normalizeFileName('./', file)
-      const content = await this.diskDriver.readFile(filePath)
-      await this.dbDriver.upsertFile(filePath, content, false)
-    })
-  }
-
   public async exportToDirectory(directory: string, excludes?: string | string[]): Promise<string[]> {
     const allFiles = await this.directoryListing('./', '*.*', excludes, true)
 
@@ -370,15 +302,6 @@ export class ScopedGhostService {
     } finally {
       tmpDir.removeCallback()
     }
-  }
-
-  public async isFullySynced(): Promise<boolean> {
-    if (!this.useDbDriver) {
-      return true
-    }
-
-    const revisions = await this.dbDriver.listRevisions(this.baseDir)
-    return revisions.length === 0
   }
 
   async readFileAsBuffer(rootFolder: string, file: string): Promise<Buffer> {
