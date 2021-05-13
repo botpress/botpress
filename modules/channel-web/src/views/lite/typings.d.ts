@@ -89,6 +89,7 @@ export namespace Renderer {
     file: {
       type: string
       audio: string
+      autoPlay?: boolean
     }
     escapeTextHTML: boolean
   }

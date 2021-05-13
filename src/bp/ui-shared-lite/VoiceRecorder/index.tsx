@@ -56,6 +56,7 @@ const VoiceRecorder: FC<Props> = (props: Props) => {
 
   const onStop = async () => {
     if (isCancelled.current) {
+      isCancelled.current = false
       return
     }
 
@@ -75,7 +76,6 @@ const VoiceRecorder: FC<Props> = (props: Props) => {
     } catch (err) {
       console.error('[VoiceRecorder] - Error converting the audio blob into a buffer', err)
     } finally {
-      isCancelled.current = false
       setIsRecording(false)
     }
   }

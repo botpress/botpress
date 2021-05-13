@@ -159,6 +159,11 @@ class RootStore {
       return
     }
 
+    // Autoplay bot voice messages
+    if (event.payload?.type === 'voice' && !event.userId) {
+      ;(event.payload as any).autoPlay = true
+    }
+
     const message: Message = { ...event, conversationId: +event.conversationId }
     if (this.isBotTyping.get() && !event.userId) {
       this.delayedMessages.push({ message, showAt: this.currentConversation.typingUntil })

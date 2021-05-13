@@ -76,13 +76,7 @@ class Message extends Component<MessageProps> {
   }
 
   render_voice() {
-    return (
-      <VoiceMessage
-        autoPlay={this.props.isBotMessage && this.props.isLastGroup && this.props.isLastOfGroup}
-        file={this.props.payload}
-        escapeTextHTML={this.props.store.escapeHTML}
-      />
-    )
+    return <VoiceMessage file={this.props.payload} escapeTextHTML={this.props.store.escapeHTML} />
   }
 
   render_custom() {
