@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { detectAmbiguity } from './ambiguous'
+import { scaleConfidences } from './math'
 import { NONE_INTENT, GLOBAL_CONTEXT } from './typings'
 
 export default function naturalElectionPipeline(input: sdk.IO.EventUnderstanding) {
@@ -32,16 +33,18 @@ function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstandin
 
   const noneIntent = { label: NONE_INTENT, confidence: mostConfidentCtx.oos, slots: {}, extractor: '' }
 
-  const topTwo: sdk.NLU.Intent[] = _([...mostConfidentCtx.intents, noneIntent])
+  const topTwoRaw: sdk.NLU.Intent[] = _([...mostConfidentCtx.intents, noneIntent])
     .orderBy(i => i.confidence, 'desc')
     .map(({ label, confidence }) => ({ name: label, context: mostConfidentCtx.name, confidence }))
     .take(2)
     .value()
 
+  const topTwoScaled = scaleConfidences(topTwoRaw)
+
   return {
     ...input,
-    intent: topTwo[0],
-    intents: topTwo
+    intent: topTwoScaled[0],
+    intents: topTwoScaled
   }
 }
 
