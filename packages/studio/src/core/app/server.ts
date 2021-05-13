@@ -215,10 +215,6 @@ export class HTTPServer {
       )
     }
 
-    this.app.use('/', (req, res) => {
-      res.redirect(`${process.env.EXTERNAL_URL}`)
-    })
-
     this.app.use('/assets', this.guardWhiteLabel(), express.static(resolveAsset('')))
     this.app.use(`${BASE_API_PATH}/studio/modules`, this.modulesRouter.router)
 
@@ -256,6 +252,10 @@ export class HTTPServer {
 
     await Promise.fromCallback(callback => {
       this.httpServer.listen(process.PORT, undefined, config.backlog, callback)
+    })
+
+    this.app.use('/', (req, res) => {
+      res.redirect(`${process.env.EXTERNAL_URL}`)
     })
 
     return this.app
