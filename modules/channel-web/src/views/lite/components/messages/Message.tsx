@@ -76,7 +76,13 @@ class Message extends Component<MessageProps> {
   }
 
   render_voice() {
-    return <VoiceMessage file={this.props.payload} escapeTextHTML={this.props.store.escapeHTML} />
+    return (
+      <VoiceMessage
+        file={this.props.payload}
+        shouldPlay={this.props.shouldPlay}
+        onAudioEnded={this.props.onAudioEnded}
+      />
+    )
   }
 
   render_custom() {
