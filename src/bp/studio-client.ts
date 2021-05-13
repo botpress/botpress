@@ -10,7 +10,6 @@ const debug = DEBUG('studio')
 const maxServerReebots = process.core_env.BP_MAX_SERVER_REBOOT || 2
 let studioRebootCount = 0
 let studioHandle: ChildProcess
-
 let studioClient: AxiosInstance
 
 export const studioActions = {
@@ -34,7 +33,6 @@ export const studioActions = {
 export const startStudio = async (logger: sdk.Logger) => {
   const env = {
     ...process.env,
-    //  BP_MODULES_PATH: '../../modules',
     // The data folder is shared between the studio and the runtime
     PROJECT_LOCATION: process.PROJECT_LOCATION,
     APP_DATA_PATH: process.APP_DATA_PATH,
@@ -42,7 +40,7 @@ export const startStudio = async (logger: sdk.Logger) => {
     APP_SECRET: process.APP_SECRET,
     PRO_ENABLED: process.IS_PRO_ENABLED?.toString(),
     STUDIO_PORT: process.STUDIO_PORT.toString(),
-    RUNTIME_PORT: process.PORT.toString(),
+    CORE_PORT: process.PORT.toString(),
     INTERNAL_PASSWORD: process.INTERNAL_PASSWORD
   }
 

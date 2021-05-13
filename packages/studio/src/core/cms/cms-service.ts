@@ -1,6 +1,6 @@
 import { ContentElement, ContentType, IO, KnexExtended, Logger, SearchParams } from 'botpress/sdk'
 import { IDisposeOnExit } from 'common/typings'
-import { coreActions } from 'core/app/core-proxy'
+import { coreActions } from 'core/app/core-client'
 import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config'
 import { JobService } from 'core/distributed/job-service'

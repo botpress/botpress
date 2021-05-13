@@ -41,16 +41,20 @@ export class InternalRouter extends CustomRouter {
         switch (eventType) {
           case 'onFlowChanged':
             const { flow } = req.body
-            return this.moduleLoader.onFlowChanged(botId, flow)
+            await this.moduleLoader.onFlowChanged(botId, flow)
+            break
           case 'onFlowRenamed':
             const { previousFlowName, nextFlowName } = req.body
-            return this.moduleLoader.onFlowRenamed(botId, previousFlowName, nextFlowName)
+            await this.moduleLoader.onFlowRenamed(botId, previousFlowName, nextFlowName)
+            break
           case 'onElementChanged':
             const { action, element, oldElement } = req.body
-            return this.moduleLoader.onElementChanged(botId, action, element, oldElement)
+            await this.moduleLoader.onElementChanged(botId, action, element, oldElement)
+            break
           case 'onTopicChanged':
             const { oldName, newName } = req.body
-            return this.moduleLoader.onTopicChanged(botId, oldName, newName)
+            await this.moduleLoader.onTopicChanged(botId, oldName, newName)
+            break
         }
 
         res.sendStatus(200)

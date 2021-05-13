@@ -4,7 +4,7 @@ import { asBytes } from 'core/misc/utils'
 import { EventEmitter } from 'events'
 import { inject, injectable } from 'inversify'
 import LRU from 'lru-cache'
-import { studioActions } from 'studio-proxy'
+import { studioActions } from 'studio-client'
 
 import { CacheInvalidators } from './cache-invalidators'
 

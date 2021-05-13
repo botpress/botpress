@@ -31,7 +31,7 @@ import ms from 'ms'
 import os from 'os'
 import path from 'path'
 import replace from 'replace-in-file'
-import { studioActions } from 'studio-proxy'
+import { studioActions } from 'studio-client'
 import tmp from 'tmp'
 import { VError } from 'verror'
 

@@ -1,5 +1,5 @@
 import { ObjectCache } from 'common/object-cache'
-import { coreActions } from 'core/app/core-proxy'
+import { coreActions } from 'core/app/core-client'
 import { TYPES } from 'core/app/types'
 import { asBytes } from 'core/misc/utils'
 import { EventEmitter } from 'events'

@@ -4,13 +4,12 @@ import '../../sdk/rewire'
 
 import sdk from 'botpress/sdk'
 import chalk from 'chalk'
-import { BotpressApp, createApp } from 'core/app/core-loader'
+import { BotpressApp, createApp } from 'core/app/loader'
 import { ModuleConfigEntry } from 'core/config'
 import { centerText, LoggerProvider, LogLevel } from 'core/logger'
 import { ModuleLoader, ModuleResolver } from 'core/modules'
 import fs from 'fs'
 import _ from 'lodash'
-import os from 'os'
 
 async function setupEnv(app: BotpressApp) {
   await app.database.initialize()
