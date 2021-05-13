@@ -76,7 +76,7 @@ export class Slot extends React.Component {
   }
 
   fetchActions = () => {
-    this.props.bp.axios.get(`/actions`).then(({ data }) => {
+    this.props.bp.axios.get(`/actions`, { baseURL: window.STUDIO_API_PATH }).then(({ data }) => {
       this.setState({
         actions: data
           .filter(action => !action.hidden)

@@ -21,6 +21,7 @@ declare namespace NodeJS {
     IS_PRODUCTION: boolean // TODO: look to remove this
     BPFS_STORAGE: 'database' | 'disk'
     APP_SECRET: string
+    NLU_PASSWORD: string | undefined
     /**
      * Path to the global APP DATA folder, shared across all installations of Botpress Server
      * Use this folder to store stuff you'd like to cache, like NLU language models etc
@@ -73,6 +74,9 @@ declare type PRO_FEATURES = 'seats'
 declare interface BotpressEnvironmentVariables {
   /** Replace the path of the NodeJS Native Extensions for external OS-specific libraries such as fastText and CRFSuite */
   readonly NATIVE_EXTENSIONS_DIR?: string
+
+  /** Replace the path of nlu binaries file */
+  readonly NLU_BIN_DIR?: string
 
   /** Change the BPFS storage mechanism ("database" or "disk"). Defaults to "disk" */
   readonly BPFS_STORAGE?: 'database' | 'disk'
