@@ -58,6 +58,15 @@ declare type PRO_FEATURES = 'seats'
  * This is a copy of process.env to add typing and documentation to variables
  */
 declare interface BotpressEnvironmentVariables {
+  readonly STUDIO_PORT?: number
+  readonly CORE_PORT?: number
+  readonly ROOT_PATH?: string
+  readonly PROJECT_LOCATION?: string
+
+  readonly APP_SECRET?: string
+  readonly PRO_ENABLED?: boolean
+  readonly INTERNAL_PASSWORD?: string
+
   /** Replace the path of the NodeJS Native Extensions for external OS-specific libraries such as fastText and CRFSuite */
   readonly NATIVE_EXTENSIONS_DIR?: string
 
@@ -66,15 +75,6 @@ declare interface BotpressEnvironmentVariables {
 
   /** The URL exposed by Botpress to external users (eg: when displaying links) */
   readonly EXTERNAL_URL?: string
-
-  readonly STUDIO_PORT?: number
-  readonly CORE_PORT?: number
-
-  /** Use this to override the hostname that botpress will listen on (by default it's localhost) - replaces httpServer.host */
-  readonly BP_HOST?: string
-
-  /** Change the port where botpress listens. Replaces the configuration of httpServer.port */
-  readonly PORT?: number
 
   /**
    * The connection string for redis
@@ -87,9 +87,6 @@ declare interface BotpressEnvironmentVariables {
    * @example postgres://user:pass@host/db
    */
   readonly DATABASE_URL?: string
-
-  /** If pro features are enabled or not. When enabled, the license key must be provided */
-  readonly PRO_ENABLED?: boolean
 
   /** When running botpress in production, some optimizations are applied */
   readonly BP_PRODUCTION?: boolean

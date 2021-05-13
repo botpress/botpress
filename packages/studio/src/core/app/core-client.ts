@@ -1,8 +1,10 @@
 import axios, { AxiosInstance } from 'axios'
 
+const { CORE_PORT, ROOT_PATH, INTERNAL_PASSWORD } = process.core_env
+
 const coreClient: AxiosInstance = axios.create({
-  headers: { authorization: process.env.INTERNAL_PASSWORD },
-  baseURL: `http://localhost:${process.core_env.CORE_PORT}/api/internal`
+  headers: { authorization: INTERNAL_PASSWORD },
+  baseURL: `http://localhost:${CORE_PORT}${ROOT_PATH}/api/internal`
 })
 
 export const coreActions = {

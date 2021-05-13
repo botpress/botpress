@@ -250,7 +250,7 @@ export class HTTPServer {
     process.STUDIO_PORT = await portFinder.getPortPromise({ port: serverPort + 1000 })
 
     const target = `http://localhost:${process.STUDIO_PORT}`
-    const proxyPaths = ['/studio/*', '/api/v1/studio*']
+    const proxyPaths = ['*/studio/*', '*/api/v1/studio*']
 
     this.app.use(proxyPaths, createProxyMiddleware({ target, changeOrigin: true, logLevel: 'silent' }))
   }

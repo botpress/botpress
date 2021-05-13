@@ -42,6 +42,7 @@ export const startStudio = async (logger: sdk.Logger) => {
     PRO_ENABLED: process.IS_PRO_ENABLED?.toString(),
     STUDIO_PORT: process.STUDIO_PORT.toString(),
     CORE_PORT: process.PORT.toString(),
+    ROOT_PATH: process.ROOT_PATH,
     INTERNAL_PASSWORD: process.INTERNAL_PASSWORD
   }
 
