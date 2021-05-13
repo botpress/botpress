@@ -215,6 +215,10 @@ export class HTTPServer {
       )
     }
 
+    this.app.use('/', (req, res) => {
+      res.redirect(`${process.env.EXTERNAL_URL}`)
+    })
+
     this.app.use('/assets', this.guardWhiteLabel(), express.static(resolveAsset('')))
     this.app.use(`${BASE_API_PATH}/studio/modules`, this.modulesRouter.router)
 

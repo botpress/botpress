@@ -30,7 +30,10 @@ const ConfigStatus = () => {
 
     const interval = setInterval(async () => {
       try {
-        await api.getAnonymous().get('/status', { timeout: 500 })
+        await api
+          .getAnonymous({ toastErrors: false })
+          .get('/status', { timeout: 500, baseURL: `${window['ROOT_PATH']}/` })
+
         window.location.reload()
       } catch (err) {} // silent intended
     }, 1000)

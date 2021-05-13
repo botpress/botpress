@@ -52,7 +52,6 @@ import ms from 'ms'
 import path from 'path'
 import portFinder from 'portfinder'
 import { startStudio } from 'studio-client'
-import { StudioRouter } from 'studio/studio-router'
 import { URL } from 'url'
 import yn from 'yn'
 
@@ -75,7 +74,6 @@ export class HTTPServer {
 
   private readonly adminRouter: AdminRouter
   private readonly botsRouter: BotsRouter
-  private readonly studioRouter!: StudioRouter
   private readonly modulesRouter: ModulesRouter
   private readonly shortLinksRouter: ShortLinksRouter
   private telemetryRouter!: TelemetryRouter
@@ -164,22 +162,6 @@ export class HTTPServer {
       jobService,
       logsRepo,
       authStrategies,
-      this
-    )
-
-    this.studioRouter = new StudioRouter(
-      logger,
-      authService,
-      workspaceService,
-      botService,
-      configProvider,
-      actionService,
-      cmsService,
-      flowService,
-      ghostService,
-      mediaServiceProvider,
-      actionServersService,
-      hintsService,
       this
     )
 
@@ -365,7 +347,6 @@ export class HTTPServer {
     this.adminRouter.setupRoutes(this.app)
     await this.botsRouter.setupRoutes(this.app)
     this.internalRouter.setupRoutes()
-    // await this.studioRouter.setupRoutes(this.app)
 
     this.app.use('/assets', this.guardWhiteLabel(), express.static(resolveAsset('')))
 

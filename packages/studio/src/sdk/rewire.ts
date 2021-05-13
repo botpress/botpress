@@ -48,14 +48,7 @@ for (const folder of platformFolders) {
   nativeBindingsPaths.push(syspath.resolve(nativeExBaseFolder, folder))
 }
 
-const nativeExtensions = [
-  'node_sqlite3.node',
-  'fse.node',
-  'crfsuite.node',
-  'fasttext.node',
-  'node-svm.node',
-  'sentencepiece.node'
-]
+const nativeExtensions = ['node_sqlite3.node', 'fse.node']
 
 function addToNodePath(path) {
   overwritePaths(getPaths().concat(path))
@@ -85,7 +78,6 @@ global.require = {
 }
 
 addToNodePath(syspath.resolve(__dirname, '../')) // 'bp/' directory
-
 
 const rewire = function(this: NodeRequireFunction, mod: string) {
   if (mod === 'botpress/sdk') {
@@ -142,38 +134,3 @@ const rewirePath = (mod: string) => {
 }
 
 export default rewirePath
-
-/*
-----------------------
-  Performance monitoring instrumentation code
-  Will output the most expensive require resolutions to the console
-  Usage: set `BP_DEBUG_REQUIRE` to `true`
-------------------------
-*/
-
-if (global.process.env.BP_DEBUG_REQUIRE) {
-  const { performance, PerformanceObserver } = require('perf_hooks')
-  const os = require('os')
-
-  const SAMPLING_INTERVAL = 5000
-  const TOP_COUNT = 10
-
-  Module.prototype.require = performance.timerify(Module.prototype.require)
-  require = performance.timerify(require)
-
-  let allRequires: { duration: Number; call: string }[] = []
-
-  const obs = new PerformanceObserver(list => {
-    const entries = list.getEntries()
-    entries.forEach(e => allRequires.push({ duration: e.duration, call: e[0] }))
-  })
-
-  obs.observe({ entryTypes: ['function'], buffered: true })
-
-  setInterval(() => {
-    const significantCalls = _.take(_.orderBy(allRequires, 'duration', 'desc'), TOP_COUNT)
-    const formattedCalls = significantCalls.map((x, i) => `${i}) ${x.duration}\t\t${x.call}`).join(os.EOL)
-    console.info(formattedCalls)
-    allRequires = []
-  }, SAMPLING_INTERVAL)
-}

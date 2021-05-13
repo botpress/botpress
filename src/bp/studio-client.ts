@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from 'axios'
 import sdk from 'botpress/sdk'
 import { ChildProcess, fork, spawn } from 'child_process'
+import fse from 'fs-extra'
 import _ from 'lodash'
 import path from 'path'
 import yn from 'yn'
@@ -45,7 +46,15 @@ export const startStudio = async (logger: sdk.Logger) => {
   }
 
   if (process.pkg) {
-    const file = path.resolve(path.dirname(process.execPath), './studio.exe')
+    let file = path.resolve(path.dirname(process.execPath), './studio')
+    if (!(await fse.pathExists(file))) {
+      file = `${file}.exe`
+    }
+
+    if (!(await fse.pathExists(file))) {
+      console.error('Studio executable not found.')
+      return
+    }
 
     studioHandle = spawn(file, [], { env, stdio: 'inherit' })
   } else {
