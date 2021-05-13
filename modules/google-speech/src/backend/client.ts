@@ -7,7 +7,7 @@ import * as mm from 'music-metadata'
 
 import { Config } from '../config'
 import { Audio } from './audio'
-import { SAMPLE_RATES } from './constants'
+import { EXTENSIONS, EXTENSIONS_CONVERSION, SAMPLE_RATES } from './constants'
 import {
   IRecognitionAudio,
   IRecognitionConfig,
@@ -99,31 +99,49 @@ export class GoogleSpeechClient {
       return
     }
 
+    // TODO: Either move this into a module or move it in its own class/file
     let encoding: protos.google.cloud.speech.v1p1beta1.RecognitionConfig.AudioEncoding
 
-    const container = meta.format.container?.toLowerCase()
-    const codec = meta.format.codec?.toLowerCase()
-    if (container === 'ogg' && codec === 'opus') {
-      encoding = AudioEncoding.OGG_OPUS
-
-      const sampleRates = SAMPLE_RATES[Container[container]][Codec[codec]]
+    const container: Container = Container[meta.format.container?.toLowerCase()]
+    const codec: Codec = Codec[meta.format.codec?.toLowerCase()]
+    if (container === Container.ogg && codec === Codec.opus) {
+      const sampleRates = SAMPLE_RATES[container][codec]
       if (!sampleRates.includes(meta.format.sampleRate)) {
-        const audio = new Audio(Container.ogg, Codec.opus)
+        const audio = new Audio(container, codec)
         const newSampleRate = closest(sampleRates, meta.format.sampleRate)
 
-        debugSpeechToText(`Re-sampling audio file to ${newSampleRate}Hz`)
+        debugSpeechToText(`Re-sampling audio file from ${meta.format.sampleRate}Hz to ${newSampleRate}Hz`)
 
         buffer = audio.resample(buffer, newSampleRate)
 
         debugSpeechToText('Audio file successfully re-sampled')
 
         meta = await mm.parseBuffer(buffer)
+
+        encoding = AudioEncoding.OGG_OPUS
       }
-    } else if (container === 'ebml/webm' && codec === 'opus') {
+    } else if (container === Container['ebml/webm'] && codec === Codec.opus) {
       encoding = AudioEncoding.WEBM_OPUS
-    } else if (container === 'mpeg' && codec === 'mpeg 1 layer 3') {
-      // No need to specify the encoding nor re-sample the file
-    } else {
+    } else if (container === Container['iso5/isom/hlsf'] && codec === Codec['mpeg-4/aac']) {
+      const audio = new Audio(container, codec)
+
+      debugSpeechToText(`Converting audio file from ${EXTENSIONS[container]} to ${EXTENSIONS_CONVERSION[container]}`)
+
+      buffer = audio.convert(buffer)
+
+      debugSpeechToText('Audio file successfully converted')
+
+      meta = await mm.parseBuffer(buffer)
+
+      encoding = AudioEncoding.OGG_OPUS
+    } else if (
+      container === Container.mpeg &&
+      (codec === Codec['mpeg 1 layer 3'] || codec === Codec['mpeg 2 layer 3'])
+    ) {
+      encoding = AudioEncoding.MP3
+    }
+
+    if (!encoding) {
       this.logger.warn('Audio file format not supported. Skipping...', { ...meta.format })
 
       return
@@ -140,7 +158,8 @@ export class GoogleSpeechClient {
     const config: IRecognitionConfig = {
       encoding,
       sampleRateHertz: meta.format.sampleRate,
-      languageCode: this.languageCode(language)
+      languageCode: this.languageCode(language),
+      audioChannelCount: meta.format.numberOfChannels
     }
 
     const request: IRecognizeRequest = {
