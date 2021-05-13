@@ -178,10 +178,14 @@ export default class WebchatApi {
     }
   }
 
-  // FIXME: This simply does not work. You cannot send a FormData as a JSON body property
-  async uploadFile(data: FormData, conversationId: number): Promise<void> {
+  async uploadFile(file: File, conversationId: number): Promise<void> {
     try {
-      return this.axios.post('/messages/files', { ...this.baseUserPayload, conversationId, ...data }, this.axiosConfig)
+      const data = new FormData()
+      data.append('file', file)
+      data.append('webSessionId', this.baseUserPayload.webSessionId)
+      data.append('conversationId', conversationId.toString())
+
+      return this.axios.post('/messages/files', data, this.axiosConfig)
     } catch (err) {
       await this.handleApiError(err)
     }
