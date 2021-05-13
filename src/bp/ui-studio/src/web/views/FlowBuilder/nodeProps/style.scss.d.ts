@@ -3,6 +3,7 @@
 interface CssExports {
   'actionDialogContent': string;
   'actionIcons': string;
+  'actionList': string;
   'actionSelectItem': string;
   'actionServer': string;
   'actions': string;

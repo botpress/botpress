@@ -303,3 +303,15 @@
     }
   }
 }
+.rightPanel{
+  position: absolute;
+  width: 0;
+}
+.rightPanelActive{
+  position: absolute;
+  right: 0;
+  min-width: 320px;
+  max-width: 50%;
+  z-Index: 1;
+  overflow-x: auto;
+}

@@ -13,7 +13,8 @@ module.exports = {
       './src/bp/admin/ui/tsconfig.json',
       './modules/tsconfig*.eslint.json',
       './build/module-builder/tsconfig.json',
-      './packages/studio/tsconfig.json'
+      './packages/studio/tsconfig.json',
+      './build/nlu-installer/tsconfig.json'
     ],
     tsconfigRootDir: __dirname,
     sourceType: 'module'

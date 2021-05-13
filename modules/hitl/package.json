@@ -35,6 +35,6 @@
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.19"
+    "lodash": ">=4.17.21"
   }
 }

@@ -1,13 +1,11 @@
 import * as sdk from 'botpress/sdk'
-import bytes from 'bytes'
-import * as NLU from 'common/nlu/engine'
 import _ from 'lodash'
-import sizeof from 'object-sizeof'
+import { IStanEngine } from 'src/backend/stan'
+import { mapTrainSet } from '../../stan/api-mapper'
 import { BotDoesntSpeakLanguageError } from '../errors'
 import { Predictor, ProgressCallback, Trainable, I } from '../typings'
 
 import { IDefinitionsService } from './definitions-service'
-import { IModelRepository } from './infrastructure/model-repository'
 import { ScopedPredictionHandler } from './prediction-handler'
 
 interface BotDefinition {
@@ -22,16 +20,16 @@ export class Bot implements Trainable, Predictor {
   private _botId: string
   private _defaultLanguage: string
   private _languages: string[]
-  private _modelsByLang: _.Dictionary<NLU.ModelId> = {}
+
+  private _modelsByLang: _.Dictionary<string> = {}
+  private _trainingsByLang: _.Dictionary<string> = {}
 
   private _predictor: ScopedPredictionHandler
 
   constructor(
     bot: BotDefinition,
-    private _engine: NLU.Engine,
-    private _modelRepo: IModelRepository,
+    private _engine: IStanEngine,
     private _defService: IDefinitionsService,
-    private _modelIdService: typeof NLU.modelIdService,
     private _logger: sdk.Logger
   ) {
     this._botId = bot.botId
@@ -40,79 +38,67 @@ export class Bot implements Trainable, Predictor {
 
     this._predictor = new ScopedPredictionHandler(
       {
-        defaultLanguage: this._defaultLanguage
+        defaultLanguage: this._defaultLanguage,
+        botId: this._botId
       },
       _engine,
-      _modelRepo,
-      this._modelIdService,
       this._modelsByLang,
       this._logger
     )
   }
 
+  get id() {
+    return this._botId
+  }
+
   public async mount() {
-    await this._modelRepo.initialize()
     await this._defService.initialize()
   }
 
   public async unmount() {
     await this._defService.teardown()
-    for (const [_botId, modelId] of Object.entries(this._modelsByLang)) {
-      this._engine.unloadModel(modelId)
-      delete this._modelsByLang[modelId.languageCode]
+    for (const [lang] of Object.entries(this._modelsByLang)) {
+      // TODO: add a route to unload a single model without pruning
+      // this._engine.unloadModel(modelId)
+      delete this._modelsByLang[lang]
     }
   }
 
-  public load = async (modelId: NLU.ModelId) => {
-    const model = await this._modelRepo.getModel(modelId)
-    if (!model) {
-      const stringId = this._modelIdService.toString(modelId)
-      throw new Error(`Model ${stringId} not found on file system.`)
-    }
-
-    const previousId = this._modelsByLang[modelId.languageCode]
-    if (previousId) {
-      this._engine.unloadModel(previousId)
-    }
-
-    this._modelsByLang[modelId.languageCode] = model.id
-    await this._engine.loadModel(model)
+  public setModel = (lang: string, modelId: string) => {
+    this._modelsByLang[lang] = modelId
   }
 
-  public train = async (language: string, progressCallback: ProgressCallback): Promise<NLU.ModelId> => {
-    const { _engine, _languages, _modelRepo, _defService, _botId } = this
+  public train = async (language: string, progressCallback: ProgressCallback): Promise<string> => {
+    const { _engine, _languages, _defService, _botId } = this
 
     if (!_languages.includes(language)) {
       throw new BotDoesntSpeakLanguageError(_botId, language)
     }
 
-    const trainSet: NLU.TrainingSet = await _defService.getTrainSet(language)
+    const bpTrainSet = await _defService.getTrainSet(language)
+    const stanTrainSet = mapTrainSet(bpTrainSet)
 
-    const previousModel = this._modelsByLang[language]
-    const options: NLU.TrainingOptions = { previousModel, progressCallback }
+    const modelId = await _engine.startTraining(this._botId, stanTrainSet)
 
-    const model = await _engine.train(this._makeTrainingId(language), trainSet, options)
-    await _modelRepo.saveModel(model)
+    this._trainingsByLang[language] = modelId
 
-    const modelsOfLang = await _modelRepo.listModels({ languageCode: language })
-    await _modelRepo.pruneModels(modelsOfLang, { toKeep: 2 })
+    await _engine.waitForTraining(this._botId, modelId, progressCallback)
 
-    return model.id
+    return modelId
   }
 
   public cancelTraining = async (language: string) => {
     if (!this._languages.includes(language)) {
       throw new BotDoesntSpeakLanguageError(this._botId, language)
     }
-    return this._engine.cancelTraining(this._makeTrainingId(language))
+
+    if (this._trainingsByLang[language]) {
+      return this._engine.cancelTraining(this._botId, this._trainingsByLang[language])
+    }
   }
 
   public predict = async (textInput: string, anticipatedLanguage?: string) => {
     const { _predictor, _defaultLanguage } = this
     return _predictor.predict(textInput, anticipatedLanguage ?? _defaultLanguage)
-  }
-
-  private _makeTrainingId = (language: string) => {
-    return `${this._botId}:${language}`
   }
 }

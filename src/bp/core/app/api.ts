@@ -27,7 +27,6 @@ import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
-import MLToolkit from 'nlu/ml/toolkit'
 
 import { HTTPServer } from './server'
 
@@ -224,6 +223,9 @@ const render = (renderService: RenderService): typeof sdk.experimental.render =>
   return {
     text: renderService.renderText.bind(renderService),
     image: renderService.renderImage.bind(renderService),
+    audio: renderService.renderAudio.bind(renderService),
+    video: renderService.renderVideo.bind(renderService),
+    location: renderService.renderLocation.bind(renderService),
     card: renderService.renderCard.bind(renderService),
     carousel: renderService.renderCarousel.bind(renderService),
     choice: renderService.renderChoice.bind(renderService),
@@ -258,7 +260,6 @@ export class BotpressAPIProvider {
   bots: typeof sdk.bots
   ghost: typeof sdk.ghost
   cms: typeof sdk.cms
-  mlToolkit: typeof sdk.MLToolkit
   experimental: typeof sdk.experimental
   security: typeof sdk.security
   workspaces: typeof sdk.workspaces
@@ -300,7 +301,6 @@ export class BotpressAPIProvider {
     this.bots = bots(botService)
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService, mediaServiceProvider)
-    this.mlToolkit = MLToolkit
     this.experimental = experimental(hookService, conversationService, messageService, renderService)
     this.security = security()
     this.workspaces = workspaces(workspaceService)
@@ -319,7 +319,6 @@ export class BotpressAPIProvider {
         Event,
         WellKnownFlags
       },
-      MLToolkit: this.mlToolkit,
       dialog: this.dialog,
       events: this.events,
       http: this.http(owner),

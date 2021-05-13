@@ -1,4 +1,3 @@
-import { ChannelMessage } from '@vonage/server-sdk'
 import { ChannelSender } from 'common/channel'
 import { CHANNEL_NAME } from '../backend/client'
 import { MessageApiError, VonageContext } from '../backend/typings'
@@ -21,11 +20,7 @@ export class VonageCommonSender implements ChannelSender<VonageContext> {
   }
 
   async send(context: VonageContext) {
-    for (const content of context.messages) {
-      const message: ChannelMessage = {
-        content
-      }
-
+    for (const message of context.messages) {
       context.debug('Sending message', JSON.stringify(message, null, 2))
 
       await new Promise(resolve => {
@@ -62,7 +57,7 @@ export class VonageCommonSender implements ChannelSender<VonageContext> {
       })
 
       if (context.isSandbox) {
-        // sanbox is limited to 1 msg / sec
+        // sandbox is limited to 1 msg / sec
         await Promise.delay(1000)
       }
     }
