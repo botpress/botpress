@@ -37,11 +37,12 @@ export const Comments: FC<Props> = ({ handoff, api }) => {
         ownProps={{ transitionDuration: 10 }}
       >
         {_.isEmpty(comments) && <EmptyState text={lang.tr('module.hitlnext.comments.empty')} />}
-        {!_.isEmpty(comments) && comments.map(comment => {
-          return <Comment key={comment.id} {...comment}></Comment>
-        })}
+        {!_.isEmpty(comments) &&
+          comments.map(comment => {
+            return <Comment key={comment.id} {...comment}></Comment>
+          })}
+        <CommentForm onSubmit={createComment}></CommentForm>
       </Collapsible>
-      <CommentForm onSubmit={createComment}></CommentForm>
     </Fragment>
   )
 }
