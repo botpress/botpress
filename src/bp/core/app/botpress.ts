@@ -32,7 +32,7 @@ import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
 
-import { startLocalActionServer } from '../../cluster'
+import { startLocalActionServer, startLocalNLUServer } from '../../cluster'
 import { setDebugScopes } from '../../debug'
 import { HTTPServer } from './server'
 import { TYPES } from './types'
@@ -127,6 +127,7 @@ export class Botpress {
     await this.startServer()
     await this.discoverBots()
     await this.maybeStartLocalActionServer()
+    await this.maybeStartLocalSTAN()
 
     if (this.config.sendUsageStats) {
       await this.statsService.start()
@@ -176,6 +177,26 @@ export class Botpress {
     }
 
     startLocalActionServer({ appSecret: process.APP_SECRET, port })
+  }
+
+  private async maybeStartLocalSTAN() {
+    const config = await this.moduleLoader.configReader.getGlobal('nlu')
+
+    if (!config.nluServer.autoStart) {
+      const { endpoint } = config.nluServer
+      this.logger.info(`NLU server manually handled at: ${endpoint}`)
+      return
+    }
+    startLocalNLUServer({
+      languageSources: config.languageSources,
+      ducklingURL: config.ducklingURL,
+      ducklingEnabled: config.ducklingEnabled,
+      legacyElection: config.legacyElection,
+      dbURL: process.core_env.BPFS_STORAGE === 'database' ? process.core_env.DATABASE_URL : undefined,
+      modelDir: process.cwd(),
+      modelCacheSize: config.modelCacheSize,
+      authToken: process.NLU_PASSWORD // defined by nlu module
+    })
   }
 
   async checkJwtSecret() {
