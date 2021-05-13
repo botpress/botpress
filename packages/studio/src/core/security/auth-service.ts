@@ -1,10 +1,8 @@
 import { Logger, StrategyUser } from 'botpress/sdk'
 import { JWT_COOKIE_NAME } from 'common/auth'
 import { TokenUser, TokenResponse } from 'common/typings'
-import { registerMsgHandler, StudioMessage } from 'core/app/handler'
 import { TYPES } from 'core/app/types'
 import { ConfigProvider } from 'core/config'
-import Database from 'core/database'
 import { StrategyUsersRepository } from 'core/users'
 import { Response } from 'express'
 import { inject, injectable, tagged } from 'inversify'
@@ -16,7 +14,6 @@ export const CHAT_USERS_AUDIENCE = 'chat_users'
 export const WORKSPACE_HEADER = 'x-bp-workspace'
 export const EXTERNAL_AUTH_HEADER = 'x-bp-externalauth'
 export const SERVER_USER = 'server::modules'
-const DEFAULT_CHAT_USER_AUTH_DURATION = '24h'
 
 const getUserKey = (email, strategy) => `${email}_${strategy}`
 
@@ -29,17 +26,10 @@ export class AuthService {
     @tagged('name', 'Auth')
     private logger: Logger,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
-    @inject(TYPES.Database) private database: Database,
     @inject(TYPES.StrategyUsersRepository) private users: StrategyUsersRepository
   ) {}
 
-  async initialize() {
-    registerMsgHandler(StudioMessage.UPDATE_TOKEN_VERSION, async msg => {
-      await this.local__tokenVersionChange(msg.email, msg.strategy, msg.tokenVersion)
-    })
-  }
-
-  private async local__tokenVersionChange(email: string, strategy: string, tokenVersion: number): Promise<void> {
+  async tokenVersionChange(email: string, strategy: string, tokenVersion: number): Promise<void> {
     this.tokenVersions[getUserKey(email, strategy)] = tokenVersion
   }
 

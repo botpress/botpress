@@ -11,11 +11,10 @@
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "baseUrl": "./src",
-    "outDir": "./out",
-    "typeRoots": ["./src/typings", "../../node_modules/@types", "../../src/bp/common"],
+    "outDir": "../../out/studio",
+    "typeRoots": ["./src/typings", "../../node_modules/@types"],
     "paths": {
-      "botpress/sdk": ["../../../src/bp/sdk/botpress.d.ts"],
-      "common/*": ["../../../out/bp/common/*"]
+      "botpress/sdk": ["../../../src/bp/sdk/botpress.d.ts"]
     },
     "types": ["reflect-metadata", "jest"]
   },

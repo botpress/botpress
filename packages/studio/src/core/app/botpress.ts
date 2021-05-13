@@ -140,8 +140,6 @@ export class Botpress {
   private async initializeServices() {
     await this.loggerFilePersister.initialize(this.config!, await this.loggerProvider('LogFilePersister'))
 
-    await this.authService.initialize()
-    await this.workspaceService.initialize()
     await this.cmsService.initialize()
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises

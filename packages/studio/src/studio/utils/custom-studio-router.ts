@@ -2,7 +2,7 @@ import { Logger } from 'botpress/sdk'
 import { AsyncMiddleware, asyncMiddleware } from 'common/http'
 import { RequestWithUser } from 'common/typings'
 import { BotService } from 'core/bots'
-import { GhostService } from 'core/bpfs'
+import { GhostService, MemoryObjectCache } from 'core/bpfs'
 import { CMSService } from 'core/cms'
 import { ConfigProvider } from 'core/config/config-loader'
 import { FlowService } from 'core/dialog'
@@ -26,6 +26,7 @@ export abstract class CustomStudioRouter {
   protected actionServersService: ActionServersService
   protected hintsService: HintsService
   protected bpfs: GhostService
+  protected objectCache: MemoryObjectCache
 
   protected readonly needPermissions: (operation: string, resource: string) => RequestHandler
   protected readonly asyncMiddleware: AsyncMiddleware
@@ -54,5 +55,6 @@ export abstract class CustomStudioRouter {
     this.actionServersService = services.actionServersService
     this.bpfs = services.bpfs
     this.hintsService = services.hintsService
+    this.objectCache = services.objectCache
   }
 }

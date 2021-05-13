@@ -1,23 +1,19 @@
 import {
-  AddWorkspaceUserOptions,
   GetWorkspaceUsersOptions,
   Logger,
   RolloutStrategy,
   StrategyUser,
-  WorkspaceRollout,
   WorkspaceUser,
   WorkspaceUserWithAttributes
 } from 'botpress/sdk'
-import { CHAT_USER_ROLE, defaultPipelines, defaultWorkspace } from 'common/defaults'
-import { AuthRole, CreateWorkspace, Pipeline, Workspace } from 'common/typings'
+import { AuthRole, Pipeline, Workspace } from 'common/typings'
 import { TYPES } from 'core/app/types'
 import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config'
-import { InvalidOperationError, ConflictError, NotFoundError } from 'core/routers'
+import { NotFoundError } from 'core/routers'
 import { StrategyUsersRepository, WorkspaceUsersRepository } from 'core/users'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-import nanoid from 'nanoid/generate'
 
 export const ROLLOUT_STRATEGIES: RolloutStrategy[] = [
   'anonymous',
@@ -26,6 +22,22 @@ export const ROLLOUT_STRATEGIES: RolloutStrategy[] = [
   'authenticated-invite',
   'authorized'
 ]
+
+export const CHAT_USER_ROLE = {
+  id: 'chatuser',
+  name: 'Chat User',
+  description: 'Chat users have limited access to bots.',
+  rules: [
+    {
+      res: '*',
+      op: '-r-w'
+    },
+    {
+      res: 'user.bots',
+      op: '+r'
+    }
+  ]
+}
 
 const UNLIMITED = -1
 
@@ -40,13 +52,6 @@ export class WorkspaceService {
     @inject(TYPES.StrategyUsersRepository) private usersRepo: StrategyUsersRepository,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {}
-
-  async initialize(): Promise<void> {
-    await this.getWorkspaces().catch(async () => {
-      await this.save([defaultWorkspace])
-      this.logger.info('Created workspace')
-    })
-  }
 
   async getWorkspaces(): Promise<Workspace[]> {
     const workspaces = await this.ghost.global().readFileAsObject<Workspace[]>('/', 'workspaces.json')
@@ -86,26 +91,6 @@ export class WorkspaceService {
     const all = await this.getWorkspaces()
     const workspace = all.find(x => x.id === workspaceId)
     return (workspace && workspace.name) || workspaceId
-  }
-
-  async createWorkspace(workspace: CreateWorkspace): Promise<void> {
-    const workspaces = await this.getWorkspaces()
-    if (workspaces.find(x => x.id === workspace.id)) {
-      throw new ConflictError(`A workspace with that id "${workspace.id}" already exists`)
-    }
-
-    if (!defaultPipelines[workspace.pipelineId]) {
-      throw new InvalidOperationError('Invalid pipeline')
-    }
-
-    const newWorkspace = {
-      ...defaultWorkspace,
-      ..._.pick(workspace, ['id', 'name', 'description', 'audience']),
-      pipeline: defaultPipelines[workspace.pipelineId]
-    }
-
-    workspaces.push(newWorkspace)
-    return this.save(workspaces)
   }
 
   async findUser(email: string, strategy: string, workspace: string) {

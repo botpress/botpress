@@ -8,10 +8,10 @@
   "license": "AGPL-3.0",
   "private": true,
   "scripts": {
-    "start": "cd ./out && cross-env NODE_PATH=./ cross-env BP_MODULES_PATH=../../../modules node index.js",
+    "start": "cd ../../out/studio && cross-env NODE_PATH=./ cross-env BP_MODULES_PATH=../../../modules node index.js",
     "cmd": "yarn run gulp",
     "build": "yarn clean && yarn tsc",
-    "clean": "node ./node_modules/rimraf/bin.js out/",
+    "clean": "node ./node_modules/rimraf/bin.js ../../out/studio",
     "watch": "yarn clean && yarn tsc --watch"
   },
   "dependencies": {

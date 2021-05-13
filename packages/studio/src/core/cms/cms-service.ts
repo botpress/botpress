@@ -1,6 +1,6 @@
 import { ContentElement, ContentType, IO, KnexExtended, Logger, SearchParams } from 'botpress/sdk'
 import { IDisposeOnExit } from 'common/typings'
-import { coreActions } from 'core/app/handler'
+import { coreActions } from 'core/app/core-proxy'
 import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config'
 import { JobService } from 'core/distributed/job-service'
@@ -367,12 +367,12 @@ export class CMSService implements IDisposeOnExit {
       await this.broadcastAddElement(botId, body, contentElementId, contentType.id)
       const created = await this.getContentElement(botId, contentElementId)
 
-      coreActions.onModuleEvent('onElementChanged', { botId, action: 'create', element: created })
+      await coreActions.onModuleEvent('onElementChanged', { botId, action: 'create', element: created })
     } else {
       const originalElement = await this.getContentElement(botId, contentElementId)
       const updatedElement = await this.broadcastUpdateElement(botId, body, contentElementId)
 
-      coreActions.onModuleEvent('onElementChanged', {
+      await coreActions.onModuleEvent('onElementChanged', {
         botId,
         action: 'update',
         element: updatedElement,
@@ -669,7 +669,7 @@ export class CMSService implements IDisposeOnExit {
       .whereIn('id', elementIds)
       .del()
 
-    coreActions.invalidateCmsForBot(botId)
+    await coreActions.invalidateCmsForBot(botId)
   }
 
   /**
@@ -684,7 +684,7 @@ export class CMSService implements IDisposeOnExit {
       .update({ ...body, modifiedOn: this.memDb.date.now() })
       .where({ id: contentElementId, botId })
 
-    coreActions.invalidateCmsForBot(botId)
+    await coreActions.invalidateCmsForBot(botId)
     return this.getContentElement(botId, contentElementId)
   }
 
@@ -706,7 +706,7 @@ export class CMSService implements IDisposeOnExit {
       contentType: contentTypeId
     })
 
-    coreActions.invalidateCmsForBot(botId)
+    await coreActions.invalidateCmsForBot(botId)
   }
 
   /**

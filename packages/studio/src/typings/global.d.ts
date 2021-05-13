@@ -68,7 +68,7 @@ declare interface BotpressEnvironmentVariables {
   readonly EXTERNAL_URL?: string
 
   readonly STUDIO_PORT?: number
-  readonly RUNTIME_PORT?: number
+  readonly CORE_PORT?: number
 
   /** Use this to override the hostname that botpress will listen on (by default it's localhost) - replaces httpServer.host */
   readonly BP_HOST?: string

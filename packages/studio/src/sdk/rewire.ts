@@ -84,8 +84,8 @@ global.require = {
   overwritePaths
 }
 
-// Path to bp for common files resolution
-addToNodePath(syspath.resolve(__dirname, '../../../../out/bp/')) // 'bp/' directory
+addToNodePath(syspath.resolve(__dirname, '../')) // 'bp/' directory
+
 
 const rewire = function(this: NodeRequireFunction, mod: string) {
   if (mod === 'botpress/sdk') {

@@ -71,7 +71,14 @@ gulp.task('build:reference', docs.buildReference())
 
 gulp.task('package:core', package.packageCore())
 gulp.task('package:modules', modules.packageModules())
-gulp.task('package', gulp.series([package.packageApp, modules.packageModules(), package.copyNativeExtensions]))
+gulp.task(
+  'package',
+  gulp.series([package.packageApp, package.packageStudio, modules.packageModules(), package.copyNativeExtensions])
+)
+
+gulp.task('package:core', gulp.series([package.packageApp]))
+gulp.task('package:studio', gulp.series([package.packageStudio]))
+gulp.task('package:all', gulp.parallel([package.packageApp, package.packageStudio]))
 
 gulp.task('watch', gulp.parallel([core.watch, ui.watchAll]))
 gulp.task('watch:core', core.watch)

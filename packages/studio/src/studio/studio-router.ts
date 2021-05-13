@@ -3,7 +3,7 @@ import { gaId } from 'common/stats'
 import { HTTPServer } from 'core/app/server'
 import { resolveAsset, resolveIndexPaths } from 'core/app/server-utils'
 import { BotService } from 'core/bots'
-import { GhostService } from 'core/bpfs'
+import { GhostService, MemoryObjectCache } from 'core/bpfs'
 import { CMSService } from 'core/cms'
 import { BotpressConfig } from 'core/config'
 import { ConfigProvider } from 'core/config/config-loader'
@@ -22,6 +22,7 @@ import { CMSRouter } from './cms/cms-router'
 import { ConfigRouter } from './config/config-router'
 import { FlowsRouter } from './flows/flows-router'
 import { HintsRouter } from './hints/hints-router'
+import { InternalRouter } from './internal-router'
 import MediaRouter from './media/media-router'
 import { TopicsRouter } from './topics/topics-router'
 import { fixStudioMappingMw } from './utils/api-mapper'
@@ -39,6 +40,7 @@ export interface StudioServices {
   actionServersService: ActionServersService
   hintsService: HintsService
   bpfs: GhostService
+  objectCache: MemoryObjectCache
 }
 
 export class StudioRouter extends CustomRouter {
@@ -52,6 +54,7 @@ export class StudioRouter extends CustomRouter {
   private topicsRouter: TopicsRouter
   private hintsRouter: HintsRouter
   private configRouter: ConfigRouter
+  private internalRouter: InternalRouter
 
   constructor(
     logger: Logger,
@@ -66,6 +69,7 @@ export class StudioRouter extends CustomRouter {
     mediaServiceProvider: MediaServiceProvider,
     actionServersService: ActionServersService,
     hintsService: HintsService,
+    objectCache: MemoryObjectCache,
     private httpServer: HTTPServer
   ) {
     super('Studio', logger, Router({ mergeParams: true }))
@@ -83,7 +87,8 @@ export class StudioRouter extends CustomRouter {
       bpfs,
       cmsService,
       actionServersService,
-      hintsService
+      hintsService,
+      objectCache
     }
 
     this.cmsRouter = new CMSRouter(studioServices)
@@ -93,6 +98,7 @@ export class StudioRouter extends CustomRouter {
     this.topicsRouter = new TopicsRouter(studioServices)
     this.hintsRouter = new HintsRouter(studioServices)
     this.configRouter = new ConfigRouter(studioServices)
+    this.internalRouter = new InternalRouter(studioServices)
   }
 
   async setupRoutes(app: express.Express) {
@@ -104,6 +110,9 @@ export class StudioRouter extends CustomRouter {
     this.topicsRouter.setupRoutes()
     this.hintsRouter.setupRoutes()
     this.configRouter.setupRoutes()
+    this.internalRouter.setupRoutes()
+
+    app.use('/api/internal', this.internalRouter.router)
 
     app.use(rewrite('/studio/:botId/*env.js', '/api/v1/studio/:botId/env.js'))
 

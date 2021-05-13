@@ -50,6 +50,28 @@ const packageApp = async () => {
   }
 }
 
+const packageStudio = async () => {
+  const additionalPackageJson = require(path.resolve(__dirname, './studio.pkg.json'))
+  const realPackageJson = require(path.resolve(__dirname, '../packages/studio/package.json'))
+  const tempPkgPath = path.resolve(__dirname, '../out/studio/package.json')
+  const cwd = path.resolve(__dirname, '../out/studio')
+
+  try {
+    const packageJson = Object.assign(realPackageJson, additionalPackageJson)
+    await fse.writeFile(tempPkgPath, JSON.stringify(packageJson, null, 2), 'utf8')
+    await execAsync(
+      `cross-env ../../node_modules/.bin/pkg --targets ${getTargetOSNodeVersion()} --output ../binaries/studio ./package.json`,
+      {
+        cwd
+      }
+    )
+  } catch (err) {
+    console.error('Error running: ', err.cmd, '\nMessage: ', err.stderr, err)
+  } finally {
+    await fse.unlink(tempPkgPath)
+  }
+}
+
 const copyNativeExtensions = async () => {
   const files = [
     ...glob.sync('./build/native-extensions/*.node'),
@@ -84,5 +106,6 @@ const package = modules => {
 module.exports = {
   packageCore,
   packageApp,
+  packageStudio,
   copyNativeExtensions
 }

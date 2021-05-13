@@ -4,7 +4,7 @@ import { asBytes } from 'core/misc/utils'
 import { EventEmitter } from 'events'
 import { inject, injectable } from 'inversify'
 import LRU from 'lru-cache'
-import { studioActions, registerStudioHandler, StudioMessage } from 'studio-proxy'
+import { studioActions } from 'studio-proxy'
 
 import { CacheInvalidators } from './cache-invalidators'
 
@@ -29,13 +29,6 @@ export class MemoryObjectCache implements ObjectCache {
     })
 
     this.cacheInvalidator.install(this)
-
-    registerStudioHandler(StudioMessage.INVALIDATE_FILE, async message => {
-      if (message.source !== 'core') {
-        this.cache.del(message.key)
-        this.events.emit('invalidation', message.key)
-      }
-    })
   }
 
   async get<T>(key: string): Promise<T> {
@@ -51,11 +44,13 @@ export class MemoryObjectCache implements ObjectCache {
     return this.cache.has(key)
   }
 
-  async invalidate(key: string): Promise<void> {
+  async invalidate(key: string, local?: boolean): Promise<void> {
     this.cache.del(key)
     this.events.emit('invalidation', key)
 
-    studioActions.invalidateFile(key)
+    if (!local) {
+      await studioActions.invalidateFile(key)
+    }
   }
 
   async invalidateStartingWith(prefix: string): Promise<void> {

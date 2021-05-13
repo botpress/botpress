@@ -1,5 +1,5 @@
 import { ObjectCache } from 'common/object-cache'
-import { registerMsgHandler, StudioMessage } from 'core/app/handler'
+import { coreActions } from 'core/app/core-proxy'
 import { TYPES } from 'core/app/types'
 import { asBytes } from 'core/misc/utils'
 import { EventEmitter } from 'events'
@@ -29,13 +29,6 @@ export class MemoryObjectCache implements ObjectCache {
     })
 
     this.cacheInvalidator.install(this)
-
-    registerMsgHandler(StudioMessage.INVALIDATE_FILE, async message => {
-      if (message.source !== 'studio') {
-        this.cache.del(message.key)
-        this.events.emit('invalidation', message.key)
-      }
-    })
   }
 
   async get<T>(key: string): Promise<T> {
@@ -51,9 +44,13 @@ export class MemoryObjectCache implements ObjectCache {
     return this.cache.has(key)
   }
 
-  async invalidate(key: string): Promise<void> {
+  async invalidate(key: string, local?: boolean): Promise<void> {
     this.cache.del(key)
     this.events.emit('invalidation', key)
+
+    if (!local) {
+      await coreActions.invalidateFile(key)
+    }
   }
 
   async invalidateStartingWith(prefix: string): Promise<void> {

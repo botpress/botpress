@@ -1,7 +1,5 @@
 import { BotConfig, Logger } from 'botpress/sdk'
-import { BotHealth } from 'common/typings'
 import { BotEditSchema } from 'common/validation'
-import { registerMsgHandler, StudioMessage } from 'core/app/handler'
 import { TYPES } from 'core/app/types'
 import { GhostService, ReplaceContent } from 'core/bpfs'
 import { CMSService } from 'core/cms'
@@ -12,7 +10,6 @@ import { WrapErrorsWith } from 'errors'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Joi from 'joi'
 import _ from 'lodash'
-import moment from 'moment'
 import path from 'path'
 
 const BOT_CONFIG_FILENAME = 'bot.config.json'
@@ -22,12 +19,11 @@ const debug = DEBUG('services:bots')
 
 @injectable()
 export class BotService {
-  public mountBot: Function = this._localMount
-  public unmountBot: Function = this._localUnmount
+  public mountBot: Function = this.localMount
+  public unmountBot: Function = this.localUnmount
 
   private _botIds: string[] | undefined
   private static _mountedBots: Map<string, boolean> = new Map()
-  private static _botHealth: { [botId: string]: BotHealth } = {}
 
   constructor(
     @inject(TYPES.Logger)
@@ -39,16 +35,12 @@ export class BotService {
     @inject(TYPES.JobService) private jobService: JobService
   ) {
     this._botIds = undefined
-
-    registerMsgHandler(StudioMessage.SET_BOT_MOUNT_STATUS, async ({ botId, isMounted }) => {
-      isMounted ? await this._localMount(botId) : await this._localUnmount(botId)
-    })
   }
 
   @postConstruct()
   async init() {
-    this.mountBot = await this.jobService.broadcast<void>(this._localMount.bind(this))
-    this.unmountBot = await this.jobService.broadcast<void>(this._localUnmount.bind(this))
+    this.mountBot = await this.jobService.broadcast<void>(this.localMount.bind(this))
+    this.unmountBot = await this.jobService.broadcast<void>(this.localUnmount.bind(this))
   }
 
   async findBotById(botId: string): Promise<BotConfig | undefined> {
@@ -220,8 +212,7 @@ export class BotService {
     return BotService._mountedBots.get(botId) || false
   }
 
-  // Do not use directly use the public version instead due to broadcasting
-  private async _localMount(botId: string): Promise<boolean> {
+  async localMount(botId: string): Promise<boolean> {
     const startTime = Date.now()
     if (this.isBotMounted(botId)) {
       return true
@@ -258,8 +249,7 @@ export class BotService {
     }
   }
 
-  // Do not use directly use the public version instead due to broadcasting
-  private async _localUnmount(botId: string) {
+  async localUnmount(botId: string) {
     const startTime = Date.now()
     if (!this.isBotMounted(botId)) {
       this._invalidateBotIds()
@@ -282,13 +272,5 @@ export class BotService {
     const bots: string[] = []
     BotService._mountedBots.forEach((isMounted, bot) => isMounted && bots.push(bot))
     return bots
-  }
-
-  private async _updateBotHealth(): Promise<void> {
-    const botIds = await this.getBotsIds()
-
-    Object.keys(BotService._botHealth)
-      .filter(x => !botIds.includes(x))
-      .forEach(id => delete BotService._botHealth[id])
   }
 }

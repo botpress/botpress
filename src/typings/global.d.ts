@@ -61,6 +61,8 @@ declare namespace NodeJS {
     WEB_WORKER: number
     TRAINING_WORKERS: number[]
     USE_JWT_COOKIES: boolean
+    // The internal password is used for inter-process communication
+    INTERNAL_PASSWORD: string
   }
 }
 

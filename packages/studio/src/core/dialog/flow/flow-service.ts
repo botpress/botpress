@@ -3,13 +3,12 @@ import { ArrayCache } from 'common/array-cache'
 import { ObjectCache } from 'common/object-cache'
 import { TreeSearch, PATH_SEPARATOR } from 'common/treeSearch'
 import { FlowMutex, FlowView, NodeView } from 'common/typings'
-import { coreActions } from 'core/app/handler'
+import { coreActions } from 'core/app/core-proxy'
 import { TYPES } from 'core/app/types'
 import { BotService } from 'core/bots'
 import { GhostService, ScopedGhostService } from 'core/bpfs'
 import { JobService } from 'core/distributed/job-service'
 import { KeyValueStore, KvsService } from 'core/kvs'
-import { ModuleLoader } from 'core/modules'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Joi from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -294,7 +293,7 @@ export class ScopedFlowService {
     const currentMutex = await this._testAndLockMutex(userEmail, flow.location || flow.name)
     const mutexFlow: FlowView = { ...flow, currentMutex }
 
-    this.notifyChanges({
+    await this.notifyChanges({
       botId: this.botId,
       name: flow.name,
       modification: 'create',
@@ -310,7 +309,7 @@ export class ScopedFlowService {
 
     const mutexFlow: FlowView = { ...flow, currentMutex }
 
-    this.notifyChanges({
+    await this.notifyChanges({
       name: flow.name,
       botId: this.botId,
       modification: 'update',
@@ -355,7 +354,7 @@ export class ScopedFlowService {
 
     await Promise.all([this.ghost.deleteFile(FLOW_DIR, fileToDelete!), this.ghost.deleteFile(FLOW_DIR, uiPath)])
 
-    this.notifyChanges({
+    await this.notifyChanges({
       name: flowName,
       botId: this.botId,
       modification: 'delete',
@@ -381,13 +380,13 @@ export class ScopedFlowService {
       this.ghost.renameFile(FLOW_DIR, previousUiName, newUiName)
     ])
 
-    coreActions.onModuleEvent('onFlowRenamed', {
+    await coreActions.onModuleEvent('onFlowRenamed', {
       botId: this.botId,
       previousFlowName: previousName,
       newFlowName: newName
     })
 
-    this.notifyChanges({
+    await this.notifyChanges({
       name: previousName,
       botId: this.botId,
       modification: 'rename',
@@ -396,8 +395,8 @@ export class ScopedFlowService {
     })
   }
 
-  private notifyChanges = (modification: FlowModification) => {
-    coreActions.notifyFlowChanges(modification)
+  private notifyChanges = async (modification: FlowModification) => {
+    await coreActions.notifyFlowChanges(modification)
   }
 
   private _buildFlowMutexKey(flowLocation: string): string {
@@ -470,7 +469,7 @@ export class ScopedFlowService {
     }
 
     if (!isNew) {
-      coreActions.onModuleEvent('onFlowChanged', { botId: this.botId, flow })
+      await coreActions.onModuleEvent('onFlowChanged', { botId: this.botId, flow })
     }
 
     const uiContent = {
@@ -509,7 +508,7 @@ export class ScopedFlowService {
     topics = topics.filter(x => x.name !== topicName)
 
     await this.ghost.upsertFile('ndu', 'topics.json', JSON.stringify(topics, undefined, 2))
-    coreActions.onModuleEvent('onTopicChanged', { botId: this.botId, oldName: topicName, newName: undefined })
+    await coreActions.onModuleEvent('onTopicChanged', { botId: this.botId, oldName: topicName, newName: undefined })
   }
 
   public async createTopic(topic: Topic) {
@@ -517,7 +516,7 @@ export class ScopedFlowService {
     topics = _.uniqBy([...topics, topic], x => x.name)
 
     await this.ghost.upsertFile('ndu', 'topics.json', JSON.stringify(topics, undefined, 2))
-    coreActions.onModuleEvent('onTopicChanged', { botId: this.botId, oldName: undefined, newName: topic.name })
+    await coreActions.onModuleEvent('onTopicChanged', { botId: this.botId, oldName: undefined, newName: topic.name })
   }
 
   public async updateTopic(topic: Topic, topicName: string) {
@@ -527,7 +526,7 @@ export class ScopedFlowService {
     await this.ghost.upsertFile('ndu', 'topics.json', JSON.stringify(topics, undefined, 2))
 
     if (topicName !== topic.name) {
-      coreActions.onModuleEvent('onTopicChanged', { botId: this.botId, oldName: topicName, newName: topic.name })
+      await coreActions.onModuleEvent('onTopicChanged', { botId: this.botId, oldName: topicName, newName: topic.name })
 
       const flows = await this.loadAll()
 

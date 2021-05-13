@@ -6,7 +6,7 @@ import sdk from 'botpress/sdk'
 import chalk from 'chalk'
 import { BotpressApp, createApp } from 'core/app/core-loader'
 import { ModuleConfigEntry } from 'core/config'
-import { centerText, LoggerProvider } from 'core/logger'
+import { centerText, LoggerProvider, LogLevel } from 'core/logger'
 import { ModuleLoader, ModuleResolver } from 'core/modules'
 import fs from 'fs'
 import _ from 'lodash'
@@ -37,7 +37,7 @@ async function setupDebugLogger(provider: LoggerProvider) {
     const rest = args.slice(1)
 
     logger
-      .level(sdk.LogLevel.DEBUG)
+      .level(LogLevel.DEBUG)
       .persist(false)
       .forBot(botId)
       .debug(message.trim(), rest)
@@ -48,7 +48,7 @@ async function setupDebugLogger(provider: LoggerProvider) {
     const rest = args.slice(1)
 
     logger
-      .level(sdk.LogLevel.DEBUG)
+      .level(LogLevel.DEBUG)
       .persist(false)
       .debug(message.trim(), rest)
   }

@@ -11,8 +11,6 @@ import _ from 'lodash'
 import socketio, { Adapter } from 'socket.io'
 import redisAdapter from 'socket.io-redis'
 import socketioJwt from 'socketio-jwt'
-import { registerStudioHandler, StudioMessage } from 'studio-proxy'
-import { RealTimePayload as RealTimePayloadImpl } from './payload-sdk-impl'
 
 const debug = DEBUG('realtime')
 
@@ -48,11 +46,6 @@ export class RealtimeService {
     })
 
     this.useRedis = process.CLUSTER_ENABLED && Boolean(process.env.REDIS_URL) && process.IS_PRO_ENABLED
-
-    registerStudioHandler(StudioMessage.NOTIFY_FLOW_CHANGE, message => {
-      const payload = RealTimePayloadImpl.forAdmins('flow.changes', message.payload)
-      this.sendToSocket(payload)
-    })
   }
 
   private isEventTargeted(eventName: string | string[]): boolean {

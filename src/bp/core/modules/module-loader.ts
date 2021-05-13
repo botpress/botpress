@@ -21,7 +21,6 @@ import joi from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import path from 'path'
-import { registerStudioHandler, StudioMessage } from 'studio-proxy'
 import tmp from 'tmp'
 
 import { extractArchive } from '../misc/archive'
@@ -113,25 +112,7 @@ export class ModuleLoader {
     private logger: Logger,
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
-  ) {
-    registerStudioHandler(StudioMessage.ON_MODULE_EVENT, message => {
-      const { botId, flow } = message.payload
-
-      switch (message.eventType) {
-        case 'onFlowChanged':
-          return this.onFlowChanged(botId, flow)
-        case 'onFlowRenamed':
-          const { previousFlowName, nextFlowName } = message.payload
-          return this.onFlowRenamed(botId, previousFlowName, nextFlowName)
-        case 'onElementChanged':
-          const { action, element, oldElement } = message.payload
-          return this.onElementChanged(botId, action, element, oldElement)
-        case 'onTopicChanged':
-          const { oldName, newName } = message.payload
-          return this.onTopicChanged(botId, oldName, newName)
-      }
-    })
-  }
+  ) {}
 
   public get configReader() {
     if (this._configReader) {

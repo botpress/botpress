@@ -8,20 +8,19 @@ import cookieParser from 'cookie-parser'
 import session from 'cookie-session'
 import { TYPES } from 'core/app/types'
 import { BotService, BotsRouter } from 'core/bots'
-import { GhostService } from 'core/bpfs'
+import { GhostService, MemoryObjectCache } from 'core/bpfs'
 import { CMSService } from 'core/cms'
 import { ConfigProvider } from 'core/config'
 import { FlowService, SkillService } from 'core/dialog'
 import { MediaServiceProvider } from 'core/media'
 import { ModuleLoader, ModulesRouter } from 'core/modules'
 import { monitoringMiddleware } from 'core/routers'
-import { hasPermissions, needPermissions, AuthService } from 'core/security'
-
+import { AuthService } from 'core/security'
 import { ActionService, ActionServersService, HintsService } from 'core/user-code'
 import { WorkspaceService } from 'core/users'
 import cors from 'cors'
 import errorHandler from 'errorhandler'
-import express, { NextFunction, Response } from 'express'
+import express from 'express'
 import rateLimit from 'express-rate-limit'
 import { createServer, Server } from 'http'
 import { createProxyMiddleware } from 'http-proxy-middleware'
@@ -67,7 +66,8 @@ export class HTTPServer {
     @inject(TYPES.GhostService) private ghostService: GhostService,
     @inject(TYPES.HintsService) hintsService: HintsService,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
-    @inject(TYPES.BotService) private botService: BotService
+    @inject(TYPES.BotService) private botService: BotService,
+    @inject(TYPES.ObjectCache) private objectCache: MemoryObjectCache
   ) {
     this.app = express()
 
@@ -101,6 +101,7 @@ export class HTTPServer {
       mediaServiceProvider,
       actionServersService,
       hintsService,
+      objectCache,
       this
     )
 
@@ -192,7 +193,7 @@ export class HTTPServer {
       this.app.use(cookieParser())
     }
 
-    const target = `http://localhost:${process.core_env.RUNTIME_PORT}`
+    const target = `http://localhost:${process.core_env.CORE_PORT}`
     const proxyPaths = ['/api/v1/bots/*/nlu']
 
     this.app.use(proxyPaths, createProxyMiddleware({ target, changeOrigin: true, logLevel: 'silent' }))

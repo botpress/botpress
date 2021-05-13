@@ -1,5 +1,3 @@
-import { EventEmitter } from 'events'
-
 global['NativePromise'] = global.Promise
 
 const fs = require('fs')
@@ -45,9 +43,13 @@ if (process.env.APP_DATA_PATH) {
 }
 
 process.IS_FAILSAFE = yn(process.env.BP_FAILSAFE)
-
 process.LOADED_MODULES = {}
-process.PROJECT_LOCATION = process.env.PROJECT_LOCATION || path.resolve(__dirname, '../../../out/bp')
+
+process.PROJECT_LOCATION =
+  process.env.PROJECT_LOCATION ||
+  (process.pkg
+    ? path.dirname(process.execPath) // We point at the binary path
+    : path.resolve(__dirname, '../bp')) // e.g. /dist/..
 
 process.stderr.write = stripDeprecationWrite
 
@@ -76,7 +78,6 @@ try {
 
   process.IS_PRO_AVAILABLE = fs.existsSync(path.resolve(process.PROJECT_LOCATION, 'pro')) || !!process.pkg
   process.BPFS_STORAGE = process.core_env.BPFS_STORAGE || 'disk'
-  process.env.NATIVE_EXTENSIONS_DIR = '../../../build/native-extensions'
 
   process.CLUSTER_ENABLED = yn(process.env.CLUSTER_ENABLED)
   process.IS_PRO_ENABLED = yn(process.env.PRO_ENABLED) || yn(process.env['BP_CONFIG_PRO.ENABLED'])
