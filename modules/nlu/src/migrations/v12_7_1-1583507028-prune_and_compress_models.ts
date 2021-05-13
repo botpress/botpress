@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import { Model } from 'common/nlu/engine'
 import fse, { WriteStream } from 'fs-extra'
 import _ from 'lodash'
 import path from 'path'
@@ -9,6 +8,23 @@ import tmp from 'tmp'
 
 export const MODELS_DIR = './models'
 const MAX_MODELS_TO_KEEP = 2
+
+interface ModelId {
+  specificationHash: string // represents the nlu engine that was used to train the model
+  contentHash: string // represents the intent and entity definitions the model was trained with
+  seed: number // number to seed the random number generators used during nlu training
+  languageCode: string // language of the model
+}
+
+interface Model {
+  id: ModelId
+  startedAt: Date
+  finishedAt: Date
+  data: {
+    input: string
+    output: string
+  }
+}
 
 function makeFileName(hash: string, lang: string): string {
   return `${hash}.${lang}.model`

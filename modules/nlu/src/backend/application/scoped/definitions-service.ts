@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import * as NLU from 'common/nlu/engine'
 import { I } from '../typings'
 import { IDefinitionsRepository } from './infrastructure/definitions-repository'
 
@@ -8,9 +7,17 @@ type DirtyModelCallback = (language: string) => Promise<void>
 interface BotDefinition {
   languages: string[]
   seed: number
+  botId: string
 }
 
 export type IDefinitionsService = I<ScopedDefinitionsService>
+
+interface TrainingSet {
+  intentDefs: sdk.NLU.IntentDefinition[]
+  entityDefs: sdk.NLU.EntityDefinition[]
+  languageCode: string
+  seed: number // seeds random number generator in nlu training
+}
 
 export class ScopedDefinitionsService {
   private _languages: string[]
@@ -20,12 +27,7 @@ export class ScopedDefinitionsService {
 
   private _dirtyModelsListeners: DirtyModelCallback[] = []
 
-  constructor(
-    bot: BotDefinition,
-    private _engine: NLU.Engine,
-    private _definitionRepository: IDefinitionsRepository,
-    private _modelIdService: typeof NLU.modelIdService
-  ) {
+  constructor(bot: BotDefinition, private _definitionRepository: IDefinitionsRepository) {
     this._languages = bot.languages
     this._seed = bot.seed
   }
@@ -42,19 +44,7 @@ export class ScopedDefinitionsService {
     this._dirtyModelsListeners.push(listener)
   }
 
-  public async getLatestModelId(languageCode: string): Promise<NLU.ModelId> {
-    const { _engine } = this
-
-    const trainSet = await this.getTrainSet(languageCode)
-
-    const specifications = _engine.getSpecifications()
-    return this._modelIdService.makeId({
-      ...trainSet,
-      specifications
-    })
-  }
-
-  public async getTrainSet(languageCode: string): Promise<NLU.TrainingSet> {
+  public async getTrainSet(languageCode: string): Promise<TrainingSet> {
     const trainDefinitions = await this._definitionRepository.getTrainDefinitions()
 
     return {
@@ -70,15 +60,13 @@ export class ScopedDefinitionsService {
       if (!hasPotentialNLUChange) {
         return
       }
-
-      await Promise.filter(this._languages, async l => {
-        const modelId = await this.getLatestModelId(l)
-        return !this._engine.hasModel(modelId)
-      }).mapSeries(this._notifyListeners)
+      await Promise.map(this._languages, this._notifyListeners)
     })
   }
 
   private _notifyListeners = (language: string) => {
-    return Promise.mapSeries(this._dirtyModelsListeners, l => l(language))
+    return Promise.mapSeries(this._dirtyModelsListeners, l => {
+      return l(language)
+    })
   }
 }
