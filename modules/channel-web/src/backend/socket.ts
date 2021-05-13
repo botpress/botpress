@@ -1,14 +1,19 @@
 import * as sdk from 'botpress/sdk'
+import { ChannelRenderer, ChannelSender } from 'common/channel'
 import _ from 'lodash'
-import path from 'path'
+import { WebCommonRenderer } from '../renderers'
+import { WebCommonSender } from '../senders'
 
 import Database from './db'
+import { WebContext } from './typings'
 
-const outgoingTypes = ['text', 'typing', 'login_prompt', 'file', 'carousel', 'custom', 'data', 'video', 'audio']
+export const CHANNEL_NAME = 'web'
 
 export default async (bp: typeof sdk, db: Database) => {
   const config: any = {} // FIXME
   const { botName = 'Bot', botAvatarUrl = undefined } = config || {} // FIXME
+  const renderers: ChannelRenderer<WebContext>[] = [new WebCommonRenderer()]
+  const senders: ChannelSender<WebContext>[] = [new WebCommonSender()]
 
   bp.events.registerMiddleware({
     description:
@@ -21,57 +26,37 @@ export default async (bp: typeof sdk, db: Database) => {
   })
 
   async function outgoingHandler(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
-    if (event.channel !== 'web') {
+    if (event.channel !== CHANNEL_NAME) {
       return next()
     }
 
-    const messageType = event.type === 'default' ? 'text' : event.type
-    const userId = event.target
-    const conversationId = event.threadId || (await db.getOrCreateRecentConversation(event.botId, userId))
-
-    if (!_.includes(outgoingTypes, messageType)) {
-      bp.logger.warn(`Unsupported event type: ${event.type}`)
-      return next(undefined, true)
+    const context: WebContext = {
+      bp,
+      event,
+      client: bp,
+      handlers: [],
+      payload: _.cloneDeep(event.payload),
+      botUrl: process.EXTERNAL_URL,
+      messages: [],
+      conversationId: event.threadId || (await db.getOrCreateRecentConversation(event.botId, event.target)),
+      db,
+      botName,
+      botAvatarUrl
     }
 
-    const standardTypes = ['text', 'carousel', 'custom', 'file', 'login_prompt', 'video', 'audio']
-
-    if (!event.payload.type) {
-      event.payload.type = messageType
+    for (const renderer of renderers) {
+      if (renderer.handles(context)) {
+        renderer.render(context)
+        context.handlers.push(renderer.id)
+      }
     }
 
-    if (messageType === 'typing') {
-      const typing = parseTyping(event.payload.value)
-      const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.typing', { timeInMs: typing, conversationId })
-      // Don't store "typing" in DB
-      bp.realtime.sendPayload(payload)
-      // await Promise.delay(typing)
-    } else if (messageType === 'data') {
-      const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.data', event.payload)
-      bp.realtime.sendPayload(payload)
-    } else if (standardTypes.includes(messageType)) {
-      const message = await db.appendBotMessage(
-        (event.payload || {}).botName || botName,
-        (event.payload || {}).botAvatarUrl || botAvatarUrl,
-        conversationId,
-        event.payload,
-        event.incomingEventId,
-        event.id
-      )
-      bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
-    } else {
-      bp.logger.warn(`Message type "${messageType}" not implemented yet`)
+    for (const sender of senders) {
+      if (sender.handles(context)) {
+        await sender.send(context)
+      }
     }
 
     next(undefined, false)
-    // TODO Make official API (BotpressAPI.events.updateStatus(event.id, 'done'))
   }
-}
-
-function parseTyping(typing) {
-  if (isNaN(typing)) {
-    return 1000
-  }
-
-  return Math.max(typing, 500)
 }
