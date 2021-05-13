@@ -10,6 +10,7 @@ import ms from 'ms'
 const GLOBAL = '__global__'
 const TABLE_NAME = 'srv_kvs'
 
+// The KVS is temporary on the studio, so flows can be locked while a user works on it
 @injectable()
 export class KeyValueStore {
   private services: _.Dictionary<KvsService> = {}

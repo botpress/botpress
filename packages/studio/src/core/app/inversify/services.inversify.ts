@@ -6,7 +6,7 @@ import { DialogContainerModule } from 'core/dialog/dialog.inversify'
 import { CEJobService, JobService } from 'core/distributed/job-service'
 import { KeyValueStore } from 'core/kvs'
 import { MediaServiceProvider } from 'core/media'
-import { AuthService, AuthStrategies, CEAuthStrategies } from 'core/security'
+import { AuthService } from 'core/security'
 import { ActionService, ActionServersService, HintsService } from 'core/user-code'
 import { ContainerModule, interfaces } from 'inversify'
 
@@ -33,11 +33,6 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
     .to(CEJobService)
     .inSingletonScope()
     .when(() => !process.CLUSTER_ENABLED || !process.IS_PRO_ENABLED)
-
-  bind<AuthStrategies>(TYPES.AuthStrategies)
-    .to(CEAuthStrategies)
-    .inSingletonScope()
-    .when(() => !process.IS_PRO_ENABLED)
 
   bind<HintsService>(TYPES.HintsService)
     .to(HintsService)

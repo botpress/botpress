@@ -3,11 +3,9 @@ import { RequestWithUser } from 'common/typings'
 import { ConfigProvider } from 'core/config'
 import {
   InvalidOperationError,
-  BadRequestError,
   ForbiddenError,
   InternalServerError,
   NotFoundError,
-  PaymentRequiredError,
   UnauthorizedError
 } from 'core/routers'
 import { WorkspaceService } from 'core/users'
@@ -66,42 +64,6 @@ export const checkTokenHeader = (authService: AuthService, audience?: string) =>
   next()
 }
 
-export const assertSuperAdmin = (req: Request, res: Response, next: Function) => {
-  const { tokenUser } = <RequestWithUser>req
-  if (!tokenUser) {
-    debugSuperFailure(`${req.originalUrl} %o`, {
-      method: req.method,
-      ip: req.ip
-    })
-    return next(new InternalServerError('No tokenUser in request'))
-  }
-
-  if (!tokenUser.isSuperAdmin) {
-    debugSuperFailure(`${req.originalUrl} %o`, {
-      method: req.method,
-      ip: req.ip,
-      user: tokenUser
-    })
-    return next(new ForbiddenError('User needs to be super admin to perform this action'))
-  }
-
-  debugSuperSuccess(`${req.originalUrl} %o`, {
-    url: req.originalUrl,
-    method: req.method,
-    ip: req.ip,
-    user: tokenUser
-  })
-
-  next()
-}
-
-export const assertWorkspace = async (req: RequestWithUser, _res: Response, next: NextFunction) => {
-  if (!req.workspace) {
-    return next(new InvalidOperationError('Workspace is missing. Set header X-BP-Workspace'))
-  }
-  next()
-}
-
 /**
  * This method checks if the user exists, if he has access to the requested workspace, and if his role
  * allows him to do the requested operation. No other security checks should be needed.
@@ -111,20 +73,6 @@ export const needPermissions = (workspaceService: WorkspaceService) => (operatio
   _res: Response,
   next: NextFunction
 ) => {
-  const err = await checkPermissions(workspaceService)(operation, resource)(req)
-  return next(err)
-}
-
-/**
- * This method checks if the user has read access if method is get, and write access otherwise
- */
-export const checkMethodPermissions = (workspaceService: WorkspaceService) => (resource: string) => async (
-  req: RequestWithUser,
-  _res: Response,
-  next: NextFunction
-) => {
-  const method = req.method.toLowerCase()
-  const operation = method === 'get' || method === 'options' ? 'read' : 'write'
   const err = await checkPermissions(workspaceService)(operation, resource)(req)
   return next(err)
 }

@@ -65,8 +65,6 @@ export const stringify = content => JSON.stringify(content, undefined, 2)
 
 export const forceForwardSlashes = path => path.replace(/\\/g, '/')
 
-export const getCacheKeyInMinutes = (minutes: number = 1) => Math.round(new Date().getTime() / 1000 / 60 / minutes)
-
 /** Case-insensitive "startsWith" */
 export const startsWithI = (a: string, b: string) => a.toLowerCase().startsWith(b.toLowerCase())
 export const asBytes = (size: string) => {
@@ -124,11 +122,4 @@ export const sanitize = (input: string, type?: 'file' | 'folder') => {
     .replace(regex.control, '')
     .replace(regex.reserved, '')
     .replace(type === 'folder' ? regex.illegalFolder : regex.illegalFile, '')
-}
-
-export const sanitizeFileName = (name: string): string => {
-  return name
-    .toLowerCase()
-    .replace(/\.json$/i, '')
-    .replace(/[\t\s]/gi, '-')
 }

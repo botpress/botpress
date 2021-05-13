@@ -107,17 +107,6 @@ export class ScopedActionService {
     return actions
   }
 
-  private async _getActionDetails(actionName: string) {
-    const action = await this._findAction(actionName)
-    const code = await this._getActionScript(action.name, action.scope, action.legacy)
-
-    const botFolder = action.scope === 'global' ? 'global' : `bots/${this.botId}`
-    const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}.js`))
-    const lookups = getBaseLookupPaths(dirPath, 'actions')
-
-    return { code, dirPath, lookups, action }
-  }
-
   private _listenForCacheInvalidation() {
     const clearDebounce = _.debounce(this._clearCache.bind(this), DEBOUNCE_DELAY, { leading: true, trailing: false })
 
@@ -157,16 +146,5 @@ export class ScopedActionService {
 
     this._scriptsCache.set(`${name}_${legacy}_${scope}`, script)
     return script
-  }
-
-  private async _findAction(actionName: string): Promise<LocalActionDefinition> {
-    const actions = await this.listActions()
-    const action = actions.find(x => x.name === actionName)
-
-    if (!action) {
-      throw new Error(`Action "${actionName}" not found`)
-    }
-
-    return action
   }
 }

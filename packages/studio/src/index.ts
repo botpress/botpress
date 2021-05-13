@@ -1,11 +1,11 @@
 global['NativePromise'] = global.Promise
 
-const fs = require('fs')
-const path = require('path')
-const yn = require('yn')
-const { getAppDataPath } = require('./core/misc/app_data')
-const { Debug } = require('./debug')
-const getos = require('./getos')
+import { getAppDataPath } from 'core/misc/app_data'
+import fs from 'fs'
+import path from 'path'
+import yn from 'yn'
+import { Debug } from './debug'
+import getos from './getos'
 
 const printPlainError = err => {
   /* eslint-disable no-console */
@@ -54,6 +54,7 @@ process.PROJECT_LOCATION =
 process.stderr.write = stripDeprecationWrite
 
 process.on('unhandledRejection', err => {
+  console.trace(err)
   global.printErrorDefault(err)
   if (!process.IS_FAILSAFE) {
     process.exit(1)
@@ -84,12 +85,9 @@ try {
 
   const start = async () => {
     process.VERBOSITY_LEVEL = defaultVerbosity
+    process.distro = await getos()
 
-    getos.default().then(distro => {
-      process.distro = distro
-
-      require('./core/app/bootstrap')
-    })
+    require('./core/app/bootstrap')
   }
 
   // eslint-disable-next-line @typescript-eslint/no-floating-promises

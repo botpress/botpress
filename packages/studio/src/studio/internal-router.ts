@@ -35,11 +35,9 @@ export class InternalRouter extends CustomStudioRouter {
     router.post(
       '/invalidateFile',
       this.asyncMiddleware(async (req, res) => {
-        const { source, key } = req.body
+        const { key } = req.body
 
-        if (source !== 'studio') {
-          await this.objectCache.invalidate(key, true)
-        }
+        await this.objectCache.invalidate(key, true)
 
         res.sendStatus(200)
       })

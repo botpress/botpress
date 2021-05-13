@@ -14,14 +14,6 @@ export interface JobService {
    * @param T The return type of the returned function
    */
   broadcast<T>(fn: Function): Promise<Function>
-
-  acquireLock(resource: string, duration: number): Promise<RedisLock | undefined>
-
-  clearLock(resource: string): Promise<boolean>
-
-  getRedisClient(): Redis | undefined
-
-  getNumberOfSubscribers(): Promise<number>
 }
 
 @injectable()
@@ -30,43 +22,5 @@ export class CEJobService implements JobService {
 
   async broadcast<T>(fn: Function): Promise<Function> {
     return fn
-  }
-
-  async acquireLock(resource: string, duration: number): Promise<RedisLock | undefined> {
-    if (this.locks[resource]) {
-      if (this.locks[resource] <= new Date()) {
-        delete this.locks[resource]
-      } else {
-        return
-      }
-    }
-
-    this.locks[resource] = moment()
-      .add(duration)
-      .toDate()
-
-    return {
-      unlock: async () => {
-        delete this.locks[resource]
-      },
-      extend: async (duration: number) => {
-        this.locks[resource] = moment(this.locks[resource])
-          .add(duration)
-          .toDate()
-      }
-    }
-  }
-
-  async clearLock(resource: string): Promise<boolean> {
-    delete this.locks[resource]
-    return true
-  }
-
-  getRedisClient(): undefined {
-    return
-  }
-
-  async getNumberOfSubscribers(): Promise<number> {
-    return 1
   }
 }

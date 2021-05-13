@@ -48,7 +48,7 @@ export class MemoryObjectCache implements ObjectCache {
     this.cache.del(key)
     this.events.emit('invalidation', key)
 
-    if (!local) {
+    if (!local && !process.CLUSTER_ENABLED) {
       await studioActions.invalidateFile(key)
     }
   }

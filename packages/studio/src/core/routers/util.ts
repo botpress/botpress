@@ -11,35 +11,6 @@ import { BadRequestError } from './errors'
 
 // TODO: Remove BPRequest, AsyncMiddleware and asyncMiddleware from this file
 
-export type BPRequest = Request & {
-  authUser: StrategyUser | undefined
-  tokenUser: TokenUser | undefined
-  credentials: any | undefined
-  workspace?: string
-}
-
-export type AsyncMiddleware = (
-  fn: (req: BPRequest, res: Response, next?: NextFunction | undefined) => Promise<any>
-) => (req: Request, res: Response, next: NextFunction) => void
-
-export const asyncMiddleware = (logger: Logger, routerName: string): AsyncMiddleware => fn => (req, res, next) => {
-  Promise.resolve(fn(req as BPRequest, res, next)).catch(err => {
-    if (typeof err === 'string') {
-      err = {
-        skipLogging: false,
-        message: err
-      }
-    }
-
-    err.router = routerName
-    if (!err.skipLogging && !process.IS_PRODUCTION) {
-      logger.attachError(err).debug(`[${routerName}] Async request error ${err.message}`)
-    }
-
-    next(err)
-  })
-}
-
 export const monitoringMiddleware = (req, res, next) => {
   const startAt = Date.now()
 
@@ -51,18 +22,6 @@ export const monitoringMiddleware = (req, res, next) => {
 
   next()
 }
-
-export const validateRequestSchema = (property: string, req: Request, schema: Joi.AnySchema) => {
-  const result = Joi.validate(req[property], schema)
-
-  if (result.error) {
-    throw new BadRequestError(result.error.message)
-  }
-
-  Object.assign(req[property], result.value)
-}
-
-export const validateBodySchema = (req: Request, schema: Joi.AnySchema) => validateRequestSchema('body', req, schema)
 
 export const sendSuccess = <T extends {}>(res: Response, message: string = 'Success', payload?: T) => {
   res.json({
@@ -103,12 +62,4 @@ export const fileUploadMulter = (allowedMimeTypes: string[] = [], maxFileSize?: 
       fileSize: (maxFileSize && asBytes(maxFileSize)) || undefined
     }
   }).single('file')
-}
-
-export interface TypedRequest<T> extends Request {
-  body: T
-}
-
-export interface TypedResponse<T> extends Response {
-  send: (body: T) => TypedResponse<T>
 }

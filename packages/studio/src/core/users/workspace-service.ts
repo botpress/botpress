@@ -15,14 +15,6 @@ import { StrategyUsersRepository, WorkspaceUsersRepository } from 'core/users'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
-export const ROLLOUT_STRATEGIES: RolloutStrategy[] = [
-  'anonymous',
-  'anonymous-invite',
-  'authenticated',
-  'authenticated-invite',
-  'authorized'
-]
-
 export const CHAT_USER_ROLE = {
   id: 'chatuser',
   name: 'Chat User',
@@ -38,8 +30,6 @@ export const CHAT_USER_ROLE = {
     }
   ]
 }
-
-const UNLIMITED = -1
 
 @injectable()
 export class WorkspaceService {
@@ -60,20 +50,6 @@ export class WorkspaceService {
     }
 
     return workspaces
-  }
-
-  async save(workspaces: Workspace[]): Promise<void> {
-    return this.ghost.global().upsertFile('/', 'workspaces.json', JSON.stringify(workspaces, undefined, 2))
-  }
-
-  async getBotRefs(workspaceId?: string): Promise<string[]> {
-    if (!workspaceId) {
-      const workspace = await this.getWorkspaces()
-      return _.flatten(workspace.map(x => x.bots))
-    } else {
-      const workspace = await this.findWorkspace(workspaceId)
-      return (workspace && workspace.bots) || []
-    }
   }
 
   async findWorkspace(workspaceId: string): Promise<Workspace> {
@@ -98,64 +74,6 @@ export class WorkspaceService {
     return list.find(x => x.workspace === workspace)
   }
 
-  async getUserWorkspaces(email: string, strategy: string): Promise<WorkspaceUser[]> {
-    const userWorkspaces = await this.workspaceRepo.getUserWorkspaces(email, strategy)
-    return Promise.map(userWorkspaces, async userWorkspace => ({
-      ...userWorkspace,
-      workspaceName: await this.findWorkspaceName(userWorkspace.workspace)
-    }))
-  }
-
-  async getWorkspaceUsers(
-    workspace: string,
-    options: Partial<GetWorkspaceUsersOptions> = {}
-  ): Promise<WorkspaceUser[] | WorkspaceUserWithAttributes[]> {
-    const opts: GetWorkspaceUsersOptions = { attributes: [], includeSuperAdmins: false, ...options }
-
-    const superAdmins = opts.includeSuperAdmins ? await this.getSuperAdmins(workspace) : []
-    const workspaceUsers = [...superAdmins, ...(await this.workspaceRepo.getWorkspaceUsers(workspace))]
-
-    if (!opts.attributes.length || (typeof opts.attributes === 'string' && opts.attributes !== '*')) {
-      return workspaceUsers
-    }
-
-    const uniqStrategies = _(workspaceUsers)
-      .map('strategy')
-      .uniq()
-      .value()
-    const attrToFetch = opts.attributes === '*' ? undefined : opts.attributes
-    const allUsersAttrs = await this._getUsersAttributes(workspaceUsers, uniqStrategies, attrToFetch)
-
-    return workspaceUsers.map(u => ({
-      ..._.omit(u, ['password', 'salt']),
-      attributes: allUsersAttrs[u.email.toLowerCase()]
-    })) as WorkspaceUserWithAttributes[]
-  }
-
-  private async getSuperAdmins(workspace: string): Promise<WorkspaceUser[]> {
-    return (await this.configProvider.getBotpressConfig()).superAdmins.map(u => ({
-      ...(u as StrategyUser),
-      role: 'admin', // purposefully marked as admin and not superadmin
-      workspace
-    }))
-  }
-
-  private async _getUsersAttributes(
-    users: WorkspaceUser[],
-    strategies: string[],
-    attributes: string[] | undefined
-  ): Promise<{ [email: string]: object }> {
-    const userStrategyInfo = await Promise.map(strategies, strategy => {
-      const emails = users.filter(u => u.strategy === strategy).map(u => u.email)
-      return this.usersRepo.getMultipleUserAttributes(emails, strategy, attributes)
-    })
-
-    return _.flatten(userStrategyInfo).reduce((attrs, userInfo) => {
-      attrs[userInfo.email] = { ...attrs[userInfo.email], ...userInfo.attributes }
-      return attrs
-    }, {})
-  }
-
   async findRole(roleId: string, workspaceId: string): Promise<AuthRole> {
     const workspace = await this.findWorkspace(workspaceId)
     const role = [...workspace.roles, CHAT_USER_ROLE].find(r => r.id === roleId)
@@ -175,17 +93,5 @@ export class WorkspaceService {
   async getRoleForUser(email: string, strategy: string, workspace: string): Promise<AuthRole | undefined> {
     const user = await this.findUser(email, strategy, workspace)!
     return user && this.findRole(user.role!, workspace)
-  }
-
-  async getPipeline(workspaceId: string): Promise<Pipeline | undefined> {
-    const workspaces = await this.getWorkspaces()
-    const workspace = workspaces.find(x => x.id === workspaceId)
-
-    return workspace?.pipeline
-  }
-
-  async hasPipeline(workspaceId: string): Promise<boolean> {
-    const pipeline = await this.getPipeline(workspaceId)
-    return !!pipeline && pipeline.length > 1
   }
 }

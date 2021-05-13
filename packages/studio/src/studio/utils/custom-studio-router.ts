@@ -1,13 +1,12 @@
 import { Logger } from 'botpress/sdk'
 import { AsyncMiddleware, asyncMiddleware } from 'common/http'
-import { RequestWithUser } from 'common/typings'
 import { BotService } from 'core/bots'
 import { GhostService, MemoryObjectCache } from 'core/bpfs'
 import { CMSService } from 'core/cms'
 import { ConfigProvider } from 'core/config/config-loader'
 import { FlowService } from 'core/dialog'
 import { MediaServiceProvider } from 'core/media'
-import { AuthService, TOKEN_AUDIENCE, needPermissions, hasPermissions, checkTokenHeader } from 'core/security'
+import { AuthService, TOKEN_AUDIENCE, needPermissions, checkTokenHeader } from 'core/security'
 import { ActionServersService, ActionService, HintsService } from 'core/user-code'
 import { WorkspaceService } from 'core/users'
 import { RequestHandler, Router } from 'express'
@@ -30,7 +29,6 @@ export abstract class CustomStudioRouter {
 
   protected readonly needPermissions: (operation: string, resource: string) => RequestHandler
   protected readonly asyncMiddleware: AsyncMiddleware
-  protected readonly hasPermissions: (req: RequestWithUser, operation: string, resource: string) => Promise<boolean>
   protected readonly checkTokenHeader: RequestHandler
 
   public readonly router: Router
@@ -38,7 +36,6 @@ export abstract class CustomStudioRouter {
   constructor(name: string, services: StudioServices) {
     this.asyncMiddleware = asyncMiddleware(services.logger, name)
     this.needPermissions = needPermissions(services.workspaceService)
-    this.hasPermissions = hasPermissions(services.workspaceService)
     this.checkTokenHeader = checkTokenHeader(services.authService, TOKEN_AUDIENCE)
 
     this.router = Router({ mergeParams: true })

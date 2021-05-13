@@ -1,17 +1,7 @@
-import { Logger, RouterOptions } from 'botpress/sdk'
-
+import { Logger } from 'botpress/sdk'
 import { BotService } from 'core/bots'
 import { ConfigProvider } from 'core/config'
-
-import {
-  AuthService,
-  TOKEN_AUDIENCE,
-  checkMethodPermissions,
-  checkTokenHeader,
-  needPermissions,
-  checkBotVisibility
-} from 'core/security'
-
+import { AuthService, TOKEN_AUDIENCE, checkTokenHeader, needPermissions, checkBotVisibility } from 'core/security'
 import { WorkspaceService } from 'core/users'
 import express, { RequestHandler, Router } from 'express'
 import _ from 'lodash'
