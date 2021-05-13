@@ -363,10 +363,7 @@ class RootStore {
 
   @action.bound
   async uploadFile(title: string, payload: string, file: File): Promise<void> {
-    const data = new FormData()
-    data.append('file', file)
-
-    await this.api.uploadFile(data, this.currentConversationId)
+    await this.api.uploadFile(file, this.currentConversationId)
   }
 
   /** Use this method to replace a value or add a new config */
