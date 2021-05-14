@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 
+import { makeNLUPassword } from 'common/nlu-token'
 import _ from 'lodash'
 
 import { Config, LanguageSource } from '../config'
@@ -18,7 +19,8 @@ import { StanClient } from './stan/client'
 const getNLUServerConfig = (config: Config['nluServer']): LanguageSource => {
   if (config.autoStart) {
     return {
-      endpoint: 'http://localhost:3200'
+      endpoint: 'http://localhost:3200',
+      authToken: makeNLUPassword()
     }
   }
 
