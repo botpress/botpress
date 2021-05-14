@@ -202,7 +202,7 @@ class ConfigView extends Component<Props, State> {
       }
 
       if (allow) {
-        await axios.post(`admin/workspace/bots/${this.props.bot.id}`, bot, axiosConfig)
+        await axios.post(`studio/${this.props.bot.id}/config`, bot, axiosConfig)
         toastSuccess(lang.tr('config.configUpdated'))
         this.setState({ error: undefined, isSaving: false })
 
@@ -285,7 +285,7 @@ class ConfigView extends Component<Props, State> {
     }
 
     try {
-      const res = await axios.post(`bots/${this.props.bot.id}/media`, data, {
+      const res = await axios.post(`studio/${this.props.bot.id}/media`, data, {
         ...axiosConfig,
         headers: { 'Content-Type': 'multipart/form-data' }
       })

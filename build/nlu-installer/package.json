@@ -1,0 +1,17 @@
+{
+  "name": "nlu-installer",
+  "version": "1.0.0",
+  "description": "Small package to install nlu binary at the correct location",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "dependencies": {
+    "cli-progress": "^3.8.2"
+  },
+  "devDependencies": {
+    "@types/cli-progress": "^3.8.0"
+  },
+  "scripts": {
+    "start": "node ./dist/index.js",
+    "build": "tsc"
+  }
+}

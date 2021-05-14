@@ -34,8 +34,8 @@ function renderElement(data, channel) {
 
 module.exports = {
   id: 'builtin_video',
-  group: 'Built-in Video',
-  title: 'Video',
+  group: 'Built-in Messages',
+  title: 'module.builtin.types.video.title',
 
   jsonSchema: {
     description: 'module.builtin.types.video.description',

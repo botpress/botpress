@@ -319,11 +319,6 @@
         "standard": "Noeud standard",
         "trigger": "Déclencheur"
       },
-      "notifications": {
-        "deleteAll": "Supprimer tout",
-        "markRead": "Tout marquer comme lu",
-        "noNotifs": "Vous n'avez aucune notification!"
-      },
       "nowSaveAuto": "Pssst! Les flows sont désormais enregistrés automatiquement, plus besoin d'enregistrer.",
       "removeFromLibrary": "Supprimer de la bibliothèque",
       "sessionStartsHere": "Chaque session utilisateur commence ici",

@@ -13,7 +13,6 @@ import storage from '~/util/storage'
 import Config from '~/views/Config'
 import Content from '~/views/Content'
 import FlowBuilder from '~/views/FlowBuilder'
-import Logs from '~/views/Logs'
 import Module from '~/views/Module'
 import NLU from '~/views/Nlu'
 
@@ -223,7 +222,6 @@ const Layout: FC<Props> = (props: Props) => {
                 <Route exact path="/config" component={Config} />
                 <Route exact path="/nlu" component={NLU} />
                 <Route exact path="/modules/:moduleName/:componentName?" render={props => <Module {...props} />} />
-                <Route exact path="/logs" component={Logs} />
               </Switch>
             </main>
             <BottomPanel />

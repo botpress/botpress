@@ -104,8 +104,8 @@ export const loadUser = (authService: AuthService) => async (req: Request, res: 
 export const fileUploadMulter = (allowedMimeTypes: string[] = [], maxFileSize?: string) => {
   const allowedMimeTypesRegex = allowedMimeTypes.map(mimeType => {
     // '*' is not a valid regular expression
-    if (mimeType === '*') {
-      mimeType = '.*'
+    if (mimeType.includes('*')) {
+      mimeType = mimeType.replace('*', '.*')
     }
 
     return new RegExp(mimeType, 'i')
@@ -113,15 +113,23 @@ export const fileUploadMulter = (allowedMimeTypes: string[] = [], maxFileSize?: 
 
   return multer({
     fileFilter: (_req, file, cb) => {
-      const extMimeType = mime.lookup(file.originalname)
+      const extMimeType = mime.lookup(file.originalname) || ''
       if (
         allowedMimeTypesRegex.some(regex => regex.test(file.mimetype)) &&
-        extMimeType &&
         allowedMimeTypesRegex.some(regex => regex.test(extMimeType))
       ) {
         return cb(null, true)
       }
-      cb(new Error(`This type of file is not allowed: ${file.mimetype}`))
+
+      if (!extMimeType) {
+        cb(
+          new Error(
+            `The file has no extension: ${file.originalname}. To allow any kind of files, set the value of "allowedMimeTypes" to "['*']" in your botpress.config.json file.`
+          )
+        )
+      } else {
+        cb(new Error(`This type of file is not allowed: ${file.mimetype}`))
+      }
     },
     limits: {
       fileSize: (maxFileSize && asBytes(maxFileSize)) || undefined

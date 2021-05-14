@@ -6,6 +6,8 @@ import _ from 'lodash'
 import { Config } from '../config'
 
 import { BASE_DATA } from './base-data'
+import MLToolkit from './ml/toolkit'
+import { MLToolkit as IMLToolkit } from './ml/typings'
 import { Features } from './typings'
 
 const debug = DEBUG('ndu').sub('processing')
@@ -72,11 +74,11 @@ export class UnderstandingEngine {
   private _allTriggers: Map<string, sdk.NDU.Trigger[]> = new Map()
   private _minConfidence: number
 
-  trainer: sdk.MLToolkit.SVM.Trainer
-  predictor: sdk.MLToolkit.SVM.Predictor
+  trainer: IMLToolkit.SVM.Trainer
+  predictor: IMLToolkit.SVM.Predictor
 
   constructor(private bp: typeof sdk, private _dialogConditions: sdk.Condition[], config: Config) {
-    this.trainer = new this.bp.MLToolkit.SVM.Trainer()
+    this.trainer = new MLToolkit.SVM.Trainer()
     this._minConfidence = config.minimumConfidence ?? DEFAULT_MIN_CONFIDENCE
   }
 
@@ -123,7 +125,8 @@ export class UnderstandingEngine {
       const data = dataset.map(([feat, label]) => ({ label, coordinates: this.featToVec(feat) }))
       const duplicatedArray = _.shuffle(_.flatten(_.times(10, () => data)))
       const model = await this.trainer.train(duplicatedArray)
-      this.predictor = new this.bp.MLToolkit.SVM.Predictor(model)
+      this.predictor = new MLToolkit.SVM.Predictor(model)
+      await this.predictor.initialize()
     }
   }
 

@@ -76,7 +76,7 @@ for (const [content, file, save] of amendFiles(true)) {
   // fstream vulnerability CVE-2019-13173
   content.resolutions = Object.assign({}, content.resolutions, {
     fstream: '>=1.0.12',
-    lodash: '>=4.17.19'
+    lodash: '>=4.17.21'
   })
   save()
 }

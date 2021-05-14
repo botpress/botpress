@@ -18,27 +18,6 @@ class MediaRouter extends CustomStudioRouter {
   async setupRoutes(botpressConfig: BotpressConfig) {
     const router = this.router
 
-    router.get(
-      '/:filename',
-      this.asyncMiddleware(async (req, res) => {
-        const botId = req.params.botId
-        const type = path.extname(req.params.filename)
-
-        const mediaService = this.mediaServiceProvider.forBot(botId)
-        const contents = await mediaService.readFile(req.params.filename).catch(() => undefined)
-        if (!contents) {
-          return res.sendStatus(404)
-        }
-
-        // files are never overwritten because of the unique ID
-        // so we can set the header to cache the asset for 1 year
-        return res
-          .set({ 'Cache-Control': 'max-age=31556926' })
-          .type(type)
-          .send(contents)
-      })
-    )
-
     const mediaUploadMulter = fileUploadMulter(
       botpressConfig.fileUpload.allowedMimeTypes ?? DEFAULT_ALLOWED_MIME_TYPES,
       botpressConfig.fileUpload.maxFileSize ?? DEFAULT_MAX_FILE_SIZE

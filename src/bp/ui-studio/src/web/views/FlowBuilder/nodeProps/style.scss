@@ -199,3 +199,9 @@ h5 {
 .actionServer {
   margin: 5px 6px 0 0;
 }
+
+.actionList {
+  display: flex;
+  flex-direction: column;
+  line-break: anywhere;
+}

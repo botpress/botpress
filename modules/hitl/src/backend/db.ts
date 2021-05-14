@@ -5,8 +5,6 @@ import _ from 'lodash'
 import { SDK } from '.'
 import { HitlSession, HitlSessionOverview, Message, SessionIdentity } from './typings'
 
-const toBool = s => this.knex.bool.parse(s)
-
 // trims SQL queries from objects
 const toPlainObject = object =>
   _.mapValues(object, v => {
@@ -258,6 +256,7 @@ export default class HitlDb {
   async isSessionPaused(session: SessionIdentity): Promise<boolean> {
     const { botId, channel, userId, sessionId, threadId } = session
 
+    const toBool = s => this.knex.bool.parse(s)
     return this.knex('hitl_sessions')
       .where(sessionId ? { id: sessionId } : { botId, channel, userId, threadId })
       .select('paused')

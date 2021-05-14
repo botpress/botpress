@@ -1,9 +1,8 @@
 import { Logger, NLU } from 'botpress/sdk'
-import * as NLUEngine from './sdk.u.test'
 import _ from 'lodash'
 
 import { NLUApplication } from '../../'
-import { ScopedServicesFactory, DefinitionRepositoryFactory, ModelRepositoryFactory } from '../../bot-factory'
+import { ScopedServicesFactory, DefinitionRepositoryFactory } from '../../bot-factory'
 import { BotService } from '../../bot-service'
 import { DistributedTrainingQueue } from '../../distributed-training-queue'
 import { TrainingQueueOptions } from '../../training-queue'
@@ -12,32 +11,30 @@ import { TrainDefinitions } from '../../scoped/infrastructure/definitions-reposi
 import { FakeTrainingRepository } from './fake-training-repo.u.test'
 import { FakeDefinitionRepo } from './fake-def-repo.u.test'
 import { FakeEngine, FakeEngineOptions } from './fake-engine.u.test'
-import { FakeModelRepo } from './fake-model-repo.u.test'
 import { StubLogger } from './stub-logger.u.test'
 import { sleep } from './utils.u.test'
 
 import { TrainingSession } from '../../typings'
 import { FakeDistributed } from './fake-distributed.u.test'
+import { Specifications } from '../../../stan/typings_v1'
+import { IStanEngine } from '../../../stan'
 
 interface AppDependencies {
   socket: jest.Mock<Promise<void>, [TrainingSession]>
-  modelRepoByBot: _.Dictionary<FakeModelRepo>
   defRepoByBot: _.Dictionary<FakeDefinitionRepo>
   trainingRepo: FakeTrainingRepository
   distributed: FakeDistributed
-  engine: NLUEngine.Engine
-  errors: typeof NLUEngine.errors
+  engine: IStanEngine
   logger: Logger
 }
 
 interface BotFileSystem {
   definitions: TrainDefinitions
-  modelsOnFs: NLUEngine.ModelId[]
 }
 
 interface CoreSpecs {
   languages: string[]
-  specs: NLUEngine.Specifications
+  specs: Specifications
 }
 
 export const makeDependencies = (
@@ -46,31 +43,22 @@ export const makeDependencies = (
   engineOptions: Partial<FakeEngineOptions> = {}
 ): AppDependencies => {
   const { languages, specs } = core
-  const errors: typeof NLUEngine.errors = {
-    isTrainingAlreadyStarted: () => false,
-    isTrainingCanceled: () => false
-  }
+
   const logger = new StubLogger()
   const socket = jest.fn()
   const engine = new FakeEngine(languages, specs, engineOptions)
   const defRepoByBot = _.mapValues(fsByBot, fs => new FakeDefinitionRepo(fs.definitions))
-  const modelRepoByBot = _.mapValues(
-    fsByBot,
-    fs => new FakeModelRepo(fs.modelsOnFs.map(id => ({ id })) as NLUEngine.Model[])
-  )
 
   const trainingRepo = new FakeTrainingRepository()
   const distributed = new FakeDistributed()
 
   return {
-    errors,
     logger,
     socket,
     engine,
     distributed,
     trainingRepo,
-    defRepoByBot,
-    modelRepoByBot
+    defRepoByBot
   }
 }
 
@@ -78,31 +66,15 @@ export const makeApp = async (
   dependencies: AppDependencies,
   options: Partial<TrainingQueueOptions & { queueTrainingOnBotMount?: boolean }> = {}
 ) => {
-  const { socket, engine, errors, logger, defRepoByBot, modelRepoByBot, trainingRepo, distributed } = dependencies
+  const { socket, engine, logger, defRepoByBot, trainingRepo, distributed } = dependencies
 
-  const modelRepoFactory: ModelRepositoryFactory = ({ botId }) => modelRepoByBot[botId]
   const defRepoFactory: DefinitionRepositoryFactory = ({ botId }) => defRepoByBot[botId]
 
   const botService = new BotService()
 
-  const actualModelIdService = NLUEngine.modelIdService
-  const servicesFactory = new ScopedServicesFactory(
-    engine,
-    logger,
-    actualModelIdService,
-    defRepoFactory,
-    modelRepoFactory
-  )
+  const servicesFactory = new ScopedServicesFactory(engine, logger, defRepoFactory)
 
-  const trainingQueue = new DistributedTrainingQueue(
-    trainingRepo,
-    errors,
-    logger,
-    botService,
-    distributed,
-    socket,
-    options
-  )
+  const trainingQueue = new DistributedTrainingQueue(trainingRepo, logger, botService, distributed, socket, options)
 
   await trainingQueue.initialize()
 

@@ -57,7 +57,7 @@ export const dialogConditions: sdk.Condition[] = [
         label: 'Name of the topic',
         type: 'list',
         list: {
-          endpoint: 'BOT_API_PATH/topics',
+          endpoint: 'STUDIO_API_PATH/topics',
           valueField: 'name',
           labelField: 'name'
         }

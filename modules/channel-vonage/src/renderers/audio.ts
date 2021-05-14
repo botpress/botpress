@@ -25,10 +25,12 @@ export class VonageAudioRenderer implements ChannelRenderer<VonageContext> {
     const payload = context.payload as sdk.AudioContent
 
     context.messages.push({
-      type: 'audio',
-      text: undefined,
-      audio: {
-        url: formatUrl(context.botUrl, payload.audio)
+      content: {
+        type: 'audio',
+        text: undefined,
+        audio: {
+          url: formatUrl(context.botUrl, payload.audio)
+        }
       }
     })
   }

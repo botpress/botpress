@@ -41,6 +41,21 @@ export class RenderService {
     })
   }
 
+  renderLocation(
+    latitude: number,
+    longitude: number,
+    address?: string | sdk.MultiLangText,
+    title?: string | sdk.MultiLangText
+  ): sdk.LocationContent {
+    return __unrendered({
+      type: 'location',
+      latitude,
+      longitude,
+      address,
+      title
+    })
+  }
+
   renderCard(
     title: string | sdk.MultiLangText,
     image?: string,

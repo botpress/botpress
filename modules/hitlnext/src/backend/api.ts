@@ -229,6 +229,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       let handoff = await repository.findHandoff(req.params.botId, req.params.id)
 
       const axioxconfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
+      // TODO replace this by messaging API
       const { data } = await Axios.post(
         '/mod/channel-web/conversations/new',
         { userId: agentId, webSessionId },
@@ -256,54 +257,59 @@ export default async (bp: typeof sdk, state: StateType) => {
 
       const configs: Config = await bp.config.getModuleConfigForBot(MODULE_NAME, req.params.botId)
 
-      const baseCustomEventPayload: Partial<sdk.IO.EventCtorArgs> = {
-        botId: handoff.botId,
-        direction: 'outgoing',
-        type: 'custom',
-        payload: {
-          type: 'custom',
-          module: MODULE_NAME
-        }
-      }
-
-      const eventDestination = {
-        botId: req.params.botId,
-        target: handoff.userId,
-        threadId: handoff.userThreadId,
-        channel: handoff.userChannel
-      }
-
       if (configs.assignMessage) {
-        bp.events.replyToEvent(
-          eventDestination,
-          await bp.cms.renderElement(
-            '@builtin_text',
-            { type: 'text', text: configs.assignMessage, agentName: agentName(agent) },
-            eventDestination
-          )
+        const eventDestination = {
+          botId: req.params.botId,
+          target: handoff.userId,
+          threadId: handoff.userThreadId,
+          channel: handoff.userChannel
+        }
+
+        // TODO replace this by render service
+        const assignedPayload = await bp.cms.renderElement(
+          '@builtin_text',
+          { type: 'text', text: configs.assignMessage, agentName: agentName(agent) },
+          eventDestination
         )
+        bp.events.replyToEvent(eventDestination, assignedPayload)
       }
 
-      const recentEvents = await bp.events.findEvents(
+      // TODO replace this by messaging api once all channels have been ported
+      const rencentUserConversationEvents = await bp.events.findEvents(
         { botId, threadId: handoff.userThreadId },
         { count: 10, sortOrder: [{ column: 'id', desc: true }] }
       )
 
-      // custom event to agent
+      const baseEvent: Partial<sdk.IO.EventCtorArgs> = {
+        direction: 'outgoing',
+        channel: 'web',
+        botId: handoff.botId,
+        target: handoff.agentId,
+        threadId: handoff.agentThreadId
+      }
+
+      await Promise.mapSeries(rencentUserConversationEvents.reverse(), event => {
+        // @ts-ignore
+        const e = bp.IO.Event({
+          type: event.event.type,
+          payload: event.event.payload,
+          ...baseEvent
+        } as sdk.IO.EventCtorArgs)
+        return bp.events.sendEvent(e)
+      })
+
       await bp.events.sendEvent(
-        bp.IO.Event(
-          _.merge(_.cloneDeep(baseCustomEventPayload), {
-            target: handoff.agentId,
-            channel: 'web',
-            threadId: handoff.agentThreadId,
-            payload: {
-              component: 'HandoffAssignedForAgent',
-              recentEvents,
-              noBubble: true,
-              wrapped: { type: 'handoff' }
-            } // super hack to make sure wrapper use our style, don't change this until fixed properly
-          } as sdk.IO.EventCtorArgs)
-        )
+        bp.IO.Event({
+          ...baseEvent,
+          type: 'custom',
+          payload: {
+            type: 'custom',
+            module: MODULE_NAME,
+            component: 'HandoffAssignedForAgent',
+            noBubble: true,
+            wrapped: { type: 'handoff' }
+          }
+        } as sdk.IO.EventCtorArgs)
       )
 
       realtime.sendPayload(req.params.botId, {
