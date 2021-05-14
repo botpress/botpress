@@ -10,6 +10,9 @@ interface CssExports {
   'agentListItem': string;
   'app': string;
   'badge': string;
+  'bot': string;
+  'bpwChatBubble': string;
+  'bpwChatBubbleContent': string;
   'clientName': string;
   'column': string;
   'commentForm': string;
@@ -26,11 +29,15 @@ interface CssExports {
   'liveConversation': string;
   'mainContent': string;
   'mainNav': string;
+  'message': string;
+  'messageContainer': string;
+  'messageList': string;
   'profileHeader': string;
   'sidebar': string;
   'sidebarContainer': string;
   'table': string;
   'unreadDot': string;
+  'user': string;
   'w100': string;
   'webchatIframe': string;
   'webchatWrapper': string;
