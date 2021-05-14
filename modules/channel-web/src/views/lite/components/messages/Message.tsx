@@ -8,7 +8,7 @@ import { RootStore, StoreDef } from '../../store'
 import { Renderer } from '../../typings'
 import * as Keyboard from '../Keyboard'
 
-import { Carousel, FileMessage, LoginPrompt, Text } from './renderer'
+import { Carousel, FileMessage, LoginPrompt, Text, VoiceMessage } from './renderer'
 
 class Message extends Component<MessageProps> {
   state = {
@@ -16,7 +16,7 @@ class Message extends Component<MessageProps> {
     showMore: false
   }
 
-  static getDerivedStateFromError(_error) {
+  static getDerivedStateFromError(_error: Error) {
     return { hasError: true }
   }
 
@@ -73,6 +73,16 @@ class Message extends Component<MessageProps> {
 
   render_file() {
     return <FileMessage file={this.props.payload} escapeTextHTML={this.props.store.escapeHTML} />
+  }
+
+  render_voice() {
+    return (
+      <VoiceMessage
+        file={this.props.payload}
+        shouldPlay={this.props.shouldPlay}
+        onAudioEnded={this.props.onAudioEnded}
+      />
+    )
   }
 
   render_custom() {
