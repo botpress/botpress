@@ -115,7 +115,7 @@ export default class ActionSection extends Component {
 
     return (
       <Fragment>
-        <div>
+        <div className={style.actionList}>
           {this.renderWait()}
           {items.map((item, i) => (
             <Popover interactionKind={PopoverInteractionKind.HOVER} position={PopoverPosition.LEFT}>

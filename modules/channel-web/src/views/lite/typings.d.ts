@@ -47,6 +47,10 @@ export namespace Renderer {
 
     onSendData?: (data: any) => Promise<void>
     onFileUpload?: (label: string, payload: any, file: File) => Promise<void>
+
+    /** Allows to autoplay voice messages coming from the bot */
+    onAudioEnded?: () => void
+    shouldPlay?: boolean
   }
 
   export type Button = {
@@ -83,6 +87,17 @@ export namespace Renderer {
       text: string
     }
     escapeTextHTML: boolean
+  }
+
+  export interface VoiceMessage {
+    file: {
+      type: string
+      audio: string
+      autoPlay?: boolean
+    }
+
+    shouldPlay: boolean
+    onAudioEnded: () => void
   }
 
   export interface FileInput {

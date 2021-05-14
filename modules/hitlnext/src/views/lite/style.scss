@@ -9,86 +9,13 @@
   border-radius: 2px;
   color: var(--shark);
   padding: 6px;
+  margin-top: var(--spacing-x-large);
 }
 
 .voiceButton {
   position: relative !important;
   transform: none !important;
   right: auto !important;
-}
-
-.messageList {
-  flex-grow: 1;
-  overflow-y: auto;
-
-  .messageContainer {
-    display: flex;
-    width: 100%;
-    .message {
-      max-width: 75%;
-      max-width: 75%;
-      border: solid 1px var(--bg);
-      font-size: 12px;
-      line-height: 1.25;
-      border-radius: 15px;
-      color: var(--shark);
-      padding: var(--spacing-medium);
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    &.user {
-      justify-content: flex-start;
-      .message {
-        border-bottom-left-radius: 0;
-      }
-    }
-    &.bot {
-      justify-content: flex-end;
-      .message {
-        border-bottom-right-radius: 0;
-        background-color: var(--bg);
-      }
-    }
-  }
-
-  //TODO remove this whole shit
-  .bpwChatBubble {
-    margin-bottom: var(--spacing-medium);
-    white-space: pre-wrap;
-    word-break: break-word;
-
-    p {
-      margin: 0;
-    }
-  }
-
-  .bpwChatBubble:first-of-type {
-    border-top-left-radius: 0px;
-    border-top-right-radius: 0px;
-  }
-
-  .bpwChatBubble:last-of-type {
-    border-bottom-right-radius: 0px;
-    border-bottom-left-radius: 0px;
-  }
-
-  .bpwChatBubbleContent {
-    border: solid 1px var(--seashell);
-    font-size: 12px;
-    line-height: 1.25;
-    border-radius: 15px;
-    color: var(--shark);
-    padding: var(--spacing-medium);
-    transition: border 0.3s, background 0.3s, color 0.3s;
-
-    .createdDate {
-      color: var(--reef) !important;
-      font-size: 10px;
-      line-height: 1.25;
-    }
-  }
 }
 
 .composerContainer {

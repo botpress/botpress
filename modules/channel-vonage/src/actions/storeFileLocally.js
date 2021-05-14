@@ -1,6 +1,8 @@
 const axios = require('axios')
 const FormData = require('form-data')
 const uuidv4 = require('uuid').v4
+const path = require('path')
+const ms = require('ms')
 
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition#syntax
 // Content-disposition header looks like this: Content-Disposition: attachment; filename="filename.ext"
@@ -48,15 +50,33 @@ const storeFileLocally = async () => {
   const fileUrl = event.payload[prop]
 
   try {
-    const resp = await axios.get(fileUrl, { responseType: 'arraybuffer' })
+    const TIMEOUT = ms('5s')
 
-    const filename = extractFilenameFromHeader(resp.headers) || event.payload.title || event.payload.caption || uuidv4()
+    bp.logger.debug('[StoreFileLocally] - Downloading file:', fileUrl)
+
+    // Timeout will not work if the server never or is very very slow to respond.
+    // Which is the case when using the Sandbox: https://github.com/axios/axios/issues/647
+    const resp = await axios.get(fileUrl, { responseType: 'arraybuffer', timeout: TIMEOUT })
+
+    bp.logger.debug('[StoreFileLocally] - File downloaded successfully!')
+
+    let filename = extractFilenameFromHeader(resp.headers) || event.payload.title || event.payload.caption || uuidv4()
+
+    // If the file does not have an extension, we imply that it's a binary file
+    if (!path.extname(filename)) {
+      filename = `${filename}.bin`
+    }
 
     const formData = new FormData()
     formData.append('file', Buffer.from(resp.data.buffer), filename)
 
     const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
     axiosConfig.headers['Content-Type'] = `multipart/form-data; boundary=${formData.getBoundary()}`
+    axiosConfig.timeout = TIMEOUT
+    axiosConfig.maxContentLength = Infinity
+    axiosConfig.maxBodyLength = Infinity
+
+    bp.logger.debug('[StoreFileLocally] - Storing the file using the Media Service...')
 
     const {
       data: { url }
@@ -70,7 +90,7 @@ const storeFileLocally = async () => {
       message = err.response.data
     }
 
-    bp.logger.error('[StoreFileLocally] - Error while storing the file', message)
+    bp.logger.error('[StoreFileLocally] - Error while storing the file:', message)
   }
 }
 

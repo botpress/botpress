@@ -35,9 +35,9 @@ services:
   botpress:
     image: botpress/server:$TAG
     environment:
-      - PRO_ENABLED=true
+      - BP_CONFIG_PRO_ENABLED=true
       - CLUSTER_ENABLED=true
-      - BP_LICENSE_KEY=<license_key>
+      - BP_CONFIG_PRO_LICENSEKEY=<license_key>
       - EXTERNAL_URL=https://yourbot.yourhostname.com
       - DATABASE_URL=postgres://user:pass@host/dbName
       - REDIS_URL=redis://host:port
