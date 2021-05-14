@@ -77,13 +77,13 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
   }
 
   onVoiceNotAvailable() {
-    console.log(
+    console.warn(
       'Voice input is not available on this browser. Please check https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API for compatibility'
     )
   }
 
   render() {
-    if(this.props.composerHidden) {
+    if (this.props.composerHidden) {
       return null
     }
 

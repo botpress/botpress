@@ -66,7 +66,7 @@ export class AuthService {
 
   private async local__tokenVersionChange(email: string, strategy: string, tokenVersion: number): Promise<void> {
     this.tokenVersions[getUserKey(email, strategy)] = tokenVersion
-    studioActions.updateTokenVersion(email, strategy, tokenVersion)
+    await studioActions.updateTokenVersion(email, strategy, tokenVersion)
   }
 
   async isFirstUser() {

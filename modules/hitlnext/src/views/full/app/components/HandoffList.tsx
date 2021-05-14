@@ -5,12 +5,12 @@ import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
 
 import { IHandoff } from '../../../../types'
 import CasesIcon from '../../Icons/CasesIcon'
+import style from '../../style.scss'
 import { Context } from '../Store'
 
 import HandoffItem from './HandoffItem'
 import HandoffListHeader, { FilterType, SortType } from './HandoffListHeader'
 
-import style from '../../style.scss'
 interface Props {
   handoffs: object
   loading: boolean
