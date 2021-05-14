@@ -119,7 +119,7 @@ const printGeneralInfos = () => {
   )
 
   testWriteAccess('Executable Location', process.PROJECT_LOCATION)
-  testWriteAccess('Data Folder', path.resolve(process.PROJECT_LOCATION, 'data'))
+  testWriteAccess('Data Folder', path.resolve(process.DATA_LOCATION))
   testWriteAccess('App Data Folder', process.APP_DATA_PATH)
 }
 

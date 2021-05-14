@@ -13,7 +13,7 @@ import { FileRevision, StorageDriver } from '../'
 
 @injectable()
 export class DiskStorageDriver implements StorageDriver {
-  resolvePath = (p: string) => path.resolve(process.PROJECT_LOCATION, p)
+  resolvePath = (p: string) => path.resolve(process.DATA_LOCATION, p)
 
   async upsertFile(filePath: string, content: string | Buffer): Promise<void>
   async upsertFile(filePath: string, content: string | Buffer, recordRevision: boolean = false): Promise<void> {

@@ -253,9 +253,9 @@ export class HookService {
 
   private async runScript(hookScript: HookScript, hook: Hooks.BaseHook) {
     const scope = (hookScript.botId ? `bots/${hookScript.botId}` : 'global') as ActionScope
-    const hookPath = `/data/${scope}/hooks/${hook.folder}/${hookScript.path}.js`
+    const hookPath = `/${scope}/hooks/${hook.folder}/${hookScript.path}.js`
 
-    const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, hookPath))
+    const dirPath = path.resolve(path.join(process.DATA_LOCATION, hookPath))
 
     const _require = this._prepareRequire(dirPath, hook.folder)
 

@@ -29,6 +29,7 @@ interface MenuItemProps {
   resource?: string
   operation?: 'read' | 'write'
   tag?: JSX.Element | undefined
+  standaloneDisabled?: boolean
 }
 
 const Menu: FC<Props> = props => {
@@ -42,7 +43,18 @@ const Menu: FC<Props> = props => {
     }
   }, [])
 
-  const MenuItem = ({ text, icon, url, id, isPro, operation, resource, superAdmin, tag }: MenuItemProps) => {
+  const MenuItem = ({
+    text,
+    icon,
+    url,
+    id,
+    isPro,
+    operation,
+    resource,
+    superAdmin,
+    tag,
+    standaloneDisabled
+  }: MenuItemProps) => {
     const workspaceId = getActiveWorkspace()
 
     let active = matchPath(props.location.pathname, { path: url })
@@ -53,6 +65,10 @@ const Menu: FC<Props> = props => {
     }
 
     if (!props.licensing || (isPro && !props.licensing.isPro)) {
+      return null
+    }
+
+    if (standaloneDisabled && window.IS_STANDALONE) {
       return null
     }
 
@@ -133,6 +149,7 @@ const Menu: FC<Props> = props => {
           resource="admin.collaborators.*"
           operation="read"
           isPro={true}
+          standaloneDisabled
         />
 
         <MenuItem
@@ -143,6 +160,7 @@ const Menu: FC<Props> = props => {
           resource="admin.roles.*"
           operation="read"
           isPro={true}
+          standaloneDisabled
         />
 
         <MenuItem
@@ -168,6 +186,7 @@ const Menu: FC<Props> = props => {
             text={lang.tr('admin.sideMenu.serverLicense')}
             icon={<MdCopyright />}
             url="/server/license"
+            standaloneDisabled
           />
           <MenuItem
             text={lang.tr('admin.sideMenu.languages')}
@@ -181,18 +200,21 @@ const Menu: FC<Props> = props => {
             id="btn-menu-checklist"
             icon="endorsed"
             url="/checklist"
+            standaloneDisabled
           />
           <MenuItem
             id="btn-menu-monitoring"
             text={lang.tr('admin.sideMenu.monitoring')}
             icon="timeline-line-chart"
             url="/server/monitoring"
+            standaloneDisabled
           />
           <MenuItem
             id="btn-menu-alerting"
             text={lang.tr('admin.sideMenu.alerting')}
             icon="notifications"
             url="/server/alerting"
+            standaloneDisabled
           />
         </AccessControl>
         <MenuItem

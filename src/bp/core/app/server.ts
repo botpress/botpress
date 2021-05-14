@@ -247,7 +247,8 @@ export class HTTPServer {
     window.EXPERIMENTAL = ${config.experimental};
     window.SOCKET_TRANSPORTS = ["${getSocketTransports(config).join('","')}"];
     window.SHOW_POWERED_BY = ${!!config.showPoweredBy};
-    window.UUID = "${this.machineId}"`
+    window.UUID = "${this.machineId}";
+    window.IS_STANDALONE = ${process.IS_STANDALONE}`
   }
 
   async start() {
@@ -381,7 +382,13 @@ export class HTTPServer {
 
     process.HOST = config.host
     process.PORT = await portFinder.getPortPromise({ port: config.port })
-    process.EXTERNAL_URL = process.env.EXTERNAL_URL || config.externalUrl || `http://${process.HOST}:${process.PORT}`
+
+    if (!process.IS_STANDALONE) {
+      process.EXTERNAL_URL = process.env.EXTERNAL_URL || config.externalUrl || `http://${process.HOST}:${process.PORT}`
+    } else {
+      process.EXTERNAL_URL = `http://localhost:${process.PORT}`
+    }
+
     process.LOCAL_URL = `http://${process.HOST}:${process.PORT}${process.ROOT_PATH}`
 
     if (process.PORT !== config.port) {
@@ -394,7 +401,7 @@ export class HTTPServer {
       )
     }
 
-    const hostname = config.host === 'localhost' ? undefined : config.host
+    const hostname = config.host === 'localhost' || process.IS_STANDALONE ? undefined : config.host
     await Promise.fromCallback(callback => {
       this.httpServer.listen(process.PORT, hostname, config.backlog, callback)
     })

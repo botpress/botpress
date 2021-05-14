@@ -213,6 +213,10 @@ export class Botpress {
   }
 
   async checkEditionRequirements() {
+    if (process.IS_STANDALONE) {
+      return
+    }
+
     const { DATABASE_URL } = process.env
     const dbType = DATABASE_URL && DATABASE_URL.toLowerCase().startsWith('postgres') ? 'postgres' : 'sqlite'
 

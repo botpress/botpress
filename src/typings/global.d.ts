@@ -22,6 +22,7 @@ declare namespace NodeJS {
     BPFS_STORAGE: 'database' | 'disk'
     APP_SECRET: string
     NLU_PASSWORD: string | undefined
+    IS_STANDALONE: boolean
     /**
      * Path to the global APP DATA folder, shared across all installations of Botpress Server
      * Use this folder to store stuff you'd like to cache, like NLU language models etc
@@ -35,6 +36,7 @@ declare namespace NodeJS {
     /** This is the subfolder where Botpress is located (ex: /botpress/). It is extracted from the external URL */
     ROOT_PATH: string
     PROJECT_LOCATION: string
+    DATA_LOCATION: string
     LOADED_MODULES: { [module: string]: string }
     pkg: any
     IS_LICENSED?: boolean

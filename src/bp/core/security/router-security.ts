@@ -1,4 +1,4 @@
-import { checkRule, CSRF_TOKEN_HEADER_LC, JWT_COOKIE_NAME } from 'common/auth'
+import { checkRule, CSRF_TOKEN_HEADER_LC, JWT_COOKIE_NAME, STANDALONE_USER } from 'common/auth'
 import { RequestWithUser } from 'common/typings'
 import { ALL_BOTS } from 'common/utils'
 import { ConfigProvider } from 'core/config'
@@ -26,6 +26,12 @@ export const checkTokenHeader = (authService: AuthService, audience?: string) =>
   next: NextFunction
 ) => {
   let token
+
+  if (process.IS_STANDALONE) {
+    req.tokenUser = STANDALONE_USER
+    req.workspace = 'default'
+    return next()
+  }
 
   if (process.USE_JWT_COOKIES) {
     if (!req.cookies[JWT_COOKIE_NAME]) {

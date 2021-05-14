@@ -29,6 +29,10 @@ class LicensingRouter extends CustomAdminRouter {
       this.asyncMiddleware(async (req, res) => {
         const { tokenUser } = <RequestWithUser>req
 
+        if (process.IS_STANDALONE) {
+          return sendSuccess<LicensingStatus>(res, 'License status', { ...defaultResponse, isPro: true })
+        }
+
         if (!process.IS_PRO_ENABLED) {
           return sendSuccess<LicensingStatus>(res, 'License status', { ...defaultResponse, isPro: false })
         }

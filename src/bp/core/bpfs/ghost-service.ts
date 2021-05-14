@@ -87,7 +87,7 @@ export class GhostService {
 
   // Not caching this scope since it's rarely used
   root(useDbDriver?: boolean): ScopedGhostService {
-    return new ScopedGhostService('./data', this.diskDriver, this.dbDriver, useDbDriver ?? this.useDbDriver, this.cache)
+    return new ScopedGhostService('./', this.diskDriver, this.dbDriver, useDbDriver ?? this.useDbDriver, this.cache)
   }
 
   global(): ScopedGhostService {
@@ -95,13 +95,7 @@ export class GhostService {
       return this._scopedGhosts.get(GLOBAL_GHOST_KEY)!
     }
 
-    const scopedGhost = new ScopedGhostService(
-      './data/global',
-      this.diskDriver,
-      this.dbDriver,
-      this.useDbDriver,
-      this.cache
-    )
+    const scopedGhost = new ScopedGhostService('./global', this.diskDriver, this.dbDriver, this.useDbDriver, this.cache)
 
     this._scopedGhosts.set(GLOBAL_GHOST_KEY, scopedGhost)
     return scopedGhost
@@ -153,8 +147,8 @@ export class GhostService {
 
   // TODO: refactor this
   async listFileChanges(tmpFolder: string): Promise<BpfsScopedChange[]> {
-    const tmpDiskGlobal = this.custom(path.resolve(tmpFolder, 'data/global'))
-    const tmpDiskBot = (botId?: string) => this.custom(path.resolve(tmpFolder, 'data/bots', botId || ''))
+    const tmpDiskGlobal = this.custom(path.resolve(tmpFolder, '/global'))
+    const tmpDiskBot = (botId?: string) => this.custom(path.resolve(tmpFolder, '/bots', botId || ''))
 
     // We need local and remote bot ids to correctly display changes
     const remoteBotIds = (await this.bots().directoryListing('/', 'bot.config.json')).map(path.dirname)
@@ -261,13 +255,7 @@ export class GhostService {
       return this._scopedGhosts.get(BOTS_GHOST_KEY)!
     }
 
-    const scopedGhost = new ScopedGhostService(
-      './data/bots',
-      this.diskDriver,
-      this.dbDriver,
-      this.useDbDriver,
-      this.cache
-    )
+    const scopedGhost = new ScopedGhostService('./bots', this.diskDriver, this.dbDriver, this.useDbDriver, this.cache)
 
     this._scopedGhosts.set(BOTS_GHOST_KEY, scopedGhost)
     return scopedGhost
@@ -283,7 +271,7 @@ export class GhostService {
     }
 
     const scopedGhost = new ScopedGhostService(
-      `./data/bots/${botId}`,
+      `./bots/${botId}`,
       this.diskDriver,
       this.dbDriver,
       this.useDbDriver,

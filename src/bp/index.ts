@@ -123,6 +123,11 @@ try {
             'When this flag is set, Botpress will automatically migrate your content and configuration files when upgrading',
           default: false,
           type: 'boolean'
+        },
+        dataFolder: {
+          alias: ['d', 'data'],
+          description: 'Starts Botpress in standalone mode on that specific data folder',
+          type: 'string'
         }
       },
       argv => {
@@ -133,6 +138,18 @@ try {
 
         process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : defaultVerbosity
         process.TELEMETRY_URL = process.env.TELEMETRY_URL || 'https://telemetry.botpress.cloud/ingest'
+
+        if (!argv.dataFolder) {
+          process.DATA_LOCATION = path.resolve(process.PROJECT_LOCATION, './data')
+        } else {
+          process.IS_STANDALONE = true
+          process.IS_PRO_ENABLED = false
+          process.BPFS_STORAGE = 'disk'
+          process.IS_PRODUCTION = false
+          process.CLUSTER_ENABLED = false
+
+          process.DATA_LOCATION = path.resolve(argv.dataFolder)
+        }
 
         getos.default().then(distro => {
           process.distro = distro

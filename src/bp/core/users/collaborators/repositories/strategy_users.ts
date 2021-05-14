@@ -1,4 +1,5 @@
 import { Paging, StrategyUser, UserInfo } from 'botpress/sdk'
+import { STANDALONE_USER } from 'common/auth'
 import Database from 'core/database'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
@@ -110,6 +111,10 @@ export class StrategyUsersRepository {
   }
 
   async findUser(email: string, strategy: string): Promise<StrategyUser | undefined> {
+    if (process.IS_STANDALONE) {
+      return { ...STANDALONE_USER, attributes: {} }
+    }
+
     if (!email || !strategy) {
       throw new Error('Email and Strategy are mandatory')
     }

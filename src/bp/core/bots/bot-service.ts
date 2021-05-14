@@ -173,7 +173,7 @@ export class BotService {
       throw new Error(`Bot "${botId}" doesn't exist`)
     }
 
-    if (!process.IS_PRO_ENABLED && updatedBot.languages && updatedBot.languages.length > 1) {
+    if (!process.IS_PRO_ENABLED && !process.IS_STANDALONE && updatedBot.languages && updatedBot.languages.length > 1) {
       throw new Error('A single language is allowed on community edition.')
     }
 

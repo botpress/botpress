@@ -41,7 +41,7 @@ export default () => {
       }
     })
   }
-  const AuthenticatedLayout = EnsureAuthenticated(Layout)
+  const AuthenticatedLayout = window.IS_STANDALONE ? Layout : EnsureAuthenticated(Layout)
 
   return (
     <Router history={history}>
