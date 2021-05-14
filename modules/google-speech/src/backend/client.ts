@@ -82,7 +82,7 @@ export class GoogleSpeechClient {
   }
 
   public async speechToText(audioFileUrl: string, language: string, timeout?: string): Promise<string | undefined> {
-    debugSpeechToText('Received audio file to recognize:', audioFileUrl)
+    debugSpeechToText(`Received audio file to recognize: ${audioFileUrl}`)
 
     // Media Service URLs (local URL)
     if (isBpUrl(audioFileUrl)) {
@@ -148,7 +148,7 @@ export class GoogleSpeechClient {
       return
     }
 
-    debugSpeechToText('Audio file metadata', meta)
+    debugSpeechToText(`Audio file metadata: ${meta}`)
 
     // Note that transcription is limited to 60 seconds audio.
     // Use a GCS file for audio longer than 1 minute.
@@ -204,7 +204,7 @@ export class GoogleSpeechClient {
     language: string,
     timeout?: string
   ): Promise<Uint8Array | string | undefined> {
-    debugTextToSpeech('Received text to convert into audio:', text)
+    debugTextToSpeech(`Received text to convert into audio: ${text}`)
 
     const request: ISynthesizeSpeechRequest = {
       input: { text },
@@ -227,7 +227,7 @@ export class GoogleSpeechClient {
       return response.audioContent
     } catch (err) {
       if (err instanceof TimeoutError) {
-        debugSpeechToText(`Audio production cancelled: ${err.message}`)
+        debugTextToSpeech(`Audio production cancelled: ${err.message}`)
       } else {
         throw err
       }
