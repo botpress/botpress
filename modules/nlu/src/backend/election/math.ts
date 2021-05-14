@@ -33,4 +33,9 @@ export function allInRange(vec: number[], lower: number, upper: number): boolean
   return vec.map(v => _.inRange(v, lower, upper)).every(_.identity)
 }
 
+export function scaleConfidences<T extends { confidence: number }>(x: T[]): T[] {
+  const totalConfInTopN = _.sumBy(x, xi => xi.confidence)
+  return x.map(xi => ({ ...xi, confidence: xi.confidence / totalConfInTopN }))
+}
+
 export { std }
