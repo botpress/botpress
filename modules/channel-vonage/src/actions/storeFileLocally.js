@@ -2,6 +2,7 @@ const axios = require('axios')
 const FormData = require('form-data')
 const uuidv4 = require('uuid').v4
 const path = require('path')
+const ms = require('ms')
 
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition#syntax
 // Content-disposition header looks like this: Content-Disposition: attachment; filename="filename.ext"
@@ -49,7 +50,7 @@ const storeFileLocally = async () => {
   const fileUrl = event.payload[prop]
 
   try {
-    const TIMEOUT = 5000 // timeout of 5 seconds
+    const TIMEOUT = ms('5s')
 
     bp.logger.debug('[StoreFileLocally] - Downloading file:', fileUrl)
 
