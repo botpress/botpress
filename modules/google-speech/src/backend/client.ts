@@ -1,13 +1,14 @@
-import { protos, SpeechClient } from '@google-cloud/speech'
+import { protos, v1p1beta1 } from '@google-cloud/speech'
 import { TextToSpeechClient } from '@google-cloud/text-to-speech'
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import { closest } from 'common/number'
+import { isBpUrl } from 'common/url'
 import * as mm from 'music-metadata'
 
 import { Config } from '../config'
 import { Audio } from './audio'
-import { SAMPLE_RATES } from './constants'
+import { EXTENSIONS, EXTENSIONS_CONVERSION, SAMPLE_RATES } from './constants'
 import {
   IRecognitionAudio,
   IRecognitionConfig,
@@ -25,7 +26,7 @@ const debugTextToSpeech = debug.sub('text-to-speech')
 
 export class GoogleSpeechClient {
   private logger: sdk.Logger
-  private speechClient: SpeechClient
+  private speechClient: v1p1beta1.SpeechClient // Beta client is required to support MP3 and WebM audio files
   private textToSpeechClient: TextToSpeechClient
 
   //Transcription is limited to 60 seconds audio.
@@ -43,7 +44,7 @@ export class GoogleSpeechClient {
     }
 
     try {
-      this.speechClient = new SpeechClient({
+      this.speechClient = new v1p1beta1.SpeechClient({
         credentials: {
           client_email: this.config.clientEmail,
           private_key: this.config.privateKey
@@ -81,7 +82,12 @@ export class GoogleSpeechClient {
   }
 
   public async speechToText(audioFileUrl: string, language: string, timeout?: string): Promise<string | undefined> {
-    debugSpeechToText('Received audio to recognize:', audioFileUrl)
+    debugSpeechToText(`Received audio file to recognize: ${audioFileUrl}`)
+
+    // Media Service URLs (local URL)
+    if (isBpUrl(audioFileUrl)) {
+      audioFileUrl = `${process.LOCAL_URL}${audioFileUrl}`
+    }
 
     let { data: buffer } = await axios.get<Buffer>(audioFileUrl, { responseType: 'arraybuffer' })
 
@@ -94,35 +100,55 @@ export class GoogleSpeechClient {
       return
     }
 
-    let encoding: protos.google.cloud.speech.v1.RecognitionConfig.AudioEncoding
+    // TODO: Either move this into a module or move it in its own class/file
+    let encoding: protos.google.cloud.speech.v1p1beta1.RecognitionConfig.AudioEncoding
 
-    const container = meta.format.container?.toLowerCase()
-    const codec = meta.format.codec?.toLowerCase()
-    if (container === 'ogg' && codec === 'opus') {
-      encoding = AudioEncoding.OGG_OPUS
-
-      const sampleRates = SAMPLE_RATES[Container[container]][Codec[codec]]
+    const container: Container = Container[meta.format.container?.toLowerCase()]
+    const codec: Codec = Codec[meta.format.codec?.toLowerCase()]
+    if (container === Container.ogg && codec === Codec.opus) {
+      const sampleRates = SAMPLE_RATES[container][codec]
       if (!sampleRates.includes(meta.format.sampleRate)) {
-        const audio = new Audio(Container.ogg, Codec.opus)
+        const audio = new Audio(container, codec)
         const newSampleRate = closest(sampleRates, meta.format.sampleRate)
 
-        debugSpeechToText(`Re-sampling audio file to ${newSampleRate}Hz`)
+        debugSpeechToText(`Re-sampling audio file from ${meta.format.sampleRate}Hz to ${newSampleRate}Hz`)
 
         buffer = audio.resample(buffer, newSampleRate)
 
         debugSpeechToText('Audio file successfully re-sampled')
 
         meta = await mm.parseBuffer(buffer)
+
+        encoding = AudioEncoding.OGG_OPUS
       }
-    } else if (container === 'mpeg' && codec === 'mpeg 1 layer 3') {
-      // No need to specify the encoding nor re-sample the file
-    } else {
+    } else if (container === Container['ebml/webm'] && codec === Codec.opus) {
+      encoding = AudioEncoding.WEBM_OPUS
+    } else if (container === Container['iso5/isom/hlsf'] && codec === Codec['mpeg-4/aac']) {
+      const audio = new Audio(container, codec)
+
+      debugSpeechToText(`Converting audio file from ${EXTENSIONS[container]} to ${EXTENSIONS_CONVERSION[container]}`)
+
+      buffer = audio.convert(buffer)
+
+      debugSpeechToText('Audio file successfully converted')
+
+      meta = await mm.parseBuffer(buffer)
+
+      encoding = AudioEncoding.OGG_OPUS
+    } else if (
+      container === Container.mpeg &&
+      (codec === Codec['mpeg 1 layer 3'] || codec === Codec['mpeg 2 layer 3'])
+    ) {
+      encoding = AudioEncoding.MP3
+    }
+
+    if (!encoding) {
       this.logger.warn('Audio file format not supported. Skipping...', { ...meta.format })
 
       return
     }
 
-    debugSpeechToText('Audio file metadata', meta)
+    debugSpeechToText(`Audio file metadata: ${meta}`)
 
     // Note that transcription is limited to 60 seconds audio.
     // Use a GCS file for audio longer than 1 minute.
@@ -133,7 +159,8 @@ export class GoogleSpeechClient {
     const config: IRecognitionConfig = {
       encoding,
       sampleRateHertz: meta.format.sampleRate,
-      languageCode: this.languageCode(language)
+      languageCode: this.languageCode(language),
+      audioChannelCount: meta.format.numberOfChannels
     }
 
     const request: IRecognizeRequest = {
@@ -177,7 +204,7 @@ export class GoogleSpeechClient {
     language: string,
     timeout?: string
   ): Promise<Uint8Array | string | undefined> {
-    debugTextToSpeech('Received text to convert into audio:', text)
+    debugTextToSpeech(`Received text to convert into audio: ${text}`)
 
     const request: ISynthesizeSpeechRequest = {
       input: { text },
@@ -200,7 +227,7 @@ export class GoogleSpeechClient {
       return response.audioContent
     } catch (err) {
       if (err instanceof TimeoutError) {
-        debugSpeechToText(`Audio production cancelled: ${err.message}`)
+        debugTextToSpeech(`Audio production cancelled: ${err.message}`)
       } else {
         throw err
       }

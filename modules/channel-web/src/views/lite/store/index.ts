@@ -159,6 +159,11 @@ class RootStore {
       return
     }
 
+    // Autoplay bot voice messages
+    if (event.payload?.type === 'voice' && !event.userId) {
+      event.payload.autoPlay = true
+    }
+
     const message: Message = { ...event, conversationId: +event.conversationId }
     if (this.isBotTyping.get() && !event.userId) {
       this.delayedMessages.push({ message, showAt: this.currentConversation.typingUntil })
@@ -364,6 +369,12 @@ class RootStore {
   @action.bound
   async uploadFile(title: string, payload: string, file: File): Promise<void> {
     await this.api.uploadFile(file, this.currentConversationId)
+  }
+
+  /** Sends a message of type voice */
+  @action.bound
+  async sendVoiceMessage(voice: Buffer, ext: string): Promise<void> {
+    return this.api.sendVoiceMessage(voice, ext, this.currentConversationId)
   }
 
   /** Use this method to replace a value or add a new config */
