@@ -1,4 +1,5 @@
 import classnames from 'classnames'
+import debounce from 'lodash/debounce'
 import set from 'lodash/set'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
@@ -22,10 +23,7 @@ class Web extends React.Component<MainProps> {
   private socket: BpSocket
   private parentClass: string
   private hasBeenInitialized: boolean = false
-
-  state = {
-    played: false
-  }
+  private audio: HTMLAudioElement
 
   constructor(props) {
     super(props)
@@ -35,6 +33,7 @@ class Web extends React.Component<MainProps> {
   }
 
   async componentDidMount() {
+    this.audio = new Audio(`${window.ROOT_PATH}/assets/modules/channel-web/notification.mp3`)
     this.props.store.setIntlProvider(this.props.intl)
     window.store = this.props.store
 
@@ -267,26 +266,19 @@ class Web extends React.Component<MainProps> {
     this.props.updateBotUILanguage(language)
   }
 
-  async playSound() {
+  playSound = debounce(async () => {
     // Preference for config object
     const disableNotificationSound =
       this.config.disableNotificationSound === undefined
         ? this.props.config.disableNotificationSound
         : this.config.disableNotificationSound
 
-    if (this.state.played || disableNotificationSound) {
+    if (disableNotificationSound || this.audio.readyState < 2) {
       return
     }
 
-    const audio = new Audio(`${window.ROOT_PATH}/assets/modules/channel-web/notification.mp3`)
-    await audio.play()
-
-    this.setState({ played: true })
-
-    setTimeout(() => {
-      this.setState({ played: false })
-    }, constants.MIN_TIME_BETWEEN_SOUNDS)
-  }
+    await this.audio.play()
+  }, constants.MIN_TIME_BETWEEN_SOUNDS)
 
   isLazySocket() {
     if (this.config.lazySocket !== undefined) {
