@@ -24,10 +24,10 @@ Start Botpress on a single node with these environment variables:
 **Binary:**
 
 ```bash
-PRO_ENABLED=true
+BP_CONFIG_PRO_ENABLED=true
 CLUSTER_ENABLED=true \
 BPFS_STORAGE=database \
-BP_LICENSE_KEY=<license_key> \
+BP_CONFIG_PRO_LICENSEKEY=<license_key> \
 EXTERNAL_URL=<public_url> \
 REDIS_URL=redis://host:port \
 DATABASE_URL=postgres://login:password@host:port/database \
