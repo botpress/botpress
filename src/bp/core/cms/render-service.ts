@@ -25,6 +25,37 @@ export class RenderService {
     })
   }
 
+  renderAudio(url: string, caption?: string | sdk.MultiLangText): sdk.AudioContent {
+    return __unrendered({
+      type: 'audio',
+      audio: url,
+      title: caption
+    })
+  }
+
+  renderVideo(url: string, caption?: string | sdk.MultiLangText): sdk.VideoContent {
+    return __unrendered({
+      type: 'video',
+      video: url,
+      title: caption
+    })
+  }
+
+  renderLocation(
+    latitude: number,
+    longitude: number,
+    address?: string | sdk.MultiLangText,
+    title?: string | sdk.MultiLangText
+  ): sdk.LocationContent {
+    return __unrendered({
+      type: 'location',
+      latitude,
+      longitude,
+      address,
+      title
+    })
+  }
+
   renderCard(
     title: string | sdk.MultiLangText,
     image?: string,

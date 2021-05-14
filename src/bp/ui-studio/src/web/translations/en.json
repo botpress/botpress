@@ -321,11 +321,6 @@
         "standard": "Standard Node",
         "trigger": "Trigger"
       },
-      "notifications": {
-        "deleteAll": "Delete all",
-        "markRead": "Mark all as read",
-        "noNotifs": "You have no notifications!"
-      },
       "nowSaveAuto": "Pssst! Flows now save automatically, no need to save anymore.",
       "removeFromLibrary": "Remove from library",
       "sessionStartsHere": "Every user session starts here",

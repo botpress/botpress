@@ -50,72 +50,13 @@ function render(data) {
   ]
 }
 
-function renderMessenger(data) {
-  const renderElements = data => {
-    if (data.items.find(({ actions }) => !actions || actions.length === 0)) {
-      throw new Error('Channel-Messenger carousel does not support cards without actions')
-    }
-
-    return data.items.map(card => ({
-      title: card.title,
-      image_url: card.image ? utils.formatURL(data.BOT_URL, card.image) : null,
-      subtitle: card.subtitle,
-      buttons: (card.actions || []).map(a => {
-        if (a.action === 'Say something') {
-          throw new Error('Channel-Messenger carousel does not support "Say something" action-buttons at the moment')
-        } else if (a.action === 'Open URL') {
-          return {
-            type: 'web_url',
-            url: a.url,
-            title: a.title
-          }
-        } else if (a.action === 'Postback') {
-          return {
-            type: 'postback',
-            title: a.title,
-            payload: a.payload
-          }
-        } else {
-          throw new Error(`Channel-Messenger carousel does not support "${a.action}" action-buttons at the moment`)
-        }
-      })
-    }))
-  }
-
-  const events = []
-
-  if (data.typing) {
-    events.push({
-      type: 'typing',
-      value: data.typing
-    })
-  }
-
-  return [
-    ...events,
-    {
-      attachment: {
-        type: 'template',
-        payload: {
-          template_type: 'generic',
-          elements: renderElements(data)
-        }
-      }
-    }
-  ]
-}
-
 function renderElement(data, channel) {
   // These channels now use channel renderers
-  if (['telegram', 'twilio', 'slack'].includes(channel)) {
+  if (['telegram', 'twilio', 'slack', 'smooch', 'vonage', 'teams', 'messenger'].includes(channel)) {
     return utils.extractPayload('carousel', data)
   }
 
-  if (channel === 'messenger') {
-    return renderMessenger(data)
-  } else {
-    return render(data)
-  }
+  return render(data)
 }
 
 module.exports = {

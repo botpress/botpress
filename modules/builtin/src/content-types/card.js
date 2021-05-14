@@ -22,7 +22,7 @@ module.exports = {
       },
       image: {
         type: 'string',
-        $subtype: 'media',
+        $subtype: 'image',
         $filter: '.jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*',
         title: 'image'
       },
@@ -39,7 +39,7 @@ module.exports = {
   computePreviewText: formData => formData.title && `Card: ${formData.title}`,
   renderElement: (data, channel) => {
     // These channels now use channel renderers
-    if (['telegram', 'twilio', 'slack'].includes(channel)) {
+    if (['telegram', 'twilio', 'slack', 'smooch', 'vonage', 'teams', 'messenger'].includes(channel)) {
       return utils.extractPayload('card', data)
     }
 

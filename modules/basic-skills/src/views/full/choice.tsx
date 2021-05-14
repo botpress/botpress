@@ -89,7 +89,7 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
     const id = this.state.contentId
 
     if (id && id.length) {
-      const res = await this.props.bp.axios.get(`/content/element/${id}`)
+      const res = await this.props.bp.axios.get(`/cms/element/${id}`, { baseURL: window['STUDIO_API_PATH'] })
       return this.onContentChanged(res.data, true)
     }
   }

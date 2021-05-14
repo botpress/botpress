@@ -49,10 +49,11 @@ const entryPoint: sdk.ModuleEntryPoint = {
   translations: { en, fr, es },
   definition: {
     name: 'misunderstood',
-    menuIcon: 'gesture',
+    menuIcon: 'icon.svg',
     menuText: 'Misunderstood',
     fullName: 'Misunderstood Phrases',
-    homepage: 'https://botpress.com'
+    homepage: 'https://botpress.com',
+    workspaceApp: { bots: true }
   }
 }
 

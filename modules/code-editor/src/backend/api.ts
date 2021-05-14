@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { asyncMiddleware as asyncMw, BPRequest, UnexpectedError } from 'common/http'
+import { ALL_BOTS } from 'common/utils'
 import _ from 'lodash'
 import multer from 'multer'
 import path from 'path'
@@ -40,7 +41,20 @@ export default async (bp: typeof sdk, editor: Editor) => {
       try {
         const rawFiles = req.query.rawFiles === 'true'
         const includeBuiltin = req.query.includeBuiltin === 'true'
-        res.send(await editor.forBot(req.params.botId).getAllFiles(req.permissions, rawFiles, includeBuiltin))
+
+        let permissions = req.permissions
+
+        // Removing bot-specific permissions so we retrieve only global files (for all bots)
+        if (req.params.botId === ALL_BOTS && !rawFiles) {
+          permissions = Object.entries(req.permissions).reduce((perms, [key, val]) => {
+            if (val.isGlobal) {
+              perms[key] = val
+            }
+            return perms
+          }, {})
+        }
+
+        res.send(await editor.forBot(req.params.botId).getAllFiles(permissions, rawFiles, includeBuiltin))
       } catch (err) {
         throw new UnexpectedError('Error fetching files', err)
       }

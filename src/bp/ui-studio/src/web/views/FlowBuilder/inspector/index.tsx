@@ -50,13 +50,9 @@ class Inspector extends Component<Props> {
         {nodeType !== 'say_something' && (
           <Fragment>
             {node && (
-              <i className="material-icons" style={{
-                zIndex: 10,
-                top: 80,
-                right: 10,
-                position: 'absolute',
-                cursor: 'pointer'
-              }} onClick={close}>close</i>
+              <i className={cx('material-icons', style.closeIcon)} onClick={close}>
+                close
+              </i>
             )}
             <H4>{node ? 'Node Properties' : 'Flow Properties'}</H4>
           </Fragment>

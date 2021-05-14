@@ -1,4 +1,5 @@
 const base = require('./_base')
+const utils = require('./_utils')
 
 function render(data) {
   const events = []
@@ -56,14 +57,17 @@ function renderSlack(data) {
 }
 
 function renderElement(data, channel) {
+  // These channels now use channel renderers
+  if (['telegram', 'twilio', 'slack', 'smooch', 'vonage', 'teams'].includes(channel)) {
+    return utils.extractPayload('dropdown', data)
+  }
+
   if (channel === 'web' || channel === 'api') {
     return render(data)
   } else if (channel === 'slack') {
     return renderSlack(data)
   } else if (channel === 'smooch') {
     return [data]
-  } else if (channel === 'teams') {
-    return [{ ...data, type: 'dropdown_choice' }]
   }
 
   return []

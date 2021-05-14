@@ -1,4 +1,5 @@
 import classnames from 'classnames'
+import debounce from 'lodash/debounce'
 import set from 'lodash/set'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
@@ -22,10 +23,7 @@ class Web extends React.Component<MainProps> {
   private socket: BpSocket
   private parentClass: string
   private hasBeenInitialized: boolean = false
-
-  state = {
-    played: false
-  }
+  private audio: HTMLAudioElement
 
   constructor(props) {
     super(props)
@@ -35,6 +33,7 @@ class Web extends React.Component<MainProps> {
   }
 
   async componentDidMount() {
+    this.audio = new Audio(`${window.ROOT_PATH}/assets/modules/channel-web/notification.mp3`)
     this.props.store.setIntlProvider(this.props.intl)
     window.store = this.props.store
 
@@ -111,8 +110,15 @@ class Web extends React.Component<MainProps> {
   }
 
   extractConfig() {
+    const decodeIfRequired = (options: string) => {
+      try {
+        return decodeURIComponent(options)
+      } catch {
+        return options
+      }
+    }
     const { options, ref } = queryString.parse(location.search)
-    const { config } = JSON.parse(decodeURIComponent(options || '{}'))
+    const { config } = JSON.parse(decodeIfRequired(options || '{}'))
 
     const userConfig = Object.assign({}, constants.DEFAULT_CONFIG, config)
     userConfig.reference = config.ref || ref
@@ -199,6 +205,8 @@ class Web extends React.Component<MainProps> {
       } else if (type === 'message') {
         trackMessage('sent')
         await this.props.sendMessage(text)
+      } else if (type === 'loadConversation') {
+        this.props.store.fetchConversation(payload.conversationId)
       } else if (type === 'toggleBotInfo') {
         this.props.toggleBotInfo()
       } else {
@@ -258,26 +266,19 @@ class Web extends React.Component<MainProps> {
     this.props.updateBotUILanguage(language)
   }
 
-  async playSound() {
+  playSound = debounce(async () => {
     // Preference for config object
     const disableNotificationSound =
       this.config.disableNotificationSound === undefined
         ? this.props.config.disableNotificationSound
         : this.config.disableNotificationSound
 
-    if (this.state.played || disableNotificationSound) {
+    if (disableNotificationSound || this.audio.readyState < 2) {
       return
     }
 
-    const audio = new Audio(`${window.ROOT_PATH}/assets/modules/channel-web/notification.mp3`)
-    await audio.play()
-
-    this.setState({ played: true })
-
-    setTimeout(() => {
-      this.setState({ played: false })
-    }, constants.MIN_TIME_BETWEEN_SOUNDS)
-  }
+    await this.audio.play()
+  }, constants.MIN_TIME_BETWEEN_SOUNDS)
 
   isLazySocket() {
     if (this.config.lazySocket !== undefined) {
