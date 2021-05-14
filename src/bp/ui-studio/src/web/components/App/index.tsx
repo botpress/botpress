@@ -99,7 +99,9 @@ class App extends Component<Props> {
   render() {
     return (
       <Fragment>
-        <TokenRefresher getAxiosClient={() => axios} onRefreshCompleted={token => setToken(token)} />
+        {!window.IS_STANDALONE && (
+          <TokenRefresher getAxiosClient={() => axios} onRefreshCompleted={token => setToken(token)} />
+        )}
         {routes()}
       </Fragment>
     )

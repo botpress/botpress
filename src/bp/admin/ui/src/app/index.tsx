@@ -48,7 +48,7 @@ const App: FC<Props> = props => {
   return (
     <Fragment>
       <CommandPalette />
-      <TokenRefresher getAxiosClient={() => api.getSecured()} />
+      {!window.IS_STANDALONE && <TokenRefresher getAxiosClient={() => api.getSecured()} />}
 
       <div className={cx('bp-sa-wrapper', style.mainLayout)}>
         <Menu />
