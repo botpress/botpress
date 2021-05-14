@@ -129,20 +129,20 @@ Botpress supports `.env` files, so you don't have to set environment variables e
 
 ### Common
 
-| Environment Variable | Description                                                                         | Default          |
-| -------------------- | ----------------------------------------------------------------------------------- | ---------------- |
-| PORT                 | Sets the port that Botpress will listen to                                          | 3000             |
-| BP_HOST              | The host to check for incoming connections                                          | localhost        |
-| EXTERNAL_URL         | This is the external URL that users type in the address bar to talk with the bot.   | http://HOST:PORT |
-| DATABASE_URL         | Full connection string to connect to the DB. For Postgres, start with `postgres://` | -                |
-| BP_PRODUCTION        | Sets Botpress in production mode, which has the same effect as starting it with `-p` | false            |
-| BPFS_STORAGE         | Storage destination used by BPFS to read and write files (global and bots)          | disk             |
-| PRO_ENABLED          | Enables the pro version of Botpress, the license key will be required               | false            |
-| BP_LICENSE_KEY       | Your license key (can also be specified in `botpress.config.json`)                  | -                |
-| CLUSTER_ENABLED      | Enables multi-node support using Redis                                              | false            |
-| REDIS_URL            | The connection string to connect to your Redis instance                             | -                |
-| AUTO_MIGRATE         | Automatically migrates bots up to the running Botpress version                      | -                | 
-| DEBUG                | Namespaces to [debug](#advanced-logging)                                            | -                |
+| Environment Variable     | Description                                                                         | Default          |
+| --------------------     | ----------------------------------------------------------------------------------- | ---------------- |
+| PORT                     | Sets the port that Botpress will listen to                                          | 3000             |
+| BP_HOST                  | The host to check for incoming connections                                          | localhost        |
+| EXTERNAL_URL             | This is the external URL that users type in the address bar to talk with the bot.   | http://HOST:PORT |
+| DATABASE_URL             | Full connection string to connect to the DB. For Postgres, start with `postgres://` | -                |
+| BP_PRODUCTION            | Sets Botpress in production mode, which has the same effect as starting it with `-p`| false            |
+| BPFS_STORAGE             | Storage destination used by BPFS to read and write files (global and bots)          | disk             |
+| BP_CONFIG_PRO_ENABLED    | Enables the pro version of Botpress, the license key will be required               | false            |
+| BP_CONFIG_PRO_LICENSEKEY | Your license key (can also be specified in `botpress.config.json`)                  | -                |
+| CLUSTER_ENABLED          | Enables multi-node support using Redis                                              | false            |
+| REDIS_URL                | The connection string to connect to your Redis instance                             | -                |
+| AUTO_MIGRATE             | Automatically migrates bots up to the running Botpress version                      | -                | 
+| DEBUG                    | Namespaces to [debug](#advanced-logging)                                            | -                |
 
 ### Runtime and Modules
 
