@@ -3,6 +3,7 @@ import { TextToSpeechClient } from '@google-cloud/text-to-speech'
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import { closest } from 'common/number'
+import { isBpUrl } from 'common/url'
 import * as mm from 'music-metadata'
 
 import { Config } from '../config'
@@ -25,7 +26,7 @@ const debugTextToSpeech = debug.sub('text-to-speech')
 
 export class GoogleSpeechClient {
   private logger: sdk.Logger
-  private speechClient: v1p1beta1.SpeechClient
+  private speechClient: v1p1beta1.SpeechClient // Beta client is required to support MP3 and WebM audio files
   private textToSpeechClient: TextToSpeechClient
 
   //Transcription is limited to 60 seconds audio.
@@ -83,8 +84,8 @@ export class GoogleSpeechClient {
   public async speechToText(audioFileUrl: string, language: string, timeout?: string): Promise<string | undefined> {
     debugSpeechToText('Received audio file to recognize:', audioFileUrl)
 
-    // Media Service URLs
-    if (!audioFileUrl.startsWith('http')) {
+    // Media Service URLs (local URL)
+    if (isBpUrl(audioFileUrl)) {
       audioFileUrl = `${process.LOCAL_URL}${audioFileUrl}`
     }
 

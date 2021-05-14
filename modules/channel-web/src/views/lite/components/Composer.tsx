@@ -4,8 +4,9 @@ import React from 'react'
 import { FormattedMessage, InjectedIntlProps, injectIntl } from 'react-intl'
 
 import ToolTip from '../../../../../../src/bp/ui-shared-lite/ToolTip'
-import VoiceRecorder from '../../../../../../src/bp/ui-shared-lite/VoiceRecorder'
 import { RootStore, StoreDef } from '../store'
+
+import VoiceRecorder from './VoiceRecorder'
 
 class Composer extends React.Component<ComposerProps, { isRecording: boolean }> {
   private textInput: React.RefObject<HTMLTextAreaElement>

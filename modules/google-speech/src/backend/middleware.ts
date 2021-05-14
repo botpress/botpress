@@ -66,9 +66,9 @@ export class Middleware {
       const payload = { type: 'text', text }
 
       event.setFlag(this.bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
-      // TODO: Remove this once all channels use messaging
-      const conversation = await this.bp.experimental.conversations.forBot(event.botId).get(event.threadId)
 
+      // TODO: Remove this validation once all channels use the messaging api
+      const conversation = await this.bp.experimental.conversations.forBot(event.botId).get(event.threadId)
       if (conversation) {
         const message = await this.bp.experimental.messages
           .forBot(event.botId)
@@ -137,7 +137,8 @@ export class Middleware {
         // inverting the order of the events being sent back to the users
       ;(<any>event.payload) = payload
 
-      // TODO: Remove this once all channels use messaging
+      // TODO: Remove this validation once all channels use messaging. This check is only here since
+      // bp.events does not have a conversation or an event.threadId recognized by the messaging api.
       const conversation = await this.bp.experimental.conversations.forBot(event.botId).get(event.threadId)
       if (conversation) {
         await this.bp.experimental.messages

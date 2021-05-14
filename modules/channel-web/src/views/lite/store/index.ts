@@ -161,7 +161,7 @@ class RootStore {
 
     // Autoplay bot voice messages
     if (event.payload?.type === 'voice' && !event.userId) {
-      ;(event.payload as any).autoPlay = true
+      event.payload.autoPlay = true
     }
 
     const message: Message = { ...event, conversationId: +event.conversationId }

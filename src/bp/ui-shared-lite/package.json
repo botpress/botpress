@@ -4,11 +4,7 @@
   "author": "Botpress",
   "dependencies": {
     "classnames": "^2.3.1",
-    "js-cookie": "^2.2.1",
-    "mime": "^2.5.2"
-  },
-  "devDependencies": {
-    "@types/mime": "^2.0.3"
+    "js-cookie": "^2.2.1"
   },
   "resolutions": {
     "fstream": ">=1.0.12",

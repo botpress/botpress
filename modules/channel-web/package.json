@@ -16,6 +16,7 @@
   "devDependencies": {
     "@types/apicache": "^1.2.2",
     "@types/bluebird-global": "^3.5.7",
+    "@types/dom-mediacapture-record": "^1.0.7",
     "@types/mime": "^2.0.3",
     "@types/multer-s3": "^2.7.9",
     "@types/node": "^10.10.3",
@@ -28,7 +29,7 @@
     "axios": "^0.21.1",
     "bluebird": "^3.5.3",
     "bluebird-global": "^1.0.1",
-    "classnames": "^2.2.6",
+    "classnames": "^2.3.1",
     "date-fns": "^2.4.1",
     "form-data": "^4.0.0",
     "html-truncate": "^1.2.2",
