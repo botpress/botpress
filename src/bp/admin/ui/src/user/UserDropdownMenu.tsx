@@ -11,7 +11,7 @@ import {
 } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 
 import { AppState } from '~/app/rootReducer'
@@ -60,10 +60,14 @@ const UserDropdownMenu: FC<Props> = props => {
       <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.CLICK}>
         <Button id="btn-menu" icon={icon} minimal rightIcon={<Icon icon="caret-down" />} />
         <Menu>
-          <MenuDivider title={lang.tr('admin.signedInAs', { name: fullName || email })} />
-          <MenuItem id="btn-profile" icon="user" text={lang.tr('admin.updateProfile')} onClick={toggleProfile} />
+          {!window.IS_STANDALONE && (
+            <Fragment>
+              <MenuDivider title={lang.tr('admin.signedInAs', { name: fullName || email })} />
+              <MenuItem id="btn-profile" icon="user" text={lang.tr('admin.updateProfile')} onClick={toggleProfile} />
+            </Fragment>
+          )}
 
-          {canChangePassword && (
+          {canChangePassword && !window.IS_STANDALONE && (
             <MenuItem id="btn-changepass" icon="key" text={lang.tr('admin.changePassword')} onClick={togglePassword} />
           )}
 
@@ -74,8 +78,13 @@ const UserDropdownMenu: FC<Props> = props => {
             onClick={toggleLanguage}
           />
 
-          <MenuDivider />
-          <MenuItem id="btn-logout" icon="log-out" text={lang.tr('admin.logout')} onClick={logout} />
+          {!window.IS_STANDALONE && (
+            <Fragment>
+              <MenuDivider />
+
+              <MenuItem id="btn-logout" icon="log-out" text={lang.tr('admin.logout')} onClick={logout} />
+            </Fragment>
+          )}
         </Menu>
       </Popover>
 

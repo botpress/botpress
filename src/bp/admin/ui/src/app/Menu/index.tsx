@@ -180,6 +180,7 @@ const Menu: FC<Props> = props => {
             text={lang.tr('admin.sideMenu.sourceControl')}
             icon="changes"
             url="/server/version"
+            standaloneDisabled
           />
           <MenuItem
             id="btn-menu-license"
