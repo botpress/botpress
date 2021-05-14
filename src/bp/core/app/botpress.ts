@@ -194,8 +194,7 @@ export class Botpress {
       legacyElection: config.legacyElection,
       dbURL: process.core_env.BPFS_STORAGE === 'database' ? process.core_env.DATABASE_URL : undefined,
       modelDir: process.cwd(),
-      modelCacheSize: config.modelCacheSize,
-      authToken: process.NLU_PASSWORD // defined by nlu module
+      modelCacheSize: config.modelCacheSize
     })
   }
 
