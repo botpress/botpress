@@ -1,9 +1,9 @@
 global['NativePromise'] = global.Promise
 
-import { getAppDataPath } from 'core/misc/app_data'
 import fs from 'fs'
 import path from 'path'
 import yn from 'yn'
+import { getAppDataPath } from './core/misc/app_data'
 import { Debug } from './debug'
 import getos from './getos'
 
