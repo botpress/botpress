@@ -89,6 +89,41 @@ class MessageGroup extends React.Component<Props> {
         url: formatUrl('', payload.image),
         collectFeedback: payload.collectFeedback
       }
+    } else if (payload?.type === 'carousel') {
+      return {
+        text: ' ',
+        type: 'carousel',
+        collectFeedback: payload.collectFeedback,
+        elements: payload.items.map(card => ({
+          title: card.title,
+          picture: card.image ? formatUrl('', card.image) : null,
+          subtitle: card.subtitle,
+          buttons: (card.actions || []).map(a => {
+            if (a.action === 'Say something') {
+              return {
+                type: 'say_something',
+                title: a.title,
+                text: a.text
+              }
+            } else if (a.action === 'Open URL') {
+              return {
+                type: 'open_url',
+                title: a.title,
+                // TODO: fix url
+                url: a.url && a.url.replace('BOT_URL', '') // data.BOT_URL)
+              }
+            } else if (a.action === 'Postback') {
+              return {
+                type: 'postback',
+                title: a.title,
+                payload: a.payload
+              }
+            } else {
+              throw new Error(`Webchat carousel does not support "${a.action}" action-buttons at the moment`)
+            }
+          })
+        }))
+      }
     }
 
     return payload
