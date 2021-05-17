@@ -2,16 +2,9 @@
 // Please do not change this file!
 interface CssExports {
   'active': string;
-  'bot': string;
-  'bpwChatBubble': string;
-  'bpwChatBubbleContent': string;
   'composer': string;
   'composerContainer': string;
-  'createdDate': string;
   'handoffAssigned': string;
-  'message': string;
-  'messageContainer': string;
-  'messageList': string;
   'selected': string;
   'sendButton': string;
   'shortcutDropdown': string;
@@ -19,7 +12,6 @@ interface CssExports {
   'shortcutKey': string;
   'shortcutListItem': string;
   'shortcutValue': string;
-  'user': string;
   'voiceButton': string;
 }
 declare var cssExports: CssExports;

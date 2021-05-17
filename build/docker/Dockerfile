@@ -9,7 +9,6 @@ RUN apt update && \
 	wget -O duckling https://s3.amazonaws.com/botpress-binaries/duckling-example-exe && \
 	chmod +x duckling && \
 	chmod +x bp && \
-	chmod +x nlu-v0_0_1-linux-x64 && \
 	chgrp -R 0 /botpress && \
 	chmod -R g=u /botpress && \
 	apt install -y tzdata && \

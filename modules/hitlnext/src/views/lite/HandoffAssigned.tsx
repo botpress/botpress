@@ -1,8 +1,7 @@
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import lang from '../lang'
 
-import MessageList from './MessageList'
 import style from './style.scss'
 
 async function initLang(): Promise<void> {
@@ -20,11 +19,5 @@ export const HandoffAssignedForAgent = props => {
     initLang().then(() => setLangInit(true))
   }, [])
 
-  // TODO render a load more button to load more of message history
-  return (
-    <Fragment>
-      <MessageList events={props.recentEvents || []} />
-      {isLangInit && <div className={style.handoffAssigned}>{lang.tr('module.hitlnext.handoff.assignedToYou')}</div>}
-    </Fragment>
-  )
+  return isLangInit && <div className={style.handoffAssigned}>{lang.tr('module.hitlnext.handoff.assignedToYou')}</div>
 }
