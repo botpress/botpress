@@ -48,6 +48,14 @@
       "alternatives": "Alternates",
       "description": "A regular text message with optional typing indicators and alternates",
       "message": "Message"
+    },
+    "location": {
+      "title": "Location",
+      "description": "A message showing a location with an optional address and title",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "address": "Address",
+      "label": "Title"
     }
   },
   "typingIndicator": "Show typing indicators",

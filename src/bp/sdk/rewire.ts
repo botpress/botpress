@@ -48,14 +48,7 @@ for (const folder of platformFolders) {
   nativeBindingsPaths.push(syspath.resolve(nativeExBaseFolder, folder))
 }
 
-const nativeExtensions = [
-  'node_sqlite3.node',
-  'fse.node',
-  'crfsuite.node',
-  'fasttext.node',
-  'node-svm.node',
-  'sentencepiece.node'
-]
+const nativeExtensions = ['node_sqlite3.node', 'fse.node']
 
 function addToNodePath(path) {
   overwritePaths(getPaths().concat(path))

@@ -12,6 +12,36 @@ class LogsRouter extends CustomAdminRouter {
 
   setupRoutes() {
     this.router.get(
+      '/bots/:botId',
+      this.needPermissions('read', 'bot.logs'),
+      this.asyncMiddleware(async (req, res) => {
+        const limit = req.query.limit
+        const botId = req.params.botId
+        const logs = await this.logsRepository.getByBot(botId, limit)
+        res.send(logs)
+      })
+    )
+
+    this.router.get(
+      '/bots/:botId/archive',
+      this.needPermissions('read', 'bot.logs'),
+      this.asyncMiddleware(async (req, res) => {
+        const botId = req.params.botId
+        const logs = await this.logsRepository.getByBot(botId)
+        res.setHeader('Content-type', 'text/plain')
+        res.setHeader('Content-disposition', 'attachment; filename=logs.txt')
+        res.send(
+          logs
+            .map(({ timestamp, level, message }) => {
+              const time = moment(new Date(timestamp)).format('MMM DD HH:mm:ss')
+              return `${time} ${level}: ${message}`
+            })
+            .join('\n')
+        )
+      })
+    )
+
+    this.router.get(
       '/',
       this.needPermissions('read', 'admin.logs'),
       this.asyncMiddleware(async (req, res) => {

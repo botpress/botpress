@@ -3,12 +3,13 @@
 interface CssExports {
   'addWorkflowNode': string;
   'emptyState': string;
-  'flowProblems': string;
   'grabbable': string;
   'mainoverlay': string;
   'modalHeader': string;
   'overhidden': string;
   'referencedWorkflows': string;
+  'rightPanel': string;
+  'rightPanelActive': string;
   'section': string;
   'sidePanel': string;
   'tabs': string;

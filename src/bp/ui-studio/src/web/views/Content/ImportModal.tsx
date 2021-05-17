@@ -33,7 +33,7 @@ export const ImportModal: FC<Props> = props => {
       const form = new FormData()
       form.append('file', file)
 
-      const { data } = await axios.post(`${window.BOT_API_PATH}/content/analyzeImport`, form, axiosConfig)
+      const { data } = await axios.post(`${window.STUDIO_API_PATH}/cms/analyzeImport`, form, axiosConfig)
 
       if (!data.fileCmsCount) {
         setUploadStatus(lang.tr('studio.content.import.notAbleToExtractData'))
@@ -63,7 +63,7 @@ export const ImportModal: FC<Props> = props => {
       form.append('file', file)
       form.append('action', importAction)
 
-      await axios.post(`${window.BOT_API_PATH}/content/import`, form, axiosConfig)
+      await axios.post(`${window.STUDIO_API_PATH}/cms/import`, form, axiosConfig)
       closeDialog()
       props.onImportCompleted()
     } catch (err) {

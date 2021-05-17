@@ -122,7 +122,7 @@ const TopicList: FC<Props> = props => {
         { acceptLabel: lang.tr('delete') }
       ))
     ) {
-      await axios.post(`${window.BOT_API_PATH}/deleteTopic/${name}`)
+      await axios.post(`${window.STUDIO_API_PATH}/topics/deleteTopic/${name}`)
       flowsToDelete.forEach(flow => props.deleteFlow(flow.name))
       props.fetchTopics()
     }
@@ -291,7 +291,10 @@ const TopicList: FC<Props> = props => {
 
     if (isTopic) {
       if (value !== item.id && !props.topics.find(x => x.name === value)) {
-        await axios.post(`${window.BOT_API_PATH}/topics/${item.id}`, { name: value, description: undefined })
+        await axios.post(`${window.STUDIO_API_PATH}/topics/${item.id}`, {
+          name: value,
+          description: undefined
+        })
 
         if (expanded[item.id]) {
           setExpanded({ ...expanded, [item.id]: false, [value]: true })
