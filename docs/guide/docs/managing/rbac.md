@@ -1,27 +1,19 @@
 ---
 id: rbac
-title: Role-Based Access  Control
+title: Configuring RBAC
 ---
 
-![This feature is available to Botpress Enterprise license holders.](assets/botpress-enterprise-feature.png)
+> **Note**: This is a Botpress Pro feature
 
-**RBAC** (Role-Based Access Control) allows you to control what collaborators can access.
+**RBAC** (Role-Based Access Control) allows you to control what collaborators have access to.
 
-By default, Botpress ships with three roles in additio to the administrator (developer, content editor and agent), but you can change those and create new ones.
-
-![Extra Roles](assets/rbac-roles.png)
-![Add Colloborators](assets/roles.png)
+By default, Botpress ships with three roles (administrator, developer and content editor), but you can change those and create new ones.
 
 ## Assigning a role to a collaborator
 
-You can easily give a collaborator access to your chatbot and assign a role by navigating to the  **Collaborator** tab from the Administration dashboard, navigate to the "Collaborators" tab. Once there, click the **Add collaborator** and specify the collaborator and email address.
-![RBAC](assets/add-role.png)
+From the Administration dashboard, navigate to the "Collaborators" tab and click the **Action** button on any collaborator to change its role to an existing role.
 
-After adding a role, Botpress will automatically generate a once-off password for the newly created user account. 
-![RBAC](assets/rbac-success.png.png)
-
-You can also change a collaborator's role by clicking the **Action** button next to the user whose role you wish to change. In addition to the changing roles, the menu allows you to change the password, remove a user from the workspace (Botpress retains the email and password, enabling you to add the user back), or delete the user. 
-![RBAC](assets/change-role.png)
+![RBAC](assets/rbac.png)
 
 ## Adding a new role
 
@@ -29,16 +21,17 @@ In the `<data>/global/workspaces.json` file, you'll find the `roles` property, w
 
 ### Rules
 
-The rules which govern the users' rights are executed sequentially from first to last. For example, the following rules:
+Rules are executed sequentially from first to last, and the permission is checked at the end of applying all the rules.
+
+For example the following rules:
 
 1. `+r-w` on `*`
 2. `+w` on `bot.content`
 3. `-r` on `bot.flows`
 
-Means the user will _see_ everything but the flows and won't be able to _change_ anything but content.
+Means the user will _see_ everything but the flows, and won't be able to _change_ anything but content.
 
 ### Operations (op)
-Below are the access levels which Botpress can configure for a user.
 
 | op  | description  |
 | --- | ------------ |
@@ -48,7 +41,6 @@ Below are the access levels which Botpress can configure for a user.
 | -w  | Revoke write |
 
 ### Available Resources (res)
-Below are the resources and interfaces to which you can give your chatbot studio users access.
 
 | res               | description                                  |
 | ----------------- | -------------------------------------------- |
@@ -70,7 +62,7 @@ Below are the resources and interfaces to which you can give your chatbot studio
 | module.\*         | Global access to all modules                 |
 | module.MODULE_ID  |                                              |
 
-Modules only support a single top-level resource **and one operation (write)**. Define as `module.MODULE_ID`, for example, `module.hitl` or `module.code-editor`.
+For now, modules only support a single top-level resource **and one operation (write)**. The resource path is defined as `module.MODULE_ID`, for example `module.hitl` or `module.code-editor`.
 
 ### Example
 
