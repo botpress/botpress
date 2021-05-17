@@ -54,7 +54,7 @@ class MessageGroup extends React.Component<Props> {
     return payload
   }
 
-  renderPayload = payload => {
+  renderPayload(payload) {
     const type = payload?.type
 
     switch (type) {
