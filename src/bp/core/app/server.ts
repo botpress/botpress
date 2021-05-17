@@ -54,7 +54,6 @@ import portFinder from 'portfinder'
 import { startStudio } from 'studio-client'
 import { URL } from 'url'
 import yn from 'yn'
-import { startStudioServer } from '../../cluster'
 
 import { isDisabled } from '../routers/conditionalMiddleware'
 import { SdkApiRouter } from '../routers/sdk/router'
