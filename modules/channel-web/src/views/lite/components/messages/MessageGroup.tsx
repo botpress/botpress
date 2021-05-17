@@ -173,8 +173,7 @@ class MessageGroup extends React.Component<Props> {
             return {
               type: 'open_url',
               title: a.title,
-              // TODO: fix url
-              url: (a as sdk.ActionOpenURL)?.url.replace('BOT_URL', '') // data.BOT_URL)
+              url: (a as sdk.ActionOpenURL)?.url.replace('BOT_URL', '')
             }
           } else if (a.action === 'Postback') {
             return {
