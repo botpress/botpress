@@ -1,4 +1,5 @@
 import classnames from 'classnames'
+import { formatUrl } from 'common/url'
 import { omit } from 'lodash'
 import sortBy from 'lodash/sortBy'
 import { inject } from 'mobx-react'
@@ -80,6 +81,13 @@ class MessageGroup extends React.Component<Props> {
           type: 'text',
           ...omit(payload, 'choices', 'type')
         }
+      }
+    } else if (payload?.type === 'image') {
+      return {
+        type: 'file',
+        title: payload.title,
+        url: formatUrl('', payload.image),
+        collectFeedback: payload.collectFeedback
       }
     }
 
