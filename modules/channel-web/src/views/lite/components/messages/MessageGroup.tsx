@@ -60,8 +60,14 @@ class MessageGroup extends React.Component<Props> {
     switch (type) {
       case 'single-choice':
         return this.renderChoicePayload(payload)
+      case 'dropdown':
+        return this.renderDropdown(payload)
       case 'image':
         return this.renderImagePayload(payload)
+      case 'audio':
+        return this.renderAudioPayload(payload)
+      case 'video':
+        return this.renderVideoPayload(payload)
       case 'card':
         return this.renderCarouselPayload({ ...payload, items: [payload] })
       case 'carousel':
@@ -101,11 +107,48 @@ class MessageGroup extends React.Component<Props> {
     }
   }
 
+  renderDropdown(content: any) {
+    // TODO: add typings for dropdowns
+    return {
+      type: 'custom',
+      module: 'extensions',
+      component: 'Dropdown',
+      message: content.message,
+      buttonText: content.buttonText,
+      displayInKeyboard: content.displayInKeyboard,
+      options: content.options,
+      allowCreation: content.allowCreation,
+      allowMultiple: content.allowMultiple,
+      width: content.width,
+      collectFeedback: content.collectFeedback,
+      placeholderText: content.placeholderText,
+      markdown: content.markdown
+    }
+  }
+
   renderImagePayload(content: sdk.ImageContent) {
     return {
       type: 'file',
       title: content.title,
       url: formatUrl('', content.image),
+      collectFeedback: (content as any).collectFeedback
+    }
+  }
+
+  renderAudioPayload(content: sdk.AudioContent) {
+    return {
+      type: 'audio',
+      title: content.title,
+      url: formatUrl('', content.audio),
+      collectFeedback: (content as any).collectFeedback
+    }
+  }
+
+  renderVideoPayload(content: sdk.VideoContent) {
+    return {
+      type: 'video',
+      title: content.title,
+      url: formatUrl('', content.video),
       collectFeedback: (content as any).collectFeedback
     }
   }
