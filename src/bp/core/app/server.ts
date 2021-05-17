@@ -41,7 +41,7 @@ import { UnlicensedError } from 'errors'
 import express, { NextFunction, Response } from 'express'
 import rateLimit from 'express-rate-limit'
 import { createServer, Server } from 'http'
-import { createProxyMiddleware } from 'http-proxy-middleware'
+import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 import jwksRsa from 'jwks-rsa'
@@ -54,6 +54,7 @@ import portFinder from 'portfinder'
 import { startStudio } from 'studio-client'
 import { URL } from 'url'
 import yn from 'yn'
+import { startStudioServer } from '../../cluster'
 
 import { isDisabled } from '../routers/conditionalMiddleware'
 import { SdkApiRouter } from '../routers/sdk/router'
@@ -249,10 +250,22 @@ export class HTTPServer {
   async setupStudioProxy(serverPort: number) {
     process.STUDIO_PORT = await portFinder.getPortPromise({ port: serverPort + 1000 })
 
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    startStudio(this.logger)
+
     const target = `http://localhost:${process.STUDIO_PORT}`
     const proxyPaths = ['*/studio/*', '*/api/v1/studio*']
 
-    this.app.use(proxyPaths, createProxyMiddleware({ target, changeOrigin: true, logLevel: 'silent' }))
+    this.app.use(
+      proxyPaths,
+      createProxyMiddleware({
+        target,
+        changeOrigin: true,
+        logLevel: 'silent',
+        // Fix post requests when the middleware is added after the body parser mw
+        onProxyReq: fixRequestBody
+      })
+    )
   }
 
   async start() {
@@ -315,9 +328,6 @@ export class HTTPServer {
         })
       )
     }
-
-    // This method must be called before the bodyParser middleware, otherwise post methods will not work
-    await this.setupStudioProxy(config.port)
 
     this.app.use((req, res, next) => {
       if (!isDisabled('bodyParserJson', req)) {
@@ -395,8 +405,7 @@ export class HTTPServer {
     process.LOCAL_URL = `http://${process.HOST}:${process.PORT}${process.ROOT_PATH}`
 
     // The studio must be started after the external URL has been set
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    startStudio(this.logger)
+    await this.setupStudioProxy(config.port)
 
     if (process.PORT !== config.port) {
       this.logger.warn(`Configured port ${config.port} is already in use. Using next port available: ${process.PORT}`)
