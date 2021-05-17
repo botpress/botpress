@@ -213,9 +213,9 @@ describe('Ghost Service', () => {
         expect(Object.keys(pending)).toHaveLength(0)
       })
       it('returns grouped list of revisions when files modified', async () => {
-        const r1 = { path: './data/global/a/1.txt', revision: 'r1' }
-        const r2 = { path: './data/global/a/2.txt', revision: 'r2' }
-        const r3 = { path: './data/global/b/3.txt', revision: 'r3' }
+        const r1 = { path: './global/a/1.txt', revision: 'r1' }
+        const r2 = { path: './global/a/2.txt', revision: 'r2' }
+        const r3 = { path: './global/b/3.txt', revision: 'r3' }
 
         dbDriver.listRevisions.mockReturnValue([r1, r2, r3])
         const pending = await ghost.global().getPendingChanges()
