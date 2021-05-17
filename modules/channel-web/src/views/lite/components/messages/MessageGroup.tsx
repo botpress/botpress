@@ -1,3 +1,4 @@
+import * as sdk from 'botpress/sdk'
 import classnames from 'classnames'
 import { formatUrl } from 'common/url'
 import { omit } from 'lodash'
@@ -54,79 +55,96 @@ class MessageGroup extends React.Component<Props> {
   }
 
   renderPayload = payload => {
-    if (payload?.type === 'single-choice') {
-      if (payload.isDropdown) {
-        return {
-          type: 'custom',
-          module: 'extensions',
-          component: 'Dropdown',
-          message: payload.text,
-          buttonText: '',
-          displayInKeyboard: true,
-          options: payload.choices.map(c => ({ label: c.title, value: c.value.toUpperCase() })),
-          width: 300,
-          placeholderText: payload.dropdownPlaceholder
-        }
-      }
+    const type = payload?.type
+
+    switch (type) {
+      case 'single-choice':
+        return this.renderChoicePayload(payload)
+      case 'image':
+        return this.renderImagePayload(payload)
+      case 'card':
+        return this.renderCarouselPayload({ ...payload, items: [payload] })
+      case 'carousel':
+        return this.renderCarouselPayload(payload)
+      default:
+        return payload
+    }
+  }
+
+  renderChoicePayload(content: sdk.ChoiceContent) {
+    if ((content as any).isDropdown) {
       return {
         type: 'custom',
-        module: 'channel-web',
-        component: 'QuickReplies',
-        quick_replies: payload.choices.map(c => ({
-          title: c.title,
-          payload: c.value.toUpperCase()
-        })),
-        disableFreeText: payload.disableFreeText,
-        wrapped: {
-          type: 'text',
-          ...omit(payload, 'choices', 'type')
-        }
-      }
-    } else if (payload?.type === 'image') {
-      return {
-        type: 'file',
-        title: payload.title,
-        url: formatUrl('', payload.image),
-        collectFeedback: payload.collectFeedback
-      }
-    } else if (payload?.type === 'carousel') {
-      return {
-        text: ' ',
-        type: 'carousel',
-        collectFeedback: payload.collectFeedback,
-        elements: payload.items.map(card => ({
-          title: card.title,
-          picture: card.image ? formatUrl('', card.image) : null,
-          subtitle: card.subtitle,
-          buttons: (card.actions || []).map(a => {
-            if (a.action === 'Say something') {
-              return {
-                type: 'say_something',
-                title: a.title,
-                text: a.text
-              }
-            } else if (a.action === 'Open URL') {
-              return {
-                type: 'open_url',
-                title: a.title,
-                // TODO: fix url
-                url: a.url && a.url.replace('BOT_URL', '') // data.BOT_URL)
-              }
-            } else if (a.action === 'Postback') {
-              return {
-                type: 'postback',
-                title: a.title,
-                payload: a.payload
-              }
-            } else {
-              throw new Error(`Webchat carousel does not support "${a.action}" action-buttons at the moment`)
-            }
-          })
-        }))
+        module: 'extensions',
+        component: 'Dropdown',
+        message: content.text,
+        buttonText: '',
+        displayInKeyboard: true,
+        options: content.choices.map(c => ({ label: c.title, value: c.value.toUpperCase() })),
+        width: 300,
+        placeholderText: (content as any).dropdownPlaceholder
       }
     }
+    return {
+      type: 'custom',
+      module: 'channel-web',
+      component: 'QuickReplies',
+      quick_replies: content.choices.map(c => ({
+        title: c.title,
+        payload: c.value.toUpperCase()
+      })),
+      disableFreeText: (content as any).disableFreeText,
+      wrapped: {
+        type: 'text',
+        ...omit(content, 'choices', 'type')
+      }
+    }
+  }
 
-    return payload
+  renderImagePayload(content: sdk.ImageContent) {
+    return {
+      type: 'file',
+      title: content.title,
+      url: formatUrl('', content.image),
+      collectFeedback: (content as any).collectFeedback
+    }
+  }
+
+  renderCarouselPayload(content: sdk.CarouselContent) {
+    return {
+      text: ' ',
+      type: 'carousel',
+      collectFeedback: (content as any).collectFeedback,
+      elements: content.items.map(card => ({
+        title: card.title,
+        picture: card.image ? formatUrl('', card.image) : null,
+        subtitle: card.subtitle,
+        buttons: (card.actions || []).map(a => {
+          if (a.action === 'Say something') {
+            return {
+              type: 'say_something',
+              title: a.title,
+              text: (a as sdk.ActionSaySomething).text
+            }
+          } else if (a.action === 'Open URL') {
+            return {
+              type: 'open_url',
+              title: a.title,
+              // TODO: fix url
+              url: (a as sdk.ActionOpenURL)?.url.replace('BOT_URL', '') // data.BOT_URL)
+            }
+          } else if (a.action === 'Postback') {
+            return {
+              type: 'postback',
+              title: a.title,
+              payload: (a as sdk.ActionPostback).payload
+            }
+          } else {
+            throw new Error(`Webchat carousel does not support "${a.action}" action-buttons at the moment`)
+          }
+        })
+      }))
+    }
   }
 
   render() {
