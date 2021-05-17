@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 
-import crypto from 'crypto'
+import { makeNLUPassword } from 'common/nlu-token'
 import _ from 'lodash'
 
 import { Config, LanguageSource } from '../config'
@@ -16,21 +16,11 @@ import { BotDefinition } from './application/typings'
 import { StanEngine } from './stan'
 import { StanClient } from './stan/client'
 
-const makeNLUPassword = () => {
-  const random = Math.random() * 10 ** 10
-  const text = `${random}`
-  return crypto
-    .createHash('md5')
-    .update(text)
-    .digest('hex')
-}
-
 const getNLUServerConfig = (config: Config['nluServer']): LanguageSource => {
   if (config.autoStart) {
-    process.NLU_PASSWORD = makeNLUPassword() // will be used by core
     return {
       endpoint: 'http://localhost:3200',
-      authToken: process.NLU_PASSWORD
+      authToken: makeNLUPassword()
     }
   }
 
