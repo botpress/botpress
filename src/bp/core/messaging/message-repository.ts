@@ -83,6 +83,10 @@ export class MessageRepository {
   }
 
   public async get(messageId: sdk.uuid): Promise<sdk.Message | undefined> {
+    if (messageId === undefined) {
+      return undefined
+    }
+
     const cached = this.cache.get(messageId)
     if (cached) {
       return cached

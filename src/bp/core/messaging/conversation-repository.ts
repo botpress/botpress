@@ -89,6 +89,10 @@ export class ConversationRepository {
   }
 
   public async get(conversationId: sdk.uuid): Promise<sdk.Conversation | undefined> {
+    if (conversationId === undefined) {
+      return undefined
+    }
+
     const cached = this.cache.get(conversationId)
     if (cached) {
       return cached
