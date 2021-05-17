@@ -5,7 +5,7 @@ title: Development Lifecycle
 
 ## Git Syncing – Source Control Management
 
-A best practice is to keep track of changes to your chatbot using your preferred [Source Control Management Tool(SCM)](https://www.softwaretestinghelp.com/version-control-software/) and always deploy the master branch in production. Once deployed, you can regularly [pull](versions#pull) changes and update them to your SCM or revert to them when the need arises. Doing so helps you harness your SCM power for branches, merging conflicting files, reviewing changes, and creating revisions.
+A best practice is to keep track of changes to your chatbot using your preferred [Source Control Management Tool (SCM)](https://www.softwaretestinghelp.com/version-control-software/) and always deploy the master branch in production. Once deployed, you can regularly [pull](versions#pull) changes and update them to your SCM or revert to them when the need arises. Doing so helps you harness your SCM power for branches, merging conflicting files, reviewing changes, and creating revisions.
 
 Suppose you have a more complex deployment pipeline with one or multiple staging environments with pending changes on each environment. In that case, you can easily track and work on them using development pipelines.
 
