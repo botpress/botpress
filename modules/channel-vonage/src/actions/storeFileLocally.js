@@ -3,6 +3,7 @@ const FormData = require('form-data')
 const uuidv4 = require('uuid').v4
 const path = require('path')
 const ms = require('ms')
+const mime = require('mime')
 
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition#syntax
 // Content-disposition header looks like this: Content-Disposition: attachment; filename="filename.ext"
@@ -21,6 +22,19 @@ const extractFilenameFromHeader = headers => {
 
   // Removes double quotes from the filename
   return filename[1].replace(/"/g, '')
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type#syntax
+// Content-type header look like this: Content-Type: audio/x-m4a
+// so we try to extract the extension from it using the package mime
+const extractExtensionFromHeader = headers => {
+  if (!headers['content-type']) {
+    return
+  }
+
+  const contentType = headers['content-type']
+
+  return mime.getExtension(contentType)
 }
 
 /**
@@ -64,7 +78,9 @@ const storeFileLocally = async () => {
 
     // If the file does not have an extension, we imply that it's a binary file
     if (!path.extname(filename)) {
-      filename = `${filename}.bin`
+      const ext = extractExtensionFromHeader(resp.headers)
+
+      filename = `${filename}.${ext || 'bin'}`
     }
 
     const formData = new FormData()
