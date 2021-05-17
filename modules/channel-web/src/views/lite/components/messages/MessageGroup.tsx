@@ -58,24 +58,23 @@ class MessageGroup extends React.Component<Props> {
   renderPayload(payload) {
     const type = payload?.type
 
-    switch (type) {
-      case 'single-choice':
-        return this.renderChoicePayload(payload)
-      case 'dropdown':
-        return this.renderDropdown(payload)
-      case 'image':
-        return this.renderImagePayload(payload)
-      case 'audio':
-        return this.renderAudioPayload(payload)
-      case 'video':
-        return this.renderVideoPayload(payload)
-      case 'card':
-        return this.renderCarouselPayload({ ...payload, items: [payload] })
-      case 'carousel':
-        return this.renderCarouselPayload(payload)
-      default:
-        return payload
+    if (type === 'single-choice' && payload.choices) {
+      return this.renderChoicePayload(payload)
+    } else if (type === 'dropdown') {
+      return this.renderDropdown(payload)
+    } else if (type === 'image' && payload.image) {
+      return this.renderImagePayload(payload)
+    } else if (type === 'audio' && payload.audio) {
+      return this.renderAudioPayload(payload)
+    } else if (type === 'video' && payload.video) {
+      return this.renderVideoPayload(payload)
+    } else if (type === 'card') {
+      return this.renderCarouselPayload({ ...payload, items: [payload] })
+    } else if (type === 'carousel' && payload.items) {
+      return this.renderCarouselPayload(payload)
     }
+
+    return payload
   }
 
   renderChoicePayload(content: sdk.ChoiceContent) {
