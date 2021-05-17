@@ -5,7 +5,7 @@ title: Bot Pipelines
 
 ## Overview
 
-**Bot Pipelines** (not to be confused with Development Pipelines) are built on top of the multi-bot capability of Botpress. They allow teams to work on chatbots with multiple **stages** just like they work on software products. Different versions of a chatbot can run and co-exist on various stages. In software development, each team has its way of working with pipelines and reacting to events along the channel. Botpress pipelines let you do the same.
+**Bot Pipelines** (not to be confused with Development Pipelines) are built on top of the multi-bot capability of Botpress. They allow teams to work on chatbots with multiple **stages** just like they work on software products. Different versions of a chatbot can run and co-exist on various stages. In software development, each team has its way of working with pipelines and reacting to events. Botpress pipelines let you do the same.
 
 ![Pipeline](assets/dev-pipeline.png)
 

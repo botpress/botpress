@@ -12,7 +12,7 @@ Suppose you have a more complex deployment pipeline with one or multiple staging
 ### Setting up Botpress Git Syncing (with GitHub)
 
 1. [Download Botpress](https://botpress.com/download)
-2. Open your terminal and ```cd [PATH]/botpress-v12_20_2-darwin-x64```
+2. Open your terminal and ```cd [PATH]/botpress-[VERSION]```
 3. Set up GitHub remote tracking
 ```
 git init
@@ -24,7 +24,7 @@ git push -u origin main
 ```
 4. You can add a develop and staging branch to fit your workflow
 5. Everytime you make a change in the Conversation Studio or in your preferred code editor, you can commit that change to track changes.
-6. When you are ready to send you chatbot to production, you can ```git merge``` your develop branch in master.
+6. When you are ready to send you chatbot to production, you can ```git merge``` your changes into main.
 7. Then, you ```checkout master``` in your terminal and you go to your Botpress Admin to export your chatbot.
 8. You upload it on your production environment (usually cloud deployment)
 
@@ -34,8 +34,8 @@ We will use Git to sync changes between 2 environments and promote an environmen
 
 Let's assume that given a pipeline with three environments, **development**, **staging**, and **production**, there are some changes both on production and staging, and you want to promote staging to production. What we want to do is the following:
 
-1. Create a merge conflict so we can choose what we want in a merge conflict tool.
-2. Resolve conflicts (i.e., merge staging into production)
+1. Merge production into staging which might result in a merge conflict.
+2. Resolve conflicts using any merge conflict tool (e.g., VSCode, Sublime Merge)
 3. Push the results to master so they are deployed to your production environment.
 
 First, create a branch and sync it with the production environment:
