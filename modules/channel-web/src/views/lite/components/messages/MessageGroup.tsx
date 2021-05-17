@@ -1,4 +1,5 @@
 import classnames from 'classnames'
+import { omit } from 'lodash'
 import sortBy from 'lodash/sortBy'
 import { inject } from 'mobx-react'
 import React from 'react'
@@ -51,6 +52,40 @@ class MessageGroup extends React.Component<Props> {
     return payload
   }
 
+  renderPayload = payload => {
+    if (payload?.type === 'single-choice') {
+      if (payload.isDropdown) {
+        return {
+          type: 'custom',
+          module: 'extensions',
+          component: 'Dropdown',
+          message: payload.text,
+          buttonText: '',
+          displayInKeyboard: true,
+          options: payload.choices.map(c => ({ label: c.title, value: c.value.toUpperCase() })),
+          width: 300,
+          placeholderText: payload.dropdownPlaceholder
+        }
+      }
+      return {
+        type: 'custom',
+        module: 'channel-web',
+        component: 'QuickReplies',
+        quick_replies: payload.choices.map(c => ({
+          title: c.title,
+          payload: c.value.toUpperCase()
+        })),
+        disableFreeText: payload.disableFreeText,
+        wrapped: {
+          type: 'text',
+          ...omit(payload, 'choices', 'type')
+        }
+      }
+    }
+
+    return payload
+  }
+
   render() {
     const { messages, avatar, isBot, showUserName, userName } = this.props
 
@@ -80,7 +115,12 @@ class MessageGroup extends React.Component<Props> {
             </span>
             {sortBy(messages, 'eventId').map((message, i, messages) => {
               const isLastMsg = i === messages.length - 1
-              const payload = this.convertPayloadFromOldFormat(message)
+              let payload = this.convertPayloadFromOldFormat(message)
+              if (payload?.wrapped) {
+                payload.wrapped = this.renderPayload(payload.wrapped)
+              } else {
+                payload = this.renderPayload(payload)
+              }
 
               const showInlineFeedback =
                 isBot && isLastMsg && (payload.wrapped ? payload.wrapped.collectFeedback : payload.collectFeedback)
