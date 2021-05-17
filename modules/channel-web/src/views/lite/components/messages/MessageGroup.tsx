@@ -256,10 +256,10 @@ class MessageGroup extends React.Component<Props> {
                   fromLabel={fromLabel}
                   isLastOfGroup={i >= this.props.messages.length - 1}
                   isLastGroup={this.props.isLastGroup}
-                  isBotMessage={!message.userId}
+                  isBotMessage={!message.authorId}
                   incomingEventId={message.incomingEventId}
                   payload={payload}
-                  sentOn={message.sent_on}
+                  sentOn={message.sentOn}
                   onSendData={this.props.onSendData}
                   onFileUpload={this.props.onFileUpload}
                   bp={this.props.bp}
