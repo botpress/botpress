@@ -38,7 +38,8 @@ export default async (bp: typeof sdk, db: Database) => {
       payload: _.cloneDeep(event.payload),
       botUrl: process.EXTERNAL_URL,
       messages: [],
-      conversationId: event.threadId || (await db.getOrCreateRecentConversation(event.botId, event.target)),
+      conversationId:
+        event.threadId || (await bp.experimental.conversations.forBot(event.botId).recent(event.target)).id,
       db,
       botName,
       botAvatarUrl

@@ -22,7 +22,7 @@ export interface DBMessage {
 
 export type WebContext = ChannelContext<typeof sdk> & {
   messages: Partial<sdk.Content>[]
-  conversationId: number
+  conversationId: string
   db: Database
   botName: string
   botAvatarUrl

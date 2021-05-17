@@ -27,14 +27,9 @@ export class WebCommonSender implements ChannelSender<WebContext> {
         const payload = bp.RealTimePayload.forVisitor(event.target, 'webchat.data', event.payload)
         bp.realtime.sendPayload(payload)
       } else {
-        const message = await context.db.appendBotMessage(
-          (event.payload || {}).botName || context.botName,
-          (event.payload || {}).botAvatarUrl || context.botAvatarUrl,
-          context.conversationId,
-          event.payload,
-          event.incomingEventId,
-          event.id
-        )
+        const message = await bp.experimental.messages
+          .forBot(event.botId)
+          .create(context.conversationId, event.payload, undefined, event.id, event.incomingEventId)
         bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(event.target, 'webchat.message', message))
       }
     }
