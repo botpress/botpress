@@ -97,10 +97,6 @@ export default class BasicAuthentication {
   }
 
   isAuthenticated() {
-    if (window.IS_STANDALONE) {
-      return true
-    }
-
-    return auth.isTokenValid()
+    return window.IS_STANDALONE || auth.isTokenValid()
   }
 }

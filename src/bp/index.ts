@@ -56,6 +56,7 @@ process.PROJECT_LOCATION = process.pkg
   ? path.dirname(process.execPath) // We point at the binary path
   : __dirname // e.g. /dist/..
 
+process.DATA_LOCATION = path.resolve(process.PROJECT_LOCATION, './data')
 process.stderr.write = stripDeprecationWrite
 
 process.on('unhandledRejection', err => {
@@ -139,9 +140,7 @@ try {
         process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : defaultVerbosity
         process.TELEMETRY_URL = process.env.TELEMETRY_URL || 'https://telemetry.botpress.cloud/ingest'
 
-        if (!argv.dataFolder) {
-          process.DATA_LOCATION = path.resolve(process.PROJECT_LOCATION, './data')
-        } else {
+        if (argv.dataFolder) {
           process.IS_STANDALONE = true
           process.IS_PRO_ENABLED = false
           process.BPFS_STORAGE = 'disk'
