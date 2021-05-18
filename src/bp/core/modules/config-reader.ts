@@ -203,20 +203,19 @@ export class ConfigReader {
     return this.getCachedOrFresh(cacheKey)
   }
 
-  public deleteCacheStartingWith(prefix: string) {
-    return this.moduleConfigCache
-      .keys()
-      .filter(x => x.startsWith(prefix))
-      .forEach(x => this.moduleConfigCache.del(x))
-  }
-
   private _listenForModuleConfigCacheInvalidation() {
+    const delStartWith = (prefix: string) =>
+      this.moduleConfigCache
+        .keys()
+        .filter(x => x.startsWith(prefix))
+        .forEach(x => this.moduleConfigCache.del(x))
+
     this.cache.events.on('invalidation', async key => {
       try {
         const moduleId = key.match(/^.*::data\/.*\/config\/([\s\S]+([a-zA-Z0-9-_])+\.json)/i)?.[1]?.replace('.json', '')
 
         if (moduleId) {
-          this.deleteCacheStartingWith(moduleId)
+          delStartWith(moduleId)
         }
       } catch (err) {
         this.logger.error('Error invalidating module config cache: ' + err.message)
