@@ -49,7 +49,8 @@ export class MemoryObjectCache implements ObjectCache {
     this.events.emit('invalidation', key)
 
     if (!local && !process.CLUSTER_ENABLED) {
-      await studioActions.invalidateFile(key)
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      studioActions.invalidateFile(key)
     }
   }
 
