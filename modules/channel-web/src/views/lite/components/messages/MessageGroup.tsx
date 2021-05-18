@@ -61,7 +61,7 @@ class MessageGroup extends React.Component<Props> {
     if (type === 'single-choice' && payload.choices) {
       return this.renderChoicePayload(payload)
     } else if (type === 'dropdown') {
-      return this.renderDropdown(payload)
+      return this.renderDropdownPayload(payload)
     } else if (type === 'image' && payload.image) {
       return this.renderImagePayload(payload)
     } else if (type === 'audio' && payload.audio) {
@@ -107,7 +107,7 @@ class MessageGroup extends React.Component<Props> {
     }
   }
 
-  renderDropdown(content: any) {
+  renderDropdownPayload(content: any) {
     // TODO: add typings for dropdowns
     return {
       type: 'custom',
@@ -228,7 +228,7 @@ class MessageGroup extends React.Component<Props> {
               const isLastMsg = i === messages.length - 1
               let payload = this.convertPayloadFromOldFormat(message)
               if (payload?.wrapped) {
-                payload.wrapped = this.renderPayload(payload.wrapped)
+                payload = { ...payload, wrapped: this.renderPayload(payload.wrapped) }
               } else {
                 payload = this.renderPayload(payload)
               }
