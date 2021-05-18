@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "12.21.1",
+  "version": "12.22.0",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": "^12"
@@ -11,8 +11,8 @@
   "license": "AGPL-3.0",
   "private": true,
   "nlu": {
-    "version": "0.0.1",
-    "downloadURL": "https://github.com/botpress/nlu/releases/download/v0.0.1"
+    "version": "0.0.2",
+    "downloadURL": "https://github.com/botpress/nlu/releases/download/v0.0.2"
   },
   "scripts": {
     "postinstall": "yarn cmd install:nlu",
