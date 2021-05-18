@@ -1,6 +1,20 @@
 import * as sdk from 'botpress/sdk'
-import { formatUrl } from 'common/url'
 import { omit } from 'lodash'
+
+const isBpUrl = (str: string): boolean => {
+  const re = /^\/api\/.*\/bots\/.*\/media\/.*/g
+
+  return re.test(str)
+}
+
+// Duplicate of modules/builtin/src/content-types/_utils.js
+const formatUrl = (baseUrl: string, url: string): string => {
+  if (isBpUrl(url)) {
+    return `${baseUrl}${url}`
+  } else {
+    return url
+  }
+}
 
 export const renderPayload = payload => {
   const type = payload?.type
