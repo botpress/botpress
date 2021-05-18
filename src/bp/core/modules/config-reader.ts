@@ -182,10 +182,11 @@ export class ConfigReader {
     return config
   }
 
-  private async getCachedOrFresh(key, getFresh: { fn: (...args) => any; args: any[] }) {
+  private async getCachedOrFresh(key) {
     let config
     if (!this.moduleConfigCache.has(key)) {
-      config = await getFresh.fn.call(this, ...getFresh.args)
+      const [moduleId, botId, ignoreGlobal] = key.split('//')
+      config = await this.getMerged(moduleId, botId, yn(ignoreGlobal))
       this.moduleConfigCache.set(key, config)
     } else {
       config = this.moduleConfigCache.get(key) || {}
@@ -194,40 +195,28 @@ export class ConfigReader {
   }
 
   public async getGlobal(moduleId: string): Promise<ModuleConfig> {
-    return this.getCachedOrFresh(moduleId, { fn: this.getMerged, args: [moduleId] })
+    return this.getCachedOrFresh(moduleId)
   }
 
   public getForBot(moduleId: string, botId: string, ignoreGlobal?: boolean): Promise<ModuleConfig> {
     const cacheKey = `${moduleId}//${botId}//${!!ignoreGlobal}`
-    return this.getCachedOrFresh(cacheKey, { fn: this.getMerged, args: [moduleId, botId, yn(!!ignoreGlobal)] })
+    return this.getCachedOrFresh(cacheKey)
+  }
+
+  public deleteCacheStartingWith(prefix: string) {
+    return this.moduleConfigCache
+      .keys()
+      .filter(x => x.startsWith(prefix))
+      .forEach(x => this.moduleConfigCache.del(x))
   }
 
   private _listenForModuleConfigCacheInvalidation() {
-    async function deleteCacheStartingWith(prefix: string, cache: LRU<string, any>): Promise<void> {
-      const keys = cache.keys().filter(x => {
-        return x.startsWith(prefix)
-      })
-      keys.forEach(x => cache.del(x))
-    }
-
     this.cache.events.on('invalidation', async key => {
       try {
-        const isGlobalModuleConfig = key.indexOf('data/global/config') !== -1
-        const matches = !isGlobalModuleConfig
-          ? key.match(/^([A-Z0-9-_]+)::data\/bots\/([A-Z0-9-_]+)\/config\/([\s\S]+([A-Z0-9-_])+\.json)/i)
-          : key.match(/^([A-Z0-9-_]+)::data\/global\/config\/([\s\S]+([A-Z0-9-_])+\.json)/i)
-        const type = matches && matches.length >= 2 && matches[1]
+        const moduleId = key.match(/^.*::data\/.*\/config\/([\s\S]+([a-zA-Z0-9-_])+\.json)/i)?.[1]?.replace('.json', '')
 
-        if (type && (type === 'file' || type === 'object')) {
-          const moduleId = matches[isGlobalModuleConfig ? 2 : 3].replace('.json', '')
-
-          if (isGlobalModuleConfig) {
-            await deleteCacheStartingWith(moduleId, this.moduleConfigCache)
-          } else {
-            const botId = matches[2]
-            await deleteCacheStartingWith(`${moduleId}//${botId}//true`, this.moduleConfigCache)
-            await deleteCacheStartingWith(`${moduleId}//${botId}//false`, this.moduleConfigCache)
-          }
+        if (moduleId) {
+          this.deleteCacheStartingWith(moduleId)
         }
       } catch (err) {
         this.logger.error('Error invalidating module config cache: ' + err.message)
