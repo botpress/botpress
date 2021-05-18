@@ -2,6 +2,7 @@
   "extends": "../../../tsconfig_view.shared.json",
   "compilerOptions": {
     "baseUrl": "./",
-    "typeRoots": ["../../node_modules/@types", "lite/typings.d.ts"]
+    "typeRoots": ["../../node_modules/@types", "lite/typings.d.ts"],
+    "types": ["jest", "bluebird-global", "dom-mediacapture-record"]
   }
 }

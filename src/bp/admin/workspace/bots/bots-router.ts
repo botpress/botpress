@@ -162,24 +162,6 @@ class BotsRouter extends CustomAdminRouter {
     )
 
     router.post(
-      '/:botId',
-      this.needPermissions('write', this.resource),
-      this.asyncMiddleware(async (req, res) => {
-        const { botId } = req.params
-        const bot = <BotConfig>req.body
-
-        try {
-          await this.botService.updateBot(botId, bot)
-          return sendSuccess(res, 'Updated bot', {
-            botId
-          })
-        } catch (err) {
-          throw new UnexpectedError('Cannot update bot', err)
-        }
-      })
-    )
-
-    router.post(
       '/:botId/delete',
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {

@@ -51,15 +51,13 @@ const Sidebar: FC<Props> = props => {
   const renderModuleItem = module => {
     const rule = { res: `module.${module.name}`, op: 'write' }
     const path = `/modules/${module.name}`
-    const iconPath = `assets/modules/${module.name}/icon.png`
+    const iconPath = `assets/modules/${module.name}/studio_${module.menuIcon}`
 
     const moduleIcon =
-      module.menuIcon === 'custom' ? (
-        <img className={classnames(style.customIcon, 'bp-custom-icon')} src={iconPath} />
-      ) : IconSvgPaths16[module.menuIcon] ? (
-        <Icon icon={module.menuIcon} iconSize={16} />
+      module.menuIcon && IconSvgPaths16[module.menuIcon] ? (
+        <Icon icon={module.menuIcon as any} iconSize={16} />
       ) : (
-        <i className="icon material-icons">{module.menuIcon}</i>
+        <img src={iconPath} />
       )
 
     return (

@@ -4,6 +4,7 @@ import { UnexpectedError } from 'common/http'
 import { extractArchive } from 'core/misc/archive'
 import _ from 'lodash'
 import mkdirp from 'mkdirp'
+import ms from 'ms'
 import path from 'path'
 import tmp from 'tmp'
 
@@ -49,6 +50,9 @@ class VersioningRouter extends CustomAdminRouter {
     this.router.post(
       '/update',
       this.asyncMiddleware(async (req, res) => {
+        req.setTimeout(ms('20m'), () => {
+          this.logger.error('Timing out api call after 20 minutes')
+        })
         const tmpDir = tmp.dirSync({ unsafeCleanup: true })
         const beforeBotIds = await this.botService.getBotsIds()
 

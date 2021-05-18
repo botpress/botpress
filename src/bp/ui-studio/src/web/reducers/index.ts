@@ -10,7 +10,6 @@ import language, { LanguageReducer } from './language'
 import modules from './modules'
 import ndu, { NduReducer } from './ndu'
 import nlu, { NLUReducer } from './nlu'
-import notifications from './notifications'
 import skills, { SkillsReducer } from './skills'
 import ui, { UiReducer } from './ui'
 import user, { UserReducer } from './user'
@@ -24,7 +23,6 @@ const bpApp = combineReducers({
   user,
   bot,
   modules,
-  notifications,
   skills,
   language,
   hints,

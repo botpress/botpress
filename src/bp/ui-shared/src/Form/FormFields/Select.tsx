@@ -29,7 +29,10 @@ const Select: FC<SelectProps> = ({ onChange, printField, parent, field, data, ax
 
     try {
       const { data } = await axios.get(
-        endpoint.replace('BOT_API_PATH', window.BOT_API_PATH).replace('API_PATH', window.API_PATH)
+        endpoint
+          .replace('BOT_API_PATH', window.BOT_API_PATH)
+          .replace('STUDIO_API_PATH', window.STUDIO_API_PATH)
+          .replace('API_PATH', window.API_PATH)
       )
       const elements = path ? _.get(data, path) : data
 

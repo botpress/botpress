@@ -321,11 +321,6 @@
         "standard": "Nodo estándar",
         "trigger": "detonante"
       },
-      "notifications": {
-        "deleteAll": "Eliminar todo",
-        "markRead": "Marcar todo como leído",
-        "noNotifs": "No tiene notificaciones!"
-      },
       "nowSaveAuto": "Pssst! Ahora los flujos se guardan automáticamente, ya no es necesario guardar.",
       "removeFromLibrary": "Quitar de la libreria",
       "sessionStartsHere": "Cada sesión de usuario comienza aquí",

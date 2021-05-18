@@ -5,7 +5,6 @@ interface CssExports {
   'main': string;
   'mainLayout': string;
   'mainSplitPaneWToolbar': string;
-  'statusBar': string;
   'unlicensed': string;
 }
 export const cssExports: CssExports;

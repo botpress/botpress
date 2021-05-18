@@ -13,6 +13,7 @@ import Inspector from '../inspector'
 
 import FlowNameModal from './FlowNameModal'
 import FlowsList from './FlowsList'
+import style from './style.scss'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
 
@@ -71,7 +72,7 @@ const SidePanelContent: FC<Props> = props => {
     <SidePanel>
       <SidePanelSection
         label={lang.tr('flows')}
-        actions={props.permissions.includes('create') && [createFlowAction]}
+        actions={!props.readOnly && props.permissions.includes('create') && [createFlowAction]}
       >
         <SearchBar icon="filter" placeholder={lang.tr('studio.flow.sidePanel.filterFlows')} onChange={setFilter} />
         <FlowsList
@@ -104,16 +105,13 @@ const SidePanelContent: FC<Props> = props => {
 
 const SidePanelInspectorContent: FC<Props> = props => {
   return (
-    <SidePanel style={{
-      position: 'absolute',
-      right: 0,
-      width: 240,
-      zIndex: 1,
-      paddingTop: 70,
-      ...(!props.showFlowNodeProps && { width: 0 })
-    }}>
-      {props.showFlowNodeProps ? ( <Inspector /> ) : null}
-    </SidePanel>
+    <div className={props.showFlowNodeProps ? style.rightPanelActive : style.rightPanel}>
+      <SidePanel>
+        <SidePanelSection label="Inspector">
+        </SidePanelSection>
+        {props.showFlowNodeProps ? ( <Inspector /> ) : null}
+      </SidePanel>
+    </div>
   )
 }
 
