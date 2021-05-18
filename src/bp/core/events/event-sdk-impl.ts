@@ -28,7 +28,7 @@ export class IOEvent implements sdk.IO.Event {
     this.botId = args.botId
     this.createdOn = new Date()
     this.threadId = args.threadId ? args.threadId.toString() : undefined
-    this.id = this.makeId()
+    this.id = args.id || this.makeId()
     this.preview = args.preview || this.constructPreview()
     this.flags = {}
     this.state = { __stacktrace: [] }

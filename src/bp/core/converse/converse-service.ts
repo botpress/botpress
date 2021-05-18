@@ -2,6 +2,7 @@ import { IO } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config/config-loader'
 import { EventEngine } from 'core/events'
 import { MessageService, ConversationService } from 'core/messaging'
+import { ChatService } from 'core/messaging/chat-service'
 import { TYPES } from 'core/types'
 import { ChannelUserRepository } from 'core/users'
 import { InvalidParameterError } from 'errors'
@@ -32,7 +33,8 @@ export class ConverseService {
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.UserRepository) private userRepository: ChannelUserRepository,
     @inject(TYPES.ConversationService) private conversationService: ConversationService,
-    @inject(TYPES.MessageService) private messageService: MessageService
+    @inject(TYPES.MessageService) private messageService: MessageService,
+    @inject(TYPES.ChatService) private chatService: ChatService
   ) {}
 
   @postConstruct()
@@ -102,7 +104,7 @@ export class ConverseService {
     const timeoutPromise = this._createTimeoutPromise(botId, userKey)
     const donePromise = this._createDonePromise(botId, userKey)
 
-    await this.messageService.forBot(botId).receive(conversation.id, payload, {
+    await this.chatService.forBot(botId).receive(conversation.id, payload, {
       channel: 'api',
       credentials,
       nlu: { includedContexts }

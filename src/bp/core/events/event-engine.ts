@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import { TYPES } from 'core/app/types'
 import { WellKnownFlags } from 'core/dialog'
 import { incrementMetric } from 'core/health'
+import { MessageService } from 'core/messaging'
 import { TimedPerfCounter } from 'core/misc/timed-perf'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
@@ -21,7 +22,7 @@ const eventSchema = {
   type: joi.string().required(),
   channel: joi.string().required(),
   target: joi.string().required(),
-  id: joi.number().required(),
+  id: joi.string().required(),
   direction: joi
     .string()
     .regex(directionRegex)
@@ -107,7 +108,8 @@ export class EventEngine {
     private logger: sdk.Logger,
     @inject(TYPES.IncomingQueue) private incomingQueue: Queue<sdk.IO.IncomingEvent>,
     @inject(TYPES.OutgoingQueue) private outgoingQueue: Queue<sdk.IO.OutgoingEvent>,
-    @inject(TYPES.EventCollector) private eventCollector: EventCollector
+    @inject(TYPES.EventCollector) private eventCollector: EventCollector,
+    @inject(TYPES.MessageService) private messageService: MessageService
   ) {
     this.incomingQueue.subscribe(async (event: sdk.IO.IncomingEvent) => {
       await this._infoMiddleware(event)
@@ -216,8 +218,13 @@ export class EventEngine {
     const keys: (keyof sdk.IO.EventDestination)[] = ['botId', 'channel', 'target', 'threadId']
 
     for (const payload of payloads) {
+      const message = await this.messageService
+        .forBot(eventDestination.botId)
+        .create(eventDestination.threadId!, payload, undefined)
+
       const replyEvent = Event({
         ..._.pick(eventDestination, keys),
+        id: message.id,
         direction: 'outgoing',
         type: payload.type ?? 'text',
         payload,

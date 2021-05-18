@@ -12,6 +12,7 @@ import { KeyValueStore } from 'core/kvs'
 import { LogsJanitor } from 'core/logger'
 import { MediaServiceProvider } from 'core/media'
 import { MessageService, ConversationService } from 'core/messaging'
+import { ChatService } from 'core/messaging/chat-service'
 import { RealtimeService } from 'core/realtime'
 import { AuthService, AuthStrategies, CEAuthStrategies } from 'core/security'
 import { StatsService } from 'core/telemetry'
@@ -29,6 +30,10 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<MessageService>(TYPES.MessageService)
     .to(MessageService)
+    .inSingletonScope()
+
+  bind<ChatService>(TYPES.ChatService)
+    .to(ChatService)
     .inSingletonScope()
 
   bind<CMSService>(TYPES.CMSService)

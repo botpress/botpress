@@ -459,6 +459,7 @@ declare module 'botpress/sdk' {
      * These are the arguments required when creating a new {@link Event}
      */
     interface EventCtorArgs {
+      id?: string
       type: string
       channel: string
       target: string
@@ -1516,7 +1517,9 @@ declare module 'botpress/sdk' {
   }
 
   export interface MessageArgs
-    extends Partial<Omit<IO.EventCtorArgs, 'type' | 'direction' | 'payload' | 'target' | 'botId' | 'threadId'>> {}
+    extends Partial<
+      Omit<IO.EventCtorArgs, 'id' | 'type' | 'direction' | 'payload' | 'target' | 'botId' | 'threadId'>
+    > {}
 
   export interface MessageDeleteFilters {
     id?: uuid

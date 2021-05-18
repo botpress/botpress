@@ -1,75 +1,35 @@
 import * as sdk from 'botpress/sdk'
 import { TYPES } from 'core/app/types'
-import { JobService } from 'core/distributed'
-import { EventEngine, IOEvent } from 'core/events'
-import { KeyValueStore } from 'core/kvs'
 import { MessageRepository } from 'core/messaging'
-import { inject, injectable, postConstruct } from 'inversify'
-import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
-import LRU from 'lru-cache'
-import ms from 'ms'
+import { inject, injectable } from 'inversify'
 
 import { ConversationService, ScopedConversationService } from './conversation-service'
 
 @injectable()
 export class MessageService {
   private scopes: { [botId: string]: ScopedMessageService } = {}
-  private invalidateLastChannel: (botId: string, userId: string, lastChannel: string) => void = this
-    ._localInvalidateLastChannel
 
   constructor(
-    @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.MessageRepository) private messageRepo: MessageRepository,
-    @inject(TYPES.ConversationService) private conversationService: ConversationService,
-    @inject(TYPES.KeyValueStore) private kvs: KeyValueStore
+    @inject(TYPES.ConversationService) private conversationService: ConversationService
   ) {}
-
-  @postConstruct()
-  async init() {
-    await AppLifecycle.waitFor(AppLifecycleEvents.CONFIGURATION_LOADED)
-
-    this.eventEngine.onSendIncoming = async event => {
-      await this.forBot(event.botId).updateLastChannel(event.target, event.channel)
-    }
-
-    this.invalidateLastChannel = <any>await this.jobService.broadcast<void>(this._localInvalidateLastChannel.bind(this))
-  }
-
-  private _localInvalidateLastChannel(botId: string, userId: string, lastChannel: string) {
-    this.forBot(botId).localInvalidateLastChannel(userId, lastChannel)
-  }
 
   public forBot(botId: string): ScopedMessageService {
     let scope = this.scopes[botId]
     if (!scope) {
-      scope = new ScopedMessageService(
-        botId,
-        this.eventEngine,
-        this.messageRepo,
-        this.conversationService.forBot(botId),
-        this.kvs,
-        (userId, lastChannel) => this.invalidateLastChannel(botId, userId, lastChannel)
-      )
+      scope = new ScopedMessageService(botId, this.messageRepo, this.conversationService.forBot(botId))
       this.scopes[botId] = scope
     }
     return scope
   }
 }
 
-export class ScopedMessageService implements sdk.experimental.messages.BotMessages {
-  private lastChannelCache: LRU<string, string>
-
+export class ScopedMessageService {
   constructor(
     private botId: string,
-    private eventEngine: EventEngine,
     private messageRepo: MessageRepository,
-    private conversationService: ScopedConversationService,
-    private kvs: KeyValueStore,
-    private invalidateLastChannel: (userId: string, lastChannel: string) => void
-  ) {
-    this.lastChannelCache = new LRU<string, string>({ max: 10000, maxAge: ms('5min') })
-  }
+    private conversationService: ScopedConversationService
+  ) {}
 
   public async list(filters: sdk.MessageListFilters): Promise<sdk.Message[]> {
     return this.messageRepo.list(filters)
@@ -108,91 +68,5 @@ export class ScopedMessageService implements sdk.experimental.messages.BotMessag
 
   public async get(id: sdk.uuid): Promise<sdk.Message | undefined> {
     return this.messageRepo.get(id)
-  }
-
-  public async receive(conversationId: sdk.uuid, payload: any, args?: sdk.MessageArgs) {
-    return this.sendMessage(conversationId, payload, 'incoming', args)
-  }
-
-  public async send(conversationId: sdk.uuid, payload: any, args?: sdk.MessageArgs) {
-    return this.sendMessage(conversationId, payload, 'outgoing', args)
-  }
-
-  private async sendMessage(
-    conversationId: sdk.uuid,
-    payload: any,
-    direction: sdk.EventDirection,
-    args?: sdk.MessageArgs
-  ) {
-    const conversation = await this.conversationService.get(conversationId)
-    if (!conversation) {
-      throw new Error(
-        'conversationId: conversation not found. conversationId must be the id of an existing conversation'
-      )
-    }
-
-    const ctorArgs = {
-      ...args,
-      direction,
-      type: payload.type,
-      payload,
-      threadId: conversation.id.toString(),
-      target: conversation.userId,
-      botId: conversation.botId
-    }
-
-    if (!ctorArgs.channel) {
-      const lastChannel = await this.getLastChannel(ctorArgs.target)
-      if (!lastChannel) {
-        throw new Error('No previous channel was set for the user. You must provide a channel in the args parameter')
-      }
-      ctorArgs.channel = lastChannel
-    } else if (direction === 'incoming') {
-      await this.updateLastChannel(ctorArgs.target, ctorArgs.channel)
-    }
-
-    const event = new IOEvent(<sdk.IO.EventCtorArgs>ctorArgs)
-    await this.eventEngine.sendEvent(event)
-
-    const authorId = event.direction === 'incoming' ? conversation.userId : undefined
-    const message = await this.messageRepo.create(conversationId, payload, authorId, event.id, event.id)
-    await this.conversationService.setAsMostRecent(conversation)
-
-    return message
-  }
-
-  private async getLastChannel(userId: string): Promise<string | undefined> {
-    const cached = this.lastChannelCache.get(userId)
-    if (cached) {
-      return cached
-    }
-
-    const lastChannel = await this.kvs.forBot(this.botId).get(this.getLastChannelKvsKey(userId))
-    this.lastChannelCache.set(userId, lastChannel)
-
-    return lastChannel
-  }
-
-  public async updateLastChannel(userId: string, channel: string) {
-    const current = this.lastChannelCache.get(userId)
-    if (current === channel) {
-      return
-    }
-
-    await this.kvs.forBot(this.botId).set(this.getLastChannelKvsKey(userId), channel, undefined, '48h')
-    this.invalidateLastChannel(userId, channel)
-  }
-
-  private getLastChannelKvsKey(userId: string) {
-    return `lastChannel_${this.botId}_${userId}`
-  }
-
-  public localInvalidateLastChannel(userId: string, lastChannel: string) {
-    if (userId) {
-      const cachedLastChannel = this.lastChannelCache.peek(userId)
-      if (cachedLastChannel !== lastChannel) {
-        this.lastChannelCache.del(userId)
-      }
-    }
   }
 }
