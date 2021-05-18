@@ -130,6 +130,7 @@ class MessageList extends React.Component<MessageListProps, State> {
       // Create a new group if messages are separated by more than X minutes or if different speaker
       if (
         speaker !== lastSpeaker ||
+        !currentGroup ||
         differenceInMinutes(new Date(date), new Date(lastDate)) >= constants.TIME_BETWEEN_DATES
       ) {
         currentGroup = []
