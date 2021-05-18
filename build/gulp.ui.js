@@ -8,7 +8,7 @@ const verbose = process.argv.includes('--verbose')
 
 const build = () => {
   gulp.task('build:shared', gulp.series([cleanShared, sharedBuild]))
-  gulp.task('build:studio', gulp.series([buildStudioBackend, buildStudio, cleanStudio, cleanStudioAssets, copyStudio]))
+  gulp.task('build:studio', gulp.series([buildStudio, cleanStudio, cleanStudioAssets, copyStudio])) //buildStudioBackend
   gulp.task('build:admin', gulp.series([buildAdmin, cleanAdmin, copyAdmin]))
   gulp.task('build:lite', gulp.series([buildLite, cleanLite, copyLite]))
 

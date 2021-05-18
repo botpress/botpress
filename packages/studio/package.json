@@ -1,15 +1,13 @@
 {
   "name": "botpres-studio",
-  "version": "12.20.0",
-  "description": "The world's most powerful conversational engine",
+  "version": "0.0.1",
+  "description": "Create and manage your assistants",
   "main": "index.js",
-  "repository": "https://github.com/botpress/botpress.git",
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0",
   "private": true,
   "scripts": {
     "start": "cd ../../out/studio && cross-env NODE_PATH=./ cross-env BP_MODULES_PATH=../../../modules node index.js",
-    "cmd": "yarn run gulp",
     "build": "yarn clean && yarn tsc",
     "clean": "node ./node_modules/rimraf/bin.js ../../out/studio",
     "watch": "yarn clean && yarn tsc --watch"
