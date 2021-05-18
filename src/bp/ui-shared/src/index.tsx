@@ -25,6 +25,7 @@ import MainLayout from './MainLayout'
 import MarkdownContent from './MarkdownContent'
 import * as ModuleUI from './ModuleUI'
 import MultiLevelDropdown from './MultiLevelDropdown'
+import { renderPayload } from './Payloads'
 import ShortcutLabel from './ShortcutLabel'
 import { sendTelemetry, startFallback } from './telemetry'
 import Textarea from './Textarea'
@@ -83,4 +84,7 @@ exports.telemetry = {
 exports.date = {
   createDateRangeShortcuts,
   relativeDates
+}
+exports.payloads = {
+  renderPayload
 }
