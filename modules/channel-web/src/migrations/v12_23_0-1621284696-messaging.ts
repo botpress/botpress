@@ -10,6 +10,13 @@ const migration: sdk.ModuleMigration = {
       // TODO do migration for sqlite
       throw 'migration for sqlite not yet implemented!'
     } else {
+      // extension needed for gen_random_uuid()
+      await bp.database.raw('CREATE EXTENSION IF NOT EXISTS pgcrypto;')
+
+      if (await bp.database.schema.hasTable('temp_new_convo_ids')) {
+        await bp.database.schema.dropTable('temp_new_convo_ids')
+      }
+
       await bp.database.schema.createTable('temp_new_convo_ids', table => {
         table
           .integer('oldId')
@@ -61,6 +68,8 @@ const migration: sdk.ModuleMigration = {
       INNER JOIN "temp_new_convo_ids" ON "web_messages"."conversationId" = "temp_new_convo_ids"."oldId"`)
 
       await bp.database.schema.dropTable('temp_new_convo_ids')
+
+      await bp.database.raw('DROP EXTENSION pgcrypto;')
     }
 
     return { success: true, message: 'Tables migrated successfully' }
