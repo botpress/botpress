@@ -19,7 +19,8 @@ import {
   VonageAudioRenderer,
   VonageMediaTemplateRenderer,
   VonageLocationRenderer,
-  VonageTemplateRenderer
+  VonageTemplateRenderer,
+  VonageDropdownRenderer
 } from '../renderers'
 import { VonageCommonSender, VonageTypingSender } from '../senders'
 
@@ -105,6 +106,7 @@ export class VonageClient {
 
     this.renderers = [
       new VonageCardRenderer(),
+      new VonageDropdownRenderer(),
       new VonageTextRenderer(),
       new VonageImageRenderer(),
       new VonageLocationRenderer(),

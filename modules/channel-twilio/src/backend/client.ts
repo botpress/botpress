@@ -7,6 +7,7 @@ import {
   TwilioCardRenderer,
   TwilioCarouselRenderer,
   TwilioChoicesRenderer,
+  TwilioDropdownRenderer,
   TwilioImageRenderer,
   TwilioTextRenderer
 } from '../renderers'
@@ -53,6 +54,7 @@ export class TwilioClient {
 
     this.renderers = [
       new TwilioCardRenderer(),
+      new TwilioDropdownRenderer(),
       new TwilioTextRenderer(),
       new TwilioImageRenderer(),
       new TwilioCarouselRenderer(),

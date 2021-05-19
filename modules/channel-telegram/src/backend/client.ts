@@ -6,7 +6,8 @@ import {
   TelegramImageRenderer,
   TelegramChoicesRenderer,
   TelegramTextRenderer,
-  TelegramCardRenderer
+  TelegramCardRenderer,
+  TelegramDropdownRenderer
 } from '../renderers'
 import { TelegramCommonSender, TelegramTypingSender } from '../senders'
 import { CHANNEL_NAME } from './constants'
@@ -15,6 +16,7 @@ import { Clients, TelegramContext } from './typings'
 
 const renderers = [
   new TelegramCardRenderer(),
+  new TelegramDropdownRenderer(),
   new TelegramTextRenderer(),
   new TelegramImageRenderer(),
   new TelegramCarouselRenderer(),
