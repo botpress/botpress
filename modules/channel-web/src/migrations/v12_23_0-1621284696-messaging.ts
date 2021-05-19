@@ -53,7 +53,7 @@ const migration: sdk.ModuleMigration = {
               authorId: message.userId,
               eventId: message.eventId,
               incomingEventId: message.incomingEventId,
-              sentOn: message.sentOn,
+              sentOn: message.sent_on,
               payload: message.payload
             })
 
