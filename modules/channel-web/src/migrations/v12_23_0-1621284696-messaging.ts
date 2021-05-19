@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import uuid from 'uuid'
 
 const migration: sdk.ModuleMigration = {
   info: {
@@ -7,8 +8,68 @@ const migration: sdk.ModuleMigration = {
   },
   up: async ({ bp }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
     if (bp.database.isLite) {
-      // TODO do migration for sqlite
-      throw 'migration for sqlite not yet implemented!'
+      const convCount = <number>Object.values((await bp.database('web_conversations').count('*'))[0])[0]
+
+      const convoBatch = []
+      const messageBatch = []
+
+      const emptyConvoBatch = async () => {
+        if (convoBatch.length > 0) {
+          await bp.database('conversations').insert(convoBatch)
+        }
+      }
+      const emptyMessageBatch = async () => {
+        if (messageBatch.length > 0) {
+          await bp.database('messages').insert(messageBatch)
+        }
+      }
+
+      for (let i = 0; i < convCount; i += 100) {
+        const convos = await bp
+          .database('web_conversations')
+          .select('*')
+          .offset(i)
+          .limit(100)
+
+        for (const convo of convos) {
+          const newConvo = {
+            id: uuid.v4(),
+            userId: convo.userId,
+            botId: convo.botId,
+            createdOn: convo.created_on
+          }
+
+          convoBatch.push(newConvo)
+
+          const messages = await bp
+            .database('web_messages')
+            .select('*')
+            .where({ conversationId: convo.id })
+
+          for (const message of messages) {
+            messageBatch.push({
+              id: uuid.v4(),
+              conversationId: newConvo.id,
+              authorId: message.userId,
+              eventId: message.eventId,
+              incomingEventId: message.incomingEventId,
+              sentOn: message.sentOn,
+              payload: message.payload
+            })
+
+            if (messageBatch.length > 50) {
+              await emptyMessageBatch()
+            }
+          }
+
+          if (convoBatch.length > 50) {
+            await emptyConvoBatch()
+          }
+        }
+
+        await emptyConvoBatch()
+        await emptyMessageBatch()
+      }
     } else {
       // extension needed for gen_random_uuid()
       await bp.database.raw('CREATE EXTENSION IF NOT EXISTS pgcrypto;')
