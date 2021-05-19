@@ -183,14 +183,12 @@ export class ConfigReader {
   }
 
   private async getCachedOrFresh(key) {
-    let config
-    if (!this.moduleConfigCache.has(key)) {
-      const [moduleId, botId, ignoreGlobal] = key.split('//')
-      config = await this.getMerged(moduleId, botId, yn(ignoreGlobal))
-      this.moduleConfigCache.set(key, config)
-    } else {
-      config = this.moduleConfigCache.get(key) || {}
+    if (this.moduleConfigCache.has(key)) {
+      return this.moduleConfigCache.get(key) || {}
     }
+    const [moduleId, botId, ignoreGlobal] = key.split('//')
+    const config = await this.getMerged(moduleId, botId, yn(ignoreGlobal))
+    this.moduleConfigCache.set(key, config)
     return config
   }
 
@@ -204,18 +202,15 @@ export class ConfigReader {
   }
 
   private _listenForModuleConfigCacheInvalidation() {
-    const delStartWith = (prefix: string) =>
-      this.moduleConfigCache
-        .keys()
-        .filter(x => x.startsWith(prefix))
-        .forEach(x => this.moduleConfigCache.del(x))
-
-    this.cache.events.on('invalidation', async key => {
+    this.cache.events.on('invalidation', key => {
       try {
         const moduleId = key.match(/^.*::data\/.*\/config\/([\s\S]+([a-zA-Z0-9-_])+\.json)/i)?.[1]?.replace('.json', '')
 
         if (moduleId) {
-          delStartWith(moduleId)
+          this.moduleConfigCache
+            .keys()
+            .filter(x => x.startsWith(moduleId))
+            .forEach(x => this.moduleConfigCache.del(x))
         }
       } catch (err) {
         this.logger.error('Error invalidating module config cache: ' + err.message)
