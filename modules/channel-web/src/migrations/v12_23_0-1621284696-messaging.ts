@@ -10,17 +10,21 @@ const migration: sdk.ModuleMigration = {
     if (bp.database.isLite) {
       const convCount = <number>Object.values((await bp.database('web_conversations').count('*'))[0])[0]
 
-      const convoBatch = []
-      const messageBatch = []
+      let convoBatch = []
+      let messageBatch = []
 
       const emptyConvoBatch = async () => {
         if (convoBatch.length > 0) {
           await bp.database('conversations').insert(convoBatch)
+          convoBatch = []
         }
       }
       const emptyMessageBatch = async () => {
+        await emptyConvoBatch()
+
         if (messageBatch.length > 0) {
           await bp.database('messages').insert(messageBatch)
+          messageBatch = []
         }
       }
 
@@ -131,6 +135,81 @@ const migration: sdk.ModuleMigration = {
       await bp.database.schema.dropTable('temp_new_convo_ids')
 
       await bp.database.raw('DROP EXTENSION pgcrypto;')
+    }
+
+    return { success: true, message: 'Tables migrated successfully' }
+  },
+
+  down: async ({ bp }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
+    if (bp.database.isLite) {
+      const convCount = <number>Object.values((await bp.database('conversations').count('*'))[0])[0]
+      let convIndex = <number>Object.values((await bp.database('web_conversations').max('id'))[0])[0]
+
+      let convoBatch = []
+      let messageBatch = []
+
+      const emptyConvoBatch = async () => {
+        if (convoBatch.length > 0) {
+          await bp.database('web_conversations').insert(convoBatch)
+          convoBatch = []
+        }
+      }
+      const emptyMessageBatch = async () => {
+        await emptyConvoBatch()
+
+        if (messageBatch.length > 0) {
+          await bp.database('web_messages').insert(messageBatch)
+          messageBatch = []
+        }
+      }
+
+      for (let i = 0; i < convCount; i += 100) {
+        const convos = await bp
+          .database('conversations')
+          .select('*')
+          .offset(i)
+          .limit(100)
+
+        for (const convo of convos) {
+          const newConvo = {
+            id: ++convIndex,
+            userId: convo.userId,
+            botId: convo.botId,
+            created_on: convo.createdOn
+          }
+
+          convoBatch.push(newConvo)
+
+          const messages = await bp
+            .database('messages')
+            .select('*')
+            .where({ conversationId: convo.id })
+
+          for (const message of messages) {
+            messageBatch.push({
+              id: uuid.v4(),
+              conversationId: newConvo.id,
+              incomingEventId: message.incomingEventId,
+              eventId: message.eventId,
+              userId: message.authorId,
+              sent_on: message.sentOn,
+              payload: message.payload
+            })
+
+            if (messageBatch.length > 50) {
+              await emptyMessageBatch()
+            }
+          }
+
+          if (convoBatch.length > 50) {
+            await emptyConvoBatch()
+          }
+        }
+
+        await emptyConvoBatch()
+        await emptyMessageBatch()
+      }
+    } else {
     }
 
     return { success: true, message: 'Tables migrated successfully' }
