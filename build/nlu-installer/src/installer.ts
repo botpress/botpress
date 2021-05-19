@@ -16,6 +16,8 @@ const FILE_PATTERNS: Partial<PerOS<RegExp>> = {
   linux: /nlu-v(\d+_\d+_\d+)-linux-x64/
 }
 
+const DOWNLOAD_URL = 'https://github.com/botpress/nlu/releases/download/'
+
 const makeFileNamePerOS = (version: string): Partial<PerOS<string>> => {
   const versionUnderscore = dotsToUnderscores(version)
   return {
@@ -23,6 +25,10 @@ const makeFileNamePerOS = (version: string): Partial<PerOS<string>> => {
     darwin: `nlu-v${versionUnderscore}-darwin-x64`,
     linux: `nlu-v${versionUnderscore}-linux-x64`
   }
+}
+
+const removeConsecutiveSlashes = (url: string) => {
+  return url.replace(/([^:]\/)\/+/g, '$1')
 }
 
 interface ArgV {
@@ -61,30 +67,29 @@ export default async (argv: ArgV) => {
     throw new Error(`File ${argv.config} does not exist.`)
   }
 
-  let nlu: any
+  let nluVersion: string
   try {
     const fileContent = await fse.readFile(argv.config, 'utf8')
     const parsedContent = JSON.parse(fileContent)
-    nlu = parsedContent.nlu
+    nluVersion = parsedContent.nlu
   } catch (err) {
     throw new Error(`An error occured while parsing config file: ${err.message}`)
   }
 
-  if (!nlu) {
+  if (!nluVersion) {
     throw new Error(`The config file ${argv.config} has no field "nlu"`)
   }
 
-  const { version, downloadURL } = nlu
-  const fileName = makeFileNamePerOS(version)[argv.platform]
+  const fileName = makeFileNamePerOS(nluVersion)[argv.platform]
 
   if (!fileName) {
     throw new UnsuportedOSError(argv.platform)
   }
 
   mkdirp.sync(argv.output)
-  await scanAndRemoveInvalidVersion(argv.platform, argv.output, version)
+  await scanAndRemoveInvalidVersion(argv.platform, argv.output, nluVersion)
 
-  const fileDownloadURL = `${downloadURL}/${fileName}`
+  const fileDownloadURL = removeConsecutiveSlashes(`${DOWNLOAD_URL}/v${nluVersion}/${fileName}`)
   const destination = path.join(argv.output, fileName)
 
   const destinationFileExists = fse.existsSync(destination)
