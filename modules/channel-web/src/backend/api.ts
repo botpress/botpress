@@ -444,7 +444,7 @@ export default async (bp: typeof sdk, db: Database) => {
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { botId, userId } = req
 
-      const convoId = await bp.experimental.conversations.forBot(botId).create(userId)
+      const convoId = (await bp.experimental.conversations.forBot(botId).create(userId)).id
 
       res.send({ convoId })
     })
