@@ -210,6 +210,71 @@ const migration: sdk.ModuleMigration = {
         await emptyMessageBatch()
       }
     } else {
+      // TODO: what kind of performance on these queries?
+      const convCount = <number>Object.values((await bp.database('conversations').count('*'))[0])[0]
+      const convIndex = <number>Object.values((await bp.database('web_conversations').max('id'))[0])[0]
+
+      // extension needed for gen_random_uuid()
+      await bp.database.raw('CREATE EXTENSION IF NOT EXISTS pgcrypto;')
+
+      if (await bp.database.schema.hasTable('temp_new_convo_ids')) {
+        await bp.database.schema.dropTable('temp_new_convo_ids')
+      }
+
+      await bp.database.schema.createTable('temp_new_convo_ids', table => {
+        table
+          .uuid('oldId')
+          .references('id')
+          .inTable('conversations')
+        // newId needs to be lowercase here. For some reason alter sequence doesn't work when it has an uppercase letter
+        table.increments('newid')
+        table.index('oldId')
+      })
+      await bp.database.raw(`ALTER SEQUENCE temp_new_convo_ids_newid_seq RESTART WITH ${convIndex + 1}`)
+
+      await bp.database.raw(`
+      INSERT INTO "temp_new_convo_ids" (
+        "oldId")
+      SELECT
+        "conversations"."id"
+      FROM "conversations"`)
+
+      await bp.database.raw(`
+      INSERT INTO "web_conversations" (
+        "id",
+        "userId",
+        "botId",
+        "created_on")
+      SELECT "temp_new_convo_ids"."newid",
+        "conversations"."userId",
+        "conversations"."botId",
+        "conversations"."createdOn"
+      FROM "conversations"
+      INNER JOIN "temp_new_convo_ids" ON "conversations"."id" = "temp_new_convo_ids"."oldId"`)
+      await bp.database.raw(`ALTER SEQUENCE web_conversations_id_seq RESTART WITH ${convIndex + convCount + 1}`)
+
+      await bp.database.raw(`
+      INSERT INTO "web_messages" (
+        "id",
+        "conversationId",
+        "userId",
+        "eventId",
+        "incomingEventId",
+        "sent_on",
+        "payload")
+      SELECT gen_random_uuid(),
+        "temp_new_convo_ids"."newid",
+        "messages"."authorId",
+        "messages"."eventId",
+        "messages"."incomingEventId",
+        "messages"."sentOn",
+        "messages"."payload"
+      FROM "messages"
+      INNER JOIN "temp_new_convo_ids" ON "messages"."conversationId" = "temp_new_convo_ids"."oldId"`)
+
+      await bp.database.schema.dropTable('temp_new_convo_ids')
+
+      await bp.database.raw('DROP EXTENSION pgcrypto;')
     }
 
     return { success: true, message: 'Tables migrated successfully' }
