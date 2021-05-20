@@ -3,10 +3,12 @@ import cliProgress from 'cli-progress'
 import fse from 'fs-extra'
 import mkdirp from 'mkdirp'
 import path from 'path'
+import { validateConfig } from './config'
 import { downloadBin } from './download'
 import { UnsuportedOSError } from './errors'
 import logger from './logger'
 import { dotsToUnderscores, underscoresToDots } from './semver'
+import { ArgV } from './typings'
 
 type PerOS<T> = Record<NodeJS.Platform, T>
 
@@ -27,16 +29,7 @@ const makeFileNamePerOS = (version: string): Partial<PerOS<string>> => {
   }
 }
 
-const removeConsecutiveSlashes = (url: string) => {
-  return url.replace(/([^:]\/)\/+/g, '$1')
-}
-
-interface ArgV {
-  config: string
-  output: string
-  platform: NodeJS.Platform
-  force: boolean
-}
+const removeConsecutiveSlashes = (url: string) => url.replace(/([^:]\/)\/+/g, '$1')
 
 const scanAndRemoveInvalidVersion = async (platform: NodeJS.Platform, outputDir: string, version: string) => {
   const binRegex = FILE_PATTERNS[platform]
@@ -67,19 +60,14 @@ export default async (argv: ArgV) => {
     throw new Error(`File ${argv.config} does not exist.`)
   }
 
-  let nluVersion: string
+  let rawConfig: any | undefined
   try {
-    const fileContent = await fse.readFile(argv.config, 'utf8')
-    const parsedContent = JSON.parse(fileContent)
-    nluVersion = parsedContent.nlu
+    rawConfig = (await fse.readJSON(argv.config)).nlu
   } catch (err) {
     throw new Error(`An error occured while parsing config file: ${err.message}`)
   }
 
-  if (!nluVersion) {
-    throw new Error(`The config file ${argv.config} has no field "nlu"`)
-  }
-
+  const { version: nluVersion } = validateConfig(rawConfig, argv)
   const fileName = makeFileNamePerOS(nluVersion)[argv.platform]
 
   if (!fileName) {

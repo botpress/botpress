@@ -10,7 +10,9 @@
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0",
   "private": true,
-  "nlu": "0.0.3",
+  "nlu": {
+    "version": "0.0.3"
+  },
   "scripts": {
     "postinstall": "yarn cmd install:nlu",
     "start": "cd ./out/bp && cross-env NODE_PATH=./ cross-env BP_MODULES_PATH=./data/modules/:../../modules:../../internal-modules STAN_DEV_MODE=true node index.js",
