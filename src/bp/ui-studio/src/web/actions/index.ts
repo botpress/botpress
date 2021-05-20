@@ -189,13 +189,14 @@ export const removeFlowNode: (element: any) => void = wrapAction(requestRemoveFl
   }
 })
 
-export const pasteFlowNode: ({ x, y }) => void = wrapAction(requestPasteFlowNode, async (payload, state) => {
+export const pasteFlowNode: ({ x, y }) => void = wrapAction(requestPasteFlowNode, async (payload, state, dispatch) => {
   await updateCurrentFlow(payload, state)
+  dispatch(refreshFlowsLinks())
 
-  const node = state.flows.nodeInBuffer
-
-  if (node.type === 'trigger' && window.USE_ONEFLOW) {
-    await onTriggerEvent('create', node.conditions, state)
+  for (const node of state.flows.nodesInBuffer) {
+    if (node.type === 'trigger' && window.USE_ONEFLOW) {
+      await onTriggerEvent('create', node.conditions, state)
+    }
   }
 })
 export const pasteFlowNodeElement = wrapAction(requestPasteFlowNodeElement, updateCurrentFlow)
@@ -210,7 +211,7 @@ export const handleRefreshFlowLinks = createAction('FLOWS/FLOW/UPDATE_LINKS')
 export const refreshFlowsLinks = debounceAction(handleRefreshFlowLinks, 500, { leading: true })
 export const updateFlowProblems: (problems: NodeProblem[]) => void = createAction('FLOWS/FLOW/UPDATE_PROBLEMS')
 
-export const copyFlowNode: () => void = createAction('FLOWS/NODE/COPY')
+export const copyFlowNode: (nodeIds: string[]) => void = createAction('FLOWS/NODE/COPY')
 export const copyFlowNodeElement = createAction('FLOWS/NODE_ELEMENT/COPY')
 
 export const handleFlowEditorUndo = createAction('FLOWS/EDITOR/UNDO')
