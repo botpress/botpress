@@ -81,6 +81,9 @@ const migration: sdk.ModuleMigration = {
         await emptyConvoBatch()
         await emptyMessageBatch()
       }
+
+      await bp.database.schema.dropTable('web_messages')
+      await bp.database.schema.dropTable('web_conversations')
     } else {
       // extension needed for gen_random_uuid()
       await bp.database.raw('CREATE EXTENSION IF NOT EXISTS pgcrypto;')
@@ -142,6 +145,9 @@ const migration: sdk.ModuleMigration = {
       await bp.database.schema.dropTable('temp_new_convo_ids')
 
       await bp.database.raw('DROP EXTENSION pgcrypto;')
+
+      await bp.database.schema.dropTable('web_messages')
+      await bp.database.schema.dropTable('web_conversations')
     }
 
     return { success: true, message: 'Tables migrated successfully' }
@@ -220,6 +226,9 @@ const migration: sdk.ModuleMigration = {
         await emptyConvoBatch()
         await emptyMessageBatch()
       }
+
+      await bp.database.schema.dropTable('messages')
+      await bp.database.schema.dropTable('conversations')
     } else {
       // TODO: what kind of performance on these queries?
       const convCount = <number>Object.values((await bp.database('conversations').count('*'))[0])[0]
@@ -286,6 +295,9 @@ const migration: sdk.ModuleMigration = {
       await bp.database.schema.dropTable('temp_new_convo_ids')
 
       await bp.database.raw('DROP EXTENSION pgcrypto;')
+
+      await bp.database.schema.dropTable('messages')
+      await bp.database.schema.dropTable('conversations')
     }
 
     return { success: true, message: 'Tables migrated successfully' }
