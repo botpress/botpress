@@ -28,6 +28,7 @@ declare namespace NodeJS {
     APP_DATA_PATH: string
     HOST: string
     PORT: number
+    STUDIO_PORT: number
     PROXY?: string
     EXTERNAL_URL: string
     LOCAL_URL: string
@@ -60,6 +61,8 @@ declare namespace NodeJS {
     WEB_WORKER: number
     TRAINING_WORKERS: number[]
     USE_JWT_COOKIES: boolean
+    // The internal password is used for inter-process communication
+    INTERNAL_PASSWORD: string
   }
 }
 
@@ -275,6 +278,11 @@ declare interface BotpressEnvironmentVariables {
    * ex: ['nlu', 'nlu-testing']
    */
   readonly BP_ENABLED_MODULES?: string
+
+  /**
+   * The complete path to the out/ folder of the studio
+   */
+  readonly STUDIO_PATH?: string
 }
 
 interface IDebug {

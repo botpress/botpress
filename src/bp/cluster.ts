@@ -1,7 +1,8 @@
 import sdk from 'botpress/sdk'
 import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
-import nanoid from 'nanoid/generate'
+import nanoid from 'nanoid'
+import nanoidGenerate from 'nanoid/generate'
 import { killStan, runNluServerWithEnv, StanOptions } from 'nlu'
 import yn from 'yn'
 
@@ -39,7 +40,8 @@ export const registerMsgHandler = (messageType: string, handler: (message: any, 
 }
 
 export const setupMasterNode = (logger: sdk.Logger) => {
-  process.SERVER_ID = process.env.SERVER_ID || nanoid('1234567890abcdefghijklmnopqrstuvwxyz', 10)
+  process.SERVER_ID = process.env.SERVER_ID || nanoidGenerate('1234567890abcdefghijklmnopqrstuvwxyz', 10)
+  process.INTERNAL_PASSWORD = nanoid(75)
 
   // Fix an issue with pkg when passing custom options for v8
   cluster.setupMaster({ execArgv: process.pkg ? [] : process.execArgv })
@@ -110,7 +112,11 @@ export const setupMasterNode = (logger: sdk.Logger) => {
 }
 
 function spawnWebWorker() {
-  const { id } = cluster.fork({ SERVER_ID: process.SERVER_ID, WORKER_TYPE: WORKER_TYPES.WEB })
+  const { id } = cluster.fork({
+    SERVER_ID: process.SERVER_ID,
+    INTERNAL_PASSWORD: process.INTERNAL_PASSWORD,
+    WORKER_TYPE: WORKER_TYPES.WEB
+  })
   process.WEB_WORKER = id
   debug('Spawned Web Worker')
 }

@@ -123,8 +123,9 @@ async function start() {
     return
   }
 
-  // Server ID is provided by the master node
+  // Server ID and internal password are provided by the master node
   process.SERVER_ID = process.env.SERVER_ID!
+  process.INTERNAL_PASSWORD = process.env.INTERNAL_PASSWORD!
 
   await setupEnv(app)
 
