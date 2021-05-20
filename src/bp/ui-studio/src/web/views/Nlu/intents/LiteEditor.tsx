@@ -11,12 +11,11 @@ import { IntentEditor } from './FullEditor'
 import IntentDropdown from './IntentDropdown'
 import NameModal from './NameModal'
 
-interface IntentParams {
+export interface IntentParams {
   intentName: string
 }
 
 interface Props {
-  bp: any
   contentLang: string
   forceSave: boolean
   topicName: string
