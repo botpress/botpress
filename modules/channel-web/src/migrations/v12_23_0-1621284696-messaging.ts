@@ -7,6 +7,13 @@ const migration: sdk.ModuleMigration = {
     type: 'database'
   },
   up: async ({ bp }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
+    if (
+      !(await bp.database.schema.hasTable('web_conversations')) ||
+      !(await bp.database.schema.hasTable('web_messages'))
+    ) {
+      return { success: true, message: 'Migration skipped' }
+    }
+
     if (bp.database.isLite) {
       const convCount = <number>Object.values((await bp.database('web_conversations').count('*'))[0])[0]
 
@@ -141,6 +148,10 @@ const migration: sdk.ModuleMigration = {
   },
 
   down: async ({ bp }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
+    if (!(await bp.database.schema.hasTable('conversations')) || !(await bp.database.schema.hasTable('messages'))) {
+      return { success: true, message: 'Migration skipped' }
+    }
+
     if (bp.database.isLite) {
       const convCount = <number>Object.values((await bp.database('conversations').count('*'))[0])[0]
       let convIndex = <number>Object.values((await bp.database('web_conversations').max('id'))[0])[0]
