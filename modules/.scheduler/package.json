@@ -23,7 +23,7 @@
   "devDependencies": {
     "@types/node": "^10.11.3",
     "chai": "^3.5.0",
-    "chrono-node": "^1.2.5",
+    "chrono-node": "^2.2.4",
     "classnames": "^2.2.5",
     "mocha": "^3.2.0",
     "react-toggle": "^4.0.2",
