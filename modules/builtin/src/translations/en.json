@@ -37,6 +37,11 @@
       "videoLabel": "Title",
       "title": "Video"
     },
+    "file": {
+      "description": "A message showing some file with an optional title",
+      "fileLabel": "Title",
+      "title": "File"
+    },
     "singleChoice": {
       "choice": "Choice",
       "description": "Suggest choices to the user with the intention of picking only one (with an optional message)",
