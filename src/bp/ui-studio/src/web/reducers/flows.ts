@@ -7,7 +7,7 @@ import {
   clearErrorSaveFlows,
   clearFlowMutex,
   closeFlowNodeProps,
-  copyFlowNode,
+  copyFlowNodes,
   copyFlowNodeElement,
   errorSaveFlows,
   handleFlowEditorRedo,
@@ -46,7 +46,7 @@ export interface FlowReducer {
   errorSavingFlows?: { status: number; message: string }
   flowsByName: _.Dictionary<FlowView>
   currentDiagramAction: string
-  nodesInBuffer?: FlowNode[]
+  buffer: { nodes?: FlowNode[] }
   debuggerEvent?: IO.IncomingEvent
 }
 
@@ -65,8 +65,7 @@ const defaultState = {
   currentSnapshot: null,
   undoStack: [],
   redoStack: [],
-  nodesInBuffer: null, // TODO: move it to buffer.node
-  buffer: { action: null, transition: null },
+  buffer: { action: null, transition: null, nodes: null },
   flowProblems: [],
   errorSavingFlows: undefined
 }
@@ -610,7 +609,7 @@ reducer = reduceReducers(
             ...state.flowsByName[state.currentFlow],
             nodes: [
               ...state.flowsByName[state.currentFlow].nodes,
-              _.merge(state.nodesInBuffer, _.pick(payload, ['x', 'y']))
+              _.merge(state.buffer.nodes, _.pick(payload, ['x', 'y']))
             ]
           }
         }
@@ -698,24 +697,24 @@ reducer = reduceReducers(
         }
       },
 
-      [copyFlowNode as any]: (state, { payload }) => {
-        const nodes =
-          payload &&
-          payload.length &&
-          payload.map(nodeId => _.find(state.flowsByName[state.currentFlow].nodes, { id: nodeId })).filter(node => node)
+      [copyFlowNodes as any]: (state, { payload }) => {
+        const nodes = payload
+          ?.map(nodeId => _.find(state.flowsByName[state.currentFlow].nodes, { id: nodeId }))
+          .filter(node => node)
         if (!nodes || !nodes.length) {
           return state
         }
         return {
           ...state,
-          nodesInBuffer: nodes
+          buffer: { ...state.buffer, nodes }
         }
       },
 
       [requestPasteFlowNode]: (state, { payload: { x, y } }) => {
+        console.log('pasto')
         const currentFlow = state.flowsByName[state.currentFlow]
         const siblingNames = currentFlow.nodes.map(({ name }) => name)
-        const newNodes = _.cloneDeep(state.nodesInBuffer).map(node => {
+        const newNodes = _.cloneDeep(state.buffer.nodes).map(node => {
           const newNodeId = prettyId()
           const newName = copyName(siblingNames, node.name)
           return { ...node, id: newNodeId, newName, lastModified: new Date() }
