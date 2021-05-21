@@ -65,9 +65,9 @@ export const startStudio = async (logger: sdk.Logger) => {
     let file = path.resolve(__dirname, '../studio/index.js')
     let cwd = path.resolve(__dirname, '../studio')
 
-    if (process.core_env.STUDIO_PATH) {
-      file = path.resolve(process.core_env.STUDIO_PATH, 'index.js')
-      cwd = path.resolve(process.core_env.STUDIO_PATH)
+    if (process.core_env.DEV_STUDIO_PATH) {
+      file = path.resolve(process.core_env.DEV_STUDIO_PATH, 'index.js')
+      cwd = path.resolve(process.core_env.DEV_STUDIO_PATH)
     }
 
     studioHandle = fork(file, undefined, { execArgv: undefined, env, cwd })

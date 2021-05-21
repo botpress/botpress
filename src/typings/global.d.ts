@@ -282,7 +282,7 @@ declare interface BotpressEnvironmentVariables {
   /**
    * The complete path to the out/ folder of the studio
    */
-  readonly STUDIO_PATH?: string
+  readonly DEV_STUDIO_PATH?: string
 }
 
 interface IDebug {
