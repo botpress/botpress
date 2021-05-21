@@ -87,6 +87,18 @@ const checkTranslations = cb => {
   })
 }
 
+const buildDownloader = cb => {
+  const child = exec('yarn && yarn build', { cwd: 'build/downloader' }, err => cb(err))
+  child.stdout.pipe(process.stdout)
+  child.stderr.pipe(process.stderr)
+}
+
+const initDownloader = cb => {
+  const child = exec('yarn start init', { cwd: 'build/downloader' }, err => cb(err))
+  child.stdout.pipe(process.stdout)
+  child.stderr.pipe(process.stderr)
+}
+
 const build = () => {
   return gulp.series([
     clearMigrations,
@@ -104,5 +116,7 @@ const build = () => {
 module.exports = {
   build,
   watch,
-  checkTranslations
+  checkTranslations,
+  buildDownloader,
+  initDownloader
 }
