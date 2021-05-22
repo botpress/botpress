@@ -85,7 +85,7 @@ export const runNluServerWithEnv = (
       const STAN_JSON_CONFIG = JSON.stringify(options)
 
       const basePath = process.pkg ? path.dirname(process.execPath) : path.resolve(__dirname, '../')
-      const binPath = path.resolve(basePath, `./nlu${process.distro.os === 'win32' ? '.exe' : ''}`)
+      const binPath = path.resolve(basePath, `bin/nlu${process.distro.os === 'win32' ? '.exe' : ''}`)
 
       // some vscode NODE_OPTIONS seem to break the nlu binary
       const processEnv = { ...process.env, NODE_OPTIONS: '' }

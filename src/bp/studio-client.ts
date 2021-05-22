@@ -51,7 +51,7 @@ export const startStudio = async (logger: sdk.Logger) => {
 
   if (process.pkg || !process.core_env.DEV_STUDIO_PATH) {
     const basePath = process.pkg ? path.dirname(process.execPath) : __dirname
-    const file = path.resolve(basePath, `./studio${process.distro.os === 'win32' ? '.exe' : ''}`)
+    const file = path.resolve(basePath, `bin/studio${process.distro.os === 'win32' ? '.exe' : ''}`)
 
     if (!(await fse.pathExists(file))) {
       console.error('Studio executable not found.')

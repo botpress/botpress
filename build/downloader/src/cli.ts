@@ -51,7 +51,7 @@ export const initProject = async (packageLocation: string, common: CommonArgs) =
 
 export const listFiles = async ({ platform, appData, output }: CommonArgs) => {
   const getToolVersion = async name => {
-    const toolPath = path.resolve(output, platform === 'win32' ? `${name}.exe` : name)
+    const toolPath = path.resolve(output, 'bin', platform === 'win32' ? `${name}.exe` : name)
 
     try {
       if (await fse.pathExists(toolPath)) {
@@ -142,7 +142,7 @@ export const useFile = async (toolName: string, version: string, common: CommonA
   }
   const fileName = matchingFile[0]
   const srcFile = path.resolve(toolFolder, fileName)
-  const destPath = path.resolve(common.output, common.platform === 'win32' ? `${toolName}.exe` : toolName)
+  const destPath = path.resolve(common.output, 'bin', common.platform === 'win32' ? `${toolName}.exe` : toolName)
 
   if (await fse.pathExists(destPath)) {
     logger.info('Removing existing binary...')
