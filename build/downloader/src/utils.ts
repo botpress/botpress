@@ -3,15 +3,13 @@ import chalk from 'chalk'
 import path from 'path'
 import { toolsList } from './cli'
 
-interface GithubAsset {
-  name: string
-  size: number
-  browser_download_url: string
-}
-
 interface GithubRelease {
-  name: string
-  assets: GithubAsset[]
+  tag_name: string
+  assets: {
+    name: string
+    size: number
+    browser_download_url: string
+  }[]
 }
 
 interface ProcessedRelease {
@@ -30,7 +28,7 @@ export const getReleasedFiles = async (toolName: string, platform: string): Prom
       const platformFile = x.assets.find(asset => platformMatch.test(asset.name))
 
       return {
-        version: x.name,
+        version: x.tag_name,
         fileName: platformFile?.name || '',
         fileSize: platformFile?.size || -1,
         downloadUrl: platformFile?.browser_download_url || ''
