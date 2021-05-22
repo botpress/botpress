@@ -69,7 +69,7 @@ gulp.task('build:modules', gulp.series([modules.build()]))
 const pwd = process.cwd()
 gulp.task('install:nlu', nlu.installNLU([`-c=${pwd}/package.json`, `-o=${pwd}/out/bp`, process.argv.slice(3)]))
 
-gulp.task('postinstall', core.buildDownloader, core.initDownloader)
+gulp.task('postinstall', gulp.series([core.buildDownloader, core.initDownloader]))
 gulp.task('start:guide', docs.startDevServer)
 gulp.task('build:guide', docs.buildGuide())
 gulp.task('build:reference', docs.buildReference())

@@ -49,11 +49,9 @@ export const startStudio = async (logger: sdk.Logger) => {
     BP_MODULES_PATH: path.join(process.PROJECT_LOCATION, '../../modules')
   }
 
-  if (process.pkg) {
-    let file = path.resolve(path.dirname(process.execPath), './studio')
-    if (!(await fse.pathExists(file))) {
-      file = `${file}.exe`
-    }
+  if (process.pkg || !process.core_env.DEV_STUDIO_PATH) {
+    const basePath = process.pkg ? path.dirname(process.execPath) : __dirname
+    const file = path.resolve(basePath, `./studio${process.distro.os === 'win32' ? '.exe' : ''}`)
 
     if (!(await fse.pathExists(file))) {
       console.error('Studio executable not found.')
@@ -61,14 +59,9 @@ export const startStudio = async (logger: sdk.Logger) => {
     }
 
     studioHandle = spawn(file, [], { env, stdio: 'inherit' })
-  } else {
-    let file = path.resolve(__dirname, '../studio/index.js')
-    let cwd = path.resolve(__dirname, '../studio')
-
-    if (process.core_env.DEV_STUDIO_PATH) {
-      file = path.resolve(process.core_env.DEV_STUDIO_PATH, 'index.js')
-      cwd = path.resolve(process.core_env.DEV_STUDIO_PATH)
-    }
+  } else if (process.core_env.DEV_STUDIO_PATH) {
+    const file = path.resolve(process.core_env.DEV_STUDIO_PATH, 'index.js')
+    const cwd = path.resolve(process.core_env.DEV_STUDIO_PATH)
 
     studioHandle = fork(file, undefined, { execArgv: undefined, env, cwd })
   }
