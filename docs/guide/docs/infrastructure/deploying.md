@@ -22,6 +22,8 @@ While in the directory where you want to host your instance of Botpress, run the
 - yarn build
 - yarn start
 
+> If you are in a hurry and cannot wait for a, fix release, [clone the commit](coderwall.com/p/xyuoza/git-cloning-specific-commits) **(do not modify files one by one)**. 
+
 After following the instructions above, your command line should look as follows:
 
 
