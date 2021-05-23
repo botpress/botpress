@@ -149,7 +149,7 @@ const ActionDialog: FC<{
   useEffect(() => {
     const fetchActionServers = async () => {
       try {
-        const response = await axios.get(`${window.BOT_API_PATH}/actionServers`)
+        const response = await axios.get(`${window.STUDIO_API_PATH}/actions/actionServers`)
         setActionServers(response.data)
         setErrorFetchingServers(false)
       } catch (e) {

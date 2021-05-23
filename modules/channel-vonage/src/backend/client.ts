@@ -8,6 +8,7 @@ import jwt from 'jsonwebtoken'
 import _ from 'lodash'
 
 import { Config } from '../config'
+
 import {
   VonageTextRenderer,
   VonageImageRenderer,
@@ -15,7 +16,11 @@ import {
   VonageCardRenderer,
   VonageChoicesRenderer,
   VonageVideoRenderer,
-  VonageAudioRenderer
+  VonageAudioRenderer,
+  VonageMediaTemplateRenderer,
+  VonageLocationRenderer,
+  VonageTemplateRenderer,
+  VonageDropdownRenderer
 } from '../renderers'
 import { VonageCommonSender, VonageTypingSender } from '../senders'
 
@@ -38,6 +43,7 @@ const sha256 = (str: string) =>
     .createHash('sha256')
     .update(str)
     .digest('hex')
+
 export class VonageClient {
   private logger: sdk.Logger
   private vonage: Vonage
@@ -100,11 +106,15 @@ export class VonageClient {
 
     this.renderers = [
       new VonageCardRenderer(),
+      new VonageDropdownRenderer(),
       new VonageTextRenderer(),
       new VonageImageRenderer(),
+      new VonageLocationRenderer(),
       new VonageCarouselRenderer(),
       new VonageAudioRenderer(),
       new VonageVideoRenderer(),
+      new VonageTemplateRenderer(),
+      new VonageMediaTemplateRenderer(),
       new VonageChoicesRenderer()
     ]
 
@@ -134,6 +144,9 @@ export class VonageClient {
       case 'text':
         payload = this.bp.experimental.render.text(messageContent.text)
         break
+      case 'button':
+        payload = this.bp.experimental.render.text(messageContent.button.text)
+        break
       case 'image':
         payload = this.bp.experimental.render.image(messageContent.image.url, messageContent.image.caption)
         break
@@ -144,10 +157,6 @@ export class VonageClient {
           type: 'voice',
           audio: messageContent.audio.url
         }
-        // TODO: payload = this.bp.experimental.render.voice() ?
-        break
-      case 'image':
-        payload = this.bp.experimental.render.image(messageContent.image.url, messageContent.image.caption)
         break
       case 'video':
         payload = this.bp.experimental.render.video(messageContent.video.url, messageContent.video.caption)
@@ -158,15 +167,9 @@ export class VonageClient {
           title: messageContent.file.caption,
           file: messageContent.file.url
         }
-        // TODO: payload = this.bp.experimental.render.file()
         break
       case 'location':
-        payload = {
-          type: messageContent.type,
-          latitude: messageContent.location.lat,
-          longitude: messageContent.location.long
-        }
-        // TODO: payload = this.bp.experimental.render.location() ?
+        payload = this.bp.experimental.render.location(messageContent.location.lat, messageContent.location.long)
         break
       default:
         break
@@ -210,7 +213,7 @@ export class VonageClient {
 
   /**
    * Validates Vonage message request body
-   * @throws {StandardError} if the message channel is not 'whatsapp'
+   * @throws {StandardError} if the message channel is not 'WhatsApp'
    * @throws {UnauthorizedError} if scheme isn't 'Bearer' or if the token is missing or invalid
    */
   validate(req: Request): void {

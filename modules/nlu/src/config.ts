@@ -1,6 +1,17 @@
-import { LanguageSource } from 'common/nlu/engine'
+export interface LanguageSource {
+  endpoint: string
+  authToken?: string
+}
+
+type StanConfig = { autoStart: true } | ({ autoStart: false } & LanguageSource)
 
 export interface Config {
+  /**
+   * If you want to manually start standalone NLU, set autoStart to false and specify endpoint and auth token.
+   * @default { "autoStart": true }
+   */
+  nluServer: StanConfig
+
   /**
    * If you want a fully on-prem installation, you can host
    * Facebook's Duckling on your own infrastructure and change this URL

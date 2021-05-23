@@ -24,7 +24,7 @@ export class VonageChoicesRenderer implements ChannelRenderer<VonageContext> {
 
     const message = context.messages[0]
 
-    message.text = `${message.text}\n\n${context.payload.choices
+    message.content.text = `${message.content.text}\n\n${context.payload.choices
       .map(({ title }, idx) => `*(${idx + 1})* ${title}`)
       .join('\n')}`
 

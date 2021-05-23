@@ -25,11 +25,13 @@ export class VonageImageRenderer implements ChannelRenderer<VonageContext> {
     const payload = context.payload as sdk.ImageContent
 
     context.messages.push({
-      type: 'image',
-      text: undefined,
-      image: {
-        url: formatUrl(context.botUrl, payload.image),
-        caption: payload.title as string
+      content: {
+        type: 'image',
+        text: undefined,
+        image: {
+          url: formatUrl(context.botUrl, payload.image),
+          caption: payload.title as string
+        }
       }
     })
   }

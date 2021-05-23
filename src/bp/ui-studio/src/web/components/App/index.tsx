@@ -3,16 +3,13 @@ import { TokenRefresher } from 'botpress/shared'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import {
-  addNotifications,
   fetchBotInformation,
   fetchModules,
-  fetchNotifications,
   fetchSkills,
   fetchUser,
   getModuleTranslations,
   handleReceiveFlowsModification,
-  refreshHints,
-  replaceNotifications
+  refreshHints
 } from '~/actions'
 import { authEvents, setToken } from '~/util/Auth'
 import EventBus from '~/util/EventBus'
@@ -23,13 +20,10 @@ interface Props {
   fetchModules: () => void
   fetchSkills: () => void
   refreshHints: () => void
-  fetchNotifications: () => void
   fetchBotInformation: () => void
   getModuleTranslations: () => void
   fetchUser: () => void
-  replaceNotifications: (notifications: any) => void
   handleReceiveFlowsModification: (modifications: any) => void
-  addNotifications: any
   user: any
 }
 
@@ -42,7 +36,6 @@ class App extends Component<Props> {
     this.props.fetchUser()
     if (window.IS_BOT_MOUNTED) {
       this.props.refreshHints()
-      this.props.fetchNotifications()
     }
   }
 
@@ -77,14 +70,6 @@ class App extends Component<Props> {
 
     authEvents.on('login', this.fetchData)
     authEvents.on('new_token', this.fetchData)
-
-    EventBus.default.on('notifications.all', notifications => {
-      this.props.replaceNotifications(notifications)
-    })
-
-    EventBus.default.on('notifications.new', notification => {
-      this.props.addNotifications([notification])
-    })
 
     EventBus.default.on('flow.changes', payload => {
       // TODO: should check if real uniq Id is different. Multiple browser windows can be using the same email. There should be a uniq window Id.
@@ -127,9 +112,6 @@ const mapDispatchToProps = {
   fetchModules,
   fetchSkills,
   refreshHints,
-  fetchNotifications,
-  replaceNotifications,
-  addNotifications,
   handleReceiveFlowsModification,
   getModuleTranslations
 }

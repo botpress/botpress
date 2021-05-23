@@ -57,16 +57,16 @@ export namespace FlowsAPI {
 
   const apiDeleteFlow = async (flowName: string) => {
     flowName = encodeFolderPath(flowName)
-    return axios.post(`${window.BOT_API_PATH}/flows/${flowName}/delete`)
+    return axios.post(`${window.STUDIO_API_PATH}/flows/${flowName}/delete`)
   }
 
   const apiInsertFlow = async flow => {
-    return axios.post(`${window.BOT_API_PATH}/flows`, { flow })
+    return axios.post(`${window.STUDIO_API_PATH}/flows`, { flow })
   }
 
   const apiUpdateFlow = async (flowName: string, flow) => {
     flowName = encodeFolderPath(flowName)
-    return axios.post(`${window.BOT_API_PATH}/flows/${flowName}`, { flow })
+    return axios.post(`${window.STUDIO_API_PATH}/flows/${flowName}`, { flow })
   }
 
   const buildUpdateDebounced = (flowName: string) => async (f, callback) => {

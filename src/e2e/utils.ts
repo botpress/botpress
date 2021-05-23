@@ -73,6 +73,11 @@ export const expectBotApiCallSuccess = async (endOfUrl: string, method?: HttpMet
   expect(response.status()).toBe(200)
 }
 
+export const expectStudioApiCallSuccess = async (endOfUrl: string, method?: HttpMethod): Promise<void> => {
+  const response = await getResponse(`${bpConfig.apiHost}/api/v1/studio/${bpConfig.botId}/${endOfUrl}`, method)
+  expect(response.status()).toBe(200)
+}
+
 export const waitForBotApiResponse = async (endOfUrl: string, method?: HttpMethod): Promise<any> => {
   const response = await getResponse(`${bpConfig.apiHost}/api/v1/bots/${bpConfig.botId}/${endOfUrl}`, method)
   return response.json()

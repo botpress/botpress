@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import lang from 'common/lang'
+import { makeNLUPassword } from 'common/nlu-token'
 import { createForGlobalHooks } from 'core/app/api'
 import { BotService, BotMonitoringService } from 'core/bots'
 import { GhostService } from 'core/bpfs'
@@ -15,7 +16,6 @@ import { LoggerDbPersister, LoggerFilePersister, LoggerProvider, LogsJanitor } f
 import { MigrationService } from 'core/migration'
 import { copyDir } from 'core/misc/pkg-fs'
 import { ModuleLoader } from 'core/modules'
-import { NotificationsService } from 'core/notifications'
 import { RealtimeService } from 'core/realtime'
 import { AuthService } from 'core/security'
 import { StatsService, AnalyticsService } from 'core/telemetry'
@@ -33,7 +33,7 @@ import nanoid from 'nanoid'
 import path from 'path'
 import plur from 'plur'
 
-import { startLocalActionServer } from '../../cluster'
+import { startLocalActionServer, startLocalNLUServer } from '../../cluster'
 import { setDebugScopes } from '../../debug'
 import { HTTPServer } from './server'
 import { TYPES } from './types'
@@ -73,7 +73,6 @@ export class Botpress {
     @inject(TYPES.LogJanitorRunner) private logJanitor: LogsJanitor,
     @inject(TYPES.LoggerDbPersister) private loggerDbPersister: LoggerDbPersister,
     @inject(TYPES.LoggerFilePersister) private loggerFilePersister: LoggerFilePersister,
-    @inject(TYPES.NotificationsService) private notificationService: NotificationsService,
     @inject(TYPES.StateManager) private stateManager: StateManager,
     @inject(TYPES.DataRetentionJanitor) private dataRetentionJanitor: DataRetentionJanitor,
     @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService,
@@ -129,6 +128,7 @@ export class Botpress {
     await this.startServer()
     await this.discoverBots()
     await this.maybeStartLocalActionServer()
+    await this.maybeStartLocalSTAN()
 
     if (this.config.sendUsageStats) {
       await this.statsService.start()
@@ -178,6 +178,26 @@ export class Botpress {
     }
 
     startLocalActionServer({ appSecret: process.APP_SECRET, port })
+  }
+
+  private async maybeStartLocalSTAN() {
+    const config = await this.moduleLoader.configReader.getGlobal('nlu')
+
+    if (!config.nluServer.autoStart) {
+      const { endpoint } = config.nluServer
+      this.logger.info(`NLU server manually handled at: ${endpoint}`)
+      return
+    }
+    startLocalNLUServer({
+      languageSources: config.languageSources,
+      ducklingURL: config.ducklingURL,
+      ducklingEnabled: config.ducklingEnabled,
+      legacyElection: config.legacyElection,
+      dbURL: process.core_env.BPFS_STORAGE === 'database' ? process.core_env.DATABASE_URL : undefined,
+      modelDir: process.cwd(),
+      modelCacheSize: config.modelCacheSize,
+      authToken: makeNLUPassword()
+    })
   }
 
   async checkJwtSecret() {
@@ -431,14 +451,6 @@ export class Botpress {
     }
 
     await this.dataRetentionService.initialize()
-
-    this.notificationService.onNotification = notification => {
-      const payload: sdk.RealTimePayload = {
-        eventName: 'notifications.new',
-        payload: notification
-      }
-      this.realtimeService.sendToSocket(payload)
-    }
 
     await this.stateManager.initialize()
     await this.logJanitor.start()
