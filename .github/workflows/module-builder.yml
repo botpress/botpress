@@ -14,7 +14,7 @@ jobs:
         run: |
           docker build -t module-builder-test -f build/module-builder/Dockerfile .
           docker run -v `pwd`/modules/channel-web:/botpress/modules/channel-web module-builder-test sh -c 'cd modules/channel-web && yarn && yarn build && yarn package'
-          ls modules/channel-web/channel-we.tgz || exit 1
+          ls modules/channel-web/channel-web.tgz || exit 1
       - name: Build has failed
         if: ${{ failure() }}
         uses: rtCamp/action-slack-notify@v2
