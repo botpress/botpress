@@ -134,7 +134,7 @@ export const useFile = async (toolName: string, version: string, common: CommonA
   const toolFolder = path.resolve(common.appData, 'tools', toolName)
   const underscoreVersion = version.replace(/\./g, '_')
   const matchingFile = await Promise.fromCallback<string[]>(cb =>
-    glob(`*${underscoreVersion}*${common.platform.replace('win32', 'win')}*`, { cwd: toolFolder }, cb)
+    glob(`*${underscoreVersion}-${common.platform.replace('win32', 'win')}*`, { cwd: toolFolder }, cb)
   )
 
   if (!matchingFile.length) {
