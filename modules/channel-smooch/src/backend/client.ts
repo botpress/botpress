@@ -8,7 +8,8 @@ import {
   SmoochTextRenderer,
   SmoochCardRenderer,
   SmoochCarouselRenderer,
-  SmoochChoicesRenderer
+  SmoochChoicesRenderer,
+  SmoochDropdownRenderer
 } from '../renderers'
 import { SmoochCommonSender, SmoochTypingSender } from '../senders'
 import { CHANNEL_NAME } from './constants'
@@ -36,6 +37,7 @@ export class SmoochClient {
 
     this.renderers = [
       new SmoochCardRenderer(),
+      new SmoochDropdownRenderer(),
       new SmoochCarouselRenderer(),
       new SmoochTextRenderer(),
       new SmoochImageRenderer(),
