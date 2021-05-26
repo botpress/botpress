@@ -1,7 +1,6 @@
 const core = require('./build/gulp.core')
 const migration = require('./build/gulp.migration')
 const modules = require('./build/gulp.modules')
-const nlu = require('./build/gulp.nlu')
 const package = require('./build/gulp.package')
 const gulp = require('gulp')
 const ui = require('./build/gulp.ui')
@@ -9,8 +8,6 @@ const docs = require('./build/gulp.docs')
 const rimraf = require('rimraf')
 const changelog = require('gulp-conventional-changelog')
 const yn = require('yn')
-const { spawnSync } = require('child_process')
-const { argv } = require('yargs')
 const _ = require('lodash')
 
 process.on('uncaughtException', err => {
@@ -66,9 +63,6 @@ gulp.task('build:shared', ui.buildShared())
 gulp.task('init:studio', ui.initStudio)
 gulp.task('build:modules', gulp.series([modules.build()]))
 
-const pwd = process.cwd()
-gulp.task('install:nlu', nlu.installNLU([`-c=${pwd}/package.json`, `-o=${pwd}/out/bp`, process.argv.slice(3)]))
-
 gulp.task('postinstall', gulp.series([core.buildDownloader, core.initDownloader]))
 gulp.task('start:guide', docs.startDevServer)
 gulp.task('build:guide', docs.buildGuide())
@@ -76,10 +70,7 @@ gulp.task('build:reference', docs.buildReference())
 
 gulp.task('package:core', package.packageCore())
 gulp.task('package:modules', modules.packageModules())
-gulp.task(
-  'package',
-  gulp.series([package.packageApp, modules.packageModules(), package.copyNativeExtensions, package.packageNLU()])
-)
+gulp.task('package', gulp.series([package.packageApp, modules.packageModules(), package.copyNativeExtensions]))
 
 gulp.task('watch', gulp.parallel([core.watch, ui.watchAll]))
 gulp.task('watch:core', core.watch)

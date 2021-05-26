@@ -11,8 +11,7 @@
   "license": "AGPL-3.0",
   "private": true,
   "nlu": {
-    "version": "0.0.2",
-    "downloadURL": "https://github.com/botpress/nlu/releases/download/v0.0.2"
+    "version": "0.0.2"
   },
   "studio": {
     "version": "0.0.6"
