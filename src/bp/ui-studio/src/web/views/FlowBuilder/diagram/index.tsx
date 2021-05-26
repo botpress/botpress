@@ -612,12 +612,7 @@ class Diagram extends Component<Props> {
   }
 
   copySelectedElementToBuffer() {
-    this.props.copyFlowNode(
-      this.diagramEngine
-        .getDiagramModel()
-        .getSelectedItems()
-        .map(el => el.id)
-    )
+    this.props.copyFlowNode()
     Toaster.create({
       className: 'recipe-toaster',
       position: Position.TOP_RIGHT
@@ -747,7 +742,7 @@ const mapStateToProps = (state: RootReducer) => ({
   currentFlow: getCurrentFlow(state),
   currentFlowNode: getCurrentFlowNode(state),
   currentDiagramAction: state.flows.currentDiagramAction,
-  canPasteNode: Boolean(state.flows.nodesInBuffer),
+  canPasteNode: Boolean(state.flows.nodeInBuffer),
   emulatorOpen: state.ui.emulatorOpen,
   debuggerEvent: state.flows.debuggerEvent,
   zoomLevel: state.ui.zoomLevel,
