@@ -88,7 +88,6 @@ const checkTranslations = cb => {
 }
 
 const buildDownloader = cb => {
-  spawnProcess('yarn', ['start', 'init'], 'build/downloader', cb)
   const child = exec('yarn && yarn build', { cwd: 'build/downloader' }, err => cb(err))
   child.stdout.pipe(process.stdout)
   child.stderr.pipe(process.stderr)
