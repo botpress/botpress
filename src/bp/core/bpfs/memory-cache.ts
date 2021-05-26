@@ -48,7 +48,7 @@ export class MemoryObjectCache implements ObjectCache {
     this.cache.del(key)
     this.events.emit('invalidation', key)
 
-    if (!local && !process.CLUSTER_ENABLED) {
+    if (!local && !process.CLUSTER_ENABLED && process.BPFS_STORAGE === 'database') {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       studioActions.invalidateFile(key)
     }

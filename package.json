@@ -15,7 +15,7 @@
     "downloadURL": "https://github.com/botpress/nlu/releases/download/v0.0.2"
   },
   "studio": {
-    "version": "0.0.4"
+    "version": "0.0.5"
   },
   "scripts": {
     "postinstall": "yarn cmd postinstall",
