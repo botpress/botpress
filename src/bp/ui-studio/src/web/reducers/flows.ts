@@ -711,7 +711,6 @@ reducer = reduceReducers(
       },
 
       [requestPasteFlowNode]: (state, { payload: { x, y } }) => {
-        console.log('pasto')
         const currentFlow = state.flowsByName[state.currentFlow]
         const siblingNames = currentFlow.nodes.map(({ name }) => name)
         const newNodes = _.cloneDeep(state.buffer.nodes).map(node => {
