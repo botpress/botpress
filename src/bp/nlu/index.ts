@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import child_process from 'child_process'
+import { ChildProcess, spawn } from 'child_process'
 import fse from 'fs-extra'
 import _ from 'lodash'
 import os from 'os'
@@ -71,7 +71,12 @@ const _getNLUBinaryPath = async () => {
   return path.join(baseLocation, fileName)
 }
 
-let nluServerProcess: child_process.ChildProcess | undefined
+const getBinaryPath = () => {
+  const basePath = process.pkg ? path.dirname(process.execPath) : path.resolve(__dirname, '../')
+  return path.resolve(basePath, `bin/nlu${process.distro.os === 'win32' ? '.exe' : ''}`)
+}
+
+let nluServerProcess: ChildProcess | undefined
 
 export const runNluServerWithEnv = (
   opts: Partial<NLUServerOptions>,
@@ -84,13 +89,10 @@ export const runNluServerWithEnv = (
       const options = { ...DEFAULT_STAN_OPTIONS, ...nonNullOptions }
       const STAN_JSON_CONFIG = JSON.stringify(options)
 
-      const basePath = process.pkg ? path.dirname(process.execPath) : path.resolve(__dirname, '../')
-      const binPath = path.resolve(basePath, `bin/nlu${process.distro.os === 'win32' ? '.exe' : ''}`)
-
       // some vscode NODE_OPTIONS seem to break the nlu binary
       const processEnv = { ...process.env, NODE_OPTIONS: '' }
 
-      nluServerProcess = child_process.spawn(binPath, [], {
+      nluServerProcess = spawn(getBinaryPath(), [], {
         env: { ...processEnv, STAN_JSON_CONFIG },
         stdio: 'inherit'
       })
@@ -109,12 +111,10 @@ export const runNluServerWithEnv = (
 export const runNluServerWithArgv = (argv: string[]): Promise<{ code: number | null; signal: string | null }> => {
   return new Promise(async (resolve, reject) => {
     try {
-      const binPath = await _getNLUBinaryPath()
-
       // some vscode NODE_OPTIONS seem to break the nlu binary
       const processEnv = { ...process.env, NODE_OPTIONS: '' }
 
-      nluServerProcess = child_process.spawn(binPath, argv, {
+      nluServerProcess = spawn(getBinaryPath(), argv, {
         env: processEnv,
         stdio: 'inherit'
       })
