@@ -14,7 +14,9 @@
     "version": "0.0.2",
     "downloadURL": "https://github.com/botpress/nlu/releases/download/v0.0.2"
   },
-  "studio": "0.0.3",
+  "studio": {
+    "version": "0.0.4"
+  },
   "scripts": {
     "postinstall": "yarn cmd postinstall",
     "start": "cd ./out/bp && cross-env NODE_PATH=./ cross-env BP_MODULES_PATH=./data/modules/:../../modules:../../internal-modules STAN_DEV_MODE=true node index.js",

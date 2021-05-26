@@ -79,8 +79,9 @@ export const listFiles = async ({ platform, appData, output }: CommonArgs) => {
   }
 
   logger.info('')
-  logger.info('Type `yarn bpd install <toolName>` to install the latest version')
   logger.info('Type `yarn bpd init` to download & use binaries configured in package.json')
+  logger.info('Type `yarn bpd install <toolName>` to install the latest version')
+  logger.info('Type `yarn bpd use <toolName> <version>` to copy that specific version in the current workspace')
   logger.info('Type `yarn bpd clean` to remove all binaries')
 }
 

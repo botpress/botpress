@@ -41,7 +41,7 @@ describe('Studio - CMS', () => {
     await clickOn('#btn-list-create-builtin_image')
     await uploadFile('input[type="file"]', path.join(__dirname, '../assets/alien.png'))
     await expectStudioApiCallSuccess('media', 'POST')
-    await clickOn('.style__textarea___2P8hT')
+    await clickOn('.DraftEditor-root')
     await page.keyboard.type('I am a martian')
     await clickOn('button[type="submit"]')
     await expectStudioApiCallSuccess('cms/builtin_image/elements', 'POST')
