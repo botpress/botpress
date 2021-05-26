@@ -553,7 +553,13 @@ class Diagram extends Component<Props> {
     }
 
     if (selectedNode && (selectedNode.oldX !== selectedNode.x || selectedNode.oldY !== selectedNode.y)) {
-      this.props.updateFlowNode({ x: selectedNode.x, y: selectedNode.y })
+      const nodesToUpdate = []
+      for (const node of this.diagramEngine.getDiagramModel().getSelectedItems()) {
+        if (node.type === 'block') {
+          nodesToUpdate.push({ x: node.x, y: node.y, id: node.id })
+        }
+      }
+      this.props.updateFlowNode(nodesToUpdate)
       Object.assign(selectedNode, { oldX: selectedNode.x, oldY: selectedNode.y })
     }
 
