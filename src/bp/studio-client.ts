@@ -33,7 +33,8 @@ export const studioActions = {
 
 export const startStudio = async (logger: sdk.Logger) => {
   const env = {
-    ...process.env,
+    // The node path is set by PKG, but other env variables are required (eg: for colors)
+    ..._.omit(process.env, ['NODE_PATH']),
     // The data folder is shared between the studio and the runtime
     PROJECT_LOCATION: process.PROJECT_LOCATION,
     APP_DATA_PATH: process.APP_DATA_PATH,
