@@ -695,7 +695,7 @@ reducer = reduceReducers(
                 return {
                   ...node,
                   ...nodeToUpdatePayload,
-                  next: node.next && updateNodeName(node.next),
+                  next: nodeToUpdatePayload.next || (node.next && updateNodeName(node.next)),
                   lastModified: new Date()
                 }
               }),
