@@ -11,7 +11,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
-import { IO } from 'botpress/sdk'
+import { IO, FlowPoint } from 'botpress/sdk'
 import { contextMenu, Icons, lang, MainLayout, sharedStyle, ShortcutLabel } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -554,7 +554,7 @@ class Diagram extends Component<Props> {
 
     if (selectedNode && (selectedNode.oldX !== selectedNode.x || selectedNode.oldY !== selectedNode.y)) {
       const nodesToUpdate = []
-      for (const node of this.diagramEngine.getDiagramModel().getSelectedItems()) {
+      for (const node of this.diagramEngine.getDiagramModel().getSelectedItems() as NodeModel[]) {
         if (node.type === 'block') {
           nodesToUpdate.push({ x: node.x, y: node.y, id: node.id })
         }
