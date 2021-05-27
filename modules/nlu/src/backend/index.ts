@@ -18,12 +18,10 @@ class AppNotInitializedError extends Error {
 
 let app: NLUApplication | undefined
 
-const onServerStarted = async (bp: typeof sdk) => {
+const onServerReady = async (bp: typeof sdk) => {
   app = await bootStrap(bp)
   await registerMiddlewares(bp, app)
-}
 
-const onServerReady = async (bp: typeof sdk) => {
   if (!app) {
     throw new AppNotInitializedError()
   }
@@ -85,7 +83,6 @@ const onTopicChanged = async (bp: typeof sdk, botId: string, oldName?: string, n
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
-  onServerStarted,
   onServerReady,
   onBotMount,
   onBotUnmount,

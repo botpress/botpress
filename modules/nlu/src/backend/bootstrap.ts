@@ -19,7 +19,7 @@ import { StanClient } from './stan/client'
 const getNLUServerConfig = (config: Config['nluServer']): LanguageSource => {
   if (config.autoStart) {
     return {
-      endpoint: 'http://localhost:3200',
+      endpoint: `http://localhost:${process.NLU_PORT}`,
       authToken: makeNLUPassword()
     }
   }

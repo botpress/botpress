@@ -49,9 +49,9 @@ import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import ms from 'ms'
+import { MessageType } from 'orchestrator'
 import path from 'path'
 import portFinder from 'portfinder'
-import { startStudio } from 'studio-client'
 import { URL } from 'url'
 import yn from 'yn'
 
@@ -246,12 +246,7 @@ export class HTTPServer {
     window.UUID = "${this.machineId}"`
   }
 
-  async setupStudioProxy(serverPort: number) {
-    process.STUDIO_PORT = await portFinder.getPortPromise({ port: serverPort + 1000 })
-
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    startStudio(this.logger)
-
+  async setupStudioProxy() {
     const target = `http://localhost:${process.STUDIO_PORT}`
     const proxyPaths = ['*/studio/*', '*/api/v1/studio*']
 
@@ -402,8 +397,7 @@ export class HTTPServer {
     process.EXTERNAL_URL = process.env.EXTERNAL_URL || config.externalUrl || `http://${process.HOST}:${process.PORT}`
     process.LOCAL_URL = `http://${process.HOST}:${process.PORT}${process.ROOT_PATH}`
 
-    // The studio must be started after the external URL has been set
-    await this.setupStudioProxy(config.port)
+    process.send!({ type: MessageType.RegisterProcess, processType: 'web', port: process.PORT })
 
     if (process.PORT !== config.port) {
       this.logger.warn(`Configured port ${config.port} is already in use. Using next port available: ${process.PORT}`)

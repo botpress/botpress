@@ -2,23 +2,18 @@ import { Flow, Logger } from 'botpress/sdk'
 import { ArrayCache } from 'common/array-cache'
 import { ObjectCache } from 'common/object-cache'
 import { TreeSearch, PATH_SEPARATOR } from 'common/treeSearch'
-import { FlowMutex, FlowView, NodeView } from 'common/typings'
+import { FlowView, NodeView } from 'common/typings'
 import { TYPES } from 'core/app/types'
 import { BotService } from 'core/bots'
 import { GhostService, ScopedGhostService } from 'core/bpfs'
 import { JobService } from 'core/distributed/job-service'
-import { KeyValueStore, KvsService } from 'core/kvs'
-import { ModuleLoader } from 'core/modules'
-import { RealtimeService, RealTimePayload } from 'core/realtime'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Joi from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import LRUCache from 'lru-cache'
-import moment from 'moment'
 import ms from 'ms'
-import nanoid from 'nanoid/generate'
 
 import { validateFlowSchema } from '../utils/validator'
 
@@ -35,20 +30,6 @@ export const TopicSchema = Joi.object().keys({
     .allow('')
 })
 
-interface FlowModification {
-  name: string
-  botId: string
-  userEmail: string
-  modification: 'rename' | 'delete' | 'create' | 'update'
-  newName?: string
-  payload?: any
-}
-
-interface Topic {
-  name: string
-  description: string
-}
-
 export class MutexError extends Error {
   type = MutexError.name
 }
@@ -64,10 +45,7 @@ export class FlowService {
     @tagged('name', 'FlowService')
     private logger: Logger,
     @inject(TYPES.GhostService) private ghost: GhostService,
-    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.ObjectCache) private cache: ObjectCache,
-    @inject(TYPES.RealtimeService) private realtime: RealtimeService,
-    @inject(TYPES.KeyValueStore) private kvs: KeyValueStore,
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.JobService) private jobService: JobService
   ) {
@@ -108,10 +86,7 @@ export class FlowService {
       scope = new ScopedFlowService(
         botId,
         this.ghost.forBot(botId),
-        this.kvs.forBot(botId),
         this.logger,
-        this.moduleLoader,
-        this.realtime,
         this.botService,
         (key, flow, newKey) => this.invalidateFlow(botId, key, flow, newKey)
       )
@@ -128,10 +103,7 @@ export class ScopedFlowService {
   constructor(
     private botId: string,
     private ghost: ScopedGhostService,
-    private kvs: KvsService,
     private logger: Logger,
-    private moduleLoader: ModuleLoader,
-    private realtime: RealtimeService,
     private botService: BotService,
     private invalidateFlow: (key: string, flow?: FlowView, newKey?: string) => void
   ) {
@@ -262,30 +234,13 @@ export class ScopedFlowService {
       }
     })
 
-    const key = this._buildFlowMutexKey(flowPath)
-    const currentMutex = (await this.kvs.get(key)) as FlowMutex
-    if (currentMutex) {
-      currentMutex.remainingSeconds = this._getRemainingSeconds(currentMutex.lastModifiedAt)
-    }
-
     return {
       name: flowPath,
       location: flowPath,
       nodes: nodeViews,
       links: uiEq.links,
-      currentMutex,
       ..._.pick(flow, ['version', 'catchAll', 'startNode', 'skillData', 'label', 'description'])
     }
-  }
-
-  private _getRemainingSeconds(lastModifiedAt: Date): number {
-    const now = moment()
-    const freeTime = moment(lastModifiedAt).add(MUTEX_LOCK_DELAY_SECONDS, 'seconds')
-    return Math.ceil(Math.max(0, freeTime.diff(now, 'seconds')))
-  }
-
-  private _buildFlowMutexKey(flowLocation: string): string {
-    return `FLOWMUTEX: ${flowLocation}`
   }
 
   private toUiPath(flowPath: string) {

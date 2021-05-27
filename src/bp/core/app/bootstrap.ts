@@ -11,9 +11,8 @@ import { ModuleLoader, ModuleResolver } from 'core/modules'
 
 import fs from 'fs'
 import _ from 'lodash'
+import { setupMasterNode, setupWebWorker, WorkerType } from 'orchestrator'
 import os from 'os'
-
-import { setupMasterNode, WORKER_TYPES } from '../../cluster'
 
 async function setupEnv(app: BotpressApp) {
   await app.database.initialize()
@@ -114,18 +113,16 @@ async function start() {
   const app = createApp()
   await setupDebugLogger(app.logger)
 
-  if (process.env.WORKER_TYPE === WORKER_TYPES.LOCAL_ACTION_SERVER) {
+  if (process.env.WORKER_TYPE === WorkerType.LOCAL_ACTION_SERVER) {
     app.localActionServer.listen()
     return
   }
 
-  if (cluster.isWorker && process.env.WORKER_TYPE !== WORKER_TYPES.WEB) {
+  if (cluster.isWorker && process.env.WORKER_TYPE !== WorkerType.WEB) {
     return
   }
 
-  // Server ID and internal password are provided by the master node
-  process.SERVER_ID = process.env.SERVER_ID!
-  process.INTERNAL_PASSWORD = process.env.INTERNAL_PASSWORD!
+  setupWebWorker()
 
   await setupEnv(app)
 

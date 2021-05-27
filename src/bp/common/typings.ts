@@ -136,7 +136,6 @@ export interface FlowMutex {
 export type FlowView = Flow & {
   nodes: NodeView[]
   links: NodeLinkView[]
-  currentMutex?: FlowMutex
 }
 
 export interface NodeLinkView {
