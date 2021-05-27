@@ -11,7 +11,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
-import { IO, FlowPoint } from 'botpress/sdk'
+import { IO } from 'botpress/sdk'
 import { contextMenu, Icons, lang, MainLayout, sharedStyle, ShortcutLabel } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
