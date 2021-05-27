@@ -7,6 +7,7 @@ import { createApi } from '../api'
 import { registerRouter, removeRouter } from './api'
 import { NLUApplication } from './application'
 import { bootStrap } from './bootstrap'
+import { initDatabase } from './db'
 import dialogConditions from './dialog-conditions'
 import { registerMiddlewares, removeMiddlewares } from './middlewares'
 
@@ -17,6 +18,10 @@ class AppNotInitializedError extends Error {
 }
 
 let app: NLUApplication | undefined
+
+const onServerStarted = async (bp: typeof sdk) => {
+  await initDatabase(bp)
+}
 
 const onServerReady = async (bp: typeof sdk) => {
   app = await bootStrap(bp)
@@ -83,6 +88,7 @@ const onTopicChanged = async (bp: typeof sdk, botId: string, oldName?: string, n
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
+  onServerStarted,
   onServerReady,
   onBotMount,
   onBotUnmount,
