@@ -13,6 +13,8 @@ export interface WebWorkerParams {
   ROOT_PATH: string
 }
 
+let initialParams: WebWorkerParams
+
 const debug = DEBUG('studio')
 
 let studioHandle: ChildProcess
@@ -38,11 +40,11 @@ export const studioActions = {
 
 export const registerStudioMainHandler = (logger: sdk.Logger) => {
   registerMsgHandler(MessageType.StartStudio, async message => {
-    await startStudio(logger, message)
+    await startStudio(logger, message.params as WebWorkerParams)
   })
 }
 
-export const startStudio = async (logger: sdk.Logger, { params }: { params: WebWorkerParams }) => {
+export const startStudio = async (logger: sdk.Logger, params: WebWorkerParams) => {
   const studioPort = await portFinder.getPortPromise({ port: 3000 + 1000 })
   registerProcess('studio', studioPort)
 
@@ -64,6 +66,9 @@ export const startStudio = async (logger: sdk.Logger, { params }: { params: WebW
     APP_SECRET: params.APP_SECRET,
     ROOT_PATH: params.ROOT_PATH
   }
+
+  // We store the dynamic params so we can reuse them when auto-restarting the studio process
+  initialParams = params
 
   if (process.pkg || !process.core_env.DEV_STUDIO_PATH) {
     const basePath = process.pkg ? path.dirname(process.execPath) : path.resolve(__dirname, '../')
@@ -94,12 +99,12 @@ export const startStudio = async (logger: sdk.Logger, { params }: { params: WebW
       signal,
       logger,
       restartMethod: async () => {
-        // await startStudio(logger)
+        await startStudio(logger, initialParams)
       }
     })
   })
 }
 
 export const killStudioProcess = () => {
-  studioHandle?.kill()
+  studioHandle?.kill('SIGKILL')
 }

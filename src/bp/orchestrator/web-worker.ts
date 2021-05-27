@@ -53,12 +53,13 @@ export const setupWebWorker = () => {
   })
 }
 
-export const onWebWorkerExit = (code, signal, logger) => {
+export const onWebWorkerExit = (code, signal, logger, exitedAfterDisconnect) => {
   onProcessExit({
     processType: 'web',
     code,
     signal,
     logger,
+    exitedAfterDisconnect,
     restartMethod: async () => {
       await spawnWebWorker()
     }

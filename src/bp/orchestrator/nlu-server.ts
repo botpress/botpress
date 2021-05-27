@@ -28,6 +28,8 @@ const DEFAULT_STAN_OPTIONS: NLUServerOptions = {
   legacyElection: false
 }
 
+let initialParams: Partial<NLUServerOptions>
+
 const getBinaryPath = () => {
   const basePath = process.pkg ? path.dirname(process.execPath) : path.resolve(__dirname, '../')
   return path.resolve(basePath, `bin/nlu${process.distro.os === 'win32' ? '.exe' : ''}`)
@@ -35,8 +37,8 @@ const getBinaryPath = () => {
 
 export const registerNluServerMainHandler = (logger: sdk.Logger) => {
   registerMsgHandler(MessageType.StartNluServer, async (message: Partial<NLUServerOptions>) => {
-    const { signal, code } = await runNluServerWithEnv(message, logger)
-    logger.error(`NLU server exited with code ${code} and signal ${signal}`)
+    initialParams = message
+    await startNluServer(message, logger)
   })
 }
 
@@ -50,42 +52,35 @@ export const killNluProcess = () => {
   nluServerProcess?.kill('SIGKILL')
 }
 
-export const runNluServerWithEnv = (
-  opts: Partial<NLUServerOptions>,
-  logger: sdk.Logger
-): Promise<{ code: number | null; signal: string | null }> => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const isDefined = _.negate(_.isUndefined)
-      const nonNullOptions = _.pickBy(opts, isDefined)
+export const startNluServer = async (opts: Partial<NLUServerOptions>, logger: sdk.Logger) => {
+  const options = _.merge(DEFAULT_STAN_OPTIONS, opts)
+  const port = await portFinder.getPortPromise({ port: options.port })
 
-      const options = { ...DEFAULT_STAN_OPTIONS, ...nonNullOptions }
-      const port = await portFinder.getPortPromise({ port: options.port })
+  registerProcess('nlu', port)
 
-      const STAN_JSON_CONFIG = JSON.stringify({ ...options, port })
+  const env = {
+    ...process.env,
+    // some vscode NODE_OPTIONS seem to break the nlu binary
+    NODE_OPTIONS: '',
+    STAN_JSON_CONFIG: JSON.stringify({ ...options, port })
+  }
 
-      // some vscode NODE_OPTIONS seem to break the nlu binary
-      const processEnv = { ...process.env, NODE_OPTIONS: '' }
+  if (!process.core_env.DEV_NLU_PATH) {
+    nluServerProcess = spawn(getBinaryPath(), [], { env, stdio: 'inherit' })
+  } else {
+    const file = path.resolve(process.core_env.DEV_NLU_PATH, 'index.js')
+    nluServerProcess = fork(file, undefined, { execArgv: undefined, env, cwd: path.dirname(file) })
+  }
 
-      registerProcess('nlu', port)
-
-      const env = { ...processEnv, STAN_JSON_CONFIG, port: port.toString() }
-
-      if (!process.core_env.DEV_NLU_PATH) {
-        nluServerProcess = spawn(getBinaryPath(), [], { env, stdio: 'inherit' })
-      } else {
-        const file = path.resolve(process.core_env.DEV_NLU_PATH, 'index.js')
-        nluServerProcess = fork(file, undefined, { execArgv: undefined, env, cwd: path.dirname(file) })
+  nluServerProcess?.on('exit', (code, signal) => {
+    onProcessExit({
+      processType: 'nlu',
+      code,
+      signal,
+      logger,
+      restartMethod: async () => {
+        await startNluServer(initialParams, logger)
       }
-
-      nluServerProcess?.on('exit', (code, signal) => {
-        onProcessExit({ processType: 'nlu', code, signal, logger })
-        nluServerProcess = undefined
-        resolve({ code, signal })
-      })
-    } catch (err) {
-      nluServerProcess = undefined
-      reject(err)
-    }
+    })
   })
 }

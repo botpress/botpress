@@ -68,9 +68,9 @@ export const processes: SubProcesses = {}
 
 export const registerProcess = (processType: ProcType, port: number, workerId?: number) => {
   if (processes[processType]) {
-    processes[processType] = { port, rebootCount: processes[processType].rebootCount + 1 }
+    processes[processType] = { port, workerId, rebootCount: processes[processType].rebootCount + 1 }
   } else {
-    processes[processType] = { port, rebootCount: 0, workerId }
+    processes[processType] = { port, workerId, rebootCount: 0 }
   }
 
   // We send the new port definitions to connected workers
@@ -88,28 +88,38 @@ export const onProcessExit = ({
   killOnFail,
   restartMethod
 }: ProcessDetails) => {
-  debug('A process exited %o', { processType, code, signal })
+  debug('A process exited %o', { processType, code, signal, exitedAfterDisconnect })
 
   if (exitedAfterDisconnect) {
     processes[processType].rebootCount = 0
     // Clean exit
-  } else if (processType === 'web' && code === 0) {
-    process.exit(0)
+  } else if (code === 0 || signal === 'SIGKILL') {
+    if (processType === 'web') {
+      process.exit(0)
+    } else {
+      processes[processType].rebootCount = 0
+      return
+    }
   }
 
-  if (!yn(process.core_env.BP_DISABLE_AUTO_RESTART)) {
-    if (processes[processType].rebootCount >= maxServerReboots) {
-      logger.error(
-        `Exceeded the maximum number of automatic server reboot (${maxServerReboots}). Set the "BP_MAX_SERVER_REBOOT" environment variable to change that`
-      )
+  if (yn(process.core_env.BP_DISABLE_AUTO_RESTART)) {
+    return
+  }
 
-      if (killOnFail) {
-        process.exit(0)
-      } else {
-        return
-      }
+  if (processes[processType].rebootCount >= maxServerReboots) {
+    logger.error(
+      `Exceeded the maximum number of automatic reboot (${maxServerReboots}). Set the "BP_MAX_SERVER_REBOOT" environment variable to change that`
+    )
+
+    if (killOnFail) {
+      process.exit(0)
+    } else {
+      return
     }
+  }
 
+  if (restartMethod) {
+    logger.warn(`Process ${processType} exited, restarting...`)
     restartMethod?.()
   }
 }
@@ -128,7 +138,7 @@ export const setupMasterNode = (logger: sdk.Logger) => {
   registerMsgHandler(MessageType.RestartServer, (_message, worker) => {
     logger.warn('Restarting server...')
     worker.disconnect()
-    worker.kill()
+    worker.kill('SIGKILL')
   })
 
   registerMsgHandler(MessageType.RegisterProcess, (msg: { processType: ProcType; port: number }, worker) => {
@@ -138,14 +148,9 @@ export const setupMasterNode = (logger: sdk.Logger) => {
   cluster.on('exit', async (worker: Worker, code: number, signal: string) => {
     const { exitedAfterDisconnect, id } = worker
 
-    if (process.TRAINING_WORKERS?.includes(id)) {
-      process.TRAINING_WORKERS = process.TRAINING_WORKERS.filter(w => w !== id)
-      return
-    }
-
     const processType = _.findKey(processes, p => p.workerId === worker.id) as ProcType
     if (processType === 'web') {
-      onWebWorkerExit(code, signal, logger)
+      onWebWorkerExit(code, signal, logger, exitedAfterDisconnect)
       killNluProcess()
       killStudioProcess()
     }
