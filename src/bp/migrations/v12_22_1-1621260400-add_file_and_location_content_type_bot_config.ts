@@ -36,7 +36,7 @@ const migration: Migration = {
     for (const [botId, botConfig] of bots) {
       const { contentTypes } = botConfig.imports
 
-      const hasTypes = !typesToRemove.every(type => contentTypes.find(x => x === type))
+      const hasTypes = typesToRemove.every(type => contentTypes.find(x => x === type))
 
       if (hasTypes) {
         hasChanges = true

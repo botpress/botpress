@@ -28,7 +28,7 @@ interface Props {
 }
 
 const CustomBaseInput = props => {
-  const SUPPORTED_MEDIA_SUBTYPES: UploadFieldProps['type'][] = ['audio', 'image', 'video']
+  const SUPPORTED_MEDIA_SUBTYPES: UploadFieldProps['type'][] = ['audio', 'image', 'video', 'file']
   const { type, $subtype: subtype } = props.schema
   const { readonly } = props.options
 
@@ -59,7 +59,7 @@ const widgets = {
 
 // TODO: Remove this once audio and video content-types are support on multiple channels
 const CustomDescriptionField = ({ description, id, formContext }) => {
-  if (id === 'root__description' && ['audio', 'video', 'location'].includes(formContext.subtype)) {
+  if (id === 'root__description' && ['audio', 'video', 'location', 'file'].includes(formContext.subtype)) {
     const capitalize = (str: string) => {
       return str.charAt(0).toUpperCase() + str.slice(1)
     }

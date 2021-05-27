@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { Migration } from 'core/migration'
+import { Migration, MigrationOpts } from 'core/migration'
 import _ from 'lodash'
 
 const DEFAULT_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'audio/mpeg', 'video/mp4']
@@ -11,7 +11,7 @@ const migration: Migration = {
     target: 'core',
     type: 'config'
   },
-  up: async ({ configProvider }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
+  up: async ({ configProvider }: MigrationOpts): Promise<sdk.MigrationResult> => {
     const config = await configProvider.getBotpressConfig()
 
     // We only do the migration if the settings are at default
@@ -27,7 +27,7 @@ const migration: Migration = {
 
     return { success: true, message: 'Configuration updated successfully' }
   },
-  down: async ({ configProvider }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
+  down: async ({ configProvider }: MigrationOpts): Promise<sdk.MigrationResult> => {
     const config = await configProvider.getBotpressConfig()
 
     // We only do the migration if the settings are at default
@@ -35,11 +35,9 @@ const migration: Migration = {
       return { success: true, message: 'Skipping migration for non-default settings' }
     }
 
-    await configProvider.mergeBotpressConfig({
-      fileUpload: {
-        allowedMimeTypes: DEFAULT_MIME_TYPES
-      }
-    })
+    config.fileUpload.allowedMimeTypes = DEFAULT_MIME_TYPES
+
+    await configProvider.setBotpressConfig(config)
 
     return { success: true, message: 'Configuration updated successfully' }
   }
