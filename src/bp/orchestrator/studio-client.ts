@@ -7,6 +7,12 @@ import path from 'path'
 import portFinder from 'portfinder'
 import { onProcessExit, registerProcess, processes, registerMsgHandler, MessageType } from './master'
 
+export interface WebWorkerParams {
+  EXTERNAL_URL: string
+  APP_SECRET: string
+  ROOT_PATH: string
+}
+
 const debug = DEBUG('studio')
 
 let studioHandle: ChildProcess
@@ -31,12 +37,12 @@ export const studioActions = {
 }
 
 export const registerStudioMainHandler = (logger: sdk.Logger) => {
-  registerMsgHandler(MessageType.StartStudio, async () => {
-    await startStudio(logger)
+  registerMsgHandler(MessageType.StartStudio, async message => {
+    await startStudio(logger, message)
   })
 }
 
-export const startStudio = async (logger: sdk.Logger) => {
+export const startStudio = async (logger: sdk.Logger, { params }: { params: WebWorkerParams }) => {
   const studioPort = await portFinder.getPortPromise({ port: 3000 + 1000 })
   registerProcess('studio', studioPort)
 
@@ -46,16 +52,17 @@ export const startStudio = async (logger: sdk.Logger) => {
     // The data folder is shared between the studio and the runtime
     PROJECT_LOCATION: process.PROJECT_LOCATION,
     APP_DATA_PATH: process.APP_DATA_PATH,
-    EXTERNAL_URL: process.EXTERNAL_URL,
-    APP_SECRET: process.APP_SECRET,
     PRO_ENABLED: process.IS_PRO_ENABLED?.toString(),
     STUDIO_PORT: processes.studio.port.toString(),
     CORE_PORT: processes.web.port.toString(),
-    ROOT_PATH: process.ROOT_PATH,
     INTERNAL_PASSWORD: process.INTERNAL_PASSWORD,
     BP_DATA_FOLDER: path.join(process.PROJECT_LOCATION, 'data'),
     // TODO: not the final fix
-    BP_MODULES_PATH: path.join(process.PROJECT_LOCATION, '../../modules')
+    BP_MODULES_PATH: path.join(process.PROJECT_LOCATION, '../../modules'),
+    // These params are processed by the web worker
+    EXTERNAL_URL: params.EXTERNAL_URL,
+    APP_SECRET: params.APP_SECRET,
+    ROOT_PATH: params.ROOT_PATH
   }
 
   if (process.pkg || !process.core_env.DEV_STUDIO_PATH) {
@@ -87,7 +94,7 @@ export const startStudio = async (logger: sdk.Logger) => {
       signal,
       logger,
       restartMethod: async () => {
-        await startStudio(logger)
+        // await startStudio(logger)
       }
     })
   })

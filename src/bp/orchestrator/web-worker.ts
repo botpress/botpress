@@ -31,7 +31,14 @@ export const setupWebWorker = () => {
     switch (processType) {
       case 'web':
         // Once the web worker is registered, we have all we need to start the studio
-        process.send!({ type: MessageType.StartStudio })
+        process.send!({
+          type: MessageType.StartStudio,
+          params: {
+            EXTERNAL_URL: process.EXTERNAL_URL,
+            ROOT_PATH: process.ROOT_PATH,
+            APP_SECRET: process.APP_SECRET
+          }
+        })
         break
       case 'studio':
         process.STUDIO_PORT = port
