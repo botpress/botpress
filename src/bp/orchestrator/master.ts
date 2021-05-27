@@ -6,8 +6,8 @@ import nanoidGenerate from 'nanoid/generate'
 import yn from 'yn'
 
 import { registerActionServerMainHandler } from './action-server'
-import { registerNluServerMainHandler, killNluProcess } from './nlu-server'
-import { registerStudioMainHandler, killStudioProcess } from './studio-client'
+import { registerNluServerMainHandler } from './nlu-server'
+import { registerStudioMainHandler } from './studio-client'
 import { spawnWebWorker, onWebWorkerExit } from './web-worker'
 
 export enum WorkerType {
@@ -67,11 +67,8 @@ export const registerMsgHandler = (messageType: string, handler: (message: any, 
 export const processes: SubProcesses = {}
 
 export const registerProcess = (processType: ProcType, port: number, workerId?: number) => {
-  if (processes[processType]) {
-    processes[processType] = { port, workerId, rebootCount: processes[processType].rebootCount + 1 }
-  } else {
-    processes[processType] = { port, workerId, rebootCount: 0 }
-  }
+  const rebootCount = processes[processType] ? processes[processType].rebootCount + 1 : 0
+  processes[processType] = { port, workerId, rebootCount }
 
   // We send the new port definitions to connected workers
   for (const work in cluster.workers) {
@@ -151,8 +148,6 @@ export const setupMasterNode = (logger: sdk.Logger) => {
     const processType = _.findKey(processes, p => p.workerId === worker.id) as ProcType
     if (processType === 'web') {
       onWebWorkerExit(code, signal, logger, exitedAfterDisconnect)
-      killNluProcess()
-      killStudioProcess()
     }
 
     // TODO: the debug instance has no access to the debug config. It is in the web process.
