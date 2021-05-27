@@ -10,6 +10,7 @@
       "./core/**/*.js",
       "./admin/**/*.js",
       "./studio/**/*.js",
+      "./orchestrator/*.js",
       "./*.js",
       "./pro/**/*.js",
       "./common/**/*.js",
