@@ -3,6 +3,7 @@ import { container } from 'core/app/inversify/app.inversify'
 import { HTTPServer } from 'core/app/server'
 import { TYPES } from 'core/types'
 import { MessageType, onProcessExit, WorkerType, ProcType } from './master'
+import { initStudioClient } from './studio-client'
 
 const debug = DEBUG('cluster:web')
 
@@ -45,6 +46,8 @@ export const setupWebWorker = () => {
 
         const httpServer = container.get<HTTPServer>(TYPES.HTTPServer)
         await httpServer.setupStudioProxy()
+
+        initStudioClient()
         break
       case 'nlu':
         process.NLU_PORT = port

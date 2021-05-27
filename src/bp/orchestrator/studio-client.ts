@@ -38,6 +38,13 @@ export const studioActions = {
   }
 }
 
+export const initStudioClient = () => {
+  studioClient = axios.create({
+    headers: { authorization: process.INTERNAL_PASSWORD },
+    baseURL: `http://localhost:${process.STUDIO_PORT}/api/internal`
+  })
+}
+
 export const registerStudioMainHandler = (logger: sdk.Logger) => {
   registerMsgHandler(MessageType.StartStudio, async message => {
     await startStudio(logger, message.params as WebWorkerParams)
@@ -84,11 +91,6 @@ export const startStudio = async (logger: sdk.Logger, params: WebWorkerParams) =
     const file = path.resolve(process.core_env.DEV_STUDIO_PATH, 'index.js')
     studioHandle = fork(file, undefined, { execArgv: undefined, env, cwd: path.dirname(file) })
   }
-
-  studioClient = axios.create({
-    headers: { authorization: process.INTERNAL_PASSWORD },
-    baseURL: `http://localhost:${process.STUDIO_PORT}/api/internal`
-  })
 
   studioHandle.on('exit', async (code: number, signal: string) => {
     debug('Studio exiting %o', { code, signal })
