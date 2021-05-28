@@ -711,7 +711,7 @@ reducer = reduceReducers(
       },
 
       [requestPasteFlowNode]: (state, { payload: { x, y } }) => {
-        if (!state.buffer.nodes?.length > 0) {
+        if (!state.buffer.nodes?.length) {
           return state
         }
 
