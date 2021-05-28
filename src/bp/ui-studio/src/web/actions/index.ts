@@ -193,7 +193,7 @@ export const pasteFlowNode: ({ x, y }) => void = wrapAction(requestPasteFlowNode
   await updateCurrentFlow(payload, state)
   dispatch(refreshFlowsLinks())
 
-  for (const node of state.flows.buffer.nodes) {
+  for (const node of state.flows.buffer.nodes || []) {
     if (node.type === 'trigger' && window.USE_ONEFLOW) {
       await onTriggerEvent('create', node.conditions, state)
     }
