@@ -7,7 +7,7 @@ import {
   clearErrorSaveFlows,
   clearFlowMutex,
   closeFlowNodeProps,
-  copyFlowNode,
+  copyFlowNodes,
   copyFlowNodeElement,
   errorSaveFlows,
   handleFlowEditorRedo,
@@ -46,7 +46,7 @@ export interface FlowReducer {
   errorSavingFlows?: { status: number; message: string }
   flowsByName: _.Dictionary<FlowView>
   currentDiagramAction: string
-  nodeInBuffer?: FlowNode
+  buffer: { nodes?: FlowNode[] }
   debuggerEvent?: IO.IncomingEvent
 }
 
@@ -65,8 +65,7 @@ const defaultState = {
   currentSnapshot: null,
   undoStack: [],
   redoStack: [],
-  nodeInBuffer: null, // TODO: move it to buffer.node
-  buffer: { action: null, transition: null },
+  buffer: { action: null, transition: null, nodes: null },
   flowProblems: [],
   errorSavingFlows: undefined
 }
@@ -610,7 +609,7 @@ reducer = reduceReducers(
             ...state.flowsByName[state.currentFlow],
             nodes: [
               ...state.flowsByName[state.currentFlow].nodes,
-              _.merge(state.nodeInBuffer, _.pick(payload, ['x', 'y']))
+              _.merge(state.buffer.nodes, _.pick(payload, ['x', 'y']))
             ]
           }
         }
@@ -698,35 +697,64 @@ reducer = reduceReducers(
         }
       },
 
-      [copyFlowNode as any]: state => {
-        const node = _.find(state.flowsByName[state.currentFlow].nodes, { id: state.currentFlowNode })
-        if (!node) {
+      [copyFlowNodes as any]: (state, { payload }) => {
+        const nodes = payload
+          ?.map(nodeId => _.find(state.flowsByName[state.currentFlow].nodes, { id: nodeId }))
+          .filter(node => node)
+        if (!nodes || !nodes.length) {
           return state
         }
         return {
           ...state,
-          nodeInBuffer: { ...node, next: node.next.map(item => ({ ...item, node: '' })) }
+          buffer: { ...state.buffer, nodes }
         }
       },
 
       [requestPasteFlowNode]: (state, { payload: { x, y } }) => {
+        if (!state.buffer.nodes?.length) {
+          return state
+        }
+
         const currentFlow = state.flowsByName[state.currentFlow]
-        const newNodeId = prettyId()
-        const name = copyName(
-          currentFlow.nodes.map(({ name }) => name),
-          state.nodeInBuffer.name
-        )
+        const siblingNames = currentFlow.nodes.map(({ name }) => name)
+        const newNodes = _.cloneDeep(state.buffer.nodes).map(node => {
+          const newNodeId = prettyId()
+          const newName = copyName(siblingNames, node.name)
+          return { ...node, id: newNodeId, newName, lastModified: new Date() }
+        })
+
+        // Calculate x,y center position from multiple nodes
+        const xCenter = _.reduce(newNodes, (sum, elem) => sum + elem.x, 0) / newNodes.length
+        const yCenter = _.reduce(newNodes, (sum, elem) => sum + elem.y, 0) / newNodes.length
+
+        newNodes.forEach(node => {
+          // Recalculate position to fit the new flow and cursor position
+          node.x = node.x - xCenter + x
+          node.y = node.y - yCenter + y
+
+          // Migrate transitions
+          if (node.next) {
+            for (const transition of node.next) {
+              const node = _.find(newNodes, { name: transition?.node })
+              transition.node = node ? node.newName : ''
+            }
+          }
+        })
+
+        // Migrate node name now that all transitions have been migrated
+        newNodes.forEach(node => {
+          node.name = node.newName
+          delete node.newName
+        })
+
         return {
           ...state,
-          currentFlowNode: newNodeId,
+          currentFlowNode: newNodes[0].id,
           flowsByName: {
             ...state.flowsByName,
             [state.currentFlow]: {
               ...currentFlow,
-              nodes: [
-                ...currentFlow.nodes,
-                { ...state.nodeInBuffer, id: newNodeId, name, lastModified: new Date(), x, y }
-              ]
+              nodes: [...currentFlow.nodes, ...newNodes]
             }
           }
         }
