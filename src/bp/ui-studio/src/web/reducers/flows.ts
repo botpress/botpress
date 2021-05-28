@@ -639,19 +639,20 @@ reducer = reduceReducers(
       [requestUpdateFlowNode]: (state, { payload }) => {
         payload = Array.isArray(payload) ? payload : [{ ...payload, id: payload.id ?? state.currentFlowNode }]
         const currentFlow = state.flowsByName[state.currentFlow]
-        const nodesToUpdate = payload.map(node =>
-          _.find(currentFlow.nodes, {
-            id: node.id
-          })
-        )
+        const nodesToUpdate = payload
+          .map(node =>
+            _.find(currentFlow.nodes, {
+              id: node.id
+            })
+          )
+          .filter(Boolean)
 
-        // Prevent errors by doing nothing if any nodes are undefined
-        if (nodesToUpdate.filter(node => !node).length) {
+        if (nodesToUpdate.length === 0) {
           return state
         }
 
         // Find the replacement name, if there is any
-        const needsUpdate = name => {
+        const findNewName = name => {
           const nodeToUpdate = _.find(nodesToUpdate, {
             name
           })
@@ -667,7 +668,7 @@ reducer = reduceReducers(
           elements.map(element => {
             return {
               ...element,
-              node: needsUpdate(element.node) ?? element.node
+              node: findNewName(element.node) ?? element.node
             }
           })
 
@@ -677,12 +678,9 @@ reducer = reduceReducers(
             ...state.flowsByName,
             [state.currentFlow]: {
               ...currentFlow,
-              startNode: needsUpdate(currentFlow.startNode) ?? currentFlow.startNode,
+              startNode: findNewName(currentFlow.startNode) ?? currentFlow.startNode,
               nodes: currentFlow.nodes.map(node => {
-                const nodeToUpdate = _.find(nodesToUpdate, {
-                  id: node.id
-                })
-                if (!nodeToUpdate) {
+                if (!_.find(nodesToUpdate, { id: node.id })) {
                   return {
                     ...node,
                     next: node.next && updateNodeName(node.next)
@@ -690,7 +688,7 @@ reducer = reduceReducers(
                 }
 
                 const nodeToUpdatePayload = _.find(payload, {
-                  id: nodeToUpdate.id
+                  id: node.id
                 })
                 return {
                   ...node,
