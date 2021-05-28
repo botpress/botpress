@@ -29,7 +29,7 @@ import {
 import {
   buildNewSkill,
   closeFlowNodeProps,
-  copyFlowNode,
+  copyFlowNodes,
   createFlow,
   createFlowNode,
   fetchFlows,
@@ -612,7 +612,12 @@ class Diagram extends Component<Props> {
   }
 
   copySelectedElementToBuffer() {
-    this.props.copyFlowNode()
+    this.props.copyFlowNodes(
+      this.diagramEngine
+        .getDiagramModel()
+        .getSelectedItems()
+        .map(el => el.id)
+    )
     Toaster.create({
       className: 'recipe-toaster',
       position: Position.TOP_RIGHT
@@ -742,7 +747,7 @@ const mapStateToProps = (state: RootReducer) => ({
   currentFlow: getCurrentFlow(state),
   currentFlowNode: getCurrentFlowNode(state),
   currentDiagramAction: state.flows.currentDiagramAction,
-  canPasteNode: Boolean(state.flows.nodeInBuffer),
+  canPasteNode: Boolean(state.flows.buffer?.nodes),
   emulatorOpen: state.ui.emulatorOpen,
   debuggerEvent: state.flows.debuggerEvent,
   zoomLevel: state.ui.zoomLevel,
@@ -762,7 +767,7 @@ const mapDispatchToProps = {
   updateFlowNode,
   switchFlow,
   updateFlow,
-  copyFlowNode,
+  copyFlowNodes,
   pasteFlowNode,
   refreshFlowsLinks,
   insertNewSkillNode,
