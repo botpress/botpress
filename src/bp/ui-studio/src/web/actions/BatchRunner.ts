@@ -1,10 +1,11 @@
 import Promise from 'bluebird'
-
+import { receiveContentItemsBatched } from '../actions/index'
 // `execute` must be a function accepting an array of resource IDs
 // and returning a promise resolving to an object mapping
 // from ID to the data object
 const BatchRunner = (execute, { maxQueue = 100, maxInterval = 20 } = {}) => {
   let queue = []
+  let dispatcher
   const promises = {}
 
   const run = () => {
@@ -20,6 +21,7 @@ const BatchRunner = (execute, { maxQueue = 100, maxInterval = 20 } = {}) => {
           promises[id].resolve(resources[id])
           delete promises[id]
         }
+        dispatcher(receiveContentItemsBatched(resources))
       })
       .catch(err => {
         for (const id of ids) {
@@ -29,7 +31,11 @@ const BatchRunner = (execute, { maxQueue = 100, maxInterval = 20 } = {}) => {
       })
   }
 
-  const add = resourceId => {
+  const add = (resourceId, dispatch) => {
+    if (!dispatcher) {
+      dispatcher = dispatch
+    }
+
     // don't fetch the same resource twice
     if (promises[resourceId]) {
       return promises[resourceId].promise

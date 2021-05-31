@@ -36,7 +36,6 @@ export class MemoryObjectCache implements ObjectCache {
 
   async set<T>(key: string, obj: T): Promise<void> {
     this.cache.set(key, obj)
-    this.events.emit('invalidation', key)
   }
 
   async has(key: string): Promise<boolean> {
