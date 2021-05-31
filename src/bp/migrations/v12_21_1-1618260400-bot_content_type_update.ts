@@ -38,6 +38,10 @@ const migration: Migration = {
     }
 
     return { success: true, message: hasChanges ? 'New types added successfully' : 'Nothing to change' }
+  },
+  down: async () => {
+    // Down migrations not necessary for content types, no impact
+    return { success: true, message: 'Nothing to change' }
   }
 }
 
