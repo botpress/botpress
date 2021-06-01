@@ -116,8 +116,8 @@ export class VonageClient {
       new VonageVideoRenderer(),
       new VonageTemplateRenderer(),
       new VonageMediaTemplateRenderer(),
-      new VonageChoicesRenderer(),
-      new VonageFileRenderer()
+      new VonageFileRenderer(),
+      new VonageChoicesRenderer()
     ]
 
     this.senders = [new VonageTypingSender(), new VonageCommonSender()]
