@@ -5,15 +5,14 @@ import _ from 'lodash'
 const migration: Migration = {
   info: {
     description: 'Adds file and location content types to bot configs',
-    target: 'core',
+    target: 'bot',
     type: 'config'
   },
-  up: async ({ bp, configProvider }: MigrationOpts): Promise<sdk.MigrationResult> => {
-    const bots = await bp.bots.getAllBots()
-    const newTypes = ['builtin_file', 'builtin_location']
+  up: async ({ bp, configProvider, metadata }: MigrationOpts): Promise<sdk.MigrationResult> => {
     let hasChanges = false
 
-    for (const [botId, botConfig] of bots) {
+    const updateBotContentTypes = async (botId: string, botConfig: sdk.BotConfig) => {
+      const newTypes = ['builtin_file', 'builtin_location']
       const { contentTypes } = botConfig.imports
 
       const hasMissingTypes = !newTypes.every(type => contentTypes.find(x => x === type))
@@ -26,27 +25,21 @@ const migration: Migration = {
       }
     }
 
-    return { success: true, message: hasChanges ? 'New types added successfully' : 'Nothing to change' }
-  },
-  down: async ({ bp, configProvider }: MigrationOpts): Promise<sdk.MigrationResult> => {
-    const bots = await bp.bots.getAllBots()
-    const typesToRemove = ['builtin_file', 'builtin_location']
-    let hasChanges = false
-
-    for (const [botId, botConfig] of bots) {
-      const { contentTypes } = botConfig.imports
-
-      const hasTypes = typesToRemove.every(type => contentTypes.find(x => x === type))
-
-      if (hasTypes) {
-        hasChanges = true
-        botConfig.imports.contentTypes = _.differenceWith(contentTypes, typesToRemove, _.isEqual)
-
-        await configProvider.setBotConfig(botId, botConfig)
+    if (metadata.botId) {
+      const botConfig = await bp.bots.getBotById(metadata.botId)
+      await updateBotContentTypes(metadata.botId, botConfig!)
+    } else {
+      const bots = await bp.bots.getAllBots()
+      for (const [botId, botConfig] of bots) {
+        await updateBotContentTypes(botId, botConfig)
       }
     }
 
-    return { success: true, message: hasChanges ? 'Types successfully removed' : 'Nothing to change' }
+    return { success: true, message: hasChanges ? 'New types added successfully' : 'Nothing to change' }
+  },
+  down: async () => {
+    // Down migrations not necessary for content types, no impact
+    return { success: true, message: 'Nothing to change' }
   }
 }
 

@@ -82,7 +82,7 @@ export namespace Renderer {
   export interface FileMessage {
     file: {
       url: string
-      name: string
+      title: string
       storage: string
       text: string
     }
