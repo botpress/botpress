@@ -137,7 +137,7 @@ export class LegacyStats extends TelemetryStats {
   }
 
   private async getBotsCount(): Promise<number> {
-    return (await this.botService.getBotsIds()).length
+    return BotService.getMountedBots().length
   }
 
   private async getWorkspacesCount(): Promise<number> {

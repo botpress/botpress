@@ -74,7 +74,7 @@ export class SDKStats extends TelemetryStats {
   }
 
   private async getSDKUsage(): Promise<SDKUsageEvent> {
-    const bots = await this.botService.getBotsIds()
+    const bots = BotService.getMountedBots()
     return { actions: await this.getActionUsages(bots), hooks: await this.getHooksUsages() }
   }
 
