@@ -24,7 +24,8 @@ import {
   DiagramEngine,
   DiagramWidget,
   NodeModel,
-  PointModel
+  PointModel,
+  SelectingAction
 } from 'storm-react-diagrams'
 import {
   buildNewSkill,
@@ -232,12 +233,14 @@ class Diagram extends Component<Props> {
     this.setState({ expandedNodes: getExpandedNodes() })
 
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
+    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('mousedown', this.onMouseDown)
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
   }
 
   componentWillUnmount() {
     ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('click', this.onDiagramClick)
+    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('mousedown', this.onMouseDown)
     ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').removeEventListener('keydown', this.onKeyDown)
   }
@@ -522,6 +525,22 @@ class Diagram extends Component<Props> {
       nodeType === 'listen' ||
       nodeType === 'action'
     )
+  }
+
+  onMouseDown = (event: MouseEvent) => {
+    // Pressing the "ctrl key" triggers multiple node selection
+    // Reimplemented the MouseDown handler from the Diagram Widget
+    // https://github.com/projectstorm/react-diagrams/blob/v5.2.1/src/widgets/DiagramWidget.tsx
+
+    const model = this.diagramWidget.getMouseElement(event)
+    if (model === null && event.ctrlKey) {
+      this.diagramEngine.clearRepaintEntities()
+      const relative = this.diagramEngine.getRelativePoint(event.clientX, event.clientY)
+      this.diagramWidget.startFiringAction(new SelectingAction(relative.x, relative.y))
+      this.diagramWidget.state.document.addEventListener('mousemove', this.diagramWidget.onMouseMove)
+      this.diagramWidget.state.document.addEventListener('mouseup', this.diagramWidget.onMouseUp)
+      event.stopPropagation()
+    }
   }
 
   onDiagramClick = (event: MouseEvent) => {
