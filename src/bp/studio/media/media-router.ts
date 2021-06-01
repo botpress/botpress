@@ -7,7 +7,14 @@ import { CustomStudioRouter } from 'studio/utils/custom-studio-router'
 
 const debugMedia = DEBUG('audit:action:media-upload')
 
-const DEFAULT_ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'audio/mpeg', 'video/mp4']
+const DEFAULT_ALLOWED_MIME_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'audio/mpeg',
+  'video/mp4',
+  'application/pdf'
+]
 const DEFAULT_MAX_FILE_SIZE = '25mb'
 
 class MediaRouter extends CustomStudioRouter {
