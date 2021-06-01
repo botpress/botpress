@@ -70,16 +70,9 @@ module.exports = {
 
     const link = utils.formatURL(formData.BOT_URL, formData.file)
     const title = formData.title ? ' | ' + formData.title : ''
-    let fileName = ''
 
     if (utils.isUrl(link)) {
-      fileName = path.basename(formData.file)
-      if (fileName.includes('-')) {
-        fileName = fileName
-          .split('-')
-          .slice(1)
-          .join('-')
-      }
+      const fileName = utils.extractFileName(formData.file)
       return `File: (${fileName}) ${title}`
     } else {
       return `Expression: ${link}${title}`
