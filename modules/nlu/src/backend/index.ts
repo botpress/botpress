@@ -27,17 +27,19 @@ const onServerReady = async (bp: typeof sdk) => {
   app = await bootStrap(bp)
   await registerMiddlewares(bp, app)
 
-  if (!app) {
-    throw new AppNotInitializedError()
+  if (app) {
+    await registerRouter(bp, app)
+    await app.resumeTrainings()
+  } else {
+    return bp.logger.warn('NLU module is not initialized')
   }
-  await registerRouter(bp, app)
-  await app.resumeTrainings()
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
   if (!app) {
-    throw new AppNotInitializedError()
+    return bp.logger.warn('NLU module is not initialized')
   }
+
   const botConfig = await bp.bots.getBotById(botId)
   if (!botConfig) {
     throw new Error(`No config found for bot ${botId}`)
@@ -47,9 +49,13 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
 
 const onBotUnmount = async (bp: typeof sdk, botId: string) => {
   if (!app) {
-    throw new AppNotInitializedError()
+    return bp.logger.warn(`Bot ${botId} is not mounted`)
   }
-  return app.unmountBot(botId)
+  try {
+    await app.unmountBot(botId)
+  } catch (err) {
+    bp.logger.warn(`Error while unloading bot ${botId}: ${err}`)
+  }
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {

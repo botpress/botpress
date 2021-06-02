@@ -1,4 +1,4 @@
-import { clickOn, fillField, expectMatchElement } from '../expectPuppeteer'
+import { clickOn, fillField, expectMatchElement, expectMatch } from '../expectPuppeteer'
 import {
   clickOnTreeNode,
   CONFIRM_DIALOG,
@@ -31,6 +31,23 @@ describe('Studio - Flows', () => {
     await page.mouse.click(500, 150, { button: 'right' })
     await page.waitForSelector('li > .bp3-menu-item > .bp3-text-overflow-ellipsis')
     await page.click('li > .bp3-menu-item > .bp3-text-overflow-ellipsis', { button: 'left' })
+  })
+
+  it('Rename Node', async () => {
+    await fillField('.bp3-heading + div > div > input', 'node-test')
+  })
+
+  it('Copy Node', async () => {
+    await page.mouse.click(550, 200)
+    page.keyboard.press('Control')
+    page.keyboard.press('c')
+    await expectMatch('Copied to buffer')
+  })
+
+  it('Paste Node', async () => {
+    page.keyboard.press('Control')
+    page.keyboard.press('v')
+    await expectMatch('node-test-copy')
   })
 
   it('Open node properties', async () => {

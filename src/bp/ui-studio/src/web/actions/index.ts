@@ -171,7 +171,9 @@ export const duplicateFlow: (flow: { flowNameToDuplicate: string; name: string }
 
 type AllPartialNode = (Partial<sdk.FlowNode> | Partial<sdk.TriggerNode> | Partial<sdk.ListenNode>) & Partial<FlowPoint>
 
-export const updateFlowNode: (props: AllPartialNode) => void = wrapAction(requestUpdateFlowNode, updateCurrentFlow)
+export const updateFlowNode: (
+  props: AllPartialNode | (AllPartialNode & Pick<Required<sdk.FlowNode>, 'id'>)[]
+) => void = wrapAction(requestUpdateFlowNode, updateCurrentFlow)
 
 export const createFlowNode: (props: AllPartialNode) => void = wrapAction(requestCreateFlowNode, updateCurrentFlow)
 
@@ -189,13 +191,14 @@ export const removeFlowNode: (element: any) => void = wrapAction(requestRemoveFl
   }
 })
 
-export const pasteFlowNode: ({ x, y }) => void = wrapAction(requestPasteFlowNode, async (payload, state) => {
+export const pasteFlowNode: ({ x, y }) => void = wrapAction(requestPasteFlowNode, async (payload, state, dispatch) => {
   await updateCurrentFlow(payload, state)
+  dispatch(refreshFlowsLinks())
 
-  const node = state.flows.nodeInBuffer
-
-  if (node.type === 'trigger' && window.USE_ONEFLOW) {
-    await onTriggerEvent('create', node.conditions, state)
+  for (const node of state.flows.buffer.nodes || []) {
+    if (node.type === 'trigger' && window.USE_ONEFLOW) {
+      await onTriggerEvent('create', node.conditions, state)
+    }
   }
 })
 export const pasteFlowNodeElement = wrapAction(requestPasteFlowNodeElement, updateCurrentFlow)
@@ -210,7 +213,7 @@ export const handleRefreshFlowLinks = createAction('FLOWS/FLOW/UPDATE_LINKS')
 export const refreshFlowsLinks = debounceAction(handleRefreshFlowLinks, 500, { leading: true })
 export const updateFlowProblems: (problems: NodeProblem[]) => void = createAction('FLOWS/FLOW/UPDATE_PROBLEMS')
 
-export const copyFlowNode: () => void = createAction('FLOWS/NODE/COPY')
+export const copyFlowNodes: (nodeIds: string[]) => void = createAction('FLOWS/NODE/COPY')
 export const copyFlowNodeElement = createAction('FLOWS/NODE_ELEMENT/COPY')
 
 export const handleFlowEditorUndo = createAction('FLOWS/EDITOR/UNDO')
@@ -257,18 +260,22 @@ const getBatchedContentItems = ids =>
 
 const getBatchedContentRunner = BatchRunner(getBatchedContentItems)
 
-const getBatchedContentItem = id => getBatchedContentRunner.add(id)
+const getBatchedContentItem = (id, dispatch) => getBatchedContentRunner.add(id, dispatch)
 
 const getSingleContentItem = id => axios.get(`${window.STUDIO_API_PATH}/cms/element/${id}`).then(({ data }) => data)
 
+export const receiveContentItemsBatched = createAction('CONTENT/ITEMS/RECEIVE_BATCHED')
 export const receiveContentItem = createAction('CONTENT/ITEMS/RECEIVE_ONE')
 export const fetchContentItem = (id: string, { force = false, batched = false } = {}) => (dispatch, getState) => {
   if (!id || (!force && getState().content.itemsById[id])) {
     return Promise.resolve()
   }
-  return (batched ? getBatchedContentItem(id) : getSingleContentItem(id)).then(
-    data => data && dispatch(receiveContentItem(data))
-  )
+
+  return batched
+    ? getBatchedContentItem(id, dispatch)
+    : getSingleContentItem(id).then(data => {
+        data && dispatch(receiveContentItem(data))
+      })
 }
 
 export const receiveContentItemsCount = createAction('CONTENT/ITEMS/RECEIVE_COUNT')
