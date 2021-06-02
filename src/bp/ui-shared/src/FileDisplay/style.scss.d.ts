@@ -5,6 +5,9 @@ interface CssExports {
   'audioWrapperActions': string;
   'audioWrapperSource': string;
   'deleteFile': string;
+  'fileWrapper': string;
+  'fileWrapperActions': string;
+  'fileWrapperFile': string;
   'imageWrapper': string;
   'imageWrapperActions': string;
   'videoWrapper': string;

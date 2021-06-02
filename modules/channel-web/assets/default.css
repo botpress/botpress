@@ -401,7 +401,6 @@ body {
 }
 
 .bpw-bubble-file a {
-  display: block;
   cursor: pointer;
   border-top-left-radius: inherit;
   border-top-right-radius: inherit;
