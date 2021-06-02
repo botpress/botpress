@@ -123,14 +123,26 @@ Navigate to the code editor by going into any of your bots and add a new entry w
 
 ## Step 4: Enable the strategy in Botpress
 
-Under the `pro` settings in the _botpress.config.json_ file, add your strategy name to the `collaboratorsAuthStrategies` array.
+Under the `pro` settings in the _botpress.config.json_ file (should be around line 143), add your strategy name to the `collaboratorsAuthStrategies` array.
 
-![Enable strategy](../assets/oauth/az_5_enable_strategy.png)
+```json
+"pro": {
+	"collaboratorsAuthStrategies": [
+	"default",
+	"<Your strategy name>"
+	],
+...
+```
 
 Also make sure that the `externalAuth` object has `enabled` set to `true`:
 
-![Enable external auth](../assets/oauth/az_5_enable_external_auth.png)
-
+```json
+"externalAuth": {
+	"enabled": true,
+	"algorithms": [
+	"HS256"
+	],
+...
 ## Step 5: Restart the Botpress server
 
 A red cogwheel should appear in the bottom right of the Botpress UI; click it to restart the server.
