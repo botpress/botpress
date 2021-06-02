@@ -66,11 +66,11 @@ Sometimes your chatbot needs to "delegate" questions or tasks to other bots. We 
 
 The code in this sample is available in the [examples](https://github.com/botpress/botpress/tree/master/examples/interbot) directory of our GitHub repository (update `workspaces.json` with the three chatbots if you copied them).
 
-![Example](assets/tutorials_interbot-example.png)
+![Example](../assets/tutorials_interbot-example.png)
 
 ### Structure
 
-![Diagram](assets/tutorials_interbot-diagram.png)
+![Diagram](../assets/tutorials_interbot-diagram.png)
 
 ### Step 1 – Creating the chatbots
 You will need to create three chatbots: one "master" chatbot (the one that will delegate questions to other bots) and two "slave" chatbots (the ones who get asked questions by the master).
@@ -95,7 +95,7 @@ Next, create a flow that makes use of that action. For the sake of simplicity, t
 
 In the `main.flow.json` flow of your master bot, recreate the structure below.
 
-![Flow](assets/tutorials_interbot-flow.png)
+![Flow](../assets/tutorials_interbot-flow.png)
 
 The content of the text element is the following:
 
