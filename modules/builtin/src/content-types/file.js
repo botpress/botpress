@@ -17,7 +17,7 @@ function render(data) {
     {
       type: 'file',
       title: data.title,
-      url: utils.formatURL(data.BOT_URL, data.image),
+      url: utils.formatURL(data.BOT_URL, data.file),
       collectFeedback: data.collectFeedback
     }
   ]
@@ -25,33 +25,33 @@ function render(data) {
 
 function renderElement(data, channel) {
   // These channels now use channel renderers
-  if (['telegram', 'twilio', 'slack', 'smooch', 'vonage', 'teams', 'messenger'].includes(channel)) {
-    return utils.extractPayload('image', data)
+  if (['telegram', 'twilio', 'slack', 'vonage'].includes(channel)) {
+    return utils.extractPayload('file', data)
   }
 
   return render(data)
 }
 
 module.exports = {
-  id: 'builtin_image',
+  id: 'builtin_file',
   group: 'Built-in Messages',
-  title: 'image',
+  title: 'module.builtin.types.file.title',
 
   jsonSchema: {
-    description: 'module.builtin.types.image.description',
+    description: 'module.builtin.types.file.description',
     type: 'object',
-    required: ['image'],
+    $subtype: 'file',
+    required: ['file'],
     properties: {
-      image: {
+      file: {
         type: 'string',
-        $subtype: 'image',
-        $filter: '.jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*',
-        title: 'module.builtin.types.image.title'
+        $subtype: 'file',
+        $filter: '.pdf',
+        title: 'module.builtin.types.file.title'
       },
       title: {
         type: 'string',
-        title: 'module.builtin.types.image.imageLabel',
-        description: 'module.builtin.types.image.labelDesc'
+        title: 'module.builtin.types.file.fileLabel'
       },
       ...base.typingIndicators
     }
@@ -64,16 +64,16 @@ module.exports = {
   },
 
   computePreviewText: formData => {
-    if (!formData.image) {
+    if (!formData.file) {
       return
     }
 
-    const link = utils.formatURL(formData.BOT_URL, formData.image)
+    const link = utils.formatURL(formData.BOT_URL, formData.file)
     const title = formData.title ? ' | ' + formData.title : ''
 
     if (utils.isUrl(link)) {
-      const fileName = utils.extractFileName(formData.image)
-      return `Image: [![${formData.title || ''}](<${link}>)](<${link}>) - (${fileName}) ${title}`
+      const fileName = utils.extractFileName(formData.file)
+      return `File: (${fileName}) ${title}`
     } else {
       return `Expression: ${link}${title}`
     }

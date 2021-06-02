@@ -8,6 +8,7 @@ import { FileDisplayProps } from './typings'
 const FileDisplay: FC<FileDisplayProps> = props => {
   const { url, type, deletable, onDelete } = props
 
+  const filename = url.substring(url.lastIndexOf('/') + 1)
   const mimeType = mime.lookup(url) || undefined
 
   const deletableFile = () => (
@@ -41,6 +42,15 @@ const FileDisplay: FC<FileDisplayProps> = props => {
             <source src={url} type={mimeType} />
             Your browser does not support the video element.
           </video>
+        </div>
+      )
+    case 'file':
+      return (
+        <div className={style.fileWrapper}>
+          <div className={style.fileWrapperActions}>{deletable && deletableFile()}</div>
+          <a href={url} target="_blank" className={style.fileWrapperFile}>
+            {filename}
+          </a>
         </div>
       )
     default:

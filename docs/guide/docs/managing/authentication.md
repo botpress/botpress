@@ -167,8 +167,8 @@ Here is a complete example
   "strategy": "saml",
   "options": {
     "entryPoint": "https://botpress-saml-idp.auth0.com/somestuff/bla",
-    "callbackUrl": "http://localhost:3000/admin/login-callback",
-    "path": "/login-callback",
+    "callbackUrl": "http://botpress.yourdomain.net/api/v1/auth/login-callback/saml/saml",
+    "path": "http://botpress.yourdomain.net/api/v1/auth/login-callback/saml/saml",
     "issuer": "botpress-saml",
     "cert": "MIIDETCCAfmgAwIBAgIJIHQ75dJxjRuEMA0GCSqGSIb3DQEBCwUAMCYxJDAiBgNVBAMTG2JvdHByZXNzLXNhbWwtaWRwLmF1dGgwLmNvbTAeFw0xOTAxMTUxNTAzMDFaFw0zMjA5MjMxNTAzMDFaMCYxJDAiBgNVBAMTG2JvdHByZXNzLXNhbWwtaWRwLmF1dGgwLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMUHXzCG3c4iSyU1N1Nzu8LsEIQ8tj5SHG+VtHrhWyfdckq5nP2wy/u6Tt20pdOx+4zu1718x2xVPMwFN9M2uUSJaY6vIXfHofKyn1htuYYzOklLZmnrLX4Pm7YHE2SubAsuwg6e7/sgIZ06T",
     "acceptedClockSkewMs": 5000

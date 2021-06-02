@@ -88,7 +88,7 @@ export class FlowService {
   private _listenForCacheInvalidation() {
     this.cache.events.on('invalidation', async key => {
       try {
-        const matches = key.match(/^([A-Z0-9-_]+)::data\/bots\/([A-Z0-9-_]+)\/flows\/([\s\S]+(flow|ui)\.json)/i)
+        const matches = key.match(/^([A-Z0-9-_]+)::data\/bots\/([A-Z0-9-_]+)\/flows\/([\s\S]+(flow)\.json)/i)
 
         if (matches && matches.length >= 2) {
           const [key, type, botId, flowName] = matches
