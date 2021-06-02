@@ -4,7 +4,7 @@ import _ from 'lodash'
 
 const migration: Migration = {
   info: {
-    description: 'Adds video and audio content types to bot configs',
+    description: 'Adds file and location content types to bot configs',
     target: 'bot',
     type: 'config'
   },
@@ -12,16 +12,14 @@ const migration: Migration = {
     let hasChanges = false
 
     const updateBotContentTypes = async (botId: string, botConfig: sdk.BotConfig) => {
-      const newTypes = ['builtin_video', 'builtin_audio']
+      const newTypes = ['builtin_file', 'builtin_location']
       const { contentTypes } = botConfig.imports
 
-      // Fix for the previous migration which was removed
-      const hasInvalidEntry = !!contentTypes.find(x => typeof x !== 'string')
       const hasMissingTypes = !newTypes.every(type => contentTypes.find(x => x === type))
 
-      if (hasInvalidEntry || hasMissingTypes) {
+      if (hasMissingTypes) {
         hasChanges = true
-        botConfig.imports.contentTypes = _.uniq([...contentTypes.filter(x => typeof x === 'string'), ...newTypes])
+        botConfig.imports.contentTypes = _.uniq([...contentTypes, ...newTypes])
 
         await configProvider.setBotConfig(botId, botConfig)
       }
