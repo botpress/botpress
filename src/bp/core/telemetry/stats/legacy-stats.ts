@@ -34,7 +34,6 @@ export class LegacyStats extends TelemetryStats {
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.UserRepository) private userRepository: ChannelUserRepository,
-    @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService
   ) {
     super(ghostService, database, licenseService, jobService, telemetryRepo)

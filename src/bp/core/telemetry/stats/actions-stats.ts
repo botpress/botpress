@@ -43,8 +43,7 @@ export class ActionsStats extends TelemetryStats {
     @inject(TYPES.LicensingService) licenseService: LicensingService,
     @inject(TYPES.JobService) jobService: JobService,
     @inject(TYPES.TelemetryRepository) telemetryRepo: TelemetryRepository,
-    @inject(TYPES.FlowService) private flowService: FlowService,
-    @inject(TYPES.BotService) private botService: BotService
+    @inject(TYPES.FlowService) private flowService: FlowService
   ) {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
     this.url = process.TELEMETRY_URL
