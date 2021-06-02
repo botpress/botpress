@@ -146,7 +146,7 @@ export const useFile = async (toolName: string, version: string, common: CommonA
   const destPath = path.resolve(common.output, 'bin', common.platform === 'win32' ? `${toolName}.exe` : toolName)
 
   if (await fse.pathExists(destPath)) {
-    logger.info('Removing existing binary...')
+    logger.info(`Removing existing binary at ${destPath}...`)
     await fse.unlink(destPath)
   }
 
