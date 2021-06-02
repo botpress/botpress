@@ -217,7 +217,7 @@ export interface BotpressConfig {
         title?: string
         /**
          * Replace the default favicon
-         * @example "assets/ui-studio/public/img/favicon.png"
+         * @example "assets/studio/ui/public/img/favicon.png"
          */
         favicon?: string
         /**

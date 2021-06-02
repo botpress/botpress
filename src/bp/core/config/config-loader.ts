@@ -248,7 +248,7 @@ export class ConfigProvider {
       },
       studio: {
         title: 'Botpress Studio',
-        favicon: 'assets/ui-studio/public/img/favicon.png',
+        favicon: 'assets/studio/ui/public/img/favicon.png',
         customCss: ''
       }
     }

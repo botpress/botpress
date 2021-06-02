@@ -1,11 +1,11 @@
 import React from 'react'
 import moment from 'moment'
+import { ModuleUI } from 'botpress/shared'
 
 import { MessageViewer } from './MessageViewer'
 import { ConversationPicker } from './ConversationPicker'
 
-import { Container, SidePanel } from 'botpress/ui'
-
+const { Container, SidePanel } = ModuleUI
 const CONV_PARAM_NAME = 'conversation'
 
 export default class FullView extends React.Component {

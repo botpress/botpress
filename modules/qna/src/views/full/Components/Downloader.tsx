@@ -1,7 +1,15 @@
 import axios, { Method } from 'axios'
 import React, { FC, useEffect, useRef, useState } from 'react'
 
-import { DownloaderProps } from './typings'
+// Copied as-is from the studio
+export interface DownloaderProps {
+  /** When the URL is set, the backend is called and the download is started. */
+  url: string
+  /** If the filename is not set, it will be extracted from headers */
+  filename?: string
+  /** Trigger an action after the download is done */
+  onDownloadCompleted?: () => void
+}
 
 export const Downloader: FC<DownloaderProps> = props => {
   const downloadLink = useRef(null)

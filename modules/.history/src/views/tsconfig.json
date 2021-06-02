@@ -9,7 +9,6 @@
     "typeRoots": ["../../node_modules/@types"],
     "baseUrl": "./",
     "paths": {
-      "botpress/ui": ["../../../../src/bp/ui-studio/src/web/components/Shared/Interface/typings.d.ts"],
       "botpress/sdk": ["../botpress.d.ts"]
     }
   }

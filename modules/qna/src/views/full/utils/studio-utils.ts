@@ -1,8 +1,4 @@
-export { default as ElementPreview } from './ElementPreview'
-export { toastSuccess, toastFailure, toastInfo, Timeout } from './Toaster'
-export { Downloader } from './Downloader'
-export { default as AccessControl, isOperationAllowed } from './AccessControl'
-
+// Copied from studio, eventually the qna module will be merged in the studio
 export const reorderFlows = flows =>
   [
     flows.find(x => getName(x) === 'main'),
