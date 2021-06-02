@@ -31,9 +31,69 @@ Alternatively, you can also start it from the terminal using the command:
 ```
 The first time you run Botpress, the built-in modules take some time to install. Thereafter, subsequent runs will be much faster.
 
-Once the modules are installed and loaded, you should see something similar to the screenshot below.
+Once the modules are installed and loaded, you should end up with something similar to the console log below:
 
-![First Run](assets/server-start.png)
+```bash
+User@DESKTOP-T1ORLFU MINGW64 /c/BotpressBinary/botpress-v12_22_0-win-x64
+$ ./bp
+06/02/2021 07:24:26.522 Launcher ========================================
+                                             Botpress Server
+                                             Version 12.22.0
+                                                 OS win32
+                                 ========================================
+06/02/2021 07:24:26.524 Launcher App Data Dir: "C:\Users\botpress"
+06/02/2021 07:24:26.528 Launcher Using 10 modules
+                        ⦿ analytics
+                        ⦿ basic-skills
+                        ⦿ builtin
+                        ⦿ channel-web
+                        ⦿ code-editor
+                        ⦿ examples
+                        ⦿ extensions
+                        ⦿ nlu
+                        ⦿ qna
+                        ⦿ testing
+                        ⊝ bot-improvement (disabled)
+                        ⊝ broadcast (disabled)
+                        ⊝ channel-messenger (disabled)
+                        ⊝ channel-slack (disabled)
+                        ⊝ channel-smooch (disabled)
+                        ⊝ channel-teams (disabled)
+                        ⊝ channel-telegram (disabled)
+                        ⊝ channel-twilio (disabled)
+                        ⊝ channel-vonage (disabled)
+                        ⊝ google-speech (disabled)
+                        ⊝ hitl (disabled)
+                        ⊝ hitlnext (disabled)
+                        ⊝ libraries (disabled)
+                        ⊝ misunderstood (disabled)
+                        ⊝ ndu (disabled)
+                        ⊝ nlu-testing (disabled)
+                        ⊝ uipath (disabled)
+06/02/2021 07:24:26.529 Server Running in DEVELOPMENT MODE
+06/02/2021 07:24:27.047 Server Loaded 10 modules
+06/02/2021 07:24:27.299 CMS Loaded 10 content types
+06/02/2021 07:24:27.303 Server Botpress Pro must be enabled to use a custom theme and customize the branding.
+06/02/2021 07:24:27.859 HTTP External URL is not configured. Using default value of http://localhost:3000. Some features may not work properly
+06/02/2021 07:24:27.869 Server Discovered 0 bots
+06/02/2021 07:24:27.870 Server Local Action Server will only run in experimental mode
+06/02/2021 07:24:27.927 Server Started in 1398ms
+06/02/2021 07:24:27.928 Launcher Botpress is listening at: http://localhost:3000
+06/02/2021 07:24:27.928 Launcher Botpress is exposed at: http://localhost:3000
+06/02/2021 07:24:29.761 launcher ========================================
+                                               Botpress Standalone NLU
+                                                    Version 0.0.2
+                                 ========================================
+06/02/2021 07:24:29.762 launcher Loading config from environment variables
+06/02/2021 07:24:29.763 launcher authToken: enabled (only users with this token can query your server)
+06/02/2021 07:24:29.763 launcher limit: disabled (no protection - anyone can query without limitation)
+06/02/2021 07:24:29.763 launcher duckling: enabled url=http://localhost:8000
+06/02/2021 07:24:29.764 launcher lang server: url=http://localhost:3100
+06/02/2021 07:24:29.764 launcher body size: allowing HTTP resquests body of size 2mb
+06/02/2021 07:24:29.764 launcher models stored at "C:\BotpressBinary\botpress-v12_22_0-win-x64"
+06/02/2021 07:24:29.764 launcher batch size: allowing up to 1 predictions in one call to POST /predict
+06/02/2021 07:24:29.912 launcher NLU Server is ready at http://localhost:3200/
+```
 
 ### Commands
 
