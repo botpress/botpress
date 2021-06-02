@@ -260,18 +260,22 @@ const getBatchedContentItems = ids =>
 
 const getBatchedContentRunner = BatchRunner(getBatchedContentItems)
 
-const getBatchedContentItem = id => getBatchedContentRunner.add(id)
+const getBatchedContentItem = (id, dispatch) => getBatchedContentRunner.add(id, dispatch)
 
 const getSingleContentItem = id => axios.get(`${window.STUDIO_API_PATH}/cms/element/${id}`).then(({ data }) => data)
 
+export const receiveContentItemsBatched = createAction('CONTENT/ITEMS/RECEIVE_BATCHED')
 export const receiveContentItem = createAction('CONTENT/ITEMS/RECEIVE_ONE')
 export const fetchContentItem = (id: string, { force = false, batched = false } = {}) => (dispatch, getState) => {
   if (!id || (!force && getState().content.itemsById[id])) {
     return Promise.resolve()
   }
-  return (batched ? getBatchedContentItem(id) : getSingleContentItem(id)).then(
-    data => data && dispatch(receiveContentItem(data))
-  )
+
+  return batched
+    ? getBatchedContentItem(id, dispatch)
+    : getSingleContentItem(id).then(data => {
+        data && dispatch(receiveContentItem(data))
+      })
 }
 
 export const receiveContentItemsCount = createAction('CONTENT/ITEMS/RECEIVE_COUNT')
