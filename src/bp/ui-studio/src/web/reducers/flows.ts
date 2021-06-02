@@ -636,15 +636,38 @@ reducer = reduceReducers(
       },
 
       [requestUpdateFlowNode]: (state, { payload }) => {
+        payload = Array.isArray(payload) ? payload : [{ ...payload, id: payload.id ?? state.currentFlowNode }]
         const currentFlow = state.flowsByName[state.currentFlow]
-        const currentNode = _.find(state.flowsByName[state.currentFlow].nodes, { id: state.currentFlowNode })
-        const needsUpdate = name => name === (currentNode || {}).name && payload.name
+        const nodesToUpdate = payload
+          .map(node =>
+            _.find(currentFlow.nodes, {
+              id: node.id
+            })
+          )
+          .filter(Boolean)
+
+        if (nodesToUpdate.length === 0) {
+          return state
+        }
+
+        // Find the replacement name, if there is any
+        const findNewName = name => {
+          const nodeToUpdate = _.find(nodesToUpdate, {
+            name
+          })
+          return (
+            nodeToUpdate &&
+            _.find(payload, {
+              id: nodeToUpdate.id
+            }).name
+          )
+        }
 
         const updateNodeName = elements =>
           elements.map(element => {
             return {
               ...element,
-              node: needsUpdate(element.node) ? payload.name : element.node
+              node: findNewName(element.node) ?? element.node
             }
           })
 
@@ -654,16 +677,24 @@ reducer = reduceReducers(
             ...state.flowsByName,
             [state.currentFlow]: {
               ...currentFlow,
-              startNode: needsUpdate(currentFlow.startNode) ? payload.name : currentFlow.startNode,
+              startNode: findNewName(currentFlow.startNode) ?? currentFlow.startNode,
               nodes: currentFlow.nodes.map(node => {
-                if (node.id !== state.currentFlowNode) {
+                if (!_.find(nodesToUpdate, { id: node.id })) {
                   return {
                     ...node,
                     next: node.next && updateNodeName(node.next)
                   }
                 }
 
-                return { ...node, ...payload, lastModified: new Date() }
+                const nodeToUpdatePayload = _.find(payload, {
+                  id: node.id
+                })
+                return {
+                  ...node,
+                  ...nodeToUpdatePayload,
+                  next: nodeToUpdatePayload.next || (node.next && updateNodeName(node.next)),
+                  lastModified: new Date()
+                }
               }),
               catchAll: {
                 ...currentFlow.catchAll,
