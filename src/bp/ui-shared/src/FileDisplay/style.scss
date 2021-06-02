@@ -70,3 +70,20 @@
     background-color: rgba(30, 30, 30, 0.5);
   }
 }
+
+.fileWrapper {
+  position: relative;
+  height: 50px;
+
+  &Actions {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+  }
+
+  &File {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+  }
+}
