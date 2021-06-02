@@ -14,7 +14,7 @@ Let's authenticate a user against a 3rd party authentication system to act on it
 The code for this example is available in the [examples](https://github.com/botpress/botpress/tree/master/examples/chat-3rd-party-OAuth) directory of our GitHub repository.
 
 ### Module Registration
-Botpress modules provide a simple yet powerful way to extend your bot capabilities without altering the core features. For our use case, our module's main functionality is to offer an API so we can perform the steps to authenticate the user to Twitter. No UI, no middlewares, only an API, and some configs are required. First off, create a `src` directory with two subdirectories, `backend` and `views`. Then, go ahead and write a simple module entry point (backend/index.ts).
+Botpress modules provide a simple yet powerful way to extend your chatbot capabilities without altering the core features. For our use case, our module's main functionality is to offer an API so we can perform the steps to authenticate the user to Twitter. No UI, no middlewares, only an API, and some configs are required. First off, create a `src` directory with two subdirectories, `backend` and `views`. Then, go ahead and write a simple module entry point (backend/index.ts).
 
 ```ts
 import * as sdk from 'botpress/sdk'
@@ -52,9 +52,9 @@ Now that we have the shell of our module setup, we need to activate it in our `b
 
 ### Module Implementation
 
-Now that we have a working module let's get into the implementation. For simplicity, we will use Passport.js along with a Twitter Strategy to implement the OAuth flow. Go ahead and install those dependencies. 
+Now that we have a working module, let's get into the implementation. For simplicity, we will use Passport.js along with a Twitter Strategy to implement the OAuth flow. Go ahead and install those dependencies. 
 
-Once done, we need to add our Twitter App API keys so that our bot can properly authenticate the user to Twitter. We achieve this by creating a module config file for each bot. Add the following file in the config directory of desired bots:
+Once done, we need to add our Twitter App API keys so that our chatbot can properly authenticate the user to Twitter. We achieve this by creating a module config file for each bot. Add the following file in the config directory of desired chatbots:
 
 ```js
 // bots/yourbot/config/twitter-auth.json
@@ -96,7 +96,7 @@ const onBotMount = async (bp: typeof sdk, botId) => {
 
 If you try to run Botpress at this point, you will have an error because the Passport Twitter Strategy requires a disabled server session by default. Enable it in your `botpress.config.json` file by setting `httpServer.session.enabled` to `true`. Restart the server; Botpress should be running properly. 
 
-Now we need to point Twitter to a callback URL so it can provide the authentication values. Let's implement that callback url for our bot using `createRouterForBot`, available from the Botpress HTTP SDK. This function allows us to define a custom module router for a specific bot. We will define our router in the `onServerReady` function of our module entry point.
+Now we need to point Twitter to a callback URL so it can provide the authentication values. Let's implement that callback url for our chatbot using `createRouterForBot`, available from the Botpress HTTP SDK. This function allows us to define a custom module router for a specific bot. We will define our router in the `onServerReady` function of our module entry point.
 
 ```ts
 const onServerReady = async (bp: typeof sdk) => {
@@ -107,7 +107,7 @@ const onServerReady = async (bp: typeof sdk) => {
       if (err) {
         /*
           Twitter authentication error
-          Your Error handling code goes here
+          Your Error handling code goes here.
          */
         res.redirect('/')
       }
@@ -119,7 +119,7 @@ const onServerReady = async (bp: typeof sdk) => {
       } catch (err) {
         /*
           Update user attributes error
-          Your Error handling code goes here
+          Your Error handling code goes here.
          */
         res.redirect('/CUSTOM_AUTH_ERROR_ROUTE')
       }
@@ -128,7 +128,7 @@ const onServerReady = async (bp: typeof sdk) => {
 }
 ```
 
-Now we need to find a way to send the user to Twitter Authentication. We will define a route in our router in which we call passport.js to initiate the authentication flow. The following route in a custom router does the trick.
+Now we need to find a way to send the user to Twitter Authentication. We will define a route in our router that we call passport.js to initiate the authentication flow. The following route in a custom router does the trick.
 
 ```ts
 router.get('/auth', async (req: ReqWithSession, res) => {
@@ -137,16 +137,17 @@ router.get('/auth', async (req: ReqWithSession, res) => {
 
   passport.authenticate('twitter')(req, res)
 })
-```
-h?channel=${chanelId}&userId=${userId}`. Notice that we pass `channel` & `userId` as query parameters to set them in the user's session. Botpress will use these parameters to find the user when Twitter calls our callback route.
-That's it; you can now use read Twitter Authentication properties in the users' attributes. Depending on your business logic, when you need to authenticate a user to Twitter, you only have to check if the `twitter` property is set in the user's attributes. If the user has not yet set this property, suggest to your user to authenticate to Twitter. You could achieve this by displaying a built-in card element with an `OpenUrl` action. Set your authentication route as the url value : `http://yourbot.host/api/v1/bots/${botId}/mod/twitter-auth/aut
+h?channel=${chanelId}&userId=${userId}
+``` 
+Notice that we pass `channel` & `userId` as query parameters to set them in the user's session. Botpress will use these parameters to find the user when Twitter calls our callback route.
+That's it; you can now use read Twitter Authentication properties in the users' attributes. Depending on your business logic, when you need to authenticate a user to Twitter, you only have to check if the user's attributes contain the `twitter` property. If the user has not yet set this property, suggest to your user to authenticate to Twitter. You could achieve this by displaying a built-in card element with an `OpenUrl` action. Set your authentication route as the url value : `http://yourbot.host/api/v1/bots/${botId}/mod/twitter-auth/aut
 
-> **Pro tip:** Define a [shortlink](/docs/tutorials/shortlinks) for your auth bot module route to make it easy to use in your flow or content.
+> **Pro tip:** Define a [shortlink](/docs/tutorials/shortlinks) for your auth chatbot module route to make it easy to use in your flow or content.
 
 ### Recap
 - We built a simple module with no interface from scratch that allows a Twitter OAuth flow in a chat session. 
 - You could (and should) extend this module for your own needs. 
 - The simplicity of this implementation shows that you can apply the same concepts to other Auth Providers. 
-- You could even combine different Authentication Providers to perform different actions on the authenticated user's behalf. For instance, book a Uber Ride and share it on Twitter (not that this is a useful use-case). 
-- A full code example is available on [GitHub](https://github.com/botpress/botpress/tree/master/examples/chat-3rd-party-OAuth).
+- You could even combine different Authentication Providers to perform various actions on the authenticated user's behalf. For instance, book a Uber Ride and share it on Twitter (not that this is a helpful use-case). 
+- A complete code example is available on [GitHub](https://github.com/botpress/botpress/tree/master/examples/chat-3rd-party-OAuth).
 
