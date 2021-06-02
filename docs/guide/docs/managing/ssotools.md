@@ -65,7 +65,6 @@ Under the `pro` settings in the _botpress.config.json_ file (should be around li
 	"default",
 	"<Your strategy name>"
 	],
-...
 ```
 
 Also make sure that the `externalAuth` object has `enabled` set to `true`:
@@ -76,7 +75,6 @@ Also make sure that the `externalAuth` object has `enabled` set to `true`:
 	"algorithms": [
 	"HS256"
 	],
-...
 ```
 ### Step 5: Restart the Botpress server
 
@@ -131,7 +129,6 @@ Under the `pro` settings in the _botpress.config.json_ file (should be around li
 	"default",
 	"<Your strategy name>"
 	],
-...
 ```
 
 Also make sure that the `externalAuth` object has `enabled` set to `true`:
@@ -142,7 +139,7 @@ Also make sure that the `externalAuth` object has `enabled` set to `true`:
 	"algorithms": [
 	"HS256"
 	],
-...
+```
 ## Step 5: Restart the Botpress server
 
 A red cogwheel should appear in the bottom right of the Botpress UI; click it to restart the server.
