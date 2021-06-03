@@ -22,6 +22,8 @@ While in the directory where you want to host your instance of Botpress, run the
 - yarn build
 - yarn start
 
+> If you are in a hurry and cannot wait for a, fix release, [clone the commit](coderwall.com/p/xyuoza/git-cloning-specific-commits) **(do not modify files one by one)**. 
+
 ## Ubuntu Systems 
 You might run into issues while trying to build and start botpress via yarn on Rasberry Pi OS x64 or other Ubuntu Systems. Its ARM Architecture means none of the pre-built binaries will work. On trying to run the command `yarn start`, you might run into an error like the one below:
 
