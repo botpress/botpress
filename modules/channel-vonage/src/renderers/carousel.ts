@@ -52,17 +52,21 @@ export class VonageCarouselRenderer implements ChannelRenderer<VonageContext> {
 
       if (image) {
         context.messages.push({
-          type: 'image',
-          text: undefined,
-          image: {
-            url: formatUrl(context.botUrl, image),
-            caption: body
+          content: {
+            type: 'image',
+            text: undefined,
+            image: {
+              url: formatUrl(context.botUrl, image),
+              caption: body
+            }
           }
         })
       } else {
         context.messages.push({
-          type: 'text',
-          text: body
+          content: {
+            type: 'text',
+            text: body
+          }
         })
       }
 

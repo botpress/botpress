@@ -60,7 +60,7 @@ const UploadWidget: FC<IUploadWidgetProps> = props => {
       <Fragment>
         {!enterUrlManually && (
           <FormFields.Upload
-            axios={axios.create({ baseURL: window.BOT_API_PATH })}
+            axios={axios.create({ baseURL: window.STUDIO_API_PATH })}
             onChange={onChange}
             value={value}
             type={subtype}

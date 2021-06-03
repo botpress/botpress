@@ -1,9 +1,11 @@
 import { Logger, ModuleEntryPoint } from 'botpress/sdk'
+import { ObjectCache } from 'common/object-cache'
 import { GhostService } from 'core/bpfs'
 import fs from 'fs'
 import defaultJsonBuilder from 'json-schema-defaults'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
+import LRU from 'lru-cache'
 import path from 'path'
 import { VError } from 'verror'
 import yn from 'yn'
@@ -23,14 +25,22 @@ export type ModuleConfig = Dic<any>
  */
 export class ConfigReader {
   private modules = new Map<string, ModuleEntryPoint>()
+  private moduleConfigCache: LRU<string, any>
 
-  constructor(private logger: Logger, modules: ModuleEntryPoint[], private ghost: GhostService) {
+  constructor(
+    private logger: Logger,
+    modules: ModuleEntryPoint[],
+    private ghost: GhostService,
+    private cache: ObjectCache
+  ) {
     for (const module of modules) {
       const name = _.get(module, 'definition.name', '').toLowerCase()
       if (name.length) {
         this.modules.set(name, module)
       }
     }
+    this.moduleConfigCache = new LRU()
+    this._listenForModuleConfigCacheInvalidation()
   }
 
   public async initialize() {
@@ -172,21 +182,39 @@ export class ConfigReader {
     return config
   }
 
-  @Memoize()
-  public async getGlobal(moduleId: string): Promise<ModuleConfig> {
-    return this.getMerged(moduleId)
+  private async getCachedOrFresh(key) {
+    if (this.moduleConfigCache.has(key)) {
+      return this.moduleConfigCache.get(key) || {}
+    }
+    const [moduleId, botId, ignoreGlobal] = key.split('//')
+    const config = await this.getMerged(moduleId, botId, yn(ignoreGlobal))
+    this.moduleConfigCache.set(key, config)
+    return config
   }
 
-  // Don't @Memoize() this fn. It only memoizes on the first argument
-  // https://github.com/steelsojka/lodash-decorators/blob/master/src/memoize.ts#L15
+  public async getGlobal(moduleId: string): Promise<ModuleConfig> {
+    return this.getCachedOrFresh(moduleId)
+  }
+
   public getForBot(moduleId: string, botId: string, ignoreGlobal?: boolean): Promise<ModuleConfig> {
     const cacheKey = `${moduleId}//${botId}//${!!ignoreGlobal}`
-    return this.getForBotMemoized(cacheKey)
+    return this.getCachedOrFresh(cacheKey)
   }
 
-  @Memoize()
-  public getForBotMemoized(cacheKey: string): Promise<ModuleConfig> {
-    const [moduleId, botId, ignoreGlobal] = cacheKey.split('//')
-    return this.getMerged(moduleId, botId, yn(ignoreGlobal))
+  private _listenForModuleConfigCacheInvalidation() {
+    this.cache.events.on('invalidation', key => {
+      try {
+        const moduleId = key.match(/^.*::data\/.*\/config\/([\s\S]+([a-zA-Z0-9-_])+\.json)/i)?.[1]?.replace('.json', '')
+
+        if (moduleId) {
+          this.moduleConfigCache
+            .keys()
+            .filter(x => x.startsWith(moduleId))
+            .forEach(x => this.moduleConfigCache.del(x))
+        }
+      } catch (err) {
+        this.logger.error('Error invalidating module config cache: ' + err.message)
+      }
+    })
   }
 }

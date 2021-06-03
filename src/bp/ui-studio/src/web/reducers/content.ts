@@ -4,6 +4,7 @@ import { handleActions } from 'redux-actions'
 import {
   receiveContentCategories,
   receiveContentItem,
+  receiveContentItemsBatched,
   receiveContentItems,
   receiveContentItemsCount,
   receiveLibrary,
@@ -33,6 +34,14 @@ export default handleActions(
       itemsById: {
         ...state.itemsById,
         [payload.id]: payload
+      }
+    }),
+
+    [receiveContentItemsBatched]: (state, { payload }) => ({
+      ...state,
+      itemsById: {
+        ...state.itemsById,
+        ...payload
       }
     }),
 

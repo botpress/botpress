@@ -56,8 +56,7 @@ export class SDKStats extends TelemetryStats {
     @inject(TYPES.Database) database: Database,
     @inject(TYPES.LicensingService) licenseService: LicensingService,
     @inject(TYPES.JobService) jobService: JobService,
-    @inject(TYPES.TelemetryRepository) telemetryRepo: TelemetryRepository,
-    @inject(TYPES.BotService) private botService: BotService
+    @inject(TYPES.TelemetryRepository) telemetryRepo: TelemetryRepository
   ) {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
     this.url = process.TELEMETRY_URL
@@ -74,7 +73,7 @@ export class SDKStats extends TelemetryStats {
   }
 
   private async getSDKUsage(): Promise<SDKUsageEvent> {
-    const bots = await this.botService.getBotsIds()
+    const bots = BotService.getMountedBots()
     return { actions: await this.getActionUsages(bots), hooks: await this.getHooksUsages() }
   }
 
@@ -117,7 +116,7 @@ export class SDKStats extends TelemetryStats {
       }
     }
 
-    const hooksPayload = await getHooksLifecycle(this.botService, this.ghostService, false)
+    const hooksPayload = await getHooksLifecycle(this.ghostService, false)
     const global = await this.parseHooks(hooksPayload.global.filter(hook => hook.type === 'custom'))
     const perBots = await Promise.reduce(hooksPayload.perBots, reducer, [] as ParsedFile[])
 

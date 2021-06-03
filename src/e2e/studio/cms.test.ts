@@ -1,7 +1,7 @@
 import path from 'path'
 
 import { clickOn, uploadFile } from '../expectPuppeteer'
-import { expectBotApiCallSuccess, gotoStudio, loginIfNeeded } from '../utils'
+import { expectBotApiCallSuccess, expectStudioApiCallSuccess, gotoStudio, loginIfNeeded } from '../utils'
 
 const getElementCount = async (all: boolean = false): Promise<number> => {
   if (all) {
@@ -22,29 +22,42 @@ describe('Studio - CMS', () => {
 
   it('Load CMS', async () => {
     await clickOn('#bp-menu_content')
-    await expectBotApiCallSuccess('content/elements', 'POST')
+    await expectStudioApiCallSuccess('cms/elements', 'POST')
   })
 
   it('Filter text elements', async () => {
     const before = await getElementCount()
 
     await clickOn('#btn-filter-builtin_text')
-    await expectBotApiCallSuccess('content/builtin_text/elements', 'POST')
+    await expectStudioApiCallSuccess('cms/builtin_text/elements', 'POST')
     const after = await getElementCount()
     expect(after).toBeLessThan(before)
   })
 
   it('Create an image element', async () => {
     const before = await getElementCount(true)
-    // await page.waitForSelector('#btn-filter-builtin_image')
     await page.hover('#btn-filter-builtin_image')
     await clickOn('#btn-list-create-builtin_image')
     await uploadFile('input[type="file"]', path.join(__dirname, '../assets/alien.png'))
-    await expectBotApiCallSuccess('media', 'POST')
+    await expectStudioApiCallSuccess('media', 'POST')
     await clickOn('.style__textarea___2P8hT')
     await page.keyboard.type('I am a martian')
     await clickOn('button[type="submit"]')
-    await expectBotApiCallSuccess('content/builtin_image/elements', 'POST')
+    await expectStudioApiCallSuccess('cms/builtin_image/elements', 'POST')
+    const after = await getElementCount(true)
+    expect(after).toBeGreaterThan(before)
+  })
+
+  it('Create a file element', async () => {
+    const before = await getElementCount(true)
+    await page.hover('#btn-filter-builtin_file')
+    await clickOn('#btn-list-create-builtin_file')
+    await uploadFile('input[type="file"]', path.join(__dirname, '../assets/README.pdf'))
+    await expectStudioApiCallSuccess('media', 'POST')
+    await clickOn('.style__textarea___2P8hT')
+    await page.keyboard.type('Botpress README')
+    await clickOn('button[type="submit"]')
+    await expectStudioApiCallSuccess('cms/builtin_file/elements', 'POST')
     const after = await getElementCount(true)
     expect(after).toBeGreaterThan(before)
   })
