@@ -32,12 +32,8 @@ export interface HookPayload {
   global: Hook[]
 }
 
-export const getHooksLifecycle = async (
-  botService: BotService,
-  ghostService: GhostService,
-  hashBotId: boolean
-): Promise<HookPayload> => {
-  const botIds = await botService.getBotsIds()
+export const getHooksLifecycle = async (ghostService: GhostService, hashBotId: boolean): Promise<HookPayload> => {
+  const botIds = BotService.getMountedBots()
   const perBots = await Promise.map(botIds, async id => {
     const botHooksPaths = await ghostService.forBot(id).directoryListing('/hooks', '*.js')
     const lifecycles = parsePaths(botHooksPaths)
@@ -80,8 +76,7 @@ export class HooksStats extends TelemetryStats {
     @inject(TYPES.Database) database: Database,
     @inject(TYPES.LicensingService) licenseService: LicensingService,
     @inject(TYPES.JobService) jobService: JobService,
-    @inject(TYPES.TelemetryRepository) telemetryRepo: TelemetryRepository,
-    @inject(TYPES.BotService) private botService: BotService
+    @inject(TYPES.TelemetryRepository) telemetryRepo: TelemetryRepository
   ) {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
     this.url = process.TELEMETRY_URL
@@ -95,7 +90,7 @@ export class HooksStats extends TelemetryStats {
       event_type: 'hooks_lifecycle',
       event_data: {
         schema: '1.0.0',
-        lifeCycles: _.omit(await getHooksLifecycle(this.botService, this.ghostService, true), 'path')
+        lifeCycles: _.omit(await getHooksLifecycle(this.ghostService, true), 'path')
       }
     }
   }

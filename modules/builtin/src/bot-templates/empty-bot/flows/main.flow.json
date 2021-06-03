@@ -9,7 +9,12 @@
     {
       "id": "entry",
       "name": "entry",
-      "next": [],
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
       "onEnter": [],
       "onReceive": null
     }

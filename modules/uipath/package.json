@@ -15,5 +15,9 @@
   },
   "dependencies": {
     "jsonwebtoken": "^8.5.1"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12",
+    "lodash": ">=4.17.21"
   }
 }

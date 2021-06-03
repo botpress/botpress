@@ -1,0 +1,54 @@
+{
+  "type": "object",
+  "properties": {
+    "primary": {
+      "description": "Specify the primary NLU engine that will be used by Botpress.\n\nNOTE: Botpress NLU always run and can't be disabled. If another NLU is specified as primary,\nit will run after Botpress and will overwrite the prediction results.",
+      "default": "'botpress-nlu'",
+      "enum": [
+        "botpress-nlu",
+        "dialogflow-nlu"
+      ],
+      "type": "string"
+    },
+    "dialogflow": {
+      "$ref": "#/definitions/DialogflowConfig",
+      "description": "Configuration of the Dialogflow NLU engine",
+      "default": null
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "primary"
+  ],
+  "definitions": {
+    "DialogflowConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "projectId": {
+          "type": "string"
+        },
+        "serviceAccountEmail": {
+          "type": "string"
+        },
+        "serviceAccountPrivateKey": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "projectId",
+        "serviceAccountEmail",
+        "serviceAccountPrivateKey"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
+

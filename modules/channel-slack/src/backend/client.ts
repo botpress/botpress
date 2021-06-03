@@ -17,7 +17,8 @@ import {
   SlackImageRenderer,
   SlackTextRenderer,
   SlackCardRenderer,
-  SlackFeedbackRenderer
+  SlackFeedbackRenderer,
+  SlackDropdownRenderer
 } from '../renderers'
 import { SlackCommonSender, SlackTypingSender } from '../senders'
 import { CHANNEL_NAME } from './constants'
@@ -55,6 +56,7 @@ export class SlackClient {
       new SlackTextRenderer(),
       new SlackImageRenderer(),
       new SlackCarouselRenderer(),
+      new SlackDropdownRenderer(),
       new SlackChoicesRenderer(),
       new SlackFeedbackRenderer()
     ]

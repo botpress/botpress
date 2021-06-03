@@ -37,6 +37,11 @@
       "videoLabel": "Title",
       "title": "Video"
     },
+    "file": {
+      "description": "A message showing some file with an optional title",
+      "fileLabel": "Title",
+      "title": "File"
+    },
     "singleChoice": {
       "choice": "Choice",
       "description": "Suggest choices to the user with the intention of picking only one (with an optional message)",
@@ -48,6 +53,14 @@
       "alternatives": "Alternates",
       "description": "A regular text message with optional typing indicators and alternates",
       "message": "Message"
+    },
+    "location": {
+      "title": "Location",
+      "description": "A message showing a location with an optional address and title",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "address": "Address",
+      "label": "Title"
     }
   },
   "typingIndicator": "Show typing indicators",

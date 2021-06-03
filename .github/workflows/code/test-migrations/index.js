@@ -23,7 +23,7 @@ const ensureDownMigration = async () => {
   }
 
   try {
-    const { data: files } = await octokit.pulls.listFiles(options)
+    const { data: files } = await octokit.rest.pulls.listFiles(options)
 
     for (const { filename } of files.filter(x => x.filename.includes('/migrations/'))) {
       const fileContent = fs.readFileSync(filename, 'UTF-8').toString()

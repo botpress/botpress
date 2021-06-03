@@ -75,7 +75,7 @@ export const fetchFlows = () => dispatch => {
 
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
   axios
-    .get(`${window.BOT_API_PATH}/flows`)
+    .get(`${window.STUDIO_API_PATH}/flows`)
     .then(({ data }) => {
       const flows = _.keyBy(data, 'name')
       dispatch(receiveFlows(flows))
@@ -171,7 +171,9 @@ export const duplicateFlow: (flow: { flowNameToDuplicate: string; name: string }
 
 type AllPartialNode = (Partial<sdk.FlowNode> | Partial<sdk.TriggerNode> | Partial<sdk.ListenNode>) & Partial<FlowPoint>
 
-export const updateFlowNode: (props: AllPartialNode) => void = wrapAction(requestUpdateFlowNode, updateCurrentFlow)
+export const updateFlowNode: (
+  props: AllPartialNode | (AllPartialNode & Pick<Required<sdk.FlowNode>, 'id'>)[]
+) => void = wrapAction(requestUpdateFlowNode, updateCurrentFlow)
 
 export const createFlowNode: (props: AllPartialNode) => void = wrapAction(requestCreateFlowNode, updateCurrentFlow)
 
@@ -189,13 +191,14 @@ export const removeFlowNode: (element: any) => void = wrapAction(requestRemoveFl
   }
 })
 
-export const pasteFlowNode: ({ x, y }) => void = wrapAction(requestPasteFlowNode, async (payload, state) => {
+export const pasteFlowNode: ({ x, y }) => void = wrapAction(requestPasteFlowNode, async (payload, state, dispatch) => {
   await updateCurrentFlow(payload, state)
+  dispatch(refreshFlowsLinks())
 
-  const node = state.flows.nodeInBuffer
-
-  if (node.type === 'trigger' && window.USE_ONEFLOW) {
-    await onTriggerEvent('create', node.conditions, state)
+  for (const node of state.flows.buffer.nodes || []) {
+    if (node.type === 'trigger' && window.USE_ONEFLOW) {
+      await onTriggerEvent('create', node.conditions, state)
+    }
   }
 })
 export const pasteFlowNodeElement = wrapAction(requestPasteFlowNodeElement, updateCurrentFlow)
@@ -210,7 +213,7 @@ export const handleRefreshFlowLinks = createAction('FLOWS/FLOW/UPDATE_LINKS')
 export const refreshFlowsLinks = debounceAction(handleRefreshFlowLinks, 500, { leading: true })
 export const updateFlowProblems: (problems: NodeProblem[]) => void = createAction('FLOWS/FLOW/UPDATE_PROBLEMS')
 
-export const copyFlowNode: () => void = createAction('FLOWS/NODE/COPY')
+export const copyFlowNodes: (nodeIds: string[]) => void = createAction('FLOWS/NODE/COPY')
 export const copyFlowNodeElement = createAction('FLOWS/NODE_ELEMENT/COPY')
 
 export const handleFlowEditorUndo = createAction('FLOWS/EDITOR/UNDO')
@@ -234,7 +237,7 @@ export const setDebuggerEvent = createAction('FLOWS/SET_DEBUGGER_EVENT')
 // Content
 export const receiveContentCategories = createAction('CONTENT/CATEGORIES/RECEIVE')
 export const fetchContentCategories = () => dispatch =>
-  axios.get(`${window.BOT_API_PATH}/content/types`).then(({ data }) => {
+  axios.get(`${window.STUDIO_API_PATH}/cms/types`).then(({ data }) => {
     dispatch(receiveContentCategories(data))
   })
 
@@ -243,12 +246,12 @@ export const fetchContentItems = ({ contentType, ...query }) => dispatch => {
   const type = contentType && contentType !== 'all' ? `${contentType}/` : ''
 
   return axios
-    .post(`${window.BOT_API_PATH}/content/${type}elements`, query)
+    .post(`${window.STUDIO_API_PATH}/cms/${type}elements`, query)
     .then(({ data }) => dispatch(receiveContentItems(data)))
 }
 
 const getBatchedContentItems = ids =>
-  axios.post(`${window.BOT_API_PATH}/content/elements`, { ids }).then(({ data }) =>
+  axios.post(`${window.STUDIO_API_PATH}/cms/elements`, { ids }).then(({ data }) =>
     data.reduce((acc, item, i) => {
       acc[ids[i]] = item
       return acc
@@ -257,31 +260,35 @@ const getBatchedContentItems = ids =>
 
 const getBatchedContentRunner = BatchRunner(getBatchedContentItems)
 
-const getBatchedContentItem = id => getBatchedContentRunner.add(id)
+const getBatchedContentItem = (id, dispatch) => getBatchedContentRunner.add(id, dispatch)
 
-const getSingleContentItem = id => axios.get(`${window.BOT_API_PATH}/content/element/${id}`).then(({ data }) => data)
+const getSingleContentItem = id => axios.get(`${window.STUDIO_API_PATH}/cms/element/${id}`).then(({ data }) => data)
 
+export const receiveContentItemsBatched = createAction('CONTENT/ITEMS/RECEIVE_BATCHED')
 export const receiveContentItem = createAction('CONTENT/ITEMS/RECEIVE_ONE')
 export const fetchContentItem = (id: string, { force = false, batched = false } = {}) => (dispatch, getState) => {
   if (!id || (!force && getState().content.itemsById[id])) {
     return Promise.resolve()
   }
-  return (batched ? getBatchedContentItem(id) : getSingleContentItem(id)).then(
-    data => data && dispatch(receiveContentItem(data))
-  )
+
+  return batched
+    ? getBatchedContentItem(id, dispatch)
+    : getSingleContentItem(id).then(data => {
+        data && dispatch(receiveContentItem(data))
+      })
 }
 
 export const receiveContentItemsCount = createAction('CONTENT/ITEMS/RECEIVE_COUNT')
 export const fetchContentItemsCount = (contentType = 'all') => dispatch =>
   axios
-    .get(`${window.BOT_API_PATH}/content/elements/count`, { params: { contentType } })
+    .get(`${window.STUDIO_API_PATH}/cms/elements/count`, { params: { contentType } })
     .then(data => dispatch(receiveContentItemsCount(data)))
 
 export const upsertContentItem = ({ contentType, formData, modifyId }) => () =>
-  axios.post(`${window.BOT_API_PATH}/content/${contentType}/element/${modifyId || ''}`, { formData })
+  axios.post(`${window.STUDIO_API_PATH}/cms/${contentType}/element/${modifyId || ''}`, { formData })
 
-export const deleteContentItems = data => () => axios.post(`${window.BOT_API_PATH}/content/elements/bulk_delete`, data)
-export const deleteMedia = data => () => axios.post(`${window.BOT_API_PATH}/media/delete`, data)
+export const deleteContentItems = data => () => axios.post(`${window.STUDIO_API_PATH}/cms/elements/bulk_delete`, data)
+export const deleteMedia = data => () => axios.post(`${window.STUDIO_API_PATH}/media/delete`, data)
 
 // UI
 export const viewModeChanged = createAction('UI/VIEW_MODE_CHANGED')
@@ -310,7 +317,7 @@ export const fetchUser = () => dispatch => {
 export const botInfoReceived = createAction('BOT/INFO_RECEIVED')
 export const fetchBotInformation = () => dispatch => {
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  axios.get(`${window.BOT_API_PATH}`).then(information => {
+  axios.get(`${window.STUDIO_API_PATH}/config`).then(information => {
     dispatch(botInfoReceived(information.data))
   })
 }
@@ -331,24 +338,6 @@ export const fetchSkills = () => dispatch => {
   axios.get(`${window.API_PATH}/modules/skills`).then(res => {
     dispatch(skillsReceived(res.data))
   })
-}
-
-// Notifications
-export const allNotificationsReceived = createAction('NOTIFICATIONS/ALL_RECEIVED')
-export const newNotificationsReceived = createAction('NOTIFICATIONS/NEW_RECEIVED')
-export const fetchNotifications = () => dispatch => {
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  axios.get(`${window.BOT_API_PATH}/notifications`).then(res => {
-    dispatch(allNotificationsReceived(res.data))
-  })
-}
-
-export const replaceNotifications = allNotifications => dispatch => {
-  dispatch(allNotificationsReceived(allNotifications))
-}
-
-export const addNotifications = notifications => dispatch => {
-  dispatch(newNotificationsReceived(notifications))
 }
 
 // Skills
@@ -406,7 +395,7 @@ export const changeContentLanguage = createAction('LANGUAGE/CONTENT_LANGUAGE', c
 export const hintsReceived = createAction('HINTS/RECEIVED')
 export const refreshHints = () => dispatch => {
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  axios.get(`${window.BOT_API_PATH}/hints`).then(res => {
+  axios.get(`${window.STUDIO_API_PATH}/hints`).then(res => {
     dispatch(hintsReceived(res.data))
   })
 }
@@ -414,7 +403,7 @@ export const refreshHints = () => dispatch => {
 export const actionsReceived = createAction('ACTIONS/RECEIVED')
 export const refreshActions = () => dispatch => {
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  axios.get(`${window.BOT_API_PATH}/actions`).then(({ data }) => {
+  axios.get(`${window.STUDIO_API_PATH}/actions`).then(({ data }) => {
     dispatch(
       actionsReceived(
         _.sortBy(
@@ -447,7 +436,7 @@ export const refreshConditions = () => dispatch => {
 export const topicsReceived = createAction('TOPICS/RECEIVED')
 export const fetchTopics = () => dispatch => {
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  axios.get(`${window.BOT_API_PATH}/topics`).then(({ data }) => {
+  axios.get(`${window.STUDIO_API_PATH}/topics`).then(({ data }) => {
     dispatch(topicsReceived(data))
   })
 }
@@ -456,21 +445,21 @@ export const receiveLibrary = createAction('LIBRARY/RECEIVED')
 export const refreshLibrary = () => (dispatch, getState) => {
   const contentLang = getState().language.contentLang
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  axios.get(`${window.BOT_API_PATH}/content/library/${contentLang}`).then(({ data }) => {
+  axios.get(`${window.STUDIO_API_PATH}/cms/library/${contentLang}`).then(({ data }) => {
     dispatch(receiveLibrary(data))
   })
 }
 
 export const addElementToLibrary = (elementId: string) => dispatch => {
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  axios.post(`${window.BOT_API_PATH}/content/library/${elementId}`).then(() => {
+  axios.post(`${window.STUDIO_API_PATH}/cms/library/${elementId}`).then(() => {
     dispatch(refreshLibrary())
   })
 }
 
 export const removeElementFromLibrary = (elementId: string) => dispatch => {
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  axios.post(`${window.BOT_API_PATH}/content/library/${elementId}/delete`).then(() => {
+  axios.post(`${window.STUDIO_API_PATH}/cms/library/${elementId}/delete`).then(() => {
     dispatch(refreshLibrary())
   })
 }

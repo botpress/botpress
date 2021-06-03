@@ -1,9 +1,7 @@
-import * as NLUEngine from './utils/sdk.u.test'
 import _ from 'lodash'
 
 import { makeApp, makeDependencies, waitForTrainingsToBeDone } from './utils/app.u.test'
 import {
-  expectEngineToHaveLoaded,
   expectEngineToHaveTrained,
   expectMaxSimultaneousTrainings,
   expectTrainingToStartAndComplete
@@ -11,8 +9,9 @@ import {
 import { book_flight, cityEntity, fruitEntity, hello, i_love_hockey } from './utils/data.u.test'
 import './utils/sdk.u.test'
 import { TrainingSession } from '../typings'
+import { Specifications } from '../../stan/typings_v1'
 
-const specs: NLUEngine.Specifications = {
+const specs: Specifications = {
   languageServer: {
     dimensions: 300,
     domain: 'lol',
@@ -71,12 +70,11 @@ describe('NLU API integration tests with cluster enabled', () => {
 
     const nProgressCalls = 3
     const core = { languages, specs }
-    const engineOptions = { nProgressCalls, trainDelayBetweenProgress: 10 }
+    const engineOptions = { nProgressCalls, trainDelayBetweenProgress: 20 }
     const dependencies = makeDependencies(core, fileSystem, engineOptions)
     const { engine, socket, trainingRepo } = dependencies
 
-    const engineTrainSpy = jest.spyOn(engine, 'train')
-    const engineLoadSpy = jest.spyOn(engine, 'loadModel')
+    const engineTrainSpy = jest.spyOn(engine, 'startTraining')
 
     const maxTraining = 2
     const trainingQueueOptions = { maxTraining, jobInterval: 1 }
@@ -106,12 +104,11 @@ describe('NLU API integration tests with cluster enabled', () => {
     expectMaxSimultaneousTrainings(ts, maxTraining * nNodes)
 
     expect(engineTrainSpy).toHaveBeenCalledTimes(nTrainings)
-    expectEngineToHaveTrained(engineTrainSpy, 'en')
-    expectEngineToHaveTrained(engineTrainSpy, 'fr')
-
-    expect(engineLoadSpy).toHaveBeenCalledTimes(nTrainings * nNodes)
-    expectEngineToHaveLoaded(engineLoadSpy, 'en')
-    expectEngineToHaveLoaded(engineLoadSpy, 'fr')
+    expectEngineToHaveTrained(engineTrainSpy, botId1, 'en')
+    expectEngineToHaveTrained(engineTrainSpy, botId1, 'fr')
+    expectEngineToHaveTrained(engineTrainSpy, botId2, 'en')
+    expectEngineToHaveTrained(engineTrainSpy, botId2, 'fr')
+    expectEngineToHaveTrained(engineTrainSpy, botId3, 'en')
 
     await Promise.all([node1.teardown(), node2.teardown()])
   }, 100000)
