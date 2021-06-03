@@ -9,9 +9,9 @@
     "source.fixAll": true
   },
   "search.exclude": {
-    "**/website/versioned/**": true,
-    "**/out/bp/**/*.js": true,
-    "**/out/bp/**/*.d.ts": true,
+    "**versioned**": true,
+    "**out/**/*.js": true,
+    "**out/**/*.d.ts": true,
     "**.scss.d.ts": true
   },
   "files.associations": {
