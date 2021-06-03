@@ -8,6 +8,12 @@
   "editor.codeActionsOnSave": {
     "source.fixAll": true
   },
+  "search.exclude": {
+    "**/website/versioned/**": true,
+    "**/out/bp/**/*.js": true,
+    "**/out/bp/**/*.d.ts": true,
+    "**.scss.d.ts": true
+  },
   "files.associations": {
     "*.styl": "scss",
     "mutex": "cpp",
