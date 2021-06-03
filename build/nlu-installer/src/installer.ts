@@ -3,10 +3,12 @@ import cliProgress from 'cli-progress'
 import fse from 'fs-extra'
 import mkdirp from 'mkdirp'
 import path from 'path'
+import { validateConfig } from './config'
 import { downloadBin } from './download'
 import { UnsuportedOSError } from './errors'
 import logger from './logger'
 import { dotsToUnderscores, underscoresToDots } from './semver'
+import { ArgV } from './typings'
 
 type PerOS<T> = Record<NodeJS.Platform, T>
 
@@ -15,6 +17,8 @@ const FILE_PATTERNS: Partial<PerOS<RegExp>> = {
   darwin: /nlu-v(\d+_\d+_\d+)-darwin-x64/,
   linux: /nlu-v(\d+_\d+_\d+)-linux-x64/
 }
+
+const DOWNLOAD_URL = 'https://github.com/botpress/nlu/releases/download/'
 
 const makeFileNamePerOS = (version: string): Partial<PerOS<string>> => {
   const versionUnderscore = dotsToUnderscores(version)
@@ -25,12 +29,7 @@ const makeFileNamePerOS = (version: string): Partial<PerOS<string>> => {
   }
 }
 
-interface ArgV {
-  config: string
-  output: string
-  platform: NodeJS.Platform
-  force: boolean
-}
+const removeConsecutiveSlashes = (url: string) => url.replace(/([^:]\/)\/+/g, '$1')
 
 const scanAndRemoveInvalidVersion = async (platform: NodeJS.Platform, outputDir: string, version: string) => {
   const binRegex = FILE_PATTERNS[platform]
@@ -61,30 +60,24 @@ export default async (argv: ArgV) => {
     throw new Error(`File ${argv.config} does not exist.`)
   }
 
-  let nlu: any
+  let rawConfig: any | undefined
   try {
-    const fileContent = await fse.readFile(argv.config, 'utf8')
-    const parsedContent = JSON.parse(fileContent)
-    nlu = parsedContent.nlu
+    rawConfig = (await fse.readJSON(argv.config)).nlu
   } catch (err) {
     throw new Error(`An error occured while parsing config file: ${err.message}`)
   }
 
-  if (!nlu) {
-    throw new Error(`The config file ${argv.config} has no field "nlu"`)
-  }
-
-  const { version, downloadURL } = nlu
-  const fileName = makeFileNamePerOS(version)[argv.platform]
+  const { version: nluVersion } = validateConfig(rawConfig, argv)
+  const fileName = makeFileNamePerOS(nluVersion)[argv.platform]
 
   if (!fileName) {
     throw new UnsuportedOSError(argv.platform)
   }
 
   mkdirp.sync(argv.output)
-  await scanAndRemoveInvalidVersion(argv.platform, argv.output, version)
+  await scanAndRemoveInvalidVersion(argv.platform, argv.output, nluVersion)
 
-  const fileDownloadURL = `${downloadURL}/${fileName}`
+  const fileDownloadURL = removeConsecutiveSlashes(`${DOWNLOAD_URL}/v${nluVersion}/${fileName}`)
   const destination = path.join(argv.output, fileName)
 
   const destinationFileExists = fse.existsSync(destination)
