@@ -43,8 +43,7 @@ export class ActionsStats extends TelemetryStats {
     @inject(TYPES.LicensingService) licenseService: LicensingService,
     @inject(TYPES.JobService) jobService: JobService,
     @inject(TYPES.TelemetryRepository) telemetryRepo: TelemetryRepository,
-    @inject(TYPES.FlowService) private flowService: FlowService,
-    @inject(TYPES.BotService) private botService: BotService
+    @inject(TYPES.FlowService) private flowService: FlowService
   ) {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
     this.url = process.TELEMETRY_URL
@@ -61,7 +60,7 @@ export class ActionsStats extends TelemetryStats {
   }
 
   private async getFlowsWithActions(): Promise<ParsedFlow[]> {
-    const botIds = await this.botService.getBotsIds()
+    const botIds = BotService.getMountedBots()
     const flows = _.flatten(
       await Promise.map(botIds, async botID => {
         const flowView = await this.flowService.forBot(botID).loadAll()

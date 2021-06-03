@@ -70,16 +70,9 @@ module.exports = {
 
     const link = utils.formatURL(formData.BOT_URL, formData.audio)
     const title = formData.title ? ' | ' + formData.title : ''
-    let fileName = ''
 
     if (utils.isUrl(link)) {
-      fileName = path.basename(formData.audio)
-      if (fileName.includes('-')) {
-        fileName = fileName
-          .split('-')
-          .slice(1)
-          .join('-')
-      }
+      const fileName = utils.extractFileName(formData.audio)
       return `Audio: (${fileName}) ${title}`
     } else {
       return `Expression: ${link}${title}`
