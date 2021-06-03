@@ -39,11 +39,11 @@
       "managing/rbac",
       "managing/authentication",
       "managing/ssotools",
-      "managing/user-auth", 
+      "managing/user-auth",
       "managing/monitoring",
       "managing/proactive",
       "managing/hitl",
-      "managing/hitlnext"
+      "managing/hitlnext",
       "managing/features"
     ],
     "Improving Your Chatbot": [
