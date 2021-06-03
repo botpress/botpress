@@ -128,7 +128,7 @@ export class ConfigsStats extends TelemetryStats {
   }
 
   private async getModulesConfigs(): Promise<ModuleConfigEvent[]> {
-    const bots = await this.botService.getBotsIds()
+    const bots = BotService.getMountedBots()
     const modules = _.intersection(BUILTIN_MODULES, Object.keys(process.LOADED_MODULES))
 
     return (await Promise.map(modules, this.getConfigsByModule(bots)))

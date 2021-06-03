@@ -32,7 +32,15 @@ const onModuleUnmount = async (bp: typeof sdk) => {
   bp.http.deleteRouterForBot('qna')
 }
 
+// Fixes random errors "cannot read property 'storage' of undefined"
+const ensureBotMounted = async (bp: typeof sdk, botId: string) => {
+  if (!bots[botId]) {
+    await initBot(bp, botId, bots)
+  }
+}
+
 const onTopicChanged = async (bp: typeof sdk, botId: string, oldName: string, newName: string) => {
+  await ensureBotMounted(bp, botId)
   const isRenaming = !!(oldName && newName)
   const isDeleting = !newName
 
@@ -58,6 +66,8 @@ const onTopicChanged = async (bp: typeof sdk, botId: string, oldName: string, ne
 }
 
 const onFlowChanged = async (bp: typeof sdk, botId: string, newFlow: sdk.Flow) => {
+  await ensureBotMounted(bp, botId)
+
   const oldFlow = await bp.ghost.forBot(botId).readFileAsObject<sdk.Flow>('./flows', newFlow.location)
   const { storage } = bots[botId]
   const questions = await storage.getQuestions({ question: '', filteredContexts: [] }, { limit: 0, offset: 0 })
@@ -84,6 +94,8 @@ const onFlowChanged = async (bp: typeof sdk, botId: string, newFlow: sdk.Flow) =
 }
 
 const onFlowRenamed = async (bp: typeof sdk, botId: string, previousFlowName: string, newFlowName: string) => {
+  await ensureBotMounted(bp, botId)
+
   const { storage } = bots[botId]
   const questions = await storage.getQuestions({}, { limit: 0, offset: 0 })
 

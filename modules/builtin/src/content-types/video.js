@@ -34,8 +34,8 @@ function renderElement(data, channel) {
 
 module.exports = {
   id: 'builtin_video',
-  group: 'Built-in Video',
-  title: 'Video',
+  group: 'Built-in Messages',
+  title: 'module.builtin.types.video.title',
 
   jsonSchema: {
     description: 'module.builtin.types.video.description',
@@ -70,16 +70,9 @@ module.exports = {
 
     const link = utils.formatURL(formData.BOT_URL, formData.video)
     const title = formData.title ? ' | ' + formData.title : ''
-    let fileName = ''
 
     if (utils.isUrl(link)) {
-      fileName = path.basename(formData.video)
-      if (fileName.includes('-')) {
-        fileName = fileName
-          .split('-')
-          .slice(1)
-          .join('-')
-      }
+      const fileName = utils.extractFileName(formData.video)
       return `Video: (${fileName}) ${title}`
     } else {
       return `Expression: ${link}${title}`

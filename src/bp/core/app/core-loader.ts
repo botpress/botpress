@@ -21,19 +21,25 @@ export interface BotpressApp {
   localActionServer: LocalActionServerImpl
 }
 
+let app: BotpressApp
+
 export function createApp(): BotpressApp {
+  if (app) {
+    return app
+  }
+
   try {
-    const app = {
+    app = {
       botpress: container.get<Core>(TYPES.Botpress),
       logger: container.get<LoggerProvider>(TYPES.LoggerProvider),
       config: container.get<ConfigProvider>(TYPES.ConfigProvider),
       ghost: container.get<GhostService>(TYPES.GhostService),
       database: container.get<Database>(TYPES.Database),
-      localActionServer: container.get<LocalActionServerImpl>(TYPES.LocalActionServer),
-      licensing: container.get<LicensingService>(TYPES.LicensingService)
+      localActionServer: container.get<LocalActionServerImpl>(TYPES.LocalActionServer)
     }
 
-    app.licensing.installProtection()
+    const licensing = container.get<LicensingService>(TYPES.LicensingService)
+    licensing.installProtection()
 
     return app
   } catch (err) {

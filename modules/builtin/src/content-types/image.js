@@ -23,67 +23,13 @@ function render(data) {
   ]
 }
 
-function renderMessenger(data) {
-  const events = []
-
-  if (data.typing) {
-    events.push({
-      type: 'typing',
-      value: data.typing
-    })
-  }
-
-  return [
-    ...events,
-    {
-      attachment: {
-        type: 'image',
-        payload: {
-          is_reusable: true,
-          url: utils.formatURL(data.BOT_URL, data.image)
-        }
-      }
-    }
-  ]
-}
-
-function renderTeams(data) {
-  const events = []
-
-  if (data.typing) {
-    events.push({
-      type: 'typing'
-    })
-  }
-
-  return [
-    ...events,
-    {
-      type: 'message',
-      attachments: [
-        {
-          name: data.title,
-          contentType: 'image/png',
-          contentUrl: utils.formatURL(data.BOT_URL, data.image)
-        }
-      ]
-    }
-  ]
-}
-
 function renderElement(data, channel) {
   // These channels now use channel renderers
-  if (['telegram', 'twilio', 'slack', 'smooch', 'vonage'].includes(channel)) {
+  if (['telegram', 'twilio', 'slack', 'smooch', 'vonage', 'teams', 'messenger'].includes(channel)) {
     return utils.extractPayload('image', data)
   }
 
-  if (channel === 'messenger') {
-    return renderMessenger(data)
-  } else if (channel === 'teams') {
-    return renderTeams(data)
-  } else {
-    return render(data)
-  }
+  return render(data)
 }
 
 module.exports = {
@@ -124,16 +70,9 @@ module.exports = {
 
     const link = utils.formatURL(formData.BOT_URL, formData.image)
     const title = formData.title ? ' | ' + formData.title : ''
-    let fileName = ''
 
     if (utils.isUrl(link)) {
-      fileName = path.basename(formData.image)
-      if (fileName.includes('-')) {
-        fileName = fileName
-          .split('-')
-          .slice(1)
-          .join('-')
-      }
+      const fileName = utils.extractFileName(formData.image)
       return `Image: [![${formData.title || ''}](<${link}>)](<${link}>) - (${fileName}) ${title}`
     } else {
       return `Expression: ${link}${title}`

@@ -1,11 +1,26 @@
 import * as sdk from 'botpress/sdk'
 import { GhostService } from 'core/bpfs'
 import { sanitizeFileName } from 'core/misc/utils'
-import { SYSTEM_ENTITIES } from 'nlu/engine'
 import * as CacheManager from './cache-manager'
 import { NLUService } from './nlu-service'
 
 const ENTITIES_DIR = './entities'
+
+// copied from botpress/nlu repo
+const SYSTEM_ENTITIES = [
+  'amountOfMoney',
+  'distance',
+  'duration',
+  'email',
+  'number',
+  'ordinal',
+  'phoneNumber',
+  'quantity',
+  'temperature',
+  'time',
+  'url',
+  'volume'
+]
 
 const getSystemEntities = (): sdk.NLU.EntityDefinition[] => {
   return [...SYSTEM_ENTITIES, 'any'].map(name => ({ name, type: 'system' })) as sdk.NLU.EntityDefinition[]
