@@ -6,6 +6,7 @@ import { ModuleLoader } from 'core/modules'
 import { RealtimeService, RealTimePayload } from 'core/realtime'
 import { CustomRouter } from 'core/routers/customRouter'
 import { Router } from 'express'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 
 export class InternalRouter extends CustomRouter {
@@ -87,6 +88,14 @@ export class InternalRouter extends CustomRouter {
         const { key } = req.body
         await this.objectCache.invalidate(key, true)
 
+        res.sendStatus(200)
+      })
+    )
+
+    router.post(
+      '/setStudioReady',
+      this.asyncMiddleware(async (req, res) => {
+        AppLifecycle.setDone(AppLifecycleEvents.STUDIO_READY)
         res.sendStatus(200)
       })
     )

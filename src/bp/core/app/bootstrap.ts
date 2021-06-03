@@ -8,8 +8,8 @@ import { BotpressApp, createApp, createLoggerProvider } from 'core/app/core-load
 import { ModuleConfigEntry } from 'core/config'
 import { centerText, LoggerProvider } from 'core/logger'
 import { ModuleLoader, ModuleResolver } from 'core/modules'
-
 import fs from 'fs'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import { setupMasterNode, setupWebWorker, WorkerType } from 'orchestrator'
 import os from 'os'
@@ -201,6 +201,8 @@ This is a fatal error, process will exit.`
     }
   })
 
+  // This ensures that the last log displayed is the correct URL
+  await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
   logger.info(`Botpress is listening at: ${process.LOCAL_URL}`)
   logger.info(`Botpress is exposed at: ${process.EXTERNAL_URL}`)
 }
