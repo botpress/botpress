@@ -66,12 +66,6 @@ Once your master branch is up-to-date, you'll be able to [push](versions#push) t
 
 With these quick tips, you can now promote any environment changes to any stage in your deployment pipeline.
 
-## Editing on the Production Server
-
-Once your bot is deployed, you (and non-technical team members) **can still make changes to your bots from Botpress Studio**, which is one significant advantage of using Botpress. This is made possible by our built-in versioning system.
-
-For your convenience, Botpress provides the GUI tools to edit these files while in development. We also offer the same tools in production, but there's a caveat. Writing changes to the server's file system is not always possible. They could easily be lost due to ephemeral filesystems, or they could be ignored when running in a cluster setup.
-
 ### CLI Commands
 
 To address this issue, we added commands to the cli. In production, your changes are saved to the database, which is persisted between deployments. Botpress cli gives you two commands: `bp pull` to pull pending changes on your server for all your bots and server-wide files and `bp push` to push your local changes to your server.
