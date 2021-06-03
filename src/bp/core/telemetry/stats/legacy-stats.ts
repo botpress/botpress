@@ -34,7 +34,6 @@ export class LegacyStats extends TelemetryStats {
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.UserRepository) private userRepository: ChannelUserRepository,
-    @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService
   ) {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
@@ -137,7 +136,7 @@ export class LegacyStats extends TelemetryStats {
   }
 
   private async getBotsCount(): Promise<number> {
-    return (await this.botService.getBotsIds()).length
+    return BotService.getMountedBots().length
   }
 
   private async getWorkspacesCount(): Promise<number> {

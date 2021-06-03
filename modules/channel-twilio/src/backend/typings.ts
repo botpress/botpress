@@ -17,6 +17,7 @@ export interface TwilioRequestBody {
   To: string
   From: string
   Body: string
+  MediaUrl0: string
 }
 export interface ChoiceOption {
   title: string

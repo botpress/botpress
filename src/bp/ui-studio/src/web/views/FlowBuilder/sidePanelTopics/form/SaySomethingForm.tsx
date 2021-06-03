@@ -4,7 +4,7 @@ import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { connect } from 'react-redux'
 import {
   closeFlowNodeProps,
-  copyFlowNode,
+  copyFlowNodes,
   fetchContentCategories,
   pasteFlowNode,
   refreshFlowsLinks,
@@ -67,7 +67,7 @@ const SaySomethingForm: FC<Props> = props => {
   }
 
   const onCopy = () => {
-    props.copyFlowNode()
+    props.copyFlowNodes([props.currentFlowNode.id])
     setShowOptions(false)
     toastInfo(lang.tr('studio.flow.copiedToBuffer'))
   }
@@ -207,7 +207,7 @@ const mapDispatchToProps = {
   fetchContentCategories,
   closeFlowNodeProps,
   refreshFlowsLinks,
-  copyFlowNode,
+  copyFlowNodes,
   pasteFlowNode
 }
 
