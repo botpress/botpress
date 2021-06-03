@@ -1108,11 +1108,8 @@ declare module 'botpress/sdk' {
     displayOrder?: number
     /** This callback url is called when the condition is deleted or pasted in the flow */
     callback?: string
-    /** The editor will use the custom component to provide the requested parameters */
-    editor?: {
-      module: string
-      component: string
-    }
+    /** The editor will use the LiteEditor component to provide the requested parameters */
+    useLiteEditor?: boolean
     evaluate: (event: IO.IncomingEvent, params: any) => number
   }
 
