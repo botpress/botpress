@@ -473,7 +473,6 @@
   }
 
   .bpw-bubble-file a {
-    display: block;
     cursor: pointer;
     border-top-left-radius: inherit;
     border-top-right-radius: inherit;
@@ -481,8 +480,9 @@
     border-bottom-left-radius: inherit;
   }
 
-  .bpw-bubble-file a img {
-    max-height: 240px;
+  .bpw-bubble-file a img,
+  .bpw-bubble-audio audio,
+  .bpw-bubble-video video {
     max-width: 100%;
     border-top-left-radius: inherit;
     border-top-right-radius: inherit;

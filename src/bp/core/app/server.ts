@@ -59,7 +59,7 @@ import { isDisabled } from '../routers/conditionalMiddleware'
 import { SdkApiRouter } from '../routers/sdk/router'
 import { ShortLinksRouter } from '../routers/shortlinks'
 import { NLUService } from '../services/nlu/nlu-service'
-import { InternalRouter } from './internal.router'
+import { InternalRouter } from './internal-router'
 import { debugRequestMw, resolveAsset, resolveIndexPaths } from './server-utils'
 
 const BASE_API_PATH = '/api/v1'
