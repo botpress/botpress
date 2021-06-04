@@ -59,7 +59,7 @@ export interface FieldWrapperProps {
 
 export type TextProps = FieldProps & { field: FormField }
 
-export type SupportedFileType = 'image' | 'audio' | 'video'
+export type SupportedFileType = 'image' | 'audio' | 'video' | 'file'
 
 export interface UploadFieldProps extends FieldProps {
   axios: any

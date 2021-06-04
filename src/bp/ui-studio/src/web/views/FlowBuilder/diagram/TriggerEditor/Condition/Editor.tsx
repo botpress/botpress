@@ -1,7 +1,8 @@
 import { Condition } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC } from 'react'
-import InjectedModuleView from '~/components/PluginInjectionSite/module'
+
+import { IntentParams, LiteEditor } from '~/views/Nlu/intents/LiteEditor'
 
 import InputParams from './InputParams'
 
@@ -15,16 +16,19 @@ interface Props {
 }
 
 const ConditionEditor: FC<Props> = props => {
-  const editor = props.condition && props.condition.editor
+  const { topicName, params, updateParams, contentLang, forceSave } = props
+  const useLiteEditor = props.condition.useLiteEditor
 
   return (
     <div style={{ maxHeight: 500 }}>
-      {editor ? (
-        <InjectedModuleView
-          moduleName={editor.module}
-          componentName={editor.component}
-          extraProps={{ ..._.pick(props, ['topicName', 'params', 'updateParams', 'contentLang', 'forceSave']) }}
-        />
+      {useLiteEditor ? (
+        <LiteEditor
+          topicName={topicName}
+          params={params}
+          updateParams={updateParams}
+          contentLang={contentLang}
+          forceSave={forceSave}
+        ></LiteEditor>
       ) : (
         <InputParams {...props} updateParams={props.updateParams} />
       )}

@@ -70,16 +70,9 @@ module.exports = {
 
     const link = utils.formatURL(formData.BOT_URL, formData.image)
     const title = formData.title ? ' | ' + formData.title : ''
-    let fileName = ''
 
     if (utils.isUrl(link)) {
-      fileName = path.basename(formData.image)
-      if (fileName.includes('-')) {
-        fileName = fileName
-          .split('-')
-          .slice(1)
-          .join('-')
-      }
+      const fileName = utils.extractFileName(formData.image)
       return `Image: [![${formData.title || ''}](<${link}>)](<${link}>) - (${fileName}) ${title}`
     } else {
       return `Expression: ${link}${title}`
