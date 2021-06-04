@@ -1,6 +1,7 @@
 ---
-id: rbac
+id: version-12.22.1-rbac
 title: Role-Based Access Control
+original_id: rbac
 ---
 
 ![This feature is available with Botpress Enterprise license.](../assets/botpress-enterprise-feature.png)

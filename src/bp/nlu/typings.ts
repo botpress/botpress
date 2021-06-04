@@ -10,7 +10,7 @@ export interface NLUServerOptions {
 
   verbose: number
   doc: boolean
-  logFilter: string
+  logFilter: string[]
 
   limitWindow?: string
   limit: number
