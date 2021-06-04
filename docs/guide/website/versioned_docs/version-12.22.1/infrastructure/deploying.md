@@ -1,6 +1,7 @@
 ---
-id: deploying
+id: version-12.22.1-deploying
 title: Building From Source
+original_id: deploying
 ---
 Botpress has added flexibility for developers who want access to the core codebase. You can clone Botpress from the source repository on Github, allowing you to test code, modules, and components more dynamically. 
 

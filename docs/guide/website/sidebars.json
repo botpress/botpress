@@ -38,9 +38,13 @@
     "Managing Bots & Users": [
       "managing/rbac",
       "managing/authentication",
+      "managing/ssotools",
+      "managing/user-auth",
       "managing/monitoring",
       "managing/proactive",
-      "managing/hitl"
+      "managing/hitl",
+      "managing/hitlnext",
+      "managing/features"
     ],
     "Improving Your Chatbot": [
       "tutorials/intent-matching",

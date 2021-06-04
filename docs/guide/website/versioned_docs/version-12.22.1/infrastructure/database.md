@@ -1,6 +1,7 @@
 ---
-id: database
+id: version-12.22.1-database
 title: Supported databases
+original_id: database
 ---
 
 ## Introduction

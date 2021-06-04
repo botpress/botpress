@@ -1,6 +1,7 @@
 ---
-id: authentication
+id: version-12.22.1-authentication
 title: Authentication Methods
+original_id: authentication
 ---
 ![This feature is available to Botpress Enterprise license holders.](assets/botpress-enterprise-feature.png)
 There are three different types of authentication:
