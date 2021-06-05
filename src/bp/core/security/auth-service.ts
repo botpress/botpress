@@ -19,7 +19,7 @@ import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
-import { studioActions } from 'studio-client'
+import { studioActions } from 'orchestrator'
 
 export const TOKEN_AUDIENCE = 'collaborators'
 export const CHAT_USERS_AUDIENCE = 'chat_users'

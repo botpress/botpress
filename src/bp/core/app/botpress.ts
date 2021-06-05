@@ -30,10 +30,10 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 import nanoid from 'nanoid'
+import { startLocalActionServer, startLocalNLUServer } from 'orchestrator'
 import path from 'path'
 import plur from 'plur'
 
-import { startLocalActionServer, startLocalNLUServer } from '../../cluster'
 import { setDebugScopes } from '../../debug'
 import { HTTPServer } from './server'
 import { TYPES } from './types'
@@ -124,11 +124,11 @@ export class Botpress {
     await this.initializeServices()
     await this.checkEditionRequirements()
     await this.deployAssets()
+    await this.maybeStartLocalSTAN()
     await this.startRealtime()
     await this.startServer()
     await this.discoverBots()
     await this.maybeStartLocalActionServer()
-    await this.maybeStartLocalSTAN()
 
     if (this.config.sendUsageStats) {
       await this.statsService.start()

@@ -4,12 +4,19 @@ import { ChildProcess, fork, spawn } from 'child_process'
 import fse from 'fs-extra'
 import _ from 'lodash'
 import path from 'path'
-import yn from 'yn'
+import portFinder from 'portfinder'
+import { onProcessExit, registerProcess, processes, registerMsgHandler, MessageType } from './master'
+
+export interface WebWorkerParams {
+  EXTERNAL_URL: string
+  APP_SECRET: string
+  ROOT_PATH: string
+}
+
+let initialParams: WebWorkerParams
 
 const debug = DEBUG('studio')
 
-const maxServerReebots = process.core_env.BP_MAX_SERVER_REBOOT || 2
-let studioRebootCount = 0
 let studioHandle: ChildProcess
 let studioClient: AxiosInstance
 
@@ -31,60 +38,75 @@ export const studioActions = {
   }
 }
 
-export const startStudio = async (logger: sdk.Logger) => {
+export const initStudioClient = () => {
+  studioClient = axios.create({
+    headers: { authorization: process.INTERNAL_PASSWORD },
+    baseURL: `http://localhost:${process.STUDIO_PORT}/api/internal`
+  })
+}
+
+export const registerStudioMainHandler = (logger: sdk.Logger) => {
+  registerMsgHandler(MessageType.StartStudio, async message => {
+    await startStudio(logger, message.params as WebWorkerParams)
+  })
+}
+
+export const startStudio = async (logger: sdk.Logger, params: WebWorkerParams) => {
+  const studioPort = await portFinder.getPortPromise({ port: 3000 + 1000 })
+  registerProcess('studio', studioPort)
+
   const env = {
     // The node path is set by PKG, but other env variables are required (eg: for colors)
     ..._.omit(process.env, ['NODE_PATH']),
     // The data folder is shared between the studio and the runtime
     PROJECT_LOCATION: process.PROJECT_LOCATION,
     APP_DATA_PATH: process.APP_DATA_PATH,
-    EXTERNAL_URL: process.EXTERNAL_URL,
-    APP_SECRET: process.APP_SECRET,
     PRO_ENABLED: process.IS_PRO_ENABLED?.toString(),
-    STUDIO_PORT: process.STUDIO_PORT.toString(),
-    CORE_PORT: process.PORT.toString(),
-    ROOT_PATH: process.ROOT_PATH,
+    STUDIO_PORT: processes.studio.port.toString(),
+    CORE_PORT: processes.web.port.toString(),
     INTERNAL_PASSWORD: process.INTERNAL_PASSWORD,
     BP_DATA_FOLDER: path.join(process.PROJECT_LOCATION, 'data'),
     // TODO: not the final fix
-    BP_MODULES_PATH: path.join(process.PROJECT_LOCATION, '../../modules')
+    BP_MODULES_PATH: path.join(process.PROJECT_LOCATION, '../../modules'),
+    // These params are processed by the web worker
+    EXTERNAL_URL: params.EXTERNAL_URL,
+    APP_SECRET: params.APP_SECRET,
+    ROOT_PATH: params.ROOT_PATH
   }
 
+  // We store the dynamic params so we can reuse them when auto-restarting the studio process
+  initialParams = params
+
   if (process.pkg || !process.core_env.DEV_STUDIO_PATH) {
-    const basePath = process.pkg ? path.dirname(process.execPath) : __dirname
+    const basePath = process.pkg ? path.dirname(process.execPath) : path.resolve(__dirname, '../')
     const file = path.resolve(basePath, `bin/studio${process.distro.os === 'win32' ? '.exe' : ''}`)
 
     if (!(await fse.pathExists(file))) {
-      console.error('Studio executable not found.')
+      logger.warn('Studio executable not found.')
       return
     }
 
     studioHandle = spawn(file, [], { env, stdio: 'inherit' })
   } else if (process.core_env.DEV_STUDIO_PATH) {
     const file = path.resolve(process.core_env.DEV_STUDIO_PATH, 'index.js')
-    const cwd = path.resolve(process.core_env.DEV_STUDIO_PATH)
-
-    studioHandle = fork(file, undefined, { execArgv: undefined, env, cwd })
+    studioHandle = fork(file, undefined, { execArgv: undefined, env, cwd: path.dirname(file) })
   }
-
-  studioClient = axios.create({
-    headers: { authorization: process.INTERNAL_PASSWORD },
-    baseURL: `http://localhost:${process.STUDIO_PORT}/api/internal`
-  })
 
   studioHandle.on('exit', async (code: number, signal: string) => {
     debug('Studio exiting %o', { code, signal })
 
-    if (!yn(process.core_env.BP_DISABLE_AUTO_RESTART)) {
-      if (studioRebootCount >= maxServerReebots) {
-        logger.error(
-          `Exceeded the maximum number of automatic server reboot (${maxServerReebots}). Set the "BP_MAX_SERVER_REBOOT" environment variable to change that`
-        )
-        process.exit(0)
+    onProcessExit({
+      processType: 'studio',
+      code,
+      signal,
+      logger,
+      restartMethod: async () => {
+        await startStudio(logger, initialParams)
       }
-
-      await startStudio(logger)
-      studioRebootCount++
-    }
+    })
   })
+}
+
+export const killStudioProcess = () => {
+  studioHandle?.kill('SIGKILL')
 }

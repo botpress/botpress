@@ -29,6 +29,7 @@ declare namespace NodeJS {
     HOST: string
     PORT: number
     STUDIO_PORT: number
+    NLU_PORT: number
     PROXY?: string
     EXTERNAL_URL: string
     LOCAL_URL: string
@@ -283,6 +284,11 @@ declare interface BotpressEnvironmentVariables {
    * The complete path to the out/ folder of the studio
    */
   readonly DEV_STUDIO_PATH?: string
+
+  /**
+   * The complete path to the dist/ folder of packages/nlu/dist
+   */
+  readonly DEV_NLU_PATH?: string
 }
 
 interface IDebug {
