@@ -1,7 +1,6 @@
 import { Button, Icon, Spinner } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
-import { Container, SplashScreen } from 'botpress/ui'
-import { toastFailure, toastSuccess } from 'botpress/utils'
+import { ModuleUI, toast } from 'botpress/shared'
 import _ from 'lodash'
 import React from 'react'
 
@@ -13,6 +12,8 @@ import { ImportModal } from './ImportModal'
 import style from './style.scss'
 import { TestModal } from './TestModal'
 import { TestTable } from './TestTable'
+
+const { Container, SplashScreen } = ModuleUI
 
 interface State {
   createModalVisible: boolean
@@ -96,9 +97,9 @@ export default class NLUTests extends React.Component<Props, State> {
 
     try {
       await this.api.exportResults(this.state.testResults)
-      toastSuccess('Results saved')
+      toast.success('Results saved')
     } catch (err) {
-      toastFailure('Could not export test results')
+      toast.failure('Could not export test results')
     }
   }
 
