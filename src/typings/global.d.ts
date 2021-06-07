@@ -96,6 +96,12 @@ declare interface BotpressEnvironmentVariables {
   readonly REDIS_URL?: string
 
   /**
+   * The channel prefix used by RedisIO to differentiate multiple instances of Botpress using the same Redis Cluster
+   * ** The value of this variable is auto-generated **
+   */
+  readonly REDIS_CHANNEL_PREFIX?: string
+
+  /**
    * The database connection string. The first part indicates which database to use
    * @example postgres://user:pass@host/db
    */

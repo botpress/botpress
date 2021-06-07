@@ -4,6 +4,7 @@ import { runNluServerWithArgv } from './nlu'
 global['NativePromise'] = global.Promise
 
 const fs = require('fs')
+const nanoid = require('nanoid')
 const path = require('path')
 const yn = require('yn')
 const metadataContent = require('../../metadata.json')
@@ -75,6 +76,8 @@ process.on('uncaughtException', err => {
 try {
   require('dotenv').config({ path: path.resolve(process.PROJECT_LOCATION, '.env') })
   process.core_env = process.env as BotpressEnvironmentVariables
+
+  process.env.REDIS_CHANNEL_PREFIX = process.env.REDIS_CHANNEL_PREFIX || nanoid()
 
   let defaultVerbosity = process.IS_PRODUCTION ? 0 : 2
   if (!isNaN(Number(process.env.VERBOSITY_LEVEL))) {
