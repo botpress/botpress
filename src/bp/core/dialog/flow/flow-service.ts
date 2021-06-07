@@ -171,9 +171,9 @@ export class ScopedFlowService {
     if (!expectedSaves) {
       if (await this.ghost.fileExists(FLOW_DIR, flowPath)) {
         const flow = await this.parseFlow(flowPath)
-        this.invalidateFlow(flowPath, flow)
+        this.localInvalidateFlow(flowPath, flow)
       } else {
-        this.invalidateFlow(flowPath, undefined)
+        this.localInvalidateFlow(flowPath, undefined)
       }
     } else {
       if (!isFromFile) {
