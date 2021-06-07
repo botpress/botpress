@@ -96,6 +96,12 @@ declare interface BotpressEnvironmentVariables {
   readonly REDIS_URL?: string
 
   /**
+   * The environment or prefix used by RedisIO to differentiate multiple instances of Botpress using the same Redis Cluster
+   * @example production, development, staging, test
+   */
+  readonly REDIS_ENVIRONMENT?: string
+
+  /**
    * The database connection string. The first part indicates which database to use
    * @example postgres://user:pass@host/db
    */
