@@ -88,7 +88,7 @@ export class FlowService {
   private _listenForCacheInvalidation() {
     this.cache.events.on('invalidation', async key => {
       try {
-        const matches = key.match(/^([A-Z0-9-_]+)::data\/bots\/([A-Z0-9-_]+)\/flows\/([\s\S]+(flow|ui)\.json)/i)
+        const matches = key.match(/^([A-Z0-9-_]+)::data\/bots\/([A-Z0-9-_]+)\/flows\/([\s\S]+(flow)\.json)/i)
 
         if (matches && matches.length >= 2) {
           const [key, type, botId, flowName] = matches
@@ -171,9 +171,9 @@ export class ScopedFlowService {
     if (!expectedSaves) {
       if (await this.ghost.fileExists(FLOW_DIR, flowPath)) {
         const flow = await this.parseFlow(flowPath)
-        this.invalidateFlow(flowPath, flow)
+        this.localInvalidateFlow(flowPath, flow)
       } else {
-        this.invalidateFlow(flowPath, undefined)
+        this.localInvalidateFlow(flowPath, undefined)
       }
     } else {
       if (!isFromFile) {
