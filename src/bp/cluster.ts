@@ -2,8 +2,8 @@ import sdk from 'botpress/sdk'
 import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
-import { killStan, runNluServerWithEnv, StanOptions } from 'nlu'
 import yn from 'yn'
+import { killStan, runNluServerWithEnv, NLUServerOptions } from './nlu'
 
 export enum WORKER_TYPES {
   WEB = 'WEB_WORKER',
@@ -55,7 +55,7 @@ export const setupMasterNode = (logger: sdk.Logger) => {
     cluster.fork({ WORKER_TYPE: WORKER_TYPES.LOCAL_ACTION_SERVER, APP_SECRET: appSecret, PORT: port })
   })
 
-  registerMsgHandler(MESSAGE_TYPE_START_LOCAL_STAN_SERVER, async (message: Partial<StanOptions>) => {
+  registerMsgHandler(MESSAGE_TYPE_START_LOCAL_STAN_SERVER, async (message: Partial<NLUServerOptions>) => {
     const { signal, code } = await runNluServerWithEnv(message, logger)
     logger.error(`NLU server exited with code ${code} and signal ${signal}`)
   })
@@ -134,6 +134,6 @@ export const startLocalActionServer = (message: StartLocalActionServerMessage) =
   process.send!({ type: MESSAGE_TYPE_START_LOCAL_ACTION_SERVER, ...message })
 }
 
-export const startLocalNLUServer = (message: Partial<StanOptions>) => {
+export const startLocalNLUServer = (message: Partial<NLUServerOptions>) => {
   process.send!({ type: MESSAGE_TYPE_START_LOCAL_STAN_SERVER, ...message })
 }

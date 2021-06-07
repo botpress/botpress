@@ -6,13 +6,16 @@ import os from 'os'
 import path from 'path'
 
 import { NLUServerOptions } from './typings'
-export { NLUServerOptions as StanOptions } from './typings'
+export { NLUServerOptions } from './typings'
 
 const FILE_PATTERNS: Dic<RegExp> = {
   win32: /nlu-v(\d+_\d+_\d+)-win-x64\.exe/,
   darwin: /nlu-v(\d+_\d+_\d+)-darwin-x64/,
   linux: /nlu-v(\d+_\d+_\d+)-linux-x64/
 }
+
+global.DEBUG?.('nlu').sub('training')
+global.DEBUG?.('nlu').sub('prediction')
 
 const SIG_KILL = 'SIGKILL'
 
@@ -82,7 +85,8 @@ export const runNluServerWithEnv = (
       const isDefined = _.negate(_.isUndefined)
       const nonNullOptions = _.pickBy(opts, isDefined)
       const options = { ...DEFAULT_STAN_OPTIONS, ...nonNullOptions }
-      const STAN_JSON_CONFIG = JSON.stringify(options)
+
+      const NLU_SERVER_CONFIG = JSON.stringify(options)
 
       const binPath = await _getNLUBinaryPath()
 
@@ -90,7 +94,7 @@ export const runNluServerWithEnv = (
       const processEnv = { ...process.env, NODE_OPTIONS: '' }
 
       nluServerProcess = child_process.spawn(binPath, [], {
-        env: { ...processEnv, STAN_JSON_CONFIG },
+        env: { ...processEnv, NLU_SERVER_CONFIG },
         stdio: 'inherit'
       })
 

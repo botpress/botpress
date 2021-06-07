@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events'
-import { runNluServerWithArgv } from './nlu'
 
 global['NativePromise'] = global.Promise
 
@@ -22,6 +21,9 @@ const printPlainError = err => {
 
 global.DEBUG = Debug
 global.printErrorDefault = printPlainError
+
+// eslint-disable-next-line import/order
+import { runNluServerWithArgv } from './nlu' // needs DEBUG variable
 
 const originalWrite = process.stdout.write
 
