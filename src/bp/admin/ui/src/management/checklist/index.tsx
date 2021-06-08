@@ -180,10 +180,15 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Enable Redis support"
-          status={isSet(getEnv('REDIS_URL')) && isSet(getEnv('CLUSTER_ENABLED')) ? 'success' : 'warning'}
+          status={
+            isSet(getEnv('REDIS_URL')) && isSet(getEnv('CLUSTER_ENABLED')) && isSet(getEnv('BP_REDIS_CHANNEL_PREFIX'))
+              ? 'success'
+              : 'warning'
+          }
           source={[
             { type: 'env', key: 'REDIS_URL', value: getEnv('REDIS_URL') },
-            { type: 'env', key: 'CLUSTER_ENABLED', value: getEnv('CLUSTER_ENABLED') }
+            { type: 'env', key: 'CLUSTER_ENABLED', value: getEnv('CLUSTER_ENABLED') },
+            { type: 'env', key: 'BP_REDIS_CHANNEL_PREFIX', value: getEnv('BP_REDIS_CHANNEL_PREFIX') }
           ]}
         >
           Redis allows you to run multiple Botpress servers, all using the same data. Both variables below must be
