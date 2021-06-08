@@ -15,6 +15,7 @@ import moment from 'moment'
 import nanoid from 'nanoid'
 import os from 'os'
 import path from 'path'
+import { makeKey } from 'pro/async-redis'
 import stripAnsi from 'strip-ansi'
 import yn from 'yn'
 import { startMonitor } from './monitor'
@@ -48,7 +49,6 @@ export const ENV_VARS = [
   'BPFS_STORAGE',
   'NATIVE_EXTENSIONS_DIR',
   'REDIS_URL',
-  'REDIS_CHANNEL_PREFIX',
   'PRO_ENABLED',
   'CLUSTER_ENABLED',
   'AUTO_MIGRATE',
@@ -160,7 +160,8 @@ const testConnectivity = async () => {
 
     try {
       // @ts-ignore typing missing for that method
-      const reply = await redisClient.pubsub(['NUMSUB', 'job_done'])
+      const reply = await redisClient.pubsub(['NUMSUB', makeKey('job_done')])
+      printRow('Redis using channel prefix', process.env.BP_REDIS_CHANNEL_PREFIX!)
       printRow('Botpress nodes listening on Redis', reply[1])
     } catch (err) {}
   }
