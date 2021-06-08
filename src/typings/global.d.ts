@@ -96,11 +96,10 @@ declare interface BotpressEnvironmentVariables {
   readonly REDIS_URL?: string
 
   /**
-   * The channel prefix used by RedisIO to differentiate multiple instances of Botpress using the same Redis Cluster
+   * The environment or channel prefix used by RedisIO to differentiate multiple clusters of Botpress using the same Redis Cluster
    * @example production, staging, test, development
-   * @default production
    */
-  readonly BP_REDIS_CHANNEL_PREFIX?: string
+  readonly BP_REDIS_ENVIRONMENT?: string
 
   /**
    * The database connection string. The first part indicates which database to use

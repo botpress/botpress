@@ -77,8 +77,6 @@ try {
   require('dotenv').config({ path: path.resolve(process.PROJECT_LOCATION, '.env') })
   process.core_env = process.env as BotpressEnvironmentVariables
 
-  process.env.BP_REDIS_CHANNEL_PREFIX = process.env.BP_REDIS_CHANNEL_PREFIX || 'production'
-
   let defaultVerbosity = process.IS_PRODUCTION ? 0 : 2
   if (!isNaN(Number(process.env.VERBOSITY_LEVEL))) {
     defaultVerbosity = Number(process.env.VERBOSITY_LEVEL)

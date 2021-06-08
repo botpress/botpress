@@ -27,7 +27,7 @@ class ChecklistRouter extends CustomAdminRouter {
             'BPFS_STORAGE',
             'PRO_ENABLED',
             'REDIS_URL',
-            'BP_REDIS_CHANNEL_PREFIX',
+            'BP_REDIS_ENVIRONMENT',
             'EXTERNAL_URL',
             'DATABASE_URL',
             'BP_PRODUCTION',

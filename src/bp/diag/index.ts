@@ -161,7 +161,7 @@ const testConnectivity = async () => {
     try {
       // @ts-ignore typing missing for that method
       const reply = await redisClient.pubsub(['NUMSUB', makeKey('job_done')])
-      printRow('Redis using channel prefix', process.env.BP_REDIS_CHANNEL_PREFIX!)
+      printRow('Redis using channel prefix', process.env.BP_REDIS_ENVIRONMENT!)
       printRow('Botpress nodes listening on Redis', reply[1])
     } catch (err) {}
   }
