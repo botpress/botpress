@@ -192,8 +192,13 @@ export class Botpress {
 
     const autoStart = config.nluServer?.autoStart ?? true
     if (!autoStart) {
-      const { endpoint } = config.nluServer
-      this.logger.info(`NLU server manually handled at: ${endpoint}`)
+      if (!config.nluServer?.endpoint) {
+        this.logger.warn("NLU server isn't configured properly, set it to auto start or provide an endpoint")
+      } else {
+        const { endpoint } = config.nluServer
+        this.logger.info(`NLU server manually handled at: ${endpoint}`)
+      }
+
       return
     }
 
