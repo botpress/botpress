@@ -215,8 +215,8 @@ export class Botpress {
   }
 
   displayRedisChannelPrefix() {
-    if (process.CLUSTER_ENABLED && process.env.REDIS_URL && process.env.BP_REDIS_ENVIRONMENT) {
-      this.logger.debug(`Redis using channel prefix: ${process.env.BP_REDIS_ENVIRONMENT}`)
+    if (process.CLUSTER_ENABLED && process.env.REDIS_URL && process.env.BP_REDIS_SCOPE) {
+      this.logger.debug(`Redis using scope: ${process.env.BP_REDIS_SCOPE}`)
     }
   }
 

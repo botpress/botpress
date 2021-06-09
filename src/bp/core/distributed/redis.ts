@@ -54,9 +54,5 @@ export const getOrCreate = (type: 'subscriber' | 'commands' | 'socket', url?: st
 }
 
 export const makeKey = (key: string): string => {
-  if (!process.env.BP_REDIS_ENVIRONMENT) {
-    return key
-  }
-
-  return `${process.env.BP_REDIS_ENVIRONMENT}/${key}`
+  return process.env.BP_REDIS_SCOPE ? `${process.env.BP_REDIS_SCOPE}/${key}` : key
 }
