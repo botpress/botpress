@@ -11,10 +11,10 @@
   "license": "AGPL-3.0",
   "private": true,
   "nlu": {
-    "version": "0.1.2"
+    "version": "0.0.4"
   },
   "studio": {
-    "version": "0.0.18"
+    "version": "0.0.19"
   },
   "scripts": {
     "postinstall": "yarn cmd postinstall",
