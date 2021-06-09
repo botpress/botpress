@@ -13,7 +13,7 @@ You can access these system parameters from the flow builder and from within you
 
 For example, the path shown in the emulator to the language parameter is nlu.language. You can reference that parameter by adding “event.” to the path shown in the emulator i.e. event.nlu.language.
 
-[NLU Language Emulator]
+![NLU Language Emulator](assets/nlu-language-emulator.png)
 
 In the Flow Editor you can access system parameters by bracketing them with two sets of curly brackets.
 
@@ -21,35 +21,59 @@ For example in a message you could say:
 
 The bot's language is {{event.nlu.language}}.
 
-[NLU Language Message]
+![NLU Language Message](assets/nlu-language-message.png)
 
 You can also set variables to be the value of a system parameter as follows:
 
-[NLU Language Set Variable]
+![NLU Language Set Variable](assets/nlu-language-set-variable.png)
 
 For raw expressions or for code (such as in Actions) you don't need the curly brackets.
 
 Here is an example of a raw expression in a transition:
 
-[NLU Language Raw Expression]
+![NLU Language Raw Expression](assets/nlu-language-raw-expression.png)
 
-Here is a code example:
+Here is a code example where a temporary boolean variable (`temp.englishUser`) is set for all English speaking chatbot users:
 
-[NLU Language Code]
+```js
+function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state) {
+  /** Your code starts below */
+
+
+  /**
+   * Small description of your action
+   * @title Save English Users
+   * @category Custom
+   * @author Botpress
+   */
+  const setEnglishUser = async () => {
+    try {
+      const userLanguage = event.nlu.language
+
+      // Make sure the order ID only contains numbers and is of length 10
+      if (userLanguage == 'en') {
+        temp.englishUser = true
+      } else {
+        temp.englishUser = false
+      }
+    } catch {
+      temp.englishUser = false
+    }
+  }
+
+  return setEnglishUser()
+
+  /** Your code ends here */
+}
+```
 
 In the same way as described above, it would be possible to access the values of extracted slots by copying the path from the emulator and prefixing it with "event." i.e. {{state.session.slots.food.value}} in the flow builder and state.session.slots.food.value in code. "food" is a slot that was set up intent by the bot builder.
 
-[Slot Extraction Emulator]
+![Slot Extraction Emulator](assets/slot-extraction-emulator.png)
 
-As is possible in Javascript, it is also possible to access the parameters with the following systax:
+As is possible in Javascript, it is also possible to access the parameters with the systax `{{state.session.slots["food"].value}}`
 
-{{state.session.slots["food"].value}}
-
-System Parameters that do not appear in the emulator that may be useful to bot builders are:
-
-event.payload.text - this returns the text just input by the user
-
-[??? and what else?]
+The most commonly used system parameter is `event.payload.text`. Even though this system parameter does not appear in the emulator (its spellchecked version is available) it returns the last text received from the user.
 
 ## Variables
 
@@ -68,25 +92,42 @@ Most of the time, you will rely on the `user` and `temp` type of memory. The tem
 
 Variables can be set up or declared either by using the Set Variable action (see Dialog Memory section below) or in code. When using the dialog for the Set Variable action the variable is set up and assigned a value.
 
-In code the variable is declared simply using it. For example if you type
+In code the variable is declared simply using it. For example if you type **`temp.userName = "John"`** in code, the variable temp.user_name will be created and set to the value "John".
 
-**temp.user_name = "John"**
+As with system parameters (see System Parameters section), variables can be accessed in the flow builder and the Set Variable dialog by bracketing the variables with double curly brackets `{{temp.userName}}` as follows:
 
-in code, the variable temp.user_name will be created and set to the value "John".
+![User Name Message](assets/user-name-message.png)
 
-As with system parameters (see System Parameters section), variables can be accessed in the flow builder and the Set Variable dialog by bracketing the variables with double curly brackets as follows:
+In code or raw expresssions the reference to the variable would not need the double curly brackets. in the example below, two variable are referenced, `temp.user_name` and `temp.name_given`
 
-{{temp.user_name}}
+```js
+function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state) {
+  /** Your code starts below */
 
-[User Name Message]
+  /**
+   * Sets the temporary variables of the ticket with the slots when they exist
+   * @title ticket-setTempVariables
+   * @category Storage
+   * @author Botpress
+   */
+  const myAction = async () => {
+    bp.logger.info('ticket-setTempVariables.js')
 
-In code or raw expresssions the reference to the variable would not need the double curly brackets.
+    try {
+      if (session.slots.userName) {
+        temp.user_name = session.slots.userName.value
+      } else {
+        temp.name_given = false
+      }
+    } catch (e) {
+      // do something with error
+    }
+  }
 
-For example the variable would be referenced as:
+  return myAction()
 
-temp.user_name
-
-[User Name Code]
+  /** Your code ends here */
+  ```
 
 ## Dialog Memory
 

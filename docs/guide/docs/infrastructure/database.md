@@ -37,3 +37,5 @@ Two handy ways to access whichever database you choose to use are:
 
 1. The [key-value store](https://botpress.com/reference/modules/_botpress_sdk_.kvs.html)
 2. A [knex instance](http://knexjs.org/)
+
+> **Pro Tip** We encourage you to use either kebab case or snake case when defining tables and columns. However, if you prefer camel case don't forget to wrap table and column names in "quotes".
