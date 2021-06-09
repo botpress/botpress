@@ -18,7 +18,7 @@ let initialParams: WebWorkerParams
 const debug = DEBUG('studio')
 
 let studioHandle: ChildProcess
-let studioClient: AxiosInstance
+let studioClient: AxiosInstance | undefined
 
 export const studioActions = {
   updateTokenVersion: async (email: string, strategy: string, tokenVersion: number) => {
@@ -34,6 +34,21 @@ export const studioActions = {
   setBotMountStatus: async (botId: string, isMounted: boolean) => {
     try {
       await studioClient?.post('/setBotMountStatus', { botId, isMounted })
+    } catch {}
+  },
+  getDebugScopes: async (): Promise<object> => {
+    try {
+      if (studioClient) {
+        const { data } = await studioClient.get('/getDebugScopes')
+        return data || {}
+      }
+    } catch {}
+
+    return {}
+  },
+  setDebugScopes: async (scopes: string) => {
+    try {
+      await studioClient?.post('/setDebugScopes', { scopes })
     } catch {}
   }
 }
