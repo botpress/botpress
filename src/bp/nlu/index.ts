@@ -6,7 +6,7 @@ import os from 'os'
 import path from 'path'
 
 import { NLUServerOptions } from './typings'
-export { NLUServerOptions } from './typings'
+export { NLUServerOptions as StanOptions } from './typings'
 
 const FILE_PATTERNS: Dic<RegExp> = {
   win32: /nlu-v(\d+_\d+_\d+)-win-x64\.exe/,
@@ -14,12 +14,13 @@ const FILE_PATTERNS: Dic<RegExp> = {
   linux: /nlu-v(\d+_\d+_\d+)-linux-x64/
 }
 
-global.DEBUG?.('nlu').sub('training')
-global.DEBUG?.('nlu').sub('prediction')
+// This will display those keys in the Debug panel so the user can enable them
+DEBUG('nlu:training')
+DEBUG('nlu:prediction')
 
 const SIG_KILL = 'SIGKILL'
 
-const DEFAULT_STAN_OPTIONS: NLUServerOptions = {
+const DEFAULT_NLU_SERVER_OPTIONS: NLUServerOptions = {
   host: 'localhost',
   port: 3200,
   authToken: undefined,
@@ -36,7 +37,7 @@ const DEFAULT_STAN_OPTIONS: NLUServerOptions = {
   modelCacheSize: '850mb',
   verbose: 3, // info
   doc: false,
-  logFilter: [], // TODO: user debug config to generate correct filters
+  logFilter: undefined,
   legacyElection: false
 }
 
@@ -82,9 +83,7 @@ export const runNluServerWithEnv = (
 ): Promise<{ code: number | null; signal: string | null }> => {
   return new Promise(async (resolve, reject) => {
     try {
-      const isDefined = _.negate(_.isUndefined)
-      const nonNullOptions = _.pickBy(opts, isDefined)
-      const options = { ...DEFAULT_STAN_OPTIONS, ...nonNullOptions }
+      const options = { ...DEFAULT_NLU_SERVER_OPTIONS, ...opts }
 
       const NLU_SERVER_CONFIG = JSON.stringify(options)
 

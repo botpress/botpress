@@ -22,9 +22,6 @@ const printPlainError = err => {
 global.DEBUG = Debug
 global.printErrorDefault = printPlainError
 
-// eslint-disable-next-line import/order
-import { runNluServerWithArgv } from './nlu' // needs DEBUG variable
-
 const originalWrite = process.stdout.write
 
 const shouldDiscardError = message =>
@@ -312,14 +309,16 @@ try {
       }
     )
     .command('lang', 'Launch a local language server', {}, () => {
-      runNluServerWithArgv(['lang', ...process.argv])
+      require('./nlu')
+        .runNluServerWithArgv(['lang', ...process.argv])
         .then(() => {})
         .catch(err => {
           throw err
         })
     })
     .command('nlu', 'Launch a local stand-alone nlu server', {}, () => {
-      runNluServerWithArgv(['nlu', ...process.argv])
+      require('./nlu')
+        .runNluServerWithArgv(['nlu', ...process.argv])
         .then(() => {})
         .catch(err => {
           throw err
