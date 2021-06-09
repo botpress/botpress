@@ -1,22 +1,20 @@
 import axios from 'axios'
-import { FormFields, lang, UploadFieldProps } from 'botpress/shared'
+import { FormFields, lang, SupportedFileType } from 'botpress/shared'
 import cn from 'classnames'
 import React, { FC, Fragment, useState } from 'react'
 import { AccessControl } from '~/components/Shared/Utils'
 import style from '~/views/FlowBuilder/sidePanelTopics/form/style.scss'
 
 import { isBpUrl } from '../../../../../../common/url'
+import { Schema } from '../typings'
 
 import localStyle from './style.scss'
 import UrlUpload from './UrlUpload'
 interface IUploadWidgetProps {
   value: string | null
   onChange(value: string | null): void
-  schema: {
-    type: string
-    $subtype: UploadFieldProps['type']
-    $filter: string
-    title: string
+  schema: Schema & {
+    $subtype: SupportedFileType
   }
 }
 

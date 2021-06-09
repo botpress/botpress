@@ -97,11 +97,7 @@ module.exports = {
           }
         }
       },
-      markdown: {
-        type: 'boolean',
-        title: 'module.builtin.useMarkdown',
-        default: true
-      },
+      ...base.useMarkdown,
       disableFreeText: {
         type: 'boolean',
         title: 'module.builtin.disableFreeText',

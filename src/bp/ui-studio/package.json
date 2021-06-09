@@ -104,6 +104,7 @@
     "@types/node": "^10.10.3",
     "@types/react": "^16.8.6",
     "@types/react-dom": "^16.8.6",
+    "@types/react-jsonschema-form": "^1.7.5",
     "@types/react-router-dom": "^4.3.3",
     "@types/slate": "0.47.1",
     "@types/slate-react": "0.22.5",
