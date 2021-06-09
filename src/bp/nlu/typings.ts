@@ -26,4 +26,5 @@ export interface NLUServerOptions {
   modelCacheSize: string
 
   legacyElection: boolean
+  enabledScopes?: string
 }

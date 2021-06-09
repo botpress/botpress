@@ -34,7 +34,7 @@ import { startLocalActionServer, startLocalNLUServer } from 'orchestrator'
 import path from 'path'
 import plur from 'plur'
 
-import { setDebugScopes } from '../../debug'
+import { getDebugString, setDebugScopes } from '../../debug'
 import { HTTPServer } from './server'
 import { TYPES } from './types'
 
@@ -196,7 +196,8 @@ export class Botpress {
       dbURL: process.core_env.BPFS_STORAGE === 'database' ? process.core_env.DATABASE_URL : undefined,
       modelDir: process.cwd(),
       modelCacheSize: config.modelCacheSize,
-      authToken: makeNLUPassword()
+      authToken: makeNLUPassword(),
+      enabledScopes: getDebugString()
     })
   }
 

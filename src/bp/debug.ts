@@ -17,15 +17,23 @@ export const Debug = (mod: string, base = 'bp') => {
   return instance
 }
 
-export const getDebugScopes = () => {
+export const getDebugScopes = (): object => {
   const status = {}
   Object.keys(available).forEach(key => (status[key] = debug.enabled(key)))
   return status
 }
 
-export const setDebugScopes = scopes => {
+export const getDebugString = (): string => {
+  return Object.keys(available)
+    .filter(key => debug.enabled(key))
+    .join(',')
+}
+
+export const setDebugScopes = (scopes: string) => {
   debug.disable()
   debug.enable(scopes)
+
+  scopes.split(',').forEach(key => (available[key] = debug.enabled(key)))
 }
 
 debug.log = function(...args) {

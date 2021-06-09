@@ -1,3 +1,4 @@
+import axios, { AxiosInstance } from 'axios'
 import * as sdk from 'botpress/sdk'
 import { ChildProcess, fork, spawn } from 'child_process'
 import _ from 'lodash'
@@ -37,7 +38,9 @@ export const startNluServer = async (opts: Partial<NLUServerOptions>, logger: sd
     ...process.env,
     // some vscode NODE_OPTIONS seem to break the nlu binary
     NODE_OPTIONS: '',
-    STAN_JSON_CONFIG: JSON.stringify({ ...options, port })
+    NLU_SERVER_CONFIG: JSON.stringify({ ...options, port }),
+    INTERNAL_PASSWORD: process.INTERNAL_PASSWORD,
+    DEBUG: opts.enabledScopes
   }
 
   if (!process.core_env.DEV_NLU_PATH) {
@@ -57,5 +60,32 @@ export const startNluServer = async (opts: Partial<NLUServerOptions>, logger: sd
         await startNluServer(initialParams, logger)
       }
     })
+  })
+}
+
+let nluClient: AxiosInstance | undefined
+
+export const nluServerActions = {
+  getDebugScopes: async (): Promise<object> => {
+    try {
+      if (nluClient) {
+        const { data } = await nluClient.get('/getDebugScopes')
+        return data || {}
+      }
+    } catch {}
+
+    return {}
+  },
+  setDebugScopes: async (scopes: string) => {
+    try {
+      await nluClient?.post('/setDebugScopes', { scopes })
+    } catch {}
+  }
+}
+
+export const initNluServerClient = () => {
+  nluClient = axios.create({
+    headers: { authorization: process.INTERNAL_PASSWORD },
+    baseURL: `http://localhost:${process.NLU_PORT}/api/internal`
   })
 }

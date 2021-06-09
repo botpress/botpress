@@ -1,7 +1,7 @@
 import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import _ from 'lodash'
-import { studioActions } from 'orchestrator'
+import { nluServerActions, studioActions } from 'orchestrator'
 import { getDebugScopes, setDebugScopes } from '../../../debug'
 
 class DebugRouter extends CustomAdminRouter {
@@ -16,6 +16,7 @@ class DebugRouter extends CustomAdminRouter {
       this.asyncMiddleware(async (req, res) => {
         const scopes = {
           ...(await studioActions.getDebugScopes()),
+          ...(await nluServerActions.getDebugScopes()),
           ...getDebugScopes()
         }
 
@@ -35,6 +36,7 @@ class DebugRouter extends CustomAdminRouter {
         setDebugScopes(debugScope)
 
         await studioActions.setDebugScopes(debugScope)
+        await nluServerActions.setDebugScopes(debugScope)
         res.sendStatus(200)
       })
     )

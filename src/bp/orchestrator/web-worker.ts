@@ -3,7 +3,7 @@ import { container } from 'core/app/inversify/app.inversify'
 import { HTTPServer } from 'core/app/server'
 import { TYPES } from 'core/types'
 import { MessageType, onProcessExit, WorkerType, ProcType } from './master'
-import { killNluProcess } from './nlu-server'
+import { initNluServerClient, killNluProcess } from './nlu-server'
 import { initStudioClient, killStudioProcess } from './studio-client'
 
 const debug = DEBUG('cluster:web')
@@ -52,6 +52,7 @@ export const setupWebWorker = () => {
         break
       case 'nlu':
         process.NLU_PORT = port
+        initNluServerClient()
         break
     }
   })
