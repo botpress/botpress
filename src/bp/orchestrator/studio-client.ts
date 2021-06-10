@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from 'axios'
 import sdk from 'botpress/sdk'
 import { ChildProcess, fork, spawn } from 'child_process'
+import { forceForwardSlashes } from 'core/misc/utils'
 import fse from 'fs-extra'
 import _ from 'lodash'
 import path from 'path'
@@ -70,6 +71,17 @@ export const startStudio = async (logger: sdk.Logger, params: WebWorkerParams) =
   const studioPort = await portFinder.getPortPromise({ port: 3000 + 1000 })
   registerProcess('studio', studioPort)
 
+  // Since the studio is in a subfolder, we must adjust module paths
+  const fixModulesPath = () => {
+    if (!process.env.BP_MODULES_PATH) {
+      return path.join(process.PROJECT_LOCATION, '../../modules')
+    }
+
+    return process.env.BP_MODULES_PATH.split(':')
+      .map(p => forceForwardSlashes(path.resolve(p)))
+      .join('::')
+  }
+
   const env = {
     // The node path is set by PKG, but other env variables are required (eg: for colors)
     ..._.omit(process.env, ['NODE_PATH']),
@@ -81,8 +93,7 @@ export const startStudio = async (logger: sdk.Logger, params: WebWorkerParams) =
     CORE_PORT: processes.web.port.toString(),
     INTERNAL_PASSWORD: process.INTERNAL_PASSWORD,
     BP_DATA_FOLDER: path.join(process.PROJECT_LOCATION, 'data'),
-    // TODO: not the final fix
-    BP_MODULES_PATH: path.join(process.PROJECT_LOCATION, '../../modules'),
+    BP_MODULES_PATH: fixModulesPath(),
     // These params are processed by the web worker
     EXTERNAL_URL: params.EXTERNAL_URL,
     APP_SECRET: params.APP_SECRET,
