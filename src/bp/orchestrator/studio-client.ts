@@ -85,6 +85,8 @@ export const startStudio = async (logger: sdk.Logger, params: WebWorkerParams) =
   const env = {
     // The node path is set by PKG, but other env variables are required (eg: for colors)
     ..._.omit(process.env, ['NODE_PATH']),
+    // Fix for pkg
+    NODE_OPTIONS: '',
     // The data folder is shared between the studio and the runtime
     PROJECT_LOCATION: process.PROJECT_LOCATION,
     APP_DATA_PATH: process.APP_DATA_PATH,
@@ -112,16 +114,13 @@ export const startStudio = async (logger: sdk.Logger, params: WebWorkerParams) =
       return
     }
 
-    debug(`Spawning ${file}`)
     studioHandle = spawn(file, [], { env, stdio: 'inherit' })
   } else if (process.core_env.DEV_STUDIO_PATH) {
     const file = path.resolve(process.core_env.DEV_STUDIO_PATH, 'index.js')
-    debug(`Spawning ${file}`)
     studioHandle = fork(file, undefined, { execArgv: undefined, env, cwd: path.dirname(file) })
   }
 
   studioHandle.on('error', err => {
-    console.log(err)
     logger.attachError(err).error('Studio error')
   })
 
