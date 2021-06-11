@@ -70,7 +70,7 @@ const Dropdown: FC<DropdownProps> = props => {
       inputProps={{ placeholder: filterPlaceholder || lang('filter') }}
       items={items}
       activeItem={activeItem}
-      popoverProps={{ minimal: true, usePortal: false }}
+      popoverProps={{ minimal: true, usePortal: true }}
       itemRenderer={customItemRenderer || itemRenderer}
       itemPredicate={filterOptions}
       itemListPredicate={filterList}
