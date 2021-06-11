@@ -4,7 +4,6 @@ import { runNluServerWithArgv } from './nlu'
 global['NativePromise'] = global.Promise
 
 const fs = require('fs')
-const nanoid = require('nanoid')
 const path = require('path')
 const yn = require('yn')
 const metadataContent = require('../../metadata.json')
