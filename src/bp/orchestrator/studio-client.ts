@@ -16,7 +16,7 @@ export interface WebWorkerParams {
 
 let initialParams: WebWorkerParams
 
-const debug = DEBUG('studio')
+const debug = DEBUG('cluster')
 
 let studioHandle: ChildProcess
 let studioClient: AxiosInstance | undefined
@@ -112,14 +112,22 @@ export const startStudio = async (logger: sdk.Logger, params: WebWorkerParams) =
       return
     }
 
+    debug(`Spawning ${file}`)
     studioHandle = spawn(file, [], { env, stdio: 'inherit' })
   } else if (process.core_env.DEV_STUDIO_PATH) {
     const file = path.resolve(process.core_env.DEV_STUDIO_PATH, 'index.js')
+    debug(`Spawning ${file}`)
     studioHandle = fork(file, undefined, { execArgv: undefined, env, cwd: path.dirname(file) })
   }
 
+  studioHandle.on('error', err => {
+    console.log(err)
+    logger.attachError(err).error('Studio error')
+  })
+
   studioHandle.on('exit', async (code: number, signal: string) => {
     debug('Studio exiting %o', { code, signal })
+    console.log('Studio exiting %o', { code, signal })
 
     onProcessExit({
       processType: 'studio',

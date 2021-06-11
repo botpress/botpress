@@ -70,6 +70,8 @@ export const registerProcess = (processType: ProcType, port: number, workerId?: 
   const rebootCount = processes[processType] ? processes[processType].rebootCount + 1 : 0
   processes[processType] = { port, workerId, rebootCount }
 
+  debug(`[${processType}] Registering process %o`, processes[processType])
+
   // We send the new port definitions to connected workers
   for (const work in cluster.workers) {
     cluster.workers[work]?.send({ type: MessageType.BroadcastProcess, processType, port })
@@ -85,7 +87,7 @@ export const onProcessExit = ({
   killOnFail,
   restartMethod
 }: ProcessDetails) => {
-  debug('A process exited %o', { processType, code, signal, exitedAfterDisconnect })
+  debug(`[${processType}] Process exited %o`, { code, signal, exitedAfterDisconnect })
 
   if (exitedAfterDisconnect) {
     processes[processType].rebootCount = 0
@@ -105,7 +107,7 @@ export const onProcessExit = ({
 
   if (processes[processType].rebootCount >= maxServerReboots) {
     logger.error(
-      `Exceeded the maximum number of automatic reboot (${maxServerReboots}). Set the "BP_MAX_SERVER_REBOOT" environment variable to change that`
+      `[${processType}] Exceeded the maximum number of automatic reboot (${maxServerReboots}).\nSet the "BP_MAX_SERVER_REBOOT" environment variable to change that`
     )
 
     if (killOnFail) {
@@ -116,7 +118,7 @@ export const onProcessExit = ({
   }
 
   if (restartMethod) {
-    logger.warn(`Process ${processType} exited, restarting...`)
+    logger.warn(`[${processType}] Restarting process...`)
     restartMethod?.()
   }
 }
