@@ -16,7 +16,7 @@ export interface WebWorkerParams {
 
 let initialParams: WebWorkerParams
 
-const debug = DEBUG('cluster')
+const debug = DEBUG('orchestrator:studio')
 
 let studioHandle: ChildProcess
 let studioClient: AxiosInstance | undefined
@@ -85,7 +85,7 @@ export const startStudio = async (logger: sdk.Logger, params: WebWorkerParams) =
   const env = {
     // The node path is set by PKG, but other env variables are required (eg: for colors)
     ..._.omit(process.env, ['NODE_PATH']),
-    // Fix for pkg
+    // Fix for pkg failing to start in some cases (eg: ecs)
     NODE_OPTIONS: '',
     // The data folder is shared between the studio and the runtime
     PROJECT_LOCATION: process.PROJECT_LOCATION,
@@ -120,13 +120,8 @@ export const startStudio = async (logger: sdk.Logger, params: WebWorkerParams) =
     studioHandle = fork(file, undefined, { execArgv: undefined, env, cwd: path.dirname(file) })
   }
 
-  studioHandle.on('error', err => {
-    logger.attachError(err).error('Studio error')
-  })
-
   studioHandle.on('exit', async (code: number, signal: string) => {
     debug('Studio exiting %o', { code, signal })
-    console.log('Studio exiting %o', { code, signal })
 
     onProcessExit({
       processType: 'studio',
