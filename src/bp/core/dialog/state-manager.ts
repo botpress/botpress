@@ -3,6 +3,7 @@ import { TYPES } from 'core/app/types'
 import { BotpressConfig, ConfigProvider } from 'core/config'
 import Database from 'core/database'
 import { JobService } from 'core/distributed'
+import { makeKey } from 'core/distributed/redis'
 import { KeyValueStore } from 'core/kvs'
 import { ChannelUserRepository } from 'core/users'
 import { inject, injectable, tagged } from 'inversify'
@@ -17,7 +18,7 @@ import { createExpiry } from './sessions/expiry'
 import { SessionIdFactory } from './sessions/session-id-factory'
 import { SessionRepository } from './sessions/session-repository'
 
-const getRedisSessionKey = (sessionId: string) => `sessionstate_${sessionId}`
+const getRedisSessionKey = (sessionId: string) => makeKey(`sessionstate_${sessionId}`)
 const BATCH_SIZE = 100
 const MEMORY_PERSIST_INTERVAL = ms('5s')
 const REDIS_MEMORY_DURATION = ms('30s')
