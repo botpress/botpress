@@ -53,6 +53,6 @@ export const getOrCreate = (type: 'subscriber' | 'commands' | 'socket', url?: st
   return _clients[type]
 }
 
-export const makeKey = (key: string): string => {
+export const makeRedisKey = (key: string): string => {
   return process.env.BP_REDIS_SCOPE ? `${process.env.BP_REDIS_SCOPE}/${key}` : key
 }
