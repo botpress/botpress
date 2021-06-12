@@ -7,7 +7,7 @@ import { BotConfig } from 'botpress/sdk'
 
 import { Workspace } from 'common/typings'
 import { BotpressApp, createApp } from 'core/app/core-loader'
-import { getOrCreate as redisFactory, makeRedisKey } from 'core/distributed/redis'
+import { getOrCreate as redisFactory, makeRedisKey } from 'core/distributed'
 import fse from 'fs-extra'
 import IORedis from 'ioredis'
 import _ from 'lodash'
