@@ -161,7 +161,7 @@ const testConnectivity = async () => {
     try {
       // @ts-ignore typing missing for that method
       const reply = await redisClient.pubsub(['NUMSUB', makeRedisKey('job_done')])
-      printRow('Redis using scope', process.env.BP_REDIS_SCOPE!)
+      process.env.BP_REDIS_SCOPE && printRow('Redis using scope', process.env.BP_REDIS_SCOPE)
       printRow('Botpress nodes listening on Redis', reply[1])
     } catch (err) {}
   }
