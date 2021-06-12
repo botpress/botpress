@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { Migration } from '../migration-service'
+import { Migration, MigrationOpts } from 'core/migration'
 
 const migration: Migration = {
   info: {
@@ -7,13 +7,7 @@ const migration: Migration = {
     target: 'core',
     type: 'config'
   },
-  up: async ({
-    bp,
-    configProvider,
-    database,
-    inversify,
-    metadata
-  }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
+  up: async ({ bp, configProvider, database, inversify, metadata }: MigrationOpts): Promise<sdk.MigrationResult> => {
     return { success: true, message: 'Configuration updated successfully' }
   }
 }
