@@ -142,7 +142,7 @@ const UserActions: FC<Props> = props => {
         <MenuItem id="btn-changeRole" text={lang.tr('admin.workspace.users.collaborators.changeRole')} icon="people">
           {props.roles.map(role => (
             <MenuItem
-              text={role.name}
+              text={lang.tr(role.name)}
               key={role.id}
               id={`btn-role-${role.id}`}
               disabled={user.role === role.id}
