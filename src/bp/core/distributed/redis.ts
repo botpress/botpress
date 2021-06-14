@@ -15,7 +15,7 @@ export const getOrCreate = (type: 'subscriber' | 'commands' | 'socket', url?: st
     // TODO: remove this workaround when ioredis supports other promises or if we get rid of bluebird-global
     global.Promise = global['NativePromise'] || global.Promise
 
-    const RETRY_STRATEGY = times => {
+    const RETRY_STRATEGY = (times: number) => {
       if (times > 10) {
         throw new Error('Unable to connect to the Redis cluster after multiple attempts.')
       }
@@ -51,4 +51,8 @@ export const getOrCreate = (type: 'subscriber' | 'commands' | 'socket', url?: st
   }
 
   return _clients[type]
+}
+
+export const makeRedisKey = (key: string): string => {
+  return process.env.BP_REDIS_SCOPE ? `${process.env.BP_REDIS_SCOPE}/${key}` : key
 }
