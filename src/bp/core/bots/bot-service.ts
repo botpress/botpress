@@ -7,7 +7,7 @@ import { TYPES } from 'core/app/types'
 import { FileContent, GhostService, ReplaceContent } from 'core/bpfs'
 import { CMSService } from 'core/cms'
 import { ConfigProvider } from 'core/config'
-import { JobService } from 'core/distributed'
+import { JobService, makeRedisKey } from 'core/distributed'
 import { PersistedConsoleLogger } from 'core/logger'
 import { MigrationService } from 'core/migration'
 import { extractArchive } from 'core/misc/archive'
@@ -52,7 +52,7 @@ const STATUS_REFRESH_INTERVAL = ms('15s')
 const STATUS_EXPIRY = ms('20s')
 const DEFAULT_BOT_HEALTH: BotHealth = { status: 'disabled', errorCount: 0, warningCount: 0, criticalCount: 0 }
 
-const getBotStatusKey = (serverId: string) => `bp_server_${serverId}_bots`
+const getBotStatusKey = (serverId: string) => makeRedisKey(`bp_server_${serverId}_bots`)
 const debug = DEBUG('services:bots')
 
 @injectable()
