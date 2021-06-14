@@ -183,7 +183,8 @@ class BottomPanel extends React.Component<Props, State> {
 
   render() {
     const allLogs = [...this.state.initialLogs, ...this.logs]
-    const filtered = this.state.botFilter === '*' ? allLogs : allLogs.filter(x => x.botId === this.state.botFilter)
+    const filtered =
+      this.state.botFilter === '*' ? allLogs : allLogs.filter(x => x.botId === this.state.botFilter || !x.botId)
 
     const LogsPanel = (
       <ul

@@ -61,8 +61,11 @@ class BottomPanel extends React.Component<Props, State> {
   }
 
   setupListener = () => {
-    // @ts-ignore
-    EventBus.default.on(`logs::${window.BOT_ID}`, ({ id, level, message, args }) => {
+    EventBus.default.onAny((name, { level, message, args }) => {
+      if (!name || typeof name !== 'string' || ![`logs::${window.BOT_ID}`, 'logs::*'].includes(name)) {
+        return
+      }
+
       this.logs.push({
         ts: new Date(),
         id: nanoid(10),
