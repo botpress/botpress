@@ -1,9 +1,11 @@
 import { Logger } from 'botpress/sdk'
-import { StandardError } from 'common/http'
+import { StandardError, UnauthorizedError } from 'common/http'
 import { HTTPServer } from 'core/app/server'
+import { ConfigProvider } from 'core/config'
 import { ConverseService } from 'core/converse'
 import { CustomRouter } from 'core/routers/customRouter'
 import { AuthService, TOKEN_AUDIENCE, checkTokenHeader } from 'core/security'
+import { enabled } from 'core/user-code/utils'
 import { RequestHandler, Router } from 'express'
 import joi from 'joi'
 import _ from 'lodash'
@@ -27,16 +29,20 @@ export class ConverseRouter extends CustomRouter {
     logger: Logger,
     private converseService: ConverseService,
     private authService: AuthService,
-    private httpServer: HTTPServer
+    private httpServer: HTTPServer,
+    private configProvider: ConfigProvider
   ) {
     super('Converse', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
+    this.shouldRespondToPublicEndpoint = this.shouldRespondToPublicEndpoint.bind(this)
     this.setupRoutes()
   }
 
   setupRoutes() {
+    // Unauthenticated route
     this.router.post(
       '/:userId',
+      this.shouldRespondToPublicEndpoint.bind(this),
       this.httpServer.extractExternalToken,
       this.asyncMiddleware(async (req, res) => {
         try {
@@ -65,6 +71,7 @@ export class ConverseRouter extends CustomRouter {
       })
     )
 
+    // Authenticated route
     this.router.post(
       '/:userId/secured',
       this.checkTokenHeader,
@@ -87,6 +94,22 @@ export class ConverseRouter extends CustomRouter {
         return res.json(formatedOutput)
       })
     )
+  }
+
+  private async shouldRespondToPublicEndpoint(req, res, next) {
+    const { botId } = req.params
+
+    const enabledForBot = (await this.configProvider.getBotConfig(botId)).converse?.enableUnsecuredEndPoint ?? true
+    if (!enabledForBot) {
+      return res.status(401).send(`Unauthenticated Converse API is disabled for ${botId}`)
+    }
+
+    const enabledGlobal = (await this.configProvider.getBotpressConfig()).converse?.enableUnsecuredEndPoint ?? true
+    if (!enabledGlobal) {
+      return res.status(401).send(`Unauthenticated Converse API is disabled for all bots`)
+    }
+
+    next()
   }
 
   private prepareResponse(output, params: string) {
