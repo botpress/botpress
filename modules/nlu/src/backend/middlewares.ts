@@ -67,8 +67,7 @@ export const registerMiddlewares = async (bp: typeof sdk, app: NLUApplication) =
           nluResults = pickSpellChecked(nluResults, spellCheckedResults)
         }
 
-        const preElection = { ...nluResults, includedContexts }
-        const postElection = election(preElection, globalConfig)
+        const postElection = election(nluResults, globalConfig)
         _.merge(event, { nlu: postElection })
         removeSensitiveText(bp, event)
       } catch (err) {

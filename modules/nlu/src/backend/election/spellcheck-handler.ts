@@ -3,6 +3,8 @@ import _ from 'lodash'
 import { getMostConfidentContext } from './most-confident'
 import { NONE_INTENT } from './typings'
 
+const debug = DEBUG('nlu:predict')
+
 const getTop1Intent = (mostConfidentCtx: NLU.ContextPrediction & { name: string }) => {
   return _(mostConfidentCtx.intents)
     .orderBy(i => i.confidence, 'desc')
@@ -33,6 +35,7 @@ const pickSpellChecked = (
     return originalOutput
   }
 
+  debug(`spell-checked output picked: "${originalOutput.spellChecked}"`)
   return spellCheckedOutput
 }
 export default pickSpellChecked
