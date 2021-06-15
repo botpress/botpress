@@ -90,5 +90,5 @@ export interface ConverseConfig {
    * Whether or not you want to expose public converse API. See docs here https://botpress.com/docs/channels/converse#public-api
    * @default ture
    */
-  enableUnsecuredEndPoint: boolean
+  enableUnsecuredEndpoint: boolean
 }
