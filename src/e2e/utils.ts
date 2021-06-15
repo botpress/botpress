@@ -107,7 +107,9 @@ export const getElementCenter = async (element: ElementHandle): Promise<{ x: num
 }
 
 export const triggerKeyboardShortcut = async (key: string, holdCtrl?: boolean) => {
-  const ctrlKey = process.platform == 'darwin' ? 'Meta' : 'Control'
+  //not supported yet by puppetter
+  // const ctrlKey = process.platform == 'darwin' ? 'Meta' : 'Control'
+  const ctrlKey = 'Control'
   if (holdCtrl) {
     await page.keyboard.down(ctrlKey)
     await page.keyboard.press(key)
