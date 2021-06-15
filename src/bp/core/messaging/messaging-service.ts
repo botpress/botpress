@@ -63,7 +63,8 @@ export class MessagingService {
     const setupConfig = {
       name: botId,
       conduits,
-      clientId: messaging.clientId
+      clientId: messaging.clientId,
+      webhooks: [{ url: 'http://localhost:3000/api/v1/messaging/receive' }]
     }
 
     const { clientId, clientToken, providerName } = await this.clientAdmin.setupClient(setupConfig)
