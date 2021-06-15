@@ -13,6 +13,7 @@ import { SessionIdFactory } from 'core/dialog/sessions'
 import { addStepToEvent, EventCollector, StepScopes, StepStatus, EventEngine, Event } from 'core/events'
 import { AlertingService, MonitoringService } from 'core/health'
 import { LoggerDbPersister, LoggerFilePersister, LoggerProvider, LogsJanitor } from 'core/logger'
+import { MessagingService } from 'core/messaging'
 import { MigrationService } from 'core/migration'
 import { copyDir } from 'core/misc/pkg-fs'
 import { ModuleLoader } from 'core/modules'
@@ -84,7 +85,8 @@ export class Botpress {
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.MigrationService) private migrationService: MigrationService,
     @inject(TYPES.StatsService) private statsService: StatsService,
-    @inject(TYPES.BotMonitoringService) private botMonitor: BotMonitoringService
+    @inject(TYPES.BotMonitoringService) private botMonitor: BotMonitoringService,
+    @inject(TYPES.MessagingService) private messagingService: MessagingService
   ) {
     this.botpressPath = path.join(process.cwd(), 'dist')
     this.configLocation = path.join(this.botpressPath, '/config')

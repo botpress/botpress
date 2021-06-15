@@ -9,6 +9,7 @@ import { CMSService } from 'core/cms'
 import { ConfigProvider } from 'core/config'
 import { JobService } from 'core/distributed'
 import { PersistedConsoleLogger } from 'core/logger'
+import { MessagingService } from 'core/messaging'
 import { MigrationService } from 'core/migration'
 import { extractArchive } from 'core/misc/archive'
 import { IDisposable } from 'core/misc/disposable'
@@ -79,7 +80,8 @@ export class BotService {
     @inject(TYPES.Statistics) private stats: AnalyticsService,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
     @inject(TYPES.RealtimeService) private realtimeService: RealtimeService,
-    @inject(TYPES.MigrationService) private migrationService: MigrationService
+    @inject(TYPES.MigrationService) private migrationService: MigrationService,
+    @inject(TYPES.MessagingService) private messagingService: MessagingService
   ) {
     this._botIds = undefined
   }
@@ -607,6 +609,7 @@ export class BotService {
         throw new Error('Supported languages must include the default language of the bot')
       }
 
+      await this.messagingService.loadMessagingForBot(botId)
       await this.cms.loadElementsForBot(botId)
       await this.moduleLoader.loadModulesForBot(botId)
 
