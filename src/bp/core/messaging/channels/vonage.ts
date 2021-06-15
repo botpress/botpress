@@ -10,47 +10,8 @@ export class ChannelVonage extends Channel {
     return 'vonage'
   }
 
-  constructor(private client: MessagingClient, private messaging: MessagingService, private ghost: GhostService) {
-    super()
-  }
-
-  async loadConfigForBot(botId: string) {
-    return this.ghost.forBot(botId).readFileAsObject('config', 'channel-vonage.json')
-  }
-
-  setupRoutes(http: HTTPServer) {
-    const router = http.createRouterForBot('channel-vonage', 'messaging', {
-      checkAuthentication: false,
-      enableJsonBodyParser: false,
-      enableUrlEncoderBodyParser: false
-    })
-
-    router.use(
-      '/webhooks/inbound',
-      createProxyMiddleware({
-        router: req => {
-          const { botId } = req.params
-          const newUrl = `${this.client.baseUrl}/webhooks/${this.messaging.getClientForBot(botId).providerName}/${
-            this.name
-          }/inbound`
-          return newUrl
-        },
-        changeOrigin: false
-      })
-    )
-
-    router.use(
-      '/webhooks/status',
-      createProxyMiddleware({
-        router: req => {
-          const { botId } = req.params
-          const newUrl = `${this.client.baseUrl}/webhooks/${this.messaging.getClientForBot(botId).providerName}/${
-            this.name
-          }/status`
-          return newUrl
-        },
-        changeOrigin: false
-      })
-    )
+  setupProxies() {
+    this.setupProxy('/webhooks/inbound', '/inbound')
+    this.setupProxy('/webhooks/status', '/status')
   }
 }
