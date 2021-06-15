@@ -92,7 +92,9 @@ export class AuthService {
       return strategy && this._getStrategyConfig(strategy, strategyName)
     })
 
-    return { strategies: strategies.filter(Boolean), isFirstUser: await this.isFirstUser() }
+    const hideDefault = config.authStrategies.default && config.authStrategies.default.hide
+
+    return { strategies: strategies.filter(Boolean), isFirstUser: await this.isFirstUser(), hideDefault }
   }
 
   async generateSecureToken(email: string, strategy: string) {
