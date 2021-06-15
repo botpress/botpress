@@ -1,5 +1,5 @@
 ---
-id: entities
+id: entity-extraction
 title: Entity Extraction
 ---
 
