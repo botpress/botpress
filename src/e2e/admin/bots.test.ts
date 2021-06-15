@@ -119,7 +119,7 @@ describe('Admin - Bot Management', () => {
 
   it('Changes bot converse config to disable public endpoint', async () => {
     await clickOn('#btn-menu-code-editor') // Navigate to admin code editor
-    await page.waitFor(1000) // Wait  for code editor to display
+    await page.waitFor(1000) // Wait for code editor to display
     await clickOn('span.bp3-button-text', { text: 'Advanced Editor' }) //Display raw editor
     await page.waitFor(500)
     await clickOn('span.bp3-tree-node-label', { text: 'bots' })
