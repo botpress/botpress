@@ -55,7 +55,7 @@ export class ConverseRouter extends CustomRouter {
         const params = req.query.include
 
         if (params && params.toLowerCase() !== 'responses') {
-          return res.status(401).send("Unauthenticated converse API can only return 'responses'")
+          return res.status(401).send('Unauthenticated converse API can only return "responses"')
         }
 
         const rawOutput = await this.converseService.sendMessage(
@@ -106,7 +106,7 @@ export class ConverseRouter extends CustomRouter {
 
     const enabledGlobal = (await this.configProvider.getBotpressConfig()).converse?.enableUnsecuredEndPoint ?? true
     if (!enabledGlobal) {
-      return res.status(401).send(`Unauthenticated Converse API is disabled for all bots`)
+      return res.status(401).send('Unauthenticated Converse API is disabled for all bots')
     }
 
     next()
