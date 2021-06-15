@@ -1,11 +1,11 @@
 import { IO, MessagingConfig } from 'botpress/sdk'
-import { HTTPServer } from 'core/app/server'
 import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config'
 import { EventEngine, Event } from 'core/events'
 import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
 import { Channel } from './channels/base'
+import { ChannelMessenger } from './channels/messenger'
 import { ChannelSlack } from './channels/slack'
 import { ChannelTeams } from './channels/teams'
 import { ChannelTelegram } from './channels/telegram'
@@ -35,7 +35,8 @@ export class MessagingService {
       new ChannelTwilio(this.clientAdmin, this, this.ghostService),
       new ChannelTeams(this.clientAdmin, this, this.ghostService),
       new ChannelSlack(this.clientAdmin, this, this.ghostService),
-      new ChannelVonage(this.clientAdmin, this, this.ghostService)
+      new ChannelVonage(this.clientAdmin, this, this.ghostService),
+      new ChannelMessenger(this.clientAdmin, this, this.ghostService)
     ]
 
     this.eventEngine.register({
