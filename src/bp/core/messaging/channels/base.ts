@@ -31,6 +31,7 @@ export abstract class Channel {
         ...botConfig
       }
     } else {
+      return botConfig
     }
   }
 
