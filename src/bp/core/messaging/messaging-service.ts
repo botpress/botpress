@@ -6,6 +6,7 @@ import { EventEngine, Event } from 'core/events'
 import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
 import { Channel } from './channels/base'
+import { ChannelSlack } from './channels/slack'
 import { ChannelTeams } from './channels/teams'
 import { ChannelTelegram } from './channels/telegram'
 import { ChannelTwilio } from './channels/twilio'
@@ -31,7 +32,8 @@ export class MessagingService {
     this.channels = [
       new ChannelTelegram(this.clientAdmin, this, this.ghostService),
       new ChannelTwilio(this.clientAdmin, this, this.ghostService),
-      new ChannelTeams(this.clientAdmin, this, this.ghostService)
+      new ChannelTeams(this.clientAdmin, this, this.ghostService),
+      new ChannelSlack(this.clientAdmin, this, this.ghostService)
     ]
 
     this.eventEngine.register({
