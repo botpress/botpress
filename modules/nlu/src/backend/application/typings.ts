@@ -30,7 +30,7 @@ export interface Predictor {
   predict(text: string, anticipatedLanguage?: string): Promise<EventUnderstanding>
 }
 
-export type EventUnderstanding = Omit<IO.EventUnderstanding, 'includedContexts'>
+export type EventUnderstanding = Omit<IO.EventUnderstanding, 'includedContexts' | 'ms'>
 
 export interface TrainingState {
   status: SDKNLU.TrainingStatus

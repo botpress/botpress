@@ -57,17 +57,21 @@ export const registerMiddlewares = async (bp: typeof sdk, app: NLUApplication) =
 
         const bot = app.getBot(botId)
 
+        const t0 = Date.now()
+
         const predOutput = await bot.predict(preview, anticipatedLanguage)
         const includedContexts = event.nlu?.includedContexts ?? []
+
+        const appendTime = <T>(eu: T) => ({ ...eu, ms: Date.now() - t0 })
 
         let nluResults = { ...predOutput, includedContexts }
         if (nluResults.spellChecked && nluResults.spellChecked !== preview) {
           const predOutput = await bot.predict(nluResults.spellChecked, anticipatedLanguage)
           const spellCheckedResults = { ...predOutput, includedContexts }
-          nluResults = pickSpellChecked(nluResults, spellCheckedResults)
+          nluResults = pickSpellChecked(appendTime(nluResults), appendTime(spellCheckedResults))
         }
 
-        const postElection = election(nluResults, globalConfig)
+        const postElection = election(appendTime(nluResults), globalConfig)
         _.merge(event, { nlu: postElection })
         removeSensitiveText(bp, event)
       } catch (err) {

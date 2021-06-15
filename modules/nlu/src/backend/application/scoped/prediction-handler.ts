@@ -29,8 +29,6 @@ export class ScopedPredictionHandler {
   }
 
   async predict(textInput: string, anticipatedLanguage: string): Promise<EventUnderstanding> {
-    const t0 = Date.now()
-
     const { defaultLanguage } = this
 
     let detectedLanguage: string | undefined
@@ -52,8 +50,7 @@ export class ScopedPredictionHandler {
 
     for (const lang of languagesToTry) {
       const res = await this.tryPredictInLanguage(textInput, lang)
-      const ms = Date.now() - t0
-      nluResults = res && { ...res, ms }
+      nluResults = res && { ...res }
 
       if (!this.isEmpty(nluResults) && !this.isError(nluResults)) {
         break
@@ -67,10 +64,7 @@ export class ScopedPredictionHandler {
     return { ...nluResults, detectedLanguage }
   }
 
-  private async tryPredictInLanguage(
-    textInput: string,
-    language: string
-  ): Promise<Omit<RawEventUnderstanding, 'ms'> | undefined> {
+  private async tryPredictInLanguage(textInput: string, language: string): Promise<RawEventUnderstanding | undefined> {
     if (!this._modelsByLang[language]) {
       return
     }
