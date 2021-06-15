@@ -129,7 +129,7 @@ describe('Admin - Bot Management', () => {
     await page.mouse.click(500, 100)
     await page.waitFor(500) // Required so the editor is correctly focused at the right place
     await triggerKeyboardShortcut('End', false)
-    await page.keyboard.type('"converse": {"enableUnsecuredEndPoint": false},') //Edit bot config
+    await page.keyboard.type('"converse": {"enableUnsecuredEndPoint": false},') // Edit bot config
     await clickOn('svg[data-icon="floppy-disk"]')
 
     let status
