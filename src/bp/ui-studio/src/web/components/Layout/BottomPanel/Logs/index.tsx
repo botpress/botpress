@@ -61,8 +61,10 @@ class BottomPanel extends React.Component<Props, State> {
   }
 
   setupListener = () => {
+    const isGlobalOrCurrentBotLog = (scope: string) => [`logs::${window.BOT_ID}`, 'logs::*'].includes(scope)
+
     EventBus.default.onAny((name, { level, message, args }) => {
-      if (!name || typeof name !== 'string' || ![`logs::${window.BOT_ID}`, 'logs::*'].includes(name)) {
+      if (!name || typeof name !== 'string' || !isGlobalOrCurrentBotLog(name)) {
         return
       }
 
