@@ -55,7 +55,9 @@ export class MessagingService {
     const conduits = {}
     for (const channel of this.channels) {
       const config = await channel.loadConfigForBot(botId)
-      conduits[channel.name] = config
+      if (config) {
+        conduits[channel.name] = config
+      }
     }
 
     const setupConfig = {

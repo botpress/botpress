@@ -17,16 +17,20 @@ export abstract class Channel {
   constructor(private client: MessagingClient, private messaging: MessagingService, private ghost: GhostService) {}
 
   async loadConfigForBot(botId: string) {
-    const botConfig = await this.ghost.forBot(botId).readFileAsObject<any>('config', `channel-${this.name}.json`)
+    const fileName = `channel-${this.name}.json`
 
-    if (this.mergeGlobalConfig) {
-      const globalConfig = await this.ghost.global().readFileAsObject<any>('config', `channel-${this.name}.json`)
+    if (!(await this.ghost.forBot(botId).fileExists('config', fileName))) {
+      return undefined
+    }
+    const botConfig = await this.ghost.forBot(botId).readFileAsObject<any>('config', fileName)
+
+    if (this.mergeGlobalConfig && (await this.ghost.global().fileExists('config', fileName))) {
+      const globalConfig = await this.ghost.global().readFileAsObject<any>('config', fileName)
       return {
         ...globalConfig,
         ...botConfig
       }
     } else {
-      return botConfig
     }
   }
 
