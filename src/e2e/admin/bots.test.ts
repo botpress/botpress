@@ -119,8 +119,8 @@ describe('Admin - Bot Management', () => {
 
   it('Changes bot converse config to disable public endpoint', async () => {
     await clickOn('#btn-menu-code-editor') // Navigate to admin code editor
-    await page.waitFor(1000) // Wait  for code editor to display
-    await clickOn('span.bp3-button-text', { text: 'Advanced Editor' }) //Display raw editor
+    await page.waitFor(1000) // Wait for code editor to display
+    await clickOn('span.bp3-button-text', { text: 'Advanced Editor' }) // Display raw editor
     await page.waitFor(500)
     await clickOn('span.bp3-tree-node-label', { text: 'bots' })
     await clickOn('span.bp3-tree-node-label', { text: bpConfig.botId })
@@ -129,7 +129,7 @@ describe('Admin - Bot Management', () => {
     await page.mouse.click(500, 100)
     await page.waitFor(500) // Required so the editor is correctly focused at the right place
     await triggerKeyboardShortcut('End', false)
-    await page.keyboard.type('"converse": {"enableUnsecuredEndPoint": false},') //Edit bot config
+    await page.keyboard.type('"converse": {"enableUnsecuredEndPoint": false},') // Edit bot config
     await clickOn('svg[data-icon="floppy-disk"]')
 
     let status
