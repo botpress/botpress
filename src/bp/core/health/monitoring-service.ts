@@ -1,4 +1,4 @@
-import { Metric } from 'common/monitoring'
+import { Metric, MonitoringMetrics } from 'common/monitoring'
 import { injectable } from 'inversify'
 import { Redis } from 'ioredis'
 import _ from 'lodash'
@@ -56,34 +56,6 @@ export const incrementMetric = (metricName: string, value?: number | undefined) 
  */
 export interface MetricsContainer {
   [metricName: string]: number
-}
-
-export type MonitoringStats = MonitoringMetrics & {
-  host: string
-  ts: number
-  uptime: number
-  cpu: {
-    usage: number
-  }
-  mem: {
-    usage: number
-    free: number
-  }
-}
-
-export interface MonitoringMetrics {
-  requests: {
-    count: number
-    latency_avg: number
-    latency_sum: number
-  }
-  eventsIn: {
-    count: number
-  }
-  eventsOut: { count: number }
-  warnings: { count: number }
-  errors: { count: number }
-  criticals: { count: number }
 }
 
 export interface Status {
