@@ -16,7 +16,7 @@ const FILE_PATTERNS: Dic<RegExp> = {
 
 // This will display those keys in the Debug panel so the user can enable them
 DEBUG('nlu:training')
-DEBUG('nlu:prediction')
+DEBUG('nlu:predict')
 
 const SIG_KILL = 'SIGKILL'
 
