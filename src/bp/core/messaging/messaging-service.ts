@@ -61,7 +61,7 @@ export class MessagingService {
     }
 
     const setupConfig = {
-      name: botId,
+      providerName: botId,
       conduits,
       clientId: messaging.clientId,
       webhooks: [{ url: 'http://localhost:3000/api/v1/messaging/receive' }]

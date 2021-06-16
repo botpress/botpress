@@ -7,7 +7,7 @@ export class MessagingClient {
   constructor(private clientId: string, private clientToken: string, public providerName: string) {}
 
   async setupClient(config: any) {
-    const res = await axios.post(`${this.apiUrl}/clients/setup`, config)
+    const res = await axios.post(`${this.apiUrl}/sync`, config)
     return res.data
   }
 
