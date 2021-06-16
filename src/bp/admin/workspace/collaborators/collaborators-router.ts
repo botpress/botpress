@@ -136,6 +136,40 @@ class CollaboratorsRouter extends CustomAdminRouter {
       })
     )
 
+    //create agent for supervisor
+    router.post(
+      '/agent/create',
+      this.assertBotpressPro,
+      this.needPermissions('write', this.resource),
+      this.asyncMiddleware(async (req, res) => {
+        validateBodySchema(
+          req,
+          Joi.object().keys({
+            email: Joi.string()
+              .trim()
+              .required(),
+            role: Joi.string().required(),
+            strategy: Joi.string().required()
+          })
+        )
+
+        const { email, strategy, role } = req.body
+        const alreadyExists = await this.authService.findUser(email, strategy)
+
+        if (alreadyExists) {
+          throw new ConflictError(`User "${email}" is already taken`)
+        }
+
+        const result = await this.authService.createUser({ email, strategy }, strategy)
+        await this.workspaceService.addUserToWorkspace(email, strategy, req.workspace!, { role })
+
+        return sendSuccess(res, 'User created successfully', {
+          email,
+          tempPassword: typeof result === 'string' ? result : `(Use ${strategy} password)`
+        })
+      })
+    )
+
     router.post(
       '/:strategy/:email/delete',
       assertSuperAdmin,

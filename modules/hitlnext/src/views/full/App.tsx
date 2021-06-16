@@ -13,6 +13,7 @@ import AgentStatus from './app/components/AgentStatus'
 import ConversationContainer from './app/components/ConversationContainer'
 import EmptyConversation from './app/components/EmptyConversation'
 import HandoffList from './app/components/HandoffList'
+import SupervisorMenu from './app/components/SupervisorMenu'
 import { Context, Store } from './app/Store'
 import style from './style.scss'
 
@@ -146,6 +147,7 @@ const App: FC<Props> = ({ bp }) => {
     <div className={style.app}>
       <div className={style.mainNav}>
         <AgentList loading={loading} agents={state.agents} />
+        <SupervisorMenu setOnline={setOnline} loading={loading} {...state.currentAgent} />
         <AgentStatus setOnline={setOnline} loading={loading} {...state.currentAgent} />
       </div>
 
