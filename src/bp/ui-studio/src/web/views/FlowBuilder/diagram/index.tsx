@@ -1,19 +1,6 @@
-import {
-  Button,
-  ContextMenu,
-  ControlGroup,
-  InputGroup,
-  Intent,
-  Menu,
-  MenuDivider,
-  MenuItem,
-  Position,
-  Tag,
-  Toaster
-} from '@blueprintjs/core'
+import { Intent, Menu, MenuDivider, MenuItem, Position, Toaster } from '@blueprintjs/core'
 import { IO } from 'botpress/sdk'
-import { contextMenu, Icons, lang, MainLayout, sharedStyle, ShortcutLabel } from 'botpress/shared'
-import cx from 'classnames'
+import { contextMenu, Icons, lang, MainLayout, sharedStyle, ShortcutLabel, utils } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
@@ -47,9 +34,7 @@ import {
   updateFlowProblems,
   zoomToLevel
 } from '~/actions'
-import { SearchBar } from '~/components/Shared/Interface'
 import { getAllFlows, getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
-import storage from '~/util/storage'
 
 import { prepareEventForDiagram } from './debugger'
 import DiagramToolbar from './DiagramToolbar'
@@ -94,7 +79,7 @@ export const MAX_NUMBER_OF_POINTS_PER_LINK = 3
 
 const getExpandedNodes = () => {
   try {
-    return JSON.parse(storage.get(EXPANDED_NODES_KEY) || '[]')
+    return JSON.parse(utils.storage.get(EXPANDED_NODES_KEY) || '[]')
   } catch (error) {
     return []
   }
@@ -185,7 +170,7 @@ class Diagram extends Component<Props> {
       expandedNodes.push(nodeId)
     }
 
-    storage.set(EXPANDED_NODES_KEY, JSON.stringify(expandedNodes))
+    utils.storage.set(EXPANDED_NODES_KEY, JSON.stringify(expandedNodes))
     this.setState({ expandedNodes })
   }
 

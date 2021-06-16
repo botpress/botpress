@@ -410,7 +410,11 @@ class RootStore {
     document.title = this.config.botName || 'Botpress Webchat'
 
     try {
-      window.USE_SESSION_STORAGE = this.config.useSessionStorage
+      if (window.USE_SESSION_STORAGE !== this.config.useSessionStorage) {
+        window.USE_SESSION_STORAGE = this.config.useSessionStorage
+        // Reconfigure the EventBus since the storage provider has changed
+        this.bp.events.setup()
+      }
     } catch {
       console.error('Could not set USE_SESSION_STORAGE')
     }

@@ -1,21 +1,26 @@
+import { Button } from '@blueprintjs/core'
+import { utils } from 'botpress/shared'
 import React from 'react'
 import Tour from 'reactour'
-import storage from '../../util/storage'
-import { Button } from '@blueprintjs/core'
 
 // Change this key to display the tour the next time a user opens Botpress
 const TOUR_KEY = 'guidedTour11_9_0'
 
-export default class GuidedTour extends React.Component {
+interface Props {
+  onToggle: () => void
+  isDisplayed: boolean
+}
+
+export default class GuidedTour extends React.Component<Props> {
   componentDidMount() {
-    if (!storage.get(TOUR_KEY)) {
-      storage.set(TOUR_KEY, true)
+    if (!Boolean(utils.storage.get(TOUR_KEY))) {
+      utils.storage.set(TOUR_KEY, 'true')
       this.props.onToggle()
     }
   }
 
-  componentDidCatch(error) {
-    console.log('Error while processing guided tour', error)
+  componentDidCatch(error: Error) {
+    console.error('Error while processing guided tour', error)
   }
 
   render() {

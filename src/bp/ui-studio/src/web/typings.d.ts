@@ -1,4 +1,4 @@
-import { BPStorage } from '~/util/storage'
+import { BPStorage } from '../../../ui-shared-lite/utils/storage'
 
 // TODO: remove when at least one typing is exported from this file
 export interface test {}

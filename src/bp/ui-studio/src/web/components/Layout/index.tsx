@@ -9,7 +9,6 @@ import SplitPane from 'react-split-pane'
 import { setEmulatorOpen, toggleBottomPanel, toggleInspector, trainSessionReceived, viewModeChanged } from '~/actions'
 import SelectContentManager from '~/components/Content/Select/Manager'
 import PluginInjectionSite from '~/components/PluginInjectionSite'
-import storage from '~/util/storage'
 import Config from '~/views/Config'
 import Content from '~/views/Content'
 import FlowBuilder from '~/views/FlowBuilder'
@@ -61,17 +60,17 @@ const Layout: FC<Props> = (props: Props) => {
       if (message.data.chatId) {
         return // event is not coming from emulator
       }
-      if (message.data.name === 'webchatLoaded' && storage.get(WEBCHAT_PANEL_STATUS) === 'opened') {
+      if (message.data.name === 'webchatLoaded' && utils.storage.get(WEBCHAT_PANEL_STATUS) === 'opened') {
         toggleEmulator()
       }
 
       if (message.data.name === 'webchatOpened') {
-        storage.set(WEBCHAT_PANEL_STATUS, 'opened')
+        utils.storage.set(WEBCHAT_PANEL_STATUS, 'opened')
         props.setEmulatorOpen(true)
       }
 
       if (message.data.name === 'webchatClosed') {
-        storage.set(WEBCHAT_PANEL_STATUS, 'closed')
+        utils.storage.set(WEBCHAT_PANEL_STATUS, 'closed')
         props.setEmulatorOpen(false)
       }
     }

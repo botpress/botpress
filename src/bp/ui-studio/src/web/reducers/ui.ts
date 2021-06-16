@@ -1,3 +1,4 @@
+import { utils } from 'botpress/shared'
 import _ from 'lodash'
 import { handleActions } from 'redux-actions'
 import {
@@ -15,8 +16,6 @@ import {
   zoomToLevel
 } from '~/actions'
 
-import storage from '../util/storage'
-
 export interface UiReducer {
   viewMode: any
   docHints: string[]
@@ -30,8 +29,8 @@ export interface UiReducer {
 
 const bottomPanelStorageKey = `bp::${window.BOT_ID}::bottom-panel-open`
 const inspectorEnabledStorageKey = `bp::${window.BOT_ID}::enable-inspector`
-const defaultBottomPanelOpen = storage.get(bottomPanelStorageKey) === 'true'
-const defaultInspectorEnabled = storage.get(inspectorEnabledStorageKey) === 'true'
+const defaultBottomPanelOpen = utils.storage.get(bottomPanelStorageKey) === 'true'
+const defaultInspectorEnabled = utils.storage.get(inspectorEnabledStorageKey) === 'true'
 
 const defaultState = {
   viewMode: -1,
