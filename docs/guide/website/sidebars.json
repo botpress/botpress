@@ -16,7 +16,8 @@
     "Natural Language Understanding": [
       "nlu/intent-matching",
       "nlu/skill-slot",
-      "nlu/3rd-party-NLU"
+      "nlu/3rd-party-NLU",
+      "nlu/i18n"
     ],
     "Channels": [
       "channels/web",
@@ -62,7 +63,7 @@
       "tutorials/contextual-faq",
       "tutorials/uipath"
     ],
-    "Pro Edition": ["pro/about-pro", "pro/licensing", "pro/i18n"],
+    "Pro Edition": ["pro/about-pro", "pro/licensing"],
     "Advanced Guides": [
       "advanced/debug",
       "advanced/authentication",
