@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events'
-import { runNluServerWithArgv } from './nlu'
 
 global['NativePromise'] = global.Promise
 
@@ -310,14 +309,16 @@ try {
       }
     )
     .command('lang', 'Launch a local language server', {}, () => {
-      runNluServerWithArgv(['lang', ...process.argv])
+      require('./nlu')
+        .runNluServerWithArgv(['lang', ...process.argv])
         .then(() => {})
         .catch(err => {
           throw err
         })
     })
     .command('nlu', 'Launch a local stand-alone nlu server', {}, () => {
-      runNluServerWithArgv(['nlu', ...process.argv])
+      require('./nlu')
+        .runNluServerWithArgv(['nlu', ...process.argv])
         .then(() => {})
         .catch(err => {
           throw err

@@ -180,14 +180,22 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Enable Redis support"
-          status={isSet(getEnv('REDIS_URL')) && isSet(getEnv('CLUSTER_ENABLED')) ? 'success' : 'warning'}
+          status={
+            isSet(getEnv('REDIS_URL')) && isSet(getEnv('CLUSTER_ENABLED')) && isSet(getEnv('BP_REDIS_SCOPE'))
+              ? 'success'
+              : 'warning'
+          }
           source={[
             { type: 'env', key: 'REDIS_URL', value: getEnv('REDIS_URL') },
-            { type: 'env', key: 'CLUSTER_ENABLED', value: getEnv('CLUSTER_ENABLED') }
+            { type: 'env', key: 'CLUSTER_ENABLED', value: getEnv('CLUSTER_ENABLED') },
+            { type: 'env', key: 'BP_REDIS_SCOPE', value: getEnv('BP_REDIS_SCOPE') }
           ]}
         >
-          Redis allows you to run multiple Botpress servers, all using the same data. Both variables below must be
-          configured for Redis to work proprely
+          Redis allows you to run multiple Botpress servers, all using the same data. All variables below must be
+          configured for Redis to work properly. Setting a Redis scope allows you to run multiple Botpress clusters
+          (e.g. staging and production) on the same Redis cluster without impacting one another. Simply re-use the same
+          URL for Redis and set the 'BP_REDIS_SCOPE' environment variable to prod on your production instance and
+          staging on your staging environment.
         </Item>
 
         <Item
