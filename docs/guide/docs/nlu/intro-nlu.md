@@ -1,6 +1,6 @@
 ---
 id: intro-nlu
-title: Natural Language Unit
+title: Natural Language Understanding 
 ---
 
 Natural language understanding is a branch of AI that interprets and understands text from a user then converts the text into a usable format for computers. For example, Botpress' NLU transforms natural dialog from the user into structured information that your chatbot can understand and use. 
