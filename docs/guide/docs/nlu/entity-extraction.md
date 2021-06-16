@@ -181,7 +181,7 @@ Extraction will go like this:
 ]
 ```
 
-## Placeholder extraction (experimental)
+## Placeholder extraction
 Botpress Native NLU also has a system entity of type `any`, which is essentially a placeholder. For this feature to work optimally, a lot of training data is required. Before identifying slots [see slots docs](#slots) as entity type `any`, try to use custom entities.
 
 An example of a placeholder entity would be: Please tell **Sarah** that **she's late**
