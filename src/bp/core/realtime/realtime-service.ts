@@ -1,8 +1,9 @@
-import { IO, Logger, RealTimePayload } from 'botpress/sdk'
+import { Logger } from 'botpress/sdk'
 import cookie from 'cookie'
 import { TYPES } from 'core/app/types'
 import { BotpressConfig, ConfigProvider } from 'core/config'
 import { MonitoringService } from 'core/health'
+import { PersistedConsoleLogger } from 'core/logger'
 import { AuthService } from 'core/security'
 import { EventEmitter2 } from 'eventemitter2'
 import { Server } from 'http'
@@ -11,6 +12,7 @@ import _ from 'lodash'
 import socketio, { Adapter } from 'socket.io'
 import redisAdapter from 'socket.io-redis'
 import socketioJwt from 'socketio-jwt'
+import { RealTimePayload } from './payload-sdk-impl'
 
 const debug = DEBUG('realtime')
 
@@ -46,6 +48,10 @@ export class RealtimeService {
     })
 
     this.useRedis = process.CLUSTER_ENABLED && Boolean(process.env.REDIS_URL) && process.IS_PRO_ENABLED
+
+    PersistedConsoleLogger.LogStreamEmitter.onAny((type, level, message, args) => {
+      this.sendToSocket(RealTimePayload.forAdmins(type as string, { level, message, args }))
+    })
   }
 
   private isEventTargeted(eventName: string | string[]): boolean {

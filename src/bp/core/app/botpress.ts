@@ -116,6 +116,7 @@ export class Botpress {
 
     AppLifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
 
+    this.displayRedisChannelPrefix()
     await this.restoreDebugScope()
     await this.checkJwtSecret()
     await this.loadModules(options.modules)
@@ -225,6 +226,12 @@ export class Botpress {
     }
 
     process.APP_SECRET = appSecret
+  }
+
+  displayRedisChannelPrefix() {
+    if (process.CLUSTER_ENABLED && process.env.REDIS_URL && process.env.BP_REDIS_SCOPE) {
+      this.logger.debug(`Redis using scope: ${process.env.BP_REDIS_SCOPE}`)
+    }
   }
 
   async checkEditionRequirements() {
