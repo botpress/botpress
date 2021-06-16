@@ -49,7 +49,7 @@ export class PersistedConsoleLogger implements Logger {
   private serverHostname: string = ''
   private event?: IO.Event
 
-  private static LogStreamEmitter: EventEmitter2 = new EventEmitter2({
+  public static LogStreamEmitter: EventEmitter2 = new EventEmitter2({
     delimiter: '::',
     maxListeners: 1000,
     verboseMemoryLeak: true,
