@@ -13,7 +13,7 @@ Below are some tasks performed by the NLU module
  > **QnA**: A simple use-case for chatbots is to understand a question and provide an answer automatically. Doing that manually for all the questions and answers using the NLU module and the flow editor would be a tedious task, which is why we recommend using the QnA module for that instead.
 
 ## Language Server
-The language server provides additional information about words, which allows your chatbot to understand words with similar meanings. It takes away the need for you to teach your chatbot about synonyms, colloquial language, and content translation. By default, your Botpress server will query one of our language servers for that purpose. You can also choose to host your server if you would like to keep everything on your premises. Head over to the [Hosting](../infrastructure/hosting#running-your-language-server) page for more details.
+The language server provides additional information about words, which allows your chatbot to understand words with similar meanings. It takes away the need for you to teach your chatbot about synonyms, and colloquial language. By default, your Botpress server will query one of our language servers for that purpose. You can also choose to host your server if you would like to keep everything on your premises. Head over to the [Hosting](../infrastructure/hosting#running-your-language-server) page for more details.
 
 ## External NLU Providers
 Botpress NLU ships with a native NLU engine (Botpress Native NLU). The advantage of using Botpress NLU is that it is fast (both at training and evaluation time), secured (doesn't relay messages to external services), predictable (you can write unit tests, and the model resides on your computer or server), and free.
