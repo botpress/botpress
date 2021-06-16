@@ -1,6 +1,6 @@
-import * as sdk from 'botpress/sdk'
-import { Metric } from 'common/monitoring'
+import { Metric, MonitoringMetrics } from 'common/monitoring'
 import { injectable } from 'inversify'
+import { Redis } from 'ioredis'
 import _ from 'lodash'
 /**
  * These methods are exposed outside the class to add minimal overhead when collecting metrics
@@ -33,7 +33,7 @@ export const getMetrics = () => {
   return metrics as MonitoringMetrics
 }
 
-export const setMetricsCollection = enabled => {
+export const setMetricsCollection = (enabled: boolean) => {
   metricCollectionEnabled = enabled
 }
 
@@ -58,53 +58,31 @@ export interface MetricsContainer {
   [metricName: string]: number
 }
 
-export type MonitoringStats = MonitoringMetrics & {
-  host: string
-  ts: number
-  uptime: number
-  cpu: {
-    usage: number
-  }
-  mem: {
-    usage: number
-    free: number
-  }
-}
-
-export interface MonitoringMetrics {
-  requests: {
-    count: number
-    latency_avg: number
-    latency_sum: number
-  }
-  eventsIn: {
-    count: number
-  }
-  eventsOut: { count: number }
-  warnings: { count: number }
-  errors: { count: number }
-  criticals: { count: number }
+export interface Status {
+  botpress: string
+  redis?: string
+  database?: string
 }
 
 export interface MonitoringService {
   start(): Promise<void>
   stop(): void
-  getStats(dateFrom, dateTo): any
-  getStatus(): any
-  getRedisFactory(): any
+  getStats(dateFrom: number, dateTo: number): Promise<string[]>
+  getStatus(): Promise<Status>
+  getRedisFactory(): (type: 'subscriber' | 'commands' | 'socket', url?: string | undefined) => Redis | undefined
 }
 
 @injectable()
 export class CEMonitoringService implements MonitoringService {
   async start(): Promise<void> {}
   stop(): void {}
-  getStats(dateFrom, dateTo): any {
-    return undefined
+  async getStats(_dateFrom: number, _dateTo: number): Promise<string[]> {
+    return []
   }
-  getStatus(): any {
+  async getStatus(): Promise<Status> {
     return { botpress: 'up' }
   }
   getRedisFactory() {
-    return undefined
+    return () => undefined
   }
 }

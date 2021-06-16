@@ -1,4 +1,3 @@
-import { MonitoringStats } from 'core/health'
 import _ from 'lodash'
 import ms from 'ms'
 
@@ -61,7 +60,7 @@ const calculateAverageAndSum = (allEntries: MonitoringStats[], ts: string, uniqu
 
   for (const host of uniqueHosts) {
     hosts[host] = hosts[host] || {}
-    const hostEntries = _.filter(allEntries, entry => entry.host === host)
+    const hostEntries = _.filter(allEntries, entry => entry.uniqueId === host)
     AVG_KEYS.forEach(key => {
       const sum = _.sumBy(hostEntries, key)
 
@@ -93,4 +92,35 @@ export const calculateOverviewForHost = (hostStats: MonitoringStats[]) => {
   SUM_KEYS.forEach(key => _.set(overview, key, _.sumBy(hostStats, key)))
 
   return overview
+}
+
+export type MonitoringStats = MonitoringMetrics & {
+  // Auto-generated from host and server id
+  uniqueId?: string
+  host: string
+  serverId: string
+  ts: number
+  uptime: number
+  cpu: {
+    usage: number
+  }
+  mem: {
+    usage: number
+    free: number
+  }
+}
+
+export interface MonitoringMetrics {
+  requests: {
+    count: number
+    latency_avg: number
+    latency_sum: number
+  }
+  eventsIn: {
+    count: number
+  }
+  eventsOut: { count: number }
+  warnings: { count: number }
+  errors: { count: number }
+  criticals: { count: number }
 }
