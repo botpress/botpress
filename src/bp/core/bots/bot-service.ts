@@ -61,7 +61,6 @@ export class BotService {
 
   private _botIds: string[] | undefined
   private static _mountedBots: Map<string, boolean> = new Map()
-  private static _botListenerHandles: Map<string, IDisposable> = new Map()
   private static _botHealth: { [botId: string]: BotHealth } = {}
   private _updateBotHealthDebounce = _.debounce(this._updateBotHealth, 500)
 
@@ -613,24 +612,6 @@ export class BotService {
       await this.hookService.executeHook(new Hooks.AfterBotMount(api, botId))
       BotService._mountedBots.set(botId, true)
       this._invalidateBotIds()
-
-      if (BotService._botListenerHandles.has(botId)) {
-        BotService._botListenerHandles.get(botId)!.dispose()
-        BotService._botListenerHandles.delete(botId)
-      }
-
-      BotService._botListenerHandles.set(
-        botId,
-        PersistedConsoleLogger.listenForAllLogs((level, message, args) => {
-          this.realtimeService.sendToSocket(
-            RealTimePayload.forAdmins(`logs::${botId}`, {
-              level,
-              message,
-              args
-            })
-          )
-        }, botId)
-      )
 
       BotService.setBotStatus(botId, 'healthy')
       return true

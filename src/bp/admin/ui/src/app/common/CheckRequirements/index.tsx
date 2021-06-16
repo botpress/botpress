@@ -6,6 +6,7 @@ import React, { FC, useEffect, useState } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 
 import api from '~/app/api'
+import LoadingSection from '~/app/common/LoadingSection'
 import { fetchServerConfig } from '~/management/checklist/reducer'
 import { AppState } from '../../rootReducer'
 import style from './style.scss'
@@ -76,6 +77,10 @@ const CheckRequirements: FC<Props> = props => {
         </Callout>
       </div>
     )
+  }
+
+  if (!props.serverConfigLoaded) {
+    return <LoadingSection />
   }
 
   return isEnabled ? (
