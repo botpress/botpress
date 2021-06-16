@@ -156,6 +156,8 @@
         "eventsIn": "Events In",
         "eventsOut": "Events Out",
         "host": "Host",
+        "serverId": "Server ID",
+        "lastUpdate": "Last Update",
         "peakCpuUsage": "Peak CPU Usage",
         "peakMemUsage": "Peak Mem Usage",
         "requests": "Requests",
@@ -165,6 +167,7 @@
         "uptime": "Uptime",
         "warnings": "Warnings"
       },
+      "currentServer": "This is the server you are currently on",
       "restart": "Restart server",
       "restartInProgress": "Server restart in progress. To know when the server is back up, watch the uptime for that server in the Overview. You can close this window safely.",
       "restartNow": "Restart server now",

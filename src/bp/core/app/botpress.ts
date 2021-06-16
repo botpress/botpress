@@ -34,7 +34,7 @@ import { startLocalActionServer, startLocalNLUServer } from 'orchestrator'
 import path from 'path'
 import plur from 'plur'
 
-import { setDebugScopes } from '../../debug'
+import { getDebugScopes, setDebugScopes } from '../../debug'
 import { HTTPServer } from './server'
 import { TYPES } from './types'
 
@@ -203,6 +203,16 @@ export class Botpress {
       return
     }
 
+    const debugScopes = getDebugScopes()
+    const nluDebugScopes = Object.entries(debugScopes)
+      .filter(([k, v]) => v)
+      .map(([k, v]) => k)
+      .filter(x => x.startsWith('bp:nlu:'))
+      .map(x => x.replace('bp:nlu:', ''))
+
+    const verbose = nluDebugScopes.length ? 4 : 3
+    const logFilter = nluDebugScopes.length ? nluDebugScopes : undefined
+
     startLocalNLUServer({
       languageSources: config.languageSources,
       ducklingURL: config.ducklingURL,
@@ -211,7 +221,9 @@ export class Botpress {
       dbURL: process.core_env.BPFS_STORAGE === 'database' ? process.core_env.DATABASE_URL : undefined,
       modelDir: process.cwd(),
       modelCacheSize: config.modelCacheSize,
-      authToken: makeNLUPassword()
+      authToken: makeNLUPassword(),
+      logFilter,
+      verbose
     })
   }
 

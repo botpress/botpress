@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events'
-import { runNluServerWithArgv } from './nlu'
 
 global['NativePromise'] = global.Promise
 
@@ -312,12 +311,14 @@ try {
     .command('lang', 'Launch a local language server', {}, () => {
       getos.default().then(async distro => {
         process.distro = distro
+        const { runNluServerWithArgv } = require('./nlu')
         await runNluServerWithArgv(['lang', ...process.argv])
       })
     })
     .command('nlu', 'Launch a local stand-alone nlu server', {}, () => {
       getos.default().then(async distro => {
         process.distro = distro
+        const { runNluServerWithArgv } = require('./nlu')
         await runNluServerWithArgv(['nlu', ...process.argv])
       })
     })

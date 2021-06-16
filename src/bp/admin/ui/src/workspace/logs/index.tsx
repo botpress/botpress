@@ -263,7 +263,7 @@ const Logs: FC<Props> = props => {
         filtered={filters}
         onFilteredChange={filtered => setFilters(filtered)}
         filterable
-        defaultSorted={[{ id: 'level', desc: false }]}
+        defaultSorted={[{ id: 'timestamp', desc: true }]}
         className={cx(style.monitoringOverview, '-striped -highlight ')}
         previousText={lang.tr('previous')}
         nextText={lang.tr('next')}
