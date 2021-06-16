@@ -67,21 +67,10 @@ export class Middleware {
 
       event.setFlag(this.bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
 
-      // TODO: Remove this validation once all channels use the messaging api
-      const conversation = await this.bp.experimental.conversations.forBot(event.botId).get(event.threadId)
-      if (conversation) {
-        const message = await this.bp.experimental.messages
-          .forBot(event.botId)
-          .receive(event.threadId, payload, { channel: event.channel })
+      const newEvent = this.bp.IO.Event({ ...event, direction: 'incoming', payload })
+      await this.bp.events.sendEvent(newEvent)
 
-        // TODO: kind of a hack that a message has an eventId on it. Should be the opposite
-        this.isTextToSpeechCache.set(message.eventId, true)
-      } else {
-        const newEvent = this.bp.IO.Event({ ...event, direction: 'incoming', payload })
-        await this.bp.events.sendEvent(newEvent)
-
-        this.isTextToSpeechCache.set(newEvent.id, true)
-      }
+      this.isTextToSpeechCache.set(newEvent.id, true)
 
       return next(undefined, true, false)
     } catch (err) {
@@ -136,15 +125,6 @@ export class Middleware {
         // Simply override the payload so we don't send a new event at the bottom of the event queue
         // inverting the order of the events being sent back to the users
       ;(<any>event.payload) = payload
-
-      // TODO: Remove this validation once all channels use messaging. This check is only here since
-      // bp.events does not have a conversation or an event.threadId recognized by the messaging api.
-      const conversation = await this.bp.experimental.conversations.forBot(event.botId).get(event.threadId)
-      if (conversation) {
-        await this.bp.experimental.messages
-          .forBot(event.botId)
-          .create(event.threadId, payload, event.target, event.id, event.incomingEventId)
-      }
 
       // Do not swallow the event or mention that the processing was
       // skipped since we simply override the event payload
