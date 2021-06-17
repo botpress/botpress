@@ -57,6 +57,8 @@ In order to have code changes automatically recompiled, you need to first run `y
 
 Then, you can `cd modules/your-module`, and start a `yarn watch` process in another terminal. This will process will recompile your module's code on the fly.
 
+To regenerate the `config.schema.json` file for your module, you need to run `yarn build` from the module directory.
+
 Once your module is ready to be deployed, from your module's directory, run `yarn build && yarn package`. This will generate a `.tgz` archive containing your compiled module.
 
 ### Overriding webpack options
