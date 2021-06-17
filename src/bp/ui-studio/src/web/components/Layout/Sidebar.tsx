@@ -7,7 +7,9 @@ import React, { FC, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { NavLink, RouteComponentProps, withRouter } from 'react-router-dom'
 import { RootReducer } from '~/reducers'
+
 import { AccessControl } from '../Shared/Utils'
+
 import style from './Sidebar.scss'
 
 type StateProps = ReturnType<typeof mapStateToProps>
@@ -50,18 +52,40 @@ const Sidebar: FC<Props> = props => {
     const rule = { res: `module.${module.name}`, op: 'write' }
     const path = `/modules/${module.name}`
     const iconPath = `assets/modules/${module.name}/studio_${module.menuIcon}`
-    // Check if the CustonIcon path exist
 
-  // If the IconPath doesn't exist and the Icon name doens't exist if will render a nothing.
-  // I don't know if we prefer to have a broken image. The broken Image tell us that we have something wrong.
-  const moduleIcon =
-    module.menuIcon && IconSvgPaths16[module.menuIcon] ? (
-      <Icon icon={module.menuIcon as any} iconSize={16} />
-    ) : (
-      <img src={iconPath} />
+    const moduleIcon =
+      module.menuIcon && IconSvgPaths16[module.menuIcon] ? (
+        <Icon icon={module.menuIcon as any} iconSize={16} />
+      ) : (
+        <img
+          src={iconPath}
+          onError={e => {
+            e.currentTarget.src = 'favicon.ico'
+            e.currentTarget.style.display = 'none'
+          }}
+        />
+      )
+
+    return (
+      <AccessControl key={`menu_module_${module.name}`} resource={rule.res} operation={rule.op}>
+        <li id={`bp-menu_${module.name}`}>
+          <Tooltip
+            boundary="window"
+            position={Position.RIGHT}
+            content={
+              <div className={style.tooltipContent}>
+                <span>{lang.tr(`module.${module.name}.fullName`) || module.menuText}</span>
+                {module.experimental && <span className={style.tag}>Beta</span>}
+              </div>
+            }
+          >
+            <NavLink to={path} title={module.menuText} activeClassName={style.active}>
+              {moduleIcon} {module.experimental && <span className={style.small_tag}>Beta</span>}
+            </NavLink>
+          </Tooltip>
+        </li>
+      </AccessControl>
     )
-  return { ...module, menuIcon: moduleIcon }
-
   }
 
   const renderBasicItem = ({ id, name, path, rule, icon }) => (
