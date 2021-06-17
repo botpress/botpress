@@ -6,7 +6,7 @@ export class MessagingClient {
 
   constructor(private clientId: string, private clientToken: string, public providerName: string) {}
 
-  async setupClient(config: any) {
+  async syncClient(config: any) {
     const res = await axios.post(`${this.apiUrl}/sync`, config)
     return res.data
   }
@@ -21,29 +21,5 @@ export class MessagingClient {
       },
       { auth: { username: this.clientId, password: this.clientToken } }
     )
-  }
-
-  async getProvider(name: string) {
-    try {
-      const res = await axios.get(`${this.apiUrl}/providers`, { params: { name } })
-      return res.data
-    } catch {
-      return undefined
-    }
-  }
-
-  async createProvider(name: string) {
-    const res = await axios.post(`${this.apiUrl}/providers`, { name })
-    return res.data
-  }
-
-  async createClient(providerId: string) {
-    const res = await axios.post(`${this.apiUrl}/clients`, { providerId })
-    return res.data
-  }
-
-  async createConduit(providerId: string, channel: string, config: any) {
-    const res = await axios.post(`${this.apiUrl}/conduits`, { providerId, channel, config })
-    return res.data
   }
 }

@@ -67,7 +67,7 @@ export class MessagingService {
       webhooks: [{ url: 'http://localhost:3000/api/v1/messaging/receive' }]
     }
 
-    const { clientId, clientToken, providerName } = await this.clientAdmin.setupClient(setupConfig)
+    const { clientId, clientToken, providerName } = await this.clientAdmin.syncClient(setupConfig)
     let modified = false
 
     if (clientId && clientId !== messaging.clientId) {
