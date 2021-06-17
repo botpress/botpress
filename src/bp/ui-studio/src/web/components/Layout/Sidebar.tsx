@@ -7,7 +7,6 @@ import React, { FC, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { NavLink, RouteComponentProps, withRouter } from 'react-router-dom'
 import { RootReducer } from '~/reducers'
-import * as fs from "fs"
 import { AccessControl } from '../Shared/Utils'
 import style from './Sidebar.scss'
 
@@ -59,7 +58,7 @@ const Sidebar: FC<Props> = props => {
     module.menuIcon && IconSvgPaths16[module.menuIcon] ? (
       <Icon icon={module.menuIcon as any} iconSize={16} />
     ) : (
-      <img src={iconPath} onError={(e)=>{e.currentTarget.src = 'favicon.ico'; e.currentTarget.style.display = "none"}}  />
+      <img src={iconPath} />
     )
   return { ...module, menuIcon: moduleIcon }
 

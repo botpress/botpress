@@ -22,7 +22,7 @@ export const addModuleIcon = module => {
     module.menuIcon && IconSvgPaths16[module.menuIcon] ? (
       <Icon icon={module.menuIcon as any} iconSize={16} />
     ) : (
-      <img src={iconPath} onError={(e)=>{e.currentTarget.src = 'favicon.ico'; e.currentTarget.style.display = "none"}}  />
+      <img src={iconPath} />
     )
   return { ...module, menuIcon: moduleIcon }
 }
