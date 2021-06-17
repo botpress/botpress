@@ -6,7 +6,7 @@ import { NLUServerOptions } from './typings'
 
 // This will display those keys in the Debug panel so the user can enable them
 DEBUG('nlu:training')
-DEBUG('nlu:prediction')
+DEBUG('nlu:predict')
 
 export const DEFAULT_NLU_SERVER_OPTIONS: NLUServerOptions = {
   host: 'localhost',
