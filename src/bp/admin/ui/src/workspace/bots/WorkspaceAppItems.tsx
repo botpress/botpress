@@ -24,7 +24,7 @@ export const addModuleIcon = module => {
       <img
         src={iconPath}
         onError={e => {
-          e.currentTarget.src = 'favicon.ico'
+          e.currentTarget.src = 'assets/admin/ui/public/favicon.ico'
           e.currentTarget.style.display = 'none'
         }}
       />

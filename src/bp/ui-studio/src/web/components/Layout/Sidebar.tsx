@@ -60,7 +60,8 @@ const Sidebar: FC<Props> = props => {
         <img
           src={iconPath}
           onError={e => {
-            e.currentTarget.src = 'favicon.ico'
+            e.currentTarget.src = 'assets/admin/ui/public/favicon.ico'
+            // The Favicon will not appear in the frontend.
             e.currentTarget.style.display = 'none'
           }}
         />
