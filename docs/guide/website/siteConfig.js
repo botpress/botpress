@@ -63,7 +63,17 @@ const siteConfig = {
 
   editUrl: 'https://github.com/botpress/botpress/edit/master/docs/guide/docs/',
   gaTrackingId: 'UA-90034220-1',
-  gaGtag: true
+  gaGtag: true,
+  plugins: [
+    [
+      '@docusaurus/plugin-sitemap',
+      {
+        changefreq: 'weekly',
+        priority: 0.5,
+        trailingSlash: false,
+      },
+    ],
+  ],
 }
 
 module.exports = siteConfig
