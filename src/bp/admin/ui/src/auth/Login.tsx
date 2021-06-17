@@ -78,7 +78,7 @@ const Login: FC<Props> = props => {
   const loadAuthConfig = async () => {
     const { data } = await api.getAnonymous().get('/admin/auth/config')
 
-    setStrategies(data.payload.hideDefault ? data.payload.strategies.filter(x => x.strategyType !== 'basic') : data.payload.strategies)
+    setStrategies(data.payload.strategies.filter(x => !data.payload.hiddenStrategies.includes(x.strategyId)))
     setFirstUser(data.payload.isFirstUser)
     setLoading(false)
   }
