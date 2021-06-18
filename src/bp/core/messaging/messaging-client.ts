@@ -4,10 +4,15 @@ export class MessagingClient {
   public baseUrl = 'http://localhost:3100'
   private apiUrl = `${this.baseUrl}/api`
 
-  constructor(private clientId: string, private clientToken: string, public providerName: string) {}
+  constructor(
+    private password: string,
+    private clientId: string,
+    private clientToken: string,
+    public providerName: string
+  ) {}
 
   async syncClient(config: any) {
-    const res = await axios.post(`${this.apiUrl}/sync`, config)
+    const res = await axios.post(`${this.apiUrl}/sync`, config, { headers: { password: this.password } })
     return res.data
   }
 
@@ -19,7 +24,7 @@ export class MessagingClient {
         channel,
         payload
       },
-      { auth: { username: this.clientId, password: this.clientToken } }
+      { headers: { password: this.password }, auth: { username: this.clientId, password: this.clientToken } }
     )
   }
 }

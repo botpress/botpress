@@ -58,7 +58,8 @@ export abstract class Channel {
           }${messagingRoute ? messagingRoute : ''}`
           return newUrl
         },
-        changeOrigin: false
+        changeOrigin: false,
+        logLevel: 'silent'
       })
     )
   }

@@ -4,6 +4,7 @@ import { ConfigProvider } from 'core/config'
 import { EventEngine, Event } from 'core/events'
 import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import { Channel } from './channels/base'
 import { ChannelMessenger } from './channels/messenger'
 import { ChannelSlack } from './channels/slack'
@@ -17,7 +18,7 @@ import { MessagingClient } from './messaging-client'
 export class MessagingService {
   public channels!: Channel[]
 
-  private clientAdmin: MessagingClient = new MessagingClient(<any>undefined, <any>undefined, <any>undefined)
+  private clientAdmin!: MessagingClient
 
   private clientsByBotId: { [botId: string]: MessagingClient } = {}
   private botsByClientId: { [clientId: string]: string } = {}
@@ -46,9 +47,14 @@ export class MessagingService {
       direction: 'outgoing',
       handler: this.handleOutgoingEvent.bind(this)
     })
+
+    await AppLifecycle.waitFor(AppLifecycleEvents.SERVICES_READY)
+    this.clientAdmin = new MessagingClient(process.INTERNAL_PASSWORD, <any>undefined, <any>undefined, <any>undefined)
   }
 
   async loadMessagingForBot(botId: string) {
+    await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+
     const config = await this.configProvider.getBotConfig(botId)
     let messaging = (config.messaging || {}) as MessagingConfig
 
@@ -91,7 +97,12 @@ export class MessagingService {
       await this.configProvider.mergeBotConfig(botId, { messaging })
     }
 
-    const botClient = new MessagingClient(messaging.clientId, messaging.clientToken, messaging.providerName)
+    const botClient = new MessagingClient(
+      process.INTERNAL_PASSWORD,
+      messaging.clientId,
+      messaging.clientToken,
+      messaging.providerName
+    )
     this.clientsByBotId[botId] = botClient
     this.botsByClientId[clientId] = botId
   }
