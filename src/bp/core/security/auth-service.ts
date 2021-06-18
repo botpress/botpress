@@ -92,8 +92,9 @@ export class AuthService {
       return strategy && this._getStrategyConfig(strategy, strategyName)
     })
 
-    const hiddenStrategies = strategies.filter(strategy => config.authStrategies[strategy.strategyId].hide)
-                                       .map(strategy => strategy.strategyId)
+    const hiddenStrategies = strategies
+      .filter(strategy => config.authStrategies[strategy.strategyId].hide)
+      .map(strategy => strategy.strategyId)
     return { strategies: strategies.filter(Boolean), isFirstUser: await this.isFirstUser(), hiddenStrategies }
   }
 
