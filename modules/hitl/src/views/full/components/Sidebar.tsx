@@ -1,10 +1,11 @@
 import { Button, Classes, ControlGroup, Intent, Tooltip } from '@blueprintjs/core'
-import { SearchBar } from 'botpress/ui'
+import { ModuleUI } from 'botpress/shared'
 import React, { FC } from 'react'
 
 import { HitlSessionOverview } from '../../../backend/typings'
-
 import { UserList } from './UserList'
+
+const { SearchBar } = ModuleUI
 
 interface Props {
   toggleFilterPaused?: () => void

@@ -21,7 +21,7 @@ const Menu: FC<MenuProps> = ({ items, className }) => {
   return (
     <aside className={cx(style.sidebar, className, 'bp-sidebar')}>
       <a href="admin/" className={cx(style.logo, 'bp-logo')}>
-        <img width="19" src="assets/ui-studio/public/img/logo-icon.svg" alt="Botpress Logo" />
+        <img width="19" src="assets/studio/ui/public/img/logo-icon.svg" alt="Botpress Logo" />
       </a>
       {!!items?.length && <ul className={cx('nav')}>{items.map(renderBasicItem)}</ul>}
     </aside>
