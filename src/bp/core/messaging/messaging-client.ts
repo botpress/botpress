@@ -1,15 +1,17 @@
 import axios from 'axios'
 
 export class MessagingClient {
-  public baseUrl = 'http://localhost:3100'
-  private apiUrl = `${this.baseUrl}/api`
+  private apiUrl: string
 
   constructor(
+    public baseUrl: string,
     private password: string,
     private clientId: string,
     private clientToken: string,
     public providerName: string
-  ) {}
+  ) {
+    this.apiUrl = `${this.baseUrl}/api`
+  }
 
   async syncClient(config: any) {
     const res = await axios.post(`${this.apiUrl}/sync`, config, { headers: { password: this.password } })

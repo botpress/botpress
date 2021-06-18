@@ -48,8 +48,15 @@ export class MessagingService {
       handler: this.handleOutgoingEvent.bind(this)
     })
 
-    await AppLifecycle.waitFor(AppLifecycleEvents.SERVICES_READY)
-    this.clientAdmin = new MessagingClient(process.INTERNAL_PASSWORD, <any>undefined, <any>undefined, <any>undefined)
+    await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+
+    this.clientAdmin = new MessagingClient(
+      `http://localhost:${process.MESSAGING_PORT}`,
+      process.INTERNAL_PASSWORD,
+      <any>undefined,
+      <any>undefined,
+      <any>undefined
+    )
   }
 
   async loadMessagingForBot(botId: string) {
@@ -70,7 +77,7 @@ export class MessagingService {
       providerName: botId,
       conduits,
       clientId: messaging.clientId,
-      webhooks: [{ url: 'http://localhost:3000/api/v1/messaging/receive' }]
+      webhooks: [{ url: `http://localhost:${process.PORT}/api/v1/messaging/receive` }]
     }
 
     const { clientId, clientToken, providerName } = await this.clientAdmin.syncClient(setupConfig)
@@ -98,6 +105,7 @@ export class MessagingService {
     }
 
     const botClient = new MessagingClient(
+      `http://localhost:${process.MESSAGING_PORT}`,
       process.INTERNAL_PASSWORD,
       messaging.clientId,
       messaging.clientToken,
