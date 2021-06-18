@@ -15,19 +15,12 @@ interface Props {
 export const addModuleIcon = module => {
   const iconPath = `assets/modules/${module.name}/admin_${module.menuIcon}`
 
-  // If the IconPath doesn't exist and the Icon name doens't exist if will render nothing.
-  // I don't know if we prefer to have a broken image. The broken Image tell us that we have something wrong.
+  // If the IconPath doesn't exist and the Icon name doesn't exist it will render nothing.
   const moduleIcon =
     module.menuIcon && IconSvgPaths16[module.menuIcon] ? (
       <Icon icon={module.menuIcon as any} iconSize={16} />
     ) : (
-      <img
-        src={iconPath}
-        onError={e => {
-          e.currentTarget.src = 'assets/admin/ui/public/favicon.ico'
-          e.currentTarget.style.display = 'none'
-        }}
-      />
+      <img src={iconPath} />
     )
   return { ...module, menuIcon: moduleIcon }
 }

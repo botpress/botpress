@@ -10,7 +10,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   definition: {
     name: 'uipath',
-    menuIcon: 'none',
+    menuIcon: 'dot',
     menuText: 'UiPath',
     noInterface: true,
     fullName: 'UiPath',

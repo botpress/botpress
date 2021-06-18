@@ -47,7 +47,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onModuleUnmount,
   definition: {
     name: 'google-speech',
-    menuIcon: 'none',
+    menuIcon: 'dot',
     fullName: 'GoogleSpeech',
     homepage: 'https://botpress.com',
     noInterface: true,

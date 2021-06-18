@@ -50,7 +50,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onModuleUnmount,
   definition: {
     name: CHANNEL_NAME,
-    menuIcon: 'none',
+    menuIcon: 'dot',
     fullName: 'Vonage',
     homepage: 'https://botpress.com',
     noInterface: true,

@@ -57,14 +57,7 @@ const Sidebar: FC<Props> = props => {
       module.menuIcon && IconSvgPaths16[module.menuIcon] ? (
         <Icon icon={module.menuIcon as any} iconSize={16} />
       ) : (
-        <img
-          src={iconPath}
-          onError={e => {
-            e.currentTarget.src = 'assets/admin/ui/public/favicon.ico'
-            // The Favicon will not appear in the frontend.
-            e.currentTarget.style.display = 'none'
-          }}
-        />
+        <img src={iconPath} />
       )
 
     return (

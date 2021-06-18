@@ -64,7 +64,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onModuleUnmount,
   definition: {
     name: 'channel-teams',
-    menuIcon: 'none', // no interface = true
+    menuIcon: 'dot', // no interface = true
     fullName: 'Teams',
     homepage: 'https://botpress.com',
     noInterface: true,

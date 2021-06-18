@@ -58,7 +58,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   dialogConditions,
   definition: {
     name: 'ndu',
-    menuIcon: 'poll',
+    menuIcon: 'predictive-analysis',
     menuText: 'NDU',
     noInterface: true,
     fullName: 'NDU',

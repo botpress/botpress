@@ -44,7 +44,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     name: 'complete-module',
     /**
      * By default we are using the https://blueprintjs.com/docs/#icons. Use the corresponding name
-     * Otherwise, create an icon in the assets module in the follwing format studio_${module.menuIcon}
+     * Otherwise, create an icon in the assets module in the following format studio_${module.menuIcon}
      */
     menuIcon: 'flag',
     // This is the name of your module which will be displayed in the sidebar

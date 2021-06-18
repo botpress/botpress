@@ -49,7 +49,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onModuleUnmount,
   definition: {
     name: 'channel-twilio',
-    menuIcon: 'none',
+    menuIcon: 'dot',
     fullName: 'Twilio',
     homepage: 'https://botpress.com',
     noInterface: true,
