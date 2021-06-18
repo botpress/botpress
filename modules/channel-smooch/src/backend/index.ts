@@ -74,7 +74,6 @@ const entryPoint: sdk.ModuleEntryPoint = {
     menuIcon: 'dot',
     fullName: 'Smooch',
     homepage: 'https://botpress.com',
-    noInterface: true,
     plugins: [],
     experimental: true
   }

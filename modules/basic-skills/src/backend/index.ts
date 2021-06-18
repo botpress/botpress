@@ -52,7 +52,6 @@ const entryPoint: sdk.ModuleEntryPoint = {
   translations: { en, fr, es },
   definition: {
     name: 'basic-skills',
-    menuIcon: 'build',
     fullName: 'Basic Skills',
     homepage: 'https://botpress.com',
     noInterface: true,
