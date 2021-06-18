@@ -289,6 +289,11 @@ declare interface BotpressEnvironmentVariables {
    * The complete path to the dist/ folder of packages/nlu/dist
    */
   readonly DEV_NLU_PATH?: string
+
+  /**
+   * The complete path to the dist/ folder of the messaging repo
+   */
+  readonly DEV_MESSAGING_PATH?: string
 }
 
 interface IDebug {
