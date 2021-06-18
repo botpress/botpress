@@ -3,6 +3,7 @@ import { container } from 'core/app/inversify/app.inversify'
 import { HTTPServer } from 'core/app/server'
 import { TYPES } from 'core/types'
 import { MessageType, onProcessExit, WorkerType, ProcType } from './master'
+import { killMessagingProcess } from './messaging-server'
 import { killNluProcess } from './nlu-server'
 import { initStudioClient, killStudioProcess } from './studio-client'
 
@@ -56,6 +57,9 @@ export const setupWebWorker = () => {
 
         initStudioClient()
         break
+      case 'messaging':
+        process.MESSAGING_PORT = port
+        break
       case 'nlu':
         process.NLU_PORT = port
         break
@@ -66,6 +70,7 @@ export const setupWebWorker = () => {
 export const onWebWorkerExit = (code, signal, logger, exitedAfterDisconnect) => {
   killNluProcess()
   killStudioProcess()
+  killMessagingProcess()
 
   onProcessExit({
     processType: 'web',

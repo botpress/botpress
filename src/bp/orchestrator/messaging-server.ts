@@ -32,6 +32,10 @@ export const registerMessagingServerMainHandler = (logger: sdk.Logger) => {
 
 let messagingServerProcess: ChildProcess | undefined
 
+export const killMessagingProcess = () => {
+  messagingServerProcess?.kill('SIGKILL')
+}
+
 export const startMessagingServer = async (opts: Partial<MessagingServerOptions>, logger: sdk.Logger) => {
   const options = _.merge(DEFAULT_MESSAGING_OPTIONS, opts)
   const port = await portFinder.getPortPromise({ port: options.port })
