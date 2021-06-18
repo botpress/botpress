@@ -1,16 +1,17 @@
 import { Spinner } from '@blueprintjs/core'
 import { EmptyState, HeaderButtonProps, lang, MainLayout } from 'botpress/shared'
-import { Downloader, reorderFlows } from 'botpress/utils'
 import cx from 'classnames'
 import { debounce } from 'lodash'
 import React, { FC, useCallback, useEffect, useReducer, useRef, useState } from 'react'
 
 import ContextSelector from './Components/ContextSelector'
+import { Downloader } from './Components/Downloader'
 import { ImportModal } from './Components/ImportModal'
 import QnA from './Components/QnA'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
 import style from './style.scss'
 import { dispatchMiddleware, fetchReducer, itemHasError, ITEMS_PER_PAGE, Props } from './utils/qnaList.utils'
+import { reorderFlows } from './utils/studio-utils'
 
 const QnAList: FC<Props> = props => {
   const [flows, setFlows] = useState([])

@@ -1,7 +1,6 @@
 const core = require('./build/gulp.core')
 const migration = require('./build/gulp.migration')
 const modules = require('./build/gulp.modules')
-const nlu = require('./build/gulp.nlu')
 const package = require('./build/gulp.package')
 const gulp = require('gulp')
 const ui = require('./build/gulp.ui')
@@ -9,8 +8,6 @@ const docs = require('./build/gulp.docs')
 const rimraf = require('rimraf')
 const changelog = require('gulp-conventional-changelog')
 const yn = require('yn')
-const { spawnSync } = require('child_process')
-const { argv } = require('yargs')
 const _ = require('lodash')
 
 process.on('uncaughtException', err => {
@@ -21,19 +18,10 @@ process.on('uncaughtException', err => {
 if (yn(process.env.GULP_PARALLEL)) {
   gulp.task(
     'build',
-    gulp.series([
-      ui.buildSharedLite(),
-      core.build(),
-      ui.buildShared(),
-      ui.initStudio,
-      gulp.parallel(modules.build(), ui.build())
-    ])
+    gulp.series([ui.buildSharedLite(), core.build(), ui.buildShared(), gulp.parallel(modules.build(), ui.build())])
   )
 } else {
-  gulp.task(
-    'build',
-    gulp.series([ui.buildSharedLite(), core.build(), ui.buildShared(), ui.initStudio, modules.build(), ui.build()])
-  )
+  gulp.task('build', gulp.series([ui.buildSharedLite(), core.build(), ui.buildShared(), modules.build(), ui.build()]))
 }
 
 gulp.task('default', cb => {
@@ -43,7 +31,6 @@ gulp.task('default', cb => {
     yarn cmd dev:modules                  Creates a symlink to modules bundles (restart server to apply backend changes - refresh for UI)
                                           After this command, type "yarn watch" in each module folder you want to watch for changes
     yarn cmd watch:core                   Recompiles the server on file modification (restart server to apply)
-    yarn cmd watch:studio                 Recompiles the bundle on file modification (no restart required - refresh page manually)
     yarn cmd watch:admin                  Recompiles the bundle on file modification (no restart required - page refresh automatically)
     yarn cmd watch:shared                 Recompiles the bundle on file modification (no restart required - refresh page manually)
     yarn cmd build:modules --m m1,m2,m3   Builds modules m1, m2 and m3 only
@@ -63,26 +50,19 @@ gulp.task('build:ui', ui.build())
 gulp.task('build:core', core.build())
 gulp.task('build:sharedLite', ui.buildSharedLite())
 gulp.task('build:shared', ui.buildShared())
-gulp.task('init:studio', ui.initStudio)
 gulp.task('build:modules', gulp.series([modules.build()]))
 
-const pwd = process.cwd()
-gulp.task('install:nlu', nlu.installNLU([`-c=${pwd}/package.json`, `-o=${pwd}/out/bp`, process.argv.slice(3)]))
-
+gulp.task('postinstall', gulp.series([core.buildDownloader, core.initDownloader]))
 gulp.task('start:guide', docs.startDevServer)
 gulp.task('build:guide', docs.buildGuide())
 gulp.task('build:reference', docs.buildReference())
 
 gulp.task('package:core', package.packageCore())
 gulp.task('package:modules', modules.packageModules())
-gulp.task(
-  'package',
-  gulp.series([package.packageApp, modules.packageModules(), package.copyNativeExtensions, package.packageNLU()])
-)
+gulp.task('package', gulp.series([package.packageApp, modules.packageModules(), package.copyNativeExtensions]))
 
 gulp.task('watch', gulp.parallel([core.watch, ui.watchAll]))
 gulp.task('watch:core', core.watch)
-gulp.task('watch:studio', ui.watchStudio)
 gulp.task('watch:admin', ui.watchAdmin)
 gulp.task('watch:ui', ui.watchAll)
 gulp.task('watch:shared', ui.watchShared)
