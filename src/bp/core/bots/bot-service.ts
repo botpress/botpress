@@ -7,7 +7,7 @@ import { TYPES } from 'core/app/types'
 import { FileContent, GhostService, ReplaceContent } from 'core/bpfs'
 import { CMSService } from 'core/cms'
 import { ConfigProvider } from 'core/config'
-import { JobService } from 'core/distributed'
+import { JobService, makeRedisKey } from 'core/distributed'
 import { PersistedConsoleLogger } from 'core/logger'
 import { MessagingService } from 'core/messaging'
 import { MigrationService } from 'core/migration'
@@ -53,7 +53,7 @@ const STATUS_REFRESH_INTERVAL = ms('15s')
 const STATUS_EXPIRY = ms('20s')
 const DEFAULT_BOT_HEALTH: BotHealth = { status: 'disabled', errorCount: 0, warningCount: 0, criticalCount: 0 }
 
-const getBotStatusKey = (serverId: string) => `bp_server_${serverId}_bots`
+const getBotStatusKey = (serverId: string) => makeRedisKey(`bp_server_${serverId}_bots`)
 const debug = DEBUG('services:bots')
 
 @injectable()
@@ -63,7 +63,6 @@ export class BotService {
 
   private _botIds: string[] | undefined
   private static _mountedBots: Map<string, boolean> = new Map()
-  private static _botListenerHandles: Map<string, IDisposable> = new Map()
   private static _botHealth: { [botId: string]: BotHealth } = {}
   private _updateBotHealthDebounce = _.debounce(this._updateBotHealth, 500)
 
@@ -618,24 +617,6 @@ export class BotService {
       BotService._mountedBots.set(botId, true)
       await studioActions.setBotMountStatus(botId, true)
       this._invalidateBotIds()
-
-      if (BotService._botListenerHandles.has(botId)) {
-        BotService._botListenerHandles.get(botId)!.dispose()
-        BotService._botListenerHandles.delete(botId)
-      }
-
-      BotService._botListenerHandles.set(
-        botId,
-        PersistedConsoleLogger.listenForAllLogs((level, message, args) => {
-          this.realtimeService.sendToSocket(
-            RealTimePayload.forAdmins(`logs::${botId}`, {
-              level,
-              message,
-              args
-            })
-          )
-        }, botId)
-      )
 
       BotService.setBotStatus(botId, 'healthy')
       return true

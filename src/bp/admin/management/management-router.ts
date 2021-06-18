@@ -76,9 +76,10 @@ class ManagementRouter extends CustomAdminRouter {
           return res.status(400).send('Rebooting the server is disabled in the botpress.config.json file')
         }
 
-        this.logger.info(`User ${user} requested a server reboot for ${req.query.hostname}`)
+        const { hostname, serverId } = req.query
+        this.logger.info(`User ${user} requested a server reboot for ${hostname}/${serverId}`)
 
-        await this._rebootServer(req.query.hostname)
+        await this._rebootServer(serverId, hostname)
         res.sendStatus(200)
       })
     )
@@ -86,8 +87,8 @@ class ManagementRouter extends CustomAdminRouter {
     this._rebootServer = await this.jobService.broadcast<void>(this.__local_rebootServer.bind(this))
   }
 
-  private __local_rebootServer(hostname?: string) {
-    if (!hostname || hostname === os.hostname()) {
+  private __local_rebootServer(serverId?: string, hostname?: string) {
+    if (!hostname || !serverId || (hostname === os.hostname() && serverId === process.SERVER_ID)) {
       process.send!({ type: MessageType.RestartServer })
     }
   }

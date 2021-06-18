@@ -13,6 +13,12 @@
       "main/nlu",
       "main/emulator"
     ],
+    "Natural Language Understanding": [
+      "nlu/intent-matching",
+      "nlu/skill-slot",
+      "nlu/3rd-party-NLU",
+      "nlu/i18n"
+    ],
     "Channels": [
       "channels/web",
       "channels/messenger",
@@ -47,27 +53,17 @@
       "managing/features"
     ],
     "Improving Your Chatbot": [
-      "tutorials/intent-matching",
       "tutorials/carousel-postback",
-      "tutorials/skill-slot",
       "tutorials/skill-call-api",
       "tutorials/skill-email",
       "tutorials/external-api",
-      "tutorials/shortlinks",
       "tutorials/existing-backend",
       "tutorials/timeouts",
       "tutorials/jump-to",
-      "tutorials/interbot",
       "tutorials/contextual-faq",
-      "tutorials/chat-3rd-party-OAuth",
-      "tutorials/listen-file-changes",
-      "tutorials/3rd-party-NLU",
-      "tutorials/uipath",
-      "tutorials/azure-oauth2",
-      "tutorials/google-oauth2",
-      "tutorials/github-oauth2"
+      "tutorials/uipath"
     ],
-    "Pro Edition": ["pro/about-pro", "pro/licensing", "pro/i18n"],
+    "Pro Edition": ["pro/about-pro", "pro/licensing"],
     "Advanced Guides": [
       "advanced/debug",
       "advanced/authentication",

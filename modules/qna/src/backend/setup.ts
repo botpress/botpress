@@ -21,7 +21,10 @@ export const initModule = async (bp: typeof sdk, bots: ScopedBots) => {
     direction: 'incoming',
     handler: async (event: sdk.IO.IncomingEvent, next) => {
       if (!event.hasFlag(bp.IO.WellKnownFlags.SKIP_QNA_PROCESSING)) {
-        await processEvent(event, bots[event.botId])
+        const botInfo = bots[event.botId]
+        if (botInfo) {
+          await processEvent(event, botInfo)
+        }
         next()
       }
     },

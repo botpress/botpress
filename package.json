@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "12.22.1",
+  "version": "12.22.2",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": "^12"
@@ -11,10 +11,10 @@
   "license": "AGPL-3.0",
   "private": true,
   "nlu": {
-    "version": "0.0.4"
+    "version": "0.1.2"
   },
   "studio": {
-    "version": "0.0.16"
+    "version": "0.0.21"
   },
   "messaging": {
     "version": "0.0.3"
