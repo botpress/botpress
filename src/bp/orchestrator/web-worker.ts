@@ -41,6 +41,12 @@ export const setupWebWorker = () => {
             APP_SECRET: process.APP_SECRET
           }
         })
+
+        // We also start the messaging server
+        process.send!({
+          type: MessageType.StartMessagingServer,
+          params: {}
+        })
         break
       case 'studio':
         process.STUDIO_PORT = port
