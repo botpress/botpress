@@ -2,9 +2,8 @@
 id: monitoring
 title: Monitoring & Alerting
 ---
-
+![This feature is available to Botpress Enterprise license holders.](../assets/botpress-enterprise-feature.png)
 ## Server Monitoring
-
 Monitoring is an essential part of any software deployment. Botpress includes, out of the box, a simple but intuitive dashboard
 designed to keep an eye on your servers. Key metrics are collected (like CPU and Memory usage), including a couple of botpress-related metrics.
 
@@ -23,7 +22,7 @@ This feature is only available to users of the Pro version.
 2. Set an environment variable named `CLUSTER_ENABLED` to `true`
 3. Set another environment variable named `REDIS_URL` which should point to your server (example provided below)
 4. Start your Botpress Server
-
+![Monitoring Interface](../assets/monitoring.png)
 ### Configuration
 
 The default values should be good for most situations. They are described in details directly in the [Botpress Config Definition](https://github.com/botpress/botpress/blob/master/src/bp/core/config/botpress.config.ts)
@@ -61,7 +60,7 @@ The alerting service will trigger an alarm when your configured threshold are ex
 1. Edit `botpress.config.json` and set `pro.alerting.enabled` to `true`
 2. Add at least one Incident Rule (more on that below) in `pro.alerting.rules`
 3. Restart Botpress
-
+![Alerting Interface](../assets/alerting.png)
 ### Incident Rules
 
 This is where you will define your thresholds

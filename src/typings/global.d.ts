@@ -101,6 +101,13 @@ declare interface BotpressEnvironmentVariables {
   readonly REDIS_URL?: string
 
   /**
+   * The scope or channel prefix used by RedisIO to differentiate multiple clusters of Botpress using the same Redis Cluster.
+   * See: https://redis.io/topics/pubsub#database-amp-scoping
+   * @example production, staging, test, development, botpress1, ...
+   */
+  readonly BP_REDIS_SCOPE?: string
+
+  /**
    * The database connection string. The first part indicates which database to use
    * @example postgres://user:pass@host/db
    */

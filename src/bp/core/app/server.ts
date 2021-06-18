@@ -243,7 +243,8 @@ export class HTTPServer {
     window.EXPERIMENTAL = ${config.experimental};
     window.SOCKET_TRANSPORTS = ["${getSocketTransports(config).join('","')}"];
     window.SHOW_POWERED_BY = ${!!config.showPoweredBy};
-    window.UUID = "${this.machineId}"`
+    window.UUID = "${this.machineId}";
+    window.SERVER_ID = "${process.SERVER_ID}";`
   }
 
   async setupStudioProxy() {

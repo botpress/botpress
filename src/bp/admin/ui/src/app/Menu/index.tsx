@@ -7,7 +7,7 @@ import React, { FC, useEffect, Fragment } from 'react'
 import { MdAndroid, MdCopyright } from 'react-icons/md'
 import { connect, ConnectedProps } from 'react-redux'
 import { generatePath, RouteComponentProps, withRouter } from 'react-router'
-import { matchPath } from 'react-router-dom'
+import { matchPath, Link } from 'react-router-dom'
 
 import AccessControl from '~/auth/AccessControl'
 import { getActiveWorkspace } from '~/auth/basicAuth'
@@ -69,13 +69,13 @@ const Menu: FC<Props> = props => {
               </div>
             }
           >
-            <a
+            <Link
               className={cx({ [style.active]: active })}
-              onClick={() => props.history.push(generatePath(url, { workspaceId: workspaceId || undefined }))}
+              to={generatePath(url, { workspaceId: workspaceId || undefined })}
             >
               <Icon icon={icon} />
               {tag && <span className={style.small_tag}>{tag}</span>}{' '}
-            </a>
+            </Link>
           </Tooltip>
         </li>
       </AccessControl>
