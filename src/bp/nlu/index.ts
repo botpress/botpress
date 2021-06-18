@@ -4,7 +4,11 @@ import path from 'path'
 
 import { NLUServerOptions } from './typings'
 
-export const DEFAULT_STAN_OPTIONS: NLUServerOptions = {
+// This will display those keys in the Debug panel so the user can enable them
+DEBUG('nlu:training')
+DEBUG('nlu:predict')
+
+export const DEFAULT_NLU_SERVER_OPTIONS: NLUServerOptions = {
   host: 'localhost',
   port: 3200,
   authToken: undefined,
@@ -21,7 +25,7 @@ export const DEFAULT_STAN_OPTIONS: NLUServerOptions = {
   modelCacheSize: '850mb',
   verbose: 3, // info
   doc: false,
-  logFilter: [], // TODO: user debug config to generate correct filters
+  logFilter: undefined,
   legacyElection: false
 }
 

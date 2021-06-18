@@ -34,7 +34,7 @@ import { startLocalActionServer, startLocalNLUServer } from 'orchestrator'
 import path from 'path'
 import plur from 'plur'
 
-import { setDebugScopes } from '../../debug'
+import { getDebugScopes, setDebugScopes } from '../../debug'
 import { HTTPServer } from './server'
 import { TYPES } from './types'
 
@@ -116,6 +116,7 @@ export class Botpress {
 
     AppLifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
 
+    this.displayRedisChannelPrefix()
     await this.restoreDebugScope()
     await this.checkJwtSecret()
     await this.loadModules(options.modules)
@@ -181,13 +182,37 @@ export class Botpress {
   }
 
   private async maybeStartLocalSTAN() {
-    const config = await this.moduleLoader.configReader.getGlobal('nlu')
-
-    if (!config.nluServer.autoStart) {
-      const { endpoint } = config.nluServer
-      this.logger.info(`NLU server manually handled at: ${endpoint}`)
+    if (!process.LOADED_MODULES['nlu']) {
+      this.logger.warn(
+        'NLU server is disabled. Enable the NLU module and restart Botpress to start the standalone NLU server'
+      )
       return
     }
+
+    const config = await this.moduleLoader.configReader.getGlobal('nlu')
+
+    const autoStart = config.nluServer?.autoStart ?? true
+    if (!autoStart) {
+      if (!config.nluServer?.endpoint) {
+        this.logger.warn("NLU server isn't configured properly, set it to auto start or provide an endpoint")
+      } else {
+        const { endpoint } = config.nluServer
+        this.logger.info(`NLU server manually handled at: ${endpoint}`)
+      }
+
+      return
+    }
+
+    const debugScopes = getDebugScopes()
+    const nluDebugScopes = Object.entries(debugScopes)
+      .filter(([k, v]) => v)
+      .map(([k, v]) => k)
+      .filter(x => x.startsWith('bp:nlu:'))
+      .map(x => x.replace('bp:nlu:', ''))
+
+    const verbose = nluDebugScopes.length ? 4 : 3
+    const logFilter = nluDebugScopes.length ? nluDebugScopes : undefined
+
     startLocalNLUServer({
       languageSources: config.languageSources,
       ducklingURL: config.ducklingURL,
@@ -196,7 +221,9 @@ export class Botpress {
       dbURL: process.core_env.BPFS_STORAGE === 'database' ? process.core_env.DATABASE_URL : undefined,
       modelDir: process.cwd(),
       modelCacheSize: config.modelCacheSize,
-      authToken: makeNLUPassword()
+      authToken: makeNLUPassword(),
+      logFilter,
+      verbose
     })
   }
 
@@ -211,6 +238,12 @@ export class Botpress {
     }
 
     process.APP_SECRET = appSecret
+  }
+
+  displayRedisChannelPrefix() {
+    if (process.CLUSTER_ENABLED && process.env.REDIS_URL && process.env.BP_REDIS_SCOPE) {
+      this.logger.debug(`Redis using scope: ${process.env.BP_REDIS_SCOPE}`)
+    }
   }
 
   async checkEditionRequirements() {
