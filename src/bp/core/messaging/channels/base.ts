@@ -12,9 +12,10 @@ export abstract class Channel {
     return false
   }
 
+  public client!: MessagingClient
   private router!: Router
 
-  constructor(private client: MessagingClient, private messaging: MessagingService, private ghost: GhostService) {}
+  constructor(private messaging: MessagingService, private ghost: GhostService) {}
 
   async loadConfigForBot(botId: string) {
     const fileName = `channel-${this.name}.json`

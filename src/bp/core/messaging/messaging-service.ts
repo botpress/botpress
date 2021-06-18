@@ -32,12 +32,12 @@ export class MessagingService {
   @postConstruct()
   async init() {
     this.channels = [
-      new ChannelTelegram(this.clientAdmin, this, this.ghostService),
-      new ChannelTwilio(this.clientAdmin, this, this.ghostService),
-      new ChannelTeams(this.clientAdmin, this, this.ghostService),
-      new ChannelSlack(this.clientAdmin, this, this.ghostService),
-      new ChannelVonage(this.clientAdmin, this, this.ghostService),
-      new ChannelMessenger(this.clientAdmin, this, this.ghostService)
+      new ChannelTelegram(this, this.ghostService),
+      new ChannelTwilio(this, this.ghostService),
+      new ChannelTeams(this, this.ghostService),
+      new ChannelSlack(this, this.ghostService),
+      new ChannelVonage(this, this.ghostService),
+      new ChannelMessenger(this, this.ghostService)
     ]
 
     this.eventEngine.register({
@@ -57,6 +57,10 @@ export class MessagingService {
       <any>undefined,
       <any>undefined
     )
+
+    for (const channel of this.channels) {
+      channel.client = this.clientAdmin
+    }
   }
 
   async loadMessagingForBot(botId: string) {
