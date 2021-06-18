@@ -1,3 +1,4 @@
+import { MonitoringStats } from 'common/monitoring'
 import moment from 'moment'
 
 import api from '~/app/api'
@@ -8,13 +9,13 @@ const FETCH_STATS_FULL_RECEIVED = 'monitoring/FETCH_STATS_FULL_RECEIVED'
 const FETCH_STATS_PARTIAL_RECEIVED = 'bots/FETCH_STATS_PARTIAL_RECEIVED'
 
 interface MonitoringState {
-  stats: any
+  stats?: MonitoringStats[]
   lastDate?: Date
   loading: boolean
 }
 
 const initialState: MonitoringState = {
-  stats: null,
+  stats: undefined,
   lastDate: undefined,
   loading: true
 }
@@ -47,11 +48,11 @@ export default (state = initialState, action): MonitoringState => {
   }
 }
 
+const parseStats = data => data?.map(JSON.parse).map(x => ({ ...x, uniqueId: `${x.host}/${x.serverId}` }))
+
 export const fetchStats = (fromTime, toTime): AppThunk => {
   return async dispatch => {
-    dispatch({
-      type: FETCH_STATS_FULL_REQUESTED
-    })
+    dispatch({ type: FETCH_STATS_FULL_REQUESTED })
 
     const { data } = await api.getSecured().post('/admin/health/monitoring', {
       fromTime,
@@ -60,7 +61,7 @@ export const fetchStats = (fromTime, toTime): AppThunk => {
 
     dispatch({
       type: FETCH_STATS_FULL_RECEIVED,
-      stats: data && data.map(JSON.parse),
+      stats: parseStats(data),
       toTime
     })
   }
@@ -81,7 +82,7 @@ export const refreshStats = (): AppThunk => {
 
     dispatch({
       type: FETCH_STATS_PARTIAL_RECEIVED,
-      stats: data && data.map(JSON.parse),
+      stats: parseStats(data),
       toTime
     })
   }

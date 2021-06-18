@@ -31,7 +31,12 @@ import { fetchStats, refreshStats } from './reducer'
 import style from './style.scss'
 import SummaryTable from './SummaryTable'
 
-const timeFrameOptions = [
+interface Option {
+  value: string
+  label: string
+}
+
+const timeFrameOptions: Option[] = [
   { value: '1m', label: '1 minute' },
   { value: '5m', label: '5 minutes' },
   { value: '10m', label: '10 minutes' },
@@ -42,7 +47,7 @@ const timeFrameOptions = [
   { value: '5h', label: '5 hours' }
 ]
 
-const resolutionOptions = [
+const resolutionOptions: Option[] = [
   { value: '10s', label: '10 seconds' },
   { value: '30s', label: '30 seconds' },
   { value: '1m', label: '1 minutes' },
@@ -58,28 +63,26 @@ type Props = ConnectedProps<typeof connector>
 
 interface State {
   intervalId: any
-  timeFrame: any
-  resolution: any
-  rawStats: any
+  timeFrame?: Option
+  resolution?: Option
   preparedStats: any
-  timeFrameOptions: any
+  timeFrameOptions: Option[]
   lastUniqueEntries: any
   uniqueHosts: any
   autoRefresh: boolean
-  error: string | null
+  error?: string
 }
 
 class Monitoring extends Component<Props, State> {
   state: State = {
     intervalId: null,
-    timeFrame: null,
-    resolution: null,
-    rawStats: null,
-    preparedStats: null,
+    timeFrame: undefined,
+    resolution: undefined,
+    preparedStats: undefined,
     timeFrameOptions,
-    lastUniqueEntries: null,
-    error: null,
-    uniqueHosts: null,
+    lastUniqueEntries: undefined,
+    error: undefined,
+    uniqueHosts: undefined,
     autoRefresh: false
   }
 
@@ -121,12 +124,16 @@ class Monitoring extends Component<Props, State> {
   }
 
   prepareForDisplay() {
-    if (!this.props.rawStats || !this.props.rawStats.length) {
+    if (!this.props.rawStats?.length || !this.state.resolution) {
       return
     }
 
-    const lastUniqueEntries = _.sortBy(_.uniqBy(_.orderBy(this.props.rawStats, ['ts'], ['desc']), 'host'), 'host')
-    const uniqueHosts = _.map(lastUniqueEntries, 'host')
+    const lastUniqueEntries = _.sortBy(
+      _.uniqBy(_.orderBy(this.props.rawStats, ['ts'], ['desc']), 'uniqueId'),
+      'uniqueId'
+    )
+
+    const uniqueHosts = lastUniqueEntries.map(x => x.uniqueId || '')
     this.setState({ uniqueHosts, lastUniqueEntries })
 
     // Group results by interval, then calculates total and average
@@ -179,10 +186,14 @@ class Monitoring extends Component<Props, State> {
     const hosts: any[] = []
 
     this.state.lastUniqueEntries.forEach(entry => {
+      const filteredEntries = this.props.rawStats?.filter(f => f.uniqueId === entry.uniqueId) as any
+
       hosts.push({
         host: entry.host,
+        serverId: entry.serverId,
         uptime: entry.uptime,
-        ...calculateOverviewForHost(_.filter(this.props.rawStats, f => f.host === entry.host))
+        lastUpdate: _.last<any>(filteredEntries).ts,
+        ...calculateOverviewForHost(filteredEntries)
       })
     })
 

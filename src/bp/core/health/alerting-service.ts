@@ -1,3 +1,4 @@
+import { Incident } from 'botpress/sdk'
 import { injectable } from 'inversify'
 import _ from 'lodash'
 
@@ -18,15 +19,22 @@ export interface IncidentRule {
   cooldown?: string
 }
 
+export interface Incidents {
+  active: Incident[]
+  resolved: Incident[]
+}
+
 export interface AlertingService {
-  getIncidents(dateFrom, dateTo)
+  getIncidents(dateFrom: number, dateTo: number): Promise<Incidents | undefined>
   start(): void
   stop(): void
 }
 
 @injectable()
 export class CEAlertingService implements AlertingService {
-  async getIncidents(dateFrom, dateTo) {}
+  async getIncidents(_dateFrom: number, _dateTo: number): Promise<Incidents | undefined> {
+    return
+  }
   start(): void {}
   stop(): void {}
 }

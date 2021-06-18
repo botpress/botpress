@@ -5,6 +5,7 @@ import nanoid from 'nanoid'
 import nanoidGenerate from 'nanoid/generate'
 import yn from 'yn'
 
+import { setDebugScopes } from '../debug'
 import { registerActionServerMainHandler } from './action-server'
 import { registerNluServerMainHandler } from './nlu-server'
 import { registerStudioMainHandler } from './studio-client'
@@ -23,7 +24,8 @@ export enum MessageType {
   StartNluServer = 'START_STAN_SERVER',
   RegisterProcess = 'REGISTER_PROCESS',
   BroadcastProcess = 'BROADCAST_PROCESS',
-  RestartServer = 'RESTART_SERVER'
+  RestartServer = 'RESTART_SERVER',
+  UpdateDebugScopes = 'UPDATE_DEBUG_SCOPES'
 }
 
 export type ProcType = 'web' | 'nlu' | 'action-server' | 'studio'
@@ -49,7 +51,7 @@ interface ProcessDetails {
   restartMethod?: Function
 }
 
-const debug = DEBUG('cluster')
+const debug = DEBUG('orchestrator')
 const msgHandlers: { [messageType: string]: (message: any, worker: cluster.Worker) => void } = {}
 const maxServerReboots = process.core_env.BP_MAX_SERVER_REBOOT || 2
 
@@ -70,6 +72,8 @@ export const registerProcess = (processType: ProcType, port: number, workerId?: 
   const rebootCount = processes[processType] ? processes[processType].rebootCount + 1 : 0
   processes[processType] = { port, workerId, rebootCount }
 
+  debug(`[${processType}] Registering process %o`, processes[processType])
+
   // We send the new port definitions to connected workers
   for (const work in cluster.workers) {
     cluster.workers[work]?.send({ type: MessageType.BroadcastProcess, processType, port })
@@ -85,7 +89,7 @@ export const onProcessExit = ({
   killOnFail,
   restartMethod
 }: ProcessDetails) => {
-  debug('A process exited %o', { processType, code, signal, exitedAfterDisconnect })
+  debug(`[${processType}] Process exited %o`, { code, signal, exitedAfterDisconnect })
 
   if (exitedAfterDisconnect) {
     processes[processType].rebootCount = 0
@@ -105,7 +109,7 @@ export const onProcessExit = ({
 
   if (processes[processType].rebootCount >= maxServerReboots) {
     logger.error(
-      `Exceeded the maximum number of automatic reboot (${maxServerReboots}). Set the "BP_MAX_SERVER_REBOOT" environment variable to change that`
+      `[${processType}] Exceeded the maximum number of automatic reboot (${maxServerReboots}).\nSet the "BP_MAX_SERVER_REBOOT" environment variable to change that`
     )
 
     if (killOnFail) {
@@ -116,7 +120,7 @@ export const onProcessExit = ({
   }
 
   if (restartMethod) {
-    logger.warn(`Process ${processType} exited, restarting...`)
+    logger.warn(`[${processType}] Restarting process...`)
     restartMethod?.()
   }
 }
@@ -136,6 +140,11 @@ export const setupMasterNode = (logger: sdk.Logger) => {
     logger.warn('Restarting server...')
     worker.disconnect()
     worker.kill('SIGKILL')
+  })
+
+  // This method allows the web worker to update the master node's debug scope
+  registerMsgHandler(MessageType.UpdateDebugScopes, (msg: { scopes: string }) => {
+    setDebugScopes(msg.scopes)
   })
 
   registerMsgHandler(MessageType.RegisterProcess, (msg: { processType: ProcType; port: number }, worker) => {

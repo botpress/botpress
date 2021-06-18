@@ -6,7 +6,7 @@ import { MessageType, onProcessExit, WorkerType, ProcType } from './master'
 import { killNluProcess } from './nlu-server'
 import { initStudioClient, killStudioProcess } from './studio-client'
 
-const debug = DEBUG('cluster:web')
+const debug = DEBUG('orchestrator:web')
 
 export const spawnWebWorker = () => {
   const { id } = cluster.fork({

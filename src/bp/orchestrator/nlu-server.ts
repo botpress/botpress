@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import { ChildProcess, fork, spawn } from 'child_process'
 import _ from 'lodash'
-import { DEFAULT_STAN_OPTIONS, getNluBinaryPath } from 'nlu'
+import { DEFAULT_NLU_SERVER_OPTIONS, getNluBinaryPath } from 'nlu'
 import path from 'path'
 import portFinder from 'portfinder'
 
@@ -28,7 +28,7 @@ export const killNluProcess = () => {
 }
 
 export const startNluServer = async (opts: Partial<NLUServerOptions>, logger: sdk.Logger) => {
-  const options = _.merge(DEFAULT_STAN_OPTIONS, opts)
+  const options = { ...DEFAULT_NLU_SERVER_OPTIONS, ...opts }
   const port = await portFinder.getPortPromise({ port: options.port })
 
   registerProcess('nlu', port)
@@ -37,7 +37,7 @@ export const startNluServer = async (opts: Partial<NLUServerOptions>, logger: sd
     ...process.env,
     // some vscode NODE_OPTIONS seem to break the nlu binary
     NODE_OPTIONS: '',
-    STAN_JSON_CONFIG: JSON.stringify({ ...options, port })
+    NLU_SERVER_CONFIG: JSON.stringify({ ...options, port })
   }
 
   if (!process.core_env.DEV_NLU_PATH) {
