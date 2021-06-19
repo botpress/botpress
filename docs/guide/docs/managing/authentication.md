@@ -162,7 +162,7 @@ Here is a complete example
 1. Open `botpress.config.json` and set `pro.auth.strategy = 'ldap'`
 2. Configure the available options: [check the full configuration for more details](https://github.com/botpress/botpress/blob/master/src/bp/core/config/botpress.config.ts)
 
-## Field Mapping
+### Field Mapping
 
 The `fieldMapping` configuration allows you to match the existing properties of your users with the one Botpress uses. You can define these fields for users: `email`, either `fullname` or `firstname` with `lastname`, `company`, `role`, and `location`.
 
