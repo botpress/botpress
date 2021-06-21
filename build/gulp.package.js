@@ -6,8 +6,6 @@ const glob = require('glob')
 const mkdirp = require('mkdirp')
 const fs = require('fs')
 
-const nlu = require('./gulp.nlu')
-
 const promisify = require('util').promisify
 const execAsync = promisify(exec)
 
@@ -36,9 +34,12 @@ const packageApp = async () => {
   const realPackageJson = require(path.resolve(__dirname, '../package.json'))
   const tempPkgPath = path.resolve(__dirname, '../out/bp/package.json')
   const cwd = path.resolve(__dirname, '../out/bp')
+  const binOut = path.resolve(__dirname, '../out/binaries')
+
   try {
     const packageJson = Object.assign(realPackageJson, additionalPackageJson)
     await fse.writeFile(tempPkgPath, JSON.stringify(packageJson, null, 2), 'utf8')
+    await execAsync(`yarn bpd init --output ${binOut} --platform ${getTargetOSName().replace('windows', 'win32')}`)
     await execAsync(
       `cross-env ../../node_modules/.bin/pkg --targets ${getTargetOSNodeVersion()} --options max_old_space_size=16384 --output ../binaries/bp ./package.json`,
       {
@@ -73,29 +74,20 @@ const copyNativeExtensions = async () => {
   }
 }
 
-const packageNLU = () => {
-  const osName = getTargetOSName()
-  const platform = osName === 'windows' ? 'win32' : osName
-  const pwd = process.cwd()
-  return nlu.installNLU([`-c=${pwd}/package.json`, `-o=${pwd}/out/binaries`, `-p=${platform}`])
-}
-
 const packageCore = () => {
-  return gulp.series([copyNativeExtensions, packageNLU(), packageApp])
+  return gulp.series([copyNativeExtensions, packageApp])
 }
 
 const package = modules => {
   return gulp.series([
     package.packageApp,
     ...(process.argv.includes('--skip-modules') ? [] : modules),
-    package.copyNativeExtensions,
-    packageNLU()
+    package.copyNativeExtensions
   ])
 }
 
 module.exports = {
   packageCore,
   packageApp,
-  copyNativeExtensions,
-  packageNLU
+  copyNativeExtensions
 }

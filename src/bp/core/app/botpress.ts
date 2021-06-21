@@ -30,10 +30,10 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 import nanoid from 'nanoid'
+import { startLocalActionServer, startLocalNLUServer } from 'orchestrator'
 import path from 'path'
 import plur from 'plur'
 
-import { startLocalActionServer, startLocalNLUServer } from '../../cluster'
 import { getDebugScopes, setDebugScopes } from '../../debug'
 import { HTTPServer } from './server'
 import { TYPES } from './types'
@@ -125,11 +125,11 @@ export class Botpress {
     await this.initializeServices()
     await this.checkEditionRequirements()
     await this.deployAssets()
+    await this.maybeStartLocalSTAN()
     await this.startRealtime()
     await this.startServer()
     await this.discoverBots()
     await this.maybeStartLocalActionServer()
-    await this.maybeStartLocalSTAN()
 
     if (this.config.sendUsageStats) {
       await this.statsService.start()
@@ -312,16 +312,6 @@ export class Botpress {
       const assets = path.resolve(process.PROJECT_LOCATION, 'data/assets')
       await copyDir(path.join(__dirname, '../../admin/ui'), `${assets}/admin/ui`)
       await copyDir(path.join(__dirname, '../../ui-lite'), `${assets}/ui-lite`)
-
-      // Avoids overwriting the folder when developing locally on the studio
-      if (fse.pathExistsSync(`${assets}/ui-studio/public`)) {
-        const studioPath = fse.lstatSync(`${assets}/ui-studio/public`)
-        if (studioPath.isSymbolicLink()) {
-          return
-        }
-      }
-
-      await copyDir(path.join(__dirname, '../../ui-studio'), `${assets}/ui-studio`)
     } catch (err) {
       this.logger.attachError(err).error('Error deploying assets')
     }
