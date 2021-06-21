@@ -8,12 +8,11 @@ import { BotpressApp, createApp, createLoggerProvider } from 'core/app/core-load
 import { ModuleConfigEntry } from 'core/config'
 import { centerText, LoggerProvider } from 'core/logger'
 import { ModuleLoader, ModuleResolver } from 'core/modules'
-
 import fs from 'fs'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
+import { setupMasterNode, setupWebWorker, WorkerType } from 'orchestrator'
 import os from 'os'
-
-import { setupMasterNode, WORKER_TYPES } from '../../cluster'
 
 async function setupEnv(app: BotpressApp) {
   await app.database.initialize()
@@ -114,17 +113,16 @@ async function start() {
   const app = createApp()
   await setupDebugLogger(app.logger)
 
-  if (process.env.WORKER_TYPE === WORKER_TYPES.LOCAL_ACTION_SERVER) {
+  if (process.env.WORKER_TYPE === WorkerType.LOCAL_ACTION_SERVER) {
     app.localActionServer.listen()
     return
   }
 
-  if (cluster.isWorker && process.env.WORKER_TYPE !== WORKER_TYPES.WEB) {
+  if (cluster.isWorker && process.env.WORKER_TYPE !== WorkerType.WEB) {
     return
   }
 
-  // Server ID is provided by the master node
-  process.SERVER_ID = process.env.SERVER_ID!
+  setupWebWorker()
 
   await setupEnv(app)
 
@@ -203,6 +201,8 @@ This is a fatal error, process will exit.`
     }
   })
 
+  // This ensures that the last log displayed is the correct URL
+  await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
   logger.info(`Botpress is listening at: ${process.LOCAL_URL}`)
   logger.info(`Botpress is exposed at: ${process.EXTERNAL_URL}`)
 }

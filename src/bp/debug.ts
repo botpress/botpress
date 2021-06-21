@@ -26,6 +26,13 @@ export const getDebugScopes = () => {
 export const setDebugScopes = scopes => {
   debug.disable()
   debug.enable(scopes)
+
+  scopes.split(',').forEach(key => (available[key] = debug.enabled(key)))
+
+  if (process.send) {
+    const { MessageType } = require('orchestrator')
+    process.send({ type: MessageType.UpdateDebugScopes, scopes })
+  }
 }
 
 debug.log = function(...args) {

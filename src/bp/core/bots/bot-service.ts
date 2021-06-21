@@ -28,6 +28,7 @@ import Joi from 'joi'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
+import { studioActions } from 'orchestrator'
 import os from 'os'
 import path from 'path'
 import replace from 'replace-in-file'
@@ -611,6 +612,7 @@ export class BotService {
       const api = await createForGlobalHooks()
       await this.hookService.executeHook(new Hooks.AfterBotMount(api, botId))
       BotService._mountedBots.set(botId, true)
+      await studioActions.setBotMountStatus(botId, true)
       this._invalidateBotIds()
 
       BotService.setBotStatus(botId, 'healthy')
@@ -643,6 +645,7 @@ export class BotService {
     await this.hookService.executeHook(new Hooks.AfterBotUnmount(api, botId))
 
     BotService._mountedBots.set(botId, false)
+    await studioActions.setBotMountStatus(botId, false)
     BotService.setBotStatus(botId, 'disabled')
 
     await this._updateBotHealthDebounce()
