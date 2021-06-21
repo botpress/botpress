@@ -50,19 +50,25 @@ export class ConfigReader {
   @Memoize()
   private async getModuleConfigSchema(moduleId: string): Promise<any> {
     const modulePath = process.LOADED_MODULES[moduleId]
-    const configSchema = path.resolve(modulePath, 'assets', 'config.schema.json')
+    if (!modulePath) {
+      this.logger.warn(`Cannot load the config schema for module "${moduleId}". Module is disabled.`)
+      return {}
+    }
 
     try {
+      const configSchema = path.resolve(modulePath, 'assets', 'config.schema.json')
+
       if (fs.existsSync(configSchema)) {
         return JSON.parse(fs.readFileSync(configSchema, 'utf-8'))
       }
     } catch (err) {
       this.logger.attachError(err).error(`Error while loading the config schema for module "${moduleId}"`)
     }
+
     return {}
   }
 
-  public async loadFromDefaultValues(moduleId) {
+  public async loadFromDefaultValues(moduleId: string) {
     return defaultJsonBuilder(await this.getModuleConfigSchema(moduleId))
   }
 
@@ -93,7 +99,7 @@ export class ConfigReader {
 
     /* START DEPRECATED */
     // TODO: Remove support for those old env variables in BP 12 (we need to add those to 11 -> 12 migration guide)
-    for (const option of Object.keys(schema.properties || {})) {
+    for (const option of Object.keys(schema?.properties || {})) {
       const keyOld = `BP_${moduleId}_${option}`.toUpperCase()
       if (keyOld in process.env) {
         const keyNew = `BP_MODULE_${moduleId}_${option}`.toUpperCase()
@@ -121,7 +127,7 @@ export class ConfigReader {
   }
 
   @Memoize()
-  private async getModuleDefaultConfigFile(moduleId): Promise<any | undefined> {
+  private async getModuleDefaultConfigFile(moduleId: string): Promise<any | undefined> {
     try {
       const defaultConfig = {
         $schema: `../../assets/modules/${moduleId}/config.schema.json`,
@@ -182,13 +188,15 @@ export class ConfigReader {
     return config
   }
 
-  private async getCachedOrFresh(key) {
+  private async getCachedOrFresh(key: string) {
     if (this.moduleConfigCache.has(key)) {
       return this.moduleConfigCache.get(key) || {}
     }
+
     const [moduleId, botId, ignoreGlobal] = key.split('//')
     const config = await this.getMerged(moduleId, botId, yn(ignoreGlobal))
     this.moduleConfigCache.set(key, config)
+
     return config
   }
 

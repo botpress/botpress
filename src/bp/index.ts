@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events'
-import { runNluServerWithArgv } from './nlu'
 
 global['NativePromise'] = global.Promise
 
@@ -310,18 +309,18 @@ try {
       }
     )
     .command('lang', 'Launch a local language server', {}, () => {
-      runNluServerWithArgv(['lang', ...process.argv])
-        .then(() => {})
-        .catch(err => {
-          throw err
-        })
+      getos.default().then(async distro => {
+        process.distro = distro
+        const { runNluServerWithArgv } = require('./nlu')
+        await runNluServerWithArgv(['lang', ...process.argv])
+      })
     })
     .command('nlu', 'Launch a local stand-alone nlu server', {}, () => {
-      runNluServerWithArgv(['nlu', ...process.argv])
-        .then(() => {})
-        .catch(err => {
-          throw err
-        })
+      getos.default().then(async distro => {
+        process.distro = distro
+        const { runNluServerWithArgv } = require('./nlu')
+        await runNluServerWithArgv(['nlu', ...process.argv])
+      })
     })
     .boolean('config')
     .boolean('includePasswords')

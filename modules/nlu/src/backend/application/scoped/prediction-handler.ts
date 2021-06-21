@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { IStanEngine } from 'src/backend/stan'
-import mergeSpellChecked from '../../election/spellcheck-handler'
+import pickSpellChecked from '../../election/spellcheck-handler'
 import { mapPredictOutput } from '../../stan/api-mapper'
 import { EventUnderstanding } from '../typings'
 
@@ -10,6 +10,8 @@ interface BotDefinition {
   botId: string
   defaultLanguage: string
 }
+
+type RawEventUnderstanding = Omit<EventUnderstanding, 'detectedLanguage'>
 
 // TODO: rm this class and put all the logic inside Bot. This class no longer has a reason to be.
 export class ScopedPredictionHandler {
@@ -27,8 +29,6 @@ export class ScopedPredictionHandler {
   }
 
   async predict(textInput: string, anticipatedLanguage: string): Promise<EventUnderstanding> {
-    const t0 = Date.now()
-
     const { defaultLanguage } = this
 
     let detectedLanguage: string | undefined
@@ -40,7 +40,7 @@ export class ScopedPredictionHandler {
       this._logger.attachError(err).error(msg)
     }
 
-    let nluResults: EventUnderstanding | undefined
+    let nluResults: RawEventUnderstanding | undefined
 
     const isDefined = _.negate(_.isUndefined)
     const languagesToTry = _([detectedLanguage, anticipatedLanguage, defaultLanguage])
@@ -50,8 +50,7 @@ export class ScopedPredictionHandler {
 
     for (const lang of languagesToTry) {
       const res = await this.tryPredictInLanguage(textInput, lang)
-      const ms = Date.now() - t0
-      nluResults = res && { ...res, ms }
+      nluResults = res && { ...res }
 
       if (!this.isEmpty(nluResults) && !this.isError(nluResults)) {
         break
@@ -65,10 +64,7 @@ export class ScopedPredictionHandler {
     return { ...nluResults, detectedLanguage }
   }
 
-  private async tryPredictInLanguage(
-    textInput: string,
-    language: string
-  ): Promise<Omit<EventUnderstanding, 'ms'> | undefined> {
+  private async tryPredictInLanguage(textInput: string, language: string): Promise<RawEventUnderstanding | undefined> {
     if (!this._modelsByLang[language]) {
       return
     }
@@ -76,18 +72,7 @@ export class ScopedPredictionHandler {
     try {
       const rawOriginalOutput = await this._engine.predict(this._botId, textInput, this._modelsByLang[language])
       const originalOutput = mapPredictOutput(rawOriginalOutput)
-
       const { spellChecked } = originalOutput
-      if (spellChecked && spellChecked !== textInput) {
-        const rawSpellCheckedOutput = await this._engine.predict(
-          this._botId,
-          spellChecked,
-          this._modelsByLang[language]
-        )
-        const spellCheckedOutput = mapPredictOutput(rawSpellCheckedOutput)
-        const merged = mergeSpellChecked(originalOutput, spellCheckedOutput)
-        return { ...merged, spellChecked, errored: false, language }
-      }
       return { ...originalOutput, spellChecked, errored: false, language }
     } catch (err) {
       const modelId = this._modelsByLang[language]
@@ -98,11 +83,11 @@ export class ScopedPredictionHandler {
     }
   }
 
-  private isEmpty(nluResults: EventUnderstanding | undefined): nluResults is undefined {
+  private isEmpty(nluResults: RawEventUnderstanding | undefined): nluResults is undefined {
     return !nluResults
   }
 
-  private isError(nluResults: EventUnderstanding): boolean {
+  private isError(nluResults: RawEventUnderstanding): boolean {
     return !nluResults || nluResults.errored
   }
 }

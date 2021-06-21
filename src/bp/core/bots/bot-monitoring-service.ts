@@ -1,7 +1,7 @@
 import 'bluebird-global'
 import { Logger, LoggerEntry } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config'
-import { JobService } from 'core/distributed'
+import { JobService, makeRedisKey } from 'core/distributed'
 import { LogsRepository } from 'core/logger'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
@@ -15,7 +15,7 @@ import Redlock from 'redlock'
 export class BotMonitoringService {
   private _redisClient?: Redis
   private _redlock!: Redlock
-  private _keyMonitorLock = 'bot_monitor_lock'
+  private _keyMonitorLock = makeRedisKey('bot_monitor_lock')
   private _lock
 
   private _intervalRef: NodeJS.Timeout | undefined

@@ -10,7 +10,7 @@ import cookieParser from 'cookie-parser'
 import session from 'cookie-session'
 import { TYPES } from 'core/app/types'
 import { BotService, BotsRouter } from 'core/bots'
-import { GhostService } from 'core/bpfs'
+import { GhostService, MemoryObjectCache } from 'core/bpfs'
 import { CMSService } from 'core/cms'
 import { ExternalAuthConfig, ConfigProvider } from 'core/config'
 import { ConverseService } from 'core/converse'
@@ -20,7 +20,7 @@ import { AlertingService, MonitoringService } from 'core/health'
 import { LogsRepository } from 'core/logger'
 import { MediaServiceProvider, MediaRouter } from 'core/media'
 import { ModuleLoader, ModulesRouter } from 'core/modules'
-import { getSocketTransports } from 'core/realtime'
+import { getSocketTransports, RealtimeService } from 'core/realtime'
 import { InvalidExternalToken, PaymentRequiredError, monitoringMiddleware } from 'core/routers'
 import {
   generateUserToken,
@@ -41,6 +41,7 @@ import { UnlicensedError } from 'errors'
 import express, { NextFunction, Response } from 'express'
 import rateLimit from 'express-rate-limit'
 import { createServer, Server } from 'http'
+import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'
 import jwksRsa from 'jwks-rsa'
@@ -48,9 +49,9 @@ import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import ms from 'ms'
+import { MessageType } from 'orchestrator'
 import path from 'path'
 import portFinder from 'portfinder'
-import { StudioRouter } from 'studio/studio-router'
 import { URL } from 'url'
 import yn from 'yn'
 
@@ -58,6 +59,7 @@ import { isDisabled } from '../routers/conditionalMiddleware'
 import { SdkApiRouter } from '../routers/sdk/router'
 import { ShortLinksRouter } from '../routers/shortlinks'
 import { NLUService } from '../services/nlu/nlu-service'
+import { InternalRouter } from './internal-router'
 import { debugRequestMw, resolveAsset, resolveIndexPaths } from './server-utils'
 
 const BASE_API_PATH = '/api/v1'
@@ -72,12 +74,12 @@ export class HTTPServer {
 
   private readonly adminRouter: AdminRouter
   private readonly botsRouter: BotsRouter
-  private readonly studioRouter!: StudioRouter
   private readonly modulesRouter: ModulesRouter
   private readonly shortLinksRouter: ShortLinksRouter
   private telemetryRouter!: TelemetryRouter
   private mediaRouter: MediaRouter
   private readonly sdkApiRouter!: SdkApiRouter
+  private internalRouter: InternalRouter
   private _needPermissions: (
     operation: string,
     resource: string
@@ -101,7 +103,7 @@ export class HTTPServer {
     @inject(TYPES.FlowService) flowService: FlowService,
     @inject(TYPES.ActionService) actionService: ActionService,
     @inject(TYPES.ActionServersService) actionServersService: ActionServersService,
-    @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
+    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.MediaServiceProvider) mediaServiceProvider: MediaServiceProvider,
     @inject(TYPES.SkillService) skillService: SkillService,
@@ -117,7 +119,9 @@ export class HTTPServer {
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.LogsRepository) private logsRepo: LogsRepository,
     @inject(TYPES.NLUService) nluService: NLUService,
-    @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository
+    @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository,
+    @inject(TYPES.RealtimeService) private realtime: RealtimeService,
+    @inject(TYPES.ObjectCache) private objectCache: MemoryObjectCache
   ) {
     this.app = express()
 
@@ -161,22 +165,6 @@ export class HTTPServer {
       this
     )
 
-    this.studioRouter = new StudioRouter(
-      logger,
-      authService,
-      workspaceService,
-      botService,
-      configProvider,
-      actionService,
-      cmsService,
-      flowService,
-      ghostService,
-      mediaServiceProvider,
-      actionServersService,
-      hintsService,
-      this
-    )
-
     this.shortLinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter(
       botService,
@@ -197,6 +185,14 @@ export class HTTPServer {
       this.workspaceService,
       mediaServiceProvider,
       this.configProvider
+    )
+
+    this.internalRouter = new InternalRouter(
+      this.cmsService,
+      this.logger,
+      this.moduleLoader,
+      this.realtime,
+      this.objectCache
     )
 
     this._needPermissions = needPermissions(this.workspaceService)
@@ -247,7 +243,24 @@ export class HTTPServer {
     window.EXPERIMENTAL = ${config.experimental};
     window.SOCKET_TRANSPORTS = ["${getSocketTransports(config).join('","')}"];
     window.SHOW_POWERED_BY = ${!!config.showPoweredBy};
-    window.UUID = "${this.machineId}"`
+    window.UUID = "${this.machineId}";
+    window.SERVER_ID = "${process.SERVER_ID}";`
+  }
+
+  async setupStudioProxy() {
+    const target = `http://localhost:${process.STUDIO_PORT}`
+    const proxyPaths = ['*/studio/*', '*/api/v1/studio*']
+
+    this.app.use(
+      proxyPaths,
+      createProxyMiddleware({
+        target,
+        changeOrigin: true,
+        logLevel: 'silent',
+        // Fix post requests when the middleware is added after the body parser mw
+        onProxyReq: fixRequestBody
+      })
+    )
   }
 
   async start() {
@@ -338,10 +351,11 @@ export class HTTPServer {
     this.setupUILite(this.app)
     this.adminRouter.setupRoutes(this.app)
     await this.botsRouter.setupRoutes(this.app)
-    await this.studioRouter.setupRoutes(this.app)
+    this.internalRouter.setupRoutes()
 
     this.app.use('/assets', this.guardWhiteLabel(), express.static(resolveAsset('')))
 
+    this.app.use('/api/internal', this.internalRouter.router)
     this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
 
     this.app.use(`${BASE_API_PATH}/sdk`, this.sdkApiRouter.router)
@@ -383,6 +397,8 @@ export class HTTPServer {
     process.PORT = await portFinder.getPortPromise({ port: config.port })
     process.EXTERNAL_URL = process.env.EXTERNAL_URL || config.externalUrl || `http://${process.HOST}:${process.PORT}`
     process.LOCAL_URL = `http://${process.HOST}:${process.PORT}${process.ROOT_PATH}`
+
+    process.send!({ type: MessageType.RegisterProcess, processType: 'web', port: process.PORT })
 
     if (process.PORT !== config.port) {
       this.logger.warn(`Configured port ${config.port} is already in use. Using next port available: ${process.PORT}`)
