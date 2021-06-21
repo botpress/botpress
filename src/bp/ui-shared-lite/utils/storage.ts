@@ -6,15 +6,15 @@ export interface BPStorage {
   del: (key: string) => void
 }
 
-let useSessionState = new Boolean(window.USE_SESSION_STORAGE)
+let useSessionStorage = new Boolean(window.USE_SESSION_STORAGE)
 let storageDriver: 'cookie' | Storage
 const getDriver = (): 'cookie' | Storage => {
-  if (storageDriver && window.USE_SESSION_STORAGE === useSessionState) {
+  if (storageDriver && window.USE_SESSION_STORAGE === useSessionStorage) {
     return storageDriver
   }
 
   try {
-    useSessionState = new Boolean(window.USE_SESSION_STORAGE)
+    useSessionStorage = new Boolean(window.USE_SESSION_STORAGE)
 
     const storage =
       window.USE_SESSION_STORAGE === true && typeof sessionStorage !== 'undefined' ? sessionStorage : localStorage
@@ -35,7 +35,7 @@ const storage: BPStorage = {
       const driver = getDriver()
       driver !== 'cookie' ? driver.setItem(key, value) : Cookie.set(key, value)
     } catch (err) {
-      console.error('Error while saving data into storage.', err.message)
+      console.error('Error while setting data into storage.', err.message)
     }
   },
   get: (key: string) => {
