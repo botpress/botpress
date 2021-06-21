@@ -2,6 +2,7 @@ import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import { assertSuperAdmin } from 'core/security'
 import _ from 'lodash'
+import { MessageType } from 'orchestrator'
 import os from 'os'
 
 import ChecklistRouter from './checklist/checklist-router'
@@ -88,7 +89,7 @@ class ManagementRouter extends CustomAdminRouter {
 
   private __local_rebootServer(serverId?: string, hostname?: string) {
     if (!hostname || !serverId || (hostname === os.hostname() && serverId === process.SERVER_ID)) {
-      process.send!({ type: 'reboot_server' })
+      process.send!({ type: MessageType.RestartServer })
     }
   }
 }

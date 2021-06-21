@@ -2,7 +2,6 @@ import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import React from 'react'
-import 'ui-shared/dist/theme.css'
 
 export const updater = { callback: undefined }
 

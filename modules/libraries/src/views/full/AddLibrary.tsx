@@ -1,5 +1,6 @@
 import { Button, ControlGroup, InputGroup, Radio, RadioGroup } from '@blueprintjs/core'
 import { lang, toast } from 'botpress/shared'
+// @ts-ignore - provided by the studio
 import { isOperationAllowed } from 'botpress/utils'
 import React, { useState } from 'react'
 
