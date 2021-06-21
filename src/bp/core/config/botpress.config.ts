@@ -457,7 +457,7 @@ export interface AuthStrategy {
    * When enabled, authentication type will not be shown on a login page and only alternative one will be present.
    * @default false
    */
-  hide: boolean
+  hidden: boolean
 }
 
 export interface AuthStrategyBasic {

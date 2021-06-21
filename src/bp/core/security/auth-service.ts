@@ -93,7 +93,7 @@ export class AuthService {
     })
 
     const hiddenStrategies = strategies
-      .filter(strategy => config.authStrategies[strategy.strategyId].hide)
+      .filter(strategy => config.authStrategies[strategy.strategyId].hidden)
       .map(strategy => strategy.strategyId)
     return { strategies: strategies.filter(Boolean), isFirstUser: await this.isFirstUser(), hiddenStrategies }
   }
