@@ -34,7 +34,7 @@ export class TeamsChoicesRenderer implements ChannelRenderer<TeamsContext> {
             return {
               title: reply.title as string,
               type: 'messageBack',
-              value: reply.value,
+              value: { value: reply.value, renderer: 'choices' },
               text: reply.value,
               displayText: reply.title as string
             }
