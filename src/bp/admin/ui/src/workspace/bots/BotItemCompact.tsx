@@ -11,7 +11,6 @@ import {
   Tag,
   Tooltip
 } from '@blueprintjs/core'
-import { Promise as BbPromise } from 'bluebird'
 import { BotConfig, ModuleDefinition } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
