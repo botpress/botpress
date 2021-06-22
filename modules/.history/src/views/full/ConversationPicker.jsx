@@ -1,10 +1,12 @@
 import React from 'react'
-import style from './style.scss'
 import { Icon, Position } from '@blueprintjs/core'
 import { DateRangeInput } from '@blueprintjs/datetime'
-import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
+import { ModuleUI } from 'botpress/ui'
 
-import { SidePanelSection, ItemList } from 'botpress/ui'
+import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
+import style from './style.scss'
+
+const { SidePanelSection, ItemList } = ModuleUI
 
 function QueryOptions(props) {
   return (

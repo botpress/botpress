@@ -43,8 +43,8 @@ const entryPoint: sdk.ModuleEntryPoint = {
     // This must match the name of your module's folder, and the name in package.json
     name: 'complete-module',
     /**
-     * When menuIcon is set to `custom`, you need to provide an icon. It must be at that location: `/assets/icon.png`
-     * Otherwise, use Material icons name: https://material.io/tools/icons/?style=baseline
+     * By default we are using the https://blueprintjs.com/docs/#icons. Use the corresponding name
+     * Otherwise, create an icon in the assets module in the following format studio_${module.menuIcon}
      */
     menuIcon: 'flag',
     // This is the name of your module which will be displayed in the sidebar

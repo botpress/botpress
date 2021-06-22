@@ -1,4 +1,4 @@
-@import url('../../ui-studio/public/external/font-roboto.css');
+@import url('../../studio/ui/public/external/font-roboto.css');
 
 /* To make sure that we don't apply style that might break the default style of IE */
 @supports not (-ms-high-contrast: none) {

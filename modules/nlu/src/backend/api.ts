@@ -86,11 +86,13 @@ export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
 
     try {
       const bot = app.getBot(botId)
+      const t0 = Date.now()
       const nlu = await bot.predict(value.text, lang)
       const event: sdk.IO.EventUnderstanding = {
         ...nlu,
         includedContexts: value.contexts,
-        detectedLanguage: nlu.detectedLanguage
+        detectedLanguage: nlu.detectedLanguage,
+        ms: Date.now() - t0
       }
       res.send({ nlu: election(event, globalConfig) })
     } catch (error) {

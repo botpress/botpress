@@ -20,11 +20,7 @@
     "paths": {
       "~/*": ["*"],
       "botpress/sdk": ["../../sdk/botpress.d.ts"],
-      "common/*": ["../../common/*"],
-      "@blueprintjs/core": ["../../ui-studio/node_modules/@blueprintjs/core"],
-      "@blueprintjs/select": ["../../ui-studio/node_modules/@blueprintjs/select"],
-      "react": ["../../ui-studio/node_modules/@types/react"],
-      "react-dom": ["../../ui-studio/node_modules/@types/react-dom"]
+      "common/*": ["../../common/*"]
     }
   },
   "include": ["src"],
