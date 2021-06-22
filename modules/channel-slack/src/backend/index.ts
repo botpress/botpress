@@ -46,7 +46,6 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotUnmount,
   definition: {
     name: 'channel-slack',
-    menuIcon: 'none',
     menuText: 'Channel Slack',
     noInterface: true,
     fullName: 'Slack',
