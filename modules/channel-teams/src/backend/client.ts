@@ -161,15 +161,14 @@ If you have a restricted app, you may need to specify the tenantId also.`
   private _sendIncomingEvent = async (activity: Activity, threadId: string) => {
     const {
       text,
-      from: { id: userId },
-      type
+      from: { id: userId }
     } = activity
 
     const convoId = await this.getLocalConvo(threadId, userId)
 
-    await this.bp.experimental.messages
-      .forBot(this.botId)
-      .receive(convoId, { type: 'text', text }, { channel: 'teams' })
+    const type = activity.value?.renderer === 'choices' ? 'quick_reply' : 'text'
+
+    await this.bp.experimental.messages.forBot(this.botId).receive(convoId, { type, text }, { channel: 'teams' })
   }
 
   private async getLocalConvo(threadId: string, userId: string): Promise<string> {
