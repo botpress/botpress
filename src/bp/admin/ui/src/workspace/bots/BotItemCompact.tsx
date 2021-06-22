@@ -14,6 +14,7 @@ import {
 import { BotConfig, ModuleDefinition } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
+import { intersection } from 'lodash'
 import React, { FC } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
@@ -26,6 +27,7 @@ interface Props {
   bot: BotConfig
   hasError: boolean
   loadedModules: ModuleDefinition[]
+  supportedLanguages: () => Array<any>
   deleteBot?: () => void
   exportBot?: () => void
   createRevision?: () => void
@@ -38,6 +40,7 @@ const BotItemCompact: FC<Props> = ({
   bot,
   hasError,
   loadedModules,
+  supportedLanguages,
   deleteBot,
   exportBot,
   createRevision,
@@ -49,6 +52,8 @@ const BotItemCompact: FC<Props> = ({
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
   const nluModuleEnabled = !!loadedModules.find(m => m.name === 'nlu')
   const hasStudioAccess = isOperationAllowed({ resource: 'studio', operation: 'read' })
+  const languages = intersection(bot.languages, supportedLanguages())
+  const isSupportedLanguage = bot.languages.length === languages.length ? true : false
 
   return (
     <div className={cx('bp_table-row', style.tableRow)} key={bot.id}>
@@ -152,15 +157,15 @@ const BotItemCompact: FC<Props> = ({
 
         {/*
           TODO: remove this NeedsTrainingWarning component.
-          This is a temp fix but won't be usefull after we bring back training on bot mount.
+          This is a temp fix but won't be useful after we bring back training on bot mount.
           */}
         <AccessControl resource="module.nlu" operation="write">
           {nluModuleEnabled && <NeedsTrainingWarning bot={bot.id} languages={bot.languages} />}
         </AccessControl>
 
-        {!bot.defaultLanguage && (
+        {!isSupportedLanguage && (
           <Tooltip position="right" content={lang.tr('admin.workspace.bots.item.languageIsMissing')}>
-            <Icon icon="warning-sign" intent={Intent.DANGER} style={{ marginLeft: 10 }} />
+            <Icon icon="translate" intent={Intent.DANGER} style={{ marginLeft: 10 }} />
           </Tooltip>
         )}
 

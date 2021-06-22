@@ -122,6 +122,12 @@ class Bots extends Component<Props> {
     )
   }
 
+  async supportedLanguages(botId: string) {
+    //GET  {{baseUrl}}/api/v1/bots/{{botName}}/mod/nlu/health
+    // bots/{{botName}}/mod/nlu/health
+    await api.getSecured({ useV1: true }).get(`/workspace/bots/${botId}/mod/nlu/health`)
+  }
+
   renderCreateNewBotButton() {
     return (
       <AccessControl resource="admin.bots.*" operation="write">
@@ -233,6 +239,7 @@ class Bots extends Component<Props> {
               rollback={this.toggleRollbackModal.bind(this, bot.id)}
               reloadBot={this.reloadBot.bind(this, bot.id)}
               viewLogs={this.viewLogs.bind(this, bot.id)}
+              supportedLanguages={this.supportedLanguage.bind(this, bot.id)}
             />
           </Fragment>
         ))}
