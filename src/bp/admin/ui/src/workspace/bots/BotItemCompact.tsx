@@ -52,10 +52,11 @@ const BotItemCompact: FC<Props> = ({
     const axios = api.getSecured({ useV1: true })
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    axios.get(`/workspace/bots/${bot.id}/mod/nlu/health`).then(response => {
+    axios.get(`/bots/${bot.id}/mod/nlu/health`).then(response => {
       setSupportedLanguages(response.data)
     })
   }, [])
+
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
   const nluModuleEnabled = !!loadedModules.find(m => m.name === 'nlu')
