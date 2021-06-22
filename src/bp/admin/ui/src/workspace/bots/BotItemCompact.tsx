@@ -11,23 +11,23 @@ import {
   Tag,
   Tooltip
 } from '@blueprintjs/core'
+import { Promise as BbPromise } from 'bluebird'
 import { BotConfig, ModuleDefinition } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import { intersection } from 'lodash'
-import React, { FC } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
+import api from '~/app/api'
 import AccessControl, { isChatUser, isOperationAllowed } from '~/auth/AccessControl'
 import { NeedsTrainingWarning } from './NeedsTrainingWarning'
 import style from './style.scss'
 import { WorkspaceAppItems } from './WorkspaceAppItems'
-
 interface Props {
   bot: BotConfig
   hasError: boolean
   loadedModules: ModuleDefinition[]
-  supportedLanguages: () => Array<any>
   deleteBot?: () => void
   exportBot?: () => void
   createRevision?: () => void
@@ -40,7 +40,6 @@ const BotItemCompact: FC<Props> = ({
   bot,
   hasError,
   loadedModules,
-  supportedLanguages,
   deleteBot,
   exportBot,
   createRevision,
@@ -48,11 +47,20 @@ const BotItemCompact: FC<Props> = ({
   reloadBot,
   viewLogs
 }) => {
+  const [supportedLanguages, setSupportedLanguages] = useState([])
+  useEffect(() => {
+    const axios = api.getSecured({ useV1: true })
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    axios.get(`/workspace/bots/${bot.id}/mod/nlu/health`).then(response => {
+      setSupportedLanguages(response.data)
+    })
+  }, [])
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
   const nluModuleEnabled = !!loadedModules.find(m => m.name === 'nlu')
   const hasStudioAccess = isOperationAllowed({ resource: 'studio', operation: 'read' })
-  const languages = intersection(bot.languages, supportedLanguages())
+  const languages = intersection(bot.languages, supportedLanguages)
   const isSupportedLanguage = bot.languages.length === languages.length ? true : false
 
   return (
