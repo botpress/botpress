@@ -1,3 +1,60 @@
+## [12.22.2](https://github.com/botpress/botpress/compare/v12.22.0...v12.22.2) (2021-06-16)
+
+
+### Bug Fixes
+
+* **admin:** add missing translation change collaborators role ([#5089](https://github.com/botpress/botpress/issues/5089)) ([a36cf1a](https://github.com/botpress/botpress/commit/a36cf1a))
+* **admin:** various fixes ([#5094](https://github.com/botpress/botpress/issues/5094)) ([731536e](https://github.com/botpress/botpress/commit/731536e))
+* **core:** fix core migration template import path ([#5087](https://github.com/botpress/botpress/issues/5087)) ([071f8d4](https://github.com/botpress/botpress/commit/071f8d4))
+* **core:** fix multiple invalidate ([#5074](https://github.com/botpress/botpress/issues/5074)) ([3af10fc](https://github.com/botpress/botpress/commit/3af10fc))
+* **core:** fix send email skill using teams ([#5088](https://github.com/botpress/botpress/issues/5088)) ([ba28e4b](https://github.com/botpress/botpress/commit/ba28e4b))
+* **core:** minor fixes for logs and admin ([#5092](https://github.com/botpress/botpress/issues/5092)) ([41b8ca8](https://github.com/botpress/botpress/commit/41b8ca8))
+* **core:** use redis scope as channel prefix ([#5079](https://github.com/botpress/botpress/issues/5079)) ([f78ffd8](https://github.com/botpress/botpress/commit/f78ffd8))
+* **core:** wrong path for config ([#5081](https://github.com/botpress/botpress/issues/5081)) ([217aed7](https://github.com/botpress/botpress/commit/217aed7))
+* **nlu:** handle disabling the NLU module ([#5044](https://github.com/botpress/botpress/issues/5044)) ([f9bd4d6](https://github.com/botpress/botpress/commit/f9bd4d6))
+* **nlu:** spellcheck logic is more natural ([#5093](https://github.com/botpress/botpress/issues/5093)) ([4e353b0](https://github.com/botpress/botpress/commit/4e353b0))
+* **qna:** do not process event if bot is unmounted ([#5082](https://github.com/botpress/botpress/issues/5082)) ([a4998fe](https://github.com/botpress/botpress/commit/a4998fe))
+
+
+### Features
+
+* **core:** Config to toggle public converse ([#5102](https://github.com/botpress/botpress/issues/5102)) ([a4f161f](https://github.com/botpress/botpress/commit/a4f161f))
+* **nlu:** upgrade NLU version + bring back nlu debug logs ([#5080](https://github.com/botpress/botpress/issues/5080)) ([9911e13](https://github.com/botpress/botpress/commit/9911e13))
+* **teams:** add botId to logs ([#5083](https://github.com/botpress/botpress/issues/5083)) ([33ba6de](https://github.com/botpress/botpress/commit/33ba6de))
+
+
+
+## [12.22.1](https://github.com/botpress/botpress/compare/v12.22.0...v12.22.1) (2021-06-03)
+
+
+### Bug Fixes
+
+* **build:** check module-builder image on master only ([#5032](https://github.com/botpress/botpress/issues/5032)) ([bd6d63a](https://github.com/botpress/botpress/commit/bd6d63a))
+* **builtin:** default transition on entry nodes for empty bot template ([#4999](https://github.com/botpress/botpress/issues/4999)) ([66e1a7a](https://github.com/botpress/botpress/commit/66e1a7a))
+* **core:** fix 'socket hang up' before 20 minutes for bp-push ([#5009](https://github.com/botpress/botpress/issues/5009)) ([9a21cbc](https://github.com/botpress/botpress/commit/9a21cbc))
+* **core:** fix bot migration ([#5049](https://github.com/botpress/botpress/issues/5049)) ([8c44e10](https://github.com/botpress/botpress/commit/8c44e10))
+* **core:** fix generating diag report with the pro version ([#5062](https://github.com/botpress/botpress/issues/5062)) ([f10f10a](https://github.com/botpress/botpress/commit/f10f10a))
+* **core:** fixes to improve flow loading speed ([#5050](https://github.com/botpress/botpress/issues/5050)) ([7c68266](https://github.com/botpress/botpress/commit/7c68266))
+* **core:** invalidate module config cache on file change ([#4569](https://github.com/botpress/botpress/issues/4569)) ([3b48294](https://github.com/botpress/botpress/commit/3b48294))
+* **core:** jumpTo accepts flow name as argument ([#5000](https://github.com/botpress/botpress/issues/5000)) ([42e17ff](https://github.com/botpress/botpress/commit/42e17ff))
+* **core:** telemetry only on mounted bots ([#5052](https://github.com/botpress/botpress/issues/5052)) ([26746a1](https://github.com/botpress/botpress/commit/26746a1))
+* **docs:** wrong saml URLs ([#5033](https://github.com/botpress/botpress/issues/5033)) ([a865f3d](https://github.com/botpress/botpress/commit/a865f3d))
+* **ndu:** fix blank page in flow editor ([#5028](https://github.com/botpress/botpress/issues/5028)) ([d18f975](https://github.com/botpress/botpress/commit/d18f975))
+* **ndu:** fix display of intent is trigger editor ([#5027](https://github.com/botpress/botpress/issues/5027)) ([2033939](https://github.com/botpress/botpress/commit/2033939))
+* **nlu:** fix bot delete when nlu unavailable ([#5053](https://github.com/botpress/botpress/issues/5053)) ([8101a0c](https://github.com/botpress/botpress/commit/8101a0c))
+* **nlu:** no more nlu token when nlu server is auto started ([#5010](https://github.com/botpress/botpress/issues/5010)) ([2f3d7c5](https://github.com/botpress/botpress/commit/2f3d7c5))
+* **studio:** moving multiple nodes ([#5041](https://github.com/botpress/botpress/issues/5041)) ([35e6da7](https://github.com/botpress/botpress/commit/35e6da7))
+* **studio:** right sidebar UI flow ([#5046](https://github.com/botpress/botpress/issues/5046)) ([20e58cf](https://github.com/botpress/botpress/commit/20e58cf))
+* dockerfile no need to chmod nlu bin ([#5006](https://github.com/botpress/botpress/issues/5006)) ([d9dcfd9](https://github.com/botpress/botpress/commit/d9dcfd9))
+
+
+### Features
+
+* **builtin:** add support for file content-type ([#5045](https://github.com/botpress/botpress/issues/5045)) ([df57a76](https://github.com/botpress/botpress/commit/df57a76)), closes [#5055](https://github.com/botpress/botpress/issues/5055)
+* **studio:** allow copying multiple nodes ([#5026](https://github.com/botpress/botpress/issues/5026)) ([7880e7f](https://github.com/botpress/botpress/commit/7880e7f))
+
+
+
 # [12.22.0](https://github.com/botpress/botpress/compare/v12.20.1...v12.22.0) (2021-05-14)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "12.22.0",
+  "version": "12.22.2",
   "description": "The world's most powerful conversational engine",
   "main": "index.js",
   "bin": "index.js",
@@ -10,6 +10,7 @@
       "./core/**/*.js",
       "./admin/**/*.js",
       "./studio/**/*.js",
+      "./orchestrator/*.js",
       "./*.js",
       "./pro/**/*.js",
       "./common/**/*.js",
@@ -21,7 +22,6 @@
       "../../node_modules/vm2/lib/*.js",
       "../../node_modules/xml-encryption/lib/templates/*.tpl.xml",
       "./admin/ui/**",
-      "./ui-studio/**",
       "./ui-lite/**",
       "./core/config/schemas/**",
       "./ml/bin/**",

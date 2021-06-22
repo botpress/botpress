@@ -7,6 +7,7 @@ import {
   TwilioCardRenderer,
   TwilioCarouselRenderer,
   TwilioChoicesRenderer,
+  TwilioDropdownRenderer,
   TwilioImageRenderer,
   TwilioTextRenderer
 } from '../renderers'
@@ -53,6 +54,7 @@ export class TwilioClient {
 
     this.renderers = [
       new TwilioCardRenderer(),
+      new TwilioDropdownRenderer(),
       new TwilioTextRenderer(),
       new TwilioImageRenderer(),
       new TwilioCarouselRenderer(),
@@ -76,18 +78,21 @@ export class TwilioClient {
 
     const botPhoneNumber = body.To
     const userId = body.From
-    const text = body.Body
 
     const conversation = await this.bp.experimental.conversations.forBot(this.botId).recent(userId)
     await this.bp.kvs.forBot(this.botId).set(`twilio-number-${conversation.id}`, botPhoneNumber)
 
+    const text = body.Body
     const index = Number(text)
-    let payload: any = { type: 'text', text }
+    let payload: any = this.bp.experimental.render.text(text)
+
     if (index) {
       payload = (await this.handleIndexReponse(index - 1, userId, conversation.id)) ?? payload
       if (!payload.text) {
         return
       }
+    } else if (body.MediaUrl0) {
+      payload = this.bp.experimental.render.image(body.MediaUrl0, text)
     }
 
     await this.kvs.delete(this.getKvsKey(userId, conversation.id))

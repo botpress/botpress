@@ -31,29 +31,29 @@ export class TeamsClient {
   async initialize() {
     if (!this.config.appId || !this.config.appPassword) {
       return this.logger.error(
-        'You need to set the appId and the appPassword before enabling this channel. It will be disabled for this bot.'
+        `[${this.botId}] You need to set the appId and the appPassword before enabling this channel. It will be disabled for this bot.`
       )
     }
 
     if (!(await this.validateCredentials())) {
       return this.logger.error(
-        `Could not validate the specified credentials.
+        `[${this.botId}] Could not validate the specified credentials.
 Make sure that your appId and appPassword are valid.
 If you have a restricted app, you may need to specify the tenantId also.`
       )
     }
 
     this.bp.logger.info(
-      `Successfully validated credentials for Microsoft Teams channel with App ID: ${this.config.appId}`
+      `[${this.botId}] Successfully validated credentials for Microsoft Teams channel with App ID: ${this.config.appId}`
     )
 
     if (!this.publicPath || this.publicPath.indexOf('https://') !== 0) {
       return this.logger.error(
-        'You need to configure an HTTPS url for this channel to work properly. See EXTERNAL_URL in botpress config.'
+        `[${this.botId}] You need to configure an HTTPS url for this channel to work properly. See EXTERNAL_URL in botpress config.`
       )
     }
 
-    this.logger.info(`Messaging API URL: ${this.publicPath.replace('BOT_ID', this.botId)}/api/messages`)
+    this.logger.info(`[${this.botId}] Messaging API URL: ${this.publicPath.replace('BOT_ID', this.botId)}/api/messages`)
 
     this.adapter = new BotFrameworkAdapter({
       appId: this.config.appId,
@@ -161,15 +161,14 @@ If you have a restricted app, you may need to specify the tenantId also.`
   private _sendIncomingEvent = async (activity: Activity, threadId: string) => {
     const {
       text,
-      from: { id: userId },
-      type
+      from: { id: userId }
     } = activity
 
     const convoId = await this.getLocalConvo(threadId, userId)
 
-    await this.bp.experimental.messages
-      .forBot(this.botId)
-      .receive(convoId, { type: 'text', text }, { channel: 'teams' })
+    const type = activity.value?.renderer === 'choices' ? 'quick_reply' : 'text'
+
+    await this.bp.experimental.messages.forBot(this.botId).receive(convoId, { type, text }, { channel: 'teams' })
   }
 
   private async getLocalConvo(threadId: string, userId: string): Promise<string> {
@@ -196,7 +195,7 @@ If you have a restricted app, you may need to specify the tenantId also.`
     const convoRef = await this._getConversationRef(threadId)
     if (!convoRef) {
       this.bp.logger.warn(
-        `No message could be sent to MS Botframework with threadId: ${threadId} as there is no conversation reference`
+        `[${this.botId}] No message could be sent to MS Botframework with threadId: ${threadId} as there is no conversation reference`
       )
       return
     }

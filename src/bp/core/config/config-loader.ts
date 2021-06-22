@@ -34,7 +34,7 @@ export class ConfigProvider {
     @inject(TYPES.ObjectCache) private cache: ObjectCache
   ) {
     this.cache.events.on('invalidation', async key => {
-      if (key === 'object::data/global/botpress.config.json') {
+      if (key === 'object::data/global/botpress.config.json' || key === 'file::data/global/botpress.config.json') {
         this._botpressConfigCache = undefined
         const config = await this.getBotpressConfig()
 
@@ -248,7 +248,7 @@ export class ConfigProvider {
       },
       studio: {
         title: 'Botpress Studio',
-        favicon: 'assets/ui-studio/public/img/favicon.png',
+        favicon: 'assets/studio/ui/public/img/favicon.png',
         customCss: ''
       }
     }

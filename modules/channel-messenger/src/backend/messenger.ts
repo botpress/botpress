@@ -10,7 +10,8 @@ import {
   MessengerImageRenderer,
   MessengerTextRenderer,
   MessengerCarouselRenderer,
-  MessengerChoicesRenderer
+  MessengerChoicesRenderer,
+  MessengerDropdownRenderer
 } from '../renderers'
 import { MessengerCommonSender, MessengerTypingSender } from '../senders'
 
@@ -81,6 +82,7 @@ export class MessengerService {
 
     this.renderers = [
       new MessengerCardRenderer(),
+      new MessengerDropdownRenderer(),
       new MessengerTextRenderer(),
       new MessengerImageRenderer(),
       new MessengerCarouselRenderer(),

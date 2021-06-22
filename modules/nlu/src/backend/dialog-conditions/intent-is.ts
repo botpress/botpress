@@ -1,5 +1,4 @@
-import { Condition } from 'botpress/sdk'
-import _ from 'lodash'
+import { Condition, NLU } from 'botpress/sdk'
 
 export default {
   id: 'user_intent_is',
@@ -10,19 +9,15 @@ export default {
   params: {
     intentName: { label: 'Name of intent', type: 'string' }
   },
-  editor: {
-    module: 'nlu',
-    component: 'LiteEditor'
-  },
+  useLiteEditor: true,
   evaluate: (event, { intentName, topicName }) => {
-    const topicConf = _.get(event, `nlu.predictions.${topicName}.confidence`, 0)
-    const oosConfidence = _.get(event, `nlu.predictions.${topicName}.oos`, 0)
-    const topicIntents = _.get(event, `nlu.predictions.${topicName}.intents`, [])
-    const intentConf = _.get(
-      topicIntents.find(x => x.label === intentName),
-      'confidence',
-      0
-    )
+    const contextPrediction = event.nlu?.predictions?.[topicName] as NLU.ContextPrediction
+
+    const topicConf = contextPrediction.confidence || 0
+    const oosConfidence = contextPrediction.oos || 0
+    const topicIntents = contextPrediction.intents || []
+    const intentConf = topicIntents.find(x => x.label === intentName)?.confidence || 0
+
     return topicConf * intentConf * (1 - oosConfidence)
   }
 } as Condition

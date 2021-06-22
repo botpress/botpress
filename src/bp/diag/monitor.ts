@@ -15,7 +15,7 @@ export const startMonitor = async (config: BotpressConfig, redisClient: IORedis.
   if (redisClient) {
     await wrapMethodCall('Start Redis Monitor', () => {
       redisClient.monitor((err, monitor) => {
-        monitor.on('monitor', (time, args, source, database) => {
+        monitor.on('monitor', (_time, args, source, database) => {
           print(`[Redis] ${args} - ${source} ${database}`)
         })
 

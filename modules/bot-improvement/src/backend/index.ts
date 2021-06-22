@@ -21,7 +21,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   translations: { en, fr, es },
   definition: {
     name: 'bot-improvement',
-    menuIcon: 'thumbs_up_down',
+    menuIcon: 'thumbs-up',
     menuText: 'Bot Improvement',
     noInterface: false,
     experimental: true,

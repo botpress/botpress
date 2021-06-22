@@ -1009,6 +1009,11 @@ declare module 'botpress/sdk' {
      * @default 250
      */
     bufferDelayMs: number
+    /**
+     * Whether or not you want to expose public converse API. See docs here https://botpress.com/docs/channels/converse#public-api
+     * @default ture
+     */
+    enableUnsecuredEndpoint: boolean
   }
 
   /**
@@ -1108,11 +1113,8 @@ declare module 'botpress/sdk' {
     displayOrder?: number
     /** This callback url is called when the condition is deleted or pasted in the flow */
     callback?: string
-    /** The editor will use the custom component to provide the requested parameters */
-    editor?: {
-      module: string
-      component: string
-    }
+    /** The editor will use the LiteEditor component to provide the requested parameters */
+    useLiteEditor?: boolean
     evaluate: (event: IO.IncomingEvent, params: any) => number
   }
 

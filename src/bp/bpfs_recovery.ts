@@ -1,4 +1,5 @@
 import 'bluebird-global'
+import 'reflect-metadata'
 // eslint-disable-next-line import/order
 import './sdk/rewire'
 
@@ -10,7 +11,6 @@ import { TYPES } from 'core/types'
 import fs from 'fs'
 import { mkdirpSync } from 'fs-extra'
 import path from 'path'
-import 'reflect-metadata'
 
 export default async (argv, action) => {
   let ghost: GhostService | undefined

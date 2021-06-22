@@ -10,7 +10,7 @@ export interface NLUServerOptions {
 
   verbose: number
   doc: boolean
-  logFilter: string
+  logFilter: string[] | undefined // if undefined, all logs are displayed
 
   limitWindow?: string
   limit: number

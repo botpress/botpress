@@ -7,7 +7,7 @@ import { BotConfig } from 'botpress/sdk'
 
 import { Workspace } from 'common/typings'
 import { BotpressApp, createApp } from 'core/app/core-loader'
-import { getOrCreate as redisFactory } from 'core/distributed/redis'
+import { getOrCreate as redisFactory, makeRedisKey } from 'core/distributed'
 import fse from 'fs-extra'
 import IORedis from 'ioredis'
 import _ from 'lodash'
@@ -148,9 +148,10 @@ const testConnectivity = async () => {
     })
 
     await wrapMethodCall('Basic test of Redis', async () => {
-      await redisClient.set(REDIS_TEST_KEY, REDIS_TEST_VALUE)
-      const fetchValue = await redisClient.get(REDIS_TEST_KEY)
-      await redisClient.del(REDIS_TEST_KEY)
+      const key = makeRedisKey(REDIS_TEST_KEY)
+      await redisClient.set(key, REDIS_TEST_VALUE)
+      const fetchValue = await redisClient.get(key)
+      await redisClient.del(key)
 
       if (fetchValue !== REDIS_TEST_VALUE) {
         throw new Error('Could not complete a basic operation on Redis')
@@ -159,7 +160,8 @@ const testConnectivity = async () => {
 
     try {
       // @ts-ignore typing missing for that method
-      const reply = await redisClient.pubsub(['NUMSUB', 'job_done'])
+      const reply = await redisClient.pubsub(['NUMSUB', makeRedisKey('job_done')])
+      process.env.BP_REDIS_SCOPE && printRow('Redis using scope', process.env.BP_REDIS_SCOPE)
       printRow('Botpress nodes listening on Redis', reply[1])
     } catch (err) {}
   }

@@ -32,7 +32,7 @@ async function run() {
         per_page: 300
       }
 
-      const files = await octokit.pulls.listFiles(options)
+      const files = await octokit.rest.pulls.listFiles(options)
 
       const hasTests = files.data.some(f => f.filename.includes('.test.'))
       if (!hasTests) {
