@@ -102,7 +102,7 @@ Pattern or Regular Expression Extraction allows you to extract information prese
 
 Given a Pattern Entity definition with `[A-Z]{3}-[0-9]{4}-[A-Z]{3}` as pattern:
 
-![create slot](assets/nlu-pattern-entity.png)
+![create slot](../assets/nlu-pattern-entity.png)
 
 Extraction will go like this:
 
@@ -134,7 +134,7 @@ List extraction behaves similarly to pattern extraction. However, you'll be able
 
 Let's take **Airport Codes** as an example:
 
-![create slot](assets/nlu-list-entity.png)
+![create slot](../assets/nlu-list-entity.png)
 
 Extraction will go like this:
 
