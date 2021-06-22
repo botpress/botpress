@@ -93,7 +93,7 @@ Please check the [Deployment](../infrastructure/hosting) section for instruction
 ## Custom Entities
 Botpress provides two types of custom entities: [pattern](#pattern-extraction) and [list](#list-extraction) entities. To define a custom entity, go to the **Entity section** of the NLU Module interface accessible from the Botpress studio sidebar. From there, you can define your custom entities which will be available for any input message treated by your chatbot. Go ahead and click on **create new entity**
 
-[Creating a new entity](../assets/nlu-create-entity.png)
+![Creating a new entity](../assets/nlu-create-entity.png)
 
 ### Pattern extraction
 Pattern or Regular Expression Extraction allows you to extract information presented in a format that can be described using Regular Expression (RegEx). Once you've created a pattern entity, Botpress Native NLU will perform a regex extraction on each incoming message and add it to `event.nlu.entities`.
