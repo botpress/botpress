@@ -6,6 +6,7 @@ import api from '~/app/api'
 
 interface Props {
   hostname: string
+  serverId: string
   isOpen?: boolean
   toggle: () => void
 }
@@ -19,7 +20,10 @@ const ServerControl: FC<Props> = props => {
 
   const restartServer = async () => {
     try {
-      await api.getSecured().post(`/admin/management/rebootServer?hostname=${props.hostname}`)
+      await api
+        .getSecured()
+        .post(`/admin/management/rebootServer?hostname=${props.hostname}&serverId=${props.serverId}`)
+
       setRestarting(true)
     } catch (err) {
       toast.failure(err.message)
@@ -37,7 +41,8 @@ const ServerControl: FC<Props> = props => {
       <div className={Classes.DIALOG_BODY}>
         {!isRestarting ? (
           <div>
-            {lang.tr('admin.monitoring.youAreAboutToRestart')} <br /> <strong>{props.hostname}</strong>. <br /> <br />
+            {lang.tr('admin.monitoring.youAreAboutToRestart')} <br /> <strong>{props.hostname}</strong> (id:{' '}
+            {props.serverId}). <br /> <br />
             {lang.tr('admin.monitoring.areYouSure')}
           </div>
         ) : (

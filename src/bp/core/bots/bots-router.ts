@@ -49,7 +49,13 @@ export class BotsRouter extends CustomRouter {
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
 
     this.nluRouter = new NLURouter(this.logger, this.authService, this.workspaceService, this.nluService)
-    this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this.httpServer)
+    this.converseRouter = new ConverseRouter(
+      this.logger,
+      this.converseService,
+      this.authService,
+      this.httpServer,
+      this.configProvider
+    )
   }
 
   async setupRoutes(app: express.Express) {

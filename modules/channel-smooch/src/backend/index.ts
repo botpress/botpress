@@ -71,7 +71,6 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onModuleUnmount,
   definition: {
     name: 'channel-smooch',
-    menuIcon: 'none',
     fullName: 'Smooch',
     homepage: 'https://botpress.com',
     noInterface: true,

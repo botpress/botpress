@@ -1,17 +1,16 @@
 import { Callout, Icon, Tab, Tabs } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
-import { Container } from 'botpress/ui'
+import { lang, ModuleUI } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import { FeedbackItem, Goal, QnAItem } from '../../backend/typings'
-
 import { makeApi } from './api'
 import FeedbackItemPanel from './components/FeedbackItemPanel'
 import Conversation from './components/messages/Conversation'
 import style from './style.scss'
 
 type SelectedTabId = 'pending' | 'solved'
+const { Container } = ModuleUI
 
 export default props => {
   const { bp, contentLang } = props

@@ -1,13 +1,13 @@
 import React from 'react'
-import style from './style.scss'
+import { Icon, Button, Checkbox } from '@blueprintjs/core'
+import { ModuleUI } from 'botpress/shared'
 
 import { MessageGroup } from './MessageGroup'
-
-import { SplashScreen } from 'botpress/ui'
-import { Icon, Button, Checkbox } from '@blueprintjs/core'
-
 import { MessageTaskBar } from './MessageTaskBar'
 import { MessageInspector } from './MessageInspector'
+import style from './style.scss'
+
+const { SplashScreen } = ModuleUI
 
 function NoConversationSelected() {
   return (
