@@ -1,6 +1,7 @@
 import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import _ from 'lodash'
+import { studioActions } from 'orchestrator'
 import { getDebugScopes, setDebugScopes } from '../../../debug'
 
 class DebugRouter extends CustomAdminRouter {
@@ -13,7 +14,12 @@ class DebugRouter extends CustomAdminRouter {
     this.router.get(
       '/',
       this.asyncMiddleware(async (req, res) => {
-        res.send(getDebugScopes())
+        const scopes = {
+          ...(await studioActions.getDebugScopes()),
+          ...getDebugScopes()
+        }
+
+        res.send(scopes)
       })
     )
 
@@ -27,6 +33,8 @@ class DebugRouter extends CustomAdminRouter {
         }
 
         setDebugScopes(debugScope)
+
+        await studioActions.setDebugScopes(debugScope)
         res.sendStatus(200)
       })
     )

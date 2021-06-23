@@ -30,11 +30,11 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 import nanoid from 'nanoid'
+import { startLocalActionServer, startLocalNLUServer } from 'orchestrator'
 import path from 'path'
 import plur from 'plur'
 
-import { startLocalActionServer, startLocalNLUServer } from '../../cluster'
-import { setDebugScopes } from '../../debug'
+import { getDebugScopes, setDebugScopes } from '../../debug'
 import { HTTPServer } from './server'
 import { TYPES } from './types'
 
@@ -125,11 +125,11 @@ export class Botpress {
     await this.initializeServices()
     await this.checkEditionRequirements()
     await this.deployAssets()
+    await this.maybeStartLocalSTAN()
     await this.startRealtime()
     await this.startServer()
     await this.discoverBots()
     await this.maybeStartLocalActionServer()
-    await this.maybeStartLocalSTAN()
 
     if (this.config.sendUsageStats) {
       await this.statsService.start()
@@ -203,6 +203,16 @@ export class Botpress {
       return
     }
 
+    const debugScopes = getDebugScopes()
+    const nluDebugScopes = Object.entries(debugScopes)
+      .filter(([k, v]) => v)
+      .map(([k, v]) => k)
+      .filter(x => x.startsWith('bp:nlu:'))
+      .map(x => x.replace('bp:nlu:', ''))
+
+    const verbose = nluDebugScopes.length ? 4 : 3
+    const logFilter = nluDebugScopes.length ? nluDebugScopes : undefined
+
     startLocalNLUServer({
       languageSources: config.languageSources,
       ducklingURL: config.ducklingURL,
@@ -211,7 +221,9 @@ export class Botpress {
       dbURL: process.core_env.BPFS_STORAGE === 'database' ? process.core_env.DATABASE_URL : undefined,
       modelDir: process.cwd(),
       modelCacheSize: config.modelCacheSize,
-      authToken: makeNLUPassword()
+      authToken: makeNLUPassword(),
+      logFilter,
+      verbose
     })
   }
 
@@ -300,16 +312,6 @@ export class Botpress {
       const assets = path.resolve(process.PROJECT_LOCATION, 'data/assets')
       await copyDir(path.join(__dirname, '../../admin/ui'), `${assets}/admin/ui`)
       await copyDir(path.join(__dirname, '../../ui-lite'), `${assets}/ui-lite`)
-
-      // Avoids overwriting the folder when developing locally on the studio
-      if (fse.pathExistsSync(`${assets}/ui-studio/public`)) {
-        const studioPath = fse.lstatSync(`${assets}/ui-studio/public`)
-        if (studioPath.isSymbolicLink()) {
-          return
-        }
-      }
-
-      await copyDir(path.join(__dirname, '../../ui-studio'), `${assets}/ui-studio`)
     } catch (err) {
       this.logger.attachError(err).error('Error deploying assets')
     }

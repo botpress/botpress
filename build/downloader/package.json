@@ -1,0 +1,19 @@
+{
+  "name": "downloader",
+  "version": "1.0.0",
+  "description": "Utility to download various tools required by Botpress",
+  "main": "out/index.js",
+  "license": "MIT",
+  "dependencies": {
+    "cli-progress": "^3.8.2",
+    "typescript": "^4.2.4"
+  },
+  "devDependencies": {
+    "@types/cli-progress": "^3.8.0"
+  },
+  "scripts": {
+    "start": "node ./out/index.js",
+    "build": "yarn tsc",
+    "watch": "yarn tsc --watch"
+  }
+}
