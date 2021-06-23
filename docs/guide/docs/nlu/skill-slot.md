@@ -88,7 +88,7 @@ This flow will result in a conversation like the one below. Notice that in the f
 - Mix the positions of the slots in the utterances
 Example:
 
-![Mix Slots](../assets/slots-mix.PNG)
+![Mix Slots](../assets/slots-mix.png)
 
 - Avoid duplication when using slots
 Example - to avoid:
