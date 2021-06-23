@@ -81,14 +81,17 @@ The NLU engine uses Utterances to train your chatbot. Generally speaking, the mo
 Duplication when creating NLU datasets will result in redundant/useless data which the engine does not process. Below are forms of repetition you should always avoid.
 
 **Within the same Intent/QNA** and **Across Intents/QNAs**
+
 No training phrase should ever be duplicated. When you repeat training phrases, your chatbot will fail to train, and you will not be able to import that dataset to another chatbot.
 
 **Singular/plural duplication**
+
 Example: “Show bookmark” and “Show bookmarks”
 We suggest that you use the singular and plural form in different phrases
 Example: “Show bookmark” and “I want to see my bookmarks”
 
 **Close duplicates**
+
 When you try to add a variation, it is essential to add a different phrase instead of just adding a pronoun.
 Example: “Show favorites” and “Show my favorites”
 
