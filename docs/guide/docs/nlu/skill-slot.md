@@ -1,5 +1,5 @@
 ---
-id: skill-slot
+id: slots
 title: Slots
 ---
 
@@ -83,3 +83,27 @@ You can chain multiple skills to fill all the slots for a given intent. Chaining
 This flow will result in a conversation like the one below. Notice that in the first phrase, "I want to book a flight to NYC", the intent "book-flight" is matched, and NYC has been extracted as the _to_ slot. Then, the chatbot tries to fill the remaining slots _from_ and _when_.
 
 ![Skill Slot Convo](../assets/slot-skill-convo.png)
+
+
+## Guidelines When Adding Slots
+- Mix the positions of the slots in the utterances
+Example:
+![Mix Slots](../assets/slots-mix.PNG)
+
+- Avoid duplication when using slots
+Example - to avoid:
+![Duplicated Slots](../assets/slot-mix.png)
+
+- Limit the number of slots used for a given Intent
+Suggestion: maximum of 3
+
+- Try mixing utterances with the slots to be: filled, partially filled, or empty
+Example:
+![Filling Slots](../assets/slots-fill-mix.png)
+
+- Examples in utterances should match the defined entity
+Example: 
+  _Entity list:_ Google, Slack, Github, Email
+  _Intent:_ “Reset Trello password” (Slot value is not part of the list)
+
+- When using slots, there have to be at least five utterances with an example of the slot; the more slots, the more utterances with examples
