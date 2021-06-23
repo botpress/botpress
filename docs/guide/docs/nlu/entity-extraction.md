@@ -186,8 +186,19 @@ Botpress Native NLU also has a system entity of type `any`, which is essentially
 
 An example of a placeholder entity would be: Please tell **Sarah** that **she's late**
 
+For placeholder extraction, please take note of the points below.
+- When using a slot with system.any - Capitalization matters
+- The any-type slots try to generalize, without any help from patterns and existing keywords, so they look for:
+- The size of the words
+- The surrounding words
+- Whether the first letter is capital
+- Whether all the letters are capital or not
+- The presence of punctuation or symbols (like hyphens)
+- The meaning of the word VS the other vocabulary
+ 
+Consider that the any-type slot should be used as the last resort and requires at least ten times as much data as any other form of entity extraction via slots. 
+
 ## Sensitive Information
 Messages sent between users and the chatbot are stored in the database, which means that sometimes your chatbot may save personal information (e.g., a credit card number) as well. To protect the chatbot user's confidential information, use the small checkbox located in the upper right corner labeled `sensitive` when creating such entities.
 
 When checked, your chatbot will still display the information in the chat window, but the sensitive information will be replaced by `*****` before being stored. The original value is still available from `event.nlu.entities`
-
