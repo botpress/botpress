@@ -182,8 +182,12 @@ class BottomPanel extends React.Component<Props, State> {
   }
 
   render() {
-    const allLogs = [...this.state.initialLogs, ...this.logs]
-    const filtered = this.state.botFilter === '*' ? allLogs : allLogs.filter(x => x.botId === this.state.botFilter)
+    let logs = [...this.state.initialLogs, ...this.logs]
+
+    if (this.state.botFilter !== '*') {
+      // Include global logs and those of the selected bot
+      logs = logs.filter(x => x.botId === this.state.botFilter || !x.botId)
+    }
 
     const LogsPanel = (
       <ul
@@ -191,7 +195,7 @@ class BottomPanel extends React.Component<Props, State> {
         ref={this.messageListRef}
         onScroll={this.handleLogsScrolled}
       >
-        {filtered.map(e => this.renderEntry(e))}
+        {logs.map(e => this.renderEntry(e))}
         <li className={logStyle.end}>{lang.tr('bottomPanel.logs.endOfLogs')}</li>
       </ul>
     )

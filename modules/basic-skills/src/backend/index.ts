@@ -52,7 +52,6 @@ const entryPoint: sdk.ModuleEntryPoint = {
   translations: { en, fr, es },
   definition: {
     name: 'basic-skills',
-    menuIcon: 'fiber_smart_record',
     fullName: 'Basic Skills',
     homepage: 'https://botpress.com',
     noInterface: true,

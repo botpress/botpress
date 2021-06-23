@@ -90,7 +90,6 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onModuleUnmount,
   definition: {
     name: 'channel-telegram',
-    menuIcon: 'none', // no interface = true
     fullName: 'Telegram',
     homepage: 'https://botpress.com',
     noInterface: true,
