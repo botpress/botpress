@@ -84,14 +84,15 @@ This flow will result in a conversation like the one below. Notice that in the f
 
 ![Skill Slot Convo](../assets/slot-skill-convo.png)
 
-
 ## Guidelines When Adding Slots
 - Mix the positions of the slots in the utterances
 Example:
+
 ![Mix Slots](../assets/slots-mix.PNG)
 
 - Avoid duplication when using slots
 Example - to avoid:
+
 ![Duplicated Slots](../assets/slot-mix.png)
 
 - Limit the number of slots used for a given Intent
@@ -99,6 +100,7 @@ Suggestion: maximum of 3
 
 - Try mixing utterances with the slots to be: filled, partially filled, or empty
 Example:
+
 ![Filling Slots](../assets/slots-fill-mix.png)
 
 - Examples in utterances should match the defined entity
