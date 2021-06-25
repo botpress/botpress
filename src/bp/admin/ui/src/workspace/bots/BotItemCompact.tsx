@@ -18,12 +18,15 @@ import { intersection } from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
-import api from '~/app/api'
+import { connect, ConnectedProps } from 'react-redux'
+import { AppState } from '~/app/rootReducer'
+
 import AccessControl, { isChatUser, isOperationAllowed } from '~/auth/AccessControl'
 import { NeedsTrainingWarning } from './NeedsTrainingWarning'
+import { fetchBotNLULanguages } from './reducer'
 import style from './style.scss'
 import { WorkspaceAppItems } from './WorkspaceAppItems'
-interface Props {
+type Props = {
   bot: BotConfig
   hasError: boolean
   loadedModules: ModuleDefinition[]
@@ -33,41 +36,34 @@ interface Props {
   rollback?: () => void
   reloadBot?: () => void
   viewLogs?: () => void
-}
+} & ConnectedProps<typeof connector>
 
-const BotItemCompact: FC<Props> = ({
-  bot,
-  hasError,
-  loadedModules,
-  deleteBot,
-  exportBot,
-  createRevision,
-  rollback,
-  reloadBot,
-  viewLogs
-}) => {
-  const [supportedLanguages, setSupportedLanguages] = useState([])
+const BotItemCompact: FC<Props> = props => {
   useEffect(() => {
-    const axios = api.getSecured({ useV1: true })
+    // eslint-disable-next-line
+    console.log(props.botNLULanguages)
+    if (!props.botNLULanguages) {
+      props.fetchBotNLULanguages()
+    }
+  }, [[props.botNLULanguages]])
 
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    axios.get(`/bots/${bot.id}/mod/nlu/health`).then(response => {
-      setSupportedLanguages(response.data)
-    })
-  }, [])
-
-  const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${bot.id}`
-  const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
-  const nluModuleEnabled = !!loadedModules.find(m => m.name === 'nlu')
+  const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${props.bot.id}`
+  const botStudioLink = isChatUser() ? botShortLink : `studio/${props.bot.id}`
+  const nluModuleEnabled = !!props.loadedModules.find(m => m.name === 'nlu')
   const hasStudioAccess = isOperationAllowed({ resource: 'studio', operation: 'read' })
-  const languages = intersection(bot.languages, supportedLanguages)
-  const isSupportedLanguage = bot.languages.length === languages.length ? true : false
+  const languages = intersection(props.bot.languages, props.botNLULanguages || [])
+  const isSupportedLanguage = props.bot.languages.length === languages.length ? true : false
 
   return (
-    <div className={cx('bp_table-row', style.tableRow)} key={bot.id}>
+    <div className={cx('bp_table-row', style.tableRow)} key={props.bot.id}>
       <div className={cx('actions', style.actions)}>
-        {hasError && (
-          <AnchorButton text={lang.tr('admin.workspace.bots.item.reload')} icon="refresh" onClick={reloadBot} minimal />
+        {props.hasError && (
+          <AnchorButton
+            text={lang.tr('admin.workspace.bots.item.reload')}
+            icon="refresh"
+            onClick={props.reloadBot}
+            minimal
+          />
         )}
 
         <AccessControl resource="admin.bots.*" operation="write">
@@ -79,7 +75,7 @@ const BotItemCompact: FC<Props> = ({
           />
         </AccessControl>
 
-        {!bot.disabled && !hasError && (
+        {!props.bot.disabled && !props.hasError && (
           <AnchorButton
             text={lang.tr('admin.workspace.bots.item.openChat')}
             icon="chat"
@@ -94,11 +90,11 @@ const BotItemCompact: FC<Props> = ({
             <Button id="btn-menu" icon={<Icon icon="menu" />} minimal />
 
             <Menu>
-              <WorkspaceAppItems loadedModules={loadedModules} botId={bot.id} />
+              <WorkspaceAppItems loadedModules={props.loadedModules} botId={props.bot.id} />
 
-              {!bot.disabled && !hasError && hasStudioAccess && (
+              {!props.bot.disabled && !props.hasError && hasStudioAccess && (
                 <MenuItem
-                  disabled={bot.locked}
+                  disabled={props.bot.locked}
                   icon="edit"
                   text={lang.tr('admin.workspace.bots.item.editInStudio')}
                   href={botStudioLink}
@@ -114,7 +110,7 @@ const BotItemCompact: FC<Props> = ({
                   text={lang.tr('admin.workspace.bots.item.viewLogs')}
                   icon="manual"
                   id="btn-viewLogs"
-                  onClick={viewLogs}
+                  onClick={props.viewLogs}
                 />
               </AccessControl>
 
@@ -123,13 +119,13 @@ const BotItemCompact: FC<Props> = ({
                   text={lang.tr('admin.workspace.bots.item.createRevision')}
                   icon="cloud-upload"
                   id="btn-createRevision"
-                  onClick={createRevision}
+                  onClick={props.createRevision}
                 />
                 <MenuItem
                   text={lang.tr('admin.workspace.bots.item.rollback')}
                   icon="undo"
                   id="btn-rollbackRevision"
-                  onClick={rollback}
+                  onClick={props.rollback}
                 />
               </AccessControl>
               <AccessControl resource="admin.bots.archive" operation="read">
@@ -137,7 +133,7 @@ const BotItemCompact: FC<Props> = ({
                   text={lang.tr('admin.workspace.bots.item.export')}
                   icon="export"
                   id="btn-export"
-                  onClick={exportBot}
+                  onClick={props.exportBot}
                 />
               </AccessControl>
               <AccessControl resource="admin.bots.*" operation="write">
@@ -145,7 +141,7 @@ const BotItemCompact: FC<Props> = ({
                   text={lang.tr('admin.workspace.bots.item.delete')}
                   icon="trash"
                   id="btn-delete"
-                  onClick={deleteBot}
+                  onClick={props.deleteBot}
                 />
               </AccessControl>
             </Menu>
@@ -154,21 +150,25 @@ const BotItemCompact: FC<Props> = ({
       </div>
 
       <div className={style.title}>
-        {bot.locked && (
+        {props.bot.locked && (
           <span>
             <Icon icon="lock" intent={Intent.PRIMARY} iconSize={13} />
             &nbsp;
           </span>
         )}
 
-        {hasStudioAccess ? <a href={botStudioLink}>{bot.name || bot.id}</a> : <span>{bot.name || bot.id}</span>}
+        {hasStudioAccess ? (
+          <a href={botStudioLink}>{props.bot.name || props.bot.id}</a>
+        ) : (
+          <span>{props.bot.name || props.bot.id}</span>
+        )}
 
         {/*
           TODO: remove this NeedsTrainingWarning component.
           This is a temp fix but won't be useful after we bring back training on bot mount.
           */}
         <AccessControl resource="module.nlu" operation="write">
-          {nluModuleEnabled && <NeedsTrainingWarning bot={bot.id} languages={bot.languages} />}
+          {nluModuleEnabled && <NeedsTrainingWarning bot={props.bot.id} languages={props.bot.languages} />}
         </AccessControl>
 
         {!isSupportedLanguage && (
@@ -177,25 +177,28 @@ const BotItemCompact: FC<Props> = ({
           </Tooltip>
         )}
 
-        {bot.disabled && (
+        {props.bot.disabled && (
           <Tag intent={Intent.WARNING} className={style.botbadge}>
             disabled
           </Tag>
         )}
-        {bot.private && (
+        {props.bot.private && (
           <Tag intent={Intent.PRIMARY} className={style.botbadge}>
             private
           </Tag>
         )}
-        {hasError && (
+        {props.hasError && (
           <Tag intent={Intent.DANGER} className={style.botbadge}>
             error
           </Tag>
         )}
       </div>
-      <p>{bot.description}</p>
+      <p>{props.bot.description}</p>
     </div>
   )
 }
 
-export default BotItemCompact
+const mapStateToProps = (state: AppState) => state.bots
+const connector = connect(mapStateToProps, { fetchBotNLULanguages })
+
+export default connector(BotItemCompact)
