@@ -12,7 +12,7 @@ const FETCH_BOTS_BY_WORKSPACE = 'bots/FETCH_BOTS_BY_WORKSPACE'
 const RECEIVED_BOT_CATEGORIES = 'bots/RECEIVED_BOT_CATEGORIES'
 const RECEIVED_BOT_TEMPLATES = 'bots/RECEIVED_BOT_TEMPLATES'
 const SET_WORKSPACE_APPS_BOT_ID = 'bots/SET_WORKSPACE_APPS_BOT_ID'
-const FETCH_BOT_NLU_LANGUAGE = 'bots/nlu/RECEIVED_NLU_LANGUAGES'
+const FETCH_BOT_NLU_LANGUAGE = 'bots/RECEIVED_NLU_LANGUAGES'
 
 interface BotState {
   bots: BotConfig[]
@@ -87,6 +87,7 @@ export default (state = initialState, action): BotState => {
         ...state,
         workspaceAppsBotId: action.botId
       }
+
     case FETCH_BOT_NLU_LANGUAGE:
       return {
         ...state,
@@ -123,7 +124,7 @@ export const fetchBots = (): AppThunk => {
   return async dispatch => {
     dispatch({ type: FETCH_BOTS_REQUESTED })
 
-    const { data } = await api.getSecured().get('/admin/workspace/bots')
+    const { data } = await api.getSecured({ useV1: true }).get(`/bots/${ALL_BOTS}/mod/nlu/health`)
     if (!data || !data.payload) {
       return
     }
@@ -157,15 +158,13 @@ export const fetchBotHealth = (): AppThunk => {
     dispatch({ type: FETCH_BOT_HEALTH_RECEIVED, health: data.payload })
   }
 }
+
 export const fetchBotNLULanguages = (): AppThunk => {
   return async dispatch => {
     const { data } = await api.getSecured({ useV1: true }).get(`/bots/${ALL_BOTS}/mod/nlu/health`)
-    // eslint-disable-next-line
-    console.log(data)
     if (!data || !data.payload) {
       return
     }
-
     dispatch({ type: FETCH_BOT_NLU_LANGUAGE, languages: data.payload.validLanguages })
   }
 }

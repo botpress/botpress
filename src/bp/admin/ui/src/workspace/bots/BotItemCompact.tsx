@@ -15,7 +15,7 @@ import { BotConfig, ModuleDefinition } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import { intersection } from 'lodash'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useEffect } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 import { connect, ConnectedProps } from 'react-redux'
@@ -26,6 +26,7 @@ import { NeedsTrainingWarning } from './NeedsTrainingWarning'
 import { fetchBotNLULanguages } from './reducer'
 import style from './style.scss'
 import { WorkspaceAppItems } from './WorkspaceAppItems'
+
 type Props = {
   bot: BotConfig
   hasError: boolean
@@ -40,12 +41,10 @@ type Props = {
 
 const BotItemCompact: FC<Props> = props => {
   useEffect(() => {
-    // eslint-disable-next-line
-    console.log(props.botNLULanguages)
     if (!props.botNLULanguages) {
       props.fetchBotNLULanguages()
     }
-  }, [[props.botNLULanguages]])
+  }, [props.botNLULanguages])
 
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${props.bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${props.bot.id}`
@@ -199,6 +198,8 @@ const BotItemCompact: FC<Props> = props => {
 }
 
 const mapStateToProps = (state: AppState) => state.bots
-const connector = connect(mapStateToProps, { fetchBotNLULanguages })
+const mapDispatchToProps = { fetchBotNLULanguages }
+
+const connector = connect(mapStateToProps, mapDispatchToProps)
 
 export default connector(BotItemCompact)
