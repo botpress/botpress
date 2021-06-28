@@ -124,7 +124,7 @@ export const fetchBots = (): AppThunk => {
   return async dispatch => {
     dispatch({ type: FETCH_BOTS_REQUESTED })
 
-    const { data } = await api.getSecured({ useV1: true }).get(`/bots/${ALL_BOTS}/mod/nlu/health`)
+    const { data } = await api.getSecured().get('/admin/workspace/bots')
     if (!data || !data.payload) {
       return
     }

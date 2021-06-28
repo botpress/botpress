@@ -51,7 +51,7 @@ const BotItemCompact: FC<Props> = props => {
   const nluModuleEnabled = !!props.loadedModules.find(m => m.name === 'nlu')
   const hasStudioAccess = isOperationAllowed({ resource: 'studio', operation: 'read' })
   const languages = intersection(props.bot.languages, props.botNLULanguages || [])
-  const isSupportedLanguage = props.bot.languages.length === languages.length ? true : false
+  const botHasUnsupportedLanguages = props.bot.languages.length !== languages.length ? true : false
 
   return (
     <div className={cx('bp_table-row', style.tableRow)} key={props.bot.id}>
@@ -170,7 +170,7 @@ const BotItemCompact: FC<Props> = props => {
           {nluModuleEnabled && <NeedsTrainingWarning bot={props.bot.id} languages={props.bot.languages} />}
         </AccessControl>
 
-        {!isSupportedLanguage && (
+        {botHasUnsupportedLanguages && (
           <Tooltip position="right" content={lang.tr('admin.workspace.bots.item.languageIsMissing')}>
             <Icon icon="translate" intent={Intent.DANGER} style={{ marginLeft: 10 }} />
           </Tooltip>
