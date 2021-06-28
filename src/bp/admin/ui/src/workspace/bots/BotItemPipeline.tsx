@@ -190,7 +190,7 @@ const BotItemPipeline: FC<Props> = ({
         </AccessControl>
 
         {!bot.defaultLanguage && (
-          <Tooltip position="right" content={lang.tr('admin.workspace.bots.item.languageIsMissing')}>
+          <Tooltip position="right" content={lang.tr('admin.workspace.bots.item.enableLanguageNLU')}>
             <Icon icon="warning-sign" intent={Intent.DANGER} style={{ marginLeft: 10 }} />
           </Tooltip>
         )}

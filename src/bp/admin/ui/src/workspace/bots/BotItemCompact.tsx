@@ -162,7 +162,12 @@ const BotItemCompact: FC<Props> = props => {
         </AccessControl>
 
         {botHasUnsupportedLanguages && (
-          <Tooltip position="right" content={lang.tr('admin.workspace.bots.item.languageIsNotSupported')}>
+          <Tooltip
+            position="right"
+            content={lang.tr('admin.workspace.bots.item.enableLanguageNLU', {
+              languages: languages.join(',')
+            })}
+          >
             <Icon icon="translate" intent={Intent.DANGER} style={{ marginLeft: 10 }} />
           </Tooltip>
         )}
