@@ -15,7 +15,7 @@ import { BotConfig, ModuleDefinition } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import { intersection } from 'lodash'
-import React, { FC, useEffect } from 'react'
+import React, { FC } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 import AccessControl, { isChatUser, isOperationAllowed } from '~/auth/AccessControl'
