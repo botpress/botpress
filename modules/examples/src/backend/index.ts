@@ -11,7 +11,6 @@ const entryPoint: sdk.ModuleEntryPoint = {
   botTemplates,
   definition: {
     name: 'examples',
-    menuIcon: 'none',
     noInterface: true,
     menuText: 'Examples',
     fullName: 'Examples',

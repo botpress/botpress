@@ -8,7 +8,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onServerReady,
   definition: {
     name: 'basic-module',
-    menuIcon: 'none',
+    menuIcon: 'dot',
     menuText: 'BasicExample',
     noInterface: false,
     fullName: 'BasicExample',

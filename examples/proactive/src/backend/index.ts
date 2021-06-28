@@ -13,7 +13,6 @@ const entryPoint: sdk.ModuleEntryPoint = {
   botTemplates,
   definition: {
     name: 'proactive-module',
-    menuIcon: 'none',
     menuText: 'Proactive Module',
     noInterface: true,
     fullName: 'Proactive Module',
