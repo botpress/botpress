@@ -27,7 +27,7 @@ interface BotState {
   // Sets the current bot used by workspace apps
   workspaceAppsBotId?: string
   // Fetch the NLULanguages
-  botNLULanguages?: Array<string>
+  botNLULanguages: string[]
 }
 
 const initialState: BotState = {
@@ -162,10 +162,10 @@ export const fetchBotHealth = (): AppThunk => {
 export const fetchBotNLULanguages = (): AppThunk => {
   return async dispatch => {
     const { data } = await api.getSecured({ useV1: true }).get(`/bots/${ALL_BOTS}/mod/nlu/health`)
-    if (!data || !data.payload) {
+    if (!data || !data.validLanguages) {
       return
     }
-    dispatch({ type: FETCH_BOT_NLU_LANGUAGE, languages: data.payload.validLanguages })
+    dispatch({ type: FETCH_BOT_NLU_LANGUAGE, languages: data.validLanguages })
   }
 }
 

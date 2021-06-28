@@ -27,7 +27,7 @@ import { fetchBotNLULanguages } from './reducer'
 import style from './style.scss'
 import { WorkspaceAppItems } from './WorkspaceAppItems'
 
-type Props = {
+type Props = ConnectedProps<typeof connector> & {
   bot: BotConfig
   hasError: boolean
   loadedModules: ModuleDefinition[]
@@ -37,11 +37,12 @@ type Props = {
   rollback?: () => void
   reloadBot?: () => void
   viewLogs?: () => void
-} & ConnectedProps<typeof connector>
+}
 
 const BotItemCompact: FC<Props> = props => {
   useEffect(() => {
-    if (!props.botNLULanguages) {
+    if (props.botNLULanguages.length === 0) {
+      // If the NLU doesn't have language we are in big trouble.
       props.fetchBotNLULanguages()
     }
   }, [props.botNLULanguages])
