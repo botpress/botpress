@@ -234,7 +234,7 @@ class Bots extends Component<Props> {
               rollback={this.toggleRollbackModal.bind(this, bot.id)}
               reloadBot={this.reloadBot.bind(this, bot.id)}
               viewLogs={this.viewLogs.bind(this, bot.id)}
-              supportedLanguage={this.props.language}
+              installedNLULanguages={this.props.language}
             />
           </Fragment>
         ))}

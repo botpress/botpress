@@ -40,7 +40,7 @@ interface Props {
   reloadBot?: () => void
   viewLogs?: () => void
   loadedModules: ModuleDefinition[]
-  supportedLanguage: string[]
+  installedNLULanguages: string[]
 }
 
 const BotItemPipeline: FC<Props> = ({
@@ -59,7 +59,7 @@ const BotItemPipeline: FC<Props> = ({
   reloadBot,
   viewLogs,
   loadedModules,
-  supportedLanguage
+  installedNLULanguages
 }) => {
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
@@ -69,8 +69,8 @@ const BotItemPipeline: FC<Props> = ({
     isApprover &&
     bot.pipeline_status.stage_request &&
     !(bot.pipeline_status.stage_request.approvals || []).find(x => x.email === userEmail && x.strategy === userStrategy)
-  const languages = intersection(bot.languages, supportedLanguage)
-  const botHasUnsupportedLanguages = bot.languages.length !== languages.length ? true : false
+  const languages = intersection(bot.languages, installedNLULanguages)
+  const botHasUninstalledNLULanguages = bot.languages.length !== languages.length ? true : false
 
   return (
     <div className={style.pipeline_bot} key={bot.id}>
@@ -194,7 +194,7 @@ const BotItemPipeline: FC<Props> = ({
           {nluModuleEnabled && <NeedsTrainingWarning bot={bot.id} languages={bot.languages} />}
         </AccessControl>
 
-        {botHasUnsupportedLanguages && (
+        {botHasUninstalledNLULanguages && (
           <Tooltip position="right" content={lang.tr('admin.workspace.bots.item.enableLanguageNLU')}>
             <Icon icon="warning-sign" intent={Intent.DANGER} style={{ marginLeft: 10 }} />
           </Tooltip>

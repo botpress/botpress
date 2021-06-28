@@ -26,7 +26,7 @@ import { WorkspaceAppItems } from './WorkspaceAppItems'
 interface Props {
   bot: BotConfig
   hasError: boolean
-  supportedLanguage: string[]
+  installedNLULanguages: string[]
   loadedModules: ModuleDefinition[]
   deleteBot?: () => void
   exportBot?: () => void
@@ -41,8 +41,8 @@ const BotItemCompact: FC<Props> = props => {
   const botStudioLink = isChatUser() ? botShortLink : `studio/${props.bot.id}`
   const nluModuleEnabled = !!props.loadedModules.find(m => m.name === 'nlu')
   const hasStudioAccess = isOperationAllowed({ resource: 'studio', operation: 'read' })
-  const languages = intersection(props.bot.languages, props.supportedLanguage)
-  const botHasUnsupportedLanguages = props.bot.languages.length !== languages.length ? true : false
+  const languages = intersection(props.bot.languages, props.installedNLULanguages)
+  const botHasUninstalledNLULanguages = props.bot.languages.length !== languages.length ? true : false
 
   return (
     <div className={cx('bp_table-row', style.tableRow)} key={props.bot.id}>
@@ -161,7 +161,7 @@ const BotItemCompact: FC<Props> = props => {
           {nluModuleEnabled && <NeedsTrainingWarning bot={props.bot.id} languages={props.bot.languages} />}
         </AccessControl>
 
-        {botHasUnsupportedLanguages && (
+        {botHasUninstalledNLULanguages && (
           <Tooltip
             position="right"
             content={lang.tr('admin.workspace.bots.item.enableLanguageNLU', {
