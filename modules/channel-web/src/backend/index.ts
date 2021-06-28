@@ -23,7 +23,6 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onModuleUnmount,
   definition: {
     name: 'channel-web',
-    menuIcon: 'chrome_reader_mode',
     fullName: 'Web Chat',
     homepage: 'https://botpress.com',
     noInterface: true,
