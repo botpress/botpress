@@ -51,7 +51,7 @@ const BotItemCompact: FC<Props> = props => {
   const botStudioLink = isChatUser() ? botShortLink : `studio/${props.bot.id}`
   const nluModuleEnabled = !!props.loadedModules.find(m => m.name === 'nlu')
   const hasStudioAccess = isOperationAllowed({ resource: 'studio', operation: 'read' })
-  const languages = intersection(props.bot.languages, props.botNLULanguages || [])
+  const languages = intersection(props.bot.languages, props.botNLULanguages)
   const botHasUnsupportedLanguages = props.bot.languages.length !== languages.length ? true : false
 
   return (
@@ -172,7 +172,7 @@ const BotItemCompact: FC<Props> = props => {
         </AccessControl>
 
         {botHasUnsupportedLanguages && (
-          <Tooltip position="right" content={lang.tr('admin.workspace.bots.item.languageIsMissing')}>
+          <Tooltip position="right" content={lang.tr('admin.workspace.bots.item.languageIsNotSupported')}>
             <Icon icon="translate" intent={Intent.DANGER} style={{ marginLeft: 10 }} />
           </Tooltip>
         )}

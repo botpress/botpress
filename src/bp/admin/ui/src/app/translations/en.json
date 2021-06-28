@@ -306,6 +306,7 @@
           "error": "error",
           "export": "Export",
           "languageIsMissing": "Bot language is missing. Please set it in bot config.",
+          "languageIsNotSupported": "Bot language is not supported by our NLU system.",
           "needsYourReview": "Needs your review",
           "onDate": "on {date}",
           "openChat": "Open Chat",

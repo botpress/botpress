@@ -303,6 +303,7 @@
           "error": "erreur",
           "export": "Export",
           "languageIsMissing": "La langue du bot est manquante. Veuillez la définir dans la configuration du bot.",
+          "languageIsNotSupported": "La langue du bot n'est pas supporté par notre NLU.",
           "needsYourReview": "A besoin de votre avis",
           "onDate": "le {date}",
           "openChat": "Ouvrir le chat",
