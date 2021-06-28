@@ -18,18 +18,15 @@ import { intersection } from 'lodash'
 import React, { FC, useEffect } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
-import { connect, ConnectedProps } from 'react-redux'
-import { AppState } from '~/app/rootReducer'
-
 import AccessControl, { isChatUser, isOperationAllowed } from '~/auth/AccessControl'
 import { NeedsTrainingWarning } from './NeedsTrainingWarning'
-import { fetchBotNLULanguages } from './reducer'
 import style from './style.scss'
 import { WorkspaceAppItems } from './WorkspaceAppItems'
 
-type Props = ConnectedProps<typeof connector> & {
+interface Props {
   bot: BotConfig
   hasError: boolean
+  supportedLanguage: string[]
   loadedModules: ModuleDefinition[]
   deleteBot?: () => void
   exportBot?: () => void
@@ -40,18 +37,11 @@ type Props = ConnectedProps<typeof connector> & {
 }
 
 const BotItemCompact: FC<Props> = props => {
-  useEffect(() => {
-    if (props.botNLULanguages.length === 0) {
-      // If the NLU doesn't have language we are in big trouble.
-      props.fetchBotNLULanguages()
-    }
-  }, [props.botNLULanguages])
-
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${props.bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${props.bot.id}`
   const nluModuleEnabled = !!props.loadedModules.find(m => m.name === 'nlu')
   const hasStudioAccess = isOperationAllowed({ resource: 'studio', operation: 'read' })
-  const languages = intersection(props.bot.languages, props.botNLULanguages)
+  const languages = intersection(props.bot.languages, props.supportedLanguage)
   const botHasUnsupportedLanguages = props.bot.languages.length !== languages.length ? true : false
 
   return (
@@ -197,10 +187,4 @@ const BotItemCompact: FC<Props> = props => {
     </div>
   )
 }
-
-const mapStateToProps = (state: AppState) => state.bots
-const mapDispatchToProps = { fetchBotNLULanguages }
-
-const connector = connect(mapStateToProps, mapDispatchToProps)
-
-export default connector(BotItemCompact)
+export default BotItemCompact
