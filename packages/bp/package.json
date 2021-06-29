@@ -17,7 +17,6 @@
     "version": "0.0.21"
   },
   "scripts": {
-    "epostinstall": "yarn cmd postinstall",
     "start": "cd dist && cross-env NODE_PATH=./ cross-env BP_MODULES_PATH=./data/modules/:../../modules:../../internal-modules STAN_DEV_MODE=true node index.js",
     "cmd": "yarn run gulp",
     "ebuild": "yarn cmd build",
