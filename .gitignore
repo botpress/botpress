@@ -46,8 +46,11 @@ metadata.json
 edition.json
 /pro
 binaries/
+
+# Reorg
 packages/bp/src/pro
 packages/bp/src/ml
+src/bp
 
 build/tests/e2e/screenshots/*
 !build/tests/e2e/screenshots/.gitkeep
