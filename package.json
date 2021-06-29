@@ -17,7 +17,7 @@
     "version": "0.0.21"
   },
   "messaging": {
-    "version": "0.0.3"
+    "version": "0.0.5"
   },
   "scripts": {
     "postinstall": "yarn cmd postinstall",
