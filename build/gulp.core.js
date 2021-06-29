@@ -31,10 +31,10 @@ const writeMetadata = () => {
 }
 
 const clearMigrations = () => {
-  return gulp.src('./out/bp/migrations/*.*', { allowEmpty: true }).pipe(rimraf())
+  return gulp.src('./packages/bp/dist/migrations/*.*', { allowEmpty: true }).pipe(rimraf())
 }
 
-const tsProject = ts.createProject(path.resolve(__dirname, '../src/tsconfig.json'))
+const tsProject = ts.createProject(path.resolve(__dirname, '../packages/bp/tsconfig.json'))
 const compileTypescript = () => {
   return tsProject
     .src()
@@ -48,18 +48,18 @@ const compileTypescript = () => {
         }
       })
     )
-    .pipe(gulp.dest('./out/bp'))
+    .pipe(gulp.dest('./packages/bp/dist'))
 }
 
 const watch = () => {
-  return gulp.watch(['./src/**/*.ts'], { ignored: ['./src/bp/ui-**'] }, compileTypescript)
+  return gulp.watch(['./packages/bp/src/**/*.ts'], { ignored: ['./src/bp/ui-**'] }, compileTypescript)
 }
 
 const createOutputDirs = () => {
   return gulp
     .src('*.*', { read: false })
-    .pipe(gulp.dest('./out/bp/data'))
-    .pipe(gulp.dest('./out/bp/data/storage'))
+    .pipe(gulp.dest('./packages/bp/dist/data'))
+    .pipe(gulp.dest('./packages/bp/dist/data/storage'))
 }
 
 const buildSchemas = cb => {
@@ -68,15 +68,19 @@ const buildSchemas = cb => {
 }
 
 const copyBinaries = () => {
-  return gulp.src('src/bp/ml/bin/*.*').pipe(gulp.dest('./out/bp/ml/bin'))
+  return gulp.src('src/bp/ml/bin/*.*').pipe(gulp.dest('./packages/bp/dist/ml/bin'))
 }
 
 const copyPreTrained = () => {
-  return gulp.src('src/bp/nlu/engine/assets/pre-trained/*').pipe(gulp.dest('./out/bp/nlu/engine/assets/pre-trained'))
+  return gulp
+    .src('src/bp/nlu/engine/assets/pre-trained/*')
+    .pipe(gulp.dest('./packages/bp/dist/nlu/engine/assets/pre-trained'))
 }
 
 const copyStopWords = () => {
-  return gulp.src('src/bp/nlu/engine/assets/stop-words/*').pipe(gulp.dest('./out/bp/nlu/engine/assets/stop-words'))
+  return gulp
+    .src('src/bp/nlu/engine/assets/stop-words/*')
+    .pipe(gulp.dest('./packages/bp/dist/nlu/engine/assets/stop-words'))
 }
 
 const checkTranslations = cb => {

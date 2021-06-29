@@ -3,7 +3,7 @@ import ReactTextareaAutocomplete from '@webscopeio/react-textarea-autocomplete'
 import cx from 'classnames'
 import React, { FC, useEffect, useState } from 'react'
 
-import { RecordSpeechToText } from '../../../../../src/bp/ui-shared-lite/SpeechToTextButton'
+import { RecordSpeechToText } from '../../../../../packages/ui-shared-lite/SpeechToTextButton'
 import { IAutoComplete, IShortcut } from '../../config'
 import { makeClient } from '../client'
 import lang from '../lang'
