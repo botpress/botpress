@@ -68,7 +68,7 @@ Output: ${stdout}`
 
 const packageModule = (modulePath, cb) => {
   exec(
-    `node ../../build/module-builder/bin/entry package -v --out ../../out/binaries/modules/%name%.tgz`,
+    `node ../../build/module-builder/bin/entry package -v --out ../../packages/bp/binaries/modules/%name%.tgz`,
     { cwd: modulePath },
     (err, stdout, stderr) => {
       if (err) {
@@ -126,7 +126,7 @@ const buildModules = () => {
 }
 
 const packageModules = () => {
-  mkdirp.sync('out/binaries/modules')
+  mkdirp.sync('packages/bp/binaries/modules')
   const allModules = getAllModulesRoot()
 
   const command = process.argv[process.argv.length - 2]
