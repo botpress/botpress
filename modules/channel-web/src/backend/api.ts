@@ -14,6 +14,7 @@ import path from 'path'
 import { Config } from '../config'
 
 import Database from './db'
+import { MessagingClient } from './messaging'
 
 const ERR_USER_ID_INVALID = 'user id associated with this session must be valid'
 const ERR_MSG_TYPE = '`type` is required and must be valid'
@@ -34,7 +35,7 @@ const SUPPORTED_MESSAGES = [
   'voice'
 ]
 
-type ChatRequest = BPRequest & { userId: string; botId: string; conversationId: number }
+type ChatRequest = BPRequest & { userId: string; botId: string; conversationId: number; messaging: MessagingClient }
 
 const isInt = (str: string) => !isNaN(parseInt(str))
 
@@ -47,6 +48,7 @@ const userIdIsValid = (userId: string): boolean => {
 export default async (bp: typeof sdk, db: Database) => {
   const asyncMiddleware = asyncMw(bp.logger)
   const globalConfig = (await bp.config.getModuleConfig('channel-web')) as Config
+  const messagingClients: { [botId: string]: MessagingClient } = {}
 
   const diskStorage = multer.diskStorage({
     destination: globalConfig.fileUploadPath,
@@ -111,6 +113,26 @@ export default async (bp: typeof sdk, db: Database) => {
     statusCodes: { include: [200] }
   }).middleware
 
+  const getMessagingClient = async (botId: string) => {
+    const client = messagingClients[botId]
+    if (client) {
+      return client
+    }
+
+    const { messaging } = await bp.bots.getBotById(botId)
+
+    const botClient = new MessagingClient(
+      `http://localhost:${process.MESSAGING_PORT}`,
+      process.INTERNAL_PASSWORD,
+      messaging.clientId,
+      messaging.clientToken,
+      messaging.providerName
+    )
+    messagingClients[botId] = botClient
+
+    return botClient
+  }
+
   const assertUserInfo = (options: { convoIdRequired?: boolean } = {}) => async (
     req: ChatRequest,
     _res: Response,
@@ -144,6 +166,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
     req.botId = botId
     req.userId = userId
+    req.messaging = await getMessagingClient(botId)
 
     next()
   }
@@ -467,6 +490,9 @@ export default async (bp: typeof sdk, db: Database) => {
     assertUserInfo(),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { botId, userId } = req
+
+      const conversation = await req.messaging.createConversation(userId)
+      console.log('created conversation', conversation)
 
       const convoId = await db.createConversation(botId, userId)
 
