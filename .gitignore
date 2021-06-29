@@ -45,7 +45,8 @@ test-report.html
 metadata.json
 edition.json
 /pro
-binaries/
+packages/bp/binaries/
+packages/bp/archives
 
 # Reorg
 packages/bp/src/pro

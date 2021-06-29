@@ -60,6 +60,7 @@ gulp.task('build:reference', docs.buildReference())
 gulp.task('package:core', package.packageCore())
 gulp.task('package:modules', modules.packageModules())
 gulp.task('package', gulp.series([package.packageApp, modules.packageModules()]))
+gulp.task('package:all', gulp.series([modules.packageModules(), package.packageAll]))
 
 gulp.task('watch', gulp.parallel([core.watch, ui.watchAll]))
 gulp.task('watch:core', core.watch)
