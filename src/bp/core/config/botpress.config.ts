@@ -452,9 +452,8 @@ export interface AuthStrategy {
    * @default false
    */
   allowSelfSignup: boolean
-
   /**
-   * When enabled, authentication type will not be shown on a login page and only alternative one will be present.
+   * When enabled, authentication type will not be shown on the login page and only alternative ones will be present.
    * @default false
    */
   hidden: boolean

@@ -91,11 +91,7 @@ export class AuthService {
       const strategy = (await this.getStrategy(strategyName)) as AuthStrategy
       return strategy && this._getStrategyConfig(strategy, strategyName)
     })
-
-    const hiddenStrategies = strategies
-      .filter(strategy => config.authStrategies[strategy.strategyId].hidden)
-      .map(strategy => strategy.strategyId)
-    return { strategies: strategies.filter(Boolean), isFirstUser: await this.isFirstUser(), hiddenStrategies }
+    return { strategies: strategies.filter(Boolean), isFirstUser: await this.isFirstUser() }
   }
 
   async generateSecureToken(email: string, strategy: string) {
@@ -278,7 +274,8 @@ export class AuthService {
     const config: AuthStrategyConfig = {
       strategyType: strategy.type,
       strategyId: id,
-      label: strategy.label
+      label: strategy.label,
+      hidden: strategy.hidden
     }
 
     if (strategy.type !== 'saml') {
