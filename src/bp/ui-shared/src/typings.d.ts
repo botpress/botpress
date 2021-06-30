@@ -31,7 +31,8 @@ import {
   SelectProps,
   TextFieldsArrayProps,
   TextProps,
-  UploadFieldProps
+  UploadFieldProps,
+  SupportedFileType
 } from './Form/FormFields/typings'
 import { FormProps } from './Form/typings'
 
@@ -150,7 +151,14 @@ declare module 'botpress/shared' {
   export const sharedStyle: CssExports
   export { ModuleUI }
   export { Option, MoreOptionsItems, HeaderButtonProps, ToolbarButtonProps, QuickShortcut, MenuItem, HeaderButton }
-  export { RequiredPermission, PermissionAllowedProps, AccessControlProps, PermissionOperation, UploadFieldProps }
+  export {
+    RequiredPermission,
+    PermissionAllowedProps,
+    AccessControlProps,
+    PermissionOperation,
+    UploadFieldProps,
+    SupportedFileType
+  }
 }
 
 declare global {
