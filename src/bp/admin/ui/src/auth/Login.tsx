@@ -12,7 +12,7 @@ import { AuthMethodPicker } from './AuthMethodPicker'
 import LoginContainer from './LoginContainer'
 import { LoginForm } from './LoginForm'
 
-type  RouterProps = RouteComponentProps<
+type RouterProps = RouteComponentProps<
   { strategy: string; workspace: string },
   {},
   { registerUrl?: string; from?: string; email?: string; password?: string; loginUrl?: string }
@@ -83,7 +83,7 @@ const Login: FC<Props> = props => {
   }
 
   const loadAuthConfig = async () => {
-    const { data }: { data: AuthConfigResponse } = await api.getAnonymous().get('/admin/auth/config')
+    const { data } = await api.getAnonymous().get<AuthConfigResponse>('/admin/auth/config')
 
     setStrategies(data.payload.strategies.filter(x => !x.hidden))
     setFirstUser(data.payload.isFirstUser)
