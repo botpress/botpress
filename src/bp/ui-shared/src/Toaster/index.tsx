@@ -1,4 +1,4 @@
-import { IconName, Intent, Position, Toaster } from '@blueprintjs/core'
+import { IconName, Intent, IToasterProps, Position, Toaster } from '@blueprintjs/core'
 import _ from 'lodash'
 
 import { lang } from '../translations'
@@ -12,10 +12,12 @@ export interface ToastOptions {
   icon?: IconName | JSX.Element
   hideDismiss?: boolean
   key?: string
+  toasterProperties ?: IToasterProps
   onDismiss?: (didTimeoutExpire: boolean) => void
 }
 
-const toaster = Toaster.create({ className: style.toaster, position: Position.BOTTOM })
+const defaultToaster = Toaster.create({ className: style.toaster, position: Position.BOTTOM })
+console.log("Toaster created")
 const toastKeys = {}
 
 const prepareMessage = (message: string | React.ReactElement, details?: string) =>
@@ -49,13 +51,23 @@ const warningOptions = {
   key: 'warning'
 }
 
-const dismiss = (key: string) => {
+const selectToaster = (options ?: IToasterProps) =>
+{
+  if(options){
+    return Toaster.create(options)
+  }
+  else{
+    return defaultToaster
+  }
+} //edit 
+
+const dismiss = (key: string , options ?: IToasterProps) => {
   if (!toastKeys[key]) {
     return
   }
 
-  toaster.dismiss(toastKeys[key])
-}
+  selectToaster(options).dismiss(toastKeys[key])
+} //edit 
 
 const success = (message: string | React.ReactElement, details?: string, options?: ToastOptions) =>
   showToast(prepareMessage(message, details), Intent.SUCCESS, Object.assign(successOptions, options))
@@ -81,9 +93,9 @@ const showToast = (message: string | React.ReactElement, intent, options: ToastO
   }
 
   const showToast = () => {
-    dismiss(options.key!)
+    dismiss(options.key!, options.toasterProperties) //edit
 
-    toastKeys[options.key!] = toaster.show({
+    toastKeys[options.key!] = selectToaster(options.toasterProperties).show({
       message: typeof message === 'string' ? lang(message) : message,
       intent,
       timeout,
