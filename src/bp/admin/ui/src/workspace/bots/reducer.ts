@@ -26,7 +26,7 @@ interface BotState {
   workspace?: { name: string; pipeline: any }
   // Sets the current bot used by workspace apps
   workspaceAppsBotId?: string
-  // Fetch the NLULanguages
+  // Fetches the list of languages available with the NLU
   botNLULanguages: string[]
 }
 
