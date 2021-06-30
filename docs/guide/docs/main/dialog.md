@@ -13,7 +13,7 @@ The Dialog Engine uses [Flows](#flows) representing a chatbot's overall conversa
 
 A workflow allows you to break down a complex chatbot into multiple smaller flows. Breaking down the chatbot into multiple flows makes it easier to maintain, and you can re-use these flows when building other workflows or even other chatbots.
 
-Let's look at our Botpress support bot **Blitz**. We can add three flows to handle _issues, tickets_, and _troubleshooting
+Let's look at our Botpress support bot **Blitz**. We can add three flows to handle _issues, tickets_, and _troubleshooting_
 ![Task Breakdown](../assets/workflow-breakdown.png)
 
 ### Flow Lifecycle
@@ -43,7 +43,7 @@ Nodes are the primary units of the conversational logic of your chatbot. **An ac
 
 A _node_ is separated into three different stages: **onEnter** (A), **onReceive** (B) and **onNext** (C).
 
-![Typical Flow Node](assets/flow_node.png)
+![Typical Flow Node](../assets/flow_node.png)
 
 ### Node Lifecycle
 
@@ -57,7 +57,7 @@ A _node_ is separated into three different stages: **onEnter** (A), **onReceive*
 
 When this property is left unused, the node is non-blocking (black), which means it will flow straight from the `onEnter` to the `onNext`.
 
-![Blocking vs. Non-Blocking Nodes](assets/node_blocking.png)
+![Blocking vs. Non-Blocking Nodes](../assets/node_blocking.png)
 
 #### Flow-wide On Receive
 
@@ -70,7 +70,7 @@ You can define a flow-wide onReceive instruction. It will **always** be executed
 > - Sentiment Analysis: Making sure the sentiment of the conversation is staying healthy
 
 To define new _Flow-wide On Receive Actions_, navigate to the relevant flow, then double click anywhere on the checkered background to show the _Flow Properties Pop up_. You can also click on the links in the top left corner of the flow editor. Under the _On Receive_ section, click the _Add Action_ button to add a new action.
-![Flow Properties](assets/flow_wide_onreceive.png)
+![Flow Properties](../assets/flow_wide_onreceive.png)
 
 #### onNext
 
@@ -104,7 +104,7 @@ Each conversation has a **State** associated with it, which is created when the 
 
 A state is created just before the "_entry_" node is entered.
 
-![Lifetime of a conversation state](assets/stateLifetime.png)
+![Lifetime of a conversation state](../assets/stateLifetime.png)
 
 > **Note:** The state is global to the conversation, so if the conversation spans multiple flows, **they will all share the same state**.
 
