@@ -22,7 +22,7 @@
     "assets": [
       "../../../node_modules/vm2/lib/*.js",
       "../../../node_modules/xml-encryption/lib/templates/*.tpl.xml",
-      "../../../node_modules/@botpress/native-extensions/**",
+      "../../../node_modules/@botpress/native-extensions/**/*.node",
       "./admin/ui/**",
       "./ui-lite/**",
       "./core/config/schemas/**",

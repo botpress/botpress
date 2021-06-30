@@ -52,7 +52,6 @@ export class ModuleResolver {
 
   async getModulesList() {
     const moduleFolder = lookupPaths.filter(x => fs.existsSync(x))
-
     if (!moduleFolder.length) {
       return []
     }
