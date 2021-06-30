@@ -65,5 +65,6 @@
   },
   "typingIndicator": "Afficher l'indicateur de frappe",
   "useMarkdown": "Utiliser markdown",
+  "markdownHelp": "Reportez-vous à cette documentation pour la syntaxe markdown: ",
   "disableFreeText": "Désactiver le texte libre"
 }
