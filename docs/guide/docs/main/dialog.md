@@ -13,12 +13,12 @@ The Dialog Engine uses [Flows](#flows) representing a chatbot's overall conversa
 
 A workflow allows you to break down a complex chatbot into multiple smaller flows. Breaking down the chatbot into multiple flows makes it easier to maintain, and you can re-use these flows when building other workflows or even other chatbots.
 
-Let's look at our Botpress support bot **Blitz**. We can add three flows to handle _issues, tickets_, and _troubleshooting_
+Let's look at our Botpress support bot **Blitz**. We can add three flows to handle _issues, tickets_, and _troubleshooting
 ![Task Breakdown](../assets/workflow-breakdown.png)
 
 ### Flow Lifecycle
 
-A flow always starts at the `startNode` of its `*.flow.json` file, with the _Main_ flow being the first to be executed at the beginning of each conversation. The start node points to the node which is to be run first by name. Once the node is selected, the Dialog Engine will queue the active node's instructions and execute the instructions sequentially.
+A flow always starts at the `startNode` of its `*.flow.json` file, with the _Main_ flow being the first to be executed at the beginning of each conversation. The start node points to the node which is to be executed first by name. Once the node is selected, the Dialog Engine will queue the active node's instructions and execute the instructions sequentially.
 
 The Dialog Engine is event-based and is non-blocking by default, which means that a flow will execute all it can manage until it needs to wait.
 
@@ -43,7 +43,7 @@ Nodes are the primary units of the conversational logic of your chatbot. **An ac
 
 A _node_ is separated into three different stages: **onEnter** (A), **onReceive** (B) and **onNext** (C).
 
-![Typical Flow Node](../assets/flow_node.png)
+![Typical Flow Node](assets/flow_node.png)
 
 ### Node Lifecycle
 
@@ -57,11 +57,11 @@ A _node_ is separated into three different stages: **onEnter** (A), **onReceive*
 
 When this property is left unused, the node is non-blocking (black), which means it will flow straight from the `onEnter` to the `onNext`.
 
-![Blocking vs. Non-Blocking Nodes](../assets/node_blocking.png)
+![Blocking vs. Non-Blocking Nodes](assets/node_blocking.png)
 
 #### Flow-wide On Receive
 
-You can define a flow-wide onReceive instruction. It will **always** be executed before every node's onRecieve.
+You can define an onReceive instruction that will **always** be executed before every node's onRecieve.
 
 > **👓 Examples:** Flow-wide On Receive
 >
@@ -70,12 +70,12 @@ You can define a flow-wide onReceive instruction. It will **always** be executed
 > - Sentiment Analysis: Making sure the sentiment of the conversation is staying healthy
 
 To define new _Flow-wide On Receive Actions_, navigate to the relevant flow, then double click anywhere on the checkered background to show the _Flow Properties Pop up_. You can also click on the links in the top left corner of the flow editor. Under the _On Receive_ section, click the _Add Action_ button to add a new action.
-![Flow Properties](../assets/flow_wide_onreceive.png)
+![Flow Properties](assets/flow_wide_onreceive.png)
 
 #### onNext
 
-**onNext** (also called **Transitions**) conditions are only evaluated
- after `onEnter` or`onReceive` have been executed.
+**onNext** (also called **Transitions**) is precisely the same thing as _Flow-wide Transitions_ except that the conditions are only evaluated
+ after `onReceive` or `onEnter` have been executed.
 
 > **Special cases**: If no condition is defined, the default behavior is that the conversation ends.
 > If there are conditions defined but none match, nothing happens, i.e., the current node stays active, and it will flow when a condition is matched. By default, the `onNext` will only be retried after `onReceive` is re-invoked.
@@ -100,11 +100,11 @@ A Flow-wide onNext instruction allows you to override node transitions when the 
 
 ## State
 
-Each conversation has a **State** associated with it, which is created when the conversation session is started and is destroyed when the session is ended.
+Each conversation has a **State** associated with it. The state is created when the conversation session is started and is destroyed when the session is ended.
 
 A state is created just before the "_entry_" node is entered.
 
-![Lifetime of a conversation state](../assets/stateLifetime.png)
+![Lifetime of a conversation state](assets/stateLifetime.png)
 
 > **Note:** The state is global to the conversation, so if the conversation spans multiple flows, **they will all share the same state**.
 
@@ -114,7 +114,7 @@ Timeout allows you to end the conversation gracefully if need be. It can also be
 
 ### Timeout Flow
 
-You can use a Timeout Flow to handle your timeout logic. It works just like a regular flow. All you have to do is add a Flow called `timeout.flow.json` to your chatbot and specify a start node. The Dialog Engine will detect your Timeout Flow next time a user times out.
+You can use a Timeout Flow to handle your timeout logic. It works just like a regular flow. All you have to do is add a Flow called `timeout.flow.json` to your chatbot and specify a start node. Then, the Dialog Engine will detect your Timeout Flow next time a user times out.
 
 ### Timeout Node
 
@@ -122,7 +122,7 @@ Very similar to the Timeout Flow, the Timeout Node should be called `timeout` an
 
 ### Timeout Transition
 
-Another option that requires some coding is to add the property `timeoutNode` to your `*.flow.json` file and assign it to the name of the node that should handle the timeout. It can be any node; it doesn't need to be called a particular way.
+Another option that requires some coding is to add the property `timeoutNode` to your `*.flow.json` file and assign it to the name of the node that should handle the timeout. Again, it can be any node; it doesn't need to be called a particular way.
 
 > ⚠ **Important:** Once the Dialog Engine has processed the timeout, it will **delete** the session.
 
@@ -149,22 +149,19 @@ A module must expose every skill. Modules can host any number of skills. All you
 
 ### Using skills
 
-Skills are meant to be used by the Botpress Flows GUI. After installing a skill module, navigate to a flow in the Graphical Flows Editor, then locate the "Insert Skill" dropdown in the top toolbar:
-
-![Using the skills from the GUI](../assets/skillsMenu.jpg)
+Skills are meant to be used by the Botpress Flows GUI. After installing a skill module, navigate to a flow in the Graphical Flows Editor, then locate the "Insert Skill" toolbar to the left of the flow builder interface.
+![Using the skills from the GUI](../assets/skillsMenu.png)
 
 After filling in the form, you'll be able to click anywhere in the flow to insert the skill to be consumed by the other nodes.
 
 ### Persistence
 
-Skills are stored as flows under the `data/bots/your-bot/flows/skills` folder.
-
-You can also visualize the generated skills from the GUI:
-
-![Generated skills from GUI](../assets/skillsPanel.jpg)
+Skills are stored as flows under the `data/bots/your-bot/flows/skills` folder. Skill nodes in the Studio Interface have the name of the skill appended to the node name, making them easily identifiable.
 
 ### Editing skills
 
-Once a skill node has been generated, you may click on that node and click "Edit" on the left panel to edit that node, which will update the generated flow automatically behind the scenes.
+Once a skill node has been generated, you may click on that node and click "Edit" on the right panel to edit that node, which will update the generated flow automatically behind the scenes. 
 
-![Editing a skill from GUI](../assets/skillsEdit.jpg)
+![Editing a skill from GUI](../assets/skillsEdit.png)
+
+> While you can rename your skill to any name you want, it is considered best practice to append the skill type to the node name, for example, `choice-choose-topping`.
