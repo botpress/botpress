@@ -7,7 +7,7 @@ import { BotConfig } from 'botpress/sdk'
 
 import { Workspace } from 'common/typings'
 import { BotpressApp, createApp } from 'core/app/core-loader'
-import { getOrCreate as redisFactory, makeRedisKey } from 'core/distributed'
+import { getClientsList, getOrCreate as redisFactory, makeRedisKey } from 'core/distributed'
 import fse from 'fs-extra'
 import IORedis from 'ioredis'
 import _ from 'lodash'
@@ -19,6 +19,7 @@ import stripAnsi from 'strip-ansi'
 import yn from 'yn'
 import { startMonitor } from './monitor'
 import {
+  getToolVersion,
   printHeader,
   printObject,
   printRow,
@@ -106,10 +107,12 @@ const printModulesConfig = async (botId?: string) => {
   })
 }
 
-const printGeneralInfos = () => {
+const printGeneralInfos = async () => {
   printHeader('General')
   printRow('Botpress Version', process.BOTPRESS_VERSION)
   printRow('Node Version', process.version.substr(1))
+  printRow('NLU Version', await getToolVersion('nlu'))
+  printRow('Studio Version', await getToolVersion('studio'))
   printRow('Running Binary', process.pkg ? 'Yes' : 'No')
   printRow('Enterprise', process.IS_PRO_AVAILABLE ? (process.IS_PRO_ENABLED ? 'Enabled' : 'Available') : 'Unavailable')
   printRow('Hostname', os.hostname())
@@ -164,6 +167,14 @@ const testConnectivity = async () => {
       process.env.BP_REDIS_SCOPE && printRow('Redis using scope', process.env.BP_REDIS_SCOPE)
       printRow('Botpress nodes listening on Redis', reply[1])
     } catch (err) {}
+
+    try {
+      for (const client of await getClientsList(redisClient)) {
+        printRow(`- Client ${client.parsed.name}`, `Uptime: ${client.parsed.age}s`)
+      }
+    } catch (err) {
+      printRow('- Error getting clients list', err)
+    }
   }
 }
 
@@ -283,7 +294,7 @@ export default async function(options: Options) {
   includePasswords = options.includePasswords || yn(process.env.BP_DIAG_INCLUDE_PASSWORDS)
   outputFile = options.outputFile || yn(process.env.BP_DIAG_OUTPUT)
 
-  printGeneralInfos()
+  await printGeneralInfos()
   listEnvironmentVariables()
 
   await testConnectivity()
