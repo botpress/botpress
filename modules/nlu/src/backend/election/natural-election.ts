@@ -3,6 +3,7 @@ import _ from 'lodash'
 
 import { detectAmbiguity } from './ambiguous'
 import { scaleConfidences } from './math'
+import { getMostConfidentContext } from './most-confident'
 import { NONE_INTENT, GLOBAL_CONTEXT } from './typings'
 
 export default function naturalElectionPipeline(input: sdk.IO.EventUnderstanding) {
@@ -20,15 +21,7 @@ function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstandin
     return input
   }
 
-  const allContexts = Object.keys(input.predictions)
-  const { includedContexts } = input
-  const availableContexts = _.intersection(includedContexts, allContexts).length ? includedContexts : allContexts
-
-  const mostConfidentCtx = _(input.predictions)
-    .pickBy((_p, ctx) => availableContexts.includes(ctx))
-    .entries()
-    .map(([name, ctx]) => ({ ...ctx, name }))
-    .maxBy(ctx => ctx.confidence) || {
+  const mostConfidentCtx = getMostConfidentContext(input) || {
     name: GLOBAL_CONTEXT,
     confidence: 1.0,
     oos: 0.0,

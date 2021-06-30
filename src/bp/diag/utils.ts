@@ -1,9 +1,11 @@
 import axios from 'axios'
 import chalk from 'chalk'
+import { spawnSync } from 'child_process'
 import { centerText } from 'core/logger'
 import { OBFUSCATED, print, SECRET_KEYS } from 'diag'
 import dns from 'dns'
 import fs from 'fs'
+import fse from 'fs-extra'
 import _ from 'lodash'
 import os from 'os'
 import path from 'path'
@@ -80,5 +82,21 @@ export const wrapMethodCall = async (label: string, method: any) => {
     printRow(label, `${chalk.green('success')} (${Date.now() - start}ms)`)
   } catch (err) {
     printRow(label, `${chalk.red(`failure: ${err.message}`)} (${Date.now() - start}ms)`)
+  }
+}
+
+export const getToolVersion = async name => {
+  try {
+    const basePath = process.pkg ? path.dirname(process.execPath) : path.resolve(__dirname, '../')
+    const toolPath = path.resolve(basePath, 'bin', process.distro.os === 'win32' ? `${name}.exe` : name)
+
+    if (await fse.pathExists(toolPath)) {
+      const child = spawnSync(`${toolPath}`, ['--version'])
+      return child.stdout.toString().trim()
+    } else {
+      return 'Executable not found'
+    }
+  } catch (err) {
+    return `Error checking version: ${err}`
   }
 }

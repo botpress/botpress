@@ -4,11 +4,11 @@ import _ from 'lodash'
 import { Config } from '../config'
 import { NLUApplication } from './application'
 import { election } from './election'
+import pickSpellChecked from './election/spellcheck-handler'
 
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
 
 const PREDICT_MW = 'nlu-predict.incoming'
-const ELECT_MW = 'nlu-elect.incoming'
 
 const _ignoreEvent = async (bp: typeof sdk, app: NLUApplication, event: sdk.IO.IncomingEvent) => {
   const health = await app.getHealth()
@@ -56,33 +56,26 @@ export const registerMiddlewares = async (bp: typeof sdk, app: NLUApplication) =
         const anticipatedLanguage: string | undefined = event.state.user?.language
 
         const bot = app.getBot(botId)
-        const nluResults = await bot.predict(preview, anticipatedLanguage)
-        const nlu = { ...nluResults, includedContexts: event.nlu?.includedContexts ?? [] }
-        _.merge(event, { nlu })
+
+        const t0 = Date.now()
+
+        const predOutput = await bot.predict(preview, anticipatedLanguage)
+        const includedContexts = event.nlu?.includedContexts ?? []
+
+        const appendTime = <T>(eu: T) => ({ ...eu, ms: Date.now() - t0 })
+
+        let nluResults = { ...predOutput, includedContexts }
+        if (nluResults.spellChecked && nluResults.spellChecked !== preview) {
+          const predOutput = await bot.predict(nluResults.spellChecked, anticipatedLanguage)
+          const spellCheckedResults = { ...predOutput, includedContexts }
+          nluResults = pickSpellChecked(appendTime(nluResults), appendTime(spellCheckedResults))
+        }
+
+        const postElection = election(appendTime(nluResults), globalConfig)
+        _.merge(event, { nlu: postElection })
         removeSensitiveText(bp, event)
       } catch (err) {
         bp.logger.warn(`Error extracting metadata for incoming text: ${err.message}`)
-      } finally {
-        next()
-      }
-    }
-  })
-
-  bp.events.registerMiddleware({
-    name: ELECT_MW,
-    direction: 'incoming',
-    order: 120,
-    description: 'Perform intent election for the outputed NLU.',
-    handler: async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
-      if ((await _ignoreEvent(bp, app, event)) || !event.nlu) {
-        return next()
-      }
-
-      try {
-        const nlu = election(event.nlu, globalConfig)
-        _.merge(event, { nlu })
-      } catch (err) {
-        bp.logger.warn(`Error making nlu election for incoming text: ${err.message}`)
       } finally {
         next()
       }
@@ -92,5 +85,4 @@ export const registerMiddlewares = async (bp: typeof sdk, app: NLUApplication) =
 
 export const removeMiddlewares = async (bp: typeof sdk) => {
   bp.events.removeMiddleware(PREDICT_MW)
-  bp.events.removeMiddleware(ELECT_MW)
 }

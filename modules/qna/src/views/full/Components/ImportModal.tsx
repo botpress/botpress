@@ -1,7 +1,6 @@
 import { Button, Callout, Classes, Dialog, FileInput, FormGroup, Intent, Radio, RadioGroup } from '@blueprintjs/core'
 import 'bluebird-global'
-import { lang } from 'botpress/shared'
-import { toastFailure, toastSuccess } from 'botpress/utils'
+import { lang, toast } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
@@ -56,7 +55,7 @@ export const ImportModal: FC<Props> = props => {
 
       setAnalysis(data)
     } catch (err) {
-      toastFailure(err.message)
+      toast.failure(err.message)
     } finally {
       setIsLoading(false)
     }
@@ -75,7 +74,7 @@ export const ImportModal: FC<Props> = props => {
     } catch (err) {
       clearStatus()
       setHasError(true)
-      toastFailure(err.message)
+      toast.failure(err.message)
     }
   }
 
@@ -86,7 +85,7 @@ export const ImportModal: FC<Props> = props => {
     if (status === 'Completed') {
       clearStatus()
       closeDialog()
-      toastSuccess(lang.tr('module.qna.import.uploadSuccessful'))
+      toast.success(lang.tr('module.qna.import.uploadSuccessful'))
       props.onImportCompleted()
     } else if (status.startsWith('Error')) {
       clearStatus()
@@ -190,9 +189,7 @@ export const ImportModal: FC<Props> = props => {
                   label={lang.tr('module.qna.import.clearQuestionsThenInsert')}
                   value="clear_insert"
                 />
-                <Callout intent="warning">
-                  {lang.tr('module.qna.import.clearQuestionsAnalyticsWarning')}
-                </Callout>
+                <Callout intent="warning">{lang.tr('module.qna.import.clearQuestionsAnalyticsWarning')}</Callout>
               </RadioGroup>
             </p>
           </div>

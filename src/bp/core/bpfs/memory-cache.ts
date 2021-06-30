@@ -4,6 +4,7 @@ import { asBytes } from 'core/misc/utils'
 import { EventEmitter } from 'events'
 import { inject, injectable } from 'inversify'
 import LRU from 'lru-cache'
+import { studioActions } from 'orchestrator'
 
 import { CacheInvalidators } from './cache-invalidators'
 
@@ -42,9 +43,15 @@ export class MemoryObjectCache implements ObjectCache {
     return this.cache.has(key)
   }
 
-  async invalidate(key: string): Promise<void> {
+  async invalidate(key: string, local?: boolean): Promise<void> {
     this.cache.del(key)
     this.events.emit('invalidation', key)
+
+    // The core must send all its invalidations to the studio, except when redis is enabled
+    if (!process.CLUSTER_ENABLED) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      studioActions.invalidateFile(key)
+    }
   }
 
   async invalidateStartingWith(prefix: string): Promise<void> {

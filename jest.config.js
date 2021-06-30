@@ -17,7 +17,7 @@ module.exports = {
   collectCoverage: false,
   resetModules: true,
   verbose: true,
-  modulePaths: ['<rootDir>/src/bp/', '<rootDir>/src/bp/ui-studio'],
+  modulePaths: ['<rootDir>/src/bp/'],
   moduleFileExtensions: ['js', 'json', 'jsx', 'ts', 'tsx', 'd.ts'],
   modulePathIgnorePatterns: ['out'],
   transform: {

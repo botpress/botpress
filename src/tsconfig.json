@@ -24,7 +24,6 @@
     "**/static/**/*.(js|ts)",
     "**/ui-shared/**/*",
     "bp/admin/ui/**/*",
-    "bp/ui-lite/**/*",
-    "bp/ui-studio/**"
+    "bp/ui-lite/**/*"
   ]
 }

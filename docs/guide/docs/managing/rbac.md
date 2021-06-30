@@ -18,7 +18,7 @@ You can easily give a collaborator access to your chatbot and assign a role by n
 ![RBAC](../assets/add-role.png)
 
 After adding a role, Botpress will automatically generate a once-off password for the newly created user account. 
-![RBAC](../assets/rbac-success.png.png)
+![RBAC](../assets/rbac-success.png)
 
 You can also change a collaborator's role by clicking the **Action** button next to the user whose role you wish to change. In addition to the changing roles, the menu allows you to change the password, remove a user from the workspace (Botpress retains the email and password, enabling you to add the user back), or delete the user. 
 ![RBAC](../assets/change-role.png)

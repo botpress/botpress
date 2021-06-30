@@ -19,6 +19,7 @@ import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
+import { studioActions } from 'orchestrator'
 
 export const TOKEN_AUDIENCE = 'collaborators'
 export const CHAT_USERS_AUDIENCE = 'chat_users'
@@ -65,6 +66,7 @@ export class AuthService {
 
   private async local__tokenVersionChange(email: string, strategy: string, tokenVersion: number): Promise<void> {
     this.tokenVersions[getUserKey(email, strategy)] = tokenVersion
+    await studioActions.updateTokenVersion(email, strategy, tokenVersion)
   }
 
   async isFirstUser() {
