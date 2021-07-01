@@ -86,7 +86,7 @@ const showToast = (message: string | React.ReactElement, intent, options: ToastO
   }
 
   const showToast = () => {
-    dismiss(options.key!, options.toasterProps) //edit
+    dismiss(options.key!, options.toasterProps)
 
     toastKeys[options.key!] = selectToaster(options.toasterProps).show({
       message: typeof message === 'string' ? lang(message) : message,
