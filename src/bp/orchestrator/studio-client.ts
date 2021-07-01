@@ -99,7 +99,8 @@ export const startStudio = async (logger: sdk.Logger, params: WebWorkerParams) =
     // These params are processed by the web worker
     EXTERNAL_URL: params.EXTERNAL_URL,
     APP_SECRET: params.APP_SECRET,
-    ROOT_PATH: params.ROOT_PATH
+    ROOT_PATH: params.ROOT_PATH,
+    SERVER_ID: process.SERVER_ID
   }
 
   // We store the dynamic params so we can reuse them when auto-restarting the studio process
