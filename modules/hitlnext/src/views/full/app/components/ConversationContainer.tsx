@@ -24,7 +24,7 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
   async function handleAssign() {
     try {
       const handoff = await api.assignHandoff(state.selectedHandoffId)
-      toast.success(lang.tr('module.hitlnext.handoff.assigned', { id: handoff.id }) ,'' ,{ toasterProps: {position: Position.TOP}})
+      toast.success(lang.tr('module.hitlnext.handoff.assigned', { id: handoff.id }) , '' , { toasterProps: { position: Position.TOP }})
     } catch (error) {
       dispatch({ type: 'setError', payload: error })
     }
