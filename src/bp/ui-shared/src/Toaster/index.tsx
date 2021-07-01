@@ -54,14 +54,6 @@ const warningOptions = {
 const selectToaster = (options?) => options ? Toaster.create(options) : defaultToaster
 
 
-/*const selectToaster = (options?: IToasterProps) => {
-  if(options){
-    return Toaster.create(options)
-  } else{
-    return defaultToaster
-  }
-}*/
-
 const dismiss = (key: string , options?: IToasterProps) => {
   if (!toastKeys[key]) {
     return
