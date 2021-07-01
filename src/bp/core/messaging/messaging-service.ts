@@ -17,6 +17,7 @@ import { MessagingClient } from './messaging-client'
 @injectable()
 export class MessagingService {
   public channels!: Channel[]
+  private channelNames!: string[]
 
   private clientAdmin!: MessagingClient
 
@@ -39,6 +40,7 @@ export class MessagingService {
       new ChannelVonage(this, this.ghostService),
       new ChannelMessenger(this, this.ghostService)
     ]
+    this.channelNames = this.channels.map(x => x.name)
 
     this.eventEngine.register({
       name: 'messaging.sendOut',
@@ -125,7 +127,9 @@ export class MessagingService {
   }
 
   private async handleOutgoingEvent(event: IO.OutgoingEvent, next: IO.MiddlewareNextCallback) {
-    await this.clientsByBotId[event.botId].sendMessage(event.threadId!, event.channel, event.payload)
+    if (this.channelNames.includes(event.channel)) {
+      await this.clientsByBotId[event.botId].sendMessage(event.threadId!, event.channel, event.payload)
+    }
 
     return next(undefined, true, false)
   }
