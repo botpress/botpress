@@ -367,7 +367,7 @@ export class DialogEngine {
       const parentNode = this._findNode(event.botId, parentFlow, specificNode || prevJumpPoint.node)
 
       const builder = new InstructionsQueueBuilder(parentNode, parentFlow)
-      const queue = builder.onlyTransitions().build()
+      const queue = prevJumpPoint.executeNode ? builder.build() : builder.onlyTransitions().build()
 
       event.state.__stacktrace.push({ flow: parentFlow.name, node: parentNode.name })
 
