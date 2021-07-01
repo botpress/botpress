@@ -54,9 +54,7 @@ export abstract class Channel {
       createProxyMiddleware({
         router: req => {
           const { botId } = req.params
-          const newUrl = `${this.client.baseUrl}/webhooks/${this.messaging.getClientForBot(botId).providerName}/${
-            this.name
-          }${messagingRoute ? messagingRoute : ''}`
+          const newUrl = `${this.client.baseUrl}/webhooks/${botId}/${this.name}${messagingRoute ? messagingRoute : ''}`
           return newUrl
         },
         changeOrigin: false,
