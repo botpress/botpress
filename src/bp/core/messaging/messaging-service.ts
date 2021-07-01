@@ -18,6 +18,7 @@ import { MessagingClient } from './messaging-client'
 @injectable()
 export class MessagingService {
   public channels!: Channel[]
+  private channelNames!: string[]
 
   private clientAdmin!: MessagingClient
 
@@ -41,6 +42,7 @@ export class MessagingService {
       new ChannelMessenger(this, this.ghostService),
       new ChannelWeb(this, this.ghostService)
     ]
+    this.channelNames = this.channels.map(x => x.name)
 
     this.eventEngine.register({
       name: 'messaging.sendOut',
@@ -56,7 +58,6 @@ export class MessagingService {
       `http://localhost:${process.MESSAGING_PORT}`,
       process.INTERNAL_PASSWORD,
       <any>undefined,
-      <any>undefined,
       <any>undefined
     )
 
@@ -71,37 +72,30 @@ export class MessagingService {
     const config = await this.configProvider.getBotConfig(botId)
     let messaging = (config.messaging || {}) as MessagingConfig
 
-    const conduits = {}
+    const channels = {}
     for (const channel of this.channels) {
       const config = await channel.loadConfigForBot(botId)
       if (config) {
-        conduits[channel.name] = config
+        channels[channel.name] = config
       }
     }
 
     const setupConfig = {
-      providerName: botId,
-      conduits,
-      clientId: messaging.clientId,
+      id: messaging.clientId,
+      token: messaging.clientToken,
+      name: botId,
+      channels,
       webhooks: [{ url: `http://localhost:${process.PORT}/api/v1/messaging/receive` }]
     }
 
-    const { clientId, clientToken, providerName } = await this.clientAdmin.syncClient(setupConfig)
+    const { id, token } = await this.clientAdmin.syncClient(setupConfig)
     let modified = false
 
-    if (clientId && clientId !== messaging.clientId) {
+    if (id && id !== messaging.clientId) {
       messaging = {
         ...messaging,
-        clientId,
-        clientToken
-      }
-      modified = true
-    }
-
-    if (providerName && providerName !== messaging.providerName) {
-      messaging = {
-        ...messaging,
-        providerName
+        clientId: id,
+        clientToken: token
       }
       modified = true
     }
@@ -114,11 +108,10 @@ export class MessagingService {
       `http://localhost:${process.MESSAGING_PORT}`,
       process.INTERNAL_PASSWORD,
       messaging.clientId,
-      messaging.clientToken,
-      messaging.providerName
+      messaging.clientToken
     )
     this.clientsByBotId[botId] = botClient
-    this.botsByClientId[clientId] = botId
+    this.botsByClientId[id] = botId
   }
 
   async receive(clientId: string, channel: string, userId: string, conversationId: string, payload: any) {
@@ -135,12 +128,10 @@ export class MessagingService {
     )
   }
 
-  getClientForBot(botId: string) {
-    return this.clientsByBotId[botId]
-  }
-
   private async handleOutgoingEvent(event: IO.OutgoingEvent, next: IO.MiddlewareNextCallback) {
-    await this.clientsByBotId[event.botId].sendMessage(event.threadId!, event.channel, event.payload)
+    if (this.channelNames.includes(event.channel)) {
+      await this.clientsByBotId[event.botId].sendMessage(event.threadId!, event.channel, event.payload)
+    }
 
     return next(undefined, true, false)
   }
