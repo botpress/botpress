@@ -11,7 +11,7 @@ A chatbot can be **rule-based** meaning it doesn't understand much about convers
 
 This type of chatbot is cheaper, easy to implement, 99% effective, and solves issues fast. It has these characteristics because the developer built the chatbot for a specific workflow. Once a user understands the chatbot's goal, s/he can easily use the chatbot for this goal.
 
-### A.I. Based Chatbots
+### AI-Based Chatbots
 These chatbots can understand language and communicate in a human-like way. They can extract useful information from conversations like dates, amounts, and locations.
 
 These chatbots are indispensable when you need to harvest all available data from the user's message, like dates, quantities, user's mood, and amounts. They can also help streamline conversations by gathering as much information as possible from user responses, making conversations shorter and more concise.
