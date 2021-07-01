@@ -274,6 +274,15 @@ export class DialogEngine {
       event.state.context.currentNode = timeoutNode.name
       event.state.context.currentFlow = timeoutFlow.name
       event.state.context.queue = undefined
+      event.state.context.previousFlow = currentFlow.name
+      event.state.context.previousNode = currentNode?.name as string
+      event.state.context.jumpPoints = [
+        ...(event.state.context?.jumpPoints || []),
+        {
+          flow: currentFlow.name,
+          node: currentNode?.name as string
+        }
+      ]
       event.state.context.hasJumped = true
     }
 
