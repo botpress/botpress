@@ -12,7 +12,7 @@ export interface ToastOptions {
   icon?: IconName | JSX.Element
   hideDismiss?: boolean
   key?: string
-  toasterProperties?: IToasterProps
+  toasterProps?: IToasterProps
   onDismiss?: (didTimeoutExpire: boolean) => void
 }
 
@@ -50,13 +50,17 @@ const warningOptions = {
   key: 'warning'
 }
 
-const selectToaster = (options?: IToasterProps) => {
+
+const selectToaster = (options?) => options ? Toaster.create(options) : defaultToaster
+
+
+/*const selectToaster = (options?: IToasterProps) => {
   if(options){
     return Toaster.create(options)
   } else{
     return defaultToaster
   }
-}
+}*/
 
 const dismiss = (key: string , options?: IToasterProps) => {
   if (!toastKeys[key]) {
@@ -90,9 +94,9 @@ const showToast = (message: string | React.ReactElement, intent, options: ToastO
   }
 
   const showToast = () => {
-    dismiss(options.key!, options.toasterProperties) //edit
+    dismiss(options.key!, options.toasterProps) //edit
 
-    toastKeys[options.key!] = selectToaster(options.toasterProperties).show({
+    toastKeys[options.key!] = selectToaster(options.toasterProps).show({
       message: typeof message === 'string' ? lang(message) : message,
       intent,
       timeout,
