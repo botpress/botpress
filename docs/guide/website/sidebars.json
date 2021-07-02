@@ -16,6 +16,7 @@
     "Natural Language Understanding": [
       "nlu/intro-nlu",
       "nlu/intent-matching",
+      "nlu/entity-extraction",
       "nlu/skill-slot",
       "nlu/3rd-party-NLU",
       "nlu/i18n"
