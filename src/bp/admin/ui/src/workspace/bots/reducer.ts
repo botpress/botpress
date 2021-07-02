@@ -27,7 +27,7 @@ interface BotState {
   // Sets the current bot used by workspace apps
   workspaceAppsBotId?: string
   // Fetches the list of languages available with the NLU
-  botNLULanguages: string[]
+  nluLanguages: string[]
 }
 
 const initialState: BotState = {
@@ -39,7 +39,7 @@ const initialState: BotState = {
   botCategories: [],
   botCategoriesFetched: false,
   workspace: undefined,
-  botNLULanguages: []
+  nluLanguages: []
 }
 
 export default (state = initialState, action): BotState => {
@@ -88,10 +88,10 @@ export default (state = initialState, action): BotState => {
         workspaceAppsBotId: action.botId
       }
 
-    case FETCH_BOT_NLU_LANGUAGE:
+    case FETCH_BOT_NLU_LANGUAGES_RECEIVED:
       return {
         ...state,
-        botNLULanguages: action.languages
+        nluLanguages: action.languages
       }
 
     default:
@@ -165,7 +165,7 @@ export const fetchBotNLULanguages = (): AppThunk => {
     if (!data || !data.validLanguages) {
       return
     }
-    dispatch({ type: FETCH_BOT_NLU_LANGUAGE, languages: data.validLanguages })
+    dispatch({ type: FETCH_BOT_NLU_LANGUAGES_RECEIVED, languages: data.validLanguages })
   }
 }
 

@@ -287,6 +287,7 @@ class Bots extends Component<Props> {
                       rollback={this.toggleRollbackModal.bind(this, bot.id)}
                       reloadBot={this.reloadBot.bind(this, bot.id)}
                       viewLogs={this.viewLogs.bind(this, bot.id)}
+                      installedNLULanguages={this.props.language}
                     />
                   </Fragment>
                 ))}
@@ -429,7 +430,7 @@ const mapStateToProps = (state: AppState) => ({
   loading: state.bots.loadingBots,
   licensing: state.licensing.license,
   profile: state.user.profile,
-  language: state.bots.botNLULanguages
+  language: state.bots.nluLanguages
 })
 
 const mapDispatchToProps = {
