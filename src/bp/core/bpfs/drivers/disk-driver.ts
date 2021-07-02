@@ -1,3 +1,4 @@
+import { Mutex } from 'async-mutex'
 import { DirectoryListingOptions } from 'botpress/sdk'
 import { BPError } from 'core/dialog/errors'
 import { forceForwardSlashes } from 'core/misc/utils'
@@ -14,13 +15,22 @@ import { FileRevision, StorageDriver } from '../'
 @injectable()
 export class DiskStorageDriver implements StorageDriver {
   resolvePath = (p: string) => path.resolve(process.PROJECT_LOCATION, p)
+  mutexes: { [filename: string]: Mutex } = {}
 
   async upsertFile(filePath: string, content: string | Buffer): Promise<void>
   async upsertFile(filePath: string, content: string | Buffer, recordRevision: boolean = false): Promise<void> {
     try {
-      const folder = path.dirname(this.resolvePath(filePath))
-      await fse.mkdirp(folder)
-      await fse.writeFile(this.resolvePath(filePath), content)
+      const filename = this.resolvePath(filePath)
+      const folder = path.dirname(filename)
+
+      const mutex = this._getMutex(filename)
+      const release = await mutex.acquire()
+      try {
+        await fse.mkdirp(folder)
+        await fse.writeFile(filename, content)
+      } finally {
+        release()
+      }
     } catch (e) {
       throw new VError(e, `[Disk Storage] Error upserting file "${filePath}"`)
     }
@@ -32,7 +42,15 @@ export class DiskStorageDriver implements StorageDriver {
 
   async readFile(filePath: string): Promise<Buffer> {
     try {
-      return fse.readFile(this.resolvePath(filePath))
+      const filename = this.resolvePath(filePath)
+
+      const mutex = this._getMutex(filename)
+      const release = await mutex.acquire()
+      try {
+        return fse.readFile(filename)
+      } finally {
+        release()
+      }
     } catch (e) {
       if (e.code === 'ENOENT') {
         throw new BPError(`[Disk Storage] File "${filePath}" not found`, 'ENOENT')
@@ -152,6 +170,14 @@ export class DiskStorageDriver implements StorageDriver {
     } catch (e) {
       return []
     }
+  }
+
+  private _getMutex(filename: string) {
+    if (!this.mutexes[filename]) {
+      this.mutexes[filename] = new Mutex()
+    }
+
+    return this.mutexes[filename]
   }
 
   private _getBaseDirectories(files: string[]): string[] {
