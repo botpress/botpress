@@ -195,7 +195,7 @@ const BotItemPipeline: FC<Props> = ({
         </AccessControl>
 
         {botHasUninstalledNLULanguages && (
-          <Tooltip position="right" content={lang.tr('admin.workspace.bots.item.enableLanguageNLU')}>
+          <Tooltip position="right" content={lang.tr('admin.workspace.bots.item.enableNLULanguages')}>
             <Icon icon="translate" intent={Intent.DANGER} style={{ marginLeft: 10 }} />
           </Tooltip>
         )}
