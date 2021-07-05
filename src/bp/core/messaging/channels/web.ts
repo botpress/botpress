@@ -7,7 +7,7 @@ export class ChannelWeb extends Channel {
   }
 
   async loadConfigForBot(botId: string) {
-    return {}
+    return { enabled: true }
   }
 
   setupRoutes(http: HTTPServer) {}

@@ -22,6 +22,36 @@ export class MessagingClient {
     const res = await this.axios.post(`${this.apiUrl}/conversations`, { userId })
     return res.data
   }
+
+  async getConversationById(id: uuid): Promise<Conversation> {
+    const res = await this.axios.get(`${this.apiUrl}/conversations/${id}`)
+    return res.data
+  }
+
+  async listConversations(userId: string): Promise<Conversation[]> {
+    const res = await this.axios.get(`${this.apiUrl}/conversations`, { params: { userId } })
+    return res.data
+  }
+
+  async getMostRecentConversationForUser(userId: string): Promise<Conversation> {
+    const res = await this.axios.get(`${this.apiUrl}/conversations/${userId}/recent`)
+    return res.data
+  }
+
+  async createMessage(conversationId: uuid, authorId: string, payload: any): Promise<Message> {
+    const res = await this.axios.post(`${this.apiUrl}/messages`, { conversationId, authorId, payload })
+    return res.data
+  }
+
+  async listMessages(conversationId: uuid, limit: number): Promise<Message[]> {
+    const res = await this.axios.get(`${this.apiUrl}/messages`, { params: { conversationId, limit } })
+    return res.data
+  }
+
+  async deleteMessages(conversationId: uuid): Promise<void> {
+    const res = await this.axios.delete(`${this.apiUrl}/messages`, { params: { conversationId } })
+    return res.data
+  }
 }
 
 export type uuid = string

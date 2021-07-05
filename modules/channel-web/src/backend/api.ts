@@ -14,7 +14,7 @@ import path from 'path'
 import { Config } from '../config'
 
 import Database from './db'
-import { MessagingClient } from './messaging'
+import { Conversation, Message, MessagingClient } from './messaging'
 
 const ERR_USER_ID_INVALID = 'user id associated with this session must be valid'
 const ERR_MSG_TYPE = '`type` is required and must be valid'
@@ -35,9 +35,7 @@ const SUPPORTED_MESSAGES = [
   'voice'
 ]
 
-type ChatRequest = BPRequest & { userId: string; botId: string; conversationId: number; messaging: MessagingClient }
-
-const isInt = (str: string) => !isNaN(parseInt(str))
+type ChatRequest = BPRequest & { userId: string; botId: string; conversationId: string; messaging: MessagingClient }
 
 const userIdIsValid = (userId: string): boolean => {
   const hasBreakingConstraints = userId.length > USER_ID_MAX_LENGTH || userId.toLowerCase() === 'undefined'
@@ -150,14 +148,15 @@ export default async (bp: typeof sdk, db: Database) => {
       return next(ERR_USER_ID_INVALID)
     }
 
-    if (isInt(conversationId)) {
-      const parsedConversationId = parseInt(conversationId)
+    req.messaging = await getMessagingClient(botId)
 
-      if (!(await db.isValidConversationOwner(userId, parsedConversationId, botId))) {
+    if (conversationId) {
+      const conversation = await req.messaging.getConversationById(conversationId)
+      if (!userId || conversation.userId !== userId) {
         next(ERR_BAD_CONV_ID)
       }
 
-      req.conversationId = parsedConversationId
+      req.conversationId = conversationId
     }
 
     if (options.convoIdRequired && req.conversationId === undefined) {
@@ -166,7 +165,6 @@ export default async (bp: typeof sdk, db: Database) => {
 
     req.botId = botId
     req.userId = userId
-    req.messaging = await getMessagingClient(botId)
 
     next()
   }
@@ -229,10 +227,11 @@ export default async (bp: typeof sdk, db: Database) => {
       }
 
       if (!conversationId) {
-        conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
+        conversationId = (await req.messaging.getMostRecentConversationForUser(userId)).id
       }
 
       await sendNewMessage(
+        req.messaging,
         botId,
         userId,
         conversationId,
@@ -267,7 +266,7 @@ export default async (bp: typeof sdk, db: Database) => {
         size: req.file.size
       }
 
-      await sendNewMessage(botId, userId, conversationId, payload, req.credentials)
+      await sendNewMessage(req.messaging, botId, userId, conversationId, payload, req.credentials)
 
       return res.sendStatus(200)
     })
@@ -307,7 +306,7 @@ export default async (bp: typeof sdk, db: Database) => {
         audio: url
       }
 
-      await sendNewMessage(botId, userId, conversationId, payload, req.credentials)
+      await sendNewMessage(req.messaging, botId, userId, conversationId, payload, req.credentials)
 
       return res.sendStatus(200)
     })
@@ -317,9 +316,9 @@ export default async (bp: typeof sdk, db: Database) => {
     '/conversations/get',
     assertUserInfo({ convoIdRequired: true }),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
-      const { userId, conversationId, botId } = req
+      const { conversationId } = req
 
-      const conversation = await db.getConversation(userId, conversationId, botId)
+      const conversation = await req.messaging.getConversationById(conversationId)
 
       return res.send(conversation)
     })
@@ -333,7 +332,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
       await bp.users.getOrCreateUser('web', userId, botId)
 
-      const conversations = await db.listConversations(userId, botId)
+      const conversations = await req.messaging.listConversations(userId)
       const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
       return res.send({
@@ -345,9 +344,10 @@ export default async (bp: typeof sdk, db: Database) => {
   )
 
   async function sendNewMessage(
+    messaging: MessagingClient,
     botId: string,
     userId: string,
-    conversationId: number,
+    conversationId: string,
     payload: any,
     credentials: any,
     useDebugger?: boolean,
@@ -378,7 +378,7 @@ export default async (bp: typeof sdk, db: Database) => {
       direction: 'incoming',
       payload,
       target: userId,
-      threadId: conversationId.toString(),
+      threadId: conversationId,
       type: payload.type,
       credentials
     })
@@ -387,7 +387,7 @@ export default async (bp: typeof sdk, db: Database) => {
       event.debugger = true
     }
 
-    const message = await db.appendUserMessage(botId, userId, conversationId, sanitizedPayload, event.id, user)
+    const message = await messaging.createMessage(conversationId, userId, sanitizedPayload)
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
 
     await bp.events.sendEvent(event)
@@ -406,7 +406,7 @@ export default async (bp: typeof sdk, db: Database) => {
       await bp.users.getOrCreateUser('web', userId, botId)
 
       if (!conversationId) {
-        conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
+        conversationId = (await req.messaging.getMostRecentConversationForUser(userId)).id
       }
 
       const event = bp.IO.Event({
@@ -471,7 +471,7 @@ export default async (bp: typeof sdk, db: Database) => {
         type: 'session_reset'
       }
 
-      await sendNewMessage(botId, userId, conversationId, payload, req.credentials)
+      await sendNewMessage(req.messaging, botId, userId, conversationId, payload, req.credentials)
 
       const sessionId = bp.dialog.createId({
         botId,
@@ -489,14 +489,11 @@ export default async (bp: typeof sdk, db: Database) => {
     '/conversations/new',
     assertUserInfo(),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
-      const { botId, userId } = req
+      const { userId } = req
 
       const conversation = await req.messaging.createConversation(userId)
-      console.log('created conversation', conversation)
 
-      const convoId = await db.createConversation(botId, userId)
-
-      res.send({ convoId })
+      res.send({ convoId: conversation.id })
     })
   )
 
@@ -516,7 +513,7 @@ export default async (bp: typeof sdk, db: Database) => {
         }
 
         if (!conversationId) {
-          conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
+          conversationId = (await req.messaging.getMostRecentConversationForUser(userId)).id
         }
 
         const message = reference.slice(0, reference.lastIndexOf('='))
@@ -596,22 +593,24 @@ export default async (bp: typeof sdk, db: Database) => {
     return (payload && payload.text) || message.message_text || wrappedText || `Event (${type})`
   }
 
-  const convertToTxtFile = async conversation => {
+  const convertToTxtFile = async (conversation: Conversation & { messages: Message[] }) => {
     const { messages } = conversation
     const { result: user } = await bp.users.getOrCreateUser('web', conversation.userId)
     const timeFormat = 'MM/DD/YY HH:mm'
     const fullName = `${user.attributes['first_name'] || ''} ${user.attributes['last_name'] || ''}`
-    const metadata = `Title: ${conversation.title}\r\nCreated on: ${moment(conversation.created_on).format(
+    const metadata = `Title: ${conversation.id}\r\nCreated on: ${moment(conversation.createdOn).format(
       timeFormat
     )}\r\nUser: ${fullName}\r\n-----------------\r\n`
 
     const messagesAsTxt = messages.map(message => {
-      const type = (message.payload && message.payload.type) || message.message_type
+      const type = message.payload?.type
       if (type === 'session_reset') {
         return ''
       }
-      const userName = message.full_name.indexOf('undefined') > -1 ? 'User' : message.full_name
-      return `[${moment(message.sent_on).format(timeFormat)}] ${userName}: ${getMessageContent(message, type)}\r\n`
+      return `[${moment(message.sentOn).format(timeFormat)}] ${message.authorId}: ${getMessageContent(
+        message,
+        type
+      )}\r\n`
     })
 
     return [metadata, ...messagesAsTxt].join('')
@@ -621,12 +620,15 @@ export default async (bp: typeof sdk, db: Database) => {
     '/conversations/download/txt',
     assertUserInfo({ convoIdRequired: true }),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
-      const { userId, conversationId, botId } = req
+      const { conversationId, botId } = req
 
-      const conversation = await db.getConversation(userId, conversationId, botId)
-      const txt = await convertToTxtFile(conversation)
+      const config = (await bp.config.getModuleConfigForBot('channel-web', botId)) as Config
+      const conversation = await req.messaging.getConversationById(conversationId)
+      const messages = await req.messaging.listMessages(conversationId, config.maxMessagesHistory)
 
-      res.send({ txt, name: `${conversation.title}.txt` })
+      const txt = await convertToTxtFile({ ...conversation, messages })
+
+      res.send({ txt, name: `Conversation ${conversation.id}.txt` })
     })
   )
 
@@ -638,7 +640,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.clear', { conversationId }))
 
-      await db.deleteConversationMessages(conversationId)
+      await req.messaging.deleteMessages(conversationId)
 
       res.sendStatus(204)
     })
@@ -654,19 +656,17 @@ export default async (bp: typeof sdk, db: Database) => {
   privateRouter.post(
     '/conversations/:id/messages/delete',
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
-      const botId = req.params.botId
-      let conversationId = req.params.id
+      const conversationId = req.params.id
       const { userId } = req.body
 
-      conversationId = parseInt(conversationId)
-
-      if (!(await db.isValidConversationOwner(userId, conversationId, botId))) {
+      const conversation = await req.messaging.getConversationById(conversationId)
+      if (!userId || conversation?.userId !== userId) {
         res.status(400).send(ERR_BAD_CONV_ID)
       }
 
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.clear', { conversationId }))
 
-      await db.deleteConversationMessages(conversationId)
+      await req.messaging.deleteMessages(conversationId)
       res.sendStatus(204)
     })
   )
