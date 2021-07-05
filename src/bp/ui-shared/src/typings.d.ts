@@ -151,6 +151,10 @@ declare module 'botpress/shared' {
   export { ModuleUI }
   export { Option, MoreOptionsItems, HeaderButtonProps, ToolbarButtonProps, QuickShortcut, MenuItem, HeaderButton }
   export { RequiredPermission, PermissionAllowedProps, AccessControlProps, PermissionOperation, UploadFieldProps }
+
+  export const payloads: {
+    renderPayload(payload: any)
+  }
 }
 
 declare global {
