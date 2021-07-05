@@ -316,11 +316,13 @@ export default async (bp: typeof sdk, db: Database) => {
     '/conversations/get',
     assertUserInfo({ convoIdRequired: true }),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
-      const { conversationId } = req
+      const { conversationId, botId } = req
 
+      const config = (await bp.config.getModuleConfigForBot('channel-web', botId)) as Config
       const conversation = await req.messaging.getConversationById(conversationId)
+      const messages = await req.messaging.listMessages(conversationId, config.maxMessagesHistory)
 
-      return res.send(conversation)
+      return res.send({ ...conversation, messages })
     })
   )
 
