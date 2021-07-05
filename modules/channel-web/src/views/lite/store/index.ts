@@ -11,13 +11,14 @@ import { getUserLocale, initializeLocale } from '../translations'
 import {
   BotInfo,
   Config,
-  ConversationSummary,
   CurrentConversation,
   EventFeedback,
   Message,
   MessageWrapper,
   QueuedMessage,
-  StudioConnector
+  RecentConversation,
+  StudioConnector,
+  uuid
 } from '../typings'
 import { downloadFile, trackMessage } from '../utils'
 
@@ -39,7 +40,7 @@ class RootStore {
   private api: WebchatApi
 
   @observable
-  public conversations: ConversationSummary[] = []
+  public conversations: RecentConversation[] = []
 
   @observable
   public currentConversation: CurrentConversation
@@ -122,7 +123,7 @@ class RootStore {
   }
 
   @computed
-  get currentConversationId(): number | undefined {
+  get currentConversationId(): uuid | undefined {
     return this.currentConversation?.id
   }
 
@@ -153,19 +154,19 @@ class RootStore {
 
   @action.bound
   async addEventToConversation(event: Message): Promise<void> {
-    if (this.isInitialized && this.currentConversationId !== Number(event.conversationId)) {
+    if (this.isInitialized && this.currentConversationId !== event.conversationId) {
       await this.fetchConversations()
-      await this.fetchConversation(Number(event.conversationId))
+      await this.fetchConversation(event.conversationId)
       return
     }
 
     // Autoplay bot voice messages
-    if (event.payload?.type === 'voice' && !event.userId) {
+    if (event.payload?.type === 'voice' && !event.authorId) {
       event.payload.autoPlay = true
     }
 
-    const message: Message = { ...event, conversationId: +event.conversationId }
-    if (this.isBotTyping.get() && !event.userId) {
+    const message: Message = { ...event, conversationId: event.conversationId }
+    if (this.isBotTyping.get() && !event.authorId) {
       this.delayedMessages.push({ message, showAt: this.currentConversation.typingUntil })
     } else {
       this.currentConversation.messages.push(message)
@@ -174,9 +175,9 @@ class RootStore {
 
   @action.bound
   async updateTyping(event: Message): Promise<void> {
-    if (this.isInitialized && this.currentConversationId !== Number(event.conversationId)) {
+    if (this.isInitialized && this.currentConversationId !== event.conversationId) {
       await this.fetchConversations()
-      await this.fetchConversation(Number(event.conversationId))
+      await this.fetchConversation(event.conversationId)
       return
     }
 
@@ -245,7 +246,7 @@ class RootStore {
 
   /** Fetch the specified conversation ID, or try to fetch a valid one from the list */
   @action.bound
-  async fetchConversation(convoId?: number): Promise<number> {
+  async fetchConversation(convoId?: uuid): Promise<uuid> {
     const conversationId = convoId || this._getCurrentConvoId()
     if (!conversationId) {
       return this.createConversation()
@@ -253,6 +254,9 @@ class RootStore {
 
     const conversation: CurrentConversation = await this.api.fetchConversation(convoId || this._getCurrentConvoId())
     if (conversation?.messages) {
+      conversation.messages = conversation.messages.sort(
+        (a, b) => new Date(a.sentOn).getTime() - new Date(b.sentOn).getTime()
+      )
       await this.extractFeedback(conversation.messages)
     }
 
@@ -295,7 +299,7 @@ class RootStore {
 
   /** Creates a new conversation and switches to it */
   @action.bound
-  async createConversation(): Promise<number> {
+  async createConversation(): Promise<uuid> {
     const newId = await this.api.createConversation()
     await this.fetchConversations()
     await this.fetchConversation(newId)
@@ -331,7 +335,9 @@ class RootStore {
 
   @action.bound
   async extractFeedback(messages: Message[]): Promise<void> {
-    const feedbackEventIds = messages.filter(x => x.payload && x.payload.collectFeedback).map(x => x.incomingEventId)
+    const feedbackEventIds = messages
+      .filter(x => x.payload && x.payload.collectFeedback)
+      .map(x => (x as any).incomingEventId)
 
     const feedbackInfo = await this.api.getEventIdsFeedbackInfo(feedbackEventIds)
     runInAction('-> setFeedbackInfo', () => {
@@ -495,7 +501,7 @@ class RootStore {
   }
 
   /** Returns the current conversation ID, or the last one if it didn't expired. Otherwise, returns nothing. */
-  private _getCurrentConvoId(): number | undefined {
+  private _getCurrentConvoId(): uuid | undefined {
     if (this.currentConversationId) {
       return this.currentConversationId
     }
@@ -505,7 +511,8 @@ class RootStore {
     }
 
     const lifeTimeMargin = Date.now() - ms(this.config.recentConversationLifetime)
-    const isConversationExpired = new Date(this.conversations[0].last_heard_on).getTime() < lifeTimeMargin
+    const isConversationExpired =
+      new Date(this.conversations[0].lastMessage?.sentOn || this.conversations[0].createdOn).getTime() < lifeTimeMargin
     if (isConversationExpired && this.config.startNewConvoOnTimeout) {
       return
     }
