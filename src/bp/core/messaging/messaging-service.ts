@@ -12,7 +12,6 @@ import { ChannelTeams } from './channels/teams'
 import { ChannelTelegram } from './channels/telegram'
 import { ChannelTwilio } from './channels/twilio'
 import { ChannelVonage } from './channels/vonage'
-import { ChannelWeb } from './channels/web'
 import { MessagingClient } from './messaging-client'
 
 @injectable()
@@ -39,8 +38,7 @@ export class MessagingService {
       new ChannelTeams(this, this.ghostService),
       new ChannelSlack(this, this.ghostService),
       new ChannelVonage(this, this.ghostService),
-      new ChannelMessenger(this, this.ghostService),
-      new ChannelWeb(this, this.ghostService)
+      new ChannelMessenger(this, this.ghostService)
     ]
     this.channelNames = this.channels.map(x => x.name)
 

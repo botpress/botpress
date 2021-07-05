@@ -46,7 +46,6 @@ const userIdIsValid = (userId: string): boolean => {
 export default async (bp: typeof sdk, db: Database) => {
   const asyncMiddleware = asyncMw(bp.logger)
   const globalConfig = (await bp.config.getModuleConfig('channel-web')) as Config
-  const messagingClients: { [botId: string]: MessagingClient } = {}
 
   const diskStorage = multer.diskStorage({
     destination: globalConfig.fileUploadPath,
@@ -111,26 +110,6 @@ export default async (bp: typeof sdk, db: Database) => {
     statusCodes: { include: [200] }
   }).middleware
 
-  const getMessagingClient = async (botId: string) => {
-    const client = messagingClients[botId]
-    if (client) {
-      return client
-    }
-
-    const { messaging } = await bp.bots.getBotById(botId)
-
-    const botClient = new MessagingClient(
-      `http://localhost:${process.MESSAGING_PORT}`,
-      process.INTERNAL_PASSWORD,
-      messaging.clientId,
-      messaging.clientToken,
-      messaging.providerName
-    )
-    messagingClients[botId] = botClient
-
-    return botClient
-  }
-
   const assertUserInfo = (options: { convoIdRequired?: boolean } = {}) => async (
     req: ChatRequest,
     _res: Response,
@@ -148,7 +127,7 @@ export default async (bp: typeof sdk, db: Database) => {
       return next(ERR_USER_ID_INVALID)
     }
 
-    req.messaging = await getMessagingClient(botId)
+    req.messaging = await db.getMessagingClient(botId)
 
     if (conversationId) {
       const conversation = await req.messaging.getConversationById(conversationId)

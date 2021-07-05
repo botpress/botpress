@@ -1,10 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
+import { MessagingClient } from './messaging'
 
 export default class WebchatDb {
   private readonly MAX_RETRY_ATTEMPTS = 3
   private knex: sdk.KnexExtended
   private users: typeof sdk.users
+  messagingClients: { [botId: string]: MessagingClient } = {}
 
   constructor(private bp: typeof sdk) {
     this.users = bp.users
@@ -34,5 +36,25 @@ export default class WebchatDb {
       .select(['incomingEventId', 'feedback'])
       .whereIn('incomingEventId', eventIds)
       .andWhere({ target, direction: 'incoming' })
+  }
+
+  getMessagingClient = async (botId: string) => {
+    const client = this.messagingClients[botId]
+    if (client) {
+      return client
+    }
+
+    const { messaging } = await this.bp.bots.getBotById(botId)
+
+    const botClient = new MessagingClient(
+      `http://localhost:${process.MESSAGING_PORT}`,
+      process.INTERNAL_PASSWORD,
+      messaging.clientId,
+      messaging.clientToken,
+      messaging.providerName
+    )
+    this.messagingClients[botId] = botClient
+
+    return botClient
   }
 }
