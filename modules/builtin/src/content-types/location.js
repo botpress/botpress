@@ -1,5 +1,4 @@
 const base = require('./_base')
-const path = require('path')
 const utils = require('./_utils')
 
 function renderElement(data, channel) {

@@ -1,3 +1,4 @@
+import { payloads } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect } from 'react'
 
@@ -30,9 +31,12 @@ export const MessageList: FC<{ messageGroups: FlaggedMessageGroup[] }> = props =
           key={group.incoming.id}
           className={`${style.messageGroup} ` + (group.flagged && style.flagged)}
         >
-          <Message message={group.incoming} />
+          <Message message={{ ...group.incoming, raw_message: payloads.renderPayload(group.incoming.raw_message) }} />
           {group.replies.map(message => (
-            <Message key={`${group.incoming.id}-${message.id}`} message={message} />
+            <Message
+              key={`${group.incoming.id}-${message.id}`}
+              message={{ ...message, raw_message: payloads.renderPayload(message.raw_message) }}
+            />
           ))}
         </div>
       ))}
