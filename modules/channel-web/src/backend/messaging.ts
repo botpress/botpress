@@ -28,8 +28,8 @@ export class MessagingClient {
     return res.data
   }
 
-  async listConversations(userId: string): Promise<Conversation[]> {
-    const res = await this.axios.get(`${this.apiUrl}/conversations`, { params: { userId } })
+  async listConversations(userId: string, limit: number): Promise<Conversation[]> {
+    const res = await this.axios.get(`${this.apiUrl}/conversations`, { params: { userId, limit } })
     return res.data
   }
 

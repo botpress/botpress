@@ -313,7 +313,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
       await bp.users.getOrCreateUser('web', userId, botId)
 
-      const conversations = await req.messaging.listConversations(userId)
+      const conversations = await req.messaging.listConversations(userId, 100)
       const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
       return res.send({
