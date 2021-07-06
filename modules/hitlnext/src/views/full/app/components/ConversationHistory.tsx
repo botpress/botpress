@@ -2,10 +2,10 @@ import { Spinner } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
 import { IO } from 'botpress/sdk'
 import _ from 'lodash'
-import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
+import React, { FC, Fragment, useContext, useEffect, useCallback, useState } from 'react'
 
 import { WEBSOCKET_TOPIC } from '../../../../constants'
-import { ISocketMessage } from '../../../../types'
+import { IHandoff, ISocketMessage } from '../../../../types'
 import { HitlClient } from '../../../client'
 import { Context } from '../Store'
 import MessageList from './MessageList'
@@ -22,16 +22,18 @@ const ConversationHistory: FC<Props> = ({ api, bp, conversationId }) => {
   const [loading, setLoading] = useState(true)
   const [events, setEvents] = useState<IO.StoredEvent[]>([])
 
-  const handleMessage = (message: ISocketMessage) => {
+  const handleMessage = useCallback((message: ISocketMessage) => {
     if (message.resource === 'event' && message.type === 'create') {
-      setEvents(evts => [...evts, message.payload])
+      if (message.payload.threadId === conversationId) {
+        setEvents(evts => [...evts, message.payload])
+      }
     }
-  }
+  }, [conversationId])
 
   useEffect(() => {
-    bp.events.on(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage.bind(this))
+    bp.events.on(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage)
     return () => bp.events.off(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage)
-  }, [])
+  }, [conversationId])
 
   useEffect(() => {
     api.getMessages(conversationId, 'id', true, state.config.messageCount).then(evts => {
