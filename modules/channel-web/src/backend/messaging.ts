@@ -18,6 +18,11 @@ export class MessagingClient {
     })
   }
 
+  async createUser(): Promise<User> {
+    const res = await this.axios.post(`${this.apiUrl}/users`)
+    return res.data
+  }
+
   async createConversation(userId: string): Promise<Conversation> {
     const res = await this.axios.post(`${this.apiUrl}/conversations`, { userId })
     return res.data
@@ -55,6 +60,11 @@ export class MessagingClient {
 }
 
 export type uuid = string
+
+export interface User {
+  id: uuid
+  clientId: uuid
+}
 
 export interface Conversation {
   id: uuid

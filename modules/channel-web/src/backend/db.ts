@@ -1,16 +1,72 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
+import LRUCache from 'lru-cache'
+import ms from 'ms'
 import { MessagingClient } from './messaging'
 
 export default class WebchatDb {
   private readonly MAX_RETRY_ATTEMPTS = 3
   private knex: sdk.KnexExtended
   private users: typeof sdk.users
-  messagingClients: { [botId: string]: MessagingClient } = {}
+  private cacheByVisitor: LRUCache<string, UserMapping>
+  private cacheByUser: LRUCache<string, UserMapping>
+  private messagingClients: { [botId: string]: MessagingClient } = {}
 
   constructor(private bp: typeof sdk) {
     this.users = bp.users
     this.knex = bp.database
+    this.cacheByVisitor = new LRUCache({ max: 10000, maxAge: ms('5min') })
+    this.cacheByUser = new LRUCache({ max: 10000, maxAge: ms('5min') })
+  }
+
+  async initialize() {
+    await this.knex.createTableIfNotExists('web_user_map', table => {
+      table.string('visitorId').primary()
+      table.uuid('userId').unique()
+    })
+  }
+
+  async getMappingFromVisitor(visitorId: string): Promise<UserMapping | undefined> {
+    const cached = this.cacheByVisitor.get(visitorId)
+    if (cached) {
+      return cached
+    }
+
+    const rows = await this.knex('web_user_map').where({ visitorId })
+
+    if (rows?.length) {
+      const mapping = rows[0] as UserMapping
+      this.cacheByVisitor.set(visitorId, mapping)
+      return mapping
+    }
+
+    return undefined
+  }
+
+  async getMappingFromUser(userId: string): Promise<UserMapping | undefined> {
+    const cached = this.cacheByUser.get(userId)
+    if (cached) {
+      return cached
+    }
+
+    const rows = await this.knex('web_user_map').where({ userId })
+
+    if (rows?.length) {
+      const mapping = rows[0] as UserMapping
+      this.cacheByUser.set(userId, mapping)
+      return mapping
+    }
+
+    return undefined
+  }
+
+  async createUserMapping(visitorId: string, userId: string): Promise<UserMapping> {
+    const mapping = { visitorId, userId }
+
+    await this.knex('web_user_map').insert(mapping)
+    this.cacheByVisitor.set(visitorId, mapping)
+
+    return mapping
   }
 
   async getUserInfo(userId: string, user: sdk.User) {
@@ -57,4 +113,9 @@ export default class WebchatDb {
 
     return botClient
   }
+}
+
+export interface UserMapping {
+  visitorId: string
+  userId: string
 }

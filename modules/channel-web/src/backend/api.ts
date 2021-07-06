@@ -35,7 +35,13 @@ const SUPPORTED_MESSAGES = [
   'voice'
 ]
 
-type ChatRequest = BPRequest & { userId: string; botId: string; conversationId: string; messaging: MessagingClient }
+type ChatRequest = BPRequest & {
+  visitorId: string
+  userId: string
+  botId: string
+  conversationId: string
+  messaging: MessagingClient
+}
 
 const userIdIsValid = (userId: string): boolean => {
   const hasBreakingConstraints = userId.length > USER_ID_MAX_LENGTH || userId.toLowerCase() === 'undefined'
@@ -118,16 +124,26 @@ export default async (bp: typeof sdk, db: Database) => {
     const { botId } = req.params
     const { conversationId, webSessionId } = req.body || {}
 
-    const userId = await bp.realtime.getVisitorIdFromGuestSocketId(webSessionId)
-    if (!userId) {
+    req.visitorId = await bp.realtime.getVisitorIdFromGuestSocketId(webSessionId)
+    if (!req.visitorId) {
       return next(ERR_BAD_USER_SESSION_ID)
     }
 
-    if (!userIdIsValid(userId)) {
+    if (!userIdIsValid(req.visitorId)) {
       return next(ERR_USER_ID_INVALID)
     }
 
     req.messaging = await db.getMessagingClient(botId)
+
+    let userId: string
+    const userMapping = await db.getMappingFromVisitor(req.visitorId)
+
+    if (!userMapping) {
+      userId = (await req.messaging.createUser()).id
+      await db.createUserMapping(req.visitorId, userId)
+    } else {
+      userId = userMapping.userId
+    }
 
     if (conversationId) {
       const conversation = await req.messaging.getConversationById(conversationId)
@@ -180,7 +196,7 @@ export default async (bp: typeof sdk, db: Database) => {
     bp.http.extractExternalToken,
     assertUserInfo(),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
-      const { botId, userId } = req
+      const { botId, userId, visitorId } = req
       let { conversationId } = req
 
       const user = await bp.users.getOrCreateUser('web', userId, botId)
@@ -213,6 +229,7 @@ export default async (bp: typeof sdk, db: Database) => {
         req.messaging,
         botId,
         userId,
+        visitorId,
         conversationId,
         payload,
         req.credentials,
@@ -230,7 +247,7 @@ export default async (bp: typeof sdk, db: Database) => {
     bp.http.extractExternalToken,
     assertUserInfo({ convoIdRequired: true }),
     asyncMiddleware(async (req: ChatRequest & any, res: Response) => {
-      const { botId, userId, conversationId } = req
+      const { botId, userId, visitorId, conversationId } = req
 
       await bp.users.getOrCreateUser('web', userId, botId) // Just to create the user if it doesn't exist
 
@@ -245,7 +262,7 @@ export default async (bp: typeof sdk, db: Database) => {
         size: req.file.size
       }
 
-      await sendNewMessage(req.messaging, botId, userId, conversationId, payload, req.credentials)
+      await sendNewMessage(req.messaging, botId, userId, visitorId, conversationId, payload, req.credentials)
 
       return res.sendStatus(200)
     })
@@ -256,7 +273,7 @@ export default async (bp: typeof sdk, db: Database) => {
     bp.http.extractExternalToken,
     assertUserInfo({ convoIdRequired: true }),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
-      const { botId, userId, conversationId } = req
+      const { botId, userId, visitorId, conversationId } = req
       const { audio } = req.body
 
       if (!audio?.buffer || !audio?.title) {
@@ -285,7 +302,7 @@ export default async (bp: typeof sdk, db: Database) => {
         audio: url
       }
 
-      await sendNewMessage(req.messaging, botId, userId, conversationId, payload, req.credentials)
+      await sendNewMessage(req.messaging, botId, userId, visitorId, conversationId, payload, req.credentials)
 
       return res.sendStatus(200)
     })
@@ -328,6 +345,7 @@ export default async (bp: typeof sdk, db: Database) => {
     messaging: MessagingClient,
     botId: string,
     userId: string,
+    visitorId: string,
     conversationId: string,
     payload: any,
     credentials: any,
@@ -369,7 +387,7 @@ export default async (bp: typeof sdk, db: Database) => {
     }
 
     const message = await messaging.createMessage(conversationId, userId, sanitizedPayload)
-    bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
+    bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(visitorId, 'webchat.message', message))
 
     await bp.events.sendEvent(event)
   }
@@ -444,7 +462,7 @@ export default async (bp: typeof sdk, db: Database) => {
     bp.http.extractExternalToken,
     assertUserInfo({ convoIdRequired: true }),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
-      const { botId, userId, conversationId } = req
+      const { botId, userId, visitorId, conversationId } = req
       await bp.users.getOrCreateUser('web', userId, botId)
 
       const payload = {
@@ -452,7 +470,7 @@ export default async (bp: typeof sdk, db: Database) => {
         type: 'session_reset'
       }
 
-      await sendNewMessage(req.messaging, botId, userId, conversationId, payload, req.credentials)
+      await sendNewMessage(req.messaging, botId, userId, visitorId, conversationId, payload, req.credentials)
 
       const sessionId = bp.dialog.createId({
         botId,
@@ -617,9 +635,9 @@ export default async (bp: typeof sdk, db: Database) => {
     '/conversations/messages/delete',
     assertUserInfo({ convoIdRequired: true }),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
-      const { userId, conversationId } = req
+      const { visitorId, conversationId } = req
 
-      bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.clear', { conversationId }))
+      bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(visitorId, 'webchat.clear', { conversationId }))
 
       await req.messaging.deleteMessages(conversationId)
 
@@ -645,7 +663,8 @@ export default async (bp: typeof sdk, db: Database) => {
         res.status(400).send(ERR_BAD_CONV_ID)
       }
 
-      bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.clear', { conversationId }))
+      const { visitorId } = await db.getMappingFromUser(userId)
+      bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(visitorId, 'webchat.clear', { conversationId }))
 
       await req.messaging.deleteMessages(conversationId)
       res.sendStatus(204)

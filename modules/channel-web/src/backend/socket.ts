@@ -22,6 +22,7 @@ export default async (bp: typeof sdk, db: Database) => {
     const messaging = await db.getMessagingClient(event.botId)
     const messageType = event.type === 'default' ? 'text' : event.type
     const userId = event.target
+    const { visitorId } = await db.getMappingFromUser(userId)
     const conversationId = event.threadId || (await messaging.getMostRecentConversationForUser(userId)).id
 
     if (!event.payload.type) {
@@ -29,16 +30,16 @@ export default async (bp: typeof sdk, db: Database) => {
     }
 
     if (messageType === 'data') {
-      const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.data', event.payload)
+      const payload = bp.RealTimePayload.forVisitor(visitorId, 'webchat.data', event.payload)
       bp.realtime.sendPayload(payload)
     } else {
       const typing = parseTyping(event.payload.value)
-      const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.typing', { timeInMs: typing, conversationId })
+      const payload = bp.RealTimePayload.forVisitor(visitorId, 'webchat.typing', { timeInMs: typing, conversationId })
       // Don't store "typing" in DB
       bp.realtime.sendPayload(payload)
 
       const message = await messaging.createMessage(conversationId, undefined, event.payload)
-      bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
+      bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(visitorId, 'webchat.message', message))
     }
 
     next(undefined, false)
