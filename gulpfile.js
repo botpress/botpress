@@ -69,6 +69,7 @@ gulp.task('watch:ui', ui.watchAll)
 gulp.task('watch:shared', ui.watchShared)
 gulp.task('watch:modules', modules.watchModules)
 
+gulp.task('clean', core.cleanup)
 gulp.task('clean:node', cb => rimraf('**/node_modules/**', cb))
 gulp.task('clean:out', cb => rimraf('packages/bp/dist', cb))
 gulp.task('clean:data', cb => rimraf('packages/bp/dist/data', cb))

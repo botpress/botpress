@@ -9,7 +9,9 @@ const buildJsonSchemas = require('./jsonschemas')
 const fs = require('fs')
 const mkdirp = require('mkdirp')
 const { exec, spawn } = require('child_process')
-const rimraf = require('gulp-rimraf')
+const gulpRimraf = require('gulp-rimraf')
+const rimraf = require('rimraf')
+require('bluebird-global')
 
 const maybeFetchPro = () => {
   const isProBuild = process.env.EDITION === 'pro' || fs.existsSync('pro')
@@ -31,7 +33,7 @@ const writeMetadata = () => {
 }
 
 const clearMigrations = () => {
-  return gulp.src('./packages/bp/dist/migrations/*.*', { allowEmpty: true }).pipe(rimraf())
+  return gulp.src('./packages/bp/dist/migrations/*.*', { allowEmpty: true }).pipe(gulpRimraf())
 }
 
 const tsProject = ts.createProject(path.resolve(__dirname, '../packages/bp/tsconfig.json'))
@@ -118,10 +120,19 @@ const build = () => {
   ])
 }
 
+const cleanup = async () => {
+  await Promise.fromCallback(cb => rimraf('packages/bp/archives', cb))
+  await Promise.fromCallback(cb => rimraf('packages/bp/binaries', cb))
+  await Promise.fromCallback(cb => rimraf('**/dist/**', cb))
+  await Promise.fromCallback(cb => rimraf('out', cb))
+  await Promise.fromCallback(cb => rimraf('**/node_modules/**', cb))
+}
+
 module.exports = {
   build,
   watch,
   checkTranslations,
   buildDownloader,
-  initDownloader
+  initDownloader,
+  cleanup
 }
