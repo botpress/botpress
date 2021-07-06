@@ -140,21 +140,22 @@ class CollaboratorsRouter extends CustomAdminRouter {
     router.post(
       '/agent/create',
       this.assertBotpressPro,
-      this.needPermissions('write', this.resource),
+      this.needPermissions('write', 'module.hitlnext.supervisor'),
       this.asyncMiddleware(async (req, res) => {
         validateBodySchema(
           req,
           Joi.object().keys({
             email: Joi.string()
               .trim()
-              .required(),
-            role: Joi.string().required(),
-            strategy: Joi.string().required()
+              .required()
           })
         )
 
-        const { email, strategy, role } = req.body
-        const alreadyExists = await this.authService.findUser(email, strategy)
+        const { email } = req.body
+        const strategy = 'Default'
+        const role = 'Agent'
+
+        const alreadyExists = await this.authService.findUser(email, 'Default')
 
         if (alreadyExists) {
           throw new ConflictError(`User "${email}" is already taken`)

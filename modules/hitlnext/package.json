@@ -25,6 +25,7 @@
     "lodash": ">=4.17",
     "lru-cache": "^6.0.0",
     "moment": "^2.24",
+    "react-bootstrap": "^1.6.1",
     "react-initial": "^1.0.12",
     "serialize-javascript": "^5.0.1",
     "yn": "^4.0.0"

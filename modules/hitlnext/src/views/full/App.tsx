@@ -9,11 +9,12 @@ import { castHandoff, makeClient } from '../client'
 
 import { WEBSOCKET_TOPIC } from './../../constants'
 import AgentList from './app/components/AgentList'
-import AgentStatus from './app/components/AgentStatus'
-import ConversationContainer from './app/components/ConversationContainer'
 import EmptyConversation from './app/components/EmptyConversation'
 import HandoffList from './app/components/HandoffList'
 import SupervisorMenu from './app/components/SupervisorMenu'
+import AgentStatus from './app/components/AgentStatus'
+import ConversationContainer from './app/components/ConversationContainer'
+import CreateAgentModal from './app/components/CreateAgentModal'
 import { Context, Store } from './app/Store'
 import style from './style.scss'
 
@@ -27,6 +28,7 @@ const App: FC<Props> = ({ bp }) => {
   const { state, dispatch } = useContext(Context)
 
   const [loading, setLoading] = useState(true)
+  const [showCreateAgent, setShowCreateAgent] = useState(true)
 
   const handoffCreatedNotification = _.debounce(async () => {
     if (document.visibilityState === 'hidden') {
@@ -147,7 +149,7 @@ const App: FC<Props> = ({ bp }) => {
     <div className={style.app}>
       <div className={style.mainNav}>
         <AgentList loading={loading} agents={state.agents} />
-        <SupervisorMenu setOnline={setOnline} loading={loading} {...state.currentAgent} />
+        <SupervisorMenu bp={bp} />
         <AgentStatus setOnline={setOnline} loading={loading} {...state.currentAgent} />
       </div>
 

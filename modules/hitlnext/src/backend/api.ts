@@ -100,6 +100,14 @@ export default async (bp: typeof sdk, state: StateType) => {
   )
 
   router.post(
+    '/agents/create',
+    errorMiddleware(async (req: RequestWithUser, res: Response) => {
+      console.log('Hello')
+      return res.sendStatus(201)
+    })
+  )
+
+  router.post(
     '/agents/me/online',
     errorMiddleware(async (req: RequestWithUser, res: Response) => {
       const { email, strategy } = req.tokenUser!
