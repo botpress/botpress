@@ -158,7 +158,7 @@
       "botpress",
       "botpress2"
     ],
-    "enabled": false,
+    "enabled": true,
     "licenseKey": "",
     "monitoring": {
       "enabled": false,
@@ -174,7 +174,7 @@
       "rules": []
     },
     "externalAuth": {
-      "enabled": false,
+      "enabled": true,
       "algorithms": [
         "HS256"
       ],
