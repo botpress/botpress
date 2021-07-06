@@ -33,7 +33,7 @@ jobs:
           node-version: '12.13.0'
       - name: Fetch Node Packages
         run: |
-          yarn add @actions/core @actions/github aws-sdk
+          yarn add -W @actions/core @actions/github aws-sdk
       - name: Build core, UI and modules
         run: |
           NODE_OPTIONS="--max-old-space-size=6000" yarn build
