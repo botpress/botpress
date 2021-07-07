@@ -273,7 +273,10 @@ export type LicensingStatus = {
   license?: LicenseInfo
 } & LicenseStatus
 
-/** Copied from studio */
+/**
+ * Copied from studio
+ * TODO: Move to a shared package to avoid duplicate
+ */
 
 type QnaAction = 'text' | 'redirect' | 'text_redirect'
 
