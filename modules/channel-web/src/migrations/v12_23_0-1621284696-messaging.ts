@@ -25,7 +25,9 @@ const migration: sdk.ModuleMigration = {
     } else {
       const migrator = new MessagingPostgresUpMigrator(bp)
       await migrator.migrate()
-      await migrator.cleanup()
+      // await migrator.cleanup()
+
+      // throw new Error('stopp')
     }
 
     return { success: true, message: 'Tables migrated successfully' }
@@ -149,6 +151,17 @@ class MessagingUpMigrator {
         name: bot.id,
         sandbox: false
       }
+
+      // In the odd case that a provider of that name already exists, we change its name to a random value to avoid crashing.
+      // We can't delete it because there might be foreign keys pointing to it.
+      const rows = await this.bp.database('msg_providers').where({ name: bot.id })
+      if (rows?.length) {
+        await this.bp
+          .database('msg_providers')
+          .where({ name: bot.id })
+          .update({ name: `MIG_CONFLICT_${crypto.randomBytes(66).toString('base64')}` })
+      }
+
       await this.bp.database('msg_providers').insert(provider)
 
       const token = crypto.randomBytes(66).toString('base64')
@@ -359,6 +372,56 @@ class MessagingPostgresUpMigrator extends MessagingUpMigrator {
       "temp_visitor_ids"."visitorId",
       "temp_visitor_ids"."userId"
     FROM "temp_visitor_ids"`)
+
+    await this.bp.database.schema.dropTableIfExists('temp_new_convo_ids')
+    await this.bp.database.schema.createTable('temp_new_convo_ids', table => {
+      table.integer('oldId').unique()
+      table.uuid('newId').unique()
+    })
+
+    await this.bp.database.raw(`
+    INSERT INTO "temp_new_convo_ids" (
+      "oldId",
+      "newId")
+    SELECT
+      "web_conversations"."id",
+      gen_random_uuid()
+    FROM "web_conversations"`)
+
+    await this.bp.database.raw(`
+    INSERT INTO "msg_conversations" (
+      "id",
+      "clientId",
+      "userId",
+      "createdOn")
+    SELECT "temp_new_convo_ids"."newId",
+      "temp_client_ids"."clientId",
+      "temp_visitor_ids"."userId",
+      "web_conversations"."created_on"
+    FROM "web_conversations"
+    INNER JOIN "temp_new_convo_ids" ON "web_conversations"."id" = "temp_new_convo_ids"."oldId"
+    INNER JOIN "temp_visitor_ids" ON "web_conversations"."userId" = "temp_visitor_ids"."visitorId"
+    INNER JOIN "temp_client_ids" ON "web_conversations"."botId" = "temp_client_ids"."botId"`)
+
+    await this.bp.database.raw(`
+    INSERT INTO "msg_messages" (
+      "id",
+      "conversationId",
+      "authorId",
+      "sentOn",
+      "payload")
+    SELECT gen_random_uuid(),
+      "temp_new_convo_ids"."newId",
+      "temp_visitor_ids"."userId",
+      "web_messages"."sent_on",
+      "web_messages"."payload"
+    FROM "web_messages"
+    INNER JOIN "temp_new_convo_ids" ON "web_messages"."conversationId" = "temp_new_convo_ids"."oldId"
+    LEFT JOIN "temp_visitor_ids" ON "web_messages"."userId" = "temp_visitor_ids"."visitorId"`)
+
+    await this.bp.database.schema.dropTable('temp_client_ids')
+    await this.bp.database.schema.dropTable('temp_visitor_ids')
+    await this.bp.database.schema.dropTable('temp_new_convo_ids')
   }
 
   async onClientCreated(botId: string, clientId: string) {
