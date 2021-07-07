@@ -57,7 +57,7 @@ class MessagingUpMigrator {
     await this.bp.database.schema.dropTable('web_conversations')
   }
 
-  async createTables() {
+  protected async createTables() {
     // We delete these tables in case the migration crashed halfway.
     await this.bp.database.schema.dropTableIfExists('web_user_map')
     await this.bp.database.schema.dropTableIfExists('msg_messages')
@@ -143,7 +143,7 @@ class MessagingUpMigrator {
     })
   }
 
-  async createClients() {
+  protected async createClients() {
     const bots = await this.bp.bots.getAllBots()
 
     for (const bot of bots.values()) {
@@ -171,7 +171,7 @@ class MessagingUpMigrator {
     }
   }
 
-  async onClientCreated(botId: string, clientId: string) {}
+  protected async onClientCreated(botId: string, clientId: string) {}
 }
 
 class MessagingSqliteUpMigrator extends MessagingUpMigrator {
@@ -199,7 +199,7 @@ class MessagingSqliteUpMigrator extends MessagingUpMigrator {
     }
   }
 
-  async onClientCreated(botId: string, clientId: string) {
+  protected async onClientCreated(botId: string, clientId: string) {
     this.clientIds[botId] = clientId
   }
 
@@ -304,24 +304,26 @@ class MessagingSqliteUpMigrator extends MessagingUpMigrator {
 
 class MessagingPostgresUpMigrator extends MessagingUpMigrator {
   async migrate() {
-    await this.bp.database.schema.dropTableIfExists('temp_client_ids')
-    await this.bp.database.createTableIfNotExists('temp_client_ids', table => {
-      table.uuid('clientId').unique()
-      table.string('botId').unique()
-    })
-
-    await super.migrate()
-
     // extension needed for gen_random_uuid()
     await this.bp.database.raw('CREATE EXTENSION IF NOT EXISTS pgcrypto;')
 
-    await this.bp.database.schema.dropTableIfExists('temp_visitor_ids')
-    await this.bp.database.createTableIfNotExists('temp_visitor_ids', table => {
-      table.uuid('userId').unique()
-      table.string('visitorId').unique()
-      table.string('botId').index()
-    })
+    await super.migrate()
+    await this.createTemporaryTables()
 
+    await this.collectVisitorIds()
+    await this.createUsers()
+    await this.migrateConversations()
+    await this.migrateMessages()
+
+    await this.cleanupTemporaryTables()
+    await this.bp.database.raw('DROP EXTENSION pgcrypto;')
+  }
+
+  protected async onClientCreated(botId: string, clientId: string) {
+    await this.bp.database('temp_client_ids').insert({ botId, clientId })
+  }
+
+  private async collectVisitorIds() {
     await this.bp.database.raw(`
     INSERT INTO "temp_visitor_ids" (
       "userId", "visitorId", "botId")
@@ -346,7 +348,9 @@ class MessagingPostgresUpMigrator extends MessagingUpMigrator {
     WHERE "web_messages"."userId" IS NOT NULL
     ON CONFLICT ON CONSTRAINT temp_visitor_ids_visitorid_unique 
     DO NOTHING;`)
+  }
 
+  private async createUsers() {
     await this.bp.database.raw(`
     INSERT INTO "msg_users" (
       "id", "clientId")
@@ -363,13 +367,9 @@ class MessagingPostgresUpMigrator extends MessagingUpMigrator {
       "temp_visitor_ids"."visitorId",
       "temp_visitor_ids"."userId"
     FROM "temp_visitor_ids"`)
+  }
 
-    await this.bp.database.schema.dropTableIfExists('temp_new_convo_ids')
-    await this.bp.database.schema.createTable('temp_new_convo_ids', table => {
-      table.integer('oldId').unique()
-      table.uuid('newId').unique()
-    })
-
+  private async migrateConversations() {
     await this.bp.database.raw(`
     INSERT INTO "temp_new_convo_ids" (
       "oldId",
@@ -393,7 +393,9 @@ class MessagingPostgresUpMigrator extends MessagingUpMigrator {
     INNER JOIN "temp_new_convo_ids" ON "web_conversations"."id" = "temp_new_convo_ids"."oldId"
     INNER JOIN "temp_visitor_ids" ON "web_conversations"."userId" = "temp_visitor_ids"."visitorId"
     INNER JOIN "temp_client_ids" ON "web_conversations"."botId" = "temp_client_ids"."botId"`)
+  }
 
+  private async migrateMessages() {
     await this.bp.database.raw(`
     INSERT INTO "msg_messages" (
       "id",
@@ -409,14 +411,33 @@ class MessagingPostgresUpMigrator extends MessagingUpMigrator {
     FROM "web_messages"
     INNER JOIN "temp_new_convo_ids" ON "web_messages"."conversationId" = "temp_new_convo_ids"."oldId"
     LEFT JOIN "temp_visitor_ids" ON "web_messages"."userId" = "temp_visitor_ids"."visitorId"`)
+  }
 
+  private async createTemporaryTables() {
+    await this.bp.database.schema.dropTableIfExists('temp_client_ids')
+    await this.bp.database.createTableIfNotExists('temp_client_ids', table => {
+      table.uuid('clientId').unique()
+      table.string('botId').unique()
+    })
+
+    await this.bp.database.schema.dropTableIfExists('temp_visitor_ids')
+    await this.bp.database.createTableIfNotExists('temp_visitor_ids', table => {
+      table.uuid('userId').unique()
+      table.string('visitorId').unique()
+      table.string('botId').index()
+    })
+
+    await this.bp.database.schema.dropTableIfExists('temp_new_convo_ids')
+    await this.bp.database.schema.createTable('temp_new_convo_ids', table => {
+      table.integer('oldId').unique()
+      table.uuid('newId').unique()
+    })
+  }
+
+  private async cleanupTemporaryTables() {
     await this.bp.database.schema.dropTable('temp_client_ids')
     await this.bp.database.schema.dropTable('temp_visitor_ids')
     await this.bp.database.schema.dropTable('temp_new_convo_ids')
-  }
-
-  async onClientCreated(botId: string, clientId: string) {
-    await this.bp.database('temp_client_ids').insert({ botId, clientId })
   }
 }
 
