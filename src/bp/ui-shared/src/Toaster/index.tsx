@@ -50,7 +50,14 @@ const warningOptions = {
   key: 'warning'
 }
 
-const selectToaster = (options?: IToasterProps) => (options ? Toaster.create(options) : defaultToaster)
+function selectToaster(options?: IToasterProps) {
+  if (options) {
+    options.className = style.toaster
+    return Toaster.create(options)
+  } else {
+    return defaultToaster
+  }
+}
 
 const dismiss = (key: string, options?: IToasterProps) => {
   if (!toastKeys[key]) {
