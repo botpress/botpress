@@ -304,11 +304,8 @@ class MessagingSqliteUpMigrator extends MessagingUpMigrator {
 
 class MessagingPostgresUpMigrator extends MessagingUpMigrator {
   async migrate() {
-    // extension needed for gen_random_uuid()
-    await this.bp.database.raw('CREATE EXTENSION IF NOT EXISTS pgcrypto;')
-
-    await super.migrate()
     await this.createTemporaryTables()
+    await super.migrate()
 
     await this.collectVisitorIds()
     await this.createUsers()
@@ -316,7 +313,6 @@ class MessagingPostgresUpMigrator extends MessagingUpMigrator {
     await this.migrateMessages()
 
     await this.cleanupTemporaryTables()
-    await this.bp.database.raw('DROP EXTENSION pgcrypto;')
   }
 
   protected async onClientCreated(botId: string, clientId: string) {
@@ -414,6 +410,9 @@ class MessagingPostgresUpMigrator extends MessagingUpMigrator {
   }
 
   private async createTemporaryTables() {
+    // extension needed for gen_random_uuid()
+    await this.bp.database.raw('CREATE EXTENSION IF NOT EXISTS pgcrypto;')
+
     await this.bp.database.schema.dropTableIfExists('temp_client_ids')
     await this.bp.database.createTableIfNotExists('temp_client_ids', table => {
       table.uuid('clientId').unique()
@@ -438,6 +437,8 @@ class MessagingPostgresUpMigrator extends MessagingUpMigrator {
     await this.bp.database.schema.dropTable('temp_client_ids')
     await this.bp.database.schema.dropTable('temp_visitor_ids')
     await this.bp.database.schema.dropTable('temp_new_convo_ids')
+
+    await this.bp.database.raw('DROP EXTENSION pgcrypto;')
   }
 }
 
