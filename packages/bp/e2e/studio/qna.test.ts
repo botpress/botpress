@@ -1,7 +1,14 @@
 import path from 'path'
 
 import { clickOn, expectMatch, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
-import { CONFIRM_DIALOG, expectBotApiCallSuccess, getElementCenter, gotoStudio, waitForBotApiResponse } from '../utils'
+import {
+  CONFIRM_DIALOG,
+  expectBotApiCallSuccess,
+  expectStudioApiCallSuccess,
+  getElementCenter,
+  gotoStudio,
+  waitForBotApiResponse
+} from '../utils'
 
 const getQnaCount = async (): Promise<number> => (await page.$$('div[role="entry"]')).length
 
@@ -14,14 +21,14 @@ describe('Module - QNA', () => {
 
   it('Load questions', async () => {
     await clickOn('#bp-menu_qna')
-    await expectBotApiCallSuccess('mod/qna/questions')
+    await expectStudioApiCallSuccess('qna/questions')
   })
 
   it('Filter by category', async () => {
     await fillField('#select-context', 'monkeys')
 
     await Promise.all([
-      expectBotApiCallSuccess('mod/qna/questions?question=&filteredContexts[]=monkeys', 'GET'),
+      expectStudioApiCallSuccess('qna/questions?question=&filteredContexts[]=monkeys', 'GET'),
       page.keyboard.press('Enter')
     ])
 
@@ -38,14 +45,14 @@ describe('Module - QNA', () => {
     await page.keyboard.type('I sure am!')
     await page.keyboard.press('Enter')
     await clickOn('#btn-submit')
-    await expectBotApiCallSuccess('mod/qna/questions', 'POST')
-    await expectBotApiCallSuccess('mod/qna/questions', 'GET')
+    await expectStudioApiCallSuccess('qna/questions', 'POST')
+    await expectStudioApiCallSuccess('qna/questions', 'GET')
   })
 
   it('Filter by name', async () => {
     await page.waitFor(300) // Required because the create action clears the filter after it loads new qna
     await Promise.all([
-      expectBotApiCallSuccess('mod/qna/questions', 'GET'),
+      expectStudioApiCallSuccess('qna/questions', 'GET'),
       fillField('#input-search', 'are you working')
     ])
     expect(await getQnaCount()).toBe(1)
@@ -59,12 +66,12 @@ describe('Module - QNA', () => {
 
     await clickOn('.bp3-icon-trash')
     await clickOn(CONFIRM_DIALOG.ACCEPT)
-    await expectBotApiCallSuccess('mod/qna/questions', 'POST')
+    await expectStudioApiCallSuccess('qna/questions', 'POST')
   })
 
   it('Export to JSON', async () => {
     await clickOn('#btn-export')
-    const response = await waitForBotApiResponse('mod/qna/export')
+    const response = await waitForBotApiResponse('qna/export')
     expect(response).toBeDefined()
     expect(response.qnas.length).toBeGreaterThan(0)
   })
@@ -73,12 +80,12 @@ describe('Module - QNA', () => {
     await clickOn('#btn-importJson')
     await uploadFile('input[type="file"]', path.join(__dirname, '../assets/qna_22-08-2019.json'))
     await clickOn('#btn-next')
-    await expectBotApiCallSuccess('mod/qna/analyzeImport', 'POST')
+    await expectStudioApiCallSuccess('qna/analyzeImport', 'POST')
 
     await clickOn('#radio-clearInsert')
     await clickOn('#btn-submit')
-    await expectBotApiCallSuccess('mod/qna/import', 'POST')
-    await expectBotApiCallSuccess('mod/qna/questions', 'GET')
+    await expectStudioApiCallSuccess('qna/import', 'POST')
+    await expectStudioApiCallSuccess('qna/questions', 'GET')
     await page.focus('body') // Sets back the focus to the page when the modal is closed
     await page.waitFor(300)
   })
