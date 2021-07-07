@@ -25,9 +25,7 @@ const migration: sdk.ModuleMigration = {
     } else {
       const migrator = new MessagingPostgresUpMigrator(bp)
       await migrator.migrate()
-      // await migrator.cleanup()
-
-      // throw new Error('stopp')
+      await migrator.cleanup()
     }
 
     return { success: true, message: 'Tables migrated successfully' }
@@ -60,9 +58,7 @@ class MessagingUpMigrator {
   }
 
   async createTables() {
-    // We need to create the messaging tables here because the messaging
-    // server isn't started before we run the migrations
-
+    // We delete these tables in case the migration crashed halfway.
     await this.bp.database.schema.dropTableIfExists('msg_messages')
     await this.bp.database.schema.dropTableIfExists('msg_conversations')
     await this.bp.database.schema.dropTableIfExists('msg_users')
@@ -70,10 +66,8 @@ class MessagingUpMigrator {
     await this.bp.database.schema.dropTableIfExists('msg_providers')
     await this.bp.database.schema.dropTableIfExists('web_user_map')
 
-    await this.bp.database.createTableIfNotExists('web_user_map', table => {
-      table.string('visitorId').primary()
-      table.uuid('userId').unique()
-    })
+    // We need to create the messaging tables here because the messaging
+    // server isn't started before we run the migrations
 
     await this.bp.database.createTableIfNotExists('msg_providers', table => {
       table.uuid('id').primary()
@@ -150,16 +144,6 @@ class MessagingUpMigrator {
         id: uuid.v4(),
         name: bot.id,
         sandbox: false
-      }
-
-      // In the odd case that a provider of that name already exists, we change its name to a random value to avoid crashing.
-      // We can't delete it because there might be foreign keys pointing to it.
-      const rows = await this.bp.database('msg_providers').where({ name: bot.id })
-      if (rows?.length) {
-        await this.bp
-          .database('msg_providers')
-          .where({ name: bot.id })
-          .update({ name: `MIG_CONFLICT_${crypto.randomBytes(66).toString('base64')}` })
       }
 
       await this.bp.database('msg_providers').insert(provider)
