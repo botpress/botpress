@@ -10,12 +10,12 @@ describe('Auth UI', () => {
   let jwt: string
   let default_content: string
 
-  const sleep = (milliseconds) => {
-    const date = Date.now();
-    let currentDate = null;
+  const sleep = milliseconds => {
+    const date = Date.now()
+    let currentDate = null
     do {
-      currentDate = Date.now();
-    } while (currentDate - date < milliseconds);
+      currentDate = Date.now()
+    } while (currentDate - date < milliseconds)
   }
 
   const data = content => {
@@ -38,7 +38,7 @@ describe('Auth UI', () => {
   }
 
   it('Load Login page', async () => {
-    expect(page.url().includes('login') || page.url().includes('register')).toBeTruthy()
+    await expect(page.url().includes('login') || page.url().includes('register')).toBeTruthy()
   })
 
   it('Enter credentials and submit', async () => {
@@ -73,32 +73,32 @@ describe('Auth UI', () => {
       },
       headers
     )
-    await page.goto('https://google.com', {waitUntil: 'domcontentloaded'}) // to avoid frontend errors during server reboot
-    expect(resp1.status).toEqual(200)
+    await page.goto('https://google.com', { waitUntil: 'domcontentloaded' }) // to avoid frontend errors during server reboot
+    await expect(resp1.status).toEqual(200)
     default_content = resp1.data.fileContent
     const resp2 = await axios.post(`${bpConfig.apiHost}/api/v1/bots/___/mod/code-editor/save`, data(content), headers)
-    expect(resp2.status).toEqual(200)
+    await expect(resp2.status).toEqual(200)
     const resp3 = await axios.post(`${bpConfig.apiHost}/api/v2/admin/management/rebootServer`, { data: {} }, headers)
-    expect(resp3.status).toEqual(200) // reboot is required after adding auth strategies
-    sleep(8000) // wait while server is rebooting
-    await page.goto(`${bpConfig.host}/admin/workspace/default/bots`)
+    await expect(resp3.status).toEqual(200) // reboot is required after adding auth strategies
+    sleep(25000) // wait while server is rebooting
   })
 
   it('Log out', async () => {
+    await page.goto(`${bpConfig.host}/admin/workspace/default/bots`, { waitUntil: 'domcontentloaded' })
     await clickOn('#btn-menu')
     await clickOn('#btn-logout')
     await getResponse('/api/v2/admin/auth/logout', 'POST')
   })
 
   it('Open login page', async () => {
-    await page.goto(`${bpConfig.host}/admin/login/`, {waitUntil: 'domcontentloaded'});
-    expect(page.url().includes('login')).toBeTruthy()
+    await page.goto(`${bpConfig.host}/admin/login/`, { waitUntil: 'domcontentloaded' })
+    await expect(page.url().includes('login')).toBeTruthy()
   })
 
   it('Preview non-hidden auth strategies', async () => {
-    expect((await page.$('#btn-signin')) == null).toBeTruthy()
-    expect((await page.$('#btn-botpress')) !== null).toBeTruthy()
-    expect((await page.$('#btn-botpress2')) == null).toBeTruthy()
+    await expect((await page.$('#btn-default')) !== null).toBeTruthy()
+    await expect((await page.$('#btn-botpress')) !== null).toBeTruthy()
+    await expect((await page.$('#btn-botpress2')) == null).toBeTruthy()
   })
 
   it('Revert config', async () => {
@@ -118,7 +118,7 @@ describe('Auth UI', () => {
       data(default_content),
       headers
     )
-    expect(resp.status).toEqual(200)
+    await expect(resp.status).toEqual(200)
     await clickOn('#btn-menu')
     await clickOn('#btn-logout')
     await getResponse('/api/v2/admin/auth/logout', 'POST')
