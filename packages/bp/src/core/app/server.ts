@@ -20,6 +20,7 @@ import { AlertingService, MonitoringService } from 'core/health'
 import { LogsRepository } from 'core/logger'
 import { MediaServiceProvider, MediaRouter } from 'core/media'
 import { ModuleLoader, ModulesRouter } from 'core/modules'
+import { QnaService } from 'core/qna'
 import { getSocketTransports, RealtimeService } from 'core/realtime'
 import { InvalidExternalToken, PaymentRequiredError, monitoringMiddleware } from 'core/routers'
 import {
@@ -121,7 +122,8 @@ export class HTTPServer {
     @inject(TYPES.NLUService) nluService: NLUService,
     @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository,
     @inject(TYPES.RealtimeService) private realtime: RealtimeService,
-    @inject(TYPES.ObjectCache) private objectCache: MemoryObjectCache
+    @inject(TYPES.ObjectCache) private objectCache: MemoryObjectCache,
+    @inject(TYPES.QnaService) private qnaService: QnaService
   ) {
     this.app = express()
 
@@ -175,6 +177,7 @@ export class HTTPServer {
       converseService,
       this.logger,
       mediaServiceProvider,
+      qnaService,
       this
     )
     this.sdkApiRouter = new SdkApiRouter(this.logger)
@@ -192,7 +195,8 @@ export class HTTPServer {
       this.logger,
       this.moduleLoader,
       this.realtime,
-      this.objectCache
+      this.objectCache,
+      this
     )
 
     this._needPermissions = needPermissions(this.workspaceService)

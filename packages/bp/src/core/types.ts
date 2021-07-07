@@ -92,7 +92,8 @@ const TYPES = {
   MessageService: Symbol.for('MessageService'),
   ConversationService: Symbol.for('ConversationService'),
   RenderService: Symbol.for('RenderService'),
-  MappingRepository: Symbol.for('MappingRepository')
+  MappingRepository: Symbol.for('MappingRepository'),
+  QnaService: Symbol.for('QnaService')
 }
 
 export { TYPES }

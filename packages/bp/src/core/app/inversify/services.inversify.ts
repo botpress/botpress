@@ -12,6 +12,7 @@ import { KeyValueStore } from 'core/kvs'
 import { LogsJanitor } from 'core/logger'
 import { MediaServiceProvider } from 'core/media'
 import { MessageService, ConversationService } from 'core/messaging'
+import { QnaService } from 'core/qna'
 import { RealtimeService } from 'core/realtime'
 import { AuthService, AuthStrategies, CEAuthStrategies } from 'core/security'
 import { StatsService } from 'core/telemetry'
@@ -134,6 +135,10 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<RenderService>(TYPES.RenderService)
     .to(RenderService)
+    .inSingletonScope()
+
+  bind<QnaService>(TYPES.QnaService)
+    .to(QnaService)
     .inSingletonScope()
 })
 
