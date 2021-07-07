@@ -59,6 +59,7 @@ class MessagingUpMigrator {
 
   async createTables() {
     // We delete these tables in case the migration crashed halfway.
+    await this.bp.database.schema.dropTableIfExists('web_user_map')
     await this.bp.database.schema.dropTableIfExists('msg_messages')
     await this.bp.database.schema.dropTableIfExists('msg_conversations')
     await this.bp.database.schema.dropTableIfExists('msg_users')
@@ -133,6 +134,12 @@ class MessagingUpMigrator {
       table.timestamp('sentOn').notNullable()
       table.jsonb('payload').notNullable()
       table.index(['conversationId', 'sentOn'])
+    })
+
+    // We need to create this here because sometimes the migration is ran before the module is initalized
+    await this.bp.database.createTableIfNotExists('web_user_map', table => {
+      table.string('visitorId').primary()
+      table.uuid('userId').unique()
     })
   }
 
