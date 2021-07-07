@@ -319,7 +319,7 @@ class MessagingPostgresUpMigrator extends MessagingUpMigrator {
     await this.bp.database.createTableIfNotExists('temp_visitor_ids', table => {
       table.uuid('userId').unique()
       table.string('visitorId').unique()
-      table.string('botId')
+      table.string('botId').index()
     })
 
     await this.bp.database.raw(`
