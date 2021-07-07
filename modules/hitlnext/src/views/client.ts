@@ -1,4 +1,5 @@
 import { AxiosInstance } from 'axios'
+import { WorkspaceUserWithAttributes } from 'botpress/sdk'
 import _ from 'lodash'
 
 import { Config } from '../config'
@@ -41,7 +42,8 @@ export function castComment(item: IComment) {
 export interface HitlClient {
   getConfig: () => Promise<Config>
   setOnline: (online: boolean) => Promise<{ online: boolean }>
-  getAgents: (online?: boolean) => Promise<IAgent[]>
+  getAllAgents: (online?: boolean) => Promise<IAgent[]>
+  getAgentsUsers: (online?: boolean) => Promise<WorkspaceUserWithAttributes[]>
   getCurrentAgent: () => Promise<IAgent>
   getComments: (id: string) => Promise<IComment[]>
   createComment: (id: string, payload: Partial<IComment>) => Promise<IComment>
@@ -61,7 +63,8 @@ export const makeClient = (bp: { axios: AxiosInstance }): HitlClient => {
   return {
     getConfig: async () => bp.axios.get('/config', config).then(res => res.data),
     setOnline: async online => bp.axios.post('/agents/me/online', { online }, config).then(res => res.data),
-    getAgents: async () => bp.axios.get('/agents', config).then(res => res.data),
+    getAllAgents: async () => bp.axios.get('/agents', config).then(res => res.data),
+    getAgentsUsers: async () => bp.axios.get('/supervisor/agents', config).then(res => res.data),
     getCurrentAgent: async () => bp.axios.get('/agents/me', config).then(res => res.data),
     getComments: async id =>
       bp.axios

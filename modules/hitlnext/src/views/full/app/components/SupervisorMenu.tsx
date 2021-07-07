@@ -1,19 +1,23 @@
 import { AxiosInstance } from 'axios'
+import { WorkspaceUserWithAttributes } from 'botpress/sdk'
 import { Button, Icon } from '@blueprintjs/core'
 import { lang, MoreOptions } from 'botpress/shared'
 import React, { FC, useState } from 'react'
-
+import _, { Dictionary } from 'lodash'
 import { IAgent } from '../../../../types'
 import style from '../../style.scss'
 import CreateAgentModal from './CreateAgentModal'
+import ManageAgentsModal from './ManageAgentsModal'
 
 interface Props {
   bp: { axios: AxiosInstance; events: any }
+  agents: WorkspaceUserWithAttributes[]
 }
 
-const SupervisorMenu: FC<Props> = ({ bp }) => {
+const SupervisorMenu: FC<Props> = ({ bp, agents }) => {
   const [display, setDisplay] = useState(false)
   const [createAgentModalOpen, setCreateAgentModalOpen] = useState(false)
+  const [manageAgentsModalOpen, setManageAgentsModalOpen] = useState(false)
 
   const optionsItems = [
     {
@@ -23,9 +27,9 @@ const SupervisorMenu: FC<Props> = ({ bp }) => {
       }
     },
     {
-      label: 'Manage agents lol',
+      label: 'Manage agents',
       action: () => {
-        console.log('Hello')
+        setManageAgentsModalOpen(true)
       }
     }
   ]
@@ -36,6 +40,12 @@ const SupervisorMenu: FC<Props> = ({ bp }) => {
         bp={bp}
         isOpen={createAgentModalOpen}
         toggleOpen={() => setCreateAgentModalOpen(!createAgentModalOpen)}
+      />
+      <ManageAgentsModal
+        bp={bp}
+        filteredAgents={agents}
+        isOpen={manageAgentsModalOpen}
+        toggleOpen={() => setManageAgentsModalOpen(!manageAgentsModalOpen)}
       />
       <MoreOptions
         element={

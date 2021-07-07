@@ -14,8 +14,6 @@ interface Props {
 class CreateAgentModal extends Component<Props> {
   state = {
     show: false,
-    role: null,
-    strategy: null,
     selectedUser: null
   }
 
@@ -33,7 +31,12 @@ class CreateAgentModal extends Component<Props> {
 
   render() {
     return (
-      <Dialog.Wrapper title="Create new agent" isOpen={this.props.isOpen} onClose={this.props.toggleOpen}>
+      <Dialog.Wrapper
+        style={{ height: 300 }}
+        title="Create new agent"
+        isOpen={this.props.isOpen}
+        onClose={this.props.toggleOpen}
+      >
         <Dialog.Body>
           <FormGroup label={lang.tr('email')} labelFor="select-email">
             <AsyncSelect

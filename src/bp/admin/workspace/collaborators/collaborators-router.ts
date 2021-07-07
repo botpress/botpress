@@ -140,17 +140,9 @@ class CollaboratorsRouter extends CustomAdminRouter {
     router.post(
       '/agent/create',
       this.assertBotpressPro,
-      this.needPermissions('write', 'module.hitlnext.supervisor'),
+      //this.needPermissions('write', 'module.hitlnext.supervisor'),
       this.asyncMiddleware(async (req, res) => {
-        validateBodySchema(
-          req,
-          Joi.object().keys({
-            email: Joi.string()
-              .trim()
-              .required()
-          })
-        )
-
+        console.log('WHATT ISS UPPPP')
         const { email } = req.body
         const strategy = 'Default'
         const role = 'Agent'

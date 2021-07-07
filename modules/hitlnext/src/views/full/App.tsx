@@ -28,7 +28,6 @@ const App: FC<Props> = ({ bp }) => {
   const { state, dispatch } = useContext(Context)
 
   const [loading, setLoading] = useState(true)
-  const [showCreateAgent, setShowCreateAgent] = useState(true)
 
   const handoffCreatedNotification = _.debounce(async () => {
     if (document.visibilityState === 'hidden') {
@@ -87,10 +86,19 @@ const App: FC<Props> = ({ bp }) => {
     }
   }
 
-  async function getAgents() {
+  async function getAllAgents() {
     try {
-      const agents = await api.getAgents()
+      const agents = await api.getAllAgents()
       dispatch({ type: 'setAgents', payload: agents })
+    } catch (error) {
+      dispatch({ type: 'setError', payload: error })
+    }
+  }
+
+  async function getAgentsUsers() {
+    try {
+      const agentsUsers = await api.getAgentsUsers()
+      dispatch({ type: 'setAgentsUsers', payload: agentsUsers })
     } catch (error) {
       dispatch({ type: 'setError', payload: error })
     }
@@ -127,7 +135,7 @@ const App: FC<Props> = ({ bp }) => {
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    Promise.all([getCurrentAgent(), getAgents(), getHandoffs(), getConfig()]).then(() => {
+    Promise.all([getCurrentAgent(), getAllAgents(), getAgentsUsers(), getHandoffs(), getConfig()]).then(() => {
       setLoading(false)
     })
   }, [])
@@ -149,7 +157,7 @@ const App: FC<Props> = ({ bp }) => {
     <div className={style.app}>
       <div className={style.mainNav}>
         <AgentList loading={loading} agents={state.agents} />
-        <SupervisorMenu bp={bp} />
+        <SupervisorMenu bp={bp} agents={state.agentsUsers} />
         <AgentStatus setOnline={setOnline} loading={loading} {...state.currentAgent} />
       </div>
 

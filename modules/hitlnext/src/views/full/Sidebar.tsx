@@ -53,9 +53,9 @@ const Sidebar: FC<Props> = ({ bp, close }) => {
     }
   }
 
-  async function getAgents() {
+  async function getAllAgents() {
     try {
-      const data = await api.getAgents()
+      const data = await api.getAllAgents()
       dispatch({ type: 'setAgents', payload: data.filter(a => a.online) })
     } catch (error) {
       dispatch({ type: 'setError', payload: error })
@@ -64,7 +64,7 @@ const Sidebar: FC<Props> = ({ bp, close }) => {
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    Promise.all([getHandoffs(), getAgents()]).then(() => {
+    Promise.all([getHandoffs(), getAllAgents()]).then(() => {
       setLoading(false)
     })
   }, [])

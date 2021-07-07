@@ -94,7 +94,14 @@ export default async (bp: typeof sdk, state: StateType) => {
           }
         })
       })
+      res.send(agents)
+    })
+  )
 
+  router.get(
+    '/supervisor/agents',
+    errorMiddleware(async (req: RequestWithUser, res: Response) => {
+      const agents = await repository.listAgents(req.workspace).then(agents => agents.filter(a => a.role === 'agent'))
       res.send(agents)
     })
   )
@@ -102,7 +109,14 @@ export default async (bp: typeof sdk, state: StateType) => {
   router.post(
     '/agents/create',
     errorMiddleware(async (req: RequestWithUser, res: Response) => {
-      console.log('Hello')
+      const { botId } = req.params
+      const { agentEmail } = req.body
+
+      const axioxconfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
+      axioxconfig.baseURL = 'http://localhost:3000/api/v2/admin'
+
+      const { data } = await Axios.post('/workspace/collaborators/agents/create', { email: agentEmail }, axioxconfig)
+      console.log('DATA: ', 'LOL')
       return res.sendStatus(201)
     })
   )

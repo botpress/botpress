@@ -1,4 +1,6 @@
 import produce from 'immer'
+import { WorkspaceUserWithAttributes } from 'botpress/sdk'
+
 import _, { Dictionary } from 'lodash'
 
 import { Config } from '../../../config'
@@ -10,6 +12,7 @@ export type ActionType =
   | { type: 'setCurrentAgent'; payload: Partial<IAgent> }
   | { type: 'setSelectedHandoffId'; payload: string }
   | { type: 'setAgents'; payload: IAgent[] }
+  | { type: 'setAgentsUsers'; payload: WorkspaceUserWithAttributes[] }
   | { type: 'setHandoffs'; payload: IHandoff[] }
   | { type: 'setAgent'; payload: ISocketMessage }
   | { type: 'setHandoff'; payload: ISocketMessage }
@@ -31,6 +34,10 @@ const Reducer = (state: IState, action: ActionType): IState => {
     case 'setAgents':
       return produce(state, draft => {
         draft.agents = _.keyBy(action.payload, 'agentId')
+      })
+    case 'setAgentsUsers':
+      return produce(state, draft => {
+        draft.agentsUsers = action.payload
       })
     case 'setHandoffs':
       return produce(state, draft => {

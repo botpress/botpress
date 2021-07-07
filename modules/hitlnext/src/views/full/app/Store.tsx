@@ -1,3 +1,4 @@
+import { WorkspaceUserWithAttributes } from 'botpress/sdk'
 import { Dictionary } from 'lodash'
 import React, { createContext, Dispatch, useEffect, useReducer } from 'react'
 
@@ -22,6 +23,7 @@ export interface IState {
   readonly currentAgent?: AgentWithPermissions
   readonly selectedHandoffId: string | null
   readonly agents: Dictionary<IAgent>
+  readonly agentsUsers: WorkspaceUserWithAttributes[]
   readonly handoffs: Dictionary<IHandoff>
   readonly reads: Dictionary<Date>
   readonly config?: Config
@@ -35,6 +37,7 @@ const initialState: IState = {
   currentAgent: null,
   selectedHandoffId: null,
   agents: {},
+  agentsUsers: [],
   handoffs: {},
   reads: Storage.get('reads', {}),
   config: null,
