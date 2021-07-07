@@ -23,6 +23,9 @@ const migration: sdk.ModuleMigration = {
       await migrator.migrate()
       await migrator.cleanup()
     } else {
+      const migrator = new MessagingPostgresUpMigrator(bp)
+      await migrator.migrate()
+      await migrator.cleanup()
     }
 
     return { success: true, message: 'Tables migrated successfully' }
@@ -42,8 +45,6 @@ const migration: sdk.ModuleMigration = {
 }
 
 class MessagingUpMigrator {
-  protected clientIds: { [botId: string]: string } = {}
-
   constructor(protected bp: typeof sdk) {}
 
   async migrate() {
@@ -59,6 +60,18 @@ class MessagingUpMigrator {
   async createTables() {
     // We need to create the messaging tables here because the messaging
     // server isn't started before we run the migrations
+
+    await this.bp.database.schema.dropTableIfExists('msg_messages')
+    await this.bp.database.schema.dropTableIfExists('msg_conversations')
+    await this.bp.database.schema.dropTableIfExists('msg_users')
+    await this.bp.database.schema.dropTableIfExists('msg_clients')
+    await this.bp.database.schema.dropTableIfExists('msg_providers')
+    await this.bp.database.schema.dropTableIfExists('web_user_map')
+
+    await this.bp.database.createTableIfNotExists('web_user_map', table => {
+      table.string('visitorId').primary()
+      table.uuid('userId').unique()
+    })
 
     await this.bp.database.createTableIfNotExists('msg_providers', table => {
       table.uuid('id').primary()
@@ -100,7 +113,7 @@ class MessagingUpMigrator {
         .inTable('msg_clients')
         .notNullable()
       table
-        .string('userId')
+        .uuid('userId')
         .references('id')
         .inTable('msg_users')
         .notNullable()
@@ -117,7 +130,7 @@ class MessagingUpMigrator {
         .notNullable()
         .onDelete('cascade')
       table
-        .string('authorId')
+        .uuid('authorId')
         .references('id')
         .inTable('msg_users')
         .nullable()
@@ -146,16 +159,19 @@ class MessagingUpMigrator {
       }
       await this.bp.database('msg_clients').insert(client)
 
-      this.clientIds[bot.id] = client.id
+      await this.onClientCreated(bot.id, client.id)
 
       await this.bp.config.mergeBotConfig(bot.id, {
         messaging: { clientId: client.id, clientToken: token, providerName: provider.name }
       })
     }
   }
+
+  async onClientCreated(botId: string, clientId: string) {}
 }
 
 class MessagingSqliteUpMigrator extends MessagingUpMigrator {
+  protected clientIds: { [botId: string]: string } = {}
   private userBatch = []
   private userMapBatch = []
   private convoBatch = []
@@ -177,6 +193,10 @@ class MessagingSqliteUpMigrator extends MessagingUpMigrator {
       // We migrate 100 conversations at a time
       await this.migrateConvos(convos)
     }
+  }
+
+  async onClientCreated(botId: string, clientId: string) {
+    this.clientIds[botId] = clientId
   }
 
   private async migrateConvos(convos: any[]) {
@@ -275,6 +295,74 @@ class MessagingSqliteUpMigrator extends MessagingUpMigrator {
       await this.bp.database('msg_messages').insert(this.messageBatch)
       this.messageBatch = []
     }
+  }
+}
+
+class MessagingPostgresUpMigrator extends MessagingUpMigrator {
+  async migrate() {
+    await this.bp.database.schema.dropTableIfExists('temp_client_ids')
+    await this.bp.database.createTableIfNotExists('temp_client_ids', table => {
+      table.uuid('clientId').unique()
+      table.string('botId').unique()
+    })
+
+    await super.migrate()
+
+    // extension needed for gen_random_uuid()
+    await this.bp.database.raw('CREATE EXTENSION IF NOT EXISTS pgcrypto;')
+
+    await this.bp.database.schema.dropTableIfExists('temp_visitor_ids')
+    await this.bp.database.createTableIfNotExists('temp_visitor_ids', table => {
+      table.uuid('userId').unique()
+      table.string('visitorId').unique()
+      table.string('botId')
+    })
+
+    await this.bp.database.raw(`
+    INSERT INTO "temp_visitor_ids" (
+      "userId", "visitorId", "botId")
+    SELECT
+      gen_random_uuid(),
+      "web_conversations"."userId",
+      "web_conversations"."botId"
+    FROM "web_conversations"
+    WHERE "web_conversations"."userId" IS NOT NULL
+    ON CONFLICT ON CONSTRAINT temp_visitor_ids_visitorid_unique
+    DO NOTHING;`)
+
+    await this.bp.database.raw(`
+    INSERT INTO "temp_visitor_ids" (
+      "userId", "visitorId", "botId")
+    SELECT
+      gen_random_uuid(),
+      "web_messages"."userId",
+      "web_conversations"."botId"
+    FROM "web_messages"
+    INNER JOIN "web_conversations" ON "web_conversations"."id" = "web_messages"."conversationId"
+    WHERE "web_messages"."userId" IS NOT NULL
+    ON CONFLICT ON CONSTRAINT temp_visitor_ids_visitorid_unique 
+    DO NOTHING;`)
+
+    await this.bp.database.raw(`
+    INSERT INTO "msg_users" (
+      "id", "clientId")
+    SELECT
+      "temp_visitor_ids"."userId",
+      "temp_client_ids"."clientId"
+    FROM "temp_visitor_ids"
+    INNER JOIN "temp_client_ids" ON "temp_client_ids"."botId" = "temp_visitor_ids"."botId"`)
+
+    await this.bp.database.raw(`
+    INSERT INTO "web_user_map" (
+      "visitorId", "userId")
+    SELECT
+      "temp_visitor_ids"."visitorId",
+      "temp_visitor_ids"."userId"
+    FROM "temp_visitor_ids"`)
+  }
+
+  async onClientCreated(botId: string, clientId: string) {
+    await this.bp.database('temp_client_ids').insert({ botId, clientId })
   }
 }
 
