@@ -520,8 +520,8 @@ class MessagingSqliteDownMigrator extends MessagingDownMigrator {
   async migrate() {
     await super.migrate()
 
-    const convCount = <number>Object.values((await this.bp.database('msg_conversations').count('*'))[0])[0]
-    this.convoIndex = <number>Object.values((await this.bp.database('web_conversations').max('id'))[0])[0]
+    const convCount = <number>Object.values((await this.bp.database('msg_conversations').count('*'))[0])[0] || 0
+    this.convoIndex = <number>Object.values((await this.bp.database('web_conversations').max('id'))[0])[0] || 1
 
     for (let i = 0; i < convCount; i += 100) {
       const convos = await this.bp
