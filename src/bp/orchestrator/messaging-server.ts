@@ -52,6 +52,8 @@ export const startMessagingServer = async (opts: Partial<MessagingServerOptions>
     DATABASE_POOL: process.env.DATABASE_POOL,
     CLUSTER_ENABLED: process.core_env.CLUSTER_ENABLED?.toString(),
     REDIS_URL: process.core_env.REDIS_URL,
+    REDIS_SCOPE: process.core_env.BP_REDIS_SCOPE,
+    LOGGING_ENABLED: 'false',
     SKIP_LOAD_ENV: 'true',
     SKIP_LOAD_CONFIG: 'true'
   }
