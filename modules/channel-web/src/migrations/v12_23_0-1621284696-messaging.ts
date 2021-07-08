@@ -631,10 +631,18 @@ class MessagingPostgresDownMigrator extends MessagingDownMigrator {
 
   async migrate() {
     await super.migrate()
+
+    this.convoIndex = <number>Object.values((await this.bp.database('web_conversations').max('id'))[0])[0] || 1
     await this.createTemporaryTables()
 
+    await this.migrateConversations()
+    await this.migrateMessages()
+
+    await this.cleanupTemporaryTables()
+  }
+
+  private async migrateConversations() {
     const convCount = <number>Object.values((await this.bp.database('msg_conversations').count('*'))[0])[0] || 0
-    this.convoIndex = <number>Object.values((await this.bp.database('web_conversations').max('id'))[0])[0] || 1
 
     await this.bp.database.raw(`
     INSERT INTO "temp_new_convo_ids" (
@@ -661,7 +669,9 @@ class MessagingPostgresDownMigrator extends MessagingDownMigrator {
     await this.bp.database.raw(
       `ALTER SEQUENCE web_conversations_id_seq RESTART WITH ${this.convoIndex + convCount + 1}`
     )
+  }
 
+  private async migrateMessages() {
     await this.bp.database.raw(`
     INSERT INTO "web_messages" (
       "id",
@@ -684,8 +694,6 @@ class MessagingPostgresDownMigrator extends MessagingDownMigrator {
       .database('web_messages')
       .whereNotNull('userId')
       .update({ full_name: 'User' })
-
-    await this.cleanupTemporaryTables()
   }
 
   private async createTemporaryTables() {
