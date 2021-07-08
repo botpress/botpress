@@ -44,6 +44,9 @@ const migration: sdk.ModuleMigration = {
       await migrator.migrate()
       await migrator.cleanup()
     } else {
+      const migrator = new MessagingPostgresDownMigrator(bp)
+      await migrator.migrate()
+      await migrator.cleanup()
     }
 
     return { success: true, message: 'Tables migrated successfully' }
@@ -75,7 +78,7 @@ class MessagingUpMigrator {
     // We need to create the messaging tables here because the messaging
     // server isn't started before we run the migrations
 
-    await this.bp.database.createTableIfNotExists('msg_providers', table => {
+    await this.bp.database.schema.createTable('msg_providers', table => {
       table.uuid('id').primary()
       table
         .string('name')
@@ -84,7 +87,7 @@ class MessagingUpMigrator {
       table.boolean('sandbox').notNullable()
     })
 
-    await this.bp.database.createTableIfNotExists('msg_clients', table => {
+    await this.bp.database.schema.createTable('msg_clients', table => {
       table.uuid('id').primary()
       table
         .uuid('providerId')
@@ -98,7 +101,7 @@ class MessagingUpMigrator {
         .notNullable()
     })
 
-    await this.bp.database.createTableIfNotExists('msg_users', table => {
+    await this.bp.database.schema.createTable('msg_users', table => {
       table.uuid('id').primary()
       table
         .uuid('clientId')
@@ -107,7 +110,7 @@ class MessagingUpMigrator {
         .notNullable()
     })
 
-    await this.bp.database.createTableIfNotExists('msg_conversations', table => {
+    await this.bp.database.schema.createTable('msg_conversations', table => {
       table.uuid('id').primary()
       table
         .uuid('clientId')
@@ -123,7 +126,7 @@ class MessagingUpMigrator {
       table.index(['userId', 'clientId'])
     })
 
-    await this.bp.database.createTableIfNotExists('msg_messages', table => {
+    await this.bp.database.schema.createTable('msg_messages', table => {
       table.uuid('id').primary()
       table
         .uuid('conversationId')
@@ -142,7 +145,7 @@ class MessagingUpMigrator {
     })
 
     // We need to create this here because sometimes the migration is ran before the module is initalized
-    await this.bp.database.createTableIfNotExists('web_user_map', table => {
+    await this.bp.database.schema.createTable('web_user_map', table => {
       table.string('visitorId').primary()
       table.uuid('userId').unique()
     })
@@ -419,13 +422,13 @@ class MessagingPostgresUpMigrator extends MessagingUpMigrator {
     await this.bp.database.raw('CREATE EXTENSION IF NOT EXISTS pgcrypto;')
 
     await this.bp.database.schema.dropTableIfExists('temp_client_ids')
-    await this.bp.database.createTableIfNotExists('temp_client_ids', table => {
+    await this.bp.database.schema.createTable('temp_client_ids', table => {
       table.uuid('clientId').unique()
       table.string('botId').unique()
     })
 
     await this.bp.database.schema.dropTableIfExists('temp_visitor_ids')
-    await this.bp.database.createTableIfNotExists('temp_visitor_ids', table => {
+    await this.bp.database.schema.createTable('temp_visitor_ids', table => {
       table.uuid('userId').unique()
       table.string('visitorId').unique()
       table.string('botId').index()
@@ -468,7 +471,8 @@ class MessagingDownMigrator {
   }
 
   private async createTables() {
-    await this.bp.database.schema.createTableIfNotExists('web_conversations', function(table) {
+    await this.bp.database.schema.dropTableIfExists('web_conversations')
+    await this.bp.database.schema.createTable('web_conversations', function(table) {
       table.increments('id').primary()
       table.string('userId')
       table.string('botId')
@@ -481,7 +485,9 @@ class MessagingDownMigrator {
       table.timestamp('bot_last_seen_on')
       table.index(['userId', 'botId'], 'wcub_idx')
     })
-    await this.bp.database.schema.createTableIfNotExists('web_messages', function(table) {
+
+    await this.bp.database.schema.dropTableIfExists('web_messages')
+    await this.bp.database.schema.createTable('web_messages', function(table) {
       table.string('id').primary()
       table.integer('conversationId')
       table.string('incomingEventId')
@@ -497,6 +503,7 @@ class MessagingDownMigrator {
       table.timestamp('sent_on')
       table.index(['conversationId', 'sent_on'], 'wmcs_idx')
     })
+
     await this.bp.database.raw(
       'CREATE INDEX IF NOT EXISTS wmcms_idx ON web_messages ("conversationId", message_type, sent_on DESC) WHERE message_type != \'visit\';'
     )
@@ -616,6 +623,92 @@ class MessagingSqliteDownMigrator extends MessagingDownMigrator {
       await this.bp.database('web_messages').insert(this.messageBatch)
       this.messageBatch = []
     }
+  }
+}
+
+class MessagingPostgresDownMigrator extends MessagingDownMigrator {
+  private convoIndex = 0
+
+  async migrate() {
+    await super.migrate()
+    await this.createTemporaryTables()
+
+    const convCount = <number>Object.values((await this.bp.database('msg_conversations').count('*'))[0])[0] || 0
+    this.convoIndex = <number>Object.values((await this.bp.database('web_conversations').max('id'))[0])[0] || 1
+
+    await this.bp.database.raw(`
+    INSERT INTO "temp_new_convo_ids" (
+      "oldId")
+    SELECT
+      "msg_conversations"."id"
+    FROM "msg_conversations"`)
+
+    await this.bp.database.raw(`
+    INSERT INTO "web_conversations" (
+      "id",
+      "userId",
+      "botId",
+      "created_on")
+    SELECT "temp_new_convo_ids"."newid",
+      "web_user_map"."visitorId",
+      "msg_providers"."name",
+      "msg_conversations"."createdOn"
+    FROM "msg_conversations"
+    INNER JOIN "temp_new_convo_ids" ON "msg_conversations"."id" = "temp_new_convo_ids"."oldId"
+    INNER JOIN "web_user_map" ON "web_user_map"."userId" = "msg_conversations"."userId"
+    INNER JOIN "msg_clients" ON "msg_clients"."id" = "msg_conversations"."clientId"
+    INNER JOIN "msg_providers" ON "msg_providers"."id" = "msg_clients"."providerId"`)
+    await this.bp.database.raw(
+      `ALTER SEQUENCE web_conversations_id_seq RESTART WITH ${this.convoIndex + convCount + 1}`
+    )
+
+    await this.bp.database.raw(`
+    INSERT INTO "web_messages" (
+      "id",
+      "conversationId",
+      "userId",
+      "message_type",
+      "sent_on",
+      "payload")
+    SELECT gen_random_uuid(),
+      "temp_new_convo_ids"."newid",
+      "web_user_map"."visitorId",
+      ' ',
+      "msg_messages"."sentOn",
+      "msg_messages"."payload"
+    FROM "msg_messages"
+    INNER JOIN "temp_new_convo_ids" ON "msg_messages"."conversationId" = "temp_new_convo_ids"."oldId"
+    LEFT JOIN "web_user_map" ON "web_user_map"."userId" = "msg_messages"."authorId"`)
+
+    await this.bp
+      .database('web_messages')
+      .whereNotNull('userId')
+      .update({ full_name: 'User' })
+
+    await this.cleanupTemporaryTables()
+  }
+
+  private async createTemporaryTables() {
+    // extension needed for gen_random_uuid()
+    await this.bp.database.raw('CREATE EXTENSION IF NOT EXISTS pgcrypto;')
+
+    await this.bp.database.schema.dropTableIfExists('temp_new_convo_ids')
+    await this.bp.database.schema.createTable('temp_new_convo_ids', table => {
+      table
+        .uuid('oldId')
+        .references('id')
+        .inTable('msg_conversations')
+        .unique()
+      // newId needs to be lowercase here. For some reason alter sequence doesn't work when it has an uppercase letter
+      table.increments('newid').unique()
+    })
+    await this.bp.database.raw(`ALTER SEQUENCE temp_new_convo_ids_newid_seq RESTART WITH ${this.convoIndex + 1}`)
+  }
+
+  private async cleanupTemporaryTables() {
+    await this.bp.database.raw('DROP EXTENSION pgcrypto;')
+
+    await this.bp.database.schema.dropTable('temp_new_convo_ids')
   }
 }
 
