@@ -147,3 +147,8 @@ As a developer, you can create your own [custom module](../advanced/custom-modul
 Below is a complete overview of the components implied in processing an event (ex: a message sent by a user). It is mostly informational, and you won't use most of these components directly. We have included it only to give you an insight into the bigger picture of the elements involved and how they interact.
 
 ![Event engine](../assets/event_enginev2.2.png)
+## Hands On Deck
+
+Let's create our first chatbot with Botpress. We will name the bot Blitz, and it will act as a virtual support agent for the great team at Botpress! You can download the chatbot [here](https://dl.orangedox.com/new-bot).
+
+![Create A Chatbot](create-new.png).
