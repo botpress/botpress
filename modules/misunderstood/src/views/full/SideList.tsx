@@ -5,9 +5,9 @@ import React from 'react'
 
 import { FLAGGED_MESSAGE_STATUS } from '../../types'
 
+import { groupEventsByUtterance } from './eventUtils'
 import style from './style.scss'
 import { REASONS, STATUSES } from './util'
-import { groupEventsByUtterance } from './eventUtils'
 
 const SideList = ({
   eventCounts,
