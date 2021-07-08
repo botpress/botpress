@@ -151,4 +151,4 @@ Below is a complete overview of the components implied in processing an event (e
 
 Let's create our first chatbot with Botpress. We will name the bot Blitz, and it will act as a virtual support agent for the great team at Botpress! You can download the chatbot [here](https://dl.orangedox.com/new-bot).
 
-![Create A Chatbot](create-new.png).
+![Create A Chatbot](../assets/create-new.png).
