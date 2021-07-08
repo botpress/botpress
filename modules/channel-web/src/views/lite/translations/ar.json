@@ -7,6 +7,7 @@
   "header.deleteConversationYes": "حذف",
   "header.deleteConversationNo": "إلغاء",
   "conversationList.untitledConversation": "محادثة بلا عنوان",
+  "conversationList.title": "محادثة {id}",
   "botInfo.backToConversation": "العودة الى المحادثة",
   "botInfo.startConversation": "بداية محادثة",
   "botInfo.privacyPolicy": "عرض سياسة الخصوصية",
