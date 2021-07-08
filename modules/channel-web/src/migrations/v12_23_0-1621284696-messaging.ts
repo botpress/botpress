@@ -333,12 +333,12 @@ class MessagingPostgresUpMigrator extends MessagingUpMigrator {
 
   protected async createTables() {
     // We delete these tables in case the migration crashed halfway.
-    await this.bp.database.raw('DROP TABLE web_user_map CASCADE')
-    await this.bp.database.raw('DROP TABLE msg_messages CASCADE')
-    await this.bp.database.raw('DROP TABLE msg_conversations CASCADE')
-    await this.bp.database.raw('DROP TABLE msg_users CASCADE')
-    await this.bp.database.raw('DROP TABLE msg_clients CASCADE')
-    await this.bp.database.raw('DROP TABLE msg_providers CASCADE')
+    await this.bp.database.raw('DROP TABLE IF EXISTS web_user_map CASCADE')
+    await this.bp.database.raw('DROP TABLE IF EXISTS msg_messages CASCADE')
+    await this.bp.database.raw('DROP TABLE IF EXISTS msg_conversations CASCADE')
+    await this.bp.database.raw('DROP TABLE IF EXISTS msg_users CASCADE')
+    await this.bp.database.raw('DROP TABLE IF EXISTS msg_clients CASCADE')
+    await this.bp.database.raw('DROP TABLE IF EXISTS msg_providers CASCADE')
 
     await super.createTables()
   }
