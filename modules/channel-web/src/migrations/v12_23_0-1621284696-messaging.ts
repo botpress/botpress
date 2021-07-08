@@ -67,14 +67,6 @@ class MessagingUpMigrator {
   }
 
   protected async createTables() {
-    // We delete these tables in case the migration crashed halfway.
-    await this.bp.database.schema.dropTableIfExists('web_user_map')
-    await this.bp.database.schema.dropTableIfExists('msg_messages')
-    await this.bp.database.schema.dropTableIfExists('msg_conversations')
-    await this.bp.database.schema.dropTableIfExists('msg_users')
-    await this.bp.database.schema.dropTableIfExists('msg_clients')
-    await this.bp.database.schema.dropTableIfExists('msg_providers')
-
     // We need to create the messaging tables here because the messaging
     // server isn't started before we run the migrations
 
@@ -207,6 +199,22 @@ class MessagingSqliteUpMigrator extends MessagingUpMigrator {
     }
   }
 
+  protected async createTables() {
+    await this.bp.database.raw('PRAGMA foreign_keys = OFF;')
+
+    // We delete these tables in case the migration crashed halfway.
+    await this.bp.database.schema.dropTableIfExists('web_user_map')
+    await this.bp.database.schema.dropTableIfExists('msg_messages')
+    await this.bp.database.schema.dropTableIfExists('msg_conversations')
+    await this.bp.database.schema.dropTableIfExists('msg_users')
+    await this.bp.database.schema.dropTableIfExists('msg_clients')
+    await this.bp.database.schema.dropTableIfExists('msg_providers')
+
+    await this.bp.database.raw('PRAGMA foreign_keys = ON;')
+
+    await super.createTables()
+  }
+
   protected async onClientCreated(botId: string, clientId: string) {
     this.clientIds[botId] = clientId
   }
@@ -321,6 +329,18 @@ class MessagingPostgresUpMigrator extends MessagingUpMigrator {
     await this.migrateMessages()
 
     await this.cleanupTemporaryTables()
+  }
+
+  protected async createTables() {
+    // We delete these tables in case the migration crashed halfway.
+    await this.bp.database.raw('DROP TABLE web_user_map CASCADE')
+    await this.bp.database.raw('DROP TABLE msg_messages CASCADE')
+    await this.bp.database.raw('DROP TABLE msg_conversations CASCADE')
+    await this.bp.database.raw('DROP TABLE msg_users CASCADE')
+    await this.bp.database.raw('DROP TABLE msg_clients CASCADE')
+    await this.bp.database.raw('DROP TABLE msg_providers CASCADE')
+
+    await super.createTables()
   }
 
   protected async onClientCreated(botId: string, clientId: string) {
@@ -458,16 +478,7 @@ class MessagingDownMigrator {
   }
 
   async cleanup() {
-    // TODO: It's likely dropping these tables will fail if the messaging
-    // server has run once and added other dependant tables
-    /*
-    await bp.database.schema.dropTable('web_user_map')
-    await bp.database.schema.dropTable('msg_messages')
-    await bp.database.schema.dropTable('msg_conversations')
-    await bp.database.schema.dropTable('msg_users')
-    await bp.database.schema.dropTable('msg_clients')
-    await bp.database.schema.dropTable('msg_providers')
-    */
+    await this.bp.database.schema.dropTable('web_user_map')
   }
 
   private async createTables() {
@@ -533,6 +544,20 @@ class MessagingSqliteDownMigrator extends MessagingDownMigrator {
       // We migrate 100 conversations at a time
       await this.migrateConvos(convos)
     }
+  }
+
+  async cleanup() {
+    await super.cleanup()
+
+    await this.bp.database.raw('PRAGMA foreign_keys = OFF;')
+
+    await this.bp.database.schema.dropTable('msg_messages')
+    await this.bp.database.schema.dropTable('msg_conversations')
+    await this.bp.database.schema.dropTable('msg_users')
+    await this.bp.database.schema.dropTable('msg_clients')
+    await this.bp.database.schema.dropTable('msg_providers')
+
+    await this.bp.database.raw('PRAGMA foreign_keys = ON;')
   }
 
   private async migrateConvos(convos: any[]) {
@@ -639,6 +664,16 @@ class MessagingPostgresDownMigrator extends MessagingDownMigrator {
     await this.migrateMessages()
 
     await this.cleanupTemporaryTables()
+  }
+
+  async cleanup() {
+    await super.cleanup()
+
+    await this.bp.database.raw('DROP TABLE msg_messages CASCADE')
+    await this.bp.database.raw('DROP TABLE msg_conversations CASCADE')
+    await this.bp.database.raw('DROP TABLE msg_users CASCADE')
+    await this.bp.database.raw('DROP TABLE msg_clients CASCADE')
+    await this.bp.database.raw('DROP TABLE msg_providers CASCADE')
   }
 
   private async migrateConversations() {
