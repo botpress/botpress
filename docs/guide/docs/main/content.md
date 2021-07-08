@@ -154,3 +154,9 @@ You can write HTML in the text content on the web channel, and your chatbot will
 At the moment, the video content type is currently only supported by channel-vonage. It presents a message showing a video file with an optional title. You can either upload the video or link to a video file that will be fetched when the content element is invoked.
 ### Dropdown 
 The dropdown displays a list of options to the user. It includes a message to the user, and you can customize the dropdown placeholder text and the text displayed on the selection button.
+
+## Hands On Deck
+
+Let's open our chatbot, Blitz, by clicking the name. We will be ushered to the Studio User Interface. The very first item in the left-hand menu is a link to the `Content` interface. In this interface, you can add, edit, and delete all the content types described above. I have added an example of each available content type. You can download the chatbot [here](https://dl.orangedox.com/content-blitz).
+
+![Adding Content](../assets/content-interface.png)
