@@ -70,11 +70,7 @@ module.exports = {
         type: 'boolean',
         title: 'module.extensions.types.dropdown.allowMultiple'
       },
-      markdown: {
-        type: 'boolean',
-        title: 'module.extensions.types.dropdown.useMarkdown',
-        default: true
-      },
+      ...base.useMarkdown,
       ...base.typingIndicators
     }
   },
