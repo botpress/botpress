@@ -112,6 +112,23 @@ export class MessagingService {
     this.botsByClientId[id] = botId
   }
 
+  async unloadMessagingForBot(botId: string) {
+    await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+
+    const config = await this.configProvider.getBotConfig(botId)
+    if (!config.messaging?.clientId) {
+      return
+    }
+
+    await this.clientAdmin.syncClient({
+      id: config.messaging.clientId,
+      token: config.messaging.clientToken,
+      name: botId,
+      channels: {},
+      webhooks: []
+    })
+  }
+
   async receive(clientId: string, channel: string, userId: string, conversationId: string, payload: any) {
     return this.eventEngine.sendEvent(
       Event({
