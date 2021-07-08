@@ -32,11 +32,158 @@ const migration: sdk.ModuleMigration = {
   },
 
   down: async ({ bp }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
-    if (!(await bp.database.schema.hasTable('conversations')) || !(await bp.database.schema.hasTable('messages'))) {
+    if (
+      !(await bp.database.schema.hasTable('msg_conversations')) ||
+      !(await bp.database.schema.hasTable('msg_messages'))
+    ) {
       return { success: true, message: 'Migration skipped' }
     }
 
+    await bp.database.schema.createTableIfNotExists('web_conversations', function(table) {
+      table.increments('id').primary()
+      table.string('userId')
+      table.string('botId')
+      table.string('title')
+      table.string('description')
+      table.string('logo_url')
+      table.timestamp('created_on')
+      table.timestamp('last_heard_on')
+      table.timestamp('user_last_seen_on')
+      table.timestamp('bot_last_seen_on')
+      table.index(['userId', 'botId'], 'wcub_idx')
+    })
+    await bp.database.schema.createTableIfNotExists('web_messages', function(table) {
+      table.string('id').primary()
+      table.integer('conversationId')
+      table.string('incomingEventId')
+      table.string('eventId')
+      table.string('userId')
+      table.string('message_type')
+      table.text('message_text')
+      table.jsonb('message_raw')
+      table.jsonb('message_data')
+      table.jsonb('payload')
+      table.string('full_name')
+      table.string('avatar_url')
+      table.timestamp('sent_on')
+      table.index(['conversationId', 'sent_on'], 'wmcs_idx')
+    })
+    await bp.database.raw(
+      'CREATE INDEX IF NOT EXISTS wmcms_idx ON web_messages ("conversationId", message_type, sent_on DESC) WHERE message_type != \'visit\';'
+    )
+
     if (bp.database.isLite) {
+      const convCount = <number>Object.values((await bp.database('msg_conversations').count('*'))[0])[0]
+      let convIndex = <number>Object.values((await bp.database('web_conversations').max('id'))[0])[0]
+      const cacheVisitorIds = new LRUCache<string, string>({ max: 10000 })
+      const cacheBotIds = new LRUCache<string, string>({ max: 10000 })
+
+      let convoBatch = []
+      let messageBatch = []
+
+      const emptyConvoBatch = async () => {
+        if (convoBatch.length > 0) {
+          await bp.database('web_conversations').insert(convoBatch)
+          convoBatch = []
+        }
+      }
+      const emptyMessageBatch = async () => {
+        await emptyConvoBatch()
+
+        if (messageBatch.length > 0) {
+          await bp.database('web_messages').insert(messageBatch)
+          messageBatch = []
+        }
+      }
+      const getVisitorId = async (userId: string) => {
+        const cached = cacheVisitorIds.get(userId)
+        if (cached) {
+          return cached
+        }
+
+        const rows = await bp.database('web_user_map').where({ userId })
+
+        if (rows?.length) {
+          const { visitorId } = rows[0] as UserMapping
+          cacheVisitorIds.set(userId, visitorId)
+          return visitorId
+        }
+
+        return undefined
+      }
+      const getBotId = async (clientId: string) => {
+        const cached = cacheBotIds.get(clientId)
+        if (cached) {
+          return cached
+        }
+
+        const [client] = await bp.database('msg_clients').where({ id: clientId })
+        const [provider] = await bp.database('msg_providers').where({ id: client.providerId })
+
+        cacheBotIds.set(clientId, provider.name)
+
+        return provider.name
+      }
+
+      for (let i = 0; i < convCount; i += 100) {
+        const convos = await bp
+          .database('msg_conversations')
+          .select('*')
+          .offset(i)
+          .limit(100)
+
+        for (const convo of convos) {
+          const newConvo = {
+            id: ++convIndex,
+            userId: convo.userId ? await getVisitorId(convo.userId) : undefined,
+            botId: await getBotId(convo.clientId),
+            created_on: convo.createdOn
+          }
+
+          convoBatch.push(newConvo)
+
+          const messages = await bp
+            .database('msg_messages')
+            .select('*')
+            .where({ conversationId: convo.id })
+
+          for (const message of messages) {
+            messageBatch.push({
+              id: uuid.v4(),
+              conversationId: newConvo.id,
+              // Necessary otherwise the messages aren't listed
+              full_name: message.authorId ? 'User' : undefined,
+              // Hack to make an old query work
+              message_type: ' ',
+              userId: message.authorId ? await getVisitorId(message.authorId) : undefined,
+              sent_on: message.sentOn,
+              payload: message.payload
+            })
+
+            if (messageBatch.length > 50) {
+              await emptyMessageBatch()
+            }
+          }
+
+          if (convoBatch.length > 50) {
+            await emptyConvoBatch()
+          }
+        }
+
+        await emptyConvoBatch()
+        await emptyMessageBatch()
+      }
+
+      // TODO: It's likely dropping these tables will fail if the messaging
+      // server has run once and added other dependant tables
+      /*
+      await bp.database.schema.dropTable('web_user_map')
+      await bp.database.schema.dropTable('msg_messages')
+      await bp.database.schema.dropTable('msg_conversations')
+      await bp.database.schema.dropTable('msg_users')
+      await bp.database.schema.dropTable('msg_clients')
+      await bp.database.schema.dropTable('msg_providers')
+      */
     } else {
     }
 
@@ -65,7 +212,6 @@ class MessagingUpMigrator {
     await this.bp.database.schema.dropTableIfExists('msg_users')
     await this.bp.database.schema.dropTableIfExists('msg_clients')
     await this.bp.database.schema.dropTableIfExists('msg_providers')
-    await this.bp.database.schema.dropTableIfExists('web_user_map')
 
     // We need to create the messaging tables here because the messaging
     // server isn't started before we run the migrations
