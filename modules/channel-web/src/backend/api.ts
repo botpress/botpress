@@ -592,7 +592,7 @@ export default async (bp: typeof sdk, db: Database) => {
     return (payload && payload.text) || message.message_text || wrappedText || `Event (${type})`
   }
 
-  const convertToTxtFile = async (conversation: Conversation & { messages: Message[] }) => {
+  const convertToTxtFile = async (botId: string, conversation: Conversation & { messages: Message[] }) => {
     const { messages } = conversation
     const { result: user } = await bp.users.getOrCreateUser('web', conversation.userId)
     const timeFormat = 'MM/DD/YY HH:mm'
@@ -606,7 +606,7 @@ export default async (bp: typeof sdk, db: Database) => {
       if (type === 'session_reset') {
         return ''
       }
-      return `[${moment(message.sentOn).format(timeFormat)}] ${message.authorId}: ${getMessageContent(
+      return `[${moment(message.sentOn).format(timeFormat)}] ${message.authorId || botId}: ${getMessageContent(
         message,
         type
       )}\r\n`
@@ -625,7 +625,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const conversation = await req.messaging.getConversationById(conversationId)
       const messages = await req.messaging.listMessages(conversationId, config.maxMessagesHistory)
 
-      const txt = await convertToTxtFile({ ...conversation, messages })
+      const txt = await convertToTxtFile(botId, { ...conversation, messages })
 
       res.send({ txt, name: `Conversation ${conversation.id}.txt` })
     })
