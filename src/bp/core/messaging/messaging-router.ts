@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import { UnauthorizedError } from 'common/http'
 import { HTTPServer } from 'core/app/server'
 import { CustomRouter } from 'core/routers/customRouter'
 import { Router } from 'express'
@@ -10,7 +11,11 @@ export class MessagingRouter extends CustomRouter {
   }
 
   public setupRoutes(): void {
-    this.router.post('/messaging/receive', async (req, res) => {
+    this.router.post('/messaging/receive', async (req, res, next) => {
+      if (req.headers.password !== process.INTERNAL_PASSWORD) {
+        return next(new UnauthorizedError('Password is missing or invalid'))
+      }
+      q
       const msg = req.body
 
       await this.messaging.receive(
