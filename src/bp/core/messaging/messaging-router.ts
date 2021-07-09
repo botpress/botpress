@@ -15,7 +15,7 @@ export class MessagingRouter extends CustomRouter {
       if (req.headers.password !== process.INTERNAL_PASSWORD) {
         return next(new UnauthorizedError('Password is missing or invalid'))
       }
-      q
+
       const msg = req.body
 
       await this.messaging.receive(
