@@ -33,9 +33,10 @@ There are several ways you can pause the conversation:
 - POST {$base}/channel/{$channel}/user/{\$userId}/pause
 - POST {$base}/channel/{$channel}/user/{\$userId}/unpause
 
-For example: 
+For example:
+
 ```js
-POST http://localhost:3000/api/v1/bots/welcome-bot/mod/assets/hitl/sessions/13/pause
+POST http://localhost:3000/api/v1/bots/welcome-bot/mod/hitl/sessions/13/pause
 ```
 
 ## Alerting agents
