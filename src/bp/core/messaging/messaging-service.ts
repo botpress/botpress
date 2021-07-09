@@ -1,4 +1,4 @@
-import { IO, Logger, MessagingConfig } from 'botpress/sdk'
+import { IO, MessagingConfig } from 'botpress/sdk'
 import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config'
 import { EventEngine, Event } from 'core/events'
