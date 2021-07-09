@@ -103,15 +103,15 @@ async function prepareLocalModules(app: BotpressApp, logger: sdk.Logger) {
 }
 
 async function start() {
+  const loggerProvider = createLoggerProvider()
   if (cluster.isMaster) {
-    const loggerProvider = createLoggerProvider()
     await setupDebugLogger(loggerProvider)
     // The master process only needs getos and rewire
     return setupMasterNode(await getLogger(loggerProvider, 'Cluster'))
   }
 
+  await setupDebugLogger(loggerProvider)
   const app = createApp()
-  await setupDebugLogger(app.logger)
 
   if (process.env.WORKER_TYPE === WorkerType.LOCAL_ACTION_SERVER) {
     app.localActionServer.listen()
