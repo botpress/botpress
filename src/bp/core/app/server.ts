@@ -357,7 +357,7 @@ export class HTTPServer {
     this.adminRouter.setupRoutes(this.app)
     await this.botsRouter.setupRoutes(this.app)
     this.internalRouter.setupRoutes()
-    this.messagingRouter.setupRoutes()
+    await this.messagingRouter.setupRoutes(botpressConfig.channels)
 
     this.app.use('/assets', this.guardWhiteLabel(), express.static(resolveAsset('')))
 

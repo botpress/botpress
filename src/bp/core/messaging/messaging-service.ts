@@ -1,4 +1,4 @@
-import { IO, MessagingConfig } from 'botpress/sdk'
+import { IO, Logger, MessagingConfig } from 'botpress/sdk'
 import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config'
 import { EventEngine, Event } from 'core/events'
@@ -67,11 +67,18 @@ export class MessagingService {
   async loadMessagingForBot(botId: string) {
     await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
+    const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = await this.configProvider.getBotConfig(botId)
     let messaging = (config.messaging || {}) as MessagingConfig
 
     const channels = {}
     for (const channel of this.channels) {
+      // Check if channel is enabled Botpress-wide
+      const channelConfig = botpressConfig.channels.find(c => c.name === channel.name)
+      if (!channelConfig || !channelConfig.enabled) {
+        continue
+      }
+
       const config = await channel.loadConfigForBot(botId)
       if (config) {
         channels[channel.name] = config
