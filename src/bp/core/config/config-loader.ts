@@ -177,35 +177,35 @@ export class ConfigProvider {
     // TODO: Find a way to fetch this list somewhere
     return [
       {
-        name: 'channel-messenger',
+        name: 'messenger',
         enabled: false
       },
       {
-        name: 'channel-slack',
+        name: 'slack',
         enabled: false
       },
       {
-        name: 'channel-smooch',
+        name: 'smooch',
         enabled: false
       },
       {
-        name: 'channel-teams',
+        name: 'teams',
         enabled: false
       },
       {
-        name: 'channel-telegram',
+        name: 'telegram',
         enabled: false
       },
       {
-        name: 'channel-twilio',
+        name: 'twilio',
         enabled: false
       },
       {
-        name: 'channel-vonage',
+        name: 'vonage',
         enabled: false
       },
       {
-        name: 'channel-web',
+        name: 'web',
         enabled: true
       }
     ]
