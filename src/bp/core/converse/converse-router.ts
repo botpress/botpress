@@ -18,7 +18,11 @@ const conversePayloadSchema = {
     .array()
     .items(joi.string())
     .optional()
-    .default(['global'])
+    .default(['global']),
+  metadata: joi
+    .object()
+    .optional()
+    .default({})
 }
 
 export class ConverseRouter extends CustomRouter {
