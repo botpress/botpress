@@ -39,6 +39,9 @@ export default async (bp: typeof sdk, db: Database) => {
       bp.realtime.sendPayload(payload)
 
       const message = await messaging.createMessage(conversationId, undefined, event.payload)
+      const mevent = <any>event
+      mevent.messageId = message.id
+
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(visitorId, 'webchat.message', message))
     }
 

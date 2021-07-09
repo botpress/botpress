@@ -129,7 +129,14 @@ export class MessagingService {
     })
   }
 
-  async receive(clientId: string, channel: string, userId: string, conversationId: string, payload: any) {
+  async receive(
+    clientId: string,
+    channel: string,
+    userId: string,
+    conversationId: string,
+    messageId: string,
+    payload: any
+  ) {
     return this.eventEngine.sendEvent(
       Event({
         direction: 'incoming',
@@ -138,6 +145,7 @@ export class MessagingService {
         channel,
         threadId: conversationId,
         target: userId,
+        messageId,
         botId: this.botsByClientId[clientId]
       })
     )
@@ -145,7 +153,10 @@ export class MessagingService {
 
   private async handleOutgoingEvent(event: IO.OutgoingEvent, next: IO.MiddlewareNextCallback) {
     if (this.channelNames.includes(event.channel)) {
-      await this.clientsByBotId[event.botId].sendMessage(event.threadId!, event.channel, event.payload)
+      const message = await this.clientsByBotId[event.botId].sendMessage(event.threadId!, event.channel, event.payload)
+
+      const mevent = <any>event
+      mevent.messageId = message.id
     }
 
     return next(undefined, true, false)

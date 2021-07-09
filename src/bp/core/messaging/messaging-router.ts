@@ -18,6 +18,7 @@ export class MessagingRouter extends CustomRouter {
         msg.channel.name,
         msg.user.id,
         msg.conversation.id,
+        msg.message.id,
         msg.message.payload
       )
 

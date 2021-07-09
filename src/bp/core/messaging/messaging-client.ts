@@ -12,8 +12,8 @@ export class MessagingClient {
     return res.data
   }
 
-  async sendMessage(conversationId: string, channel: string, payload: any) {
-    await axios.post(
+  async sendMessage(conversationId: string, channel: string, payload: any): Promise<Message> {
+    const res = await axios.post(
       `${this.apiUrl}/chat/reply`,
       {
         conversationId,
@@ -22,5 +22,16 @@ export class MessagingClient {
       },
       { headers: { password: this.password }, auth: { username: this.clientId, password: this.clientToken } }
     )
+    return res.data
   }
+}
+
+export type uuid = string
+
+export interface Message {
+  id: uuid
+  conversationId: uuid
+  authorId: uuid | undefined
+  sentOn: Date
+  payload: any
 }

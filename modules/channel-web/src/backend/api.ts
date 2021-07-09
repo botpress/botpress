@@ -371,7 +371,9 @@ export default async (bp: typeof sdk, db: Database) => {
       sanitizedPayload = _.omit(payload, [...sensitive, 'sensitive'])
     }
 
+    const message = await messaging.createMessage(conversationId, userId, sanitizedPayload)
     const event = bp.IO.Event({
+      messageId: message.id,
       botId,
       channel: 'web',
       direction: 'incoming',
@@ -386,7 +388,6 @@ export default async (bp: typeof sdk, db: Database) => {
       event.debugger = true
     }
 
-    const message = await messaging.createMessage(conversationId, userId, sanitizedPayload)
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(visitorId, 'webchat.message', message))
 
     await bp.events.sendEvent(event)
