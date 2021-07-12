@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { HTTPServer } from 'core/app/server'
+import { ChannelConfigEntry } from 'core/config'
 import { CustomRouter } from 'core/routers/customRouter'
 import { Router } from 'express'
 import { MessagingService } from './messaging-service'
@@ -9,7 +10,7 @@ export class MessagingRouter extends CustomRouter {
     super('Messaging', logger, Router({ mergeParams: true }))
   }
 
-  public setupRoutes(): void {
+  public setupRoutes(channelsConfig: ChannelConfigEntry[]): void {
     this.router.post('/messaging/receive', async (req, res) => {
       const msg = req.body
 
@@ -25,6 +26,12 @@ export class MessagingRouter extends CustomRouter {
     })
 
     for (const channel of this.messaging.channels) {
+      // Check if channel is enabled Botpress-wide
+      const channelConfig = channelsConfig.find(c => c.name === channel.name)
+      if (!channelConfig || !channelConfig.enabled) {
+        continue
+      }
+
       channel.setupRoutes(this.http)
     }
   }
