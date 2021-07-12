@@ -13,6 +13,7 @@ module.exports = {
     slowMo: 20 // Set this value to slow down tests globally
     // devtools: true // Access the dev tools on the headless chrome
   },
+  exitOnPageError: false,
   bpConfig: {
     windowSize,
     email: 'admin',

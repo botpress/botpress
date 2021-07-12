@@ -80,22 +80,14 @@ describe('Auth UI', () => {
     await expect(resp2.status).toEqual(200)
     const resp3 = await axios.post(`${bpConfig.apiHost}/api/v2/admin/management/rebootServer`, { data: {} }, headers)
     await expect(resp3.status).toEqual(200) // reboot is required after adding auth strategies
-    sleep(25000) // wait while server is rebooting
-  })
-
-  it('Log out', async () => {
-    await page.goto(`${bpConfig.host}/admin/workspace/default/bots`, { waitUntil: 'domcontentloaded' })
-    await clickOn('#btn-menu')
-    await clickOn('#btn-logout')
-    await getResponse('/api/v2/admin/auth/logout', 'POST')
-  })
-
-  it('Open login page', async () => {
-    await page.goto(`${bpConfig.host}/admin/login/`, { waitUntil: 'domcontentloaded' })
-    await expect(page.url().includes('login')).toBeTruthy()
+    await page.waitFor(10000) // wait while server is rebooting
+    await page.reload({ waitUntil: ['networkidle0', 'domcontentloaded'] })
+    await page.goto(`${bpConfig.host}`, { waitUntil: 'domcontentloaded' })
+    await page.reload({ waitUntil: ['networkidle0', 'domcontentloaded'] })
   })
 
   it('Preview non-hidden auth strategies', async () => {
+    await page.goto(`${bpConfig.host}/admin/login`)
     await expect((await page.$('#btn-default')) !== null).toBeTruthy()
     await expect((await page.$('#btn-botpress')) !== null).toBeTruthy()
     await expect((await page.$('#btn-botpress2')) == null).toBeTruthy()
@@ -122,5 +114,6 @@ describe('Auth UI', () => {
     await clickOn('#btn-menu')
     await clickOn('#btn-logout')
     await getResponse('/api/v2/admin/auth/logout', 'POST')
+    await page.reload({ waitUntil: ['networkidle0', 'domcontentloaded'] })
   })
 })
