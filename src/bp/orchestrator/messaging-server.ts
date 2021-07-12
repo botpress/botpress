@@ -46,7 +46,7 @@ export const startMessagingServer = async (opts: Partial<MessagingServerOptions>
     NODE_ENV: process.env.NODE_ENV,
     NODE_OPTIONS: '',
     PORT: port.toString(),
-    BOTPRESS_EXTERNAL_URL: process.core_env.EXTERNAL_URL,
+    EXTERNAL_URL: process.core_env.EXTERNAL_URL,
     INTERNAL_PASSWORD: process.INTERNAL_PASSWORD,
     ENCRYPTION_KEY: '', // we disable encryption for now,
     DATABASE_URL: process.core_env.DATABASE_URL || `${process.PROJECT_LOCATION}/data/storage/core.sqlite`,
