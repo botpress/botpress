@@ -178,12 +178,13 @@ export default class WebchatApi {
     }
   }
 
-  async uploadFile(file: File, conversationId: number): Promise<void> {
+  async uploadFile(file: File, payload: string, conversationId: number): Promise<void> {
     try {
       const data = new FormData()
       data.append('file', file)
       data.append('webSessionId', this.baseUserPayload.webSessionId)
       data.append('conversationId', conversationId.toString())
+      data.append('payload', payload)
 
       return this.axios.post('/messages/files', data, this.axiosConfig)
     } catch (err) {
