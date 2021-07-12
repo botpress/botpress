@@ -29,6 +29,32 @@ const onServerReady = async (bp: typeof sdk) => {
       res.sendStatus(404)
     })
   )
+
+  router.get(
+    '/message-to-event/:messageId',
+    asyncMiddleware(async (req, res) => {
+      const [messageEvent] = await bp.events.findEvents({
+        messageId: req.params.messageId,
+        botId: req.params.botId
+      })
+
+      if (!messageEvent) {
+        return res.sendStatus(404)
+      }
+
+      const [incomingEvent] = await bp.events.findEvents({
+        incomingEventId: messageEvent.incomingEventId,
+        direction: 'incoming',
+        botId: req.params.botId
+      })
+
+      if (!incomingEvent) {
+        return res.sendStatus(404)
+      }
+
+      return res.send(incomingEvent.event)
+    })
+  )
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {

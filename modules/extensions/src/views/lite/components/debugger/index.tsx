@@ -57,20 +57,20 @@ export class Debugger extends React.Component<Props, State> {
     this.props.store.view.removeCustomAction(this.customActionId)
   }
 
-  handleNewMessage = async ({ payload, incomingEventId }) => {
-    if (!['session_reset', 'visit'].includes(payload.type) && incomingEventId !== this.lastMessage) {
-      this.lastMessage = incomingEventId
-      this.loadEvent(incomingEventId)
+  handleNewMessage = async ({ payload, id }) => {
+    if (!['session_reset', 'visit'].includes(payload.type) && id !== this.lastMessage) {
+      this.lastMessage = id
+      this.loadEvent(id)
     }
   }
 
   handleSelect = async (_actionId: string, props: any) => {
-    this.loadEvent(props.incomingEventId, true)
+    this.loadEvent(props.id, true)
   }
 
-  loadEvent = (eventId: string, isManual?: boolean) => {
-    this.props.store.view.setHighlightedMessages(eventId)
-    window.parent.postMessage({ action: 'load-event', payload: { eventId, isManual } }, '*')
+  loadEvent = (messageId: string, isManual?: boolean) => {
+    this.props.store.view.setHighlightedMessages(messageId)
+    window.parent.postMessage({ action: 'load-event', payload: { messageId, isManual } }, '*')
   }
 
   render() {
