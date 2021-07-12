@@ -1,7 +1,6 @@
+import { Client, TrainInput, PredictOutput, Health, Specifications, TrainingError } from '@botpress/nlu-client'
 import _ from 'lodash'
 import { I } from '../application/typings'
-import { StanClient } from '../stan/client'
-import { TrainInput, PredictOutput, Health, Specifications, TrainingError } from '../stan/typings_v1'
 import { TrainingCanceledError, TrainingAlreadyStartedError } from './errors'
 import modelIdService from './model-id-service'
 
@@ -10,14 +9,14 @@ const TRAIN_PROGRESS_POLLING_INTERVAL = 500
 export type IStanEngine = I<StanEngine>
 
 export class StanEngine {
-  constructor(private _stanClient: StanClient, private _appSecret: string) {}
+  constructor(private _client: Client, private _appSecret: string) {}
 
   public async getInfo(): Promise<{
     health: Health
     specs: Specifications
     languages: string[]
   }> {
-    const response = await this._stanClient.getInfo()
+    const response = await this._client.getInfo()
     if (!response.success) {
       return this._throwError(response.error)
     }
@@ -39,7 +38,7 @@ export class StanEngine {
   }
 
   private async _hasModel(appId: string, modelId: string): Promise<boolean> {
-    const response = await this._stanClient.listModels({ appSecret: this._appSecret, appId })
+    const response = await this._client.listModels({ appSecret: this._appSecret, appId })
     if (!response.success) {
       return this._throwError(response.error)
     }
@@ -54,7 +53,7 @@ export class StanEngine {
       .uniq()
       .value()
 
-    const response = await this._stanClient.startTraining({
+    const response = await this._client.startTraining({
       contexts,
       entities,
       intents,
@@ -75,7 +74,7 @@ export class StanEngine {
   public async waitForTraining(appId: string, modelId: string, progressCb: (p: number) => void): Promise<void> {
     return new Promise((resolve, reject) => {
       const interval = setInterval(async () => {
-        const response = await this._stanClient.getTrainingStatus(modelId, { appSecret: this._appSecret, appId })
+        const response = await this._client.getTrainingStatus(modelId, { appSecret: this._appSecret, appId })
         if (!response.success) {
           clearInterval(interval)
           reject(new Error(response.error))
@@ -126,14 +125,14 @@ export class StanEngine {
   }
 
   public async cancelTraining(appId: string, modelId: string): Promise<void> {
-    const response = await this._stanClient.cancelTraining(modelId, { appSecret: this._appSecret, appId })
+    const response = await this._client.cancelTraining(modelId, { appSecret: this._appSecret, appId })
     if (!response.success) {
       return this._throwError(response.error)
     }
   }
 
   public async detectLanguage(appId: string, utterance: string, models: string[]): Promise<string> {
-    const response = await this._stanClient.detectLanguage({
+    const response = await this._client.detectLanguage({
       models,
       utterances: [utterance],
       appSecret: this._appSecret,
@@ -148,7 +147,7 @@ export class StanEngine {
   }
 
   public async predict(appId: string, utterance: string, modelId: string): Promise<PredictOutput> {
-    const response = await this._stanClient.predict(modelId, {
+    const response = await this._client.predict(modelId, {
       utterances: [utterance],
       appSecret: this._appSecret,
       appId
