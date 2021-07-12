@@ -7,39 +7,31 @@ In a conversation, you may want to ask questions to the user and remember his an
 
 ## System Parameters
 
-When a user talks to a chatbot, Botpress tracks all variables and parameters associated with that chatbot as the chatbot transitions from one state to another. If you run the emulator, you will see the tree of all the system parameters that it tracks.
+When a user talks to a chatbot, Botpress tracks all variables and parameters associated with that chatbot as the chatbot transitions from one state to another. If you run the debugger, you will see the tree of all the system parameters that it tracks. Just click the debugger button (circled in red below) and it will open in the bottom panel by default.
+
+![How to ACcess Debugger](../assets/access-debugger.png)
 
 You can access these system parameters from the flow builder and within your code (including in Actions). To do so, all you need to do to reference a parameter by prefixing the path shown in the emulator with “event.”.
 
-For example, the path shown in the emulator to the language parameter is nlu.language. You can reference that parameter by adding “event.” to the path shown in the emulator, i.e. event.nlu.language.
+For example, the path shown in the debugger to the language parameter is nlu.language. You can reference that parameter by adding “event.” to the path shown in the debugger, i.e. event.nlu.language.
 
-![NLU Language Emulator](nlu-emulator.png)
+![NLU Language Emulator](../assets/nlu-emulator.png)
 
-In the Flow Editor, you can access system parameters by bracketing them with two sets of curly brackets.
+In the Flow Editor, you can access system parameters by bracketing them with two sets of curly brackets. For example, in a message, you could say:
 
-For example, in a message, you could say:
-
-The chatbot's language is {{event.nlu.language}}.
-
-![NLU Language Message](nlu-message.png)
+> The chatbot's language is {{event.nlu.language}}.
 
 You can also set variables to be the value of a system parameter as follows:
 
-![NLU Language Set Variable](nlu-variable.png)
+![NLU Language Set Variable](../assets/nlu-variable.png)
 
-For raw expressions or code (such as in Actions), you don't need the curly brackets.
+For raw expressions or code (such as in Actions), you don't need the curly brackets. Here is an example of a raw expression in a transition:
 
-Here is an example of a raw expression in a transition:
-
-![NLU Language Raw Expression](nlu-raw-expression.png)
-
-Here is a code example:
-
-![NLU Language Code](nlu-code.png)
+![NLU Language Raw Expression](../assets/nlu-raw-expression.png)
 
 In the same way, as described above, it would be possible to access the values of extracted slots by copying the path from the emulator and prefixing it with "event." i.e. {{state.session.slots.food.value}} in the flow builder and state.session.slots.food.value in code. "food" is a slot that was set up intent by the chatbot builder.
 
-![Slot Extraction Emulator](../assets/slot-xtraction.png)
+![Slot Extraction Emulator](../assets/slot-extraction-emulator.png)
 
 As is possible in Javascript, it is also possible to access the parameters with the following systax:
 
