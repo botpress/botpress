@@ -30,9 +30,7 @@ The payload inspector lets you see and understand what the bot understood and wh
 
 All the messages you send using the Emulator will come from the same user from the bot's perspective.
 
-To start a conversation from scratch, you can press the **"New Session"** button in the toolbar of the Emulator window. Doing this will generate a new user, so all previously set variables and states will be forgotten by the bot.
-
-![Emulator Window](../assets/emulator_win_newsession.jpg)
+To start a conversation from scratch, you can press the **"Toggle List View"** button in the elipsis menu of the Emulator window. Doing this will generate a new user, so all previously set variables and states will be forgotten by the bot.
 
 ## Testing Module
 
@@ -48,7 +46,7 @@ To activate the Testing module, enable it in botpress.config.json as follows:
 ```
 
 ## Webchat Test Website
-Botpress comes with a pre-built test website that offers an example of customizing the webchat with your custom CSS bundled with your default Botpress installation. Start the server, then head over to http://localhost:3000/assets/modules/channel-web/examples/styled-webchat.html for an example. You can also check example sources at Github.
+Botpress comes with a pre-built test website that offers an example of customizing the webchat with your custom CSS bundled with your default Botpress installation. Start the server, then head over to http://localhost:3000/assets/modules/channel-web/examples/embedded-webchat.html for an example. You can also check example sources at Github.
 
 This example is also practical when you want others to test your chatbot. You can expose this website to the public internet then share the link.
 
