@@ -20,6 +20,13 @@ type RouterProps = RouteComponentProps<
 
 type Props = { auth: BasicAuthentication } & RouterProps & ExtendedHistory
 
+interface AuthConfigResponse {
+  payload: {
+    strategies: AuthStrategyConfig[]
+    isFirstUser: boolean
+  }
+}
+
 const Login: FC<Props> = props => {
   const [isLoading, setLoading] = useState(true)
   const [isFirstUser, setFirstUser] = useState(false)
@@ -76,14 +83,14 @@ const Login: FC<Props> = props => {
   }
 
   const loadAuthConfig = async () => {
-    const { data } = await api.getAnonymous().get('/admin/auth/config')
+    const { data } = await api.getAnonymous().get<AuthConfigResponse>('/admin/auth/config')
 
-    setStrategies(data.payload.strategies)
+    setStrategies(data.payload.strategies.filter(x => !x.hidden))
     setFirstUser(data.payload.isFirstUser)
     setLoading(false)
   }
 
-  const updateUrlStrategy = strategyId => props.history.push({ pathname: `/login/${strategyId}` })
+  const updateUrlStrategy = (strategyId: string) => props.history.push({ pathname: `/login/${strategyId}` })
 
   const selectStrategy = (id: string) => {
     const strategy = strategies && strategies.find(x => x.strategyId === id)
