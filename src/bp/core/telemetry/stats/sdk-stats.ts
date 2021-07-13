@@ -80,7 +80,7 @@ export class SDKStats extends TelemetryStats {
   private async getActionUsages(bots: string[]): Promise<SDKUsage> {
     const rootFolder = 'actions'
     const globalActionsNames = (await this.ghostService.global().directoryListing('/', `${rootFolder}/*.js`)).map(
-      path => path.split('/').pop() || ''
+      path => path?.split('/').pop() || ''
     )
 
     const reducer = async (parsedFilesAcc, botId) => {
@@ -139,7 +139,7 @@ export class SDKStats extends TelemetryStats {
   private async parseFile(name: string, rootFolder: string, usageParams?: UsageParams): Promise<ParsedFile> {
     const file = await this.readFileAsString(rootFolder, name, usageParams?.botId)
     const functions = this.extractFunctions(parse(file, PARSE_CONFIG))
-    const fileName = calculateHash(name.split('/').pop() || '')
+    const fileName = calculateHash(name?.split('/').pop() || '')
     const usage: ParsedFile = { fileName, usages: this.parseMethods(functions) }
 
     if (usageParams?.botId) {
@@ -150,7 +150,7 @@ export class SDKStats extends TelemetryStats {
   }
 
   private parseMethods(methods: string[]): Usage[] {
-    const sdkMethods = _.countBy(methods.filter(method => method.split('.')[0] === 'bp'))
+    const sdkMethods = _.countBy(methods.filter(method => method?.split('.')[0] === 'bp'))
     return _.map(sdkMethods, (count, methodChain) => {
       const [, ...namespace] = methodChain.split('.')
       const method = namespace.pop() || ''
