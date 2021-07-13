@@ -3,6 +3,8 @@ import { ModuleConfigEntry, ChannelConfigEntry } from 'core/config'
 import { Migration, MigrationOpts } from 'core/migration'
 import _ from 'lodash'
 
+const exception = 'channel-web'
+
 const migration: Migration = {
   info: {
     description: 'Move channels out of the modules section in config',
@@ -22,7 +24,7 @@ const migration: Migration = {
     for (const module of config.modules) {
       const { location, enabled } = module
 
-      if (location.includes('channel-')) {
+      if (location.includes('channel-') && !location.includes(exception)) {
         channels.push({ name: location.replace('MODULES_ROOT/channel-', ''), enabled })
       } else {
         modules.push({ location, enabled })

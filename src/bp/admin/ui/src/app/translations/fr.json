@@ -302,7 +302,7 @@
           "editInStudio": "Modifier dans Studio",
           "error": "erreur",
           "export": "Export",
-          "languageIsMissing": "La langue du bot est manquante. Veuillez la définir dans la configuration du bot.",
+          "enableNLULanguages": "Le bot utilise des langues qui ne sont pas activées dans le NLU. [ {languages} ]",
           "needsYourReview": "A besoin de votre avis",
           "onDate": "le {date}",
           "openChat": "Ouvrir le chat",
