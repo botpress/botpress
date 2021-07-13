@@ -1,6 +1,3 @@
-import { NLU } from 'botpress/sdk'
-
-import _ from 'lodash'
 import {
   TrainInput,
   PredictOutput as StanPredictOutput,
@@ -13,7 +10,11 @@ import {
   SlotPrediction as StanSlotPrediction,
   ContextPrediction as StanContextPrediction,
   EntityPrediction as StanEntityPrediction
-} from './typings_v1'
+} from '@botpress/nlu-client'
+
+import { NLU } from 'botpress/sdk'
+
+import _ from 'lodash'
 
 type BpSlotDefinition = NLU.SlotDefinition
 type BpIntentDefinition = NLU.IntentDefinition

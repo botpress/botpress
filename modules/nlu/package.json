@@ -26,6 +26,7 @@
     "rimraf": "^3.0.2"
   },
   "dependencies": {
+    "@botpress/nlu-client": "0.1.2",
     "axios": "^0.21.1",
     "bluebird": "^3.5.3",
     "bluebird-global": "^1.0.1",
