@@ -9,7 +9,7 @@ const migration: Migration = {
   },
   up: async ({ bp }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
     // This wasn't in use anywhere so we can just delete the old table
-    if (bp.database.schema.hasTable('mapping')) {
+    if (await bp.database.schema.hasTable('mapping')) {
       await bp.database.schema.dropTable('mapping')
 
       await bp.database.createTableIfNotExists('mapping', table => {
