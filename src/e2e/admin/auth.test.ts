@@ -5,20 +5,10 @@ import { clickOn, fillField } from '../expectPuppeteer'
 import { getResponse, gotoAndExpect } from '../utils'
 
 describe('Auth UI', () => {
-  config.default.pro.licenseKey = bpConfig.licenseKey
-  const content = JSON.stringify(config.default)
   let jwt: string
   let default_content: string
 
-  const sleep = milliseconds => {
-    const date = Date.now()
-    let currentDate = null
-    do {
-      currentDate = Date.now()
-    } while (currentDate - date < milliseconds)
-  }
-
-  const data = content => {
+  const request_body = content => {
     return {
       name: 'botpress.config.json',
       type: 'main_config',
@@ -76,7 +66,15 @@ describe('Auth UI', () => {
     await page.goto('https://google.com', { waitUntil: 'domcontentloaded' }) // to avoid frontend errors during server reboot
     await expect(resp1.status).toEqual(200)
     default_content = resp1.data.fileContent
-    const resp2 = await axios.post(`${bpConfig.apiHost}/api/v1/bots/___/mod/code-editor/save`, data(content), headers)
+    let content = {
+      ...JSON.parse(default_content)
+    }
+    content.pro.licenseKey = bpConfig.licenseKey
+    content.pro.enabled = true
+    content.pro.externalAuth.enabled = true
+    content.pro.collaboratorsAuthStrategies = config.default.pro.collaboratorsAuthStrategies
+    content.authStrategies = config.default.authStrategies
+    const resp2 = await axios.post(`${bpConfig.apiHost}/api/v1/bots/___/mod/code-editor/save`, request_body(JSON.stringify(content)), headers)
     await expect(resp2.status).toEqual(200)
     const resp3 = await axios.post(`${bpConfig.apiHost}/api/v2/admin/management/rebootServer`, { data: {} }, headers)
     await expect(resp3.status).toEqual(200) // reboot is required after adding auth strategies
@@ -84,6 +82,9 @@ describe('Auth UI', () => {
     await page.reload({ waitUntil: ['networkidle0', 'domcontentloaded'] })
     await page.goto(`${bpConfig.host}`, { waitUntil: 'domcontentloaded' })
     await page.reload({ waitUntil: ['networkidle0', 'domcontentloaded'] })
+    await clickOn('#btn-menu')
+    await clickOn('#btn-logout')
+    await getResponse('/api/v2/admin/auth/logout', 'POST')
   })
 
   it('Preview non-hidden auth strategies', async () => {
@@ -107,7 +108,7 @@ describe('Auth UI', () => {
     }
     const resp = await axios.post(
       `${bpConfig.apiHost}/api/v1/bots/___/mod/code-editor/save`,
-      data(default_content),
+      request_body(default_content),
       headers
     )
     await expect(resp.status).toEqual(200)
