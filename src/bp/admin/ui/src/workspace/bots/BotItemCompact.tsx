@@ -164,7 +164,7 @@ const BotItemCompact: FC<Props> = props => {
         {botHasUninstalledNLULanguages && (
           <Tooltip
             position="right"
-            content={lang.tr('admin.workspace.bots.item.enableLanguageNLU', {
+            content={lang.tr('admin.workspace.bots.item.enableNLULanguages', {
               languages: languages.join(',')
             })}
           >
