@@ -150,10 +150,11 @@ export class ConfigProvider {
       const botpressConfigSchema = await this._getBotpressConfigSchema()
       const defaultConfig: BotpressConfig = defaultJsonBuilder(botpressConfigSchema)
 
-      const config = {
+      const config: BotpressConfig & { $schema: string } = {
         $schema: '../botpress.config.schema.json',
         ...defaultConfig,
         modules: await this.getModulesListConfig(),
+        channels: this.getChannelListConfig(),
         version: process.BOTPRESS_VERSION
       }
 
@@ -170,6 +171,44 @@ export class ConfigProvider {
         await this.ghostService.root().upsertFile('/', schema, schemaContent)
       }
     }
+  }
+
+  public getChannelListConfig() {
+    // TODO: Find a way to fetch this list somewhere
+    return [
+      {
+        name: 'messenger',
+        enabled: false
+      },
+      {
+        name: 'slack',
+        enabled: false
+      },
+      {
+        name: 'smooch',
+        enabled: false
+      },
+      {
+        name: 'teams',
+        enabled: false
+      },
+      {
+        name: 'telegram',
+        enabled: false
+      },
+      {
+        name: 'twilio',
+        enabled: false
+      },
+      {
+        name: 'vonage',
+        enabled: false
+      },
+      {
+        name: 'web',
+        enabled: true
+      }
+    ]
   }
 
   public async getModulesListConfig() {
