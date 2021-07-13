@@ -74,7 +74,11 @@ describe('Auth UI', () => {
     content.pro.externalAuth.enabled = true
     content.pro.collaboratorsAuthStrategies = config.default.pro.collaboratorsAuthStrategies
     content.authStrategies = config.default.authStrategies
-    const resp2 = await axios.post(`${bpConfig.apiHost}/api/v1/bots/___/mod/code-editor/save`, request_body(JSON.stringify(content)), headers)
+    const resp2 = await axios.post(
+      `${bpConfig.apiHost}/api/v1/bots/___/mod/code-editor/save`,
+      request_body(JSON.stringify(content)),
+      headers
+    )
     await expect(resp2.status).toEqual(200)
     const resp3 = await axios.post(`${bpConfig.apiHost}/api/v2/admin/management/rebootServer`, { data: {} }, headers)
     await expect(resp3.status).toEqual(200) // reboot is required after adding auth strategies
