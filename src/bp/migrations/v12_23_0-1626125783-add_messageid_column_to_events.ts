@@ -9,7 +9,7 @@ const migration: Migration = {
   },
   up: async ({ bp }: MigrationOpts): Promise<sdk.MigrationResult> => {
     const hasMessageIdColumn = await bp.database.schema.hasColumn('events', 'messageId')
-    if (!hasMessageIdColumn) {
+    if (hasMessageIdColumn) {
       return { success: true, message: 'MessageId column already exists, skipping...' }
     }
 
@@ -19,6 +19,22 @@ const migration: Migration = {
       })
 
       return { success: true, message: 'messageId column added successfully' }
+    } catch (error) {
+      return { success: false, message: error.message }
+    }
+  },
+  down: async ({ bp }: MigrationOpts): Promise<sdk.MigrationResult> => {
+    const hasMessageIdColumn = await bp.database.schema.hasColumn('events', 'messageId')
+    if (!hasMessageIdColumn) {
+      return { success: true, message: 'MessageId column already removed, skipping...' }
+    }
+
+    try {
+      await bp.database.schema.alterTable('events', table => {
+        table.dropColumn('messageId')
+      })
+
+      return { success: true, message: 'messageId column removed successfully' }
     } catch (error) {
       return { success: false, message: error.message }
     }

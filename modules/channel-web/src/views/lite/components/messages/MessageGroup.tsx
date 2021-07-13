@@ -103,10 +103,7 @@ class MessageGroup extends React.Component<Props> {
               return (
                 <Message
                   key={message.id}
-                  isHighlighted={
-                    this.props.highlightedMessages &&
-                    this.props.highlightedMessages.includes((message as any).incomingEventId)
-                  }
+                  isHighlighted={this.props.highlightedMessages && this.props.highlightedMessages.includes(message.id)}
                   inlineFeedback={
                     showInlineFeedback && (
                       <InlineFeedback

@@ -55,6 +55,58 @@ const onServerReady = async (bp: typeof sdk) => {
       return res.send(incomingEvent.event)
     })
   )
+
+  router.get(
+    '/list-by-incoming-event/:messageId',
+    asyncMiddleware(async (req, res) => {
+      const { messageId, botId } = req.params
+
+      const [messageEvent] = await loadEvents({ messageId, botId })
+
+      if (!messageEvent) {
+        return res.sendStatus(404)
+      }
+
+      const messages = await loadEvents({
+        incomingEventId: messageEvent.incomingEventId,
+        botId
+      })
+
+      if (!messages) {
+        return res.sendStatus(404)
+      }
+
+      const messageIds = messages.map(m => m.messageId)
+
+      return res.send(messageIds)
+    })
+  )
+
+  const loadEvents = async (fields: Partial<sdk.IO.StoredEvent>) => {
+    const DELAY_BETWEEN_CALLS = 500
+    const allowedRetryCount = 6
+    let currentRetryCount = 0
+    let keepRetrying = false
+
+    try {
+      return bp.events.findEvents(fields)
+    } catch (err) {
+      keepRetrying = true
+    }
+
+    if (keepRetrying) {
+      if (currentRetryCount < allowedRetryCount) {
+        currentRetryCount++
+
+        await Promise.delay(DELAY_BETWEEN_CALLS)
+        await loadEvents(fields)
+      } else {
+        currentRetryCount = 0
+      }
+    } else {
+      currentRetryCount = 0
+    }
+  }
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {

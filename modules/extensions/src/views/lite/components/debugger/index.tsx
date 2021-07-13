@@ -60,17 +60,26 @@ export class Debugger extends React.Component<Props, State> {
   handleNewMessage = async ({ payload, id }) => {
     if (!['session_reset', 'visit'].includes(payload.type) && id !== this.lastMessage) {
       this.lastMessage = id
-      this.loadEvent(id)
+      await this.loadEvent(id)
     }
   }
 
   handleSelect = async (_actionId: string, props: any) => {
-    this.loadEvent(props.id, true)
+    await this.loadEvent(props.id, true)
   }
 
-  loadEvent = (messageId: string, isManual?: boolean) => {
-    this.props.store.view.setHighlightedMessages(messageId)
-    window.parent.postMessage({ action: 'load-event', payload: { messageId, isManual } }, '*')
+  loadEvent = async (messageId: string, isManual?: boolean) => {
+    try {
+      const { data: messages } = await this.props.store.api.axios.get(
+        `/mod/extensions/list-by-incoming-event/${messageId}`,
+        {
+          baseUrl: window['BOT_API_PATH']
+        }
+      )
+
+      this.props.store.view.setHighlightedMessages(messages)
+      window.parent.postMessage({ action: 'load-event', payload: { messageId, isManual } }, '*')
+    } catch {}
   }
 
   render() {
