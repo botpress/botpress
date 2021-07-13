@@ -8,10 +8,7 @@ import { FileContent, GhostService, ReplaceContent } from 'core/bpfs'
 import { CMSService } from 'core/cms'
 import { ConfigProvider } from 'core/config'
 import { JobService, makeRedisKey } from 'core/distributed'
-import { PersistedConsoleLogger } from 'core/logger'
-import { MigrationService } from 'core/migration'
 import { extractArchive } from 'core/misc/archive'
-import { IDisposable } from 'core/misc/disposable'
 import { listDir } from 'core/misc/list-dir'
 import { stringify } from 'core/misc/utils'
 import { ModuleResourceLoader, ModuleLoader } from 'core/modules'
@@ -77,8 +74,7 @@ export class BotService {
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.Statistics) private stats: AnalyticsService,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
-    @inject(TYPES.RealtimeService) private realtimeService: RealtimeService,
-    @inject(TYPES.MigrationService) private migrationService: MigrationService
+    @inject(TYPES.RealtimeService) private realtimeService: RealtimeService
   ) {
     this._botIds = undefined
   }
@@ -300,8 +296,6 @@ export class BotService {
 
         await this.workspaceService.addBotRef(botId, workspaceId)
 
-        await this._migrateBotContent(botId)
-
         if (!originalConfig.disabled) {
           if (!(await this.mountBot(botId))) {
             this.logger.forBot(botId).warn(`Import of bot ${botId} completed, but it couldn't be mounted`)
@@ -331,11 +325,6 @@ export class BotService {
     }
 
     return path.join(directory, path.dirname(configFile[0]))
-  }
-
-  private async _migrateBotContent(botId: string): Promise<void> {
-    const config = await this.configProvider.getBotConfig(botId)
-    return this.migrationService.botMigration.executeMissingBotMigrations(botId, config.version)
   }
 
   async requestStageChange(botId: string, requestedBy: string) {
@@ -606,13 +595,16 @@ export class BotService {
         throw new Error('Supported languages must include the default language of the bot')
       }
 
+      // Calling studio mount, because it is the studio which runs migration on bots.
+      await studioActions.setBotMountStatus(botId, true)
+
       await this.cms.loadElementsForBot(botId)
       await this.moduleLoader.loadModulesForBot(botId)
 
       const api = await createForGlobalHooks()
       await this.hookService.executeHook(new Hooks.AfterBotMount(api, botId))
       BotService._mountedBots.set(botId, true)
-      await studioActions.setBotMountStatus(botId, true)
+
       this._invalidateBotIds()
 
       BotService.setBotStatus(botId, 'healthy')
