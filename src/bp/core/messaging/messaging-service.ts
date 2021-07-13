@@ -19,7 +19,7 @@ export class MessagingService {
   public channels!: Channel[]
   private channelNames!: string[]
 
-  private clientAdmin!: MessagingClient
+  private clientSync!: MessagingClient
 
   private clientsByBotId: { [botId: string]: MessagingClient } = {}
   private botsByClientId: { [clientId: string]: string } = {}
@@ -52,26 +52,28 @@ export class MessagingService {
 
     await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
-    this.clientAdmin = new MessagingClient(
-      `http://localhost:${process.MESSAGING_PORT}`,
-      process.INTERNAL_PASSWORD,
-      <any>undefined,
-      <any>undefined
-    )
+    this.clientSync = new MessagingClient(`http://localhost:${process.MESSAGING_PORT}`, process.INTERNAL_PASSWORD)
 
     for (const channel of this.channels) {
-      channel.client = this.clientAdmin
+      channel.client = this.clientSync
     }
   }
 
   async loadMessagingForBot(botId: string) {
     await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
+    const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = await this.configProvider.getBotConfig(botId)
     let messaging = (config.messaging || {}) as MessagingConfig
 
     const channels = {}
     for (const channel of this.channels) {
+      // Check if channel is enabled Botpress-wide
+      const channelConfig = botpressConfig.channels.find(c => c.name === channel.name)
+      if (!channelConfig || !channelConfig.enabled) {
+        continue
+      }
+
       const config = await channel.loadConfigForBot(botId)
       if (config) {
         channels[channel.name] = config
@@ -86,7 +88,7 @@ export class MessagingService {
       webhooks: [{ url: `http://localhost:${process.PORT}/api/v1/messaging/receive` }]
     }
 
-    const { id, token } = await this.clientAdmin.syncClient(setupConfig)
+    const { id, token } = await this.clientSync.syncClient(setupConfig)
     let modified = false
 
     if (id && id !== messaging.clientId) {
@@ -120,7 +122,7 @@ export class MessagingService {
       return
     }
 
-    await this.clientAdmin.syncClient({
+    await this.clientSync.syncClient({
       id: config.messaging.clientId,
       token: config.messaging.clientToken,
       name: botId,

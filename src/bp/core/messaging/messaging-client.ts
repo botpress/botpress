@@ -3,7 +3,12 @@ import axios from 'axios'
 export class MessagingClient {
   private apiUrl: string
 
-  constructor(public baseUrl: string, private password: string, private clientId: string, private clientToken: string) {
+  constructor(
+    public baseUrl: string,
+    private password: string,
+    private clientId?: string,
+    private clientToken?: string
+  ) {
     this.apiUrl = `${this.baseUrl}/api`
   }
 
@@ -20,7 +25,7 @@ export class MessagingClient {
         channel,
         payload
       },
-      { headers: { password: this.password }, auth: { username: this.clientId, password: this.clientToken } }
+      { headers: { password: this.password }, auth: { username: this.clientId!, password: this.clientToken! } }
     )
     return res.data
   }

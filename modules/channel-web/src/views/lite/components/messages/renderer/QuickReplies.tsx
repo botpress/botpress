@@ -16,7 +16,9 @@ import { Button } from './Button'
  */
 export class QuickReplies extends Component<Renderer.QuickReply> {
   componentDidMount() {
-    this.props.store.composer.setLocked(this.props.disableFreeText)
+    this.props.isLastGroup &&
+      this.props.isLastOfGroup &&
+      this.props.store.composer.setLocked(this.props.disableFreeText)
   }
 
   componentWillUnmount() {
