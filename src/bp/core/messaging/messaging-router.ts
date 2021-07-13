@@ -11,7 +11,7 @@ export class MessagingRouter extends CustomRouter {
   }
 
   public setupRoutes(channelsConfig: ChannelConfigEntry[]): void {
-    this.router.post('/messaging/receive', async (req, res) => {
+    this.router.post('/receive', async (req, res) => {
       const msg = req.body
 
       await this.messaging.receive(

@@ -362,7 +362,7 @@ export class HTTPServer {
     this.app.use('/assets', this.guardWhiteLabel(), express.static(resolveAsset('')))
 
     this.app.use('/api/internal', this.internalRouter.router)
-    this.app.use(BASE_API_PATH, this.messagingRouter.router)
+    this.app.use(`${BASE_API_PATH}/messaging`, this.messagingRouter.router)
     this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
 
     this.app.use(`${BASE_API_PATH}/sdk`, this.sdkApiRouter.router)
