@@ -162,17 +162,17 @@ export default class WebchatApi {
     }
   }
 
-  async sendFeedback(feedback: number, eventId: string): Promise<void> {
+  async sendFeedback(feedback: number, messageId: uuid): Promise<void> {
     try {
-      return this.axios.post('/saveFeedback', { eventId, target: this.userId, feedback }, this.axiosConfig)
+      return this.axios.post('/saveFeedback', { messageId, target: this.userId, feedback }, this.axiosConfig)
     } catch (err) {
       await this.handleApiError(err)
     }
   }
 
-  async getEventIdsFeedbackInfo(eventIds: string[]): Promise<EventFeedback[]> {
+  async getMessageIdsFeedbackInfo(messageIds: string[]): Promise<EventFeedback[]> {
     try {
-      const { data } = await this.axios.post('/feedbackInfo', { eventIds, target: this.userId }, this.axiosConfig)
+      const { data } = await this.axios.post('/feedbackInfo', { messageIds, target: this.userId }, this.axiosConfig)
       return data
     } catch (err) {
       await this.handleApiError(err)

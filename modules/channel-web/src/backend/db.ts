@@ -87,11 +87,28 @@ export default class WebchatDb {
     return { fullName, avatar_url: _.get(user, 'attributes.picture_url') }
   }
 
-  async getFeedbackInfoForEventIds(target: string, eventIds: string[]) {
-    return this.knex('events')
+  async getFeedbackInfoForMessageIds(target: string, messageIds: string[]) {
+    const messageAndIncomingEventIds = await this.knex('events')
+      .select(['messageId', 'incomingEventId'])
+      .whereIn('messageId', messageIds)
+      .andWhere({ target })
+
+    const incomingEventIds = messageAndIncomingEventIds.map(x => x.incomingEventId)
+
+    const incomingEventsFeedback = await this.knex('events')
       .select(['incomingEventId', 'feedback'])
-      .whereIn('incomingEventId', eventIds)
+      .whereIn('incomingEventId', incomingEventIds)
       .andWhere({ target, direction: 'incoming' })
+
+    const infos = []
+    for (const message of messageAndIncomingEventIds) {
+      const incomingEvent = incomingEventsFeedback.find(x => x.incomingEventId === message.incomingEventId)
+      if (incomingEvent) {
+        infos.push({ messageId: message.messageId, feedback: incomingEvent.feedback })
+      }
+    }
+
+    return infos
   }
 
   getMessagingClient = async (botId: string) => {

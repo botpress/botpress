@@ -111,9 +111,9 @@ class MessageGroup extends React.Component<Props> {
                     showInlineFeedback && (
                       <InlineFeedback
                         intl={this.props.store.intl}
-                        incomingEventId={(message as any).incomingEventId}
+                        messageId={message.id}
                         onFeedback={this.props.onFeedback}
-                        eventFeedbacks={this.props.store.eventFeedbacks}
+                        messageFeedbacks={this.props.store.messageFeedbacks}
                       />
                     )
                   }

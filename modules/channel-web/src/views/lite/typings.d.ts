@@ -319,6 +319,6 @@ interface MessageWrapper {
 }
 
 export interface EventFeedback {
-  incomingEventId: string
+  messageId: string
   feedback?: number
 }

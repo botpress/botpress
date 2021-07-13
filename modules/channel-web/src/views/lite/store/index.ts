@@ -58,7 +58,7 @@ class RootStore {
   public isInitialized: boolean
 
   @observable
-  public eventFeedbacks: EventFeedback[]
+  public messageFeedbacks: EventFeedback[]
 
   public intl: InjectedIntl
 
@@ -335,19 +335,17 @@ class RootStore {
 
   @action.bound
   async extractFeedback(messages: Message[]): Promise<void> {
-    const feedbackEventIds = messages
-      .filter(x => x.payload && x.payload.collectFeedback)
-      .map(x => (x as any).incomingEventId)
+    const feedbackMessageIds = messages.filter(x => x.payload && x.payload.collectFeedback).map(x => x.id)
 
-    const feedbackInfo = await this.api.getEventIdsFeedbackInfo(feedbackEventIds)
+    const feedbackInfo = await this.api.getMessageIdsFeedbackInfo(feedbackMessageIds)
     runInAction('-> setFeedbackInfo', () => {
-      this.eventFeedbacks = feedbackInfo
+      this.messageFeedbacks = feedbackInfo
     })
   }
 
   @action.bound
-  async sendFeedback(feedback: number, eventId: string): Promise<void> {
-    await this.api.sendFeedback(feedback, eventId)
+  async sendFeedback(feedback: number, messageId: string): Promise<void> {
+    await this.api.sendFeedback(feedback, messageId)
   }
 
   @action.bound
