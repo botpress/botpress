@@ -8,6 +8,7 @@ import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import { Channel } from './channels/base'
 import { ChannelMessenger } from './channels/messenger'
 import { ChannelSlack } from './channels/slack'
+import { ChannelSmooch } from './channels/smooch'
 import { ChannelTeams } from './channels/teams'
 import { ChannelTelegram } from './channels/telegram'
 import { ChannelTwilio } from './channels/twilio'
@@ -38,7 +39,8 @@ export class MessagingService {
       new ChannelTeams(this, this.ghostService),
       new ChannelSlack(this, this.ghostService),
       new ChannelVonage(this, this.ghostService),
-      new ChannelMessenger(this, this.ghostService)
+      new ChannelMessenger(this, this.ghostService),
+      new ChannelSmooch(this, this.ghostService)
     ]
     this.channelNames = this.channels.map(x => x.name)
 

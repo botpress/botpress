@@ -28,6 +28,7 @@ export interface AuthStrategyConfig {
   loginUrl?: string
   registerUrl?: string
   label?: string
+  hidden?: boolean
 }
 
 export interface Workspace {
