@@ -12,6 +12,11 @@ export interface ModuleConfigEntry {
   enabled: boolean
 }
 
+export interface ChannelConfigEntry {
+  name: string
+  enabled: boolean
+}
+
 export interface DialogConfig {
   /**
    * Interval between executions of the janitor that checks for stale contexts and sessions.
@@ -169,6 +174,7 @@ export interface BotpressConfig {
   dialog: DialogConfig
   logs: LogsConfig
   modules: Array<ModuleConfigEntry>
+  channels: Array<ChannelConfigEntry>
   pro: {
     /**
      * These strategies are allowed to log on the Admin UI.

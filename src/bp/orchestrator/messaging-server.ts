@@ -46,6 +46,7 @@ export const startMessagingServer = async (opts: Partial<MessagingServerOptions>
     NODE_ENV: process.env.NODE_ENV,
     NODE_OPTIONS: '',
     PORT: port.toString(),
+    EXTERNAL_URL: process.core_env.EXTERNAL_URL,
     INTERNAL_PASSWORD: process.INTERNAL_PASSWORD,
     ENCRYPTION_KEY: '', // we disable encryption for now,
     DATABASE_URL: process.core_env.DATABASE_URL || `${process.PROJECT_LOCATION}/data/storage/core.sqlite`,
@@ -53,6 +54,7 @@ export const startMessagingServer = async (opts: Partial<MessagingServerOptions>
     CLUSTER_ENABLED: process.core_env.CLUSTER_ENABLED?.toString(),
     REDIS_URL: process.core_env.REDIS_URL,
     REDIS_SCOPE: process.core_env.BP_REDIS_SCOPE,
+    REDIS_OPTIONS: process.env.REDIS_OPTIONS,
     LOGGING_ENABLED: 'false',
     SKIP_LOAD_ENV: 'true',
     SKIP_LOAD_CONFIG: 'true'
