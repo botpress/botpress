@@ -9,11 +9,13 @@ import { MessageType, onProcessExit, registerProcess, registerMsgHandler } from 
 export interface MessagingServerOptions {
   host: string
   port: number
+  EXTERNAL_URL?: string
 }
 
 export const DEFAULT_MESSAGING_OPTIONS: MessagingServerOptions = {
   host: 'localhost',
-  port: 3100
+  port: 3100,
+  EXTERNAL_URL: undefined
 }
 
 export const getMessagingBinaryPath = () => {
@@ -24,9 +26,9 @@ export const getMessagingBinaryPath = () => {
 let initialParams: Partial<MessagingServerOptions>
 
 export const registerMessagingServerMainHandler = (logger: sdk.Logger) => {
-  registerMsgHandler(MessageType.StartMessagingServer, async (message: Partial<MessagingServerOptions>) => {
-    initialParams = message
-    await startMessagingServer(message, logger)
+  registerMsgHandler(MessageType.StartMessagingServer, async (message: any) => {
+    initialParams = message.params
+    await startMessagingServer(message.params, logger)
   })
 }
 
@@ -46,7 +48,7 @@ export const startMessagingServer = async (opts: Partial<MessagingServerOptions>
     NODE_ENV: process.env.NODE_ENV,
     NODE_OPTIONS: '',
     PORT: port.toString(),
-    EXTERNAL_URL: process.core_env.EXTERNAL_URL,
+    EXTERNAL_URL: opts.EXTERNAL_URL,
     INTERNAL_PASSWORD: process.INTERNAL_PASSWORD,
     ENCRYPTION_KEY: '', // we disable encryption for now,
     DATABASE_URL: process.core_env.DATABASE_URL || `${process.PROJECT_LOCATION}/data/storage/core.sqlite`,
