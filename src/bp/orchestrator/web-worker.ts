@@ -46,7 +46,7 @@ export const setupWebWorker = () => {
         // We also start the messaging server
         process.send!({
           type: MessageType.StartMessagingServer,
-          params: {}
+          params: { EXTERNAL_URL: process.EXTERNAL_URL }
         })
         break
       case 'studio':
