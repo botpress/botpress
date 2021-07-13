@@ -35,7 +35,7 @@ jobs:
       - name: Run Tests
         run: |
           yarn start & sleep 5s &&
-          HEADLESS=true JEST_TIMEOUT=30000 yarn itest
+          HEADLESS=true BP_LICENSE_KEY=${{ secrets.BP_LICENSE_KEY }} JEST_TIMEOUT=30000 yarn itest
       - name: Upload Screenshots
         uses: actions/upload-artifact@master
         if: failure()
