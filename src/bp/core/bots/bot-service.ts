@@ -296,6 +296,8 @@ export class BotService {
 
         await this.workspaceService.addBotRef(botId, workspaceId)
 
+        await studioActions.checkBotMigrations(botId)
+
         if (!originalConfig.disabled) {
           if (!(await this.mountBot(botId))) {
             this.logger.forBot(botId).warn(`Import of bot ${botId} completed, but it couldn't be mounted`)
@@ -594,9 +596,6 @@ export class BotService {
       if (!config.languages.includes(config.defaultLanguage)) {
         throw new Error('Supported languages must include the default language of the bot')
       }
-
-      // Calling studio mount, because it is the studio which runs migration on bots.
-      await studioActions.setBotMountStatus(botId, true)
 
       await this.cms.loadElementsForBot(botId)
       await this.moduleLoader.loadModulesForBot(botId)

@@ -37,6 +37,11 @@ export const studioActions = {
       await studioClient?.post('/setBotMountStatus', { botId, isMounted })
     } catch {}
   },
+  checkBotMigrations: async (botId?: string) => {
+    try {
+      await studioClient?.post('/checkBotMigrations', { botId })
+    } catch {}
+  },
   getDebugScopes: async (): Promise<object> => {
     try {
       if (studioClient) {

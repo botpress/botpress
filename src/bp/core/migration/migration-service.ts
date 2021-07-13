@@ -11,6 +11,7 @@ import fse from 'fs-extra'
 import glob from 'glob'
 import { Container, inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
+import { studioActions } from 'orchestrator'
 import path from 'path'
 import semver from 'semver'
 import stripAnsi from 'strip-ansi'
@@ -103,6 +104,9 @@ export class MigrationService {
     captureLogger.dispose()
 
     await this.persistMigrationStatus(logs, migrationsToExecute)
+
+    // If the core was migrated, check if bots also need to be migrated
+    await studioActions.checkBotMigrations()
 
     if (process.MIGRATE_CMD !== undefined) {
       process.exit(0)
