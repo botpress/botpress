@@ -1,6 +1,7 @@
 import { BotConfig, BotTemplate } from 'botpress/sdk'
 import { ServerHealth } from 'common/typings'
 
+import { ALL_BOTS } from 'common/utils'
 import api from '~/app/api'
 import { AppThunk } from '~/app/rootReducer'
 
@@ -11,6 +12,7 @@ const FETCH_BOTS_BY_WORKSPACE = 'bots/FETCH_BOTS_BY_WORKSPACE'
 const RECEIVED_BOT_CATEGORIES = 'bots/RECEIVED_BOT_CATEGORIES'
 const RECEIVED_BOT_TEMPLATES = 'bots/RECEIVED_BOT_TEMPLATES'
 const SET_WORKSPACE_APPS_BOT_ID = 'bots/SET_WORKSPACE_APPS_BOT_ID'
+const FETCH_BOT_NLU_LANGUAGES_RECEIVED = 'bots/FETCH_BOT_NLU_LANGUAGES_RECEIVED'
 
 interface BotState {
   bots: BotConfig[]
@@ -24,6 +26,8 @@ interface BotState {
   workspace?: { name: string; pipeline: any }
   // Sets the current bot used by workspace apps
   workspaceAppsBotId?: string
+  // Fetches the list of languages available with the NLU
+  nluLanguages: string[]
 }
 
 const initialState: BotState = {
@@ -34,7 +38,8 @@ const initialState: BotState = {
   botTemplatesFetched: false,
   botCategories: [],
   botCategoriesFetched: false,
-  workspace: undefined
+  workspace: undefined,
+  nluLanguages: []
 }
 
 export default (state = initialState, action): BotState => {
@@ -81,6 +86,12 @@ export default (state = initialState, action): BotState => {
       return {
         ...state,
         workspaceAppsBotId: action.botId
+      }
+
+    case FETCH_BOT_NLU_LANGUAGES_RECEIVED:
+      return {
+        ...state,
+        nluLanguages: action.languages
       }
 
     default:
@@ -145,6 +156,16 @@ export const fetchBotHealth = (): AppThunk => {
     }
 
     dispatch({ type: FETCH_BOT_HEALTH_RECEIVED, health: data.payload })
+  }
+}
+
+export const fetchBotNLULanguages = (): AppThunk => {
+  return async dispatch => {
+    const { data } = await api.getSecured({ useV1: true }).get(`/bots/${ALL_BOTS}/mod/nlu/health`)
+    if (!data || !data.validLanguages) {
+      return
+    }
+    dispatch({ type: FETCH_BOT_NLU_LANGUAGES_RECEIVED, languages: data.validLanguages })
   }
 }
 
