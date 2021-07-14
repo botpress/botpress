@@ -9,6 +9,7 @@
       "main/dialog",
       "main/code",
       "main/memory",
+      "main/qna-module",
       "main/module",
       "main/nlu",
       "main/emulator"
