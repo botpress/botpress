@@ -53,7 +53,7 @@ Messages received from messaging channels are then processed. During processing,
 - **Entity Extraction**: extracting structured information from messages like dates, time, cities, names, and more.
 - **Slot tagging**: identify necessary **parameters** to fulfill given tasks.
 - **Language Identification**: knowing in which language the user is writing.
-- **Spell Checking**: giving you one less thing to worry about by making sure your chatbot is fluent.
+- **Spell Checking**: giving you one less thing to worry about by making sure your user's text input is spelt correctly by fixing typo and other errors,
 -**Out of Scope Recognition**: identifying instances when a user says something that the chatbot cannot understand.
 
 All of the above will help you create more natural and pleasurable conversations.
@@ -130,6 +130,10 @@ After the Dialog Manager has decided how your chatbot should reply to a specific
 
 ### Content Element
 A Content Element is a structured object that holds information about what to say (for instance, the text phrase displayed to the user). 
+
+### Content Type
+A Content Type defines the nature of what the chatbot sends. Examples are a text message, an image, and a card.
+
 
 ### Content Renderer
 A Content Renderer is a function that transforms that structured object into a platform-specific message (for example, making some of the response text bold or italicized on Facebook Messenger).
