@@ -17,7 +17,7 @@ import { FileRevision, StorageDriver } from '../'
 export class DiskStorageDriver implements StorageDriver {
   resolvePath = (p: string) => path.resolve(process.PROJECT_LOCATION, p)
 
-  private readonly lockfilePath = this.resolvePath(path.join('data/locks'))
+  private readonly lockfilePath = this.resolvePath('data/locks')
   private lockOptions = (file: string): lockfile.LockOptions => ({
     retries: {
       retries: 5,
