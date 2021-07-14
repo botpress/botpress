@@ -1,10 +1,11 @@
 import { DirectoryListingOptions } from 'botpress/sdk'
 import { BPError } from 'core/dialog/errors'
 import { forceForwardSlashes } from 'core/misc/utils'
+import crypto from 'crypto'
 import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
 import glob from 'glob'
-import { injectable } from 'inversify'
+import { injectable, postConstruct } from 'inversify'
 import _ from 'lodash'
 import path from 'path'
 import lockfile from 'proper-lockfile'
@@ -15,13 +16,26 @@ import { FileRevision, StorageDriver } from '../'
 @injectable()
 export class DiskStorageDriver implements StorageDriver {
   resolvePath = (p: string) => path.resolve(process.PROJECT_LOCATION, p)
-  private readonly lockOptions: lockfile.LockOptions = {
+
+  private readonly lockfilePath = this.resolvePath(path.join('data/locks'))
+  private lockOptions = (file: string): lockfile.LockOptions => ({
     retries: {
       retries: 5,
       factor: 3,
       minTimeout: 1 * 1000,
-      maxTimeout: 60 * 1000,
+      maxTimeout: 10 * 1000,
       randomize: true
+    },
+    lockfilePath: path.join(this.lockfilePath, `${file}.lock`)
+  })
+
+  @postConstruct()
+  async init() {
+    const isDirEmpty = async (dirname: string) => (await fse.readdir(dirname)).length === 0
+
+    const exists = await fse.pathExists(this.lockfilePath)
+    if ((exists && !(await isDirEmpty(this.lockfilePath))) || !exists) {
+      await fse.emptyDir(this.lockfilePath)
     }
   }
 
@@ -31,7 +45,7 @@ export class DiskStorageDriver implements StorageDriver {
       const filename = this.resolvePath(filePath)
       const folder = path.dirname(filename)
 
-      const release = await lockfile.lock(filename, this.lockOptions)
+      const release = await lockfile.lock(filename, this.lockOptions(this._hash(filename)))
       try {
         await fse.mkdirp(folder)
         await fse.writeFile(filename, content)
@@ -51,7 +65,7 @@ export class DiskStorageDriver implements StorageDriver {
     try {
       const filename = this.resolvePath(filePath)
 
-      const release = await lockfile.lock(filename, this.lockOptions)
+      const release = await lockfile.lock(filename, this.lockOptions(this._hash(filename)))
       try {
         return fse.readFile(filename)
       } finally {
@@ -185,6 +199,13 @@ export class DiskStorageDriver implements StorageDriver {
       .map(f => f.split('/')[0])
       .uniq()
       .value()
+  }
+
+  private _hash(str: string): string {
+    return crypto
+      .createHash('sha256')
+      .update(str)
+      .digest('hex')
   }
 
   private async _getGhostIgnorePatterns(ghostIgnorePath: string): Promise<string[]> {
