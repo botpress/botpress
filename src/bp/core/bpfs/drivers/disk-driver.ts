@@ -55,7 +55,7 @@ export class DiskStorageDriver implements StorageDriver {
       try {
         return fse.readFile(filename)
       } finally {
-        release()
+        await release()
       }
     } catch (e) {
       if (e.code === 'ENOENT') {
