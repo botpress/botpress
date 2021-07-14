@@ -19,7 +19,7 @@ For example, the path shown in the debugger to the language parameter is nlu.lan
 
 In the Flow Editor, you can access system parameters by bracketing them with two sets of curly brackets. For example, in a message, you could say:
 
-> The chatbot's language is {{event.nlu.language}}.
+> The user input language is {{event.nlu.language}}.
 
 You can also set variables to be the value of a system parameter as follows:
 
