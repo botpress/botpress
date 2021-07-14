@@ -9,7 +9,7 @@ In a conversation, you may want to ask questions to the user and remember his an
 
 When a user talks to a chatbot, Botpress tracks all variables and parameters associated with that chatbot as the chatbot transitions from one state to another. If you run the debugger, you will see the tree of all the system parameters that it tracks. Just click the debugger button (circled in red below) and it will open in the bottom panel by default.
 
-![How to ACcess Debugger](../assets/access-debugger.png)
+![How to Access Debugger](../assets/access-debugger.png)
 
 You can access these system parameters from the flow builder and within your code (including in Actions). To do so, all you need to do to reference a parameter by prefixing the path shown in the emulator with “event.”.
 
