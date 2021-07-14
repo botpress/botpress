@@ -14,6 +14,7 @@ import {
 import { BotConfig, ModuleDefinition } from 'botpress/sdk'
 import { lang, toast } from 'botpress/shared'
 import cx from 'classnames'
+import { intersection } from 'lodash'
 import React, { FC, Fragment } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import history from '~/app/history'
@@ -39,6 +40,7 @@ interface Props {
   reloadBot?: () => void
   viewLogs?: () => void
   loadedModules: ModuleDefinition[]
+  installedNLULanguages: string[]
 }
 
 const BotItemPipeline: FC<Props> = ({
@@ -56,7 +58,8 @@ const BotItemPipeline: FC<Props> = ({
   rollback,
   reloadBot,
   viewLogs,
-  loadedModules
+  loadedModules,
+  installedNLULanguages
 }) => {
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
@@ -66,6 +69,8 @@ const BotItemPipeline: FC<Props> = ({
     isApprover &&
     bot.pipeline_status.stage_request &&
     !(bot.pipeline_status.stage_request.approvals || []).find(x => x.email === userEmail && x.strategy === userStrategy)
+  const languages = intersection(bot.languages, installedNLULanguages)
+  const botHasUninstalledNLULanguages = bot.languages.length !== languages.length ? true : false
 
   return (
     <div className={style.pipeline_bot} key={bot.id}>
@@ -189,9 +194,9 @@ const BotItemPipeline: FC<Props> = ({
           {nluModuleEnabled && <NeedsTrainingWarning bot={bot.id} languages={bot.languages} />}
         </AccessControl>
 
-        {!bot.defaultLanguage && (
-          <Tooltip position="right" content={lang.tr('admin.workspace.bots.item.languageIsMissing')}>
-            <Icon icon="warning-sign" intent={Intent.DANGER} style={{ marginLeft: 10 }} />
+        {botHasUninstalledNLULanguages && (
+          <Tooltip position="right" content={lang.tr('admin.workspace.bots.item.enableNLULanguages')}>
+            <Icon icon="translate" intent={Intent.DANGER} style={{ marginLeft: 10 }} />
           </Tooltip>
         )}
       </div>

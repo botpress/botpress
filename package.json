@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "12.22.2",
+  "version": "12.23.0",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": "^12"
@@ -14,7 +14,7 @@
     "version": "0.1.2"
   },
   "studio": {
-    "version": "0.0.22"
+    "version": "0.0.23"
   },
   "scripts": {
     "postinstall": "yarn cmd postinstall",

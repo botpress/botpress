@@ -1,3 +1,29 @@
+# [12.23.0](https://github.com/botpress/botpress/compare/v12.22.2...v12.23.0) (2021-07-13)
+
+
+### Bug Fixes
+
+* **channel-telegram:** fix markdown rendering in telegram ([#5173](https://github.com/botpress/botpress/issues/5173)) ([4bb4fba](https://github.com/botpress/botpress/commit/4bb4fba)), closes [#5133](https://github.com/botpress/botpress/issues/5133)
+* **channel-web:** fix locked composer ([#5147](https://github.com/botpress/botpress/issues/5147)) ([19b2068](https://github.com/botpress/botpress/commit/19b2068))
+* **core:** fix missing await in mapping migration ([#5172](https://github.com/botpress/botpress/issues/5172)) ([e0c2d3b](https://github.com/botpress/botpress/commit/e0c2d3b))
+* **core:** subflow transitions for timeout flow ([#5160](https://github.com/botpress/botpress/issues/5160)) ([f384f78](https://github.com/botpress/botpress/commit/f384f78))
+* **docs:** links & minor kinks ([#5127](https://github.com/botpress/botpress/issues/5127)) ([29cd796](https://github.com/botpress/botpress/commit/29cd796))
+* **hitlnext:** UI modification, toast over composer  ([#5154](https://github.com/botpress/botpress/issues/5154)) ([9c257c6](https://github.com/botpress/botpress/commit/9c257c6))
+* **studio:** Added language warning sign in the bot list ([#5138](https://github.com/botpress/botpress/issues/5138)) ([ab592a1](https://github.com/botpress/botpress/commit/ab592a1))
+* **studio:** fix config save ([#5185](https://github.com/botpress/botpress/issues/5185)) ([85cb989](https://github.com/botpress/botpress/commit/85cb989))
+* show only messages from the current chat ([#5148](https://github.com/botpress/botpress/issues/5148)) ([229dbaa](https://github.com/botpress/botpress/commit/229dbaa))
+* **studio:** fix icon display in the studio and skill ([#5123](https://github.com/botpress/botpress/issues/5123)) ([12c2375](https://github.com/botpress/botpress/commit/12c2375))
+* **teams:** send quick_reply for Choice skill ([#5130](https://github.com/botpress/botpress/issues/5130)) ([1c8ede3](https://github.com/botpress/botpress/commit/1c8ede3))
+
+
+### Features
+
+* **auth:** allow to hide default auth strategy when alternative used ([#5121](https://github.com/botpress/botpress/issues/5121)) ([d5e7f95](https://github.com/botpress/botpress/commit/d5e7f95))
+* **builtin:** improve single choice ([#5131](https://github.com/botpress/botpress/issues/5131)) ([14fe5c8](https://github.com/botpress/botpress/commit/14fe5c8))
+* **core:** get studio from its own repository ([#5029](https://github.com/botpress/botpress/issues/5029)) ([70a6384](https://github.com/botpress/botpress/commit/70a6384)), closes [#5043](https://github.com/botpress/botpress/issues/5043) [#5063](https://github.com/botpress/botpress/issues/5063)
+
+
+
 ## [12.22.2](https://github.com/botpress/botpress/compare/v12.22.0...v12.22.2) (2021-06-16)
 
 
