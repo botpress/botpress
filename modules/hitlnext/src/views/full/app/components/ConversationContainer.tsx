@@ -1,4 +1,4 @@
-import { Button } from '@blueprintjs/core'
+import { Button, Position } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
 import { isOperationAllowed, lang, MainLayout, PermissionOperation, toast } from 'botpress/shared'
 import cx from 'classnames'
@@ -24,7 +24,14 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
   async function handleAssign() {
     try {
       const handoff = await api.assignHandoff(state.selectedHandoffId)
-      toast.success(lang.tr('module.hitlnext.handoff.assigned', { id: handoff.id }))
+
+      toast.success(lang.tr('module.hitlnext.handoff.assigned', { id: handoff.id }), '', {
+        toasterProps: { position: Position.TOP }
+      })
+
+      toast.success(lang.tr('module.hitlnext.handoff.assigned', { id: handoff.id }), '', {
+        toasterProps: { position: Position.TOP }
+      })
     } catch (error) {
       dispatch({ type: 'setError', payload: error })
     }
@@ -33,7 +40,9 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
   async function handleResolve() {
     try {
       const handoff = await api.resolveHandoff(state.selectedHandoffId)
-      toast.success(lang.tr('module.hitlnext.handoff.resolved', { id: handoff.id }))
+      toast.success(lang.tr('module.hitlnext.handoff.resolved', { id: handoff.id }), '', {
+        toasterProps: { position: Position.TOP }
+      })
     } catch (error) {
       dispatch({ type: 'setError', payload: error })
     }
