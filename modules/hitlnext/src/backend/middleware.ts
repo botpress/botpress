@@ -21,7 +21,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
 
   const pipeEvent = async (event: sdk.IO.IncomingEvent, eventDestination: sdk.IO.EventDestination) => {
     debug.forBot(event.botId, 'Piping event', eventDestination)
-    return bp.events.replyToEvent(eventDestination, [{ type: 'typing', value: 10 }, event.payload])
+    return bp.events.replyToEvent(eventDestination, [event.payload])
   }
 
   const handoffCacheKey = (botId: string, threadId: string) => [botId, threadId].join('.')
@@ -43,9 +43,11 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   const handleIncomingFromUser = async (handoff: IHandoff, event: sdk.IO.IncomingEvent) => {
     if (handoff.status === 'assigned') {
       // There only is an agentId & agentThreadId after assignation
+
+      const { userId } = await repository.getMappingFromVisitor(handoff.agentId)
       await pipeEvent(event, {
         botId: handoff.botId,
-        target: handoff.agentId,
+        target: userId,
         threadId: handoff.agentThreadId,
         channel: handoff.userChannel
       })

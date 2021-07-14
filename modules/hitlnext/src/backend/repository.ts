@@ -4,6 +4,7 @@ import { BPRequest } from 'common/http'
 import { Workspace } from 'common/typings'
 import Knex from 'knex'
 import _ from 'lodash'
+import LRUCache from 'lru-cache'
 import ms from 'ms'
 
 import { COMMENT_TABLE_NAME, HANDOFF_TABLE_NAME, MODULE_NAME } from '../constants'
@@ -15,6 +16,12 @@ const debug = DEBUG(MODULE_NAME)
 
 export interface CollectionConditions extends Partial<sdk.SortOrder> {
   limit?: number
+}
+
+// Copy pasted from channel-web db.ts
+export interface UserMapping {
+  visitorId: string
+  userId: string
 }
 
 const commentPrefix = 'comment'
@@ -49,12 +56,16 @@ const userColumnsPrefixed = userColumns.map(s => userPrefix.concat(':', s))
 
 export default class Repository {
   private agentCache: Dic<Omit<IAgent, 'online'>> = {}
+  private cacheByVisitor: LRUCache<string, UserMapping>
+
   /**
    *
    * @param bp
    * @param timeouts Object to store agent session timeouts
    */
-  constructor(private bp: typeof sdk, private timeouts: object) {}
+  constructor(private bp: typeof sdk, private timeouts: object) {
+    this.cacheByVisitor = new LRUCache({ max: 10000, maxAge: ms('5min') })
+  }
 
   private serializeDate(object: object, paths: string[]) {
     const result = _.clone(object)
@@ -518,5 +529,23 @@ export default class Repository {
       { botId, threadId },
       { count: conditions.limit, sortOrder: [{ column: 'id', desc: true }] }
     )
+  }
+
+  // Copy pasted from channel-web db.ts
+  async getMappingFromVisitor(visitorId: string): Promise<UserMapping | undefined> {
+    const cached = this.cacheByVisitor.get(visitorId)
+    if (cached) {
+      return cached
+    }
+
+    const rows = await this.bp.database('web_user_map').where({ visitorId })
+
+    if (rows?.length) {
+      const mapping = rows[0] as UserMapping
+      this.cacheByVisitor.set(visitorId, mapping)
+      return mapping
+    }
+
+    return undefined
   }
 }
