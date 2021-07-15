@@ -280,11 +280,12 @@ export default async (bp: typeof sdk, state: StateType) => {
         { count: 10, sortOrder: [{ column: 'id', desc: true }] }
       )
 
+      const { userId } = await repository.getMappingFromVisitor(handoff.agentId)
       const baseEvent: Partial<sdk.IO.EventCtorArgs> = {
         direction: 'outgoing',
         channel: 'web',
         botId: handoff.botId,
-        target: handoff.agentId,
+        target: userId,
         threadId: handoff.agentThreadId
       }
 
