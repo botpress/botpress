@@ -85,42 +85,43 @@ const makeTempPackage = () => {
   fse.writeJsonSync(tempPkgPath, packageJson, { spaces: 2 })
 
   return {
-    release: () => fse.unlinkSync(tempPkgPath)
+    remove: () => fse.unlinkSync(tempPkgPath)
   }
+}
+
+const fetchExternalBinaries = () => {
+  const binOut = path.resolve(__dirname, '../packages/bp/binaries')
+
+  systems.forEach(({ osName, platform }) =>
+    execAsync(`yarn bpd init --output ${path.resolve(binOut, osName)} --platform ${platform}`)
+  )
 }
 
 const packageAll = async () => {
   const tempPackage = makeTempPackage()
-  const cwd = path.resolve(__dirname, '../packages/bp/dist')
-  const binOut = path.resolve(__dirname, '../packages/bp/binaries')
 
   try {
-    for (const { osName, platform } of systems) {
-      execAsync(`yarn bpd init --output ${path.resolve(binOut, osName)} --platform ${platform}`)
-    }
+    fetchExternalBinaries()
 
     await execAsync(`cross-env pkg --options max_old_space_size=16384 --output ../binaries/bp ./package.json`, {
-      cwd
+      cwd: path.resolve(__dirname, '../packages/bp/dist')
     })
   } catch (err) {
     console.error('Error running: ', err.cmd, '\nMessage: ', err.stderr, err)
   } finally {
-    tempPackage.release()
+    tempPackage.remove()
   }
 
   await Promise.map(systems, x => zipArchive(x))
 }
 
 const packageApp = async () => {
-  const additionalPackageJson = require(path.resolve(__dirname, './package.pkg.json'))
-  const realPackageJson = require(path.resolve(__dirname, '../package.json'))
-  const tempPkgPath = path.resolve(__dirname, '../packages/bp/dist/package.json')
+  const tempPackage = makeTempPackage()
+
   const cwd = path.resolve(__dirname, '../packages/bp/dist')
   const binOut = path.resolve(__dirname, '../packages/bp/binaries')
 
   try {
-    const packageJson = Object.assign(realPackageJson, additionalPackageJson)
-    await fse.writeFile(tempPkgPath, JSON.stringify(packageJson, null, 2), 'utf8')
     await execAsync(`yarn bpd init --output ${binOut} --platform ${getTargetOSName().replace('windows', 'win32')}`)
     await execAsync(
       `cross-env pkg --targets ${getTargetOSNodeVersion()} --options max_old_space_size=16384 --output ../binaries/bp ./package.json`,
@@ -131,7 +132,7 @@ const packageApp = async () => {
   } catch (err) {
     console.error('Error running: ', err.cmd, '\nMessage: ', err.stderr, err)
   } finally {
-    await fse.unlink(tempPkgPath)
+    tempPackage.remove()
   }
 }
 
