@@ -10,6 +10,30 @@ const archiver = require('archiver')
 const promisify = require('util').promisify
 const execAsync = promisify(exec)
 
+const systems = [
+  {
+    osName: 'win',
+    platform: 'win32',
+    binding: 'windows',
+    tempBin: 'bp-win.exe',
+    binaryName: 'bp.exe'
+  },
+  {
+    osName: 'darwin',
+    platform: 'darwin',
+    binding: 'darwin',
+    tempBin: 'bp-macos',
+    binaryName: 'bp'
+  },
+  {
+    osName: 'linux',
+    platform: 'linux',
+    binding: 'linux',
+    tempBin: 'bp-linux',
+    binaryName: 'bp'
+  }
+]
+
 const getTargetOSNodeVersion = () => {
   if (process.argv.find(x => x.toLowerCase() === '--win32')) {
     return 'node12-win32-x64'
@@ -30,8 +54,7 @@ const getTargetOSName = () => {
   }
 }
 
-const zipArchive = async (fileName, osName) => {
-  const bindingOsName = osName === 'win' ? 'windows' : osName
+const zipArchive = async ({ osName, binding, tempBin, binaryName }) => {
   const basePath = 'packages/bp'
   mkdirp.sync(`${basePath}/archives`)
 
@@ -42,8 +65,8 @@ const zipArchive = async (fileName, osName) => {
   const archive = archiver('zip')
   archive.pipe(output)
   archive.directory(`${basePath}/binaries/${osName}/bin`, 'bin')
-  archive.directory(`build/native-extensions/${bindingOsName}`, `bindings/${bindingOsName}`)
-  archive.file(`${basePath}/binaries/${fileName}`, { name: fileName.endsWith('.exe') ? 'bp.exe' : 'bp' })
+  archive.directory(`build/native-extensions/${binding}`, `bindings/${binding}`)
+  archive.file(`${basePath}/binaries/${tempBin}`, { name: binaryName })
 
   for (const file of glob.sync(`${basePath}/binaries/modules/*.tgz`)) {
     archive.file(file, { name: `modules/${path.basename(file)}` })
@@ -67,32 +90,25 @@ const makeTempPackage = () => {
 }
 
 const packageAll = async () => {
-  const additionalPackageJson = require(path.resolve(__dirname, './package.pkg.json'))
-  const realPackageJson = require(path.resolve(__dirname, '../package.json'))
-  const tempPkgPath = path.resolve(__dirname, '../packages/bp/dist/package.json')
+  const tempPackage = makeTempPackage()
   const cwd = path.resolve(__dirname, '../packages/bp/dist')
   const binOut = path.resolve(__dirname, '../packages/bp/binaries')
 
   try {
-    const packageJson = Object.assign(realPackageJson, additionalPackageJson)
-    await fse.writeFile(tempPkgPath, JSON.stringify(packageJson, null, 2), 'utf8')
+    for (const { osName, platform } of systems) {
+      execAsync(`yarn bpd init --output ${path.resolve(binOut, osName)} --platform ${platform}`)
+    }
 
-    // await execAsync(`cross-env pkg --options max_old_space_size=16384 --output ../binaries/bp ./package.json`, {
-    //   cwd
-    // })
-
-    await execAsync(`yarn bpd init --output ${path.resolve(binOut, 'win')} --platform win32`)
-    // await execAsync(`yarn bpd init --output ${path.resolve(binOut, 'darwin')} --platform darwin`)
-    // await execAsync(`yarn bpd init --output ${path.resolve(binOut, 'linux')} --platform linux`)
+    await execAsync(`cross-env pkg --options max_old_space_size=16384 --output ../binaries/bp ./package.json`, {
+      cwd
+    })
   } catch (err) {
     console.error('Error running: ', err.cmd, '\nMessage: ', err.stderr, err)
   } finally {
-    await fse.unlink(tempPkgPath)
+    tempPackage.release()
   }
 
-  await zipArchive('bp-win.exe', 'win')
-  // await zipArchive('bp-macos', 'darwin')
-  // await zipArchive('bp-linux', 'linux')
+  await Promise.map(systems, x => zipArchive(x))
 }
 
 const packageApp = async () => {

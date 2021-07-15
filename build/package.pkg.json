@@ -6,6 +6,7 @@
   "bin": "index.js",
   "private": true,
   "pkg": {
+    "targets": ["node12-win32-x64", "node12-linux-x64", "node12-macos-x64"],
     "scripts": [
       "./core/**/*.js",
       "./admin/**/*.js",
