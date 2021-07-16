@@ -996,9 +996,9 @@ declare module 'botpress/sdk' {
   }
 
   export interface MessagingConfig {
-    clientId: string
-    clientToken: string
-    providerName: string
+    id: string
+    token: string
+    channels: { [channelName: string]: any }
   }
 
   /**
