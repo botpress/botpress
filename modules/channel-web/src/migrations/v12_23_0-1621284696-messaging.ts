@@ -166,7 +166,7 @@ class MessagingUpMigrator {
       await this.onClientCreated(bot.id, client.id)
 
       await this.bp.config.mergeBotConfig(bot.id, {
-        messaging: { clientId: client.id, clientToken: token, providerName: provider.name }
+        messaging: { id: client.id, token, channels: {} }
       })
     }
   }
