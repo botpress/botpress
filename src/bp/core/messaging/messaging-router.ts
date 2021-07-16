@@ -1,8 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import { HTTPServer } from 'core/app/server'
-import { ChannelConfigEntry } from 'core/config'
 import { CustomRouter } from 'core/routers/customRouter'
 import { Router } from 'express'
+import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware'
 import { MessagingService } from './messaging-service'
 
 export class MessagingRouter extends CustomRouter {
@@ -10,7 +10,7 @@ export class MessagingRouter extends CustomRouter {
     super('Messaging', logger, Router({ mergeParams: true }))
   }
 
-  public setupRoutes(channelsConfig: ChannelConfigEntry[]): void {
+  public setupRoutes(): void {
     this.router.post('/receive', async (req, res) => {
       const msg = req.body
 
@@ -25,14 +25,20 @@ export class MessagingRouter extends CustomRouter {
       res.sendStatus(200)
     })
 
-    for (const channel of this.messaging.channels) {
-      // Check if channel is enabled Botpress-wide
-      const channelConfig = channelsConfig.find(c => c.name === channel.name)
-      if (!channelConfig || !channelConfig.enabled) {
-        continue
-      }
-
-      channel.setupRoutes(this.http)
-    }
+    this.router.use(
+      '/',
+      createProxyMiddleware({
+        pathRewrite: (path, req) => {
+          return path.replace('/api/v1/messaging', '')
+        },
+        router: () => {
+          return `http://localhost:${process.MESSAGING_PORT}`
+        },
+        changeOrigin: false,
+        logLevel: 'silent',
+        // Fix post requests when the middleware is added after the body parser mw
+        onProxyReq: fixRequestBody
+      })
+    )
   }
 }
