@@ -59,7 +59,9 @@ export const startMessagingServer = async (opts: Partial<MessagingServerOptions>
     REDIS_OPTIONS: process.env.REDIS_OPTIONS,
     LOGGING_ENABLED: 'false',
     SKIP_LOAD_ENV: 'true',
-    SKIP_LOAD_CONFIG: 'true'
+    SKIP_LOAD_CONFIG: 'true',
+    SPINNED: 'true',
+    NO_LAZY_LOADING: 'true'
   }
 
   if (!process.core_env.DEV_MESSAGING_PATH) {

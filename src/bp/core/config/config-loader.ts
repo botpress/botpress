@@ -203,10 +203,6 @@ export class ConfigProvider {
       {
         name: 'vonage',
         enabled: false
-      },
-      {
-        name: 'web',
-        enabled: true
       }
     ]
   }
