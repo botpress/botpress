@@ -23,27 +23,31 @@ export class MessagingClient {
     return res.data
   }
 
-  async createConversation(userId: string): Promise<Conversation> {
+  async createConversation(userId: uuid): Promise<Conversation> {
     const res = await this.axios.post(`${this.apiUrl}/conversations`, { userId })
     return res.data
   }
 
-  async getConversationById(id: uuid): Promise<Conversation> {
-    const res = await this.axios.get(`${this.apiUrl}/conversations/${id}`)
-    return res.data
+  async getConversationById(id: uuid): Promise<Conversation | undefined> {
+    try {
+      const res = await this.axios.get(`${this.apiUrl}/conversations/${id}`)
+      return res.data
+    } catch {
+      return undefined
+    }
   }
 
-  async listConversations(userId: string, limit: number): Promise<Conversation[]> {
+  async listConversations(userId: uuid, limit: number): Promise<Conversation[]> {
     const res = await this.axios.get(`${this.apiUrl}/conversations`, { params: { userId, limit } })
     return res.data
   }
 
-  async getMostRecentConversationForUser(userId: string): Promise<Conversation> {
+  async getMostRecentConversationForUser(userId: uuid): Promise<Conversation> {
     const res = await this.axios.get(`${this.apiUrl}/conversations/${userId}/recent`)
     return res.data
   }
 
-  async createMessage(conversationId: uuid, authorId: string, payload: any): Promise<Message> {
+  async createMessage(conversationId: uuid, authorId: uuid, payload: any): Promise<Message> {
     const res = await this.axios.post(`${this.apiUrl}/messages`, { conversationId, authorId, payload })
     return res.data
   }
