@@ -484,7 +484,7 @@ declare module 'botpress/sdk' {
       /** A sortable unique identifier for that event (time-based) */
       readonly id: string
       /** Id of the corresponding message in the messaging server */
-      readonly messageId?: string
+      messageId?: string
       /** The type of the event, i.e. image, text, timeout, etc */
       readonly type: string
       /** Is it (in)coming from the user to the bot or (out)going from the bot to the user? */
