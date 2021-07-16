@@ -138,7 +138,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
     if (conversationId) {
       const conversation = await req.messaging.getConversationById(conversationId)
-      if (!userId || conversation.userId !== userId) {
+      if (!conversation || !userId || conversation.userId !== userId) {
         next(ERR_BAD_CONV_ID)
       }
 
