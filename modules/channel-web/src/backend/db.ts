@@ -26,6 +26,21 @@ export default class WebchatDb {
     })
   }
 
+  async mapVisitor(visitorId: string, messaging: MessagingClient) {
+    const userMapping = await this.getMappingFromVisitor(visitorId)
+
+    let userId: string
+
+    if (!userMapping) {
+      userId = (await messaging.createUser()).id
+      await this.createUserMapping(visitorId, userId)
+    } else {
+      userId = userMapping.userId
+    }
+
+    return userId
+  }
+
   async getMappingFromVisitor(visitorId: string): Promise<UserMapping | undefined> {
     const cached = this.cacheByVisitor.get(visitorId)
     if (cached) {
