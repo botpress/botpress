@@ -3,11 +3,15 @@ import { HTTPServer } from 'core/app/server'
 import { CustomRouter } from 'core/routers/customRouter'
 import { Router } from 'express'
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware'
+import { MessagingLegacy } from './legacy'
 import { MessagingService } from './messaging-service'
 
 export class MessagingRouter extends CustomRouter {
+  private legacy: MessagingLegacy
+
   constructor(private logger: sdk.Logger, private messaging: MessagingService, private http: HTTPServer) {
     super('Messaging', logger, Router({ mergeParams: true }))
+    this.legacy = new MessagingLegacy(logger, http)
   }
 
   public setupRoutes(): void {
@@ -40,5 +44,7 @@ export class MessagingRouter extends CustomRouter {
         onProxyReq: fixRequestBody
       })
     )
+
+    this.legacy.setup()
   }
 }
