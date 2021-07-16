@@ -122,9 +122,9 @@ export default class WebchatDb {
     const botClient = new MessagingClient(
       `http://localhost:${process.MESSAGING_PORT}`,
       process.INTERNAL_PASSWORD,
-      messaging.clientId,
-      messaging.clientToken,
-      messaging.providerName
+      messaging.id,
+      messaging.token,
+      botId
     )
     this.messagingClients[botId] = botClient
 
