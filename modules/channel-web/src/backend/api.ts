@@ -134,16 +134,7 @@ export default async (bp: typeof sdk, db: Database) => {
     }
 
     req.messaging = await db.getMessagingClient(botId)
-
-    let userId: string
-    const userMapping = await db.getMappingFromVisitor(req.visitorId)
-
-    if (!userMapping) {
-      userId = (await req.messaging.createUser()).id
-      await db.createUserMapping(req.visitorId, userId)
-    } else {
-      userId = userMapping.userId
-    }
+    const userId = await db.mapVisitor(req.visitorId, req.messaging)
 
     if (conversationId) {
       const conversation = await req.messaging.getConversationById(conversationId)
@@ -605,7 +596,7 @@ export default async (bp: typeof sdk, db: Database) => {
     const { result: user } = await bp.users.getOrCreateUser('web', conversation.userId)
     const timeFormat = 'MM/DD/YY HH:mm'
     const fullName = `${user.attributes['first_name'] || ''} ${user.attributes['last_name'] || ''}`
-    const metadata = `Title: ${conversation.id}\r\nCreated on: ${moment(conversation.createdOn).format(
+    const metadata = `Conversation Id: ${conversation.id}\r\nCreated on: ${moment(conversation.createdOn).format(
       timeFormat
     )}\r\nUser: ${fullName}\r\n-----------------\r\n`
 
@@ -614,7 +605,7 @@ export default async (bp: typeof sdk, db: Database) => {
       if (type === 'session_reset') {
         return ''
       }
-      return `[${moment(message.sentOn).format(timeFormat)}] ${message.authorId || botId}: ${getMessageContent(
+      return `[${moment(message.sentOn).format(timeFormat)}] ${message.authorId ? 'User' : botId}: ${getMessageContent(
         message,
         type
       )}\r\n`
