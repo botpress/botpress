@@ -102,6 +102,10 @@ export class MessagingService {
   }
 
   private async handleOutgoingEvent(event: IO.OutgoingEvent, next: IO.MiddlewareNextCallback) {
+    if (event.channel === 'web') {
+      return
+    }
+
     // TODO: validate payload types here
     await this.clientsByBotId[event.botId].sendMessage(event.threadId!, event.channel, event.payload)
 
