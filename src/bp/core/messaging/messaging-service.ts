@@ -111,7 +111,7 @@ export class MessagingService {
 
   private async handleOutgoingEvent(event: IO.OutgoingEvent, next: IO.MiddlewareNextCallback) {
     if (event.channel === 'web') {
-      return
+      return next(undefined, false, true)
     }
 
     // TODO: validate payload types here
