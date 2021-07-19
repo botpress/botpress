@@ -5,6 +5,7 @@ import { bpConfig } from '../../jest-puppeteer.config'
 import { getPage } from './utils'
 
 const test = {
+  auth: './admin/auth.test',
   login: './admin/login.test',
   logout: './admin/logout.test',
   admin: {
@@ -35,7 +36,7 @@ const studio = [test.studio.ui, test.studio.flows, test.studio.cms, test.studio.
 const modules = [/*test.mod.qna*,*/ test.mod.editor, test.mod.testing, test.mod.webchat]
 
 /** Define test pipelines below */
-const allTests = [test.login, ...admin, ...studio, ...modules, test.logout]
+const allTests = [test.auth, test.login, ...admin, ...studio, ...modules, test.logout]
 const studioTests = [test.login, ...studio, test.logout]
 const adminTests = [test.login, ...admin, test.logout]
 

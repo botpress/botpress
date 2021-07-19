@@ -274,6 +274,15 @@ export class DialogEngine {
       event.state.context.currentNode = timeoutNode.name
       event.state.context.currentFlow = timeoutFlow.name
       event.state.context.queue = undefined
+      event.state.context.previousFlow = currentFlow.name
+      event.state.context.previousNode = currentNode?.name as string
+      event.state.context.jumpPoints = [
+        ...(event.state.context?.jumpPoints || []),
+        {
+          flow: currentFlow.name,
+          node: currentNode?.name as string
+        }
+      ]
       event.state.context.hasJumped = true
     }
 
@@ -367,7 +376,7 @@ export class DialogEngine {
       const parentNode = this._findNode(event.botId, parentFlow, specificNode || prevJumpPoint.node)
 
       const builder = new InstructionsQueueBuilder(parentNode, parentFlow)
-      const queue = builder.onlyTransitions().build()
+      const queue = prevJumpPoint.executeNode ? builder.build() : builder.onlyTransitions().build()
 
       event.state.__stacktrace.push({ flow: parentFlow.name, node: parentNode.name })
 
