@@ -48,7 +48,7 @@ export const startMessagingServer = async (opts: Partial<MessagingServerOptions>
     NODE_ENV: process.env.NODE_ENV,
     NODE_OPTIONS: '',
     PORT: port.toString(),
-    EXTERNAL_URL: opts.EXTERNAL_URL,
+    EXTERNAL_URL: `${opts.EXTERNAL_URL}/api/v1/messaging`,,
     INTERNAL_PASSWORD: process.INTERNAL_PASSWORD,
     ENCRYPTION_KEY: '', // we disable encryption for now,
     DATABASE_URL: process.core_env.DATABASE_URL || `${process.PROJECT_LOCATION}/data/storage/core.sqlite`,
@@ -61,7 +61,9 @@ export const startMessagingServer = async (opts: Partial<MessagingServerOptions>
     SKIP_LOAD_ENV: 'true',
     SKIP_LOAD_CONFIG: 'true',
     SPINNED: 'true',
-    NO_LAZY_LOADING: 'true'
+    NO_LAZY_LOADING: 'true',
+    // Temporary to make media urls work
+    BOT_ID: opts.EXTERNAL_URL
   }
 
   if (!process.core_env.DEV_MESSAGING_PATH) {
