@@ -164,7 +164,7 @@ class Message extends Component<MessageProps> {
 
     const additionalStyle = (this.props.payload && this.props.payload['web-style']) || {}
 
-    if (this.props.noBubble || this.props.payload.wrapped?.noBubble) {
+    if (this.props.noBubble || this.props.payload?.wrapped?.noBubble) {
       return (
         <div className={classnames(this.props.className, wrappedClass)} style={additionalStyle}>
           {rendered}
