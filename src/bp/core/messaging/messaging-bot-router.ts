@@ -63,29 +63,18 @@ export class MessagingBotRouter extends CustomRouter {
     )
   }
 
-  private loadEvents = async (fields: Partial<sdk.IO.StoredEvent>) => {
+  private loadEvents = async (fields: Partial<sdk.IO.StoredEvent>, retryCount: number = 0) => {
     const DELAY_BETWEEN_CALLS = 500
     const allowedRetryCount = 6
-    let currentRetryCount = 0
-    let keepRetrying = false
 
-    try {
-      return this.eventRepo.findEvents(fields)
-    } catch (err) {
-      keepRetrying = true
-    }
-
-    if (keepRetrying) {
-      if (currentRetryCount < allowedRetryCount) {
-        currentRetryCount++
-
-        await Promise.delay(DELAY_BETWEEN_CALLS)
-        return this.loadEvents(fields)
-      } else {
-        currentRetryCount = 0
-      }
+    const events = await this.eventRepo.findEvents(fields)
+    if (events?.length) {
+      return events
+    } else if (retryCount < allowedRetryCount) {
+      await Promise.delay(DELAY_BETWEEN_CALLS)
+      return this.loadEvents(fields, retryCount++)
     } else {
-      currentRetryCount = 0
+      return []
     }
   }
 }
