@@ -48,7 +48,7 @@ export const startMessagingServer = async (opts: Partial<MessagingServerOptions>
     NODE_ENV: process.env.NODE_ENV,
     NODE_OPTIONS: '',
     PORT: port.toString(),
-    EXTERNAL_URL: `${opts.EXTERNAL_URL}/api/v1/messaging`,,
+    EXTERNAL_URL: `${opts.EXTERNAL_URL}/api/v1/messaging`,
     INTERNAL_PASSWORD: process.INTERNAL_PASSWORD,
     ENCRYPTION_KEY: '', // we disable encryption for now,
     DATABASE_URL: process.core_env.DATABASE_URL || `${process.PROJECT_LOCATION}/data/storage/core.sqlite`,
