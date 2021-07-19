@@ -61,7 +61,9 @@ export const startMessagingServer = async (opts: Partial<MessagingServerOptions>
     SKIP_LOAD_ENV: 'true',
     SKIP_LOAD_CONFIG: 'true',
     SPINNED: 'true',
-    NO_LAZY_LOADING: 'true'
+    NO_LAZY_LOADING: 'true',
+    // Temporary to make media urls work
+    BOT_ID: opts.EXTERNAL_URL
   }
 
   if (!process.core_env.DEV_MESSAGING_PATH) {

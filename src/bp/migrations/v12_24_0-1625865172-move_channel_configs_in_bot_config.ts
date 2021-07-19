@@ -1,12 +1,23 @@
 import * as sdk from 'botpress/sdk'
 import { Migration, MigrationOpts } from 'core/migration'
 
-const EXCEPTION = 'channel-web'
 const ROOT_FOLDER = './config'
+const CHANNELS = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage'] as const
+const ALLOWED_CHANNEL_CONFIG: { [key in Channels]: Set<string> } = {
+  messenger: new Set(['accessToken', 'appSecret', 'verifyToken', 'disabledActions', 'enabled']),
+  slack: new Set(['botToken', 'signingSecret', 'useRTM', 'enabled']),
+  smooch: new Set(['keyId', 'secret', 'forwardRawPayloads', 'enabled']),
+  teams: new Set(['appId', 'appPassword', 'tenantId', 'proactiveMessages', 'enabled']),
+  telegram: new Set(['botToken', 'enabled']),
+  twilio: new Set(['accountSID', 'authToken', 'enabled']),
+  vonage: new Set(['apiKey', 'apiSecret', 'signatureSecret', 'applicationId', 'privateKey', 'useTestingApi', 'enabled'])
+}
+
+type Channels = typeof CHANNELS[number]
 
 const migration: Migration = {
   info: {
-    description: 'Move channel configs inside bot config',
+    description: 'Move channel configs into bot config',
     target: 'bot',
     type: 'config'
   },
@@ -16,12 +27,13 @@ const migration: Migration = {
     for (const module of config.modules) {
       const { location, enabled } = module
 
-      if (location.includes('channel-') && !location.includes(EXCEPTION)) {
-        channels[location.replace('MODULES_ROOT/channel-', '')] = enabled
+      const channelName = location.replace('MODULES_ROOT/channel-', '')
+      if (location.includes('channel-') && CHANNELS.includes(channelName as Channels)) {
+        channels[channelName] = enabled
       }
     }
 
-    const updateBotChannelConfig = async (botId: string, botConfig: sdk.BotConfig) => {
+    const prepareBotConfig = (botConfig: sdk.BotConfig) => {
       if (!botConfig.messaging) {
         ;(botConfig as any).messaging = { channels: {} }
       }
@@ -29,18 +41,27 @@ const migration: Migration = {
       if (!botConfig.messaging!.channels) {
         botConfig.messaging!.channels = {}
       }
+    }
+
+    const updateBotChannelConfig = async (botId: string, botConfig: sdk.BotConfig) => {
+      if (Object.keys(botConfig.messaging?.channels || {}).length) {
+        bp.logger.warn(`Skipping migration for bot ${botId}. Bot configuration already contains migrated info.`)
+        return
+      }
+
+      prepareBotConfig(botConfig)
 
       const ghost = bp.ghost.forBot(botId)
       const channelConfigsFilePath = await ghost.directoryListing(ROOT_FOLDER, 'channel-*.json')
       for (const file of channelConfigsFilePath) {
-        if (file.replace('.json', '').includes(EXCEPTION)) {
+        const channelName = file.replace('.json', '').replace('channel-', '')
+        if (!CHANNELS.includes(channelName as Channels)) {
           continue
         }
 
-        const channelName = file.replace('.json', '').replace('channel-', '')
         let config = await ghost.readFileAsObject<any>(ROOT_FOLDER, file)
 
-        // Disable channel is module was disabled
+        // Disable channel if module was disabled
         if (channels[channelName] === false) {
           config.enabled = false
         }
@@ -57,10 +78,12 @@ const migration: Migration = {
           }
         }
 
-        // Remove unsupported fields
-        delete config.botPhoneNumber
-        delete config.chatUserAuthDuration
-        delete config.$schema
+        // Remove fields that are unsupported by messaging
+        Object.keys(config).forEach(key => {
+          if (!ALLOWED_CHANNEL_CONFIG[channelName].has(key)) {
+            delete config[key]
+          }
+        })
 
         botConfig.messaging!.channels[channelName] = config
         await ghost.deleteFile(ROOT_FOLDER, file)
@@ -80,6 +103,9 @@ const migration: Migration = {
     }
 
     return { success: true, message: 'Configurations updated successfully' }
+  },
+  down: async () => {
+    return { success: true, message: 'Skipping migration' }
   }
 }
 
