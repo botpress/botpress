@@ -87,38 +87,36 @@ export class MessagingService {
     })
   }
 
-  async receive(
-    clientId: string,
-    channel: string,
-    userId: string,
-    conversationId: string,
-    messageId: string,
+  async receive(args: {
+    clientId: string
+    channel: string
+    userId: string
+    conversationId: string
+    messageId: string
     payload: any
-  ) {
+  }) {
     return this.eventEngine.sendEvent(
       Event({
         direction: 'incoming',
-        type: payload.type,
-        payload,
-        channel,
-        threadId: conversationId,
-        target: userId,
-        messageId,
-        botId: this.botsByClientId[clientId]
+        type: args.payload.type,
+        payload: args.payload,
+        channel: args.channel,
+        threadId: args.conversationId,
+        target: args.userId,
+        messageId: args.messageId,
+        botId: this.botsByClientId[args.clientId]
       })
     )
   }
 
   private async handleOutgoingEvent(event: IO.OutgoingEvent, next: IO.MiddlewareNextCallback) {
     if (event.channel === 'web') {
-      return
+      return next(undefined, false, true)
     }
 
     // TODO: validate payload types here
     const message = await this.clientsByBotId[event.botId].sendMessage(event.threadId!, event.channel, event.payload)
-
-    const mevent = <any>event
-    mevent.messageId = message.id
+    event.messageId = message.id
 
     return next(undefined, true, false)
   }

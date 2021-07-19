@@ -3,7 +3,9 @@ import { HTTPServer } from 'core/app/server'
 import { BotService } from 'core/bots'
 import { ConfigProvider } from 'core/config'
 import { ConverseRouter, ConverseService } from 'core/converse'
+import { EventRepository } from 'core/events'
 import { MediaServiceProvider } from 'core/media'
+import { MessagingBotRouter } from 'core/messaging/messaging-bot-router'
 import { disableForModule } from 'core/routers'
 import {
   AuthService,
@@ -30,6 +32,7 @@ export class BotsRouter extends CustomRouter {
   private checkMethodPermissions: (resource: string) => RequestHandler
   private nluRouter: NLURouter
   private converseRouter: ConverseRouter
+  private messagingRouter: MessagingBotRouter
 
   constructor(
     private botService: BotService,
@@ -40,7 +43,8 @@ export class BotsRouter extends CustomRouter {
     private converseService: ConverseService,
     private logger: Logger,
     private mediaServiceProvider: MediaServiceProvider,
-    private httpServer: HTTPServer
+    private httpServer: HTTPServer,
+    private eventRepo: EventRepository
   ) {
     super('Bots', logger, Router({ mergeParams: true }))
 
@@ -56,6 +60,7 @@ export class BotsRouter extends CustomRouter {
       this.httpServer,
       this.configProvider
     )
+    this.messagingRouter = new MessagingBotRouter(this.logger, this.eventRepo)
   }
 
   async setupRoutes(app: express.Express) {
@@ -64,6 +69,7 @@ export class BotsRouter extends CustomRouter {
 
     this.router.use('/converse', this.converseRouter.router)
     this.router.use('/nlu', this.nluRouter.router)
+    this.router.use('/messaging', this.messagingRouter.router)
 
     this.router.get(
       '/media/:filename',
@@ -111,6 +117,12 @@ export class BotsRouter extends CustomRouter {
         return res.send(bots?.filter(Boolean).map(x => ({ name: x.name, id: x.id })))
       })
     )
+
+    const eventCollectorConfig = (await this.configProvider.getBotpressConfig()).eventCollector
+
+    this.router.get('/events/update-frequency', async (_req, res) => {
+      res.send({ collectionInterval: eventCollectorConfig.collectionInterval })
+    })
   }
 
   /**

@@ -71,7 +71,7 @@ export class Debugger extends React.Component<Props, State> {
   loadEvent = async (messageId: string, isManual?: boolean) => {
     try {
       const { data: messages } = await this.props.store.api.axios.get(
-        `/mod/extensions/list-by-incoming-event/${messageId}`,
+        `/messaging/list-by-incoming-event/${messageId}`,
         {
           baseUrl: window['BOT_API_PATH']
         }
