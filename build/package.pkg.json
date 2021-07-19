@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "12.22.2",
+  "version": "12.23.0",
   "description": "The world's most powerful conversational engine",
   "main": "index.js",
   "bin": "index.js",
