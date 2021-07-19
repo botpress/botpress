@@ -117,6 +117,12 @@ export class BotsRouter extends CustomRouter {
         return res.send(bots?.filter(Boolean).map(x => ({ name: x.name, id: x.id })))
       })
     )
+
+    const eventCollectorConfig = (await this.configProvider.getBotpressConfig()).eventCollector
+
+    this.router.get('/events/update-frequency', async (_req, res) => {
+      res.send({ collectionInterval: eventCollectorConfig.collectionInterval })
+    })
   }
 
   /**
