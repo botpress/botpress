@@ -103,27 +103,10 @@ export default class WebchatDb {
   }
 
   async getFeedbackInfoForMessageIds(target: string, messageIds: string[]) {
-    const messageAndIncomingEventIds = await this.knex('events')
-      .select(['messageId', 'incomingEventId'])
-      .whereIn('messageId', messageIds)
-      .andWhere({ target })
-
-    const incomingEventIds = messageAndIncomingEventIds.map(x => x.incomingEventId)
-
-    const incomingEventsFeedback = await this.knex('events')
-      .select(['incomingEventId', 'feedback'])
-      .whereIn('incomingEventId', incomingEventIds)
-      .andWhere({ target, direction: 'incoming' })
-
-    const infos = []
-    for (const message of messageAndIncomingEventIds) {
-      const incomingEvent = incomingEventsFeedback.find(x => x.incomingEventId === message.incomingEventId)
-      if (incomingEvent) {
-        infos.push({ messageId: message.messageId, feedback: incomingEvent.feedback })
-      }
-    }
-
-    return infos
+    return this.knex('events')
+      .select(['events.messageId', 'incomingEvents.feedback'])
+      .innerJoin('events as incomingEvents', 'incomingEvents.id', 'events.incomingEventId')
+      .whereIn('events.messageId', messageIds)
   }
 
   getMessagingClient = async (botId: string) => {
