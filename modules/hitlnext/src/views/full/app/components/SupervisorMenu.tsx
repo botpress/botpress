@@ -8,16 +8,21 @@ import { IAgent } from '../../../../types'
 import style from '../../style.scss'
 import CreateAgentModal from './CreateAgentModal'
 import ManageAgentsModal from './ManageAgentsModal'
-
+import InfoModal from './InfoModal'
 interface Props {
   bp: { axios: AxiosInstance; events: any }
   agents: WorkspaceUserWithAttributes[]
+  disabled: boolean
 }
 
-const SupervisorMenu: FC<Props> = ({ bp, agents }) => {
+const SupervisorMenu: FC<Props> = ({ bp, agents, disabled }) => {
   const [display, setDisplay] = useState(false)
   const [createAgentModalOpen, setCreateAgentModalOpen] = useState(false)
   const [manageAgentsModalOpen, setManageAgentsModalOpen] = useState(false)
+  const [infoModalOpen, setInfoModalOpen] = useState(false)
+  const [email, setEmail] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
+  const [messageId, setMessageId] = useState<any>()
 
   const optionsItems = [
     {
@@ -34,10 +39,19 @@ const SupervisorMenu: FC<Props> = ({ bp, agents }) => {
     }
   ]
 
+  const onAgentCreated = createdUser => {
+    setMessageId('newAccount')
+    setCreateAgentModalOpen(false)
+    setInfoModalOpen(true)
+    setEmail(createdUser.email)
+    setPassword(createdUser.tempPassword)
+  }
+
   return (
-    <div className={style.agentBtnWrapper}>
+    <div className={style.agentBtnWrapper} hidden={disabled}>
       <CreateAgentModal
         bp={bp}
+        onAgentCreated={onAgentCreated}
         isOpen={createAgentModalOpen}
         toggleOpen={() => setCreateAgentModalOpen(!createAgentModalOpen)}
       />
@@ -46,6 +60,12 @@ const SupervisorMenu: FC<Props> = ({ bp, agents }) => {
         filteredAgents={agents}
         isOpen={manageAgentsModalOpen}
         toggleOpen={() => setManageAgentsModalOpen(!manageAgentsModalOpen)}
+      />
+      <InfoModal
+        isOpen={infoModalOpen}
+        toggleOpen={() => setInfoModalOpen(!infoModalOpen)}
+        email={email}
+        tempPassword={password}
       />
       <MoreOptions
         element={

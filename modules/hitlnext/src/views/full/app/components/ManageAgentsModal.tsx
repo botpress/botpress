@@ -16,20 +16,6 @@ interface Props {
 }
 
 class ManageAgentsModal extends Component<Props> {
-  state = {
-    show: false,
-    role: null,
-    strategy: null
-  }
-
-  onClose = () => {
-    this.setState({ show: false })
-  }
-
-  test = async () => {
-    console.log('AENTS FILTERED: ', this.props.filteredAgents)
-  }
-
   render() {
     return (
       <Dialog.Wrapper
@@ -49,7 +35,6 @@ class ManageAgentsModal extends Component<Props> {
         </Dialog.Body>
         <Dialog.Footer>
           <Button onClick={this.props.toggleOpen}>Cancel</Button>
-          <Button onClick={this.test}>Test</Button>
         </Dialog.Footer>
       </Dialog.Wrapper>
     )

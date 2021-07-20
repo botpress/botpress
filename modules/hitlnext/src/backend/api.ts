@@ -105,19 +105,22 @@ export default async (bp: typeof sdk, state: StateType) => {
       res.send(agents)
     })
   )
-
+  //For supervisor role
   router.post(
-    '/agents/create',
+    '/agent/create',
     errorMiddleware(async (req: RequestWithUser, res: Response) => {
       const { botId } = req.params
-      const { agentEmail } = req.body
+      const { email } = req.body
 
       const axioxconfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
-      axioxconfig.baseURL = 'http://localhost:3000/api/v2/admin'
 
-      const { data } = await Axios.post('/workspace/collaborators/agents/create', { email: agentEmail }, axioxconfig)
-      console.log('DATA: ', 'LOL')
-      return res.sendStatus(201)
+      axioxconfig.headers['X-BP-Workspace'] = 'default'
+      axioxconfig.baseURL = 'http://localhost:3000/api/v2/admin'
+      axioxconfig.headers['Authorization'] = req.headers.authorization
+
+      const { data } = await Axios.post('/workspace/collaborators/agent/create', { email }, axioxconfig)
+
+      res.status(201).send(data)
     })
   )
 

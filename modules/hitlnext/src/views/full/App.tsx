@@ -1,5 +1,6 @@
 import { AxiosInstance } from 'axios'
-import { lang, toast } from 'botpress/shared'
+import { lang, toast, PermissionOperation } from 'botpress/shared'
+import { isOperationAllowed } from 'botpress/utils'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useContext, useEffect, useState } from 'react'
@@ -9,12 +10,11 @@ import { castHandoff, makeClient } from '../client'
 
 import { WEBSOCKET_TOPIC } from './../../constants'
 import AgentList from './app/components/AgentList'
+import AgentStatus from './app/components/AgentStatus'
+import ConversationContainer from './app/components/ConversationContainer'
 import EmptyConversation from './app/components/EmptyConversation'
 import HandoffList from './app/components/HandoffList'
 import SupervisorMenu from './app/components/SupervisorMenu'
-import AgentStatus from './app/components/AgentStatus'
-import ConversationContainer from './app/components/ConversationContainer'
-import CreateAgentModal from './app/components/CreateAgentModal'
 import { Context, Store } from './app/Store'
 import style from './style.scss'
 
@@ -153,11 +153,16 @@ const App: FC<Props> = ({ bp }) => {
     }
   }, [state.error])
 
+  function hasSupervisorPermission(operation: PermissionOperation): boolean {
+    const perm = isOperationAllowed({ operation, resource: 'module.hitlnext.supervisor' })
+    return perm
+  }
+
   return (
     <div className={style.app}>
       <div className={style.mainNav}>
         <AgentList loading={loading} agents={state.agents} />
-        <SupervisorMenu bp={bp} agents={state.agentsUsers} />
+        <SupervisorMenu bp={bp} agents={state.agentsUsers} disabled={!hasSupervisorPermission('write')} />
         <AgentStatus setOnline={setOnline} loading={loading} {...state.currentAgent} />
       </div>
 

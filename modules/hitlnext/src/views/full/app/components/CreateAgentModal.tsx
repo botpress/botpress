@@ -7,6 +7,7 @@ import { Button } from 'react-bootstrap'
 import AsyncSelect from 'react-select/lib/AsyncCreatable'
 interface Props {
   bp: { axios: AxiosInstance; events: any }
+  onAgentCreated?: (newAgent) => void
   isOpen?: boolean
   toggleOpen?: () => void
 }
@@ -18,9 +19,10 @@ class CreateAgentModal extends Component<Props> {
   }
 
   onSubmitClick = async () => {
-    const { data } = await this.props.bp.axios.post('/mod/hitlnext/agents/create', {
+    const { data } = await this.props.bp.axios.post('/mod/hitlnext/agent/create', {
       email: this.state.selectedUser.value
     })
+    this.props.onAgentCreated && this.props.onAgentCreated(data.payload)
   }
   onClose = () => {
     this.setState({ show: false })
