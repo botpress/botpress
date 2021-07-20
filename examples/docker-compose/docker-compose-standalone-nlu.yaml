@@ -41,7 +41,6 @@ services:
     expose:
       - 8000
 
-  # Note: Running the NLU standalone isn't currently production ready.
   botpress_nlu:
     build:
       context: ./botpress
