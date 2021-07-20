@@ -41,7 +41,7 @@ export class MessagingService {
     const setupConfig = {
       name: botId,
       ...messaging,
-      webhooks: [{ url: `http://localhost:${process.PORT}/api/v1/messaging/receive` }]
+      webhooks: [{ url: `http://localhost:${process.PORT}/api/v1/chat/receive` }]
     }
 
     const { id, token } = await this.clientSync.syncClient(setupConfig)
