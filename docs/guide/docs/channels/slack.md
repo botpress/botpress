@@ -32,18 +32,26 @@ To connect to Slack, an HTTPS endpoint is required. Set the `externalUrl` field 
 - Replace EXTERNAL_URL by the value of `externalUrl` in your botpress.config.json
 - Replace YOUR_BOT_ID with your bot ID
 
-3. Under `Subscribe to bot events`, add `messages.im` and `messages.channels` (you can also add other types of messages if you want)
+3. Under `Subscribe to bot events`, add `message.im` and `message.channels` (you can also add other types of messages if you want)
 
-4. Open the page `Interactive Components`, then turn the switch to `On`
+4. Save your changes
 
-5. Set the request URL to: `<EXTERNAL_URL>/api/v1/messaging/webhooks/<YOUR_BOT_ID/slack/interactive`
+5. Open the page `Interactivity & Shortcuts`, then turn the switch to `On`
+
+6. Set the request URL to: `<EXTERNAL_URL>/api/v1/messaging/webhooks/<YOUR_BOT_ID/slack/interactive`
 
 - Replace EXTERNAL_URL by the value of `externalUrl` in your botpress.config.json
 - Replace YOUR_BOT_ID with your bot ID
 
-6. Open the page `OAuth & Permissions` and add `chat:write` under `Scopes`
+7. Save your changes
 
-7. Install the app by clicking the `Install App to Workspace` button
+8. Open the page `OAuth & Permissions` and add `chat:write` under `Scopes`
+
+9. Open the page `App Home` and check `Allow users to send Slash commands and messages from the messages tab` under **Show Tabs** > **Messages Tab** at the bottom of the page.
+
+10. Install the app by clicking the `Install App to Workspace` button
+
+> **⭐ Note**: You might have to quit the Slack app and re-open it before you can converse with your bot.
 
 ## Configuration
 
