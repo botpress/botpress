@@ -122,7 +122,7 @@ export class Middleware {
       formData.append('file', audio, `${uuidv4()}.mp3`)
 
       // TODO: Add cache (preview -> buffer)
-      const axiosConfig = await this.bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
+      const axiosConfig = await this.bp.http.getAxiosConfigForBot(event.botId, { studioUrl: true })
       axiosConfig.headers['Content-Type'] = `multipart/form-data; boundary=${formData.getBoundary()}`
 
       const {

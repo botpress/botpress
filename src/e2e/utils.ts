@@ -78,6 +78,15 @@ export const expectStudioApiCallSuccess = async (endOfUrl: string, method?: Http
   expect(response.status()).toBe(200)
 }
 
+export const doesElementExist = async (selector: string): Promise<boolean> => {
+  try {
+    await page.waitForSelector(selector, { timeout: 5000 })
+    return true
+  } catch (error) {
+    return false
+  }
+}
+
 export const waitForBotApiResponse = async (endOfUrl: string, method?: HttpMethod): Promise<any> => {
   const response = await getResponse(`${bpConfig.apiHost}/api/v1/bots/${bpConfig.botId}/${endOfUrl}`, method)
   return response.json()
