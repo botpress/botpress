@@ -96,7 +96,9 @@ const entryPoint: sdk.ModuleEntryPoint = {
     name: 'libraries',
     menuIcon: 'book',
     menuText: 'Libraries',
-    noInterface: false,
+    // Do we still keep it as a web app for global (shared libs.. ?)
+    noInterface: true,
+    workspaceApp: { bots: false, global: true },
     experimental: true,
     fullName: 'Libraries',
     homepage: 'https://botpress.com'
