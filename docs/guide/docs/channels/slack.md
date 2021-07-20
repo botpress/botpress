@@ -6,11 +6,12 @@ title: Slack
 ## Requirements
 
 ### HTTPS Endpoint
+
 To connect to Slack, an HTTPS endpoint is required. Set the `externalUrl` field in botpress.config.json. You can use the following methods to create this endpoint:
 
-  - Create an HTTPS tunnel to your machine using Ngrok. This tutorial works on pretty much any Operating System. [**Tutorial**](https://api.slack.com/tutorials/tunneling-with-ngrok)
-  - Using Nginx and Let's Encrypt. This tutorial is based on the Linux Ubuntu 16.04 Operating System. [**Tutorial**](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-16-04)
-  - Use Serveo to create an HTTPS tunnel to your machine. [**Tutorial**](https://medium.com/automationmaster/how-to-forward-my-local-port-to-public-using-serveo-4979f352a3bf)  
+- Create an HTTPS tunnel to your machine using Ngrok. This tutorial works on pretty much any Operating System. [**Tutorial**](https://api.slack.com/tutorials/tunneling-with-ngrok)
+- Using Nginx and Let's Encrypt. This tutorial is based on the Linux Ubuntu 16.04 Operating System. [**Tutorial**](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-16-04)
+- Use Serveo to create an HTTPS tunnel to your machine. [**Tutorial**](https://medium.com/automationmaster/how-to-forward-my-local-port-to-public-using-serveo-4979f352a3bf)
 
 > **⭐ Note**: To test on localhost, you can also use services like [pagekite](https://pagekite.net/) or [tunnelme](https://localtunnel.github.io/www/) to expose your server.
 
@@ -26,7 +27,7 @@ To connect to Slack, an HTTPS endpoint is required. Set the `externalUrl` field 
 
 1. Open the page `Event Subscriptions`, then turn the switch to `On`
 
-2. Set the request URL to: `<EXTERNAL_URL>/api/v1/bots/<YOUR_BOT_ID>/mod/channel-slack/events-callback`
+2. Set the request URL to: `<EXTERNAL_URL>/api/v1/messaging/webhooks/<YOUR_BOT_ID/slack/events`
 
 - Replace EXTERNAL_URL by the value of `externalUrl` in your botpress.config.json
 - Replace YOUR_BOT_ID with your bot ID
@@ -35,7 +36,7 @@ To connect to Slack, an HTTPS endpoint is required. Set the `externalUrl` field 
 
 4. Open the page `Interactive Components`, then turn the switch to `On`
 
-5. Set the request URL to: `HTTPS_ENDPOINT/api/v1/bots/YOUR_BOT/mod/channel-slack/bots/YOUR_BOT/events-callback`
+5. Set the request URL to: `<EXTERNAL_URL>/api/v1/messaging/webhooks/<YOUR_BOT_ID/slack/interactive`
 
 - Replace EXTERNAL_URL by the value of `externalUrl` in your botpress.config.json
 - Replace YOUR_BOT_ID with your bot ID
@@ -48,17 +49,30 @@ To connect to Slack, an HTTPS endpoint is required. Set the `externalUrl` field 
 
 ### Configure your bot
 
-1. Edit `data/bots/YOUR_BOT_ID/config/channel-slack.json` (or create it) and set
+1. Edit `data/bots/<YOUR_BOT_ID>/bot.config.json`. In the `messaging.channels.slack` section write this configuration :
 
 - enabled: Set to `true`
-- signingSecret: Take the value `Signing Secret` on the page **`Basic Information`** 
+- signingSecret: Take the value `Signing Secret` on the page **`Basic Information`**
 - useRTM: false (true if you have a legacy app)
-- Copy the file `YOUR_BP_INSTALL/data/global/config/channel-slack.json` and paste it in `YOUR_BP_INSTALL/data/bots/YOUR_BOT/config/channel-slack.json`
-
-2. Restart Botpress
-
-3. Return to `data/bots/YOUR_BOT_ID/config/channel-slack.json` and set
-
 - botToken: Take the value Bot User OAuth Access Token on the page OAuth & Permissions (client ID)
 
-4. Restart Botpress
+  Your `bot.config.json` should look like this :
+
+```json
+{
+  // ... other data
+  "messaging": {
+    "channels": {
+      "slack": {
+        "enabled": true,
+        "signingSecret": "your_signing_secret",
+        "useRTM": false,
+        "botToken": "your_bot_token"
+      }
+      // ... other channels can also be configured here
+    }
+  }
+}
+```
+
+2. Restart Botpress
