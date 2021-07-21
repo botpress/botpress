@@ -34,20 +34,16 @@ const packageApp = async () => {
   const realPackageJson = require(path.resolve(__dirname, '../package.json'))
   const tempPkgPath = path.resolve(__dirname, '../out/bp/package.json')
   const cwd = path.resolve(__dirname, '../out/bp')
-  const binOut = path.resolve(__dirname, '../out/binaries')
 
   try {
     const packageJson = Object.assign(realPackageJson, additionalPackageJson)
     await fse.writeFile(tempPkgPath, JSON.stringify(packageJson, null, 2), 'utf8')
-    await execAsync(`yarn bpd init --output ${binOut} --platform ${getTargetOSName().replace('windows', 'win32')}`)
     await execAsync(
       `cross-env ../../node_modules/.bin/pkg --targets ${getTargetOSNodeVersion()} --options max_old_space_size=16384 --output ../binaries/bp ./package.json`,
       {
         cwd
       }
     )
-  } catch (err) {
-    console.error('Error running: ', err.cmd, '\nMessage: ', err.stderr, err)
   } finally {
     await fse.unlink(tempPkgPath)
   }
