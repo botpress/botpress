@@ -41,18 +41,15 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   }
 
   const handleIncomingFromUser = async (handoff: IHandoff, event: sdk.IO.IncomingEvent) => {
+    // There only is an agentId & agentThreadId after assignation
     if (handoff.status === 'assigned') {
-      // There only is an agentId & agentThreadId after assignation
-
       const { userId } = await repository.getMappingFromVisitor(handoff.agentId)
-      await pipeEvent(event, {
+      return pipeEvent(event, {
         botId: handoff.botId,
         target: userId,
         threadId: handoff.agentThreadId,
         channel: handoff.userChannel
       })
-
-      return
     }
 
     // At this moment the event isn't persisted yet so an approximate
