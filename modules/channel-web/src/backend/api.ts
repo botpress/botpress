@@ -134,7 +134,7 @@ export default async (bp: typeof sdk, db: Database) => {
     }
 
     req.messaging = await db.getMessagingClient(botId)
-    const userId = await db.mapVisitor(req.botId, req.visitorId, req.messaging)
+    const userId = await db.mapVisitor(botId, req.visitorId, req.messaging)
 
     if (conversationId) {
       const conversation = await req.messaging.getConversationById(conversationId)
