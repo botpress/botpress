@@ -2,8 +2,6 @@ import { MessagingUpMigrator } from './up'
 
 export class MessagingPostgresUpMigrator extends MessagingUpMigrator {
   protected async start() {
-    console.log('up pg file!')
-
     this.trx = await this.bp.database.transaction()
   }
 
