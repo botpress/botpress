@@ -1,4 +1,5 @@
 import { Checkbox } from '@blueprintjs/core'
+import _ from 'lodash'
 import { lang, MainLayout, ToolbarButtonProps } from 'botpress/shared'
 import React, { FC } from 'react'
 
@@ -9,19 +10,28 @@ export interface FilterType {
   assignedMe: boolean
   assignedOther: boolean
   resolved: boolean
+  tags: string[]
 }
 
 export type SortType = 'mostRecent' | 'leastRecent'
 
 interface Props {
   filterOptions: FilterType
+  tags: string[]
   sortOption: SortType
   setFilterOptions: (value) => void
   setSortOption: (value) => void
   disabled: boolean
 }
 
-const HandoffListHeader: FC<Props> = ({ filterOptions, sortOption, setFilterOptions, setSortOption, disabled }) => {
+const HandoffListHeader: FC<Props> = ({
+  filterOptions,
+  tags,
+  sortOption,
+  setFilterOptions,
+  setSortOption,
+  disabled
+}) => {
   const buttons: ToolbarButtonProps[] = [
     {
       icon: 'sort',
@@ -89,11 +99,62 @@ const HandoffListHeader: FC<Props> = ({ filterOptions, sortOption, setFilterOpti
     }
   ]
 
+  const renderButtons = (tags): ToolbarButtonProps[] => {
+    const tagElements: ToolbarButtonProps[] = tags.map(tag => {
+      return {
+        content: (
+          <Checkbox
+            checked={filterOptions.tags.includes(tag)}
+            label={tag}
+            onChange={() =>
+              setFilterOptions({
+                ...filterOptions,
+                tags:
+                  filterOptions.tags && filterOptions.tags.includes(tag)
+                    ? _.pull(filterOptions.tags, tag)
+                    : [...filterOptions.tags, tag]
+              })
+            }
+          />
+        )
+      }
+    })
+    return [
+      {
+        icon: 'sort',
+        optionsItems: [
+          {
+            label: lang.tr('module.humanhelpnext.sort.mostRecentlyCreated'),
+            selected: sortOption === 'mostRecent',
+            action: () => {
+              setSortOption('mostRecent')
+            }
+          },
+          {
+            label: lang.tr('module.humanhelpnext.sort.leastRecentlyCreated'),
+            selected: sortOption === 'leastRecent',
+            action: () => {
+              setSortOption('leastRecent')
+            }
+          }
+        ],
+        tooltip: lang.tr('module.humanhelpnext.sortBy'),
+        disabled
+      },
+      {
+        icon: 'filter',
+        optionsItems: buttons[1].optionsItems.concat(tagElements),
+        tooltip: lang.tr('module.humanhelpnext.filterBy'),
+        disabled
+      }
+    ]
+  }
+
   return (
     <MainLayout.Toolbar
       className={style.hitlToolBar}
       tabs={[{ id: 'handoffs', title: lang.tr('module.hitlnext.sidebar.tab') }]}
-      buttons={buttons}
+      buttons={tags && tags.length > 0 ? renderButtons(tags) : buttons}
     ></MainLayout.Toolbar>
   )
 }
