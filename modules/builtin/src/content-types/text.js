@@ -27,7 +27,11 @@ module.exports = {
           default: ''
         }
       },
-      ...base.useMarkdown,
+      markdown: {
+        type: 'boolean',
+        title: 'module.builtin.useMarkdown',
+        default: true
+      },
       ...base.typingIndicators
     }
   },

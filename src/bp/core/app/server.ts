@@ -20,7 +20,7 @@ import { AlertingService, MonitoringService } from 'core/health'
 import { LogsRepository } from 'core/logger'
 import { MediaServiceProvider, MediaRouter } from 'core/media'
 import { MessagingRouter, MessagingService } from 'core/messaging'
-import { ModuleLoader, ModulesRouter } from 'core/modules'
+import { ModuleLoader } from 'core/modules'
 import { getSocketTransports, RealtimeService } from 'core/realtime'
 import { InvalidExternalToken, PaymentRequiredError, monitoringMiddleware } from 'core/routers'
 import {
@@ -75,7 +75,6 @@ export class HTTPServer {
 
   private readonly adminRouter: AdminRouter
   private readonly botsRouter: BotsRouter
-  private readonly modulesRouter: ModulesRouter
   private readonly shortLinksRouter: ShortLinksRouter
   private telemetryRouter!: TelemetryRouter
   private mediaRouter: MediaRouter
@@ -142,14 +141,6 @@ export class HTTPServer {
     if (!yn(process.core_env.BP_HTTP_DISABLE_GZIP)) {
       this.app.use(compression())
     }
-
-    this.modulesRouter = new ModulesRouter(
-      this.logger,
-      this.authService,
-      moduleLoader,
-      skillService,
-      this.configProvider
-    )
 
     this.adminRouter = new AdminRouter(
       logger,
@@ -378,7 +369,6 @@ export class HTTPServer {
 
     this.app.use('/api/internal', this.internalRouter.router)
     this.app.use(`${BASE_API_PATH}/chat`, this.messagingRouter.router)
-    this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
 
     this.app.use(`${BASE_API_PATH}/sdk`, this.sdkApiRouter.router)
     this.app.use(`${BASE_API_PATH}/telemetry`, this.telemetryRouter.router)

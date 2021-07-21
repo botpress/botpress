@@ -65,6 +65,5 @@
   },
   "typingIndicator": "Show typing indicators",
   "useMarkdown": "Use markdown",
-  "markdownHelp": "Refer to this documentation for markdown syntax: ",
   "disableFreeText": "Disable free text"
 }

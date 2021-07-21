@@ -50,7 +50,11 @@ module.exports = {
           }
         }
       },
-      ...base.useMarkdown,
+      markdown: {
+        type: 'boolean',
+        title: 'module.builtin.useMarkdown',
+        default: true
+      },
       disableFreeText: {
         type: 'boolean',
         title: 'module.builtin.disableFreeText',
@@ -62,8 +66,7 @@ module.exports = {
 
   uiSchema: {
     text: {
-      'ui:field': 'i18n_field',
-      $subtype: 'textarea'
+      'ui:field': 'i18n_field'
     },
     choices: {
       'ui:field': 'i18n_array'

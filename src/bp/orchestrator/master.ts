@@ -135,9 +135,9 @@ export const setupMasterNode = (logger: sdk.Logger) => {
   cluster.setupMaster({ execArgv: process.pkg ? [] : process.execArgv })
 
   registerActionServerMainHandler()
-  registerNluServerMainHandler(logger)
-  registerStudioMainHandler(logger)
-  registerMessagingServerMainHandler(logger)
+  // registerNluServerMainHandler(logger)
+  // registerStudioMainHandler(logger)
+  // registerMessagingServerMainHandler(logger)
 
   registerMsgHandler(MessageType.RestartServer, (_message, worker) => {
     logger.warn('Restarting server...')

@@ -20,9 +20,6 @@ import httpsProxyAgent from 'https-proxy-agent'
 import _ from 'lodash'
 
 import AuthRouter from './auth/auth-router'
-import HealthRouter from './health/health-router'
-import ManagementRouter from './management/management-router'
-import UserRouter from './user/user-router'
 import { fixMappingMw } from './utils/apiMapper'
 import WorkspaceRouter from './workspace/workspace-router'
 
@@ -44,11 +41,8 @@ export interface AdminServices {
 
 class AdminRouter extends CustomRouter {
   private checkTokenHeader: RequestHandler
-  private managementRouter: ManagementRouter
-  private healthRouter: HealthRouter
   private workspaceRouter: WorkspaceRouter
   private authRouter: AuthRouter
-  private userRouter: UserRouter
 
   constructor(
     logger: Logger,
@@ -85,11 +79,8 @@ class AdminRouter extends CustomRouter {
       authStrategies
     }
 
-    this.managementRouter = new ManagementRouter(adminServices)
-    this.healthRouter = new HealthRouter(adminServices)
     this.workspaceRouter = new WorkspaceRouter(adminServices)
     this.authRouter = new AuthRouter(adminServices)
-    this.userRouter = new UserRouter(adminServices)
   }
 
   setupRoutes(app: express.Express) {
@@ -118,10 +109,7 @@ class AdminRouter extends CustomRouter {
     })
 
     this.router.use('/auth', this.authRouter.router)
-    this.router.use('/management', this.checkTokenHeader, this.managementRouter.router)
-    this.router.use('/health', this.checkTokenHeader, assertSuperAdmin, this.healthRouter.router)
     this.router.use('/workspace', this.checkTokenHeader, this.workspaceRouter.router)
-    this.router.use('/user', this.checkTokenHeader, this.userRouter.router)
 
     this.router.get(
       '/ping',

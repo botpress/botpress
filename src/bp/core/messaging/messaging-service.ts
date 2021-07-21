@@ -27,13 +27,14 @@ export class MessagingService {
       handler: this.handleOutgoingEvent.bind(this)
     })
 
-    await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+    // await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
-    this.clientSync = new MessagingClient(`http://localhost:${process.MESSAGING_PORT}`, process.INTERNAL_PASSWORD)
+    // @ts-ignore
+    this.clientSync = new MessagingClient(process.env.MESSAGING_URL, process.INTERNAL_PASSWORD)
   }
 
   async loadMessagingForBot(botId: string) {
-    await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+    // await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
     const config = await this.configProvider.getBotConfig(botId)
     let messaging = (config.messaging || {}) as MessagingConfig
@@ -61,7 +62,8 @@ export class MessagingService {
     }
 
     const botClient = new MessagingClient(
-      `http://localhost:${process.MESSAGING_PORT}`,
+      // @ts-ignore
+      process.env.MESSAGING_URL,
       process.INTERNAL_PASSWORD,
       messaging.id,
       messaging.token

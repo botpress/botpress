@@ -64,7 +64,5 @@
     }
   },
   "typingIndicator": "Mostrar indicadores de escritura",
-  "markdownHelp": "Consulte esta documentación para conocer la sintaxis de markdown: ",
-  "useMarkdown": "Usar markdown",
-  "disableFreeText": "Deshabilitar el texto libre"
+  "useMarkdown": "Usar markdown"
 }
