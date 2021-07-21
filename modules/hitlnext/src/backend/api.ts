@@ -275,7 +275,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       }
 
       // TODO replace this by messaging api once all channels have been ported
-      const rencentUserConversationEvents = await bp.events.findEvents(
+      const recentUserConversationEvents = await bp.events.findEvents(
         { botId, threadId: handoff.userThreadId },
         { count: 10, sortOrder: [{ column: 'id', desc: true }] }
       )
@@ -289,7 +289,7 @@ export default async (bp: typeof sdk, state: StateType) => {
         threadId: handoff.agentThreadId
       }
 
-      await Promise.mapSeries(rencentUserConversationEvents.reverse(), event => {
+      await Promise.mapSeries(recentUserConversationEvents.reverse(), event => {
         // @ts-ignore
         const e = bp.IO.Event({
           type: event.event.type,

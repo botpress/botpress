@@ -370,7 +370,7 @@ export default class Repository {
       await this.listAllAgents()
     }
     if (!this.agentCache[agentId]) {
-      throw Error('Agent doees not exist')
+      throw Error('Agent does not exist')
     }
     return this.agentCache[agentId]
   }
