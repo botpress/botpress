@@ -639,7 +639,7 @@ class MessagingSqliteDownMigrator extends MessagingDownMigrator {
 
       const newConvo = {
         id: ++this.convoIndex,
-        userId: convo.userId ? await this.getVisitorId(botId, convo.userId) : undefined,
+        userId: convo.userId ? await this.getVisitorId(convo.userId) : undefined,
         botId,
         created_on: convo.createdOn
       }
@@ -658,7 +658,7 @@ class MessagingSqliteDownMigrator extends MessagingDownMigrator {
           full_name: message.authorId ? 'User' : undefined,
           // Hack to make an old query work
           message_type: ' ',
-          userId: message.authorId ? await this.getVisitorId(botId, message.authorId) : undefined,
+          userId: message.authorId ? await this.getVisitorId(message.authorId) : undefined,
           sent_on: message.sentOn,
           payload: message.payload
         })
@@ -677,17 +677,17 @@ class MessagingSqliteDownMigrator extends MessagingDownMigrator {
     await this.emptyMessageBatch()
   }
 
-  private async getVisitorId(botId: string, userId: string) {
-    const cached = this.cacheVisitorIds.get(`${botId}_${userId}`)
+  private async getVisitorId(userId: string) {
+    const cached = this.cacheVisitorIds.get(userId)
     if (cached) {
       return cached
     }
 
-    const rows = await this.trx('web_user_map').where({ botId, userId })
+    const rows = await this.trx('web_user_map').where({ userId })
 
     if (rows?.length) {
       const { visitorId } = rows[0] as UserMapping
-      this.cacheVisitorIds.set(`${botId}_${userId}`, visitorId)
+      this.cacheVisitorIds.set(userId, visitorId)
       return visitorId
     }
 
