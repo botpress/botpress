@@ -49,7 +49,7 @@ export default class WebchatDb {
       return cached
     }
 
-    const rows = await this.knex('web_user_map').where({ visitorId })
+    const rows = await this.knex('web_user_map').where({ botId, visitorId })
 
     if (rows?.length) {
       const mapping = rows[0] as UserMapping
@@ -60,8 +60,8 @@ export default class WebchatDb {
     return undefined
   }
 
-  async getMappingFromUser(botId: string, userId: string): Promise<UserMapping | undefined> {
-    const cached = this.cacheByUser.get(`${botId}_${userId}`)
+  async getMappingFromUser(userId: string): Promise<UserMapping | undefined> {
+    const cached = this.cacheByUser.get(userId)
     if (cached) {
       return cached
     }
@@ -70,7 +70,7 @@ export default class WebchatDb {
 
     if (rows?.length) {
       const mapping = rows[0] as UserMapping
-      this.cacheByUser.set(`${botId}_${userId}`, mapping)
+      this.cacheByUser.set(userId, mapping)
       return mapping
     }
 

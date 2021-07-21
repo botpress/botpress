@@ -633,7 +633,7 @@ export default async (bp: typeof sdk, db: Database) => {
         res.status(400).send(ERR_BAD_CONV_ID)
       }
 
-      const { visitorId } = await db.getMappingFromUser(req.botId, userId)
+      const { visitorId } = await db.getMappingFromUser(userId)
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(visitorId, 'webchat.clear', { conversationId }))
 
       await req.messaging.deleteMessages(conversationId)
