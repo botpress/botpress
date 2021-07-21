@@ -271,7 +271,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const formData = new FormData()
       formData.append('file', buffer, audio!.title)
 
-      const axiosConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
+      const axiosConfig = await bp.http.getAxiosConfigForBot(botId, { studioUrl: true })
       axiosConfig.headers['Content-Type'] = `multipart/form-data; boundary=${formData.getBoundary()}`
 
       // Upload the audio buffer to the Media Service

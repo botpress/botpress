@@ -1,6 +1,7 @@
 ---
-id: content
+id: version-12.23.0-content
 title: Managing Content
+original_id: content
 ---
 
 Botpress includes its own **Content Management System** (or **CMS**) to manage a chatbot's content. Everything your chatbot says comes from the CMS. Before we start discussing how you can create and edit the content of your chatbot, we should understand the different concepts of the CMS in Botpress.

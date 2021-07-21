@@ -28,7 +28,7 @@ class AuthRouter extends CustomAdminRouter {
 
     if (strategyTypes.includes('basic')) {
       const basicStrategies = new StrategyBasic(this.logger, this.router, this.authService)
-      basicStrategies.setup()
+      await basicStrategies.setup()
 
       this.authService.strategyBasic = basicStrategies
     }

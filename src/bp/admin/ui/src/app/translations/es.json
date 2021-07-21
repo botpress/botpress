@@ -301,7 +301,7 @@
           "editInStudio": "Editar en Studio",
           "error": "error",
           "export": "Exportar",
-          "languageIsMissing": "Falta el lenguaje del bot. Configúrelo en la configuración del bot.",
+          "enableNLULanguages": "El bot está usando idiomas que no están habilitados en el sistema NLU. [ {languages} ]",
           "needsYourReview": "Necesita su revisión",
           "onDate": "en {date}",
           "openChat": "Abrir Chat",
