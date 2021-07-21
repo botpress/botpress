@@ -532,17 +532,17 @@ export default class Repository {
   }
 
   // Copy pasted from channel-web db.ts
-  async getMappingFromVisitor(visitorId: string): Promise<UserMapping | undefined> {
-    const cached = this.cacheByVisitor.get(visitorId)
+  async getMappingFromVisitor(botId: string, visitorId: string): Promise<UserMapping | undefined> {
+    const cached = this.cacheByVisitor.get(`${botId}_${visitorId}`)
     if (cached) {
       return cached
     }
 
-    const rows = await this.bp.database('web_user_map').where({ visitorId })
+    const rows = await this.bp.database('web_user_map').where({ botId, visitorId })
 
     if (rows?.length) {
       const mapping = rows[0] as UserMapping
-      this.cacheByVisitor.set(visitorId, mapping)
+      this.cacheByVisitor.set(`${botId}_${visitorId}`, mapping)
       return mapping
     }
 
