@@ -409,7 +409,7 @@ export default async (bp: typeof sdk, db: Database) => {
       }
 
       const [event] = await bp.events.findEvents({ botId, messageId })
-      const { userId } = await db.getMappingFromVisitor(target)
+      const { userId } = await db.getMappingFromVisitor(botId, target)
 
       try {
         await bp.events.saveUserFeedback(event.incomingEventId, userId, feedback, 'qna')
@@ -424,13 +424,14 @@ export default async (bp: typeof sdk, db: Database) => {
     '/feedbackInfo',
     bp.http.extractExternalToken,
     asyncMiddleware(async (req: BPRequest, res: Response) => {
+      const { botId } = req.params
       const { target, messageIds } = req.body
 
       if (!target || !messageIds) {
         return res.status(400).send('Missing required fields')
       }
 
-      const { userId } = await db.getMappingFromVisitor(target)
+      const { userId } = await db.getMappingFromVisitor(botId, target)
       res.send(await db.getFeedbackInfoForMessageIds(userId, messageIds))
     })
   )
