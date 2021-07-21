@@ -21,19 +21,21 @@ export default class WebchatDb {
 
   async initialize() {
     await this.knex.createTableIfNotExists('web_user_map', table => {
-      table.string('visitorId').primary()
+      table.string('botId')
+      table.string('visitorId')
       table.uuid('userId').unique()
+      table.primary(['botId', 'visitorId'])
     })
   }
 
-  async mapVisitor(visitorId: string, messaging: MessagingClient) {
-    const userMapping = await this.getMappingFromVisitor(visitorId)
+  async mapVisitor(botId: string, visitorId: string, messaging: MessagingClient) {
+    const userMapping = await this.getMappingFromVisitor(botId, visitorId)
 
     let userId: string
 
     if (!userMapping) {
       userId = (await messaging.createUser()).id
-      await this.createUserMapping(visitorId, userId)
+      await this.createUserMapping(botId, visitorId, userId)
     } else {
       userId = userMapping.userId
     }
@@ -41,8 +43,8 @@ export default class WebchatDb {
     return userId
   }
 
-  async getMappingFromVisitor(visitorId: string): Promise<UserMapping | undefined> {
-    const cached = this.cacheByVisitor.get(visitorId)
+  async getMappingFromVisitor(botId: string, visitorId: string): Promise<UserMapping | undefined> {
+    const cached = this.cacheByVisitor.get(`${botId}_${visitorId}`)
     if (cached) {
       return cached
     }
@@ -51,15 +53,15 @@ export default class WebchatDb {
 
     if (rows?.length) {
       const mapping = rows[0] as UserMapping
-      this.cacheByVisitor.set(visitorId, mapping)
+      this.cacheByVisitor.set(`${botId}_${visitorId}`, mapping)
       return mapping
     }
 
     return undefined
   }
 
-  async getMappingFromUser(userId: string): Promise<UserMapping | undefined> {
-    const cached = this.cacheByUser.get(userId)
+  async getMappingFromUser(botId: string, userId: string): Promise<UserMapping | undefined> {
+    const cached = this.cacheByUser.get(`${botId}_${userId}`)
     if (cached) {
       return cached
     }
@@ -68,18 +70,18 @@ export default class WebchatDb {
 
     if (rows?.length) {
       const mapping = rows[0] as UserMapping
-      this.cacheByUser.set(userId, mapping)
+      this.cacheByUser.set(`${botId}_${userId}`, mapping)
       return mapping
     }
 
     return undefined
   }
 
-  async createUserMapping(visitorId: string, userId: string): Promise<UserMapping> {
-    const mapping = { visitorId, userId }
+  async createUserMapping(botId: string, visitorId: string, userId: string): Promise<UserMapping> {
+    const mapping = { botId, visitorId, userId }
 
     await this.knex('web_user_map').insert(mapping)
-    this.cacheByVisitor.set(visitorId, mapping)
+    this.cacheByVisitor.set(`${botId}_${visitorId}`, mapping)
 
     return mapping
   }
@@ -131,6 +133,7 @@ export default class WebchatDb {
 }
 
 export interface UserMapping {
+  botId: string
   visitorId: string
   userId: string
 }

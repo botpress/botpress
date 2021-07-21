@@ -134,7 +134,7 @@ export default async (bp: typeof sdk, db: Database) => {
     }
 
     req.messaging = await db.getMessagingClient(botId)
-    const userId = await db.mapVisitor(req.visitorId, req.messaging)
+    const userId = await db.mapVisitor(req.botId, req.visitorId, req.messaging)
 
     if (conversationId) {
       const conversation = await req.messaging.getConversationById(conversationId)
@@ -633,7 +633,7 @@ export default async (bp: typeof sdk, db: Database) => {
         res.status(400).send(ERR_BAD_CONV_ID)
       }
 
-      const { visitorId } = await db.getMappingFromUser(userId)
+      const { visitorId } = await db.getMappingFromUser(req.botId, userId)
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(visitorId, 'webchat.clear', { conversationId }))
 
       await req.messaging.deleteMessages(conversationId)

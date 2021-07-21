@@ -22,7 +22,7 @@ export default async (bp: typeof sdk, db: Database) => {
     const messaging = await db.getMessagingClient(event.botId)
     const messageType = event.type === 'default' ? 'text' : event.type
     const userId = event.target
-    const { visitorId } = await db.getMappingFromUser(userId)
+    const { visitorId } = await db.getMappingFromUser(event.botId, userId)
     const conversationId = event.threadId || (await messaging.getMostRecentConversationForUser(userId)).id
 
     if (!event.payload.type) {
