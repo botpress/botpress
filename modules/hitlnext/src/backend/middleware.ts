@@ -51,6 +51,8 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
         threadId: handoff.agentThreadId,
         channel: handoff.userChannel
       })
+
+      return
     }
 
     // At this moment the event isn't persisted yet so an approximate
