@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'
 import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
+import Knex from 'knex'
 import LRUCache from 'lru-cache'
 import { UserMapping } from 'src/backend/db'
 import uuid from 'uuid'
@@ -20,12 +21,10 @@ const migration: sdk.ModuleMigration = {
 
     if (bp.database.isLite) {
       const migrator = new MessagingSqliteUpMigrator(bp)
-      await migrator.migrate()
-      await migrator.cleanup()
+      await migrator.run()
     } else {
       const migrator = new MessagingPostgresUpMigrator(bp)
-      await migrator.migrate()
-      await migrator.cleanup()
+      await migrator.run()
     }
 
     return { success: true, message: 'Tables migrated successfully' }
@@ -41,36 +40,46 @@ const migration: sdk.ModuleMigration = {
 
     if (bp.database.isLite) {
       const migrator = new MessagingSqliteDownMigrator(bp)
-      await migrator.migrate()
-      await migrator.cleanup()
+      await migrator.run()
     } else {
       const migrator = new MessagingPostgresDownMigrator(bp)
-      await migrator.migrate()
-      await migrator.cleanup()
+      await migrator.run()
     }
 
     return { success: true, message: 'Tables migrated successfully' }
   }
 }
 
-class MessagingUpMigrator {
+abstract class MessagingUpMigrator {
+  protected trx: Knex.Transaction<any, any>
+
   constructor(protected bp: typeof sdk) {}
 
-  async migrate() {
+  async run() {
+    await this.start()
+    await this.migrate()
+    await this.cleanup()
+    await this.commit()
+  }
+
+  protected abstract start(): Promise<void>
+  protected abstract commit(): Promise<void>
+
+  protected async migrate() {
     await this.createTables()
     await this.createClients()
   }
 
-  async cleanup() {
-    await this.bp.database.schema.dropTable('web_messages')
-    await this.bp.database.schema.dropTable('web_conversations')
+  protected async cleanup() {
+    await this.trx.schema.dropTable('web_messages')
+    await this.trx.schema.dropTable('web_conversations')
   }
 
   protected async createTables() {
     // We need to create the messaging tables here because the messaging
     // server isn't started before we run the migrations
 
-    await this.bp.database.schema.createTable('msg_providers', table => {
+    await this.trx.schema.createTable('msg_providers', table => {
       table.uuid('id').primary()
       table
         .string('name')
@@ -79,7 +88,7 @@ class MessagingUpMigrator {
       table.boolean('sandbox').notNullable()
     })
 
-    await this.bp.database.schema.createTable('msg_clients', table => {
+    await this.trx.schema.createTable('msg_clients', table => {
       table.uuid('id').primary()
       table
         .uuid('providerId')
@@ -93,7 +102,7 @@ class MessagingUpMigrator {
         .notNullable()
     })
 
-    await this.bp.database.schema.createTable('msg_users', table => {
+    await this.trx.schema.createTable('msg_users', table => {
       table.uuid('id').primary()
       table
         .uuid('clientId')
@@ -102,7 +111,7 @@ class MessagingUpMigrator {
         .notNullable()
     })
 
-    await this.bp.database.schema.createTable('msg_conversations', table => {
+    await this.trx.schema.createTable('msg_conversations', table => {
       table.uuid('id').primary()
       table
         .uuid('clientId')
@@ -118,7 +127,7 @@ class MessagingUpMigrator {
       table.index(['userId', 'clientId'])
     })
 
-    await this.bp.database.schema.createTable('msg_messages', table => {
+    await this.trx.schema.createTable('msg_messages', table => {
       table.uuid('id').primary()
       table
         .uuid('conversationId')
@@ -137,9 +146,11 @@ class MessagingUpMigrator {
     })
 
     // We need to create this here because sometimes the migration is ran before the module is initalized
-    await this.bp.database.schema.createTable('web_user_map', table => {
-      table.string('visitorId').primary()
+    await this.trx.schema.createTable('web_user_map', table => {
+      table.string('botId')
+      table.string('visitorId')
       table.uuid('userId').unique()
+      table.primary(['botId', 'visitorId'])
     })
   }
 
@@ -147,49 +158,62 @@ class MessagingUpMigrator {
     const bots = await this.bp.bots.getAllBots()
 
     for (const bot of bots.values()) {
-      const provider = {
-        id: uuid.v4(),
-        name: bot.id,
-        sandbox: false
-      }
-
-      await this.bp.database('msg_providers').insert(provider)
-
-      const token = crypto.randomBytes(66).toString('base64')
-      const client = {
-        id: uuid.v4(),
-        providerId: provider.id,
-        token: await bcrypt.hash(token, 10)
-      }
-      await this.bp.database('msg_clients').insert(client)
-
-      await this.onClientCreated(bot.id, client.id)
-
-      await this.bp.config.mergeBotConfig(bot.id, {
-        messaging: { id: client.id, token, channels: {} }
-      })
+      await this.createClient(bot.id, true)
     }
   }
 
-  protected async onClientCreated(botId: string, clientId: string) {}
+  protected async createClient(botId: string, exists: boolean) {
+    const provider = {
+      id: uuid.v4(),
+      name: botId,
+      sandbox: false
+    }
+
+    await this.trx('msg_providers').insert(provider)
+
+    const token = crypto.randomBytes(66).toString('base64')
+    const client = {
+      id: uuid.v4(),
+      providerId: provider.id,
+      token: await bcrypt.hash(token, 10)
+    }
+    await this.trx('msg_clients').insert(client)
+
+    await this.onClientCreated(botId, client.id)
+
+    if (exists) {
+      await this.bp.config.mergeBotConfig(botId, {
+        messaging: { id: client.id, token, channels: {} }
+      })
+    }
+
+    return client.id
+  }
+
+  protected abstract onClientCreated(botId: string, clientId: string)
 }
 
 class MessagingSqliteUpMigrator extends MessagingUpMigrator {
-  protected clientIds: { [botId: string]: string } = {}
+  private clientIds: { [botId: string]: string } = {}
   private userBatch = []
   private userMapBatch = []
   private convoBatch = []
   private messageBatch = []
   private userCache = new LRUCache<string, string>({ max: 10000 })
 
-  async migrate() {
+  protected async start() {
+    this.trx = this.bp.database as any
+  }
+
+  protected async commit() {}
+
+  protected async migrate() {
     await super.migrate()
 
-    const convCount = <number>Object.values((await this.bp.database('web_conversations').count('*'))[0])[0]
+    const convCount = <number>Object.values((await this.trx('web_conversations').count('*'))[0])[0]
 
     for (let i = 0; i < convCount; i += 100) {
-      const convos = await this.bp
-        .database('web_conversations')
+      const convos = await this.trx('web_conversations')
         .select('*')
         .offset(i)
         .limit(100)
@@ -200,17 +224,17 @@ class MessagingSqliteUpMigrator extends MessagingUpMigrator {
   }
 
   protected async createTables() {
-    await this.bp.database.raw('PRAGMA foreign_keys = OFF;')
+    await this.trx.raw('PRAGMA foreign_keys = OFF;')
 
     // We delete these tables in case the migration crashed halfway.
-    await this.bp.database.schema.dropTableIfExists('web_user_map')
-    await this.bp.database.schema.dropTableIfExists('msg_messages')
-    await this.bp.database.schema.dropTableIfExists('msg_conversations')
-    await this.bp.database.schema.dropTableIfExists('msg_users')
-    await this.bp.database.schema.dropTableIfExists('msg_clients')
-    await this.bp.database.schema.dropTableIfExists('msg_providers')
+    await this.trx.schema.dropTableIfExists('web_user_map')
+    await this.trx.schema.dropTableIfExists('msg_messages')
+    await this.trx.schema.dropTableIfExists('msg_conversations')
+    await this.trx.schema.dropTableIfExists('msg_users')
+    await this.trx.schema.dropTableIfExists('msg_clients')
+    await this.trx.schema.dropTableIfExists('msg_providers')
 
-    await this.bp.database.raw('PRAGMA foreign_keys = ON;')
+    await this.trx.raw('PRAGMA foreign_keys = ON;')
 
     await super.createTables()
   }
@@ -221,18 +245,20 @@ class MessagingSqliteUpMigrator extends MessagingUpMigrator {
 
   private async migrateConvos(convos: any[]) {
     for (const convo of convos) {
-      const clientId = this.clientIds[convo.botId]
+      let clientId = this.clientIds[convo.botId]
+      if (!clientId) {
+        clientId = await this.createClient(convo.botId, false)
+      }
 
       const newConvo = {
         id: uuid.v4(),
-        userId: await this.getUserId(convo.userId, clientId),
+        userId: await this.getUserId(convo.botId, convo.userId, clientId),
         clientId,
         createdOn: convo.created_on
       }
       this.convoBatch.push(newConvo)
 
-      const messages = await this.bp
-        .database('web_messages')
+      const messages = await this.trx('web_messages')
         .select('*')
         .where({ conversationId: convo.id })
 
@@ -240,7 +266,7 @@ class MessagingSqliteUpMigrator extends MessagingUpMigrator {
         this.messageBatch.push({
           id: uuid.v4(),
           conversationId: newConvo.id,
-          authorId: message.userId ? await this.getUserId(message.userId, clientId) : undefined,
+          authorId: message.userId ? await this.getUserId(convo.botId, message.userId, clientId) : undefined,
           sentOn: message.sent_on,
           payload: message.payload
         })
@@ -259,17 +285,17 @@ class MessagingSqliteUpMigrator extends MessagingUpMigrator {
     await this.emptyMessageBatch()
   }
 
-  private async getUserId(visitorId: string, clientId: string) {
-    const cached = this.userCache.get(visitorId)
+  private async getUserId(botId: string, visitorId: string, clientId: string) {
+    const cached = this.userCache.get(`${botId}_${visitorId}`)
     if (cached) {
       return cached
     }
 
-    const rows = await this.bp.database('web_user_map').where({ visitorId })
+    const rows = await this.trx('web_user_map').where({ botId, visitorId })
 
     if (rows?.length) {
       const { userId } = rows[0] as UserMapping
-      this.userCache.set(visitorId, userId)
+      this.userCache.set(`${botId}_${visitorId}`, userId)
       return userId
     } else {
       const user = {
@@ -279,22 +305,23 @@ class MessagingSqliteUpMigrator extends MessagingUpMigrator {
       this.userBatch.push(user)
 
       const mapping = {
+        botId,
         visitorId,
         userId: user.id
       }
       this.userMapBatch.push(mapping)
 
-      this.userCache.set(visitorId, user.id)
+      this.userCache.set(`${botId}_${visitorId}`, user.id)
       return user.id as string
     }
   }
 
   private async emptyUserBatch() {
     if (this.userBatch.length > 0) {
-      await this.bp.database('web_user_map').insert(this.userMapBatch)
+      await this.trx('web_user_map').insert(this.userMapBatch)
       this.userMapBatch = []
 
-      await this.bp.database('msg_users').insert(this.userBatch)
+      await this.trx('msg_users').insert(this.userBatch)
       this.userBatch = []
     }
   }
@@ -303,7 +330,7 @@ class MessagingSqliteUpMigrator extends MessagingUpMigrator {
     await this.emptyUserBatch()
 
     if (this.convoBatch.length > 0) {
-      await this.bp.database('msg_conversations').insert(this.convoBatch)
+      await this.trx('msg_conversations').insert(this.convoBatch)
       this.convoBatch = []
     }
   }
@@ -312,18 +339,27 @@ class MessagingSqliteUpMigrator extends MessagingUpMigrator {
     await this.emptyConvoBatch()
 
     if (this.messageBatch.length > 0) {
-      await this.bp.database('msg_messages').insert(this.messageBatch)
+      await this.trx('msg_messages').insert(this.messageBatch)
       this.messageBatch = []
     }
   }
 }
 
 class MessagingPostgresUpMigrator extends MessagingUpMigrator {
-  async migrate() {
+  protected async start() {
+    this.trx = await this.bp.database.transaction()
+  }
+
+  protected async commit() {
+    await this.trx.commit()
+  }
+
+  protected async migrate() {
     await this.createTemporaryTables()
     await super.migrate()
 
     await this.collectVisitorIds()
+    await this.createClientsForDeletedBots()
     await this.createUsers()
     await this.migrateConversations()
     await this.migrateMessages()
@@ -333,22 +369,22 @@ class MessagingPostgresUpMigrator extends MessagingUpMigrator {
 
   protected async createTables() {
     // We delete these tables in case the migration crashed halfway.
-    await this.bp.database.raw('DROP TABLE IF EXISTS web_user_map CASCADE')
-    await this.bp.database.raw('DROP TABLE IF EXISTS msg_messages CASCADE')
-    await this.bp.database.raw('DROP TABLE IF EXISTS msg_conversations CASCADE')
-    await this.bp.database.raw('DROP TABLE IF EXISTS msg_users CASCADE')
-    await this.bp.database.raw('DROP TABLE IF EXISTS msg_clients CASCADE')
-    await this.bp.database.raw('DROP TABLE IF EXISTS msg_providers CASCADE')
+    await this.trx.raw('DROP TABLE IF EXISTS web_user_map CASCADE')
+    await this.trx.raw('DROP TABLE IF EXISTS msg_messages CASCADE')
+    await this.trx.raw('DROP TABLE IF EXISTS msg_conversations CASCADE')
+    await this.trx.raw('DROP TABLE IF EXISTS msg_users CASCADE')
+    await this.trx.raw('DROP TABLE IF EXISTS msg_clients CASCADE')
+    await this.trx.raw('DROP TABLE IF EXISTS msg_providers CASCADE')
 
     await super.createTables()
   }
 
   protected async onClientCreated(botId: string, clientId: string) {
-    await this.bp.database('temp_client_ids').insert({ botId, clientId })
+    await this.trx('temp_client_ids').insert({ botId, clientId })
   }
 
   private async collectVisitorIds() {
-    await this.bp.database.raw(`
+    await this.trx.raw(`
     INSERT INTO "temp_visitor_ids" (
       "userId", "visitorId", "botId")
     SELECT
@@ -357,10 +393,10 @@ class MessagingPostgresUpMigrator extends MessagingUpMigrator {
       "web_conversations"."botId"
     FROM "web_conversations"
     WHERE "web_conversations"."userId" IS NOT NULL
-    ON CONFLICT ON CONSTRAINT temp_visitor_ids_visitorid_unique
-    DO NOTHING;`)
+    ON CONFLICT ON CONSTRAINT temp_visitor_ids_visitorid_botid_unique
+    DO NOTHING`)
 
-    await this.bp.database.raw(`
+    await this.trx.raw(`
     INSERT INTO "temp_visitor_ids" (
       "userId", "visitorId", "botId")
     SELECT
@@ -370,12 +406,27 @@ class MessagingPostgresUpMigrator extends MessagingUpMigrator {
     FROM "web_messages"
     INNER JOIN "web_conversations" ON "web_conversations"."id" = "web_messages"."conversationId"
     WHERE "web_messages"."userId" IS NOT NULL
-    ON CONFLICT ON CONSTRAINT temp_visitor_ids_visitorid_unique 
+    ON CONFLICT ON CONSTRAINT temp_visitor_ids_visitorid_botid_unique 
     DO NOTHING;`)
   }
 
+  private async createClientsForDeletedBots() {
+    const distinctBotIds = await this.trx.raw(`
+    SELECT DISTINCT "temp_visitor_ids"."botId"
+    FROM "temp_visitor_ids"`)
+
+    for (const { botId } of distinctBotIds.rows) {
+      const rows = await this.trx('temp_client_ids').where({ botId })
+      if (rows?.length) {
+        continue
+      }
+
+      await this.createClient(botId, false)
+    }
+  }
+
   private async createUsers() {
-    await this.bp.database.raw(`
+    await this.trx.raw(`
     INSERT INTO "msg_users" (
       "id", "clientId")
     SELECT
@@ -384,17 +435,18 @@ class MessagingPostgresUpMigrator extends MessagingUpMigrator {
     FROM "temp_visitor_ids"
     INNER JOIN "temp_client_ids" ON "temp_client_ids"."botId" = "temp_visitor_ids"."botId"`)
 
-    await this.bp.database.raw(`
+    await this.trx.raw(`
     INSERT INTO "web_user_map" (
-      "visitorId", "userId")
+      "botId", "visitorId", "userId")
     SELECT
+      "temp_visitor_ids"."botId",
       "temp_visitor_ids"."visitorId",
       "temp_visitor_ids"."userId"
     FROM "temp_visitor_ids"`)
   }
 
   private async migrateConversations() {
-    await this.bp.database.raw(`
+    await this.trx.raw(`
     INSERT INTO "temp_new_convo_ids" (
       "oldId",
       "newId")
@@ -403,7 +455,7 @@ class MessagingPostgresUpMigrator extends MessagingUpMigrator {
       gen_random_uuid()
     FROM "web_conversations"`)
 
-    await this.bp.database.raw(`
+    await this.trx.raw(`
     INSERT INTO "msg_conversations" (
       "id",
       "clientId",
@@ -415,12 +467,13 @@ class MessagingPostgresUpMigrator extends MessagingUpMigrator {
       "web_conversations"."created_on"
     FROM "web_conversations"
     INNER JOIN "temp_new_convo_ids" ON "web_conversations"."id" = "temp_new_convo_ids"."oldId"
-    INNER JOIN "temp_visitor_ids" ON "web_conversations"."userId" = "temp_visitor_ids"."visitorId"
+    INNER JOIN "temp_visitor_ids" ON ("web_conversations"."userId" = "temp_visitor_ids"."visitorId" 
+      AND "web_conversations"."botId" = "temp_visitor_ids"."botId")
     INNER JOIN "temp_client_ids" ON "web_conversations"."botId" = "temp_client_ids"."botId"`)
   }
 
   private async migrateMessages() {
-    await this.bp.database.raw(`
+    await this.trx.raw(`
     INSERT INTO "msg_messages" (
       "id",
       "conversationId",
@@ -434,56 +487,71 @@ class MessagingPostgresUpMigrator extends MessagingUpMigrator {
       "web_messages"."payload"
     FROM "web_messages"
     INNER JOIN "temp_new_convo_ids" ON "web_messages"."conversationId" = "temp_new_convo_ids"."oldId"
-    LEFT JOIN "temp_visitor_ids" ON "web_messages"."userId" = "temp_visitor_ids"."visitorId"`)
+    INNER JOIN "web_conversations" ON "web_conversations"."id" = "temp_new_convo_ids"."oldId"
+    LEFT JOIN "temp_visitor_ids" ON ("web_messages"."userId" = "temp_visitor_ids"."visitorId"
+      AND "web_conversations"."botId" = "temp_visitor_ids"."botId")`)
   }
 
   private async createTemporaryTables() {
     // extension needed for gen_random_uuid()
-    await this.bp.database.raw('CREATE EXTENSION IF NOT EXISTS pgcrypto;')
+    await this.trx.raw('CREATE EXTENSION IF NOT EXISTS pgcrypto;')
 
-    await this.bp.database.schema.dropTableIfExists('temp_client_ids')
-    await this.bp.database.schema.createTable('temp_client_ids', table => {
+    await this.trx.schema.dropTableIfExists('temp_client_ids')
+    await this.trx.schema.createTable('temp_client_ids', table => {
       table.uuid('clientId').unique()
       table.string('botId').unique()
     })
 
-    await this.bp.database.schema.dropTableIfExists('temp_visitor_ids')
-    await this.bp.database.schema.createTable('temp_visitor_ids', table => {
+    await this.trx.schema.dropTableIfExists('temp_visitor_ids')
+    await this.trx.schema.createTable('temp_visitor_ids', table => {
       table.uuid('userId').unique()
-      table.string('visitorId').unique()
-      table.string('botId').index()
+      table.string('visitorId')
+      table.string('botId')
+      table.unique(['visitorId', 'botId'])
     })
 
-    await this.bp.database.schema.dropTableIfExists('temp_new_convo_ids')
-    await this.bp.database.schema.createTable('temp_new_convo_ids', table => {
+    await this.trx.schema.dropTableIfExists('temp_new_convo_ids')
+    await this.trx.schema.createTable('temp_new_convo_ids', table => {
       table.integer('oldId').unique()
       table.uuid('newId').unique()
     })
   }
 
   private async cleanupTemporaryTables() {
-    await this.bp.database.schema.dropTable('temp_client_ids')
-    await this.bp.database.schema.dropTable('temp_visitor_ids')
-    await this.bp.database.schema.dropTable('temp_new_convo_ids')
+    await this.trx.schema.dropTable('temp_client_ids')
+    await this.trx.schema.dropTable('temp_visitor_ids')
+    await this.trx.schema.dropTable('temp_new_convo_ids')
 
-    await this.bp.database.raw('DROP EXTENSION pgcrypto;')
+    await this.trx.raw('DROP EXTENSION pgcrypto;')
   }
 }
 
-class MessagingDownMigrator {
+abstract class MessagingDownMigrator {
+  protected trx: Knex.Transaction<any, any>
+
   constructor(protected bp: typeof sdk) {}
 
-  async migrate() {
+  async run() {
+    await this.start()
+    await this.migrate()
+    await this.cleanup()
+    await this.commit()
+  }
+
+  protected abstract start(): Promise<void>
+  protected abstract commit(): Promise<void>
+
+  protected async migrate() {
     await this.createTables()
   }
 
-  async cleanup() {
-    await this.bp.database.schema.dropTable('web_user_map')
+  protected async cleanup() {
+    await this.trx.schema.dropTable('web_user_map')
   }
 
   private async createTables() {
-    await this.bp.database.schema.dropTableIfExists('web_conversations')
-    await this.bp.database.schema.createTable('web_conversations', function(table) {
+    await this.trx.schema.dropTableIfExists('web_conversations')
+    await this.trx.schema.createTable('web_conversations', function(table) {
       table.increments('id').primary()
       table.string('userId')
       table.string('botId')
@@ -497,8 +565,8 @@ class MessagingDownMigrator {
       table.index(['userId', 'botId'], 'wcub_idx')
     })
 
-    await this.bp.database.schema.dropTableIfExists('web_messages')
-    await this.bp.database.schema.createTable('web_messages', function(table) {
+    await this.trx.schema.dropTableIfExists('web_messages')
+    await this.trx.schema.createTable('web_messages', function(table) {
       table.string('id').primary()
       table.integer('conversationId')
       table.string('incomingEventId')
@@ -515,7 +583,7 @@ class MessagingDownMigrator {
       table.index(['conversationId', 'sent_on'], 'wmcs_idx')
     })
 
-    await this.bp.database.raw(
+    await this.trx.raw(
       'CREATE INDEX IF NOT EXISTS wmcms_idx ON web_messages ("conversationId", message_type, sent_on DESC) WHERE message_type != \'visit\';'
     )
   }
@@ -528,15 +596,20 @@ class MessagingSqliteDownMigrator extends MessagingDownMigrator {
   private cacheBotIds = new LRUCache<string, string>({ max: 10000 })
   private convoIndex = 0
 
-  async migrate() {
+  protected async start() {
+    this.trx = this.bp.database as any
+  }
+
+  protected async commit() {}
+
+  protected async migrate() {
     await super.migrate()
 
-    const convCount = <number>Object.values((await this.bp.database('msg_conversations').count('*'))[0])[0] || 0
-    this.convoIndex = <number>Object.values((await this.bp.database('web_conversations').max('id'))[0])[0] || 1
+    const convCount = <number>Object.values((await this.trx('msg_conversations').count('*'))[0])[0] || 0
+    this.convoIndex = <number>Object.values((await this.trx('web_conversations').max('id'))[0])[0] || 1
 
     for (let i = 0; i < convCount; i += 100) {
-      const convos = await this.bp
-        .database('msg_conversations')
+      const convos = await this.trx('msg_conversations')
         .select('*')
         .offset(i)
         .limit(100)
@@ -546,33 +619,34 @@ class MessagingSqliteDownMigrator extends MessagingDownMigrator {
     }
   }
 
-  async cleanup() {
+  protected async cleanup() {
     await super.cleanup()
 
-    await this.bp.database.raw('PRAGMA foreign_keys = OFF;')
+    await this.trx.raw('PRAGMA foreign_keys = OFF;')
 
-    await this.bp.database.schema.dropTable('msg_messages')
-    await this.bp.database.schema.dropTable('msg_conversations')
-    await this.bp.database.schema.dropTable('msg_users')
-    await this.bp.database.schema.dropTable('msg_clients')
-    await this.bp.database.schema.dropTable('msg_providers')
+    await this.trx.schema.dropTable('msg_messages')
+    await this.trx.schema.dropTable('msg_conversations')
+    await this.trx.schema.dropTable('msg_users')
+    await this.trx.schema.dropTable('msg_clients')
+    await this.trx.schema.dropTable('msg_providers')
 
-    await this.bp.database.raw('PRAGMA foreign_keys = ON;')
+    await this.trx.raw('PRAGMA foreign_keys = ON;')
   }
 
   private async migrateConvos(convos: any[]) {
     for (const convo of convos) {
+      const botId = await this.getBotId(convo.clientId)
+
       const newConvo = {
         id: ++this.convoIndex,
-        userId: convo.userId ? await this.getVisitorId(convo.userId) : undefined,
-        botId: await this.getBotId(convo.clientId),
+        userId: convo.userId ? await this.getVisitorId(botId, convo.userId) : undefined,
+        botId,
         created_on: convo.createdOn
       }
 
       this.convoBatch.push(newConvo)
 
-      const messages = await this.bp
-        .database('msg_messages')
+      const messages = await this.trx('msg_messages')
         .select('*')
         .where({ conversationId: convo.id })
 
@@ -584,7 +658,7 @@ class MessagingSqliteDownMigrator extends MessagingDownMigrator {
           full_name: message.authorId ? 'User' : undefined,
           // Hack to make an old query work
           message_type: ' ',
-          userId: message.authorId ? await this.getVisitorId(message.authorId) : undefined,
+          userId: message.authorId ? await this.getVisitorId(botId, message.authorId) : undefined,
           sent_on: message.sentOn,
           payload: message.payload
         })
@@ -603,17 +677,17 @@ class MessagingSqliteDownMigrator extends MessagingDownMigrator {
     await this.emptyMessageBatch()
   }
 
-  private async getVisitorId(userId: string) {
-    const cached = this.cacheVisitorIds.get(userId)
+  private async getVisitorId(botId: string, userId: string) {
+    const cached = this.cacheVisitorIds.get(`${botId}_${userId}`)
     if (cached) {
       return cached
     }
 
-    const rows = await this.bp.database('web_user_map').where({ userId })
+    const rows = await this.trx('web_user_map').where({ botId, userId })
 
     if (rows?.length) {
       const { visitorId } = rows[0] as UserMapping
-      this.cacheVisitorIds.set(userId, visitorId)
+      this.cacheVisitorIds.set(`${botId}_${userId}`, visitorId)
       return visitorId
     }
 
@@ -626,8 +700,8 @@ class MessagingSqliteDownMigrator extends MessagingDownMigrator {
       return cached
     }
 
-    const [client] = await this.bp.database('msg_clients').where({ id: clientId })
-    const [provider] = await this.bp.database('msg_providers').where({ id: client.providerId })
+    const [client] = await this.trx('msg_clients').where({ id: clientId })
+    const [provider] = await this.trx('msg_providers').where({ id: client.providerId })
 
     this.cacheBotIds.set(clientId, provider.name)
 
@@ -636,7 +710,7 @@ class MessagingSqliteDownMigrator extends MessagingDownMigrator {
 
   private async emptyConvoBatch() {
     if (this.convoBatch.length > 0) {
-      await this.bp.database('web_conversations').insert(this.convoBatch)
+      await this.trx('web_conversations').insert(this.convoBatch)
       this.convoBatch = []
     }
   }
@@ -645,7 +719,7 @@ class MessagingSqliteDownMigrator extends MessagingDownMigrator {
     await this.emptyConvoBatch()
 
     if (this.messageBatch.length > 0) {
-      await this.bp.database('web_messages').insert(this.messageBatch)
+      await this.trx('web_messages').insert(this.messageBatch)
       this.messageBatch = []
     }
   }
@@ -654,10 +728,18 @@ class MessagingSqliteDownMigrator extends MessagingDownMigrator {
 class MessagingPostgresDownMigrator extends MessagingDownMigrator {
   private convoIndex = 0
 
-  async migrate() {
+  protected async start() {
+    this.trx = await this.bp.database.transaction()
+  }
+
+  protected async commit() {
+    await this.trx.commit()
+  }
+
+  protected async migrate() {
     await super.migrate()
 
-    this.convoIndex = <number>Object.values((await this.bp.database('web_conversations').max('id'))[0])[0] || 1
+    this.convoIndex = <number>Object.values((await this.trx('web_conversations').max('id'))[0])[0] || 1
     await this.createTemporaryTables()
 
     await this.migrateConversations()
@@ -666,27 +748,27 @@ class MessagingPostgresDownMigrator extends MessagingDownMigrator {
     await this.cleanupTemporaryTables()
   }
 
-  async cleanup() {
+  protected async cleanup() {
     await super.cleanup()
 
-    await this.bp.database.raw('DROP TABLE msg_messages CASCADE')
-    await this.bp.database.raw('DROP TABLE msg_conversations CASCADE')
-    await this.bp.database.raw('DROP TABLE msg_users CASCADE')
-    await this.bp.database.raw('DROP TABLE msg_clients CASCADE')
-    await this.bp.database.raw('DROP TABLE msg_providers CASCADE')
+    await this.trx.raw('DROP TABLE msg_messages CASCADE')
+    await this.trx.raw('DROP TABLE msg_conversations CASCADE')
+    await this.trx.raw('DROP TABLE msg_users CASCADE')
+    await this.trx.raw('DROP TABLE msg_clients CASCADE')
+    await this.trx.raw('DROP TABLE msg_providers CASCADE')
   }
 
   private async migrateConversations() {
-    const convCount = <number>Object.values((await this.bp.database('msg_conversations').count('*'))[0])[0] || 0
+    const convCount = <number>Object.values((await this.trx('msg_conversations').count('*'))[0])[0] || 0
 
-    await this.bp.database.raw(`
+    await this.trx.raw(`
     INSERT INTO "temp_new_convo_ids" (
       "oldId")
     SELECT
       "msg_conversations"."id"
     FROM "msg_conversations"`)
 
-    await this.bp.database.raw(`
+    await this.trx.raw(`
     INSERT INTO "web_conversations" (
       "id",
       "userId",
@@ -698,16 +780,14 @@ class MessagingPostgresDownMigrator extends MessagingDownMigrator {
       "msg_conversations"."createdOn"
     FROM "msg_conversations"
     INNER JOIN "temp_new_convo_ids" ON "msg_conversations"."id" = "temp_new_convo_ids"."oldId"
-    INNER JOIN "web_user_map" ON "web_user_map"."userId" = "msg_conversations"."userId"
     INNER JOIN "msg_clients" ON "msg_clients"."id" = "msg_conversations"."clientId"
-    INNER JOIN "msg_providers" ON "msg_providers"."id" = "msg_clients"."providerId"`)
-    await this.bp.database.raw(
-      `ALTER SEQUENCE web_conversations_id_seq RESTART WITH ${this.convoIndex + convCount + 1}`
-    )
+    INNER JOIN "msg_providers" ON "msg_providers"."id" = "msg_clients"."providerId"
+    INNER JOIN "web_user_map" ON ("web_user_map"."userId" = "msg_conversations"."userId" AND "web_user_map"."botId" = "msg_providers"."name")`)
+    await this.trx.raw(`ALTER SEQUENCE web_conversations_id_seq RESTART WITH ${this.convoIndex + convCount + 1}`)
   }
 
   private async migrateMessages() {
-    await this.bp.database.raw(`
+    await this.trx.raw(`
     INSERT INTO "web_messages" (
       "id",
       "conversationId",
@@ -723,20 +803,20 @@ class MessagingPostgresDownMigrator extends MessagingDownMigrator {
       "msg_messages"."payload"
     FROM "msg_messages"
     INNER JOIN "temp_new_convo_ids" ON "msg_messages"."conversationId" = "temp_new_convo_ids"."oldId"
-    LEFT JOIN "web_user_map" ON "web_user_map"."userId" = "msg_messages"."authorId"`)
+    INNER JOIN "web_conversations" ON "web_conversations"."id" = "temp_new_convo_ids"."newid"
+    LEFT JOIN "web_user_map" ON ("web_user_map"."userId" = "msg_messages"."authorId" AND "web_user_map"."botId" = "web_conversations"."botId")`)
 
-    await this.bp
-      .database('web_messages')
+    await this.trx('web_messages')
       .whereNotNull('userId')
       .update({ full_name: 'User' })
   }
 
   private async createTemporaryTables() {
     // extension needed for gen_random_uuid()
-    await this.bp.database.raw('CREATE EXTENSION IF NOT EXISTS pgcrypto;')
+    await this.trx.raw('CREATE EXTENSION IF NOT EXISTS pgcrypto;')
 
-    await this.bp.database.schema.dropTableIfExists('temp_new_convo_ids')
-    await this.bp.database.schema.createTable('temp_new_convo_ids', table => {
+    await this.trx.schema.dropTableIfExists('temp_new_convo_ids')
+    await this.trx.schema.createTable('temp_new_convo_ids', table => {
       table
         .uuid('oldId')
         .references('id')
@@ -745,13 +825,13 @@ class MessagingPostgresDownMigrator extends MessagingDownMigrator {
       // newId needs to be lowercase here. For some reason alter sequence doesn't work when it has an uppercase letter
       table.increments('newid').unique()
     })
-    await this.bp.database.raw(`ALTER SEQUENCE temp_new_convo_ids_newid_seq RESTART WITH ${this.convoIndex + 1}`)
+    await this.trx.raw(`ALTER SEQUENCE temp_new_convo_ids_newid_seq RESTART WITH ${this.convoIndex + 1}`)
   }
 
   private async cleanupTemporaryTables() {
-    await this.bp.database.raw('DROP EXTENSION pgcrypto;')
+    await this.trx.raw('DROP EXTENSION pgcrypto;')
 
-    await this.bp.database.schema.dropTable('temp_new_convo_ids')
+    await this.trx.schema.dropTable('temp_new_convo_ids')
   }
 }
 
