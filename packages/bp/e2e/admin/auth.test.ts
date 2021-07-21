@@ -2,7 +2,7 @@ import axios from 'axios'
 import * as config from '../assets/auth-config.json'
 import { bpConfig } from '../../jest-puppeteer.config'
 import { clickOn, fillField } from '../expectPuppeteer'
-import { getResponse, gotoAndExpect } from '../utils'
+import { getResponse, doesElementExist } from '../utils'
 
 describe('Auth UI', () => {
   let jwt: string
@@ -93,9 +93,9 @@ describe('Auth UI', () => {
 
   it('Preview non-hidden auth strategies', async () => {
     await page.goto(`${bpConfig.host}/admin/login`)
-    await expect((await page.$('#btn-default')) !== null).toBeTruthy()
-    await expect((await page.$('#btn-botpress')) !== null).toBeTruthy()
-    await expect((await page.$('#btn-botpress2')) == null).toBeTruthy()
+    await expect(await doesElementExist('#btn-default')).toBeTruthy()
+    await expect(await doesElementExist('#btn-botpress')).toBeTruthy()
+    await expect(await doesElementExist('#btn-botpress2')).toBeFalsy()
   })
 
   it('Revert config', async () => {
