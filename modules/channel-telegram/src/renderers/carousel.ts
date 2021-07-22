@@ -28,13 +28,10 @@ export class TelegramCarouselRenderer implements ChannelRenderer<TelegramContext
     const { messages } = context
     const payload = context.payload as sdk.CarouselContent
 
+    let buttons
     for (const card of payload.items) {
-      if (card.image) {
-        messages.push({ action: 'upload_photo' })
-        messages.push({ photo: { url: formatUrl(context.botUrl, card.image), filename: path.basename(card.image) } })
-      }
+      buttons = []
 
-      const buttons = []
       for (const action of card.actions || []) {
         if (action.action === sdk.ButtonAction.OpenUrl) {
           buttons.push(
@@ -47,10 +44,18 @@ export class TelegramCarouselRenderer implements ChannelRenderer<TelegramContext
         }
       }
 
-      messages.push({
-        text: `*${card.title}*\n${card.subtitle}`,
-        extra: Extra.markdown(true).markup(Markup.inlineKeyboard(buttons))
-      })
+      if (card.image) {
+        messages.push({ action: 'upload_photo' })
+        messages.push({
+          photo: {
+            url: formatUrl(context.botUrl, card.image),
+            filename: path.basename(card.image)
+          },
+          extra: new Extra({ caption: `*${card.title}*${card.subtitle ? '\n' + card.subtitle : ''}` })
+            .markdown(true)
+            .markup(Markup.inlineKeyboard(buttons))
+        })
+      }
     }
   }
 }
