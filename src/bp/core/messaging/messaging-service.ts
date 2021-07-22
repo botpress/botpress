@@ -11,6 +11,7 @@ export class MessagingService {
   private clientSync!: MessagingClient
   private clientsByBotId: { [botId: string]: MessagingClient } = {}
   private botsByClientId: { [clientId: string]: string } = {}
+  private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage']
 
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
@@ -110,7 +111,7 @@ export class MessagingService {
   }
 
   private async handleOutgoingEvent(event: IO.OutgoingEvent, next: IO.MiddlewareNextCallback) {
-    if (event.channel === 'web') {
+    if (!this.channelNames.includes(event.channel)) {
       return next(undefined, false, true)
     }
 
