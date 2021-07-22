@@ -41,8 +41,10 @@ export class MessagingService {
 
     const setupConfig = {
       name: botId,
-      ...messaging,
-      webhooks: [{ url: `http://localhost:${process.PORT}/api/v1/chat/receive` }]
+      ...messaging
+      // We use the SPINNED_URL env var for now to force the messaging server to
+      // make its webhook requests to the process that started it.
+      // webhooks: [{ url: `${process.EXTERNAL_URL}/api/v1/chat/receive` }]
     }
 
     const { id, token } = await this.clientSync.syncClient(setupConfig)
