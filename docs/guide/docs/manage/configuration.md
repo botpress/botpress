@@ -112,7 +112,7 @@ Here there are:
 
 ## Environment Variables for modules
 
-You can modified the value of `config/MODULE_NAME.json` by an environment variable. The value need to be prefixed by `BP_MODULE_<MODULE_NAME>`. For example, the `nlu.json` have a NLUServer key. To modified this value by an environment variable you can set this value in the `.env`
+You can modify the value of `config/MODULE_NAME.json` by an environment variable. The value needs to be prefixed by `BP_MODULE_<MODULE_NAME>`. For example, the `nlu.json` has an NLUServer key. To modify this value by an environment variable you can set this value in the `.env`
 
 ```
 BP_MODULE_NLU_NLUSERVER = { autoStart: false, endpoint: "<URL>" }
