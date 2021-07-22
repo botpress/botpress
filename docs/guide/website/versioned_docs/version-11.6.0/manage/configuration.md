@@ -1,6 +1,7 @@
 ---
-id: configuration
+id: version-11.6.0-configuration
 title: Configuration
+original_id: configuration
 ---
 
 There is currently no graphical interface on Botpress to manage your server or your bot's configuration. Most of the configuration is done using `JSON` files.
