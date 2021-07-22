@@ -11,6 +11,7 @@ export class MessagingService {
   private clientSync!: MessagingClient
   private clientsByBotId: { [botId: string]: MessagingClient } = {}
   private botsByClientId: { [clientId: string]: string } = {}
+  private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage']
 
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
@@ -102,6 +103,10 @@ export class MessagingService {
   }
 
   private async handleOutgoingEvent(event: IO.OutgoingEvent, next: IO.MiddlewareNextCallback) {
+    if (!this.channelNames.includes(event.channel)) {
+      return next(undefined, false, true)
+    }
+
     // TODO: validate payload types here
     await this.clientsByBotId[event.botId].sendMessage(event.threadId!, event.channel, event.payload)
 
