@@ -5,7 +5,6 @@ import ms from 'ms'
 import { MessagingClient } from './messaging'
 
 export default class WebchatDb {
-  private readonly MAX_RETRY_ATTEMPTS = 3
   private knex: sdk.KnexExtended
   private users: typeof sdk.users
   private cacheByVisitor: LRUCache<string, UserMapping>
@@ -49,15 +48,19 @@ export default class WebchatDb {
       return cached
     }
 
-    const rows = await this.knex('web_user_map').where({ botId, visitorId })
+    try {
+      const rows = await this.knex('web_user_map').where({ botId, visitorId })
 
-    if (rows?.length) {
-      const mapping = rows[0] as UserMapping
-      this.cacheByVisitor.set(`${botId}_${visitorId}`, mapping)
-      return mapping
+      if (rows?.length) {
+        const mapping = rows[0] as UserMapping
+        this.cacheByVisitor.set(`${botId}_${visitorId}`, mapping)
+        return mapping
+      }
+    } catch (err) {
+      this.bp.logger.error('An error occurred while fetching a visitor mapping.', err)
+
+      return undefined
     }
-
-    return undefined
   }
 
   async getMappingFromUser(userId: string): Promise<UserMapping | undefined> {
@@ -66,24 +69,34 @@ export default class WebchatDb {
       return cached
     }
 
-    const rows = await this.knex('web_user_map').where({ userId })
+    try {
+      const rows = await this.knex('web_user_map').where({ userId })
 
-    if (rows?.length) {
-      const mapping = rows[0] as UserMapping
-      this.cacheByUser.set(userId, mapping)
-      return mapping
+      if (rows?.length) {
+        const mapping = rows[0] as UserMapping
+        this.cacheByUser.set(userId, mapping)
+        return mapping
+      }
+    } catch (err) {
+      this.bp.logger.error('An error occurred while fetching a user mapping.', err)
+
+      return undefined
     }
-
-    return undefined
   }
 
   async createUserMapping(botId: string, visitorId: string, userId: string): Promise<UserMapping> {
     const mapping = { botId, visitorId, userId }
 
-    await this.knex('web_user_map').insert(mapping)
-    this.cacheByVisitor.set(`${botId}_${visitorId}`, mapping)
+    try {
+      await this.knex('web_user_map').insert(mapping)
+      this.cacheByVisitor.set(`${botId}_${visitorId}`, mapping)
 
-    return mapping
+      return mapping
+    } catch (err) {
+      this.bp.logger.error('An error occurred while creating a user mapping.', err)
+
+      return undefined
+    }
   }
 
   async getUserInfo(userId: string, user: sdk.User) {
@@ -104,7 +117,7 @@ export default class WebchatDb {
     return { fullName, avatar_url: _.get(user, 'attributes.picture_url') }
   }
 
-  async getFeedbackInfoForMessageIds(target: string, messageIds: string[]) {
+  async getFeedbackInfoForMessageIds(_target: string, messageIds: string[]) {
     return this.knex('events')
       .select(['events.messageId', 'incomingEvents.feedback'])
       .innerJoin('events as incomingEvents', 'incomingEvents.id', 'events.incomingEventId')
