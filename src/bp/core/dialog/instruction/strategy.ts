@@ -3,7 +3,7 @@ import { parseActionInstruction } from 'common/action'
 import { ActionServer } from 'common/typings'
 import { TYPES } from 'core/app/types'
 import { CMSService, renderTemplate } from 'core/cms'
-import { EventEngine } from 'core/events'
+import { EventEngine, addErrorToEvent } from 'core/events'
 import { ActionService, ActionServersService, VmRunner } from 'core/user-code'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -137,13 +137,24 @@ export class ActionStrategy implements InstructionStrategy {
         const hasAction = await service.hasAction(actionName)
         if (!hasAction) {
           const { currentNode, currentFlow } = _.get(event, 'state.context', {})
-          throw new Error(`Action "${actionName}" not found in ${currentFlow}:${currentNode} `)
+          throw new Error(`Action "${actionName}" not found in ${currentFlow}:${currentNode}`)
         }
       }
 
       await service.runAction({ actionName, incomingEvent: event, actionArgs: args, actionServer })
     } catch (err) {
       this.logger.error(err.message)
+      const { currentNode, currentFlow } = _.get(event, 'state.context', {})
+      addErrorToEvent(
+        {
+          type: 'action-execution',
+          actionName,
+          flowName: currentFlow,
+          nodeName: currentNode,
+          stacktrace: err.stacktrace || err.stack
+        },
+        event
+      )
 
       const { onErrorFlowTo } = event.state.temp
       const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
