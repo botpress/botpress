@@ -1,7 +1,6 @@
 ---
-id: version-11.6.0-configuration
+id: configuration
 title: Configuration
-original_id: configuration
 ---
 
 There is currently an interface on Botpress to manage your server, bot's and module configuration. Most of the configuration is done using `JSON` files in the code editor.
