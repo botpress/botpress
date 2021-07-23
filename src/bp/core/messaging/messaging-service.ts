@@ -1,10 +1,10 @@
+import { MessagingClient } from '@botpress/messaging-client'
 import { IO, MessagingConfig } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config'
 import { EventEngine, Event } from 'core/events'
 import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
-import { MessagingClient } from './messaging-client'
 
 @injectable()
 export class MessagingService {
@@ -30,7 +30,10 @@ export class MessagingService {
 
     await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
-    this.clientSync = new MessagingClient(`http://localhost:${process.MESSAGING_PORT}`, process.INTERNAL_PASSWORD)
+    this.clientSync = new MessagingClient({
+      url: `http://localhost:${process.MESSAGING_PORT}`,
+      password: process.INTERNAL_PASSWORD
+    })
   }
 
   async loadMessagingForBot(botId: string) {
@@ -47,7 +50,7 @@ export class MessagingService {
       // webhooks: [{ url: `${process.EXTERNAL_URL}/api/v1/chat/receive` }]
     }
 
-    const { id, token } = await this.clientSync.syncClient(setupConfig)
+    const { id, token } = await this.clientSync.syncs.sync(setupConfig)
     let modified = false
 
     if (id && id !== messaging.id) {
@@ -63,12 +66,14 @@ export class MessagingService {
       await this.configProvider.mergeBotConfig(botId, { messaging })
     }
 
-    const botClient = new MessagingClient(
-      `http://localhost:${process.MESSAGING_PORT}`,
-      process.INTERNAL_PASSWORD,
-      messaging.id,
-      messaging.token
-    )
+    const botClient = new MessagingClient({
+      url: `http://localhost:${process.MESSAGING_PORT}`,
+      password: process.INTERNAL_PASSWORD,
+      auth: {
+        clientId: messaging.id,
+        clientToken: messaging.token
+      }
+    })
     this.clientsByBotId[botId] = botClient
     this.botsByClientId[id] = botId
   }
@@ -81,7 +86,7 @@ export class MessagingService {
       return
     }
 
-    await this.clientSync.syncClient({
+    await this.clientSync.syncs.sync({
       id: config.messaging.id,
       token: config.messaging.token,
       name: botId,
@@ -118,7 +123,7 @@ export class MessagingService {
     }
 
     // TODO: validate payload types here
-    const message = await this.clientsByBotId[event.botId].sendMessage(event.threadId!, event.channel, event.payload)
+    const message = await this.clientsByBotId[event.botId].chat.reply(event.threadId!, event.channel, event.payload)
     event.messageId = message.id
 
     return next(undefined, true, false)

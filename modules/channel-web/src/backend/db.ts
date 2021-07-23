@@ -1,8 +1,8 @@
+import { MessagingClient } from '@botpress/messaging-client'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
 import ms from 'ms'
-import { MessagingClient } from './messaging'
 
 export default class WebchatDb {
   private knex: sdk.KnexExtended
@@ -33,7 +33,7 @@ export default class WebchatDb {
     let userId: string
 
     if (!userMapping) {
-      userId = (await messaging.createUser()).id
+      userId = (await messaging.users.create()).id
       await this.createUserMapping(botId, visitorId, userId)
     } else {
       userId = userMapping.userId
@@ -132,13 +132,11 @@ export default class WebchatDb {
 
     const { messaging } = await this.bp.bots.getBotById(botId)
 
-    const botClient = new MessagingClient(
-      `http://localhost:${process.MESSAGING_PORT}`,
-      process.INTERNAL_PASSWORD,
-      messaging.id,
-      messaging.token,
-      botId
-    )
+    const botClient = new MessagingClient({
+      url: `http://localhost:${process.MESSAGING_PORT}`,
+      password: process.INTERNAL_PASSWORD,
+      auth: { clientId: messaging.id, clientToken: messaging.token }
+    })
     this.messagingClients[botId] = botClient
 
     return botClient
