@@ -83,7 +83,7 @@ export class DialogEngine {
     // End session if there are no more instructions in the queue
     if (!instruction) {
       this._debug(event.botId, event.target, 'ending flow')
-      this._endFlow(event)
+      await this._endFlow(event)
       return event
     }
 
@@ -102,7 +102,7 @@ export class DialogEngine {
         const destination = result.options!.transitionTo!
         if (!destination || !destination.length) {
           this._debug(event.botId, event.target, 'ending flow, because no transition destination defined (red port)')
-          this._endFlow(event)
+          await this._endFlow(event)
           return event
         }
         // We reset the queue when we transition to another node.
@@ -211,68 +211,41 @@ export class DialogEngine {
     }
   }
 
-  public async processTimeout(botId: string, sessionId: string, event: IO.IncomingEvent) {
-    this._debug(event.botId, event.target, 'processing timeout')
-
-    const api = await createForGlobalHooks()
-    await this.hookService.executeHook(new Hooks.BeforeSessionTimeout(api, event))
-
-    await this._loadFlows(botId)
-
-    // This is the only place we don't want to catch node or flow not found errors
-    const findNodeWithoutError = (flow, nodeName) => {
-      try {
-        return this._findNode(botId, flow, nodeName)
-      } catch (err) {
-        // ignore
-      }
-      return undefined
+  private findNodeWithoutError = (botId, flow, nodeName) => {
+    try {
+      return this._findNode(botId, flow, nodeName)
+    } catch (err) {
+      // ignore
     }
-    const findFlowWithoutError = flowName => {
-      try {
-        return this._findFlow(botId, flowName)
-      } catch (err) {
-        // ignore
-      }
-      return undefined
+    return undefined
+  }
+
+  private findFlowWithoutError = (botId, flowName) => {
+    try {
+      return this._findFlow(botId, flowName)
+    } catch (err) {
+      // ignore
     }
+    return undefined
+  }
 
-    const currentFlow = this._findFlow(botId, event.state.context?.currentFlow!)
-    const currentNode = findNodeWithoutError(currentFlow, event.state.context?.currentNode)
-
-    // Check for a timeout property in the current node
-    let timeoutNode = _.get(currentNode, 'timeout')
-    let timeoutFlow: FlowView | undefined = currentFlow
-
-    // Check for a timeout node in the current flow
-    if (!timeoutNode) {
-      timeoutNode = findNodeWithoutError(currentFlow, 'timeout')
+  private fillContextForTransition = (
+    event: IO.IncomingEvent,
+    {
+      currentFlow,
+      currentNode,
+      nextFlow,
+      nextNode
+    }: {
+      currentFlow: FlowWithParent
+      currentNode?: FlowNode
+      nextFlow: FlowWithParent
+      nextNode: FlowNode
     }
-
-    // Check for a timeout property in the current flow
-    if (!timeoutNode) {
-      const timeoutNodeName = _.get(timeoutFlow, 'timeoutNode')
-      if (timeoutNodeName) {
-        timeoutNode = findNodeWithoutError(timeoutFlow, timeoutNodeName)
-      }
-    }
-
-    // Check for a timeout.flow.json and get the start node
-    if (!timeoutNode) {
-      timeoutFlow = findFlowWithoutError('timeout.flow.json')
-      if (timeoutFlow) {
-        const startNodeName = timeoutFlow.startNode
-        timeoutNode = findNodeWithoutError(timeoutFlow, startNodeName)
-      }
-    }
-
-    if (!timeoutNode || !timeoutFlow) {
-      throw new TimeoutNodeNotFound(`Could not find any timeout node or flow for session "${sessionId}"`)
-    }
-
+  ) => {
     if (event.state.context) {
-      event.state.context.currentNode = timeoutNode.name
-      event.state.context.currentFlow = timeoutFlow.name
+      event.state.context.currentNode = nextNode.name
+      event.state.context.currentFlow = nextFlow.name
       event.state.context.queue = undefined
       event.state.context.previousFlow = currentFlow.name
       event.state.context.previousNode = currentNode?.name as string
@@ -285,13 +258,93 @@ export class DialogEngine {
       ]
       event.state.context.hasJumped = true
     }
+  }
+
+  public async processTimeout(botId: string, sessionId: string, event: IO.IncomingEvent) {
+    this._debug(event.botId, event.target, 'processing timeout')
+
+    const api = await createForGlobalHooks()
+    await this.hookService.executeHook(new Hooks.BeforeSessionTimeout(api, event))
+
+    await this._loadFlows(botId)
+
+    const currentFlow = this._findFlow(botId, event.state.context?.currentFlow!)
+    const currentNode = this.findNodeWithoutError(botId, currentFlow, event.state.context?.currentNode)
+
+    // Check for a timeout property in the current node
+    let timeoutNode = _.get(currentNode, 'timeout')
+    let timeoutFlow: FlowView | undefined = currentFlow
+
+    // Check for a timeout node in the current flow
+    if (!timeoutNode) {
+      timeoutNode = this.findNodeWithoutError(botId, currentFlow, 'timeout')
+    }
+
+    // Check for a timeout property in the current flow
+    if (!timeoutNode) {
+      const timeoutNodeName = _.get(timeoutFlow, 'timeoutNode')
+      if (timeoutNodeName) {
+        timeoutNode = this.findNodeWithoutError(botId, timeoutFlow, timeoutNodeName)
+      }
+    }
+
+    // Check for a timeout.flow.json and get the start node
+    if (!timeoutNode) {
+      timeoutFlow = this.findFlowWithoutError(botId, 'timeout.flow.json')
+      if (timeoutFlow) {
+        const startNodeName = timeoutFlow.startNode
+        timeoutNode = this.findNodeWithoutError(botId, timeoutFlow, startNodeName)
+      }
+    }
+
+    if (!timeoutNode || !timeoutFlow) {
+      throw new TimeoutNodeNotFound(`Could not find any timeout node or flow for session "${sessionId}"`)
+    }
+
+    this.fillContextForTransition(event, { currentFlow, currentNode, nextFlow: timeoutFlow, nextNode: timeoutNode })
 
     return this.processEvent(sessionId, event)
   }
 
-  private _endFlow(event: IO.IncomingEvent) {
-    event.state.context = {}
-    event.state.temp = {}
+  public async processConversationEnd(botId: string, sessionId: string, event: IO.IncomingEvent) {
+    this._debug(event.botId, event.target, 'processing conversation end')
+
+    await this._loadFlows(botId)
+
+    const currentFlow = this._findFlow(botId, event.state.context?.currentFlow!)
+    const currentNode = this.findNodeWithoutError(botId, currentFlow, event.state.context?.currentNode)
+
+    // Check for a conversation_end.flow.json
+    const conversationEndFlow = this.findFlowWithoutError(botId, 'conversation_end.flow.json')
+
+    if (!conversationEndFlow || currentFlow.name === 'conversation_end.flow.json') {
+      return true
+    }
+
+    const api = await createForGlobalHooks()
+    await this.hookService.executeHook(new Hooks.BeforeConversationEnd(api, event))
+
+    const conversationEndNode = this.findNodeWithoutError(botId, conversationEndFlow, conversationEndFlow.startNode)
+
+    if (!conversationEndNode) {
+      throw new TimeoutNodeNotFound(`Could not find any conversation end node for session "${sessionId}"`)
+    }
+
+    this.fillContextForTransition(event, {
+      currentFlow,
+      currentNode,
+      nextFlow: conversationEndFlow,
+      nextNode: conversationEndNode
+    })
+
+    await this.processEvent(sessionId, event)
+  }
+
+  private async _endFlow(event: IO.IncomingEvent) {
+    if (await this.processConversationEnd(event.botId, event.threadId as string, event)) {
+      event.state.context = {}
+      event.state.temp = {}
+    }
   }
 
   private initializeContext(event) {

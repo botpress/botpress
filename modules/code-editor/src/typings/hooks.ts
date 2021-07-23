@@ -12,6 +12,7 @@ export const HOOK_SIGNATURES = {
   after_bot_mount: 'function hook(bp: typeof sdk, botId: string)',
   after_bot_unmount: 'function hook(bp: typeof sdk, botId: string)',
   before_session_timeout: 'function hook(bp: typeof sdk, event: sdk.IO.IncomingEvent)',
+  before_conversation_end: 'function hook(bp: typeof sdk, event: sdk.IO.IncomingEvent)',
   on_incident_status_changed: 'function hook(bp: typeof sdk, incident: sdk.Incident)',
   before_bot_import: 'function hook(bp: typeof sdk, botId: string, tmpFolder: string, hookResult: object)',
   on_stage_request: `function hook(
@@ -36,6 +37,7 @@ export const BOT_SCOPED_HOOKS = [
   'after_event_processed',
   'before_suggestions_election',
   'before_session_timeout',
+  'before_conversation_end',
   'after_bot_mount',
   'after_bot_unmount',
   'before_bot_import',
