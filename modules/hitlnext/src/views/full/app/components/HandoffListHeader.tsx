@@ -1,6 +1,6 @@
 import { Checkbox } from '@blueprintjs/core'
-import _ from 'lodash'
 import { lang, MainLayout, ToolbarButtonProps } from 'botpress/shared'
+import _ from 'lodash'
 import React, { FC } from 'react'
 
 import style from '../../style.scss'
@@ -19,8 +19,8 @@ interface Props {
   filterOptions: FilterType
   tags: string[]
   sortOption: SortType
-  setFilterOptions: (value) => void
-  setSortOption: (value) => void
+  setFilterOptions: (value: FilterType) => void
+  setSortOption: (value: SortType) => void
   disabled: boolean
 }
 
@@ -99,7 +99,7 @@ const HandoffListHeader: FC<Props> = ({
     }
   ]
 
-  const renderButtons = (tags): ToolbarButtonProps[] => {
+  const renderButtons = (tags: string[]): ToolbarButtonProps[] => {
     const tagElements: ToolbarButtonProps[] = tags.map(tag => {
       return {
         content: (
@@ -131,20 +131,20 @@ const HandoffListHeader: FC<Props> = ({
             }
           },
           {
-            label: lang.tr('module.humanhelpnext.sort.leastRecentlyCreated'),
+            label: lang.tr('module.hitlnext.sort.leastRecentlyCreated'),
             selected: sortOption === 'leastRecent',
             action: () => {
               setSortOption('leastRecent')
             }
           }
         ],
-        tooltip: lang.tr('module.humanhelpnext.sortBy'),
+        tooltip: lang.tr('module.hitlnext.sortBy'),
         disabled
       },
       {
         icon: 'filter',
         optionsItems: buttons[1].optionsItems.concat(tagElements),
-        tooltip: lang.tr('module.humanhelpnext.filterBy'),
+        tooltip: lang.tr('module.hitlnext.filterBy'),
         disabled
       }
     ]

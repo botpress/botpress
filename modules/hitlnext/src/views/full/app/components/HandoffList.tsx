@@ -38,15 +38,10 @@ const HandoffList: FC<Props> = ({ tags, handoffs, loading }) => {
       resolved: item.status === 'resolved'
     }
 
-    if (filterOptions.tags.length > 0) {
-      const tagCondition = item.tags && item.tags.some(tag => filterOptions.tags.indexOf(tag) >= 0)
+    if (filterOptions.tags.length) {
+      const tagCondition = item.tags?.some(tag => filterOptions.tags.indexOf(tag) >= 0)
 
-      Object.assign(conditions, {
-        unassigned: item.agentId == null && tagCondition,
-        assignedMe: item.status === 'assigned' && item.agentId === state.currentAgent?.agentId && tagCondition,
-        assignedOther: item.status === 'assigned' && item.agentId !== state.currentAgent?.agentId && tagCondition,
-        resolved: item.status === 'resolved' && tagCondition
-      })
+      Object.keys(conditions).forEach(key => (conditions[key] = conditions[key] && tagCondition))
     }
 
     return _.some(_.pickBy(conditions), (value, key) => filterOptions[key])
