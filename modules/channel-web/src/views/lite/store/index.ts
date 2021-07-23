@@ -372,7 +372,7 @@ class RootStore {
 
   @action.bound
   async uploadFile(title: string, payload: string, file: File): Promise<void> {
-    await this.api.uploadFile(file, this.currentConversationId)
+    await this.api.uploadFile(file, payload, this.currentConversationId)
   }
 
   /** Sends a message of type voice */

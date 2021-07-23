@@ -22,7 +22,11 @@ export class StrategyBasic {
     this.asyncMiddleware = asyncMiddleware(logger, 'BasicStrategy')
   }
 
-  setup() {
+  async setup() {
+    if (process.env.BP_ADMIN_EMAIL && process.env.BP_ADMIN_PASSWORD && (await this.authService.isFirstUser())) {
+      this.logger.info(`Creating user ${process.env.BP_ADMIN_EMAIL}`)
+      await this._register(process.env.BP_ADMIN_EMAIL, 'default', process.env.BP_ADMIN_PASSWORD, '0.0.0.0')
+    }
     const router = this.router
     router.post(
       '/login/basic/:strategy',
