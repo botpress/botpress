@@ -228,6 +228,7 @@ export default async (bp: typeof sdk, db: Database) => {
     assertUserInfo({ convoIdRequired: true }),
     asyncMiddleware(async (req: ChatRequest & any, res: Response) => {
       const { botId, userId } = req
+      const payloadValue = req.body.payload || {}
 
       await bp.users.getOrCreateUser('web', userId, botId) // Just to create the user if it doesn't exist
 
@@ -239,7 +240,8 @@ export default async (bp: typeof sdk, db: Database) => {
         name: req.file.filename,
         originalName: req.file.originalname,
         mime: req.file.contentType || req.file.mimetype,
-        size: req.file.size
+        size: req.file.size,
+        payload: payloadValue
       }
 
       await sendNewMessage(req, payload, req.credentials)
@@ -267,7 +269,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const formData = new FormData()
       formData.append('file', buffer, audio!.title)
 
-      const axiosConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
+      const axiosConfig = await bp.http.getAxiosConfigForBot(botId, { studioUrl: true })
       axiosConfig.headers['Content-Type'] = `multipart/form-data; boundary=${formData.getBoundary()}`
 
       // Upload the audio buffer to the Media Service
