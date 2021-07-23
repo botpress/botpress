@@ -2,7 +2,6 @@ import { protos, v1p1beta1 } from '@google-cloud/speech'
 import { TextToSpeechClient } from '@google-cloud/text-to-speech'
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
-import { closest } from 'common/number'
 import { isBpUrl } from 'common/url'
 import * as mm from 'music-metadata'
 
@@ -18,7 +17,7 @@ import {
   AudioEncoding,
   IRecognizeRequest
 } from './typings'
-import { TimeoutError, timeoutFn } from './utils'
+import { TimeoutError, timeoutFn, closest } from './utils'
 
 const debug = DEBUG('google-speech')
 const debugSpeechToText = debug.sub('speech-to-text')
