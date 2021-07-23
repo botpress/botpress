@@ -4,7 +4,16 @@ import { Migration, MigrationOpts } from 'core/migration'
 const ROOT_FOLDER = './config'
 const CHANNELS = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage'] as const
 const ALLOWED_CHANNEL_CONFIG: { [key in Channels]: Set<string> } = {
-  messenger: new Set(['accessToken', 'appSecret', 'verifyToken', 'disabledActions', 'enabled']),
+  messenger: new Set([
+    'accessToken',
+    'appSecret',
+    'verifyToken',
+    'disabledActions',
+    'greeting',
+    'getStarted',
+    'persistentMenu',
+    'enabled'
+  ]),
   slack: new Set(['botToken', 'signingSecret', 'useRTM', 'enabled']),
   smooch: new Set(['keyId', 'secret', 'forwardRawPayloads', 'enabled']),
   teams: new Set(['appId', 'appPassword', 'tenantId', 'proactiveMessages', 'enabled']),
