@@ -317,7 +317,12 @@ export class DialogEngine {
     // Check for a conversation_end.flow.json
     const conversationEndFlow = this.findFlowWithoutError(botId, 'conversation_end.flow.json')
 
-    if (!conversationEndFlow || currentFlow.name === 'conversation_end.flow.json') {
+    // Don`t trigger on timeout or if it is already at the conversation end flow
+    if (
+      !conversationEndFlow ||
+      currentFlow.name === 'conversation_end.flow.json' ||
+      currentFlow.name === 'timeout.flow.json'
+    ) {
       return true
     }
 
