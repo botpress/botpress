@@ -114,7 +114,7 @@ const compileBackend = (modulePath: string, babelConfig) => {
     ignore: ['**/*.d.ts', '**/views/**/*.*', '**/config.ts']
   })
 
-  const copyWithoutTransform = ['actions', 'hooks', 'examples', 'content-types']
+  const copyWithoutTransform = ['actions', 'hooks', 'examples', 'content-types', 'bot-templates']
   const outputFiles = []
 
   for (const file of files) {
