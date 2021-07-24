@@ -608,7 +608,8 @@ export class BotService {
         throw new Error('Supported languages must include the default language of the bot')
       }
 
-      await this.messagingService.loadMessagingForBot(botId)
+      this.logger.warn(`Not loading messaging for bot ${botId}`)
+      // await this.messagingService.loadMessagingForBot(botId)
       await this.cms.loadElementsForBot(botId)
       await this.moduleLoader.loadModulesForBot(botId)
 
