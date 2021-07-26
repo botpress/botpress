@@ -1,6 +1,5 @@
 const URL = require('url').URL
 const path = require('path')
-const _ = require('lodash')
 
 function isBpUrl(str) {
   const re = /^\/api\/.*\/bots\/.*\/media\/.*/
@@ -38,8 +37,19 @@ function extractFileName(file) {
 }
 
 function extractPayload(type, data) {
-  // for channel renderers
-  return { type, ..._.pickBy(_.omit(data, 'event', 'temp', 'user', 'session', 'bot', 'BOT_URL'), v => v !== undefined) }
+  const payload = {
+    type,
+    ...data
+  }
+
+  delete payload.event
+  delete payload.temp
+  delete payload.user
+  delete payload.session
+  delete payload.bot
+  delete payload.BOT_URL
+
+  return payload
 }
 
 module.exports = {
