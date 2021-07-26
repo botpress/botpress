@@ -3,7 +3,8 @@ import { ModuleConfigEntry } from 'core/config'
 import { Migration, MigrationOpts } from 'core/migration'
 import _ from 'lodash'
 
-const EXCEPTION = 'channel-web'
+const CHANNELS = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage'] as const
+type Channels = typeof CHANNELS[number]
 
 const migration: Migration = {
   info: {
@@ -18,7 +19,8 @@ const migration: Migration = {
     for (const module of config.modules) {
       const { location, enabled } = module
 
-      if (!location.includes('channel-') || location.includes(EXCEPTION)) {
+      const channelName = location.replace('MODULES_ROOT/channel-', '')
+      if (!CHANNELS.includes(channelName as Channels)) {
         modules.push({ location, enabled })
       }
     }
@@ -29,16 +31,13 @@ const migration: Migration = {
     return { success: true, message: 'Configuration updated successfully' }
   },
   down: async ({ bp, configProvider }: MigrationOpts): Promise<sdk.MigrationResult> => {
+    bp.logger.warn('Please note that all channels will be disabled after running this migration!')
+
     const config = await configProvider.getBotpressConfig()
 
-    const modules = await configProvider.getModulesListConfig()
-
-    for (const module of modules) {
-      const { location, enabled } = module
-
-      if (!location.includes('channel-') || location.includes(EXCEPTION)) {
-        continue
-      }
+    for (const channel of CHANNELS) {
+      const location = `MODULES_ROOT/channel-${channel}`
+      const enabled = false
 
       config.modules.push({ location, enabled })
     }
