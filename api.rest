@@ -16,7 +16,7 @@ Authorization: Bearer {{authToken}}
 X-BP-Workspace: default
 
 ### 
-@botId = gggg
+@botId = YOUR_BOT_ID
 
 ### Send a request using Converse
 POST {{baseUrl}}/api/v1/bots/{{botId}}/converse/benchmarkUser
