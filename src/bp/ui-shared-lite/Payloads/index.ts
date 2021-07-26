@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { omit } from 'lodash'
+import omit from 'lodash/omit'
 
 const isBpUrl = (str: string): boolean => {
   const re = /^\/api\/.*\/bots\/.*\/media\/.*/g
@@ -76,16 +76,7 @@ const renderDropdownPayload = (content: any) => {
     type: 'custom',
     module: 'extensions',
     component: 'Dropdown',
-    message: content.message,
-    buttonText: content.buttonText,
-    displayInKeyboard: content.displayInKeyboard,
-    options: content.options,
-    allowCreation: content.allowCreation,
-    allowMultiple: content.allowMultiple,
-    width: content.width,
-    collectFeedback: content.collectFeedback,
-    placeholderText: content.placeholderText,
-    markdown: content.markdown
+    ...content
   }
 }
 

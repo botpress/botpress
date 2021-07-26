@@ -1,4 +1,4 @@
-import { payloads } from 'botpress/shared'
+import { contentPayloads } from 'botpress/shared'
 import _ from 'lodash'
 import moment from 'moment'
 import React, { FC } from 'react'
@@ -28,7 +28,7 @@ class MessageWrapper extends React.Component<{ message: any }> {
 
     return (
       <Message
-        message={{ ...this.props.message, raw_message: payloads.renderPayload(this.props.message.raw_message) }}
+        message={{ ...this.props.message, raw_message: contentPayloads.renderPayload(this.props.message.raw_message) }}
       />
     )
   }
