@@ -159,7 +159,7 @@ declare module 'botpress/shared' {
     UploadFieldProps,
     SupportedFileType
   }
-  export const payloads: {
+  export const contentPayloads: {
     renderPayload(payload: any)
   }
 }

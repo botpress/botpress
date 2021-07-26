@@ -85,6 +85,6 @@ exports.date = {
   createDateRangeShortcuts,
   relativeDates
 }
-exports.payloads = {
+exports.contentPayloads = {
   renderPayload
 }
