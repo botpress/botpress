@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { omit } from 'lodash'
+import omit from 'lodash/omit'
 
 const isBpUrl = (str: string): boolean => {
   const re = /^\/api\/.*\/bots\/.*\/media\/.*/g
