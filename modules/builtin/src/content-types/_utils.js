@@ -1,5 +1,6 @@
 const URL = require('url').URL
 const path = require('path')
+const _ = require('lodash')
 
 function isBpUrl(str) {
   const re = /^\/api\/.*\/bots\/.*\/media\/.*/
