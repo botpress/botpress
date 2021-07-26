@@ -72,7 +72,7 @@ export const startMessagingServer = async (opts: Partial<MessagingServerOptions>
     messagingServerProcess = spawn(getMessagingBinaryPath(), [], { env, stdio: 'inherit' })
   } else {
     const file = path.resolve(process.core_env.DEV_MESSAGING_PATH, 'index.js')
-    messagingServerProcess = fork(file, undefined, { execArgv: undefined, env, cwd: path.dirname(file) })
+    messagingServerProcess = fork(file, undefined, { execArgv: [], env, cwd: path.dirname(file) })
   }
 
   messagingServerProcess?.on('exit', (code, signal) => {
