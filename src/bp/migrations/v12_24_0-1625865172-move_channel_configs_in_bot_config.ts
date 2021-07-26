@@ -44,7 +44,7 @@ const migration: Migration = {
 
     const prepareBotConfig = (botConfig: sdk.BotConfig) => {
       if (!botConfig.messaging) {
-        ;(botConfig as any).messaging = { channels: {} }
+        botConfig.messaging = { channels: {} } as sdk.MessagingConfig
       }
 
       if (!botConfig.messaging!.channels) {
