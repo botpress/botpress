@@ -15,23 +15,26 @@ export class MessagingRouter extends CustomRouter {
   }
 
   public setupRoutes(): void {
-    this.router.post('/receive', async (req, res, next) => {
-      if (req.headers.password !== process.INTERNAL_PASSWORD) {
-        return next(new UnauthorizedError('Password is missing or invalid'))
-      }
+    this.router.post(
+      '/receive',
+      this.asyncMiddleware(async (req, res, next) => {
+        if (req.headers.password !== process.INTERNAL_PASSWORD) {
+          return next?.(new UnauthorizedError('Password is missing or invalid'))
+        }
 
-      const msg = req.body
+        const msg = req.body
 
-      await this.messaging.receive(
-        msg.client.id,
-        msg.channel.name,
-        msg.user.id,
-        msg.conversation.id,
-        msg.message.payload
-      )
+        await this.messaging.receive(
+          msg.client.id,
+          msg.channel.name,
+          msg.user.id,
+          msg.conversation.id,
+          msg.message.payload
+        )
 
-      res.sendStatus(200)
-    })
+        res.sendStatus(200)
+      })
+    )
 
     this.legacy.setup()
   }
