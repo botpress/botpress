@@ -1,19 +1,17 @@
-FROM ubuntu:20.04
+FROM alpine:3.14
 
 ADD . /botpress
 WORKDIR /botpress
 
-RUN apt update && \
-	apt install -y wget ca-certificates && \
+RUN apk update && \
+	apk add --no-cache wget tzdata ca-certificates && \
 	update-ca-certificates && \
 	wget -O duckling https://s3.amazonaws.com/botpress-binaries/duckling-example-exe && \
 	chmod +x duckling && \
 	chmod +x bp && \
 	chgrp -R 0 /botpress && \
 	chmod -R g=u /botpress && \
-	apt install -y tzdata && \
 	ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
-	dpkg-reconfigure --frontend noninteractive tzdata && \
 	./bp extract
 
 
