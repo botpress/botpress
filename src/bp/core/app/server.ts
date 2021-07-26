@@ -275,20 +275,7 @@ export class HTTPServer {
 
     process.USE_JWT_COOKIES = yn(botpressConfig.jwtToken.useCookieStorage)
 
-    // Messaging proxy
-    this.app.use(
-      `${BASE_API_PATH}/messaging`,
-      createProxyMiddleware({
-        pathRewrite: path => {
-          return path.replace(`${BASE_API_PATH}/messaging`, '')
-        },
-        router: () => {
-          return `http://localhost:${process.MESSAGING_PORT}`
-        },
-        changeOrigin: false,
-        logLevel: 'silent'
-      })
-    )
+    this.setupMessagingProxy()
 
     /**
      * The loading of language models can take some time, access to Botpress is disabled until it is completed
@@ -438,6 +425,22 @@ export class HTTPServer {
     })
 
     return this.app
+  }
+
+  private setupMessagingProxy() {
+    this.app.use(
+      `${BASE_API_PATH}/messaging`,
+      createProxyMiddleware({
+        pathRewrite: path => {
+          return path.replace(`${BASE_API_PATH}/messaging`, '')
+        },
+        router: () => {
+          return `http://localhost:${process.MESSAGING_PORT}`
+        },
+        changeOrigin: false,
+        logLevel: 'silent'
+      })
+    )
   }
 
   private setupUILite(app) {
