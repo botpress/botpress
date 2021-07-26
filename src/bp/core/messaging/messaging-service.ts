@@ -48,7 +48,6 @@ export class MessagingService {
     }
 
     const { id, token } = await this.clientSync.syncClient(setupConfig)
-    let modified = false
 
     if (id && id !== messaging.id) {
       messaging = {
@@ -56,10 +55,7 @@ export class MessagingService {
         id,
         token
       }
-      modified = true
-    }
 
-    if (modified) {
       await this.configProvider.mergeBotConfig(botId, { messaging })
     }
 
