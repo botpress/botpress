@@ -7,7 +7,7 @@ const cheerio = require('cheerio')
 const fs = require('fs')
 
 const buildRef = () => {
-  return gulp.src(['./src/bp/sdk/botpress.d.ts']).pipe(
+  return gulp.src(['./packages/bp/src/sdk/botpress.d.ts']).pipe(
     typedoc({
       out: './docs/reference/public',
       mode: 'file',
@@ -42,10 +42,10 @@ const alterReference = async () => {
   fs.writeFileSync(path.join(__dirname, '../docs/reference/public/modules/_botpress_sdk_.html'), newFile)
 
   const hrefsToReplace = ['../enums', '../classes', '../interfaces']
-  $('a').map(function () {
+  $('a').map(function() {
     const href = $(this).attr('href')
     if (!href) {
-      return;
+      return
     }
 
     if (href.startsWith('_botpress_sdk')) {
@@ -57,7 +57,9 @@ const alterReference = async () => {
     }
   })
 
-  const fixedContentPaths = $.html().replace('../assets/', 'assets/').replace(/\.\.\/globals.html/g, 'globals.html')
+  const fixedContentPaths = $.html()
+    .replace('../assets/', 'assets/')
+    .replace(/\.\.\/globals.html/g, 'globals.html')
   fs.writeFileSync(path.join(__dirname, '../docs/reference/public/index.html'), fixedContentPaths)
 }
 

@@ -2,8 +2,8 @@ import cx from 'classnames'
 import mime from 'mime/lite'
 import React, { FC, useCallback, useState, useEffect, useRef, Fragment } from 'react'
 
-import Cancel from '../../../../../../src/bp/ui-shared-lite/Icons/Cancel'
-import Microphone from '../../../../../../src/bp/ui-shared-lite/Icons/Microphone'
+import Cancel from '../../../../../../packages/ui-shared-lite/Icons/Cancel'
+import Microphone from '../../../../../../packages/ui-shared-lite/Icons/Microphone'
 
 interface Props {
   onDone: (voice: Buffer, ext: string) => Promise<void>
