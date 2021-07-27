@@ -3,7 +3,7 @@ import { inject, observer } from 'mobx-react'
 import React from 'react'
 import { FormattedMessage, InjectedIntlProps, injectIntl } from 'react-intl'
 
-import ToolTip from '../../../../../../src/bp/ui-shared-lite/ToolTip'
+import ToolTip from '../../../../../../packages/ui-shared-lite/ToolTip'
 import { RootStore, StoreDef } from '../store'
 
 import VoiceRecorder from './VoiceRecorder'
