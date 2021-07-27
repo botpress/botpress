@@ -17,7 +17,7 @@ const dumpServerData = async () => {
 
   const tmpDir = tmp.dirSync({ unsafeCleanup: true })
 
-  const dataFolder = await getValidPath(['out/bp/data', 'data'], rootPath)
+  const dataFolder = await getValidPath(['packages/bp/dist/data', 'data'], rootPath)
   const dataItems = await fse.readdir(dataFolder)
 
   for (const item of dataItems.filter(x => x !== 'assets')) {
@@ -39,7 +39,7 @@ Please make sure that the credentials provided in DATABASE_URL are valid`)
   const files = await Promise.fromCallback(cb => glob('**/*', { cwd: tmpDir.name, nodir: true, dot: true }, cb))
 
   // Not requiring the file at the top of the file, because it may not have been built yet
-  const { createArchive } = require(path.resolve('./out/bp/core/misc/archive'))
+  const { createArchive } = require(path.resolve('./packages/bp/dist/core/misc/archive'))
 
   const currentVersion = await getVersion(rootPath)
   const filename = await createArchive(`./${archiveName}_${currentVersion}.tgz`, tmpDir.name, files)
@@ -51,7 +51,7 @@ Please make sure that the credentials provided in DATABASE_URL are valid`)
 const dumpPostgresData = async (storagePath, rootPath, pgBinPath) => {
   let databaseUrl = process.env.DATABASE_URL
 
-  const dotEnvPath = await getValidPath(['out/bp/.env', '.env'], rootPath)
+  const dotEnvPath = await getValidPath(['packages/bp/dist/.env', '.env'], rootPath)
   if (dotEnvPath) {
     const dot = dotenv.config({ path: dotEnvPath })
 
@@ -111,12 +111,12 @@ const createMigration = cb => {
 
   const template =
     target === 'core'
-      ? path.resolve(__dirname, '../src/bp/core/migration/templates/template_core.ts')
-      : path.resolve(__dirname, '../src/bp/core/migration/templates/template_module.ts')
+      ? path.resolve(__dirname, '../packages/bp/src/core/migration/templates/template_core.ts')
+      : path.resolve(__dirname, '../packages/bp/src/core/migration/templates/template_module.ts')
 
   const targetDir =
     target === 'core'
-      ? path.resolve(__dirname, '../src/bp/migrations')
+      ? path.resolve(__dirname, '../packages/bp/src/migrations')
       : path.resolve(__dirname, `../modules/${target}/src/migrations`)
 
   const destination = path.resolve(targetDir, `v${version}-${Math.round(Date.now() / 1000)}-${title}.ts`)
