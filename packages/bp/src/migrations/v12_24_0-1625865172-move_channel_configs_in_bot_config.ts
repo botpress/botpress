@@ -3,24 +3,6 @@ import { Migration, MigrationOpts } from 'core/migration'
 
 const ROOT_FOLDER = './config'
 const CHANNELS = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage'] as const
-const ALLOWED_CHANNEL_CONFIG: { [key in Channels]: Set<string> } = {
-  messenger: new Set([
-    'accessToken',
-    'appSecret',
-    'verifyToken',
-    'disabledActions',
-    'greeting',
-    'getStarted',
-    'persistentMenu',
-    'enabled'
-  ]),
-  slack: new Set(['botToken', 'signingSecret', 'useRTM', 'enabled']),
-  smooch: new Set(['keyId', 'secret', 'forwardRawPayloads', 'enabled']),
-  teams: new Set(['appId', 'appPassword', 'tenantId', 'proactiveMessages', 'enabled']),
-  telegram: new Set(['botToken', 'enabled']),
-  twilio: new Set(['accountSID', 'authToken', 'enabled']),
-  vonage: new Set(['apiKey', 'apiSecret', 'signatureSecret', 'applicationId', 'privateKey', 'useTestingApi', 'enabled'])
-}
 
 type Channels = typeof CHANNELS[number]
 
@@ -79,20 +61,15 @@ const migration: Migration = {
         if (channelName === 'messenger') {
           try {
             const globalConfig = await bp.ghost.forGlobal().readFileAsObject<any>(ROOT_FOLDER, file)
-            config = Object.assign(config, globalConfig)
+            await bp.ghost.forGlobal().deleteFile(ROOT_FOLDER, file)
+
+            config = Object.assign(globalConfig, config)
           } catch {
             bp.logger.warn(
-              'Global configuration for channel-messenger is missing. You will need manually to add the appSecret and verifyToken to your bot configuration.'
+              'Global configuration for channel-messenger is missing. You will need to manually add appSecret and verifyToken to your bot configuration.'
             )
           }
         }
-
-        // Remove fields that are unsupported by messaging
-        Object.keys(config).forEach(key => {
-          if (!ALLOWED_CHANNEL_CONFIG[channelName].has(key)) {
-            delete config[key]
-          }
-        })
 
         botConfig.messaging!.channels[channelName] = config
         await ghost.deleteFile(ROOT_FOLDER, file)
@@ -113,8 +90,59 @@ const migration: Migration = {
 
     return { success: true, message: 'Configurations updated successfully' }
   },
-  down: async () => {
-    return { success: true, message: 'Skipping migration' }
+  down: async ({ bp, metadata, configProvider }: MigrationOpts) => {
+    const generateChannelConfig = async (botId: string, botConfig: sdk.BotConfig) => {
+      if (Object.keys(botConfig.messaging?.channels || {}).length === 0) {
+        bp.logger.warn(`Skipping migration for bot ${botId}. Bot configuration does not contain any channel info.`)
+        return
+      }
+
+      const channels = botConfig.messaging!.channels
+      const ghost = bp.ghost.forBot(botId)
+      for (const channel of Object.keys(channels) as Channels[]) {
+        const file = `channel-${channel}.json`
+        const config = channels[channel]
+
+        // Generate channel-messenger's global config from bot config.
+        if (channel === 'messenger') {
+          const warning = () =>
+            bp.logger.warn(
+              'Global configuration for channel-messenger cannot be saved. You will need to manually add appSecret and verifyToken to your global configuration.'
+            )
+          try {
+            if (config.appSecret && config.verifyToken) {
+              const globalConfig = { appSecret: config.appSecret, verifyToken: config.verifyToken }
+
+              delete config.appSecret
+              delete config.verifyToken
+
+              await bp.ghost.forGlobal().upsertFile(ROOT_FOLDER, file, JSON.stringify(globalConfig, null, 2))
+            } else {
+              warning()
+            }
+          } catch {
+            warning()
+          }
+        }
+
+        await ghost.upsertFile(ROOT_FOLDER, file, JSON.stringify(config, null, 2))
+      }
+
+      delete botConfig.messaging
+      await configProvider.setBotConfig(botId, botConfig)
+    }
+
+    if (metadata.botId) {
+      const botConfig = await bp.bots.getBotById(metadata.botId)
+      await generateChannelConfig(metadata.botId, botConfig!)
+    } else {
+      const bots = await bp.bots.getAllBots()
+      for (const [botId, botConfig] of bots) {
+        await generateChannelConfig(botId, botConfig)
+      }
+    }
+
+    return { success: true, message: 'Configurations updated successfully' }
   }
 }
 

@@ -38,7 +38,7 @@ export class BotMigrationService {
 
     try {
       this.displayMigrationStatus(currentVersion, missingMigrations, this.logger.forBot(botId))
-      await this.executeBotMigrations(botId, missingMigrations)
+      await this.executeBotMigrations(botId, missingMigrations, isDown)
     } finally {
       captureLogger.dispose()
 
@@ -98,7 +98,7 @@ ${_.repeat(' ', 9)}========================================`)
     })
   }
 
-  private async executeBotMigrations(botId: string, missingMigrations: MigrationFile[]) {
+  private async executeBotMigrations(botId: string, missingMigrations: MigrationFile[], isDown?: boolean) {
     this.logger.info(chalk`
 ${_.repeat(' ', 9)}========================================
 {bold ${centerText(
@@ -112,7 +112,13 @@ ${_.repeat(' ', 9)}========================================`)
     let hasFailures = false
 
     await Promise.mapSeries(missingMigrations, async ({ filename }) => {
-      const result = await this.migService.loadedMigrations[filename].up(opts)
+      let result
+      if (isDown && this.migService.loadedMigrations[filename].down) {
+        result = await this.migService.loadedMigrations[filename].down!(opts)
+      } else if (!isDown) {
+        result = await this.migService.loadedMigrations[filename].up(opts)
+      }
+
       debug.forBot(botId, 'Migration step finished', { filename, result })
       if (result.success) {
         this.logger.forBot(botId).info(`- ${result.message || 'Success'}`)
