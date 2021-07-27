@@ -68,7 +68,7 @@ Output: ${stdout}`
 
 const packageModule = (modulePath, cb) => {
   exec(
-    `node ../../build/module-builder/bin/entry package -v --out ../../out/binaries/modules/%name%.tgz`,
+    `node ../../build/module-builder/bin/entry package -v --out ../../packages/bp/binaries/modules/%name%.tgz`,
     { cwd: modulePath },
     (err, stdout, stderr) => {
       if (err) {
@@ -126,7 +126,7 @@ const buildModules = () => {
 }
 
 const packageModules = () => {
-  mkdirp.sync('out/binaries/modules')
+  mkdirp.sync('packages/bp/binaries/modules')
   const allModules = getAllModulesRoot()
 
   const command = process.argv[process.argv.length - 2]
@@ -166,7 +166,7 @@ const build = () => {
 
 const cleanModuleAssets = () => {
   const moduleName = _.last(process.argv)
-  return gulp.src(`./out/bp/data/assets/modules/${moduleName}`, { allowEmpty: true }).pipe(rimraf())
+  return gulp.src(`./packages/bp/dist/data/assets/modules/${moduleName}`, { allowEmpty: true }).pipe(rimraf())
 }
 
 const createModuleSymlink = () => {
@@ -174,7 +174,7 @@ const createModuleSymlink = () => {
   const moduleName = _.last(process.argv)
   return gulp
     .src(`./${moduleFolder}/${moduleName}/assets/`)
-    .pipe(symlink(`./out/bp/data/assets/modules/${moduleName}/`, { type: 'dir' }))
+    .pipe(symlink(`./packages/bp/dist/data/assets/modules/${moduleName}/`, { type: 'dir' }))
 }
 
 const createAllModulesSymlink = () => {
@@ -188,11 +188,11 @@ const createAllModulesSymlink = () => {
     gulp.task(
       taskName,
       gulp.series(
-        () => gulp.src(`./out/bp/data/assets/modules/${moduleName}`, { allowEmpty: true }).pipe(rimraf()),
+        () => gulp.src(`./packages/bp/dist/data/assets/modules/${moduleName}`, { allowEmpty: true }).pipe(rimraf()),
         () =>
           gulp
             .src(`./${moduleFolder}/${moduleName}/assets/`)
-            .pipe(symlink(`./out/bp/data/assets/modules/${moduleName}/`, { type: 'dir' }))
+            .pipe(symlink(`./packages/bp/dist/data/assets/modules/${moduleName}/`, { type: 'dir' }))
       )
     )
 
@@ -228,10 +228,10 @@ Example: 'yarn watch:modules --m channel-web,nlu,qna' or 'yarn watch:modules --a
 
   modules.forEach(moduleName => {
     try {
-      gulp.src(`./out/bp/data/assets/modules/${moduleName}`, { allowEmpty: true }).pipe(rimraf())
+      gulp.src(`./packages/bp/dist/data/assets/modules/${moduleName}`, { allowEmpty: true }).pipe(rimraf())
       gulp
         .src(`./modules/${moduleName}/assets/`)
-        .pipe(symlink(`./out/bp/data/assets/modules/${moduleName}/`, { type: 'dir' }))
+        .pipe(symlink(`./packages/bp/dist/data/assets/modules/${moduleName}/`, { type: 'dir' }))
     } catch (err) {
       console.log('Cant create symlink for', moduleName)
     }
