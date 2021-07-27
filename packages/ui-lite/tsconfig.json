@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "target": "es5",
+    "lib": ["es7", "dom"],
+    "jsx": "react",
+    "typeRoots": ["../../node_modules/@types", "src/typings.d.ts"],
+    "baseUrl": "./",
+    "paths": {
+      "common/*": ["../bp/dist/common/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
+}

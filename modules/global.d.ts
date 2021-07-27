@@ -1,1 +1,1 @@
-/// <reference path="../src/typings/global.d.ts" /> #
+/// <reference path="../packages/bp/src/typings/global.d.ts" /> #
