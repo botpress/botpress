@@ -31,7 +31,7 @@ yargs
     output: {
       alias: 'o',
       description: 'Choose a different output location',
-      default: path.resolve(__dirname, '../../../out/bp')
+      default: path.resolve(__dirname, '../../../packages/bp/dist')
     }
   })
   .command(['list', '$0'], 'List available and installed versions of a tool', {}, async (argv: any) => {

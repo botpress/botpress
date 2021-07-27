@@ -1,6 +1,6 @@
 require('bluebird-global')
 const exec = require('child_process').exec
-const archive = require('../../../../out/bp/core/misc/archive')
+const archive = require('../../../../packages/bp/dist/core/misc/archive')
 const fs = require('fs')
 const rimraf = require('rimraf')
 const path = require('path')
@@ -64,8 +64,8 @@ const start = async () => {
 }
 
 const prepareDataFolder = async buffer => {
-  await Promise.fromCallback(cb => rimraf('./out/bp/data', cb))
-  await archive.extractArchive(buffer, './out/bp/data')
+  await Promise.fromCallback(cb => rimraf('./packages/bp/dist/data', cb))
+  await archive.extractArchive(buffer, './packages/bp/dist/data')
 
   if (isPostgresDb()) {
     await restorePostgresDump()
@@ -74,7 +74,7 @@ const prepareDataFolder = async buffer => {
 
 const restorePostgresDump = async () => {
   const dbUrl = process.env.DATABASE_URL
-  const dumpPath = path.resolve('./out/bp/data/storage/postgres.dump')
+  const dumpPath = path.resolve('./packages/bp/dist/data/storage/postgres.dump')
 
   console.log('Restoring Postgres dump file...')
 
@@ -108,11 +108,11 @@ const testMigration = async (botName, startVersion, targetVersion, { isDown }) =
 }
 
 const isPostgresDb = () => {
-  return fs.existsSync(path.resolve('./out/bp/data/storage/postgres.dump'))
+  return fs.existsSync(path.resolve('./packages/bp/dist/data/storage/postgres.dump'))
 }
 
 const getMostRecentVersion = () => {
-  const coreMigrations = getMigrations('./out/bp')
+  const coreMigrations = getMigrations('./packages/bp/dist')
   const modules = fs.readdirSync('./modules')
 
   const moduleMigrations = _.flatMap(modules, module => getMigrations(`./modules/${module}/dist`))
