@@ -115,7 +115,7 @@ export class MigrationService {
   getMigrationsToExecute(allMigrations: MigrationFile[]): MigrationFile[] {
     const isDown = process.MIGRATE_CMD === 'down'
 
-    return _.sortBy(
+    const migrations = _.sortBy(
       [
         ...this.filterMigrations(allMigrations, this.dbVersion, { isDown, type: 'database' }),
         ...this.filterMigrations(allMigrations, this.configVersion, { isDown, type: 'config' }),
@@ -123,6 +123,8 @@ export class MigrationService {
       ],
       x => x.date
     )
+
+    return isDown ? _.reverse(migrations) : migrations
   }
 
   async detectAndSetupVersions(migrations: MigrationFile[]) {

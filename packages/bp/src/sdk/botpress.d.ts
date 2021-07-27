@@ -918,6 +918,7 @@ declare module 'botpress/sdk' {
       /** Defines the list of content types supported by the bot */
       contentTypes: string[]
     }
+    messaging?: MessagingConfig
     converse?: ConverseConfig
     dialog?: BotDialogConfig
     logs?: BotLogsConfig
@@ -988,6 +989,12 @@ declare module 'botpress/sdk' {
     timeoutInterval: string
     /** The interval until a session expires */
     sessionTimeoutInterval: string
+  }
+
+  export interface MessagingConfig {
+    id: string
+    token: string
+    channels: { [channelName: string]: any }
   }
 
   /**
