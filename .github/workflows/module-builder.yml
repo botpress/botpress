@@ -2,7 +2,7 @@ name: Module Builder Docker Image
 on:
   push:
     branches:
-      - ya-fix-docker
+      - master
 jobs:
   build_and_push:
     name: Test Module Builder Image
