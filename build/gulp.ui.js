@@ -32,62 +32,62 @@ const buildShared = () => {
 const buildAdmin = cb => {
   const prod = process.argv.includes('--prod') ? '--nomap --prod' : ''
 
-  const admin = exec(`yarn && yarn build ${prod}`, { cwd: 'src/bp/admin/ui' }, err => cb(err))
+  const admin = exec(`yarn && yarn build ${prod}`, { cwd: 'packages/bp/src/admin/ui' }, err => cb(err))
   verbose && admin.stdout.pipe(process.stdout)
   admin.stderr.pipe(process.stderr)
 }
 
 const copyAdmin = () => {
-  return gulp.src('./src/bp/admin/ui/build/**/*').pipe(gulp.dest('./out/bp/admin/ui/public'))
+  return gulp.src('./packages/bp/src/admin/ui/build/**/*').pipe(gulp.dest('./packages/bp/dist/admin/ui/public'))
 }
 
 const buildLite = cb => {
   const prod = process.argv.includes('--prod') ? '--nomap --prod' : ''
 
-  const admin = exec(`yarn && yarn build ${prod}`, { cwd: 'src/bp/ui-lite' }, err => cb(err))
+  const admin = exec(`yarn && yarn build ${prod}`, { cwd: 'packages/ui-lite' }, err => cb(err))
   verbose && admin.stdout.pipe(process.stdout)
   admin.stderr.pipe(process.stderr)
 }
 
 const cleanLite = () => {
-  return gulp.src('./out/bp/ui-lite/public', { allowEmpty: true }).pipe(rimraf())
+  return gulp.src('./packages/bp/dist/ui-lite/public', { allowEmpty: true }).pipe(rimraf())
 }
 
 const copyLite = () => {
-  return gulp.src('./src/bp/ui-lite/public/**/*').pipe(gulp.dest('./out/bp/ui-lite/public'))
+  return gulp.src('./packages/ui-lite/public/**/*').pipe(gulp.dest('./packages/bp/dist/ui-lite/public'))
 }
 
 const cleanAdmin = () => {
-  return gulp.src('./out/bp/admin/ui/public', { allowEmpty: true }).pipe(rimraf())
+  return gulp.src('./packages/bp/dist/admin/ui/public', { allowEmpty: true }).pipe(rimraf())
 }
 
 const watchAdmin = cb => {
-  const admin = exec('yarn && yarn start', { cwd: 'src/bp/admin/ui' }, err => cb(err))
+  const admin = exec('yarn && yarn start', { cwd: 'packages/bp/src/admin/ui' }, err => cb(err))
   admin.stdout.pipe(process.stdout)
   admin.stderr.pipe(process.stderr)
 }
 
 const cleanShared = () => {
-  return gulp.src('./out/bp/ui-shared/dist', { allowEmpty: true }).pipe(rimraf())
+  return gulp.src('./packages/bp/dist/ui-shared/dist', { allowEmpty: true }).pipe(rimraf())
 }
 
 const watchShared = gulp.series([
   cleanShared,
   cb => {
-    const shared = exec('yarn && yarn watch', { cwd: 'src/bp/ui-shared' }, err => cb(err))
+    const shared = exec('yarn && yarn watch', { cwd: 'packages/ui-shared' }, err => cb(err))
     shared.stdout.pipe(process.stdout)
     shared.stderr.pipe(process.stderr)
   }
 ])
 
 const sharedLiteBuild = cb => {
-  const shared = exec('yarn', { cwd: 'src/bp/ui-shared-lite' }, err => cb(err))
+  const shared = exec('yarn', { cwd: 'packages/ui-shared-lite' }, err => cb(err))
   shared.stdout.pipe(process.stdout)
   shared.stderr.pipe(process.stderr)
 }
 
 const sharedBuild = cb => {
-  const shared = exec('yarn && yarn build', { cwd: 'src/bp/ui-shared' }, err => cb(err))
+  const shared = exec('yarn && yarn build', { cwd: 'packages/ui-shared' }, err => cb(err))
   shared.stdout.pipe(process.stdout)
   shared.stderr.pipe(process.stderr)
 }
