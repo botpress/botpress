@@ -31,13 +31,31 @@ const migration: Migration = {
     return { success: true, message: 'Configuration updated successfully' }
   },
   down: async ({ bp, configProvider }: MigrationOpts): Promise<sdk.MigrationResult> => {
-    bp.logger.warn('Please note that all channels will be disabled after running this migration!')
+    // List channels that are enabled
+    const channels: { [channelName: string]: boolean } = {}
+    for (const bot of await bp.bots.getAllBots()) {
+      const [, botConfig] = bot
+
+      for (const channel of Object.entries(botConfig.messaging?.channels || {})) {
+        const [channelName, channelConfig] = channel
+
+        if (channels[channelName]) {
+          continue
+        }
+
+        if (!(channelName in channels)) {
+          channels[channelName] = false
+        }
+
+        channels[channelName] = channels[channelName] || (channelConfig.enabled as boolean)
+      }
+    }
 
     const config = await configProvider.getBotpressConfig()
 
     for (const channel of CHANNELS) {
       const location = `MODULES_ROOT/channel-${channel}`
-      const enabled = false
+      const enabled = channels[channel] || false
 
       config.modules.push({ location, enabled })
     }
