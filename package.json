@@ -16,6 +16,9 @@
   "studio": {
     "version": "0.0.23"
   },
+  "messaging": {
+    "version": "0.0.15"
+  },
   "scripts": {
     "postinstall": "yarn cmd postinstall",
     "start": "yarn workspace botpress start",
