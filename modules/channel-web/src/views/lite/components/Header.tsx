@@ -2,8 +2,8 @@ import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
 
-import confirmDialog from '../../../../../../src/bp/ui-shared-lite/ConfirmDialog'
-import MoreOptions from '../../../../../../src/bp/ui-shared-lite/MoreOptions'
+import confirmDialog from '../../../../../../packages/ui-shared-lite/ConfirmDialog'
+import MoreOptions from '../../../../../../packages/ui-shared-lite/MoreOptions'
 import Close from '../icons/Close'
 import Delete from '../icons/Delete'
 import Download from '../icons/Download'
@@ -77,16 +77,20 @@ class Header extends React.Component<HeaderProps> {
   }
 
   handleDeleteConversation = async () => {
-    if (await confirmDialog(this.props.intl.formatMessage({
-        id: 'header.deleteConversation'
-      }), {
-        acceptLabel: this.props.intl.formatMessage({
-          id: 'header.deleteConversationYes'
+    if (
+      await confirmDialog(
+        this.props.intl.formatMessage({
+          id: 'header.deleteConversation'
         }),
-        declineLabel: this.props.intl.formatMessage({
-          id: 'header.deleteConversationNo'
-        })
-      })
+        {
+          acceptLabel: this.props.intl.formatMessage({
+            id: 'header.deleteConversationYes'
+          }),
+          declineLabel: this.props.intl.formatMessage({
+            id: 'header.deleteConversationNo'
+          })
+        }
+      )
     ) {
       await this.props.deleteConversation()
     }

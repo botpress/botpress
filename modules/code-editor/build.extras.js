@@ -12,4 +12,7 @@ const fs = require('fs')
 const path = require('path')
 
 fs.mkdirSync('dist')
-fs.copyFileSync(path.join(__dirname, '../../src/bp/sdk/botpress.d.ts'), path.join(__dirname, 'dist/botpress.d.js'))
+fs.copyFileSync(
+  path.join(__dirname, '../../packages/bp/src/sdk/botpress.d.ts'),
+  path.join(__dirname, 'dist/botpress.d.js')
+)

@@ -22,7 +22,7 @@ jobs:
           yarn --force --ignore-engines
           yarn run build --linux --prod --verbose
           yarn run package --linux
-          cp build/docker/Dockerfile out/binaries/
+          cp build/docker/Dockerfile packages/bp/binaries/
       - name: Docker build and push
         uses: docker/build-push-action@v1
         with:
@@ -30,5 +30,5 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
           repository: botpress/botpress/botpress
-          path: out/binaries
+          path: packages/bp/binaries
           tag_with_sha: true
