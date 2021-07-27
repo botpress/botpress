@@ -3,7 +3,7 @@ import sortBy from 'lodash/sortBy'
 import { inject } from 'mobx-react'
 import React from 'react'
 
-import { renderPayload } from '../../../../../../../src/bp/ui-shared-lite/Payloads'
+import { renderPayload } from '../../../../../../../packages/ui-shared-lite/Payloads'
 import { RootStore, StoreDef } from '../../store'
 import { Message as MessageDetails } from '../../typings'
 
