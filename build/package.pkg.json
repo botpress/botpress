@@ -6,6 +6,7 @@
   "bin": "index.js",
   "private": true,
   "pkg": {
+    "targets": ["node12-win32-x64", "node12-linux-x64", "node12-macos-x64"],
     "scripts": [
       "./core/**/*.js",
       "./admin/**/*.js",
@@ -19,8 +20,8 @@
       "./migrations/**/*.js"
     ],
     "assets": [
-      "../../node_modules/vm2/lib/*.js",
-      "../../node_modules/xml-encryption/lib/templates/*.tpl.xml",
+      "../../../node_modules/vm2/lib/*.js",
+      "../../../node_modules/xml-encryption/lib/templates/*.tpl.xml",
       "./admin/ui/**",
       "./ui-lite/**",
       "./core/config/schemas/**",
