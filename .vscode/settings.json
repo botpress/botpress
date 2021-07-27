@@ -63,11 +63,11 @@
     "string": "cpp",
     "__split_buffer": "cpp"
   },
-  "favorites.resources": ["out/bp/data"],
+  "favorites.resources": ["packages/bp/dist/data"],
   "sqltools.connections": [
     {
       "askForPassword": false,
-      "database": "./out/bp/data/storage/core.sqlite",
+      "database": "./packages/bp/dist/data/storage/core.sqlite",
       "dialect": "SQLite",
       "name": "BP Core DB"
     }
