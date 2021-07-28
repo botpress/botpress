@@ -3,18 +3,51 @@ import Knex from 'knex'
 
 export abstract class MessagingDownMigrator {
   protected trx: Knex.Transaction<any, any>
+  private messageCount: number
+  private conversationCount: number
 
-  constructor(protected bp: typeof sdk) {}
+  constructor(protected bp: typeof sdk, protected isDryRun: boolean) {}
 
   async run() {
     await this.start()
+    await this.takeMetrics()
     await this.migrate()
     await this.cleanup()
-    await this.commit()
+
+    const message = await this.compareMetrics()
+
+    if (this.isDryRun) {
+      await this.rollback()
+    } else {
+      await this.commit()
+    }
+
+    return message
+  }
+
+  private async takeMetrics() {
+    this.messageCount = this.getCount(await this.trx('msg_messages').count())
+    this.conversationCount = this.getCount(await this.trx('msg_conversations').count())
+  }
+
+  private async compareMetrics() {
+    const newMessageCount = this.getCount(await this.trx('web_messages').count())
+    const newConversationCount = this.getCount(await this.trx('web_conversations').count())
+
+    const message =
+      `\nConversations migrated: ${this.conversationCount} -> ${newConversationCount}` +
+      `\nMessages migrated : ${this.messageCount} -> ${newMessageCount}`
+
+    return message
+  }
+
+  private getCount(res: any) {
+    return Number(Object.values(res[0])[0])
   }
 
   protected abstract start(): Promise<void>
   protected abstract commit(): Promise<void>
+  protected abstract rollback(): Promise<void>
 
   protected async migrate() {
     await this.createTables()

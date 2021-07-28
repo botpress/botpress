@@ -6,18 +6,69 @@ import uuid from 'uuid'
 
 export abstract class MessagingUpMigrator {
   protected trx: Knex.Transaction<any, any>
+  private orphanMessageCount: number
+  private messageCount: number
+  private conversationCount: number
 
-  constructor(protected bp: typeof sdk) {}
+  constructor(protected bp: typeof sdk, protected isDryRun: boolean) {}
 
   async run() {
     await this.start()
+    await this.takeMetrics()
     await this.migrate()
     await this.cleanup()
-    await this.commit()
+
+    const message = await this.compareMetrics()
+
+    if (this.isDryRun) {
+      await this.rollback()
+    } else {
+      await this.commit()
+    }
+
+    return message
+  }
+
+  private async takeMetrics() {
+    this.messageCount = this.getCount(await this.trx('web_messages').count())
+
+    this.orphanMessageCount =
+      this.messageCount -
+      this.getCount(
+        await this.trx
+          .queryBuilder()
+          .count()
+          .from(q => {
+            q.select('web_messages.id')
+              .from('web_messages')
+              .innerJoin('web_conversations', 'conversationId', 'web_conversations.id')
+              .as('messages_with_conversations')
+          })
+      )
+
+    this.conversationCount = this.getCount(await this.trx('web_conversations').count())
+  }
+
+  private async compareMetrics() {
+    const userCount = this.getCount(await this.trx('msg_users').count())
+    const newMessageCount = this.getCount(await this.trx('msg_messages').count())
+    const newConversationCount = this.getCount(await this.trx('msg_conversations').count())
+
+    let message = `\nUsers created: ${userCount}`
+    message += `\nConversations migrated: ${this.conversationCount} -> ${newConversationCount}`
+    message += `\nMessages migrated : ${this.messageCount} -> ${newMessageCount}`
+    message += `\nMessages that were pointing to deleted conversations: ${this.orphanMessageCount}`
+
+    return message
+  }
+
+  private getCount(res: any) {
+    return Number(Object.values(res[0])[0])
   }
 
   protected abstract start(): Promise<void>
   protected abstract commit(): Promise<void>
+  protected abstract rollback(): Promise<void>
 
   protected async migrate() {
     await this.createTables()
