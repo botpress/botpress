@@ -65,6 +65,7 @@ export const setVisitorId = (userId: string, userIdScope?: string) => {
   if (typeof userId === 'string' && userId !== 'undefined') {
     storage.set(userIdScope ? `bp/socket/${userIdScope}/user` : 'bp/socket/user', userId)
     window.__BP_VISITOR_ID = userId
+    window.parent?.postMessage({ userId }, '*')
   }
 }
 
@@ -75,6 +76,7 @@ export const getUniqueVisitorId = (userIdScope?: string): string => {
   if (typeof userId !== 'string' || userId === 'undefined') {
     userId = nanoid(24)
     storage.set(key, userId)
+    window.parent?.postMessage({ userId }, '*')
   }
 
   window.__BP_VISITOR_ID = userId

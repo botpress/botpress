@@ -206,7 +206,7 @@ class Web extends React.Component<MainProps> {
         trackMessage('sent')
         await this.props.sendMessage(text)
       } else if (type === 'loadConversation') {
-        this.props.store.fetchConversation(payload.conversationId)
+        await this.props.store.fetchConversation(payload.conversationId)
       } else if (type === 'toggleBotInfo') {
         this.props.toggleBotInfo()
       } else {

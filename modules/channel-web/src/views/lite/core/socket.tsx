@@ -1,5 +1,6 @@
 import { Config } from '../typings'
 
+const VISITOR_ID_WAIT_TIMEOUT = 30000
 export default class BpSocket {
   private events: any
   private userId: string
@@ -52,22 +53,24 @@ export default class BpSocket {
 
   /** Waits until the VISITOR ID and VISITOR SOCKET ID is set  */
   public waitForUserId(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const interval = setInterval(() => {
-        if (this.isString(window.__BP_VISITOR_ID) && this.isString(window.__BP_VISITOR_SOCKET_ID)) {
-          clearInterval(interval)
+    const idAvailablePromise = new Promise<void>(resolve => {
+      if (this.isString(window.__BP_VISITOR_ID) && this.isString(window.__BP_VISITOR_SOCKET_ID)) {
+        this.onUserIdChanged(this.userId)
+        resolve()
+      }
 
-          this.userId = window.__BP_VISITOR_ID
+      window.addEventListener('message', event => {
+        if (event.data.userId) {
           this.onUserIdChanged(this.userId)
-          this.postToParent('', { userId: this.userId })
           resolve()
         }
-      }, 250)
-
-      setTimeout(() => {
-        clearInterval(interval)
-        reject()
-      }, 300000)
+      })
     })
+
+    const timeoutPromise = new Promise<void>((resolve, reject) => {
+      setTimeout(() => reject('Getting user ID timed out'), VISITOR_ID_WAIT_TIMEOUT)
+    })
+
+    return Promise.race<void>([idAvailablePromise, timeoutPromise])
   }
 }
