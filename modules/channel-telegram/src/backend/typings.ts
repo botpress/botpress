@@ -1,6 +1,6 @@
 import { ChannelContext } from 'common/channel'
 import Telegraf, { ContextMessageUpdate } from 'telegraf'
-import { ChatAction, ExtraEditMessage, InputFile } from 'telegraf/typings/telegram-types'
+import { ChatAction, ExtraEditMessage, ExtraPhoto, InputFile } from 'telegraf/typings/telegram-types'
 
 export interface Clients {
   [key: string]: Telegraf<ContextMessageUpdate>
@@ -17,5 +17,5 @@ export interface TelegramMessage {
   photo?: InputFile
   markdown?: boolean
   action?: ChatAction
-  extra?: ExtraEditMessage
+  extra?: ExtraEditMessage | ExtraPhoto
 }
