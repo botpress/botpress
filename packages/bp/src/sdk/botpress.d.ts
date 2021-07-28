@@ -1403,6 +1403,7 @@ declare module 'botpress/sdk' {
       description: string
       target?: 'core' | 'bot'
       type: 'database' | 'config' | 'content'
+      canDryRun?: boolean
     }
     up: (opts: ModuleMigrationOpts) => Promise<MigrationResult>
     down?: (opts: ModuleMigrationOpts) => Promise<MigrationResult>
@@ -1419,6 +1420,7 @@ declare module 'botpress/sdk' {
   /** These are additional information that Botpress may pass down to migrations (for ex: running bot-specific migration) */
   export interface MigrationMetadata {
     botId?: string
+    isDryRun?: boolean
   }
 
   /**

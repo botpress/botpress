@@ -9,6 +9,10 @@ export class MessagingPostgresUpMigrator extends MessagingUpMigrator {
     await this.trx.commit()
   }
 
+  protected async rollback() {
+    await this.trx.rollback()
+  }
+
   protected async migrate() {
     await this.createTemporaryTables()
     await super.migrate()
