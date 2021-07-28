@@ -16,6 +16,8 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
 
   protected async commit() {}
 
+  protected async rollback() {}
+
   protected async migrate() {
     await super.migrate()
 
