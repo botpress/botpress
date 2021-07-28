@@ -85,6 +85,12 @@ export class MigrationService {
     this.displayMigrationStatus(migrationsToExecute, this.logger)
 
     if (process.MIGRATE_DRYRUN) {
+      const dryMigs = migrationsToExecute.filter(file => {
+        const content = this.loadedMigrations[file.filename]
+        return content.info.canDryRun
+      })
+
+      await this.executeMigrations(dryMigs)
       process.exit(0)
     }
 
@@ -172,12 +178,13 @@ export class MigrationService {
 
   async executeMigrations(missingMigrations: MigrationFile[]) {
     const isDown = process.MIGRATE_CMD === 'down'
-    const opts = await this.getMigrationOpts()
+    const logPrefix = process.MIGRATE_DRYRUN ? '[DRY] ' : ''
+    const opts = await this.getMigrationOpts({ isDryRun: process.MIGRATE_DRYRUN })
 
     this.logger.info(chalk`
 ${_.repeat(' ', 9)}========================================
 {bold ${centerText(
-      `Executing ${missingMigrations.length} migration${missingMigrations.length === 1 ? '' : 's'}`,
+      `${logPrefix}Executing ${missingMigrations.length} migration${missingMigrations.length === 1 ? '' : 's'}`,
       40,
       9
     )}}
@@ -198,10 +205,10 @@ ${_.repeat(' ', 9)}========================================`)
 
     await Promise.mapSeries(missingMigrations, async ({ filename }) => {
       if (process.env.TESTMIG_IGNORE_LIST?.split(',').filter(x => filename.includes(x)).length) {
-        return this.logger.info(`Skipping ignored migration file "${filename}"`)
+        return this.logger.info(`${logPrefix}Skipping ignored migration file "${filename}"`)
       }
 
-      this.logger.info(`Running ${filename}`)
+      this.logger.info(`${logPrefix}Running ${filename}`)
 
       let result
       if (isDown && this.loadedMigrations[filename].down) {
@@ -211,16 +218,16 @@ ${_.repeat(' ', 9)}========================================`)
       }
 
       if (result.success) {
-        this.logger.info(`- ${result.message || 'Success'}`)
+        this.logger.info(`${logPrefix}- ${result.message || 'Success'}`)
       } else {
         hasFailures = true
-        this.logger.error(`- ${result.message || 'Failure'}`)
+        this.logger.error(`${logPrefix}- ${result.message || 'Failure'}`)
       }
     })
 
     if (hasFailures) {
       this.logger.error(
-        'Some steps failed to complete. Please fix errors manually, then restart Botpress so the update process may finish.'
+        `${logPrefix}Some steps failed to complete. Please fix errors manually, then restart Botpress so the update process may finish.`
       )
 
       if (!process.IS_FAILSAFE) {
@@ -229,7 +236,7 @@ ${_.repeat(' ', 9)}========================================`)
     }
 
     await this.configProvider.mergeBotpressConfig({ version: this.targetVersion })
-    this.logger.info(`Migration${missingMigrations.length === 1 ? '' : 's'} completed successfully! `)
+    this.logger.info(`${logPrefix}Migration${missingMigrations.length === 1 ? '' : 's'} completed successfully! `)
   }
 
   private displayMigrationStatus(missingMigrations: MigrationFile[], logger: sdk.Logger) {
@@ -380,6 +387,7 @@ export interface Migration {
     description: string
     target?: MigrationTarget
     type: MigrationType
+    canDryRun?: boolean
   }
   up: (opts: MigrationOpts | sdk.ModuleMigrationOpts) => Promise<sdk.MigrationResult>
   down?: (opts: MigrationOpts | sdk.ModuleMigrationOpts) => Promise<sdk.MigrationResult>
