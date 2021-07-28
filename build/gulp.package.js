@@ -5,9 +5,34 @@ const gulp = require('gulp')
 const glob = require('glob')
 const mkdirp = require('mkdirp')
 const fs = require('fs')
+const archiver = require('archiver')
 
 const promisify = require('util').promisify
 const execAsync = promisify(exec)
+
+const systems = [
+  {
+    osName: 'win',
+    platform: 'win32',
+    binding: 'windows',
+    tempBin: 'bp-win.exe',
+    binaryName: 'bp.exe'
+  },
+  {
+    osName: 'darwin',
+    platform: 'darwin',
+    binding: 'darwin',
+    tempBin: 'bp-macos',
+    binaryName: 'bp'
+  },
+  {
+    osName: 'linux',
+    platform: 'linux',
+    binding: 'linux',
+    tempBin: 'bp-linux',
+    binaryName: 'bp'
+  }
+]
 
 const getTargetOSNodeVersion = () => {
   if (process.argv.find(x => x.toLowerCase() === '--win32')) {
@@ -29,19 +54,77 @@ const getTargetOSName = () => {
   }
 }
 
-const packageApp = async () => {
+const zipArchive = async ({ osName, binding, tempBin, binaryName }) => {
+  const basePath = 'packages/bp'
+  mkdirp.sync(`${basePath}/archives`)
+
+  const version = fse.readJsonSync(path.resolve('package.json')).version.replace(/\./g, '_')
+  const endFileName = `botpress-v${version}-${osName}-x64.zip`
+  const output = fse.createWriteStream(path.resolve(`${basePath}/archives/${endFileName}`))
+
+  const archive = archiver('zip')
+  archive.pipe(output)
+  archive.directory(`${basePath}/binaries/${osName}/bin`, 'bin')
+  archive.directory(`build/native-extensions/${binding}`, `bindings/${binding}`)
+  archive.file(`${basePath}/binaries/${tempBin}`, { name: binaryName })
+
+  for (const file of glob.sync(`${basePath}/binaries/modules/*.tgz`)) {
+    archive.file(file, { name: `modules/${path.basename(file)}` })
+  }
+
+  await archive.finalize()
+  console.info(`${endFileName}: ${archive.pointer()} bytes`)
+}
+
+const makeTempPackage = () => {
   const additionalPackageJson = require(path.resolve(__dirname, './package.pkg.json'))
   const realPackageJson = require(path.resolve(__dirname, '../package.json'))
-  const tempPkgPath = path.resolve(__dirname, '../out/bp/package.json')
-  const cwd = path.resolve(__dirname, '../out/bp')
-  const binOut = path.resolve(__dirname, '../out/binaries')
+  const tempPkgPath = path.resolve(__dirname, '../packages/bp/dist/package.json')
+
+  const packageJson = Object.assign(realPackageJson, additionalPackageJson)
+  fse.writeJsonSync(tempPkgPath, packageJson, { spaces: 2 })
+
+  return {
+    remove: () => fse.unlinkSync(tempPkgPath)
+  }
+}
+
+const fetchExternalBinaries = () => {
+  const binOut = path.resolve(__dirname, '../packages/bp/binaries')
+
+  systems.forEach(({ osName, platform }) =>
+    execAsync(`yarn bpd init --output ${path.resolve(binOut, osName)} --platform ${platform}`)
+  )
+}
+
+const packageAll = async () => {
+  const tempPackage = makeTempPackage()
 
   try {
-    const packageJson = Object.assign(realPackageJson, additionalPackageJson)
-    await fse.writeFile(tempPkgPath, JSON.stringify(packageJson, null, 2), 'utf8')
+    fetchExternalBinaries()
+
+    await execAsync(`cross-env pkg --options max_old_space_size=16384 --output ../binaries/bp ./package.json`, {
+      cwd: path.resolve(__dirname, '../packages/bp/dist')
+    })
+  } catch (err) {
+    console.error('Error running: ', err.cmd, '\nMessage: ', err.stderr, err)
+  } finally {
+    tempPackage.remove()
+  }
+
+  await Promise.map(systems, x => zipArchive(x))
+}
+
+const packageApp = async () => {
+  const tempPackage = makeTempPackage()
+
+  const cwd = path.resolve(__dirname, '../packages/bp/dist')
+  const binOut = path.resolve(__dirname, '../packages/bp/binaries')
+
+  try {
     await execAsync(`yarn bpd init --output ${binOut} --platform ${getTargetOSName().replace('windows', 'win32')}`)
     await execAsync(
-      `cross-env ../../node_modules/.bin/pkg --targets ${getTargetOSNodeVersion()} --options max_old_space_size=16384 --output ../binaries/bp ./package.json`,
+      `cross-env pkg --targets ${getTargetOSNodeVersion()} --options max_old_space_size=16384 --output ../binaries/bp ./package.json`,
       {
         cwd
       }
@@ -49,7 +132,7 @@ const packageApp = async () => {
   } catch (err) {
     console.error('Error running: ', err.cmd, '\nMessage: ', err.stderr, err)
   } finally {
-    await fse.unlink(tempPkgPath)
+    tempPackage.remove()
   }
 }
 
@@ -60,16 +143,16 @@ const copyNativeExtensions = async () => {
     ...glob.sync(`./build/native-extensions/${getTargetOSName()}/**/*.node`)
   ]
 
-  mkdirp.sync('./out/binaries/bindings/')
+  mkdirp.sync('./packages/bp/binaries/bindings/')
 
   for (const file of files) {
     if (file.indexOf(path.join('native-extensions', getTargetOSName()).replace('\\', '/')) > 0) {
       const dist = path.basename(path.dirname(file))
-      const targetDir = `./out/binaries/bindings/${getTargetOSName()}/${dist}`
+      const targetDir = `./packages/bp/binaries/bindings/${getTargetOSName()}/${dist}`
       mkdirp.sync(path.resolve(targetDir))
       fs.copyFileSync(path.resolve(file), path.resolve(targetDir, path.basename(file)))
     } else {
-      fs.copyFileSync(path.resolve(file), path.resolve('./out/binaries/bindings/', path.basename(file)))
+      fs.copyFileSync(path.resolve(file), path.resolve('./packages/bp/binaries/bindings/', path.basename(file)))
     }
   }
 }
@@ -89,5 +172,6 @@ const package = modules => {
 module.exports = {
   packageCore,
   packageApp,
+  packageAll,
   copyNativeExtensions
 }
