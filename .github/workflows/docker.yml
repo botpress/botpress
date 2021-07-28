@@ -56,7 +56,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: ./out/binaries/
+          context: ./packages/bp/binaries
           push: true
           tags: ${{ steps.prep.outputs.tags }}
           labels: |
