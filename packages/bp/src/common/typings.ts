@@ -32,6 +32,7 @@ export interface AuthStrategyConfig {
 }
 
 export interface Workspace {
+  authStrategies: string[]
   id: string
   name: string
   description?: string
@@ -46,6 +47,7 @@ export interface Workspace {
 
 export type CreateWorkspace = Pick<Workspace, 'id' | 'name' | 'description' | 'audience'> & {
   pipelineId: string
+  authStrategies?: string[]
 }
 
 export interface AuthRule {
