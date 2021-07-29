@@ -7,11 +7,13 @@ Docker is a set of platform-as-a-service products that use OS-level virtualizati
 
 > For an optimized Docker experience, download [Docker Desktop.](https://www.docker.com/products/docker-desktop)
 
+## Latest tags
+
+The latest tags are updated every time a new release is created. Each release has a tag associated with it. We are recommending to use fix tag for production.
+
 ## Using Remote Duckling & Language Server
 
 This command will run Botpress within a single container and use the remote Duckling and Language Server hosted by us. You can get the latest `stable` or `nightly` versions on [DockerHub](https://hub.docker.com/r/botpress/server/tags).
-
-> You should **never** use `nightly` versions in production because they are unstable.
 
 ```bash
 docker run -d \
@@ -113,6 +115,71 @@ bash -c "./duckling & ./bp"
 ```
 
 **Offline Server**: Follow the Offline Server [instructions](#offline-servers) if you're running a server without Internet access.
+
+### Use docker-compose
+
+Botpress can be used with other service. For example, a postgresql could be use instead of the default database.
+
+```
+version: '3'
+
+services:
+  botpress:
+    image: botpress/server
+    command: /botpress/bp
+    expose:
+      - 3000
+    environment:
+      - DATABASE_URL=postgres://postgres:secretpw@postgres:5435/botpress_db
+      - REDIS_URL=redis://redis:6379?password=redisPassword
+      - BP_MODULE_NLU_DUCKLINGURL=http://botpress_lang:8000
+      - BP_MODULE_NLU_LANGUAGESOURCES=[{"endpoint":"http://botpress_lang:3100"}]
+      - CLUSTER_ENABLED=true
+      - BP_PRODUCTION=true
+      - BPFS_STORAGE=database
+    depends_on:
+      - botpress_lang
+      - postgres
+      - redis
+    volumes:
+      - ./botpress/data:/botpress/data
+    ports:
+      - "3000:3000"
+
+  botpress_lang:
+    image: botpress-lang
+    command: bash -c "./duckling -p 8000 & ./bp lang --langDir /botpress/lang --port 3100"
+    expose:
+      - 3100
+      - 8000
+    volumes:
+      - ./botpress/language:/botpress/lang
+
+  postgres:
+    image: postgres:11.2-alpine
+    expose:
+      - 5435
+    environment:
+      PGPORT: 5435
+      POSTGRES_DB: botpress_db
+      POSTGRES_PASSWORD: secretpw
+      POSTGRES_USER: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:5.0.5-alpine
+    expose:
+      - 6379
+    command: redis-server --requirepass redisPassword
+    volumes:
+      - redisdata:/data
+
+volumes:
+  pgdata:
+  redisdata:
+
+```
 
 ### Restarting Botpress
 
