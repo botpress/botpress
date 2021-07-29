@@ -31,7 +31,7 @@ At this point, Botpress doesn't know how to access the bot from the web. You wil
 
 Logs are very useful to debug and understand what happens when the bot doesn't behave as expected.
 
-When you start Botpress from the binary (or using the Docker image), the bot is in `debug` mode. This means that a lot of information will be displayed in the console to understand what happens.
+When you start Botpress from the binary (or using the Docker image), your chatbots will run in debug mode resulting in a very high logs verbosity.
 
 There are 4 different levels of logs:
 
@@ -97,7 +97,7 @@ Each module has a different set of possible configuration, so we won't go throug
 
 # Environment Variables
 
-There are some variables that **cannot be set** in the `botpress.config.json` file. These must be either defined as environment variables, or defined in a `.env` file in the same folder as the Botpress executable.
+All the `botpress.config.json` file can be set with a environment variable. These must be either defined as environment variables, or defined in a `.env` file in the same folder as the Botpress executable.
 
 Here there are:
 
