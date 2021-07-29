@@ -192,7 +192,7 @@ const getTsConfig = (rootFolder: string): ts.ParsedCommandLine => {
       typeRoots: ['./node_modules/@types', './node_modules', './src/typings']
     },
     exclude: ['**/*.test.ts', './src/views/**', '**/node_modules/**'],
-    include: ['../../src/typings/*.d.ts', '**/*.ts']
+    include: ['../../packages/bp/src/typings/*.d.ts', '**/*.ts']
   }
 
   return ts.parseJsonConfigFileContent(fixedModuleConfig, parseConfigHost, rootFolder)

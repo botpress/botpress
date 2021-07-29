@@ -1,6 +1,6 @@
+import { EntityDefinition, IntentDefinition, Specifications, TrainInput } from '@botpress/nlu-client'
 import crypto from 'crypto'
 import _ from 'lodash'
-import { EntityDefinition, IntentDefinition, Specifications, TrainInput } from './typings_v1'
 
 export interface ModelId {
   specificationHash: string // represents the nlu engine that was used to train the model
