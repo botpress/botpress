@@ -1,8 +1,6 @@
 {
   "name": "__qna__uqvj6jdj32_you_are_annoying",
-  "contexts": [
-    "global"
-  ],
+  "contexts": ["global"],
   "utterances": {
     "en": [
       "you are annoying",
@@ -10,7 +8,6 @@
       "please stop it",
       "you annoy me",
       "you are unpleasant",
-      "you suck",
       "you are a bad bot",
       "you are useless",
       "you are dumb",
