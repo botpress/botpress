@@ -11,7 +11,8 @@
       "main/memory",
       "main/module",
       "main/nlu",
-      "main/emulator"
+      "main/emulator",
+      "main/broadcast"
     ],
     "Natural Language Understanding": [
       "nlu/intro-nlu",
