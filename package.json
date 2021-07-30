@@ -14,7 +14,7 @@
     "version": "0.1.2"
   },
   "studio": {
-    "version": "0.0.23"
+    "version": "0.0.24"
   },
   "scripts": {
     "postinstall": "yarn cmd postinstall",
