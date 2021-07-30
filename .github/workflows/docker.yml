@@ -5,6 +5,11 @@ jobs:
     name: Build and push Docker image to GitHub Packages
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2.1.0
+        with:
+          token: ${{ secrets.PAT_DOCKER }}
+          submodules: true
       # Create an array of version to push to the Dockerhub registery
       - name: Prepare
         id: prep
@@ -14,9 +19,8 @@ jobs:
           DOCKER_IMAGE=botpress/server
           VERSION=()
           if [[ $TAG =~ $VALID_TAG ]]; then
-            echo "VALID TAG"
             VERSION+=($(echo ${TAG} | sed -r 's/v//')) # transform v12.23.0 to 12.23.0
-            VERSION+=("latest")
+            VERSION+=('latest')
             VERSION+=($(echo ${TAG} | sed -r 's/\./_/g')) # Transform v12.13.0 to v12_13_0 ## Added backward compatibility
           elif [[ $GITHUB_REF == refs/heads/* ]]; then
             VERSION+=($(echo ${GITHUB_REF#refs/heads/} | sed -r 's#/+#-#g')) # transform feature/00-feature-branch to feature-00-feature-branch
@@ -30,11 +34,6 @@ jobs:
           IFS=,
           echo ::set-output name=tags::"${TAGS[*]}"
           echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
-      - name: Checkout code
-        uses: actions/checkout@v2.1.0
-        with:
-          token: ${{ secrets.PAT_DOCKER }}
-          submodules: true
       - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
