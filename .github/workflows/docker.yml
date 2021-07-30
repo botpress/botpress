@@ -16,7 +16,7 @@ jobs:
           if [[ $TAG =~ $VALID_TAG ]]; then
             echo "VALID TAG"
             VERSION+=($(echo ${TAG} | sed -r 's/v//')) # transform v12.23.0 to 12.23.0
-            VERSION+=("latest")
+            VERSION+=('latest')
             VERSION+=($(echo ${TAG} | sed -r 's/\./_/g')) # Transform v12.13.0 to v12_13_0 ## Added backward compatibility
           elif [[ $GITHUB_REF == refs/heads/* ]]; then
             VERSION+=($(echo ${GITHUB_REF#refs/heads/} | sed -r 's#/+#-#g')) # transform feature/00-feature-branch to feature-00-feature-branch
