@@ -46,6 +46,13 @@ const SupervisorMenu: FC<Props> = ({ bp, agents, disabled }) => {
     setEmail(createdUser.email)
     setPassword(createdUser.tempPassword)
   }
+  const onPasswordReset = (email, password) => {
+    setMessageId('passwordReset')
+    setEmail(email)
+    setPassword(password)
+    setInfoModalOpen(true)
+    setManageAgentsModalOpen(false)
+  }
 
   return (
     <div className={style.agentBtnWrapper} hidden={disabled}>
@@ -60,6 +67,7 @@ const SupervisorMenu: FC<Props> = ({ bp, agents, disabled }) => {
         filteredAgents={agents}
         isOpen={manageAgentsModalOpen}
         toggleOpen={() => setManageAgentsModalOpen(!manageAgentsModalOpen)}
+        onPasswordReset={onPasswordReset}
       />
       <InfoModal
         isOpen={infoModalOpen}

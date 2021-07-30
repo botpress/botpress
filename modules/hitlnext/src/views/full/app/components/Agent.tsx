@@ -1,6 +1,6 @@
 import { WorkspaceUserWithAttributes } from 'botpress/sdk'
-import { lang } from 'botpress/shared'
-import cx from 'classnames'
+import { AxiosInstance } from 'axios'
+
 import _ from 'lodash'
 import React, { FC } from 'react'
 import { Card } from '@blueprintjs/core'
@@ -8,13 +8,11 @@ import AgentActions from './AgentActions'
 
 interface Props {
   agent: WorkspaceUserWithAttributes
+  onPasswordReset: (email, password) => void
+  bp: { axios: AxiosInstance; events: any }
 }
 
-const Agent: FC<Props> = ({ agent }) => {
-  const test = async () => {
-    console.log('button pressed')
-  }
-
+const Agent: FC<Props> = ({ agent, onPasswordReset, bp }) => {
   return (
     <div key={`user-${agent.email}`}>
       <div style={{ display: 'flex' }}>
@@ -22,7 +20,7 @@ const Agent: FC<Props> = ({ agent }) => {
           <b>Email: </b>
           {agent.email}
           <div style={{ textAlign: 'right' }}>
-            <AgentActions agent={agent} />
+            <AgentActions agent={agent} onPasswordReset={onPasswordReset} bp={bp} />
           </div>
         </Card>
       </div>

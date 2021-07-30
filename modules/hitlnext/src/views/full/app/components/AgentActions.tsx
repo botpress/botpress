@@ -9,21 +9,25 @@ import {
   Position
 } from '@blueprintjs/core'
 import { WorkspaceUserWithAttributes } from 'botpress/sdk'
-
+import { AxiosInstance } from 'axios'
+import { confirmDialog } from 'botpress/shared'
 import React, { FC } from 'react'
 
 interface Props {
   agent: WorkspaceUserWithAttributes
+  onPasswordReset: (email, newPassword) => void
+  bp: { axios: AxiosInstance; events: any }
 }
 
 const AgentActions: FC<Props> = props => {
-  const { agent } = props
+  const { agent, bp } = props
 
   const resetPassword = async () => {
-    console.log('reseting password for ', agent.email)
+    const { data } = await bp.axios.post(`/mod/hitlnext/agent/${agent.email}/reset`)
+    props.onPasswordReset(agent.email, data.payload.tempPassword)
   }
   const remove = async () => {
-    console.log('removing ', agent.email)
+    await bp.axios.post(`/mod/hitlnext/agent/${agent.email}/delete`)
   }
 
   return (

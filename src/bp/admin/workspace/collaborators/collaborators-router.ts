@@ -103,12 +103,11 @@ class CollaboratorsRouter extends CustomAdminRouter {
       })
     )
 
-    // admin.collaborator.*
-    // admin.collaborator.agent +r+w
     router.post(
       '/',
       this.assertBotpressPro,
-      // this.needPermissions('write', this.resource + '.' + req.body.role),
+
+      //this.needPermissions('write', this.resource), //old security check
       this.asyncMiddleware(async (req, res) => {
         validateBodySchema(
           req,
@@ -120,8 +119,11 @@ class CollaboratorsRouter extends CustomAdminRouter {
             strategy: Joi.string().required()
           })
         )
-
-        this.needPermissions('write', `${this.resource}.${req.body.role}`)
+        this.needPermissions('write', `admin.collaborators.${req.body.role}`)(req, res, (err?: Error) => {
+          if (err) {
+            res.sendStatus(403)
+          }
+        })
 
         const { email, strategy, role } = req.body
         const alreadyExists = await this.authService.findUser(email, strategy)
@@ -140,38 +142,18 @@ class CollaboratorsRouter extends CustomAdminRouter {
       })
     )
 
-    //create agent for supervisor
-    router.post(
-      '/agent/create',
-      this.assertBotpressPro,
-      //this.needPermissions('write', 'module.hitlnext.supervisor'),
-      this.asyncMiddleware(async (req, res) => {
-        const { email } = req.body
-        const strategy = 'default'
-        const role = 'agent'
-
-        const alreadyExists = await this.authService.findUser(email, strategy)
-
-        if (alreadyExists) {
-          throw new ConflictError(`User "${email}" is already taken`)
-        }
-
-        const result = await this.authService.createUser({ email, strategy }, strategy)
-        await this.workspaceService.addUserToWorkspace(email, strategy, req.workspace!, { role })
-
-        return sendSuccess(res, 'User created successfully', {
-          email,
-          tempPassword: typeof result === 'string' ? result : `(Use ${strategy} password)`
-        })
-      })
-    )
-
     router.post(
       '/:strategy/:email/delete',
-      assertSuperAdmin,
-      this.needPermissions('write', this.resource),
+      //assertSuperAdmin,
+      //this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const { email, strategy } = req.params
+
+        this.needPermissions('write', `admin.collaborators.${req.body.role}`)(req, res, (err?: Error) => {
+          if (err) {
+            res.sendStatus(403)
+          }
+        })
 
         if (req.authUser!.email.toLowerCase() === email.toLowerCase()) {
           return res.status(400).json({ message: "Sorry, you can't delete your own account." })
