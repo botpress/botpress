@@ -71,6 +71,7 @@ const migration: Migration = {
           }
         }
 
+        delete config['$schema']
         botConfig.messaging!.channels[channelName] = config
         await ghost.deleteFile(ROOT_FOLDER, file)
       }
