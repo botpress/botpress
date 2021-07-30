@@ -5,6 +5,11 @@ jobs:
     name: Build and push Docker image to GitHub Packages
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout code
+        uses: actions/checkout@v2.1.0
+        with:
+          token: ${{ secrets.PAT_DOCKER }}
+          submodules: true
       # Create an array of version to push to the Dockerhub registery
       - name: Prepare
         id: prep
@@ -30,11 +35,6 @@ jobs:
           IFS=,
           echo ::set-output name=tags::"${TAGS[*]}"
           echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
-      - name: Checkout code
-        uses: actions/checkout@v2.1.0
-        with:
-          token: ${{ secrets.PAT_DOCKER }}
-          submodules: true
       - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
