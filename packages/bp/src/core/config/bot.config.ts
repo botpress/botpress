@@ -105,6 +105,7 @@ export interface MessagingConfig {
   token: string
   /**
    * Configurations of channels to be sent to the messaging server
+   * You can find more about channel configurations here : https://botpress.com/docs/channels/faq
    */
   channels: { [channelName: string]: any }
 }
