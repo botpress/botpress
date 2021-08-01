@@ -3,17 +3,17 @@
     "Release Notes": ["releases/migrate"],
     "Getting Started": ["introduction", "installation", "quickstart"],
     "Building A Chatbot": [
-      "main/overview",
-      "main/glossary",
+      "main/overview2",
       "main/content",
-      "main/dialog",
-      "main/code",
+      "main/dialog"
       "main/memory",
+      "main/emulator",
       "main/qna-module",
+      "main/code",
       "main/module",
       "main/nlu",
-      "main/emulator",
-      "main/broadcast"
+      "main/broadcast",
+      "main/glossary"
     ],
     "Natural Language Understanding": [
       "nlu/intro-nlu",
