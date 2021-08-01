@@ -33,7 +33,7 @@ In the same way, as described above, it would be possible to access the values o
 
 ![Slot Extraction Emulator](../assets/slot-extraction-emulator.png)
 
-As is possible in Javascript, it is also possible to access the parameters with the following systax:
+As is possible in Javascript, it is also possible to access the parameters with the following syntax:
 
 {{state.session.slots["food"].value}}
 
