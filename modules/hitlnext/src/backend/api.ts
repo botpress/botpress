@@ -105,7 +105,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       res.send(agents)
     })
   )
-  //For supervisor role
+
   router.post(
     '/agent/create',
     errorMiddleware(async (req: RequestWithUser, res: Response) => {
@@ -113,7 +113,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       const { email } = req.body
 
       const axioxconfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
-
+      //TODO generate good axiosconfig
       axioxconfig.headers['X-BP-Workspace'] = 'default'
       axioxconfig.baseURL = 'http://localhost:3000/api/v2/admin'
       axioxconfig.headers['Authorization'] = req.headers.authorization
@@ -133,7 +133,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       const { botId, email } = req.params
 
       const axioxconfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
-
+      //TODO generate good axiosconfig
       axioxconfig.headers['X-BP-Workspace'] = 'default'
       axioxconfig.baseURL = 'http://localhost:3000/api/v2/admin'
       axioxconfig.headers['Authorization'] = req.headers.authorization
@@ -149,7 +149,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       const { botId, email } = req.params
 
       const axioxconfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
-
+      //TODO generate good axiosconfig
       axioxconfig.headers['X-BP-Workspace'] = 'default'
       axioxconfig.baseURL = 'http://localhost:3000/api/v2/admin'
       axioxconfig.headers['Authorization'] = req.headers.authorization

@@ -106,8 +106,6 @@ class CollaboratorsRouter extends CustomAdminRouter {
     router.post(
       '/',
       this.assertBotpressPro,
-
-      //this.needPermissions('write', this.resource), //old security check
       this.asyncMiddleware(async (req, res) => {
         validateBodySchema(
           req,
@@ -144,8 +142,8 @@ class CollaboratorsRouter extends CustomAdminRouter {
 
     router.post(
       '/:strategy/:email/delete',
-      //assertSuperAdmin,
-      //this.needPermissions('write', this.resource),
+      assertSuperAdmin,
+      this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const { email, strategy } = req.params
 
