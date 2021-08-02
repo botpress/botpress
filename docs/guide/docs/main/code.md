@@ -363,41 +363,5 @@ From the Flow Editor view, click on Insert Skill > Send Email. The following int
 
 It is worthy to note that Botpress supports templating in all fields of your email skill, allowing access to variables stored in [Memory](../main/memory). All `bot`, `user`, `session`, `temp`, and `event` are accessible via templating. To access these variables, reference the memory location.
 
-### Call API Skill
-The Call API skill helps the users to call an API within their flow quickly.
-
-![From Flow Editor](../assets/call-api-skill-flow.png)
-
-#### Request Options
-
-##### Body
-You can set the request body as shown below:
-
-![Main View](../assets/call-api-skill.png)
-
-##### Headers
-The request headers can be set here and should respect the JSON format.
-
-![Headers](../assets/call-api-skill-headers.png)
-
-#### Response
-
-##### Memory
-To save the response, we use [Memory](../main/memory). By default, your chatbot will save the response in `temp.response`, but you can use the memory of your choice.
-![Memory](../assets/call-api-skill-memory.png)
-
-The saved response object should look like this:
-
-```json
-{
-  "body": <Response Body>,
-  "status": 200
-}
-```
-
-##### Success / Failure
-When a response returns a status code `400` and above, the request will fail and execute the `On failure` transition. All other status codes will result in success and will execute the `On success` transition.
-
-#### Templating
-Templating in the `body` and the `headers` to access your variables stored in [Memory](../main/memory). All `bot`, `user`, `session`, `temp`, `event` are accessible via templating.
-![Template](../assets/call-api-skill-template.png)
+### Other Skills
+Two other skills, namely, the [Call API]() and the [Slot Skill]() are available in Botpress. You can look up these skills and use them in your chatbot.
