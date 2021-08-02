@@ -5,7 +5,9 @@ title: Built-In Functionalities
 
 There are two ways of quickly adding custom code to enrich your bot's experience: **Actions** and **Hooks**.
 
-Both are executed in a virtual machine to prevent server crashes in case there is a scripting error. Your scripts may require any module that is loaded by botpress by default (for example, lodash, axios, moment, nanoid, and [much more](https://github.com/botpress/botpress/blob/master/package.json)).
+Both are executed in a virtual machine to prevent server crashes in case there is a scripting error. Your scripts may require any module loaded by Botpress by default (for example, lodash, axios, moment, nanoid, and [much more](https://github.com/botpress/botpress/blob/master/package.json)).
+
+You can also use one of the pre-loaded **Skills** to perform tasks that require more complexity than can be added in a normal node.
 
 If you want to include other dependencies not already included, there are two possible ways. You can add the `node_modules` folder containing your dependency in the same folder as your Action, or you can [create a module](../advanced/custom-module) that includes your dependency.
 
@@ -43,16 +45,16 @@ It is also possible to wrap your code with an async method:
 /** } */
 ```
 
-> These scripts have hot reloading enabled, which means that changes are picked up on the next function call whenever you edit it, making development a lot faster.
+> These scripts have hot reloading enabled, which means that changes are picked up on the following function call whenever you edit it, making development a lot faster.
 
-## Using Actions
+## Actions
 Actions are server-side functions executed by the bot as part of a conversational flow. Actions have the power to do many things:
 
 - Alter the state of the conversation
 - Send customized messages to the conversation
 - Execute arbitrary code like calling an API or storing data in the database
 
-Since they are JavaScript functions, they can do pretty much anything. When the Dialog Manager (DM) invokes an Action, it gets passed the following arguments:
+Since they are JavaScript functions, they can do pretty much anything. When the Dialog Manager (DM) invokes an Action, it gets access to the following arguments:
 
 - `user`: All attributes of a user.
 - `session`: Variables kept for the session's duration.
@@ -64,7 +66,7 @@ Since they are JavaScript functions, they can do pretty much anything. When the 
 
 Check out the page [Bot Memory and Data Retention](memory) for more details about these objects' lifetime.
 
-### Example
+### Example of an Action
 
 Here are some possible ways to use these variables
 
@@ -86,11 +88,11 @@ The only way to register new actions is to add your javascript code in a `.js` f
 
 We use JavaDoc comments to display meaningful information (name, description, arguments, default values) on the dialog flow editor. It is possible to keep an action hidden in the flow editor by adding the flag `@hidden true` in the JavaDoc.
 
-## Built-In Actions
-Botpress comes with a built-in set of Actions. For learning purposes, we will examine the most straightforward Action called Wait. It allows the developer to pause the bot before running the next instruction. For example, when the bot is about to present a long text message, the developer may use the `wait` action to simulate real typing.
+### Built-In Actions
+Botpress comes with a built-in set of Actions. For learning purposes, we will examine the most straightforward Action called Wait. It allows the developer to pause the bot before running the next instruction. For example, when the bot presents a long text message, the developer may use the `wait` action to simulate natural typing.
 ![Example of an Action](../assets/action-example.png)
 
-### Wait Action
+#### Wait Action
 -  **Action Title** Wait/Delay
 -  **Category** Utility
 -  **Author** Botpress, Inc.
@@ -105,7 +107,7 @@ return wait(args.delay || 1000)
 ```
 As you can see, the Action is just a simple asynchronous arrow function that takes the number of milliseconds to `delay` as a parameter. When building an action, you can (and indeed should) specify the action type, its category, the author, and parameters.
 
-### Append Context
+#### Append Context
 -  **Action Title** Append Context
 -  **Category** NLU
 -  **Author** Botpress, Inc.
@@ -120,17 +122,17 @@ The TTL (Time-To-Live) is the time during which contexts are valid before automa
  
 This method is contextual to the current user chat session. You can specify more than one context by separating them with a comma.
 
-### Remove Context
+#### Remove Context
 -  **Action Title** Remove Context
 -  **Category** NLU
 -  **Author** Botpress, Inc.
 -  **Parameter** data_type:string name:contexts - Comma-separated list of contexts
 
-Use this Action to remove the provided context(s) from the list of contexts used by the NLU Engine for the next messages for that chat session.
+Use this Action to remove the provided context(s) from the list of contexts used by the NLU Engine for the subsequent messages for that chat session.
 
 This method is contextual to the current user chat session. You can specify more than one context by separating them with a comma.
 
-### Reset Context
+#### Reset Context
 -  **Action Title** Reset Context
 -  **Category** NLU
 -  **Author** Botpress, Inc.
@@ -138,15 +140,15 @@ This method is contextual to the current user chat session. You can specify more
 
  It resets the NLU context to the default scope. This method is contextual to the current user and current chat session.
 
-### Send Feedback
+#### Send Feedback
 -  **Action Title** Send Feedback
 -  **Category** NDU66
 -  **Author** Botpress, Inc.
 -  **Parameter**  data_type:number name:value - The feedback value. Use 1 for positive feedback, -1 for negative feedback
 
-This Action sends feedback (1 for positive or -1 for negative feedback) at the end of a goal (a workflow that the user has completed)
+Provides feedback (1 for positive or -1 for negative feedback) at the end of a goal (a workflow that the user has completed)
 
-### Get Global Variable
+#### Get Global Variable
 -  **Action Title** Get global variable
 -  **Category** Storage
 -  **Author** Botpress, Inc.
@@ -155,7 +157,7 @@ This Action sends feedback (1 for positive or -1 for negative feedback) at the e
 
 This Action retrieves a variable that was stored globally using a storage key. Botpress uses a `key: value` storage system to allow complex object storage definitions.
 
-### Reset Global Variable
+#### Reset Global Variable
 -  **Action Title** Reset Global Variable
 -  **Category** Storage
 -  **Author** Botpress, Inc.
@@ -163,7 +165,7 @@ This Action retrieves a variable that was stored globally using a storage key. B
 
 Use this Action to reset a variable with global scope.
 
-### Set Global Variable
+#### Set Global Variable
 -  **Action Title** Set global variable
 -  **Category** Storage
 -  **Author** Botpress, Inc.
@@ -174,7 +176,7 @@ Use this Action to reset a variable with global scope.
 
 This Action allows you to set a variable globally, with optional expiry.
 
-### Set Variable
+#### Set Variable
 -  **Action Title** Set Variable
 -  **Category** Storage
 -  **Author** Botpress, Inc.
@@ -184,60 +186,60 @@ This Action allows you to set a variable globally, with optional expiry.
 
 You can use this Action to store data to desired storage based on the time to live expectation.
 
-### Reset Session
+#### Reset Session
 -  **Action Title** Reset Session
 -  **Category** Storage
 -  **Author** Botpress, Inc.
 -  **Parameter** none
 
-This Action resets the user session and clears information stored in `temp` and `session` storage for the user. NLU Contexts and Last messages history isn't removed.
+This Action resets the user session and clears information stored in `temp` and `session` storage for the user. This action doesn't remove NLU Contexts and Last Messages history.
 
-### Switch Language
+#### Switch Language
 -  **Action Title** Switch Language
 -  **Category** Language
 -  **Author** Botpress, Inc.
 -  **Parameter** data_type:string name:lang - The language code, e.g. "en"
 
-Useful for Pro License holders with multilingual bots, this Action lets you change the bot's language for the current user.
+Valid for Enterprise License holders with multilingual bots, this Action lets you change the bot's language for the current user.
 
 Botpress comes pre-packed with a translation engine that helps developers design a bot in one language while catering to users of all supported and configured languages.
 
 ## Hooks
 
-Hooks are a handy way to execute actions when specific events occur.
+Hooks are a handy way to execute javascript code (similar to that of actions) when specific events occur.
 
-They are defined globally as javascript files in the folder `data/global/hooks/${hookName}`. You can add as many files as you'd like in those; they will be processed sequentially, in alphabetical order.
+They are defined globally as javascript files in the folder `data/global/hooks/${hookName}`. You can add as many files as you'd like in this folder; they will be processed sequentially, in alphabetical order.
 
-> Note: subfolders are allowed but ignored in the ordering. If you have 02_hook.js and 03/01_hook.js, the order will be 01_hook.js then 02_hook.js
+> Note: subfolders are allowed but ignored in the ordering. If you have 02_hook.js and 03/01_hook.js, the order will be 01_hook.js, then 02_hook.js.
 
-They all have access to the (Botpress SDK) [https://botpress.com/reference/](https://botpress.com/reference/).
+Hooks have access to the (Botpress SDK) [https://botpress.com/reference/](https://botpress.com/reference/).
 
-### After Server Starts
+### Types of Hooks
+Hooks are differentiated using the point in the event engine when they are executed.  The following are instances where you can inject hooks into your code.
 
-This event is called once all modules and bots are loaded, and the bot is ready to accept incoming connections.
+#### After Server Starts
+This event is called once all modules and bots are loaded and the bot is ready to accept incoming connections.
 
 Location: `data/global/hooks/after_server_start`
 
 Parameters: `bp`
 
-### After Bot Mount
-
+#### After Bot Mount
 This event is called every time a bot is mounted, be it when the server starts up or when adding new bots at runtime.
 
 Location: `data/global/hooks/after_bot_mount`
 
 Parameters: `bp`, `botId`
 
-### After Bot Unmount
+#### After Bot Unmount
 Every time a bot is unmounted, Botpress calls this event to clean up after deleting a bot.
 
 Location: `data/global/hooks/after_bot_unmount`
 
 Parameters: `bp`, `botId`
 
-### Before Incoming Middleware
-
-Botpress calls this hook when an event is received, before any middleware. It is possible to change event properties.
+#### Before Incoming Middleware
+Botpress calls this hook after receiving an event but before processing any middleware. It is possible to change event properties.
 
 Location: `data/global/hooks/before_incoming_middleware`
 
@@ -251,9 +253,8 @@ if (event.type === 'quick_reply') {
 }
 ```
 
-### After Incoming Middleware
-
-This hook is called right after all incoming middlewares processed the event, but before the Dialog Engine starts processing it. You can access all the required data (including NLU intent) for special processing and decide what happens to the event.
+#### After Incoming Middleware
+This hook is called right after all incoming middlewares processed the event but before the Dialog Engine starts processing it. You can access all the required data (including NLU intent) for special processing and decide what happens to the event.
 
 Location: `data/global/hooks/after_incoming_middleware`
 
@@ -270,8 +271,7 @@ if (messageTypesToDiscard.includes(event.type)) {
 }
 ```
 
-### Before Outgoing Middleware
-
+#### Before Outgoing Middleware
 The Dialogue Manager calls this hook before the bot's reply is sent to the user.
 
 Location: `data/global/hooks/before_outgoing_middleware`
@@ -280,17 +280,15 @@ Parameters: `bp`, `event`
 
 Here you can save the bot's complete response.
 
-### Before Session Timeout
-
+#### Before Session Timeout
 This hook is called right before a user timeouts on a node.
 
 Location: `data/global/hooks/before_session_timeout`
 
 Parameters: `bp`, `event`
 
-### Before Suggestions Election
-
-This hook is called after the Decision Engine Ranking but before the Suggestion Election. Doing so allows you to override the Decision Engine's ranking by altering the `event.suggestions` array directly.
+#### Before Suggestions Election
+This hook is called after the Decision Engine Ranking but before the Suggestion Election. Doing so allows you to override the Decision Engine's ranking by directly altering the `event.suggestions` array.
 
 Location: `data/global/hooks/before_suggestions_election`
 
@@ -299,7 +297,6 @@ Parameters: `bp`, `event`, `suggestions`, `sessionId`
 A typical operation here is to add a new (elected) suggestion when there is no elected winner.
 
 ## Disabling Hooks & Actions
-
 Botpress will ignore files starting with a dot (`.`). This way, you can disable a hook or Action by merely prefixing the file's name with a dot.
 
 ## In-Built Skills
@@ -307,22 +304,100 @@ Botpress will ignore files starting with a dot (`.`). This way, you can disable 
 Botpress comes preloaded with some rudimentary skills. Let us look at these; we are confident that you will use them when building your next chatbot!
 
 ### Choice Skill
-This skill is a spin-off from the realization that most chatbot conversations will eventually have a question with hardcoded choices as answers. Although there is a content element that lets the user select buttons to pick an answer, the choice skill adds a few more caveats to that content element, which we will explore here.
+This skill is a spin-off from the realization that most chatbot conversations will eventually have a question with hardcoded choices as answers. Although a content element lets the user select buttons to pick a response, the choice skill adds a few more caveats to that content element, which we will explore here.
 
 ![Single Choice Content Element](../assets/single-choice.png)
 
 In addition to just letting you click a button and you are on your way, the choice skill adds a few checks and transitions to the process.
 
-First of all, where freely typed responses are not disabled, the choice skill allows you to add responses which the user might type directly. This adds flexibility as the chatbot can understand and classify other responses besides the button click.
+First of all, where freely typed responses are not disabled, the choice skill allows you to add answers which the user might type directly. In this way, the chatbot can understand and classify other responses besides the button click, adding a good measure of flexibility.
 
 ![Choice Skill Overview](../assets/choice-skill-entry.png)
 
-The choice skill also allows you to let the user have another go at answering the question asked. This is helpful in instances where the user might fail to perceive that a button response is required. It is also crucial in cases where the chatbot developer does not pre-empt the freely typed responses. 
+The choice skill also allows you to let the user have another go at answering the question asked. In instances where the user might fail to perceive that a button response is required, the chatbot prompts the user to choose from the supplied choices. It is also crucial in cases where the chatbot developer does not pre-empt the freely typed responses. 
 
-When a user fails to respond, which the chatbot understands for whatever reason, they will be given a response guiding them on what to do when asked to answer the question again. 
+If the chatbot doesn't understand a user's answer, it will react by guiding the user on how to respond to the question before asking the question again. 
 
 ![Choice Skill Advanced](../assets/choice-skill-tries.png)
 
-The choice skill also offers an option to transition to a different node when the user repeatedly fails to answer the question being presented to them. This is useful when the user might not want to answer at all and express their own will, which is beyond the chatbot's scope of understanding, or is simply being stubborn.
+The choice skill also offers an option to transition to a different node when the user repeatedly fails to answer a question.
 
 ![Choice Skill Flow GUI](../assets/choice-skill-transitions.png)
+
+### Email Skill
+
+The email skill provides a quick way to send emails from within a Botpress workflow.
+
+#### Configuring Email Skill
+To send an email using the email skill, you need to configure your chatbot with a transport connection string. Set the configuration string in the directory `...data/global/config/basic-skills.json`. For more information on the mail transporters available and how to configure them, please visit the [Nodemailer documentation](https://nodemailer.com/smtp/#examples)
+
+Here is an example of a configuration using a mail server:
+
+```json
+{
+  "$schema": "../../assets/modules/basic-skills/config.schema.json",
+  "defaultContentElement": "builtin_single-choice",
+  "defaultContentRenderer": "#builtin_single-choice",
+  "defaultMaxAttempts": 3,
+  "disableIntegrityCheck": true,
+  "matchNumbers": true,
+  "matchNLU": true,
+  "transportConnectionString": {
+    "host": "192.168.100.200",
+    "port": "25",
+    "secure": false,
+    "tls": {
+      "rejectUnauthorized": false
+    }
+  }
+}
+```
+
+> Setting `"rejectUnauthorized": false` will prevent the Botpress server from rebooting every time an email fails to send. We recommend that you put in place a fall-back strategy if this happens using the `on failure` transition.
+
+#### Creating your skill
+From the Flow Editor view, click on Insert Skill > Send Email. The following interface allows you to insert the information you would fill in using any standard email service.
+**From, To, CC & BCC** These fields are filled with email addresses. The _From_ field will be the sender's email address that the recipient will see when receiving an email from your chatbot. You can configure it to any valid email address. 
+**Subject** This field contains the subject of the email. You will need to create a content element that will load as the subject line. Please note that it will render as plain text even if you use markdown in the subject line.
+**Email Content** Again; this field will load from a content element. Unlike the subject field, you can use markdown, which Botpress will render correctly to the receiver. You can also include HTML to enhance the formatting of your email body further.
+
+It is worthy to note that Botpress supports templating in all fields of your email skill, allowing access to variables stored in [Memory](../main/memory). All `bot`, `user`, `session`, `temp`, and `event` are accessible via templating. To access these variables, reference the memory location.
+
+### Call API Skill
+The Call API skill helps the users to call an API within their flow quickly.
+
+![From Flow Editor](../assets/call-api-skill-flow.png)
+
+#### Request Options
+
+##### Body
+You can set the request body as shown below:
+
+![Main View](../assets/call-api-skill.png)
+
+##### Headers
+The request headers can be set here and should respect the JSON format.
+
+![Headers](../assets/call-api-skill-headers.png)
+
+#### Response
+
+##### Memory
+To save the response, we use [Memory](../main/memory). By default, your chatbot will save the response in `temp.response`, but you can use the memory of your choice.
+![Memory](../assets/call-api-skill-memory.png)
+
+The saved response object should look like this:
+
+```json
+{
+  "body": <Response Body>,
+  "status": 200
+}
+```
+
+##### Success / Failure
+When a response returns a status code `400` and above, the request will fail and execute the `On failure` transition. All other status codes will result in success and will execute the `On success` transition.
+
+#### Templating
+Templating in the `body` and the `headers` to access your variables stored in [Memory](../main/memory). All `bot`, `user`, `session`, `temp`, `event` are accessible via templating.
+![Template](../assets/call-api-skill-template.png)
