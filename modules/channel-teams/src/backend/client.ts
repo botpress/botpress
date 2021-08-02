@@ -166,9 +166,14 @@ If you have a restricted app, you may need to specify the tenantId also.`
 
     const convoId = await this.getLocalConvo(threadId, userId)
 
-    const type = activity.value?.renderer === 'choices' ? 'quick_reply' : 'text'
+    let payload
+    if (activity.value?.renderer === 'choices') {
+      payload = { type: 'quick_reply', text, payload: text }
+    } else {
+      payload = { type: 'text', text }
+    }
 
-    await this.bp.experimental.messages.forBot(this.botId).receive(convoId, { type, text }, { channel: 'teams' })
+    await this.bp.experimental.messages.forBot(this.botId).receive(convoId, payload, { channel: 'teams' })
   }
 
   private async getLocalConvo(threadId: string, userId: string): Promise<string> {
