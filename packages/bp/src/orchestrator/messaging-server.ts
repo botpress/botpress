@@ -63,9 +63,7 @@ export const startMessagingServer = async (opts: Partial<MessagingServerOptions>
     SKIP_LOAD_CONFIG: 'true',
     SPINNED: 'true',
     SPINNED_URL: `http://localhost:${opts.CORE_PORT}/api/v1/chat/receive`,
-    NO_LAZY_LOADING: 'true',
-    // Temporary to make media urls work
-    BOT_URL: opts.EXTERNAL_URL
+    NO_LAZY_LOADING: 'true'
   }
 
   if (!process.core_env.DEV_MESSAGING_PATH) {
