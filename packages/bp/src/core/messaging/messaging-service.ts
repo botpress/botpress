@@ -114,6 +114,10 @@ export class MessagingService {
 
   private convertToAbsoluteUrls(payload: any) {
     if (typeof payload !== 'object' || payload === null) {
+      if (typeof payload === 'string') {
+        payload = payload.replace('BOT_URL', process.EXTERNAL_URL)
+      }
+
       if (isBpUrl(payload)) {
         return formatUrl(process.EXTERNAL_URL, payload)
       }
