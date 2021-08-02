@@ -84,7 +84,7 @@ You can use that metadata in your flows to create transitions when a specific in
 
 ##### Example
 
-![Flow NLU Transition](assets/flow-nlu-transition.jpg)
+![Flow NLU Transition](../assets/flow-nlu-transition.jpg)
 
 ### Confidence and debugging
 
@@ -255,7 +255,7 @@ List extraction will behave in a similar way. The major addition is that for you
 
 Let's take **Airport Codes** as an example:
 
-![create slot](assets/nlu-list-entity.png)
+![create slot](../assets/nlu-list-entity.png)
 
 Extraction will go like:
 
@@ -312,7 +312,7 @@ Botpress Native NLU will tag each _words_ (tokens) of user input. If it's correc
 
 To define a slot for a particular intent, head to the **Intent section** of the Understanding Module in your Botpress Studio side bar. From there select the intent you want to add slots to, then you'll be able to define your slots. Go ahead and click on **create a slot**
 
-![create slot](assets/nlu-create-slot.png)
+![create slot](../assets/nlu-create-slot.png)
 
 Let's use a `find_flight` intent. In order to book a flight, we'll define 2 slots: `airport_from` and `airport_to` both associated with the `Airport Codes` custom list entity. Once that is done, we need to identify every airport slots.
 
