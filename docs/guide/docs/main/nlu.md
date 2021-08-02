@@ -316,7 +316,7 @@ To define a slot for a particular intent, head to the **Intent section** of the 
 
 Let's use a `find_flight` intent. In order to book a flight, we'll define 2 slots: `airport_from` and `airport_to` both associated with the `Airport Codes` custom list entity. Once that is done, we need to identify every airport slots.
 
-![Tag Slots](assets/nlu-tag-slot.png)
+![Tag Slots](../assets/nlu-tag-slot.png)
 
 #### Example
 
