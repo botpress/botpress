@@ -8,14 +8,15 @@ import {
   PopoverInteractionKind,
   Position
 } from '@blueprintjs/core'
-import { WorkspaceUserWithAttributes } from 'botpress/sdk'
 import { AxiosInstance } from 'axios'
-import { confirmDialog } from 'botpress/shared'
+import { WorkspaceUserWithAttributes } from 'botpress/sdk'
+import { confirmDialog, toast } from 'botpress/shared'
 import React, { FC } from 'react'
 
 interface Props {
   agent: WorkspaceUserWithAttributes
   onPasswordReset: (email, newPassword) => void
+  onAgentRemoved: () => void
   bp: { axios: AxiosInstance; events: any }
 }
 
@@ -23,11 +24,35 @@ const AgentActions: FC<Props> = props => {
   const { agent, bp } = props
 
   const resetPassword = async () => {
-    const { data } = await bp.axios.post(`/mod/hitlnext/agent/${agent.email}/reset`)
-    props.onPasswordReset(agent.email, data.payload.tempPassword)
+    if (
+      !(await confirmDialog(`Are you sure you want to reset the password for agent ${agent.email}`, {
+        acceptLabel: 'Reset'
+      }))
+    ) {
+      return
+    }
+    try {
+      const { data } = await bp.axios.post(`/mod/hitlnext/agent/${agent.email}/reset`)
+      props.onPasswordReset(agent.email, data.payload.tempPassword)
+    } catch (error) {
+      toast.failure(`Could not reset password for agent ${agent.email}`)
+    }
   }
   const remove = async () => {
-    await bp.axios.post(`/mod/hitlnext/agent/${agent.email}/delete`)
+    if (
+      !(await confirmDialog(`Are you sure you want to remove agent ${agent.email}`, {
+        acceptLabel: 'Remove'
+      }))
+    ) {
+      return
+    }
+    try {
+      await bp.axios.post(`/mod/hitlnext/agent/${agent.email}/delete`)
+      toast.success(`Agent ${agent.email} was sucessfully deleted`)
+      props.onAgentRemoved()
+    } catch (error) {
+      toast.failure(`Could not delete agent ${agent.email}`)
+    }
   }
 
   return (

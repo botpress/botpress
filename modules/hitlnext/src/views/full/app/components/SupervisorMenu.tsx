@@ -51,6 +51,10 @@ const SupervisorMenu: FC<Props> = ({ bp, agents, disabled }) => {
     setInfoModalOpen(true)
     setManageAgentsModalOpen(false)
   }
+  const onAgentRemoved = () => {
+    setMessageId('agentRemoved')
+    setManageAgentsModalOpen(false)
+  }
 
   return (
     <div className={style.agentBtnWrapper} hidden={disabled}>
@@ -66,6 +70,7 @@ const SupervisorMenu: FC<Props> = ({ bp, agents, disabled }) => {
         isOpen={manageAgentsModalOpen}
         toggleOpen={() => setManageAgentsModalOpen(!manageAgentsModalOpen)}
         onPasswordReset={onPasswordReset}
+        onAgentRemoved={onAgentRemoved}
       />
       <InfoModal
         isOpen={infoModalOpen}

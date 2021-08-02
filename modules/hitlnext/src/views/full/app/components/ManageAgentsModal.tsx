@@ -14,6 +14,7 @@ interface Props {
   isOpen?: boolean
   toggleOpen?: () => void
   onPasswordReset: (email, password) => void
+  onAgentRemoved: () => void
 }
 
 class ManageAgentsModal extends Component<Props> {
@@ -29,7 +30,12 @@ class ManageAgentsModal extends Component<Props> {
           <FormGroup label="List of agents">
             <div>
               {this.props.filteredAgents.map(agent => (
-                <Agent agent={agent} onPasswordReset={this.props.onPasswordReset} bp={this.props.bp} />
+                <Agent
+                  agent={agent}
+                  onPasswordReset={this.props.onPasswordReset}
+                  onAgentRemoved={this.props.onAgentRemoved}
+                  bp={this.props.bp}
+                />
               ))}
             </div>
           </FormGroup>
