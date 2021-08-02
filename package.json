@@ -1,6 +1,6 @@
 {
   "name": "bp_main",
-  "version": "12.23.0",
+  "version": "12.23.1",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": "^12"
@@ -14,7 +14,7 @@
     "version": "0.1.2"
   },
   "studio": {
-    "version": "0.0.23"
+    "version": "0.0.24"
   },
   "scripts": {
     "postinstall": "yarn cmd postinstall",
@@ -84,6 +84,7 @@
     "@types/node": "^10.10.3",
     "@types/numeric": "^1.2.1",
     "@types/passport": "^1.0.0",
+    "@types/proper-lockfile": "^4.1.2",
     "@types/puppeteer": "^2.0.0",
     "@types/redis": "^2.8.10",
     "@types/redlock": "^4.0.0",

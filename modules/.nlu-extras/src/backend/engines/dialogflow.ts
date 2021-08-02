@@ -72,14 +72,14 @@ export const createZip = async (dataset: Dataset, config: DialogflowConfig): Pro
         contexts: intent.contexts,
         slots: intent.slots.map(x => ({
           name: x.name,
-          type: '@sys.any' // TODO
+          type: findSlotType(x.name, intent.slots, config)
         }))
       })
     )
 
     const langs = Object.keys(intent.utterances).filter(lang => intent.utterances[lang].length)
     for (const lang of langs) {
-      const content = Files['intents/<name>_usersays_<lang>.json'](intent.utterances[lang])
+      const content = Files['intents/<name>_usersays_<lang>.json'](intent.utterances[lang], intent.slots, config)
       intents.file(`${intent.name}_usersays_${lang}.json`, content)
     }
   })
@@ -163,6 +163,24 @@ const toJson = obj =>
   JSON.stringify(obj, undefined, 2).replace(/[\u007F-\uFFFF]/g, function(chr) {
     return '\\u' + ('0000' + chr.charCodeAt(0).toString(16)).substr(-4)
   })
+
+const findSlotType = (slotName: string, slots: object[], config: DialogflowConfig) => {
+  const slot = slots.find(slot => slot['name'] === slotName)
+
+  if (slot === undefined) {
+    return '@sys.any'
+  }
+
+  if (slot['entities'][0] === undefined) {
+    return '@sys.any'
+  }
+
+  if (config.systemEntities[slot['entities'][0]] === undefined) {
+    return '@' + slot['entities'][0]
+  }
+
+  return config.systemEntities[slot['entities'][0]]
+}
 
 const Files = {
   'package.json': () =>
@@ -262,6 +280,7 @@ const Files = {
             dataType: slot.type,
             name: slot.name,
             value: '$' + slot.name,
+            defaultValue: '',
             promptMessages: [],
             noMatchPromptMessages: [],
             noInputPromptMessages: [],
@@ -290,7 +309,7 @@ const Files = {
       conditionalFollowupEvents: []
     }),
 
-  'intents/<name>_usersays_<lang>.json': (utterances: string[]) =>
+  'intents/<name>_usersays_<lang>.json': (utterances: string[], slots: object[], config: DialogflowConfig) =>
     toJson(
       utterances
         .map(x => parseUtterance(x).parts)
@@ -302,7 +321,7 @@ const Files = {
             ...(part.slot
               ? {
                   alias: part.slot.name,
-                  meta: '@sys.any'
+                  meta: findSlotType(part.slot.name, slots, config)
                 }
               : {})
           })),
