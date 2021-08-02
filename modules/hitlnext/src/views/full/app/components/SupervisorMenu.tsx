@@ -1,14 +1,12 @@
+import { Button, Icon } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
 import { WorkspaceUserWithAttributes } from 'botpress/sdk'
-import { Button, Icon } from '@blueprintjs/core'
-import { lang, MoreOptions } from 'botpress/shared'
+import { MoreOptions } from 'botpress/shared'
 import React, { FC, useState } from 'react'
-import _, { Dictionary } from 'lodash'
-import { IAgent } from '../../../../types'
 import style from '../../style.scss'
 import CreateAgentModal from './CreateAgentModal'
-import ManageAgentsModal from './ManageAgentsModal'
 import InfoModal from './InfoModal'
+import ManageAgentsModal from './ManageAgentsModal'
 interface Props {
   bp: { axios: AxiosInstance; events: any }
   agents: WorkspaceUserWithAttributes[]
