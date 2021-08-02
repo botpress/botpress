@@ -30,8 +30,8 @@ jobs:
             VERSION+=(${{secrets.PRINCIPAL_BRANCH}})
           fi
           TAGS=("${VERSION[@]/#/${DOCKER_IMAGE}:}")
-          echo ::set-output name=version::${VERSION[@]}
           IFS=,
+          echo ::set-output name=version::${VERSION[*]}
           echo ::set-output name=tags::"${TAGS[*]}"
           echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
       - name: Setup Node.js
@@ -64,11 +64,12 @@ jobs:
             org.opencontainers.image.created=${{ steps.prep.outputs.created }}
             org.opencontainers.image.revision=${{ github.sha }}
       - name: Docker build and push
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v1
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
+          repository: botpress/botpress/server
           path: packages/bp/binaries
-          tags: ${{ steps.prep.outputs.tags }}
+          tags: ${{ steps.prep.outputs.version }}
           add_git_labels: true
