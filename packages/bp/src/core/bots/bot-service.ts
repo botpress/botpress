@@ -8,11 +8,9 @@ import { FileContent, GhostService, ReplaceContent } from 'core/bpfs'
 import { CMSService } from 'core/cms'
 import { ConfigProvider } from 'core/config'
 import { JobService, makeRedisKey } from 'core/distributed'
-import { PersistedConsoleLogger } from 'core/logger'
 import { MessagingService } from 'core/messaging'
 import { MigrationService } from 'core/migration'
 import { extractArchive } from 'core/misc/archive'
-import { IDisposable } from 'core/misc/disposable'
 import { listDir } from 'core/misc/list-dir'
 import { stringify } from 'core/misc/utils'
 import { ModuleResourceLoader, ModuleLoader } from 'core/modules'
@@ -33,6 +31,7 @@ import { studioActions } from 'orchestrator'
 import os from 'os'
 import path from 'path'
 import replace from 'replace-in-file'
+import semver from 'semver'
 import tmp from 'tmp'
 import { VError } from 'verror'
 
@@ -337,9 +336,8 @@ export class BotService {
 
   private async _migrateBotContent(botId: string): Promise<void> {
     const config = await this.configProvider.getBotConfig(botId)
-    const botpressConfig = await this.configProvider.getBotpressConfig()
 
-    const isDown = config.version > botpressConfig.version
+    const isDown = semver.gt(config.version, process.BOTPRESS_VERSION)
 
     return this.migrationService.botMigration.executeMissingBotMigrations(botId, config.version, isDown)
   }
