@@ -32,7 +32,7 @@
       "channels/converse",
       "channels/slack",
       "channels/smooch",
-      "channels/vonange"
+      "channels/vonange",
       "channels/faq"
     ],
     "Deployment And Infrastructure": [
