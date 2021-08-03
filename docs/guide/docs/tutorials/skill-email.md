@@ -63,6 +63,10 @@ smtps://example@gmail.com:superPassword@smtp.gmail.com
   }
 ```
 
-For more about the [transport object](https://nodemailer.com/smtp/)
+Find out more about the [transport object](https://nodemailer.com/smtp/)
 
 > Setting `"rejectUnauthorized": false` will prevent the Botpress server from rebooting every time an email fails to send. We recommend that you put in place a fall-back strategy if this happens using the `on failure` transition.
+
+:::caution
+If your email is protected with 2FA it might not work.
+:::
