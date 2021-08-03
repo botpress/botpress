@@ -132,9 +132,9 @@ export const setupMasterNode = (logger: sdk.Logger) => {
   // Fix an issue with pkg when passing custom options for v8
   cluster.setupMaster({ execArgv: process.pkg ? [] : process.execArgv })
 
-  registerActionServerMainHandler()
-  registerNluServerMainHandler(logger)
-  registerStudioMainHandler(logger)
+  // registerActionServerMainHandler()
+  // registerNluServerMainHandler(logger)
+  // registerStudioMainHandler(logger)
 
   registerMsgHandler(MessageType.RestartServer, (_message, worker) => {
     logger.warn('Restarting server...')
