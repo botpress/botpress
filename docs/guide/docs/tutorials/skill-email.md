@@ -20,6 +20,10 @@ It is worthy to note that Botpress supports templating in all fields of your ema
 
 To send an email using the email skill, you need to configure your chatbot with a transport connection string. Set the configuration string in the directory `...data/global/config/basic-skills.json`. For more information on the mail transporters available and how to configure them, please visit the [Nodemailer documentation](https://nodemailer.com/smtp/#examples)
 
+You can edit those variable in botpress from the code editor.
+
+![connection_string](../assets/tutorials/transportConnectionString.png)
+
 Here is an example of a configuration using a mail server:
 
 ```json
@@ -42,7 +46,7 @@ Here is an example of a configuration using a mail server:
 }
 ```
 
-The `transportConnectionString` could be a object of a string.
+The `transportConnectionString` could be a object or a string.
 
 **String**
 
@@ -63,10 +67,6 @@ smtps://example@gmail.com:superPassword@smtp.gmail.com
   }
 ```
 
-Find out more about the [transport object](https://nodemailer.com/smtp/)
-
 > Setting `"rejectUnauthorized": false` will prevent the Botpress server from rebooting every time an email fails to send. We recommend that you put in place a fall-back strategy if this happens using the `on failure` transition.
 
-:::caution
-If your email is protected with 2FA it might not work.
-:::
+> If your email is protected with 2FA it might not work.
