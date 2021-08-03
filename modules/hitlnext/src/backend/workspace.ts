@@ -8,6 +8,28 @@ const debug = DEBUG(MODULE_NAME)
 
 const ROLE_CONFIGURATION = [
   {
+    id: 'supervisor',
+    name: 'admin.workspace.roles.default.supervisor.name',
+    description: 'admin.workspace.roles.default.supervisor.description',
+    rules: [
+      {
+        res: '*',
+        op: '+r'
+      },
+      {
+        res: `module.${MODULE_NAME}`,
+        op: '+r+w'
+      },
+      { res: 'admin.collaborators.agent', op: '+r+w' },
+      { res: 'admin.logs.*', op: '-r' },
+      { res: 'admin.roles.*', op: '-r' },
+      { res: 'admin.bots.archive', op: '-r' },
+      { res: 'bot.flows', op: '-r' },
+      { res: 'bot.content', op: '-r' },
+      { res: 'studio.*', op: '-r' }
+    ]
+  },
+  {
     id: 'agent',
     name: 'admin.workspace.roles.default.agent.name',
     description: 'admin.workspace.roles.default.agent.description',
@@ -19,6 +41,10 @@ const ROLE_CONFIGURATION = [
       {
         res: `module.${MODULE_NAME}`,
         op: '+r+w'
+      },
+      {
+        res: `module.${MODULE_NAME}.supervisor`,
+        op: '-r-w'
       },
       { res: 'admin.collaborators.*', op: '-r' },
       { res: 'admin.logs.*', op: '-r' },

@@ -345,6 +345,10 @@
             "description": "Developers have full read/write access to bots, including flows, content, NLU and actions",
             "name": "Developer"
           },
+          "supervisor": {
+            "description": "Supervisors handle agents in HITLnext",
+            "name": "Supervisor"
+          },
           "agent": {
             "description": "Agents handle HITL",
             "name": "Agent"

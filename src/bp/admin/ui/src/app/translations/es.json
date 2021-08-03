@@ -344,6 +344,10 @@
             "description": "Los desarrolladores tienen acceso completo de lectura / escritura a los bots, incluidos flujos, contenido, NLU y acciones",
             "name": "Desarrollador"
           },
+          "supervisor": {
+            "description": "supervisores manejan agentes en HITLnext",
+            "name": "Supervisor"
+          },
           "agent": {
             "description": "Los agentes manejan HITL",
             "name": "Agente"
