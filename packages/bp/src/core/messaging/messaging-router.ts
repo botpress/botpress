@@ -21,6 +21,8 @@ export class MessagingRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res, next) => {
         if (!this.messaging.isExternal && req.headers.password !== this.messaging.internalPassword) {
           return next?.(new UnauthorizedError('Password is missing or invalid'))
+        } else if (this.messaging.isExternal && req.headers['x-webhook-token'] !== this.messaging.webhookToken) {
+          return next?.(new UnauthorizedError('Invalid webhook token'))
         }
 
         if (req.body?.type === 'health') {
