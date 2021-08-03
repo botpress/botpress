@@ -19,7 +19,6 @@ import { JobService } from 'core/distributed'
 import { AlertingService, MonitoringService } from 'core/health'
 import { LogsRepository } from 'core/logger'
 import { MediaServiceProvider, MediaRouter } from 'core/media'
-import { MessagingRouter, MessagingService } from 'core/messaging'
 import { ModuleLoader } from 'core/modules'
 import { getSocketTransports, RealtimeService } from 'core/realtime'
 import { InvalidExternalToken, PaymentRequiredError, monitoringMiddleware } from 'core/routers'
@@ -80,7 +79,6 @@ export class HTTPServer {
   private mediaRouter: MediaRouter
   private readonly sdkApiRouter!: SdkApiRouter
   private internalRouter: InternalRouter
-  private messagingRouter: MessagingRouter
   private _needPermissions: (
     operation: string,
     resource: string
@@ -122,7 +120,6 @@ export class HTTPServer {
     @inject(TYPES.NLUService) nluService: NLUService,
     @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository,
     @inject(TYPES.RealtimeService) private realtime: RealtimeService,
-    @inject(TYPES.MessagingService) private messagingService: MessagingService,
     @inject(TYPES.ObjectCache) private objectCache: MemoryObjectCache
   ) {
     this.app = express()
@@ -188,8 +185,6 @@ export class HTTPServer {
       this.realtime,
       this.objectCache
     )
-
-    this.messagingRouter = new MessagingRouter(this.logger, messagingService, this)
 
     this._needPermissions = needPermissions(this.workspaceService)
     this._hasPermissions = hasPermissions(this.workspaceService)
@@ -265,21 +260,6 @@ export class HTTPServer {
     await this.sdkApiRouter.initialize()
 
     process.USE_JWT_COOKIES = yn(botpressConfig.jwtToken.useCookieStorage)
-
-    // Messaging proxy
-    this.app.use(
-      `${BASE_API_PATH}/messaging`,
-      createProxyMiddleware({
-        pathRewrite: path => {
-          return path.replace(`${BASE_API_PATH}/messaging`, '')
-        },
-        router: () => {
-          return `http://localhost:${process.MESSAGING_PORT}`
-        },
-        changeOrigin: false,
-        logLevel: 'silent'
-      })
-    )
 
     /**
      * The loading of language models can take some time, access to Botpress is disabled until it is completed
@@ -363,12 +343,10 @@ export class HTTPServer {
     this.adminRouter.setupRoutes(this.app)
     await this.botsRouter.setupRoutes(this.app)
     this.internalRouter.setupRoutes()
-    this.messagingRouter.setupRoutes()
 
     this.app.use('/assets', this.guardWhiteLabel(), express.static(resolveAsset('')))
 
     this.app.use('/api/internal', this.internalRouter.router)
-    this.app.use(`${BASE_API_PATH}/chat`, this.messagingRouter.router)
 
     this.app.use(`${BASE_API_PATH}/sdk`, this.sdkApiRouter.router)
     this.app.use(`${BASE_API_PATH}/telemetry`, this.telemetryRouter.router)

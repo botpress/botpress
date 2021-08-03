@@ -15,7 +15,9 @@ import { EventEngine, EventRepository, Event } from 'core/events'
 import { KeyValueStore } from 'core/kvs'
 import { LoggerProvider } from 'core/logger'
 import * as logEnums from 'core/logger/enums'
+import { MappingRepository } from 'core/mapping/mapping-repository'
 import { MediaServiceProvider } from 'core/media'
+import { ConversationService, MessageService } from 'core/messaging'
 import { ModuleLoader } from 'core/modules'
 import { RealtimeService, RealTimePayload } from 'core/realtime'
 import { getMessageSignature } from 'core/security'
@@ -190,11 +192,30 @@ const distributed = (jobService: JobService): typeof sdk.distributed => {
   }
 }
 
-const experimental = (hookService: HookService, renderService: RenderService): typeof sdk.experimental => {
+const experimental = (
+  hookService: HookService,
+  conversationService: ConversationService,
+  messageService: MessageService,
+  renderService: RenderService
+): typeof sdk.experimental => {
   return {
     disableHook: hookService.disableHook.bind(hookService),
     enableHook: hookService.enableHook.bind(hookService),
+    conversations: conversations(conversationService),
+    messages: messages(messageService),
     render: render(renderService)
+  }
+}
+
+const conversations = (conversationService: ConversationService): typeof sdk.experimental.conversations => {
+  return {
+    forBot: conversationService.forBot.bind(conversationService)
+  }
+}
+
+const messages = (messageService: MessageService): typeof sdk.experimental.messages => {
+  return {
+    forBot: messageService.forBot.bind(messageService)
   }
 }
 
@@ -264,7 +285,10 @@ export class BotpressAPIProvider {
     @inject(TYPES.WorkspaceService) workspaceService: WorkspaceService,
     @inject(TYPES.JobService) jobService: JobService,
     @inject(TYPES.StateManager) stateManager: StateManager,
-    @inject(TYPES.RenderService) renderService: RenderService
+    @inject(TYPES.ConversationService) conversationService: ConversationService,
+    @inject(TYPES.MessageService) messageService: MessageService,
+    @inject(TYPES.RenderService) renderService: RenderService,
+    @inject(TYPES.MappingRepository) mappingRepo: MappingRepository
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
@@ -277,7 +301,7 @@ export class BotpressAPIProvider {
     this.bots = bots(botService)
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService, mediaServiceProvider)
-    this.experimental = experimental(hookService, renderService)
+    this.experimental = experimental(hookService, conversationService, messageService, renderService)
     this.security = security()
     this.workspaces = workspaces(workspaceService)
     this.distributed = distributed(jobService)

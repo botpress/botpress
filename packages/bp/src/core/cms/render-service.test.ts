@@ -9,12 +9,13 @@ describe('Content Renders', () => {
 
   test('Render text content', () => {
     const content = render.renderText('yoyo')
-    expect(content).toEqual({ markdown: undefined, type: 'text', text: 'yoyo' })
+    expect(content).toEqual({ __unrendered: true, markdown: undefined, type: 'text', text: 'yoyo' })
   })
 
   test('Render image content', () => {
     const content = render.renderImage('image.com/image.png', 'this is image')
     expect(content).toEqual({
+      __unrendered: true,
       type: 'image',
       image: 'image.com/image.png',
       title: 'this is image'
@@ -32,6 +33,7 @@ describe('Content Renders', () => {
     )
 
     expect(content).toEqual({
+      __unrendered: true,
       type: 'card',
       title: 'myCard',
       image: 'image.com/image.png',
@@ -59,7 +61,7 @@ describe('Content Renders', () => {
   test('Render text content with trash data', () => {
     const list = [1, 34, 353, 3]
     const content = render.renderText(<any>list)
-    expect(content).toEqual({ markdown: undefined, type: 'text', text: [1, 34, 353, 3] })
+    expect(content).toEqual({ __unrendered: true, markdown: undefined, type: 'text', text: [1, 34, 353, 3] })
   })
 
   test('Render carousel content', () => {
@@ -70,9 +72,11 @@ describe('Content Renders', () => {
     )
 
     expect(content).toEqual({
+      __unrendered: true,
       type: 'carousel',
       items: [
         {
+          __unrendered: true,
           type: 'card',
           title: 'card1',
           image: 'image.com/card1.png',
@@ -86,6 +90,7 @@ describe('Content Renders', () => {
           ]
         },
         {
+          __unrendered: true,
           type: 'card',
           title: 'card2',
           image: 'image.com/card2.png',
@@ -93,6 +98,7 @@ describe('Content Renders', () => {
           actions: []
         },
         {
+          __unrendered: true,
           type: 'card',
           title: 'card3',
           image: 'image.com/card3.png',
@@ -139,9 +145,9 @@ describe('Content Renders', () => {
     // but I don't want to officially allow it. Just do contents.map(x => bp.render.translate(x)) if you have many contents
     const translated = render.renderTranslated(<any>[content, content2, content3], 'fr')
     expect(translated).toEqual([
-      { markdown: undefined, type: 'text', text: 'salut' },
-      { markdown: undefined, type: 'text', text: 'salut2' },
-      { markdown: undefined, type: 'text', text: 'salut3' }
+      { __unrendered: true, markdown: undefined, type: 'text', text: 'salut' },
+      { __unrendered: true, markdown: undefined, type: 'text', text: 'salut2' },
+      { __unrendered: true, markdown: undefined, type: 'text', text: 'salut3' }
     ])
   })
 
@@ -159,9 +165,9 @@ describe('Content Renders', () => {
 
     const templated = render.renderTemplate(<any>[content, content2, content3], { user: { name: 'bob' } })
     expect(templated).toEqual([
-      { markdown: undefined, type: 'text', text: 'bob' },
-      { markdown: undefined, type: 'text', text: 'bob2' },
-      { markdown: undefined, type: 'text', text: 'bob3' }
+      { __unrendered: true, markdown: undefined, type: 'text', text: 'bob' },
+      { __unrendered: true, markdown: undefined, type: 'text', text: 'bob2' },
+      { __unrendered: true, markdown: undefined, type: 'text', text: 'bob3' }
     ])
   })
 
@@ -219,9 +225,11 @@ describe('Content Renders', () => {
     )
 
     expect(content).toEqual({
+      __unrendered: true,
       type: 'carousel',
       items: [
         {
+          __unrendered: true,
           type: 'card',
           title: { en: 'Card 1', fr: 'Carte 1' },
           image: 'image.com/card1.png',
@@ -229,6 +237,7 @@ describe('Content Renders', () => {
           actions: [{ action: 'Postback', title: 'myButton', payload: 'yo' }]
         },
         {
+          __unrendered: true,
           type: 'card',
           title: 'card2',
           image: 'image.com/card2.png',
@@ -236,6 +245,7 @@ describe('Content Renders', () => {
           actions: []
         },
         {
+          __unrendered: true,
           type: 'card',
           title: 'card3',
           image: 'image.com/card3.png',
@@ -253,9 +263,11 @@ describe('Content Renders', () => {
 
     const translated = render.renderTranslated(content, 'fr')
     expect(translated).toEqual({
+      __unrendered: true,
       type: 'carousel',
       items: [
         {
+          __unrendered: true,
           type: 'card',
           title: 'Carte 1',
           image: 'image.com/card1.png',
@@ -263,6 +275,7 @@ describe('Content Renders', () => {
           actions: [{ action: 'Postback', title: 'myButton', payload: 'yo' }]
         },
         {
+          __unrendered: true,
           type: 'card',
           title: 'card2',
           image: 'image.com/card2.png',
@@ -270,6 +283,7 @@ describe('Content Renders', () => {
           actions: []
         },
         {
+          __unrendered: true,
           type: 'card',
           title: 'card3',
           image: 'image.com/card3.png',
@@ -283,9 +297,11 @@ describe('Content Renders', () => {
 
     const templated = render.renderTemplate(translated, { state: { time: 223, user: 'bob' } })
     expect(templated).toEqual({
+      __unrendered: true,
       type: 'carousel',
       items: [
         {
+          __unrendered: true,
           type: 'card',
           title: 'Carte 1',
           image: 'image.com/card1.png',
@@ -293,6 +309,7 @@ describe('Content Renders', () => {
           actions: [{ action: 'Postback', title: 'myButton', payload: 'yo' }]
         },
         {
+          __unrendered: true,
           type: 'card',
           title: 'card2',
           image: 'image.com/card2.png',
@@ -300,6 +317,7 @@ describe('Content Renders', () => {
           actions: []
         },
         {
+          __unrendered: true,
           type: 'card',
           title: 'card3',
           image: 'image.com/card3.png',

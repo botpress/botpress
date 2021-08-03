@@ -3,7 +3,6 @@ import { container } from 'core/app/inversify/app.inversify'
 import { HTTPServer } from 'core/app/server'
 import { TYPES } from 'core/types'
 import { MessageType, onProcessExit, WorkerType, ProcType } from './master'
-import { killMessagingProcess } from './messaging-server'
 import { killNluProcess } from './nlu-server'
 import { initStudioClient, killStudioProcess } from './studio-client'
 
@@ -42,12 +41,6 @@ export const setupWebWorker = () => {
             APP_SECRET: process.APP_SECRET
           }
         })
-
-        // We also start the messaging server
-        process.send!({
-          type: MessageType.StartMessagingServer,
-          params: { EXTERNAL_URL: process.EXTERNAL_URL }
-        })
         break
       case 'studio':
         process.STUDIO_PORT = port
@@ -56,9 +49,6 @@ export const setupWebWorker = () => {
         await httpServer.setupStudioProxy()
 
         initStudioClient()
-        break
-      case 'messaging':
-        process.MESSAGING_PORT = port
         break
       case 'nlu':
         process.NLU_PORT = port
@@ -70,7 +60,6 @@ export const setupWebWorker = () => {
 export const onWebWorkerExit = (code, signal, logger, exitedAfterDisconnect) => {
   killNluProcess()
   killStudioProcess()
-  killMessagingProcess()
 
   onProcessExit({
     processType: 'web',
