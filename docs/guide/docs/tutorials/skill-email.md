@@ -46,7 +46,7 @@ Here is an example of a configuration using a mail server:
 }
 ```
 
-The `transportConnectionString` could be a object or a string.
+The `transportConnectionString` could be an object or a string.
 
 **String**
 
