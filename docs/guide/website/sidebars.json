@@ -5,7 +5,7 @@
     "Building A Chatbot": [
       "main/overview2",
       "main/content",
-      "main/dialog"
+      "main/dialog",
       "main/memory",
       "main/emulator",
       "main/qna-module",
