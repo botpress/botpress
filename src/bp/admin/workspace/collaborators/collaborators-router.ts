@@ -142,12 +142,12 @@ class CollaboratorsRouter extends CustomAdminRouter {
 
     router.post(
       '/:strategy/:email/delete',
-      assertSuperAdmin,
-      this.needPermissions('write', this.resource),
+      //assertSuperAdmin,
       this.asyncMiddleware(async (req, res) => {
         const { email, strategy } = req.params
 
-        this.needPermissions('write', `admin.collaborators.${req.body.role}`)(req, res, (err?: Error) => {
+        const user = await this.workspaceService.findUser(req.params.email, req.params.strategy, 'default')
+        this.needPermissions('write', `admin.collaborators.${user?.role}`)(req, res, (err?: Error) => {
           if (err) {
             res.sendStatus(403)
           }
@@ -166,10 +166,17 @@ class CollaboratorsRouter extends CustomAdminRouter {
 
     router.get(
       '/reset/:strategy/:email',
-      assertSuperAdmin,
-      this.needPermissions('write', this.resource),
+      //assertSuperAdmin,
+      //this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const { email, strategy } = req.params
+
+        const user = await this.workspaceService.findUser(req.params.email, req.params.strategy, 'default')
+        this.needPermissions('write', `admin.collaborators.${user?.role}`)(req, res, (err?: Error) => {
+          if (err) {
+            res.sendStatus(403)
+          }
+        })
 
         const tempPassword = await this.authService.resetPassword(email, strategy)
 
