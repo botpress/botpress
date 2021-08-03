@@ -1,4 +1,5 @@
 import { IO, MessagingConfig } from 'botpress/sdk'
+import { formatUrl, isBpUrl } from 'common/url'
 import { ConfigProvider } from 'core/config'
 import { EventEngine, Event } from 'core/events'
 import { TYPES } from 'core/types'
@@ -113,10 +114,39 @@ export class MessagingService {
       return next(undefined, false, true)
     }
 
-    // TODO: validate payload types here
-    const message = await this.clientsByBotId[event.botId].sendMessage(event.threadId!, event.channel, event.payload)
+    const payloadAbsoluteUrl = this.convertToAbsoluteUrls(event.payload)
+    const message = await this.clientsByBotId[event.botId].sendMessage(
+      event.threadId!,
+      event.channel,
+      payloadAbsoluteUrl
+    )
     event.messageId = message.id
 
     return next(undefined, true, false)
+  }
+
+  private convertToAbsoluteUrls(payload: any) {
+    if (typeof payload !== 'object' || payload === null) {
+      if (typeof payload === 'string') {
+        payload = payload.replace('BOT_URL', process.EXTERNAL_URL)
+      }
+
+      if (isBpUrl(payload)) {
+        return formatUrl(process.EXTERNAL_URL, payload)
+      }
+      return payload
+    }
+
+    for (const [key, value] of Object.entries(payload)) {
+      if (Array.isArray(value)) {
+        for (let i = 0; i < value.length; i++) {
+          value[i] = this.convertToAbsoluteUrls(value[i])
+        }
+      } else {
+        payload[key] = this.convertToAbsoluteUrls(value)
+      }
+    }
+
+    return payload
   }
 }
