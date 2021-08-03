@@ -62,6 +62,17 @@ export default async (bp: typeof sdk, state: StateType) => {
       })
     }
   }
+  // Get axiosconfig for supervisor
+  const getAxiosConfigForSupervisor = (token, workspace) => {
+    const axiosconfig = {
+      baseURL: `${process.EXTERNAL_URL}/api/v2/admin`,
+      headers: {
+        Authorization: token,
+        'X-BP-Workspace': workspace
+      }
+    }
+    return axiosconfig
+  }
 
   // This should be available for all modules
   // The only thing we would need is a jsdoc comment @private on configs
@@ -109,19 +120,14 @@ export default async (bp: typeof sdk, state: StateType) => {
   router.post(
     '/agent/create',
     errorMiddleware(async (req: RequestWithUser, res: Response) => {
-      const { botId } = req.params
       const { email } = req.body
 
-      const axioxconfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
-      //TODO generate good axiosconfig
-      axioxconfig.headers['X-BP-Workspace'] = 'default'
-      axioxconfig.baseURL = 'http://localhost:3000/api/v2/admin'
-      axioxconfig.headers['Authorization'] = req.headers.authorization
+      const axiosconfig = getAxiosConfigForSupervisor(req.headers.authorization, req.headers['x-bp-workspace'])
 
       const { data } = await Axios.post(
         '/workspace/collaborators/',
         { email, role: 'agent', strategy: 'default' },
-        axioxconfig
+        axiosconfig
       )
 
       res.status(201).send(data)
@@ -130,15 +136,11 @@ export default async (bp: typeof sdk, state: StateType) => {
   router.post(
     '/agent/:email/delete',
     errorMiddleware(async (req: RequestWithUser, res: Response) => {
-      const { botId, email } = req.params
+      const { email } = req.params
 
-      const axioxconfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
-      //TODO generate good axiosconfig
-      axioxconfig.headers['X-BP-Workspace'] = 'default'
-      axioxconfig.baseURL = 'http://localhost:3000/api/v2/admin'
-      axioxconfig.headers['Authorization'] = req.headers.authorization
+      const axiosconfig = getAxiosConfigForSupervisor(req.headers.authorization, req.headers['x-bp-workspace'])
 
-      const { data } = await Axios.post(`/workspace/collaborators/default/${email}/delete`, {}, axioxconfig)
+      const { data } = await Axios.post(`/workspace/collaborators/default/${email}/delete`, {}, axiosconfig)
 
       res.status(201).send(data)
     })
@@ -146,15 +148,11 @@ export default async (bp: typeof sdk, state: StateType) => {
   router.post(
     '/agent/:email/reset',
     errorMiddleware(async (req: RequestWithUser, res: Response) => {
-      const { botId, email } = req.params
+      const { email } = req.params
 
-      const axioxconfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
-      //TODO generate good axiosconfig
-      axioxconfig.headers['X-BP-Workspace'] = 'default'
-      axioxconfig.baseURL = 'http://localhost:3000/api/v2/admin'
-      axioxconfig.headers['Authorization'] = req.headers.authorization
+      const axiosconfig = getAxiosConfigForSupervisor(req.headers.authorization, req.headers['x-bp-workspace'])
 
-      const { data } = await Axios.get(`/workspace/collaborators/reset/default/${email}`, axioxconfig)
+      const { data } = await Axios.get(`/workspace/collaborators/reset/default/${email}`, axiosconfig)
 
       res.status(201).send(data)
     })
