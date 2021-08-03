@@ -147,7 +147,7 @@ export class WorkspaceService {
 
     const newWorkspace = {
       ...defaultWorkspace,
-      ..._.pick(workspace, ['id', 'name', 'description', 'audience']),
+      ..._.pick(workspace, ['id', 'name', 'description', 'audience', 'roles']),
       pipeline: defaultPipelines[workspace.pipelineId]
     }
 
