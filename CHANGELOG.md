@@ -8,10 +8,6 @@
 * nlu regression testing ([0916cf8](https://github.com/botpress/botpress/commit/0916cf8))
 
 
-### Features
-
-
-
 
 ## [12.23.1](https://github.com/botpress/botpress/compare/v12.23.0...v12.23.1) (2021-07-29)
 
