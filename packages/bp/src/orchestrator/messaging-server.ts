@@ -64,7 +64,7 @@ export const startMessagingServer = async (opts: Partial<MessagingServerOptions>
     SPINNED: 'true',
     SPINNED_URL: `http://localhost:${opts.CORE_PORT}/api/v1/chat/receive`,
     NO_LAZY_LOADING: 'true',
-    // Temporary to make media urls work
+    // We need this to verify legacy webhooks for twilio
     BOT_URL: opts.EXTERNAL_URL
   }
 

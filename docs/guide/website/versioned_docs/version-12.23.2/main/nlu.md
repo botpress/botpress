@@ -1,6 +1,7 @@
 ---
-id: nlu
+id: version-12.23.2-nlu
 title: NLU
+original_id: nlu
 ---
 
 ## How it works
