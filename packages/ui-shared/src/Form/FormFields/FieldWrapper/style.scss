@@ -1,0 +1,19 @@
+.label {
+  color: var(--shark);
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: var(--spacing-large) 0 var(--spacing-small);
+}
+
+.errorMessage {
+  color: var(--lighthouse) !important;
+  font-size: 12px;
+  padding-top: 2px;
+  border-top: 1px solid var(--lighthouse);
+}
+
+.labelError {
+  border-bottom: 1px solid var(--lighthouse);
+}

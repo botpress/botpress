@@ -1,0 +1,54 @@
+.botpressTooltip {
+  position: relative;
+}
+
+/*== common styles for both parts of tool tip ==*/
+.botpressTooltip::before,
+.botpressTooltip::after {
+  left: 50%;
+  opacity: 0;
+  position: absolute;
+  transform: translate(-50%, 0);
+  transition: opacity .3s, visibility .3s;
+  visibility: hidden;
+  z-index: 99999;
+}
+
+.botpressTooltip:hover::before,
+.botpressTooltip:focus::before,
+.botpressTooltip:hover::after,
+.botpressTooltip:focus::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/*== pointer tip ==*/
+.botpressTooltip::before {
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid #3E474F;
+  bottom: 100%;
+  content: "";
+  height: 0;
+  width: 0;
+}
+
+/*== speech bubble ==*/
+.botpressTooltip::after {
+  background: #3E474F;
+  border-radius: 3px;
+  bottom: 100%;
+  color: #EDEFF0;
+  content: attr(data-tooltip);
+  margin-bottom: 10px;
+  padding: 10px 20px;
+  width: auto;
+}
+
+@media (max-width: 760px) {
+  .botpressTooltip::after {
+    font-size: .75em;
+    margin-left: -5em;
+    width: 10em;
+  }
+}

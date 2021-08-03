@@ -1,0 +1,106 @@
+.tooltip {
+  position: fixed;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: normal;
+  line-height: 1.25;
+  text-align: left;
+  text-shadow: none;
+  text-transform: none;
+  white-space: normal;
+  word-break: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  font-size: 12px;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 99999999;
+  transition: opacity 0.3s, visibility 0.3s;
+
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  &.hidden {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  &:global {
+    &.right:not(.top):not(.bottom) {
+      margin-left: 5px;
+
+      .tooltipArrow {
+        top: 50%;
+        left: auto;
+        margin-left: -5px;
+        border-width: 5px 5px 5px 0;
+        border-right-color: var(--reef);
+      }
+    }
+
+    &.left:not(.top):not(.bottom) {
+      margin-left: -5px;
+
+      .tooltipArrow {
+        top: 50%;
+        margin-top: -5px;
+        border-width: 5px 0 5px 5px;
+        border-left-color: var(--reef);
+        right: -5px;
+        left: auto;
+      }
+    }
+
+    &.top {
+      margin-top: -5px;
+
+      .tooltipArrow {
+        top: auto;
+        bottom: -5px;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px 5px 0;
+        border-top-color: var(--reef);
+      }
+    }
+
+    &.bottom {
+      margin-top: 5px;
+
+      .tooltipArrow {
+        top: 0;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 0 5px 5px;
+        border-bottom-color: var(--reef);
+      }
+    }
+  }
+  :global {
+    .tooltipArrow {
+      top: 50%;
+      left: 0;
+      margin-top: -5px;
+      border-width: 5px 5px 5px 0;
+      border-right-color: var(--reef);
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-color: transparent;
+      border-right-color: transparent;
+      border-style: solid;
+    }
+
+    .tooltipInner {
+      background: var(--reef);
+      border-radius: 3px;
+      color: #fff;
+      max-width: 400px;
+      padding: 5px 8px !important;
+      text-align: center;
+      white-space: nowrap;
+    }
+  }
+}

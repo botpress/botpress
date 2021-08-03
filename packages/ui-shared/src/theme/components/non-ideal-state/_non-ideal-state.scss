@@ -1,0 +1,43 @@
+// Copyright 2016 Palantir Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0.
+
+@import "../../common/variables";
+@import "../../common/mixins";
+
+/*
+Non-ideal state
+
+Markup:
+<div class="#{$ns}-non-ideal-state">
+  <div class="#{$ns}-non-ideal-state-visual">
+    <span class="#{$ns}-icon #{$ns}-icon-folder-open"></span>
+  </div>
+  <h4 class="#{$ns}-heading">This folder is empty</h4>
+  <div>Create a new file to populate the folder.</div>
+  <button class="#{$ns}-button #{$ns}-intent-primary">Create</button>
+</div>
+
+Styleguide non-ideal-state
+*/
+
+.#{$ns}-non-ideal-state {
+  @include pt-flex-container(column, $pt-grid-size * 2);
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+
+  > * {
+    max-width: $pt-grid-size * 40;
+  }
+}
+
+.#{$ns}-non-ideal-state-visual {
+  color: $pt-icon-color-disabled;
+  font-size: $pt-icon-size-large * 3;
+
+  .#{$ns}-dark & {
+    color: $pt-dark-icon-color-disabled;
+  }
+}

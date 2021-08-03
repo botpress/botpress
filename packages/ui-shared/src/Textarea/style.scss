@@ -1,0 +1,8 @@
+.textarea {
+  overflow: hidden;
+  overflow-wrap: break-word;
+
+  &:global(.has-error) {
+    border-color: var(--lighthouse) !important;
+  }
+}

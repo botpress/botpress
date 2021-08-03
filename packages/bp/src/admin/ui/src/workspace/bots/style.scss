@@ -1,0 +1,182 @@
+@import '../../app/common/table.scss';
+
+.bot_views {
+  .actions {
+    float: right;
+
+    .more {
+      margin-left: 5px;
+      cursor: pointer;
+      color: #555;
+
+      &:hover {
+        color: #000;
+      }
+    }
+  }
+
+  .title {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+
+    .bot_name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+.compact_view {
+  .botbadge {
+    margin-left: 10px;
+    font-size: 65%;
+  }
+
+  .actions button {
+    margin-right: 10px;
+  }
+}
+
+.row {
+  display: flex;
+}
+
+.pipeline_view {
+  .createbot_btn {
+    display: flex;
+    margin: auto;
+    align-items: center;
+  }
+
+  .pipeline_title {
+    background-color: #f7f7f7;
+    line-height: 2.5;
+    margin-bottom: 15px;
+    padding: 15px 0;
+    position: relative;
+    text-align: center;
+
+    h3 {
+      margin: 0;
+    }
+  }
+
+  .pipeline_edit_button {
+    background: none;
+    border: none;
+    box-shadow: none;
+    line-height: 0;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    right: 5px;
+    text-align: center;
+    top: 5px;
+    transition: all 0.3s;
+
+    &:focus,
+    &:active {
+      outline: none;
+    }
+  }
+
+  .pipeline_bot {
+    border: solid 1px #e1e4e8;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+
+    &:hover {
+      border-color: #ced2d6;
+    }
+
+    &.create {
+      text-align: center;
+      border-style: dashed;
+      padding: 20px;
+    }
+
+    .botbadge {
+      font-size: 12px;
+      line-height: 2;
+      margin-right: 5px;
+      padding: 0 6px;
+
+      &.reviewNeeded {
+        font-weight: 400;
+        margin: 0 0 0 5px;
+      }
+    }
+
+    .bottomRow {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .stage_approval_btns {
+      line-height: 0;
+      margin-left: auto;
+      text-align: right;
+
+      button {
+        font-size: 12px;
+
+        & + button {
+          margin-left: 5px;
+        }
+      }
+    }
+  }
+}
+
+.filterWrapper {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.filterField {
+  flex-grow: 1;
+  flex-shrink: 0;
+
+  & + button {
+    margin-left: 10px;
+  }
+}
+
+.extraFilters {
+  border: 1px solid #e1e4e8;
+  border-radius: 3px;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+
+  h2 {
+    font-size: 18px;
+    margin: 0 0 10px;
+  }
+
+  label {
+    margin: 0;
+  }
+}
+
+.filterCallout {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.link {
+  color: var(--blue) !important;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.customIcon {
+  width: 28px;
+  height: 18px;
+  padding-right: 10px;
+}

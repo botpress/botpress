@@ -1,0 +1,31 @@
+.wRightSidebar {
+  padding-right: calc(var(--spacing-x-large) + var(--right-sidebar-width)) !important;
+}
+
+:global(.emulator-open) {
+  &.wRightSidebar {
+    padding-right: calc(var(--spacing-x-large) + var(--right-sidebar-width) + var(--emulator-width)) !important;
+  }
+}
+
+:global(.layout-emulator-open) {
+  .rightSidebar {
+    right: calc(var(--emulator-width));
+    border-right: 1px solid var(--seashell);
+  }
+}
+
+.rightSidebar {
+  width: var(--right-sidebar-width);
+  position: fixed;
+  right: 0;
+  top: 50px;
+  bottom: 28px;
+  overflow: auto;
+  transform: translateX(100%);
+  z-index: 10;
+
+  &.show {
+    transform: translateX(0);
+  }
+}

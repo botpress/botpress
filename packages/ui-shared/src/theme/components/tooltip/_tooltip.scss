@@ -1,0 +1,61 @@
+// Copyright 2015 Palantir Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0.
+
+@import "../../common/variables";
+@import "../popover/common";
+@import "./common";
+
+.#{$ns}-tooltip {
+  @include popover-sizing(
+    $arrow-square-size: 22px,
+    $arrow-offset: 3px,
+    $arrow-target-offset: -4px
+  );
+  @include popover-appearance(
+    $tooltip-background-color,
+    $tooltip-text-color,
+    $pt-tooltip-box-shadow,
+    $pt-drop-shadow-opacity,
+    $pt-border-shadow-opacity
+  );
+  // lightweight scale for tooltips
+  @include react-transition(
+    "#{$ns}-popover",
+    (transform: scale(0.8) scale(1)),
+    $duration: $pt-transition-duration,
+    $after: "> &"
+  );
+
+  .#{$ns}-popover-content {
+    padding: $tooltip-padding-vertical $tooltip-padding-horizontal;
+  }
+
+  &.#{$ns}-dark,
+  .#{$ns}-dark & {
+    @include popover-appearance(
+      $dark-tooltip-background-color,
+      $dark-tooltip-text-color,
+      $pt-dark-tooltip-box-shadow,
+      $pt-dark-drop-shadow-opacity,
+      $pt-dark-border-shadow-opacity
+    );
+  }
+
+  @each $intent, $color in $pt-intent-colors {
+    &.#{$ns}-intent-#{$intent} {
+      .#{$ns}-popover-content {
+        background: $color;
+        color: $white;
+      }
+
+      .#{$ns}-popover-arrow-fill {
+        fill: $color;
+      }
+    }
+  }
+}
+
+.#{$ns}-tooltip-indicator {
+  border-bottom: dotted 1px;
+  cursor: help;
+}

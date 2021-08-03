@@ -1,0 +1,94 @@
+.labelWrapper {
+  position: relative;
+
+  & + :global(.checkbox-wrapper) {
+    margin-top: 0 !important;
+  }
+
+  :global(.more-options-btn) {
+    height: 17px;
+    right: 0;
+  }
+}
+
+.borderTop {
+  margin-top: var(--spacing-large);
+  border-top: 1px solid var(--gray);
+}
+
+.addBtn {
+  color: var(--ocean) !important;
+  display: block !important;
+  font-size: 12px !important;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1.25;
+  margin-top: var(--spacing-large);
+  transition: background 0.3s;
+
+  svg {
+    fill: var(--ocean) !important;
+  }
+
+  &:hover {
+    color: var(--ocean) !important;
+    background: var(--hover-ocean) !important;
+  }
+}
+
+.groupLabel {
+  display: flex !important;
+  justify-content: flex-start !important;
+  margin: var(--spacing-x-large) 0 !important;
+  min-height: auto !important;
+  padding: 0 var(--spacing-xxx-large) 0 0 !important;
+  width: 100% !important;
+
+  :global(.bp3-button-text) {
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &:hover {
+    background: none !important;
+  }
+
+  svg {
+    fill: var(--shark) !important;
+  }
+}
+
+.label,
+.groupLabel {
+  color: var(--shark);
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: var(--spacing-large) 0 var(--spacing-small);
+}
+
+.fieldWrapperHeader {
+  display: flex;
+  justify-content: space-between;
+}
+
+.errorIcon {
+  line-height: 2;
+  svg {
+    fill: var(--lighthouse) !important;
+    height: 13px;
+  }
+}
+
+.deleteFile {
+  background: var(--hover-lighthouse-30) !important;
+  min-height: 30px !important;
+  min-width: 30px !important;
+
+  svg {
+    fill: var(--lighthouse) !important;
+  }
+}

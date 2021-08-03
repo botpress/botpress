@@ -1,0 +1,21 @@
+.icon {
+  position: absolute;
+  right: 0;
+  top: 15px;
+
+  svg {
+    height: 10px;
+  }
+}
+
+.error {
+  svg {
+    fill: var(--lighthouse) !important;
+  }
+}
+
+.success {
+  svg {
+    fill: var(--success) !important;
+  }
+}

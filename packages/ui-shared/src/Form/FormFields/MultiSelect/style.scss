@@ -1,0 +1,89 @@
+.multiSelect {
+  :global {
+    [class$='control'] {
+      border: none;
+      border-top: 1px solid var(--seashell) !important;
+      border-bottom: 1px solid var(--seashell) !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      color: var(--shark) !important;
+      background: #fff !important;
+      font-size: 16px !important;
+      font-weight: 400 !important;
+      justify-content: space-between !important;
+      height: 40px !important;
+      line-height: 1.25 !important;
+      width: 100% !important;
+
+      & > div:first-of-type {
+        margin-bottom: calc(var(--spacing-small) * -1);
+        padding: 0 !important;
+      }
+
+      & > div:not(:first-of-type) {
+        padding: 0 !important;
+        display: none;
+      }
+    }
+
+    [class$='indicatorSeparator'] {
+      display: none;
+    }
+
+    [class$='menu'] {
+      margin: 0;
+      border-radius: 3px;
+      background: #ffffff;
+      min-width: 180px;
+      padding: 5px;
+      list-style: none;
+      text-align: left;
+      color: var(--shark);
+
+      [class$='option'] {
+        color: var(--shark);
+        font-size: 12px;
+        line-height: 1.65;
+        border-radius: 5px;
+        min-height: 30px;
+        padding: var(--spacing-small) var(--spacing-medium);
+        display: flex;
+        align-items: center;
+        transition: background 0.3s;
+
+        &:hover {
+          background: var(--bg) !important;
+        }
+      }
+    }
+
+    [class$='multiValue'] {
+      margin: 0 var(--spacing-small) var(--spacing-small) 0 !important;
+      font-size: 10px !important;
+      line-height: 1.25 !important;
+      color: var(--shark) !important;
+      font-weight: normal !important;
+      border-radius: 3px !important;
+      background-color: var(--bg) !important;
+
+      & > div:last-of-type {
+        cursor: pointer;
+
+        svg {
+          fill: var(--shark) !important;
+          height: 10px;
+          width: 9px;
+          transition: fill 0.3s;
+        }
+
+        &:hover {
+          background: transparent !important;
+
+          svg {
+            fill: var(--reef) !important;
+          }
+        }
+      }
+    }
+  }
+}

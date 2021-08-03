@@ -1,0 +1,89 @@
+.deleteFile {
+  background: var(--hover-lighthouse-30) !important;
+  min-height: 30px !important;
+  min-width: 30px !important;
+
+  svg {
+    fill: var(--lighthouse) !important;
+  }
+}
+
+.imageWrapper {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-radius: 3px;
+  height: 100px;
+  overflow: hidden;
+  position: relative;
+  width: 100px;
+
+  &Actions {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+  }
+
+  &:before {
+    background-color: rgba(30, 30, 30, 0.5);
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+}
+
+.audioWrapper {
+  height: 100px;
+  position: relative;
+  width: 300px;
+
+  &Actions {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+  }
+
+  &Source {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+  }
+}
+
+.videoWrapper {
+  border-radius: 3px;
+  height: 200px;
+  position: relative;
+  width: 200px;
+
+  &Actions {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    z-index: 100;
+  }
+
+  &Source {
+    background-color: rgba(30, 30, 30, 0.5);
+  }
+}
+
+.fileWrapper {
+  position: relative;
+  height: 50px;
+
+  &Actions {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+  }
+
+  &File {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+  }
+}

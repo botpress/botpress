@@ -1,0 +1,37 @@
+.checkboxWrapper {
+  margin-top: var(--spacing-medium);
+  min-height: 16px;
+
+  &:first-of-type {
+    margin-top: 0;
+  }
+
+  :global {
+    .bp3-control input:checked ~ .bp3-control-indicator {
+      background: var(--ocean) !important;
+      box-shadow: none !important;
+      border: none !important;
+
+      &:before {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' clip-rule='evenodd' d='M12 5c-.28 0-.53.11-.71.29L7 9.59l-2.29-2.3a1.003 1.003 0 00-1.42 1.42l3 3c.18.18.43.29.71.29s.53-.11.71-.29l5-5A1.003 1.003 0 0012 5z' fill='white'/%3e%3c/svg%3e") !important;
+      }
+    }
+
+    .bp3-checkbox {
+      color: var(--shark);
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.25;
+      margin: 0;
+
+      .bp3-control-indicator {
+        box-shadow: none !important;
+        background: #fff !important;
+        border: 1px solid var(--seashell) !important;
+        font-size: 15px !important;
+        height: 15px !important;
+        width: 15px !important;
+      }
+    }
+  }
+}

@@ -1,0 +1,195 @@
+[
+  {
+    "id": "16y2ki6wm1_how_many_years_does_a_monkey_live",
+    "data": {
+      "answers": {
+        "en": ["The lifespan of a monkey is 10 to 50 years, depending on the species."]
+      },
+      "questions": {
+        "en": [
+          "How many years does a monkey live?",
+          "How long can monkeys live?",
+          "What is the life span of a monkey?",
+          "Typical Lifespan of the monkey",
+          "Do monkeys live long?",
+          "How old can a monkey get?",
+          "What length of life can we expect from monkeys?",
+          "When do monkeys die?",
+          "Typically how long can a monkey expect to live?",
+          "Life expectancy of the monkey"
+        ]
+      },
+      "redirectFlow": "",
+      "redirectNode": "",
+      "action": "text",
+      "category": "monkeys",
+      "enabled": true
+    }
+  },
+  {
+    "id": "31oi0r2lvp_where_do_giraffes_live",
+    "data": {
+      "answers": {
+        "en": ["Most giraffes live either in East Africa or in Angola and Zambia in southwestern Africa."]
+      },
+      "questions": {
+        "en": [
+          "Where can I find giraffes?",
+          "Where do they live?",
+          "Whats their natural habitat?",
+          "I am looking to find giraffes",
+          "Location of most giraffes",
+          "Tell me where giraffes live!",
+          "The giraffes are located where?",
+          "How can i find a wild giraffe?",
+          "Where the giraffes at?",
+          "Where to find giraffe"
+        ]
+      },
+      "redirectFlow": "",
+      "redirectNode": "",
+      "action": "text",
+      "category": "giraffes",
+      "enabled": true
+    }
+  },
+  {
+    "id": "77cp93c72f_lets_talk_about_something_else",
+    "data": {
+      "answers": {
+        "en": []
+      },
+      "questions": {
+        "en": [
+          "Lets talk about something else",
+          "Lets talk about another animal",
+          "I want to ask about another animal",
+          "I want to switch animal",
+          "Switch context",
+          "Let us address another subject",
+          "Can we change topic?",
+          "Please talk about anything else",
+          "Reset the animal",
+          "Talk about other mammals"
+        ]
+      },
+      "redirectFlow": "contexts.flow.json",
+      "redirectNode": "animal-choices",
+      "action": "redirect",
+      "category": "contexts",
+      "enabled": true
+    }
+  },
+  {
+    "id": "hxwve8olkg_help_me",
+    "data": {
+      "answers": {
+        "en": [
+          "To learn more about how to setup a Contextual FAQ, please refer to our [tutorial](https://botpress.com/docs/tutorials/contextual-faq)"
+        ]
+      },
+      "questions": {
+        "en": [
+          "help me",
+          "I need help",
+          "I don't know what to do",
+          "I'm stuck",
+          "What do I do",
+          "what can i do?",
+          "I don't understand, how this works!",
+          "Please, Help me!",
+          "How does this work?",
+          "help!!"
+        ]
+      },
+      "redirectFlow": "",
+      "redirectNode": "",
+      "action": "text",
+      "category": "contexts",
+      "enabled": true
+    }
+  },
+  {
+    "id": "pgedex03mc_where_do_monkeys_live",
+    "data": {
+      "answers": {
+        "en": [
+          "Most monkey species can be found in the tropical rain forests of Asia, Africa, Europe and Central and South America."
+        ]
+      },
+      "questions": {
+        "en": [
+          "Where do monkeys live?",
+          "Where can I find monkeys?",
+          "Whats their habitat?",
+          "What is the emplacement of monkeys?",
+          "Tell me about the whereabouts of monkeys?",
+          "I want to locate them.",
+          "Where are they?",
+          "tell me where they are",
+          "I want to find monkeys?",
+          "Natural habitat of the monkey"
+        ]
+      },
+      "redirectFlow": "",
+      "redirectNode": "",
+      "action": "text",
+      "category": "monkeys",
+      "enabled": true
+    }
+  },
+  {
+    "id": "wh0qeyfjzv_how_many_years_does_a_giraffe_live",
+    "data": {
+      "answers": {
+        "en": ["Healthy giraffes live about 25 years in the wild."]
+      },
+      "questions": {
+        "en": [
+          "How many years does a giraffe live?",
+          "How long can giraffes live?",
+          "What is the life span of a giraffe?",
+          "Length of giraffe life",
+          "Typical lifespan of a giraffe?",
+          "How old can a giraffe get?",
+          "When do giraffes typically die?",
+          "Life expectancy",
+          "Do giraffes live long?",
+          "Tell me about giraffe's lifespan!"
+        ]
+      },
+      "redirectFlow": "",
+      "redirectNode": "",
+      "action": "text",
+      "category": "giraffes",
+      "enabled": true
+    }
+  },
+  {
+    "id": "xr9uskkhv0_forget_my_name",
+    "data": {
+      "answers": {
+        "en": []
+      },
+      "questions": {
+        "en": [
+          "forget my name",
+          "don't remember me",
+          "erase my name",
+          "erase me",
+          "stop remembering me",
+          "forget me",
+          "Please forget my identity",
+          "Can you erase my name from your database?",
+          "May i ask you to forget who I am?",
+          "Clear your memory of my name"
+        ]
+      },
+      "redirectFlow": "memory.flow.json",
+      "redirectNode": "forget-my-name",
+      "action": "redirect",
+      "category": "memory",
+      "enabled": true
+    }
+  }
+]

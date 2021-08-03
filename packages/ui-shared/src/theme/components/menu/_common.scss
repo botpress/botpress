@@ -1,0 +1,172 @@
+// Copyright 2016 Palantir Technologies, Inc. All rights reserved.
+// Licensed under the Apache License, Version 2.0.
+
+$half-grid-size: $pt-grid-size / 2 !default;
+
+$menu-item-border-radius: $pt-border-radius - 1 !default;
+
+// Set line-height of menu items to be a multiple of the font size. This is
+// needed because if the line-height does not extend far enough past the font's
+// baseline, clipping will occur when the .#{$ns}-text-overflow-ellipsis class is
+// applied to it (#2177). Also, line-height should be an even value, or content
+// will be misaligned by one pixel (Chrome quirk).
+$menu-item-line-height-factor: 1.4;
+$menu-item-line-height: round($pt-font-size * $menu-item-line-height-factor);
+$menu-item-line-height-large: round($pt-font-size-large * $menu-item-line-height-factor);
+
+$menu-min-width: $pt-grid-size * 18 !default;
+$menu-item-padding: ($pt-button-height - $pt-icon-size-standard) / 2 !default;
+$menu-item-padding-large: ($pt-button-height-large - $pt-icon-size-large) / 2 !default;
+$menu-item-padding-vertical: ($pt-button-height - $menu-item-line-height) / 2 !default;
+$menu-item-padding-vertical-large:
+  ($pt-button-height-large - $menu-item-line-height-large) / 2 !default;
+
+$menu-background-color: $white !default;
+$dark-menu-background-color: $dark-gray4 !default;
+
+$menu-item-color-hover: $minimal-button-background-color-hover !default;
+$menu-item-color-active: $minimal-button-background-color-active !default;
+$dark-menu-item-color-hover: $dark-minimal-button-background-color-hover !default;
+$dark-menu-item-color-active: $dark-minimal-button-background-color-active !default;
+
+// customize modifier classes with params.
+// setting modifier to "" will generally apply it as default styles due to & selectors
+@mixin menu-item($disabled-selector: ".#{$ns}-disabled", $hover-selector: ":hover") {
+  @include pt-flex-container(row, $menu-item-padding);
+  align-items: flex-start;
+  border-radius: $menu-item-border-radius;
+  padding: $menu-item-padding-vertical $menu-item-padding;
+  text-decoration: none;
+  line-height: $menu-item-line-height;
+  color: inherit;
+  user-select: none;
+
+  > .#{$ns}-fill {
+    word-break: break-word;
+  }
+
+  &#{$hover-selector} {
+    background-color: $menu-item-color-hover;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  &#{$disabled-selector} {
+    background-color: inherit;
+    cursor: not-allowed;
+    color: $pt-text-color-disabled;
+  }
+
+  .#{$ns}-dark & {
+    @include dark-menu-item($disabled-selector, $hover-selector);
+  }
+}
+
+@mixin dark-menu-item($disabled-selector: ".#{$ns}-disabled", $hover-selector: ":hover") {
+  color: inherit;
+
+  &#{$hover-selector} {
+    background-color: $dark-menu-item-color-hover;
+    color: inherit;
+  }
+
+  &#{$disabled-selector} {
+    background-color: inherit;
+    color: $pt-dark-text-color-disabled;
+  }
+}
+
+@mixin menu-item-intent($text-colors: $pt-intent-text-colors) {
+  @each $intent, $color in $text-colors {
+    &.#{$ns}-intent-#{$intent} {
+      color: $color;
+
+      .#{$ns}-icon {
+        color: inherit;
+      }
+
+      &::before,
+      &::after,
+      .#{$ns}-menu-item-label {
+        color: $color;
+      }
+
+      &:hover,
+      &.#{$ns}-active {
+        background-color: nth(map-get($button-intents, $intent), 1);
+      }
+
+      &:active {
+        background-color: nth(map-get($button-intents, $intent), 2);
+      }
+
+      &:hover,
+      &:active,
+      &.#{$ns}-active {
+        &,
+        &::before,
+        &::after,
+        .#{$ns}-menu-item-label {
+          color: $white;
+        }
+      }
+    }
+  }
+}
+
+@mixin menu-item-large() {
+  padding: $menu-item-padding-vertical-large $menu-item-padding;
+  line-height: $menu-item-line-height-large;
+  font-size: $pt-font-size-large;
+}
+
+@mixin menu-divider() {
+  display: block;
+  margin: $half-grid-size;
+  border-top: 1px solid $pt-divider-black;
+
+  .#{$ns}-dark & {
+    border-top-color: $pt-dark-divider-white;
+  }
+}
+
+@mixin menu-header($heading-selector: null) {
+  @include menu-divider();
+  cursor: default;
+  padding-left: $menu-item-padding - $half-grid-size;
+
+  @if $heading-selector != null {
+    &:first-of-type {
+      border-top: none;
+    }
+
+    #{$heading-selector} {
+      @include menu-heading();
+    }
+
+    &:first-of-type #{$heading-selector} {
+      padding-top: 0;
+    }
+  }
+}
+
+@mixin menu-heading() {
+  @include heading-typography();
+  @include overflow-ellipsis();
+  margin: 0;
+  padding: $pt-grid-size $menu-item-padding 0 1px;
+  // a little extra space to avoid clipping descenders (because overflow hidden)
+  line-height: $pt-icon-size-standard + 1px;
+}
+
+@mixin menu-header-large($heading-selector) {
+  #{$heading-selector} {
+    padding-top: $pt-grid-size * 1.5;
+    padding-bottom: $pt-grid-size / 2;
+    font-size: $pt-grid-size * 1.8;
+  }
+
+  &:first-of-type #{$heading-selector} {
+    padding-top: 0;
+  }
+}
