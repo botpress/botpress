@@ -27,9 +27,9 @@ export const getMessagingBinaryPath = () => {
 let initialParams: Partial<MessagingServerOptions>
 
 export const registerMessagingServerMainHandler = (logger: sdk.Logger) => {
-  registerMsgHandler(MessageType.StartMessagingServer, async (message: any) => {
-    initialParams = message.params
-    await startMessagingServer(message.params, logger)
+  registerMsgHandler(MessageType.StartMessagingServer, async (message: Partial<MessagingServerOptions>) => {
+    initialParams = message
+    await startMessagingServer(message, logger)
   })
 }
 
@@ -37,6 +37,10 @@ let messagingServerProcess: ChildProcess | undefined
 
 export const killMessagingProcess = () => {
   messagingServerProcess?.kill('SIGKILL')
+}
+
+export const startLocalMessagingServer = (message: Partial<MessagingServerOptions>) => {
+  process.send!({ type: MessageType.StartMessagingServer, ...message })
 }
 
 export const startMessagingServer = async (opts: Partial<MessagingServerOptions>, logger: sdk.Logger) => {

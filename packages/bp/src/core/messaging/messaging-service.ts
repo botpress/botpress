@@ -31,7 +31,7 @@ export class MessagingService {
 
     await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
-    this.clientSync = new MessagingClient(`http://localhost:${process.MESSAGING_PORT}`, process.INTERNAL_PASSWORD)
+    this.clientSync = new MessagingClient(this.getMessagingUrl(), process.INTERNAL_PASSWORD)
   }
 
   async loadMessagingForBot(botId: string) {
@@ -61,7 +61,7 @@ export class MessagingService {
     }
 
     const botClient = new MessagingClient(
-      `http://localhost:${process.MESSAGING_PORT}`,
+      this.getMessagingUrl(),
       process.INTERNAL_PASSWORD,
       messaging.id,
       messaging.token
@@ -135,5 +135,11 @@ export class MessagingService {
     }
 
     return payload
+  }
+
+  public getMessagingUrl() {
+    return process.core_env.MESSAGING_ENDPOINT
+      ? process.core_env.MESSAGING_ENDPOINT
+      : `http://localhost:${process.MESSAGING_PORT}`
   }
 }
