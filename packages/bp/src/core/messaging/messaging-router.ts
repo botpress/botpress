@@ -23,6 +23,10 @@ export class MessagingRouter extends CustomRouter {
           return next?.(new UnauthorizedError('Password is missing or invalid'))
         }
 
+        if (req.body?.type === 'health') {
+          res.sendStatus(200)
+        }
+
         try {
           await joi.validate(req.body, ReceiveSchema)
         } catch (err) {
@@ -49,6 +53,7 @@ export class MessagingRouter extends CustomRouter {
 }
 
 interface ReceiveRequest {
+  type: string
   client: { id: string }
   channel: { id: string; name: string }
   user: { id: string }
@@ -57,6 +62,7 @@ interface ReceiveRequest {
 }
 
 const ReceiveSchema = {
+  type: joi.string().required(),
   client: joi.object({ id: joi.string().required() }),
   channel: joi.object({ id: joi.string().required(), name: joi.string().required() }),
   user: joi.object({ id: joi.string().required() }),
