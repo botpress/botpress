@@ -19,12 +19,12 @@ export class MessagingRouter extends CustomRouter {
     this.router.post(
       '/receive',
       this.asyncMiddleware(async (req, res, next) => {
-        if (req.headers.password !== process.INTERNAL_PASSWORD) {
+        if (!this.messaging.isExternal && req.headers.password !== this.messaging.internalPassword) {
           return next?.(new UnauthorizedError('Password is missing or invalid'))
         }
 
         if (req.body?.type === 'health') {
-          res.sendStatus(200)
+          return res.sendStatus(200)
         }
 
         try {
