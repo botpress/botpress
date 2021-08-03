@@ -1,3 +1,18 @@
+## [12.23.2](https://github.com/botpress/botpress/compare/v12.22.2...v12.23.2) (2021-08-03)
+
+
+### Bug Fixes
+
+* **core:** fix disk storage race condition ([#5162](https://github.com/botpress/botpress/issues/5162)) ([86102b3](https://github.com/botpress/botpress/commit/86102b3))
+* **teams:** fix receiving quick replies with teams ([#5230](https://github.com/botpress/botpress/issues/5230)) ([acb79a3](https://github.com/botpress/botpress/commit/acb79a3))
+* nlu regression testing ([0916cf8](https://github.com/botpress/botpress/commit/0916cf8))
+
+
+### Features
+
+
+
+
 ## [12.23.1](https://github.com/botpress/botpress/compare/v12.23.0...v12.23.1) (2021-07-29)
 
 
