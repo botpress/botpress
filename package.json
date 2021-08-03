@@ -17,7 +17,7 @@
     "version": "0.0.24"
   },
   "messaging": {
-    "version": "0.0.12"
+    "version": "0.0.16"
   },
   "scripts": {
     "start": "yarn workspace botpress start",
@@ -88,6 +88,7 @@
     "@types/redis": "^2.8.10",
     "@types/redlock": "^4.0.0",
     "@types/seedrandom": "^2.4.28",
+    "@types/semver": "^7.3.8",
     "@types/socket.io": "^2.1.2",
     "@types/socket.io-client": "^1.4.36",
     "@types/tar": "^4.0.4",

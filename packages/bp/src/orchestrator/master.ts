@@ -7,6 +7,7 @@ import yn from 'yn'
 
 import { setDebugScopes } from '../debug'
 import { registerActionServerMainHandler } from './action-server'
+import { registerMessagingServerMainHandler } from './messaging-server'
 import { registerNluServerMainHandler } from './nlu-server'
 import { registerStudioMainHandler } from './studio-client'
 import { spawnWebWorker, onWebWorkerExit } from './web-worker'
@@ -22,13 +23,14 @@ export enum MessageType {
   StartStudio = 'START_STUDIO',
   StartActionServer = 'START_ACTION_SERVER',
   StartNluServer = 'START_STAN_SERVER',
+  StartMessagingServer = 'START_MESSAGING_SERVER',
   RegisterProcess = 'REGISTER_PROCESS',
   BroadcastProcess = 'BROADCAST_PROCESS',
   RestartServer = 'RESTART_SERVER',
   UpdateDebugScopes = 'UPDATE_DEBUG_SCOPES'
 }
 
-export type ProcType = 'web' | 'nlu' | 'action-server' | 'studio'
+export type ProcType = 'web' | 'nlu' | 'action-server' | 'studio' | 'messaging'
 
 interface SubProcesses {
   [type: string]: {
@@ -135,6 +137,7 @@ export const setupMasterNode = (logger: sdk.Logger) => {
   // registerActionServerMainHandler()
   // registerNluServerMainHandler(logger)
   // registerStudioMainHandler(logger)
+  // registerMessagingServerMainHandler(logger)
 
   registerMsgHandler(MessageType.RestartServer, (_message, worker) => {
     logger.warn('Restarting server...')
