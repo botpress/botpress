@@ -32,7 +32,7 @@
       "channels/converse",
       "channels/slack",
       "channels/smooch",
-      "channels/twillio,
+      "channels/twillio",
       "channels/faq"
     ],
     "Deployment And Infrastructure": [
