@@ -1,6 +1,7 @@
 ---
-id: overview
+id: version-12.23.2-overview2
 title: Main Concepts
+original_id: overview2
 ---
 
 ## Chatbot Types
