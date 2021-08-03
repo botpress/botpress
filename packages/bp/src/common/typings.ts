@@ -1,6 +1,5 @@
 import { BotDetails, Flow, FlowNode, IO, RolloutStrategy, StageRequestApprovers, StrategyUser } from 'botpress/sdk'
 import { Request } from 'express'
-
 import { BotpressConfig } from '../core/config/botpress.config'
 import { LicenseInfo, LicenseStatus } from './licensing-service'
 
@@ -46,6 +45,7 @@ export interface Workspace {
 
 export type CreateWorkspace = Pick<Workspace, 'id' | 'name' | 'description' | 'audience'> & {
   pipelineId: string
+  roles?: AuthRole[]
 }
 
 export interface AuthRule {
