@@ -1,6 +1,6 @@
 ---
 id: twillio
-title: Twillio
+title: Twilio
 ---
 
 ## Prerequisites
@@ -16,7 +16,7 @@ title: Twillio
 
 ### Get your API credentials
 
-1. Go to you twilio console dashboard
+1. Go to your Twilio console dashboard
 2. Go to the settings tab
 3. Scroll down and copy your Account SID and Auth Token from the LIVE credentials section
 
