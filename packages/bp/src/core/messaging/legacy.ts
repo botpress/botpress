@@ -59,9 +59,7 @@ export class MessagingLegacy {
             this.warned[`${botId}-${channel}`] = true
           }
 
-          const newUrl = `http://localhost:${process.MESSAGING_PORT}/webhooks/${botId}/${channel}${
-            messagingRoute ? messagingRoute : ''
-          }`
+          const newUrl = `${this.getMessagingUrl()}/webhooks/${botId}/${channel}${messagingRoute ? messagingRoute : ''}`
           return newUrl
         },
         changeOrigin: false,
@@ -69,5 +67,11 @@ export class MessagingLegacy {
         logLevel: 'silent'
       })
     )
+  }
+
+  private getMessagingUrl() {
+    return process.core_env.MESSAGING_ENDPOINT
+      ? process.core_env.MESSAGING_ENDPOINT
+      : `http://localhost:${process.MESSAGING_PORT}`
   }
 }
