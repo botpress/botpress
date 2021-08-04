@@ -5,10 +5,15 @@ title: Telegram
 
 ## Requirements
 
-The process for connecting to Telegram is simple. Firstly, you need to create a bot on Telegram. Thereafter, you can generate and access an authorization token, which you will use to connect your Telegram bot to your Botpress chatbot.  
+- An HTTPS Endpoint to your chatbot
+
+  - Set the `externalUrl` field in botpress.config.json
+  - Create an HTTPS tunnel to your machine using Ngrok. [**Tutorial**](https://api.slack.com/tutorials/tunneling-with-ngrok)
+  - Using Nginx and Let's Encrypt. [**Tutorial**](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-16-04)
 
 ### Create a bot
-To create a bot on Telegram, use Telegram's BotFather.The BotFather will ask you for a name and username, then generate an authorization token for your new bot.
+
+To create a bot on Telegram, use Telegram's BotFather. The BotFather will ask you for a name and username, then generate an authorization token for your new bot.
 
 The name of your bot is displayed in contact details and elsewhere.
 
@@ -16,22 +21,34 @@ The Username is a short name to be used in mentions and t.me links. Usernames ar
 
 ## Setup
 
-### Generate an Authorisation Token
+### Generate an Authorization Token
+
 When you create a Telegram bot, Botfather will automatically generate a token. The token is a string that is required to authorize the bot and send requests to the Bot API. Keep your token secure and store it safely; anyone can use it to control your bot.
 
 If your existing token is compromised or you lost it for some reason, use the /token command to generate a new one.
 
 ## Configuration
 
-Create or edit the file `data/bots/<your_bot>/config/channel-telegram.json` and enter your Telegram bot token:
+1. Edit `data/bots/<YOUR_BOT_ID>/bot.config.json`. In the `messaging.channels.telegram` section write this configuration :
+
+- enabled: Set to `true`
+- botToken: Your bot token
+
+  Your `bot.config.json` should look like this :
 
 ```json
 {
-  "botToken": "<your_bot_token>",
-  "enabled": true
+  // ... other data
+  "messaging": {
+    "channels": {
+      "telegram": {
+        "enabled": true,
+        "botToken": "your_bot_token"
+      }
+      // ... other channels can also be configured here
+    }
+  }
 }
 ```
 
-2. Restart Botpress and talk to your Telegram bot.
-
-> **Tip**: Don't forget to set `enabled: true` in your config. Otherwise, the module will be disabled for your Botpress chatbot.
+2. Restart Botpress and talk to your Telegram bot. The webhook will be configured automatically to point to `<EXTERNAL_URL>/api/v1/messaging/webhooks/<YOUR_BOT_ID/telegram`
