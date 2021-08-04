@@ -1054,8 +1054,14 @@ body {
   direction: rtl;
 }
 
-.bpw-rtl .bpw-composer-inner textarea {
+.bpw-rtl .bpw-composer-inner {
+  flex-direction: row-reverse;
+}
+
+.bpw-rtl .bpw-composer textarea {
   direction: rtl;
+  padding: 0.75rem 1rem;
+  padding-left: 60px;
 }
 
 .bpw-rtl.bpw-botinfo-container .bpw-botinfo-terms {

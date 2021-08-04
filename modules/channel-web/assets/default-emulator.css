@@ -1191,8 +1191,26 @@
 .bpw-rtl .bpw-chat-bubble {
   direction: rtl;
 }
-.bpw-rtl .bpw-composer-inner textarea {
+.bpw-rtl .bpw-composer {
+  padding: var(--spacing-x-large) var(--spacing-large) var(--spacing-x-large) 50px;
+}
+
+.bpw-rtl .bpw-composer textarea {
   direction: rtl;
+}
+
+.bpw-rtl .bpw-send-button {
+  position: absolute;
+  left: -45px;
+  top: 50%;
+  transform: translate(0, -50%);
+  border: none;
+  border-radius: 5px;
+  background: #fff;
+  padding: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
 }
 
 .bpw-rtl.bpw-botinfo-container .bpw-botinfo-terms {
