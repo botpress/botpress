@@ -51,7 +51,9 @@ export class MessagingService {
     const setupConfig = {
       name: botId,
       ...messaging,
-      webhooks: [{ url: webhookUrl }]
+      // We use the SPINNED_URL env var to force the messaging server to make its webhook
+      // requests to the process that started it when using a local Messaging server
+      webhooks: this.isExternal ? [{ url: webhookUrl }] : []
     }
 
     const { id, token, webhooks } = await this.clientSync.syncClient(setupConfig)
