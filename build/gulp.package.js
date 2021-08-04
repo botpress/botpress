@@ -89,20 +89,10 @@ const makeTempPackage = () => {
   }
 }
 
-const fetchExternalBinaries = () => {
-  const binOut = path.resolve(__dirname, '../packages/bp/binaries')
-
-  systems.forEach(({ osName, platform }) =>
-    execAsync(`yarn bpd init --output ${path.resolve(binOut, osName)} --platform ${platform}`)
-  )
-}
-
 const packageAll = async () => {
   const tempPackage = makeTempPackage()
 
   try {
-    fetchExternalBinaries()
-
     await execAsync(`cross-env pkg --options max_old_space_size=16384 --output ../binaries/bp ./package.json`, {
       cwd: path.resolve(__dirname, '../packages/bp/dist')
     })
@@ -122,7 +112,6 @@ const packageApp = async () => {
   const binOut = path.resolve(__dirname, '../packages/bp/binaries')
 
   try {
-    await execAsync(`yarn bpd init --output ${binOut} --platform ${getTargetOSName().replace('windows', 'win32')}`)
     await execAsync(
       `cross-env pkg --targets ${getTargetOSNodeVersion()} --options max_old_space_size=16384 --output ../binaries/bp ./package.json`,
       {
