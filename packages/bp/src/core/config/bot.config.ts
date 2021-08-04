@@ -24,6 +24,13 @@ export interface BotConfig {
   locked: boolean
   pipeline_status: BotPipelineStatus
   oneflow?: boolean
+  cloud?: CloudConfig
+}
+
+export interface CloudConfig {
+  oauthUrl: string
+  clientId: string
+  clientSecret: string
 }
 
 export interface BotPipelineStatus {
