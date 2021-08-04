@@ -26,12 +26,14 @@
     ],
     "Channels": [
       "channels/web",
+      "channels/converse",
       "channels/messenger",
       "channels/telegram",
       "channels/teams",
-      "channels/converse",
+      "channels/twilio",
       "channels/slack",
       "channels/smooch",
+      "channels/vonage",
       "channels/faq"
     ],
     "Deployment And Infrastructure": [
