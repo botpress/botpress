@@ -605,15 +605,9 @@ export class BotService {
       return
     }
 
-    const bpfs = this.ghostService.forBot(botId)
-    const files = await bpfs.directoryListing('libraries', '*.*', ['node_modules'])
-
-    for (const file of files) {
-      const destPath = path.join(process.PROJECT_LOCATION, 'data/bots', botId, 'libraries', file)
-
-      mkdirp.sync(path.dirname(destPath))
-      await fse.writeFile(destPath, bpfs.readFileAsBuffer('libraries', file))
-    }
+    await this.ghostService.forBot(botId).syncDatabaseFilesToDisk('libraries')
+    await this.ghostService.forBot(botId).syncDatabaseFilesToDisk('actions')
+    await this.ghostService.forBot(botId).syncDatabaseFilesToDisk('hooks')
   }
 
   // Do not use directly use the public version instead due to broadcasting

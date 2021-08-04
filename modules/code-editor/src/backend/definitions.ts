@@ -18,6 +18,7 @@ export interface FileDefinition {
     dirListingAddFields?: (filepath: string) => object | undefined
     upsertLocation?: (file: EditableFile) => string
     upsertFilename?: (file: EditableFile) => string
+    dirListingExcluded?: string[]
     shouldSyncToDisk?: boolean
   }
   /** Validation if the selected file can be deleted */
@@ -76,10 +77,11 @@ export const FileTypes: { [type: string]: FileDefinition } = {
     canDelete: () => false
   },
   shared_libs: {
-    allowGlobal: true,
-    allowScoped: false,
+    allowGlobal: false,
+    allowScoped: true,
     permission: 'shared_libs',
     ghost: {
+      dirListingExcluded: ['node_modules'],
       baseDir: '/libraries'
     },
     canDelete: file => {
