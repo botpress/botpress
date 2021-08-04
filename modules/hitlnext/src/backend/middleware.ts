@@ -47,7 +47,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
         botId: handoff.botId,
         target: handoff.agentId,
         threadId: handoff.agentThreadId,
-        channel: handoff.userChannel
+        channel: 'web'
       })
     }
 
