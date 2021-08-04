@@ -1187,3 +1187,10 @@
   margin-top: 5px;
   zoom: 0.8; /* This feature is non-standard */
 }
+
+.bpw-rtl .bpw-chat-bubble {
+  direction: rtl;
+}
+.bpw-rtl .bpw-composer-inner textarea {
+  direction: rtl;
+}

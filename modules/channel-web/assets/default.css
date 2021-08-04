@@ -1049,3 +1049,11 @@ body {
 .bpw-mobx-tools {
   visibility: hidden;
 }
+
+.bpw-rtl .bpw-chat-bubble {
+  direction: rtl;
+}
+
+.bpw-rtl .bpw-composer-inner textarea {
+  direction: rtl;
+}

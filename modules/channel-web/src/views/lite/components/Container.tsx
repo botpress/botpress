@@ -1,4 +1,5 @@
 import classnames from 'classnames'
+import { isRTLLocale } from '../utils'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
 import { InjectedIntlProps, injectIntl } from 'react-intl'
@@ -28,7 +29,8 @@ class Container extends React.Component<ContainerProps> {
       return (
         <div
           className={classnames('bpw-msg-list-container', {
-            'bpw-emulator': this.props.isEmulator
+            'bpw-emulator': this.props.isEmulator,
+            'bpw-rtl': isRTLLocale(this.props.config?.locale || '')
           })}
         >
           <MessageList />
