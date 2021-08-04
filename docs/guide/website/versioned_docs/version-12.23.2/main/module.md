@@ -1,6 +1,7 @@
 ---
-id: module
+id: version-12.23.2-module
 title: Modules
+original_id: module
 ---
 
 Modules are a powerful way to extend the default functionalities of Botpress. They are very useful to encapsulate functionalities so you can reuse them elsewhere. Botpress comes with its own Modules (NLU, Channel-Web, Channel-Messenger, QNA to name a few) but you can also create your custom modules for your own needs.

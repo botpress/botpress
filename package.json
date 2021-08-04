@@ -1,6 +1,6 @@
 {
   "name": "bp_main",
-  "version": "12.23.1",
+  "version": "12.23.2",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": "^12"
@@ -17,7 +17,7 @@
     "version": "0.0.24"
   },
   "messaging": {
-    "version": "0.0.16"
+    "version": "0.1.0"
   },
   "scripts": {
     "postinstall": "yarn cmd postinstall",
