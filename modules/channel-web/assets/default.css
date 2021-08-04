@@ -1057,3 +1057,7 @@ body {
 .bpw-rtl .bpw-composer-inner textarea {
   direction: rtl;
 }
+
+.bpw-rtl.bpw-botinfo-container .bpw-botinfo-terms {
+  text-align: right;
+}
