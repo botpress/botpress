@@ -25,10 +25,6 @@ jobs:
           elif [[ $GITHUB_REF == refs/heads/* ]]; then
             VERSION+=($(echo ${GITHUB_REF#refs/heads/} | sed -r 's#/+#-#g')) # transform feature/00-feature-branch to feature-00-feature-branch
           fi
-          if [[ $GITHUB_REG == "refs/heads/${{secrets.PRINCIPAL_BRANCH}} " ]]; then
-            ## Check if code is pushed on the PRINCIPAL_BRANCH. PRINCIPAL_BRANCH is set as a SECRET
-            VERSION+=(${{secrets.PRINCIPAL_BRANCH}})
-          fi
           TAGS=("${VERSION[@]/#/${DOCKER_IMAGE}:}")
           IFS=,
           echo ::set-output name=version::${VERSION[*]}
@@ -54,7 +50,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push
         uses: docker/build-push-action@v2
-        if: ${{ github.ref == 'refs/heads/secrets.PRINCIPAL_BRANCH' }}
+        if: contains('refs/heads/master', github.ref)
         with:
           context: ./packages/bp/binaries
           push: true
