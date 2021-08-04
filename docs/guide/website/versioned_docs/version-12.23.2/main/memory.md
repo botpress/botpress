@@ -1,6 +1,7 @@
 ---
-id: memory
+id: version-12.23.2-memory
 title: Memory
+original_id: memory
 ---
 
 In the course of a conversation, you may want to ask questions to the user, and remember his answers to use it later. You may also want to access the values of system parameters such as the values of the slots that were just extracted.
