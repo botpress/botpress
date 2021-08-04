@@ -120,7 +120,10 @@ const rtlLocales = [
 // 'en-US' becomes ['en', '-us'] 'en' becomes ['en']
 const localeRegex = /^([a-zA-Z]*)([_\-a-zA-Z]*)$/
 
-export const isRTLLocale = (locale: string): boolean => {
+export const isRTLLocale = (locale: string | undefined | null): boolean => {
+  if (!locale) {
+    return false
+  }
   locale = locale.toLowerCase()
   const matches = localeRegex.exec(locale)
   

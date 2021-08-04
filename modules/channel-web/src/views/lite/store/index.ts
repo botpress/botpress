@@ -19,7 +19,7 @@ import {
   QueuedMessage,
   StudioConnector
 } from '../typings'
-import { downloadFile, trackMessage } from '../utils'
+import { downloadFile, isRTLLocale, trackMessage } from '../utils'
 
 import ComposerStore from './composer'
 import ViewStore from './view'
@@ -109,6 +109,11 @@ class RootStore {
       this.config?.avatarUrl ||
       (this.config.isEmulator && `${window.ROOT_PATH}/assets/modules/channel-web/images/emulator-default.svg`)
     )
+  }
+  
+  @computed
+  get rtl(): boolean {
+    return isRTLLocale(this.config?.locale)
   }
 
   @computed

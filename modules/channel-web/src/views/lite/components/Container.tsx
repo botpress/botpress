@@ -1,5 +1,4 @@
 import classnames from 'classnames'
-import { isRTLLocale } from '../utils'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
 import { InjectedIntlProps, injectIntl } from 'react-intl'
@@ -30,7 +29,7 @@ class Container extends React.Component<ContainerProps> {
         <div
           className={classnames('bpw-msg-list-container', {
             'bpw-emulator': this.props.isEmulator,
-            'bpw-rtl': isRTLLocale(this.props.config?.locale || '')
+            'bpw-rtl': this.props.rtl
           })}
         >
           <MessageList />
@@ -73,7 +72,8 @@ export default inject(({ store }: { store: RootStore }) => ({
   isInitialized: store.isInitialized,
   isPoweredByDisplayed: store.view.isPoweredByDisplayed,
   config: store.config,
-  botName: store.botName
+  botName: store.botName,
+  rtl: store.rtl
 }))(injectIntl(observer(Container)))
 
 type ContainerProps = { store?: RootStore } & InjectedIntlProps &
@@ -89,4 +89,5 @@ type ContainerProps = { store?: RootStore } & InjectedIntlProps &
     | 'dimensions'
     | 'isEmulator'
     | 'isPoweredByDisplayed'
+    | 'rtl'
   >
