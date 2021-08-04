@@ -16,6 +16,7 @@ title: Smooch (Sunshine Conversations)
 ## Setup
 
 ### Smooch App
+
 Firstly, you need to create an app on smooch. To do so, please follow the steps below:
 
 1. On the `app.smooch.io` home page, click on `Create new app`
@@ -36,21 +37,27 @@ Firstly, you need to create an app on smooch. To do so, please follow the steps 
 
 ## Configuration
 
-1. Edit `data/bots/YOUR_BOT_ID/config/channel-smooch.json` (or create it) and set
+1. Edit `data/bots/<YOUR_BOT_ID>/bot.config.json`. In the `messaging.channels.smooch` section write this configuration :
 
 - enabled: Set to `true`
 - keyId: Paste the `id` of your key from the `Settings` section
 - secret: Paste the `secret` of your key from the `Settings` section
 
-The resulting json will appear as follows:
+  Your `bot.config.json` should look like this :
 
 ```json
 {
-  "$schema": "../../assets/modules/channel-smooch/config.schema.json",
-  "enabled": true,
-  "keyId": "<YOUR_KEY_ID>",
-  "secret": "<YOUR_KEY_SECRET>",
-  "chatUserAuthDuration": "24h"
+  // ... other data
+  "messaging": {
+    "channels": {
+      "smooch": {
+        "enabled": true,
+        "keyId": "your_key_id",
+        "secret": "your_secret"
+      }
+      // ... other channels can also be configured here
+    }
+  }
 }
 ```
 
