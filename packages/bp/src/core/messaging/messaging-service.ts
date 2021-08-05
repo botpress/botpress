@@ -9,7 +9,7 @@ import { MessagingClient } from './messaging-client'
 
 @injectable()
 export class MessagingService {
-  private clientSync!: MessagingClient
+  private clientsSync: { [botId: string]: MessagingClient } = {}
   private clientsByBotId: { [botId: string]: MessagingClient } = {}
   private botsByClientId: { [clientId: string]: string } = {}
   private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage']
@@ -35,13 +35,13 @@ export class MessagingService {
       handler: this.handleOutgoingEvent.bind(this)
     })
 
-    await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+    //await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
     this.internalPassword = this.isExternal ? undefined : process.INTERNAL_PASSWORD
-    this.clientSync = new MessagingClient(this.getMessagingUrl(), this.internalPassword)
   }
 
   async loadMessagingForBot(botId: string) {
+
     // await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
     const config = await this.configProvider.getBotConfig(botId)
@@ -56,7 +56,8 @@ export class MessagingService {
       webhooks: this.isExternal ? [{ url: webhookUrl }] : []
     }
 
-    const { id, token, webhooks } = await this.clientSync.syncClient(setupConfig)
+    this.clientsSync[botId] = new MessagingClient(this.getMessagingUrl(), config.cloud!, this.internalPassword)
+    const { id, token, webhooks } = await this.clientsSync[botId].syncClient(setupConfig)
 
     if (webhooks?.length) {
       for (const webhook of webhooks) {
@@ -76,20 +77,26 @@ export class MessagingService {
       await this.configProvider.mergeBotConfig(botId, { messaging })
     }
 
-    const botClient = new MessagingClient(this.getMessagingUrl(), this.internalPassword, messaging.id, messaging.token)
+    const botClient = new MessagingClient(
+      this.getMessagingUrl(),
+      config.cloud!,
+      this.internalPassword,
+      messaging.id,
+      messaging.token
+    )
     this.clientsByBotId[botId] = botClient
     this.botsByClientId[id] = botId
   }
 
   async unloadMessagingForBot(botId: string) {
-    await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+    //await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
     const config = await this.configProvider.getBotConfig(botId)
     if (!config.messaging?.id) {
       return
     }
 
-    await this.clientSync.syncClient({
+    await this.clientsSync[botId].syncClient({
       id: config.messaging.id,
       token: config.messaging.token,
       name: botId,
