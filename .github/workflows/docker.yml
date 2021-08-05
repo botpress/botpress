@@ -26,7 +26,7 @@ jobs:
           elif [[ $GITHUB_REF == refs/heads/* ]]; then
             VERSION+=($(echo ${GITHUB_REF#refs/heads/} | sed -r 's#/+#-#g')) # transform feature/00-feature-branch to feature-00-feature-branch
           fi
-         if [[ $GITHUB_REF == "refs/heads/${{secrets.PRINCIPAL_BRANCH}}"  ]]; then
+          if [[ $GITHUB_REF == "refs/heads/${{secrets.PRINCIPAL_BRANCH}}"  ]]; then
             ## Check if code is pushed on the PRINCIPAL_BRANCH. PRINCIPAL_BRANCH is set as a SECRET
             ## Create the tags to be push on the dockerhub repository
             TAGS+=("${VERSION[@]/#/${DOCKER_IMAGE}:}")
