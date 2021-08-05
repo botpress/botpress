@@ -1,7 +1,0 @@
-export * from './card'
-export * from './carousel'
-export * from './dropdown'
-export * from './choices'
-export * from './feedback'
-export * from './image'
-export * from './text'
