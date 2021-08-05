@@ -1,6 +1,6 @@
 {
   "name": "bp_main",
-  "version": "12.23.1",
+  "version": "12.23.2",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": "^12"
@@ -15,6 +15,9 @@
   },
   "studio": {
     "version": "0.0.24"
+  },
+  "messaging": {
+    "version": "0.1.0"
   },
   "scripts": {
     "postinstall": "yarn cmd postinstall",
@@ -89,6 +92,7 @@
     "@types/redis": "^2.8.10",
     "@types/redlock": "^4.0.0",
     "@types/seedrandom": "^2.4.28",
+    "@types/semver": "^7.3.8",
     "@types/socket.io": "^2.1.2",
     "@types/socket.io-client": "^1.4.36",
     "@types/tar": "^4.0.4",
