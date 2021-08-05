@@ -290,6 +290,11 @@ try {
           description: 'Minimum percentage of respected SLA required to continue incrementing users',
           default: 100
         },
+        useWeb: {
+          alias: 'web',
+          description: 'Use channel-web instead of converse for benchmarking',
+          default: false
+        },
         increments: {
           alias: 'i',
           description: 'If set, the test will increment users by this value until the SLA is breached',
