@@ -97,7 +97,12 @@ class MessageList extends React.Component<MessageListProps, State> {
   renderDate(date) {
     return (
       <div className={'bpw-date-container'}>
-        {new Intl.DateTimeFormat(this.props.intl.locale || 'en', { dateStyle: 'long', timeStyle: 'short' }).format(new Date(date))}
+        {new Intl.DateTimeFormat(this.props.intl.locale || 'en', {
+          month: 'short',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric'
+        }).format(new Date(date))}
         <div className={'bpw-small-line'} />
       </div>
     )
