@@ -35,15 +35,10 @@ export class MessagingService {
       handler: this.handleOutgoingEvent.bind(this)
     })
 
-    //await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
-
     this.internalPassword = this.isExternal ? undefined : process.INTERNAL_PASSWORD
   }
 
   async loadMessagingForBot(botId: string) {
-
-    // await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
-
     const config = await this.configProvider.getBotConfig(botId)
     let messaging = (config.messaging || {}) as MessagingConfig
 
@@ -89,8 +84,6 @@ export class MessagingService {
   }
 
   async unloadMessagingForBot(botId: string) {
-    //await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
-
     const config = await this.configProvider.getBotConfig(botId)
     if (!config.messaging?.id) {
       return
