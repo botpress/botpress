@@ -202,7 +202,6 @@ This is a fatal error, process will exit.`
   })
 
   // This ensures that the last log displayed is the correct URL
-  // await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
   logger.info(`Botpress is listening at: ${process.LOCAL_URL}`)
   logger.info(`Botpress is exposed at: ${process.EXTERNAL_URL}`)
 }
