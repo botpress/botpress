@@ -10,7 +10,7 @@ RUN yarn run package --linux
 
 
 FROM ubuntu:20.04
-COPY --from=builder /build/out/binaries /botpress
+COPY --from=builder /build/packages/bp/binaries /botpress
 WORKDIR /botpress
 
 RUN apt update && \
