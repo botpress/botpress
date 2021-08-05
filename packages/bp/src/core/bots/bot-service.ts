@@ -592,8 +592,10 @@ export class BotService {
 
   // Do not use directly use the public version instead due to broadcasting
   private async _localMount(botId: string): Promise<boolean> {
+    this.logger.info(`Mounting bot: ${botId}`)
     const startTime = Date.now()
     if (this.isBotMounted(botId)) {
+      this.logger.info(`Bot is already mounted: ${botId}`)
       return true
     }
 
