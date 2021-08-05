@@ -110,7 +110,7 @@ class RootStore {
       (this.config.isEmulator && `${window.ROOT_PATH}/assets/modules/channel-web/images/emulator-default.svg`)
     )
   }
-  
+
   @computed
   get rtl(): boolean {
     return isRTLLocale(this.config?.locale)

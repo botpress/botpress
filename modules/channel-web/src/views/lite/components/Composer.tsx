@@ -127,13 +127,20 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
                 onNotAvailable={this.onVoiceNotAvailable}
               />
             )}
-            <ToolTip childId="btn-send" content={this.props.isEmulator ? this.props.intl.formatMessage({
-              id: 'composer.interact',
-              defaultMessage: 'Interact with your chatbot'
-            }) : this.props.intl.formatMessage({
-              id: 'composer.sendMessage',
-              defaultMessage: 'Send Message'
-            })}>
+            <ToolTip
+              childId="btn-send"
+              content={
+                this.props.isEmulator
+                  ? this.props.intl.formatMessage({
+                      id: 'composer.interact',
+                      defaultMessage: 'Interact with your chatbot'
+                    })
+                  : this.props.intl.formatMessage({
+                      id: 'composer.sendMessage',
+                      defaultMessage: 'Send Message'
+                    })
+              }
+            >
               <button
                 className={'bpw-send-button'}
                 disabled={!this.props.message.length || this.props.composerLocked || this.state.isRecording}
