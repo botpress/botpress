@@ -934,6 +934,13 @@ declare module 'botpress/sdk' {
      * if not set, seed is computed from botId
      */
     nluSeed?: number
+    cloud?: CloudConfig
+  }
+
+  export interface CloudConfig {
+    oauthUrl: string
+    clientId: string
+    clientSecret: string
   }
 
   export type Pipeline = Stage[]
