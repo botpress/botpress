@@ -41,7 +41,8 @@ export class MessagingService {
   }
 
   async loadMessagingForBot(botId: string) {
-    //await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+
+    // await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
     const config = await this.configProvider.getBotConfig(botId)
     let messaging = (config.messaging || {}) as MessagingConfig
