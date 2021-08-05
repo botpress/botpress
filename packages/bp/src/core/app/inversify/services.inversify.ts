@@ -11,7 +11,7 @@ import { CEMonitoringService, MonitoringService, AlertingService, CEAlertingServ
 import { KeyValueStore } from 'core/kvs'
 import { LogsJanitor } from 'core/logger'
 import { MediaServiceProvider } from 'core/media'
-import { MessageService, ConversationService } from 'core/messaging'
+import { MessagingService } from 'core/messaging'
 import { QnaService } from 'core/qna'
 import { RealtimeService } from 'core/realtime'
 import { AuthService, AuthStrategies, CEAuthStrategies } from 'core/security'
@@ -24,14 +24,6 @@ import { NLUService } from '../../services/nlu/nlu-service'
 import { TYPES } from '../types'
 
 const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
-  bind<ConversationService>(TYPES.ConversationService)
-    .to(ConversationService)
-    .inSingletonScope()
-
-  bind<MessageService>(TYPES.MessageService)
-    .to(MessageService)
-    .inSingletonScope()
-
   bind<CMSService>(TYPES.CMSService)
     .to(CMSService)
     .inSingletonScope()
@@ -139,6 +131,10 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<QnaService>(TYPES.QnaService)
     .to(QnaService)
+    .inSingletonScope()
+
+  bind<MessagingService>(TYPES.MessagingService)
+    .to(MessagingService)
     .inSingletonScope()
 })
 

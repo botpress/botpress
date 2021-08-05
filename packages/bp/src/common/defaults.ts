@@ -113,7 +113,8 @@ export const defaultWorkspace: Workspace = {
   defaultRole: defaultUserRole,
   adminRole: defaultAdminRole,
   pipeline: defaultPipelines['none'],
-  rolloutStrategy: 'anonymous'
+  rolloutStrategy: 'anonymous',
+  authStrategies: ['default']
 }
 
 // Builtin role for chat users. It can't be customized

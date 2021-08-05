@@ -4,6 +4,7 @@ import { defaultPipelines } from './defaults'
 
 export const BOTID_REGEX = /^[A-Z0-9]+[A-Z0-9_-]{1,}[A-Z0-9]+$/i
 export const WORKSPACEID_REGEX = /[A-Z0-9-_\/]/i
+const OP_REGEX = /^([\+|-][r|w]){1,2}$/
 
 export const isValidBotId = (botId: string): boolean => BOTID_REGEX.test(botId)
 
@@ -77,6 +78,23 @@ export const BotEditSchema = Joi.object().keys({
   }
 })
 
+const AuthRule = Joi.object().keys({
+  res: Joi.string().required(),
+  op: Joi.string()
+    .regex(OP_REGEX)
+    .required()
+})
+
+const AuthRole = Joi.object().keys({
+  id: Joi.string().required(),
+  name: Joi.string().required(),
+  description: Joi.string().default(''),
+  rules: Joi.array()
+    .items(AuthRule)
+    .optional()
+    .default([])
+})
+
 export const WorkspaceCreationSchema = Joi.object().keys({
   id: Joi.string()
     .regex(WORKSPACEID_REGEX)
@@ -93,7 +111,11 @@ export const WorkspaceCreationSchema = Joi.object().keys({
     .required(),
   pipelineId: Joi.string()
     .valid(Object.keys(defaultPipelines))
-    .default('none')
+    .default('none'),
+  authStrategies: Joi.array().items(Joi.string()),
+  roles: Joi.array()
+    .items(AuthRole)
+    .optional()
 })
 
 export const PipelineSchema = Joi.array().items({

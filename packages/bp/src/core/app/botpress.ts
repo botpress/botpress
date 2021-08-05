@@ -13,6 +13,7 @@ import { SessionIdFactory } from 'core/dialog/sessions'
 import { addStepToEvent, EventCollector, StepScopes, StepStatus, EventEngine, Event } from 'core/events'
 import { AlertingService, MonitoringService } from 'core/health'
 import { LoggerDbPersister, LoggerFilePersister, LoggerProvider, LogsJanitor } from 'core/logger'
+import { MessagingService } from 'core/messaging'
 import { MigrationService } from 'core/migration'
 import { copyDir } from 'core/misc/pkg-fs'
 import { ModuleLoader } from 'core/modules'
@@ -23,7 +24,6 @@ import { StatsService, AnalyticsService } from 'core/telemetry'
 import { ActionServersConfigSchema, Hooks, HookService, HintsService } from 'core/user-code'
 import { DataRetentionJanitor, DataRetentionService, WorkspaceService } from 'core/users'
 import { WrapErrorsWith } from 'errors'
-import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -32,6 +32,7 @@ import moment from 'moment'
 import ms from 'ms'
 import nanoid from 'nanoid'
 import { startLocalActionServer, startLocalNLUServer } from 'orchestrator'
+import { startLocalMessagingServer } from 'orchestrator/messaging-server'
 import path from 'path'
 import plur from 'plur'
 
@@ -86,7 +87,8 @@ export class Botpress {
     @inject(TYPES.MigrationService) private migrationService: MigrationService,
     @inject(TYPES.StatsService) private statsService: StatsService,
     @inject(TYPES.BotMonitoringService) private botMonitor: BotMonitoringService,
-    @inject(TYPES.QnaService) private qnaService: QnaService
+    @inject(TYPES.QnaService) private qnaService: QnaService,
+    @inject(TYPES.MessagingService) private messagingService: MessagingService
   ) {
     this.botpressPath = path.join(process.cwd(), 'dist')
     this.configLocation = path.join(this.botpressPath, '/config')
@@ -130,6 +132,7 @@ export class Botpress {
     await this.maybeStartLocalSTAN()
     await this.startRealtime()
     await this.startServer()
+    await this.maybeStartLocalMessagingServer()
     await this.discoverBots()
     await this.maybeStartLocalActionServer()
 
@@ -226,6 +229,18 @@ export class Botpress {
       authToken: makeNLUPassword(),
       logFilter,
       verbose
+    })
+  }
+
+  private async maybeStartLocalMessagingServer() {
+    if (process.core_env.MESSAGING_ENDPOINT) {
+      this.logger.info(`Messaging server manually handled at: ${process.core_env.MESSAGING_ENDPOINT}`)
+      return
+    }
+
+    startLocalMessagingServer({
+      CORE_PORT: process.PORT.toString(),
+      EXTERNAL_URL: process.EXTERNAL_URL
     })
   }
 
