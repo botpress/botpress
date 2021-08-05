@@ -48,7 +48,8 @@ export class MessagingClient {
     }
 
     if (auth) {
-      config.auth = { username: this.clientId!, password: this.clientToken! }
+      config.headers['x-bp-messaging-client-id'] = this.clientId!
+      config.headers['x-bp-messaging-client-token'] = this.clientToken!
     }
 
     return config
