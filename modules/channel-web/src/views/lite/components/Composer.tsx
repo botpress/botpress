@@ -181,7 +181,8 @@ export default inject(({ store }: { store: RootStore }) => ({
   enableResetSessionShortcut: store.config.enableResetSessionShortcut,
   resetSession: store.resetSession,
   currentConversation: store.currentConversation,
-  isEmulator: store.isEmulator
+  isEmulator: store.isEmulator,
+  preferredLanguage: store.preferredLanguage
 }))(injectIntl(observer(Composer)))
 
 type ComposerProps = {
@@ -210,4 +211,5 @@ type ComposerProps = {
     | 'enableResetSessionShortcut'
     | 'enableVoiceComposer'
     | 'currentConversation'
+    | 'preferredLanguage'
   >
