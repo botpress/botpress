@@ -27,9 +27,9 @@ export const getMessagingBinaryPath = () => {
 let initialParams: Partial<MessagingServerOptions>
 
 export const registerMessagingServerMainHandler = (logger: sdk.Logger) => {
-  registerMsgHandler(MessageType.StartMessagingServer, async (message: any) => {
-    initialParams = message.params
-    await startMessagingServer(message.params, logger)
+  registerMsgHandler(MessageType.StartMessagingServer, async (message: Partial<MessagingServerOptions>) => {
+    initialParams = message
+    await startMessagingServer(message, logger)
   })
 }
 
@@ -37,6 +37,10 @@ let messagingServerProcess: ChildProcess | undefined
 
 export const killMessagingProcess = () => {
   messagingServerProcess?.kill('SIGKILL')
+}
+
+export const startLocalMessagingServer = (message: Partial<MessagingServerOptions>) => {
+  process.send!({ type: MessageType.StartMessagingServer, ...message })
 }
 
 export const startMessagingServer = async (opts: Partial<MessagingServerOptions>, logger: sdk.Logger) => {
@@ -63,9 +67,7 @@ export const startMessagingServer = async (opts: Partial<MessagingServerOptions>
     SKIP_LOAD_CONFIG: 'true',
     SPINNED: 'true',
     SPINNED_URL: `http://localhost:${opts.CORE_PORT}/api/v1/chat/receive`,
-    NO_LAZY_LOADING: 'true',
-    // We need this to verify legacy webhooks for twilio
-    BOT_URL: opts.EXTERNAL_URL
+    NO_LAZY_LOADING: 'true'
   }
 
   if (!process.core_env.DEV_MESSAGING_PATH) {

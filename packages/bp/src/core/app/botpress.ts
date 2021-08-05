@@ -23,7 +23,6 @@ import { StatsService, AnalyticsService } from 'core/telemetry'
 import { ActionServersConfigSchema, Hooks, HookService, HintsService } from 'core/user-code'
 import { DataRetentionJanitor, DataRetentionService, WorkspaceService } from 'core/users'
 import { WrapErrorsWith } from 'errors'
-import fse from 'fs-extra'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -32,6 +31,7 @@ import moment from 'moment'
 import ms from 'ms'
 import nanoid from 'nanoid'
 import { startLocalActionServer, startLocalNLUServer } from 'orchestrator'
+import { startLocalMessagingServer } from 'orchestrator/messaging-server'
 import path from 'path'
 import plur from 'plur'
 
@@ -130,6 +130,7 @@ export class Botpress {
     await this.maybeStartLocalSTAN()
     await this.startRealtime()
     await this.startServer()
+    await this.maybeStartLocalMessagingServer()
     await this.discoverBots()
     await this.maybeStartLocalActionServer()
 
@@ -226,6 +227,18 @@ export class Botpress {
       authToken: makeNLUPassword(),
       logFilter,
       verbose
+    })
+  }
+
+  private async maybeStartLocalMessagingServer() {
+    if (process.core_env.MESSAGING_ENDPOINT) {
+      this.logger.info(`Messaging server manually handled at: ${process.core_env.MESSAGING_ENDPOINT}`)
+      return
+    }
+
+    startLocalMessagingServer({
+      CORE_PORT: process.PORT.toString(),
+      EXTERNAL_URL: process.EXTERNAL_URL
     })
   }
 
