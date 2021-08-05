@@ -919,7 +919,6 @@ declare module 'botpress/sdk' {
       contentTypes: string[]
     }
     messaging?: MessagingConfig
-    cloud?: CloudConfig
     converse?: ConverseConfig
     dialog?: BotDialogConfig
     logs?: BotLogsConfig
