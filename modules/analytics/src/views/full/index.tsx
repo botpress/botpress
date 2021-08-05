@@ -259,7 +259,7 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const fetchQnaQuestion = async (id: string): Promise<any> => {
-    const { data } = await bp.axios.get(`mod/qna/questions/${id}`)
+    const { data } = await bp.axios.get(`qna/questions/${id}`)
     return data
   }
 
@@ -362,7 +362,8 @@ const Analytics: FC<any> = ({ bp }) => {
 
   const renderEngagement = () => {
     const newUserCountDiff = getMetricCount('new_users_count') - getPreviousRangeMetricCount('new_users_count')
-    const returningUserCountDiff = getMetricCount('returning_users_count') - getPreviousRangeMetricCount('returning_users_count')
+    const returningUserCountDiff =
+      getMetricCount('returning_users_count') - getPreviousRangeMetricCount('returning_users_count')
     const activeUsers = fillMissingValues(getMetric('active_users_count'), state.dateRange[0], state.dateRange[1])
 
     return (
