@@ -95,13 +95,5 @@ export class InternalRouter extends CustomRouter {
         res.sendStatus(200)
       })
     )
-
-    router.post(
-      '/setStudioReady',
-      this.asyncMiddleware(async (req, res) => {
-        AppLifecycle.setDone(AppLifecycleEvents.STUDIO_READY)
-        res.sendStatus(200)
-      })
-    )
   }
 }
