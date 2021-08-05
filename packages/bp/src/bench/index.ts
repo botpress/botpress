@@ -4,6 +4,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 import nanoid from 'nanoid'
+import io from 'socket.io-client'
 
 import { Stats } from './stats'
 
@@ -20,19 +21,32 @@ class Bench {
   /** Number of messages that each users will send, one after another */
   messages: number = 5
   /**
-   * When this value is greater than 0, the benchmark scenario will start over and increment the number of users by this value.
+   * When this value is defined, the benchmark scenario will start over and increment the number of users by this value.
    * The scenario will be repeated until the speficied SLA is no longer respected
    */
-  increments: number = 0
+  increments?: number
   /** The base URL of the bot, including the port number, if any */
   url: string
   botId: string
+  /**
+   * Uses channel-web instead of converse. The initial setup includes setting up a socket connection
+   * and sending a "visit" payload to set the user's language (to handle cases where the nlu server is disabled)
+   */
+  useWeb?: boolean
   /** When enabled, each message sent will be displayed with their response time */
   isVerbose: boolean
   interval: NodeJS.Timeout | undefined
   textMessages: string[]
 
   maxMpsReached: number = 0
+
+  /**
+   * When running benchmark as "incremental", it will keep the same first user Ids when incrementing
+   * This prevents converse from creating thousand of users, and is required for channel-web since the "setup" time for new users is expensive
+   */
+  private userIds: { [index: number]: string } = {}
+
+  private webUserSockets: { [userId: string]: SocketIOClient.Socket } = {}
 
   constructor(args) {
     this.url = args.url.replace(/\/+$/, '')
@@ -43,6 +57,7 @@ class Bench {
     this.messages = args.messages
     this.increments = args.increments
     this.isVerbose = Boolean(args.verbose)
+    this.useWeb = Boolean(args.useWeb)
 
     this.stats = new Stats(this.slaLimit, this.slaTarget)
 
@@ -62,7 +77,7 @@ class Bench {
       this.stats.clear()
       await this.startScenario()
 
-      if (!this.increments) {
+      if (this.increments === undefined) {
         break
       }
 
@@ -99,17 +114,24 @@ class Bench {
 
     const promises: Promise<any>[] = []
     for (let i = 0; i < this.users; i++) {
-      const userId = nanoid()
-      promises.push(this.sendMessagesToUser(userId))
+      if (!this.userIds?.[i]) {
+        this.userIds[i] = nanoid()
+      }
+
+      promises.push(this.sendMessagesToUser(this.userIds[i]))
     }
 
     await Promise.all(promises)
     this.displaySummary()
   }
 
-  async sendMessagesToUser(userId) {
+  async sendMessagesToUser(userId: string) {
     for (let i = 0; i < this.messages; i++) {
-      await this.sendMessage(userId, i)
+      if (!this.useWeb) {
+        await this.sendMessage(userId, i)
+      } else {
+        await this.sendWebMessage(userId, i)
+      }
     }
   }
 
@@ -120,7 +142,7 @@ class Bench {
     }
   }
 
-  async sendMessage(userId, index) {
+  async sendMessage(userId: string, index: number) {
     const start = Date.now()
     let status
     try {
@@ -128,6 +150,66 @@ class Bench {
         `${this.url}/api/v1/bots/${this.botId}/converse/benchmark${userId}`,
         this.randomMessage
       )
+      status = result.status
+    } catch (err) {
+      const stack = _.get(err, 'response.data.stack', '')
+      status = stack.includes('Request timed out') ? 'Timeout' : err.code
+    }
+
+    const elapsed = Date.now() - start
+    this.stats.logSentMessage(status, elapsed)
+
+    if (this.isVerbose) {
+      this.log(`${userId} - Message #${index} - ${elapsed}ms, status: ${status}`, true)
+    }
+  }
+
+  getSocketId = async (userId: string): Promise<string> => {
+    if (this.webUserSockets[userId]) {
+      return this.webUserSockets[userId].id
+    }
+
+    const socket = io(`${this.url}/guest`, {
+      query: {
+        visitorId: userId
+      },
+      transports: ['websocket', 'polling'],
+      path: '/socket.io'
+    })
+
+    await Promise.fromCallback(cb => socket.on('connect', cb))
+
+    this.webUserSockets[userId] = socket
+
+    // Ensure there is at least a language for the user
+    await axios.post(`${this.url}/api/v1/bots/${this.botId}/mod/channel-web/messages?__ts=${Date.now()}`, {
+      webSessionId: socket.id,
+      payload: { type: 'visit', text: 'User visit', timezone: 0, language: 'en' }
+    })
+
+    return socket.id
+  }
+
+  async sendWebMessage(userId: string, index: number) {
+    const socketId = await this.getSocketId(userId)
+
+    const start = Date.now()
+    let status
+
+    try {
+      const result = await axios.post(`${this.url}/api/v1/bots/${this.botId}/mod/channel-web/messages?__ts=${start}`, {
+        webSessionId: socketId,
+        payload: this.randomMessage
+      })
+
+      await Promise.fromCallback(cb => {
+        this.webUserSockets[userId].on('event', ev => {
+          if (ev.name === 'guest.webchat.message') {
+            cb(undefined)
+          }
+        })
+      })
+
       status = result.status
     } catch (err) {
       const stack = _.get(err, 'response.data.stack', '')

@@ -14,10 +14,16 @@ export class MessagingService {
   private botsByClientId: { [clientId: string]: string } = {}
   private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage']
 
+  public isExternal: boolean
+  public internalPassword: string | undefined
+  public webhookToken: string | undefined
+
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
-  ) {}
+  ) {
+    this.isExternal = Boolean(process.core_env.MESSAGING_ENDPOINT)
+  }
 
   @postConstruct()
   async init() {
@@ -31,10 +37,8 @@ export class MessagingService {
 
     await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
-    this.clientSync = new MessagingClient({
-      url: `http://localhost:${process.MESSAGING_PORT}`,
-      password: process.INTERNAL_PASSWORD
-    })
+    this.internalPassword = this.isExternal ? undefined : process.INTERNAL_PASSWORD
+    this.clientSync = new MessagingClient({ url: this.getMessagingUrl(), password: this.internalPassword })
   }
 
   async loadMessagingForBot(botId: string) {
@@ -43,15 +47,24 @@ export class MessagingService {
     const config = await this.configProvider.getBotConfig(botId)
     let messaging = (config.messaging || {}) as MessagingConfig
 
+    const webhookUrl = `${process.EXTERNAL_URL}/api/v1/chat/receive`
     const setupConfig = {
       name: botId,
-      ...messaging
-      // We use the SPINNED_URL env var for now to force the messaging server to
-      // make its webhook requests to the process that started it.
-      // webhooks: [{ url: `${process.EXTERNAL_URL}/api/v1/chat/receive` }]
+      ...messaging,
+      // We use the SPINNED_URL env var to force the messaging server to make its webhook
+      // requests to the process that started it when using a local Messaging server
+      webhooks: this.isExternal ? [{ url: webhookUrl }] : []
     }
 
-    const { id, token } = await this.clientSync.syncs.sync(setupConfig)
+    const { id, token, webhooks } = await this.clientSync.syncs.sync(setupConfig)
+
+    if (webhooks?.length) {
+      for (const webhook of webhooks) {
+        if (webhook.url === webhookUrl) {
+          this.webhookToken = webhook.token
+        }
+      }
+    }
 
     if (id && id !== messaging.id) {
       messaging = {
@@ -64,7 +77,7 @@ export class MessagingService {
     }
 
     const botClient = new MessagingClient({
-      url: `http://localhost:${process.MESSAGING_PORT}`,
+      url: this.getMessagingUrl(),
       password: process.INTERNAL_PASSWORD,
       auth: {
         clientId: messaging.id,
@@ -153,5 +166,11 @@ export class MessagingService {
     }
 
     return payload
+  }
+
+  public getMessagingUrl() {
+    return process.core_env.MESSAGING_ENDPOINT
+      ? process.core_env.MESSAGING_ENDPOINT
+      : `http://localhost:${process.MESSAGING_PORT}`
   }
 }
