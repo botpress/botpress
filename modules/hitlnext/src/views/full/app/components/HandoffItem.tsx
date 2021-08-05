@@ -55,10 +55,16 @@ const HandoffItem: FC<IHandoff> = ({ createdAt, id, status, agentId, userConvers
       return agentName(agent)
     }
   }
+  const getHandoffStyle = (createdAt, status) => {
+    if (status === 'pending' && moment(moment()).diff(moment(createdAt)) > 1000 * 60 * state.config.handoffAlert) {
+      return style.handoffItemUrgent
+    }
+    return style.handoffItem
+  }
 
   return (
     <div
-      className={cx(style.handoffItem, { [style.active]: state.selectedHandoffId === id })}
+      className={cx(getHandoffStyle(createdAt, status), { [style.active]: state.selectedHandoffId === id })}
       onClick={() => handleSelect(id)}
     >
       {!readStatus && <span className={style.unreadDot}></span>}

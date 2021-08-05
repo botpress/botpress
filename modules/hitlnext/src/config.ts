@@ -17,6 +17,12 @@ export interface Config {
   messageCount: number
 
   /**
+   * @param handoffAlert Number of messages to display in the conversation history
+   * @default 5
+   */
+  handoffAlert: number
+
+  /**
    * @param defaultUsername Whether or not to display a random username for anonymous users
    * @default false
    */
