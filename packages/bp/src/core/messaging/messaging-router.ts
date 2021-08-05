@@ -19,8 +19,14 @@ export class MessagingRouter extends CustomRouter {
     this.router.post(
       '/receive',
       this.asyncMiddleware(async (req, res, next) => {
-        if (req.headers.password !== process.INTERNAL_PASSWORD) {
+        if (!this.messaging.isExternal && req.headers.password !== this.messaging.internalPassword) {
           return next?.(new UnauthorizedError('Password is missing or invalid'))
+        } else if (this.messaging.isExternal && req.headers['x-webhook-token'] !== this.messaging.webhookToken) {
+          return next?.(new UnauthorizedError('Invalid webhook token'))
+        }
+
+        if (req.body?.type === 'health') {
+          return res.sendStatus(200)
         }
 
         try {
@@ -48,6 +54,7 @@ export class MessagingRouter extends CustomRouter {
 }
 
 interface ReceiveRequest {
+  type: string
   client: { id: string }
   channel: { id: string; name: string }
   user: { id: string }
@@ -56,6 +63,7 @@ interface ReceiveRequest {
 }
 
 const ReceiveSchema = {
+  type: joi.string().required(),
   client: joi.object({ id: joi.string().required() }),
   channel: joi.object({ id: joi.string().required(), name: joi.string().required() }),
   user: joi.object({ id: joi.string().required() }),
