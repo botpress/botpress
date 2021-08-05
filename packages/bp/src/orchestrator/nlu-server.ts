@@ -44,7 +44,7 @@ export const startNluServer = async (opts: Partial<NLUServerOptions>, logger: sd
     nluServerProcess = spawn(getNluBinaryPath(), [], { env, stdio: 'inherit' })
   } else {
     const file = path.resolve(process.core_env.DEV_NLU_PATH, 'index.js')
-    nluServerProcess = fork(file, undefined, { execArgv: undefined, env, cwd: path.dirname(file) })
+    nluServerProcess = fork(file, undefined, { execArgv: [], env, cwd: path.dirname(file) })
   }
 
   nluServerProcess?.on('exit', (code, signal) => {
