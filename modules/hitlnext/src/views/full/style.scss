@@ -185,14 +185,14 @@
     cursor: pointer;
     transition: background 0.3s;
     align-items: center;
-    background-color: rgb(235, 221, 34);
+    background-color: rgb(255, 229, 180);
 
     &:hover {
-      background-color: rgb(173, 173, 0);
+      background-color: rgb(219, 197, 155);
     }
 
     &.active {
-      background-color: yellow;
+      background-color: rgb(255, 229, 180);
     }
     .info {
       width: 75%;
