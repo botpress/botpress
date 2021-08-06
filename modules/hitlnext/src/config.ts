@@ -17,7 +17,7 @@ export interface Config {
   messageCount: number
 
   /**
-   * @param handoffAlert Number of messages to display in the conversation history
+   * @param handoffAlert Amount of time in minutes before the handoff is turning yellow.
    * @default 5
    */
   handoffAlert: number
