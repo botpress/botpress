@@ -4,6 +4,8 @@
   "composer.placeholderInit": "Dites quelque chose à {name}",
   "composer.message": "Message à envoyer",
   "composer.send": "Envoyer",
+  "composer.sendMessage": "Envoyer le message",
+  "composer.interact": "Interagir avec votre assistant virtuel",
   "footer.poweredBy": "Propulsé par {link}",
   "header.conversations": "Conversations",
   "header.hideChatWindow": "Cacher la fenêtre de clavardage",

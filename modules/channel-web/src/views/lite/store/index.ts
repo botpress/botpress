@@ -20,7 +20,7 @@ import {
   StudioConnector,
   uuid
 } from '../typings'
-import { downloadFile, trackMessage } from '../utils'
+import { downloadFile, isRTLLocale, trackMessage } from '../utils'
 
 import ComposerStore from './composer'
 import ViewStore from './view'
@@ -76,6 +76,7 @@ class RootStore {
   constructor({ fullscreen }) {
     this.composer = new ComposerStore(this)
     this.view = new ViewStore(this, fullscreen)
+    this.updateBotUILanguage(chosenLocale)
   }
 
   @action.bound
@@ -110,6 +111,11 @@ class RootStore {
       this.config?.avatarUrl ||
       (this.config.isEmulator && `${window.ROOT_PATH}/assets/modules/channel-web/images/emulator-default.svg`)
     )
+  }
+
+  @computed
+  get rtl(): boolean {
+    return isRTLLocale(this.preferredLanguage)
   }
 
   @computed
@@ -223,8 +229,11 @@ class RootStore {
   @action.bound
   async fetchPreferences(): Promise<void> {
     const preferences = await this.api.fetchPreferences()
+    if (!preferences.language) {
+      return
+    }
     runInAction('-> setPreferredLanguage', () => {
-      this.preferredLanguage = preferences.language
+      this.updateBotUILanguage(preferences.language)
     })
   }
 
@@ -479,8 +488,10 @@ class RootStore {
 
   @action.bound
   updateBotUILanguage(lang: string): void {
+    lang = getUserLocale(lang) // Ensure language is supported
     runInAction('-> setBotUILanguage', () => {
       this.botUILanguage = lang
+      this.preferredLanguage = lang
       window.BP_STORAGE?.set('bp/channel-web/user-lang', lang)
     })
   }
