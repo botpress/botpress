@@ -97,14 +97,12 @@ class MessageList extends React.Component<MessageListProps, State> {
   renderDate(date) {
     return (
       <div className={'bpw-date-container'}>
-        {this.props.intl.formatTime(new Date(date), {
-          hour12: false,
-          year: 'numeric',
-          month: 'long',
+        {new Intl.DateTimeFormat(this.props.intl.locale || 'en', {
+          month: 'short',
           day: 'numeric',
           hour: 'numeric',
           minute: 'numeric'
-        })}
+        }).format(new Date(date))}
         <div className={'bpw-small-line'} />
       </div>
     )
@@ -243,7 +241,8 @@ export default inject(({ store }: { store: RootStore }) => ({
   focusNext: store.view.focusNext,
   focusedArea: store.view.focusedArea,
   showUserAvatar: store.config.showUserAvatar,
-  enableArrowNavigation: store.config.enableArrowNavigation
+  enableArrowNavigation: store.config.enableArrowNavigation,
+  preferredLanguage: store.preferredLanguage
 }))(injectIntl(observer(MessageList)))
 
 type MessageListProps = InjectedIntlProps &
@@ -260,4 +259,5 @@ type MessageListProps = InjectedIntlProps &
     | 'enableArrowNavigation'
     | 'showUserAvatar'
     | 'currentMessages'
+    | 'preferredLanguage'
   >
