@@ -694,6 +694,9 @@
     position: absolute;
     right: 0;
   }
+  .bpw-keyboard-quick_reply-dropdown {
+    margin: 0.2rem 0.5rem;
+  }
 
   .bpw-composer {
     position: relative;
