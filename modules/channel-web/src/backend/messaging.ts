@@ -13,8 +13,11 @@ export class MessagingClient {
   ) {
     this.apiUrl = `${this.baseUrl}/api`
     this.axios = Axios.create({
-      headers: { password: this.password },
-      auth: { username: this.clientId, password: this.clientToken }
+      headers: {
+        password: this.password,
+        'x-bp-messaging-client-id': this.clientId,
+        'x-bp-messaging-client-token': this.clientToken
+      }
     })
   }
 
