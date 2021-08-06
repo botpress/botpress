@@ -1049,3 +1049,25 @@ body {
 .bpw-mobx-tools {
   visibility: hidden;
 }
+
+.bpw-rtl .bpw-chat-bubble {
+  direction: rtl;
+}
+
+.bpw-rtl .bpw-composer-inner {
+  flex-direction: row-reverse;
+}
+
+.bpw-rtl .bpw-composer textarea {
+  direction: rtl;
+  padding: 0.75rem 1rem;
+  padding-left: 60px;
+}
+
+.bpw-rtl.bpw-botinfo-container .bpw-botinfo-terms {
+  text-align: right;
+}
+
+.bpw-rtl .bpw-date-container {
+  direction: rtl;
+}
