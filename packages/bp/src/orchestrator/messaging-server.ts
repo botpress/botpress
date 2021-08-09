@@ -67,7 +67,9 @@ export const startMessagingServer = async (opts: Partial<MessagingServerOptions>
     SKIP_LOAD_CONFIG: 'true',
     SPINNED: 'true',
     SPINNED_URL: `http://localhost:${opts.CORE_PORT}/api/v1/chat/receive`,
-    NO_LAZY_LOADING: 'true'
+    NO_LAZY_LOADING: 'true',
+    // Needed for legacy twilio validation
+    MASTER_URL: opts.EXTERNAL_URL
   }
 
   if (!process.core_env.DEV_MESSAGING_PATH) {
