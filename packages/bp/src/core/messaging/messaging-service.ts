@@ -12,11 +12,11 @@ export class MessagingService {
   private clientSync!: MessagingClient
   private clientsByBotId: { [botId: string]: MessagingClient } = {}
   private botsByClientId: { [clientId: string]: string } = {}
+  private webhookTokenByClientId: { [botId: string]: string } = {}
   private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage']
 
   public isExternal: boolean
   public internalPassword: string | undefined
-  public webhookToken: string | undefined
 
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
@@ -61,7 +61,7 @@ export class MessagingService {
     if (webhooks?.length) {
       for (const webhook of webhooks) {
         if (webhook.url === webhookUrl) {
-          this.webhookToken = webhook.token
+          this.webhookTokenByClientId[id] = webhook.token
         }
       }
     }
@@ -152,5 +152,9 @@ export class MessagingService {
     return process.core_env.MESSAGING_ENDPOINT
       ? process.core_env.MESSAGING_ENDPOINT
       : `http://localhost:${process.MESSAGING_PORT}`
+  }
+
+  public getWebhookToken(clientId: string) {
+    return this.webhookTokenByClientId[clientId]
   }
 }
