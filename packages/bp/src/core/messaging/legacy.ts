@@ -64,8 +64,7 @@ export class MessagingLegacy {
         },
         changeOrigin: false,
         ignorePath: true,
-        logLevel: 'silent',
-        headers: { 'x-bp-host': process.core_env.EXTERNAL_URL! }
+        logLevel: 'silent'
       })
     )
   }
