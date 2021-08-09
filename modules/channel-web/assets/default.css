@@ -615,6 +615,10 @@ body {
   right: 0;
 }
 
+.bpw-keyboard-quick_reply-dropdown {
+  margin: 0.2rem 0.5rem;
+}
+
 .bpw-composer {
   border-top-width: 1px;
   border-top-style: solid;
@@ -1069,5 +1073,14 @@ body {
 }
 
 .bpw-rtl .bpw-date-container {
+  direction: rtl;
+}
+
+.bpw-rtl .bpw-card-container {
+  text-align: right;
+  direction: rtl;
+}
+
+.bpw-rtl .bpw-keyboard-quick_reply-dropdown {
   direction: rtl;
 }
