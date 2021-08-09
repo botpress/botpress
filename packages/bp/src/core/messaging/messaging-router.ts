@@ -59,7 +59,7 @@ export class MessagingRouter extends CustomRouter {
 interface ReceiveRequest {
   type: string
   client: { id: string }
-  channel: { id: string; name: string }
+  channel: { name: string }
   user: { id: string }
   conversation: { id: string }
   message: { id: string; conversationId: string; authorId: string | undefined; sentOn: Date; payload: any }
@@ -68,7 +68,7 @@ interface ReceiveRequest {
 const ReceiveSchema = {
   type: joi.string().required(),
   client: joi.object({ id: joi.string().required() }),
-  channel: joi.object({ id: joi.string().required(), name: joi.string().required() }),
+  channel: joi.object({ name: joi.string().required() }),
   user: joi.object({ id: joi.string().required() }),
   conversation: joi.object({ id: joi.string().required() }),
   message: joi.object({
