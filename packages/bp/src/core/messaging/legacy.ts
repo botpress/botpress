@@ -59,7 +59,12 @@ export class MessagingLegacy {
             this.warned[`${botId}-${channel}`] = true
           }
 
-          const newUrl = `${this.getMessagingUrl()}/webhooks/${botId}/${channel}${messagingRoute ? messagingRoute : ''}`
+          const search = new URL(req.originalUrl, process.EXTERNAL_URL).search
+
+          const newUrl = `${this.getMessagingUrl()}/webhooks/${botId}/${channel}${
+            messagingRoute ? messagingRoute : ''
+          }${search || ''}`
+
           return newUrl
         },
         changeOrigin: false,
