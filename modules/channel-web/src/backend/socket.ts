@@ -23,7 +23,7 @@ export default async (bp: typeof sdk, db: Database) => {
     const messageType = event.type === 'default' ? 'text' : event.type
     const userId = event.target
     const { visitorId } = await db.getMappingFromUser(userId)
-    const conversationId = event.threadId || (await messaging.getMostRecentConversationForUser(userId)).id
+    const conversationId = event.threadId || (await messaging.conversations.getRecent(userId)).id
 
     if (!event.payload.type) {
       event.payload.type = messageType
@@ -38,7 +38,7 @@ export default async (bp: typeof sdk, db: Database) => {
       // Don't store "typing" in DB
       bp.realtime.sendPayload(payload)
 
-      const message = await messaging.createMessage(conversationId, undefined, event.payload)
+      const message = await messaging.messages.create(conversationId, undefined, event.payload)
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(visitorId, 'webchat.message', message))
     }
 
