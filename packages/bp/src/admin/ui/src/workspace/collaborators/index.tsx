@@ -11,6 +11,7 @@ import { fetchRoles } from '~/workspace/roles/reducer'
 import CreateUserModal from './CreateUserModal'
 import { fetchUsers } from './reducer'
 import ShowInfoModal from './ShowInfoModal'
+import { CHAT_USER_ROLE } from 'common/defaults'
 import UserList from './UserList'
 
 type Props = ConnectedProps<typeof connector>
@@ -35,7 +36,7 @@ const List: FC<Props> = props => {
 
   const reloadUsers = () => {
     const filteredRoles = props.roles.map(x => x.id).join(',')
-    props.fetchUsers(filteredRoles)
+    props.fetchUsers(`${filteredRoles},${CHAT_USER_ROLE.id}`)
   }
 
   const onUserCreated = createdUser => {
