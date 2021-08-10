@@ -1,3 +1,4 @@
+import { MessagingClient } from '@botpress/messaging-client'
 import { IO, MessagingConfig } from 'botpress/sdk'
 import { formatUrl, isBpUrl } from 'common/url'
 import { ConfigProvider } from 'core/config'
@@ -5,18 +6,17 @@ import { EventEngine, Event } from 'core/events'
 import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
-import { MessagingClient } from './messaging-client'
 
 @injectable()
 export class MessagingService {
   private clientSync!: MessagingClient
   private clientsByBotId: { [botId: string]: MessagingClient } = {}
   private botsByClientId: { [clientId: string]: string } = {}
+  private webhookTokenByClientId: { [botId: string]: string } = {}
   private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage']
 
   public isExternal: boolean
   public internalPassword: string | undefined
-  public webhookToken: string | undefined
 
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
@@ -38,7 +38,7 @@ export class MessagingService {
     await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
     this.internalPassword = this.isExternal ? undefined : process.INTERNAL_PASSWORD
-    this.clientSync = new MessagingClient(this.getMessagingUrl(), this.internalPassword)
+    this.clientSync = new MessagingClient({ url: this.getMessagingUrl(), password: this.internalPassword })
   }
 
   async loadMessagingForBot(botId: string) {
@@ -56,12 +56,12 @@ export class MessagingService {
       webhooks: this.isExternal ? [{ url: webhookUrl }] : []
     }
 
-    const { id, token, webhooks } = await this.clientSync.syncClient(setupConfig)
+    const { id, token, webhooks } = await this.clientSync.syncs.sync(setupConfig)
 
     if (webhooks?.length) {
       for (const webhook of webhooks) {
         if (webhook.url === webhookUrl) {
-          this.webhookToken = webhook.token
+          this.webhookTokenByClientId[id] = webhook.token!
         }
       }
     }
@@ -76,7 +76,11 @@ export class MessagingService {
       await this.configProvider.mergeBotConfig(botId, { messaging })
     }
 
-    const botClient = new MessagingClient(this.getMessagingUrl(), this.internalPassword, messaging.id, messaging.token)
+    const botClient = new MessagingClient({
+      url: this.getMessagingUrl(),
+      password: this.internalPassword,
+      auth: { clientId: messaging.id, clientToken: messaging.token }
+    })
     this.clientsByBotId[botId] = botClient
     this.botsByClientId[id] = botId
   }
@@ -89,7 +93,7 @@ export class MessagingService {
       return
     }
 
-    await this.clientSync.syncClient({
+    await this.clientSync.syncs.sync({
       id: config.messaging.id,
       token: config.messaging.token,
       name: botId,
@@ -126,7 +130,7 @@ export class MessagingService {
     }
 
     const payloadAbsoluteUrl = this.convertToAbsoluteUrls(event.payload)
-    const message = await this.clientsByBotId[event.botId].sendMessage(
+    const message = await this.clientsByBotId[event.botId].chat.reply(
       event.threadId!,
       event.channel,
       payloadAbsoluteUrl
@@ -165,5 +169,9 @@ export class MessagingService {
     return process.core_env.MESSAGING_ENDPOINT
       ? process.core_env.MESSAGING_ENDPOINT
       : `http://localhost:${process.MESSAGING_PORT}`
+  }
+
+  public getWebhookToken(clientId: string) {
+    return this.webhookTokenByClientId[clientId]
   }
 }
