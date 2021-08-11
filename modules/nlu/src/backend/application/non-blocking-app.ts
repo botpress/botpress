@@ -15,7 +15,6 @@ export class NonBlockingNluApplication extends NLUApplication {
       const bot = this._waitingBots.pop()!
       await super.mountBot(bot)
     }
-    await this.resumeTrainings()
   }
 
   public async mountBot(botConfig: BotConfig) {

@@ -21,9 +21,11 @@ export interface BotDefinition {
 export type ProgressCallback = (p: number) => Promise<void>
 
 export interface Trainable {
-  train(language: string, progressCallback: ProgressCallback): Promise<string>
+  startTraining(language: string, progressCallback: (ts: TrainingState) => void): Promise<string>
   setModel(language: string, modelId: string): void
   cancelTraining(language: string): Promise<void>
+  getTraining(language: string): Promise<TrainingState | undefined>
+  getAllTrainings(): Promise<TrainingSession[]>
 }
 
 export interface Predictor {
@@ -35,8 +37,6 @@ export type EventUnderstanding = Omit<IO.EventUnderstanding, 'includedContexts' 
 export interface TrainingState {
   status: SDKNLU.TrainingStatus
   progress: number
-  owner: string | null
-  modifiedOn: Date
 }
 
 export interface TrainingId {
@@ -46,9 +46,8 @@ export interface TrainingId {
 
 export interface TrainingSession extends TrainingId, TrainingState {}
 
-export interface TrainerService {
-  hasBot(botId: string): boolean
-  getBot(botId: string): Trainable | undefined
-}
-
 export type TrainingListener = (ts: TrainingSession) => Promise<void>
+
+export interface BotConfigResolver {
+  getConfig(botId: string): BotConfig
+}

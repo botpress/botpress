@@ -7,13 +7,11 @@ import _ from 'lodash'
 import { Config, LanguageSource } from '../config'
 
 import { getWebsocket } from './api'
-import { ScopedServicesFactory } from './application/bot-factory'
+import { BotFactory } from './application/bot-factory'
 import { BotService } from './application/bot-service'
-import { DistributedTrainingQueue } from './application/distributed-training-queue'
+import { DefinitionsRepository } from './application/definitions-repository'
+import { ModelRepository } from './application/model-repo'
 import { NonBlockingNluApplication } from './application/non-blocking-app'
-import { ScopedDefinitionsRepository } from './application/scoped/infrastructure/definitions-repository'
-import { TrainingRepository } from './application/training-repo'
-import { BotDefinition } from './application/typings'
 import { StanEngine } from './stan'
 
 const getNLUServerConfig = (config: Config['nluServer']): LanguageSource => {
@@ -51,22 +49,11 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
 
   const botService = new BotService()
 
-  const makeDefRepo = (bot: BotDefinition) => new ScopedDefinitionsRepository(bot, bp)
+  const modelRepo: Partial<ModelRepository> = {} // TODO implement this
 
-  const servicesFactory = new ScopedServicesFactory(engine, bp.logger, makeDefRepo)
-
-  const trainRepo = new TrainingRepository()
-  const trainingQueue = new DistributedTrainingQueue(trainRepo, bp.logger, botService, bp.distributed, socket, {
-    maxTraining: maxTrainingPerInstance
-  })
-  await trainingQueue.initialize()
-  const application = new NonBlockingNluApplication(
-    trainingQueue,
-    engine,
-    servicesFactory,
-    botService,
-    queueTrainingOnBotMount
-  )
+  const defRepo = new DefinitionsRepository(bp)
+  const botFactory = new BotFactory(engine, bp.logger, defRepo, modelRepo as ModelRepository, socket)
+  const application = new NonBlockingNluApplication(engine, botFactory, botService)
 
   // don't block entire server startup
   // eslint-disable-next-line @typescript-eslint/no-floating-promises

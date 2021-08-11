@@ -2,33 +2,27 @@ import * as sdk from 'botpress/sdk'
 
 import _ from 'lodash'
 import { IStanEngine } from '../stan'
+import { Bot } from './bot'
+import { DefinitionsRepository } from './definitions-repository'
+import { ModelRepository } from './model-repo'
 import pickSeed from './pick-seed'
-import { Bot, IBot } from './scoped/bot'
-import { ScopedDefinitionsService, IDefinitionsService } from './scoped/definitions-service'
-import { IDefinitionsRepository } from './scoped/infrastructure/definitions-repository'
-import { BotDefinition, BotConfig, I } from './typings'
 
-export interface ScopedServices {
-  bot: IBot
-  defService: IDefinitionsService
-}
-
-export type DefinitionRepositoryFactory = (botDef: BotDefinition) => IDefinitionsRepository
+import { BotDefinition, BotConfig, I, TrainingSession } from './typings'
 
 export interface ConfigResolver {
   getBotById(botId: string): Promise<BotConfig | undefined>
 }
 
-export type IScopedServicesFactory = I<ScopedServicesFactory>
-
-export class ScopedServicesFactory {
+export class BotFactory {
   constructor(
     private _engine: IStanEngine,
     private _logger: sdk.Logger,
-    private _makeDefRepo: DefinitionRepositoryFactory
+    private _defRepo: DefinitionsRepository,
+    private _modelRepo: ModelRepository,
+    private _webSocket: (ts: TrainingSession) => void
   ) {}
 
-  public makeBot = async (botConfig: BotConfig): Promise<ScopedServices> => {
+  public makeBot = async (botConfig: BotConfig): Promise<Bot> => {
     const { id: botId } = botConfig
 
     const { defaultLanguage } = botConfig
@@ -46,15 +40,6 @@ export class ScopedServicesFactory {
       seed: pickSeed(botConfig)
     }
 
-    const defRepo = this._makeDefRepo(botDefinition)
-
-    const defService = new ScopedDefinitionsService(botDefinition, defRepo)
-
-    const bot = new Bot(botDefinition, this._engine, defService, this._logger)
-
-    return {
-      defService,
-      bot
-    }
+    return new Bot(botDefinition, this._engine, this._defRepo, this._modelRepo, this._webSocket, this._logger)
   }
 }

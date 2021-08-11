@@ -2,36 +2,18 @@ import _ from 'lodash'
 import yn from 'yn'
 
 import { IStanEngine } from '../stan'
-import { mapTrainSet } from '../stan/api-mapper'
-import { IScopedServicesFactory, ScopedServices } from './bot-factory'
+import { BotFactory } from './bot-factory'
 import { IBotService } from './bot-service'
 import { BotNotMountedError } from './errors'
-import { ITrainingQueue } from './training-queue'
-import { ITrainingRepository } from './training-repo'
-import { Predictor, BotConfig, TrainingState, TrainingId } from './typings'
+import { Predictor, BotConfig, TrainingState } from './typings'
 
 export class NLUApplication {
-  private _queueTrainingOnBotMount: boolean
-
-  constructor(
-    private _trainingQueue: ITrainingQueue,
-    private _engine: IStanEngine,
-    private _servicesFactory: IScopedServicesFactory,
-    private _botService: IBotService,
-    queueTrainingOnBotMount: boolean = true
-  ) {
-    this._queueTrainingOnBotMount = queueTrainingOnBotMount
-  }
-
-  public get trainRepository(): ITrainingRepository {
-    return this._trainingQueue.repository
-  }
+  constructor(private _engine: IStanEngine, private _botFactory: BotFactory, private _botService: IBotService) {}
 
   public async teardown() {
     for (const botId of this._botService.getIds()) {
       await this.unmountBot(botId)
     }
-    return this._trainingQueue.teardown()
   }
 
   public async getHealth() {
@@ -44,11 +26,11 @@ export class NLUApplication {
   }
 
   public async getTraining(botId: string, language: string): Promise<TrainingState> {
-    return this._trainingQueue.getTraining({ botId, language })
-  }
-
-  async resumeTrainings(): Promise<void> {
-    await this._trainingQueue.resume()
+    const bot = this._botService.getBot(botId)
+    if (!bot) {
+      throw new Error()
+    }
+    return bot.getTraining(language)
   }
 
   public hasBot(botId: string) {
@@ -65,40 +47,15 @@ export class NLUApplication {
 
   public async mountBot(botConfig: BotConfig) {
     const { id: botId, languages } = botConfig
-    const { bot, defService } = await this._servicesFactory.makeBot(botConfig)
+    const bot = await this._botFactory.makeBot(botConfig)
     this._botService.setBot(botId, bot)
 
-    const needsTrainingCb = (t: TrainingId) => this._trainingQueue.needsTraining(t)
-    const queueTrainingCb = (t: TrainingId) => this._trainingQueue.queueTraining(t)
-
-    const needsTrainingHandler = this._makeDirtyModelHandler({ bot, defService }, needsTrainingCb)
-    const queueTrainingHandler = this._makeDirtyModelHandler({ bot, defService }, queueTrainingCb)
-
-    defService.listenForDirtyModels(needsTrainingHandler)
-
     const trainingEnabled = !yn(process.env.BP_NLU_DISABLE_TRAINING)
-    const handler = this._queueTrainingOnBotMount && trainingEnabled ? queueTrainingHandler : needsTrainingHandler
 
-    await Promise.each(languages, handler)
+    // TODO: implement mounting logic
+    // await Promise.each(languages, handler)
+
     await bot.mount()
-  }
-
-  private _makeDirtyModelHandler = (scoped: ScopedServices, cb: (t: TrainingId) => Promise<void>) => {
-    const { bot, defService } = scoped
-    const { id: botId } = bot
-
-    return async (lang: string) => {
-      const trainSet = await defService.getTrainSet(lang)
-      const trainInput = mapTrainSet(trainSet)
-      const { exists, modelId } = await this._engine.hasModelFor(bot.id, trainInput)
-      const trainId = { botId, language: lang }
-      if (exists) {
-        await this.trainRepository.delete(trainId)
-        bot.setModel(lang, modelId)
-        return
-      }
-      return cb(trainId)
-    }
   }
 
   public async unmountBot(botId: string) {
@@ -107,7 +64,6 @@ export class NLUApplication {
       throw new BotNotMountedError(botId)
     }
     await bot.unmount()
-    await this._trainingQueue.cancelTrainings(botId) // TODO: fully remove training sessions
     this._botService.removeBot(botId)
   }
 
@@ -116,7 +72,7 @@ export class NLUApplication {
     if (!bot) {
       throw new BotNotMountedError(botId)
     }
-    return this._trainingQueue.queueTraining({ botId, language })
+    return bot.startTraining(language)
   }
 
   public async cancelTraining(botId: string, language: string) {
@@ -124,6 +80,6 @@ export class NLUApplication {
     if (!bot) {
       throw new BotNotMountedError(botId)
     }
-    return this._trainingQueue.cancelTraining({ botId, language })
+    return bot.cancelTraining(language)
   }
 }

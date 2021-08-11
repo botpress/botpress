@@ -1,9 +1,9 @@
-import { IBot } from './scoped/bot'
-import { TrainerService, I } from './typings'
+import { IBot } from './bot'
+import { I } from './typings'
 
 export type IBotService = I<BotService>
 
-export class BotService implements TrainerService {
+export class BotService {
   private _bots: { [botId: string]: IBot } = {}
 
   hasBot(botId: string): boolean {

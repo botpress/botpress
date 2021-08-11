@@ -1,7 +1,18 @@
-import { Client, TrainInput, PredictOutput, Health, Specifications, TrainingError } from '@botpress/nlu-client'
+import {
+  Client,
+  TrainInput,
+  PredictOutput,
+  Health,
+  Specifications,
+  TrainingError,
+  TrainingProgress,
+  TrainingStatus
+} from '@botpress/nlu-client'
+import { NLU } from 'botpress/sdk'
+
 import _ from 'lodash'
-import { I } from '../application/typings'
-import { TrainingCanceledError, TrainingAlreadyStartedError } from './errors'
+import { I, TrainingState } from '../application/typings'
+import { TrainingAlreadyStartedError } from './errors'
 import modelIdService from './model-id-service'
 
 const TRAIN_PROGRESS_POLLING_INTERVAL = 500
@@ -71,44 +82,64 @@ export class StanEngine {
     return response.modelId
   }
 
-  public async waitForTraining(appId: string, modelId: string, progressCb: (p: number) => void): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const interval = setInterval(async () => {
-        const response = await this._client.getTrainingStatus(modelId, { appSecret: this._appSecret, appId })
-        if (!response.success) {
-          clearInterval(interval)
-          reject(new Error(response.error))
-          return
-        }
-
-        const { progress, status, error: serializedError } = response.session
-
-        if (status === 'training') {
-          progressCb(progress)
-          return
-        }
-
-        if (status === 'done') {
-          clearInterval(interval)
-          resolve()
-          return
-        }
-
-        if (status === 'canceled') {
-          clearInterval(interval)
-          reject(new TrainingCanceledError())
-          return
-        }
-
-        if (status === 'errored') {
-          clearInterval(interval)
-          const error = this._mapTrainError(serializedError)
-          reject(error)
-          return
-        }
-      }, TRAIN_PROGRESS_POLLING_INTERVAL)
-    })
+  public async getTraining(appId: string, modelId: string): Promise<TrainingState> {
+    const response = await this._client.getTrainingStatus(modelId, { appSecret: this._appSecret, appId })
+    if (!response.success) {
+      throw new Error(response.error)
+    }
+    const { session } = response
+    const { status } = session
+    return { ...session, status: this._mapStatus(status) }
   }
+
+  private _mapStatus = (status: TrainingStatus): NLU.TrainingStatus => {
+    if (['training-pending', 'training', 'done'].includes(status)) {
+      return status
+    }
+    return 'needs-training'
+  }
+
+  public addTrainListener(appId: string, modelId: string, cb: (t: TrainingProgress) => void) {}
+  public rmTrainListener(appId: string, modelId: string, cb: (t: TrainingProgress) => void) {}
+
+  // public async waitForTraining(appId: string, modelId: string, progressCb: (p: number) => void): Promise<void> {
+  //   return new Promise((resolve, reject) => {
+  //     const interval = setInterval(async () => {
+  //       const response = await this._client.getTrainingStatus(modelId, { appSecret: this._appSecret, appId })
+  //       if (!response.success) {
+  //         clearInterval(interval)
+  //         reject(new Error(response.error))
+  //         return
+  //       }
+
+  //       const { progress, status, error: serializedError } = response.session
+
+  //       if (status === 'training') {
+  //         progressCb(progress)
+  //         return
+  //       }
+
+  //       if (status === 'done') {
+  //         clearInterval(interval)
+  //         resolve()
+  //         return
+  //       }
+
+  //       if (status === 'canceled') {
+  //         clearInterval(interval)
+  //         reject(new TrainingCanceledError())
+  //         return
+  //       }
+
+  //       if (status === 'errored') {
+  //         clearInterval(interval)
+  //         const error = this._mapTrainError(serializedError)
+  //         reject(error)
+  //         return
+  //       }
+  //     }, TRAIN_PROGRESS_POLLING_INTERVAL)
+  //   })
+  // }
 
   private _mapTrainError = (serializedError: TrainingError | undefined): Error => {
     if (serializedError?.type === 'already-started') {

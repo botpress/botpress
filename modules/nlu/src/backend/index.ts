@@ -29,7 +29,6 @@ const onServerReady = async (bp: typeof sdk) => {
 
   if (app) {
     await registerRouter(bp, app)
-    await app.resumeTrainings()
   } else {
     return bp.logger.warn('NLU module is not initialized')
   }
