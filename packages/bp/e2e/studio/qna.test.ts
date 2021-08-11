@@ -12,7 +12,7 @@ import {
 
 const getQnaCount = async (): Promise<number> => (await page.$$('div[role="entry"]')).length
 
-describe('Module - QNA', () => {
+describe('Studio - QNA', () => {
   beforeAll(async () => {
     if (!page.url().includes('studio')) {
       await gotoStudio()
