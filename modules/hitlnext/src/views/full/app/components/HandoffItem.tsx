@@ -56,9 +56,10 @@ const HandoffItem: FC<IHandoff> = ({ createdAt, id, status, agentId, userConvers
     }
   }
   const getHandoffStyle = (createdAt, status) => {
+    const defaultHandoffAlert = 5
     if (
       status === 'pending' &&
-      moment().diff(moment(createdAt)) > ms(`${state.config.handoffAlert ? state.config.handoffAlert : 5}m`)
+      moment().diff(moment(createdAt)) > ms(`${state.config.handoffAlert || defaultHandoffAlert}m`)
     ) {
       return style.handoffItemUrgent
     }
