@@ -243,20 +243,21 @@ export class DialogEngine {
       nextNode: FlowNode
     }
   ) => {
-    if (event.state.context) {
-      event.state.context.currentNode = nextNode.name
-      event.state.context.currentFlow = nextFlow.name
-      event.state.context.queue = undefined
-      event.state.context.previousFlow = currentFlow.name
-      event.state.context.previousNode = currentNode?.name as string
-      event.state.context.jumpPoints = [
+    event.state.context = {
+      ...event.state.context,
+      currentNode: nextNode.name,
+      currentFlow: nextFlow.name,
+      queue: undefined,
+      previousFlow: currentFlow.name,
+      previousNode: currentNode?.name as string,
+      hasJumped: true,
+      jumpPoints: [
         ...(event.state.context?.jumpPoints || []),
         {
           flow: currentFlow.name,
           node: currentNode?.name as string
         }
       ]
-      event.state.context.hasJumped = true
     }
   }
 
@@ -306,7 +307,7 @@ export class DialogEngine {
     return this.processEvent(sessionId, event)
   }
 
-  public async processConversationEnd(botId: string, sessionId: string, event: IO.IncomingEvent) {
+  public async processConversationEnd(botId: string, sessionId: string, event: IO.IncomingEvent): Promise<boolean> {
     this._debug(event.botId, event.target, 'processing conversation end')
 
     await this._loadFlows(botId)
@@ -317,6 +318,17 @@ export class DialogEngine {
     // Check for a conversation_end.flow.json
     const conversationEndFlow = this.findFlowWithoutError(botId, 'conversation_end.flow.json')
 
+    if (currentFlow.name !== 'conversation_end.flow.json') {
+      const previousStackTraceSize = event.state.__stacktrace?.length
+      const api = await createForGlobalHooks()
+      await this.hookService.executeHook(new Hooks.BeforeConversationEnd(api, event))
+      // Check if stack trace size changed during hook execution, meaning that a transition was added
+      if (previousStackTraceSize !== event.state.__stacktrace?.length) {
+        await this.processEvent(sessionId, event)
+        return false
+      }
+    }
+
     // Don`t trigger on timeout or if it is already at the conversation end flow
     if (
       !conversationEndFlow ||
@@ -326,14 +338,7 @@ export class DialogEngine {
       return true
     }
 
-    const api = await createForGlobalHooks()
-    await this.hookService.executeHook(new Hooks.BeforeConversationEnd(api, event))
-
-    const conversationEndNode = this.findNodeWithoutError(botId, conversationEndFlow, conversationEndFlow.startNode)
-
-    if (!conversationEndNode) {
-      throw new TimeoutNodeNotFound(`Could not find any conversation end node for session "${sessionId}"`)
-    }
+    const conversationEndNode = this._findNode(botId, conversationEndFlow, conversationEndFlow.startNode)
 
     this.fillContextForTransition(event, {
       currentFlow,
@@ -343,10 +348,12 @@ export class DialogEngine {
     })
 
     await this.processEvent(sessionId, event)
+    return false
   }
 
   private async _endFlow(event: IO.IncomingEvent) {
-    if (await this.processConversationEnd(event.botId, event.threadId as string, event)) {
+    const shouldEndFlow = await this.processConversationEnd(event.botId, event.threadId as string, event)
+    if (shouldEndFlow) {
       event.state.context = {}
       event.state.temp = {}
     }
