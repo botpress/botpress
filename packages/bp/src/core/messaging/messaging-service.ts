@@ -5,6 +5,7 @@ import { ConfigProvider } from 'core/config'
 import { EventEngine, Event } from 'core/events'
 import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
+import { createOauthClient } from './messaging-oauth-client'
 
 @injectable()
 export class MessagingService {
@@ -50,7 +51,10 @@ export class MessagingService {
       webhooks: this.isExternal ? [{ url: webhookUrl }] : []
     }
 
-    this.clientsSync[botId] = new MessagingClient({ url: this.getMessagingUrl() })
+    this.clientsSync[botId] = new MessagingClient({
+      url: this.getMessagingUrl(),
+      client: createOauthClient({ ...config.cloud!, endpoint: this.getMessagingUrl() })
+    })
     const { id, token, webhooks } = await this.clientsSync[botId].syncs.sync(setupConfig)
 
     if (webhooks?.length) {
@@ -73,7 +77,8 @@ export class MessagingService {
 
     const botClient = new MessagingClient({
       url: this.getMessagingUrl(),
-      auth: { clientId: messaging.id, clientToken: messaging.token }
+      auth: { clientId: messaging.id, clientToken: messaging.token },
+      client: createOauthClient({ ...config.cloud!, endpoint: this.getMessagingUrl() })
     })
     this.clientsByBotId[botId] = botClient
     this.botsByClientId[id] = botId
