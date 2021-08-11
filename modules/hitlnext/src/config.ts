@@ -17,7 +17,7 @@ export interface Config {
   messageCount: number
 
   /**
-   * @param handoffAlert Amount of time in minutes before the handoff is turning yellow.
+   * @param handoffAlert Amount of time in minutes before an unassigned handoff turns yellow.
    * @default 5
    */
   handoffAlert?: number
