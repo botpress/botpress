@@ -21,7 +21,10 @@ export class MessagingRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res, next) => {
         if (!this.messaging.isExternal && req.headers.password !== this.messaging.internalPassword) {
           return next?.(new UnauthorizedError('Password is missing or invalid'))
-        } else if (this.messaging.isExternal && req.headers['x-webhook-token'] !== this.messaging.webhookToken) {
+        } else if (
+          this.messaging.isExternal &&
+          req.headers['x-webhook-token'] !== this.messaging.getWebhookToken(req?.body?.client?.id)
+        ) {
           return next?.(new UnauthorizedError('Invalid webhook token'))
         }
 
@@ -56,7 +59,7 @@ export class MessagingRouter extends CustomRouter {
 interface ReceiveRequest {
   type: string
   client: { id: string }
-  channel: { id: string; name: string }
+  channel: { name: string }
   user: { id: string }
   conversation: { id: string }
   message: { id: string; conversationId: string; authorId: string | undefined; sentOn: Date; payload: any }
@@ -65,7 +68,7 @@ interface ReceiveRequest {
 const ReceiveSchema = {
   type: joi.string().required(),
   client: joi.object({ id: joi.string().required() }),
-  channel: joi.object({ id: joi.string().required(), name: joi.string().required() }),
+  channel: joi.object({ name: joi.string().required() }),
   user: joi.object({ id: joi.string().required() }),
   conversation: joi.object({ id: joi.string().required() }),
   message: joi.object({
