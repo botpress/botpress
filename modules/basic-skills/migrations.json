@@ -1,0 +1,6 @@
+[
+  {
+    "name": "v11_8_5",
+    "filesToDelete": ["hooks/after_incoming_middleware/basic-skills/00_extract_slots.js"]
+  }
+]
