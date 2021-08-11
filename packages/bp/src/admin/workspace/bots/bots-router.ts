@@ -2,7 +2,7 @@ import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import { BotConfig } from 'botpress/sdk'
 import { UnexpectedError } from 'common/http'
-import { ConflictError, ForbiddenError, sendSuccess } from 'core/routers'
+import { ConflictError, BadRequestError, ForbiddenError, sendSuccess } from 'core/routers'
 import { assertSuperAdmin, assertWorkspace } from 'core/security'
 import Joi from 'joi'
 import _ from 'lodash'
@@ -106,6 +106,12 @@ class BotsRouter extends CustomAdminRouter {
               promoted_by: req.tokenUser!.email
             }
           }
+
+          const correctPrefix = `${req.workspace!}_`
+          if (!(bot.id.startsWith(correctPrefix) && bot.id.length > correctPrefix.length)) {
+            throw new BadRequestError(`Expected bot ID to start with ${correctPrefix}`)
+          }
+
           await this.botService.addBot(bot, req.body.template)
         }
 

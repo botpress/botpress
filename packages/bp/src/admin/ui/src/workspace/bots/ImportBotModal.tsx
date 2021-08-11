@@ -5,16 +5,21 @@ import ms from 'ms'
 import React, { Component } from 'react'
 
 import api from '~/app/api'
+import { getActiveWorkspace } from '~/auth/basicAuth'
 
 import { sanitizeBotId } from './CreateBotModal'
 interface Props {
   onCreateBotSuccess: () => void
   toggle: () => void
   isOpen: boolean
+  currentWorkspaceID: string | undefined
 }
+
+const makeBotId = (workspace: string, botName: string) => `${workspace}_${sanitizeBotId(botName)}`
 
 interface State {
   botId: string
+  botName: string
   error: any
   filePath: string | null
   fileContent: Buffer | null
@@ -26,6 +31,7 @@ interface State {
 
 const defaultState: State = {
   botId: '',
+  botName: '',
   error: null,
   filePath: null,
   fileContent: null,
@@ -47,6 +53,8 @@ class ImportBotModal extends Component<Props, State> {
     }
 
     this.setState({ isProcessing: true, progress: 0 })
+
+    console.log(this.state)
 
     try {
       await api
@@ -86,8 +94,14 @@ class ImportBotModal extends Component<Props, State> {
     }
   }, 500)
 
-  handleBotIdChanged = e =>
-    this.setState({ botId: sanitizeBotId(e.target.value), overwrite: false }, this.checkIdAvailability)
+  handleNameChanged = e => {
+    const botName = e.target.value
+    if (!this.props.currentWorkspaceID) {
+      return
+    }
+    const botId = makeBotId(this.props.currentWorkspaceID, botName)
+    this.setState({ botName, botId })
+  }
 
   handleFileChanged = (files: FileList | null) => {
     if (!files) {
@@ -102,7 +116,11 @@ class ImportBotModal extends Component<Props, State> {
 
     this.setState({ filePath: files[0].name })
 
-    if (!this.state.botId.length) {
+    // if the bot id is unchanged
+    if (!this.props.currentWorkspaceID) {
+      return
+    }
+    if (this.state.botId === makeBotId(this.props.currentWorkspaceID, '') || this.state.botId === '') {
       this.generateBotId(files[0].name)
     }
   }
@@ -110,8 +128,17 @@ class ImportBotModal extends Component<Props, State> {
   generateBotId = (filename: string) => {
     const noExt = filename.substr(0, filename.indexOf('.'))
     const matches = noExt.match(/bot_(.*)_[0-9]+/)
+    const name = sanitizeBotId((matches && matches[1]) || noExt)
+
+    if (!this.props.currentWorkspaceID) {
+      return
+    }
     this.setState(
-      { botId: sanitizeBotId((matches && matches[1]) || noExt), overwrite: false },
+      {
+        botId: makeBotId(this.props.currentWorkspaceID, name),
+        botName: name,
+        overwrite: false
+      },
       this.checkIdAvailability
     )
   }
@@ -129,6 +156,8 @@ class ImportBotModal extends Component<Props, State> {
   }
 
   render() {
+    console.log('IMPORT PROPS > ', this.props)
+
     const { isProcessing, progress } = this.state
 
     let buttonText = lang.tr('admin.workspace.bots.import.import')
@@ -158,6 +187,23 @@ class ImportBotModal extends Component<Props, State> {
         >
           <div className={Classes.DIALOG_BODY}>
             <FormGroup
+              label={lang.tr('admin.workspace.bots.create.name')}
+              labelFor="bot-name"
+              labelInfo="*"
+              helperText={lang.tr('admin.workspace.bots.create.nameHelper')}
+            >
+              <InputGroup
+                id="input-bot-name"
+                tabIndex={1}
+                placeholder={lang.tr('admin.workspace.bots.create.namePlaceholder')}
+                minLength={3}
+                required
+                value={this.state.botName}
+                onChange={this.handleNameChanged}
+                autoFocus
+              />
+            </FormGroup>
+            <FormGroup
               label={
                 <span>
                   {this.state.isIdTaken && (
@@ -167,7 +213,6 @@ class ImportBotModal extends Component<Props, State> {
                 </span>
               }
               labelFor="input-botId"
-              labelInfo="*"
               helperText={lang.tr('admin.workspace.bots.create.idHelper')}
             >
               <InputGroup
@@ -177,8 +222,8 @@ class ImportBotModal extends Component<Props, State> {
                 intent={Intent.PRIMARY}
                 minLength={3}
                 value={this.state.botId}
-                onChange={this.handleBotIdChanged}
                 autoFocus={true}
+                disabled
               />
             </FormGroup>
             <FormGroup label={lang.tr('admin.workspace.bots.import.archive')} labelInfo="*" labelFor="archive">

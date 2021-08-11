@@ -51,6 +51,7 @@ export default (state = initialState, action): UserState => {
       }
 
     case CURRENT_WORKSPACE_CHANGED:
+      console.log('CURRENT_WORKSPACE_CHANGED > ', action.currentWorkspace)
       return {
         ...state,
         currentWorkspace: action.currentWorkspace
@@ -82,6 +83,7 @@ export const fetchMyWorkspaces = (): AppThunk => {
 }
 
 export const switchWorkspace = (workspaceId: string): AppThunk => {
+  console.log('sSwitching to: ', workspaceId)
   return async dispatch => {
     setActiveWorkspace(workspaceId)
     await dispatch(fetchProfile())

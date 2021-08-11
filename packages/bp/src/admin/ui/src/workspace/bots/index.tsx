@@ -29,8 +29,9 @@ import AccessControl from '~/auth/AccessControl'
 import { getActiveWorkspace } from '~/auth/basicAuth'
 import { fetchLicensing } from '~/management/licensing/reducer'
 import { fetchModules } from '~/management/modules/reducer'
+import { fetchMyWorkspaces, switchWorkspace } from '~/user/reducer'
 import { fetchBotHealth, fetchBots, fetchBotNLULanguages } from '~/workspace/bots/reducer'
-import { filterList } from '~/workspace/util'
+import { filterList, getValidWorkspaceId } from '~/workspace/util'
 
 import BotItemCompact from './BotItemCompact'
 import BotItemPipeline from './BotItemPipeline'
@@ -63,6 +64,9 @@ class Bots extends Component<Props> {
     this.props.fetchBots()
     this.props.fetchBotHealth()
     this.props.fetchBotNLULanguages()
+    this.props.fetchMyWorkspaces()
+
+    console.log('PROPS > ', this.props)
 
     if (!this.props.loadedModules.length && this.props.profile && this.props.profile.isSuperAdmin) {
       this.props.fetchModules()
@@ -70,6 +74,12 @@ class Bots extends Component<Props> {
 
     if (!this.props.licensing) {
       this.props.fetchLicensing()
+    }
+
+    const workspaceId = getValidWorkspaceId(this.props.workspaces, this.props.location)
+    console.log('ID > ', workspaceId)
+    if (workspaceId) {
+      this.props.switchWorkspace(workspaceId)
     }
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -408,11 +418,13 @@ class Bots extends Component<Props> {
                 toggle={this.toggleCreateBotModal}
                 existingBots={this.props.bots}
                 onCreateBotSuccess={this.props.fetchBots}
+                currentWorkspaceID={this.props.workspaceId}
               />
               <ImportBotModal
                 isOpen={this.state.isImportBotModalOpen}
                 toggle={this.toggleImportBotModal}
                 onCreateBotSuccess={this.props.fetchBots}
+                currentWorkspaceID={this.props.workspaceId}
               />
             </AccessControl>
           </Fragment>
@@ -423,6 +435,7 @@ class Bots extends Component<Props> {
 }
 
 const mapStateToProps = (state: AppState) => ({
+  workspaceId: state.user.currentWorkspace,
   loadedModules: state.modules.loadedModules,
   bots: state.bots.bots,
   health: state.bots.health,
@@ -430,7 +443,8 @@ const mapStateToProps = (state: AppState) => ({
   loading: state.bots.loadingBots,
   licensing: state.licensing.license,
   profile: state.user.profile,
-  language: state.bots.nluLanguages
+  language: state.bots.nluLanguages,
+  workspaces: state.user.workspaces
 })
 
 const mapDispatchToProps = {
@@ -438,7 +452,9 @@ const mapDispatchToProps = {
   fetchLicensing,
   fetchBotHealth,
   fetchModules,
-  fetchBotNLULanguages
+  fetchBotNLULanguages,
+  fetchMyWorkspaces,
+  switchWorkspace
 }
 
 const connector = connect(mapStateToProps, mapDispatchToProps)

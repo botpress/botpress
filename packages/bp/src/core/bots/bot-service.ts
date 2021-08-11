@@ -15,7 +15,7 @@ import { listDir } from 'core/misc/list-dir'
 import { stringify } from 'core/misc/utils'
 import { ModuleResourceLoader, ModuleLoader } from 'core/modules'
 import { RealtimeService, RealTimePayload } from 'core/realtime'
-import { InvalidOperationError } from 'core/routers'
+import { BadRequestError, InvalidOperationError } from 'core/routers'
 import { AnalyticsService } from 'core/telemetry'
 import { Hooks, HookService } from 'core/user-code'
 import { WorkspaceService } from 'core/users'
@@ -241,8 +241,9 @@ export class BotService {
 
   async importBot(botId: string, archive: Buffer, workspaceId: string, allowOverwrite?: boolean): Promise<void> {
     const startTime = Date.now()
+
     if (!isValidBotId(botId)) {
-      throw new InvalidOperationError("Can't import bot; the bot ID contains invalid characters")
+      throw new InvalidOperationError("Can't import bot; the bot name contains invalid characters")
     }
 
     if (await this.botExists(botId)) {
@@ -280,11 +281,12 @@ export class BotService {
 
         const folder = await this._validateBotArchive(tmpDir.name)
         await this.ghostService.forBot(botId).importFromDirectory(folder)
+
         const originalConfig = await this.configProvider.getBotConfig(botId)
 
         const newConfigs = <Partial<BotConfig>>{
           id: botId,
-          name: botId === originalConfig.name ? originalConfig.name : `${originalConfig.name} (${botId})`,
+          name: originalConfig.name ? originalConfig.name : `${originalConfig.name} (${botId})`,
           pipeline_status: {
             current_stage: {
               id: pipeline && pipeline[0].id,
@@ -293,6 +295,7 @@ export class BotService {
             }
           }
         }
+
         if (await this.botExists(botId)) {
           await this.unmountBot(botId)
         }

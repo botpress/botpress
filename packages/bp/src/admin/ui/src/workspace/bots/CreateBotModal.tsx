@@ -8,6 +8,7 @@ import Select from 'react-select'
 
 import api from '~/app/api'
 import { AppState } from '~/app/rootReducer'
+import { getActiveWorkspace } from '~/auth/basicAuth'
 import { fetchBotCategories, fetchBotTemplates } from './reducer'
 
 export const sanitizeBotId = (text: string) =>
@@ -27,13 +28,15 @@ type Props = {
   existingBots: BotConfig[]
   onCreateBotSuccess: () => void
   toggle: () => void
+  currentWorkspaceID: string | undefined
 } & ConnectedProps<typeof connector>
+
+const makeBotId = (workspace: string, botName: string) => `${workspace}_${sanitizeBotId(botName)}`
 
 interface State {
   botId: string
   botName: string
   isProcessing: boolean
-  generateId: boolean
 
   error: any
 
@@ -50,8 +53,7 @@ const defaultState = {
   selectedCategory: undefined,
   selectedTemplate: undefined,
   error: undefined,
-  isProcessing: false,
-  generateId: true
+  isProcessing: false
 }
 
 class CreateBotModal extends Component<Props, State> {
@@ -98,11 +100,13 @@ class CreateBotModal extends Component<Props, State> {
   }
 
   handleNameChanged = e => {
+    if (!this.props.currentWorkspaceID) {
+      return
+    }
     const botName = e.target.value
-    this.setState({ botName, botId: this.state.generateId ? sanitizeBotId(botName) : this.state.botId })
+    const botId = makeBotId(this.props.currentWorkspaceID, botName)
+    this.setState({ botName, botId })
   }
-
-  handleBotIdChanged = e => this.setState({ botId: sanitizeBotId(e.target.value), generateId: false })
 
   createBot = async e => {
     e.preventDefault()
@@ -174,7 +178,6 @@ class CreateBotModal extends Component<Props, State> {
             <FormGroup
               label={lang.tr('admin.workspace.bots.create.id')}
               labelFor="botid"
-              labelInfo="*"
               helperText={lang.tr('admin.workspace.bots.create.idHelper')}
             >
               <InputGroup
@@ -184,7 +187,7 @@ class CreateBotModal extends Component<Props, State> {
                 minLength={3}
                 required
                 value={this.state.botId}
-                onChange={this.handleBotIdChanged}
+                disabled
               />
             </FormGroup>
 
