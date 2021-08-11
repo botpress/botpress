@@ -20,7 +20,7 @@ export interface Config {
    * @param handoffAlert Amount of time in minutes before the handoff is turning yellow.
    * @default 5
    */
-  handoffAlert: number
+  handoffAlert?: number
 
   /**
    * @param defaultUsername Whether or not to display a random username for anonymous users
