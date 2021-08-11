@@ -9,7 +9,6 @@ import { NLUApplication } from './application'
 import { BotDoesntSpeakLanguageError, BotNotMountedError } from './application/errors'
 import { TrainingSession } from './application/typings'
 import { election } from './election'
-import createRepositoryRouter from './train-repo-router'
 import { NLUProgressEvent } from './typings'
 
 const ROUTER_ID = 'nlu'
@@ -125,10 +124,6 @@ export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
       return mapError({ botId, lang, error }, res)
     }
   })
-
-  const repoRouter = createRepositoryRouter(app)
-
-  router.use('/trainrepo', repoRouter)
 }
 
 export const removeRouter = (bp: typeof sdk) => {

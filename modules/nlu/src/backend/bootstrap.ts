@@ -55,7 +55,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
 
   const servicesFactory = new ScopedServicesFactory(engine, bp.logger, makeDefRepo)
 
-  const trainRepo = new TrainingRepository(bp.database)
+  const trainRepo = new TrainingRepository()
   const trainingQueue = new DistributedTrainingQueue(trainRepo, bp.logger, botService, bp.distributed, socket, {
     maxTraining: maxTrainingPerInstance
   })
