@@ -425,7 +425,7 @@ export class HTTPServer {
           return path.replace(`${BASE_API_PATH}/messaging`, '')
         },
         router: () => {
-          return `http://localhost:${process.MESSAGING_PORT}`
+          return process.core_env.MESSAGING_ENDPOINT || `http://localhost:${process.MESSAGING_PORT}`
         },
         changeOrigin: false,
         logLevel: 'silent'
