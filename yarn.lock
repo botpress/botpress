@@ -259,6 +259,13 @@
     lodash "^4.17.19"
     to-fast-properties "^2.0.0"
 
+"@botpress/messaging-client@0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-0.0.4.tgz#8782b6c0f94623195c3fc2f1b6aba2fc8083ba3e"
+  integrity sha512-UUzbzSj6VhH7p24G443GdzGtJbfff0lu1CFV031uyRFEdYQuYn0maQmHSrGITQhOD5vHBOLlbEQJc7z8Kf3r1w==
+  dependencies:
+    axios "^0.21.1"
+
 "@cnakazawa/watch@^1.0.3":
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/@cnakazawa/watch/-/watch-1.0.3.tgz#099139eaec7ebf07a27c1786a3ff64f39464d2ef"
