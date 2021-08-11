@@ -118,7 +118,7 @@ export const startStudio = async (logger: sdk.Logger, params: WebWorkerParams) =
     studioHandle = spawn(file, [], { env, stdio: 'inherit' })
   } else if (process.core_env.DEV_STUDIO_PATH) {
     const file = path.resolve(process.core_env.DEV_STUDIO_PATH, 'index.js')
-    studioHandle = fork(file, undefined, { execArgv: undefined, env, cwd: path.dirname(file) })
+    studioHandle = fork(file, undefined, { execArgv: [], env, cwd: path.dirname(file) })
   }
 
   studioHandle.on('exit', async (code: number, signal: string) => {

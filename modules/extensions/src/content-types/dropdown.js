@@ -121,8 +121,7 @@ module.exports = {
       width: {
         type: 'number',
         title: 'module.extensions.types.dropdown.widthTitle',
-        description: 'module.extensions.types.dropdown.widthDesc',
-        default: 200
+        description: 'module.extensions.types.dropdown.widthDesc'
       },
       displayInKeyboard: {
         type: 'boolean',

@@ -1,3 +1,22 @@
+# [12.24.0](https://github.com/botpress/botpress/compare/v12.23.2...v12.24.0) (2021-08-11)
+
+
+### Bug Fixes
+
+* **messaging:** filter module errors for channels ([#5283](https://github.com/botpress/botpress/issues/5283)) ([45ca7cc](https://github.com/botpress/botpress/commit/45ca7cc))
+* **messaging:** fix proxying search params ([#5279](https://github.com/botpress/botpress/issues/5279)) ([9372ccc](https://github.com/botpress/botpress/commit/9372ccc))
+* **messaging:** fix webhook verification ([#5278](https://github.com/botpress/botpress/issues/5278)) ([941e832](https://github.com/botpress/botpress/commit/941e832))
+* **messaging:** legacy route send ext url in headers ([#5266](https://github.com/botpress/botpress/issues/5266)) ([79bc7ac](https://github.com/botpress/botpress/commit/79bc7ac))
+* **messaging:** use headers instead of basic auth ([#5264](https://github.com/botpress/botpress/issues/5264)) ([c64143c](https://github.com/botpress/botpress/commit/c64143c))
+
+
+### Features
+
+* **channel-web:** add RTL support in webchat ([#5251](https://github.com/botpress/botpress/issues/5251)) ([2a26251](https://github.com/botpress/botpress/commit/2a26251))
+* **channel-web:** RTL support for non-text content types ([#5268](https://github.com/botpress/botpress/issues/5268)) ([fb5d673](https://github.com/botpress/botpress/commit/fb5d673))
+
+
+
 ## [12.23.2](https://github.com/botpress/botpress/compare/v12.22.2...v12.23.2) (2021-08-03)
 
 
