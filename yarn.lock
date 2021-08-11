@@ -310,6 +310,13 @@
     classnames "^2.2"
     tslib "~1.13.0"
 
+"@botpress/messaging-client@0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-0.0.3.tgz#871c0672e7ac488c60fcf6ca57549aac73c0b958"
+  integrity sha512-Aq1EB06jM2uND1GXrZfZ3JAd9wvl4a632exNxI5c2l7AC8iCyCmg5qZtZAiKJKiddO7KyAjbCVhRbi2UTjEhNg==
+  dependencies:
+    axios "^0.21.1"
+
 "@cnakazawa/watch@^1.0.3":
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/@cnakazawa/watch/-/watch-1.0.3.tgz#099139eaec7ebf07a27c1786a3ff64f39464d2ef"
