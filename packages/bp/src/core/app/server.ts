@@ -430,7 +430,7 @@ export class HTTPServer {
         onError: (err, req, res) => {
           this.logger.error(`Error while proxy request to messaging endpoint:`, err)
         },
-        changeOrigin: false,
+        changeOrigin: true,
         logLevel: 'silent'
       })
     )
