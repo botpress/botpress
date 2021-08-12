@@ -31,7 +31,8 @@
     "duplicateToCurrent": "Duplicar al bot actual",
     "isReadOnly": "Este archivo es de sólo lectura",
     "noFilesFound": "No se han encontrado archivos en esta categoría",
-    "renameMove": "Renombrar / Mover"
+    "renameMove": "Renombrar / Mover",
+    "paste": "Pegar"
   },
   "newFileModal": {
     "createForCurrent": "Crear para el bot actual",

@@ -23,12 +23,19 @@ import { RootStore, StoreDef } from './store'
 import { EditorStore } from './store/editor'
 import style from './style.scss'
 import { TreeNodeRenameInput } from './TreeNodeRenameInput'
-import { buildTree, EXAMPLE_FOLDER_LABEL, FOLDER_EXAMPLE, FOLDER_ICON } from './utils/tree'
+import {
+  buildTree,
+  EXAMPLE_FOLDER_LABEL,
+  FOLDER_EXAMPLE,
+  FOLDER_ICON
+} from './utils/tree'
 
 class FileNavigator extends React.Component<Props, State> {
   state = {
     files: undefined,
-    nodes: []
+    nodes: [],
+    selectedFilesList: {},
+    selectedFilesCount: 0
   }
 
   treeRef: React.RefObject<Tree<NodeData>>
@@ -51,6 +58,17 @@ class FileNavigator extends React.Component<Props, State> {
       const selectedNode = this.props.selectedNode.replace(`${this.props.id}/`, '')
       this.traverseTree(nodes, n => (n.isSelected = selectedNode === n.id))
       this.setState({ nodes })
+    }
+    if (this.props.isMultipleCutActive !== prevProps.isMultipleCutActive && !this.props.isMultipleCutActive){
+      this.setState((prevState: State) => {
+        const { nodes } = prevState
+        const selectedNode = this.props.selectedNode.replace(`${this.props.id}/`, '')
+        this.traverseTree(nodes, n => (n.isSelected = selectedNode === n.id))
+        return {
+          selectedFilesList: {},
+          selectedFilesCount: 0
+        }
+      })
     }
   }
 
@@ -105,15 +123,52 @@ class FileNavigator extends React.Component<Props, State> {
   }
 
   private handleNodeClick = async (node: ITreeNode) => {
-    this.traverseTree(this.state.nodes, n => (n.isSelected = n.id === node.id))
+    if (this.props.isMultipleCutActive){
+      this.traverseTree(this.state.nodes, n => {
+        if (node.nodeData && n.id === node.id){
+          if (!this.state.selectedFilesList[n.id]){
+            n.isSelected = true
 
-    // If nodeData is set, it's a file, otherwise a folder
-    if (node.nodeData) {
-      await this.props.editor.openFile(node.nodeData as EditableFile)
+            this.setState((prevState: State) => {
+              return {
+                ...prevState,
+                selectedFilesList: {
+                  ...prevState.selectedFilesList,
+                  [n.id]: n.nodeData
+                },
+                selectedFilesCount: prevState.selectedFilesCount + 1
+              }
+            })
+          } else {
+            n.isSelected = false
+            this.setState((prevState: State) => {
+              return {
+                ...prevState,
+                selectedFilesList: {
+                  ...prevState.selectedFilesList,
+                  [n.id]: null
+                },
+                selectedFilesCount: prevState.selectedFilesCount - 1
+              }
+            })
+          }
+          this.forceUpdate()
+        }
+        return n
+      })
+      if (!node.nodeData){
+        this.handleNodeExpand(node, !node.isExpanded)
+      }
     } else {
-      this.handleNodeExpand(node, !node.isExpanded)
+      this.traverseTree(this.state.nodes, n => (n.isSelected = n.id === node.id))
+      // If nodeData is set, it's a file, otherwise a folder
+      if (node.nodeData) {
+        await this.props.editor.openFile(node.nodeData as EditableFile)
+      } else {
+        this.handleNodeExpand(node, !node.isExpanded)
+      }
+      this.props.onNodeStateSelected(this.props.id + '/' + node.id)
     }
-    this.props.onNodeStateSelected(this.props.id + '/' + node.id)
   }
 
   private handleNodeExpand = (node: ITreeNode, isExpanded: boolean) => {
@@ -138,6 +193,21 @@ class FileNavigator extends React.Component<Props, State> {
     e.preventDefault()
 
     if (!node.nodeData || this.props.disableContextMenu) {
+      if (this.state.selectedFilesCount > 0){
+        const { selectedFilesList } = this.state
+        ContextMenu.show(
+          <Menu>
+            <MenuItem
+              id="btn-paste"
+              icon="clipboard"
+              text={lang.tr('module.code-editor.navigator.paste')}
+              onClick={() => this.props.bulkMoveFiles(Object.values(selectedFilesList), node.id as string)}
+            />
+          </Menu>,
+          { left: e.clientX, top: e.clientY }
+        )
+        return
+      }
       return null
     }
 
@@ -294,17 +364,18 @@ class FileNavigator extends React.Component<Props, State> {
     if (!this.state.nodes.length) {
       return <div className={style.padding}>{lang.tr('module.code-editor.navigator.noFilesFound')}</div>
     }
-
     return (
-      <Tree
-        ref={this.treeRef}
-        contents={this.state.nodes}
-        onNodeContextMenu={this.handleContextMenu}
-        onNodeClick={this.handleNodeClick}
-        onNodeCollapse={n => this.handleNodeExpand(n, false)}
-        onNodeExpand={n => this.handleNodeExpand(n, true)}
-        className={Classes.ELEVATION_0}
-      />
+      <div>
+        <Tree
+          ref={this.treeRef}
+          contents={this.state.nodes}
+          onNodeContextMenu={this.handleContextMenu}
+          onNodeClick={this.handleNodeClick}
+          onNodeCollapse={n => this.handleNodeExpand(n, false)}
+          onNodeExpand={n => this.handleNodeExpand(n, true)}
+          className={Classes.ELEVATION_0}
+        />
+      </div>
     )
   }
 }
@@ -327,8 +398,10 @@ type Props = {
   editor?: EditorStore
   disableContextMenu?: boolean
   contextMenuType?: string
+  isMultipleCutActive?: boolean
   onNodeStateExpanded: (id: string, isExpanded: boolean) => void
   onNodeStateSelected: (fullyQualifiedId: string) => void
+  bulkMoveFiles?: (files: EditableFile[], folderName: string) => void
   moveFile?: (file: any) => void
   expandedNodes: object
   selectedNode: string
@@ -336,6 +409,8 @@ type Props = {
 
 interface State {
   nodes: ITreeNode[]
+  selectedFilesList: object
+  selectedFilesCount: number
 }
 
 interface NodeData {
