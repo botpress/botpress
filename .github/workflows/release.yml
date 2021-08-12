@@ -1,0 +1,25 @@
+name: Docker
+on:
+  pull_request:
+    branches:
+      - 'release/*'
+    types: [closed]
+jobs:
+  build_and_push:
+    name: Build and push Docker image to GitHub Packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2.1.0
+        with:
+          token: ${{ secrets.PAT_DOCKER }}
+          submodules: true
+      # Create an array of version to push to the Dockerhub registery
+      - name: Deploy via Jenkins
+        id: Deploy
+        run: |
+          BRANCH=($(echo ${GITHUB_REF#refs/heads/}))
+          curl ${{secrets.BUILD_PROCESS}}?delay=0sec \
+          --user '${{secrets.BUILD_USERNAME}}:${{secrets.BUILD_PASSWORD}}' \
+          -H 'Content-Type: application/x-www-form-urlencoded' \
+          -d "name=separator-37500b00-1f20-4f64-94ec-7afd045bec6f&name=DEPLOY_TO_S3&value=on&name=DEPLOY_TO_DOCKERHUB&value=on&name=DEPLOY_DOCUMENTATION&value=on&name=CLEAN_BEFORE_BUILD&value=on&name=BUILD_TYPE&value=release&name=BUILD_LABEL&value=&name=separator-5be33bf7-d9f5-486d-af56-d3458fbf99de&name=BRANCH&value=${BRANCH}&quickFilter=&statusCode=303&Submit=Build"
