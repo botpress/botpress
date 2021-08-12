@@ -1,17 +1,18 @@
 import _ from 'lodash'
-import yn from 'yn'
 
-import { IStanEngine } from '../stan'
+import { StanEngine } from '../stan'
+import { Bot } from './bot'
 import { BotFactory } from './bot-factory'
-import { IBotService } from './bot-service'
 import { BotNotMountedError } from './errors'
 import { Predictor, BotConfig, TrainingState } from './typings'
 
 export class NLUApplication {
-  constructor(private _engine: IStanEngine, private _botFactory: BotFactory, private _botService: IBotService) {}
+  private _bots: _.Dictionary<Bot> = {}
+
+  constructor(private _engine: StanEngine, private _botFactory: BotFactory) {}
 
   public async teardown() {
-    for (const botId of this._botService.getIds()) {
+    for (const botId of Object.keys(this._bots)) {
       await this.unmountBot(botId)
     }
   }
@@ -26,19 +27,19 @@ export class NLUApplication {
   }
 
   public async getTraining(botId: string, language: string): Promise<TrainingState> {
-    const bot = this._botService.getBot(botId)
+    const bot = this._bots[botId]
     if (!bot) {
-      throw new Error()
+      throw new BotNotMountedError(botId)
     }
     return bot.getTraining(language)
   }
 
   public hasBot(botId: string) {
-    return !!this._botService.getBot(botId)
+    return !!this._bots[botId]
   }
 
   public getBot(botId: string): Predictor {
-    const bot = this._botService.getBot(botId)
+    const bot = this._bots[botId]
     if (!bot) {
       throw new BotNotMountedError(botId)
     }
@@ -46,37 +47,35 @@ export class NLUApplication {
   }
 
   public async mountBot(botConfig: BotConfig) {
-    const { id: botId, languages } = botConfig
+    const { id: botId } = botConfig
     const bot = await this._botFactory.makeBot(botConfig)
-    this._botService.setBot(botId, bot)
-
-    const trainingEnabled = !yn(process.env.BP_NLU_DISABLE_TRAINING)
-
-    // TODO: implement mounting logic
-    // await Promise.each(languages, handler)
-
-    await bot.mount()
+    this._bots[botId] = bot
+    return bot.mount()
   }
 
   public async unmountBot(botId: string) {
-    const bot = this._botService.getBot(botId)
+    const bot = this._bots[botId]
     if (!bot) {
       throw new BotNotMountedError(botId)
     }
+
     await bot.unmount()
-    this._botService.removeBot(botId)
+    delete this._bots[botId]
   }
 
   public async queueTraining(botId: string, language: string) {
-    const bot = this._botService.getBot(botId)
+    const bot = this._bots[botId]
     if (!bot) {
       throw new BotNotMountedError(botId)
     }
-    return bot.startTraining(language)
+
+    // the Bot class will report progress and handle errors
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    bot.train(language)
   }
 
   public async cancelTraining(botId: string, language: string) {
-    const bot = this._botService.getBot(botId)
+    const bot = this._bots[botId]
     if (!bot) {
       throw new BotNotMountedError(botId)
     }

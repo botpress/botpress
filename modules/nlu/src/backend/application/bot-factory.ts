@@ -1,13 +1,13 @@
 import * as sdk from 'botpress/sdk'
 
 import _ from 'lodash'
-import { IStanEngine } from '../stan'
+import { StanEngine } from '../stan'
 import { Bot } from './bot'
 import { DefinitionsRepository } from './definitions-repository'
-import { ModelRepository } from './model-repo'
+import { IModelRepository } from './model-repo'
 import pickSeed from './pick-seed'
 
-import { BotDefinition, BotConfig, I, TrainingSession } from './typings'
+import { BotDefinition, BotConfig, TrainingSession } from './typings'
 
 export interface ConfigResolver {
   getBotById(botId: string): Promise<BotConfig | undefined>
@@ -15,10 +15,10 @@ export interface ConfigResolver {
 
 export class BotFactory {
   constructor(
-    private _engine: IStanEngine,
+    private _engine: StanEngine,
     private _logger: sdk.Logger,
     private _defRepo: DefinitionsRepository,
-    private _modelRepo: ModelRepository,
+    private _modelRepo: IModelRepository,
     private _webSocket: (ts: TrainingSession) => void
   ) {}
 

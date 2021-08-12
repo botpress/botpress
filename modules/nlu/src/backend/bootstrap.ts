@@ -8,9 +8,8 @@ import { Config, LanguageSource } from '../config'
 
 import { getWebsocket } from './api'
 import { BotFactory } from './application/bot-factory'
-import { BotService } from './application/bot-service'
 import { DefinitionsRepository } from './application/definitions-repository'
-import { ModelRepository } from './application/model-repo'
+import { DbModelRepository, IModelRepository, InMemModelRepository } from './application/model-repo'
 import { NonBlockingNluApplication } from './application/non-blocking-app'
 import { StanEngine } from './stan'
 
@@ -47,13 +46,12 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
 
   const socket = getWebsocket(bp)
 
-  const botService = new BotService()
-
-  const modelRepo: Partial<ModelRepository> = {} // TODO implement this
+  const modelRepo = new DbModelRepository(bp.database)
+  await modelRepo.initialize()
 
   const defRepo = new DefinitionsRepository(bp)
-  const botFactory = new BotFactory(engine, bp.logger, defRepo, modelRepo as ModelRepository, socket)
-  const application = new NonBlockingNluApplication(engine, botFactory, botService)
+  const botFactory = new BotFactory(engine, bp.logger, defRepo, modelRepo, socket)
+  const application = new NonBlockingNluApplication(engine, botFactory)
 
   // don't block entire server startup
   // eslint-disable-next-line @typescript-eslint/no-floating-promises

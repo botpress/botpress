@@ -1,26 +1,21 @@
-import {
-  Client,
-  TrainInput,
-  PredictOutput,
-  Health,
-  Specifications,
-  TrainingError,
-  TrainingProgress,
-  TrainingStatus
-} from '@botpress/nlu-client'
-import { NLU } from 'botpress/sdk'
+import { Client, TrainInput, PredictOutput, Health, Specifications, TrainingProgress } from '@botpress/nlu-client'
 
 import _ from 'lodash'
-import { I, TrainingState } from '../application/typings'
-import { TrainingAlreadyStartedError } from './errors'
-import modelIdService from './model-id-service'
-
-const TRAIN_PROGRESS_POLLING_INTERVAL = 500
-
-export type IStanEngine = I<StanEngine>
+import { PollingWatcherPool } from './watcher-pool'
 
 export class StanEngine {
-  constructor(private _client: Client, private _appSecret: string) {}
+  private _watchPool: PollingWatcherPool<[string, string], TrainingProgress>
+
+  constructor(private _client: Client, private _appSecret: string) {
+    this._watchPool = new PollingWatcherPool<[string, string], TrainingProgress>(this.checkTraining.bind(this), 500, {
+      makeKey: (appId: string, modelId: string) => `${appId}/${modelId}`,
+      parseKey: (key: string) => key.split('/') as [string, string]
+    })
+  }
+
+  public get trainWatcher() {
+    return this._watchPool
+  }
 
   public async getInfo(): Promise<{
     health: Health
@@ -34,21 +29,7 @@ export class StanEngine {
     return response.info
   }
 
-  public async hasModelFor(appId: string, trainInput: TrainInput): Promise<{ exists: boolean; modelId: string }> {
-    const { specs } = await this.getInfo()
-    const modelIdStructure = modelIdService.makeId({
-      ...trainInput,
-      specifications: specs
-    })
-    const modelId = modelIdService.toString(modelIdStructure)
-    const exists = await this._hasModel(appId, modelId)
-    return {
-      exists,
-      modelId
-    }
-  }
-
-  private async _hasModel(appId: string, modelId: string): Promise<boolean> {
+  public async hasModel(appId: string, modelId: string): Promise<boolean> {
     const response = await this._client.listModels({ appSecret: this._appSecret, appId })
     if (!response.success) {
       return this._throwError(response.error)
@@ -82,77 +63,20 @@ export class StanEngine {
     return response.modelId
   }
 
-  public async getTraining(appId: string, modelId: string): Promise<TrainingState> {
+  public async getTraining(appId: string, modelId: string): Promise<TrainingProgress | undefined> {
+    const response = await this._client.getTrainingStatus(modelId, { appSecret: this._appSecret, appId })
+    if (!response.success) {
+      return
+    }
+    return response.session
+  }
+
+  private async checkTraining(appId: string, modelId: string): Promise<TrainingProgress> {
     const response = await this._client.getTrainingStatus(modelId, { appSecret: this._appSecret, appId })
     if (!response.success) {
       throw new Error(response.error)
     }
-    const { session } = response
-    const { status } = session
-    return { ...session, status: this._mapStatus(status) }
-  }
-
-  private _mapStatus = (status: TrainingStatus): NLU.TrainingStatus => {
-    if (['training-pending', 'training', 'done'].includes(status)) {
-      return status
-    }
-    return 'needs-training'
-  }
-
-  public addTrainListener(appId: string, modelId: string, cb: (t: TrainingProgress) => void) {}
-  public rmTrainListener(appId: string, modelId: string, cb: (t: TrainingProgress) => void) {}
-
-  // public async waitForTraining(appId: string, modelId: string, progressCb: (p: number) => void): Promise<void> {
-  //   return new Promise((resolve, reject) => {
-  //     const interval = setInterval(async () => {
-  //       const response = await this._client.getTrainingStatus(modelId, { appSecret: this._appSecret, appId })
-  //       if (!response.success) {
-  //         clearInterval(interval)
-  //         reject(new Error(response.error))
-  //         return
-  //       }
-
-  //       const { progress, status, error: serializedError } = response.session
-
-  //       if (status === 'training') {
-  //         progressCb(progress)
-  //         return
-  //       }
-
-  //       if (status === 'done') {
-  //         clearInterval(interval)
-  //         resolve()
-  //         return
-  //       }
-
-  //       if (status === 'canceled') {
-  //         clearInterval(interval)
-  //         reject(new TrainingCanceledError())
-  //         return
-  //       }
-
-  //       if (status === 'errored') {
-  //         clearInterval(interval)
-  //         const error = this._mapTrainError(serializedError)
-  //         reject(error)
-  //         return
-  //       }
-  //     }, TRAIN_PROGRESS_POLLING_INTERVAL)
-  //   })
-  // }
-
-  private _mapTrainError = (serializedError: TrainingError | undefined): Error => {
-    if (serializedError?.type === 'already-started') {
-      return new TrainingAlreadyStartedError()
-    }
-
-    const defaultMessage = 'An error occured during training'
-    const { message, stackTrace } = serializedError ?? {}
-    const unknownError = new Error(message ?? defaultMessage)
-    if (stackTrace) {
-      unknownError.stack = stackTrace
-    }
-    return unknownError
+    return response.session
   }
 
   public async cancelTraining(appId: string, modelId: string): Promise<void> {

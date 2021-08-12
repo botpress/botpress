@@ -1,9 +1,5 @@
 import { IO, NLU as SDKNLU } from 'botpress/sdk'
 
-export type I<C> = {
-  [k in keyof C]: C[k]
-}
-
 export interface BotConfig {
   id: string
   defaultLanguage: string
@@ -45,9 +41,3 @@ export interface TrainingId {
 }
 
 export interface TrainingSession extends TrainingId, TrainingState {}
-
-export type TrainingListener = (ts: TrainingSession) => Promise<void>
-
-export interface BotConfigResolver {
-  getConfig(botId: string): BotConfig
-}
