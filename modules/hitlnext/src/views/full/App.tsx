@@ -162,7 +162,12 @@ const App: FC<Props> = ({ bp }) => {
     <div className={style.app}>
       <div className={style.mainNav}>
         <AgentList loading={loading} agents={state.agents} />
-        <SupervisorMenu bp={bp} agents={state.agentsUsers} disabled={!hasSupervisorPermission('write')} />
+        <SupervisorMenu
+          bp={bp}
+          getAgentsUsers={getAgentsUsers}
+          agents={state.agentsUsers}
+          disabled={!hasSupervisorPermission('write')}
+        />
         <AgentStatus setOnline={setOnline} loading={loading} {...state.currentAgent} />
       </div>
 

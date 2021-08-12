@@ -9,18 +9,18 @@ import InfoModal from './InfoModal'
 import ManageAgentsModal from './ManageAgentsModal'
 interface Props {
   bp: { axios: AxiosInstance; events: any }
+  getAgentsUsers: () => void
   agents: WorkspaceUserWithAttributes[]
   disabled: boolean
 }
 
-const SupervisorMenu: FC<Props> = ({ bp, agents, disabled }) => {
+const SupervisorMenu: FC<Props> = ({ bp, getAgentsUsers, agents, disabled }) => {
   const [display, setDisplay] = useState(false)
   const [createAgentModalOpen, setCreateAgentModalOpen] = useState(false)
   const [manageAgentsModalOpen, setManageAgentsModalOpen] = useState(false)
   const [infoModalOpen, setInfoModalOpen] = useState(false)
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
-  const [messageId, setMessageId] = useState<any>()
 
   const optionsItems = [
     {
@@ -38,22 +38,21 @@ const SupervisorMenu: FC<Props> = ({ bp, agents, disabled }) => {
   ]
 
   const onAgentCreated = createdUser => {
-    setMessageId('newAccount')
     setCreateAgentModalOpen(false)
     setInfoModalOpen(true)
     setEmail(createdUser.email)
     setPassword(createdUser.tempPassword)
+    getAgentsUsers()
   }
   const onPasswordReset = (email, password) => {
-    setMessageId('passwordReset')
     setEmail(email)
     setPassword(password)
     setInfoModalOpen(true)
     setManageAgentsModalOpen(false)
   }
   const onAgentRemoved = () => {
-    setMessageId('agentRemoved')
     setManageAgentsModalOpen(false)
+    getAgentsUsers()
   }
 
   return (
