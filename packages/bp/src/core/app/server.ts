@@ -427,6 +427,9 @@ export class HTTPServer {
         router: () => {
           return process.core_env.MESSAGING_ENDPOINT || `http://localhost:${process.MESSAGING_PORT}`
         },
+        onError: (err, req, res) => {
+          this.logger.error(`Error while proxy request to messaging endpoint:`, err)
+        },
         changeOrigin: false,
         logLevel: 'silent'
       })
