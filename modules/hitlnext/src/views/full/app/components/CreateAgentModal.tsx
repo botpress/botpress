@@ -1,6 +1,6 @@
 import { FormGroup } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
-import { lang, Dialog } from 'botpress/shared'
+import { lang, Dialog, toast } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { Button } from 'react-bootstrap'
@@ -19,14 +19,21 @@ class CreateAgentModal extends Component<Props> {
   }
 
   onSubmitClick = async () => {
-    const { data } = await this.props.bp.axios.post('/mod/hitlnext/agent/create', {
-      email: this.state.selectedUser.value
-    })
-    this.props.onAgentCreated && this.props.onAgentCreated(data.payload)
+    try {
+      const { data } = await this.props.bp.axios.post('/mod/hitlnext/agent/create', {
+        email: this.state.selectedUser.value
+      })
+      this.props.onAgentCreated && this.props.onAgentCreated(data.payload)
+      toast.success(`Agent ${this.state.selectedUser.value} created succesfully`)
+    } catch {
+      toast.failure(`Could not create agent ${this.state.selectedUser.value}`)
+    }
   }
-  onClose = () => {
-    this.setState({ show: false })
+  onCancelClick = async () => {
+    this.props.toggleOpen
+    this.setState({ selectedUser: '' })
   }
+
   setSelectedUser = option => {
     this.setState({ selectedUser: option })
   }
@@ -35,7 +42,7 @@ class CreateAgentModal extends Component<Props> {
     return (
       <Dialog.Wrapper
         style={{ height: 300 }}
-        title="Create new agent"
+        title="Create a new agent"
         isOpen={this.props.isOpen}
         onClose={this.props.toggleOpen}
       >
@@ -45,7 +52,6 @@ class CreateAgentModal extends Component<Props> {
               id="select-email"
               cacheOptions
               defaultOptions
-              value={this.state.selectedUser}
               onChange={option => this.setSelectedUser(option as any)}
               autoFocus={true}
             />
