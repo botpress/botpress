@@ -72,3 +72,7 @@ modules/*/assets/web/*
 modules/*/assets/config.schema.json
 **/out/**
 **/dist/**
+
+# my personal module
+/modules/weather
+/modules/weather.zip

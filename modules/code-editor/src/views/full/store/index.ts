@@ -180,6 +180,19 @@ class RootStore {
   }
 
   @action.bound
+  async bulkRenameFiles(files: EditableFile[], folderName: string) {
+    const promises = []
+    files.forEach((file: EditableFile) => {
+       promises.push(this.api.renameFile(file, `${folderName}/${file.name}`))
+    })
+
+    void Promise.all(promises).then(async () => {
+      toast.success(lang.tr('module.code-editor.store.fileRenamed'))
+      await this.fetchFiles()
+    })
+  }
+
+  @action.bound
   async duplicateFile(file: EditableFile, { keepSameName, forCurrentBot }: DuplicateOption = {}) {
     const fileExt = path.extname(file.location)
 

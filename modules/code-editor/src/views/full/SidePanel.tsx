@@ -5,7 +5,7 @@ import _ from 'lodash'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
 
-import { FileType } from '../../backend/typings'
+import {EditableFile, FileType} from '../../backend/typings'
 import { HOOK_SIGNATURES } from '../../typings/hooks'
 
 import FileStatus from './components/FileStatus'
@@ -19,7 +19,7 @@ import { EXAMPLE_FOLDER_LABEL } from './utils/tree'
 
 const { SearchBar, SidePanel, SidePanelSection } = ModuleUI
 
-class PanelContent extends React.Component<Props> {
+class PanelContent extends React.Component<Props, State> {
   private expandedNodes = {}
 
   state = {
@@ -34,6 +34,7 @@ class PanelContent extends React.Component<Props> {
     isMoveModalOpen: false,
     isCreateModalOpen: false,
     isUploadModalOpen: false,
+    isMultipleCutActive: false,
     fileType: undefined,
     hookType: undefined
   }
@@ -116,6 +117,13 @@ class PanelContent extends React.Component<Props> {
     const canWriteGlobal = this.hasPermission(`global.${type}`, true)
 
     return !isGlobalApp || (isGlobalApp && canWriteGlobal)
+  }
+
+  bulkRenameAndDisableAction = async(files: EditableFile[], folderName: string): Promise<void> => {
+    await this.props.store.bulkRenameFiles(files, folderName)
+    this.setState({
+      isMultipleCutActive: false
+    })
   }
 
   renderSectionModuleConfig() {
@@ -259,6 +267,17 @@ class PanelContent extends React.Component<Props> {
         label={lang.tr('module.code-editor.sidePanel.rawFileEditor')}
         actions={[
           {
+            id: 'btn-cut-multiple',
+            icon: <Icon icon="cut" color={this.state.isMultipleCutActive ? 'blue' : null} />,
+            key: 'multi-select',
+            onClick: () => this.setState((prevState) => {
+              return {
+                selectedFile: undefined,
+                isMultipleCutActive: !prevState.isMultipleCutActive
+              }
+            })
+          },
+          {
             id: 'btn-upload',
             icon: <Icon icon="upload" />,
             key: 'upload',
@@ -279,6 +298,8 @@ class PanelContent extends React.Component<Props> {
           selectedNode={this.state.selectedNode}
           onNodeStateExpanded={this.updateNodeExpanded}
           onNodeStateSelected={this.updateNodeSelected}
+          bulkMoveFiles={this.bulkRenameAndDisableAction}
+          isMultipleCutActive={this.state.isMultipleCutActive}
           moveFile={file => this.setState({ selectedFile: file, isMoveModalOpen: true })}
         />
         <NameModal
@@ -411,3 +432,25 @@ type Props = { store?: RootStore; editor?: EditorStore; uploadFile?: any } & Pic
   StoreDef,
   'files' | 'permissions' | 'createFilePrompt' | 'setFilenameFilter'
 >
+
+interface FilesWithLabel {
+  label: string
+  files: EditableFile[]
+}
+
+interface State {
+  actionFiles: FilesWithLabel[]
+  hookFiles: FilesWithLabel[]
+  botConfigs: FilesWithLabel[]
+  moduleConfigFiles: FilesWithLabel[]
+  rawFiles: FilesWithLabel[]
+  sharedLibs: FilesWithLabel[]
+  selectedNode: string
+  selectedFile: EditableFile
+  isMoveModalOpen: boolean
+  isCreateModalOpen: boolean
+  isUploadModalOpen: boolean
+  isMultipleCutActive: boolean
+  fileType: string
+  hookType?: string
+}
