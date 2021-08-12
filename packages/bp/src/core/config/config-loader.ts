@@ -180,7 +180,6 @@ export class ConfigProvider {
       'channel-web',
       'nlu',
       'qna',
-      'extensions',
       'code-editor',
       'testing',
       'examples'

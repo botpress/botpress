@@ -76,10 +76,10 @@ function renderElement(data, channel) {
 module.exports = {
   id: 'dropdown',
   group: 'Extensions',
-  title: 'module.extensions.types.dropdown.title',
+  title: 'module.builtin.types.dropdown.title',
 
   jsonSchema: {
-    title: 'module.extensions.types.dropdown.desc',
+    title: 'module.builtin.types.dropdown.desc',
     type: 'object',
     required: ['message'],
     properties: {
@@ -89,29 +89,29 @@ module.exports = {
       },
       buttonText: {
         type: 'string',
-        title: 'module.extensions.types.dropdown.buttonText',
-        description: 'module.extensions.types.dropdown.buttonDesc',
+        title: 'module.builtin.types.dropdown.buttonText',
+        description: 'module.builtin.types.dropdown.buttonDesc',
         default: ''
       },
       placeholderText: {
         type: 'string',
-        title: 'module.extensions.types.dropdown.placeholderText',
+        title: 'module.builtin.types.dropdown.placeholderText',
         default: 'Select a choice'
       },
       options: {
         type: 'array',
-        title: 'module.extensions.types.dropdown.optionsList',
+        title: 'module.builtin.types.dropdown.optionsList',
         items: {
           type: 'object',
           required: ['label'],
           properties: {
             label: {
-              description: 'module.extensions.types.dropdown.itemLabel',
+              description: 'module.builtin.types.dropdown.itemLabel',
               type: 'string',
               title: 'Label'
             },
             value: {
-              description: 'module.extensions.types.dropdown.itemValue',
+              description: 'module.builtin.types.dropdown.itemValue',
               type: 'string',
               title: 'Value'
             }
@@ -120,22 +120,22 @@ module.exports = {
       },
       width: {
         type: 'number',
-        title: 'module.extensions.types.dropdown.widthTitle',
-        description: 'module.extensions.types.dropdown.widthDesc'
+        title: 'module.builtin.types.dropdown.widthTitle',
+        description: 'module.builtin.types.dropdown.widthDesc'
       },
       displayInKeyboard: {
         type: 'boolean',
-        title: 'module.extensions.types.dropdown.asKeyboardTitle',
-        description: 'module.extensions.types.dropdown.asKeyboardDesc',
+        title: 'module.builtin.types.dropdown.asKeyboardTitle',
+        description: 'module.builtin.types.dropdown.asKeyboardDesc',
         default: true
       },
       allowCreation: {
         type: 'boolean',
-        title: 'module.extensions.types.dropdown.allowCreate'
+        title: 'module.builtin.types.dropdown.allowCreate'
       },
       allowMultiple: {
         type: 'boolean',
-        title: 'module.extensions.types.dropdown.allowMultiple'
+        title: 'module.builtin.types.dropdown.allowMultiple'
       },
       ...base.useMarkdown,
       ...base.typingIndicators
