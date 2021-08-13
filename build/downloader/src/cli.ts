@@ -16,6 +16,9 @@ export const toolsList = {
   },
   studio: {
     url: 'https://api.github.com/repos/botpress/studio/releases'
+  },  
+  messaging: {
+    url: 'https://api.github.com/repos/botpress/messaging/releases'
   }
 }
 

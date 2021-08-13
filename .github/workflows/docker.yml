@@ -10,6 +10,30 @@ jobs:
         with:
           token: ${{ secrets.PAT_DOCKER }}
           submodules: true
+      # Create an array of version to push to the Dockerhub registery
+      - name: Prepare
+        id: prep
+        run: |
+          TAG=$(echo $(git describe ${{github.sha}} --tags)) ## Get the tags from the SHA hash
+          VALID_TAG="^v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"  ## Will match Tags in the following format v123.231.123 or v1.2.3 will discard the following format v1.2.4-<revision>
+          DOCKER_IMAGE=botpress/server
+          VERSION=()
+          TAGS=()
+          if [[ $TAG =~ $VALID_TAG ]]; then
+            VERSION+=($(echo ${TAG} | sed -r 's/v//')) # transform v12.23.0 to 12.23.0
+            VERSION+=('latest')
+            VERSION+=($(echo ${TAG} | sed -r 's/\./_/g')) # Transform v12.13.0 to v12_13_0 ## Added backward compatibility
+            echo ::set-output name=release::"true"
+            TAGS+=("${VERSION[@]/#/${DOCKER_IMAGE}:}")
+          elif [[ $GITHUB_REF == refs/heads/* ]]; then
+            VERSION+=($(echo ${GITHUB_REF#refs/heads/} | sed -r 's#/+#-#g')) # transform feature/00-feature-branch to feature-00-feature-branch
+          fi
+          GITHUB_REGISTRY="ghcr.io/${{ github.repository_owner }}/${DOCKER_IMAGE}"
+          TAGS+=("${VERSION[@]/#/${GITHUB_REGISTRY}:}")
+          IFS=,
+          echo ::set-output name=version::${VERSION[*]}
+          echo ::set-output name=tags::"${TAGS[*]}"
+          echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
       - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
@@ -22,13 +46,26 @@ jobs:
           yarn --force --ignore-engines
           yarn run build --linux --prod --verbose
           yarn run package --linux
-          cp build/docker/Dockerfile out/binaries/
-      - name: Docker build and push
-        uses: docker/build-push-action@v1
+          cp build/docker/Dockerfile packages/bp/binaries/
+      - name: DockerHub Authentication
+        uses: docker/login-action@v1
+        if: ${{ steps.prep.outputs.release }}
         with:
-          username: ${{ github.actor }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          registry: docker.pkg.github.com
-          repository: botpress/botpress/botpress
-          path: out/binaries
-          tag_with_sha: true
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: ./packages/bp/binaries
+          push: true
+          tags: ${{ steps.prep.outputs.tags }}
+          labels: |
+            org.opencontainers.image.source=${{ github.event.repository.html_url }}
+            org.opencontainers.image.created=${{ steps.prep.outputs.created }}
+            org.opencontainers.image.revision=${{ github.sha }}

@@ -22,7 +22,6 @@ function render(data) {
         buttonText: '',
         displayInKeyboard: true,
         options: data.choices.map(c => ({ label: c.title, value: c.value.toUpperCase() })),
-        width: 300,
         placeholderText: data.dropdownPlaceholder
       }
     ]
