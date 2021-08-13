@@ -1,20 +1,22 @@
 import { Client, TrainInput, PredictOutput, Health, Specifications, TrainingProgress } from '@botpress/nlu-client'
 
 import _ from 'lodash'
-import { PollingWatcherPool } from './watcher-pool'
+
+type TrainListener = (tp: TrainingProgress | undefined) => Promise<'keep-listening' | 'stop-listening'>
+
+const TRAIN_POLLING_MS = 500
 
 export class StanEngine {
-  private _watchPool: PollingWatcherPool<[string, string], TrainingProgress>
+  constructor(private _client: Client, private _appSecret: string) {}
 
-  constructor(private _client: Client, private _appSecret: string) {
-    this._watchPool = new PollingWatcherPool<[string, string], TrainingProgress>(this.checkTraining.bind(this), 500, {
-      makeKey: (appId: string, modelId: string) => `${appId}/${modelId}`,
-      parseKey: (key: string) => key.split('/') as [string, string]
-    })
-  }
-
-  public get trainWatcher() {
-    return this._watchPool
+  public listenForTraining(botId: string, modelId: string, l: TrainListener) {
+    const interval = setInterval(async () => {
+      const tp = await this.getTraining(botId, modelId)
+      const ret = await l(tp)
+      if (ret === 'stop-listening') {
+        clearInterval(interval)
+      }
+    }, TRAIN_POLLING_MS)
   }
 
   public async getInfo(): Promise<{
@@ -29,12 +31,12 @@ export class StanEngine {
     return response.info
   }
 
-  public async hasModel(appId: string, modelId: string): Promise<boolean> {
-    const response = await this._client.listModels({ appSecret: this._appSecret, appId })
+  public async pruneModels(appId: string): Promise<string[]> {
+    const response = await this._client.pruneModels({ appSecret: this._appSecret, appId })
     if (!response.success) {
       return this._throwError(response.error)
     }
-    return response.models.includes(modelId)
+    return response.models
   }
 
   public async startTraining(appId: string, trainInput: TrainInput): Promise<string> {
@@ -67,14 +69,6 @@ export class StanEngine {
     const response = await this._client.getTrainingStatus(modelId, { appSecret: this._appSecret, appId })
     if (!response.success) {
       return
-    }
-    return response.session
-  }
-
-  private async checkTraining(appId: string, modelId: string): Promise<TrainingProgress> {
-    const response = await this._client.getTrainingStatus(modelId, { appSecret: this._appSecret, appId })
-    if (!response.success) {
-      throw new Error(response.error)
     }
     return response.session
   }

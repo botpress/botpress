@@ -6,20 +6,20 @@ interface ModelPrimaryKey {
   state: 'ready' | 'training'
 }
 
-export interface Model extends ModelPrimaryKey {
+export interface ModelState extends ModelPrimaryKey {
   modelId: string
   definitionHash: string
 }
 
-export interface IModelRepository {
-  get(key: ModelPrimaryKey): Promise<Model | undefined>
+export interface IModelStateRepository {
+  get(key: ModelPrimaryKey): Promise<ModelState | undefined>
   has(key: ModelPrimaryKey): Promise<boolean>
-  set(model: Model): Promise<void>
+  set(model: ModelState): Promise<void>
   del(key: ModelPrimaryKey): Promise<void>
-  query(query: Partial<Model>): Promise<Model[]>
+  query(query: Partial<ModelState>): Promise<ModelState[]>
 }
 
-export class DbModelRepository implements IModelRepository {
+export class DbModelStateRepository implements IModelStateRepository {
   private _tableName = 'models'
 
   constructor(private _db: sdk.KnexExtended) {}
@@ -35,7 +35,7 @@ export class DbModelRepository implements IModelRepository {
     })
   }
 
-  public async get(key: ModelPrimaryKey): Promise<Model | undefined> {
+  public async get(key: ModelPrimaryKey): Promise<ModelState | undefined> {
     return this._db
       .table(this._tableName)
       .where(key)
@@ -47,7 +47,7 @@ export class DbModelRepository implements IModelRepository {
     return !!(await this.get(key))
   }
 
-  public async set(model: Model): Promise<void> {
+  public async set(model: ModelState): Promise<void> {
     const { modelId, definitionHash, ...key } = model
     if (await this.has(key)) {
       return this._db
@@ -65,7 +65,7 @@ export class DbModelRepository implements IModelRepository {
       .del()
   }
 
-  public async query(query: Partial<Model>): Promise<Model[]> {
+  public async query(query: Partial<ModelState>): Promise<ModelState[]> {
     return this._db
       .table(this._tableName)
       .where(query)
@@ -73,10 +73,10 @@ export class DbModelRepository implements IModelRepository {
   }
 }
 
-export class InMemModelRepository implements IModelRepository {
-  private _table: Model[] = []
+export class InMemModelStateRepository implements IModelStateRepository {
+  private _table: ModelState[] = []
 
-  public async get(key: ModelPrimaryKey): Promise<Model | undefined> {
+  public async get(key: ModelPrimaryKey): Promise<ModelState | undefined> {
     return this._table.find(m => this._areSame(m, key))
   }
 
@@ -84,7 +84,7 @@ export class InMemModelRepository implements IModelRepository {
     return !!(await this.get(key))
   }
 
-  public async set(newModel: Model): Promise<void> {
+  public async set(newModel: ModelState): Promise<void> {
     const idx = this._table.findIndex(m => this._areSame(m, newModel))
     if (idx < 0) {
       this._table.push(newModel)
@@ -101,11 +101,11 @@ export class InMemModelRepository implements IModelRepository {
     this._table.splice(idx, 1)
   }
 
-  public async query(query: Partial<Model>): Promise<Model[]> {
+  public async query(query: Partial<ModelState>): Promise<ModelState[]> {
     return this._table.filter(m => this._satisfiesQuery(m, query))
   }
 
-  private _satisfiesQuery = (m: Model, query: Partial<Model>) => {
+  private _satisfiesQuery = (m: ModelState, query: Partial<ModelState>) => {
     for (const field in query) {
       if (query[field] !== m[field]) {
         return false

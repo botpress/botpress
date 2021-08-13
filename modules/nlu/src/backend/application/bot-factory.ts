@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { StanEngine } from '../stan'
 import { Bot } from './bot'
 import { DefinitionsRepository } from './definitions-repository'
-import { IModelRepository } from './model-repo'
+import { ModelStateService } from './model-state-service'
 import pickSeed from './pick-seed'
 
 import { BotDefinition, BotConfig, TrainingSession } from './typings'
@@ -18,7 +18,7 @@ export class BotFactory {
     private _engine: StanEngine,
     private _logger: sdk.Logger,
     private _defRepo: DefinitionsRepository,
-    private _modelRepo: IModelRepository,
+    private _modelStateService: ModelStateService,
     private _webSocket: (ts: TrainingSession) => void
   ) {}
 
@@ -40,6 +40,6 @@ export class BotFactory {
       seed: pickSeed(botConfig)
     }
 
-    return new Bot(botDefinition, this._engine, this._defRepo, this._modelRepo, this._webSocket, this._logger)
+    return new Bot(botDefinition, this._engine, this._defRepo, this._modelStateService, this._webSocket, this._logger)
   }
 }

@@ -9,7 +9,8 @@ import { Config, LanguageSource } from '../config'
 import { getWebsocket } from './api'
 import { BotFactory } from './application/bot-factory'
 import { DefinitionsRepository } from './application/definitions-repository'
-import { DbModelRepository, IModelRepository, InMemModelRepository } from './application/model-repo'
+import { DbModelStateRepository } from './application/model-state-repo'
+import { ModelStateService } from './application/model-state-service'
 import { NonBlockingNluApplication } from './application/non-blocking-app'
 import { StanEngine } from './stan'
 
@@ -46,11 +47,12 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
 
   const socket = getWebsocket(bp)
 
-  const modelRepo = new DbModelRepository(bp.database)
+  const modelRepo = new DbModelStateRepository(bp.database)
   await modelRepo.initialize()
+  const modelStateService = new ModelStateService(modelRepo)
 
   const defRepo = new DefinitionsRepository(bp)
-  const botFactory = new BotFactory(engine, bp.logger, defRepo, modelRepo, socket)
+  const botFactory = new BotFactory(engine, bp.logger, defRepo, modelStateService, socket)
   const application = new NonBlockingNluApplication(engine, botFactory)
 
   // don't block entire server startup
