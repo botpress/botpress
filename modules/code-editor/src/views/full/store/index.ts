@@ -183,7 +183,7 @@ class RootStore {
   async bulkRenameFiles(files: EditableFile[], folderName: string) {
     const promises = []
     files.forEach((file: EditableFile) => {
-       promises.push(this.api.renameFile(file, `${folderName}/${file.name}`))
+      promises.push(this.api.renameFile(file, `${folderName}/${file.name}`))
     })
 
     void Promise.all(promises).then(async () => {
