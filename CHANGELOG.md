@@ -1,3 +1,18 @@
+## [12.24.1](https://github.com/botpress/botpress/compare/v12.24.0...v12.24.1) (2021-08-13)
+
+
+### Bug Fixes
+
+* **ci_cd:** Modified if on the dockerhub connection ([#5275](https://github.com/botpress/botpress/issues/5275)) ([3789a40](https://github.com/botpress/botpress/commit/3789a40))
+* **core:** fix error when creating or importing a bot ([#5295](https://github.com/botpress/botpress/issues/5295)) ([7433244](https://github.com/botpress/botpress/commit/7433244))
+
+
+### Features
+
+* **hitlnext:** colored handoffs ([#5260](https://github.com/botpress/botpress/issues/5260)) ([de7a173](https://github.com/botpress/botpress/commit/de7a173))
+
+
+
 # [12.24.0](https://github.com/botpress/botpress/compare/v12.23.2...v12.24.0) (2021-08-11)
 
 
