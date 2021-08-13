@@ -41,13 +41,13 @@ export function config(projectPath) {
       'botpress/shared': 'BotpressShared'
     },
     resolveLoader: {
-      modules: ['node_modules', path.resolve(__dirname, '../node_modules')]
+      modules: [path.resolve(__dirname, '../node_modules'), 'node_modules']
     },
     resolve: {
       alias: {
-        common: path.resolve(__dirname, '../../../out/bp/common')
+        common: path.resolve(__dirname, '../../../packages/bp/dist/common')
       },
-      modules: ['node_modules', path.resolve(__dirname, '../../../src/bp/ui-studio/node_modules')],
+      modules: ['node_modules', path.resolve(__dirname, '../../../packages/ui-shared/node_modules')],
       extensions: ['.js', '.jsx', '.tsx', '.ts']
     },
     plugins: [new CleanWebpackPlugin()],

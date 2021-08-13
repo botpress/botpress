@@ -12,15 +12,13 @@
     "typeRoots": ["../../node_modules/@types"],
     "types": ["jest", "bluebird-global"],
     "paths": {
-      "botpress/ui": ["../../../../src/bp/ui-studio/src/web/components/Shared/Interface/typings.d.ts"],
-      "botpress/utils": ["../../../../src/bp/ui-studio/src/web/components/Shared/Utils/typings.d.ts"],
-      "botpress/shared": ["../../../../src/bp/ui-shared/src/typings.d.ts"],
-      "botpress/sdk": ["../../../../src/bp/sdk/botpress.d.ts"],
-      "common/*": ["../../../../src/bp/common/*"],
-      "@blueprintjs/core": ["../../../../src/bp/ui-studio/node_modules/@blueprintjs/core"],
-      "@blueprintjs/select": ["../../../../src/bp/ui-studio/node_modules/@blueprintjs/select"],
-      "react": ["../../../../src/bp/ui-studio/node_modules/@types/react"],
-      "react-dom": ["../../../../src/bp/ui-studio/node_modules/@types/react-dom"]
+      "botpress/shared": ["../../../../packages/ui-shared/src/typings.d.ts"],
+      "botpress/sdk": ["../../../../packages/bp/src/sdk/botpress.d.ts"],
+      "common/*": ["../../../../packages/bp/src/common/*"],
+      "@blueprintjs/core": ["../../../../packages/ui-shared/node_modules/@blueprintjs/core"],
+      "@blueprintjs/select": ["../../../../packages/ui-shared/node_modules/@blueprintjs/select"],
+      "react": ["../../../../packages/ui-shared/node_modules/@types/react"],
+      "react-dom": ["../../../../packages/ui-shared/node_modules/@types/react-dom"]
     }
   },
   "exclude": ["**/*.test.ts"]

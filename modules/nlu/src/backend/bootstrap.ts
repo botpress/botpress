@@ -1,3 +1,4 @@
+import { Client } from '@botpress/nlu-client'
 import * as sdk from 'botpress/sdk'
 
 import { makeNLUPassword } from 'common/nlu-token'
@@ -14,12 +15,11 @@ import { ScopedDefinitionsRepository } from './application/scoped/infrastructure
 import { TrainingRepository } from './application/training-repo'
 import { BotDefinition } from './application/typings'
 import { StanEngine } from './stan'
-import { StanClient } from './stan/client'
 
 const getNLUServerConfig = (config: Config['nluServer']): LanguageSource => {
   if (config.autoStart) {
     return {
-      endpoint: 'http://localhost:3200',
+      endpoint: `http://localhost:${process.NLU_PORT}`,
       authToken: makeNLUPassword()
     }
   }
@@ -42,7 +42,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
   }
 
   const { endpoint, authToken } = getNLUServerConfig(globalConfig.nluServer)
-  const stanClient = new StanClient(endpoint, authToken)
+  const stanClient = new Client(endpoint, authToken)
 
   const modelPassword = '' // No need for password as Stan is protected by an auth token
   const engine = new StanEngine(stanClient, modelPassword)

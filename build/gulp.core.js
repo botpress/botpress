@@ -8,8 +8,10 @@ const file = require('gulp-file')
 const buildJsonSchemas = require('./jsonschemas')
 const fs = require('fs')
 const mkdirp = require('mkdirp')
-const exec = require('child_process').exec
-const rimraf = require('gulp-rimraf')
+const { exec, spawn } = require('child_process')
+const gulpRimraf = require('gulp-rimraf')
+const rimraf = require('rimraf')
+require('bluebird-global')
 
 const maybeFetchPro = () => {
   const isProBuild = process.env.EDITION === 'pro' || fs.existsSync('pro')
@@ -31,10 +33,10 @@ const writeMetadata = () => {
 }
 
 const clearMigrations = () => {
-  return gulp.src('./out/bp/migrations/*.*', { allowEmpty: true }).pipe(rimraf())
+  return gulp.src('./packages/bp/dist/migrations/*.*', { allowEmpty: true }).pipe(gulpRimraf())
 }
 
-const tsProject = ts.createProject(path.resolve(__dirname, '../src/tsconfig.json'))
+const tsProject = ts.createProject(path.resolve(__dirname, '../packages/bp/tsconfig.json'))
 const compileTypescript = () => {
   return tsProject
     .src()
@@ -48,18 +50,18 @@ const compileTypescript = () => {
         }
       })
     )
-    .pipe(gulp.dest('./out/bp'))
+    .pipe(gulp.dest('./packages/bp/dist'))
 }
 
 const watch = () => {
-  return gulp.watch(['./src/**/*.ts'], { ignored: ['./src/bp/ui-**'] }, compileTypescript)
+  return gulp.watch(['./packages/bp/src/**/*.ts'], { ignored: ['./src/bp/ui-**'] }, compileTypescript)
 }
 
 const createOutputDirs = () => {
   return gulp
     .src('*.*', { read: false })
-    .pipe(gulp.dest('./out/bp/data'))
-    .pipe(gulp.dest('./out/bp/data/storage'))
+    .pipe(gulp.dest('./packages/bp/dist/data'))
+    .pipe(gulp.dest('./packages/bp/dist/data/storage'))
 }
 
 const buildSchemas = cb => {
@@ -68,15 +70,19 @@ const buildSchemas = cb => {
 }
 
 const copyBinaries = () => {
-  return gulp.src('src/bp/ml/bin/*.*').pipe(gulp.dest('./out/bp/ml/bin'))
+  return gulp.src('src/bp/ml/bin/*.*').pipe(gulp.dest('./packages/bp/dist/ml/bin'))
 }
 
 const copyPreTrained = () => {
-  return gulp.src('src/bp/nlu/engine/assets/pre-trained/*').pipe(gulp.dest('./out/bp/nlu/engine/assets/pre-trained'))
+  return gulp
+    .src('src/bp/nlu/engine/assets/pre-trained/*')
+    .pipe(gulp.dest('./packages/bp/dist/nlu/engine/assets/pre-trained'))
 }
 
 const copyStopWords = () => {
-  return gulp.src('src/bp/nlu/engine/assets/stop-words/*').pipe(gulp.dest('./out/bp/nlu/engine/assets/stop-words'))
+  return gulp
+    .src('src/bp/nlu/engine/assets/stop-words/*')
+    .pipe(gulp.dest('./packages/bp/dist/nlu/engine/assets/stop-words'))
 }
 
 const checkTranslations = cb => {
@@ -85,6 +91,19 @@ const checkTranslations = cb => {
     console.log(stdout, stderr)
     cb(err)
   })
+}
+
+const buildDownloader = cb => {
+  const child = exec('yarn && yarn build', { cwd: 'build/downloader' }, err => cb(err))
+  child.stdout.pipe(process.stdout)
+  child.stderr.pipe(process.stderr)
+}
+
+const initDownloader = cb => {
+  const proc = spawn('yarn', ['start', 'init'], { cwd: 'build/downloader', stdio: 'inherit', shell: true })
+  proc.on('exit', (code, signal) =>
+    cb(code !== 0 ? new Error(`Process exited with exit-code ${code} and signal ${signal}`) : undefined)
+  )
 }
 
 const build = () => {
@@ -101,8 +120,19 @@ const build = () => {
   ])
 }
 
+const cleanup = async () => {
+  await Promise.fromCallback(cb => rimraf('packages/bp/archives', cb))
+  await Promise.fromCallback(cb => rimraf('packages/bp/binaries', cb))
+  await Promise.fromCallback(cb => rimraf('**/dist/**', cb))
+  await Promise.fromCallback(cb => rimraf('out', cb))
+  await Promise.fromCallback(cb => rimraf('**/node_modules/**', cb))
+}
+
 module.exports = {
   build,
   watch,
-  checkTranslations
+  checkTranslations,
+  buildDownloader,
+  initDownloader,
+  cleanup
 }

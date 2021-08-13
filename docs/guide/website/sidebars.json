@@ -3,24 +3,37 @@
     "Release Notes": ["releases/migrate"],
     "Getting Started": ["introduction", "installation", "quickstart"],
     "Building A Chatbot": [
-      "main/overview",
-      "main/glossary",
+      "main/overview2",
       "main/content",
       "main/dialog",
-      "main/code",
       "main/memory",
+      "main/emulator",
+      "main/qna-module",
+      "main/code",
       "main/module",
       "main/nlu",
-      "main/emulator"
+      "main/broadcast",
+      "main/glossary"
+    ],
+    "Natural Language Understanding": [
+      "nlu/intro-nlu",
+      "nlu/intent-matching",
+      "nlu/entity-extraction",
+      "nlu/skill-slot",
+      "nlu/improvement",
+      "nlu/3rd-party-NLU",
+      "nlu/i18n"
     ],
     "Channels": [
       "channels/web",
+      "channels/converse",
       "channels/messenger",
       "channels/telegram",
       "channels/teams",
-      "channels/converse",
+      "channels/twilio",
       "channels/slack",
       "channels/smooch",
+      "channels/vonage",
       "channels/faq"
     ],
     "Deployment And Infrastructure": [
@@ -46,28 +59,20 @@
       "managing/hitlnext",
       "managing/features"
     ],
+    "Integrating External Services": [
+      "integrating/skill-call-api",
+      "integrating/external-api",
+      "integrating/existing-backend",
+      "integrating/uipath"
+    ],
     "Improving Your Chatbot": [
-      "tutorials/intent-matching",
       "tutorials/carousel-postback",
-      "tutorials/skill-slot",
-      "tutorials/skill-call-api",
       "tutorials/skill-email",
-      "tutorials/external-api",
-      "tutorials/shortlinks",
-      "tutorials/existing-backend",
       "tutorials/timeouts",
       "tutorials/jump-to",
-      "tutorials/interbot",
-      "tutorials/contextual-faq",
-      "tutorials/chat-3rd-party-OAuth",
-      "tutorials/listen-file-changes",
-      "tutorials/3rd-party-NLU",
-      "tutorials/uipath",
-      "tutorials/azure-oauth2",
-      "tutorials/google-oauth2",
-      "tutorials/github-oauth2"
+      "tutorials/contextual-faq"
     ],
-    "Pro Edition": ["pro/about-pro", "pro/licensing", "pro/i18n"],
+    "Pro Edition": ["pro/about-pro", "pro/licensing"],
     "Advanced Guides": [
       "advanced/debug",
       "advanced/authentication",

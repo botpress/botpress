@@ -121,8 +121,7 @@ module.exports = {
       width: {
         type: 'number',
         title: 'module.extensions.types.dropdown.widthTitle',
-        description: 'module.extensions.types.dropdown.widthDesc',
-        default: 200
+        description: 'module.extensions.types.dropdown.widthDesc'
       },
       displayInKeyboard: {
         type: 'boolean',
@@ -138,11 +137,7 @@ module.exports = {
         type: 'boolean',
         title: 'module.extensions.types.dropdown.allowMultiple'
       },
-      markdown: {
-        type: 'boolean',
-        title: 'module.extensions.types.dropdown.useMarkdown',
-        default: true
-      },
+      ...base.useMarkdown,
       ...base.typingIndicators
     }
   },

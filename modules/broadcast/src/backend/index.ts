@@ -31,7 +31,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   translations: { en, fr, es },
   definition: {
     name: 'broadcast',
-    menuIcon: 'settings_input_antenna',
+    menuIcon: 'cell-tower',
     menuText: 'Broadcast',
     fullName: 'Broadcast',
     homepage: 'https://botpress.com'

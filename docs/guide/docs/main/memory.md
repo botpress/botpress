@@ -13,7 +13,7 @@ You can access these system parameters from the flow builder and from within you
 
 For example, the path shown in the emulator to the language parameter is nlu.language. You can reference that parameter by adding “event.” to the path shown in the emulator i.e. event.nlu.language.
 
-![NLU Language Emulator](assets/nlu-language-emulator.png)
+![NLU Language Emulator](../assets/nlu-language-emulator.png)
 
 In the Flow Editor you can access system parameters by bracketing them with two sets of curly brackets.
 
@@ -21,17 +21,17 @@ For example in a message you could say:
 
 The bot's language is {{event.nlu.language}}.
 
-![NLU Language Message](assets/nlu-language-message.png)
+![NLU Language Message](../assets/nlu-language-message.png)
 
 You can also set variables to be the value of a system parameter as follows:
 
-![NLU Language Set Variable](assets/nlu-language-set-variable.png)
+![NLU Language Set Variable](../assets/nlu-language-set-variable.png)
 
 For raw expressions or for code (such as in Actions) you don't need the curly brackets.
 
 Here is an example of a raw expression in a transition:
 
-![NLU Language Raw Expression](assets/nlu-language-raw-expression.png)
+![NLU Language Raw Expression](../assets/nlu-language-raw-expression.png)
 
 Here is a code example where a temporary boolean variable (`temp.englishUser`) is set for all English speaking chatbot users:
 
@@ -69,7 +69,7 @@ function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { user, 
 
 In the same way as described above, it would be possible to access the values of extracted slots by copying the path from the emulator and prefixing it with "event." i.e. {{state.session.slots.food.value}} in the flow builder and state.session.slots.food.value in code. "food" is a slot that was set up intent by the bot builder.
 
-![Slot Extraction Emulator](assets/slot-extraction-emulator.png)
+![Slot Extraction Emulator](../assets/slot-extraction-emulator.png)
 
 As is possible in Javascript, it is also possible to access the parameters with the systax `{{state.session.slots["food"].value}}`
 
@@ -96,7 +96,7 @@ In code the variable is declared simply using it. For example if you type **`tem
 
 As with system parameters (see System Parameters section), variables can be accessed in the flow builder and the Set Variable dialog by bracketing the variables with double curly brackets `{{temp.userName}}` as follows:
 
-![User Name Message](assets/user-name-message.png)
+![User Name Message](../assets/user-name-message.png)
 
 In code or raw expresssions the reference to the variable would not need the double curly brackets. in the example below, two variable are referenced, `temp.user_name` and `temp.name_given`
 
@@ -137,7 +137,7 @@ You can consume a memory action just like any other action from the Botpress Flo
 
 ##### Memory Action Example
 
-![Flow Memory Action](assets/flow-memory-action.png)
+![Flow Memory Action](../assets/flow-memory-action.png)
 
 ### User Memory
 

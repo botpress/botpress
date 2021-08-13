@@ -36,7 +36,6 @@ const entryPoint: sdk.ModuleEntryPoint = {
   translations: { en, fr, es },
   definition: {
     name: 'extensions',
-    menuIcon: 'none',
     menuText: 'Extensions',
     noInterface: true,
     fullName: 'Extensions',
