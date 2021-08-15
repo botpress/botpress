@@ -1,8 +1,8 @@
-import { Client, TrainInput, PredictOutput, Health, Specifications, TrainingProgress } from '@botpress/nlu-client'
+import { Client, TrainInput, PredictOutput, Health, Specifications, TrainingState } from '@botpress/nlu-client'
 
 import _ from 'lodash'
 
-type TrainListener = (tp: TrainingProgress | undefined) => Promise<'keep-listening' | 'stop-listening'>
+type TrainListener = (tp: TrainingState | undefined) => Promise<'keep-listening' | 'stop-listening'>
 
 const TRAIN_POLLING_MS = 500
 
@@ -65,7 +65,7 @@ export class StanEngine {
     return response.modelId
   }
 
-  public async getTraining(appId: string, modelId: string): Promise<TrainingProgress | undefined> {
+  public async getTraining(appId: string, modelId: string): Promise<TrainingState | undefined> {
     const response = await this._client.getTrainingStatus(modelId, { appSecret: this._appSecret, appId })
     if (!response.success) {
       return

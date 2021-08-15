@@ -20,7 +20,7 @@ export interface IModelStateRepository {
 }
 
 export class DbModelStateRepository implements IModelStateRepository {
-  private _tableName = 'models'
+  private _tableName = 'model_state'
 
   constructor(private _db: sdk.KnexExtended) {}
 

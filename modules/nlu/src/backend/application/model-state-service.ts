@@ -47,10 +47,6 @@ export class ModelStateService {
     await this._modelRepo.set(currentTraining)
   }
 
-  public async trainingAborted(botId: string, language: string) {
-    return this._modelRepo.del({ botId, language, state: 'training' })
-  }
-
   public async getTraining(botId: string, language: string): Promise<_Model | undefined> {
     const currentTraining = await this._modelRepo.get({ botId, language, state: 'training' })
     if (!currentTraining) {

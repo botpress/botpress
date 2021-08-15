@@ -1,6 +1,7 @@
 import { TrainingStatus } from '@botpress/nlu-client'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
+import ms from 'ms'
 import { StanEngine } from 'src/backend/stan'
 import { mapTrainSet } from '../../stan/api-mapper'
 import { DefinitionsRepository } from '../definitions-repository'
@@ -87,7 +88,6 @@ export class Trainer implements ITrainer {
         if (ts.status === 'canceled') {
           this._webSocket({ status: 'needs-training', progress: 0, botId: this._botId, language })
           this._logger.info(`Training ${_botId}:${language} was canceled with success`)
-          await this._modelStateService.trainingAborted(this._botId, language)
           resolve()
           return 'stop-listening'
         }
@@ -96,7 +96,6 @@ export class Trainer implements ITrainer {
           this._webSocket({ ...ts, botId: this._botId, language })
           const err = new Error(ts.error.message)
           err.stack = ts.error.stackTrace
-          await this._modelStateService.trainingAborted(this._botId, language)
           reject(err)
           return 'stop-listening'
         }
@@ -139,7 +138,11 @@ export class Trainer implements ITrainer {
     this._webSocket({ botId: this._botId, language, status: 'canceled', progress: 0 })
     const model = await this._modelStateService.getTraining(this._botId, language)
     if (model) {
-      return this._engine.cancelTraining(this._botId, model.id)
+      await this._engine.cancelTraining(this._botId, model.id)
+      setTimeout(async () => {
+        const currentTraining = await this.getTraining(language)
+        this._webSocket({ ...currentTraining, botId: this._botId, language })
+      }, ms('1s'))
     }
   }
 
