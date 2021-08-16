@@ -24,6 +24,9 @@ export interface BotConfig {
   locked: boolean
   pipeline_status: BotPipelineStatus
   oneflow?: boolean
+  qna: {
+    disabled: boolean
+  }
 }
 
 export interface BotPipelineStatus {

@@ -19,7 +19,12 @@ const getAlternativeAnswer = (qnaEntry: QnaEntry, lang: string): string => {
 
 @injectable()
 export class QnaService {
-  private loadedBots: { [botId: string]: string } = {}
+  private loadedBots: {
+    [botId: string]: {
+      defaultLang: string
+      qnaDisabled: boolean
+    }
+  } = {}
 
   constructor(
     @inject(TYPES.EventEngine)
@@ -38,8 +43,8 @@ export class QnaService {
       direction: 'incoming',
       handler: async (event: any, next) => {
         if (!event.hasFlag(WellKnownFlags.SKIP_QNA_PROCESSING)) {
-          const defaultLang = await this._getBotDefaultLang(event.botId)
-          if (defaultLang) {
+          const { defaultLang, qnaDisabled } = await this._getBotConfig(event.botId)
+          if (defaultLang && !qnaDisabled) {
             await this._processEvent(event, defaultLang)
           }
 
@@ -83,7 +88,7 @@ export class QnaService {
   getIntentActions = async (intentName: string, event: sdk.IO.IncomingEvent): Promise<sdk.NDU.Actions[]> => {
     const actions: any = []
 
-    const defaultLang = await this._getBotDefaultLang(event.botId)
+    const { defaultLang } = await this._getBotConfig(event.botId)
     const qnaEntry = await this.getQuestionForIntent(intentName, event.botId)
 
     if (qnaEntry?.enabled) {
@@ -100,7 +105,7 @@ export class QnaService {
     return actions
   }
 
-  private _getBotDefaultLang = async (botId: string) => {
+  private _getBotConfig = async (botId: string) => {
     if (this.loadedBots[botId]) {
       return this.loadedBots[botId]
     } else {
@@ -109,7 +114,10 @@ export class QnaService {
         throw new Error('Unknown bot ID')
       }
 
-      return (this.loadedBots[botId] = botInfo.defaultLanguage)
+      return (this.loadedBots[botId] = {
+        defaultLang: botInfo.defaultLanguage,
+        qnaDisabled: botInfo.qna?.disabled ?? false
+      })
     }
   }
 
