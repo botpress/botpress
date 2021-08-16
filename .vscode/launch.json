@@ -18,7 +18,7 @@
       },
       "smartStep": true,
       "outFiles": [
-        "${workspaceFolder}/out/**/*.js",
+        "${workspaceFolder}/packages/**/dist/**/*.js",
         "${workspaceFolder}/modules/**/dist/**/*.js",
         "${workspaceFolder}/private-modules/**/dist/**/*.js",
         "!${workspaceFolder}/**/node_modules/**/*.js"
