@@ -1,15 +1,15 @@
 import _ from 'lodash'
 
-import { StanEngine } from '../stan'
 import { Bot } from './bot'
 import { BotFactory } from './bot-factory'
 import { BotNotMountedError } from './errors'
+import { NLUClient } from './nlu-client'
 import { Predictor, BotConfig, TrainingState } from './typings'
 
 export class NLUApplication {
   private _bots: _.Dictionary<Bot> = {}
 
-  constructor(private _engine: StanEngine, private _botFactory: BotFactory) {}
+  constructor(private _engine: NLUClient, private _botFactory: BotFactory) {}
 
   public async teardown() {
     for (const botId of Object.keys(this._bots)) {

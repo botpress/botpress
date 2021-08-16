@@ -2,10 +2,9 @@ import { TrainingStatus } from '@botpress/nlu-client'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import ms from 'ms'
-import { StanEngine } from 'src/backend/stan'
-import { mapTrainSet } from '../../stan/api-mapper'
 import { DefinitionsRepository } from '../definitions-repository'
 import { ModelStateService } from '../model-state-service'
+import { NLUClient } from '../nlu-client'
 import { TrainingState, TrainingSession, BotDefinition } from '../typings'
 
 interface TrainingSet {
@@ -30,7 +29,7 @@ export class Trainer implements ITrainer {
 
   constructor(
     botDef: BotDefinition,
-    private _engine: StanEngine,
+    private _nluClient: NLUClient,
     private _defRepo: DefinitionsRepository,
     private _modelStateService: ModelStateService,
     private _webSocket: (ts: TrainingSession) => void,
@@ -48,20 +47,17 @@ export class Trainer implements ITrainer {
   public async teardown() {
     this._needTrainingWatcher.remove()
     // TODO: cancel all trainings
-    return this._engine.pruneModels(this._botId)
+    return this._nluClient.pruneModels(this._botId)
   }
 
   public train = async (language: string): Promise<void> => {
-    const { _engine, _defRepo: _defService, _botId } = this
-
     const bpTrainSet = await this._getTrainSet(language)
-    const stanTrainSet = mapTrainSet(bpTrainSet)
 
     return new Promise(async (resolve, reject) => {
-      const modelId = await _engine.startTraining(this._botId, stanTrainSet)
+      const modelId = await this._nluClient.startTraining(this._botId, bpTrainSet)
       await this._modelStateService.trainingStarted(this._botId, language, modelId, bpTrainSet)
 
-      this._engine.listenForTraining(this._botId, modelId, async ts => {
+      this._nluClient.listenForTraining(this._botId, modelId, async ts => {
         if (!ts) {
           return 'keep-listening'
         }
@@ -73,7 +69,7 @@ export class Trainer implements ITrainer {
 
         if (ts.status === 'errored' && ts.error?.type === 'already-started') {
           // no notification needed to websocket
-          this._logger.info(`Training ${_botId}:${language} already started`)
+          this._logger.info(`Training ${this._botId}:${language} already started`)
           resolve()
           return 'stop-listening'
         }
@@ -87,7 +83,7 @@ export class Trainer implements ITrainer {
 
         if (ts.status === 'canceled') {
           this._webSocket({ status: 'needs-training', progress: 0, botId: this._botId, language })
-          this._logger.info(`Training ${_botId}:${language} was canceled with success`)
+          this._logger.info(`Training ${this._botId}:${language} was canceled with success`)
           resolve()
           return 'stop-listening'
         }
@@ -110,7 +106,7 @@ export class Trainer implements ITrainer {
 
     const currentTraining = await this._modelStateService.getTraining(this._botId, language)
     if (currentTraining) {
-      const trainState = await this._engine.getTraining(this._botId, currentTraining.id)
+      const trainState = await this._nluClient.getTraining(this._botId, currentTraining.id)
       if (!trainState) {
         return defaultTrainState
       }
@@ -121,7 +117,7 @@ export class Trainer implements ITrainer {
 
     const model = await this._modelStateService.getModel(this._botId, language)
     if (model) {
-      const trainState = await this._engine.getTraining(this._botId, model.id)
+      const trainState = await this._nluClient.getTraining(this._botId, model.id)
       if (!trainState) {
         return defaultTrainState
       }
@@ -138,7 +134,7 @@ export class Trainer implements ITrainer {
     this._webSocket({ botId: this._botId, language, status: 'canceled', progress: 0 })
     const model = await this._modelStateService.getTraining(this._botId, language)
     if (model) {
-      await this._engine.cancelTraining(this._botId, model.id)
+      await this._nluClient.cancelTraining(this._botId, model.id)
       setTimeout(async () => {
         const currentTraining = await this.getTraining(language)
         this._webSocket({ ...currentTraining, botId: this._botId, language })

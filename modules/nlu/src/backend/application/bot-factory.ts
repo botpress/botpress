@@ -1,10 +1,10 @@
 import * as sdk from 'botpress/sdk'
 
 import _ from 'lodash'
-import { StanEngine } from '../stan'
 import { Bot } from './bot'
 import { DefinitionsRepository } from './definitions-repository'
 import { ModelStateService } from './model-state-service'
+import { NLUClient } from './nlu-client'
 import pickSeed from './pick-seed'
 
 import { BotDefinition, BotConfig, TrainingSession } from './typings'
@@ -15,7 +15,7 @@ export interface ConfigResolver {
 
 export class BotFactory {
   constructor(
-    private _engine: StanEngine,
+    private _engine: NLUClient,
     private _logger: sdk.Logger,
     private _defRepo: DefinitionsRepository,
     private _modelStateService: ModelStateService,

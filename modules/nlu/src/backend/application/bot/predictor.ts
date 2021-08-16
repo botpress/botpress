@@ -1,8 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import { StanEngine } from 'src/backend/stan'
-import { mapPredictOutput } from '../../stan/api-mapper'
 import { ModelStateService } from '../model-state-service'
+import { NLUClient } from '../nlu-client'
 import { EventUnderstanding } from '../typings'
 
 interface BotDefinition {
@@ -24,7 +23,7 @@ export class Predictor implements IPredictor {
 
   constructor(
     bot: BotDefinition,
-    private _engine: StanEngine,
+    private _nluClient: NLUClient,
     private _modelStateService: ModelStateService,
     private _logger: sdk.Logger
   ) {
@@ -37,7 +36,7 @@ export class Predictor implements IPredictor {
 
     let detectedLanguage: string | undefined
     try {
-      detectedLanguage = await this._engine.detectLanguage(
+      detectedLanguage = await this._nluClient.detectLanguage(
         this._botId,
         textInput,
         _(modelsByLang)
@@ -82,8 +81,7 @@ export class Predictor implements IPredictor {
     }
 
     try {
-      const rawOriginalOutput = await this._engine.predict(this._botId, textInput, modelsByLang[language].id)
-      const originalOutput = mapPredictOutput(rawOriginalOutput)
+      const originalOutput = await this._nluClient.predict(this._botId, textInput, modelsByLang[language].id)
       const { spellChecked } = originalOutput
       return { ...originalOutput, spellChecked, errored: false, language }
     } catch (err) {

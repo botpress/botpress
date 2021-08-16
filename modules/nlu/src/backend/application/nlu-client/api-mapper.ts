@@ -29,7 +29,7 @@ export interface BpPredictOutput {
 }
 
 type BpContextPrediction = NLU.ContextPrediction
-interface BpTrainSet {
+export interface BpTrainSet {
   intentDefs: BpIntentDefinition[]
   entityDefs: BpEntityDefinition[]
   languageCode: string

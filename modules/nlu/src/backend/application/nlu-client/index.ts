@@ -1,12 +1,13 @@
-import { Client, TrainInput, PredictOutput, Health, Specifications, TrainingState } from '@botpress/nlu-client'
+import { Client, PredictOutput, Health, Specifications, TrainingState } from '@botpress/nlu-client'
 
 import _ from 'lodash'
+import { BpPredictOutput, BpTrainSet, mapPredictOutput, mapTrainSet } from './api-mapper'
 
 type TrainListener = (tp: TrainingState | undefined) => Promise<'keep-listening' | 'stop-listening'>
 
 const TRAIN_POLLING_MS = 500
 
-export class StanEngine {
+export class NLUClient {
   constructor(private _client: Client, private _appSecret: string) {}
 
   public listenForTraining(botId: string, modelId: string, l: TrainListener) {
@@ -39,7 +40,8 @@ export class StanEngine {
     return response.models
   }
 
-  public async startTraining(appId: string, trainInput: TrainInput): Promise<string> {
+  public async startTraining(appId: string, bpTrainSet: BpTrainSet): Promise<string> {
+    const trainInput = mapTrainSet(bpTrainSet)
     const { entities, intents, seed, language } = trainInput
 
     const contexts = _(intents)
@@ -95,7 +97,7 @@ export class StanEngine {
     return response.detectedLanguages[0]
   }
 
-  public async predict(appId: string, utterance: string, modelId: string): Promise<PredictOutput> {
+  public async predict(appId: string, utterance: string, modelId: string): Promise<BpPredictOutput> {
     const response = await this._client.predict(modelId, {
       utterances: [utterance],
       appSecret: this._appSecret,
@@ -104,7 +106,8 @@ export class StanEngine {
     if (!response.success) {
       return this._throwError(response.error)
     }
-    return response.predictions[0]
+    const preds = response.predictions[0]
+    return mapPredictOutput(preds)
   }
 
   private _throwError(err: string): never {

@@ -1,10 +1,9 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import { StanEngine } from 'src/backend/stan'
 import { DefinitionsRepository } from '../definitions-repository'
 import { BotDoesntSpeakLanguageError } from '../errors'
-import { IModelStateRepository } from '../model-state-repo'
 import { ModelStateService } from '../model-state-service'
+import { NLUClient } from '../nlu-client'
 import { TrainingState, TrainingSession, BotDefinition } from '../typings'
 import { IPredictor, Predictor } from './predictor'
 import { ITrainer, Trainer } from './trainer'
@@ -18,7 +17,7 @@ export class Bot implements ITrainer, IPredictor {
 
   constructor(
     bot: BotDefinition,
-    engine: StanEngine,
+    engine: NLUClient,
     defRepo: DefinitionsRepository,
     modelStateService: ModelStateService,
     webSocket: (ts: TrainingSession) => void,

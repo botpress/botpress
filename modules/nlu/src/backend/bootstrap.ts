@@ -11,8 +11,8 @@ import { BotFactory } from './application/bot-factory'
 import { DefinitionsRepository } from './application/definitions-repository'
 import { DbModelStateRepository } from './application/model-state-repo'
 import { ModelStateService } from './application/model-state-service'
+import { NLUClient } from './application/nlu-client'
 import { NonBlockingNluApplication } from './application/non-blocking-app'
-import { StanEngine } from './stan'
 
 const getNLUServerConfig = (config: Config['nluServer']): LanguageSource => {
   if (config.autoStart) {
@@ -43,7 +43,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
   const stanClient = new Client(endpoint, authToken)
 
   const modelPassword = '' // No need for password as Stan is protected by an auth token
-  const engine = new StanEngine(stanClient, modelPassword)
+  const engine = new NLUClient(stanClient, modelPassword)
 
   const socket = getWebsocket(bp)
 
