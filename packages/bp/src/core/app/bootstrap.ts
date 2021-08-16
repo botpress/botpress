@@ -103,15 +103,15 @@ async function prepareLocalModules(app: BotpressApp, logger: sdk.Logger) {
 }
 
 async function start() {
+  const loggerProvider = createLoggerProvider()
   if (cluster.isMaster) {
-    const loggerProvider = createLoggerProvider()
     await setupDebugLogger(loggerProvider)
     // The master process only needs getos and rewire
     return setupMasterNode(await getLogger(loggerProvider, 'Cluster'))
   }
 
+  await setupDebugLogger(loggerProvider)
   const app = createApp()
-  await setupDebugLogger(app.logger)
 
   if (process.env.WORKER_TYPE === WorkerType.LOCAL_ACTION_SERVER) {
     app.localActionServer.listen()
@@ -137,7 +137,12 @@ async function start() {
 
   const resolver = new ModuleResolver(logger)
 
-  const { loadedModules, erroredModules } = await resolveModules(enabledModules, resolver)
+  let { loadedModules, erroredModules } = await resolveModules(enabledModules, resolver)
+
+  // These channels were removed on 12.24.0.
+  // Do not display not found errors as migrations are run after loading modules and will fix those errors.
+  const removedChannels = ['messenger', 'teams', 'telegram', 'twilio', 'slack', 'smooch', 'vonage']
+  erroredModules = erroredModules.filter(m => !removedChannels.some(removed => m.entry.location.includes(removed)))
 
   for (const loadedModule of loadedModules) {
     process.LOADED_MODULES[loadedModule.entryPoint.definition.name] = loadedModule.moduleLocation

@@ -5,7 +5,7 @@
     "Building A Chatbot": [
       "main/overview2",
       "main/content",
-      "main/dialog"
+      "main/dialog",
       "main/memory",
       "main/emulator",
       "main/qna-module",
@@ -26,12 +26,14 @@
     ],
     "Channels": [
       "channels/web",
+      "channels/converse",
       "channels/messenger",
       "channels/telegram",
       "channels/teams",
-      "channels/converse",
+      "channels/twilio",
       "channels/slack",
       "channels/smooch",
+      "channels/vonage",
       "channels/faq"
     ],
     "Deployment And Infrastructure": [
