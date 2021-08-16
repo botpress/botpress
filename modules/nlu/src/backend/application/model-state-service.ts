@@ -1,10 +1,9 @@
 import crypto from 'crypto'
 import _ from 'lodash'
 import { IModelStateRepository } from './model-state-repo'
+import { BpTrainingSet } from './typings'
 
-type TrainingSet = any // TODO: fix this
-
-const _hashTrainSet = (ts: TrainingSet) => {
+const _hashTrainSet = (ts: BpTrainingSet) => {
   return crypto
     .createHash('sha1')
     .update(JSON.stringify(ts))
@@ -22,7 +21,7 @@ class _Model {
     return this._language
   }
 
-  public isDirty(ts: TrainingSet) {
+  public isDirty(ts: BpTrainingSet) {
     const currentHash = _hashTrainSet(ts)
     return this._defHash !== currentHash
   }
@@ -31,7 +30,7 @@ class _Model {
 export class ModelStateService {
   constructor(private _modelRepo: IModelStateRepository) {}
 
-  public async trainingStarted(botId: string, language: string, modelId: string, ts: TrainingSet) {
+  public async trainingStarted(botId: string, language: string, modelId: string, ts: BpTrainingSet) {
     const definitionHash = _hashTrainSet(ts)
     await this._modelRepo.set({ botId, language, state: 'training', definitionHash, modelId })
   }

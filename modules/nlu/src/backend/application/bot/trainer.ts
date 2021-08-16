@@ -5,15 +5,8 @@ import ms from 'ms'
 import { DefinitionsRepository } from '../definitions-repository'
 import { ModelStateService } from '../model-state-service'
 import { NLUClient, TrainListener } from '../nlu-client'
-import { TrainingState as BpState, TrainingSession, BotDefinition } from '../typings'
+import { TrainingState as BpState, TrainingSession, BotDefinition, BpTrainingSet } from '../typings'
 import { MountOptions } from '.'
-
-interface TrainingSet {
-  intentDefs: sdk.NLU.IntentDefinition[]
-  entityDefs: sdk.NLU.EntityDefinition[]
-  languageCode: string
-  seed: number // seeds random number generator in nlu training
-}
 
 export interface ITrainer {
   train(language: string): Promise<void>
@@ -163,7 +156,7 @@ export class Trainer implements ITrainer {
     return status
   }
 
-  private async _getTrainSet(languageCode: string): Promise<TrainingSet> {
+  private async _getTrainSet(languageCode: string): Promise<BpTrainingSet> {
     const trainDefinitions = await this._defRepo.getTrainDefinitions(this._botId)
 
     return {

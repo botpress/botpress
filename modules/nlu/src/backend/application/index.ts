@@ -8,7 +8,7 @@ import { NLUClient } from './nlu-client'
 import { BotConfig, TrainingState } from './typings'
 
 interface Config {
-  queueTrainingOnBotMount: boolean
+  queueTrainingsOnBotMount: boolean
 }
 
 export class NLUApplication {
@@ -56,7 +56,7 @@ export class NLUApplication {
     const bot = await this._botFactory.makeBot(botConfig)
     this._bots[botId] = bot
     return bot.mount({
-      queueTraining: !!this._config.queueTrainingOnBotMount
+      queueTraining: !!this._config.queueTrainingsOnBotMount
     })
   }
 

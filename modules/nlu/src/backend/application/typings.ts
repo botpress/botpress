@@ -37,3 +37,10 @@ export interface TrainingId {
 }
 
 export interface TrainingSession extends TrainingId, TrainingState {}
+
+export interface BpTrainingSet {
+  intentDefs: SDKNLU.IntentDefinition[]
+  entityDefs: SDKNLU.EntityDefinition[]
+  languageCode: string
+  seed: number // seeds random number generator in nlu training
+}

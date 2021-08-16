@@ -3,6 +3,7 @@ import * as sdk from 'botpress/sdk'
 
 import { makeNLUPassword } from 'common/nlu-token'
 import _ from 'lodash'
+import yn from 'yn'
 
 import { Config, LanguageSource } from '../config'
 
@@ -32,6 +33,7 @@ const getNLUServerConfig = (config: Config['nluServer']): LanguageSource => {
 export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplication> {
   const globalConfig: Config = await bp.config.getModuleConfig('nlu')
   const { queueTrainingOnBotMount, legacyElection } = globalConfig
+  const trainingEnabled = !yn(process.env.BP_NLU_DISABLE_TRAINING)
 
   if (legacyElection) {
     bp.logger.warn(
@@ -54,7 +56,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
   const defRepo = new DefinitionsRepository(bp)
   const botFactory = new BotFactory(nluClient, bp.logger, defRepo, modelStateService, socket)
   const application = new NonBlockingNluApplication(nluClient, botFactory, {
-    queueTrainingOnBotMount
+    queueTrainingsOnBotMount: trainingEnabled && queueTrainingOnBotMount
   })
 
   // don't block entire server startup
