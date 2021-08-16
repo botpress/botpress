@@ -1,11 +1,12 @@
-import { TrainingStatus } from '@botpress/nlu-client'
+import { TrainingStatus, TrainingState as ServerState } from '@botpress/nlu-client'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import ms from 'ms'
 import { DefinitionsRepository } from '../definitions-repository'
 import { ModelStateService } from '../model-state-service'
-import { NLUClient } from '../nlu-client'
-import { TrainingState, TrainingSession, BotDefinition } from '../typings'
+import { NLUClient, TrainListener } from '../nlu-client'
+import { TrainingState as BpState, TrainingSession, BotDefinition } from '../typings'
+import { MountOptions } from '.'
 
 interface TrainingSet {
   intentDefs: sdk.NLU.IntentDefinition[]
@@ -16,7 +17,7 @@ interface TrainingSet {
 
 export interface ITrainer {
   train(language: string): Promise<void>
-  getTraining(language: string): Promise<TrainingState>
+  getTraining(language: string): Promise<BpState>
   cancelTraining(language: string): Promise<void>
 }
 
@@ -40,8 +41,21 @@ export class Trainer implements ITrainer {
     this._seed = botDef.seed
   }
 
-  public async initialize() {
+  public async initialize(opt: MountOptions) {
     this._needTrainingWatcher = this._registerNeedTrainingWatcher()
+
+    if (!opt.queueTraining) {
+      return
+    }
+
+    for (const l of this._languages) {
+      const { status } = await this.getTraining(l)
+      if (status === 'needs-training') {
+        // The train function reports progress and handles errors
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.train(l)
+      }
+    }
   }
 
   public async teardown() {
@@ -51,57 +65,56 @@ export class Trainer implements ITrainer {
   }
 
   public train = async (language: string): Promise<void> => {
-    const bpTrainSet = await this._getTrainSet(language)
-
-    return new Promise(async (resolve, reject) => {
+    try {
+      const bpTrainSet = await this._getTrainSet(language)
       const modelId = await this._nluClient.startTraining(this._botId, bpTrainSet)
       await this._modelStateService.trainingStarted(this._botId, language, modelId, bpTrainSet)
-
-      this._nluClient.listenForTraining(this._botId, modelId, async ts => {
-        if (!ts) {
-          return 'keep-listening'
-        }
-
-        if (ts.status === 'training-pending' || ts.status === 'training') {
-          this._webSocket({ ...ts, botId: this._botId, language })
-          return 'keep-listening'
-        }
-
-        if (ts.status === 'errored' && ts.error?.type === 'already-started') {
-          // no notification needed to websocket
-          this._logger.info(`Training ${this._botId}:${language} already started`)
-          resolve()
-          return 'stop-listening'
-        }
-
-        if (ts.status === 'done') {
-          this._webSocket({ ...ts, botId: this._botId, language })
-          await this._modelStateService.trainingDone(this._botId, language)
-          resolve()
-          return 'stop-listening'
-        }
-
-        if (ts.status === 'canceled') {
-          this._webSocket({ status: 'needs-training', progress: 0, botId: this._botId, language })
-          this._logger.info(`Training ${this._botId}:${language} was canceled with success`)
-          resolve()
-          return 'stop-listening'
-        }
-
-        if (ts.status === 'errored' && ts.error?.type === 'unknown') {
-          this._webSocket({ ...ts, botId: this._botId, language })
-          const err = new Error(ts.error.message)
-          err.stack = ts.error.stackTrace
-          reject(err)
-          return 'stop-listening'
-        }
-
-        return 'keep-listening'
-      })
-    })
+      const listener = this._getTrainingListener(language)
+      await this._nluClient.listenForTraining(this._botId, modelId, listener)
+    } catch (err) {
+      this._logger.attachError(err).error('An error occured during training.')
+    }
   }
 
-  public getTraining = async (language: string): Promise<TrainingState> => {
+  private _getTrainingListener = (language: string): TrainListener => async (ts: ServerState | undefined) => {
+    if (!ts) {
+      return 'keep-listening'
+    }
+
+    if (ts.status === 'training-pending' || ts.status === 'training') {
+      this._webSocket({ ...ts, botId: this._botId, language })
+      return 'keep-listening'
+    }
+
+    if (ts.status === 'errored' && ts.error?.type === 'already-started') {
+      // no notification needed to websocket
+      this._logger.info(`Training ${this._botId}:${language} already started`)
+      return 'stop-listening'
+    }
+
+    if (ts.status === 'done') {
+      this._webSocket({ ...ts, botId: this._botId, language })
+      await this._modelStateService.trainingDone(this._botId, language)
+      return 'stop-listening'
+    }
+
+    if (ts.status === 'canceled') {
+      this._webSocket({ status: 'needs-training', progress: 0, botId: this._botId, language })
+      this._logger.info(`Training ${this._botId}:${language} was canceled with success`)
+      return 'stop-listening'
+    }
+
+    if (ts.status === 'errored' && ts.error?.type === 'unknown') {
+      this._webSocket({ ...ts, botId: this._botId, language })
+      const err = new Error(ts.error.message)
+      err.stack = ts.error.stackTrace
+      throw err
+    }
+
+    throw new Error(`Training status is unknown: "${ts.status}"`)
+  }
+
+  public getTraining = async (language: string): Promise<BpState> => {
     const defaultTrainState = { status: <TrainingStatus>'needs-training', progress: 0 }
 
     const currentTraining = await this._modelStateService.getTraining(this._botId, language)
@@ -168,13 +181,17 @@ export class Trainer implements ITrainer {
       }
 
       await Promise.map(this._languages, async language => {
-        const model = await this._modelStateService.getModel(this._botId, language)
-        const trainSet = await this._getTrainSet(language)
-        const isDirty = !model || model.isDirty(trainSet)
+        const isDirty = await this._needsTraining(language)
         if (isDirty) {
           this._webSocket({ status: 'needs-training', progress: 0, botId: this._botId, language })
         }
       })
     })
+  }
+
+  private _needsTraining = async (language: string) => {
+    const model = await this._modelStateService.getModel(this._botId, language)
+    const trainSet = await this._getTrainSet(language)
+    return !model || model.isDirty(trainSet)
   }
 }

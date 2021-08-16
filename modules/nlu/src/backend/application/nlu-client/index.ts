@@ -1,9 +1,9 @@
-import { Client, PredictOutput, Health, Specifications, TrainingState } from '@botpress/nlu-client'
+import { Client, Health, Specifications, TrainingState } from '@botpress/nlu-client'
 
 import _ from 'lodash'
 import { BpPredictOutput, BpTrainSet, mapPredictOutput, mapTrainSet } from './api-mapper'
 
-type TrainListener = (tp: TrainingState | undefined) => Promise<'keep-listening' | 'stop-listening'>
+export type TrainListener = (tp: TrainingState | undefined) => Promise<'keep-listening' | 'stop-listening'>
 
 const TRAIN_POLLING_MS = 500
 
@@ -11,13 +11,20 @@ export class NLUClient {
   constructor(private _client: Client, private _appSecret: string) {}
 
   public listenForTraining(botId: string, modelId: string, l: TrainListener) {
-    const interval = setInterval(async () => {
-      const tp = await this.getTraining(botId, modelId)
-      const ret = await l(tp)
-      if (ret === 'stop-listening') {
-        clearInterval(interval)
-      }
-    }, TRAIN_POLLING_MS)
+    return new Promise<void>((resolve, reject) => {
+      const interval = setInterval(async () => {
+        try {
+          const tp = await this.getTraining(botId, modelId)
+          const ret = await l(tp)
+          if (ret === 'stop-listening') {
+            clearInterval(interval)
+            return resolve()
+          }
+        } catch (err) {
+          reject(err)
+        }
+      }, TRAIN_POLLING_MS)
+    })
   }
 
   public async getInfo(): Promise<{

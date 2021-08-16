@@ -8,6 +8,10 @@ import { TrainingState, TrainingSession, BotDefinition } from '../typings'
 import { IPredictor, Predictor } from './predictor'
 import { ITrainer, Trainer } from './trainer'
 
+export interface MountOptions {
+  queueTraining: boolean
+}
+
 export class Bot implements ITrainer, IPredictor {
   private _botId: string
   private _languages: string[]
@@ -34,8 +38,8 @@ export class Bot implements ITrainer, IPredictor {
     return this._botId
   }
 
-  public async mount() {
-    return this._trainer.initialize()
+  public async mount(opt: MountOptions) {
+    return this._trainer.initialize(opt)
   }
 
   public async unmount() {

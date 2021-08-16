@@ -31,7 +31,7 @@ const getNLUServerConfig = (config: Config['nluServer']): LanguageSource => {
 
 export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplication> {
   const globalConfig: Config = await bp.config.getModuleConfig('nlu')
-  const { maxTrainingPerInstance, queueTrainingOnBotMount, legacyElection } = globalConfig
+  const { queueTrainingOnBotMount, legacyElection } = globalConfig
 
   if (legacyElection) {
     bp.logger.warn(
@@ -43,7 +43,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
   const stanClient = new Client(endpoint, authToken)
 
   const modelPassword = '' // No need for password as Stan is protected by an auth token
-  const engine = new NLUClient(stanClient, modelPassword)
+  const nluClient = new NLUClient(stanClient, modelPassword)
 
   const socket = getWebsocket(bp)
 
@@ -52,8 +52,10 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
   const modelStateService = new ModelStateService(modelRepo)
 
   const defRepo = new DefinitionsRepository(bp)
-  const botFactory = new BotFactory(engine, bp.logger, defRepo, modelStateService, socket)
-  const application = new NonBlockingNluApplication(engine, botFactory)
+  const botFactory = new BotFactory(nluClient, bp.logger, defRepo, modelStateService, socket)
+  const application = new NonBlockingNluApplication(nluClient, botFactory, {
+    queueTrainingOnBotMount
+  })
 
   // don't block entire server startup
   // eslint-disable-next-line @typescript-eslint/no-floating-promises

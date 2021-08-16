@@ -2,14 +2,19 @@ import _ from 'lodash'
 
 import { Bot } from './bot'
 import { BotFactory } from './bot-factory'
+import { IPredictor } from './bot/predictor'
 import { BotNotMountedError } from './errors'
 import { NLUClient } from './nlu-client'
-import { Predictor, BotConfig, TrainingState } from './typings'
+import { BotConfig, TrainingState } from './typings'
+
+interface Config {
+  queueTrainingOnBotMount: boolean
+}
 
 export class NLUApplication {
   private _bots: _.Dictionary<Bot> = {}
 
-  constructor(private _engine: NLUClient, private _botFactory: BotFactory) {}
+  constructor(private _nluClient: NLUClient, private _botFactory: BotFactory, private _config: Partial<Config>) {}
 
   public async teardown() {
     for (const botId of Object.keys(this._bots)) {
@@ -19,7 +24,7 @@ export class NLUApplication {
 
   public async getHealth() {
     try {
-      const { health } = await this._engine.getInfo()
+      const { health } = await this._nluClient.getInfo()
       return health
     } catch (err) {
       return
@@ -38,7 +43,7 @@ export class NLUApplication {
     return !!this._bots[botId]
   }
 
-  public getBot(botId: string): Predictor {
+  public getBot(botId: string): IPredictor {
     const bot = this._bots[botId]
     if (!bot) {
       throw new BotNotMountedError(botId)
@@ -50,7 +55,9 @@ export class NLUApplication {
     const { id: botId } = botConfig
     const bot = await this._botFactory.makeBot(botConfig)
     this._bots[botId] = bot
-    return bot.mount()
+    return bot.mount({
+      queueTraining: !!this._config.queueTrainingOnBotMount
+    })
   }
 
   public async unmountBot(botId: string) {
