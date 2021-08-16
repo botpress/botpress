@@ -5,8 +5,8 @@ on:
       - 'release/*'
     types: [closed]
 jobs:
-  build_and_push:
-    name: Build and push Docker image to GitHub Packages
+  release:
+    name: Release botpress version
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
