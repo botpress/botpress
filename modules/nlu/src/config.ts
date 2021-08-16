@@ -3,56 +3,55 @@ export interface LanguageSource {
   authToken?: string
 }
 
-type StanConfig = { autoStart: true } | ({ autoStart: false } & LanguageSource)
+type NLUServerConfig = { autoStart: true } | ({ autoStart: false } & LanguageSource)
 
 export interface Config {
   /**
    * If you want to manually start standalone NLU, set autoStart to false and specify endpoint and auth token.
+   * WARNING: most field of this configuration file only apply if autoStart is true.
    * @default { "autoStart": true }
    */
-  nluServer: StanConfig
+  nluServer: NLUServerConfig
 
   /**
    * If you want a fully on-prem installation, you can host
    * Facebook's Duckling on your own infrastructure and change this URL
    * Only relevant if @see ducklingEnabled is true
+   * Only relevant if @see nluServer.autoStart is true
    * @default https://duckling.botpress.io
    */
   ducklingURL: string
 
   /**
    * @default true
+   * Only relevant if @see nluServer.autoStart is true
    */
   ducklingEnabled: boolean
 
   /**
-   * Whether or not you want your models to be trained and loaded on bot mounts
-   * @default true
-   * @deprecated > 12.2
-   */
-  preloadModels: boolean
-
-  /**
    * The list of sources to load languages from
+   * Only relevant if @see nluServer.autoStart is true
    * @default [{ "endpoint": "https://lang-01.botpress.io" }]
    */
   languageSources: LanguageSource[]
 
   /**
    * Maximum allowed model cache size
+   * Only relevant if @see nluServer.autoStart is true
    * @default 850mb
    */
   modelCacheSize: string
 
   /**
    * Maximum number of concurrent trainings per Botpress instance
+   * Only relevant if @see nluServer.autoStart is true
    * @default 1
    * @optional
    */
   maxTrainingPerInstance?: number
 
   /**
-   * Whether or not to train bots that require training on mount
+   * Whether or not to train bots on mount
    * @default false
    * @optional
    */
