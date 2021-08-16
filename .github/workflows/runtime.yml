@@ -1,4 +1,4 @@
-name: Rutime
+name: Runtime
 on: [pull_request]
 jobs:
   test_docker_build:
