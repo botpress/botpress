@@ -1,12 +1,12 @@
-name: Workspace
+name: Rutime
 on: [pull_request]
 jobs:
   test_docker_build:
-    name: Test that the workspace Docker image can build
+    name: Test that the runtime Docker image can build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2.1.0
       - name: Docker Build
         run: |
-          docker build -f build/docker/workspace.dockerfile .
+        docker build -f build/docker/runtime.dockerfile .
