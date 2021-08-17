@@ -14,9 +14,7 @@ function render(data) {
   return [
     ...events,
     {
-      type: 'custom',
-      module: 'extensions',
-      component: 'Dropdown',
+      type: 'dropdown',
       message: data.message,
       buttonText: data.buttonText,
       displayInKeyboard: data.displayInKeyboard,

@@ -93,6 +93,7 @@ class Message extends Component<MessageProps> {
       return this.render_unsupported()
     }
 
+    // TODO: Remove eventually, it's for backward compatibility
     if (module === 'extensions' && component === 'Dropdown') {
       return this.render_dropdown()
     }
