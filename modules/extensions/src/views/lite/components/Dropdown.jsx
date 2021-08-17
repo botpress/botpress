@@ -43,6 +43,7 @@ export class Dropdown extends React.Component {
     }
 
     this.props.onSendData && this.props.onSendData({ type: 'quick_reply', text: label, payload: value || label })
+    this.props.store.composer.setLocked(false)
   }
 
   renderSelect(inKeyboard) {
