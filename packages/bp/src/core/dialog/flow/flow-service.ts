@@ -139,6 +139,11 @@ export class ScopedFlowService {
     const expectedSaves = this.expectedSavesCache.get(flowPath)
 
     if (!expectedSaves) {
+      // fix an issue when creating a bot where the .flow.json is written but not the .ui.json because of the locking mechanism
+      if (!(await this.ghost.fileExists(FLOW_DIR, this.toUiPath(flowPath)))) {
+        return
+      }
+
       if (await this.ghost.fileExists(FLOW_DIR, flowPath)) {
         const flow = await this.parseFlow(flowPath)
         this.localInvalidateFlow(flowPath, flow)

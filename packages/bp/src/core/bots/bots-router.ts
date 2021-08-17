@@ -4,6 +4,7 @@ import { BotService } from 'core/bots'
 import { ConfigProvider } from 'core/config'
 import { ConverseRouter, ConverseService } from 'core/converse'
 import { MediaServiceProvider } from 'core/media'
+import { QnaRouter, QnaService } from 'core/qna'
 import { disableForModule } from 'core/routers'
 import {
   AuthService,
@@ -30,6 +31,7 @@ export class BotsRouter extends CustomRouter {
   private checkMethodPermissions: (resource: string) => RequestHandler
   private nluRouter: NLURouter
   private converseRouter: ConverseRouter
+  private qnaRouter: QnaRouter
 
   constructor(
     private botService: BotService,
@@ -40,6 +42,7 @@ export class BotsRouter extends CustomRouter {
     private converseService: ConverseService,
     private logger: Logger,
     private mediaServiceProvider: MediaServiceProvider,
+    private qnaService: QnaService,
     private httpServer: HTTPServer
   ) {
     super('Bots', logger, Router({ mergeParams: true }))
@@ -56,6 +59,7 @@ export class BotsRouter extends CustomRouter {
       this.httpServer,
       this.configProvider
     )
+    this.qnaRouter = new QnaRouter(this.logger, this.authService, this.workspaceService, this.qnaService)
   }
 
   async setupRoutes(app: express.Express) {
@@ -64,6 +68,7 @@ export class BotsRouter extends CustomRouter {
 
     this.router.use('/converse', this.converseRouter.router)
     this.router.use('/nlu', this.nluRouter.router)
+    this.router.use('/qna', this.qnaRouter.router)
 
     this.router.get(
       '/media/:filename',
