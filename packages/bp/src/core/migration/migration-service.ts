@@ -7,11 +7,11 @@ import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config'
 import Database from 'core/database'
 import { PersistedConsoleLogger, centerText } from 'core/logger'
-import { BotMigrationService } from 'core/migration'
 import fse from 'fs-extra'
 import glob from 'glob'
 import { Container, inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
+import { studioActions } from 'orchestrator'
 import path from 'path'
 import semver from 'semver'
 import stripAnsi from 'strip-ansi'
@@ -49,7 +49,6 @@ export class MigrationService {
   /** The current version of the database tables */
   private dbVersion!: string
   public loadedMigrations: { [filename: string]: Migration | sdk.ModuleMigration } = {}
-  public botMigration!: BotMigrationService
 
   constructor(
     @tagged('name', 'Migration')
@@ -59,7 +58,6 @@ export class MigrationService {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.GhostService) private bpfs: GhostService
   ) {
-    this.botMigration = new BotMigrationService(this, logger, configProvider, bpfs)
     this.targetVersion = process.MIGRATE_TARGET || process.env.TESTMIG_BP_VERSION || process.BOTPRESS_VERSION
   }
 
@@ -112,6 +110,9 @@ export class MigrationService {
     captureLogger.dispose()
 
     await this.persistMigrationStatus(logs, migrationsToExecute)
+
+    // If the core was migrated, check if bots also need to be migrated
+    await studioActions.checkBotMigrations()
 
     if (process.MIGRATE_CMD !== undefined) {
       process.exit(0)
@@ -172,8 +173,6 @@ export class MigrationService {
     if (this.dbVersion !== this.targetVersion) {
       await this.database.knex('srv_metadata').insert({ server_version: this.targetVersion })
     }
-
-    await this.botMigration.coreMigrationCompleted(entry, migrationsToExecute)
   }
 
   async executeMigrations(missingMigrations: MigrationFile[]) {
