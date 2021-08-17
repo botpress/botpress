@@ -18,6 +18,7 @@ export class Dropdown extends React.Component {
       })
       this.setState({ options })
     }
+    this.props.store.composer.setLocked(this.props.disableFreeText)
   }
 
   handleChange = selectedOption => {

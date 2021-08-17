@@ -26,7 +26,8 @@ function render(data) {
       width: data.width,
       collectFeedback: data.collectFeedback,
       placeholderText: data.placeholderText,
-      markdown: data.markdown
+      markdown: data.markdown,
+      disableFreeText: data.disableFreeText
     }
   ]
 }
@@ -133,6 +134,10 @@ module.exports = {
       allowCreation: {
         type: 'boolean',
         title: 'module.extensions.types.dropdown.allowCreate'
+      },
+      disableFreeText: {
+        type: 'boolean',
+        title: 'Disable composer'
       },
       allowMultiple: {
         type: 'boolean',
