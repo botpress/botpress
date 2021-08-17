@@ -47,7 +47,7 @@ export class Dropdown extends React.Component {
   renderSelect(inKeyboard) {
     return (
       <div className={inKeyboard && 'bpw-keyboard-quick_reply-dropdown'}>
-        <div style={{ width: +this.props.width || 210, display: 'inline-block', marginRight: 15 }}>
+        <div style={{ width: this.props.width || '100%', display: 'inline-block' }}>
           {this.props.allowCreation ? (
             <Creatable
               value={this.state.selectedOption}

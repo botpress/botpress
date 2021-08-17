@@ -17,7 +17,11 @@ import OverridableComponent from './OverridableComponent'
 class Container extends React.Component<ContainerProps> {
   renderBody() {
     if (!this.props.isInitialized) {
-      return (<div className="bpw-msg-list-container bpw-msg-list-container-loading"><div className="bpw-msg-list-loading" /></div>)
+      return (
+        <div className="bpw-msg-list-container bpw-msg-list-container-loading">
+          <div className="bpw-msg-list-loading" />
+        </div>
+      )
     }
 
     if (this.props.isConversationsDisplayed) {
@@ -28,7 +32,8 @@ class Container extends React.Component<ContainerProps> {
       return (
         <div
           className={classnames('bpw-msg-list-container', {
-            'bpw-emulator': this.props.isEmulator
+            'bpw-emulator': this.props.isEmulator,
+            'bpw-rtl': this.props.rtl
           })}
         >
           <MessageList />
@@ -71,7 +76,8 @@ export default inject(({ store }: { store: RootStore }) => ({
   isInitialized: store.isInitialized,
   isPoweredByDisplayed: store.view.isPoweredByDisplayed,
   config: store.config,
-  botName: store.botName
+  botName: store.botName,
+  rtl: store.rtl
 }))(injectIntl(observer(Container)))
 
 type ContainerProps = { store?: RootStore } & InjectedIntlProps &
@@ -87,4 +93,5 @@ type ContainerProps = { store?: RootStore } & InjectedIntlProps &
     | 'dimensions'
     | 'isEmulator'
     | 'isPoweredByDisplayed'
+    | 'rtl'
   >

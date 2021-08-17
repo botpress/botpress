@@ -1,28 +1,16 @@
-![botpress](https://botpress.com/blog/content/images/2017/06/xnobg_primary_black.png.pagespeed.ic.siY4jfFl48.png)
+# Botpress Docker image
 
-### Installation
-
-Create persistent storage to keep botpress data:
+## Running Your botpress container
 
 ```bash
-docker volume create botpress_data
+docker run -d --name=botpress -p 3000:3000 botpress/server
 ```
 
----
-
-Start the container with minimal necessary options:
-
-```bash
-docker run --detach \
-           --name=botpress \
-           --publish 3000:3000 \
-           --volume botpress_data:/botpress/data \
-           botpress/server:latest
-```
-
----
+### Extra information
 
 There are some predefined defaults. However, you can specify ones via environmental variables:
+
+This example modified the expose port in botpress and add a connection to a postgres database.
 
 ```bash
 docker run --detach \
@@ -57,6 +45,12 @@ docker exec --interactive --tty botpress bash
 ```
 
 ---
+
+### How to use the botpress container
+
+Further documentation can be found on the botpress [website](https://botpress.com/docs/infrastructure/docker)
+
+### Changeleg
 
 Full documentation resource is available on the [official website](https://botpress.com/docs/).
 [Changelog resides here](https://github.com/botpress/botpress/blob/master/CHANGELOG.md).
