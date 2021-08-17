@@ -182,7 +182,7 @@ export class HTTPServer {
       converseService,
       this.logger,
       mediaServiceProvider,
-      this.eventRepo
+      this.eventRepo,
       qnaService,
       this
     )
