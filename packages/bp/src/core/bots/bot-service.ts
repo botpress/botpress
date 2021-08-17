@@ -609,6 +609,7 @@ export class BotService {
       const api = await createForGlobalHooks()
       await this.hookService.executeHook(new Hooks.AfterBotMount(api, botId))
       BotService._mountedBots.set(botId, true)
+      await studioActions.setBotMountStatus(botId, true)
 
       this._invalidateBotIds()
 
