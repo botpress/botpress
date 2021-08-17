@@ -16,11 +16,11 @@ const test = {
     ui: './studio/ui.test',
     flows: './studio/flows.test',
     cms: './studio/cms.test',
-    nlu: './studio/nlu.test'
+    nlu: './studio/nlu.test',
+    qna: './studio/qna.test'
   },
   mod: {
     editor: './modules/code-editor.test',
-    // qna: './modules/qna.test',
     testing: './modules/testing.test',
     webchat: './modules/webchat.test'
   }

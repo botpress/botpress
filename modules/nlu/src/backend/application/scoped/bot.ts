@@ -51,6 +51,10 @@ export class Bot implements Trainable, Predictor {
     return this._botId
   }
 
+  public async checkForDirtyModels() {
+    return this._defService.checkForDirtyModels()
+  }
+
   public async mount() {
     await this._defService.initialize()
   }

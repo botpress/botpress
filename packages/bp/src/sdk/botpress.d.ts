@@ -937,6 +937,9 @@ declare module 'botpress/sdk' {
      * if not set, seed is computed from botId
      */
     nluSeed?: number
+    qna: {
+      disabled: boolean
+    }
   }
 
   export type Pipeline = Stage[]
@@ -996,19 +999,19 @@ declare module 'botpress/sdk' {
   }
 
   export interface MessagingConfig {
-  /**
-   * Client id used to identify the bot on the messaging server
-   */
-   id: string
-   /**
-    * Client token used to authenticate requests made to the messaging server
-    */
-   token: string
-   /**
-    * Configurations of channels to be sent to the messaging server
-    * You can find more about channel configurations here : https://botpress.com/docs/channels/faq
-    */
-   channels: { [channelName: string]: any }
+    /**
+     * Client id used to identify the bot on the messaging server
+     */
+    id: string
+    /**
+     * Client token used to authenticate requests made to the messaging server
+     */
+    token: string
+    /**
+     * Configurations of channels to be sent to the messaging server
+     * You can find more about channel configurations here : https://botpress.com/docs/channels/faq
+     */
+    channels: { [channelName: string]: any }
   }
 
   /**
