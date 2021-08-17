@@ -44,6 +44,10 @@ export class ScopedDefinitionsService {
     this._dirtyModelsListeners.push(listener)
   }
 
+  public checkForDirtyModels = async () => {
+    await Promise.map(this._languages, this._notifyListeners)
+  }
+
   public async getTrainSet(languageCode: string): Promise<TrainingSet> {
     const trainDefinitions = await this._definitionRepository.getTrainDefinitions()
 
