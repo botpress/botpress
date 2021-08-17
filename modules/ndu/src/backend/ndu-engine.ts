@@ -110,7 +110,7 @@ export class UnderstandingEngine {
   queryQna = async (intentName: string, event): Promise<sdk.NDU.Actions[]> => {
     try {
       const axiosConfig = await this.bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
-      const { data } = await axios.post('/mod/qna/intentActions', { intentName, event }, axiosConfig)
+      const { data } = await axios.post('/qna/intentActions', { intentName, event }, axiosConfig)
       const redirect: sdk.NDU.Actions[] = data.filter(a => a.action !== 'redirect')
       // TODO: Warn that REDIRECTS should be migrated over to flow nodes triggers
       return redirect

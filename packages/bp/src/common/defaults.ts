@@ -153,7 +153,6 @@ export const BUILTIN_MODULES = [
   'misunderstood',
   'ndu',
   'nlu',
-  'qna',
   'testing',
   'uipath'
 ]
