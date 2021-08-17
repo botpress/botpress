@@ -187,9 +187,15 @@ export abstract class MessagingUpMigrator {
     await this.onClientCreated(botId, client.id)
 
     if (exists) {
-      await this.bp.config.mergeBotConfig(botId, {
-        messaging: { id: client.id, token, channels: {} }
-      })
+      try {
+        await this.bp.config.mergeBotConfig(botId, {
+          messaging: { id: client.id, token, channels: {} }
+        })
+      } catch {
+        // fails when no bot.config.json is present.
+        // Not really important as not having a bot.config.json makes no sense
+        // It's possible anyways to get a new clientId and token at runtime using the botId so nothing is lost here.
+      }
     }
 
     return client.id
