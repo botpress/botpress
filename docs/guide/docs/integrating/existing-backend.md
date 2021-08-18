@@ -2,7 +2,7 @@
 id: existing-backend
 title: Connecting An Existing Backend
 ---
-![This feature is available to Botpress Enterprise license holders.](assets/botpress-enterprise-feature.png)
+![This feature is available to Botpress Enterprise license holders.](../assets/botpress-enterprise-feature.png)
 Botpress makes it easy to transmit data securely between your backend and your chatbotusing JWT. Store any data you'd like in the token and pass it to the web chat using the `externalAuthToken` configuration option.
 
 The content will be available under `event.credentials` when processing the event if the token is valid. If there is no token or if it is invalid, `credentials` will stay undefined.
