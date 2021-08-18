@@ -66,7 +66,8 @@ interface LoadedModule {
 
 interface ErroredModule {
   entry: ModuleConfigEntry
-  err: Error
+  err?: Error
+  message?: string
 }
 
 async function resolveModules(moduleConfigs: ModuleConfigEntry[], resolver: ModuleResolver) {
@@ -76,9 +77,13 @@ async function resolveModules(moduleConfigs: ModuleConfigEntry[], resolver: Modu
   for (const entry of moduleConfigs) {
     try {
       const moduleLocation = await resolver.resolve(entry.location)
-      const rawEntry = resolver.requireModule(moduleLocation)
-      const entryPoint = ModuleLoader.processModuleEntryPoint(rawEntry, entry.location)
-      loadedModules.push({ entry, entryPoint, rawEntry, moduleLocation })
+      if (moduleLocation) {
+        const rawEntry = resolver.requireModule(moduleLocation)
+        const entryPoint = ModuleLoader.processModuleEntryPoint(rawEntry, entry.location)
+        loadedModules.push({ entry, entryPoint, rawEntry, moduleLocation })
+      } else {
+        erroredModules.push({ entry, message: 'Module not found' })
+      }
     } catch (e) {
       erroredModules.push({ entry, err: e })
     }
@@ -194,8 +199,12 @@ This is a fatal error, process will exit.`
       erroredModulesLog
   )
 
-  for (const err of erroredModules.map(m => m.err)) {
-    logger.attachError(err).error('Error while loading some modules, they will be disabled')
+  for (const { entry, err, message } of erroredModules) {
+    if (err) {
+      logger.attachError(err).error(`Error while loading module ${entry.location}`)
+    } else {
+      logger.error(`Error while loading module ${entry.location}: ${message}`)
+    }
   }
 
   await app.botpress.start({ modules: loadedModules.map(m => m.entryPoint) }).catch(err => {
