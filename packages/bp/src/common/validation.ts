@@ -8,6 +8,11 @@ const OP_REGEX = /^([\+|-][r|w]){1,2}$/
 
 export const isValidBotId = (botId: string): boolean => BOTID_REGEX.test(botId)
 
+export const doesBotIdStartWithWorkspace = (botId: string, workspace: string) => {
+  const correctPrefix = `${workspace}_`
+  return botId.startsWith(correctPrefix) && botId.length > correctPrefix.length
+}
+
 export const BotCreationSchema = Joi.object().keys({
   id: Joi.string()
     .regex(BOTID_REGEX)

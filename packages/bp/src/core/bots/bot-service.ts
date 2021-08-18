@@ -1,7 +1,7 @@
 import { BotConfig, BotTemplate, Logger, Stage, WorkspaceUserWithAttributes } from 'botpress/sdk'
 import cluster from 'cluster'
 import { BotHealth, ServerHealth } from 'common/typings'
-import { BotCreationSchema, BotEditSchema, isValidBotId } from 'common/validation'
+import { BotCreationSchema, BotEditSchema, isValidBotId, doesBotIdStartWithWorkspace } from 'common/validation'
 import { createForGlobalHooks } from 'core/app/api'
 import { TYPES } from 'core/app/types'
 import { FileContent, GhostService, ReplaceContent } from 'core/bpfs'
@@ -152,7 +152,7 @@ export class BotService {
       throw new InvalidOperationError(`An error occurred while creating the bot: ${error.message}`)
     }
 
-    if (!bot.id.startsWith(`${workspaceId}_`)) {
+    if (!doesBotIdStartWithWorkspace(bot.id, workspaceId)) {
       throw new InvalidOperationError('BotId must start with <workspaceID>_')
     }
 
@@ -250,7 +250,7 @@ export class BotService {
       throw new InvalidOperationError("Can't import bot; the bot name contains invalid characters")
     }
 
-    if (!botId.startsWith(`${workspaceId}_`)) {
+    if (!doesBotIdStartWithWorkspace(botId, workspaceId)) {
       throw new InvalidOperationError('BotId must start with <workspaceID>_')
     }
 

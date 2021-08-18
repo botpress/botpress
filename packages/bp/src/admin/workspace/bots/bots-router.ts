@@ -107,11 +107,6 @@ class BotsRouter extends CustomAdminRouter {
             }
           }
 
-          const correctPrefix = `${req.workspace!}_`
-          if (!(bot.id.startsWith(correctPrefix) && bot.id.length > correctPrefix.length)) {
-            throw new BadRequestError(`Expected bot ID to start with ${correctPrefix}`)
-          }
-
           await this.botService.addBot(bot, req.body.template, req.workspace!)
         }
 
