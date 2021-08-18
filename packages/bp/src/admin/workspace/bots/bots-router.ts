@@ -112,7 +112,7 @@ class BotsRouter extends CustomAdminRouter {
             throw new BadRequestError(`Expected bot ID to start with ${correctPrefix}`)
           }
 
-          await this.botService.addBot(bot, req.body.template)
+          await this.botService.addBot(bot, req.body.template, req.workspace!)
         }
 
         if (botLinked) {

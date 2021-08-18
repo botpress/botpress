@@ -144,12 +144,16 @@ export class BotService {
     return this._botIds
   }
 
-  async addBot(bot: BotConfig, botTemplate: BotTemplate): Promise<void> {
+  async addBot(bot: BotConfig, botTemplate: BotTemplate, workspaceId: string): Promise<void> {
     this.stats.track('bot', 'create')
 
     const { error } = Joi.validate(bot, BotCreationSchema)
     if (error) {
       throw new InvalidOperationError(`An error occurred while creating the bot: ${error.message}`)
+    }
+
+    if (!bot.id.startsWith(`${workspaceId}_`)) {
+      throw new InvalidOperationError('BotId must start with <workspaceID>_')
     }
 
     const mergedConfigs = await this._createBotFromTemplate(bot, botTemplate)
@@ -244,6 +248,10 @@ export class BotService {
 
     if (!isValidBotId(botId)) {
       throw new InvalidOperationError("Can't import bot; the bot name contains invalid characters")
+    }
+
+    if (!botId.startsWith(`${workspaceId}_`)) {
+      throw new InvalidOperationError('BotId must start with <workspaceID>_')
     }
 
     if (await this.botExists(botId)) {
