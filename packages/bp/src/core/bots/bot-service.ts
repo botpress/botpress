@@ -301,7 +301,7 @@ export class BotService {
 
         await this.workspaceService.addBotRef(botId, workspaceId)
 
-        await this._migrateBotContent(botId)
+        await studioActions.checkBotMigrations(botId)
 
         if (!originalConfig.disabled) {
           if (!(await this.mountBot(botId))) {
@@ -332,14 +332,6 @@ export class BotService {
     }
 
     return path.join(directory, path.dirname(configFile[0]))
-  }
-
-  private async _migrateBotContent(botId: string): Promise<void> {
-    const config = await this.configProvider.getBotConfig(botId)
-
-    const isDown = semver.gt(config.version, process.BOTPRESS_VERSION)
-
-    return this.migrationService.botMigration.executeMissingBotMigrations(botId, config.version, isDown)
   }
 
   async requestStageChange(botId: string, requestedBy: string) {
@@ -618,6 +610,7 @@ export class BotService {
       await this.hookService.executeHook(new Hooks.AfterBotMount(api, botId))
       BotService._mountedBots.set(botId, true)
       await studioActions.setBotMountStatus(botId, true)
+
       this._invalidateBotIds()
 
       BotService.setBotStatus(botId, 'healthy')

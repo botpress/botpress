@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { Logger } from 'botpress/sdk'
 import { UnauthorizedError } from 'common/http'
 import { MemoryObjectCache } from 'core/bpfs'
@@ -8,6 +9,7 @@ import { CustomRouter } from 'core/routers/customRouter'
 import { Router } from 'express'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
+import { HTTPServer } from './server'
 
 export class InternalRouter extends CustomRouter {
   constructor(
@@ -15,7 +17,8 @@ export class InternalRouter extends CustomRouter {
     private logger: Logger,
     private moduleLoader: ModuleLoader,
     private realtime: RealtimeService,
-    private objectCache: MemoryObjectCache
+    private objectCache: MemoryObjectCache,
+    private httpServer: HTTPServer
   ) {
     super('Internal', logger, Router({ mergeParams: true }))
   }
@@ -91,6 +94,18 @@ export class InternalRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { key } = req.body
         await this.objectCache.invalidate(key, true)
+
+        res.sendStatus(200)
+      })
+    )
+
+    router.post(
+      '/checkForDirtyModels',
+      this.asyncMiddleware(async (req, res) => {
+        const { botId } = req.body
+
+        const axiosConfig = await this.httpServer.getAxiosConfigForBot(botId, { localUrl: true })
+        await axios.post('/mod/nlu/checkForDirtyModels', { botId }, axiosConfig)
 
         res.sendStatus(200)
       })
