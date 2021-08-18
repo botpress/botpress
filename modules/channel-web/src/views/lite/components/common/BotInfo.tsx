@@ -1,3 +1,4 @@
+import classnames from 'classnames'
 import { inject, observer } from 'mobx-react'
 import * as React from 'react'
 import { FormattedMessage, InjectedIntlProps, injectIntl } from 'react-intl'
@@ -43,9 +44,10 @@ class BotInfoPage extends React.Component<BotInfoProps> {
   render() {
     const { botInfo, botName, avatarUrl } = this.props
     const onDismiss = this.props.isConversationStarted ? this.props.toggleBotInfo : this.props.startConversation
-
     return (
-      <div className={'bpw-botinfo-container'}>
+      <div className={classnames('bpw-botinfo-container', {
+        'bpw-rtl': this.props.rtl
+      })}>
         <CoverPicture botInfo={botInfo} />
         <div className={'bpw-botinfo-summary'}>
           <Avatar name={botName} avatarUrl={avatarUrl} height={64} width={64} />
@@ -140,7 +142,8 @@ export default inject(({ store }: { store: RootStore }) => ({
   isConversationStarted: store.isConversationStarted,
   updatePreferredLanguage: store.updatePreferredLanguage,
   preferredLanguage: store.preferredLanguage,
-  escapeHTML: store.escapeHTML
+  escapeHTML: store.escapeHTML,
+  rtl: store.rtl
 }))(injectIntl(observer(BotInfoPage)))
 
 type BotInfoProps = InjectedIntlProps &
@@ -156,4 +159,5 @@ type BotInfoProps = InjectedIntlProps &
     | 'updatePreferredLanguage'
     | 'preferredLanguage'
     | 'escapeHTML'
+    | 'rtl'
   >
