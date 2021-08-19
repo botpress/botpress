@@ -30,7 +30,7 @@ describe('Admin - Bot Management', () => {
     await gotoAndExpect(`${bpConfig.host}/admin/workspace/${workspaceId}/bots`)
   })
 
-  it.only('Import bot from archive', async () => {
+  it('Import bot from archive', async () => {
     await page.waitFor(200)
     await clickOn('#btn-create-bot')
     await page.waitFor(100)
