@@ -2,17 +2,11 @@ import Joi from 'joi'
 
 import { defaultPipelines } from './defaults'
 
-export const LEGACY_BOTID_REGEX = /^[A-Z0-9]+[A-Z0-9_-]{1,}[A-Z0-9]+$/i
-export const BOTID_REGEX = /^[A-Z0-9]{1}[A-Z0-9-_]{1,2}_-_[A-Z0-9_-]+[A-Z0-9]+$/i // <WOR>_-_<BOTNAME>
-export const WORKSPACEID_REGEX = /^[A-Z0-9-_]+$/i
+export const SANITIZED_NAME_REGEX = /^[A-Z0-9]+[A-Z0-9_-]{1,}[A-Z0-9]+$/i
+export const BOTID_REGEX = /^[A-Z0-9]{1}[A-Z0-9-_]{1,2}__[A-Z0-9_-]+[A-Z0-9]+$/i // <WOR>__<BOTNAME>
 const OP_REGEX = /^([\+|-][r|w]){1,2}$/
 
-export const isValidBotId = (botId: string): boolean => LEGACY_BOTID_REGEX.test(botId) || BOTID_REGEX.test(botId)
-
-export const doesBotIdStartWithWorkspace = (botId: string, workspace: string) => {
-  const correctPrefix = `${workspace}_`
-  return botId.startsWith(correctPrefix) && botId.length > correctPrefix.length
-}
+export const isValidBotId = (botId: string): boolean => SANITIZED_NAME_REGEX.test(botId) || BOTID_REGEX.test(botId)
 
 export const BotCreationSchema = Joi.object().keys({
   id: Joi.string()
@@ -103,7 +97,7 @@ const AuthRole = Joi.object().keys({
 
 export const WorkspaceCreationSchema = Joi.object().keys({
   id: Joi.string()
-    .regex(WORKSPACEID_REGEX)
+    .regex(SANITIZED_NAME_REGEX)
     .required(),
   name: Joi.string()
     .max(50)
