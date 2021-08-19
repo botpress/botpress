@@ -1,21 +1,17 @@
 import { Button, Checkbox, Classes, Dialog, FileInput, FormGroup, InputGroup, Intent, Callout } from '@blueprintjs/core'
 import { lang, toast } from 'botpress/shared'
+import { makeBotId, sanitizeName } from 'common/utils'
 import _ from 'lodash'
 import ms from 'ms'
 import React, { Component } from 'react'
 
 import api from '~/app/api'
-import { getActiveWorkspace } from '~/auth/basicAuth'
-
-import { sanitizeBotId } from './CreateBotModal'
 interface Props {
   onCreateBotSuccess: () => void
   toggle: () => void
   isOpen: boolean
-  currentWorkspaceID: string | undefined
+  currentWorkspace: string
 }
-
-const makeBotId = (workspace: string, botName: string) => `${workspace}_${sanitizeBotId(botName)}`
 
 interface State {
   botId: string
@@ -53,8 +49,6 @@ class ImportBotModal extends Component<Props, State> {
     }
 
     this.setState({ isProcessing: true, progress: 0 })
-
-    console.log(this.state)
 
     try {
       await api
@@ -95,11 +89,8 @@ class ImportBotModal extends Component<Props, State> {
   }, 500)
 
   handleNameChanged = e => {
-    const botName = e.target.value
-    if (!this.props.currentWorkspaceID) {
-      return
-    }
-    const botId = makeBotId(this.props.currentWorkspaceID, botName)
+    const botName = e.target.value.trim()
+    const botId = makeBotId(this.props.currentWorkspace, botName)
     this.setState({ botName, botId })
   }
 
@@ -116,11 +107,7 @@ class ImportBotModal extends Component<Props, State> {
 
     this.setState({ filePath: files[0].name })
 
-    // if the bot id is unchanged
-    if (!this.props.currentWorkspaceID) {
-      return
-    }
-    if (this.state.botId === makeBotId(this.props.currentWorkspaceID, '') || this.state.botId === '') {
+    if (!this.state.botId.length || this.state.botId === makeBotId(this.props.currentWorkspace, '')) {
       this.generateBotId(files[0].name)
     }
   }
@@ -128,19 +115,10 @@ class ImportBotModal extends Component<Props, State> {
   generateBotId = (filename: string) => {
     const noExt = filename.substr(0, filename.indexOf('.'))
     const matches = noExt.match(/bot_(.*)_[0-9]+/)
-    const name = sanitizeBotId((matches && matches[1]) || noExt)
+    const botName = sanitizeName((matches && matches[1]) || noExt)
+    const botId = makeBotId(this.props.currentWorkspace, botName)
 
-    if (!this.props.currentWorkspaceID) {
-      return
-    }
-    this.setState(
-      {
-        botId: makeBotId(this.props.currentWorkspaceID, name),
-        botName: name,
-        overwrite: false
-      },
-      this.checkIdAvailability
-    )
+    this.setState({ botId, botName, overwrite: false }, this.checkIdAvailability)
   }
 
   toggleDialog = () => {
@@ -156,8 +134,6 @@ class ImportBotModal extends Component<Props, State> {
   }
 
   render() {
-    console.log('IMPORT PROPS > ', this.props)
-
     const { isProcessing, progress } = this.state
 
     let buttonText = lang.tr('admin.workspace.bots.import.import')
