@@ -15,7 +15,8 @@ import {
 
 describe('Admin - Bot Management', () => {
   const tempBotId = 'lol-bot'
-  const importBotId = 'import-bot'
+  const importBotName = 'import bot'
+  const importBotId = 'def__import-bot'
   const workspaceId = 'default'
 
   const clickButtonForBot = async (buttonId: string, botId: string) => {
@@ -29,12 +30,13 @@ describe('Admin - Bot Management', () => {
     await gotoAndExpect(`${bpConfig.host}/admin/workspace/${workspaceId}/bots`)
   })
 
-  it('Import bot from archive', async () => {
+  it.only('Import bot from archive', async () => {
     await page.waitFor(200)
     await clickOn('#btn-create-bot')
     await page.waitFor(100)
     await clickOn('#btn-import-bot')
-    await fillField('#input-botId', importBotId)
+    await page.waitFor(100)
+    await fillField('#input-bot-name', importBotName)
     await uploadFile('input[type="file"]', path.join(__dirname, '../assets/bot-import-test.tgz'))
     await clickOn('#btn-upload')
     await expectAdminApiCallSuccess(`workspace/bots/${importBotId}/import`, 'POST')

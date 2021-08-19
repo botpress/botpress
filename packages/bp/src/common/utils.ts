@@ -28,5 +28,5 @@ export const makeWorkspaceScopedBotID = (workspaceName: string, botName: string)
   const trimWID = sanitizeName(workspaceName).slice(0, 3)
   const sanBotId = sanitizeName(botName)
 
-  return `${trimWID}_-_${sanBotId}`
+  return `${trimWID}__${sanBotId}`
 }

@@ -108,11 +108,11 @@ class ImportBotModal extends Component<Props, State> {
     this.setState({ filePath: files[0].name })
 
     if (!this.state.botId.length || !this.state.botName.length) {
-      this.generateBotId(files[0].name)
+      this.generateBotIdFromFile(files[0].name)
     }
   }
 
-  generateBotId = (filename: string) => {
+  generateBotIdFromFile = (filename: string) => {
     const noExt = filename.substr(0, filename.indexOf('.'))
     const matches = noExt.match(/bot_(.*)_[0-9]+/)
     const botName = sanitizeName((matches && matches[1]) || noExt)

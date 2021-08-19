@@ -19,12 +19,19 @@ export const getPage = async (): Promise<Page> => {
 }
 
 export const loginIfNeeded = async () => {
-  if (page.url().includes('login')) {
-    await fillField('#email', bpConfig.email)
-    await fillField('#password', bpConfig.password)
-    await clickOn('#btn-signin')
-    return page.waitForNavigation()
+  const url = page.url()
+  if (!url.includes('login')) {
+    return
   }
+
+  if (url.endsWith('login')) {
+    await page.goto(`${bpConfig.host}/admin/login/default`)
+  }
+
+  await fillField('#email', bpConfig.email)
+  await fillField('#password', bpConfig.password)
+  await clickOn('#btn-signin')
+  return page.waitForNavigation()
 }
 
 export const gotoStudio = async (section?: string) => {
