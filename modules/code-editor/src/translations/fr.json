@@ -76,6 +76,7 @@
     "fileDuplicated": "Fichier dupliqué avec succès!",
     "fileEnabled": "Fichier activé avec succès!",
     "fileRenamed": "Fichier renommé avec succès!",
+    "fileMovedError": "Erreur lors du déplacement de fichier!",
     "fileSaved": "Fichier enregistré avec succès!",
     "fileUploaded": "Fichier envoyé avec succès!",
     "invalidFilename": "Nom de fichier non valide",
