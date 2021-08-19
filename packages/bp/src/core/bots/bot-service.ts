@@ -1,7 +1,7 @@
 import { BotConfig, BotTemplate, Logger, Stage, WorkspaceUserWithAttributes } from 'botpress/sdk'
 import cluster from 'cluster'
 import { BotHealth, ServerHealth } from 'common/typings'
-import { BotCreationSchema, BotEditSchema, isValidBotId, doesBotIdStartWithWorkspace } from 'common/validation'
+import { BotCreationSchema, BotEditSchema, isValidBotId } from 'common/validation'
 import { createForGlobalHooks } from 'core/app/api'
 import { TYPES } from 'core/app/types'
 import { FileContent, GhostService, ReplaceContent } from 'core/bpfs'
@@ -14,8 +14,8 @@ import { extractArchive } from 'core/misc/archive'
 import { listDir } from 'core/misc/list-dir'
 import { stringify } from 'core/misc/utils'
 import { ModuleResourceLoader, ModuleLoader } from 'core/modules'
-import { RealtimeService, RealTimePayload } from 'core/realtime'
-import { BadRequestError, InvalidOperationError } from 'core/routers'
+import { RealtimeService } from 'core/realtime'
+import { InvalidOperationError } from 'core/routers'
 import { AnalyticsService } from 'core/telemetry'
 import { Hooks, HookService } from 'core/user-code'
 import { WorkspaceService } from 'core/users'
@@ -31,7 +31,6 @@ import { studioActions } from 'orchestrator'
 import os from 'os'
 import path from 'path'
 import replace from 'replace-in-file'
-import semver from 'semver'
 import tmp from 'tmp'
 import { VError } from 'verror'
 
@@ -152,10 +151,6 @@ export class BotService {
       throw new InvalidOperationError(`An error occurred while creating the bot: ${error.message}`)
     }
 
-    if (!doesBotIdStartWithWorkspace(bot.id, workspaceId)) {
-      throw new InvalidOperationError('BotId must start with <workspaceID>_')
-    }
-
     const mergedConfigs = await this._createBotFromTemplate(bot, botTemplate)
     if (mergedConfigs) {
       if (!mergedConfigs.disabled) {
@@ -248,10 +243,6 @@ export class BotService {
 
     if (!isValidBotId(botId)) {
       throw new InvalidOperationError("Can't import bot; the bot name contains invalid characters")
-    }
-
-    if (!doesBotIdStartWithWorkspace(botId, workspaceId)) {
-      throw new InvalidOperationError('BotId must start with <workspaceID>_')
     }
 
     if (await this.botExists(botId)) {
