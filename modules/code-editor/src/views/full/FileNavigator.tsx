@@ -127,17 +127,13 @@ class FileNavigator extends React.Component<Props, State> {
       this.traverseTree(this.state.nodes, n => {
         if (node.nodeData && n.id === node.id){
           if (!this.state.selectedFilesList[n.id]){
+            const { selectedFilesList } = this.state
             n.isSelected = true
+            selectedFilesList[n.id] = n.nodeData
 
-            this.setState((prevState: State) => {
-              return {
-                ...prevState,
-                selectedFilesList: {
-                  ...prevState.selectedFilesList,
-                  [n.id]: n.nodeData
-                },
-                selectedFilesCount: prevState.selectedFilesCount + 1
-              }
+            this.setState({
+              selectedFilesList,
+              selectedFilesCount: this.state.selectedFilesCount + 1
             })
           } else {
             n.isSelected = false
@@ -365,17 +361,15 @@ class FileNavigator extends React.Component<Props, State> {
       return <div className={style.padding}>{lang.tr('module.code-editor.navigator.noFilesFound')}</div>
     }
     return (
-      <div>
-        <Tree
-          ref={this.treeRef}
-          contents={this.state.nodes}
-          onNodeContextMenu={this.handleContextMenu}
-          onNodeClick={this.handleNodeClick}
-          onNodeCollapse={n => this.handleNodeExpand(n, false)}
-          onNodeExpand={n => this.handleNodeExpand(n, true)}
-          className={Classes.ELEVATION_0}
-        />
-      </div>
+      <Tree
+        ref={this.treeRef}
+        contents={this.state.nodes}
+        onNodeContextMenu={this.handleContextMenu}
+        onNodeClick={this.handleNodeClick}
+        onNodeCollapse={n => this.handleNodeExpand(n, false)}
+        onNodeExpand={n => this.handleNodeExpand(n, true)}
+        className={Classes.ELEVATION_0}
+      />
     )
   }
 }
@@ -409,7 +403,7 @@ type Props = {
 
 interface State {
   nodes: ITreeNode[]
-  selectedFilesList: object
+  selectedFilesList: { [key: string]: EditableFile }
   selectedFilesCount: number
 }
 

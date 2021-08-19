@@ -186,10 +186,15 @@ class RootStore {
       promises.push(this.api.renameFile(file, `${folderName}/${file.name}`))
     })
 
-    void Promise.all(promises).then(async () => {
-      toast.success(lang.tr('module.code-editor.store.fileRenamed'))
-      await this.fetchFiles()
-    })
+    Promise.all(promises)
+      .then(async () => {
+        toast.success(lang.tr('module.code-editor.store.fileRenamed'))
+        await this.fetchFiles()
+      })
+      .catch((err) => {
+        console.error('Error while renaming files', err)
+        toast.failure(lang.tr('module.code-editor.store.fileMovedError'))
+      })
   }
 
   @action.bound
