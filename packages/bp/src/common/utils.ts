@@ -17,3 +17,16 @@ export const sanitizeName = (text: string) =>
     .replace(/\s|\t|\n/g, '-')
     .toLowerCase()
     .replace(/[^a-z0-9-_.]/g, '')
+
+/**
+ *
+ * @param workspaceName string
+ * @param botId string
+ * @returns string that repects validation.ts BOT_ID_REGEX
+ */
+export const makeBotId = (workspaceName: string, botId: string) => {
+  const trimWID = workspaceName.slice(0, 3)
+  const sanBotId = sanitizeName(botId)
+
+  return `${trimWID}_-_${sanBotId}`
+}
