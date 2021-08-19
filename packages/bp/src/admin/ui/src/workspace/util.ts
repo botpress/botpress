@@ -19,7 +19,7 @@ export function filterList<T>(elements: T[], filterFields: string[], query: stri
   )
 }
 
-export function getValidWorkspaceId(workspaces: WorkspaceUser[], location: Location): string {
+export function getCurrentWorkspaceID(workspaces: WorkspaceUser[], location: Location): string {
   const [, _, urlWorkspaceId, __] = location.pathname.split('/')
 
   const urlId = workspaces.find(x => x.workspace === urlWorkspaceId)

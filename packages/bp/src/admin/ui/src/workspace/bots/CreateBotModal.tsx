@@ -1,7 +1,7 @@
 import { Button, Classes, Dialog, FormGroup, InputGroup, Intent, Callout } from '@blueprintjs/core'
 import { BotConfig, BotTemplate } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
-import { makeBotId } from 'common/utils'
+import { makeWorkspaceScopedBotID } from 'common/utils'
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
@@ -93,7 +93,7 @@ class CreateBotModal extends Component<Props, State> {
 
   handleNameChanged = e => {
     const botName = e.target.value
-    const botId = makeBotId(this.props.currentWorkspace, botName)
+    const botId = makeWorkspaceScopedBotID(this.props.currentWorkspace, botName)
     this.setState({ botName, botId })
   }
 

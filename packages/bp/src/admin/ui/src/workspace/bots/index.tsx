@@ -31,7 +31,7 @@ import { fetchLicensing } from '~/management/licensing/reducer'
 import { fetchModules } from '~/management/modules/reducer'
 import { fetchMyWorkspaces, switchWorkspace } from '~/user/reducer'
 import { fetchBotHealth, fetchBots, fetchBotNLULanguages } from '~/workspace/bots/reducer'
-import { filterList, getValidWorkspaceId } from '~/workspace/util'
+import { filterList, getCurrentWorkspaceID } from '~/workspace/util'
 
 import BotItemCompact from './BotItemCompact'
 import BotItemPipeline from './BotItemPipeline'
@@ -383,7 +383,7 @@ class Bots extends Component<Props> {
       return <LoadingSection />
     }
 
-    const currentWorkspace = getValidWorkspaceId(this.props.workspaces, this.props.location)
+    const currentWorkspace = getCurrentWorkspaceID(this.props.workspaces, this.props.location)
 
     return (
       <PageContainer title={lang.tr('admin.workspace.bots.bots')}>

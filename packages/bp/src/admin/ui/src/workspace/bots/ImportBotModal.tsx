@@ -1,6 +1,6 @@
 import { Button, Checkbox, Classes, Dialog, FileInput, FormGroup, InputGroup, Intent, Callout } from '@blueprintjs/core'
 import { lang, toast } from 'botpress/shared'
-import { makeBotId, sanitizeName } from 'common/utils'
+import { makeWorkspaceScopedBotID, sanitizeName } from 'common/utils'
 import _ from 'lodash'
 import ms from 'ms'
 import React, { Component } from 'react'
@@ -90,7 +90,7 @@ class ImportBotModal extends Component<Props, State> {
 
   handleNameChanged = e => {
     const botName = e.target.value.trim()
-    const botId = makeBotId(this.props.currentWorkspace, botName)
+    const botId = makeWorkspaceScopedBotID(this.props.currentWorkspace, botName)
     this.setState({ botName, botId })
   }
 
@@ -107,7 +107,7 @@ class ImportBotModal extends Component<Props, State> {
 
     this.setState({ filePath: files[0].name })
 
-    if (!this.state.botId.length || this.state.botId === makeBotId(this.props.currentWorkspace, '')) {
+    if (!this.state.botId.length || !this.state.botName.length) {
       this.generateBotId(files[0].name)
     }
   }
@@ -116,7 +116,7 @@ class ImportBotModal extends Component<Props, State> {
     const noExt = filename.substr(0, filename.indexOf('.'))
     const matches = noExt.match(/bot_(.*)_[0-9]+/)
     const botName = sanitizeName((matches && matches[1]) || noExt)
-    const botId = makeBotId(this.props.currentWorkspace, botName)
+    const botId = makeWorkspaceScopedBotID(this.props.currentWorkspace, botName)
 
     this.setState({ botId, botName, overwrite: false }, this.checkIdAvailability)
   }

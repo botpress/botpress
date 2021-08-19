@@ -12,7 +12,7 @@ import { fetchMyWorkspaces, switchWorkspace } from '~/user/reducer'
 import { fetchBots } from '~/workspace/bots/reducer'
 import { fetchUsers } from '~/workspace/collaborators/reducer'
 import { fetchRoles } from '~/workspace/roles/reducer'
-import { getValidWorkspaceId } from '~/workspace/util'
+import { getCurrentWorkspaceID } from '~/workspace/util'
 import { AppState } from '../rootReducer'
 import style from './style.scss'
 
@@ -57,7 +57,7 @@ const WorkspaceSelect: FC<Props> = props => {
   }
 
   const checkWorkspaceId = () => {
-    const workspaceId = getValidWorkspaceId(props.workspaces!, props.location)
+    const workspaceId = getCurrentWorkspaceID(props.workspaces!, props.location)
 
     if (!workspaceId) {
       return props.history.replace('/noAccess')

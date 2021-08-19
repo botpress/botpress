@@ -20,13 +20,13 @@ export const sanitizeName = (text: string) =>
 
 /**
  *
- * @param workspaceName string
- * @param botId string
+ * @param workspaceName string Not sanitized worskpace name
+ * @param botName string Not sanitized bot name
  * @returns string that repects validation.ts BOT_ID_REGEX
  */
-export const makeBotId = (workspaceName: string, botId: string) => {
-  const trimWID = workspaceName.slice(0, 3)
-  const sanBotId = sanitizeName(botId)
+export const makeWorkspaceScopedBotID = (workspaceName: string, botName: string) => {
+  const trimWID = sanitizeName(workspaceName).slice(0, 3)
+  const sanBotId = sanitizeName(botName)
 
   return `${trimWID}_-_${sanBotId}`
 }
