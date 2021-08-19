@@ -285,7 +285,7 @@ export class BotService {
 
         const newConfigs = <Partial<BotConfig>>{
           id: botId,
-          name: originalConfig.name ? originalConfig.name : `${originalConfig.name} (${botId})`,
+          name: `${originalConfig.name} (${botId})`, //avoid visual conflict when dealing with multiple bots with the same name
           pipeline_status: {
             current_stage: {
               id: pipeline && pipeline[0].id,
