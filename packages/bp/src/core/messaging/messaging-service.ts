@@ -13,7 +13,6 @@ export class MessagingService {
   private clientsByBotId: { [botId: string]: MessagingClient } = {}
   private botsByClientId: { [clientId: string]: string } = {}
   private webhookTokenByClientId: { [botId: string]: string } = {}
-  private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage']
 
   public isExternal: boolean
   public internalPassword: string | undefined
@@ -114,10 +113,6 @@ export class MessagingService {
   }
 
   private async handleOutgoingEvent(event: IO.OutgoingEvent, next: IO.MiddlewareNextCallback) {
-    if (!this.channelNames.includes(event.channel)) {
-      return next(undefined, false, true)
-    }
-
     const payloadAbsoluteUrl = this.convertToAbsoluteUrls(event.payload)
     await this.clientsByBotId[event.botId].chat.reply(event.threadId!, event.channel, payloadAbsoluteUrl)
 
