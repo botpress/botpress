@@ -64,9 +64,6 @@ class Bots extends Component<Props> {
     this.props.fetchBots()
     this.props.fetchBotHealth()
     this.props.fetchBotNLULanguages()
-    this.props.fetchMyWorkspaces()
-
-    console.log('PROPS > ', this.props)
 
     if (!this.props.loadedModules.length && this.props.profile && this.props.profile.isSuperAdmin) {
       this.props.fetchModules()
@@ -74,12 +71,6 @@ class Bots extends Component<Props> {
 
     if (!this.props.licensing) {
       this.props.fetchLicensing()
-    }
-
-    const workspaceId = getValidWorkspaceId(this.props.workspaces, this.props.location)
-    console.log('ID > ', workspaceId)
-    if (workspaceId) {
-      this.props.switchWorkspace(workspaceId)
     }
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -388,9 +379,11 @@ class Bots extends Component<Props> {
   }
 
   render() {
-    if (!this.props.bots) {
+    if (!this.props.bots || !this.props.workspaces) {
       return <LoadingSection />
     }
+
+    const currentWorkspace = getValidWorkspaceId(this.props.workspaces, this.props.location)
 
     return (
       <PageContainer title={lang.tr('admin.workspace.bots.bots')}>
@@ -418,13 +411,13 @@ class Bots extends Component<Props> {
                 toggle={this.toggleCreateBotModal}
                 existingBots={this.props.bots}
                 onCreateBotSuccess={this.props.fetchBots}
-                currentWorkspaceID={this.props.workspaceId}
+                currentWorkspace={currentWorkspace}
               />
               <ImportBotModal
                 isOpen={this.state.isImportBotModalOpen}
                 toggle={this.toggleImportBotModal}
                 onCreateBotSuccess={this.props.fetchBots}
-                currentWorkspaceID={this.props.workspaceId}
+                currentWorkspace={currentWorkspace}
               />
             </AccessControl>
           </Fragment>
@@ -435,7 +428,6 @@ class Bots extends Component<Props> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  workspaceId: state.user.currentWorkspace,
   loadedModules: state.modules.loadedModules,
   bots: state.bots.bots,
   health: state.bots.health,
@@ -453,8 +445,7 @@ const mapDispatchToProps = {
   fetchBotHealth,
   fetchModules,
   fetchBotNLULanguages,
-  fetchMyWorkspaces,
-  switchWorkspace
+  fetchMyWorkspaces
 }
 
 const connector = connect(mapStateToProps, mapDispatchToProps)
