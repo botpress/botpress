@@ -1,11 +1,9 @@
 import * as sdk from 'botpress/sdk'
-import { BotService } from 'core/bots'
 import { Migration, MigrationOpts } from 'core/migration'
-import { TYPES } from 'core/types'
 
 const migration: Migration = {
   info: {
-    description: '',
+    description: 'Remove QNA module',
     target: 'core',
     type: 'config'
   },

@@ -92,7 +92,7 @@ const MainView = props => {
         )}
 
         <div className={style.container}>
-          {page === 'add' && <AddLibrary axios={props.bp.axios} {...commonProps} />}
+          {page === 'add' && <AddLibrary axios={props.bp.axios} userProfile={props.userProfile} {...commonProps} />}
         </div>
       </div>
     </Container>
