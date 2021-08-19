@@ -1,6 +1,7 @@
 import { Button, Classes, Dialog, FormGroup, InputGroup, Intent, Callout } from '@blueprintjs/core'
 import { BotConfig, BotTemplate } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
+import { makeBotId } from 'common/utils'
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
@@ -8,14 +9,7 @@ import Select from 'react-select'
 
 import api from '~/app/api'
 import { AppState } from '~/app/rootReducer'
-import { getActiveWorkspace } from '~/auth/basicAuth'
 import { fetchBotCategories, fetchBotTemplates } from './reducer'
-
-export const sanitizeBotId = (text: string) =>
-  text
-    .toLowerCase()
-    .replace(/\s/g, '-')
-    .replace(/[^a-z0-9_-]/g, '')
 
 interface SelectOption<T> {
   label: string
@@ -28,10 +22,8 @@ type Props = {
   existingBots: BotConfig[]
   onCreateBotSuccess: () => void
   toggle: () => void
-  currentWorkspaceID: string | undefined
+  currentWorkspace: string
 } & ConnectedProps<typeof connector>
-
-const makeBotId = (workspace: string, botName: string) => `${workspace}_${sanitizeBotId(botName)}`
 
 interface State {
   botId: string
@@ -100,11 +92,8 @@ class CreateBotModal extends Component<Props, State> {
   }
 
   handleNameChanged = e => {
-    if (!this.props.currentWorkspaceID) {
-      return
-    }
     const botName = e.target.value
-    const botId = makeBotId(this.props.currentWorkspaceID, botName)
+    const botId = makeBotId(this.props.currentWorkspace, botName)
     this.setState({ botName, botId })
   }
 
