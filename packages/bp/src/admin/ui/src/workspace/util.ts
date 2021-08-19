@@ -1,3 +1,4 @@
+import { WorkspaceUser } from 'botpress/sdk'
 import { Location } from 'history'
 import _ from 'lodash'
 import { getActiveWorkspace } from '~/auth/basicAuth'
@@ -18,11 +19,8 @@ export function filterList<T>(elements: T[], filterFields: string[], query: stri
   )
 }
 
-export function getValidWorkspaceId(workspaces: any[] | undefined, location: Location): string | null {
-  const [, urlSection, urlWorkspaceId, urlPage] = location.pathname.split('/')
-  if (!workspaces || !workspaces.length) {
-    return null
-  }
+export function getValidWorkspaceId(workspaces: WorkspaceUser[], location: Location): string {
+  const [, _, urlWorkspaceId, __] = location.pathname.split('/')
 
   const urlId = workspaces.find(x => x.workspace === urlWorkspaceId)
   const storageId = workspaces.find(x => x.workspace === getActiveWorkspace())
