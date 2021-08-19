@@ -16,6 +16,16 @@ function MessageMenu(props) {
 export const showContextMenu = (e: React.MouseEvent<HTMLDivElement>, props: any) => {
   const customActions = props.store.view.customActions
 
+  if (props.store.config.isEmulator) {
+    customActions.push({
+      id: 'actionDebug',
+      label: 'Inspect in Debugger',
+      onClick: (_actionId: string, props: any) => {
+        props.store.loadEventInDebugger(props.incomingEventId, true)
+      }
+    })
+  }
+
   if (customActions && props.incomingEventId) {
     e.preventDefault()
     const menu = <MessageMenu element={props} customActions={customActions} />

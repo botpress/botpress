@@ -16,6 +16,7 @@ import { ExternalAuthConfig, ConfigProvider } from 'core/config'
 import { ConverseService } from 'core/converse'
 import { FlowService, SkillService } from 'core/dialog'
 import { JobService } from 'core/distributed'
+import { EventRepository } from 'core/events'
 import { AlertingService, MonitoringService } from 'core/health'
 import { LogsRepository } from 'core/logger'
 import { MediaServiceProvider, MediaRouter } from 'core/media'
@@ -126,7 +127,8 @@ export class HTTPServer {
     @inject(TYPES.RealtimeService) private realtime: RealtimeService,
     @inject(TYPES.QnaService) private qnaService: QnaService,
     @inject(TYPES.MessagingService) private messagingService: MessagingService,
-    @inject(TYPES.ObjectCache) private objectCache: MemoryObjectCache
+    @inject(TYPES.ObjectCache) private objectCache: MemoryObjectCache,
+    @inject(TYPES.EventRepository) private eventRepo: EventRepository
   ) {
     this.app = express()
 
@@ -180,6 +182,7 @@ export class HTTPServer {
       converseService,
       this.logger,
       mediaServiceProvider,
+      eventRepo,
       qnaService,
       this
     )
