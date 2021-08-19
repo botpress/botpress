@@ -242,7 +242,7 @@ export class BotService {
     const startTime = Date.now()
 
     if (!isValidBotId(botId)) {
-      throw new InvalidOperationError("Can't import bot; the bot name contains invalid characters")
+      throw new InvalidOperationError(`Can't import bot; the bot id: ${botId} contains invalid characters`)
     }
 
     if (await this.botExists(botId)) {

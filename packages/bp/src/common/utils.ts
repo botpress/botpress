@@ -14,6 +14,7 @@ export const bytesToString = (bytes: number): string => {
 
 export const sanitizeName = (text: string) =>
   text
+    .trim()
     .replace(/\s|\t|\n/g, '-')
     .toLowerCase()
     .replace(/[^a-z0-9-_.]/g, '')

@@ -48,7 +48,7 @@ class ImportBotModal extends Component<Props, State> {
       return
     }
 
-    this.setState({ isProcessing: true, progress: 0 })
+    this.setState({ isProcessing: true, progress: 0, botName: this.state.botName.trim() })
 
     try {
       await api
@@ -89,7 +89,7 @@ class ImportBotModal extends Component<Props, State> {
   }, 500)
 
   handleNameChanged = e => {
-    const botName = e.target.value.trim()
+    const botName = e.target.value
     const botId = makeWorkspaceScopedBotID(this.props.currentWorkspace, botName)
     this.setState({ botName, botId })
   }
