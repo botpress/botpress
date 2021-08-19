@@ -123,6 +123,10 @@ export class ModuleResolver {
     const { archived, path: fullPath, valid } = moduleInfo
 
     if (!archived) {
+      if (!valid) {
+        return ''
+      }
+
       this.addModuleNodePath(fullPath)
       return fullPath
     }

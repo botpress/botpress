@@ -148,13 +148,11 @@ export const BUILTIN_MODULES = [
   'channel-web',
   'code-editor',
   'examples',
-  'extensions',
   'history',
   'hitl',
   'misunderstood',
   'ndu',
   'nlu',
-  'qna',
   'testing',
   'uipath'
 ]

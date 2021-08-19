@@ -1,10 +1,10 @@
 import Bluebird from 'bluebird'
 import * as sdk from 'botpress/sdk'
+import { QnaEntry } from 'common/typings'
 import _ from 'lodash'
 import memoize from 'lodash/memoize'
 import uniq from 'lodash/uniq'
 
-import { QnaEntry } from '../../../qna/src/backend/qna'
 import { DbFlaggedEvent, FLAGGED_MESSAGE_STATUS, RESOLUTION_TYPE } from '../types'
 
 const applyChanges = (bp: typeof sdk, botId: string, tableName: string) => {

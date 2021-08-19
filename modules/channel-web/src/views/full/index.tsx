@@ -33,20 +33,7 @@ export class WebBotpressUIInjection extends React.Component {
         enableResetSessionShortcut: true,
         enableConversationDeletion: true,
         containerWidth: EMULATOR_WIDTH,
-        layoutWidth: EMULATOR_WIDTH,
-        overrides: {
-          before_container: [
-            {
-              module: 'extensions',
-              component: 'Debugger'
-            }
-            /* Disabled for now until we get a proper UX with that
-            {
-              module: 'testing',
-              component: 'ScenarioBuilder'
-            }*/
-          ]
-        }
+        layoutWidth: EMULATOR_WIDTH
       })
 
     window.document.body.appendChild(script)

@@ -355,7 +355,7 @@ export class ScopedActionService {
 
     const botFolder = action.scope === 'global' ? 'global' : `bots/${this.botId}`
     const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}.js`))
-    const lookups = getBaseLookupPaths(dirPath, 'actions')
+    const lookups = getBaseLookupPaths(dirPath, 'actions', this.botId)
 
     return { code, dirPath, lookups, action }
   }

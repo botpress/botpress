@@ -61,6 +61,22 @@
       "longitude": "Longitud",
       "address": "Dirección",
       "label": "Título"
+    },
+    "dropdown": {
+      "allowCreate": "Permitir la creación de nuevas opciones",
+      "allowMultiple": "Permitir múltiples opciones",
+      "asKeyboardDesc": "Se mostrará justo encima del compositor (como opciones)",
+      "asKeyboardTitle": "Mostrar como teclado",
+      "buttonDesc": "Cuando se deja en blanco, la opción seleccionada se envía cuando se cierra el menú desplegable",
+      "buttonText": "El texto que se mostrará en el botón.",
+      "desc": "Muestra una lista de opciones al usuario.",
+      "itemLabel": "El texto que se muestra en el menú desplegable",
+      "itemValue": "El valor que recibirá el bot (opcional)",
+      "optionsList": "Lista de opciones",
+      "title": "Desplegable",
+      "widthDesc": "El tamaño predeterminado muestra la selección y el botón en una línea. Cámbielo para adaptarlo a sus necesidades",
+      "widthTitle": "El ancho del componente (en píxeles)",
+      "useMarkdown": "Usar markdown"
     }
   },
   "typingIndicator": "Mostrar indicadores de escritura",

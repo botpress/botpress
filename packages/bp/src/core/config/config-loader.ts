@@ -179,8 +179,6 @@ export class ConfigProvider {
       'builtin',
       'channel-web',
       'nlu',
-      'qna',
-      'extensions',
       'code-editor',
       'testing',
       'examples'
