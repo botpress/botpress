@@ -53,7 +53,7 @@
     "moduleConf": "Module Configurations",
     "pipelineHooks": "Pipeline Hooks",
     "rawFileEditor": "Raw File Editor",
-    "sharedLibs": "Shared Libraries"
+    "sharedLibs": "Libraries"
   },
   "splash": {
     "advancedEditor": "Advanced Editor",
