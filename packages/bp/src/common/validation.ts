@@ -2,11 +2,12 @@ import Joi from 'joi'
 
 import { defaultPipelines } from './defaults'
 
-export const BOTID_REGEX = /^[A-Z0-9-_]+_[A-Z0-9-_]+$/i // <WORKSPACEID>_<BOTNAME)>
+export const LEGACY_BOTID_REGEX = /^[A-Z0-9]+[A-Z0-9_-]{1,}[A-Z0-9]+$/i
+export const BOTID_REGEX = /^[A-Z0-9]{1}[A-Z0-9-_]{1,2}_-_[A-Z0-9_-]+[A-Z0-9]+$/i // <WOR>_-_<BOTNAME>
 export const WORKSPACEID_REGEX = /^[A-Z0-9-_]+$/i
 const OP_REGEX = /^([\+|-][r|w]){1,2}$/
 
-export const isValidBotId = (botId: string): boolean => BOTID_REGEX.test(botId)
+export const isValidBotId = (botId: string): boolean => LEGACY_BOTID_REGEX.test(botId) || BOTID_REGEX.test(botId)
 
 export const doesBotIdStartWithWorkspace = (botId: string, workspace: string) => {
   const correctPrefix = `${workspace}_`
