@@ -89,11 +89,8 @@ class BotsRouter extends CustomAdminRouter {
 
         const botExists = (await this.botService.getBotsIds()).includes(bot.id)
         const botLinked = (await this.workspaceService.getBotRefs()).includes(bot.id)
-        const workspace = await this.workspaceService.findWorkspace(req.workspace!)
 
-        if (workspace.botPrefix) {
-          bot.id = `${workspace.botPrefix}__${bot.id}`
-        }
+        bot.id = await this.botService.makeBotId(bot.id, req.workspace!)
 
         if (botExists && botLinked) {
           throw new ConflictError(`Bot "${bot.id}" already exists and is already linked in workspace`)
@@ -130,12 +127,7 @@ class BotsRouter extends CustomAdminRouter {
       '/:botId/exists',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        let { botId } = req.params
-
-        const workspace = await this.workspaceService.findWorkspace(req.workspace!)
-        if (workspace.botPrefix) {
-          botId = `${workspace.botPrefix}__${botId}`
-        }
+        const botId = await this.botService.makeBotId(req.params.botId, req.workspace!)
 
         return res.send(await this.botService.botExists(<string>botId))
       })
@@ -207,16 +199,11 @@ class BotsRouter extends CustomAdminRouter {
       '/:botId/import',
       this.needPermissions('write', `${this.resource}.archive`),
       this.asyncMiddleware(async (req, res) => {
-        let { botId } = req.params
-
         if (!req.is('application/tar+gzip')) {
           return res.status(400).send('Bot should be imported from archive')
         }
 
-        const workspace = await this.workspaceService.findWorkspace(req.workspace!)
-        if (workspace.botPrefix) {
-          botId = `${workspace.botPrefix}__${botId}`
-        }
+        const botId = await this.botService.makeBotId(req.params.botId, req.workspace!)
 
         const buffers: any[] = []
         req.on('data', chunk => buffers.push(chunk))
