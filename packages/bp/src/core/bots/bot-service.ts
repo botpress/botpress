@@ -147,6 +147,11 @@ export class BotService {
     return this._botIds
   }
 
+  async makeBotId(botId: string, workspaceId: string) {
+    const workspace = await this.workspaceService.findWorkspace(workspaceId)
+    return workspace?.botPrefix ? `${workspace.botPrefix}__${botId}` : botId
+  }
+
   async addBot(bot: BotConfig, botTemplate: BotTemplate): Promise<void> {
     this.stats.track('bot', 'create')
 
