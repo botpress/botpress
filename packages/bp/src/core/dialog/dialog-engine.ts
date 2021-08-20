@@ -249,7 +249,7 @@ export class DialogEngine {
       currentFlow: nextFlow.name,
       queue: undefined,
       previousFlow: currentFlow.name,
-      previousNode: currentNode?.name as string,
+      previousNode: currentNode?.name ?? '',
       hasJumped: true,
       jumpPoints: [
         ...(event.state.context?.jumpPoints || []),
@@ -309,8 +309,6 @@ export class DialogEngine {
 
   public async processConversationEnd(botId: string, sessionId: string, event: IO.IncomingEvent): Promise<boolean> {
     this._debug(event.botId, event.target, 'processing conversation end')
-
-    await this._loadFlows(botId)
 
     const currentFlow = this._findFlow(botId, event.state.context?.currentFlow!)
     const currentNode = this.findNodeWithoutError(botId, currentFlow, event.state.context?.currentNode)
