@@ -107,13 +107,11 @@ class CreateBotModal extends Component<Props, State> {
 
   handleNameChanged = e => {
     const botName = e.target.value
+    const botId = this.state.generateId ? sanitizeBotId(botName) : this.state.botId
 
     this.setState({
       botName,
-      botId: addBotPrefix(
-        this.state.generateId ? sanitizeBotId(botName) : this.state.botId,
-        this.props.workspace?.botPrefix
-      )
+      botId: addBotPrefix(botId, this.props.workspace?.botPrefix)
     })
   }
 

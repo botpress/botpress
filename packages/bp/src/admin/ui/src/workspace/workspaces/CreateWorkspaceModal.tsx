@@ -71,7 +71,7 @@ const CreateWorkspaceModal: FC<Props> = props => {
                   placeholder="The name of your workspace"
                   value={name}
                   onChange={updateName}
-                  tabIndex={2}
+                  tabIndex={1}
                   autoFocus={true}
                 />
               </FormGroup>
@@ -87,7 +87,7 @@ const CreateWorkspaceModal: FC<Props> = props => {
                   placeholder="The ID of your workspace"
                   value={id}
                   onChange={updateId}
-                  tabIndex={1}
+                  tabIndex={2}
                 />
               </FormGroup>
 
@@ -102,7 +102,7 @@ const CreateWorkspaceModal: FC<Props> = props => {
                   placeholder=""
                   value={botPrefix}
                   onChange={e => setBotPrefix(e.target.value)}
-                  tabIndex={2}
+                  tabIndex={3}
                 />
               </FormGroup>
 
@@ -114,7 +114,7 @@ const CreateWorkspaceModal: FC<Props> = props => {
                   onChange={e => setDescription(e.currentTarget.value)}
                   fill={true}
                   rows={3}
-                  tabIndex={3}
+                  tabIndex={4}
                   maxLength={500}
                 />
               </FormGroup>

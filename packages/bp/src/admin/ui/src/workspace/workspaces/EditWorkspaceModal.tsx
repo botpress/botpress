@@ -81,7 +81,7 @@ const EditWorkspaceModal: FC<Props> = props => {
             onChange={e => setDescription(e.currentTarget.value)}
             rows={3}
             fill={true}
-            tabIndex={2}
+            tabIndex={3}
             maxLength={500}
           />
         </FormGroup>
