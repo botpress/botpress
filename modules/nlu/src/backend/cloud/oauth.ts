@@ -15,16 +15,15 @@ interface OauthResponse {
   token_type: string
 }
 
-const createOauthTokenClient = (
-  axios: AxiosInstance,
-  { oauthUrl, clientId, clientSecret }: OauthTokenClientProps
-) => () =>
-  axios
-    .post(
-      oauthUrl,
-      qs.stringify({ client_id: clientId, client_secret: clientSecret, grant_type: 'client_credentials' })
-    )
-    .then(res => res.data as OauthResponse)
+const createOauthTokenClient = (axios: AxiosInstance, oauthTokenClientProps: OauthTokenClientProps) => async () => {
+  const { oauthUrl, clientId, clientSecret } = oauthTokenClientProps
+  const res = await axios.post(
+    oauthUrl,
+    qs.stringify({ client_id: clientId, client_secret: clientSecret, grant_type: 'client_credentials' })
+  )
+
+  return res.data as OauthResponse
+}
 
 const requestInterceptor = (authenticate: () => Promise<string>) => async (config: AxiosRequestConfig) => {
   const token = await authenticate()
@@ -60,7 +59,7 @@ export const createOauthClient = ({ clientId, clientSecret, endpoint, oauthUrl }
   })
 
   const tokenCache = cache(oauthTokenClient, {
-    getExpiry: res => res.expires_in * 1000,
+    getExpiryInMs: res => res.expires_in * 1000,
     getToken: res => res.access_token
   })
 

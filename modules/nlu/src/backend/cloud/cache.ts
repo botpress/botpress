@@ -1,49 +1,46 @@
-import { Lock } from 'lock'
+import ms from 'ms'
+import { Locker } from './lock'
 
 export interface Options<T> {
   getToken?: (res: T) => string
-  getExpiry?: (res: T) => number
+  getExpiryInMs?: (res: T) => number
 }
 
-const defaultExpiry = 60000 // 10 minutes in ms
+const defaultExpiry = ms('10m') // 10 minutes in ms
+const isTokenActive = (token: string | null, expiration: number | null) =>
+  token && expiration && expiration > Date.now()
 
 export const cache = <T>(authenticate: () => Promise<T>, options?: Options<T>) => {
   const getToken: (res: any) => string = options?.getToken ?? (res => res)
-  const getExpiry: (res: any) => number = options?.getExpiry ?? (() => defaultExpiry)
+  const getExpiry: (res: any) => number = options?.getExpiryInMs ?? (() => defaultExpiry)
 
-  const lock = Lock()
+  const lock = Locker()
 
   let token: string | null = null
   let expiration: number | null = null
 
   const tokenCache = async () => {
-    if (token && expiration && expiration - Date.now() > 0) {
-      return token
+    if (isTokenActive(token, expiration)) {
+      return token!
     }
 
-    return new Promise<string>((resolve, reject) => {
-      lock('cache', unlockFn => {
-        const unlock = unlockFn()
+    const unlock = await lock('cache')
 
-        if (token && expiration && expiration - Date.now() > 0) {
-          unlock()
-          resolve(token)
-          return
-        }
+    try {
+      if (isTokenActive(token, expiration)) {
+        return token!
+      }
 
-        authenticate()
-          .then(authenticateRes => {
-            token = getToken(authenticateRes)
-            expiration = Date.now() + getExpiry(authenticateRes)
-            unlock()
-            resolve(token)
-          })
-          .catch(e => {
-            unlock()
-            reject(e)
-          })
-      })
-    })
+      const res = await authenticate()
+
+      token = getToken(res)
+      expiration = Date.now() + getExpiry(res)
+      return token
+    } catch (e) {
+      throw e
+    } finally {
+      unlock()
+    }
   }
 
   tokenCache.reset = () => {
