@@ -3,18 +3,16 @@ import { lang, toast } from 'botpress/shared'
 import _ from 'lodash'
 import ms from 'ms'
 import React, { Component } from 'react'
-import { connect, ConnectedProps } from 'react-redux'
 
 import api from '~/app/api'
-import { AppState } from '~/app/rootReducer'
 
 import { sanitizeBotId } from './CreateBotModal'
 
-type Props = {
+interface Props {
   onCreateBotSuccess: () => void
   toggle: () => void
   isOpen: boolean
-} & ConnectedProps<typeof connector>
+}
 
 interface State {
   botId: string
@@ -89,9 +87,8 @@ class ImportBotModal extends Component<Props, State> {
     }
   }, 500)
 
-  handleBotIdChanged = e => {
+  handleBotIdChanged = e =>
     this.setState({ botId: sanitizeBotId(e.target.value), overwrite: false }, this.checkIdAvailability)
-  }
 
   handleFileChanged = (files: FileList | null) => {
     if (!files) {
@@ -221,7 +218,4 @@ class ImportBotModal extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: AppState) => state.bots
-const connector = connect(mapStateToProps)
-
-export default connector(ImportBotModal)
+export default ImportBotModal
