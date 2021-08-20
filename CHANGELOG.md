@@ -1,3 +1,22 @@
+# [12.25.0](https://github.com/botpress/botpress/compare/v12.24.1...v12.25.0) (2021-08-20)
+
+
+### Bug Fixes
+
+* **core:** merge extensions in channel-web ([#5301](https://github.com/botpress/botpress/issues/5301)) ([a08d4c0](https://github.com/botpress/botpress/commit/a08d4c0))
+* **core:** various fixes ([#5323](https://github.com/botpress/botpress/issues/5323)) ([f052678](https://github.com/botpress/botpress/commit/f052678))
+* **studio:** move bot migrations to studio ([#5187](https://github.com/botpress/botpress/issues/5187)) ([2db471a](https://github.com/botpress/botpress/commit/2db471a))
+
+
+### Features
+
+* **core:** bot-scoped libraries ([#5319](https://github.com/botpress/botpress/issues/5319)) ([49090bf](https://github.com/botpress/botpress/commit/49090bf))
+* **core:** custom bot prefix per workspace ([#5326](https://github.com/botpress/botpress/issues/5326)) ([c48769f](https://github.com/botpress/botpress/commit/c48769f))
+* **core:** filter /listAvailableUsers on roles ([#5265](https://github.com/botpress/botpress/issues/5265)) ([ef3a531](https://github.com/botpress/botpress/commit/ef3a531))
+* **nlu:** nlu cloud configuration ([#5296](https://github.com/botpress/botpress/issues/5296)) ([3930383](https://github.com/botpress/botpress/commit/3930383)), closes [#5246](https://github.com/botpress/botpress/issues/5246) [#5261](https://github.com/botpress/botpress/issues/5261) [#5262](https://github.com/botpress/botpress/issues/5262) [#5327](https://github.com/botpress/botpress/issues/5327)
+
+
+
 ## [12.24.1](https://github.com/botpress/botpress/compare/v12.24.0...v12.24.1) (2021-08-13)
 
 

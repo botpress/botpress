@@ -74,16 +74,16 @@ module.exports = {
      * and you don't want it when building the final release (isProductionBuild).
      * But, you want it when developing locally and building the whole project (env === production / isProductionBuild = false)
      */
-    if (env !== 'development' && !isProductionBuild) {
-      config.plugins.push(
-        new HardSourceWebpackPlugin({
-          info: {
-            mode: 'none',
-            level: 'debug'
-          }
-        })
-      )
-    }
+    // if (env !== 'development' && !isProductionBuild) {
+    //   config.plugins.push(
+    //     new HardSourceWebpackPlugin({
+    //       info: {
+    //         mode: 'none',
+    //         level: 'debug'
+    //       }
+    //     })
+    //   )
+    // }
 
     return config
   },
