@@ -46,7 +46,7 @@ export interface Workspace {
   rolloutStrategy: RolloutStrategy
 }
 
-export type CreateWorkspace = Pick<Workspace, 'id' | 'name' | 'description' | 'audience'> & {
+export type CreateWorkspace = Pick<Workspace, 'id' | 'name' | 'description' | 'audience' | 'botPrefix'> & {
   pipelineId: string
   authStrategies?: string[]
   roles?: AuthRole[]
