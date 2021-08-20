@@ -89,9 +89,10 @@ class BotsRouter extends CustomAdminRouter {
 
         const botExists = (await this.botService.getBotsIds()).includes(bot.id)
         const botLinked = (await this.workspaceService.getBotRefs()).includes(bot.id)
+        const workspace = await this.workspaceService.findWorkspace(req.workspace!)
 
-        if (!(await this.botService.validateBotId(bot.id, req.workspace!))) {
-          throw new ConflictError('Invalid bot prefix for workspace')
+        if (workspace.botPrefix) {
+          bot.id = `${workspace.botPrefix}__${bot.id}`
         }
 
         if (botExists && botLinked) {
@@ -129,7 +130,12 @@ class BotsRouter extends CustomAdminRouter {
       '/:botId/exists',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        const { botId } = req.params
+        let { botId } = req.params
+
+        const workspace = await this.workspaceService.findWorkspace(req.workspace!)
+        if (workspace.botPrefix) {
+          botId = `${workspace.botPrefix}__${botId}`
+        }
 
         return res.send(await this.botService.botExists(<string>botId))
       })
@@ -201,12 +207,15 @@ class BotsRouter extends CustomAdminRouter {
       '/:botId/import',
       this.needPermissions('write', `${this.resource}.archive`),
       this.asyncMiddleware(async (req, res) => {
+        let { botId } = req.params
+
         if (!req.is('application/tar+gzip')) {
           return res.status(400).send('Bot should be imported from archive')
         }
 
-        if (!(await this.botService.validateBotId(req.params.botId, req.workspace!))) {
-          throw new ConflictError('Invalid bot prefix for workspace')
+        const workspace = await this.workspaceService.findWorkspace(req.workspace!)
+        if (workspace.botPrefix) {
+          botId = `${workspace.botPrefix}__${botId}`
         }
 
         const buffers: any[] = []
@@ -214,7 +223,7 @@ class BotsRouter extends CustomAdminRouter {
         await Promise.fromCallback(cb => req.on('end', cb))
 
         const overwrite = yn(req.query.overwrite)
-        await this.botService.importBot(req.params.botId, Buffer.concat(buffers), req.workspace!, overwrite)
+        await this.botService.importBot(botId, Buffer.concat(buffers), req.workspace!, overwrite)
         res.sendStatus(200)
       })
     )

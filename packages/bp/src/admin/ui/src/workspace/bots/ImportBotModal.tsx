@@ -8,7 +8,7 @@ import { connect, ConnectedProps } from 'react-redux'
 import api from '~/app/api'
 import { AppState } from '~/app/rootReducer'
 
-import { addBotPrefix, sanitizeBotId } from './CreateBotModal'
+import { sanitizeBotId } from './CreateBotModal'
 
 type Props = {
   onCreateBotSuccess: () => void
@@ -42,16 +42,6 @@ class ImportBotModal extends Component<Props, State> {
   private _form: HTMLFormElement | null = null
 
   state: State = { ...defaultState }
-
-  makeBotId = (botId: string) => {
-    return addBotPrefix(botId, this.props.workspace?.botPrefix)
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.workspace !== prevProps.workspace) {
-      this.setState({ botId: this.makeBotId('') })
-    }
-  }
 
   importBot = async e => {
     e.preventDefault()
@@ -100,7 +90,7 @@ class ImportBotModal extends Component<Props, State> {
   }, 500)
 
   handleBotIdChanged = e => {
-    this.setState({ botId: this.makeBotId(sanitizeBotId(e.target.value)), overwrite: false }, this.checkIdAvailability)
+    this.setState({ botId: sanitizeBotId(e.target.value), overwrite: false }, this.checkIdAvailability)
   }
 
   handleFileChanged = (files: FileList | null) => {
@@ -125,13 +115,13 @@ class ImportBotModal extends Component<Props, State> {
     const noExt = filename.substr(0, filename.indexOf('.'))
     const matches = noExt.match(/bot_(.*)_[0-9]+/)
     this.setState(
-      { botId: this.makeBotId(sanitizeBotId((matches && matches[1]) || noExt)), overwrite: false },
+      { botId: sanitizeBotId((matches && matches[1]) || noExt), overwrite: false },
       this.checkIdAvailability
     )
   }
 
   toggleDialog = () => {
-    this.setState({ ...defaultState, botId: this.makeBotId('') })
+    this.setState({ ...defaultState })
     this.props.toggle()
   }
 
