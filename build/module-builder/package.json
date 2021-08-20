@@ -37,7 +37,7 @@
     "rimraf": "^2.6.2",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.0",
-    "tar": "^4.4.6",
+    "tar": "^4.4.15",
     "ts-loader": "^6.0.0",
     "typescript": "^3.9.7",
     "typescript-json-schema": "^0.50.0",
