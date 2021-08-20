@@ -52,7 +52,9 @@ class WorkspacesRouter extends CustomAdminRouter {
           description: Joi.string()
             .max(500)
             .allow(''),
-          botPrefix: Joi.string().optional()
+          botPrefix: Joi.string()
+            .max(50)
+            .optional()
         })
 
         if (error) {
