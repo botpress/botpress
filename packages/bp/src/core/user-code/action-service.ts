@@ -101,7 +101,7 @@ export class ActionService {
   // Debouncing invalidate since we get a lot of events when it happens
   private _invalidateRequire() {
     Object.keys(require.cache)
-      .filter(r => r.match(/(\\|\/)actions(\\|\/)/g) || r.match(/(\\|\/)shared_libs(\\|\/)/g))
+      .filter(r => r.match(/(\\|\/)(actions|shared_libs|libraries)(\\|\/)/g))
       .map(file => delete require.cache[file])
 
     clearRequireCache()

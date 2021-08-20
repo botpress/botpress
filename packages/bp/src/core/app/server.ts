@@ -202,6 +202,7 @@ export class HTTPServer {
       this.moduleLoader,
       this.realtime,
       this.objectCache,
+      this.botService,
       this
     )
 
