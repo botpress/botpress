@@ -4,7 +4,7 @@ import { lang, Dialog, toast } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { Button } from 'react-bootstrap'
-import AsyncSelect from 'react-select/lib/AsyncCreatable'
+import AsyncSelect from 'react-select/async-creatable'
 interface Props {
   bp: { axios: AxiosInstance; events: any }
   onAgentCreated?: (newAgent) => void

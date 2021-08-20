@@ -1,5 +1,6 @@
 import { AxiosInstance } from 'axios'
 import { lang, toast, PermissionOperation } from 'botpress/shared'
+// @ts-ignore - provided by the studio
 import { isOperationAllowed } from 'botpress/utils'
 import cx from 'classnames'
 import _ from 'lodash'

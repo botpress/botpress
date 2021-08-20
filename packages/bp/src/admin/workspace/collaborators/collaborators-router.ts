@@ -2,7 +2,6 @@ import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import { WorkspaceUser } from 'botpress/sdk'
 import { ConflictError, InvalidOperationError, sendSuccess, validateBodySchema } from 'core/routers'
-import { assertSuperAdmin } from 'core/security'
 
 import Joi from 'joi'
 import _ from 'lodash'
@@ -142,16 +141,25 @@ class CollaboratorsRouter extends CustomAdminRouter {
 
     router.post(
       '/:strategy/:email/delete',
-      //assertSuperAdmin,
+
       this.asyncMiddleware(async (req, res) => {
         const { email, strategy } = req.params
 
-        const user = await this.workspaceService.findUser(req.params.email, req.params.strategy, 'default')
-        this.needPermissions('write', `admin.collaborators.${user?.role}`)(req, res, (err?: Error) => {
-          if (err) {
+        const user = await this.workspaceService.findUser(
+          req.params.email,
+          req.params.strategy,
+          req.workspace || 'default'
+        )
+
+        if (!req.tokenUser?.isSuperAdmin) {
+          const mwHandler = this.needPermissions('write', `admin.collaborators.${user?.role}`)
+          try {
+            await Promise.fromCallback(cb => mwHandler(req, res, cb))
+          } catch (err) {
             res.sendStatus(403)
+            return
           }
-        })
+        }
 
         if (req.authUser!.email.toLowerCase() === email.toLowerCase()) {
           return res.status(400).json({ message: "Sorry, you can't delete your own account." })
@@ -166,17 +174,23 @@ class CollaboratorsRouter extends CustomAdminRouter {
 
     router.get(
       '/reset/:strategy/:email',
-      //assertSuperAdmin,
-      //this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const { email, strategy } = req.params
 
-        const user = await this.workspaceService.findUser(req.params.email, req.params.strategy, 'default')
-        this.needPermissions('write', `admin.collaborators.${user?.role}`)(req, res, (err?: Error) => {
-          if (err) {
+        const user = await this.workspaceService.findUser(
+          req.params.email,
+          req.params.strategy,
+          req.workspace || 'default'
+        )
+        if (!req.tokenUser?.isSuperAdmin) {
+          const mwHandler = this.needPermissions('write', `admin.collaborators.${user?.role}`)
+          try {
+            await Promise.fromCallback(cb => mwHandler(req, res, cb))
+          } catch (err) {
             res.sendStatus(403)
+            return
           }
-        })
+        }
 
         const tempPassword = await this.authService.resetPassword(email, strategy)
 
