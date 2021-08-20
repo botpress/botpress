@@ -41,11 +41,9 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
     )
   }
 
-  const { endpoint, authToken } = getNLUServerConfig(globalConfig.nluServer)
-  const stanClient = new Client(endpoint, authToken)
-
-  const modelPassword = '' // No need for password as Stan is protected by an auth token
-  const engine = new StanEngine(stanClient, modelPassword)
+  const nluServerConnectionInfo = getNLUServerConfig(globalConfig.nluServer)
+  const stanClient = new Client(nluServerConnectionInfo.endpoint, nluServerConnectionInfo.authToken)
+  const engine = new StanEngine(stanClient, '') // No need for password as Stan is protected by an auth token
 
   const socket = getWebsocket(bp)
 
@@ -53,7 +51,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
 
   const makeDefRepo = (bot: BotDefinition) => new ScopedDefinitionsRepository(bot, bp)
 
-  const servicesFactory = new ScopedServicesFactory(engine, bp.logger, makeDefRepo)
+  const servicesFactory = new ScopedServicesFactory(nluServerConnectionInfo, bp.logger, makeDefRepo)
 
   const trainRepo = new TrainingRepository(bp.database)
   const trainingQueue = new DistributedTrainingQueue(trainRepo, bp.logger, botService, bp.distributed, socket, {
