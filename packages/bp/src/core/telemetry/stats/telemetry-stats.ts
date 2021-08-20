@@ -62,7 +62,6 @@ export abstract class TelemetryStats {
 
   protected async getServerStats(): Promise<ServerStats> {
     return {
-      // production: process.env. BP_PRODUCTION todo
       externalUrl: process.EXTERNAL_URL,
       botpressVersion: process.BOTPRESS_VERSION,
       clusterEnabled: yn(process.CLUSTER_ENABLED, { default: false }),
