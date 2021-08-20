@@ -1,5 +1,4 @@
 import { Locker } from './lock'
-import { describe, it, expect, jest } from '@jest/globals'
 
 describe('getLock', () => {
   it('should never release a lock', async () => {
