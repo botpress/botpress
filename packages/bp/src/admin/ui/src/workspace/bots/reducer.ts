@@ -23,7 +23,7 @@ interface BotState {
   botTemplatesFetched: boolean
   botCategories: string[]
   botCategoriesFetched: boolean
-  workspace?: { name: string; pipeline: any }
+  workspace?: { name: string; pipeline: any; botPrefix?: string }
   // Sets the current bot used by workspace apps
   workspaceAppsBotId?: string
   // Fetches the list of languages available with the NLU
