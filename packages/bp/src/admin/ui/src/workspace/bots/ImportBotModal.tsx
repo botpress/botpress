@@ -3,15 +3,18 @@ import { lang, toast } from 'botpress/shared'
 import _ from 'lodash'
 import ms from 'ms'
 import React, { Component } from 'react'
+import { connect, ConnectedProps } from 'react-redux'
 
 import api from '~/app/api'
+import { AppState } from '~/app/rootReducer'
 
-import { sanitizeBotId } from './CreateBotModal'
-interface Props {
+import { addBotPrefix, sanitizeBotId } from './CreateBotModal'
+
+type Props = {
   onCreateBotSuccess: () => void
   toggle: () => void
   isOpen: boolean
-}
+} & ConnectedProps<typeof connector>
 
 interface State {
   botId: string
@@ -39,6 +42,16 @@ class ImportBotModal extends Component<Props, State> {
   private _form: HTMLFormElement | null = null
 
   state: State = { ...defaultState }
+
+  makeBotId = (botId: string) => {
+    return addBotPrefix(botId, this.props.workspace?.botPrefix)
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.workspace !== prevProps.workspace) {
+      this.setState({ botId: this.makeBotId('') })
+    }
+  }
 
   importBot = async e => {
     e.preventDefault()
@@ -86,8 +99,9 @@ class ImportBotModal extends Component<Props, State> {
     }
   }, 500)
 
-  handleBotIdChanged = e =>
-    this.setState({ botId: sanitizeBotId(e.target.value), overwrite: false }, this.checkIdAvailability)
+  handleBotIdChanged = e => {
+    this.setState({ botId: this.makeBotId(sanitizeBotId(e.target.value)), overwrite: false }, this.checkIdAvailability)
+  }
 
   handleFileChanged = (files: FileList | null) => {
     if (!files) {
@@ -111,13 +125,13 @@ class ImportBotModal extends Component<Props, State> {
     const noExt = filename.substr(0, filename.indexOf('.'))
     const matches = noExt.match(/bot_(.*)_[0-9]+/)
     this.setState(
-      { botId: sanitizeBotId((matches && matches[1]) || noExt), overwrite: false },
+      { botId: this.makeBotId(sanitizeBotId((matches && matches[1]) || noExt)), overwrite: false },
       this.checkIdAvailability
     )
   }
 
   toggleDialog = () => {
-    this.setState({ ...defaultState })
+    this.setState({ ...defaultState, botId: this.makeBotId('') })
     this.props.toggle()
   }
 
@@ -217,4 +231,7 @@ class ImportBotModal extends Component<Props, State> {
   }
 }
 
-export default ImportBotModal
+const mapStateToProps = (state: AppState) => state.bots
+const connector = connect(mapStateToProps)
+
+export default connector(ImportBotModal)
