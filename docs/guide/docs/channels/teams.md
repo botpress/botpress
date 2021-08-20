@@ -84,7 +84,13 @@ You can now continue to next [section](#setting-up-ms-teams-channel-from-an-alre
       "teams": {
         "enabled": true,
         "appId": "your_app_id",
-        "appPassword": "your_app_password"
+        "appPassword": "your_app_password",
+        // (Optional)
+        "proactiveMessages": {
+          "en": "proactive message",
+          "fr": "message proactif",
+          ...
+        }
       }
       // ... other channels can also be configured here
     }

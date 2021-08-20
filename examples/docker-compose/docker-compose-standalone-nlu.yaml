@@ -40,7 +40,8 @@ services:
     command: ./duckling -p 8000
     expose:
       - 8000
-
+  # Each instance of botpress must have its own NLU server
+  # connections between multiple botpress instances and NLU server cannot be load balanced
   botpress_nlu:
     build:
       context: ./botpress

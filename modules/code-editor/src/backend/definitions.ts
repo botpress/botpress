@@ -16,6 +16,7 @@ export interface FileDefinition {
     baseDir: string // The base directory where files are located
     /** Adds additional fields to the resulting object when reading content from the disk */
     dirListingAddFields?: (filepath: string) => object | undefined
+    dirListingExcluded?: string[]
     upsertLocation?: (file: EditableFile) => string
     upsertFilename?: (file: EditableFile) => string
     shouldSyncToDisk?: boolean
@@ -76,10 +77,11 @@ export const FileTypes: { [type: string]: FileDefinition } = {
     canDelete: () => false
   },
   shared_libs: {
-    allowGlobal: true,
-    allowScoped: false,
+    allowGlobal: false,
+    allowScoped: true,
     permission: 'shared_libs',
     ghost: {
+      dirListingExcluded: ['node_modules'],
       baseDir: '/libraries'
     },
     canDelete: file => {

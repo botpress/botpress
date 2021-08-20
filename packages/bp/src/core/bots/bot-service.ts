@@ -25,6 +25,7 @@ import glob from 'glob'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Joi from 'joi'
 import _ from 'lodash'
+import mkdirp from 'mkdirp'
 import moment from 'moment'
 import ms from 'ms'
 import { studioActions } from 'orchestrator'
@@ -236,7 +237,9 @@ export class BotService {
       to: [BOT_ID_PLACEHOLDER]
     }
 
-    return this.ghostService.forBot(botId).exportToArchiveBuffer('models/**/*', replaceContent)
+    return this.ghostService
+      .forBot(botId)
+      .exportToArchiveBuffer(['models/**/*', 'libraries/node_modules/**/*'], replaceContent)
   }
 
   async importBot(botId: string, archive: Buffer, workspaceId: string, allowOverwrite?: boolean): Promise<void> {
@@ -301,7 +304,7 @@ export class BotService {
 
         await this.workspaceService.addBotRef(botId, workspaceId)
 
-        await this._migrateBotContent(botId)
+        await studioActions.checkBotMigrations(botId)
 
         if (!originalConfig.disabled) {
           if (!(await this.mountBot(botId))) {
@@ -332,14 +335,6 @@ export class BotService {
     }
 
     return path.join(directory, path.dirname(configFile[0]))
-  }
-
-  private async _migrateBotContent(botId: string): Promise<void> {
-    const config = await this.configProvider.getBotConfig(botId)
-
-    const isDown = semver.gt(config.version, process.BOTPRESS_VERSION)
-
-    return this.migrationService.botMigration.executeMissingBotMigrations(botId, config.version, isDown)
   }
 
   async requestStageChange(botId: string, requestedBy: string) {
@@ -590,6 +585,27 @@ export class BotService {
     return BotService._mountedBots.get(botId) || false
   }
 
+  private async _extractBotNodeModules(botId: string) {
+    const bpfs = this.ghostService.forBot(botId)
+    if (!(await bpfs.fileExists('libraries', 'node_modules.tgz'))) {
+      return
+    }
+
+    const archive = await bpfs.readFileAsBuffer('libraries', 'node_modules.tgz')
+    const destPath = path.join(process.PROJECT_LOCATION, 'data/bots', botId, 'libraries/node_modules')
+    await extractArchive(archive, destPath)
+  }
+
+  private async _extractLibsToDisk(botId: string) {
+    if (process.BPFS_STORAGE === 'disk') {
+      return
+    }
+
+    await this.ghostService.forBot(botId).syncDatabaseFilesToDisk('libraries')
+    await this.ghostService.forBot(botId).syncDatabaseFilesToDisk('actions')
+    await this.ghostService.forBot(botId).syncDatabaseFilesToDisk('hooks')
+  }
+
   // Do not use directly use the public version instead due to broadcasting
   private async _localMount(botId: string): Promise<boolean> {
     const startTime = Date.now()
@@ -614,10 +630,14 @@ export class BotService {
       await this.cms.loadElementsForBot(botId)
       await this.moduleLoader.loadModulesForBot(botId)
 
+      await this._extractLibsToDisk(botId)
+      await this._extractBotNodeModules(botId)
+
       const api = await createForGlobalHooks()
       await this.hookService.executeHook(new Hooks.AfterBotMount(api, botId))
       BotService._mountedBots.set(botId, true)
       await studioActions.setBotMountStatus(botId, true)
+
       this._invalidateBotIds()
 
       BotService.setBotStatus(botId, 'healthy')

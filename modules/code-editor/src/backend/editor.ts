@@ -97,7 +97,7 @@ export default class Editor {
 
   async loadFiles(fileTypeId: string, botId?: string, listBuiltin?: boolean): Promise<EditableFile[]> {
     const def: FileDefinition = FileTypes[fileTypeId]
-    const { baseDir, dirListingAddFields } = def.ghost
+    const { baseDir, dirListingAddFields, dirListingExcluded } = def.ghost
 
     if ((!def.allowGlobal && !botId) || (!def.allowScoped && botId)) {
       return []
@@ -108,7 +108,9 @@ export default class Editor {
       fileExt = def.isJSON ? '*.json' : '*.js'
     }
 
-    const excluded = this._config.includeBuiltin || listBuiltin ? undefined : getBuiltinExclusion()
+    const baseExcluded = this._config.includeBuiltin || listBuiltin ? undefined : getBuiltinExclusion()
+    const excluded = [...baseExcluded, ...(dirListingExcluded ?? [])]
+
     const ghost = botId ? this.bp.ghost.forBot(botId) : this.bp.ghost.forGlobal()
     const files = def.filenames ? def.filenames : await ghost.directoryListing(baseDir, fileExt, excluded, true)
 
