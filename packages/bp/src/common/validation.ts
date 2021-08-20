@@ -105,6 +105,10 @@ export const WorkspaceCreationSchema = Joi.object().keys({
   description: Joi.string()
     .max(500)
     .allow(''),
+  botPrefix: Joi.string()
+    .max(50)
+    .optional()
+    .allow(''),
   audience: Joi.string()
     .valid(['internal', 'external'])
     .default('external')

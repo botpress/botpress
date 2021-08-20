@@ -14,19 +14,21 @@ interface Props {
 const EditWorkspaceModal: FC<Props> = props => {
   const [name, setName] = useState<string>('')
   const [description, setDescription] = useState<string>('')
+  const [botPrefix, setBotPrefix] = useState<string | undefined>('')
 
   useEffect(() => {
     if (props.workspace) {
-      const { name, description } = props.workspace
+      const { name, description, botPrefix } = props.workspace
 
       setName(name)
       setDescription(description || '')
+      setBotPrefix(botPrefix)
     }
   }, [props.workspace, props.isOpen])
 
   const submit = async () => {
     try {
-      await api.getSecured().post(`/admin/workspace/workspaces/${props.workspace.id}`, { name, description })
+      await api.getSecured().post(`/admin/workspace/workspaces/${props.workspace.id}`, { name, description, botPrefix })
       props.refreshWorkspaces()
 
       toast.success('Workspace saved successfully')
@@ -53,6 +55,21 @@ const EditWorkspaceModal: FC<Props> = props => {
             onChange={e => setName(e.currentTarget.value)}
             tabIndex={1}
             autoFocus={true}
+          />
+        </FormGroup>
+
+        <FormGroup
+          label={<span>Bot Prefix</span>}
+          labelFor="input-botPrefix"
+          labelInfo="*"
+          helperText="Bots in this workspace must start with this prefix, followed by __"
+        >
+          <InputGroup
+            id="input-botPrefix"
+            placeholder=""
+            value={botPrefix}
+            onChange={e => setBotPrefix(e.target.value)}
+            tabIndex={2}
           />
         </FormGroup>
 

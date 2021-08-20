@@ -145,6 +145,12 @@ export class BotService {
     return this._botIds
   }
 
+  async validateBotId(botId: string, workspaceId: string) {
+    const workspace = await this.workspaceService.findWorkspace(workspaceId)
+
+    return workspace?.botPrefix ? botId.startsWith(`${workspace.botPrefix}__`) : true
+  }
+
   async addBot(bot: BotConfig, botTemplate: BotTemplate): Promise<void> {
     this.stats.track('bot', 'create')
 

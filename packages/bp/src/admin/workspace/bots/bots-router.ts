@@ -46,7 +46,7 @@ class BotsRouter extends CustomAdminRouter {
 
         return sendSuccess(res, 'Retrieved bots', {
           bots: isBotAdmin ? bots : bots.map(b => _.pick(b, chatUserBotFields)),
-          workspace: _.pick(workspace, ['name', 'pipeline'])
+          workspace: _.pick(workspace, ['name', 'pipeline', 'botPrefix'])
         })
       })
     )
@@ -89,6 +89,10 @@ class BotsRouter extends CustomAdminRouter {
 
         const botExists = (await this.botService.getBotsIds()).includes(bot.id)
         const botLinked = (await this.workspaceService.getBotRefs()).includes(bot.id)
+
+        if (!(await this.botService.validateBotId(bot.id, req.workspace!))) {
+          throw new ConflictError('Invalid bot prefix for workspace')
+        }
 
         if (botExists && botLinked) {
           throw new ConflictError(`Bot "${bot.id}" already exists and is already linked in workspace`)
@@ -199,6 +203,10 @@ class BotsRouter extends CustomAdminRouter {
       this.asyncMiddleware(async (req, res) => {
         if (!req.is('application/tar+gzip')) {
           return res.status(400).send('Bot should be imported from archive')
+        }
+
+        if (!(await this.botService.validateBotId(req.params.botId, req.workspace!))) {
+          throw new ConflictError('Invalid bot prefix for workspace')
         }
 
         const buffers: any[] = []

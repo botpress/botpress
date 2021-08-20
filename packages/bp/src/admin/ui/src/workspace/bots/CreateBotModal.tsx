@@ -16,6 +16,14 @@ export const sanitizeBotId = (text: string) =>
     .replace(/\s/g, '-')
     .replace(/[^a-z0-9_-]/g, '')
 
+export const addBotPrefix = (botId: string, botPrefix?: string) => {
+  if (!botPrefix) {
+    return botId
+  }
+
+  return botId.startsWith(botPrefix) ? botId : `${botPrefix}__${botId}`
+}
+
 interface SelectOption<T> {
   label: string
   value: T
@@ -99,10 +107,21 @@ class CreateBotModal extends Component<Props, State> {
 
   handleNameChanged = e => {
     const botName = e.target.value
-    this.setState({ botName, botId: this.state.generateId ? sanitizeBotId(botName) : this.state.botId })
+
+    this.setState({
+      botName,
+      botId: addBotPrefix(
+        this.state.generateId ? sanitizeBotId(botName) : this.state.botId,
+        this.props.workspace?.botPrefix
+      )
+    })
   }
 
-  handleBotIdChanged = e => this.setState({ botId: sanitizeBotId(e.target.value), generateId: false })
+  handleBotIdChanged = e =>
+    this.setState({
+      botId: addBotPrefix(sanitizeBotId(e.target.value), this.props.workspace?.botPrefix),
+      generateId: false
+    })
 
   createBot = async e => {
     e.preventDefault()

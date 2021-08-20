@@ -22,9 +22,10 @@ const CreateWorkspaceModal: FC<Props> = props => {
   const [description, setDescription] = useState<string>('')
   const [audience, setAudience] = useState('internal')
   const [pipelineId, setPipelineId] = useState('none')
+  const [botPrefix, setBotPrefix] = useState('')
 
   const submit = async () => {
-    const workspace = { id, name, audience, description, pipelineId }
+    const workspace = { id, name, audience, description, pipelineId, botPrefix }
 
     try {
       await api.getSecured().post('/admin/workspace/workspaces', workspace)
@@ -43,6 +44,7 @@ const CreateWorkspaceModal: FC<Props> = props => {
     setDescription('')
     setAudience('external')
     setPipelineId('none')
+    setBotPrefix('')
     setOpen(false)
     setGenerateId(true)
   }
@@ -86,6 +88,21 @@ const CreateWorkspaceModal: FC<Props> = props => {
                   value={id}
                   onChange={updateId}
                   tabIndex={1}
+                />
+              </FormGroup>
+
+              <FormGroup
+                label={<span>Bot Prefix</span>}
+                labelFor="input-botPrefix"
+                labelInfo="*"
+                helperText="Bots in this workspace must start with this prefix, followed by __"
+              >
+                <InputGroup
+                  id="input-botPrefix"
+                  placeholder=""
+                  value={botPrefix}
+                  onChange={e => setBotPrefix(e.target.value)}
+                  tabIndex={2}
                 />
               </FormGroup>
 
