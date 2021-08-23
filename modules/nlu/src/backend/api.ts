@@ -62,6 +62,11 @@ export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
 
   const globalConfig: Config = await bp.config.getModuleConfig('nlu')
 
+  router.post('/checkForDirtyModels', async (req, res) => {
+    // No need to manualy check for dirty models
+    res.sendStatus(200)
+  })
+
   router.get('/health', async (req, res) => {
     // When the health is bad, we'll refresh the status in case it has changed (eg: user added languages)
     const health = await app.getHealth()

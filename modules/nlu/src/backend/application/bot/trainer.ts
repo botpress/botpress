@@ -174,17 +174,13 @@ export class Trainer implements ITrainer {
       }
 
       await Promise.map(this._languages, async language => {
-        const isDirty = await this._needsTraining(language)
+        const model = await this._modelStateService.getModel(this._botId, language)
+        const trainSet = await this._getTrainSet(language)
+        const isDirty = !model || model.isDirty(trainSet)
         if (isDirty) {
           this._webSocket({ status: 'needs-training', progress: 0, botId: this._botId, language })
         }
       })
     })
-  }
-
-  private _needsTraining = async (language: string) => {
-    const model = await this._modelStateService.getModel(this._botId, language)
-    const trainSet = await this._getTrainSet(language)
-    return !model || model.isDirty(trainSet)
   }
 }
