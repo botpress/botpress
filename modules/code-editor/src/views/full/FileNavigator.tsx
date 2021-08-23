@@ -23,12 +23,7 @@ import { RootStore, StoreDef } from './store'
 import { EditorStore } from './store/editor'
 import style from './style.scss'
 import { TreeNodeRenameInput } from './TreeNodeRenameInput'
-import {
-  buildTree,
-  EXAMPLE_FOLDER_LABEL,
-  FOLDER_EXAMPLE,
-  FOLDER_ICON
-} from './utils/tree'
+import { buildTree, EXAMPLE_FOLDER_LABEL, FOLDER_EXAMPLE, FOLDER_ICON } from './utils/tree'
 
 class FileNavigator extends React.Component<Props, State> {
   state = {
@@ -56,14 +51,14 @@ class FileNavigator extends React.Component<Props, State> {
     if (this.props.selectedNode !== prevProps.selectedNode) {
       const { nodes } = this.state
       const selectedNode = this.props.selectedNode.replace(`${this.props.id}/`, '')
-      this.traverseTree(nodes, n => (n.isSelected = selectedNode === n.id))
+      this.traverseTree(nodes, (n) => (n.isSelected = selectedNode === n.id))
       this.setState({ nodes })
     }
-    if (this.props.isMultipleCutActive !== prevProps.isMultipleCutActive && !this.props.isMultipleCutActive){
+    if (this.props.isMultipleCutActive !== prevProps.isMultipleCutActive && !this.props.isMultipleCutActive) {
       this.setState((prevState: State) => {
         const { nodes } = prevState
         const selectedNode = this.props.selectedNode.replace(`${this.props.id}/`, '')
-        this.traverseTree(nodes, n => (n.isSelected = selectedNode === n.id))
+        this.traverseTree(nodes, (n) => (n.isSelected = selectedNode === n.id))
         return {
           selectedFilesList: {},
           selectedFilesCount: 0
@@ -103,7 +98,7 @@ class FileNavigator extends React.Component<Props, State> {
     )
 
     const filter = this.props.filters && this.props.filters.filename.toLowerCase()
-    const nodes: ITreeNode[] = this.props.files.map(dir => ({
+    const nodes: ITreeNode[] = this.props.files.map((dir) => ({
       id: dir.label,
       label: dir.label === EXAMPLE_FOLDER_LABEL ? exampleLabel : dir.label,
       icon: dir.label === EXAMPLE_FOLDER_LABEL ? FOLDER_EXAMPLE : FOLDER_ICON,
@@ -113,20 +108,20 @@ class FileNavigator extends React.Component<Props, State> {
     }))
 
     // Examples are hidden by default so the view is not cluttered
-    this.traverseTree(nodes, n => n.id === EXAMPLE_FOLDER_LABEL && (n.isExpanded = false))
+    this.traverseTree(nodes, (n) => n.id === EXAMPLE_FOLDER_LABEL && (n.isExpanded = false))
 
     if (filter) {
-      this.traverseTree(nodes, n => (n.isExpanded = true))
+      this.traverseTree(nodes, (n) => (n.isExpanded = true))
     }
 
     this.setState({ nodes })
   }
 
   private handleNodeClick = async (node: ITreeNode) => {
-    if (this.props.isMultipleCutActive){
-      this.traverseTree(this.state.nodes, n => {
-        if (node.nodeData && n.id === node.id){
-          if (!this.state.selectedFilesList[n.id]){
+    if (this.props.isMultipleCutActive) {
+      this.traverseTree(this.state.nodes, (n) => {
+        if (node.nodeData && n.id === node.id) {
+          if (!this.state.selectedFilesList[n.id]) {
             const { selectedFilesList } = this.state
             n.isSelected = true
             selectedFilesList[n.id] = n.nodeData
@@ -152,11 +147,11 @@ class FileNavigator extends React.Component<Props, State> {
         }
         return n
       })
-      if (!node.nodeData){
+      if (!node.nodeData) {
         this.handleNodeExpand(node, !node.isExpanded)
       }
     } else {
-      this.traverseTree(this.state.nodes, n => (n.isSelected = n.id === node.id))
+      this.traverseTree(this.state.nodes, (n) => (n.isSelected = n.id === node.id))
       // If nodeData is set, it's a file, otherwise a folder
       if (node.nodeData) {
         await this.props.editor.openFile(node.nodeData as EditableFile)
@@ -189,7 +184,7 @@ class FileNavigator extends React.Component<Props, State> {
     e.preventDefault()
 
     if (!node.nodeData || this.props.disableContextMenu) {
-      if (this.state.selectedFilesCount > 0){
+      if (this.state.selectedFilesCount > 0) {
         const { selectedFilesList } = this.state
         ContextMenu.show(
           <Menu>
@@ -366,8 +361,8 @@ class FileNavigator extends React.Component<Props, State> {
         contents={this.state.nodes}
         onNodeContextMenu={this.handleContextMenu}
         onNodeClick={this.handleNodeClick}
-        onNodeCollapse={n => this.handleNodeExpand(n, false)}
-        onNodeExpand={n => this.handleNodeExpand(n, true)}
+        onNodeCollapse={(n) => this.handleNodeExpand(n, false)}
+        onNodeExpand={(n) => this.handleNodeExpand(n, true)}
         className={Classes.ELEVATION_0}
       />
     )

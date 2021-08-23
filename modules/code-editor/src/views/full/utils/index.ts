@@ -8,10 +8,7 @@ export const calculateHash = (content?: string) => {
     return
   }
 
-  return crypto
-    .createHash('sha256')
-    .update(content)
-    .digest('hex')
+  return crypto.createHash('sha256').update(content).digest('hex')
 }
 
 export const sanitizeName = (text: string) =>

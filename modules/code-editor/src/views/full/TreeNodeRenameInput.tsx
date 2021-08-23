@@ -45,7 +45,7 @@ export class TreeNodeRenameInput extends React.Component<Props, State> {
     }
   }
 
-  focusRef = ref => {
+  focusRef = (ref) => {
     if (ref) {
       setTimeout(() => {
         ref.focus()
@@ -54,7 +54,7 @@ export class TreeNodeRenameInput extends React.Component<Props, State> {
     }
   }
 
-  onValueChange = e => {
+  onValueChange = (e) => {
     this.setState({ newName: e.target.value.replace(FILENAME_REGEX, '') })
   }
 
@@ -62,7 +62,7 @@ export class TreeNodeRenameInput extends React.Component<Props, State> {
     return (
       <div className={this.props.nodeDomElement && this.props.nodeDomElement.className}>
         <input
-          onBlur={e => this.closeRename(e, false)}
+          onBlur={(e) => this.closeRename(e, false)}
           onKeyDown={this.handleKeyPress}
           ref={this.focusRef}
           type="text"

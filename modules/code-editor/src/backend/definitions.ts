@@ -85,7 +85,7 @@ export const FileTypes: { [type: string]: FileDefinition } = {
       baseDir: '/libraries',
       shouldSyncToDisk: true
     },
-    canDelete: file => {
+    canDelete: (file) => {
       return !file.name.endsWith('.json')
     }
   },
