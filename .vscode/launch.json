@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "pwa-node",
+      "type": "node",
       "runtimeVersion": "12.13.0",
       "request": "launch",
       "name": "Debug App",
@@ -18,13 +18,13 @@
       },
       "smartStep": true,
       "outFiles": [
-        "${workspaceFolder}/packages/**/dist/**/*.js",
+        "${workspaceFolder}/packages/bp/dist/**/*.js",
         "${workspaceFolder}/modules/**/dist/**/*.js",
         "${workspaceFolder}/private-modules/**/dist/**/*.js",
         "!${workspaceFolder}/**/node_modules/**/*.js"
       ],
       "skipFiles": ["**/node_modules/**", "<node_internals>/**"],
-      "console": "integratedTerminal",
+      "console": "internalConsole",
       "sourceMaps": true,
       "autoAttachChildProcesses": true
     },

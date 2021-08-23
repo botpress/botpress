@@ -1,7 +1,7 @@
 import { clickOn, fillField, expectMatch } from '../expectPuppeteer'
-import { expectBotApiCallSuccess, gotoStudio, loginIfNeeded } from '../utils'
+import { expectStudioApiCallSuccess, gotoStudio, loginIfNeeded } from '../utils'
 
-describe('Module - NLU', () => {
+describe('Studio - NLU', () => {
   beforeAll(async () => {
     await loginIfNeeded()
     if (!page.url().includes('studio')) {
@@ -11,14 +11,14 @@ describe('Module - NLU', () => {
 
   it('Load NLU', async () => {
     await clickOn('#bp-menu_nlu')
-    await expectBotApiCallSuccess('nlu/intents', 'GET')
+    await expectStudioApiCallSuccess('nlu/intents', 'GET')
   })
 
   it('Create new intent', async () => {
     await clickOn('#btn-create')
     await fillField('#input-intent-name', 'hello_there')
 
-    await Promise.all([expectBotApiCallSuccess('nlu/intents', 'POST'), clickOn('#btn-submit')])
+    await Promise.all([expectStudioApiCallSuccess('nlu/intents', 'POST'), clickOn('#btn-submit')])
   })
 
   it('Create new entity', async () => {
@@ -26,7 +26,7 @@ describe('Module - NLU', () => {
     await clickOn('#btn-create')
     await fillField('input[name="name"]', 'cars')
 
-    await Promise.all([expectBotApiCallSuccess('nlu/entities', 'POST'), clickOn('#entity-submit')])
+    await Promise.all([expectStudioApiCallSuccess('nlu/entities', 'POST'), clickOn('#entity-submit')])
   })
 
   it('Train Chatbot', async () => {

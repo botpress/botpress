@@ -1,6 +1,8 @@
 import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import { sendSuccess } from 'core/routers'
+import { CHAT_USER_ROLE } from 'common/defaults'
+
 import _ from 'lodash'
 
 class RolesRouter extends CustomAdminRouter {
@@ -15,9 +17,9 @@ class RolesRouter extends CustomAdminRouter {
       this.needPermissions('read', 'admin.roles'),
       this.asyncMiddleware(async (req, res) => {
         const workspace = await this.workspaceService.findWorkspace(req.workspace!)
-        sendSuccess(res, 'Roles retrieved', {
-          roles: (workspace && workspace.roles) || []
-        })
+        const roles = workspace?.roles.slice() || []
+        roles.push(CHAT_USER_ROLE)
+        sendSuccess(res, 'Roles retrieved', { roles })
       })
     )
   }
