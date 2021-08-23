@@ -45,6 +45,7 @@ test-report.html
 metadata.json
 edition.json
 /pro
+lib/
 packages/bp/binaries/
 packages/bp/archives
 

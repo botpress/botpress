@@ -1,18 +1,18 @@
-module.exports = {
+export default {
   typingIndicators: {
     typing: {
       type: 'boolean',
-      title: 'module.builtin.typingIndicator',
+      title: 'common.contentTypes.typingIndicator',
       default: true
     }
   },
   useMarkdown: {
     markdown: {
       type: 'boolean',
-      title: 'module.builtin.useMarkdown',
+      title: 'common.contentTypes.useMarkdown',
       default: true,
       $help: {
-        text: 'module.builtin.markdownHelp',
+        text: 'common.contentTypes.markdownHelp',
         link: 'https://daringfireball.net/projects/markdown/syntax'
       }
     }

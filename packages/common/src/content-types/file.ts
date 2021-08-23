@@ -1,9 +1,9 @@
-const base = require('./_base')
-const path = require('path')
-const utils = require('./_utils')
+import { ContentType } from '.'
+import base from './_base'
+import utils from './_utils'
 
 function render(data) {
-  const events = []
+  const events: any = []
 
   if (data.typing) {
     events.push({
@@ -15,9 +15,9 @@ function render(data) {
   return [
     ...events,
     {
-      type: 'audio',
+      type: 'file',
       title: data.title,
-      url: utils.formatURL(data.BOT_URL, data.audio),
+      url: utils.formatURL(data.BOT_URL, data.file),
       collectFeedback: data.collectFeedback
     }
   ]
@@ -26,32 +26,32 @@ function render(data) {
 function renderElement(data, channel) {
   // These channels now use channel renderers
   if (['telegram', 'twilio', 'slack', 'vonage'].includes(channel)) {
-    return utils.extractPayload('audio', data)
+    return utils.extractPayload('file', data)
   }
 
   return render(data)
 }
 
-module.exports = {
-  id: 'builtin_audio',
+const contentType: ContentType = {
+  id: 'builtin_file',
   group: 'Built-in Messages',
-  title: 'module.builtin.types.audio.title',
+  title: 'common.contentTypes.file.title',
 
   jsonSchema: {
-    description: 'module.builtin.types.audio.description',
+    description: 'common.contentTypes.file.description',
     type: 'object',
-    $subtype: 'audio',
-    required: ['audio'],
+    $subtype: 'file',
+    required: ['file'],
     properties: {
-      audio: {
+      file: {
         type: 'string',
-        $subtype: 'audio',
-        $filter: '.mp3',
-        title: 'module.builtin.types.audio.title'
+        $subtype: 'file',
+        $filter: '.pdf',
+        title: 'common.contentTypes.file.title'
       },
       title: {
         type: 'string',
-        title: 'module.builtin.types.audio.audioLabel'
+        title: 'common.contentTypes.file.fileLabel'
       },
       ...base.typingIndicators
     }
@@ -64,20 +64,22 @@ module.exports = {
   },
 
   computePreviewText: formData => {
-    if (!formData.audio) {
-      return
+    if (!formData.file) {
+      return ''
     }
 
-    const link = utils.formatURL(formData.BOT_URL, formData.audio)
+    const link = utils.formatURL(formData.BOT_URL, formData.file)
     const title = formData.title ? ' | ' + formData.title : ''
 
     if (utils.isUrl(link)) {
-      const fileName = utils.extractFileName(formData.audio)
-      return `Audio: (${fileName}) ${title}`
+      const fileName = utils.extractFileName(formData.file)
+      return `File: (${fileName}) ${title}`
     } else {
       return `Expression: ${link}${title}`
     }
   },
 
-  renderElement: renderElement
+  renderElement
 }
+
+export default contentType

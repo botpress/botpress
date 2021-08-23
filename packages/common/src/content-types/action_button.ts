@@ -1,23 +1,18 @@
-const base = require('./_base')
+import { ContentType } from '.'
 
-function renderElement(data, channel) {
-  // We don't render action button
-  return []
-}
-
-module.exports = {
+const contentType: ContentType = {
   id: 'builtin_action-button',
   group: 'Built-in Messages',
-  title: 'module.builtin.actionButton',
+  title: 'common.contentTypes.actionButton',
 
   jsonSchema: {
-    description: 'module.builtin.types.actionButton.description',
+    description: 'common.contentTypes.actionButton.description',
     type: 'object',
     required: ['action', 'title'],
     properties: {
       title: {
         type: 'string',
-        title: 'module.builtin.types.actionButton.buttonTitle'
+        title: 'common.contentTypes.actionButton.buttonTitle'
       },
       action: {
         type: 'string',
@@ -70,6 +65,8 @@ module.exports = {
   uiSchema: {},
 
   computePreviewText: formData => `Action: ${formData.action}`,
-  renderElement: renderElement,
+  renderElement: (data, channel) => [],
   hidden: true
 }
+
+export default contentType

@@ -1,8 +1,9 @@
-const base = require('./_base')
-const utils = require('./_utils')
+import { ContentType } from '.'
+import base from './_base'
+import utils from './_utils'
 
 function render(data) {
-  const events = []
+  const events: any = []
 
   if (data.typing) {
     events.push({
@@ -31,23 +32,23 @@ function renderElement(data, channel) {
   return render(data)
 }
 
-module.exports = {
+const contentType: ContentType = {
   id: 'builtin_text',
   group: 'Built-in Messages',
   title: 'text',
 
   jsonSchema: {
-    description: 'module.builtin.types.text.description',
+    description: 'common.contentTypes.text.description',
     type: 'object',
     required: ['text'],
     properties: {
       text: {
         type: 'string',
-        title: 'module.builtin.types.text.message'
+        title: 'common.contentTypes.text.message'
       },
       variations: {
         type: 'array',
-        title: 'module.builtin.types.text.alternatives',
+        title: 'common.contentTypes.text.alternatives',
         items: {
           type: 'string',
           default: ''
@@ -71,5 +72,7 @@ module.exports = {
   },
   computePreviewText: formData => formData.text,
 
-  renderElement: renderElement
+  renderElement
 }
+
+export default contentType

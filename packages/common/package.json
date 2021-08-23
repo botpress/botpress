@@ -1,0 +1,21 @@
+{
+  "name": "@botpress/common",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "license": "AGPL-3.0",
+  "scripts": {
+    "build": "yarn && tsc --build",
+    "watch": "yarn && tsc --build --watch",
+    "prepublishOnly": "yarn && tsc --build"
+  },
+  "publishConfig": {
+    "@botpress:registry": "https://npm.pkg.github.com"
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@types/node": "^10.10.3"
+  },
+  "dependencies": {}
+}

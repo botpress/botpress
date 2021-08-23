@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { TreeSearch, PATH_SEPARATOR, SPACE_SEPARATOR } from './treeSearch'
+import { TreeSearch, PATH_SEPARATOR, SPACE_SEPARATOR } from '.'
 
 const OBJECT_VALUE = { key: 'value', nested: { key: '1', value: 1 } }
 const EMPTY_KEY = ''

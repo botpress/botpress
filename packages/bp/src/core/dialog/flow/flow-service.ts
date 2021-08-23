@@ -1,7 +1,7 @@
+import { TreeSearch, PATH_SEPARATOR } from '@botpress/common/lib/tree-search'
 import { Flow, Logger } from 'botpress/sdk'
 import { ArrayCache } from 'common/array-cache'
 import { ObjectCache } from 'common/object-cache'
-import { TreeSearch, PATH_SEPARATOR } from 'common/treeSearch'
 import { FlowView, NodeView } from 'common/typings'
 import { TYPES } from 'core/app/types'
 import { BotService } from 'core/bots'

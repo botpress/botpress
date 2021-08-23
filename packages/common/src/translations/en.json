@@ -1,0 +1,85 @@
+{
+  "contentTypes": {
+    "permissionDenied": "You don't have permission to upload files for this bot. Talk to your team owner.",
+    "uploadFileChoice": "Or upload a file",
+    "enterUrlChoice": "Or enter the URL",
+    "infoInterpreted": "This information will be interpreted:",
+    "actionButton": {
+      "buttonTitle": "Title of the button",
+      "description": "A button that triggers an action, often used in cards",
+      "textTitle": "Enter text or the ID of a content element (ex: #!builtin_text-myid)",
+      "title": "Action Button"
+    },
+    "card": {
+      "description": "A card message with a title with optional subtitle, image and action buttons."
+    },
+    "carousel": {
+      "cards": "Carousel cards",
+      "description": "A carousel is an array of cards",
+      "title": "Carousel"
+    },
+    "image": {
+      "description": "A message showing an image with an optional title",
+      "imageLabel": "Title",
+      "labelDesc": "Some platforms require to name the images.",
+      "title": "Image",
+      "uploadImage": "Upload Image"
+    },
+    "audio": {
+      "description": "A message showing an audio file with an optional title",
+      "audioLabel": "Title",
+      "title": "Audio"
+    },
+    "video": {
+      "description": "A message showing a video file with an optional title",
+      "videoLabel": "Title",
+      "title": "Video"
+    },
+    "file": {
+      "description": "A message showing some file with an optional title",
+      "fileLabel": "Title",
+      "title": "File"
+    },
+    "singleChoice": {
+      "choice": "Choice",
+      "description": "Suggest choices to the user with the intention of picking only one (with an optional message)",
+      "itemTitle": "The title of the choice (this is what gets shown to the user)",
+      "itemValue": "The value that your bot gets when the user picks this choice (usually hidden from the user)",
+      "title": "Single Choice"
+    },
+    "text": {
+      "alternatives": "Alternates",
+      "description": "A regular text message with optional typing indicators and alternates",
+      "message": "Message"
+    },
+    "location": {
+      "title": "Location",
+      "description": "A message showing a location with an optional address and title",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "address": "Address",
+      "label": "Title"
+    },
+    "dropdown": {
+      "allowCreate": "Allow creation of new options",
+      "allowMultiple": "Allow multiple choices",
+      "asKeyboardDesc": "It will be displayed right on top of the composer (like choices)",
+      "asKeyboardTitle": "Display as keyboard",
+      "buttonDesc": "When left blank, the selected option is sent when the dropdown is closed",
+      "buttonText": "The text to display on the button.",
+      "desc": "Displays a list of options to the user",
+      "itemLabel": "The text displayed in the dropdown menu",
+      "itemValue": "The value that the bot will receive (optional)",
+      "optionsList": "List of options",
+      "title": "Dropdown",
+      "widthDesc": "The default size displays the select and the button on one line. Change it to fit your needs",
+      "widthTitle": "The width of the component (in pixels)",
+      "placeholderText": "Dropdown placeholder text",
+      "useMarkdown": "Use markdown"
+    }
+  },
+  "typingIndicator": "Show typing indicators",
+  "useMarkdown": "Use markdown",
+  "markdownHelp": "Refer to this documentation for markdown syntax: ",
+  "disableFreeText": "Disable free text"
+}

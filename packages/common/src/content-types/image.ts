@@ -1,9 +1,9 @@
-const base = require('./_base')
-const path = require('path')
-const utils = require('./_utils')
+import { ContentType } from '.'
+import base from './_base'
+import utils from './_utils'
 
 function render(data) {
-  const events = []
+  const events: any = []
 
   if (data.typing) {
     events.push({
@@ -32,13 +32,13 @@ function renderElement(data, channel) {
   return render(data)
 }
 
-module.exports = {
+const contentType: ContentType = {
   id: 'builtin_image',
   group: 'Built-in Messages',
   title: 'image',
 
   jsonSchema: {
-    description: 'module.builtin.types.image.description',
+    description: 'common.contentTypes.image.description',
     type: 'object',
     required: ['image'],
     properties: {
@@ -46,12 +46,12 @@ module.exports = {
         type: 'string',
         $subtype: 'image',
         $filter: '.jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*',
-        title: 'module.builtin.types.image.title'
+        title: 'common.contentTypes.image.title'
       },
       title: {
         type: 'string',
-        title: 'module.builtin.types.image.imageLabel',
-        description: 'module.builtin.types.image.labelDesc'
+        title: 'common.contentTypes.image.imageLabel',
+        description: 'common.contentTypes.image.labelDesc'
       },
       ...base.typingIndicators
     }
@@ -65,7 +65,7 @@ module.exports = {
 
   computePreviewText: formData => {
     if (!formData.image) {
-      return
+      return ''
     }
 
     const link = utils.formatURL(formData.BOT_URL, formData.image)
@@ -79,5 +79,7 @@ module.exports = {
     }
   },
 
-  renderElement: renderElement
+  renderElement
 }
+
+export default contentType

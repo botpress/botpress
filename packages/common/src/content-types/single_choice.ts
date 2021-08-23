@@ -1,14 +1,12 @@
-const base = require('./_base')
-const utils = require('./_utils')
+import { ContentType } from '.'
+import base from './_base'
+import utils from './_utils'
 
-function render(data) {
-  const events = []
+const render = data => {
+  const events: any = []
 
   if (data.typing) {
-    events.push({
-      type: 'typing',
-      value: data.typing
-    })
+    events.push({ type: 'typing', value: data.typing })
   }
 
   if (data.isDropdown) {
@@ -51,13 +49,13 @@ function renderElement(data, channel) {
   return render(data)
 }
 
-module.exports = {
+const contentType: ContentType = {
   id: 'builtin_single-choice',
   group: 'Built-in Messages',
-  title: 'module.builtin.types.singleChoice.title',
+  title: 'common.contentTypes.singleChoice.title',
 
   jsonSchema: {
-    description: 'module.builtin.types.singleChoice.description',
+    description: 'common.contentTypes.singleChoice.description',
     type: 'object',
     required: ['choices'],
     properties: {
@@ -76,7 +74,7 @@ module.exports = {
       },
       choices: {
         type: 'array',
-        title: 'module.builtin.types.singleChoice.choice',
+        title: 'common.contentTypes.singleChoice.choice',
         minItems: 1,
         maxItems: 10,
         items: {
@@ -84,12 +82,12 @@ module.exports = {
           required: ['title', 'value'],
           properties: {
             title: {
-              description: 'module.builtin.types.singleChoice.itemTitle',
+              description: 'common.contentTypes.singleChoice.itemTitle',
               type: 'string',
               title: 'Message'
             },
             value: {
-              description: 'module.builtin.types.singleChoice.itemValue',
+              description: 'common.contentTypes.singleChoice.itemValue',
               type: 'string',
               title: 'Value'
             }
@@ -99,7 +97,7 @@ module.exports = {
       ...base.useMarkdown,
       disableFreeText: {
         type: 'boolean',
-        title: 'module.builtin.disableFreeText',
+        title: 'common.contentTypes.disableFreeText',
         default: false
       },
       ...base.typingIndicators
@@ -117,6 +115,8 @@ module.exports = {
   },
   computePreviewText: formData =>
     formData.choices && formData.text && `Choices (${formData.choices.length}) ${formData.text}`,
-  renderElement: renderElement,
+  renderElement,
   hidden: true
 }
+
+export default contentType

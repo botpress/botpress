@@ -1,9 +1,10 @@
-const base = require('./_base')
-const Card = require('./card')
-const utils = require('./_utils')
+import { ContentType } from '.'
+import base from './_base'
+import utils from './_utils'
+import { cardSchema } from './card'
 
 function render(data) {
-  const events = []
+  const events: any = []
 
   if (data.typing) {
     events.push({
@@ -59,24 +60,26 @@ function renderElement(data, channel) {
   return render(data)
 }
 
-module.exports = {
+const contentType: ContentType = {
   id: 'builtin_carousel',
   group: 'Built-in Messages',
-  title: 'module.builtin.types.carousel.title',
+  title: 'common.contentTypes.carousel.title',
 
   jsonSchema: {
-    description: 'module.builtin.types.carousel.description',
+    description: 'common.contentTypes.carousel.description',
     type: 'object',
     required: ['items'],
     properties: {
       items: {
         type: 'array',
-        title: 'module.builtin.types.carousel.cards',
-        items: Card.jsonSchema
+        title: 'common.contentTypes.carousel.cards',
+        items: cardSchema
       },
       ...base.typingIndicators
     }
   },
   computePreviewText: formData => formData.items && `Carousel: (${formData.items.length}) ${formData.items[0].title}`,
-  renderElement: renderElement
+  renderElement
 }
+
+export default contentType

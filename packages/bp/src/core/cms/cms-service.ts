@@ -1,3 +1,4 @@
+import { contentTypes } from '@botpress/common'
 import { ContentElement, ContentType, IO, KnexExtended, Logger, SearchParams } from 'botpress/sdk'
 import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config'
@@ -147,10 +148,22 @@ export class CMSService implements IDisposeOnExit {
       .delete()
   }
 
-  private async _loadContentTypesFromFiles(): Promise<void> {
-    const fileNames = await this.ghost.global().directoryListing(this.typesDir, '*.js')
+  private loadBasicContentTypes(): string[] {
+    for (const contentType of contentTypes) {
+      this.filesById[contentType.id] = `${contentType.id}.json`
+      this.contentTypes.push(contentType as any)
+    }
 
-    const codeFiles = await Promise.map(fileNames, async filename => {
+    return contentTypes.map(x => x.id)
+  }
+
+  private async _loadContentTypesFromFiles(): Promise<void> {
+    const basicContentTypes = await this.loadBasicContentTypes()
+
+    const fileNames = await this.ghost.global().directoryListing(this.typesDir, '*.js')
+    const withoutBuiltins = fileNames.filter(x => !x.startsWith('builtin/') && !x.startsWith('extensions/'))
+
+    const codeFiles = await Promise.map(withoutBuiltins, async filename => {
       const content = <string>await this.ghost.global().readFileAsString(this.typesDir, filename)
       const folder = path.dirname(filename)
       return <CodeFile>{ code: content, folder, relativePath: path.basename(filename) }
@@ -173,7 +186,7 @@ export class CMSService implements IDisposeOnExit {
       }
     }
 
-    this.logger.info(`Loaded ${filesLoaded} content types`)
+    this.logger.info(`Loaded ${filesLoaded + basicContentTypes.length} content types`)
   }
 
   private async _loadContentTypeFromFile(fileName: string): Promise<void> {
