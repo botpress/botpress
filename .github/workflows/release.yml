@@ -20,8 +20,9 @@ jobs:
         id: Deploy
         run: |
           sudo apt-get update && sudo apt-get install jq
-          BRANCH_LABEL=($(echo ${GITHUB_REF#refs/heads/release})) # transform release/v12_12_12 to v12_12_12
-          BRANCH_NAME=($(echo "${GITHUB_REF#refs/heads}/#/origin\/"))
+          HEAD_REF=${{github.head_ref}}
+          BRANCH_LABEL=$(echo "${HEAD_REF#release\/}") # transform release/v12_12_12 to v12_12_12
+          BRANCH_NAME=("${HEAD_REF/#/origin/}")
           HEADER_CRUMB=echo $(curl ${{secret.BUILD_CRUMB}} -u '${{secret.BUILD_USERNAME}}:${{secret.BUILD_TOKEN}}' | jq  -r '[.crumbRequestField,.crumb | tostring] | join(": ")')
           curl ${{secrets.BUILD_URL}}?delay=0sec \
           -u '${{secret.BUILD_USERNAME}}:${{secret.BUILD_TOKEN}}'
