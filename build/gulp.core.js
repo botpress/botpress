@@ -99,6 +99,12 @@ const buildDownloader = cb => {
   child.stderr.pipe(process.stderr)
 }
 
+const buildCommon = cb => {
+  const child = exec('yarn && yarn build', { cwd: 'packages/common' }, err => cb(err))
+  child.stdout.pipe(process.stdout)
+  child.stderr.pipe(process.stderr)
+}
+
 const initDownloader = cb => {
   const proc = spawn('yarn', ['start', 'init'], { cwd: 'build/downloader', stdio: 'inherit', shell: true })
   proc.on('exit', (code, signal) =>
@@ -134,5 +140,6 @@ module.exports = {
   checkTranslations,
   buildDownloader,
   initDownloader,
+  buildCommon,
   cleanup
 }
