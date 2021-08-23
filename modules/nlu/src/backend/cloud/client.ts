@@ -6,7 +6,7 @@ export class NLUCloudClient extends Client {
   private _client: AxiosInstance
 
   constructor(options: OauthClientProps) {
-    super(options.endpoint, undefined)
+    super(options.endpoint)
     this._client = createOauthClient(options)
   }
 }

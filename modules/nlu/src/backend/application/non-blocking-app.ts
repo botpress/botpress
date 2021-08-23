@@ -11,6 +11,7 @@ export class NonBlockingNluApplication extends NLUApplication {
   public async initialize() {
     await this._waitForStan()
     this._stanIsReady = true
+    this._logger.debug('Standalone NLU Server is ready.')
     while (this._waitingBots.length) {
       const bot = this._waitingBots.pop()!
       await super.mountBot(bot)

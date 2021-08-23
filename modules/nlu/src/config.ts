@@ -3,12 +3,12 @@ export interface LanguageSource {
   authToken?: string
 }
 
-type NLUServerConfig = { autoStart: true } | ({ autoStart: false } & LanguageSource)
+type NLUServerConfig = { autoStart: true } | { autoStart: false; endpoint: string }
 
 export interface Config {
   /**
-   * If you want to manually start standalone NLU, set autoStart to false and specify endpoint and auth token.
-   * WARNING: most field of this configuration file only apply if autoStart is true.
+   * If you want to manually start standalone NLU, set autoStart to false and specify endpoint.
+   * WARNING: most fields of this configuration file only apply if autoStart is true.
    * @default { "autoStart": true }
    */
   nluServer: NLUServerConfig

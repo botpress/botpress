@@ -3,7 +3,7 @@ import _ from 'lodash'
 import { DefinitionsRepository } from '../definitions-repository'
 import { BotDoesntSpeakLanguageError } from '../errors'
 import { ModelStateService } from '../model-state-service'
-import { NLUClient } from '../nlu-client'
+import { NLUClientWrapper } from '../nlu-client'
 import { TrainingState, TrainingSession, BotDefinition } from '../typings'
 import { IPredictor, Predictor } from './predictor'
 import { ITrainer, Trainer } from './trainer'
@@ -21,7 +21,7 @@ export class Bot implements ITrainer, IPredictor {
 
   constructor(
     bot: BotDefinition,
-    engine: NLUClient,
+    engine: NLUClientWrapper,
     defRepo: DefinitionsRepository,
     modelStateService: ModelStateService,
     webSocket: (ts: TrainingSession) => void,

@@ -7,8 +7,8 @@ export type TrainListener = (tp: TrainingState | undefined) => Promise<'keep-lis
 
 const TRAIN_POLLING_MS = 500
 
-export class NLUClient {
-  constructor(private _client: Client, private _appSecret: string) {}
+export class NLUClientWrapper {
+  constructor(private _client: Client) {}
 
   public listenForTraining(botId: string, modelId: string, l: TrainListener) {
     return new Promise<void>((resolve, reject) => {
@@ -40,7 +40,7 @@ export class NLUClient {
   }
 
   public async pruneModels(appId: string): Promise<string[]> {
-    const response = await this._client.pruneModels({ appSecret: this._appSecret, appId })
+    const response = await this._client.pruneModels(appId)
     if (!response.success) {
       return this._throwError(response.error)
     }
@@ -56,15 +56,12 @@ export class NLUClient {
       .uniq()
       .value()
 
-    const response = await this._client.startTraining({
+    const response = await this._client.startTraining(appId, {
       contexts,
       entities,
       intents,
       language,
-      seed,
-
-      appSecret: this._appSecret,
-      appId
+      seed
     })
 
     if (!response.success) {
@@ -75,7 +72,7 @@ export class NLUClient {
   }
 
   public async getTraining(appId: string, modelId: string): Promise<TrainingState | undefined> {
-    const response = await this._client.getTrainingStatus(modelId, { appSecret: this._appSecret, appId })
+    const response = await this._client.getTrainingStatus(appId, modelId)
     if (!response.success) {
       return
     }
@@ -83,18 +80,16 @@ export class NLUClient {
   }
 
   public async cancelTraining(appId: string, modelId: string): Promise<void> {
-    const response = await this._client.cancelTraining(modelId, { appSecret: this._appSecret, appId })
+    const response = await this._client.cancelTraining(appId, modelId)
     if (!response.success) {
       return this._throwError(response.error)
     }
   }
 
   public async detectLanguage(appId: string, utterance: string, models: string[]): Promise<string> {
-    const response = await this._client.detectLanguage({
+    const response = await this._client.detectLanguage(appId, {
       models,
-      utterances: [utterance],
-      appSecret: this._appSecret,
-      appId
+      utterances: [utterance]
     })
 
     if (!response.success) {
@@ -105,11 +100,7 @@ export class NLUClient {
   }
 
   public async predict(appId: string, utterance: string, modelId: string): Promise<BpPredictOutput> {
-    const response = await this._client.predict(modelId, {
-      utterances: [utterance],
-      appSecret: this._appSecret,
-      appId
-    })
+    const response = await this._client.predict(appId, modelId, { utterances: [utterance] })
     if (!response.success) {
       return this._throwError(response.error)
     }

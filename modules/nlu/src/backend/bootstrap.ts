@@ -1,33 +1,27 @@
 import { Client } from '@botpress/nlu-client'
 import * as sdk from 'botpress/sdk'
 
-import { makeNLUPassword } from 'common/nlu-token'
 import _ from 'lodash'
 import yn from 'yn'
 
-import { Config, LanguageSource } from '../config'
+import { Config } from '../config'
 
 import { getWebsocket } from './api'
 import { BotFactory } from './application/bot-factory'
 import { DefinitionsRepository } from './application/definitions-repository'
 import { DbModelStateRepository } from './application/model-state-repo'
 import { ModelStateService } from './application/model-state-service'
-import { NLUClient } from './application/nlu-client'
+import { NLUClientWrapper } from './application/nlu-client'
 import { NonBlockingNluApplication } from './application/non-blocking-app'
 
-const getNLUServerConfig = (config: Config['nluServer']): LanguageSource => {
+const getNLUServerConfig = (config: Config['nluServer']): { endpoint: string } => {
   if (config.autoStart) {
     return {
-      endpoint: `http://localhost:${process.NLU_PORT}`,
-      authToken: makeNLUPassword()
+      endpoint: `http://localhost:${process.NLU_PORT}`
     }
   }
-
-  const { endpoint, authToken } = config
-  return {
-    endpoint,
-    authToken
-  }
+  const { endpoint } = config
+  return { endpoint }
 }
 
 export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplication> {
@@ -41,11 +35,10 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
     )
   }
 
-  const { endpoint, authToken } = getNLUServerConfig(globalConfig.nluServer)
-  const stanClient = new Client(endpoint, authToken)
+  const { endpoint: nluEndpoint } = getNLUServerConfig(globalConfig.nluServer)
+  const nluClient = new Client(nluEndpoint)
 
-  const modelPassword = '' // No need for password as Stan is protected by an auth token
-  const nluClient = new NLUClient(stanClient, modelPassword)
+  const clientWrapper = new NLUClientWrapper(nluClient)
 
   const socket = getWebsocket(bp)
 
@@ -54,10 +47,15 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
   const modelStateService = new ModelStateService(modelRepo)
 
   const defRepo = new DefinitionsRepository(bp)
-  const botFactory = new BotFactory(nluClient, bp.logger, defRepo, modelStateService, socket)
-  const application = new NonBlockingNluApplication(nluClient, botFactory, {
-    queueTrainingsOnBotMount: trainingEnabled && queueTrainingOnBotMount
-  })
+  const botFactory = new BotFactory(nluEndpoint, bp.logger, defRepo, modelStateService, socket)
+  const application = new NonBlockingNluApplication(
+    clientWrapper,
+    botFactory,
+    {
+      queueTrainingsOnBotMount: trainingEnabled && queueTrainingOnBotMount
+    },
+    bp.logger
+  )
 
   // don't block entire server startup
   // eslint-disable-next-line @typescript-eslint/no-floating-promises

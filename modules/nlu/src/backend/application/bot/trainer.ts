@@ -4,7 +4,7 @@ import _ from 'lodash'
 import ms from 'ms'
 import { DefinitionsRepository } from '../definitions-repository'
 import { ModelStateService } from '../model-state-service'
-import { NLUClient, TrainListener } from '../nlu-client'
+import { NLUClientWrapper, TrainListener } from '../nlu-client'
 import { TrainingState as BpState, TrainingSession, BotDefinition, BpTrainingSet } from '../typings'
 import { MountOptions } from '.'
 
@@ -23,7 +23,7 @@ export class Trainer implements ITrainer {
 
   constructor(
     botDef: BotDefinition,
-    private _nluClient: NLUClient,
+    private _nluClient: NLUClientWrapper,
     private _defRepo: DefinitionsRepository,
     private _modelStateService: ModelStateService,
     private _webSocket: (ts: TrainingSession) => void,

@@ -102,18 +102,6 @@ export class InternalRouter extends CustomRouter {
     )
 
     router.post(
-      '/checkForDirtyModels',
-      this.asyncMiddleware(async (req, res) => {
-        const { botId } = req.body
-
-        const axiosConfig = await this.httpServer.getAxiosConfigForBot(botId, { localUrl: true })
-        await axios.post('/mod/nlu/checkForDirtyModels', { botId }, axiosConfig)
-
-        res.sendStatus(200)
-      })
-    )
-
-    router.post(
       '/setStudioReady',
       this.asyncMiddleware(async (req, res) => {
         AppLifecycle.setDone(AppLifecycleEvents.STUDIO_READY)

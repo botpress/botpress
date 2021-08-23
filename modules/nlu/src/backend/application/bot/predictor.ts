@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import { ModelStateService } from '../model-state-service'
-import { NLUClient } from '../nlu-client'
+import { NLUClientWrapper } from '../nlu-client'
 import { EventUnderstanding } from '../typings'
 
 interface BotDefinition {
@@ -23,7 +23,7 @@ export class Predictor implements IPredictor {
 
   constructor(
     bot: BotDefinition,
-    private _nluClient: NLUClient,
+    private _nluClient: NLUClientWrapper,
     private _modelStateService: ModelStateService,
     private _logger: sdk.Logger
   ) {

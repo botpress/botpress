@@ -1,10 +1,12 @@
+import { Client } from '@botpress/nlu-client'
 import * as sdk from 'botpress/sdk'
 
 import _ from 'lodash'
+import { NLUCloudClient } from '../cloud/client'
 import { Bot } from './bot'
 import { DefinitionsRepository } from './definitions-repository'
 import { ModelStateService } from './model-state-service'
-import { NLUClient } from './nlu-client'
+import { NLUClientWrapper } from './nlu-client'
 import pickSeed from './pick-seed'
 
 import { BotDefinition, BotConfig, TrainingSession } from './typings'
@@ -22,14 +24,10 @@ export class BotFactory {
     private _webSocket: (ts: TrainingSession) => void
   ) {}
 
-  private makeEngine(botConfig: BotConfig): NLUClient {
+  private makeEngine(botConfig: BotConfig): NLUClientWrapper {
     const { cloud } = botConfig
-
-    const stanClient = cloud
-      ? new NLUCloudClient({ ...cloud, endpoint: this._languageSource.endpoint })
-      : new Client(this._languageSource.endpoint, this._languageSource.authToken)
-
-    return new NLUClient(stanClient, this._languageSource.authToken ?? '')
+    const nluClient = cloud ? new NLUCloudClient({ ...cloud, endpoint: this._endpoint }) : new Client(this._endpoint)
+    return new NLUClientWrapper(nluClient)
   }
 
   public makeBot = async (botConfig: BotConfig): Promise<Bot> => {
@@ -52,6 +50,6 @@ export class BotFactory {
       seed: pickSeed(botConfig)
     }
 
-    return new Bot(botDefinition, this._engine, this._defRepo, this._modelStateService, this._webSocket, this._logger)
+    return new Bot(botDefinition, engine, this._defRepo, this._modelStateService, this._webSocket, this._logger)
   }
 }
