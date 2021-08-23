@@ -7,6 +7,7 @@ import glob from 'glob'
 import { CommonArgs } from 'index'
 import path from 'path'
 import rimraf from 'rimraf'
+import semverParse from 'semver/functions/parse'
 import { downloadFile } from './download'
 import { getReleasedFiles, logger, APP_PREFIX } from './utils'
 
@@ -16,7 +17,7 @@ export const toolsList = {
   },
   studio: {
     url: 'https://api.github.com/repos/botpress/studio/releases'
-  },  
+  },
   messaging: {
     url: 'https://api.github.com/repos/botpress/messaging/releases'
   }
@@ -136,7 +137,15 @@ export const installFile = async (toolName: string, common: CommonArgs, toolVers
 
 export const useFile = async (toolName: string, version: string, common: CommonArgs) => {
   const toolFolder = path.resolve(common.appData, 'tools', toolName)
-  const underscoreVersion = version.replace(/\./g, '_')
+
+  const parsed = semverParse(version)
+  if (!parsed) {
+    return logger.error('Invalid semver version.')
+  }
+
+  const { major, minor, patch, prerelease } = parsed
+  const underscoreVersion = [major, minor, patch, ...prerelease].join('_')
+
   const matchingFile = await Promise.fromCallback<string[]>(cb =>
     glob(`*${underscoreVersion}-${common.platform.replace('win32', 'win')}*`, { cwd: toolFolder }, cb)
   )
