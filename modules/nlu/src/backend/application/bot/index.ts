@@ -38,6 +38,10 @@ export class Bot implements ITrainer, IPredictor {
     return this._botId
   }
 
+  get languages() {
+    return this._languages
+  }
+
   public async mount(opt: MountOptions) {
     return this._trainer.initialize(opt)
   }

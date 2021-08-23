@@ -56,14 +56,24 @@ export const getWebsocket = (bp: typeof sdk) => {
 
 export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
   const router = bp.http.createRouterForBot(ROUTER_ID)
+  const webSocket = getWebsocket(bp)
 
   const mapError = makeErrorMapper(bp)
   const needsWriteMW = bp.http.needPermission('write', 'bot.training')
 
   const globalConfig: Config = await bp.config.getModuleConfig('nlu')
 
+  /**
+   * This is needed because of limitiations on ghost file listening
+   * and the fact studio and runtime don't share the same process.
+   */
   router.post('/checkForDirtyModels', async (req, res) => {
-    // No need to manualy check for dirty models
+    const { botId } = req.params
+    const bot = app.getBot(botId)
+    for (const l of bot.languages) {
+      const ts = await bot.getTraining(l)
+      await webSocket({ ...ts, botId, language: l })
+    }
     res.sendStatus(200)
   })
 
@@ -77,7 +87,7 @@ export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
     const { language: lang, botId } = req.params
 
     try {
-      const state = await app.getTraining(botId, lang)
+      const state = await app.getBot(botId).getTraining(lang)
       const ts = mapTrainSession({ botId, language: lang, ...state })
       res.send(ts)
     } catch (error) {

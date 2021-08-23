@@ -3,10 +3,9 @@ import _ from 'lodash'
 
 import { Bot } from './bot'
 import { BotFactory } from './bot-factory'
-import { IPredictor } from './bot/predictor'
 import { BotNotMountedError } from './errors'
 import { NLUClientWrapper } from './nlu-client'
-import { BotConfig, TrainingState } from './typings'
+import { BotConfig } from './typings'
 
 interface Config {
   queueTrainingsOnBotMount: boolean
@@ -38,19 +37,11 @@ export class NLUApplication {
     }
   }
 
-  public async getTraining(botId: string, language: string): Promise<TrainingState> {
-    const bot = this._bots[botId]
-    if (!bot) {
-      throw new BotNotMountedError(botId)
-    }
-    return bot.getTraining(language)
-  }
-
   public hasBot(botId: string) {
     return !!this._bots[botId]
   }
 
-  public getBot(botId: string): IPredictor {
+  public getBot(botId: string): Bot {
     const bot = this._bots[botId]
     if (!bot) {
       throw new BotNotMountedError(botId)
