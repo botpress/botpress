@@ -20,14 +20,14 @@ const sanitizeName = (text: string) =>
     .replace(/[^a-zA-Z0-9\/_.-]/g, '')
     .replace(/\/\//, '/')
 
-const NameModal: FC<Props> = props => {
+const NameModal: FC<Props> = (props) => {
   const [name, setName] = useState('')
 
   useEffect(() => {
     props.selectedFile ? setName(props.selectedFile.location) : setName('')
   }, [props.isOpen])
 
-  const submit = async e => {
+  const submit = async (e) => {
     e.preventDefault()
     if (props.selectedFile) {
       props.renameFile(props.selectedFile, name)
@@ -47,7 +47,7 @@ const NameModal: FC<Props> = props => {
     return null
   }
 
-  const alreadyExists = !!(props.files['raw'] || []).find(x => x.location === sanitizeName(name))
+  const alreadyExists = !!(props.files['raw'] || []).find((x) => x.location === sanitizeName(name))
 
   return (
     <Dialog
@@ -69,7 +69,7 @@ const NameModal: FC<Props> = props => {
               tabIndex={1}
               placeholder={lang.tr('module.code-editor.nameModal.chooseNameForFile')}
               value={name}
-              onChange={e => setName(sanitizeName(e.currentTarget.value))}
+              onChange={(e) => setName(sanitizeName(e.currentTarget.value))}
               required
               autoFocus
             />

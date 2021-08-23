@@ -56,10 +56,10 @@ export const buildTree = (
 ) => {
   const tree: ITreeNode = { id: 'root', label: '<root>', childNodes: [] }
 
-  files.forEach(fileData => {
+  files.forEach((fileData) => {
     const { folders, file } = splitPath(fileData, expandedNodeIds)
     if (!filterFileName || !filterFileName.length || file.label.includes(filterFileName)) {
-      const openedFile = openedFiles.find(x => x.location === fileData.location)
+      const openedFile = openedFiles.find((x) => x.location === fileData.location)
 
       let icon = fileData.readOnly ? icons.readOnly : undefined
       if (openedFile?.hasChanges) {
