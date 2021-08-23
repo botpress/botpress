@@ -7,6 +7,7 @@ import { Predictor, ProgressCallback, Trainable, I } from '../typings'
 
 import { IDefinitionsService } from './definitions-service'
 import { ScopedPredictionHandler } from './prediction-handler'
+import { TrainInput } from '@botpress/nlu-client'
 
 interface BotDefinition {
   botId: string
@@ -49,6 +50,10 @@ export class Bot implements Trainable, Predictor {
 
   get id() {
     return this._botId
+  }
+
+  public async checkForDirtyModels() {
+    return this._defService.checkForDirtyModels()
   }
 
   public async mount() {
@@ -100,5 +105,9 @@ export class Bot implements Trainable, Predictor {
   public predict = async (textInput: string, anticipatedLanguage?: string) => {
     const { _predictor, _defaultLanguage } = this
     return _predictor.predict(textInput, anticipatedLanguage ?? _defaultLanguage)
+  }
+
+  public hasModelFor(trainInput: TrainInput) {
+    return this._engine.hasModelFor(this.id, trainInput)
   }
 }

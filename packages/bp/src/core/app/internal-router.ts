@@ -1,5 +1,7 @@
+import axios from 'axios'
 import { Logger } from 'botpress/sdk'
 import { UnauthorizedError } from 'common/http'
+import { BotService } from 'core/bots'
 import { MemoryObjectCache } from 'core/bpfs'
 import { CMSService } from 'core/cms'
 import { ModuleLoader } from 'core/modules'
@@ -8,6 +10,7 @@ import { CustomRouter } from 'core/routers/customRouter'
 import { Router } from 'express'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
+import { HTTPServer } from './server'
 
 export class InternalRouter extends CustomRouter {
   constructor(
@@ -15,7 +18,9 @@ export class InternalRouter extends CustomRouter {
     private logger: Logger,
     private moduleLoader: ModuleLoader,
     private realtime: RealtimeService,
-    private objectCache: MemoryObjectCache
+    private objectCache: MemoryObjectCache,
+    private botService: BotService,
+    private httpServer: HTTPServer
   ) {
     super('Internal', logger, Router({ mergeParams: true }))
   }
@@ -97,9 +102,30 @@ export class InternalRouter extends CustomRouter {
     )
 
     router.post(
+      '/checkForDirtyModels',
+      this.asyncMiddleware(async (req, res) => {
+        const { botId } = req.body
+
+        const axiosConfig = await this.httpServer.getAxiosConfigForBot(botId, { localUrl: true })
+        await axios.post('/mod/nlu/checkForDirtyModels', { botId }, axiosConfig)
+
+        res.sendStatus(200)
+      })
+    )
+
+    router.post(
       '/setStudioReady',
       this.asyncMiddleware(async (req, res) => {
         AppLifecycle.setDone(AppLifecycleEvents.STUDIO_READY)
+        res.sendStatus(200)
+      })
+    )
+
+    router.post(
+      '/syncBotLibs',
+      this.asyncMiddleware(async (req, res) => {
+        const { botId, serverId } = req.body
+        this.botService.syncLibs(botId, serverId)
         res.sendStatus(200)
       })
     )

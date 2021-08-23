@@ -3,7 +3,9 @@ import { HTTPServer } from 'core/app/server'
 import { BotService } from 'core/bots'
 import { ConfigProvider } from 'core/config'
 import { ConverseRouter, ConverseService } from 'core/converse'
+import { EventRepository } from 'core/events'
 import { MediaServiceProvider } from 'core/media'
+import { QnaRouter, QnaService } from 'core/qna'
 import { disableForModule } from 'core/routers'
 import {
   AuthService,
@@ -30,6 +32,7 @@ export class BotsRouter extends CustomRouter {
   private checkMethodPermissions: (resource: string) => RequestHandler
   private nluRouter: NLURouter
   private converseRouter: ConverseRouter
+  private qnaRouter: QnaRouter
 
   constructor(
     private botService: BotService,
@@ -40,6 +43,8 @@ export class BotsRouter extends CustomRouter {
     private converseService: ConverseService,
     private logger: Logger,
     private mediaServiceProvider: MediaServiceProvider,
+    private eventRepo: EventRepository,
+    private qnaService: QnaService,
     private httpServer: HTTPServer
   ) {
     super('Bots', logger, Router({ mergeParams: true }))
@@ -56,6 +61,7 @@ export class BotsRouter extends CustomRouter {
       this.httpServer,
       this.configProvider
     )
+    this.qnaRouter = new QnaRouter(this.logger, this.authService, this.workspaceService, this.qnaService)
   }
 
   async setupRoutes(app: express.Express) {
@@ -64,6 +70,7 @@ export class BotsRouter extends CustomRouter {
 
     this.router.use('/converse', this.converseRouter.router)
     this.router.use('/nlu', this.nluRouter.router)
+    this.router.use('/qna', this.qnaRouter.router)
 
     this.router.get(
       '/media/:filename',
@@ -109,6 +116,29 @@ export class BotsRouter extends CustomRouter {
         const bots = await this.botService.findBotsByIds(botsRefs)
 
         return res.send(bots?.filter(Boolean).map(x => ({ name: x.name, id: x.id })))
+      })
+    )
+
+    const config = (await this.configProvider.getBotpressConfig()).eventCollector
+
+    this.router.get('/events/update-frequency', async (_req, res) => {
+      res.send({ collectionInterval: config.collectionInterval })
+    })
+
+    this.router.get(
+      '/events/:eventId',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req, res) => {
+        const storedEvents = await this.eventRepo.findEvents({
+          incomingEventId: req.params.eventId,
+          direction: 'incoming',
+          botId: req.params.botId
+        })
+        if (storedEvents.length) {
+          return res.send(storedEvents.map(s => s.event)[0])
+        }
+
+        res.sendStatus(404)
       })
     )
   }

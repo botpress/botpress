@@ -14,7 +14,7 @@ export interface BotImprovementApi {
 
 export const makeApi = (bp: { axios: AxiosInstance }): BotImprovementApi => ({
   getFeedbackItems: () => bp.axios.get('/mod/bot-improvement/feedback-items').then(res => res.data),
-  getQnaItems: () => bp.axios.get('/mod/qna/questions').then(res => res.data.items),
+  getQnaItems: () => bp.axios.get('/qna/questions').then(res => res.data.items),
   getGoals: () => bp.axios.get('/mod/bot-improvement/goals').then(res => res.data),
   fetchSession: sessionId => bp.axios.get(`/mod/bot-improvement/sessions/${sessionId}`).then(res => res.data),
   updateFeedbackItem: feedbackItem =>

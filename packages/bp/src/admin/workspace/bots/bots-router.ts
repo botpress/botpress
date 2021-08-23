@@ -46,7 +46,7 @@ class BotsRouter extends CustomAdminRouter {
 
         return sendSuccess(res, 'Retrieved bots', {
           bots: isBotAdmin ? bots : bots.map(b => _.pick(b, chatUserBotFields)),
-          workspace: _.pick(workspace, ['name', 'pipeline'])
+          workspace: _.pick(workspace, ['name', 'pipeline', 'botPrefix'])
         })
       })
     )
@@ -90,6 +90,8 @@ class BotsRouter extends CustomAdminRouter {
         const botExists = (await this.botService.getBotsIds()).includes(bot.id)
         const botLinked = (await this.workspaceService.getBotRefs()).includes(bot.id)
 
+        bot.id = await this.botService.makeBotId(bot.id, req.workspace!)
+
         if (botExists && botLinked) {
           throw new ConflictError(`Bot "${bot.id}" already exists and is already linked in workspace`)
         }
@@ -125,7 +127,7 @@ class BotsRouter extends CustomAdminRouter {
       '/:botId/exists',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        const { botId } = req.params
+        const botId = await this.botService.makeBotId(req.params.botId, req.workspace!)
 
         return res.send(await this.botService.botExists(<string>botId))
       })
@@ -201,12 +203,14 @@ class BotsRouter extends CustomAdminRouter {
           return res.status(400).send('Bot should be imported from archive')
         }
 
+        const botId = await this.botService.makeBotId(req.params.botId, req.workspace!)
+
         const buffers: any[] = []
         req.on('data', chunk => buffers.push(chunk))
         await Promise.fromCallback(cb => req.on('end', cb))
 
         const overwrite = yn(req.query.overwrite)
-        await this.botService.importBot(req.params.botId, Buffer.concat(buffers), req.workspace!, overwrite)
+        await this.botService.importBot(botId, Buffer.concat(buffers), req.workspace!, overwrite)
         res.sendStatus(200)
       })
     )

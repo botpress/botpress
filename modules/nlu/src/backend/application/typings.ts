@@ -9,6 +9,13 @@ export interface BotConfig {
   defaultLanguage: string
   languages: string[]
   nluSeed?: number
+  cloud?: CloudConfig
+}
+
+export interface CloudConfig {
+  oauthUrl: string
+  clientId: string
+  clientSecret: string
 }
 
 export interface BotDefinition {

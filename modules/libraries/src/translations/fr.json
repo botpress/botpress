@@ -19,5 +19,5 @@
   "deleteSuccess": "Librairie retirée avec succès",
   "removeFailure": "Il y a eu une erreur lors du retrait de la librairie. Veuillez regarder les journaux du serveur pour plus de détails",
   "bundleError": "Il y a eu une erreur lors de l'empaquetage de la librairie.",
-  "betaWarning": "C'est un module expérmental. L'implémentation peut changer drastiquement à court terme"
+  "betaWarning": "Ce module sera bientôt supprimé. Veuillez utiliser l'onglet 'Librairie' sur le studio."
 }

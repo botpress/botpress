@@ -35,6 +35,8 @@ export interface Workspace {
   id: string
   name: string
   description?: string
+  /** An optional string of characters which must precede the ID of each bots in this workspace */
+  botPrefix?: string
   audience: 'internal' | 'external'
   roles: AuthRole[]
   defaultRole: string
@@ -44,7 +46,7 @@ export interface Workspace {
   rolloutStrategy: RolloutStrategy
 }
 
-export type CreateWorkspace = Pick<Workspace, 'id' | 'name' | 'description' | 'audience'> & {
+export type CreateWorkspace = Pick<Workspace, 'id' | 'name' | 'description' | 'audience' | 'botPrefix'> & {
   pipelineId: string
   authStrategies?: string[]
   roles?: AuthRole[]
@@ -275,3 +277,32 @@ export type LicensingStatus = {
   }
   license?: LicenseInfo
 } & LicenseStatus
+
+/**
+ * Copied from studio
+ * TODO: Move to a shared package to avoid duplicate
+ */
+
+type QnaAction = 'text' | 'redirect' | 'text_redirect'
+
+export interface QnaEntry {
+  action: QnaAction
+  contexts: string[]
+  enabled: boolean
+  questions: {
+    [lang: string]: string[]
+  }
+  answers: {
+    [lang: string]: string[]
+  }
+  redirectFlow: string
+  redirectNode: string
+}
+
+export interface QnaItem {
+  id: string
+  isNew?: boolean
+  key?: string
+  saveError?: string
+  data: QnaEntry
+}
