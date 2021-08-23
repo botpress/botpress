@@ -1,5 +1,5 @@
 import { MessagingClient } from '@botpress/messaging-client'
-import { IO, MessagingConfig } from 'botpress/sdk'
+import { IO, Logger, MessagingConfig } from 'botpress/sdk'
 import { formatUrl, isBpUrl } from 'common/url'
 import { ConfigProvider } from 'core/config'
 import { EventEngine, Event } from 'core/events'
@@ -13,6 +13,7 @@ export class MessagingService {
   private clientsByBotId: { [botId: string]: MessagingClient } = {}
   private botsByClientId: { [clientId: string]: string } = {}
   private webhookTokenByClientId: { [botId: string]: string } = {}
+  private botIdByClientId: { [clientId: string]: string } = {}
   private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage']
 
   public isExternal: boolean
@@ -20,7 +21,8 @@ export class MessagingService {
 
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
+    @inject(TYPES.Logger) private logger: Logger
   ) {
     this.isExternal = Boolean(process.core_env.MESSAGING_ENDPOINT)
   }
@@ -45,7 +47,17 @@ export class MessagingService {
     await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
     const config = await this.configProvider.getBotConfig(botId)
-    let messaging = (config.messaging || {}) as MessagingConfig
+    let messaging = (config.messaging || {}) as Partial<MessagingConfig>
+
+    const messagingId = messaging.id || ''
+    // ClientId is already used by another botId, we will generate new ones for this bot
+    if (this.botIdByClientId[messagingId] && this.botIdByClientId[messagingId] !== botId) {
+      this.logger.warn(
+        `ClientId ${messagingId} already in use by bot ${this.botIdByClientId[messagingId]}. Generating new credentials for bot ${botId}`
+      )
+      delete messaging.id
+      delete messaging.token
+    }
 
     const webhookUrl = `${process.EXTERNAL_URL}/api/v1/chat/receive`
     const setupConfig = {
@@ -57,6 +69,8 @@ export class MessagingService {
     }
 
     const { id, token, webhooks } = await this.clientSync.syncs.sync(setupConfig)
+
+    this.botIdByClientId[id] = botId
 
     if (webhooks?.length) {
       for (const webhook of webhooks) {
@@ -79,7 +93,7 @@ export class MessagingService {
     const botClient = new MessagingClient({
       url: this.getMessagingUrl(),
       password: this.internalPassword,
-      auth: { clientId: messaging.id, clientToken: messaging.token }
+      auth: { clientId: messaging.id!, clientToken: messaging.token! }
     })
     this.clientsByBotId[botId] = botClient
     this.botsByClientId[id] = botId
@@ -92,6 +106,8 @@ export class MessagingService {
     if (!config.messaging?.id) {
       return
     }
+
+    delete this.botIdByClientId[config.messaging.id]
 
     await this.clientSync.syncs.sync({
       id: config.messaging.id,
