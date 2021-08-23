@@ -11,8 +11,9 @@
   "publishConfig": {
     "@botpress:registry": "https://npm.pkg.github.com"
   },
+  "types": "src/index.ts",
   "files": [
-    "dist"
+    "lib"
   ],
   "devDependencies": {
     "@types/node": "^10.10.3"
