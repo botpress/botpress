@@ -1,8 +1,8 @@
-name: Docker
+name: Release
 on:
   pull_request:
     branches:
-      - 'release/*'
+      - 'release\/v[0-9]{1,3}_[0-9]{1,3}_[0-9]{1,3}'
     types: [closed]
 jobs:
   release:
@@ -19,10 +19,11 @@ jobs:
         id: Deploy
         run: |
           apt-get update && apt-get jq
-          BRANCH=($(echo ${GITHUB_REF#refs/heads/}))
+          BRANCH_LABEL=($(echo ${GITHUB_REF#refs/heads/release})) # transform release/v12_12_12 to v12_12_12
+          BRANCH_NAME=($(echo "${GITHUB_REF#refs/heads}/#/origin\/"))
           HEADER_CRUMB=echo $(curl ${{secret.BUILD_CRUMB}} -u '${{secret.BUILD_USERNAME}}:${{secret.BUILD_TOKEN}}' | jq  -r '[.crumbRequestField,.crumb | tostring] | join(": ")')
           curl ${{secrets.BUILD_URL}}?delay=0sec \
           -u '${{secret.BUILD_USERNAME}}:${{secret.BUILD_TOKEN}}'
           -H 'Content-Type: application/x-www-form-urlencoded' \
           -H "${HEADER_CRUMB}"
-          -d "name=separator-37500b00-1f20-4f64-94ec-7afd045bec6f&name=DEPLOY_TO_S3&value=on&name=DEPLOY_TO_DOCKERHUB&value=on&name=DEPLOY_DOCUMENTATION&value=on&name=CLEAN_BEFORE_BUILD&value=on&name=BUILD_TYPE&value=release&name=BUILD_LABEL&value=&name=separator-5be33bf7-d9f5-486d-af56-d3458fbf99de&name=BRANCH&value=${BRANCH}&quickFilter=&statusCode=303&Submit=Build"
+          -d "name=separator-37500b00-1f20-4f64-94ec-7afd045bec6f&name=DEPLOY_TO_S3&value=on&name=DEPLOY_TO_DOCKERHUB&value=off&name=DEPLOY_DOCUMENTATION&value=on&name=CLEAN_BEFORE_BUILD&value=on&name=BUILD_TYPE&value=release&name=BUILD_LABEL&value=${BRANCH_LABEL}&name=separator-5be33bf7-d9f5-486d-af56-d3458fbf99de&name=BRANCH&value=${BRANCH_NAME}&quickFilter=&statusCode=303&Submit=Build"
