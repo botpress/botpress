@@ -6,6 +6,7 @@ on:
     types: [closed]
 jobs:
   release:
+    if: github.event.pull_request.merged == true
     name: Release botpress version
     runs-on: ubuntu-latest
     steps:
