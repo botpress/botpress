@@ -123,11 +123,28 @@ export class BotsRouter extends CustomRouter {
       })
     )
 
-    const eventCollectorConfig = (await this.configProvider.getBotpressConfig()).eventCollector
+    const config = (await this.configProvider.getBotpressConfig()).eventCollector
 
     this.router.get('/events/update-frequency', async (_req, res) => {
-      res.send({ collectionInterval: eventCollectorConfig.collectionInterval })
+      res.send({ collectionInterval: config.collectionInterval })
     })
+
+    this.router.get(
+      '/events/:eventId',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req, res) => {
+        const storedEvents = await this.eventRepo.findEvents({
+          incomingEventId: req.params.eventId,
+          direction: 'incoming',
+          botId: req.params.botId
+        })
+        if (storedEvents.length) {
+          return res.send(storedEvents.map(s => s.event)[0])
+        }
+
+        res.sendStatus(404)
+      })
+    )
   }
 
   /**

@@ -29,7 +29,10 @@ const AppLoader: FC<Props> = props => {
 
   return (
     <PageContainer title={lang.tr(`module.${module?.name}.fullName`) || module?.fullName || appName} noWrapper>
-      <InjectedModuleView moduleName={appName} extraProps={{ botId, contentLang: props.contentLang }} />
+      <InjectedModuleView
+        moduleName={appName}
+        extraProps={{ botId, contentLang: props.contentLang, userProfile: props.profile }}
+      />
     </PageContainer>
   )
 }
@@ -37,6 +40,7 @@ const AppLoader: FC<Props> = props => {
 const mapStateToProps = (state: AppState) => ({
   contentLang: state.ui.contentLang,
   modules: state.modules.loadedModules,
+  profile: state.user.profile,
   translationsLoaded: state.modules.translationsLoaded
 })
 
