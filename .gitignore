@@ -45,6 +45,13 @@ test-report.html
 metadata.json
 edition.json
 /pro
+packages/bp/binaries/
+packages/bp/archives
+
+# Reorg
+packages/bp/src/pro
+packages/bp/src/ml
+src/bp
 
 build/tests/e2e/screenshots/*
 !build/tests/e2e/screenshots/.gitkeep

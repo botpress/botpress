@@ -1,1 +1,1 @@
-import '../../../../../../../src/bp/sdk/botpress'
+import '../../../../../../../packages/bp/src/sdk/botpress'

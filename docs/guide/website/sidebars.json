@@ -3,30 +3,37 @@
     "Release Notes": ["releases/migrate"],
     "Getting Started": ["introduction", "installation", "quickstart"],
     "Building A Chatbot": [
-      "main/overview",
-      "main/glossary",
+      "main/overview2",
       "main/content",
       "main/dialog",
-      "main/code",
       "main/memory",
+      "main/emulator",
+      "main/qna-module",
+      "main/code",
       "main/module",
       "main/nlu",
-      "main/emulator"
+      "main/broadcast",
+      "main/glossary"
     ],
     "Natural Language Understanding": [
+      "nlu/intro-nlu",
       "nlu/intent-matching",
+      "nlu/entity-extraction",
       "nlu/skill-slot",
+      "nlu/improvement",
       "nlu/3rd-party-NLU",
       "nlu/i18n"
     ],
     "Channels": [
       "channels/web",
+      "channels/converse",
       "channels/messenger",
       "channels/telegram",
       "channels/teams",
-      "channels/converse",
+      "channels/twilio",
       "channels/slack",
       "channels/smooch",
+      "channels/vonage",
       "channels/faq"
     ],
     "Deployment And Infrastructure": [
@@ -52,16 +59,18 @@
       "managing/hitlnext",
       "managing/features"
     ],
+    "Integrating External Services": [
+      "integrating/skill-call-api",
+      "integrating/external-api",
+      "integrating/existing-backend",
+      "integrating/uipath"
+    ],
     "Improving Your Chatbot": [
       "tutorials/carousel-postback",
-      "tutorials/skill-call-api",
       "tutorials/skill-email",
-      "tutorials/external-api",
-      "tutorials/existing-backend",
       "tutorials/timeouts",
       "tutorials/jump-to",
-      "tutorials/contextual-faq",
-      "tutorials/uipath"
+      "tutorials/contextual-faq"
     ],
     "Pro Edition": ["pro/about-pro", "pro/licensing"],
     "Advanced Guides": [
