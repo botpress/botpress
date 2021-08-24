@@ -138,7 +138,11 @@ export default async (bp: typeof sdk, db: Database) => {
     const userId = await db.mapVisitor(botId, req.visitorId, req.messaging)
 
     if (conversationId) {
-      const conversation = await req.messaging.conversations.get(conversationId)
+      let conversation: Conversation
+      try {
+        conversation = await req.messaging.conversations.get(conversationId)
+      } catch {}
+
       if (!conversation || !userId || conversation.userId !== userId) {
         return next(ERR_BAD_CONV_ID)
       }
