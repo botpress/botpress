@@ -24,6 +24,7 @@ const ERR_BAD_CONV_ID = "The conversation ID doesn't belong to that user"
 const ERR_BAD_USER_SESSION_ID = 'session id is invalid'
 
 const USER_ID_MAX_LENGTH = 40
+const MAX_MESSAGE_HISTORY = 100
 const SUPPORTED_MESSAGES = [
   'text',
   'quick_reply',
@@ -312,7 +313,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
       await bp.users.getOrCreateUser('web', userId, botId)
 
-      const conversations = await req.messaging.conversations.list(userId, 100)
+      const conversations = await req.messaging.conversations.list(userId, MAX_MESSAGE_HISTORY)
       const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
       return res.send({
