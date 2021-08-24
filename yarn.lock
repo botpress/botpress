@@ -310,9 +310,6 @@
     classnames "^2.2"
     tslib "~1.13.0"
 
-"@botpress/common@file:packages/common":
-  version "0.0.1"
-
 "@botpress/messaging-client@0.0.3":
   version "0.0.3"
   resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-0.0.3.tgz#871c0672e7ac488c60fcf6ca57549aac73c0b958"
