@@ -1,6 +1,27 @@
 import * as sdk from 'botpress/sdk'
 import omit from 'lodash/omit'
 
+interface ExtraChoiceProperties {
+  isDropdown: boolean
+  dropdownPlaceholder: string
+  disableFreeText: boolean
+}
+
+interface ExtraDropdownProperties {
+  buttonText: string
+  displayInKeyboard: boolean
+  allowCreation: boolean
+  allowMultiple: boolean
+  width: number
+  collectFeedback: boolean
+  placeholderText: string
+  markdown: boolean
+}
+
+interface CollectFeedback {
+  collectFeedback: boolean
+}
+
 const isBpUrl = (str: string): boolean => {
   const re = /^\/api\/.*\/bots\/.*\/media\/.*/g
 
@@ -40,8 +61,8 @@ export const renderPayload = payload => {
   return payload
 }
 
-const renderChoicePayload = (content: sdk.ChoiceContent) => {
-  if ((content as any).isDropdown) {
+const renderChoicePayload = (content: sdk.ChoiceContent & ExtraChoiceProperties) => {
+  if (content.isDropdown) {
     return {
       type: 'custom',
       module: 'extensions',
@@ -51,7 +72,7 @@ const renderChoicePayload = (content: sdk.ChoiceContent) => {
       displayInKeyboard: true,
       options: content.choices.map(c => ({ label: c.title, value: c.value.toUpperCase() })),
       width: 300,
-      placeholderText: (content as any).dropdownPlaceholder
+      placeholderText: content.dropdownPlaceholder
     }
   }
   return {
@@ -62,7 +83,7 @@ const renderChoicePayload = (content: sdk.ChoiceContent) => {
       title: c.title,
       payload: c.value.toUpperCase()
     })),
-    disableFreeText: (content as any).disableFreeText,
+    disableFreeText: content.disableFreeText,
     wrapped: {
       type: 'text',
       ...omit(content, 'choices', 'type')
@@ -70,8 +91,7 @@ const renderChoicePayload = (content: sdk.ChoiceContent) => {
   }
 }
 
-const renderDropdownPayload = (content: any) => {
-  // TODO: add typings for dropdowns
+const renderDropdownPayload = (content: sdk.DropdownContent & ExtraDropdownProperties) => {
   return {
     type: 'custom',
     module: 'extensions',
@@ -89,47 +109,47 @@ const renderDropdownPayload = (content: any) => {
   }
 }
 
-const renderImagePayload = (content: sdk.ImageContent) => {
+const renderImagePayload = (content: sdk.ImageContent & CollectFeedback) => {
   return {
     type: 'file',
     title: content.title,
     url: formatUrl('', content.image),
-    collectFeedback: (content as any).collectFeedback
-  }
-}
-
-const renderAudioPayload = (content: sdk.AudioContent) => {
-  return {
-    type: 'audio',
-    title: content.title,
-    url: formatUrl('', content.audio),
-    collectFeedback: (content as any).collectFeedback
-  }
-}
-
-const renderVideoPayload = (content: sdk.VideoContent) => {
-  return {
-    type: 'video',
-    title: content.title,
-    url: formatUrl('', content.video),
-    collectFeedback: (content as any).collectFeedback
-  }
-}
-
-const renderFilePayload = (content: any) => {
-  return {
-    type: 'video',
-    title: content.title,
-    url: formatUrl('', content.file),
     collectFeedback: content.collectFeedback
   }
 }
 
-const renderCarouselPayload = (content: sdk.CarouselContent) => {
+const renderAudioPayload = (content: sdk.AudioContent & CollectFeedback) => {
+  return {
+    type: 'audio',
+    title: content.title,
+    url: formatUrl('', content.audio),
+    collectFeedback: content.collectFeedback
+  }
+}
+
+const renderVideoPayload = (content: sdk.VideoContent & CollectFeedback) => {
+  return {
+    type: 'video',
+    title: content.title,
+    url: formatUrl('', content.video),
+    collectFeedback: content.collectFeedback
+  }
+}
+
+const renderFilePayload = (content: sdk.FileContentType & CollectFeedback) => {
+  return {
+    type: 'file',
+    title: content.title,
+    file: formatUrl('', content.file),
+    collectFeedback: content.collectFeedback
+  }
+}
+
+const renderCarouselPayload = (content: sdk.CarouselContent & CollectFeedback) => {
   return {
     text: ' ',
     type: 'carousel',
-    collectFeedback: (content as any).collectFeedback,
+    collectFeedback: content.collectFeedback,
     elements: content.items.map(card => ({
       title: card.title,
       picture: card.image ? formatUrl('', card.image) : null,

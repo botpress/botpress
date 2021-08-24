@@ -1,17 +1,22 @@
 import * as sdk from 'botpress/sdk'
 import { EventRepository } from 'core/events'
 import { CustomRouter } from 'core/routers/customRouter'
-import { Router } from 'express'
+import { AuthService, checkTokenHeader, TOKEN_AUDIENCE } from 'core/security'
+import { RequestHandler, Router } from 'express'
 
 export class MessagingBotRouter extends CustomRouter {
-  constructor(logger: sdk.Logger, private eventRepo: EventRepository) {
+  protected readonly checkTokenHeader: RequestHandler
+
+  constructor(logger: sdk.Logger, private auth: AuthService, private eventRepo: EventRepository) {
     super('Messaging', logger, Router({ mergeParams: true }))
+    this.checkTokenHeader = checkTokenHeader(auth, TOKEN_AUDIENCE)
     this.setupRoutes()
   }
 
   public setupRoutes(): void {
     this.router.get(
       '/message-to-event/:messageId',
+      this.checkTokenHeader,
       this.asyncMiddleware(async (req, res) => {
         const [messageEvent] = await this.eventRepo.findEvents({
           messageId: req.params.messageId,
@@ -38,6 +43,7 @@ export class MessagingBotRouter extends CustomRouter {
 
     this.router.get(
       '/list-by-incoming-event/:messageId',
+      this.checkTokenHeader,
       this.asyncMiddleware(async (req, res) => {
         const { messageId, botId } = req.params
 

@@ -156,7 +156,7 @@ class Message extends Component<MessageProps> {
   }
 
   onMessageClicked() {
-    this.props.store.loadEventInDebugger(this.props.incomingEventId, true)
+    this.props.store.loadEventInDebugger(this.props.messageId, true)
   }
 
   render() {

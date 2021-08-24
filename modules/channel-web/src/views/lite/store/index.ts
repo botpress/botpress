@@ -159,12 +159,13 @@ class RootStore {
   }
 
   @action.bound
-  loadEventInDebugger(messageId: uuid, isManual?: boolean): void {
+  async loadEventInDebugger(messageId: uuid, isManual?: boolean): Promise<void> {
     if (!this.config.isEmulator || !messageId) {
       return
     }
 
-    this.view.setHighlightedMessages([messageId])
+    const messages = await this.api.listByIncomingEvent(messageId)
+    this.view.setHighlightedMessages(messages)
     window.parent.postMessage({ action: 'load-event', payload: { messageId, isManual } }, '*')
   }
 
