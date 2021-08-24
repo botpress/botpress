@@ -627,10 +627,12 @@ export default async (bp: typeof sdk, db: Database) => {
   privateRouter.post(
     '/conversations/:id/messages/delete',
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
+      const { botId } = req.params
       const conversationId = req.params.id
       const { userId } = req.body
 
-      const conversation = await req.messaging.conversations.get(conversationId)
+      const messaging = await db.getMessagingClient(botId)
+      const conversation = await messaging.conversations.get(conversationId)
       if (!userId || conversation?.userId !== userId) {
         res.status(400).send(ERR_BAD_CONV_ID)
       }
@@ -638,7 +640,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const { visitorId } = await db.getMappingFromUser(userId)
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(visitorId, 'webchat.clear', { conversationId }))
 
-      await req.messaging.messages.delete(conversationId)
+      await messaging.messages.delete(conversationId)
       res.sendStatus(204)
     })
   )
