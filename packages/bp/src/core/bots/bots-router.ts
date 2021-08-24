@@ -5,7 +5,7 @@ import { ConfigProvider } from 'core/config'
 import { ConverseRouter, ConverseService } from 'core/converse'
 import { EventRepository } from 'core/events'
 import { MediaServiceProvider } from 'core/media'
-import { MessagingBotRouter } from 'core/messaging/messaging-bot-router'
+import { MessagingBotRouter } from 'core/messaging'
 import { QnaRouter, QnaService } from 'core/qna'
 import { disableForModule } from 'core/routers'
 import {
