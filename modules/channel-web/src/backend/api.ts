@@ -634,7 +634,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const messaging = await db.getMessagingClient(botId)
       const conversation = await messaging.conversations.get(conversationId)
       if (!userId || conversation?.userId !== userId) {
-        res.status(400).send(ERR_BAD_CONV_ID)
+        return res.status(400).send(ERR_BAD_CONV_ID)
       }
 
       const { visitorId } = await db.getMappingFromUser(userId)
