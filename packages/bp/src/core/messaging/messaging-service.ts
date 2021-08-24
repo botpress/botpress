@@ -13,7 +13,6 @@ export class MessagingService {
   private clientsByBotId: { [botId: string]: MessagingClient } = {}
   private botsByClientId: { [clientId: string]: string } = {}
   private webhookTokenByClientId: { [botId: string]: string } = {}
-  private botIdByClientId: { [clientId: string]: string } = {}
   private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage']
 
   public isExternal: boolean
@@ -51,12 +50,13 @@ export class MessagingService {
 
     const messagingId = messaging.id || ''
     // ClientId is already used by another botId, we will generate new ones for this bot
-    if (this.botIdByClientId[messagingId] && this.botIdByClientId[messagingId] !== botId) {
+    if (this.botsByClientId[messagingId] && this.botsByClientId[messagingId] !== botId) {
       this.logger.warn(
-        `ClientId ${messagingId} already in use by bot ${this.botIdByClientId[messagingId]}. Generating new credentials for bot ${botId}`
+        `ClientId ${messagingId} already in use by bot ${this.botsByClientId[messagingId]}. Removing channels configuration and generating new credentials for bot ${botId}`
       )
       delete messaging.id
       delete messaging.token
+      delete messaging.channels
     }
 
     const webhookUrl = `${process.EXTERNAL_URL}/api/v1/chat/receive`
@@ -69,8 +69,6 @@ export class MessagingService {
     }
 
     const { id, token, webhooks } = await this.clientSync.syncs.sync(setupConfig)
-
-    this.botIdByClientId[id] = botId
 
     if (webhooks?.length) {
       for (const webhook of webhooks) {
@@ -107,7 +105,7 @@ export class MessagingService {
       return
     }
 
-    delete this.botIdByClientId[config.messaging.id]
+    delete this.botsByClientId[config.messaging.id]
 
     await this.clientSync.syncs.sync({
       id: config.messaging.id,
