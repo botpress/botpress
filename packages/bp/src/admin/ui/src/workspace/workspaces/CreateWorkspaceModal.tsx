@@ -22,9 +22,10 @@ const CreateWorkspaceModal: FC<Props> = props => {
   const [description, setDescription] = useState<string>('')
   const [audience, setAudience] = useState('internal')
   const [pipelineId, setPipelineId] = useState('none')
+  const [botPrefix, setBotPrefix] = useState('')
 
   const submit = async () => {
-    const workspace = { id, name, audience, description, pipelineId }
+    const workspace = { id, name, audience, description, pipelineId, botPrefix }
 
     try {
       await api.getSecured().post('/admin/workspace/workspaces', workspace)
@@ -43,6 +44,7 @@ const CreateWorkspaceModal: FC<Props> = props => {
     setDescription('')
     setAudience('external')
     setPipelineId('none')
+    setBotPrefix('')
     setOpen(false)
     setGenerateId(true)
   }
@@ -69,7 +71,7 @@ const CreateWorkspaceModal: FC<Props> = props => {
                   placeholder="The name of your workspace"
                   value={name}
                   onChange={updateName}
-                  tabIndex={2}
+                  tabIndex={1}
                   autoFocus={true}
                 />
               </FormGroup>
@@ -85,7 +87,22 @@ const CreateWorkspaceModal: FC<Props> = props => {
                   placeholder="The ID of your workspace"
                   value={id}
                   onChange={updateId}
-                  tabIndex={1}
+                  tabIndex={2}
+                />
+              </FormGroup>
+
+              <FormGroup
+                label={<span>Bot Prefix</span>}
+                labelFor="input-botPrefix"
+                labelInfo="*"
+                helperText="Bots in this workspace must start with this prefix, followed by __"
+              >
+                <InputGroup
+                  id="input-botPrefix"
+                  placeholder=""
+                  value={botPrefix}
+                  onChange={e => setBotPrefix(e.target.value)}
+                  tabIndex={3}
                 />
               </FormGroup>
 
@@ -97,7 +114,7 @@ const CreateWorkspaceModal: FC<Props> = props => {
                   onChange={e => setDescription(e.currentTarget.value)}
                   fill={true}
                   rows={3}
-                  tabIndex={3}
+                  tabIndex={4}
                   maxLength={500}
                 />
               </FormGroup>

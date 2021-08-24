@@ -53,7 +53,8 @@ export namespace CacheInvalidators {
 
       const watcher = chokidar.watch(foldersToWatch, {
         ignoreInitial: true,
-        ignorePermissionErrors: true
+        ignorePermissionErrors: true,
+        ignored: path => path.includes('node_modules')
       })
 
       watcher.on('add', this.handle)

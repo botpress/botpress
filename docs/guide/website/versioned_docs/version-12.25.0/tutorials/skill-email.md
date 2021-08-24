@@ -1,6 +1,7 @@
 ---
-id: skill-email
+id: version-12.25.0-skill-email
 title: How to use Email Skill
+original_id: skill-email
 ---
 
 ## Overview

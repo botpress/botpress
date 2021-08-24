@@ -68,6 +68,24 @@ export namespace Renderer {
     maxLength?: number
   } & Message
 
+  export interface Option {
+    label: string
+    value: string
+  }
+
+  export type Dropdown = {
+    options: Option[]
+    buttonText?: string
+    escapeHTML: boolean
+    allowCreation?: boolean
+    placeholderText?: string
+    allowMultiple?: boolean
+    width?: number
+    markdown: boolean
+    message: string
+    displayInKeyboard?: boolean
+  } & Message
+
   export type QuickReply = {
     buttons: any
     quick_replies: any

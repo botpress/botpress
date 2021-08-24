@@ -159,6 +159,16 @@ class RootStore {
   }
 
   @action.bound
+  loadEventInDebugger(eventId: string, isManual?: boolean): void {
+    if (!this.config.isEmulator || !eventId) {
+      return
+    }
+
+    this.view.setHighlightedMessages([eventId])
+    window.parent.postMessage({ action: 'load-event', payload: { eventId, isManual } }, '*')
+  }
+
+  @action.bound
   async addEventToConversation(event: Message): Promise<void> {
     if (this.isInitialized && this.currentConversationId !== event.conversationId) {
       await this.fetchConversations()

@@ -48,6 +48,7 @@
     "react-ga": "^2.7.0",
     "react-intl": "^2.8.0",
     "react-linkify": "^0.2.2",
+    "react-select": "^2.4.2",
     "react-slick": "^0.24.0",
     "slick-carousel": "^1.8.1",
     "snarkdown": "^1.2.2",

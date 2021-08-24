@@ -1,6 +1,7 @@
 ---
-id: teams
+id: version-12.25.0-teams
 title: Microsoft Teams
+original_id: teams
 ---
 
 ## Requirements
