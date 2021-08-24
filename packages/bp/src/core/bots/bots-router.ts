@@ -63,7 +63,7 @@ export class BotsRouter extends CustomRouter {
       this.httpServer,
       this.configProvider
     )
-    this.messagingRouter = new MessagingBotRouter(this.logger, this.eventRepo)
+    this.messagingRouter = new MessagingBotRouter(this.logger, this.authService, this.eventRepo)
     this.qnaRouter = new QnaRouter(this.logger, this.authService, this.workspaceService, this.qnaService)
   }
 
