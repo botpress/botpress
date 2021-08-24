@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "main": "lib/index.js",
   "license": "AGPL-3.0",
+  "repository": "https://github.com/botpress/botpress.git",
   "scripts": {
     "build": "yarn && tsc --build",
     "watch": "yarn && tsc --build --watch",
