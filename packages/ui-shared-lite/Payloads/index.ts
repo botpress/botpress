@@ -70,22 +70,21 @@ const renderChoicePayload = (content: sdk.ChoiceContent) => {
   }
 }
 
-const renderDropdownPayload = (content: any) => {
-  // TODO: add typings for dropdowns
+const renderDropdownPayload = (content: sdk.DropdownContent) => {
   return {
     type: 'custom',
     module: 'extensions',
     component: 'Dropdown',
     message: content.message,
-    buttonText: content.buttonText,
-    displayInKeyboard: content.displayInKeyboard,
+    buttonText: (content as any).buttonText,
+    displayInKeyboard: (content as any).displayInKeyboard,
     options: content.options,
-    allowCreation: content.allowCreation,
-    allowMultiple: content.allowMultiple,
-    width: content.width,
-    collectFeedback: content.collectFeedback,
-    placeholderText: content.placeholderText,
-    markdown: content.markdown
+    allowCreation: (content as any).allowCreation,
+    allowMultiple: (content as any).allowMultiple,
+    width: (content as any).width,
+    collectFeedback: (content as any).collectFeedback,
+    placeholderText: (content as any).placeholderText,
+    markdown: (content as any).markdown
   }
 }
 
@@ -116,12 +115,12 @@ const renderVideoPayload = (content: sdk.VideoContent) => {
   }
 }
 
-const renderFilePayload = (content: any) => {
+const renderFilePayload = (content: sdk.FileContentType) => {
   return {
-    type: 'video',
+    type: 'file',
     title: content.title,
-    url: formatUrl('', content.file),
-    collectFeedback: content.collectFeedback
+    file: formatUrl('', content.file),
+    collectFeedback: (content as any).collectFeedback
   }
 }
 
