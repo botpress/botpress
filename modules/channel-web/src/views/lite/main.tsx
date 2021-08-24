@@ -24,7 +24,7 @@ class Web extends React.Component<MainProps> {
   private parentClass: string
   private hasBeenInitialized: boolean = false
   private audio: HTMLAudioElement
-  private lastLoadedEventId: string
+  private lastMessageId: string
 
   constructor(props) {
     super(props)
@@ -244,9 +244,9 @@ class Web extends React.Component<MainProps> {
 
     this.handleResetUnreadCount()
 
-    if (!['session_reset'].includes(event.payload.type) && event.incomingEventId !== this.lastLoadedEventId) {
-      this.lastLoadedEventId = event.incomingEventId
-      this.props.store.loadEventInDebugger(event.incomingEventId)
+    if (!['session_reset'].includes(event.payload.type) && event.id !== this.lastMessageId) {
+      this.lastMessageId = event.id
+      this.props.store.loadEventInDebugger(event.id)
     }
   }
 

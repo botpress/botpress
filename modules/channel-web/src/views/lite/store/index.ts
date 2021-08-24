@@ -159,13 +159,13 @@ class RootStore {
   }
 
   @action.bound
-  loadEventInDebugger(eventId: string, isManual?: boolean): void {
-    if (!this.config.isEmulator || !eventId) {
+  loadEventInDebugger(messageId: uuid, isManual?: boolean): void {
+    if (!this.config.isEmulator || !messageId) {
       return
     }
 
-    this.view.setHighlightedMessages([eventId])
-    window.parent.postMessage({ action: 'load-event', payload: { eventId, isManual } }, '*')
+    this.view.setHighlightedMessages([messageId])
+    window.parent.postMessage({ action: 'load-event', payload: { messageId, isManual } }, '*')
   }
 
   @action.bound
