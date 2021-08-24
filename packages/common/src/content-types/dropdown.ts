@@ -6,18 +6,13 @@ function render(data) {
   const events: any = []
 
   if (data.typing) {
-    events.push({
-      type: 'typing',
-      value: data.typing
-    })
+    events.push({ type: 'typing', value: data.typing })
   }
 
   return [
     ...events,
     {
-      type: 'custom',
-      module: 'extensions',
-      component: 'Dropdown',
+      type: 'dropdown',
       message: data.message,
       buttonText: data.buttonText,
       displayInKeyboard: data.displayInKeyboard,
