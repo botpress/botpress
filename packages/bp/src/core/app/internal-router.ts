@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { Logger } from 'botpress/sdk'
 import { UnauthorizedError } from 'common/http'
+import { BotService } from 'core/bots'
 import { MemoryObjectCache } from 'core/bpfs'
 import { CMSService } from 'core/cms'
 import { ModuleLoader } from 'core/modules'
@@ -18,6 +19,7 @@ export class InternalRouter extends CustomRouter {
     private moduleLoader: ModuleLoader,
     private realtime: RealtimeService,
     private objectCache: MemoryObjectCache,
+    private botService: BotService,
     private httpServer: HTTPServer
   ) {
     super('Internal', logger, Router({ mergeParams: true }))
@@ -115,6 +117,15 @@ export class InternalRouter extends CustomRouter {
       '/setStudioReady',
       this.asyncMiddleware(async (req, res) => {
         AppLifecycle.setDone(AppLifecycleEvents.STUDIO_READY)
+        res.sendStatus(200)
+      })
+    )
+
+    router.post(
+      '/syncBotLibs',
+      this.asyncMiddleware(async (req, res) => {
+        const { botId, serverId } = req.body
+        this.botService.syncLibs(botId, serverId)
         res.sendStatus(200)
       })
     )

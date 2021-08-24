@@ -90,7 +90,7 @@ export class NLUApplication {
     return async (lang: string) => {
       const trainSet = await defService.getTrainSet(lang)
       const trainInput = mapTrainSet(trainSet)
-      const { exists, modelId } = await this._engine.hasModelFor(bot.id, trainInput)
+      const { exists, modelId } = await bot.hasModelFor(trainInput)
       const trainId = { botId, language: lang }
       if (exists) {
         await this.trainRepository.inTransaction(trx => trx.delete(trainId))
