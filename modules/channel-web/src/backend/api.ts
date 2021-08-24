@@ -24,6 +24,7 @@ const ERR_BAD_CONV_ID = "The conversation ID doesn't belong to that user"
 const ERR_BAD_USER_SESSION_ID = 'session id is invalid'
 
 const USER_ID_MAX_LENGTH = 40
+const MAX_MESSAGE_HISTORY = 100
 const SUPPORTED_MESSAGES = [
   'text',
   'quick_reply',
@@ -137,16 +138,20 @@ export default async (bp: typeof sdk, db: Database) => {
     const userId = await db.mapVisitor(botId, req.visitorId, req.messaging)
 
     if (conversationId) {
-      const conversation = await req.messaging.conversations.get(conversationId)
+      let conversation: Conversation
+      try {
+        conversation = await req.messaging.conversations.get(conversationId)
+      } catch {}
+
       if (!conversation || !userId || conversation.userId !== userId) {
-        next(ERR_BAD_CONV_ID)
+        return next(ERR_BAD_CONV_ID)
       }
 
       req.conversationId = conversationId
     }
 
     if (options.convoIdRequired && req.conversationId === undefined) {
-      next(ERR_CONV_ID_REQ)
+      return next(ERR_CONV_ID_REQ)
     }
 
     req.botId = botId
@@ -314,7 +319,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
       await bp.users.getOrCreateUser('web', userId, botId)
 
-      const conversations = await req.messaging.conversations.list(userId, 100)
+      const conversations = await req.messaging.conversations.list(userId, MAX_MESSAGE_HISTORY)
       const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
       return res.send({
@@ -636,18 +641,20 @@ export default async (bp: typeof sdk, db: Database) => {
   privateRouter.post(
     '/conversations/:id/messages/delete',
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
+      const { botId } = req.params
       const conversationId = req.params.id
       const { userId } = req.body
 
-      const conversation = await req.messaging.conversations.get(conversationId)
+      const messaging = await db.getMessagingClient(botId)
+      const conversation = await messaging.conversations.get(conversationId)
       if (!userId || conversation?.userId !== userId) {
-        res.status(400).send(ERR_BAD_CONV_ID)
+        return res.status(400).send(ERR_BAD_CONV_ID)
       }
 
       const { visitorId } = await db.getMappingFromUser(userId)
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(visitorId, 'webchat.clear', { conversationId }))
 
-      await req.messaging.messages.delete(conversationId)
+      await messaging.messages.delete(conversationId)
       res.sendStatus(204)
     })
   )

@@ -940,6 +940,14 @@ declare module 'botpress/sdk' {
     qna: {
       disabled: boolean
     }
+
+    cloud?: CloudConfig
+  }
+
+  export interface CloudConfig {
+    oauthUrl: string
+    clientId: string
+    clientSecret: string
   }
 
   export type Pipeline = Stage[]
