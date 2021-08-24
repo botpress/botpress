@@ -3,7 +3,7 @@ name: Publish Common Package
 on:
   push:
     branches:
-      - master
+      - ya-common
 
 jobs:
   build:
