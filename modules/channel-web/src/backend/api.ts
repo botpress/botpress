@@ -139,14 +139,14 @@ export default async (bp: typeof sdk, db: Database) => {
     if (conversationId) {
       const conversation = await req.messaging.conversations.get(conversationId)
       if (!conversation || !userId || conversation.userId !== userId) {
-        next(ERR_BAD_CONV_ID)
+        return next(ERR_BAD_CONV_ID)
       }
 
       req.conversationId = conversationId
     }
 
     if (options.convoIdRequired && req.conversationId === undefined) {
-      next(ERR_CONV_ID_REQ)
+      return next(ERR_CONV_ID_REQ)
     }
 
     req.botId = botId
