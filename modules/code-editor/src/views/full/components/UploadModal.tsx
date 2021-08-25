@@ -52,7 +52,7 @@ const fetchReducer = (state: State, action): State => {
   }
 }
 
-export const UploadModal: FC<Props> = (props) => {
+export const UploadModal: FC<Props> = props => {
   const [state, dispatch] = React.useReducer(fetchReducer, {
     file: undefined,
     fullPath: '',
@@ -101,13 +101,13 @@ export const UploadModal: FC<Props> = (props) => {
     })
   }
 
-  const toggleConfirmation = (event) => {
+  const toggleConfirmation = event => {
     dispatch({ type: 'changeOverwrite', data: { overwrite: event.currentTarget.checked } })
   }
 
-  const updateLocation = (text) => {
+  const updateLocation = text => {
     const sanitized = sanitizeName(text)
-    const existing = !!props.files.raw.find((x) => x.location === sanitized)
+    const existing = !!props.files.raw.find(x => x.location === sanitized)
 
     dispatch({
       type: 'updateLocation',
@@ -128,8 +128,8 @@ export const UploadModal: FC<Props> = (props) => {
       canOutsideClickClose={false}
     >
       <div
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={(e) => {
+        onDragOver={e => e.preventDefault()}
+        onDrop={e => {
           e.preventDefault()
           readFile(e.dataTransfer.files)
         }}
@@ -138,7 +138,7 @@ export const UploadModal: FC<Props> = (props) => {
           <FormGroup label={<span>{lang.tr('module.code-editor.uploadModal.selectFile')}</span>}>
             <FileInput
               text={filePath || `${lang.tr('chooseFile')}...`}
-              onChange={(e) => readFile((e.target as HTMLInputElement).files)}
+              onChange={e => readFile((e.target as HTMLInputElement).files)}
               fill={true}
             />
           </FormGroup>
@@ -152,7 +152,7 @@ export const UploadModal: FC<Props> = (props) => {
               tabIndex={1}
               placeholder="global/actions/my-file.js"
               value={fullPath}
-              onChange={(e) => updateLocation(e.currentTarget.value)}
+              onChange={e => updateLocation(e.currentTarget.value)}
               required
               autoFocus
             />

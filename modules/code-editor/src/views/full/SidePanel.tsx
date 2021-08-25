@@ -272,7 +272,7 @@ class PanelContent extends React.Component<Props, State> {
             icon: <Icon icon="cut" color={this.state.isMultipleCutActive ? 'blue' : null} />,
             key: 'multi-select',
             onClick: () =>
-              this.setState((prevState) => {
+              this.setState(prevState => {
                 return {
                   selectedFile: undefined,
                   isMultipleCutActive: !prevState.isMultipleCutActive
@@ -302,7 +302,7 @@ class PanelContent extends React.Component<Props, State> {
           onNodeStateSelected={this.updateNodeSelected}
           bulkMoveFiles={this.bulkRenameAndDisableAction}
           isMultipleCutActive={this.state.isMultipleCutActive}
-          moveFile={(file) => this.setState({ selectedFile: file, isMoveModalOpen: true })}
+          moveFile={file => this.setState({ selectedFile: file, isMoveModalOpen: true })}
         />
         <NameModal
           isOpen={this.state.isMoveModalOpen}
@@ -321,11 +321,11 @@ class PanelContent extends React.Component<Props, State> {
       return []
     }
 
-    const hooks = Object.keys(HOOK_SIGNATURES).map((hookType) => ({
+    const hooks = Object.keys(HOOK_SIGNATURES).map(hookType => ({
       id: hookType,
       label: hookType
         .split('_')
-        .map((x) => x.charAt(0).toUpperCase() + x.slice(1))
+        .map(x => x.charAt(0).toUpperCase() + x.slice(1))
         .join(' '),
       onClick: () => this.createFilePrompt('hook', hookType)
     }))
@@ -333,7 +333,7 @@ class PanelContent extends React.Component<Props, State> {
     const items = [
       {
         label: lang.tr('module.code-editor.sidePanel.eventHooks'),
-        items: hooks.filter((x) =>
+        items: hooks.filter(x =>
           [
             'before_incoming_middleware',
             'after_incoming_middleware',
@@ -347,7 +347,7 @@ class PanelContent extends React.Component<Props, State> {
       },
       {
         label: lang.tr('module.code-editor.sidePanel.botHooks'),
-        items: hooks.filter((x) =>
+        items: hooks.filter(x =>
           ['after_bot_mount', 'after_bot_unmount', 'before_bot_import', 'on_bot_error'].includes(x.id)
         )
       }
@@ -357,11 +357,11 @@ class PanelContent extends React.Component<Props, State> {
       items.push(
         {
           label: lang.tr('module.code-editor.sidePanel.generalHooks'),
-          items: hooks.filter((x) => ['after_server_start', 'on_incident_status_changed'].includes(x.id))
+          items: hooks.filter(x => ['after_server_start', 'on_incident_status_changed'].includes(x.id))
         },
         {
           label: lang.tr('module.code-editor.sidePanel.pipelineHooks'),
-          items: hooks.filter((x) => ['on_stage_request', 'after_stage_changed'].includes(x.id))
+          items: hooks.filter(x => ['on_stage_request', 'after_stage_changed'].includes(x.id))
         }
       )
     }

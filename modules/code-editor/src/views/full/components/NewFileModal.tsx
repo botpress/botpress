@@ -25,7 +25,7 @@ const sanitizeName = (text: string) =>
     .replace(/[^a-zA-Z0-9\/_.-]/g, '')
     .replace(/\/\//, '/')
 
-const NewFileModal: FC<Props> = (props) => {
+const NewFileModal: FC<Props> = props => {
   const [name, setName] = useState('')
   const [isScoped, setScoped] = useState(FileTypes[props.selectedType]?.allowScoped ?? true)
 
@@ -34,7 +34,7 @@ const NewFileModal: FC<Props> = (props) => {
     setName('')
   }, [props.isOpen])
 
-  const submit = async (e) => {
+  const submit = async e => {
     e.preventDefault()
 
     const finalName = name.endsWith('.js') || name.endsWith('.json') ? name : `${name}.js`
@@ -101,7 +101,7 @@ const NewFileModal: FC<Props> = (props) => {
               tabIndex={1}
               placeholder="my-file.js"
               value={name}
-              onChange={(e) => setName(sanitizeName(e.currentTarget.value))}
+              onChange={e => setName(sanitizeName(e.currentTarget.value))}
               required
               autoFocus
             />
@@ -112,7 +112,7 @@ const NewFileModal: FC<Props> = (props) => {
               label={lang.tr('module.code-editor.newFileModal.createForCurrent')}
               checked={isScoped}
               disabled={!fileDefinition.allowGlobal || !canGlobalWrite}
-              onChange={(e) => setScoped(e.currentTarget.checked)}
+              onChange={e => setScoped(e.currentTarget.checked)}
             />
           )}
         </div>
