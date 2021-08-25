@@ -24,7 +24,7 @@ class Web extends React.Component<MainProps> {
   private parentClass: string
   private hasBeenInitialized: boolean = false
   private audio: HTMLAudioElement
-  private lastLoadedEventId: string
+  private lastMessageId: string
 
   constructor(props) {
     super(props)
@@ -179,9 +179,7 @@ class Web extends React.Component<MainProps> {
   }
 
   isCurrentConversation = (event: Message) => {
-    return (
-      !this.props.config?.conversationId || Number(this.props.config.conversationId) === Number(event.conversationId)
-    )
+    return !this.props.config?.conversationId || this.props.config.conversationId === event.conversationId
   }
 
   handleIframeApi = async ({ data: { action, payload } }) => {
@@ -225,7 +223,7 @@ class Web extends React.Component<MainProps> {
   }
 
   handleNewMessage = async (event: Message) => {
-    if (event.payload?.type === 'visit' || event.message_type === 'visit') {
+    if (event.payload?.type === 'visit') {
       // don't do anything, it's the system message
       return
     }
@@ -246,9 +244,9 @@ class Web extends React.Component<MainProps> {
 
     this.handleResetUnreadCount()
 
-    if (!['session_reset'].includes(event.payload.type) && event.incomingEventId !== this.lastLoadedEventId) {
-      this.lastLoadedEventId = event.incomingEventId
-      this.props.store.loadEventInDebugger(event.incomingEventId)
+    if (!['session_reset'].includes(event.payload.type) && event.id !== this.lastMessageId) {
+      this.lastMessageId = event.id
+      this.props.store.loadEventInDebugger(event.id)
     }
   }
 

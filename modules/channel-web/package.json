@@ -15,6 +15,7 @@
   "license": "AGPL-3.0-only",
   "devDependencies": {
     "@types/apicache": "^1.2.2",
+    "@types/bcryptjs": "^2.4.2",
     "@types/bluebird-global": "^3.5.7",
     "@types/dom-mediacapture-record": "^1.0.7",
     "@types/mime": "^2.0.3",
@@ -27,6 +28,7 @@
     "apicache": "^1.6.2",
     "aws-sdk": "^2.905.0",
     "axios": "^0.21.1",
+    "bcryptjs": "^2.4.3",
     "bluebird": "^3.5.3",
     "bluebird-global": "^1.0.1",
     "classnames": "^2.3.1",

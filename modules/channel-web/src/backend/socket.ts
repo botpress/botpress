@@ -1,26 +1,9 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import path from 'path'
 
 import Database from './db'
 
-const outgoingTypes = [
-  'text',
-  'typing',
-  'login_prompt',
-  'file',
-  'carousel',
-  'custom',
-  'data',
-  'video',
-  'audio',
-  'dropdown'
-]
-
 export default async (bp: typeof sdk, db: Database) => {
-  const config: any = {} // FIXME
-  const { botName = 'Bot', botAvatarUrl = undefined } = config || {} // FIXME
-
   bp.events.registerMiddleware({
     description:
       'Sends out messages that targets platform = webchat.' +
@@ -36,46 +19,32 @@ export default async (bp: typeof sdk, db: Database) => {
       return next()
     }
 
+    const messaging = await db.getMessagingClient(event.botId)
     const messageType = event.type === 'default' ? 'text' : event.type
     const userId = event.target
-    const conversationId = event.threadId || (await db.getOrCreateRecentConversation(event.botId, userId))
-
-    if (!_.includes(outgoingTypes, messageType)) {
-      bp.logger.warn(`Unsupported event type: ${event.type}`)
-      return next(undefined, true)
-    }
-
-    const standardTypes = ['text', 'carousel', 'custom', 'file', 'login_prompt', 'video', 'audio', 'dropdown']
+    const { visitorId } = await db.getMappingFromUser(userId)
+    const conversationId = event.threadId || (await messaging.conversations.getRecent(userId)).id
 
     if (!event.payload.type) {
       event.payload.type = messageType
     }
 
-    if (messageType === 'typing') {
-      const typing = parseTyping(event.payload.value)
-      const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.typing', { timeInMs: typing, conversationId })
-      // Don't store "typing" in DB
+    if (messageType === 'data') {
+      const payload = bp.RealTimePayload.forVisitor(visitorId, 'webchat.data', event.payload)
       bp.realtime.sendPayload(payload)
-      // await Promise.delay(typing)
-    } else if (messageType === 'data') {
-      const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.data', event.payload)
-      bp.realtime.sendPayload(payload)
-    } else if (standardTypes.includes(messageType)) {
-      const message = await db.appendBotMessage(
-        (event.payload || {}).botName || botName,
-        (event.payload || {}).botAvatarUrl || botAvatarUrl,
-        conversationId,
-        event.payload,
-        event.incomingEventId,
-        event.id
-      )
-      bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     } else {
-      bp.logger.warn(`Message type "${messageType}" not implemented yet`)
+      const typing = parseTyping(event.payload.value)
+      if (typing) {
+        const payload = bp.RealTimePayload.forVisitor(visitorId, 'webchat.typing', { timeInMs: typing, conversationId })
+        // Don't store "typing" in DB
+        bp.realtime.sendPayload(payload)
+      }
+
+      const message = await messaging.messages.create(conversationId, undefined, event.payload)
+      bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(visitorId, 'webchat.message', message))
     }
 
     next(undefined, false)
-    // TODO Make official API (BotpressAPI.events.updateStatus(event.id, 'done'))
   }
 }
 
