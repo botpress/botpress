@@ -102,16 +102,24 @@ export class MessagingService {
     })
   }
 
-  async receive(clientId: string, channel: string, userId: string, conversationId: string, payload: any) {
+  async receive(args: {
+    clientId: string
+    channel: string
+    userId: string
+    conversationId: string
+    messageId: string
+    payload: any
+  }) {
     return this.eventEngine.sendEvent(
       Event({
         direction: 'incoming',
-        type: payload.type,
-        payload,
-        channel,
-        threadId: conversationId,
-        target: userId,
-        botId: this.botsByClientId[clientId]
+        type: args.payload.type,
+        payload: args.payload,
+        channel: args.channel,
+        threadId: args.conversationId,
+        target: args.userId,
+        messageId: args.messageId,
+        botId: this.botsByClientId[args.clientId]
       })
     )
   }
@@ -122,7 +130,12 @@ export class MessagingService {
     }
 
     const payloadAbsoluteUrl = this.convertToAbsoluteUrls(event.payload)
-    await this.clientsByBotId[event.botId].chat.reply(event.threadId!, event.channel, payloadAbsoluteUrl)
+    const message = await this.clientsByBotId[event.botId].chat.reply(
+      event.threadId!,
+      event.channel,
+      payloadAbsoluteUrl
+    )
+    event.messageId = message.id
 
     return next(undefined, true, false)
   }

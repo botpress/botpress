@@ -103,26 +103,23 @@ class MessageGroup extends React.Component<Props> {
               return (
                 <Message
                   key={message.id}
-                  isHighlighted={
-                    this.props.highlightedMessages &&
-                    this.props.highlightedMessages.includes((message as any).incomingEventId)
-                  }
+                  isHighlighted={this.props.highlightedMessages && this.props.highlightedMessages.includes(message.id)}
                   inlineFeedback={
                     showInlineFeedback && (
                       <InlineFeedback
                         intl={this.props.store.intl}
-                        incomingEventId={(message as any).incomingEventId}
+                        messageId={message.id}
                         onFeedback={this.props.onFeedback}
-                        eventFeedbacks={this.props.store.eventFeedbacks}
+                        messageFeedbacks={this.props.store.messageFeedbacks}
                       />
                     )
                   }
+                  messageId={message.id}
                   noBubble={!!payload.noBubble}
                   fromLabel={fromLabel}
                   isLastOfGroup={i >= this.props.messages.length - 1}
                   isLastGroup={this.props.isLastGroup}
                   isBotMessage={!message.authorId}
-                  incomingEventId={(message as any).incomingEventId}
                   payload={payload}
                   sentOn={message.sentOn}
                   onSendData={this.props.onSendData}

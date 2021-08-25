@@ -31,7 +31,7 @@ export namespace Renderer {
     store?: RootStore
     bp?: StudioConnector
     fromLabel?: string
-    incomingEventId?: string
+    messageId?: string
     /** When true, the message isn't wrapped by its bubble */
     noBubble?: boolean
     keyboard?: any
@@ -337,6 +337,6 @@ interface MessageWrapper {
 }
 
 export interface EventFeedback {
-  incomingEventId: string
+  messageId: string
   feedback?: number
 }

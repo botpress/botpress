@@ -305,7 +305,9 @@ export default async (bp: typeof sdk, db: Database) => {
       const conversation = await req.messaging.conversations.get(conversationId)
       const messages = await req.messaging.messages.list(conversationId, config.maxMessagesHistory)
 
-      return res.send({ ...conversation, messages })
+      const filteredMessages = messages.filter(m => m.payload.type !== 'visit')
+
+      return res.send({ ...conversation, messages: filteredMessages })
     })
   )
 
@@ -348,7 +350,9 @@ export default async (bp: typeof sdk, db: Database) => {
       sanitizedPayload = _.omit(payload, [...sensitive, 'sensitive'])
     }
 
+    const message = await req.messaging.messages.create(req.conversationId, req.userId, sanitizedPayload)
     const event = bp.IO.Event({
+      messageId: message.id,
       botId: req.botId,
       channel: 'web',
       direction: 'incoming',
@@ -363,7 +367,6 @@ export default async (bp: typeof sdk, db: Database) => {
       event.debugger = true
     }
 
-    const message = await req.messaging.messages.create(req.conversationId, req.userId, sanitizedPayload)
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(req.visitorId, 'webchat.message', message))
 
     await bp.events.sendEvent(event)
@@ -405,14 +408,18 @@ export default async (bp: typeof sdk, db: Database) => {
     '/saveFeedback',
     bp.http.extractExternalToken,
     asyncMiddleware(async (req: BPRequest, res: Response) => {
-      const { eventId, target, feedback } = req.body
+      const { botId } = req.params
+      const { messageId, target, feedback } = req.body
 
-      if (!target || !eventId || !feedback) {
+      if (!target || !messageId || !feedback) {
         return res.status(400).send('Missing required fields')
       }
 
+      const [event] = await bp.events.findEvents({ botId, messageId })
+      const { userId } = await db.getMappingFromVisitor(botId, target)
+
       try {
-        await bp.events.saveUserFeedback(eventId, target, feedback, 'qna')
+        await bp.events.saveUserFeedback(event.incomingEventId, userId, feedback, 'qna')
         res.sendStatus(200)
       } catch (err) {
         res.status(400).send(err)
@@ -424,13 +431,15 @@ export default async (bp: typeof sdk, db: Database) => {
     '/feedbackInfo',
     bp.http.extractExternalToken,
     asyncMiddleware(async (req: BPRequest, res: Response) => {
-      const { target, eventIds } = req.body
+      const { botId } = req.params
+      const { target, messageIds } = req.body
 
-      if (!target || !eventIds) {
+      if (!target || !messageIds) {
         return res.status(400).send('Missing required fields')
       }
 
-      res.send(await db.getFeedbackInfoForEventIds(target, eventIds))
+      const { userId } = await db.getMappingFromVisitor(botId, target)
+      res.send(await db.getFeedbackInfoForMessageIds(userId, messageIds))
     })
   )
 

@@ -117,11 +117,11 @@ export default class WebchatDb {
     return { fullName, avatar_url: _.get(user, 'attributes.picture_url') }
   }
 
-  getFeedbackInfoForEventIds(target: string, eventIds: string[]) {
+  async getFeedbackInfoForMessageIds(_target: string, messageIds: string[]) {
     return this.knex('events')
-      .select(['incomingEventId', 'feedback'])
-      .whereIn('incomingEventId', eventIds)
-      .andWhere({ target, direction: 'incoming' })
+      .select(['events.messageId', 'incomingEvents.feedback'])
+      .innerJoin('events as incomingEvents', 'incomingEvents.id', 'events.incomingEventId')
+      .whereIn('events.messageId', messageIds)
   }
 
   getMessagingClient = async (botId: string) => {
