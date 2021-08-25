@@ -19,7 +19,7 @@ export class MessagingRouter extends CustomRouter {
     this.router.post(
       '/receive',
       this.asyncMiddleware(async (req, res, next) => {
-        if (!this.messaging.isExternal && req.headers.password !== this.messaging.internalPassword) {
+        if (!this.messaging.isExternal && req.headers.password !== process.INTERNAL_PASSWORD) {
           return next?.(new UnauthorizedError('Password is missing or invalid'))
         } else if (
           this.messaging.isExternal &&
