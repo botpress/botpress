@@ -307,53 +307,74 @@ export class DialogEngine {
     return this.processEvent(sessionId, event)
   }
 
-  public async processConversationEnd(botId: string, sessionId: string, event: IO.IncomingEvent): Promise<boolean> {
-    this._debug(event.botId, event.target, 'processing conversation end')
+  public cleanState(event) {
+    event.state.context = {}
+    event.state.temp = {}
+  }
+
+  public shouldRunConvEnd(event: IO.IncomingEvent): boolean {
+    const { name } = this._findFlow(event.botId, event.state.context?.currentFlow!)
+
+    if (name === 'timeout.flow.json') {
+      this.cleanState(event)
+      return false
+    } else if (name === 'conversation_end.flow.json') {
+      return false
+    }
+
+    return true
+  }
+
+  // Runs Conversation end hook and returns true if there is transition
+  public async runConvEndHook(event: IO.IncomingEvent): Promise<boolean> {
+    this._debug(event.botId, event.target, 'processing conversation end hooks')
+    const api = await createForGlobalHooks()
+    await this.hookService.executeHook(new Hooks.BeforeConversationEnd(api, event))
+    if (event.state?.context?.hasJumped) {
+      await this.processEvent(event.threadId as string, event)
+      return true
+    }
+    return false
+  }
+
+  // Runs Conversation end flow and returns true if there is transition
+  public async runConvEndFlow(event: IO.IncomingEvent): Promise<boolean> {
+    this._debug(event.botId, event.target, 'processing conversation end flow')
+    const { botId, threadId } = event
 
     const currentFlow = this._findFlow(botId, event.state.context?.currentFlow!)
     const currentNode = this.findNodeWithoutError(botId, currentFlow, event.state.context?.currentNode)
-
-    // Check for a conversation_end.flow.json
     const conversationEndFlow = this.findFlowWithoutError(botId, 'conversation_end.flow.json')
 
-    if (currentFlow.name !== 'conversation_end.flow.json') {
-      const previousStackTraceSize = event.state.__stacktrace?.length
-      const api = await createForGlobalHooks()
-      await this.hookService.executeHook(new Hooks.BeforeConversationEnd(api, event))
-      // Check if stack trace size changed during hook execution, meaning that a transition was added
-      if (previousStackTraceSize !== event.state.__stacktrace?.length) {
-        await this.processEvent(sessionId, event)
-        return false
+    if (conversationEndFlow) {
+      const conversationEndNode = this._findNode(botId, conversationEndFlow, conversationEndFlow.startNode)
+      this.fillContextForTransition(event, {
+        currentFlow,
+        currentNode,
+        nextFlow: conversationEndFlow,
+        nextNode: conversationEndNode
+      })
+
+      const previousJumpPointsSize = event.state.context?.jumpPoints?.length
+      await this.processEvent(threadId as string, event)
+
+      if (previousJumpPointsSize !== event.state.context?.jumpPoints?.length) {
+        return true
       }
     }
 
-    // Don`t trigger on timeout or if it is already at the conversation end flow
-    if (
-      !conversationEndFlow ||
-      currentFlow.name === 'conversation_end.flow.json' ||
-      currentFlow.name === 'timeout.flow.json'
-    ) {
-      return true
-    }
-
-    const conversationEndNode = this._findNode(botId, conversationEndFlow, conversationEndFlow.startNode)
-
-    this.fillContextForTransition(event, {
-      currentFlow,
-      currentNode,
-      nextFlow: conversationEndFlow,
-      nextNode: conversationEndNode
-    })
-
-    await this.processEvent(sessionId, event)
     return false
   }
 
   private async _endFlow(event: IO.IncomingEvent) {
-    const shouldEndFlow = await this.processConversationEnd(event.botId, event.threadId as string, event)
-    if (shouldEndFlow) {
-      event.state.context = {}
-      event.state.temp = {}
+    if (!this.shouldRunConvEnd(event)) {
+      return
+    }
+
+    // Check if the hooks or flow have a transition, don`t clean state if true
+    const shouldWrapup = !(await this.runConvEndHook(event)) && !(await this.runConvEndFlow(event))
+    if (shouldWrapup) {
+      this.cleanState(event)
     }
   }
 
@@ -461,8 +482,8 @@ export class DialogEngine {
       )
     } else if (transitionTo === 'END') {
       // END means the node has a transition of "end flow" in the flow editor
-      delete event.state.context
       this._debug(event.botId, event.target, 'ending flow')
+      await this._endFlow(event)
       return event
     } else {
       // Transition to the target node in the current flow
