@@ -124,7 +124,7 @@ export default class WebchatDb {
       .whereIn('events.messageId', messageIds)
   }
 
-  getMessagingClient = async (botId: string) => {
+  async getMessagingClient(botId: string) {
     const client = this.messagingClients[botId]
     if (client) {
       return client
@@ -142,6 +142,10 @@ export default class WebchatDb {
     this.messagingClients[botId] = botClient
 
     return botClient
+  }
+
+  removeMessagingClient(botId: string) {
+    this.messagingClients[botId] = undefined
   }
 }
 
