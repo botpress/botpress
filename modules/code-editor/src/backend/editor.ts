@@ -46,7 +46,7 @@ export default class Editor {
 
     const files: FilesDS = {}
 
-    await Promise.mapSeries(Object.keys(permissions), async (type) => {
+    await Promise.mapSeries(Object.keys(permissions), async type => {
       const userPermissions = permissions[type]
       if (userPermissions.read) {
         files[type] = await this.loadFiles(userPermissions.type, !userPermissions.isGlobal && this._botId, listBuiltin)
@@ -54,8 +54,8 @@ export default class Editor {
     })
 
     const examples = await this._getExamples()
-    files['action_example'] = examples.filter((x) => x.type === 'action_legacy')
-    files['hook_example'] = examples.filter((x) => x.type === 'hook')
+    files['action_example'] = examples.filter(x => x.type === 'action_legacy')
+    files['hook_example'] = examples.filter(x => x.type === 'hook')
 
     return files
   }
@@ -209,7 +209,7 @@ export default class Editor {
       { name: 'es6include.d.ts', location: path.join(__dirname, '/../typings/es6include.txt') }
     ]
 
-    const content = await Promise.mapSeries(files, (file) => this.readFile(file.name, file.location))
+    const content = await Promise.mapSeries(files, file => this.readFile(file.name, file.location))
     const localTypings = _.mapValues(_.keyBy(content, 'name'), 'fileContent')
 
     this._typings = {

@@ -13,8 +13,8 @@ const migration: sdk.ModuleMigration = {
     let hasChanges = false
 
     for (const workspace of workspaces) {
-      workspace.roles.forEach((role) => {
-        const globalRule = role.rules.find((x) => x.res === 'module.code-editor.global.configs')
+      workspace.roles.forEach(role => {
+        const globalRule = role.rules.find(x => x.res === 'module.code-editor.global.configs')
         if (globalRule) {
           hasChanges = true
           globalRule.res = 'module.code-editor.global.main_config'
@@ -23,7 +23,7 @@ const migration: sdk.ModuleMigration = {
           role.rules.push({ res: 'module.code-editor.global.module_config', op: globalRule.op })
         }
 
-        const botRule = role.rules.find((x) => x.res === 'module.code-editor.bot.configs')
+        const botRule = role.rules.find(x => x.res === 'module.code-editor.bot.configs')
         if (botRule) {
           hasChanges = true
           botRule.res = 'module.code-editor.bot.bot_config'

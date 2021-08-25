@@ -82,7 +82,7 @@ export const FileTypes: { [type: string]: FileDefinition } = {
     ghost: {
       baseDir: '/libraries'
     },
-    canDelete: (file) => {
+    canDelete: file => {
       return !file.name.endsWith('.json')
     }
   },
