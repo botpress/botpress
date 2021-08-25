@@ -33,9 +33,8 @@ export default async (bp: typeof sdk, db: Database) => {
       const payload = bp.RealTimePayload.forVisitor(visitorId, 'webchat.data', event.payload)
       bp.realtime.sendPayload(payload)
     } else {
-      const typing = parseTyping(event.payload.value)
-      if (typing) {
-        const payload = bp.RealTimePayload.forVisitor(visitorId, 'webchat.typing', { timeInMs: typing, conversationId })
+      if (event.payload.typing) {
+        const payload = bp.RealTimePayload.forVisitor(visitorId, 'webchat.typing', { timeInMs: 500, conversationId })
         // Don't store "typing" in DB
         bp.realtime.sendPayload(payload)
       }
@@ -47,12 +46,4 @@ export default async (bp: typeof sdk, db: Database) => {
 
     next(undefined, false)
   }
-}
-
-function parseTyping(typing) {
-  if (isNaN(typing)) {
-    return 1000
-  }
-
-  return Math.max(typing, 500)
 }
