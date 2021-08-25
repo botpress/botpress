@@ -7,6 +7,7 @@ import { InjectedIntl } from 'react-intl'
 
 import WebchatApi from '../core/api'
 import constants from '../core/constants'
+import { waitForUserId } from '../core/socket'
 import { getUserLocale, initializeLocale } from '../translations'
 import {
   BotInfo,
@@ -35,7 +36,7 @@ class RootStore {
   public composer: ComposerStore
   public view: ViewStore
 
-  private _typingInterval
+  private _typingInterval: number | undefined
   private api: WebchatApi
 
   @observable
@@ -79,7 +80,7 @@ class RootStore {
   }
 
   @action.bound
-  setIntlProvider(provider) {
+  setIntlProvider(provider: InjectedIntl) {
     this.intl = provider
   }
 
@@ -139,7 +140,7 @@ class RootStore {
   }
 
   @action.bound
-  updateMessages(messages) {
+  updateMessages(messages: Message[]) {
     this.currentConversation.messages = messages
   }
 
@@ -229,7 +230,7 @@ class RootStore {
     runInAction('-> setBotInfo', () => {
       this.botInfo = botInfo
     })
-    this.mergeConfig({
+    await this.mergeConfig({
       extraStylesheet: botInfo.extraStylesheet,
       disableNotificationSound: botInfo.disableNotificationSound
     })
@@ -398,14 +399,14 @@ class RootStore {
 
   /** Use this method to replace a value or add a new config */
   @action.bound
-  mergeConfig(config: Partial<Config>) {
+  async mergeConfig(config: Partial<Config>) {
     this.config = merge(this.config, config)
-    this._applyConfig()
+    await this._applyConfig()
   }
 
   /** This replaces all the configurations by this object */
   @action.bound
-  updateConfig(config: Config, bp?: StudioConnector) {
+  async updateConfig(config: Config, bp?: StudioConnector) {
     this.config = config
 
     if (!this.api) {
@@ -413,10 +414,10 @@ class RootStore {
       this.api = new WebchatApi('', bp.axios)
     }
 
-    this._applyConfig()
+    await this._applyConfig()
   }
 
-  private _applyConfig() {
+  private async _applyConfig() {
     this.config.layoutWidth && this.view.setLayoutWidth(this.config.layoutWidth)
     this.config.containerWidth && this.view.setContainerWidth(this.config.containerWidth)
     this.view.disableAnimations = this.config.disableAnimations
@@ -428,18 +429,28 @@ class RootStore {
 
     document.title = this.config.botName || 'Botpress Webchat'
 
+    this.api.updateAxiosConfig({ botId: this.config.botId, externalAuthToken: this.config.externalAuthToken })
+    this.api.updateUserId(this.config.userId)
+
     try {
       if (window.USE_SESSION_STORAGE !== this.config.useSessionStorage) {
         window.USE_SESSION_STORAGE = this.config.useSessionStorage
         // Reconfigure the EventBus since the storage provider has changed
         this.bp.events.setup()
+
+        await waitForUserId()
+        this.setUserId(window.__BP_VISITOR_ID)
+
+        // In case the webchat was already initialized using the local storage
+        if (this.isInitialized) {
+          this.resetConversation()
+          await this.initializeChat()
+        }
       }
-    } catch {
-      console.error('Could not set USE_SESSION_STORAGE')
+    } catch (e) {
+      console.error('Could not set USE_SESSION_STORAGE', e)
     }
 
-    this.api.updateAxiosConfig({ botId: this.config.botId, externalAuthToken: this.config.externalAuthToken })
-    this.api.updateUserId(this.config.userId)
     this.publishConfigChanged()
   }
 
