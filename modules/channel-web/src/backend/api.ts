@@ -249,7 +249,7 @@ export default async (bp: typeof sdk, db: Database) => {
         payload: payloadValue
       }
 
-      await sendNewMessage(req, payload, req.credentials)
+      await sendNewMessage(req, payload, false)
 
       return res.sendStatus(200)
     })
