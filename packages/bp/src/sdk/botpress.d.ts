@@ -1569,6 +1569,12 @@ declare module 'botpress/sdk' {
     title?: string | MultiLangText
   }
 
+  export interface FileContentType extends Content {
+    type: 'file'
+    file: string
+    title?: string | MultiLangText
+  }
+
   export enum ButtonAction {
     SaySomething = 'Say something',
     OpenUrl = 'Open URL',
@@ -1600,6 +1606,17 @@ declare module 'botpress/sdk' {
 
   export interface ChoiceOption {
     title: string | MultiLangText
+    value: string
+  }
+
+  export interface DropdownContent extends Content {
+    type: 'dropdown'
+    message: string | MultiLangText
+    options: DropdownOption[]
+  }
+
+  export interface DropdownOption {
+    label: string | MultiLangText
     value: string
   }
 
