@@ -28,7 +28,14 @@ module.exports = {
     '^botpress/sdk$': '<rootDir>/packages/bp/src/core/app/sdk_impl'
   },
   testMatch: ['**/(src|test)/**/*.test.(ts|js)'],
-  testPathIgnorePatterns: ['out', 'build', 'node_modules', 'e2e', '.*\\.u\\.test\\.(?:ts|js)', '.*integration\\.test\\.(?:ts|js)'],
+  testPathIgnorePatterns: [
+    'out',
+    'build',
+    'node_modules',
+    'e2e',
+    '.*\\.u\\.test\\.(?:ts|js)',
+    '.*integration\\.test\\.(?:ts|js)'
+  ],
   testEnvironment: 'node',
   rootDir: '.',
 
