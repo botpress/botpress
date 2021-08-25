@@ -13,7 +13,7 @@ import constants from './core/constants'
 import BpSocket from './core/socket'
 import ChatIcon from './icons/Chat'
 import { RootStore, StoreDef } from './store'
-import { Config, Message } from './typings'
+import { Config, Message, uuid } from './typings'
 import { checkLocationOrigin, initializeAnalytics, isIE, trackMessage, trackWebchatState } from './utils'
 
 const _values = obj => Object.keys(obj).map(x => obj[x])
