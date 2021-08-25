@@ -175,7 +175,7 @@ export class HookService {
 
   private _invalidateRequire() {
     Object.keys(require.cache)
-      .filter(r => r.match(/(\\|\/)hooks(\\|\/)/g) || r.match(/(\\|\/)shared_libs(\\|\/)/g))
+      .filter(r => r.match(/(\\|\/)(hooks|shared_libs|libraries)(\\|\/)/g))
       .map(file => delete require.cache[file])
 
     clearRequireCache()

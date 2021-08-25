@@ -82,7 +82,8 @@ export const FileTypes: { [type: string]: FileDefinition } = {
     permission: 'shared_libs',
     ghost: {
       dirListingExcluded: ['node_modules'],
-      baseDir: '/libraries'
+      baseDir: '/libraries',
+      shouldSyncToDisk: true
     },
     canDelete: file => {
       return !file.name.endsWith('.json')

@@ -12,5 +12,5 @@
   "viewGithub": "View on Github",
   "customCommand": "Type a custom command",
   "openConsole": "Open the console to view command output",
-  "betaWarning": "This is an experimental module. Please do not rely on it too much because the implementation may change in the near future"
+  "betaWarning": "This module is deprecated and will be removed soon. Please use the 'Libraries' tab on the studio instead"
 }
