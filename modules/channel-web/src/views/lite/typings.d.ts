@@ -31,7 +31,7 @@ export namespace Renderer {
     store?: RootStore
     bp?: StudioConnector
     fromLabel?: string
-    messageId?: string
+    messageId?: uuid
     /** When true, the message isn't wrapped by its bubble */
     noBubble?: boolean
     keyboard?: any
