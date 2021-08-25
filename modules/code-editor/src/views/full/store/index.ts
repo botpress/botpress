@@ -191,7 +191,7 @@ class RootStore {
         toast.success(lang.tr('module.code-editor.store.fileRenamed'))
         await this.fetchFiles()
       })
-      .catch((err) => {
+      .catch(err => {
         console.error('Error while renaming files', err)
         toast.failure(lang.tr('module.code-editor.store.fileMovedError'))
       })

@@ -5,7 +5,7 @@ import React, { useState } from 'react'
 import { RootStore } from '../store'
 import style from './style.scss'
 
-const FileStatus = (props) => {
+const FileStatus = props => {
   const [tab, setTab] = useState<any>('problems')
   const problems = props.editor.fileProblems
   if (!problems || !problems.length) {
@@ -13,7 +13,7 @@ const FileStatus = (props) => {
   }
 
   return (
-    <Tabs className={style.tabs} onChange={(tab) => setTab(tab)} selectedTabId={tab}>
+    <Tabs className={style.tabs} onChange={tab => setTab(tab)} selectedTabId={tab}>
       <Tab
         id="problems"
         className={style.tab}

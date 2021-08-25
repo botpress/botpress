@@ -68,17 +68,17 @@ class EditorStore {
 
   @computed
   get currentFile() {
-    return this.openedFiles.find((x) => x.uri === this.currentTab?.uri)
+    return this.openedFiles.find(x => x.uri === this.currentTab?.uri)
   }
 
   @computed
   get fileChangeStatus() {
-    return this.openedFiles.map((x) => ({ location: x.location, hasChanges: x.hasChanges }))
+    return this.openedFiles.map(x => ({ location: x.location, hasChanges: x.hasChanges }))
   }
 
   @action.bound
   updateFileContent(obj, uri?: monaco.Uri) {
-    const idx = this.openedFiles.findIndex((x) => x.uri === uri)
+    const idx = this.openedFiles.findIndex(x => x.uri === uri)
 
     if (idx !== -1) {
       this.openedFiles[idx] = { ...this.openedFiles[idx], ...obj }
@@ -91,7 +91,7 @@ class EditorStore {
       return
     }
 
-    const file = this.openedFiles.find((x) => x.uri === uri)
+    const file = this.openedFiles.find(x => x.uri === uri)
     const model = monaco.editor.getModel(uri)
 
     const result = await this.rootStore.api.saveFile({
@@ -121,7 +121,7 @@ class EditorStore {
       this.updateFileContent({ state: this._editorRef.saveViewState() }, this.currentTab.uri)
     }
 
-    this.currentTab = this.openedFiles.find((x) => x.uri.path === nextUri.path)
+    this.currentTab = this.openedFiles.find(x => x.uri.path === nextUri.path)
   }
 
   @action.bound
@@ -140,7 +140,7 @@ class EditorStore {
 
     runInAction('-> openFile', () => {
       const uri = getFileUri(file)
-      const existingFile = this.openedFiles.find((x) => x.uri.path === uri.path)
+      const existingFile = this.openedFiles.find(x => x.uri.path === uri.path)
 
       if (existingFile) {
         return this.switchTab(uri)
@@ -175,7 +175,7 @@ class EditorStore {
       model.dispose()
     }
 
-    const idx = this.openedFiles.findIndex((x) => x.uri.path === uri.path)
+    const idx = this.openedFiles.findIndex(x => x.uri.path === uri.path)
     this.openedFiles.splice(idx, 1)
 
     if (this.openedFiles.length) {
