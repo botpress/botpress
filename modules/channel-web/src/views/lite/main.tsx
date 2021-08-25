@@ -24,7 +24,7 @@ class Web extends React.Component<MainProps> {
   private parentClass: string
   private hasBeenInitialized: boolean = false
   private audio: HTMLAudioElement
-  private lastMessageId: string
+  private lastMessageId: uuid
 
   constructor(props) {
     super(props)
