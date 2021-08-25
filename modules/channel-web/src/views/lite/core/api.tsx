@@ -170,7 +170,7 @@ export default class WebchatApi {
     }
   }
 
-  async getMessageIdsFeedbackInfo(messageIds: string[]): Promise<EventFeedback[]> {
+  async getMessageIdsFeedbackInfo(messageIds: uuid[]): Promise<EventFeedback[]> {
     try {
       const { data } = await this.axios.post('/feedbackInfo', { messageIds, target: this.userId }, this.axiosConfig)
       return data
