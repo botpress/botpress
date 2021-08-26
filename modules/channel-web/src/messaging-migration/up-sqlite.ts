@@ -59,6 +59,10 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
     const defaultDate = new Date().toISOString()
 
     for (const convo of convos) {
+      if (!convo.botId?.length || !convo.userId?.length) {
+        continue
+      }
+
       let clientId = this.clientIds[convo.botId]
       if (!clientId) {
         clientId = await this.createClient(convo.botId, false)
