@@ -234,7 +234,9 @@ ${_.repeat(' ', 9)}========================================`)
       }
     }
 
-    await this.configProvider.mergeBotpressConfig({ version: this.targetVersion })
+    if (!process.MIGRATE_DRYRUN) {
+      await this.configProvider.mergeBotpressConfig({ version: this.targetVersion })
+    }
     this.logger.info(`${logPrefix}Migration${missingMigrations.length === 1 ? '' : 's'} completed successfully! `)
   }
 
