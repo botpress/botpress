@@ -9,7 +9,6 @@ interface CssExports {
   'agentList': string;
   'agentListItem': string;
   'app': string;
-  'badge': string;
   'bot': string;
   'bpwChatBubble': string;
   'bpwChatBubbleContent': string;
