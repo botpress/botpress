@@ -47,7 +47,7 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   nginx:
-    image: nginx:1.17
+    image: nginx:1.21
     ports:
       - 80:80
     command: nginx -g 'daemon off';
