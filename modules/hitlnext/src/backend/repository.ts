@@ -1,3 +1,4 @@
+import { MessagingClient } from '@botpress/messaging-client'
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import { BPRequest } from 'common/http'
@@ -57,6 +58,7 @@ const userColumnsPrefixed = userColumns.map(s => userPrefix.concat(':', s))
 export default class Repository {
   private agentCache: Dic<Omit<IAgent, 'online'>> = {}
   private cacheByVisitor: LRUCache<string, UserMapping>
+  private messagingClients: { [botId: string]: MessagingClient } = {}
 
   /**
    *
@@ -531,7 +533,25 @@ export default class Repository {
     )
   }
 
+  //===================================
   // Copy pasted from channel-web db.ts
+  //===================================
+
+  async mapVisitor(botId: string, visitorId: string, messaging: MessagingClient) {
+    const userMapping = await this.getMappingFromVisitor(botId, visitorId)
+
+    let userId: string
+
+    if (!userMapping) {
+      userId = (await messaging.users.create()).id
+      await this.createUserMapping(botId, visitorId, userId)
+    } else {
+      userId = userMapping.userId
+    }
+
+    return userId
+  }
+
   async getMappingFromVisitor(botId: string, visitorId: string): Promise<UserMapping | undefined> {
     const cached = this.cacheByVisitor.get(`${botId}_${visitorId}`)
     if (cached) {
@@ -548,4 +568,47 @@ export default class Repository {
 
     return undefined
   }
+
+  async createUserMapping(botId: string, visitorId: string, userId: string): Promise<UserMapping> {
+    const mapping = { botId, visitorId, userId }
+
+    try {
+      await this.bp.database('web_user_map').insert(mapping)
+      this.cacheByVisitor.set(`${botId}_${visitorId}`, mapping)
+
+      return mapping
+    } catch (err) {
+      this.bp.logger.error('An error occurred while creating a user mapping.', err)
+
+      return undefined
+    }
+  }
+
+  async getMessagingClient(botId: string) {
+    const client = this.messagingClients[botId]
+    if (client) {
+      return client
+    }
+
+    const { messaging } = await this.bp.bots.getBotById(botId)
+
+    const botClient = new MessagingClient({
+      url: process.core_env.MESSAGING_ENDPOINT
+        ? process.core_env.MESSAGING_ENDPOINT
+        : `http://localhost:${process.MESSAGING_PORT}`,
+      password: process.INTERNAL_PASSWORD,
+      auth: { clientId: messaging.id, clientToken: messaging.token }
+    })
+    this.messagingClients[botId] = botClient
+
+    return botClient
+  }
+
+  removeMessagingClient(botId: string) {
+    this.messagingClients[botId] = undefined
+  }
+
+  //===================================
+  // Copy pasted from channel-web db.ts
+  //===================================
 }
