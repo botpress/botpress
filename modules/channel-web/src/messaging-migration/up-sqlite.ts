@@ -55,6 +55,9 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
   }
 
   private async migrateConvos(convos: any[]) {
+    const defaultPayload = JSON.stringify({})
+    const defaultDate = new Date().toISOString()
+
     for (const convo of convos) {
       let clientId = this.clientIds[convo.botId]
       if (!clientId) {
@@ -65,7 +68,7 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
         id: uuid.v4(),
         userId: await this.getUserId(convo.botId, convo.userId, clientId),
         clientId,
-        createdOn: convo.created_on
+        createdOn: convo.created_on || defaultDate
       }
       this.convoBatch.push(newConvo)
 
@@ -78,8 +81,8 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
           id: uuid.v4(),
           conversationId: newConvo.id,
           authorId: message.userId ? await this.getUserId(convo.botId, message.userId, clientId) : undefined,
-          sentOn: message.sent_on,
-          payload: message.payload
+          sentOn: message.sent_on || defaultDate,
+          payload: message.payload || defaultPayload
         })
 
         if (this.messageBatch.length > 50) {
