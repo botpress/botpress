@@ -48,6 +48,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onModuleUnmount,
   translations: { en, fr, es },
   definition: {
+    experimental: false,
     name: 'misunderstood',
     menuIcon: 'icon.svg',
     menuText: 'Misunderstood',

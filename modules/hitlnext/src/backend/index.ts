@@ -53,7 +53,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     fullName: 'HITL Next',
     homepage: 'https://botpress.com',
     noInterface: false,
-    experimental: true,
+    experimental: false,
     workspaceApp: { bots: true }
   }
 }
