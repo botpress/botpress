@@ -81,13 +81,16 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   }
 
   const handleIncomingFromAgent = async (handoff: IHandoff, event: sdk.IO.IncomingEvent) => {
-    const { botAvatarUrl }: Config = await bp.config.getModuleConfigForBot(MODULE_NAME, event.botId)
-    const { attributes } = await repository.getAgent(handoff.agentId)
+    const agent = await repository.getAgent(handoff.agentId)
 
-    Object.assign(event.payload, {
-      from: 'agent',
-      botAvatarUrl: botAvatarUrl || attributes?.picture_url
-    })
+    if (handoff.userChannel === 'web' && agent.attributes) {
+      const firstName = agent.attributes.firstname
+      const lastname = agent.attributes.lastname
+      const avatarUrl = agent.attributes.picture_url
+
+      _.set(event, 'payload.channel.web.userName', `${firstName} ${lastname}`)
+      _.set(event, 'payload.channel.web.avatarUrl', avatarUrl)
+    }
 
     await pipeEvent(event, {
       botId: handoff.botId,
