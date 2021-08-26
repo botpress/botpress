@@ -19,6 +19,7 @@ interface State {
   filePath: string | null
   fileContent: Buffer | null
   isIdTaken: boolean
+  isExistingBot: boolean
   isProcessing: boolean
   overwrite: boolean
   progress: number
@@ -30,6 +31,7 @@ const defaultState: State = {
   filePath: null,
   fileContent: null,
   isIdTaken: false,
+  isExistingBot: false,
   isProcessing: false,
   overwrite: false,
   progress: 0
@@ -80,14 +82,14 @@ class ImportBotModal extends Component<Props, State> {
 
     try {
       const { data: isIdTaken } = await api.getSecured().get(`/admin/workspace/bots/${this.state.botId}/exists`)
-      this.setState({ isIdTaken })
+      this.setState({ isIdTaken, isExistingBot: this.state.isExistingBot || isIdTaken })
     } catch (error) {
       this.setState({ error: error.message })
     }
   }, 500)
 
-  handleBotIdChanged = e =>
-    this.setState({ botId: sanitizeBotId(e.target.value), overwrite: false }, this.checkIdAvailability)
+  handleBotIdChanged = (e: React.ChangeEvent<HTMLInputElement>) =>
+    this.setState({ botId: sanitizeBotId(e.currentTarget.value), overwrite: false }, this.checkIdAvailability)
 
   handleFileChanged = (files: FileList | null) => {
     if (!files) {
@@ -100,7 +102,7 @@ class ImportBotModal extends Component<Props, State> {
       this.setState({ fileContent: _.get(loadedEvent, 'target.result') })
     }
 
-    this.setState({ filePath: files[0].name })
+    this.setState({ filePath: files[0].name, isExistingBot: false })
 
     if (!this.state.botId.length) {
       this.generateBotId(files[0].name)
@@ -161,7 +163,12 @@ class ImportBotModal extends Component<Props, State> {
               label={
                 <span>
                   {this.state.isIdTaken && (
-                    <Callout intent={Intent.DANGER}>{lang.tr('admin.workspace.bots.import.alreadyInUse')}</Callout>
+                    <div>
+                      <Callout intent={Intent.DANGER}>{lang.tr('admin.workspace.bots.import.alreadyInUse')}</Callout>
+                    </div>
+                  )}
+                  {this.state.isExistingBot && (
+                    <Callout intent={Intent.WARNING}>{lang.tr('admin.workspace.bots.import.alreadyExists')}</Callout>
                   )}
                   {lang.tr('admin.workspace.bots.create.id')}{' '}
                 </span>
