@@ -135,10 +135,12 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
   }
 
   private async emptyUserBatch() {
-    if (this.userBatch.length > 0) {
+    if (this.userMapBatch.length > 0) {
       await this.trx('web_user_map').insert(this.userMapBatch)
       this.userMapBatch = []
+    }
 
+    if (this.userBatch.length > 0) {
       await this.trx('msg_users').insert(this.userBatch)
       this.userBatch = []
     }
