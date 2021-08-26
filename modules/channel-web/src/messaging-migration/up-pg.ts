@@ -123,7 +123,7 @@ export class MessagingPostgresUpMigrator extends MessagingUpMigrator {
     SELECT "temp_new_convo_ids"."newId",
       "temp_client_ids"."clientId",
       "temp_visitor_ids"."userId",
-      "web_conversations"."created_on"
+      COALESCE("web_conversations"."created_on", CURRENT_TIMESTAMP)
     FROM "web_conversations"
     INNER JOIN "temp_new_convo_ids" ON "web_conversations"."id" = "temp_new_convo_ids"."oldId"
     INNER JOIN "temp_visitor_ids" ON ("web_conversations"."userId" = "temp_visitor_ids"."visitorId" 
@@ -142,8 +142,8 @@ export class MessagingPostgresUpMigrator extends MessagingUpMigrator {
     SELECT gen_random_uuid(),
       "temp_new_convo_ids"."newId",
       "temp_visitor_ids"."userId",
-      "web_messages"."sent_on",
-      "web_messages"."payload"
+      COALESCE("web_messages"."sent_on", CURRENT_TIMESTAMP),
+      COALESCE("web_messages"."payload", '{}'::jsonb)
     FROM "web_messages"
     INNER JOIN "temp_new_convo_ids" ON "web_messages"."conversationId" = "temp_new_convo_ids"."oldId"
     INNER JOIN "web_conversations" ON "web_conversations"."id" = "temp_new_convo_ids"."oldId"
