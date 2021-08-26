@@ -51,7 +51,7 @@ export class MessagingPostgresUpMigrator extends MessagingUpMigrator {
       "web_conversations"."userId",
       "web_conversations"."botId"
     FROM "web_conversations"
-    WHERE "web_conversations"."userId" IS NOT NULL
+    WHERE "web_conversations"."userId" IS NOT NULL AND "web_conversations"."botId" IS NOT NULL
     ON CONFLICT ON CONSTRAINT temp_visitor_ids_visitorid_botid_unique
     DO NOTHING`)
 
@@ -64,7 +64,7 @@ export class MessagingPostgresUpMigrator extends MessagingUpMigrator {
       "web_conversations"."botId"
     FROM "web_messages"
     INNER JOIN "web_conversations" ON "web_conversations"."id" = "web_messages"."conversationId"
-    WHERE "web_messages"."userId" IS NOT NULL
+    WHERE "web_messages"."userId" IS NOT NULL AND "web_conversations"."botId" IS NOT NULL
     ON CONFLICT ON CONSTRAINT temp_visitor_ids_visitorid_botid_unique 
     DO NOTHING;`)
   }
@@ -80,7 +80,9 @@ export class MessagingPostgresUpMigrator extends MessagingUpMigrator {
         continue
       }
 
-      await this.createClient(botId, false)
+      if (botId?.length) {
+        await this.createClient(botId, false)
+      }
     }
   }
 
@@ -128,6 +130,7 @@ export class MessagingPostgresUpMigrator extends MessagingUpMigrator {
     INNER JOIN "temp_new_convo_ids" ON "web_conversations"."id" = "temp_new_convo_ids"."oldId"
     INNER JOIN "temp_visitor_ids" ON ("web_conversations"."userId" = "temp_visitor_ids"."visitorId" 
       AND "web_conversations"."botId" = "temp_visitor_ids"."botId")
+    INNER JOIN "msg_users" ON "temp_visitor_ids"."userId" = "msg_users"."id"
     INNER JOIN "temp_client_ids" ON "web_conversations"."botId" = "temp_client_ids"."botId"`)
   }
 
@@ -146,6 +149,7 @@ export class MessagingPostgresUpMigrator extends MessagingUpMigrator {
       COALESCE("web_messages"."payload", '{}'::jsonb)
     FROM "web_messages"
     INNER JOIN "temp_new_convo_ids" ON "web_messages"."conversationId" = "temp_new_convo_ids"."oldId"
+    INNER JOIN "msg_conversations" ON "temp_new_convo_ids"."newId" = "msg_conversations"."id"
     INNER JOIN "web_conversations" ON "web_conversations"."id" = "temp_new_convo_ids"."oldId"
     LEFT JOIN "temp_visitor_ids" ON ("web_messages"."userId" = "temp_visitor_ids"."visitorId"
       AND "web_conversations"."botId" = "temp_visitor_ids"."botId")`)
