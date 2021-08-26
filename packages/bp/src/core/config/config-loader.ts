@@ -191,8 +191,9 @@ export class ConfigProvider {
       'channel-web',
       'nlu',
       'code-editor',
-      'testing',
-      'examples'
+      'examples',
+      'misunderstood',
+      'hitlnext'
     ]
 
     // here it's ok to use the module resolver because we are discovering the built-in modules only
