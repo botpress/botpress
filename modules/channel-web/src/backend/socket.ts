@@ -22,7 +22,12 @@ export default async (bp: typeof sdk, db: Database) => {
     const messaging = await db.getMessagingClient(event.botId)
     const messageType = event.type === 'default' ? 'text' : event.type
     const userId = event.target
-    const { visitorId } = await db.getMappingFromUser(userId)
+    const mapping = await db.getMappingFromUser(userId)
+    if (!mapping) {
+      bp.logger.warn(`Can't send message. User ${userId} not associated to a messaging user`)
+      return next()
+    }
+    const { visitorId } = mapping
     const conversationId = event.threadId || (await messaging.conversations.getRecent(userId)).id
 
     if (!event.payload.type) {
@@ -33,7 +38,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const payload = bp.RealTimePayload.forVisitor(visitorId, 'webchat.data', event.payload)
       bp.realtime.sendPayload(payload)
     } else {
-      if (event.payload.typing) {
+      if (event.payload.typing !== false) {
         const payload = bp.RealTimePayload.forVisitor(visitorId, 'webchat.typing', { timeInMs: 500, conversationId })
         // Don't store "typing" in DB
         bp.realtime.sendPayload(payload)
