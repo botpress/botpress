@@ -24,7 +24,7 @@ export default async (bp: typeof sdk, db: Database) => {
     const userId = event.target
     const mapping = await db.getMappingFromUser(userId)
     if (!mapping) {
-      bp.logger.warn(`Can't send message. User ${userId} not associated to a messaging user`)
+      bp.logger.warn(`Can't send message. User ${userId} not associated to a visitor id`)
       return next()
     }
     const { visitorId } = mapping
