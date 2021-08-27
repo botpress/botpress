@@ -70,7 +70,7 @@ services:
     depends_on:
       - botpress
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
 
 volumes:
   pgdata:
