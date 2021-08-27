@@ -24,7 +24,56 @@ export class MessagingPostgresDownMigrator extends MessagingDownMigrator {
     await this.migrateConversations()
     await this.migrateMessages()
 
+    await this.migrateReferences()
     await this.cleanupTemporaryTables()
+  }
+
+  protected async migrateReferences() {
+    await this.updateUserReferences('events', 'target', 'botId')
+    await this.updateUserReferences('handoffs', 'userId', 'botId')
+    await this.updateUserReferences('bot_chat_users', 'userId', 'botId')
+
+    await this.updateUserReferences('srv_channel_users', 'user_id')
+    await this.updateUserReferences('data_retention', 'user_id')
+
+    await this.updateConvoReferences('events', 'threadId')
+    await this.updateConvoReferences('handoffs', 'userThreadId')
+    await this.updateConvoReferences('handoffs', 'agentThreadId')
+    await this.updateConvoReferences('comments', 'threadId')
+  }
+
+  private async updateUserReferences(table: string, column: string, botIdColumn?: string) {
+    if (!(await this.bp.database.schema.hasTable(table))) {
+      return
+    }
+
+    let subquery = `SELECT "web_user_map"."visitorId" FROM "web_user_map" WHERE "web_user_map"."userId"${
+      this.bp.database.isLite ? '' : '::varchar'
+    } = "${table}"."${column}"`
+    if (botIdColumn) {
+      subquery += ` AND "web_user_map"."botId" = "${table}"."${botIdColumn}"`
+    }
+    subquery += ' LIMIT 1'
+
+    await this.trx.raw(`
+      UPDATE "${table}"
+      SET "${column}" = (${subquery})
+      WHERE EXISTS (${subquery})`)
+  }
+
+  private async updateConvoReferences(table: string, column: string) {
+    if (!(await this.bp.database.schema.hasTable(table))) {
+      return
+    }
+
+    const subquery = `SELECT "temp_new_convo_ids"."newid" 
+    FROM "temp_new_convo_ids" 
+    WHERE "temp_new_convo_ids"."oldId"${this.bp.database.isLite ? '' : '::varchar'} = "${table}"."${column}"`
+
+    await this.trx.raw(`
+    UPDATE "${table}"
+    SET "${column}" = (${subquery})
+    WHERE EXISTS (${subquery})`)
   }
 
   protected async cleanup() {
