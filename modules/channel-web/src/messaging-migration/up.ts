@@ -90,6 +90,10 @@ export abstract class MessagingUpMigrator {
   }
 
   private async updateUserReferences(table: string, column: string) {
+    if (!(await this.bp.database.schema.hasTable(table))) {
+      return
+    }
+
     const subquery = `SELECT "web_user_map"."userId" FROM "web_user_map" WHERE "web_user_map"."visitorId" = "${table}"."${column}"`
 
     await this.trx.raw(`
@@ -99,6 +103,10 @@ export abstract class MessagingUpMigrator {
   }
 
   private async updateConvoReferences(table: string, column: string) {
+    if (!(await this.bp.database.schema.hasTable(table))) {
+      return
+    }
+
     const subquery = `SELECT "temp_new_convo_ids"."newId" 
     FROM "temp_new_convo_ids" 
     WHERE "temp_new_convo_ids"."oldId"${this.bp.database.isLite ? '' : '::varchar'} = "${table}"."${column}"`
