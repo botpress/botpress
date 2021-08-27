@@ -97,14 +97,14 @@ export class Trainer implements ITrainer {
       return 'stop-listening'
     }
 
-    if (ts.status === 'errored' && ts.error?.type === 'unknown') {
+    if (ts.status === 'errored') {
       this._webSocket({ ...ts, botId: this._botId, language })
-      const err = new Error(ts.error.message)
-      err.stack = ts.error.stackTrace
+      const err = new Error(ts.error?.message ?? 'A weird unkown error occured')
+      err.stack = ts.error?.stackTrace
       throw err
     }
 
-    throw new Error(`Training status is unknown: "${ts.status}"`)
+    throw new Error(`Training status is unknown: "${ts.status}""`)
   }
 
   public getTraining = async (language: string): Promise<BpState> => {
