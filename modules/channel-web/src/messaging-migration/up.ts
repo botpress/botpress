@@ -77,10 +77,11 @@ export abstract class MessagingUpMigrator {
   }
 
   protected async migrateReferences() {
-    await this.updateUserReferences('events', 'target')
-    await this.updateUserReferences('handoffs', 'userId')
+    await this.updateUserReferences('events', 'target', 'botId')
+    await this.updateUserReferences('handoffs', 'userId', 'botId')
+    await this.updateUserReferences('bot_chat_users', 'userId', 'botId')
+
     await this.updateUserReferences('srv_channel_users', 'user_id')
-    await this.updateUserReferences('bot_chat_users', 'userId')
     await this.updateUserReferences('data_retention', 'user_id')
 
     await this.updateConvoReferences('events', 'threadId')
@@ -89,12 +90,16 @@ export abstract class MessagingUpMigrator {
     await this.updateConvoReferences('comments', 'threadId')
   }
 
-  private async updateUserReferences(table: string, column: string) {
+  private async updateUserReferences(table: string, column: string, botIdColumn?: string) {
     if (!(await this.bp.database.schema.hasTable(table))) {
       return
     }
 
-    const subquery = `SELECT "web_user_map"."userId" FROM "web_user_map" WHERE "web_user_map"."visitorId" = "${table}"."${column}"`
+    let subquery = `SELECT "web_user_map"."userId" FROM "web_user_map" WHERE "web_user_map"."visitorId" = "${table}"."${column}"`
+    if (botIdColumn) {
+      subquery += ` AND "web_user_map"."botId" = "${table}"."${botIdColumn}"`
+    }
+    subquery += ' LIMIT 1'
 
     await this.trx.raw(`
       UPDATE "${table}"
