@@ -181,20 +181,14 @@ class RootStore {
 
   @action.bound
   async bulkRenameFiles(files: EditableFile[], folderName: string) {
-    const promises = []
-    files.forEach((file: EditableFile) => {
-      promises.push(this.api.renameFile(file, `${folderName}/${file.name}`))
-    })
-
-    Promise.all(promises)
-      .then(async () => {
-        toast.success(lang.tr('module.code-editor.store.fileRenamed'))
-        await this.fetchFiles()
-      })
-      .catch(err => {
-        console.error('Error while renaming files', err)
-        toast.failure(lang.tr('module.code-editor.store.fileMovedError'))
-      })
+    const promises = files.map(file => this.api.renameFile(file, `${folderName}/${file.name}`))
+    try {
+      await Promise.all(promises)
+    } catch (err) {
+      console.error('Error while renaming files', err)
+      toast.failure(lang.tr('module.code-editor.store.fileMovedError'))
+    }
+    await this.fetchFiles()
   }
 
   @action.bound
