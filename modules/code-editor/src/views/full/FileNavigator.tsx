@@ -119,47 +119,56 @@ class FileNavigator extends React.Component<Props, State> {
 
   private handleNodeClick = async (node: ITreeNode) => {
     if (this.props.isMultipleCutActive) {
-      this.traverseTree(this.state.nodes, n => {
-        if (node.nodeData && n.id === node.id) {
-          if (!this.state.selectedFilesList[n.id]) {
-            const { selectedFilesList } = this.state
-            n.isSelected = true
-            selectedFilesList[n.id] = n.nodeData
-
-            this.setState({
-              selectedFilesList,
-              selectedFilesCount: this.state.selectedFilesCount + 1
-            })
-          } else {
-            n.isSelected = false
-            this.setState((prevState: State) => {
-              return {
-                ...prevState,
-                selectedFilesList: {
-                  ...prevState.selectedFilesList,
-                  [n.id]: null
-                },
-                selectedFilesCount: prevState.selectedFilesCount - 1
-              }
-            })
-          }
-          this.forceUpdate()
-        }
-        return n
-      })
-      if (!node.nodeData) {
-        this.handleNodeExpand(node, !node.isExpanded)
-      }
+      this.handleMultipleSelectClick(node)
     } else {
-      this.traverseTree(this.state.nodes, n => (n.isSelected = n.id === node.id))
-      // If nodeData is set, it's a file, otherwise a folder
-      if (node.nodeData) {
-        await this.props.editor.openFile(node.nodeData as EditableFile)
-      } else {
-        this.handleNodeExpand(node, !node.isExpanded)
-      }
-      this.props.onNodeStateSelected(this.props.id + '/' + node.id)
+      await this.handleSingleNodeSelectedClick(node)
     }
+  }
+
+  private handleMultipleSelectClick(node: ITreeNode<{}>) {
+    this.traverseTree(this.state.nodes, n => {
+      if (!node.nodeData || n.id !== node.id) {
+        return
+      }
+      if (!this.state.selectedFilesList[n.id]) {
+        const { selectedFilesList } = this.state
+        n.isSelected = true
+        selectedFilesList[n.id] = n.nodeData
+
+        this.setState({
+          selectedFilesList,
+          selectedFilesCount: this.state.selectedFilesCount + 1
+        })
+      } else {
+        n.isSelected = false
+        this.setState((prevState: State) => {
+          return {
+            ...prevState,
+            selectedFilesList: {
+              ...prevState.selectedFilesList,
+              [n.id]: null
+            },
+            selectedFilesCount: prevState.selectedFilesCount - 1
+          }
+        })
+      }
+      this.forceUpdate()
+      return n
+    })
+    if (!node.nodeData) {
+      this.handleNodeExpand(node, !node.isExpanded)
+    }
+  }
+
+  private async handleSingleNodeSelectedClick(node: ITreeNode) {
+    this.traverseTree(this.state.nodes, n => (n.isSelected = n.id === node.id))
+    // If nodeData is set, it's a file, otherwise a folder
+    if (node.nodeData) {
+      await this.props.editor.openFile(node.nodeData as EditableFile)
+    } else {
+      this.handleNodeExpand(node, !node.isExpanded)
+    }
+    this.props.onNodeStateSelected(this.props.id + '/' + node.id)
   }
 
   private handleNodeExpand = (node: ITreeNode, isExpanded: boolean) => {
