@@ -16,6 +16,7 @@ export abstract class MessagingUpMigrator {
     await this.start()
     await this.takeMetrics()
     await this.migrate()
+    await this.migrateReferences()
     await this.cleanup()
 
     const message = await this.compareMetrics()
@@ -75,9 +76,43 @@ export abstract class MessagingUpMigrator {
     await this.createClients()
   }
 
+  protected async migrateReferences() {
+    await this.updateUserReferences('events', 'target')
+    await this.updateUserReferences('handoffs', 'userId')
+    await this.updateUserReferences('srv_channel_users', 'user_id')
+    await this.updateUserReferences('bot_chat_users', 'userId')
+    await this.updateUserReferences('data_retention', 'user_id')
+
+    await this.updateConvoReferences('events', 'threadId')
+    await this.updateConvoReferences('handoffs', 'userThreadId')
+    await this.updateConvoReferences('handoffs', 'agentThreadId')
+    await this.updateConvoReferences('comments', 'threadId')
+  }
+
+  private async updateUserReferences(table: string, column: string) {
+    const subquery = `SELECT "web_user_map"."userId" FROM "web_user_map" WHERE "web_user_map"."visitorId" = "${table}"."${column}"`
+
+    await this.trx.raw(`
+      UPDATE "${table}"
+      SET "${column}" = (${subquery})
+      WHERE EXISTS (${subquery})`)
+  }
+
+  private async updateConvoReferences(table: string, column: string) {
+    const subquery = `SELECT "temp_new_convo_ids"."newId" 
+    FROM "temp_new_convo_ids" 
+    WHERE "temp_new_convo_ids"."oldId"${this.bp.database.isLite ? '' : '::varchar'} = "${table}"."${column}"`
+
+    await this.trx.raw(`
+    UPDATE "${table}"
+    SET "${column}" = (${subquery})
+    WHERE EXISTS (${subquery})`)
+  }
+
   protected async cleanup() {
     await this.trx.schema.dropTable('web_messages')
     await this.trx.schema.dropTable('web_conversations')
+    await this.trx.schema.dropTable('temp_new_convo_ids')
   }
 
   protected async createTables() {
@@ -156,6 +191,12 @@ export abstract class MessagingUpMigrator {
       table.string('visitorId')
       table.uuid('userId').unique()
       table.primary(['botId', 'visitorId'])
+    })
+
+    await this.trx.schema.dropTableIfExists('temp_new_convo_ids')
+    await this.trx.schema.createTable('temp_new_convo_ids', table => {
+      table.integer('oldId').unique()
+      table.uuid('newId').unique()
     })
   }
 

@@ -22,8 +22,6 @@ export class MessagingPostgresUpMigrator extends MessagingUpMigrator {
     await this.createUsers()
     await this.migrateConversations()
     await this.migrateMessages()
-
-    await this.cleanupTemporaryTables()
   }
 
   protected async createTables() {
@@ -172,19 +170,14 @@ export class MessagingPostgresUpMigrator extends MessagingUpMigrator {
       table.string('botId')
       table.unique(['visitorId', 'botId'])
     })
-
-    await this.trx.schema.dropTableIfExists('temp_new_convo_ids')
-    await this.trx.schema.createTable('temp_new_convo_ids', table => {
-      table.integer('oldId').unique()
-      table.uuid('newId').unique()
-    })
   }
 
-  private async cleanupTemporaryTables() {
+  protected async cleanup() {
     await this.trx.schema.dropTable('temp_client_ids')
     await this.trx.schema.dropTable('temp_visitor_ids')
-    await this.trx.schema.dropTable('temp_new_convo_ids')
 
     await this.trx.raw('DROP EXTENSION pgcrypto;')
+
+    await super.cleanup()
   }
 }

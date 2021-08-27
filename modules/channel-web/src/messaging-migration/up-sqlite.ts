@@ -7,6 +7,7 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
   private userBatch = []
   private userMapBatch = []
   private convoBatch = []
+  private convoNewIdsBatch = []
   private messageBatch = []
   private userCache = new LRUCache<string, string>({ max: 10000 })
 
@@ -75,6 +76,7 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
         createdOn: convo.created_on || defaultDate
       }
       this.convoBatch.push(newConvo)
+      this.convoNewIdsBatch.push({ oldId: convo.id, newId: newConvo.id })
 
       const messages = await this.trx('web_messages')
         .select('*')
@@ -152,6 +154,11 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
     if (this.convoBatch.length > 0) {
       await this.trx('msg_conversations').insert(this.convoBatch)
       this.convoBatch = []
+    }
+
+    if (this.convoNewIdsBatch.length > 0) {
+      await this.trx('temp_new_convo_ids').insert(this.convoNewIdsBatch)
+      this.convoNewIdsBatch = []
     }
   }
 
