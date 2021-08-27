@@ -99,24 +99,6 @@ export default class WebchatDb {
     }
   }
 
-  async getUserInfo(userId: string, user: sdk.User) {
-    if (!user) {
-      user = (await this.users.getOrCreateUser('web', userId)).result
-    }
-
-    let fullName = 'User'
-
-    if (user && user.attributes) {
-      const { first_name, last_name } = user.attributes
-
-      if (first_name || last_name) {
-        fullName = `${first_name || ''} ${last_name || ''}`.trim()
-      }
-    }
-
-    return { fullName, avatar_url: _.get(user, 'attributes.picture_url') }
-  }
-
   async getFeedbackInfoForMessageIds(_target: string, messageIds: string[]) {
     return this.knex('events')
       .select(['events.messageId', 'incomingEvents.feedback'])
