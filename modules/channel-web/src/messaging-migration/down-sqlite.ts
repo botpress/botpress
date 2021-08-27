@@ -4,6 +4,7 @@ import { MessagingDownMigrator } from './down'
 
 export class MessagingSqliteDownMigrator extends MessagingDownMigrator {
   private convoBatch = []
+  private convoNewIdsBatch = []
   private messageBatch = []
   private cacheVisitorIds = new LRUCache<string, string>({ max: 10000 })
   private cacheBotIds = new LRUCache<string, string>({ max: 10000 })
@@ -60,6 +61,7 @@ export class MessagingSqliteDownMigrator extends MessagingDownMigrator {
       }
 
       this.convoBatch.push(newConvo)
+      this.convoNewIdsBatch.push({ oldId: convo.id, newid: newConvo.id })
 
       const messages = await this.trx('msg_messages')
         .select('*')
@@ -127,6 +129,11 @@ export class MessagingSqliteDownMigrator extends MessagingDownMigrator {
     if (this.convoBatch.length > 0) {
       await this.trx('web_conversations').insert(this.convoBatch)
       this.convoBatch = []
+    }
+
+    if (this.convoNewIdsBatch.length > 0) {
+      await this.trx('temp_new_convo_ids').insert(this.convoNewIdsBatch)
+      this.convoNewIdsBatch = []
     }
   }
 
