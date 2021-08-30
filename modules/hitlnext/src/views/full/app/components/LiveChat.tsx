@@ -105,7 +105,7 @@ const LiveChat: React.FC<Props> = ({ handoff, currentAgent }) => {
       return
     }
 
-    window.botpressWebChat.sendEvent({ type: 'loadConversation', conversationId: handoff.agentThreadId })
+    window.botpressWebChat.sendEvent({ type: 'loadConversation', conversationId: handoff.agentThreadId }, WEBCHAT_ID)
   }, [handoff])
 
   return (

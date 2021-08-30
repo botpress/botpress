@@ -26,9 +26,8 @@ import {
   validateHandoffStatusRule
 } from './validation'
 
-export default async (bp: typeof sdk, state: StateType) => {
+export default async (bp: typeof sdk, state: StateType, repository: Repository) => {
   const router = bp.http.createRouterForBot(MODULE_NAME)
-  const repository = new Repository(bp, state.timeouts)
   const realtime = Socket(bp)
 
   // Enforces for an agent to be 'online' before executing an action
@@ -221,21 +220,17 @@ export default async (bp: typeof sdk, state: StateType) => {
     errorMiddleware(async (req: RequestWithUser, res: Response) => {
       const { botId } = req.params
       const { email, strategy } = req.tokenUser!
-      const { webSessionId } = req.body
 
       const agentId = makeAgentId(strategy, email)
       const agent = await repository.getCurrentAgent(req as BPRequest, req.params.botId, agentId)
 
       let handoff = await repository.findHandoff(req.params.botId, req.params.id)
 
-      const axioxconfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
-      // TODO replace this by messaging API
-      const { data } = await Axios.post(
-        '/mod/channel-web/conversations/new',
-        { userId: agentId, webSessionId },
-        axioxconfig
-      )
-      const agentThreadId = data.convoId.toString()
+      const messaging = await repository.getMessagingClient(botId)
+      const userId = await repository.mapVisitor(botId, agentId, messaging)
+      const conversation = await messaging.conversations.create(userId)
+
+      const agentThreadId = conversation.id
       const payload: Pick<IHandoff, 'agentId' | 'agentThreadId' | 'assignedAt' | 'status'> = {
         agentId,
         agentThreadId,
@@ -275,7 +270,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       }
 
       // TODO replace this by messaging api once all channels have been ported
-      const rencentUserConversationEvents = await bp.events.findEvents(
+      const recentUserConversationEvents = await bp.events.findEvents(
         { botId, threadId: handoff.userThreadId },
         { count: 10, sortOrder: [{ column: 'id', desc: true }] }
       )
@@ -284,11 +279,11 @@ export default async (bp: typeof sdk, state: StateType) => {
         direction: 'outgoing',
         channel: 'web',
         botId: handoff.botId,
-        target: handoff.agentId,
+        target: userId,
         threadId: handoff.agentThreadId
       }
 
-      await Promise.mapSeries(rencentUserConversationEvents.reverse(), event => {
+      await Promise.mapSeries(recentUserConversationEvents.reverse(), event => {
         // @ts-ignore
         const e = bp.IO.Event({
           type: event.event.type,

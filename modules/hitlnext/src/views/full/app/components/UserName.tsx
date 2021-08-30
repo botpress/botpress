@@ -17,13 +17,13 @@ const UserName: FC<Props> = ({ user }) => {
 
   useEffect(() => {
     const username = getOrSet(
-      () => _.get(state, `defaults.user.${user.id}.username`),
+      () => _.get(state, `defaults.user.${user?.id}.username`),
       value => {
         dispatch({
           type: 'setDefault',
           payload: {
             user: {
-              [user.id]: {
+              [user?.id]: {
                 username: value
               }
             }
@@ -34,7 +34,7 @@ const UserName: FC<Props> = ({ user }) => {
     )
 
     setDefaultUsername(username)
-  }, [user.id])
+  }, [user?.id])
 
   const fallback = state.config.defaultUsername ? defaultUsername : lang.tr('module.hitlnext.user.anonymous')
   const username = _.get(user, 'attributes.fullName', fallback)
