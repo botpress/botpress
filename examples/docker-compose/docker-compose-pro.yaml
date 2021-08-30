@@ -5,9 +5,8 @@ services:
     build:
       context: ./botpress
       dockerfile: Dockerfile
-    image: botpress-server
+    image: botpress/server
     container_name: botpress-server
-    command: /botpress/bp
     ports:
       - 3000:3000
     environment:
@@ -32,7 +31,7 @@ services:
     build:
       context: ./botpress
       dockerfile: Dockerfile
-    image: botpress-lang
+    image: botpress/server
     container_name: botpress-lang
     command: bash -c "./duckling -p 8000 & ./bp lang --langDir /botpress/lang --port 3100"
     ports:

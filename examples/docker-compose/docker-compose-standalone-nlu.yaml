@@ -5,11 +5,10 @@ services:
     build:
       context: ./botpress
       dockerfile: Dockerfile
-    image: botpress-server
+    image: botpress/server
     container_name: botpress-server
-    command: /botpress/bp
-    expose:
-      - 3000
+    ports:
+      - 3000:3000
     environment:
       - DATABASE_URL=postgres://postgres:secretpw@postgres:5435/botpress_db
       - EXTERNAL_URL=http://localhost:3000
@@ -23,7 +22,7 @@ services:
     build:
       context: ./botpress
       dockerfile: Dockerfile
-    image: botpress-lang
+    image: botpress/server
     container_name: botpress-lang
     command: ./bp lang --langDir /botpress/lang --port 3100
     expose:
@@ -46,7 +45,7 @@ services:
     build:
       context: ./botpress
       dockerfile: Dockerfile
-    image: botpress-nlu
+    image: botpress/server
     container_name: botpress-nlu
     command: ./bp nlu --port 3200 --dbURL postgres://postgres:secretpw@postgres:5435/botpress_db --languageURL http://botpress_lang:3100 --ducklingURL http://botpress_duckling:8000
     expose:
@@ -69,13 +68,14 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   nginx:
-    container_name: nginx
-    build: ./nginx
+    image: nginx:1.21
     ports:
       - 80:80
     command: nginx -g 'daemon off';
     depends_on:
       - botpress
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
 
 volumes:
   pgdata:
