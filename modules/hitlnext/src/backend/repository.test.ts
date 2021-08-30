@@ -1,0 +1,35 @@
+import Repository from './repository'
+import 'reflect-metadata'
+import Database from '../../../../packages/bp/src/core/database'
+
+import { createDatabaseSuite } from '../../../../packages/bp/src/core/database/index.tests'
+import { PersistedConsoleLogger } from '../../../../packages/bp/src/core/logger'
+import { createSpyObject, MockObject } from '../../../../packages/bp/src/core/misc/utils'
+
+import migrate from './migrate'
+
+const logger: MockObject<PersistedConsoleLogger> = createSpyObject<PersistedConsoleLogger>()
+
+createDatabaseSuite('HITLNext - Repository', (database: Database) => {
+  const repo = new Repository({ database: database.knex, logger }, {})
+
+  beforeAll(async () => {
+    repo.bp.knex = database.knex
+    await migrate({ database: database.knex })
+  })
+
+  beforeEach(async () => {
+    await database.knex.raw(database.knex.isLite ? 'BEGIN TRANSACTION' : 'START TRANSACTION')
+  })
+
+  afterEach(async () => {
+    await database.knex.raw(database.knex.isLite ? 'ROLLBACK TRANSACTION' : 'ROLLBACK')
+  })
+
+  describe('getHandoffs', () => {
+    it('Returns no handoffs when table is empty', async () => {
+      const handoff = repo.getHandoff('qwerty')
+      expect(handoff).toHaveLength(0)
+    })
+  })
+})
