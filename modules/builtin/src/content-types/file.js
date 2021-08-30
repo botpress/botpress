@@ -1,35 +1,8 @@
 const base = require('./_base')
-const path = require('path')
 const utils = require('./_utils')
 
-function render(data) {
-  const events = []
-
-  if (data.typing) {
-    events.push({
-      type: 'typing',
-      value: data.typing
-    })
-  }
-
-  return [
-    ...events,
-    {
-      type: 'file',
-      title: data.title,
-      url: utils.formatURL(data.BOT_URL, data.file),
-      collectFeedback: data.collectFeedback
-    }
-  ]
-}
-
 function renderElement(data, channel) {
-  // These channels now use channel renderers
-  if (['telegram', 'twilio', 'slack', 'vonage'].includes(channel)) {
-    return utils.extractPayload('file', data)
-  }
-
-  return render(data)
+  return utils.extractPayload('file', data)
 }
 
 module.exports = {

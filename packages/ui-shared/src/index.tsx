@@ -5,6 +5,7 @@ import ContentSection from '../../ui-shared-lite/ContentSection'
 import Icons from '../../ui-shared-lite/Icons'
 import MoreOptions from '../../ui-shared-lite/MoreOptions'
 import Overlay from '../../ui-shared-lite/Overlay'
+import { renderPayload } from '../../ui-shared-lite/Payloads'
 import style from '../../ui-shared-lite/style.scss'
 import Tabs from '../../ui-shared-lite/Tabs'
 import ToolTip from '../../ui-shared-lite/ToolTip'
@@ -83,4 +84,7 @@ exports.telemetry = {
 exports.date = {
   createDateRangeShortcuts,
   relativeDates
+}
+exports.contentPayloads = {
+  renderPayload
 }

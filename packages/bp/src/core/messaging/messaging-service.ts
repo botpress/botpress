@@ -1,5 +1,5 @@
 import { MessagingClient } from '@botpress/messaging-client'
-import { IO, MessagingConfig } from 'botpress/sdk'
+import { IO, Logger, MessagingConfig } from 'botpress/sdk'
 import { formatUrl, isBpUrl } from 'common/url'
 import { ConfigProvider } from 'core/config'
 import { EventEngine, Event } from 'core/events'
@@ -20,7 +20,8 @@ export class MessagingService {
 
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
+    @inject(TYPES.Logger) private logger: Logger
   ) {
     this.isExternal = Boolean(process.core_env.MESSAGING_ENDPOINT)
   }
@@ -45,7 +46,18 @@ export class MessagingService {
     await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
     const config = await this.configProvider.getBotConfig(botId)
-    let messaging = (config.messaging || {}) as MessagingConfig
+    let messaging = (config.messaging || {}) as Partial<MessagingConfig>
+
+    const messagingId = messaging.id || ''
+    // ClientId is already used by another botId, we will generate new ones for this bot
+    if (this.botsByClientId[messagingId] && this.botsByClientId[messagingId] !== botId) {
+      this.logger.warn(
+        `ClientId ${messagingId} already in use by bot ${this.botsByClientId[messagingId]}. Removing channels configuration and generating new credentials for bot ${botId}`
+      )
+      delete messaging.id
+      delete messaging.token
+      delete messaging.channels
+    }
 
     const webhookUrl = `${process.EXTERNAL_URL}/api/v1/chat/receive`
     const setupConfig = {
@@ -79,7 +91,7 @@ export class MessagingService {
     const botClient = new MessagingClient({
       url: this.getMessagingUrl(),
       password: this.internalPassword,
-      auth: { clientId: messaging.id, clientToken: messaging.token }
+      auth: { clientId: messaging.id!, clientToken: messaging.token! }
     })
     this.clientsByBotId[botId] = botClient
     this.botsByClientId[id] = botId
@@ -93,6 +105,8 @@ export class MessagingService {
       return
     }
 
+    delete this.botsByClientId[config.messaging.id]
+
     await this.clientSync.syncs.sync({
       id: config.messaging.id,
       token: config.messaging.token,
@@ -102,16 +116,24 @@ export class MessagingService {
     })
   }
 
-  async receive(clientId: string, channel: string, userId: string, conversationId: string, payload: any) {
+  async receive(args: {
+    clientId: string
+    channel: string
+    userId: string
+    conversationId: string
+    messageId: string
+    payload: any
+  }) {
     return this.eventEngine.sendEvent(
       Event({
         direction: 'incoming',
-        type: payload.type,
-        payload,
-        channel,
-        threadId: conversationId,
-        target: userId,
-        botId: this.botsByClientId[clientId]
+        type: args.payload.type,
+        payload: args.payload,
+        channel: args.channel,
+        threadId: args.conversationId,
+        target: args.userId,
+        messageId: args.messageId,
+        botId: this.botsByClientId[args.clientId]
       })
     )
   }
@@ -122,7 +144,12 @@ export class MessagingService {
     }
 
     const payloadAbsoluteUrl = this.convertToAbsoluteUrls(event.payload)
-    await this.clientsByBotId[event.botId].chat.reply(event.threadId!, event.channel, payloadAbsoluteUrl)
+    const message = await this.clientsByBotId[event.botId].chat.reply(
+      event.threadId!,
+      event.channel,
+      payloadAbsoluteUrl
+    )
+    event.messageId = message.id
 
     return next(undefined, true, false)
   }

@@ -13,7 +13,7 @@ import constants from './core/constants'
 import BpSocket from './core/socket'
 import ChatIcon from './icons/Chat'
 import { RootStore, StoreDef } from './store'
-import { Config, Message, Overrides } from './typings'
+import { Config, Message, Overrides, uuid } from './typings'
 import { checkLocationOrigin, initializeAnalytics, isIE, trackMessage, trackWebchatState } from './utils'
 
 const _values = (obj: Overrides) => Object.keys(obj).map(x => obj[x])
@@ -24,7 +24,7 @@ class Web extends React.Component<MainProps> {
   private parentClass: string
   private hasBeenInitialized: boolean = false
   private audio: HTMLAudioElement
-  private lastLoadedEventId: string
+  private lastMessageId: uuid
 
   constructor(props) {
     super(props)
@@ -180,9 +180,7 @@ class Web extends React.Component<MainProps> {
   }
 
   isCurrentConversation = (event: Message) => {
-    return (
-      !this.props.config?.conversationId || Number(this.props.config.conversationId) === Number(event.conversationId)
-    )
+    return !this.props.config?.conversationId || this.props.config.conversationId === event.conversationId
   }
 
   handleIframeApi = async ({ data: { action, payload } }) => {
@@ -226,7 +224,7 @@ class Web extends React.Component<MainProps> {
   }
 
   handleNewMessage = async (event: Message) => {
-    if (event.payload?.type === 'visit' || event.message_type === 'visit') {
+    if (event.payload?.type === 'visit') {
       // don't do anything, it's the system message
       return
     }
@@ -247,9 +245,9 @@ class Web extends React.Component<MainProps> {
 
     this.handleResetUnreadCount()
 
-    if (!['session_reset'].includes(event.payload.type) && event.incomingEventId !== this.lastLoadedEventId) {
-      this.lastLoadedEventId = event.incomingEventId
-      this.props.store.loadEventInDebugger(event.incomingEventId)
+    if (!['session_reset'].includes(event.payload.type) && event.id !== this.lastMessageId) {
+      this.lastMessageId = event.id
+      await this.props.store.loadEventInDebugger(event.id)
     }
   }
 
