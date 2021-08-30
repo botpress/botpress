@@ -73,7 +73,7 @@ export const waitForUserId = (): Promise<void> => {
 
     setTimeout(() => {
       clearInterval(interval)
-      reject()
-    }, 300000)
+      reject('Timeout to acquire VISITOR ID and VISITOR SOCKET ID exceeded.')
+    }, 30000)
   })
 }

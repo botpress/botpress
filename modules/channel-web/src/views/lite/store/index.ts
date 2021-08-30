@@ -448,7 +448,7 @@ class RootStore {
         }
       }
     } catch (e) {
-      console.error('Could not set USE_SESSION_STORAGE', e)
+      console.error('Could not set USE_SESSION_STORAGE:', e)
     }
 
     this.publishConfigChanged()
