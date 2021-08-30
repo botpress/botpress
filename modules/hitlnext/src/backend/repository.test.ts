@@ -27,8 +27,8 @@ createDatabaseSuite('HITLNext - Repository', (database: Database) => {
 
   describe('getHandoffs', () => {
     it('Returns no handoffs when table is empty', async () => {
-      const handoff = repo.getHandoff('qwerty')
-      expect(handoff).toHaveLength(0)
+      const handoff = repo.getHandoff(123456)
+      expect(handoff.fulfillmentValue).toBe(undefined)
     })
   })
 })
