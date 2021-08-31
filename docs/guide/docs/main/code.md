@@ -7,7 +7,7 @@ There are two ways of quickly adding custom code to enrich your chatbot's experi
 
 Both are executed in a virtual machine to prevent server crashes in case there is a scripting error. Your scripts may require any module loaded by Botpress by default (for example, lodash, axios, moment, nanoid, and [much more](https://github.com/botpress/botpress/blob/master/package.json)).
 
-You can also use one of the pre-loaded **Skills** to perform tasks that require more complexity than can be added in a normal node.
+You can also use one of the pre-loaded **Skills** to perform tasks that require more complexity than can be added in a normal node.Botpress comes with skills to send emails, call an API, extract entities and give predefined answers.
 
 If you want to include other dependencies not already included, there are two possible ways. You can add the `node_modules` folder containing your dependency in the same folder as your Action.
 
