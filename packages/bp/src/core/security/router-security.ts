@@ -188,7 +188,7 @@ const checkPermissions = (workspaceService: WorkspaceService) => (
   }
 
   if (!req.workspace) {
-    throw new InvalidOperationError('Workspace is missing. Set header X-BP-Workspace')
+    return new InvalidOperationError('Workspace is missing. Set header X-BP-Workspace')
   }
 
   const { email, strategy, isSuperAdmin } = req.tokenUser
