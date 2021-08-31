@@ -2,6 +2,7 @@ import classnames from 'classnames'
 import React from 'react'
 
 import { ContextMessage } from '../../../types'
+import { renderUnsafeHTML } from '../../lite/utils'
 
 import style from './style.scss'
 
@@ -20,7 +21,7 @@ const ChatPreview = ({ messages }: { messages: ContextMessage[] }) => (
           {message.direction === 'incoming' ? 'U' : 'B'}
         </div>
         <div className={style.chatPreviewText}>
-          {message.preview || message.payloadMessage || 'Event(custom)'}
+          <div dangerouslySetInnerHTML={{ __html: renderUnsafeHTML(message.preview || message.payloadMessage || 'Event(custom)') }} />
         </div>
       </div>
     ))}
