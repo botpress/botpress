@@ -11,6 +11,9 @@ const toPlainObject = object =>
     return v && v.sql ? v.sql : v
   })
 
+export const TABLE_NAME_SESSIONS = 'hitl_sessions'
+export const TABLE_NAME_MESSAGES = 'hitl_messages'
+
 export default class HitlDb {
   knex: any
 
@@ -24,7 +27,7 @@ export default class HitlDb {
     }
 
     return this.knex
-      .createTableIfNotExists('hitl_sessions', function(table) {
+      .createTableIfNotExists(TABLE_NAME_SESSIONS, function(table) {
         table.increments('id').primary()
         table.string('botId').notNullable()
         table.string('channel')
@@ -38,11 +41,11 @@ export default class HitlDb {
         table.string('thread_id')
       })
       .then(() => {
-        return this.knex.createTableIfNotExists('hitl_messages', function(table) {
+        return this.knex.createTableIfNotExists(TABLE_NAME_MESSAGES, function(table) {
           table.increments('id').primary()
           table
             .integer('session_id')
-            .references('hitl_sessions.id')
+            .references(`${TABLE_NAME_SESSIONS}.id`)
             .onDelete('CASCADE')
           table.string('type')
           table.string('source')
@@ -53,14 +56,14 @@ export default class HitlDb {
         })
       })
       .then(() =>
-        this.knex('hitl_messages')
+        this.knex(TABLE_NAME_MESSAGES)
           .columnInfo('text')
           .then(info => {
             if (info.maxLength === null || this.knex.isLite) {
               return
             }
 
-            return this.knex.schema.alterTable('hitl_messages', table => {
+            return this.knex.schema.alterTable(TABLE_NAME_MESSAGES, table => {
               table.text('text', 'longtext').alter()
             })
           })
@@ -95,7 +98,7 @@ export default class HitlDb {
       paused_trigger: undefined
     }
 
-    const dbSession = await this.knex.insertAndRetrieve('hitl_sessions', session, '*')
+    const dbSession = await this.knex.insertAndRetrieve(TABLE_NAME_SESSIONS, session, '*')
 
     return { is_new_session: true, ...dbSession }
   }
@@ -110,7 +113,7 @@ export default class HitlDb {
       where['thread_id'] = event.threadId
     }
 
-    return this.knex('hitl_sessions')
+    return this.knex(TABLE_NAME_SESSIONS)
       .where(where)
       .select('*')
       .limit(1)
@@ -124,7 +127,7 @@ export default class HitlDb {
   }
 
   async getSessionById(sessionId: string): Promise<HitlSession | undefined> {
-    return this.knex('hitl_sessions')
+    return this.knex(TABLE_NAME_SESSIONS)
       .where({ id: sessionId })
       .select('*')
       .get(0)
@@ -216,12 +219,12 @@ export default class HitlDb {
     message.raw_message = raw_message
 
     return Bluebird.join(
-      this.knex('hitl_messages').insert({
+      this.knex(TABLE_NAME_MESSAGES).insert({
         ...message,
         raw_message: this.knex.json.set(message.raw_message || {}),
         ts: this.knex.date.now()
       }),
-      this.knex('hitl_sessions')
+      this.knex(TABLE_NAME_SESSIONS)
         .where({ id: sessionId })
         .update(this.buildUpdate(direction)),
       () => toPlainObject(message)
@@ -232,7 +235,7 @@ export default class HitlDb {
     const { botId, channel, userId, sessionId, threadId } = session
 
     if (sessionId) {
-      return this.knex('hitl_sessions')
+      return this.knex(TABLE_NAME_SESSIONS)
         .where({ id: sessionId })
         .update({ paused: isPaused ? 1 : 0, paused_trigger: trigger })
         .then(() => parseInt(sessionId))
@@ -241,11 +244,11 @@ export default class HitlDb {
       if (threadId) {
         where['thread_id'] = threadId
       }
-      return this.knex('hitl_sessions')
+      return this.knex(TABLE_NAME_SESSIONS)
         .where(where)
         .update({ paused: isPaused ? 1 : 0, paused_trigger: trigger })
         .then(() => {
-          return this.knex('hitl_sessions')
+          return this.knex(TABLE_NAME_SESSIONS)
             .where(where)
             .select('id')
         })
@@ -257,7 +260,7 @@ export default class HitlDb {
     const { botId, channel, userId, sessionId, threadId } = session
 
     const toBool = s => this.knex.bool.parse(s)
-    return this.knex('hitl_sessions')
+    return this.knex(TABLE_NAME_SESSIONS)
       .where(sessionId ? { id: sessionId } : { botId, channel, userId, threadId })
       .select('paused')
       .then()
@@ -276,25 +279,25 @@ export default class HitlDb {
       .select('*')
       .from(function() {
         this.select([knex2.raw('max(id) as mId'), 'session_id', knex2.raw('count(*) as count')])
-          .from('hitl_messages')
+          .from(TABLE_NAME_MESSAGES)
           .groupBy('session_id')
           .as('q1')
       })
-      .join('hitl_messages', this.knex.raw('q1.mId'), 'hitl_messages.id')
-      .join('hitl_sessions', this.knex.raw('q1.session_id'), 'hitl_sessions.id')
-      .join('srv_channel_users', this.knex.raw('srv_channel_users.user_id'), 'hitl_sessions.userId')
+      .join(TABLE_NAME_MESSAGES, this.knex.raw('q1.mId'), `${TABLE_NAME_MESSAGES}.id`)
+      .join(TABLE_NAME_SESSIONS, this.knex.raw('q1.session_id'), `${TABLE_NAME_SESSIONS}.id`)
+      .join('srv_channel_users', this.knex.raw('srv_channel_users.user_id'), `${TABLE_NAME_SESSIONS}.userId`)
       .where({ botId })
 
     if (onlyPaused) {
-      query = query.whereRaw(`hitl_sessions.paused = ${this.knex.bool.true()}`)
+      query = query.whereRaw(`${TABLE_NAME_SESSIONS}.paused = ${this.knex.bool.true()}`)
     }
 
     if (sessionIds) {
-      query = query.whereIn('hitl_sessions.id', sessionIds)
+      query = query.whereIn(`${TABLE_NAME_SESSIONS}.id`, sessionIds)
     }
 
     return query
-      .orderBy('hitl_sessions.last_event_on', 'desc')
+      .orderBy(`${TABLE_NAME_SESSIONS}.last_event_on`, 'desc')
       .limit(100)
       .then(results =>
         results.map(res => ({
@@ -330,7 +333,7 @@ export default class HitlDb {
       .orderBy('ts', 'asc')
       .select('*')
       .from(function() {
-        this.from('hitl_messages')
+        this.from(TABLE_NAME_MESSAGES)
           .where({ session_id: sessionId })
           .orderBy('ts', 'desc')
           .limit(100)
@@ -346,19 +349,21 @@ export default class HitlDb {
   }
 
   async searchSessions(searchTerm: string): Promise<string[]> {
-    const query = this.knex('hitl_sessions')
-      .join('srv_channel_users', this.knex.raw('srv_channel_users.user_id'), 'hitl_sessions.userId')
+    const query = this.knex(TABLE_NAME_SESSIONS)
+      .join('srv_channel_users', this.knex.raw('srv_channel_users.user_id'), `${TABLE_NAME_SESSIONS}.userId`)
       .where('full_name', 'like', `%${searchTerm}%`)
       .orWhere('srv_channel_users.user_id', 'like', `%${searchTerm}%`)
 
     if (this.knex.isLite) {
       query.orWhere('attr_fullName', 'like', `%${searchTerm}%`)
       query.select(
-        this.knex.raw("hitl_sessions.id, json_extract(srv_channel_users.attributes, '$.full_name') as attr_fullName")
+        this.knex.raw(
+          `${TABLE_NAME_SESSIONS}.id, json_extract(srv_channel_users.attributes, '$.full_name') as attr_fullName`
+        )
       )
     } else {
       query.orWhereRaw(`srv_channel_users.attributes ->>'full_name' like '%${searchTerm}%'`)
-      query.select(this.knex.raw('hitl_sessions.id'))
+      query.select(this.knex.raw(`${TABLE_NAME_SESSIONS}.id`))
     }
 
     return query

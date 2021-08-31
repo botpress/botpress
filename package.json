@@ -26,6 +26,7 @@
     "build": "yarn cmd build",
     "watch": "yarn cmd watch",
     "package": "yarn cmd package",
+    "test": "cross-env NATIVE_EXTENSIONS_DIR=build/native-extensions cross-env jest -i --detectOpenHandles -c jest.config.js",
     "reference": "yarn cmd build:reference",
     "test": "yarn workspace botpress test",
     "itest": "yarn workspace botpress itest",
