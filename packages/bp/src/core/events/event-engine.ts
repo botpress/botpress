@@ -22,6 +22,10 @@ const eventSchema = {
   channel: joi.string().required(),
   target: joi.string().required(),
   id: joi.number().required(),
+  messageId: joi
+    .string()
+    .guid()
+    .optional(),
   direction: joi
     .string()
     .regex(directionRegex)
@@ -184,14 +188,6 @@ export class EventEngine {
 
   async sendEvent(event: sdk.IO.Event): Promise<void> {
     this.validateEvent(event)
-
-    // Todo : remove this when per channel rendering is no longer needed for builtin content types
-    if (event.payload.__unrendered) {
-      const payloads = this.renderForChannel!(event.payload, event.channel)
-      const mevent = <any>event
-      mevent.payload = _.isArray(payloads) ? _.last(payloads) : payloads
-      mevent.type = mevent.payload.type
-    }
 
     if (event.debugger) {
       addStepToEvent(event, StepScopes.Received)

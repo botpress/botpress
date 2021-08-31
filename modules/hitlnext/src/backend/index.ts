@@ -8,6 +8,7 @@ import fr from '../translations/fr.json'
 import api from './api'
 import { registerMiddleware, unregisterMiddleware } from './middleware'
 import migrate from './migrate'
+import Repository from './repository'
 import upsertAgentRoles from './workspace'
 
 export interface StateType {
@@ -17,6 +18,7 @@ export interface StateType {
 }
 
 const state: StateType = { timeouts: {} }
+let repository: Repository
 
 const onServerStarted = async (bp: typeof sdk) => {
   await migrate(bp)
@@ -25,7 +27,8 @@ const onServerStarted = async (bp: typeof sdk) => {
 
 const onServerReady = async (bp: typeof sdk) => {
   await upsertAgentRoles(bp)
-  await api(bp, state)
+  repository = new Repository(bp, state.timeouts)
+  await api(bp, state, repository)
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {
@@ -33,10 +36,15 @@ const onModuleUnmount = async (bp: typeof sdk) => {
   await unregisterMiddleware(bp)
 }
 
+const onBotUnmount = async (bp: typeof sdk, botId: string) => {
+  repository.removeMessagingClient(botId)
+}
+
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   onModuleUnmount,
+  onBotUnmount,
   translations: { en, fr },
   definition: {
     name: MODULE_NAME,
@@ -45,7 +53,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     fullName: 'HITL Next',
     homepage: 'https://botpress.com',
     noInterface: false,
-    experimental: true,
+    experimental: false,
     workspaceApp: { bots: true }
   }
 }
