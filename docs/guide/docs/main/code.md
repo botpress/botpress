@@ -299,7 +299,7 @@ A typical operation here is to add a new (elected) suggestion when there is no e
 ## Disabling Hooks & Actions
 Botpress will ignore files starting with a dot (`.`). This way, you can disable a hook or Action by merely prefixing the file's name with a dot.
 
-## In-Built Skills
+## Built-in Skills
 
 Botpress comes preloaded with some rudimentary skills. Let us look at these; we are confident that you will use them when building your next chatbot!
 
