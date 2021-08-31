@@ -136,7 +136,7 @@ export class ScopedActionService {
     const globalActions = await this._listGlobalActions()
     const localActions = await this.listLocalActions()
 
-    return globalActions.concat(localActions)
+    return [...localActions, ...globalActions]
   }
 
   async hasAction(actionName: string): Promise<boolean> {
