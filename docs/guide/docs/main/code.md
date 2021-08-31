@@ -9,7 +9,7 @@ Both are executed in a virtual machine to prevent server crashes in case there i
 
 You can also use one of the pre-loaded **Skills** to perform tasks that require more complexity than can be added in a normal node.
 
-If you want to include other dependencies not already included, there are two possible ways. You can add the `node_modules` folder containing your dependency in the same folder as your Action, or you can [create a module](../advanced/custom-module) that includes your dependency.
+If you want to include other dependencies not already included, there are two possible ways. You can add the `node_modules` folder containing your dependency in the same folder as your Action.
 
 To help you visualize how it works, check the snippet below. We've commented out a "hidden" portion of the code since all you need to include in your `.js` files is your actual code.
 
