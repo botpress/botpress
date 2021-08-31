@@ -48,7 +48,7 @@ It is also possible to wrap your code with an async method:
 > These scripts have hot reloading enabled, which means that changes are picked up on the following function call whenever you edit it, making development a lot faster.
 
 ## Actions
-Actions are server-side functions executed by the bot as part of a conversational flow. Actions have the power to do many things:
+Actions are server-side functions executed by the chatbot as part of a conversational flow. Actions have the power to do many things:
 
 - Alter the state of the conversation
 - Send customized messages to the conversation
