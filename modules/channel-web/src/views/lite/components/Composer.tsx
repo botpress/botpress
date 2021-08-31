@@ -3,7 +3,7 @@ import { inject, observer } from 'mobx-react'
 import React from 'react'
 import { FormattedMessage, InjectedIntlProps, injectIntl } from 'react-intl'
 
-import ToolTip from '../../../../../../src/bp/ui-shared-lite/ToolTip'
+import ToolTip from '../../../../../../packages/ui-shared-lite/ToolTip'
 import { RootStore, StoreDef } from '../store'
 
 import VoiceRecorder from './VoiceRecorder'
@@ -60,12 +60,7 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
   handleMessageChanged = e => this.props.updateMessage(e.target.value)
 
   isLastMessageFromBot = (): boolean => {
-    return (
-      this.props.currentConversation &&
-      this.props.currentConversation.messages &&
-      this.props.currentConversation.messages.length &&
-      !this.props.currentConversation.messages.slice(-1).pop().userId
-    )
+    return this.props.currentConversation?.messages?.slice(-1)?.pop()?.authorId === undefined
   }
 
   onVoiceStart = () => {
@@ -127,7 +122,20 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
                 onNotAvailable={this.onVoiceNotAvailable}
               />
             )}
-            <ToolTip childId="btn-send" content={this.props.isEmulator ? 'Interact with your chatbot' : 'Send Message'}>
+            <ToolTip
+              childId="btn-send"
+              content={
+                this.props.isEmulator
+                  ? this.props.intl.formatMessage({
+                      id: 'composer.interact',
+                      defaultMessage: 'Interact with your chatbot'
+                    })
+                  : this.props.intl.formatMessage({
+                      id: 'composer.sendMessage',
+                      defaultMessage: 'Send Message'
+                    })
+              }
+            >
               <button
                 className={'bpw-send-button'}
                 disabled={!this.props.message.length || this.props.composerLocked || this.state.isRecording}
@@ -168,7 +176,8 @@ export default inject(({ store }: { store: RootStore }) => ({
   enableResetSessionShortcut: store.config.enableResetSessionShortcut,
   resetSession: store.resetSession,
   currentConversation: store.currentConversation,
-  isEmulator: store.isEmulator
+  isEmulator: store.isEmulator,
+  preferredLanguage: store.preferredLanguage
 }))(injectIntl(observer(Composer)))
 
 type ComposerProps = {
@@ -197,4 +206,5 @@ type ComposerProps = {
     | 'enableResetSessionShortcut'
     | 'enableVoiceComposer'
     | 'currentConversation'
+    | 'preferredLanguage'
   >

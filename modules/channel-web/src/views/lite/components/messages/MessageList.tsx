@@ -97,14 +97,12 @@ class MessageList extends React.Component<MessageListProps, State> {
   renderDate(date) {
     return (
       <div className={'bpw-date-container'}>
-        {this.props.intl.formatTime(new Date(date), {
-          hour12: false,
-          year: 'numeric',
-          month: 'long',
+        {new Intl.DateTimeFormat(this.props.intl.locale || 'en', {
+          month: 'short',
           day: 'numeric',
           hour: 'numeric',
           minute: 'numeric'
-        })}
+        }).format(new Date(date))}
         <div className={'bpw-small-line'} />
       </div>
     )
@@ -117,19 +115,20 @@ class MessageList extends React.Component<MessageListProps, State> {
 
   renderMessageGroups() {
     const messages = (this.props.currentMessages || []).filter(m => this.shouldDisplayMessage(m))
-    const groups = []
+    const groups: Message[][] = []
 
     let lastSpeaker = undefined
     let lastDate = undefined
     let currentGroup = undefined
 
     messages.forEach(m => {
-      const speaker = m.payload.from || m.full_name
-      const date = m.sent_on
+      const speaker = m.payload.channel?.web?.userName || m.authorId
+      const date = m.sentOn
 
       // Create a new group if messages are separated by more than X minutes or if different speaker
       if (
         speaker !== lastSpeaker ||
+        !currentGroup ||
         differenceInMinutes(new Date(date), new Date(lastDate)) >= constants.TIME_BETWEEN_DATES
       ) {
         currentGroup = []
@@ -152,35 +151,36 @@ class MessageList extends React.Component<MessageListProps, State> {
       }
 
       currentGroup.push({
-        sent_on: new Date(),
+        sentOn: new Date(),
         userId: undefined,
-        message_type: 'typing'
+        payload: { type: 'typing' }
       })
     }
     return (
       <div>
         {groups.map((group, i) => {
           const lastGroup = groups[i - 1]
-          const lastDate = lastGroup?.[lastGroup.length - 1]?.sent_on
-          const groupDate = group?.[0].sent_on
+          const lastDate = lastGroup?.[lastGroup.length - 1]?.sentOn
+          const groupDate = group?.[0].sentOn
 
           const isDateNeeded =
             !groups[i - 1] ||
             differenceInMinutes(new Date(groupDate), new Date(lastDate)) > constants.TIME_BETWEEN_DATES
 
-          const [{ userId, full_name: userName, avatar_url: avatarUrl }] = group
+          const [{ authorId, payload }] = group
 
-          const avatar = userId
-            ? this.props.showUserAvatar && this.renderAvatar(userName, avatarUrl)
-            : this.renderAvatar(this.props.botName, avatarUrl || this.props.botAvatarUrl)
+          const avatar = authorId
+            ? this.props.showUserAvatar &&
+              this.renderAvatar(payload.channel?.web?.userName, payload.channel?.web?.avatarUrl)
+            : this.renderAvatar(this.props.botName, payload.channel?.web?.avatarUrl || this.props.botAvatarUrl)
 
           return (
             <div key={i}>
-              {isDateNeeded && this.renderDate(group[0].sent_on)}
+              {isDateNeeded && this.renderDate(group[0].sentOn)}
               <MessageGroup
-                isBot={!userId}
+                isBot={!authorId}
                 avatar={avatar}
-                userName={userName}
+                userName={payload.channel?.web?.userName}
                 key={`msg-group-${i}`}
                 isLastGroup={i >= groups.length - 1}
                 messages={group}
@@ -193,7 +193,7 @@ class MessageList extends React.Component<MessageListProps, State> {
   }
 
   shouldDisplayMessage = (m: Message): boolean => {
-    return m.message_type !== 'postback'
+    return m.payload.type !== 'postback'
   }
 
   handleScroll = debounce(e => {
@@ -241,7 +241,8 @@ export default inject(({ store }: { store: RootStore }) => ({
   focusNext: store.view.focusNext,
   focusedArea: store.view.focusedArea,
   showUserAvatar: store.config.showUserAvatar,
-  enableArrowNavigation: store.config.enableArrowNavigation
+  enableArrowNavigation: store.config.enableArrowNavigation,
+  preferredLanguage: store.preferredLanguage
 }))(injectIntl(observer(MessageList)))
 
 type MessageListProps = InjectedIntlProps &
@@ -258,4 +259,5 @@ type MessageListProps = InjectedIntlProps &
     | 'enableArrowNavigation'
     | 'showUserAvatar'
     | 'currentMessages'
+    | 'preferredLanguage'
   >

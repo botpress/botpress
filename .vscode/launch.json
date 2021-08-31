@@ -2,29 +2,29 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "pwa-node",
+      "type": "node",
       "runtimeVersion": "12.13.0",
       "request": "launch",
       "name": "Debug App",
-      "program": "${workspaceFolder}/out/bp/index.js",
-      "cwd": "${workspaceFolder}/out/bp",
+      "program": "${workspaceFolder}/packages/bp/dist/index.js",
+      "cwd": "${workspaceFolder}/packages/bp/dist",
       "args": ["start"],
       "env": {
         "BP_MODULES_PATH": "${workspaceFolder}/modules:${workspaceFolder}/internal-modules",
-        "NODE_PATH": "${workspaceFolder}/out/bp",
+        "NODE_PATH": "${workspaceFolder}/packages/bp/dist",
         "DEBUG": "bp:none",
         "BLUEBIRD_DEBUG": "1",
         "TELEMETRY_URL": "https://telemetry.botpress.dev/ingest"
       },
       "smartStep": true,
       "outFiles": [
-        "${workspaceFolder}/out/**/*.js",
+        "${workspaceFolder}/packages/bp/dist/**/*.js",
         "${workspaceFolder}/modules/**/dist/**/*.js",
         "${workspaceFolder}/private-modules/**/dist/**/*.js",
         "!${workspaceFolder}/**/node_modules/**/*.js"
       ],
       "skipFiles": ["**/node_modules/**", "<node_internals>/**"],
-      "console": "integratedTerminal",
+      "console": "internalConsole",
       "sourceMaps": true,
       "autoAttachChildProcesses": true
     },
@@ -33,7 +33,7 @@
       "runtimeVersion": "12.13.0",
       "request": "launch",
       "name": "Debug Stan",
-      "program": "${workspaceFolder}/out/bp/index.js",
+      "program": "${workspaceFolder}/packages/bp/dist/index.js",
       "cwd": "${workspaceFolder}",
       "args": [
         "nlu",
@@ -45,7 +45,7 @@
       "protocol": "auto",
       "env": {
         "BP_MODULES_PATH": "${workspaceFolder}/modules:${workspaceFolder}/internal-modules",
-        "NODE_PATH": "${workspaceFolder}/out/bp",
+        "NODE_PATH": "${workspaceFolder}/packages/bp/dist",
         "DEBUG": "bp:none",
         "BLUEBIRD_DEBUG": "1"
       },
@@ -139,7 +139,7 @@
         "BP_MODULES_PATH": "../../modules",
         "NODE_PATH": "./"
       },
-      "cwd": "${workspaceFolder}/out/bp"
+      "cwd": "${workspaceFolder}/packages/bp/dist"
     },
     {
       "name": "(lldb) CRFSuite ",

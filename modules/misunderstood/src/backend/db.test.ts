@@ -1,11 +1,10 @@
 import Db, { TABLE_NAME } from './db'
 import { FLAGGED_MESSAGE_STATUS, FLAG_REASON } from '../types'
-import 'reflect-metadata'
-import Database from '../../../../src/bp/core/database'
+import Database from '../../../../packages/bp/src/core/database'
 
-import { createDatabaseSuite } from '../../../../src/bp/core/database/index.tests'
-import { PersistedConsoleLogger } from '../../../../src/bp/core/logger'
-import { createSpyObject, MockObject } from '../../../../src/bp/core/misc/utils'
+import { createDatabaseSuite } from '../../../../packages/bp/src/core/database/index.tests'
+import { PersistedConsoleLogger } from '../../../../packages/bp/src/core/logger'
+import { createSpyObject, MockObject } from '../../../../packages/bp/src/core/misc/utils'
 
 const logger: MockObject<PersistedConsoleLogger> = createSpyObject<PersistedConsoleLogger>()
 

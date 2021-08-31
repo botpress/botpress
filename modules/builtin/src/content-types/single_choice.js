@@ -1,55 +1,8 @@
 const base = require('./_base')
 const utils = require('./_utils')
 
-function render(data) {
-  const events = []
-
-  if (data.typing) {
-    events.push({
-      type: 'typing',
-      value: data.typing
-    })
-  }
-
-  if (data.isDropdown) {
-    return [
-      ...events,
-      {
-        type: 'custom',
-        module: 'extensions',
-        component: 'Dropdown',
-        message: data.text,
-        buttonText: '',
-        displayInKeyboard: true,
-        options: data.choices.map(c => ({ label: c.title, value: c.value.toUpperCase() })),
-        width: 300,
-        placeholderText: data.dropdownPlaceholder
-      }
-    ]
-  }
-
-  return [
-    ...events,
-    {
-      text: data.text,
-      quick_replies: data.choices.map(c => ({
-        title: c.title,
-        payload: c.value.toUpperCase()
-      })),
-      typing: data.typing,
-      markdown: data.markdown,
-      disableFreeText: data.disableFreeText
-    }
-  ]
-}
-
 function renderElement(data, channel) {
-  // These channels now use channel renderers
-  if (['telegram', 'twilio', 'slack', 'smooch', 'vonage', 'teams', 'messenger'].includes(channel)) {
-    return utils.extractPayload('single-choice', data)
-  }
-
-  return render(data)
+  return utils.extractPayload('single-choice', data)
 }
 
 module.exports = {

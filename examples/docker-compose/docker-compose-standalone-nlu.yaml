@@ -1,0 +1,81 @@
+version: '3'
+
+services:
+  botpress:
+    build:
+      context: ./botpress
+      dockerfile: Dockerfile
+    image: botpress/server
+    container_name: botpress-server
+    ports:
+      - 3000:3000
+    environment:
+      - DATABASE_URL=postgres://postgres:secretpw@postgres:5435/botpress_db
+      - EXTERNAL_URL=http://localhost:3000
+    depends_on:
+      - botpress_nlu
+      - postgres
+    volumes:
+      - ./botpress/data:/botpress/data
+
+  botpress_lang:
+    build:
+      context: ./botpress
+      dockerfile: Dockerfile
+    image: botpress/server
+    container_name: botpress-lang
+    command: ./bp lang --langDir /botpress/lang --port 3100
+    expose:
+      - 3100
+    volumes:
+      - ./botpress/language:/botpress/lang
+
+  botpress_duckling:
+    build:
+      context: ./botpress
+      dockerfile: Dockerfile
+    image: botpress-duckling
+    container_name: botpress-duckling
+    command: ./duckling -p 8000
+    expose:
+      - 8000
+  # Each instance of botpress must have its own NLU server
+  # connections between multiple botpress instances and NLU server cannot be load balanced
+  botpress_nlu:
+    build:
+      context: ./botpress
+      dockerfile: Dockerfile
+    image: botpress/server
+    container_name: botpress-nlu
+    command: ./bp nlu --port 3200 --dbURL postgres://postgres:secretpw@postgres:5435/botpress_db --languageURL http://botpress_lang:3100 --ducklingURL http://botpress_duckling:8000
+    expose:
+      - 3200
+    depends_on:
+      - botpress_duckling
+      - botpress_lang
+
+  postgres:
+    image: postgres:11.2-alpine
+    expose:
+      - 5435
+    container_name: postgres
+    environment:
+      PGPORT: 5435
+      POSTGRES_DB: botpress_db
+      POSTGRES_PASSWORD: secretpw
+      POSTGRES_USER: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  nginx:
+    image: nginx:1.21
+    ports:
+      - 80:80
+    command: nginx -g 'daemon off';
+    depends_on:
+      - botpress
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+
+volumes:
+  pgdata:

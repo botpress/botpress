@@ -7,12 +7,13 @@ const cheerio = require('cheerio')
 const fs = require('fs')
 
 const buildRef = () => {
-  return gulp.src(['./src/bp/sdk/botpress.d.ts']).pipe(
+  return gulp.src(['./packages/bp/src/sdk/botpress.d.ts']).pipe(
     typedoc({
       out: './docs/reference/public',
       mode: 'file',
       name: 'Botpress SDK',
       readme: './docs/reference/README.md',
+      theme: './build/docs/typeDocTheme',
       gaID: 'UA-90034220-1',
       includeDeclarations: true,
       ignoreCompilerErrors: true,
@@ -37,15 +38,25 @@ const alterReference = async () => {
     .addClass('tsd-typography')
     .html(html)
 
+  $('head > title')
+    .replaceWith('<title>Chatbot Framework SDK | Botpress SDK</title>')
+    .html(html)
+
+  $('head').append(
+    '<meta name="description" content="Botpress Chatbot software development kit has all the tools you need to create your own custom chatbot.">'
+  )
+
+  $('meta[name="robots"]').remove()
+
   const newFile = $.html()
 
   fs.writeFileSync(path.join(__dirname, '../docs/reference/public/modules/_botpress_sdk_.html'), newFile)
 
   const hrefsToReplace = ['../enums', '../classes', '../interfaces']
-  $('a').map(function () {
+  $('a').map(function() {
     const href = $(this).attr('href')
     if (!href) {
-      return;
+      return
     }
 
     if (href.startsWith('_botpress_sdk')) {
@@ -57,7 +68,9 @@ const alterReference = async () => {
     }
   })
 
-  const fixedContentPaths = $.html().replace('../assets/', 'assets/').replace(/\.\.\/globals.html/g, 'globals.html')
+  const fixedContentPaths = $.html()
+    .replace('../assets/', 'assets/')
+    .replace(/\.\.\/globals.html/g, 'globals.html')
   fs.writeFileSync(path.join(__dirname, '../docs/reference/public/index.html'), fixedContentPaths)
 }
 

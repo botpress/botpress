@@ -151,7 +151,7 @@ const App: FC<Props> = ({ bp }) => {
 
       <div className={style.mainContent}>
         <div className={cx(style.sidebar, style.column)}>
-          <HandoffList handoffs={state.handoffs} loading={loading} />
+          <HandoffList tags={state.config?.tags} handoffs={state.handoffs} loading={loading} />
         </div>
         {!state.selectedHandoffId && <EmptyConversation />}
         {state.selectedHandoffId && <ConversationContainer bp={bp} api={api} />}

@@ -1,12 +1,17 @@
 {
   "composer.placeholder": "الرد على {name}",
   "composer.placeholderInit": "قل شيئا ل {name}",
+  "composer.message": "رسالة لإرسالها",
   "composer.send": "إرسال",
+  "composer.sendMessage": "أرسل رسالة",
+  "composer.interact": "تفاعل مع الشات بوت الخاص بك",
   "header.conversations": "محادثات",
   "header.deleteConversation": "هل أنت متأكد أنك تريد حذف هذه المحادثة بأكملها؟",
   "header.deleteConversationYes": "حذف",
   "header.deleteConversationNo": "إلغاء",
+  "footer.poweredBy": "{link} نحن مدعومون من",
   "conversationList.untitledConversation": "محادثة بلا عنوان",
+  "conversationList.title": "محادثة {id}",
   "botInfo.backToConversation": "العودة الى المحادثة",
   "botInfo.startConversation": "بداية محادثة",
   "botInfo.privacyPolicy": "عرض سياسة الخصوصية",
@@ -19,5 +24,7 @@
   "loginForm.formTitle": "نموذج تسجيل الدخول",
   "loginForm.providedCredentials": "تم إدخال تفاصيل الدخول",
   "messages.newMessage": "رسالة جديدة",
-  "messages.newMessages": "رسائل جديدة"
+  "messages.newMessages": "رسائل جديدة",
+  "widget.title": "نافذة الدردشة",
+  "widget.toggle": "تبديل نافذة الدردشة"
 }

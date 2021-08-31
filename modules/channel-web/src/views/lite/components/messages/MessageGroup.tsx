@@ -3,6 +3,7 @@ import sortBy from 'lodash/sortBy'
 import { inject } from 'mobx-react'
 import React from 'react'
 
+import { renderPayload } from '../../../../../../../packages/ui-shared-lite/Payloads'
 import { RootStore, StoreDef } from '../../store'
 import { Message as MessageDetails } from '../../typings'
 
@@ -87,37 +88,40 @@ class MessageGroup extends React.Component<Props> {
             <span data-from={fromLabel} className="from hidden" aria-hidden="true">
               {fromLabel}
             </span>
-            {sortBy(messages, 'eventId').map((message, i, messages) => {
+            {sortBy(messages, ['sent_on', 'eventId']).map((message, i, messages) => {
               const isLastMsg = i === messages.length - 1
-              const payload = this.convertPayloadFromOldFormat(message)
+              let payload = this.convertPayloadFromOldFormat(message)
+              if (payload?.wrapped) {
+                payload = { ...payload, wrapped: renderPayload(payload.wrapped) }
+              } else {
+                payload = renderPayload(payload)
+              }
 
               const showInlineFeedback =
                 isBot && isLastMsg && (payload.wrapped ? payload.wrapped.collectFeedback : payload.collectFeedback)
 
               return (
                 <Message
-                  key={message.eventId}
-                  isHighlighted={
-                    this.props.highlightedMessages && this.props.highlightedMessages.includes(message.incomingEventId)
-                  }
+                  key={message.id}
+                  isHighlighted={this.props.highlightedMessages && this.props.highlightedMessages.includes(message.id)}
                   inlineFeedback={
                     showInlineFeedback && (
                       <InlineFeedback
                         intl={this.props.store.intl}
-                        incomingEventId={message.incomingEventId}
+                        messageId={message.id}
                         onFeedback={this.props.onFeedback}
-                        eventFeedbacks={this.props.store.eventFeedbacks}
+                        messageFeedbacks={this.props.store.messageFeedbacks}
                       />
                     )
                   }
+                  messageId={message.id}
                   noBubble={!!payload.noBubble}
                   fromLabel={fromLabel}
                   isLastOfGroup={i >= this.props.messages.length - 1}
                   isLastGroup={this.props.isLastGroup}
-                  isBotMessage={!message.userId}
-                  incomingEventId={message.incomingEventId}
+                  isBotMessage={!message.authorId}
                   payload={payload}
-                  sentOn={message.sent_on}
+                  sentOn={message.sentOn}
                   onSendData={this.props.onSendData}
                   onFileUpload={this.props.onFileUpload}
                   bp={this.props.bp}
