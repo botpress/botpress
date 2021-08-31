@@ -56,7 +56,6 @@ const commentColumnsPrefixed = commentColumns.map(s => commentPrefix.concat(':',
 const userColumnsPrefixed = userColumns.map(s => userPrefix.concat(':', s))
 
 export default class Repository {
-  bp: typeof sdk
   private agentCache: Dic<Omit<IAgent, 'online'>> = {}
   private cacheByVisitor: LRUCache<string, UserMapping>
   private messagingClients: { [botId: string]: MessagingClient } = {}
@@ -66,9 +65,8 @@ export default class Repository {
    * @param bp
    * @param timeouts Object to store agent session timeouts
    */
-  constructor(bp: typeof sdk, private timeouts: object) {
+  constructor(private bp: typeof sdk, private timeouts: object) {
     this.cacheByVisitor = new LRUCache({ max: 10000, maxAge: ms('5min') })
-    this.bp = bp
   }
 
   private serializeDate(object: object, paths: string[]) {

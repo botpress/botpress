@@ -1,5 +1,4 @@
 import Repository from './repository'
-import 'reflect-metadata'
 import Database from '../../../../packages/bp/src/core/database'
 
 import { createDatabaseSuite } from '../../../../packages/bp/src/core/database/index.tests'

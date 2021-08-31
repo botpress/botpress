@@ -1,5 +1,4 @@
 import Db, { TABLE_NAME_SESSIONS, TABLE_NAME_MESSAGES } from './db'
-import 'reflect-metadata'
 import Database from '../../../../packages/bp/src/core/database'
 
 import { createDatabaseSuite } from '../../../../packages/bp/src/core/database/index.tests'
@@ -12,7 +11,6 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
   let db
   beforeAll(async () => {
     db = new Db({ database: database.knex, logger })
-    db.knex = database.knex
     await db.initialize()
     // We can't truncate tables here because of foreign key references, so tests may
     // have to deal with existing data. Ideally move to either an in memory DB for testing
