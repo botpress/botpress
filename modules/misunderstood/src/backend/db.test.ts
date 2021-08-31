@@ -1,6 +1,5 @@
 import Db, { TABLE_NAME } from './db'
 import { FLAGGED_MESSAGE_STATUS, FLAG_REASON } from '../types'
-import 'reflect-metadata'
 import Database from '../../../../packages/bp/src/core/database'
 
 import { createDatabaseSuite } from '../../../../packages/bp/src/core/database/index.tests'
