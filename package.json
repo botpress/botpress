@@ -26,7 +26,8 @@
     "build": "yarn cmd build",
     "watch": "yarn cmd watch",
     "package": "yarn cmd package",
-    "test": "yarn workspace botpress test",
+    "test": "cross-env NATIVE_EXTENSIONS_DIR=build/native-extensions cross-env jest -i --detectOpenHandles -c jest.config.js",
+    "reference": "yarn cmd build:reference",
     "itest": "yarn workspace botpress itest",
     "commitmsg": "commitlint -e $GIT_PARAMS",
     "bpd": "node build/downloader/out/index.js"
@@ -52,7 +53,7 @@
     "nanoid": "^2.0.1",
     "numeric": "^1.2.6",
     "semver": "^5.6.0",
-    "tar": "^4.4.6",
+    "tar": "^4.4.15",
     "tmp": "^0.0.33",
     "yargs": "^16.0.3",
     "yn": "^2.0.0"

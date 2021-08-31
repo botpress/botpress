@@ -60,9 +60,9 @@
       "managing/features"
     ],
     "Integrating External Services": [
+      "integrating/existing-backend",
       "integrating/skill-call-api",
       "integrating/external-api",
-      "integrating/existing-backend",
       "integrating/uipath"
     ],
     "Improving Your Chatbot": [

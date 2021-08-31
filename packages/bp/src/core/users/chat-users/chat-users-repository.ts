@@ -128,8 +128,6 @@ export class ChannelUserRepository {
       return { result: user, created: false }
     }
 
-    console.log('wtf', id)
-
     const newUser = await this.database.knex
       .insertAndRetrieve<User>(
         this.tableName,
