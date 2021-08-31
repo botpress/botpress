@@ -7,7 +7,7 @@ const TABLE_NAME = 'misunderstood'
 const TEMP_TABLE_NAME = `${TABLE_NAME}_tmp`
 const COLUMN = 'preview'
 
-const migrateLite = async (db: sdk.KnexExtended, trx: Knex.Transaction) => {
+const migrateLite = async (db: sdk.KnexExtended, trx: Knex.Transaction, isUp) => {
   //  1- create a temp table with the correct preview column type
   const hastmp = await db.schema.transacting(trx).hasTable(TEMP_TABLE_NAME)
   if (hastmp) {
@@ -18,7 +18,7 @@ const migrateLite = async (db: sdk.KnexExtended, trx: Knex.Transaction) => {
       table.string('eventId')
       table.string('botId')
       table.string('language')
-      table.text('preview')
+      isUp ? table.text('preview') : table.string('preview')
       table.enum('reason', Object.values(FLAG_REASON))
       table.enum('status', FLAGGED_MESSAGE_STATUSES).defaultTo(FLAGGED_MESSAGE_STATUS.new)
       table.enum('resolutionType', Object.values(RESOLUTION_TYPE))
@@ -37,9 +37,26 @@ const migrateLite = async (db: sdk.KnexExtended, trx: Knex.Transaction) => {
   await db.schema.transacting(trx).renameTable(TEMP_TABLE_NAME, TABLE_NAME)
 }
 
-const migratePG = async (db: sdk.KnexExtended) => {
-  const query = `ALTER TABLE ${TABLE_NAME} ALTER COLUMN ${COLUMN} TYPE text;`
+const migratePG = async (db: sdk.KnexExtended, isUp: boolean) => {
+  const query = `ALTER TABLE ${TABLE_NAME} ALTER COLUMN ${COLUMN} TYPE ${isUp ? 'text' : 'varchar(255)'};`
   return db.raw(query)
+}
+
+const migrate = async (bp, database, isUp): Promise<sdk.MigrationResult> => {
+  const db = database.knex as sdk.KnexExtended
+  try {
+    if (bp.database.isLite) {
+      await db.transaction(async trx => migrateLite(db, trx, isUp))
+    } else {
+      await migratePG(db, isUp)
+    }
+    return { success: true, message: `Successfully altered preview column to ${isUp ? 'text' : 'varchar(255)'}` }
+  } catch (error) {
+    bp.logger
+      .attachError(error)
+      .error(`Could not alter ${COLUMN} column on ${TABLE_NAME} to ${isUp ? 'text' : 'varchar(255)'}`)
+    return { success: false, message: error.message }
+  }
 }
 
 const migration: sdk.ModuleMigration = {
@@ -48,18 +65,10 @@ const migration: sdk.ModuleMigration = {
     type: 'database'
   },
   up: async ({ bp, database }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
-    const db = database.knex as sdk.KnexExtended
-    try {
-      if (bp.database.isLite) {
-        await db.transaction(async trx => migrateLite(db, trx))
-      } else {
-        await migratePG(db)
-      }
-      return { success: true, message: 'Successfully altered preview column to text' }
-    } catch (error) {
-      bp.logger.attachError(error).error(`Could not alter ${COLUMN} column on ${TABLE_NAME} to text type`)
-      return { success: false, message: error.message }
-    }
+    return migrate(bp, database, true)
+  },
+  down: async ({ bp, database }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
+    return migrate(bp, database, false)
   }
 }
 
