@@ -13,6 +13,7 @@
   "header.deleteConversationYes": "Supprimer",
   "header.deleteConversationNo": "Annuler",
   "conversationList.untitledConversation": "Conversation sans titre",
+  "conversationList.title": "Conversation {id}",
   "botInfo.backToConversation": "Retour à la conversation",
   "botInfo.startConversation": "Démarrer la conversation",
   "botInfo.privacyPolicy": "Politique de confidentialité",

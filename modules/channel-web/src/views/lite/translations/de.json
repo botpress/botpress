@@ -9,6 +9,7 @@
   "header.deleteConversationYes": "Löschen",
   "header.deleteConversationNo": "Stornieren",
   "conversationList.untitledConversation": "Unbenannte Unterhaltung",
+  "conversationList.title": "Konversation {id}",
   "botInfo.backToConversation": "Zurück zur Unterhaltung",
   "botInfo.startConversation": "Unterhaltung beginnen",
   "botInfo.privacyPolicy": "Datenschutzerklärung anzeigen",
