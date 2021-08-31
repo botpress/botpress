@@ -13,7 +13,7 @@ import constants from './core/constants'
 import BpSocket from './core/socket'
 import ChatIcon from './icons/Chat'
 import { RootStore, StoreDef } from './store'
-import { Config, Message } from './typings'
+import { Config, Message, uuid } from './typings'
 import { checkLocationOrigin, initializeAnalytics, isIE, trackMessage, trackWebchatState } from './utils'
 
 const _values = obj => Object.keys(obj).map(x => obj[x])
@@ -24,6 +24,7 @@ class Web extends React.Component<MainProps> {
   private parentClass: string
   private hasBeenInitialized: boolean = false
   private audio: HTMLAudioElement
+  private lastMessageId: uuid
 
   constructor(props) {
     super(props)
@@ -178,9 +179,7 @@ class Web extends React.Component<MainProps> {
   }
 
   isCurrentConversation = (event: Message) => {
-    return (
-      !this.props.config?.conversationId || Number(this.props.config.conversationId) === Number(event.conversationId)
-    )
+    return !this.props.config?.conversationId || this.props.config.conversationId === event.conversationId
   }
 
   handleIframeApi = async ({ data: { action, payload } }) => {
@@ -190,6 +189,8 @@ class Web extends React.Component<MainProps> {
       this.props.mergeConfig(payload)
     } else if (action === 'sendPayload') {
       await this.props.sendData(payload)
+    } else if (action === 'change-user-id') {
+      this.props.store.setUserId(payload)
     } else if (action === 'event') {
       const { type, text } = payload
 
@@ -206,7 +207,7 @@ class Web extends React.Component<MainProps> {
         trackMessage('sent')
         await this.props.sendMessage(text)
       } else if (type === 'loadConversation') {
-        this.props.store.fetchConversation(payload.conversationId)
+        await this.props.store.fetchConversation(payload.conversationId)
       } else if (type === 'toggleBotInfo') {
         this.props.toggleBotInfo()
       } else {
@@ -222,7 +223,7 @@ class Web extends React.Component<MainProps> {
   }
 
   handleNewMessage = async (event: Message) => {
-    if (event.payload?.type === 'visit' || event.message_type === 'visit') {
+    if (event.payload?.type === 'visit') {
       // don't do anything, it's the system message
       return
     }
@@ -242,6 +243,11 @@ class Web extends React.Component<MainProps> {
     }
 
     this.handleResetUnreadCount()
+
+    if (!['session_reset'].includes(event.payload.type) && event.id !== this.lastMessageId) {
+      this.lastMessageId = event.id
+      this.props.store.loadEventInDebugger(event.id)
+    }
   }
 
   handleTyping = async (event: Message) => {

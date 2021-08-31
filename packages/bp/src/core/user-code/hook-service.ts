@@ -181,7 +181,7 @@ export class HookService {
 
   private _invalidateRequire() {
     Object.keys(require.cache)
-      .filter(r => r.match(/(\\|\/)hooks(\\|\/)/g) || r.match(/(\\|\/)shared_libs(\\|\/)/g))
+      .filter(r => r.match(/(\\|\/)(hooks|shared_libs|libraries)(\\|\/)/g))
       .map(file => delete require.cache[file])
 
     clearRequireCache()
@@ -251,8 +251,8 @@ export class HookService {
     return new HookScript(path, filename, script, filename.replace('.js', ''), botId)
   }
 
-  private _prepareRequire(fullPath: string, hookType: string) {
-    const lookups = getBaseLookupPaths(fullPath, hookType)
+  private _prepareRequire(fullPath: string, hookType: string, botId?: string) {
+    const lookups = getBaseLookupPaths(fullPath, hookType, botId)
 
     return (module: string) => requireAtPaths(module, lookups, fullPath)
   }
@@ -263,7 +263,7 @@ export class HookService {
 
     const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, hookPath))
 
-    const _require = this._prepareRequire(dirPath, hook.folder)
+    const _require = this._prepareRequire(dirPath, hook.folder, hookScript.botId)
 
     const botId = _.get(hook.args, 'event.botId')
 

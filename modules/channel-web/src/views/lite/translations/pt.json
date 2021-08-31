@@ -7,6 +7,7 @@
   "header.deleteConversationYes": "Excluir",
   "header.deleteConversationNo": "Cancelar",
   "conversationList.untitledConversation": "Conversa sem título",
+  "conversationList.title": "Conversa {id}",
   "botInfo.backToConversation": "De volta à conversa",
   "botInfo.startConversation": "Iniciar conversa",
   "botInfo.privacyPolicy": "Ver política de privacidade",

@@ -7,6 +7,7 @@ const { Debug: _Debug } = require('./debug.ts')
 
 global.DEBUG = _Debug
 
+require('dotenv').config()
 if (!process.core_env) {
   process.core_env = process.env as BotpressEnvironmentVariables
 }

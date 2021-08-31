@@ -81,8 +81,6 @@ const HandoffItem: FC<IHandoff> = ({ createdAt, id, status, agentId, userConvers
         </p>
         <Text ellipsize={true}>{_.get(userConversation, 'event.preview')}</Text>
         <p className={style.createdDate}>{fromNow}</p>
-      </div>
-      <div className={style.badge}>
         <HandoffBadge status={status}></HandoffBadge>
       </div>
     </div>

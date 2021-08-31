@@ -1,7 +1,7 @@
 import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
-import { WorkspaceUser } from 'botpress/sdk'
-import { ConflictError, InvalidOperationError, sendSuccess, validateBodySchema } from 'core/routers'
+import { WorkspaceUser, WorkspaceUserWithAttributes } from 'botpress/sdk'
+import { ConflictError, InvalidOperationError, sendSuccess, validateBodySchema, BadRequestError } from 'core/routers'
 import { assertSuperAdmin } from 'core/security'
 
 import Joi from 'joi'
@@ -40,16 +40,23 @@ class CollaboratorsRouter extends CustomAdminRouter {
       '/listAvailableUsers',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        const filterRoles = req.query.roles && req.query.roles.split(',')
-        const allUsers = await this.authService.getAllUsers()
-        const workspaceUsers = await this.workspaceService.getWorkspaceUsers(req.workspace!)
-        const available = _.filter(allUsers, x => !_.find(workspaceUsers, x)) as WorkspaceUser[]
+        const filterRoles = (req.query.roles && req.query.roles.split(',')) || []
+        const filterAuthStrategies = (await this.workspaceService.findWorkspace(req.workspace!)).authStrategies || []
 
-        return sendSuccess(
-          res,
-          'Retrieved available users',
-          filterRoles ? available.filter(x => filterRoles.includes(x.role)) : available
-        )
+        // Get all users from other workspaces
+        let workspaceUsers: Array<WorkspaceUser | WorkspaceUserWithAttributes> = []
+        for (const w of await this.workspaceService.getWorkspaces()) {
+          if (w.id !== req.workspace) {
+            const users = await this.workspaceService.getWorkspaceUsers(w.id)
+            workspaceUsers = workspaceUsers.concat(users)
+          }
+        }
+
+        // filter on roles and auth strategies
+        const available = workspaceUsers
+          .filter(u => (filterAuthStrategies.length ? filterAuthStrategies.includes(u.strategy) : true))
+          .filter(u => (filterRoles.length ? filterRoles.includes(u.role) : true))
+        return sendSuccess(res, 'Retrieved available users', available)
       })
     )
 

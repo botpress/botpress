@@ -82,6 +82,7 @@ class PanelContent extends React.Component<Props> {
     this.addFiles('global.module_config', lang.tr('module.code-editor.sidePanel.global'), moduleConfigFiles)
 
     const sharedLibs = []
+    this.addFiles('bot.shared_libs', lang.tr('module.code-editor.sidePanel.currentBot'), sharedLibs)
     this.addFiles('global.shared_libs', lang.tr('module.code-editor.sidePanel.global'), sharedLibs)
 
     this.addFiles('hook_example', EXAMPLE_FOLDER_LABEL, hookFiles)
@@ -200,7 +201,7 @@ class PanelContent extends React.Component<Props> {
   }
 
   renderSharedLibs() {
-    if (!this.hasPermission('global.shared_libs')) {
+    if (!this.hasPermission('bot.shared_libs')) {
       return null
     }
 
@@ -369,6 +370,7 @@ class PanelContent extends React.Component<Props> {
             <React.Fragment>
               {this.renderSectionActions()}
               {this.renderSectionHooks()}
+              {this.renderSharedLibs()}
               {this.renderSectionConfig()}
               {this.renderSectionModuleConfig()}
             </React.Fragment>

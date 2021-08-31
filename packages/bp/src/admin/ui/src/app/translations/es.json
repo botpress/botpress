@@ -282,6 +282,7 @@
         "filter": "Filtrar bots",
         "import": {
           "alreadyInUse": "Ya en uso",
+          "alreadyExists": "La importación de un bot ya existente eliminará su configuración de mensajería antes de sincronizarse",
           "archive": "Archivo de bot",
           "fromArchive": "Importar bot desde archivo",
           "import": "Importar bot",
