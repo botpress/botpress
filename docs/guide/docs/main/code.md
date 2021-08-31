@@ -3,7 +3,7 @@ id: code
 title: Built-In Functionalities
 ---
 
-There are two ways of quickly adding custom code to enrich your bot's experience: **Actions** and **Hooks**.
+There are two ways of quickly adding custom code to enrich your chatbot's experience: **Actions** and **Hooks**.
 
 Both are executed in a virtual machine to prevent server crashes in case there is a scripting error. Your scripts may require any module loaded by Botpress by default (for example, lodash, axios, moment, nanoid, and [much more](https://github.com/botpress/botpress/blob/master/package.json)).
 
