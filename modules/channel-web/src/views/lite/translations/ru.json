@@ -7,6 +7,7 @@
   "header.deleteConversationYes": "удалять",
   "header.deleteConversationNo": "отменить",
   "conversationList.untitledConversation": "Разговор без названия",
+  "conversationList.title": "Разговор {id}",
   "botInfo.backToConversation": "Назад к разговору",
   "botInfo.startConversation": "Начать разговор",
   "botInfo.privacyPolicy": "Показать Политику конфиденцеальности",
