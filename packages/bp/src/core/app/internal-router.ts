@@ -92,6 +92,15 @@ export class InternalRouter extends CustomRouter {
     )
 
     router.post(
+      '/onBotCreation',
+      this.asyncMiddleware(async (req, res) => {
+        const { botId } = req.body
+        await this.botService.onBotCreation(botId)
+        res.sendStatus(200)
+      })
+    )
+
+    router.post(
       '/invalidateFile',
       this.asyncMiddleware(async (req, res) => {
         const { key } = req.body

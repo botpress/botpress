@@ -1,53 +1,41 @@
-import { BotConfig, BotTemplate, Logger, Stage, WorkspaceUserWithAttributes } from 'botpress/sdk'
+import { BotConfig, Logger, Stage, WorkspaceUserWithAttributes } from 'botpress/sdk'
 import cluster from 'cluster'
 import { BotHealth, ServerHealth } from 'common/typings'
-import { BotCreationSchema, BotEditSchema, isValidBotId } from 'common/validation'
+import { BotEditSchema, isValidBotId } from 'common/validation'
 import { createForGlobalHooks } from 'core/app/api'
 import { TYPES } from 'core/app/types'
-import { FileContent, GhostService, ReplaceContent } from 'core/bpfs'
+import { GhostService, ReplaceContent } from 'core/bpfs'
 import { CMSService } from 'core/cms'
 import { ConfigProvider } from 'core/config'
 import { JobService, makeRedisKey } from 'core/distributed'
 import { MessagingService } from 'core/messaging'
 import { MigrationService } from 'core/migration'
 import { extractArchive } from 'core/misc/archive'
-import { listDir } from 'core/misc/list-dir'
-import { stringify } from 'core/misc/utils'
-import { ModuleResourceLoader, ModuleLoader } from 'core/modules'
-import { RealtimeService, RealTimePayload } from 'core/realtime'
+import { ModuleLoader } from 'core/modules'
+import { RealtimeService } from 'core/realtime'
 import { InvalidOperationError } from 'core/routers'
 import { AnalyticsService } from 'core/telemetry'
 import { Hooks, HookService } from 'core/user-code'
 import { WorkspaceService } from 'core/users'
 import { WrapErrorsWith } from 'errors'
-import fse from 'fs-extra'
 import glob from 'glob'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Joi from 'joi'
 import _ from 'lodash'
-import mkdirp from 'mkdirp'
 import moment from 'moment'
 import ms from 'ms'
 import { studioActions } from 'orchestrator'
 import os from 'os'
 import path from 'path'
 import replace from 'replace-in-file'
-import semver from 'semver'
 import tmp from 'tmp'
 import { VError } from 'verror'
 
-const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
 const BOT_CONFIG_FILENAME = 'bot.config.json'
 const REVISIONS_DIR = './revisions'
 const BOT_ID_PLACEHOLDER = '/bots/BOT_ID_PLACEHOLDER/'
 const REV_SPLIT_CHAR = '++'
 const MAX_REV = 10
-const DEFAULT_BOT_CONFIGS = {
-  locked: false,
-  disabled: false,
-  private: false,
-  details: {}
-}
 
 const STATUS_REFRESH_INTERVAL = ms('15s')
 const STATUS_EXPIRY = ms('20s')
@@ -152,21 +140,13 @@ export class BotService {
     return workspace?.botPrefix ? `${workspace.botPrefix}__${botId}` : botId
   }
 
-  async addBot(bot: BotConfig, botTemplate: BotTemplate): Promise<void> {
-    this.stats.track('bot', 'create')
+  async onBotCreation(botId: string) {
+    this._invalidateBotIds()
+    await this.mountBot(botId)
 
-    const { error } = Joi.validate(bot, BotCreationSchema)
-    if (error) {
-      throw new InvalidOperationError(`An error occurred while creating the bot: ${error.message}`)
-    }
-
-    const mergedConfigs = await this._createBotFromTemplate(bot, botTemplate)
-    if (mergedConfigs) {
-      if (!mergedConfigs.disabled) {
-        await this.mountBot(bot.id)
-        await this.cms.translateContentProps(bot.id, undefined, mergedConfigs.defaultLanguage)
-      }
-      this._invalidateBotIds()
+    const botConfig = await this.findBotById(botId)
+    if (botConfig) {
+      await this.cms.translateContentProps(botId, undefined, botConfig.defaultLanguage)
     }
   }
 
@@ -525,67 +505,6 @@ export class BotService {
     await this._cleanupRevisions(botId, true)
     await this.ghostService.forBot(botId).deleteFolder('/')
     this._invalidateBotIds()
-  }
-
-  public async getBotTemplate(moduleId: string, templateId: string): Promise<FileContent[]> {
-    const resourceLoader = new ModuleResourceLoader(this.logger, moduleId, this.ghostService)
-    const templatePath = await resourceLoader.getBotTemplatePath(templateId)
-
-    return this._loadBotTemplateFiles(templatePath)
-  }
-
-  private async _createBotFromTemplate(botConfig: BotConfig, template: BotTemplate): Promise<BotConfig | undefined> {
-    const resourceLoader = new ModuleResourceLoader(this.logger, template.moduleId!, this.ghostService)
-    const templatePath = await resourceLoader.getBotTemplatePath(template.id)
-    const templateConfigPath = path.resolve(templatePath, BOT_CONFIG_FILENAME)
-
-    try {
-      const scopedGhost = this.ghostService.forBot(botConfig.id)
-      const files = this._loadBotTemplateFiles(templatePath)
-      if (fse.existsSync(templateConfigPath)) {
-        const templateConfig = JSON.parse(await fse.readFileSync(templateConfigPath, 'utf-8'))
-        const mergedConfigs = {
-          ...DEFAULT_BOT_CONFIGS,
-          ...templateConfig,
-          ...botConfig,
-          version: process.BOTPRESS_VERSION
-        }
-
-        if (!mergedConfigs.imports.contentTypes) {
-          const allContentTypes = await this.cms.getAllContentTypes()
-          mergedConfigs.imports.contentTypes = allContentTypes.map(x => x.id)
-        }
-
-        if (!mergedConfigs.defaultLanguage) {
-          mergedConfigs.disabled = true
-        }
-
-        await scopedGhost.ensureDirs('/', BOT_DIRECTORIES)
-        await scopedGhost.upsertFile('/', BOT_CONFIG_FILENAME, stringify(mergedConfigs))
-        await scopedGhost.upsertFiles('/', files)
-
-        return mergedConfigs
-      } else {
-        throw new Error("Bot template doesn't exist")
-      }
-    } catch (err) {
-      this.logger
-        .forBot(botConfig.id)
-        .attachError(err)
-        .error(`Error creating bot ${botConfig.id} from template "${template.name}"`)
-    }
-  }
-
-  private _loadBotTemplateFiles(templatePath: string): FileContent[] {
-    const startsWithADot = /^\./gm
-    const templateFiles = listDir(templatePath, [startsWithADot, new RegExp(BOT_CONFIG_FILENAME)])
-    return templateFiles.map(
-      f =>
-        <FileContent>{
-          name: f.relativePath,
-          content: fse.readFileSync(f.absolutePath)
-        }
-    )
   }
 
   public isBotMounted(botId: string): boolean {

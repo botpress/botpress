@@ -2093,8 +2093,6 @@ declare module 'botpress/sdk' {
       allowOverwrite?: boolean
     ): Promise<void>
 
-    export function getBotTemplate(moduleName: string, templateName: string): Promise<FileContent[]>
-
     /**
      * Allows hook developers to list revisions of a bot
      * @param botId the ID of the target bot

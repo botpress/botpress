@@ -101,7 +101,7 @@ export default (state = initialState, action): BotState => {
 
 export const fetchBotTemplates = (): AppThunk => {
   return async dispatch => {
-    const { data } = await api.getSecured().get('/admin/workspace/bots/templates')
+    const { data } = await api.getSecured().get('/studio/manage/bots/templates', { baseURL: window.ROOT_PATH })
     dispatch({
       type: RECEIVED_BOT_TEMPLATES,
       templates: data
