@@ -94,7 +94,7 @@ const EditStageModal: FC<Props> = props => {
     }
 
     try {
-      await api.getSecured().post(`/admin/management/workspaces/${getActiveWorkspace()}/pipeline`, {
+      await api.getSecured().post(`/admin/workspace/workspaces/${getActiveWorkspace()}/pipeline`, {
         updateCustom: true,
         pipeline: newPipeline
       })
