@@ -37,7 +37,7 @@ const UserList: FC<Props> = props => {
 
   const currentUserEmail = _.get(props.profile, 'email', '').toLowerCase()
   const filteredUsers = filterList<WorkspaceUserWithAttributes>(props.users, userFilterFields, filter)
-  const roles = [...props.roles, CHAT_USER_ROLE]
+  const roles = props.roles
 
   return (
     <div>

@@ -138,6 +138,11 @@ export class ModuleResourceLoader {
         await this._upsertModuleResources(resource)
       }
     }
+
+    if (process.BPFS_STORAGE === 'database') {
+      await this.ghost.global().syncDatabaseFilesToDisk('actions')
+      await this.ghost.global().syncDatabaseFilesToDisk('hooks')
+    }
   }
 
   async getBotTemplatePath(templateName: string) {

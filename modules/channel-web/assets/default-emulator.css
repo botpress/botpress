@@ -1232,3 +1232,7 @@
 .bpw-rtl .bpw-keyboard-quick_reply-dropdown {
   direction: rtl;
 }
+
+.bpw-msg-hovering:hover {
+  cursor: pointer;
+}

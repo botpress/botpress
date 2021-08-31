@@ -35,6 +35,8 @@ export interface Workspace {
   id: string
   name: string
   description?: string
+  /** An optional string of characters which must precede the ID of each bots in this workspace */
+  botPrefix?: string
   audience: 'internal' | 'external'
   roles: AuthRole[]
   defaultRole: string
@@ -44,7 +46,7 @@ export interface Workspace {
   rolloutStrategy: RolloutStrategy
 }
 
-export type CreateWorkspace = Pick<Workspace, 'id' | 'name' | 'description' | 'audience'> & {
+export type CreateWorkspace = Pick<Workspace, 'id' | 'name' | 'description' | 'audience' | 'botPrefix'> & {
   pipelineId: string
   authStrategies?: string[]
   roles?: AuthRole[]

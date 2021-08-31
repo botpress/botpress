@@ -38,8 +38,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     menuText: 'Testing',
     noInterface: false,
     fullName: 'Testing',
-    homepage: 'https://botpress.com',
-    experimental: true
+    homepage: 'https://botpress.com'
   }
 }
 

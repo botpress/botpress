@@ -2,43 +2,38 @@ import * as sdk from 'botpress/sdk'
 import { renderRecursive } from 'core/cms/templating'
 import { injectable } from 'inversify'
 
-const __unrendered = <T>(payload: T): T => {
-  ;(<any>payload).__unrendered = true
-  return payload
-}
-
 @injectable()
 export class RenderService {
   renderText(text: string | sdk.MultiLangText, markdown?: boolean): sdk.TextContent {
-    return __unrendered({
+    return {
       type: 'text',
       text,
       markdown
-    })
+    }
   }
 
   renderImage(url: string, caption?: string | sdk.MultiLangText): sdk.ImageContent {
-    return __unrendered({
+    return {
       type: 'image',
       image: url,
       title: caption
-    })
+    }
   }
 
   renderAudio(url: string, caption?: string | sdk.MultiLangText): sdk.AudioContent {
-    return __unrendered({
+    return {
       type: 'audio',
       audio: url,
       title: caption
-    })
+    }
   }
 
   renderVideo(url: string, caption?: string | sdk.MultiLangText): sdk.VideoContent {
-    return __unrendered({
+    return {
       type: 'video',
       video: url,
       title: caption
-    })
+    }
   }
 
   renderLocation(
@@ -47,13 +42,13 @@ export class RenderService {
     address?: string | sdk.MultiLangText,
     title?: string | sdk.MultiLangText
   ): sdk.LocationContent {
-    return __unrendered({
+    return {
       type: 'location',
       latitude,
       longitude,
       address,
       title
-    })
+    }
   }
 
   renderCard(
@@ -62,28 +57,28 @@ export class RenderService {
     subtitle?: string | sdk.MultiLangText,
     ...buttons: sdk.ActionButton[]
   ): sdk.CardContent {
-    return __unrendered({
+    return {
       type: 'card',
       title,
       image,
       subtitle,
       actions: buttons
-    })
+    }
   }
 
   renderCarousel(...cards: sdk.CardContent[]): sdk.CarouselContent {
-    return __unrendered({
+    return {
       type: 'carousel',
       items: cards
-    })
+    }
   }
 
   renderChoice(text: string | sdk.MultiLangText, ...choices: sdk.ChoiceOption[]): sdk.ChoiceContent {
-    return __unrendered({
+    return {
       type: 'single-choice',
       text,
       choices
-    })
+    }
   }
 
   renderButtonSay(title: string, text: string | sdk.MultiLangText): sdk.ActionSaySomething {
