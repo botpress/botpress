@@ -163,6 +163,44 @@
       }
     }
 
+    .unreadDot {
+      background: var(--ocean);
+      border-radius: 50%;
+      display: block;
+      height: 10px;
+      margin-right: var(--spacing-large);
+      width: 10px;
+    }
+  }
+  .handoffItemUrgent {
+    width: 100%;
+    display: flex;
+    margin: 5px 0;
+    padding: var(--spacing-x-large) var(--spacing-large) var(--spacing-large);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+    align-items: center;
+    background-color: rgb(255, 229, 180);
+
+    &:hover {
+      background-color: rgb(219, 197, 155);
+    }
+
+    &.active {
+      background-color: rgb(255, 229, 180);
+    }
+    .info {
+      width: 75%;
+      color: var(--shark);
+      font-size: 12px;
+      line-height: 1.5;
+
+      p {
+        margin: 0;
+      }
+    }
+
     .badge {
       margin-left: auto;
     }
@@ -176,7 +214,6 @@
       width: 10px;
     }
   }
-
   .agentList {
     padding: 0;
     margin: 0;

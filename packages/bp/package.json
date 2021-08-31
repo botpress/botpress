@@ -10,12 +10,6 @@
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0",
   "private": true,
-  "nlu": {
-    "version": "0.1.2"
-  },
-  "studio": {
-    "version": "0.0.21"
-  },
   "scripts": {
     "start": "cd dist && cross-env NODE_PATH=./ cross-env BP_MODULES_PATH=./data/modules/:../../../modules:../../../internal-modules STAN_DEV_MODE=true node index.js",
     "cmd": "yarn run gulp",

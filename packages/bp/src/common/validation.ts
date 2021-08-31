@@ -4,6 +4,7 @@ import { defaultPipelines } from './defaults'
 
 export const BOTID_REGEX = /^[A-Z0-9]+[A-Z0-9_-]{1,}[A-Z0-9]+$/i
 export const WORKSPACEID_REGEX = /[A-Z0-9-_\/]/i
+const OP_REGEX = /^([\+|-][r|w]){1,2}$/
 
 export const isValidBotId = (botId: string): boolean => BOTID_REGEX.test(botId)
 
@@ -77,6 +78,23 @@ export const BotEditSchema = Joi.object().keys({
   }
 })
 
+const AuthRule = Joi.object().keys({
+  res: Joi.string().required(),
+  op: Joi.string()
+    .regex(OP_REGEX)
+    .required()
+})
+
+const AuthRole = Joi.object().keys({
+  id: Joi.string().required(),
+  name: Joi.string().required(),
+  description: Joi.string().default(''),
+  rules: Joi.array()
+    .items(AuthRule)
+    .optional()
+    .default([])
+})
+
 export const WorkspaceCreationSchema = Joi.object().keys({
   id: Joi.string()
     .regex(WORKSPACEID_REGEX)
@@ -87,13 +105,21 @@ export const WorkspaceCreationSchema = Joi.object().keys({
   description: Joi.string()
     .max(500)
     .allow(''),
+  botPrefix: Joi.string()
+    .max(50)
+    .optional()
+    .allow(''),
   audience: Joi.string()
     .valid(['internal', 'external'])
     .default('external')
     .required(),
   pipelineId: Joi.string()
     .valid(Object.keys(defaultPipelines))
-    .default('none')
+    .default('none'),
+  authStrategies: Joi.array().items(Joi.string()),
+  roles: Joi.array()
+    .items(AuthRole)
+    .optional()
 })
 
 export const PipelineSchema = Joi.array().items({
@@ -103,57 +129,4 @@ export const PipelineSchema = Joi.array().items({
   reviewers: Joi.array().items({ email: Joi.string(), strategy: Joi.string() }),
   minimumApprovals: Joi.number(),
   reviewSequence: Joi.string().valid(['serial', 'parallel'])
-})
-
-export const FuzzyTolerance = {
-  Loose: 0.65,
-  Medium: 0.8,
-  Strict: 1
-}
-
-const EntityDefOccurrenceSchema = Joi.object().keys({
-  name: Joi.string().required(),
-  synonyms: Joi.array().items(Joi.string())
-})
-
-export const EntityDefCreateSchema = Joi.object().keys({
-  id: Joi.string().regex(/\t\s/gi, { invert: true }),
-  name: Joi.string().required(),
-  type: Joi.string()
-    .valid(['system', 'pattern', 'list'])
-    .required(),
-  sensitive: Joi.boolean().default(false),
-  fuzzy: Joi.number().default(FuzzyTolerance.Medium),
-  matchCase: Joi.boolean(),
-  examples: Joi.array()
-    .items(Joi.string())
-    .default([]),
-  occurrences: Joi.array()
-    .items(EntityDefOccurrenceSchema)
-    .default([]),
-  pattern: Joi.string()
-    .default('')
-    .allow('')
-})
-
-export const SlotsCreateSchema = Joi.object().keys({
-  name: Joi.string().required(),
-  entities: Joi.array()
-    .items(Joi.string())
-    .required(),
-  color: Joi.number().required(),
-  id: Joi.string().required()
-})
-
-export const IntentDefCreateSchema = Joi.object().keys({
-  name: Joi.string().required(),
-  utterances: Joi.object()
-    .pattern(/.*/, Joi.array().items(Joi.string()))
-    .default({}),
-  slots: Joi.array()
-    .items(SlotsCreateSchema)
-    .default([]),
-  contexts: Joi.array()
-    .items(Joi.string())
-    .default(['global'])
 })

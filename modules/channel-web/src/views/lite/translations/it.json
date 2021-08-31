@@ -11,6 +11,7 @@
   "header.deleteConversationYes": "Elimina",
   "header.deleteConversationNo": "Annulla",
   "conversationList.untitledConversation": "Conversazione senza titolo",
+  "conversationList.title": "Conversazione {id}",
   "botInfo.backToConversation": "Ritorna alla Conversazione",
   "botInfo.startConversation": "Avvia Conversazione",
   "botInfo.privacyPolicy": "Vedi Privacy Policy",

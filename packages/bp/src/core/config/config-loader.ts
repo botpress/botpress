@@ -27,6 +27,7 @@ export class ConfigProvider {
   private _botpressConfigCache: BotpressConfig | undefined
   public initialConfigHash: string | undefined
   public currentConfigHash!: string
+  private _deprecateEnvVarWarned = false
 
   constructor(
     @inject(TYPES.GhostService) private ghostService: GhostService,
@@ -64,6 +65,22 @@ export class ConfigProvider {
       config.pro.licenseKey = process.env.BP_LICENSE_KEY || config.pro.licenseKey
     }
 
+    this._warnDeprecatedKeys()
+
+    this._botpressConfigCache = config
+
+    if (!this.initialConfigHash) {
+      this.initialConfigHash = calculateHash(JSON.stringify(removeDynamicProps(config)))
+    }
+
+    return config
+  }
+
+  private _warnDeprecatedKeys() {
+    if (this._deprecateEnvVarWarned) {
+      return
+    }
+
     const deprecatedEnvKeys = [
       ['BP_PORT', 'httpServer.port'],
       ['BP_HOST', 'httpServer.host'],
@@ -80,13 +97,7 @@ export class ConfigProvider {
       }
     })
 
-    this._botpressConfigCache = config
-
-    if (!this.initialConfigHash) {
-      this.initialConfigHash = calculateHash(JSON.stringify(removeDynamicProps(config)))
-    }
-
-    return config
+    this._deprecateEnvVarWarned = true
   }
 
   private _makeBPConfigEnvKey(option: string): string {
@@ -179,11 +190,11 @@ export class ConfigProvider {
       'builtin',
       'channel-web',
       'nlu',
-      'qna',
-      'extensions',
       'code-editor',
       'testing',
-      'examples'
+      'examples',
+      'misunderstood',
+      'hitlnext'
     ]
 
     // here it's ok to use the module resolver because we are discovering the built-in modules only

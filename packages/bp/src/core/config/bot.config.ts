@@ -15,6 +15,7 @@ export interface BotConfig {
     /** Defines the list of content types supported by the bot */
     contentTypes: string[]
   }
+  messaging?: MessagingConfig
   converse?: ConverseConfig
   dialog?: BotDialogConfig
   logs?: BotLogsConfig
@@ -23,6 +24,9 @@ export interface BotConfig {
   locked: boolean
   pipeline_status: BotPipelineStatus
   oneflow?: boolean
+  qna: {
+    disabled: boolean
+  }
 }
 
 export interface BotPipelineStatus {
@@ -91,4 +95,20 @@ export interface ConverseConfig {
    * @default true
    */
   enableUnsecuredEndpoint: boolean
+}
+
+export interface MessagingConfig {
+  /**
+   * Client id used to identify the bot on the messaging server
+   */
+  id: string
+  /**
+   * Client token used to authenticate requests made to the messaging server
+   */
+  token: string
+  /**
+   * Configurations of channels to be sent to the messaging server
+   * You can find more about channel configurations here : https://botpress.com/docs/channels/faq
+   */
+  channels: { [channelName: string]: any }
 }

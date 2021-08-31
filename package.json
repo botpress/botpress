@@ -1,6 +1,6 @@
 {
   "name": "bp_main",
-  "version": "12.23.1",
+  "version": "12.25.0",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": "^12"
@@ -11,10 +11,13 @@
   "license": "AGPL-3.0",
   "private": true,
   "nlu": {
-    "version": "0.1.2"
+    "version": "0.1.4"
   },
   "studio": {
-    "version": "0.0.24"
+    "version": "0.0.32"
+  },
+  "messaging": {
+    "version": "0.1.8"
   },
   "scripts": {
     "postinstall": "yarn cmd postinstall",
@@ -32,6 +35,7 @@
     "@apidevtools/json-schema-ref-parser": "^9.0.6",
     "@babel/parser": "^7.11.2",
     "@babel/traverse": "^7.11.0",
+    "@botpress/messaging-client": "0.0.3",
     "@types/multer": "^1.4.5",
     "@types/tar": "^4.0.4",
     "archiver": "^5.3.0",
@@ -89,6 +93,7 @@
     "@types/redis": "^2.8.10",
     "@types/redlock": "^4.0.0",
     "@types/seedrandom": "^2.4.28",
+    "@types/semver": "^7.3.8",
     "@types/socket.io": "^2.1.2",
     "@types/socket.io-client": "^1.4.36",
     "@types/tar": "^4.0.4",

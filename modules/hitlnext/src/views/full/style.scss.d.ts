@@ -23,6 +23,7 @@ interface CssExports {
   'dot': string;
   'emptyContainer': string;
   'handoffItem': string;
+  'handoffItemUrgent': string;
   'handoffList': string;
   'hitlToolBar': string;
   'info': string;

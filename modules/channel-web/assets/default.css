@@ -615,6 +615,10 @@ body {
   right: 0;
 }
 
+.bpw-keyboard-quick_reply-dropdown {
+  margin: 0.2rem 0.5rem;
+}
+
 .bpw-composer {
   border-top-width: 1px;
   border-top-style: solid;
@@ -1048,4 +1052,35 @@ body {
 
 .bpw-mobx-tools {
   visibility: hidden;
+}
+
+.bpw-rtl .bpw-chat-bubble {
+  direction: rtl;
+}
+
+.bpw-rtl .bpw-composer-inner {
+  flex-direction: row-reverse;
+}
+
+.bpw-rtl .bpw-composer textarea {
+  direction: rtl;
+  padding: 0.75rem 1rem;
+  padding-left: 60px;
+}
+
+.bpw-rtl.bpw-botinfo-container .bpw-botinfo-terms {
+  text-align: right;
+}
+
+.bpw-rtl .bpw-date-container {
+  direction: rtl;
+}
+
+.bpw-rtl .bpw-card-container {
+  text-align: right;
+  direction: rtl;
+}
+
+.bpw-rtl .bpw-keyboard-quick_reply-dropdown {
+  direction: rtl;
 }

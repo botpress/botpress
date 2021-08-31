@@ -1,7 +1,7 @@
 import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import { defaultPipelines } from 'common/defaults'
-import { CreateWorkspace } from 'common/typings'
+import { CreateWorkspace, Workspace } from 'common/typings'
 import { PipelineSchema, WorkspaceCreationSchema } from 'common/validation'
 import { InvalidOperationError } from 'core/routers'
 import { ROLLOUT_STRATEGIES } from 'core/users'
@@ -30,12 +30,12 @@ class WorkspacesRouter extends CustomAdminRouter {
           throw new InvalidOperationError('Botpress Pro must be enabled')
         }
 
-        const { error } = Joi.validate(req.body, WorkspaceCreationSchema)
+        const { value, error } = Joi.validate(req.body, WorkspaceCreationSchema)
         if (error) {
           throw new InvalidOperationError(`An error occurred while creating the workspace: ${error.message}`)
         }
 
-        await this.workspaceService.createWorkspace(req.body as CreateWorkspace)
+        await this.workspaceService.createWorkspace(value as CreateWorkspace)
         res.sendStatus(200)
       })
     )
@@ -44,22 +44,25 @@ class WorkspacesRouter extends CustomAdminRouter {
       '/:workspaceId',
       this.asyncMiddleware(async (req, res) => {
         const { workspaceId } = req.params
-        const { name, description } = req.body
 
-        const { error } = Joi.validate(req.body, {
+        const { error, value } = Joi.validate(req.body, {
           name: Joi.string()
             .max(50)
             .required(),
           description: Joi.string()
             .max(500)
+            .allow(''),
+          botPrefix: Joi.string()
+            .max(50)
             .allow('')
+            .optional()
         })
 
         if (error) {
           throw new InvalidOperationError(`An error occurred while updating the workspace: ${error.message}`)
         }
 
-        await this.workspaceService.mergeWorkspaceConfig(workspaceId, { name, description })
+        await this.workspaceService.mergeWorkspaceConfig(workspaceId, value as Partial<Workspace>)
         res.sendStatus(200)
       })
     )

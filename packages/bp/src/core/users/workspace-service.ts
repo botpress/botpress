@@ -135,6 +135,11 @@ export class WorkspaceService {
     return (workspace && workspace.name) || workspaceId
   }
 
+  async _getAuthStrategyIDs(): Promise<Set<string>> {
+    const config = await this.configProvider.getBotpressConfig()
+    return config.authStrategies ? new Set(Object.keys(config.authStrategies)) : new Set()
+  }
+
   async createWorkspace(workspace: CreateWorkspace): Promise<void> {
     const workspaces = await this.getWorkspaces()
     if (workspaces.find(x => x.id === workspace.id)) {
@@ -145,9 +150,18 @@ export class WorkspaceService {
       throw new InvalidOperationError('Invalid pipeline')
     }
 
+    if (workspace.authStrategies) {
+      const validIDs = await this._getAuthStrategyIDs()
+      workspace.authStrategies.forEach(authStratID => {
+        if (!validIDs.has(authStratID)) {
+          throw new InvalidOperationError(`Invalid authStrategy: ${authStratID}`)
+        }
+      })
+    }
+
     const newWorkspace = {
       ...defaultWorkspace,
-      ..._.pick(workspace, ['id', 'name', 'description', 'audience']),
+      ..._.pick(workspace, ['id', 'name', 'description', 'audience', 'roles', 'authStrategies', 'botPrefix']),
       pipeline: defaultPipelines[workspace.pipelineId]
     }
 

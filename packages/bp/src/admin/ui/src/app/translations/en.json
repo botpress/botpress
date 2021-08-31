@@ -286,6 +286,7 @@
         "filter": "Filter bots",
         "import": {
           "alreadyInUse": "Already in use",
+          "alreadyExists": "Importing an already existing bot will delete its messaging configuration before being synchronized",
           "archive": "Bot Archive",
           "fromArchive": "Import bot from archive",
           "import": "Import Bot",

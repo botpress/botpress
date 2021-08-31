@@ -113,7 +113,8 @@ export const defaultWorkspace: Workspace = {
   defaultRole: defaultUserRole,
   adminRole: defaultAdminRole,
   pipeline: defaultPipelines['none'],
-  rolloutStrategy: 'anonymous'
+  rolloutStrategy: 'anonymous',
+  authStrategies: ['default']
 }
 
 // Builtin role for chat users. It can't be customized
@@ -147,13 +148,11 @@ export const BUILTIN_MODULES = [
   'channel-web',
   'code-editor',
   'examples',
-  'extensions',
   'history',
   'hitl',
   'misunderstood',
   'ndu',
   'nlu',
-  'qna',
   'testing',
   'uipath'
 ]

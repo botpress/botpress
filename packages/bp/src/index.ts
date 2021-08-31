@@ -96,13 +96,13 @@ try {
   if (process.IS_PRO_AVAILABLE) {
     process.CLUSTER_ENABLED = yn(process.env.CLUSTER_ENABLED)
 
-    if (process.env.PRO_ENABLED === undefined && process.env['BP_CONFIG_PRO.ENABLED'] === undefined) {
+    if (process.env.PRO_ENABLED === undefined && process.env.BP_CONFIG_PRO_ENABLED === undefined) {
       if (fs.existsSync(configPath)) {
         const config = require(configPath)
         process.IS_PRO_ENABLED = config.pro && config.pro.enabled
       }
     } else {
-      process.IS_PRO_ENABLED = yn(process.env.PRO_ENABLED) || yn(process.env['BP_CONFIG_PRO.ENABLED'])
+      process.IS_PRO_ENABLED = yn(process.env.PRO_ENABLED) || yn(process.env.BP_CONFIG_PRO_ENABLED)
     }
   }
 
@@ -289,6 +289,11 @@ try {
           alias: 'target',
           description: 'Minimum percentage of respected SLA required to continue incrementing users',
           default: 100
+        },
+        useWeb: {
+          alias: 'web',
+          description: 'Use channel-web instead of converse for benchmarking',
+          default: false
         },
         increments: {
           alias: 'i',

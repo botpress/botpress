@@ -87,12 +87,9 @@ const TYPES = {
   SDKStats: Symbol.for('SDKStats'),
   HooksStats: Symbol.for('HooksStats'),
   ConfigsStats: Symbol.for('ConfigsStats'),
-  MessageRepository: Symbol.for('MessageRepository'),
-  ConversationRepository: Symbol.for('ConversationRepository'),
-  MessageService: Symbol.for('MessageService'),
-  ConversationService: Symbol.for('ConversationService'),
   RenderService: Symbol.for('RenderService'),
-  MappingRepository: Symbol.for('MappingRepository')
+  QnaService: Symbol.for('QnaService'),
+  MessagingService: Symbol.for('MessagingService')
 }
 
 export { TYPES }

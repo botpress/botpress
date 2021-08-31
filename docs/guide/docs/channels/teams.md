@@ -6,27 +6,16 @@ title: Microsoft Teams
 ## Requirements
 
 ### Configure Microsoft Account
+
 Your Microsoft Account should have access to Azure and Teams. You can check out the [Azure](https://docs.microsoft.com/en-us/azure/devops/?view=azure-devops) and [Teams](https://docs.microsoft.com/en-us/microsoftteams/) documentation for information on how to make these connections.
 
-### Enable the Teams Channel
-
-You can do this by opening the file `data/global/botpress.config.json` in a text editor and setting the value to `true` as below. You can also access this file from the Code Editor in the Botpress Studio user interface.
-
-```js
-"modules": [
-  ...
-    {
-      "location": "MODULES_ROOT/channel-teams",
-      "enabled": true
-    },
-```
 ### Configure HTTPS Endpoint
 
 To connect to Microsoft Teams, an HTTPS endpoint is required. This is set in the `externalUrl` field in botpress.config.json. You can use the following methods to create this endpoint:
 
-  - Create an HTTPS tunnel to your machine using Ngrok. This tutorial works on pretty much any Operating System. [**Tutorial**](https://api.slack.com/tutorials/tunneling-with-ngrok)
-  - Using Nginx and Let's Encrypt. This tutorial is based on the Linux Ubuntu 16.04 Operating System. [**Tutorial**](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-16-04)
-  - Use Serveo to create an HTTPS tunnel to your machine. [**Tutorial**](https://medium.com/automationmaster/how-to-forward-my-local-port-to-public-using-serveo-4979f352a3bf)  
+- Create an HTTPS tunnel to your machine using Ngrok. This tutorial works on pretty much any Operating System. [**Tutorial**](https://api.slack.com/tutorials/tunneling-with-ngrok)
+- Using Nginx and Let's Encrypt. This tutorial is based on the Linux Ubuntu 16.04 Operating System. [**Tutorial**](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-16-04)
+- Use Serveo to create an HTTPS tunnel to your machine. [**Tutorial**](https://medium.com/automationmaster/how-to-forward-my-local-port-to-public-using-serveo-4979f352a3bf)
 
 > **⭐ Note**: To test on localhost, you can also use services like [pagekite](https://pagekite.net/) or [tunnelme](https://localtunnel.github.io/www/) to expose your server.
 
@@ -71,7 +60,6 @@ You can also fill the other fields as you wish, but they will not impact Botpres
 
 ## Configuration
 
-
 ### Configure channel on Botpress
 
 1. Open MS Teams (either the web version or the desktop client), then start a new conversation. In the search bar, paste your Microsoft App Id. You should see your registered bot.
@@ -80,11 +68,35 @@ You can also fill the other fields as you wish, but they will not impact Botpres
 
 You can now continue to next [section](#setting-up-ms-teams-channel-from-an-already-configured-ms-bot-with-an-appid-and-password).
 
-3. Copy the file `data/global/config/channel-teams.json` to your bot-specific configuration folder:
+3. Edit `data/bots/<YOUR_BOT_ID>/bot.config.json`. In the `messaging.channels.teams` section write this configuration :
 
-   > data/bots/YOUR_BOT_ID/config/channel-teams.json
+- enabled: Set to `true`
+- appId: The appId you created in when creating your teams bot
+- appPassword: The app password you created when creating your teams bot
 
-4. Open the file, then set `enabled` to `true`, and set your `appId` and `appPassword` created in step 1
+  Your `bot.config.json` should look like this :
+
+```json
+{
+  // ... other data
+  "messaging": {
+    "channels": {
+      "teams": {
+        "enabled": true,
+        "appId": "your_app_id",
+        "appPassword": "your_app_password",
+        // (Optional)
+        "proactiveMessages": {
+          "en": "proactive message",
+          "fr": "message proactif",
+          ...
+        }
+      }
+      // ... other channels can also be configured here
+    }
+  }
+}
+```
 
 ### Final configuration
 
@@ -96,4 +108,4 @@ You can now continue to next [section](#setting-up-ms-teams-channel-from-an-alre
 
 4. Set the value of the endpoint that was displayed in the logs. If it is missing, it should looks like that:
 
-> YOUR_BASE_URL/api/v1/bots/YOUR_BOT_ID/mod/channel-teams/api/messages
+> `<EXTERNAL_URL>/api/v1/messaging/webhooks/<YOUR_BOT_ID/teams`

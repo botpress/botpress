@@ -1,3 +1,67 @@
+# [12.25.0](https://github.com/botpress/botpress/compare/v12.24.1...v12.25.0) (2021-08-20)
+
+
+### Bug Fixes
+
+* **core:** merge extensions in channel-web ([#5301](https://github.com/botpress/botpress/issues/5301)) ([a08d4c0](https://github.com/botpress/botpress/commit/a08d4c0))
+* **core:** various fixes ([#5323](https://github.com/botpress/botpress/issues/5323)) ([f052678](https://github.com/botpress/botpress/commit/f052678))
+* **studio:** move bot migrations to studio ([#5187](https://github.com/botpress/botpress/issues/5187)) ([2db471a](https://github.com/botpress/botpress/commit/2db471a))
+
+
+### Features
+
+* **core:** bot-scoped libraries ([#5319](https://github.com/botpress/botpress/issues/5319)) ([49090bf](https://github.com/botpress/botpress/commit/49090bf))
+* **core:** custom bot prefix per workspace ([#5326](https://github.com/botpress/botpress/issues/5326)) ([c48769f](https://github.com/botpress/botpress/commit/c48769f))
+* **core:** filter /listAvailableUsers on roles ([#5265](https://github.com/botpress/botpress/issues/5265)) ([ef3a531](https://github.com/botpress/botpress/commit/ef3a531))
+* **nlu:** nlu cloud configuration ([#5296](https://github.com/botpress/botpress/issues/5296)) ([3930383](https://github.com/botpress/botpress/commit/3930383)), closes [#5246](https://github.com/botpress/botpress/issues/5246) [#5261](https://github.com/botpress/botpress/issues/5261) [#5262](https://github.com/botpress/botpress/issues/5262) [#5327](https://github.com/botpress/botpress/issues/5327)
+
+
+
+## [12.24.1](https://github.com/botpress/botpress/compare/v12.24.0...v12.24.1) (2021-08-13)
+
+
+### Bug Fixes
+
+* **ci_cd:** Modified if on the dockerhub connection ([#5275](https://github.com/botpress/botpress/issues/5275)) ([3789a40](https://github.com/botpress/botpress/commit/3789a40))
+* **core:** fix error when creating or importing a bot ([#5295](https://github.com/botpress/botpress/issues/5295)) ([7433244](https://github.com/botpress/botpress/commit/7433244))
+
+
+### Features
+
+* **hitlnext:** colored handoffs ([#5260](https://github.com/botpress/botpress/issues/5260)) ([de7a173](https://github.com/botpress/botpress/commit/de7a173))
+
+
+
+# [12.24.0](https://github.com/botpress/botpress/compare/v12.23.2...v12.24.0) (2021-08-11)
+
+
+### Bug Fixes
+
+* **messaging:** filter module errors for channels ([#5283](https://github.com/botpress/botpress/issues/5283)) ([45ca7cc](https://github.com/botpress/botpress/commit/45ca7cc))
+* **messaging:** fix proxying search params ([#5279](https://github.com/botpress/botpress/issues/5279)) ([9372ccc](https://github.com/botpress/botpress/commit/9372ccc))
+* **messaging:** fix webhook verification ([#5278](https://github.com/botpress/botpress/issues/5278)) ([941e832](https://github.com/botpress/botpress/commit/941e832))
+* **messaging:** legacy route send ext url in headers ([#5266](https://github.com/botpress/botpress/issues/5266)) ([79bc7ac](https://github.com/botpress/botpress/commit/79bc7ac))
+* **messaging:** use headers instead of basic auth ([#5264](https://github.com/botpress/botpress/issues/5264)) ([c64143c](https://github.com/botpress/botpress/commit/c64143c))
+
+
+### Features
+
+* **channel-web:** add RTL support in webchat ([#5251](https://github.com/botpress/botpress/issues/5251)) ([2a26251](https://github.com/botpress/botpress/commit/2a26251))
+* **channel-web:** RTL support for non-text content types ([#5268](https://github.com/botpress/botpress/issues/5268)) ([fb5d673](https://github.com/botpress/botpress/commit/fb5d673))
+
+
+
+## [12.23.2](https://github.com/botpress/botpress/compare/v12.22.2...v12.23.2) (2021-08-03)
+
+
+### Bug Fixes
+
+* **core:** fix disk storage race condition ([#5162](https://github.com/botpress/botpress/issues/5162)) ([86102b3](https://github.com/botpress/botpress/commit/86102b3))
+* **teams:** fix receiving quick replies with teams ([#5230](https://github.com/botpress/botpress/issues/5230)) ([acb79a3](https://github.com/botpress/botpress/commit/acb79a3))
+* nlu regression testing ([0916cf8](https://github.com/botpress/botpress/commit/0916cf8))
+
+
+
 ## [12.23.1](https://github.com/botpress/botpress/compare/v12.23.0...v12.23.1) (2021-07-29)
 
 

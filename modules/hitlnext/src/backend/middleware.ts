@@ -21,7 +21,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
 
   const pipeEvent = async (event: sdk.IO.IncomingEvent, eventDestination: sdk.IO.EventDestination) => {
     debug.forBot(event.botId, 'Piping event', eventDestination)
-    return bp.events.replyToEvent(eventDestination, [{ type: 'typing', value: 10 }, event.payload])
+    return bp.events.replyToEvent(eventDestination, [event.payload])
   }
 
   const handoffCacheKey = (botId: string, threadId: string) => [botId, threadId].join('.')
@@ -41,13 +41,15 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   }
 
   const handleIncomingFromUser = async (handoff: IHandoff, event: sdk.IO.IncomingEvent) => {
+    // There only is an agentId & agentThreadId after assignation
     if (handoff.status === 'assigned') {
-      // There only is an agentId & agentThreadId after assignation
-      await pipeEvent(event, {
+      const messaging = await repository.getMessagingClient(handoff.botId)
+      const userId = await repository.mapVisitor(handoff.botId, handoff.agentId, messaging)
+      return pipeEvent(event, {
         botId: handoff.botId,
-        target: handoff.agentId,
+        target: userId,
         threadId: handoff.agentThreadId,
-        channel: handoff.userChannel
+        channel: 'web'
       })
     }
 
@@ -80,13 +82,16 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   }
 
   const handleIncomingFromAgent = async (handoff: IHandoff, event: sdk.IO.IncomingEvent) => {
-    const { botAvatarUrl }: Config = await bp.config.getModuleConfigForBot(MODULE_NAME, event.botId)
-    const { attributes } = await repository.getAgent(handoff.agentId)
+    const agent = await repository.getAgent(handoff.agentId)
 
-    Object.assign(event.payload, {
-      from: 'agent',
-      botAvatarUrl: botAvatarUrl || attributes?.picture_url
-    })
+    if (handoff.userChannel === 'web' && agent.attributes) {
+      const firstName = agent.attributes.firstname
+      const lastname = agent.attributes.lastname
+      const avatarUrl = agent.attributes.picture_url
+
+      _.set(event, 'payload.channel.web.userName', `${firstName} ${lastname}`)
+      _.set(event, 'payload.channel.web.avatarUrl', avatarUrl)
+    }
 
     await pipeEvent(event, {
       botId: handoff.botId,
