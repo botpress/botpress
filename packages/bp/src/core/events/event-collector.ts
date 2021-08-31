@@ -31,6 +31,7 @@ export const addErrorToEvent = (eventError: sdk.IO.EventError, event: sdk.IO.Eve
 
 const eventsFields = [
   'id',
+  'messageId',
   'botId',
   'channel',
   'threadId',
@@ -102,7 +103,7 @@ export class EventCollector {
       throw new Error("Can't store event missing required fields (botId, channel, direction)")
     }
 
-    const { id, botId, channel, threadId, target, direction, type } = event
+    const { id, botId, channel, threadId, target, direction, type, messageId } = event
 
     const incomingEventId = (event as sdk.IO.OutgoingEvent).incomingEventId
     const sessionId = SessionIdFactory.createIdFromEvent(event)
@@ -111,6 +112,7 @@ export class EventCollector {
 
     const entry: sdk.IO.StoredEvent = {
       id,
+      messageId,
       botId,
       channel,
       threadId,
