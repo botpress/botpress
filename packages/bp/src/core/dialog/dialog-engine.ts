@@ -346,21 +346,23 @@ export class DialogEngine {
     const currentNode = this.findNodeWithoutError(botId, currentFlow, event.state.context?.currentNode)
     const conversationEndFlow = this.findFlowWithoutError(botId, 'conversation_end.flow.json')
 
-    if (conversationEndFlow) {
-      const conversationEndNode = this._findNode(botId, conversationEndFlow, conversationEndFlow.startNode)
-      this.fillContextForTransition(event, {
-        currentFlow,
-        currentNode,
-        nextFlow: conversationEndFlow,
-        nextNode: conversationEndNode
-      })
+    if (!conversationEndFlow) {
+      return false
+    }
 
-      const previousJumpPointsSize = event.state.context?.jumpPoints?.length
-      await this.processEvent(threadId as string, event)
+    const conversationEndNode = this._findNode(botId, conversationEndFlow, conversationEndFlow.startNode)
+    this.fillContextForTransition(event, {
+      currentFlow,
+      currentNode,
+      nextFlow: conversationEndFlow,
+      nextNode: conversationEndNode
+    })
 
-      if (previousJumpPointsSize !== event.state.context?.jumpPoints?.length) {
-        return true
-      }
+    const previousJumpPointsSize = event.state.context?.jumpPoints?.length
+    await this.processEvent(threadId as string, event)
+
+    if (previousJumpPointsSize !== event.state.context?.jumpPoints?.length) {
+      return true
     }
 
     return false
