@@ -26,6 +26,7 @@
     "build": "yarn cmd build",
     "watch": "yarn cmd watch",
     "package": "yarn cmd package",
+    "reference": "yarn cmd build:reference",
     "test": "yarn workspace botpress test",
     "itest": "yarn workspace botpress itest",
     "commitmsg": "commitlint -e $GIT_PARAMS",
