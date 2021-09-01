@@ -7,27 +7,23 @@ const TABLE_NAME = 'misunderstood'
 const TEMP_TABLE_NAME = `${TABLE_NAME}_tmp`
 const COLUMN = 'preview'
 
-const migrateLite = async (db: sdk.KnexExtended, trx: Knex.Transaction, isUp) => {
+const migrateLite = async (db: sdk.KnexExtended, trx: Knex.Transaction, isUp: boolean) => {
   //  1- create a temp table with the correct preview column type
-  const hasTmp = await db.schema.transacting(trx).hasTable(TEMP_TABLE_NAME)
-  if (hasTmp) {
-    await trx.raw(`TRUNCATE TABLE ${TEMP_TABLE_NAME}`)
-  } else {
-    await db.schema.transacting(trx).createTable(TEMP_TABLE_NAME, table => {
-      table.increments('id')
-      table.string('eventId')
-      table.string('botId')
-      table.string('language')
-      isUp ? table.text('preview') : table.string('preview')
-      table.enum('reason', Object.values(FLAG_REASON))
-      table.enum('status', FLAGGED_MESSAGE_STATUSES).defaultTo(FLAGGED_MESSAGE_STATUS.new)
-      table.enum('resolutionType', Object.values(RESOLUTION_TYPE))
-      table.string('resolution')
-      table.json('resolutionParams')
-      table.timestamp('createdAt').defaultTo(db.fn.now())
-      table.timestamp('updatedAt').defaultTo(db.fn.now())
-    })
-  }
+  await db.schema.transacting(trx).dropTableIfExists(TEMP_TABLE_NAME)
+  await db.schema.transacting(trx).createTable(TEMP_TABLE_NAME, table => {
+    table.increments('id')
+    table.string('eventId')
+    table.string('botId')
+    table.string('language')
+    isUp ? table.text('preview') : table.string('preview')
+    table.enum('reason', Object.values(FLAG_REASON))
+    table.enum('status', FLAGGED_MESSAGE_STATUSES).defaultTo(FLAGGED_MESSAGE_STATUS.new)
+    table.enum('resolutionType', Object.values(RESOLUTION_TYPE))
+    table.string('resolution')
+    table.json('resolutionParams')
+    table.timestamp('createdAt').defaultTo(db.fn.now())
+    table.timestamp('updatedAt').defaultTo(db.fn.now())
+  })
 
   //  2- move all data from original table to that table
   await trx.raw(`INSERT INTO ${TEMP_TABLE_NAME} SELECT * FROM ${TABLE_NAME}`)
