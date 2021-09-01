@@ -1,8 +1,8 @@
 import Cookie from 'js-cookie'
 
 export interface BPStorage {
-  set: (key: string, value: string) => void
-  get: (key: string) => string | undefined
+  set: <T>(key: string, value: T) => void
+  get: <T>(key: string) => T | undefined
   del: (key: string) => void
 }
 
@@ -29,19 +29,45 @@ const getDriver = (): 'cookie' | Storage => {
   }
 }
 
+const serialize = <T>(value: T): string => {
+  let strValue = ''
+  if (typeof value !== 'string') {
+    try {
+      strValue = JSON.stringify(value)
+    } catch {}
+  } else {
+    strValue = value
+  }
+
+  return strValue
+}
+
+const deserialize = <T>(strValue?: string | null): T | undefined => {
+  if (strValue === undefined || strValue === null) {
+    return undefined
+  }
+
+  let value: T | undefined = undefined
+  try {
+    value = JSON.parse(strValue)
+  } catch {}
+
+  return value
+}
+
 const storage: BPStorage = {
-  set: (key: string, value: string) => {
+  set: <T>(key: string, value: T) => {
     try {
       const driver = getDriver()
-      driver !== 'cookie' ? driver.setItem(key, value) : Cookie.set(key, value)
+      driver !== 'cookie' ? driver.setItem(key, serialize(value)) : Cookie.set(key, serialize(value))
     } catch (err) {
       console.error('Error while setting data into storage.', err.message)
     }
   },
-  get: (key: string) => {
+  get: <T>(key: string): T | undefined => {
     try {
       const driver = getDriver()
-      return driver !== 'cookie' ? driver.getItem(key) || undefined : Cookie.get(key)
+      return driver !== 'cookie' ? deserialize(driver.getItem(key)) : deserialize(Cookie.get(key))
     } catch (err) {
       console.error('Error while getting data from storage.', err.message)
     }
