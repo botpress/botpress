@@ -9,8 +9,8 @@ const COLUMN = 'preview'
 
 const migrateLite = async (db: sdk.KnexExtended, trx: Knex.Transaction, isUp) => {
   //  1- create a temp table with the correct preview column type
-  const hastmp = await db.schema.transacting(trx).hasTable(TEMP_TABLE_NAME)
-  if (hastmp) {
+  const hasTmp = await db.schema.transacting(trx).hasTable(TEMP_TABLE_NAME)
+  if (hasTmp) {
     await trx.raw(`TRUNCATE TABLE ${TEMP_TABLE_NAME}`)
   } else {
     await db.schema.transacting(trx).createTable(TEMP_TABLE_NAME, table => {
@@ -44,6 +44,9 @@ const migratePG = async (db: sdk.KnexExtended, isUp: boolean) => {
 
 const migrate = async (bp, database, isUp): Promise<sdk.MigrationResult> => {
   const db = database.knex as sdk.KnexExtended
+  if (!(await db.schema.hasTable(TABLE_NAME))) {
+    return { success: true, message: 'Migration skipped' }
+  }
   try {
     if (bp.database.isLite) {
       await db.transaction(async trx => migrateLite(db, trx, isUp))
