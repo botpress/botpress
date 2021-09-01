@@ -4,7 +4,7 @@ import { mergeWith, omit, take } from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 
-const TABLE_NAME = 'bot_analytics'
+export const TABLE_NAME = 'bot_analytics'
 
 const Metric = <const>[
   'sessions_count',
@@ -33,13 +33,20 @@ const mergeEntries = (a: Dic<number>, b: Dic<number>): Dic<number> => {
 }
 
 export default class Database {
-  private knex: Knex & sdk.KnexExtension
+  knex: Knex & sdk.KnexExtension
+  private flusher: ReturnType<typeof setInterval>
+
   private cache_entries: Dic<number> = {}
   private flush_lock: boolean
 
   constructor(private bp: typeof sdk) {
     this.knex = bp.database
-    setInterval(() => this.flushMetrics(), ms('10s'))
+    this.flusher = setInterval(() => this.flushMetrics(), ms('10s'))
+  }
+
+  // Mostly useful for tests - kill the setInterval so jest can exit
+  destroy() {
+    clearInterval(this.flusher)
   }
 
   async initialize() {

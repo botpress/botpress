@@ -8,6 +8,7 @@ export class EventsTable extends Table {
 
     await this.knex.createTableIfNotExists(this.name, table => {
       table.string('id').primary()
+      table.uuid('messageId').nullable()
       table.string('botId').notNullable()
       table.string('channel').notNullable()
       table.string('threadId').nullable()
@@ -22,6 +23,7 @@ export class EventsTable extends Table {
       table.json('event').notNullable()
       table.timestamp('createdOn').notNullable()
       table.index('createdOn', 'events_idx')
+      table.index('messageId')
       created = true
     })
     return created

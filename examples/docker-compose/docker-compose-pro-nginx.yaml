@@ -5,11 +5,10 @@ services:
     build:
       context: ./botpress
       dockerfile: Dockerfile
-    image: botpress-server
+    image: botpress/server
     container_name: botpress-server
-    command: /botpress/bp
-    expose:
-      - 3000
+    ports:
+      - 3000:3000
     environment:
       - DATABASE_URL=postgres://postgres:secretpw@postgres:5435/botpress_db
       - REDIS_URL=redis://redis:6379?password=redisPassword
@@ -32,7 +31,7 @@ services:
     build:
       context: ./botpress
       dockerfile: Dockerfile
-    image: botpress-lang
+    image: botpress/server
     container_name: botpress-lang
     command: bash -c "./duckling -p 8000 & ./bp lang --langDir /botpress/lang --port 3100"
     expose:
@@ -64,13 +63,14 @@ services:
       - redisdata:/data
 
   nginx:
-    container_name: nginx
-    build: ./nginx
+    image: nginx:1.21
     ports:
       - 80:80
     command: nginx -g 'daemon off';
     depends_on:
       - botpress
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
 
 volumes:
   pgdata:

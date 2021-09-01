@@ -48,7 +48,7 @@
     "slate": "^0.47.4",
     "slate-react": "^0.22.4",
     "slate-react-placeholder": "^0.2.4",
-    "tar": "^4.4.6",
+    "tar": "^4.4.15",
     "tmp": "^0.0.33",
     "yn": "^3.1.1"
   },

@@ -31,7 +31,7 @@ export namespace Renderer {
     store?: RootStore
     bp?: StudioConnector
     fromLabel?: string
-    incomingEventId?: string
+    messageId?: uuid
     /** When true, the message isn't wrapped by its bubble */
     noBubble?: boolean
     keyboard?: any
@@ -166,7 +166,7 @@ export interface Config {
   botId?: string
   externalAuthToken?: string
   userId?: string
-  conversationId?: number
+  conversationId?: uuid
   /** Allows to set a different user id for different windows (eg: studio, specific bot, etc) */
   userIdScope?: string
   enableReset: boolean
@@ -256,23 +256,18 @@ export interface BotInfo {
   lazySocket: boolean
 }
 
-interface Conversation {
-  id: number
-  last_heard_on: Date | undefined
-  logo_url: string | undefined
-  created_on: Date
-  description: string | undefined
-  title: string
+export type uuid = string
+
+export interface Conversation {
+  id: uuid
+  clientId: uuid
+  userId: uuid
+  createdOn: Date
 }
 
-/** This is the interface representing the conversations in the list  */
-export type ConversationSummary = {
-  message_sent_on: Date
-  message_author: string
-  message_author_avatar: string
-  message_text: string
-  message_type: string
-} & Conversation
+export interface RecentConversation extends Conversation {
+  lastMessage?: Message
+}
 
 /** Represents the current conversation with all messages */
 export type CurrentConversation = {
@@ -285,19 +280,11 @@ export type CurrentConversation = {
 } & Conversation
 
 export interface Message {
-  id: string
-  userId: string
-  eventId: string
-  incomingEventId: string
-  conversationId: number
-  avatar_url: string | undefined
-  full_name: string
-  message_data: any | undefined
-  message_raw: any | undefined
-  message_text: string | undefined
-  message_type: string | undefined
+  id: uuid
+  conversationId: uuid
+  authorId: uuid | undefined
+  sentOn: Date
   payload: any
-  sent_on: Date
   // The typing delay in ms
   timeInMs: number
 }
@@ -350,6 +337,6 @@ interface MessageWrapper {
 }
 
 export interface EventFeedback {
-  incomingEventId: string
+  messageId: uuid
   feedback?: number
 }

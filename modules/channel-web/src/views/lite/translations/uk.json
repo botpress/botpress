@@ -7,6 +7,7 @@
   "header.deleteConversationYes": "Видалити",
   "header.deleteConversationNo": "Скасувати",
   "conversationList.untitledConversation": "Розмова без назви",
+  "conversationList.title": "Розмова {id}",
   "botInfo.backToConversation": "Повернутись до розмови",
   "botInfo.startConversation": "Розпочати розмову",
   "botInfo.privacyPolicy": "Показати Політику конфіденційності",
