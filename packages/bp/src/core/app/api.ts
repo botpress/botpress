@@ -146,7 +146,7 @@ const cms = (cmsService: CMSService, mediaServiceProvider: MediaServiceProvider)
     getContentElements: cmsService.getContentElements.bind(cmsService),
     listContentElements: cmsService.listContentElements.bind(cmsService),
     deleteContentElements: cmsService.deleteContentElements.bind(cmsService),
-    getAllContentTypes(botId?: string): Promise<any[]> {
+    getAllContentTypes(botId: string): Promise<any[]> {
       return cmsService.getAllContentTypes(botId)
     },
     renderElement(contentId: string, args: any, eventDestination: sdk.IO.EventDestination): Promise<any> {

@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { prepareRequire } from 'core/user-code/utils'
 import fs from 'fs'
 import fse from 'fs-extra'
 import _ from 'lodash'
@@ -9,6 +10,7 @@ import { NodeVM } from 'vm2'
 
 export interface CodeFile {
   relativePath: string
+  folder: string
   code: string
 }
 
@@ -18,37 +20,49 @@ export class SafeCodeSandbox {
   private tmpPath: string
   private filesMap: { [name: string]: string } = {}
 
-  constructor(files: CodeFile[], logger: Logger) {
-    this.tmpDir = tmp.dirSync({ prefix: 'sandbox-', keep: false, unsafeCleanup: true })
+  constructor(private botId: string, logger: Logger) {
+    this.tmpDir = tmp.dirSync({ prefix: `sandbox-${botId}`, keep: false, unsafeCleanup: true })
     this.tmpPath = this.tmpDir.name
-
-    for (const file of files) {
-      const pt = path.resolve(path.join(this.tmpDir.name, file['folder']))
-      fse.mkdirpSync(pt)
-      // TODO: use the correct module path
-      const filePath = path.resolve(path.join(this.tmpDir.name, file['folder'], file.relativePath))
-      this.filesMap[file.relativePath] = filePath
-
-      fs.writeFileSync(filePath, file.code, 'utf8')
-    }
 
     !process.DISABLE_CONTENT_SANDBOX && this.initializeVm(logger)
   }
 
+  async addFiles(files: CodeFile[]) {
+    for (const file of files) {
+      await this.addFile(file)
+    }
+  }
+
+  async addFile(file: CodeFile) {
+    const filePath = path.resolve(this.tmpPath, file.relativePath)
+    this.filesMap[file.relativePath] = filePath
+
+    await fse.writeFile(filePath, file.code, 'utf8')
+    return filePath
+  }
+
   initializeVm(logger: Logger) {
+    const lookups = [this.tmpPath, path.resolve(process.PROJECT_LOCATION)]
+    const _require = prepareRequire(this.tmpPath, lookups)
+
+    const modRequire = new Proxy(
+      {},
+      {
+        get: (_obj, prop) => _require(prop)
+      }
+    )
+
     this.vm = new NodeVM({
       compiler: 'javascript',
       sandbox: {},
       timeout: 1000,
       console: 'redirect',
       sourceExtensions: ['js'],
-      nesting: false,
       require: {
-        builtin: ['path', 'assert', 'os', 'querystring', 'string_decoder', 'url', 'zlib', 'util'],
+        builtin: ['path', 'assert', 'os', 'querystring', 'string_decoder', 'url', 'zlib', 'util', 'events'],
         external: true,
         context: 'sandbox',
-        import: [],
-        root: path.resolve(this.tmpPath, 'builtin') // TODO: use the correct module path
+        mock: modRequire
       }
     })
 
@@ -79,11 +93,11 @@ export class SafeCodeSandbox {
         return require(this.filesMap[fileName])
       }
 
-      const code = fs.readFileSync(this.filesMap[fileName], 'utf8')
+      const code = await fse.readFile(this.filesMap[fileName], 'utf8')
       return this.vm!.run(
         code,
         path.join(
-          path.resolve(this.tmpPath, 'builtin'), // TODO: use the correct module path
+          this.tmpPath,
           `${Math.random()
             .toString()
             .substr(2, 6)}.js`
