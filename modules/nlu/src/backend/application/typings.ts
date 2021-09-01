@@ -21,18 +21,6 @@ export interface BotDefinition {
   seed: number
 }
 
-export type ProgressCallback = (p: number) => Promise<void>
-
-export interface Trainable {
-  startTraining(language: string, progressCallback: (ts: TrainingState) => void): Promise<string>
-  setModel(language: string, modelId: string): void
-  cancelTraining(language: string): Promise<void>
-  getTraining(language: string): Promise<TrainingState | undefined>
-  getAllTrainings(): Promise<TrainingSession[]>
-}
-
-export type EventUnderstanding = Omit<IO.EventUnderstanding, 'includedContexts' | 'ms'>
-
 export interface TrainingState {
   status: SDKNLU.TrainingStatus
   progress: number
@@ -45,9 +33,15 @@ export interface TrainingId {
 
 export interface TrainingSession extends TrainingId, TrainingState {}
 
-export interface BpTrainingSet {
+export interface PredictOutput {
+  entities: SDKNLU.Entity[]
+  predictions: Dic<SDKNLU.ContextPrediction>
+  spellChecked: string
+}
+
+export interface TrainingSet {
   intentDefs: SDKNLU.IntentDefinition[]
   entityDefs: SDKNLU.EntityDefinition[]
   languageCode: string
-  seed: number // seeds random number generator in nlu training
+  seed: number
 }

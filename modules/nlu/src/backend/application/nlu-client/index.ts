@@ -1,9 +1,9 @@
-import { Client, Health, Specifications, TrainingState } from '@botpress/nlu-client'
-
+import { Client, Health, PredictOutput, Specifications, TrainingState, TrainInput } from '@botpress/nlu-client'
 import _ from 'lodash'
-import { BpPredictOutput, BpTrainSet, mapPredictOutput, mapTrainSet } from './api-mapper'
 
-export type TrainListener = (tp: TrainingState | undefined) => Promise<'keep-listening' | 'stop-listening'>
+export type TrainListener = (
+  tp: TrainingState
+) => Promise<{ keepListening: true } | { keepListening: false; err?: Error }>
 
 const TRAIN_POLLING_MS = 500
 
@@ -15,10 +15,16 @@ export class NLUClientWrapper {
       const interval = setInterval(async () => {
         try {
           const tp = await this.getTraining(botId, modelId)
+          if (!tp) {
+            return
+          }
           const ret = await l(tp)
-          if (ret === 'stop-listening') {
+          if (!ret.keepListening) {
             clearInterval(interval)
-            return resolve()
+            if (!ret.err) {
+              return resolve()
+            }
+            return reject(ret.err)
           }
         } catch (err) {
           reject(err)
@@ -47,8 +53,7 @@ export class NLUClientWrapper {
     return response.models
   }
 
-  public async startTraining(appId: string, bpTrainSet: BpTrainSet): Promise<string> {
-    const trainInput = mapTrainSet(bpTrainSet)
+  public async startTraining(appId: string, trainInput: TrainInput): Promise<string> {
     const { entities, intents, seed, language } = trainInput
 
     const contexts = _(intents)
@@ -99,13 +104,13 @@ export class NLUClientWrapper {
     return response.detectedLanguages[0]
   }
 
-  public async predict(appId: string, utterance: string, modelId: string): Promise<BpPredictOutput> {
+  public async predict(appId: string, utterance: string, modelId: string): Promise<PredictOutput> {
     const response = await this._client.predict(appId, modelId, { utterances: [utterance] })
     if (!response.success) {
       return this._throwError(response.error)
     }
     const preds = response.predictions[0]
-    return mapPredictOutput(preds)
+    return preds
   }
 
   private _throwError(err: string): never {

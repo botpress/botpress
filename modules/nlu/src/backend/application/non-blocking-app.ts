@@ -28,7 +28,7 @@ export class NonBlockingNluApplication extends NLUApplication {
   private _waitForStan() {
     return new Promise(resolve => {
       const i = setInterval(async () => {
-        const health = await this.getHealth()
+        const health = await this.getHealth({ reportError: false })
         if (health?.isEnabled) {
           clearInterval(i)
           resolve()

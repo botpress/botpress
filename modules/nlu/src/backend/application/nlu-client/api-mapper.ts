@@ -12,29 +12,18 @@ import {
   EntityPrediction as StanEntityPrediction
 } from '@botpress/nlu-client'
 
-import { NLU } from 'botpress/sdk'
-
+import { NLU as SDKNLU } from 'botpress/sdk'
 import _ from 'lodash'
+import { PredictOutput as BpPredictOutput, TrainingSet as BpTrainingSet } from '../typings'
 
-type BpSlotDefinition = NLU.SlotDefinition
-type BpIntentDefinition = NLU.IntentDefinition
-type BpEntityDefinition = NLU.EntityDefinition
+type BpSlotDefinition = SDKNLU.SlotDefinition
+type BpIntentDefinition = SDKNLU.IntentDefinition
+type BpEntityDefinition = SDKNLU.EntityDefinition
 
-type BpSlotPrediction = NLU.Slot
-type BpEntityPrediction = NLU.Entity
-export interface BpPredictOutput {
-  entities: BpEntityPrediction[]
-  predictions: Dic<NLU.ContextPrediction>
-  spellChecked: string
-}
-
-type BpContextPrediction = NLU.ContextPrediction
-export interface BpTrainSet {
-  intentDefs: BpIntentDefinition[]
-  entityDefs: BpEntityDefinition[]
-  languageCode: string
-  seed: number
-}
+type BpSlotPrediction = SDKNLU.Slot
+type BpIntentPrediction = SDKNLU.ContextPrediction['intents'][0]
+type BpEntityPrediction = SDKNLU.Entity
+type BpContextPrediction = SDKNLU.ContextPrediction
 
 /**
  * ################
@@ -99,7 +88,7 @@ const mapEntityDefinition = (e: BpEntityDefinition): StanEntityDefinition => {
   return isPatternEntity(e) ? mapPattern(e) : mapList(e)
 }
 
-export const mapTrainSet = (bpTrainSet: BpTrainSet): TrainInput => {
+export const mapTrainSet = (bpTrainSet: BpTrainingSet): TrainInput => {
   const { intentDefs, entityDefs, languageCode, seed } = bpTrainSet
 
   const entities = entityDefs.filter(isCustomEntity).map(mapEntityDefinition)
@@ -141,7 +130,7 @@ function mapEntity(entity: StanEntityPrediction): BpEntityPrediction {
   }
 }
 
-function mapIntent(intent: StanIntentPrediction): BpContextPrediction['intents'][0] {
+function mapIntent(intent: StanIntentPrediction): BpIntentPrediction {
   const { confidence, slots, extractor, name } = intent
   return {
     label: name,

@@ -27,12 +27,12 @@ export class NLUApplication {
     }
   }
 
-  public async getHealth() {
+  public async getHealth(opt: { reportError: boolean } = { reportError: true }) {
     try {
       const { health } = await this._nluClient.getInfo()
       return health
     } catch (err) {
-      this._logger.attachError(err).error('An error occured when fetch info from NLU Server.')
+      opt.reportError && this._logger.attachError(err).error('An error occured when fetch info from NLU Server.')
       return
     }
   }
@@ -76,14 +76,9 @@ export class NLUApplication {
 
     // the Bot class will report progress and handle errors
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    bot.train(language)
-  }
-
-  public async cancelTraining(botId: string, language: string) {
-    const bot = this._bots[botId]
-    if (!bot) {
-      throw new BotNotMountedError(botId)
-    }
-    return bot.cancelTraining(language)
+    bot
+      .train(language)
+      .then(_.identity)
+      .catch(_.identity)
   }
 }

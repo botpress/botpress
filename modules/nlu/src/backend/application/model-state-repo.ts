@@ -6,17 +6,17 @@ interface ModelPrimaryKey {
   state: 'ready' | 'training'
 }
 
-export interface ModelState extends ModelPrimaryKey {
+interface ModelInfo extends ModelPrimaryKey {
   modelId: string
   definitionHash: string
 }
 
 export interface IModelStateRepository {
-  get(key: ModelPrimaryKey): Promise<ModelState | undefined>
+  get(key: ModelPrimaryKey): Promise<ModelInfo | undefined>
   has(key: ModelPrimaryKey): Promise<boolean>
-  set(model: ModelState): Promise<void>
+  set(model: ModelInfo): Promise<void>
   del(key: ModelPrimaryKey): Promise<void>
-  query(query: Partial<ModelState>): Promise<ModelState[]>
+  query(query: Partial<ModelInfo>): Promise<ModelInfo[]>
 }
 
 export class DbModelStateRepository implements IModelStateRepository {
@@ -35,7 +35,7 @@ export class DbModelStateRepository implements IModelStateRepository {
     })
   }
 
-  public async get(key: ModelPrimaryKey): Promise<ModelState | undefined> {
+  public async get(key: ModelPrimaryKey): Promise<ModelInfo | undefined> {
     return this._db
       .table(this._tableName)
       .where(key)
@@ -47,7 +47,7 @@ export class DbModelStateRepository implements IModelStateRepository {
     return !!(await this.get(key))
   }
 
-  public async set(model: ModelState): Promise<void> {
+  public async set(model: ModelInfo): Promise<void> {
     const { modelId, definitionHash, ...key } = model
     if (await this.has(key)) {
       return this._db
@@ -65,56 +65,10 @@ export class DbModelStateRepository implements IModelStateRepository {
       .del()
   }
 
-  public async query(query: Partial<ModelState>): Promise<ModelState[]> {
+  public async query(query: Partial<ModelInfo>): Promise<ModelInfo[]> {
     return this._db
       .table(this._tableName)
       .where(query)
       .select('*')
-  }
-}
-
-export class InMemModelStateRepository implements IModelStateRepository {
-  private _table: ModelState[] = []
-
-  public async get(key: ModelPrimaryKey): Promise<ModelState | undefined> {
-    return this._table.find(m => this._areSame(m, key))
-  }
-
-  public async has(key: ModelPrimaryKey): Promise<boolean> {
-    return !!(await this.get(key))
-  }
-
-  public async set(newModel: ModelState): Promise<void> {
-    const idx = this._table.findIndex(m => this._areSame(m, newModel))
-    if (idx < 0) {
-      this._table.push(newModel)
-      return
-    }
-    this._table[idx] = newModel
-  }
-
-  public async del(key: ModelPrimaryKey): Promise<void> {
-    const idx = this._table.findIndex(m => this._areSame(m, key))
-    if (idx < 0) {
-      return
-    }
-    this._table.splice(idx, 1)
-  }
-
-  public async query(query: Partial<ModelState>): Promise<ModelState[]> {
-    return this._table.filter(m => this._satisfiesQuery(m, query))
-  }
-
-  private _satisfiesQuery = (m: ModelState, query: Partial<ModelState>) => {
-    for (const field in query) {
-      if (query[field] !== m[field]) {
-        return false
-      }
-    }
-    return true
-  }
-
-  private _areSame(key1: ModelPrimaryKey, key2: ModelPrimaryKey) {
-    return key1.botId === key2.botId && key1.language === key2.language && key1.state === key2.state
   }
 }

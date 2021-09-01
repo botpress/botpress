@@ -1,24 +1,19 @@
+import Bluebird from 'bluebird'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import { ModelStateService } from '../model-state-service'
 import { NLUClientWrapper } from '../nlu-client'
-import { EventUnderstanding } from '../typings'
+import { mapPredictOutput } from '../nlu-client/api-mapper'
+import { BotDefinition } from '../typings'
 
-interface BotDefinition {
-  botId: string
-  defaultLanguage: string
-  languages: string[]
-  seed: number
-}
-
+type EventUnderstanding = Omit<sdk.IO.EventUnderstanding, 'includedContexts' | 'ms'>
 type RawEventUnderstanding = Omit<EventUnderstanding, 'detectedLanguage'>
 
-export interface IPredictor {
-  predict: (textInput: string, anticipatedLanguage?: string) => Promise<EventUnderstanding>
-}
+const isDefined = <T>(x: T | undefined): x is T => _.negate(_.isUndefined)(x)
 
-export class Predictor implements IPredictor {
+export class Predictor {
   private _botId: string
+  private _languages: string[]
   private _defaultLanguage: string
 
   constructor(
@@ -29,21 +24,25 @@ export class Predictor implements IPredictor {
   ) {
     this._botId = bot.botId
     this._defaultLanguage = bot.defaultLanguage
+    this._languages = bot.languages
   }
 
-  public predict = async (textInput: string, anticipatedLanguage?: string) => {
-    const modelsByLang = await this._getModelsByLang()
+  public predict = async (textInput: string, anticipatedLanguage?: string): Promise<EventUnderstanding> => {
+    const allModels = await Bluebird.map(this._languages, l =>
+      this._modelStateService.getLocalModelState(this._botId, l)
+    )
+
+    const modelsByLang = _(allModels)
+      .filter(isDefined)
+      .groupBy(m => m.language)
+      .mapValues(_.first)
+      .pickBy(isDefined)
+      .mapValues(m => m.id)
+      .value()
 
     let detectedLanguage: string | undefined
     try {
-      detectedLanguage = await this._nluClient.detectLanguage(
-        this._botId,
-        textInput,
-        _(modelsByLang)
-          .mapValues(m => m.id)
-          .values()
-          .value()
-      )
+      detectedLanguage = await this._nluClient.detectLanguage(this._botId, textInput, Object.values(modelsByLang))
     } catch (err) {
       let msg = `An error occured when detecting language for input "${textInput}"\n`
       msg += `Falling back on default language: ${this._defaultLanguage}.`
@@ -52,7 +51,6 @@ export class Predictor implements IPredictor {
 
     let nluResults: RawEventUnderstanding | undefined
 
-    const isDefined = _.negate(_.isUndefined)
     const languagesToTry = _([detectedLanguage, anticipatedLanguage, this._defaultLanguage])
       .filter(isDefined)
       .uniq()
@@ -75,31 +73,21 @@ export class Predictor implements IPredictor {
   }
 
   private async tryPredictInLanguage(textInput: string, language: string): Promise<RawEventUnderstanding | undefined> {
-    const modelsByLang = await this._getModelsByLang()
-    if (!modelsByLang[language]) {
+    const model = await this._modelStateService.getLocalModelState(this._botId, language)
+    if (!model) {
       return
     }
 
     try {
-      const originalOutput = await this._nluClient.predict(this._botId, textInput, modelsByLang[language].id)
-      const { spellChecked } = originalOutput
-      return { ...originalOutput, spellChecked, errored: false, language }
+      const response = await this._nluClient.predict(this._botId, textInput, model.id)
+      const originalOutput = mapPredictOutput(response)
+      return { ...originalOutput, errored: false, language }
     } catch (err) {
-      const modelId = modelsByLang[language]
-      const msg = `An error occured when predicting for input "${textInput}" with model ${modelId}`
+      const msg = `An error occured when predicting for input "${textInput}" with model ${model.id}`
       this._logger.attachError(err).error(msg)
 
       return { errored: true, language }
     }
-  }
-
-  private async _getModelsByLang(): Promise<_.Dictionary<{ id: string }>> {
-    const allModels = await this._modelStateService.getAllModels(this._botId)
-    return _(allModels)
-      .groupBy(m => m.language)
-      .mapValues(_.first)
-      .pickBy(_.negate(_.isUndefined))
-      .value()
   }
 
   private isEmpty(nluResults: RawEventUnderstanding | undefined): nluResults is undefined {

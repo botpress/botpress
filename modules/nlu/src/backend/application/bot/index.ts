@@ -5,14 +5,14 @@ import { BotDoesntSpeakLanguageError } from '../errors'
 import { ModelStateService } from '../model-state-service'
 import { NLUClientWrapper } from '../nlu-client'
 import { TrainingState, TrainingSession, BotDefinition } from '../typings'
-import { IPredictor, Predictor } from './predictor'
-import { ITrainer, Trainer } from './trainer'
+import { Predictor } from './predictor'
+import { Trainer } from './trainer'
 
 export interface MountOptions {
   queueTraining: boolean
 }
 
-export class Bot implements ITrainer, IPredictor {
+export class Bot {
   private _botId: string
   private _languages: string[]
 

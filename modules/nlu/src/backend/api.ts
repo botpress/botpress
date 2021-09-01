@@ -137,7 +137,7 @@ export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
   router.post('/train/:lang/delete', needsWriteMW, async (req, res) => {
     const { botId, lang } = req.params
     try {
-      await app.cancelTraining(botId, lang)
+      await app.getBot(botId).cancelTraining(lang)
       res.sendStatus(200)
     } catch (error) {
       return mapError({ botId, lang, error }, res)
