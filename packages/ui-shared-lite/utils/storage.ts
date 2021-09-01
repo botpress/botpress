@@ -50,7 +50,9 @@ const deserialize = <T>(strValue?: string | null): T | undefined => {
   let value: T | undefined = undefined
   try {
     value = JSON.parse(strValue)
-  } catch {}
+  } catch {
+    value = strValue as any
+  }
 
   return value
 }
