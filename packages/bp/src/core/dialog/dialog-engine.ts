@@ -83,7 +83,7 @@ export class DialogEngine {
     // End session if there are no more instructions in the queue
     if (!instruction) {
       this._debug(event.botId, event.target, 'ending flow')
-      this._endFlow(event)
+      await this._endFlow(event)
       return event
     }
 
@@ -102,7 +102,7 @@ export class DialogEngine {
         const destination = result.options!.transitionTo!
         if (!destination || !destination.length) {
           this._debug(event.botId, event.target, 'ending flow, because no transition destination defined (red port)')
-          this._endFlow(event)
+          await this._endFlow(event)
           return event
         }
         // We reset the queue when we transition to another node.
@@ -211,6 +211,56 @@ export class DialogEngine {
     }
   }
 
+  private findNodeWithoutError = (botId, flow, nodeName) => {
+    try {
+      return this._findNode(botId, flow, nodeName)
+    } catch (err) {
+      // ignore
+    }
+    return undefined
+  }
+
+  private findFlowWithoutError = (botId, flowName) => {
+    try {
+      return this._findFlow(botId, flowName)
+    } catch (err) {
+      // ignore
+    }
+    return undefined
+  }
+
+  private fillContextForTransition = (
+    event: IO.IncomingEvent,
+    {
+      currentFlow,
+      currentNode,
+      nextFlow,
+      nextNode
+    }: {
+      currentFlow: FlowWithParent
+      currentNode?: FlowNode
+      nextFlow: FlowWithParent
+      nextNode: FlowNode
+    }
+  ) => {
+    event.state.context = {
+      ...event.state.context,
+      currentNode: nextNode.name,
+      currentFlow: nextFlow.name,
+      queue: undefined,
+      previousFlow: currentFlow.name,
+      previousNode: currentNode?.name ?? '',
+      hasJumped: true,
+      jumpPoints: [
+        ...(event.state.context?.jumpPoints || []),
+        {
+          flow: currentFlow.name,
+          node: currentNode?.name as string
+        }
+      ]
+    }
+  }
+
   public async processTimeout(botId: string, sessionId: string, event: IO.IncomingEvent) {
     this._debug(event.botId, event.target, 'processing timeout')
 
@@ -219,26 +269,8 @@ export class DialogEngine {
 
     await this._loadFlows(botId)
 
-    // This is the only place we don't want to catch node or flow not found errors
-    const findNodeWithoutError = (flow, nodeName) => {
-      try {
-        return this._findNode(botId, flow, nodeName)
-      } catch (err) {
-        // ignore
-      }
-      return undefined
-    }
-    const findFlowWithoutError = flowName => {
-      try {
-        return this._findFlow(botId, flowName)
-      } catch (err) {
-        // ignore
-      }
-      return undefined
-    }
-
     const currentFlow = this._findFlow(botId, event.state.context?.currentFlow!)
-    const currentNode = findNodeWithoutError(currentFlow, event.state.context?.currentNode)
+    const currentNode = this.findNodeWithoutError(botId, currentFlow, event.state.context?.currentNode)
 
     // Check for a timeout property in the current node
     let timeoutNode = _.get(currentNode, 'timeout')
@@ -246,23 +278,23 @@ export class DialogEngine {
 
     // Check for a timeout node in the current flow
     if (!timeoutNode) {
-      timeoutNode = findNodeWithoutError(currentFlow, 'timeout')
+      timeoutNode = this.findNodeWithoutError(botId, currentFlow, 'timeout')
     }
 
     // Check for a timeout property in the current flow
     if (!timeoutNode) {
       const timeoutNodeName = _.get(timeoutFlow, 'timeoutNode')
       if (timeoutNodeName) {
-        timeoutNode = findNodeWithoutError(timeoutFlow, timeoutNodeName)
+        timeoutNode = this.findNodeWithoutError(botId, timeoutFlow, timeoutNodeName)
       }
     }
 
     // Check for a timeout.flow.json and get the start node
     if (!timeoutNode) {
-      timeoutFlow = findFlowWithoutError('timeout.flow.json')
+      timeoutFlow = this.findFlowWithoutError(botId, 'timeout.flow.json')
       if (timeoutFlow) {
         const startNodeName = timeoutFlow.startNode
-        timeoutNode = findNodeWithoutError(timeoutFlow, startNodeName)
+        timeoutNode = this.findNodeWithoutError(botId, timeoutFlow, startNodeName)
       }
     }
 
@@ -270,28 +302,82 @@ export class DialogEngine {
       throw new TimeoutNodeNotFound(`Could not find any timeout node or flow for session "${sessionId}"`)
     }
 
-    if (event.state.context) {
-      event.state.context.currentNode = timeoutNode.name
-      event.state.context.currentFlow = timeoutFlow.name
-      event.state.context.queue = undefined
-      event.state.context.previousFlow = currentFlow.name
-      event.state.context.previousNode = currentNode?.name as string
-      event.state.context.jumpPoints = [
-        ...(event.state.context?.jumpPoints || []),
-        {
-          flow: currentFlow.name,
-          node: currentNode?.name as string
-        }
-      ]
-      event.state.context.hasJumped = true
-    }
+    this.fillContextForTransition(event, { currentFlow, currentNode, nextFlow: timeoutFlow, nextNode: timeoutNode })
 
     return this.processEvent(sessionId, event)
   }
 
-  private _endFlow(event: IO.IncomingEvent) {
+  public cleanState(event) {
     event.state.context = {}
     event.state.temp = {}
+  }
+
+  public shouldRunConvEnd(event: IO.IncomingEvent): boolean {
+    const { name } = this._findFlow(event.botId, event.state.context?.currentFlow!)
+
+    if (name === 'timeout.flow.json') {
+      this.cleanState(event)
+      return false
+    } else if (name === 'conversation_end.flow.json') {
+      return false
+    }
+
+    return true
+  }
+
+  // Runs Conversation end hook and returns true if there is transition
+  public async runConvEndHook(event: IO.IncomingEvent): Promise<boolean> {
+    this._debug(event.botId, event.target, 'processing conversation end hooks')
+    const api = await createForGlobalHooks()
+    await this.hookService.executeHook(new Hooks.BeforeConversationEnd(api, event))
+    if (event.state?.context?.hasJumped) {
+      await this.processEvent(event.threadId as string, event)
+      return true
+    }
+    return false
+  }
+
+  // Runs Conversation end flow and returns true if there is transition
+  public async runConvEndFlow(event: IO.IncomingEvent): Promise<boolean> {
+    this._debug(event.botId, event.target, 'processing conversation end flow')
+    const { botId, threadId } = event
+
+    const currentFlow = this._findFlow(botId, event.state.context?.currentFlow!)
+    const currentNode = this.findNodeWithoutError(botId, currentFlow, event.state.context?.currentNode)
+    const conversationEndFlow = this.findFlowWithoutError(botId, 'conversation_end.flow.json')
+
+    if (!conversationEndFlow) {
+      return false
+    }
+
+    const conversationEndNode = this._findNode(botId, conversationEndFlow, conversationEndFlow.startNode)
+    this.fillContextForTransition(event, {
+      currentFlow,
+      currentNode,
+      nextFlow: conversationEndFlow,
+      nextNode: conversationEndNode
+    })
+
+    const previousJumpPointsSize = event.state.context?.jumpPoints?.length
+    await this.processEvent(threadId as string, event)
+
+    if (previousJumpPointsSize !== event.state.context?.jumpPoints?.length) {
+      return true
+    }
+
+    return false
+  }
+
+  private async _endFlow(event: IO.IncomingEvent) {
+    if (!this.shouldRunConvEnd(event)) {
+      return
+    }
+
+    // Check if the hooks or flow have a transition, don`t clean state if true
+    const shouldWrapup = !(await this.runConvEndHook(event)) && !(await this.runConvEndFlow(event))
+    if (shouldWrapup) {
+      this.cleanState(event)
+    }
   }
 
   private initializeContext(event) {
@@ -398,8 +484,8 @@ export class DialogEngine {
       )
     } else if (transitionTo === 'END') {
       // END means the node has a transition of "end flow" in the flow editor
-      delete event.state.context
       this._debug(event.botId, event.target, 'ending flow')
+      await this._endFlow(event)
       return event
     } else {
       // Transition to the target node in the current flow
