@@ -13,6 +13,7 @@ const buildRef = () => {
       mode: 'file',
       name: 'Botpress SDK',
       readme: './docs/reference/README.md',
+      theme: './build/docs/typeDocTheme',
       gaID: 'UA-90034220-1',
       includeDeclarations: true,
       ignoreCompilerErrors: true,
@@ -36,6 +37,16 @@ const alterReference = async () => {
     .removeClass('tsd-comment')
     .addClass('tsd-typography')
     .html(html)
+
+  $('head > title')
+    .replaceWith('<title>Chatbot Framework SDK | Botpress SDK</title>')
+    .html(html)
+
+  $('head').append(
+    '<meta name="description" content="Botpress Chatbot software development kit has all the tools you need to create your own custom chatbot.">'
+  )
+
+  $('meta[name="robots"]').remove()
 
   const newFile = $.html()
 
