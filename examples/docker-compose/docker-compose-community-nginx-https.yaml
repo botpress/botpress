@@ -10,7 +10,7 @@ services:
       - "3000:3000"
     environment:
       - DATABASE_URL=postgres://postgres:secretpw@postgres:5435/botpress_db
-      - EXTERNAL_URL=http://dawny.ca
+      - EXTERNAL_URL=https://$PLACE_HOLDER_DOMAIN_NAME
     depends_on:
       - postgres
     volumes:
@@ -33,7 +33,7 @@ services:
     image: jonasal/nginx-certbot:latest
     restart: unless-stopped
     environment:
-      - CERTBOT_EMAIL=daehlinadeauotis@gmail.com
+      - CERTBOT_EMAIL=YOUR_EMAIL@DOMAINE.COM
     ports:
       - 80:80
       - 443:443
