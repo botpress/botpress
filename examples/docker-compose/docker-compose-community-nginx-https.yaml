@@ -3,7 +3,6 @@ version: '3'
 services:
   botpress:
     image: botpress/server
-    container_name: botpress-server
     expose:
       - 3000
     ports:
@@ -20,7 +19,6 @@ services:
     image: postgres:11.2-alpine
     expose:
       - 5435
-    container_name: postgres
     environment:
       PGPORT: 5435
       POSTGRES_DB: botpress_db
