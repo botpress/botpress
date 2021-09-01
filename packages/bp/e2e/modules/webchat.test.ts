@@ -47,6 +47,10 @@ describe('Module - Channel Web', () => {
     await expectMatch('Please ask questions about that animal')
   })
 
+  it('Test Before Conversation End Hook and Conversation End Flow', async () => {
+    await expectMatch('I will be listening')
+  })
+
   it('Test QNA text markdown', async () => {
     await fillField('#input-message', 'help me')
     await clickOn('#btn-send')

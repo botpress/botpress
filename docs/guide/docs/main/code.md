@@ -14,14 +14,14 @@ To help you vizualize how it works, check the snippet below. We've commented out
 ```js
 /** const virtual_machine = async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state) { */
 
-    //The content of your .js file starts here. Example:
-    const _ = require('lodash')
-    if (event.type === 'text') {
-      const text = _.get(event, 'text')
-      console.log(text)
-      //...
-    }
-    //End of your file
+//The content of your .js file starts here. Example:
+const _ = require('lodash')
+if (event.type === 'text') {
+  const text = _.get(event, 'text')
+  console.log(text)
+  //...
+}
+//End of your file
 
 /** } */
 ```
@@ -31,14 +31,14 @@ It is also possible to wrap your code with an async method:
 ```js
 /** const virtual_machine = async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state) { */
 
-    //The content of your .js file starts here. Example:
-    const myMethod = async () => {
-      await axios.get('...')
-      console.log('Hello!')
-    }
+//The content of your .js file starts here. Example:
+const myMethod = async () => {
+  await axios.get('...')
+  console.log('Hello!')
+}
 
-    return myMethod()
-    //End of your file
+return myMethod()
+//End of your file
 
 /** } */
 ```
@@ -178,6 +178,14 @@ Here you can save the bot's complete response
 This hook is called right before a user timeouts on a node.
 
 Location: `data/global/hooks/before_session_timeout`
+
+Parameters: `bp`, `event`
+
+### Before Conversation End
+
+This hook is called right before a conversation ends
+
+Location: `data/global/hooks/before_conversation_end`
 
 Parameters: `bp`, `event`
 
