@@ -55,10 +55,6 @@ export class ModelStateService {
     await this._modelRepo.set(currentTraining)
   }
 
-  public deleteLocalTrainingState(botId: string, language: string) {
-    return this._modelRepo.del({ botId, language, state: 'training' })
-  }
-
   public async getLocalTrainingState(botId: string, language: string): Promise<ModelState | undefined> {
     const currentTraining = await this._modelRepo.get({ botId, language, state: 'training' })
     if (!currentTraining) {
