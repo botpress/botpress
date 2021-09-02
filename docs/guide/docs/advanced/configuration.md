@@ -11,7 +11,7 @@ On this page, you will learn about Botpress global configuration, individual bot
 
 This is the main file used to configure the Botpress server. It will be created automatically when it is missing. Default values should be good when discovering Botpress, but in this page you will learn about the most common configuration you may need to change.
 
-To get more information about each individual options, check out the [comments on the configuration schema](https://github.com/botpress/botpress/blob/master/src/bp/core/config/botpress.config.ts)
+To get more information about each individual options, check out the [comments on the configuration schema](https://github.com/botpress/botpress/blob/master/packages/bp/src/core/config/botpress.config.ts)
 
 ## HTTP Server Configuration
 
