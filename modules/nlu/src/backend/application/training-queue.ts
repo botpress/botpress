@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 import moment from 'moment'
 import ms from 'ms'
-import nanoid from 'nanoid'
+import { nanoid } from 'nanoid'
 import { TrainingCanceledError, TrainingAlreadyStartedError } from '../stan/errors'
 import { ITrainingRepository, ITrainingTransactionContext } from './training-repo'
 import { TrainingId, TrainerService, TrainingListener, TrainingState, TrainingSession, I } from './typings'
