@@ -107,11 +107,12 @@ const createMissingElements = async (bp: typeof sdk, botId, files: TemplateFile[
 }
 
 const getTemplateFiles = async (bp: typeof sdk): Promise<TemplateFile[]> => {
-  return (await bp.bots.getBotTemplate('ndu', 'oneflow')).map(x => ({
-    fileName: x.name.replace(/\\/g, '/'),
-    content: JSON.parse(x.content.toString()),
-    buffer: x.content
-  }))
+  // return (await bp.bots.getBotTemplate('ndu', 'oneflow')).map(x => ({
+  //   fileName: x.name.replace(/\\/g, '/'),
+  //   content: JSON.parse(x.content.toString()),
+  //   buffer: x.content
+  // }))
+  return []
 }
 
 const getIntentContexts = async (ghost: sdk.ScopedGhostService) => {

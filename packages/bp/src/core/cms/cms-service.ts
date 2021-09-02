@@ -1,4 +1,4 @@
-import { ContentElement, ContentType, IO, KnexExtended, Logger, SearchParams } from 'botpress/sdk'
+import { ContentElement, ContentType, CustomContentType, IO, KnexExtended, Logger, SearchParams } from 'botpress/sdk'
 import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config'
 import { JobService } from 'core/distributed'
@@ -33,6 +33,10 @@ export const CmsImportSchema = Joi.array().items(
     formData: Joi.object().required()
   })
 )
+
+const extractPayload = (type: string, data) => {
+  return { type, ..._.pickBy(_.omit(data, 'event', 'temp', 'user', 'session', 'bot', 'BOT_URL'), v => v !== undefined) }
+}
 
 @injectable()
 export class CMSService implements IDisposeOnExit {
@@ -183,6 +187,40 @@ export class CMSService implements IDisposeOnExit {
     if (!contentType || !contentType.id) {
       throw new Error(`Invalid content type ${fileName}`)
     }
+
+    this.filesByBotAndId[botId][contentType.id] = `${contentType.id}.json`
+    this.contentTypesByBot[botId].push(contentType)
+  }
+
+  public async addBotContentType(botId: string, name: string, content: string) {
+    const codeFile: CodeFile = { code: content, relativePath: `${name}.js` }
+
+    await this.sandboxByBot[botId].addFile(codeFile)
+
+    const contentTypeParsed = await this.sandboxByBot[botId].run(codeFile.relativePath)
+    const customType: CustomContentType = contentTypeParsed.default || contentTypeParsed
+
+    if (!customType.extends) {
+      return this.logger.error('A custom component must extend a built-in type')
+    }
+
+    const baseType = this.contentTypesByBot[botId].find(x => x.id === customType.extends)
+    const customRenderer = (data: any, channel): any => {
+      if (channel !== 'web') {
+        return extractPayload(baseType!.id.replace('builtin_', ''), data)
+      }
+
+      return {
+        module: name,
+        subType: 'component',
+        component: 'default',
+        botId: data.event.botId,
+        wrapped: extractPayload(baseType!.id.replace('builtin_', ''), data),
+        ...extractPayload('custom', data)
+      }
+    }
+
+    const contentType = _.merge({}, baseType, { renderElement: customRenderer }, customType, { id: name })
 
     this.filesByBotAndId[botId][contentType.id] = `${contentType.id}.json`
     this.contentTypesByBot[botId].push(contentType)

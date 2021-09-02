@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 
 interface Props {
   component: Function
+  name: string
+  bp: any
 }
 
 interface State {

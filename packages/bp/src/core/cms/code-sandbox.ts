@@ -1,6 +1,5 @@
 import { Logger } from 'botpress/sdk'
 import { prepareRequire } from 'core/user-code/utils'
-import fs from 'fs'
 import fse from 'fs-extra'
 import _ from 'lodash'
 import path from 'path'
@@ -10,7 +9,6 @@ import { NodeVM } from 'vm2'
 
 export interface CodeFile {
   relativePath: string
-  folder: string
   code: string
 }
 

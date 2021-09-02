@@ -8,7 +8,10 @@ interface Props {
   componentName?: string
   lite?: boolean
   onNotFound?: any
-  extraProps?: any
+  extraProps?: {
+    subType?: 'component'
+    botId?: string
+  } & any
   contentLang?: string
   defaultLanguage?: string
   languages?: string[]
@@ -37,6 +40,20 @@ export default class InjectedModuleView extends React.Component<Props, State> {
     error: undefined
   }
 
+  getBundlePath(componentName: string, isLite?: boolean) {
+    const type = this.props.extraProps?.subType
+    if (!type) {
+      return `assets/modules/${componentName}/web/${isLite ? 'lite.bundle.js' : 'admin.bundle.js'}`
+    }
+
+    const botId = this.props.extraProps?.botId
+    if (botId) {
+      return `assets/bots/${botId}/${type}/${componentName}/view.bundle.js`
+    }
+
+    return `assets/${type}/${componentName}/view.bundle.js`
+  }
+
   loadModule(modName?: string, compName?: string) {
     const moduleName = modName || this.props.moduleName
     const componentName = compName || this.props.componentName
@@ -59,7 +76,7 @@ export default class InjectedModuleView extends React.Component<Props, State> {
         })
       }
 
-      script.src = `assets/modules/${moduleName}/web/${this.props.lite ? 'lite.bundle.js' : 'admin.bundle.js'}`
+      script.src = this.getBundlePath(moduleName, this.props.lite)
       document.getElementsByTagName('head')[0].appendChild(script)
     } else {
       this.setState({ moduleComponent: null })
@@ -73,7 +90,7 @@ export default class InjectedModuleView extends React.Component<Props, State> {
     if (!window.botpress || !window.botpress[moduleName]) {
       const script = document.createElement('script')
       script.type = 'text/javascript'
-      script.src = `assets/modules/${moduleName}/web/${isLite ? 'lite.bundle.js' : 'admin.bundle.js'}`
+      script.src = this.getBundlePath(moduleName, isLite)
       document.getElementsByTagName('head')[0].appendChild(script)
     }
   }
