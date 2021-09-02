@@ -1,3 +1,29 @@
+# [12.26.0](https://github.com/botpress/botpress/compare/v12.24.1...v12.26.0) (2021-09-02)
+
+
+### Bug Fixes
+
+* **admin:** add the chatuser role id to the filter ([#5285](https://github.com/botpress/botpress/issues/5285)) ([f582e47](https://github.com/botpress/botpress/commit/f582e47))
+* **admin:** change pipeline stage edit endpoint ([#5368](https://github.com/botpress/botpress/issues/5368)) ([3c97635](https://github.com/botpress/botpress/commit/3c97635))
+* **admin:** fix restarting Botpress from the admin ([#5377](https://github.com/botpress/botpress/issues/5377)) ([8d67cca](https://github.com/botpress/botpress/commit/8d67cca))
+* **channel-web:** fix missing dependencies ([#5375](https://github.com/botpress/botpress/issues/5375)) ([ded9b67](https://github.com/botpress/botpress/commit/ded9b67))
+* **core:** fix workspace error ([#5374](https://github.com/botpress/botpress/issues/5374)) ([aca569b](https://github.com/botpress/botpress/commit/aca569b))
+* **core:** remove increment / decrement analytics actions ([#5340](https://github.com/botpress/botpress/issues/5340)) ([b7d311d](https://github.com/botpress/botpress/commit/b7d311d))
+* **core:** remove leftover debug logging ([#5369](https://github.com/botpress/botpress/issues/5369)) ([5466b1e](https://github.com/botpress/botpress/commit/5466b1e))
+* **core:** workspace management api ([#5329](https://github.com/botpress/botpress/issues/5329)) ([9cfad4e](https://github.com/botpress/botpress/commit/9cfad4e))
+* **messaging:** prevent multiple bots from using same clientId ([#5341](https://github.com/botpress/botpress/issues/5341)) ([d6adfc1](https://github.com/botpress/botpress/commit/d6adfc1))
+* **misunderstood:** change preview column from varchar to text ([#5380](https://github.com/botpress/botpress/issues/5380)) ([f34fcef](https://github.com/botpress/botpress/commit/f34fcef))
+
+
+### Features
+
+* **core:** add before conversation end hook and flow ([#5215](https://github.com/botpress/botpress/issues/5215)) ([de732d1](https://github.com/botpress/botpress/commit/de732d1))
+* add markdown by default for misunderstood chatPreview ([#5372](https://github.com/botpress/botpress/issues/5372)) ([60fb52c](https://github.com/botpress/botpress/commit/60fb52c))
+* display user's object props as string on UserProfile for hitlnext ([#5342](https://github.com/botpress/botpress/issues/5342)) ([71193d5](https://github.com/botpress/botpress/commit/71193d5))
+* **hitlnext:** add feature to filter handoffs list by tags ([#5205](https://github.com/botpress/botpress/issues/5205)) ([2725054](https://github.com/botpress/botpress/commit/2725054))
+
+
+
 # [12.25.0](https://github.com/botpress/botpress/compare/v12.24.1...v12.25.0) (2021-08-20)
 
 
