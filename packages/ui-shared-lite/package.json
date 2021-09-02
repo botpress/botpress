@@ -2,6 +2,9 @@
   "name": "ui-shared-lite",
   "version": "1.0.0",
   "author": "Botpress",
+  "scripts": {
+    "test": "jest --config=jest.config.js"
+  },
   "dependencies": {
     "classnames": "^2.3.1",
     "js-cookie": "^2.2.1",

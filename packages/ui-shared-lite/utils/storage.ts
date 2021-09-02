@@ -30,6 +30,10 @@ const getDriver = (): 'cookie' | Storage => {
 }
 
 const serialize = <T>(value: T): string => {
+  if (value === null || value === undefined) {
+    throw new Error('Cannot store null or undefined values')
+  }
+
   let strValue = ''
   if (typeof value !== 'string') {
     try {
@@ -43,7 +47,7 @@ const serialize = <T>(value: T): string => {
 }
 
 const deserialize = <T>(strValue?: string | null): T | undefined => {
-  if (strValue === undefined || strValue === null) {
+  if (strValue === null) {
     return undefined
   }
 
