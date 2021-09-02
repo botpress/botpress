@@ -50,6 +50,7 @@ describe('Module - Code Editor', () => {
   })
 
   it('Multiple cut & paste', async () => {
+    await clickOn('span.bp3-button-text', { text: 'Advanced Editor' }) // Display raw editor
     await waitForFilesToLoad()
     await clickOn('#btn-cut-multiple')
     await clickOnTreeNode('hello.js')
