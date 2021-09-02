@@ -46,8 +46,8 @@ const serialize = <T>(value: T): string => {
   return strValue
 }
 
-const deserialize = <T>(strValue?: string | null): T | undefined => {
-  if (strValue === null) {
+const deserialize = <T>(strValue: string | null | undefined): T | undefined => {
+  if (strValue === null || strValue === undefined) {
     return undefined
   }
 
