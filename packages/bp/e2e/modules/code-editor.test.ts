@@ -49,6 +49,22 @@ describe('Module - Code Editor', () => {
     await expectBotApiCallSuccess('mod/code-editor/save', 'POST')
   })
 
+  it('Multiple cut & paste', async () => {
+    await waitForFilesToLoad()
+    await clickOn('#btn-cut-multiple')
+    await clickOnTreeNode('hello.js')
+
+    await clickOnTreeNode('assets', 'right')
+    await clickOn('#btn-paste')
+
+    await expectBotApiCallSuccess('mod/code-editor/save', 'POST')
+
+    await Promise.all([
+      expectBotApiCallSuccess('mod/code-editor/save', 'POST'),
+      expectBotApiCallSuccess('mod/code-editor/files', 'GET'),
+    ])
+  })
+
   it('Disable file', async () => {
     await waitForFilesToLoad()
     await clickOnTreeNode('hello_copy.js', 'right')
