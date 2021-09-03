@@ -21,11 +21,12 @@ const DEBOUNCE_DELAY = ms('2s')
 
 interface HookOptions {
   timeout: number
-  throwOnError: boolean
+  throwOnError?: boolean
+  isGlobal?: boolean
 }
 
 const debugInstances: { [hookType: string]: IDebugInstance } = {}
-const defaultHookOptions = Object.freeze({ timeout: 1000, throwOnError: false })
+const defaultHookOptions = Object.freeze({ timeout: 1000, throwOnError: false, isGlobal: false })
 
 export namespace Hooks {
   export class BaseHook {
@@ -42,7 +43,7 @@ export namespace Hooks {
 
   export class AfterServerStart extends BaseHook {
     constructor(private bp: typeof sdk) {
-      super('after_server_start', { bp })
+      super('after_server_start', { bp }, { ...defaultHookOptions, isGlobal: true })
     }
   }
 
@@ -96,13 +97,13 @@ export namespace Hooks {
 
   export class OnIncidentStatusChanged extends BaseHook {
     constructor(bp: typeof sdk, incident: sdk.Incident) {
-      super('on_incident_status_changed', { bp, incident })
+      super('on_incident_status_changed', { bp, incident }, { ...defaultHookOptions, isGlobal: true })
     }
   }
 
   export class BeforeBotImport extends BaseHook {
     constructor(bp: typeof sdk, botId: string, tmpFolder: string, hookResult: object) {
-      super('before_bot_import', { bp, botId, tmpFolder, hookResult })
+      super('before_bot_import', { bp, botId, tmpFolder, hookResult }, { ...defaultHookOptions, isGlobal: true })
     }
   }
 
@@ -120,7 +121,11 @@ export namespace Hooks {
       pipeline: sdk.Pipeline,
       hookResult: any
     ) {
-      super('on_stage_request', { bp, bot, users, pipeline, hookResult }, { ...defaultHookOptions, throwOnError: true })
+      super(
+        'on_stage_request',
+        { bp, bot, users, pipeline, hookResult },
+        { ...defaultHookOptions, throwOnError: true, isGlobal: true }
+      )
     }
   }
 
@@ -132,7 +137,11 @@ export namespace Hooks {
       users: sdk.WorkspaceUserWithAttributes[],
       pipeline: sdk.Pipeline
     ) {
-      super('after_stage_changed', { bp, previousBotConfig, bot, users, pipeline })
+      super(
+        'after_stage_changed',
+        { bp, previousBotConfig, bot, users, pipeline },
+        { ...defaultHookOptions, isGlobal: true }
+      )
     }
   }
 }
@@ -217,8 +226,12 @@ export class HookService {
     }
 
     try {
-      const globalHooks = filterDisabled(await this.ghost.global().directoryListing(`hooks/${hook.folder}`, '*.js'))
-      const scripts = await Promise.map(globalHooks, async path => this._getHookScript(hook.folder, path))
+      const scripts: HookScript[] = []
+
+      if (hook.options.isGlobal) {
+        const globalHooks = filterDisabled(await this.ghost.global().directoryListing(`hooks/${hook.folder}`, '*.js'))
+        scripts.push(...(await Promise.map(globalHooks, async path => this._getHookScript(hook.folder, path))))
+      }
 
       if (botId) {
         const botHooks = filterDisabled(await this.ghost.forBot(botId).directoryListing(`hooks/${hook.folder}`, '*.js'))
