@@ -37,6 +37,8 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
     const batchSize = this.bp.database.isLite ? 100 : 5000
     const convCount = <number>Object.values((await this.trx('web_conversations').count('*'))[0])[0]
 
+    this.bp.logger.info(`Migration will migrate ${convCount} conversations`)
+
     for (let i = 0; i < convCount; i += batchSize) {
       const convos = await this.trx('web_conversations')
         .select('*')
@@ -45,6 +47,8 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
 
       // We migrate batchSize conversations at a time
       await this.migrateConvos(convos)
+
+      this.bp.logger.info(`Migrated conversations ${i} to ${Math.min(i + batchSize, convCount)}`)
     }
   }
 

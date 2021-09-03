@@ -37,6 +37,8 @@ export class MessagingSqliteDownMigrator extends MessagingDownMigrator {
     const convCount = <number>Object.values((await this.trx('msg_conversations').count('*'))[0])[0] || 0
     this.convoIndex = <number>Object.values((await this.trx('web_conversations').max('id'))[0])[0] || 1
 
+    this.bp.logger.info(`Migration will migrate ${convCount} conversations`)
+
     for (let i = 0; i < convCount; i += batchSize) {
       const convos = await this.trx('msg_conversations')
         .select('*')
@@ -45,6 +47,8 @@ export class MessagingSqliteDownMigrator extends MessagingDownMigrator {
 
       // We migrate batchSize conversations at a time
       await this.migrateConvos(convos)
+
+      this.bp.logger.info(`Migrated conversations ${i} to ${Math.min(i + batchSize, convCount)}`)
     }
   }
 
