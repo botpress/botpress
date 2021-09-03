@@ -55,7 +55,6 @@ export class MessagingSqliteDownMigrator extends MessagingDownMigrator {
       await this.trx.raw('DROP TABLE msg_users CASCADE')
       await this.trx.raw('DROP TABLE msg_clients CASCADE')
       await this.trx.raw('DROP TABLE msg_providers CASCADE')
-      await this.trx.raw('DROP EXTENSION pgcrypto;')
     }
   }
 
