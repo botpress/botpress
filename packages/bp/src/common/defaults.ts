@@ -136,10 +136,8 @@ export const CHAT_USER_ROLE = {
 
 export const BUILTIN_MODULES = [
   'analytics',
-  'basic-skills',
   'bot-improvement',
   'broadcast',
-  'builtin',
   'channel-messenger',
   'channel-slack',
   'channel-smooch',
