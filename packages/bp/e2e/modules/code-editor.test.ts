@@ -49,9 +49,9 @@ describe('Module - Code Editor', () => {
     await expectBotApiCallSuccess('mod/code-editor/save', 'POST')
   })
 
-  it('Multiple cut & paste', async () => {
-    await clickOn('span.bp3-button-text', { text: 'Advanced Editor' }) // Display raw editor
+  it('Bulk cut & paste', async () => {
     await waitForFilesToLoad()
+    await page.waitFor(500)
     await clickOn('#btn-cut-multiple')
     await clickOnTreeNode('hello.js')
 
