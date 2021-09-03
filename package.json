@@ -1,6 +1,6 @@
 {
   "name": "bp_main",
-  "version": "12.25.0",
+  "version": "12.26.1",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": "^12"
@@ -11,13 +11,13 @@
   "license": "AGPL-3.0",
   "private": true,
   "nlu": {
-    "version": "0.1.4"
+    "version": "0.1.5"
   },
   "studio": {
-    "version": "0.0.32"
+    "version": "0.0.34"
   },
   "messaging": {
-    "version": "0.1.8"
+    "version": "0.1.12"
   },
   "scripts": {
     "postinstall": "yarn cmd postinstall",

@@ -95,7 +95,7 @@ const GuideCards = () => (
       },
       {
         content: 'Guides and examples solving typical issues you may run into.',
-        title: '<a href="/docs/tutorials/existing-backend">💡 Tutorials</a>'
+        title: '<a href="/docs/tutorials">💡 Tutorials</a>'
       },
       {
         content: 'Find all the code references you need in this always up-to-date Botpress SDK Reference.',
