@@ -18,12 +18,14 @@
     "@types/bcryptjs": "^2.4.2",
     "@types/bluebird-global": "^3.5.7",
     "@types/dom-mediacapture-record": "^1.0.7",
+    "@types/lru-cache": "^5.1.1",
     "@types/mime": "^2.0.3",
     "@types/multer-s3": "^2.7.9",
     "@types/node": "^10.10.3",
     "@types/react-intl": "^2.3.17"
   },
   "dependencies": {
+    "@botpress/messaging-client": "0.0.3",
     "@juggle/resize-observer": "^3.0.2",
     "apicache": "^1.6.2",
     "aws-sdk": "^2.905.0",
@@ -37,6 +39,7 @@
     "html-truncate": "^1.2.2",
     "lodash": "^4.17.21",
     "lodash-decorators": "^6.0.1",
+    "lru-cache": "^6.0.0",
     "mime": "^2.5.2",
     "mobx": "4.9.4",
     "mobx-react": "^5.4.4",

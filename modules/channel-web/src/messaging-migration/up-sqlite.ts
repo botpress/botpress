@@ -12,41 +12,68 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
   private userCache = new LRUCache<string, string>({ max: 10000 })
 
   protected async start() {
-    this.trx = this.bp.database as any
+    if (this.bp.database.isLite) {
+      this.trx = this.bp.database as any
+    } else {
+      this.trx = await this.bp.database.transaction()
+    }
   }
 
-  protected async commit() {}
+  protected async commit() {
+    if (!this.bp.database.isLite) {
+      await this.trx.commit()
+    }
+  }
 
-  protected async rollback() {}
+  protected async rollback() {
+    if (!this.bp.database.isLite) {
+      await this.trx.rollback()
+    }
+  }
 
   protected async migrate() {
     await super.migrate()
 
+    const batchSize = this.bp.database.isLite ? 100 : 5000
     const convCount = <number>Object.values((await this.trx('web_conversations').count('*'))[0])[0]
 
-    for (let i = 0; i < convCount; i += 100) {
+    this.bp.logger.info(`Migration will migrate ${convCount} conversations`)
+
+    for (let i = 0; i < convCount; i += batchSize) {
       const convos = await this.trx('web_conversations')
         .select('*')
         .offset(i)
-        .limit(100)
+        .limit(batchSize)
 
-      // We migrate 100 conversations at a time
+      // We migrate batchSize conversations at a time
       await this.migrateConvos(convos)
+
+      this.bp.logger.info(`Migrated conversations ${i} to ${Math.min(i + batchSize, convCount)}`)
     }
   }
 
   protected async createTables() {
-    await this.trx.raw('PRAGMA foreign_keys = OFF;')
+    if (this.bp.database.isLite) {
+      await this.trx.raw('PRAGMA foreign_keys = OFF;')
 
-    // We delete these tables in case the migration crashed halfway.
-    await this.trx.schema.dropTableIfExists('web_user_map')
-    await this.trx.schema.dropTableIfExists('msg_messages')
-    await this.trx.schema.dropTableIfExists('msg_conversations')
-    await this.trx.schema.dropTableIfExists('msg_users')
-    await this.trx.schema.dropTableIfExists('msg_clients')
-    await this.trx.schema.dropTableIfExists('msg_providers')
+      // We delete these tables in case the migration crashed halfway.
+      await this.trx.schema.dropTableIfExists('web_user_map')
+      await this.trx.schema.dropTableIfExists('msg_messages')
+      await this.trx.schema.dropTableIfExists('msg_conversations')
+      await this.trx.schema.dropTableIfExists('msg_users')
+      await this.trx.schema.dropTableIfExists('msg_clients')
+      await this.trx.schema.dropTableIfExists('msg_providers')
 
-    await this.trx.raw('PRAGMA foreign_keys = ON;')
+      await this.trx.raw('PRAGMA foreign_keys = ON;')
+    } else {
+      // We delete these tables in case the migration crashed halfway.
+      await this.trx.raw('DROP TABLE IF EXISTS web_user_map CASCADE')
+      await this.trx.raw('DROP TABLE IF EXISTS msg_messages CASCADE')
+      await this.trx.raw('DROP TABLE IF EXISTS msg_conversations CASCADE')
+      await this.trx.raw('DROP TABLE IF EXISTS msg_users CASCADE')
+      await this.trx.raw('DROP TABLE IF EXISTS msg_clients CASCADE')
+      await this.trx.raw('DROP TABLE IF EXISTS msg_providers CASCADE')
+    }
 
     await super.createTables()
   }
@@ -56,6 +83,8 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
   }
 
   private async migrateConvos(convos: any[]) {
+    const maxBatchSize = this.bp.database.isLite ? 50 : 2000
+
     const defaultPayload = JSON.stringify({})
     const defaultDate = new Date().toISOString()
 
@@ -91,12 +120,12 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
           payload: message.payload || defaultPayload
         })
 
-        if (this.messageBatch.length > 50) {
+        if (this.messageBatch.length > maxBatchSize) {
           await this.emptyMessageBatch()
         }
       }
 
-      if (this.convoBatch.length > 50) {
+      if (this.convoBatch.length > maxBatchSize) {
         await this.emptyConvoBatch()
       }
     }

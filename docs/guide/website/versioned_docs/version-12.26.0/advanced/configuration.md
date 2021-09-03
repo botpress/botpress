@@ -1,6 +1,7 @@
 ---
-id: configuration
+id: version-12.26.0-configuration
 title: Configuration
+original_id: configuration
 ---
 
 Most of the configuration is done using `JSON` files. Configuration can also be set by using environment variables.
