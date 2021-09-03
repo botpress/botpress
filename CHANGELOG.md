@@ -1,3 +1,17 @@
+## [12.26.1](https://github.com/botpress/botpress/compare/v12.26.0...v12.26.1) (2021-09-03)
+
+
+### Bug Fixes
+
+* **channel-web:** fix messaging migration ([#5410](https://github.com/botpress/botpress/issues/5410)) ([a8881a6](https://github.com/botpress/botpress/commit/a8881a6))
+
+
+### Features
+
+* **hitlnext:** remove obsolete pkg react-itial and add react-avatar ([#5408](https://github.com/botpress/botpress/issues/5408)) ([4fe31f6](https://github.com/botpress/botpress/commit/4fe31f6))
+
+
+
 # [12.26.0](https://github.com/botpress/botpress/compare/v12.24.1...v12.26.0) (2021-09-02)
 
 
