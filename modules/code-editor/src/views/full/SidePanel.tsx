@@ -355,7 +355,8 @@ class PanelContent extends React.Component<Props> {
             'before_outgoing_middleware',
             'after_event_processed',
             'before_suggestions_election',
-            'before_session_timeout'
+            'before_session_timeout',
+            'before_conversation_end'
           ].includes(x.id)
         )
       },

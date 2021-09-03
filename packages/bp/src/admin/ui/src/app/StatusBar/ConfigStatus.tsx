@@ -1,10 +1,15 @@
 import { Button, Colors, Icon, Intent } from '@blueprintjs/core'
 import { toast, Dialog } from 'botpress/shared'
-import React, { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 
 import api from '../api'
 import EventBus from '../EventBus'
 import ActionItem from './ActionItem'
+
+interface Config {
+  initialHash: string
+  newHash: string
+}
 
 const ConfigStatus = () => {
   const [isDifferent, setDifferent] = useState(false)
@@ -15,7 +20,7 @@ const ConfigStatus = () => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     fetchHash()
 
-    const configUpdated = event => setDifferent(event.initialHash !== event.newHash)
+    const configUpdated = (event: Config) => setDifferent(event.initialHash !== event.newHash)
 
     EventBus.default.on('config.updated', configUpdated)
     return () => {
@@ -30,7 +35,7 @@ const ConfigStatus = () => {
 
     const interval = setInterval(async () => {
       try {
-        await api.getAnonymous().get('/status', { timeout: 500 })
+        await api.getAnonymous({ toastErrors: false }).get('/status', { timeout: 500, baseURL: '/' })
         window.location.reload()
       } catch (err) {} // silent intended
     }, 1000)
