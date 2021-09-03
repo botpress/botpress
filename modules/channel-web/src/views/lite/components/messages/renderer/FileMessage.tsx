@@ -14,9 +14,9 @@ export const FileMessage = (props: Renderer.FileMessage) => {
 
   let extension = ''
   try {
-    const ValidUrl = new URL(url)
+    const validUrl = new URL(url)
 
-    extension = ValidUrl.pathname
+    extension = validUrl.pathname
   } catch (error) {
     // If the URL is not valid return a dummy component.
     return null
