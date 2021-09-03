@@ -1,4 +1,12 @@
-import { Client, Health, PredictOutput, Specifications, TrainingState, TrainInput } from '@botpress/nlu-client'
+import {
+  Client,
+  Health,
+  PredictOutput,
+  Specifications,
+  Training,
+  TrainingState,
+  TrainInput
+} from '@botpress/nlu-client'
 import _ from 'lodash'
 
 export type TrainListener = (
@@ -74,6 +82,14 @@ export class NLUClientWrapper {
     }
 
     return response.modelId
+  }
+
+  public async listTrainings(appId: string, language?: string): Promise<Training[]> {
+    const response = await this._client.listTrainings(appId, language)
+    if (!response.success) {
+      throw new Error(response.error)
+    }
+    return response.trainings
   }
 
   public async getTraining(appId: string, modelId: string): Promise<TrainingState | undefined> {
