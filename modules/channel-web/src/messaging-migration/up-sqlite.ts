@@ -12,7 +12,11 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
   private userCache = new LRUCache<string, string>({ max: 10000 })
 
   protected async start() {
-    this.trx = this.bp.database as any
+    if (this.bp.database.isLite) {
+      this.trx = this.bp.database as any
+    } else {
+      this.trx = await this.bp.database.transaction()
+    }
   }
 
   protected async commit() {}
