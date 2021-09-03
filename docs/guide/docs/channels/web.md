@@ -54,31 +54,34 @@ You can trigger events by calling the `window.botpressWebChat.sendEvent()` funct
 
 | name            | Description                                                       |
 | --------------- | ----------------------------------------------------------------- |
-| `show`          | This event opens the webchat                                       |
-| `hide`          | This event closes the webchat                                      |
+| `show`          | This event opens the webchat                                      |
+| `hide`          | This event closes the webchat                                     |
 | `toggle`        | This event open or close the webchat depends on its current state |
-| `message`       | This event sends a message (see example above)                     |
+| `message`       | This event sends a message (see example above)                    |
 | `toggleBotInfo` | This event switches between bot infos and conversation page       |
 
 ### Show
+
 The following function shows the chat window when you click the `show-bp` element.
 
-```js   
-      document.getElementById('show-bp').addEventListener('click', function() {
-        window.botpressWebChat.sendEvent({ type: 'show' })
-      })
+```js
+document.getElementById('show-bp').addEventListener('click', function() {
+  window.botpressWebChat.sendEvent({ type: 'show' })
+})
 ```
 
 ### Hide
+
 The following function hides the chat window when you click the `hide-bp` element.
 
 ```js
-      document.getElementById('hide-bp').addEventListener('click', function() {
-        window.botpressWebChat.sendEvent({ type: 'hide' })
-      })
+document.getElementById('hide-bp').addEventListener('click', function() {
+  window.botpressWebChat.sendEvent({ type: 'hide' })
+})
 ```
 
 ### Changing Website Button
+
 Most developers change the default webchat button which comes pre-packed in Botpress. This is the button that appears on your website (in the bottom right corner) when you embed your chatbot onto your website. This common styling change is usually applied to adopt a button which fits into the website theme. If you would like to change the default Botpress button, pass the `hideWidget` key to your `init` function. By so doing, the default chat button will not show up on your website.
 
 ```html
@@ -102,21 +105,23 @@ You can then add a `click` event listener to any element on your web page (in mo
 ```
 
 ### Toggle
-The following function includes a ternary operator that toggles the chat to either be hidden or shown when you click the `toggle-bp` element. 
+
+The following function includes a ternary operator that toggles the chat to either be hidden or shown when you click the `toggle-bp` element.
 
 ```js
-      document.getElementById('toggle-bp').addEventListener('click', function() {
-        window.botpressWebChat.sendEvent({ type: webchatOpen ? 'hide' : 'show' })
-      })
+document.getElementById('toggle-bp').addEventListener('click', function() {
+  window.botpressWebChat.sendEvent({ type: webchatOpen ? 'hide' : 'show' })
+})
 ```
 
 ### Message
+
 The following function lets you programmatically send a message to the user when you click the `send-message-bp` element.
 
 ```js
-      document.getElementById('send-message-bp').addEventListener('click', function() {
-        window.botpressWebChat.sendEvent({ type: 'message', text: 'Hello!' })
-      })
+document.getElementById('send-message-bp').addEventListener('click', function() {
+  window.botpressWebChat.sendEvent({ type: 'message', text: 'Hello!' })
+})
 ```
 
 ### Obtaining visitor's User ID
@@ -135,18 +140,20 @@ window.addEventListener('message', message => {
 ```
 
 ## Runtime configurations
-The method `window.botpressWebChat.configure` allows you to change the chat's configuration during a conversation without having to reload the page. 
 
-The example below shows how you can change the chatbot's language to French when you click `change-lang-bp` on your website. 
+The method `window.botpressWebChat.configure` allows you to change the chat's configuration during a conversation without having to reload the page.
+
+The example below shows how you can change the chatbot's language to French when you click `change-lang-bp` on your website.
 
 ```js
-      document.getElementById('change-lang-bp').addEventListener('click', function() {
-        lastConfig.locale = 'fr'
-        window.botpressWebChat.configure(lastConfig)
-      })
+document.getElementById('change-lang-bp').addEventListener('click', function() {
+  lastConfig.locale = 'fr'
+  window.botpressWebChat.configure(lastConfig)
+})
 ```
 
 ### Sending Custom Payloads
+
 All messages sent to a user consist of a `payload`. That payload has a `type` property that tells the webchat how the payload should render on the screen.
 
 There are different ways to send that payload to the user:
@@ -177,52 +184,101 @@ const payload = {
 
 If you need to display a different bot's avatar for some of the messages (like imitating changing author), you can achieve that by setting `botAvatarUrl` like this:
 
-"`js
+```js
 const payload = {
-  type: 'text',
-  botAvatarUrl: 'http://some.url'
-  text: 'Lorem ipsum'
+type: 'text',
+botAvatarUrl: 'http://some.url'
+text: 'Lorem ipsum'
 }
+
 ```
 
 ## Creating a Custom Component
 
-We already have an [example module](https://github.com/botpress/botpress/tree/master/examples/custom-component) showing how to create them. We will make a quick recap here. The Debugger is implemented entirely as a custom component in the [extensions module](https://github.com/botpress/botpress/tree/master/modules/extensions/src/views/lite/components/debugger), so don't hesitate to take a look at how it was implemented there.
+Creating a custom component allows you to display a different component on the webchat. For example, you could create a component to show a map to a user, you could display a form or add any other type of content.
 
-Custom components leverage the `custom` payload type, which allows you to inject any valid React component exported from a custom module.
+A custom components has two parts:
 
-1. Create a module (we have [example templates here](https://github.com/botpress/botpress/tree/master/examples/module-templates))
-2. Develop your component
-3. Export your component in the `lite.jsx` file ([here's a couple of different ways to do it](https://github.com/botpress/botpress/blob/master/examples/custom-component/src/views/lite/index.jsx))
-4. Send a custom payload to the user:
+- A bundle containing the actual component which will be displayed to the user
+- a schema to tell Botpress what fields should be displayed in the content manager
 
-"`js
-payload: {
-  type: 'custom' // Important, this is how the magic operates
-  module: 'myModule'// The name of your module, must match the one in package.json
-  component: 'YourComponent'// This is the name of the component, exported from lite.jsx
-  // Feel free to add any other properties here, they will all be passed down to your component
-  myCustomProp1: 'somemorestuff'
-  someOtherProperty: 'anything'
+Your schema must extend an existing content type, to ensure backward compatibility with channels other than channel-web
+
+To get started:
+
+1. Clone the studio repository: https://github.com/botpress/studio
+2. Build the repository (`yarn && yarn build`)
+3. Type `yarn cmd component:create --name your-component-name`
+4. Open the directory displayed in the console, then type `yarn && yarn build`
+5. Type `yarn package`
+6. Run botpress, then open the code editor.
+7. Next to `Components`, click the upload button, then select the `.tgz` archive which is in the folder created in step 4
+8. Either restart the server or unmount/mount your bot
+
+That's it ! The blank component will simply write "Hello world" in the webchat.
+
+### Adding more fields
+
+If you don't have any other value to provide to your component, you can simply extend `builtin_text` and work on the component in `ui/index.tsx`. Here is an example where we add 2 more fields to a component:
+
+```js
+const schema: CustomContentType = {
+  extends: 'builtin_text',
+  title: 'Info Source',
+  jsonSchema: {
+    description: 'A component to display the source of an information',
+    properties: {
+      url: {
+        type: 'string',
+        title: 'URL of the source'
+      },
+      lastUpdate: {
+        type: 'string',
+        title: 'When was the last update?'
+      }
+    }
+  }
 }
+
+export default schema
 ```
+
+On the content editor, you will have access to all the fields provided by the `builtin_text` component: message, typing, markdown, and you will also have your two fields: url and lastUpdate.
+
+These properties will be available on your component:
+
+```js
+const Component = props => {
+  return (
+    <div>
+      Hello world Source: {props.url} Last Update: {props.lastUpdate}
+    </div>
+  )
+}
+
+export default Component
+```
+
+Translations are supported, have a look here for an example: https://github.com/botpress/studio/tree/master/packages/components/info-source
+
+Note: **The component will follow the bot when exported and imported elsewhere**
 
 ### Component Properties
 
 A couple of properties are passed down to your custom component. These can be used to customize the displayed information and/or to pursue interactions.
 
-| Property        | Description                                                                    |
-| --------------- | ------------------------------------------------------------------------------ |
-| ...props        | The payload properties are available on the root object (this.props.)          |
-| onSendData      | This method can be used to send a payload to the bot on behalf of the user |
-| onFileUpload    | Instead of sending an event, this will upload the specified file               |
-| sentOn          | This is the timestamp of the message.                                          |
-| isLastGroup     | Indicates if your component is part of the group of messages sent by the bot   |
-| isLastOfGroup   | Indicates if your component is the last message in its group                   |
-| keyboard        | This object allows you to manipulate the keyboard (more below)                 |
-| wrapped         | Represent any child components (more below)                                    |
-| incomingEventId | The ID of the incoming event which was processed                               |
-| store           | Grants access to the MOBX store of Channel Web (more on that below)            |
+| Property        | Description                                                                  |
+| --------------- | ---------------------------------------------------------------------------- |
+| ...props        | The payload properties are available on the root object (this.props.)        |
+| onSendData      | This method can be used to send a payload to the bot on behalf of the user   |
+| onFileUpload    | Instead of sending an event, this will upload the specified file             |
+| sentOn          | This is the timestamp of the message.                                        |
+| isLastGroup     | Indicates if your component is part of the group of messages sent by the bot |
+| isLastOfGroup   | Indicates if your component is the last message in its group                 |
+| keyboard        | This object allows you to manipulate the keyboard (more below)               |
+| wrapped         | Represent any child components (more below)                                  |
+| incomingEventId | The ID of the incoming event which was processed                             |
+| store           | Grants access to the MOBX store of Channel Web (more on that below)          |
 
 > isLastGroup and isLastOfGroup can be combined to let your component know if the current message is the last one the user is seeing. This can be used, for example, to display feedback buttons, a login form, or anything else, that will disappear when the user continues the discussion.
 
@@ -293,22 +349,23 @@ The keyboard allows you to add elements before or after the composer. Keyboard i
 "`js
 ...
 render(){
-  // First of all, import the keyboard object
-  const Keyboard = this.props.keyboard
+// First of all, import the keyboard object
+const Keyboard = this.props.keyboard
 
-  // Create any type of component
-  const something = <div>This will be displayed over the composer, as long as visible is true</div>
+// Create any type of component
+const something = <div>This will be displayed over the composer, as long as visible is true</div>
 
-  // Your custom keyboard will only be displayed if that message is the last one displayed
-  const visible = this.props.isLastGroup && this.props.isLastOfGroup
+// Your custom keyboard will only be displayed if that message is the last one displayed
+const visible = this.props.isLastGroup && this.props.isLastOfGroup
 
-  return (
-    <Keyboard.Prepend keyboard={something} visible={visible}>
-      This text will be displayed in the chat window
-    </Keyboard.Prepend>à
-  )
+return (
+<Keyboard.Prepend keyboard={something} visible={visible}>
+This text will be displayed in the chat window
+</Keyboard.Prepend>à
+)
 }
-```
+
+````
 
 #### Using a Button Keyboard
 
@@ -324,11 +381,12 @@ const payload = {
       [{ label: 'row 3, button 1', payload: 'something' }]
     ]
 }
-```
+````
 
 [security sdk]: https://botpress.com/reference/modules/_botpress_sdk_.security.html#getmessagesignature
 
 ## Customizing Web Chat Style
+
 The Botpress webchat interface which is displayed on your website is fully customisable. You can change any of the styling using CSS. This can be done in two steps. Firstly create your own cascading style sheet and name it anything you want. Thereafter paste your stylesheet in the `<botpress_dir>/data/assets/modules/channel-web` folder.
 
 Secondly, you need to reference your new style sheet to your embedded cextrashatbot. You can easily do this by referencing your new stylesheet using the `extraStylesheet` property. Let us go through these steps in more detail.
