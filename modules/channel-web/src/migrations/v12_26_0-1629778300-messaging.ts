@@ -28,7 +28,9 @@ const migration: sdk.ModuleMigration = {
       const migrator = new MessagingSqliteUpMigrator(bp, false)
       message = await migrator.run()
     } else {
-      const migrator = new MessagingPostgresUpMigrator(bp, metadata.isDryRun)
+      const migrator = process.env.MIG_MESSAGING_FAST
+        ? new MessagingPostgresUpMigrator(bp, metadata.isDryRun)
+        : new MessagingSqliteUpMigrator(bp, metadata.isDryRun)
       message = await migrator.run()
     }
 
@@ -53,7 +55,9 @@ const migration: sdk.ModuleMigration = {
       const migrator = new MessagingSqliteDownMigrator(bp, false)
       message = await migrator.run()
     } else {
-      const migrator = new MessagingPostgresDownMigrator(bp, metadata.isDryRun)
+      const migrator = process.env.MIG_MESSAGING_FAST
+        ? new MessagingPostgresDownMigrator(bp, metadata.isDryRun)
+        : new MessagingSqliteDownMigrator(bp, metadata.isDryRun)
       message = await migrator.run()
     }
 
