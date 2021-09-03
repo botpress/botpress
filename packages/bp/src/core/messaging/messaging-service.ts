@@ -144,12 +144,16 @@ export class MessagingService {
     }
 
     const payloadAbsoluteUrl = this.convertToAbsoluteUrls(event.payload)
-    const message = await this.clientsByBotId[event.botId].chat.reply(
+    const message = await this.clientsByBotId[event.botId].messages.create(
       event.threadId!,
-      event.channel,
+      undefined,
       payloadAbsoluteUrl
     )
     event.messageId = message.id
+
+    if (event.payload?.typing) {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+    }
 
     return next(undefined, true, false)
   }
