@@ -20,13 +20,13 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
   }
 
   protected async commit() {
-    if (!this.bp.database) {
+    if (!this.bp.database.isLite) {
       await this.trx.commit()
     }
   }
 
   protected async rollback() {
-    if (!this.bp.database) {
+    if (!this.bp.database.isLite) {
       await this.trx.rollback()
     }
   }

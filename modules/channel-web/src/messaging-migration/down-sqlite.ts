@@ -11,12 +11,24 @@ export class MessagingSqliteDownMigrator extends MessagingDownMigrator {
   private convoIndex = 0
 
   protected async start() {
-    this.trx = this.bp.database as any
+    if (this.bp.database.isLite) {
+      this.trx = this.bp.database as any
+    } else {
+      this.trx = await this.bp.database.transaction()
+    }
   }
 
-  protected async commit() {}
+  protected async commit() {
+    if (!this.bp.database.isLite) {
+      await this.trx.commit()
+    }
+  }
 
-  protected async rollback() {}
+  protected async rollback() {
+    if (!this.bp.database.isLite) {
+      await this.trx.rollback()
+    }
+  }
 
   protected async migrate() {
     await super.migrate()
