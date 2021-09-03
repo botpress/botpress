@@ -19,9 +19,17 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
     }
   }
 
-  protected async commit() {}
+  protected async commit() {
+    if (!this.bp.database) {
+      await this.trx.commit()
+    }
+  }
 
-  protected async rollback() {}
+  protected async rollback() {
+    if (!this.bp.database) {
+      await this.trx.rollback()
+    }
+  }
 
   protected async migrate() {
     await super.migrate()
