@@ -86,6 +86,7 @@ export class InternalRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const payload = RealTimePayload.forAdmins('flow.changes', req.body)
         this.realtime.sendToSocket(payload)
+        // flowservice update flow right here
 
         res.sendStatus(200)
       })

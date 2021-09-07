@@ -1,6 +1,7 @@
 ---
-id: code
+id: version-12.26.1-code
 title: Built-In Functionalities
+original_id: code
 ---
 
 There are two ways of quickly adding custom code to enrich your chatbot's experience: **Actions** and **Hooks**.

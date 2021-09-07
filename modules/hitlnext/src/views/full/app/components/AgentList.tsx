@@ -2,7 +2,7 @@ import { Position, Spinner, Tooltip } from '@blueprintjs/core'
 import cx from 'classnames'
 import _, { Dictionary } from 'lodash'
 import React, { FC } from 'react'
-import { Initial } from 'react-initial'
+import Avatar from 'react-avatar'
 
 import { agentName } from '../../../../helper'
 import { IAgent } from '../../../../types'
@@ -22,7 +22,7 @@ const AgentList: FC<Props> = ({ agents, loading }) => {
   if (loading) {
     return (
       <div>
-        <Spinner></Spinner>
+        <Spinner />
       </div>
     )
   }
@@ -36,19 +36,9 @@ const AgentList: FC<Props> = ({ agents, loading }) => {
             <li key={agent.agentId} className={cx(styles.agentListItem)}>
               <Tooltip content={agentName(agent)} position={Position.BOTTOM}>
                 {agent.attributes?.picture_url && (
-                  <img className={styles.agentItem} src={agent.attributes.picture_url} />
+                  <img className={styles.agentItem} src={agent.attributes.picture_url} alt="agent picture" />
                 )}
-                {!agent.attributes?.picture_url && (
-                  <Initial
-                    className={styles.agentItem}
-                    name={agentName(agent)}
-                    charCount={2}
-                    height={30}
-                    width={30}
-                    fontSize={12}
-                    fontWeight={500}
-                  ></Initial>
-                )}
+                {!agent.attributes?.picture_url && <Avatar name={agentName(agent)} round maxInitials={2} size="30px" />}
               </Tooltip>
             </li>
           ))}

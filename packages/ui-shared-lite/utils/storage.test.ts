@@ -78,7 +78,7 @@ describe('Storage', () => {
           expect(spy).toHaveBeenCalledTimes(1)
           expect(spy).toHaveBeenCalledWith(
             'Error while setting data into storage.',
-            'Cannot store null or undefined values'
+            '[Storage] Cannot store null or undefined values'
           )
 
           spy.mockClear()

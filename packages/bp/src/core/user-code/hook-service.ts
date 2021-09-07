@@ -88,6 +88,12 @@ export namespace Hooks {
     }
   }
 
+  export class BeforeConversationEnd extends BaseHook {
+    constructor(bp: typeof sdk, event: sdk.IO.Event) {
+      super('before_conversation_end', { bp, event })
+    }
+  }
+
   export class BeforeSuggestionsElection extends BaseHook {
     constructor(bp: typeof sdk, sessionId: string, event: sdk.IO.Event, suggestions: sdk.IO.Suggestion[]) {
       super('before_suggestions_election', { bp, sessionId, event, suggestions })
