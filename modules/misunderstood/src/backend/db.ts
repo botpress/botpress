@@ -17,7 +17,7 @@ import {
 import applyChanges from './applyChanges'
 
 export const TABLE_NAME = 'misunderstood'
-const EVENTS_TABLE_NAME = 'events'
+export const EVENTS_TABLE_NAME = 'events'
 
 export default class Db {
   knex: Knex & sdk.KnexExtension
@@ -27,7 +27,7 @@ export default class Db {
   }
 
   async initialize() {
-    await this.knex.createTableIfNotExists(TABLE_NAME, table => {
+    await this.knex.createTableIfNotExists(TABLE_NAME, (table) => {
       table.increments('id')
       table.string('eventId')
       table.string('botId')
@@ -60,9 +60,7 @@ export default class Db {
   }
 
   async deleteAll(botId: string, status: FLAGGED_MESSAGE_STATUS) {
-    await this.knex(TABLE_NAME)
-      .where({ botId, status })
-      .del()
+    await this.knex(TABLE_NAME).where({ botId, status }).del()
   }
 
   async updateStatuses(botId: string, ids: string[], status: FLAGGED_MESSAGE_STATUS, resolutionData?: ResolutionData) {
@@ -74,7 +72,7 @@ export default class Db {
 
     await this.knex(TABLE_NAME)
       .where({ botId })
-      .andWhere(function() {
+      .andWhere(function () {
         this.whereIn('id', ids)
       })
       .update({ status, ...resolutionData, updatedAt: this.knex.fn.now() })
@@ -86,9 +84,7 @@ export default class Db {
     status: FLAGGED_MESSAGE_STATUS,
     options?: FilteringOptions
   ): Promise<DbFlaggedEvent[]> {
-    const query = this.knex(TABLE_NAME)
-      .select('*')
-      .where({ botId, language, status })
+    const query = this.knex(TABLE_NAME).select('*').where({ botId, language, status })
 
     this.filterQuery(query, options)
 
@@ -104,10 +100,7 @@ export default class Db {
   }
 
   async countEvents(botId: string, language: string, options?: FilteringOptions) {
-    const query = this.knex(TABLE_NAME)
-      .where({ botId, language })
-      .select('status')
-      .count({ count: 'id' })
+    const query = this.knex(TABLE_NAME).where({ botId, language }).select('status').count({ count: 'id' })
 
     this.filterQuery(query, options)
 
@@ -125,6 +118,10 @@ export default class Db {
       .limit(1)
       .select('*')
       .then((data: DbFlaggedEvent[]) => (data && data.length ? data[0] : null))
+
+    if (!event) {
+      return
+    }
 
     const parentEvent = await this.knex(EVENTS_TABLE_NAME)
       .where({ botId, incomingEventId: event.eventId, direction: 'incoming' })
@@ -161,6 +158,12 @@ export default class Db {
         .limit(3)
         .select('id', 'event', 'createdOn')
     ])
+
+    if (!this.knex.isLite) {
+      console.log(botId, threadId, sessionId)
+      console.log(messageCreatedOnAsDate)
+      console.log(messagesBefore, messagesAfter)
+    }
 
     const context = _.chain([...messagesBefore, ...messagesAfter])
       .sortBy(['createdOn', 'id'])
