@@ -1,5 +1,4 @@
 import mimeTypes from 'mime/lite'
-import path from 'path'
 import React from 'react'
 
 import { Renderer } from '../../../typings'
@@ -13,7 +12,16 @@ export const FileMessage = (props: Renderer.FileMessage) => {
 
   const { url, title, storage, text } = props.file
 
-  const extension = path.extname(url)
+  let extension = ''
+  try {
+    const validUrl = new URL(url)
+
+    extension = validUrl.pathname
+  } catch (error) {
+    // If the URL is not valid return a dummy component.
+    return null
+  }
+
   const mime = mimeTypes.getType(extension)
 
   if (text) {

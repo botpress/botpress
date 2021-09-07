@@ -32,7 +32,7 @@ export default class Db {
       table.string('eventId')
       table.string('botId')
       table.string('language')
-      table.string('preview')
+      table.text('preview')
       table.enum('reason', Object.values(FLAG_REASON))
       table.enum('status', FLAGGED_MESSAGE_STATUSES).defaultTo(FLAGGED_MESSAGE_STATUS.new)
       table.enum('resolutionType', Object.values(RESOLUTION_TYPE))
