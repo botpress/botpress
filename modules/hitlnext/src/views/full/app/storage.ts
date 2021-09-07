@@ -9,7 +9,7 @@ const deserialize = (serializedJavascript: string) => {
 const key = (path: string) => ['bp', MODULE_NAME, path].join('::')
 
 const get = (path: string, defaultValue = undefined) => {
-  const data = window.BP_STORAGE.get<string>(key(path))
+  const data = window.BP_STORAGE.get(key(path))
   return data ? deserialize(data) : defaultValue
 }
 

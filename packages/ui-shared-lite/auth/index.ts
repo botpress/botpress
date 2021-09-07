@@ -70,7 +70,7 @@ export const setVisitorId = (userId: string, userIdScope?: string) => {
 export const getUniqueVisitorId = (userIdScope?: string): string => {
   const key = userIdScope ? `bp/socket/${userIdScope}/user` : 'bp/socket/user'
 
-  let userId = storage.get<string>(key)
+  let userId = storage.get(key)
   if (typeof userId !== 'string' || userId === 'undefined') {
     userId = nanoid(24)
     storage.set(key, userId)
