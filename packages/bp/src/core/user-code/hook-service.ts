@@ -21,7 +21,7 @@ const DEBOUNCE_DELAY = ms('2s')
 
 interface HookOptions {
   timeout: number
-  throwOnError: boolean
+  throwOnError?: boolean
 }
 
 const debugInstances: { [hookType: string]: IDebugInstance } = {}
@@ -224,7 +224,7 @@ export class HookService {
 
     try {
       const globalHooks = filterDisabled(await this.ghost.global().directoryListing(`hooks/${hook.folder}`, '*.js'))
-      const scripts = await Promise.map(globalHooks, async path => this._getHookScript(hook.folder, path))
+      const scripts: HookScript[] = await Promise.map(globalHooks, async path => this._getHookScript(hook.folder, path))
 
       if (botId) {
         const botHooks = filterDisabled(await this.ghost.forBot(botId).directoryListing(`hooks/${hook.folder}`, '*.js'))
