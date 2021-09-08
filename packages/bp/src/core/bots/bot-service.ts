@@ -30,6 +30,7 @@ import path from 'path'
 import replace from 'replace-in-file'
 import tmp from 'tmp'
 import { VError } from 'verror'
+import { ComponentService } from './component-service'
 
 const BOT_CONFIG_FILENAME = 'bot.config.json'
 const REVISIONS_DIR = './revisions'
@@ -54,6 +55,7 @@ export class BotService {
   private static _mountedBots: Map<string, boolean> = new Map()
   private static _botHealth: { [botId: string]: BotHealth } = {}
   private _updateBotHealthDebounce = _.debounce(this._updateBotHealth, 500)
+  private componentService: ComponentService
 
   constructor(
     @inject(TYPES.Logger)
@@ -72,6 +74,7 @@ export class BotService {
     @inject(TYPES.MessagingService) private messagingService: MessagingService
   ) {
     this._botIds = undefined
+    this.componentService = new ComponentService(this.logger, this.ghostService, this.cms)
   }
 
   @postConstruct()
@@ -566,7 +569,10 @@ export class BotService {
       }
 
       await this.messagingService.loadMessagingForBot(botId)
+
       await this.cms.loadContentTypesFromFiles(botId)
+      await this.componentService.extractBotComponents(botId)
+
       await this.cms.loadElementsForBot(botId)
       await this.moduleLoader.loadModulesForBot(botId)
 

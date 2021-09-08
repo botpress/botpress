@@ -1104,6 +1104,11 @@ declare module 'botpress/sdk' {
     computePreviewText?: (formData: object) => string
   }
 
+  export type CustomContentType = Omit<Partial<ContentType>, 'id'> & {
+    /** A custom component must extend a builtin type */
+    extends: string
+  }
+
   /**
    * The flow is used by the dialog engine to answer the user and send him to the correct destination
    */
