@@ -1,15 +1,10 @@
-import {
-  TrainingState as StanTrainingState,
-  TrainingState,
-  TrainingStatus as StanTrainingStatus
-} from '@botpress/nlu-client'
+import { TrainingState as StanTrainingState } from '@botpress/nlu-client'
 import Bluebird from 'bluebird'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import ms from 'ms'
 import { DefinitionsRepository } from '../definitions-repository'
-import { ModelStateKey, ModelStateService } from '../model-state'
-import { NLUClientWrapper, TrainListener } from '../nlu-client'
+import { ModelStateService } from '../model-state'
+import { NLUClientWrapper } from '../nlu-client'
 import { mapTrainSet } from '../nlu-client/api-mapper'
 import {
   TrainingState as BpTrainingState,
@@ -18,11 +13,7 @@ import {
   TrainingSet as BpTrainingSet
 } from '../typings'
 import { MountOptions } from '.'
-
-const sleep = (ms: number) =>
-  new Promise(resolve => {
-    setTimeout(resolve, ms)
-  })
+import { ModelStateSynchronizer } from './model-state-synchronizer'
 
 export class Trainer {
   private _botId: string
@@ -30,6 +21,8 @@ export class Trainer {
   private _seed: number
 
   private _needTrainingWatcher: sdk.ListenHandle
+
+  private _synchronizer: ModelStateSynchronizer
 
   constructor(
     botDef: BotDefinition,
@@ -42,6 +35,8 @@ export class Trainer {
     this._botId = botDef.botId
     this._languages = botDef.languages
     this._seed = botDef.seed
+
+    this._synchronizer = new ModelStateSynchronizer(botDef, _nluClient, _modelStateService)
   }
 
   public async initialize(opt: MountOptions) {
@@ -67,31 +62,6 @@ export class Trainer {
     return this._nluClient.pruneModels(this._botId)
   }
 
-  private async _syncWithRemote(language: string) {
-    const botId = this._botId
-    const localModelState = await this._modelStateService.get({ botId, language, statusType: 'ready' })
-    if (localModelState) {
-      const remoteModelState = await this._nluClient.getTraining(this._botId, localModelState.modelId)
-      if (!remoteModelState || remoteModelState.status !== 'done') {
-        await this._modelStateService.delete({ botId, language, statusType: 'ready' })
-      }
-    }
-
-    const localTrainState = await this._modelStateService.get({ botId, language, statusType: 'not-ready' })
-    if (!localTrainState) {
-      return
-    }
-
-    const { modelId } = localTrainState
-    const remoteTrainingState = await this._nluClient.getTraining(this._botId, modelId)
-    if (!remoteTrainingState) {
-      await this._modelStateService.delete({ botId, language, statusType: 'not-ready' })
-      return
-    }
-
-    return this._syncTrainingState(language, remoteTrainingState, { notify: false })
-  }
-
   public train = async (language: string): Promise<void> => {
     const botId = this._botId
 
@@ -99,114 +69,87 @@ export class Trainer {
       const trainset = await this._getTrainSet(language)
       const modelId = await this._nluClient.startTraining(this._botId, mapTrainSet(trainset))
 
-      await this._modelStateService.create({
-        botId,
-        language,
-        modelId,
-        progress: 0,
-        status: 'training-pending',
-        statusType: 'not-ready',
-        trainset
-      })
+      const status = 'training-pending'
+      const statusType = 'not-ready'
+      const progress = 0
+      await this._modelStateService.create({ botId, language, modelId, progress, status, statusType, trainset })
 
-      const listener = (ts: TrainingState) => this._syncTrainingState(language, ts)
-      await this._nluClient.listenForTraining(this._botId, modelId, listener)
+      await this._nluClient.listenForTraining(this._botId, modelId, async ts => {
+        await this._synchronizer.updateLocalTrainingState(language, ts)
+        return this._handleTrainingUpdate(language, ts)
+      })
     } catch (err) {
       this._logger.attachError(err).error('An error occured during training.')
     }
   }
 
-  private _syncTrainingState = async (
-    language: string,
-    ts: StanTrainingState,
-    opt: { notify: boolean } = { notify: true }
-  ) => {
-    const botId = this._botId
-
+  private _handleTrainingUpdate = async (language: string, ts: StanTrainingState) => {
     if (ts.status === 'training-pending' || ts.status === 'training') {
-      opt.notify && this._webSocket({ ...ts, botId: this._botId, language })
-      const { status, progress } = ts
-      await this._modelStateService.update({ botId, language, statusType: 'not-ready', status, progress })
+      this._webSocket({ ...ts, botId: this._botId, language })
       return { keepListening: true }
     }
 
     if (ts.status === 'done') {
-      opt.notify && this._webSocket({ ...ts, botId: this._botId, language })
-      await this._modelStateService.setReady({ botId, language, status: 'done', progress: 1 })
+      this._webSocket({ ...ts, botId: this._botId, language })
       return { keepListening: false }
     }
 
     if (ts.status === 'canceled') {
-      opt.notify && this._webSocket({ status: 'needs-training', progress: 0, botId: this._botId, language })
+      this._webSocket({ status: 'needs-training', progress: 0, botId: this._botId, language })
       this._logger.info(`Training ${this._botId}:${language} was canceled with success`)
-      await this._modelStateService.delete({ botId, language, statusType: 'not-ready' })
       return { keepListening: false }
     }
 
     if (ts.status === 'errored' && ts.error?.type === 'already-started') {
       // no notification needed to websocket
       this._logger.info(`Training ${this._botId}:${language} already started`)
-      await this._modelStateService.delete({ botId, language, statusType: 'not-ready' })
       return { keepListening: false }
     }
 
     if (ts.status === 'errored') {
-      opt.notify && this._webSocket({ ...ts, botId: this._botId, language })
+      this._webSocket({ ...ts, botId: this._botId, language })
       const err = new Error(ts.error?.message ?? 'A weird unkown error occured')
       err.stack = ts.error?.stackTrace
-      await this._modelStateService.delete({ botId, language, statusType: 'not-ready' })
       return { keepListening: false, err }
     }
 
-    throw new Error(`Training status is unknown: "${ts.status}""`)
+    const err = new Error(`Training status is unknown: "${ts.status}"`)
+    return { keepListening: false, err }
   }
 
   public getTraining = async (language: string): Promise<BpTrainingState> => {
-    await this._syncWithRemote(language)
-    return this._getTraining(language)
-  }
-
-  private _getTraining = async (language: string): Promise<BpTrainingState> => {
     const needsTrainingState: BpTrainingState = { status: 'needs-training', progress: 0 }
 
-    const botId = this._botId
+    const trainingState = await this._synchronizer.getTrainingState(language)
+    if (trainingState?.status === 'errored' || trainingState?.status === 'canceled') {
+      return needsTrainingState
+    }
 
-    const localTrainingState = await this._modelStateService.get({ botId, language, statusType: 'not-ready' })
-    if (localTrainingState) {
-      const { status, progress } = localTrainingState
+    if (trainingState) {
+      const { status, progress } = trainingState
       return { status, progress }
     }
 
-    const localModelState = await this._modelStateService.get({ botId, language, statusType: 'ready' })
-    if (!localModelState) {
+    const modelState = await this._synchronizer.getModelState(language)
+    if (!modelState) {
       return needsTrainingState
     }
 
     const trainSet = await this._getTrainSet(language)
-    if (localModelState?.isDirty(trainSet)) {
+    if (modelState.isDirty(trainSet)) {
       return needsTrainingState
     }
 
-    const { status, progress } = localModelState
+    const { status, progress } = modelState
     return { status, progress }
   }
 
   public cancelTraining = async (language: string) => {
     this._webSocket({ botId: this._botId, language, status: 'canceled', progress: 0 })
-    await this._syncWithRemote(language)
-
-    const botId = this._botId
-
-    const model = await this._modelStateService.get({ botId, language, statusType: 'not-ready' })
-    if (model) {
-      await this._nluClient.cancelTraining(this._botId, model.modelId)
+    const trainingState = await this._modelStateService.get({ botId: this._botId, language, statusType: 'not-ready' })
+    if (trainingState) {
+      await this._nluClient.cancelTraining(this._botId, trainingState.modelId)
     }
-
-    await sleep(ms('1s'))
-
-    await this._syncWithRemote(language)
-    const currentTraining = await this._getTraining(language)
-    this._webSocket({ ...currentTraining, botId: this._botId, language })
   }
 
   private async _getTrainSet(languageCode: string): Promise<BpTrainingSet> {
@@ -226,8 +169,7 @@ export class Trainer {
       }
 
       await Promise.map(this._languages, async language => {
-        await this._syncWithRemote(language)
-        const { status, progress } = await this._getTraining(language)
+        const { status, progress } = await this.getTraining(language)
         this._webSocket({ status, progress, botId: this._botId, language })
       })
     })

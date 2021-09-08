@@ -5,7 +5,7 @@ import _ from 'lodash'
 import { NLUCloudClient } from '../cloud/client'
 import { Bot } from './bot'
 import { DefinitionsRepository } from './definitions-repository'
-import { ModelStateService } from './model-state-service'
+import { ModelStateService } from './model-state'
 import { NLUClientWrapper } from './nlu-client'
 import pickSeed from './pick-seed'
 

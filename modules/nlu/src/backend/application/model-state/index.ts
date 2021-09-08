@@ -26,6 +26,7 @@ export interface ModelStateContent {
 }
 
 export interface ModelState extends ModelStateKey, ModelStateContent {}
+export type DirtyableModelState = ModelState & { isDirty: (ts: TrainingSet) => boolean }
 
 export class ModelStateService {
   constructor(private _modelRepo: IModelStateRepository) {}
@@ -68,7 +69,7 @@ export class ModelStateService {
     await this._modelRepo.upsert({ ...notReady, ...modelState, status_type: 'ready' })
   }
 
-  public async get(key: ModelStateKey): Promise<(ModelState & { isDirty: (ts: TrainingSet) => boolean }) | undefined> {
+  public async get(key: ModelStateKey): Promise<DirtyableModelState | undefined> {
     const { botId, language, statusType } = key
     const currentTraining = await this._modelRepo.get({ botId, language, status_type: statusType })
     if (!currentTraining) {
