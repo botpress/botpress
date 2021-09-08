@@ -381,7 +381,6 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
       const events = await db.listEvents(botId, language, status)
       expect(events.length).toBe(1)
       const id = events[0].id
-      console.log('ID >> ', id)
 
       // Create surrounding messages
       for (var i = 0; i < messages.length; i++) {
@@ -393,15 +392,10 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
           direction: 'incoming',
           channel: 'some_channel',
           event: JSON.stringify({ direction: 'incoming', preview: m, payload: { message: m } }),
-          createdOn: database.knex.date.now(),
+          createdOn: new Date().toISOString(),
           threadId: '5',
           sessionId: '7'
         })
-        await new Promise((r) => setTimeout(r, 20)) // sleep long enough that createdOn changes and the events get properly ordered
-      }
-
-      if (!database.knex.isLite) {
-        console.log('IN PG >> ', await database.knex(EVENTS_TABLE_NAME).select('*'))
       }
 
       expect(await db.getEventDetails(botId, id.toString())).toMatchObject({
