@@ -29,7 +29,7 @@ export class UserStats extends TelemetryStats {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
     this.url = process.TELEMETRY_URL
     this.lock = 'botpress:telemetry-users'
-    this.interval = ms('30s')
+    this.interval = ms('5m')
   }
 
   protected async getStats() {
