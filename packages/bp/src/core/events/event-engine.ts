@@ -97,7 +97,7 @@ export class EventEngine {
 
   public onBeforeOutgoingMiddleware?: (event: sdk.IO.OutgoingEvent) => Promise<void>
 
-  public renderForChannel?: (content: any, channel: string) => any[]
+  public renderForChannel?: (content: any, channel: string, botId: string) => any[]
 
   private readonly _incomingPerf = new TimedPerfCounter('mw_incoming')
   private readonly _outgoingPerf = new TimedPerfCounter('mw_outgoing')

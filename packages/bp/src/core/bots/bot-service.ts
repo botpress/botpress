@@ -566,6 +566,7 @@ export class BotService {
       }
 
       await this.messagingService.loadMessagingForBot(botId)
+      await this.cms.loadContentTypesFromFiles(botId)
       await this.cms.loadElementsForBot(botId)
       await this.moduleLoader.loadModulesForBot(botId)
 
