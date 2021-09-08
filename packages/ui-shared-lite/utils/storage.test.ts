@@ -5,6 +5,8 @@ const KEY = 'akey'
 const VALUE = { a: 'dict', with: 'some', values: [1, 2, 3, 4, 5] }
 const VALUES = [8, 1.2, 'a simple string value', VALUE, [1, 2, 3]]
 const NULL_VALUES = [null, undefined]
+let CIRCULAR_OBJ = {}
+CIRCULAR_OBJ['CIRCULAR_OBJ'] = CIRCULAR_OBJ
 
 const cases = [
   ['sessionStorage', true],
@@ -35,7 +37,7 @@ describe('Storage', () => {
       })
 
       it('Returns undefined if the value does not exists', () => {
-        const undefinedValue = storage.get<string>(KEY)
+        const undefinedValue = storage.get(KEY)
 
         expect(undefinedValue).toBeUndefined()
       })
@@ -98,6 +100,18 @@ describe('Storage', () => {
 
           spy.mockClear()
         }
+      })
+
+      it('Displays an error when trying to set an invalid object', () => {
+        const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
+        storage.set(KEY, CIRCULAR_OBJ)
+
+        const result = storage.get(KEY)
+
+        expect(result).toEqual('')
+        expect(spy).toHaveBeenCalledTimes(1)
+        expect(spy).toHaveBeenCalledWith('[Storage] Error parsing value', CIRCULAR_OBJ)
       })
     })
   })
