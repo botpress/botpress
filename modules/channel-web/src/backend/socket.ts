@@ -3,6 +3,8 @@ import _ from 'lodash'
 
 import Database from './db'
 
+const DEFAULT_TYPING_DELAY = 500
+
 export default async (bp: typeof sdk, db: Database) => {
   bp.events.registerMiddleware({
     description:
@@ -39,7 +41,7 @@ export default async (bp: typeof sdk, db: Database) => {
       bp.realtime.sendPayload(payload)
     } else {
       if (event.payload.typing === true || event.payload.type === 'typing') {
-        const value = event.payload.type === 'typing' ? event.payload.value : 500
+        const value = (event.payload.type === 'typing' ? event.payload.value : undefined) || DEFAULT_TYPING_DELAY
         const payload = bp.RealTimePayload.forVisitor(visitorId, 'webchat.typing', { timeInMs: value, conversationId })
         // Don't store "typing" in DB
         bp.realtime.sendPayload(payload)
