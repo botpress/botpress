@@ -77,7 +77,6 @@ class RootStore {
   constructor({ fullscreen }) {
     this.composer = new ComposerStore(this)
     this.view = new ViewStore(this, fullscreen)
-    this.updateBotUILanguage(chosenLocale)
   }
 
   @action.bound
@@ -428,10 +427,6 @@ class RootStore {
     this.view.disableAnimations = this.config.disableAnimations
     this.config.showPoweredBy ? this.view.showPoweredBy() : this.view.hidePoweredBy()
 
-    const locale = getUserLocale(this.config.locale)
-    this.config.locale && this.updateBotUILanguage(locale)
-    document.documentElement.setAttribute('lang', locale)
-
     document.title = this.config.botName || 'Botpress Webchat'
 
     this.api.updateAxiosConfig({ botId: this.config.botId, externalAuthToken: this.config.externalAuthToken })
@@ -440,14 +435,15 @@ class RootStore {
     try {
       if (window.USE_SESSION_STORAGE !== this.config.useSessionStorage) {
         window.USE_SESSION_STORAGE = this.config.useSessionStorage
-        // Reconfigure the EventBus since the storage provider has changed
-        this.bp.events.setup()
 
-        await waitForUserId()
-        this.setUserId(window.__BP_VISITOR_ID)
-
-        // In case the webchat was already initialized using the local storage
+        // In case the webchat was already initialized using the "old" storage provider
         if (this.isInitialized) {
+          // Reconfigure the EventBus since the storage provider has changed
+          this.bp.events.setup()
+
+          await waitForUserId()
+          this.setUserId(window.__BP_VISITOR_ID)
+
           this.resetConversation()
           await this.initializeChat()
         }
@@ -455,6 +451,10 @@ class RootStore {
     } catch (e) {
       console.error('Could not set USE_SESSION_STORAGE:', e)
     }
+
+    const locale = this.config.locale ? getUserLocale(this.config.locale) : chosenLocale
+    this.updateBotUILanguage(locale)
+    document.documentElement.setAttribute('lang', locale)
 
     this.publishConfigChanged()
   }
