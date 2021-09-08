@@ -38,7 +38,7 @@ export class DbModelStateRepository implements IModelStateRepository {
       table.string('modelId').notNullable()
       table.string('definitionHash').notNullable()
       table.string('status').notNullable()
-      table.integer('progress').notNullable()
+      table.float('progress').notNullable()
       table.primary(['botId', 'language', 'status_type'])
     })
   }
@@ -52,14 +52,16 @@ export class DbModelStateRepository implements IModelStateRepository {
   }
 
   public async upsert(model: ModelStateRow) {
-    if (this.has(model)) {
+    const exists = await this.has(model)
+    if (exists) {
       return this.update(model)
     }
     return this.insert(model)
   }
 
   public async has(key: ModelStatePrimaryKey): Promise<boolean> {
-    return !!(await this.get(key))
+    const x = await this.get(key)
+    return !!x
   }
 
   public async insert(model: ModelStateRow): Promise<void> {
