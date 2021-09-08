@@ -1,0 +1,93 @@
+{
+  "version-12.26.0-docs": {
+    "Release Notes": [
+      "version-12.26.0-releases/migrate"
+    ],
+    "Getting Started": [
+      "version-12.26.0-introduction",
+      "version-12.26.0-installation",
+      "version-12.26.0-quickstart"
+    ],
+    "Building A Chatbot": [
+      "version-12.26.0-main/overview2",
+      "version-12.26.0-main/content",
+      "version-12.26.0-main/dialog",
+      "version-12.26.0-main/memory",
+      "version-12.26.0-main/emulator",
+      "version-12.26.0-main/qna-module",
+      "version-12.26.0-main/code",
+      "version-12.26.0-main/module",
+      "version-12.26.0-main/nlu",
+      "version-12.26.0-main/broadcast",
+      "version-12.26.0-main/glossary"
+    ],
+    "Natural Language Understanding": [
+      "version-12.26.0-nlu/intro-nlu",
+      "version-12.26.0-nlu/intent-matching",
+      "version-12.26.0-nlu/entity-extraction",
+      "version-12.26.0-nlu/skill-slot",
+      "version-12.26.0-nlu/improvement",
+      "version-12.26.0-nlu/3rd-party-NLU",
+      "version-12.26.0-nlu/i18n"
+    ],
+    "Channels": [
+      "version-12.26.0-channels/web",
+      "version-12.26.0-channels/converse",
+      "version-12.26.0-channels/messenger",
+      "version-12.26.0-channels/telegram",
+      "version-12.26.0-channels/teams",
+      "version-12.26.0-channels/twilio",
+      "version-12.26.0-channels/slack",
+      "version-12.26.0-channels/smooch",
+      "version-12.26.0-channels/vonage",
+      "version-12.26.0-channels/faq"
+    ],
+    "Deployment And Infrastructure": [
+      "version-12.26.0-infrastructure/deploying",
+      "version-12.26.0-infrastructure/hosting",
+      "version-12.26.0-infrastructure/database",
+      "version-12.26.0-infrastructure/aws",
+      "version-12.26.0-infrastructure/docker",
+      "version-12.26.0-infrastructure/performances",
+      "version-12.26.0-infrastructure/pipeline",
+      "version-12.26.0-infrastructure/versions",
+      "version-12.26.0-infrastructure/cluster",
+      "version-12.26.0-infrastructure/digital-ocean"
+    ],
+    "Managing Bots & Users": [
+      "version-12.26.0-managing/rbac",
+      "version-12.26.0-managing/authentication",
+      "version-12.26.0-managing/ssotools",
+      "version-12.26.0-managing/user-auth",
+      "version-12.26.0-managing/monitoring",
+      "version-12.26.0-managing/proactive",
+      "version-12.26.0-managing/hitl",
+      "version-12.26.0-managing/hitlnext",
+      "version-12.26.0-managing/features"
+    ],
+    "Integrating External Services": [
+      "version-12.26.0-integrating/existing-backend",
+      "version-12.26.0-integrating/skill-call-api",
+      "version-12.26.0-integrating/external-api",
+      "version-12.26.0-integrating/uipath"
+    ],
+    "Improving Your Chatbot": [
+      "version-12.26.0-tutorials/carousel-postback",
+      "version-12.26.0-tutorials/skill-email",
+      "version-12.26.0-tutorials/timeouts",
+      "version-12.26.0-tutorials/jump-to",
+      "version-12.26.0-tutorials/contextual-faq"
+    ],
+    "Pro Edition": [
+      "version-12.26.0-pro/about-pro",
+      "version-12.26.0-pro/licensing"
+    ],
+    "Advanced Guides": [
+      "version-12.26.0-advanced/debug",
+      "version-12.26.0-advanced/authentication",
+      "version-12.26.0-advanced/configuration",
+      "version-12.26.0-advanced/custom-module",
+      "version-12.26.0-advanced/development-pipeline"
+    ]
+  }
+}
