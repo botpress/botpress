@@ -2,7 +2,6 @@ import { Config, StudioConnector } from '../typings'
 
 export default class BpSocket {
   private events: any
-  private userId: string
   private userIdScope: string
   private chatId: string | undefined
 
@@ -35,7 +34,7 @@ export default class BpSocket {
     this.events.onAny(this.postToParent)
   }
 
-  public postToParent = (type: string, payload: any) => {
+  public postToParent = (_type: string, payload: any) => {
     // we could filter on event type if necessary
     window.parent?.postMessage({ ...payload, chatId: this.chatId }, '*')
   }
@@ -50,9 +49,9 @@ export default class BpSocket {
   public async waitForUserId(): Promise<void> {
     await waitForUserId()
 
-    this.userId = window.__BP_VISITOR_ID
-    this.onUserIdChanged(this.userId)
-    this.postToParent('', { userId: this.userId })
+    const userId = window.__BP_VISITOR_ID
+    this.onUserIdChanged(userId)
+    this.postToParent('', { userId })
   }
 }
 
