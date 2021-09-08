@@ -30,6 +30,9 @@ export class MessagingRouter extends CustomRouter {
         }
 
         if (req.body?.type !== 'message.new') {
+          if (req.body.type === 'user.new') {
+            this.messaging.newUsers++
+          }
           return res.sendStatus(200)
         }
 

@@ -9,6 +9,7 @@ import { HooksStats } from './stats/hooks-stats'
 import { LegacyStats } from './stats/legacy-stats'
 import { RolesStats } from './stats/roles-stats'
 import { SDKStats } from './stats/sdk-stats'
+import { UserStats } from './stats/user-stats'
 import { TelemetryRepository } from './telemetry-repository'
 
 const DB_REFRESH_LOCK = 'botpress:telemetryDB'
@@ -24,7 +25,8 @@ export class StatsService {
     @inject(TYPES.RolesStats) private rolesStats: RolesStats,
     @inject(TYPES.SDKStats) private sdkStats: SDKStats,
     @inject(TYPES.HooksStats) private hooksStats: HooksStats,
-    @inject(TYPES.ConfigsStats) private configStats: ConfigsStats
+    @inject(TYPES.ConfigsStats) private configStats: ConfigsStats,
+    @inject(TYPES.UserStats) private userStats: UserStats
   ) {}
 
   public async start() {
@@ -34,6 +36,7 @@ export class StatsService {
     this.configStats.start()
     this.rolesStats.start()
     this.sdkStats.start()
+    this.userStats.start()
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.refreshDB(DB_REFRESH_INTERVAL)
 

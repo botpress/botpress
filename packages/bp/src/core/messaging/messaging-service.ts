@@ -9,6 +9,8 @@ import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 
 @injectable()
 export class MessagingService {
+  public newUsers: number = 0
+
   private clientSync!: MessagingClient
   private clientsByBotId: { [botId: string]: MessagingClient } = {}
   private botsByClientId: { [clientId: string]: string } = {}
