@@ -7,7 +7,6 @@ import { InjectedIntl } from 'react-intl'
 
 import WebchatApi from '../core/api'
 import constants from '../core/constants'
-import { waitForUserId } from '../core/socket'
 import { getUserLocale, initializeLocale } from '../translations'
 import {
   BotInfo,
@@ -432,24 +431,10 @@ class RootStore {
     this.api.updateAxiosConfig({ botId: this.config.botId, externalAuthToken: this.config.externalAuthToken })
     this.api.updateUserId(this.config.userId)
 
-    try {
-      if (window.USE_SESSION_STORAGE !== this.config.useSessionStorage) {
-        window.USE_SESSION_STORAGE = this.config.useSessionStorage
-
-        // In case the webchat was already initialized using the "old" storage provider
-        if (this.isInitialized) {
-          // Reconfigure the EventBus since the storage provider has changed
-          this.bp.events.setup()
-
-          await waitForUserId()
-          this.setUserId(window.__BP_VISITOR_ID)
-
-          this.resetConversation()
-          await this.initializeChat()
-        }
-      }
-    } catch (e) {
-      console.error('Could not set USE_SESSION_STORAGE:', e)
+    if (!this.isInitialized) {
+      window.USE_SESSION_STORAGE = this.config.useSessionStorage
+    } else {
+      console.warn('[WebChat] "useSessionStorage" value cannot be altered once the webchat is initialized')
     }
 
     const locale = this.config.locale ? getUserLocale(this.config.locale) : chosenLocale

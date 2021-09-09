@@ -47,32 +47,27 @@ export default class BpSocket {
 
   /** Waits until the VISITOR ID and VISITOR SOCKET ID is set  */
   public async waitForUserId(): Promise<void> {
-    await waitForUserId()
+    return new Promise((resolve, reject) => {
+      const interval = setInterval(() => {
+        if (isString(window.__BP_VISITOR_ID) && isString(window.__BP_VISITOR_SOCKET_ID)) {
+          clearInterval(interval)
 
-    const userId = window.__BP_VISITOR_ID
-    this.onUserIdChanged(userId)
-    this.postToParent('', { userId })
+          const userId = window.__BP_VISITOR_ID
+          this.onUserIdChanged(userId)
+          this.postToParent('', { userId })
+
+          resolve()
+        }
+      }, 250)
+
+      setTimeout(() => {
+        clearInterval(interval)
+        reject('Timeout to acquire VISITOR ID and VISITOR SOCKET ID exceeded.')
+      }, 30000)
+    })
   }
 }
 
 const isString = (str: string | any): str is string => {
   return typeof str === 'string' && str !== 'undefined'
-}
-
-/** Waits until the VISITOR ID and VISITOR SOCKET ID is set  */
-export const waitForUserId = (): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    const interval = setInterval(() => {
-      if (isString(window.__BP_VISITOR_ID) && isString(window.__BP_VISITOR_SOCKET_ID)) {
-        clearInterval(interval)
-
-        resolve()
-      }
-    }, 250)
-
-    setTimeout(() => {
-      clearInterval(interval)
-      reject('Timeout to acquire VISITOR ID and VISITOR SOCKET ID exceeded.')
-    }, 30000)
-  })
 }
