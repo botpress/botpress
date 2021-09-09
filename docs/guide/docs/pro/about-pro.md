@@ -1,6 +1,6 @@
 ---
 id: about-pro
-title: About
+title: Botpress Enterprise License
 ---
 
 When creating a chatbot or any other software, the considerations for enterprises are different from small businesses.
