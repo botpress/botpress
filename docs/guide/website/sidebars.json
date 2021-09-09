@@ -72,7 +72,7 @@
       "tutorials/jump-to",
       "tutorials/contextual-faq"
     ],
-    "Pro Edition": ["pro/about-pro", "pro/licensing"],
+    "Enterprise Edition": ["pro/about-pro", "pro/licensing"],
     "Advanced Guides": [
       "advanced/debug",
       "advanced/authentication",
