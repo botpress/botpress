@@ -514,7 +514,7 @@ const Analytics: FC<any> = ({ bp }) => {
                 key={i.language}
                 value={i.value}
                 color="#F2B824"
-                name={`${lang.tr(`isoLangs.${i.language}.name`)}: ${i.value}`}
+                name={`${i.language !== 'n/a' ? lang.tr(`isoLangs.${i.language}.name`) : 'Unknown'}: ${i.value}`}
               />
             ))}
           </div>
