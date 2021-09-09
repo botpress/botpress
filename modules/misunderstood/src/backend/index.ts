@@ -16,7 +16,7 @@ const onServerReady = async (bp: typeof sdk) => {
   await db.initialize()
   await initApi(bp, db)
 
-  listener = async ({ channel, botId, type, eventId }) => {
+  listener = async ({ botId, eventId }) => {
     const storedEvent = await bp.events.findEvents({ id: eventId })
     if (!storedEvent) {
       return
@@ -26,9 +26,7 @@ const onServerReady = async (bp: typeof sdk) => {
     const data: FlaggedEvent = {
       eventId: event.id,
       botId,
-      language: [event.nlu.language, event.nlu.detectedLanguage, event.state.user.language].filter(
-        l => l && l !== 'n/a'
-      )[0],
+      language: [event.nlu.language, event.nlu.detectedLanguage].filter(l => l && l !== 'n/a')[0],
       preview: event.preview,
       reason: 'thumbs_down' as FLAG_REASON
     }
