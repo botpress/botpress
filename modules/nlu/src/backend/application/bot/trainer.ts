@@ -83,7 +83,12 @@ export class Trainer {
     }
   }
 
-  private _handleTrainingUpdate = async (language: string, ts: StanTrainingState) => {
+  private _handleTrainingUpdate = async (language: string, ts: StanTrainingState | undefined) => {
+    if (!ts) {
+      this._webSocket({ botId: this._botId, language, status: 'needs-training', progress: 0 })
+      return { keepListening: false }
+    }
+
     if (ts.status === 'training-pending' || ts.status === 'training') {
       this._webSocket({ ...ts, botId: this._botId, language })
       return { keepListening: true }
@@ -97,12 +102,6 @@ export class Trainer {
     if (ts.status === 'canceled') {
       this._webSocket({ status: 'needs-training', progress: 0, botId: this._botId, language })
       this._logger.info(`Training ${this._botId}:${language} was canceled with success`)
-      return { keepListening: false }
-    }
-
-    if (ts.status === 'errored' && ts.error?.type === 'already-started') {
-      // no notification needed to websocket
-      this._logger.info(`Training ${this._botId}:${language} already started`)
       return { keepListening: false }
     }
 

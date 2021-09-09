@@ -2,7 +2,7 @@ import { Client, Health, PredictOutput, Specifications, TrainingState, TrainInpu
 import _ from 'lodash'
 
 export type TrainListener = (
-  tp: TrainingState
+  tp: TrainingState | undefined
 ) => Promise<{ keepListening: true } | { keepListening: false; err?: Error }>
 
 const TRAIN_POLLING_MS = 500

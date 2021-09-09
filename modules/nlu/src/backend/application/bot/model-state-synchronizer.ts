@@ -28,8 +28,8 @@ export class ModelStateSynchronizer {
     }
 
     const remote = await this._nluClient.getTraining(this._botId, local.modelId)
-    await this.updateLocalModelState(language, remote)
-    if (!remote) {
+    const synced = await this.updateLocalModelState(language, remote)
+    if (!remote || !synced) {
       return
     }
 
@@ -46,8 +46,8 @@ export class ModelStateSynchronizer {
     }
 
     const remote = await this._nluClient.getTraining(this._botId, local.modelId)
-    await this.updateLocalTrainingState(language, remote)
-    if (!remote) {
+    const synced = await this.updateLocalTrainingState(language, remote)
+    if (!remote || !synced) {
       return
     }
 
@@ -59,29 +59,32 @@ export class ModelStateSynchronizer {
     const botId = this._botId
     if (!remoteModelState || remoteModelState.status !== 'done') {
       await this._modelStateService.delete({ botId, language, statusType: 'ready' })
+      return false
     }
+    await this._modelStateService.update({ botId, language, statusType: 'ready', ...remoteModelState })
+    return true
   }
 
   public updateLocalTrainingState = async (language: string, remoteTrainingState: StanTrainingState | undefined) => {
     const botId = this._botId
 
     if (!remoteTrainingState) {
-      return this._modelStateService.delete({ botId, language, statusType: 'not-ready' })
+      await this._modelStateService.delete({ botId, language, statusType: 'not-ready' })
+      return false
     }
 
     if (remoteTrainingState.status === 'training-pending' || remoteTrainingState.status === 'training') {
       const { status, progress } = remoteTrainingState
-      return this._modelStateService.update({ botId, language, statusType: 'not-ready', status, progress })
+      await this._modelStateService.update({ botId, language, statusType: 'not-ready', status, progress })
+      return true
     }
 
     if (remoteTrainingState.status === 'done') {
-      return this._modelStateService.setReady({ botId, language, status: 'done', progress: 1 })
+      await this._modelStateService.setReady({ botId, language, status: 'done', progress: 1 })
+      return true
     }
 
-    if (remoteTrainingState.status === 'errored' && remoteTrainingState.error?.type === 'already-started') {
-      return
-    }
-
-    return this._modelStateService.delete({ botId, language, statusType: 'not-ready' })
+    await this._modelStateService.delete({ botId, language, statusType: 'not-ready' })
+    return false
   }
 }
