@@ -149,7 +149,7 @@ export class WorkspaceManager {
         repo,
         cmd: 'yarn build',
         cwd,
-        env: { GULP_PARALLEL: this.quickBuild }
+        env: { ...process.env, GULP_PARALLEL: this.quickBuild }
       })
     }
 
