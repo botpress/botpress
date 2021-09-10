@@ -169,7 +169,7 @@ export class WorkspaceManager {
     const fileContent = `### Linked Repositories
 DEV_STUDIO_PATH=${this.rootFolder}/studio/packages/studio-be/out
 DEV_NLU_PATH=${this.rootFolder}/nlu/packages/nlu-cli/dist
-DEV_MESSAGING_PATH=${this.rootFolder}/messaging/dist
+DEV_MESSAGING_PATH=${this.rootFolder}/messaging/packages/server/dist
 
 ### Connections
 # DATABASE_URL=postgres://user:pw@localhost:5432/dbname
