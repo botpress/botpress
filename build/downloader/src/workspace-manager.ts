@@ -168,7 +168,7 @@ export class WorkspaceManager {
     const dotEnvDir = path.resolve(this.rootFolder, 'botpress/packages/bp/dist/')
     const fileContent = `### Linked Repositories
 DEV_STUDIO_PATH=${this.rootFolder}/studio/packages/studio-be/out
-DEV_NLU_PATH=${this.rootFolder}/nlu/packages/nlu/dist
+DEV_NLU_PATH=${this.rootFolder}/nlu/packages/nlu-cli/dist
 DEV_MESSAGING_PATH=${this.rootFolder}/messaging/dist
 
 ### Connections
