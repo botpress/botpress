@@ -178,8 +178,8 @@ export const installFile = async (toolName: string, common: CommonArgs, toolVers
 export const useFile = async (toolName: string, version: string, common: CommonArgs) => {
   const toolFolder = path.resolve(common.appData, 'tools', toolName)
 
-  // We remove pre- from the beginning of the "version" because of the prefix of branch binaries
-  const underscoreVersion = version.replace(/^pre\-/, '').replace(/[\W_]+/g, '_')
+  // We remove dev- from the beginning of the "version" because of the prefix of branch binaries
+  const underscoreVersion = version.replace(/^dev\-/, '').replace(/[\W_]+/g, '_')
 
   const matchingFile = await Promise.fromCallback<string[]>(cb =>
     glob(`*${underscoreVersion}-${common.platform.replace('win32', 'win')}*`, { cwd: toolFolder }, cb)
