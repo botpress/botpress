@@ -23,13 +23,6 @@ There are a few ways to get started with botpress :
   [![DigitalOcean](.github/do_button.svg)](https://marketplace.digitalocean.com/apps/botpress) [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 - Run from sources, follow [build docs](https://botpress.com/docs/infrastructure/deploying)
 
-## Getting Started - Developers
-
-Botpress is now split in multiple repositories. We provide a tool that can be used to create a workspace where it is easier to work across all those repositories.
-To setup a new workspace, you need to clone this repository first, then type `yarn bpd workspace init --path /new/path/to/workspace`
-
-Once the workspace is created, checkout a branch in the `botpress` repository, then you can type `yarn bpd workspace sync --force --dev` to checkout the correct branches
-
 ## Documentation
 
 - [Main Documentation](https://botpress.com/docs/introduction)
