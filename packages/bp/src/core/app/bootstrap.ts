@@ -6,13 +6,14 @@ import chalk from 'chalk'
 import cluster from 'cluster'
 import { BotpressApp, createApp, createLoggerProvider } from 'core/app/core-loader'
 import { ModuleConfigEntry } from 'core/config'
-import { centerText, LoggerProvider } from 'core/logger'
+import { LoggerProvider } from 'core/logger'
 import { ModuleLoader, ModuleResolver } from 'core/modules'
 import fs from 'fs'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import { setupMasterNode, setupWebWorker, WorkerType } from 'orchestrator'
 import os from 'os'
+import { showBanner } from './banner'
 
 async function setupEnv(app: BotpressApp) {
   await app.database.initialize()
@@ -153,11 +154,7 @@ async function start() {
     process.LOADED_MODULES[loadedModule.entryPoint.definition.name] = loadedModule.moduleLocation
   }
 
-  logger.info(chalk`========================================
-{bold ${centerText('Botpress Server', 40, 9)}}
-{dim ${centerText(`Version ${sdk.version}`, 40, 9)}}
-{dim ${centerText(`OS ${process.distro}`, 40, 9)}}
-${_.repeat(' ', 9)}========================================`)
+  showBanner({ title: 'Botpress Server', version: sdk.version, labelLength: 9, lineWidth: 75, logger })
 
   if (!fs.existsSync(process.APP_DATA_PATH)) {
     try {
