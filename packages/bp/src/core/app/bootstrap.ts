@@ -154,7 +154,7 @@ async function start() {
     process.LOADED_MODULES[loadedModule.entryPoint.definition.name] = loadedModule.moduleLocation
   }
 
-  showBanner({ title: 'Botpress Server', version: sdk.version, labelLength: 9, lineWidth: 75, logger })
+  showBanner({ title: 'Botpress Server', version: sdk.version, logScopeLength: 9, bannerWidth: 75, logger })
 
   if (!fs.existsSync(process.APP_DATA_PATH)) {
     try {
