@@ -7,6 +7,7 @@ import glob from 'glob'
 import { CommonArgs } from 'index'
 import path from 'path'
 import rimraf from 'rimraf'
+import yn from 'yn'
 import { downloadFile } from './download'
 import { getReleasedFiles, logger, APP_PREFIX, ProcessedRelease } from './utils'
 
@@ -41,7 +42,7 @@ export const initProject = async (packageLocation: string, common: CommonArgs) =
     const releases = await getReleasedFiles(toolName, common.platform)
     const devRelease = devBranch && releases.find(x => x.version.endsWith(devBranch))
 
-    if (devBranch && devRelease) {
+    if (devBranch && devRelease && !yn(process.env.IGNORE_DEV_BRANCH)) {
       logger.info(`Using the binary of branch "${devBranch}"`)
       toolVersion = devBranch
 
