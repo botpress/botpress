@@ -15,7 +15,7 @@
   },
   "studio": {
     "version": "0.0.34",
-    "devBranch": "ya-local-actions"
+    "devBranch": "ya-content-types"
   },
   "messaging": {
     "version": "0.1.12"
