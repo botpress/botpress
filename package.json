@@ -14,7 +14,8 @@
     "version": "0.1.5"
   },
   "studio": {
-    "version": "0.0.34"
+    "version": "0.0.34",
+    "devBranch": "ya-create-bot"
   },
   "messaging": {
     "version": "0.1.12"
