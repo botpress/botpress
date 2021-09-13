@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  botpress:
+    image: botpress/server
+    expose:
+      - 3000
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgres://postgres:secretpw@postgres:5435/botpress_db
+      - EXTERNAL_URL=https://$PLACE_HOLDER_DOMAIN_NAME
+    depends_on:
+      - postgres
+    volumes:
+      - ./build/botpress/data:/botpress/data
+
+  postgres:
+    image: postgres:11.2-alpine
+    expose:
+      - 5435
+    environment:
+      PGPORT: 5435
+      POSTGRES_DB: botpress_db
+      POSTGRES_PASSWORD: secretpw
+      POSTGRES_USER: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  nginx:
+    image: jonasal/nginx-certbot:latest
+    restart: unless-stopped
+    environment:
+      - CERTBOT_EMAIL=YOUR_EMAIL@DOMAINE.COM
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - nginx_secrets:/etc/letsencrypt
+      - ./build/user_conf.d:/etc/nginx/user_conf.d
+
+volumes:
+  pgdata:
+  nginx_secrets:
