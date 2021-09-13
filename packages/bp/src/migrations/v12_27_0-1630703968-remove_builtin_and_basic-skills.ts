@@ -1,5 +1,8 @@
 import * as sdk from 'botpress/sdk'
+import { GhostService } from 'core/bpfs'
 import { Migration, MigrationOpts } from 'core/migration'
+import { ModuleResourceLoader } from 'core/modules'
+import { TYPES } from 'core/types'
 
 const migration: Migration = {
   info: {
@@ -7,7 +10,10 @@ const migration: Migration = {
     target: 'core',
     type: 'config'
   },
-  up: async ({ bp, configProvider }: MigrationOpts): Promise<sdk.MigrationResult> => {
+  up: async ({ configProvider, inversify }: MigrationOpts): Promise<sdk.MigrationResult> => {
+    const ghost = inversify.get<GhostService>(TYPES.GhostService)
+    const logger = inversify.get<sdk.Logger>(TYPES.Logger)
+
     let hasChanges = false
     const modulesToDisable = ['builtin', 'basic-skills']
     const config = await configProvider.getBotpressConfig()
@@ -15,9 +21,12 @@ const migration: Migration = {
     for (const mod of modulesToDisable) {
       const entry = config.modules.find(x => x.location.endsWith(mod))
 
-      if (entry) {
+      if (entry?.enabled) {
         entry.enabled = false
         hasChanges = true
+
+        const resourceLoader = new ModuleResourceLoader(logger, mod, ghost)
+        await resourceLoader.disableResources()
       }
     }
 
