@@ -107,6 +107,7 @@ const createMissingElements = async (bp: typeof sdk, botId, files: TemplateFile[
 }
 
 const getTemplateFiles = async (bp: typeof sdk): Promise<TemplateFile[]> => {
+  // TODO: remove eventually
   return []
   // return (await bp.bots.getBotTemplate('ndu', 'oneflow')).map(x => ({
   //   fileName: x.name.replace(/\\/g, '/'),

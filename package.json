@@ -14,7 +14,8 @@
     "version": "0.1.5"
   },
   "studio": {
-    "version": "0.0.34"
+    "version": "0.0.34",
+    "devBranch": "ya-create-bot"
   },
   "messaging": {
     "version": "0.1.12"
@@ -53,7 +54,7 @@
     "nanoid": "^2.0.1",
     "numeric": "^1.2.6",
     "semver": "^5.6.0",
-    "tar": "^4.4.15",
+    "tar": "^4.4.19",
     "tmp": "^0.0.33",
     "yargs": "^16.0.3",
     "yn": "^2.0.0"
