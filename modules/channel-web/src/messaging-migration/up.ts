@@ -240,7 +240,7 @@ export abstract class MessagingUpMigrator {
 
     await this.onClientCreated(botId, client.id)
 
-    if (exists && this.isDryRun) {
+    if (exists && !this.isDryRun) {
       try {
         await this.bp.config.mergeBotConfig(botId, {
           messaging: { id: client.id, token, channels: {} }
