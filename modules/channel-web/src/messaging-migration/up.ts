@@ -216,8 +216,8 @@ export abstract class MessagingUpMigrator {
   protected async createClients() {
     const bots = await this.bp.bots.getAllBots()
 
-    for (const bot of bots.values()) {
-      await this.createClient(bot.id, true)
+    for (const botId of bots.keys()) {
+      await this.createClient(botId, true)
     }
   }
 
