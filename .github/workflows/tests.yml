@@ -26,10 +26,20 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: '12.13.0'
+      - name: Configure Caching
+        uses: actions/cache@v2
+        id: cache
+        with:
+          path: '**/node_modules'
+          key: modules-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            modules-
       - name: Fetch Node Packages
         run: |
           yarn
       - name: Build core, UI and modules
+        env:
+          GULP_PARALLEL: ${{ steps.cache.outputs.cache-hit }}
         run: |
           NODE_OPTIONS="--max-old-space-size=6000" yarn build
       - name: Run Tests
