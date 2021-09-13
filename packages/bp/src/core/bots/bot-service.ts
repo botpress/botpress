@@ -141,6 +141,8 @@ export class BotService {
   }
 
   async onBotCreation(botId: string) {
+    this.stats.track('bot', 'create')
+
     this._invalidateBotIds()
     await this.mountBot(botId)
 

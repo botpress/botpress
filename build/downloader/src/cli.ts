@@ -7,8 +7,9 @@ import glob from 'glob'
 import { CommonArgs } from 'index'
 import path from 'path'
 import rimraf from 'rimraf'
+import yn from 'yn'
 import { downloadFile } from './download'
-import { getReleasedFiles, logger, APP_PREFIX } from './utils'
+import { getReleasedFiles, logger, APP_PREFIX, ProcessedRelease } from './utils'
 
 export const toolsList = {
   nlu: {
@@ -16,7 +17,7 @@ export const toolsList = {
   },
   studio: {
     url: 'https://api.github.com/repos/botpress/studio/releases'
-  },  
+  },
   messaging: {
     url: 'https://api.github.com/repos/botpress/messaging/releases'
   }
@@ -29,13 +30,30 @@ export const initProject = async (packageLocation: string, common: CommonArgs) =
 
   const packageJson = await fse.readJson(packageLocation)
   for (const toolName of Object.keys(toolsList)) {
-    const toolVersion = packageJson[toolName]?.version || packageJson[toolName]
+    let forceDownload = false
+    let toolVersion = packageJson[toolName]?.version || packageJson[toolName]
+    const devBranch = packageJson[toolName]?.devBranch
+
     if (!toolVersion) {
       logger.info(`Version missing for tool ${toolName} in package.json`)
       continue
     }
 
     const releases = await getReleasedFiles(toolName, common.platform)
+    const devRelease = devBranch && releases.find(x => x.version.endsWith(devBranch))
+
+    if (devBranch && devRelease && !yn(process.env.IGNORE_DEV_BRANCH)) {
+      logger.info(`Using the binary of branch "${devBranch}"`)
+      toolVersion = devBranch
+
+      const existingFile = await getFileMetadata(devRelease, common.appData)
+
+      if (existingFile?.fileId !== devRelease.fileId) {
+        forceDownload = true
+        logger.info('A new binary was published for that branch, re-downloading it...')
+      }
+    }
+
     const configVersion = releases.find(x => x.version.endsWith(toolVersion))
     if (!configVersion) {
       logger.info("Version not found on the tool's release page")
@@ -43,7 +61,7 @@ export const initProject = async (packageLocation: string, common: CommonArgs) =
     }
 
     const location = path.resolve(common.appData, 'tools', toolName, configVersion?.fileName)
-    if (await fse.pathExists(location)) {
+    if ((await fse.pathExists(location)) && !forceDownload) {
       await useFile(toolName, toolVersion, common)
     } else {
       await installFile(toolName, common, configVersion.version)
@@ -98,6 +116,28 @@ export const cleanFiles = async (storageLocation: string) => {
   }
 }
 
+const getFileMetadata = async (releaseInfo: ProcessedRelease, appData: string) => {
+  const metadataFile = path.resolve(appData, 'tools', 'metadata.json')
+
+  if (await fse.pathExists(metadataFile)) {
+    const data = await fse.readJSON(metadataFile)
+    return data[releaseInfo.fileName]
+  }
+
+  return {}
+}
+
+export const saveMetadata = async (releaseInfo: ProcessedRelease, appData: string) => {
+  const metadataFile = path.resolve(appData, 'tools', 'metadata.json')
+  let metadata = {}
+
+  if (await fse.pathExists(metadataFile)) {
+    metadata = await fse.readJSON(metadataFile)
+  }
+
+  await fse.writeJSON(metadataFile, { ...metadata, [releaseInfo.fileName]: releaseInfo }, { spaces: 2 })
+}
+
 export const installFile = async (toolName: string, common: CommonArgs, toolVersion?: string) => {
   if (!toolsList[toolName]) {
     return logger.error('Invalid tool name')
@@ -132,11 +172,16 @@ export const installFile = async (toolName: string, common: CommonArgs, toolVers
   } finally {
     downloadProgressBar.stop()
   }
+
+  await saveMetadata(release, common.appData)
 }
 
 export const useFile = async (toolName: string, version: string, common: CommonArgs) => {
   const toolFolder = path.resolve(common.appData, 'tools', toolName)
-  const underscoreVersion = version.replace(/\./g, '_')
+
+  // We remove dev- from the beginning of the "version" because of the prefix of branch binaries
+  const underscoreVersion = version.replace(/^dev\-/, '').replace(/[\W_]+/g, '_')
+
   const matchingFile = await Promise.fromCallback<string[]>(cb =>
     glob(`*${underscoreVersion}-${common.platform.replace('win32', 'win')}*`, { cwd: toolFolder }, cb)
   )
