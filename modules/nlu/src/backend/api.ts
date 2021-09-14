@@ -3,12 +3,10 @@ import { Response } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
 import yn from 'yn'
-import { Config } from '../config'
 
 import { NLUApplication } from './application'
 import { BotDoesntSpeakLanguageError, BotNotMountedError } from './application/errors'
 import { TrainingSession } from './application/typings'
-import { election } from './election'
 import { NLUProgressEvent } from './typings'
 
 const ROUTER_ID = 'nlu'
@@ -61,8 +59,6 @@ export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
   const mapError = makeErrorMapper(bp)
   const needsWriteMW = bp.http.needPermission('write', 'bot.training')
 
-  const globalConfig: Config = await bp.config.getModuleConfig('nlu')
-
   /**
    * This is needed because of limitiations on ghost file listening
    * and the fact studio and runtime don't share the same process.
@@ -96,26 +92,7 @@ export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
   })
 
   router.post(['/predict', '/predict/:lang'], async (req, res) => {
-    const { botId, lang } = req.params
-    const { error, value } = PredictSchema.validate(req.body)
-    if (error) {
-      return res.status(400).send('Predict body is invalid')
-    }
-
-    try {
-      const bot = app.getBot(botId)
-      const t0 = Date.now()
-      const nlu = await bot.predict(value.text, lang)
-      const event: sdk.IO.EventUnderstanding = {
-        ...nlu,
-        includedContexts: value.contexts,
-        detectedLanguage: nlu.detectedLanguage,
-        ms: Date.now() - t0
-      }
-      res.send({ nlu: election(event, globalConfig) })
-    } catch (error) {
-      return mapError({ botId, lang, error }, res)
-    }
+    return res.status(410).send('Ressource gone')
   })
 
   router.post('/train/:lang', needsWriteMW, async (req, res) => {

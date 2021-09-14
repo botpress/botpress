@@ -1,6 +1,6 @@
 import { TrainingState as StanTrainingState } from '@botpress/nlu-client'
 import { DirtyableModelState, ModelStateService } from '../model-state'
-import { NLUClientWrapper } from '../nlu-client'
+import { NLUClient } from '../nlu-client'
 import { BotDefinition } from '../typings'
 
 export type RemoteLocalState = Partial<{
@@ -8,15 +8,22 @@ export type RemoteLocalState = Partial<{
   remote: StanTrainingState
 }>
 
+export type ModelReadyListener = (language: string, modelId: string) => void
+
 export class ModelStateSynchronizer {
   private _botId: string
+  private _modelReadyListeners: ModelReadyListener[] = []
 
-  constructor(
-    botDef: BotDefinition,
-    private _nluClient: NLUClientWrapper,
-    private _modelStateService: ModelStateService
-  ) {
+  constructor(botDef: BotDefinition, private _nluClient: NLUClient, private _modelStateService: ModelStateService) {
     this._botId = botDef.botId
+  }
+
+  public onModelReady(l: ModelReadyListener) {
+    this._modelReadyListeners.push(l)
+  }
+
+  private _notify(language: string, modelId: string) {
+    this._modelReadyListeners.forEach(l => l(language, modelId))
   }
 
   public getModelState = async (language: string) => {
@@ -61,7 +68,13 @@ export class ModelStateSynchronizer {
       await this._modelStateService.delete({ botId, language, statusType: 'ready' })
       return false
     }
-    await this._modelStateService.update({ botId, language, statusType: 'ready', ...remoteModelState })
+    const { modelId } = await this._modelStateService.update({
+      botId,
+      language,
+      statusType: 'ready',
+      ...remoteModelState
+    })
+    this._notify(language, modelId)
     return true
   }
 
@@ -80,7 +93,8 @@ export class ModelStateSynchronizer {
     }
 
     if (remoteTrainingState.status === 'done') {
-      await this._modelStateService.setReady({ botId, language, status: 'done', progress: 1 })
+      const { modelId } = await this._modelStateService.setReady({ botId, language, status: 'done', progress: 1 })
+      this._notify(language, modelId)
       return true
     }
 

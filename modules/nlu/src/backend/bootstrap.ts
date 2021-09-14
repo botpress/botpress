@@ -1,4 +1,3 @@
-import { Client } from '@botpress/nlu-client'
 import * as sdk from 'botpress/sdk'
 
 import _ from 'lodash'
@@ -11,8 +10,9 @@ import { BotFactory } from './application/bot-factory'
 import { DefinitionsRepository } from './application/definitions-repository'
 import { ModelStateService } from './application/model-state'
 import { DbModelStateRepository } from './application/model-state/model-state-repo'
-import { NLUClientWrapper } from './application/nlu-client'
+import { NLUClient } from './application/nlu-client'
 import { NonBlockingNluApplication } from './application/non-blocking-app'
+import { ConfigResolver } from './application/typings'
 
 const getNLUServerConfig = (config: Config['nluServer']): { endpoint: string } => {
   if (config.autoStart) {
@@ -36,9 +36,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
   }
 
   const { endpoint: nluEndpoint } = getNLUServerConfig(globalConfig.nluServer)
-  const nluClient = new Client(nluEndpoint)
-
-  const clientWrapper = new NLUClientWrapper(nluClient)
+  const nluClient = new NLUClient(nluEndpoint)
 
   const socket = getWebsocket(bp)
 
@@ -47,9 +45,15 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
   const modelStateService = new ModelStateService(modelRepo)
 
   const defRepo = new DefinitionsRepository(bp)
-  const botFactory = new BotFactory(nluEndpoint, bp.logger, defRepo, modelStateService, socket)
+
+  const configResolver: ConfigResolver = {
+    getBotById: bp.bots.getBotById,
+    mergeBotConfig: bp.config.mergeBotConfig
+  }
+
+  const botFactory = new BotFactory(configResolver, nluEndpoint, bp.logger, defRepo, modelStateService, socket)
   const application = new NonBlockingNluApplication(
-    clientWrapper,
+    nluClient,
     botFactory,
     {
       queueTrainingsOnBotMount: trainingEnabled && queueTrainingOnBotMount

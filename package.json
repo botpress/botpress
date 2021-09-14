@@ -37,6 +37,7 @@
     "@babel/parser": "^7.11.2",
     "@babel/traverse": "^7.11.0",
     "@botpress/messaging-client": "0.0.3",
+    "@botpress/nlu-client": "1.0.0-rc.1",
     "@types/multer": "^1.4.5",
     "@types/tar": "^4.0.4",
     "archiver": "^5.3.0",

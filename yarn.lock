@@ -317,6 +317,14 @@
   dependencies:
     axios "^0.21.1"
 
+"@botpress/nlu-client@1.0.0-rc.1":
+  version "1.0.0-rc.1"
+  resolved "https://registry.yarnpkg.com/@botpress/nlu-client/-/nlu-client-1.0.0-rc.1.tgz#60b64b0cbbba55f8215065194519c15db5a25cd5"
+  integrity sha512-ScVmW/GJl5e18JNlqSO74rzks40zyQ+iwqpouxISt+imAiW6mLhTTp8/sQnixSp+Tp+5TXKyo5VHWGir5MBYEw==
+  dependencies:
+    axios "^0.21.1"
+    lodash "^4.17.19"
+
 "@cnakazawa/watch@^1.0.3":
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/@cnakazawa/watch/-/watch-1.0.3.tgz#099139eaec7ebf07a27c1786a3ff64f39464d2ef"

@@ -2,13 +2,13 @@ import { TrainingStatus } from '@botpress/nlu-client'
 import * as sdk from 'botpress/sdk'
 import { StatusType } from './typings'
 
-interface ModelStatePrimaryKey {
+export interface ModelStatePrimaryKey {
   botId: string
   language: string
   status_type: StatusType
 }
 
-interface ModelStateRow extends ModelStatePrimaryKey {
+export interface ModelStateRow extends ModelStatePrimaryKey {
   modelId: string
   definitionHash: string
   status: TrainingStatus
@@ -45,7 +45,7 @@ export class DbModelStateRepository implements IModelStateRepository {
 
   public async get(key: ModelStatePrimaryKey): Promise<ModelStateRow | undefined> {
     return this._db
-      .table(this._tableName)
+      .table<ModelStateRow>(this._tableName)
       .where(key)
       .select('*')
       .first()
@@ -65,27 +65,27 @@ export class DbModelStateRepository implements IModelStateRepository {
   }
 
   public async insert(model: ModelStateRow): Promise<void> {
-    return this._db.table(this._tableName).insert(model)
+    return this._db.table<ModelStateRow>(this._tableName).insert(model)
   }
 
-  public async update(model: ModelStateRow): Promise<void> {
+  public async update(model: Partial<ModelStateRow>): Promise<void> {
     const { modelId, definitionHash, ...key } = model
     return this._db
-      .table(this._tableName)
+      .table<ModelStateRow>(this._tableName)
       .where(key)
       .update(model)
   }
 
   public async del(key: ModelStatePrimaryKey): Promise<void> {
     return this._db
-      .table(this._tableName)
+      .table<ModelStateRow>(this._tableName)
       .where(key)
       .del()
   }
 
   public async query(query: Partial<ModelStateRow>): Promise<ModelStateRow[]> {
     return this._db
-      .table(this._tableName)
+      .table<ModelStateRow>(this._tableName)
       .where(query)
       .select('*')
   }

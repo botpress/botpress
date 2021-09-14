@@ -12,6 +12,7 @@ import { KeyValueStore } from 'core/kvs'
 import { LogsJanitor } from 'core/logger'
 import { MediaServiceProvider } from 'core/media'
 import { MessagingService } from 'core/messaging'
+import { NLUService as NLUInferenceService } from 'core/nlu'
 import { QnaService } from 'core/qna'
 import { RealtimeService } from 'core/realtime'
 import { AuthService, AuthStrategies, CEAuthStrategies } from 'core/security'
@@ -135,6 +136,10 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<MessagingService>(TYPES.MessagingService)
     .to(MessagingService)
+    .inSingletonScope()
+
+  bind<NLUInferenceService>(TYPES.NLUInferenceService)
+    .to(NLUInferenceService)
     .inSingletonScope()
 })
 

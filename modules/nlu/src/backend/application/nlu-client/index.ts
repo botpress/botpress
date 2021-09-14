@@ -1,5 +1,8 @@
-import { Client, Health, PredictOutput, Specifications, TrainingState, TrainInput } from '@botpress/nlu-client'
+import { Client, Health, Specifications, TrainingState } from '@botpress/nlu-client'
 import _ from 'lodash'
+import { CloudConfig, TrainingSet } from '../typings'
+import { mapTrainSet } from './api-mapper'
+import { NLUCloudClient } from './cloud/client'
 
 export type TrainListener = (
   tp: TrainingState | undefined
@@ -7,8 +10,12 @@ export type TrainListener = (
 
 const TRAIN_POLLING_MS = 500
 
-export class NLUClientWrapper {
-  constructor(private _client: Client) {}
+export class NLUClient {
+  private _client: Client
+
+  constructor(endpoint: string, cloud?: CloudConfig) {
+    this._client = cloud ? new NLUCloudClient({ ...cloud, endpoint }) : new Client(endpoint)
+  }
 
   public listenForTraining(botId: string, modelId: string, l: TrainListener) {
     return new Promise<void>((resolve, reject) => {
@@ -45,15 +52,8 @@ export class NLUClientWrapper {
     return response.info
   }
 
-  public async pruneModels(appId: string): Promise<string[]> {
-    const response = await this._client.pruneModels(appId)
-    if (!response.success) {
-      return this._throwError(response.error)
-    }
-    return response.models
-  }
-
-  public async startTraining(appId: string, trainInput: TrainInput): Promise<string> {
+  public async startTraining(appId: string, trainset: TrainingSet): Promise<string> {
+    const trainInput = mapTrainSet(trainset)
     const { entities, intents, seed, language } = trainInput
 
     const contexts = _(intents)
@@ -89,28 +89,6 @@ export class NLUClientWrapper {
     if (!response.success) {
       return this._throwError(response.error)
     }
-  }
-
-  public async detectLanguage(appId: string, utterance: string, models: string[]): Promise<string> {
-    const response = await this._client.detectLanguage(appId, {
-      models,
-      utterances: [utterance]
-    })
-
-    if (!response.success) {
-      return this._throwError(response.error)
-    }
-
-    return response.detectedLanguages[0]
-  }
-
-  public async predict(appId: string, utterance: string, modelId: string): Promise<PredictOutput> {
-    const response = await this._client.predict(appId, modelId, { utterances: [utterance] })
-    if (!response.success) {
-      return this._throwError(response.error)
-    }
-    const preds = response.predictions[0]
-    return preds
   }
 
   private _throwError(err: string): never {

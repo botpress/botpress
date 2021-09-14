@@ -1,10 +1,10 @@
-import { Logger } from 'botpress/sdk'
+import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { Bot } from './bot'
 import { BotFactory } from './bot-factory'
 import { BotNotMountedError } from './errors'
-import { NLUClientWrapper } from './nlu-client'
+import { NLUClient } from './nlu-client'
 import { BotConfig } from './typings'
 
 interface Config {
@@ -15,10 +15,10 @@ export class NLUApplication {
   private _bots: _.Dictionary<Bot> = {}
 
   constructor(
-    private _nluClient: NLUClientWrapper,
+    private _nluClient: NLUClient,
     private _botFactory: BotFactory,
     private _config: Partial<Config>,
-    protected _logger: Logger
+    protected _logger: sdk.Logger
   ) {}
 
   public async teardown() {

@@ -6,7 +6,6 @@ import { registerRouter, removeRouter } from './api'
 import { NLUApplication } from './application'
 import { bootStrap } from './bootstrap'
 import dialogConditions from './dialog-conditions'
-import { registerMiddlewares, removeMiddlewares } from './middlewares'
 
 class AppNotInitializedError extends Error {
   constructor() {
@@ -20,8 +19,6 @@ const onServerStarted = async (bp: typeof sdk) => {}
 
 const onServerReady = async (bp: typeof sdk) => {
   app = await bootStrap(bp)
-  await registerMiddlewares(bp, app)
-
   if (app) {
     await registerRouter(bp, app)
   } else {
@@ -56,8 +53,6 @@ const onModuleUnmount = async (bp: typeof sdk) => {
   if (!app) {
     throw new AppNotInitializedError()
   }
-
-  await removeMiddlewares(bp)
   removeRouter(bp)
   await app.teardown()
 }

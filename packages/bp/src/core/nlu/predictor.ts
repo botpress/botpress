@@ -1,37 +1,30 @@
 import Bluebird from 'bluebird'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import { ModelStateService } from '../model-state'
-import { NLUClientWrapper } from '../nlu-client'
-import { mapPredictOutput } from '../nlu-client/api-mapper'
-import { BotDefinition } from '../typings'
+import { mapPredictOutput } from './api-mapper'
+import { NLUClient } from './nlu-client'
 
 type EventUnderstanding = Omit<sdk.IO.EventUnderstanding, 'includedContexts' | 'ms'>
 
 const isDefined = <T>(x: T | undefined): x is T => _.negate(_.isUndefined)(x)
 
-export class Predictor {
-  private _botId: string
-  private _languages: string[]
-  private _defaultLanguage: string
+type ModelIdGetter = () => Promise<{ [lang: string]: string }>
 
+export class Predictor {
   constructor(
-    bot: BotDefinition,
-    private _nluClient: NLUClientWrapper,
-    private _modelStateService: ModelStateService,
+    private _botId: string,
+    private _defaultLanguage: string,
+    private _nluClient: NLUClient,
+    private _modelIdGetter: ModelIdGetter,
     private _logger: sdk.Logger
-  ) {
-    this._botId = bot.botId
-    this._defaultLanguage = bot.defaultLanguage
-    this._languages = bot.languages
-  }
+  ) {}
 
   public predict = async (textInput: string, anticipatedLanguage?: string): Promise<EventUnderstanding> => {
-    const allModels = await Bluebird.map(this._languages, l =>
-      this._modelStateService.get({ botId: this._botId, language: l, statusType: 'ready' })
-    )
-
-    const models = allModels.filter(isDefined)
+    const allModels = await this._modelIdGetter()
+    const models = _(allModels)
+      .toPairs()
+      .map(([lang, modelId]) => ({ lang, modelId }))
+      .value()
 
     let detectedLanguage: string | undefined
     try {
@@ -54,7 +47,7 @@ export class Predictor {
       .value()
 
     for (const lang of languagesToTry) {
-      const { modelId } = models.find(m => m.language === lang) ?? {}
+      const { modelId } = models.find(m => m.lang === lang) ?? {}
       if (!modelId) {
         continue
       }
