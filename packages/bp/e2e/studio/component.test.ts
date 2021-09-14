@@ -81,10 +81,7 @@ describe('Studio - Custom Component', () => {
   })
 
   it('Re-mount Bot', async () => {
-    await gotoAndExpect(`${bpConfig.host}/studio/${bpConfig.botId}/config`)
-    await expectStudioApiCallSuccess('config')
-
-    // await page.waitFor(2000)
+    await expectStudioApiCallSuccess('config', 'GET')
 
     await fillField('#status', 'Published')
     await page.keyboard.press('Enter')
