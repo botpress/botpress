@@ -230,7 +230,7 @@ class RootStore {
     runInAction('-> setBotInfo', () => {
       this.botInfo = botInfo
     })
-    await this.mergeConfig({
+    this.mergeConfig({
       extraStylesheet: botInfo.extraStylesheet,
       disableNotificationSound: botInfo.disableNotificationSound
     })
@@ -402,14 +402,14 @@ class RootStore {
 
   /** Use this method to replace a value or add a new config */
   @action.bound
-  async mergeConfig(config: Partial<Config>) {
+  mergeConfig(config: Partial<Config>) {
     this.config = merge(this.config, config)
-    await this._applyConfig()
+    this._applyConfig()
   }
 
   /** This replaces all the configurations by this object */
   @action.bound
-  async updateConfig(config: Config, bp?: StudioConnector) {
+  updateConfig(config: Config, bp?: StudioConnector) {
     this.config = config
 
     if (!this.api) {
@@ -417,10 +417,10 @@ class RootStore {
       this.api = new WebchatApi('', bp.axios)
     }
 
-    await this._applyConfig()
+    this._applyConfig()
   }
 
-  private async _applyConfig() {
+  private _applyConfig() {
     this.config.layoutWidth && this.view.setLayoutWidth(this.config.layoutWidth)
     this.config.containerWidth && this.view.setContainerWidth(this.config.containerWidth)
     this.view.disableAnimations = this.config.disableAnimations

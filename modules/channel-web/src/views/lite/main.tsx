@@ -63,7 +63,8 @@ class Web extends React.Component<MainProps> {
 
   componentDidUpdate() {
     if (this.config) {
-      void this.initializeIfChatDisplayed()
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.initializeIfChatDisplayed()
     }
   }
 
@@ -85,7 +86,7 @@ class Web extends React.Component<MainProps> {
   }
 
   async initialize() {
-    this.config = await this.extractConfig()
+    this.config = this.extractConfig()
 
     if (this.config.exposeStore) {
       const storePath = this.config.chatId ? `${this.config.chatId}.webchat_store` : 'webchat_store'
@@ -111,7 +112,7 @@ class Web extends React.Component<MainProps> {
     window.parent?.postMessage({ type, value, chatId: this.config.chatId }, '*')
   }
 
-  async extractConfig(): Promise<Config> {
+  extractConfig(): Config {
     const decodeIfRequired = (options: string) => {
       try {
         return decodeURIComponent(options)
@@ -125,7 +126,7 @@ class Web extends React.Component<MainProps> {
     const userConfig: Config = Object.assign({}, constants.DEFAULT_CONFIG, config)
     userConfig.reference = config.ref || ref
 
-    await this.props.updateConfig(userConfig, this.props.bp)
+    this.props.updateConfig(userConfig, this.props.bp)
 
     return userConfig
   }
@@ -185,9 +186,9 @@ class Web extends React.Component<MainProps> {
 
   handleIframeApi = async ({ data: { action, payload } }) => {
     if (action === 'configure') {
-      await this.props.updateConfig(Object.assign({}, constants.DEFAULT_CONFIG, payload))
+      this.props.updateConfig(Object.assign({}, constants.DEFAULT_CONFIG, payload))
     } else if (action === 'mergeConfig') {
-      await this.props.mergeConfig(payload)
+      this.props.mergeConfig(payload)
     } else if (action === 'sendPayload') {
       await this.props.sendData(payload)
     } else if (action === 'change-user-id') {
