@@ -179,6 +179,68 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
     })
   })
 
+  describe('exportProcessedData', () => {
+    it('works with no data', async () => {
+      const data = await db.exportProcessedData("this bot doesn't exist")
+      expect(data).toHaveLength(0)
+    })
+    it("exports only data that's been applied", async () => {
+      const preview = 'message'
+      const botId = 'bot'
+      const language = 'en'
+      const resolutionType = 'intent'
+      const resolution = 'test-intent'
+      const reason = FLAG_REASON.auto_hook
+
+      for (let i = 0; i < 10; i++) {
+        await db.addEvent({
+          botId,
+          reason,
+          language,
+          resolution,
+          resolutionType,
+          status: FLAGGED_MESSAGE_STATUS.applied,
+          eventId: i.toString(),
+          preview: `${preview}_${i.toString().padStart(3, '0')}`
+        })
+      }
+      for (let i = 10; i < 15; i++) {
+        await db.addEvent({
+          botId,
+          reason,
+          language,
+          status: FLAGGED_MESSAGE_STATUS.new,
+          eventId: i.toString(),
+          preview: `${preview}_${i.toString().padStart(3, '0')}`
+        })
+      }
+      for (let i = 15; i < 20; i++) {
+        await db.addEvent({
+          botId: `not_${botId}`,
+          reason,
+          language,
+          status: FLAGGED_MESSAGE_STATUS.applied,
+          eventId: i.toString(),
+          preview: `${preview}_${i.toString().padStart(3, '0')}`
+        })
+      }
+      const data = await db.exportProcessedData(botId)
+      expect(data).toHaveLength(10)
+      for (let i = 0; i < 10; i++) {
+        expect(data[i]).toMatchObject({
+          botId,
+          reason,
+          language,
+          resolution,
+          resolutionType,
+          status: FLAGGED_MESSAGE_STATUS.applied,
+          eventId: i.toString(),
+          preview: `${preview}_${i.toString().padStart(3, '0')}`
+        })
+      }
+    })
+  })
+
   describe('addEvent', () => {
     const props = {
       botId: 'bot1',
