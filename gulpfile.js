@@ -53,8 +53,6 @@ gulp.task('build:shared', ui.buildShared())
 gulp.task('build:modules', gulp.series([modules.build()]))
 
 gulp.task('postinstall', gulp.series([core.buildDownloader, core.initDownloader]))
-gulp.task('start:guide', docs.startDevServer)
-gulp.task('build:guide', docs.buildGuide())
 gulp.task('build:reference', docs.buildReference())
 
 gulp.task('package:core', package.packageCore())
