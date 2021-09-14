@@ -41,14 +41,18 @@ export class CEJobService implements JobService {
       }
     }
 
-    this.locks[resource] = new Date(Date.now() + duration)
+    this.locks[resource] = moment()
+      .add(duration)
+      .toDate()
 
     return {
       unlock: async () => {
         delete this.locks[resource]
       },
       extend: async (duration: number) => {
-        this.locks[resource] = new Date(this.locks[resource].getTime() + duration)
+        this.locks[resource] = moment(this.locks[resource])
+          .add(duration)
+          .toDate()
       }
     }
   }
