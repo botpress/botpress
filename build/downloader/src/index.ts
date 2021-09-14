@@ -1,8 +1,10 @@
+import fse from 'fs-extra'
 import os from 'os'
 import path from 'path'
 import yargs from 'yargs'
 import { cleanFiles, initProject, installFile, listFiles, useFile } from './cli'
 import { getAppDataPath } from './utils'
+import { getManager } from './workspace-manager'
 
 export interface CommonArgs {
   appData: string
@@ -90,4 +92,74 @@ yargs
       await useFile(argv.toolName, argv.toolVersion, getCommonArgv(argv))
     }
   )
+  .command(['workspace <init|sync>'], 'Manage a workspace including each repository', yargs => {
+    let workspaceDir: string | undefined = path.resolve(__dirname, '../../../../')
+    if (!fse.pathExistsSync(path.resolve(workspaceDir, '.workspace'))) {
+      workspaceDir = undefined
+    }
+
+    return yargs
+      .options({
+        workspace: {
+          description: 'Set the location where the workspace is located',
+          alias: ['w', 'path'],
+          type: 'string',
+          required: true,
+          default: workspaceDir
+        },
+        verbose: {
+          alias: 'v',
+          description: 'Show verbose logs during build',
+          type: 'boolean',
+          default: false
+        },
+        skipBuild: {
+          alias: 'skip',
+          description: 'Skip the build phase',
+          type: 'boolean',
+          default: false
+        },
+        quickBuild: {
+          alias: 'q',
+          description: 'Build in parallel if supported by the repository',
+          type: 'boolean',
+          default: false
+        }
+      })
+      .command(
+        ['init', '$0e'],
+        'Setup a new workspace',
+        {
+          pro: {
+            description: 'Includes Botpress Pro in the workspace',
+            type: 'boolean',
+            default: false
+          }
+        },
+        async argv => {
+          await getManager(argv).initializeWorkspace({ usePro: argv.pro })
+        }
+      )
+      .command(
+        ['sync'],
+        'Sync repositories to what is configured in package.json. If there is no dev branch, it will default to master',
+        {
+          force: {
+            alias: 'f',
+            description: 'Force checkout of branches (warning: discards current changes)',
+            type: 'boolean',
+            default: false
+          },
+          devMode: {
+            alias: 'd',
+            description: 'Even if a binary is available for a branch, it will use repositories directly',
+            type: 'boolean',
+            default: false
+          }
+        },
+        async argv => {
+          await getManager(argv).syncWorkspace({ forceCheckout: argv.force, devMode: argv.devMode })
+        }
+      )
+  })
   .help().argv
