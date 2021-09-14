@@ -15,6 +15,13 @@ module.exports = {
   globalSetup: '<rootDir>/packages/bp/src/jest-rewire.ts',
   setupFilesAfterEnv: [],
   collectCoverage: false,
+  coverageReporters: ['text-summary'],
+  collectCoverageFrom: [
+    '**/*.ts',
+    '!**/{node_modules,dist,out,e2e,build,docs,examples}/**',
+    '!**/migrations/v*.ts',
+    '!**/*.d.ts'
+  ],
   resetModules: true,
   verbose: true,
   modulePaths: ['<rootDir>/packages/bp/src/'],
