@@ -5,10 +5,10 @@ global['NativePromise'] = global.Promise
 const fs = require('fs')
 const path = require('path')
 const yn = require('yn')
-const metadataContent = require('../../../metadata.json')
 const getos = require('./common/getos')
 const { getAppDataPath } = require('./core/misc/app_data')
 const { Debug } = require('./debug')
+const metadataContent = require('./metadata.json')
 
 const printPlainError = err => {
   /* eslint-disable no-console */
