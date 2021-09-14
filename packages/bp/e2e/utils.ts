@@ -1,8 +1,8 @@
 import moment = require('moment')
 import { Dialog, ElementHandle, HttpMethod, MouseButtons, Page } from 'puppeteer'
+import axios from 'axios'
 
-import { bpConfig } from '../jest-puppeteer.config'
-
+import { bpConfig, verbose } from '../jest-puppeteer.config'
 import { clickOn, expectMatchElement, fillField } from './expectPuppeteer'
 
 export const getPage = async (): Promise<Page> => {
@@ -16,6 +16,10 @@ export const getPage = async (): Promise<Page> => {
   // @ts-ignore
   global.page = page
   return page
+}
+
+export const getAxiosClient = () => {
+  return axios.create({ baseURL: bpConfig.apiHost, headers: { Authorization: `Bearer ${bpConfig.jwtToken}` } })
 }
 
 export const loginIfNeeded = async () => {
@@ -42,7 +46,10 @@ export const gotoAndExpect = async (url: string, matchUrl?: string) => {
 export const getResponse = async (url: string, method?: HttpMethod) => {
   return page.waitForResponse(res => {
     const resUrl = res.url()
-    console.info(`url: ${url}, resUrl: ${resUrl}`)
+    if (verbose) {
+      console.info(`url: ${url}, resUrl: ${resUrl}`)
+    }
+
     return resUrl.includes(url) && (method ? res.request().method() === method : true)
   })
 }
@@ -142,6 +149,10 @@ export const closeToaster = async () => {
 }
 
 const shouldLogRequest = (url: string) => {
+  if (!verbose) {
+    return false
+  }
+
   const ignoredExt = ['.js', '.mp3', '.png', '.svg', '.css']
   const ignoredWords = ['image/', 'google-analytics', 'css', 'public/js', 'static/js']
 
@@ -161,7 +172,9 @@ page.on('response', resp => {
 })
 
 page.on('framenavigated', frame => {
-  console.info(`${getTime()} FRAME NAVIGATED: ${frame.url()}`)
+  if (verbose) {
+    console.info(`${getTime()} FRAME NAVIGATED: ${frame.url()}`)
+  }
 })
 
 export const getTime = () => {
