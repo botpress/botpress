@@ -6,13 +6,15 @@ import { toolsList } from './cli'
 interface GithubRelease {
   tag_name: string
   assets: {
+    id: string
     name: string
     size: number
     browser_download_url: string
   }[]
 }
 
-interface ProcessedRelease {
+export interface ProcessedRelease {
+  fileId: string
   version: string
   fileName: string
   fileSize: number
@@ -28,6 +30,7 @@ export const getReleasedFiles = async (toolName: string, platform: string): Prom
       const platformFile = x.assets.find(asset => platformMatch.test(asset.name))
 
       return {
+        fileId: platformFile?.id || '',
         version: x.tag_name,
         fileName: platformFile?.name || '',
         fileSize: platformFile?.size || -1,

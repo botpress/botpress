@@ -108,7 +108,7 @@ export default class Editor {
       fileExt = def.isJSON ? '*.json' : '*.js'
     }
 
-    const baseExcluded = this._config.includeBuiltin || listBuiltin ? undefined : getBuiltinExclusion()
+    const baseExcluded = this._config.includeBuiltin || listBuiltin ? [] : getBuiltinExclusion()
     const excluded = [...baseExcluded, ...(dirListingExcluded ?? [])]
 
     const ghost = botId ? this.bp.ghost.forBot(botId) : this.bp.ghost.forGlobal()
