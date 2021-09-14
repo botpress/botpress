@@ -32,7 +32,7 @@ const makeMockGhost = (fileData: any = {}, directories: string[] = []) => {
 }
 
 describe('applyChanges', () => {
-  it('runs addQnA', async () => {
+  it('addQnA', async () => {
     const newQuestion = 'Is an orchestra a compiler?'
     const fileData = {
       data: {
@@ -73,7 +73,7 @@ describe('applyChanges', () => {
     expect(ghost.upsertFile).toHaveBeenLastCalledWith('qna', 'qnaID.json', JSON.stringify(fileData, null, 2))
   })
 
-  it('runs addNLU', async () => {
+  it('addNLU', async () => {
     const ghost = makeMockGhost({ utterances: { en: ['hi', 'hello'] } }, ['intent1.json', 'intent2.json'])
     await addNLU(
       {
@@ -100,7 +100,7 @@ describe('applyChanges', () => {
     )
   })
 
-  it('runs removeNLU', async () => {
+  it('removeNLU', async () => {
     const ghost = makeMockGhost({ utterances: { en: ['hi', 'hello'] } })
     await removeNLU('en', 'hi', ghost)('filename')
     expect(ghost.readFileAsObject).toHaveBeenCalledTimes(1)
