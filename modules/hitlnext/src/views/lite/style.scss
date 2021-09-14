@@ -62,16 +62,17 @@
             background-color: #fff;
             color: var(--shark);
             display: flex;
+            overflow: hidden;
             &.selected {
               background-color: var(--hover-ocean);
             }
             .shortcutKey {
-              width: 100px;
+              padding-right: var(--spacing-medium);
             }
             .shortcutValue {
               width: 100%;
               text-overflow: ellipsis;
-              overflow-y: hidden;
+              overflow: hidden;
               white-space: nowrap;
             }
           }
