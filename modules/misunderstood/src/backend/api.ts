@@ -62,6 +62,19 @@ export default async (bp: typeof sdk, db: Db) => {
   )
 
   router.get(
+    '/export',
+    asyncMiddleware(async (req: Request, res: Response) => {
+      const { botId } = req.params
+      try {
+        const data = await db.exportProcessedData(botId)
+        res.json(data)
+      } catch (err) {
+        throw new StandardError('Error exporting events', err)
+      }
+    })
+  )
+
+  router.get(
     `/events/:status(${FLAGGED_MESSAGE_STATUSES.join('|')})`,
     asyncMiddleware(async (req: Request, res: Response) => {
       const { botId, status } = req.params

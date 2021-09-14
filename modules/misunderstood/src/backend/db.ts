@@ -103,6 +103,21 @@ export default class Db {
     }))
   }
 
+  async exportProcessedData(botId: string, options?: FilteringOptions): Promise<DbFlaggedEvent[]> {
+    const query = this.knex(TABLE_NAME).where({ botId, status: FLAGGED_MESSAGE_STATUS.applied })
+    this.filterQuery(query, options)
+    const appliedData: DbFlaggedEvent[] = await query.select('*')
+
+    console.log(appliedData)
+    return appliedData.map((event: DbFlaggedEvent) => ({
+      ...event,
+      resolutionParams:
+        event.resolutionParams && typeof event.resolutionParams !== 'object'
+          ? JSON.parse(event.resolutionParams)
+          : event.resolutionParams
+    }))
+  }
+
   async countEvents(botId: string, language: string, options?: FilteringOptions) {
     const query = this.knex(TABLE_NAME)
       .where({ botId, language })
