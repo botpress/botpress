@@ -36,7 +36,7 @@ class RootStore {
   public composer: ComposerStore
   public view: ViewStore
 
-  private _typingInterval: any | undefined
+  private _typingInterval: ReturnType<typeof setInterval> | undefined
   private api: WebchatApi
 
   @observable
