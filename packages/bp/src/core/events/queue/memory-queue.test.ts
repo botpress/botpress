@@ -170,7 +170,11 @@ describe('Lite Queues', () => {
       queue.enqueue({ ...stubEvent, id: i.toString(), target: 'b' })
     }
 
-    await Promise.delay(50) // Make sure all jobs are executed
+    /**
+     *  Make sure all jobs are executed
+     *  Promise.delay(1) sometimes delays for more than that (10-20ms) which fails this test
+     */
+    await Promise.delay(200)
     expect(userListA.length).toBeLessThan(10)
     expect(userListB.length).toEqual(10)
     expect(userListB).toEqual([10, 11, 12, 13, 14, 15, 16, 17, 18, 19].map(x => x.toString()))
