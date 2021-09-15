@@ -25,7 +25,7 @@ export const showBanner = (config: BannerConfig) => {
   try {
     const metadata: BuildMetadata = require('../../metadata.json')
     const builtFrom = process.pkg ? 'BIN' : 'SRC'
-    const branchInfo = metadata.branch !== 'master' ? `/${metadata.branch}` : ''
+    const branchInfo = !['master', 'HEAD'].find(x => x === metadata.branch) ? `/${metadata.branch}` : ''
 
     buildMetadata = `Build ${moment(metadata.date).format('YYYYMMDD-HHmm')}_${builtFrom}${branchInfo}`
   } catch (err) {}
