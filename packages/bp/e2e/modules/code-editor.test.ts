@@ -74,9 +74,9 @@ describe('Module - Code Editor', () => {
   it('Open two tabs', async () => {
     await waitForFilesToLoad()
 
-    await clickOnTreeNode('builtin.json', 'left')
+    await clickOnTreeNode('bot.config.json', 'left')
     await expectBotApiCallSuccess('mod/code-editor/readFile', 'POST')
-    await expectMatchElement('div[id="builtin.json"]', { text: 'builtin.json' })
+    await expectMatchElement('div[id="bot.config.json"]', { text: 'bot.config.json' })
 
     await clickOnTreeNode('channel-web.json', 'left')
     await expectBotApiCallSuccess('mod/code-editor/readFile', 'POST')

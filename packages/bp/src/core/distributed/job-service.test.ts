@@ -7,7 +7,9 @@ import { CEJobService } from './job-service'
 describe('Lock', () => {
   const jobService = new CEJobService()
   const resourceName = 'testLock'
-  const DURATION = 50
+
+  /** Duration must be longer since tests are executing with Redis enabled */
+  const DURATION = 200
 
   beforeEach(async () => {
     try {
