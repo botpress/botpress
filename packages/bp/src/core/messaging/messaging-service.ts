@@ -9,13 +9,12 @@ import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 
 @injectable()
 export class MessagingService {
-  public newUsers: number = 0
-
   private clientSync!: MessagingClient
   private clientsByBotId: { [botId: string]: MessagingClient } = {}
   private botsByClientId: { [clientId: string]: string } = {}
   private webhookTokenByClientId: { [botId: string]: string } = {}
   private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage']
+  private newUsers: number = 0
 
   public isExternal: boolean
   public internalPassword: string | undefined
@@ -193,5 +192,17 @@ export class MessagingService {
 
   public getWebhookToken(clientId: string) {
     return this.webhookTokenByClientId[clientId]
+  }
+
+  public getNewUsersCount({ resetCount }: { resetCount: boolean }) {
+    const count = this.newUsers
+    if (resetCount) {
+      this.newUsers = 0
+    }
+    return count
+  }
+
+  public incrementNewUsersCount() {
+    this.newUsers++
   }
 }

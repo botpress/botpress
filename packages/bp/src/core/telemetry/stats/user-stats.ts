@@ -33,8 +33,7 @@ export class UserStats extends TelemetryStats {
   }
 
   protected async getStats() {
-    const newUsers = this.messagingService.newUsers
-    this.messagingService.newUsers = 0
+    const newUsers = this.messagingService.getNewUsersCount({ resetCount: true })
 
     return {
       ...buildSchema(await this.getServerStats(), 'server'),
