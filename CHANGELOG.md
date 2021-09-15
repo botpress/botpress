@@ -1,3 +1,20 @@
+## [12.26.2](https://github.com/botpress/botpress/compare/v12.26.1...v12.26.2) (2021-09-14)
+
+### Bug Fixes
+
+- **analytics:** fix n/a lang entries description ([#5428](https://github.com/botpress/botpress/issues/5428)) ([87a4005](https://github.com/botpress/botpress/commit/87a4005))
+- **builtin_image:** modified how we search for mimetype in the image component. ([#5401](https://github.com/botpress/botpress/issues/5401)) ([4dc35be](https://github.com/botpress/botpress/commit/4dc35be))
+- **channel-web:** fix messaging migration ([#5410](https://github.com/botpress/botpress/issues/5410)) ([a8881a6](https://github.com/botpress/botpress/commit/a8881a6))
+- **channel-web:** fix migration when duplicate bot ids ([#5445](https://github.com/botpress/botpress/issues/5445)) ([3f143ed](https://github.com/botpress/botpress/commit/3f143ed))
+- **channel-web:** fix typing indicator display ([#5421](https://github.com/botpress/botpress/issues/5421)) ([84cc6b5](https://github.com/botpress/botpress/commit/84cc6b5))
+- **code-editor:** file listing error 'undefined is not iterable' ([#5439](https://github.com/botpress/botpress/issues/5439)) ([1a8e329](https://github.com/botpress/botpress/commit/1a8e329))
+- **google-speech:** fix using google-speech with ogg opus files ([#5450](https://github.com/botpress/botpress/issues/5450)) ([4d76d3f](https://github.com/botpress/botpress/commit/4d76d3f))
+- **hitlnext:** fix scrolling overflow for shortcut ([#5432](https://github.com/botpress/botpress/issues/5432)) ([81aa3ad](https://github.com/botpress/botpress/commit/81aa3ad))
+- **misunderstood:** bring back event.state.user.language ([#5436](https://github.com/botpress/botpress/issues/5436)) ([d0268c9](https://github.com/botpress/botpress/commit/d0268c9))
+- **misunderstood:** remove user language, it's never defined ([#5431](https://github.com/botpress/botpress/issues/5431)) ([1c04dd2](https://github.com/botpress/botpress/commit/1c04dd2))
+- **misunderstood:** add reason to setEventStatus when switching tabs ([#5384](https://github.com/botpress/botpress/issues/5384)) ([a991500](https://github.com/botpress/botpress/commit/a991500))
+- **hitlnext:** remove obsolete pkg react-itial and add react-avatar ([#5408](https://github.com/botpress/botpress/issues/5408)) ([4fe31f6](https://github.com/botpress/botpress/commit/4fe31f6))
+
 # [12.26.1](https://github.com/botpress/botpress/compare/v12.26.0...v12.26.1) (2021-09-03)
 
 ### Bug Fixes
