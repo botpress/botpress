@@ -1,4 +1,4 @@
-import Db, { TABLE_NAME } from './db'
+import Db, { EVENTS_TABLE_NAME, TABLE_NAME } from './db'
 import { FLAGGED_MESSAGE_STATUS, FLAG_REASON } from '../types'
 import Database from '../../../../packages/bp/src/core/database'
 
@@ -210,6 +210,215 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
 
       expect(await db.listEvents(props.botId, props.language, FLAGGED_MESSAGE_STATUS.new)).toHaveLength(2)
       expect(await db.listEvents(props.botId, props.language, FLAGGED_MESSAGE_STATUS.deleted)).toHaveLength(1)
+    })
+  })
+
+  describe('deleteAll', () => {
+    const mkEvent = async (botId: string, status: FLAGGED_MESSAGE_STATUS) => {
+      await db.addEvent({
+        botId,
+        status,
+        eventId: '1234',
+        language: 'en',
+        preview: (Math.random() + 1).toString(36).substring(2), // Random string
+        reason: FLAG_REASON.action
+      })
+    }
+
+    it('deletes all matching events', async () => {
+      const correctBotId = 'some ID'
+      const incorrectBotId = 'other ID'
+      const correctStatus = FLAGGED_MESSAGE_STATUS.new
+      const incorrectStatus = FLAGGED_MESSAGE_STATUS.pending
+
+      await mkEvent(correctBotId, correctStatus)
+      await mkEvent(correctBotId, correctStatus)
+      await mkEvent(incorrectBotId, correctStatus)
+      await mkEvent(correctBotId, incorrectStatus)
+
+      await db.deleteAll(correctBotId, correctStatus)
+      expect(await db.listEvents(correctBotId, 'en', correctStatus)).toHaveLength(0)
+      expect(await db.listEvents(correctBotId, 'en', incorrectStatus)).toHaveLength(1)
+      expect(await db.listEvents(incorrectBotId, 'en', correctStatus)).toHaveLength(1)
+    })
+  })
+
+  describe('countEvents', () => {
+    const mkEvent = async (
+      botId: string,
+      language: string,
+      status: FLAGGED_MESSAGE_STATUS,
+      reason = FLAG_REASON.action
+    ) => {
+      await db.addEvent({
+        botId,
+        status,
+        language,
+        reason,
+        eventId: '1234',
+        preview: (Math.random() + 1).toString(36).substring(2) // Random string
+      })
+    }
+
+    it('counts events correctly', async () => {
+      // async countEvents(botId: string, language: string, options?: FilteringOptions) {
+      const botId = 'bot1'
+      const lang = 'en'
+      await mkEvent(botId, lang, FLAGGED_MESSAGE_STATUS.applied)
+      await mkEvent(botId, lang, FLAGGED_MESSAGE_STATUS.deleted)
+      await mkEvent(botId, lang, FLAGGED_MESSAGE_STATUS.pending)
+      await mkEvent(botId, lang, FLAGGED_MESSAGE_STATUS.new)
+      await mkEvent(botId, lang, FLAGGED_MESSAGE_STATUS.new)
+      await mkEvent(botId, 'de', FLAGGED_MESSAGE_STATUS.new)
+
+      expect(await db.countEvents(botId, lang)).toStrictEqual({
+        applied: 1,
+        deleted: 1,
+        new: 2,
+        pending: 1
+      })
+    })
+
+    it('counts filtered events correctly', async () => {
+      // async countEvents(botId: string, language: string, options?: FilteringOptions) {
+      const botId = 'bot1'
+      const lang = 'en'
+      await mkEvent(botId, lang, FLAGGED_MESSAGE_STATUS.applied, FLAG_REASON.thumbs_down)
+      await mkEvent(botId, lang, FLAGGED_MESSAGE_STATUS.deleted, FLAG_REASON.thumbs_down)
+      await mkEvent(botId, lang, FLAGGED_MESSAGE_STATUS.pending, FLAG_REASON.thumbs_down)
+      await mkEvent(botId, lang, FLAGGED_MESSAGE_STATUS.new, FLAG_REASON.thumbs_down)
+      await mkEvent(botId, lang, FLAGGED_MESSAGE_STATUS.new)
+      await mkEvent(botId, 'de', FLAGGED_MESSAGE_STATUS.new)
+
+      expect(await db.countEvents(botId, lang, { reason: 'thumbs_down' })).toStrictEqual({
+        applied: 1,
+        deleted: 1,
+        new: 1,
+        pending: 1
+      })
+    })
+
+    it('handles zero events correctly', async () => {
+      expect(await db.countEvents('id', 'en')).toStrictEqual({})
+    })
+  })
+
+  describe('getEventDetails', () => {
+    it('handles invalid / non-existent events', async () => {
+      expect(await db.getEventDetails('bot', '123')).toBe(undefined)
+    })
+
+    it('handles events with no parent events', async () => {
+      const botId = 'bot'
+      await db.addEvent({
+        botId: botId,
+        status: FLAGGED_MESSAGE_STATUS.new,
+        language: 'en',
+        reason: FLAG_REASON.action,
+        eventId: '1234',
+        preview: 'message text'
+      })
+
+      const events = await db.listEvents(botId, 'en', FLAGGED_MESSAGE_STATUS.new)
+      expect(events.length).toBe(1)
+      const id = events[0].id.toString()
+      expect(await db.getEventDetails(botId, id)).toBe(undefined)
+    })
+
+    it('handles events with no context messages', async () => {
+      const botId = 'bot'
+      const language = 'en'
+      const eventId = '1234'
+      const reason = FLAG_REASON.action
+      const status = FLAGGED_MESSAGE_STATUS.new
+      const preview = 'some message'
+
+      await db.addEvent({ botId, status, language, eventId, reason, preview })
+
+      const events = await db.listEvents(botId, language, status)
+      expect(events.length).toBe(1)
+      const id = events[0].id
+
+      // write a basic event straight to the DB
+      await database.knex(EVENTS_TABLE_NAME).insert({
+        id: '1',
+        botId,
+        incomingEventId: eventId,
+        direction: 'incoming',
+        channel: 'some_channel',
+        event: JSON.stringify({}),
+        createdOn: database.knex.date.now()
+      })
+
+      // This check ignores times created and updated
+      expect(await db.getEventDetails(botId, id.toString())).toMatchObject({
+        botId,
+        eventId,
+        language,
+        preview,
+        reason,
+        status,
+        id,
+        nluContexts: [],
+        resolution: null,
+        resolutionParams: null,
+        resolutionType: null,
+        context: [{ direction: undefined, isCurrent: true, payloadMessage: undefined, preview: '' }]
+      })
+    })
+
+    it('returns full event details', async () => {
+      const messages: string[] = [...Array(12)].map((_, i) => `elem_${i.toString().padStart(3, '0')}`)
+      const preview = messages[5]
+      const botId = 'bot'
+      const language = 'en'
+      const eventId = '1005'
+      const reason = FLAG_REASON.action
+      const status = FLAGGED_MESSAGE_STATUS.new
+
+      await db.addEvent({ botId, status, language, eventId, reason, preview })
+
+      const events = await db.listEvents(botId, language, status)
+      expect(events.length).toBe(1)
+      const id = events[0].id
+
+      // Create surrounding messages
+      for (var i = 0; i < messages.length; i++) {
+        let m = messages[i]
+        await database.knex(EVENTS_TABLE_NAME).insert({
+          id: i.toString(),
+          botId,
+          incomingEventId: (1000 + i).toString(),
+          direction: 'incoming',
+          channel: 'some_channel',
+          event: JSON.stringify({ direction: 'incoming', preview: m, payload: { message: m } }),
+          createdOn: new Date().toISOString(),
+          threadId: '5',
+          sessionId: '7'
+        })
+      }
+
+      expect(await db.getEventDetails(botId, id.toString())).toMatchObject({
+        botId: 'bot',
+        context: [...Array(9)].map((_, i) => {
+          return {
+            direction: 'incoming',
+            isCurrent: i === 5,
+            payloadMessage: messages[i],
+            preview: messages[i]
+          }
+        }),
+
+        eventId,
+        language: 'en',
+        nluContexts: [],
+        preview: 'elem_005',
+        reason: 'action',
+        resolution: null,
+        resolutionParams: null,
+        resolutionType: null,
+        status: 'new'
+      })
     })
   })
 })

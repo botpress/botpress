@@ -1,2626 +1,2278 @@
-# [12.26.0](https://github.com/botpress/botpress/compare/v12.24.1...v12.26.0) (2021-09-02)
-
+## [12.26.2](https://github.com/botpress/botpress/compare/v12.26.1...v12.26.2) (2021-09-14)
 
 ### Bug Fixes
 
-* **admin:** add the chatuser role id to the filter ([#5285](https://github.com/botpress/botpress/issues/5285)) ([f582e47](https://github.com/botpress/botpress/commit/f582e47))
-* **admin:** change pipeline stage edit endpoint ([#5368](https://github.com/botpress/botpress/issues/5368)) ([3c97635](https://github.com/botpress/botpress/commit/3c97635))
-* **admin:** fix restarting Botpress from the admin ([#5377](https://github.com/botpress/botpress/issues/5377)) ([8d67cca](https://github.com/botpress/botpress/commit/8d67cca))
-* **channel-web:** fix missing dependencies ([#5375](https://github.com/botpress/botpress/issues/5375)) ([ded9b67](https://github.com/botpress/botpress/commit/ded9b67))
-* **core:** fix workspace error ([#5374](https://github.com/botpress/botpress/issues/5374)) ([aca569b](https://github.com/botpress/botpress/commit/aca569b))
-* **core:** remove increment / decrement analytics actions ([#5340](https://github.com/botpress/botpress/issues/5340)) ([b7d311d](https://github.com/botpress/botpress/commit/b7d311d))
-* **core:** remove leftover debug logging ([#5369](https://github.com/botpress/botpress/issues/5369)) ([5466b1e](https://github.com/botpress/botpress/commit/5466b1e))
-* **core:** workspace management api ([#5329](https://github.com/botpress/botpress/issues/5329)) ([9cfad4e](https://github.com/botpress/botpress/commit/9cfad4e))
-* **messaging:** prevent multiple bots from using same clientId ([#5341](https://github.com/botpress/botpress/issues/5341)) ([d6adfc1](https://github.com/botpress/botpress/commit/d6adfc1))
-* **misunderstood:** change preview column from varchar to text ([#5380](https://github.com/botpress/botpress/issues/5380)) ([f34fcef](https://github.com/botpress/botpress/commit/f34fcef))
+- **analytics:** fix n/a lang entries description ([#5428](https://github.com/botpress/botpress/issues/5428)) ([87a4005](https://github.com/botpress/botpress/commit/87a4005))
+- **builtin_image:** modified how we search for mimetype in the image component. ([#5401](https://github.com/botpress/botpress/issues/5401)) ([4dc35be](https://github.com/botpress/botpress/commit/4dc35be))
+- **channel-web:** fix messaging migration ([#5410](https://github.com/botpress/botpress/issues/5410)) ([a8881a6](https://github.com/botpress/botpress/commit/a8881a6))
+- **channel-web:** fix migration when duplicate bot ids ([#5445](https://github.com/botpress/botpress/issues/5445)) ([3f143ed](https://github.com/botpress/botpress/commit/3f143ed))
+- **channel-web:** fix typing indicator display ([#5421](https://github.com/botpress/botpress/issues/5421)) ([84cc6b5](https://github.com/botpress/botpress/commit/84cc6b5))
+- **code-editor:** file listing error 'undefined is not iterable' ([#5439](https://github.com/botpress/botpress/issues/5439)) ([1a8e329](https://github.com/botpress/botpress/commit/1a8e329))
+- **google-speech:** fix using google-speech with ogg opus files ([#5450](https://github.com/botpress/botpress/issues/5450)) ([4d76d3f](https://github.com/botpress/botpress/commit/4d76d3f))
+- **hitlnext:** fix scrolling overflow for shortcut ([#5432](https://github.com/botpress/botpress/issues/5432)) ([81aa3ad](https://github.com/botpress/botpress/commit/81aa3ad))
+- **misunderstood:** bring back event.state.user.language ([#5436](https://github.com/botpress/botpress/issues/5436)) ([d0268c9](https://github.com/botpress/botpress/commit/d0268c9))
+- **misunderstood:** remove user language, it's never defined ([#5431](https://github.com/botpress/botpress/issues/5431)) ([1c04dd2](https://github.com/botpress/botpress/commit/1c04dd2))
+- **misunderstood:** add reason to setEventStatus when switching tabs ([#5384](https://github.com/botpress/botpress/issues/5384)) ([a991500](https://github.com/botpress/botpress/commit/a991500))
+- **hitlnext:** remove obsolete pkg react-itial and add react-avatar ([#5408](https://github.com/botpress/botpress/issues/5408)) ([4fe31f6](https://github.com/botpress/botpress/commit/4fe31f6))
 
+# [12.26.1](https://github.com/botpress/botpress/compare/v12.26.0...v12.26.1) (2021-09-03)
+
+### Bug Fixes
+
+- **channel-web:** fix messaging migration ([#5410](https://github.com/botpress/botpress/issues/5410)) ([a8881a6](https://github.com/botpress/botpress/commit/a8881a6))
+
+# [12.26.0](https://github.com/botpress/botpress/compare/v12.24.1...v12.26.0) (2021-09-02)
+
+### Bug Fixes
+
+- **admin:** add the chatuser role id to the filter ([#5285](https://github.com/botpress/botpress/issues/5285)) ([f582e47](https://github.com/botpress/botpress/commit/f582e47))
+- **admin:** change pipeline stage edit endpoint ([#5368](https://github.com/botpress/botpress/issues/5368)) ([3c97635](https://github.com/botpress/botpress/commit/3c97635))
+- **admin:** fix restarting Botpress from the admin ([#5377](https://github.com/botpress/botpress/issues/5377)) ([8d67cca](https://github.com/botpress/botpress/commit/8d67cca))
+- **channel-web:** fix missing dependencies ([#5375](https://github.com/botpress/botpress/issues/5375)) ([ded9b67](https://github.com/botpress/botpress/commit/ded9b67))
+- **core:** fix workspace error ([#5374](https://github.com/botpress/botpress/issues/5374)) ([aca569b](https://github.com/botpress/botpress/commit/aca569b))
+- **core:** remove increment / decrement analytics actions ([#5340](https://github.com/botpress/botpress/issues/5340)) ([b7d311d](https://github.com/botpress/botpress/commit/b7d311d))
+- **core:** remove leftover debug logging ([#5369](https://github.com/botpress/botpress/issues/5369)) ([5466b1e](https://github.com/botpress/botpress/commit/5466b1e))
+- **core:** workspace management api ([#5329](https://github.com/botpress/botpress/issues/5329)) ([9cfad4e](https://github.com/botpress/botpress/commit/9cfad4e))
+- **messaging:** prevent multiple bots from using same clientId ([#5341](https://github.com/botpress/botpress/issues/5341)) ([d6adfc1](https://github.com/botpress/botpress/commit/d6adfc1))
+- **misunderstood:** change preview column from varchar to text ([#5380](https://github.com/botpress/botpress/issues/5380)) ([f34fcef](https://github.com/botpress/botpress/commit/f34fcef))
 
 ### Features
 
-* **core:** add before conversation end hook and flow ([#5215](https://github.com/botpress/botpress/issues/5215)) ([de732d1](https://github.com/botpress/botpress/commit/de732d1))
-* add markdown by default for misunderstood chatPreview ([#5372](https://github.com/botpress/botpress/issues/5372)) ([60fb52c](https://github.com/botpress/botpress/commit/60fb52c))
-* display user's object props as string on UserProfile for hitlnext ([#5342](https://github.com/botpress/botpress/issues/5342)) ([71193d5](https://github.com/botpress/botpress/commit/71193d5))
-* **hitlnext:** add feature to filter handoffs list by tags ([#5205](https://github.com/botpress/botpress/issues/5205)) ([2725054](https://github.com/botpress/botpress/commit/2725054))
-
-
+- **core:** add before conversation end hook and flow ([#5215](https://github.com/botpress/botpress/issues/5215)) ([de732d1](https://github.com/botpress/botpress/commit/de732d1))
+- add markdown by default for misunderstood chatPreview ([#5372](https://github.com/botpress/botpress/issues/5372)) ([60fb52c](https://github.com/botpress/botpress/commit/60fb52c))
+- display user's object props as string on UserProfile for hitlnext ([#5342](https://github.com/botpress/botpress/issues/5342)) ([71193d5](https://github.com/botpress/botpress/commit/71193d5))
+- **hitlnext:** add feature to filter handoffs list by tags ([#5205](https://github.com/botpress/botpress/issues/5205)) ([2725054](https://github.com/botpress/botpress/commit/2725054))
 
 # [12.25.0](https://github.com/botpress/botpress/compare/v12.24.1...v12.25.0) (2021-08-20)
 
-
 ### Bug Fixes
 
-* **core:** merge extensions in channel-web ([#5301](https://github.com/botpress/botpress/issues/5301)) ([a08d4c0](https://github.com/botpress/botpress/commit/a08d4c0))
-* **core:** various fixes ([#5323](https://github.com/botpress/botpress/issues/5323)) ([f052678](https://github.com/botpress/botpress/commit/f052678))
-* **studio:** move bot migrations to studio ([#5187](https://github.com/botpress/botpress/issues/5187)) ([2db471a](https://github.com/botpress/botpress/commit/2db471a))
-
+- **core:** merge extensions in channel-web ([#5301](https://github.com/botpress/botpress/issues/5301)) ([a08d4c0](https://github.com/botpress/botpress/commit/a08d4c0))
+- **core:** various fixes ([#5323](https://github.com/botpress/botpress/issues/5323)) ([f052678](https://github.com/botpress/botpress/commit/f052678))
+- **studio:** move bot migrations to studio ([#5187](https://github.com/botpress/botpress/issues/5187)) ([2db471a](https://github.com/botpress/botpress/commit/2db471a))
 
 ### Features
 
-* **core:** bot-scoped libraries ([#5319](https://github.com/botpress/botpress/issues/5319)) ([49090bf](https://github.com/botpress/botpress/commit/49090bf))
-* **core:** custom bot prefix per workspace ([#5326](https://github.com/botpress/botpress/issues/5326)) ([c48769f](https://github.com/botpress/botpress/commit/c48769f))
-* **core:** filter /listAvailableUsers on roles ([#5265](https://github.com/botpress/botpress/issues/5265)) ([ef3a531](https://github.com/botpress/botpress/commit/ef3a531))
-* **nlu:** nlu cloud configuration ([#5296](https://github.com/botpress/botpress/issues/5296)) ([3930383](https://github.com/botpress/botpress/commit/3930383)), closes [#5246](https://github.com/botpress/botpress/issues/5246) [#5261](https://github.com/botpress/botpress/issues/5261) [#5262](https://github.com/botpress/botpress/issues/5262) [#5327](https://github.com/botpress/botpress/issues/5327)
-
-
+- **core:** bot-scoped libraries ([#5319](https://github.com/botpress/botpress/issues/5319)) ([49090bf](https://github.com/botpress/botpress/commit/49090bf))
+- **core:** custom bot prefix per workspace ([#5326](https://github.com/botpress/botpress/issues/5326)) ([c48769f](https://github.com/botpress/botpress/commit/c48769f))
+- **core:** filter /listAvailableUsers on roles ([#5265](https://github.com/botpress/botpress/issues/5265)) ([ef3a531](https://github.com/botpress/botpress/commit/ef3a531))
+- **nlu:** nlu cloud configuration ([#5296](https://github.com/botpress/botpress/issues/5296)) ([3930383](https://github.com/botpress/botpress/commit/3930383)), closes [#5246](https://github.com/botpress/botpress/issues/5246) [#5261](https://github.com/botpress/botpress/issues/5261) [#5262](https://github.com/botpress/botpress/issues/5262) [#5327](https://github.com/botpress/botpress/issues/5327)
 
 ## [12.24.1](https://github.com/botpress/botpress/compare/v12.24.0...v12.24.1) (2021-08-13)
 
-
 ### Bug Fixes
 
-* **ci_cd:** Modified if on the dockerhub connection ([#5275](https://github.com/botpress/botpress/issues/5275)) ([3789a40](https://github.com/botpress/botpress/commit/3789a40))
-* **core:** fix error when creating or importing a bot ([#5295](https://github.com/botpress/botpress/issues/5295)) ([7433244](https://github.com/botpress/botpress/commit/7433244))
-
+- **ci_cd:** Modified if on the dockerhub connection ([#5275](https://github.com/botpress/botpress/issues/5275)) ([3789a40](https://github.com/botpress/botpress/commit/3789a40))
+- **core:** fix error when creating or importing a bot ([#5295](https://github.com/botpress/botpress/issues/5295)) ([7433244](https://github.com/botpress/botpress/commit/7433244))
 
 ### Features
 
-* **hitlnext:** colored handoffs ([#5260](https://github.com/botpress/botpress/issues/5260)) ([de7a173](https://github.com/botpress/botpress/commit/de7a173))
-
-
+- **hitlnext:** colored handoffs ([#5260](https://github.com/botpress/botpress/issues/5260)) ([de7a173](https://github.com/botpress/botpress/commit/de7a173))
 
 # [12.24.0](https://github.com/botpress/botpress/compare/v12.23.2...v12.24.0) (2021-08-11)
 
-
 ### Bug Fixes
 
-* **messaging:** filter module errors for channels ([#5283](https://github.com/botpress/botpress/issues/5283)) ([45ca7cc](https://github.com/botpress/botpress/commit/45ca7cc))
-* **messaging:** fix proxying search params ([#5279](https://github.com/botpress/botpress/issues/5279)) ([9372ccc](https://github.com/botpress/botpress/commit/9372ccc))
-* **messaging:** fix webhook verification ([#5278](https://github.com/botpress/botpress/issues/5278)) ([941e832](https://github.com/botpress/botpress/commit/941e832))
-* **messaging:** legacy route send ext url in headers ([#5266](https://github.com/botpress/botpress/issues/5266)) ([79bc7ac](https://github.com/botpress/botpress/commit/79bc7ac))
-* **messaging:** use headers instead of basic auth ([#5264](https://github.com/botpress/botpress/issues/5264)) ([c64143c](https://github.com/botpress/botpress/commit/c64143c))
-
+- **messaging:** filter module errors for channels ([#5283](https://github.com/botpress/botpress/issues/5283)) ([45ca7cc](https://github.com/botpress/botpress/commit/45ca7cc))
+- **messaging:** fix proxying search params ([#5279](https://github.com/botpress/botpress/issues/5279)) ([9372ccc](https://github.com/botpress/botpress/commit/9372ccc))
+- **messaging:** fix webhook verification ([#5278](https://github.com/botpress/botpress/issues/5278)) ([941e832](https://github.com/botpress/botpress/commit/941e832))
+- **messaging:** legacy route send ext url in headers ([#5266](https://github.com/botpress/botpress/issues/5266)) ([79bc7ac](https://github.com/botpress/botpress/commit/79bc7ac))
+- **messaging:** use headers instead of basic auth ([#5264](https://github.com/botpress/botpress/issues/5264)) ([c64143c](https://github.com/botpress/botpress/commit/c64143c))
 
 ### Features
 
-* **channel-web:** add RTL support in webchat ([#5251](https://github.com/botpress/botpress/issues/5251)) ([2a26251](https://github.com/botpress/botpress/commit/2a26251))
-* **channel-web:** RTL support for non-text content types ([#5268](https://github.com/botpress/botpress/issues/5268)) ([fb5d673](https://github.com/botpress/botpress/commit/fb5d673))
-
-
+- **channel-web:** add RTL support in webchat ([#5251](https://github.com/botpress/botpress/issues/5251)) ([2a26251](https://github.com/botpress/botpress/commit/2a26251))
+- **channel-web:** RTL support for non-text content types ([#5268](https://github.com/botpress/botpress/issues/5268)) ([fb5d673](https://github.com/botpress/botpress/commit/fb5d673))
 
 ## [12.23.2](https://github.com/botpress/botpress/compare/v12.22.2...v12.23.2) (2021-08-03)
 
-
 ### Bug Fixes
 
-* **core:** fix disk storage race condition ([#5162](https://github.com/botpress/botpress/issues/5162)) ([86102b3](https://github.com/botpress/botpress/commit/86102b3))
-* **teams:** fix receiving quick replies with teams ([#5230](https://github.com/botpress/botpress/issues/5230)) ([acb79a3](https://github.com/botpress/botpress/commit/acb79a3))
-* nlu regression testing ([0916cf8](https://github.com/botpress/botpress/commit/0916cf8))
-
-
+- **core:** fix disk storage race condition ([#5162](https://github.com/botpress/botpress/issues/5162)) ([86102b3](https://github.com/botpress/botpress/commit/86102b3))
+- **teams:** fix receiving quick replies with teams ([#5230](https://github.com/botpress/botpress/issues/5230)) ([acb79a3](https://github.com/botpress/botpress/commit/acb79a3))
+- nlu regression testing ([0916cf8](https://github.com/botpress/botpress/commit/0916cf8))
 
 ## [12.23.1](https://github.com/botpress/botpress/compare/v12.23.0...v12.23.1) (2021-07-29)
 
-
 ### Bug Fixes
 
-* **channel-telegram:** clean up carousel caption ([#5204](https://github.com/botpress/botpress/issues/5204)) ([25e1924](https://github.com/botpress/botpress/commit/25e1924))
-* **channel-web:** fix missing payload of file upload ([#5184](https://github.com/botpress/botpress/issues/5184)) ([00ebee4](https://github.com/botpress/botpress/commit/00ebee4))
-* **channel-web:** fix voice audio support ([#5198](https://github.com/botpress/botpress/issues/5198)) ([381204f](https://github.com/botpress/botpress/commit/381204f))
-* **channel-web:** prevent message sorting issue ([#5189](https://github.com/botpress/botpress/issues/5189)) ([265edfd](https://github.com/botpress/botpress/commit/265edfd))
-* **core:** add action not found error to events ([#5203](https://github.com/botpress/botpress/issues/5203)) ([121b533](https://github.com/botpress/botpress/commit/121b533))
-* **core:** log an error if an action isn't found ([#2826](https://github.com/botpress/botpress/issues/2826)) ([#5201](https://github.com/botpress/botpress/issues/5201)) ([17cd4aa](https://github.com/botpress/botpress/commit/17cd4aa))
-* **docker:** module builder image ([#5218](https://github.com/botpress/botpress/issues/5218)) ([999d2dd](https://github.com/botpress/botpress/commit/999d2dd))
-* **google-speech:** move closest number utils into google-speech code ([#5199](https://github.com/botpress/botpress/issues/5199)) ([2d838c8](https://github.com/botpress/botpress/commit/2d838c8))
-* **google-speech:** use studio url for tts audio upload to media storage ([#5197](https://github.com/botpress/botpress/issues/5197)) ([71c41bd](https://github.com/botpress/botpress/commit/71c41bd))
-* **nlu:** allow to skip spellcheck with an env variable ([#5192](https://github.com/botpress/botpress/issues/5192)) ([526dcfc](https://github.com/botpress/botpress/commit/526dcfc))
-* failing e2e test ([#5196](https://github.com/botpress/botpress/issues/5196)) ([85a5d20](https://github.com/botpress/botpress/commit/85a5d20))
-
+- **channel-telegram:** clean up carousel caption ([#5204](https://github.com/botpress/botpress/issues/5204)) ([25e1924](https://github.com/botpress/botpress/commit/25e1924))
+- **channel-web:** fix missing payload of file upload ([#5184](https://github.com/botpress/botpress/issues/5184)) ([00ebee4](https://github.com/botpress/botpress/commit/00ebee4))
+- **channel-web:** fix voice audio support ([#5198](https://github.com/botpress/botpress/issues/5198)) ([381204f](https://github.com/botpress/botpress/commit/381204f))
+- **channel-web:** prevent message sorting issue ([#5189](https://github.com/botpress/botpress/issues/5189)) ([265edfd](https://github.com/botpress/botpress/commit/265edfd))
+- **core:** add action not found error to events ([#5203](https://github.com/botpress/botpress/issues/5203)) ([121b533](https://github.com/botpress/botpress/commit/121b533))
+- **core:** log an error if an action isn't found ([#2826](https://github.com/botpress/botpress/issues/2826)) ([#5201](https://github.com/botpress/botpress/issues/5201)) ([17cd4aa](https://github.com/botpress/botpress/commit/17cd4aa))
+- **docker:** module builder image ([#5218](https://github.com/botpress/botpress/issues/5218)) ([999d2dd](https://github.com/botpress/botpress/commit/999d2dd))
+- **google-speech:** move closest number utils into google-speech code ([#5199](https://github.com/botpress/botpress/issues/5199)) ([2d838c8](https://github.com/botpress/botpress/commit/2d838c8))
+- **google-speech:** use studio url for tts audio upload to media storage ([#5197](https://github.com/botpress/botpress/issues/5197)) ([71c41bd](https://github.com/botpress/botpress/commit/71c41bd))
+- **nlu:** allow to skip spellcheck with an env variable ([#5192](https://github.com/botpress/botpress/issues/5192)) ([526dcfc](https://github.com/botpress/botpress/commit/526dcfc))
+- failing e2e test ([#5196](https://github.com/botpress/botpress/issues/5196)) ([85a5d20](https://github.com/botpress/botpress/commit/85a5d20))
 
 ### Features
 
-* **channel-web:** allow to have noBubble message from custom content type ([#5181](https://github.com/botpress/botpress/issues/5181)) ([b4d7f03](https://github.com/botpress/botpress/commit/b4d7f03))
-* **core:** Allow creation of the first user via env variables ([#5195](https://github.com/botpress/botpress/issues/5195)) ([813b482](https://github.com/botpress/botpress/commit/813b482))
-* **devops:** Dockerhub Added latest, main and feature branch for dockerhub ([#5211](https://github.com/botpress/botpress/issues/5211)) ([452c5c8](https://github.com/botpress/botpress/commit/452c5c8))
-
-
+- **channel-web:** allow to have noBubble message from custom content type ([#5181](https://github.com/botpress/botpress/issues/5181)) ([b4d7f03](https://github.com/botpress/botpress/commit/b4d7f03))
+- **core:** Allow creation of the first user via env variables ([#5195](https://github.com/botpress/botpress/issues/5195)) ([813b482](https://github.com/botpress/botpress/commit/813b482))
+- **devops:** Dockerhub Added latest, main and feature branch for dockerhub ([#5211](https://github.com/botpress/botpress/issues/5211)) ([452c5c8](https://github.com/botpress/botpress/commit/452c5c8))
 
 # [12.23.0](https://github.com/botpress/botpress/compare/v12.22.2...v12.23.0) (2021-07-13)
 
-
 ### Bug Fixes
 
-* **channel-telegram:** fix markdown rendering in telegram ([#5173](https://github.com/botpress/botpress/issues/5173)) ([4bb4fba](https://github.com/botpress/botpress/commit/4bb4fba)), closes [#5133](https://github.com/botpress/botpress/issues/5133)
-* **channel-web:** fix locked composer ([#5147](https://github.com/botpress/botpress/issues/5147)) ([19b2068](https://github.com/botpress/botpress/commit/19b2068))
-* **core:** fix missing await in mapping migration ([#5172](https://github.com/botpress/botpress/issues/5172)) ([e0c2d3b](https://github.com/botpress/botpress/commit/e0c2d3b))
-* **core:** subflow transitions for timeout flow ([#5160](https://github.com/botpress/botpress/issues/5160)) ([f384f78](https://github.com/botpress/botpress/commit/f384f78))
-* **docs:** links & minor kinks ([#5127](https://github.com/botpress/botpress/issues/5127)) ([29cd796](https://github.com/botpress/botpress/commit/29cd796))
-* **hitlnext:** UI modification, toast over composer  ([#5154](https://github.com/botpress/botpress/issues/5154)) ([9c257c6](https://github.com/botpress/botpress/commit/9c257c6))
-* **studio:** Added language warning sign in the bot list ([#5138](https://github.com/botpress/botpress/issues/5138)) ([ab592a1](https://github.com/botpress/botpress/commit/ab592a1))
-* **studio:** fix config save ([#5185](https://github.com/botpress/botpress/issues/5185)) ([85cb989](https://github.com/botpress/botpress/commit/85cb989))
-* show only messages from the current chat ([#5148](https://github.com/botpress/botpress/issues/5148)) ([229dbaa](https://github.com/botpress/botpress/commit/229dbaa))
-* **studio:** fix icon display in the studio and skill ([#5123](https://github.com/botpress/botpress/issues/5123)) ([12c2375](https://github.com/botpress/botpress/commit/12c2375))
-* **teams:** send quick_reply for Choice skill ([#5130](https://github.com/botpress/botpress/issues/5130)) ([1c8ede3](https://github.com/botpress/botpress/commit/1c8ede3))
-
+- **channel-telegram:** fix markdown rendering in telegram ([#5173](https://github.com/botpress/botpress/issues/5173)) ([4bb4fba](https://github.com/botpress/botpress/commit/4bb4fba)), closes [#5133](https://github.com/botpress/botpress/issues/5133)
+- **channel-web:** fix locked composer ([#5147](https://github.com/botpress/botpress/issues/5147)) ([19b2068](https://github.com/botpress/botpress/commit/19b2068))
+- **core:** fix missing await in mapping migration ([#5172](https://github.com/botpress/botpress/issues/5172)) ([e0c2d3b](https://github.com/botpress/botpress/commit/e0c2d3b))
+- **core:** subflow transitions for timeout flow ([#5160](https://github.com/botpress/botpress/issues/5160)) ([f384f78](https://github.com/botpress/botpress/commit/f384f78))
+- **docs:** links & minor kinks ([#5127](https://github.com/botpress/botpress/issues/5127)) ([29cd796](https://github.com/botpress/botpress/commit/29cd796))
+- **hitlnext:** UI modification, toast over composer ([#5154](https://github.com/botpress/botpress/issues/5154)) ([9c257c6](https://github.com/botpress/botpress/commit/9c257c6))
+- **studio:** Added language warning sign in the bot list ([#5138](https://github.com/botpress/botpress/issues/5138)) ([ab592a1](https://github.com/botpress/botpress/commit/ab592a1))
+- **studio:** fix config save ([#5185](https://github.com/botpress/botpress/issues/5185)) ([85cb989](https://github.com/botpress/botpress/commit/85cb989))
+- show only messages from the current chat ([#5148](https://github.com/botpress/botpress/issues/5148)) ([229dbaa](https://github.com/botpress/botpress/commit/229dbaa))
+- **studio:** fix icon display in the studio and skill ([#5123](https://github.com/botpress/botpress/issues/5123)) ([12c2375](https://github.com/botpress/botpress/commit/12c2375))
+- **teams:** send quick_reply for Choice skill ([#5130](https://github.com/botpress/botpress/issues/5130)) ([1c8ede3](https://github.com/botpress/botpress/commit/1c8ede3))
 
 ### Features
 
-* **auth:** allow to hide default auth strategy when alternative used ([#5121](https://github.com/botpress/botpress/issues/5121)) ([d5e7f95](https://github.com/botpress/botpress/commit/d5e7f95))
-* **builtin:** improve single choice ([#5131](https://github.com/botpress/botpress/issues/5131)) ([14fe5c8](https://github.com/botpress/botpress/commit/14fe5c8))
-* **core:** get studio from its own repository ([#5029](https://github.com/botpress/botpress/issues/5029)) ([70a6384](https://github.com/botpress/botpress/commit/70a6384)), closes [#5043](https://github.com/botpress/botpress/issues/5043) [#5063](https://github.com/botpress/botpress/issues/5063)
-
-
+- **auth:** allow to hide default auth strategy when alternative used ([#5121](https://github.com/botpress/botpress/issues/5121)) ([d5e7f95](https://github.com/botpress/botpress/commit/d5e7f95))
+- **builtin:** improve single choice ([#5131](https://github.com/botpress/botpress/issues/5131)) ([14fe5c8](https://github.com/botpress/botpress/commit/14fe5c8))
+- **core:** get studio from its own repository ([#5029](https://github.com/botpress/botpress/issues/5029)) ([70a6384](https://github.com/botpress/botpress/commit/70a6384)), closes [#5043](https://github.com/botpress/botpress/issues/5043) [#5063](https://github.com/botpress/botpress/issues/5063)
 
 ## [12.22.2](https://github.com/botpress/botpress/compare/v12.22.0...v12.22.2) (2021-06-16)
 
-
 ### Bug Fixes
 
-* **admin:** add missing translation change collaborators role ([#5089](https://github.com/botpress/botpress/issues/5089)) ([a36cf1a](https://github.com/botpress/botpress/commit/a36cf1a))
-* **admin:** various fixes ([#5094](https://github.com/botpress/botpress/issues/5094)) ([731536e](https://github.com/botpress/botpress/commit/731536e))
-* **core:** fix core migration template import path ([#5087](https://github.com/botpress/botpress/issues/5087)) ([071f8d4](https://github.com/botpress/botpress/commit/071f8d4))
-* **core:** fix multiple invalidate ([#5074](https://github.com/botpress/botpress/issues/5074)) ([3af10fc](https://github.com/botpress/botpress/commit/3af10fc))
-* **core:** fix send email skill using teams ([#5088](https://github.com/botpress/botpress/issues/5088)) ([ba28e4b](https://github.com/botpress/botpress/commit/ba28e4b))
-* **core:** minor fixes for logs and admin ([#5092](https://github.com/botpress/botpress/issues/5092)) ([41b8ca8](https://github.com/botpress/botpress/commit/41b8ca8))
-* **core:** use redis scope as channel prefix ([#5079](https://github.com/botpress/botpress/issues/5079)) ([f78ffd8](https://github.com/botpress/botpress/commit/f78ffd8))
-* **core:** wrong path for config ([#5081](https://github.com/botpress/botpress/issues/5081)) ([217aed7](https://github.com/botpress/botpress/commit/217aed7))
-* **nlu:** handle disabling the NLU module ([#5044](https://github.com/botpress/botpress/issues/5044)) ([f9bd4d6](https://github.com/botpress/botpress/commit/f9bd4d6))
-* **nlu:** spellcheck logic is more natural ([#5093](https://github.com/botpress/botpress/issues/5093)) ([4e353b0](https://github.com/botpress/botpress/commit/4e353b0))
-* **qna:** do not process event if bot is unmounted ([#5082](https://github.com/botpress/botpress/issues/5082)) ([a4998fe](https://github.com/botpress/botpress/commit/a4998fe))
-
+- **admin:** add missing translation change collaborators role ([#5089](https://github.com/botpress/botpress/issues/5089)) ([a36cf1a](https://github.com/botpress/botpress/commit/a36cf1a))
+- **admin:** various fixes ([#5094](https://github.com/botpress/botpress/issues/5094)) ([731536e](https://github.com/botpress/botpress/commit/731536e))
+- **core:** fix core migration template import path ([#5087](https://github.com/botpress/botpress/issues/5087)) ([071f8d4](https://github.com/botpress/botpress/commit/071f8d4))
+- **core:** fix multiple invalidate ([#5074](https://github.com/botpress/botpress/issues/5074)) ([3af10fc](https://github.com/botpress/botpress/commit/3af10fc))
+- **core:** fix send email skill using teams ([#5088](https://github.com/botpress/botpress/issues/5088)) ([ba28e4b](https://github.com/botpress/botpress/commit/ba28e4b))
+- **core:** minor fixes for logs and admin ([#5092](https://github.com/botpress/botpress/issues/5092)) ([41b8ca8](https://github.com/botpress/botpress/commit/41b8ca8))
+- **core:** use redis scope as channel prefix ([#5079](https://github.com/botpress/botpress/issues/5079)) ([f78ffd8](https://github.com/botpress/botpress/commit/f78ffd8))
+- **core:** wrong path for config ([#5081](https://github.com/botpress/botpress/issues/5081)) ([217aed7](https://github.com/botpress/botpress/commit/217aed7))
+- **nlu:** handle disabling the NLU module ([#5044](https://github.com/botpress/botpress/issues/5044)) ([f9bd4d6](https://github.com/botpress/botpress/commit/f9bd4d6))
+- **nlu:** spellcheck logic is more natural ([#5093](https://github.com/botpress/botpress/issues/5093)) ([4e353b0](https://github.com/botpress/botpress/commit/4e353b0))
+- **qna:** do not process event if bot is unmounted ([#5082](https://github.com/botpress/botpress/issues/5082)) ([a4998fe](https://github.com/botpress/botpress/commit/a4998fe))
 
 ### Features
 
-* **core:** Config to toggle public converse ([#5102](https://github.com/botpress/botpress/issues/5102)) ([a4f161f](https://github.com/botpress/botpress/commit/a4f161f))
-* **nlu:** upgrade NLU version + bring back nlu debug logs ([#5080](https://github.com/botpress/botpress/issues/5080)) ([9911e13](https://github.com/botpress/botpress/commit/9911e13))
-* **teams:** add botId to logs ([#5083](https://github.com/botpress/botpress/issues/5083)) ([33ba6de](https://github.com/botpress/botpress/commit/33ba6de))
-
-
+- **core:** Config to toggle public converse ([#5102](https://github.com/botpress/botpress/issues/5102)) ([a4f161f](https://github.com/botpress/botpress/commit/a4f161f))
+- **nlu:** upgrade NLU version + bring back nlu debug logs ([#5080](https://github.com/botpress/botpress/issues/5080)) ([9911e13](https://github.com/botpress/botpress/commit/9911e13))
+- **teams:** add botId to logs ([#5083](https://github.com/botpress/botpress/issues/5083)) ([33ba6de](https://github.com/botpress/botpress/commit/33ba6de))
 
 ## [12.22.1](https://github.com/botpress/botpress/compare/v12.22.0...v12.22.1) (2021-06-03)
 
-
 ### Bug Fixes
 
-* **build:** check module-builder image on master only ([#5032](https://github.com/botpress/botpress/issues/5032)) ([bd6d63a](https://github.com/botpress/botpress/commit/bd6d63a))
-* **builtin:** default transition on entry nodes for empty bot template ([#4999](https://github.com/botpress/botpress/issues/4999)) ([66e1a7a](https://github.com/botpress/botpress/commit/66e1a7a))
-* **core:** fix 'socket hang up' before 20 minutes for bp-push ([#5009](https://github.com/botpress/botpress/issues/5009)) ([9a21cbc](https://github.com/botpress/botpress/commit/9a21cbc))
-* **core:** fix bot migration ([#5049](https://github.com/botpress/botpress/issues/5049)) ([8c44e10](https://github.com/botpress/botpress/commit/8c44e10))
-* **core:** fix generating diag report with the pro version ([#5062](https://github.com/botpress/botpress/issues/5062)) ([f10f10a](https://github.com/botpress/botpress/commit/f10f10a))
-* **core:** fixes to improve flow loading speed ([#5050](https://github.com/botpress/botpress/issues/5050)) ([7c68266](https://github.com/botpress/botpress/commit/7c68266))
-* **core:** invalidate module config cache on file change ([#4569](https://github.com/botpress/botpress/issues/4569)) ([3b48294](https://github.com/botpress/botpress/commit/3b48294))
-* **core:** jumpTo accepts flow name as argument ([#5000](https://github.com/botpress/botpress/issues/5000)) ([42e17ff](https://github.com/botpress/botpress/commit/42e17ff))
-* **core:** telemetry only on mounted bots ([#5052](https://github.com/botpress/botpress/issues/5052)) ([26746a1](https://github.com/botpress/botpress/commit/26746a1))
-* **docs:** wrong saml URLs ([#5033](https://github.com/botpress/botpress/issues/5033)) ([a865f3d](https://github.com/botpress/botpress/commit/a865f3d))
-* **ndu:** fix blank page in flow editor ([#5028](https://github.com/botpress/botpress/issues/5028)) ([d18f975](https://github.com/botpress/botpress/commit/d18f975))
-* **ndu:** fix display of intent is trigger editor ([#5027](https://github.com/botpress/botpress/issues/5027)) ([2033939](https://github.com/botpress/botpress/commit/2033939))
-* **nlu:** fix bot delete when nlu unavailable ([#5053](https://github.com/botpress/botpress/issues/5053)) ([8101a0c](https://github.com/botpress/botpress/commit/8101a0c))
-* **nlu:** no more nlu token when nlu server is auto started ([#5010](https://github.com/botpress/botpress/issues/5010)) ([2f3d7c5](https://github.com/botpress/botpress/commit/2f3d7c5))
-* **studio:** moving multiple nodes ([#5041](https://github.com/botpress/botpress/issues/5041)) ([35e6da7](https://github.com/botpress/botpress/commit/35e6da7))
-* **studio:** right sidebar UI flow ([#5046](https://github.com/botpress/botpress/issues/5046)) ([20e58cf](https://github.com/botpress/botpress/commit/20e58cf))
-* dockerfile no need to chmod nlu bin ([#5006](https://github.com/botpress/botpress/issues/5006)) ([d9dcfd9](https://github.com/botpress/botpress/commit/d9dcfd9))
-
+- **build:** check module-builder image on master only ([#5032](https://github.com/botpress/botpress/issues/5032)) ([bd6d63a](https://github.com/botpress/botpress/commit/bd6d63a))
+- **builtin:** default transition on entry nodes for empty bot template ([#4999](https://github.com/botpress/botpress/issues/4999)) ([66e1a7a](https://github.com/botpress/botpress/commit/66e1a7a))
+- **core:** fix 'socket hang up' before 20 minutes for bp-push ([#5009](https://github.com/botpress/botpress/issues/5009)) ([9a21cbc](https://github.com/botpress/botpress/commit/9a21cbc))
+- **core:** fix bot migration ([#5049](https://github.com/botpress/botpress/issues/5049)) ([8c44e10](https://github.com/botpress/botpress/commit/8c44e10))
+- **core:** fix generating diag report with the pro version ([#5062](https://github.com/botpress/botpress/issues/5062)) ([f10f10a](https://github.com/botpress/botpress/commit/f10f10a))
+- **core:** fixes to improve flow loading speed ([#5050](https://github.com/botpress/botpress/issues/5050)) ([7c68266](https://github.com/botpress/botpress/commit/7c68266))
+- **core:** invalidate module config cache on file change ([#4569](https://github.com/botpress/botpress/issues/4569)) ([3b48294](https://github.com/botpress/botpress/commit/3b48294))
+- **core:** jumpTo accepts flow name as argument ([#5000](https://github.com/botpress/botpress/issues/5000)) ([42e17ff](https://github.com/botpress/botpress/commit/42e17ff))
+- **core:** telemetry only on mounted bots ([#5052](https://github.com/botpress/botpress/issues/5052)) ([26746a1](https://github.com/botpress/botpress/commit/26746a1))
+- **docs:** wrong saml URLs ([#5033](https://github.com/botpress/botpress/issues/5033)) ([a865f3d](https://github.com/botpress/botpress/commit/a865f3d))
+- **ndu:** fix blank page in flow editor ([#5028](https://github.com/botpress/botpress/issues/5028)) ([d18f975](https://github.com/botpress/botpress/commit/d18f975))
+- **ndu:** fix display of intent is trigger editor ([#5027](https://github.com/botpress/botpress/issues/5027)) ([2033939](https://github.com/botpress/botpress/commit/2033939))
+- **nlu:** fix bot delete when nlu unavailable ([#5053](https://github.com/botpress/botpress/issues/5053)) ([8101a0c](https://github.com/botpress/botpress/commit/8101a0c))
+- **nlu:** no more nlu token when nlu server is auto started ([#5010](https://github.com/botpress/botpress/issues/5010)) ([2f3d7c5](https://github.com/botpress/botpress/commit/2f3d7c5))
+- **studio:** moving multiple nodes ([#5041](https://github.com/botpress/botpress/issues/5041)) ([35e6da7](https://github.com/botpress/botpress/commit/35e6da7))
+- **studio:** right sidebar UI flow ([#5046](https://github.com/botpress/botpress/issues/5046)) ([20e58cf](https://github.com/botpress/botpress/commit/20e58cf))
+- dockerfile no need to chmod nlu bin ([#5006](https://github.com/botpress/botpress/issues/5006)) ([d9dcfd9](https://github.com/botpress/botpress/commit/d9dcfd9))
 
 ### Features
 
-* **builtin:** add support for file content-type ([#5045](https://github.com/botpress/botpress/issues/5045)) ([df57a76](https://github.com/botpress/botpress/commit/df57a76)), closes [#5055](https://github.com/botpress/botpress/issues/5055)
-* **studio:** allow copying multiple nodes ([#5026](https://github.com/botpress/botpress/issues/5026)) ([7880e7f](https://github.com/botpress/botpress/commit/7880e7f))
-
-
+- **builtin:** add support for file content-type ([#5045](https://github.com/botpress/botpress/issues/5045)) ([df57a76](https://github.com/botpress/botpress/commit/df57a76)), closes [#5055](https://github.com/botpress/botpress/issues/5055)
+- **studio:** allow copying multiple nodes ([#5026](https://github.com/botpress/botpress/issues/5026)) ([7880e7f](https://github.com/botpress/botpress/commit/7880e7f))
 
 # [12.22.0](https://github.com/botpress/botpress/compare/v12.20.1...v12.22.0) (2021-05-14)
 
-
 ### Bug Fixes
 
-* **builtin:** fix card image subtype ([#4996](https://github.com/botpress/botpress/issues/4996)) ([61ff663](https://github.com/botpress/botpress/commit/61ff663))
-* **channel-vonage:** fix storing large files using the module action ([#5004](https://github.com/botpress/botpress/issues/5004)) ([44d1547](https://github.com/botpress/botpress/commit/44d1547))
-* **core:** removed empty object in default alerting rules ([#4935](https://github.com/botpress/botpress/issues/4935)) ([ec510b4](https://github.com/botpress/botpress/commit/ec510b4))
-* **nlu:** fixes on new election logic ([#4998](https://github.com/botpress/botpress/issues/4998)) ([184735e](https://github.com/botpress/botpress/commit/184735e))
-* **nlu:** include language detection and all predict tries in ms ([#4986](https://github.com/botpress/botpress/issues/4986)) ([b97d205](https://github.com/botpress/botpress/commit/b97d205))
-* **nlu:** prediction error logging ([#4942](https://github.com/botpress/botpress/issues/4942)) ([761eaeb](https://github.com/botpress/botpress/commit/761eaeb))
-* **studio:** right sidebar UI fixes ([#4925](https://github.com/botpress/botpress/issues/4925)) ([e3a6077](https://github.com/botpress/botpress/commit/e3a6077))
-* **studio:** visual glitches ([#4924](https://github.com/botpress/botpress/issues/4924)) ([e3e89fd](https://github.com/botpress/botpress/commit/e3e89fd))
-* **webchat:** fix file upload ([#4994](https://github.com/botpress/botpress/issues/4994)) ([88c2627](https://github.com/botpress/botpress/commit/88c2627))
-
+- **builtin:** fix card image subtype ([#4996](https://github.com/botpress/botpress/issues/4996)) ([61ff663](https://github.com/botpress/botpress/commit/61ff663))
+- **channel-vonage:** fix storing large files using the module action ([#5004](https://github.com/botpress/botpress/issues/5004)) ([44d1547](https://github.com/botpress/botpress/commit/44d1547))
+- **core:** removed empty object in default alerting rules ([#4935](https://github.com/botpress/botpress/issues/4935)) ([ec510b4](https://github.com/botpress/botpress/commit/ec510b4))
+- **nlu:** fixes on new election logic ([#4998](https://github.com/botpress/botpress/issues/4998)) ([184735e](https://github.com/botpress/botpress/commit/184735e))
+- **nlu:** include language detection and all predict tries in ms ([#4986](https://github.com/botpress/botpress/issues/4986)) ([b97d205](https://github.com/botpress/botpress/commit/b97d205))
+- **nlu:** prediction error logging ([#4942](https://github.com/botpress/botpress/issues/4942)) ([761eaeb](https://github.com/botpress/botpress/commit/761eaeb))
+- **studio:** right sidebar UI fixes ([#4925](https://github.com/botpress/botpress/issues/4925)) ([e3a6077](https://github.com/botpress/botpress/commit/e3a6077))
+- **studio:** visual glitches ([#4924](https://github.com/botpress/botpress/issues/4924)) ([e3e89fd](https://github.com/botpress/botpress/commit/e3e89fd))
+- **webchat:** fix file upload ([#4994](https://github.com/botpress/botpress/issues/4994)) ([88c2627](https://github.com/botpress/botpress/commit/88c2627))
 
 ### Features
 
-* **admin:** workspace apps ([#4887](https://github.com/botpress/botpress/issues/4887)) ([ede423a](https://github.com/botpress/botpress/commit/ede423a))
-* **channel-messenger:** use channel renderers ([#4992](https://github.com/botpress/botpress/issues/4992)) ([e5738d3](https://github.com/botpress/botpress/commit/e5738d3))
-* **channel-smooch:** use channel renderers ([#4919](https://github.com/botpress/botpress/issues/4919)) ([339bb9b](https://github.com/botpress/botpress/commit/339bb9b))
-* **channel-teams:** use channel renderers ([#4993](https://github.com/botpress/botpress/issues/4993)) ([bb5aa65](https://github.com/botpress/botpress/commit/bb5aa65))
-* **channel-vonage:** add channel-vonage ([#4789](https://github.com/botpress/botpress/issues/4789)) ([f17695f](https://github.com/botpress/botpress/commit/f17695f)), closes [#4820](https://github.com/botpress/botpress/issues/4820) [#4819](https://github.com/botpress/botpress/issues/4819) [#4818](https://github.com/botpress/botpress/issues/4818) [#4812](https://github.com/botpress/botpress/issues/4812) [#4815](https://github.com/botpress/botpress/issues/4815) [#4830](https://github.com/botpress/botpress/issues/4830) [#4760](https://github.com/botpress/botpress/issues/4760) [#4686](https://github.com/botpress/botpress/issues/4686) [#4687](https://github.com/botpress/botpress/issues/4687) [#4764](https://github.com/botpress/botpress/issues/4764) [#4684](https://github.com/botpress/botpress/issues/4684) [#4841](https://github.com/botpress/botpress/issues/4841) [#4840](https://github.com/botpress/botpress/issues/4840) [#4839](https://github.com/botpress/botpress/issues/4839) [#4836](https://github.com/botpress/botpress/issues/4836) [#4827](https://github.com/botpress/botpress/issues/4827) [#4781](https://github.com/botpress/botpress/issues/4781) [#4798](https://github.com/botpress/botpress/issues/4798) [#4852](https://github.com/botpress/botpress/issues/4852) [#4856](https://github.com/botpress/botpress/issues/4856)
-* **channel-vonage:** add support for file reception ([#4914](https://github.com/botpress/botpress/issues/4914)) ([a0384ce](https://github.com/botpress/botpress/commit/a0384ce))
-* **channel-vonage:** add support for WhatsApp Templates ([#4927](https://github.com/botpress/botpress/issues/4927)) ([597c6ca](https://github.com/botpress/botpress/commit/597c6ca))
-* **channel-vonage:** use channel renders ([#4929](https://github.com/botpress/botpress/issues/4929)) ([c327210](https://github.com/botpress/botpress/commit/c327210))
-* **channel-web:** add support for audio and video display ([#4989](https://github.com/botpress/botpress/issues/4989)) ([6453637](https://github.com/botpress/botpress/commit/6453637))
-* **channel-web:** add support for voice messages ([#4995](https://github.com/botpress/botpress/issues/4995)) ([6ed4639](https://github.com/botpress/botpress/commit/6ed4639))
-* **core:** allow middlewares to override timeout limit of runtime duration ([#4923](https://github.com/botpress/botpress/issues/4923)) ([43d25ce](https://github.com/botpress/botpress/commit/43d25ce))
-* **core:** channel renderers ([#4793](https://github.com/botpress/botpress/issues/4793)) ([8e7fad8](https://github.com/botpress/botpress/commit/8e7fad8)), closes [#4800](https://github.com/botpress/botpress/issues/4800) [#4868](https://github.com/botpress/botpress/issues/4868) [#4871](https://github.com/botpress/botpress/issues/4871)
-* **core:** location content type ([#4988](https://github.com/botpress/botpress/issues/4988)) ([dfffc7d](https://github.com/botpress/botpress/commit/dfffc7d))
-* **google-speech:** add google speech module ([#4876](https://github.com/botpress/botpress/issues/4876)) ([b53dcb7](https://github.com/botpress/botpress/commit/b53dcb7)), closes [#4820](https://github.com/botpress/botpress/issues/4820) [#4819](https://github.com/botpress/botpress/issues/4819) [#4818](https://github.com/botpress/botpress/issues/4818) [#4812](https://github.com/botpress/botpress/issues/4812) [#4815](https://github.com/botpress/botpress/issues/4815) [#4830](https://github.com/botpress/botpress/issues/4830) [#4760](https://github.com/botpress/botpress/issues/4760) [#4686](https://github.com/botpress/botpress/issues/4686) [#4687](https://github.com/botpress/botpress/issues/4687) [#4764](https://github.com/botpress/botpress/issues/4764) [#4684](https://github.com/botpress/botpress/issues/4684) [#4841](https://github.com/botpress/botpress/issues/4841) [#4840](https://github.com/botpress/botpress/issues/4840) [#4839](https://github.com/botpress/botpress/issues/4839) [#4836](https://github.com/botpress/botpress/issues/4836) [#4827](https://github.com/botpress/botpress/issues/4827) [#4781](https://github.com/botpress/botpress/issues/4781) [#4798](https://github.com/botpress/botpress/issues/4798) [#4852](https://github.com/botpress/botpress/issues/4852) [#4856](https://github.com/botpress/botpress/issues/4856)
-* **hitlnext:** display custom component in live chat ([#5001](https://github.com/botpress/botpress/issues/5001)) ([8c11fc0](https://github.com/botpress/botpress/commit/8c11fc0))
-* **module-builder:** add Dockerfile [#4790](https://github.com/botpress/botpress/issues/4790) ([#4791](https://github.com/botpress/botpress/issues/4791)) ([797e23b](https://github.com/botpress/botpress/commit/797e23b))
-
-
+- **admin:** workspace apps ([#4887](https://github.com/botpress/botpress/issues/4887)) ([ede423a](https://github.com/botpress/botpress/commit/ede423a))
+- **channel-messenger:** use channel renderers ([#4992](https://github.com/botpress/botpress/issues/4992)) ([e5738d3](https://github.com/botpress/botpress/commit/e5738d3))
+- **channel-smooch:** use channel renderers ([#4919](https://github.com/botpress/botpress/issues/4919)) ([339bb9b](https://github.com/botpress/botpress/commit/339bb9b))
+- **channel-teams:** use channel renderers ([#4993](https://github.com/botpress/botpress/issues/4993)) ([bb5aa65](https://github.com/botpress/botpress/commit/bb5aa65))
+- **channel-vonage:** add channel-vonage ([#4789](https://github.com/botpress/botpress/issues/4789)) ([f17695f](https://github.com/botpress/botpress/commit/f17695f)), closes [#4820](https://github.com/botpress/botpress/issues/4820) [#4819](https://github.com/botpress/botpress/issues/4819) [#4818](https://github.com/botpress/botpress/issues/4818) [#4812](https://github.com/botpress/botpress/issues/4812) [#4815](https://github.com/botpress/botpress/issues/4815) [#4830](https://github.com/botpress/botpress/issues/4830) [#4760](https://github.com/botpress/botpress/issues/4760) [#4686](https://github.com/botpress/botpress/issues/4686) [#4687](https://github.com/botpress/botpress/issues/4687) [#4764](https://github.com/botpress/botpress/issues/4764) [#4684](https://github.com/botpress/botpress/issues/4684) [#4841](https://github.com/botpress/botpress/issues/4841) [#4840](https://github.com/botpress/botpress/issues/4840) [#4839](https://github.com/botpress/botpress/issues/4839) [#4836](https://github.com/botpress/botpress/issues/4836) [#4827](https://github.com/botpress/botpress/issues/4827) [#4781](https://github.com/botpress/botpress/issues/4781) [#4798](https://github.com/botpress/botpress/issues/4798) [#4852](https://github.com/botpress/botpress/issues/4852) [#4856](https://github.com/botpress/botpress/issues/4856)
+- **channel-vonage:** add support for file reception ([#4914](https://github.com/botpress/botpress/issues/4914)) ([a0384ce](https://github.com/botpress/botpress/commit/a0384ce))
+- **channel-vonage:** add support for WhatsApp Templates ([#4927](https://github.com/botpress/botpress/issues/4927)) ([597c6ca](https://github.com/botpress/botpress/commit/597c6ca))
+- **channel-vonage:** use channel renders ([#4929](https://github.com/botpress/botpress/issues/4929)) ([c327210](https://github.com/botpress/botpress/commit/c327210))
+- **channel-web:** add support for audio and video display ([#4989](https://github.com/botpress/botpress/issues/4989)) ([6453637](https://github.com/botpress/botpress/commit/6453637))
+- **channel-web:** add support for voice messages ([#4995](https://github.com/botpress/botpress/issues/4995)) ([6ed4639](https://github.com/botpress/botpress/commit/6ed4639))
+- **core:** allow middlewares to override timeout limit of runtime duration ([#4923](https://github.com/botpress/botpress/issues/4923)) ([43d25ce](https://github.com/botpress/botpress/commit/43d25ce))
+- **core:** channel renderers ([#4793](https://github.com/botpress/botpress/issues/4793)) ([8e7fad8](https://github.com/botpress/botpress/commit/8e7fad8)), closes [#4800](https://github.com/botpress/botpress/issues/4800) [#4868](https://github.com/botpress/botpress/issues/4868) [#4871](https://github.com/botpress/botpress/issues/4871)
+- **core:** location content type ([#4988](https://github.com/botpress/botpress/issues/4988)) ([dfffc7d](https://github.com/botpress/botpress/commit/dfffc7d))
+- **google-speech:** add google speech module ([#4876](https://github.com/botpress/botpress/issues/4876)) ([b53dcb7](https://github.com/botpress/botpress/commit/b53dcb7)), closes [#4820](https://github.com/botpress/botpress/issues/4820) [#4819](https://github.com/botpress/botpress/issues/4819) [#4818](https://github.com/botpress/botpress/issues/4818) [#4812](https://github.com/botpress/botpress/issues/4812) [#4815](https://github.com/botpress/botpress/issues/4815) [#4830](https://github.com/botpress/botpress/issues/4830) [#4760](https://github.com/botpress/botpress/issues/4760) [#4686](https://github.com/botpress/botpress/issues/4686) [#4687](https://github.com/botpress/botpress/issues/4687) [#4764](https://github.com/botpress/botpress/issues/4764) [#4684](https://github.com/botpress/botpress/issues/4684) [#4841](https://github.com/botpress/botpress/issues/4841) [#4840](https://github.com/botpress/botpress/issues/4840) [#4839](https://github.com/botpress/botpress/issues/4839) [#4836](https://github.com/botpress/botpress/issues/4836) [#4827](https://github.com/botpress/botpress/issues/4827) [#4781](https://github.com/botpress/botpress/issues/4781) [#4798](https://github.com/botpress/botpress/issues/4798) [#4852](https://github.com/botpress/botpress/issues/4852) [#4856](https://github.com/botpress/botpress/issues/4856)
+- **hitlnext:** display custom component in live chat ([#5001](https://github.com/botpress/botpress/issues/5001)) ([8c11fc0](https://github.com/botpress/botpress/commit/8c11fc0))
+- **module-builder:** add Dockerfile [#4790](https://github.com/botpress/botpress/issues/4790) ([#4791](https://github.com/botpress/botpress/issues/4791)) ([797e23b](https://github.com/botpress/botpress/commit/797e23b))
 
 ## [12.21.1](https://github.com/botpress/botpress/compare/v12.20.1...v12.21.1) (2021-04-30)
 
-
 ### Bug Fixes
 
-* **channel-smooch:** wrong incoming payload ([#4915])(https://github.com/botpress/botpress/pull/4915)
-* **channel-vonage:** fix sending image content-elements ([#4901](https://github.com/botpress/botpress/issues/4901)) ([1afc0fa](https://github.com/botpress/botpress/commit/1afc0fa))
-* **channel-vonage:** make sure carousel does not fire more than 1 req/s ([#4893](https://github.com/botpress/botpress/issues/4893)) ([a721eff](https://github.com/botpress/botpress/commit/a721eff))
-* **channel-web:** fix conversationId validation bypass ([#4902](https://github.com/botpress/botpress/issues/4902)) ([a27f22c](https://github.com/botpress/botpress/commit/a27f22c))
-* **converse:** wait for outgoing events before sending response ([#4855](https://github.com/botpress/botpress/issues/4855)) ([7a3b732](https://github.com/botpress/botpress/commit/7a3b732))
-* **core:** fix botconfig migration ([#4904](https://github.com/botpress/botpress/issues/4904)) ([17962d0](https://github.com/botpress/botpress/commit/17962d0))
-* **core:** various fixes for bp-push ([#4908](https://github.com/botpress/botpress/issues/4908)) ([67f15d2](https://github.com/botpress/botpress/commit/67f15d2))
-* **docs:** wrong BP_MODULE_NLU_DUCKLINGURL example ([#4884](https://github.com/botpress/botpress/issues/4884)) ([cf11716](https://github.com/botpress/botpress/commit/cf11716))
-* **studio:** fix node properties display for NDU bots ([#4906](https://github.com/botpress/botpress/issues/4906)) ([1858925](https://github.com/botpress/botpress/commit/1858925))
-
+- **channel-smooch:** wrong incoming payload ([#4915])(https://github.com/botpress/botpress/pull/4915)
+- **channel-vonage:** fix sending image content-elements ([#4901](https://github.com/botpress/botpress/issues/4901)) ([1afc0fa](https://github.com/botpress/botpress/commit/1afc0fa))
+- **channel-vonage:** make sure carousel does not fire more than 1 req/s ([#4893](https://github.com/botpress/botpress/issues/4893)) ([a721eff](https://github.com/botpress/botpress/commit/a721eff))
+- **channel-web:** fix conversationId validation bypass ([#4902](https://github.com/botpress/botpress/issues/4902)) ([a27f22c](https://github.com/botpress/botpress/commit/a27f22c))
+- **converse:** wait for outgoing events before sending response ([#4855](https://github.com/botpress/botpress/issues/4855)) ([7a3b732](https://github.com/botpress/botpress/commit/7a3b732))
+- **core:** fix botconfig migration ([#4904](https://github.com/botpress/botpress/issues/4904)) ([17962d0](https://github.com/botpress/botpress/commit/17962d0))
+- **core:** various fixes for bp-push ([#4908](https://github.com/botpress/botpress/issues/4908)) ([67f15d2](https://github.com/botpress/botpress/commit/67f15d2))
+- **docs:** wrong BP_MODULE_NLU_DUCKLINGURL example ([#4884](https://github.com/botpress/botpress/issues/4884)) ([cf11716](https://github.com/botpress/botpress/commit/cf11716))
+- **studio:** fix node properties display for NDU bots ([#4906](https://github.com/botpress/botpress/issues/4906)) ([1858925](https://github.com/botpress/botpress/commit/1858925))
 
 ### Features
 
-* **admin:** move realtime logs to admin ([#4903](https://github.com/botpress/botpress/issues/4903)) ([e51c38d](https://github.com/botpress/botpress/commit/e51c38d))
-* **core:** add env variable to support pg schema ([#4888](https://github.com/botpress/botpress/issues/4888)) ([40ab4d0](https://github.com/botpress/botpress/commit/40ab4d0))
-
-
+- **admin:** move realtime logs to admin ([#4903](https://github.com/botpress/botpress/issues/4903)) ([e51c38d](https://github.com/botpress/botpress/commit/e51c38d))
+- **core:** add env variable to support pg schema ([#4888](https://github.com/botpress/botpress/issues/4888)) ([40ab4d0](https://github.com/botpress/botpress/commit/40ab4d0))
 
 # [12.21.0](https://github.com/botpress/botpress/compare/v12.20.1...v12.21.0) (2021-04-23)
 
-
 ### Bug Fixes
 
-* **code:** fix for CVE-2020-7743 ([#4833](https://github.com/botpress/botpress/issues/4833)) ([543d830](https://github.com/botpress/botpress/commit/543d830))
-* **docs:** remove warning about Custom Modules ([#4882](https://github.com/botpress/botpress/issues/4882)) ([c4445c3](https://github.com/botpress/botpress/commit/c4445c3))
-
+- **code:** fix for CVE-2020-7743 ([#4833](https://github.com/botpress/botpress/issues/4833)) ([543d830](https://github.com/botpress/botpress/commit/543d830))
+- **docs:** remove warning about Custom Modules ([#4882](https://github.com/botpress/botpress/issues/4882)) ([c4445c3](https://github.com/botpress/botpress/commit/c4445c3))
 
 ### Features
 
-* **channel-vonage:** add channel-vonage ([#4789](https://github.com/botpress/botpress/issues/4789)) ([f17695f](https://github.com/botpress/botpress/commit/f17695f)) 
-* **core:** conversation attributes ([#4815](https://github.com/botpress/botpress/issues/4815)) ([256fcf4](https://github.com/botpress/botpress/commit/256fcf4))
-* **core:** remove redundant read/writes to flow files ([#4715](https://github.com/botpress/botpress/issues/4715)) ([36468bc](https://github.com/botpress/botpress/commit/36468bc))
-* **studio:** add support for audio and video content-types ([#4816](https://github.com/botpress/botpress/issues/4816)) ([95ba80d](https://github.com/botpress/botpress/commit/95ba80d)), closes [#4820](https://github.com/botpress/botpress/issues/4820)
-
-
+- **channel-vonage:** add channel-vonage ([#4789](https://github.com/botpress/botpress/issues/4789)) ([f17695f](https://github.com/botpress/botpress/commit/f17695f))
+- **core:** conversation attributes ([#4815](https://github.com/botpress/botpress/issues/4815)) ([256fcf4](https://github.com/botpress/botpress/commit/256fcf4))
+- **core:** remove redundant read/writes to flow files ([#4715](https://github.com/botpress/botpress/issues/4715)) ([36468bc](https://github.com/botpress/botpress/commit/36468bc))
+- **studio:** add support for audio and video content-types ([#4816](https://github.com/botpress/botpress/issues/4816)) ([95ba80d](https://github.com/botpress/botpress/commit/95ba80d)), closes [#4820](https://github.com/botpress/botpress/issues/4820)
 
 ## [12.20.2](https://github.com/botpress/botpress/compare/v12.20.1...v12.20.2) (2021-04-15)
 
-
 ### Bug Fixes
 
-* **admin:** incorrect route for module upload ([#4818](https://github.com/botpress/botpress/issues/4818)) ([823d965](https://github.com/botpress/botpress/commit/823d965))
-* **channel-web:** don't list convos with no events ([#4764](https://github.com/botpress/botpress/issues/4764)) ([18206fc](https://github.com/botpress/botpress/commit/18206fc))
-* **core:** database migration path ([#4794](https://github.com/botpress/botpress/issues/4794)) ([3201b9b](https://github.com/botpress/botpress/commit/3201b9b))
-* **core:** use relative file path for media files ([#4830](https://github.com/botpress/botpress/issues/4830)) ([3a74c2e](https://github.com/botpress/botpress/commit/3a74c2e))
-* **hitlnext:** send webSessionId when assigning handoff ([#4836](https://github.com/botpress/botpress/issues/4836)) ([7e9f4c9](https://github.com/botpress/botpress/commit/7e9f4c9))
-* **nlu:** Default to global context when no context matched ([#4814](https://github.com/botpress/botpress/issues/4814)) ([493a1a8](https://github.com/botpress/botpress/commit/493a1a8))
-* **nlu:** update pre-trained models path ([#4819](https://github.com/botpress/botpress/issues/4819)) ([4fef3bd](https://github.com/botpress/botpress/commit/4fef3bd))
-* **studio:** allow to scroll content of action overlay popover ([#4804](https://github.com/botpress/botpress/issues/4804)) ([8a6e4b0](https://github.com/botpress/botpress/commit/8a6e4b0))
-* **studio:** remove its lite dependency with modules ([#4760](https://github.com/botpress/botpress/issues/4760)) ([ef02169](https://github.com/botpress/botpress/commit/ef02169))
-
+- **admin:** incorrect route for module upload ([#4818](https://github.com/botpress/botpress/issues/4818)) ([823d965](https://github.com/botpress/botpress/commit/823d965))
+- **channel-web:** don't list convos with no events ([#4764](https://github.com/botpress/botpress/issues/4764)) ([18206fc](https://github.com/botpress/botpress/commit/18206fc))
+- **core:** database migration path ([#4794](https://github.com/botpress/botpress/issues/4794)) ([3201b9b](https://github.com/botpress/botpress/commit/3201b9b))
+- **core:** use relative file path for media files ([#4830](https://github.com/botpress/botpress/issues/4830)) ([3a74c2e](https://github.com/botpress/botpress/commit/3a74c2e))
+- **hitlnext:** send webSessionId when assigning handoff ([#4836](https://github.com/botpress/botpress/issues/4836)) ([7e9f4c9](https://github.com/botpress/botpress/commit/7e9f4c9))
+- **nlu:** Default to global context when no context matched ([#4814](https://github.com/botpress/botpress/issues/4814)) ([493a1a8](https://github.com/botpress/botpress/commit/493a1a8))
+- **nlu:** update pre-trained models path ([#4819](https://github.com/botpress/botpress/issues/4819)) ([4fef3bd](https://github.com/botpress/botpress/commit/4fef3bd))
+- **studio:** allow to scroll content of action overlay popover ([#4804](https://github.com/botpress/botpress/issues/4804)) ([8a6e4b0](https://github.com/botpress/botpress/commit/8a6e4b0))
+- **studio:** remove its lite dependency with modules ([#4760](https://github.com/botpress/botpress/issues/4760)) ([ef02169](https://github.com/botpress/botpress/commit/ef02169))
 
 ### Features
 
-* **channel-smooch:** add content support ([#4827](https://github.com/botpress/botpress/issues/4827)) ([0118ec4](https://github.com/botpress/botpress/commit/0118ec4))
-
-
+- **channel-smooch:** add content support ([#4827](https://github.com/botpress/botpress/issues/4827)) ([0118ec4](https://github.com/botpress/botpress/commit/0118ec4))
 
 ## [12.20.1](https://github.com/botpress/botpress/compare/v12.19.0...v12.20.1) (2021-04-01)
 
-
 ### Bug Fixes
 
-* **core:** images not displaying ([#4795](https://github.com/botpress/botpress/issues/4795)) ([cb5c5be](https://github.com/botpress/botpress/commit/cb5c5be))
-* **nlu:** fix memory leak in nlu module ([#4787](https://github.com/botpress/botpress/issues/4787)) ([938529f](https://github.com/botpress/botpress/commit/938529f))
-
+- **core:** images not displaying ([#4795](https://github.com/botpress/botpress/issues/4795)) ([cb5c5be](https://github.com/botpress/botpress/commit/cb5c5be))
+- **nlu:** fix memory leak in nlu module ([#4787](https://github.com/botpress/botpress/issues/4787)) ([938529f](https://github.com/botpress/botpress/commit/938529f))
 
 ### Features
 
-* **core:** mapping ([#4776](https://github.com/botpress/botpress/issues/4776)) ([563c70d](https://github.com/botpress/botpress/commit/563c70d))
-
-
+- **core:** mapping ([#4776](https://github.com/botpress/botpress/issues/4776)) ([563c70d](https://github.com/botpress/botpress/commit/563c70d))
 
 # [12.20.0](https://github.com/botpress/botpress/compare/v12.19.0...v12.20.0) (2021-03-31)
 
-
 ### Bug Fixes
 
-* **admin:** add missing en, es and fr translations in UI admin ([e4a03a4](https://github.com/botpress/botpress/commit/e4a03a4))
-* **admin:** check license limits exist before counting nodes ([#4770](https://github.com/botpress/botpress/issues/4770)) ([83d2203](https://github.com/botpress/botpress/commit/83d2203))
-* **admin:** fix Promisse issue ([#4749](https://github.com/botpress/botpress/issues/4749)) ([bff4bb7](https://github.com/botpress/botpress/commit/bff4bb7))
-* **basic-skills:** slot skill distinct slot/intent issue ([#4718](https://github.com/botpress/botpress/issues/4718)) ([b657aa7](https://github.com/botpress/botpress/commit/b657aa7))
-* **core:** allow to redefine the state.workflow accessor ([#4758](https://github.com/botpress/botpress/issues/4758)) ([64c0cf7](https://github.com/botpress/botpress/commit/64c0cf7))
-* **core:** bad path with pro enabled ([#4739](https://github.com/botpress/botpress/issues/4739)) ([b8b72d4](https://github.com/botpress/botpress/commit/b8b72d4))
-* **core:** display url when error while mounting ([#4751](https://github.com/botpress/botpress/issues/4751)) ([d792d33](https://github.com/botpress/botpress/commit/d792d33))
-* **core:** update pro ([#4734](https://github.com/botpress/botpress/issues/4734)) ([87f5d1c](https://github.com/botpress/botpress/commit/87f5d1c))
-* **git:** fix workflow rule ([#4761](https://github.com/botpress/botpress/issues/4761)) ([8f689d3](https://github.com/botpress/botpress/commit/8f689d3))
-* **misunderstood:** fix side list scroll ([#4652](https://github.com/botpress/botpress/issues/4652)) ([1d81b62](https://github.com/botpress/botpress/commit/1d81b62))
-* **nlu:** default limit model cache size by max memory space ([#4775](https://github.com/botpress/botpress/issues/4775)) ([dda2f62](https://github.com/botpress/botpress/commit/dda2f62))
-* **nlu:** fix debug and progress logging during training ([#4748](https://github.com/botpress/botpress/issues/4748)) ([71afb45](https://github.com/botpress/botpress/commit/71afb45))
-* **nlu:** model cache size defaults to infinity ([#4753](https://github.com/botpress/botpress/issues/4753)) ([6adcb48](https://github.com/botpress/botpress/commit/6adcb48))
-* **nlu:** revert default engine cache size to 850mb ([#4782](https://github.com/botpress/botpress/issues/4782)) ([57e173c](https://github.com/botpress/botpress/commit/57e173c))
-* **nlu:** rm git submodules again ([#4773](https://github.com/botpress/botpress/issues/4773)) ([f4016b2](https://github.com/botpress/botpress/commit/f4016b2))
-* **studio:** check subflow exists before adding its nodes usage ([#4759](https://github.com/botpress/botpress/issues/4759)) ([b24da29](https://github.com/botpress/botpress/commit/b24da29))
-* **studio:** fix build in translations files ([df7bbc9](https://github.com/botpress/botpress/commit/df7bbc9))
-* **studio:** fix reboot and ping routes ([#4750](https://github.com/botpress/botpress/issues/4750)) ([595b8b0](https://github.com/botpress/botpress/commit/595b8b0))
-* **studio:** fixed e2e tests ([a091510](https://github.com/botpress/botpress/commit/a091510))
-* **studio:** translations ([#4658](https://github.com/botpress/botpress/issues/4658)) ([0198ef5](https://github.com/botpress/botpress/commit/0198ef5))
-* make cover chat window picture responsive ([#4641](https://github.com/botpress/botpress/issues/4641)) ([9b82d46](https://github.com/botpress/botpress/commit/9b82d46))
-
+- **admin:** add missing en, es and fr translations in UI admin ([e4a03a4](https://github.com/botpress/botpress/commit/e4a03a4))
+- **admin:** check license limits exist before counting nodes ([#4770](https://github.com/botpress/botpress/issues/4770)) ([83d2203](https://github.com/botpress/botpress/commit/83d2203))
+- **admin:** fix Promisse issue ([#4749](https://github.com/botpress/botpress/issues/4749)) ([bff4bb7](https://github.com/botpress/botpress/commit/bff4bb7))
+- **basic-skills:** slot skill distinct slot/intent issue ([#4718](https://github.com/botpress/botpress/issues/4718)) ([b657aa7](https://github.com/botpress/botpress/commit/b657aa7))
+- **core:** allow to redefine the state.workflow accessor ([#4758](https://github.com/botpress/botpress/issues/4758)) ([64c0cf7](https://github.com/botpress/botpress/commit/64c0cf7))
+- **core:** bad path with pro enabled ([#4739](https://github.com/botpress/botpress/issues/4739)) ([b8b72d4](https://github.com/botpress/botpress/commit/b8b72d4))
+- **core:** display url when error while mounting ([#4751](https://github.com/botpress/botpress/issues/4751)) ([d792d33](https://github.com/botpress/botpress/commit/d792d33))
+- **core:** update pro ([#4734](https://github.com/botpress/botpress/issues/4734)) ([87f5d1c](https://github.com/botpress/botpress/commit/87f5d1c))
+- **git:** fix workflow rule ([#4761](https://github.com/botpress/botpress/issues/4761)) ([8f689d3](https://github.com/botpress/botpress/commit/8f689d3))
+- **misunderstood:** fix side list scroll ([#4652](https://github.com/botpress/botpress/issues/4652)) ([1d81b62](https://github.com/botpress/botpress/commit/1d81b62))
+- **nlu:** default limit model cache size by max memory space ([#4775](https://github.com/botpress/botpress/issues/4775)) ([dda2f62](https://github.com/botpress/botpress/commit/dda2f62))
+- **nlu:** fix debug and progress logging during training ([#4748](https://github.com/botpress/botpress/issues/4748)) ([71afb45](https://github.com/botpress/botpress/commit/71afb45))
+- **nlu:** model cache size defaults to infinity ([#4753](https://github.com/botpress/botpress/issues/4753)) ([6adcb48](https://github.com/botpress/botpress/commit/6adcb48))
+- **nlu:** revert default engine cache size to 850mb ([#4782](https://github.com/botpress/botpress/issues/4782)) ([57e173c](https://github.com/botpress/botpress/commit/57e173c))
+- **nlu:** rm git submodules again ([#4773](https://github.com/botpress/botpress/issues/4773)) ([f4016b2](https://github.com/botpress/botpress/commit/f4016b2))
+- **studio:** check subflow exists before adding its nodes usage ([#4759](https://github.com/botpress/botpress/issues/4759)) ([b24da29](https://github.com/botpress/botpress/commit/b24da29))
+- **studio:** fix build in translations files ([df7bbc9](https://github.com/botpress/botpress/commit/df7bbc9))
+- **studio:** fix reboot and ping routes ([#4750](https://github.com/botpress/botpress/issues/4750)) ([595b8b0](https://github.com/botpress/botpress/commit/595b8b0))
+- **studio:** fixed e2e tests ([a091510](https://github.com/botpress/botpress/commit/a091510))
+- **studio:** translations ([#4658](https://github.com/botpress/botpress/issues/4658)) ([0198ef5](https://github.com/botpress/botpress/commit/0198ef5))
+- make cover chat window picture responsive ([#4641](https://github.com/botpress/botpress/issues/4641)) ([9b82d46](https://github.com/botpress/botpress/commit/9b82d46))
 
 ### Features
 
-* **basic-skills:** allow choosing the name the variable of choice skill ([#4638](https://github.com/botpress/botpress/issues/4638)) ([0170275](https://github.com/botpress/botpress/commit/0170275))
-* **channel-web:** support native web speech api ([#4615](https://github.com/botpress/botpress/issues/4615)) ([c5542b0](https://github.com/botpress/botpress/commit/c5542b0))
-* **hitl2:** voice composer for agent ([#4626](https://github.com/botpress/botpress/issues/4626)) ([1ea4629](https://github.com/botpress/botpress/commit/1ea4629))
-* **misunderstood:** group duplicates ([#4616](https://github.com/botpress/botpress/issues/4616)) ([c507042](https://github.com/botpress/botpress/commit/c507042)), closes [#4629](https://github.com/botpress/botpress/issues/4629) [#4650](https://github.com/botpress/botpress/issues/4650)
-* **nlu:** deprecate legacy election ([#4745](https://github.com/botpress/botpress/issues/4745)) ([f3bb6e6](https://github.com/botpress/botpress/commit/f3bb6e6))
-* **nlu:** Queue trainings on bot mount ([#4736](https://github.com/botpress/botpress/issues/4736)) ([2d95e70](https://github.com/botpress/botpress/commit/2d95e70)), closes [#4579](https://github.com/botpress/botpress/issues/4579) [#4586](https://github.com/botpress/botpress/issues/4586) [#4583](https://github.com/botpress/botpress/issues/4583) [#4735](https://github.com/botpress/botpress/issues/4735) [#4698](https://github.com/botpress/botpress/issues/4698) [#4740](https://github.com/botpress/botpress/issues/4740) [#4741](https://github.com/botpress/botpress/issues/4741) [#4757](https://github.com/botpress/botpress/issues/4757)
-* **qna:** directly convert qna to intent from ui ([#4625](https://github.com/botpress/botpress/issues/4625)) ([92129d9](https://github.com/botpress/botpress/commit/92129d9))
-* **studio:** allow specifying a node in subflow transition ([#4612](https://github.com/botpress/botpress/issues/4612)) ([7ad934f](https://github.com/botpress/botpress/commit/7ad934f))
-* **studio:** default empty transition on entry nodes ([#4619](https://github.com/botpress/botpress/issues/4619)) ([a978ac0](https://github.com/botpress/botpress/commit/a978ac0))
-* **studio:** open properties and focus names of new nodes ([#4633](https://github.com/botpress/botpress/issues/4633)) ([4f91289](https://github.com/botpress/botpress/commit/4f91289))
-* **unsupervised:** unsupervised qna module ([#4637](https://github.com/botpress/botpress/issues/4637)) ([f13736b](https://github.com/botpress/botpress/commit/f13736b))
-
-
+- **basic-skills:** allow choosing the name the variable of choice skill ([#4638](https://github.com/botpress/botpress/issues/4638)) ([0170275](https://github.com/botpress/botpress/commit/0170275))
+- **channel-web:** support native web speech api ([#4615](https://github.com/botpress/botpress/issues/4615)) ([c5542b0](https://github.com/botpress/botpress/commit/c5542b0))
+- **hitl2:** voice composer for agent ([#4626](https://github.com/botpress/botpress/issues/4626)) ([1ea4629](https://github.com/botpress/botpress/commit/1ea4629))
+- **misunderstood:** group duplicates ([#4616](https://github.com/botpress/botpress/issues/4616)) ([c507042](https://github.com/botpress/botpress/commit/c507042)), closes [#4629](https://github.com/botpress/botpress/issues/4629) [#4650](https://github.com/botpress/botpress/issues/4650)
+- **nlu:** deprecate legacy election ([#4745](https://github.com/botpress/botpress/issues/4745)) ([f3bb6e6](https://github.com/botpress/botpress/commit/f3bb6e6))
+- **nlu:** Queue trainings on bot mount ([#4736](https://github.com/botpress/botpress/issues/4736)) ([2d95e70](https://github.com/botpress/botpress/commit/2d95e70)), closes [#4579](https://github.com/botpress/botpress/issues/4579) [#4586](https://github.com/botpress/botpress/issues/4586) [#4583](https://github.com/botpress/botpress/issues/4583) [#4735](https://github.com/botpress/botpress/issues/4735) [#4698](https://github.com/botpress/botpress/issues/4698) [#4740](https://github.com/botpress/botpress/issues/4740) [#4741](https://github.com/botpress/botpress/issues/4741) [#4757](https://github.com/botpress/botpress/issues/4757)
+- **qna:** directly convert qna to intent from ui ([#4625](https://github.com/botpress/botpress/issues/4625)) ([92129d9](https://github.com/botpress/botpress/commit/92129d9))
+- **studio:** allow specifying a node in subflow transition ([#4612](https://github.com/botpress/botpress/issues/4612)) ([7ad934f](https://github.com/botpress/botpress/commit/7ad934f))
+- **studio:** default empty transition on entry nodes ([#4619](https://github.com/botpress/botpress/issues/4619)) ([a978ac0](https://github.com/botpress/botpress/commit/a978ac0))
+- **studio:** open properties and focus names of new nodes ([#4633](https://github.com/botpress/botpress/issues/4633)) ([4f91289](https://github.com/botpress/botpress/commit/4f91289))
+- **unsupervised:** unsupervised qna module ([#4637](https://github.com/botpress/botpress/issues/4637)) ([f13736b](https://github.com/botpress/botpress/commit/f13736b))
 
 ## [12.19.2](https://github.com/botpress/botpress/compare/v12.19.0...v12.19.2) (2021-03-22)
 
-
 ### Bug Fixes
 
-* **core:** auth methods with cookies ([#4723](https://github.com/botpress/botpress/issues/4723)) ([39fc418](https://github.com/botpress/botpress/commit/39fc418))
-* **core:** flow service caching on update ([#4731](https://github.com/botpress/botpress/issues/4731)) ([09a1787](https://github.com/botpress/botpress/commit/09a1787))
-* **webchat:** typo in createConversation ([#4725](https://github.com/botpress/botpress/issues/4725)) ([fabe1fc](https://github.com/botpress/botpress/commit/fabe1fc))
-
-
+- **core:** auth methods with cookies ([#4723](https://github.com/botpress/botpress/issues/4723)) ([39fc418](https://github.com/botpress/botpress/commit/39fc418))
+- **core:** flow service caching on update ([#4731](https://github.com/botpress/botpress/issues/4731)) ([09a1787](https://github.com/botpress/botpress/commit/09a1787))
+- **webchat:** typo in createConversation ([#4725](https://github.com/botpress/botpress/issues/4725)) ([fabe1fc](https://github.com/botpress/botpress/commit/fabe1fc))
 
 ## [12.19.1](https://github.com/botpress/botpress/compare/v12.19.0...v12.19.1) (2021-03-19)
 
-
 ### Bug Fixes
 
-* **analytics:** fix percentages values ([#4717](https://github.com/botpress/botpress/issues/4717)) ([0b4fa63](https://github.com/botpress/botpress/commit/0b4fa63))
-* **analytics:** fix react errors ([#4622](https://github.com/botpress/botpress/issues/4622)) ([73db97e](https://github.com/botpress/botpress/commit/73db97e))
-* **analytics:** support for postgres ([#4711](https://github.com/botpress/botpress/issues/4711)) ([6ff7b04](https://github.com/botpress/botpress/commit/6ff7b04))
-* **channel-web:** i18n initialization precedence ([#4713](https://github.com/botpress/botpress/issues/4713)) ([e54979e](https://github.com/botpress/botpress/commit/e54979e))
-* **channel-web:** message duplication on slow internet ([#4714](https://github.com/botpress/botpress/issues/4714)) ([764537c](https://github.com/botpress/botpress/commit/764537c))
-* **core:** change server target from ES6 to ES2019 ([#4703](https://github.com/botpress/botpress/issues/4703)) ([34505d4](https://github.com/botpress/botpress/commit/34505d4))
-* **core:** fix bp pull/push ([#4705](https://github.com/botpress/botpress/issues/4705)) ([b933c7c](https://github.com/botpress/botpress/commit/b933c7c))
-* **core:** nlu and lang server wrong import path ([#4704](https://github.com/botpress/botpress/issues/4704)) ([00c80d8](https://github.com/botpress/botpress/commit/00c80d8))
-* **docker:** fix vulnerability ([#4691](https://github.com/botpress/botpress/issues/4691)) ([b9d3dbe](https://github.com/botpress/botpress/commit/b9d3dbe))
-* **webchat:** browser error on IE11 ([#4702](https://github.com/botpress/botpress/issues/4702)) ([dcab2a5](https://github.com/botpress/botpress/commit/dcab2a5))
-
-
+- **analytics:** fix percentages values ([#4717](https://github.com/botpress/botpress/issues/4717)) ([0b4fa63](https://github.com/botpress/botpress/commit/0b4fa63))
+- **analytics:** fix react errors ([#4622](https://github.com/botpress/botpress/issues/4622)) ([73db97e](https://github.com/botpress/botpress/commit/73db97e))
+- **analytics:** support for postgres ([#4711](https://github.com/botpress/botpress/issues/4711)) ([6ff7b04](https://github.com/botpress/botpress/commit/6ff7b04))
+- **channel-web:** i18n initialization precedence ([#4713](https://github.com/botpress/botpress/issues/4713)) ([e54979e](https://github.com/botpress/botpress/commit/e54979e))
+- **channel-web:** message duplication on slow internet ([#4714](https://github.com/botpress/botpress/issues/4714)) ([764537c](https://github.com/botpress/botpress/commit/764537c))
+- **core:** change server target from ES6 to ES2019 ([#4703](https://github.com/botpress/botpress/issues/4703)) ([34505d4](https://github.com/botpress/botpress/commit/34505d4))
+- **core:** fix bp pull/push ([#4705](https://github.com/botpress/botpress/issues/4705)) ([b933c7c](https://github.com/botpress/botpress/commit/b933c7c))
+- **core:** nlu and lang server wrong import path ([#4704](https://github.com/botpress/botpress/issues/4704)) ([00c80d8](https://github.com/botpress/botpress/commit/00c80d8))
+- **docker:** fix vulnerability ([#4691](https://github.com/botpress/botpress/issues/4691)) ([b9d3dbe](https://github.com/botpress/botpress/commit/b9d3dbe))
+- **webchat:** browser error on IE11 ([#4702](https://github.com/botpress/botpress/issues/4702)) ([dcab2a5](https://github.com/botpress/botpress/commit/dcab2a5))
 
 # [12.19.0](https://github.com/botpress/botpress/compare/v12.18.2...v12.19.0) (2021-03-15)
 
-
 ### Bug Fixes
 
-* **analytics:** Overlapped text in graph & active users ([#4623](https://github.com/botpress/botpress/issues/4623)) ([1ddbae0](https://github.com/botpress/botpress/commit/1ddbae0))
-* **core:** auth on ldap ([#4662](https://github.com/botpress/botpress/issues/4662)) ([cd2dfb6](https://github.com/botpress/botpress/commit/cd2dfb6))
-* **hitl2:** hidden reply box on livechat render ([#4627](https://github.com/botpress/botpress/issues/4627)) ([73470a8](https://github.com/botpress/botpress/commit/73470a8))
-* **hitl2:** scrollable HandoffList ([#4624](https://github.com/botpress/botpress/issues/4624)) ([31f4bc7](https://github.com/botpress/botpress/commit/31f4bc7))
-* **migrations:** proper migration for tokenVersion ([#4690](https://github.com/botpress/botpress/issues/4690)) ([adf7e75](https://github.com/botpress/botpress/commit/adf7e75))
-* **misunderstood:** train all modified languages ([#4671](https://github.com/botpress/botpress/issues/4671)) ([f0894a9](https://github.com/botpress/botpress/commit/f0894a9))
-* **nlu:** translate system entities ([#4617](https://github.com/botpress/botpress/issues/4617)) ([aaabd6a](https://github.com/botpress/botpress/commit/aaabd6a))
-
+- **analytics:** Overlapped text in graph & active users ([#4623](https://github.com/botpress/botpress/issues/4623)) ([1ddbae0](https://github.com/botpress/botpress/commit/1ddbae0))
+- **core:** auth on ldap ([#4662](https://github.com/botpress/botpress/issues/4662)) ([cd2dfb6](https://github.com/botpress/botpress/commit/cd2dfb6))
+- **hitl2:** hidden reply box on livechat render ([#4627](https://github.com/botpress/botpress/issues/4627)) ([73470a8](https://github.com/botpress/botpress/commit/73470a8))
+- **hitl2:** scrollable HandoffList ([#4624](https://github.com/botpress/botpress/issues/4624)) ([31f4bc7](https://github.com/botpress/botpress/commit/31f4bc7))
+- **migrations:** proper migration for tokenVersion ([#4690](https://github.com/botpress/botpress/issues/4690)) ([adf7e75](https://github.com/botpress/botpress/commit/adf7e75))
+- **misunderstood:** train all modified languages ([#4671](https://github.com/botpress/botpress/issues/4671)) ([f0894a9](https://github.com/botpress/botpress/commit/f0894a9))
+- **nlu:** translate system entities ([#4617](https://github.com/botpress/botpress/issues/4617)) ([aaabd6a](https://github.com/botpress/botpress/commit/aaabd6a))
 
 ### Features
 
-* **core:** messaging api ([#4340](https://github.com/botpress/botpress/issues/4340)) ([6790ea7](https://github.com/botpress/botpress/commit/6790ea7))
-* **core:** render service ([#4467](https://github.com/botpress/botpress/issues/4467)) ([1a6e953](https://github.com/botpress/botpress/commit/1a6e953))
-* **misunderstood:** delete done and ignored ([#4609](https://github.com/botpress/botpress/issues/4609)) ([7576926](https://github.com/botpress/botpress/commit/7576926))
-* **qna:** enter add new / Ctrl-entrer go to line ([#4621](https://github.com/botpress/botpress/issues/4621)) ([ff469e2](https://github.com/botpress/botpress/commit/ff469e2))
-
-
+- **core:** messaging api ([#4340](https://github.com/botpress/botpress/issues/4340)) ([6790ea7](https://github.com/botpress/botpress/commit/6790ea7))
+- **core:** render service ([#4467](https://github.com/botpress/botpress/issues/4467)) ([1a6e953](https://github.com/botpress/botpress/commit/1a6e953))
+- **misunderstood:** delete done and ignored ([#4609](https://github.com/botpress/botpress/issues/4609)) ([7576926](https://github.com/botpress/botpress/commit/7576926))
+- **qna:** enter add new / Ctrl-entrer go to line ([#4621](https://github.com/botpress/botpress/issues/4621)) ([ff469e2](https://github.com/botpress/botpress/commit/ff469e2))
 
 ## [12.18.2](https://github.com/botpress/botpress/compare/v12.18.1...v12.18.2) (2021-03-05)
 
-
 ### Bug Fixes
 
-* **core:** fix auth saml/oauth ([#4594](https://github.com/botpress/botpress/issues/4594)) ([09c7324](https://github.com/botpress/botpress/commit/09c7324))
-* **core:** point pro on master ([#4595](https://github.com/botpress/botpress/issues/4595)) ([19ffc7f](https://github.com/botpress/botpress/commit/19ffc7f))
-* **hitl2:** fixed agent rules ([dd91e69](https://github.com/botpress/botpress/commit/dd91e69))
-* **hitl2:** use new chan-web api ([#4596](https://github.com/botpress/botpress/issues/4596)) ([66949d1](https://github.com/botpress/botpress/commit/66949d1))
-
-
+- **core:** fix auth saml/oauth ([#4594](https://github.com/botpress/botpress/issues/4594)) ([09c7324](https://github.com/botpress/botpress/commit/09c7324))
+- **core:** point pro on master ([#4595](https://github.com/botpress/botpress/issues/4595)) ([19ffc7f](https://github.com/botpress/botpress/commit/19ffc7f))
+- **hitl2:** fixed agent rules ([dd91e69](https://github.com/botpress/botpress/commit/dd91e69))
+- **hitl2:** use new chan-web api ([#4596](https://github.com/botpress/botpress/issues/4596)) ([66949d1](https://github.com/botpress/botpress/commit/66949d1))
 
 ## [12.18.1](https://github.com/botpress/botpress/compare/v12.18.0...v12.18.1) (2021-03-05)
 
-
 ### Bug Fixes
 
-* **channel-web:** refactor of the webchat API ([#4578](https://github.com/botpress/botpress/issues/4578)) ([e9e9cad](https://github.com/botpress/botpress/commit/e9e9cad))
-* **channel-web:** unlock composer on conversation/session reset ([#4580](https://github.com/botpress/botpress/issues/4580)) ([430ef05](https://github.com/botpress/botpress/commit/430ef05))
-* **core:** changed dialog_sessions PK column size ([#4555](https://github.com/botpress/botpress/issues/4555)) ([cc28625](https://github.com/botpress/botpress/commit/cc28625))
-* **core:** prevent editor to read archive and logs ([#4584](https://github.com/botpress/botpress/issues/4584)) ([6a222f8](https://github.com/botpress/botpress/commit/6a222f8))
-* **core,studio,admin:** bot has no language ([#4562](https://github.com/botpress/botpress/issues/4562)) ([7329afb](https://github.com/botpress/botpress/commit/7329afb))
-* **hitl2:** fixed agent rules ([#4570](https://github.com/botpress/botpress/issues/4570)) ([be47867](https://github.com/botpress/botpress/commit/be47867))
-* **hitl2:** fixed infinite loading of agent live chat ([#4550](https://github.com/botpress/botpress/issues/4550))
-* **mig:** ensure strategy table exist before alter ([#4574](https://github.com/botpress/botpress/issues/4574)) ([2187ddc](https://github.com/botpress/botpress/commit/2187ddc))
-* **nlu:** intent clf picks exact match over svm ([#4576](https://github.com/botpress/botpress/issues/4576)) ([dfc79db](https://github.com/botpress/botpress/commit/dfc79db))
-* **nlu:** minor fixes to new recognizer ([#4566](https://github.com/botpress/botpress/issues/4566)) ([0e95e9d](https://github.com/botpress/botpress/commit/0e95e9d))
-* **nlu:** rbac on training ([#4568](https://github.com/botpress/botpress/issues/4568)) ([033e1b0](https://github.com/botpress/botpress/commit/033e1b0))
-* **nlu-core:** race condition on import ml toolkit ([#4564](https://github.com/botpress/botpress/issues/4564)) ([8cab437](https://github.com/botpress/botpress/commit/8cab437))
-* **studio:** show turns instead of value ([#4577](https://github.com/botpress/botpress/issues/4577)) ([6a14dbd](https://github.com/botpress/botpress/commit/6a14dbd))
-* **telemetry:** fix infinite loop when telemetry server is out of reach ([#4559](https://github.com/botpress/botpress/issues/4559))
+- **channel-web:** refactor of the webchat API ([#4578](https://github.com/botpress/botpress/issues/4578)) ([e9e9cad](https://github.com/botpress/botpress/commit/e9e9cad))
+- **channel-web:** unlock composer on conversation/session reset ([#4580](https://github.com/botpress/botpress/issues/4580)) ([430ef05](https://github.com/botpress/botpress/commit/430ef05))
+- **core:** changed dialog_sessions PK column size ([#4555](https://github.com/botpress/botpress/issues/4555)) ([cc28625](https://github.com/botpress/botpress/commit/cc28625))
+- **core:** prevent editor to read archive and logs ([#4584](https://github.com/botpress/botpress/issues/4584)) ([6a222f8](https://github.com/botpress/botpress/commit/6a222f8))
+- **core,studio,admin:** bot has no language ([#4562](https://github.com/botpress/botpress/issues/4562)) ([7329afb](https://github.com/botpress/botpress/commit/7329afb))
+- **hitl2:** fixed agent rules ([#4570](https://github.com/botpress/botpress/issues/4570)) ([be47867](https://github.com/botpress/botpress/commit/be47867))
+- **hitl2:** fixed infinite loading of agent live chat ([#4550](https://github.com/botpress/botpress/issues/4550))
+- **mig:** ensure strategy table exist before alter ([#4574](https://github.com/botpress/botpress/issues/4574)) ([2187ddc](https://github.com/botpress/botpress/commit/2187ddc))
+- **nlu:** intent clf picks exact match over svm ([#4576](https://github.com/botpress/botpress/issues/4576)) ([dfc79db](https://github.com/botpress/botpress/commit/dfc79db))
+- **nlu:** minor fixes to new recognizer ([#4566](https://github.com/botpress/botpress/issues/4566)) ([0e95e9d](https://github.com/botpress/botpress/commit/0e95e9d))
+- **nlu:** rbac on training ([#4568](https://github.com/botpress/botpress/issues/4568)) ([033e1b0](https://github.com/botpress/botpress/commit/033e1b0))
+- **nlu-core:** race condition on import ml toolkit ([#4564](https://github.com/botpress/botpress/issues/4564)) ([8cab437](https://github.com/botpress/botpress/commit/8cab437))
+- **studio:** show turns instead of value ([#4577](https://github.com/botpress/botpress/issues/4577)) ([6a14dbd](https://github.com/botpress/botpress/commit/6a14dbd))
+- **telemetry:** fix infinite loop when telemetry server is out of reach ([#4559](https://github.com/botpress/botpress/issues/4559))
 
 ### Features
 
-* **core:** better migration management ([#4530](https://github.com/botpress/botpress/issues/4530)) ([30ca8f2](https://github.com/botpress/botpress/commit/30ca8f2))
-* **core:** storage of jwt token in cookies ([#4554](https://github.com/botpress/botpress/issues/4554)) ([acf31a2](https://github.com/botpress/botpress/commit/acf31a2))
-* **nlu:** add support for MS Recognizer text ([#4540](https://github.com/botpress/botpress/issues/4540)) ([1162558](https://github.com/botpress/botpress/commit/1162558))
-
-
+- **core:** better migration management ([#4530](https://github.com/botpress/botpress/issues/4530)) ([30ca8f2](https://github.com/botpress/botpress/commit/30ca8f2))
+- **core:** storage of jwt token in cookies ([#4554](https://github.com/botpress/botpress/issues/4554)) ([acf31a2](https://github.com/botpress/botpress/commit/acf31a2))
+- **nlu:** add support for MS Recognizer text ([#4540](https://github.com/botpress/botpress/issues/4540)) ([1162558](https://github.com/botpress/botpress/commit/1162558))
 
 # [12.18.0](https://github.com/botpress/botpress/compare/v12.14.1...v12.18.0) (2021-02-26)
 
-
 ### Bug Fixes
 
-* **nlu:** check ram usage ([#4321](https://github.com/botpress/botpress/issues/4321)) ([4d1a202](https://github.com/botpress/botpress/commit/4d1a202))
-
+- **nlu:** check ram usage ([#4321](https://github.com/botpress/botpress/issues/4321)) ([4d1a202](https://github.com/botpress/botpress/commit/4d1a202))
 
 ### Features
 
-* **basic-skills:** Add dropdown option to single choice ([#4492](https://github.com/botpress/botpress/issues/4492)) ([a96787a](https://github.com/botpress/botpress/commit/a96787a))
-* **channel-web:** allow to disable notification sound ([#4535](https://github.com/botpress/botpress/issues/4535)) ([c759dc3](https://github.com/botpress/botpress/commit/c759dc3))
-* **code-editor:** add tab support to manage multiple files ([#4416](https://github.com/botpress/botpress/issues/4416)) ([9a53f86](https://github.com/botpress/botpress/commit/9a53f86))
-* **core:** improve security for tokens ([#4457](https://github.com/botpress/botpress/issues/4457)) ([4234aea](https://github.com/botpress/botpress/commit/4234aea))
-* **libraries:** shared libraries ([#4238](https://github.com/botpress/botpress/issues/4238)) ([b16fd36](https://github.com/botpress/botpress/commit/b16fd36))
-
-
+- **basic-skills:** Add dropdown option to single choice ([#4492](https://github.com/botpress/botpress/issues/4492)) ([a96787a](https://github.com/botpress/botpress/commit/a96787a))
+- **channel-web:** allow to disable notification sound ([#4535](https://github.com/botpress/botpress/issues/4535)) ([c759dc3](https://github.com/botpress/botpress/commit/c759dc3))
+- **code-editor:** add tab support to manage multiple files ([#4416](https://github.com/botpress/botpress/issues/4416)) ([9a53f86](https://github.com/botpress/botpress/commit/9a53f86))
+- **core:** improve security for tokens ([#4457](https://github.com/botpress/botpress/issues/4457)) ([4234aea](https://github.com/botpress/botpress/commit/4234aea))
+- **libraries:** shared libraries ([#4238](https://github.com/botpress/botpress/issues/4238)) ([b16fd36](https://github.com/botpress/botpress/commit/b16fd36))
 
 ## [12.17.2](https://github.com/botpress/botpress/compare/v12.14.1...v12.17.2) (2021-02-18)
 
-
 ### Bug Fixes
 
-* **api:** added missing async mw ([#4524](https://github.com/botpress/botpress/issues/4524)) ([7eb44d6](https://github.com/botpress/botpress/commit/7eb44d6))
-* **core:** changed details column to text ([#4513](https://github.com/botpress/botpress/issues/4513)) ([805092c](https://github.com/botpress/botpress/commit/805092c))
-* **core:** conflict between dialog sessions contexts on update ([#4493](https://github.com/botpress/botpress/issues/4493)) ([aa1328b](https://github.com/botpress/botpress/commit/aa1328b))
-* **core:** make sure column botId exists before doing migration ([#4526](https://github.com/botpress/botpress/issues/4526)) ([192d661](https://github.com/botpress/botpress/commit/192d661))
-* **core:** make sure migrations can be run multiple times ([#4531](https://github.com/botpress/botpress/issues/4531)) ([68679c6](https://github.com/botpress/botpress/commit/68679c6))
-* **hitlnext:** remove agent cache warmup ([#4527](https://github.com/botpress/botpress/issues/4527)) ([2d81241](https://github.com/botpress/botpress/commit/2d81241))
-* **pro:** Azure OAuth2 openID fix ([37475f0](https://github.com/botpress/botpress/commit/37475f0))
-* **studio:** update flow on link deletion ([#4502](https://github.com/botpress/botpress/issues/4502)) ([ada8a59](https://github.com/botpress/botpress/commit/ada8a59))
-* **webchat:** cleanup and fixed api ([#4523](https://github.com/botpress/botpress/issues/4523)) ([aedf08b](https://github.com/botpress/botpress/commit/aedf08b))
-
+- **api:** added missing async mw ([#4524](https://github.com/botpress/botpress/issues/4524)) ([7eb44d6](https://github.com/botpress/botpress/commit/7eb44d6))
+- **core:** changed details column to text ([#4513](https://github.com/botpress/botpress/issues/4513)) ([805092c](https://github.com/botpress/botpress/commit/805092c))
+- **core:** conflict between dialog sessions contexts on update ([#4493](https://github.com/botpress/botpress/issues/4493)) ([aa1328b](https://github.com/botpress/botpress/commit/aa1328b))
+- **core:** make sure column botId exists before doing migration ([#4526](https://github.com/botpress/botpress/issues/4526)) ([192d661](https://github.com/botpress/botpress/commit/192d661))
+- **core:** make sure migrations can be run multiple times ([#4531](https://github.com/botpress/botpress/issues/4531)) ([68679c6](https://github.com/botpress/botpress/commit/68679c6))
+- **hitlnext:** remove agent cache warmup ([#4527](https://github.com/botpress/botpress/issues/4527)) ([2d81241](https://github.com/botpress/botpress/commit/2d81241))
+- **pro:** Azure OAuth2 openID fix ([37475f0](https://github.com/botpress/botpress/commit/37475f0))
+- **studio:** update flow on link deletion ([#4502](https://github.com/botpress/botpress/issues/4502)) ([ada8a59](https://github.com/botpress/botpress/commit/ada8a59))
+- **webchat:** cleanup and fixed api ([#4523](https://github.com/botpress/botpress/issues/4523)) ([aedf08b](https://github.com/botpress/botpress/commit/aedf08b))
 
 ### Features
 
-* **channel-teams:** add support for proactive messages ([#4466](https://github.com/botpress/botpress/issues/4466)) ([1966aba](https://github.com/botpress/botpress/commit/1966aba))
-* **qna:** default text enables markdown ([#4477](https://github.com/botpress/botpress/issues/4477)) ([33ecc63](https://github.com/botpress/botpress/commit/33ecc63))
-* **studio:** default empty transition on new nodes ([#4478](https://github.com/botpress/botpress/issues/4478)) ([82bc1f9](https://github.com/botpress/botpress/commit/82bc1f9))
-
-
+- **channel-teams:** add support for proactive messages ([#4466](https://github.com/botpress/botpress/issues/4466)) ([1966aba](https://github.com/botpress/botpress/commit/1966aba))
+- **qna:** default text enables markdown ([#4477](https://github.com/botpress/botpress/issues/4477)) ([33ecc63](https://github.com/botpress/botpress/commit/33ecc63))
+- **studio:** default empty transition on new nodes ([#4478](https://github.com/botpress/botpress/issues/4478)) ([82bc1f9](https://github.com/botpress/botpress/commit/82bc1f9))
 
 ## [12.17.1](https://github.com/botpress/botpress/compare/v12.14.1...v12.17.1) (2021-02-09)
 
-
 ### Bug Fixes
 
-* **admin:** hide token by default ([#4456](https://github.com/botpress/botpress/issues/4456)) ([ea27d74](https://github.com/botpress/botpress/commit/ea27d74))
-* **admin:** update pipeline configs on props change ([#4481](https://github.com/botpress/botpress/issues/4481)) ([5eedb23](https://github.com/botpress/botpress/commit/5eedb23))
-* **core:** delete all expired sessions ([#4454](https://github.com/botpress/botpress/issues/4454)) ([1d85565](https://github.com/botpress/botpress/commit/1d85565))
-* **core:** save every content elements to file ([#4458](https://github.com/botpress/botpress/issues/4458)) ([39cefa1](https://github.com/botpress/botpress/commit/39cefa1))
-* **docs:** Add new oauth2 tutorials to sidebar ([#4491](https://github.com/botpress/botpress/issues/4491)) ([3607676](https://github.com/botpress/botpress/commit/3607676))
-* **misunderstood:** emulator overlapping misunderstood buttons ([#4473](https://github.com/botpress/botpress/issues/4473)) ([59ecfd0](https://github.com/botpress/botpress/commit/59ecfd0))
-* **nlu:** bring back debugging during training ([#4479](https://github.com/botpress/botpress/issues/4479)) ([8d082be](https://github.com/botpress/botpress/commit/8d082be))
-* **nlu:** handle unexpected process exit ([#4488](https://github.com/botpress/botpress/issues/4488)) ([bc02691](https://github.com/botpress/botpress/commit/bc02691))
-* **studio:** emulator push content to the left when open ([#4487](https://github.com/botpress/botpress/issues/4487)) ([72cd3e3](https://github.com/botpress/botpress/commit/72cd3e3))
-
-
+- **admin:** hide token by default ([#4456](https://github.com/botpress/botpress/issues/4456)) ([ea27d74](https://github.com/botpress/botpress/commit/ea27d74))
+- **admin:** update pipeline configs on props change ([#4481](https://github.com/botpress/botpress/issues/4481)) ([5eedb23](https://github.com/botpress/botpress/commit/5eedb23))
+- **core:** delete all expired sessions ([#4454](https://github.com/botpress/botpress/issues/4454)) ([1d85565](https://github.com/botpress/botpress/commit/1d85565))
+- **core:** save every content elements to file ([#4458](https://github.com/botpress/botpress/issues/4458)) ([39cefa1](https://github.com/botpress/botpress/commit/39cefa1))
+- **docs:** Add new oauth2 tutorials to sidebar ([#4491](https://github.com/botpress/botpress/issues/4491)) ([3607676](https://github.com/botpress/botpress/commit/3607676))
+- **misunderstood:** emulator overlapping misunderstood buttons ([#4473](https://github.com/botpress/botpress/issues/4473)) ([59ecfd0](https://github.com/botpress/botpress/commit/59ecfd0))
+- **nlu:** bring back debugging during training ([#4479](https://github.com/botpress/botpress/issues/4479)) ([8d082be](https://github.com/botpress/botpress/commit/8d082be))
+- **nlu:** handle unexpected process exit ([#4488](https://github.com/botpress/botpress/issues/4488)) ([bc02691](https://github.com/botpress/botpress/commit/bc02691))
+- **studio:** emulator push content to the left when open ([#4487](https://github.com/botpress/botpress/issues/4487)) ([72cd3e3](https://github.com/botpress/botpress/commit/72cd3e3))
 
 # [12.17.0](https://github.com/botpress/botpress/compare/v12.14.1...v12.17.0) (2021-01-29)
 
-
 ### Bug Fixes
 
-* **hitl2:** allow multilang transfer/assign messages ([#4428](https://github.com/botpress/botpress/issues/4428)) ([f5ff84a](https://github.com/botpress/botpress/commit/f5ff84a))
-* **hitl2:** fetchShortcuts being called infinitely ([#4431](https://github.com/botpress/botpress/issues/4431)) ([e780e9d](https://github.com/botpress/botpress/commit/e780e9d))
-* **hitl2:** properly show username when set ([#4432](https://github.com/botpress/botpress/issues/4432)) ([65c4b47](https://github.com/botpress/botpress/commit/65c4b47))
-* **hitl2:** set correct agent attributes ([#4450](https://github.com/botpress/botpress/issues/4450)) ([2345ae9](https://github.com/botpress/botpress/commit/2345ae9))
-* **hitlnext:** incorrect bootstrap sequence ([#4407](https://github.com/botpress/botpress/issues/4407)) ([11b611f](https://github.com/botpress/botpress/commit/11b611f))
-* **misunderstood:** display convo on date range change ([#4424](https://github.com/botpress/botpress/issues/4424)) ([92cb8bb](https://github.com/botpress/botpress/commit/92cb8bb))
-* **misunderstood:** hide reset button on done list ([#4423](https://github.com/botpress/botpress/issues/4423)) ([da35caa](https://github.com/botpress/botpress/commit/da35caa))
-* **misunderstood:** remove listener on module unmount ([#4425](https://github.com/botpress/botpress/issues/4425)) ([81cc1da](https://github.com/botpress/botpress/commit/81cc1da))
-* **webchat:** last heard on not updated correctly ([#4448](https://github.com/botpress/botpress/issues/4448)) ([15de959](https://github.com/botpress/botpress/commit/15de959))
-
+- **hitl2:** allow multilang transfer/assign messages ([#4428](https://github.com/botpress/botpress/issues/4428)) ([f5ff84a](https://github.com/botpress/botpress/commit/f5ff84a))
+- **hitl2:** fetchShortcuts being called infinitely ([#4431](https://github.com/botpress/botpress/issues/4431)) ([e780e9d](https://github.com/botpress/botpress/commit/e780e9d))
+- **hitl2:** properly show username when set ([#4432](https://github.com/botpress/botpress/issues/4432)) ([65c4b47](https://github.com/botpress/botpress/commit/65c4b47))
+- **hitl2:** set correct agent attributes ([#4450](https://github.com/botpress/botpress/issues/4450)) ([2345ae9](https://github.com/botpress/botpress/commit/2345ae9))
+- **hitlnext:** incorrect bootstrap sequence ([#4407](https://github.com/botpress/botpress/issues/4407)) ([11b611f](https://github.com/botpress/botpress/commit/11b611f))
+- **misunderstood:** display convo on date range change ([#4424](https://github.com/botpress/botpress/issues/4424)) ([92cb8bb](https://github.com/botpress/botpress/commit/92cb8bb))
+- **misunderstood:** hide reset button on done list ([#4423](https://github.com/botpress/botpress/issues/4423)) ([da35caa](https://github.com/botpress/botpress/commit/da35caa))
+- **misunderstood:** remove listener on module unmount ([#4425](https://github.com/botpress/botpress/issues/4425)) ([81cc1da](https://github.com/botpress/botpress/commit/81cc1da))
+- **webchat:** last heard on not updated correctly ([#4448](https://github.com/botpress/botpress/issues/4448)) ([15de959](https://github.com/botpress/botpress/commit/15de959))
 
 ### Features
 
-* **admin:** added the needs training warning in the pipeline view ([#4419](https://github.com/botpress/botpress/issues/4419)) ([8be7e60](https://github.com/botpress/botpress/commit/8be7e60))
-* **admin:** allow user to set profile picture ([#4417](https://github.com/botpress/botpress/issues/4417)) ([14481c9](https://github.com/botpress/botpress/commit/14481c9))
-* **core:** make global media storage available ([#4405](https://github.com/botpress/botpress/issues/4405)) ([9783d82](https://github.com/botpress/botpress/commit/9783d82))
-
-
+- **admin:** added the needs training warning in the pipeline view ([#4419](https://github.com/botpress/botpress/issues/4419)) ([8be7e60](https://github.com/botpress/botpress/commit/8be7e60))
+- **admin:** allow user to set profile picture ([#4417](https://github.com/botpress/botpress/issues/4417)) ([14481c9](https://github.com/botpress/botpress/commit/14481c9))
+- **core:** make global media storage available ([#4405](https://github.com/botpress/botpress/issues/4405)) ([9783d82](https://github.com/botpress/botpress/commit/9783d82))
 
 ## [12.16.3](https://github.com/botpress/botpress/compare/v12.14.1...v12.16.3) (2021-01-22)
 
-
 ### Bug Fixes
 
-* **broadcast:** set proper timezone and take botId into account ([#4388](https://github.com/botpress/botpress/issues/4388)) ([e97ff44](https://github.com/botpress/botpress/commit/e97ff44))
-* **builtin:** ResetSession - Dont remove workflows ([#4365](https://github.com/botpress/botpress/issues/4365)) ([0509ac8](https://github.com/botpress/botpress/commit/0509ac8))
-* **channel-messenger:** add page id as event thread id ([#4396](https://github.com/botpress/botpress/issues/4396)) ([b4b128c](https://github.com/botpress/botpress/commit/b4b128c))
-* **channel-messenger:** added config to disable api actions ([#4376](https://github.com/botpress/botpress/issues/4376)) ([d5c1ea2](https://github.com/botpress/botpress/commit/d5c1ea2))
-* **channel-web:** delete conversation button wrong action ([#4367](https://github.com/botpress/botpress/issues/4367)) ([f2f2dbe](https://github.com/botpress/botpress/commit/f2f2dbe))
-* **channel-web:** remove custom action on component unmount ([#4368](https://github.com/botpress/botpress/issues/4368)) ([d1c4b28](https://github.com/botpress/botpress/commit/d1c4b28))
-* **channel-web:** wrong intl id ([#4369](https://github.com/botpress/botpress/issues/4369)) ([556f4e8](https://github.com/botpress/botpress/commit/556f4e8))
-* **core:** conflict between dialog_sessions ids ([#4394](https://github.com/botpress/botpress/issues/4394)) ([262ab08](https://github.com/botpress/botpress/commit/262ab08))
-* **core:** conflict between session ids ([#4375](https://github.com/botpress/botpress/issues/4375)) ([0824eb9](https://github.com/botpress/botpress/commit/0824eb9))
-* **core:** use gzip compression for responses ([#4385](https://github.com/botpress/botpress/issues/4385)) ([a4677ec](https://github.com/botpress/botpress/commit/a4677ec))
-* **core:** wrong import path ([#4363](https://github.com/botpress/botpress/issues/4363)) ([ae88195](https://github.com/botpress/botpress/commit/ae88195))
-* **hitl2:** stringify tags with postgresql ([#4391](https://github.com/botpress/botpress/issues/4391)) ([78e215c](https://github.com/botpress/botpress/commit/78e215c))
-* **nlu:** warn of duplication on synonym removal ([#4387](https://github.com/botpress/botpress/issues/4387)) ([09da1ec](https://github.com/botpress/botpress/commit/09da1ec))
-
+- **broadcast:** set proper timezone and take botId into account ([#4388](https://github.com/botpress/botpress/issues/4388)) ([e97ff44](https://github.com/botpress/botpress/commit/e97ff44))
+- **builtin:** ResetSession - Dont remove workflows ([#4365](https://github.com/botpress/botpress/issues/4365)) ([0509ac8](https://github.com/botpress/botpress/commit/0509ac8))
+- **channel-messenger:** add page id as event thread id ([#4396](https://github.com/botpress/botpress/issues/4396)) ([b4b128c](https://github.com/botpress/botpress/commit/b4b128c))
+- **channel-messenger:** added config to disable api actions ([#4376](https://github.com/botpress/botpress/issues/4376)) ([d5c1ea2](https://github.com/botpress/botpress/commit/d5c1ea2))
+- **channel-web:** delete conversation button wrong action ([#4367](https://github.com/botpress/botpress/issues/4367)) ([f2f2dbe](https://github.com/botpress/botpress/commit/f2f2dbe))
+- **channel-web:** remove custom action on component unmount ([#4368](https://github.com/botpress/botpress/issues/4368)) ([d1c4b28](https://github.com/botpress/botpress/commit/d1c4b28))
+- **channel-web:** wrong intl id ([#4369](https://github.com/botpress/botpress/issues/4369)) ([556f4e8](https://github.com/botpress/botpress/commit/556f4e8))
+- **core:** conflict between dialog_sessions ids ([#4394](https://github.com/botpress/botpress/issues/4394)) ([262ab08](https://github.com/botpress/botpress/commit/262ab08))
+- **core:** conflict between session ids ([#4375](https://github.com/botpress/botpress/issues/4375)) ([0824eb9](https://github.com/botpress/botpress/commit/0824eb9))
+- **core:** use gzip compression for responses ([#4385](https://github.com/botpress/botpress/issues/4385)) ([a4677ec](https://github.com/botpress/botpress/commit/a4677ec))
+- **core:** wrong import path ([#4363](https://github.com/botpress/botpress/issues/4363)) ([ae88195](https://github.com/botpress/botpress/commit/ae88195))
+- **hitl2:** stringify tags with postgresql ([#4391](https://github.com/botpress/botpress/issues/4391)) ([78e215c](https://github.com/botpress/botpress/commit/78e215c))
+- **nlu:** warn of duplication on synonym removal ([#4387](https://github.com/botpress/botpress/issues/4387)) ([09da1ec](https://github.com/botpress/botpress/commit/09da1ec))
 
 ### Features
 
-* **qna:** display count when expanding ([#4364](https://github.com/botpress/botpress/issues/4364)) ([b2f13de](https://github.com/botpress/botpress/commit/b2f13de))
-* **studio:** enable multi-point connectors ([#4386](https://github.com/botpress/botpress/issues/4386)) ([f711c9b](https://github.com/botpress/botpress/commit/f711c9b))
-
-
+- **qna:** display count when expanding ([#4364](https://github.com/botpress/botpress/issues/4364)) ([b2f13de](https://github.com/botpress/botpress/commit/b2f13de))
+- **studio:** enable multi-point connectors ([#4386](https://github.com/botpress/botpress/issues/4386)) ([f711c9b](https://github.com/botpress/botpress/commit/f711c9b))
 
 ## [12.16.2](https://github.com/botpress/botpress/compare/v12.14.1...v12.16.2) (2021-01-12)
 
-
 ### Bug Fixes
 
-* **channel-web:** disable conversation deletion by default ([#4357](https://github.com/botpress/botpress/issues/4357)) ([da9434d](https://github.com/botpress/botpress/commit/da9434d))
-* **core:** migrate srv_migrations details to text ([#4354](https://github.com/botpress/botpress/issues/4354)) ([8ebb27c](https://github.com/botpress/botpress/commit/8ebb27c))
-* **studio:** single choice content type usage points to proper node ([#4355](https://github.com/botpress/botpress/issues/4355)) ([a9d5f64](https://github.com/botpress/botpress/commit/a9d5f64))
-
-
+- **channel-web:** disable conversation deletion by default ([#4357](https://github.com/botpress/botpress/issues/4357)) ([da9434d](https://github.com/botpress/botpress/commit/da9434d))
+- **core:** migrate srv_migrations details to text ([#4354](https://github.com/botpress/botpress/issues/4354)) ([8ebb27c](https://github.com/botpress/botpress/commit/8ebb27c))
+- **studio:** single choice content type usage points to proper node ([#4355](https://github.com/botpress/botpress/issues/4355)) ([a9d5f64](https://github.com/botpress/botpress/commit/a9d5f64))
 
 ## [12.16.1](https://github.com/botpress/botpress/compare/v12.14.1...v12.16.1) (2021-01-11)
 
-
 ### Bug Fixes
 
-* **misunderstood:** proper constraint migration ([#4351](https://github.com/botpress/botpress/issues/4351)) ([acf046a](https://github.com/botpress/botpress/commit/acf046a))
-* **qna:** contexts filtering list not being refreshed ([#4350](https://github.com/botpress/botpress/commit/33cc0d8b7a232027ab6f2ef714602bdb45245a26))
-
-
+- **misunderstood:** proper constraint migration ([#4351](https://github.com/botpress/botpress/issues/4351)) ([acf046a](https://github.com/botpress/botpress/commit/acf046a))
+- **qna:** contexts filtering list not being refreshed ([#4350](https://github.com/botpress/botpress/commit/33cc0d8b7a232027ab6f2ef714602bdb45245a26))
 
 # [12.16.0](https://github.com/botpress/botpress/compare/v12.14.1...v12.16.0) (2021-01-08)
 
-
 ### Bug Fixes
 
-* **channel-web:** display spinner when webchat is loading ([#4342](https://github.com/botpress/botpress/issues/4342)) ([4f4bbc3](https://github.com/botpress/botpress/commit/4f4bbc3))
-* **channel-web:** missing message border ([#4348](https://github.com/botpress/botpress/issues/4348)) ([9931698](https://github.com/botpress/botpress/commit/9931698))
-* **core:** api.rest example ([#4339](https://github.com/botpress/botpress/issues/4339)) ([5f8d189](https://github.com/botpress/botpress/commit/5f8d189))
-* **hitl2:** missing tags column ([#4345](https://github.com/botpress/botpress/issues/4345)) ([1bad531](https://github.com/botpress/botpress/commit/1bad531))
-* **misunderstood:** moved migration ([#4349](https://github.com/botpress/botpress/issues/4349)) ([08a35f2](https://github.com/botpress/botpress/commit/08a35f2))
-* **nlu:** no more weird debounce that override other intents ([#4317](https://github.com/botpress/botpress/issues/4317)) ([632c6ac](https://github.com/botpress/botpress/commit/632c6ac))
-
+- **channel-web:** display spinner when webchat is loading ([#4342](https://github.com/botpress/botpress/issues/4342)) ([4f4bbc3](https://github.com/botpress/botpress/commit/4f4bbc3))
+- **channel-web:** missing message border ([#4348](https://github.com/botpress/botpress/issues/4348)) ([9931698](https://github.com/botpress/botpress/commit/9931698))
+- **core:** api.rest example ([#4339](https://github.com/botpress/botpress/issues/4339)) ([5f8d189](https://github.com/botpress/botpress/commit/5f8d189))
+- **hitl2:** missing tags column ([#4345](https://github.com/botpress/botpress/issues/4345)) ([1bad531](https://github.com/botpress/botpress/commit/1bad531))
+- **misunderstood:** moved migration ([#4349](https://github.com/botpress/botpress/issues/4349)) ([08a35f2](https://github.com/botpress/botpress/commit/08a35f2))
+- **nlu:** no more weird debounce that override other intents ([#4317](https://github.com/botpress/botpress/issues/4317)) ([632c6ac](https://github.com/botpress/botpress/commit/632c6ac))
 
 ### Features
 
-
-* channel twilio ([#4263](https://github.com/botpress/botpress/issues/4263)) ([8e26207](https://github.com/botpress/botpress/commit/8e26207)), closes [#4314](https://github.com/botpress/botpress/issues/4314) [#4320](https://github.com/botpress/botpress/issues/4320)
-* **qna:** add sorting of contexts list ([#4328](https://github.com/botpress/botpress/pull/4328))
-* **channel-web:** delete conversation ([#4289](https://github.com/botpress/botpress/issues/4289)) ([742e28e](https://github.com/botpress/botpress/commit/742e28e)), closes [#4303](https://github.com/botpress/botpress/issues/4303)
-* **code-editor:** add sorting of code editor files list ([#4338](https://github.com/botpress/botpress/issues/4338)) ([bd40eed](https://github.com/botpress/botpress/commit/bd40eed))
-* **hitl2:** delete conversation button ([#4288](https://github.com/botpress/botpress/issues/4288)) ([65e7d66](https://github.com/botpress/botpress/commit/65e7d66))
-* **hitl2:** shortcuts ([#4315](https://github.com/botpress/botpress/issues/4315)) ([54068b6](https://github.com/botpress/botpress/commit/54068b6))
-* **misunderstood:** add thumbs down filter ([#4310](https://github.com/botpress/botpress/issues/4310)) ([8604354](https://github.com/botpress/botpress/commit/8604354))
-* **stan:** complete new API ([#4312](https://github.com/botpress/botpress/issues/4312)) ([b27583f](https://github.com/botpress/botpress/commit/b27583f))
-* **stan:** get stan ready for launch ([#4341](https://github.com/botpress/botpress/issues/4341)) ([793b9f7](https://github.com/botpress/botpress/commit/793b9f7))
-* **studio:** allow URL or variable as image ([#4322](https://github.com/botpress/botpress/issues/4322)) ([19167fa](https://github.com/botpress/botpress/commit/19167fa))
-
-
+- channel twilio ([#4263](https://github.com/botpress/botpress/issues/4263)) ([8e26207](https://github.com/botpress/botpress/commit/8e26207)), closes [#4314](https://github.com/botpress/botpress/issues/4314) [#4320](https://github.com/botpress/botpress/issues/4320)
+- **qna:** add sorting of contexts list ([#4328](https://github.com/botpress/botpress/pull/4328))
+- **channel-web:** delete conversation ([#4289](https://github.com/botpress/botpress/issues/4289)) ([742e28e](https://github.com/botpress/botpress/commit/742e28e)), closes [#4303](https://github.com/botpress/botpress/issues/4303)
+- **code-editor:** add sorting of code editor files list ([#4338](https://github.com/botpress/botpress/issues/4338)) ([bd40eed](https://github.com/botpress/botpress/commit/bd40eed))
+- **hitl2:** delete conversation button ([#4288](https://github.com/botpress/botpress/issues/4288)) ([65e7d66](https://github.com/botpress/botpress/commit/65e7d66))
+- **hitl2:** shortcuts ([#4315](https://github.com/botpress/botpress/issues/4315)) ([54068b6](https://github.com/botpress/botpress/commit/54068b6))
+- **misunderstood:** add thumbs down filter ([#4310](https://github.com/botpress/botpress/issues/4310)) ([8604354](https://github.com/botpress/botpress/commit/8604354))
+- **stan:** complete new API ([#4312](https://github.com/botpress/botpress/issues/4312)) ([b27583f](https://github.com/botpress/botpress/commit/b27583f))
+- **stan:** get stan ready for launch ([#4341](https://github.com/botpress/botpress/issues/4341)) ([793b9f7](https://github.com/botpress/botpress/commit/793b9f7))
+- **studio:** allow URL or variable as image ([#4322](https://github.com/botpress/botpress/issues/4322)) ([19167fa](https://github.com/botpress/botpress/commit/19167fa))
 
 ## [12.15.2](https://github.com/botpress/botpress/compare/v12.14.1...v12.15.2) (2020-12-15)
 
-
 ### Bug Fixes
 
-* **core:** various improvements for archives ([#4281](https://github.com/botpress/botpress/issues/4281)) ([b3ef9da](https://github.com/botpress/botpress/commit/b3ef9da))
-
+- **core:** various improvements for archives ([#4281](https://github.com/botpress/botpress/issues/4281)) ([b3ef9da](https://github.com/botpress/botpress/commit/b3ef9da))
 
 ### Features
 
-* **core:** set any botpress config from env var ([#4300](https://github.com/botpress/botpress/issues/4300)) ([3d5f3c0](https://github.com/botpress/botpress/commit/3d5f3c0))
-* **nlu:** training button trains current studio lang ([#4286](https://github.com/botpress/botpress/issues/4286)) ([ed2aaf0](https://github.com/botpress/botpress/commit/ed2aaf0))
-
-
+- **core:** set any botpress config from env var ([#4300](https://github.com/botpress/botpress/issues/4300)) ([3d5f3c0](https://github.com/botpress/botpress/commit/3d5f3c0))
+- **nlu:** training button trains current studio lang ([#4286](https://github.com/botpress/botpress/issues/4286)) ([ed2aaf0](https://github.com/botpress/botpress/commit/ed2aaf0))
 
 ## [12.15.1](https://github.com/botpress/botpress/compare/v12.14.1...v12.15.1) (2020-12-09)
 
-
 ### Bug Fixes
 
-* **debugger:** add settings page ([#4272](https://github.com/botpress/botpress/issues/4272)) ([a96829b](https://github.com/botpress/botpress/commit/a96829b))
-* **doc:** Typo ([4427ab7](https://github.com/botpress/botpress/commit/4427ab7))
-* **extensions:** remove hardcoded placeholder of the dropdwon ([#3583](https://github.com/botpress/botpress/issues/3583)) ([046c02a](https://github.com/botpress/botpress/commit/046c02a))
-* **extensions:** use markdown in dropdown element ([#4089](https://github.com/botpress/botpress/issues/4089)) ([#4254](https://github.com/botpress/botpress/issues/4254)) ([c95811c](https://github.com/botpress/botpress/commit/c95811c))
-* **hitl:** missing dependency ([#4285](https://github.com/botpress/botpress/issues/4285)) ([d3683f7](https://github.com/botpress/botpress/commit/d3683f7))
-* **nlu:** unload model from engine when bot unmount ([#4277](https://github.com/botpress/botpress/issues/4277)) ([b64e11f](https://github.com/botpress/botpress/commit/b64e11f))
-* **nlu:** vocab tokenizer should not return empty string ([#4283](https://github.com/botpress/botpress/issues/4283)) ([fe896c3](https://github.com/botpress/botpress/commit/fe896c3))
-* **studio:** move flow problem / lock status ([#4278](https://github.com/botpress/botpress/issues/4278)) ([8d9c99f](https://github.com/botpress/botpress/commit/8d9c99f))
-
+- **debugger:** add settings page ([#4272](https://github.com/botpress/botpress/issues/4272)) ([a96829b](https://github.com/botpress/botpress/commit/a96829b))
+- **doc:** Typo ([4427ab7](https://github.com/botpress/botpress/commit/4427ab7))
+- **extensions:** remove hardcoded placeholder of the dropdwon ([#3583](https://github.com/botpress/botpress/issues/3583)) ([046c02a](https://github.com/botpress/botpress/commit/046c02a))
+- **extensions:** use markdown in dropdown element ([#4089](https://github.com/botpress/botpress/issues/4089)) ([#4254](https://github.com/botpress/botpress/issues/4254)) ([c95811c](https://github.com/botpress/botpress/commit/c95811c))
+- **hitl:** missing dependency ([#4285](https://github.com/botpress/botpress/issues/4285)) ([d3683f7](https://github.com/botpress/botpress/commit/d3683f7))
+- **nlu:** unload model from engine when bot unmount ([#4277](https://github.com/botpress/botpress/issues/4277)) ([b64e11f](https://github.com/botpress/botpress/commit/b64e11f))
+- **nlu:** vocab tokenizer should not return empty string ([#4283](https://github.com/botpress/botpress/issues/4283)) ([fe896c3](https://github.com/botpress/botpress/commit/fe896c3))
+- **studio:** move flow problem / lock status ([#4278](https://github.com/botpress/botpress/issues/4278)) ([8d9c99f](https://github.com/botpress/botpress/commit/8d9c99f))
 
 ### Features
 
-* **channel-web:** disable free text when we use choices ([#3576](https://github.com/botpress/botpress/issues/3576)) ([1554343](https://github.com/botpress/botpress/commit/1554343))
-* **misunderstood:** add date filter ([#4258](https://github.com/botpress/botpress/issues/4258)) ([53f6318](https://github.com/botpress/botpress/commit/53f6318))
-
-
+- **channel-web:** disable free text when we use choices ([#3576](https://github.com/botpress/botpress/issues/3576)) ([1554343](https://github.com/botpress/botpress/commit/1554343))
+- **misunderstood:** add date filter ([#4258](https://github.com/botpress/botpress/issues/4258)) ([53f6318](https://github.com/botpress/botpress/commit/53f6318))
 
 # [12.15.0](https://github.com/botpress/botpress/compare/v12.14.1...v12.15.0) (2020-12-08)
 
-
 ### Bug Fixes
 
-* **admin:** render needs training only if nlu module is enabled ([#4269](https://github.com/botpress/botpress/issues/4269)) ([dafa9ad](https://github.com/botpress/botpress/commit/dafa9ad))
-* **channel-messenger:** handle errors when enabling messenger ([#4080](https://github.com/botpress/botpress/issues/4080)) ([#4261](https://github.com/botpress/botpress/issues/4261)) ([32b332f](https://github.com/botpress/botpress/commit/32b332f))
-* **core:** deprecate set attributes ([#4255](https://github.com/botpress/botpress/issues/4255)) ([02ea1cc](https://github.com/botpress/botpress/commit/02ea1cc))
-* **core:** opt-in fix for vm context mem leak ([#4268](https://github.com/botpress/botpress/issues/4268)) ([615cceb](https://github.com/botpress/botpress/commit/615cceb))
-* **dev:** lint ([#4264](https://github.com/botpress/botpress/issues/4264)) ([8b99b01](https://github.com/botpress/botpress/commit/8b99b01))
-* **extensions:** use markdown in dropdown element ([#4089](https://github.com/botpress/botpress/issues/4089)) ([#4254](https://github.com/botpress/botpress/issues/4254)) ([c95811c](https://github.com/botpress/botpress/commit/c95811c))
-* **studio:** width of emulator ([#4259](https://github.com/botpress/botpress/issues/4259)) ([e4fa004](https://github.com/botpress/botpress/commit/e4fa004))
-
+- **admin:** render needs training only if nlu module is enabled ([#4269](https://github.com/botpress/botpress/issues/4269)) ([dafa9ad](https://github.com/botpress/botpress/commit/dafa9ad))
+- **channel-messenger:** handle errors when enabling messenger ([#4080](https://github.com/botpress/botpress/issues/4080)) ([#4261](https://github.com/botpress/botpress/issues/4261)) ([32b332f](https://github.com/botpress/botpress/commit/32b332f))
+- **core:** deprecate set attributes ([#4255](https://github.com/botpress/botpress/issues/4255)) ([02ea1cc](https://github.com/botpress/botpress/commit/02ea1cc))
+- **core:** opt-in fix for vm context mem leak ([#4268](https://github.com/botpress/botpress/issues/4268)) ([615cceb](https://github.com/botpress/botpress/commit/615cceb))
+- **dev:** lint ([#4264](https://github.com/botpress/botpress/issues/4264)) ([8b99b01](https://github.com/botpress/botpress/commit/8b99b01))
+- **extensions:** use markdown in dropdown element ([#4089](https://github.com/botpress/botpress/issues/4089)) ([#4254](https://github.com/botpress/botpress/issues/4254)) ([c95811c](https://github.com/botpress/botpress/commit/c95811c))
+- **studio:** width of emulator ([#4259](https://github.com/botpress/botpress/issues/4259)) ([e4fa004](https://github.com/botpress/botpress/commit/e4fa004))
 
 ### Features
 
-* **dx:** allow packaging only one module ([#4275](https://github.com/botpress/botpress/issues/4275)) ([c089772](https://github.com/botpress/botpress/commit/c089772))
-* **hitl2:** Create HITL2 module ([#4115](https://github.com/botpress/botpress/issues/4115)) ([a82f858](https://github.com/botpress/botpress/commit/a82f858))
-* **studio:** inspect tool for devs ([#4183](https://github.com/botpress/botpress/issues/4183)) ([e33d0b6](https://github.com/botpress/botpress/commit/e33d0b6))
-
-
+- **dx:** allow packaging only one module ([#4275](https://github.com/botpress/botpress/issues/4275)) ([c089772](https://github.com/botpress/botpress/commit/c089772))
+- **hitl2:** Create HITL2 module ([#4115](https://github.com/botpress/botpress/issues/4115)) ([a82f858](https://github.com/botpress/botpress/commit/a82f858))
+- **studio:** inspect tool for devs ([#4183](https://github.com/botpress/botpress/issues/4183)) ([e33d0b6](https://github.com/botpress/botpress/commit/e33d0b6))
 
 ## [12.14.2](https://github.com/botpress/botpress/compare/v12.14.1...v12.14.2) (2020-12-03)
 
-
 ### Bug Fixes
 
-* **channel-messenger:** handle errors when enabling messenger ([#4080](https://github.com/botpress/botpress/issues/4080)) ([#4261](https://github.com/botpress/botpress/issues/4261)) ([32b332f](https://github.com/botpress/botpress/commit/32b332f))
-* **core:** deprecate set attributes ([#4255](https://github.com/botpress/botpress/issues/4255)) ([02ea1cc](https://github.com/botpress/botpress/commit/02ea1cc))
-* **studio:** width of emulator ([#4259](https://github.com/botpress/botpress/issues/4259)) ([e4fa004](https://github.com/botpress/botpress/commit/e4fa004))
-* **studio:** default emulator avatar style ([#4256](https://github.com/botpress/botpress/pull/4256))
-
-
+- **channel-messenger:** handle errors when enabling messenger ([#4080](https://github.com/botpress/botpress/issues/4080)) ([#4261](https://github.com/botpress/botpress/issues/4261)) ([32b332f](https://github.com/botpress/botpress/commit/32b332f))
+- **core:** deprecate set attributes ([#4255](https://github.com/botpress/botpress/issues/4255)) ([02ea1cc](https://github.com/botpress/botpress/commit/02ea1cc))
+- **studio:** width of emulator ([#4259](https://github.com/botpress/botpress/issues/4259)) ([e4fa004](https://github.com/botpress/botpress/commit/e4fa004))
+- **studio:** default emulator avatar style ([#4256](https://github.com/botpress/botpress/pull/4256))
 
 ## [12.14.1](https://github.com/botpress/botpress/compare/v12.13.2...v12.14.1) (2020-12-02)
 
-
 ### Bug Fixes
 
-* **channel-web:** revert minimum user id length ([#4251](https://github.com/botpress/botpress/issues/4251)) ([125dac1](https://github.com/botpress/botpress/commit/125dac1))
-* **core:** logs panel no longer cleared ([#4252](https://github.com/botpress/botpress/issues/4252)) ([cc7909f](https://github.com/botpress/botpress/commit/cc7909f))
-* **telemetry:** negative limit not supported in pg ([#4233](https://github.com/botpress/botpress/issues/4233)) ([6577f2c](https://github.com/botpress/botpress/commit/6577f2c))
-
-
+- **channel-web:** revert minimum user id length ([#4251](https://github.com/botpress/botpress/issues/4251)) ([125dac1](https://github.com/botpress/botpress/commit/125dac1))
+- **core:** logs panel no longer cleared ([#4252](https://github.com/botpress/botpress/issues/4252)) ([cc7909f](https://github.com/botpress/botpress/commit/cc7909f))
+- **telemetry:** negative limit not supported in pg ([#4233](https://github.com/botpress/botpress/issues/4233)) ([6577f2c](https://github.com/botpress/botpress/commit/6577f2c))
 
 # [12.14.0](https://github.com/botpress/botpress/compare/v12.13.2...v12.14.0) (2020-11-29)
 
-
 ### Bug Fixes
 
-* **nlu:** rm special three dots char as it messes up sentencepiece post processing ([#4229](https://github.com/botpress/botpress/issues/4229)) ([64c1923](https://github.com/botpress/botpress/commit/64c1923))
-* **telemetry:** negative limit not supported in pg ([#4233](https://github.com/botpress/botpress/issues/4233)) ([6577f2c](https://github.com/botpress/botpress/commit/6577f2c))
-
+- **nlu:** rm special three dots char as it messes up sentencepiece post processing ([#4229](https://github.com/botpress/botpress/issues/4229)) ([64c1923](https://github.com/botpress/botpress/commit/64c1923))
+- **telemetry:** negative limit not supported in pg ([#4233](https://github.com/botpress/botpress/issues/4233)) ([6577f2c](https://github.com/botpress/botpress/commit/6577f2c))
 
 ### Features
 
-* **core:** migration history ([#4197](https://github.com/botpress/botpress/issues/4197)) ([01b1828](https://github.com/botpress/botpress/commit/01b1828))
-* **studio:** move debugger to bottom panel ([#4182](https://github.com/botpress/botpress/issues/4182)) ([e5d52d9](https://github.com/botpress/botpress/commit/e5d52d9))
-
-
+- **core:** migration history ([#4197](https://github.com/botpress/botpress/issues/4197)) ([01b1828](https://github.com/botpress/botpress/commit/01b1828))
+- **studio:** move debugger to bottom panel ([#4182](https://github.com/botpress/botpress/issues/4182)) ([e5d52d9](https://github.com/botpress/botpress/commit/e5d52d9))
 
 ## [12.13.2](https://github.com/botpress/botpress/compare/v12.13.1...v12.13.2) (2020-11-24)
 
-
 ### Bug Fixes
 
-* **core:** default to production telemetry url ([#4220](https://github.com/botpress/botpress/issues/4220)) ([f03ab25](https://github.com/botpress/botpress/commit/f03ab25))
-* **nlu:** lang id is still executed even if some models are out of cache ([#4214](https://github.com/botpress/botpress/issues/4214)) ([0328969](https://github.com/botpress/botpress/commit/0328969))
-* **nlu:** measure sizeof both model and entities + added logging ([#4213](https://github.com/botpress/botpress/issues/4213)) ([05b17a6](https://github.com/botpress/botpress/commit/05b17a6))
-
+- **core:** default to production telemetry url ([#4220](https://github.com/botpress/botpress/issues/4220)) ([f03ab25](https://github.com/botpress/botpress/commit/f03ab25))
+- **nlu:** lang id is still executed even if some models are out of cache ([#4214](https://github.com/botpress/botpress/issues/4214)) ([0328969](https://github.com/botpress/botpress/commit/0328969))
+- **nlu:** measure sizeof both model and entities + added logging ([#4213](https://github.com/botpress/botpress/issues/4213)) ([05b17a6](https://github.com/botpress/botpress/commit/05b17a6))
 
 ### Features
 
-* **core:** base for shared libraries ([#4221](https://github.com/botpress/botpress/issues/4221)) ([061760f](https://github.com/botpress/botpress/commit/061760f))
-* **core:** list workspace users from sdk ([#4178](https://github.com/botpress/botpress/issues/4178)) ([b56c26d](https://github.com/botpress/botpress/commit/b56c26d))
-* **stan:** optionnal version number in stan's API ([#4218](https://github.com/botpress/botpress/issues/4218)) ([16404e7](https://github.com/botpress/botpress/commit/16404e7))
-
-
+- **core:** base for shared libraries ([#4221](https://github.com/botpress/botpress/issues/4221)) ([061760f](https://github.com/botpress/botpress/commit/061760f))
+- **core:** list workspace users from sdk ([#4178](https://github.com/botpress/botpress/issues/4178)) ([b56c26d](https://github.com/botpress/botpress/commit/b56c26d))
+- **stan:** optionnal version number in stan's API ([#4218](https://github.com/botpress/botpress/issues/4218)) ([16404e7](https://github.com/botpress/botpress/commit/16404e7))
 
 ## [12.13.1](https://github.com/botpress/botpress/compare/v12.13.0...v12.13.1) (2020-11-19)
 
-
 ### Bug Fixes
 
-* **channel-web:** fix userId generation and assignment ([#4211](https://github.com/botpress/botpress/issues/4211)) ([586ff29](https://github.com/botpress/botpress/commit/586ff29))
-* **channel-web:** new group from payload ([073fd11](https://github.com/botpress/botpress/commit/073fd11))
-* **channel-web:** optional close on escape ([1ca1289](https://github.com/botpress/botpress/commit/1ca1289))
-* **channel-web:** typing invalid date ([#4190](https://github.com/botpress/botpress/issues/4190)) ([eccf05a](https://github.com/botpress/botpress/commit/eccf05a))
-* **core:** add trailing slash for dir listings ([#4206](https://github.com/botpress/botpress/issues/4206)) ([107ab6d](https://github.com/botpress/botpress/commit/107ab6d))
-* **webchat:** issue on incognito mode ([#4195](https://github.com/botpress/botpress/issues/4195)) ([0bc28c4](https://github.com/botpress/botpress/commit/0bc28c4))
-* **webchat:** multiple calls when using proactive triggers ([#4194](https://github.com/botpress/botpress/issues/4194)) ([6387058](https://github.com/botpress/botpress/commit/6387058))
-
+- **channel-web:** fix userId generation and assignment ([#4211](https://github.com/botpress/botpress/issues/4211)) ([586ff29](https://github.com/botpress/botpress/commit/586ff29))
+- **channel-web:** new group from payload ([073fd11](https://github.com/botpress/botpress/commit/073fd11))
+- **channel-web:** optional close on escape ([1ca1289](https://github.com/botpress/botpress/commit/1ca1289))
+- **channel-web:** typing invalid date ([#4190](https://github.com/botpress/botpress/issues/4190)) ([eccf05a](https://github.com/botpress/botpress/commit/eccf05a))
+- **core:** add trailing slash for dir listings ([#4206](https://github.com/botpress/botpress/issues/4206)) ([107ab6d](https://github.com/botpress/botpress/commit/107ab6d))
+- **webchat:** issue on incognito mode ([#4195](https://github.com/botpress/botpress/issues/4195)) ([0bc28c4](https://github.com/botpress/botpress/commit/0bc28c4))
+- **webchat:** multiple calls when using proactive triggers ([#4194](https://github.com/botpress/botpress/issues/4194)) ([6387058](https://github.com/botpress/botpress/commit/6387058))
 
 ### Features
 
-* **channel-web:** composer placeholder for initial conversation ([#3629](https://github.com/botpress/botpress/issues/3629)) ([1ec3d38](https://github.com/botpress/botpress/commit/1ec3d38))
-
-
+- **channel-web:** composer placeholder for initial conversation ([#3629](https://github.com/botpress/botpress/issues/3629)) ([1ec3d38](https://github.com/botpress/botpress/commit/1ec3d38))
 
 # [12.13.0](https://github.com/botpress/botpress/compare/v12.12.1...v12.13.0) (2020-11-16)
 
-
 ### Bug Fixes
 
-* **channel-telegram:** handling of inline keyboard callbacks ([#3454](https://github.com/botpress/botpress/issues/3454)) ([373681e](https://github.com/botpress/botpress/commit/373681e))
-* **channel-web:** when we click on a conversation the webchat crashs ([#4169](https://github.com/botpress/botpress/issues/4169)) ([168762a](https://github.com/botpress/botpress/commit/168762a))
-* **channels:** fix creating inline keyboard without payload ([#3453](https://github.com/botpress/botpress/issues/3453)) ([95b37cf](https://github.com/botpress/botpress/commit/95b37cf))
-* **core:** prevent multiple load of a module ([#4188](https://github.com/botpress/botpress/issues/4188)) ([51f2162](https://github.com/botpress/botpress/commit/51f2162))
-* **gh:** skip nlu gh check when PR comes from a fork + skip tslint newrules if no files change ([#4180](https://github.com/botpress/botpress/issues/4180)) ([c4b7fd9](https://github.com/botpress/botpress/commit/c4b7fd9))
-* **gh:** tag the version of bitfan in nlu regression gh check ([#4187](https://github.com/botpress/botpress/issues/4187)) ([dcc9da8](https://github.com/botpress/botpress/commit/dcc9da8))
-* **hitl:** missing column thread_id for new tables ([#4181](https://github.com/botpress/botpress/issues/4181)) ([ab9d530](https://github.com/botpress/botpress/commit/ab9d530))
-* **nlu:** prevent empty string in exact index ([defb08a](https://github.com/botpress/botpress/commit/defb08a))
-* **studio:** enhance unclosed brackets, respect order and exact length ([#4173](https://github.com/botpress/botpress/issues/4173)) ([15c2685](https://github.com/botpress/botpress/commit/15c2685))
-* **studio:** fix train button ([#4186](https://github.com/botpress/botpress/issues/4186)) ([266b4fa](https://github.com/botpress/botpress/commit/266b4fa))
-
+- **channel-telegram:** handling of inline keyboard callbacks ([#3454](https://github.com/botpress/botpress/issues/3454)) ([373681e](https://github.com/botpress/botpress/commit/373681e))
+- **channel-web:** when we click on a conversation the webchat crashs ([#4169](https://github.com/botpress/botpress/issues/4169)) ([168762a](https://github.com/botpress/botpress/commit/168762a))
+- **channels:** fix creating inline keyboard without payload ([#3453](https://github.com/botpress/botpress/issues/3453)) ([95b37cf](https://github.com/botpress/botpress/commit/95b37cf))
+- **core:** prevent multiple load of a module ([#4188](https://github.com/botpress/botpress/issues/4188)) ([51f2162](https://github.com/botpress/botpress/commit/51f2162))
+- **gh:** skip nlu gh check when PR comes from a fork + skip tslint newrules if no files change ([#4180](https://github.com/botpress/botpress/issues/4180)) ([c4b7fd9](https://github.com/botpress/botpress/commit/c4b7fd9))
+- **gh:** tag the version of bitfan in nlu regression gh check ([#4187](https://github.com/botpress/botpress/issues/4187)) ([dcc9da8](https://github.com/botpress/botpress/commit/dcc9da8))
+- **hitl:** missing column thread_id for new tables ([#4181](https://github.com/botpress/botpress/issues/4181)) ([ab9d530](https://github.com/botpress/botpress/commit/ab9d530))
+- **nlu:** prevent empty string in exact index ([defb08a](https://github.com/botpress/botpress/commit/defb08a))
+- **studio:** enhance unclosed brackets, respect order and exact length ([#4173](https://github.com/botpress/botpress/issues/4173)) ([15c2685](https://github.com/botpress/botpress/commit/15c2685))
+- **studio:** fix train button ([#4186](https://github.com/botpress/botpress/issues/4186)) ([266b4fa](https://github.com/botpress/botpress/commit/266b4fa))
 
 ### Features
 
-* **core:** Telemetry ([#4152](https://github.com/botpress/botpress/issues/4152)) ([162a9ea](https://github.com/botpress/botpress/commit/162a9ea)), closes [#3635](https://github.com/botpress/botpress/issues/3635) [#3649](https://github.com/botpress/botpress/issues/3649) [#3677](https://github.com/botpress/botpress/issues/3677) [#3662](https://github.com/botpress/botpress/issues/3662) [#3752](https://github.com/botpress/botpress/issues/3752) [#3754](https://github.com/botpress/botpress/issues/3754)
-* **nlu:** model cache size is settable by nlu config file + refactor stan cli ([#4175](https://github.com/botpress/botpress/issues/4175)) ([45bc176](https://github.com/botpress/botpress/commit/45bc176))
-* **studio:** new design for standard & skills ([#4158](https://github.com/botpress/botpress/issues/4158)) ([9be6dfb](https://github.com/botpress/botpress/commit/9be6dfb))
-
-
+- **core:** Telemetry ([#4152](https://github.com/botpress/botpress/issues/4152)) ([162a9ea](https://github.com/botpress/botpress/commit/162a9ea)), closes [#3635](https://github.com/botpress/botpress/issues/3635) [#3649](https://github.com/botpress/botpress/issues/3649) [#3677](https://github.com/botpress/botpress/issues/3677) [#3662](https://github.com/botpress/botpress/issues/3662) [#3752](https://github.com/botpress/botpress/issues/3752) [#3754](https://github.com/botpress/botpress/issues/3754)
+- **nlu:** model cache size is settable by nlu config file + refactor stan cli ([#4175](https://github.com/botpress/botpress/issues/4175)) ([45bc176](https://github.com/botpress/botpress/commit/45bc176))
+- **studio:** new design for standard & skills ([#4158](https://github.com/botpress/botpress/issues/4158)) ([9be6dfb](https://github.com/botpress/botpress/commit/9be6dfb))
 
 ## [12.12.1](https://github.com/botpress/botpress/compare/v12.12.0...v12.12.1) (2020-11-11)
 
-
 ### Bug Fixes
 
-* **nlu:** train now button is more responsive ([#4163](https://github.com/botpress/botpress/issues/4163)) ([069b322](https://github.com/botpress/botpress/commit/069b322))
-* **studio:** debugger showing on top of overlay ([#4160](https://github.com/botpress/botpress/issues/4160)) ([0309c8b](https://github.com/botpress/botpress/commit/0309c8b))
-
-
+- **nlu:** train now button is more responsive ([#4163](https://github.com/botpress/botpress/issues/4163)) ([069b322](https://github.com/botpress/botpress/commit/069b322))
+- **studio:** debugger showing on top of overlay ([#4160](https://github.com/botpress/botpress/issues/4160)) ([0309c8b](https://github.com/botpress/botpress/commit/0309c8b))
 
 # [12.12.0](https://github.com/botpress/botpress/compare/v12.10.10...v12.12.0) (2020-11-05)
 
-
 ### Bug Fixes
 
-* **channel-web:** default style when not emulator ([#4162](https://github.com/botpress/botpress/issues/4162)) ([e0d2d73](https://github.com/botpress/botpress/commit/e0d2d73))
-* **channel-web:** web messages displayed in wrong order ([#4142](https://github.com/botpress/botpress/issues/4142)) ([3d49ce3](https://github.com/botpress/botpress/commit/3d49ce3))
-* **core:** Ensure version not greater than next major ([#4148](https://github.com/botpress/botpress/issues/4148)) ([1090474](https://github.com/botpress/botpress/commit/1090474))
-* **debugger:** error indicator in processing tab & better splash ([#4159](https://github.com/botpress/botpress/issues/4159)) ([a4e2eb1](https://github.com/botpress/botpress/commit/a4e2eb1))
-* **nlu:** duckling can return interval with to but no from ([#4123](https://github.com/botpress/botpress/issues/4123)) ([b9c87e8](https://github.com/botpress/botpress/commit/b9c87e8))
-* **node:** update .nvmrc for node 12 ([#4125](https://github.com/botpress/botpress/issues/4125)) ([5753d45](https://github.com/botpress/botpress/commit/5753d45))
-* **studio:** put back previous library ([6374721](https://github.com/botpress/botpress/commit/6374721))
-* **webchat:** debugger on first open ([#4127](https://github.com/botpress/botpress/issues/4127)) ([b890bde](https://github.com/botpress/botpress/commit/b890bde))
-* **webchat:** prevent WS reset when userId is set ([#4138](https://github.com/botpress/botpress/issues/4138)) ([06b842a](https://github.com/botpress/botpress/commit/06b842a))
-* repair all tslint errors of nlu + node12 branch ([#4124](https://github.com/botpress/botpress/issues/4124)) ([8b7ed2a](https://github.com/botpress/botpress/commit/8b7ed2a))
-* repaired debugger by fixing outFiles ([#4013](https://github.com/botpress/botpress/issues/4013)) ([1312035](https://github.com/botpress/botpress/commit/1312035))
-
+- **channel-web:** default style when not emulator ([#4162](https://github.com/botpress/botpress/issues/4162)) ([e0d2d73](https://github.com/botpress/botpress/commit/e0d2d73))
+- **channel-web:** web messages displayed in wrong order ([#4142](https://github.com/botpress/botpress/issues/4142)) ([3d49ce3](https://github.com/botpress/botpress/commit/3d49ce3))
+- **core:** Ensure version not greater than next major ([#4148](https://github.com/botpress/botpress/issues/4148)) ([1090474](https://github.com/botpress/botpress/commit/1090474))
+- **debugger:** error indicator in processing tab & better splash ([#4159](https://github.com/botpress/botpress/issues/4159)) ([a4e2eb1](https://github.com/botpress/botpress/commit/a4e2eb1))
+- **nlu:** duckling can return interval with to but no from ([#4123](https://github.com/botpress/botpress/issues/4123)) ([b9c87e8](https://github.com/botpress/botpress/commit/b9c87e8))
+- **node:** update .nvmrc for node 12 ([#4125](https://github.com/botpress/botpress/issues/4125)) ([5753d45](https://github.com/botpress/botpress/commit/5753d45))
+- **studio:** put back previous library ([6374721](https://github.com/botpress/botpress/commit/6374721))
+- **webchat:** debugger on first open ([#4127](https://github.com/botpress/botpress/issues/4127)) ([b890bde](https://github.com/botpress/botpress/commit/b890bde))
+- **webchat:** prevent WS reset when userId is set ([#4138](https://github.com/botpress/botpress/issues/4138)) ([06b842a](https://github.com/botpress/botpress/commit/06b842a))
+- repair all tslint errors of nlu + node12 branch ([#4124](https://github.com/botpress/botpress/issues/4124)) ([8b7ed2a](https://github.com/botpress/botpress/commit/8b7ed2a))
+- repaired debugger by fixing outFiles ([#4013](https://github.com/botpress/botpress/issues/4013)) ([1312035](https://github.com/botpress/botpress/commit/1312035))
 
 ### Features
 
-* **admin:** change color of the needs training warning to orange ([#4130](https://github.com/botpress/botpress/issues/4130)) ([4df369c](https://github.com/botpress/botpress/commit/4df369c))
-* **core:** event processing ([#4122](https://github.com/botpress/botpress/issues/4122)) ([998d30d](https://github.com/botpress/botpress/commit/998d30d))
-* **debugger:** show traces on workflow ([#4097](https://github.com/botpress/botpress/issues/4097)) ([50f077d](https://github.com/botpress/botpress/commit/50f077d))
-* **emulator:** reapply emulator styling ([#4112](https://github.com/botpress/botpress/issues/4112)) ([f0bf1b4](https://github.com/botpress/botpress/commit/f0bf1b4))
-* **studio:** workflow toolbar ([#4120](https://github.com/botpress/botpress/issues/4120)) ([a187bc4](https://github.com/botpress/botpress/commit/a187bc4))
-* **testing:** Delete feature for test scenarios [#4111](https://github.com/botpress/botpress/issues/4111) ([#4114](https://github.com/botpress/botpress/issues/4114)) ([041e703](https://github.com/botpress/botpress/commit/041e703))
-
-
+- **admin:** change color of the needs training warning to orange ([#4130](https://github.com/botpress/botpress/issues/4130)) ([4df369c](https://github.com/botpress/botpress/commit/4df369c))
+- **core:** event processing ([#4122](https://github.com/botpress/botpress/issues/4122)) ([998d30d](https://github.com/botpress/botpress/commit/998d30d))
+- **debugger:** show traces on workflow ([#4097](https://github.com/botpress/botpress/issues/4097)) ([50f077d](https://github.com/botpress/botpress/commit/50f077d))
+- **emulator:** reapply emulator styling ([#4112](https://github.com/botpress/botpress/issues/4112)) ([f0bf1b4](https://github.com/botpress/botpress/commit/f0bf1b4))
+- **studio:** workflow toolbar ([#4120](https://github.com/botpress/botpress/issues/4120)) ([a187bc4](https://github.com/botpress/botpress/commit/a187bc4))
+- **testing:** Delete feature for test scenarios [#4111](https://github.com/botpress/botpress/issues/4111) ([#4114](https://github.com/botpress/botpress/issues/4114)) ([041e703](https://github.com/botpress/botpress/commit/041e703))
 
 # [12.11.0](https://github.com/botpress/botpress/compare/v12.10.7...v12.11.0) (2020-10-27)
 
-
 ### Bug Fixes
 
-* **nlu:** added back dialog conditions ([0d10101](https://github.com/botpress/botpress/commit/0d10101))
-* **nlu:** copy utterances don't copy numbers and empty lines ([#4079](https://github.com/botpress/botpress/issues/4079)) ([607a83d](https://github.com/botpress/botpress/commit/607a83d))
-* **nlu:** duckling numbers have no unit but a value ([#4069](https://github.com/botpress/botpress/issues/4069)) ([7859362](https://github.com/botpress/botpress/commit/7859362))
-* **nlu:** duckling time can return an interval ([#4038](https://github.com/botpress/botpress/issues/4038)) ([4a16694](https://github.com/botpress/botpress/commit/4a16694))
-* **nlu:** entity form issue [#4036](https://github.com/botpress/botpress/issues/4036) ([#4099](https://github.com/botpress/botpress/issues/4099)) ([2dbe9d5](https://github.com/botpress/botpress/commit/2dbe9d5))
-* **nlu:** flat map duckling nested values ([#4025](https://github.com/botpress/botpress/issues/4025)) ([7c5565c](https://github.com/botpress/botpress/commit/7c5565c))
-* **nlu:** lang identifier uses pretrained model from app data directory ([26abc3a](https://github.com/botpress/botpress/commit/26abc3a))
-* **nlu:** load model on bot mount but do not train ([43537c3](https://github.com/botpress/botpress/commit/43537c3))
-* **nlu:** nlu seed used in lang provider is passed for one training ([#3997](https://github.com/botpress/botpress/issues/3997)) ([7a5397b](https://github.com/botpress/botpress/commit/7a5397b))
-* **nlu:** no more training on bot mount ([a98e58d](https://github.com/botpress/botpress/commit/a98e58d))
-* **nlu:** replace train status long polling by file watcher ([1fda56a](https://github.com/botpress/botpress/commit/1fda56a))
-* **nlu:** rm unused translations ([19670cd](https://github.com/botpress/botpress/commit/19670cd))
-* **nlu:** train endpoint return asap ([f7c0522](https://github.com/botpress/botpress/commit/f7c0522))
-* **nlu:** wait for desired worker to return worker ready event ([#4034](https://github.com/botpress/botpress/issues/4034)) ([d0e60b0](https://github.com/botpress/botpress/commit/d0e60b0))
-* **nlu-regression:** added some sleep between training and prediction ([8282d0a](https://github.com/botpress/botpress/commit/8282d0a))
-* **pkg:** added nlu-core to pkg.json to make binary work ([3948d78](https://github.com/botpress/botpress/commit/3948d78))
-* **regression:** build shared light before shared in nlu-regression ([42d7bf7](https://github.com/botpress/botpress/commit/42d7bf7))
-* **stan:** allowed variable types include system and any ([8a16ae6](https://github.com/botpress/botpress/commit/8a16ae6))
-* **stan:** rm complexes from stan's API ([cd6c399](https://github.com/botpress/botpress/commit/cd6c399))
-* **stan:** update api.rest file to the markdown notation ([a7f0b6b](https://github.com/botpress/botpress/commit/a7f0b6b))
-* **core:** ubuntu is default linux ([#3536](https://github.com/botpress/botpress/issues/3536)) ([0cd5383](https://github.com/botpress/botpress/commit/0cd5383))
-* **mltoolkit:** error are passed by mlworkers to web worker ([#3792](https://github.com/botpress/botpress/issues/3792)) ([d6d70cd](https://github.com/botpress/botpress/commit/d6d70cd))
-* **mltoolkit:** no need for gridsearch in svm when only one combination ([#3734](https://github.com/botpress/botpress/issues/3734)) ([5eb9625](https://github.com/botpress/botpress/commit/5eb9625))
-* **mltoolkit:** turn off debug logging as it slows down crf training ([#3665](https://github.com/botpress/botpress/issues/3665)) ([a3a2669](https://github.com/botpress/botpress/commit/a3a2669))
-* **nlu:** add pre-trained and stop-words to pkg ([#3819](https://github.com/botpress/botpress/issues/3819)) ([f5b44a3](https://github.com/botpress/botpress/commit/f5b44a3))
-* **nlu:** added back entities caching at training time ([#3874](https://github.com/botpress/botpress/issues/3874)) ([16882b0](https://github.com/botpress/botpress/commit/16882b0))
-* **nlu:** added back extracted entity in slot when there's one ([#3559](https://github.com/botpress/botpress/issues/3559)) ([66b856d](https://github.com/botpress/botpress/commit/66b856d))
-* **nlu:** added back missing tar dependency ([#3827](https://github.com/botpress/botpress/issues/3827)) ([42a91b5](https://github.com/botpress/botpress/commit/42a91b5))
-* **nlu:** allow entity extraction even if no utterance at predict time ([#3909](https://github.com/botpress/botpress/issues/3909)) ([8fc4e4a](https://github.com/botpress/botpress/commit/8fc4e4a))
-* **nlu:** bring back stop words in the binary ([#3931](https://github.com/botpress/botpress/issues/3931)) ([3eab20d](https://github.com/botpress/botpress/commit/3eab20d))
-* **nlu:** fix nlu related github checks ([#3913](https://github.com/botpress/botpress/issues/3913)) ([75e63d0](https://github.com/botpress/botpress/commit/75e63d0))
-* **nlu:** forgot to persist output except intents ([#3644](https://github.com/botpress/botpress/issues/3644)) ([49730a0](https://github.com/botpress/botpress/commit/49730a0))
-* **nlu:** include missing qna ([cd6a31d](https://github.com/botpress/botpress/commit/cd6a31d))
-* **nlu:** increment nlu and lang server version for new ml bindings ([#3500](https://github.com/botpress/botpress/issues/3500)) ([57fcd22](https://github.com/botpress/botpress/commit/57fcd22))
-* **nlu:** increment nlu version because model format has changed ([#3682](https://github.com/botpress/botpress/issues/3682)) ([e676338](https://github.com/botpress/botpress/commit/e676338))
-* **nlu:** log error stack trace and botId in NLU ([#3921](https://github.com/botpress/botpress/issues/3921)) ([9e04ab5](https://github.com/botpress/botpress/commit/9e04ab5))
-* **nlu:** make sure all word emebddings have same length ([7755533](https://github.com/botpress/botpress/commit/7755533))
-* **nlu:** no svm training when multiple ctx but none with intents ([#3958](https://github.com/botpress/botpress/issues/3958)) ([fef64ce](https://github.com/botpress/botpress/commit/fef64ce))
-* **nlu:** oos prediction was using keys of array instead of ctxs ([#3950](https://github.com/botpress/botpress/issues/3950)) ([99a7b8c](https://github.com/botpress/botpress/commit/99a7b8c))
-* **nlu:** removed OOS on exact match ([#3743](https://github.com/botpress/botpress/issues/3743)) ([b08b077](https://github.com/botpress/botpress/commit/b08b077))
-* **nlu:** repair vocab words when generating none utts ([#3963](https://github.com/botpress/botpress/issues/3963)) ([5e5e08e](https://github.com/botpress/botpress/commit/5e5e08e))
-* **nlu:** reset seeded lodash for all calls ([#3955](https://github.com/botpress/botpress/issues/3955)) ([c0d698e](https://github.com/botpress/botpress/commit/c0d698e))
-* **nlu:** retrain only modified ctx merge fix ([#3946](https://github.com/botpress/botpress/issues/3946)) ([74b31c0](https://github.com/botpress/botpress/commit/74b31c0))
-* rm telemetry repo temporarly ([9a6e06e](https://github.com/botpress/botpress/commit/9a6e06e))
-* **nlu:** rm sys entities from features + check vectors length ([#3558](https://github.com/botpress/botpress/issues/3558)) ([954eb00](https://github.com/botpress/botpress/commit/954eb00))
-* **nlu-testing:** allow testing both intent and slot without ctx ([#3761](https://github.com/botpress/botpress/issues/3761)) ([19efd8c](https://github.com/botpress/botpress/commit/19efd8c))
-* **nlu-testing:** latest-results are by bot ([#3561](https://github.com/botpress/botpress/issues/3561)) ([fd93535](https://github.com/botpress/botpress/commit/fd93535))
-* update all linux native extensions ([#3548](https://github.com/botpress/botpress/issues/3548)) ([641bad6](https://github.com/botpress/botpress/commit/641bad6))
-
+- **nlu:** added back dialog conditions ([0d10101](https://github.com/botpress/botpress/commit/0d10101))
+- **nlu:** copy utterances don't copy numbers and empty lines ([#4079](https://github.com/botpress/botpress/issues/4079)) ([607a83d](https://github.com/botpress/botpress/commit/607a83d))
+- **nlu:** duckling numbers have no unit but a value ([#4069](https://github.com/botpress/botpress/issues/4069)) ([7859362](https://github.com/botpress/botpress/commit/7859362))
+- **nlu:** duckling time can return an interval ([#4038](https://github.com/botpress/botpress/issues/4038)) ([4a16694](https://github.com/botpress/botpress/commit/4a16694))
+- **nlu:** entity form issue [#4036](https://github.com/botpress/botpress/issues/4036) ([#4099](https://github.com/botpress/botpress/issues/4099)) ([2dbe9d5](https://github.com/botpress/botpress/commit/2dbe9d5))
+- **nlu:** flat map duckling nested values ([#4025](https://github.com/botpress/botpress/issues/4025)) ([7c5565c](https://github.com/botpress/botpress/commit/7c5565c))
+- **nlu:** lang identifier uses pretrained model from app data directory ([26abc3a](https://github.com/botpress/botpress/commit/26abc3a))
+- **nlu:** load model on bot mount but do not train ([43537c3](https://github.com/botpress/botpress/commit/43537c3))
+- **nlu:** nlu seed used in lang provider is passed for one training ([#3997](https://github.com/botpress/botpress/issues/3997)) ([7a5397b](https://github.com/botpress/botpress/commit/7a5397b))
+- **nlu:** no more training on bot mount ([a98e58d](https://github.com/botpress/botpress/commit/a98e58d))
+- **nlu:** replace train status long polling by file watcher ([1fda56a](https://github.com/botpress/botpress/commit/1fda56a))
+- **nlu:** rm unused translations ([19670cd](https://github.com/botpress/botpress/commit/19670cd))
+- **nlu:** train endpoint return asap ([f7c0522](https://github.com/botpress/botpress/commit/f7c0522))
+- **nlu:** wait for desired worker to return worker ready event ([#4034](https://github.com/botpress/botpress/issues/4034)) ([d0e60b0](https://github.com/botpress/botpress/commit/d0e60b0))
+- **nlu-regression:** added some sleep between training and prediction ([8282d0a](https://github.com/botpress/botpress/commit/8282d0a))
+- **pkg:** added nlu-core to pkg.json to make binary work ([3948d78](https://github.com/botpress/botpress/commit/3948d78))
+- **regression:** build shared light before shared in nlu-regression ([42d7bf7](https://github.com/botpress/botpress/commit/42d7bf7))
+- **stan:** allowed variable types include system and any ([8a16ae6](https://github.com/botpress/botpress/commit/8a16ae6))
+- **stan:** rm complexes from stan's API ([cd6c399](https://github.com/botpress/botpress/commit/cd6c399))
+- **stan:** update api.rest file to the markdown notation ([a7f0b6b](https://github.com/botpress/botpress/commit/a7f0b6b))
+- **core:** ubuntu is default linux ([#3536](https://github.com/botpress/botpress/issues/3536)) ([0cd5383](https://github.com/botpress/botpress/commit/0cd5383))
+- **mltoolkit:** error are passed by mlworkers to web worker ([#3792](https://github.com/botpress/botpress/issues/3792)) ([d6d70cd](https://github.com/botpress/botpress/commit/d6d70cd))
+- **mltoolkit:** no need for gridsearch in svm when only one combination ([#3734](https://github.com/botpress/botpress/issues/3734)) ([5eb9625](https://github.com/botpress/botpress/commit/5eb9625))
+- **mltoolkit:** turn off debug logging as it slows down crf training ([#3665](https://github.com/botpress/botpress/issues/3665)) ([a3a2669](https://github.com/botpress/botpress/commit/a3a2669))
+- **nlu:** add pre-trained and stop-words to pkg ([#3819](https://github.com/botpress/botpress/issues/3819)) ([f5b44a3](https://github.com/botpress/botpress/commit/f5b44a3))
+- **nlu:** added back entities caching at training time ([#3874](https://github.com/botpress/botpress/issues/3874)) ([16882b0](https://github.com/botpress/botpress/commit/16882b0))
+- **nlu:** added back extracted entity in slot when there's one ([#3559](https://github.com/botpress/botpress/issues/3559)) ([66b856d](https://github.com/botpress/botpress/commit/66b856d))
+- **nlu:** added back missing tar dependency ([#3827](https://github.com/botpress/botpress/issues/3827)) ([42a91b5](https://github.com/botpress/botpress/commit/42a91b5))
+- **nlu:** allow entity extraction even if no utterance at predict time ([#3909](https://github.com/botpress/botpress/issues/3909)) ([8fc4e4a](https://github.com/botpress/botpress/commit/8fc4e4a))
+- **nlu:** bring back stop words in the binary ([#3931](https://github.com/botpress/botpress/issues/3931)) ([3eab20d](https://github.com/botpress/botpress/commit/3eab20d))
+- **nlu:** fix nlu related github checks ([#3913](https://github.com/botpress/botpress/issues/3913)) ([75e63d0](https://github.com/botpress/botpress/commit/75e63d0))
+- **nlu:** forgot to persist output except intents ([#3644](https://github.com/botpress/botpress/issues/3644)) ([49730a0](https://github.com/botpress/botpress/commit/49730a0))
+- **nlu:** include missing qna ([cd6a31d](https://github.com/botpress/botpress/commit/cd6a31d))
+- **nlu:** increment nlu and lang server version for new ml bindings ([#3500](https://github.com/botpress/botpress/issues/3500)) ([57fcd22](https://github.com/botpress/botpress/commit/57fcd22))
+- **nlu:** increment nlu version because model format has changed ([#3682](https://github.com/botpress/botpress/issues/3682)) ([e676338](https://github.com/botpress/botpress/commit/e676338))
+- **nlu:** log error stack trace and botId in NLU ([#3921](https://github.com/botpress/botpress/issues/3921)) ([9e04ab5](https://github.com/botpress/botpress/commit/9e04ab5))
+- **nlu:** make sure all word emebddings have same length ([7755533](https://github.com/botpress/botpress/commit/7755533))
+- **nlu:** no svm training when multiple ctx but none with intents ([#3958](https://github.com/botpress/botpress/issues/3958)) ([fef64ce](https://github.com/botpress/botpress/commit/fef64ce))
+- **nlu:** oos prediction was using keys of array instead of ctxs ([#3950](https://github.com/botpress/botpress/issues/3950)) ([99a7b8c](https://github.com/botpress/botpress/commit/99a7b8c))
+- **nlu:** removed OOS on exact match ([#3743](https://github.com/botpress/botpress/issues/3743)) ([b08b077](https://github.com/botpress/botpress/commit/b08b077))
+- **nlu:** repair vocab words when generating none utts ([#3963](https://github.com/botpress/botpress/issues/3963)) ([5e5e08e](https://github.com/botpress/botpress/commit/5e5e08e))
+- **nlu:** reset seeded lodash for all calls ([#3955](https://github.com/botpress/botpress/issues/3955)) ([c0d698e](https://github.com/botpress/botpress/commit/c0d698e))
+- **nlu:** retrain only modified ctx merge fix ([#3946](https://github.com/botpress/botpress/issues/3946)) ([74b31c0](https://github.com/botpress/botpress/commit/74b31c0))
+- rm telemetry repo temporarly ([9a6e06e](https://github.com/botpress/botpress/commit/9a6e06e))
+- **nlu:** rm sys entities from features + check vectors length ([#3558](https://github.com/botpress/botpress/issues/3558)) ([954eb00](https://github.com/botpress/botpress/commit/954eb00))
+- **nlu-testing:** allow testing both intent and slot without ctx ([#3761](https://github.com/botpress/botpress/issues/3761)) ([19efd8c](https://github.com/botpress/botpress/commit/19efd8c))
+- **nlu-testing:** latest-results are by bot ([#3561](https://github.com/botpress/botpress/issues/3561)) ([fd93535](https://github.com/botpress/botpress/commit/fd93535))
+- update all linux native extensions ([#3548](https://github.com/botpress/botpress/issues/3548)) ([641bad6](https://github.com/botpress/botpress/commit/641bad6))
 
 ### Features
 
-* **admin:** indicate if bot needs training in admin ([#4108](https://github.com/botpress/botpress/issues/4108)) ([2b8a570](https://github.com/botpress/botpress/commit/2b8a570))
-* **nlu:** new field spellChecked in event understanding ([#3953](https://github.com/botpress/botpress/issues/3953)) ([8d7ca44](https://github.com/botpress/botpress/commit/8d7ca44))
-* **nlu:** nlu testing always gives the same result ([#3513](https://github.com/botpress/botpress/issues/3513)) ([8cb8a75](https://github.com/botpress/botpress/commit/8cb8a75))
-* **nlu:** tokenize using vocab when s-piece is struggling ([#3543](https://github.com/botpress/botpress/issues/3543)) ([587b522](https://github.com/botpress/botpress/commit/587b522))
-* **nlu:** train now button becomes retrain all when auto train is on ([#3512](https://github.com/botpress/botpress/issues/3512)) ([83f6ea7](https://github.com/botpress/botpress/commit/83f6ea7))
-* **nlu:** training cancelation + usage of both worker threads and child process ([#3841](https://github.com/botpress/botpress/issues/3841)) ([2ea3e22](https://github.com/botpress/botpress/commit/2ea3e22))
-* **nlu:** entities encoding ([#3301](https://github.com/botpress/botpress/issues/3301)) ([06c7de6](https://github.com/botpress/botpress/commit/06c7de6))
-* **nlu-testing:** added github check to prevent regression on NLU BPDS ([#3565](https://github.com/botpress/botpress/issues/3565)) ([92348f3](https://github.com/botpress/botpress/commit/92348f3))
-* **stan:** completly new API to botpress Stan ([a403f83](https://github.com/botpress/botpress/commit/a403f83)), closes [#4064](https://github.com/botpress/botpress/issues/4064) [#4019](https://github.com/botpress/botpress/issues/4019) [#3996](https://github.com/botpress/botpress/issues/3996) [#4006](https://github.com/botpress/botpress/issues/4006)
-
-
+- **admin:** indicate if bot needs training in admin ([#4108](https://github.com/botpress/botpress/issues/4108)) ([2b8a570](https://github.com/botpress/botpress/commit/2b8a570))
+- **nlu:** new field spellChecked in event understanding ([#3953](https://github.com/botpress/botpress/issues/3953)) ([8d7ca44](https://github.com/botpress/botpress/commit/8d7ca44))
+- **nlu:** nlu testing always gives the same result ([#3513](https://github.com/botpress/botpress/issues/3513)) ([8cb8a75](https://github.com/botpress/botpress/commit/8cb8a75))
+- **nlu:** tokenize using vocab when s-piece is struggling ([#3543](https://github.com/botpress/botpress/issues/3543)) ([587b522](https://github.com/botpress/botpress/commit/587b522))
+- **nlu:** train now button becomes retrain all when auto train is on ([#3512](https://github.com/botpress/botpress/issues/3512)) ([83f6ea7](https://github.com/botpress/botpress/commit/83f6ea7))
+- **nlu:** training cancelation + usage of both worker threads and child process ([#3841](https://github.com/botpress/botpress/issues/3841)) ([2ea3e22](https://github.com/botpress/botpress/commit/2ea3e22))
+- **nlu:** entities encoding ([#3301](https://github.com/botpress/botpress/issues/3301)) ([06c7de6](https://github.com/botpress/botpress/commit/06c7de6))
+- **nlu-testing:** added github check to prevent regression on NLU BPDS ([#3565](https://github.com/botpress/botpress/issues/3565)) ([92348f3](https://github.com/botpress/botpress/commit/92348f3))
+- **stan:** completly new API to botpress Stan ([a403f83](https://github.com/botpress/botpress/commit/a403f83)), closes [#4064](https://github.com/botpress/botpress/issues/4064) [#4019](https://github.com/botpress/botpress/issues/4019) [#3996](https://github.com/botpress/botpress/issues/3996) [#4006](https://github.com/botpress/botpress/issues/4006)
 
 ## [12.10.10](https://github.com/botpress/botpress/compare/v12.10.9...v12.10.10) (2020-10-27)
 
-
 ### Bug Fixes
 
-* **code-editor:** fix firefox scroll & minor changes ([#4094](https://github.com/botpress/botpress/issues/4094)) ([2bd0bec](https://github.com/botpress/botpress/commit/2bd0bec))
-* **converse:** tangled messages with multiple bots ([#4085](https://github.com/botpress/botpress/issues/4085)) ([14be745](https://github.com/botpress/botpress/commit/14be745))
-* **core:** reverse proxy support all types ([#4105](https://github.com/botpress/botpress/issues/4105)) ([c5b88cb](https://github.com/botpress/botpress/commit/c5b88cb))
-* **flow:** ordering is different on postgres ([#4102](https://github.com/botpress/botpress/issues/4102)) ([6f26e31](https://github.com/botpress/botpress/commit/6f26e31))
-* **lang-server:** offline is a boolean cli arg ([#4084](https://github.com/botpress/botpress/issues/4084)) ([08d82bd](https://github.com/botpress/botpress/commit/08d82bd))
-* **ndu:** skill choice issue with capitalized choices ([#4109](https://github.com/botpress/botpress/issues/4109)) ([d2d550d](https://github.com/botpress/botpress/commit/d2d550d))
-* **nlu:** copy utterances don't copy numbers and empty lines ([#4079](https://github.com/botpress/botpress/issues/4079)) ([607a83d](https://github.com/botpress/botpress/commit/607a83d))
-* **nlu:** entity form issue [#4036](https://github.com/botpress/botpress/issues/4036) ([#4099](https://github.com/botpress/botpress/issues/4099)) ([2dbe9d5](https://github.com/botpress/botpress/commit/2dbe9d5))
-* **studio:** fix skill reorder [#4011](https://github.com/botpress/botpress/issues/4011) ([#4101](https://github.com/botpress/botpress/issues/4101)) ([6bde467](https://github.com/botpress/botpress/commit/6bde467))
-* **studio:** unclosed brackets crashing UI [#3678](https://github.com/botpress/botpress/issues/3678) ([#4106](https://github.com/botpress/botpress/issues/4106)) ([3dbb6e4](https://github.com/botpress/botpress/commit/3dbb6e4))
-* **studio:** update all nodes when renaming flows [#3936](https://github.com/botpress/botpress/issues/3936) ([#4100](https://github.com/botpress/botpress/issues/4100)) ([7afa2e6](https://github.com/botpress/botpress/commit/7afa2e6))
-* **webchat:** added condition to query ([#4082](https://github.com/botpress/botpress/issues/4082)) ([c0a24a7](https://github.com/botpress/botpress/commit/c0a24a7))
-
-
+- **code-editor:** fix firefox scroll & minor changes ([#4094](https://github.com/botpress/botpress/issues/4094)) ([2bd0bec](https://github.com/botpress/botpress/commit/2bd0bec))
+- **converse:** tangled messages with multiple bots ([#4085](https://github.com/botpress/botpress/issues/4085)) ([14be745](https://github.com/botpress/botpress/commit/14be745))
+- **core:** reverse proxy support all types ([#4105](https://github.com/botpress/botpress/issues/4105)) ([c5b88cb](https://github.com/botpress/botpress/commit/c5b88cb))
+- **flow:** ordering is different on postgres ([#4102](https://github.com/botpress/botpress/issues/4102)) ([6f26e31](https://github.com/botpress/botpress/commit/6f26e31))
+- **lang-server:** offline is a boolean cli arg ([#4084](https://github.com/botpress/botpress/issues/4084)) ([08d82bd](https://github.com/botpress/botpress/commit/08d82bd))
+- **ndu:** skill choice issue with capitalized choices ([#4109](https://github.com/botpress/botpress/issues/4109)) ([d2d550d](https://github.com/botpress/botpress/commit/d2d550d))
+- **nlu:** copy utterances don't copy numbers and empty lines ([#4079](https://github.com/botpress/botpress/issues/4079)) ([607a83d](https://github.com/botpress/botpress/commit/607a83d))
+- **nlu:** entity form issue [#4036](https://github.com/botpress/botpress/issues/4036) ([#4099](https://github.com/botpress/botpress/issues/4099)) ([2dbe9d5](https://github.com/botpress/botpress/commit/2dbe9d5))
+- **studio:** fix skill reorder [#4011](https://github.com/botpress/botpress/issues/4011) ([#4101](https://github.com/botpress/botpress/issues/4101)) ([6bde467](https://github.com/botpress/botpress/commit/6bde467))
+- **studio:** unclosed brackets crashing UI [#3678](https://github.com/botpress/botpress/issues/3678) ([#4106](https://github.com/botpress/botpress/issues/4106)) ([3dbb6e4](https://github.com/botpress/botpress/commit/3dbb6e4))
+- **studio:** update all nodes when renaming flows [#3936](https://github.com/botpress/botpress/issues/3936) ([#4100](https://github.com/botpress/botpress/issues/4100)) ([7afa2e6](https://github.com/botpress/botpress/commit/7afa2e6))
+- **webchat:** added condition to query ([#4082](https://github.com/botpress/botpress/issues/4082)) ([c0a24a7](https://github.com/botpress/botpress/commit/c0a24a7))
 
 ## [12.10.9](https://github.com/botpress/botpress/compare/v12.10.7...v12.10.9) (2020-10-19)
 
-
 ### Bug Fixes
 
-* **admin:** update react scripts ([#3983](https://github.com/botpress/botpress/issues/3983)) ([1a4ba1e](https://github.com/botpress/botpress/commit/1a4ba1e))
-* **analytics:** display deleted QnAs ([#4076](https://github.com/botpress/botpress/issues/4076)) ([f46019d](https://github.com/botpress/botpress/commit/f46019d))
-* **basic-skills:** choice: kw strict equality comparison ([#3975](https://github.com/botpress/botpress/issues/3975)) ([efac56e](https://github.com/botpress/botpress/commit/efac56e))
-* **channel-web:** database indices ([#3981](https://github.com/botpress/botpress/issues/3981)) ([907cc80](https://github.com/botpress/botpress/commit/907cc80))
-* **qna:** stable QnA IDs when importing ([#4031](https://github.com/botpress/botpress/issues/4031)) ([703e48e](https://github.com/botpress/botpress/commit/703e48e))
-* **webchat:** add missing column ([#4008](https://github.com/botpress/botpress/issues/4008)) ([26697d8](https://github.com/botpress/botpress/commit/26697d8))
-
+- **admin:** update react scripts ([#3983](https://github.com/botpress/botpress/issues/3983)) ([1a4ba1e](https://github.com/botpress/botpress/commit/1a4ba1e))
+- **analytics:** display deleted QnAs ([#4076](https://github.com/botpress/botpress/issues/4076)) ([f46019d](https://github.com/botpress/botpress/commit/f46019d))
+- **basic-skills:** choice: kw strict equality comparison ([#3975](https://github.com/botpress/botpress/issues/3975)) ([efac56e](https://github.com/botpress/botpress/commit/efac56e))
+- **channel-web:** database indices ([#3981](https://github.com/botpress/botpress/issues/3981)) ([907cc80](https://github.com/botpress/botpress/commit/907cc80))
+- **qna:** stable QnA IDs when importing ([#4031](https://github.com/botpress/botpress/issues/4031)) ([703e48e](https://github.com/botpress/botpress/commit/703e48e))
+- **webchat:** add missing column ([#4008](https://github.com/botpress/botpress/issues/4008)) ([26697d8](https://github.com/botpress/botpress/commit/26697d8))
 
 ### Features
 
-* **analytics:** messages by language ([#4020](https://github.com/botpress/botpress/issues/4020)) ([2d21cd1](https://github.com/botpress/botpress/commit/2d21cd1))
-* **channel-web:** conversationId ([#4016](https://github.com/botpress/botpress/issues/4016)) ([f783b66](https://github.com/botpress/botpress/commit/f783b66))
-* **hitl:** add thread_id to sessions table ([#3982](https://github.com/botpress/botpress/issues/3982)) ([332f1a2](https://github.com/botpress/botpress/commit/332f1a2))
-* **qna:** copy Qna ID to clipboard ([#4057](https://github.com/botpress/botpress/issues/4057)) ([31de13f](https://github.com/botpress/botpress/commit/31de13f))
-* **webchat:** lazy socket ([#4077](https://github.com/botpress/botpress/issues/4077)) ([f0e9a9c](https://github.com/botpress/botpress/commit/f0e9a9c))
-
-
+- **analytics:** messages by language ([#4020](https://github.com/botpress/botpress/issues/4020)) ([2d21cd1](https://github.com/botpress/botpress/commit/2d21cd1))
+- **channel-web:** conversationId ([#4016](https://github.com/botpress/botpress/issues/4016)) ([f783b66](https://github.com/botpress/botpress/commit/f783b66))
+- **hitl:** add thread_id to sessions table ([#3982](https://github.com/botpress/botpress/issues/3982)) ([332f1a2](https://github.com/botpress/botpress/commit/332f1a2))
+- **qna:** copy Qna ID to clipboard ([#4057](https://github.com/botpress/botpress/issues/4057)) ([31de13f](https://github.com/botpress/botpress/commit/31de13f))
+- **webchat:** lazy socket ([#4077](https://github.com/botpress/botpress/issues/4077)) ([f0e9a9c](https://github.com/botpress/botpress/commit/f0e9a9c))
 
 ## [12.10.8](https://github.com/botpress/botpress/compare/v12.10.7...v12.10.8) (2020-10-06)
 
-
 ### Bug Fixes
 
-* **admin:** update react scripts ([#3983](https://github.com/botpress/botpress/issues/3983)) ([1a4ba1e](https://github.com/botpress/botpress/commit/1a4ba1e))
-* **basic-skills:** choice: kw strict equality comparison ([#3975](https://github.com/botpress/botpress/issues/3975)) ([efac56e](https://github.com/botpress/botpress/commit/efac56e))
-* **channel-web:** database indices ([#3981](https://github.com/botpress/botpress/issues/3981)) ([907cc80](https://github.com/botpress/botpress/commit/907cc80))
-* **webchat:** add missing column ([#4008](https://github.com/botpress/botpress/issues/4008)) ([26697d8](https://github.com/botpress/botpress/commit/26697d8))
-
+- **admin:** update react scripts ([#3983](https://github.com/botpress/botpress/issues/3983)) ([1a4ba1e](https://github.com/botpress/botpress/commit/1a4ba1e))
+- **basic-skills:** choice: kw strict equality comparison ([#3975](https://github.com/botpress/botpress/issues/3975)) ([efac56e](https://github.com/botpress/botpress/commit/efac56e))
+- **channel-web:** database indices ([#3981](https://github.com/botpress/botpress/issues/3981)) ([907cc80](https://github.com/botpress/botpress/commit/907cc80))
+- **webchat:** add missing column ([#4008](https://github.com/botpress/botpress/issues/4008)) ([26697d8](https://github.com/botpress/botpress/commit/26697d8))
 
 ### Features
 
-* **analytics:** messages by language ([#4020](https://github.com/botpress/botpress/issues/4020)) ([2d21cd1](https://github.com/botpress/botpress/commit/2d21cd1))
-* **channel-web:** conversationId ([#4016](https://github.com/botpress/botpress/issues/4016)) ([f783b66](https://github.com/botpress/botpress/commit/f783b66))
-* **hitl:** add thread_id to sessions table ([#3982](https://github.com/botpress/botpress/issues/3982)) ([332f1a2](https://github.com/botpress/botpress/commit/332f1a2))
-
-
+- **analytics:** messages by language ([#4020](https://github.com/botpress/botpress/issues/4020)) ([2d21cd1](https://github.com/botpress/botpress/commit/2d21cd1))
+- **channel-web:** conversationId ([#4016](https://github.com/botpress/botpress/issues/4016)) ([f783b66](https://github.com/botpress/botpress/commit/f783b66))
+- **hitl:** add thread_id to sessions table ([#3982](https://github.com/botpress/botpress/issues/3982)) ([332f1a2](https://github.com/botpress/botpress/commit/332f1a2))
 
 ## [12.10.7](https://github.com/botpress/botpress/compare/v12.10.6...v12.10.7) (2020-09-11)
 
-
 ### Bug Fixes
 
-* **admin:** bigger timeout for server archives ([#3891](https://github.com/botpress/botpress/issues/3891)) ([c10bb76](https://github.com/botpress/botpress/commit/c10bb76))
-* **core:** no update when no changes are made ([#3888](https://github.com/botpress/botpress/issues/3888)) ([8254fee](https://github.com/botpress/botpress/commit/8254fee))
-* **misunderstood:** empty conversation on deleted event ([#3886](https://github.com/botpress/botpress/issues/3886)) ([3ee5bda](https://github.com/botpress/botpress/commit/3ee5bda))
-* **misunderstood:** order events based on createdOn ([#3887](https://github.com/botpress/botpress/issues/3887)) ([bc56f62](https://github.com/botpress/botpress/commit/bc56f62))
-* **webchat:** use correct storage for language ([#3854](https://github.com/botpress/botpress/issues/3854)) ([b3a20b2](https://github.com/botpress/botpress/commit/b3a20b2))
-
-
+- **admin:** bigger timeout for server archives ([#3891](https://github.com/botpress/botpress/issues/3891)) ([c10bb76](https://github.com/botpress/botpress/commit/c10bb76))
+- **core:** no update when no changes are made ([#3888](https://github.com/botpress/botpress/issues/3888)) ([8254fee](https://github.com/botpress/botpress/commit/8254fee))
+- **misunderstood:** empty conversation on deleted event ([#3886](https://github.com/botpress/botpress/issues/3886)) ([3ee5bda](https://github.com/botpress/botpress/commit/3ee5bda))
+- **misunderstood:** order events based on createdOn ([#3887](https://github.com/botpress/botpress/issues/3887)) ([bc56f62](https://github.com/botpress/botpress/commit/bc56f62))
+- **webchat:** use correct storage for language ([#3854](https://github.com/botpress/botpress/issues/3854)) ([b3a20b2](https://github.com/botpress/botpress/commit/b3a20b2))
 
 ## [12.10.6](https://github.com/botpress/botpress/compare/v12.10.5...v12.10.6) (2020-08-25)
 
-
 ### Bug Fixes
 
-* **basic-skills:** avoid choice skill errors with custom events ([7e0f448](https://github.com/botpress/botpress/commit/7e0f448))
-* **builtin:** add missing quotes ([#3784](https://github.com/botpress/botpress/issues/3784)) ([70261d1](https://github.com/botpress/botpress/commit/70261d1))
-* **core:** fix slow issue with lot of flows ([#3764](https://github.com/botpress/botpress/issues/3764)) ([67ac9dd](https://github.com/botpress/botpress/commit/67ac9dd))
-* **core:** locked bots prevent migration completion ([#3837](https://github.com/botpress/botpress/issues/3837)) ([03a84e3](https://github.com/botpress/botpress/commit/03a84e3))
-* **core:** upload archive on windows didn't work ([#3838](https://github.com/botpress/botpress/issues/3838)) ([d269260](https://github.com/botpress/botpress/commit/d269260))
-* **nlu:** exact match is made by replacing entity occurence by name ([#3727](https://github.com/botpress/botpress/issues/3727)) ([79e6461](https://github.com/botpress/botpress/commit/79e6461))
-* **scheduler:** prevent sending events before startup ([b5c7fc6](https://github.com/botpress/botpress/commit/b5c7fc6))
-
+- **basic-skills:** avoid choice skill errors with custom events ([7e0f448](https://github.com/botpress/botpress/commit/7e0f448))
+- **builtin:** add missing quotes ([#3784](https://github.com/botpress/botpress/issues/3784)) ([70261d1](https://github.com/botpress/botpress/commit/70261d1))
+- **core:** fix slow issue with lot of flows ([#3764](https://github.com/botpress/botpress/issues/3764)) ([67ac9dd](https://github.com/botpress/botpress/commit/67ac9dd))
+- **core:** locked bots prevent migration completion ([#3837](https://github.com/botpress/botpress/issues/3837)) ([03a84e3](https://github.com/botpress/botpress/commit/03a84e3))
+- **core:** upload archive on windows didn't work ([#3838](https://github.com/botpress/botpress/issues/3838)) ([d269260](https://github.com/botpress/botpress/commit/d269260))
+- **nlu:** exact match is made by replacing entity occurence by name ([#3727](https://github.com/botpress/botpress/issues/3727)) ([79e6461](https://github.com/botpress/botpress/commit/79e6461))
+- **scheduler:** prevent sending events before startup ([b5c7fc6](https://github.com/botpress/botpress/commit/b5c7fc6))
 
 ### Features
 
-* **nlu-testing:** added new bot template to test slot extraction ([30d2a6a](https://github.com/botpress/botpress/commit/30d2a6a))
-* **nlu-testing:** added new bot-template to test slot extraction ([632f098](https://github.com/botpress/botpress/commit/632f098))
-
-
+- **nlu-testing:** added new bot template to test slot extraction ([30d2a6a](https://github.com/botpress/botpress/commit/30d2a6a))
+- **nlu-testing:** added new bot-template to test slot extraction ([632f098](https://github.com/botpress/botpress/commit/632f098))
 
 ## [12.10.5](https://github.com/botpress/botpress/compare/v12.10.4...v12.10.5) (2020-08-06)
 
-
 ### Bug Fixes
 
-* **core:** memory leak when file persister is disabled ([#3722](https://github.com/botpress/botpress/issues/3722)) ([d65cbca](https://github.com/botpress/botpress/commit/d65cbca))
-* **diag:** add monitor & more tests ([#3720](https://github.com/botpress/botpress/issues/3720)) ([579dc09](https://github.com/botpress/botpress/commit/579dc09))
-* **ndu:** clearer error message ([a250e1c](https://github.com/botpress/botpress/commit/a250e1c))
-
+- **core:** memory leak when file persister is disabled ([#3722](https://github.com/botpress/botpress/issues/3722)) ([d65cbca](https://github.com/botpress/botpress/commit/d65cbca))
+- **diag:** add monitor & more tests ([#3720](https://github.com/botpress/botpress/issues/3720)) ([579dc09](https://github.com/botpress/botpress/commit/579dc09))
+- **ndu:** clearer error message ([a250e1c](https://github.com/botpress/botpress/commit/a250e1c))
 
 ### Features
 
-* **core:** diagnostic tests ([#3672](https://github.com/botpress/botpress/issues/3672)) ([e378bc1](https://github.com/botpress/botpress/commit/e378bc1))
-
-
+- **core:** diagnostic tests ([#3672](https://github.com/botpress/botpress/issues/3672)) ([e378bc1](https://github.com/botpress/botpress/commit/e378bc1))
 
 ## [12.10.4](https://github.com/botpress/botpress/compare/v12.10.3...v12.10.4) (2020-07-28)
 
-
 ### Bug Fixes
 
-* **core:** auto refresh on load & fix bad env key ([#3661](https://github.com/botpress/botpress/issues/3661)) ([ae4ba70](https://github.com/botpress/botpress/commit/ae4ba70))
-* **core:** missing words and translation ([#3653](https://github.com/botpress/botpress/issues/3653)) ([a6c404d](https://github.com/botpress/botpress/commit/a6c404d))
-* **hitl:** display latest conversation ([#3646](https://github.com/botpress/botpress/issues/3646)) ([2e7056d](https://github.com/botpress/botpress/commit/2e7056d))
-* **qna:** null propagation on electedAnswer ([#3657](https://github.com/botpress/botpress/issues/3657)) ([5bd88a1](https://github.com/botpress/botpress/commit/5bd88a1))
-
-
+- **core:** auto refresh on load & fix bad env key ([#3661](https://github.com/botpress/botpress/issues/3661)) ([ae4ba70](https://github.com/botpress/botpress/commit/ae4ba70))
+- **core:** missing words and translation ([#3653](https://github.com/botpress/botpress/issues/3653)) ([a6c404d](https://github.com/botpress/botpress/commit/a6c404d))
+- **hitl:** display latest conversation ([#3646](https://github.com/botpress/botpress/issues/3646)) ([2e7056d](https://github.com/botpress/botpress/commit/2e7056d))
+- **qna:** null propagation on electedAnswer ([#3657](https://github.com/botpress/botpress/issues/3657)) ([5bd88a1](https://github.com/botpress/botpress/commit/5bd88a1))
 
 ## [12.10.3](https://github.com/botpress/botpress/compare/v12.10.2...v12.10.3) (2020-07-17)
 
-
 ### Bug Fixes
 
-* **channel-web:** actually wait until chat is loaded ([#3587](https://github.com/botpress/botpress/issues/3587)) ([772e2a9](https://github.com/botpress/botpress/commit/772e2a9))
-* **core:** allowoverride import generates duplicate bots in workspace ([#3584](https://github.com/botpress/botpress/issues/3584)) ([ac8f6fc](https://github.com/botpress/botpress/commit/ac8f6fc))
-* **core:** default permissions for new workspaces ([#3530](https://github.com/botpress/botpress/issues/3530)) ([3474474](https://github.com/botpress/botpress/commit/3474474))
-* **core:** small fixes for debugger & lifecycle ([#3586](https://github.com/botpress/botpress/issues/3586)) ([b50cfae](https://github.com/botpress/botpress/commit/b50cfae))
-* **nlu:** added back extracted entity in slot when there's one ([#3559](https://github.com/botpress/botpress/issues/3559)) ([5362b77](https://github.com/botpress/botpress/commit/5362b77))
-* **nlu:** encode URI before calling duckling ([a96372d](https://github.com/botpress/botpress/commit/a96372d))
-
+- **channel-web:** actually wait until chat is loaded ([#3587](https://github.com/botpress/botpress/issues/3587)) ([772e2a9](https://github.com/botpress/botpress/commit/772e2a9))
+- **core:** allowoverride import generates duplicate bots in workspace ([#3584](https://github.com/botpress/botpress/issues/3584)) ([ac8f6fc](https://github.com/botpress/botpress/commit/ac8f6fc))
+- **core:** default permissions for new workspaces ([#3530](https://github.com/botpress/botpress/issues/3530)) ([3474474](https://github.com/botpress/botpress/commit/3474474))
+- **core:** small fixes for debugger & lifecycle ([#3586](https://github.com/botpress/botpress/issues/3586)) ([b50cfae](https://github.com/botpress/botpress/commit/b50cfae))
+- **nlu:** added back extracted entity in slot when there's one ([#3559](https://github.com/botpress/botpress/issues/3559)) ([5362b77](https://github.com/botpress/botpress/commit/5362b77))
+- **nlu:** encode URI before calling duckling ([a96372d](https://github.com/botpress/botpress/commit/a96372d))
 
 ### Features
 
-* **channel-web:** more req per sec on master ([#3590](https://github.com/botpress/botpress/issues/3590)) ([1b12efc](https://github.com/botpress/botpress/commit/1b12efc))
-
-
+- **channel-web:** more req per sec on master ([#3590](https://github.com/botpress/botpress/issues/3590)) ([1b12efc](https://github.com/botpress/botpress/commit/1b12efc))
 
 ## [12.10.2](https://github.com/botpress/botpress/compare/v12.10.1...v12.10.2) (2020-06-24)
 
-
 ### Bug Fixes
 
-* **core:** whilelabel login page ([ad83865](https://github.com/botpress/botpress/commit/ad83865))
-* **core:** whitelabel login page ([3456a6f](https://github.com/botpress/botpress/commit/3456a6f))
-* **nlu:** do not assume there is at least one prediction ([#3486](https://github.com/botpress/botpress/issues/3486)) ([3ba309c](https://github.com/botpress/botpress/commit/3ba309c))
-
-
+- **core:** whilelabel login page ([ad83865](https://github.com/botpress/botpress/commit/ad83865))
+- **core:** whitelabel login page ([3456a6f](https://github.com/botpress/botpress/commit/3456a6f))
+- **nlu:** do not assume there is at least one prediction ([#3486](https://github.com/botpress/botpress/issues/3486)) ([3ba309c](https://github.com/botpress/botpress/commit/3ba309c))
 
 ## [12.10.1](https://github.com/botpress/botpress/compare/v12.10.0...v12.10.1) (2020-06-16)
 
-
 ### Bug Fixes
 
-* **choice:** fix legacy choice ([#3466](https://github.com/botpress/botpress/issues/3466)) ([ef359b4](https://github.com/botpress/botpress/commit/ef359b4))
-* **nlu:** fix nlu predictions for intents with no trained predictors ([#3441](https://github.com/botpress/botpress/issues/3441)) ([2732571](https://github.com/botpress/botpress/commit/2732571)), closes [#3444](https://github.com/botpress/botpress/issues/3444) [#3448](https://github.com/botpress/botpress/issues/3448)
-
+- **choice:** fix legacy choice ([#3466](https://github.com/botpress/botpress/issues/3466)) ([ef359b4](https://github.com/botpress/botpress/commit/ef359b4))
+- **nlu:** fix nlu predictions for intents with no trained predictors ([#3441](https://github.com/botpress/botpress/issues/3441)) ([2732571](https://github.com/botpress/botpress/commit/2732571)), closes [#3444](https://github.com/botpress/botpress/issues/3444) [#3448](https://github.com/botpress/botpress/issues/3448)
 
 # [12.10.0](https://github.com/botpress/botpress/compare/v12.9.3...v12.10.0) (2020-06-10)
 
-
 ### Bug Fixes
 
-* **analytics:** fix nan display ([#3407](https://github.com/botpress/botpress/issues/3407)) ([23f32dc](https://github.com/botpress/botpress/commit/23f32dc))
-* **broadcast:** ported to 12.x ([#3078](https://github.com/botpress/botpress/issues/3078)) ([dcfa435](https://github.com/botpress/botpress/commit/dcfa435))
-* **core:** clear workflow property before assigning ([#3405](https://github.com/botpress/botpress/issues/3405)) ([e7827d9](https://github.com/botpress/botpress/commit/e7827d9))
-* **core:** flag to run transitions outside of the sandbox ([#3363](https://github.com/botpress/botpress/issues/3363)) ([bd0738f](https://github.com/botpress/botpress/commit/bd0738f))
-* **core:** implement choice in ndu ([#3233](https://github.com/botpress/botpress/issues/3233)) ([a28d094](https://github.com/botpress/botpress/commit/a28d094))
-* **core:** locking mechanism when not using redis ([#3357](https://github.com/botpress/botpress/issues/3357)) ([6e042b8](https://github.com/botpress/botpress/commit/6e042b8))
-* **core:** say something was not using templates properly ([#3396](https://github.com/botpress/botpress/issues/3396)) ([48dc885](https://github.com/botpress/botpress/commit/48dc885))
-* **core:** update sandbox behavior ([#3359](https://github.com/botpress/botpress/issues/3359)) ([6fd5a79](https://github.com/botpress/botpress/commit/6fd5a79))
-* **ndu:** updated bot template ([#3315](https://github.com/botpress/botpress/issues/3315)) ([aff76c2](https://github.com/botpress/botpress/commit/aff76c2))
-* **ndu:** updated workflows management  & workflow ended ([#3235](https://github.com/botpress/botpress/issues/3235)) ([cacc5ec](https://github.com/botpress/botpress/commit/cacc5ec))
-* **nlu:** entities duplication ([#3183](https://github.com/botpress/botpress/issues/3183)) ([36c9c48](https://github.com/botpress/botpress/commit/36c9c48))
-* **nlu:** remove sensitive data from text ([ee12dbf](https://github.com/botpress/botpress/commit/ee12dbf))
-* **nlu:** update slots and intents on entity removal ([#2820](https://github.com/botpress/botpress/issues/2820)) ([d21938d](https://github.com/botpress/botpress/commit/d21938d))
-* **qna:** fix issue with toggle all qnas ([#3378](https://github.com/botpress/botpress/issues/3378)) ([6f1e998](https://github.com/botpress/botpress/commit/6f1e998))
-* **qna:** remove nlu logger for qna ([#3330](https://github.com/botpress/botpress/issues/3330)) ([656cd9f](https://github.com/botpress/botpress/commit/656cd9f))
-* **qna:** various bug fixes ([f81b5ab](https://github.com/botpress/botpress/commit/f81b5ab))
-* **studio:** flow / oneflow path ([#3406](https://github.com/botpress/botpress/issues/3406)) ([977ee3a](https://github.com/botpress/botpress/commit/977ee3a))
-* **topics:** quickfix for release for topics list ([#3371](https://github.com/botpress/botpress/issues/3371)) ([4b7ad2f](https://github.com/botpress/botpress/commit/4b7ad2f))
-
+- **analytics:** fix nan display ([#3407](https://github.com/botpress/botpress/issues/3407)) ([23f32dc](https://github.com/botpress/botpress/commit/23f32dc))
+- **broadcast:** ported to 12.x ([#3078](https://github.com/botpress/botpress/issues/3078)) ([dcfa435](https://github.com/botpress/botpress/commit/dcfa435))
+- **core:** clear workflow property before assigning ([#3405](https://github.com/botpress/botpress/issues/3405)) ([e7827d9](https://github.com/botpress/botpress/commit/e7827d9))
+- **core:** flag to run transitions outside of the sandbox ([#3363](https://github.com/botpress/botpress/issues/3363)) ([bd0738f](https://github.com/botpress/botpress/commit/bd0738f))
+- **core:** implement choice in ndu ([#3233](https://github.com/botpress/botpress/issues/3233)) ([a28d094](https://github.com/botpress/botpress/commit/a28d094))
+- **core:** locking mechanism when not using redis ([#3357](https://github.com/botpress/botpress/issues/3357)) ([6e042b8](https://github.com/botpress/botpress/commit/6e042b8))
+- **core:** say something was not using templates properly ([#3396](https://github.com/botpress/botpress/issues/3396)) ([48dc885](https://github.com/botpress/botpress/commit/48dc885))
+- **core:** update sandbox behavior ([#3359](https://github.com/botpress/botpress/issues/3359)) ([6fd5a79](https://github.com/botpress/botpress/commit/6fd5a79))
+- **ndu:** updated bot template ([#3315](https://github.com/botpress/botpress/issues/3315)) ([aff76c2](https://github.com/botpress/botpress/commit/aff76c2))
+- **ndu:** updated workflows management & workflow ended ([#3235](https://github.com/botpress/botpress/issues/3235)) ([cacc5ec](https://github.com/botpress/botpress/commit/cacc5ec))
+- **nlu:** entities duplication ([#3183](https://github.com/botpress/botpress/issues/3183)) ([36c9c48](https://github.com/botpress/botpress/commit/36c9c48))
+- **nlu:** remove sensitive data from text ([ee12dbf](https://github.com/botpress/botpress/commit/ee12dbf))
+- **nlu:** update slots and intents on entity removal ([#2820](https://github.com/botpress/botpress/issues/2820)) ([d21938d](https://github.com/botpress/botpress/commit/d21938d))
+- **qna:** fix issue with toggle all qnas ([#3378](https://github.com/botpress/botpress/issues/3378)) ([6f1e998](https://github.com/botpress/botpress/commit/6f1e998))
+- **qna:** remove nlu logger for qna ([#3330](https://github.com/botpress/botpress/issues/3330)) ([656cd9f](https://github.com/botpress/botpress/commit/656cd9f))
+- **qna:** various bug fixes ([f81b5ab](https://github.com/botpress/botpress/commit/f81b5ab))
+- **studio:** flow / oneflow path ([#3406](https://github.com/botpress/botpress/issues/3406)) ([977ee3a](https://github.com/botpress/botpress/commit/977ee3a))
+- **topics:** quickfix for release for topics list ([#3371](https://github.com/botpress/botpress/issues/3371)) ([4b7ad2f](https://github.com/botpress/botpress/commit/4b7ad2f))
 
 ### Features
 
-* **core:** branding &  white label ([#3323](https://github.com/botpress/botpress/issues/3323)) ([ef47cfa](https://github.com/botpress/botpress/commit/ef47cfa))
-* **core:** module management ([#3336](https://github.com/botpress/botpress/issues/3336)) ([826ce82](https://github.com/botpress/botpress/commit/826ce82))
-* **nlu:** out of scope model by topic ([b00a967](https://github.com/botpress/botpress/commit/b00a967))
-* **qna:** new UI for QnA ([#3279](https://github.com/botpress/botpress/issues/3279)) ([63e0be2](https://github.com/botpress/botpress/commit/63e0be2))
-* **shared:** right sidebar portal that pushes content ([#3331](https://github.com/botpress/botpress/issues/3331)) ([6f6e086](https://github.com/botpress/botpress/commit/6f6e086))
-* **studio:** implement style for new sidebar menu ([#3309](https://github.com/botpress/botpress/issues/3309)) ([5445ffa](https://github.com/botpress/botpress/commit/5445ffa))
-* **studio:** topics ([#3222](https://github.com/botpress/botpress/issues/3222)) ([230bb39](https://github.com/botpress/botpress/commit/230bb39))
-
-
+- **core:** branding & white label ([#3323](https://github.com/botpress/botpress/issues/3323)) ([ef47cfa](https://github.com/botpress/botpress/commit/ef47cfa))
+- **core:** module management ([#3336](https://github.com/botpress/botpress/issues/3336)) ([826ce82](https://github.com/botpress/botpress/commit/826ce82))
+- **nlu:** out of scope model by topic ([b00a967](https://github.com/botpress/botpress/commit/b00a967))
+- **qna:** new UI for QnA ([#3279](https://github.com/botpress/botpress/issues/3279)) ([63e0be2](https://github.com/botpress/botpress/commit/63e0be2))
+- **shared:** right sidebar portal that pushes content ([#3331](https://github.com/botpress/botpress/issues/3331)) ([6f6e086](https://github.com/botpress/botpress/commit/6f6e086))
+- **studio:** implement style for new sidebar menu ([#3309](https://github.com/botpress/botpress/issues/3309)) ([5445ffa](https://github.com/botpress/botpress/commit/5445ffa))
+- **studio:** topics ([#3222](https://github.com/botpress/botpress/issues/3222)) ([230bb39](https://github.com/botpress/botpress/commit/230bb39))
 
 ## [12.9.3](https://github.com/botpress/botpress/compare/v12.9.2...v12.9.3) (2020-05-21)
 
-
 ### Bug Fixes
 
-* **analytics:** ensure standard date format ([#3351](https://github.com/botpress/botpress/issues/3351)) ([5471ed0](https://github.com/botpress/botpress/commit/5471ed0))
-* **channel-messenger:** remove invalid keys ([#3091](https://github.com/botpress/botpress/issues/3091)) ([553fb25](https://github.com/botpress/botpress/commit/553fb25))
-* **core:** fix jumpTo in actions [#1772](https://github.com/botpress/botpress/issues/1772) ([#3014](https://github.com/botpress/botpress/issues/3014)) ([bc61a49](https://github.com/botpress/botpress/commit/bc61a49))
-* **core:** img link with custom path & preview ([#3337](https://github.com/botpress/botpress/issues/3337)) ([e5563a4](https://github.com/botpress/botpress/commit/e5563a4))
-* **core:** limit sqlite batch size ([#3350](https://github.com/botpress/botpress/issues/3350)) ([a631f4d](https://github.com/botpress/botpress/commit/a631f4d))
-* **core:** moved heavy operation ([#3339](https://github.com/botpress/botpress/issues/3339)) ([0a0fec0](https://github.com/botpress/botpress/commit/0a0fec0))
-* **core:** prevent race condition for instances ([#3343](https://github.com/botpress/botpress/issues/3343)) ([067348a](https://github.com/botpress/botpress/commit/067348a))
-* **core:** sessions not expiring ([#3341](https://github.com/botpress/botpress/issues/3341)) ([1e8822b](https://github.com/botpress/botpress/commit/1e8822b))
-* **core:** small speed improvement & less gc work ([#3340](https://github.com/botpress/botpress/issues/3340)) ([7002a4a](https://github.com/botpress/botpress/commit/7002a4a))
-* **hitl:** fix rendering issue with messages from messenger ([#3104](https://github.com/botpress/botpress/issues/3104)) ([5f54fdc](https://github.com/botpress/botpress/commit/5f54fdc))
-* **qna:** warn instead of block for duplicates ([#3338](https://github.com/botpress/botpress/issues/3338)) ([49337ac](https://github.com/botpress/botpress/commit/49337ac))
-* **studio:** add the content arrays reorder ([#3352](https://github.com/botpress/botpress/issues/3352)) ([07da5ff](https://github.com/botpress/botpress/commit/07da5ff))
-
-
+- **analytics:** ensure standard date format ([#3351](https://github.com/botpress/botpress/issues/3351)) ([5471ed0](https://github.com/botpress/botpress/commit/5471ed0))
+- **channel-messenger:** remove invalid keys ([#3091](https://github.com/botpress/botpress/issues/3091)) ([553fb25](https://github.com/botpress/botpress/commit/553fb25))
+- **core:** fix jumpTo in actions [#1772](https://github.com/botpress/botpress/issues/1772) ([#3014](https://github.com/botpress/botpress/issues/3014)) ([bc61a49](https://github.com/botpress/botpress/commit/bc61a49))
+- **core:** img link with custom path & preview ([#3337](https://github.com/botpress/botpress/issues/3337)) ([e5563a4](https://github.com/botpress/botpress/commit/e5563a4))
+- **core:** limit sqlite batch size ([#3350](https://github.com/botpress/botpress/issues/3350)) ([a631f4d](https://github.com/botpress/botpress/commit/a631f4d))
+- **core:** moved heavy operation ([#3339](https://github.com/botpress/botpress/issues/3339)) ([0a0fec0](https://github.com/botpress/botpress/commit/0a0fec0))
+- **core:** prevent race condition for instances ([#3343](https://github.com/botpress/botpress/issues/3343)) ([067348a](https://github.com/botpress/botpress/commit/067348a))
+- **core:** sessions not expiring ([#3341](https://github.com/botpress/botpress/issues/3341)) ([1e8822b](https://github.com/botpress/botpress/commit/1e8822b))
+- **core:** small speed improvement & less gc work ([#3340](https://github.com/botpress/botpress/issues/3340)) ([7002a4a](https://github.com/botpress/botpress/commit/7002a4a))
+- **hitl:** fix rendering issue with messages from messenger ([#3104](https://github.com/botpress/botpress/issues/3104)) ([5f54fdc](https://github.com/botpress/botpress/commit/5f54fdc))
+- **qna:** warn instead of block for duplicates ([#3338](https://github.com/botpress/botpress/issues/3338)) ([49337ac](https://github.com/botpress/botpress/commit/49337ac))
+- **studio:** add the content arrays reorder ([#3352](https://github.com/botpress/botpress/issues/3352)) ([07da5ff](https://github.com/botpress/botpress/commit/07da5ff))
 
 ## [12.9.2](https://github.com/botpress/botpress/compare/v12.9.1...v12.9.2) (2020-05-12)
 
-
 ### Bug Fixes
 
-* **auth:** random delay during auth ([#3306](https://github.com/botpress/botpress/issues/3306)) ([75aed18](https://github.com/botpress/botpress/commit/75aed18))
-* **builtin:** fix image element's url [#3163](https://github.com/botpress/botpress/issues/3163) ([#3312](https://github.com/botpress/botpress/issues/3312)) ([34e590a](https://github.com/botpress/botpress/commit/34e590a))
-* **code-editor:** fix hooks' arguments types ([#3303](https://github.com/botpress/botpress/issues/3303)) ([6ed030d](https://github.com/botpress/botpress/commit/6ed030d))
-* **code-editor:** fix signatures of hooks and actions ([#3295](https://github.com/botpress/botpress/issues/3295)) ([62431a2](https://github.com/botpress/botpress/commit/62431a2))
-* **core:** ajusting more errors ([#3311](https://github.com/botpress/botpress/issues/3311)) ([b505035](https://github.com/botpress/botpress/commit/b505035))
-* **core:** base implementation for global error handling ([#3307](https://github.com/botpress/botpress/issues/3307)) ([93a7c6d](https://github.com/botpress/botpress/commit/93a7c6d))
-* **core:** validate extension ([#3305](https://github.com/botpress/botpress/issues/3305)) ([1cf6a98](https://github.com/botpress/botpress/commit/1cf6a98))
-* **dialog:** add return & execute ([#3310](https://github.com/botpress/botpress/issues/3310)) ([3208bea](https://github.com/botpress/botpress/commit/3208bea))
-* **module-builder:** remove warning for acorn ([#3296](https://github.com/botpress/botpress/issues/3296)) ([caca8c0](https://github.com/botpress/botpress/commit/caca8c0))
-* **nlu:** cross validation ([96794bb](https://github.com/botpress/botpress/commit/96794bb))
-* **nlu:** prevent empty string in exact index ([#3300](https://github.com/botpress/botpress/issues/3300)) ([f1d879b](https://github.com/botpress/botpress/commit/f1d879b))
-* **qna:** use same lang as cms ([#3319](https://github.com/botpress/botpress/issues/3319)) ([9d93f0e](https://github.com/botpress/botpress/commit/9d93f0e))
-* **ui-studio:** don't close create element modal on enter ([#3313](https://github.com/botpress/botpress/issues/3313)) ([b855d60](https://github.com/botpress/botpress/commit/b855d60))
-
-
+- **auth:** random delay during auth ([#3306](https://github.com/botpress/botpress/issues/3306)) ([75aed18](https://github.com/botpress/botpress/commit/75aed18))
+- **builtin:** fix image element's url [#3163](https://github.com/botpress/botpress/issues/3163) ([#3312](https://github.com/botpress/botpress/issues/3312)) ([34e590a](https://github.com/botpress/botpress/commit/34e590a))
+- **code-editor:** fix hooks' arguments types ([#3303](https://github.com/botpress/botpress/issues/3303)) ([6ed030d](https://github.com/botpress/botpress/commit/6ed030d))
+- **code-editor:** fix signatures of hooks and actions ([#3295](https://github.com/botpress/botpress/issues/3295)) ([62431a2](https://github.com/botpress/botpress/commit/62431a2))
+- **core:** ajusting more errors ([#3311](https://github.com/botpress/botpress/issues/3311)) ([b505035](https://github.com/botpress/botpress/commit/b505035))
+- **core:** base implementation for global error handling ([#3307](https://github.com/botpress/botpress/issues/3307)) ([93a7c6d](https://github.com/botpress/botpress/commit/93a7c6d))
+- **core:** validate extension ([#3305](https://github.com/botpress/botpress/issues/3305)) ([1cf6a98](https://github.com/botpress/botpress/commit/1cf6a98))
+- **dialog:** add return & execute ([#3310](https://github.com/botpress/botpress/issues/3310)) ([3208bea](https://github.com/botpress/botpress/commit/3208bea))
+- **module-builder:** remove warning for acorn ([#3296](https://github.com/botpress/botpress/issues/3296)) ([caca8c0](https://github.com/botpress/botpress/commit/caca8c0))
+- **nlu:** cross validation ([96794bb](https://github.com/botpress/botpress/commit/96794bb))
+- **nlu:** prevent empty string in exact index ([#3300](https://github.com/botpress/botpress/issues/3300)) ([f1d879b](https://github.com/botpress/botpress/commit/f1d879b))
+- **qna:** use same lang as cms ([#3319](https://github.com/botpress/botpress/issues/3319)) ([9d93f0e](https://github.com/botpress/botpress/commit/9d93f0e))
+- **ui-studio:** don't close create element modal on enter ([#3313](https://github.com/botpress/botpress/issues/3313)) ([b855d60](https://github.com/botpress/botpress/commit/b855d60))
 
 ## [12.9.1](https://github.com/botpress/botpress/compare/v12.9.0...v12.9.1) (2020-04-29)
 
-
 ### Bug Fixes
 
-* **analytics:** fix wrong stats ([#3289](https://github.com/botpress/botpress/issues/3289)) ([c0c7125](https://github.com/botpress/botpress/commit/c0c7125))
-* **channel-web:** fix button height [#3200](https://github.com/botpress/botpress/issues/3200) ([#3288](https://github.com/botpress/botpress/issues/3288)) ([e110959](https://github.com/botpress/botpress/commit/e110959))
-* **core:** fix revision history [#3129](https://github.com/botpress/botpress/issues/3129) ([#3290](https://github.com/botpress/botpress/issues/3290)) ([01de6ee](https://github.com/botpress/botpress/commit/01de6ee))
-* **nlu:** fallback LID on vocab ([#3284](https://github.com/botpress/botpress/issues/3284)) ([aa8c453](https://github.com/botpress/botpress/commit/aa8c453))
-
-
+- **analytics:** fix wrong stats ([#3289](https://github.com/botpress/botpress/issues/3289)) ([c0c7125](https://github.com/botpress/botpress/commit/c0c7125))
+- **channel-web:** fix button height [#3200](https://github.com/botpress/botpress/issues/3200) ([#3288](https://github.com/botpress/botpress/issues/3288)) ([e110959](https://github.com/botpress/botpress/commit/e110959))
+- **core:** fix revision history [#3129](https://github.com/botpress/botpress/issues/3129) ([#3290](https://github.com/botpress/botpress/issues/3290)) ([01de6ee](https://github.com/botpress/botpress/commit/01de6ee))
+- **nlu:** fallback LID on vocab ([#3284](https://github.com/botpress/botpress/issues/3284)) ([aa8c453](https://github.com/botpress/botpress/commit/aa8c453))
 
 # [12.9.0](https://github.com/botpress/botpress/compare/v12.8.6...v12.9.0) (2020-04-27)
 
-
 ### Bug Fixes
 
-* **core:** more details when error with actions required ([#3181](https://github.com/botpress/botpress/issues/3181)) ([173274e](https://github.com/botpress/botpress/commit/173274e))
-* **nlu:** model serialization of models prior 12.9 have no cache ([5551b2a](https://github.com/botpress/botpress/commit/5551b2a))
-* **ui:** minor fix to ui ([#3287](https://github.com/botpress/botpress/issues/3287)) ([56a0d66](https://github.com/botpress/botpress/commit/56a0d66))
-* **ui:** restore global styling to default ([#3241](https://github.com/botpress/botpress/issues/3241)) ([9ce0d6f](https://github.com/botpress/botpress/commit/9ce0d6f))
-
+- **core:** more details when error with actions required ([#3181](https://github.com/botpress/botpress/issues/3181)) ([173274e](https://github.com/botpress/botpress/commit/173274e))
+- **nlu:** model serialization of models prior 12.9 have no cache ([5551b2a](https://github.com/botpress/botpress/commit/5551b2a))
+- **ui:** minor fix to ui ([#3287](https://github.com/botpress/botpress/issues/3287)) ([56a0d66](https://github.com/botpress/botpress/commit/56a0d66))
+- **ui:** restore global styling to default ([#3241](https://github.com/botpress/botpress/issues/3241)) ([9ce0d6f](https://github.com/botpress/botpress/commit/9ce0d6f))
 
 ### Features
 
-* **admin:** add module management page ([#3262](https://github.com/botpress/botpress/issues/3262)) ([ee9e47b](https://github.com/botpress/botpress/commit/ee9e47b))
-* **code-editor:** add file upload to advanced editor ([#3273](https://github.com/botpress/botpress/issues/3273)) ([6d5dc7a](https://github.com/botpress/botpress/commit/6d5dc7a))
-* **commander:** shared commands between admin and studio ([#3204](https://github.com/botpress/botpress/issues/3204)) ([6d1b13c](https://github.com/botpress/botpress/commit/6d1b13c))
-* **core:** added support for elements in flow nodes ([#3182](https://github.com/botpress/botpress/issues/3182)) ([11f1647](https://github.com/botpress/botpress/commit/11f1647))
-* **nlu:** custom entity caching ([71e7d75](https://github.com/botpress/botpress/commit/71e7d75))
-* **shared:** reusable 2nd toolbar, empty state and content wrapper ([#3229](https://github.com/botpress/botpress/issues/3229)) ([e0058e2](https://github.com/botpress/botpress/commit/e0058e2))
-* **studio:** improvements on the toolbar ([#3190](https://github.com/botpress/botpress/issues/3190)) ([5c4dbf1](https://github.com/botpress/botpress/commit/5c4dbf1))
-* **studio:** new toolbar and status bar ([#3172](https://github.com/botpress/botpress/issues/3172)) ([420578a](https://github.com/botpress/botpress/commit/420578a))
-* **studio:** oneflow has fixed size sidebar and topics have Q&A and WF counts ([#3221](https://github.com/botpress/botpress/issues/3221)) ([c32e4d1](https://github.com/botpress/botpress/commit/c32e4d1))
-* **studio:** say node sidebar form ([#3120](https://github.com/botpress/botpress/issues/3120)) ([00f0230](https://github.com/botpress/botpress/commit/00f0230))
-* **ui:** add a customizable blueprint theme ([#3186](https://github.com/botpress/botpress/issues/3186)) ([9cd9655](https://github.com/botpress/botpress/commit/9cd9655))
-* **ui:** change to roboto ([#3187](https://github.com/botpress/botpress/issues/3187)) ([54b9ad1](https://github.com/botpress/botpress/commit/54b9ad1))
-* **ui:** confirm dialog redesign ([#3208](https://github.com/botpress/botpress/issues/3208)) ([4e35865](https://github.com/botpress/botpress/commit/4e35865))
-
-
+- **admin:** add module management page ([#3262](https://github.com/botpress/botpress/issues/3262)) ([ee9e47b](https://github.com/botpress/botpress/commit/ee9e47b))
+- **code-editor:** add file upload to advanced editor ([#3273](https://github.com/botpress/botpress/issues/3273)) ([6d5dc7a](https://github.com/botpress/botpress/commit/6d5dc7a))
+- **commander:** shared commands between admin and studio ([#3204](https://github.com/botpress/botpress/issues/3204)) ([6d1b13c](https://github.com/botpress/botpress/commit/6d1b13c))
+- **core:** added support for elements in flow nodes ([#3182](https://github.com/botpress/botpress/issues/3182)) ([11f1647](https://github.com/botpress/botpress/commit/11f1647))
+- **nlu:** custom entity caching ([71e7d75](https://github.com/botpress/botpress/commit/71e7d75))
+- **shared:** reusable 2nd toolbar, empty state and content wrapper ([#3229](https://github.com/botpress/botpress/issues/3229)) ([e0058e2](https://github.com/botpress/botpress/commit/e0058e2))
+- **studio:** improvements on the toolbar ([#3190](https://github.com/botpress/botpress/issues/3190)) ([5c4dbf1](https://github.com/botpress/botpress/commit/5c4dbf1))
+- **studio:** new toolbar and status bar ([#3172](https://github.com/botpress/botpress/issues/3172)) ([420578a](https://github.com/botpress/botpress/commit/420578a))
+- **studio:** oneflow has fixed size sidebar and topics have Q&A and WF counts ([#3221](https://github.com/botpress/botpress/issues/3221)) ([c32e4d1](https://github.com/botpress/botpress/commit/c32e4d1))
+- **studio:** say node sidebar form ([#3120](https://github.com/botpress/botpress/issues/3120)) ([00f0230](https://github.com/botpress/botpress/commit/00f0230))
+- **ui:** add a customizable blueprint theme ([#3186](https://github.com/botpress/botpress/issues/3186)) ([9cd9655](https://github.com/botpress/botpress/commit/9cd9655))
+- **ui:** change to roboto ([#3187](https://github.com/botpress/botpress/issues/3187)) ([54b9ad1](https://github.com/botpress/botpress/commit/54b9ad1))
+- **ui:** confirm dialog redesign ([#3208](https://github.com/botpress/botpress/issues/3208)) ([4e35865](https://github.com/botpress/botpress/commit/4e35865))
 
 ## [12.8.6](https://github.com/botpress/botpress/compare/v12.8.4...v12.8.6) (2020-04-26)
 
-
 ### Bug Fixes
 
-* **analytics:** added export data as csv ([#3268](https://github.com/botpress/botpress/issues/3268)) ([febb07e](https://github.com/botpress/botpress/commit/febb07e))
-* **bot-improvement:** search in dropdown & using radios ([#3260](https://github.com/botpress/botpress/issues/3260)) ([04da7bd](https://github.com/botpress/botpress/commit/04da7bd))
-* **channel-web:** support html in truncate ([#3259](https://github.com/botpress/botpress/issues/3259)) ([daf2c6f](https://github.com/botpress/botpress/commit/daf2c6f))
-* **core:** additional validations for bot & user id ([#3281](https://github.com/botpress/botpress/issues/3281)) ([f8a8bc6](https://github.com/botpress/botpress/commit/f8a8bc6))
-* **core:** bring back previous flow/node ([#3271](https://github.com/botpress/botpress/issues/3271)) ([a524fa3](https://github.com/botpress/botpress/commit/a524fa3))
-* **core:** clean paths ([#3277](https://github.com/botpress/botpress/issues/3277)) ([63891b5](https://github.com/botpress/botpress/commit/63891b5))
-* **core:** fix debugging for sub-processes ([#3258](https://github.com/botpress/botpress/issues/3258)) ([765aeb9](https://github.com/botpress/botpress/commit/765aeb9))
-* **core:** jwks auth for extenal users ([#3269](https://github.com/botpress/botpress/issues/3269)) ([193d22e](https://github.com/botpress/botpress/commit/193d22e))
-* **core:** remove misleading error when using qna redirect ([#3256](https://github.com/botpress/botpress/issues/3256)) ([14faca3](https://github.com/botpress/botpress/commit/14faca3))
-* **debugger:** expand inspector nodes easily ([#3278](https://github.com/botpress/botpress/issues/3278)) ([05f23e5](https://github.com/botpress/botpress/commit/05f23e5))
-* **ndu:** ignore trigger with no conditions ([#3276](https://github.com/botpress/botpress/issues/3276)) ([bfe5a96](https://github.com/botpress/botpress/commit/bfe5a96))
-* **nlu:** multiple fixes ([#3249](https://github.com/botpress/botpress/issues/3249)) ([1d438d8](https://github.com/botpress/botpress/commit/1d438d8))
-* **nlu:** train only if not disabled ([c65a5e0](https://github.com/botpress/botpress/commit/c65a5e0))
-* **skill-choice:** also match on choice value ([#3261](https://github.com/botpress/botpress/issues/3261)) ([272e8cf](https://github.com/botpress/botpress/commit/272e8cf))
-* **studio:** actions menu sometime empty ([#3266](https://github.com/botpress/botpress/issues/3266)) ([8bc2ce2](https://github.com/botpress/botpress/commit/8bc2ce2))
-* **webchat:** accessibility issues ([#3250](https://github.com/botpress/botpress/issues/3250)) ([f4b1809](https://github.com/botpress/botpress/commit/f4b1809))
-
-
+- **analytics:** added export data as csv ([#3268](https://github.com/botpress/botpress/issues/3268)) ([febb07e](https://github.com/botpress/botpress/commit/febb07e))
+- **bot-improvement:** search in dropdown & using radios ([#3260](https://github.com/botpress/botpress/issues/3260)) ([04da7bd](https://github.com/botpress/botpress/commit/04da7bd))
+- **channel-web:** support html in truncate ([#3259](https://github.com/botpress/botpress/issues/3259)) ([daf2c6f](https://github.com/botpress/botpress/commit/daf2c6f))
+- **core:** additional validations for bot & user id ([#3281](https://github.com/botpress/botpress/issues/3281)) ([f8a8bc6](https://github.com/botpress/botpress/commit/f8a8bc6))
+- **core:** bring back previous flow/node ([#3271](https://github.com/botpress/botpress/issues/3271)) ([a524fa3](https://github.com/botpress/botpress/commit/a524fa3))
+- **core:** clean paths ([#3277](https://github.com/botpress/botpress/issues/3277)) ([63891b5](https://github.com/botpress/botpress/commit/63891b5))
+- **core:** fix debugging for sub-processes ([#3258](https://github.com/botpress/botpress/issues/3258)) ([765aeb9](https://github.com/botpress/botpress/commit/765aeb9))
+- **core:** jwks auth for extenal users ([#3269](https://github.com/botpress/botpress/issues/3269)) ([193d22e](https://github.com/botpress/botpress/commit/193d22e))
+- **core:** remove misleading error when using qna redirect ([#3256](https://github.com/botpress/botpress/issues/3256)) ([14faca3](https://github.com/botpress/botpress/commit/14faca3))
+- **debugger:** expand inspector nodes easily ([#3278](https://github.com/botpress/botpress/issues/3278)) ([05f23e5](https://github.com/botpress/botpress/commit/05f23e5))
+- **ndu:** ignore trigger with no conditions ([#3276](https://github.com/botpress/botpress/issues/3276)) ([bfe5a96](https://github.com/botpress/botpress/commit/bfe5a96))
+- **nlu:** multiple fixes ([#3249](https://github.com/botpress/botpress/issues/3249)) ([1d438d8](https://github.com/botpress/botpress/commit/1d438d8))
+- **nlu:** train only if not disabled ([c65a5e0](https://github.com/botpress/botpress/commit/c65a5e0))
+- **skill-choice:** also match on choice value ([#3261](https://github.com/botpress/botpress/issues/3261)) ([272e8cf](https://github.com/botpress/botpress/commit/272e8cf))
+- **studio:** actions menu sometime empty ([#3266](https://github.com/botpress/botpress/issues/3266)) ([8bc2ce2](https://github.com/botpress/botpress/commit/8bc2ce2))
+- **webchat:** accessibility issues ([#3250](https://github.com/botpress/botpress/issues/3250)) ([f4b1809](https://github.com/botpress/botpress/commit/f4b1809))
 
 ## [12.8.5](https://github.com/botpress/botpress/compare/v12.8.4...v12.8.5) (2020-04-22)
 
-
 ### Bug Fixes
 
-* **nlu:** multiple fixes ([#3249](https://github.com/botpress/botpress/issues/3249)) ([1d438d8](https://github.com/botpress/botpress/commit/1d438d8))
-* **nlu:** train only if not disabled ([c65a5e0](https://github.com/botpress/botpress/commit/c65a5e0))
-* **webchat:** accessibility issues ([#3250](https://github.com/botpress/botpress/issues/3250)) ([f4b1809](https://github.com/botpress/botpress/commit/f4b1809))
-
-
+- **nlu:** multiple fixes ([#3249](https://github.com/botpress/botpress/issues/3249)) ([1d438d8](https://github.com/botpress/botpress/commit/1d438d8))
+- **nlu:** train only if not disabled ([c65a5e0](https://github.com/botpress/botpress/commit/c65a5e0))
+- **webchat:** accessibility issues ([#3250](https://github.com/botpress/botpress/issues/3250)) ([f4b1809](https://github.com/botpress/botpress/commit/f4b1809))
 
 ## [12.8.4](https://github.com/botpress/botpress/compare/v12.8.3...v12.8.4) (2020-04-20)
 
-
 ### Bug Fixes
 
-* **core:** add informative logs for JSON parse error ([#2992](https://github.com/botpress/botpress/issues/2992)) ([f37d3a4](https://github.com/botpress/botpress/commit/f37d3a4))
-* **core:** continue chain when one mw times out ([#3211](https://github.com/botpress/botpress/issues/3211)) ([e3a17a9](https://github.com/botpress/botpress/commit/e3a17a9))
-* **core:** higher limit for node when packaged with binary ([#3236](https://github.com/botpress/botpress/issues/3236)) ([aac52b3](https://github.com/botpress/botpress/commit/aac52b3))
-* **core:** provide additional port for botpress ([#3210](https://github.com/botpress/botpress/issues/3210)) ([f2486cd](https://github.com/botpress/botpress/commit/f2486cd))
-* **core:** support multiple levels of sub flows ([#3198](https://github.com/botpress/botpress/issues/3198)) ([db3720c](https://github.com/botpress/botpress/commit/db3720c))
-* **ndu:** add action go to node ([#3196](https://github.com/botpress/botpress/issues/3196)) ([e468edf](https://github.com/botpress/botpress/commit/e468edf))
-* **ndu:** added min confidence configuration ([#3195](https://github.com/botpress/botpress/issues/3195)) ([1d984f6](https://github.com/botpress/botpress/commit/1d984f6))
-* **ndu:** tweak for conditions ([#3194](https://github.com/botpress/botpress/issues/3194)) ([3cfe86f](https://github.com/botpress/botpress/commit/3cfe86f))
-* **nlu:** default oos prediction when no intent ([#3240](https://github.com/botpress/botpress/issues/3240)) ([dfc389a](https://github.com/botpress/botpress/commit/dfc389a))
-* **nlu:** flag to disable training on server ([#3242](https://github.com/botpress/botpress/issues/3242)) ([3323df8](https://github.com/botpress/botpress/commit/3323df8))
-* **nlu:** ndu trigger for ambiguous intent ([040240e](https://github.com/botpress/botpress/commit/040240e))
-* **shared:** delay toast failure & added other toasts ([#3228](https://github.com/botpress/botpress/issues/3228)) ([b97e069](https://github.com/botpress/botpress/commit/b97e069))
-
+- **core:** add informative logs for JSON parse error ([#2992](https://github.com/botpress/botpress/issues/2992)) ([f37d3a4](https://github.com/botpress/botpress/commit/f37d3a4))
+- **core:** continue chain when one mw times out ([#3211](https://github.com/botpress/botpress/issues/3211)) ([e3a17a9](https://github.com/botpress/botpress/commit/e3a17a9))
+- **core:** higher limit for node when packaged with binary ([#3236](https://github.com/botpress/botpress/issues/3236)) ([aac52b3](https://github.com/botpress/botpress/commit/aac52b3))
+- **core:** provide additional port for botpress ([#3210](https://github.com/botpress/botpress/issues/3210)) ([f2486cd](https://github.com/botpress/botpress/commit/f2486cd))
+- **core:** support multiple levels of sub flows ([#3198](https://github.com/botpress/botpress/issues/3198)) ([db3720c](https://github.com/botpress/botpress/commit/db3720c))
+- **ndu:** add action go to node ([#3196](https://github.com/botpress/botpress/issues/3196)) ([e468edf](https://github.com/botpress/botpress/commit/e468edf))
+- **ndu:** added min confidence configuration ([#3195](https://github.com/botpress/botpress/issues/3195)) ([1d984f6](https://github.com/botpress/botpress/commit/1d984f6))
+- **ndu:** tweak for conditions ([#3194](https://github.com/botpress/botpress/issues/3194)) ([3cfe86f](https://github.com/botpress/botpress/commit/3cfe86f))
+- **nlu:** default oos prediction when no intent ([#3240](https://github.com/botpress/botpress/issues/3240)) ([dfc389a](https://github.com/botpress/botpress/commit/dfc389a))
+- **nlu:** flag to disable training on server ([#3242](https://github.com/botpress/botpress/issues/3242)) ([3323df8](https://github.com/botpress/botpress/commit/3323df8))
+- **nlu:** ndu trigger for ambiguous intent ([040240e](https://github.com/botpress/botpress/commit/040240e))
+- **shared:** delay toast failure & added other toasts ([#3228](https://github.com/botpress/botpress/issues/3228)) ([b97e069](https://github.com/botpress/botpress/commit/b97e069))
 
 ### Features
 
-* **channel-web:** improve accessibility of webchat for screen readers ([#3218](https://github.com/botpress/botpress/issues/3218)) ([7f19073](https://github.com/botpress/botpress/commit/7f19073))
-* **ndu:** activate trigger only on active workflow ([#3197](https://github.com/botpress/botpress/issues/3197)) ([f1403f9](https://github.com/botpress/botpress/commit/f1403f9))
-* **nlu:** added entity condition & prorate for misunderstood ([#3193](https://github.com/botpress/botpress/issues/3193)) ([4eb2101](https://github.com/botpress/botpress/commit/4eb2101))
-* **nlu:** ambiguity triggers ([#3191](https://github.com/botpress/botpress/issues/3191)) ([4a8fa4d](https://github.com/botpress/botpress/commit/4a8fa4d))
-
-
+- **channel-web:** improve accessibility of webchat for screen readers ([#3218](https://github.com/botpress/botpress/issues/3218)) ([7f19073](https://github.com/botpress/botpress/commit/7f19073))
+- **ndu:** activate trigger only on active workflow ([#3197](https://github.com/botpress/botpress/issues/3197)) ([f1403f9](https://github.com/botpress/botpress/commit/f1403f9))
+- **nlu:** added entity condition & prorate for misunderstood ([#3193](https://github.com/botpress/botpress/issues/3193)) ([4eb2101](https://github.com/botpress/botpress/commit/4eb2101))
+- **nlu:** ambiguity triggers ([#3191](https://github.com/botpress/botpress/issues/3191)) ([4a8fa4d](https://github.com/botpress/botpress/commit/4a8fa4d))
 
 ## [12.8.3](https://github.com/botpress/botpress/compare/v12.8.2...v12.8.3) (2020-04-10)
 
-
 ### Bug Fixes
 
-* **studio:** issue [#3169](https://github.com/botpress/botpress/issues/3169) cannot create content when in a modal ([#3175](https://github.com/botpress/botpress/issues/3175)) ([8690e03](https://github.com/botpress/botpress/commit/8690e03))
-
-
+- **studio:** issue [#3169](https://github.com/botpress/botpress/issues/3169) cannot create content when in a modal ([#3175](https://github.com/botpress/botpress/issues/3175)) ([8690e03](https://github.com/botpress/botpress/commit/8690e03))
 
 ## [12.8.2](https://github.com/botpress/botpress/compare/v12.8.0...v12.8.2) (2020-04-07)
 
-
 ### Bug Fixes
 
-* **ndu:** action error when extracting slots ([#3152](https://github.com/botpress/botpress/issues/3152)) ([924a856](https://github.com/botpress/botpress/commit/924a856))
-* **nlu:** allow no intent condition ([9f6c2d3](https://github.com/botpress/botpress/commit/9f6c2d3))
-* **nlu:** misunderstood sort order ([7cc92ac](https://github.com/botpress/botpress/commit/7cc92ac))
-* **nlu:** translation issues ([64ec952](https://github.com/botpress/botpress/commit/64ec952))
-* **nlu-testing:** context checking ([7d60158](https://github.com/botpress/botpress/commit/7d60158))
-* **studio:** module translations guideline ([#3146](https://github.com/botpress/botpress/issues/3146)) ([7820133](https://github.com/botpress/botpress/commit/7820133))
-* **studio:** say something nodes not working ([#3153](https://github.com/botpress/botpress/issues/3153)) ([ad17210](https://github.com/botpress/botpress/commit/ad17210))
-* **test:** temporary disable flaky test ([#3154](https://github.com/botpress/botpress/issues/3154)) ([5396e97](https://github.com/botpress/botpress/commit/5396e97))
-
+- **ndu:** action error when extracting slots ([#3152](https://github.com/botpress/botpress/issues/3152)) ([924a856](https://github.com/botpress/botpress/commit/924a856))
+- **nlu:** allow no intent condition ([9f6c2d3](https://github.com/botpress/botpress/commit/9f6c2d3))
+- **nlu:** misunderstood sort order ([7cc92ac](https://github.com/botpress/botpress/commit/7cc92ac))
+- **nlu:** translation issues ([64ec952](https://github.com/botpress/botpress/commit/64ec952))
+- **nlu-testing:** context checking ([7d60158](https://github.com/botpress/botpress/commit/7d60158))
+- **studio:** module translations guideline ([#3146](https://github.com/botpress/botpress/issues/3146)) ([7820133](https://github.com/botpress/botpress/commit/7820133))
+- **studio:** say something nodes not working ([#3153](https://github.com/botpress/botpress/issues/3153)) ([ad17210](https://github.com/botpress/botpress/commit/ad17210))
+- **test:** temporary disable flaky test ([#3154](https://github.com/botpress/botpress/issues/3154)) ([5396e97](https://github.com/botpress/botpress/commit/5396e97))
 
 ### Features
 
-* **translation:** add language selector & fixes ([#3148](https://github.com/botpress/botpress/issues/3148)) ([bbeb0c4](https://github.com/botpress/botpress/commit/bbeb0c4))
-
-
+- **translation:** add language selector & fixes ([#3148](https://github.com/botpress/botpress/issues/3148)) ([bbeb0c4](https://github.com/botpress/botpress/commit/bbeb0c4))
 
 ## [12.8.1](https://github.com/botpress/botpress/compare/v12.8.0...v12.8.1) (2020-04-03)
 
-
 ### Bug Fixes
 
-* **ndu:** action error when extracting slots ([#3152](https://github.com/botpress/botpress/issues/3152)) ([924a856](https://github.com/botpress/botpress/commit/924a856))
-* **nlu:** translation issues ([64ec952](https://github.com/botpress/botpress/commit/64ec952))
-* **studio:** module translations guideline ([#3146](https://github.com/botpress/botpress/issues/3146)) ([7820133](https://github.com/botpress/botpress/commit/7820133))
-* **studio:** say something nodes not working ([#3153](https://github.com/botpress/botpress/issues/3153)) ([ad17210](https://github.com/botpress/botpress/commit/ad17210))
-* **test:** temporary disable flaky test ([#3154](https://github.com/botpress/botpress/issues/3154)) ([5396e97](https://github.com/botpress/botpress/commit/5396e97))
-
+- **ndu:** action error when extracting slots ([#3152](https://github.com/botpress/botpress/issues/3152)) ([924a856](https://github.com/botpress/botpress/commit/924a856))
+- **nlu:** translation issues ([64ec952](https://github.com/botpress/botpress/commit/64ec952))
+- **studio:** module translations guideline ([#3146](https://github.com/botpress/botpress/issues/3146)) ([7820133](https://github.com/botpress/botpress/commit/7820133))
+- **studio:** say something nodes not working ([#3153](https://github.com/botpress/botpress/issues/3153)) ([ad17210](https://github.com/botpress/botpress/commit/ad17210))
+- **test:** temporary disable flaky test ([#3154](https://github.com/botpress/botpress/issues/3154)) ([5396e97](https://github.com/botpress/botpress/commit/5396e97))
 
 ### Features
 
-* **translation:** add language selector & fixes ([#3148](https://github.com/botpress/botpress/issues/3148)) ([bbeb0c4](https://github.com/botpress/botpress/commit/bbeb0c4))
-
-
+- **translation:** add language selector & fixes ([#3148](https://github.com/botpress/botpress/issues/3148)) ([bbeb0c4](https://github.com/botpress/botpress/commit/bbeb0c4))
 
 # [12.8.0](https://github.com/botpress/botpress/compare/v12.7.2...v12.8.0) (2020-03-31)
 
-
 ### Bug Fixes
 
-* **admin:** prevent duplicate bot name ([a7bcdce](https://github.com/botpress/botpress/commit/a7bcdce))
-* **basic-skills:** use proper intent slots in slot filling ([635a100](https://github.com/botpress/botpress/commit/635a100))
-* **build:** fix module packaging [#1831](https://github.com/botpress/botpress/issues/1831) ([8526975](https://github.com/botpress/botpress/commit/8526975))
-* **build:** fix various typing issue ([afc9572](https://github.com/botpress/botpress/commit/afc9572))
-* **channel-webchat:** added accessibility features ([6a7f5a5](https://github.com/botpress/botpress/commit/6a7f5a5))
-* **cms:** clean-up unused media ([e21942b](https://github.com/botpress/botpress/commit/e21942b))
-* **cms:** remove deleted media ([44adbb9](https://github.com/botpress/botpress/commit/44adbb9))
-* **core:** fix module unload ([ab22315](https://github.com/botpress/botpress/commit/ab22315))
-* **core:** token expiry & auto refresh ([#3075](https://github.com/botpress/botpress/issues/3075)) ([76513ff](https://github.com/botpress/botpress/commit/76513ff))
-* **docs:** fix agent notification example [#1603](https://github.com/botpress/botpress/issues/1603) ([c94fbb4](https://github.com/botpress/botpress/commit/c94fbb4))
-* **feedback:** remember feedback status ([9d72548](https://github.com/botpress/botpress/commit/9d72548))
-* **feedback:** streamline feedback collection ([#3102](https://github.com/botpress/botpress/issues/3102)) ([e82ece3](https://github.com/botpress/botpress/commit/e82ece3))
-* **flow:** allow no start node in new flow ([4c575fc](https://github.com/botpress/botpress/commit/4c575fc))
-* **flow:** error with node execute crashes studio ([#3117](https://github.com/botpress/botpress/issues/3117)) ([611de2f](https://github.com/botpress/botpress/commit/611de2f))
-* **flow:** show invalid transitions in red ([#3099](https://github.com/botpress/botpress/issues/3099)) ([c6d5b50](https://github.com/botpress/botpress/commit/c6d5b50))
-* **intent:** topic update on change ([b8ad417](https://github.com/botpress/botpress/commit/b8ad417))
-* **janitor:** timeout only get called when sessions are less than 250 ([252d42d](https://github.com/botpress/botpress/commit/252d42d))
-* **kvs:** convert old kvs usage ([#3103](https://github.com/botpress/botpress/issues/3103)) ([9f94a95](https://github.com/botpress/botpress/commit/9f94a95))
-* **ndu:** add label for raw condition ([#3106](https://github.com/botpress/botpress/issues/3106)) ([669d53d](https://github.com/botpress/botpress/commit/669d53d))
-* **ndu:** always persist events ([fc1a874](https://github.com/botpress/botpress/commit/fc1a874))
-* **ndu:** intent sync with topics ([#3096](https://github.com/botpress/botpress/issues/3096)) ([c831d57](https://github.com/botpress/botpress/commit/c831d57))
-* **ndu:** minor fixes ([#3123](https://github.com/botpress/botpress/issues/3123)) ([5a481af](https://github.com/botpress/botpress/commit/5a481af))
-* **ndu:** move dialog conditions to module definition ([#3069](https://github.com/botpress/botpress/issues/3069)) ([6dd5b86](https://github.com/botpress/botpress/commit/6dd5b86))
-* **ndu:** removed redirects from QnA ([c33ac14](https://github.com/botpress/botpress/commit/c33ac14))
-* **ndu:** scope engine by bots ([#3119](https://github.com/botpress/botpress/issues/3119)) ([ab36ead](https://github.com/botpress/botpress/commit/ab36ead))
-* **ndu:** store details only for logged on users ([#3130](https://github.com/botpress/botpress/issues/3130)) ([1b51f30](https://github.com/botpress/botpress/commit/1b51f30))
-* **ndu:** various stuff ([91cda90](https://github.com/botpress/botpress/commit/91cda90))
-* **nlu:** 100% none confidence upper limit to ctx ([5d867d6](https://github.com/botpress/botpress/commit/5d867d6))
-* **nlu:** entity watchers ([db357ec](https://github.com/botpress/botpress/commit/db357ec))
-* **nlu:** fix for "cannot read languageCode of undefined" ([#3116](https://github.com/botpress/botpress/issues/3116)) ([3de5df8](https://github.com/botpress/botpress/commit/3de5df8))
-* **nlu:** fixed spell checker ([7537a79](https://github.com/botpress/botpress/commit/7537a79))
-* **nlu:** fuzzy radio ([af01d55](https://github.com/botpress/botpress/commit/af01d55))
-* **nlu:** preds not iterable ([817d06f](https://github.com/botpress/botpress/commit/817d06f))
-* **qna:** clearer message & bigger editor ([#3115](https://github.com/botpress/botpress/issues/3115)) ([583acd8](https://github.com/botpress/botpress/commit/583acd8))
-* **qna:** content language ([#3113](https://github.com/botpress/botpress/issues/3113)) ([3609590](https://github.com/botpress/botpress/commit/3609590))
-* **qna:** convert from category to multiple contexts ([7685002](https://github.com/botpress/botpress/commit/7685002))
-* **studio:** better typings ([#3105](https://github.com/botpress/botpress/issues/3105)) ([b775e2b](https://github.com/botpress/botpress/commit/b775e2b))
-* **studio:** restore double click for triggers ([#3118](https://github.com/botpress/botpress/issues/3118)) ([192b083](https://github.com/botpress/botpress/commit/192b083))
-* **tests:** and update builtin contexts ([#3100](https://github.com/botpress/botpress/issues/3100)) ([f365d79](https://github.com/botpress/botpress/commit/f365d79))
-* **topics:** better management & updates ([#3070](https://github.com/botpress/botpress/issues/3070)) ([59b10a7](https://github.com/botpress/botpress/commit/59b10a7))
-* **topics:** sync elements with topic rename ([#3066](https://github.com/botpress/botpress/issues/3066)) ([dbbdf13](https://github.com/botpress/botpress/commit/dbbdf13))
-
+- **admin:** prevent duplicate bot name ([a7bcdce](https://github.com/botpress/botpress/commit/a7bcdce))
+- **basic-skills:** use proper intent slots in slot filling ([635a100](https://github.com/botpress/botpress/commit/635a100))
+- **build:** fix module packaging [#1831](https://github.com/botpress/botpress/issues/1831) ([8526975](https://github.com/botpress/botpress/commit/8526975))
+- **build:** fix various typing issue ([afc9572](https://github.com/botpress/botpress/commit/afc9572))
+- **channel-webchat:** added accessibility features ([6a7f5a5](https://github.com/botpress/botpress/commit/6a7f5a5))
+- **cms:** clean-up unused media ([e21942b](https://github.com/botpress/botpress/commit/e21942b))
+- **cms:** remove deleted media ([44adbb9](https://github.com/botpress/botpress/commit/44adbb9))
+- **core:** fix module unload ([ab22315](https://github.com/botpress/botpress/commit/ab22315))
+- **core:** token expiry & auto refresh ([#3075](https://github.com/botpress/botpress/issues/3075)) ([76513ff](https://github.com/botpress/botpress/commit/76513ff))
+- **docs:** fix agent notification example [#1603](https://github.com/botpress/botpress/issues/1603) ([c94fbb4](https://github.com/botpress/botpress/commit/c94fbb4))
+- **feedback:** remember feedback status ([9d72548](https://github.com/botpress/botpress/commit/9d72548))
+- **feedback:** streamline feedback collection ([#3102](https://github.com/botpress/botpress/issues/3102)) ([e82ece3](https://github.com/botpress/botpress/commit/e82ece3))
+- **flow:** allow no start node in new flow ([4c575fc](https://github.com/botpress/botpress/commit/4c575fc))
+- **flow:** error with node execute crashes studio ([#3117](https://github.com/botpress/botpress/issues/3117)) ([611de2f](https://github.com/botpress/botpress/commit/611de2f))
+- **flow:** show invalid transitions in red ([#3099](https://github.com/botpress/botpress/issues/3099)) ([c6d5b50](https://github.com/botpress/botpress/commit/c6d5b50))
+- **intent:** topic update on change ([b8ad417](https://github.com/botpress/botpress/commit/b8ad417))
+- **janitor:** timeout only get called when sessions are less than 250 ([252d42d](https://github.com/botpress/botpress/commit/252d42d))
+- **kvs:** convert old kvs usage ([#3103](https://github.com/botpress/botpress/issues/3103)) ([9f94a95](https://github.com/botpress/botpress/commit/9f94a95))
+- **ndu:** add label for raw condition ([#3106](https://github.com/botpress/botpress/issues/3106)) ([669d53d](https://github.com/botpress/botpress/commit/669d53d))
+- **ndu:** always persist events ([fc1a874](https://github.com/botpress/botpress/commit/fc1a874))
+- **ndu:** intent sync with topics ([#3096](https://github.com/botpress/botpress/issues/3096)) ([c831d57](https://github.com/botpress/botpress/commit/c831d57))
+- **ndu:** minor fixes ([#3123](https://github.com/botpress/botpress/issues/3123)) ([5a481af](https://github.com/botpress/botpress/commit/5a481af))
+- **ndu:** move dialog conditions to module definition ([#3069](https://github.com/botpress/botpress/issues/3069)) ([6dd5b86](https://github.com/botpress/botpress/commit/6dd5b86))
+- **ndu:** removed redirects from QnA ([c33ac14](https://github.com/botpress/botpress/commit/c33ac14))
+- **ndu:** scope engine by bots ([#3119](https://github.com/botpress/botpress/issues/3119)) ([ab36ead](https://github.com/botpress/botpress/commit/ab36ead))
+- **ndu:** store details only for logged on users ([#3130](https://github.com/botpress/botpress/issues/3130)) ([1b51f30](https://github.com/botpress/botpress/commit/1b51f30))
+- **ndu:** various stuff ([91cda90](https://github.com/botpress/botpress/commit/91cda90))
+- **nlu:** 100% none confidence upper limit to ctx ([5d867d6](https://github.com/botpress/botpress/commit/5d867d6))
+- **nlu:** entity watchers ([db357ec](https://github.com/botpress/botpress/commit/db357ec))
+- **nlu:** fix for "cannot read languageCode of undefined" ([#3116](https://github.com/botpress/botpress/issues/3116)) ([3de5df8](https://github.com/botpress/botpress/commit/3de5df8))
+- **nlu:** fixed spell checker ([7537a79](https://github.com/botpress/botpress/commit/7537a79))
+- **nlu:** fuzzy radio ([af01d55](https://github.com/botpress/botpress/commit/af01d55))
+- **nlu:** preds not iterable ([817d06f](https://github.com/botpress/botpress/commit/817d06f))
+- **qna:** clearer message & bigger editor ([#3115](https://github.com/botpress/botpress/issues/3115)) ([583acd8](https://github.com/botpress/botpress/commit/583acd8))
+- **qna:** content language ([#3113](https://github.com/botpress/botpress/issues/3113)) ([3609590](https://github.com/botpress/botpress/commit/3609590))
+- **qna:** convert from category to multiple contexts ([7685002](https://github.com/botpress/botpress/commit/7685002))
+- **studio:** better typings ([#3105](https://github.com/botpress/botpress/issues/3105)) ([b775e2b](https://github.com/botpress/botpress/commit/b775e2b))
+- **studio:** restore double click for triggers ([#3118](https://github.com/botpress/botpress/issues/3118)) ([192b083](https://github.com/botpress/botpress/commit/192b083))
+- **tests:** and update builtin contexts ([#3100](https://github.com/botpress/botpress/issues/3100)) ([f365d79](https://github.com/botpress/botpress/commit/f365d79))
+- **topics:** better management & updates ([#3070](https://github.com/botpress/botpress/issues/3070)) ([59b10a7](https://github.com/botpress/botpress/commit/59b10a7))
+- **topics:** sync elements with topic rename ([#3066](https://github.com/botpress/botpress/issues/3066)) ([dbbdf13](https://github.com/botpress/botpress/commit/dbbdf13))
 
 ### Features
 
-* **channel-web:** add stylesheet to module config ([#3112](https://github.com/botpress/botpress/issues/3112)) ([98e3c43](https://github.com/botpress/botpress/commit/98e3c43))
-* **ndu:** add number of triggers on wf list ([fe331e4](https://github.com/botpress/botpress/commit/fe331e4))
-* **ndu:** add raw js condition ([b65db57](https://github.com/botpress/botpress/commit/b65db57))
-* **ndu:** added info to debugger ([#3131](https://github.com/botpress/botpress/issues/3131)) ([a0e2e18](https://github.com/botpress/botpress/commit/a0e2e18))
-* **ndu:** bot migration ([8103b48](https://github.com/botpress/botpress/commit/8103b48))
-* **ndu:** display list of referenced workflows ([1a82e0c](https://github.com/botpress/botpress/commit/1a82e0c))
-* **ndu:** display number of qna by topic ([#3097](https://github.com/botpress/botpress/issues/3097)) ([6655b18](https://github.com/botpress/botpress/commit/6655b18))
-* **nlu:** adds POS capacity to French ([1513bb2](https://github.com/botpress/botpress/commit/1513bb2))
-* **nlu:** ignore sys and pattern entities in ctx embedding ([4485acd](https://github.com/botpress/botpress/commit/4485acd))
-* **nlu-testing:** edit test ([019d45c](https://github.com/botpress/botpress/commit/019d45c))
-* **sdk:** sdk accessible via api ([83dde7a](https://github.com/botpress/botpress/commit/83dde7a))
-* **slack:** updated to new api ([9b1f096](https://github.com/botpress/botpress/commit/9b1f096))
-* **ui:** initial translation for admin & studio ([2de209f](https://github.com/botpress/botpress/commit/2de209f))
-
-
+- **channel-web:** add stylesheet to module config ([#3112](https://github.com/botpress/botpress/issues/3112)) ([98e3c43](https://github.com/botpress/botpress/commit/98e3c43))
+- **ndu:** add number of triggers on wf list ([fe331e4](https://github.com/botpress/botpress/commit/fe331e4))
+- **ndu:** add raw js condition ([b65db57](https://github.com/botpress/botpress/commit/b65db57))
+- **ndu:** added info to debugger ([#3131](https://github.com/botpress/botpress/issues/3131)) ([a0e2e18](https://github.com/botpress/botpress/commit/a0e2e18))
+- **ndu:** bot migration ([8103b48](https://github.com/botpress/botpress/commit/8103b48))
+- **ndu:** display list of referenced workflows ([1a82e0c](https://github.com/botpress/botpress/commit/1a82e0c))
+- **ndu:** display number of qna by topic ([#3097](https://github.com/botpress/botpress/issues/3097)) ([6655b18](https://github.com/botpress/botpress/commit/6655b18))
+- **nlu:** adds POS capacity to French ([1513bb2](https://github.com/botpress/botpress/commit/1513bb2))
+- **nlu:** ignore sys and pattern entities in ctx embedding ([4485acd](https://github.com/botpress/botpress/commit/4485acd))
+- **nlu-testing:** edit test ([019d45c](https://github.com/botpress/botpress/commit/019d45c))
+- **sdk:** sdk accessible via api ([83dde7a](https://github.com/botpress/botpress/commit/83dde7a))
+- **slack:** updated to new api ([9b1f096](https://github.com/botpress/botpress/commit/9b1f096))
+- **ui:** initial translation for admin & studio ([2de209f](https://github.com/botpress/botpress/commit/2de209f))
 
 ## [12.7.2](https://github.com/botpress/botpress/compare/v12.7.1...v12.7.2) (2020-03-28)
 
-
 ### Bug Fixes
 
-* **admin:** possible null pointer ([#3073](https://github.com/botpress/botpress/issues/3073)) ([38ad436](https://github.com/botpress/botpress/commit/38ad436))
-* **bot-info:** fix height issue on webchat ([812e925](https://github.com/botpress/botpress/commit/812e925))
-* **core:** docker images async middleware ([44f41f9](https://github.com/botpress/botpress/commit/44f41f9))
-* **core:** get router getPublicPath with subpath ([1ba3ee2](https://github.com/botpress/botpress/commit/1ba3ee2))
-* **core:** return additional languages ([8cbb665](https://github.com/botpress/botpress/commit/8cbb665)), closes [#2704](https://github.com/botpress/botpress/issues/2704)
-* **core:** return additional languages if nlu module is disabled ([ef24a43](https://github.com/botpress/botpress/commit/ef24a43))
-* **core:** run migration easily ([0569f9a](https://github.com/botpress/botpress/commit/0569f9a))
-* **module:** memoizing module config ([412a5c0](https://github.com/botpress/botpress/commit/412a5c0))
-* **module-builder:** watch dies when there is an error ([c007331](https://github.com/botpress/botpress/commit/c007331))
-* **slack:** disconnect websocket onBotUnmount ([0ea93f1](https://github.com/botpress/botpress/commit/0ea93f1))
-* **studio:** occasional null pointer issue ([c066bb4](https://github.com/botpress/botpress/commit/c066bb4))
-* **studio:** shortcut to save config ([1a34bff](https://github.com/botpress/botpress/commit/1a34bff))
-
+- **admin:** possible null pointer ([#3073](https://github.com/botpress/botpress/issues/3073)) ([38ad436](https://github.com/botpress/botpress/commit/38ad436))
+- **bot-info:** fix height issue on webchat ([812e925](https://github.com/botpress/botpress/commit/812e925))
+- **core:** docker images async middleware ([44f41f9](https://github.com/botpress/botpress/commit/44f41f9))
+- **core:** get router getPublicPath with subpath ([1ba3ee2](https://github.com/botpress/botpress/commit/1ba3ee2))
+- **core:** return additional languages ([8cbb665](https://github.com/botpress/botpress/commit/8cbb665)), closes [#2704](https://github.com/botpress/botpress/issues/2704)
+- **core:** return additional languages if nlu module is disabled ([ef24a43](https://github.com/botpress/botpress/commit/ef24a43))
+- **core:** run migration easily ([0569f9a](https://github.com/botpress/botpress/commit/0569f9a))
+- **module:** memoizing module config ([412a5c0](https://github.com/botpress/botpress/commit/412a5c0))
+- **module-builder:** watch dies when there is an error ([c007331](https://github.com/botpress/botpress/commit/c007331))
+- **slack:** disconnect websocket onBotUnmount ([0ea93f1](https://github.com/botpress/botpress/commit/0ea93f1))
+- **studio:** occasional null pointer issue ([c066bb4](https://github.com/botpress/botpress/commit/c066bb4))
+- **studio:** shortcut to save config ([1a34bff](https://github.com/botpress/botpress/commit/1a34bff))
 
 ### Features
 
-* **nlu:** par of speech tagging for french ([8315d5c](https://github.com/botpress/botpress/commit/8315d5c))
-
-
+- **nlu:** par of speech tagging for french ([8315d5c](https://github.com/botpress/botpress/commit/8315d5c))
 
 ## [12.7.1](https://github.com/botpress/botpress/compare/v12.7.0...v12.7.1) (2020-03-07)
 
-
 ### Bug Fixes
 
-* **code-editor:** added button to switch editors ([7adad33](https://github.com/botpress/botpress/commit/7adad33))
-* **config:** experimental flag instead of amazing ([b2f799d](https://github.com/botpress/botpress/commit/b2f799d))
-* **core:** disable no repeat policy for new servers ([6580fcf](https://github.com/botpress/botpress/commit/6580fcf))
-* **lang-server:** monitoring & debug fixed ([6c22a3c](https://github.com/botpress/botpress/commit/6c22a3c))
-* **nlu:** compress and prune models ([2d5682d](https://github.com/botpress/botpress/commit/2d5682d))
-* **nlu:** only extract necessary entities at training time ([9b162b1](https://github.com/botpress/botpress/commit/9b162b1))
-* **tests:** try to fix flaky test ([a168d3a](https://github.com/botpress/botpress/commit/a168d3a))
-
-
+- **code-editor:** added button to switch editors ([7adad33](https://github.com/botpress/botpress/commit/7adad33))
+- **config:** experimental flag instead of amazing ([b2f799d](https://github.com/botpress/botpress/commit/b2f799d))
+- **core:** disable no repeat policy for new servers ([6580fcf](https://github.com/botpress/botpress/commit/6580fcf))
+- **lang-server:** monitoring & debug fixed ([6c22a3c](https://github.com/botpress/botpress/commit/6c22a3c))
+- **nlu:** compress and prune models ([2d5682d](https://github.com/botpress/botpress/commit/2d5682d))
+- **nlu:** only extract necessary entities at training time ([9b162b1](https://github.com/botpress/botpress/commit/9b162b1))
+- **tests:** try to fix flaky test ([a168d3a](https://github.com/botpress/botpress/commit/a168d3a))
 
 # [12.7.0](https://github.com/botpress/botpress/compare/v12.6.0...v12.7.0) (2020-03-04)
 
-
 ### Bug Fixes
 
-* **analytics:** add missing dep ([af6a6d0](https://github.com/botpress/botpress/commit/af6a6d0))
-* **analytics:** various adjustments ([#3024](https://github.com/botpress/botpress/issues/3024)) ([9894993](https://github.com/botpress/botpress/commit/9894993))
-* **channel-messenger:** fix initialization ([3c2f669](https://github.com/botpress/botpress/commit/3c2f669))
-* **cluster:** wrong index when rebooting ([9cd5789](https://github.com/botpress/botpress/commit/9cd5789))
-* **core:** better log message ([e1d2f47](https://github.com/botpress/botpress/commit/e1d2f47))
-* **core:** check if worker exited properly before reboot routine ([60bdf42](https://github.com/botpress/botpress/commit/60bdf42))
-* **core:** module was not unloaded correctly ([e61ab76](https://github.com/botpress/botpress/commit/e61ab76))
-* **dev:** fix hash of undefined issue in studio and admin ([#3027](https://github.com/botpress/botpress/issues/3027)) ([c897686](https://github.com/botpress/botpress/commit/c897686))
-* **dev:** fix missing module backend type check ([35f23a1](https://github.com/botpress/botpress/commit/35f23a1))
-* **dev:** prevent watch core crash when building studio/admin ([29a5b04](https://github.com/botpress/botpress/commit/29a5b04))
-* **module:** typings for sdk, knex & router ([#2995](https://github.com/botpress/botpress/issues/2995)) ([fc61430](https://github.com/botpress/botpress/commit/fc61430))
-* **nlu:** add training debug events ([9670060](https://github.com/botpress/botpress/commit/9670060))
-* **nlu:** alternate utterance ([3a01ce2](https://github.com/botpress/botpress/commit/3a01ce2))
-* **nlu:** cancel active training sessions ondelete ([ea58da2](https://github.com/botpress/botpress/commit/ea58da2))
-* **nlu:** cancel training ([3c69e7f](https://github.com/botpress/botpress/commit/3c69e7f))
-* **nlu:** cancel training properly ([87fa972](https://github.com/botpress/botpress/commit/87fa972))
-* **nlu:** clamp number of oos utterances ([d2f6e48](https://github.com/botpress/botpress/commit/d2f6e48))
-* **nlu:** crf training on worker threads ([37c19f0](https://github.com/botpress/botpress/commit/37c19f0))
-* **nlu:** debounce progress report ([ee47d24](https://github.com/botpress/botpress/commit/ee47d24))
-* **nlu:** dont train bot if got deleted ([386f841](https://github.com/botpress/botpress/commit/386f841))
-* **nlu:** extract entities for not none intents ([8dfe34d](https://github.com/botpress/botpress/commit/8dfe34d))
-* **nlu:** prevent loading tagger at training time ([27f4d30](https://github.com/botpress/botpress/commit/27f4d30))
-* **nlu:** properly report training progress ([1223b90](https://github.com/botpress/botpress/commit/1223b90))
-* **nlu:** stric equality check ([7798797](https://github.com/botpress/botpress/commit/7798797))
-* **nlu:** train ctx only when more than 1 ([1f84bb8](https://github.com/botpress/botpress/commit/1f84bb8))
-* **pipeline:** fix approval filter ([fb417c4](https://github.com/botpress/botpress/commit/fb417c4))
-* **realtime:** payload on a single line ([2f7a607](https://github.com/botpress/botpress/commit/2f7a607))
-* **stage:** only super admins can edit stages ([0fec40e](https://github.com/botpress/botpress/commit/0fec40e))
-* **studio:** fix image preview ([aa4c5a4](https://github.com/botpress/botpress/commit/aa4c5a4))
-* **studio:** minor tweak to config ([2517f0e](https://github.com/botpress/botpress/commit/2517f0e))
-* **test:** add delay before click ([f927c58](https://github.com/botpress/botpress/commit/f927c58))
-* **tests:** add delay before starting tests ([#3002](https://github.com/botpress/botpress/issues/3002)) ([f8a2a87](https://github.com/botpress/botpress/commit/f8a2a87))
-* **ui-studio:** change helper in create bot form ([c487e30](https://github.com/botpress/botpress/commit/c487e30))
-
+- **analytics:** add missing dep ([af6a6d0](https://github.com/botpress/botpress/commit/af6a6d0))
+- **analytics:** various adjustments ([#3024](https://github.com/botpress/botpress/issues/3024)) ([9894993](https://github.com/botpress/botpress/commit/9894993))
+- **channel-messenger:** fix initialization ([3c2f669](https://github.com/botpress/botpress/commit/3c2f669))
+- **cluster:** wrong index when rebooting ([9cd5789](https://github.com/botpress/botpress/commit/9cd5789))
+- **core:** better log message ([e1d2f47](https://github.com/botpress/botpress/commit/e1d2f47))
+- **core:** check if worker exited properly before reboot routine ([60bdf42](https://github.com/botpress/botpress/commit/60bdf42))
+- **core:** module was not unloaded correctly ([e61ab76](https://github.com/botpress/botpress/commit/e61ab76))
+- **dev:** fix hash of undefined issue in studio and admin ([#3027](https://github.com/botpress/botpress/issues/3027)) ([c897686](https://github.com/botpress/botpress/commit/c897686))
+- **dev:** fix missing module backend type check ([35f23a1](https://github.com/botpress/botpress/commit/35f23a1))
+- **dev:** prevent watch core crash when building studio/admin ([29a5b04](https://github.com/botpress/botpress/commit/29a5b04))
+- **module:** typings for sdk, knex & router ([#2995](https://github.com/botpress/botpress/issues/2995)) ([fc61430](https://github.com/botpress/botpress/commit/fc61430))
+- **nlu:** add training debug events ([9670060](https://github.com/botpress/botpress/commit/9670060))
+- **nlu:** alternate utterance ([3a01ce2](https://github.com/botpress/botpress/commit/3a01ce2))
+- **nlu:** cancel active training sessions ondelete ([ea58da2](https://github.com/botpress/botpress/commit/ea58da2))
+- **nlu:** cancel training ([3c69e7f](https://github.com/botpress/botpress/commit/3c69e7f))
+- **nlu:** cancel training properly ([87fa972](https://github.com/botpress/botpress/commit/87fa972))
+- **nlu:** clamp number of oos utterances ([d2f6e48](https://github.com/botpress/botpress/commit/d2f6e48))
+- **nlu:** crf training on worker threads ([37c19f0](https://github.com/botpress/botpress/commit/37c19f0))
+- **nlu:** debounce progress report ([ee47d24](https://github.com/botpress/botpress/commit/ee47d24))
+- **nlu:** dont train bot if got deleted ([386f841](https://github.com/botpress/botpress/commit/386f841))
+- **nlu:** extract entities for not none intents ([8dfe34d](https://github.com/botpress/botpress/commit/8dfe34d))
+- **nlu:** prevent loading tagger at training time ([27f4d30](https://github.com/botpress/botpress/commit/27f4d30))
+- **nlu:** properly report training progress ([1223b90](https://github.com/botpress/botpress/commit/1223b90))
+- **nlu:** stric equality check ([7798797](https://github.com/botpress/botpress/commit/7798797))
+- **nlu:** train ctx only when more than 1 ([1f84bb8](https://github.com/botpress/botpress/commit/1f84bb8))
+- **pipeline:** fix approval filter ([fb417c4](https://github.com/botpress/botpress/commit/fb417c4))
+- **realtime:** payload on a single line ([2f7a607](https://github.com/botpress/botpress/commit/2f7a607))
+- **stage:** only super admins can edit stages ([0fec40e](https://github.com/botpress/botpress/commit/0fec40e))
+- **studio:** fix image preview ([aa4c5a4](https://github.com/botpress/botpress/commit/aa4c5a4))
+- **studio:** minor tweak to config ([2517f0e](https://github.com/botpress/botpress/commit/2517f0e))
+- **test:** add delay before click ([f927c58](https://github.com/botpress/botpress/commit/f927c58))
+- **tests:** add delay before starting tests ([#3002](https://github.com/botpress/botpress/issues/3002)) ([f8a2a87](https://github.com/botpress/botpress/commit/f8a2a87))
+- **ui-studio:** change helper in create bot form ([c487e30](https://github.com/botpress/botpress/commit/c487e30))
 
 ### Features
 
-* **admin:** Pipeline stage edit UI ([cdebf1e](https://github.com/botpress/botpress/commit/cdebf1e))
-* **analytics:** v2 ([dcdd104](https://github.com/botpress/botpress/commit/dcdd104))
-* **nlu:** load stopwords for given language ([51e98fc](https://github.com/botpress/botpress/commit/51e98fc))
-* **nlu:** ml workers to speed up training ([8271623](https://github.com/botpress/botpress/commit/8271623))
-* **nlu:** out of scope detection for english ([1ef2554](https://github.com/botpress/botpress/commit/1ef2554))
-* **studio:** move bot config to the studio ([#2951](https://github.com/botpress/botpress/issues/2951)) ([59f35a2](https://github.com/botpress/botpress/commit/59f35a2))
-
-
+- **admin:** Pipeline stage edit UI ([cdebf1e](https://github.com/botpress/botpress/commit/cdebf1e))
+- **analytics:** v2 ([dcdd104](https://github.com/botpress/botpress/commit/dcdd104))
+- **nlu:** load stopwords for given language ([51e98fc](https://github.com/botpress/botpress/commit/51e98fc))
+- **nlu:** ml workers to speed up training ([8271623](https://github.com/botpress/botpress/commit/8271623))
+- **nlu:** out of scope detection for english ([1ef2554](https://github.com/botpress/botpress/commit/1ef2554))
+- **studio:** move bot config to the studio ([#2951](https://github.com/botpress/botpress/issues/2951)) ([59f35a2](https://github.com/botpress/botpress/commit/59f35a2))
 
 ## [12.6.1](https://github.com/botpress/botpress/compare/v12.6.0...v12.6.1) (2020-02-27)
 
-
 ### Bug Fixes
 
-* **channel-messenger:** fix initialization ([3c2f669](https://github.com/botpress/botpress/commit/3c2f669))
-* **core:** better log message ([e1d2f47](https://github.com/botpress/botpress/commit/e1d2f47))
-* **core:** module was not unloaded correctly ([e61ab76](https://github.com/botpress/botpress/commit/e61ab76))
-* **dev:** fix missing module backend type check ([6affc87](https://github.com/botpress/botpress/commit/6affc87))
-* **module:** typings for sdk, knex & router ([#2995](https://github.com/botpress/botpress/issues/2995)) ([fc61430](https://github.com/botpress/botpress/commit/fc61430))
-* **studio:** fix image preview ([c1c8685](https://github.com/botpress/botpress/commit/c1c8685))
-* **tests:** add delay before starting tests ([#3002](https://github.com/botpress/botpress/issues/3002)) ([f8a2a87](https://github.com/botpress/botpress/commit/f8a2a87))
-* **ui-studio:** change helper in create bot form ([8fff5f7](https://github.com/botpress/botpress/commit/8fff5f7))
-
-
+- **channel-messenger:** fix initialization ([3c2f669](https://github.com/botpress/botpress/commit/3c2f669))
+- **core:** better log message ([e1d2f47](https://github.com/botpress/botpress/commit/e1d2f47))
+- **core:** module was not unloaded correctly ([e61ab76](https://github.com/botpress/botpress/commit/e61ab76))
+- **dev:** fix missing module backend type check ([6affc87](https://github.com/botpress/botpress/commit/6affc87))
+- **module:** typings for sdk, knex & router ([#2995](https://github.com/botpress/botpress/issues/2995)) ([fc61430](https://github.com/botpress/botpress/commit/fc61430))
+- **studio:** fix image preview ([c1c8685](https://github.com/botpress/botpress/commit/c1c8685))
+- **tests:** add delay before starting tests ([#3002](https://github.com/botpress/botpress/issues/3002)) ([f8a2a87](https://github.com/botpress/botpress/commit/f8a2a87))
+- **ui-studio:** change helper in create bot form ([8fff5f7](https://github.com/botpress/botpress/commit/8fff5f7))
 
 # [12.6.0](https://github.com/botpress/botpress/compare/v12.5.0...v12.6.0) (2020-02-24)
 
-
 ### Bug Fixes
 
-* **admin:** allow overwrite existing bot on import ([d02a5ed](https://github.com/botpress/botpress/commit/d02a5ed))
-* **admin:** remove unused dep & fix ts ([c23be66](https://github.com/botpress/botpress/commit/c23be66))
-* **bots:** normalized bot status & added filters ([a3c0d71](https://github.com/botpress/botpress/commit/a3c0d71))
-* **cms:** fix image preview when name has space ([faabca3](https://github.com/botpress/botpress/commit/faabca3))
-* **code-editor:** fix formatting on loading file ([#2965](https://github.com/botpress/botpress/issues/2965)) ([4406dc7](https://github.com/botpress/botpress/commit/4406dc7))
-* **config:** remove misleading description for empty bot ([2fa1d9f](https://github.com/botpress/botpress/commit/2fa1d9f))
-* **core:** added more logging ([581758d](https://github.com/botpress/botpress/commit/581758d))
-* **core:** better audit traces ([6e9d082](https://github.com/botpress/botpress/commit/6e9d082))
-* **core:** creating schema when missing ([939d27e](https://github.com/botpress/botpress/commit/939d27e))
-* **core:** id validation on bot admin actions ([d55d6c8](https://github.com/botpress/botpress/commit/d55d6c8))
-* **core:** limit number of concurrent bot mount ([17c69e4](https://github.com/botpress/botpress/commit/17c69e4))
-* **docs:** before_container takes an array ([ac94ff6](https://github.com/botpress/botpress/commit/ac94ff6))
-* **docs:** changes ([54e5232](https://github.com/botpress/botpress/commit/54e5232))
-* **docs:** fix link to "hosting language server" ([e9a68b2](https://github.com/botpress/botpress/commit/e9a68b2))
-* **docs:** removed on page load section ([46f21a5](https://github.com/botpress/botpress/commit/46f21a5))
-* **misunderstood:** applying changed retrain the nlu ([6ea2d3f](https://github.com/botpress/botpress/commit/6ea2d3f))
-* **ui-studio:** add node highlight after redirect ([35a8d6d](https://github.com/botpress/botpress/commit/35a8d6d))
-* **ui-studio:** fix highlighting nodes by URL-hash ([0ed2568](https://github.com/botpress/botpress/commit/0ed2568))
-
+- **admin:** allow overwrite existing bot on import ([d02a5ed](https://github.com/botpress/botpress/commit/d02a5ed))
+- **admin:** remove unused dep & fix ts ([c23be66](https://github.com/botpress/botpress/commit/c23be66))
+- **bots:** normalized bot status & added filters ([a3c0d71](https://github.com/botpress/botpress/commit/a3c0d71))
+- **cms:** fix image preview when name has space ([faabca3](https://github.com/botpress/botpress/commit/faabca3))
+- **code-editor:** fix formatting on loading file ([#2965](https://github.com/botpress/botpress/issues/2965)) ([4406dc7](https://github.com/botpress/botpress/commit/4406dc7))
+- **config:** remove misleading description for empty bot ([2fa1d9f](https://github.com/botpress/botpress/commit/2fa1d9f))
+- **core:** added more logging ([581758d](https://github.com/botpress/botpress/commit/581758d))
+- **core:** better audit traces ([6e9d082](https://github.com/botpress/botpress/commit/6e9d082))
+- **core:** creating schema when missing ([939d27e](https://github.com/botpress/botpress/commit/939d27e))
+- **core:** id validation on bot admin actions ([d55d6c8](https://github.com/botpress/botpress/commit/d55d6c8))
+- **core:** limit number of concurrent bot mount ([17c69e4](https://github.com/botpress/botpress/commit/17c69e4))
+- **docs:** before_container takes an array ([ac94ff6](https://github.com/botpress/botpress/commit/ac94ff6))
+- **docs:** changes ([54e5232](https://github.com/botpress/botpress/commit/54e5232))
+- **docs:** fix link to "hosting language server" ([e9a68b2](https://github.com/botpress/botpress/commit/e9a68b2))
+- **docs:** removed on page load section ([46f21a5](https://github.com/botpress/botpress/commit/46f21a5))
+- **misunderstood:** applying changed retrain the nlu ([6ea2d3f](https://github.com/botpress/botpress/commit/6ea2d3f))
+- **ui-studio:** add node highlight after redirect ([35a8d6d](https://github.com/botpress/botpress/commit/35a8d6d))
+- **ui-studio:** fix highlighting nodes by URL-hash ([0ed2568](https://github.com/botpress/botpress/commit/0ed2568))
 
 ### Features
 
-* **admin:** basic module management ([#2917](https://github.com/botpress/botpress/issues/2917)) ([2370a53](https://github.com/botpress/botpress/commit/2370a53))
-* **cms:** link to usage elements ([#2957](https://github.com/botpress/botpress/issues/2957)) ([eeff521](https://github.com/botpress/botpress/commit/eeff521))
-* **core:** support for redis cluster ([78acae7](https://github.com/botpress/botpress/commit/78acae7))
-* **hook:** bot-scoped hooks ([fee2cea](https://github.com/botpress/botpress/commit/fee2cea))
-* **logs:** new log page & additional bot monitoring ([a945944](https://github.com/botpress/botpress/commit/a945944))
-* **ui-shared:** shared component library ([#2954](https://github.com/botpress/botpress/issues/2954)) ([5cbb50b](https://github.com/botpress/botpress/commit/5cbb50b))
-
-
+- **admin:** basic module management ([#2917](https://github.com/botpress/botpress/issues/2917)) ([2370a53](https://github.com/botpress/botpress/commit/2370a53))
+- **cms:** link to usage elements ([#2957](https://github.com/botpress/botpress/issues/2957)) ([eeff521](https://github.com/botpress/botpress/commit/eeff521))
+- **core:** support for redis cluster ([78acae7](https://github.com/botpress/botpress/commit/78acae7))
+- **hook:** bot-scoped hooks ([fee2cea](https://github.com/botpress/botpress/commit/fee2cea))
+- **logs:** new log page & additional bot monitoring ([a945944](https://github.com/botpress/botpress/commit/a945944))
+- **ui-shared:** shared component library ([#2954](https://github.com/botpress/botpress/issues/2954)) ([5cbb50b](https://github.com/botpress/botpress/commit/5cbb50b))
 
 # [12.5.0](https://github.com/botpress/botpress/compare/v12.4.2...v12.5.0) (2020-02-03)
 
-
 ### Bug Fixes
 
-* **admin:** fix error message for non super admins ([482fd5b](https://github.com/botpress/botpress/commit/482fd5b))
-* **builtin:** handle markdown property ([0f3f071](https://github.com/botpress/botpress/commit/0f3f071))
-* **cms:** markdown property ([1a52d8b](https://github.com/botpress/botpress/commit/1a52d8b))
-* **code-editor:** ignore bot mount errors ([79d7522](https://github.com/botpress/botpress/commit/79d7522))
-* **code-editor:** module schemas ([0d14dd6](https://github.com/botpress/botpress/commit/0d14dd6))
-* **core:** add module name when bot fails to mount ([8333f81](https://github.com/botpress/botpress/commit/8333f81))
-* **core:** added missing env var definition in global defs ([8e4d24c](https://github.com/botpress/botpress/commit/8e4d24c))
-* **core:** better error message when bot fails to load ([fa2cd25](https://github.com/botpress/botpress/commit/fa2cd25))
-* **core:** clear message when the workspace property is missing ([7c881bf](https://github.com/botpress/botpress/commit/7c881bf))
-* **core:** missing import ([6dc85be](https://github.com/botpress/botpress/commit/6dc85be))
-* **deps:** rollback react ([069e806](https://github.com/botpress/botpress/commit/069e806))
-* **flow:** better fix for links refresh ([b2e804a](https://github.com/botpress/botpress/commit/b2e804a))
-* **flow:** lag issue with a lot of content ([e372d5b](https://github.com/botpress/botpress/commit/e372d5b))
-* **flow:** no update when read only ([8dd1600](https://github.com/botpress/botpress/commit/8dd1600))
-* **nlu:** real spaces in list entity extraction ([1df97b0](https://github.com/botpress/botpress/commit/1df97b0))
-* **nlu-testing:** none compare ([f508fd6](https://github.com/botpress/botpress/commit/f508fd6))
-* code-style ([b10daec](https://github.com/botpress/botpress/commit/b10daec))
-* **qna:** fix redirection and incorrect message ([38518be](https://github.com/botpress/botpress/commit/38518be))
-* **qna:** update items on renaming flow ([88d4049](https://github.com/botpress/botpress/commit/88d4049))
-* **settings:** vs code settings for ts intellisens ([394da8f](https://github.com/botpress/botpress/commit/394da8f))
-* **studio:** allow access to code editor when bot unmounted ([d0b9b92](https://github.com/botpress/botpress/commit/d0b9b92))
-
+- **admin:** fix error message for non super admins ([482fd5b](https://github.com/botpress/botpress/commit/482fd5b))
+- **builtin:** handle markdown property ([0f3f071](https://github.com/botpress/botpress/commit/0f3f071))
+- **cms:** markdown property ([1a52d8b](https://github.com/botpress/botpress/commit/1a52d8b))
+- **code-editor:** ignore bot mount errors ([79d7522](https://github.com/botpress/botpress/commit/79d7522))
+- **code-editor:** module schemas ([0d14dd6](https://github.com/botpress/botpress/commit/0d14dd6))
+- **core:** add module name when bot fails to mount ([8333f81](https://github.com/botpress/botpress/commit/8333f81))
+- **core:** added missing env var definition in global defs ([8e4d24c](https://github.com/botpress/botpress/commit/8e4d24c))
+- **core:** better error message when bot fails to load ([fa2cd25](https://github.com/botpress/botpress/commit/fa2cd25))
+- **core:** clear message when the workspace property is missing ([7c881bf](https://github.com/botpress/botpress/commit/7c881bf))
+- **core:** missing import ([6dc85be](https://github.com/botpress/botpress/commit/6dc85be))
+- **deps:** rollback react ([069e806](https://github.com/botpress/botpress/commit/069e806))
+- **flow:** better fix for links refresh ([b2e804a](https://github.com/botpress/botpress/commit/b2e804a))
+- **flow:** lag issue with a lot of content ([e372d5b](https://github.com/botpress/botpress/commit/e372d5b))
+- **flow:** no update when read only ([8dd1600](https://github.com/botpress/botpress/commit/8dd1600))
+- **nlu:** real spaces in list entity extraction ([1df97b0](https://github.com/botpress/botpress/commit/1df97b0))
+- **nlu-testing:** none compare ([f508fd6](https://github.com/botpress/botpress/commit/f508fd6))
+- code-style ([b10daec](https://github.com/botpress/botpress/commit/b10daec))
+- **qna:** fix redirection and incorrect message ([38518be](https://github.com/botpress/botpress/commit/38518be))
+- **qna:** update items on renaming flow ([88d4049](https://github.com/botpress/botpress/commit/88d4049))
+- **settings:** vs code settings for ts intellisens ([394da8f](https://github.com/botpress/botpress/commit/394da8f))
+- **studio:** allow access to code editor when bot unmounted ([d0b9b92](https://github.com/botpress/botpress/commit/d0b9b92))
 
 ### Features
 
-* **channel:** smooch integration ([2ce1ccb](https://github.com/botpress/botpress/commit/2ce1ccb))
-* **channel-web:** allow setting webchat locale ([3d9c7b0](https://github.com/botpress/botpress/commit/3d9c7b0))
-* **code-editor:** raw editor to manage any files on the bpfs ([76c271e](https://github.com/botpress/botpress/commit/76c271e))
-* **core:** bot health monitor for clusters ([7a8b6b6](https://github.com/botpress/botpress/commit/7a8b6b6))
-* **core:** reboot individual servers ([9d2a7bf](https://github.com/botpress/botpress/commit/9d2a7bf))
-* **nlu:** merge latin token only if oov ([4421e21](https://github.com/botpress/botpress/commit/4421e21))
-* **NLU:** alternate input to account for typos ([648d20e](https://github.com/botpress/botpress/commit/648d20e))
-* **NLU:** only merge latin tokens when OOV ([0c8e17f](https://github.com/botpress/botpress/commit/0c8e17f))
-* **nlu-testing:** batch run ([a61024a](https://github.com/botpress/botpress/commit/a61024a))
-* **nlu-testing:** run & delete single test ([f27a1e5](https://github.com/botpress/botpress/commit/f27a1e5))
-* **studio:** add Content Usage count in CMS ([4d99101](https://github.com/botpress/botpress/commit/4d99101))
-
-
+- **channel:** smooch integration ([2ce1ccb](https://github.com/botpress/botpress/commit/2ce1ccb))
+- **channel-web:** allow setting webchat locale ([3d9c7b0](https://github.com/botpress/botpress/commit/3d9c7b0))
+- **code-editor:** raw editor to manage any files on the bpfs ([76c271e](https://github.com/botpress/botpress/commit/76c271e))
+- **core:** bot health monitor for clusters ([7a8b6b6](https://github.com/botpress/botpress/commit/7a8b6b6))
+- **core:** reboot individual servers ([9d2a7bf](https://github.com/botpress/botpress/commit/9d2a7bf))
+- **nlu:** merge latin token only if oov ([4421e21](https://github.com/botpress/botpress/commit/4421e21))
+- **NLU:** alternate input to account for typos ([648d20e](https://github.com/botpress/botpress/commit/648d20e))
+- **NLU:** only merge latin tokens when OOV ([0c8e17f](https://github.com/botpress/botpress/commit/0c8e17f))
+- **nlu-testing:** batch run ([a61024a](https://github.com/botpress/botpress/commit/a61024a))
+- **nlu-testing:** run & delete single test ([f27a1e5](https://github.com/botpress/botpress/commit/f27a1e5))
+- **studio:** add Content Usage count in CMS ([4d99101](https://github.com/botpress/botpress/commit/4d99101))
 
 ## [12.4.2](https://github.com/botpress/botpress/compare/v12.4.1...v12.4.2) (2020-01-22)
 
-
 ### Bug Fixes
 
-* **code-editor:** fix config schemas ([4170e34](https://github.com/botpress/botpress/commit/4170e34))
-* **code-editor:** single selection ([aab4580](https://github.com/botpress/botpress/commit/aab4580))
-* **core:** pool issue with knex and transactions ([79f3596](https://github.com/botpress/botpress/commit/79f3596))
-* **docs:** add hint about Content-Type header ([d7b6af7](https://github.com/botpress/botpress/commit/d7b6af7))
-* **nlu:** exclude NaN vectors ([fe44ac2](https://github.com/botpress/botpress/commit/fe44ac2))
-* **nlu:** handling of spacing inside slots ([035b0fe](https://github.com/botpress/botpress/commit/035b0fe))
-
-
+- **code-editor:** fix config schemas ([4170e34](https://github.com/botpress/botpress/commit/4170e34))
+- **code-editor:** single selection ([aab4580](https://github.com/botpress/botpress/commit/aab4580))
+- **core:** pool issue with knex and transactions ([79f3596](https://github.com/botpress/botpress/commit/79f3596))
+- **docs:** add hint about Content-Type header ([d7b6af7](https://github.com/botpress/botpress/commit/d7b6af7))
+- **nlu:** exclude NaN vectors ([fe44ac2](https://github.com/botpress/botpress/commit/fe44ac2))
+- **nlu:** handling of spacing inside slots ([035b0fe](https://github.com/botpress/botpress/commit/035b0fe))
 
 ## [12.4.1](https://github.com/botpress/botpress/compare/v12.4.0...v12.4.1) (2020-01-21)
 
-
 ### Bug Fixes
 
-* **channel-web:** faster loading on embedded mode ([dd9864d](https://github.com/botpress/botpress/commit/dd9864d))
-* **core:** redisio to use native promises ([2c2beb0](https://github.com/botpress/botpress/commit/2c2beb0))
-* **core:** user is stuck when a transition is missing ([0a98133](https://github.com/botpress/botpress/commit/0a98133))
-* **nlu:** empty dataset validation ([30fd61f](https://github.com/botpress/botpress/commit/30fd61f))
-* specify accept extensions in file upload ([2f05161](https://github.com/botpress/botpress/commit/2f05161))
-* **qna:** fix redirect to flow ([b1bfb4c](https://github.com/botpress/botpress/commit/b1bfb4c))
-* **studio:** keep randomId on choice edit (resolve [#2813](https://github.com/botpress/botpress/issues/2813)) ([77a4206](https://github.com/botpress/botpress/commit/77a4206))
-
-
+- **channel-web:** faster loading on embedded mode ([dd9864d](https://github.com/botpress/botpress/commit/dd9864d))
+- **core:** redisio to use native promises ([2c2beb0](https://github.com/botpress/botpress/commit/2c2beb0))
+- **core:** user is stuck when a transition is missing ([0a98133](https://github.com/botpress/botpress/commit/0a98133))
+- **nlu:** empty dataset validation ([30fd61f](https://github.com/botpress/botpress/commit/30fd61f))
+- specify accept extensions in file upload ([2f05161](https://github.com/botpress/botpress/commit/2f05161))
+- **qna:** fix redirect to flow ([b1bfb4c](https://github.com/botpress/botpress/commit/b1bfb4c))
+- **studio:** keep randomId on choice edit (resolve [#2813](https://github.com/botpress/botpress/issues/2813)) ([77a4206](https://github.com/botpress/botpress/commit/77a4206))
 
 # [12.4.0](https://github.com/botpress/botpress/compare/v12.3.3...v12.4.0) (2020-01-16)
 
-
 ### Bug Fixes
 
-* **admin:** version check ([a8b6112](https://github.com/botpress/botpress/commit/a8b6112))
-* **core:** event collector retry failed messages ([21e2db9](https://github.com/botpress/botpress/commit/21e2db9))
-* **nlu:** ignore special char in classification ([962b73a](https://github.com/botpress/botpress/commit/962b73a))
-* **nlu:** on create intent, raw name is used as first utterance ([3573b27](https://github.com/botpress/botpress/commit/3573b27))
-* **nlu:** token.isWord ([2e06041](https://github.com/botpress/botpress/commit/2e06041))
-
+- **admin:** version check ([a8b6112](https://github.com/botpress/botpress/commit/a8b6112))
+- **core:** event collector retry failed messages ([21e2db9](https://github.com/botpress/botpress/commit/21e2db9))
+- **nlu:** ignore special char in classification ([962b73a](https://github.com/botpress/botpress/commit/962b73a))
+- **nlu:** on create intent, raw name is used as first utterance ([3573b27](https://github.com/botpress/botpress/commit/3573b27))
+- **nlu:** token.isWord ([2e06041](https://github.com/botpress/botpress/commit/2e06041))
 
 ### Features
 
-* **channel-web:** allow changing language of UI ([ea96b0c](https://github.com/botpress/botpress/commit/ea96b0c))
-* **cms:** implement image preview ([a54ef1f](https://github.com/botpress/botpress/commit/a54ef1f))
-* **nlu:** added lite editor for NLU module ([293a0c6](https://github.com/botpress/botpress/commit/293a0c6))
-* **nlu:** cross validation ([e408f05](https://github.com/botpress/botpress/commit/e408f05))
-* **nlu:** entity can be renamed and duplicated ([d315534](https://github.com/botpress/botpress/commit/d315534))
-* **nlu:** extract route ([05e3db0](https://github.com/botpress/botpress/commit/05e3db0))
-* **nlu-testing:** basic import tests from csv ([0676c26](https://github.com/botpress/botpress/commit/0676c26))
-* **nlu-testing:** save tests ([a4cebdb](https://github.com/botpress/botpress/commit/a4cebdb))
-* **studio:** implement image preview ([4015fe7](https://github.com/botpress/botpress/commit/4015fe7))
-
-
+- **channel-web:** allow changing language of UI ([ea96b0c](https://github.com/botpress/botpress/commit/ea96b0c))
+- **cms:** implement image preview ([a54ef1f](https://github.com/botpress/botpress/commit/a54ef1f))
+- **nlu:** added lite editor for NLU module ([293a0c6](https://github.com/botpress/botpress/commit/293a0c6))
+- **nlu:** cross validation ([e408f05](https://github.com/botpress/botpress/commit/e408f05))
+- **nlu:** entity can be renamed and duplicated ([d315534](https://github.com/botpress/botpress/commit/d315534))
+- **nlu:** extract route ([05e3db0](https://github.com/botpress/botpress/commit/05e3db0))
+- **nlu-testing:** basic import tests from csv ([0676c26](https://github.com/botpress/botpress/commit/0676c26))
+- **nlu-testing:** save tests ([a4cebdb](https://github.com/botpress/botpress/commit/a4cebdb))
+- **studio:** implement image preview ([4015fe7](https://github.com/botpress/botpress/commit/4015fe7))
 
 ## [12.3.3](https://github.com/botpress/botpress/compare/v12.3.2...v12.3.3) (2020-01-13)
 
-
 ### Bug Fixes
 
-* correct spelling mistakes ([f229391](https://github.com/botpress/botpress/commit/f229391))
-* **admin:** fix docker image link ([9a8b254](https://github.com/botpress/botpress/commit/9a8b254))
-* show user-friendly flow name ([1610164](https://github.com/botpress/botpress/commit/1610164))
-* **admin:** fix docker image link ([96056b0](https://github.com/botpress/botpress/commit/96056b0))
-* **channel-web:** visit event is sent only when chat is open ([7c727de](https://github.com/botpress/botpress/commit/7c727de))
-* **code-editor:** only one of enabled or disabled ([a177992](https://github.com/botpress/botpress/commit/a177992))
-* **qna:** correct pagination on first page ([eb7f64f](https://github.com/botpress/botpress/commit/eb7f64f))
-* **qna:** react-select to be completely visible ([ca52fc2](https://github.com/botpress/botpress/commit/ca52fc2))
-* **studio:** don't show reselection of checkboxes ([23fd495](https://github.com/botpress/botpress/commit/23fd495))
-* **studio:** show user-friendly flow name ([3c76e50](https://github.com/botpress/botpress/commit/3c76e50))
-
-
+- correct spelling mistakes ([f229391](https://github.com/botpress/botpress/commit/f229391))
+- **admin:** fix docker image link ([9a8b254](https://github.com/botpress/botpress/commit/9a8b254))
+- show user-friendly flow name ([1610164](https://github.com/botpress/botpress/commit/1610164))
+- **admin:** fix docker image link ([96056b0](https://github.com/botpress/botpress/commit/96056b0))
+- **channel-web:** visit event is sent only when chat is open ([7c727de](https://github.com/botpress/botpress/commit/7c727de))
+- **code-editor:** only one of enabled or disabled ([a177992](https://github.com/botpress/botpress/commit/a177992))
+- **qna:** correct pagination on first page ([eb7f64f](https://github.com/botpress/botpress/commit/eb7f64f))
+- **qna:** react-select to be completely visible ([ca52fc2](https://github.com/botpress/botpress/commit/ca52fc2))
+- **studio:** don't show reselection of checkboxes ([23fd495](https://github.com/botpress/botpress/commit/23fd495))
+- **studio:** show user-friendly flow name ([3c76e50](https://github.com/botpress/botpress/commit/3c76e50))
 
 ## [12.3.2](https://github.com/botpress/botpress/compare/v12.3.1...v12.3.2) (2020-01-08)
 
-
 ### Bug Fixes
 
-* **admin:** bigger timeout for bots & stage change ([d54b4e3](https://github.com/botpress/botpress/commit/d54b4e3))
-* **bots:** issue when promoting bot with autorevision ([9db4960](https://github.com/botpress/botpress/commit/9db4960))
-* **build:** remove dupes on changelog & fix command ([081739a](https://github.com/botpress/botpress/commit/081739a))
-* **channel-web:** better text for "new messages" ([60f30d3](https://github.com/botpress/botpress/commit/60f30d3))
-* **channel-web:** better text for "new messages", and better grammar ([ecc8de7](https://github.com/botpress/botpress/commit/ecc8de7))
-* **channel-web:** group messages based on full_name ([#2718](https://github.com/botpress/botpress/issues/2718)) ([b3d964a](https://github.com/botpress/botpress/commit/b3d964a))
-* **channel-web:** login form translation ([fc7f8c4](https://github.com/botpress/botpress/commit/fc7f8c4))
-* **core:** correct checking for empty flow ([13d977b](https://github.com/botpress/botpress/commit/13d977b))
-* **core:** ghost ENOENT error code ([db3fa28](https://github.com/botpress/botpress/commit/db3fa28))
-* **core:** handle case of no previous flow ([2057a46](https://github.com/botpress/botpress/commit/2057a46))
-* **core:** remove folders in Windows ([95bbb47](https://github.com/botpress/botpress/commit/95bbb47))
-* **docs:** remove change log duplicates ([8275425](https://github.com/botpress/botpress/commit/8275425))
-* **examples:** update interbot examples ([63eb612](https://github.com/botpress/botpress/commit/63eb612))
-* **nlu:** filter inputs to have unique IDs ([cdadc75](https://github.com/botpress/botpress/commit/cdadc75))
-* **nlu:** load latest model when model is invalid at predict time ([749a751](https://github.com/botpress/botpress/commit/749a751))
-* **nlu:** model loading lock ([eb2505e](https://github.com/botpress/botpress/commit/eb2505e))
-* **nlu:** predict with multiple contexts ([2d97f73](https://github.com/botpress/botpress/commit/2d97f73))
-* **nlu:** use global ctx if empty predicitons ([88d6311](https://github.com/botpress/botpress/commit/88d6311))
-* **studio:** always show selection of current flow ([19872e5](https://github.com/botpress/botpress/commit/19872e5))
-* **studio:** correct documentation URL ([73b3422](https://github.com/botpress/botpress/commit/73b3422))
-* **studio:** don't allow same name in two nodes ([be48b7e](https://github.com/botpress/botpress/commit/be48b7e))
-* **studio:** have unique IDs ([edf6bb4](https://github.com/botpress/botpress/commit/edf6bb4))
-* **studio:** remove double clicking message ([50e8f06](https://github.com/botpress/botpress/commit/50e8f06))
-* **studio:** remove double clicking on diagram ([08c4d57](https://github.com/botpress/botpress/commit/08c4d57))
-* **webchat:** Arabic word misspelling ([da19228](https://github.com/botpress/botpress/commit/da19228))
-* **webchat:** proper login form arabic translation ([#2737](https://github.com/botpress/botpress/issues/2737)) ([96bcfa4](https://github.com/botpress/botpress/commit/96bcfa4))
-* replace only file extensions ([85c0283](https://github.com/botpress/botpress/commit/85c0283))
-* spelling mistakes in code ([cc9f950](https://github.com/botpress/botpress/commit/cc9f950))
-
-
+- **admin:** bigger timeout for bots & stage change ([d54b4e3](https://github.com/botpress/botpress/commit/d54b4e3))
+- **bots:** issue when promoting bot with autorevision ([9db4960](https://github.com/botpress/botpress/commit/9db4960))
+- **build:** remove dupes on changelog & fix command ([081739a](https://github.com/botpress/botpress/commit/081739a))
+- **channel-web:** better text for "new messages" ([60f30d3](https://github.com/botpress/botpress/commit/60f30d3))
+- **channel-web:** better text for "new messages", and better grammar ([ecc8de7](https://github.com/botpress/botpress/commit/ecc8de7))
+- **channel-web:** group messages based on full_name ([#2718](https://github.com/botpress/botpress/issues/2718)) ([b3d964a](https://github.com/botpress/botpress/commit/b3d964a))
+- **channel-web:** login form translation ([fc7f8c4](https://github.com/botpress/botpress/commit/fc7f8c4))
+- **core:** correct checking for empty flow ([13d977b](https://github.com/botpress/botpress/commit/13d977b))
+- **core:** ghost ENOENT error code ([db3fa28](https://github.com/botpress/botpress/commit/db3fa28))
+- **core:** handle case of no previous flow ([2057a46](https://github.com/botpress/botpress/commit/2057a46))
+- **core:** remove folders in Windows ([95bbb47](https://github.com/botpress/botpress/commit/95bbb47))
+- **docs:** remove change log duplicates ([8275425](https://github.com/botpress/botpress/commit/8275425))
+- **examples:** update interbot examples ([63eb612](https://github.com/botpress/botpress/commit/63eb612))
+- **nlu:** filter inputs to have unique IDs ([cdadc75](https://github.com/botpress/botpress/commit/cdadc75))
+- **nlu:** load latest model when model is invalid at predict time ([749a751](https://github.com/botpress/botpress/commit/749a751))
+- **nlu:** model loading lock ([eb2505e](https://github.com/botpress/botpress/commit/eb2505e))
+- **nlu:** predict with multiple contexts ([2d97f73](https://github.com/botpress/botpress/commit/2d97f73))
+- **nlu:** use global ctx if empty predicitons ([88d6311](https://github.com/botpress/botpress/commit/88d6311))
+- **studio:** always show selection of current flow ([19872e5](https://github.com/botpress/botpress/commit/19872e5))
+- **studio:** correct documentation URL ([73b3422](https://github.com/botpress/botpress/commit/73b3422))
+- **studio:** don't allow same name in two nodes ([be48b7e](https://github.com/botpress/botpress/commit/be48b7e))
+- **studio:** have unique IDs ([edf6bb4](https://github.com/botpress/botpress/commit/edf6bb4))
+- **studio:** remove double clicking message ([50e8f06](https://github.com/botpress/botpress/commit/50e8f06))
+- **studio:** remove double clicking on diagram ([08c4d57](https://github.com/botpress/botpress/commit/08c4d57))
+- **webchat:** Arabic word misspelling ([da19228](https://github.com/botpress/botpress/commit/da19228))
+- **webchat:** proper login form arabic translation ([#2737](https://github.com/botpress/botpress/issues/2737)) ([96bcfa4](https://github.com/botpress/botpress/commit/96bcfa4))
+- replace only file extensions ([85c0283](https://github.com/botpress/botpress/commit/85c0283))
+- spelling mistakes in code ([cc9f950](https://github.com/botpress/botpress/commit/cc9f950))
 
 ## [12.3.1](https://github.com/botpress/botpress/compare/v12.3.0...v12.3.1) (2019-12-17)
 
-
 ### Bug Fixes
 
-* **channel-web:** added missing reference logic on frontend ([b7939eb](https://github.com/botpress/botpress/commit/b7939eb))
-* **nlu:** lowercase tokens on vectorize ([2022774](https://github.com/botpress/botpress/commit/2022774))
-* **nlu:** lowercase while getting word vectors ([14c05aa](https://github.com/botpress/botpress/commit/14c05aa))
-* **studio:** rename only when flow name is changed ([459c844](https://github.com/botpress/botpress/commit/459c844))
-* various spelling mistakes ([8b185a3](https://github.com/botpress/botpress/commit/8b185a3))
-
+- **channel-web:** added missing reference logic on frontend ([b7939eb](https://github.com/botpress/botpress/commit/b7939eb))
+- **nlu:** lowercase tokens on vectorize ([2022774](https://github.com/botpress/botpress/commit/2022774))
+- **nlu:** lowercase while getting word vectors ([14c05aa](https://github.com/botpress/botpress/commit/14c05aa))
+- **studio:** rename only when flow name is changed ([459c844](https://github.com/botpress/botpress/commit/459c844))
+- various spelling mistakes ([8b185a3](https://github.com/botpress/botpress/commit/8b185a3))
 
 ### Features
 
-* **channel-web:** bot can have different avatars for different messages ([ab9215e](https://github.com/botpress/botpress/commit/ab9215e))
-
-
+- **channel-web:** bot can have different avatars for different messages ([ab9215e](https://github.com/botpress/botpress/commit/ab9215e))
 
 # [12.3.0](https://github.com/botpress/botpress/compare/v12.2.3...v12.3.0) (2019-12-12)
 
-
 ### Bug Fixes
 
-* **admin:** fix admin for users running on IE ([80872bd](https://github.com/botpress/botpress/commit/80872bd))
-* **admin:** import bot in the current workspace ([876329c](https://github.com/botpress/botpress/commit/876329c))
-* **admin:** lowercase check ([f229469](https://github.com/botpress/botpress/commit/f229469))
-* **channel-web:** disable typing animations to prevent flicker ([73ecf76](https://github.com/botpress/botpress/commit/73ecf76))
-* **channel-web:** prevent user name from being undefined ([5261948](https://github.com/botpress/botpress/commit/5261948))
-* **code-editor:** missing sync actions locally ([c3c50a2](https://github.com/botpress/botpress/commit/c3c50a2))
-* **core:** requiring actions directly from bpfs ([16a2841](https://github.com/botpress/botpress/commit/16a2841))
-* **core:** respect env http_proxy and no_proxy ([ef50d5e](https://github.com/botpress/botpress/commit/ef50d5e))
-* **core:** sync is done correctly when enabling bpfs first time ([20c8fba](https://github.com/botpress/botpress/commit/20c8fba))
-* **flow:** fix part 2 for the choice skill transitions ([c49ebdb](https://github.com/botpress/botpress/commit/c49ebdb))
-* **misunderstood:** eslint styling issues ([4081df5](https://github.com/botpress/botpress/commit/4081df5))
-* **module:** ran prettier & some adjustments ([9419360](https://github.com/botpress/botpress/commit/9419360))
-* **nlu:** exact matching ([678f247](https://github.com/botpress/botpress/commit/678f247))
-* **nlu:** fix circular issue when redis enabled ([7a4da94](https://github.com/botpress/botpress/commit/7a4da94))
-* **nlu:** original case in entity exact score ([7827e91](https://github.com/botpress/botpress/commit/7827e91))
-* **nlu:** update form fields on entity Id change ([b754037](https://github.com/botpress/botpress/commit/b754037))
-* **nlu:** added value to slot ([68e8c7f](https://github.com/botpress/botpress/commit/68e8c7f))
-* **nlu-testing:** filter slots conditions ([fd8e356](https://github.com/botpress/botpress/commit/fd8e356))
-* **skill-choice:** consider only selected options ([1fead4a](https://github.com/botpress/botpress/commit/1fead4a))
-
+- **admin:** fix admin for users running on IE ([80872bd](https://github.com/botpress/botpress/commit/80872bd))
+- **admin:** import bot in the current workspace ([876329c](https://github.com/botpress/botpress/commit/876329c))
+- **admin:** lowercase check ([f229469](https://github.com/botpress/botpress/commit/f229469))
+- **channel-web:** disable typing animations to prevent flicker ([73ecf76](https://github.com/botpress/botpress/commit/73ecf76))
+- **channel-web:** prevent user name from being undefined ([5261948](https://github.com/botpress/botpress/commit/5261948))
+- **code-editor:** missing sync actions locally ([c3c50a2](https://github.com/botpress/botpress/commit/c3c50a2))
+- **core:** requiring actions directly from bpfs ([16a2841](https://github.com/botpress/botpress/commit/16a2841))
+- **core:** respect env http_proxy and no_proxy ([ef50d5e](https://github.com/botpress/botpress/commit/ef50d5e))
+- **core:** sync is done correctly when enabling bpfs first time ([20c8fba](https://github.com/botpress/botpress/commit/20c8fba))
+- **flow:** fix part 2 for the choice skill transitions ([c49ebdb](https://github.com/botpress/botpress/commit/c49ebdb))
+- **misunderstood:** eslint styling issues ([4081df5](https://github.com/botpress/botpress/commit/4081df5))
+- **module:** ran prettier & some adjustments ([9419360](https://github.com/botpress/botpress/commit/9419360))
+- **nlu:** exact matching ([678f247](https://github.com/botpress/botpress/commit/678f247))
+- **nlu:** fix circular issue when redis enabled ([7a4da94](https://github.com/botpress/botpress/commit/7a4da94))
+- **nlu:** original case in entity exact score ([7827e91](https://github.com/botpress/botpress/commit/7827e91))
+- **nlu:** update form fields on entity Id change ([b754037](https://github.com/botpress/botpress/commit/b754037))
+- **nlu:** added value to slot ([68e8c7f](https://github.com/botpress/botpress/commit/68e8c7f))
+- **nlu-testing:** filter slots conditions ([fd8e356](https://github.com/botpress/botpress/commit/fd8e356))
+- **skill-choice:** consider only selected options ([1fead4a](https://github.com/botpress/botpress/commit/1fead4a))
 
 ### Features
 
-* **nlu:** added POS tagger as experimental feature for English ([86c62ed](https://github.com/botpress/botpress/commit/86c62ed))
-
-
+- **nlu:** added POS tagger as experimental feature for English ([86c62ed](https://github.com/botpress/botpress/commit/86c62ed))
 
 ## [12.2.3](https://github.com/botpress/botpress/compare/v12.2.2...v12.2.3) (2019-11-19)
 
-
 ### Bug Fixes
 
-* **admin:** comparing email lower case ([75801e9](https://github.com/botpress/botpress/commit/75801e9))
-* **admin:** create user button grayed out ([ae1ba0f](https://github.com/botpress/botpress/commit/ae1ba0f))
-* **admin:** releases not fetched automatically ([0347b94](https://github.com/botpress/botpress/commit/0347b94))
-* **channel-web:** issue on ie11 with proxy ([b0cbc67](https://github.com/botpress/botpress/commit/b0cbc67))
-* **cms:** using default lang when current is not set ([0697ac9](https://github.com/botpress/botpress/commit/0697ac9))
-* **code-editor:** refactor & improvements ([22ef2de](https://github.com/botpress/botpress/commit/22ef2de))
-* **core:** clearing state from redis when reset session ([34ecaed](https://github.com/botpress/botpress/commit/34ecaed))
-* **core:** email case insensitive ([7629a79](https://github.com/botpress/botpress/commit/7629a79))
-* **core:** fix transition with intent is ([9a3ea12](https://github.com/botpress/botpress/commit/9a3ea12))
-* **core:** minor adjustments ([ed04f7d](https://github.com/botpress/botpress/commit/ed04f7d))
-* **core:** startup error with all debug enabled ([a2d2f57](https://github.com/botpress/botpress/commit/a2d2f57))
-* **core:** using redis for better io with user state ([bf1f0bf](https://github.com/botpress/botpress/commit/bf1f0bf))
-* **skill-choice:** prevent collision between choice nodes ([c7805c3](https://github.com/botpress/botpress/commit/c7805c3))
-* **studio:** bot status is a bit more clear ([a069706](https://github.com/botpress/botpress/commit/a069706))
-* **webchat:** correctly scroll down when necessary ([ac909aa](https://github.com/botpress/botpress/commit/ac909aa))
-* **webchat:** option to swap localStorage to sessionStorage ([3436030](https://github.com/botpress/botpress/commit/3436030))
-
+- **admin:** comparing email lower case ([75801e9](https://github.com/botpress/botpress/commit/75801e9))
+- **admin:** create user button grayed out ([ae1ba0f](https://github.com/botpress/botpress/commit/ae1ba0f))
+- **admin:** releases not fetched automatically ([0347b94](https://github.com/botpress/botpress/commit/0347b94))
+- **channel-web:** issue on ie11 with proxy ([b0cbc67](https://github.com/botpress/botpress/commit/b0cbc67))
+- **cms:** using default lang when current is not set ([0697ac9](https://github.com/botpress/botpress/commit/0697ac9))
+- **code-editor:** refactor & improvements ([22ef2de](https://github.com/botpress/botpress/commit/22ef2de))
+- **core:** clearing state from redis when reset session ([34ecaed](https://github.com/botpress/botpress/commit/34ecaed))
+- **core:** email case insensitive ([7629a79](https://github.com/botpress/botpress/commit/7629a79))
+- **core:** fix transition with intent is ([9a3ea12](https://github.com/botpress/botpress/commit/9a3ea12))
+- **core:** minor adjustments ([ed04f7d](https://github.com/botpress/botpress/commit/ed04f7d))
+- **core:** startup error with all debug enabled ([a2d2f57](https://github.com/botpress/botpress/commit/a2d2f57))
+- **core:** using redis for better io with user state ([bf1f0bf](https://github.com/botpress/botpress/commit/bf1f0bf))
+- **skill-choice:** prevent collision between choice nodes ([c7805c3](https://github.com/botpress/botpress/commit/c7805c3))
+- **studio:** bot status is a bit more clear ([a069706](https://github.com/botpress/botpress/commit/a069706))
+- **webchat:** correctly scroll down when necessary ([ac909aa](https://github.com/botpress/botpress/commit/ac909aa))
+- **webchat:** option to swap localStorage to sessionStorage ([3436030](https://github.com/botpress/botpress/commit/3436030))
 
 ### Features
 
-* **cms:** import/export of content ([4ae2514](https://github.com/botpress/botpress/commit/4ae2514))
-* **code-editor:** added code samples that can be easily copied ([86e289e](https://github.com/botpress/botpress/commit/86e289e))
-* **code-editor:** added static examples ([7212856](https://github.com/botpress/botpress/commit/7212856))
-* **flow:** quick node linking on the flow editor ([b776285](https://github.com/botpress/botpress/commit/b776285))
-* **nlu:** added case sensitivity for entities ([409acf3](https://github.com/botpress/botpress/commit/409acf3))
-* **nlu:** added pattern entity examples ([ba60a96](https://github.com/botpress/botpress/commit/ba60a96))
-* **nlu:** fuzzy tolerance ([a25a1c4](https://github.com/botpress/botpress/commit/a25a1c4))
-* **nlu:** new list entities ui ([18dfaa1](https://github.com/botpress/botpress/commit/18dfaa1))
-
-
+- **cms:** import/export of content ([4ae2514](https://github.com/botpress/botpress/commit/4ae2514))
+- **code-editor:** added code samples that can be easily copied ([86e289e](https://github.com/botpress/botpress/commit/86e289e))
+- **code-editor:** added static examples ([7212856](https://github.com/botpress/botpress/commit/7212856))
+- **flow:** quick node linking on the flow editor ([b776285](https://github.com/botpress/botpress/commit/b776285))
+- **nlu:** added case sensitivity for entities ([409acf3](https://github.com/botpress/botpress/commit/409acf3))
+- **nlu:** added pattern entity examples ([ba60a96](https://github.com/botpress/botpress/commit/ba60a96))
+- **nlu:** fuzzy tolerance ([a25a1c4](https://github.com/botpress/botpress/commit/a25a1c4))
+- **nlu:** new list entities ui ([18dfaa1](https://github.com/botpress/botpress/commit/18dfaa1))
 
 ## [12.2.2](https://github.com/botpress/botpress/compare/v12.2.1...v12.2.2) (2019-11-08)
 
-
 ### Bug Fixes
 
-* **core:** avoid new debug instance creation ([c602ad5](https://github.com/botpress/botpress/commit/c602ad5))
-* **core:** caching required files in actions and hooks ([069d013](https://github.com/botpress/botpress/commit/069d013))
-* **core:** global actions/hooks executed outside nodevm ([2ef2e29](https://github.com/botpress/botpress/commit/2ef2e29))
-* **core:** process args were not memoized correctly ([1e5c2e6](https://github.com/botpress/botpress/commit/1e5c2e6))
-* **flow:** minor improvements ([4543d2d](https://github.com/botpress/botpress/commit/4543d2d))
-* **nlu:** create none intent properly ([b57a610](https://github.com/botpress/botpress/commit/b57a610))
-
+- **core:** avoid new debug instance creation ([c602ad5](https://github.com/botpress/botpress/commit/c602ad5))
+- **core:** caching required files in actions and hooks ([069d013](https://github.com/botpress/botpress/commit/069d013))
+- **core:** global actions/hooks executed outside nodevm ([2ef2e29](https://github.com/botpress/botpress/commit/2ef2e29))
+- **core:** process args were not memoized correctly ([1e5c2e6](https://github.com/botpress/botpress/commit/1e5c2e6))
+- **flow:** minor improvements ([4543d2d](https://github.com/botpress/botpress/commit/4543d2d))
+- **nlu:** create none intent properly ([b57a610](https://github.com/botpress/botpress/commit/b57a610))
 
 ### Features
 
-* **nlu:** filter predictions ([b460c8b](https://github.com/botpress/botpress/commit/b460c8b))
-* **nlu:** re introduced hard none threshold ([e698de9](https://github.com/botpress/botpress/commit/e698de9))
-
-
+- **nlu:** filter predictions ([b460c8b](https://github.com/botpress/botpress/commit/b460c8b))
+- **nlu:** re introduced hard none threshold ([e698de9](https://github.com/botpress/botpress/commit/e698de9))
 
 ## [12.2.1](https://github.com/botpress/botpress/compare/v12.2.0...v12.2.1) (2019-11-06)
 
-
 ### Bug Fixes
 
-* **analytics:** fix analytics insertion of long text ([2f5ab73](https://github.com/botpress/botpress/commit/2f5ab73))
-* **core:** catalina build ([35db0d6](https://github.com/botpress/botpress/commit/35db0d6))
-* **flow:** identifying timeout flow & bigger archive timeout ([80ac8e1](https://github.com/botpress/botpress/commit/80ac8e1))
-* **nlu:** moved fs calls to async ([0224002](https://github.com/botpress/botpress/commit/0224002))
-* **nlu:** progress ([54cda62](https://github.com/botpress/botpress/commit/54cda62))
-
+- **analytics:** fix analytics insertion of long text ([2f5ab73](https://github.com/botpress/botpress/commit/2f5ab73))
+- **core:** catalina build ([35db0d6](https://github.com/botpress/botpress/commit/35db0d6))
+- **flow:** identifying timeout flow & bigger archive timeout ([80ac8e1](https://github.com/botpress/botpress/commit/80ac8e1))
+- **nlu:** moved fs calls to async ([0224002](https://github.com/botpress/botpress/commit/0224002))
+- **nlu:** progress ([54cda62](https://github.com/botpress/botpress/commit/54cda62))
 
 ### Features
 
-* **admin:** display when a new version available ([1327eb9](https://github.com/botpress/botpress/commit/1327eb9))
-* **nlu:** cancel training ([59058c3](https://github.com/botpress/botpress/commit/59058c3))
-
-
+- **admin:** display when a new version available ([1327eb9](https://github.com/botpress/botpress/commit/1327eb9))
+- **nlu:** cancel training ([59058c3](https://github.com/botpress/botpress/commit/59058c3))
 
 # [12.2.0](https://github.com/botpress/botpress/compare/v12.1.6...v12.2.0) (2019-10-28)
 
-
 ### Bug Fixes
 
-* **admin:** add option to copy shortlink easily ([6e99b9b](https://github.com/botpress/botpress/commit/6e99b9b))
-* **admin:** better ux when unauthorized ([66832ea](https://github.com/botpress/botpress/commit/66832ea))
-* **admin:** cleanup of permissions ([cacadac](https://github.com/botpress/botpress/commit/cacadac))
-* **admin:** fixed create date & added picture url ([c9a2321](https://github.com/botpress/botpress/commit/c9a2321))
-* **admin:** minor adjustments ([d44b251](https://github.com/botpress/botpress/commit/d44b251))
-* **admin:** more work toward chat users ([1f3fdd7](https://github.com/botpress/botpress/commit/1f3fdd7))
-* **admin:** redirect if no permissions ([cf4a500](https://github.com/botpress/botpress/commit/cf4a500))
-* **admin:** separate btn to copy clipboard & fix rollback ([c3abf10](https://github.com/botpress/botpress/commit/c3abf10))
-* **admin:** unified UI for admin panel ([a209fc0](https://github.com/botpress/botpress/commit/a209fc0))
-* **admin:** updated bots view & implemented chat users ([8015434](https://github.com/botpress/botpress/commit/8015434))
-* **admin:** various fixes ([06f1321](https://github.com/botpress/botpress/commit/06f1321))
-* **admin:** workspace switcher ([8ac8f0d](https://github.com/botpress/botpress/commit/8ac8f0d))
-* **auth:** chat user base & various adjustments ([9e24771](https://github.com/botpress/botpress/commit/9e24771))
-* **auth:** display menu to choose auth strategy ([d18a36e](https://github.com/botpress/botpress/commit/d18a36e))
-* **build:** fix damn lib again and again ([0928e23](https://github.com/botpress/botpress/commit/0928e23))
-* **channel-web:** implementing correctly an old migration ([f710589](https://github.com/botpress/botpress/commit/f710589))
-* **checklist:** add sticky session verification ([422f9fe](https://github.com/botpress/botpress/commit/422f9fe))
-* **code-editor:** added prettier formatting ([65aee67](https://github.com/botpress/botpress/commit/65aee67))
-* **core:** better support for axios errors ([9030342](https://github.com/botpress/botpress/commit/9030342))
-* **core:** env var to easily skip problematic migrations ([11a89cd](https://github.com/botpress/botpress/commit/11a89cd))
-* **core:** fix axios config to use local url ([1fda878](https://github.com/botpress/botpress/commit/1fda878))
-* **core:** small changes to botpress fatal errors ([10dc57c](https://github.com/botpress/botpress/commit/10dc57c))
-* **debugger:** better handling of unauthorized users ([8c49e3a](https://github.com/botpress/botpress/commit/8c49e3a))
-* **debugger:** removed capitalized letter from top intent ([6d5915b](https://github.com/botpress/botpress/commit/6d5915b))
-* **dev:** added package command & fixed package name ([2f0ad8f](https://github.com/botpress/botpress/commit/2f0ad8f))
-* **dev:** faster build for studio and admin ([efc31ef](https://github.com/botpress/botpress/commit/efc31ef))
-* **e2e:** ignoring non-api requests ([e4d39c1](https://github.com/botpress/botpress/commit/e4d39c1))
-* **modules:** fixed module entry points ([a872630](https://github.com/botpress/botpress/commit/a872630))
-* **nlu:** all nodes load previously trained models ([38b2450](https://github.com/botpress/botpress/commit/38b2450))
-* **nlu:** discrete number of tokens in none utt ([29b9284](https://github.com/botpress/botpress/commit/29b9284))
-* **nlu:** empty exact match ([a011412](https://github.com/botpress/botpress/commit/a011412))
-* **nlu:** error handling in svm trainer ([c651cd8](https://github.com/botpress/botpress/commit/c651cd8))
-* **nlu:** moved training status to info ([2f8c60f](https://github.com/botpress/botpress/commit/2f8c60f))
-* **nlu:** prevent useless training ([2a60384](https://github.com/botpress/botpress/commit/2a60384))
-* **nlu:** remove dead configs ([8893ff6](https://github.com/botpress/botpress/commit/8893ff6))
-* **nlu:** remove none intent from exactmatch ([5b7f6d4](https://github.com/botpress/botpress/commit/5b7f6d4))
-* **nlu:** removed dead binaries ([17b3789](https://github.com/botpress/botpress/commit/17b3789))
-* **nlu:** train msg id for cluster mode ([c0ee85e](https://github.com/botpress/botpress/commit/c0ee85e))
-* **nlu2:** feature always wrong at predict time ([e6d79dc](https://github.com/botpress/botpress/commit/e6d79dc))
-* **nlu2:** slots & trailing space corner case ([d06f215](https://github.com/botpress/botpress/commit/d06f215))
-* **nlu2:** slots space feature ([5fc47da](https://github.com/botpress/botpress/commit/5fc47da))
-* **profile:** updated ux with profile and password ([ae3e785](https://github.com/botpress/botpress/commit/ae3e785))
-* **qna:** error when no categories defined ([3e8159d](https://github.com/botpress/botpress/commit/3e8159d))
-* **skill:** added icon, typings & some other stuff ([54f9354](https://github.com/botpress/botpress/commit/54f9354))
-* **studio:** displaying skill icons in flow nodes ([ba8adff](https://github.com/botpress/botpress/commit/ba8adff))
-* **studio:** fix backspace issue ([6462b05](https://github.com/botpress/botpress/commit/6462b05))
-* **studio:** fix issue in flow with skills/redux ([ad14cb9](https://github.com/botpress/botpress/commit/ad14cb9))
-* **studio:** using same flags as admin ([553f457](https://github.com/botpress/botpress/commit/553f457))
-* **tests:** small adjustment to tests ([602996b](https://github.com/botpress/botpress/commit/602996b))
-* **ux:** prevent click close dialog ([100594d](https://github.com/botpress/botpress/commit/100594d))
-* **webchat:** added config to expose the store ([1148505](https://github.com/botpress/botpress/commit/1148505))
-
+- **admin:** add option to copy shortlink easily ([6e99b9b](https://github.com/botpress/botpress/commit/6e99b9b))
+- **admin:** better ux when unauthorized ([66832ea](https://github.com/botpress/botpress/commit/66832ea))
+- **admin:** cleanup of permissions ([cacadac](https://github.com/botpress/botpress/commit/cacadac))
+- **admin:** fixed create date & added picture url ([c9a2321](https://github.com/botpress/botpress/commit/c9a2321))
+- **admin:** minor adjustments ([d44b251](https://github.com/botpress/botpress/commit/d44b251))
+- **admin:** more work toward chat users ([1f3fdd7](https://github.com/botpress/botpress/commit/1f3fdd7))
+- **admin:** redirect if no permissions ([cf4a500](https://github.com/botpress/botpress/commit/cf4a500))
+- **admin:** separate btn to copy clipboard & fix rollback ([c3abf10](https://github.com/botpress/botpress/commit/c3abf10))
+- **admin:** unified UI for admin panel ([a209fc0](https://github.com/botpress/botpress/commit/a209fc0))
+- **admin:** updated bots view & implemented chat users ([8015434](https://github.com/botpress/botpress/commit/8015434))
+- **admin:** various fixes ([06f1321](https://github.com/botpress/botpress/commit/06f1321))
+- **admin:** workspace switcher ([8ac8f0d](https://github.com/botpress/botpress/commit/8ac8f0d))
+- **auth:** chat user base & various adjustments ([9e24771](https://github.com/botpress/botpress/commit/9e24771))
+- **auth:** display menu to choose auth strategy ([d18a36e](https://github.com/botpress/botpress/commit/d18a36e))
+- **build:** fix damn lib again and again ([0928e23](https://github.com/botpress/botpress/commit/0928e23))
+- **channel-web:** implementing correctly an old migration ([f710589](https://github.com/botpress/botpress/commit/f710589))
+- **checklist:** add sticky session verification ([422f9fe](https://github.com/botpress/botpress/commit/422f9fe))
+- **code-editor:** added prettier formatting ([65aee67](https://github.com/botpress/botpress/commit/65aee67))
+- **core:** better support for axios errors ([9030342](https://github.com/botpress/botpress/commit/9030342))
+- **core:** env var to easily skip problematic migrations ([11a89cd](https://github.com/botpress/botpress/commit/11a89cd))
+- **core:** fix axios config to use local url ([1fda878](https://github.com/botpress/botpress/commit/1fda878))
+- **core:** small changes to botpress fatal errors ([10dc57c](https://github.com/botpress/botpress/commit/10dc57c))
+- **debugger:** better handling of unauthorized users ([8c49e3a](https://github.com/botpress/botpress/commit/8c49e3a))
+- **debugger:** removed capitalized letter from top intent ([6d5915b](https://github.com/botpress/botpress/commit/6d5915b))
+- **dev:** added package command & fixed package name ([2f0ad8f](https://github.com/botpress/botpress/commit/2f0ad8f))
+- **dev:** faster build for studio and admin ([efc31ef](https://github.com/botpress/botpress/commit/efc31ef))
+- **e2e:** ignoring non-api requests ([e4d39c1](https://github.com/botpress/botpress/commit/e4d39c1))
+- **modules:** fixed module entry points ([a872630](https://github.com/botpress/botpress/commit/a872630))
+- **nlu:** all nodes load previously trained models ([38b2450](https://github.com/botpress/botpress/commit/38b2450))
+- **nlu:** discrete number of tokens in none utt ([29b9284](https://github.com/botpress/botpress/commit/29b9284))
+- **nlu:** empty exact match ([a011412](https://github.com/botpress/botpress/commit/a011412))
+- **nlu:** error handling in svm trainer ([c651cd8](https://github.com/botpress/botpress/commit/c651cd8))
+- **nlu:** moved training status to info ([2f8c60f](https://github.com/botpress/botpress/commit/2f8c60f))
+- **nlu:** prevent useless training ([2a60384](https://github.com/botpress/botpress/commit/2a60384))
+- **nlu:** remove dead configs ([8893ff6](https://github.com/botpress/botpress/commit/8893ff6))
+- **nlu:** remove none intent from exactmatch ([5b7f6d4](https://github.com/botpress/botpress/commit/5b7f6d4))
+- **nlu:** removed dead binaries ([17b3789](https://github.com/botpress/botpress/commit/17b3789))
+- **nlu:** train msg id for cluster mode ([c0ee85e](https://github.com/botpress/botpress/commit/c0ee85e))
+- **nlu2:** feature always wrong at predict time ([e6d79dc](https://github.com/botpress/botpress/commit/e6d79dc))
+- **nlu2:** slots & trailing space corner case ([d06f215](https://github.com/botpress/botpress/commit/d06f215))
+- **nlu2:** slots space feature ([5fc47da](https://github.com/botpress/botpress/commit/5fc47da))
+- **profile:** updated ux with profile and password ([ae3e785](https://github.com/botpress/botpress/commit/ae3e785))
+- **qna:** error when no categories defined ([3e8159d](https://github.com/botpress/botpress/commit/3e8159d))
+- **skill:** added icon, typings & some other stuff ([54f9354](https://github.com/botpress/botpress/commit/54f9354))
+- **studio:** displaying skill icons in flow nodes ([ba8adff](https://github.com/botpress/botpress/commit/ba8adff))
+- **studio:** fix backspace issue ([6462b05](https://github.com/botpress/botpress/commit/6462b05))
+- **studio:** fix issue in flow with skills/redux ([ad14cb9](https://github.com/botpress/botpress/commit/ad14cb9))
+- **studio:** using same flags as admin ([553f457](https://github.com/botpress/botpress/commit/553f457))
+- **tests:** small adjustment to tests ([602996b](https://github.com/botpress/botpress/commit/602996b))
+- **ux:** prevent click close dialog ([100594d](https://github.com/botpress/botpress/commit/100594d))
+- **webchat:** added config to expose the store ([1148505](https://github.com/botpress/botpress/commit/1148505))
 
 ### Features
 
-* **admin:** enable features from ui ([5c33ed2](https://github.com/botpress/botpress/commit/5c33ed2))
-* **admin:** filter bots ([625aac3](https://github.com/botpress/botpress/commit/625aac3))
-* **admin:** new layout for super admins ([0a47783](https://github.com/botpress/botpress/commit/0a47783))
-* **admin:** partial workspace management ([6d0ba1a](https://github.com/botpress/botpress/commit/6d0ba1a))
-* **auth:** authentication for chat users & rollout strategies ([6d0268b](https://github.com/botpress/botpress/commit/6d0268b))
-* **channel-web:** add arabic translations ([bbe669a](https://github.com/botpress/botpress/commit/bbe669a))
-* **channel-web:** add Russian and Ukrainian translations ([1186c16](https://github.com/botpress/botpress/commit/1186c16))
-* **core:** added page for latest releases ([32b5b2b](https://github.com/botpress/botpress/commit/32b5b2b))
-* **core:** checklist for production usage ([6ffc58e](https://github.com/botpress/botpress/commit/6ffc58e))
-* **hitl:** added features, fixes & refactor ([a8115da](https://github.com/botpress/botpress/commit/a8115da))
-* **nlu:** distributed model training ([21295bd](https://github.com/botpress/botpress/commit/21295bd))
-* **nlu:** New intent editor ([f4b3999](https://github.com/botpress/botpress/commit/f4b3999))
-* **nlu:** UI revamp into 12-1-6 ([4392eef](https://github.com/botpress/botpress/commit/4392eef))
-* **sdk:** added distributed methods ([84c305d](https://github.com/botpress/botpress/commit/84c305d))
-* **studio:** various improvements to flow builder ([267cea1](https://github.com/botpress/botpress/commit/267cea1))
-
-
+- **admin:** enable features from ui ([5c33ed2](https://github.com/botpress/botpress/commit/5c33ed2))
+- **admin:** filter bots ([625aac3](https://github.com/botpress/botpress/commit/625aac3))
+- **admin:** new layout for super admins ([0a47783](https://github.com/botpress/botpress/commit/0a47783))
+- **admin:** partial workspace management ([6d0ba1a](https://github.com/botpress/botpress/commit/6d0ba1a))
+- **auth:** authentication for chat users & rollout strategies ([6d0268b](https://github.com/botpress/botpress/commit/6d0268b))
+- **channel-web:** add arabic translations ([bbe669a](https://github.com/botpress/botpress/commit/bbe669a))
+- **channel-web:** add Russian and Ukrainian translations ([1186c16](https://github.com/botpress/botpress/commit/1186c16))
+- **core:** added page for latest releases ([32b5b2b](https://github.com/botpress/botpress/commit/32b5b2b))
+- **core:** checklist for production usage ([6ffc58e](https://github.com/botpress/botpress/commit/6ffc58e))
+- **hitl:** added features, fixes & refactor ([a8115da](https://github.com/botpress/botpress/commit/a8115da))
+- **nlu:** distributed model training ([21295bd](https://github.com/botpress/botpress/commit/21295bd))
+- **nlu:** New intent editor ([f4b3999](https://github.com/botpress/botpress/commit/f4b3999))
+- **nlu:** UI revamp into 12-1-6 ([4392eef](https://github.com/botpress/botpress/commit/4392eef))
+- **sdk:** added distributed methods ([84c305d](https://github.com/botpress/botpress/commit/84c305d))
+- **studio:** various improvements to flow builder ([267cea1](https://github.com/botpress/botpress/commit/267cea1))
 
 ## [12.1.6](https://github.com/botpress/botpress/compare/v12.1.5...v12.1.6) (2019-10-04)
 
-
 ### Bug Fixes
 
-* **hitl:** issue on some version of postgres ([e18f674](https://github.com/botpress/botpress/commit/e18f674))
-* **module:** enforces bot-scoped config when global is not wanted ([50bbbcf](https://github.com/botpress/botpress/commit/50bbbcf))
-* **nlu:** added hyphens to latin ([0cb19a6](https://github.com/botpress/botpress/commit/0cb19a6))
-* **nlu:** fix "isLoaded of undefined" on model load ([082c6ad](https://github.com/botpress/botpress/commit/082c6ad))
-* **qna:** issue with cms content & intent not being deleted ([7df80e6](https://github.com/botpress/botpress/commit/7df80e6))
-* **skill-email:** fix element rendering & config documentation ([f0997b0](https://github.com/botpress/botpress/commit/f0997b0))
-* **studio:** config status not visible & bp-ui changes ([ec7fb3f](https://github.com/botpress/botpress/commit/ec7fb3f))
-
-
+- **hitl:** issue on some version of postgres ([e18f674](https://github.com/botpress/botpress/commit/e18f674))
+- **module:** enforces bot-scoped config when global is not wanted ([50bbbcf](https://github.com/botpress/botpress/commit/50bbbcf))
+- **nlu:** added hyphens to latin ([0cb19a6](https://github.com/botpress/botpress/commit/0cb19a6))
+- **nlu:** fix "isLoaded of undefined" on model load ([082c6ad](https://github.com/botpress/botpress/commit/082c6ad))
+- **qna:** issue with cms content & intent not being deleted ([7df80e6](https://github.com/botpress/botpress/commit/7df80e6))
+- **skill-email:** fix element rendering & config documentation ([f0997b0](https://github.com/botpress/botpress/commit/f0997b0))
+- **studio:** config status not visible & bp-ui changes ([ec7fb3f](https://github.com/botpress/botpress/commit/ec7fb3f))
 
 ## [12.1.5](https://github.com/botpress/botpress/compare/v12.1.3...v12.1.5) (2019-10-01)
 
-
 ### Bug Fixes
 
-* **bpfs:** fixed issues caused by legacy logic ([fa89276](https://github.com/botpress/botpress/commit/fa89276))
-* **bpfs:** various fixes due to legacy logic ([4108970](https://github.com/botpress/botpress/commit/4108970))
-* **channel-web:** fix container width on init ([5ee2f1d](https://github.com/botpress/botpress/commit/5ee2f1d))
-* **channel-web:** fix for intermittent issue with emulator ([c148596](https://github.com/botpress/botpress/commit/c148596))
-* **channel-web:** fix output of conversation log ([53982ab](https://github.com/botpress/botpress/commit/53982ab))
-* **channel-web:** re-added google analytics ([0fe8fce](https://github.com/botpress/botpress/commit/0fe8fce))
-* **cluster:** broadcasting reboot to all nodes ([decd505](https://github.com/botpress/botpress/commit/decd505))
-* **config:** clear hash on first start & ignore dynamic props ([7d8d5b7](https://github.com/botpress/botpress/commit/7d8d5b7))
-* **converse:** ability to change max message length ([aa0a612](https://github.com/botpress/botpress/commit/aa0a612))
-* **core:** added multi-thread support for heavy tasks ([d2b30e4](https://github.com/botpress/botpress/commit/d2b30e4))
-* **core:** debug logs are not saved to file output ([e328b49](https://github.com/botpress/botpress/commit/e328b49))
-* **core:** dialog anti-loop ([d1de885](https://github.com/botpress/botpress/commit/d1de885))
-* **core:** fix issue with server reboot ([077dbc9](https://github.com/botpress/botpress/commit/077dbc9))
-* **core:** fix permissions view  ([23eea72](https://github.com/botpress/botpress/commit/23eea72))
-* **core:** fixed typings and missing await for sendevent ([4c7f937](https://github.com/botpress/botpress/commit/4c7f937))
-* **core:** on action not found error ([19e9e1d](https://github.com/botpress/botpress/commit/19e9e1d))
-* **core:** removed required check ([a80c464](https://github.com/botpress/botpress/commit/a80c464))
-* **core:** set max server reboots to 2 ([99f3550](https://github.com/botpress/botpress/commit/99f3550))
-* **debugger:** a bit more compact nlu debugger ([33b30c0](https://github.com/botpress/botpress/commit/33b30c0))
-* **debugger:** added safeguard when an event is incomplete ([75b58a8](https://github.com/botpress/botpress/commit/75b58a8))
-* **debugger:** minor adjustment ([adf139d](https://github.com/botpress/botpress/commit/adf139d))
-* **dialog:** timeout handling ([1b2fa60](https://github.com/botpress/botpress/commit/1b2fa60))
-* **event:** added some checks for parameters ([e8fb839](https://github.com/botpress/botpress/commit/e8fb839))
-* **inspector:** ambiguity more visible ([61cfe2f](https://github.com/botpress/botpress/commit/61cfe2f))
-* **lock:** allowing upsert to bypass locked status ([5964178](https://github.com/botpress/botpress/commit/5964178))
-* **logs:** fixed log emitter ([63b7343](https://github.com/botpress/botpress/commit/63b7343))
-* **nlu:** fix progress issue with auto train ([e11cb38](https://github.com/botpress/botpress/commit/e11cb38))
-* **nlu:** prevent training on not supported languages ([15cd631](https://github.com/botpress/botpress/commit/15cd631))
-* **nlu:** removed jap tokenizer ([f940d14](https://github.com/botpress/botpress/commit/f940d14))
-* **nlu:** spelling mistakes & synonyms ([b31ac5a](https://github.com/botpress/botpress/commit/b31ac5a))
-* **nlu:** using multiple threads for training ([69822fe](https://github.com/botpress/botpress/commit/69822fe))
-* **perms:** modules were always displayed ([1fa6dd6](https://github.com/botpress/botpress/commit/1fa6dd6))
-* **qna:** source categories from nlu contexts ([cb261eb](https://github.com/botpress/botpress/commit/cb261eb))
-* **qna:** updated tests and minor tweak ([59aff43](https://github.com/botpress/botpress/commit/59aff43))
-* **rbac:** content editor access to nlu/qna ([58291b0](https://github.com/botpress/botpress/commit/58291b0))
-* **redis:** prevent server spamming on startup ([ba9dba1](https://github.com/botpress/botpress/commit/ba9dba1))
-* **security:** updated lodash version ([f31ca19](https://github.com/botpress/botpress/commit/f31ca19))
-* **studio:** dm title in emulator ([87cc95b](https://github.com/botpress/botpress/commit/87cc95b))
-* **studio:** fix logs panel ([97209a5](https://github.com/botpress/botpress/commit/97209a5))
-* **studio:** minor sidebar icons styling fix ([dfdc479](https://github.com/botpress/botpress/commit/dfdc479))
-* **webchat:** escape unsafe html ([40bf2d7](https://github.com/botpress/botpress/commit/40bf2d7))
-
+- **bpfs:** fixed issues caused by legacy logic ([fa89276](https://github.com/botpress/botpress/commit/fa89276))
+- **bpfs:** various fixes due to legacy logic ([4108970](https://github.com/botpress/botpress/commit/4108970))
+- **channel-web:** fix container width on init ([5ee2f1d](https://github.com/botpress/botpress/commit/5ee2f1d))
+- **channel-web:** fix for intermittent issue with emulator ([c148596](https://github.com/botpress/botpress/commit/c148596))
+- **channel-web:** fix output of conversation log ([53982ab](https://github.com/botpress/botpress/commit/53982ab))
+- **channel-web:** re-added google analytics ([0fe8fce](https://github.com/botpress/botpress/commit/0fe8fce))
+- **cluster:** broadcasting reboot to all nodes ([decd505](https://github.com/botpress/botpress/commit/decd505))
+- **config:** clear hash on first start & ignore dynamic props ([7d8d5b7](https://github.com/botpress/botpress/commit/7d8d5b7))
+- **converse:** ability to change max message length ([aa0a612](https://github.com/botpress/botpress/commit/aa0a612))
+- **core:** added multi-thread support for heavy tasks ([d2b30e4](https://github.com/botpress/botpress/commit/d2b30e4))
+- **core:** debug logs are not saved to file output ([e328b49](https://github.com/botpress/botpress/commit/e328b49))
+- **core:** dialog anti-loop ([d1de885](https://github.com/botpress/botpress/commit/d1de885))
+- **core:** fix issue with server reboot ([077dbc9](https://github.com/botpress/botpress/commit/077dbc9))
+- **core:** fix permissions view ([23eea72](https://github.com/botpress/botpress/commit/23eea72))
+- **core:** fixed typings and missing await for sendevent ([4c7f937](https://github.com/botpress/botpress/commit/4c7f937))
+- **core:** on action not found error ([19e9e1d](https://github.com/botpress/botpress/commit/19e9e1d))
+- **core:** removed required check ([a80c464](https://github.com/botpress/botpress/commit/a80c464))
+- **core:** set max server reboots to 2 ([99f3550](https://github.com/botpress/botpress/commit/99f3550))
+- **debugger:** a bit more compact nlu debugger ([33b30c0](https://github.com/botpress/botpress/commit/33b30c0))
+- **debugger:** added safeguard when an event is incomplete ([75b58a8](https://github.com/botpress/botpress/commit/75b58a8))
+- **debugger:** minor adjustment ([adf139d](https://github.com/botpress/botpress/commit/adf139d))
+- **dialog:** timeout handling ([1b2fa60](https://github.com/botpress/botpress/commit/1b2fa60))
+- **event:** added some checks for parameters ([e8fb839](https://github.com/botpress/botpress/commit/e8fb839))
+- **inspector:** ambiguity more visible ([61cfe2f](https://github.com/botpress/botpress/commit/61cfe2f))
+- **lock:** allowing upsert to bypass locked status ([5964178](https://github.com/botpress/botpress/commit/5964178))
+- **logs:** fixed log emitter ([63b7343](https://github.com/botpress/botpress/commit/63b7343))
+- **nlu:** fix progress issue with auto train ([e11cb38](https://github.com/botpress/botpress/commit/e11cb38))
+- **nlu:** prevent training on not supported languages ([15cd631](https://github.com/botpress/botpress/commit/15cd631))
+- **nlu:** removed jap tokenizer ([f940d14](https://github.com/botpress/botpress/commit/f940d14))
+- **nlu:** spelling mistakes & synonyms ([b31ac5a](https://github.com/botpress/botpress/commit/b31ac5a))
+- **nlu:** using multiple threads for training ([69822fe](https://github.com/botpress/botpress/commit/69822fe))
+- **perms:** modules were always displayed ([1fa6dd6](https://github.com/botpress/botpress/commit/1fa6dd6))
+- **qna:** source categories from nlu contexts ([cb261eb](https://github.com/botpress/botpress/commit/cb261eb))
+- **qna:** updated tests and minor tweak ([59aff43](https://github.com/botpress/botpress/commit/59aff43))
+- **rbac:** content editor access to nlu/qna ([58291b0](https://github.com/botpress/botpress/commit/58291b0))
+- **redis:** prevent server spamming on startup ([ba9dba1](https://github.com/botpress/botpress/commit/ba9dba1))
+- **security:** updated lodash version ([f31ca19](https://github.com/botpress/botpress/commit/f31ca19))
+- **studio:** dm title in emulator ([87cc95b](https://github.com/botpress/botpress/commit/87cc95b))
+- **studio:** fix logs panel ([97209a5](https://github.com/botpress/botpress/commit/97209a5))
+- **studio:** minor sidebar icons styling fix ([dfdc479](https://github.com/botpress/botpress/commit/dfdc479))
+- **webchat:** escape unsafe html ([40bf2d7](https://github.com/botpress/botpress/commit/40bf2d7))
 
 ### Features
 
-* **auth:** added oauth2 strategy ([dc7e690](https://github.com/botpress/botpress/commit/dc7e690))
-* **bpfs:** workaround to fix bpfs issues ([abd4bd0](https://github.com/botpress/botpress/commit/abd4bd0))
-* **config:** prompt server reboot when configuration is updated ([dedaf3d](https://github.com/botpress/botpress/commit/dedaf3d))
-* **core:** added config to add extra languages ([43cc081](https://github.com/botpress/botpress/commit/43cc081))
-* **core:** prompt server reboot when main config has changed ([1950602](https://github.com/botpress/botpress/commit/1950602))
-* **debugger:** added language section ([9f5e253](https://github.com/botpress/botpress/commit/9f5e253))
-* **inspector:** copy path to clipboard ([be8cdd1](https://github.com/botpress/botpress/commit/be8cdd1))
-* **qna:** added support for content elements ([e32df0a](https://github.com/botpress/botpress/commit/e32df0a))
-* **qna:** Added support for elements from the CMS ([7a27aba](https://github.com/botpress/botpress/commit/7a27aba))
-* **skill-email:** added email skill ([33f46d4](https://github.com/botpress/botpress/commit/33f46d4))
-* **studio:** added util components & change to cms ([0433724](https://github.com/botpress/botpress/commit/0433724))
-
-
+- **auth:** added oauth2 strategy ([dc7e690](https://github.com/botpress/botpress/commit/dc7e690))
+- **bpfs:** workaround to fix bpfs issues ([abd4bd0](https://github.com/botpress/botpress/commit/abd4bd0))
+- **config:** prompt server reboot when configuration is updated ([dedaf3d](https://github.com/botpress/botpress/commit/dedaf3d))
+- **core:** added config to add extra languages ([43cc081](https://github.com/botpress/botpress/commit/43cc081))
+- **core:** prompt server reboot when main config has changed ([1950602](https://github.com/botpress/botpress/commit/1950602))
+- **debugger:** added language section ([9f5e253](https://github.com/botpress/botpress/commit/9f5e253))
+- **inspector:** copy path to clipboard ([be8cdd1](https://github.com/botpress/botpress/commit/be8cdd1))
+- **qna:** added support for content elements ([e32df0a](https://github.com/botpress/botpress/commit/e32df0a))
+- **qna:** Added support for elements from the CMS ([7a27aba](https://github.com/botpress/botpress/commit/7a27aba))
+- **skill-email:** added email skill ([33f46d4](https://github.com/botpress/botpress/commit/33f46d4))
+- **studio:** added util components & change to cms ([0433724](https://github.com/botpress/botpress/commit/0433724))
 
 ## [12.1.4](https://github.com/botpress/botpress/compare/v12.1.3...v12.1.4) (2019-10-01)
 
-
 ### Bug Fixes
 
-* **bpfs:** fixed issues caused by legacy logic ([fa89276](https://github.com/botpress/botpress/commit/fa89276))
-* **bpfs:** various fixes due to legacy logic ([4108970](https://github.com/botpress/botpress/commit/4108970))
-* **channel-web:** fix container width on init ([5ee2f1d](https://github.com/botpress/botpress/commit/5ee2f1d))
-* **channel-web:** fix for intermittent issue with emulator ([c148596](https://github.com/botpress/botpress/commit/c148596))
-* **channel-web:** fix output of conversation log ([53982ab](https://github.com/botpress/botpress/commit/53982ab))
-* **channel-web:** re-added google analytics ([0fe8fce](https://github.com/botpress/botpress/commit/0fe8fce))
-* **cluster:** broadcasting reboot to all nodes ([decd505](https://github.com/botpress/botpress/commit/decd505))
-* **config:** clear hash on first start & ignore dynamic props ([7d8d5b7](https://github.com/botpress/botpress/commit/7d8d5b7))
-* **converse:** ability to change max message length ([aa0a612](https://github.com/botpress/botpress/commit/aa0a612))
-* **core:** added multi-thread support for heavy tasks ([d2b30e4](https://github.com/botpress/botpress/commit/d2b30e4))
-* **core:** debug logs are not saved to file output ([e328b49](https://github.com/botpress/botpress/commit/e328b49))
-* **core:** dialog anti-loop ([d1de885](https://github.com/botpress/botpress/commit/d1de885))
-* **core:** fix issue with server reboot ([077dbc9](https://github.com/botpress/botpress/commit/077dbc9))
-* **core:** fix permissions view  ([23eea72](https://github.com/botpress/botpress/commit/23eea72))
-* **core:** fixed typings and missing await for sendevent ([4c7f937](https://github.com/botpress/botpress/commit/4c7f937))
-* **core:** on action not found error ([19e9e1d](https://github.com/botpress/botpress/commit/19e9e1d))
-* **core:** removed required check ([a80c464](https://github.com/botpress/botpress/commit/a80c464))
-* **core:** set max server reboots to 2 ([99f3550](https://github.com/botpress/botpress/commit/99f3550))
-* **debugger:** a bit more compact nlu debugger ([33b30c0](https://github.com/botpress/botpress/commit/33b30c0))
-* **debugger:** added safeguard when an event is incomplete ([75b58a8](https://github.com/botpress/botpress/commit/75b58a8))
-* **debugger:** minor adjustment ([adf139d](https://github.com/botpress/botpress/commit/adf139d))
-* **dialog:** timeout handling ([1b2fa60](https://github.com/botpress/botpress/commit/1b2fa60))
-* **event:** added some checks for parameters ([e8fb839](https://github.com/botpress/botpress/commit/e8fb839))
-* **inspector:** ambiguity more visible ([61cfe2f](https://github.com/botpress/botpress/commit/61cfe2f))
-* **lock:** allowing upsert to bypass locked status ([5964178](https://github.com/botpress/botpress/commit/5964178))
-* **logs:** fixed log emitter ([63b7343](https://github.com/botpress/botpress/commit/63b7343))
-* **nlu:** fix progress issue with auto train ([e11cb38](https://github.com/botpress/botpress/commit/e11cb38))
-* **nlu:** prevent training on not supported languages ([15cd631](https://github.com/botpress/botpress/commit/15cd631))
-* **nlu:** removed jap tokenizer ([f940d14](https://github.com/botpress/botpress/commit/f940d14))
-* **nlu:** spelling mistakes & synonyms ([b31ac5a](https://github.com/botpress/botpress/commit/b31ac5a))
-* **nlu:** using multiple threads for training ([69822fe](https://github.com/botpress/botpress/commit/69822fe))
-* **perms:** modules were always displayed ([1fa6dd6](https://github.com/botpress/botpress/commit/1fa6dd6))
-* **qna:** source categories from nlu contexts ([cb261eb](https://github.com/botpress/botpress/commit/cb261eb))
-* **qna:** updated tests and minor tweak ([59aff43](https://github.com/botpress/botpress/commit/59aff43))
-* **rbac:** content editor access to nlu/qna ([58291b0](https://github.com/botpress/botpress/commit/58291b0))
-* **redis:** prevent server spamming on startup ([ba9dba1](https://github.com/botpress/botpress/commit/ba9dba1))
-* **security:** updated lodash version ([f31ca19](https://github.com/botpress/botpress/commit/f31ca19))
-* **studio:** dm title in emulator ([87cc95b](https://github.com/botpress/botpress/commit/87cc95b))
-* **studio:** fix logs panel ([97209a5](https://github.com/botpress/botpress/commit/97209a5))
-* **studio:** minor sidebar icons styling fix ([dfdc479](https://github.com/botpress/botpress/commit/dfdc479))
-* **webchat:** escape unsafe html ([40bf2d7](https://github.com/botpress/botpress/commit/40bf2d7))
-
+- **bpfs:** fixed issues caused by legacy logic ([fa89276](https://github.com/botpress/botpress/commit/fa89276))
+- **bpfs:** various fixes due to legacy logic ([4108970](https://github.com/botpress/botpress/commit/4108970))
+- **channel-web:** fix container width on init ([5ee2f1d](https://github.com/botpress/botpress/commit/5ee2f1d))
+- **channel-web:** fix for intermittent issue with emulator ([c148596](https://github.com/botpress/botpress/commit/c148596))
+- **channel-web:** fix output of conversation log ([53982ab](https://github.com/botpress/botpress/commit/53982ab))
+- **channel-web:** re-added google analytics ([0fe8fce](https://github.com/botpress/botpress/commit/0fe8fce))
+- **cluster:** broadcasting reboot to all nodes ([decd505](https://github.com/botpress/botpress/commit/decd505))
+- **config:** clear hash on first start & ignore dynamic props ([7d8d5b7](https://github.com/botpress/botpress/commit/7d8d5b7))
+- **converse:** ability to change max message length ([aa0a612](https://github.com/botpress/botpress/commit/aa0a612))
+- **core:** added multi-thread support for heavy tasks ([d2b30e4](https://github.com/botpress/botpress/commit/d2b30e4))
+- **core:** debug logs are not saved to file output ([e328b49](https://github.com/botpress/botpress/commit/e328b49))
+- **core:** dialog anti-loop ([d1de885](https://github.com/botpress/botpress/commit/d1de885))
+- **core:** fix issue with server reboot ([077dbc9](https://github.com/botpress/botpress/commit/077dbc9))
+- **core:** fix permissions view ([23eea72](https://github.com/botpress/botpress/commit/23eea72))
+- **core:** fixed typings and missing await for sendevent ([4c7f937](https://github.com/botpress/botpress/commit/4c7f937))
+- **core:** on action not found error ([19e9e1d](https://github.com/botpress/botpress/commit/19e9e1d))
+- **core:** removed required check ([a80c464](https://github.com/botpress/botpress/commit/a80c464))
+- **core:** set max server reboots to 2 ([99f3550](https://github.com/botpress/botpress/commit/99f3550))
+- **debugger:** a bit more compact nlu debugger ([33b30c0](https://github.com/botpress/botpress/commit/33b30c0))
+- **debugger:** added safeguard when an event is incomplete ([75b58a8](https://github.com/botpress/botpress/commit/75b58a8))
+- **debugger:** minor adjustment ([adf139d](https://github.com/botpress/botpress/commit/adf139d))
+- **dialog:** timeout handling ([1b2fa60](https://github.com/botpress/botpress/commit/1b2fa60))
+- **event:** added some checks for parameters ([e8fb839](https://github.com/botpress/botpress/commit/e8fb839))
+- **inspector:** ambiguity more visible ([61cfe2f](https://github.com/botpress/botpress/commit/61cfe2f))
+- **lock:** allowing upsert to bypass locked status ([5964178](https://github.com/botpress/botpress/commit/5964178))
+- **logs:** fixed log emitter ([63b7343](https://github.com/botpress/botpress/commit/63b7343))
+- **nlu:** fix progress issue with auto train ([e11cb38](https://github.com/botpress/botpress/commit/e11cb38))
+- **nlu:** prevent training on not supported languages ([15cd631](https://github.com/botpress/botpress/commit/15cd631))
+- **nlu:** removed jap tokenizer ([f940d14](https://github.com/botpress/botpress/commit/f940d14))
+- **nlu:** spelling mistakes & synonyms ([b31ac5a](https://github.com/botpress/botpress/commit/b31ac5a))
+- **nlu:** using multiple threads for training ([69822fe](https://github.com/botpress/botpress/commit/69822fe))
+- **perms:** modules were always displayed ([1fa6dd6](https://github.com/botpress/botpress/commit/1fa6dd6))
+- **qna:** source categories from nlu contexts ([cb261eb](https://github.com/botpress/botpress/commit/cb261eb))
+- **qna:** updated tests and minor tweak ([59aff43](https://github.com/botpress/botpress/commit/59aff43))
+- **rbac:** content editor access to nlu/qna ([58291b0](https://github.com/botpress/botpress/commit/58291b0))
+- **redis:** prevent server spamming on startup ([ba9dba1](https://github.com/botpress/botpress/commit/ba9dba1))
+- **security:** updated lodash version ([f31ca19](https://github.com/botpress/botpress/commit/f31ca19))
+- **studio:** dm title in emulator ([87cc95b](https://github.com/botpress/botpress/commit/87cc95b))
+- **studio:** fix logs panel ([97209a5](https://github.com/botpress/botpress/commit/97209a5))
+- **studio:** minor sidebar icons styling fix ([dfdc479](https://github.com/botpress/botpress/commit/dfdc479))
+- **webchat:** escape unsafe html ([40bf2d7](https://github.com/botpress/botpress/commit/40bf2d7))
 
 ### Features
 
-* **auth:** added oauth2 strategy ([dc7e690](https://github.com/botpress/botpress/commit/dc7e690))
-* **bpfs:** workaround to fix bpfs issues ([abd4bd0](https://github.com/botpress/botpress/commit/abd4bd0))
-* **config:** prompt server reboot when configuration is updated ([dedaf3d](https://github.com/botpress/botpress/commit/dedaf3d))
-* **core:** added config to add extra languages ([43cc081](https://github.com/botpress/botpress/commit/43cc081))
-* **core:** prompt server reboot when main config has changed ([1950602](https://github.com/botpress/botpress/commit/1950602))
-* **debugger:** added language section ([9f5e253](https://github.com/botpress/botpress/commit/9f5e253))
-* **inspector:** copy path to clipboard ([be8cdd1](https://github.com/botpress/botpress/commit/be8cdd1))
-* **qna:** added support for content elements ([e32df0a](https://github.com/botpress/botpress/commit/e32df0a))
-* **qna:** Added support for elements from the CMS ([7a27aba](https://github.com/botpress/botpress/commit/7a27aba))
-* **skill-email:** added email skill ([33f46d4](https://github.com/botpress/botpress/commit/33f46d4))
-* **studio:** added util components & change to cms ([0433724](https://github.com/botpress/botpress/commit/0433724))
-
-
+- **auth:** added oauth2 strategy ([dc7e690](https://github.com/botpress/botpress/commit/dc7e690))
+- **bpfs:** workaround to fix bpfs issues ([abd4bd0](https://github.com/botpress/botpress/commit/abd4bd0))
+- **config:** prompt server reboot when configuration is updated ([dedaf3d](https://github.com/botpress/botpress/commit/dedaf3d))
+- **core:** added config to add extra languages ([43cc081](https://github.com/botpress/botpress/commit/43cc081))
+- **core:** prompt server reboot when main config has changed ([1950602](https://github.com/botpress/botpress/commit/1950602))
+- **debugger:** added language section ([9f5e253](https://github.com/botpress/botpress/commit/9f5e253))
+- **inspector:** copy path to clipboard ([be8cdd1](https://github.com/botpress/botpress/commit/be8cdd1))
+- **qna:** added support for content elements ([e32df0a](https://github.com/botpress/botpress/commit/e32df0a))
+- **qna:** Added support for elements from the CMS ([7a27aba](https://github.com/botpress/botpress/commit/7a27aba))
+- **skill-email:** added email skill ([33f46d4](https://github.com/botpress/botpress/commit/33f46d4))
+- **studio:** added util components & change to cms ([0433724](https://github.com/botpress/botpress/commit/0433724))
 
 ## [12.1.4](https://github.com/botpress/botpress/compare/v12.1.3...v12.1.4) (2019-09-19)
 
-
 ### Bug Fixes
 
-* **bpfs:** fixed issues caused by legacy logic ([fa89276](https://github.com/botpress/botpress/commit/fa89276))
-* **bpfs:** various fixes due to legacy logic ([4108970](https://github.com/botpress/botpress/commit/4108970))
-* **channel-web:** re-added google analytics ([0fe8fce](https://github.com/botpress/botpress/commit/0fe8fce))
-* **cluster:** broadcasting reboot to all nodes ([decd505](https://github.com/botpress/botpress/commit/decd505))
-* **config:** clear hash on first start & ignore dynamic props ([5b351cb](https://github.com/botpress/botpress/commit/5b351cb))
-* **core:** added multi-thread support for heavy tasks ([d2b30e4](https://github.com/botpress/botpress/commit/d2b30e4))
-* **debugger:** a bit more compact nlu debugger ([33b30c0](https://github.com/botpress/botpress/commit/33b30c0))
-* **debugger:** minor adjustment ([2957057](https://github.com/botpress/botpress/commit/2957057))
-* **dialog:** timeout handling ([077f33c](https://github.com/botpress/botpress/commit/077f33c))
-* **inspector:** ambiguity more visible ([61cfe2f](https://github.com/botpress/botpress/commit/61cfe2f))
-* **lock:** allowing upsert to bypass locked status ([3489516](https://github.com/botpress/botpress/commit/3489516))
-* **logs:** fixed log emitter ([1d6f191](https://github.com/botpress/botpress/commit/1d6f191))
-* **nlu:** fix progress issue with auto train ([2734994](https://github.com/botpress/botpress/commit/2734994))
-* **nlu:** prevent training on not supported languages ([15cd631](https://github.com/botpress/botpress/commit/15cd631))
-* **nlu:** removed jap tokenizer ([f940d14](https://github.com/botpress/botpress/commit/f940d14))
-* **nlu:** using multiple threads for training ([69822fe](https://github.com/botpress/botpress/commit/69822fe))
-* **qna:** source categories from nlu contexts ([cb261eb](https://github.com/botpress/botpress/commit/cb261eb))
-* **qna:** updated tests and minor tweak ([59aff43](https://github.com/botpress/botpress/commit/59aff43))
-* **rbac:** content editor access to nlu/qna ([58291b0](https://github.com/botpress/botpress/commit/58291b0))
-* **redis:** prevent server spamming on startup ([ba9dba1](https://github.com/botpress/botpress/commit/ba9dba1))
-* **studio:** dm title in emulator ([87cc95b](https://github.com/botpress/botpress/commit/87cc95b))
-* **studio:** fix logs panel ([97209a5](https://github.com/botpress/botpress/commit/97209a5))
-* **studio:** minor sidebar icons styling fix ([dfdc479](https://github.com/botpress/botpress/commit/dfdc479))
-* **webchat:** escape unsafe html ([40bf2d7](https://github.com/botpress/botpress/commit/40bf2d7))
-
+- **bpfs:** fixed issues caused by legacy logic ([fa89276](https://github.com/botpress/botpress/commit/fa89276))
+- **bpfs:** various fixes due to legacy logic ([4108970](https://github.com/botpress/botpress/commit/4108970))
+- **channel-web:** re-added google analytics ([0fe8fce](https://github.com/botpress/botpress/commit/0fe8fce))
+- **cluster:** broadcasting reboot to all nodes ([decd505](https://github.com/botpress/botpress/commit/decd505))
+- **config:** clear hash on first start & ignore dynamic props ([5b351cb](https://github.com/botpress/botpress/commit/5b351cb))
+- **core:** added multi-thread support for heavy tasks ([d2b30e4](https://github.com/botpress/botpress/commit/d2b30e4))
+- **debugger:** a bit more compact nlu debugger ([33b30c0](https://github.com/botpress/botpress/commit/33b30c0))
+- **debugger:** minor adjustment ([2957057](https://github.com/botpress/botpress/commit/2957057))
+- **dialog:** timeout handling ([077f33c](https://github.com/botpress/botpress/commit/077f33c))
+- **inspector:** ambiguity more visible ([61cfe2f](https://github.com/botpress/botpress/commit/61cfe2f))
+- **lock:** allowing upsert to bypass locked status ([3489516](https://github.com/botpress/botpress/commit/3489516))
+- **logs:** fixed log emitter ([1d6f191](https://github.com/botpress/botpress/commit/1d6f191))
+- **nlu:** fix progress issue with auto train ([2734994](https://github.com/botpress/botpress/commit/2734994))
+- **nlu:** prevent training on not supported languages ([15cd631](https://github.com/botpress/botpress/commit/15cd631))
+- **nlu:** removed jap tokenizer ([f940d14](https://github.com/botpress/botpress/commit/f940d14))
+- **nlu:** using multiple threads for training ([69822fe](https://github.com/botpress/botpress/commit/69822fe))
+- **qna:** source categories from nlu contexts ([cb261eb](https://github.com/botpress/botpress/commit/cb261eb))
+- **qna:** updated tests and minor tweak ([59aff43](https://github.com/botpress/botpress/commit/59aff43))
+- **rbac:** content editor access to nlu/qna ([58291b0](https://github.com/botpress/botpress/commit/58291b0))
+- **redis:** prevent server spamming on startup ([ba9dba1](https://github.com/botpress/botpress/commit/ba9dba1))
+- **studio:** dm title in emulator ([87cc95b](https://github.com/botpress/botpress/commit/87cc95b))
+- **studio:** fix logs panel ([97209a5](https://github.com/botpress/botpress/commit/97209a5))
+- **studio:** minor sidebar icons styling fix ([dfdc479](https://github.com/botpress/botpress/commit/dfdc479))
+- **webchat:** escape unsafe html ([40bf2d7](https://github.com/botpress/botpress/commit/40bf2d7))
 
 ### Features
 
-* **auth:** added oauth2 strategy ([dc7e690](https://github.com/botpress/botpress/commit/dc7e690))
-* **bpfs:** workaround to fix bpfs issues ([abd4bd0](https://github.com/botpress/botpress/commit/abd4bd0))
-* **config:** prompt server reboot when configuration is updated ([dedaf3d](https://github.com/botpress/botpress/commit/dedaf3d))
-* **core:** added config to add extra languages ([43cc081](https://github.com/botpress/botpress/commit/43cc081))
-* **core:** prompt server reboot when main config has changed ([1950602](https://github.com/botpress/botpress/commit/1950602))
-* **debugger:** added language section ([9f5e253](https://github.com/botpress/botpress/commit/9f5e253))
-* **inspector:** copy path to clipboard ([be8cdd1](https://github.com/botpress/botpress/commit/be8cdd1))
-* **qna:** added support for content elements ([e32df0a](https://github.com/botpress/botpress/commit/e32df0a))
-* **qna:** Added support for elements from the CMS ([7a27aba](https://github.com/botpress/botpress/commit/7a27aba))
-* **studio:** added util components & change to cms ([0433724](https://github.com/botpress/botpress/commit/0433724))
-
-
+- **auth:** added oauth2 strategy ([dc7e690](https://github.com/botpress/botpress/commit/dc7e690))
+- **bpfs:** workaround to fix bpfs issues ([abd4bd0](https://github.com/botpress/botpress/commit/abd4bd0))
+- **config:** prompt server reboot when configuration is updated ([dedaf3d](https://github.com/botpress/botpress/commit/dedaf3d))
+- **core:** added config to add extra languages ([43cc081](https://github.com/botpress/botpress/commit/43cc081))
+- **core:** prompt server reboot when main config has changed ([1950602](https://github.com/botpress/botpress/commit/1950602))
+- **debugger:** added language section ([9f5e253](https://github.com/botpress/botpress/commit/9f5e253))
+- **inspector:** copy path to clipboard ([be8cdd1](https://github.com/botpress/botpress/commit/be8cdd1))
+- **qna:** added support for content elements ([e32df0a](https://github.com/botpress/botpress/commit/e32df0a))
+- **qna:** Added support for elements from the CMS ([7a27aba](https://github.com/botpress/botpress/commit/7a27aba))
+- **studio:** added util components & change to cms ([0433724](https://github.com/botpress/botpress/commit/0433724))
 
 ## [12.1.3](https://github.com/botpress/botpress/compare/v12.1.1...v12.1.3) (2019-09-04)
 
-
 ### Bug Fixes
 
-* **admin:** added bp version on admin ui ([f577191](https://github.com/botpress/botpress/commit/f577191))
-* **admin:** cascading errors and updated typings ([00de662](https://github.com/botpress/botpress/commit/00de662))
-* **admin:** fixed bot import using drag&drop ([374b668](https://github.com/botpress/botpress/commit/374b668))
-* **admin:** fixed error display on bot create and import ([0c50fd4](https://github.com/botpress/botpress/commit/0c50fd4))
-* **admin:** moved user ui to blueprint and added id for testing ([0eb60ea](https://github.com/botpress/botpress/commit/0eb60ea))
-* **admin:** raised default timeout to 6s ([fb027e9](https://github.com/botpress/botpress/commit/fb027e9))
-* **admin:** removed gravatar and added name ([ae06619](https://github.com/botpress/botpress/commit/ae06619))
-* **bots:** fixed display of name vs id in switch and import ([5dda8a9](https://github.com/botpress/botpress/commit/5dda8a9))
-* **channel-slack:** added user info to messages ([8768441](https://github.com/botpress/botpress/commit/8768441))
-* **channel-web:** responsive cover image ([1ac3411](https://github.com/botpress/botpress/commit/1ac3411))
-* **channel-web:** target self for links that start by javascript: ([f506de9](https://github.com/botpress/botpress/commit/f506de9))
-* **cms:** rendering default payload for unknown channels ([ed7b448](https://github.com/botpress/botpress/commit/ed7b448))
-* **config:** missing typings and added external url ([93a1c55](https://github.com/botpress/botpress/commit/93a1c55))
-* **core:** added config to choose socket transport order ([df77c5b](https://github.com/botpress/botpress/commit/df77c5b))
-* **core:** added typings and cleanup ([d6c643e](https://github.com/botpress/botpress/commit/d6c643e))
-* **core:** added warning when home folder not defined ([b817b25](https://github.com/botpress/botpress/commit/b817b25))
-* **core:** handling studio index file missing ([015c2bd](https://github.com/botpress/botpress/commit/015c2bd))
-* **core:** locked bots are blocked from editing from anywhere ([1a0e4df](https://github.com/botpress/botpress/commit/1a0e4df))
-* **core:** socket.io correctly supports custom paths ([8318c56](https://github.com/botpress/botpress/commit/8318c56))
-* **core:** using is_production for hiding debug logs ([6d29f80](https://github.com/botpress/botpress/commit/6d29f80))
-* **flow:** give higher importance to main flow ([4a91e65](https://github.com/botpress/botpress/commit/4a91e65))
-* **flow:** read only wasn't applied from permissions (ui only) ([d8871ad](https://github.com/botpress/botpress/commit/d8871ad))
-* **flow:** show basic server infos ([b19e12d](https://github.com/botpress/botpress/commit/b19e12d))
-* **ghost:** prevent creating new instances when ghost is called ([9251c17](https://github.com/botpress/botpress/commit/9251c17))
-* **ghost:** prevent creating new instances when ghost is needed ([90e7cf1](https://github.com/botpress/botpress/commit/90e7cf1))
-* **nlu:** entity matching is bit tighter and robust ([cc15a6c](https://github.com/botpress/botpress/commit/cc15a6c))
-* **nlu:** fixed lang detection ([5aaa89b](https://github.com/botpress/botpress/commit/5aaa89b))
-* **NLU:** loosen language election with short inputs ([5ffc5b4](https://github.com/botpress/botpress/commit/5ffc5b4))
-* **slack:** added documentation on the official docs ([024b645](https://github.com/botpress/botpress/commit/024b645))
-* **studio:** fix issues with bot switcher ([e22fe32](https://github.com/botpress/botpress/commit/e22fe32))
-
+- **admin:** added bp version on admin ui ([f577191](https://github.com/botpress/botpress/commit/f577191))
+- **admin:** cascading errors and updated typings ([00de662](https://github.com/botpress/botpress/commit/00de662))
+- **admin:** fixed bot import using drag&drop ([374b668](https://github.com/botpress/botpress/commit/374b668))
+- **admin:** fixed error display on bot create and import ([0c50fd4](https://github.com/botpress/botpress/commit/0c50fd4))
+- **admin:** moved user ui to blueprint and added id for testing ([0eb60ea](https://github.com/botpress/botpress/commit/0eb60ea))
+- **admin:** raised default timeout to 6s ([fb027e9](https://github.com/botpress/botpress/commit/fb027e9))
+- **admin:** removed gravatar and added name ([ae06619](https://github.com/botpress/botpress/commit/ae06619))
+- **bots:** fixed display of name vs id in switch and import ([5dda8a9](https://github.com/botpress/botpress/commit/5dda8a9))
+- **channel-slack:** added user info to messages ([8768441](https://github.com/botpress/botpress/commit/8768441))
+- **channel-web:** responsive cover image ([1ac3411](https://github.com/botpress/botpress/commit/1ac3411))
+- **channel-web:** target self for links that start by javascript: ([f506de9](https://github.com/botpress/botpress/commit/f506de9))
+- **cms:** rendering default payload for unknown channels ([ed7b448](https://github.com/botpress/botpress/commit/ed7b448))
+- **config:** missing typings and added external url ([93a1c55](https://github.com/botpress/botpress/commit/93a1c55))
+- **core:** added config to choose socket transport order ([df77c5b](https://github.com/botpress/botpress/commit/df77c5b))
+- **core:** added typings and cleanup ([d6c643e](https://github.com/botpress/botpress/commit/d6c643e))
+- **core:** added warning when home folder not defined ([b817b25](https://github.com/botpress/botpress/commit/b817b25))
+- **core:** handling studio index file missing ([015c2bd](https://github.com/botpress/botpress/commit/015c2bd))
+- **core:** locked bots are blocked from editing from anywhere ([1a0e4df](https://github.com/botpress/botpress/commit/1a0e4df))
+- **core:** socket.io correctly supports custom paths ([8318c56](https://github.com/botpress/botpress/commit/8318c56))
+- **core:** using is_production for hiding debug logs ([6d29f80](https://github.com/botpress/botpress/commit/6d29f80))
+- **flow:** give higher importance to main flow ([4a91e65](https://github.com/botpress/botpress/commit/4a91e65))
+- **flow:** read only wasn't applied from permissions (ui only) ([d8871ad](https://github.com/botpress/botpress/commit/d8871ad))
+- **flow:** show basic server infos ([b19e12d](https://github.com/botpress/botpress/commit/b19e12d))
+- **ghost:** prevent creating new instances when ghost is called ([9251c17](https://github.com/botpress/botpress/commit/9251c17))
+- **ghost:** prevent creating new instances when ghost is needed ([90e7cf1](https://github.com/botpress/botpress/commit/90e7cf1))
+- **nlu:** entity matching is bit tighter and robust ([cc15a6c](https://github.com/botpress/botpress/commit/cc15a6c))
+- **nlu:** fixed lang detection ([5aaa89b](https://github.com/botpress/botpress/commit/5aaa89b))
+- **NLU:** loosen language election with short inputs ([5ffc5b4](https://github.com/botpress/botpress/commit/5ffc5b4))
+- **slack:** added documentation on the official docs ([024b645](https://github.com/botpress/botpress/commit/024b645))
+- **studio:** fix issues with bot switcher ([e22fe32](https://github.com/botpress/botpress/commit/e22fe32))
 
 ### Features
 
-* **channel-slack:** added user info to messages ([e4ad918](https://github.com/botpress/botpress/commit/e4ad918))
-* **debugger:** added actionerrors to debugger view ([feffa09](https://github.com/botpress/botpress/commit/feffa09))
-* **debugger:** added event errors to debugger view ([d15302d](https://github.com/botpress/botpress/commit/d15302d))
-* **kvs:** kvs forBot and forGlobal with no breaking changes ([2d248b4](https://github.com/botpress/botpress/commit/2d248b4))
-* **versioning:** minimal gui for push/pull archive ([3abfc4f](https://github.com/botpress/botpress/commit/3abfc4f))
-
-
+- **channel-slack:** added user info to messages ([e4ad918](https://github.com/botpress/botpress/commit/e4ad918))
+- **debugger:** added actionerrors to debugger view ([feffa09](https://github.com/botpress/botpress/commit/feffa09))
+- **debugger:** added event errors to debugger view ([d15302d](https://github.com/botpress/botpress/commit/d15302d))
+- **kvs:** kvs forBot and forGlobal with no breaking changes ([2d248b4](https://github.com/botpress/botpress/commit/2d248b4))
+- **versioning:** minimal gui for push/pull archive ([3abfc4f](https://github.com/botpress/botpress/commit/3abfc4f))
 
 ## [12.1.2](https://github.com/botpress/botpress/compare/v12.1.1...v12.1.2) (2019-08-27)
 
-
 ### Bug Fixes
 
-* **admin:** cascading errors and updated typings ([00de662](https://github.com/botpress/botpress/commit/00de662))
-* **admin:** fixed bot import using drag&drop ([aa9c056](https://github.com/botpress/botpress/commit/aa9c056))
-* **admin:** fixed error display on bot create and import ([0c50fd4](https://github.com/botpress/botpress/commit/0c50fd4))
-* **admin:** raised default timeout to 6s ([fb027e9](https://github.com/botpress/botpress/commit/fb027e9))
-* **channel-slack:** added user info to messages ([8768441](https://github.com/botpress/botpress/commit/8768441))
-* **channel-web:** responsive cover image ([e9e76e1](https://github.com/botpress/botpress/commit/e9e76e1))
-* **channel-web:** target self for links that start by javascript: ([2ffdbf1](https://github.com/botpress/botpress/commit/2ffdbf1))
-* **cms:** rendering default payload for unknown channels ([ed7b448](https://github.com/botpress/botpress/commit/ed7b448))
-* **config:** missing typings and added external url ([93a1c55](https://github.com/botpress/botpress/commit/93a1c55))
-* **core:** added typings and cleanup ([d6c643e](https://github.com/botpress/botpress/commit/d6c643e))
-* **core:** added warning when home folder not defined ([e594172](https://github.com/botpress/botpress/commit/e594172))
-* **core:** handling studio index file missing ([91f57eb](https://github.com/botpress/botpress/commit/91f57eb))
-* **core:** socket.io correctly supports custom paths ([8318c56](https://github.com/botpress/botpress/commit/8318c56))
-* **core:** using is_production for hiding debug logs ([daba068](https://github.com/botpress/botpress/commit/daba068))
-* **flow:** show basic server infos ([214362a](https://github.com/botpress/botpress/commit/214362a))
-* **ghost:** prevent creating new instances when ghost is called ([9251c17](https://github.com/botpress/botpress/commit/9251c17))
-* **ghost:** prevent creating new instances when ghost is needed ([90e7cf1](https://github.com/botpress/botpress/commit/90e7cf1))
-* **nlu:** entity matching is bit tighter and robust ([cc15a6c](https://github.com/botpress/botpress/commit/cc15a6c))
-* **nlu:** fixed lang detection ([5aaa89b](https://github.com/botpress/botpress/commit/5aaa89b))
-* **NLU:** loosen language election with short inputs ([5ffc5b4](https://github.com/botpress/botpress/commit/5ffc5b4))
-* **slack:** added documentation on the official docs ([7da9275](https://github.com/botpress/botpress/commit/7da9275))
-
+- **admin:** cascading errors and updated typings ([00de662](https://github.com/botpress/botpress/commit/00de662))
+- **admin:** fixed bot import using drag&drop ([aa9c056](https://github.com/botpress/botpress/commit/aa9c056))
+- **admin:** fixed error display on bot create and import ([0c50fd4](https://github.com/botpress/botpress/commit/0c50fd4))
+- **admin:** raised default timeout to 6s ([fb027e9](https://github.com/botpress/botpress/commit/fb027e9))
+- **channel-slack:** added user info to messages ([8768441](https://github.com/botpress/botpress/commit/8768441))
+- **channel-web:** responsive cover image ([e9e76e1](https://github.com/botpress/botpress/commit/e9e76e1))
+- **channel-web:** target self for links that start by javascript: ([2ffdbf1](https://github.com/botpress/botpress/commit/2ffdbf1))
+- **cms:** rendering default payload for unknown channels ([ed7b448](https://github.com/botpress/botpress/commit/ed7b448))
+- **config:** missing typings and added external url ([93a1c55](https://github.com/botpress/botpress/commit/93a1c55))
+- **core:** added typings and cleanup ([d6c643e](https://github.com/botpress/botpress/commit/d6c643e))
+- **core:** added warning when home folder not defined ([e594172](https://github.com/botpress/botpress/commit/e594172))
+- **core:** handling studio index file missing ([91f57eb](https://github.com/botpress/botpress/commit/91f57eb))
+- **core:** socket.io correctly supports custom paths ([8318c56](https://github.com/botpress/botpress/commit/8318c56))
+- **core:** using is_production for hiding debug logs ([daba068](https://github.com/botpress/botpress/commit/daba068))
+- **flow:** show basic server infos ([214362a](https://github.com/botpress/botpress/commit/214362a))
+- **ghost:** prevent creating new instances when ghost is called ([9251c17](https://github.com/botpress/botpress/commit/9251c17))
+- **ghost:** prevent creating new instances when ghost is needed ([90e7cf1](https://github.com/botpress/botpress/commit/90e7cf1))
+- **nlu:** entity matching is bit tighter and robust ([cc15a6c](https://github.com/botpress/botpress/commit/cc15a6c))
+- **nlu:** fixed lang detection ([5aaa89b](https://github.com/botpress/botpress/commit/5aaa89b))
+- **NLU:** loosen language election with short inputs ([5ffc5b4](https://github.com/botpress/botpress/commit/5ffc5b4))
+- **slack:** added documentation on the official docs ([7da9275](https://github.com/botpress/botpress/commit/7da9275))
 
 ### Features
 
-* **channel-slack:** added user info to messages ([e4ad918](https://github.com/botpress/botpress/commit/e4ad918))
-* **kvs:** kvs forBot and forGlobal with no breaking changes ([2d248b4](https://github.com/botpress/botpress/commit/2d248b4))
-
-
+- **channel-slack:** added user info to messages ([e4ad918](https://github.com/botpress/botpress/commit/e4ad918))
+- **kvs:** kvs forBot and forGlobal with no breaking changes ([2d248b4](https://github.com/botpress/botpress/commit/2d248b4))
 
 ## [12.1.2](https://github.com/botpress/botpress/compare/v12.1.1...v12.1.2) (2019-08-27)
 
-
 ### Bug Fixes
 
-* **admin:** cascading errors and updated typings ([5fa7f91](https://github.com/botpress/botpress/commit/5fa7f91))
-* **admin:** fixed bot import using drag&drop ([374b668](https://github.com/botpress/botpress/commit/374b668))
-* **admin:** fixed error display on bot create and import ([0c50fd4](https://github.com/botpress/botpress/commit/0c50fd4))
-* **admin:** raised default timeout to 6s ([fb027e9](https://github.com/botpress/botpress/commit/fb027e9))
-* **channel-slack:** added user info to messages ([9fdd493](https://github.com/botpress/botpress/commit/9fdd493))
-* **channel-web:** responsive cover image ([e9e76e1](https://github.com/botpress/botpress/commit/e9e76e1))
-* **cms:** rendering default payload for unknown channels ([55bcf57](https://github.com/botpress/botpress/commit/55bcf57))
-* **config:** missing typings and added external url ([93a1c55](https://github.com/botpress/botpress/commit/93a1c55))
-* **core:** added typings and cleanup ([d6c643e](https://github.com/botpress/botpress/commit/d6c643e))
-* **core:** added warning when home folder not defined ([b817b25](https://github.com/botpress/botpress/commit/b817b25))
-* **core:** handling studio index file missing ([91f57eb](https://github.com/botpress/botpress/commit/91f57eb))
-* **core:** socket.io correctly supports custom paths ([9f59bf5](https://github.com/botpress/botpress/commit/9f59bf5))
-* **core:** using is_production for hiding debug logs ([daba068](https://github.com/botpress/botpress/commit/daba068))
-* **flow:** show basic server infos ([b19e12d](https://github.com/botpress/botpress/commit/b19e12d))
-* **ghost:** prevent creating new instances when ghost is called ([9251c17](https://github.com/botpress/botpress/commit/9251c17))
-* **ghost:** prevent creating new instances when ghost is needed ([90e7cf1](https://github.com/botpress/botpress/commit/90e7cf1))
-* **nlu:** entity matching is bit tighter and robust ([cc15a6c](https://github.com/botpress/botpress/commit/cc15a6c))
-* **nlu:** fixed lang detection ([5aaa89b](https://github.com/botpress/botpress/commit/5aaa89b))
-* **NLU:** loosen language election with short inputs ([5ffc5b4](https://github.com/botpress/botpress/commit/5ffc5b4))
-* **slack:** added documentation on the official docs ([024b645](https://github.com/botpress/botpress/commit/024b645))
-
+- **admin:** cascading errors and updated typings ([5fa7f91](https://github.com/botpress/botpress/commit/5fa7f91))
+- **admin:** fixed bot import using drag&drop ([374b668](https://github.com/botpress/botpress/commit/374b668))
+- **admin:** fixed error display on bot create and import ([0c50fd4](https://github.com/botpress/botpress/commit/0c50fd4))
+- **admin:** raised default timeout to 6s ([fb027e9](https://github.com/botpress/botpress/commit/fb027e9))
+- **channel-slack:** added user info to messages ([9fdd493](https://github.com/botpress/botpress/commit/9fdd493))
+- **channel-web:** responsive cover image ([e9e76e1](https://github.com/botpress/botpress/commit/e9e76e1))
+- **cms:** rendering default payload for unknown channels ([55bcf57](https://github.com/botpress/botpress/commit/55bcf57))
+- **config:** missing typings and added external url ([93a1c55](https://github.com/botpress/botpress/commit/93a1c55))
+- **core:** added typings and cleanup ([d6c643e](https://github.com/botpress/botpress/commit/d6c643e))
+- **core:** added warning when home folder not defined ([b817b25](https://github.com/botpress/botpress/commit/b817b25))
+- **core:** handling studio index file missing ([91f57eb](https://github.com/botpress/botpress/commit/91f57eb))
+- **core:** socket.io correctly supports custom paths ([9f59bf5](https://github.com/botpress/botpress/commit/9f59bf5))
+- **core:** using is_production for hiding debug logs ([daba068](https://github.com/botpress/botpress/commit/daba068))
+- **flow:** show basic server infos ([b19e12d](https://github.com/botpress/botpress/commit/b19e12d))
+- **ghost:** prevent creating new instances when ghost is called ([9251c17](https://github.com/botpress/botpress/commit/9251c17))
+- **ghost:** prevent creating new instances when ghost is needed ([90e7cf1](https://github.com/botpress/botpress/commit/90e7cf1))
+- **nlu:** entity matching is bit tighter and robust ([cc15a6c](https://github.com/botpress/botpress/commit/cc15a6c))
+- **nlu:** fixed lang detection ([5aaa89b](https://github.com/botpress/botpress/commit/5aaa89b))
+- **NLU:** loosen language election with short inputs ([5ffc5b4](https://github.com/botpress/botpress/commit/5ffc5b4))
+- **slack:** added documentation on the official docs ([024b645](https://github.com/botpress/botpress/commit/024b645))
 
 ### Features
 
-* **channel-slack:** added user info to messages ([e4ad918](https://github.com/botpress/botpress/commit/e4ad918))
-* **kvs:** kvs forBot and forGlobal with no breaking changes ([2d248b4](https://github.com/botpress/botpress/commit/2d248b4))
-
-
+- **channel-slack:** added user info to messages ([e4ad918](https://github.com/botpress/botpress/commit/e4ad918))
+- **kvs:** kvs forBot and forGlobal with no breaking changes ([2d248b4](https://github.com/botpress/botpress/commit/2d248b4))
 
 ## [12.1.1](https://github.com/botpress/botpress/compare/v12.1.0...v12.1.1) (2019-08-17)
 
-
 ### Bug Fixes
 
-* **import:** support zip files & nested archives ([0265d7e](https://github.com/botpress/botpress/commit/0265d7e))
-* **admin:** ui tweaks for bot creation ([2bd9714](https://github.com/botpress/botpress/commit/2bd9714))
-* **code-editor:** the ghost for bot config files was global ([ba69875](https://github.com/botpress/botpress/commit/ba69875))
-* **config:** added revision recording for bot and botpress config ([c84187e](https://github.com/botpress/botpress/commit/c84187e))
-* **core:** clear cache upon migration ([84bb027](https://github.com/botpress/botpress/commit/84bb027))
-* **debugger:** decision was linking to an NLU intent, but now plain text ([89d5616](https://github.com/botpress/botpress/commit/89d5616))
-* **flow:** bigger handle to drag and drop nodes ([4c66cb1](https://github.com/botpress/botpress/commit/4c66cb1))
-* **ghost:** add exclude support for db driver ([9113860](https://github.com/botpress/botpress/commit/9113860))
-* **ghost:** clear local revisions when pushed ([eaca91e](https://github.com/botpress/botpress/commit/eaca91e))
-* **ghost:** ignoring models when comparing revisions ([4a15cf4](https://github.com/botpress/botpress/commit/4a15cf4))
-* **ghost:** module loader will no longer record revisions ([3bccd79](https://github.com/botpress/botpress/commit/3bccd79))
-* **ghost:** more work toward stable ghost ([c5b775b](https://github.com/botpress/botpress/commit/c5b775b))
-* **ghost:** push is behaving like it should ([533f184](https://github.com/botpress/botpress/commit/533f184))
-* **logs:** log table migration won't run if not needed ([9663f18](https://github.com/botpress/botpress/commit/9663f18))
-* **migrations:** execute migrations after modules are loaded ([aa3ca17](https://github.com/botpress/botpress/commit/aa3ca17))
-* **migrations:** execute migrations after modules tables are created ([91de8b6](https://github.com/botpress/botpress/commit/91de8b6))
-* **nlu:** empty token fix ([106184f](https://github.com/botpress/botpress/commit/106184f))
-* **nlu:** if TFIDF fails, return low importance ([60de3b9](https://github.com/botpress/botpress/commit/60de3b9))
-* **nlu:** tokenize empty / null token ([a8c7aad](https://github.com/botpress/botpress/commit/a8c7aad))
-* **socket:** using websocket first (fallback polling) ([f9529be](https://github.com/botpress/botpress/commit/f9529be))
-* **studio:** undo delete skill creates new skill ([7ff8ee1](https://github.com/botpress/botpress/commit/7ff8ee1))
-
+- **import:** support zip files & nested archives ([0265d7e](https://github.com/botpress/botpress/commit/0265d7e))
+- **admin:** ui tweaks for bot creation ([2bd9714](https://github.com/botpress/botpress/commit/2bd9714))
+- **code-editor:** the ghost for bot config files was global ([ba69875](https://github.com/botpress/botpress/commit/ba69875))
+- **config:** added revision recording for bot and botpress config ([c84187e](https://github.com/botpress/botpress/commit/c84187e))
+- **core:** clear cache upon migration ([84bb027](https://github.com/botpress/botpress/commit/84bb027))
+- **debugger:** decision was linking to an NLU intent, but now plain text ([89d5616](https://github.com/botpress/botpress/commit/89d5616))
+- **flow:** bigger handle to drag and drop nodes ([4c66cb1](https://github.com/botpress/botpress/commit/4c66cb1))
+- **ghost:** add exclude support for db driver ([9113860](https://github.com/botpress/botpress/commit/9113860))
+- **ghost:** clear local revisions when pushed ([eaca91e](https://github.com/botpress/botpress/commit/eaca91e))
+- **ghost:** ignoring models when comparing revisions ([4a15cf4](https://github.com/botpress/botpress/commit/4a15cf4))
+- **ghost:** module loader will no longer record revisions ([3bccd79](https://github.com/botpress/botpress/commit/3bccd79))
+- **ghost:** more work toward stable ghost ([c5b775b](https://github.com/botpress/botpress/commit/c5b775b))
+- **ghost:** push is behaving like it should ([533f184](https://github.com/botpress/botpress/commit/533f184))
+- **logs:** log table migration won't run if not needed ([9663f18](https://github.com/botpress/botpress/commit/9663f18))
+- **migrations:** execute migrations after modules are loaded ([aa3ca17](https://github.com/botpress/botpress/commit/aa3ca17))
+- **migrations:** execute migrations after modules tables are created ([91de8b6](https://github.com/botpress/botpress/commit/91de8b6))
+- **nlu:** empty token fix ([106184f](https://github.com/botpress/botpress/commit/106184f))
+- **nlu:** if TFIDF fails, return low importance ([60de3b9](https://github.com/botpress/botpress/commit/60de3b9))
+- **nlu:** tokenize empty / null token ([a8c7aad](https://github.com/botpress/botpress/commit/a8c7aad))
+- **socket:** using websocket first (fallback polling) ([f9529be](https://github.com/botpress/botpress/commit/f9529be))
+- **studio:** undo delete skill creates new skill ([7ff8ee1](https://github.com/botpress/botpress/commit/7ff8ee1))
 
 ### Features
 
-* **studio:** toast msg to remind about auto-save when hitting ctrl+s ([fdb8517](https://github.com/botpress/botpress/commit/fdb8517))
-
-
+- **studio:** toast msg to remind about auto-save when hitting ctrl+s ([fdb8517](https://github.com/botpress/botpress/commit/fdb8517))
 
 # [12.1.0](https://github.com/botpress/botpress/compare/v12.0.7...v12.1.0) (2019-08-14)
 
-
 ### Bug Fixes
 
-* **admin:** issue with role selection & added some typing ([a913c27](https://github.com/botpress/botpress/commit/a913c27))
-* **bots:** added migration for bot imports ([65d9881](https://github.com/botpress/botpress/commit/65d9881))
-* **channel-slack:** added verifications & changed some logic ([a49f701](https://github.com/botpress/botpress/commit/a49f701))
-* **converse:** making sure timeout is set ([3decfef](https://github.com/botpress/botpress/commit/3decfef))
-* **core:** clearing cache of required actions and sync when remote ([720cb7a](https://github.com/botpress/botpress/commit/720cb7a))
-* **core:** clearing cache of required actions when changed ([7f59d37](https://github.com/botpress/botpress/commit/7f59d37))
-* **core:** custom paths can be defined for botpress ([55d9e0a](https://github.com/botpress/botpress/commit/55d9e0a))
-* **core:** on action error, flowTo loc if defined ([ef3d913](https://github.com/botpress/botpress/commit/ef3d913))
-* **core:** strategy always return instruction ([39a5739](https://github.com/botpress/botpress/commit/39a5739))
-* **docs:** fix links on the nlu page ([a0d802c](https://github.com/botpress/botpress/commit/a0d802c))
-* **flow:** another refactor & added some stuff ([d372347](https://github.com/botpress/botpress/commit/d372347))
-* **flow:** some refactor for flows ([a1a985e](https://github.com/botpress/botpress/commit/a1a985e))
-* **flow:** updated srd and added typings ([2e5bc29](https://github.com/botpress/botpress/commit/2e5bc29))
-* **flows:** repair update skill ([ce59edd](https://github.com/botpress/botpress/commit/ce59edd))
-* **ghost:** fix with sync & cms invalidate ([dc6e4f5](https://github.com/botpress/botpress/commit/dc6e4f5))
-* **ghost:** pushing local to remote directly ([8bfb80a](https://github.com/botpress/botpress/commit/8bfb80a))
-* **lang-server:** not refreshing invalid metadata ([d4565e9](https://github.com/botpress/botpress/commit/d4565e9))
-* **logs:** srv_logs table now has timestamp instead of string ([63c3d7c](https://github.com/botpress/botpress/commit/63c3d7c))
-* **nlu:** better slot tagging ([0953f12](https://github.com/botpress/botpress/commit/0953f12))
-* **nlu:** crf model check ([e7729ef](https://github.com/botpress/botpress/commit/e7729ef))
-* **nlu:** don't force skipgram loading ([19b299a](https://github.com/botpress/botpress/commit/19b299a))
-* **nlu:** fix get train set ([037ea8e](https://github.com/botpress/botpress/commit/037ea8e))
-* **nlu:** removing useless confusion matrix error ([2a79225](https://github.com/botpress/botpress/commit/2a79225))
-* **nlu:** skipgram model loading when no slot ([657ff9c](https://github.com/botpress/botpress/commit/657ff9c))
-* **nlu:** slot-crf gets matchedEntities for train ([eff89f5](https://github.com/botpress/botpress/commit/eff89f5))
-* **nlu:** slots-crf tests ([97644cc](https://github.com/botpress/botpress/commit/97644cc))
-* **redis:** fix memory leak with listeners ([85667f5](https://github.com/botpress/botpress/commit/85667f5))
-* **studio:** prevent re-rendering the whole layout when user changes ([9dad301](https://github.com/botpress/botpress/commit/9dad301))
-* **ui:** minor adjustments ([618cd57](https://github.com/botpress/botpress/commit/618cd57))
-
+- **admin:** issue with role selection & added some typing ([a913c27](https://github.com/botpress/botpress/commit/a913c27))
+- **bots:** added migration for bot imports ([65d9881](https://github.com/botpress/botpress/commit/65d9881))
+- **channel-slack:** added verifications & changed some logic ([a49f701](https://github.com/botpress/botpress/commit/a49f701))
+- **converse:** making sure timeout is set ([3decfef](https://github.com/botpress/botpress/commit/3decfef))
+- **core:** clearing cache of required actions and sync when remote ([720cb7a](https://github.com/botpress/botpress/commit/720cb7a))
+- **core:** clearing cache of required actions when changed ([7f59d37](https://github.com/botpress/botpress/commit/7f59d37))
+- **core:** custom paths can be defined for botpress ([55d9e0a](https://github.com/botpress/botpress/commit/55d9e0a))
+- **core:** on action error, flowTo loc if defined ([ef3d913](https://github.com/botpress/botpress/commit/ef3d913))
+- **core:** strategy always return instruction ([39a5739](https://github.com/botpress/botpress/commit/39a5739))
+- **docs:** fix links on the nlu page ([a0d802c](https://github.com/botpress/botpress/commit/a0d802c))
+- **flow:** another refactor & added some stuff ([d372347](https://github.com/botpress/botpress/commit/d372347))
+- **flow:** some refactor for flows ([a1a985e](https://github.com/botpress/botpress/commit/a1a985e))
+- **flow:** updated srd and added typings ([2e5bc29](https://github.com/botpress/botpress/commit/2e5bc29))
+- **flows:** repair update skill ([ce59edd](https://github.com/botpress/botpress/commit/ce59edd))
+- **ghost:** fix with sync & cms invalidate ([dc6e4f5](https://github.com/botpress/botpress/commit/dc6e4f5))
+- **ghost:** pushing local to remote directly ([8bfb80a](https://github.com/botpress/botpress/commit/8bfb80a))
+- **lang-server:** not refreshing invalid metadata ([d4565e9](https://github.com/botpress/botpress/commit/d4565e9))
+- **logs:** srv_logs table now has timestamp instead of string ([63c3d7c](https://github.com/botpress/botpress/commit/63c3d7c))
+- **nlu:** better slot tagging ([0953f12](https://github.com/botpress/botpress/commit/0953f12))
+- **nlu:** crf model check ([e7729ef](https://github.com/botpress/botpress/commit/e7729ef))
+- **nlu:** don't force skipgram loading ([19b299a](https://github.com/botpress/botpress/commit/19b299a))
+- **nlu:** fix get train set ([037ea8e](https://github.com/botpress/botpress/commit/037ea8e))
+- **nlu:** removing useless confusion matrix error ([2a79225](https://github.com/botpress/botpress/commit/2a79225))
+- **nlu:** skipgram model loading when no slot ([657ff9c](https://github.com/botpress/botpress/commit/657ff9c))
+- **nlu:** slot-crf gets matchedEntities for train ([eff89f5](https://github.com/botpress/botpress/commit/eff89f5))
+- **nlu:** slots-crf tests ([97644cc](https://github.com/botpress/botpress/commit/97644cc))
+- **redis:** fix memory leak with listeners ([85667f5](https://github.com/botpress/botpress/commit/85667f5))
+- **studio:** prevent re-rendering the whole layout when user changes ([9dad301](https://github.com/botpress/botpress/commit/9dad301))
+- **ui:** minor adjustments ([618cd57](https://github.com/botpress/botpress/commit/618cd57))
 
 ### Features
 
-* **channel-slack:** add new channel ([481cfd4](https://github.com/botpress/botpress/commit/481cfd4))
-* **channel-slack:** added slack integration ([3a2778e](https://github.com/botpress/botpress/commit/3a2778e))
-* **channel-teams:** added MS Teams channel ([e65227b](https://github.com/botpress/botpress/commit/e65227b))
-* **channel-web:** ability to show timestamp next to each messages ([b2f7562](https://github.com/botpress/botpress/commit/b2f7562))
-* **code-editor:** code editor now works with RBAC instead of configs ([86356e0](https://github.com/botpress/botpress/commit/86356e0))
-* **core:** added support for a custom url ([4351045](https://github.com/botpress/botpress/commit/4351045))
-* **debugger:** Clicking on intent in debugger navigates to correct intent in nlu or qna ([ccefa76](https://github.com/botpress/botpress/commit/ccefa76))
-* **debugger:** remove __qna__ identifier + make UI more homogeneous ([9e6c12a](https://github.com/botpress/botpress/commit/9e6c12a))
-* **flow:** new experience with flow editor ([1c96afb](https://github.com/botpress/botpress/commit/1c96afb))
-* **flow-editor:** new experience with the flow builder ([3f24b42](https://github.com/botpress/botpress/commit/3f24b42))
-* **flows:** flow editor is notified when somebody else is editing flows ([9fe039b](https://github.com/botpress/botpress/commit/9fe039b))
-* **flows:** Realtime collaboration in flows ([040ddf3](https://github.com/botpress/botpress/commit/040ddf3))
-* **hitl:** basic search ([01c9d33](https://github.com/botpress/botpress/commit/01c9d33))
-* **hitl:** UI changes & added features ([7590fb0](https://github.com/botpress/botpress/commit/7590fb0))
-* **lang-server:** add option to run offline ([8a941a3](https://github.com/botpress/botpress/commit/8a941a3))
-* **studio:** Flow editor auto saves and notifies when somebody else is editing flow ([2a50011](https://github.com/botpress/botpress/commit/2a50011))
-* **version-control:** add push and status commands ([0bca349](https://github.com/botpress/botpress/commit/0bca349))
-
-
+- **channel-slack:** add new channel ([481cfd4](https://github.com/botpress/botpress/commit/481cfd4))
+- **channel-slack:** added slack integration ([3a2778e](https://github.com/botpress/botpress/commit/3a2778e))
+- **channel-teams:** added MS Teams channel ([e65227b](https://github.com/botpress/botpress/commit/e65227b))
+- **channel-web:** ability to show timestamp next to each messages ([b2f7562](https://github.com/botpress/botpress/commit/b2f7562))
+- **code-editor:** code editor now works with RBAC instead of configs ([86356e0](https://github.com/botpress/botpress/commit/86356e0))
+- **core:** added support for a custom url ([4351045](https://github.com/botpress/botpress/commit/4351045))
+- **debugger:** Clicking on intent in debugger navigates to correct intent in nlu or qna ([ccefa76](https://github.com/botpress/botpress/commit/ccefa76))
+- **debugger:** remove **qna** identifier + make UI more homogeneous ([9e6c12a](https://github.com/botpress/botpress/commit/9e6c12a))
+- **flow:** new experience with flow editor ([1c96afb](https://github.com/botpress/botpress/commit/1c96afb))
+- **flow-editor:** new experience with the flow builder ([3f24b42](https://github.com/botpress/botpress/commit/3f24b42))
+- **flows:** flow editor is notified when somebody else is editing flows ([9fe039b](https://github.com/botpress/botpress/commit/9fe039b))
+- **flows:** Realtime collaboration in flows ([040ddf3](https://github.com/botpress/botpress/commit/040ddf3))
+- **hitl:** basic search ([01c9d33](https://github.com/botpress/botpress/commit/01c9d33))
+- **hitl:** UI changes & added features ([7590fb0](https://github.com/botpress/botpress/commit/7590fb0))
+- **lang-server:** add option to run offline ([8a941a3](https://github.com/botpress/botpress/commit/8a941a3))
+- **studio:** Flow editor auto saves and notifies when somebody else is editing flow ([2a50011](https://github.com/botpress/botpress/commit/2a50011))
+- **version-control:** add push and status commands ([0bca349](https://github.com/botpress/botpress/commit/0bca349))
 
 ## [12.0.7](https://github.com/botpress/botpress/compare/v12.0.6...v12.0.7) (2019-08-05)
 
-
 ### Bug Fixes
 
-* **redis:** fix invalidation with redis ([25a1411](https://github.com/botpress/botpress/commit/25a1411))
-
-
+- **redis:** fix invalidation with redis ([25a1411](https://github.com/botpress/botpress/commit/25a1411))
 
 ## [12.0.6](https://github.com/botpress/botpress/compare/v12.0.5...v12.0.6) (2019-08-02)
 
-
 ### Bug Fixes
 
-* **core:** ldap authentication ([e9375f0](https://github.com/botpress/botpress/commit/e9375f0))
-* **dialog-engine:** ending flow when no nodes configured ([a2c5ad3](https://github.com/botpress/botpress/commit/a2c5ad3))
-
-
+- **core:** ldap authentication ([e9375f0](https://github.com/botpress/botpress/commit/e9375f0))
+- **dialog-engine:** ending flow when no nodes configured ([a2c5ad3](https://github.com/botpress/botpress/commit/a2c5ad3))
 
 ## [12.0.5](https://github.com/botpress/botpress/compare/v12.0.4...v12.0.5) (2019-07-31)
 
-
 ### Bug Fixes
 
-* **nlu:** case sensitivity in svm ([5746404](https://github.com/botpress/botpress/commit/5746404))
-
-
+- **nlu:** case sensitivity in svm ([5746404](https://github.com/botpress/botpress/commit/5746404))
 
 ## [12.0.4](https://github.com/botpress/botpress/compare/v12.0.3...v12.0.4) (2019-07-31)
 
-
 ### Bug Fixes
 
-* **admin:** fix last login and joined on dates ([9285d7e](https://github.com/botpress/botpress/commit/9285d7e))
-* **bots:** export & import now updates image paths & others ([a93a819](https://github.com/botpress/botpress/commit/a93a819))
-* **channel-web:** externalAuth token http headers ([41997df](https://github.com/botpress/botpress/commit/41997df))
-* **channel-web:** issue with file upload ([f8c229d](https://github.com/botpress/botpress/commit/f8c229d))
-* **core:** added missing audit logs ([7f6452d](https://github.com/botpress/botpress/commit/7f6452d))
-* **core:** check multiple linux distros in order ([78deecc](https://github.com/botpress/botpress/commit/78deecc))
-* **logs:** follow-logs not working consistently when zoomed ([39a4044](https://github.com/botpress/botpress/commit/39a4044))
-* **nlu:** known slots infinite loop ([3fd55b9](https://github.com/botpress/botpress/commit/3fd55b9))
-* **nlu:** knownSlots extraction ([7cc6344](https://github.com/botpress/botpress/commit/7cc6344))
-* **skills:** fixed choice skill repeat ([ffc7ccd](https://github.com/botpress/botpress/commit/ffc7ccd))
-* **webchat:** fix for some messages which crashed the whole chat ([125d0bd](https://github.com/botpress/botpress/commit/125d0bd))
-
-
+- **admin:** fix last login and joined on dates ([9285d7e](https://github.com/botpress/botpress/commit/9285d7e))
+- **bots:** export & import now updates image paths & others ([a93a819](https://github.com/botpress/botpress/commit/a93a819))
+- **channel-web:** externalAuth token http headers ([41997df](https://github.com/botpress/botpress/commit/41997df))
+- **channel-web:** issue with file upload ([f8c229d](https://github.com/botpress/botpress/commit/f8c229d))
+- **core:** added missing audit logs ([7f6452d](https://github.com/botpress/botpress/commit/7f6452d))
+- **core:** check multiple linux distros in order ([78deecc](https://github.com/botpress/botpress/commit/78deecc))
+- **logs:** follow-logs not working consistently when zoomed ([39a4044](https://github.com/botpress/botpress/commit/39a4044))
+- **nlu:** known slots infinite loop ([3fd55b9](https://github.com/botpress/botpress/commit/3fd55b9))
+- **nlu:** knownSlots extraction ([7cc6344](https://github.com/botpress/botpress/commit/7cc6344))
+- **skills:** fixed choice skill repeat ([ffc7ccd](https://github.com/botpress/botpress/commit/ffc7ccd))
+- **webchat:** fix for some messages which crashed the whole chat ([125d0bd](https://github.com/botpress/botpress/commit/125d0bd))
 
 ## [12.0.3](https://github.com/botpress/botpress/compare/v12.0.2...v12.0.3) (2019-07-25)
 
-
 ### Bug Fixes
 
-* **core:** handling cases where message is not a string ([a486013](https://github.com/botpress/botpress/commit/a486013))
-* **ie:** webchat not working on ie ([830e2e1](https://github.com/botpress/botpress/commit/830e2e1))
-* **lang:** meta file, try local when remote fails ([4566c4d](https://github.com/botpress/botpress/commit/4566c4d))
-* **lang-server:** refreshing health when visiting studio ([77cfeed](https://github.com/botpress/botpress/commit/77cfeed))
-* **nlu:** exact match also matches if one entity type differs ([7880ccb](https://github.com/botpress/botpress/commit/7880ccb))
-* **nlu:** merge tokens if both are made of chosen special characters in slot extraction ([48e3171](https://github.com/botpress/botpress/commit/48e3171))
-* **nlu:** undefined occurrences or pattern ([893c912](https://github.com/botpress/botpress/commit/893c912))
-* **qna:** cleanup unused qna intents when syncing ([cd91499](https://github.com/botpress/botpress/commit/cd91499))
-
-
+- **core:** handling cases where message is not a string ([a486013](https://github.com/botpress/botpress/commit/a486013))
+- **ie:** webchat not working on ie ([830e2e1](https://github.com/botpress/botpress/commit/830e2e1))
+- **lang:** meta file, try local when remote fails ([4566c4d](https://github.com/botpress/botpress/commit/4566c4d))
+- **lang-server:** refreshing health when visiting studio ([77cfeed](https://github.com/botpress/botpress/commit/77cfeed))
+- **nlu:** exact match also matches if one entity type differs ([7880ccb](https://github.com/botpress/botpress/commit/7880ccb))
+- **nlu:** merge tokens if both are made of chosen special characters in slot extraction ([48e3171](https://github.com/botpress/botpress/commit/48e3171))
+- **nlu:** undefined occurrences or pattern ([893c912](https://github.com/botpress/botpress/commit/893c912))
+- **qna:** cleanup unused qna intents when syncing ([cd91499](https://github.com/botpress/botpress/commit/cd91499))
 
 ## [12.0.2](https://github.com/botpress/botpress/compare/v12.0.1...v12.0.2) (2019-07-16)
 
-
 ### Bug Fixes
 
-* **admin:** allow admin role to read/write languages ([45feaeb](https://github.com/botpress/botpress/commit/45feaeb))
-* **admin:** greater timeout when importing bot ([f4a449c](https://github.com/botpress/botpress/commit/f4a449c))
-* **admin:** no axios timeout when importing a bot as it might be long for big bots ([c9a6b0a](https://github.com/botpress/botpress/commit/c9a6b0a))
-* **admin:** resolution of components ([9f2957e](https://github.com/botpress/botpress/commit/9f2957e))
-* **auth:** allow submit with enter only if form is valid on first auth ([fdab96e](https://github.com/botpress/botpress/commit/fdab96e))
-* **choice:** retries only working after save ([8bd67c5](https://github.com/botpress/botpress/commit/8bd67c5))
-* **choice:** retry content element not required anymore ([cdaf003](https://github.com/botpress/botpress/commit/cdaf003))
-* **code-editor:** added reminder for available configs ([6f5f4d3](https://github.com/botpress/botpress/commit/6f5f4d3))
-* **core:** action service uses try/catch instead of promise callbacks ([eb2d48a](https://github.com/botpress/botpress/commit/eb2d48a))
-* **core:** maxListeners warning in console on botpress start ([bd4a1f6](https://github.com/botpress/botpress/commit/bd4a1f6))
-* **core:** unregister listeners after_bot_unmount ([f22b8c0](https://github.com/botpress/botpress/commit/f22b8c0))
-* **debugger:** allow more time for debugger to fetch an event ([7e07239](https://github.com/botpress/botpress/commit/7e07239))
-* **ghost:** allow files up to 100mb ([e9d2e51](https://github.com/botpress/botpress/commit/e9d2e51))
-* **lang:** metadataLocation local files lookup ([7cf9a05](https://github.com/botpress/botpress/commit/7cf9a05))
-* **nlu:** batching tokenize and vectorize calls to lang-server ([e84334b](https://github.com/botpress/botpress/commit/e84334b))
-* **nlu:** bigger payload allowed ([2e3d37e](https://github.com/botpress/botpress/commit/2e3d37e))
-* **nlu:** confusion engine bad parameter ([9848f5d](https://github.com/botpress/botpress/commit/9848f5d))
-* **nlu:** don't load model for lang when not found ([0a98393](https://github.com/botpress/botpress/commit/0a98393))
-* **nlu:** pattern extraction case insensitive ([0d414d3](https://github.com/botpress/botpress/commit/0d414d3))
-* **nlu:** slot tagger ([5897d9f](https://github.com/botpress/botpress/commit/5897d9f))
-* **nlu:** very confused std threshold ([f3a3af9](https://github.com/botpress/botpress/commit/f3a3af9))
-* **nlu:** very confused still return  intents ([9e719f6](https://github.com/botpress/botpress/commit/9e719f6))
-* **nlu:** view supports more intents and sections ([be395f5](https://github.com/botpress/botpress/commit/be395f5))
-* **qna:** redundant question already exists check ([628b209](https://github.com/botpress/botpress/commit/628b209))
-* **qna:** validation failed on empty redirect flow ([8449208](https://github.com/botpress/botpress/commit/8449208))
-* **sdk:** incorrect event state signature ([4b17693](https://github.com/botpress/botpress/commit/4b17693))
-* **studio:** missing translations show up red ([e981590](https://github.com/botpress/botpress/commit/e981590))
-* **studio:** sidebar doesn't unroll anymore ([0886c1a](https://github.com/botpress/botpress/commit/0886c1a))
-
+- **admin:** allow admin role to read/write languages ([45feaeb](https://github.com/botpress/botpress/commit/45feaeb))
+- **admin:** greater timeout when importing bot ([f4a449c](https://github.com/botpress/botpress/commit/f4a449c))
+- **admin:** no axios timeout when importing a bot as it might be long for big bots ([c9a6b0a](https://github.com/botpress/botpress/commit/c9a6b0a))
+- **admin:** resolution of components ([9f2957e](https://github.com/botpress/botpress/commit/9f2957e))
+- **auth:** allow submit with enter only if form is valid on first auth ([fdab96e](https://github.com/botpress/botpress/commit/fdab96e))
+- **choice:** retries only working after save ([8bd67c5](https://github.com/botpress/botpress/commit/8bd67c5))
+- **choice:** retry content element not required anymore ([cdaf003](https://github.com/botpress/botpress/commit/cdaf003))
+- **code-editor:** added reminder for available configs ([6f5f4d3](https://github.com/botpress/botpress/commit/6f5f4d3))
+- **core:** action service uses try/catch instead of promise callbacks ([eb2d48a](https://github.com/botpress/botpress/commit/eb2d48a))
+- **core:** maxListeners warning in console on botpress start ([bd4a1f6](https://github.com/botpress/botpress/commit/bd4a1f6))
+- **core:** unregister listeners after_bot_unmount ([f22b8c0](https://github.com/botpress/botpress/commit/f22b8c0))
+- **debugger:** allow more time for debugger to fetch an event ([7e07239](https://github.com/botpress/botpress/commit/7e07239))
+- **ghost:** allow files up to 100mb ([e9d2e51](https://github.com/botpress/botpress/commit/e9d2e51))
+- **lang:** metadataLocation local files lookup ([7cf9a05](https://github.com/botpress/botpress/commit/7cf9a05))
+- **nlu:** batching tokenize and vectorize calls to lang-server ([e84334b](https://github.com/botpress/botpress/commit/e84334b))
+- **nlu:** bigger payload allowed ([2e3d37e](https://github.com/botpress/botpress/commit/2e3d37e))
+- **nlu:** confusion engine bad parameter ([9848f5d](https://github.com/botpress/botpress/commit/9848f5d))
+- **nlu:** don't load model for lang when not found ([0a98393](https://github.com/botpress/botpress/commit/0a98393))
+- **nlu:** pattern extraction case insensitive ([0d414d3](https://github.com/botpress/botpress/commit/0d414d3))
+- **nlu:** slot tagger ([5897d9f](https://github.com/botpress/botpress/commit/5897d9f))
+- **nlu:** very confused std threshold ([f3a3af9](https://github.com/botpress/botpress/commit/f3a3af9))
+- **nlu:** very confused still return intents ([9e719f6](https://github.com/botpress/botpress/commit/9e719f6))
+- **nlu:** view supports more intents and sections ([be395f5](https://github.com/botpress/botpress/commit/be395f5))
+- **qna:** redundant question already exists check ([628b209](https://github.com/botpress/botpress/commit/628b209))
+- **qna:** validation failed on empty redirect flow ([8449208](https://github.com/botpress/botpress/commit/8449208))
+- **sdk:** incorrect event state signature ([4b17693](https://github.com/botpress/botpress/commit/4b17693))
+- **studio:** missing translations show up red ([e981590](https://github.com/botpress/botpress/commit/e981590))
+- **studio:** sidebar doesn't unroll anymore ([0886c1a](https://github.com/botpress/botpress/commit/0886c1a))
 
 ### Features
 
-* **channel-web:** add ability to send toggleBotInfo event ([28e5e2d](https://github.com/botpress/botpress/commit/28e5e2d))
-
-
+- **channel-web:** add ability to send toggleBotInfo event ([28e5e2d](https://github.com/botpress/botpress/commit/28e5e2d))
 
 ## [12.0.1](https://github.com/botpress/botpress/compare/v12.0.0...v12.0.1) (2019-07-08)
 
-
 ### Bug Fixes
 
-* **admin:** add create bot to pipeline view with no bots ([9cdc703](https://github.com/botpress/botpress/commit/9cdc703))
-* **admin:** password reset for basic auth strategy ([c3b181e](https://github.com/botpress/botpress/commit/c3b181e))
-* **channel-web:** fix pt translations + added es translation ([04859bb](https://github.com/botpress/botpress/commit/04859bb))
-* **channel-web:** translate reset conversation label ([27e34f3](https://github.com/botpress/botpress/commit/27e34f3))
-* **channel-web:** using native includes instead ([d9669ab](https://github.com/botpress/botpress/commit/d9669ab))
-* **core:** pass full workspace user object + attributes to stage change hooks ([f9dac3f](https://github.com/botpress/botpress/commit/f9dac3f))
-* **env:** allow json in env var (for complex configs) ([bdc3500](https://github.com/botpress/botpress/commit/bdc3500))
-* **flow:** fix subflows not working & bit of ux ([fc4d822](https://github.com/botpress/botpress/commit/fc4d822))
-* **gulp:** added verbose for build ([487fda4](https://github.com/botpress/botpress/commit/487fda4))
-* **gulp:** sending outputs to console when watching ([c2a3e88](https://github.com/botpress/botpress/commit/c2a3e88))
-* **lang-server:** replace readonly with admintoken ([2fb9af5](https://github.com/botpress/botpress/commit/2fb9af5))
-* **lang-server:** users don't hit directly the endpoint ([ce49b0a](https://github.com/botpress/botpress/commit/ce49b0a))
-* **native:** added sentencepiece for all os ([ad00566](https://github.com/botpress/botpress/commit/ad00566))
-* **nlu:** check if model loaded before extracting intents ([0c831e8](https://github.com/botpress/botpress/commit/0c831e8))
-* **nlu:** email entity extraction ([faf9afe](https://github.com/botpress/botpress/commit/faf9afe))
-* **nlu:** numeral to number ([d1f5465](https://github.com/botpress/botpress/commit/d1f5465))
-* **nlu:** pattern extractor uses raw text ([59570ef](https://github.com/botpress/botpress/commit/59570ef))
-* **nlu:** various performance fixes wrt lang server ([bb0f1f4](https://github.com/botpress/botpress/commit/bb0f1f4))
-* **skill-choice:** update choice on choice edit ([d7cdf3b](https://github.com/botpress/botpress/commit/d7cdf3b))
-* **typings:** better experience working with typescript ([397f1e8](https://github.com/botpress/botpress/commit/397f1e8))
-
+- **admin:** add create bot to pipeline view with no bots ([9cdc703](https://github.com/botpress/botpress/commit/9cdc703))
+- **admin:** password reset for basic auth strategy ([c3b181e](https://github.com/botpress/botpress/commit/c3b181e))
+- **channel-web:** fix pt translations + added es translation ([04859bb](https://github.com/botpress/botpress/commit/04859bb))
+- **channel-web:** translate reset conversation label ([27e34f3](https://github.com/botpress/botpress/commit/27e34f3))
+- **channel-web:** using native includes instead ([d9669ab](https://github.com/botpress/botpress/commit/d9669ab))
+- **core:** pass full workspace user object + attributes to stage change hooks ([f9dac3f](https://github.com/botpress/botpress/commit/f9dac3f))
+- **env:** allow json in env var (for complex configs) ([bdc3500](https://github.com/botpress/botpress/commit/bdc3500))
+- **flow:** fix subflows not working & bit of ux ([fc4d822](https://github.com/botpress/botpress/commit/fc4d822))
+- **gulp:** added verbose for build ([487fda4](https://github.com/botpress/botpress/commit/487fda4))
+- **gulp:** sending outputs to console when watching ([c2a3e88](https://github.com/botpress/botpress/commit/c2a3e88))
+- **lang-server:** replace readonly with admintoken ([2fb9af5](https://github.com/botpress/botpress/commit/2fb9af5))
+- **lang-server:** users don't hit directly the endpoint ([ce49b0a](https://github.com/botpress/botpress/commit/ce49b0a))
+- **native:** added sentencepiece for all os ([ad00566](https://github.com/botpress/botpress/commit/ad00566))
+- **nlu:** check if model loaded before extracting intents ([0c831e8](https://github.com/botpress/botpress/commit/0c831e8))
+- **nlu:** email entity extraction ([faf9afe](https://github.com/botpress/botpress/commit/faf9afe))
+- **nlu:** numeral to number ([d1f5465](https://github.com/botpress/botpress/commit/d1f5465))
+- **nlu:** pattern extractor uses raw text ([59570ef](https://github.com/botpress/botpress/commit/59570ef))
+- **nlu:** various performance fixes wrt lang server ([bb0f1f4](https://github.com/botpress/botpress/commit/bb0f1f4))
+- **skill-choice:** update choice on choice edit ([d7cdf3b](https://github.com/botpress/botpress/commit/d7cdf3b))
+- **typings:** better experience working with typescript ([397f1e8](https://github.com/botpress/botpress/commit/397f1e8))
 
 ### Features
 
-* **channel-web:** introduce webchat events ([1ca8f49](https://github.com/botpress/botpress/commit/1ca8f49))
-* **nlu:** usage of sentencepiece underscore in list extraction ([b13cbf3](https://github.com/botpress/botpress/commit/b13cbf3))
-* **qna:** display nlu machine learning recommendations in qna ([fd29a3b](https://github.com/botpress/botpress/commit/fd29a3b))
-
-
+- **channel-web:** introduce webchat events ([1ca8f49](https://github.com/botpress/botpress/commit/1ca8f49))
+- **nlu:** usage of sentencepiece underscore in list extraction ([b13cbf3](https://github.com/botpress/botpress/commit/b13cbf3))
+- **qna:** display nlu machine learning recommendations in qna ([fd29a3b](https://github.com/botpress/botpress/commit/fd29a3b))
 
 # [12.0.0](https://github.com/botpress/botpress/compare/v11.9.6...v12.0.0) (2019-07-02)
 
-
 ### Bug Fixes
 
-* **admin:** better ux for create bot ([c696fc9](https://github.com/botpress/botpress/commit/c696fc9))
-* **admin:** changed menu & added debug page ([c7591d1](https://github.com/botpress/botpress/commit/c7591d1))
-* **bot-service:** allow changing id when moving ([7669122](https://github.com/botpress/botpress/commit/7669122))
-* **bots:** checking bot status & fix export ([6f530a7](https://github.com/botpress/botpress/commit/6f530a7))
-* **build:** added more details when building ([3094370](https://github.com/botpress/botpress/commit/3094370))
-* **build:** dependencies ([0abf156](https://github.com/botpress/botpress/commit/0abf156))
-* **build:** module builder source maps ([e3cfdb8](https://github.com/botpress/botpress/commit/e3cfdb8))
-* **channel-web:** allows different user id for different purposes ([80e1879](https://github.com/botpress/botpress/commit/80e1879))
-* **channel-web:** fix react warning ([14ee5c9](https://github.com/botpress/botpress/commit/14ee5c9))
-* **channel-web:** hiding widget when hiding webchat ([786414c](https://github.com/botpress/botpress/commit/786414c))
-* **cms:** copy choice items ([f7a7b6c](https://github.com/botpress/botpress/commit/f7a7b6c))
-* **cms:** fix overflow issue with multilang ([f9355a0](https://github.com/botpress/botpress/commit/f9355a0))
-* **cms:** height auto resize for the table ([5fb49f0](https://github.com/botpress/botpress/commit/5fb49f0))
-* **cms:** remembering last language on refresh ([7012e16](https://github.com/botpress/botpress/commit/7012e16))
-* **cms:** scrollbar, pagesize & removed some filters ([292988d](https://github.com/botpress/botpress/commit/292988d))
-* **code-editor:** added forgotten hook ([93a055d](https://github.com/botpress/botpress/commit/93a055d))
-* **code-editor:** leaving editing mode when no changes ([8651c18](https://github.com/botpress/botpress/commit/8651c18))
-* **confusion:** issue with disabled bots & bit of ux ([b972d69](https://github.com/botpress/botpress/commit/b972d69))
-* **core:** bumped min QnA conf to 0.5 ([cf7d9f3](https://github.com/botpress/botpress/commit/cf7d9f3))
-* **core:** loading config from env properly ([16fc903](https://github.com/botpress/botpress/commit/16fc903))
-* **core:** svm linear kernel ([1dfae47](https://github.com/botpress/botpress/commit/1dfae47))
-* **core:** unmount & remount bot on config changed ([e5c9592](https://github.com/botpress/botpress/commit/e5c9592))
-* **debug:** added method to persist debug scopes ([410b770](https://github.com/botpress/botpress/commit/410b770))
-* **debugger:** debugger only updates last msg for new messages ([c39e327](https://github.com/botpress/botpress/commit/c39e327))
-* **debugger:** moved flow nodes to summary ([048be1b](https://github.com/botpress/botpress/commit/048be1b))
-* **debugger:** No nlu section when nothing to show ([d1d6a7c](https://github.com/botpress/botpress/commit/d1d6a7c))
-* **debugger:** not update focused message if debugger is hidden ([8a6830c](https://github.com/botpress/botpress/commit/8a6830c))
-* **debugger:** theme better fits in the layout ([7b459ef](https://github.com/botpress/botpress/commit/7b459ef))
-* **debugger:** unsubscribe from debugger when unmounting component ([5afd183](https://github.com/botpress/botpress/commit/5afd183))
-* **event-collector:** issue with high load (double-saving) ([5eb93ac](https://github.com/botpress/botpress/commit/5eb93ac))
-* **extensions:** debugger style refactor ([4bea803](https://github.com/botpress/botpress/commit/4bea803))
-* **extensions:** minor style change ([2c3e167](https://github.com/botpress/botpress/commit/2c3e167))
-* **flow:** remove suggested double curly braces from transition ([efe13cb](https://github.com/botpress/botpress/commit/efe13cb))
-* **flow:** smart input placeholder overflows outside component ([d740411](https://github.com/botpress/botpress/commit/d740411))
-* **flow-builder:** displaying problems (missing nodes) ([50823bd](https://github.com/botpress/botpress/commit/50823bd))
-* **flow-builder:** Fix node copy ([62c38ad](https://github.com/botpress/botpress/commit/62c38ad))
-* **flow-builder:** fixed state of usable buttons ([6bf70d9](https://github.com/botpress/botpress/commit/6bf70d9))
-* **ghost:** fix typing & added bots existing scope ([5a513a0](https://github.com/botpress/botpress/commit/5a513a0))
-* **gulp:** added shortcut to symlink all modules ([079b6c0](https://github.com/botpress/botpress/commit/079b6c0))
-* **history:** styling to make "Load More" button visible all the time ([188140a](https://github.com/botpress/botpress/commit/188140a))
-* **hitl:** quick fix render quick reply ([d84d693](https://github.com/botpress/botpress/commit/d84d693))
-* **lang:** loading in series to get correct consumption reading ([5ad48d1](https://github.com/botpress/botpress/commit/5ad48d1))
-* **lang:** module still loads if one endpoint is unreachable ([f84b2ef](https://github.com/botpress/botpress/commit/f84b2ef))
-* **lang:** streamline lang checks & fix response when erroring ([e9cf6cc](https://github.com/botpress/botpress/commit/e9cf6cc))
-* **lang-server:** hide add language if there is none available ([55d8c11](https://github.com/botpress/botpress/commit/55d8c11))
-* **logs:** added color for studio viewer ([99d663d](https://github.com/botpress/botpress/commit/99d663d))
-* **logs:** added spacing when available ([8ed1686](https://github.com/botpress/botpress/commit/8ed1686))
-* **logs:** fixed botId & missing entries ([cf77920](https://github.com/botpress/botpress/commit/cf77920))
-* **migrations:** issue when using binaries ([e9bc2ee](https://github.com/botpress/botpress/commit/e9bc2ee))
-* **module-loader:** files were recreated on windows ([5eedae3](https://github.com/botpress/botpress/commit/5eedae3))
-* **nlu:** add 'any' slots in slot collection ([973d226](https://github.com/botpress/botpress/commit/973d226))
-* **nlu:** added missing dependency ([adc488f](https://github.com/botpress/botpress/commit/adc488f))
-* **nlu:** ambiguity set to 10% range ([76dfc52](https://github.com/botpress/botpress/commit/76dfc52))
-* **nlu:** ambiguous flag only when multiple intents ([1eea4a3](https://github.com/botpress/botpress/commit/1eea4a3))
-* **nlu:** confusion engine working properly ([75fcb1a](https://github.com/botpress/botpress/commit/75fcb1a))
-* **nlu:** Confusion won't display in Status bar if more than one context ([d25062b](https://github.com/botpress/botpress/commit/d25062b))
-* **nlu:** contextual L0 classification ([d521ff9](https://github.com/botpress/botpress/commit/d521ff9))
-* **nlu:** deps issue ([72566b1](https://github.com/botpress/botpress/commit/72566b1))
-* **nlu:** deps issue on nlu ([839999a](https://github.com/botpress/botpress/commit/839999a))
-* **nlu:** exact matcher ([e5dc865](https://github.com/botpress/botpress/commit/e5dc865))
-* **nlu:** five folder requires train dataset ([cbf7a55](https://github.com/botpress/botpress/commit/cbf7a55))
-* **nlu:** hide empty confusions from admin UI ([2868a3d](https://github.com/botpress/botpress/commit/2868a3d))
-* **nlu:** intent classification w/o slots ([00ee463](https://github.com/botpress/botpress/commit/00ee463))
-* **nlu:** intent detection fix w/ slots ([294f3f8](https://github.com/botpress/botpress/commit/294f3f8))
-* **nlu:** intent matching sentence sanitization ([c0dd4ac](https://github.com/botpress/botpress/commit/c0dd4ac))
-* **nlu:** Intents contexts forgotten when creating training sets ([2700861](https://github.com/botpress/botpress/commit/2700861))
-* **nlu:** kmeans splitting of intent utterances ([df5e5e7](https://github.com/botpress/botpress/commit/df5e5e7))
-* **nlu:** log error only when it was thrown for an unexpected reason ([a881a18](https://github.com/botpress/botpress/commit/a881a18))
-* **nlu:** much smaller K for k-means search ([b988c3b](https://github.com/botpress/botpress/commit/b988c3b))
-* **nlu:** only train models for languages that are loaded ([ab768fe](https://github.com/botpress/botpress/commit/ab768fe))
-* **nlu:** skip intent extraction + slot extraction if no intent ([8b74ede](https://github.com/botpress/botpress/commit/8b74ede))
-* **nlu:** skip intent prediction after exact match if not enough utterances ([0fbf5c6](https://github.com/botpress/botpress/commit/0fbf5c6))
-* **nlu:** slot extraction extracts single slot ([db1af49](https://github.com/botpress/botpress/commit/db1af49))
-* **nlu:** slot tagger selects best slot suggestion ([c6b9136](https://github.com/botpress/botpress/commit/c6b9136))
-* **nlu:** slots can have multiple entities ([c64bddc](https://github.com/botpress/botpress/commit/c64bddc))
-* **nlu:** tfidf capped between 0.5 and 2.0 ([e95bdac](https://github.com/botpress/botpress/commit/e95bdac))
-* **nlu:** tfidf.. tf weight on avg ([9d8e1ec](https://github.com/botpress/botpress/commit/9d8e1ec))
-* **nlu:** tokenizer should not lower case ([856bb25](https://github.com/botpress/botpress/commit/856bb25))
-* **nlu:** wrap lang server connection error and process exit ([a7d0051](https://github.com/botpress/botpress/commit/a7d0051))
-* **NLU:** send only what we want in IO ([b372bdc](https://github.com/botpress/botpress/commit/b372bdc))
-* **qna:** Json parse error in small talk qna template ([a221a64](https://github.com/botpress/botpress/commit/a221a64))
-* **qna:** qna add new state is cleared when submitting ([9322943](https://github.com/botpress/botpress/commit/9322943))
-* **shortcuts:** better ux with shortcuts & standardized mac/win ([01278d2](https://github.com/botpress/botpress/commit/01278d2))
-* **shortcuts:** ctrl+e toggles the emulator even when input focused ([767ec0b](https://github.com/botpress/botpress/commit/767ec0b))
-* **shortcuts:** using same shortcuts on windows/mac ([e816cdb](https://github.com/botpress/botpress/commit/e816cdb))
-* **side panel:** fix cap case typo in imports ([07e7502](https://github.com/botpress/botpress/commit/07e7502))
-* **slots:** retryAttempts not reloading ([e3ead2c](https://github.com/botpress/botpress/commit/e3ead2c))
-* **status-bar:** clarified error message & doc link ([a929ecc](https://github.com/botpress/botpress/commit/a929ecc))
-* **studio:** added again reactstrap ([1d99615](https://github.com/botpress/botpress/commit/1d99615))
-* **studio:** added support for typescript files ([fca19e2](https://github.com/botpress/botpress/commit/fca19e2))
-* **studio:** always see the entire flow ([303ec7d](https://github.com/botpress/botpress/commit/303ec7d))
-* **studio:** guided tour text ([cf1da57](https://github.com/botpress/botpress/commit/cf1da57))
-* **studio:** highlighted nodes styling ([4ed253e](https://github.com/botpress/botpress/commit/4ed253e))
-* **studio:** overflow logs ([4960543](https://github.com/botpress/botpress/commit/4960543))
-* **studio:** overflow on JSON payload ([f708fd8](https://github.com/botpress/botpress/commit/f708fd8))
-* **studio:** smartinput zindex ([997a233](https://github.com/botpress/botpress/commit/997a233))
-* **telegram:** multi-bot support via webhooks ([c5b4e1b](https://github.com/botpress/botpress/commit/c5b4e1b))
-* **testing:** taking scoped user id ([bae011d](https://github.com/botpress/botpress/commit/bae011d))
-* **web-channel:** botInfo page config override ([dc28f63](https://github.com/botpress/botpress/commit/dc28f63))
-* **webchat:** history behavior & convo resilience ([b54f075](https://github.com/botpress/botpress/commit/b54f075))
-
+- **admin:** better ux for create bot ([c696fc9](https://github.com/botpress/botpress/commit/c696fc9))
+- **admin:** changed menu & added debug page ([c7591d1](https://github.com/botpress/botpress/commit/c7591d1))
+- **bot-service:** allow changing id when moving ([7669122](https://github.com/botpress/botpress/commit/7669122))
+- **bots:** checking bot status & fix export ([6f530a7](https://github.com/botpress/botpress/commit/6f530a7))
+- **build:** added more details when building ([3094370](https://github.com/botpress/botpress/commit/3094370))
+- **build:** dependencies ([0abf156](https://github.com/botpress/botpress/commit/0abf156))
+- **build:** module builder source maps ([e3cfdb8](https://github.com/botpress/botpress/commit/e3cfdb8))
+- **channel-web:** allows different user id for different purposes ([80e1879](https://github.com/botpress/botpress/commit/80e1879))
+- **channel-web:** fix react warning ([14ee5c9](https://github.com/botpress/botpress/commit/14ee5c9))
+- **channel-web:** hiding widget when hiding webchat ([786414c](https://github.com/botpress/botpress/commit/786414c))
+- **cms:** copy choice items ([f7a7b6c](https://github.com/botpress/botpress/commit/f7a7b6c))
+- **cms:** fix overflow issue with multilang ([f9355a0](https://github.com/botpress/botpress/commit/f9355a0))
+- **cms:** height auto resize for the table ([5fb49f0](https://github.com/botpress/botpress/commit/5fb49f0))
+- **cms:** remembering last language on refresh ([7012e16](https://github.com/botpress/botpress/commit/7012e16))
+- **cms:** scrollbar, pagesize & removed some filters ([292988d](https://github.com/botpress/botpress/commit/292988d))
+- **code-editor:** added forgotten hook ([93a055d](https://github.com/botpress/botpress/commit/93a055d))
+- **code-editor:** leaving editing mode when no changes ([8651c18](https://github.com/botpress/botpress/commit/8651c18))
+- **confusion:** issue with disabled bots & bit of ux ([b972d69](https://github.com/botpress/botpress/commit/b972d69))
+- **core:** bumped min QnA conf to 0.5 ([cf7d9f3](https://github.com/botpress/botpress/commit/cf7d9f3))
+- **core:** loading config from env properly ([16fc903](https://github.com/botpress/botpress/commit/16fc903))
+- **core:** svm linear kernel ([1dfae47](https://github.com/botpress/botpress/commit/1dfae47))
+- **core:** unmount & remount bot on config changed ([e5c9592](https://github.com/botpress/botpress/commit/e5c9592))
+- **debug:** added method to persist debug scopes ([410b770](https://github.com/botpress/botpress/commit/410b770))
+- **debugger:** debugger only updates last msg for new messages ([c39e327](https://github.com/botpress/botpress/commit/c39e327))
+- **debugger:** moved flow nodes to summary ([048be1b](https://github.com/botpress/botpress/commit/048be1b))
+- **debugger:** No nlu section when nothing to show ([d1d6a7c](https://github.com/botpress/botpress/commit/d1d6a7c))
+- **debugger:** not update focused message if debugger is hidden ([8a6830c](https://github.com/botpress/botpress/commit/8a6830c))
+- **debugger:** theme better fits in the layout ([7b459ef](https://github.com/botpress/botpress/commit/7b459ef))
+- **debugger:** unsubscribe from debugger when unmounting component ([5afd183](https://github.com/botpress/botpress/commit/5afd183))
+- **event-collector:** issue with high load (double-saving) ([5eb93ac](https://github.com/botpress/botpress/commit/5eb93ac))
+- **extensions:** debugger style refactor ([4bea803](https://github.com/botpress/botpress/commit/4bea803))
+- **extensions:** minor style change ([2c3e167](https://github.com/botpress/botpress/commit/2c3e167))
+- **flow:** remove suggested double curly braces from transition ([efe13cb](https://github.com/botpress/botpress/commit/efe13cb))
+- **flow:** smart input placeholder overflows outside component ([d740411](https://github.com/botpress/botpress/commit/d740411))
+- **flow-builder:** displaying problems (missing nodes) ([50823bd](https://github.com/botpress/botpress/commit/50823bd))
+- **flow-builder:** Fix node copy ([62c38ad](https://github.com/botpress/botpress/commit/62c38ad))
+- **flow-builder:** fixed state of usable buttons ([6bf70d9](https://github.com/botpress/botpress/commit/6bf70d9))
+- **ghost:** fix typing & added bots existing scope ([5a513a0](https://github.com/botpress/botpress/commit/5a513a0))
+- **gulp:** added shortcut to symlink all modules ([079b6c0](https://github.com/botpress/botpress/commit/079b6c0))
+- **history:** styling to make "Load More" button visible all the time ([188140a](https://github.com/botpress/botpress/commit/188140a))
+- **hitl:** quick fix render quick reply ([d84d693](https://github.com/botpress/botpress/commit/d84d693))
+- **lang:** loading in series to get correct consumption reading ([5ad48d1](https://github.com/botpress/botpress/commit/5ad48d1))
+- **lang:** module still loads if one endpoint is unreachable ([f84b2ef](https://github.com/botpress/botpress/commit/f84b2ef))
+- **lang:** streamline lang checks & fix response when erroring ([e9cf6cc](https://github.com/botpress/botpress/commit/e9cf6cc))
+- **lang-server:** hide add language if there is none available ([55d8c11](https://github.com/botpress/botpress/commit/55d8c11))
+- **logs:** added color for studio viewer ([99d663d](https://github.com/botpress/botpress/commit/99d663d))
+- **logs:** added spacing when available ([8ed1686](https://github.com/botpress/botpress/commit/8ed1686))
+- **logs:** fixed botId & missing entries ([cf77920](https://github.com/botpress/botpress/commit/cf77920))
+- **migrations:** issue when using binaries ([e9bc2ee](https://github.com/botpress/botpress/commit/e9bc2ee))
+- **module-loader:** files were recreated on windows ([5eedae3](https://github.com/botpress/botpress/commit/5eedae3))
+- **nlu:** add 'any' slots in slot collection ([973d226](https://github.com/botpress/botpress/commit/973d226))
+- **nlu:** added missing dependency ([adc488f](https://github.com/botpress/botpress/commit/adc488f))
+- **nlu:** ambiguity set to 10% range ([76dfc52](https://github.com/botpress/botpress/commit/76dfc52))
+- **nlu:** ambiguous flag only when multiple intents ([1eea4a3](https://github.com/botpress/botpress/commit/1eea4a3))
+- **nlu:** confusion engine working properly ([75fcb1a](https://github.com/botpress/botpress/commit/75fcb1a))
+- **nlu:** Confusion won't display in Status bar if more than one context ([d25062b](https://github.com/botpress/botpress/commit/d25062b))
+- **nlu:** contextual L0 classification ([d521ff9](https://github.com/botpress/botpress/commit/d521ff9))
+- **nlu:** deps issue ([72566b1](https://github.com/botpress/botpress/commit/72566b1))
+- **nlu:** deps issue on nlu ([839999a](https://github.com/botpress/botpress/commit/839999a))
+- **nlu:** exact matcher ([e5dc865](https://github.com/botpress/botpress/commit/e5dc865))
+- **nlu:** five folder requires train dataset ([cbf7a55](https://github.com/botpress/botpress/commit/cbf7a55))
+- **nlu:** hide empty confusions from admin UI ([2868a3d](https://github.com/botpress/botpress/commit/2868a3d))
+- **nlu:** intent classification w/o slots ([00ee463](https://github.com/botpress/botpress/commit/00ee463))
+- **nlu:** intent detection fix w/ slots ([294f3f8](https://github.com/botpress/botpress/commit/294f3f8))
+- **nlu:** intent matching sentence sanitization ([c0dd4ac](https://github.com/botpress/botpress/commit/c0dd4ac))
+- **nlu:** Intents contexts forgotten when creating training sets ([2700861](https://github.com/botpress/botpress/commit/2700861))
+- **nlu:** kmeans splitting of intent utterances ([df5e5e7](https://github.com/botpress/botpress/commit/df5e5e7))
+- **nlu:** log error only when it was thrown for an unexpected reason ([a881a18](https://github.com/botpress/botpress/commit/a881a18))
+- **nlu:** much smaller K for k-means search ([b988c3b](https://github.com/botpress/botpress/commit/b988c3b))
+- **nlu:** only train models for languages that are loaded ([ab768fe](https://github.com/botpress/botpress/commit/ab768fe))
+- **nlu:** skip intent extraction + slot extraction if no intent ([8b74ede](https://github.com/botpress/botpress/commit/8b74ede))
+- **nlu:** skip intent prediction after exact match if not enough utterances ([0fbf5c6](https://github.com/botpress/botpress/commit/0fbf5c6))
+- **nlu:** slot extraction extracts single slot ([db1af49](https://github.com/botpress/botpress/commit/db1af49))
+- **nlu:** slot tagger selects best slot suggestion ([c6b9136](https://github.com/botpress/botpress/commit/c6b9136))
+- **nlu:** slots can have multiple entities ([c64bddc](https://github.com/botpress/botpress/commit/c64bddc))
+- **nlu:** tfidf capped between 0.5 and 2.0 ([e95bdac](https://github.com/botpress/botpress/commit/e95bdac))
+- **nlu:** tfidf.. tf weight on avg ([9d8e1ec](https://github.com/botpress/botpress/commit/9d8e1ec))
+- **nlu:** tokenizer should not lower case ([856bb25](https://github.com/botpress/botpress/commit/856bb25))
+- **nlu:** wrap lang server connection error and process exit ([a7d0051](https://github.com/botpress/botpress/commit/a7d0051))
+- **NLU:** send only what we want in IO ([b372bdc](https://github.com/botpress/botpress/commit/b372bdc))
+- **qna:** Json parse error in small talk qna template ([a221a64](https://github.com/botpress/botpress/commit/a221a64))
+- **qna:** qna add new state is cleared when submitting ([9322943](https://github.com/botpress/botpress/commit/9322943))
+- **shortcuts:** better ux with shortcuts & standardized mac/win ([01278d2](https://github.com/botpress/botpress/commit/01278d2))
+- **shortcuts:** ctrl+e toggles the emulator even when input focused ([767ec0b](https://github.com/botpress/botpress/commit/767ec0b))
+- **shortcuts:** using same shortcuts on windows/mac ([e816cdb](https://github.com/botpress/botpress/commit/e816cdb))
+- **side panel:** fix cap case typo in imports ([07e7502](https://github.com/botpress/botpress/commit/07e7502))
+- **slots:** retryAttempts not reloading ([e3ead2c](https://github.com/botpress/botpress/commit/e3ead2c))
+- **status-bar:** clarified error message & doc link ([a929ecc](https://github.com/botpress/botpress/commit/a929ecc))
+- **studio:** added again reactstrap ([1d99615](https://github.com/botpress/botpress/commit/1d99615))
+- **studio:** added support for typescript files ([fca19e2](https://github.com/botpress/botpress/commit/fca19e2))
+- **studio:** always see the entire flow ([303ec7d](https://github.com/botpress/botpress/commit/303ec7d))
+- **studio:** guided tour text ([cf1da57](https://github.com/botpress/botpress/commit/cf1da57))
+- **studio:** highlighted nodes styling ([4ed253e](https://github.com/botpress/botpress/commit/4ed253e))
+- **studio:** overflow logs ([4960543](https://github.com/botpress/botpress/commit/4960543))
+- **studio:** overflow on JSON payload ([f708fd8](https://github.com/botpress/botpress/commit/f708fd8))
+- **studio:** smartinput zindex ([997a233](https://github.com/botpress/botpress/commit/997a233))
+- **telegram:** multi-bot support via webhooks ([c5b4e1b](https://github.com/botpress/botpress/commit/c5b4e1b))
+- **testing:** taking scoped user id ([bae011d](https://github.com/botpress/botpress/commit/bae011d))
+- **web-channel:** botInfo page config override ([dc28f63](https://github.com/botpress/botpress/commit/dc28f63))
+- **webchat:** history behavior & convo resilience ([b54f075](https://github.com/botpress/botpress/commit/b54f075))
 
 ### Features
 
-* **admin:** enable bot import from the UI ([d10e140](https://github.com/botpress/botpress/commit/d10e140))
-* **channel-web:** ctrl+enter reset current session then send  ([11bd4b9](https://github.com/botpress/botpress/commit/11bd4b9))
-* **channel-web:** Right click message to debug ([a45c365](https://github.com/botpress/botpress/commit/a45c365))
-* **code-editor:** added some enhancements and mobx ([aabc8f2](https://github.com/botpress/botpress/commit/aabc8f2))
-* **code-editor:** delete and rename actions and hooks in code-editor ([ec7046a](https://github.com/botpress/botpress/commit/ec7046a))
-* **code-editor:** No message displayed when no error ([ffececd](https://github.com/botpress/botpress/commit/ffececd))
-* **code-editro:** added some enhancements and mobx ([946c1a5](https://github.com/botpress/botpress/commit/946c1a5))
-* **core:** crawling actions to find var hints ([5720733](https://github.com/botpress/botpress/commit/5720733))
-* **debugger:** display all intents in debugger ([a469b0b](https://github.com/botpress/botpress/commit/a469b0b))
-* **debugger:** switch selected message when a new one is sent ([375fe1e](https://github.com/botpress/botpress/commit/375fe1e))
-* **emulator:**  Debugger summary UI ([d9faafe](https://github.com/botpress/botpress/commit/d9faafe))
-* **event-storage:** store events for further analysis ([47d4f63](https://github.com/botpress/botpress/commit/47d4f63))
-* **extensions:** Debugger retry fetching a message few times when it is not found  ([08af438](https://github.com/botpress/botpress/commit/08af438))
-* **history:** add history module which displays conversations history for bot ([251fcc0](https://github.com/botpress/botpress/commit/251fcc0))
-* **history:** Allow user to flag and unflag messages ([3235f87](https://github.com/botpress/botpress/commit/3235f87))
-* **history:** integrate generic toolbar in history module ([08e908f](https://github.com/botpress/botpress/commit/08e908f))
-* **history:** tooltip when copy link + pretty downloaded json ([1f72934](https://github.com/botpress/botpress/commit/1f72934))
-* **lang:** added tooltip to show current download size vs total ([31e0805](https://github.com/botpress/botpress/commit/31e0805))
-* **lang-server:** added condition on lang http param + small refactor ([a17eda1](https://github.com/botpress/botpress/commit/a17eda1))
-* **migration-service:** Implemented migrations  ([f3cf57e](https://github.com/botpress/botpress/commit/f3cf57e))
-* **ml:** added node-svm with bindings ([ee83ef9](https://github.com/botpress/botpress/commit/ee83ef9))
-* **mltoolkit:** add ml based tokenizer ([d1a5262](https://github.com/botpress/botpress/commit/d1a5262))
-* **nlu:** caching of token vectors and junk ([e0cd696](https://github.com/botpress/botpress/commit/e0cd696))
-* importbot ([7bca21a](https://github.com/botpress/botpress/commit/7bca21a))
-* **nlu:** display nlu confusion matrix status  ([54b7fa2](https://github.com/botpress/botpress/commit/54b7fa2))
-* **nlu:** min nb of utt for ML classification ([8788a26](https://github.com/botpress/botpress/commit/8788a26))
-* **nlu:** oov tfidf ([964721b](https://github.com/botpress/botpress/commit/964721b))
-* **nlu:** vectorizing words by API ([e9cefaa](https://github.com/botpress/botpress/commit/e9cefaa))
-* **NLU:** Ambiguity ([c6f9395](https://github.com/botpress/botpress/commit/c6f9395))
-* **NLU:** SVM based intent classification ([9d5f4fe](https://github.com/botpress/botpress/commit/9d5f4fe))
-* **qna:** QNA import and export use JSON format for QNA items ([f11ca7c](https://github.com/botpress/botpress/commit/f11ca7c))
-* **studio:** added auto-complete suggestions in all app inputs ([a054464](https://github.com/botpress/botpress/commit/a054464))
-* **studio:** added bottom panel ([0ca812c](https://github.com/botpress/botpress/commit/0ca812c))
-* **templates:** bilingual small talk ([9c41b4f](https://github.com/botpress/botpress/commit/9c41b4f))
-* **testing:** creating scenarios from the webchat ([ffed9e4](https://github.com/botpress/botpress/commit/ffed9e4))
-* **ui:** shared layout components for better ux ([cdb5526](https://github.com/botpress/botpress/commit/cdb5526))
-
-
+- **admin:** enable bot import from the UI ([d10e140](https://github.com/botpress/botpress/commit/d10e140))
+- **channel-web:** ctrl+enter reset current session then send ([11bd4b9](https://github.com/botpress/botpress/commit/11bd4b9))
+- **channel-web:** Right click message to debug ([a45c365](https://github.com/botpress/botpress/commit/a45c365))
+- **code-editor:** added some enhancements and mobx ([aabc8f2](https://github.com/botpress/botpress/commit/aabc8f2))
+- **code-editor:** delete and rename actions and hooks in code-editor ([ec7046a](https://github.com/botpress/botpress/commit/ec7046a))
+- **code-editor:** No message displayed when no error ([ffececd](https://github.com/botpress/botpress/commit/ffececd))
+- **code-editro:** added some enhancements and mobx ([946c1a5](https://github.com/botpress/botpress/commit/946c1a5))
+- **core:** crawling actions to find var hints ([5720733](https://github.com/botpress/botpress/commit/5720733))
+- **debugger:** display all intents in debugger ([a469b0b](https://github.com/botpress/botpress/commit/a469b0b))
+- **debugger:** switch selected message when a new one is sent ([375fe1e](https://github.com/botpress/botpress/commit/375fe1e))
+- **emulator:** Debugger summary UI ([d9faafe](https://github.com/botpress/botpress/commit/d9faafe))
+- **event-storage:** store events for further analysis ([47d4f63](https://github.com/botpress/botpress/commit/47d4f63))
+- **extensions:** Debugger retry fetching a message few times when it is not found ([08af438](https://github.com/botpress/botpress/commit/08af438))
+- **history:** add history module which displays conversations history for bot ([251fcc0](https://github.com/botpress/botpress/commit/251fcc0))
+- **history:** Allow user to flag and unflag messages ([3235f87](https://github.com/botpress/botpress/commit/3235f87))
+- **history:** integrate generic toolbar in history module ([08e908f](https://github.com/botpress/botpress/commit/08e908f))
+- **history:** tooltip when copy link + pretty downloaded json ([1f72934](https://github.com/botpress/botpress/commit/1f72934))
+- **lang:** added tooltip to show current download size vs total ([31e0805](https://github.com/botpress/botpress/commit/31e0805))
+- **lang-server:** added condition on lang http param + small refactor ([a17eda1](https://github.com/botpress/botpress/commit/a17eda1))
+- **migration-service:** Implemented migrations ([f3cf57e](https://github.com/botpress/botpress/commit/f3cf57e))
+- **ml:** added node-svm with bindings ([ee83ef9](https://github.com/botpress/botpress/commit/ee83ef9))
+- **mltoolkit:** add ml based tokenizer ([d1a5262](https://github.com/botpress/botpress/commit/d1a5262))
+- **nlu:** caching of token vectors and junk ([e0cd696](https://github.com/botpress/botpress/commit/e0cd696))
+- importbot ([7bca21a](https://github.com/botpress/botpress/commit/7bca21a))
+- **nlu:** display nlu confusion matrix status ([54b7fa2](https://github.com/botpress/botpress/commit/54b7fa2))
+- **nlu:** min nb of utt for ML classification ([8788a26](https://github.com/botpress/botpress/commit/8788a26))
+- **nlu:** oov tfidf ([964721b](https://github.com/botpress/botpress/commit/964721b))
+- **nlu:** vectorizing words by API ([e9cefaa](https://github.com/botpress/botpress/commit/e9cefaa))
+- **NLU:** Ambiguity ([c6f9395](https://github.com/botpress/botpress/commit/c6f9395))
+- **NLU:** SVM based intent classification ([9d5f4fe](https://github.com/botpress/botpress/commit/9d5f4fe))
+- **qna:** QNA import and export use JSON format for QNA items ([f11ca7c](https://github.com/botpress/botpress/commit/f11ca7c))
+- **studio:** added auto-complete suggestions in all app inputs ([a054464](https://github.com/botpress/botpress/commit/a054464))
+- **studio:** added bottom panel ([0ca812c](https://github.com/botpress/botpress/commit/0ca812c))
+- **templates:** bilingual small talk ([9c41b4f](https://github.com/botpress/botpress/commit/9c41b4f))
+- **testing:** creating scenarios from the webchat ([ffed9e4](https://github.com/botpress/botpress/commit/ffed9e4))
+- **ui:** shared layout components for better ux ([cdb5526](https://github.com/botpress/botpress/commit/cdb5526))
 
 ## [11.9.6](https://github.com/botpress/botpress/compare/v11.9.5...v11.9.6) (2019-07-01)
 
-
 ### Bug Fixes
 
-* **call-api:** missing headers on reload ([6f46a37](https://github.com/botpress/botpress/commit/6f46a37))
-* **choices:** use content picker and fix retry attempts ([ad4ea28](https://github.com/botpress/botpress/commit/ad4ea28))
-* **hitl:** added trim in hitl textarea ([f28eb08](https://github.com/botpress/botpress/commit/f28eb08))
-* **hitl:** display last user visit ([0694c2a](https://github.com/botpress/botpress/commit/0694c2a))
-* **hitl:** display messages of type quick_reply in hitl module ([b38d426](https://github.com/botpress/botpress/commit/b38d426))
-* **hitl:** render quick replies in hitl module ([941037f](https://github.com/botpress/botpress/commit/941037f))
-
+- **call-api:** missing headers on reload ([6f46a37](https://github.com/botpress/botpress/commit/6f46a37))
+- **choices:** use content picker and fix retry attempts ([ad4ea28](https://github.com/botpress/botpress/commit/ad4ea28))
+- **hitl:** added trim in hitl textarea ([f28eb08](https://github.com/botpress/botpress/commit/f28eb08))
+- **hitl:** display last user visit ([0694c2a](https://github.com/botpress/botpress/commit/0694c2a))
+- **hitl:** display messages of type quick_reply in hitl module ([b38d426](https://github.com/botpress/botpress/commit/b38d426))
+- **hitl:** render quick replies in hitl module ([941037f](https://github.com/botpress/botpress/commit/941037f))
 
 ### Features
 
-* **hitl:** display last user visit ([262de34](https://github.com/botpress/botpress/commit/262de34))
-
-
+- **hitl:** display last user visit ([262de34](https://github.com/botpress/botpress/commit/262de34))
 
 ## [11.9.5](https://github.com/botpress/botpress/compare/v11.9.4...v11.9.5) (2019-06-21)
 
-
 ### Bug Fixes
 
-* **core:** added memory cache limits ([4732f3f](https://github.com/botpress/botpress/commit/4732f3f))
-* **core:** object caching uses proper key ([ef3c460](https://github.com/botpress/botpress/commit/ef3c460))
-* **hitl:** pause on quick reply ([c3edfbd](https://github.com/botpress/botpress/commit/c3edfbd))
-* **hitl:** swallow quick reply message type ([1392d97](https://github.com/botpress/botpress/commit/1392d97))
-* **messenger:** typing indicators and postback button ([9aadeb9](https://github.com/botpress/botpress/commit/9aadeb9))
-* continue instead of return ([07f4a5a](https://github.com/botpress/botpress/commit/07f4a5a))
-* validate entry.messaging exists ([99aae8b](https://github.com/botpress/botpress/commit/99aae8b))
-* **pro:** fixed "built with pro" variable ([9183293](https://github.com/botpress/botpress/commit/9183293))
-* **webchat:** scroll to the very bottom of the chat on open ([44857fd](https://github.com/botpress/botpress/commit/44857fd))
-
-
+- **core:** added memory cache limits ([4732f3f](https://github.com/botpress/botpress/commit/4732f3f))
+- **core:** object caching uses proper key ([ef3c460](https://github.com/botpress/botpress/commit/ef3c460))
+- **hitl:** pause on quick reply ([c3edfbd](https://github.com/botpress/botpress/commit/c3edfbd))
+- **hitl:** swallow quick reply message type ([1392d97](https://github.com/botpress/botpress/commit/1392d97))
+- **messenger:** typing indicators and postback button ([9aadeb9](https://github.com/botpress/botpress/commit/9aadeb9))
+- continue instead of return ([07f4a5a](https://github.com/botpress/botpress/commit/07f4a5a))
+- validate entry.messaging exists ([99aae8b](https://github.com/botpress/botpress/commit/99aae8b))
+- **pro:** fixed "built with pro" variable ([9183293](https://github.com/botpress/botpress/commit/9183293))
+- **webchat:** scroll to the very bottom of the chat on open ([44857fd](https://github.com/botpress/botpress/commit/44857fd))
 
 ## [11.9.4](https://github.com/botpress/botpress/compare/v11.9.3...v11.9.4) (2019-06-12)
 
-
 ### Bug Fixes
 
-* do not create revisions for models ([4347826](https://github.com/botpress/botpress/commit/4347826))
-* don't record revisions for botpress and workspaces configs ([b60f5c1](https://github.com/botpress/botpress/commit/b60f5c1))
-* expose getAttributes from UserRepository ([82ddeca](https://github.com/botpress/botpress/commit/82ddeca))
-* Expose getAttributes from UserRepository ([e2faeee](https://github.com/botpress/botpress/commit/e2faeee))
-* **core:** resources-loader doesn't over-create files ([b21c311](https://github.com/botpress/botpress/commit/b21c311))
-* ghost use soft delete when deleting a folder ([c026d03](https://github.com/botpress/botpress/commit/c026d03))
-* null context_expiry caused sessions to never timeout ([1d558eb](https://github.com/botpress/botpress/commit/1d558eb))
-* **core:** resources-loader doesn't over-create files ([38ae8d7](https://github.com/botpress/botpress/commit/38ae8d7))
-* **hooks:** before session timeout not being executed ([951ba9b](https://github.com/botpress/botpress/commit/951ba9b))
-* **testing:** made ghost always dirty with duplicate .recorder.js ([fbb1c24](https://github.com/botpress/botpress/commit/fbb1c24))
-* **tests:** fixed memory queue tests ([61445d7](https://github.com/botpress/botpress/commit/61445d7))
-
+- do not create revisions for models ([4347826](https://github.com/botpress/botpress/commit/4347826))
+- don't record revisions for botpress and workspaces configs ([b60f5c1](https://github.com/botpress/botpress/commit/b60f5c1))
+- expose getAttributes from UserRepository ([82ddeca](https://github.com/botpress/botpress/commit/82ddeca))
+- Expose getAttributes from UserRepository ([e2faeee](https://github.com/botpress/botpress/commit/e2faeee))
+- **core:** resources-loader doesn't over-create files ([b21c311](https://github.com/botpress/botpress/commit/b21c311))
+- ghost use soft delete when deleting a folder ([c026d03](https://github.com/botpress/botpress/commit/c026d03))
+- null context_expiry caused sessions to never timeout ([1d558eb](https://github.com/botpress/botpress/commit/1d558eb))
+- **core:** resources-loader doesn't over-create files ([38ae8d7](https://github.com/botpress/botpress/commit/38ae8d7))
+- **hooks:** before session timeout not being executed ([951ba9b](https://github.com/botpress/botpress/commit/951ba9b))
+- **testing:** made ghost always dirty with duplicate .recorder.js ([fbb1c24](https://github.com/botpress/botpress/commit/fbb1c24))
+- **tests:** fixed memory queue tests ([61445d7](https://github.com/botpress/botpress/commit/61445d7))
 
 ### Features
 
-* **channel-web:** configurable messages history ([d52d455](https://github.com/botpress/botpress/commit/d52d455))
-* **core:** added security namespace ([e5eb2e4](https://github.com/botpress/botpress/commit/e5eb2e4))
-* **web:** added ability to create trusted reference ([14d8cb6](https://github.com/botpress/botpress/commit/14d8cb6))
-
-
+- **channel-web:** configurable messages history ([d52d455](https://github.com/botpress/botpress/commit/d52d455))
+- **core:** added security namespace ([e5eb2e4](https://github.com/botpress/botpress/commit/e5eb2e4))
+- **web:** added ability to create trusted reference ([14d8cb6](https://github.com/botpress/botpress/commit/14d8cb6))
 
 ## [11.9.3](https://github.com/botpress/botpress/compare/v11.9.2...v11.9.3) (2019-06-06)
 
-
 ### Bug Fixes
 
-* **basic-skills:** syntax error ([04a32e4](https://github.com/botpress/botpress/commit/04a32e4))
-* **core:** removed machineV1 fingerprint ([b69ea15](https://github.com/botpress/botpress/commit/b69ea15))
-* **pro:** licensing on openshift ([a6ae4ff](https://github.com/botpress/botpress/commit/a6ae4ff))
-
-
+- **basic-skills:** syntax error ([04a32e4](https://github.com/botpress/botpress/commit/04a32e4))
+- **core:** removed machineV1 fingerprint ([b69ea15](https://github.com/botpress/botpress/commit/b69ea15))
+- **pro:** licensing on openshift ([a6ae4ff](https://github.com/botpress/botpress/commit/a6ae4ff))
 
 ## [11.9.2](https://github.com/botpress/botpress/compare/v11.9.1...v11.9.2) (2019-06-05)
 
-
 ### Bug Fixes
 
-* **core:** added flow cache invalidation ([f1ca9ef](https://github.com/botpress/botpress/commit/f1ca9ef))
-* **core:** missing file ([f92ae68](https://github.com/botpress/botpress/commit/f92ae68))
-* **pro:** SAML authentication options ([d22bd16](https://github.com/botpress/botpress/commit/d22bd16))
-* **qna:** remove qna file when qna is disabled ([1d3569f](https://github.com/botpress/botpress/commit/1d3569f))
-* **slot:** fix max attempt check ([ca703e8](https://github.com/botpress/botpress/commit/ca703e8))
-
+- **core:** added flow cache invalidation ([f1ca9ef](https://github.com/botpress/botpress/commit/f1ca9ef))
+- **core:** missing file ([f92ae68](https://github.com/botpress/botpress/commit/f92ae68))
+- **pro:** SAML authentication options ([d22bd16](https://github.com/botpress/botpress/commit/d22bd16))
+- **qna:** remove qna file when qna is disabled ([1d3569f](https://github.com/botpress/botpress/commit/1d3569f))
+- **slot:** fix max attempt check ([ca703e8](https://github.com/botpress/botpress/commit/ca703e8))
 
 ### Features
 
-* **core:** add .ghostignore to exclude files from tracking ([387668e](https://github.com/botpress/botpress/commit/387668e))
-
-
+- **core:** add .ghostignore to exclude files from tracking ([387668e](https://github.com/botpress/botpress/commit/387668e))
 
 ## [11.9.1](https://github.com/botpress/botpress/compare/v11.9.0...v11.9.1) (2019-05-31)
 
-
 ### Bug Fixes
 
-* **admin:** Enable overwrite destination on copy ([72af1e7](https://github.com/botpress/botpress/commit/72af1e7))
-* **core:** fixes checksum check of ghost in DB driver ([6c45eb6](https://github.com/botpress/botpress/commit/6c45eb6))
-* **nlu:** missing source value ([01abed8](https://github.com/botpress/botpress/commit/01abed8))
-* **nlu:** prevent token duplicates in source ([46cd03b](https://github.com/botpress/botpress/commit/46cd03b))
-
-
+- **admin:** Enable overwrite destination on copy ([72af1e7](https://github.com/botpress/botpress/commit/72af1e7))
+- **core:** fixes checksum check of ghost in DB driver ([6c45eb6](https://github.com/botpress/botpress/commit/6c45eb6))
+- **nlu:** missing source value ([01abed8](https://github.com/botpress/botpress/commit/01abed8))
+- **nlu:** prevent token duplicates in source ([46cd03b](https://github.com/botpress/botpress/commit/46cd03b))
 
 # [11.9.0](https://github.com/botpress/botpress/compare/v11.8.4...v11.9.0) (2019-05-15)
 
@@ -4076,7 +3728,7 @@
 ### Bug Fixes
 
 - WordPress typo ([697b7a3](https://github.com/botpress/botpress/commit/697b7a3))
-- **builtins:** allow $ in variable names ([916cdaf](https://github.com/botpress/botpress/commit/916cdaf))
+- **builtins:** allow \$ in variable names ([916cdaf](https://github.com/botpress/botpress/commit/916cdaf))
 - **core:** botpress shouldn't change cwd (resolves [#52](https://github.com/botpress/botpress/issues/52)) ([14ed105](https://github.com/botpress/botpress/commit/14ed105))
 - **core:** hide webchat on logout from admin-panel (resolve [#554](https://github.com/botpress/botpress/issues/554)) ([8d05b69](https://github.com/botpress/botpress/commit/8d05b69))
 - **docs:** deploy tutorial link (resolve [#498](https://github.com/botpress/botpress/issues/498)) ([8308f0d](https://github.com/botpress/botpress/commit/8308f0d))
@@ -4165,7 +3817,7 @@
 - **core:** getTag with details when there is no prior value ([d29fda9](https://github.com/botpress/botpress/commit/d29fda9))
 - **docs:** fixed TOC nav height ([5301eb0](https://github.com/botpress/botpress/commit/5301eb0))
 - **docs:** removed private APIs ([a91afbf](https://github.com/botpress/botpress/commit/a91afbf))
-- **web:** variable names containing special chars (like $, @) ([e9c7ff2](https://github.com/botpress/botpress/commit/e9c7ff2))
+- **web:** variable names containing special chars (like \$, @) ([e9c7ff2](https://github.com/botpress/botpress/commit/e9c7ff2))
 
 ### Features
 
