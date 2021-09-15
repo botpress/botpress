@@ -14,10 +14,10 @@ import {
   RESOLUTION_TYPE
 } from '../types'
 
-import applyChanges from './applyChanges'
+import { applyChanges } from './applyChanges'
 
 export const TABLE_NAME = 'misunderstood'
-const EVENTS_TABLE_NAME = 'events'
+export const EVENTS_TABLE_NAME = 'events'
 
 export default class Db {
   knex: Knex & sdk.KnexExtension
@@ -126,6 +126,10 @@ export default class Db {
       .select('*')
       .then((data: DbFlaggedEvent[]) => (data && data.length ? data[0] : null))
 
+    if (!event) {
+      return
+    }
+
     const parentEvent = await this.knex(EVENTS_TABLE_NAME)
       .where({ botId, incomingEventId: event.eventId, direction: 'incoming' })
       .select('id', 'threadId', 'sessionId', 'event', 'createdOn')
@@ -143,24 +147,25 @@ export default class Db {
     // I wrap the timestamp string to a Date
     const messageCreatedOnAsDate = moment(messageCreatedOn).toDate()
 
-    const [messagesBefore, messagesAfter] = await Promise.all([
-      this.knex(EVENTS_TABLE_NAME)
-        .where({ botId, threadId, sessionId })
-        .andWhere(this.knex.date.isBeforeOrOn('createdOn', messageCreatedOnAsDate))
-        // Two events with different id can have same createdOn
-        .orderBy([
-          { column: 'createdOn', order: 'desc' },
-          { column: 'id', order: 'desc' }
-        ])
-        .limit(6) // More messages displayed before can help user understand conversation better
-        .select('id', 'event', 'createdOn'),
-      this.knex(EVENTS_TABLE_NAME)
-        .where({ botId, threadId, sessionId })
-        .andWhere(this.knex.date.isAfter('createdOn', messageCreatedOnAsDate))
-        .orderBy(['createdOn', 'id'])
-        .limit(3)
-        .select('id', 'event', 'createdOn')
-    ])
+    const messagesBefore = await this.knex(EVENTS_TABLE_NAME)
+      .where({ botId, threadId, sessionId })
+      .andWhere(this.knex.date.isBeforeOrOn('createdOn', messageCreatedOnAsDate))
+      // Two events with different id can have same createdOn
+      .orderBy([
+        { column: 'createdOn', order: 'desc' },
+        { column: 'id', order: 'desc' }
+      ])
+      .limit(6) // More messages displayed before can help user understand conversation better
+      .select('id', 'event', 'createdOn')
+    const messagesAfter = await this.knex(EVENTS_TABLE_NAME)
+      .where({ botId, threadId, sessionId })
+      .andWhere(this.knex.date.isAfter('createdOn', messageCreatedOnAsDate))
+      .orderBy([
+        { column: 'createdOn', order: 'asc' },
+        { column: 'id', order: 'asc' }
+      ])
+      .limit(3)
+      .select('id', 'event', 'createdOn')
 
     const context = _.chain([...messagesBefore, ...messagesAfter])
       .sortBy(['createdOn', 'id'])

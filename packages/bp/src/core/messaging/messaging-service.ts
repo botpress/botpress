@@ -7,6 +7,8 @@ import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 
+const DEFAULT_TYPING_DELAY = 500
+
 @injectable()
 export class MessagingService {
   private clientSync!: MessagingClient
@@ -144,12 +146,17 @@ export class MessagingService {
     }
 
     const payloadAbsoluteUrl = this.convertToAbsoluteUrls(event.payload)
-    const message = await this.clientsByBotId[event.botId].chat.reply(
+    const message = await this.clientsByBotId[event.botId].messages.create(
       event.threadId!,
-      event.channel,
+      undefined,
       payloadAbsoluteUrl
     )
     event.messageId = message.id
+
+    if (event.payload.typing === true || event.payload.type === 'typing') {
+      const value = (event.payload.type === 'typing' ? event.payload.value : undefined) || DEFAULT_TYPING_DELAY
+      await new Promise(resolve => setTimeout(resolve, value))
+    }
 
     return next(undefined, true, false)
   }
