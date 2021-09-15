@@ -56,21 +56,26 @@ export class MessagingSqliteDownMigrator extends MessagingDownMigrator {
     await super.cleanup()
 
     if (this.bp.database.isLite) {
+      const tables = await this.trx('sqlite_master')
+        .select('name')
+        .where({ type: 'table' })
+        .andWhere('name', 'like', 'msg_%')
+
       await this.trx.raw('PRAGMA foreign_keys = OFF;')
 
-      await this.trx.schema.dropTable('msg_messages')
-      await this.trx.schema.dropTable('msg_conversations')
-      await this.trx.schema.dropTable('msg_users')
-      await this.trx.schema.dropTable('msg_clients')
-      await this.trx.schema.dropTable('msg_providers')
+      for (const table of tables) {
+        await this.trx.schema.dropTable(table.name)
+      }
 
       await this.trx.raw('PRAGMA foreign_keys = ON;')
     } else {
-      await this.trx.raw('DROP TABLE msg_messages CASCADE')
-      await this.trx.raw('DROP TABLE msg_conversations CASCADE')
-      await this.trx.raw('DROP TABLE msg_users CASCADE')
-      await this.trx.raw('DROP TABLE msg_clients CASCADE')
-      await this.trx.raw('DROP TABLE msg_providers CASCADE')
+      const tables = await this.trx('pg_catalog.pg_tables')
+        .select('tablename')
+        .andWhere('tablename', 'like', 'msg_%')
+
+      for (const table of tables) {
+        await this.trx.raw(`DROP TABLE ${table.tablename} CASCADE`)
+      }
     }
   }
 
