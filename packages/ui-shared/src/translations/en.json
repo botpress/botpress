@@ -140,6 +140,10 @@
     "es": {
       "name": "Spanish",
       "nativeName": "español"
+    },
+    "n/a": {
+      "name": "Unknown",
+      "nativeName": "Unknown"
     }
   },
   "label": "Label",

@@ -216,8 +216,8 @@ export abstract class MessagingUpMigrator {
   protected async createClients() {
     const bots = await this.bp.bots.getAllBots()
 
-    for (const bot of bots.values()) {
-      await this.createClient(bot.id, true)
+    for (const botId of bots.keys()) {
+      await this.createClient(botId, true)
     }
   }
 
@@ -240,7 +240,7 @@ export abstract class MessagingUpMigrator {
 
     await this.onClientCreated(botId, client.id)
 
-    if (exists && this.isDryRun) {
+    if (exists && !this.isDryRun) {
       try {
         await this.bp.config.mergeBotConfig(botId, {
           messaging: { id: client.id, token, channels: {} }
