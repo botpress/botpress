@@ -433,7 +433,7 @@ class RootStore {
 
     if (!this.isInitialized) {
       window.USE_SESSION_STORAGE = this.config.useSessionStorage
-    } else {
+    } else if (window.USE_SESSION_STORAGE !== this.config.useSessionStorage) {
       console.warn('[WebChat] "useSessionStorage" value cannot be altered once the webchat is initialized')
     }
 
