@@ -171,6 +171,11 @@ class RootStore {
 
   @action.bound
   async addEventToConversation(event: Message): Promise<void> {
+    if (!this.isInitialized) {
+      console.warn('[webchat] Cannot receive messages until the webchat is ready')
+      return
+    }
+
     if (this.isInitialized && this.currentConversationId !== event.conversationId) {
       await this.fetchConversations()
       await this.fetchConversation(event.conversationId)
@@ -192,6 +197,11 @@ class RootStore {
 
   @action.bound
   async updateTyping(event: Message): Promise<void> {
+    if (!this.isInitialized) {
+      console.warn('[webchat] Cannot send typing indicators until the webchat is ready')
+      return
+    }
+
     if (this.isInitialized && this.currentConversationId !== event.conversationId) {
       await this.fetchConversations()
       await this.fetchConversation(event.conversationId)
