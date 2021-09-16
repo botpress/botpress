@@ -1,8 +1,7 @@
-import { Config } from '../typings'
+import { Config, StudioConnector } from '../typings'
 
 export default class BpSocket {
   private events: any
-  private userId: string
   private userIdScope: string
   private chatId: string | undefined
 
@@ -12,14 +11,10 @@ export default class BpSocket {
   public onData: (event: any) => void
   public onUserIdChanged: (userId: string) => void
 
-  constructor(bp, config: Config) {
+  constructor(bp: StudioConnector, config: Config) {
     this.events = bp?.events
     this.userIdScope = config.userIdScope
     this.chatId = config.chatId
-  }
-
-  private isString(str: string | any): str is string {
-    return typeof str === 'string' && str !== 'undefined'
   }
 
   public setup() {
@@ -39,7 +34,7 @@ export default class BpSocket {
     this.events.onAny(this.postToParent)
   }
 
-  public postToParent = (type: string, payload: any) => {
+  public postToParent = (_type: string, payload: any) => {
     // we could filter on event type if necessary
     window.parent?.postMessage({ ...payload, chatId: this.chatId }, '*')
   }
@@ -51,23 +46,28 @@ export default class BpSocket {
   }
 
   /** Waits until the VISITOR ID and VISITOR SOCKET ID is set  */
-  public waitForUserId(): Promise<void> {
+  public async waitForUserId(): Promise<void> {
     return new Promise((resolve, reject) => {
       const interval = setInterval(() => {
-        if (this.isString(window.__BP_VISITOR_ID) && this.isString(window.__BP_VISITOR_SOCKET_ID)) {
+        if (isString(window.__BP_VISITOR_ID) && isString(window.__BP_VISITOR_SOCKET_ID)) {
           clearInterval(interval)
 
-          this.userId = window.__BP_VISITOR_ID
-          this.onUserIdChanged(this.userId)
-          this.postToParent('', { userId: this.userId })
+          const userId = window.__BP_VISITOR_ID
+          this.onUserIdChanged(userId)
+          this.postToParent('', { userId })
+
           resolve()
         }
       }, 250)
 
       setTimeout(() => {
         clearInterval(interval)
-        reject()
-      }, 300000)
+        reject('Timeout to acquire VISITOR ID and VISITOR SOCKET ID exceeded.')
+      }, 30000)
     })
   }
+}
+
+const isString = (str: string | any): str is string => {
+  return typeof str === 'string' && str !== 'undefined'
 }
