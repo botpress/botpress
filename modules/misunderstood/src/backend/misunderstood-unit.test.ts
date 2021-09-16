@@ -14,16 +14,13 @@ import { FLAG_REASON } from '../types'
 //   },
 //   ...
 // }
-//
-// directories should be of the form:
-// {
-//   rootFolderName: ['filename1', 'filename2', ...],
-//   ...
-// }
-export const makeMockGhost = (fileData: any = {}, directories: any = {}) => {
+export const makeMockGhost = (fileData: { [key: string]: { [key: string]: any } } = {}) => {
   return {
     upsertFile: jest.fn(
       (rootFolder: string, file: string, content: string | Buffer, options?: sdk.UpsertOptions): Promise<void> => {
+        if (fileData[rootFolder] === undefined) {
+          fileData[rootFolder] = {}
+        }
         if (typeof content === 'string') {
           fileData[rootFolder][file] = JSON.parse(content)
         } else {
@@ -46,7 +43,7 @@ export const makeMockGhost = (fileData: any = {}, directories: any = {}) => {
         includeDotFiles?: boolean,
         options?: sdk.DirectoryListingOptions
       ): Promise<string[]> => {
-        let files: string[] = directories[rootFolder]
+        let files: string[] = Object.keys(fileData[rootFolder])
         files = files.filter(f => minimatch(f, fileEndingPattern, { matchBase: true }))
         const toExclude = exclude || options?.excludes
         if (typeof toExclude === 'string') {
@@ -115,10 +112,7 @@ describe('applyChanges', () => {
 
   it('addNLU', async () => {
     const intentData = { utterances: { en: ['hi'] } }
-    const ghost = makeMockGhost(
-      { intents: { 'intent1.json': intentData, 'intent2.json': intentData } },
-      { intents: ['intent1.json', 'intent2.json'] }
-    )
+    const ghost = makeMockGhost({ intents: { 'intent1.json': intentData, 'intent2.json': intentData } })
     await addNLU(
       {
         eventId: '123',
