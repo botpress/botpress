@@ -16,9 +16,11 @@ export const addQnA = async (event: DbFlaggedEvent, botGhost: sdk.ScopedGhostSer
 
 const normalizeUtterance = memoize((utterance: string) => utterance.replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1'))
 
-export const removeNLU = (language: string, utterance: string, botGhost: sdk.ScopedGhostService) => async (
-  fileName: string
-) => {
+export const removeUtteranceFromIntent = (
+  language: string,
+  utterance: string,
+  botGhost: sdk.ScopedGhostService
+) => async (fileName: string) => {
   const nluEntry: sdk.NLU.IntentDefinition = await botGhost.readFileAsObject('intents', fileName)
   if (nluEntry.utterances[language]) {
     nluEntry.utterances[language] = nluEntry.utterances[language].filter(
@@ -31,11 +33,14 @@ export const removeNLU = (language: string, utterance: string, botGhost: sdk.Sco
 export const addNLU = async (event: DbFlaggedEvent, botGhost: sdk.ScopedGhostService) => {
   const intentName = event.resolution
 
+  // Get all intents <other> than what we're adding the utterance to
   const nluFiles = (await botGhost.directoryListing('intents', '*.json', '__qna__*')).filter(
     fileName => fileName !== `${intentName}.json`
   )
-  await Bluebird.mapSeries(nluFiles, removeNLU(event.language, event.preview, botGhost))
+  // Remove utterance from other intents in case it exists
+  await Bluebird.mapSeries(nluFiles, removeUtteranceFromIntent(event.language, event.preview, botGhost))
 
+  // Add utterance to correct intent
   const nluEntry: sdk.NLU.IntentDefinition = await botGhost.readFileAsObject('intents', `${intentName}.json`)
   nluEntry.utterances[event.language] = uniq([...(nluEntry.utterances[event.language] || []), event.preview])
 

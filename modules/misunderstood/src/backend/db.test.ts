@@ -1,7 +1,9 @@
 import Db, { EVENTS_TABLE_NAME, TABLE_NAME } from './db'
-import { FLAGGED_MESSAGE_STATUS, FLAG_REASON } from '../types'
-import Database from '../../../../packages/bp/src/core/database'
+import { FLAGGED_MESSAGE_STATUS, FLAG_REASON, RESOLUTION_TYPE } from '../types'
 
+import { makeMockGhost } from './misunderstood-unit.test'
+
+import Database from '../../../../packages/bp/src/core/database'
 import { createDatabaseSuite } from '../../../../packages/bp/src/core/database/index.tests'
 import { PersistedConsoleLogger } from '../../../../packages/bp/src/core/logger'
 import { createSpyObject, MockObject } from '../../../../packages/bp/src/core/misc/utils'
@@ -9,7 +11,7 @@ import { createSpyObject, MockObject } from '../../../../packages/bp/src/core/mi
 const logger: MockObject<PersistedConsoleLogger> = createSpyObject<PersistedConsoleLogger>()
 
 createDatabaseSuite('Misunderstood - DB', (database: Database) => {
-  const db = new Db({ database: database.knex, logger })
+  const db = new Db({ database: database.knex, logger, ghost: { forBot: _ => makeMockGhost() } })
 
   beforeAll(async () => {
     db.knex = database.knex
@@ -188,7 +190,7 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
       const preview = 'message'
       const botId = 'bot'
       const language = 'en'
-      const resolutionType = 'intent'
+      const resolutionType = RESOLUTION_TYPE.intent
       const resolution = 'test-intent'
       const reason = FLAG_REASON.auto_hook
 

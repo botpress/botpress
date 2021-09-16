@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import Knex from 'knex'
 import _, { get, pick } from 'lodash'
 import moment from 'moment'
+import Bluebird from 'bluebird'
 
 import {
   DbFlaggedEvent,
@@ -14,16 +15,18 @@ import {
   RESOLUTION_TYPE
 } from '../types'
 
-import { applyChanges } from './applyChanges'
+import { addQnA, addNLU, applyChanges } from './applyChanges'
 
 export const TABLE_NAME = 'misunderstood'
 export const EVENTS_TABLE_NAME = 'events'
 
 export default class Db {
   knex: Knex & sdk.KnexExtension
+  ghostForBot: (botId: string) => sdk.ScopedGhostService
 
   constructor(private bp: typeof sdk) {
     this.knex = bp.database
+    this.ghostForBot = bp.ghost.forBot
   }
 
   async initialize() {
@@ -103,12 +106,34 @@ export default class Db {
     }))
   }
 
-  async exportProcessedData(botId: string): Promise<DbFlaggedEvent[]> {
-    const appliedData: DbFlaggedEvent[] = await this.knex(TABLE_NAME)
-      .where({ botId, status: FLAGGED_MESSAGE_STATUS.applied })
-      .select('*')
+  async importData(botId: string, events: FlaggedEvent[]): Promise<void> {
+    console.log(events)
+    const qnaEvents = events.filter(({ resolutionType }) => resolutionType === RESOLUTION_TYPE.qna)
+    const nluEvents = events.filter(({ resolutionType }) => resolutionType === RESOLUTION_TYPE.intent)
 
-    return appliedData.map((event: DbFlaggedEvent) => ({
+    const botGhost = this.ghostForBot(botId)
+
+    await Bluebird.mapSeries(qnaEvents, async ev => addQnA(ev as DbFlaggedEvent, botGhost))
+    await Bluebird.mapSeries(nluEvents, async ev => addNLU(ev as DbFlaggedEvent, botGhost))
+  }
+
+  async exportProcessedData(botId: string): Promise<FlaggedEvent[]> {
+    // We don't care about created / updated at times or ID for export
+    const appliedData: FlaggedEvent[] = await this.knex(TABLE_NAME)
+      .where({ botId, status: FLAGGED_MESSAGE_STATUS.applied })
+      .select([
+        'eventId',
+        'botId',
+        'language',
+        'preview',
+        'reason',
+        'status',
+        'resolution',
+        'resolutionType',
+        'resolutionParams'
+      ])
+
+    return appliedData.map((event: FlaggedEvent) => ({
       ...event,
       resolutionParams:
         event.resolutionParams && typeof event.resolutionParams !== 'object'

@@ -74,6 +74,20 @@ export default async (bp: typeof sdk, db: Db) => {
     })
   )
 
+  router.post(
+    '/import',
+    asyncMiddleware(async (req: Request, res: Response) => {
+      const { botId } = req.params
+      const data: FlaggedEvent[] = req.body
+      try {
+        await db.importData(botId, data)
+        res.sendStatus(200)
+      } catch (err) {
+        throw new StandardError('Error importing events', err)
+      }
+    })
+  )
+
   router.get(
     `/events/:status(${FLAGGED_MESSAGE_STATUSES.join('|')})`,
     asyncMiddleware(async (req: Request, res: Response) => {
