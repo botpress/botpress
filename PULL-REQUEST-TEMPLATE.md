@@ -1,14 +1,3 @@
-# PR Template
-
-This page list recommendations and general rules, so we can keep a clean and consistent PR description.
-
-*The template starts after the **horizontal line below***
-
-### References
-- https://embeddedartistry.com/blog/2017/08/04/a-github-pull-request-template-for-your-projects/
-
----
-
 ## Description
 
 Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. List any dependencies that are required for 
