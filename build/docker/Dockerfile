@@ -23,4 +23,4 @@ ENV BP_IS_DOCKER=true
 ENV LANG=C.UTF-8
 EXPOSE 3000
 
-CMD ./duckling & ./bp
+CMD ["./duckling", "&" ,"./bp"]
