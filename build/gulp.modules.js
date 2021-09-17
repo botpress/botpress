@@ -13,7 +13,7 @@ const cwd = path.join(__dirname, '../', process.argv.includes('--internal') ? 'i
 
 const getAllModulesRoot = () => {
   return glob
-    .sync('**/package.json', {
+    .sync('*/package.json', {
       cwd,
       ignore: ['**/node_modules/**', '**/node_production_modules/**']
     })
