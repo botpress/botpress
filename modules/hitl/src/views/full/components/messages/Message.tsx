@@ -60,7 +60,7 @@ export default class Message extends React.Component<{ message: HitlMessage }> {
   }
 
   renderDropdown() {
-    const Dropdown = getComponent('extensions', 'Dropdown')
+    const Dropdown = getComponent('channel-web', 'Dropdown')
     return Dropdown ? (
       <Dropdown isLastGroup={true} isLastOfGroup={true} options={this.props.message.raw_message.options} />
     ) : null

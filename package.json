@@ -14,7 +14,7 @@
     "version": "0.1.6"
   },
   "studio": {
-    "version": "0.0.36",
+    "version": "0.0.37",
     "devBranch": "ya-studio-builtin"
   },
   "messaging": {
@@ -27,7 +27,7 @@
     "build": "yarn cmd build",
     "watch": "yarn cmd watch",
     "package": "yarn cmd package",
-    "test": "cross-env NATIVE_EXTENSIONS_DIR=build/native-extensions cross-env jest -i --detectOpenHandles -c jest.config.js",
+    "test": "cross-env NATIVE_EXTENSIONS_DIR=build/native-extensions cross-env jest -i --detectOpenHandles -c jest.config.js && yarn workspace ui-shared-lite test",
     "reference": "yarn cmd build:reference",
     "itest": "yarn workspace botpress itest",
     "commitmsg": "commitlint -e $GIT_PARAMS",

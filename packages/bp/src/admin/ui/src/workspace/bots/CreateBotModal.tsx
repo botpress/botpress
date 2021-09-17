@@ -2,6 +2,7 @@ import { Button, Classes, Dialog, FormGroup, InputGroup, Intent, Callout } from 
 import { BotConfig, BotTemplate } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
+import ms from 'ms'
 import React, { Component } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import Select from 'react-select'
@@ -119,7 +120,9 @@ class CreateBotModal extends Component<Props, State> {
     }
 
     try {
-      await api.getSecured({ timeout: 20000 }).post('/studio/manage/bots/create', newBot, { baseURL: window.ROOT_PATH })
+      await api
+        .getSecured({ timeout: ms('2m') })
+        .post('/studio/manage/bots/create', newBot, { baseURL: window.ROOT_PATH })
       this.props.onCreateBotSuccess()
       this.toggleDialog()
     } catch (error) {

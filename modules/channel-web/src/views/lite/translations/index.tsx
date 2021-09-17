@@ -25,7 +25,7 @@ const DEFAULT_LOCALE = 'en'
 const STORAGE_KEY = 'bp/channel-web/user-lang'
 const translations = { en, fr, pt, es, ar, ru, uk, de, it }
 
-const cleanLanguageCode = str => str.split('-')[0]
+const cleanLanguageCode = (str: string) => str.split('-')[0]
 const getNavigatorLanguage = () => cleanLanguageCode(navigator.language || navigator['userLanguage'] || '')
 const getStorageLanguage = () => cleanLanguageCode(window.BP_STORAGE?.get(STORAGE_KEY) || '')
 
