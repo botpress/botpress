@@ -107,12 +107,32 @@ export default class Db {
   }
 
   async importData(botId: string, events: FlaggedEvent[]): Promise<void> {
-    console.log(events)
+    const botGhost = this.ghostForBot(botId)
+
+    // Only deal with events that have a resolution defined. They can be null and pass the type check
+    // because the type allows for un-resolved events, but we can't import those here
+    events = events.filter(d => d.resolution && d.resolutionType)
+
+    // sort intents and QnAs
     const qnaEvents = events.filter(({ resolutionType }) => resolutionType === RESOLUTION_TYPE.qna)
     const nluEvents = events.filter(({ resolutionType }) => resolutionType === RESOLUTION_TYPE.intent)
 
-    const botGhost = this.ghostForBot(botId)
+    // Assert the intents and QnAs already exist
+    const fileList = [
+      ...(await botGhost.directoryListing('intents', '*.json')),
+      ...(await botGhost.directoryListing('qna', '*.json'))
+    ]
+    let missing: Array<string> = []
+    for (const event of [...qnaEvents, ...nluEvents]) {
+      if (!fileList.includes(`${event.resolution}.json`)) {
+        missing.push(event.resolution)
+      }
+    }
+    if (missing.length) {
+      throw new Error(`Bot is missing the following intents or QnAs: ${missing.join(', ')}`)
+    }
 
+    // import data into bot
     await Bluebird.mapSeries(qnaEvents, async ev => addQnA(ev as DbFlaggedEvent, botGhost))
     await Bluebird.mapSeries(nluEvents, async ev => addNLU(ev as DbFlaggedEvent, botGhost))
 
@@ -123,6 +143,8 @@ export default class Db {
     // We don't care about created / updated at times or ID for export
     const appliedData: FlaggedEvent[] = await this.knex(TABLE_NAME)
       .where({ botId, status: FLAGGED_MESSAGE_STATUS.applied })
+      .whereNotNull('resolution')
+      .whereNotNull('resolutionType')
       .select([
         'eventId',
         'botId',
