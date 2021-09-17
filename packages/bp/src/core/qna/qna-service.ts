@@ -43,12 +43,16 @@ export class QnaService {
       direction: 'incoming',
       handler: async (event: any, next) => {
         if (!event.hasFlag(WellKnownFlags.SKIP_QNA_PROCESSING)) {
-          const { defaultLang, qnaDisabled } = await this._getBotConfig(event.botId)
-          if (defaultLang && !qnaDisabled) {
-            await this._processEvent(event, defaultLang)
-          }
+          try {
+            const { defaultLang, qnaDisabled } = await this._getBotConfig(event.botId)
+            if (defaultLang && !qnaDisabled) {
+              await this._processEvent(event, defaultLang)
+            }
 
-          next()
+            next()
+          } catch (err) {
+            next(err)
+          }
         }
       },
       order: 130, // must be after the NLU middleware and before the dialog middleware
