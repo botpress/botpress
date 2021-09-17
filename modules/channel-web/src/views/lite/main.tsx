@@ -223,6 +223,11 @@ class Web extends React.Component<MainProps> {
   }
 
   handleNewMessage = async (event: Message) => {
+    if (!this.props.isInitialized) {
+      console.warn('[webchat] Cannot send messages until the webchat is ready')
+      return
+    }
+
     if (event.payload?.type === 'visit') {
       // don't do anything, it's the system message
       return
@@ -251,6 +256,11 @@ class Web extends React.Component<MainProps> {
   }
 
   handleTyping = async (event: Message) => {
+    if (!this.props.isInitialized) {
+      console.warn('[webchat] Cannot send typing indicators until the webchat is ready')
+      return
+    }
+
     if (!this.isCurrentConversation(event)) {
       // don't do anything, it's a message from another conversation
       return
@@ -393,7 +403,8 @@ export default inject(({ store }: { store: RootStore }) => ({
   widgetTransition: store.view.widgetTransition,
   displayWidgetView: store.view.displayWidgetView,
   setLoadingCompleted: store.view.setLoadingCompleted,
-  sendFeedback: store.sendFeedback
+  sendFeedback: store.sendFeedback,
+  isInitialized: store.isInitialized
 }))(injectIntl(observer(Web)))
 
 type MainProps = { store: RootStore } & Pick<
@@ -430,4 +441,5 @@ type MainProps = { store: RootStore } & Pick<
   | 'resetUnread'
   | 'setLoadingCompleted'
   | 'dimensions'
+  | 'isInitialized'
 >
