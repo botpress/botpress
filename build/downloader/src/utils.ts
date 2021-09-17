@@ -1,6 +1,8 @@
 import axios from 'axios'
 import chalk from 'chalk'
 import path from 'path'
+import xml2js from 'xml2js'
+
 import { toolsList } from './cli'
 
 interface GithubRelease {
@@ -19,6 +21,45 @@ export interface ProcessedRelease {
   fileName: string
   fileSize: number
   downloadUrl: string
+}
+
+export const sanitizeBranch = (branch: string) => branch?.replace(/[\W_]+/g, '_')
+
+export const getBinaries = async (toolName: string, platform: string, version?: string) => {
+  const releases = await getReleasedFiles(toolName, platform)
+  const devBins = version ? await getDevBins(toolName, platform, version) : []
+
+  return [...releases, ...devBins]
+}
+
+export const getDevBins = async (toolName: string, platform: string, branch: string): Promise<ProcessedRelease[]> => {
+  const prefix = `${toolName}/${sanitizeBranch(branch)}/`
+  const platformMatch = new RegExp(`.*-(${platform.replace('win32', 'win')})-x64`)
+
+  try {
+    const { data } = await axios.get(`https://botpress-dev-bins.s3.amazonaws.com/?prefix=${prefix}`)
+    const parser = new xml2js.Parser()
+    const result = await Promise.fromCallback<any>(cb => parser.parseString(data, cb))
+    const files = result.ListBucketResult.Contents || []
+
+    return files
+      .map(file => {
+        const fileName = file.Key[0].replace(prefix, '')
+        const [_type, branch, _platform] = fileName.split('-')
+
+        return {
+          fileId: file.ETag[0]?.replace('"', ''),
+          version: branch,
+          fileName,
+          fileSize: Number(file.Size[0]),
+          downloadUrl: `https://botpress-dev-bins.s3.amazonaws.com/${file.Key}`
+        }
+      })
+      .filter(x => platformMatch.test(x.fileName))
+  } catch (err) {
+    logger.error(err)
+    return []
+  }
 }
 
 export const getReleasedFiles = async (toolName: string, platform: string): Promise<ProcessedRelease[]> => {
