@@ -15,11 +15,12 @@
 .chatPreview {
   display: flex;
   flex-direction: column;
-  padding: 10px;
-  padding-bottom: 0;
+  padding: 10px 10px 0;
   margin: 10px 0;
-  border-radius: 1px;
   border: 1px solid #999;
+  border-radius: 1px;
+  height: calc(100% - 50px);
+  overflow-y: scroll;
   background: white;
 }
 
