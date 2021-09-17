@@ -7,6 +7,7 @@ import moment from 'moment'
 import { FlaggedEvent, FLAGGED_MESSAGE_STATUSES } from '../types'
 
 import Db from './db'
+import { FlaggedEventArraySchema } from './validation'
 
 export default async (bp: typeof sdk, db: Db) => {
   const asyncMiddleware = asyncMw(bp.logger)
@@ -78,9 +79,12 @@ export default async (bp: typeof sdk, db: Db) => {
     '/import',
     asyncMiddleware(async (req: Request, res: Response) => {
       const { botId } = req.params
-      const data: FlaggedEvent[] = req.body
       try {
-        await db.importData(botId, data)
+        const { value, error } = FlaggedEventArraySchema.validate(req.body)
+        if (error !== undefined) {
+          throw error
+        }
+        await db.importData(botId, value)
         res.sendStatus(200)
       } catch (err) {
         throw new StandardError('Error importing events', err)

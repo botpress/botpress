@@ -115,6 +115,8 @@ export default class Db {
 
     await Bluebird.mapSeries(qnaEvents, async ev => addQnA(ev as DbFlaggedEvent, botGhost))
     await Bluebird.mapSeries(nluEvents, async ev => addNLU(ev as DbFlaggedEvent, botGhost))
+
+    return
   }
 
   async exportProcessedData(botId: string): Promise<FlaggedEvent[]> {

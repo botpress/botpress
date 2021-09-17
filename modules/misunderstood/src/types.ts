@@ -13,11 +13,13 @@ export enum FLAG_REASON {
   manual = 'manual',
   thumbs_down = 'thumbs_down'
 }
+export const FLAG_REASONS = Object.values(FLAG_REASON)
 
 export enum RESOLUTION_TYPE {
   qna = 'qna',
   intent = 'intent'
 }
+export const RESOLUTION_TYPES = Object.values(RESOLUTION_TYPE)
 
 export interface FlaggedEvent {
   eventId: string

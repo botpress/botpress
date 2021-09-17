@@ -11,7 +11,7 @@ import { createSpyObject, MockObject } from '../../../../packages/bp/src/core/mi
 const logger: MockObject<PersistedConsoleLogger> = createSpyObject<PersistedConsoleLogger>()
 
 createDatabaseSuite('Misunderstood - DB', (database: Database) => {
-  const db = new Db({ database: database.knex, logger, ghost: { forBot: _ => makeMockGhost() } })
+  const db = new Db({ database: database.knex, logger, ghost: { forBot: (_: string) => makeMockGhost() } })
 
   beforeAll(async () => {
     db.knex = database.knex
