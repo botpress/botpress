@@ -14,16 +14,6 @@ import { NLUClient } from './application/nlu-client'
 import { NonBlockingNluApplication } from './application/non-blocking-app'
 import { ConfigResolver } from './application/typings'
 
-const getNLUServerConfig = (config: Config['nluServer']): { endpoint: string } => {
-  if (config.autoStart) {
-    return {
-      endpoint: `http://localhost:${process.NLU_PORT}`
-    }
-  }
-  const { endpoint } = config
-  return { endpoint }
-}
-
 export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplication> {
   const globalConfig: Config = await bp.config.getModuleConfig('nlu')
   const { queueTrainingOnBotMount, legacyElection } = globalConfig
@@ -35,8 +25,9 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
     )
   }
 
-  const { endpoint: nluEndpoint } = getNLUServerConfig(globalConfig.nluServer)
-  const nluClient = new NLUClient(nluEndpoint)
+  const nluEndpoint = `${process.LOCAL_URL}/api/v1/nlu-server`
+  const axiosConfig: sdk.AxiosBotConfig = { baseURL: nluEndpoint, headers: {} }
+  const nluClient = new NLUClient(axiosConfig)
 
   const socket = getWebsocket(bp)
 
@@ -51,7 +42,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
     mergeBotConfig: bp.config.mergeBotConfig
   }
 
-  const botFactory = new BotFactory(configResolver, nluEndpoint, bp.logger, defRepo, modelStateService, socket)
+  const botFactory = new BotFactory(configResolver, bp.logger, defRepo, modelStateService, socket, bp.http)
   const application = new NonBlockingNluApplication(
     nluClient,
     botFactory,

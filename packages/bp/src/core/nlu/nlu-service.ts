@@ -16,24 +16,23 @@ import { Predictor } from './predictor'
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
 const PREDICT_MW = 'nlu-predict.incoming'
 
-interface Config {
-  legacyElection: boolean
-  nluEndpoint: string
-}
-
 /**
  * This service takes care of the nlu inferences/predictions
  *
  * It belongs in the runtime and only in the runtime.
  * It is not responsible for CRUD on intent and entity files.
- * It is not responsible for training and the model state-machine.
- * It expects botConfig to expose nluModels.
+ * It is not responsible for trainings and the models state-machine.
+ * It expects bot config to have field nluModels.
+ * It expects botpress config to have field nlu.
  * That's it.
  */
 @injectable()
-export class NLUService {
-  private config!: Config
-  private client!: NLUClient
+export class NLUInferenceService {
+  private endpoint!: string
+  private legacyElection!: boolean
+
+  private _baseClient: NLUClient | undefined
+  private clientPerBot: { [botId: string]: NLUClient } = {}
   private predictors: { [botId: string]: Predictor } = {}
 
   constructor(
@@ -42,13 +41,27 @@ export class NLUService {
     @inject(TYPES.Logger) private logger: Logger
   ) {}
 
+  public get baseClient() {
+    return this._baseClient
+  }
+
+  public get clientsPerBot() {
+    return { ...this.clientPerBot }
+  }
+
   @postConstruct()
-  public async initialize(opt: Partial<Config> = {}) {
+  public async initialize() {
     await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
-    const defaultConfig: Config = { legacyElection: false, nluEndpoint: `http://localhost:${process.NLU_PORT}` }
-    this.config = { ...defaultConfig, ...opt }
-    this.client = new NLUClient(this.config.nluEndpoint)
+    const { nlu: nluConfig } = await this.configProvider.getBotpressConfig()
+
+    const { legacyElection, autoStartNLUServer, nluServerEndpoint } = nluConfig
+    this.legacyElection = legacyElection ?? false
+
+    const defaultEndpoint = `http://localhost:${process.NLU_PORT}`
+    this.endpoint = autoStartNLUServer ? defaultEndpoint : nluServerEndpoint
+
+    this._baseClient = new NLUClient({ endpoint: this.endpoint })
 
     this.eventEngine.register({
       name: PREDICT_MW,
@@ -69,7 +82,11 @@ export class NLUService {
     await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
     const botConfig = await this.configProvider.getBotConfig(botId)
     const modelIdGetter = this._modelIdGetter(botId)
-    const predictor = new Predictor(botId, botConfig.defaultLanguage, this.client, modelIdGetter, this.logger)
+
+    const client = new NLUClient({ endpoint: this.endpoint, cloud: botConfig.cloud })
+    this.clientPerBot[botId] = client
+
+    const predictor = new Predictor(botId, botConfig.defaultLanguage, client, modelIdGetter, this.logger)
     this.predictors[botId] = predictor
   }
 
@@ -78,7 +95,7 @@ export class NLUService {
   }
 
   private _modelIdGetter = (botId: string) => async (): Promise<Dic<string>> => {
-    // TODO: implement some caching to prevent from reading config at each predict
+    // TODO: implement some caching to prevent from reading bot config at each predict
     const botConfig = await this.configProvider.getBotConfig(botId)
     return botConfig.nluModels ?? {}
   }
@@ -118,7 +135,7 @@ export class NLUService {
       }
 
       const electionInput = appendTime(nluResults)
-      const postElection = this.config.legacyElection ? legacyElection(electionInput) : naturalElection(electionInput)
+      const postElection = this.legacyElection ? legacyElection(electionInput) : naturalElection(electionInput)
       _.merge(event, { nlu: postElection })
       this.removeSensitiveText(event)
     } catch (err) {
@@ -145,10 +162,9 @@ export class NLUService {
   }
 
   private _ignoreEvent = async (event: IO.IncomingEvent) => {
-    const { health } = await this.client.getInfo()
     return (
+      !this.clientPerBot[event.botId] ||
       !this.predictors[event.botId] ||
-      !health?.isEnabled ||
       !event.preview ||
       EVENTS_TO_IGNORE.includes(event.type) ||
       event.hasFlag(WellKnownFlags.SKIP_NATIVE_NLU)

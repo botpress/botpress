@@ -11,7 +11,6 @@ DEBUG('nlu:predict')
 export const DEFAULT_NLU_SERVER_OPTIONS: NLUServerOptions = {
   host: 'localhost',
   port: 3200,
-  authToken: undefined,
   limit: 0,
   bodySize: '2mb', // should be more than enough based on empirical trials
   batchSize: 1, // one predict at a time

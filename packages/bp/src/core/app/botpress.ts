@@ -185,24 +185,26 @@ export class Botpress {
   }
 
   private async maybeStartLocalSTAN() {
-    if (!process.LOADED_MODULES['nlu']) {
-      this.logger.warn(
-        'NLU server is disabled. Enable the NLU module and restart Botpress to start the standalone NLU server'
-      )
-      return
-    }
+    const { nlu: nluConfig } = await this.configProvider.getBotpressConfig()
 
-    const config = await this.moduleLoader.configReader.getGlobal('nlu')
+    const {
+      autoStartNLUServer,
+      modelCacheSize,
+      maxTrainingPerInstance,
+      languageSources,
+      ducklingURL,
+      ducklingEnabled,
+      queueTrainingOnBotMount,
+      legacyElection,
+      nluServerEndpoint
+    } = nluConfig
 
-    const autoStart = config.nluServer?.autoStart ?? true
-    if (!autoStart) {
-      if (!config.nluServer?.endpoint) {
+    if (!autoStartNLUServer) {
+      if (!nluServerEndpoint) {
         this.logger.warn("NLU server isn't configured properly, set it to auto start or provide an endpoint")
       } else {
-        const { endpoint } = config.nluServer
-        this.logger.info(`NLU server manually handled at: ${endpoint}`)
+        this.logger.info(`NLU server manually handled at: ${nluServerEndpoint}`)
       }
-
       return
     }
 
@@ -217,14 +219,13 @@ export class Botpress {
     const logFilter = nluDebugScopes.length ? nluDebugScopes : undefined
 
     startLocalNLUServer({
-      languageSources: config.languageSources,
-      ducklingURL: config.ducklingURL,
-      ducklingEnabled: config.ducklingEnabled,
-      legacyElection: config.legacyElection,
+      languageSources,
+      ducklingEnabled,
+      ducklingURL,
+      legacyElection,
       dbURL: process.core_env.BPFS_STORAGE === 'database' ? process.core_env.DATABASE_URL : undefined,
       modelDir: process.cwd(),
-      modelCacheSize: config.modelCacheSize,
-      authToken: makeNLUPassword(),
+      modelCacheSize,
       logFilter,
       verbose
     })

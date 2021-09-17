@@ -6,13 +6,6 @@ export interface BotConfig {
   languages: string[]
   nluSeed?: number
   nluModels?: { [lang: string]: string }
-  cloud?: CloudConfig
-}
-
-export interface CloudConfig {
-  oauthUrl: string
-  clientId: string
-  clientSecret: string
 }
 
 export interface BotDefinition {

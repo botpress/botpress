@@ -359,6 +359,78 @@ export interface BotpressConfig {
      */
     entriesLimit: number
   }
+
+  nlu: NLUConfig
+}
+
+export interface NLUConfig {
+  /**
+   * Whether or not to train bots on mount
+   * @optional
+   */
+  queueTrainingOnBotMount?: boolean
+
+  /**
+   * Whether or not you want to use the deprecated legacy election
+   * @optional
+   */
+  legacyElection?: boolean
+
+  /**
+   * Whether to automatically launch the nlu server when botpress is booting or not.
+   * Set to false if you want to manually launch the nlu server
+   * @default true
+   */
+  autoStartNLUServer: boolean
+
+  /**
+   * The endpoint of your manualy launched nlu server
+   * Only relevant if @see autoStartNLUServer is false
+   * @default http://localhost:3200
+   */
+  nluServerEndpoint: string
+
+  /**
+   * Weither or not to use system entities
+   * Only relevant if @see autoStartNLUServer is true
+   * @default true
+   */
+  ducklingEnabled: boolean
+
+  /**
+   * If you want a fully on-prem installation, you can host
+   * Facebook's Duckling on your own infrastructure and change this URL
+   * Only relevant if @see ducklingEnabled is true
+   * Only relevant if @see autoStartNLUServer is true
+   * @default https://duckling.botpress.io
+   */
+  ducklingURL: string
+
+  /**
+   * The list of sources to load languages from
+   * Only relevant if @see autoStartNLUServer is true
+   * @default [{ "endpoint": "https://lang-01.botpress.io" }]
+   */
+  languageSources: LanguageSource[]
+
+  /**
+   * Maximum allowed model cache size
+   * Only relevant if @see autoStartNLUServer is true
+   * @optional
+   */
+  modelCacheSize?: string
+
+  /**
+   * Maximum number of concurrent trainings per Botpress instance
+   * Only relevant if @see autoStartNLUServer is true
+   * @optional
+   */
+  maxTrainingPerInstance?: number
+}
+
+export interface LanguageSource {
+  endpoint: string
+  authToken?: string
 }
 
 export interface ExternalAuthConfig {

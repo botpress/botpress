@@ -1,8 +1,8 @@
 import { Client, Health, Specifications, TrainingState } from '@botpress/nlu-client'
+import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import { CloudConfig, TrainingSet } from '../typings'
+import { TrainingSet } from '../typings'
 import { mapTrainSet } from './api-mapper'
-import { NLUCloudClient } from './cloud/client'
 
 export type TrainListener = (
   tp: TrainingState | undefined
@@ -13,8 +13,8 @@ const TRAIN_POLLING_MS = 500
 export class NLUClient {
   private _client: Client
 
-  constructor(endpoint: string, cloud?: CloudConfig) {
-    this._client = cloud ? new NLUCloudClient({ ...cloud, endpoint }) : new Client(endpoint)
+  constructor(axiosConfig: sdk.AxiosBotConfig) {
+    this._client = new Client(axiosConfig)
   }
 
   public listenForTraining(botId: string, modelId: string, l: TrainListener) {

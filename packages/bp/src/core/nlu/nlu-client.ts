@@ -1,11 +1,27 @@
 import { Client, Health, PredictOutput, Specifications } from '@botpress/nlu-client'
+import { CloudConfig } from 'botpress/sdk'
 import _ from 'lodash'
+import { NLUCloudClient } from './cloud/client'
+
+interface Options {
+  endpoint: string
+  cloud?: CloudConfig
+}
 
 export class NLUClient {
-  private _client: Client
+  private _client: Client | NLUCloudClient
 
-  constructor(endpoint: string) {
-    this._client = new Client(endpoint)
+  constructor(private _options: Options) {
+    this._client = _options.cloud
+      ? new NLUCloudClient({
+          endpoint: _options.endpoint,
+          ..._options.cloud
+        })
+      : new Client({ baseURL: _options.endpoint })
+  }
+
+  public get axios() {
+    return this._client.axios
   }
 
   public async getInfo(): Promise<{

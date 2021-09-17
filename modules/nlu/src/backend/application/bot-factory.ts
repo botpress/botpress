@@ -11,18 +11,19 @@ import { BotDefinition, BotConfig, TrainingSession, ConfigResolver } from './typ
 export class BotFactory {
   constructor(
     private _configResolver: ConfigResolver,
-    private _endpoint: string,
     private _logger: sdk.Logger,
     private _defRepo: DefinitionsRepository,
     private _modelStateService: ModelStateService,
-    private _webSocket: (ts: TrainingSession) => void
+    private _webSocket: (ts: TrainingSession) => void,
+    private _http: typeof sdk.http
   ) {}
 
   public makeBot = async (botConfig: BotConfig): Promise<Bot> => {
     const { id: botId } = botConfig
 
-    const { cloud } = botConfig
-    const nluClient = new NLUClient(this._endpoint, cloud)
+    const { baseURL, headers } = await this._http.getAxiosConfigForBot(botId)
+    const axiosConfig = { headers, baseURL: `${baseURL}/nlu-server` }
+    const nluClient = new NLUClient(axiosConfig)
 
     const { defaultLanguage } = botConfig
     const { languages: engineLanguages } = await nluClient.getInfo()
