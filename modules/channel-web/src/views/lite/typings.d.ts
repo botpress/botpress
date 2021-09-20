@@ -1,3 +1,4 @@
+import { BPStorage } from '../../../../../packages/ui-shared-lite/utils/storage'
 import { RootStore } from './store'
 
 declare global {
@@ -16,7 +17,7 @@ declare global {
     SEND_USAGE_STATS: boolean
     SHOW_POWERED_BY: boolean
     USE_SESSION_STORAGE: boolean
-    BP_STORAGE: any
+    BP_STORAGE: BPStorage
     botpress: {
       [moduleName: string]: any
     }

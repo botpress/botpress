@@ -11,6 +11,7 @@ import { MoreOptionsProps } from '../../ui-shared-lite/MoreOptions/typings'
 import { OverlayProps } from '../../ui-shared-lite/Overlay/typings'
 import { TabsProps } from '../../ui-shared-lite/Tabs/typings'
 import { ToolTipProps } from '../../ui-shared-lite/ToolTip/typings'
+import { BPStorage } from '../../ui-shared-lite/utils/storage'
 
 import {
   AccessControlProps,
@@ -50,7 +51,6 @@ import { TextareaProps } from './Textarea/typings'
 import { ToastOptions } from './Toaster'
 import { TokenRefresherProps } from './TokenRefresher/typings'
 import { TreeViewProps } from './TreeView/typings'
-import { BPStorage } from './utils/storage'
 
 declare module 'botpress/shared' {
   export function isOperationAllowed(props: PermissionAllowedProps): boolean

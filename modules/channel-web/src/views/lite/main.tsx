@@ -13,10 +13,10 @@ import constants from './core/constants'
 import BpSocket from './core/socket'
 import ChatIcon from './icons/Chat'
 import { RootStore, StoreDef } from './store'
-import { Config, Message, uuid } from './typings'
+import { Config, Message, Overrides, uuid } from './typings'
 import { checkLocationOrigin, initializeAnalytics, isIE, trackMessage, trackWebchatState } from './utils'
 
-const _values = obj => Object.keys(obj).map(x => obj[x])
+const _values = (obj: Overrides) => Object.keys(obj).map(x => obj[x])
 
 class Web extends React.Component<MainProps> {
   private config: Config
@@ -62,8 +62,10 @@ class Web extends React.Component<MainProps> {
   }
 
   componentDidUpdate() {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.initializeIfChatDisplayed()
+    if (this.config) {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.initializeIfChatDisplayed()
+    }
   }
 
   async initializeIfChatDisplayed() {
@@ -110,7 +112,7 @@ class Web extends React.Component<MainProps> {
     window.parent?.postMessage({ type, value, chatId: this.config.chatId }, '*')
   }
 
-  extractConfig() {
+  extractConfig(): Config {
     const decodeIfRequired = (options: string) => {
       try {
         return decodeURIComponent(options)
@@ -121,7 +123,7 @@ class Web extends React.Component<MainProps> {
     const { options, ref } = queryString.parse(location.search)
     const { config } = JSON.parse(decodeIfRequired(options || '{}'))
 
-    const userConfig = Object.assign({}, constants.DEFAULT_CONFIG, config)
+    const userConfig: Config = Object.assign({}, constants.DEFAULT_CONFIG, config)
     userConfig.reference = config.ref || ref
 
     this.props.updateConfig(userConfig, this.props.bp)
@@ -143,7 +145,7 @@ class Web extends React.Component<MainProps> {
     await this.socket.waitForUserId()
   }
 
-  loadOverrides(overrides) {
+  loadOverrides(overrides: Overrides) {
     try {
       for (const override of _values(overrides)) {
         override.map(({ module }) => this.props.bp.loadModuleView(module, true))
@@ -159,8 +161,8 @@ class Web extends React.Component<MainProps> {
         return
       }
 
-      await this.socket.changeUserId(data.newValue)
-      await this.socket.setup()
+      this.socket.changeUserId(data.newValue)
+      this.socket.setup()
       await this.socket.waitForUserId()
       await this.props.initializeChat()
     })
@@ -251,7 +253,7 @@ class Web extends React.Component<MainProps> {
 
     if (!['session_reset'].includes(event.payload.type) && event.id !== this.lastMessageId) {
       this.lastMessageId = event.id
-      this.props.store.loadEventInDebugger(event.id)
+      await this.props.store.loadEventInDebugger(event.id)
     }
   }
 
@@ -269,7 +271,7 @@ class Web extends React.Component<MainProps> {
     await this.props.updateTyping(event)
   }
 
-  handleDataMessage = event => {
+  handleDataMessage = (event: Message) => {
     if (!event || !event.payload) {
       return
     }
