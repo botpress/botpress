@@ -118,6 +118,7 @@ export class LegacyStats extends TelemetryStats {
 
   protected async getServerStats() {
     return {
+      isProduction: process.IS_PRODUCTION,
       externalUrl: process.EXTERNAL_URL,
       botpressVersion: process.BOTPRESS_VERSION,
       clusterEnabled: yn(process.CLUSTER_ENABLED, { default: false }),
@@ -183,3 +184,4 @@ export class LegacyStats extends TelemetryStats {
     return (await this.authService.getAllUsers()).length
   }
 }
+
