@@ -21,16 +21,11 @@ import { HookService, ActionService, ActionServersService, HintsService } from '
 import { ContainerModule, interfaces } from 'inversify'
 
 import CELicensingService from '../../services/licensing'
-import { NLUService } from '../../services/nlu/nlu-service'
 import { TYPES } from '../types'
 
 const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<CMSService>(TYPES.CMSService)
     .to(CMSService)
-    .inSingletonScope()
-
-  bind<NLUService>(TYPES.NLUService)
-    .to(NLUService)
     .inSingletonScope()
 
   bind<MediaServiceProvider>(TYPES.MediaServiceProvider)

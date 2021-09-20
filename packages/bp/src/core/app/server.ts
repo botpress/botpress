@@ -63,7 +63,6 @@ import yn from 'yn'
 import { isDisabled } from '../routers/conditionalMiddleware'
 import { SdkApiRouter } from '../routers/sdk/router'
 import { ShortLinksRouter } from '../routers/shortlinks'
-import { NLUService } from '../services/nlu/nlu-service'
 import { InternalRouter } from './internal-router'
 import { debugRequestMw, resolveAsset, resolveIndexPaths } from './server-utils'
 
@@ -125,7 +124,6 @@ export class HTTPServer {
     @inject(TYPES.AlertingService) private alertingService: AlertingService,
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.LogsRepository) private logsRepo: LogsRepository,
-    @inject(TYPES.NLUService) nluService: NLUService,
     @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository,
     @inject(TYPES.RealtimeService) private realtime: RealtimeService,
     @inject(TYPES.QnaService) private qnaService: QnaService,
@@ -182,7 +180,6 @@ export class HTTPServer {
       configProvider,
       authService,
       workspaceService,
-      nluService,
       nluInferenceService,
       converseService,
       this.logger,

@@ -15,18 +15,16 @@ import { BotConfig, ModuleDefinition } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import { intersection } from 'lodash'
-import React, { FC } from 'react'
+import { FC } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 import AccessControl, { isChatUser, isOperationAllowed } from '~/auth/AccessControl'
-import { NeedsTrainingWarning } from './NeedsTrainingWarning'
 import style from './style.scss'
 import { WorkspaceAppItems } from './WorkspaceAppItems'
 
 interface Props {
   bot: BotConfig
   hasError: boolean
-  installedNLULanguages: string[]
   loadedModules: ModuleDefinition[]
   deleteBot?: () => void
   exportBot?: () => void
@@ -39,10 +37,7 @@ interface Props {
 const BotItemCompact: FC<Props> = props => {
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${props.bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${props.bot.id}`
-  const nluModuleEnabled = !!props.loadedModules.find(m => m.name === 'nlu')
   const hasStudioAccess = isOperationAllowed({ resource: 'studio', operation: 'read' })
-  const languages = intersection(props.bot.languages, props.installedNLULanguages)
-  const botHasUninstalledNLULanguages = props.bot.languages.length !== languages.length ? true : false
 
   return (
     <div className={cx('bp_table-row', style.tableRow)} key={props.bot.id}>
@@ -151,25 +146,6 @@ const BotItemCompact: FC<Props> = props => {
           <a href={botStudioLink}>{props.bot.name || props.bot.id}</a>
         ) : (
           <span>{props.bot.name || props.bot.id}</span>
-        )}
-
-        {/*
-          TODO: remove this NeedsTrainingWarning component.
-          This is a temp fix but won't be useful after we bring back training on bot mount.
-          */}
-        <AccessControl resource="module.nlu" operation="write">
-          {nluModuleEnabled && <NeedsTrainingWarning bot={props.bot.id} languages={props.bot.languages} />}
-        </AccessControl>
-
-        {botHasUninstalledNLULanguages && (
-          <Tooltip
-            position="right"
-            content={lang.tr('admin.workspace.bots.item.enableNLULanguages', {
-              languages: languages.join(',')
-            })}
-          >
-            <Icon icon="translate" intent={Intent.DANGER} style={{ marginLeft: 10 }} />
-          </Tooltip>
         )}
 
         {props.bot.disabled && (
