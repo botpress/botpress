@@ -1,0 +1,51 @@
+{
+  "name": "messaging-ui",
+  "version": "0.0.1",
+  "private": true,
+  "publisher": "botpress",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "dependencies": {
+    "html-truncate": "^1.2.2",
+    "mime": "^2.5.2",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-intl": "^5.20.10",
+    "react-linkify": "^0.2.2",
+    "react-select": "^2.4.2",
+    "react-slick": "^0.24.0",
+    "rollup-plugin-import-css": "^3.0.1",
+    "snarkdown": "^1.2.2"
+  },
+  "scripts": {
+    "watch": "node ./webpack.config.js --watch",
+    "test": "jest",
+    "build": "cross-env NODE_ENV=production node ./webpack.config.js --compile --nomap && yarn scss",
+    "scss": "node-sass src/theme/main.scss dist/theme.css --importer=../../node_modules/node-sass-tilde-importer"
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@babel/plugin-transform-typescript": "^7.15.4",
+    "@babel/preset-env": "^7.15.6",
+    "@babel/preset-react": "^7.14.5",
+    "@babel/preset-typescript": "^7.15.0",
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/react": "^12.1.0",
+    "@testing-library/user-event": "^13.2.1",
+    "@types/html-truncate": "^1.2.1",
+    "@types/jest": "^27.0.1",
+    "@types/mime": "^2.0.3",
+    "@types/react": "^17.0.22",
+    "@types/react-intl": "^2.3.17",
+    "@types/react-select": "^4.0.17",
+    "babel-jest": "^27.2.1",
+    "jest": "^27.2.1",
+    "react-test-renderer": "^17.0.2",
+    "rollup": "^2.56.3",
+    "rollup-plugin-typescript2": "^0.30.0",
+    "ts-jest": "^27.0.5",
+    "typescript": "^4.4.3"
+  }
+}
