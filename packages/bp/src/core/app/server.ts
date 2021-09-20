@@ -23,7 +23,7 @@ import { MediaServiceProvider, MediaRouter } from 'core/media'
 import { MessagingRouter, MessagingService } from 'core/messaging'
 import { ModuleLoader, ModulesRouter } from 'core/modules'
 import { NLUInferenceService } from 'core/nlu'
-import { NLUForwardRouter } from 'core/nlu/nlu-forward-router'
+import { NLUProxyRouter } from 'core/nlu/nlu-forward-router'
 import { QnaService } from 'core/qna'
 import { getSocketTransports, RealtimeService } from 'core/realtime'
 import { InvalidExternalToken, PaymentRequiredError, monitoringMiddleware } from 'core/routers'
@@ -86,7 +86,7 @@ export class HTTPServer {
   private readonly sdkApiRouter!: SdkApiRouter
   private internalRouter: InternalRouter
   private messagingRouter: MessagingRouter
-  private nluForwardRouter: NLUForwardRouter
+  private nluForwardRouter: NLUProxyRouter
   private _needPermissions: (
     operation: string,
     resource: string
@@ -212,7 +212,7 @@ export class HTTPServer {
     )
 
     this.messagingRouter = new MessagingRouter(this.logger, messagingService, this)
-    this.nluForwardRouter = new NLUForwardRouter(this.logger, nluInferenceService, { forBot: false })
+    this.nluForwardRouter = new NLUProxyRouter(this.logger, nluInferenceService, { forBot: false })
 
     this._needPermissions = needPermissions(this.workspaceService)
     this._hasPermissions = hasPermissions(this.workspaceService)

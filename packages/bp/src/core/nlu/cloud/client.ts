@@ -26,7 +26,7 @@ export class NLUCloudClient extends Client {
   constructor(options: OauthClientProps) {
     super({ baseURL: options.endpoint })
 
-    const { oauthUrl, clientId, clientSecret, endpoint } = options
+    const { oauthUrl, clientId, clientSecret } = options
     const oauthTokenClient = this._createOauthTokenClient(axios.create(), {
       oauthUrl,
       clientId,

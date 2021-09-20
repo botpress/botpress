@@ -7,7 +7,7 @@ import { EventRepository } from 'core/events'
 import { MediaServiceProvider } from 'core/media'
 import { MessagingBotRouter } from 'core/messaging'
 import { NLUInferenceService } from 'core/nlu'
-import { NLUForwardRouter } from 'core/nlu/nlu-forward-router'
+import { NLUProxyRouter } from 'core/nlu/nlu-forward-router'
 import { QnaRouter, QnaService } from 'core/qna'
 import { disableForModule } from 'core/routers'
 import {
@@ -36,7 +36,7 @@ export class BotsRouter extends CustomRouter {
   private nluRouter: NLURouter
   private converseRouter: ConverseRouter
   private messagingRouter: MessagingBotRouter
-  private nluForwardRouter: NLUForwardRouter
+  private nluForwardRouter: NLUProxyRouter
   private qnaRouter: QnaRouter
 
   constructor(
@@ -68,7 +68,7 @@ export class BotsRouter extends CustomRouter {
       this.configProvider
     )
     this.messagingRouter = new MessagingBotRouter(this.logger, this.authService, this.eventRepo)
-    this.nluForwardRouter = new NLUForwardRouter(this.logger, this.nluInferenceService, { forBot: true })
+    this.nluForwardRouter = new NLUProxyRouter(this.logger, this.nluInferenceService, { forBot: true })
     this.qnaRouter = new QnaRouter(this.logger, this.authService, this.workspaceService, this.qnaService)
   }
 

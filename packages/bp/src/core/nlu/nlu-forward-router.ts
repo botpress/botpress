@@ -1,3 +1,4 @@
+import { AxiosInstance } from 'axios'
 import * as sdk from 'botpress/sdk'
 import { CustomRouter } from 'core/routers/customRouter'
 import { Router, Request as ExpressRequest, Response as ExpressResponse } from 'express'
@@ -10,12 +11,9 @@ interface Config {
   forBot: boolean
 }
 
-/**
- * TODO: There are probably smarter ways of forwarding requests to the nlu-server like a reversve proxy of some sort.
- */
-export class NLUForwardRouter extends CustomRouter {
+export class NLUProxyRouter extends CustomRouter {
   constructor(logger: sdk.Logger, private nluService: NLUInferenceService, private config: Config) {
-    super('NLU-FORWARD', logger, Router({ mergeParams: true }))
+    super('NLU-PROXY', logger, Router({ mergeParams: true }))
 
     // setup routes in background
     void this.setupRoutes()
@@ -45,12 +43,12 @@ export class NLUForwardRouter extends CustomRouter {
     return res.send(responseBody)
   }
 
-  private _getAxiosForBot(req: ExpressRequest) {
+  private _getAxiosForBot(req: ExpressRequest): AxiosInstance | undefined {
     const { botId } = req.params
-    return this.nluService.clientsPerBot[botId].axios
+    return this.nluService.clientsPerBot[botId]?.axios
   }
 
-  private _getGlobalAxios() {
+  private _getGlobalAxios(): AxiosInstance | undefined {
     return this.nluService.baseClient?.axios
   }
 }
