@@ -37,9 +37,6 @@ export default class HitlModule extends React.Component<{ bp: any }, State> {
   }
 
   async componentDidMount() {
-    // Loads the extensions module to display dropdown components
-    window.botpress.injector.loadModuleView('extensions', true)
-
     this.props.bp.events.on('hitl.message', this.updateSessionOverview)
     this.props.bp.events.on('hitl.new_session', this.refreshSessions)
     this.props.bp.events.on('hitl.session.changed', this.updateSession)
