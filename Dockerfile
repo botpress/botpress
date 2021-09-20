@@ -1,2 +1,2 @@
 FROM botpress/server:latest
-CMD ["./bp", "&&" ,"./duckling"]
+CMD ["./bp", "&" ,"./duckling"]
