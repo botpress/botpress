@@ -3,7 +3,7 @@ import css from "rollup-plugin-import-css";
 import pkg from "./package.json";
 
 const extensions = [".js", ".jsx", ".ts", ".tsx"];
-const input = "src/index.ts";
+const input = "src/index.tsx";
 
 const external = [
   ...Object.keys(pkg.dependencies || {}),

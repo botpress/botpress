@@ -18,15 +18,14 @@
     "snarkdown": "^1.2.2"
   },
   "scripts": {
-    "watch": "node ./webpack.config.js --watch",
     "test": "jest",
-    "build": "cross-env NODE_ENV=production node ./webpack.config.js --compile --nomap && yarn scss",
-    "scss": "node-sass src/theme/main.scss dist/theme.css --importer=../../node_modules/node-sass-tilde-importer"
+    "build": "rollup -c"
   },
   "files": [
     "dist"
   ],
   "devDependencies": {
+    "@babel/core": "^7.15.5",
     "@babel/plugin-transform-typescript": "^7.15.4",
     "@babel/preset-env": "^7.15.6",
     "@babel/preset-react": "^7.14.5",
@@ -42,6 +41,7 @@
     "@types/react-select": "^4.0.17",
     "babel-jest": "^27.2.1",
     "jest": "^27.2.1",
+    "jest-transform-css": "^2.1.0",
     "react-test-renderer": "^17.0.2",
     "rollup": "^2.56.3",
     "rollup-plugin-typescript2": "^0.30.0",
