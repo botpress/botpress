@@ -73,6 +73,11 @@
   resolved "https://registry.yarnpkg.com/@types/random-seed/-/random-seed-0.3.3.tgz#7741f7b0a4513198a9396ce4ad25832f799a6727"
   integrity sha512-kHsCbIRHNXJo6EN5W8EA5b4i1hdT6jaZke5crBPLUcLqaLdZ0QBq8QVMbafHzhjFF83Cl9qlee2dChD18d/kPg==
 
+"@types/serialize-javascript@^5.0.1":
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/@types/serialize-javascript/-/serialize-javascript-5.0.1.tgz#2c32e0626734a02a83b94cb924699c4bdcb6fd94"
+  integrity sha512-QqgTcm7IgIt/oWNFQMlpVv5Z3saYtxWK9yFrAUkk3jxvjbqIG835xNNoOYq12mXKQMuWGc+PgOXwXy92eax5BA==
+
 "@webscopeio/react-textarea-autocomplete@^4.7.2":
   version "4.7.2"
   resolved "https://registry.yarnpkg.com/@webscopeio/react-textarea-autocomplete/-/react-textarea-autocomplete-4.7.2.tgz#e8cf8349ec285739a58b965a9c3cd7b3b71a5f34"

@@ -1,20 +1,21 @@
-// @ts-nocheck
-
 import Cookie from 'js-cookie'
 
 export interface BPStorage {
-  set: (key: string, value: string) => void
-  get: (key: string) => string
+  set: <T>(key: string, value: T) => void
+  get: <T = string>(key: string) => T | undefined
   del: (key: string) => void
 }
 
-let storageDriver
-const getDriver = () => {
-  if (storageDriver) {
+let useSessionStorage = new Boolean(window.USE_SESSION_STORAGE)
+let storageDriver: 'cookie' | Storage
+const getDriver = (): 'cookie' | Storage => {
+  if (storageDriver && window.USE_SESSION_STORAGE === useSessionStorage) {
     return storageDriver
   }
 
   try {
+    useSessionStorage = new Boolean(window.USE_SESSION_STORAGE)
+
     const storage =
       window.USE_SESSION_STORAGE === true && typeof sessionStorage !== 'undefined' ? sessionStorage : localStorage
 
@@ -28,19 +29,48 @@ const getDriver = () => {
   }
 }
 
+const serialize = <T>(value: T): string => {
+  if (value === null || value === undefined) {
+    throw new Error('[Storage] Cannot store null or undefined values')
+  }
+
+  if (typeof value === 'string') {
+    return value
+  }
+
+  try {
+    return JSON.stringify(value)
+  } catch {
+    console.error('[Storage] Error parsing value', value)
+    return ''
+  }
+}
+
+const deserialize = <T>(strValue: string | null | undefined): T | undefined => {
+  if (strValue === null || strValue === undefined) {
+    return undefined
+  }
+
+  try {
+    return JSON.parse(strValue)
+  } catch {
+    return strValue as any
+  }
+}
+
 const storage: BPStorage = {
-  set: (key: string, value: string) => {
+  set: <T>(key: string, value: T) => {
     try {
       const driver = getDriver()
-      driver !== 'cookie' ? driver.setItem(key, value) : Cookie.set(key, value)
+      driver !== 'cookie' ? driver.setItem(key, serialize(value)) : Cookie.set(key, serialize(value))
     } catch (err) {
-      console.error('Error while getting data from storage.', err.message)
+      console.error('Error while setting data into storage.', err.message)
     }
   },
-  get: (key: string) => {
+  get: <T = string>(key: string): T | undefined => {
     try {
       const driver = getDriver()
-      return driver !== 'cookie' ? driver.getItem(key) : Cookie.get(key)
+      return driver !== 'cookie' ? deserialize(driver.getItem(key)) : deserialize(Cookie.get(key))
     } catch (err) {
       console.error('Error while getting data from storage.', err.message)
     }
