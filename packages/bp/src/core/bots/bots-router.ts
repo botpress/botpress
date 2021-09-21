@@ -6,8 +6,7 @@ import { ConverseRouter, ConverseService } from 'core/converse'
 import { EventRepository } from 'core/events'
 import { MediaServiceProvider } from 'core/media'
 import { MessagingBotRouter } from 'core/messaging'
-import { NLUInferenceService } from 'core/nlu'
-import { NLUProxyRouter } from 'core/nlu/nlu-forward-router'
+import { NLUClientProvider, NLUProxyRouter } from 'core/nlu'
 import { QnaRouter, QnaService } from 'core/qna'
 import { disableForModule } from 'core/routers'
 import {
@@ -41,7 +40,7 @@ export class BotsRouter extends CustomRouter {
     private configProvider: ConfigProvider,
     private authService: AuthService,
     private workspaceService: WorkspaceService,
-    private nluInferenceService: NLUInferenceService,
+    private nluClientProvider: NLUClientProvider,
     private converseService: ConverseService,
     private logger: Logger,
     private mediaServiceProvider: MediaServiceProvider,
@@ -63,7 +62,7 @@ export class BotsRouter extends CustomRouter {
       this.configProvider
     )
     this.messagingRouter = new MessagingBotRouter(this.logger, this.authService, this.eventRepo)
-    this.nluForwardRouter = new NLUProxyRouter(this.logger, this.nluInferenceService, { forBot: true })
+    this.nluForwardRouter = new NLUProxyRouter(this.logger, this.nluClientProvider, { forBot: true })
     this.qnaRouter = new QnaRouter(this.logger, this.authService, this.workspaceService, this.qnaService)
   }
 

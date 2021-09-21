@@ -22,9 +22,9 @@ interface OauthResponse {
 
 type ErrorRetrier = AxiosError & { config: { _retry: boolean } }
 
-export class NLUCloudClient extends Client {
+export class CloudClient extends Client {
   constructor(options: OauthClientProps) {
-    super({ baseURL: options.endpoint })
+    super({ baseURL: options.endpoint, validateStatus: () => true })
 
     const { oauthUrl, clientId, clientSecret } = options
     const oauthTokenClient = this._createOauthTokenClient(axios.create(), {
@@ -40,10 +40,6 @@ export class NLUCloudClient extends Client {
 
     this.axios.interceptors.request.use(this._requestInterceptor(tokenCache).bind(this))
     this.axios.interceptors.response.use(undefined, this._errorInterceptor(this.axios, tokenCache).bind(this))
-  }
-
-  get axiosInstance() {
-    return this.axios
   }
 
   private _createOauthTokenClient = (

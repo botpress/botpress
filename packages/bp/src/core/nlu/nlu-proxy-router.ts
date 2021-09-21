@@ -1,18 +1,19 @@
 import { AxiosInstance } from 'axios'
 import * as sdk from 'botpress/sdk'
+import { UnauthorizedError } from 'common/http'
 import { CustomRouter } from 'core/routers/customRouter'
 import { Router, Request as ExpressRequest, Response as ExpressResponse } from 'express'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import path from 'path'
-import { NLUInferenceService } from './nlu-service'
+import { NLUClientProvider } from './nlu-client'
 
 interface Config {
   forBot: boolean
 }
 
 export class NLUProxyRouter extends CustomRouter {
-  constructor(logger: sdk.Logger, private nluService: NLUInferenceService, private config: Config) {
+  constructor(logger: sdk.Logger, private nluClientProvider: NLUClientProvider, private config: Config) {
     super('NLU-PROXY', logger, Router({ mergeParams: true }))
 
     // setup routes in background
@@ -21,6 +22,18 @@ export class NLUProxyRouter extends CustomRouter {
 
   public async setupRoutes(): Promise<void> {
     await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+    if (!process.INTERNAL_PASSWORD) {
+      return
+    }
+
+    this.router.use((req, res, next) => {
+      if (req.headers.authorization !== process.INTERNAL_PASSWORD) {
+        return next(new UnauthorizedError('Invalid password'))
+      }
+
+      next()
+    })
+
     this.router.get('*', this._redirect('GET').bind(this))
     this.router.post('*', this._redirect('POST').bind(this))
   }
@@ -45,10 +58,10 @@ export class NLUProxyRouter extends CustomRouter {
 
   private _getAxiosForBot(req: ExpressRequest): AxiosInstance | undefined {
     const { botId } = req.params
-    return this.nluService.clientsPerBot[botId]?.axios
+    return this.nluClientProvider.getClientForBot(botId)?.axios
   }
 
   private _getGlobalAxios(): AxiosInstance | undefined {
-    return this.nluService.baseClient?.axios
+    return this.nluClientProvider.getbaseClient()?.axios
   }
 }

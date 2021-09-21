@@ -22,8 +22,7 @@ import { LogsRepository } from 'core/logger'
 import { MediaServiceProvider, MediaRouter } from 'core/media'
 import { MessagingRouter, MessagingService } from 'core/messaging'
 import { ModuleLoader, ModulesRouter } from 'core/modules'
-import { NLUInferenceService } from 'core/nlu'
-import { NLUProxyRouter } from 'core/nlu/nlu-forward-router'
+import { NLUClientProvider, NLUProxyRouter } from 'core/nlu'
 import { QnaService } from 'core/qna'
 import { getSocketTransports, RealtimeService } from 'core/realtime'
 import { InvalidExternalToken, PaymentRequiredError, monitoringMiddleware } from 'core/routers'
@@ -85,7 +84,7 @@ export class HTTPServer {
   private readonly sdkApiRouter!: SdkApiRouter
   private internalRouter: InternalRouter
   private messagingRouter: MessagingRouter
-  private nluForwardRouter: NLUProxyRouter
+  private nluProxyRouter: NLUProxyRouter
   private _needPermissions: (
     operation: string,
     resource: string
@@ -128,7 +127,7 @@ export class HTTPServer {
     @inject(TYPES.RealtimeService) private realtime: RealtimeService,
     @inject(TYPES.QnaService) private qnaService: QnaService,
     @inject(TYPES.MessagingService) private messagingService: MessagingService,
-    @inject(TYPES.NLUInferenceService) private nluInferenceService: NLUInferenceService,
+    @inject(TYPES.NLUClientProvider) private nluClientProvider: NLUClientProvider,
     @inject(TYPES.ObjectCache) private objectCache: MemoryObjectCache,
     @inject(TYPES.EventRepository) private eventRepo: EventRepository
   ) {
@@ -180,7 +179,7 @@ export class HTTPServer {
       configProvider,
       authService,
       workspaceService,
-      nluInferenceService,
+      nluClientProvider,
       converseService,
       this.logger,
       mediaServiceProvider,
@@ -209,7 +208,7 @@ export class HTTPServer {
     )
 
     this.messagingRouter = new MessagingRouter(this.logger, messagingService, this)
-    this.nluForwardRouter = new NLUProxyRouter(this.logger, nluInferenceService, { forBot: false })
+    this.nluProxyRouter = new NLUProxyRouter(this.logger, nluClientProvider, { forBot: false })
 
     this._needPermissions = needPermissions(this.workspaceService)
     this._hasPermissions = hasPermissions(this.workspaceService)
@@ -376,7 +375,7 @@ export class HTTPServer {
 
     this.app.use('/api/internal', this.internalRouter.router)
     this.app.use(`${BASE_API_PATH}/chat`, this.messagingRouter.router)
-    this.app.use(`${BASE_API_PATH}/nlu-server`, this.nluForwardRouter.router)
+    this.app.use(`${BASE_API_PATH}/nlu-server`, this.nluProxyRouter.router)
     this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
 
     this.app.use(`${BASE_API_PATH}/sdk`, this.sdkApiRouter.router)

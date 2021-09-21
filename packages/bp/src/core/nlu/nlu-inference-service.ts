@@ -10,7 +10,7 @@ import yn from 'yn'
 import legacyElection from './election/legacy-election'
 import naturalElection from './election/natural-election'
 import pickSpellChecked from './election/spellcheck-handler'
-import { NLUClient } from './nlu-client'
+import { NLUClientProvider } from './nlu-client'
 import { Predictor } from './predictor'
 
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
@@ -28,40 +28,25 @@ const PREDICT_MW = 'nlu-predict.incoming'
  */
 @injectable()
 export class NLUInferenceService {
-  private endpoint!: string
   private legacyElection!: boolean
 
-  private _baseClient: NLUClient | undefined
-  private clientPerBot: { [botId: string]: NLUClient } = {}
   private predictors: { [botId: string]: Predictor } = {}
 
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
-    @inject(TYPES.Logger) private logger: Logger
+    @inject(TYPES.Logger) private logger: Logger,
+    @inject(TYPES.NLUClientProvider) private nluClientProvider: NLUClientProvider
   ) {}
-
-  public get baseClient() {
-    return this._baseClient
-  }
-
-  public get clientsPerBot() {
-    return { ...this.clientPerBot }
-  }
 
   @postConstruct()
   public async initialize() {
     await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
-
+    await this.nluClientProvider.initialize()
     const { nlu: nluConfig } = await this.configProvider.getBotpressConfig()
 
-    const { legacyElection, autoStartNLUServer, nluServerEndpoint } = nluConfig
+    const { legacyElection } = nluConfig
     this.legacyElection = legacyElection ?? false
-
-    const defaultEndpoint = `http://localhost:${process.NLU_PORT}`
-    this.endpoint = autoStartNLUServer ? defaultEndpoint : nluServerEndpoint
-
-    this._baseClient = new NLUClient({ endpoint: this.endpoint })
 
     this.eventEngine.register({
       name: PREDICT_MW,
@@ -80,17 +65,17 @@ export class NLUInferenceService {
 
   public async mountBot(botId: string) {
     await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+    await this.nluClientProvider.mountBot(botId)
     const botConfig = await this.configProvider.getBotConfig(botId)
     const modelIdGetter = this._modelIdGetter(botId)
 
-    const client = new NLUClient({ endpoint: this.endpoint, cloud: botConfig.cloud })
-    this.clientPerBot[botId] = client
-
+    const client = this.nluClientProvider.getClientForBot(botId)!
     const predictor = new Predictor(botId, botConfig.defaultLanguage, client, modelIdGetter, this.logger)
     this.predictors[botId] = predictor
   }
 
   public async unmountBot(botId: string) {
+    this.nluClientProvider.unmountBot(botId)
     delete this.predictors[botId]
   }
 
@@ -163,7 +148,6 @@ export class NLUInferenceService {
 
   private _ignoreEvent = async (event: IO.IncomingEvent) => {
     return (
-      !this.clientPerBot[event.botId] ||
       !this.predictors[event.botId] ||
       !event.preview ||
       EVENTS_TO_IGNORE.includes(event.type) ||

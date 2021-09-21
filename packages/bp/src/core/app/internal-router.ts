@@ -118,5 +118,14 @@ export class InternalRouter extends CustomRouter {
         res.sendStatus(200)
       })
     )
+
+    router.post(
+      '/notifyTrainUpdate',
+      this.asyncMiddleware(async (req, res) => {
+        const { body } = req
+        this.realtime.sendToSocket(RealTimePayload.forAdmins('statusbar.event', body))
+        return res.sendStatus(200)
+      })
+    )
   }
 }

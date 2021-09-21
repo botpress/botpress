@@ -317,8 +317,10 @@
   dependencies:
     axios "^0.21.1"
 
-"@botpress/nlu-client@../nlu/packages/nlu-client":
-  version "1.0.0"
+"@botpress/nlu-client@1.0.0-rc.2":
+  version "1.0.0-rc.2"
+  resolved "https://registry.yarnpkg.com/@botpress/nlu-client/-/nlu-client-1.0.0-rc.2.tgz#f741807f6453200e8689c86aa9de115dce14a4a2"
+  integrity sha512-FsV5m07Tg6nnBzkmIHxG+DybdUHXwbpLDjbXFhDPNSyWv/kBvAQGuLRktBCiquMYJSS3B6f5nKY0pJn1C4mw1Q==
   dependencies:
     axios "^0.21.1"
     joi "^17.2.2"
