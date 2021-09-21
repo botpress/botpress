@@ -112,6 +112,9 @@ export default class Db {
     // Only deal with events that have a resolution defined. They can be null and pass the type check
     // because the type allows for un-resolved events, but we can't import those here
     events = events.filter(d => d.resolution && d.resolutionType)
+    if (events.length === 0) {
+      return
+    }
 
     // sort intents and QnAs
     const qnaEvents = events.filter(({ resolutionType }) => resolutionType === RESOLUTION_TYPE.qna)
