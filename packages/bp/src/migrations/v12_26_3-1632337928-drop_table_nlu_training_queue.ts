@@ -21,7 +21,7 @@ const migration: Migration = {
       return { success: false, message: `The following error occured when running the migration ${err.message}.` }
     }
   },
-  down: async ({ bp, metadata }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
+  down: async ({ bp, metadata }: MigrationOpts): Promise<sdk.MigrationResult> => {
     try {
       await bp.database.createTableIfNotExists(TABLE_NAME, table => {
         table.string('botId').notNullable()
