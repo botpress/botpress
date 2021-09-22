@@ -49,7 +49,7 @@ interface State {
   selectedChannel: string
   shownSection: string
   disableAnalyticsFetching?: boolean
-  topQnaQuestions: { id: string; question?: string; count: number }[]
+  topQnaQuestions: { id: string; question?: string; count: number; upVoteCount?: number; downVoteCount?: number }[]
 }
 
 interface ExportPeriod {
@@ -222,6 +222,8 @@ const Analytics: FC<any> = ({ bp }) => {
 
   const fetchQnaQuestions = async () => {
     const metrics = orderMetrics(getMetric('msg_sent_qna_count').filter(metric => metric.subMetric)).slice(0, 10)
+    const upVotes = getMetric('feedback_positive_qna')
+    const downVotes = getMetric('feedback_negative_qna')
 
     const topQnaQuestions = await Promise.all(
       metrics.map(async ({ name: id, count }) => {
@@ -234,6 +236,9 @@ const Analytics: FC<any> = ({ bp }) => {
         }
 
         let response
+        const upVoteCount = upVotes.find((metric: MetricEntry) => metric.subMetric === id)?.value
+        const downVoteCount = downVotes.find((metric: MetricEntry) => metric.subMetric === id)?.value
+
         try {
           response = await fetchQnaQuestion(id.replace('__qna__', ''))
         } catch (e) {
@@ -248,7 +253,8 @@ const Analytics: FC<any> = ({ bp }) => {
           questions[lang.defaultLocale] ||
           Object.values(questions)[0])[0]
         qnaQuestionsCache.found[id] = question
-        return { count, id, question }
+
+        return { count, id, question, upVoteCount, downVoteCount }
       })
     )
 
@@ -433,6 +439,8 @@ const Analytics: FC<any> = ({ bp }) => {
           name={lang.tr('module.analytics.mostAskedQuestions')}
           items={state.topQnaQuestions.map(q => ({
             count: q.count,
+            upVoteCount: q.upVoteCount,
+            downVoteCount: q.downVoteCount,
             label: q.question || renderDeletedQna(q.id),
             onClick: q.question ? navigateToElement(q.id, 'qna') : undefined
           }))}

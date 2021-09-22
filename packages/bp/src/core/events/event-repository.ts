@@ -2,7 +2,6 @@ import * as sdk from 'botpress/sdk'
 import Database from 'core/database'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
-import _ from 'lodash'
 
 export const DefaultSearchParams: sdk.EventSearchParams = {
   sortOrder: [{ column: 'createdOn' }],
@@ -74,11 +73,23 @@ export class EventRepository {
     }
 
     const event = events[0]
+    let details
+    try {
+      details = event.event['decision']['sourceDetails']
+    } catch (error) {
+      console.error('Error while accessing details from event', error)
+    }
     await this.updateEvent(event.id!, { feedback })
 
     if (type) {
       const metric = feedback === 1 ? 'bp_core_feedback_positive' : 'bp_core_feedback_negative'
-      BOTPRESS_CORE_EVENT(metric, { botId: event.botId, channel: event.channel, type, eventId: event.id })
+      BOTPRESS_CORE_EVENT(metric, {
+        botId: event.botId,
+        channel: event.channel,
+        type,
+        eventId: event.id,
+        details
+      })
     }
 
     return true
