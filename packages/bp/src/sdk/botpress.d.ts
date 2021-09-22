@@ -496,6 +496,7 @@ declare module 'botpress/sdk' {
       /** The date the event was created */
       readonly createdOn: Date
       readonly credentials?: any
+      readonly decision?: Suggestion
       /** When false, some properties used by the debugger are stripped from the event before storing */
       debugger?: boolean
       activeProcessing?: ProcessingEntry

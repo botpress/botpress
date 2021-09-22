@@ -73,12 +73,8 @@ export class EventRepository {
     }
 
     const event = events[0]
-    let details
-    try {
-      details = event.event['decision']['sourceDetails']
-    } catch (error) {
-      console.error('Error while accessing details from event', error)
-    }
+    const details = event.event.decision?.sourceDetails
+
     await this.updateEvent(event.id!, { feedback })
 
     if (type) {
