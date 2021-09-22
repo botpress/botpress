@@ -111,7 +111,7 @@ const renderDropdownPayload = (content: sdk.DropdownContent & ExtraDropdownPrope
 
 const renderImagePayload = (content: sdk.ImageContent & CollectFeedback) => {
   return {
-    type: 'file',
+    type: 'image',
     title: content.title,
     url: formatUrl('', content.image),
     collectFeedback: content.collectFeedback
@@ -140,7 +140,7 @@ const renderFilePayload = (content: sdk.FileContentType & CollectFeedback) => {
   return {
     type: 'file',
     title: content.title,
-    file: formatUrl('', content.file),
+    url: formatUrl('', content.file),
     collectFeedback: content.collectFeedback
   }
 }
