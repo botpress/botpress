@@ -1,14 +1,15 @@
 import * as sdk from 'botpress/sdk'
+import { Migration, MigrationOpts } from 'core/migration'
 
 const TABLE_NAME = 'nlu_training_queue'
 
-const migration: sdk.ModuleMigration = {
+const migration: Migration = {
   info: {
     description: '',
     target: 'core',
     type: 'database'
   },
-  up: async ({ bp, metadata }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
+  up: async ({ bp, metadata }: MigrationOpts): Promise<sdk.MigrationResult> => {
     try {
       const tableExists = await bp.database.schema.hasTable(TABLE_NAME)
       if (!tableExists) {
