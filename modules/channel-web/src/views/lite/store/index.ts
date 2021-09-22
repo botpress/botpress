@@ -382,6 +382,11 @@ class RootStore {
   /** Sends an event or a message, depending on how the backend manages those types */
   @action.bound
   async sendData(data: any): Promise<void> {
+    if (!this.isInitialized) {
+      console.warn('[webchat] Cannot send data until the webchat is ready')
+      return
+    }
+
     if (!constants.MESSAGE_TYPES.includes(data.type)) {
       return this.api.sendEvent(data, this.currentConversationId)
     }

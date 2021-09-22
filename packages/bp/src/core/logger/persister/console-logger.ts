@@ -80,8 +80,11 @@ export class PersistedConsoleLogger implements Logger {
     return this
   }
 
-  attachError(error: Error): this {
-    this.attachedError = error
+  attachError(error: unknown): this {
+    if (error instanceof Error) {
+      this.attachedError = error
+    }
+
     return this
   }
 
