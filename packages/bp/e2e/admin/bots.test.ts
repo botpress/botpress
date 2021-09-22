@@ -72,10 +72,6 @@ describe('Admin - Bot Management', () => {
     await Promise.all([expectAdminApiCallSuccess('workspace/bots', 'POST'), clickOn('#btn-modal-create-bot')])
   })
 
-  it('Train Warning', async () => {
-    await expectModuleApiCallSuccess('nlu', tempBotId, 'training/en', 'GET')
-  })
-
   it('Export bot', async () => {
     await clickButtonForBot('#btn-export', tempBotId)
 
