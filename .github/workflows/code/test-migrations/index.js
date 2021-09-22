@@ -26,6 +26,12 @@ const ensureDownMigration = async () => {
     const { data: files } = await octokit.rest.pulls.listFiles(options)
 
     for (const { filename } of files.filter(x => x.filename.includes('/migrations/'))) {
+      const fileExists = fs.existsSync(filename)
+      if (!fileExists) {
+        console.info(`File was deleted in PR: "${filename}"`)
+        continue
+      }
+
       const fileContent = fs.readFileSync(filename, 'UTF-8').toString()
 
       if (!fileContent.includes('down: ')) {
