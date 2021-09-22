@@ -37,7 +37,17 @@ const ensureDownMigration = async () => {
   }
 }
 
+const debugEnv = () => {
+  const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, DATABASE_URL, TOKEN, PULL_REQUEST } = process.env
+  console.log('AWS_ACCESS_KEY_ID', AWS_ACCESS_KEY_ID)
+  console.log('AWS_SECRET_ACCESS_KEY', AWS_SECRET_ACCESS_KEY)
+  console.log('DATABASE_URL', DATABASE_URL)
+  console.log('TOKEN', TOKEN)
+  console.log('PULL_REQUEST', PULL_REQUEST)
+}
+
 const start = async () => {
+  debugEnv()
   await ensureDownMigration()
 
   const targetVersion = getMostRecentVersion()
