@@ -37,13 +37,48 @@ const ensureDownMigration = async () => {
   }
 }
 
-const debugEnv = () => {
-  const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, DATABASE_URL, TOKEN, PULL_REQUEST } = process.env
-  console.log('AWS_ACCESS_KEY_ID', AWS_ACCESS_KEY_ID)
-  console.log('AWS_SECRET_ACCESS_KEY', AWS_SECRET_ACCESS_KEY)
-  console.log('DATABASE_URL', DATABASE_URL)
-  console.log('TOKEN', TOKEN)
+const debugEnv = async () => {
+  /**
+   * #################################
+   * ### Print Pull Request Object ###
+   * #################################
+   */
+  const { PULL_REQUEST } = process.env
   console.log('PULL_REQUEST', PULL_REQUEST)
+
+  /**
+   * ############################
+   * ### Print modified files ###
+   * ############################
+   */
+  const octokit = github.getOctokit(process.env.TOKEN)
+
+  const pull_number = JSON.parse(PULL_REQUEST).number
+  const options = {
+    repo: 'botpress',
+    owner: 'botpress',
+    pull_number,
+    per_page: 300
+  }
+
+  const { data: files } = await octokit.rest.pulls.listFiles(options)
+
+  console.log('FILES', files)
+
+  /**
+   * ######################
+   * ### Print S3 Thing ###
+   * ######################
+   */
+
+  const Bucket = 'botpress-migrations'
+  const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+  })
+
+  const dir = await Promise.fromCallback(cb => s3.listObjectsV2({ Bucket }, cb))
+  console.log('DIR', dir)
 }
 
 const start = async () => {
