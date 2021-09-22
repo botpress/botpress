@@ -2,7 +2,7 @@ import { DateRange } from '@blueprintjs/datetime'
 import { AxiosRequestConfig, AxiosStatic } from 'axios'
 import moment from 'moment'
 
-import { FLAGGED_MESSAGE_STATUS, FLAG_REASON, ResolutionData, RESOLUTION_TYPE } from '../../types'
+import { FLAGGED_MESSAGE_STATUS, FLAG_REASON, ResolutionData, FlaggedEvent } from '../../types'
 
 const MODULE_URL_PREFIX = '/mod/misunderstood'
 
@@ -17,6 +17,16 @@ class ApiClient {
   async post(url: string, data?: any, config?: AxiosRequestConfig) {
     const res = await this.axios.post(url, data, config)
     return res.data
+  }
+
+  importEvents(events: FlaggedEvent[]) {
+    console.log(events)
+  }
+
+  async exportEvents(dateRange?: DateRange) {
+    const res = await this.axios.get('/export')
+    console.log(dateRange)
+    console.log(res)
   }
 
   getForModule(url: string, config?: AxiosRequestConfig) {

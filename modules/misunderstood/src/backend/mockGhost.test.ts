@@ -1,5 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
+import _ from 'lodash'
+
 import 'jest'
 import minimatch from 'minimatch'
 
@@ -27,12 +29,14 @@ export const makeMockGhost = (fileData: { [key: string]: { [key: string]: any } 
         return
       }
     ),
+
     readFileAsObject: jest.fn(
-      async <T>(rootFolder: string, file: string): Promise<T> => {
+      async (rootFolder: string, file: string): Promise<any> => {
         // Do a deep copy
-        return JSON.parse(JSON.stringify(fileData[rootFolder][file])) as T
+        return JSON.parse(JSON.stringify(fileData[rootFolder][file]))
       }
     ),
+
     directoryListing: jest.fn(
       async (
         rootFolder: string,
@@ -59,6 +63,47 @@ export const makeMockGhost = (fileData: { [key: string]: { [key: string]: any } 
         }
         return files
       }
-    )
+    ),
+
+    deleteFile: jest.fn(
+      (rootFolder: string, file: string): Promise<void> => {
+        delete fileData[rootFolder][file]
+        return
+      }
+    ),
+
+    renameFile: jest.fn(
+      (rootFolder: string, fromName: string, toName: string): Promise<void> => {
+        fileData[rootFolder][toName] = fileData[rootFolder][fromName]
+        delete fileData[rootFolder][fromName]
+        return
+      }
+    ),
+
+    readFileAsBuffer: jest.fn(
+      async (rootFolder: string, file: string): Promise<Buffer> => {
+        return Buffer.from(JSON.stringify(fileData[rootFolder][file]), 'utf-8')
+      }
+    ),
+
+    readFileAsString: jest.fn(
+      async (rootFolder: string, file: string): Promise<string> => {
+        return JSON.stringify(fileData[rootFolder][file])
+      }
+    ),
+
+    fileExists: jest.fn(
+      async (rootFolder: string, file: string): Promise<boolean> => {
+        return fileData[rootFolder] && file in fileData[rootFolder]
+      }
+    ),
+
+    onFileChanged: (callback: (filePath: string) => void): sdk.ListenHandle => {
+      throw new Error('not implemenmted')
+    }
   }
 }
+
+describe('must define at least one test', () => {
+  it('passes', () => {})
+})

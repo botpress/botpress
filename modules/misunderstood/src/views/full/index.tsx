@@ -86,7 +86,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
   }
 
   setStateP<K extends keyof State>(update: Pick<State, K>) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.setState(update, () => {
         resolve()
       })
@@ -151,7 +151,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     await this.setStateP({
       eventCounts: newEventCounts,
       selectedEvent: null,
-      events: events.filter(event => !eventIds.includes(event.id))
+      events: events.filter((event) => !eventIds.includes(event.id))
     })
 
     // advance to the next event
@@ -281,11 +281,11 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     })
   }
 
-  onEventCheckedOrUnchecked = async eventIds => {
+  onEventCheckedOrUnchecked = async (eventIds) => {
     let checkedEventIds = [...this.state.checkedEventIds]
-    const remove = checkedEventIds.filter(id => eventIds.includes(id)).length > 0
+    const remove = checkedEventIds.filter((id) => eventIds.includes(id)).length > 0
     if (remove) {
-      checkedEventIds = checkedEventIds.filter(id => !eventIds.includes(id))
+      checkedEventIds = checkedEventIds.filter((id) => !eventIds.includes(id))
     } else {
       checkedEventIds = [...checkedEventIds, ...eventIds]
     }
@@ -303,8 +303,13 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
 
     await this.setStateP({
       selectAllChecked,
-      checkedEventIds: selectAllChecked ? this.state.events.map(e => e.id) : []
+      checkedEventIds: selectAllChecked ? this.state.events.map((e) => e.id) : []
     })
+  }
+
+  importData = () => {}
+  exportData = () => {
+    this.apiClient.exportEvents()
   }
 
   render() {
@@ -326,7 +331,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
 
     const groups = groupEventsByUtterance(events || [])
     const selectedUtterances = new Set()
-    groups.forEach(function(eventWithIndex, utterance) {
+    groups.forEach(function (eventWithIndex, utterance) {
       for (const {
         event: { id }
       } of eventWithIndex) {
@@ -340,6 +345,10 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     return (
       <Container sidePanelWidth={320}>
         <SidePanel style={{ overflowY: 'hidden' }}>
+          <div className={style.filterContainer}>
+            <Button onClick={this.exportData}>Export</Button>
+            <Button onClick={this.importData}>Import</Button>
+          </div>
           <div className={style.filterContainer}>
             <Button
               className={(this.state.reason === FLAG_REASON.auto_hook && 'selected') || ''}

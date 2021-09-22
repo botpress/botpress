@@ -3,7 +3,7 @@ import * as sdk from 'botpress/sdk'
 import Db, { TABLE_NAME } from './db'
 import { FLAGGED_MESSAGE_STATUS, FLAG_REASON, RESOLUTION_TYPE } from '../types'
 
-import { makeMockGhost } from './mockGhost'
+import { makeMockGhost } from './mockGhost.test'
 
 import Database from '../../../../packages/bp/src/core/database'
 import { createDatabaseSuite } from '../../../../packages/bp/src/core/database/index.tests'
