@@ -90,8 +90,7 @@ const TYPES = {
   RenderService: Symbol.for('RenderService'),
   QnaService: Symbol.for('QnaService'),
   MessagingService: Symbol.for('MessagingService'),
-  NLUInferenceService: Symbol.for('NLUInferenceService'),
-  NLUClientProvider: Symbol.for('NLUClientProvider')
+  NLUInferenceService: Symbol.for('NLUInferenceService')
 }
 
 export { TYPES }

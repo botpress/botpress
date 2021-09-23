@@ -30,7 +30,7 @@ declare namespace NodeJS {
     PORT: number
     STUDIO_PORT: number
     MESSAGING_PORT: number
-    NLU_PORT: number
+    NLU_ENDPOINT: string
     PROXY?: string
     EXTERNAL_URL: string
     LOCAL_URL: string

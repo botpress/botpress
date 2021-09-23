@@ -29,15 +29,16 @@ const PREDICT_MW = 'nlu-predict.incoming'
 @injectable()
 export class NLUInferenceService {
   private legacyElection!: boolean
-
+  private nluClientProvider: NLUClientProvider
   private predictors: { [botId: string]: Predictor } = {}
 
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
-    @inject(TYPES.Logger) private logger: Logger,
-    @inject(TYPES.NLUClientProvider) private nluClientProvider: NLUClientProvider
-  ) {}
+    @inject(TYPES.Logger) private logger: Logger
+  ) {
+    this.nluClientProvider = new NLUClientProvider(configProvider)
+  }
 
   @postConstruct()
   public async initialize() {

@@ -201,6 +201,7 @@ export class Botpress {
         this.logger.warn("NLU server isn't configured properly, set it to auto start or provide an endpoint")
       } else {
         this.logger.info(`NLU server manually handled at: ${nluServerEndpoint}`)
+        process.NLU_ENDPOINT = nluServerEndpoint
         AppLifecycle.setDone(AppLifecycleEvents.NLU_ENDPOINT_KNOWN)
       }
       return

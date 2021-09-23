@@ -6,7 +6,6 @@ import { ConverseRouter, ConverseService } from 'core/converse'
 import { EventRepository } from 'core/events'
 import { MediaServiceProvider } from 'core/media'
 import { MessagingBotRouter } from 'core/messaging'
-import { NLUClientProvider, NLUProxyRouter } from 'core/nlu'
 import { QnaRouter, QnaService } from 'core/qna'
 import { disableForModule } from 'core/routers'
 import {
@@ -32,7 +31,6 @@ export class BotsRouter extends CustomRouter {
   private checkMethodPermissions: (resource: string) => RequestHandler
   private converseRouter: ConverseRouter
   private messagingRouter: MessagingBotRouter
-  private nluForwardRouter: NLUProxyRouter
   private qnaRouter: QnaRouter
 
   constructor(
@@ -40,7 +38,6 @@ export class BotsRouter extends CustomRouter {
     private configProvider: ConfigProvider,
     private authService: AuthService,
     private workspaceService: WorkspaceService,
-    private nluClientProvider: NLUClientProvider,
     private converseService: ConverseService,
     private logger: Logger,
     private mediaServiceProvider: MediaServiceProvider,
@@ -62,7 +59,6 @@ export class BotsRouter extends CustomRouter {
       this.configProvider
     )
     this.messagingRouter = new MessagingBotRouter(this.logger, this.authService, this.eventRepo)
-    this.nluForwardRouter = new NLUProxyRouter(this.logger, this.nluClientProvider, { forBot: true })
     this.qnaRouter = new QnaRouter(this.logger, this.authService, this.workspaceService, this.qnaService)
   }
 
@@ -72,7 +68,6 @@ export class BotsRouter extends CustomRouter {
 
     this.router.use('/converse', this.converseRouter.router)
     this.router.use('/messaging', this.messagingRouter.router)
-    this.router.use('/nlu-server', this.nluForwardRouter.router)
     this.router.use('/qna', this.qnaRouter.router)
 
     this.router.get(

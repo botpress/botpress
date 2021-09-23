@@ -1,16 +1,13 @@
 import { ConfigProvider } from 'core/config'
-import { TYPES } from 'core/types'
-import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import { NLUClient } from './client'
 
-@injectable()
 export class NLUClientProvider {
   private _endpoint: string | undefined
   private _baseClient: NLUClient | undefined
   private _clientPerBot: { [botId: string]: NLUClient } = {}
 
-  constructor(@inject(TYPES.ConfigProvider) private configProvider: ConfigProvider) {}
+  constructor(private configProvider: ConfigProvider) {}
 
   public getbaseClient(): NLUClient | undefined {
     return this._baseClient
@@ -24,7 +21,7 @@ export class NLUClientProvider {
     const { nlu: nluConfig } = await this.configProvider.getBotpressConfig()
     const { autoStartNLUServer, nluServerEndpoint } = nluConfig
 
-    const defaultEndpoint = `http://localhost:${process.NLU_PORT}`
+    const defaultEndpoint = process.NLU_ENDPOINT
     this._endpoint = autoStartNLUServer ? defaultEndpoint : nluServerEndpoint
     this._baseClient = new NLUClient({ endpoint: this._endpoint })
   }
