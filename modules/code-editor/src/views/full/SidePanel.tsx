@@ -29,11 +29,13 @@ class PanelContent extends React.Component<Props> {
     moduleConfigFiles: [],
     rawFiles: [],
     sharedLibs: [],
+    components: [],
     selectedNode: '',
     selectedFile: undefined,
     isMoveModalOpen: false,
     isCreateModalOpen: false,
     isUploadModalOpen: false,
+    isComponent: false,
     fileType: undefined,
     hookType: undefined
   }
@@ -85,10 +87,21 @@ class PanelContent extends React.Component<Props> {
     this.addFiles('bot.shared_libs', lang.tr('module.code-editor.sidePanel.currentBot'), sharedLibs)
     this.addFiles('global.shared_libs', lang.tr('module.code-editor.sidePanel.global'), sharedLibs)
 
+    const components = []
+    this.addFiles('bot.components', lang.tr('module.code-editor.sidePanel.currentBot'), components)
+
     this.addFiles('hook_example', EXAMPLE_FOLDER_LABEL, hookFiles)
     this.addFiles('action_example', EXAMPLE_FOLDER_LABEL, actionFiles)
 
-    this.setState({ actionFiles, hookFiles, botConfigs: botConfigFiles, moduleConfigFiles, rawFiles, sharedLibs })
+    this.setState({
+      actionFiles,
+      hookFiles,
+      botConfigs: botConfigFiles,
+      moduleConfigFiles,
+      rawFiles,
+      sharedLibs,
+      components
+    })
   }
 
   updateNodeExpanded = (id: string, isExpanded: boolean) => {
@@ -191,6 +204,30 @@ class PanelContent extends React.Component<Props> {
         <FileNavigator
           id="actions"
           files={this.state.actionFiles}
+          expandedNodes={this.expandedNodes}
+          selectedNode={this.state.selectedNode}
+          onNodeStateExpanded={this.updateNodeExpanded}
+          onNodeStateSelected={this.updateNodeSelected}
+        />
+      </SidePanelSection>
+    )
+  }
+
+  renderSectionComponents() {
+    const actions = [
+      {
+        id: 'btn-upload',
+        icon: <Icon icon="upload" />,
+        key: 'upload',
+        onClick: () => this.setState({ selectedFile: undefined, isUploadModalOpen: true, isComponent: true })
+      }
+    ]
+
+    return (
+      <SidePanelSection label={lang.tr('module.code-editor.sidePanel.components')} actions={actions}>
+        <FileNavigator
+          id="components"
+          files={this.state.components}
           expandedNodes={this.expandedNodes}
           selectedNode={this.state.selectedNode}
           onNodeStateExpanded={this.updateNodeExpanded}
@@ -370,6 +407,7 @@ class PanelContent extends React.Component<Props> {
             <React.Fragment>
               {this.renderSectionActions()}
               {this.renderSectionHooks()}
+              {this.renderSectionComponents()}
               {this.renderSharedLibs()}
               {this.renderSectionConfig()}
               {this.renderSectionModuleConfig()}
@@ -395,6 +433,7 @@ class PanelContent extends React.Component<Props> {
           uploadFile={this.props.store.uploadFile}
           toggle={() => this.setState({ isUploadModalOpen: !this.state.isUploadModalOpen })}
           files={this.props.files}
+          isComponent={this.state.isComponent}
         />
       </SidePanel>
     )

@@ -186,8 +186,6 @@ export class ConfigProvider {
   public async getModulesListConfig() {
     const enabledModules = this.parseEnabledModules() ?? [
       'analytics',
-      'basic-skills',
-      'builtin',
       'channel-web',
       'code-editor',
       'testing',

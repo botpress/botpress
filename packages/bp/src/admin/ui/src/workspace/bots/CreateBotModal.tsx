@@ -120,7 +120,9 @@ class CreateBotModal extends Component<Props, State> {
     }
 
     try {
-      await api.getSecured({ timeout: ms('2m') }).post('/admin/workspace/bots', newBot)
+      await api
+        .getSecured({ timeout: ms('2m') })
+        .post('/studio/manage/bots/create', newBot, { baseURL: window.ROOT_PATH })
       this.props.onCreateBotSuccess()
       this.toggleDialog()
     } catch (error) {

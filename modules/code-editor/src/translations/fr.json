@@ -48,6 +48,7 @@
     "eventHooks": "Hooks d'événement",
     "filterFiles": "Filtrer les fichiers",
     "generalHooks": "Hooks généraux",
+    "components": "Composants",
     "global": "Global",
     "hooks": "Hooks",
     "moduleConf": "Configuration des modules",

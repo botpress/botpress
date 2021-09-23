@@ -65,61 +65,12 @@ class BotsRouter extends CustomAdminRouter {
       })
     )
 
-    this.router.get(
-      '/templates',
-      this.asyncMiddleware(async (_req, res, _next) => {
-        res.send(this.moduleLoader.getBotTemplates())
-      })
-    )
-
     router.get(
       '/categories',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const categories = (await this.configProvider.getBotpressConfig()).botCategories
         return sendSuccess(res, 'Retrieved bot categories', { categories })
-      })
-    )
-
-    router.post(
-      '/',
-      this.needPermissions('write', this.resource),
-      this.asyncMiddleware(async (req, res) => {
-        const bot = <BotConfig>_.pick(req.body, ['id', 'name', 'category', 'defaultLanguage'])
-
-        const botExists = (await this.botService.getBotsIds()).includes(bot.id)
-        const botLinked = (await this.workspaceService.getBotRefs()).includes(bot.id)
-
-        bot.id = await this.botService.makeBotId(bot.id, req.workspace!)
-
-        if (botExists && botLinked) {
-          throw new ConflictError(`Bot "${bot.id}" already exists and is already linked in workspace`)
-        }
-
-        if (botExists) {
-          this.logger.warn(`Bot "${bot.id}" already exists. Linking to workspace`)
-        } else {
-          const pipeline = await this.workspaceService.getPipeline(req.workspace!)
-
-          bot.pipeline_status = {
-            current_stage: {
-              id: pipeline![0].id,
-              promoted_on: new Date(),
-              promoted_by: req.tokenUser!.email
-            }
-          }
-          await this.botService.addBot(bot, req.body.template)
-        }
-
-        if (botLinked) {
-          this.logger.warn(`Bot "${bot.id}" already linked in workspace. See workspaces.json for more details`)
-        } else {
-          await this.workspaceService.addBotRef(bot.id, req.workspace!)
-        }
-
-        return sendSuccess(res, 'Added new bot', {
-          botId: bot.id
-        })
       })
     )
 

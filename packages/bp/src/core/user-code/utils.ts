@@ -13,6 +13,9 @@ export const getBaseLookupPaths = (fullPath: string, lastPathPart: string, botId
 
   if (botId) {
     lookups.push(path.join(process.PROJECT_LOCATION, 'data/bots', botId, 'libraries'))
+
+    // Since actions are copied locally, they may require() other actions, so this will still fetch them
+    lookups.push(path.join(process.PROJECT_LOCATION, 'data/global', lastPathPart))
   }
 
   lookups.push(path.join(process.PROJECT_LOCATION, 'shared_libs'))
