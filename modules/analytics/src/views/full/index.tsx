@@ -221,9 +221,14 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const fetchQnaQuestions = async () => {
+    const votes = {
+      feedback_positive_qna: getMetric('feedback_positive_qna'),
+      feedback_negative_qna: getMetric('feedback_negative_qna')
+    }
+
     const metrics = orderMetrics(getMetric('msg_sent_qna_count').filter(metric => metric.subMetric)).slice(0, 10)
-    const upVotes = getMetric('feedback_positive_qna')
-    const downVotes = getMetric('feedback_negative_qna')
+
+    const countVotes = (metric: string, id: string) => votes[metric].find(m => m.subMetric === id)?.value
 
     const topQnaQuestions = await Promise.all(
       metrics.map(async ({ name: id, count }) => {
@@ -236,8 +241,6 @@ const Analytics: FC<any> = ({ bp }) => {
         }
 
         let response
-        const upVoteCount = upVotes.find((metric: MetricEntry) => metric.subMetric === id)?.value
-        const downVoteCount = downVotes.find((metric: MetricEntry) => metric.subMetric === id)?.value
 
         try {
           response = await fetchQnaQuestion(id.replace('__qna__', ''))
@@ -254,7 +257,13 @@ const Analytics: FC<any> = ({ bp }) => {
           Object.values(questions)[0])[0]
         qnaQuestionsCache.found[id] = question
 
-        return { count, id, question, upVoteCount, downVoteCount }
+        return {
+          count,
+          id,
+          question,
+          upVoteCount: countVotes('feedback_positive_qna', id),
+          downVoteCount: countVotes('feedback_negative_qna', id)
+        }
       })
     )
 
