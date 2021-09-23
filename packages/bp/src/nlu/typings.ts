@@ -6,7 +6,6 @@ export interface LanguageSource {
 export interface NLUServerOptions {
   host: string
   port: number
-  authToken?: string
 
   verbose: number
   doc: boolean

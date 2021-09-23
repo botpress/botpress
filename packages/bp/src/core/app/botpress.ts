@@ -1,6 +1,5 @@
 import * as sdk from 'botpress/sdk'
 import lang from 'common/lang'
-import { makeNLUPassword } from 'common/nlu-token'
 import { createForGlobalHooks } from 'core/app/api'
 import { BotService, BotMonitoringService } from 'core/bots'
 import { GhostService } from 'core/bpfs'
@@ -13,7 +12,6 @@ import { SessionIdFactory } from 'core/dialog/sessions'
 import { addStepToEvent, EventCollector, StepScopes, StepStatus, EventEngine, Event } from 'core/events'
 import { AlertingService, MonitoringService } from 'core/health'
 import { LoggerDbPersister, LoggerFilePersister, LoggerProvider, LogsJanitor } from 'core/logger'
-import { MessagingService } from 'core/messaging'
 import { MigrationService } from 'core/migration'
 import { copyDir } from 'core/misc/pkg-fs'
 import { ModuleLoader } from 'core/modules'
@@ -87,8 +85,7 @@ export class Botpress {
     @inject(TYPES.MigrationService) private migrationService: MigrationService,
     @inject(TYPES.StatsService) private statsService: StatsService,
     @inject(TYPES.BotMonitoringService) private botMonitor: BotMonitoringService,
-    @inject(TYPES.QnaService) private qnaService: QnaService,
-    @inject(TYPES.MessagingService) private messagingService: MessagingService
+    @inject(TYPES.QnaService) private qnaService: QnaService
   ) {
     this.botpressPath = path.join(process.cwd(), 'dist')
     this.configLocation = path.join(this.botpressPath, '/config')
@@ -187,24 +184,26 @@ export class Botpress {
   }
 
   private async maybeStartLocalSTAN() {
-    if (!process.LOADED_MODULES['nlu']) {
-      this.logger.warn(
-        'NLU server is disabled. Enable the NLU module and restart Botpress to start the standalone NLU server'
-      )
-      return
-    }
+    const { nlu: nluConfig } = await this.configProvider.getBotpressConfig()
 
-    const config = await this.moduleLoader.configReader.getGlobal('nlu')
+    const {
+      autoStartNLUServer,
+      modelCacheSize,
+      languageSources,
+      ducklingURL,
+      ducklingEnabled,
+      legacyElection,
+      nluServerEndpoint
+    } = nluConfig
 
-    const autoStart = config.nluServer?.autoStart ?? true
-    if (!autoStart) {
-      if (!config.nluServer?.endpoint) {
+    if (!autoStartNLUServer) {
+      if (!nluServerEndpoint) {
         this.logger.warn("NLU server isn't configured properly, set it to auto start or provide an endpoint")
       } else {
-        const { endpoint } = config.nluServer
-        this.logger.info(`NLU server manually handled at: ${endpoint}`)
+        this.logger.info(`NLU server manually handled at: ${nluServerEndpoint}`)
       }
-
+      process.NLU_ENDPOINT = nluServerEndpoint
+      AppLifecycle.setDone(AppLifecycleEvents.NLU_ENDPOINT_KNOWN)
       return
     }
 
@@ -219,14 +218,13 @@ export class Botpress {
     const logFilter = nluDebugScopes.length ? nluDebugScopes : undefined
 
     startLocalNLUServer({
-      languageSources: config.languageSources,
-      ducklingURL: config.ducklingURL,
-      ducklingEnabled: config.ducklingEnabled,
-      legacyElection: config.legacyElection,
+      languageSources,
+      ducklingEnabled,
+      ducklingURL,
+      legacyElection,
       dbURL: process.core_env.BPFS_STORAGE === 'database' ? process.core_env.DATABASE_URL : undefined,
       modelDir: process.cwd(),
-      modelCacheSize: config.modelCacheSize,
-      authToken: makeNLUPassword(),
+      modelCacheSize,
       logFilter,
       verbose
     })

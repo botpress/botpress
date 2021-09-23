@@ -2,10 +2,11 @@ import cluster from 'cluster'
 import { container } from 'core/app/inversify/app.inversify'
 import { HTTPServer } from 'core/app/server'
 import { TYPES } from 'core/types'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import { MessageType, onProcessExit, WorkerType, ProcType } from './master'
 import { killMessagingProcess } from './messaging-server'
 import { killNluProcess } from './nlu-server'
-import { initStudioClient, killStudioProcess } from './studio-client'
+import { initStudioClient, killStudioProcess, StudioParams } from './studio-client'
 
 const debug = DEBUG('orchestrator:web')
 
@@ -33,19 +34,21 @@ export const setupWebWorker = () => {
 
     switch (processType) {
       case 'web':
+        await AppLifecycle.waitFor(AppLifecycleEvents.NLU_ENDPOINT_KNOWN)
         // Once the web worker is registered, we have all we need to start the studio
+        const params: StudioParams = {
+          EXTERNAL_URL: process.EXTERNAL_URL,
+          ROOT_PATH: process.ROOT_PATH,
+          APP_SECRET: process.APP_SECRET,
+          NLU_ENDPOINT: process.NLU_ENDPOINT
+        }
         process.send!({
           type: MessageType.StartStudio,
-          params: {
-            EXTERNAL_URL: process.EXTERNAL_URL,
-            ROOT_PATH: process.ROOT_PATH,
-            APP_SECRET: process.APP_SECRET
-          }
+          params
         })
         break
       case 'studio':
         process.STUDIO_PORT = port
-
         const httpServer = container.get<HTTPServer>(TYPES.HTTPServer)
         await httpServer.setupStudioProxy()
 
@@ -55,7 +58,8 @@ export const setupWebWorker = () => {
         process.MESSAGING_PORT = port
         break
       case 'nlu':
-        process.NLU_PORT = port
+        process.NLU_ENDPOINT = `http://localhost:${port}`
+        AppLifecycle.setDone(AppLifecycleEvents.NLU_ENDPOINT_KNOWN)
         break
     }
   })

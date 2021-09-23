@@ -187,7 +187,6 @@ export class ConfigProvider {
     const enabledModules = this.parseEnabledModules() ?? [
       'analytics',
       'channel-web',
-      'nlu',
       'code-editor',
       'testing',
       'examples',

@@ -20,7 +20,6 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import history from '~/app/history'
 import AccessControl, { isChatUser, isOperationAllowed } from '~/auth/AccessControl'
 
-import { NeedsTrainingWarning } from './NeedsTrainingWarning'
 import style from './style.scss'
 import { WorkspaceAppItems } from './WorkspaceAppItems'
 
@@ -40,7 +39,6 @@ interface Props {
   reloadBot?: () => void
   viewLogs?: () => void
   loadedModules: ModuleDefinition[]
-  installedNLULanguages: string[]
 }
 
 const BotItemPipeline: FC<Props> = ({
@@ -58,19 +56,15 @@ const BotItemPipeline: FC<Props> = ({
   rollback,
   reloadBot,
   viewLogs,
-  loadedModules,
-  installedNLULanguages
+  loadedModules
 }) => {
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${bot.id}`
-  const nluModuleEnabled = !!loadedModules.find(m => m.name === 'nlu')
   const hasStudioAccess = isOperationAllowed({ resource: 'studio', operation: 'read' })
   const requiresApproval =
     isApprover &&
     bot.pipeline_status.stage_request &&
     !(bot.pipeline_status.stage_request.approvals || []).find(x => x.email === userEmail && x.strategy === userStrategy)
-  const languages = intersection(bot.languages, installedNLULanguages)
-  const botHasUninstalledNLULanguages = bot.languages.length !== languages.length ? true : false
 
   return (
     <div className={style.pipeline_bot} key={bot.id}>
@@ -188,16 +182,6 @@ const BotItemPipeline: FC<Props> = ({
           <Tag intent={Intent.SUCCESS} className={cx(style.botbadge, style.reviewNeeded)}>
             {lang.tr('admin.workspace.bots.item.approved')}
           </Tag>
-        )}
-
-        <AccessControl resource="module.nlu" operation="write">
-          {nluModuleEnabled && <NeedsTrainingWarning bot={bot.id} languages={bot.languages} />}
-        </AccessControl>
-
-        {botHasUninstalledNLULanguages && (
-          <Tooltip position="right" content={lang.tr('admin.workspace.bots.item.enableNLULanguages')}>
-            <Icon icon="translate" intent={Intent.DANGER} style={{ marginLeft: 10 }} />
-          </Tooltip>
         )}
       </div>
       <p>{bot.description}</p>

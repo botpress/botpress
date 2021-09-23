@@ -76,10 +76,6 @@ describe('Admin - Bot Management', () => {
     ])
   })
 
-  it('Train Warning', async () => {
-    await expectModuleApiCallSuccess('nlu', tempBotId, 'training/en', 'GET')
-  })
-
   it('Export bot', async () => {
     await clickButtonForBot('#btn-export', tempBotId)
 
