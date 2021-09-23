@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@master
       - uses: actions/setup-node@v1
         with:
-          node-version: '12.13.0'
+          node-version: '12.18.1'
       - name: Install python3
         uses: actions/setup-python@v1
         with:
