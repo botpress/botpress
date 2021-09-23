@@ -37,20 +37,28 @@ const isMisunderstood = async () => {
 }
 
 const flag = async () => {
-  if (await isMisunderstood()) {
-    const data = {
-      eventId: event.id,
-      botId: event.botId,
-      language: [event.nlu.language, event.nlu.detectedLanguage, event.state.user.language].filter(
-        l => l && l !== 'n/a'
-      )[0],
-      preview: event.preview,
-      reason: 'auto_hook'
-    }
-
-    const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
-    await axios.post('/mod/misunderstood/events', data, axiosConfig)
+  if (!(await isMisunderstood())) {
+    return
   }
+
+  const language = [event.nlu.language, event.nlu.detectedLanguage, event.state.user.language].filter(
+    l => l && l !== 'n/a'
+  )[0]
+
+  if (!language) {
+    return
+  }
+
+  const data = {
+    eventId: event.id,
+    botId: event.botId,
+    language,
+    preview: event.preview,
+    reason: 'auto_hook'
+  }
+
+  const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
+  await axios.post('/mod/misunderstood/events', data, axiosConfig)
 }
 
 return flag()

@@ -73,6 +73,10 @@ class Message extends Component<MessageProps> {
     return <FileMessage file={this.props.payload} escapeTextHTML={this.props.store.escapeHTML} />
   }
 
+  render_image() {
+    return <FileMessage file={this.props.payload} escapeTextHTML={this.props.store.escapeHTML} />
+  }
+
   render_file() {
     return <FileMessage file={this.props.payload} escapeTextHTML={this.props.store.escapeHTML} />
   }

@@ -37,7 +37,7 @@ services:
       - 443:443
     volumes:
       - nginx_secrets:/etc/letsencrypt
-      - ./build/user_conf.d:/etc/nginx/user_conf.d
+      - ./nginx/user_conf.d:/etc/nginx/user_conf.d
 
 volumes:
   pgdata:

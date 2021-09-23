@@ -400,7 +400,8 @@ body {
   padding: 0.5rem 0.75rem;
 }
 
-.bpw-bubble-file a {
+.bpw-bubble-file a,
+.bpw-bubble-image a {
   cursor: pointer;
   border-top-left-radius: inherit;
   border-top-right-radius: inherit;
@@ -408,7 +409,9 @@ body {
   border-bottom-left-radius: inherit;
 }
 
-.bpw-bubble-file a img {
+.bpw-bubble-image a img,
+.bpw-bubble-audio audio,
+.bpw-bubble-video video {
   max-height: 240px;
   max-width: 100%;
   border-top-left-radius: inherit;
