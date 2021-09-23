@@ -19,6 +19,7 @@
   margin: 10px 0;
   border: 1px solid #999;
   border-radius: 1px;
+  // 50px = height of withStickyActionBar
   height: calc(100% - 50px);
   overflow-y: scroll;
   background: white;
@@ -86,7 +87,7 @@
 
     &:before {
       position: absolute;
-      content: "";
+      content: '';
       width: 0;
       height: 0;
       border-top: 8px solid transparent;
@@ -99,7 +100,7 @@
 
     &:after {
       position: absolute;
-      content: "";
+      content: '';
       width: 15px;
       height: 3px;
       left: 0;

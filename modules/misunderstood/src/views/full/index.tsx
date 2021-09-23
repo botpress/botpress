@@ -383,14 +383,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
         </SidePanel>
 
         {eventCounts && (dataLoaded || eventNotFound) ? (
-          <div
-            className={classnames(style.padded, style.mainView, style.withStickyActionBar)}
-            ref={element => {
-              if (element) {
-                console.log(element.clientHeight)
-              }
-            }}
-          >
+          <div className={classnames(style.padded, style.mainView, style.withStickyActionBar)}>
             <MainScreen
               axios={this.props.bp.axios}
               language={contentLang}
