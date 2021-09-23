@@ -3,7 +3,6 @@ import cx from 'classnames'
 import React, { FC } from 'react'
 
 import style from './style.scss'
-import { it } from 'jest-circus'
 import { Icon } from '@blueprintjs/core'
 
 interface Props {
