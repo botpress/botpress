@@ -78,6 +78,7 @@
     "multer": "^1.4.1",
     "mustache": "^3.0.1",
     "nanoid": "^2.0.1",
+    "nodemailer": "^6.3.0",
     "node-machine-id": "^1.1.10",
     "numeric": "^1.2.6",
     "object-sizeof": "^1.5.2",

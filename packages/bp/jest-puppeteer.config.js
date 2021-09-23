@@ -14,6 +14,7 @@ module.exports = {
     // devtools: true // Access the dev tools on the headless chrome
   },
   exitOnPageError: false,
+  verbose: true,
   bpConfig: {
     windowSize,
     email: 'admin',

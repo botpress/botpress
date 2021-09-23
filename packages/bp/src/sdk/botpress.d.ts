@@ -1104,6 +1104,11 @@ declare module 'botpress/sdk' {
     computePreviewText?: (formData: object) => string
   }
 
+  export type CustomContentType = Omit<Partial<ContentType>, 'id'> & {
+    /** A custom component must extend a builtin type */
+    extends: string
+  }
+
   /**
    * The flow is used by the dialog engine to answer the user and send him to the correct destination
    */
@@ -2093,8 +2098,6 @@ declare module 'botpress/sdk' {
       allowOverwrite?: boolean
     ): Promise<void>
 
-    export function getBotTemplate(moduleName: string, templateName: string): Promise<FileContent[]>
-
     /**
      * Allows hook developers to list revisions of a bot
      * @param botId the ID of the target bot
@@ -2196,7 +2199,7 @@ declare module 'botpress/sdk' {
 
     export function deleteContentElements(botId: string, contentElementIds: string[]): Promise<void>
 
-    export function getAllContentTypes(botId?: string): Promise<ContentType[]>
+    export function getAllContentTypes(botId: string): Promise<ContentType[]>
     /**
      * Content Types can produce multiple payloads depending on the channel and the type of message. This method can generate
      * payloads for a specific content element or generate them for a custom payload.

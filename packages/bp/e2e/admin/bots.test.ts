@@ -7,6 +7,7 @@ import {
   closeToaster,
   CONFIRM_DIALOG,
   expectAdminApiCallSuccess,
+  expectCallSuccess,
   expectModuleApiCallSuccess,
   gotoAndExpect,
   loginIfNeeded,
@@ -69,7 +70,10 @@ describe('Admin - Bot Management', () => {
     await fillField('#select-bot-templates', 'Welcome Bot') // Using fill instead of select because options are created dynamically
     await page.keyboard.press('Enter')
 
-    await Promise.all([expectAdminApiCallSuccess('workspace/bots', 'POST'), clickOn('#btn-modal-create-bot')])
+    await Promise.all([
+      expectCallSuccess(`${bpConfig.apiHost}/studio/manage/bots/create`, 'POST'),
+      clickOn('#btn-modal-create-bot')
+    ])
   })
 
   it('Train Warning', async () => {

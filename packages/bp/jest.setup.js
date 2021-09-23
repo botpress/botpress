@@ -1,1 +1,1 @@
-jest.setTimeout(process.env.JEST_TIMEOUT || 10000)
+jest.setTimeout(process.env.JEST_TIMEOUT || 20000)

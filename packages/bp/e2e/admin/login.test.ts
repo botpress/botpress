@@ -1,6 +1,6 @@
 import { bpConfig } from '../../jest-puppeteer.config'
 import { clickOn, fillField } from '../expectPuppeteer'
-import { expectAdminApiCallSuccess } from '../utils'
+import { expectCallSuccess, getResponse } from '../utils'
 
 describe('Admin - Init', () => {
   it('Load Login page', async () => {
@@ -14,13 +14,18 @@ describe('Admin - Init', () => {
     if (page.url().includes('/register')) {
       await fillField('#confirmPassword', bpConfig.password)
       await clickOn('#btn-register')
+
+      const response = await getResponse(`${bpConfig.apiHost}/api/v2/admin/auth/register/basic/default`, 'POST')
+      bpConfig.jwtToken = (await response.json()).payload.jwt
     } else {
       await clickOn('#btn-signin')
+      const response = await getResponse(`${bpConfig.apiHost}/api/v2/admin/auth/login/basic/default`, 'POST')
+      bpConfig.jwtToken = (await response.json()).payload.jwt
     }
   })
 
   it('Load workspaces', async () => {
-    await page.waitForNavigation()
+    //  await page.waitForNavigation()
     await page.waitFor(200)
     await expect(page.url()).toMatch(`${bpConfig.host}/admin/workspace/default/bots`)
   })
@@ -34,7 +39,10 @@ describe('Admin - Init', () => {
       await fillField('#select-bot-templates', 'Welcome Bot')
       await page.keyboard.press('Enter')
 
-      await Promise.all([expectAdminApiCallSuccess('workspace/bots', 'POST'), clickOn('#btn-modal-create-bot')])
+      await Promise.all([
+        expectCallSuccess(`${bpConfig.apiHost}/studio/manage/bots/create`, 'POST'),
+        clickOn('#btn-modal-create-bot')
+      ])
     })
   }
 })

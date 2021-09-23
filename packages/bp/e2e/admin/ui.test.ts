@@ -28,7 +28,7 @@ describe('Admin - UI', () => {
     await fillField('#input-firstname', 'Bob')
     await fillField('#input-lastname', 'Lalancette')
     await uploadFile('input[type="file"]', path.join(__dirname, '../assets/alien.png'))
-    const { url } = await expectCallSuccess(`${bpConfig.host}/api/v1/media`, 'POST')
+    const { url } = await expectCallSuccess(`${bpConfig.host}/api/v1/media`, 'POST', true)
     await Promise.all([expectCallSuccess(`${bpConfig.host}/api/v2/admin/user/profile`, 'POST'), clickOn('#btn-submit')])
     await closeToaster()
     const src = await page.$eval('img.dropdown-picture', img => img.getAttribute('src'))

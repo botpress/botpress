@@ -8,28 +8,6 @@ const OP_REGEX = /^([\+|-][r|w]){1,2}$/
 
 export const isValidBotId = (botId: string): boolean => BOTID_REGEX.test(botId)
 
-export const BotCreationSchema = Joi.object().keys({
-  id: Joi.string()
-    .regex(BOTID_REGEX)
-    .required(),
-  name: Joi.string()
-    .max(50)
-    .allow('')
-    .optional(),
-  category: Joi.string().allow(null),
-  description: Joi.string()
-    .max(500)
-    .allow(''),
-  pipeline_status: {
-    current_stage: {
-      promoted_by: Joi.string(),
-      promoted_on: Joi.date(),
-      id: Joi.string()
-    }
-  },
-  locked: Joi.bool()
-})
-
 export const BotEditSchema = Joi.object().keys({
   name: Joi.string()
     .allow('')
