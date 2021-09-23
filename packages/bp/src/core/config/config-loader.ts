@@ -189,7 +189,6 @@ export class ConfigProvider {
       'basic-skills',
       'builtin',
       'channel-web',
-      'nlu',
       'code-editor',
       'testing',
       'examples',

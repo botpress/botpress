@@ -14,7 +14,8 @@ import { extractArchive } from 'core/misc/archive'
 import { listDir } from 'core/misc/list-dir'
 import { stringify } from 'core/misc/utils'
 import { ModuleResourceLoader, ModuleLoader } from 'core/modules'
-import { RealtimeService, RealTimePayload } from 'core/realtime'
+import { NLUInferenceService } from 'core/nlu'
+import { RealtimeService } from 'core/realtime'
 import { InvalidOperationError } from 'core/routers'
 import { AnalyticsService } from 'core/telemetry'
 import { Hooks, HookService } from 'core/user-code'
@@ -81,7 +82,8 @@ export class BotService {
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
     @inject(TYPES.RealtimeService) private realtimeService: RealtimeService,
     @inject(TYPES.MigrationService) private migrationService: MigrationService,
-    @inject(TYPES.MessagingService) private messagingService: MessagingService
+    @inject(TYPES.MessagingService) private messagingService: MessagingService,
+    @inject(TYPES.NLUInferenceService) private nluInferenceService: NLUInferenceService
   ) {
     this._botIds = undefined
   }
@@ -648,6 +650,8 @@ export class BotService {
       await this.cms.loadElementsForBot(botId)
       await this.moduleLoader.loadModulesForBot(botId)
 
+      await this.nluInferenceService.mountBot(botId)
+
       await this._extractLibsToDisk(botId)
       await this._extractBotNodeModules(botId)
 
@@ -684,6 +688,7 @@ export class BotService {
     await this.cms.clearElementsFromCache(botId)
     await this.moduleLoader.unloadModulesForBot(botId)
     await this.messagingService.unloadMessagingForBot(botId)
+    await this.nluInferenceService.unmountBot(botId)
 
     const api = await createForGlobalHooks()
     await this.hookService.executeHook(new Hooks.AfterBotUnmount(api, botId))

@@ -12,6 +12,7 @@ import { KeyValueStore } from 'core/kvs'
 import { LogsJanitor } from 'core/logger'
 import { MediaServiceProvider } from 'core/media'
 import { MessagingService } from 'core/messaging'
+import { NLUInferenceService } from 'core/nlu'
 import { QnaService } from 'core/qna'
 import { RealtimeService } from 'core/realtime'
 import { AuthService, AuthStrategies, CEAuthStrategies } from 'core/security'
@@ -20,16 +21,11 @@ import { HookService, ActionService, ActionServersService, HintsService } from '
 import { ContainerModule, interfaces } from 'inversify'
 
 import CELicensingService from '../../services/licensing'
-import { NLUService } from '../../services/nlu/nlu-service'
 import { TYPES } from '../types'
 
 const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<CMSService>(TYPES.CMSService)
     .to(CMSService)
-    .inSingletonScope()
-
-  bind<NLUService>(TYPES.NLUService)
-    .to(NLUService)
     .inSingletonScope()
 
   bind<MediaServiceProvider>(TYPES.MediaServiceProvider)
@@ -135,6 +131,10 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<MessagingService>(TYPES.MessagingService)
     .to(MessagingService)
+    .inSingletonScope()
+
+  bind<NLUInferenceService>(TYPES.NLUInferenceService)
+    .to(NLUInferenceService)
     .inSingletonScope()
 })
 

@@ -8,13 +8,14 @@ import path from 'path'
 import portFinder from 'portfinder'
 import { onProcessExit, registerProcess, processes, registerMsgHandler, MessageType } from './master'
 
-export interface WebWorkerParams {
+export interface StudioParams {
   EXTERNAL_URL: string
   APP_SECRET: string
   ROOT_PATH: string
+  NLU_ENDPOINT: string
 }
 
-let initialParams: WebWorkerParams
+let initialParams: StudioParams
 
 const debug = DEBUG('orchestrator:studio')
 
@@ -68,11 +69,11 @@ export const initStudioClient = () => {
 
 export const registerStudioMainHandler = (logger: sdk.Logger) => {
   registerMsgHandler(MessageType.StartStudio, async message => {
-    await startStudio(logger, message.params as WebWorkerParams)
+    await startStudio(logger, message.params as StudioParams)
   })
 }
 
-export const startStudio = async (logger: sdk.Logger, params: WebWorkerParams) => {
+export const startStudio = async (logger: sdk.Logger, params: StudioParams) => {
   const studioPort = await portFinder.getPortPromise({ port: 3000 + 1000 })
   registerProcess('studio', studioPort)
 
@@ -105,6 +106,7 @@ export const startStudio = async (logger: sdk.Logger, params: WebWorkerParams) =
     EXTERNAL_URL: params.EXTERNAL_URL,
     APP_SECRET: params.APP_SECRET,
     ROOT_PATH: params.ROOT_PATH,
+    NLU_ENDPOINT: params.NLU_ENDPOINT,
     SERVER_ID: process.SERVER_ID,
     BOTPRESS_VERSION: process.BOTPRESS_VERSION
   }

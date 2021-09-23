@@ -16,7 +16,6 @@ import {
   needPermissions,
   checkBotVisibility
 } from 'core/security'
-import { NLUService } from 'core/services/nlu/nlu-service'
 import { WorkspaceService } from 'core/users'
 import express, { Express, RequestHandler, Router } from 'express'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -24,14 +23,12 @@ import _ from 'lodash'
 import path from 'path'
 import { URL } from 'url'
 
-import { NLURouter } from '../routers/bots/nlu'
 import { CustomRouter } from '../routers/customRouter'
 
 export class BotsRouter extends CustomRouter {
   private checkTokenHeader: RequestHandler
   private needPermissions: (operation: string, resource: string) => RequestHandler
   private checkMethodPermissions: (resource: string) => RequestHandler
-  private nluRouter: NLURouter
   private converseRouter: ConverseRouter
   private messagingRouter: MessagingBotRouter
   private qnaRouter: QnaRouter
@@ -41,7 +38,6 @@ export class BotsRouter extends CustomRouter {
     private configProvider: ConfigProvider,
     private authService: AuthService,
     private workspaceService: WorkspaceService,
-    private nluService: NLUService,
     private converseService: ConverseService,
     private logger: Logger,
     private mediaServiceProvider: MediaServiceProvider,
@@ -55,7 +51,6 @@ export class BotsRouter extends CustomRouter {
     this.checkMethodPermissions = checkMethodPermissions(this.workspaceService)
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
 
-    this.nluRouter = new NLURouter(this.logger, this.authService, this.workspaceService, this.nluService)
     this.converseRouter = new ConverseRouter(
       this.logger,
       this.converseService,
@@ -72,7 +67,6 @@ export class BotsRouter extends CustomRouter {
     this.router.use(checkBotVisibility(this.configProvider, this.checkTokenHeader))
 
     this.router.use('/converse', this.converseRouter.router)
-    this.router.use('/nlu', this.nluRouter.router)
     this.router.use('/messaging', this.messagingRouter.router)
     this.router.use('/qna', this.qnaRouter.router)
 

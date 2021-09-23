@@ -103,18 +103,6 @@ export class InternalRouter extends CustomRouter {
     )
 
     router.post(
-      '/checkForDirtyModels',
-      this.asyncMiddleware(async (req, res) => {
-        const { botId } = req.body
-
-        const axiosConfig = await this.httpServer.getAxiosConfigForBot(botId, { localUrl: true })
-        await axios.post('/mod/nlu/checkForDirtyModels', { botId }, axiosConfig)
-
-        res.sendStatus(200)
-      })
-    )
-
-    router.post(
       '/setStudioReady',
       this.asyncMiddleware(async (req, res) => {
         AppLifecycle.setDone(AppLifecycleEvents.STUDIO_READY)
@@ -128,6 +116,15 @@ export class InternalRouter extends CustomRouter {
         const { botId, serverId } = req.body
         this.botService.syncLibs(botId, serverId)
         res.sendStatus(200)
+      })
+    )
+
+    router.post(
+      '/notifyTrainUpdate',
+      this.asyncMiddleware(async (req, res) => {
+        const { body } = req
+        this.realtime.sendToSocket(RealTimePayload.forAdmins('statusbar.event', body))
+        return res.sendStatus(200)
       })
     )
   }

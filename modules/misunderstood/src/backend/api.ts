@@ -105,7 +105,7 @@ export default async (bp: typeof sdk, db: Db) => {
         const axiosConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
         setTimeout(() => {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          Promise.map(modifiedLanguages, lang => axios.post(`/mod/nlu/train/${lang}`, {}, axiosConfig))
+          Promise.map(modifiedLanguages, lang => axios.post(`/mod/nlu/train/${lang}`, {}, axiosConfig)) // TODO: module nlu no longer exists
         }, 1000)
         res.sendStatus(200)
       } catch (err) {
