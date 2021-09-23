@@ -1,3 +1,4 @@
+import { Message } from '@botpress/messaging-client'
 import * as sdk from 'botpress/sdk'
 import { StandardError, UnauthorizedError } from 'common/http'
 import { HTTPServer } from 'core/app/server'
@@ -28,7 +29,7 @@ export class MessagingRouter extends CustomRouter {
           return next?.(new UnauthorizedError('Invalid webhook token'))
         }
 
-        if (req.body?.type === 'health') {
+        if (req.body?.type !== 'message.new') {
           return res.sendStatus(200)
         }
 
@@ -41,12 +42,12 @@ export class MessagingRouter extends CustomRouter {
         const msg = req.body as ReceiveRequest
 
         await this.messaging.receive({
-          clientId: msg.client.id,
-          channel: msg.channel.name,
-          userId: msg.user.id,
-          conversationId: msg.conversation.id,
-          messageId: msg.message.id,
-          payload: msg.message.payload
+          clientId: msg.data.clientId,
+          channel: msg.data.channel,
+          userId: msg.data.userId,
+          conversationId: msg.data.conversationId,
+          messageId: msg.data.message.id,
+          payload: msg.data.message.payload
         })
 
         res.sendStatus(200)
@@ -59,24 +60,32 @@ export class MessagingRouter extends CustomRouter {
 
 interface ReceiveRequest {
   type: string
-  client: { id: string }
-  channel: { name: string }
-  user: { id: string }
-  conversation: { id: string }
-  message: { id: string; conversationId: string; authorId: string | undefined; sentOn: Date; payload: any }
+  data: {
+    clientId: string
+    userId: string
+    conversationId: string
+    channel: string
+    message: Message
+  }
 }
 
 const ReceiveSchema = {
   type: joi.string().required(),
-  client: joi.object({ id: joi.string().required() }),
-  channel: joi.object({ name: joi.string().required() }),
-  user: joi.object({ id: joi.string().required() }),
-  conversation: joi.object({ id: joi.string().required() }),
-  message: joi.object({
-    id: joi.string().required(),
-    conversationId: joi.string().required(),
-    authorId: joi.string().required(),
-    sentOn: joi.date().required(),
-    payload: joi.object().required()
-  })
+  data: joi
+    .object({
+      clientId: joi.string().required(),
+      userId: joi.string().required(),
+      conversationId: joi.string().required(),
+      channel: joi.string().required(),
+      message: joi
+        .object({
+          id: joi.string().required(),
+          conversationId: joi.string().required(),
+          authorId: joi.string().required(),
+          sentOn: joi.date().required(),
+          payload: joi.object().required()
+        })
+        .required()
+    })
+    .required()
 }

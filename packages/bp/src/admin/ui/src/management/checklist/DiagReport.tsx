@@ -1,5 +1,6 @@
 import { Button } from '@blueprintjs/core'
 import { toast } from 'botpress/shared'
+import ms from 'ms'
 import React, { useState } from 'react'
 
 import api from '~/app/api'
@@ -11,7 +12,7 @@ export const DiagReport = () => {
     setLoading(true)
 
     try {
-      const { data } = await api.getSecured().get('/admin/management/checklist/diag')
+      const { data } = await api.getSecured({ timeout: ms('2m') }).get('/admin/management/checklist/diag')
 
       const link = document.createElement('a')
       link.href = URL.createObjectURL(new Blob([data]))

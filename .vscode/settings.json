@@ -63,7 +63,7 @@
     "string": "cpp",
     "__split_buffer": "cpp"
   },
-  "favorites.resources": ["packages/bp/dist/data"],
+  "favorites.resources": ["packages/bp/dist/data", "packages/bp/dist/.env"],
   "sqltools.connections": [
     {
       "askForPassword": false,

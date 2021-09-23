@@ -30,11 +30,14 @@ export class MessagingPostgresDownMigrator extends MessagingDownMigrator {
   protected async cleanup() {
     await super.cleanup()
 
-    await this.trx.raw('DROP TABLE msg_messages CASCADE')
-    await this.trx.raw('DROP TABLE msg_conversations CASCADE')
-    await this.trx.raw('DROP TABLE msg_users CASCADE')
-    await this.trx.raw('DROP TABLE msg_clients CASCADE')
-    await this.trx.raw('DROP TABLE msg_providers CASCADE')
+    const tables = await this.trx('pg_catalog.pg_tables')
+      .select('tablename')
+      .andWhere('tablename', 'like', 'msg_%')
+
+    for (const table of tables) {
+      await this.trx.raw(`DROP TABLE ${table.tablename} CASCADE`)
+    }
+
     await this.trx.raw('DROP EXTENSION pgcrypto;')
   }
 

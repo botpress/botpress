@@ -29,6 +29,9 @@
     "serialize-javascript": "^5.0.1",
     "yn": "^4.0.0"
   },
+  "devDependencies": {
+    "@types/serialize-javascript": "^5.0.1"
+  },
   "resolutions": {
     "fstream": ">=1.0.12",
     "lodash": ">=4.17.21"

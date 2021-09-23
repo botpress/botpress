@@ -2,17 +2,6 @@ import * as sdk from 'botpress/sdk'
 import { UserProfile } from 'common/typings'
 
 // TODO fix this and use those from common/typings
-declare global {
-  interface Window {
-    botpressWebChat: {
-      init: (config: any, containerSelector?: string) => void
-      sendEvent: (payload: any, webchatId?: string) => void
-    }
-    BOT_ID: string
-    BP_STORAGE: any
-    ROOT_PATH: string
-  }
-}
 export interface AuthRule {
   res: string
   op: string

@@ -18,18 +18,23 @@ const maybeFetchPro = () => {
   return gulp.src('./').pipe(gulpif(isProBuild, run('git submodule update --init', { verbosity: 2 })))
 }
 
-const writeMetadata = () => {
-  const version = require(path.join(__dirname, '../package.json')).version
-  const metadata = JSON.stringify(
-    {
-      version,
-      build_version: `${version}__${Date.now()}`
-    },
-    null,
-    2
-  )
+const writeMetadata = async () => {
+  const metadata = {
+    version: require(path.join(__dirname, '../package.json')).version,
+    date: Date.now(),
+    branch: 'master'
+  }
 
-  return file('metadata.json', metadata, { src: true }).pipe(gulp.dest('./'))
+  try {
+    const currentBranch = await Promise.fromCallback(cb => exec('git rev-parse --abbrev-ref HEAD', cb))
+    metadata.branch = currentBranch.replace('\n', '')
+  } catch (err) {
+    console.error(`Couldn't get active branch`, err)
+  }
+
+  return file('./packages/bp/dist/metadata.json', JSON.stringify(metadata, null, 2), { src: true }).pipe(
+    gulp.dest('./')
+  )
 }
 
 const clearMigrations = () => {
@@ -54,7 +59,11 @@ const compileTypescript = () => {
 }
 
 const watch = () => {
-  return gulp.watch(['./packages/bp/src/**/*.ts'], { ignored: ['./src/bp/ui-**'] }, compileTypescript)
+  return gulp.watch(
+    ['./packages/bp/src/**/*.ts'],
+    { ignored: ['./src/bp/ui-**'] },
+    gulp.parallel(compileTypescript, writeMetadata)
+  )
 }
 
 const createOutputDirs = () => {

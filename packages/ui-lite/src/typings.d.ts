@@ -1,4 +1,4 @@
-// import { BPStorage } from '~/util/storage'
+import { BPStorage } from '../../ui-shared-lite/utils/storage'
 
 // TODO: remove when at least one typing is exported from this file
 export interface test {}
@@ -22,7 +22,7 @@ declare global {
     SOCKET_TRANSPORTS: string[]
     ANALYTICS_ID: string
     UUID: string
-    BP_STORAGE: any
+    BP_STORAGE: BPStorage
     EXPERIMENTAL: boolean
     USE_SESSION_STORAGE: boolean
     USE_ONEFLOW: boolean

@@ -13,7 +13,7 @@ const get = (path: string, defaultValue = undefined) => {
   return data ? deserialize(data) : defaultValue
 }
 
-const set = (path: string, data) => {
+const set = (path: string, data: any) => {
   window.BP_STORAGE.set(key(path), serialize(data))
 }
 
