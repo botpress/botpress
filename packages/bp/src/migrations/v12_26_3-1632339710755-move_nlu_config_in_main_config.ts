@@ -116,7 +116,7 @@ const migration: Migration = {
     target: 'core',
     type: 'config'
   },
-  up: async ({ bp, metadata }: MigrationOpts): Promise<sdk.MigrationResult> => {
+  up: async ({ bp, configProvider }: MigrationOpts): Promise<sdk.MigrationResult> => {
     try {
       const ghost = bp.ghost.forGlobal()
 
@@ -131,15 +131,13 @@ const migration: Migration = {
         nluCoreConfig = { ...DEFAULT_NLU_CORE_CONFIG, ...mapModConfigToCore(nluModConfig) }
       }
 
-      const currentBotpressConfig = await ghost.readFileAsObject<BotpressConfig>('.', 'botpress.config.json')
-      const updatedConfig: BotpressConfig = { ...currentBotpressConfig, nlu: nluCoreConfig }
-      await ghost.upsertFile('.', 'botpress.config.json', JSON.stringify(updatedConfig, null, 2))
+      await configProvider.mergeBotpressConfig({ nlu: nluCoreConfig })
       return { success: true, message: 'Migration ran successfully' }
     } catch (err) {
       return { success: false, message: `The following error occured when running the migration ${err.message}.` }
     }
   },
-  down: async ({ bp, metadata }: MigrationOpts): Promise<sdk.MigrationResult> => {
+  down: async ({ bp }: MigrationOpts): Promise<sdk.MigrationResult> => {
     try {
       const ghost = bp.ghost.forGlobal()
 
