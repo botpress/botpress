@@ -189,11 +189,9 @@ export class Botpress {
     const {
       autoStartNLUServer,
       modelCacheSize,
-      maxTrainingPerInstance,
       languageSources,
       ducklingURL,
       ducklingEnabled,
-      queueTrainingOnBotMount,
       legacyElection,
       nluServerEndpoint
     } = nluConfig
@@ -203,6 +201,7 @@ export class Botpress {
         this.logger.warn("NLU server isn't configured properly, set it to auto start or provide an endpoint")
       } else {
         this.logger.info(`NLU server manually handled at: ${nluServerEndpoint}`)
+        AppLifecycle.setDone(AppLifecycleEvents.NLU_ENDPOINT_KNOWN)
       }
       return
     }

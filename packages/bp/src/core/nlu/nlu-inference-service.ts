@@ -41,7 +41,7 @@ export class NLUInferenceService {
 
   @postConstruct()
   public async initialize() {
-    await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+    await AppLifecycle.waitFor(AppLifecycleEvents.NLU_ENDPOINT_KNOWN)
     await this.nluClientProvider.initialize()
     const { nlu: nluConfig } = await this.configProvider.getBotpressConfig()
 
@@ -59,12 +59,12 @@ export class NLUInferenceService {
   }
 
   public async teardown() {
-    await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+    await AppLifecycle.waitFor(AppLifecycleEvents.NLU_ENDPOINT_KNOWN)
     this.eventEngine.removeMiddleware(PREDICT_MW)
   }
 
   public async mountBot(botId: string) {
-    await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+    await AppLifecycle.waitFor(AppLifecycleEvents.NLU_ENDPOINT_KNOWN)
     await this.nluClientProvider.mountBot(botId)
     const botConfig = await this.configProvider.getBotConfig(botId)
     const modelIdGetter = this._modelIdGetter(botId)

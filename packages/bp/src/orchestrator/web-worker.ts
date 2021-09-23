@@ -2,6 +2,7 @@ import cluster from 'cluster'
 import { container } from 'core/app/inversify/app.inversify'
 import { HTTPServer } from 'core/app/server'
 import { TYPES } from 'core/types'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import { MessageType, onProcessExit, WorkerType, ProcType } from './master'
 import { killMessagingProcess } from './messaging-server'
 import { killNluProcess } from './nlu-server'
@@ -55,6 +56,7 @@ export const setupWebWorker = () => {
         break
       case 'nlu':
         process.NLU_PORT = port
+        AppLifecycle.setDone(AppLifecycleEvents.NLU_ENDPOINT_KNOWN)
         break
     }
   })

@@ -21,7 +21,7 @@ export class NLUProxyRouter extends CustomRouter {
   }
 
   public async setupRoutes(): Promise<void> {
-    await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+    await AppLifecycle.waitFor(AppLifecycleEvents.NLU_ENDPOINT_KNOWN)
     if (!process.INTERNAL_PASSWORD) {
       return
     }
