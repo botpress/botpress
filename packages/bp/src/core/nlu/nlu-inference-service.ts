@@ -86,18 +86,14 @@ export class NLUInferenceService {
   }
 
   private handleIncomingEvent = async (event: IO.Event, next: IO.MiddlewareNextCallback) => {
-    if (!this._isIncoming(event)) {
-      const err = new Error('NLU incoming mw should receive incoming event.')
-      return next(err)
-    }
-
-    if (await this._ignoreEvent(event)) {
+    const incomingEvent = event as IO.IncomingEvent
+    if (await this._ignoreEvent(incomingEvent)) {
       return next(undefined, false, true)
     }
 
     try {
-      const { botId, preview } = event
-      const anticipatedLanguage: string | undefined = event.state.user?.language
+      const { botId, preview } = incomingEvent
+      const anticipatedLanguage: string | undefined = incomingEvent.state.user?.language
 
       const bot = this.predictors[botId]
       if (!bot) {
@@ -108,7 +104,7 @@ export class NLUInferenceService {
       const t0 = Date.now()
 
       const predOutput = await bot.predict(preview, anticipatedLanguage)
-      const includedContexts = event.nlu?.includedContexts ?? []
+      const includedContexts = incomingEvent.nlu?.includedContexts ?? []
 
       const appendTime = <T>(eu: T) => ({ ...eu, ms: Date.now() - t0 })
 
@@ -121,8 +117,8 @@ export class NLUInferenceService {
 
       const electionInput = appendTime(nluResults)
       const postElection = this.legacyElection ? legacyElection(electionInput) : naturalElection(electionInput)
-      _.merge(event, { nlu: postElection })
-      this.removeSensitiveText(event)
+      _.merge(incomingEvent, { nlu: postElection })
+      this.removeSensitiveText(incomingEvent)
     } catch (err) {
       this.logger.warn(`Error extracting metadata for incoming text: ${err.message}`)
     } finally {
