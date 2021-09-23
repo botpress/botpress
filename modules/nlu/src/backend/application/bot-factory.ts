@@ -1,48 +1,36 @@
+import { Client } from '@botpress/nlu-client'
 import * as sdk from 'botpress/sdk'
 
 import _ from 'lodash'
-import crypto from 'crypto'
-import { Client } from '@botpress/nlu-client'
-import { LanguageSource } from 'src/config'
-import { IStanEngine, StanEngine } from '../stan'
-import pickSeed from './pick-seed'
-import { Bot, IBot } from './scoped/bot'
-import { ScopedDefinitionsService, IDefinitionsService } from './scoped/definitions-service'
-import { IDefinitionsRepository } from './scoped/infrastructure/definitions-repository'
-import { BotDefinition, BotConfig, I } from './typings'
 import { NLUCloudClient } from '../cloud/client'
+import { Bot } from './bot'
+import { DefinitionsRepository } from './definitions-repository'
+import { ModelStateService } from './model-state'
+import { NLUClientWrapper } from './nlu-client'
+import pickSeed from './pick-seed'
 
-export interface ScopedServices {
-  bot: IBot
-  defService: IDefinitionsService
-}
-
-export type DefinitionRepositoryFactory = (botDef: BotDefinition) => IDefinitionsRepository
+import { BotDefinition, BotConfig, TrainingSession } from './typings'
 
 export interface ConfigResolver {
   getBotById(botId: string): Promise<BotConfig | undefined>
 }
 
-export type IScopedServicesFactory = I<ScopedServicesFactory>
-
-export class ScopedServicesFactory {
+export class BotFactory {
   constructor(
-    private _languageSource: LanguageSource,
+    private _endpoint: string,
     private _logger: sdk.Logger,
-    private _makeDefRepo: DefinitionRepositoryFactory
+    private _defRepo: DefinitionsRepository,
+    private _modelStateService: ModelStateService,
+    private _webSocket: (ts: TrainingSession) => void
   ) {}
 
-  private makeEngine(botConfig: BotConfig): IStanEngine {
+  private makeEngine(botConfig: BotConfig): NLUClientWrapper {
     const { cloud } = botConfig
-
-    const stanClient = cloud
-      ? new NLUCloudClient({ ...cloud, endpoint: this._languageSource.endpoint })
-      : new Client(this._languageSource.endpoint, this._languageSource.authToken)
-
-    return new StanEngine(stanClient, this._languageSource.authToken ?? '')
+    const nluClient = cloud ? new NLUCloudClient({ ...cloud, endpoint: this._endpoint }) : new Client(this._endpoint)
+    return new NLUClientWrapper(nluClient)
   }
 
-  public makeBot = async (botConfig: BotConfig): Promise<ScopedServices> => {
+  public makeBot = async (botConfig: BotConfig): Promise<Bot> => {
     const { id: botId } = botConfig
 
     const engine = this.makeEngine(botConfig)
@@ -62,15 +50,6 @@ export class ScopedServicesFactory {
       seed: pickSeed(botConfig)
     }
 
-    const defRepo = this._makeDefRepo(botDefinition)
-
-    const defService = new ScopedDefinitionsService(botDefinition, defRepo)
-
-    const bot = new Bot(botDefinition, engine, defService, this._logger)
-
-    return {
-      defService,
-      bot
-    }
+    return new Bot(botDefinition, engine, this._defRepo, this._modelStateService, this._webSocket, this._logger)
   }
 }

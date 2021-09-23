@@ -1,39 +1,33 @@
 import { Client } from '@botpress/nlu-client'
 import * as sdk from 'botpress/sdk'
 
-import { makeNLUPassword } from 'common/nlu-token'
 import _ from 'lodash'
+import yn from 'yn'
 
-import { Config, LanguageSource } from '../config'
+import { Config } from '../config'
 
 import { getWebsocket } from './api'
-import { ScopedServicesFactory } from './application/bot-factory'
-import { BotService } from './application/bot-service'
-import { DistributedTrainingQueue } from './application/distributed-training-queue'
+import { BotFactory } from './application/bot-factory'
+import { DefinitionsRepository } from './application/definitions-repository'
+import { ModelStateService } from './application/model-state'
+import { DbModelStateRepository } from './application/model-state/model-state-repo'
+import { NLUClientWrapper } from './application/nlu-client'
 import { NonBlockingNluApplication } from './application/non-blocking-app'
-import { ScopedDefinitionsRepository } from './application/scoped/infrastructure/definitions-repository'
-import { TrainingRepository } from './application/training-repo'
-import { BotDefinition } from './application/typings'
-import { StanEngine } from './stan'
 
-const getNLUServerConfig = (config: Config['nluServer']): LanguageSource => {
+const getNLUServerConfig = (config: Config['nluServer']): { endpoint: string } => {
   if (config.autoStart) {
     return {
-      endpoint: `http://localhost:${process.NLU_PORT}`,
-      authToken: makeNLUPassword()
+      endpoint: `http://localhost:${process.NLU_PORT}`
     }
   }
-
-  const { endpoint, authToken } = config
-  return {
-    endpoint,
-    authToken
-  }
+  const { endpoint } = config
+  return { endpoint }
 }
 
 export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplication> {
   const globalConfig: Config = await bp.config.getModuleConfig('nlu')
-  const { maxTrainingPerInstance, queueTrainingOnBotMount, legacyElection } = globalConfig
+  const { queueTrainingOnBotMount, legacyElection } = globalConfig
+  const trainingEnabled = !yn(process.env.BP_NLU_DISABLE_TRAINING)
 
   if (legacyElection) {
     bp.logger.warn(
@@ -41,29 +35,26 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
     )
   }
 
-  const nluServerConnectionInfo = getNLUServerConfig(globalConfig.nluServer)
-  const stanClient = new Client(nluServerConnectionInfo.endpoint, nluServerConnectionInfo.authToken)
-  const engine = new StanEngine(stanClient, '') // No need for password as Stan is protected by an auth token
+  const { endpoint: nluEndpoint } = getNLUServerConfig(globalConfig.nluServer)
+  const nluClient = new Client(nluEndpoint)
+
+  const clientWrapper = new NLUClientWrapper(nluClient)
 
   const socket = getWebsocket(bp)
 
-  const botService = new BotService()
+  const modelRepo = new DbModelStateRepository(bp.database)
+  await modelRepo.initialize()
+  const modelStateService = new ModelStateService(modelRepo)
 
-  const makeDefRepo = (bot: BotDefinition) => new ScopedDefinitionsRepository(bot, bp)
-
-  const servicesFactory = new ScopedServicesFactory(nluServerConnectionInfo, bp.logger, makeDefRepo)
-
-  const trainRepo = new TrainingRepository(bp.database)
-  const trainingQueue = new DistributedTrainingQueue(trainRepo, bp.logger, botService, bp.distributed, socket, {
-    maxTraining: maxTrainingPerInstance
-  })
-  await trainingQueue.initialize()
+  const defRepo = new DefinitionsRepository(bp)
+  const botFactory = new BotFactory(nluEndpoint, bp.logger, defRepo, modelStateService, socket)
   const application = new NonBlockingNluApplication(
-    trainingQueue,
-    engine,
-    servicesFactory,
-    botService,
-    queueTrainingOnBotMount
+    clientWrapper,
+    botFactory,
+    {
+      queueTrainingsOnBotMount: trainingEnabled && queueTrainingOnBotMount
+    },
+    bp.logger
   )
 
   // don't block entire server startup
