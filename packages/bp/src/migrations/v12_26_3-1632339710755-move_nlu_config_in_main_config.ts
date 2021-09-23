@@ -8,9 +8,8 @@ interface LanguageSource {
   authToken?: string
 }
 
-type StanConfig = { autoStart: true } | ({ autoStart: false } & LanguageSource)
 interface NLUModConfig {
-  nluServer: StanConfig
+  nluServer: { autoStart: true } | ({ autoStart: false } & LanguageSource)
   ducklingURL: string
   ducklingEnabled: boolean
   languageSources: LanguageSource[]
@@ -22,7 +21,7 @@ interface NLUModConfig {
 
 type PreviousBotpressConfig = Omit<BotpressConfig, 'nlu'> & { nlu?: undefined }
 
-const DEFAULT_NLU_CONFIG: NLUCoreConfig = {
+const DEFAULT_NLU_CORE_CONFIG: NLUCoreConfig = {
   // queueTrainingOnBotMount: undefined,
   // legacyElection: undefined,
   // modelCacheSize: undefined,
@@ -34,21 +33,18 @@ const DEFAULT_NLU_CONFIG: NLUCoreConfig = {
   languageSources: [{ endpoint: 'https://lang-01.botpress.io' }]
 }
 
-const getNLUServerConfig = (config: StanConfig) => {
-  if (config.autoStart) {
-    return {
-      autoStartNLUServer: true,
-      nluServerEndpoint: ''
-    }
-  }
-  const { endpoint } = config
-  return {
-    autoStartNLUServer: false,
-    nluServerEndpoint: endpoint
-  }
+const DEFAULT_NLU_MOD_CONFIG: NLUModConfig = {
+  nluServer: { autoStart: true },
+  queueTrainingOnBotMount: false,
+  legacyElection: false,
+  modelCacheSize: '850mb',
+  maxTrainingPerInstance: 2,
+  ducklingEnabled: true,
+  ducklingURL: 'https://duckling.botpress.io',
+  languageSources: [{ endpoint: 'https://lang-01.botpress.io' }]
 }
 
-const mapModConfigToCore = (modConfig: NLUModConfig): NLUCoreConfig => {
+const mapModConfigToCore = (modConfig: Partial<NLUModConfig>): Partial<NLUCoreConfig> => {
   const {
     ducklingEnabled,
     ducklingURL,
@@ -59,7 +55,16 @@ const mapModConfigToCore = (modConfig: NLUModConfig): NLUCoreConfig => {
     legacyElection,
     nluServer
   } = modConfig
-  const { autoStartNLUServer, nluServerEndpoint } = getNLUServerConfig(nluServer)
+
+  let autoStartNLUServer: boolean | undefined
+  let nluServerEndpoint: string | undefined
+  if (nluServer && nluServer.autoStart) {
+    autoStartNLUServer = true
+  } else if (nluServer && !nluServer.autoStart) {
+    autoStartNLUServer = false
+    nluServerEndpoint = nluServer.endpoint
+  }
+
   return {
     autoStartNLUServer,
     nluServerEndpoint,
@@ -73,7 +78,7 @@ const mapModConfigToCore = (modConfig: NLUModConfig): NLUCoreConfig => {
   }
 }
 
-const mapCoreConfigToMod = (coreConfig: NLUCoreConfig): NLUModConfig => {
+const mapCoreConfigToMod = (coreConfig: Partial<NLUCoreConfig>): Partial<NLUModConfig> => {
   const {
     ducklingEnabled,
     ducklingURL,
@@ -86,10 +91,10 @@ const mapCoreConfigToMod = (coreConfig: NLUCoreConfig): NLUModConfig => {
     nluServerEndpoint
   } = coreConfig
 
-  let nluServer: StanConfig
+  let nluServer: { autoStart: true } | ({ autoStart: false } & LanguageSource) | undefined
   if (autoStartNLUServer) {
     nluServer = { autoStart: true }
-  } else {
+  } else if (nluServerEndpoint) {
     nluServer = { autoStart: false, endpoint: nluServerEndpoint }
   }
 
@@ -115,15 +120,15 @@ const migration: Migration = {
     try {
       const ghost = bp.ghost.forGlobal()
 
-      const nluJsonExists = await ghost.fileExists('./config', 'nlu.json')
+      const nluJsonExists = await ghost.fileExists('config', 'nlu.json')
 
       let nluCoreConfig: NLUCoreConfig
       if (!nluJsonExists) {
-        nluCoreConfig = DEFAULT_NLU_CONFIG
+        nluCoreConfig = DEFAULT_NLU_CORE_CONFIG
       } else {
         const nluModConfig = await ghost.readFileAsObject<NLUModConfig>('config', 'nlu.json')
         await ghost.deleteFile('config', 'nlu.json')
-        nluCoreConfig = mapModConfigToCore(nluModConfig)
+        nluCoreConfig = { ...DEFAULT_NLU_CORE_CONFIG, ...mapModConfigToCore(nluModConfig) }
       }
 
       const currentBotpressConfig = await ghost.readFileAsObject<BotpressConfig>('.', 'botpress.config.json')
@@ -140,7 +145,7 @@ const migration: Migration = {
 
       const currentBotpressConfig = await ghost.readFileAsObject<BotpressConfig>('.', 'botpress.config.json')
       const { nlu: coreNluConfig } = currentBotpressConfig
-      const modNluConfig = mapCoreConfigToMod(coreNluConfig)
+      const modNluConfig = { ...DEFAULT_NLU_MOD_CONFIG, ...mapCoreConfigToMod(coreNluConfig) }
 
       await ghost.upsertFile('config', 'nlu.json', JSON.stringify(modNluConfig, null, 2))
 
