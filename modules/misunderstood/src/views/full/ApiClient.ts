@@ -23,10 +23,20 @@ class ApiClient {
     console.log(events)
   }
 
-  async exportEvents(dateRange?: DateRange) {
-    const res = await this.axios.get('/export')
-    console.log(dateRange)
-    console.log(res)
+  downloadObjectAsJson(exportObj: FlaggedEvent[], exportName: string) {
+    var dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(exportObj))
+    var downloadAnchorNode = document.createElement('a')
+    downloadAnchorNode.setAttribute('href', dataStr)
+    downloadAnchorNode.setAttribute('download', exportName + '.json')
+    document.body.appendChild(downloadAnchorNode) // required for firefox
+    downloadAnchorNode.click()
+    downloadAnchorNode.remove()
+  }
+
+  async exportEvents() {
+    const res = (await this.getForModule('/export')) as FlaggedEvent[]
+    const currentDateTime = new Date().toLocaleString()
+    this.downloadObjectAsJson(res, `export_${currentDateTime}`)
   }
 
   getForModule(url: string, config?: AxiosRequestConfig) {

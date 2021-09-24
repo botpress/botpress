@@ -307,7 +307,9 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     })
   }
 
-  importData = () => {}
+  importData = () => {
+    console.log('importing')
+  }
   exportData = () => {
     this.apiClient.exportEvents()
   }

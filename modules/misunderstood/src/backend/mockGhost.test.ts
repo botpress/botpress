@@ -98,6 +98,7 @@ export const makeMockGhost = (fileData: { [key: string]: { [key: string]: any } 
       }
     ),
 
+    // TODO
     onFileChanged: (callback: (filePath: string) => void): sdk.ListenHandle => {
       throw new Error('not implemenmted')
     }
