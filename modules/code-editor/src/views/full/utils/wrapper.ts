@@ -15,15 +15,15 @@ const wrapper = {
     const { type, hookType, botId } = file
 
     if (type === 'action_legacy') {
-      return `${ACTION_LEGACY_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}`
+      return `${ACTION_LEGACY_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}\n`
     } else if (type === 'action_http') {
-      return `${ACTION_HTTP_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}`
+      return `${ACTION_HTTP_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}\n`
     } else if (type === 'hook' && HOOK_SIGNATURES[hookType]) {
       let signature = HOOK_SIGNATURES[hookType]
       if (signature.includes('\n')) {
         signature = `${signature.substring(0, signature.length - 1)}\n)`
       }
-      return `${signature} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}`
+      return `${signature} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}\n`
     } else if (type === 'bot_config') {
       return content.replace('../../bot.config.schema.json', 'bp://types/bot.config.schema.json')
     } else if (type === 'main_config') {
@@ -59,6 +59,26 @@ const wrapper = {
       .replace(emptyLineAtBeginning, '')
       .replace(emptyLineAtBeginning, '')
       .replace(emptyLineAtEnd, '')
+  },
+  beginning: (content: string) => {
+    const lines = content.split('\n')
+    const startIndex = lines.findIndex(line => line.includes(START_COMMENT))
+
+    if (startIndex === -1) {
+      return 0
+    } else {
+      return startIndex + 2
+    }
+  },
+  end: (content: string) => {
+    const lines = content.split('\n')
+    const endIndex = lines.findIndex(line => line.includes(END_COMMENT))
+
+    if (endIndex === -1) {
+      return lines.length + 1
+    } else {
+      return endIndex + 2
+    }
   }
 }
 

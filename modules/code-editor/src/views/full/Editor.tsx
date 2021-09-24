@@ -86,6 +86,51 @@ class Editor extends React.Component<Props> {
     this.props.store.editor.setMonacoEditor(this.editor)
   }
 
+  setupReadonlySection = () => {
+    const content = this.editor.getValue()
+    let lineCount = this.editor.getModel().getLineCount()
+
+    const contentBeginning = wrapper.beginning(content)
+    const beginningRange = contentBeginning
+
+    const contentEnd = wrapper.end(content)
+    const endRange = lineCount - contentEnd
+
+    const beginningReadonlyRange = new monaco.Range(1, 0, beginningRange, 0)
+
+    this.editor.onKeyDown(e => {
+      lineCount = this.editor.getModel().getLineCount()
+
+      const endReadonlyRange = new monaco.Range(lineCount - endRange, 0, lineCount, 0)
+
+      const beginningContains = this.editor
+        .getSelections()
+        .findIndex(range => beginningReadonlyRange.intersectRanges(range))
+      const endContains = this.editor.getSelections().findIndex(range => endReadonlyRange.intersectRanges(range))
+
+      if (beginningContains !== -1 || endContains !== -1) {
+        e.stopPropagation()
+        e.preventDefault()
+      }
+    })
+
+    this.editor.onDidChangeCursorPosition(e => {
+      lineCount = this.editor.getModel().getLineCount()
+
+      if (e.position.lineNumber <= contentBeginning + 1) {
+        this.editor.setPosition({
+          lineNumber: contentBeginning + 1,
+          column: 1
+        })
+      } else if (e.position.lineNumber >= lineCount - endRange - 1) {
+        this.editor.setPosition({
+          lineNumber: lineCount - endRange - 1,
+          column: 1
+        })
+      }
+    })
+  }
+
   tabChanged = () => {
     const file = this.props.editor.currentTab
     if (!file) {
@@ -105,6 +150,8 @@ class Editor extends React.Component<Props> {
 
     this.editor.updateOptions({ readOnly: readOnly || !this.props.editor.canSaveFile })
     this.editor.focus()
+
+    this.setupReadonlySection()
   }
 
   saveChanges = async (uri?: monaco.Uri) => {

@@ -346,6 +346,7 @@ export class ScopedActionService {
     })
 
     const runner = new VmRunner()
+    console.log('code', JSON.stringify(code, null, 4))
     return runner.runInVm(vm, code, dirPath)
   }
 
