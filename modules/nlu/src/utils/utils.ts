@@ -8,14 +8,9 @@ export function isRecord(input: unknown): input is Record<string, unknown> {
   return isNotNil(input) && typeof input === 'object' && !Array.isArray(input)
 }
 
-export function isContextPrediction(input: unknown): input is ContextPrediction {
-  return (
-    isRecord(input) &&
-    ('name' in input || 'label' in input) &&
-    'confidence' in input &&
-    'oos' in input &&
-    'intents' in input
-  )
+export type ContextPredictionExtended = Omit<ContextPrediction, 'name'> | ContextPrediction
+export function isContextPrediction(input: unknown): input is ContextPredictionExtended {
+  return isRecord(input) && 'confidence' in input && 'oos' in input && 'intents' in input
 }
 
 export function isIntentPrediction(input: unknown): input is IntentPrediction {
