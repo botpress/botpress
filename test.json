@@ -1,0 +1,55 @@
+{
+  "file": {
+    "predictions": {},
+    "spellChecked": "Uploaded a file [test.json]",
+    "entities": [
+      {
+        "name": "url",
+        "type": "system.url",
+        "meta": { "confidence": 1, "start": 17, "end": 26, "sensitive": false, "source": "test.json" },
+        "data": { "unit": "", "value": "test.json" }
+      }
+    ],
+    "errored": false,
+    "language": "en",
+    "detectedLanguage": "en",
+    "includedContexts": ["global"]
+  },
+  "image": {
+    "predictions": {},
+    "spellChecked": "Uploaded a file [icon.png]",
+    "entities": [
+      {
+        "name": "url",
+        "type": "system.url",
+        "meta": { "confidence": 1, "start": 17, "end": 25, "sensitive": false, "source": "icon.png" },
+        "data": { "unit": "", "value": "icon.png" }
+      }
+    ],
+    "errored": false,
+    "language": "en",
+    "detectedLanguage": "en",
+    "includedContexts": ["global"]
+  },
+  "input": {
+    "predictions": {},
+    "spellChecked": "Uploaded a file [test.json]",
+    "entities": [
+      {
+        "name": "url",
+        "type": "system.url",
+        "meta": { "confidence": 1, "start": 17, "end": 26, "sensitive": false, "source": "test.json" },
+        "data": { "unit": "", "value": "test.json" }
+      }
+    ],
+    "errored": false,
+    "language": "en",
+    "detectedLanguage": "en",
+    "includedContexts": ["global"],
+    "ms": 114,
+    "intent": { "name": "none", "context": "global", "confidence": null },
+    "intents": [{ "name": "none", "context": "global", "confidence": null }],
+    "ambiguous": false
+  },
+  "elected": { "name": "none", "context": "global", "confidence": null }
+}

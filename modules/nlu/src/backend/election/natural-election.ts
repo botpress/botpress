@@ -1,3 +1,4 @@
+import { ContextPrediction, IntentPrediction } from '@botpress/nlu-client'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
@@ -10,6 +11,7 @@ export default function naturalElectionPipeline(input: sdk.IO.EventUnderstanding
   if (!input.predictions) {
     return input
   }
+
   let step = electIntent(input)
   step = detectAmbiguity(step)
   step = extractElectedIntentSlot(step)
@@ -51,14 +53,71 @@ function extractElectedIntentSlot(input: sdk.IO.EventUnderstanding): sdk.IO.Even
   }
 
   const elected = input.intent!
+  // this bang operator is useless since we're verifying nullability just bellow
 
   if (!elected) {
     return input
   }
 
-  const electedIntent = input.predictions[elected.context].intents.find(i => i.label === elected.name)
+  // error happening here
+  const electedContext = input.predictions[elected.context]
+  if (!isContextPrediction(electedContext)) {
+    return input
+  }
+
+  const electedContextIntents = electedContext.intents
+  if (!Array.isArray(electedContextIntents)) {
+    sdk.logger.warn(
+      `Warning in ${
+        extractElectedIntentSlot.name
+      } function: 'electedContext.intents' should be an array. ${JSON.stringify(electedContextIntents)}`
+    )
+    return input
+  }
+
+  const maybeInvalidIntentPrediction = electedContextIntents.some(ec => !isIntentPrediction(ec))
+  if (maybeInvalidIntentPrediction) {
+    sdk.logger.warn(
+      `Warning in ${
+        extractElectedIntentSlot.name
+      } function: there is an entity in the intents prediction array that does not conform to the IntentPrediction type. ${JSON.stringify(
+        maybeInvalidIntentPrediction
+      )}`
+    )
+    return input
+  }
+
+  const electedIntent = electedContextIntents.find(i => i.label === elected.name)
   if (!electedIntent) {
     return { ...input, slots: {} }
   }
   return { ...input, slots: electedIntent.slots }
+}
+
+function isNotNil<T>(input: T | null | undefined): input is T {
+  return input !== null && input !== undefined
+}
+
+function isRecord(input: unknown): input is Record<string, unknown> {
+  return isNotNil(input) && typeof input === 'object' && !Array.isArray(input)
+}
+
+function isContextPrediction(input: unknown): input is ContextPrediction {
+  return (
+    isRecord(input) &&
+    ('name' in input || 'label' in input) &&
+    'confidence' in input &&
+    'oos' in input &&
+    'intents' in input
+  )
+}
+
+function isIntentPrediction(input: unknown): input is IntentPrediction {
+  return (
+    isRecord(input) &&
+    ('name' in input || 'label' in input) &&
+    'confidence' in input &&
+    'extractor' in input &&
+    'slots' in input
+  )
 }

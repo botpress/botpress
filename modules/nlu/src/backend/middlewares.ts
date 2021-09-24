@@ -72,7 +72,13 @@ export const registerMiddlewares = async (bp: typeof sdk, app: NLUApplication) =
           nluResults = pickSpellChecked(appendTime(nluResults), appendTime(spellCheckedResults))
         }
 
+        /**
+         * Error Happenning between here and line 83
+         */
         const postElection = election(appendTime(nluResults), globalConfig)
+        /**
+         * Error Happenning between here and line 79
+         */
         _.merge(event, { nlu: postElection })
         removeSensitiveText(bp, event)
       } catch (err) {
