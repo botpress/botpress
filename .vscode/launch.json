@@ -3,7 +3,7 @@
   "configurations": [
     {
       "type": "node",
-      "runtimeVersion": "12.13.0",
+      "runtimeVersion": "12.18.1",
       "request": "launch",
       "name": "Debug App",
       "program": "${workspaceFolder}/packages/bp/dist/index.js",
@@ -30,7 +30,7 @@
     },
     {
       "type": "node",
-      "runtimeVersion": "12.13.0",
+      "runtimeVersion": "12.18.1",
       "request": "launch",
       "name": "Debug Stan",
       "program": "${workspaceFolder}/packages/bp/dist/index.js",
