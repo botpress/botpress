@@ -1,6 +1,6 @@
-import { ContextPrediction, IntentPrediction } from '@botpress/nlu-client'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
+import { isContextPrediction, isIntentPrediction, isNotNil } from 'src/utils/utils'
 
 import { detectAmbiguity } from './ambiguous'
 import { scaleConfidences } from './math'
@@ -52,14 +52,12 @@ function extractElectedIntentSlot(input: sdk.IO.EventUnderstanding): sdk.IO.Even
     return input
   }
 
-  const elected = input.intent!
-  // this bang operator is useless since we're verifying nullability just bellow
+  const elected = input.intent
 
-  if (!elected) {
+  if (!isNotNil(elected)) {
     return input
   }
 
-  // error happening here
   const electedContext = input.predictions[elected.context]
   if (!isContextPrediction(electedContext)) {
     return input
@@ -92,32 +90,4 @@ function extractElectedIntentSlot(input: sdk.IO.EventUnderstanding): sdk.IO.Even
     return { ...input, slots: {} }
   }
   return { ...input, slots: electedIntent.slots }
-}
-
-function isNotNil<T>(input: T | null | undefined): input is T {
-  return input !== null && input !== undefined
-}
-
-function isRecord(input: unknown): input is Record<string, unknown> {
-  return isNotNil(input) && typeof input === 'object' && !Array.isArray(input)
-}
-
-function isContextPrediction(input: unknown): input is ContextPrediction {
-  return (
-    isRecord(input) &&
-    ('name' in input || 'label' in input) &&
-    'confidence' in input &&
-    'oos' in input &&
-    'intents' in input
-  )
-}
-
-function isIntentPrediction(input: unknown): input is IntentPrediction {
-  return (
-    isRecord(input) &&
-    ('name' in input || 'label' in input) &&
-    'confidence' in input &&
-    'extractor' in input &&
-    'slots' in input
-  )
 }
