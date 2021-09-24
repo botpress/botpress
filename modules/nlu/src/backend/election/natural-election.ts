@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
+import { isNotNil } from 'common/type-coersion'
 import _ from 'lodash'
-import { isContextPrediction, isIntentPrediction, isNotNil } from 'src/utils/utils'
+import { isContextPrediction, isIntentPrediction } from 'src/utils/utils'
 
 import { detectAmbiguity } from './ambiguous'
 import { scaleConfidences } from './math'

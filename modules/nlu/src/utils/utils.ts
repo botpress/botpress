@@ -1,12 +1,5 @@
 import { ContextPrediction, IntentPrediction } from '@botpress/nlu-client'
-
-export function isNotNil<T>(input: T | null | undefined): input is T {
-  return input !== null && input !== undefined
-}
-
-export function isRecord(input: unknown): input is Record<string, unknown> {
-  return isNotNil(input) && typeof input === 'object' && !Array.isArray(input)
-}
+import { isRecord } from 'common/type-coersion'
 
 export type ContextPredictionExtended = Omit<ContextPrediction, 'name'> | ContextPrediction
 export function isContextPrediction(input: unknown): input is ContextPredictionExtended {
