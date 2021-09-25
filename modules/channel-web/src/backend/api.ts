@@ -305,7 +305,14 @@ export default async (bp: typeof sdk, db: Database) => {
       const conversation = await req.messaging.conversations.get(conversationId)
       const messages = await req.messaging.messages.list(conversationId, config.maxMessagesHistory)
 
-      const filteredMessages = messages.filter(m => m.payload.type !== 'visit')
+      const filteredMessages = messages.filter(m => {
+        if (m.payload.type !== 'visit') {
+          if (m.payload.type === 'text') {
+            return !!m.payload.text
+          }
+          return true
+        }
+      })
 
       return res.send({ ...conversation, messages: filteredMessages })
     })
