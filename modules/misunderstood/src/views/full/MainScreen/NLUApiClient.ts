@@ -1,17 +1,16 @@
-import { AxiosRequestConfig, AxiosStatic } from 'axios'
-
-const NLU_URL_PREFIX = '/nlu'
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosStatic } from 'axios'
 
 class NLUApiClient {
-  constructor(private axios: AxiosStatic) {}
+  private axios: AxiosInstance
 
-  async get(url: string, config?: AxiosRequestConfig) {
-    const res = await this.axios.get(NLU_URL_PREFIX + url, config)
-    return res.data
+  constructor(_static: AxiosStatic) {
+    const { headers } = _static.defaults
+    const baseURL = `${window.STUDIO_API_PATH}/nlu`
+    this.axios = axios.create({ baseURL, headers })
   }
 
   async getIntents() {
-    const data = await this.get('/intents')
+    const { data } = await this.axios.get('intents')
     return data.filter(x => !x.name.startsWith('__qna__'))
   }
 }
