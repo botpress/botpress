@@ -2,7 +2,11 @@ const base = require('./_base')
 const utils = require('./_utils')
 
 function renderElement(data, channel) {
-  return utils.extractPayload('single-choice', data)
+  const noBubble = data.text === undefined || data.text.trim() === ''
+  return {
+    ...utils.extractPayload('single-choice', data),
+    noBubble,
+  }
 }
 
 module.exports = {
