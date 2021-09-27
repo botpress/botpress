@@ -103,9 +103,9 @@ export default async (bp: typeof sdk, db: Db) => {
       try {
         const modifiedLanguages = await db.applyChanges(botId)
         const axiosConfig = await bp.http.getAxiosConfigForBot(botId, { studioUrl: true })
-        setTimeout(() => {
-          // floating to return from http handler asap
-          void Promise.map(modifiedLanguages, lang => axios.post(`/nlu/train/${lang}`, {}, axiosConfig))
+        setTimeout(async () => {
+          const body = undefined
+          await Promise.map(modifiedLanguages, lang => axios.post(`/nlu/train/${lang}`, body, axiosConfig))
         }, 1000)
         res.sendStatus(200)
       } catch (err) {
