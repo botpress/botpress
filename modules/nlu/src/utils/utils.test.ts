@@ -10,7 +10,7 @@ describe('utils', () => {
     it('should return true is input confirms to re-implementation of ContextPrediction: EventUnderstanding', () => {
       /**
        * unfortunately this test is necessary because EventUnderstanding interface from `/packages/bp/src/sdk/botpress.d.ts`
-       *  diverged from the original type: ContextPrediction
+       * diverged from the original type: ContextPrediction
        */
       const fakeContextPrediction = {
         confidence: 1,
@@ -51,7 +51,7 @@ describe('utils', () => {
     it('should return true is input confirms to re-implementation of IntentPrediction: EventUnderstanding', () => {
       /**
        * unfortunately this test is necessary because EventUnderstanding interface from `/packages/bp/src/sdk/botpress.d.ts`
-       *  diverged from the original type: IntentPrediction
+       * diverged from the original type: IntentPrediction
        */
       const fakeIntentPrediction = {
         confidence: 1,

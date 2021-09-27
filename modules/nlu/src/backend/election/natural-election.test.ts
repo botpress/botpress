@@ -3,7 +3,6 @@ import { mockEventUnderstanding } from '../typings'
 
 describe('naturalElection', () => {
   describe('extractElectedIntentSlot', () => {
-    // test all conditions
     it("should return input directly if the 'predictions' property is undefined", () => {
       const input = mockEventUnderstanding({ predictions: undefined })
       const result = extractElectedIntentSlot(input)
