@@ -1,7 +1,7 @@
-import { isNotNil, isRecord } from './type-coersion'
+import { isNil } from './type-coersion'
 
 describe('type-coersion', () => {
-  describe('isNotNil', () => {
+  describe('isNil', () => {
     it('should not find values that are undefined or null', () => {
       const results = [
         true,
@@ -21,22 +21,11 @@ describe('type-coersion', () => {
         new Map(),
         new Set()
       ]
-      expect(results.find(r => !isNotNil(r))).toStrictEqual(undefined)
+      expect(results.filter(isNil).length).toStrictEqual(0)
     })
-    it("should not find values that aren't undefined or null", () => {
+    it('should find values that are undefined or null', () => {
       const results = [undefined, null]
-      expect(results.find(r => isNotNil(r))).toStrictEqual(undefined)
-    })
-  })
-
-  describe('isRecord', () => {
-    it('should not find values that are an object-like record', () => {
-      const result = [[], null, undefined, false, true, 0, -0, 1, -1, '', 'string', Date.now(), Infinity, NaN]
-      expect(result.find(r => isRecord(r))).toStrictEqual(undefined)
-    })
-    it("should not find values that aren't an object-like record", () => {
-      const result = [{}, new Date(), new Map(), new Set()]
-      expect(result.find(r => !isRecord(r))).toStrictEqual(undefined)
+      expect(results.filter(isNil).length).toStrictEqual(2)
     })
   })
 })

@@ -1,7 +1,6 @@
 import * as sdk from 'botpress/sdk'
-import { isNotNil } from 'common/type-coersion'
+import { isNil } from 'common/type-coersion'
 import _ from 'lodash'
-import { isContextPrediction, isIntentPrediction } from '../../utils/utils'
 
 import { detectAmbiguity } from './ambiguous'
 import { scaleConfidences } from './math'
@@ -49,44 +48,27 @@ function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstandin
 }
 
 export function extractElectedIntentSlot(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {
-  if (!isNotNil(input.predictions)) {
+  if (isNil(input.predictions)) {
     return input
   }
 
   const elected = input.intent
-  if (!isNotNil(elected)) {
+  if (isNil(elected)) {
     return input
   }
 
   const electedContext = input.predictions[elected.context]
-  if (!isContextPrediction(electedContext)) {
+  if (isNil(electedContext)) {
     return input
   }
 
   const electedContextIntents = electedContext.intents
-  if (!Array.isArray(electedContextIntents)) {
-    sdk.logger.warn(
-      `Warning in ${
-        extractElectedIntentSlot.name
-      } function: 'electedContext.intents' should be an array. ${JSON.stringify(electedContextIntents)}`
-    )
-    return input
-  }
-
-  const maybeInvalidIntentPrediction = electedContextIntents.some(ec => !isIntentPrediction(ec))
-  if (maybeInvalidIntentPrediction) {
-    sdk.logger.warn(
-      `Warning in ${
-        extractElectedIntentSlot.name
-      } function: there is an entity in the intents prediction array that does not conform to the IntentPrediction type. ${JSON.stringify(
-        maybeInvalidIntentPrediction
-      )}`
-    )
+  if (isNil(electedContextIntents)) {
     return input
   }
 
   const electedIntent = electedContextIntents.find(i => i.label === elected.name)
-  if (!isNotNil(electedIntent)) {
+  if (isNil(electedIntent)) {
     return { ...input, slots: {} }
   }
 

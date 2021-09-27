@@ -1,37 +1,28 @@
 import { extractElectedIntentSlot } from './natural-election'
-import { mockEventUnderstanding } from '../typings'
+import { mockEventUnderstanding } from '../../test/mocks'
 
 describe('naturalElection', () => {
   describe('extractElectedIntentSlot', () => {
-    it("should return input directly if the 'predictions' property is undefined", () => {
+    it("should return input directly if the 'predictions' property is nil", () => {
       const input = mockEventUnderstanding({ predictions: undefined })
       const result = extractElectedIntentSlot(input)
       expect(result).toStrictEqual(input)
     })
 
-    it("should return input directly if the 'intent' property is undefined", () => {
+    it("should return input directly if the 'intent' property is nil", () => {
       const input = mockEventUnderstanding({ predictions: {}, intent: undefined })
       const result = extractElectedIntentSlot(input)
       expect(result).toStrictEqual(input)
     })
 
-    it("should return input directly if the 'context' property of the 'predictions' property is undefined", () => {
+    it("should return input directly if the 'context' property of the 'predictions' property is nil", () => {
       const input = mockEventUnderstanding({ predictions: { context: undefined }, intent: {} })
       const result = extractElectedIntentSlot(input)
       expect(result).toStrictEqual(input)
     })
 
-    it("should return input directly if the 'intents' property of the prediction 'context' property is not an array", () => {
-      const input = mockEventUnderstanding({ predictions: { context: { intents: 1 } }, intent: {} })
-      const result = extractElectedIntentSlot(input)
-      expect(result).toStrictEqual(input)
-    })
-
-    it("should return input directly if any element within the 'intents' property of the prediction 'context' property is not of IntentPrediction type", () => {
-      const input = mockEventUnderstanding({
-        predictions: { context: { intents: [{ label: 'name', confidence: 1, extractor: 'extractor', slots: [] }] } },
-        intent: {}
-      })
+    it("should return input directly if the 'intents' property of the prediction 'context' property is nil", () => {
+      const input = mockEventUnderstanding({ predictions: { context: { intents: undefined } }, intent: {} })
       const result = extractElectedIntentSlot(input)
       expect(result).toStrictEqual(input)
     })
