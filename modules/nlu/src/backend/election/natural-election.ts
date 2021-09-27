@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import { isNotNil } from 'common/type-coersion'
 import _ from 'lodash'
-import { isContextPrediction, isIntentPrediction } from 'src/utils/utils'
+import { isContextPrediction, isIntentPrediction } from '../../utils/utils'
 
 import { detectAmbiguity } from './ambiguous'
 import { scaleConfidences } from './math'
@@ -48,13 +48,12 @@ function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstandin
   }
 }
 
-function extractElectedIntentSlot(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {
-  if (!input.predictions) {
+export function extractElectedIntentSlot(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {
+  if (!isNotNil(input.predictions)) {
     return input
   }
 
   const elected = input.intent
-
   if (!isNotNil(elected)) {
     return input
   }
@@ -87,8 +86,9 @@ function extractElectedIntentSlot(input: sdk.IO.EventUnderstanding): sdk.IO.Even
   }
 
   const electedIntent = electedContextIntents.find(i => i.label === elected.name)
-  if (!electedIntent) {
+  if (!isNotNil(electedIntent)) {
     return { ...input, slots: {} }
   }
+
   return { ...input, slots: electedIntent.slots }
 }
