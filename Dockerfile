@@ -1,3 +1,2 @@
 FROM botpress/server:latest
-WORKDIR /botpress
-CMD ["./bp"]
+CMD ["./bp", "&" ,"./duckling"]

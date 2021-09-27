@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@master
       - uses: actions/setup-node@v1
         with:
-          node-version: '12.13.0'
+          node-version: '12.18.1'
       - name: Fetch Node Packages
         run: |
           yarn

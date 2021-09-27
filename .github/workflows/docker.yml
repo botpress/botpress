@@ -37,7 +37,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
-          node-version: '12.13.0'
+          node-version: '12.18.1'
       - name: Build
         run: |
           export npm_config_target_platform=linux
