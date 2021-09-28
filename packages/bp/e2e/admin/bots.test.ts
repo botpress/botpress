@@ -9,6 +9,7 @@ import {
   expectAdminApiCallSuccess,
   expectCallSuccess,
   expectModuleApiCallSuccess,
+  expectStudioApiCallSuccess,
   gotoAndExpect,
   loginIfNeeded,
   triggerKeyboardShortcut
@@ -77,7 +78,7 @@ describe('Admin - Bot Management', () => {
   })
 
   it('Train Warning', async () => {
-    await expectModuleApiCallSuccess('nlu', tempBotId, 'training/en', 'GET')
+    await expectStudioApiCallSuccess('training/en', 'GET')
   })
 
   it('Export bot', async () => {
