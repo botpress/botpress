@@ -78,7 +78,7 @@ describe('Admin - Bot Management', () => {
   })
 
   it('Train Warning', async () => {
-    await expectStudioApiCallSuccess('training/en', 'GET')
+    await expectCallSuccess(`${bpConfig.apiHost}/api/v1/studio/${tempBotId}/nlu/training/en`, 'GET')
   })
 
   it('Export bot', async () => {
