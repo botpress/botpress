@@ -1,3 +1,5 @@
+@import '../variables';
+
 .newEventPreview {
   font-weight: normal;
   margin: 24px 0;
@@ -15,11 +17,12 @@
 .chatPreview {
   display: flex;
   flex-direction: column;
-  padding: 10px;
-  padding-bottom: 0;
+  padding: 10px 10px 0;
   margin: 10px 0;
-  border-radius: 1px;
   border: 1px solid #999;
+  border-radius: 1px;
+  height: calc(100% - #{$stickyBarHeight});
+  overflow-y: scroll;
   background: white;
 }
 
@@ -85,7 +88,7 @@
 
     &:before {
       position: absolute;
-      content: "";
+      content: '';
       width: 0;
       height: 0;
       border-top: 8px solid transparent;
@@ -98,7 +101,7 @@
 
     &:after {
       position: absolute;
-      content: "";
+      content: '';
       width: 15px;
       height: 3px;
       left: 0;
