@@ -22,6 +22,7 @@ import { LogsRepository } from 'core/logger'
 import { MediaServiceProvider, MediaRouter } from 'core/media'
 import { MessagingRouter, MessagingService } from 'core/messaging'
 import { ModuleLoader, ModulesRouter } from 'core/modules'
+import { NLUInferenceService } from 'core/nlu'
 import { QnaService } from 'core/qna'
 import { getSocketTransports, RealtimeService } from 'core/realtime'
 import { InvalidExternalToken, PaymentRequiredError, monitoringMiddleware } from 'core/routers'
@@ -124,6 +125,7 @@ export class HTTPServer {
     @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository,
     @inject(TYPES.RealtimeService) private realtime: RealtimeService,
     @inject(TYPES.QnaService) private qnaService: QnaService,
+    @inject(TYPES.NLUInferenceService) private nluInferenceService: NLUInferenceService,
     @inject(TYPES.MessagingService) private messagingService: MessagingService,
     @inject(TYPES.ObjectCache) private objectCache: MemoryObjectCache,
     @inject(TYPES.EventRepository) private eventRepo: EventRepository
@@ -181,6 +183,7 @@ export class HTTPServer {
       mediaServiceProvider,
       eventRepo,
       qnaService,
+      nluInferenceService,
       this
     )
     this.sdkApiRouter = new SdkApiRouter(this.logger)

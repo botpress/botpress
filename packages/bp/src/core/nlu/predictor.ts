@@ -1,7 +1,7 @@
-import Bluebird from 'bluebird'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import { mapPredictOutput } from './api-mapper'
+import { BotNotTrainedInLanguageError } from './errors'
 import { NLUClient } from './nlu-client'
 
 type EventUnderstanding = Omit<sdk.IO.EventUnderstanding, 'includedContexts' | 'ms'>
@@ -61,7 +61,7 @@ export class Predictor {
     }
 
     if (this.isEmpty(nluResults)) {
-      throw new Error(`No model found for the following languages: ${languagesToTry}`)
+      throw new BotNotTrainedInLanguageError(this._botId, languagesToTry)
     }
 
     return { ...nluResults, detectedLanguage }
