@@ -9,6 +9,7 @@ import {
   expectAdminApiCallSuccess,
   expectCallSuccess,
   expectModuleApiCallSuccess,
+  expectStudioApiCallSuccess,
   gotoAndExpect,
   loginIfNeeded,
   triggerKeyboardShortcut
@@ -74,6 +75,10 @@ describe('Admin - Bot Management', () => {
       expectCallSuccess(`${bpConfig.apiHost}/studio/manage/bots/create`, 'POST'),
       clickOn('#btn-modal-create-bot')
     ])
+  })
+
+  it('Train Warning', async () => {
+    await expectCallSuccess(`${bpConfig.apiHost}/api/v1/studio/${tempBotId}/nlu/training/en`, 'GET')
   })
 
   it('Export bot', async () => {
