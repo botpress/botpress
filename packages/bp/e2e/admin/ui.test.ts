@@ -22,22 +22,6 @@ describe('Admin - UI', () => {
     await expectMatch('Push local to this server')
   })
 
-  it('Change user profile', async () => {
-    await clickOn('#btn-menu')
-    await clickOn('#btn-profile')
-    await fillField('#input-firstname', 'Bob')
-    await fillField('#input-lastname', 'Lalancette')
-    await uploadFile('input[type="file"]', path.join(__dirname, '../assets/alien.png'))
-    const { url } = await expectCallSuccess(`${bpConfig.host}/api/v1/media`, 'POST')
-    await Promise.all([expectCallSuccess(`${bpConfig.host}/api/v2/admin/user/profile`, 'POST'), clickOn('#btn-submit')])
-    await closeToaster()
-    const src = await page.$eval('img.dropdown-picture', img => img.getAttribute('src'))
-    expect(src.includes(url)).toBeTrue
-    await clickOn('#btn-menu')
-    await expectMatch('Signed in as Bob Lalancette')
-    await clickOn('#btn-menu')
-  })
-
   it('Load languages page', async () => {
     await clickOn('#btn-menu-language')
     await expectMatch('Using lang server at')
@@ -45,15 +29,36 @@ describe('Admin - UI', () => {
     await expectAdminApiCallSuccess('management/languages', 'GET')
   })
 
+  it('Change user profile', async () => {
+    await clickOn('#btn-menu')
+    await clickOn('#btn-profile')
+
+    await fillField('#input-firstname', 'Bob')
+    await fillField('#input-lastname', 'Lalancette')
+    await uploadFile('input[type="file"]', path.join(__dirname, '../assets/alien.png'))
+    const { url } = await expectCallSuccess(`${bpConfig.host}/api/v1/media`, 'POST')
+
+    await clickOn('#btn-submit')
+    await expectCallSuccess(`${bpConfig.host}/api/v2/admin/user/profile`, 'POST')
+    await closeToaster()
+
+    const src = await page.$eval('img.dropdown-picture', img => img.getAttribute('src'))
+    expect(src.includes(url)).toBeTrue
+
+    await clickOn('#btn-menu')
+    await expectMatch('Signed in as Bob Lalancette')
+    await clickOn('#btn-menu')
+  })
+
   it('Update password', async () => {
     await clickOn('#btn-menu')
     await clickOn('#btn-changepass')
+
     await fillField('#input-password', bpConfig.password)
     await fillField('#input-newPassword', bpConfig.password)
     await fillField('#input-confirmPassword', bpConfig.password)
-    await Promise.all([
-      expectCallSuccess(`${bpConfig.host}/api/v2/admin/auth/login/basic/default`, 'POST'),
-      clickOn('#btn-submit')
-    ])
+
+    await clickOn('#btn-submit')
+    await expectCallSuccess(`${bpConfig.host}/api/v2/admin/auth/login/basic/default`, 'POST')
   })
 })

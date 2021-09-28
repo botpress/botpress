@@ -1,10 +1,10 @@
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import path from 'path'
 
 import { bpConfig } from '../../jest-puppeteer.config'
 import { clickOn, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
 import {
-  closeToaster,
+  clickButtonForBot,
   CONFIRM_DIALOG,
   expectAdminApiCallSuccess,
   expectModuleApiCallSuccess,
@@ -17,12 +17,6 @@ describe('Admin - Bot Management', () => {
   const tempBotId = 'lol-bot'
   const importBotId = 'import-bot'
   const workspaceId = 'default'
-
-  const clickButtonForBot = async (buttonId: string, botId: string) => {
-    const botRow = await expectMatchElement('.bp_table-row', { text: botId })
-    await clickOn('#btn-menu', undefined, botRow)
-    await clickOn(buttonId, undefined)
-  }
 
   beforeAll(async () => {
     await loginOrRegister()
@@ -46,33 +40,33 @@ describe('Admin - Bot Management', () => {
   it('Open Bot Analytics', async () => {
     await clickButtonForBot('#btn-apps', importBotId)
 
-    await Promise.all([
-      expectModuleApiCallSuccess('analytics', importBotId, 'channel/all', 'GET'),
-      clickOn('#btn-menu-analytics')
-    ])
-
+    await clickOn('#btn-menu-analytics')
+    await expectModuleApiCallSuccess('analytics', importBotId, 'channel/all', 'GET')
     await gotoAndExpect(`${bpConfig.host}/admin/workspace/${workspaceId}/bots`)
   })
 
   it('Delete imported bot', async () => {
     await clickButtonForBot('#btn-delete', importBotId)
 
-    await page.waitFor(1000)
+    await page.waitForSelector(CONFIRM_DIALOG.ACCEPT)
     await clickOn(CONFIRM_DIALOG.ACCEPT)
+
     await expectAdminApiCallSuccess(`workspace/bots/${importBotId}/delete`, 'POST')
-    await page.waitFor(200)
   })
 
   it('Create temporary bot', async () => {
+    await page.waitForSelector('#btn-create-bot')
     await clickOn('#btn-create-bot')
-    await page.waitFor(100)
+
+    await page.waitForSelector('#btn-new-bot')
     await clickOn('#btn-new-bot')
 
     await fillField('#input-bot-name', tempBotId)
     await fillField('#select-bot-templates', 'Welcome Bot') // Using fill instead of select because options are created dynamically
     await page.keyboard.press('Enter')
 
-    await Promise.all([expectAdminApiCallSuccess('workspace/bots', 'POST'), clickOn('#btn-modal-create-bot')])
+    await clickOn('#btn-modal-create-bot')
+    await expectAdminApiCallSuccess('workspace/bots', 'POST')
   })
 
   it('Train Warning', async () => {
@@ -82,22 +76,22 @@ describe('Admin - Bot Management', () => {
   it('Export bot', async () => {
     await clickButtonForBot('#btn-export', tempBotId)
 
-    const response = await page.waitForResponse(`${bpConfig.host}/api/v2/admin/workspace/bots/${tempBotId}/export`)
-    expect(response.status()).toBe(200)
+    const response = await expectAdminApiCallSuccess(`workspace/bots/${tempBotId}/export`, 'GET')
 
     const responseSize = Number(response.headers()['content-length'])
     expect(responseSize).toBeGreaterThan(100)
   })
 
   it('Create revision', async () => {
-    await Promise.all([
-      expectAdminApiCallSuccess(`workspace/bots/${tempBotId}/revisions`, 'POST'),
-      clickButtonForBot('#btn-createRevision', tempBotId)
-    ])
-    await closeToaster()
+    await clickButtonForBot('#btn-createRevision', tempBotId)
+
+    await expectAdminApiCallSuccess(`workspace/bots/${tempBotId}/revisions`, 'POST')
   })
 
   it('Rollback revision', async () => {
+    // Super Hack to make sure the revision is 'ready'
+    await page.waitFor(500)
+
     await clickButtonForBot('#btn-rollbackRevision', tempBotId)
     await expectMatchElement('#select-revisions')
 
@@ -105,42 +99,44 @@ describe('Admin - Bot Management', () => {
     await page.keyboard.press('Enter')
     await clickOn('#chk-confirm')
 
-    await Promise.all([
-      expectAdminApiCallSuccess(`workspace/bots/${tempBotId}/rollback`, 'POST'),
-      clickOn('#btn-submit')
-    ])
-    await page.waitFor(500)
+    await clickOn('#btn-submit')
+    await expectAdminApiCallSuccess(`workspace/bots/${tempBotId}/rollback`, 'POST')
   })
 
   it('Delete temporary bot', async () => {
     await clickButtonForBot('#btn-delete', tempBotId)
-    await page.waitFor(1000)
+
+    await page.waitForSelector(CONFIRM_DIALOG.ACCEPT)
     await clickOn(CONFIRM_DIALOG.ACCEPT)
+
     await expectAdminApiCallSuccess(`workspace/bots/${tempBotId}/delete`, 'POST')
-    await page.waitFor(200)
   })
 
   it('Changes bot converse config to disable public endpoint', async () => {
     await clickOn('#btn-menu-code-editor') // Navigate to admin code editor
-    await page.waitFor(1000) // Wait for code editor to display
+
+    await page.waitForSelector('svg[data-icon="code"]') // Wait for code editor to display
     await clickOn('span.bp3-button-text', { text: 'Advanced Editor' }) // Display raw editor
-    await page.waitFor(500)
+
+    await page.waitForSelector('span.bp3-tree-node-label')
     await clickOn('span.bp3-tree-node-label', { text: 'bots' })
     await clickOn('span.bp3-tree-node-label', { text: bpConfig.botId })
     await clickOn('span.bp3-tree-node-label', { text: 'bot.config.json' })
+
     await page.focus('#monaco-editor')
     await page.mouse.click(500, 100)
     await page.waitFor(500) // Required so the editor is correctly focused at the right place
     await triggerKeyboardShortcut('End', false)
+
     await page.keyboard.type('"converse": {"enableUnsecuredEndpoint": false},') // Edit bot config
     await clickOn('svg[data-icon="floppy-disk"]')
 
-    let status
+    let status: number
     try {
       const resp = await axios.post(`${bpConfig.apiHost}/api/v1/bots/${bpConfig.botId}/converse/test`)
       status = resp.status
     } catch (err) {
-      status = err.response.status
+      status = (err as AxiosError).response?.status
     }
 
     expect(status).toEqual(403)

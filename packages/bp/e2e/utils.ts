@@ -1,6 +1,6 @@
 import axios from 'axios'
 import moment from 'moment'
-import { Dialog, ElementHandle, HttpMethod, MouseButtons, Page } from 'puppeteer'
+import { Dialog, ElementHandle, HttpMethod, MouseButtons, Page, Response } from 'puppeteer'
 
 import { bpConfig } from '../jest-puppeteer.config'
 
@@ -20,6 +20,10 @@ export const getPage = async (): Promise<Page> => {
 }
 
 export const loginOrRegister = async () => {
+  if (!page.url().includes('/login') && !page.url().includes('/register')) {
+    return
+  }
+
   await fillField('#email', bpConfig.email)
   await fillField('#password', bpConfig.password)
 
@@ -29,6 +33,8 @@ export const loginOrRegister = async () => {
   } else {
     await clickOn('#btn-signin')
   }
+
+  await page.waitForNavigation()
 }
 
 export const logout = async () => {
@@ -67,9 +73,11 @@ export const expectCallSuccess = async (url: string, method?: HttpMethod): Promi
   return response.json()
 }
 
-export const expectAdminApiCallSuccess = async (endOfUrl: string, method?: HttpMethod): Promise<void> => {
+export const expectAdminApiCallSuccess = async (endOfUrl: string, method?: HttpMethod): Promise<Response> => {
   const response = await getResponse(`${bpConfig.apiHost}/api/v2/admin/${endOfUrl}`, method)
   expect(response.status()).toBe(200)
+
+  return response
 }
 
 export const expectModuleApiCallSuccess = async (
@@ -145,6 +153,16 @@ export const triggerKeyboardShortcut = async (key: string, holdCtrl?: boolean) =
 export const clickOnTreeNode = async (searchText: string, button: MouseButtons = 'left'): Promise<void> => {
   const element = await expectMatchElement('.bp3-tree-node-content', { text: searchText })
   await clickOn('.bp3-tree-node-label', { button }, element)
+}
+
+export const clickButtonForBot = async (buttonId: string, botId: string = bpConfig.botId) => {
+  await page.waitForSelector('#btn-menu')
+
+  const botRow = await expectMatchElement('.bp_table-row', { text: botId })
+  await clickOn('#btn-menu', undefined, botRow)
+
+  await expectMatchElement(buttonId)
+  await clickOn(buttonId)
 }
 
 export const closeToaster = async () => {
