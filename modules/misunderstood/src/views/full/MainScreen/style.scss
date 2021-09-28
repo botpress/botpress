@@ -1,3 +1,5 @@
+@import '../variables';
+
 .newEventPreview {
   font-weight: normal;
   margin: 24px 0;
@@ -19,8 +21,7 @@
   margin: 10px 0;
   border: 1px solid #999;
   border-radius: 1px;
-  // 50px = height of withStickyActionBar
-  height: calc(100% - 50px);
+  height: calc(100% - #{$stickyBarHeight});
   overflow-y: scroll;
   background: white;
 }
