@@ -326,7 +326,7 @@ export class BotService {
         this.logger.forBot(botId).info(`Import of bot ${botId} was denied by hook validation`)
       }
     } catch (error) {
-      const errorMessage = error && error instanceof Error ? (error as Error).message : JSON.stringify(error)
+      const errorMessage = error && error instanceof Error ? error.message : JSON.stringify(error)
       this.logger.error(`Error in ${this.importBot.name} function: ${errorMessage}`)
     } finally {
       this._invalidateBotIds()
