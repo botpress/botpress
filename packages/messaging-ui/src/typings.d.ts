@@ -1,33 +1,25 @@
+import { SyntheticEvent } from 'react'
 import { InjectedIntl } from 'react-intl'
 
 // copy pasted from channel-web/src/lite/typings.d.ts and modifed
 export type uuid = string
 
-export interface StudioConnector {
-  /** Event emitter */
-  events: any
-  /** An axios instance */
-  axios: any
-  getModuleInjector: any
-  loadModuleView: any
-}
-
 export namespace Renderer {
-  export interface StoreConfig {
-    isEmulator?: boolean
-    showTimestamp?: boolean
+  export interface Config {
+    isEmulator: boolean
+    showTimestamp: boolean
   }
   export interface MinimalRootStore {
     intl: InjectedIntl
     escapeHTML: boolean
-    config: StoreConfig
+    config: Config
     composer: any
     bp?: StudioConnector
   }
   export interface Message {
-    type?: string
+    type: string
     className?: string
-    payload?: any
+    payload: any
     store?: MinimalRootStore
     bp?: StudioConnector
     fromLabel?: string
@@ -36,7 +28,7 @@ export namespace Renderer {
     noBubble?: boolean
     keyboard?: any
     eventId?: string
-
+    escapeHTML: boolean
     isHighlighted?: boolean
     isLastGroup?: boolean
     isLastOfGroup?: boolean
@@ -47,10 +39,7 @@ export namespace Renderer {
 
     onSendData?: (data: any) => Promise<void>
     onFileUpload?: (label: string, payload: any, file: File) => Promise<void>
-
-    /** Allows to autoplay voice messages coming from the bot */
-    onAudioEnded?: () => void
-    shouldPlay?: boolean
+    onMessageClicked?: (messageId?: uuid) => void
   }
 
   export type Button = {

@@ -22,6 +22,10 @@ class Message extends Component<MessageProps> {
     return { hasError: true }
   }
 
+  get escapeHTML(): boolean {
+    return this.props.escapeHTML || true
+  }
+
   render_text(textMessage?: string) {
     const { text, markdown } = this.props.payload
     const message = textMessage || text
@@ -32,7 +36,7 @@ class Message extends Component<MessageProps> {
         text={message}
         intl={this.props.intl}
         maxLength={this.props.payload?.trimLength || 150}
-        escapeHTML={this.props.store?.escapeHTML || true}
+        escapeHTML={this.escapeHTML}
       />
     )
   }
@@ -66,15 +70,15 @@ class Message extends Component<MessageProps> {
   }
 
   render_audio() {
-    return <FileMessage file={this.props.payload} escapeTextHTML={this.props.store?.escapeHTML || true} />
+    return <FileMessage file={this.props.payload} escapeTextHTML={this.escapeHTML} />
   }
 
   render_video() {
-    return <FileMessage file={this.props.payload} escapeTextHTML={this.props.store?.escapeHTML || true} />
+    return <FileMessage file={this.props.payload} escapeTextHTML={this.escapeHTML} />
   }
 
   render_file() {
-    return <FileMessage file={this.props.payload} escapeTextHTML={this.props.store?.escapeHTML || true} />
+    return <FileMessage file={this.props.payload} escapeTextHTML={this.escapeHTML} />
   }
 
   render_voice() {
@@ -141,9 +145,7 @@ class Message extends Component<MessageProps> {
   }
 
   render_dropdown() {
-    return (
-      <Dropdown {...this.props} {...this.props.payload} escapeHTML={this.props.store?.escapeHTML || true}></Dropdown>
-    )
+    return <Dropdown {...this.props} {...this.props.payload} escapeHTML={this.escapeHTML}></Dropdown>
   }
 
   handleContextMenu = e => {
@@ -161,9 +163,9 @@ class Message extends Component<MessageProps> {
     )
   }
 
-  // onMessageClicked() {
-  //   this.props.store.loadEventInDebugger(this.props.messageId, true)
-  // }
+  onMessageClicked() {
+    this.props.onMessageClicked && this.props.onMessageClicked(this.props.messageId)
+  }
 
   render() {
     if (this.state.hasError) {
@@ -198,7 +200,7 @@ class Message extends Component<MessageProps> {
           'bpw-msg-hovering': isEmulator
         })}
         data-from={this.props.fromLabel}
-        // onClick={() => this.onMessageClicked()}
+        onClick={() => this.onMessageClicked()}
         tabIndex={-1}
         style={additionalStyle}
       >

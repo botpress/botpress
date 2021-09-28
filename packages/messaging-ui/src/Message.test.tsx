@@ -3,149 +3,120 @@
  */
 import './mocks/matchMedia.mock' // required by react-slick
 import { render, screen } from '@testing-library/react'
-import React from 'react'
-import ReactDOM from 'react-dom'
-import { Text } from './renderer'
+import React, { ReactElement } from 'react'
+import { defaultMessageConfig, renderMessage, MessageType } from './renderer/render'
 
-test('renders a simple text message', () => {
-  render(<Text escapeHTML={false} text="Hello world" markdown={false} />)
-  expect(screen.getByText('Hello world')).toBeInTheDocument()
+describe('Text renderer', () => {
+  test('renders a simple text message', () => {
+    const text = 'Hello World!'
+    const messageComponent = renderMessage({
+      type: 'text',
+      payload: {
+        text,
+        markdown: false
+      },
+      config: defaultMessageConfig
+    })
+    expect(messageComponent).toBeTruthy()
+    render(messageComponent as ReactElement)
+    expect(screen.getByText(text)).toBeInTheDocument()
+  })
+
+  test('renders a simple markdown message', () => {
+    const text = '**Hello** *World*! go check out [botpress](https://botpress.com)'
+
+    const component = renderMessage({
+      type: 'text',
+      payload: {
+        text,
+        markdown: true
+      },
+      config: defaultMessageConfig
+    })
+
+    expect(component).toBeTruthy()
+    render(component as ReactElement)
+
+    const italicElement = screen.getByText('World')
+    const boldElement = screen.getByText('Hello')
+    const linkElement = screen.getByText('botpress')
+
+    expect(italicElement.tagName).toBe('EM')
+    expect(boldElement.tagName).toBe('STRONG')
+    expect(linkElement.tagName).toBe('A')
+    expect(linkElement.getAttribute('href')).toBe('https://botpress.com')
+    expect(linkElement.getAttribute('target')).toBe('_blank')
+  })
 })
 
-const incomingSampleEvent = {
-  type: 'text',
-  channel: 'web',
-  direction: 'incoming',
-  payload: {
-    type: 'text',
-    text: 't'
-  },
-  target: 'S-0x373utfUNguZ6ZR1NWE0U',
-  botId: 'test',
-  createdOn: '2021-09-17T18:18:25.845Z',
-  threadId: '1',
-  id: '51576822704569484',
-  preview: 't',
-  flags: {},
-  state: {
-    __stacktrace: [
-      {
-        flow: 'main.flow.json',
-        node: 'entry'
-      },
-      {
-        flow: 'main.flow.json',
-        node: 'none_message'
-      }
-    ],
-    user: {
-      timezone: -3,
-      language: 'en'
-    },
-    context: {},
-    session: {
-      lastMessages: [
-        {
-          eventId: '51576822704569484',
-          incomingPreview: 't',
-          replyConfidence: 1,
-          replySource: 'dialogManager',
-          replyDate: '2021-09-17T18:18:26.706Z',
-          replyPreview: '#!builtin_text-iVBzXn'
-        }
-      ],
-      workflows: {},
-      slots: {}
-    },
-    temp: {}
-  },
-  suggestions: [],
-  nlu: {
-    entities: [],
-    language: 'en',
-    detectedLanguage: 'n/a',
-    spellChecked: 't',
-    ambiguous: false,
-    slots: {},
-    intent: {
-      name: 'none',
-      confidence: 0.502,
-      context: 'global'
-    },
-    intents: [
-      {
-        name: 'none',
-        context: 'global',
-        confidence: 0.502
-      }
-    ],
-    errored: false,
-    includedContexts: ['global'],
-    ms: 273,
-    predictions: {
-      global: {
-        confidence: 1,
-        oos: 0.9489441927576394,
-        intents: [
-          {
-            extractor: 'svm-classifier',
-            label: 'none',
-            confidence: 0.9423240905902893,
-            slots: {}
-          },
-          {
-            extractor: 'svm-classifier',
-            label: '__qna__rkmsylph53_hello',
-            confidence: 0.011138941789375401,
-            slots: {}
-          }
-        ]
-      }
-    }
-  },
-  processing: {},
-  activeProcessing: {},
-  decision: {
-    decision: {
-      reason: 'no suggestion matched',
-      status: 'elected'
-    },
-    confidence: 1,
-    payloads: [],
-    source: 'decisionEngine',
-    sourceDetails: 'execute default flow'
-  }
-}
+describe('File renderer', () => {
+  test('renders a video file as video player', () => {
+    const url = 'http://distribution.bbb3d.renderfarming.net/video/mp4/bbb_sunflower_1080p_30fps_normal.mp4'
+    const component = renderMessage({
+      type: 'file',
+      payload: { file: { url } },
+      config: defaultMessageConfig
+    })
 
-const exampleOutgoingEvent = {
-  type: 'text',
-  channel: 'web',
-  direction: 'outgoing',
-  payload: {
-    type: 'text',
-    text: "Pardon, je n'ai pas compris. Veuillez me poser un autre question."
-  },
-  target: 'S-0x373utfUNguZ6ZR1NWE0U',
-  botId: 'test',
-  createdOn: '2021-09-17T18:18:26.717Z',
-  threadId: '1',
-  id: '51577694316769179',
-  preview: "Pardon, je n'ai pas compris. Veuillez me poser un autre question.",
-  flags: {},
-  incomingEventId: '51576822704569484',
-  nlu: {
-    entities: [],
-    language: 'n/a',
-    ambiguous: false,
-    slots: {},
-    intent: {
-      name: 'none',
-      confidence: 1,
-      context: 'global'
-    },
-    intents: [],
-    errored: false,
-    includedContexts: ['global'],
-    ms: 0
-  }
-}
+    expect(component).toBeTruthy()
+    const { container } = render(component as ReactElement)
+
+    const el = container.querySelector('video')
+    const src = container.querySelector('video source')
+    expect(el).toBeInTheDocument()
+    expect(el?.hasAttribute('controls')).toBe(true)
+
+    expect(src).toBeInTheDocument()
+    expect(src?.getAttribute('src')).toBe(url)
+    expect(src?.getAttribute('type')).toBe('video/mp4')
+  })
+
+  test('renders an image file as image', () => {
+    const url = 'https://upload.wikimedia.org/wikipedia/commons/9/90/Touched_by_His_Noodly_Appendage_HD.jpg'
+    const component = renderMessage({
+      type: 'file' as MessageType,
+      payload: { file: { url } },
+      config: defaultMessageConfig
+    })
+
+    expect(component).toBeTruthy()
+    const { container } = render(component as ReactElement)
+
+    const el = container.querySelector('img')
+
+    expect(el).toBeInTheDocument()
+    expect(el?.getAttribute('src')).toBe(url)
+  })
+
+  test('renders a video player with title and text', () => {
+    const url = 'http://distribution.bbb3d.renderfarming.net/video/mp4/bbb_sunflower_1080p_30fps_normal.mp4'
+    const messageData = {
+      type: 'file' as MessageType,
+      payload: { file: { url, title: 'Hello Video', storage: 'remote' } },
+      config: defaultMessageConfig
+    }
+
+    const component = renderMessage(messageData)
+
+    expect(component).toBeTruthy()
+    const { container } = render(component as ReactElement)
+
+    const el = container.querySelector('video')
+    const src = container.querySelector('video source')
+    expect(el).toBeInTheDocument()
+    expect(el?.hasAttribute('controls')).toBe(true)
+
+    expect(src).toBeInTheDocument()
+    expect(src?.getAttribute('src')).toBe(url)
+    expect(src?.getAttribute('type')).toBe('video/mp4')
+  })
+})
+
+describe('Unsupported type renderer', () => {
+  test('renders unsupported message type message', () => {
+    const component = renderMessage({ type: 'custom', payload: {}, config: defaultMessageConfig })
+    expect(component).toBeTruthy()
+    render(component as ReactElement)
+    expect(screen.getByText('* Unsupported message type *')).toBeInTheDocument()
+  })
+})

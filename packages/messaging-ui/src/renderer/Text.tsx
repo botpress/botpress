@@ -1,27 +1,27 @@
 import truncate from 'html-truncate'
 import React, { useState } from 'react'
 import Linkify from 'react-linkify'
-import { Renderer } from '../typings'
 import { renderUnsafeHTML } from '../utils'
+import { Message, MessageRendererProps } from './render'
 
 /**
  * A simple text element with optional markdown
- * @param {boolean} markdown Enable markdown parsing for the given text
- * @param {string} text The text to display
- * @param {boolean} escapeHTML Prevent unsafe HTML rendering when markdown is enabled
- * @param {number} maxLength Enables show more button when text overflows limit
+ * @param {boolean} payload.markdown Enable markdown parsing for the given text
+ * @param {string} payload.text The text to display
+ * @param {number} payload.trimLength Enables show more button when text overflows limit
  */
-export const Text = (props: Renderer.Text) => {
+export const Text = ({ payload, config }: MessageRendererProps<'text'>) => {
   const [showMore, setShowMore] = useState(false)
-  const { maxLength, markdown, escapeHTML, intl, text } = props
+  const { trimLength, markdown, text } = payload
+  const { intl, escapeHTML } = config
   let hasShowMore = false
 
-  if (intl && maxLength && text.length > maxLength) {
+  if (trimLength && text.length > trimLength) {
     hasShowMore = true
   }
 
-  const truncateIfRequired = message => {
-    return hasShowMore && !showMore ? truncate(message, maxLength as number) : message
+  const truncateIfRequired = (message: string) => {
+    return hasShowMore && trimLength && !showMore ? truncate(message, trimLength) : message
   }
 
   let message: React.ReactNode

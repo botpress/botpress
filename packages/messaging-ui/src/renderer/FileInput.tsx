@@ -7,7 +7,7 @@ export class FileInput extends React.Component<Renderer.FileInput> {
     value: ''
   }
 
-  handleFilChanged = e => {
+  handleFileChanged = (e: React.BaseSyntheticEvent) => {
     this.setState({ value: e.target.value.split(/(\\|\/)/g).pop() })
     this.props.onFileChanged && this.props.onFileChanged(e)
   }
@@ -19,7 +19,7 @@ export class FileInput extends React.Component<Renderer.FileInput> {
           type={'file'}
           name={this.props.name}
           className={this.props.className}
-          onChange={this.handleFilChanged}
+          onChange={this.handleFileChanged}
           accept={this.props.accept}
           style={{
             position: 'absolute',

@@ -1,16 +1,15 @@
 import mimeTypes from 'mime/lite'
 import React from 'react'
-
-import { Renderer } from '../typings'
+import { MessageRendererProps } from './render'
 
 import { Text } from './Text'
 
-export const FileMessage = (props: Renderer.FileMessage) => {
-  if (!props.file) {
+export const File = ({ payload, config }: MessageRendererProps<'file'>) => {
+  if (!payload.file) {
     return null
   }
 
-  const { url, title, storage, text } = props.file
+  const { url, title, storage, text } = payload.file
 
   let extension = ''
   try {
@@ -18,14 +17,13 @@ export const FileMessage = (props: Renderer.FileMessage) => {
 
     extension = validUrl.pathname
   } catch (error) {
-    // If the URL is not valid return a dummy component.
     return null
   }
 
   const mime = mimeTypes.getType(extension)
 
   if (text) {
-    return <Text text={text} markdown escapeHTML={props.escapeTextHTML} />
+    return <Text payload={{ text, markdown: false }} config={config} />
   }
 
   if (storage === 'local') {
@@ -36,25 +34,7 @@ export const FileMessage = (props: Renderer.FileMessage) => {
     )
   }
 
-  if (mime?.includes('image/')) {
-    return (
-      <a href={url} target={'_blank'}>
-        <img src={url} title={title} />
-      </a>
-    )
-  } else if (mime?.includes('audio/')) {
-    return (
-      <audio controls>
-        <source src={url} type={mime} />
-      </audio>
-    )
-  } else if (mime?.includes('video/')) {
-    return (
-      <video controls>
-        <source src={url} type={mime} />
-      </video>
-    )
-  } else {
+  if (!mime) {
     return (
       <div>
         <span>File: </span>
@@ -64,4 +44,25 @@ export const FileMessage = (props: Renderer.FileMessage) => {
       </div>
     )
   }
+
+  if (mime.includes('image/')) {
+    return (
+      <a href={url} target={'_blank'}>
+        <img src={url} title={title} />
+      </a>
+    )
+  } else if (mime.includes('audio/')) {
+    return (
+      <audio controls>
+        <source src={url} type={mime} />
+      </audio>
+    )
+  } else if (mime.includes('video/')) {
+    return (
+      <video controls>
+        <source src={url} type={mime} />
+      </video>
+    )
+  }
+  return null
 }

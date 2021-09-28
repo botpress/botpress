@@ -71,7 +71,7 @@ export const Dropdown = (props: Renderer.Dropdown) => {
   }
 
   const shouldDisplay = props.isLastGroup && props.isLastOfGroup
-  let message
+  let message: React.ReactElement
 
   if (props.markdown) {
     const html = renderUnsafeHTML(props.message, props.escapeHTML)
