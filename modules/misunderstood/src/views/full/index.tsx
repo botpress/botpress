@@ -2,11 +2,11 @@ import { Button, Popover } from '@blueprintjs/core'
 import { DateRange, DateRangePicker } from '@blueprintjs/datetime'
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 import { AxiosStatic } from 'axios'
-import { date, lang, ModuleUI } from 'botpress/shared'
+import { date, lang, ModuleUI, toast } from 'botpress/shared'
 import classnames from 'classnames'
 import React from 'react'
 
-import { DbFlaggedEvent, FLAGGED_MESSAGE_STATUS, FLAG_REASON, ResolutionData } from '../../types'
+import { DbFlaggedEvent, FLAGGED_MESSAGE_STATUS, FLAG_REASON, ResolutionData, FlaggedEvent } from '../../types'
 
 import ApiClient from './ApiClient'
 import { groupEventsByUtterance } from './eventUtils'
@@ -56,10 +56,12 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
   }
 
   apiClient: ApiClient
+  private importInput: React.RefObject<HTMLInputElement>
 
   constructor(props: Props) {
     super(props)
     this.apiClient = new ApiClient(props.bp.axios)
+    this.importInput = React.createRef()
   }
 
   fetchEventCounts(language: string, dataRange?: DateRange, reason?: FLAG_REASON) {
@@ -307,9 +309,47 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     })
   }
 
-  importData = () => {
-    console.log('importing')
+  clickImportData = () => {
+    this.importInput.current.click()
   }
+
+  importData = (evt) => {
+    try {
+      let files = evt.files
+      if (!files.length) {
+        return
+      }
+      let file = files[0]
+      let reader = new FileReader()
+      reader.onload = async (event) => {
+        let importEvents: Array<FlaggedEvent>
+        const res = event.target.result
+        try {
+          if (typeof res === 'string') {
+            importEvents = JSON.parse(res)
+          } else if (res instanceof ArrayBuffer) {
+            importEvents = JSON.parse(String.fromCharCode.apply(null, new Uint16Array(res)))
+          }
+        } catch (err) {
+          toast.failure("Failed to parse json file, are you sure it's valid?")
+          return
+        }
+
+        try {
+          await this.apiClient.importEvents(importEvents)
+        } catch (err) {
+          toast.failure(err.response.data.message)
+          return
+        }
+
+        toast.success('File imported successfully')
+      }
+      reader.readAsText(file)
+    } catch (err) {
+      toast.failure(`Failed to import file: ${err}`)
+    }
+  }
+
   exportData = () => {
     this.apiClient.exportEvents()
   }
@@ -348,8 +388,16 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
       <Container sidePanelWidth={320}>
         <SidePanel style={{ overflowY: 'hidden' }}>
           <div className={style.filterContainer}>
+            <Button onClick={this.clickImportData}>Import</Button>
             <Button onClick={this.exportData}>Export</Button>
-            <Button onClick={this.importData}>Import</Button>
+            <input
+              style={{ display: 'none' }}
+              ref={this.importInput}
+              type={'file'}
+              disabled={false}
+              onChange={(ev) => this.importData(ev.target)}
+              accept={'application/json'}
+            />
           </div>
           <div className={style.filterContainer}>
             <Button

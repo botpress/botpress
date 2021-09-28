@@ -19,8 +19,8 @@ class ApiClient {
     return res.data
   }
 
-  importEvents(events: FlaggedEvent[]) {
-    console.log(events)
+  async importEvents(events: FlaggedEvent[]) {
+    await this.postForModule('/import', events)
   }
 
   downloadObjectAsJson(exportObj: FlaggedEvent[], exportName: string) {
