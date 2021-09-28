@@ -14,7 +14,7 @@ import { extractArchive } from 'core/misc/archive'
 import { listDir } from 'core/misc/list-dir'
 import { stringify } from 'core/misc/utils'
 import { ModuleResourceLoader, ModuleLoader } from 'core/modules'
-import { RealtimeService, RealTimePayload } from 'core/realtime'
+import { RealtimeService } from 'core/realtime'
 import { InvalidOperationError } from 'core/routers'
 import { AnalyticsService } from 'core/telemetry'
 import { Hooks, HookService } from 'core/user-code'
@@ -25,14 +25,12 @@ import glob from 'glob'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Joi from 'joi'
 import _ from 'lodash'
-import mkdirp from 'mkdirp'
 import moment from 'moment'
 import ms from 'ms'
 import { studioActions } from 'orchestrator'
 import os from 'os'
 import path from 'path'
 import replace from 'replace-in-file'
-import semver from 'semver'
 import tmp from 'tmp'
 import { VError } from 'verror'
 
@@ -266,10 +264,11 @@ export class BotService {
           .warn(`The bot ${botId} already exists, files in the archive will overwrite existing ones`)
       }
     }
-    const tmpDir = tmp.dirSync({ unsafeCleanup: true })
-    const tmpFolder = tmpDir.name
 
+    let tmpDir: tmp.SynchrounousResult | null = null
     try {
+      tmpDir = tmp.dirSync({ unsafeCleanup: true })
+      const tmpFolder = tmpDir.name
       await extractArchive(archive, tmpFolder)
       const api = await createForGlobalHooks()
 
@@ -326,9 +325,14 @@ export class BotService {
       } else {
         this.logger.forBot(botId).info(`Import of bot ${botId} was denied by hook validation`)
       }
+    } catch (error) {
+      const errorMessage = error && error instanceof Error ? (error as Error).message : JSON.stringify(error)
+      this.logger.error(`Error in ${this.importBot.name} function: ${errorMessage}`)
     } finally {
       this._invalidateBotIds()
-      tmpDir.removeCallback()
+      if (tmpDir !== null) {
+        tmpDir.removeCallback()
+      }
       debug.forBot(botId, `Bot import took ${Date.now() - startTime}ms`)
     }
   }
