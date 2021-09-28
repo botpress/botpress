@@ -331,7 +331,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
             importEvents = JSON.parse(String.fromCharCode.apply(null, new Uint16Array(res)))
           }
         } catch (err) {
-          toast.failure("Failed to parse json file, are you sure it's valid?")
+          toast.failure(lang.tr('module.misunderstood.failedToParseJSON'))
           return
         }
 
@@ -342,11 +342,11 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
           return
         }
 
-        toast.success('File imported successfully')
+        toast.success(lang.tr('module.misunderstood.fileImportedSuccess'))
       }
       reader.readAsText(file)
     } catch (err) {
-      toast.failure(`Failed to import file: ${err}`)
+      toast.failure(lang.tr('module.misunderstood.failedToImportFile', { err: err.message }))
     }
   }
 
