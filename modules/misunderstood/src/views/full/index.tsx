@@ -389,7 +389,12 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
         <SidePanel style={{ overflowY: 'hidden' }}>
           <div className={style.filterContainer}>
             <Button onClick={this.clickImportData}>Import</Button>
-            <Button onClick={this.exportData}>Export</Button>
+            <Button
+              disabled={this.state.eventCounts ? !this.state.eventCounts[FLAGGED_MESSAGE_STATUS.applied] : true}
+              onClick={this.exportData}
+            >
+              Export Applied
+            </Button>
             <input
               style={{ display: 'none' }}
               ref={this.importInput}
