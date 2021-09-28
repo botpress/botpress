@@ -1,3 +1,4 @@
+import axios from 'axios'
 import moment = require('moment')
 import { Dialog, ElementHandle, HttpMethod, MouseButtons, Page } from 'puppeteer'
 
@@ -168,4 +169,29 @@ export const getTime = () => {
   const timeFormat = 'HH:mm:ss.SSS'
   const time = moment().format(timeFormat)
   return time
+}
+
+export const waitForHost = async (host: string) => {
+  return new Promise(async (resolve, reject) => {
+    const timeout = 1000
+
+    const loop = async () => {
+      // Should be Okay since jest uses an internal timeout
+      while (true) {
+        axios
+          .options(host, { timeout })
+          .then(() => {
+            return resolve()
+          })
+          .catch(() => {
+            // Silently fail
+          })
+
+        // wait 1 second between calls
+        await new Promise(resolve => setTimeout(resolve, timeout))
+      }
+    }
+
+    await loop()
+  })
 }
