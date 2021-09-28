@@ -34,7 +34,7 @@ jobs:
           NODE_OPTIONS="--max-old-space-size=6000" yarn build
       - name: Run Tests
         run: |
-          yarn start & sleep 5s &&
+          yarn start &
           HEADLESS=true BP_LICENSE_KEY=${{ secrets.BP_LICENSE_KEY }} JEST_TIMEOUT=30000 yarn itest
       - name: Upload Screenshots
         uses: actions/upload-artifact@master

@@ -219,7 +219,10 @@ export const waitForHost = async (host: string) => {
           })
 
         // wait 1 second between calls
-        await new Promise(resolve => setTimeout(resolve, timeout))
+        await new Promise(resolve => {
+          const timeoutHandle = setTimeout(resolve, timeout)
+          clearTimeout(timeoutHandle)
+        })
       }
     }
 

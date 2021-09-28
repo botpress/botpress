@@ -1,7 +1,7 @@
 import { Page } from 'puppeteer'
 
 import { bpConfig } from '../jest-puppeteer.config'
-import { getPage } from './utils'
+import { getPage, waitForHost } from './utils'
 
 const test = {
   auth: './admin/auth.test',
@@ -40,12 +40,14 @@ const studioTests = [test.login, ...studio, test.logout]
 const adminTests = [test.login, ...admin, test.logout]
 
 // Custom pipeline when testing a  specific part
-const customTest = [test.auth]
+const customTest = [test.login, ...studio, ...modules, test.logout]
 
 describe('Integration Tests', () => {
   let page: Page
 
   beforeAll(async () => {
+    await waitForHost(bpConfig.host)
+
     page = await getPage()
     await page.goto(bpConfig.host)
     await page.evaluate(() => {
