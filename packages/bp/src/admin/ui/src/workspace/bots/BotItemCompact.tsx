@@ -14,17 +14,19 @@ import {
 import { BotConfig, ModuleDefinition } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
-import { intersection } from 'lodash'
-import { FC } from 'react'
+import _ from 'lodash'
+import React, { FC } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 import AccessControl, { isChatUser, isOperationAllowed } from '~/auth/AccessControl'
+import { NeedsTrainingWarning } from './NeedsTrainingWarning'
 import style from './style.scss'
 import { WorkspaceAppItems } from './WorkspaceAppItems'
 
 interface Props {
   bot: BotConfig
   hasError: boolean
+  installedNLULanguages: string[]
   loadedModules: ModuleDefinition[]
   deleteBot?: () => void
   exportBot?: () => void
@@ -38,6 +40,9 @@ const BotItemCompact: FC<Props> = props => {
   const botShortLink = `${window.location.origin + window['ROOT_PATH']}/s/${props.bot.id}`
   const botStudioLink = isChatUser() ? botShortLink : `studio/${props.bot.id}`
   const hasStudioAccess = isOperationAllowed({ resource: 'studio', operation: 'read' })
+
+  const uninstalledLanguages = _.difference(props.bot.languages, props.installedNLULanguages)
+  const botHasUninstalledNLULanguages = !!uninstalledLanguages.length
 
   return (
     <div className={cx('bp_table-row', style.tableRow)} key={props.bot.id}>
@@ -146,6 +151,21 @@ const BotItemCompact: FC<Props> = props => {
           <a href={botStudioLink}>{props.bot.name || props.bot.id}</a>
         ) : (
           <span>{props.bot.name || props.bot.id}</span>
+        )}
+
+        <AccessControl resource="module.nlu" operation="write">
+          {<NeedsTrainingWarning bot={props.bot.id} languages={props.bot.languages} />}
+        </AccessControl>
+
+        {botHasUninstalledNLULanguages && (
+          <Tooltip
+            position="right"
+            content={lang.tr('admin.workspace.bots.item.enableNLULanguages', {
+              languages: uninstalledLanguages.join(',')
+            })}
+          >
+            <Icon icon="translate" intent={Intent.DANGER} style={{ marginLeft: 10 }} />
+          </Tooltip>
         )}
 
         {props.bot.disabled && (
