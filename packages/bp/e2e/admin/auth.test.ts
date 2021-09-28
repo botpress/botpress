@@ -3,7 +3,7 @@ import axios from 'axios'
 import authConfig from '../assets/auth-config'
 import { bpConfig } from '../../jest-puppeteer.config'
 import { clickOn, fillField } from '../expectPuppeteer'
-import { getResponse, doesElementExist, expectCallSuccess, waitForHost } from '../utils'
+import { getResponse, doesElementExist, waitForHost, loginOrRegister, logout } from '../utils'
 import { BotpressConfig } from '../../src/core/config/botpress.config'
 
 const getHeaders = (token: string) => ({
@@ -56,16 +56,12 @@ describe('Auth UI', () => {
   })
 
   it('Enter credentials and submit', async () => {
-    await fillField('#email', bpConfig.email)
-    await fillField('#password', bpConfig.password)
+    await loginOrRegister()
 
     let url: string
     if (page.url().includes('/register')) {
-      await fillField('#confirmPassword', bpConfig.password)
-      await clickOn('#btn-register')
       url = `${bpConfig.apiHost}/api/v2/admin/auth/register/basic/default`
     } else {
-      await clickOn('#btn-signin')
       url = `${bpConfig.apiHost}/api/v2/admin/auth/login/basic/default`
     }
 
@@ -102,7 +98,7 @@ describe('Auth UI', () => {
     expect(saveFileResp.status).toEqual(200)
 
     // Redirect to avoid frontend errors during server reboot
-    await page.goto('chrome://about/')
+    await page.goto('https://google.com')
 
     // Reboot is required after adding auth strategies
     const rebootResp = await axios.post(`${bpConfig.apiHost}/api/v2/admin/management/rebootServer`, undefined, headers)
@@ -111,9 +107,7 @@ describe('Auth UI', () => {
     await waitForHost(bpConfig.apiHost)
     await page.goto(`${bpConfig.host}`)
 
-    await clickOn('#btn-menu')
-    await clickOn('#btn-logout')
-    await getResponse('/api/v2/admin/auth/logout', 'POST')
+    await logout()
   })
 
   it('Preview non-hidden auth strategies', async () => {
@@ -139,8 +133,6 @@ describe('Auth UI', () => {
     )
     expect(saveFileResp.status).toEqual(200)
 
-    await clickOn('#btn-menu')
-    await clickOn('#btn-logout')
-    await getResponse('/api/v2/admin/auth/logout', 'POST')
+    await logout()
   })
 })

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import moment = require('moment')
+import moment from 'moment'
 import { Dialog, ElementHandle, HttpMethod, MouseButtons, Page } from 'puppeteer'
 
 import { bpConfig } from '../jest-puppeteer.config'
@@ -19,13 +19,26 @@ export const getPage = async (): Promise<Page> => {
   return page
 }
 
-export const loginIfNeeded = async () => {
-  if (page.url().includes('login')) {
-    await fillField('#email', bpConfig.email)
-    await fillField('#password', bpConfig.password)
+export const loginOrRegister = async () => {
+  await fillField('#email', bpConfig.email)
+  await fillField('#password', bpConfig.password)
+
+  if (page.url().includes('/register')) {
+    await fillField('#confirmPassword', bpConfig.password)
+    await clickOn('#btn-register')
+  } else {
     await clickOn('#btn-signin')
-    return page.waitForNavigation()
   }
+}
+
+export const logout = async () => {
+  await clickOn('#btn-menu')
+  await clickOn('#btn-logout')
+
+  const response = await getResponse('/api/v2/admin/auth/logout', 'POST')
+  expect(response.status()).toBe(200)
+
+  await page.waitForNavigation()
 }
 
 export const gotoStudio = async (section?: string) => {

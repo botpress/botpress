@@ -9,7 +9,7 @@ import {
   expectAdminApiCallSuccess,
   expectModuleApiCallSuccess,
   gotoAndExpect,
-  loginIfNeeded,
+  loginOrRegister,
   triggerKeyboardShortcut
 } from '../utils'
 
@@ -25,18 +25,21 @@ describe('Admin - Bot Management', () => {
   }
 
   beforeAll(async () => {
-    await loginIfNeeded()
+    await loginOrRegister()
     await gotoAndExpect(`${bpConfig.host}/admin/workspace/${workspaceId}/bots`)
   })
 
   it('Import bot from archive', async () => {
-    await page.waitFor(200)
+    await page.waitForSelector('#btn-create-bot')
     await clickOn('#btn-create-bot')
-    await page.waitFor(100)
+
+    await page.waitForSelector('#btn-import-bot')
     await clickOn('#btn-import-bot')
+
     await fillField('#input-botId', importBotId)
     await uploadFile('input[type="file"]', path.join(__dirname, '../assets/bot-import-test.tgz'))
     await clickOn('#btn-upload')
+
     await expectAdminApiCallSuccess(`workspace/bots/${importBotId}/import`, 'POST')
   })
 
