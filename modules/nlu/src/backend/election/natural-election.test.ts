@@ -25,15 +25,6 @@ describe('naturalElection', () => {
       expect(result).toStrictEqual(input)
     })
 
-    it("should return input directly if the 'intents' property of the prediction 'context' property is nil", () => {
-      const input = fakeEventUnderstanding({
-        predictions: { contextA: { intents: undefined, confidence: 1, oos: 1 } },
-        intent: { confidence: 1, context: 'contextA', name: 'name' }
-      })
-      const result = extractElectedIntentSlot(input)
-      expect(result).toStrictEqual(input)
-    })
-
     it("should return input with an empty 'slots' object if no labels within the 'intents' array match the 'intent' name", () => {
       const input = fakeEventUnderstanding({
         predictions: {
