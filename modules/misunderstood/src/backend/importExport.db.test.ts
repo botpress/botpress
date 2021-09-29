@@ -158,6 +158,7 @@ createDatabaseSuite('Misunderstood - import / export', (database: Database) => {
           preview: 'msg3'
         }
       ])
+
       expect(data).toBe(undefined)
       expect(mockGhost.upsertFile).toHaveBeenCalledTimes(9)
       expect(mockGhost.upsertFile).toHaveBeenNthCalledWith(
@@ -182,6 +183,9 @@ createDatabaseSuite('Misunderstood - import / export', (database: Database) => {
           2
         )
       )
+
+      const events = await db.listEvents('bot', 'en', FLAGGED_MESSAGE_STATUS.applied)
+      expect(events).toHaveLength(3)
     })
   })
 

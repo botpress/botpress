@@ -135,9 +135,15 @@ export default class Db {
       throw new Error(`Bot is missing the following intents or QnAs: ${missing.join(', ')}`)
     }
 
-    // import data into bot
+    // import data into bot QnA / NLU
     await Bluebird.mapSeries(qnaEvents, async ev => addQnA(ev as DbFlaggedEvent, botGhost))
     await Bluebird.mapSeries(nluEvents, async ev => addNLU(ev as DbFlaggedEvent, botGhost))
+
+    // import data into misunderstood DB
+    for (let ev of events) {
+      ev.botId = botId // overwrite the exported botId with the current botId
+      await this.addEvent(ev)
+    }
 
     return
   }

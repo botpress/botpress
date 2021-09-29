@@ -343,6 +343,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
         }
 
         toast.success(lang.tr('module.misunderstood.fileImportedSuccess'))
+        this.setEventsStatus(this.state.selectedStatus)
       }
       reader.readAsText(file)
     } catch (err) {
@@ -388,23 +389,6 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
       <Container sidePanelWidth={320}>
         <SidePanel style={{ overflowY: 'hidden' }}>
           <div className={style.filterContainer}>
-            <Button onClick={this.clickImportData}>Import</Button>
-            <Button
-              disabled={this.state.eventCounts ? !this.state.eventCounts[FLAGGED_MESSAGE_STATUS.applied] : true}
-              onClick={this.exportData}
-            >
-              Export Applied
-            </Button>
-            <input
-              style={{ display: 'none' }}
-              ref={this.importInput}
-              type={'file'}
-              disabled={false}
-              onChange={(ev) => this.importData(ev.target)}
-              accept={'application/json'}
-            />
-          </div>
-          <div className={style.filterContainer}>
             <Button
               className={(this.state.reason === FLAG_REASON.auto_hook && 'selected') || ''}
               onClick={() => this.handleReasonChange(FLAG_REASON.auto_hook)}
@@ -417,6 +401,23 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
             >
               {lang.tr('module.misunderstood.qnaThumbsDown').toUpperCase()}
             </Button>
+          </div>
+          <div className={style.filterContainer}>
+            <Button onClick={this.clickImportData}>{lang.tr('module.misunderstood.import')}</Button>
+            <Button
+              disabled={this.state.eventCounts ? !this.state.eventCounts[FLAGGED_MESSAGE_STATUS.applied] : true}
+              onClick={this.exportData}
+            >
+              {lang.tr('module.misunderstood.export')}
+            </Button>
+            <input
+              style={{ display: 'none' }}
+              ref={this.importInput}
+              type={'file'}
+              disabled={false}
+              onChange={(ev) => this.importData(ev.target)}
+              accept={'application/json'}
+            />
           </div>
           <Popover usePortal={true} position={'bottom-right'}>
             <Button icon="calendar" className={style.filterItem}>
