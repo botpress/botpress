@@ -12,10 +12,10 @@ export function fakeEventUnderstanding(x?: Partial<EventUnderstanding>): EventUn
     ms: 1,
     ambiguous: false,
     entities: [],
-    intent: { confidence: 1, context: 'context', name: 'name' },
+    intent: { confidence: 1, context: 'context', name: 'name', ...x?.intent },
     intents: [],
-    predictions: {},
-    slots: {},
+    predictions: { ...x?.predictions },
+    slots: { ...x?.slots },
     spellChecked: 'spellChecked',
     ...x
   }
