@@ -6,6 +6,8 @@ import { ConverseRouter, ConverseService } from 'core/converse'
 import { EventRepository } from 'core/events'
 import { MediaServiceProvider } from 'core/media'
 import { MessagingBotRouter } from 'core/messaging'
+import { NLUInferenceService } from 'core/nlu'
+import { NLUInferenceRouter } from 'core/nlu/nlu-inference-router'
 import { QnaRouter, QnaService } from 'core/qna'
 import { disableForModule } from 'core/routers'
 import {
@@ -32,6 +34,7 @@ export class BotsRouter extends CustomRouter {
   private converseRouter: ConverseRouter
   private messagingRouter: MessagingBotRouter
   private qnaRouter: QnaRouter
+  private nluInferenceRouter: NLUInferenceRouter
 
   constructor(
     private botService: BotService,
@@ -43,6 +46,7 @@ export class BotsRouter extends CustomRouter {
     private mediaServiceProvider: MediaServiceProvider,
     private eventRepo: EventRepository,
     private qnaService: QnaService,
+    private nluInferenceService: NLUInferenceService,
     private httpServer: HTTPServer
   ) {
     super('Bots', logger, Router({ mergeParams: true }))
@@ -60,6 +64,12 @@ export class BotsRouter extends CustomRouter {
     )
     this.messagingRouter = new MessagingBotRouter(this.logger, this.authService, this.eventRepo)
     this.qnaRouter = new QnaRouter(this.logger, this.authService, this.workspaceService, this.qnaService)
+    this.nluInferenceRouter = new NLUInferenceRouter(
+      this.logger,
+      this.authService,
+      this.workspaceService,
+      this.nluInferenceService
+    )
   }
 
   async setupRoutes(app: express.Express) {
@@ -69,6 +79,7 @@ export class BotsRouter extends CustomRouter {
     this.router.use('/converse', this.converseRouter.router)
     this.router.use('/messaging', this.messagingRouter.router)
     this.router.use('/qna', this.qnaRouter.router)
+    this.router.use('/nlu', this.nluInferenceRouter.router)
 
     this.router.get(
       '/media/:filename',

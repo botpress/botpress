@@ -10,14 +10,22 @@ import yn from 'yn'
 import legacyElection from './election/legacy-election'
 import naturalElection from './election/natural-election'
 import pickSpellChecked from './election/spellcheck-handler'
+import { BotNotMountedError } from './errors'
 import { NLUClientProvider } from './nlu-client'
 import { Predictor } from './predictor'
 
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
 const PREDICT_MW = 'nlu-predict.incoming'
 
+interface PredictionArgs {
+  utterance: string
+  includedContexts: string[]
+  skipSpellcheck?: boolean
+  language?: string
+}
+
 /**
- * This service takes care of the nlu inferences/predictions
+ * This service takes care of the nlu inferences (predictions)
  *
  * It belongs in the runtime and only in the runtime.
  * It is not responsible for CRUD on intent and entity files.
@@ -80,6 +88,31 @@ export class NLUInferenceService {
     delete this.predictors[botId]
   }
 
+  public async predict(botId: string, args: PredictionArgs): Promise<IO.EventUnderstanding> {
+    const bot = this.predictors[botId]
+    if (!bot) {
+      throw new BotNotMountedError(botId)
+    }
+
+    const { includedContexts, utterance, language } = args
+    const skipSpellcheck: boolean = args.skipSpellcheck ?? yn(process.env.NLU_SKIP_SPELLCHECK)
+    const t0 = Date.now()
+
+    const predOutput = await bot.predict(utterance, language)
+
+    const appendTime = <T>(eu: T) => ({ ...eu, ms: Date.now() - t0 })
+
+    let nluResults = { ...predOutput, includedContexts }
+    if (nluResults.spellChecked && nluResults.spellChecked !== utterance && !skipSpellcheck) {
+      const predOutput = await bot.predict(nluResults.spellChecked, language)
+      const spellCheckedResults = { ...predOutput, includedContexts }
+      nluResults = pickSpellChecked(appendTime(nluResults), appendTime(spellCheckedResults))
+    }
+
+    const electionInput = appendTime(nluResults)
+    return this.legacyElection ? legacyElection(electionInput) : naturalElection(electionInput)
+  }
+
   private _modelIdGetter = (botId: string) => async (): Promise<Dic<string>> => {
     // TODO: implement some caching to prevent from reading bot config at each predict
     const botConfig = await this.configProvider.getBotConfig(botId)
@@ -95,30 +128,15 @@ export class NLUInferenceService {
     try {
       const { botId, preview } = incomingEvent
       const anticipatedLanguage: string | undefined = incomingEvent.state.user?.language
-
-      const bot = this.predictors[botId]
-      if (!bot) {
-        const err = new Error(`No predictor found for bot "${botId}" in nlu service.`)
-        return next(err)
-      }
-
-      const t0 = Date.now()
-
-      const predOutput = await bot.predict(preview, anticipatedLanguage)
       const includedContexts = incomingEvent.nlu?.includedContexts ?? []
 
-      const appendTime = <T>(eu: T) => ({ ...eu, ms: Date.now() - t0 })
+      const nlu: IO.EventUnderstanding = await this.predict(botId, {
+        utterance: preview,
+        includedContexts,
+        language: anticipatedLanguage
+      })
 
-      let nluResults = { ...predOutput, includedContexts }
-      if (nluResults.spellChecked && nluResults.spellChecked !== preview && !yn(process.env.NLU_SKIP_SPELLCHECK)) {
-        const predOutput = await bot.predict(nluResults.spellChecked, anticipatedLanguage)
-        const spellCheckedResults = { ...predOutput, includedContexts }
-        nluResults = pickSpellChecked(appendTime(nluResults), appendTime(spellCheckedResults))
-      }
-
-      const electionInput = appendTime(nluResults)
-      const postElection = this.legacyElection ? legacyElection(electionInput) : naturalElection(electionInput)
-      _.merge(incomingEvent, { nlu: postElection })
+      _.merge(incomingEvent, { nlu })
       this.removeSensitiveText(incomingEvent)
     } catch (err) {
       this.logger.warn(`Error extracting metadata for incoming text: ${err.message}`)
@@ -150,9 +168,5 @@ export class NLUInferenceService {
       EVENTS_TO_IGNORE.includes(event.type) ||
       event.hasFlag(WellKnownFlags.SKIP_NATIVE_NLU)
     )
-  }
-
-  private _isIncoming = (e: IO.Event): e is IO.IncomingEvent => {
-    return e.direction === 'incoming'
   }
 }
