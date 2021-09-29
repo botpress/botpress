@@ -54,5 +54,5 @@ describe('Integration Tests', () => {
   })
 
   // Change this to test a different pipeline
-  adminTests.map(x => require(x))
+  allTests.map(x => require(x))
 })
