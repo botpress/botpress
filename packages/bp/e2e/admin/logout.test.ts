@@ -1,6 +1,6 @@
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 
-import { bpConfig } from '../../jest-puppeteer.config'
+import { bpConfig } from '../jest-puppeteer.config'
 import { clickOn, expectMatchElement } from '../expectPuppeteer'
 import { CONFIRM_DIALOG, expectAdminApiCallSuccess, getResponse, gotoAndExpect } from '../utils'
 
@@ -41,7 +41,7 @@ describe('Admin - Logout', () => {
 
       profileStatus = status
     } catch (err) {
-      profileStatus = err.response.status
+      profileStatus = (err as AxiosError).response?.status
     }
 
     await expect(profileStatus).toBe(401)

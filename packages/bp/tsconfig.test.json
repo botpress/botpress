@@ -1,7 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "allowJs": true,
-    "types": ["reflect-metadata", "jest", "puppeteer", "jest-environment-puppeteer", "expect-puppeteer"]
-  }
-}

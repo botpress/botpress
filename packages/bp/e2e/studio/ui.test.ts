@@ -1,4 +1,4 @@
-import { bpConfig } from '../../jest-puppeteer.config'
+import { bpConfig } from '../jest-puppeteer.config'
 import { clickOn, expectMatch } from '../expectPuppeteer'
 import { expectBotApiCallSuccess, gotoAndExpect, loginIfNeeded, triggerKeyboardShortcut } from '../utils'
 
@@ -25,7 +25,7 @@ describe('Studio - UI', () => {
       await page.focus('#mainLayout')
       await triggerKeyboardShortcut('KeyJ', true)
       const bottomPanel = await page.$('div[data-tab-id="debugger"]')
-      expect(await bottomPanel.isIntersectingViewport()).toBe(true)
+      expect(await bottomPanel!.isIntersectingViewport()).toBe(true)
       await triggerKeyboardShortcut('KeyJ', true)
     })
   }
@@ -34,7 +34,7 @@ describe('Studio - UI', () => {
     await page.focus('#mainLayout')
     await clickOn('#toggle-bottom-panel')
     const bottomPanel = await page.$('div[data-tab-id="debugger"]')
-    expect(await bottomPanel.isIntersectingViewport()).toBe(true)
+    expect(await bottomPanel!.isIntersectingViewport()).toBe(true)
     await clickOn('#toggle-bottom-panel')
   })
 

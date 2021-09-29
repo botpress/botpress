@@ -1,7 +1,7 @@
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import path from 'path'
 
-import { bpConfig } from '../../jest-puppeteer.config'
+import { bpConfig } from '../jest-puppeteer.config'
 import { clickOn, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
 import {
   closeToaster,
@@ -137,7 +137,7 @@ describe('Admin - Bot Management', () => {
       const resp = await axios.post(`${bpConfig.apiHost}/api/v1/bots/${bpConfig.botId}/converse/test`)
       status = resp.status
     } catch (err) {
-      status = err.response.status
+      status = (err as AxiosError).response?.status
     }
 
     expect(status).toEqual(403)

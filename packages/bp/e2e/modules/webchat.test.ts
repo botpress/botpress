@@ -1,17 +1,11 @@
 import { Page } from 'puppeteer'
 
-import { bpConfig } from '../../jest-puppeteer.config'
+import { bpConfig } from '../jest-puppeteer.config'
 import { clickOn, expectMatch, fillField } from '../expectPuppeteer'
 import { getPage, gotoAndExpect } from '../utils'
 
 const getMessageCount = async (page: Page): Promise<number> => {
   return (await page.$$('.bpw-chat-bubble')).length
-}
-
-const getLastMessage = async (page: Page): Promise<string> => {
-  const messages = await page.$$('.bpw-chat-bubble >div:last-child')
-  const jsHandle = await messages[0].getProperty('innerText')
-  return jsHandle.jsonValue()
 }
 
 describe('Module - Channel Web', () => {

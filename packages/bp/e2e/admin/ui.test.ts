@@ -1,6 +1,6 @@
 import path from 'path'
 
-import { bpConfig } from '../../jest-puppeteer.config'
+import { bpConfig } from '../jest-puppeteer.config'
 import { clickOn, expectMatch, fillField, uploadFile } from '../expectPuppeteer'
 import { closeToaster, expectAdminApiCallSuccess, expectCallSuccess, getResponse } from '../utils'
 
@@ -32,7 +32,7 @@ describe('Admin - UI', () => {
     await Promise.all([expectCallSuccess(`${bpConfig.host}/api/v2/admin/user/profile`, 'POST'), clickOn('#btn-submit')])
     await closeToaster()
     const src = await page.$eval('img.dropdown-picture', img => img.getAttribute('src'))
-    expect(src.includes(url)).toBeTrue
+    expect(src?.includes(url)).toBeTruthy
     await clickOn('#btn-menu')
     await expectMatch('Signed in as Bob Lalancette')
     await clickOn('#btn-menu')

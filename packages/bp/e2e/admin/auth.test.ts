@@ -1,6 +1,6 @@
 import axios from 'axios'
 import * as config from '../assets/auth-config.json'
-import { bpConfig } from '../../jest-puppeteer.config'
+import { bpConfig } from '../jest-puppeteer.config'
 import { clickOn, fillField } from '../expectPuppeteer'
 import { getResponse, doesElementExist } from '../utils'
 
@@ -39,11 +39,11 @@ describe('Auth UI', () => {
       await fillField('#confirmPassword', bpConfig.password)
       await clickOn('#btn-register')
       const response = await getResponse(`${bpConfig.apiHost}/api/v2/admin/auth/register/basic/default`, 'POST')
-      jwt = (await response.json()).payload.jwt
+      jwt = ((await response.json()) as any).payload.jwt
     } else {
       await clickOn('#btn-signin')
       const response = await getResponse(`${bpConfig.apiHost}/api/v2/admin/auth/login/basic/default`, 'POST')
-      jwt = (await response.json()).payload.jwt
+      jwt = ((await response.json()) as any).payload.jwt
     }
   })
 
@@ -72,8 +72,8 @@ describe('Auth UI', () => {
     content.pro.licenseKey = bpConfig.licenseKey
     content.pro.enabled = true
     content.pro.externalAuth.enabled = true
-    content.pro.collaboratorsAuthStrategies = config.default.pro.collaboratorsAuthStrategies
-    content.authStrategies = config.default.authStrategies
+    content.pro.collaboratorsAuthStrategies = (config as any).default.pro.collaboratorsAuthStrategies
+    content.authStrategies = (config as any).default.authStrategies
     const resp2 = await axios.post(
       `${bpConfig.apiHost}/api/v1/bots/___/mod/code-editor/save`,
       request_body(JSON.stringify(content)),
@@ -104,7 +104,7 @@ describe('Auth UI', () => {
     await fillField('#password', bpConfig.password)
     await clickOn('#btn-signin')
     const response = await getResponse(`${bpConfig.apiHost}/api/v2/admin/auth/login/basic/default`, 'POST')
-    jwt = (await response.json()).payload.jwt
+    jwt = ((await response.json()) as any).payload.jwt
     const headers = {
       headers: {
         Authorization: `Bearer ${jwt}`

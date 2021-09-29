@@ -1,9 +1,9 @@
-import moment = require('moment')
-import { Dialog, ElementHandle, HttpMethod, MouseButtons } from 'puppeteer'
+import moment from 'moment'
+import { Dialog, ElementHandle, HttpMethod, MouseButtons, Page } from 'puppeteer'
 
 import { bpConfig } from '../jest-puppeteer.config'
 
-import { clickOn, expectMatchElement, fillField } from './expectPuppeteer'
+import { clickOn, expectMatchElement, fillField } from '../expectPuppeteer'
 
 export const getPage = async (): Promise<Page> => {
   await page.setViewport(bpConfig.windowSize)
@@ -13,7 +13,6 @@ export const getPage = async (): Promise<Page> => {
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3419.0 Safari/537.36'
   )
 
-  // @ts-ignore
   global.page = page
   return page
 }
@@ -112,7 +111,7 @@ export const autoAnswerDialog = (promptText?: string, repeat?: boolean) => {
 
 export const getElementCenter = async (element: ElementHandle): Promise<{ x: number; y: number }> => {
   const box = await element.boundingBox()
-  return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+  return { x: box!.x + box!.width / 2, y: box!.y + box!.height / 2 }
 }
 
 export const triggerKeyboardShortcut = async (key: string, holdCtrl?: boolean) => {
@@ -136,7 +135,7 @@ export const clickOnTreeNode = async (searchText: string, button: MouseButtons =
 export const closeToaster = async () => {
   await clickOn("svg[data-icon='cross']")
   await page.waitForFunction(() => {
-    return document.querySelector('.bp3-overlay').childElementCount === 0
+    return document.querySelector('.bp3-overlay')!.childElementCount === 0
   })
   await page.waitFor(500)
 }

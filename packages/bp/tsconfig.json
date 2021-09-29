@@ -16,15 +16,16 @@
     "typeRoots": ["./src/typings", "../../node_modules/@types", "./src/common"],
     "types": ["reflect-metadata", "jest"]
   },
+  "include": ["src"],
   "exclude": [
-    "e2e/**",
-    "**/*.__test__.(ts|js)",
     "dist",
     "out",
     "**/node_modules/**/*.(ts|js)",
-    "**/static/**/*.(js|ts)",
-    "**/ui-shared/**/*",
+    "src/**/*.test.*",
+    "src/**/static/**/*",
     "src/admin/ui/**/*",
-    "src/ui-lite/**/*"
+    "src/ui-lite/**/*",
+    "src/ui-shared/**/*",
+    "src/ui-shared-lite/**/*"
   ]
 }
