@@ -88,7 +88,7 @@ export class NLUInferenceService {
     delete this.predictors[botId]
   }
 
-  public async predict(botId: string, args: PredictionArgs) {
+  public async predict(botId: string, args: PredictionArgs): Promise<IO.EventUnderstanding> {
     const bot = this.predictors[botId]
     if (!bot) {
       throw new BotNotMountedError(botId)
@@ -130,7 +130,7 @@ export class NLUInferenceService {
       const anticipatedLanguage: string | undefined = incomingEvent.state.user?.language
       const includedContexts = incomingEvent.nlu?.includedContexts ?? []
 
-      const nlu = this.predict(botId, {
+      const nlu: IO.EventUnderstanding = await this.predict(botId, {
         utterance: preview,
         includedContexts,
         language: anticipatedLanguage
