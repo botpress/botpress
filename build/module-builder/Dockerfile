@@ -24,6 +24,4 @@ COPY --from=builder ./botpress/modules/tsconfig.shared.json ./modules/tsconfig.s
 COPY --from=builder ./botpress/node_modules ./node_modules
 COPY --from=builder ./botpress/packages ./packages
 
-RUN yarn --frozen-lockfile --prod
-
 CMD [ "echo", "-e", "Which module would you like to build?\nUse sh -c 'cd modules/your-module && yarn && yarn build && yarn package'" ]
