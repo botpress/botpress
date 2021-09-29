@@ -10,7 +10,7 @@ module.exports = {
       displayName: 'botpress',
       globals: {
         'ts-jest': {
-          tsConfig: '<rootDir>/packages/bp/tsconfig.test.json',
+          tsConfig: '<rootDir>/packages/bp/tsconfig.json',
           diagnostics: false
         }
       },
