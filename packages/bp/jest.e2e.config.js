@@ -7,7 +7,7 @@ module.exports = {
     }
   },
   globalSetup: 'jest-environment-puppeteer/setup',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   collectCoverage: false,
   resetModules: true,
   modulePaths: ['<rootDir>/src/bp/'],
