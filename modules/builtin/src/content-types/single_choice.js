@@ -2,7 +2,7 @@ const base = require('./_base')
 const utils = require('./_utils')
 
 function renderElement(data, channel) {
-  const noBubble = data.text === undefined || data.text.trim() === ''
+  const noBubble = data.text === undefined
   return {
     ...utils.extractPayload('single-choice', data),
     noBubble,
