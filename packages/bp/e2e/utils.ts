@@ -1,5 +1,5 @@
 import moment = require('moment')
-import { Dialog, ElementHandle, HttpMethod, MouseButtons, Page } from 'puppeteer'
+import { Dialog, ElementHandle, HttpMethod, MouseButtons } from 'puppeteer'
 
 import { bpConfig } from '../jest-puppeteer.config'
 
