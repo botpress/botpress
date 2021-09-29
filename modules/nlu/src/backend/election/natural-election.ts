@@ -62,12 +62,7 @@ export function extractElectedIntentSlot(input: sdk.IO.EventUnderstanding): sdk.
     return input
   }
 
-  const electedContextIntents = electedContext.intents
-  if (isNil(electedContextIntents)) {
-    return input
-  }
-
-  const electedIntent = electedContextIntents.find(i => i.label === elected.name)
+  const electedIntent = electedContext.intents.find(i => i.label === elected.name)
   if (isNil(electedIntent)) {
     return { ...input, slots: {} }
   }
