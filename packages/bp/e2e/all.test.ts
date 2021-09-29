@@ -1,6 +1,6 @@
 import { Page } from 'puppeteer'
 
-import { bpConfig } from './jest-puppeteer.config'
+import { bpConfig } from './assets/config'
 import { getPage } from './utils'
 
 const test = {
@@ -40,7 +40,7 @@ const studioTests = [test.login, ...studio, test.logout]
 const adminTests = [test.login, ...admin, test.logout]
 
 // Custom pipeline when testing a  specific part
-const customTest = [test.login, ...studio, ...modules, test.logout]
+const customTest = [test.auth, test.login, ...admin, test.logout]
 
 describe('Integration Tests', () => {
   let page: Page
@@ -54,5 +54,5 @@ describe('Integration Tests', () => {
   })
 
   // Change this to test a different pipeline
-  allTests.map(x => require(x))
+  customTest.map(x => require(x))
 })

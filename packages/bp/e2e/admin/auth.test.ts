@@ -1,6 +1,6 @@
 import axios from 'axios'
 import * as config from '../assets/auth-config.json'
-import { bpConfig } from '../jest-puppeteer.config'
+import { bpConfig } from '../assets/config'
 import { clickOn, fillField } from '../expectPuppeteer'
 import { getResponse, doesElementExist } from '../utils'
 

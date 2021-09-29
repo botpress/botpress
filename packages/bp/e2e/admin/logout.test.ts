@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios'
 
-import { bpConfig } from '../jest-puppeteer.config'
+import { bpConfig } from '../assets/config'
 import { clickOn, expectMatchElement } from '../expectPuppeteer'
 import { CONFIRM_DIALOG, expectAdminApiCallSuccess, getResponse, gotoAndExpect } from '../utils'
 

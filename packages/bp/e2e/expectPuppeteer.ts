@@ -1,7 +1,6 @@
 import expectp from 'expect-puppeteer'
 import { ElementHandle, Page } from 'puppeteer'
 
-// @ts-ignore Typings doesn't include that method, but we want to leave enough time to process queries
 expectp.setDefaultOptions({ timeout: 5000 })
 
 /**

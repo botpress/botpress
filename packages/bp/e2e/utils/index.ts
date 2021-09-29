@@ -1,9 +1,10 @@
 import moment from 'moment'
-import { Dialog, ElementHandle, HttpMethod, MouseButtons, Page } from 'puppeteer'
+import { Dialog, ElementHandle, KeyInput, MouseButton, Page } from 'puppeteer'
 
-import { bpConfig } from '../jest-puppeteer.config'
-
+import { bpConfig } from '../assets/config'
 import { clickOn, expectMatchElement, fillField } from '../expectPuppeteer'
+
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'OPTIONS'
 
 export const getPage = async (): Promise<Page> => {
   await page.setViewport(bpConfig.windowSize)
@@ -13,6 +14,7 @@ export const getPage = async (): Promise<Page> => {
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3419.0 Safari/537.36'
   )
 
+  // @ts-ignore
   global.page = page
   return page
 }
@@ -114,7 +116,7 @@ export const getElementCenter = async (element: ElementHandle): Promise<{ x: num
   return { x: box!.x + box!.width / 2, y: box!.y + box!.height / 2 }
 }
 
-export const triggerKeyboardShortcut = async (key: string, holdCtrl?: boolean) => {
+export const triggerKeyboardShortcut = async (key: KeyInput, holdCtrl?: boolean) => {
   //not supported yet by puppetter
   // const ctrlKey = process.platform == 'darwin' ? 'Meta' : 'Control'
   const ctrlKey = 'Control'
@@ -127,7 +129,7 @@ export const triggerKeyboardShortcut = async (key: string, holdCtrl?: boolean) =
   }
 }
 
-export const clickOnTreeNode = async (searchText: string, button: MouseButtons = 'left'): Promise<void> => {
+export const clickOnTreeNode = async (searchText: string, button: MouseButton = 'left'): Promise<void> => {
   const element = await expectMatchElement('.bp3-tree-node-content', { text: searchText })
   await clickOn('.bp3-tree-node-label', { button }, element)
 }

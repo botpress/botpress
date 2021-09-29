@@ -1,4 +1,4 @@
-import { bpConfig } from '../jest-puppeteer.config'
+import { bpConfig } from '../assets/config'
 import { clickOn, expectMatch } from '../expectPuppeteer'
 import { expectBotApiCallSuccess, gotoAndExpect, loginIfNeeded, triggerKeyboardShortcut } from '../utils'
 

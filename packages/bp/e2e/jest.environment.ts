@@ -1,10 +1,11 @@
-const PuppeteerEnvironment = require('jest-environment-puppeteer')
-const path = require('path')
+import { Event, State } from 'jest-circus'
+import PuppeteerEnvironment from 'jest-environment-puppeteer'
+import path from 'path'
 
 class CustomEnvironment extends PuppeteerEnvironment {
   savePath = path.join(__dirname, '../../../', 'build/tests/e2e/screenshots')
 
-  async handleTestEvent(event, _state) {
+  async handleTestEvent(event: Event, _state: State) {
     if (event.name === 'test_fn_failure') {
       const filename = path.format({ dir: this.savePath, name: event.test.name, ext: '.png' })
 

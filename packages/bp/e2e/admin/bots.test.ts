@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios'
 import path from 'path'
 
-import { bpConfig } from '../jest-puppeteer.config'
+import { bpConfig } from '../assets/config'
 import { clickOn, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
 import {
   closeToaster,
