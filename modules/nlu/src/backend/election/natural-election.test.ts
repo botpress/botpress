@@ -61,7 +61,7 @@ describe('naturalElection', () => {
         intent: { confidence: 1, context: 'contextA', name: 'name' }
       })
       const result = extractElectedIntentSlot(input)
-      expect(result).toStrictEqual({ ...input, slots: slot })
+      expect(result).toStrictEqual({ ...input, slots: [slot] })
     })
   })
 })
