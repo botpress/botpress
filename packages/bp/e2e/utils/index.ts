@@ -5,8 +5,6 @@ import { windowSize } from '../../../../jest-puppeteer.config'
 import { bpConfig } from '../assets/config'
 import { clickOn, expectMatchElement, fillField } from './expectPuppeteer'
 
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'OPTIONS'
-
 export const getPage = async (): Promise<Page> => {
   await page.setViewport(windowSize)
   await page.setExtraHTTPHeaders({ 'Accept-Language': 'en-US,en;q=0.9' })
@@ -41,7 +39,7 @@ export const gotoAndExpect = async (url: string, matchUrl?: string) => {
   await expect(page.url()).toMatch(matchUrl || url)
 }
 
-export const getResponse = async (url: string, method?: HttpMethod) => {
+export const getResponse = async (url: string, method?: string) => {
   return page.waitForResponse(res => {
     const resUrl = res.url()
     console.info(`url: ${url}, resUrl: ${resUrl}`)
@@ -49,13 +47,13 @@ export const getResponse = async (url: string, method?: HttpMethod) => {
   })
 }
 
-export const expectCallSuccess = async (url: string, method?: HttpMethod): Promise<any> => {
+export const expectCallSuccess = async (url: string, method?: string): Promise<any> => {
   const response = await getResponse(url, method)
   expect(response.status()).toBe(200)
   return response.json()
 }
 
-export const expectAdminApiCallSuccess = async (endOfUrl: string, method?: HttpMethod): Promise<void> => {
+export const expectAdminApiCallSuccess = async (endOfUrl: string, method?: string): Promise<void> => {
   const response = await getResponse(`${bpConfig.apiHost}/api/v2/admin/${endOfUrl}`, method)
   expect(response.status()).toBe(200)
 }
@@ -64,18 +62,18 @@ export const expectModuleApiCallSuccess = async (
   module: string,
   bot: string,
   resource: string,
-  method?: HttpMethod
+  method?: string
 ): Promise<void> => {
   const response = await getResponse(`${bpConfig.apiHost}/api/v1/bots/${bot}/mod/${module}/${resource}`, method)
   expect(response.status()).toBe(200)
 }
 
-export const expectBotApiCallSuccess = async (endOfUrl: string, method?: HttpMethod): Promise<void> => {
+export const expectBotApiCallSuccess = async (endOfUrl: string, method?: string): Promise<void> => {
   const response = await getResponse(`${bpConfig.apiHost}/api/v1/bots/${bpConfig.botId}/${endOfUrl}`, method)
   expect(response.status()).toBe(200)
 }
 
-export const expectStudioApiCallSuccess = async (endOfUrl: string, method?: HttpMethod): Promise<void> => {
+export const expectStudioApiCallSuccess = async (endOfUrl: string, method?: string): Promise<void> => {
   const response = await getResponse(`${bpConfig.apiHost}/api/v1/studio/${bpConfig.botId}/${endOfUrl}`, method)
   expect(response.status()).toBe(200)
 }
@@ -89,7 +87,7 @@ export const doesElementExist = async (selector: string): Promise<boolean> => {
   }
 }
 
-export const waitForBotApiResponse = async (endOfUrl: string, method?: HttpMethod): Promise<any> => {
+export const waitForBotApiResponse = async (endOfUrl: string, method?: string): Promise<any> => {
   const response = await getResponse(`${bpConfig.apiHost}/api/v1/bots/${bpConfig.botId}/${endOfUrl}`, method)
   return response.json()
 }
@@ -138,7 +136,7 @@ export const clickOnTreeNode = async (searchText: string, button: MouseButton = 
 export const closeToaster = async () => {
   await clickOn("svg[data-icon='cross']")
   await page.waitForFunction(() => {
-    return document.querySelector('.bp3-overlay')!.childElementCount === 0
+    return document.querySelector('.bp3-overlay')?.childElementCount === 0
   })
   await page.waitFor(500)
 }

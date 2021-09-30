@@ -16,16 +16,6 @@
     "typeRoots": ["./src/typings", "../../node_modules/@types", "./src/common"],
     "types": ["reflect-metadata", "jest"]
   },
-  "include": ["src"],
-  "exclude": [
-    "dist",
-    "out",
-    "**/node_modules/**/*.(ts|js)",
-    "src/**/*.test.*",
-    "src/**/static/**/*",
-    "src/admin/ui/**/*",
-    "src/ui-lite/**/*",
-    "src/ui-shared/**/*",
-    "src/ui-shared-lite/**/*"
-  ]
+  "include": ["src/**/*.ts"],
+  "exclude": ["dist", "src/**/*.test.*", "node_modules", "src/admin/ui/**/*"]
 }
