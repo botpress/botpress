@@ -8,7 +8,6 @@ services:
     image: redis:alpine
     ports: ['6379']
   botpress:
-    image: 'botpress/unit-tests:latest'
     build: ./
     links:
       - postgres
