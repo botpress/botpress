@@ -1,13 +1,14 @@
 import moment from 'moment'
 import { Dialog, ElementHandle, KeyInput, MouseButton, Page } from 'puppeteer'
 
+import { windowSize } from '../../../../jest-puppeteer.config'
 import { bpConfig } from '../assets/config'
 import { clickOn, expectMatchElement, fillField } from './expectPuppeteer'
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'OPTIONS'
 
 export const getPage = async (): Promise<Page> => {
-  await page.setViewport(bpConfig.windowSize)
+  await page.setViewport(windowSize)
   await page.setExtraHTTPHeaders({ 'Accept-Language': 'en-US,en;q=0.9' })
 
   await page.setUserAgent(

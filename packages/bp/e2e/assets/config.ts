@@ -1,7 +1,4 @@
-import { windowSize } from '../../../../jest-puppeteer.config'
-
 export const bpConfig = {
-  windowSize,
   email: 'admin',
   password: '123456',
   botId: 'test-bot',
