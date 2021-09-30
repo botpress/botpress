@@ -10,6 +10,7 @@ jobs:
         image: postgres:9.6.10
         env:
           POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
         ports:
           - 5432:5432
@@ -42,6 +43,11 @@ jobs:
       - name: Run tests
         run: |
           yarn test
+        env:
+          PG_DB: postgres
+          PG_USER: postgres
+          PG_PASSWORD: postgres
+          PG_PORT: 5432
 
   e2e:
     name: e2e
