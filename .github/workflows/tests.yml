@@ -23,6 +23,8 @@ jobs:
           file: ./build/tests/Dockerfile
           context: .
           push: false
+          load: true
+          tags: botpress:latest
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
       - name: Run tests
