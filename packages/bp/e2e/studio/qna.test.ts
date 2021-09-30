@@ -1,6 +1,6 @@
 import path from 'path'
 
-import { clickOn, expectMatch, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
+import { clickOn, expectMatch, expectMatchElement, fillField, uploadFile } from '../utils/expectPuppeteer'
 import {
   CONFIRM_DIALOG,
   expectBotApiCallSuccess,

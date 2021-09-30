@@ -1,5 +1,5 @@
 import { bpConfig } from '../assets/config'
-import { clickOn, expectMatch, expectMatchElement, fillField } from '../expectPuppeteer'
+import { clickOn, expectMatch, expectMatchElement, fillField } from '../utils/expectPuppeteer'
 import { closeToaster, CONFIRM_DIALOG, expectAdminApiCallSuccess, gotoAndExpect } from '../utils'
 
 describe('Admin - Users', () => {

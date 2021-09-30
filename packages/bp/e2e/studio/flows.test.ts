@@ -1,4 +1,4 @@
-import { clickOn, fillField, expectMatchElement, expectMatch } from '../expectPuppeteer'
+import { clickOn, fillField, expectMatchElement, expectMatch } from '../utils/expectPuppeteer'
 import {
   clickOnTreeNode,
   CONFIRM_DIALOG,

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import * as config from '../assets/auth-config.json'
 import { bpConfig } from '../assets/config'
-import { clickOn, fillField } from '../expectPuppeteer'
+import { clickOn, fillField } from '../utils/expectPuppeteer'
 import { getResponse, doesElementExist } from '../utils'
 
 describe('Auth UI', () => {

@@ -1,7 +1,7 @@
 import path from 'path'
 
 import { bpConfig } from '../assets/config'
-import { clickOn, expectMatch, fillField, uploadFile } from '../expectPuppeteer'
+import { clickOn, expectMatch, fillField, uploadFile } from '../utils/expectPuppeteer'
 import { closeToaster, expectAdminApiCallSuccess, expectCallSuccess, getResponse } from '../utils'
 
 describe('Admin - UI', () => {

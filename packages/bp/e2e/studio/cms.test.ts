@@ -1,6 +1,6 @@
 import path from 'path'
 
-import { clickOn, uploadFile } from '../expectPuppeteer'
+import { clickOn, uploadFile } from '../utils/expectPuppeteer'
 import { expectBotApiCallSuccess, expectStudioApiCallSuccess, gotoStudio, loginIfNeeded } from '../utils'
 
 const getElementCount = async (all: boolean = false): Promise<number> => {

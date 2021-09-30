@@ -1,5 +1,5 @@
 import { bpConfig } from '../assets/config'
-import { clickOn, fillField } from '../expectPuppeteer'
+import { clickOn, fillField } from '../utils/expectPuppeteer'
 import { expectAdminApiCallSuccess } from '../utils'
 
 describe('Admin - Init', () => {

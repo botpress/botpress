@@ -1,7 +1,7 @@
 import { Page } from 'puppeteer'
 
 import { bpConfig } from '../assets/config'
-import { clickOn, expectMatch, fillField } from '../expectPuppeteer'
+import { clickOn, expectMatch, fillField } from '../utils/expectPuppeteer'
 import { getPage, gotoAndExpect } from '../utils'
 
 const getMessageCount = async (page: Page): Promise<number> => {

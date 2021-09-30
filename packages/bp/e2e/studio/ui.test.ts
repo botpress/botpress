@@ -1,5 +1,5 @@
 import { bpConfig } from '../assets/config'
-import { clickOn, expectMatch } from '../expectPuppeteer'
+import { clickOn, expectMatch } from '../utils/expectPuppeteer'
 import { expectBotApiCallSuccess, gotoAndExpect, loginIfNeeded, triggerKeyboardShortcut } from '../utils'
 
 describe('Studio - UI', () => {

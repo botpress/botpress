@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios'
 
 import { bpConfig } from '../assets/config'
-import { clickOn, expectMatchElement } from '../expectPuppeteer'
+import { clickOn, expectMatchElement } from '../utils/expectPuppeteer'
 import { CONFIRM_DIALOG, expectAdminApiCallSuccess, getResponse, gotoAndExpect } from '../utils'
 
 describe('Admin - Logout', () => {

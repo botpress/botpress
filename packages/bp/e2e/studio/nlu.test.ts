@@ -1,4 +1,4 @@
-import { clickOn, fillField, expectMatch } from '../expectPuppeteer'
+import { clickOn, fillField, expectMatch } from '../utils/expectPuppeteer'
 import { expectStudioApiCallSuccess, gotoStudio, loginIfNeeded } from '../utils'
 
 describe('Studio - NLU', () => {

@@ -2,7 +2,7 @@ import moment from 'moment'
 import { Dialog, ElementHandle, KeyInput, MouseButton, Page } from 'puppeteer'
 
 import { bpConfig } from '../assets/config'
-import { clickOn, expectMatchElement, fillField } from '../expectPuppeteer'
+import { clickOn, expectMatchElement, fillField } from './expectPuppeteer'
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'OPTIONS'
 
