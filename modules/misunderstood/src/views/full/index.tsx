@@ -88,7 +88,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
   }
 
   setStateP<K extends keyof State>(update: Pick<State, K>) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       this.setState(update, () => {
         resolve()
       })
@@ -153,7 +153,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     await this.setStateP({
       eventCounts: newEventCounts,
       selectedEvent: null,
-      events: events.filter((event) => !eventIds.includes(event.id))
+      events: events.filter(event => !eventIds.includes(event.id))
     })
 
     // advance to the next event
@@ -283,11 +283,11 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     })
   }
 
-  onEventCheckedOrUnchecked = async (eventIds) => {
+  onEventCheckedOrUnchecked = async eventIds => {
     let checkedEventIds = [...this.state.checkedEventIds]
-    const remove = checkedEventIds.filter((id) => eventIds.includes(id)).length > 0
+    const remove = checkedEventIds.filter(id => eventIds.includes(id)).length > 0
     if (remove) {
-      checkedEventIds = checkedEventIds.filter((id) => !eventIds.includes(id))
+      checkedEventIds = checkedEventIds.filter(id => !eventIds.includes(id))
     } else {
       checkedEventIds = [...checkedEventIds, ...eventIds]
     }
@@ -305,7 +305,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
 
     await this.setStateP({
       selectAllChecked,
-      checkedEventIds: selectAllChecked ? this.state.events.map((e) => e.id) : []
+      checkedEventIds: selectAllChecked ? this.state.events.map(e => e.id) : []
     })
   }
 
@@ -313,7 +313,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     this.importInput.current.click()
   }
 
-  importData = (evt) => {
+  importData = evt => {
     try {
       let files = evt.files
       if (!files.length) {
@@ -321,7 +321,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
       }
       let file = files[0]
       let reader = new FileReader()
-      reader.onload = async (event) => {
+      reader.onload = async event => {
         let importEvents: Array<FlaggedEvent>
         const res = event.target.result
         try {
@@ -374,7 +374,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
 
     const groups = groupEventsByUtterance(events || [])
     const selectedUtterances = new Set()
-    groups.forEach(function (eventWithIndex, utterance) {
+    groups.forEach(function(eventWithIndex, utterance) {
       for (const {
         event: { id }
       } of eventWithIndex) {
@@ -415,7 +415,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
               ref={this.importInput}
               type={'file'}
               disabled={false}
-              onChange={(ev) => this.importData(ev.target)}
+              onChange={ev => this.importData(ev.target)}
               accept={'application/json'}
             />
           </div>
