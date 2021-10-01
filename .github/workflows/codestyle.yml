@@ -15,7 +15,7 @@ jobs:
           yarn
       - name: Run Prettier
         run: |
-          ./node_modules/prettier/bin-prettier.js --check '{src,modules}/**/*.ts' '!**/*.d.ts'
+          ./node_modules/prettier/bin-prettier.js --check '{src,modules}/**/*.{ts,tsx}' '!**/*.d.ts'
   eslint:
     name: Run ESLint on codebase
     runs-on: ubuntu-latest
