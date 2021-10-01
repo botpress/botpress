@@ -82,7 +82,7 @@ export default async (bp: typeof sdk, db: Db) => {
       try {
         const { value, error } = FlaggedEventArraySchema.validate(req.body)
         if (error !== undefined) {
-          throw error
+          throw new StandardError(error.message)
         }
         await db.importData(botId, value)
         res.sendStatus(200)

@@ -14,7 +14,7 @@
   "export": "Exporter",
   "failedToImportFile": "Erreur d'importation du fichier: {err}",
   "failedToParseJSON": "Erreur de conversion du fichier JSON",
-  "fileImportedSuccess": "Erreur d'importation du fichier",
+  "fileImportedSuccess": "Fichier importé avec succès",
   "flaggedByAction": "Signalé par action",
   "flaggedByHook": "Signalé par hook",
   "flaggedByThumbsDown": "Signalé par désapprobateur",

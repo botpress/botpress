@@ -105,6 +105,6 @@ export const makeMockGhost = (fileData: { [key: string]: { [key: string]: any } 
   }
 }
 
-describe('must define at least one test', () => {
+describe.skip('must define at least one test', () => {
   it('passes', () => {})
 })

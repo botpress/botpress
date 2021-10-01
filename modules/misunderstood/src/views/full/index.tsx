@@ -320,6 +320,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
         return
       }
       let file = files[0]
+      // TODO: make this a generic filereader, we probably use this multiple times
       let reader = new FileReader()
       reader.onload = async event => {
         let importEvents: Array<FlaggedEvent>

@@ -117,8 +117,7 @@ export default class Db {
     }
 
     // sort intents and QnAs
-    const qnaEvents = events.filter(({ resolutionType }) => resolutionType === RESOLUTION_TYPE.qna)
-    const nluEvents = events.filter(({ resolutionType }) => resolutionType === RESOLUTION_TYPE.intent)
+    const [qnaEvents, nluEvents] = _.partition(events, { resolutionType: RESOLUTION_TYPE.qna })
 
     // Assert the intents and QnAs already exist
     const fileList = [
@@ -126,7 +125,7 @@ export default class Db {
       ...(await botGhost.directoryListing('qna', '*.json'))
     ]
     let missing: Array<string> = []
-    for (const event of [...qnaEvents, ...nluEvents]) {
+    for (const event of events) {
       if (!fileList.includes(`${event.resolution}.json`)) {
         missing.push(event.resolution)
       }
@@ -140,6 +139,7 @@ export default class Db {
     await Bluebird.mapSeries(nluEvents, async ev => addNLU(ev as DbFlaggedEvent, botGhost))
 
     // import data into misunderstood DB
+    // TODO: batch these writes. addEvent() does some extra checking that makes this possibly non-trivial
     for (let ev of events) {
       ev.botId = botId // overwrite the exported botId with the current botId
       await this.addEvent(ev)
