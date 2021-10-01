@@ -15,6 +15,7 @@ interface CssExports {
   'filterItem': string;
   'filters': string;
   'filtersShowing': string;
+  'fourQuarter': string;
   'fullGrid': string;
   'fullWidth': string;
   'genericMetric': string;

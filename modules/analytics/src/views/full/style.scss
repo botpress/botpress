@@ -214,6 +214,15 @@ $success-color: #56b149;
     }
   }
 
+  &.fourQuarter {
+    margin: 0 1% 20px;
+    width: 100%;
+
+    .metricName {
+      min-height: 0;
+    }
+  }
+
   &.list {
     justify-content: flex-start;
     min-height: 204px;
