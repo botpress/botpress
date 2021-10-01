@@ -1,6 +1,6 @@
 import 'jest'
 import { addQnA, addNLU, removeUtteranceFromIntent } from './applyChanges'
-import { makeMockGhost } from './mockGhost.test'
+import { makeMockGhost } from '../../../../packages/bp/src/core/bpfs/mockGhost.test'
 import { FLAG_REASON } from '../types'
 
 describe('applyChanges', () => {

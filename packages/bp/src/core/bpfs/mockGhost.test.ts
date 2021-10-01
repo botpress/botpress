@@ -26,7 +26,7 @@ export const makeMockGhost = (fileData: { [key: string]: { [key: string]: any } 
         } else {
           fileData[rootFolder][file] = JSON.parse(content.toString())
         }
-        return
+        return Promise.resolve()
       }
     ),
 
@@ -49,17 +49,17 @@ export const makeMockGhost = (fileData: { [key: string]: { [key: string]: any } 
           return []
         }
         let files: string[] = Object.keys(fileData[rootFolder])
-        files = files.filter(f => minimatch(f, fileEndingPattern, { matchBase: true }))
+        files = files.filter((f) => minimatch(f, fileEndingPattern, { matchBase: true }))
         const toExclude = exclude || options?.excludes
         if (typeof toExclude === 'string') {
-          files = files.filter(f => !minimatch(f, toExclude, { matchBase: true }))
+          files = files.filter((f) => !minimatch(f, toExclude, { matchBase: true }))
         } else if (Array.isArray(toExclude)) {
           for (const ex of toExclude) {
-            files = files.filter(f => !minimatch(f, ex, { matchBase: true }))
+            files = files.filter((f) => !minimatch(f, ex, { matchBase: true }))
           }
         }
         if (!(includeDotFiles || options?.includeDotFiles)) {
-          files = files.filter(f => !f.startsWith('.'))
+          files = files.filter((f) => !f.startsWith('.'))
         }
         return files
       }
@@ -68,7 +68,7 @@ export const makeMockGhost = (fileData: { [key: string]: { [key: string]: any } 
     deleteFile: jest.fn(
       (rootFolder: string, file: string): Promise<void> => {
         delete fileData[rootFolder][file]
-        return
+        return Promise.resolve()
       }
     ),
 
@@ -76,7 +76,7 @@ export const makeMockGhost = (fileData: { [key: string]: { [key: string]: any } 
       (rootFolder: string, fromName: string, toName: string): Promise<void> => {
         fileData[rootFolder][toName] = fileData[rootFolder][fromName]
         delete fileData[rootFolder][fromName]
-        return
+        return Promise.resolve()
       }
     ),
 
