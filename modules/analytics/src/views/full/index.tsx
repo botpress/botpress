@@ -436,7 +436,7 @@ const Analytics: FC<any> = ({ bp }) => {
     )
   }
 
-  const renderInteractions = () => {
+  const renderInteractions = async () => {
     return (
       <div className={cx(style.metricsContainer, style.fullWidth)}>
         <ItemsList
@@ -446,7 +446,7 @@ const Analytics: FC<any> = ({ bp }) => {
           className={cx(style.genericMetric, style.quarter, style.list)}
         />
         <ItemsList
-          name={lang.tr('module.analytics.mostAskedQuestions')}
+          name={lang.tr('module.analytics.topIntents')}
           items={state.topQnaQuestions.map(q => ({
             count: q.count,
             upVoteCount: q.upVoteCount,
@@ -455,6 +455,15 @@ const Analytics: FC<any> = ({ bp }) => {
             onClick: q.question ? navigateToElement(q.id, 'qna') : undefined
           }))}
           className={cx(style.genericMetric, style.threeQuarter, style.list)}
+        />
+        <ItemsList
+          name={lang.tr('module.analytics.mostAskedQuestions')}
+          items={state.topQnaQuestions.map(q => ({
+            count: q.count,
+            label: q.question || renderDeletedQna(q.id),
+            onClick: q.question ? navigateToElement(q.id, 'qna') : undefined
+          }))}
+          className={cx(style.genericMetric, style.fourQuarter, style.list)}
         />
       </div>
     )
